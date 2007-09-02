@@ -46,6 +46,9 @@ PEGASUS_NAMESPACE_BEGIN
 
 CMPIProviderModule::CMPIProviderModule(const String & fileName)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPIProviderModule::CMPIProviderModule()");
     genericProviderModule=0;
 
     String resolvedFileName;
@@ -59,6 +62,7 @@ CMPIProviderModule::CMPIProviderModule(const String & fileName)
     else resolvedFileName=fileName;
 
     _library = DynamicLibrary(resolvedFileName);
+    PEG_METHOD_EXIT();
 }
 
 CMPIProviderModule::~CMPIProviderModule()
@@ -67,6 +71,7 @@ CMPIProviderModule::~CMPIProviderModule()
 
 ProviderVector CMPIProviderModule::load(const String & providerName)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPIProviderModule::load()");
     String realProviderName(providerName);
     realProviderName.remove(0,1);
 
@@ -204,7 +209,7 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
     }
 
     genericProviderModule=miVector.genericMode!=0;
-
+    PEG_METHOD_EXIT();
     return miVector;
 }
 

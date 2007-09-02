@@ -38,13 +38,13 @@
 #include "CMPI_Ftabs.h"
 #include "CMPI_Value.h"
 #include "CMPI_String.h"
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 extern "C"
 {
-
     static CMPIStatus refRelease(CMPIObjectPath* eRef)
     {
         CIMObjectPath* ref = (CIMObjectPath*)eRef->hdl;
@@ -67,6 +67,10 @@ extern "C"
         CIMObjectPath *ref=(CIMObjectPath*)eRef->hdl;
         if (!ref)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid handle in CMPIObjectPath:refClone");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return NULL;
         }
@@ -89,10 +93,19 @@ extern "C"
         CIMObjectPath* ref = (CIMObjectPath*)eRef->hdl;
         if (!ref)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid handle in CMPIObjectPath:refSetNameSpace");
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
         if (!ns)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid Parameter in \
+                CMPIObjectPath:refSetNameSpace");
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
         ref->setNameSpace(String(ns));
@@ -106,6 +119,10 @@ extern "C"
         CIMObjectPath* ref = (CIMObjectPath*)eRef->hdl;
         if (!ref)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid handle in CMPIObjectPath:refGetNameSpace");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return NULL;
         }
@@ -120,10 +137,19 @@ extern "C"
         CIMObjectPath* ref = (CIMObjectPath*)eRef->hdl;
         if (!ref)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid handle in CMPIObjectPath:refSetHostName");
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
         if (!hn)
         {
+            PEG_TRACE((
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid parameter %s in \
+                CMPIObjectPath:refSetHostName", *hn));
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
         ref->setHost(String(hn));
@@ -137,6 +163,10 @@ extern "C"
         CIMObjectPath* ref = (CIMObjectPath*)eRef->hdl;
         if (!ref)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid handle in CMPIObjectPath:refGetHostName");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return NULL;
         }
@@ -151,10 +181,19 @@ extern "C"
         CIMObjectPath* ref = (CIMObjectPath*)eRef->hdl;
         if (!ref)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid handle in CMPIObjectPath:refSetClassName");
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
         if (!cn)
         {
+            PEG_TRACE((
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid parameter %s in \
+                CMPIObjectPath:refSetClassName", *cn));
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
         ref->setClassName(String(cn));
@@ -168,6 +207,10 @@ extern "C"
         CIMObjectPath* ref = (CIMObjectPath*)eRef->hdl;
         if (!ref)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid handle in CMPIObjectPath:refGetClassName");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return NULL;
         }
@@ -200,10 +243,19 @@ extern "C"
         CIMObjectPath* ref = (CIMObjectPath*)eRef->hdl;
         if (!ref)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid handle in CMPIObjectPath:refAddKey");
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
         if (!name)
         {
+            PEG_TRACE((
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid parameter %s in \
+                CMPIObjectPath:refAddKey", *name));
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
         Array<CIMKeyBinding> keyBindings = ref->getKeyBindings();
@@ -232,11 +284,20 @@ extern "C"
 
         if (!ref)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid handle in CMPIObjectPath:refGetKey");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return data;
         }
         if (!name)
         {
+            PEG_TRACE((
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid parameter %s in \
+                CMPIObjectPath:refGetKey", *name));
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return data;
         }
@@ -265,6 +326,10 @@ extern "C"
 
         if (!ref)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid handle in CMPIObjectPath:refGetKeyAt");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return data;
         }
@@ -274,6 +339,10 @@ extern "C"
 
         if (pos >= akb.size())
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Property Not Found - CMPIObjectPath:refGetKeyAt");
             CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
             return data;
         }
@@ -293,6 +362,10 @@ extern "C"
         CIMObjectPath* ref = (CIMObjectPath*)eRef->hdl;
         if (!ref)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid handle in CMPIObjectPath:refGetKeyCount");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return 0;
         }
@@ -309,6 +382,11 @@ extern "C"
         CIMObjectPath* src = (CIMObjectPath*)eSrc->hdl;
         if (!ref || !src)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid handle in \
+                CMPIObjectPath:refSetNameSpaceFromObjectPath");
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
         ref->setNameSpace(src->getNameSpace());
@@ -323,6 +401,11 @@ extern "C"
         CIMObjectPath* src = (CIMObjectPath*)eSrc->hdl;
         if (!ref || !src)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid handle in \
+                CMPIObjectPath:refSetHostAndNameSpaceFromObjectPath");
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
         ref->setNameSpace(src->getNameSpace());
@@ -335,6 +418,10 @@ extern "C"
         CIMObjectPath* ref = (CIMObjectPath*)eRef->hdl;
         if (!ref)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid handle in CMPIObjectPath:refToString");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return NULL;
         }

@@ -44,24 +44,20 @@
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/Mutex.h>
 #include <string.h>
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 Mutex errorChainMutex;
 
-#define DDD(X) \
-if (_cmpi_trace) \
-{ \
-    X; \
-}
-
-extern int _cmpi_trace;
-
 CMPIStatus resolveEmbeddedInstanceTypes(
     OperationResponseHandler * opRes,
     CIMInstance & inst)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPI_Result:resolveEmbeddedInstanceTypes()");
     CIMOperationRequestMessage * request =
         dynamic_cast<CIMOperationRequestMessage *>(opRes->getRequest());
     if (request->operationContext.contains(NormalizerContextContainer::NAME) &&
@@ -93,6 +89,7 @@ CMPIStatus resolveEmbeddedInstanceTypes(
                         String("Could not find property ")
                     + currentProp.getName().getString()
                     + " in class definition";
+                    PEG_METHOD_EXIT();
                     CMReturnWithString(CMPI_RC_ERR_FAILED,
                         (CMPIString*)string2CMPIString(message));
                 }
@@ -134,6 +131,7 @@ CMPIStatus resolveEmbeddedInstanceTypes(
        ObjectNormalizer will do the work in the above try block.
       }
      */
+    PEG_METHOD_EXIT();
     CMReturn(CMPI_RC_OK);
 }
 
@@ -145,13 +143,26 @@ extern "C"
         const CMPIValue* data,
         const CMPIType type) 
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Result:resultReturnData()");
         CMPIrc rc;
         if (eRes->hdl == NULL)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid handle in CMPI_Result:resultReturnData");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
         if (data == NULL)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received Invalid Parameter in CMPI_Result:resultReturnData");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
 
@@ -199,6 +210,7 @@ extern "C"
                         {
                             String message(
                                 "Method not found in class definition");
+                            PEG_METHOD_EXIT();
                             CMReturnWithString(CMPI_RC_ERR_FAILED,
                                 (CMPIString*)string2CMPIString(message));
                         }
@@ -215,6 +227,7 @@ extern "C"
                     }
                     catch (Exception & e)
                     {
+                        PEG_METHOD_EXIT();
                         CMReturnWithString(CMPI_RC_ERR_FAILED,
                             (CMPIString*)string2CMPIString(e.getMessage()));
                     }
@@ -235,12 +248,16 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: resultReturnData - msg: "
-                    <<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: resultReturnData - msg: " + e.getMessage());
+            PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
                 (CMPIString*)string2CMPIString(e.getMessage()));
         }
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
@@ -248,13 +265,32 @@ extern "C"
         const CMPIResult* eRes,
         const CMPIInstance* eInst)
     {
-
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Result:resultReturnInstance()");
         InstanceResponseHandler* res=(InstanceResponseHandler*)eRes->hdl;
         if ((res == NULL) || (eInst == NULL))
+        {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid parameter res || eInst in \
+                CMPI_Result:resultReturnInstance");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+        }
 
         if (!eInst->hdl)
+        {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid parameter eInst->hdl in \
+                CMPI_Result:resultReturnInstance");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+        }
+
         try
         {
             if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0)
@@ -328,6 +364,7 @@ extern "C"
 
             if (status.rc != CMPI_RC_OK)
             {
+                PEG_METHOD_EXIT();
                 return status;
             }
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
@@ -336,12 +373,16 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: resultReturnInstance - msg: "
-                    <<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: resultReturnInstance - msg: " + e.getMessage());
+            PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
                 (CMPIString*)string2CMPIString(e.getMessage()));
         }
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
@@ -349,13 +390,33 @@ extern "C"
         const CMPIResult* eRes,
         const CMPIInstance* eInst)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Result:resultReturnObject()");
         ObjectResponseHandler* res=(ObjectResponseHandler*)eRes->hdl;
 
         if ((res == NULL) || (eInst == NULL))
+        {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid parameter res || eInst in \
+                CMPI_Result:resultReturnObject");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+        }
 
         if (!eInst->hdl)
+        {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid parameter eInst->hdl in \
+                CMPI_Result:resultReturnObject");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+        }
+
         try
         {
             if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0)
@@ -434,6 +495,7 @@ extern "C"
 
             if (status.rc != CMPI_RC_OK)
             {
+                PEG_METHOD_EXIT();
                 return status;
             }
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
@@ -442,12 +504,16 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: resultReturnObject - msg:"
-                    <<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: resultReturnObject - msg: " + e.getMessage());
+            PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
                 (CMPIString*)string2CMPIString(e.getMessage()));
         }
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
@@ -455,12 +521,32 @@ extern "C"
         const CMPIResult* eRes,
         const CMPIInstance* eInst)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Result:resultReturnExecQuery()");
         ExecQueryResponseHandler* res=(ExecQueryResponseHandler*)eRes->hdl;
         if ((res == NULL) || (eInst == NULL))
+        {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid parameter res || eInst in \
+                CMPI_Result:resultReturnExecQuery");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+        }
 
         if (!eInst->hdl)
+        {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid parameter eInst->hdl in \
+                CMPI_Result:resultReturnExecQuery");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+        }
+
         try
         {
             if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0)
@@ -508,25 +594,48 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: resultReturnExecQuery - msg:"
-                    <<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: resultReturnExecQuery - msg: " + e.getMessage());
+            PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
                 (CMPIString*)string2CMPIString(e.getMessage()));
         }
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
     PEGASUS_STATIC CMPIStatus resultReturnObjectPath(
         const CMPIResult* eRes,
         const CMPIObjectPath* eRef)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Result:resultReturnObjectPath()");
         ObjectPathResponseHandler* res=(ObjectPathResponseHandler*)eRes->hdl;
 
         if ((res == NULL) || (eRef == NULL))
+        {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid parameter res || eRef in \
+                CMPI_Result:resultReturnObjectPath");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
-
+        }
         if (!eRef->hdl)
+        {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid parameter eRef->hdl in \
+                CMPI_Result:resultReturnObjectPath");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+        }
+
         try
         {
             if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0)
@@ -539,20 +648,36 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: resultReturnObjectPath - msg: "
-                <<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: resultReturnObjectPath - msg: " + e.getMessage());
+            PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
                 (CMPIString*)string2CMPIString(e.getMessage()));
         }
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
     PEGASUS_STATIC CMPIStatus resultReturnInstDone(const CMPIResult* eRes)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Result:resultReturnInstDone()");
         InstanceResponseHandler* res=(InstanceResponseHandler*)eRes->hdl;
         if (!res)
+        {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid parameter in \
+                CMPI_Result:resultReturnInstDone");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+        }
+
         try
         {
             if ((((CMPI_Result*)
@@ -562,21 +687,36 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: resultReturnInstDone - msg: "
-                    <<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: resultReturnInstDone - msg: " + e.getMessage());
+            PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
                 (CMPIString*)string2CMPIString(e.getMessage()));
         }
-
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
     PEGASUS_STATIC CMPIStatus resultReturnRefDone(const CMPIResult* eRes)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Result:resultReturnRefDone()");
         ObjectPathResponseHandler* res=(ObjectPathResponseHandler*)eRes->hdl;
         if (!res)
+        {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid parameter in \
+                CMPI_Result:resultReturnRefDone");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+        }
+
         try
         {
             if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0)
@@ -586,20 +726,36 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: resultReturnRefDone - msg: "
-                    <<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: resultReturnRefDone - msg: " + e.getMessage());
+            PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
                 (CMPIString*)string2CMPIString(e.getMessage()));
         }
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
     PEGASUS_STATIC CMPIStatus resultReturnDataDone(const CMPIResult* eRes)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Result:resultReturnDataDone()");
         ResponseHandler* res=(ResponseHandler*)eRes->hdl;
         if (!res)
+        {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid parameter in \
+                CMPI_Result:resultReturnDataDone");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+        }
+
         try
         {
             if ((((CMPI_Result*)
@@ -609,21 +765,37 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: resultReturnDataDone - msg: "
-                    <<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: resultReturnDataDone - msg: " + e.getMessage());
+            PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
                 (CMPIString*)string2CMPIString(e.getMessage()));
         }
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
     PEGASUS_STATIC CMPIStatus resultReturnMethDone(const CMPIResult* eRes)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Result:resultReturnMethDone()");
         MethodResultResponseHandler* res=
             (MethodResultResponseHandler*)eRes->hdl;
         if (!res)
+        {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid parameter in \
+                CMPI_Result:resultReturnMethDone");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+        }
+
         try
         {
             if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0)
@@ -633,20 +805,36 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: resultReturnMethDone - msg: "
-                    <<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: resultReturnMethDone - msg: " + e.getMessage());
+            PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
                 (CMPIString*)string2CMPIString(e.getMessage()));
         }
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
     PEGASUS_STATIC CMPIStatus resultReturnObjDone(const CMPIResult* eRes)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Result:resultReturnObjDone()");
         ObjectResponseHandler* res=(ObjectResponseHandler*)eRes->hdl;
         if (!res)
+        {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid parameter in \
+                CMPI_Result:resultReturnObjDone");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+        }
+
         try
         {
             if ((((CMPI_Result*)
@@ -656,20 +844,36 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: resultReturnObjDone - msg: "
-                    <<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: resultReturnObjDone - msg: " + e.getMessage());
+            PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
                (CMPIString*)string2CMPIString(e.getMessage()));
         }
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
     PEGASUS_STATIC CMPIStatus resultReturnExecQueryDone(const CMPIResult* eRes)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Result:resultReturnExecQueryDone()");
         ExecQueryResponseHandler* res=(ExecQueryResponseHandler*)eRes->hdl;
         if (!res)
+        {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid parameter in \
+                CMPI_Result:resultReturnExecQueryDone");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+        }
+
         try
         {
             if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0)
@@ -679,12 +883,17 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: resultReturnExecQueryDone - msg: "
-                   <<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: resultReturnExecQueryDone - msg: "
+                + e.getMessage());
+            PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
                 (CMPIString*)string2CMPIString(e.getMessage()));
         }
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
@@ -692,23 +901,44 @@ extern "C"
         const CMPIResult* eRes,
         const CMPIError* er)
     {
-
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Result:resultReturnError()");
         CMPIStatus rrc={CMPI_RC_OK,NULL};
 
         if (eRes->hdl == NULL)
+        {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid parameter eRes->hdl in \
+                CMPI_Result:resultReturnError");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+        }
+
         if (er == NULL)
+        {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid handle in \
+                CMPI_Result:resultReturnError");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
+        }
 
         CMPIError *clonedError = er->ft->clone(er,&rrc);
         if (rrc.rc != CMPI_RC_OK)
         {
+            PEG_METHOD_EXIT();
             return rrc;
         }
 
         AutoMutex mtx(errorChainMutex);
         ((CMPI_Error*)clonedError)->nextError = ((CMPI_Result*)eRes)->resError;
         ((CMPI_Result*)eRes)->resError = (CMPI_Error*)clonedError;
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 

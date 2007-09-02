@@ -45,11 +45,10 @@
 #include <Pegasus/Common/Mutex.h>
 #include <string.h>
 #include <new>
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
-
-    extern int _cmpi_trace;
 
 extern "C" 
 {
@@ -76,10 +75,14 @@ extern "C"
 
     static CMPIInstance* instClone(const CMPIInstance* eInst, CMPIStatus* rc) 
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Instance:instClone()");
         CIMInstance* inst=(CIMInstance*)eInst->hdl;
         if (!inst)
         {
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+            PEG_METHOD_EXIT();
             return NULL;
         }
         try
@@ -89,11 +92,15 @@ extern "C"
             cInst.release();
             obj->unlink();
             CMSetStatus(rc,CMPI_RC_OK);
-            return reinterpret_cast<CMPIInstance *>(obj.release());
+            CMPIInstance* cmpiInstance = 
+                reinterpret_cast<CMPIInstance *>(obj.release());
+            PEG_METHOD_EXIT();
+            return cmpiInstance;
         }
         catch (const PEGASUS_STD(bad_alloc)&)
         {
             CMSetStatus(rc, CMPI_RC_ERROR_SYSTEM);
+            PEG_METHOD_EXIT();
             return NULL;
         }
     }
@@ -137,7 +144,6 @@ extern "C"
     static CMPIData instGetProperty(const CMPIInstance* eInst, 
         const char *name, CMPIStatus* rc)   
     {
-
         CMPIData data={0,CMPI_nullValue|CMPI_notFound,{0}};
 
         if (!eInst->hdl)
@@ -180,9 +186,13 @@ extern "C"
         const char* name, const CMPIValue* data, const CMPIType type,
         const char* origin)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Instance:instSetPropertyWithOrigin()");
         CIMInstance *inst=(CIMInstance*)eInst->hdl;
         if (!inst)
         {
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
         char **list=(char**)(reinterpret_cast<const CMPI_Object*>(eInst))->priv;
@@ -195,6 +205,7 @@ extern "C"
                 if (System::strcasecmp(name,*list)==0) goto ok;
                 list++;
             }
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_OK);
         }
 
@@ -256,37 +267,48 @@ extern "C"
             }
             catch (const TypeMismatchException &)
             {
-                if (_cmpi_trace)
+                PEG_TRACE((
+                    TRC_CMPIPROVIDERINTERFACE,
+                    Tracer::LEVEL2,
+                    " TypeMisMatch exception for: %s",
+                    name));
+                if (getenv("PEGASUS_CMPI_CHECKTYPES")!=NULL)
                 {
-                    cerr<<"-+- TypeMisMatch exception for: "<<name<<endl;
-                    if (getenv("PEGASUS_CMPI_CHECKTYPES")!=NULL)
-                    {
-                        cerr<<"-+- Aborting because of CMPI_CHECKTYPES"<<endl;
+                    PEG_TRACE_CSTRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL2,
+                        " Aborting because of CMPI_CHECKTYPES..");
                         abort();
-                    }
                 }
+                PEG_METHOD_EXIT();
                 CMReturn(CMPI_RC_ERR_TYPE_MISMATCH);
             }
             catch (const InvalidNameException &)
             {
-                if (_cmpi_trace)
-                {
-                    cerr<<"-+- InvalidName exception for: "<<origin<<endl;
-                }
+                PEG_TRACE((
+                    TRC_CMPIPROVIDERINTERFACE,
+                    Tracer::LEVEL2,
+                    " InvalidName exception for: %s",
+                    origin));
+
+                PEG_METHOD_EXIT();
                 CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
             }
             catch (const Exception &e)
             {
-                if (_cmpi_trace)
+                PEG_TRACE_STRING(
+                    TRC_CMPIPROVIDERINTERFACE,
+                    Tracer::LEVEL2,
+                    "  " + e.getMessage() + " exception for " + name);
+                if (getenv("PEGASUS_CMPI_CHECKTYPES")!=NULL)
                 {
-                    cerr<<"-+- "<<e.getMessage()<<" exception for: "<<name
-                        <<endl;
-                    if (getenv("PEGASUS_CMPI_CHECKTYPES")!=NULL)
-                    {
-                        cerr<<"-+- Aborting because of CMPI_CHECKTYPES"<<endl;
+                    PEG_TRACE_CSTRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL2,
+                        " Aborting because of CMPI_CHECKTYPES..");
                         abort();
-                    }
                 }
+                PEG_METHOD_EXIT();
                 CMReturnWithString(CMPI_RC_ERR_FAILED,
                     reinterpret_cast<CMPIString*>(
                     new CMPI_Object(e.getMessage())));
@@ -323,6 +345,7 @@ extern "C"
                 }
             }
         }
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
@@ -335,10 +358,14 @@ extern "C"
     static CMPIObjectPath* instGetObjectPath(const CMPIInstance* eInst,
         CMPIStatus* rc) 
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Instance:instGetObjectPath()");
         CIMInstance* inst=(CIMInstance*)eInst->hdl;
         if (!inst)
         {
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+            PEG_METHOD_EXIT();
             return NULL;
         }
         const CIMObjectPath &clsRef=inst->getPath();
@@ -375,11 +402,15 @@ extern "C"
             obj.reset(new CMPI_Object(objPath.get()));
             objPath.release();
             CMSetStatus(rc,CMPI_RC_OK);
-            return reinterpret_cast<CMPIObjectPath*> (obj.release()); 
+            CMPIObjectPath* cmpiObjectPath = 
+                reinterpret_cast<CMPIObjectPath*> (obj.release());
+            PEG_METHOD_EXIT();
+            return cmpiObjectPath; 
         }
         catch (const PEGASUS_STD(bad_alloc)&)
         {
             CMSetStatus(rc, CMPI_RC_ERROR_SYSTEM);
+            PEG_METHOD_EXIT();
             return NULL;
         }
     }
@@ -388,13 +419,18 @@ extern "C"
         CMPIInstance* eInst, 
         const CMPIObjectPath *obj)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Instance:instSetObjectPath()");
         CIMInstance* inst=(CIMInstance*)eInst->hdl;
         if (inst==NULL)
         {
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
         if (obj==NULL)
         {
+            PEG_METHOD_EXIT();
             CMReturn ( CMPI_RC_ERR_INVALID_PARAMETER);
         }
 
@@ -405,18 +441,24 @@ extern "C"
         }
         catch (const TypeMismatchException &e)
         {
+            PEG_METHOD_EXIT();
             CMReturnWithString(CMPI_RC_ERR_FAILED,
                 reinterpret_cast<CMPIString*>(
                     new CMPI_Object(e.getMessage())));
         }
+        PEG_METHOD_EXIT();
         CMReturn ( CMPI_RC_OK);
     }
 
     static CMPIStatus instSetPropertyFilter(CMPIInstance* eInst,
         const char** propertyList, const char **keys)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Instance:instSetPropertyFilter()");
         if (!eInst->hdl)
         {
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
 
@@ -446,6 +488,7 @@ extern "C"
         for (i=0; keys[i]; i++,s++) list[s]=strdup(keys[i]);
         inst->priv=(void*)list;
 
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
@@ -501,8 +544,13 @@ CMPIInstanceFT *CMPI_InstanceOnStack_Ftab=&instanceOnStack_FT;
 
 CMPI_InstanceOnStack::CMPI_InstanceOnStack(const CIMInstance& ci)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPI_InstanceOnStack::CMPI_InstanceOnStack()");
+
     hdl=(void*)&ci;
     ft=CMPI_InstanceOnStack_Ftab;
+    PEG_METHOD_EXIT();
 }
 
 

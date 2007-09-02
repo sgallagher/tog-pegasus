@@ -48,13 +48,10 @@
 #include <Pegasus/WQL/WQLInstancePropertySource.h>
 #include <Pegasus/Provider/CIMOMHandleQueryContext.h>
 #include <Pegasus/WQL/WQLParser.h>
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
-
-#define DDD(X)   if (_cmpi_trace) X;
-
-extern int _cmpi_trace;
 
 extern "C"
 {
@@ -91,6 +88,9 @@ extern "C"
         const CMPISelectExp * eSx,
         CMPIStatus * rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_SelectExp:selxClone()");
         CMPI_SelectExp *new_se;
         CMPI_SelectExp *se = (CMPI_SelectExp*) eSx;
 
@@ -101,6 +101,7 @@ extern "C"
         !se->wql_stmt || se->_context || se->hdl )
         {
             CMSetStatus (rc, CMPI_RC_ERR_NOT_SUPPORTED);
+            PEG_METHOD_EXIT();
             return NULL;
         }
 
@@ -126,6 +127,7 @@ extern "C"
             new_se = new CMPI_SelectExp (wql_stmt, true);
         }
 
+        PEG_METHOD_EXIT();
         return(CMPISelectExp*) new_se;
     }
 
@@ -136,7 +138,9 @@ extern "C"
         CMPI_SelectExp * sx,
         CMPIStatus * rc)
     {
-
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_SelectExp:_check_WQL()");
         if( sx->wql_stmt == NULL )
         {
             WQLSelectStatement *stmt = new WQLSelectStatement ();
@@ -146,9 +150,10 @@ extern "C"
             }
             catch( const Exception &e )
             {
-                DDD(
-                    cout<<"### exception: _check_WQL - msg: "
-                        <<e.getMessage()<<endl);
+                PEG_TRACE_STRING(
+                    TRC_CMPIPROVIDERINTERFACE,
+                    Tracer::LEVEL2,
+                    "Exception: _check_WQL - msg: " + e.getMessage());
                 if( rc ) 
                 {
                     CMSetStatusWithString(
@@ -158,13 +163,18 @@ extern "C"
                 }
                 
                 delete stmt;
+                PEG_METHOD_EXIT();
                 return false;
             }
             catch( ... )
             {
-                DDD(cout<<"### exception: _check_WQL - ... " <<endl);
+                PEG_TRACE_CSTRING(
+                    TRC_CMPIPROVIDERINTERFACE,
+                    Tracer::LEVEL2,
+                    "Exception: Unknown Exception in _check_WQL");
                 delete stmt;
                 CMSetStatus (rc, CMPI_RC_ERR_INVALID_QUERY);
+                PEG_METHOD_EXIT();
                 return false;
             }
             /**
@@ -174,6 +184,7 @@ extern "C"
                                  
         /* sx->wql_stmt ... */
         }
+        PEG_METHOD_EXIT();
         return true;
     }
 #ifndef PEGASUS_DISABLE_CQL
@@ -181,6 +192,9 @@ extern "C"
         CMPI_SelectExp * sx,
         CMPIStatus * rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_SelectExp:_check_CQL()");
         Boolean fail = false;
         if( sx->cql_stmt == NULL )
         {
@@ -190,6 +204,7 @@ extern "C"
             if( sx->_context == NULL )
             {
                 CMSetStatus (rc, CMPI_RC_ERROR_SYSTEM);
+                PEG_METHOD_EXIT();
                 return false;
             }
             CQLSelectStatement *selectStatement =
@@ -202,8 +217,10 @@ extern "C"
             }
             catch( const Exception &e )
             {
-                DDD(cout<<"### exception: _check_CQL - msg: "
-                        <<e.getMessage()<<endl);
+                PEG_TRACE_STRING(
+                    TRC_CMPIPROVIDERINTERFACE,
+                    Tracer::LEVEL2,
+                    "Exception: _check_CQL - msg: " + e.getMessage());
                 if( rc )
                 {
                     CMSetStatusWithString(
@@ -216,17 +233,22 @@ extern "C"
             }
             catch( ... )
             {
-                DDD(cout<<"### exception: _check_CQL - ... " <<endl);
+                PEG_TRACE_CSTRING(
+                    TRC_CMPIPROVIDERINTERFACE,
+                    Tracer::LEVEL2,
+                    "Exception: Unknown Exception in _check_CQL");
                 CMSetStatus (rc, CMPI_RC_ERR_INVALID_QUERY);
                 fail = true;
             }
             if( fail )
             {
                 delete selectStatement;
+                PEG_METHOD_EXIT();
                 return false;
             }
             sx->cql_stmt = selectStatement;
         }
+        PEG_METHOD_EXIT();
         return true;
     }
 #endif
@@ -235,15 +257,30 @@ extern "C"
     const CMPIInstance * inst,
     CMPIStatus * rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_SelectExp:selxEvaluate()");
         CMPI_SelectExp *sx = (CMPI_SelectExp *) eSx;
         if( !inst )
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid Parameter in \
+                CMPI_SelectExp:selxEvaluate");
             CMSetStatus (rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return false;
         }
         if( !inst->hdl )
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid parameter inst->hdl in \
+                CMPI_SelectExp:selxEvaluate");
             CMSetStatus (rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return false;
         }
         CIMInstance *instance = (CIMInstance *) inst->hdl;
@@ -258,28 +295,37 @@ extern "C"
             {
                 try
                 {
+                    PEG_METHOD_EXIT();
                     return sx->wql_stmt->evaluate (*(CIMInstance *) inst->hdl);
                 }
                 catch( const Exception &e )
                 {
-                    DDD(cout<<"### exception: selxEvaluate - msg: "
-                    <<e.getMessage()<<endl);
+                    PEG_TRACE_STRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL2,
+                        "Exception: selxEvaluate - msg: " + e.getMessage());
                     if( rc )
                     {
                         CMSetStatusWithString(rc,CMPI_RC_ERR_FAILED,
                         (CMPIString*)string2CMPIString(e.getMessage()));
                     }
+                    PEG_METHOD_EXIT();
                     return false;
                 }
                 catch( ... )
                 {
-                    DDD(cout<<"### exception: selxEvaluate - ... " <<endl);
+                    PEG_TRACE_CSTRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL2,
+                        "Exception: Unknown Exception in selxEvaluate");
                     CMSetStatus (rc, CMPI_RC_ERR_FAILED);
+                    PEG_METHOD_EXIT();
                     return false;
                 }
             }
             else
             {
+                PEG_METHOD_EXIT();
                 return false;
             }
         }
@@ -296,12 +342,15 @@ extern "C"
             {
                 try
                 {
+                    PEG_METHOD_EXIT();
                     return sx->cql_stmt->evaluate (*instance);
                 }
                 catch( const Exception &e )
                 {
-                    DDD(cout<<"### exception: selxEvaluate - msg: "
-                    <<e.getMessage()<<endl);
+                    PEG_TRACE_STRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL2,
+                        "Exception: selxEvaluate - msg: " + e.getMessage());
                     if( rc )
                     {
                         CMSetStatusWithString(
@@ -309,17 +358,23 @@ extern "C"
                         CMPI_RC_ERR_FAILED,
                         (CMPIString*)string2CMPIString(e.getMessage()));
                     }
+                    PEG_METHOD_EXIT();
                     return false;
                 }
                 catch( ... )
                 {
-                    DDD(cout<<"### exception: selxEvaluate - ... " <<endl);
+                    PEG_TRACE_CSTRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL2,
+                        "Exception: Unknown Exception in selxEvaluate");
                     CMSetStatus (rc, CMPI_RC_ERR_FAILED);
+                    PEG_METHOD_EXIT();
                     return false;
                 }
             }
             else
             {
+                PEG_METHOD_EXIT();
                 return false;
             }
         }
@@ -328,6 +383,7 @@ extern "C"
           Tried some other weird query language which we don't support 
         */
         CMSetStatus (rc, CMPI_RC_ERR_NOT_SUPPORTED);
+        PEG_METHOD_EXIT();
         return false;
     }
 
@@ -336,10 +392,19 @@ extern "C"
         CMPIAccessor * accessor,
         void *parm, CMPIStatus * rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_SelectExp:selxEvaluateUsingAccessor()");
         CMPI_SelectExp *sx = (CMPI_SelectExp *) eSx;
         if( !accessor )
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid Parameter in \
+                CMPI_SelectExp:selxEvaluateUsingAccessor");
             CMSetStatus (rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return false;
         }
 
@@ -352,12 +417,16 @@ extern "C"
                 try
                 {
                     CMSetStatus (rc, CMPI_RC_OK);
+                    PEG_METHOD_EXIT();
                     return sx->wql_stmt->evaluateWhereClause (&ips);
                 }
                 catch( const Exception &e )
                 {
-                    DDD(cout<<"### exception: selxEvaluateUsingAccessor - msg:"
-                            <<e.getMessage()<<endl);
+                    PEG_TRACE_STRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL2,
+                        "Exception: selxEvaluateUsingAccessor - msg: " +
+                        e.getMessage());
                     if( rc )
                     {
                         CMSetStatusWithString(
@@ -365,18 +434,24 @@ extern "C"
                         CMPI_RC_ERR_FAILED,
                         (CMPIString*)string2CMPIString(e.getMessage()));
                     }
+                    PEG_METHOD_EXIT();
                     return false;
                 }
                 catch( ... )
                 {
-                    DDD(cout<<"### exception: selxEvaluateUsingAccessor - ..." 
-                            << endl);
+                    PEG_TRACE_CSTRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL2,
+                        "Exception: Unknown Exception in \
+                        selxEvaluateUsingAccessor");
                     CMSetStatus (rc, CMPI_RC_ERR_FAILED);
+                    PEG_METHOD_EXIT();
                     return false;
                 }
             }
             else
             {
+                PEG_METHOD_EXIT();
                 return false;
             }
         }
@@ -397,27 +472,39 @@ extern "C"
                 }
                 catch( const Exception &e )
                 {
-                    DDD(cout<<"### exception: selxEvaluateUsingAccessor - msg:"
-                            <<e.getMessage()<<endl);
+                    PEG_TRACE_STRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL2,
+                        "Exception: selxEvaluateUsingAccessor - msg: " +
+                        e.getMessage());
                     if( rc )
                     {
                         CMSetStatusWithString(rc,CMPI_RC_ERR_FAILED,
                         (CMPIString*)string2CMPIString(e.getMessage()));
                     }
+                    PEG_METHOD_EXIT();
                     return false;
                 }
                 catch( ... )
                 {
-                    DDD(cout<<"### exception: selxEvaluateUsingAccessor - ..." 
-                            << endl);
+                    PEG_TRACE_CSTRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL2,
+                        "Exception: Unknown Exception in \
+                        selxEvaluateUsingAccessor");
                     CMSetStatus (rc, CMPI_RC_ERR_FAILED);
+                    PEG_METHOD_EXIT();
                     return false;
                 }
             }
             else
+            {
+                PEG_METHOD_EXIT();
                 return false;
         }
+        }
 #endif
+        PEG_METHOD_EXIT();
         return false;
     }
 
@@ -425,8 +512,12 @@ extern "C"
         const CMPISelectExp * eSx,
         CMPIStatus * rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_SelectExp:selxGetString()");
         CMPI_SelectExp *sx = (CMPI_SelectExp *) eSx;
         CMSetStatus (rc, CMPI_RC_OK);
+        PEG_METHOD_EXIT();
         return string2CMPIString (sx->cond);
     }
 
@@ -434,7 +525,9 @@ extern "C"
         const CMPISelectExp * eSx,
         CMPIStatus * rc)
     {
-
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_SelectExp:selxGetDOC()");
         CMPI_SelectExp *sx = (CMPI_SelectExp *) eSx;
         CMPISelectCond *sc = NULL;
 
@@ -451,9 +544,11 @@ extern "C"
                 }
                 catch( const Exception &e )
                 {
-                    DDD(cout<<"### exception: selxGetDOC - msg: "
-                            <<e.getMessage()<<endl);
-
+                    PEG_TRACE_STRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL2,
+                        "Exception: selxGetDOC - msg: " +
+                        e.getMessage());
                     if( rc )
                     {
                         CMSetStatusWithString(
@@ -466,6 +561,7 @@ extern "C"
                         delete dnf;
                     }
 
+                    PEG_METHOD_EXIT();
                     return NULL;
                 }
                 sx->wql_dnf = dnf;
@@ -485,6 +581,7 @@ extern "C"
                 if( sx->_context == NULL )
                 {
                     CMSetStatus (rc, CMPI_RC_ERROR_SYSTEM);
+                    PEG_METHOD_EXIT();
                     return NULL;
                 }
 
@@ -499,13 +596,16 @@ extern "C"
                 }
                 catch( const Exception &e )
                 {
-                    DDD(cout<<"### exception: selxGetDOC - msg: "
-                            <<e.getMessage()<<endl);
-
+                    PEG_TRACE_STRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL2,
+                        "Exception: selxGetDOC - msg: " +
+                        e.getMessage());
                     if( rc ) CMSetStatusWithString(rc,CMPI_RC_ERR_FAILED,
                         (CMPIString*)string2CMPIString(e.getMessage()));
                     if( dnf )
                         delete dnf;
+                    PEG_METHOD_EXIT();
                     return NULL;
                 }
                 sx->cql_dnf = dnf;
@@ -519,6 +619,7 @@ extern "C"
             CMSetStatus (rc, CMPI_RC_OK);
             CMPI_Object *obj = new CMPI_Object (sc);
             obj->priv = ((CMPI_SelectCond *) sc)->priv;
+            PEG_METHOD_EXIT();
             return reinterpret_cast < CMPISelectCond * >(obj);
         }
 
@@ -526,6 +627,7 @@ extern "C"
           If the sc was null, we just exit 
         */
         CMSetStatus (rc, CMPI_RC_ERR_FAILED);
+        PEG_METHOD_EXIT();
         return NULL;
     }
 

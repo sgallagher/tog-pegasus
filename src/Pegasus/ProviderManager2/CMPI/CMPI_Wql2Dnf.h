@@ -43,6 +43,7 @@
 #include "CMPI_Query2Dnf.h"
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/Linkage.h> 
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -182,6 +183,10 @@ protected:
 
             if( !source->getValue(propertyName, op) )
             {
+                PEG_TRACE_STRING(
+                    TRC_CMPIPROVIDERINTERFACE,
+                    Tracer::LEVEL4,
+                    propertyName + " not found.");
                 throw NoSuchProperty(propertyName);
             }
         }

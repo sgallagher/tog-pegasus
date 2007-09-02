@@ -66,20 +66,15 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-int _cmpi_trace=0;
-
 //Function to throw exception if provider has not been correctly created.
 void _throw_MINotInitializedException()
 {
     MessageLoaderParms parms(
         "ProviderManager.CMPI.CMPIProviderManager.PROVIDER_LOAD_FAILURE",
         "ProviderLoadFailure: Cannot find _Create<mi-type>MI symbol.");  
-
     throw CIMException(CIM_ERR_FAILED,MessageLoader::getMessage(parms));
 }
 
-
-#define DDD(x) if (_cmpi_trace) x;
 
 ReadWriteSem    CMPIProviderManager::rwSemProvTab;
 ReadWriteSem    CMPIProviderManager::rwSemSelxTab;
@@ -93,6 +88,9 @@ class CMPIPropertyList
 public:
     CMPIPropertyList(CIMPropertyList &propertyList) : props(0), pCount(0)
     {
+        PEG_METHOD_ENTER(
+            TRC_PROVIDERMANAGER,
+            "CMPIPropertyList::CMPIPropertyList()");
         if (!propertyList.isNull())
         {
             Array<CIMName> p=propertyList.getPropertyNameArray();
@@ -105,15 +103,20 @@ public:
             props[pCount]=NULL;
         }
         else props=NULL;
+        PEG_METHOD_EXIT();
     }
     ~CMPIPropertyList()
     {
+        PEG_METHOD_ENTER(
+            TRC_PROVIDERMANAGER,
+            "CMPIPropertyList::~CMPIPropertyList()");
         if (props)
         {
             for (int i=0; i<pCount; i++)
                 free(props[i]);
             delete [] props;
         }
+        PEG_METHOD_EXIT();
     }
     char  **getList()
     {
@@ -123,17 +126,24 @@ public:
 
 CMPIProviderManager::CMPIProviderManager(Mode m)
 {
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::CMPIProviderManager()");
+
     mode=m;
-#ifdef PEGASUS_DEBUG
-    if (getenv("PEGASUS_CMPI_TRACE")) _cmpi_trace=1;
-    else _cmpi_trace=0;
-#endif
     _subscriptionInitComplete = false;
-    DDD(cerr << "-- CMPI Provider Manager activated" << endl);
+    PEG_TRACE_CSTRING (
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL2,
+        "-- CMPI Provider Manager activated");
+    PEG_METHOD_EXIT();
 }
 
 CMPIProviderManager::~CMPIProviderManager()
 {
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::~CMPIProviderManager()");
     /* Clean up the hash-tables */
     indProvRecord *prec=NULL;
     {
@@ -168,11 +178,13 @@ CMPIProviderManager::~CMPIProviderManager()
             selx=NULL;
         }
     }
+    PEG_METHOD_EXIT();
 }
 
 Message * CMPIProviderManager::processMessage(Message * request)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
         "CMPIProviderManager::processMessage()");
 
     Message * response = 0;
@@ -341,8 +353,9 @@ void CMPIProviderManager::unloadIdleProviders()
 Message * CMPIProviderManager::handleGetInstanceRequest(
     const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "CMPIProviderManager::handleGetInstanceRequest");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::handleGetInstanceRequest()");
 
     HandlerIntro(GetInstance,message,request,response,handler);
 
@@ -423,10 +436,10 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
         }
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL4,
             "Calling provider.getInstance: " + pr.getName());
-
-        DDD(cerr<<"--- CMPIProviderManager::getInstance"<<endl);
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
@@ -535,8 +548,9 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
 Message * CMPIProviderManager::handleEnumerateInstancesRequest(
     const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "CMPIProviderManager::handleEnumerateInstanceRequest");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::handleEnumerateInstanceRequest()");
 
     HandlerIntro(EnumerateInstances,message,request,response,handler);
     try
@@ -618,10 +632,10 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
         }
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL4,
             "Calling provider.enumerateInstances: " + pr.getName());
-
-        DDD(cerr<<"--- CMPIProviderManager::enumerateInstances"<<endl);
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
@@ -734,8 +748,9 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
 Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
     const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, 
-        "CMPIProviderManager::handleEnumerateInstanceNamesRequest");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::handleEnumerateInstanceNamesRequest()");
 
     HandlerIntro(EnumerateInstanceNames,message,request,response,handler);
     try
@@ -783,10 +798,10 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
             request->operationContext.get(ContentLanguageListContainer::NAME));
         CMPIProvider & pr=ph.GetProvider();
 
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL4,
             "Calling provider.enumerateInstanceNames: " + pr.getName());
-
-        DDD(cerr<<"--- CMPIProviderManager::enumerateInstanceNames"<<endl);
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
@@ -890,8 +905,9 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
 Message * CMPIProviderManager::handleCreateInstanceRequest(
     const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "CMPIProviderManager::handleCreateInstanceRequest");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::handleCreateInstanceRequest()");
 
     HandlerIntro(CreateInstance,message,request,response,handler);
     try
@@ -942,11 +958,12 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL4,
             "Calling provider.createInstance: " +
             ph.GetProvider().getName());
 
-        DDD(cerr<<"--- CMPIProviderManager::createInstances"<<endl);
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
@@ -1049,8 +1066,9 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(
 Message * CMPIProviderManager::handleModifyInstanceRequest(
     const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "CMPIProviderManager::handleModifyInstanceRequest");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::handleModifyInstanceRequest()");
 
     HandlerIntro(ModifyInstance,message,request,response,handler);
     try
@@ -1100,10 +1118,10 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL4,
             "Calling provider.modifyInstance: " + pr.getName());
-
-        DDD(cerr<<"--- CMPIProviderManager::modifyInstance"<<endl);
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
@@ -1211,8 +1229,9 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
 Message * CMPIProviderManager::handleDeleteInstanceRequest(
     const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "CMPIProviderManager::handleDeleteInstanceRequest");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::handleDeleteInstanceRequest()");
 
     HandlerIntro(DeleteInstance,message,request,response,handler);
     try
@@ -1262,7 +1281,9 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL4,
             "Calling provider.deleteInstance: " + pr.getName());
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
@@ -1365,8 +1386,9 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(
 
 Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "CMPIProviderManager::handleExecQueryRequest");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::handleExecQueryRequest()");
 
     HandlerIntro(ExecQuery,message,request,response,handler);
 
@@ -1418,10 +1440,10 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL4,
             "Calling provider.execQuery: " + pr.getName());
-
-        DDD(cerr<<"--- CMPIProviderManager::execQuery"<<endl);
 
         const char **props=NULL;
 
@@ -1535,8 +1557,9 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
 
 Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "CMPIProviderManager::handleAssociatorsRequest");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::handleAssociatorsRequest()");
 
     HandlerIntro(Associators,message,request,response,handler);
     try
@@ -1624,11 +1647,17 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         }
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL4,
             "Calling provider.associators: " + pr.getName());
 
-        DDD(cerr<<"--- CMPIProviderManager::associators"<<" role: >"
-            <<request->role<<"< aCls "<<request->assocClass<<endl);
+        PEG_TRACE_STRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL4,
+            String("--- CMPIProviderManager::associators < role: >" ) +
+            request->role +
+            request->assocClass.getString());
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
@@ -1743,8 +1772,9 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 Message * CMPIProviderManager::handleAssociatorNamesRequest(
     const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "CMPIProviderManager::handleAssociatorNamesRequest");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::handleAssociatorNamesRequest()");
 
     HandlerIntro(AssociatorNames,message,request,response,handler);
     try
@@ -1801,11 +1831,16 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(
+            TRC_PROVIDERMANAGER,
+             Tracer::LEVEL4,
             "Calling provider.associatorNames: " + pr.getName());
 
-        DDD(cerr<<"--- CMPIProviderManager::associatorNames"<<" role: >"
-            <<request->role<<"< aCls "<<request->assocClass<<endl);
+        PEG_TRACE_STRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL4,
+            String("--- CMPIProviderManager::associatorNames --  role: ") + 
+            request->role + "< aCls " + request->assocClass.getString());
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
@@ -1912,8 +1947,9 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
 
 Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "CMPIProviderManager::handleReferencesRequest");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::handleReferencesRequest()");
 
     HandlerIntro(References,message,request,response,handler);
     try
@@ -1999,11 +2035,15 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
         }
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL4,
             "Calling provider.references: " + pr.getName());
 
-        DDD(cerr<<"--- CMPIProviderManager::references"<<" role: >"
-            <<request->role<<"< aCls "<<request->resultClass<<endl);
+        PEG_TRACE_STRING(
+            TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            String("--- CMPIProviderManager::references -- role:") + 
+            request->role + "< aCls " + request->resultClass.getString());
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
@@ -2113,8 +2153,9 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
 Message * CMPIProviderManager::handleReferenceNamesRequest(
     const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "CMPIProviderManager::handleReferenceNamesRequest");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::handleReferenceNamesRequest()");
 
     HandlerIntro(ReferenceNames,message,request,response,handler);
     try
@@ -2169,11 +2210,16 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
             request->operationContext.get(ContentLanguageListContainer::NAME));
         CMPIProvider & pr=ph.GetProvider();
 
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL4,
             "Calling provider.referenceNames: " + pr.getName());
 
-        DDD(cerr<<"--- CMPIProviderManager::referenceNames"<<" role: >"
-            <<request->role<<"< aCls "<<request->resultClass<<endl);
+        PEG_TRACE_STRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL4,
+            String("--- CMPIProviderManager::referenceNames -- role: ") + 
+            request->role + "< aCls " + request->resultClass.getString());
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
@@ -2279,8 +2325,9 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
 Message * CMPIProviderManager::handleInvokeMethodRequest(
     const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "CMPIProviderManager::handleInvokeMethodRequest");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::handleInvokeMethodRequest()");
 
     HandlerIntro(InvokeMethod,message,request,response,handler);
     try
@@ -2368,7 +2415,9 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
         }
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL4,
             "Calling provider.invokeMethod: " + pr.getName());
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
@@ -2564,19 +2613,24 @@ int LocateIndicationProviderNames(
     String& providerName, 
     String& location)
 {
+   PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager:LocateIndicationProviderNames()");
     Uint32 pos = pInstance.findProperty(CIMName ("Name"));
     pInstance.getProperty(pos).getValue().get(providerName);
 
     pos = pmInstance.findProperty(CIMName ("Location"));
     pmInstance.getProperty(pos).getValue().get(location);
+    PEG_METHOD_EXIT();
     return 0;
 }
 
 Message * CMPIProviderManager::handleCreateSubscriptionRequest(
     const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, 
-        "CMPIProviderManager::handleCreateSubscriptionRequest");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::handleCreateSubscriptionRequest()");
 
     HandlerIntroInd(CreateSubscription,message,request,response,
         handler);
@@ -2694,10 +2748,10 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
 
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL4,
             "Calling provider.createSubscriptionRequest: " + pr.getName());
-
-        DDD(cerr<<"--- CMPIProviderManager::createSubscriptionRequest"<<endl);
 
         for (Uint32 i = 0, n = request->classNames.size(); i < n; i++)
         {
@@ -2850,8 +2904,9 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
 Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
     const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, 
-        "CMPIProviderManager::handleDeleteSubscriptionRequest");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::handleDeleteSubscriptionRequest()");
 
     HandlerIntroInd(DeleteSubscription,message,request,response,
         handler);
@@ -2945,10 +3000,10 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
         CMPI_ContextOnStack eCtx(context);
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL4,
             "Calling provider.deleteSubscriptionRequest: " + pr.getName());
-
-        DDD(cerr<<"--- CMPIProviderManager::deleteSubscriptionRequest"<<endl);
 
         const IdentityContainer container =
             request->operationContext.get(IdentityContainer::NAME);
@@ -3073,8 +3128,9 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
 Message * CMPIProviderManager::handleDisableModuleRequest(
     const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, 
-        "CMPIProviderManager::handleDisableModuleRequest");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::handleDisableModuleRequest()");
 
     CIMDisableModuleRequestMessage * request =
         dynamic_cast<CIMDisableModuleRequestMessage *>(
@@ -3161,8 +3217,9 @@ Message * CMPIProviderManager::handleDisableModuleRequest(
 Message * CMPIProviderManager::handleEnableModuleRequest(
     const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, 
-        "CMPIProviderManager::handleEnableModuleRequest");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::handleEnableModuleRequest()");
 
     CIMEnableModuleRequestMessage * request =
         dynamic_cast<CIMEnableModuleRequestMessage *>(
@@ -3193,8 +3250,9 @@ Message * CMPIProviderManager::handleEnableModuleRequest(
 Message * CMPIProviderManager::handleStopAllProvidersRequest(
     const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, 
-        "CMPIProviderManager::handleStopAllProvidersRequest");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::handleStopAllProvidersRequest()");
 
     CIMStopAllProvidersRequestMessage * request =
         dynamic_cast<CIMStopAllProvidersRequestMessage *>(
@@ -3254,8 +3312,9 @@ Message * CMPIProviderManager::handleStopAllProvidersRequest(
 Message * CMPIProviderManager::handleSubscriptionInitCompleteRequest(
     const Message * message)
 {
-    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
-        "CMPIProviderManager::handleSubscriptionInitCompleteRequest");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::handleSubscriptionInitCompleteRequest()");
 
     CIMSubscriptionInitCompleteRequestMessage * request =
         dynamic_cast <CIMSubscriptionInitCompleteRequestMessage *>
@@ -3324,17 +3383,23 @@ Message * CMPIProviderManager::handleSubscriptionInitCompleteRequest(
         }
         catch (const CIMException & e)
         {
-            PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            PEG_TRACE_STRING(
+                TRC_PROVIDERMANAGER,
+                Tracer::LEVEL2,
                 "CIMException: " + e.getMessage ());
         }
         catch (const Exception & e)
         {
-            PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            PEG_TRACE_STRING(
+                TRC_PROVIDERMANAGER,
+                Tracer::LEVEL2,
                 "Exception: " + e.getMessage ());
         }
         catch (...)
         {
-            PEG_TRACE_CSTRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(
+                TRC_PROVIDERMANAGER,
+                Tracer::LEVEL2,
                 "Unknown error in handleSubscriptionInitCompleteRequest");
         }
     }
@@ -3346,8 +3411,9 @@ Message * CMPIProviderManager::handleSubscriptionInitCompleteRequest(
 Message * CMPIProviderManager::handleGetPropertyRequest(
     const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "CMPIProviderManager::handleGetPropertyRequest");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::handleGetPropertyRequest()");
 
     HandlerIntro(GetProperty,message,request,response,handler);
 
@@ -3465,11 +3531,10 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
         }
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL4,
             "Calling provider.getInstance via getProperty: " + pr.getName());
-
-        DDD(cerr<<"--- CMPIProviderManager::getInstance via getProperty"
-            <<endl);
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
@@ -3604,8 +3669,9 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
 Message * CMPIProviderManager::handleSetPropertyRequest(
     const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "CMPIProviderManager::handleSetPropertyRequest");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::handleSetPropertyRequest()");
 
     HandlerIntro(SetProperty,message,request,response,handler);
 
@@ -3697,11 +3763,10 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL4,
             "Calling provider.modifyInstance via setProperty: " + pr.getName());
-
-        DDD(cerr<<"--- CMPIProviderManager::modifyInstance via setProperty"
-            <<endl);
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
@@ -3812,8 +3877,9 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
 Message * CMPIProviderManager::handleUnsupportedRequest(
     const Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "CMPIProviderManager::handleUnsupportedRequest");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::handleUnsupportedRequest()");
     CIMRequestMessage* request =
         dynamic_cast<CIMRequestMessage *>(const_cast<Message *>(message));
     PEGASUS_ASSERT(request != 0 );
@@ -3834,6 +3900,10 @@ ProviderName CMPIProviderManager::_resolveProviderName(
     String location;
     String moduleName;
     CIMValue genericValue;
+
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::_resolveProviderName()");
 
     genericValue = providerId.getModule().getProperty(
         providerId.getModule().findProperty("Name")).getValue();
@@ -3863,6 +3933,7 @@ ProviderName CMPIProviderManager::_resolveProviderName(
     }
     ProviderName name(moduleName, providerName, fileName);
     name.setLocation(location);
+    PEG_METHOD_EXIT();
     return name;
 }
 
@@ -3872,8 +3943,9 @@ void CMPIProviderManager::_callEnableIndications
     CMPIProvider::OpProviderHolder & ph,
     const char* remoteInfo)
 {
-    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
-        "CMPIProviderManager::_callEnableIndications");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::_callEnableIndications()");
 
     try
     {
@@ -3928,10 +4000,10 @@ void CMPIProviderManager::_callEnableIndications
                     (CMPIValue*)(const char*)remoteInfo,CMPI_chars);
             }
 
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            PEG_TRACE_STRING(
+                TRC_PROVIDERMANAGER,
+                Tracer::LEVEL4,
                 "Calling provider.enableIndications: " + pr.getName());
-
-            DDD(cerr<<"--- provider.enableIndications"<<endl);
 
             pr.protect();
 
@@ -3949,19 +4021,19 @@ void CMPIProviderManager::_callEnableIndications
         }
         else
         {
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            PEG_TRACE_STRING(
+                TRC_PROVIDERMANAGER,
+                Tracer::LEVEL4,
                 "Not calling provider.enableIndications: " + pr.getName() +
                 " routine as it is an earlier version that does not support " \
                 "this function");
-
-            DDD(cerr<<"--- provider.enableIndications " \
-                "cannot be called as the provider uses an earlier version " \
-                "that does not support this function"<<endl);
         }
     }
     catch (const Exception & e)
     {
-        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_STRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
             "Exception in _callEnableIndications: " + e.getMessage ());
 
         Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
@@ -3972,7 +4044,9 @@ void CMPIProviderManager::_callEnableIndications
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
             "Unexpected error in _callEnableIndications");
 
         Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
@@ -3988,8 +4062,9 @@ void CMPIProviderManager::_callEnableIndications
 void CMPIProviderManager::_callDisableIndications
     (CMPIProvider::OpProviderHolder & ph, const char *remoteInfo)
 {
-    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
-        "CMPIProviderManager::_callDisableIndications");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::_callDisableIndications()");
 
     try
     {
@@ -4027,11 +4102,10 @@ void CMPIProviderManager::_callDisableIndications
             }
             CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            PEG_TRACE_STRING(
+                TRC_PROVIDERMANAGER,
+                Tracer::LEVEL4,
                 "Calling provider.disableIndications: " + pr.getName());
-
-            DDD(cerr<<"--- provider.disableIndications"<<endl);
-
 
             // disableIndications() is defined by the CMPI standard as
             // returning a CMPIStatus return value. Unfortunately, Pegasus
@@ -4050,20 +4124,20 @@ void CMPIProviderManager::_callDisableIndications
         }
         else
         {
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            PEG_TRACE_STRING(
+                TRC_PROVIDERMANAGER,
+                Tracer::LEVEL4,
                 "Not calling provider.disableIndications: "
                 + pr.getName() +
                 " routine as it is an earlier version that does not support" \
                 " this function");
-
-            DDD(cerr<<"--- provider.disableIndications " \
-                "cannot be called as the provider uses an earlier version " \
-                "that does not support this function"<<endl);
         }
     }
     catch (const Exception & e)
     {
-        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_STRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
             "Exception in _callDisableIndications: " + e.getMessage ());
 
         Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
@@ -4074,7 +4148,9 @@ void CMPIProviderManager::_callDisableIndications
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
             "Unexpected error in _callDisableIndications");
 
         Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,

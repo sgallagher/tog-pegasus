@@ -38,6 +38,7 @@
 #include "CMPI_Ftabs.h"
 #include "CMPI_Value.h"
 #include "CMPI_String.h"
+#include <Pegasus/Common/Tracer.h>
 
 #include <string.h>
 
@@ -51,13 +52,18 @@ extern "C"
 
     static CMPIStatus argsRelease(CMPIArgs* eArg)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_ContextArgs:argsRelease()");
         Array<CIMParamValue>* arg = (Array<CIMParamValue>*)eArg->hdl;
         if (arg)
         {
             delete arg;
             (reinterpret_cast<CMPI_Object*>(eArg))->unlinkAndDelete();
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_OK);
         }
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
     }
 
@@ -68,10 +74,19 @@ extern "C"
 
     static CMPIArgs* argsClone(const CMPIArgs* eArg, CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_ContextArgs:argsClone()");
         Array<CIMParamValue>* arg = (Array<CIMParamValue>*)eArg->hdl;
         if (!arg)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid Handle - eArg->hdl in \
+                CMPI_ContextArgs:argsClone");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+            PEG_METHOD_EXIT();
             return 0;
         }
         Array<CIMParamValue>* cArg = new Array<CIMParamValue>();
@@ -84,6 +99,7 @@ extern "C"
         obj->unlink();
         CMPIArgs* neArg = reinterpret_cast<CMPIArgs*>(obj);
         CMSetStatus(rc,CMPI_RC_OK);
+        PEG_METHOD_EXIT();
         return neArg;
     }
 
@@ -108,13 +124,28 @@ extern "C"
         const CMPIValue* data,
         const CMPIType type)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_ContextArgs:argsAddArg()");
         Array<CIMParamValue>* arg = (Array<CIMParamValue>*)eArg->hdl;
         if (!arg)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid Handle - eArg->hdl in \
+                CMPI_ContextArgs:argsAddArg");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
         if (!name)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid Parameter - name in \
+                CMPI_ContextArgs:argsAddArg");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
         CMPIrc rc;
@@ -128,6 +159,7 @@ extern "C"
         }
 
         arg->append(CIMParamValue(sName.getString(), v));
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
@@ -137,17 +169,25 @@ extern "C"
         CMPIString** name,
         CMPIStatus* rc)
     {
-
         Array<CIMParamValue>* arg = (Array<CIMParamValue>*)eArg->hdl;
         CMPIData data = {0,CMPI_nullValue | CMPI_notFound,{0}};
         if (!arg)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid handle eArg->hdl in \
+                CMPI_ContextArgs:argsGetArgAt");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return data;
         }
 
         if (pos > arg->size())
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Property Not Found in CMPI_ContextArgs:argsGetArgAt");
             CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
             return data;
         }
@@ -177,11 +217,20 @@ extern "C"
         CMPIData data = {0,CMPI_nullValue | CMPI_notFound,{0}};
         if (!arg)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid Handle - eArg->hdl in CMPI_ContextArgs:argsGetArg");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return data;
         }
         if (!name)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid Parameter - name in \
+                CMPI_ContextArgs:argsGetArg");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return data;
         }
@@ -202,6 +251,11 @@ extern "C"
         Array<CIMParamValue>* arg = (Array<CIMParamValue>*)eArg->hdl;
         if (!arg)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid Handle - eArg->hdl in \
+                CMPI_ContextArgs:argsGetArgCount");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return 0;
         }
@@ -280,8 +334,17 @@ extern "C"
         const CMPIValue* data,
         const CMPIType type)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_ContextArgs:contextAddEntry()");
         if (!name || !data)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid Parameter - name || data in \
+                CMPI_ContextArgs:contextAddEntry");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
         if (strcmp(name,SnmpTrapOidContainer::NAME.getCString()) == 0)
@@ -289,27 +352,43 @@ extern "C"
             OperationContext *ctx = ((CMPI_Context*)eCtx)->ctx;
             if (!ctx)
             {
+                PEG_TRACE_CSTRING(
+                    TRC_CMPIPROVIDERINTERFACE,
+                    Tracer::LEVEL2,
+                    "Invalid Handle - eCtx->ctx in \
+                    CMPI_ContextArgs:contextAddEntry");
+                PEG_METHOD_EXIT();
                 CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
             }
             if (type == CMPI_chars)
             {
                 ctx->insert(SnmpTrapOidContainer((char*)data));
+                PEG_METHOD_EXIT();
                 CMReturn(CMPI_RC_OK);
             }
             else if (type == CMPI_string)
             {
                 ctx->insert(SnmpTrapOidContainer((char*)data->string->hdl));
+                PEG_METHOD_EXIT();
                 CMReturn(CMPI_RC_OK);
             }
             else
             {
+                PEG_TRACE_CSTRING(
+                    TRC_CMPIPROVIDERINTERFACE,
+                    Tracer::LEVEL2,
+                    "Received Invalid Data Type in \
+                    CMPI_COntextArgs:contextAddEntry");
                 // Only CMPITypes CMPI_chars and CMPI_string are supported
                 // for SnmpTrapOidContainer.
+                PEG_METHOD_EXIT();
                 CMReturn(CMPI_RC_ERR_INVALID_DATA_TYPE);
             }
         }
-        return argsAddArg(
-            reinterpret_cast<const CMPIArgs*>(eCtx),name,data,type);
+        CMPIStatus stat = argsAddArg(
+            reinterpret_cast<const CMPIArgs*>(eCtx), name, data, type);
+        PEG_METHOD_EXIT();
+        return stat;
     }
 }
 
@@ -342,33 +421,53 @@ CMPIContextFT *CMPI_ContextOnStack_Ftab = &contextOnStack_FT;
 
 CMPI_Context::CMPI_Context(const OperationContext& ct)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPI_Context::CMPI_Context()");
     ctx = (OperationContext*)&ct;
     thr = NULL;
     hdl = (void*)new Array<CIMParamValue>();
     ft = CMPI_Context_Ftab;
+    PEG_METHOD_EXIT();
 }
 
 CMPI_Context::~CMPI_Context()
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPI_Context::~CMPI_Context()");
     delete (Array<CIMParamValue>*)hdl;
     delete ctx;
+    PEG_METHOD_EXIT();
 }
 CMPI_ContextOnStack::CMPI_ContextOnStack(const OperationContext& ct)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPI_ContextOnStack::CMPI_ContextOnStack()");
     ctx = (OperationContext*)&ct;
     hdl = (void*)new Array<CIMParamValue>();
     ft = CMPI_ContextOnStack_Ftab;
+    PEG_METHOD_EXIT();
 }
 
 CMPI_ContextOnStack::~CMPI_ContextOnStack()
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPI_ContextOnStack::~CMPI_ContextOnStack()");
     delete (Array<CIMParamValue>*)hdl;
+    PEG_METHOD_EXIT();
 }
 
 CMPI_ArgsOnStack::CMPI_ArgsOnStack(const Array<CIMParamValue>& args)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPI_ArgsOnStack::CMPI_ArgsOnStack");
     hdl = (void*)&args;
     ft = CMPI_ArgsOnStack_Ftab;
+    PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END

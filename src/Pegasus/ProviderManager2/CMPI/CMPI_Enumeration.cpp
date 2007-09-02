@@ -36,6 +36,7 @@
 #include "CMPI_Enumeration.h"
 #include "CMPI_Object.h"
 #include "CMPI_Ftabs.h"
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -87,7 +88,6 @@ extern "C"
             }
             (reinterpret_cast<CMPI_Object*>(eObj))->unlinkAndDelete();
         }
-
         CMReturn(CMPI_RC_OK);
     }
 
@@ -95,6 +95,9 @@ extern "C"
         const CMPIEnumeration* eEnumObj,
         CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Enumeration:enumClone()");
         const CMPIEnumeration* eEnum = (CMPIEnumeration*)eEnumObj->hdl;
 
         CMSetStatus(rc, CMPI_RC_OK);
@@ -106,7 +109,10 @@ extern "C"
                 CMPI_Object *obj = new CMPI_Object(
                     new CMPI_InstEnumeration(new Array<CIMInstance>(*enm)));
                 obj->unlink(); // remove from current thread context.
-                return reinterpret_cast<CMPIEnumeration*>(obj);
+                CMPIEnumeration* cmpiEnum = 
+                    reinterpret_cast<CMPIEnumeration*>(obj);
+                PEG_METHOD_EXIT();
+                return cmpiEnum;
             }
             else if ((void*)eEnum->ft == (void*)CMPI_ObjEnumeration_Ftab)
             {
@@ -114,7 +120,10 @@ extern "C"
                 CMPI_Object *obj = new CMPI_Object(
                     new CMPI_ObjEnumeration(new Array<CIMObject>(*enm)));
                 obj->unlink(); // remove from current thread context.
-                return reinterpret_cast<CMPIEnumeration*>(obj);
+                CMPIEnumeration* cmpiEnum = 
+                    reinterpret_cast<CMPIEnumeration*>(obj);
+                PEG_METHOD_EXIT();
+                return cmpiEnum;
             }
             else if ((void*)eEnum->ft == (void*)CMPI_OpEnumeration_Ftab)
             {
@@ -122,10 +131,18 @@ extern "C"
                 CMPI_Object *obj = new CMPI_Object(
                     new CMPI_OpEnumeration(new Array<CIMObjectPath>(*enm)));
                 obj->unlink(); // remove from current thread context.
-                return reinterpret_cast<CMPIEnumeration*>(obj);
+                CMPIEnumeration* cmpiEnum = 
+                    reinterpret_cast<CMPIEnumeration*>(obj);
+                PEG_METHOD_EXIT();
+                return cmpiEnum;
             }
         }
+        PEG_TRACE_CSTRING(
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL4,
+            "Received invalid Handle - eEnum->hdl...");
         CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+        PEG_METHOD_EXIT();
         return NULL;
     }
 
@@ -200,6 +217,10 @@ extern "C"
 
         if (!eEnum || !eEnum->hdl)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL4,
+                "Received invalid Handle - eEnum || eEnum->hdl...");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return false;
         }
@@ -247,6 +268,9 @@ extern "C"
         const CMPIEnumeration* eEnumObj,
         CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Enumeration:enumToArray()");
         Uint32 size;
         CMPI_Object* obj;
         CMPIArray *nar = NULL;
@@ -254,7 +278,12 @@ extern "C"
 
         if (!eEnum || !eEnum->hdl)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL4,
+                "Received invalid Handle - eEnum || eEnum->hdl...");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+            PEG_METHOD_EXIT();
             return NULL;
         }
         if ((void*)eEnum->ft == (void*)CMPI_ObjEnumeration_Ftab ||
@@ -293,6 +322,7 @@ extern "C"
                 arraySetElementAt(nar,i,(CMPIValue*)&obj,CMPI_ref);
             }
         }
+        PEG_METHOD_EXIT();
         return nar;
     }
 }
@@ -333,25 +363,37 @@ CMPIEnumerationFT *CMPI_OpEnumeration_Ftab = &opEnumeration_FT;
 
 CMPI_ObjEnumeration::CMPI_ObjEnumeration(Array<CIMObject>* oa)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPI_ObjEnumeration::CMPI_ObjEnumeration()");
     cursor = 0;
     max = oa->size();
     hdl = (void*)oa;
     ft = CMPI_ObjEnumeration_Ftab;
+    PEG_METHOD_EXIT();
 }
 CMPI_InstEnumeration::CMPI_InstEnumeration(Array<CIMInstance>* ia)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPI_InstEnumeration::CMPI_InstEnumeration()");
     cursor = 0;
     max = ia->size();
     hdl = (void*)ia;
     ft = CMPI_InstEnumeration_Ftab;
+    PEG_METHOD_EXIT();
 }
 
 CMPI_OpEnumeration::CMPI_OpEnumeration(Array<CIMObjectPath>* opa)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPI_OpEnumeration::CMPI_OpEnumeration()");
     cursor = 0;
     max = opa->size();
     hdl = (void*)opa;
     ft = CMPI_OpEnumeration_Ftab;
+    PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END

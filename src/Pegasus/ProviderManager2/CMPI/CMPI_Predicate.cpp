@@ -37,13 +37,13 @@
 #include "CMPI_Ftabs.h"
 #include "CMPI_Value.h"
 #include "CMPI_String.h"
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 extern "C"
 {
-
     CMPIStatus prdRelease(CMPIPredicate* sc)
     {
         CMPI_Predicate *pred = (CMPI_Predicate*)sc->hdl;
@@ -75,6 +75,10 @@ extern "C"
         const CMPI_Predicate *prd = (CMPI_Predicate*)ePrd->hdl;
         if (!prd)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid handle in CMPI_Predicate:prdGetData");
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
         CMPI_term_el *term =  (CMPI_term_el *)prd->priv;
@@ -106,6 +110,10 @@ extern "C"
         }
         else
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Operation not Supported in CMPI_Predicate:prdGetData");
             CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
         }
     }
@@ -117,6 +125,10 @@ extern "C"
         CMPIType type,
         CMPIStatus* rc)
     {
+        PEG_TRACE_CSTRING(
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "Operation not Supported in CMPI_Predicate:prdEvaluate");
         CMSetStatus(rc, CMPI_RC_ERR_NOT_SUPPORTED);
         return 0;
     }
@@ -128,6 +140,11 @@ extern "C"
         void *p,
         CMPIStatus *rc)
     {
+        PEG_TRACE_CSTRING(
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "Operation not Supported in \
+            CMPI_Predicate:prdEvaluateUsingAccessor");
         CMSetStatus(rc, CMPI_RC_ERR_NOT_SUPPORTED);
         return 0;
     }

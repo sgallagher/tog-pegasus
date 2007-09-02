@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -124,7 +124,8 @@ static char const* TRACE_COMPONENT_LIST[] =
     "StatisticalData",
     "CMPIProvider",
     "IndicationGeneration",
-    "IndicationReceipt"
+    "IndicationReceipt",
+    "CMPIProviderInterface"
 };
 /** Constants identifying the Trace components. These constants are used by
     the component to identify its Trace messages. The component ID needs to
@@ -183,7 +184,8 @@ enum TRACE_COMPONENT_ID
     TRC_STATISTICAL_DATA,
     TRC_CMPIPROVIDER,
     TRC_INDICATION_GENERATION,
-    TRC_INDICATION_RECEIPT
+    TRC_INDICATION_RECEIPT,
+    TRC_CMPIPROVIDERINTERFACE
 };
 
 PEGASUS_NAMESPACE_END

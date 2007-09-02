@@ -69,9 +69,6 @@
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
-#define DDD(X)   if (_cmpi_trace) X;
-
-extern int _cmpi_trace;
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # define lloonngg __int64
@@ -220,7 +217,6 @@ static Formatter::Arg formatValue(va_list *argptr, CMPIStatus *rc, int *err)
 
 static inline CIMNamespaceName NameSpaceName(const char *ns)
 {
-
     CIMNamespaceName n;
     if (ns==NULL)
     {
@@ -232,6 +228,10 @@ static inline CIMNamespaceName NameSpaceName(const char *ns)
     }
     catch (...)
     {
+        PEG_TRACE_CSTRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Exception: Unknown Exception thrown...");
         // n won't be assigned to anything yet, so it is safe
         // to send it off.
     }
@@ -251,6 +251,10 @@ static inline CIMName Name(const char *n)
     }
     catch ( ...)
     {
+        PEG_TRACE_CSTRING(
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Exception: Unknown Exception thrown...");
     }
     return name;
 }
@@ -269,15 +273,28 @@ extern "C"
         const CMPIObjectPath* eCop,
         CMPIStatus *rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_BrokerEnc:mbEncNewInstance()");
         if (!eCop)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received Invalid Parameter in CMPI_BrokerEnc:mbEncToString");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return NULL;
         }
         CIMObjectPath* cop = (CIMObjectPath*)eCop->hdl;
         if (!cop)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received Invalid handle in CMPI_BrokerEnc:mbEncToString");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return NULL;
         }
 
@@ -299,6 +316,7 @@ extern "C"
         else
         {
             CMSetStatus(rc, CMPI_RC_ERR_NOT_FOUND);
+            PEG_METHOD_EXIT();
             return NULL;
         }
 
@@ -307,6 +325,7 @@ extern "C"
             reinterpret_cast<CMPIInstance*>(new CMPI_Object(ci));
         CMSetStatus(rc, CMPI_RC_OK);
    //   CMPIString *str=mbEncToString(mb,neInst,NULL);
+        PEG_METHOD_EXIT();
         return neInst;
     }
 
@@ -316,7 +335,9 @@ extern "C"
         const char *cls,
         CMPIStatus *rc)
     {
-   //   cout<<"--- mbEncNewObjectPath() "<<ns<<"-"<<cls<<endl;
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_BrokerEnc:mbEncNewObjectPath()");
         Array<CIMKeyBinding> keyBindings;
         String host;
         CIMName className;
@@ -345,14 +366,20 @@ extern "C"
         CMPIObjectPath *nePath = reinterpret_cast<CMPIObjectPath*>(
             new CMPI_Object(cop));
         CMSetStatus(rc, CMPI_RC_OK);
+        PEG_METHOD_EXIT();
         return nePath;
     }
 
     static CMPIArgs* mbEncNewArgs(const CMPIBroker* mb, CMPIStatus *rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_BrokerEnc:mbEncNewArgs()");
         CMSetStatus(rc,CMPI_RC_OK);
-        return reinterpret_cast<CMPIArgs*>(
+        CMPIArgs* cmpiArgs = reinterpret_cast<CMPIArgs*>(
             new CMPI_Object(new Array<CIMParamValue>()));
+        PEG_METHOD_EXIT();
+        return cmpiArgs;
     }
 
     static CMPIString* mbEncNewString(
@@ -360,13 +387,24 @@ extern "C"
         const char *cStr,
         CMPIStatus *rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Broker:mbEncNewString()");
         CMSetStatus(rc,CMPI_RC_OK);
         if (cStr == NULL)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received Invalid Parameter in CMPI_BrokerEnc:mbEncNewString");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return NULL;
         }
-        return reinterpret_cast<CMPIString*>(new CMPI_Object(cStr));
+        CMPIString* cmpiString = 
+            reinterpret_cast<CMPIString*>(new CMPI_Object(cStr));
+        PEG_METHOD_EXIT();
+        return cmpiString;
     }
 
     CMPIArray* mbEncNewArray(
@@ -375,6 +413,9 @@ extern "C"
         CMPIType type,
         CMPIStatus *rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_BrokerEnc:mbEncNewArray()");
         CMSetStatus(rc,CMPI_RC_OK);
         CMPIData *dta=new CMPIData[count+1];
         dta->type=type;
@@ -385,14 +426,16 @@ extern "C"
             dta[i].state=CMPI_nullValue;
             dta[i].value.uint64=0;
         }
-        return reinterpret_cast<CMPIArray*>(new CMPI_Object(dta));
+        CMPIArray* cmpiArray = 
+            reinterpret_cast<CMPIArray*>(new CMPI_Object(dta));
+        PEG_METHOD_EXIT();
+        return cmpiArray;
     }
 
     extern CMPIDateTime *newDateTime();
 
     static CMPIDateTime* mbEncNewDateTime(const CMPIBroker* mb, CMPIStatus *rc)
     {
-   // cout<<"--- mbEncNewDateTime()"<<endl;
         CMSetStatus(rc,CMPI_RC_OK);
         return newDateTime();
     }
@@ -405,7 +448,6 @@ extern "C"
         CMPIBoolean interval,
         CMPIStatus *rc)
     {
-   // cout<<"--- mbEncNewDateTimeFromBinary()"<<endl;
         CMSetStatus(rc,CMPI_RC_OK);
         return newDateTimeBin(time, interval);
     }
@@ -417,14 +459,21 @@ extern "C"
         const char *t,
         CMPIStatus *rc)
     {
-   //   cout<<"--- mbEncNewDateTimeFromString()"<<endl;
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_BrokerEnc:mbEncNewDateTimeFromString()");
         CMPIDateTime *date = NULL;
         CMSetStatus(rc,CMPI_RC_OK);
         date=newDateTimeChar(t);
         if (!date)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received Invalid Parameter in CMPI_BrokerEnc:newDateTimeChar");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
         }
+        PEG_METHOD_EXIT();
         return date;
     }
 
@@ -465,6 +514,9 @@ extern "C"
         const void *o,
         CMPIStatus *rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_BrokerEnc:mbEncToString()");
         CMPI_Object *obj = (CMPI_Object*)o;
         String str;
         char msg[128];
@@ -474,14 +526,20 @@ extern "C"
         {
             sprintf(msg,"** Null object ptr (%p) **",o);
             CMSetStatus(rc,CMPI_RC_ERR_FAILED);
-            return reinterpret_cast<CMPIString*>(new CMPI_Object(msg));
+            CMPIString* cmpiString =
+                reinterpret_cast<CMPIString*>(new CMPI_Object(msg));
+            PEG_METHOD_EXIT();
+            return cmpiString;
         }
 
         if (obj->getHdl()==NULL)
         {
             sprintf(msg,"** Null object hdl (%p) **",o);
             CMSetStatus(rc,CMPI_RC_ERR_FAILED);
-            return reinterpret_cast<CMPIString*>(new CMPI_Object(msg));
+            CMPIString* cmpiString =
+                reinterpret_cast<CMPIString*>(new CMPI_Object(msg));
+            PEG_METHOD_EXIT();
+            return cmpiString;
         }
 
         if (obj->getFtab() == (void*)CMPI_Instance_Ftab ||
@@ -523,11 +581,17 @@ extern "C"
         {
             sprintf(msg,"** Object not recognized (%p) **",o);
             CMSetStatus(rc,CMPI_RC_ERR_FAILED);
-            return reinterpret_cast<CMPIString*>(new CMPI_Object(msg));
+            CMPIString* cmpiString =
+                reinterpret_cast<CMPIString*>(new CMPI_Object(msg));
+            PEG_METHOD_EXIT();
+            return cmpiString;
         }
 
         sprintf(msg,"%p: ",o);
-        return reinterpret_cast<CMPIString*>(new CMPI_Object(String(msg)+str));
+        CMPIString* cmpiString = 
+            reinterpret_cast<CMPIString*>(new CMPI_Object(String(msg)+str));
+        PEG_METHOD_EXIT();
+        return cmpiString;
     }
 
     static CMPIBoolean mbEncClassPathIsA(
@@ -536,16 +600,31 @@ extern "C"
         const char *type,
         CMPIStatus *rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_BrokerEnc:mbEncClassPathIsA()");
 
         CMSetStatus(rc,CMPI_RC_OK);
         if ((eCp==NULL) || (type==NULL))
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received Invalid Parameter - eCp || type in \
+                CMPI_BrokerEnc:mbEncClassPathIsA");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return false;
         }
         if (CIMName::legal(type) == false)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received Invalid Class in \
+                CMPI_BrokerEnc:mbEncClassPathIsA");
             CMSetStatus(rc,CMPI_RC_ERR_INVALID_CLASS);
+            PEG_METHOD_EXIT();
             return 0;
         }
         CIMObjectPath* cop = (CIMObjectPath*)eCp->hdl;
@@ -554,12 +633,14 @@ extern "C"
 
         if (tcn == cop->getClassName())
         {
+            PEG_METHOD_EXIT();
             return 1;
         }
 
         CIMClass *cc = mbGetClass(mb,*cop);
         if (cc == NULL)
         {
+            PEG_METHOD_EXIT();
             return 0;
         }
         CIMObjectPath  scp(*cop);
@@ -570,14 +651,17 @@ extern "C"
             cc = mbGetClass(mb,scp);
             if (cc == NULL)
             {
+                PEG_METHOD_EXIT();
                 return 0;
             }
             if (cc->getClassName() == tcn)
             {
+                PEG_METHOD_EXIT();
                 return 1;
             }
             scp.setClassName(cc->getSuperClassName());
         };
+        PEG_METHOD_EXIT();
         return 0;
     }
 
@@ -587,6 +671,9 @@ extern "C"
         const char *type,
         CMPIStatus *rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_BrokerEnc:mbEncIsOfType()");
         CMPI_Object *obj = (CMPI_Object*)o;
         char msg[128];
         void *Ftab = NULL;
@@ -598,6 +685,7 @@ extern "C"
             {
                 CMSetStatusWithChars(mb, rc, CMPI_RC_ERR_FAILED, msg);
             }
+            PEG_METHOD_EXIT();
             return 0;
         }
 
@@ -608,24 +696,28 @@ extern "C"
             (Ftab == (void*)CMPI_InstanceOnStack_Ftab)) &&
             strncmp(type, CMPIInstance_str, CMPIInstance_str_l) == 0)
         {
+            PEG_METHOD_EXIT();
             return 1;
         }
         if (((Ftab == (void*)CMPI_ObjectPath_Ftab) ||
             (Ftab == (void*)CMPI_ObjectPathOnStack_Ftab)) &&
             strncmp(type, CMPIObjectPath_str, CMPIObjectPath_str_l) == 0)
         {
+            PEG_METHOD_EXIT();
             return 1;
         }
         if (((Ftab == (void*)CMPI_Args_Ftab) ||
             (Ftab == (void*)CMPI_ArgsOnStack_Ftab)) &&
             strncmp(type, CMPIArgs_str, CMPIArgs_str_l) == 0)
         {
+            PEG_METHOD_EXIT();
             return 1;
         }
         if (((Ftab == (void*)CMPI_Context_Ftab) ||
             (Ftab == (void*)CMPI_ContextOnStack_Ftab)) &&
             strncmp(type, CMPIContext_str, CMPIContext_str_l) == 0)
         {
+            PEG_METHOD_EXIT();
             return 1;
         }
         if (((Ftab == (void*)CMPI_ResultRefOnStack_Ftab) ||
@@ -636,46 +728,55 @@ extern "C"
             (Ftab == (void*)CMPI_ResultExecQueryOnStack_Ftab)) &&
             strncmp(type, CMPIResult_str, CMPIResult_str_l) == 0)
         {
+            PEG_METHOD_EXIT();
             return 1;
         }
         if (Ftab == (void*)CMPI_DateTime_Ftab &&
             strncmp(type, CMPIDateTime_str, CMPIDateTime_str_l) == 0)
         {
+            PEG_METHOD_EXIT();
             return 1;
         }
         if (Ftab == (void*)CMPI_Array_Ftab &&
             strncmp(type, CMPIArray_str, CMPIArray_str_l) == 0)
         {
+            PEG_METHOD_EXIT();
             return 1;
         }
         if (Ftab == (void*)CMPI_String_Ftab &&
             strncmp(type, CMPIString_str, CMPIString_str_l) == 0)
         {
+            PEG_METHOD_EXIT();
             return 1;
         }
         if (Ftab == (void*)CMPI_SelectExp_Ftab &&
             strncmp(type, CMPISelectExp_str, CMPISelectExp_str_l) == 0)
         {
+            PEG_METHOD_EXIT();
             return 1;
         }
         if (Ftab == (void*)CMPI_SelectCond_Ftab &&
             strncmp(type, CMPISelectCond_str, CMPISelectCond_str_l) == 0)
         {
+            PEG_METHOD_EXIT();
             return 1;
         }
         if (Ftab == (void*)CMPI_SubCond_Ftab &&
             strncmp(type, CMPISubCond_str, CMPISubCond_str_l) == 0)
         {
+            PEG_METHOD_EXIT();
             return 1;
         }
         if (Ftab == (void*)CMPI_Predicate_Ftab &&
             strncmp(type, CMPIPredicate_str, CMPIPredicate_str_l) == 0)
         {
+            PEG_METHOD_EXIT();
             return 1;
         }
         if (Ftab == (void*)CMPI_Broker_Ftab &&
             strncmp(type, CMPIBroker_str, CMPIBroker_str_l) == 0)
         {
+            PEG_METHOD_EXIT();
             return 1;
         }
         if (((Ftab == (void*)CMPI_ObjEnumeration_Ftab) ||
@@ -683,6 +784,7 @@ extern "C"
             (Ftab == (void*)CMPI_OpEnumeration_Ftab)) &&
             strncmp(type, CMPIEnumeration_str, CMPIEnumeration_str_l) == 0)
         {
+            PEG_METHOD_EXIT();
             return 1;
         }
 
@@ -691,6 +793,7 @@ extern "C"
         {
             CMSetStatusWithChars(mb, rc, CMPI_RC_ERR_FAILED, msg);
         }
+        PEG_METHOD_EXIT();
         return 0;
     }
 
@@ -699,6 +802,9 @@ extern "C"
         const  void* o,
         CMPIStatus *rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_BrokerEnc:mbEncGetType()");
         CMPI_Object *obj = (CMPI_Object*)o;
         char msg[128];
         void *Ftab= NULL;
@@ -710,6 +816,7 @@ extern "C"
             {
                 CMSetStatusWithChars(mb, rc, CMPI_RC_ERR_FAILED, msg);
             }
+            PEG_METHOD_EXIT();
             return 0;
         }
 
@@ -719,21 +826,25 @@ extern "C"
         if ((Ftab == (void*)CMPI_Instance_Ftab) ||
             (Ftab == (void*)CMPI_InstanceOnStack_Ftab))
         {
+            PEG_METHOD_EXIT();
             return mb->eft->newString(mb, CMPIInstance_str, rc);
         }
         if ((Ftab == (void*)CMPI_ObjectPath_Ftab) ||
             (Ftab == (void*)CMPI_ObjectPathOnStack_Ftab))
         {
+            PEG_METHOD_EXIT();
             return mb->eft->newString(mb, CMPIObjectPath_str, rc);
         }
         if ((Ftab == (void*)CMPI_Args_Ftab) ||
             (Ftab == (void*)CMPI_ArgsOnStack_Ftab))
         {
+            PEG_METHOD_EXIT();
             return mb->eft->newString(mb, CMPIArgs_str, rc);
         }
         if ((Ftab == (void*)CMPI_Context_Ftab) ||
             (Ftab == (void*)CMPI_ContextOnStack_Ftab))
         {
+            PEG_METHOD_EXIT();
             return mb->eft->newString(mb, CMPIContext_str, rc);
         }
         if ((Ftab == (void*)CMPI_ResultRefOnStack_Ftab) ||
@@ -743,44 +854,54 @@ extern "C"
             (Ftab == (void*)CMPI_ResultResponseOnStack_Ftab) ||
             (Ftab == (void*)CMPI_ResultExecQueryOnStack_Ftab))
         {
+            PEG_METHOD_EXIT();
             return mb->eft->newString(mb, CMPIResult_str, rc);
         }
         if (Ftab == (void*)CMPI_DateTime_Ftab)
         {
+            PEG_METHOD_EXIT();
             return mb->eft->newString(mb, CMPIDateTime_str, rc);
         }
         if (Ftab == (void*)CMPI_Array_Ftab)
         {
+            PEG_METHOD_EXIT();
             return mb->eft->newString(mb, CMPIArray_str, rc);
         }
         if (Ftab == (void*)CMPI_String_Ftab)
         {
+            PEG_METHOD_EXIT();
             return mb->eft->newString(mb, CMPIString_str, rc);
         }
         if (Ftab == (void*)CMPI_SelectExp_Ftab)
         {
+            PEG_METHOD_EXIT();
             return mb->eft->newString(mb, CMPISelectExp_str, rc);
         }
         if (Ftab == (void*)CMPI_SelectCond_Ftab)
         {
+            PEG_METHOD_EXIT();
             return mb->eft->newString(mb, CMPISelectCond_str, rc);
         }
         if (Ftab == (void*)CMPI_SubCond_Ftab)
         {
+            PEG_METHOD_EXIT();
             return mb->eft->newString(mb, CMPISubCond_str, rc);
         }
         if (Ftab == (void*)CMPI_Predicate_Ftab)
         {
+            PEG_METHOD_EXIT();
             return mb->eft->newString(mb, CMPIPredicate_str, rc);
         }
         if (Ftab == (void*)CMPI_Broker_Ftab)
         {
+            PEG_METHOD_EXIT();
             return mb->eft->newString(mb, CMPIBroker_str, rc);
         }
         if ((Ftab == (void*)CMPI_ObjEnumeration_Ftab) ||
             (Ftab == (void*)CMPI_InstEnumeration_Ftab) ||
             (Ftab == (void*)CMPI_OpEnumeration_Ftab))
         {
+            PEG_METHOD_EXIT();
             return mb->eft->newString(mb, CMPIEnumeration_str, rc);
         }
         sprintf(msg, "** Object not recognized (%p) **", o);
@@ -788,6 +909,7 @@ extern "C"
         {
             CMSetStatusWithChars(mb, rc, CMPI_RC_ERR_FAILED, msg);
         }
+        PEG_METHOD_EXIT();
         return 0;
     }
 
@@ -801,9 +923,10 @@ extern "C"
         CMPICount count,
         ...)
     {
-
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_BrokerEnc:mbEncGetMessage()");
         MessageLoaderParms parms(msgId, defMsg);
-        DDD(cout<<"--- mbEncGetMessage() count: "<<count<<endl);
         int err = 0;
         if (rc)
         {
@@ -896,6 +1019,7 @@ extern "C"
             va_end(argptr);
         }
         String nMsg = MessageLoader::getMessage(parms);
+        PEG_METHOD_EXIT();
         return string2CMPIString(nMsg);
     }
 #endif
@@ -906,6 +1030,9 @@ extern "C"
         const char* msgFile,
         CMPIMsgFileHandle* msgFileHandle)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_BrokerEnc:mbEncOpenMessageFile()");
         CMPIStatus rc = { CMPI_RC_OK, NULL };
         AutoPtr<MessageLoaderParms> parms(new MessageLoaderParms());
         parms->msg_src_path = msgFile;
@@ -922,6 +1049,7 @@ extern "C"
             }
             else
             {
+                PEG_METHOD_EXIT();
                 return rc; // should be CMPI_RC_ERR_INVALID_HANDLE
             }
         }
@@ -942,6 +1070,7 @@ extern "C"
         }
 
         *msgFileHandle = (void *)parms.release();
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
@@ -949,10 +1078,14 @@ extern "C"
         const CMPIBroker *mb,
         const CMPIMsgFileHandle msgFileHandle)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_BrokerEnc:mbEncCloseMessageFile()");
         MessageLoaderParms* parms;
         parms = (MessageLoaderParms*)msgFileHandle;
         MessageLoader::closeMessageFile(*parms);
         delete parms;
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
@@ -965,12 +1098,13 @@ extern "C"
         CMPICount count,
         ...)
     {
-
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_BrokerEnc:mbEncGetMessage2()");
         MessageLoaderParms* parms;
         parms = (MessageLoaderParms*)msgFileHandle;
         parms->msg_id = String(msgId);
         parms->default_msg = String(defMsg);
-        DDD(cout<<"--- mbEncGetMessage2() count: "<<count<<endl);
         int err = 0;
         if (rc)
         {
@@ -1064,6 +1198,7 @@ extern "C"
             va_end(argptr);
         }
         String nMsg = MessageLoader::getMessage2(*parms);
+        PEG_METHOD_EXIT();
         return string2CMPIString(nMsg);
     }
 #endif
@@ -1180,6 +1315,9 @@ extern "C"
         CMPIArray ** projection,
         CMPIStatus * st)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_BrokerEnc:mbEncNewSelectExp()");
         int exception = 1;
         int useShortNames = 0;
         CMPIStatus rc = { CMPI_RC_OK, NULL };
@@ -1214,6 +1352,7 @@ extern "C"
                 {
                     *projection = NULL;
                 }
+                PEG_METHOD_EXIT();
                 return NULL;
             }
             if (projection)
@@ -1257,6 +1396,7 @@ extern "C"
                             {
                                 CMSetStatus (st, rc.rc);
                             }
+                            PEG_METHOD_EXIT();
                             return NULL;
                         }
                     }
@@ -1267,7 +1407,10 @@ extern "C"
             {
                 CMSetStatus (st, CMPI_RC_OK);
             }
-            return ((CMPISelectExp *) new CMPI_SelectExp(stmt));
+            CMPISelectExp* cmpiSelectExp = new CMPI_SelectExp(stmt);
+
+            PEG_METHOD_EXIT();
+            return (cmpiSelectExp);
         }
 #ifndef PEGASUS_DISABLE_CQL
         if ((strncmp (lang, CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) == 0) ||
@@ -1293,6 +1436,7 @@ extern "C"
                 {
                     CMSetStatus (st, CMPI_RC_ERR_FAILED);
                 }
+                PEG_METHOD_EXIT();
                 return NULL;
             }
 
@@ -1315,8 +1459,16 @@ extern "C"
             }
             catch (...)
             {
+                PEG_TRACE_CSTRING(
+                    TRC_CMPIPROVIDERINTERFACE,
+                    Tracer::LEVEL2,
+                    "Exception: Unknown Exception received...");
                 if (st)
                 {
+                    PEG_TRACE_CSTRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL2,
+                        "Exception: Invalid Query Exception received...");
                     CMSetStatus (st, CMPI_RC_ERR_INVALID_QUERY);
                 }
             }
@@ -1328,6 +1480,7 @@ extern "C"
                 {
                     *projection = NULL;
                 }
+                PEG_METHOD_EXIT();
                 return NULL;
             }
             else
@@ -1395,6 +1548,7 @@ extern "C"
                                 {
                                     CMSetStatus (st, rc.rc);
                                 }
+                                PEG_METHOD_EXIT();
                                 return NULL;
                             }
                         }
@@ -1405,12 +1559,18 @@ extern "C"
             {
                 CMSetStatus (st, CMPI_RC_OK);
             }
-            return((CMPISelectExp *) new CMPI_SelectExp(
-                selectStatement, false, qcontext.clone()));
+            CMPI_SelectExp* cmpiSelectExp = new CMPI_SelectExp(
+                selectStatement, false, qcontext.clone());
+            PEG_METHOD_EXIT();
+            return (cmpiSelectExp);
         }
 #endif
         if (st)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received Query Language is currently NOT SUPPORTED");
             CMSetStatus (st, CMPI_RC_ERR_QUERY_LANGUAGE_NOT_SUPPORTED);
         }
         return NULL;
@@ -1424,16 +1584,31 @@ extern "C"
         CMPIObjectPath *cop,
         CMPIStatus *rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_BrokerEnc:mbEncGetKeyList()");
         if ((cop==NULL) || (ctx==NULL))
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid Parameter cop || ctx in \
+                CMPI_BrokerEnc:mbEncGetKeyList");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return NULL;
         }
         CIMObjectPath *op = (CIMObjectPath*)cop->hdl;
 
         if (!op)
         {
-            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received Invalid Handle cop->handle in \
+                CMPI_BrokerEnc:mbEncGetKeyList");
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+            PEG_METHOD_EXIT();
             return NULL;
         }
         CIMClass *cls = mbGetClass(mb,*op);
@@ -1455,6 +1630,7 @@ extern "C"
             ar->ft->setElementAt(ar, i, (CMPIValue*)&str, CMPI_string);
         }
         CMSetStatus(rc, CMPI_RC_OK);
+        PEG_METHOD_EXIT();
         return ar;
     }
 

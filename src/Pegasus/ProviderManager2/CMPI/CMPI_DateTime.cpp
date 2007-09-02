@@ -41,6 +41,7 @@
 #include <sys/time.h>
 #endif
 #include <string.h>
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -54,38 +55,58 @@ extern "C"
 
     static CMPIStatus dtRelease(CMPIDateTime* eDt)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_DateTime:dtRelease()");
         CIMDateTime* dt = (CIMDateTime*)eDt->hdl;
         if (dt)
         {
             delete dt;
             (reinterpret_cast<CMPI_Object*>(eDt))->unlinkAndDelete();
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_OK);
         }
         else
         {
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
     }
 
     CMPIDateTime *newDateTime()
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_DateTime:newDateTime()");
         CIMDateTime *dt = new CIMDateTime();
         *dt = CIMDateTime::getCurrentDateTime();
-        return reinterpret_cast<CMPIDateTime*>(new CMPI_Object(dt));
+        CMPIDateTime* cmpiDateTime = 
+            reinterpret_cast<CMPIDateTime*>(new CMPI_Object(dt));
+        PEG_METHOD_EXIT();
+        return cmpiDateTime;
     }
 
     CMPIDateTime *newDateTimeBin(CMPIUint64 tim, CMPIBoolean interval)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_DateTime:newDateTimeBin()");
         if (!interval)
         {
             tim += POSIX_1970_EPOCH_OFFSET;
         }
         CIMDateTime *dt = new CIMDateTime(tim, interval);
-        return reinterpret_cast<CMPIDateTime*>(new CMPI_Object(dt));
+        CMPIDateTime* cmpiDateTime = 
+            reinterpret_cast<CMPIDateTime*>(new CMPI_Object(dt));
+        PEG_METHOD_EXIT();
+        return cmpiDateTime;
     }
 
     CMPIDateTime *newDateTimeChar(const char *strTime)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_DateTime:newDateTimeChar()");
         CIMDateTime *dt = new CIMDateTime();
         try
         {
@@ -93,18 +114,32 @@ extern "C"
         }
         catch ( ... )
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: Unknown Exception in newDateTimeChar()");
             delete dt;
+            PEG_METHOD_EXIT();
             return NULL;
         }
-        return reinterpret_cast<CMPIDateTime*>(new CMPI_Object(dt));
+        CMPIDateTime* cmpiDateTime = 
+            reinterpret_cast<CMPIDateTime*>(new CMPI_Object(dt));
+        PEG_METHOD_EXIT();
+        return cmpiDateTime;
     }
 
     static CMPIDateTime* dtClone(const CMPIDateTime* eDt, CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPI_DateTime:dtClone()");
         CIMDateTime* dt = (CIMDateTime*)eDt->hdl;
         if (!dt)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid Handle - eDt->hdl...");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+            PEG_METHOD_EXIT();
             return NULL;
         }
         CIMDateTime* cDt = new CIMDateTime(dt->toString());
@@ -112,6 +147,7 @@ extern "C"
         obj->unlink();
         CMPIDateTime* neDt = reinterpret_cast<CMPIDateTime*>(obj);
         CMSetStatus(rc, CMPI_RC_OK);
+        PEG_METHOD_EXIT();
         return neDt;
     }
 
@@ -122,6 +158,10 @@ extern "C"
         CIMDateTime* dt = (CIMDateTime*)eDt->hdl;
         if (!dt)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid Handle in CMPI_DateTime:dtIsInterval");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return false;
         }
@@ -134,15 +174,25 @@ extern "C"
         const CMPIDateTime* eDt,
         CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_DateTime:dtGetStringFormat()");
         CIMDateTime* dt = (CIMDateTime*)eDt->hdl;
         if (!dt)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid Handle eDt->hdl in \
+                CMPI_DateTime:dtGetStringFormat");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+            PEG_METHOD_EXIT();
             return NULL;
         }
         CMPIString *str =
             reinterpret_cast<CMPIString*>(new CMPI_Object(dt->toString()));
         CMSetStatus(rc,CMPI_RC_OK);
+        PEG_METHOD_EXIT();
         return str;
     }
 
@@ -150,10 +200,19 @@ extern "C"
         const CMPIDateTime* eDt,
         CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_DateTime:dtGetBinaryFormat()");
         CIMDateTime* dt = (CIMDateTime*)eDt->hdl;
         if (!dt)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received invalid Handle eDt->hdl in \
+                CMPI_DateTime:dtGetBinaryFormat");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+            PEG_METHOD_EXIT();
             return 0;
         }
         CMPIUint64 tim = dt->toMicroSeconds();
@@ -161,6 +220,7 @@ extern "C"
         {
             tim -= POSIX_1970_EPOCH_OFFSET;
         }
+        PEG_METHOD_EXIT();
         return tim;
     }
 }

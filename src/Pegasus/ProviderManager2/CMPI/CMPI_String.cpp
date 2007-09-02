@@ -37,6 +37,7 @@
 #include "CMPI_String.h"
 #include "CMPI_Ftabs.h"
 
+#include <Pegasus/Common/Tracer.h>
 #include <string.h>
 
 PEGASUS_USING_STD;
@@ -64,6 +65,11 @@ extern "C"
         }
         else
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid handle eStr->hdl in \
+                CMPI_String:stringRelease");
             CMReturn (CMPI_RC_ERR_INVALID_HANDLE);
         }
     }
@@ -74,6 +80,11 @@ extern "C"
         char* str=(char*)eStr->hdl;
         if( !str )
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid handle eStr->hdl in \
+                CMPI_String:stringClone");
             CMSetStatus (rc, CMPI_RC_ERR_INVALID_HANDLE); 
             return NULL;
         }
@@ -89,6 +100,11 @@ extern "C"
         char* ptr=(char*)eStr->hdl;
         if( !ptr )
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid handle eStr->hdl in \
+                CMPI_String:stringGetCharPtr");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return NULL;
         }

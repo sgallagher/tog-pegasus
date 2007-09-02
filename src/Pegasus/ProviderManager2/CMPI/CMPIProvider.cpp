@@ -40,7 +40,6 @@
 #include "CMPI_ContextArgs.h"
 #include "CMPI_Ftabs.h"
 
-#include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Time.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProviderModule.h>
@@ -58,6 +57,9 @@ CMPIProvider::CMPIProvider(
     : _status(UNINITIALIZED), _module(module), _cimom_handle(0), _name(name),
     _no_unload(0),  _threadWatchList(), _cleanedThreads()
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPIProvider::CMPIProvider()");
     _current_operations = 1;
     _currentSubscriptions = 0;
     broker.hdl =0;
@@ -65,6 +67,7 @@ CMPIProvider::CMPIProvider(
     if (mv) miVector=*mv;
     noUnload=false;
     Time::gettimeofday(&_idleTime);
+    PEG_METHOD_EXIT();
 }
 
 CMPIProvider::~CMPIProvider(void)
@@ -111,6 +114,7 @@ void setError(
     const char *generic,
     const char *spec)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPIProvider:setError()");
     if (error.size() > 0)
     {
         error.append(", ");
@@ -124,6 +128,7 @@ void setError(
         error.append(realProviderName);
         error.append(spec);
     }
+    PEG_METHOD_EXIT();
 }
 
 void CMPIProvider::initialize(
@@ -132,6 +137,7 @@ void CMPIProvider::initialize(
     String & name,
     CMPI_Broker & broker)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPIProvider::initialize()");
     broker.hdl=& cimom;
     broker.bft=CMPI_Broker_Ftab;
     broker.eft=CMPI_BrokerEnc_Ftab;
@@ -246,10 +252,12 @@ void CMPIProvider::initialize(
             realProviderName,
             error));
     }
+    PEG_METHOD_EXIT();
 }
 
 void CMPIProvider::initialize(CIMOMHandle & cimom)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPIProvider::initialize()");
     String providername(getName());
 
     if (_status == UNINITIALIZED)
@@ -275,16 +283,22 @@ void CMPIProvider::initialize(CIMOMHandle & cimom)
         _status = INITIALIZED;
         _current_operations = 0;
     }
+    PEG_METHOD_EXIT();
 }
 
 Boolean CMPIProvider::tryTerminate()
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPIProvider::tryTerminate()");
+
     Boolean terminated = false;
 
     if (_status == INITIALIZED)
     {
         if (false == unload_ok())
         {
+            PEG_METHOD_EXIT();
             return false;
         }
 
@@ -299,6 +313,7 @@ Boolean CMPIProvider::tryTerminate()
                 if (noUnload==true)
                 {
                     _status=savedStatus;
+                    PEG_METHOD_EXIT();
                     return false;
                 }
                 terminated=true;
@@ -306,7 +321,9 @@ Boolean CMPIProvider::tryTerminate()
         }
         catch (...)
         {
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            PEG_TRACE_STRING(
+                TRC_PROVIDERMANAGER,
+                Tracer::LEVEL2,
                 "Exception caught in CMPIProviderFacade::tryTerminate() for " +
                 getName());
             terminated = false;
@@ -317,6 +334,7 @@ Boolean CMPIProvider::tryTerminate()
             _status = UNINITIALIZED;
         }
     }
+    PEG_METHOD_EXIT();
     return terminated;
 }
 
@@ -329,6 +347,7 @@ Boolean CMPIProvider::tryTerminate()
 */
 void CMPIProvider::_terminate(Boolean terminating)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPIProvider::_terminate()");
     const OperationContext opc;
     CMPIStatus rc={CMPI_RC_OK,NULL};
     CMPI_ContextOnStack eCtx(opc);
@@ -472,11 +491,15 @@ void CMPIProvider::_terminate(Boolean terminating)
         // Wait until all of the threads have been cleaned.
         waitUntilThreadsDone();
     }
+    PEG_METHOD_EXIT();
 }
 
 
 void CMPIProvider::terminate()
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPIProvider::terminate()");
     Status savedStatus=_status;
     if (_status == INITIALIZED)
     {
@@ -487,18 +510,22 @@ void CMPIProvider::terminate()
             if (noUnload==true)
             {
                 _status=savedStatus;
+                PEG_METHOD_EXIT();
                 return;
             }
         }
         catch (...)
         {
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            PEG_TRACE_STRING(
+                TRC_PROVIDERMANAGER,
+                Tracer::LEVEL2,
                 "Exception caught in CMPIProviderFacade::Terminate for " +
                 getName());
             throw;
         }
     }
     _status = UNINITIALIZED;
+    PEG_METHOD_EXIT();
 }
 
 /*
@@ -508,8 +535,7 @@ void CMPIProvider::terminate()
  * 'removeThreadFromWatch()' . If you do it, you will
  * wait forever.
  */
-void
-    CMPIProvider::waitUntilThreadsDone()
+void CMPIProvider::waitUntilThreadsDone()
 {
     while (_cleanedThreads.size() > 0)
     {
@@ -521,15 +547,17 @@ void
  *
  * @argument t Thread that is not NULL.
  */
-Boolean
-    CMPIProvider::isThreadOwner(Thread *t)
+Boolean CMPIProvider::isThreadOwner(Thread *t)
 {
     PEGASUS_ASSERT ( t != NULL );
     if (_cleanedThreads.contains(t))
+    {
         return true;
+    }
     if (!_threadWatchList.contains(t))
+    {
         return true;
-
+    }
     return false;
 }
 /*
@@ -539,8 +567,7 @@ Boolean
  * @argument t Thread which has been previously provided
  * to 'removeThreadFromWatch' function.
  */
-void
-    CMPIProvider::threadDelete(Thread *t)
+void CMPIProvider::threadDelete(Thread *t)
 {
     PEGASUS_ASSERT ( _cleanedThreads.contains(t) );
     PEGASUS_ASSERT ( !_threadWatchList.contains(t) );
@@ -564,9 +591,11 @@ void
 // @argument t Thread that is not NULL and finished with running
 //  the provider function.
 */
-void
-    CMPIProvider::removeThreadFromWatch(Thread *t)
+void CMPIProvider::removeThreadFromWatch(Thread *t)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPIProvider::removeThreadFromWatch()");
     PEGASUS_ASSERT( t != 0 );
 
     PEGASUS_ASSERT (_threadWatchList.contains (t));
@@ -582,6 +611,7 @@ void
     _cleanedThreads.insert_back(t);
 
     CMPILocalProviderManager::cleanupThread(t, this);
+    PEG_METHOD_EXIT();
 }
 
 /*
@@ -591,8 +621,7 @@ void
  *
  * @argument t Thread is not NULL.
 */
-void
-    CMPIProvider::addThreadToWatch(Thread *t)
+void CMPIProvider::addThreadToWatch(Thread *t)
 {
     PEGASUS_ASSERT( t != 0 );
 
@@ -614,10 +643,17 @@ void CMPIProvider::update_idle_timer()
 
 Boolean CMPIProvider::unload_ok()
 {
-    if (noUnload==true) return false;
-    if (_no_unload.get())
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPIProvider::unload_ok()");
+    if (noUnload==true)
+    {
+        PEG_METHOD_EXIT();
         return false;
-
+    }
+    if (_no_unload.get())
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
     // Do not call CIMOMHandle::unload_ok here. 
     // CIMOMHandle::unload_ok method tests for _providerUnloadProtect
     // and if zero returns true. _providerUnloadProtect is
@@ -625,7 +661,7 @@ Boolean CMPIProvider::unload_ok()
     // is called and decremented when
     // CIMOMHandle::allowProviderUnload() is called. There is
     // no way these functions are called from CMPI Providers.(Bug 6642)
-
+    PEG_METHOD_EXIT();
     return true;
 }
 

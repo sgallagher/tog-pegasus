@@ -41,16 +41,12 @@
 #include <Pegasus/CQL/CQLSimplePredicate.h>
 #include <Pegasus/CQL/CQLPredicate.h>
 #include <Pegasus/CQL/CQLValue.h>
+#include <Pegasus/Common/Tracer.h>
 
 #include "CMPI_Cql2Dnf.h"
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
-
-#define DDD(X)   if (_cmpi_trace) X;
-
-extern int _cmpi_trace;
-
 
 //
 // Routine to map the CQL data to String
@@ -189,7 +185,6 @@ CMPIPredOp CQL2PredOp (ExpressionOpType op, Boolean isInverted)
         default:
             break;
     }
-
     return op_type;
 }
 
@@ -229,6 +224,9 @@ CMPI_QueryOperand::Type CQL2Type(CQLValue::CQLValueType typ)
 
 void CMPI_Cql2Dnf::_populateTableau()
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPI_Cql2Dnf::_populateTableau()");
     cqs.validate ();
     cqs.applyContext ();
     cqs.normalizeToDOC ();
@@ -248,7 +246,10 @@ void CMPI_Cql2Dnf::_populateTableau()
 
     _tableau.reserveCapacity(pred_Array.size());
 
-    DDD(cout << "Expression:  " <<  cqs.toString() << endl);
+    PEG_TRACE_STRING(
+        TRC_CMPIPROVIDERINTERFACE,
+        Tracer::LEVEL4,
+        "Expression: " + cqs.toString());
 
     CMPI_TableauRow tr;
     CQLValue dummy("");
@@ -324,12 +325,17 @@ void CMPI_Cql2Dnf::_populateTableau()
             }
         }
     }
+    PEG_METHOD_EXIT();
 }
 
 CMPI_Cql2Dnf::CMPI_Cql2Dnf(const CQLSelectStatement qs): cqs(qs)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPI_Cql2Dnf::CMPI_Cql2Dnf()");
     _tableau.clear();
     _populateTableau();
+    PEG_METHOD_EXIT();
 }
 
 CMPI_Cql2Dnf::~CMPI_Cql2Dnf()

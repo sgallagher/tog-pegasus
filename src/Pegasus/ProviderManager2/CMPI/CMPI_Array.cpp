@@ -35,7 +35,7 @@
 
 #include "CMPI_Object.h"
 #include "CMPI_Ftabs.h"
-
+#include <Pegasus/Common/Tracer.h>
 #include <string.h>
 
 PEGASUS_USING_STD;
@@ -46,13 +46,19 @@ extern "C"
 
     PEGASUS_STATIC CMPIStatus arrayRelease(CMPIArray* eArray)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Array:arrayRelease()");
+
         CMPIData *dta = (CMPIData*)eArray->hdl;
         if (dta)
         {
             delete[] dta;
             reinterpret_cast<CMPI_Object*>(eArray)->unlinkAndDelete();
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_OK);
         }
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
     }
 
@@ -60,11 +66,15 @@ extern "C"
         const CMPIArray* eArray,
         CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Array:arrayClone()");
         CMPIData* dta=(CMPIData*)eArray->hdl;
 
         if (!dta)
         {
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+            PEG_METHOD_EXIT();
             return NULL;
         }
         CMPIData* nDta = new CMPIData[dta->value.uint32+1];
@@ -159,11 +169,13 @@ extern "C"
                     {
                         *rc=rrc;
                     }
+                    PEG_METHOD_EXIT();
                     return NULL;
                 }
             }
         }
         CMSetStatus(rc,CMPI_RC_OK);
+        PEG_METHOD_EXIT();
         return nArray;
     }
 
@@ -194,13 +206,18 @@ extern "C"
         const CMPIValue *val,
         CMPIType type)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Array:arraySetElementAt()");
         CMPIData *dta = (CMPIData*)eArray->hdl;
         if (!dta)
         {
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
         if (!val)
         {
+            PEG_METHOD_EXIT();
             CMReturn( CMPI_RC_ERR_INVALID_PARAMETER);
         }
         if (pos<dta->value.uint32)
@@ -209,6 +226,7 @@ extern "C"
             {
                 dta[pos+1].state=CMPI_goodValue;
                 dta[pos+1].value=*val;
+                PEG_METHOD_EXIT();
                 CMReturn(CMPI_RC_OK);
             }
             else
@@ -217,11 +235,13 @@ extern "C"
                 sprintf(msg,"arraySetElementAt(): CMPI_RC_ERR_TYPE_MISMATCH."
                     " Is %p - should be %p",
                     (void*)(long)type, (void*)(long)dta->type);
+                PEG_METHOD_EXIT();
                 CMReturnWithString(
                     CMPI_RC_ERR_TYPE_MISMATCH,
                     reinterpret_cast<CMPIString*>(new CMPI_Object(msg)));
             }
         }
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_ERR_NO_SUCH_PROPERTY);
     }
 

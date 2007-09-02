@@ -37,6 +37,7 @@
 #include <Pegasus/Common/Stack.h>
 #include <Pegasus/WQL/WQLParser.h>
 #include <Pegasus/WQL/WQLSelectStatementRep.h>
+#include <Pegasus/Common/Tracer.h>
 
 #include "CMPI_Wql2Dnf.h"
 
@@ -234,14 +235,19 @@ static bool operator==(const term_el_WQL& x, const term_el_WQL& y)
 
 static void addIfNotExists(TableauRow_WQL &tr, const term_el_WQL& el)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPI_Wql2Dnf:addIfNotExists()");
     for( int i=0,m=tr.size(); i<m; i++ )
     {
         if( tr[i]==el )
         {
+            PEG_METHOD_EXIT();
             return;
         }
     }
     tr.append(el);
+    PEG_METHOD_EXIT();
 }
 
 
@@ -250,6 +256,7 @@ static Boolean _Evaluate(
     const WQLOperand& rhs, 
     WQLOperation op)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPI_Wql2Dnf:_Evaluate()");
     switch( lhs.getType() )
     {
         case WQLOperand::NULL_VALUE:
@@ -266,6 +273,7 @@ static Boolean _Evaluate(
 
         case WQLOperand::INTEGER_VALUE:
             {
+                PEG_METHOD_EXIT();
                 return _Compare(
                 lhs.getIntegerValue(),
                 rhs.getIntegerValue(),
@@ -274,6 +282,7 @@ static Boolean _Evaluate(
 
         case WQLOperand::DOUBLE_VALUE:
             {
+                PEG_METHOD_EXIT();
                 return _Compare(
                 lhs.getDoubleValue(),
                 rhs.getDoubleValue(),
@@ -282,6 +291,7 @@ static Boolean _Evaluate(
 
         case WQLOperand::BOOLEAN_VALUE:
             {
+                PEG_METHOD_EXIT();
                 return _Compare(
                 lhs.getBooleanValue(),
                 rhs.getBooleanValue(),
@@ -290,6 +300,7 @@ static Boolean _Evaluate(
 
         case WQLOperand::STRING_VALUE:
             {
+                PEG_METHOD_EXIT();
                 return _Compare(
                 lhs.getStringValue(),
                 rhs.getStringValue(),
@@ -300,6 +311,7 @@ static Boolean _Evaluate(
             PEGASUS_ASSERT(0);
     }
 
+    PEG_METHOD_EXIT();
     return false;
 }
 
@@ -347,8 +359,10 @@ CMPI_Wql2Dnf::~CMPI_Wql2Dnf()
 
 void CMPI_Wql2Dnf::compile(const WQLSelectStatement * wqs)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPI_Wql2Dnf::compile()");
     if( !wqs->hasWhereClause() )
     {
+        PEG_METHOD_EXIT();
         return;
     }
     _tableau.clear();
@@ -396,10 +410,12 @@ void CMPI_Wql2Dnf::compile(const WQLSelectStatement * wqs)
     //printTableau();
     //_sortTableau();
     _populateTableau();
+    PEG_METHOD_EXIT();
 }
 
 Boolean CMPI_Wql2Dnf::evaluate(WQLPropertySource * source) const
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPI_Wql2Dnf::evaluate()");
     Boolean b = false;
     WQLOperand lhs, rhs;
 
@@ -430,14 +446,17 @@ Boolean CMPI_Wql2Dnf::evaluate(WQLPropertySource * source) const
         }
         if( b )
         {
+            PEG_METHOD_EXIT();
             return true;
         }
     }
+    PEG_METHOD_EXIT();
     return false;
 }
 
 void CMPI_Wql2Dnf::print(void)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPI_Wql2Dnf::print()");
     for( Uint32 i=0, n=eval_heap.size();i < n;i++ )
     {
         WQLOperation wop = eval_heap[i].op;
@@ -474,10 +493,12 @@ void CMPI_Wql2Dnf::print(void)
         cout << WQLOperationToString(terminal_heap[i].op) << " "
         << terminal_heap[i].opn2.toString() << endl;
     }
+    PEG_METHOD_EXIT();
 }
 
 void CMPI_Wql2Dnf::printTableau(void)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPI_Wql2Dnf::printTableau()");
     for( Uint32 i=0,n = _tableau.size(); i < n; i++ )
     {
         cout << "Tableau " << i << endl;
@@ -489,7 +510,7 @@ void CMPI_Wql2Dnf::printTableau(void)
             << tr[j].opn2.toString() << endl;
         }
     }
-
+    PEG_METHOD_EXIT();
 }
 
 String WQL2String(const WQLOperand &o)
@@ -513,7 +534,7 @@ String WQL2String(const WQLOperand &o)
 
 CMPIPredOp WQL2PredOp(const WQLOperation &op)
 {
-
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE,"CMPI_Wql2Dnf:WQL2PredOp()");
     static CMPIPredOp ops[]={(CMPIPredOp)0,(CMPIPredOp)0,(CMPIPredOp)0,
         CMPI_PredOp_Equals,
         CMPI_PredOp_NotEquals,
@@ -523,7 +544,7 @@ CMPIPredOp WQL2PredOp(const WQLOperation &op)
         CMPI_PredOp_GreaterThanOrEquals,
         (CMPIPredOp)0,(CMPIPredOp)0,(CMPIPredOp)0,
         (CMPIPredOp)0,(CMPIPredOp)0,(CMPIPredOp)0};
-
+    PEG_METHOD_EXIT();
     return ops[(int)op];
 }
 
@@ -550,6 +571,9 @@ CMPI_QueryOperand::Type WQL2Type(WQLOperand::Type typ)
 
 void CMPI_Wql2Dnf::_populateTableau(void)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPI_Wql2Dnf::_populateTableau()");
     for( Uint32 i=0,n = _tableau.size(); i < n; i++ )
     {
         TableauRow_WQL tr_wql = _tableau[i];
@@ -570,10 +594,13 @@ void CMPI_Wql2Dnf::_populateTableau(void)
         }
 
     }
+    PEG_METHOD_EXIT();
 }
 void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
 {
-
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPI_Wql2Dnf::_buildEvalHeap()");
     //WQLSelectStatement* that = (WQLSelectStatement*)wqs;
 
     WQLSelectStatementRep* wqsrep = wqs->_rep;
@@ -687,10 +714,14 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
     }
 
     PEGASUS_ASSERT(stack.size() == 1);
+    PEG_METHOD_EXIT();
 }
 
 void CMPI_Wql2Dnf::_pushNOTDown()
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPI_Wql2Dnf::_pushNOTDown()");
     for( int i=eval_heap.size()-1; i >= 0; i-- )
     {
         Boolean _found = false;
@@ -798,10 +829,12 @@ void CMPI_Wql2Dnf::_pushNOTDown()
             }
         }
     }
+    PEG_METHOD_EXIT();
 }
 
 void CMPI_Wql2Dnf::_factoring(void)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPI_Wql2Dnf::_factoring()");
     int i = 0,n = eval_heap.size();
     //for (int i=eval_heap.size()-1; i >= 0; i--)
     while( i < n )
@@ -907,6 +940,7 @@ void CMPI_Wql2Dnf::_factoring(void)
             i++; // increase pointer
         }
     }
+    PEG_METHOD_EXIT();
 }
     void CMPI_Wql2Dnf::_gatherDisj(Array<CMPI_stack_el>& stk)
     {
@@ -925,6 +959,7 @@ void CMPI_Wql2Dnf::_factoring(void)
         CMPI_stack_el sel,
         Boolean or_flag)
     {
+        PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPI_Wql2Dnf::_gather()");
         Uint32 i = 0;
 
         stk.clear();
@@ -932,6 +967,7 @@ void CMPI_Wql2Dnf::_factoring(void)
 
         if( (i = eval_heap.size()) == 0 )
         {
+            PEG_METHOD_EXIT();
             return;
         }
 
@@ -941,6 +977,7 @@ void CMPI_Wql2Dnf::_factoring(void)
             i--;
             if( i == 0 )
             {
+               PEG_METHOD_EXIT();
                return;
             }
         }
@@ -954,6 +991,7 @@ void CMPI_Wql2Dnf::_factoring(void)
         {
             if( sel.is_terminal )
             {
+                PEG_METHOD_EXIT();
                 return;
             }
             stk.append(sel);
@@ -988,6 +1026,7 @@ void CMPI_Wql2Dnf::_factoring(void)
                 }
             }
         }
+        PEG_METHOD_EXIT();
     }
 
 //=============================================================================
@@ -1040,6 +1079,7 @@ void CMPI_Wql2Dnf::_factoring(void)
 // and terminals appear in the second operand first
 void CMPI_eval_el::order(void)
 {
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPI_eval_el::order()");
     int k;
     if( (!is_terminal1) && (!is_terminal2) )
         if( (k = opn2) > opn1 )
@@ -1060,6 +1100,7 @@ void CMPI_eval_el::order(void)
                 }
             }
         }
+    PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END

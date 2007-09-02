@@ -37,6 +37,7 @@
 #include "CMPI_Ftabs.h"
 #include "CMPI_Value.h"
 #include "CMPI_String.h"
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -46,15 +47,24 @@ extern "C"
 
     CMPIStatus sbcRelease(CMPISubCond* sc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_SubCond:sbcRelease()");
         CMPI_SubCond *sbc = (CMPI_SubCond*)sc->hdl;
         if( sbc )
         {
             delete sbc;
             reinterpret_cast<CMPI_Object*>(sc)->unlinkAndDelete();
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_OK);
         }
         else
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid handle in CMPI_SubCond:sbcRelease");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
     }
@@ -67,28 +77,46 @@ extern "C"
 
     CMPICount sbcGetCount(const CMPISubCond* eSbc, CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_SubCond:sbcGetCount()");
         const CMPI_SubCond *sbc = (CMPI_SubCond*)eSbc->hdl;
         if( !sbc )
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid handle in CMPI_SubCond:sbcGetCount");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+            PEG_METHOD_EXIT();
             return 0;
         }
         CMPI_TableauRow* row = (CMPI_TableauRow* )sbc->priv;
         CMSetStatus(rc,CMPI_RC_OK);
         if( row )
         {
+            PEG_METHOD_EXIT();
             return row->size();
         }
+        PEG_METHOD_EXIT();
         return 0;
     }
 
     CMPIPredicate* sbcGetPredicateAt(const CMPISubCond* eSbc, 
     unsigned int index, CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_SubCond:sbcGetPredicateAt()");
         const CMPI_SubCond *sbc = (CMPI_SubCond*)eSbc->hdl;
         if( !sbc )
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid handle in CMPI_SubCond:sbcGetPredicateAt");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
+            PEG_METHOD_EXIT();
             return 0;
         }
         CMPI_TableauRow* row = (CMPI_TableauRow* )sbc->priv;
@@ -109,10 +137,14 @@ extern "C"
                 CMPI_Object *obj = new CMPI_Object(prd);
 
                 CMSetStatus(rc,CMPI_RC_OK);
-                return reinterpret_cast<CMPIPredicate*>(obj);
+                CMPIPredicate* cmpiPredicate = 
+                    reinterpret_cast<CMPIPredicate*>(obj);
+                PEG_METHOD_EXIT();
+                return cmpiPredicate;
             }
         }
         CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
+        PEG_METHOD_EXIT();
         return NULL; 
     }
 

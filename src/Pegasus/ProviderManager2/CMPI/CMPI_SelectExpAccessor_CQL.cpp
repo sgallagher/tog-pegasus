@@ -52,6 +52,7 @@
 #include <Pegasus/CQL/CQLPredicate.h>
 #include <Pegasus/CQL/CQLValue.h>
 #include <Pegasus/Query/QueryCommon/QueryChainedIdentifier.h>
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_USING_STD;
 
@@ -74,6 +75,9 @@ CMPI_SelectExpAccessor_CQL::CMPI_SelectExpAccessor_CQL (
 void CMPI_SelectExpAccessor_CQL::_constructInstance ()
 {
 
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPI_SelectExpAccessor_CQL::_constructInstance()");
     _instance = CIMInstance (_objPath.getClassName ().getString ());
      /**
         Iterate throught the CQLPredicates
@@ -217,7 +221,7 @@ void CMPI_SelectExpAccessor_CQL::_constructInstance ()
                 }
         }
     }
-
+    PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END

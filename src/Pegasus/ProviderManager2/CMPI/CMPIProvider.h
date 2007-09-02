@@ -48,6 +48,7 @@
 #include <Pegasus/Provider/CIMMethodProvider.h>
 
 #include <Pegasus/ProviderManager2/CMPI/Linkage.h>
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -434,27 +435,34 @@ private:
             if (this == &x)
                 return(*this);
             SetProvider( x._provider );
-
             return(*this);
         }
 
         void SetProvider( CMPIProvider* p )
         {
+            PEG_METHOD_ENTER(
+                TRC_CMPIPROVIDERINTERFACE,
+                "OpProviderHolder::SetProvider()");
             UnSetProvider();
             if (p)
             {
                 _provider = p;
                 _provider->_current_operations++;
             }
+            PEG_METHOD_EXIT();
         }
 
         void UnSetProvider()
         {
+            PEG_METHOD_ENTER(
+                TRC_CMPIPROVIDERINTERFACE,
+                "OpProviderHolder::UnSetProvider()");
             if (_provider)
             {
                 _provider->_current_operations--;
                 _provider = NULL;
             }
+            PEG_METHOD_EXIT();
         }
     };
 };

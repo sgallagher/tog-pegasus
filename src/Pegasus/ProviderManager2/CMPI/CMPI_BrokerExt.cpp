@@ -97,6 +97,9 @@ extern "C"
 
 static ThreadReturnType PEGASUS_THREAD_CDECL start_driver(void *parm)
 {
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPI_BrokerExt:start_driver()");
     ThreadReturnType rc;
     Thread* my_thread = (Thread*)parm;
     thrd_data *pp = (thrd_data*)my_thread->get_parm();
@@ -107,12 +110,13 @@ static ThreadReturnType PEGASUS_THREAD_CDECL start_driver(void *parm)
 
     // Remove the thread from the watch-list (and clean it up).
     data.provider->removeThreadFromWatch(my_thread);
+    PEG_METHOD_EXIT();
     return rc;
 }
 
 extern "C"
 {
-    static char *resolveFileName (const char *filename)
+    static char *resolveFileName(const char *filename)
     {
         String pn = ProviderManager::_resolvePhysicalName(filename);
         CString n = pn.getCString();
@@ -124,6 +128,9 @@ extern "C"
         void *parm,
         int detached)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_BrokerExt:newThread()");
         const CMPIBroker *brk = CM_BROKER;
         const CMPI_Broker *broker = (CMPI_Broker*)brk;
 
@@ -160,6 +167,7 @@ extern "C"
                 "Started provider thread (%p) for %s.",
                 t, (const char *)broker->name.getCString()));
         }
+        PEG_METHOD_EXIT();
         return (CMPI_THREAD_TYPE)t;
     }
 
@@ -192,11 +200,15 @@ extern "C"
 
     static int threadOnce (int *once, void (*init)(void))
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_BrokerExt:threadOnce()");
         if (*once==0)
         {
             *once = 1;
             (init)();
         }
+        PEG_METHOD_EXIT();
         return *once;
     }
 
@@ -245,7 +257,11 @@ extern "C"
 
     static CMPI_COND_TYPE newCondition(int opt)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_BrokerExt:newCondition()");
         ConditionWithMutex *c = new ConditionWithMutex();
+        PEG_METHOD_EXIT();
         return c;
     }
 
@@ -266,7 +282,9 @@ extern "C"
         CMPI_MUTEX_TYPE m,
         struct timespec *wait)
     {
-
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_BrokerExt:timedCondWait()");
         int msec;
         struct timespec next = *wait;
 #if defined CMPI_PLATFORM_WIN32_IX86_MSVC
@@ -299,6 +317,7 @@ extern "C"
         msec += (next.tv_nsec/1000000)-(now.tv_usec/1000);
 
         Threads::sleep(msec);
+        PEG_METHOD_EXIT();
         return 0;
     }
 

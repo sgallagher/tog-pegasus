@@ -51,8 +51,6 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-#define DDD(X)   if (_cmpi_trace) X;
-
 static const CMPIUint32 MB_CAPABILITIES =
 #   ifdef CMPI_VER_200
     CMPI_MB_Supports_Extended_Error |
@@ -65,8 +63,6 @@ static const CMPIUint32 MB_CAPABILITIES =
     | CMPI_MB_QueryExecution
 #   endif
     ;
-
-extern int _cmpi_trace;
 
 static CIMPropertyList getList(const char** l)
 {
@@ -85,18 +81,20 @@ static CIMPropertyList getList(const char** l)
 
 CIMClass* mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop)
 {
-     DDD(cout<<"--- mbGetClass()"<<endl);
-     mb=CM_BROKER;
-     CMPI_Broker *xBroker=(CMPI_Broker*)mb;
-     String clsId =
-        cop.getNameSpace().getString()+":"+cop.getClassName().getString();
-     CIMClass *ccp;
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPI_Broker:mbGetClass()");
 
-     {
+    mb=CM_BROKER;
+    CMPI_Broker *xBroker=(CMPI_Broker*)mb;
+    String clsId =
+        cop.getNameSpace().getString()+":"+cop.getClassName().getString();
+    CIMClass *ccp;
+
+    {
         ReadLock readLock (xBroker->rwsemClassCache);
 
         if (xBroker->clsCache->lookup(clsId,ccp))
         {
+            PEG_METHOD_EXIT();
             return ccp;
         }
     }
@@ -107,6 +105,7 @@ CIMClass* mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop)
 
         if (xBroker->clsCache->lookup(clsId,ccp))
         {
+            PEG_METHOD_EXIT();
             return ccp;
         }
 
@@ -121,14 +120,17 @@ CIMClass* mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop)
 
         ccp = new CIMClass(cc);
         xBroker->clsCache->insert(clsId,ccp);
+        PEG_METHOD_EXIT();
         return ccp;
     }
     catch (const CIMException &e)
     {
-        DDD(cout<<"### exception: mbGetClass - code: "<<e.getCode()
-        <<" msg: "<<e.getMessage()<<endl);
+        PEG_TRACE_STRING(
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "Exception: " + e.getMessage());
     }
-
+    PEG_METHOD_EXIT();
     return NULL;
 }
 
@@ -142,7 +144,10 @@ extern "C"
         const char **properties,
         CMPIStatus *rc)
     {
-        DDD(cout<<"--- mbGetInstance()"<<endl);
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Broker:mbGetInstance()");
+
         mb = CM_BROKER;
         CMPIFlags flgs =
             ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
@@ -166,13 +171,17 @@ extern "C"
 
             ci.setPath(*CM_ObjectPath(cop));
             CMSetStatus(rc,CMPI_RC_OK);
-            return reinterpret_cast<CMPIInstance*>(
+            CMPIInstance* cmpiInst = reinterpret_cast<CMPIInstance*>(
                 new CMPI_Object(new CIMInstance(ci)));
+            PEG_METHOD_EXIT();
+            return cmpiInst;
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: mbGetInstance - code: "<<e.getCode()
-                <<" msg: "<<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: " + e.getMessage());
             if (rc)
             {
                 CMSetStatusWithString(
@@ -180,6 +189,7 @@ extern "C"
                     (CMPIrc)e.getCode(),
                     (CMPIString*)string2CMPIString(e.getMessage()));
             }
+            PEG_METHOD_EXIT();
             return NULL;
         }
         // Code flow should never get here.
@@ -192,7 +202,10 @@ extern "C"
         const CMPIInstance *ci,
         CMPIStatus *rc)
     {
-        DDD(cout<<"--- mbCreateInstance()"<<endl);
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Broker:mbCreateInstance()");
+
         mb = CM_BROKER;
 
         try
@@ -202,19 +215,24 @@ extern "C"
                 CM_ObjectPath(cop)->getNameSpace(),
                 *CM_Instance(ci));
             CMSetStatus(rc,CMPI_RC_OK);
-            return reinterpret_cast<CMPIObjectPath*>(
+            CMPIObjectPath* cmpiObjPath = reinterpret_cast<CMPIObjectPath*>(
                 new CMPI_Object(new CIMObjectPath(ncop)));
+            PEG_METHOD_EXIT();
+            return cmpiObjPath;
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: mbCreateInstance - code: "<<e.getCode()
-                <<" msg: "<<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: " + e.getMessage());
             if (rc)
             {
                 CMSetStatusWithString(
                     rc,(CMPIrc)e.getCode(),
                     (CMPIString*)string2CMPIString(e.getMessage()));
             }
+            PEG_METHOD_EXIT();
             return NULL;
         }
         // Code flow should never get here.
@@ -227,7 +245,9 @@ extern "C"
         const CMPIInstance *ci,
         const char ** properties)
     {
-        DDD(cout<<"--- mbSetInstance()"<<endl);
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Broker:mbModifyInstance()");
         mb = CM_BROKER;
         CMPIFlags flgs =
             ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
@@ -246,12 +266,16 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: mbSetInstance - code: "<<e.getCode()
-                <<" msg: "<<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: " + e.getMessage());
+            PEG_METHOD_EXIT();
             CMReturnWithString(
                 (CMPIrc)e.getCode(),
                 (CMPIString*)string2CMPIString(e.getMessage()));
         }
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
@@ -260,7 +284,9 @@ extern "C"
         const CMPIContext *ctx,
         const CMPIObjectPath *cop)
     {
-        DDD(cout<<"--- mbDeleteInstance()"<<endl);
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Broker:mbDeleteInstance()");
         mb = CM_BROKER;
         CIMObjectPath qop(
             String::EMPTY,CIMNamespaceName(),
@@ -276,12 +302,16 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: mbDeleteInstance - code: "<<e.getCode()
-                <<" msg: "<<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: " + e.getMessage());
+            PEG_METHOD_EXIT();
             CMReturnWithString(
                 (CMPIrc)e.getCode(),
                 (CMPIString*)string2CMPIString(e.getMessage()));
         }
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
@@ -291,7 +321,9 @@ extern "C"
         const CMPIObjectPath *cop,
         const char *query, const char *lang, CMPIStatus *rc)
     {
-        DDD(cout<<"--- mbExecQuery()"<<endl);
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Broker:mbExecQuery()");
         mb = CM_BROKER;
 
         try
@@ -303,14 +335,18 @@ extern "C"
                 String(query));
                 CMSetStatus(rc,CMPI_RC_OK);
 
-            return  reinterpret_cast<CMPIEnumeration*> (
+            CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*> (
                 new CMPI_Object(
-                    new CMPI_ObjEnumeration(new Array<CIMObject>(en))));
+                new CMPI_ObjEnumeration(new Array<CIMObject>(en))));
+            PEG_METHOD_EXIT();
+            return cmpiEnum;
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: mbExecQuery - code: "<<e.getCode()
-                <<" msg: "<<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: " + e.getMessage());
             if (rc)
             {
                 CMSetStatusWithString(
@@ -318,6 +354,7 @@ extern "C"
                     (CMPIrc)e.getCode(),
                     (CMPIString*)string2CMPIString(e.getMessage()));
             }
+            PEG_METHOD_EXIT();
             return NULL;
         }
         // Code flow should never get here.
@@ -330,7 +367,9 @@ extern "C"
         const char **properties,
         CMPIStatus *rc)
     {
-        DDD(cout<<"--- mbEnumInstances()"<<endl);
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Broker:mbEnumInstances()");
         mb = CM_BROKER;
 
         CMPIFlags flgs =
@@ -366,13 +405,17 @@ extern "C"
                 (*aInst)[index].setPath(orgCop);
             }
 
-            return  reinterpret_cast<CMPIEnumeration*>(
+            CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
                 new CMPI_Object(new CMPI_InstEnumeration(aInst)));
+            PEG_METHOD_EXIT();
+            return cmpiEnum;
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: mbEnumInstances - code: "<<e.getCode()
-                <<" msg: "<<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: " + e.getMessage());
             if (rc)
             {
                 CMSetStatusWithString(
@@ -380,6 +423,7 @@ extern "C"
                     (CMPIrc)e.getCode(),
                     (CMPIString*)string2CMPIString(e.getMessage()));
             }
+            PEG_METHOD_EXIT();
             return NULL;
         }
         // Code flow should never get here.
@@ -391,7 +435,9 @@ extern "C"
         const CMPIObjectPath *cop,
         CMPIStatus *rc)
     {
-        DDD(cout<<"--- mbEnumInstanceNames()"<<endl);
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Broker:mbEnumInstanceNames()");
         mb = CM_BROKER;
 
         try
@@ -412,13 +458,17 @@ extern "C"
                 (*aObj)[index].setNameSpace(
                     CM_ObjectPath(cop)->getNameSpace());
             }
-            return  reinterpret_cast<CMPIEnumeration*>(
+            CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
                 new CMPI_Object(new CMPI_OpEnumeration(aObj)));
+            PEG_METHOD_EXIT();
+            return cmpiEnum;
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: mbEnumInstances - code: "<<e.getCode()
-                <<" msg: "<<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: " + e.getMessage());
             if (rc)
             {
                 CMSetStatusWithString(
@@ -426,6 +476,7 @@ extern "C"
                     (CMPIrc)e.getCode(),
                     (CMPIString*)string2CMPIString(e.getMessage()));
             }
+            PEG_METHOD_EXIT();
             return NULL;
         }
         // Code flow should never get here.
@@ -442,7 +493,9 @@ extern "C"
         const char **properties,
         CMPIStatus *rc)
     {
-        DDD(cout<<"--- mbAssociators()"<<endl);
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Broker:mbAssociators()");
         mb = CM_BROKER;
         //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
         //  distinguish instanceNames from classNames in every case
@@ -451,6 +504,7 @@ extern "C"
         if (!CM_ObjectPath(cop)->getKeyBindings().size())
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            PEG_METHOD_EXIT();
             return 0;
         }
         CMPIFlags flgs =
@@ -490,13 +544,17 @@ extern "C"
                 orgCop.setNameSpace(CM_ObjectPath(cop)->getNameSpace());
                 (*aInst)[index].setPath(orgCop);
             }
-            return  reinterpret_cast<CMPIEnumeration*>(
+            CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
                 new CMPI_Object(new CMPI_ObjEnumeration(aInst)));
+            PEG_METHOD_EXIT();
+            return cmpiEnum;
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: mbAssociators - code: "<<e.getCode()
-                <<" msg: "<<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: " + e.getMessage());
             if (rc)
             {
                 CMSetStatusWithString(
@@ -504,6 +562,7 @@ extern "C"
                     (CMPIrc)e.getCode(),
                     (CMPIString*)string2CMPIString(e.getMessage()));
             }
+            PEG_METHOD_EXIT();
             return NULL;
         }
         // Code flow should never get here.
@@ -519,7 +578,9 @@ extern "C"
         const char *resultRole,
         CMPIStatus *rc)
     {
-        DDD(cout<<"--- mbAssociatorsNames()"<<endl);
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Broker:mbAssociatorNames()");
         mb = CM_BROKER;
         //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
         //  distinguish instanceNames from classNames in every case
@@ -528,6 +589,7 @@ extern "C"
         if (!CM_ObjectPath(cop)->getKeyBindings().size())
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            PEG_METHOD_EXIT();
             return 0;
         }
         CIMObjectPath qop(
@@ -557,14 +619,17 @@ extern "C"
                 (*aObj)[index].setNameSpace(
                     CM_ObjectPath(cop)->getNameSpace());
             }
-            return  reinterpret_cast<CMPIEnumeration*>(
+            CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
                 new CMPI_Object(new CMPI_OpEnumeration(aObj)));
-
+            PEG_METHOD_EXIT();
+            return cmpiEnum;
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: mbAssociatorsNames - code: "<<e.getCode()
-                <<" msg: "<<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: " + e.getMessage());
             if (rc)
             {
                 CMSetStatusWithString(
@@ -572,6 +637,7 @@ extern "C"
                     (CMPIrc)e.getCode(),
                     (CMPIString*)string2CMPIString(e.getMessage()));
             }
+            PEG_METHOD_EXIT();
             return NULL;
         }
         // Code flow should never get here.
@@ -586,7 +652,9 @@ extern "C"
         const char **properties,
         CMPIStatus *rc)
     {
-        DDD(cout<<"--- mbReferences()"<<endl);
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Broker:mbReferences()");
         mb = CM_BROKER;
         //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
         //  distinguish instanceNames from classNames in every case
@@ -595,6 +663,7 @@ extern "C"
         if (!CM_ObjectPath(cop)->getKeyBindings().size())
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            PEG_METHOD_EXIT();
             return 0;
         }
         CMPIFlags flgs =
@@ -632,13 +701,17 @@ extern "C"
                 orgCop.setNameSpace(CM_ObjectPath(cop)->getNameSpace());
                 (*aInst)[index].setPath(orgCop);
             }
-            return  reinterpret_cast<CMPIEnumeration*>(
+            CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
                 new CMPI_Object(new CMPI_ObjEnumeration(aInst)));
+            PEG_METHOD_EXIT();
+            return cmpiEnum;
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: mbReferences - code: "<<e.getCode()
-                <<" msg: "<<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: " + e.getMessage());
             if (rc)
             {
                 CMSetStatusWithString(
@@ -646,6 +719,7 @@ extern "C"
                     (CMPIrc)e.getCode(),
                     (CMPIString*)string2CMPIString(e.getMessage()));
             }
+            PEG_METHOD_EXIT();
             return NULL;
         }
         // Code flow should never get here.
@@ -659,7 +733,9 @@ extern "C"
         const char *role,
         CMPIStatus *rc)
     {
-        DDD(cout<<"--- mbReferencesNames()"<<endl);
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Broker:mbReferenceNames()");
         mb = CM_BROKER;
         //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
         //  distinguish instanceNames from classNames in every case
@@ -668,6 +744,7 @@ extern "C"
         if (!CM_ObjectPath(cop)->getKeyBindings().size())
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            PEG_METHOD_EXIT();
             return 0;
         }
         CIMObjectPath qop(
@@ -696,13 +773,17 @@ extern "C"
                 (*aObj)[index].setNameSpace(
                     CM_ObjectPath(cop)->getNameSpace());
             }
-            return  reinterpret_cast<CMPIEnumeration*>(
+            CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
                 new CMPI_Object(new CMPI_OpEnumeration(aObj)));
+            PEG_METHOD_EXIT();
+            return cmpiEnum;
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: mbReferencesNames - code: "<<e.getCode()
-                <<" msg: "<<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: " + e.getMessage());
             if (rc)
             {
                 CMSetStatusWithString(
@@ -710,6 +791,7 @@ extern "C"
                     (CMPIrc)e.getCode(),
                     (CMPIString*)string2CMPIString(e.getMessage()));
             }
+            PEG_METHOD_EXIT();
             return NULL;
         }
         // Code flow should never get here.
@@ -726,7 +808,9 @@ extern "C"
         CMPIArgs *out,
         CMPIStatus *rc)
     {
-        DDD(cout<<"--- mbInvokeMethod()"<<endl);
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Broker:mbInvokeMethod()");
         CMPIData data = {0,CMPI_nullValue,{0}};
         mb = CM_BROKER;
         CIMObjectPath qop(
@@ -753,8 +837,10 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: mbInvokeMethod - code: "<<e.getCode()
-                <<" msg: "<<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: " + e.getMessage());
             if (rc)
             {
                 CMSetStatusWithString(
@@ -763,6 +849,7 @@ extern "C"
                     (CMPIString*)string2CMPIString(e.getMessage()));
             }
         }
+        PEG_METHOD_EXIT();
         return data; // "data" will be valid data or nullValue (in error case)
     }
 
@@ -774,7 +861,9 @@ extern "C"
         const CMPIValue *val,
         CMPIType type)
     {
-        DDD(cout<<"--- mbSetProperty()"<<endl);
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Broker:mbSetProperty()");
         mb = CM_BROKER;
         CMPIrc rc;
         CIMValue v = value2CIMValue(val,type,&rc);
@@ -790,12 +879,16 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: mbSetProperty - code: "<<e.getCode()
-                <<" msg: "<<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: " + e.getMessage());
+            PEG_METHOD_EXIT();
             CMReturnWithString(
                 (CMPIrc)e.getCode(),
                 (CMPIString*)string2CMPIString(e.getMessage()));
         }
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
@@ -806,7 +899,9 @@ extern "C"
         const char *name,
         CMPIStatus *rc)
     {
-        DDD(cout<<"--- mbGetProperty()"<<endl);
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Broker:mbGetProperty()");
         mb = CM_BROKER;
         CMPIData data = {0,CMPI_nullValue,{0}};
 
@@ -824,10 +919,13 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            DDD(cout<<"### exception: mbGetProperty - code: "<<e.getCode()
-                <<" msg: "<<e.getMessage()<<endl);
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Exception: " + e.getMessage());
             CMSetStatus(rc,(CMPIrc)e.getCode());
         }
+        PEG_METHOD_EXIT();
         return data; // "data" will be valid data or nullValue (in error case)
     }
 
@@ -835,7 +933,9 @@ extern "C"
         const CMPIBroker* mb,
         const CMPIContext* eCtx)
     {
-        DDD(cout<<"--- mbPrepareAttachThread()"<<endl);
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Broker:mbPrepareAttachThread()");
         mb = CM_BROKER;
         OperationContext *ctx = (OperationContext*)((CMPI_Context*)eCtx)->ctx;
         OperationContext nctx = *ctx;
@@ -851,6 +951,7 @@ extern "C"
                 CMGetCharPtr(name),
                 &data.value,data.type);
         }
+        PEG_METHOD_EXIT();
         return neCtx;
     }
 
@@ -858,7 +959,6 @@ extern "C"
         const CMPIBroker* mb,
         const CMPIContext* eCtx)
     {
-        DDD(cout<<"--- mbAttachThread()"<<endl);
         ((CMPI_Context*)eCtx)->thr = new CMPI_ThreadContext(mb,eCtx);
         CMReturn(CMPI_RC_OK);
     }
@@ -867,7 +967,6 @@ extern "C"
         const CMPIBroker* mb,
         const CMPIContext* eCtx)
     {
-        DDD(cout<<"--- mbDetachThread()"<<endl);
         mb = CM_BROKER;
         CMPI_Context *neCtx = (CMPI_Context *)eCtx;
         delete neCtx->thr;
@@ -877,12 +976,14 @@ extern "C"
     }
 
     static CMPIStatus mbDeliverIndication(
-       const CMPIBroker* eMb,
-       const CMPIContext* ctx,
-       const char *ns,
-       const CMPIInstance* ind)
+        const CMPIBroker* eMb,
+        const CMPIContext* ctx,
+        const char *ns,
+        const CMPIInstance* ind)
     {
-        DDD(cout<<"--- mbDeliverIndication()"<<endl);
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Broker:mbDeliverIndication()");
         eMb = CM_BROKER;
         CMPI_Broker *mb = (CMPI_Broker*)eMb;
         CMPIProviderManager::indProvRecord *prec;
@@ -910,8 +1011,12 @@ extern "C"
                 {
                     context->get(SubscriptionInstanceNamesContainer::NAME);
                 }
-                catch (const Exception &)
+                catch (const Exception &e)
                 {
+                    PEG_TRACE_STRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL2,
+                        "Exception: " + e.getMessage());
                     Array<CIMObjectPath> subscriptionInstanceNames;
                     context->insert(
                         SubscriptionInstanceNamesContainer(
@@ -924,16 +1029,21 @@ extern "C"
                         *context,
    //                   OperationContext(*CM_Context(ctx)),
                         cimIndication);
-                        CMReturn(CMPI_RC_OK);
+                    PEG_METHOD_EXIT();
+                    CMReturn(CMPI_RC_OK);
                 }
                 catch (const CIMException &e)
                 {
-                    DDD(cout<<"### exception: mbSetProperty - code: "
-                        <<e.getCode()<<" msg: "<<e.getMessage()<<endl);
+                    PEG_TRACE_STRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL2,
+                        "Exception: " + e.getMessage());
+                    PEG_METHOD_EXIT();
                     CMReturn((CMPIrc)e.getCode());
                 }
             }
         }
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_ERR_FAILED);
     }
 }

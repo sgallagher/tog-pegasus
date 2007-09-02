@@ -37,6 +37,7 @@
 #include "CMPI_Ftabs.h"
 #include "CMPI_Value.h"
 #include "CMPI_String.h"
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -46,7 +47,10 @@ extern "C"
 
     CMPIStatus scndRelease(CMPISelectCond* eSc)
     {
-        CMPI_SelectCond *sc = (CMPI_SelectCond*)eSc->hdl;
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_SelectCond:scndRelease()");
+         CMPI_SelectCond *sc = (CMPI_SelectCond*)eSc->hdl;
         if (sc)
         {
             CMPI_SelectCondData *data = (CMPI_SelectCondData *)sc->priv;
@@ -56,10 +60,12 @@ extern "C"
             }
             delete sc;
             reinterpret_cast<CMPI_Object*>(eSc)->unlinkAndDelete();
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_OK);
         }
         else
         {
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
     }
@@ -75,11 +81,19 @@ extern "C"
         int* type,
         CMPIStatus* rc)
     {
-
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_SelectCond:scndGetCountAndType()");
         CMPI_SelectCond *sc=(CMPI_SelectCond*)eSc->hdl;
         if (!sc)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid hanle in \
+                CMPI_SelectCond:scndGetCountAndType");
             CMSetStatus (rc, CMPI_RC_ERR_INVALID_HANDLE);
+            PEG_METHOD_EXIT();
             return 0;
         }
         CMPI_SelectCondData *data = (CMPI_SelectCondData *)sc->priv;
@@ -88,8 +102,10 @@ extern "C"
         {
             if (type!=NULL) *type=data->type;
             CMSetStatus(rc,CMPI_RC_OK);
+            PEG_METHOD_EXIT();
             return data->tableau->size();
         }
+        PEG_METHOD_EXIT();
         return 0;
     }
 
@@ -98,9 +114,17 @@ extern "C"
         unsigned int index,
         CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_SelectCond:scndGetSubCondAt()");
         CMPI_SelectCond *sc=(CMPI_SelectCond*)eSc->hdl;
         if (!sc)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Invalid hanle in \
+                CMPI_SelectCond:scndGetSubCondAt");
             CMSetStatus (rc, CMPI_RC_ERR_INVALID_HANDLE);
             return 0;
         }
@@ -114,13 +138,22 @@ extern "C"
                 CMPISubCond *sbc=(CMPISubCond*)new CMPI_SubCond(row);
                 CMPI_Object *obj = new CMPI_Object(sbc);
                 CMSetStatus(rc,CMPI_RC_OK);
-                return reinterpret_cast<CMPISubCond *>(obj);
+                CMPISubCond* cmpiSubCond =
+                    reinterpret_cast<CMPISubCond *>(obj);
+                PEG_METHOD_EXIT();
+                return cmpiSubCond;
             }
         }
         else
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Property Not Found in \
+                CMPI_SelectCond:scndGetSubCondAt");
             CMSetStatus(rc,CMPI_RC_ERR_NO_SUCH_PROPERTY);
         }
+        PEG_METHOD_EXIT();
         return NULL; 
     }
 

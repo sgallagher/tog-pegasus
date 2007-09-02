@@ -37,6 +37,7 @@
 #include "CMPI_Error.h"
 #include "CMPI_Ftabs.h"
 #include "CMPI_String.h"
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -51,6 +52,9 @@ extern "C"
         const CMPIErrorProbableCause pc, 
         const CMPIrc cimStatusCode)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:newCMPIError()");
         CIMError::PerceivedSeverityEnum pgSev = 
             (CIMError::PerceivedSeverityEnum)sev;
         CIMError::ProbableCauseEnum pgPc = (CIMError::ProbableCauseEnum)pc;
@@ -58,15 +62,24 @@ extern "C"
             (CIMError::CIMStatusCodeEnum)cimStatusCode;
 
         CIMError *cer=new CIMError(owner, msgID, msg, pgSev, pgPc, pgSc);
-        return reinterpret_cast<CMPIError*>(new CMPI_Object(cer));
+        CMPIError* cmpiError = 
+            reinterpret_cast<CMPIError*>(new CMPI_Object(cer));
+        PEG_METHOD_EXIT();
+        return cmpiError;
     }
 
     static CMPIError* errClone(const CMPIError* eErr, CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPI_Error:errClone()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL4,
+                "Received invalid Handle - cerr...");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return NULL;
         }
         CIMError* cErr=new CIMError(*cer);
@@ -74,26 +87,37 @@ extern "C"
         obj->unlink();
         CMPIError* neErr=reinterpret_cast<CMPIError*>(obj);
         CMSetStatus(rc,CMPI_RC_OK);
+        PEG_METHOD_EXIT();
         return neErr;
     }
 
     static CMPIStatus errRelease(CMPIError* eErr)
     {
+        PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPI_Error:errRelease()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (cer)
         {
             delete cer;
             (reinterpret_cast<CMPI_Object*>(eErr))->unlinkAndDelete();
         }
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
     static CMPIErrorType errGetErrorType(const CMPIError* eErr, CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errGetErrorType()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL4,
+                "Received invalid Handle - cer...");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return UnknownErrorType;
         }
 
@@ -105,17 +129,24 @@ extern "C"
             notNull = cer->getErrorType(pgErrorType);
             if (!notNull)
             {
+                PEG_TRACE_CSTRING(
+                    TRC_CMPIPROVIDERINTERFACE,
+                    Tracer::LEVEL4,
+                    "Received invalid Parameter...");
                 CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                PEG_METHOD_EXIT();
                 return UnknownErrorType;
             }
         }
         catch (...)
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            PEG_METHOD_EXIT();
             return UnknownErrorType;
         }
 
         CMSetStatus(rc,CMPI_RC_OK);
+        PEG_METHOD_EXIT();
         return(CMPIErrorType)pgErrorType;
     }
 
@@ -123,10 +154,18 @@ extern "C"
         const CMPIError* eErr, 
         CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errGetOtherErrorType()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL4,
+                "Received invalid Handle - cer...");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return NULL;
         }
 
@@ -138,17 +177,28 @@ extern "C"
             notNull = cer->getOtherErrorType(pgOtherErrorType);
             if (!notNull)
             {
+                PEG_TRACE_CSTRING(
+                    TRC_CMPIPROVIDERINTERFACE,
+                    Tracer::LEVEL4,
+                    "Received invalid Parameter...");
                 CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                PEG_METHOD_EXIT();
                 return NULL;
             }
         }
         catch (...)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL4,
+                "Exception: Unknown Exception caught...");
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            PEG_METHOD_EXIT();
             return NULL;
         }
 
         CMSetStatus(rc,CMPI_RC_OK);
+        PEG_METHOD_EXIT();
         return string2CMPIString(pgOtherErrorType);
     }
 
@@ -156,10 +206,18 @@ extern "C"
         const CMPIError* eErr, 
         CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errGetOwningEntity()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL4,
+                "Received invalid Handle - cer...");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return NULL;
         }
 
@@ -171,26 +229,41 @@ extern "C"
             notNull = cer->getOwningEntity(pgOwningEntity);
             if (!notNull)
             {
+                PEG_TRACE_CSTRING(
+                    TRC_CMPIPROVIDERINTERFACE,
+                    Tracer::LEVEL4,
+                    "Received invalid Parameter...");
                 CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                PEG_METHOD_EXIT();
                 return NULL;
             }
         }
         catch (...)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL4,
+                "Exception: Unknown Exception caught...");
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            PEG_METHOD_EXIT();
             return NULL;
         }
 
         CMSetStatus(rc,CMPI_RC_OK);
+        PEG_METHOD_EXIT();
         return string2CMPIString(pgOwningEntity);
     }
 
     static CMPIString* errGetMessageID(const CMPIError* eErr, CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errGetMessageID()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return NULL;
         }
 
@@ -203,25 +276,32 @@ extern "C"
             if (!notNull)
             {
                 CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                PEG_METHOD_EXIT();
                 return NULL;
             }
         }
         catch (...)
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            PEG_METHOD_EXIT();
             return NULL;
         }
 
         CMSetStatus(rc,CMPI_RC_OK);
+        PEG_METHOD_EXIT();
         return string2CMPIString(pgMessageID);
     }
 
     static CMPIString* errGetMessage(const CMPIError* eErr, CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errGetMessage()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return NULL;
         }
 
@@ -234,16 +314,19 @@ extern "C"
             if (!notNull)
             {
                 CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                PEG_METHOD_EXIT();
                 return NULL;
             }
         }
         catch (...)
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            PEG_METHOD_EXIT();
             return NULL;
         }
 
         CMSetStatus(rc,CMPI_RC_OK);
+        PEG_METHOD_EXIT();
         return string2CMPIString(pgMessage);
     }
 
@@ -251,10 +334,14 @@ extern "C"
         const CMPIError* eErr, 
         CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errGetPerceivedSeverity()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return ErrorSevUnknown;
         }
 
@@ -267,16 +354,19 @@ extern "C"
             if (!notNull)
             {
                 CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                PEG_METHOD_EXIT();
                 return ErrorSevUnknown;
             }
         }
         catch (...)
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            PEG_METHOD_EXIT();
             return ErrorSevUnknown;
         }
 
         CMSetStatus(rc,CMPI_RC_OK);
+        PEG_METHOD_EXIT();
         return(CMPIErrorSeverity)pgPerceivedSeverity;
     }
 
@@ -284,10 +374,14 @@ extern "C"
         const CMPIError* eErr, 
         CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errGetProbableCause()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return ErrorProbCauseUnknown;
         }
 
@@ -300,26 +394,33 @@ extern "C"
             if (!notNull)
             {
                 CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                PEG_METHOD_EXIT();
                 return ErrorProbCauseUnknown;
             }
         }
         catch (...)
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            PEG_METHOD_EXIT();
             return ErrorProbCauseUnknown;
         }
 
         CMSetStatus(rc,CMPI_RC_OK);
+        PEG_METHOD_EXIT();
         return(CMPIErrorProbableCause)pgProbableCause;
     }
 
     static CMPIString* errGetProbableCauseDescription(
         const CMPIError* eErr, CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errGetProbableCauseDescription()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return NULL;
         }
 
@@ -332,26 +433,33 @@ extern "C"
             if (!notNull)
             {
                 CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                PEG_METHOD_EXIT();
                 return NULL;
             }
         }
         catch (...)
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            PEG_METHOD_EXIT();
             return NULL;
         }
 
         CMSetStatus(rc,CMPI_RC_OK);
+        PEG_METHOD_EXIT();
         return string2CMPIString(pgProbCauseDesc);
     }
 
     static CMPIArray* errGetRecommendedActions(
         const CMPIError* eErr, CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errGetRecommendedActions()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return NULL;
         }
 
@@ -364,12 +472,14 @@ extern "C"
             if (!notNull)
             {
                 CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                PEG_METHOD_EXIT();
                 return NULL;
             }
         }
         catch (...)
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            PEG_METHOD_EXIT();
             return NULL;
         }
 
@@ -386,15 +496,20 @@ extern "C"
             dta[i].value.string=string2CMPIString(s);
         }
         CMSetStatus(rc,CMPI_RC_OK);
+        PEG_METHOD_EXIT();
         return reinterpret_cast<CMPIArray*>(new CMPI_Object(dta));
     }
 
     static CMPIString* errGetErrorSource(const CMPIError* eErr, CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errGetErrorSource()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return NULL;
         }
 
@@ -407,16 +522,19 @@ extern "C"
             if (!notNull)
             {
                 CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                PEG_METHOD_EXIT();
                 return NULL;
             }
         }
         catch (...)
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            PEG_METHOD_EXIT();
             return NULL;
         }
 
         CMSetStatus(rc,CMPI_RC_OK);
+        PEG_METHOD_EXIT();
         return string2CMPIString(pgErrorSource);
     }
 
@@ -424,10 +542,14 @@ extern "C"
         const CMPIError* eErr, 
         CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errGetErrorSourceFormat()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return CMPIErrSrcUnknown;
         }
 
@@ -440,16 +562,19 @@ extern "C"
             if (!notNull)
             {
                 CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                PEG_METHOD_EXIT();
                 return CMPIErrSrcUnknown;
             }
         }
         catch (...)
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            PEG_METHOD_EXIT();
             return CMPIErrSrcUnknown;
         }
 
         CMSetStatus(rc,CMPI_RC_OK);
+        PEG_METHOD_EXIT();
         return(CMPIErrorSrcFormat)pgErrorSourceFormat;
     }
 
@@ -457,10 +582,14 @@ extern "C"
         const CMPIError* eErr, 
         CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errGetOtherErrorSourceFormat()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return NULL;
         }
 
@@ -473,25 +602,34 @@ extern "C"
             if (!notNull)
             {
                 CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                PEG_METHOD_EXIT();
                 return NULL;
             }
         }
         catch (...)
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            PEG_METHOD_EXIT();
             return NULL;
         }
 
         CMSetStatus(rc,CMPI_RC_OK);
-        return string2CMPIString(pgOtherErrorSourceFormat);
+        CMPIString* cmpiString = string2CMPIString(pgOtherErrorSourceFormat);
+
+        PEG_METHOD_EXIT();
+        return cmpiString;
     }
 
     static CMPIrc errGetCIMStatusCode(const CMPIError* eErr, CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errGetCIMStatusCode()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return CMPI_RC_ERR_INVALID_PARAMETER;
         }
 
@@ -504,16 +642,19 @@ extern "C"
             if (!notNull)
             {
                 CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                PEG_METHOD_EXIT();
                 return CMPI_RC_ERR_INVALID_PARAMETER;
             }
         }
         catch (...)
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            PEG_METHOD_EXIT();
             return CMPI_RC_ERR_FAILED;
         }
 
         CMSetStatus(rc,CMPI_RC_OK);
+        PEG_METHOD_EXIT();
         return(CMPIrc)pgCIMStatusCode;
     }
 
@@ -521,10 +662,14 @@ extern "C"
         const CMPIError* eErr, 
         CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errGetCIMStatusCodeDescription()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return NULL;
         }
 
@@ -538,16 +683,19 @@ extern "C"
             if (!notNull)
             {
                 CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                PEG_METHOD_EXIT();
                 return NULL;
             }
         }
         catch (...)
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            PEG_METHOD_EXIT();
             return NULL;
         }
 
         CMSetStatus(rc,CMPI_RC_OK);
+        PEG_METHOD_EXIT();
         return string2CMPIString(pgCIMStatusCodeDescription);
     }
 
@@ -555,10 +703,14 @@ extern "C"
         const CMPIError* eErr, 
         CMPIStatus* rc)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errGetMessageArguments()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
             return NULL;
         }
 
@@ -571,12 +723,14 @@ extern "C"
             if (!notNull)
             {
                 CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+                PEG_METHOD_EXIT();
                 return NULL;
             }
         }
         catch (...)
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+            PEG_METHOD_EXIT();
             return NULL;
         }
 
@@ -593,16 +747,23 @@ extern "C"
             dta[i].value.string=string2CMPIString(s);
         }
         CMSetStatus(rc,CMPI_RC_OK);
-        return reinterpret_cast<CMPIArray*>(new CMPI_Object(dta));
+        CMPIArray* cmpiArray = 
+            reinterpret_cast<CMPIArray*>(new CMPI_Object(dta));
+        PEG_METHOD_EXIT();
+        return cmpiArray;
     }
 
     static CMPIStatus errSetErrorType(
         CMPIError* eErr, 
         const CMPIErrorType errorType)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errSetErrorType()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
 
@@ -615,9 +776,11 @@ extern "C"
         }
         catch (...)
         {
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_FAILED);
         }
 
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
@@ -625,9 +788,13 @@ extern "C"
         CMPIError* eErr, 
         const char* otherErrorType)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errSetOtherErrorType()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
 
@@ -639,9 +806,11 @@ extern "C"
         }
         catch (...)
         {
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_FAILED);
         }
 
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
@@ -649,9 +818,13 @@ extern "C"
         CMPIError* eErr, 
         const char* probableCauseDescription)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errSetProbableCauseDescription()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
 
@@ -663,9 +836,11 @@ extern "C"
         }
         catch (...)
         {
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_FAILED);
         }
 
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
@@ -673,9 +848,13 @@ extern "C"
         CMPIError* eErr, 
         const CMPIArray* recommendedActions)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errSetRecommendedActions()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
 
@@ -684,6 +863,7 @@ extern "C"
         CMPIData* dta=(CMPIData*)recommendedActions->hdl;
         if (!dta)
         {
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
 
@@ -697,18 +877,21 @@ extern "C"
 
                 if (dta[i].type!=CMPI_string)
                 {
+                    PEG_METHOD_EXIT();
                     CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
                 }
 
                 arrEl = CMGetArrayElementAt(recommendedActions, i, &rc);
                 if (rc.rc != CMPI_RC_OK)
                 {
+                    PEG_METHOD_EXIT();
                     return rc;
                 }
 
                 arrElStr = CMGetCharsPtr(arrEl.value.string, &rc);
                 if (rc.rc != CMPI_RC_OK)
                 {
+                    PEG_METHOD_EXIT();
                     return rc;
                 }
 
@@ -719,9 +902,11 @@ extern "C"
         }
         catch (...)
         {
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_FAILED);
         }
 
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
@@ -729,9 +914,17 @@ extern "C"
         CMPIError* eErr, 
         const char* errorSource)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errSetErrorSource()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL4,
+                "Received invalid Handle - cer...");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
 
@@ -742,10 +935,16 @@ extern "C"
             cer->setErrorSource(pgErrorSource);
         }
         catch (...)
-        {
+        { 
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL4,
+                "Exception: Unknown Exception received...");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_FAILED);
         }
 
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
@@ -753,9 +952,13 @@ extern "C"
         CMPIError* eErr, 
         const CMPIErrorSrcFormat errorSrcFormat)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errSetErrorSourceFormat()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
 
@@ -768,9 +971,15 @@ extern "C"
         }
         catch (...)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL4,
+                "Exception: Unknown Exception received...");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_FAILED);
         }
 
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
@@ -778,9 +987,13 @@ extern "C"
         CMPIError* eErr, 
         const char* otherErrorSourceFormat)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errSetOtherErrorSourceFormat()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
 
@@ -792,9 +1005,15 @@ extern "C"
         }
         catch (...)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL4,
+                "Exception: Unknown Exception received...");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_FAILED);
         }
 
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
@@ -802,9 +1021,13 @@ extern "C"
         CMPIError* eErr, 
         const char* cimStatusCodeDescription)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errSetCIMStatusCodeDescription()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
 
@@ -816,9 +1039,15 @@ extern "C"
         }
         catch (...)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL4,
+                "Exception: Unknown Exception received...");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_FAILED);
         }
 
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 
@@ -826,9 +1055,13 @@ extern "C"
         CMPIError* eErr, 
         CMPIArray* messageArguments)
     {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "CMPI_Error:errSetMessageArguments()");
         CIMError* cer=(CIMError*)eErr->hdl;
         if (!cer)
         {
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
 
@@ -837,6 +1070,7 @@ extern "C"
         CMPIData* dta=(CMPIData*)messageArguments->hdl;
         if (!dta)
         {
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
 
@@ -850,18 +1084,21 @@ extern "C"
 
                 if (dta[i].type!=CMPI_string)
                 {
+                    PEG_METHOD_EXIT();
                     CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
                 }
 
                 arrEl = CMGetArrayElementAt(messageArguments, i, &rc);
                 if (rc.rc != CMPI_RC_OK)
                 {
+                    PEG_METHOD_EXIT();
                     return rc;
                 }
 
                 arrElStr = CMGetCharsPtr(arrEl.value.string, &rc);
                 if (rc.rc != CMPI_RC_OK)
                 {
+                    PEG_METHOD_EXIT();
                     return rc;
                 }
 
@@ -872,9 +1109,15 @@ extern "C"
         }
         catch (...)
         {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL4,
+                "Exception: Unknown Exception received...");
+            PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_FAILED);
         }
 
+        PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
 

@@ -53,6 +53,9 @@
 #include "SSLContext.h"
 #include "SSLContextRep.h"
 
+#ifdef PEGASUS_OS_PASE
+# include <ILEWrapper/ILEUtilities.h>
+#endif
 //
 // Typedef's for OpenSSL callback functions.
 //
@@ -731,7 +734,7 @@ void SSLContextRep::_randomInit(const String& randomFile)
     Boolean ret;
     int retVal = 0;
 
-#ifdef PEGASUS_SSL_RANDOMFILE
+#if defined(PEGASUS_SSL_RANDOMFILE) && !defined(PEGASUS_OS_PASE)
     if ( RAND_status() == 0 )
     {
         //
@@ -815,6 +818,16 @@ void SSLContextRep::_randomInit(const String& randomFile)
         }
     }
 #endif  /* PEGASUS_SSL_RANDOMFILE */
+
+#ifdef PEGASUS_OS_PASE
+    if (RAND_status() == 0)
+    {
+        // generate random number for pase must use specify function
+        unsigned char prn[1024];
+        umeGenerateRandomNumber(prn);
+        RAND_seed(prn, 1024);
+    }
+#endif
 
     int seedRet = RAND_status();
     if (seedRet == 0)

@@ -83,10 +83,6 @@
 #include "cmdline.h"
 #include <Pegasus/getoopt/getoopt.h>
 
-#ifdef PEGASUS_OS_PASE
-#include <ILEWrapper/ILEUtilities.h>
-#endif
-
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
@@ -569,6 +565,7 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                 {
                     cmdlinedata.set_repository_mode(arg.optarg());
                     // prevent using binary repository since we do not support
+                    // that in 2.5
 #ifdef PEGASUS_OS_PASE
                     if (String::equalNoCase(arg.optarg(), "BIN"))
                     {

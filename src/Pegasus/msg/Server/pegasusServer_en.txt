@@ -4645,6 +4645,16 @@ CIM server listening on HTTPS port {0}."}
 
         Server.CIMServer.BIND_FAILED:string {"PGS13200: No CIM server connections are enabled."}
 
+        /*
+         * @note  PGS13201:
+         */
+         Pegasus.Server.CIMServer.RECEIVE_SYN_SIGNAL.PEGASUS_OS_PASE:string {"PGS13201: Synchronous signal received."}
+
+        /*
+         * @note  PGS13202:
+         */
+         Pegasus.Server.CIMServer.RECEIVE_ASYN_SIGNAL.PEGASUS_OS_PASE:string {"PGS13202: Asynchronous signal received."}
+
         // ==========================================================
         // Messages for SSLContextManager
         // Please use message prefix "PGS13300"
@@ -4864,7 +4874,17 @@ CIM server listening on HTTPS port {0}."}
         */
         ProviderManager.ProviderAgent.ProviderAgent.PROVIDERAGENT_NOT_INITIALIZED: string {"PGS14003: cimprovagt \"{0}\" was not yet initialised prior to receiving a request message. Exiting."}
 
+        /**
+        * @note  PGS14004
+        *    Substitution {0} is the full job name
+        */
+        ProviderManager.ProviderAgent.RECEIVE_SYN_SIGNAL.PEGASUS_OS_PASE:string {"PGS14004:  \"{0}\" received synchronous signal: \"{1}\""}
         
+        /**
+        * @note  PGS14005
+        *    Substitution {0} is the full job name
+        */
+        ProviderManager.ProviderAgent.RECEIVE_ASYN_SIGNAL.PEGASUS_OS_PASE:string {"PGS14005:  \"{0}\" received asynchronous signal: \"{1}\""}
 
     // ==========================================================
         // Messages for Common.Monitor

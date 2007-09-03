@@ -48,9 +48,63 @@
 
 #include "ProviderAgent.h"
 
+#ifdef PEGASUS_OS_PASE
+#include <as400_protos.h>
+#include <ILEWrapper/ILEUtilities.h>
+#endif
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
+//
+// PASE environment for synchronousSignal and asynchronousSignal
+//
+#ifdef PEGASUS_OS_PASE
+static void _synchronousSignalHandler(int s_n)
+{
+    static bool mark = false;
+
+    if (mark)
+        exit(1);
+
+    mark = true;
+    if (_providerAgent != 0)
+    {
+        _providerAgent->_terminating = true;
+    }
+ 
+    char fullJobName[29];
+    umeGetJobName(fullJobName, true);
+    Logger::put_l(Logger::ERROR_LOG, "provider agent", Logger::SEVERE, \
+        "ProviderManager.ProviderAgent.RECEIVE_SYN_SIGNAL.PEGASUS_OS_PASE", \
+        "$0 received synchronous signal: $1", fullJobName, s_n);
+
+    /* save job log */
+    systemCL ("QSYS/CHGJOB JOB(*) LOG(4 00 *NOLIST)", \
+        SYSTEMCL_MSG_STDOUT | SYSTEMCL_MSG_STDERR);
+}
+
+static void ProviderAgent::_asynchronousSignalHandler(int s_n)
+{
+    static bool amark = false;
+
+    if (amark)
+        exit(1);
+
+    amark = true;
+    if (_providerAgent != 0)
+    {
+        _providerAgent->_terminating = true;
+    }
+
+    char fullJobName[29];
+    umeGetJobName(fullJobName, true);
+    Logger::put_l(Logger::ERROR_LOG, "provider agent", Logger::SEVERE, \
+        "ProviderManager.ProviderAgent.RECEIVE_ASYN_SIGNAL.PEGASUS_OS_PASE", \
+        "$0 received asynchronous signal: $1", fullJobName, s_n);
+}
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -128,6 +182,17 @@ void ProviderAgent::run()
     getSigHandle()->activate(PEGASUS_SIGHUP);
     getSigHandle()->registerHandler(PEGASUS_SIGTERM, _terminateSignalHandler);
     getSigHandle()->activate(PEGASUS_SIGTERM);
+#ifdef PEGASUS_OS_PASE
+    // PASE environment need more signal handler
+    getSigHandle()->registerHandler(SIGFPE, _synchronousSignalHandler);
+    getSigHandle()->activate(SIGFPE);
+    getSigHandle()->registerHandler(SIGILL, _synchronousSignalHandler);
+    getSigHandle()->activate(SIGILL);
+    getSigHandle()->registerHandler(SIGSEGV, _synchronousSignalHandler);
+    getSigHandle()->activate(SIGSEGV);
+    getSigHandle()->registerHandler(SIGIO, _asynchronousSignalHandler);
+    getSigHandle()->activate(SIGIO);
+#endif
 
     while (!_terminating)
     {

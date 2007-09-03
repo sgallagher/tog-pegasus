@@ -77,6 +77,10 @@
 # include <Pegasus/Client/CIMClient.h>
 #endif
 
+#ifdef PEGASUS_OS_PASE
+# include <as400_protos.h>
+#endif
+
 // PEGASUS_SLP_REG_TIMEOUT is the time interval in minute for reregistration
 // with SLP.
 #ifdef PEGASUS_SLP_REG_TIMEOUT
@@ -171,6 +175,44 @@ void CIMServer::shutdownSignal()
     _cimserver->tickle_monitor();
     PEG_METHOD_EXIT();
 }
+
+#ifdef PEGASUS_OS_PASE
+static void _synchronousSignalHandler(int s_n, PEGASUS_SIGINFO_T* s_info,
+                                      void* sig)
+{
+    static bool mark = false;
+    if (mark)
+        return;
+
+    mark = true;
+
+    Logger::put_l(Logger::ERROR_LOG, "CIMServer", Logger::SEVERE,
+        "Pegasus.Server.CIMServer.RECEIVE_SYN_SIGNAL.PEGASUS_OS_PASE", \
+        "Synchronous signal received.");
+
+    /* save job log */
+    systemCL ("QSYS/CHGJOB JOB(*) LOG(4 00 *NOLIST)",
+            SYSTEMCL_MSG_STDOUT | SYSTEMCL_MSG_STDERR);
+
+    CIMServer::shutdownSignal();
+}
+
+static void _asynchronousSignalHandler(int s_n, PEGASUS_SIGINFO_T* s_info,
+                                       void* sig)
+{
+    static bool mark = false;
+    if (mark)
+        return;
+
+    mark = true;
+
+    Logger::put_l(Logger::ERROR_LOG, "CIMServer", Logger::SEVERE,
+        "Pegasus.Server.CIMServer.RECEIVE_ASYN_SIGNAL.PEGASUS_OS_PASE", \
+        "Asynchronous signal received.");
+
+    CIMServer::shutdownSignal();
+}
+#endif
 
 
 CIMServer::CIMServer()
@@ -448,7 +490,16 @@ void CIMServer::_init()
     getSigHandle()->activate(PEGASUS_SIGHUP);
     getSigHandle()->registerHandler(PEGASUS_SIGTERM, shutdownSignalHandler);
     getSigHandle()->activate(PEGASUS_SIGTERM);
-
+#ifdef PEGASUS_OS_PASE
+    getSigHandle()->registerHandler(SIGFPE, _synchronousSignalHandler);
+    getSigHandle()->activate(SIGFPE);
+    getSigHandle()->registerHandler(SIGILL, _synchronousSignalHandler);
+    getSigHandle()->activate(SIGILL);
+    getSigHandle()->registerHandler(SIGSEGV, _synchronousSignalHandler);
+    getSigHandle()->activate(SIGSEGV);
+    getSigHandle()->registerHandler(SIGIO, _asynchronousSignalHandler);
+    getSigHandle()->activate(SIGIO);
+#endif
 
     //
     // Set up an additional thread waiting for commands from the

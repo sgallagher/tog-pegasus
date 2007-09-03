@@ -77,10 +77,6 @@
 # include <Pegasus/Client/CIMClient.h>
 #endif
 
-#ifdef PEGASUS_OS_PASE
-# include <as400_protos.h>
-#endif
-
 // PEGASUS_SLP_REG_TIMEOUT is the time interval in minute for reregistration
 // with SLP.
 #ifdef PEGASUS_SLP_REG_TIMEOUT

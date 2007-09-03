@@ -124,6 +124,11 @@ class TestCMPI_BrokerEnc : TestCMPI_Parent
     Uint32 testBrokerEnc();
 };
 
+class TestCMPIInstance_Method : TestCMPI_Parent
+{
+    Uint32 testInstance();
+};
+
 class TestCMPI_Fail_1: TestCMPI_Parent
 {
 };

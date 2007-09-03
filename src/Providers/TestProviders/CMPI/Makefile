@@ -57,7 +57,9 @@ DIRS = \
     TestCMPIEnumeration \
     TestCMPIEnumeration/tests \
     TestCMPIBrokerEnc \
-    TestCMPIBrokerEnc/tests
+    TestCMPIBrokerEnc/tests \
+    TestCMPIInstance \
+    TestCMPIInstance/tests 
 
 ifndef PEGASUS_DISABLE_CQL
 DIRS += \

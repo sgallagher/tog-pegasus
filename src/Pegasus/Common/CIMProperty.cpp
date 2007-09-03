@@ -91,110 +91,110 @@ CIMProperty& CIMProperty::operator=(const CIMProperty& x)
 
 const CIMName& CIMProperty::getName() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getName();
 }
 
 void CIMProperty::setName(const CIMName& name)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->setName(name);
 }
 
 const CIMValue& CIMProperty::getValue() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getValue();
 }
 
 CIMType CIMProperty::getType() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getValue().getType();
 }
 
 Boolean CIMProperty::isArray() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getValue().isArray();
 }
 
 void CIMProperty::setValue(const CIMValue& value)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->setValue(value);
 }
 
 Uint32 CIMProperty::getArraySize() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getArraySize();
 }
 
 const CIMName& CIMProperty::getReferenceClassName() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getReferenceClassName();
 }
 
 const CIMName& CIMProperty::getClassOrigin() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getClassOrigin();
 }
 
 void CIMProperty::setClassOrigin(const CIMName& classOrigin)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->setClassOrigin(classOrigin);
 }
 
 Boolean CIMProperty::getPropagated() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getPropagated();
 }
 
 void CIMProperty::setPropagated(Boolean propagated)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->setPropagated(propagated);
 }
 
 CIMProperty& CIMProperty::addQualifier(const CIMQualifier& x)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->addQualifier(x);
     return *this;
 }
 
 Uint32 CIMProperty::findQualifier(const CIMName& name) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->findQualifier(name);
 }
 
 CIMQualifier CIMProperty::getQualifier(Uint32 index)
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getQualifier(index);
 }
 
 CIMConstQualifier CIMProperty::getQualifier(Uint32 index) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getQualifier(index);
 }
 
 void CIMProperty::removeQualifier(Uint32 index)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->removeQualifier(index);
 }
 
 Uint32 CIMProperty::getQualifierCount() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getQualifierCount();
 }
 
@@ -205,8 +205,8 @@ Boolean CIMProperty::isUninitialized() const
 
 Boolean CIMProperty::identical(const CIMConstProperty& x) const
 {
-    x._checkRep();
-    _checkRep();
+    CheckRep(x._rep);
+    CheckRep(_rep);
     return _rep->identical(x._rep);
 }
 
@@ -281,67 +281,67 @@ CIMConstProperty& CIMConstProperty::operator=(const CIMProperty& x)
 
 const CIMName& CIMConstProperty::getName() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getName();
 }
 
 const CIMValue& CIMConstProperty::getValue() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getValue();
 }
 
 CIMType CIMConstProperty::getType() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getValue().getType();
 }
 
 Boolean CIMConstProperty::isArray() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getValue().isArray();
 }
 
 Uint32 CIMConstProperty::getArraySize() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getArraySize();
 }
 
 const CIMName& CIMConstProperty::getReferenceClassName() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getReferenceClassName();
 }
 
 const CIMName& CIMConstProperty::getClassOrigin() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getClassOrigin();
 }
 
 Boolean CIMConstProperty::getPropagated() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getPropagated();
 }
 
 Uint32 CIMConstProperty::findQualifier(const CIMName& name) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->findQualifier(name);
 }
 
 CIMConstQualifier CIMConstProperty::getQualifier(Uint32 index) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getQualifier(index);
 }
 
 Uint32 CIMConstProperty::getQualifierCount() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getQualifierCount();
 }
 
@@ -352,8 +352,8 @@ Boolean CIMConstProperty::isUninitialized() const
 
 Boolean CIMConstProperty::identical(const CIMConstProperty& x) const
 {
-    x._checkRep();
-    _checkRep();
+    CheckRep(x._rep);
+    CheckRep(_rep);
     return _rep->identical(x._rep);
 }
 

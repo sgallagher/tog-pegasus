@@ -81,37 +81,37 @@ CIMParamValue::~CIMParamValue()
 
 String CIMParamValue::getParameterName() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getParameterName();
 }
 
 CIMValue CIMParamValue::getValue() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getValue();
 }
 
 Boolean CIMParamValue::isTyped() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->isTyped();
 }
 
 void CIMParamValue::setParameterName(String& parameterName)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->setParameterName(parameterName);
 }
 
 void CIMParamValue::setValue(CIMValue& value)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->setValue(value);
 }
 
 void CIMParamValue::setIsTyped(Boolean isTyped)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->setIsTyped(isTyped);
 }
 
@@ -122,7 +122,7 @@ Boolean CIMParamValue::isUninitialized() const
 
 CIMParamValue CIMParamValue::clone() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return CIMParamValue(_rep->clone());
 }
 

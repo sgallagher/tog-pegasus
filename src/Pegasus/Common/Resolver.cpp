@@ -46,7 +46,7 @@ void Resolver::resolveClass(
     DeclContext* declContext,
     const CIMNamespaceName& nameSpace)
 {
-    theClass._checkRep();
+    CheckRep(theClass._rep);
     theClass._rep->resolve(declContext, nameSpace);
 }
 
@@ -56,7 +56,7 @@ void Resolver::resolveInstance(
     const CIMNamespaceName& nameSpace,
     Boolean propagateQualifiers)
 {
-    theInstance._checkRep();
+    CheckRep(theInstance._rep);
     CIMConstClass cimClass;
     theInstance._rep->resolve(
         declContext, nameSpace, cimClass, propagateQualifiers);
@@ -69,7 +69,7 @@ void Resolver::resolveInstance(
     CIMConstClass& cimClassOut,
     Boolean propagateQualifiers)
 {
-    theInstance._checkRep();
+    CheckRep(theInstance._rep);
     theInstance._rep->resolve(declContext, nameSpace, cimClassOut,
         propagateQualifiers);
 }
@@ -82,7 +82,7 @@ void Resolver::resolveProperty(
     const CIMConstProperty& inheritedProperty,
     Boolean propagateQualifiers)
 {
-    theProperty._checkRep();
+    CheckRep(theProperty._rep);
     theProperty._rep->resolve(declContext, nameSpace, isInstancePart,
         inheritedProperty, propagateQualifiers);
 }
@@ -94,7 +94,7 @@ void Resolver::resolveProperty(
     Boolean isInstancePart,
     Boolean propagateQualifiers)
 {
-    theProperty._checkRep();
+    CheckRep(theProperty._rep);
     theProperty._rep->resolve(declContext, nameSpace, isInstancePart,
         propagateQualifiers);
 }
@@ -105,7 +105,7 @@ void Resolver::resolveMethod(
     const CIMNamespaceName& nameSpace,
     const CIMConstMethod& inheritedMethod)
 {
-    theMethod._checkRep();
+    CheckRep(theMethod._rep);
     theMethod._rep->resolve(declContext, nameSpace, inheritedMethod);
 }
 
@@ -114,7 +114,7 @@ void Resolver::resolveMethod(
     DeclContext* declContext,
     const CIMNamespaceName& nameSpace)
 {
-    theMethod._checkRep();
+    CheckRep(theMethod._rep);
     theMethod._rep->resolve(declContext, nameSpace);
 }
 
@@ -123,7 +123,7 @@ void Resolver::resolveParameter(
     DeclContext* declContext,
     const CIMNamespaceName& nameSpace)
 {
-    theParameter._checkRep();
+    CheckRep(theParameter._rep);
     theParameter._rep->resolve(declContext, nameSpace);
 }
 
@@ -132,7 +132,7 @@ void Resolver::resolveQualifierFlavor(
     const CIMFlavor& inheritedFlavor,
     Boolean inherited)
 {
-    theQualifier._checkRep();
+    CheckRep(theQualifier._rep);
     theQualifier._rep->resolveFlavor(inheritedFlavor, inherited);
 }
 

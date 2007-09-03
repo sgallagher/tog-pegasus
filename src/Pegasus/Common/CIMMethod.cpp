@@ -92,123 +92,123 @@ CIMMethod& CIMMethod::operator=(const CIMMethod& x)
 
 const CIMName& CIMMethod::getName() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getName();
 }
 
 void CIMMethod::setName(const CIMName& name)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->setName(name);
 }
 
 CIMType CIMMethod::getType() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getType();
 }
 
 void CIMMethod::setType(CIMType type)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->setType(type);
 }
 
 const CIMName& CIMMethod::getClassOrigin() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getClassOrigin();
 }
 
 void CIMMethod::setClassOrigin(const CIMName& classOrigin)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->setClassOrigin(classOrigin);
 }
 
 Boolean CIMMethod::getPropagated() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getPropagated();
 }
 
 void CIMMethod::setPropagated(Boolean propagated)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->setPropagated(propagated);
 }
 
 CIMMethod& CIMMethod::addQualifier(const CIMQualifier& x)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->addQualifier(x);
     return *this;
 }
 
 Uint32 CIMMethod::findQualifier(const CIMName& name) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->findQualifier(name);
 }
 
 CIMQualifier CIMMethod::getQualifier(Uint32 index)
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getQualifier(index);
 }
 
 CIMConstQualifier CIMMethod::getQualifier(Uint32 index) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getQualifier(index);
 }
 
 void CIMMethod::removeQualifier(Uint32 index)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->removeQualifier(index);
 }
 
 Uint32 CIMMethod::getQualifierCount() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getQualifierCount();
 }
 
 CIMMethod& CIMMethod::addParameter(const CIMParameter& x)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->addParameter(x);
     return *this;
 }
 
 Uint32 CIMMethod::findParameter(const CIMName& name) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->findParameter(name);
 }
 
 CIMParameter CIMMethod::getParameter(Uint32 index)
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getParameter(index);
 }
 
 CIMConstParameter CIMMethod::getParameter(Uint32 index) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getParameter(index);
 }
 
 void CIMMethod::removeParameter (Uint32 index)
 {
-    _checkRep ();
+    CheckRep(_rep);
     _rep->removeParameter (index);
 }
 
 Uint32 CIMMethod::getParameterCount() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getParameterCount();
 }
 
@@ -219,8 +219,8 @@ Boolean CIMMethod::isUninitialized() const
 
 Boolean CIMMethod::identical(const CIMConstMethod& x) const
 {
-    x._checkRep();
-    _checkRep();
+    CheckRep(x._rep);
+    CheckRep(_rep);
     return _rep->identical(x._rep);
 }
 
@@ -293,61 +293,61 @@ CIMConstMethod& CIMConstMethod::operator=(const CIMMethod& x)
 
 const CIMName& CIMConstMethod::getName() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getName();
 }
 
 CIMType CIMConstMethod::getType() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getType();
 }
 
 const CIMName& CIMConstMethod::getClassOrigin() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getClassOrigin();
 }
 
 Boolean CIMConstMethod::getPropagated() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getPropagated();
 }
 
 Uint32 CIMConstMethod::findQualifier(const CIMName& name) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->findQualifier(name);
 }
 
 CIMConstQualifier CIMConstMethod::getQualifier(Uint32 index) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getQualifier(index);
 }
 
 Uint32 CIMConstMethod::getQualifierCount() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getQualifierCount();
 }
 
 Uint32 CIMConstMethod::findParameter(const CIMName& name) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->findParameter(name);
 }
 
 CIMConstParameter CIMConstMethod::getParameter(Uint32 index) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getParameter(index);
 }
 
 Uint32 CIMConstMethod::getParameterCount() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getParameterCount();
 }
 
@@ -358,8 +358,8 @@ Boolean CIMConstMethod::isUninitialized() const
 
 Boolean CIMConstMethod::identical(const CIMConstMethod& x) const
 {
-    x._checkRep();
-    _checkRep();
+    CheckRep(x._rep);
+    CheckRep(_rep);
     return _rep->identical(x._rep);
 }
 

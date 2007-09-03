@@ -537,6 +537,23 @@ public:
     } \
     while (0)
 
+/** The following function CheckRep serves to reduce the function call
+ *  overhead caused by calling a non-inlined function that only checks
+ *  if a pointer is not NULL.
+ *  The function ThrowUnitializedObjectException throws 
+ *  an UninitialisedObjectException.
+ *  A function to throw the exception is used to reduce object size of
+ *  function CheckRep which is inlined in many places across
+ *  the common library.
+ */
+PEGASUS_COMMON_LINKAGE extern void ThrowUninitializedObjectException();
+
+inline void CheckRep(void * rep)
+{
+    if (!rep) 
+        ThrowUninitializedObjectException();
+};
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_InternalException_h */

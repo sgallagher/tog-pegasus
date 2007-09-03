@@ -89,55 +89,55 @@ CIMQualifierDecl& CIMQualifierDecl::operator=(const CIMQualifierDecl& x)
 
 const CIMName& CIMQualifierDecl::getName() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getName();
 }
 
 void CIMQualifierDecl::setName(const CIMName& name)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->setName(name);
 }
 
 CIMType CIMQualifierDecl::getType() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getType();
 }
 
 Boolean CIMQualifierDecl::isArray() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->isArray();
 }
 
 const CIMValue& CIMQualifierDecl::getValue() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getValue();
 }
 
 void CIMQualifierDecl::setValue(const CIMValue& value)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->setValue(value);
 }
 
 const CIMScope & CIMQualifierDecl::getScope() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getScope();
 }
 
 const CIMFlavor & CIMQualifierDecl::getFlavor() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getFlavor();
 }
 
 Uint32 CIMQualifierDecl::getArraySize() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getArraySize();
 }
 
@@ -148,8 +148,8 @@ Boolean CIMQualifierDecl::isUninitialized() const
 
 Boolean CIMQualifierDecl::identical(const CIMConstQualifierDecl& x) const
 {
-    x._checkRep();
-    _checkRep();
+    CheckRep(x._rep);
+    CheckRep(_rep);
     return _rep->identical(x._rep);
 }
 
@@ -227,43 +227,43 @@ CIMConstQualifierDecl& CIMConstQualifierDecl::operator=(
 
 const CIMName& CIMConstQualifierDecl::getName() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getName();
 }
 
 CIMType CIMConstQualifierDecl::getType() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getType();
 }
 
 Boolean CIMConstQualifierDecl::isArray() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->isArray();
 }
 
 const CIMValue& CIMConstQualifierDecl::getValue() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getValue();
 }
 
 const CIMScope & CIMConstQualifierDecl::getScope() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getScope();
 }
 
 const CIMFlavor & CIMConstQualifierDecl::getFlavor() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getFlavor();
 }
 
 Uint32 CIMConstQualifierDecl::getArraySize() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getArraySize();
 }
 
@@ -274,8 +274,8 @@ Boolean CIMConstQualifierDecl::isUninitialized() const
 
 Boolean CIMConstQualifierDecl::identical(const CIMConstQualifierDecl& x) const
 {
-    x._checkRep();
-    _checkRep();
+    CheckRep(x._rep);
+    CheckRep(_rep);
     return _rep->identical(x._rep);
 }
 

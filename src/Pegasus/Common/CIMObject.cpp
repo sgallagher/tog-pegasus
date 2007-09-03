@@ -93,93 +93,93 @@ CIMObject::~CIMObject()
 
 const CIMName& CIMObject::getClassName() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getClassName();
 }
 
 const CIMObjectPath& CIMObject::getPath() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getPath();
 }
 
 void CIMObject::setPath(const CIMObjectPath & path)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->setPath(path);
 }
 
 CIMObject& CIMObject::addQualifier(const CIMQualifier& qualifier)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->addQualifier(qualifier);
     return *this;
 }
 
 Uint32 CIMObject::findQualifier(const CIMName& name) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->findQualifier(name);
 }
 
 CIMQualifier CIMObject::getQualifier(Uint32 index)
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getQualifier(index);
 }
 
 CIMConstQualifier CIMObject::getQualifier(Uint32 index) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getQualifier(index);
 }
 
 void CIMObject::removeQualifier(Uint32 index)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->removeQualifier(index);
 }
 
 Uint32 CIMObject::getQualifierCount() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getQualifierCount();
 }
 
 CIMObject& CIMObject::addProperty(const CIMProperty& x)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->addProperty(x);
     return *this;
 }
 
 Uint32 CIMObject::findProperty(const CIMName& name) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->findProperty(name);
 }
 
 CIMProperty CIMObject::getProperty(Uint32 index)
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getProperty(index);
 }
 
 CIMConstProperty CIMObject::getProperty(Uint32 index) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getProperty(index);
 }
 
 void CIMObject::removeProperty(Uint32 index)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->removeProperty(index);
 }
 
 Uint32 CIMObject::getPropertyCount() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getPropertyCount();
 }
 
@@ -192,7 +192,7 @@ String CIMObject::toString() const
 {
     Buffer out;
 
-    _checkRep();
+    CheckRep(_rep);
     _rep->toXml(out);
 
     return out.getData();
@@ -226,14 +226,14 @@ Boolean CIMObject::isInstance() const
 
 Boolean CIMObject::identical(const CIMConstObject& x) const
 {
-    x._checkRep();
-    _checkRep();
+    CheckRep(x._rep);
+    CheckRep(_rep);
     return _rep->identical(x._rep);
 }
 
 CIMObject CIMObject::clone() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return CIMObject(_rep->clone());
 }
 
@@ -301,49 +301,49 @@ CIMConstObject::~CIMConstObject()
 
 const CIMName& CIMConstObject::getClassName() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getClassName();
 }
 
 const CIMObjectPath& CIMConstObject::getPath() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getPath();
 }
 
 Uint32 CIMConstObject::findQualifier(const CIMName& name) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->findQualifier(name);
 }
 
 CIMConstQualifier CIMConstObject::getQualifier(Uint32 index) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getQualifier(index);
 }
 
 Uint32 CIMConstObject::getQualifierCount() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getQualifierCount();
 }
 
 Uint32 CIMConstObject::findProperty(const CIMName& name) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->findProperty(name);
 }
 
 CIMConstProperty CIMConstObject::getProperty(Uint32 index) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getProperty(index);
 }
 
 Uint32 CIMConstObject::getPropertyCount() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getPropertyCount();
 }
 
@@ -356,7 +356,7 @@ String CIMConstObject::toString() const
 {
     Buffer out;
 
-    _checkRep();
+    CheckRep(_rep);
     _rep->toXml(out);
 
     return out.getData();
@@ -390,8 +390,8 @@ Boolean CIMConstObject::isInstance() const
 
 Boolean CIMConstObject::identical(const CIMConstObject& x) const
 {
-    x._checkRep();
-    _checkRep();
+    CheckRep(x._rep);
+    CheckRep(_rep);
     return _rep->identical(x._rep);
 }
 

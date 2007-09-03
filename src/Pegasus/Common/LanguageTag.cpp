@@ -47,16 +47,6 @@ public:
     String variant;       // language variant part of the language tag
 };
 
-// Check for a valid rep pointer.  Throw an UninitializedObjectException if
-// the rep is null.
-static void _checkRep(LanguageTagRep* rep)
-{
-    if (!rep)
-    {
-        throw UninitializedObjectException();
-    }
-}
-
 LanguageTag::LanguageTag()
 {
     _rep = 0;
@@ -134,25 +124,25 @@ LanguageTag& LanguageTag::operator=(const LanguageTag& languageTag)
 
 String LanguageTag::getLanguage() const
 {
-    _checkRep(_rep);
+    CheckRep(_rep);
     return _rep->language;
 }
 
 String LanguageTag::getCountry() const
 {
-    _checkRep(_rep);
+    CheckRep(_rep);
     return _rep->country;
 }
 
 String LanguageTag::getVariant() const
 {
-    _checkRep(_rep);
+    CheckRep(_rep);
     return _rep->variant;
 }
 
 String LanguageTag::toString() const
 {
-    _checkRep(_rep);
+    CheckRep(_rep);
     return _rep->tag;
 }
 

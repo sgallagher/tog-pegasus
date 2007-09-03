@@ -88,67 +88,67 @@ CIMQualifier& CIMQualifier::operator=(const CIMQualifier& x)
 
 const CIMName& CIMQualifier::getName() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getName();
 }
 
 void CIMQualifier::setName(const CIMName& name)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->setName(name);
 }
 
 CIMType CIMQualifier::getType() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getType();
 }
 
 Boolean CIMQualifier::isArray() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->isArray();
 }
 
 const CIMValue& CIMQualifier::getValue() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getValue();
 }
 
 void CIMQualifier::setValue(const CIMValue& value)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->setValue(value);
 }
 
 void CIMQualifier::setFlavor(const CIMFlavor & flavor)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->setFlavor(flavor);
 }
 
 void CIMQualifier::unsetFlavor(const CIMFlavor & flavor)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->unsetFlavor(flavor);
 }
 
 const CIMFlavor & CIMQualifier::getFlavor() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getFlavor();
 }
 
 const Uint32 CIMQualifier::getPropagated() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return (_rep->getPropagated()) ? 1 : 0;
 }
 
 void CIMQualifier::setPropagated(Boolean propagated)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->setPropagated(propagated);
 }
 
@@ -159,8 +159,8 @@ Boolean CIMQualifier::isUninitialized() const
 
 Boolean CIMQualifier::identical(const CIMConstQualifier& x) const
 {
-    x._checkRep();
-    _checkRep();
+    CheckRep(x._rep);
+    CheckRep(_rep);
     return _rep->identical(x._rep);
 }
 
@@ -235,37 +235,37 @@ CIMConstQualifier& CIMConstQualifier::operator=(const CIMQualifier& x)
 
 const CIMName& CIMConstQualifier::getName() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getName();
 }
 
 CIMType CIMConstQualifier::getType() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getType();
 }
 
 Boolean CIMConstQualifier::isArray() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->isArray();
 }
 
 const CIMValue& CIMConstQualifier::getValue() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getValue();
 }
 
 const CIMFlavor & CIMConstQualifier::getFlavor() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getFlavor();
 }
 
 const Uint32 CIMConstQualifier::getPropagated() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return (_rep->getPropagated()) ? 1 : 0;
 }
 
@@ -276,8 +276,8 @@ Boolean CIMConstQualifier::isUninitialized() const
 
 Boolean CIMConstQualifier::identical(const CIMConstQualifier& x) const
 {
-    x._checkRep();
-    _checkRep();
+    CheckRep(x._rep);
+    CheckRep(_rep);
     return _rep->identical(x._rep);
 }
 

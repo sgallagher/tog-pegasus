@@ -1550,7 +1550,7 @@ void XmlWriter::appendClassElement(
     Buffer& out,
     const CIMConstClass& cimclass)
 {
-    cimclass._checkRep();
+    CheckRep(cimclass._rep);
     cimclass._rep->toXml(out);
 }
 
@@ -1578,7 +1578,7 @@ void XmlWriter::appendInstanceElement(
     Buffer& out,
     const CIMConstInstance& instance)
 {
-    instance._checkRep();
+    CheckRep(instance._rep);
     instance._rep->toXml(out);
 }
 
@@ -1648,7 +1648,7 @@ void XmlWriter::appendPropertyElement(
     Buffer& out,
     const CIMConstProperty& property)
 {
-    property._checkRep();
+    CheckRep(property._rep);
     property._rep->toXml(out);
 }
 
@@ -1679,7 +1679,7 @@ void XmlWriter::appendMethodElement(
     Buffer& out,
     const CIMConstMethod& method)
 {
-    method._checkRep();
+    CheckRep(method._rep);
     method._rep->toXml(out);
 }
 
@@ -1724,7 +1724,7 @@ void XmlWriter::appendParameterElement(
     Buffer& out,
     const CIMConstParameter& parameter)
 {
-    parameter._checkRep();
+    CheckRep(parameter._rep);
     parameter._rep->toXml(out);
 }
 
@@ -1751,7 +1751,7 @@ void XmlWriter::appendParamValueElement(
     Buffer& out,
     const CIMParamValue& paramValue)
 {
-    paramValue._checkRep();
+    CheckRep(paramValue._rep);
     paramValue._rep->toXml(out);
 }
 
@@ -1781,7 +1781,7 @@ void XmlWriter::appendQualifierElement(
     Buffer& out,
     const CIMConstQualifier& qualifier)
 {
-    qualifier._checkRep();
+    CheckRep(qualifier._rep);
     qualifier._rep->toXml(out);
 }
 
@@ -1812,7 +1812,7 @@ void XmlWriter::appendQualifierDeclElement(
     Buffer& out,
     const CIMConstQualifierDecl& qualifierDecl)
 {
-    qualifierDecl._checkRep();
+    CheckRep(qualifierDecl._rep);
     qualifierDecl._rep->toXml(out);
 }
 

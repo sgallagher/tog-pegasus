@@ -996,4 +996,9 @@ InternalSystemError::~InternalSystemError()
 {
 }
 
+void ThrowUninitializedObjectException()
+{
+    throw UninitializedObjectException();
+}
+
 PEGASUS_NAMESPACE_END

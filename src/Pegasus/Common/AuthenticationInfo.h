@@ -143,7 +143,7 @@ public:
     */
     void   setConnectionAuthenticated(Boolean status)
     {
-        _checkRep();
+        CheckRep(_rep);
         _rep->setConnectionAuthenticated(status);
     }
 
@@ -152,7 +152,7 @@ public:
     */
     String getAuthenticatedUser() const
     {
-        _checkRep();
+        CheckRep(_rep);
         return _rep->getAuthenticatedUser();
     }
 
@@ -161,7 +161,7 @@ public:
     */
     void   setAuthenticatedUser(const String& userName)
     {
-        _checkRep();
+        CheckRep(_rep);
         _rep->setAuthenticatedUser(userName);
     }
 
@@ -180,7 +180,7 @@ public:
     */
     String getConnectionUser() const
     {
-        _checkRep();
+        CheckRep(_rep);
         return _rep->getConnectionUser();
     }
 
@@ -190,7 +190,7 @@ public:
     */
     void   setConnectionUser(const String& userName)
     {
-        _checkRep();
+        CheckRep(_rep);
         _rep->setConnectionUser(userName);
     }
 
@@ -201,7 +201,7 @@ public:
     */
     String getAuthenticatedPassword() const
     {
-        _checkRep();
+        CheckRep(_rep);
         return _rep->getAuthenticatedPassword();
     }
 
@@ -210,7 +210,7 @@ public:
     */
     void   setAuthenticatedPassword(const String& password)
     {
-        _checkRep();
+        CheckRep(_rep);
         _rep->setAuthenticatedPassword(password);
     }
 
@@ -219,7 +219,7 @@ public:
     */
     String getLocalAuthFilePath() const
     {
-        _checkRep();
+        CheckRep(_rep);
         return _rep->getLocalAuthFilePath();
     }
 
@@ -228,7 +228,7 @@ public:
     */
     void setLocalAuthFilePath(const String& filePath)
     {
-        _checkRep();
+        CheckRep(_rep);
         _rep->setLocalAuthFilePath(filePath);
     }
 
@@ -237,7 +237,7 @@ public:
     */
     String getLocalAuthSecret() const
     {
-        _checkRep();
+        CheckRep(_rep);
         return _rep->getLocalAuthSecret();
     }
 
@@ -246,7 +246,7 @@ public:
     */
     void   setLocalAuthSecret(const String& secret)
     {
-        _checkRep();
+        CheckRep(_rep);
         _rep->setLocalAuthSecret(secret);
     }
 
@@ -257,7 +257,7 @@ public:
     */
     Boolean isConnectionAuthenticated() const
     {
-        _checkRep();
+        CheckRep(_rep);
         return _rep->isConnectionAuthenticated();
     }
 
@@ -266,7 +266,7 @@ public:
     */
     void   setAuthType(const String& authType)
     {
-        _checkRep();
+        CheckRep(_rep);
         _rep->setAuthType(authType);
     }
 
@@ -275,7 +275,7 @@ public:
     */
     String getAuthType() const
     {
-        _checkRep();
+        CheckRep(_rep);
         return _rep->getAuthType();
     }
 
@@ -285,7 +285,7 @@ public:
     */
     void setIpAddress(const String& ipAddress)
     {
-        _checkRep();
+        CheckRep(_rep);
         _rep->setIpAddress(ipAddress);
     }
 
@@ -299,7 +299,7 @@ public:
     */
     String getIpAddress() const
     {
-        _checkRep();
+        CheckRep(_rep);
         return _rep->getIpAddress();
     }
 
@@ -310,7 +310,7 @@ public:
     */
     CIMKerberosSecurityAssociation* getSecurityAssociation() const
     {
-        _checkRep();
+        CheckRep(_rep);
         return _rep->getSecurityAssociation();
     }
 
@@ -320,20 +320,20 @@ public:
     */
     void setSecurityAssociation()
     {
-        _checkRep();
+        CheckRep(_rep);
         _rep->setSecurityAssociation();
     }
 #endif
 
     Array<SSLCertificateInfo*> getClientCertificateChain()
     {
-        _checkRep();
+        CheckRep(_rep);
         return _rep->getClientCertificateChain();
     }
 
     void setClientCertificateChain(Array<SSLCertificateInfo*> clientCertificate)
     {
-        _checkRep();
+        CheckRep(_rep);
         _rep->setClientCertificateChain(clientCertificate);
     }
 
@@ -342,7 +342,7 @@ public:
     */
     void setRemotePrivilegedUserAccessChecked()
     {
-        _checkRep();
+        CheckRep(_rep);
         _rep->setRemotePrivilegedUserAccessChecked();
     }
 
@@ -352,7 +352,7 @@ public:
     */
     Boolean getRemotePrivilegedUserAccessChecked()
     {
-        _checkRep();
+        CheckRep(_rep);
         return _rep->getRemotePrivilegedUserAccessChecked();
     }
 
@@ -362,7 +362,7 @@ private:
     {
 
     }
-
+    
     void _checkRep() const
     {
         if (!_rep)

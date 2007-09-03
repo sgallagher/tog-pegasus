@@ -97,93 +97,93 @@ CIMInstance::~CIMInstance()
 
 const CIMName& CIMInstance::getClassName() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getClassName();
 }
 
 const CIMObjectPath& CIMInstance::getPath() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getPath();
 }
 
 void CIMInstance::setPath (const CIMObjectPath & path)
 {
-    _checkRep ();
+    CheckRep(_rep);
     _rep->setPath (path);
 }
 
 CIMInstance& CIMInstance::addQualifier(const CIMQualifier& qualifier)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->addQualifier(qualifier);
     return *this;
 }
 
 Uint32 CIMInstance::findQualifier(const CIMName& name) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->findQualifier(name);
 }
 
 CIMQualifier CIMInstance::getQualifier(Uint32 index)
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getQualifier(index);
 }
 
 CIMConstQualifier CIMInstance::getQualifier(Uint32 index) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getQualifier(index);
 }
 
 void CIMInstance::removeQualifier(Uint32 index)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->removeQualifier(index);
 }
 
 Uint32 CIMInstance::getQualifierCount() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getQualifierCount();
 }
 
 CIMInstance& CIMInstance::addProperty(const CIMProperty& x)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->addProperty(x);
     return *this;
 }
 
 Uint32 CIMInstance::findProperty(const CIMName& name) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->findProperty(name);
 }
 
 CIMProperty CIMInstance::getProperty(Uint32 index)
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getProperty(index);
 }
 
 CIMConstProperty CIMInstance::getProperty(Uint32 index) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getProperty(index);
 }
 
 void CIMInstance::removeProperty(Uint32 index)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->removeProperty(index);
 }
 
 Uint32 CIMInstance::getPropertyCount() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getPropertyCount();
 }
 
@@ -194,8 +194,8 @@ Boolean CIMInstance::isUninitialized() const
 
 Boolean CIMInstance::identical(const CIMConstInstance& x) const
 {
-    x._checkRep();
-    _checkRep();
+    CheckRep(x._rep);
+    CheckRep(_rep);
     return _rep->identical(x._rep);
 }
 
@@ -206,7 +206,7 @@ CIMInstance CIMInstance::clone() const
 
 CIMObjectPath CIMInstance::buildPath(const CIMConstClass& cimClass) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->buildPath(cimClass);
 }
 
@@ -220,7 +220,7 @@ void CIMInstance::_checkRep() const
 void CIMInstance::filter(Boolean includeQualifiers, Boolean includeClassOrigin,
                         const CIMPropertyList& propertyList)
 {
-    _checkRep();
+    CheckRep(_rep);
     _rep->filter(includeQualifiers, includeClassOrigin, propertyList);
 }
 
@@ -292,49 +292,49 @@ CIMConstInstance::~CIMConstInstance()
 
 const CIMName& CIMConstInstance::getClassName() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getClassName();
 }
 
 const CIMObjectPath& CIMConstInstance::getPath() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getPath();
 }
 
 Uint32 CIMConstInstance::findQualifier(const CIMName& name) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->findQualifier(name);
 }
 
 CIMConstQualifier CIMConstInstance::getQualifier(Uint32 index) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getQualifier(index);
 }
 
 Uint32 CIMConstInstance::getQualifierCount() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getQualifierCount();
 }
 
 Uint32 CIMConstInstance::findProperty(const CIMName& name) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->findProperty(name);
 }
 
 CIMConstProperty CIMConstInstance::getProperty(Uint32 index) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getProperty(index);
 }
 
 Uint32 CIMConstInstance::getPropertyCount() const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->getPropertyCount();
 }
 
@@ -345,8 +345,8 @@ Boolean CIMConstInstance::isUninitialized() const
 
 Boolean CIMConstInstance::identical(const CIMConstInstance& x) const
 {
-    x._checkRep();
-    _checkRep();
+    CheckRep(x._rep);
+    CheckRep(_rep);
     return _rep->identical(x._rep);
 }
 
@@ -357,7 +357,7 @@ CIMInstance CIMConstInstance::clone() const
 
 CIMObjectPath CIMConstInstance::buildPath(const CIMConstClass& cimClass) const
 {
-    _checkRep();
+    CheckRep(_rep);
     return _rep->buildPath(cimClass);
 }
 

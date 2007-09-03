@@ -559,7 +559,7 @@ void MofWriter::appendClassElement(
     Buffer& out,
     const CIMConstClass& cimclass)
 {
-    cimclass._checkRep();
+    CheckRep(cimclass._rep);
     cimclass._rep->toMof(out);
 }
 
@@ -582,7 +582,7 @@ void MofWriter::appendInstanceElement(
     Buffer& out,
     const CIMConstInstance& instance)
 {
-    instance._checkRep();
+    CheckRep(instance._rep);
     instance._rep->toMof(out);
 }
 
@@ -597,7 +597,7 @@ void MofWriter::appendPropertyElement(
     Buffer& out,
     const CIMConstProperty& property)
 {
-    property._checkRep();
+    CheckRep(property._rep);
     property._rep->toMof(isDeclaration, out);
 }
 
@@ -611,7 +611,7 @@ void MofWriter::appendMethodElement(
     Buffer& out,
     const CIMConstMethod& method)
 {
-    method._checkRep();
+    CheckRep(method._rep);
     method._rep->toMof(out);
 }
 
@@ -625,7 +625,7 @@ void MofWriter::appendParameterElement(
     Buffer& out,
     const CIMConstParameter& parameter)
 {
-    parameter._checkRep();
+    CheckRep(parameter._rep);
     parameter._rep->toMof(out);
 }
 
@@ -639,7 +639,7 @@ void MofWriter::appendQualifierElement(
     Buffer& out,
     const CIMConstQualifier& qualifier)
 {
-    qualifier._checkRep();
+    CheckRep(qualifier._rep);
     qualifier._rep->toMof(out);
 }
 
@@ -653,7 +653,7 @@ void MofWriter::appendQualifierDeclElement(
     Buffer& out,
     const CIMConstQualifierDecl& qualifierDecl)
 {
-    qualifierDecl._checkRep();
+    CheckRep(qualifierDecl._rep);
     qualifierDecl._rep->toMof(out);
 }
 

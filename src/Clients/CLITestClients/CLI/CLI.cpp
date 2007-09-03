@@ -228,6 +228,10 @@ public:
 
 int main(int argc, char** argv)
 {
+#ifdef PEGASUS_OS_PASE
+    // Allow user group name larger than 8 chars in PASE environemnt
+    setenv("PASE_USRGRP_LIMITED","N",1);
+#endif
     // If no arguments, simply print usage message and terminate.
     if (argc == 1)
     {

@@ -61,6 +61,10 @@ static const char MSG_PATH [] = "pegasus/pegasusServer";
 
 int main(int argc, char ** argv)
 {
+#ifdef PEGASUS_OS_PASE
+    // Allow user group name larger than 8 chars in PASE environemnt
+    setenv("PASE_USRGRP_LIMITED","N",1);
+#endif
     int ret = 0;
     String msg_;
     MessageLoaderParms parms;
@@ -97,6 +101,15 @@ int main(int argc, char ** argv)
         cerr << MessageLoader::getMessage(parms) << e.getMessage() << endl;
         ret = PEGASUS_CIMMOF_UNEXPECTED_CONDITION;
     }
+
+#ifdef PEGASUS_OS_PASE
+    if (cmdline.is_local())
+    {
+        // Check special authorities in PASE environment
+        if (!umeCheckCmdAuthorities(cmdline.quiet()))
+            return 1;
+    }
+#endif 
 
     if (ret)
     {

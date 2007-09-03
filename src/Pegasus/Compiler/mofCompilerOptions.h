@@ -84,6 +84,9 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   Boolean     _update_class;
   Boolean     _allow_experimental;
   Boolean     _allow_version;
+#ifdef PEGASUS_OS_PASE
+  Boolean         _quiet;
+#endif
   Boolean         _no_usage_warning;
 
   PEGASUS_STD(ostream)      *_traceos;
@@ -147,6 +150,11 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   void set_allow_version() { _allow_version = true; }
   void reset_allow_version() { _allow_version = false; }
   Boolean allow_version() const { return _allow_version; }
+#ifdef PEGASUS_OS_PASE
+  void set_quiet() { _quiet = true; }
+  void reset_quiet() { _quiet = false; }
+  Boolean quiet() const { return _quiet; }
+#endif
   void set_operationType(compilerCommonDefs::operationType ot) { _ot = ot; }
   void reset_operationType() { _ot = compilerCommonDefs::USE_REPOSITORY; }
   compilerCommonDefs::operationType operationType() const { return _ot; }

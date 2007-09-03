@@ -48,6 +48,10 @@
 #include <Pegasus/Config/ConfigFileHandler.h>
 #include "CIMConfigCommand.h"
 
+#ifdef PEGASUS_OS_PASE
+# include <ILEWrapper/ILEUtilities.h>
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 //l10n
@@ -486,6 +490,13 @@ static const char   OPTION_GET                 = 'g';
 */
 static const char   OPTION_SET                 = 's';
 
+#ifdef PEGASUS_OS_PASE 
+/**
+    The option character used to specify no output to stdout or stderr.
+*/
+     static const char OPTION_QUIET_VALUE      = 'q';
+#endif
+
 /**
     The option character used to specify unset config property.
 */
@@ -538,6 +549,9 @@ CIMConfigCommand::CIMConfigCommand ()
     _currentValueSet     = false;
     _plannedValueSet     = false;
     _defaultValueSet     = false;
+#ifdef PEGASUS_OS_PASE
+    _defaultQuietSet     = false;
+#endif
 
     /**
         Build the usage string for the config command.  
@@ -551,14 +565,23 @@ CIMConfigCommand::CIMConfigCommand ()
     usage.append(" [ -").append(OPTION_CURRENT_VALUE); 
     usage.append(" ] [ -").append(OPTION_DEFAULT_VALUE);
     usage.append(" ] [ -").append(OPTION_PLANNED_VALUE).append(" ]\n");
+#ifdef PEGASUS_OS_PASE
+    usage.append(" ] [ -").append(OPTION_QUIET_VALUE).append(" ]\n");
+#endif
 
     usage.append("                 -").append(OPTION_SET).append(" name=value");
     usage.append(" [ -").append(OPTION_CURRENT_VALUE);
     usage.append(" ] [ -").append(OPTION_PLANNED_VALUE).append(" ]\n");
+#ifdef PEGASUS_OS_PASE
+    usage.append(" ] [ -").append(OPTION_QUIET_VALUE).append(" ]\n");
+#endif
 
     usage.append("                 -").append(OPTION_UNSET).append(" name");
     usage.append(" [ -").append(OPTION_CURRENT_VALUE);
     usage.append(" ] [ -").append(OPTION_PLANNED_VALUE).append(" ]\n");
+#ifdef PEGASUS_OS_PASE
+    usage.append(" ] [ -").append(OPTION_QUIET_VALUE).append(" ]\n");
+#endif
 
     usage.append("                 -").append(OPTION_LIST);
     usage.append(" [ -").append(OPTION_CURRENT_VALUE);
@@ -577,7 +600,10 @@ CIMConfigCommand::CIMConfigCommand ()
     usage.append("    -l         - Display all the configuration properties\n");
     usage.append("    -p         - Configuration used on next CIM Server"
                                     " start\n");
-
+#ifdef PEGASUS_OS_PASE
+    usage.append("    -q         - Specify quiet mode,"
+                 "avoiding output to stdout or stderr\n");
+#endif
     usage.append("    -s         - Add or Update configuration property"
                                     " value\n");
     usage.append("    -u         - Reset configuration property to its"
@@ -632,7 +658,9 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
     optString.append(OPTION_CURRENT_VALUE);
     optString.append(OPTION_PLANNED_VALUE);
     optString.append(OPTION_DEFAULT_VALUE);
-
+#ifdef PEGASUS_OS_PASE
+    optString.append(OPTION_QUIET_VALUE);
+#endif
     optString.append(OPTION_HELP);
 
     //
@@ -920,6 +948,19 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                     _operationType = OPERATION_TYPE_VERSION;
                     break;
                 }
+
+#ifdef PEGASUS_OS_PASE
+                // check for quiet option
+                // before processing the rest of the options
+                case OPTION_QUIET_VALUE:
+                {
+                    _defaultQuietSet = true;
+                    freopen("/dev/null","w",stdout);
+                    freopen("/dev/null","w",stderr);
+                    break;
+                }
+#endif
+
                 default:
                     //
                     // Should never get here
@@ -956,6 +997,15 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
             //
             throw InvalidOptionException(OPTION_CURRENT_VALUE);
         }
+#ifdef PEGASUS_OS_PASE
+        if( _defaultQuietSet )
+        {
+            //
+            // An invalid option was encountered
+            //
+            throw InvalidOptionException(OPTION_QUIET_VALUE);
+        }
+#endif
     }
     else
     {
@@ -1806,6 +1856,10 @@ PEGASUS_USING_STD;
 
 int main (int argc, char* argv []) 
 {
+#ifdef PEGASUS_OS_PASE
+    // Allow user group name larger than 8 chars in PASE environemnt
+    setenv("PASE_USRGRP_LIMITED","N",1);
+#endif
     AutoPtr<CIMConfigCommand> command;
     Uint32               returnCode;
 
@@ -1813,6 +1867,12 @@ int main (int argc, char* argv [])
     MessageLoader::_useProcessLocale = true; 
     MessageLoader::setPegasusMsgHomeRelative(argv[0]);
     
+#ifdef PEGASUS_OS_PASE
+    // Check special authorities in PASE environment
+    if (!umeCheckCmdAuthorities(false))
+        return Command::RC_ERROR; 
+#endif
+
     command.reset(new CIMConfigCommand ());
 
     try 

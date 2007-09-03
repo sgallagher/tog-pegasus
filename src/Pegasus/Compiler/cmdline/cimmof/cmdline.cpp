@@ -83,6 +83,10 @@
 #include "cmdline.h"
 #include <Pegasus/getoopt/getoopt.h>
 
+#ifdef PEGASUS_OS_PASE
+#include <ILEWrapper/ILEUtilities.h>
+#endif
+
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
@@ -189,6 +193,10 @@ ostream & help(ostream &os, int progtype)
     help.append( "               [ -n namespace | --namespace namespace ]"
                                 " [ --xml ]\n");
     help.append( "               [ --trace ]");
+#ifdef PEGASUS_OS_PASE 
+  if(progtype == 1)
+      help.append("  [ -q ]");
+#endif
     if(progtype == 1)
     {
         help.append("\n               [ -R repositorydir ] [ --CIMRepository"
@@ -214,6 +222,10 @@ ostream & help(ostream &os, int progtype)
                                                 " Schema changes\n");
     help.append( "    -aEV                - Allow both Experimental and"
                                                 " Version Schema changes\n");
+#ifdef PEGASUS_OS_PASE 
+    help.append( "    -q                  - Suppress all messages except"
+                                            " command line usage errors\n");
+#endif
     //PEP167 - Remove and disable 'f' and 'file' options. No longer required
     //help.append( "  -ffile -- specify file containing a list of MOFs to
     //compile.\n");
@@ -387,6 +399,8 @@ static void applyDefaults(mofCompilerOptions &cmdlinedata)
 #if defined(PEGASUS_USE_RELEASE_DIRS) && \
         defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
         cmdlinedata.set_repository_name(ZOS_DEFAULT_PEGASUS_REPOSITORY);
+#elif defined(PEGASUS_OS_PASE)
+        cmdlinedata.set_repository(PASE_DEFAULT_PEGASUS_HOME);
 #else
         char *peghome = getenv(PEGASUS_HOME);
         if (peghome)
@@ -416,6 +430,9 @@ static void applyDefaults(mofCompilerOptions &cmdlinedata)
     cmdlinedata.reset_update_class();
     cmdlinedata.reset_allow_experimental();
     cmdlinedata.reset_allow_version();
+#ifdef PEGASUS_OS_PASE
+    cmdlinedata.reset_quiet();
+#endif
 }
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
@@ -552,7 +569,13 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                 {
                     cmdlinedata.set_repository_mode(arg.optarg());
                     // prevent using binary repository since we do not support
-                    // that in 2.5
+#ifdef PEGASUS_OS_PASE
+                    if (String::equalNoCase(arg.optarg(), "BIN"))
+                    {
+                        throw ArgumentErrorsException("ERROR: THE VALUE BIN IS"
+                            "NOT SUPPORTED FOR THE REPOSITORY MODE."); 
+                    }
+#endif
                    if(String::equalNoCase(arg.optarg(), "XML") ||
                        String::equalNoCase(arg.optarg(), "BIN")) {}
                    else
@@ -656,6 +679,21 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                 }
                 break;
                 }*/
+#endif
+#ifdef PEGASUS_OS_PASE 
+            // If quiet mode is chosen then shut down stdout and stderr.
+            // This is used during product installation and PTF application.
+            // We must be absolutely quiet to avoid a terminal being
+            // activated in native mode.
+            case QUIETFLAG:
+            {
+                cmdlinedata.set_quiet();
+                // Redirect to /dev/null.
+                // Works for both qshell and native modes.
+                freopen("/dev/null","w",stdout);
+                freopen("/dev/null","w",stderr);
+                break;
+            }
 #endif
             case FILESPEC: cmdlinedata.add_filespecs(arg.optarg());
                 break;

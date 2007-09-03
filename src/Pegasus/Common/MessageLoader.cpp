@@ -682,7 +682,7 @@ void MessageLoader::setPegasusMsgHomeRelative(const String& argv0)
         }
 #endif
 
-#ifdef PEGASUS_OS_TYPE_UNIX
+#if defined(PEGASUS_OS_TYPE_UNIX) && !defined(PEGASUS_OS_PASE)
         if (PEG_NOT_FOUND  != argv0.find('/'))
         {
             Uint32 command = argv0.reverseFind('/');
@@ -740,6 +740,12 @@ void MessageLoader::setPegasusMsgHomeRelative(const String& argv0)
             }
         }
 #endif
+
+#ifdef PEGASUS_OS_PASE
+        // PASE environment have special message path
+        startingDir = String(PASE_DEFAULT_MESSAGE_SOURCE);
+#endif
+
         initPegasusMsgHome(startingDir);
     }
     catch (Exception& e)

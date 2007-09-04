@@ -34,10 +34,12 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
-#include "Logger.h"
-#include "System.h"
+#include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/Executor.h>
+#include <Pegasus/Common/Mutex.h>
 
 #if defined(PEGASUS_USE_SYSLOGS)
 # include <syslog.h>
@@ -46,6 +48,9 @@
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
+// Maximum logfile size is defined as 32 MB = 32 * 1024 * 1024
+# define PEGASUS_MAX_LOGFILE_SIZE 0X2000000
 
 const Uint32 Logger::TRACE = (1 << 0);
 const Uint32 Logger::INFORMATION = (1 << 1);
@@ -78,18 +83,6 @@ Uint32 Logger::_writeControlMask = 0xF;   // Set all on by default
 const Boolean Logger::_SUCCESS = 1;
 const Boolean Logger::_FAILURE = 0;
 
-/* _allocLogFileName. Allocates the name from a name set.
-    Today this is static.  However, it should be completely
-    configerable and driven from the config file so that
-    Log organization and names are open.
-    ATTN: rewrite this so that names, choice to do logs and
-    mask for level of severity are all driven from configuration
-    input.
-*/
-static CString _allocLogFileName(
-    const String& homeDirectory,
-    Logger::LogFileType logFileType)
-{
     static const char* fileNames[] =
     {
         "PegasusTrace.log",
@@ -98,20 +91,29 @@ static CString _allocLogFileName(
         "PegasusError.log",
         "PegasusDebug.log"
     };
+static const char* lockFileName =  "PegasusLog.lock";
 
-    int index = int(logFileType);
 
-    if (index >= Logger::NUM_LOGS)
-        index = Logger::ERROR_LOG;
+/* _constructFileName prepares the absolute file name from homeDirectory
+    and fileName.
 
-    const char* logFileName = fileNames[index];
-
+    Today this is static.  However, it should be completely
+    configerable and driven from the config file so that
+    Log organization and names are open.
+    ATTN: rewrite this so that names, choice to do logs and
+    mask for level of severity are all driven from configuration
+    input.
+*/
+static CString _constructFileName(
+    const String& homeDirectory,
+    const char * fileName)
+{
     String result;
     result.reserveCapacity((Uint32)(homeDirectory.size() + 1 +
-        strlen(logFileName)));
+        strlen(fileName)));
     result.append(homeDirectory);
     result.append('/');
-    result.append(logFileName);
+    result.append(fileName);
     return result.getCString();
 }
 
@@ -140,22 +142,37 @@ public:
             cerr << MessageLoader::getMessage(parms);
         }
 
-        CString fileName = _allocLogFileName(homeDirectory, Logger::TRACE_LOG);
-        _logs[Logger::TRACE_LOG].open(fileName, ios::app);
+       //Filelocks are not used for VMS
+#if !defined(PEGASUS_OS_VMS)
+        _loggerLockFileName = _constructFileName(homeDirectory, lockFileName);
 
-        fileName = _allocLogFileName(homeDirectory, Logger::STANDARD_LOG);
-        _logs[Logger::STANDARD_LOG].open(fileName, ios::app);
-
-#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
-        fileName = _allocLogFileName(homeDirectory, Logger::AUDIT_LOG);
-        _logs[Logger::AUDIT_LOG].open(fileName, ios::app);
+        // Open and close a file to make sure that the file exists, on which
+        // file lock is requested
+        FILE *fileLockFilePointer;
+        fileLockFilePointer = fopen(_loggerLockFileName, "a+");
+        if(fileLockFilePointer)
+        {
+            fclose(fileLockFilePointer);
+        }
 #endif
 
-        fileName = _allocLogFileName(homeDirectory, Logger::ERROR_LOG);
-        _logs[Logger::ERROR_LOG].open(fileName, ios::app);
 
-        fileName = _allocLogFileName(homeDirectory, Logger::DEBUG_LOG);
-        _logs[Logger::DEBUG_LOG].open(fileName, ios::app);
+        _logFileNames[Logger::TRACE_LOG] = _constructFileName(homeDirectory,
+                                               fileNames[Logger::TRACE_LOG]);
+
+        _logFileNames[Logger::STANDARD_LOG] = _constructFileName(homeDirectory,
+                                               fileNames[Logger::STANDARD_LOG]);
+
+#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+        _logFileNames[Logger::AUDIT_LOG] = _constructFileName(homeDirectory,
+                                               fileNames[Logger::AUDIT_LOG]);
+#endif
+
+        _logFileNames[Logger::ERROR_LOG] = _constructFileName(homeDirectory,
+                                               fileNames[Logger::ERROR_LOG]);
+
+        _logFileNames[Logger::DEBUG_LOG] = _constructFileName(homeDirectory,
+                                               fileNames[Logger::DEBUG_LOG]);
 #else
 
 #ifdef PEGASUS_OS_ZOS
@@ -170,36 +187,96 @@ public:
 
     ~LoggerRep()
     {
-#if !defined(PEGASUS_USE_SYSLOGS)
-        _logs[Logger::TRACE_LOG].close();
-        _logs[Logger::STANDARD_LOG].close();
-
-#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
-        _logs[Logger::AUDIT_LOG].close();
-#endif
-
-        _logs[Logger::ERROR_LOG].close();
-        _logs[Logger::DEBUG_LOG].close();
-
-#else
 
 #ifdef PEGASUS_OS_ZOS
         System::closelog();
         free(logIdentity);
 #endif
-
-#endif
-
     }
 
-    ostream& logOf(Logger::LogFileType logFileType)
+    // Actual logging is done in this routine
+    void log(Logger::LogFileType logFileType,
+        const String& systemId,
+        Uint32 logLevel,
+        const String localizedMsg)
     {
-        int index = int(logFileType);
+#if defined(PEGASUS_USE_SYSLOGS)
 
-        if (index > int(Logger::NUM_LOGS))
-            index = Logger::ERROR_LOG;
+        // Log the message
+        System::syslog(systemId, logLevel, localizedMsg.getCString());
 
-        return _logs[index];
+#else
+        // Prepend the systemId to the incoming message
+        String messageString(systemId);
+        messageString.append(": ");
+        messageString.append(localizedMsg);  // l10n
+
+        // Get the logLevel String
+        // This converts bitmap to string based on highest order
+        // bit set
+        // ATTN: KS Fix this more efficiently.
+        const char* tmp = "";
+        if (logLevel & Logger::TRACE) tmp =       "TRACE   ";
+        if (logLevel & Logger::INFORMATION) tmp = "INFO    ";
+        if (logLevel & Logger::WARNING) tmp =     "WARNING ";
+        if (logLevel & Logger::SEVERE) tmp =      "SEVERE  ";
+        if (logLevel & Logger::FATAL) tmp =       "FATAL   ";
+
+# ifndef PEGASUS_OS_VMS
+        // Acquire AutoMutex (for thread sync) 
+        // and AutoFileLock (for Process Sync).
+        AutoMutex am(_mutex);
+        AutoFileLock fileLock(_loggerLockFileName);
+
+        Uint32  logFileSize = 0;
+
+        // Read logFileSize to check if the logfile needs to be pruned.
+        FileSystem::getFileSize(String(_logFileNames[logFileType]), 
+                                       logFileSize);
+
+        // Check if the size of the logfile is exceeding 32MB.
+        if ( logFileSize > PEGASUS_MAX_LOGFILE_SIZE)
+    {
+            // Prepare appropriate file name based on the logFileType.
+            // Eg: if Logfile name is PegasusStandard.log, pruned logfile name
+            // will be PegasusStandard-062607-122302.log,where 062607-122302
+            // is the time stamp.
+            String prunedLogfile(_logFileNames[logFileType],
+                                (Uint32)strlen(_logFileNames[logFileType]) - 4);
+            prunedLogfile.append('-');
+
+            // Get timestamp,remove illegal chars in file name'/' and ':'
+            // (: is illegal Open VMS) from the time stamp. Append the time
+            // info to the file name.
+
+            String timeStamp = System::getCurrentASCIITime();
+            for (unsigned int i=0; i<=timeStamp.size(); i++)
+            {
+                if(timeStamp[i] == '/' || timeStamp[i] == ':')
+                {
+                    timeStamp.remove(i, 1);
+                }
+            }
+            prunedLogfile.append(timeStamp);
+
+            // Append '.log' to the file
+            prunedLogfile.append( ".log");
+
+            // Rename the logfile
+            FileSystem::renameFile(String(_logFileNames[logFileType]),
+                                   prunedLogfile);
+
+        } // Check if the logfile needs to be pruned.
+# endif  // ifndef PEGASUS_OS_VMS
+
+        // Open Logfile. Based on the value of logFileType, one of the five
+        // Logfiles will be opened.
+        ofstream logFileStream;
+        logFileStream.open(_logFileNames[logFileType], ios::app);
+        logFileStream << System::getCurrentASCIITime()
+           << " " << tmp << (const char *)messageString.getCString() << endl;
+        logFileStream.close();
+#endif // ifndef PEGASUS_USE_SYSLOGS
     }
 
 private:
@@ -207,7 +284,11 @@ private:
 #ifdef PEGASUS_OS_ZOS
     char* logIdentity;
 #endif
-    ofstream _logs[int(Logger::NUM_LOGS)];
+    CString _logFileNames[int(Logger::NUM_LOGS)];
+#ifndef PEGASUS_OS_VMS
+    CString _loggerLockFileName;
+    Mutex _mutex;
+#endif
 };
 
 void Logger::_putInternal(
@@ -267,33 +348,9 @@ void Logger::_putInternal(
         }
 // l10n end
 
-#if defined(PEGASUS_USE_SYSLOGS)
 
-        // Log the message
-        System::syslog(systemId, logLevel, localizedMsg.getCString());
-
-#else
-
-        // Prepend the systemId to the incoming message
-        String messageString(systemId);
-        messageString.append(": ");
-        messageString.append(localizedMsg);  // l10n
-
-        // Get the logLevel String
-        // This converts bitmap to string based on highest order
-        // bit set
-        // ATTN: KS Fix this more efficiently.
-        const char* tmp = "";
-        if (logLevel & Logger::TRACE) tmp =       "TRACE   ";
-        if (logLevel & Logger::INFORMATION) tmp = "INFO    ";
-        if (logLevel & Logger::WARNING) tmp =     "WARNING ";
-        if (logLevel & Logger::SEVERE) tmp =      "SEVERE  ";
-        if (logLevel & Logger::FATAL) tmp =       "FATAL   ";
-
-        _rep->logOf(logFileType) << System::getCurrentASCIITime()
-           << " " << tmp << (const char *)messageString.getCString() << endl;
-
-#endif
+       // Call the actual logging routine is in LoggerRep.
+       _rep->log(logFileType, systemId, logLevel, localizedMsg);
     }
 }
 

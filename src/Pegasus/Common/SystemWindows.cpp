@@ -46,6 +46,7 @@
 #include <windows.h>
 #include <process.h>
 #include <lm.h>
+#include <Pegasus/Common/Tracer.h>
 
 #define SECURITY_WIN32
 #include <security.h>
@@ -1004,12 +1005,49 @@ Boolean System::isIpOnNetworkInterface(Uint32 inIP)
 
 AutoFileLock::AutoFileLock(const char* fileName)
 {
-    // ATTN: Not implemented
+   // Repeat createFile, if there is a sharing violation.
+   do
+   {
+       _hFile = CreateFile (fileName, GENERIC_READ | GENERIC_WRITE, 0, NULL,
+           OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+   }while ((GetLastError() == ERROR_SHARING_VIOLATION));
+
+   // If this conditon succeeds, There is an error opening the file. Hence
+   // returning from here  as Lock can not be acquired.
+   if((_hFile == INVALID_HANDLE_VALUE)
+       && (GetLastError() != ERROR_ALREADY_EXISTS)
+       && (GetLastError() != ERROR_SUCCESS))
+   {
+       PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+          "AutoFileLock: Failed to open lock file '%s', error code %d.",
+          fileName, GetLastError()));
+       return;
+   }
+
+   OVERLAPPED l={0,0,0,0,0};
+   if(LockFileEx(_hFile,LOCKFILE_EXCLUSIVE_LOCK, 0, 0, 0, &l) == 0)
+   {
+       PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+           "AutoFileLock: Failed to Acquire lock on file %s, error code %d.",
+           fileName, GetLastError()));
+       CloseHandle(_hFile);
+       _hFile = INVALID_HANDLE_VALUE;
+   }
 }
 
 AutoFileLock::~AutoFileLock()
 {
-    // ATTN: Not implemented
+    if(_hFile != INVALID_HANDLE_VALUE)
+    {
+        OVERLAPPED l={0,0,0,0,0};
+        if(UnlockFileEx (_hFile, 0, 0, 0, &l) == 0)
+        {
+           PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+               "AutoFileLock: Failed to unlock file, error code %d.",
+                GetLastError()));
+        }
+        CloseHandle(_hFile);
+    }
 }
 
 PEGASUS_NAMESPACE_END

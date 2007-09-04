@@ -45,6 +45,7 @@
 #ifndef mode_t
 typedef unsigned long mode_t;
 #endif
+#include <windows.h>
 #endif
 
 #if defined (PEGASUS_OS_TYPE_UNIX) || (PEGASUS_OS_VMS)
@@ -392,6 +393,9 @@ private:
 #ifdef PEGASUS_OS_TYPE_UNIX
     struct flock _fl;
     int _fd;
+#endif
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    HANDLE _hFile;
 #endif
 };
 

@@ -321,7 +321,7 @@ CMPIStatus TestCMPIInstanceProviderInvokeMethod (CMPIMethodMI * mi,
             methodName,
             strlen ("testInstance"))== 0)
         {
-            oper_rc = _testInstance(ctx, rslt);
+            oper_rc = _testInstance();
             CMReturnData (rslt, (CMPIValue *) &oper_rc, CMPI_uint32);
             CMReturnDone (rslt);
         }

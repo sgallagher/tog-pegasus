@@ -55,6 +55,6 @@ instance of ValidMof6 {
     id = 4;
     decimalValue = { -100, 0, 100 };
     octalValue = { -0144, +00, +0144 };
-    hexValue = { 0xFFFFFF9C, 0x64, 0x0 };
+    hexValue = { -0x64, 0x64, 0x0 };
     binaryValue = { -1100100B, +0b, +1100100b };
 };

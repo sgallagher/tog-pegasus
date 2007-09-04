@@ -118,6 +118,7 @@ static String _cimmofMessages[] =
     //INVALID_VERSION_FORMAT
     "Invalid version format in mof class or repository class"
         " (valid format is m.n.u)", //INVALID_VERSION_FORMAT
+    "Invalid $0 value: $1",    // INVALID_LITERAL_VALUE
     ""
 };
 static String _cimmofMessagesKeys [] =
@@ -170,6 +171,7 @@ static String _cimmofMessagesKeys [] =
     "Compiler.cimmofMessages.NO_VERSION_UPDATE",
     "Compiler.cimmofMessages.NO_CLASS_UPDATE",
     "Compiler.cimmofMessages.INVALID_VERSION_FORMAT",
+    "Compiler.cimmofMessages.INVALID_LITERAL_VALUE",
     "Compiler.cimmofMessages.END"
 };
 

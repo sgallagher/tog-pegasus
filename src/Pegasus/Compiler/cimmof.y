@@ -579,10 +579,7 @@ propertyName: TOK_SIMPLE_IDENTIFIER { $$ = new CIMName(*$1); } ;
 array: TOK_LEFTSQUAREBRACKET TOK_POSITIVE_DECIMAL_VALUE
      TOK_RIGHTSQUAREBRACKET
         {
-            Uint64 u64;
-            /* ATTN: Handle unsuccessful case */
-            StringConversion::decimalStringToUint64($2->getCString(), u64);
-            $$ = u64;
+            $$ = (Uint32) valueFactory::stringToUint(*$2, CIMTYPE_UINT32);
             delete $2;
         }
     | TOK_LEFTSQUAREBRACKET TOK_RIGHTSQUAREBRACKET

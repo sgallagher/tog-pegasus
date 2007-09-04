@@ -35,17 +35,17 @@
 // implementation of valueFactory
 //
 
+#include <cstring>
+#include <cstdlib>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/AutoPtr.h>
-#include "valueFactory.h"
-#include "objname.h"
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/StringConversion.h>
+#include "cimmofMessages.h"
 #include "cimmofParser.h"  /* unfortunately.  Now that valueFactory needs
                               to know about cimmofParser, it might as well
                               be rolled into it. */
-#include <cstring>
-#include <cstdlib>
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Common/StringConversion.h>
+#include "valueFactory.h"
 
 // put any debug include, I'd say about here
 
@@ -78,16 +78,7 @@ String valueFactory::stringWComma(String tmp)
     return(rtn);
 }
 
-
-/**
-    Converts a String to a Uint64 according to the DMTF specification for MOF
-    encoding.  A CIMType specification also allows for overflow checking of
-    smaller unsigned integer type (e.g., Uint8, Uint16, Uint32).
-    @param val The String to convert
-    @param type A CIMType to use for bounds checking
-    @return The converted Uint64 value
-*/
-static Uint64 stringToUint(
+Uint64 valueFactory::stringToUint(
     const String &val,
     CIMType type)
 {
@@ -103,22 +94,19 @@ static Uint64 stringToUint(
 
     if (!success)
     {
-        // ATTN: Handle unsuccessful case
-        return 0;
+        String message;
+        cimmofMessages::arglist arglist;
+        arglist.append(cimTypeToString(type));
+        arglist.append(val);
+        cimmofMessages::getMessage(
+            message, cimmofMessages::INVALID_LITERAL_VALUE, arglist);
+        throw Exception(message);
     }
 
     return u64;
 }
 
-/**
-    Converts a String to an Sint64 according to the DMTF specification for MOF
-    encoding.  A CIMType specification also allows for overflow checking of
-    smaller unsigned integer type (e.g., Sint8, Sint16, Sint32).
-    @param val The String to convert
-    @param type A CIMType to use for bounds checking
-    @return The converted Sint64 value
-*/
-static Sint64 stringToSint(
+Sint64 valueFactory::stringToSint(
     const String &val,
     CIMType type)
 {
@@ -138,22 +126,34 @@ static Sint64 stringToSint(
 
     if (!success)
     {
-        // ATTN: Handle unsuccessful case
-        return 0;
+        String message;
+        cimmofMessages::arglist arglist;
+        arglist.append(cimTypeToString(type));
+        arglist.append(val);
+        cimmofMessages::getMessage(
+            message, cimmofMessages::INVALID_LITERAL_VALUE, arglist);
+        throw Exception(message);
     }
 
     return s64;
 }
 
-static Real64 stringToReal(const String &val)
+Real64 valueFactory::stringToReal(
+    const String &val,
+    CIMType type)
 {
     Real64 r64;
     Boolean success = StringConversion::stringToReal64(val.getCString(), r64);
 
     if (!success)
     {
-        // ATTN: Handle unsuccessful case
-        return 0.0;
+        String message;
+        cimmofMessages::arglist arglist;
+        arglist.append(cimTypeToString(type));
+        arglist.append(val);
+        cimmofMessages::getMessage(
+            message, cimmofMessages::INVALID_LITERAL_VALUE, arglist);
+        throw Exception(message);
     }
 
     return r64;
@@ -219,31 +219,14 @@ static Uint32 nextcsv(const String &csv, int sep, const Uint32 start,
 }
 
 
-
-
-//-------------------------------------------------------------------
-// This builds a reference value from a String via the objname class
-//-------------------------------------------------------------------
-static CIMValue * build_reference_value(const String &rep)
-{
-    // following 2 lines commented out for bugzilla fix 1557
-    //objectName oname(rep);
-    //AutoPtr<CIMObjectPath>
-    //  ref( cimmofParser::Instance()->newReference(oname));
-    CIMObjectPath cop(rep);
-    AutoPtr<CIMValue> v( new CIMValue(cop) );
-    return v.release();
-}
-
-
-
-
 // ------------------------------------------------------------------
 // When the value to be build is of Array type, this routine
 // parses out the comma-separated values and builds the array
 // -----------------------------------------------------------------
-static CIMValue * build_array_value(CIMType type, unsigned int arrayDimension,
-      const String &rep)
+CIMValue* valueFactory::_buildArrayValue(
+    CIMType type,
+    unsigned int arrayDimension,
+    const String& rep)
 {
     String sval;
     Uint32 start = 0;
@@ -385,7 +368,7 @@ static CIMValue * build_array_value(CIMType type, unsigned int arrayDimension,
                     do
                     {
                         start = nextcsv(rep, ',', start, end, sval);
-                        a->append((Real32)stringToReal(sval));
+                        a->append((Real32)stringToReal(sval, type));
                     } while (start < end);
                 }
                 return new CIMValue(*a);
@@ -399,7 +382,7 @@ static CIMValue * build_array_value(CIMType type, unsigned int arrayDimension,
                      {
                          start =
                             nextcsv(rep, ',', start, end, sval);
-                         a->append((Real64)stringToReal(sval));
+                         a->append((Real64)stringToReal(sval, type));
                      } while (start < end);
                  }
                  return new CIMValue(*a);
@@ -490,13 +473,13 @@ CIMValue * valueFactory::createValue(CIMType type, int arrayDimension,
     case CIMTYPE_SINT32: return new CIMValue((Sint32) stringToSint(rep, type));
     case CIMTYPE_UINT64: return new CIMValue((Uint64) stringToUint(rep, type));
     case CIMTYPE_SINT64: return new CIMValue((Sint64) stringToSint(rep, type));
-    case CIMTYPE_REAL32: return new CIMValue((Real32) stringToReal(rep));
-    case CIMTYPE_REAL64: return new CIMValue((Real64) stringToReal(rep));
+    case CIMTYPE_REAL32: return new CIMValue((Real32) stringToReal(rep, type));
+    case CIMTYPE_REAL64: return new CIMValue((Real64) stringToReal(rep, type));
     case CIMTYPE_CHAR16: return new CIMValue((Char16) rep[0]);
     case CIMTYPE_BOOLEAN: return new CIMValue((Boolean) (rep[0] == 'T'?1:0));
     case CIMTYPE_STRING: return new CIMValue(rep);
     case CIMTYPE_DATETIME: return new CIMValue(CIMDateTime(rep));
-    case CIMTYPE_REFERENCE: return build_reference_value(rep);
+    case CIMTYPE_REFERENCE: return new CIMValue(CIMObjectPath(rep));
 //  PEP 194:
 //  Note that "object" (ie. CIMTYPE_OBJECT) is not a real CIM datatype, just a
 //  Pegasus internal representation of an embedded object, so it won't be
@@ -517,6 +500,6 @@ CIMValue * valueFactory::createValue(CIMType type, int arrayDimension,
       if (isNULL)
           return new CIMValue(type, true, arrayDimension);
 
-    return build_array_value(type, (unsigned int)arrayDimension, rep);
+    return _buildArrayValue(type, (unsigned int)arrayDimension, rep);
   }
 }

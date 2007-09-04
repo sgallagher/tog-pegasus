@@ -2125,6 +2125,14 @@ not be valid."}
 
         Compiler.cimmofMessages.ERR_USAGE:string {"PGS04865: Use '--help' to obtain command syntax."}
 
+        /**
+        * @version 2.7
+        * @note PGS04866:
+        *       Substitution {0} is a string specifying a MOF data type.
+        *       Substitution {1} is a string containing an invalid literal value.
+        */
+        Compiler.cimmofMessages.INVALID_LITERAL_VALUE:string {"PGS04866: Invalid {0} value: {1}"}
+
         // ==========================================================
         // Messages for CIMOperationResponseEncoder
         //  Please use message prefix "PGS05000"

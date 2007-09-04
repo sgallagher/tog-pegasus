@@ -52,11 +52,59 @@ PEGASUS_USING_STD;
 //
 class PEGASUS_COMPILER_LINKAGE valueFactory
 {
-    public:
-        static String stringWComma(String tmp);
-        static CIMValue * createValue(CIMType type, int arrayDimension,
-            Boolean isNull,
-            const String *rep);
+public:
+    static String stringWComma(String tmp);
+
+    /**
+        Converts a String to a Uint64 according to the DMTF specification for
+        MOF encoding.  A CIMType specification also allows for overflow
+        checking of smaller unsigned integer type (e.g., Uint8, Uint16,
+        Uint32).
+        @param val The String to convert
+        @param type A CIMType to use for bounds checking
+        @exception Exception if the conversion is unsuccessful
+        @return The converted Uint64 value
+    */
+    static Uint64 stringToUint(
+        const String& val,
+        CIMType type);
+
+    /**
+        Converts a String to a Sint64 according to the DMTF specification for
+        MOF encoding.  A CIMType specification also allows for overflow
+        checking of smaller unsigned integer type (e.g., Sint8, Sint16,
+        Sint32).
+        @param val The String to convert
+        @param type A CIMType to use for bounds checking
+        @exception Exception if the conversion is unsuccessful
+        @return The converted Sint64 value
+    */
+    static Sint64 stringToSint(
+        const String& val,
+        CIMType type);
+
+    /**
+        Converts a String to a Rint64 according to the DMTF specification for
+        MOF encoding.
+        @param val The String to convert
+        @param type A CIMType to use in an exception message
+        @exception Exception if the conversion is unsuccessful
+        @return The converted Real64 value
+    */
+    static Real64 stringToReal(
+        const String& val,
+        CIMType type);
+
+    static CIMValue * createValue(CIMType type, int arrayDimension,
+        Boolean isNull,
+        const String *rep);
+
+private:
+
+    static CIMValue* _buildArrayValue(
+        CIMType type,
+        unsigned int arrayDimension,
+        const String& rep);
 };
 
 #endif

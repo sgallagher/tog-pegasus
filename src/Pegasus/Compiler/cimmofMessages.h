@@ -101,6 +101,7 @@ class cimmofMessages
             NO_VERSION_UPDATE,
             NO_CLASS_UPDATE,
             INVALID_VERSION_FORMAT,
+            INVALID_LITERAL_VALUE,
             END
         };
         typedef Array<String> arglist;

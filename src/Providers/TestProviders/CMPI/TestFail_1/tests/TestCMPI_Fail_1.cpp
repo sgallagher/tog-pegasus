@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -48,7 +48,7 @@ PEGASUS_USING_STD;
 
 CIMNamespaceName providerNamespace;
 const CIMName CLASSNAME = CIMName ("TestCMPI_Fail_1");
-const String ERROR = "CIM_ERR_FAILED: ProviderInitFailure: Error"
+const String CMPI_TESTFAIL_ERROR = "CIM_ERR_FAILED: ProviderInitFailure: Error"
     " initializing TestCMPIFail_1Provider the following API(s):"
     " TestCMPIFail_1Provider_Create_InstanceMI,"
     " TestCMPIFail_1Provider_Create_AssociationMI,"
@@ -68,15 +68,16 @@ void _usage ()
 void test01 (CIMClient & client)
 {
     try
-    {  
+    {
         Array<CIMObjectPath> array = client.enumerateInstanceNames (
             providerNamespace, CLASSNAME);
         // enumerateInstanceNames should throw exception.
         PEGASUS_TEST_ASSERT(0);
     }
-    catch (const CIMException &e) 
+    catch (const CIMException &e)
     {
-        if (e.getMessage() != ERROR && e.getMessage() != RCMPI_ERROR)
+        if (e.getMessage() != CMPI_TESTFAIL_ERROR 
+                && e.getMessage() != RCMPI_ERROR)
         {
             throw e;
         }

@@ -34,8 +34,8 @@
 */
 
 #include <Executor/PAMAuth.h>
+#include <Executor/tests/TestAssert.h>
 #include <stdio.h>
-#include <assert.h>
 
 int main()
 {
@@ -43,7 +43,7 @@ int main()
 
     /* Test PAMValidateUserInProcess(). */
 
-    assert(PAMValidateUser(PEGASUS_CIMSERVERMAIN_USER) == 0);
+    PEGASUS_TEST_ASSERT(PAMValidateUser(PEGASUS_CIMSERVERMAIN_USER) == 0);
 
     /* Test PAMAuthenticateInProcess(). */
     {

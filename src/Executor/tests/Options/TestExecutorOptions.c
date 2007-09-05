@@ -34,10 +34,10 @@
 */
 
 #include <Executor/Options.h>
+#include <Executor/tests/TestAssert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
 int main()
 {
@@ -56,16 +56,16 @@ int main()
 
         GetOptions(&testArgc, &testArgv, &options);
 
-        assert(testArgc == 3);
-        assert(strcmp(testArgv[0], "-h") == 0);
-        assert(strcmp(testArgv[1], "a") == 0);
-        assert(strcmp(testArgv[2], "-s") == 0);
+        PEGASUS_TEST_ASSERT(testArgc == 3);
+        PEGASUS_TEST_ASSERT(strcmp(testArgv[0], "-h") == 0);
+        PEGASUS_TEST_ASSERT(strcmp(testArgv[1], "a") == 0);
+        PEGASUS_TEST_ASSERT(strcmp(testArgv[2], "-s") == 0);
 
-        assert(options.dump == 1);
-        assert(options.version == 0);
-        assert(options.help == 1);
-        assert(options.shutdown == 1);
-        assert(options.bindVerbose == 0);
+        PEGASUS_TEST_ASSERT(options.dump == 1);
+        PEGASUS_TEST_ASSERT(options.version == 0);
+        PEGASUS_TEST_ASSERT(options.help == 1);
+        PEGASUS_TEST_ASSERT(options.shutdown == 1);
+        PEGASUS_TEST_ASSERT(options.bindVerbose == 0);
 
         free(testArgv);
     }
@@ -84,12 +84,12 @@ int main()
 
         GetOptions(&testArgc, &testArgv, &options);
 
-        assert(testArgc == 2);
-        assert(options.dump == 0);
-        assert(options.version == 0);
-        assert(options.help == 1);
-        assert(options.shutdown == 1);
-        assert(options.bindVerbose == 0);
+        PEGASUS_TEST_ASSERT(testArgc == 2);
+        PEGASUS_TEST_ASSERT(options.dump == 0);
+        PEGASUS_TEST_ASSERT(options.version == 0);
+        PEGASUS_TEST_ASSERT(options.help == 1);
+        PEGASUS_TEST_ASSERT(options.shutdown == 1);
+        PEGASUS_TEST_ASSERT(options.bindVerbose == 0);
         free(testArgv);
     }
 
@@ -104,12 +104,12 @@ int main()
 
         GetOptions(&testArgc, &testArgv, &options);
 
-        assert(testArgc == 0);
-        assert(options.dump == 1);
-        assert(options.version == 0);
-        assert(options.help == 0);
-        assert(options.shutdown == 0);
-        assert(options.bindVerbose == 0);
+        PEGASUS_TEST_ASSERT(testArgc == 0);
+        PEGASUS_TEST_ASSERT(options.dump == 1);
+        PEGASUS_TEST_ASSERT(options.version == 0);
+        PEGASUS_TEST_ASSERT(options.help == 0);
+        PEGASUS_TEST_ASSERT(options.shutdown == 0);
+        PEGASUS_TEST_ASSERT(options.bindVerbose == 0);
         free(testArgv);
     }
 
@@ -125,12 +125,12 @@ int main()
 
         GetOptions(&testArgc, &testArgv, &options);
 
-        assert(testArgc == 2);
-        assert(options.dump == 0);
-        assert(options.version == 1);
-        assert(options.help == 0);
-        assert(options.shutdown == 0);
-        assert(options.bindVerbose == 1);
+        PEGASUS_TEST_ASSERT(testArgc == 2);
+        PEGASUS_TEST_ASSERT(options.dump == 0);
+        PEGASUS_TEST_ASSERT(options.version == 1);
+        PEGASUS_TEST_ASSERT(options.help == 0);
+        PEGASUS_TEST_ASSERT(options.shutdown == 0);
+        PEGASUS_TEST_ASSERT(options.bindVerbose == 1);
         free(testArgv);
     }
 
@@ -146,12 +146,12 @@ int main()
 
         GetOptions(&testArgc, &testArgv, &options);
 
-        assert(testArgc == 1);
-        assert(options.dump == 1);
-        assert(options.version == 0);
-        assert(options.help == 1);
-        assert(options.shutdown == 0);
-        assert(options.bindVerbose == 0);
+        PEGASUS_TEST_ASSERT(testArgc == 1);
+        PEGASUS_TEST_ASSERT(options.dump == 1);
+        PEGASUS_TEST_ASSERT(options.version == 0);
+        PEGASUS_TEST_ASSERT(options.help == 1);
+        PEGASUS_TEST_ASSERT(options.shutdown == 0);
+        PEGASUS_TEST_ASSERT(options.bindVerbose == 0);
         free(testArgv);
     }
 
@@ -167,12 +167,12 @@ int main()
 
         GetOptions(&testArgc, &testArgv, &options);
 
-        assert(testArgc == 2);
-        assert(options.dump == 0);
-        assert(options.version == 1);
-        assert(options.help == 0);
-        assert(options.shutdown == 1);
-        assert(options.bindVerbose == 0);
+        PEGASUS_TEST_ASSERT(testArgc == 2);
+        PEGASUS_TEST_ASSERT(options.dump == 0);
+        PEGASUS_TEST_ASSERT(options.version == 1);
+        PEGASUS_TEST_ASSERT(options.help == 0);
+        PEGASUS_TEST_ASSERT(options.shutdown == 1);
+        PEGASUS_TEST_ASSERT(options.bindVerbose == 0);
         free(testArgv);
     }
 
@@ -193,12 +193,12 @@ int main()
 
         GetOptions(&testArgc, &testArgv, &options);
 
-        assert(testArgc == 6);
-        assert(options.dump == 1);
-        assert(options.version == 1);
-        assert(options.help == 1);
-        assert(options.shutdown == 1);
-        assert(options.bindVerbose == 1);
+        PEGASUS_TEST_ASSERT(testArgc == 6);
+        PEGASUS_TEST_ASSERT(options.dump == 1);
+        PEGASUS_TEST_ASSERT(options.version == 1);
+        PEGASUS_TEST_ASSERT(options.help == 1);
+        PEGASUS_TEST_ASSERT(options.shutdown == 1);
+        PEGASUS_TEST_ASSERT(options.bindVerbose == 1);
         free(testArgv);
     }
 
@@ -213,12 +213,12 @@ int main()
 
         GetOptions(&testArgc, &testArgv, &options);
 
-        assert(testArgc == 0);
-        assert(options.dump == 0);
-        assert(options.version == 0);
-        assert(options.help == 0);
-        assert(options.shutdown == 0);
-        assert(options.bindVerbose == 0);
+        PEGASUS_TEST_ASSERT(testArgc == 0);
+        PEGASUS_TEST_ASSERT(options.dump == 0);
+        PEGASUS_TEST_ASSERT(options.version == 0);
+        PEGASUS_TEST_ASSERT(options.help == 0);
+        PEGASUS_TEST_ASSERT(options.shutdown == 0);
+        PEGASUS_TEST_ASSERT(options.bindVerbose == 0);
         free(testArgv);
     }
 

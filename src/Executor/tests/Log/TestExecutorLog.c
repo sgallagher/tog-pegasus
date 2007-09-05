@@ -35,14 +35,14 @@
 
 #include <Executor/Log.h>
 #include <Executor/Globals.h>
+#include <Executor/tests/TestAssert.h>
 #include <stdio.h>
-#include <assert.h>
 #include <string.h>
 
 int main()
 {
     /* Test default logLevel value */
-    assert(GetLogLevel() == LL_INFORMATION);
+    PEGASUS_TEST_ASSERT(GetLogLevel() == LL_INFORMATION);
 
     /* Test InitLogLevel() */
 
@@ -54,7 +54,7 @@ int main()
         globals.argc = argc;
 
         InitLogLevel();
-        assert(GetLogLevel() == LL_INFORMATION);
+        PEGASUS_TEST_ASSERT(GetLogLevel() == LL_INFORMATION);
     }
 
     /* Test with invalid logLevel specified.  Value is unchanged. */
@@ -65,7 +65,7 @@ int main()
         globals.argc = argc;
 
         InitLogLevel();
-        assert(GetLogLevel() == LL_INFORMATION);
+        PEGASUS_TEST_ASSERT(GetLogLevel() == LL_INFORMATION);
     }
 
     /* Test with logLevel WARNING specified */
@@ -76,23 +76,23 @@ int main()
         globals.argc = argc;
 
         InitLogLevel();
-        assert(GetLogLevel() == LL_WARNING);
+        PEGASUS_TEST_ASSERT(GetLogLevel() == LL_WARNING);
     }
 
     /* Test SetLogLevel() */
 
-    assert(SetLogLevel("TRACE") == 0);
-    assert(GetLogLevel() == LL_TRACE);
-    assert(SetLogLevel("INFORMATION") == 0);
-    assert(GetLogLevel() == LL_INFORMATION);
-    assert(SetLogLevel("WARNING") == 0);
-    assert(GetLogLevel() == LL_WARNING);
-    assert(SetLogLevel("SEVERE") == 0);
-    assert(GetLogLevel() == LL_SEVERE);
-    assert(SetLogLevel("FATAL") == 0);
-    assert(GetLogLevel() == LL_FATAL);
-    assert(SetLogLevel("TRACEERROR") == -1);
-    assert(GetLogLevel() == LL_FATAL);
+    PEGASUS_TEST_ASSERT(SetLogLevel("TRACE") == 0);
+    PEGASUS_TEST_ASSERT(GetLogLevel() == LL_TRACE);
+    PEGASUS_TEST_ASSERT(SetLogLevel("INFORMATION") == 0);
+    PEGASUS_TEST_ASSERT(GetLogLevel() == LL_INFORMATION);
+    PEGASUS_TEST_ASSERT(SetLogLevel("WARNING") == 0);
+    PEGASUS_TEST_ASSERT(GetLogLevel() == LL_WARNING);
+    PEGASUS_TEST_ASSERT(SetLogLevel("SEVERE") == 0);
+    PEGASUS_TEST_ASSERT(GetLogLevel() == LL_SEVERE);
+    PEGASUS_TEST_ASSERT(SetLogLevel("FATAL") == 0);
+    PEGASUS_TEST_ASSERT(GetLogLevel() == LL_FATAL);
+    PEGASUS_TEST_ASSERT(SetLogLevel("TRACEERROR") == -1);
+    PEGASUS_TEST_ASSERT(GetLogLevel() == LL_FATAL);
 
     printf("+++++ passed all tests\n");
 

@@ -35,8 +35,8 @@
 
 #include <Executor/Policy.h>
 #include <Executor/Macro.h>
+#include <Executor/tests/TestAssert.h>
 #include <stdio.h>
-#include <assert.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -79,30 +79,30 @@ void testCheckPolicy(void)
     unsigned long flags = 0;
 
     /* Test non-existent policy */
-    assert(CheckPolicy(
+    PEGASUS_TEST_ASSERT(CheckPolicy(
         _testPolicyTable,
         _testPolicyTableSize,
         EXECUTOR_UPDATE_LOG_LEVEL_MESSAGE,
         NULL,
         NULL,
         &flags) != 0);
-    assert(flags == 0);
+    PEGASUS_TEST_ASSERT(flags == 0);
 
     /* Test policy with no arguments, but with 'flags' attribute */
     flags = 0;
-    assert(CheckPolicy(
+    PEGASUS_TEST_ASSERT(CheckPolicy(
         _testPolicyTable,
         _testPolicyTableSize,
         EXECUTOR_PING_MESSAGE,
         NULL,
         NULL,
         &flags) == 0);
-    assert(flags == 100);
+    PEGASUS_TEST_ASSERT(flags == 100);
 
     /* Test policies with invalid macro expansion in first argument and
      * non-match in first argument
      */
-    assert(CheckPolicy(
+    PEGASUS_TEST_ASSERT(CheckPolicy(
         _testPolicyTable,
         _testPolicyTableSize,
         EXECUTOR_RENAME_FILE_MESSAGE,
@@ -113,7 +113,7 @@ void testCheckPolicy(void)
     /* Test policies with invalid macro expansion in second argument and
      * non-match in second argument
      */
-    assert(CheckPolicy(
+    PEGASUS_TEST_ASSERT(CheckPolicy(
         _testPolicyTable,
         _testPolicyTableSize,
         EXECUTOR_RENAME_FILE_MESSAGE,
@@ -122,7 +122,7 @@ void testCheckPolicy(void)
         NULL) != 0);
 
     /* Test policy with successful match in both arguments */
-    assert(CheckPolicy(
+    PEGASUS_TEST_ASSERT(CheckPolicy(
         _testPolicyTable,
         _testPolicyTableSize,
         EXECUTOR_RENAME_FILE_MESSAGE,
@@ -140,14 +140,16 @@ void testFilePolicies(void)
     /* Define a macro used in the static policy table */
     DefineMacro("currentConfigFilePath", currentConfigFile);
 
-    assert(CheckOpenFilePolicy(currentConfigFile, 'w', NULL) == 0);
-    assert(CheckOpenFilePolicy(noAccessFile, 'w', NULL) != 0);
+    PEGASUS_TEST_ASSERT(CheckOpenFilePolicy(currentConfigFile, 'w', NULL) == 0);
+    PEGASUS_TEST_ASSERT(CheckOpenFilePolicy(noAccessFile, 'w', NULL) != 0);
 
-    assert(CheckRemoveFilePolicy(currentConfigFile) == 0);
-    assert(CheckRemoveFilePolicy(noAccessFile) != 0);
+    PEGASUS_TEST_ASSERT(CheckRemoveFilePolicy(currentConfigFile) == 0);
+    PEGASUS_TEST_ASSERT(CheckRemoveFilePolicy(noAccessFile) != 0);
 
-    assert(CheckRenameFilePolicy(currentConfigFile, currentConfigFileBak) == 0);
-    assert(CheckRenameFilePolicy(currentConfigFile, noAccessFile) != 0);
+    PEGASUS_TEST_ASSERT(
+        CheckRenameFilePolicy(currentConfigFile, currentConfigFileBak) == 0);
+    PEGASUS_TEST_ASSERT(
+        CheckRenameFilePolicy(currentConfigFile, noAccessFile) != 0);
 }
 
 void testDumpPolicy(void)
@@ -184,7 +186,7 @@ void testDumpPolicy(void)
             "\n";
 
         dumpFile = fopen(TEST_DUMP_FILE, "a");
-        assert(dumpFile != 0);
+        PEGASUS_TEST_ASSERT(dumpFile != 0);
         DumpPolicy(dumpFile, 0);
         fclose(dumpFile);
 
@@ -193,7 +195,7 @@ void testDumpPolicy(void)
         fread(dumpFileBuffer, sizeof(char), MAX_DUMP_SIZE - 1, dumpFile);
         fclose(dumpFile);
 
-        assert(strcmp(dumpFileBuffer, expectedDumpResult) == 0);
+        PEGASUS_TEST_ASSERT(strcmp(dumpFileBuffer, expectedDumpResult) == 0);
 
         unlink(TEST_DUMP_FILE);
     }
@@ -207,7 +209,7 @@ void testDumpPolicy(void)
             "RenameFile(\"file1\", \"file2\")\n";
 
         dumpFile = fopen(TEST_DUMP_FILE, "a");
-        assert(dumpFile != 0);
+        PEGASUS_TEST_ASSERT(dumpFile != 0);
         DumpPolicyHelper(dumpFile, _testPolicyTable, _testPolicyTableSize, 0);
         fclose(dumpFile);
 
@@ -216,7 +218,7 @@ void testDumpPolicy(void)
         fread(dumpFileBuffer, sizeof(char), MAX_DUMP_SIZE - 1, dumpFile);
         fclose(dumpFile);
 
-        assert(strcmp(dumpFileBuffer, expectedDumpResult) == 0);
+        PEGASUS_TEST_ASSERT(strcmp(dumpFileBuffer, expectedDumpResult) == 0);
 
         unlink(TEST_DUMP_FILE);
     }
@@ -233,7 +235,7 @@ void testDumpPolicy(void)
         DefineMacro("file2", "MyFile2");
 
         dumpFile = fopen(TEST_DUMP_FILE, "a");
-        assert(dumpFile != 0);
+        PEGASUS_TEST_ASSERT(dumpFile != 0);
         DumpPolicyHelper(dumpFile, _testPolicyTable, _testPolicyTableSize, 1);
         fclose(dumpFile);
 
@@ -245,7 +247,7 @@ void testDumpPolicy(void)
         fread(dumpFileBuffer, sizeof(char), MAX_DUMP_SIZE - 1, dumpFile);
         fclose(dumpFile);
 
-        assert(strcmp(dumpFileBuffer, expectedDumpResult) == 0);
+        PEGASUS_TEST_ASSERT(strcmp(dumpFileBuffer, expectedDumpResult) == 0);
 
         unlink(TEST_DUMP_FILE);
     }

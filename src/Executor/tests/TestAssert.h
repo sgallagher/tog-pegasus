@@ -18,7 +18,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -33,77 +33,18 @@
 //%/////////////////////////////////////////////////////////////////////////////
 */
 
-#include <Executor/Strlcat.h>
-#include <Executor/tests/TestAssert.h>
-#include <stdio.h>
-#include <string.h>
+#ifndef TestAssert_h
+#define TestAssert_h
 
-int main()
-{
-    {
-        char buf[8];
-        size_t n;
-        memset(buf, 'X', sizeof(buf));
+#define PEGASUS_TEST_ASSERT(COND)                                         \
+    do                                                                    \
+    {                                                                     \
+        if (!(COND))                                                      \
+        {                                                                 \
+            printf("PEGASUS_TEST_ASSERT failed in file %s at line %d\n",  \
+                __FILE__, __LINE__);                                      \
+            abort();                                                      \
+        }                                                                 \
+    } while (0)
 
-        *buf = '\0';
-        n = Strlcat(buf, "", sizeof(buf));
-        PEGASUS_TEST_ASSERT(n == 0);
-        PEGASUS_TEST_ASSERT(strcmp(buf, "") == 0);
-
-        n = Strlcat(buf, "abc", sizeof(buf));
-        PEGASUS_TEST_ASSERT(n == 3);
-        PEGASUS_TEST_ASSERT(strcmp(buf, "abc") == 0);
-
-        n = Strlcat(buf, "xyz", sizeof(buf));
-        PEGASUS_TEST_ASSERT(n == 6);
-        PEGASUS_TEST_ASSERT(strcmp(buf, "abcxyz") == 0);
-
-        n = Strlcat(buf, "lmnop", sizeof(buf));
-        PEGASUS_TEST_ASSERT(n == 11);
-        PEGASUS_TEST_ASSERT(strcmp(buf, "abcxyzl") == 0);
-
-        n = Strlcat(buf, "xxx", sizeof(buf));
-        PEGASUS_TEST_ASSERT(n == 10);
-        PEGASUS_TEST_ASSERT(strcmp(buf, "abcxyzl") == 0);
-    }
-
-    {
-        char buf[8];
-        size_t n;
-        memset(buf, 'X', sizeof(buf));
-
-        n = Strlcat(buf, "abc", sizeof(buf));
-        PEGASUS_TEST_ASSERT(n == sizeof(buf) + 3);
-        PEGASUS_TEST_ASSERT(memcmp(buf, "XXXXXXXX", 8) == 0);
-    }
-
-    {
-        char buf[8];
-        size_t n;
-        memset(buf, 'X', sizeof(buf));
-
-        *buf = '\0';
-        n = Strlcat(buf, "1234", sizeof(buf));
-        PEGASUS_TEST_ASSERT(n == 4);
-        PEGASUS_TEST_ASSERT(strcmp(buf, "1234") == 0);
-
-        n = Strlcat(buf, "5678", sizeof(buf));
-        PEGASUS_TEST_ASSERT(n == 8);
-        PEGASUS_TEST_ASSERT(strcmp(buf, "1234567") == 0);
-    }
-
-    {
-        char buf[8];
-        size_t n;
-        memset(buf, 'X', sizeof(buf));
-
-        *buf = '\0';
-        n = Strlcat(buf, "1234", 0);
-        PEGASUS_TEST_ASSERT(n == 4);
-        PEGASUS_TEST_ASSERT(strlen(buf) == 0);
-    }
-
-    printf("+++++ passed all tests\n");
-
-    return 0;
-}
+#endif  /* TestAssert_h */

@@ -34,14 +34,14 @@
 */
 
 #include <Executor/Messages.h>
+#include <Executor/tests/TestAssert.h>
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 
 #define CHECK(S1,S2) \
     do \
     { \
-        assert(strcmp(MessageCodeToString(S1), S2) == 0); \
+        PEGASUS_TEST_ASSERT(strcmp(MessageCodeToString(S1), S2) == 0); \
     } \
     while (0)
 

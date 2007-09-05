@@ -35,8 +35,8 @@
 
 #include <Executor/Config.h>
 #include <Executor/Globals.h>
+#include <Executor/tests/TestAssert.h>
 #include <stdio.h>
-#include <assert.h>
 #include <string.h>
 
 int main()
@@ -50,25 +50,30 @@ int main()
         globals.argv = (char**)argv;
         globals.argc = argc;
 
-        assert(GetConfigParamFromCommandLine("option1", buffer) == 0);
-        assert(strcmp(buffer, "one") == 0);
+        PEGASUS_TEST_ASSERT(
+            GetConfigParamFromCommandLine("option1", buffer) == 0);
+        PEGASUS_TEST_ASSERT(strcmp(buffer, "one") == 0);
     }
 
     /* Test GetConfigParamFromFile() */
     {
         char buffer[EXECUTOR_BUFFER_SIZE];
 
-        assert(GetConfigParamFromFile("my.conf", "option1", buffer) == 0);
-        assert(strcmp(buffer, "1") == 0);
+        PEGASUS_TEST_ASSERT(
+            GetConfigParamFromFile("my.conf", "option1", buffer) == 0);
+        PEGASUS_TEST_ASSERT(strcmp(buffer, "1") == 0);
 
-        assert(GetConfigParamFromFile("my.conf", "option2", buffer) == 0);
-        assert(strcmp(buffer, "2") == 0);
+        PEGASUS_TEST_ASSERT(
+            GetConfigParamFromFile("my.conf", "option2", buffer) == 0);
+        PEGASUS_TEST_ASSERT(strcmp(buffer, "2") == 0);
 
-        assert(GetConfigParamFromFile("my.conf", "option3", buffer) == 0);
-        assert(strcmp(buffer, "3") == 0);
+        PEGASUS_TEST_ASSERT(
+            GetConfigParamFromFile("my.conf", "option3", buffer) == 0);
+        PEGASUS_TEST_ASSERT(strcmp(buffer, "3") == 0);
 
-        assert(GetConfigParamFromFile("nonexistent.conf", "opt", buffer) != 0);
-        assert(strcmp(buffer, "3") == 0);
+        PEGASUS_TEST_ASSERT(
+            GetConfigParamFromFile("nonexistent.conf", "opt", buffer) != 0);
+        PEGASUS_TEST_ASSERT(strcmp(buffer, "3") == 0);
     }
 
     printf("+++++ passed all tests\n");

@@ -34,17 +34,23 @@
 */
 
 #include <Executor/PasswordFile.h>
+#include <Executor/tests/TestAssert.h>
 #include <stdio.h>
-#include <assert.h>
 
 int main()
 {
-    assert(CheckPasswordFile("passwd", "smith", "changeme") == 0);
-    assert(CheckPasswordFile("passwd", "smith", "wrongpassword") != 0);
-    assert(CheckPasswordFile("passwd", "comment", "changeme") != 0);
-    assert(CheckPasswordFile("passwd", "undefined", "nobody") != 0);
-    assert(CheckPasswordFile("passwd", "jones", NULL) != 0);
-    assert(CheckPasswordFile("nopasswd", "smith", "changeme") != 0);
+    PEGASUS_TEST_ASSERT(
+        CheckPasswordFile("passwd", "smith", "changeme") == 0);
+    PEGASUS_TEST_ASSERT(
+        CheckPasswordFile("passwd", "smith", "wrongpassword") != 0);
+    PEGASUS_TEST_ASSERT(
+        CheckPasswordFile("passwd", "comment", "changeme") != 0);
+    PEGASUS_TEST_ASSERT(
+        CheckPasswordFile("passwd", "undefined", "nobody") != 0);
+    PEGASUS_TEST_ASSERT(
+        CheckPasswordFile("passwd", "jones", NULL) != 0);
+    PEGASUS_TEST_ASSERT(
+        CheckPasswordFile("nopasswd", "smith", "changeme") != 0);
     printf("+++++ passed all tests\n");
 
     return 0;

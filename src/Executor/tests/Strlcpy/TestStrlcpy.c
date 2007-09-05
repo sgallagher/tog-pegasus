@@ -34,8 +34,8 @@
 */
 
 #include <Executor/Strlcpy.h>
+#include <Executor/tests/TestAssert.h>
 #include <stdio.h>
-#include <assert.h>
 #include <string.h>
 
 int main()
@@ -46,8 +46,8 @@ int main()
         strcpy(buffer, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 
         n = Strlcpy(buffer, "abc", sizeof(buffer));
-        assert(n == 3);
-        assert(strcmp(buffer, "abc") == 0);
+        PEGASUS_TEST_ASSERT(n == 3);
+        PEGASUS_TEST_ASSERT(strcmp(buffer, "abc") == 0);
     }
 
     {
@@ -56,8 +56,8 @@ int main()
         strcpy(buffer, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 
         n = Strlcpy(buffer, "abcdefg", 4);
-        assert(n == 7);
-        assert(strcmp(buffer, "abc") == 0);
+        PEGASUS_TEST_ASSERT(n == 7);
+        PEGASUS_TEST_ASSERT(strcmp(buffer, "abc") == 0);
     }
 
     {
@@ -66,8 +66,8 @@ int main()
         strcpy(buffer, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 
         n = Strlcpy(buffer, "", 4);
-        assert(n == 0);
-        assert(strcmp(buffer, "") == 0);
+        PEGASUS_TEST_ASSERT(n == 0);
+        PEGASUS_TEST_ASSERT(strcmp(buffer, "") == 0);
     }
 
     {
@@ -76,8 +76,8 @@ int main()
         strcpy(buffer, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 
         n = Strlcpy(buffer, "", 1);
-        assert(n == 0);
-        assert(strcmp(buffer, "") == 0);
+        PEGASUS_TEST_ASSERT(n == 0);
+        PEGASUS_TEST_ASSERT(strcmp(buffer, "") == 0);
     }
 
     {
@@ -86,8 +86,8 @@ int main()
         strcpy(buffer, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 
         n = Strlcpy(buffer, "1234567890", 1);
-        assert(n == 10);
-        assert(strcmp(buffer, "") == 0);
+        PEGASUS_TEST_ASSERT(n == 10);
+        PEGASUS_TEST_ASSERT(strcmp(buffer, "") == 0);
     }
 
     {
@@ -96,8 +96,8 @@ int main()
         strcpy(buffer, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 
         n = Strlcpy(buffer, "1234567890", 2);
-        assert(n == 10);
-        assert(strcmp(buffer, "1") == 0);
+        PEGASUS_TEST_ASSERT(n == 10);
+        PEGASUS_TEST_ASSERT(strcmp(buffer, "1") == 0);
     }
 
     {
@@ -106,8 +106,8 @@ int main()
         strcpy(buffer, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 
         n = Strlcpy(buffer, "1234567890", 0);
-        assert(n == 10);
-        assert(strcmp(
+        PEGASUS_TEST_ASSERT(n == 10);
+        PEGASUS_TEST_ASSERT(strcmp(
             buffer, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx") == 0);
     }
 

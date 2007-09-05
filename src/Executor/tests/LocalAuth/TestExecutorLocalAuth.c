@@ -35,13 +35,13 @@
 
 #include <Executor/User.h>
 #include <Executor/LocalAuth.h>
+#include <Executor/tests/TestAssert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <assert.h>
 
 void testSuccessfulAuthentication(void)
 {
@@ -51,25 +51,27 @@ void testSuccessfulAuthentication(void)
 
     /* Start authentication and get challenge file path. */
 
-    assert(StartLocalAuthentication(
+    PEGASUS_TEST_ASSERT(StartLocalAuthentication(
         PEGASUS_CIMSERVERMAIN_USER, challengeFilePath) == 0);
 
     /* Read secret token from file. */
 
     is = fopen(challengeFilePath, "r");
-    assert(is != NULL);
-    assert(fgets(response, sizeof(response), is) != NULL);
+    PEGASUS_TEST_ASSERT(is != NULL);
+    PEGASUS_TEST_ASSERT(fgets(response, sizeof(response), is) != NULL);
 
     /* Finish authentication. */
 
-    assert(FinishLocalAuthentication(challengeFilePath, response) == 0);
+    PEGASUS_TEST_ASSERT(
+        FinishLocalAuthentication(challengeFilePath, response) == 0);
 }
 
 void testCreateLocalAuthFile(void)
 {
     int testUid;
     int testGid;
-    assert(GetUserInfo(PEGASUS_CIMSERVERMAIN_USER, &testUid, &testGid) == 0);
+    PEGASUS_TEST_ASSERT(
+        GetUserInfo(PEGASUS_CIMSERVERMAIN_USER, &testUid, &testGid) == 0);
 
     /* Test with file path that already exists */
     {
@@ -77,7 +79,7 @@ void testCreateLocalAuthFile(void)
         int fd = open(path, O_WRONLY | O_EXCL | O_CREAT | O_TRUNC, S_IRUSR);
         write(fd, "test", 4);
         close(fd);
-        assert(CreateLocalAuthFile(path, testUid, testGid) == 0);
+        PEGASUS_TEST_ASSERT(CreateLocalAuthFile(path, testUid, testGid) == 0);
         unlink(path);
     }
 
@@ -85,7 +87,7 @@ void testCreateLocalAuthFile(void)
     {
         const char* path =
             "/tmp/nonexistentdirectory/anotherone/pegasus/localauthtestfile";
-        assert(CreateLocalAuthFile(path, testUid, testGid) != 0);
+        PEGASUS_TEST_ASSERT(CreateLocalAuthFile(path, testUid, testGid) != 0);
     }
 }
 
@@ -94,7 +96,7 @@ void testCheckLocalAuthToken(void)
     /* Test with file path that does not exist */
     {
         const char* path = "nonexistenttestfile";
-        assert(CheckLocalAuthToken(path, "secret") != 0);
+        PEGASUS_TEST_ASSERT(CheckLocalAuthToken(path, "secret") != 0);
     }
 
     /* Test with secret token that is too short */
@@ -103,7 +105,7 @@ void testCheckLocalAuthToken(void)
         int fd = open(path, O_WRONLY | O_EXCL | O_CREAT | O_TRUNC, S_IRUSR);
         write(fd, "secret", 6);
         close(fd);
-        assert(CheckLocalAuthToken(path, "secret") != 0);
+        PEGASUS_TEST_ASSERT(CheckLocalAuthToken(path, "secret") != 0);
         unlink(path);
     }
 
@@ -113,7 +115,7 @@ void testCheckLocalAuthToken(void)
         int fd = open(path, O_WRONLY | O_EXCL | O_CREAT | O_TRUNC, S_IRUSR);
         write(fd, "1234567890123456789012345678901234567890", 40);
         close(fd);
-        assert(CheckLocalAuthToken(
+        PEGASUS_TEST_ASSERT(CheckLocalAuthToken(
             path, "123456789012345678901234567890123456789X") != 0);
         unlink(path);
     }
@@ -131,7 +133,7 @@ void testStartLocalAuthentication(void)
         /* Only run this test if the user does not exist on the test system */
         if (GetUserInfo(invalidUserName, &uid, &gid) != 0)
         {
-            assert(StartLocalAuthentication(
+            PEGASUS_TEST_ASSERT(StartLocalAuthentication(
                 invalidUserName, challengeFilePath) != 0);
         }
     }
@@ -142,7 +144,7 @@ void testFinishLocalAuthentication(void)
     /* Test with non-existent challenge file path */
     {
         const char* path = "nonexistenttestfile";
-        assert(FinishLocalAuthentication(path, "secret") != 0);
+        PEGASUS_TEST_ASSERT(FinishLocalAuthentication(path, "secret") != 0);
     }
 }
 

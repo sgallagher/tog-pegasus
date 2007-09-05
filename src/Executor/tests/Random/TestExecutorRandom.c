@@ -34,8 +34,8 @@
 */
 
 #include <Executor/Random.h>
+#include <Executor/tests/TestAssert.h>
 #include <stdio.h>
-#include <assert.h>
 #include <string.h>
 
 int main()

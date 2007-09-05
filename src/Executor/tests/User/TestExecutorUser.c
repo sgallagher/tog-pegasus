@@ -34,8 +34,8 @@
 */
 
 #include <Executor/User.h>
+#include <Executor/tests/TestAssert.h>
 #include <stdio.h>
-#include <assert.h>
 #include <string.h>
 
 int main()
@@ -44,16 +44,16 @@ int main()
     int uid;
     int gid;
 
-    assert(GetUserInfo("root", &uid, &gid) == 0);
-    assert(uid == 0);
+    PEGASUS_TEST_ASSERT(GetUserInfo("root", &uid, &gid) == 0);
+    PEGASUS_TEST_ASSERT(uid == 0);
 
-    assert(GetUserName(uid, username) == 0);
-    assert(strcmp(username, "root") == 0);
+    PEGASUS_TEST_ASSERT(GetUserName(uid, username) == 0);
+    PEGASUS_TEST_ASSERT(strcmp(username, "root") == 0);
 
-    assert(GetUserInfo("xinvaliduserx", &uid, &gid) != 0);
+    PEGASUS_TEST_ASSERT(GetUserInfo("xinvaliduserx", &uid, &gid) != 0);
 
-    assert(GetUserName(-1492, username) != 0);
-    assert(strlen(username) == 0);
+    PEGASUS_TEST_ASSERT(GetUserName(-1492, username) != 0);
+    PEGASUS_TEST_ASSERT(strlen(username) == 0);
 
     printf("+++++ passed all tests\n");
     return 0;

@@ -34,25 +34,25 @@
 */
 
 #include <Executor/Match.h>
+#include <Executor/tests/TestAssert.h>
 #include <stdio.h>
-#include <assert.h>
 
 int main()
 {
-    assert(Match("*", "xxx") == 0);
-    assert(Match("abc*", "abc") == 0);
-    assert(Match("abc*", "abcxyz") == 0);
-    assert(Match("abc*xyz", "abc*xyz") == 0);
-    assert(Match("abc*xyz", "abcxyz") == 0);
-    assert(Match("abc*xyz", "abcXXXXXXXXXXXXXXXXXxxyz") == 0);
-    assert(Match("", "") == 0);
-    assert(Match("*", "") == 0);
-    assert(Match("*a", "a") == 0);
-    assert(Match("*xxx*", "xxx") == 0);
+    PEGASUS_TEST_ASSERT(Match("*", "xxx") == 0);
+    PEGASUS_TEST_ASSERT(Match("abc*", "abc") == 0);
+    PEGASUS_TEST_ASSERT(Match("abc*", "abcxyz") == 0);
+    PEGASUS_TEST_ASSERT(Match("abc*xyz", "abc*xyz") == 0);
+    PEGASUS_TEST_ASSERT(Match("abc*xyz", "abcxyz") == 0);
+    PEGASUS_TEST_ASSERT(Match("abc*xyz", "abcXXXXXXXXXXXXXXXXXxxyz") == 0);
+    PEGASUS_TEST_ASSERT(Match("", "") == 0);
+    PEGASUS_TEST_ASSERT(Match("*", "") == 0);
+    PEGASUS_TEST_ASSERT(Match("*a", "a") == 0);
+    PEGASUS_TEST_ASSERT(Match("*xxx*", "xxx") == 0);
 
-    assert(Match("*a", "") != 0);
-    assert(Match("*a", "b") != 0);
-    assert(Match("a", "b") != 0);
+    PEGASUS_TEST_ASSERT(Match("*a", "") != 0);
+    PEGASUS_TEST_ASSERT(Match("*a", "b") != 0);
+    PEGASUS_TEST_ASSERT(Match("a", "b") != 0);
 
     printf("+++++ passed all tests\n");
 

@@ -36,8 +36,8 @@
 #include <Executor/Path.h>
 #include <Executor/Strlcpy.h>
 #include <Executor/Strlcat.h>
+#include <Executor/tests/TestAssert.h>
 #include <stdio.h>
-#include <assert.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -77,17 +77,17 @@ int main()
 {
     /* DirName() */
     {
-        assert(test("/aaa", "/") == 0);
-        assert(test("/aaa/", "/") == 0);
-        assert(test("/aaa/bbb", "/aaa") == 0);
-        assert(test("/aaa/bbb/ccc", "/aaa/bbb") == 0);
-        assert(test("aaa/bbb", "aaa") == 0);
-        assert(test("aaa", ".") == 0);
-        assert(test("aaa/", ".") == 0);
-        assert(test("", ".") == 0);
-        assert(test("/", "/") == 0);
-        assert(test("////", "/") == 0);
-        assert(test("/etc/passwd", "/etc") == 0);
+        PEGASUS_TEST_ASSERT(test("/aaa", "/") == 0);
+        PEGASUS_TEST_ASSERT(test("/aaa/", "/") == 0);
+        PEGASUS_TEST_ASSERT(test("/aaa/bbb", "/aaa") == 0);
+        PEGASUS_TEST_ASSERT(test("/aaa/bbb/ccc", "/aaa/bbb") == 0);
+        PEGASUS_TEST_ASSERT(test("aaa/bbb", "aaa") == 0);
+        PEGASUS_TEST_ASSERT(test("aaa", ".") == 0);
+        PEGASUS_TEST_ASSERT(test("aaa/", ".") == 0);
+        PEGASUS_TEST_ASSERT(test("", ".") == 0);
+        PEGASUS_TEST_ASSERT(test("/", "/") == 0);
+        PEGASUS_TEST_ASSERT(test("////", "/") == 0);
+        PEGASUS_TEST_ASSERT(test("/etc/passwd", "/etc") == 0);
     }
 
     /* GetHomedPath() */
@@ -96,24 +96,24 @@ int main()
         char actual[EXECUTOR_BUFFER_SIZE];
         const char* home;
 
-        assert((home = getenv("PEGASUS_HOME")) != NULL);
+        PEGASUS_TEST_ASSERT((home = getenv("PEGASUS_HOME")) != NULL);
 
         /* Test relative path */
         Strlcpy(expect, home, sizeof(expect));
         Strlcat(expect, "/somefile", sizeof(expect));
 
-        assert(GetHomedPath("somefile", actual) == 0);
-        assert(strcmp(expect, actual) == 0);
+        PEGASUS_TEST_ASSERT(GetHomedPath("somefile", actual) == 0);
+        PEGASUS_TEST_ASSERT(strcmp(expect, actual) == 0);
 
         /* Test absolute path */
         memset(actual, 0, sizeof(actual));
-        assert(GetHomedPath(expect, actual) == 0);
-        assert(strcmp(expect, actual) == 0);
+        PEGASUS_TEST_ASSERT(GetHomedPath(expect, actual) == 0);
+        PEGASUS_TEST_ASSERT(strcmp(expect, actual) == 0);
 
         /* Test null path */
         memset(actual, 0, sizeof(actual));
-        assert(GetHomedPath(NULL, actual) == 0);
-        assert(strcmp(home, actual) == 0);
+        PEGASUS_TEST_ASSERT(GetHomedPath(NULL, actual) == 0);
+        PEGASUS_TEST_ASSERT(strcmp(home, actual) == 0);
     }
 
     /* GetPegasusInternalBinDir() */
@@ -122,12 +122,12 @@ int main()
         char actual[EXECUTOR_BUFFER_SIZE];
         const char* home;
 
-        assert((home = getenv("PEGASUS_HOME")) != NULL);
+        PEGASUS_TEST_ASSERT((home = getenv("PEGASUS_HOME")) != NULL);
         Strlcpy(expect, home, sizeof(expect));
         Strlcat(expect, "/bin", sizeof(expect));
 
-        assert(GetPegasusInternalBinDir(actual) == 0);
-        assert(strcmp(expect, actual) == 0);
+        PEGASUS_TEST_ASSERT(GetPegasusInternalBinDir(actual) == 0);
+        PEGASUS_TEST_ASSERT(strcmp(expect, actual) == 0);
     }
 
     /* Remove PEGASUS_HOME from the environment */
@@ -137,13 +137,13 @@ int main()
     /* GetHomedPath() with no PEGASUS_HOME defined */
     {
         char buffer[EXECUTOR_BUFFER_SIZE];
-        assert(GetHomedPath("somefile", buffer) != 0);
+        PEGASUS_TEST_ASSERT(GetHomedPath("somefile", buffer) != 0);
     }
 
     /* GetPegasusInternalBinDir() with no PEGASUS_HOME defined */
     {
         char buffer[EXECUTOR_BUFFER_SIZE];
-        assert(GetPegasusInternalBinDir(buffer) != 0);
+        PEGASUS_TEST_ASSERT(GetPegasusInternalBinDir(buffer) != 0);
     }
 
     printf("+++++ passed all tests\n");

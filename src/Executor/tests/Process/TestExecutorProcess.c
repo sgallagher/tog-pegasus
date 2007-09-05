@@ -34,8 +34,8 @@
 */
 
 #include <Executor/Process.h>
+#include <Executor/tests/TestAssert.h>
 #include <stdio.h>
-#include <assert.h>
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -46,8 +46,8 @@ void testGetProcessName(void)
 {
     char name[EXECUTOR_BUFFER_SIZE];
 
-    assert(GetProcessName(getpid(), name) == 0);
-    assert(strcmp(name, "TestExProcess") == 0);
+    PEGASUS_TEST_ASSERT(GetProcessName(getpid(), name) == 0);
+    PEGASUS_TEST_ASSERT(strcmp(name, "TestExProcess") == 0);
 }
 
 void testReadPidFile(void)
@@ -58,32 +58,32 @@ void testReadPidFile(void)
     /* Test non-existent PID file */
 
     unlink(TEST_PID_FILE);
-    assert(ReadPidFile(TEST_PID_FILE, &pid) != 0);
+    PEGASUS_TEST_ASSERT(ReadPidFile(TEST_PID_FILE, &pid) != 0);
 
     /* Test empty PID file */
 
     pidFile = fopen(TEST_PID_FILE, "a");
-    assert(pidFile != 0);
+    PEGASUS_TEST_ASSERT(pidFile != 0);
     fclose(pidFile);
-    assert(ReadPidFile(TEST_PID_FILE, &pid) != 0);
+    PEGASUS_TEST_ASSERT(ReadPidFile(TEST_PID_FILE, &pid) != 0);
 
     /* Test PID file with invalid content */
 
     pidFile = fopen(TEST_PID_FILE, "a");
-    assert(pidFile != 0);
+    PEGASUS_TEST_ASSERT(pidFile != 0);
     fprintf(pidFile, "%s", "A");
     fclose(pidFile);
-    assert(ReadPidFile(TEST_PID_FILE, &pid) != 0);
+    PEGASUS_TEST_ASSERT(ReadPidFile(TEST_PID_FILE, &pid) != 0);
 
     /* Test PID file with valid content */
 
     unlink(TEST_PID_FILE);
     pidFile = fopen(TEST_PID_FILE, "a");
-    assert(pidFile != 0);
+    PEGASUS_TEST_ASSERT(pidFile != 0);
     fprintf(pidFile, "%s", "1234");
     fclose(pidFile);
-    assert(ReadPidFile(TEST_PID_FILE, &pid) == 0);
-    assert(pid == 1234);
+    PEGASUS_TEST_ASSERT(ReadPidFile(TEST_PID_FILE, &pid) == 0);
+    PEGASUS_TEST_ASSERT(pid == 1234);
 
     unlink(TEST_PID_FILE);
 }
@@ -95,20 +95,23 @@ void testTestProcessRunning(void)
     /* Test with non-existent PID file */
 
     unlink(TEST_PID_FILE);
-    assert(TestProcessRunning(TEST_PID_FILE, "TestExProcess") != 0);
+    PEGASUS_TEST_ASSERT(
+        TestProcessRunning(TEST_PID_FILE, "TestExProcess") != 0);
 
     /* Test with our process ID in PID file but incorrect process name */
 
     unlink(TEST_PID_FILE);
     pidFile = fopen(TEST_PID_FILE, "a");
-    assert(pidFile != 0);
+    PEGASUS_TEST_ASSERT(pidFile != 0);
     fprintf(pidFile, "%d", (int)getpid());
     fclose(pidFile);
-    assert(TestProcessRunning(TEST_PID_FILE, "NotOurProcess") != 0);
+    PEGASUS_TEST_ASSERT(
+        TestProcessRunning(TEST_PID_FILE, "NotOurProcess") != 0);
 
     /* Test with our process ID in PID file and correct process name */
 
-    assert(TestProcessRunning(TEST_PID_FILE, "TestExProcess") == 0);
+    PEGASUS_TEST_ASSERT(
+        TestProcessRunning(TEST_PID_FILE, "TestExProcess") == 0);
 
     unlink(TEST_PID_FILE);
 }

@@ -35,8 +35,8 @@
 
 #include <Executor/Macro.h>
 #include <Executor/Globals.h>
+#include <Executor/tests/TestAssert.h>
 #include <stdio.h>
-#include <assert.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -72,10 +72,10 @@ int main()
 {
     /* Test DefineMacro() */
     {
-        assert(DefineMacro("x", "100") == 0);
-        assert(DefineMacro("y", "hello") == 0);
-        assert(DefineMacro("z", "true") == 0);
-        assert(DefineMacro("z", "false") != 0);
+        PEGASUS_TEST_ASSERT(DefineMacro("x", "100") == 0);
+        PEGASUS_TEST_ASSERT(DefineMacro("y", "hello") == 0);
+        PEGASUS_TEST_ASSERT(DefineMacro("z", "true") == 0);
+        PEGASUS_TEST_ASSERT(DefineMacro("z", "false") != 0);
     }
 
     /* Test FindMacro() */
@@ -85,27 +85,27 @@ int main()
         const char* z;
 
         x = FindMacro("x");
-        assert(x != NULL && strcmp(x, "100") == 0);
+        PEGASUS_TEST_ASSERT(x != NULL && strcmp(x, "100") == 0);
 
         y = FindMacro("y");
-        assert(y != NULL && strcmp(y, "hello") == 0);
+        PEGASUS_TEST_ASSERT(y != NULL && strcmp(y, "hello") == 0);
 
         z = FindMacro("z");
-        assert(z != NULL && strcmp(z, "true") == 0);
+        PEGASUS_TEST_ASSERT(z != NULL && strcmp(z, "true") == 0);
     }
 
     /* Test ExpandMacro() */
     {
         char buffer[EXECUTOR_BUFFER_SIZE];
 
-        assert(ExpandMacros("${x} ${y} ${z}", buffer) == 0);
-        assert(strcmp(buffer, "100 hello true") == 0);
+        PEGASUS_TEST_ASSERT(ExpandMacros("${x} ${y} ${z}", buffer) == 0);
+        PEGASUS_TEST_ASSERT(strcmp(buffer, "100 hello true") == 0);
 
-        assert(ExpandMacros("${x}$", buffer) == 0);
-        assert(strcmp(buffer, "100$") == 0);
+        PEGASUS_TEST_ASSERT(ExpandMacros("${x}$", buffer) == 0);
+        PEGASUS_TEST_ASSERT(strcmp(buffer, "100$") == 0);
 
-        assert(ExpandMacros("${x", buffer) != 0);
-        assert(ExpandMacros("${a}", buffer) != 0);
+        PEGASUS_TEST_ASSERT(ExpandMacros("${x", buffer) != 0);
+        PEGASUS_TEST_ASSERT(ExpandMacros("${a}", buffer) != 0);
     }
 
     /* Test DumpMacros() */
@@ -122,7 +122,7 @@ int main()
         unlink(TEST_DUMP_FILE);
 
         dumpFile = fopen(TEST_DUMP_FILE, "a");
-        assert(dumpFile != 0);
+        PEGASUS_TEST_ASSERT(dumpFile != 0);
         DumpMacros(dumpFile);
         fclose(dumpFile);
 
@@ -131,16 +131,16 @@ int main()
         fread(dumpFileBuffer, sizeof(char), MAX_DUMP_SIZE - 1, dumpFile);
         fclose(dumpFile);
 
-        assert(strcmp(dumpFileBuffer, expectedDumpResult) == 0);
+        PEGASUS_TEST_ASSERT(strcmp(dumpFileBuffer, expectedDumpResult) == 0);
 
         unlink(TEST_DUMP_FILE);
     }
 
     /* Test UndefineMacro() */
     {
-        assert(UndefineMacro("a") != 0);
-        assert(UndefineMacro("x") == 0);
-        assert(UndefineMacro("z") == 0);
+        PEGASUS_TEST_ASSERT(UndefineMacro("a") != 0);
+        PEGASUS_TEST_ASSERT(UndefineMacro("x") == 0);
+        PEGASUS_TEST_ASSERT(UndefineMacro("z") == 0);
     }
 
     /* Test DefineConfigPathMacro() */
@@ -153,17 +153,18 @@ int main()
         globals.argv = (char**)argv;
         globals.argc = argc;
 
-        assert(DefineConfigPathMacro("ImportantPath", "/var/important") == 0);
+        PEGASUS_TEST_ASSERT(
+            DefineConfigPathMacro("ImportantPath", "/var/important") == 0);
         macroDef = FindMacro("ImportantPath");
-        assert(macroDef != NULL);
-        assert(strcmp(macroDef, "/var/important") == 0);
-        assert(UndefineMacro("ImportantPath") == 0);
+        PEGASUS_TEST_ASSERT(macroDef != NULL);
+        PEGASUS_TEST_ASSERT(strcmp(macroDef, "/var/important") == 0);
+        PEGASUS_TEST_ASSERT(UndefineMacro("ImportantPath") == 0);
 
-        assert(DefineConfigPathMacro("option2", "/var/two") == 0);
+        PEGASUS_TEST_ASSERT(DefineConfigPathMacro("option2", "/var/two") == 0);
         macroDef = FindMacro("option2");
-        assert(macroDef != NULL);
-        assert(strcmp(macroDef, "/two") == 0);
-        assert(UndefineMacro("option2") == 0);
+        PEGASUS_TEST_ASSERT(macroDef != NULL);
+        PEGASUS_TEST_ASSERT(strcmp(macroDef, "/two") == 0);
+        PEGASUS_TEST_ASSERT(UndefineMacro("option2") == 0);
     }
 
     /* Remove PEGASUS_HOME from the environment */
@@ -179,11 +180,11 @@ int main()
         globals.argv = (char**)argv;
         globals.argc = argc;
 
-        assert(DefineConfigPathMacro("option1", "one") != 0);
-        assert(FindMacro("option1") == NULL);
+        PEGASUS_TEST_ASSERT(DefineConfigPathMacro("option1", "one") != 0);
+        PEGASUS_TEST_ASSERT(FindMacro("option1") == NULL);
 
-        assert(DefineConfigPathMacro("option3", "three") != 0);
-        assert(FindMacro("option3") == NULL);
+        PEGASUS_TEST_ASSERT(DefineConfigPathMacro("option3", "three") != 0);
+        PEGASUS_TEST_ASSERT(FindMacro("option3") == NULL);
     }
 
     printf("+++++ passed all tests\n");

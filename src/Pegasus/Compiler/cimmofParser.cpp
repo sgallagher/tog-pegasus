@@ -1251,34 +1251,6 @@ CIMValue * cimmofParser::PropertyValueFromInstance(CIMInstance &instance,
     return value;
 }
 
-CIMObjectPath * cimmofParser::newReference(const objectName &oname)
-{
-    String nameSpaceString = oname.handle();
-    CIMNamespaceName nameSpace;
-    if (nameSpaceString != String::EMPTY)
-    {
-        nameSpace = nameSpaceString;
-    }
-
-    CIMObjectPath *ref = 0;
-    try
-    {
-        ref = new CIMObjectPath(oname.host(), nameSpace, oname.className(),
-                oname.KeyBindings());
-    }
-    catch(Exception &e)
-    {
-        cimmofMessages::arglist arglist;
-        arglist.append(oname.className());
-        arglist.append(e.getMessage());
-        String message;
-        cimmofMessages::getMessage(message, cimmofMessages::NEW_REFERENCE_ERROR,
-                arglist);
-        maybeThrowParseError(message);
-    }
-    return ref;
-}
-
 void cimmofParser::addClassAlias(const String &alias, const CIMClass *cd,
     Boolean isInstance)
 {

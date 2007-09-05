@@ -84,7 +84,6 @@
 #include "valueFactory.h"
 #include "memobjs.h"
 #include "qualifierList.h"
-#include "objname.h"
 
 //include any useful debugging stuff here
 
@@ -184,7 +183,7 @@ static void MOF_trace2(const char * str, const char * S);
   CIMType                   datatype;
   CIMValue                 *value;
   int                       ival;
-  modelPath                *modelpath;
+  CIMObjectPath            *modelpath;
   String                   *strptr;
   String                   *strval;
   struct pragma            *pragma;
@@ -735,13 +734,14 @@ referenceInitializer: objectHandle {}
 
 objectHandle: TOK_DQUOTE namespaceHandleRef modelPath TOK_DQUOTE
 {
-    // The objectName string is decomposed for syntactical purposes
-    // and reassembled here for later parsing in creation of an objname instance
+    // The objectName string is decomposed for syntactical validation purposes
+    // and reassembled here for later parsing in creation of an CIMObjectPath
+    // instance
     String *s = new String(*$2);
     if (!String::equal(*s, String::EMPTY) && $3)
         (*s).append(":");
     if ($3) {
-        (*s).append($3->Stringrep());
+        (*s).append($3->toString());
     }
     $$ = s;
     delete $2;
@@ -788,7 +788,11 @@ namespaceHandle: stringValue {};
 
 
 modelPath: className TOK_PERIOD keyValuePairList {
-    modelPath *m = new modelPath((*$1).getString(), g_KeyBindingArray);
+    CIMObjectPath *m = new CIMObjectPath(
+        String::EMPTY,
+        CIMNamespaceName(),
+        (*$1).getString(),
+        g_KeyBindingArray);
     g_KeyBindingArray.clear();
     delete $1;} ;
 
@@ -801,8 +805,16 @@ keyValuePairList: keyValuePair
 
 keyValuePair: keyValuePairName TOK_EQUAL initializer
     {
-        CIMKeyBinding *kb = new CIMKeyBinding(*$1, *$3,
-                               modelPath::KeyBindingTypeOf(*$3));
+        CIMKeyBinding::Type keyBindingType;
+        Char16 firstChar = (*$3)[0];
+        if (firstChar = '\"')
+            keyBindingType = CIMKeyBinding::STRING;
+        else if ((firstChar == 'T') || (firstChar == 't') ||
+                 (firstChar == 'F') || (firstChar == 'f'))
+            keyBindingType = CIMKeyBinding::BOOLEAN;
+        else
+            keyBindingType = CIMKeyBinding::NUMERIC;
+        CIMKeyBinding *kb = new CIMKeyBinding(*$1, *$3, keyBindingType);
         g_KeyBindingArray.append(*kb);
         delete kb;
         delete $1;

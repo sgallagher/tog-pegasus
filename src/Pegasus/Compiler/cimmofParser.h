@@ -64,7 +64,6 @@
 #include "cimmofRepositoryInterface.h"
 #include "cimmofMessages.h"
 #include "memobjs.h"
-#include "objname.h"
 
 // Diagnostics that can be used to display flow.
 // This is manually turned on be selecting the proper define
@@ -251,9 +250,6 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser
 
         // Called when an instance alias reference is found
         Uint32 getInstanceAlias(const String &alias, CIMObjectPath &ObjPath);
-
-        // Called when a reference declaration is found
-        CIMObjectPath *newReference(const objectName &oname);
 
         // Make a clone of a property object, inserting a new value object
         CIMProperty *copyPropertyWithNewValue(const CIMProperty &p,

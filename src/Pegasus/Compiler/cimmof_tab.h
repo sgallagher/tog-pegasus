@@ -180,7 +180,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 171 "cimmof.y"
+#line 170 "cimmof.y"
 {
   //char                     *strval;
   CIMClass                 *mofclass;
@@ -197,7 +197,7 @@ typedef union YYSTYPE
   CIMType                   datatype;
   CIMValue                 *value;
   int                       ival;
-  modelPath                *modelpath;
+  CIMObjectPath            *modelpath;
   String                   *strptr;
   String                   *strval;
   struct pragma            *pragma;

@@ -42,6 +42,10 @@
 # include <unistd.h>
 #endif
 
+#ifdef PEGASUS_OS_PASE
+#include <as400_protos.h> // for systemCL()
+#endif
+
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Signal.h>

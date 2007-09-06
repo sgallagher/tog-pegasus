@@ -240,6 +240,66 @@ instance of PG_ProviderCapabilities
    SupportedMethods = NULL; // All methods
 };
 
+// ===================================================================
+// Method provider for CMPI_Broker.cpp
+// ===================================================================
+instance of PG_ProviderModule
+{
+   Description = "CMPI Test Broker provider";
+   Name = "TestCMPIBrokerProviderModule";
+   // The library name on disk
+   Location = "cmpiTestBrokerProvider";
+   Vendor = "OpenPegasus";
+   Version = "2.0.0";
+   InterfaceType = "CMPI";
+   InterfaceVersion = "2.0.0";
+};
+
+instance of PG_Provider
+{
+   ProviderModuleName = "TestCMPIBrokerProviderModule";
+   // The provider name as referenced in the code!
+   Name = "TestCMPIBrokerProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "TestCMPIBrokerProviderModule";
+   ProviderName = "TestCMPIBrokerProvider";
+   CapabilityID = "CMPI Test Broker Provider";
+   // Name of the CIM Class as defined in the mof.
+   ClassName = "TestCMPI_Broker";
+   Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
+   ProviderType = { 5 }; // Method
+   SupportedProperties = NULL; // All properties
+   SupportedMethods = NULL; // All methods
+};
+
+// ===================================================================
+// Instance and ExecQuery provider for CMPI_Broker.cpp
+// ===================================================================
+
+//This Provider shares the PG_ProviderModule instance with 
+//  TestCMPIBrokerProvider
+instance of PG_Provider
+{
+   ProviderModuleName = "TestCMPIBrokerProviderModule";
+   // The provider name as referenced in the code!
+   Name = "TestCMPIBrokerInstanceProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "TestCMPIBrokerProviderModule";
+   ProviderName = "TestCMPIBrokerInstanceProvider";
+   CapabilityID = "CMPI Test Instance Provider";
+   // Name of the CIM Class as defined in the mof.
+   ClassName = "TestCMPI_BrokerInstance";
+   Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
+   ProviderType = { 2 , 7}; // Instance
+   SupportedProperties = NULL; // All properties
+   SupportedMethods = NULL; // All methods
+};
 
 // ===================================================================
 // Instance provider that fails loading. The provider returns a NULL pointer

@@ -129,6 +129,15 @@ class TestCMPIInstance_Method : TestCMPI_Parent
     Uint32 testInstance();
 };
 
+class TestCMPI_BrokerInstance : TestCMPI_Instance
+{
+};
+
+class TestCMPI_Broker : TestCMPI_Parent
+{
+    Uint32 testBrokerServices();
+};
+
 class TestCMPI_Fail_1: TestCMPI_Parent
 {
 };

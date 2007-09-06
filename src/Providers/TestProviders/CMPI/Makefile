@@ -63,6 +63,8 @@ DIRS = \
 
 ifndef PEGASUS_DISABLE_CQL
 DIRS += \
+    TestCMPIBroker \
+    TestCMPIBroker/tests \
     TestIndications \
     TestIndications/tests
 

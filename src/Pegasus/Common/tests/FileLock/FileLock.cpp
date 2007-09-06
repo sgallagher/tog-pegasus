@@ -58,17 +58,6 @@ const char* COUNTER_FILE = "counterFile";
 const Uint32 NUM_SUBTESTS = 10;
 const Uint32 NUM_ITERATIONS = 20;
 
-ThreadReturnType PEGASUS_THREAD_CDECL runSubtest(void* parm)
-{
-    Thread* myself = (Thread*)parm;
-#ifdef PEGASUS_OS_TYPE_UNIX
-    FILE* fd = popen((const char*)myself->get_parm(), "r");
-    PEGASUS_TEST_ASSERT(fd);
-    pclose(fd);
-#endif
-    return 0;
-}
-
 void master(char testProgram[])
 {
     // Master process
@@ -87,23 +76,27 @@ void master(char testProgram[])
     fs.write("00000000", 8);
     fs.close();
 
+#ifdef PEGASUS_OS_TYPE_UNIX
+
     // Start the subtests
 
-    Thread* thread[NUM_SUBTESTS];
+    FILE* fd[NUM_SUBTESTS];
+    Uint32 i;
 
-    for (size_t i = 0; i < NUM_SUBTESTS; i++)
+    for ( i = 0; i < NUM_SUBTESTS; i++)
     {
-        thread[i] = new Thread(runSubtest, testProgram, false);
-        thread[i]->run();
+        fd[i] = popen(testProgram, "r");
+        PEGASUS_TEST_ASSERT(fd[i]);
     }
 
     // Wait for the subtests to complete
 
-    for (size_t i = 0; i < NUM_SUBTESTS; i++)
+    for ( i = 0; i < NUM_SUBTESTS; i++)
     {
-        thread[i]->join();
-        delete thread[i];
+        pclose(fd[i]);
     }
+
+#endif
 
     // Verify the result
 

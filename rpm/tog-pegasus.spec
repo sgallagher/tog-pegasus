@@ -470,7 +470,7 @@ fi
 %ghost %config(noreplace) /etc/Pegasus/file.pem
 %ghost /var/lib/Pegasus/log/install.log
 
-%attr(750,root,pegasus) /usr/sbin/*
+%attr(755,root,pegasus) /usr/sbin/*
 %attr(755,root,pegasus) /usr/bin/*
 %attr(755,root,pegasus) /usr/%PEGASUS_ARCH_LIB/*.so.1
 %attr(755,root,pegasus) /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/*.so.1

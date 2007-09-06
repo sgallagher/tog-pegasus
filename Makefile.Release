@@ -1396,7 +1396,7 @@ _append_filesSectionToSpecFile: FORCE
 	@$(ECHO-E) "%ghost $(PEGASUS_INSTALL_LOG)" \
            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%attr($(Prwxr_x___),$(INSTALL_USR),$(INSTALL_GRP))" \
+	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
            "$(PEGASUS_SBIN_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
 	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
            "$(PEGASUS_BIN_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 

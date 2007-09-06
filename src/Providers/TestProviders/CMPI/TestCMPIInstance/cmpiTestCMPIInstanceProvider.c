@@ -94,6 +94,7 @@ static int _testInstance ()
     CMPIStatus rc = { CMPI_RC_OK, NULL };
     CMPIInstance* instance = NULL;
     CMPIObjectPath* objPath = NULL;
+    CMPIObjectPath* objPathFake = NULL;
 
     CMPIValue value;
     CMPIType type = CMPI_uint64;
@@ -193,9 +194,14 @@ static int _testInstance ()
     /* Test cases to cover error paths for instSetObjectPath and 
        instSetPropertyFilter*/
 
-    /* Testing error path by passing argument of type CMPIInstance instead
-       of CMPIObjectPath*/
-    rc = CMSetObjectPath(instance,instance);
+    /* Testing error path by passing CMPIObjectPath with class name different 
+       from the classname for CMPIInstance in CMSetObjectPath*/
+
+    objPathFake = CMNewObjectPath(_broker,
+        _Namespace,
+        "TestCMPIInstance_Method",
+        NULL);
+    rc = CMSetObjectPath(instance, objPathFake);
     if ( rc.rc == CMPI_RC_ERR_FAILED || rc.rc == CMPI_RC_ERR_NOT_SUPPORTED)
     {
         PROV_LOG("++++  Test for CMSetObjectPath with wrong input passed");

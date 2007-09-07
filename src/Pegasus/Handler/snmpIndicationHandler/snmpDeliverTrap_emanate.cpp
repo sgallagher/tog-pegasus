@@ -521,10 +521,32 @@ char* snmpDeliverTrap_emanate::_getIPAddress(const CString& hostName)
     struct hostent* targetHostInfo;
     struct in_addr in;
 
-    char hostEntryBuffer[8192];
-    struct hostent hostEntryStruct;
-    targetHostInfo = System::getHostByName(hostName, 
-        &hostEntryStruct, hostEntryBuffer, sizeof (hostEntryBuffer));
+#if defined(PEGASUS_OS_LINUX)
+        char hostEntryBuffer[8192];
+        struct hostent hostEntryStruct;
+        int hostEntryErrno;
+
+        gethostbyname_r(
+            hostName,
+            &hostEntryStruct,
+            hostEntryBuffer,
+            sizeof(hostEntryBuffer),
+            &targetHostInfo,
+            &hostEntryErrno);
+#elif defined(PEGASUS_OS_SOLARIS)
+        char hostEntryBuffer[8192];
+        struct hostent hostEntryStruct;
+        int hostEntryErrno;
+
+        targetHostInfo = gethostbyname_r(
+            (char*)hostName,
+            &hostEntryStruct,
+            hostEntryBuffer,
+            sizeof(hostEntryBuffer),
+            &hostEntryErrno);
+#else
+    targetHostInfo = gethostbyname(hostName);
+#endif
 
     if (targetHostInfo == NULL)
     {

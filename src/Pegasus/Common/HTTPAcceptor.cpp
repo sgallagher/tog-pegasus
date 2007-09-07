@@ -780,13 +780,11 @@ void HTTPAcceptor::_acceptConnection()
     {
 #ifdef PEGASUS_ENABLE_IPV6
         char ipBuffer[PEGASUS_INET6_ADDRSTR_LEN];
-        if (System::getNameInfo(accept_address, 
-                address_size, 
-                ipBuffer,
-                PEGASUS_INET6_ADDRSTR_LEN, 
-                0, 
-                0, 
-                NI_NUMERICHOST))
+        int rc;
+        while ((rc = getnameinfo(accept_address, address_size, ipBuffer,
+            PEGASUS_INET6_ADDRSTR_LEN, 0, 0, NI_NUMERICHOST)) == EAI_AGAIN)
+            ;
+        if (rc)
         {
             Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
                 "HTTPAcceptor - getnameinfo() failure.  rc: $0", rc);

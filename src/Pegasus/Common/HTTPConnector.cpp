@@ -72,6 +72,7 @@ static Boolean _MakeAddress(
     struct sockaddr_in6 serveraddr;
     struct addrinfo  hints;
     struct addrinfo *result;
+    int rc = 0;
 
     memset(&hints, 0x00, sizeof(hints));
     hints.ai_family   = AF_UNSPEC ;
@@ -96,7 +97,9 @@ static Boolean _MakeAddress(
 
     char portStr[20];
     sprintf(portStr,"%d",port);
-    if (System::getAddrInfo(hostname, portStr, &hints, &result))
+    while ((rc = getaddrinfo(hostname, portStr, &hints, &result)) == EAI_AGAIN)
+        ;
+    if (rc)
     {
         return false;
     }
@@ -116,6 +119,7 @@ static Boolean _MakeAddress(
 ////////////////////////////////////////////////////////////////////////////////
 
     unsigned long tmp_addr = inet_addr((char *)hostname);
+
     struct hostent* hostEntry;
 
 // Note: 0xFFFFFFFF is actually a valid IP address (255.255.255.255).
@@ -124,13 +128,44 @@ static Boolean _MakeAddress(
 
     if (tmp_addr == 0xFFFFFFFF)  // if hostname is not an IP address
     {
+#if defined(PEGASUS_OS_LINUX)
         char hostEntryBuffer[8192];
         struct hostent hostEntryStruct;
-        hostEntry = System::getHostByName(hostname, 
-            &hostEntryStruct, 
-            (char*) &hostEntryBuffer, 
-            sizeof (hostEntryBuffer));
+        int hostEntryErrno;
 
+        gethostbyname_r(
+            hostname,
+            &hostEntryStruct,
+            hostEntryBuffer,
+            sizeof(hostEntryBuffer),
+            &hostEntry,
+            &hostEntryErrno);
+#elif defined(PEGASUS_OS_SOLARIS)
+        char hostEntryBuffer[8192];
+        struct hostent hostEntryStruct;
+        int hostEntryErrno;
+
+        hostEntry = gethostbyname_r(
+            (char *)hostname,
+            &hostEntryStruct,
+            hostEntryBuffer,
+            sizeof(hostEntryBuffer),
+            &hostEntryErrno);
+#elif defined(PEGASUS_OS_ZOS)
+        if (String::equalNoCase("localhost",String(hostname)))
+        {
+            char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
+            gethostname( hostName, sizeof( hostName ) );
+            hostName[sizeof(hostName)-1] = 0;
+            hostEntry = gethostbyname(hostName);
+        }
+        else
+        {
+            hostEntry = gethostbyname((char *)hostname);
+        }
+#else
+        hostEntry = gethostbyname((char *)hostname);
+#endif
         if (!hostEntry)
         {
             return false;

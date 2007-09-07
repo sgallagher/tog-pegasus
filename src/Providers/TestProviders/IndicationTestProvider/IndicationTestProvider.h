@@ -31,21 +31,68 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
+#ifndef Pegasus_IndicationTestProvider_h
+#define Pegasus_IndicationTestProvider_h
 
-#include "RT_IndicationConsumer.h"
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Provider/CIMIndicationProvider.h>
+#include <Pegasus/Provider/CIMMethodProvider.h>
 
 PEGASUS_USING_PEGASUS;
 
-extern "C" 
-PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& providerName)
+class IndicationTestProvider:
+    public CIMMethodProvider,
+    public CIMIndicationProvider
 {
-    if (String::equalNoCase(providerName, "RT_IndicationConsumer"))
-    {
-        return new RT_IndicationConsumer();
-    }
+public:
+    IndicationTestProvider() throw();
+    virtual ~IndicationTestProvider() throw();
 
-    return 0;
-}
+    // CIMProvider interface
+    virtual void initialize(CIMOMHandle& cimom);
+    virtual void terminate();
+
+    // CIMIndicationProvider interface
+    virtual void enableIndications(IndicationResponseHandler& handler);
+    virtual void disableIndications();
+
+    virtual void createSubscription(
+        const OperationContext& context,
+        const CIMObjectPath& subscriptionName,
+        const Array <CIMObjectPath>& classNames,
+        const CIMPropertyList& propertyList,
+        const Uint16 repeatNotificationPolicy);
+
+    virtual void modifySubscription(
+        const OperationContext& context,
+        const CIMObjectPath& subscriptionName,
+        const Array <CIMObjectPath>& classNames,
+        const CIMPropertyList& propertyList,
+        const Uint16 repeatNotificationPolicy);
+
+    virtual void deleteSubscription(
+        const OperationContext& context,
+        const CIMObjectPath& subscriptionName,
+        const Array <CIMObjectPath>& classNames);
+
+    // CIMMethodProvider Interface
+    virtual void invokeMethod(
+        const OperationContext& context,
+        const CIMObjectPath& objectReference,
+        const CIMName& methodName,
+        const Array<CIMParamValue>& inParameters,
+        MethodResultResponseHandler& handler);
+
+protected:
+
+     void _checkOperationContext(
+         const OperationContext& context,
+         const String& funcName);
+
+private:
+
+     CIMOMHandle _cimom;
+
+};
+
+#endif

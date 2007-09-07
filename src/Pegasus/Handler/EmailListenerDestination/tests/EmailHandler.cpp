@@ -89,7 +89,7 @@ CIMObjectPath CreateFilterInstance(CIMClient& client,
     filterInstance.addProperty (CIMProperty(CIMName ("QueryLanguage"),
         String("WQL")));
     filterInstance.addProperty (CIMProperty(CIMName ("SourceNamespace"),
-        String("root/SampleProvider")));
+        String("test/TestProvider")));
 
     CIMObjectPath Ref = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP,
         filterInstance);
@@ -123,13 +123,13 @@ CIMObjectPath CreateFormattedSubscriptionIns(CIMClient& client,
 void generateIndication(CIMClient& client)
 {
     CIMObjectPath path ;
-    path.setClassName("RT_TestIndication");
+    path.setClassName("Test_IndicationProviderClass");
 
     Array<CIMParamValue> inParams;
     Array<CIMParamValue> outParams;
 
     CIMValue ret_value = client.invokeMethod(
-        "root/SampleProvider",
+        "test/TestProvider",
         path,
         "SendTestIndication",
         inParams,
@@ -178,7 +178,7 @@ int main(int argc, char** argv)
                        << PEGASUS_STD (endl);
     try
     {
-        String query="SELECT * FROM rt_testindication";
+        String query="SELECT * FROM Test_IndicationProviderClass";
         String name1 = "TestFilter01";
         Filter1Ref = CreateFilterInstance (client, query, name1);
     }

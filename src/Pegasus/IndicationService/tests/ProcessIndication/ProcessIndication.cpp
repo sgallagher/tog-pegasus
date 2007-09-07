@@ -43,7 +43,7 @@ PEGASUS_USING_STD;
 
 // Interop namespace used with PEGASUS_NAMESPACENAME_INTEROP in Constants.h
 const CIMNamespaceName SOURCENAMESPACE =
-    CIMNamespaceName ("root/SampleProvider");
+    CIMNamespaceName ("test/TestProvider");
 
 void _createHandlerInstance
     (CIMClient & client,
@@ -388,7 +388,7 @@ void _sendTestIndication
     if (methodName.equal ("SendTestIndicationSubclass"))
     {
         CIMObjectPath className (String::EMPTY, CIMNamespaceName(),
-            CIMName ("RT_TestIndicationSubclass"), keyBindings);
+            CIMName ("Test_IndicationProviderSubclass"), keyBindings);
 
         retValue = client.invokeMethod
             (SOURCENAMESPACE,
@@ -400,7 +400,7 @@ void _sendTestIndication
     else
     {
         CIMObjectPath className (String::EMPTY, CIMNamespaceName(),
-            CIMName ("RT_TestIndication"), keyBindings);
+            CIMName ("Test_IndicationProviderClass"), keyBindings);
 
         retValue = client.invokeMethod
             (SOURCENAMESPACE,
@@ -563,10 +563,10 @@ void _setup (CIMClient & client, String& qlang)
     {
         _createFilterInstance (client, String ("PIFilter01"), String
             ("SELECT IndicationIdentifier, MethodName, CorrelatedIndications "
-             "FROM RT_TestIndication"),
+             "FROM Test_IndicationProviderClass"),
             qlang);
         _createFilterInstance (client, String ("PIFilter02"),
-            String ("SELECT * FROM RT_TestIndication"),
+            String ("SELECT * FROM Test_IndicationProviderClass"),
             qlang);
 
         //
@@ -579,11 +579,11 @@ void _setup (CIMClient & client, String& qlang)
             //  The following filters are used to test that only properties
             //  required for the WHERE clause are treated as required for
             //  indications.
-            //  Normally, the RT_Indication test provider generates an
+            //  Normally, the IndicationTestProvider generates an
             //  indication that includes a non-NULL CorrelatedIndications
             //  property value.
             //  When the SendTestIndicationMissingProperty method is invoked,
-            //  the RT_Indication test provider generates an indication that
+            //  the IndicationTestProvider generates an indication that
             //  is missing the CorrelatedIndications property.
             //  For PIFilter03, normally the generated indication includes all
             //  required properties, and the generated indication satisfies the
@@ -603,13 +603,14 @@ void _setup (CIMClient & client, String& qlang)
             _createFilterInstance (client, String ("PIFilter03"), String
                 ("SELECT IndicationIdentifier, MethodName, "
                  "CorrelatedIndications "
-                 "FROM RT_TestIndication "
+                 "FROM Test_IndicationProviderClass "
                  "WHERE CorrelatedIndications IS NOT NULL"),
                 qlang);
             _createFilterInstance (client, String ("PIFilter04"), String
                 ("SELECT IndicationIdentifier, MethodName, "
                  "CorrelatedIndications "
-                 "FROM RT_TestIndication WHERE CorrelatedIndications IS NULL"),
+                 "FROM Test_IndicationProviderClass "
+                 "WHERE CorrelatedIndications IS NULL"),
                 qlang);
         }
 

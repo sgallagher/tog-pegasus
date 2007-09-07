@@ -47,10 +47,6 @@ include $(ROOT)/mak/configschema.mak
 SAMPLEPROVIDERNS=root/SampleProvider
 SAMPLEPROVIDERNSDIRECTORY=$(REPOSITORY_ROOT)/root\#SampleProvider
 
-# The RT_Indication class definition must also be loaded into another namespace
-# for testing
-CIMV2NS=root/cimv2
-
 # Load the sample MOF with the local compiler. Cleans the existing repository
 # before reloading.
 # NOTE: I believe that the remove is duplicated for some reason.
@@ -70,8 +66,6 @@ repository:
 	@ $(ECHO) +++++ Loading SampleProvider class definitions into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(SAMPLEPROVIDERNS)" SampleProviderSchema.mof
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(SAMPLEPROVIDERNS)" AssociationProvider.mof
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(SAMPLEPROVIDERNS)" RT_Indication.mof
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(CIMV2NS)" RT_Indication.mof
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(SAMPLEPROVIDERNS)" ClientTest.mof
 	@ $(ECHO) +++++ Registering Sample Providers  ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" SampleProviderSchemaR.mof
@@ -119,8 +113,6 @@ repositoryServer:
 	@ $(ECHO) +++++ Loading SampleProvider class definitions into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmof "-n$(SAMPLEPROVIDERNS)" SampleProviderSchema.mof
 	@ cimmof "-n$(SAMPLEPROVIDERNS)" AssociationProvider.mof
-	@ cimmof "-n$(SAMPLEPROVIDERNS)" RT_Indication.mof
-	@ cimmof "-n$(CIMV2NS)" RT_Indication.mof
 	@ cimmof "-n$(SAMPLEPROVIDERNS)" ClientTest.mof
 	@ $(ECHO) +++++ Registering SampleProvider schema Providers  ...
 	@ cimmof "-n$(INTEROPNS)" SampleProviderSchemaR.mof
@@ -168,7 +160,6 @@ ifdef PEGASUS_ENABLE_EXECQUERY
 endif
 	cimprovider -r -m SampleMethodProviderModule
 	cimprovider -r -m SampleAssociationProviderModule
-	cimprovider -r -m RT_IndicationProviderModule
 	cimprovider -r -m SimpleDisplayConsumerModule
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	cimprovider -r -m FilesAndDirectoriesModule

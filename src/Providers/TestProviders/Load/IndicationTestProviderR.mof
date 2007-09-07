@@ -28,85 +28,55 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-//%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
+#pragma locale ("en_US")
 
-#include "RT_IndicationConsumer.h"
-
-PEGASUS_USING_PEGASUS;
-
-PEGASUS_USING_STD;
-
-
-RT_IndicationConsumer::RT_IndicationConsumer()
+instance of PG_ProviderModule
 {
-}
+    Description = "Pegasus Indication Test Provider";
+    Caption = "Pegasus Indication Test Provider";
+    Name = "IndicationTestProviderModule";
+    Vendor = "OpenPegasus";
+    Version = "2.0.0";
+    InterfaceType = "C++Default";
+    InterfaceVersion = "2.6.0";
+    Location = "IndicationTestProvider";
+};
 
-RT_IndicationConsumer::~RT_IndicationConsumer()
+instance of PG_Provider
 {
-}
+    ProviderModuleName = "IndicationTestProviderModule";
+    Name = "IndicationTestProvider";
+};
 
-void RT_IndicationConsumer::initialize(CIMOMHandle& handle)
+instance of PG_ProviderCapabilities
 {
-}
+    ProviderModuleName = "IndicationTestProviderModule";
+    ProviderName = "IndicationTestProvider";
+    CapabilityID = "1";
+    ClassName = "Test_IndicationProviderClass";
+    Namespaces = { "test/TestProvider" };
+    ProviderType = { 4, 5 };  // Indication & Method
+    SupportedProperties = NULL;
+    //  Note: these methods are not implemented in the subclass
+    SupportedMethods = {"SendTestIndication", 
+                        "SendTestIndicationNormal", 
+			"SendTestIndicationTrap",
+                        "SendTestIndicationMissingProperty", 
+                        "SendTestIndicationExtraProperty",
+                        "SendTestIndicationMatchingInstance",
+                        "SendTestIndicationUnmatchingNamespace",
+                        "SendTestIndicationUnmatchingClassName"};
+};
 
-void RT_IndicationConsumer::terminate()
+instance of PG_ProviderCapabilities
 {
-}
-
-void RT_IndicationConsumer::consumeIndication(
-    const OperationContext& context,
-    const String& url,
-    const CIMInstance& indicationInstance)
-{
-    String indicationID;
-    String indicationTime;
-    String methodName;
-
-    //
-    // get IndicationID
-    //
-    try
-    {
-        indicationID = indicationInstance.getProperty(
-            indicationInstance.findProperty(
-                PROPERTY_NAME_INDICATIONID)).getValue().toString();
-    }
-    catch (...)
-    {
-        indicationID = UNKNOWN;
-    }
-
-    //
-    // get IndicationTime
-    //
-    try
-    {
-        indicationTime = indicationInstance.getProperty(
-            indicationInstance.findProperty(
-                PROPERTY_NAME_INDICATIONTIME)).getValue().toString();
-    }
-    catch (...)
-    {
-        indicationTime = UNKNOWN;
-    }
-
-    //
-    // get MethodName
-    //
-    try
-    {
-        indicationInstance.getProperty(indicationInstance.findProperty(
-            PROPERTY_NAME_METHODNAME)).getValue().get(methodName);
-    }
-    catch (...)
-    {
-        methodName = UNKNOWN;
-    }
-
-    cout << "IndicationID = " << indicationID << ", IndicationTime = " <<
-        indicationTime << ", MethodName = " << methodName << endl;
-}
+    ProviderModuleName = "IndicationTestProviderModule";
+    ProviderName = "IndicationTestProvider";
+    CapabilityID = "2";
+    ClassName = "Test_IndicationProviderSubclass";
+    Namespaces = { "test/TestProvider" };
+    ProviderType = { 4, 5 };  // Indication & Method
+    SupportedProperties = NULL;
+    SupportedMethods = {"SendTestIndicationSubclass"};
+};

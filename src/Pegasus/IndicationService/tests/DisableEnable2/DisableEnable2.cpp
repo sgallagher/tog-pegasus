@@ -44,11 +44,10 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 // Interop namespace used with PEGASUS_NAMESPACENAME_INTEROP in Constants.h
-const CIMNamespaceName NAMESPACE1 = CIMNamespaceName ("root/cimv2");
-const CIMNamespaceName NAMESPACE2 = CIMNamespaceName ("test/TestProvider");
-const CIMNamespaceName NAMESPACE3 = CIMNamespaceName ("root/SampleProvider");
-const CIMNamespaceName SOURCENAMESPACE = 
-    CIMNamespaceName ("root/SampleProvider");
+const CIMNamespaceName NAMESPACE1 = CIMNamespaceName("root/cimv2");
+const CIMNamespaceName NAMESPACE2 = CIMNamespaceName("test/TestProvider");
+const CIMNamespaceName NAMESPACE3 = CIMNamespaceName("root/SampleProvider");
+const CIMNamespaceName SOURCENAMESPACE = CIMNamespaceName("test/TestProvider");
 
 void _createHandlerInstance 
     (CIMClient & client, 
@@ -122,7 +121,7 @@ void _sendIndicationShouldSucceed
 
     CIMName methodName ("SendTestIndication");
     CIMObjectPath className (String::EMPTY, CIMNamespaceName (), 
-        CIMName ("RT_TestIndication"), keyBindings);
+        CIMName("Test_IndicationProviderClass"), keyBindings);
 
     CIMValue retValue = client.invokeMethod 
         (SOURCENAMESPACE,
@@ -144,7 +143,7 @@ void _sendIndicationShouldFail
 
     CIMName methodName ("SendTestIndication");
     CIMObjectPath className (String::EMPTY, CIMNamespaceName (), 
-        CIMName ("RT_TestIndication"), keyBindings);
+        CIMName("Test_IndicationProviderClass"), keyBindings);
 
     CIMValue retValue = client.invokeMethod 
         (SOURCENAMESPACE,
@@ -166,7 +165,7 @@ void _sendIndicationShouldBeBlocked
 
     CIMName methodName ("SendTestIndication");
     CIMObjectPath className (String::EMPTY, CIMNamespaceName (), 
-        CIMName ("RT_TestIndication"), keyBindings);
+        CIMName("Test_IndicationProviderClass"), keyBindings);
 
     try
     {
@@ -292,7 +291,7 @@ void _setup (CIMClient & client, String& qlang)
     try
     {
         _createFilterInstance (client, String ("DEFilter01"),
-            String ("SELECT MethodName FROM RT_TestIndication"),
+            String ("SELECT MethodName FROM Test_IndicationProviderClass"),
             qlang, PEGASUS_NAMESPACENAME_INTEROP);
         _createHandlerInstance (client, String ("DEHandler01"), 
             String ("localhost/CIMListener/Pegasus_SimpleDisplayConsumer"),
@@ -314,7 +313,7 @@ void _setup2 (CIMClient & client, String& qlang)
     try
     {
         _createFilterInstance (client, String ("DEFilter02"),
-            String ("SELECT MethodName FROM RT_TestIndication"),
+            String ("SELECT MethodName FROM Test_IndicationProviderClass"),
             qlang, NAMESPACE1);
         _createHandlerInstance (client, String ("DEHandler02"), 
             String ("localhost/CIMListener/Pegasus_SimpleDisplayConsumer"),

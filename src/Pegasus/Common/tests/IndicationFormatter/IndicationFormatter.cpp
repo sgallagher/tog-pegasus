@@ -77,7 +77,7 @@ CIMInstance _createSubscriptionInstance
 
 CIMInstance _createIndicationInstance1()
 {
-    CIMInstance indicationInstance("RT_TestIndication");
+    CIMInstance indicationInstance("Test_IndicationProviderClass");
 
     indicationInstance.addProperty
     (CIMProperty (CIMName ("IndicationTime"), CIMValue(
@@ -94,7 +94,7 @@ CIMInstance _createIndicationInstance1()
 
 CIMInstance _createIndicationInstance2(CIMType type)
 {
-    CIMInstance indicationInstance("RT_TestIndication");
+    CIMInstance indicationInstance("Test_IndicationProviderClass");
 
     indicationInstance.addProperty
     (CIMProperty (CIMName ("IndicationTime"), CIMValue(
@@ -283,7 +283,7 @@ void _checkSyntax(const String& textFormat)
     actions.append("action2");
     actions.append("action3");
 
-    CIMClass indicationClass("RT_TestIndication");
+    CIMClass indicationClass("Test_IndicationProviderClass");
 
     indicationClass.addProperty (CIMProperty (CIMName ("IndicationTime"),
     CIMValue(CIMDateTime("20050510143211.000000-420"))));
@@ -328,7 +328,7 @@ void _validateTextFormat()
     textFormatParams.append("MethodName");
     textFormatParams.append("Action");
 
-    CIMClass indicationClass("RT_TestIndication");
+    CIMClass indicationClass("Test_IndicationProviderClass");
 
     // tests a valid text format string
     String textFormat =

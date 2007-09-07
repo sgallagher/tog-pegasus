@@ -86,7 +86,7 @@ CIMObjectPath CreateFilterInstance (CIMClient& client,
     filterInstance.addProperty (CIMProperty(CIMName ("QueryLanguage"),
         String(qlang)));
     filterInstance.addProperty (CIMProperty(CIMName ("SourceNamespace"),
-        String("root/SampleProvider")));
+        String("test/TestProvider")));
 
     CIMObjectPath Ref = client.createInstance(filterNS, filterInstance);
     Ref.setNameSpace (filterNS);
@@ -115,11 +115,11 @@ CIMObjectPath CreateSbscriptionInstance (CIMClient& client,
 
 void generateIndication(CIMClient& client)
 {
-    CIMInstance indicationInstance (CIMName("RT_TestIndication"));
+    CIMInstance indicationInstance(CIMName("Test_IndicationProviderClass"));
 
     CIMObjectPath path ;
-    path.setNameSpace("root/SampleProvider");
-    path.setClassName("RT_TestIndication");
+    path.setNameSpace("test/TestProvider");
+    path.setClassName("Test_IndicationProviderClass");
 
     indicationInstance.setPath(path);
 
@@ -127,7 +127,7 @@ void generateIndication(CIMClient& client)
     Array<CIMParamValue> outParams;
 
     CIMValue ret_value = client.invokeMethod(
-        "root/SampleProvider",
+        "test/TestProvider",
         path,
         "SendTestIndication",
         inParams,
@@ -339,16 +339,16 @@ int main(int argc, char** argv)
       return -1;
     }
 
-    String query1="SELECT MethodName FROM rt_testindication";
+    String query1="SELECT MethodName FROM Test_IndicationProviderClass";
 
     // Note that CQL expects single quote around string literals,
     // while WQL expects double quote.
     // Note that CQL use <> for the inequality operator.
     String query2wql =
-        "SELECT MethodName FROM RT_TestIndication "
+        "SELECT MethodName FROM Test_IndicationProviderClass "
             "WHERE IndicationIdentifier != \"x\"";
     String query2cql =
-        "SELECT MethodName FROM RT_TestIndication "
+        "SELECT MethodName FROM Test_IndicationProviderClass "
             "WHERE IndicationIdentifier <> 'x'";
 
     String wql("WQL");

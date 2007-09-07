@@ -45,6 +45,7 @@ DIRS = \
 	IndicationStressTestProvider \
 	IndicationStressTestProvider/testclient \
 	IndicationStressTestProvider/testconsumer \
+	IndicationTestProvider \
 	InstanceProvider \
 	InstanceProvider/testclient \
 	ChunkingStressProvider \

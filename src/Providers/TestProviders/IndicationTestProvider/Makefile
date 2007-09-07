@@ -30,8 +30,29 @@
 #//==============================================================================
 include $(PEGASUS_ROOT)/mak/config.mak
 
-DIRS = \
-	RT_IndicationProvider \
-        RT_IndicationConsumer
+DIR = Providers/TestProviders/IndicationTestProvider
 
-include $(PEGASUS_ROOT)/mak/recurse.mak
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
+LIBRARY = IndicationTestProvider
+
+LIBRARIES = \
+    pegqueryexpression \
+    pegprovider
+	
+ifndef PEGASUS_DISABLE_CQL
+    LIBRARIES += \
+        pegcql
+endif
+
+LIBRARIES += \
+    pegwql \
+    pegquerycommon \
+    pegclient \
+    pegcommon
+    
+SOURCES = \
+    IndicationTestProviderMain.cpp \
+    IndicationTestProvider.cpp
+
+include $(PEGASUS_ROOT)/mak/dynamic-library.mak

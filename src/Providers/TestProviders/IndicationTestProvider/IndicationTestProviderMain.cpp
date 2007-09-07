@@ -34,16 +34,16 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 
-#include "RT_IndicationProvider.h"
+#include "IndicationTestProvider.h"
 
 PEGASUS_USING_PEGASUS;
 
 extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(
     const String& providerName)
 {
-    if (String::equalNoCase(providerName, "RT_IndicationProvider"))
+    if (String::equalNoCase(providerName, "IndicationTestProvider"))
     {
-        return new RT_IndicationProvider();
+        return new IndicationTestProvider();
     }
 
     return 0;

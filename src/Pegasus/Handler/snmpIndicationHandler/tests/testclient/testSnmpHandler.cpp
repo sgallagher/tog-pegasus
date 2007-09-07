@@ -44,14 +44,14 @@ PEGASUS_USING_STD;
 
 // Interop namespace used with PEGASUS_NAMESPACENAME_INTEROP in Constants.h
 const CIMNamespaceName SOURCE_NAMESPACE =
-    CIMNamespaceName ("root/SampleProvider");
+    CIMNamespaceName ("test/TestProvider");
 
-const String INDICATION_CLASS_NAME = String ("RT_TestIndication");
+const String INDICATION_CLASS_NAME = "Test_IndicationProviderClass";
 
-const String SNMPV1_HANDLER_NAME = String ("SNMPHandler01");
-const String SNMPV2C_HANDLER_NAME = String ("SNMPHandler02");
-const String SNMPV2C_IPV6_HANDLER_NAME = String ("SNMPHandler03");
-const String FILTER_NAME = String ("IPFilter01");
+const String SNMPV1_HANDLER_NAME = "SNMPHandler01";
+const String SNMPV2C_HANDLER_NAME = "SNMPHandler02";
+const String SNMPV2C_IPV6_HANDLER_NAME = "SNMPHandler03";
+const String FILTER_NAME = "IPFilter01";
 
 enum SNMPVersion {_SNMPV1_TRAP = 2, _SNMPV2C_TRAP = 3};
 enum TargetHostFormat {_HOST_NAME = 2, _IPV4_ADDRESS = 3, _IPV6_ADDRESS = 4};
@@ -209,7 +209,7 @@ void _sendTestIndication(
     Sint32 result;
 
     CIMObjectPath className (String::EMPTY, CIMNamespaceName (),
-        CIMName ("RT_TestIndication"), keyBindings);
+        CIMName ("Test_IndicationProviderClass"), keyBindings);
 
     inParams.append(CIMParamValue(String("indicationSendCount"),
         CIMValue(indicationSendCount)));
@@ -279,7 +279,7 @@ void _setup (CIMClient & client, const String& qlang)
     try
     {
         filterObjectPath = _createFilterInstance (client, FILTER_NAME,
-            String ("SELECT * FROM RT_TestIndication"),
+            String ("SELECT * FROM Test_IndicationProviderClass"),
             qlang);
     }
     catch (CIMException& e)

@@ -41,7 +41,7 @@
 #include <Pegasus/Query/QueryExpression/QueryExpression.h>
 #include <Pegasus/Provider/CIMOMHandleQueryContext.h>
 
-#include "RT_IndicationProvider.h"
+#include "IndicationTestProvider.h"
 
 PEGASUS_USING_STD;
 
@@ -52,7 +52,7 @@ static Boolean _enabled = false;
 static Uint32 _nextUID = 0;
 static Uint32 _numSubscriptions = 0;
 
-RT_IndicationProvider::RT_IndicationProvider() throw ()
+IndicationTestProvider::IndicationTestProvider() throw ()
 {
 #if defined(PEGASUS_OS_DARWIN)
     _handler = 0;
@@ -62,21 +62,21 @@ RT_IndicationProvider::RT_IndicationProvider() throw ()
 #endif
 }
 
-RT_IndicationProvider::~RT_IndicationProvider() throw ()
+IndicationTestProvider::~IndicationTestProvider() throw ()
 {
 }
 
-void RT_IndicationProvider::initialize(CIMOMHandle& cimom)
+void IndicationTestProvider::initialize(CIMOMHandle& cimom)
 {
   _cimom = cimom;
 }
 
-void RT_IndicationProvider::terminate()
+void IndicationTestProvider::terminate()
 {
     delete this;
 }
 
-void RT_IndicationProvider::enableIndications(
+void IndicationTestProvider::enableIndications(
     IndicationResponseHandler& handler)
 {
     //
@@ -103,13 +103,13 @@ void _generateIndication(
 
         if (methodName.equal("SendTestIndicationSubclass"))
         {
-            CIMInstance theIndication(CIMName("RT_TestIndicationSubclass"));
-            indicationInstance = theIndication;
+            indicationInstance =
+                CIMInstance(CIMName("Test_IndicationProviderSubclass"));
         }
         else
         {
-            CIMInstance theIndication(CIMName("RT_TestIndication"));
-            indicationInstance = theIndication;
+            indicationInstance =
+                CIMInstance(CIMName("Test_IndicationProviderClass"));
         }
 
         CIMObjectPath path;
@@ -123,7 +123,7 @@ void _generateIndication(
             //  registered)
             //
             path.setNameSpace("root/cimv2");
-            path.setClassName("RT_TestIndication");
+            path.setClassName("Test_IndicationProviderClass");
         }
         else if (methodName.equal("SendTestIndicationUnmatchingClassName"))
         {
@@ -137,22 +137,22 @@ void _generateIndication(
             //  (nor does it match the classname for which provider has
             //  registered)
             //
-            path.setNameSpace("root/SampleProvider");
+            path.setNameSpace("test/TestProvider");
             path.setClassName("CIM_AlertIndication");
         }
         else if (methodName.equal("SendTestIndicationSubclass"))
         {
             //
             //  For SendTestIndicationSubclass, generate an indication instance
-            //  of a the RT_TestIndicationSubclass subclass
+            //  of a the Test_IndicationProviderSubclass subclass
             //
-            path.setNameSpace("root/SampleProvider");
-            path.setClassName("RT_TestIndicationSubclass");
+            path.setNameSpace("test/TestProvider");
+            path.setClassName("Test_IndicationProviderSubclass");
         }
         else
         {
-            path.setNameSpace("root/SampleProvider");
-            path.setClassName("RT_TestIndication");
+            path.setNameSpace("test/TestProvider");
+            path.setClassName("Test_IndicationProviderClass");
         }
 
         indicationInstance.setPath(path);
@@ -310,39 +310,39 @@ void _generateIndication(
     }
 }
 
-void RT_IndicationProvider::disableIndications()
+void IndicationTestProvider::disableIndications()
 {
     _enabled = false;
     _handler->complete();
 }
 
-void RT_IndicationProvider::createSubscription(
+void IndicationTestProvider::createSubscription(
     const OperationContext& context,
     const CIMObjectPath& subscriptionName,
     const Array <CIMObjectPath>& classNames,
     const CIMPropertyList& propertyList,
     const Uint16 repeatNotificationPolicy)
 {
-    String funcName("RT_IndicationProvider::createSubscription ");
+    String funcName("IndicationTestProvider::createSubscription ");
     _checkOperationContext(context, funcName);
 
     _numSubscriptions++;
 }
 
-void RT_IndicationProvider::modifySubscription(
+void IndicationTestProvider::modifySubscription(
     const OperationContext& context,
     const CIMObjectPath& subscriptionName,
     const Array <CIMObjectPath>& classNames,
     const CIMPropertyList& propertyList,
     const Uint16 repeatNotificationPolicy)
 {
-    String funcName("RT_IndicationProvider::modifySubscription ");
+    String funcName("IndicationTestProvider::modifySubscription ");
     _checkOperationContext(context, funcName);
 
     _generateIndication(_handler, "modifySubscription", 0);
 }
 
-void RT_IndicationProvider::deleteSubscription(
+void IndicationTestProvider::deleteSubscription(
     const OperationContext& context,
     const CIMObjectPath& subscriptionName,
     const Array <CIMObjectPath>& classNames)
@@ -353,7 +353,7 @@ void RT_IndicationProvider::deleteSubscription(
         _enabled = false;
 }
 
-void RT_IndicationProvider::invokeMethod(
+void IndicationTestProvider::invokeMethod(
     const OperationContext& context,
     const CIMObjectPath& objectReference,
     const CIMName& methodName,
@@ -364,7 +364,7 @@ void RT_IndicationProvider::invokeMethod(
     Boolean sendIndication = false;
     handler.processing();
 
-    if (objectReference.getClassName().equal("RT_TestIndication") &&
+    if (objectReference.getClassName().equal("Test_IndicationProviderClass") &&
         _enabled)
     {
         if ((methodName.equal("SendTestIndication")) ||
@@ -387,7 +387,7 @@ void RT_IndicationProvider::invokeMethod(
     }
 
     else if ((objectReference.getClassName().equal(
-                 "RT_TestIndicationSubclass")) &&
+                 "Test_IndicationProviderSubclass")) &&
              _enabled)
     {
         if (methodName.equal("SendTestIndicationSubclass"))
@@ -416,7 +416,7 @@ void RT_IndicationProvider::invokeMethod(
     }
 }
 
-void RT_IndicationProvider::_checkOperationContext(
+void IndicationTestProvider::_checkOperationContext(
     const OperationContext& context,
     const String& funcName)
 {
@@ -439,7 +439,7 @@ void RT_IndicationProvider::_checkOperationContext(
             funcName + "- empty filter query lang");
     }
 
-    CIMNamespaceName tst("root/SampleProvider");
+    CIMNamespaceName tst("test/TestProvider");
     if (!qContainer.getSourceNameSpace().equal(tst))
     {
         PEGASUS_STD(cout) << funcName << "- incorrect source namespace" <<

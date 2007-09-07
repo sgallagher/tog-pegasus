@@ -36,7 +36,6 @@ DIRS = \
 	MethodProvider \
 	IndicationProvider \
 	SNMPIndicationProvider \
-	RT_Indication \
 	AssociationProvider \
 	AssociationProvider/testclient
 

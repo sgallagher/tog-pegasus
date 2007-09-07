@@ -47,10 +47,6 @@ include $(ROOT)/mak/configschema.mak
 SAMPLEPROVIDERNS=root/SampleProvider
 SAMPLEPROVIDERNSDIRECTORY=$(REPOSITORY_ROOT)/root\#SampleProvider
 
-# The RT_Indication class definition must also be loaded into another namespace
-# for testing
-CIMV2NS=root/cimv2
-
 # Load the sample MOF with the local compiler.
 repository:
 	@ $(ECHO) +++++ Loading TestLifecycleIndication class definitions into $(SAMPLEPROVIDERNS) namespace...

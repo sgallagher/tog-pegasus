@@ -63,13 +63,13 @@ DIRS = \
 
 ifndef PEGASUS_DISABLE_CQL
 DIRS += \
-    TestCMPIBroker \
-    TestCMPIBroker/tests \
     TestIndications \
     TestIndications/tests
 
 ifdef PEGASUS_ENABLE_EXECQUERY
 DIRS += \
+    TestCMPIBroker \
+    TestCMPIBroker/tests \
     TestExecQuery \
     TestExecQuery/tests
 endif

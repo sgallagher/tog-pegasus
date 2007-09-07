@@ -31,6 +31,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+// NOCHKSRC
+
 #include "JMPIImpl.h"
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
@@ -1798,6 +1800,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMClient__1newNaUnPw
 
    SSLContext *sslContext = 0; // initialized for unencrypted connection
 
+#ifdef PEGASUS_HAS_SSL
    if (cNs->isHttps ())
    {
       try
@@ -1812,6 +1815,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMClient__1newNaUnPw
         return jCc;
       }
    }
+#endif
 
    try {
       CIMClient *cc = new CIMClient ();

@@ -118,12 +118,12 @@ struct Cvt<Sint64>
     }
 };
 
-template<class S, class U>
+template<class S, class U, Sint64 LO, Sint64 HI>
 struct Test
 {
     static void testUint(const char* format)
     {
-        for (Uint64 i = 0; i < Uint64(HI); i++)
+        for (Uint64 i = 0; i <= Uint64(HI); i++)
         {
             const char* str;
             char buffer1[32];
@@ -140,7 +140,7 @@ struct Test
 
     static void testSint(const char* format)
     {
-        for (Sint64 i = LO; i < HI; i++)
+        for (Sint64 i = LO; i <= HI; i++)
         {
             const char* str;
             char buffer1[32];
@@ -159,14 +159,16 @@ struct Test
 
 void testIntegerToStringConversions()
 {
-    Test<Sint8, Uint8>::testUint("%u");
-    Test<Sint16, Uint16>::testUint("%u");
-    Test<Sint32, Uint32>::testUint("%u");
-    Test<Sint64, Uint64>::testUint("%" PEGASUS_64BIT_CONVERSION_WIDTH "u");
-    Test<Sint8, Uint8>::testSint("%d");
-    Test<Sint16, Uint16>::testSint("%d");
-    Test<Sint32, Uint32>::testSint("%d");
-    Test<Sint64, Uint64>::testSint("%" PEGASUS_64BIT_CONVERSION_WIDTH "d");
+    Test<Sint8, Uint8, -128, 127>::testUint("%u");
+    Test<Sint16, Uint16, 0, 65535>::testUint("%u");
+    Test<Sint32, Uint32, LO, HI>::testUint("%u");
+    Test<Sint64, Uint64, LO, HI>::testUint(
+        "%" PEGASUS_64BIT_CONVERSION_WIDTH "u");
+    Test<Sint8, Uint8, 0, 255>::testSint("%d");
+    Test<Sint16, Uint16, 0, 65555>::testSint("%d");
+    Test<Sint32, Uint32, LO, HI>::testSint("%d");
+    Test<Sint64, Uint64, LO, HI>::testSint(
+        "%" PEGASUS_64BIT_CONVERSION_WIDTH "d");
 }
 
 void testHexCharToNumeric()

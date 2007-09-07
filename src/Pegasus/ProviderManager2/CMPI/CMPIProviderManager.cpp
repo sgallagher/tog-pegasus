@@ -2490,13 +2490,13 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
                     {
                         MessageLoaderParms msg("ProviderManager.CMPI."
                             "CMPIProviderManager.PARAMETER_NOT_FOUND",
-                            "Parameter {0} not found in definition for "
-                            "method {1}.", currentParamName,
+                            "Parameter $0 not found in definition for "
+                            "method $1.", currentParamName,
                             request->methodName.getString());
                         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                            msg.toString());
+                            MessageLoader::getMessage(msg));
                         handler.setStatus(CIM_ERR_FAILED,
-                            msg.toString());
+                            MessageLoader::getMessage(msg));
                     }
                     else
                     {
@@ -2893,9 +2893,12 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
         WriteLock writeLock(rwSemSelxTab);
         if (!selxTab.lookup(sPath,srec))
         {
+            MessageLoaderParms parms(
+                "ProviderManager.CMPI.CMPIProviderManager."
+                "FAILED_LOCATE_SUBSCRIPTION_FILTER",
+                "Failed to locate the subscription filter.");
             // failed to get select expression from hash table
-            throw CIMException(CIM_ERR_FAILED,
-                "CMPI Provider Manager Failed to locate subscription filter.");
+            throw CIMException(CIM_ERR_FAILED, parms);
         };
 
         CMPI_SelectExp *eSelx=srec->eSelx;

@@ -137,9 +137,13 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
 
                     if (pr->getStatus () != CMPIProvider::INITIALIZED)
                     {
+                        MessageLoaderParms parms(
+                            "ProviderManager.CMPI.CMPILocalProviderManager."
+                            "CANNOT_INIT_PROVIDER",
+                            "Failed to initialize the provider $0.",
+                            pr->getName());
                         PEG_METHOD_EXIT ();
-                        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED,
-                            "provider initialization failed");
+                        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
                     }
                 }
 

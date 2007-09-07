@@ -233,55 +233,6 @@ String System::getHostName()
     return _hostname;
 }
 
-static int _getHostByName(
-    const char* hostName,
-    char* hostNameOut,
-    size_t hostNameOutSize)
-{
-    struct hostent *hostEntry;
-
-#if defined(PEGASUS_OS_LINUX)
-
-    char hostEntryBuffer[8192];
-    struct hostent hostEntryStruct;
-    int hostEntryErrno;
-
-    gethostbyname_r(
-        hostName,
-        &hostEntryStruct,
-        hostEntryBuffer,
-        sizeof(hostEntryBuffer),
-        &hostEntry,
-        &hostEntryErrno);
-
-#elif defined(PEGASUS_OS_SOLARIS)
-
-    char hostEntryBuffer[8192];
-    struct hostent hostEntryStruct;
-    int hostEntryErrno;
-
-    hostEntry = gethostbyname_r(
-        hostName,
-        &hostEntryStruct,
-        hostEntryBuffer,
-        sizeof(hostEntryBuffer),
-        &hostEntryErrno);
-
-#else /* default */
-
-    hostEntry = gethostbyname(hostName);
-
-#endif
-
-    if (hostEntry)
-    {
-        strncpy(hostNameOut, hostEntry->h_name, hostNameOutSize - 1);
-        return 0;
-    }
-
-    return -1;
-}
-
 String System::getFullyQualifiedHostName ()
 {
 #if defined(PEGASUS_OS_ZOS)
@@ -301,7 +252,7 @@ String System::getFullyQualifiedHostName ()
     hint.ai_family = AF_UNSPEC; // any family
     hint.ai_socktype = 0;       // any socket type
     hint.ai_protocol = 0;       // any protocol
-    int success = getaddrinfo(hostName, NULL, &hint, &resolv);
+    int success = getAddrInfo(hostName, NULL, &hint, &resolv);
     if (success==0)
     {
         // assign fully qualified hostname
@@ -309,7 +260,7 @@ String System::getFullyQualifiedHostName ()
     }
     else
     {
-        if ((he = gethostbyname(hostName)))
+        if ((he = getHostByName(hostName)))
         {
             strcpy (hostName, he->h_name);
         }
@@ -323,16 +274,23 @@ String System::getFullyQualifiedHostName ()
     return fqName;
 
 #else /* !PEGASUS_OS_ZOS */
-
+    struct hostent* hostEntry;
     char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
 
     if (gethostname(hostName, sizeof(hostName)) != 0)
         return String::EMPTY;
 
-    hostName[sizeof(hostName)-1] = 0;
+    hostName[sizeof(hostName) - 1] = 0;
 
-    _getHostByName(hostName, hostName, sizeof(hostName));
+    char hostEntryBuffer[8192];
+    struct hostent hostEntryStruct;
+    hostEntry = getHostByName(hostName, &hostEntryStruct, hostEntryBuffer, 
+        sizeof (hostEntryBuffer));
 
+    if (hostEntry)
+    {
+        strncpy(hostName, hostEntry->h_name, sizeof(hostName) - 1);
+    }
     return String(hostName);
 
 #endif /* !PEGASUS_OS_ZOS */

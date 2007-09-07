@@ -38,6 +38,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/Network.h>
 #include <sys/stat.h>
 
 
@@ -124,6 +125,43 @@ public:
     static String getHostName();
     static String getFullyQualifiedHostName ();
     static String getSystemCreationClassName ();
+
+    // The following 2 methods are wrappers around system functions 
+    // gethostbyname/gethostbyaddr or gethostbyname_r/gethostbyaddr_r.
+    // In addition to calling corresponding system functions, these
+    // methods introduce re-tries when errno is set to TRY_AGAIN.
+    // Optional parameters are required to cover systems which use '_r'
+    // versions of the system functions.
+    static struct hostent* getHostByName(
+        const char* name, 
+        struct hostent* he = 0, 
+        char* buf = 0, 
+        size_t len = 0);
+    static struct hostent* getHostByAddr(
+        const char *addr, 
+        int len, 
+        int type,
+        struct hostent* he = 0, 
+        char* buf = 0, 
+        size_t buflen = 0);
+
+    // The following 2 methods are wrappers around system functions 
+    // getaddrinfo/getnameinfo. 
+    // In addition to calling corresponding system functions, these
+    // methods introduce re-tries on EAI_AGAIN error returns.
+    static int getAddrInfo(
+        const char *hostname, 
+        const char *servname,
+        const struct addrinfo *hints, 
+        struct addrinfo **res);
+    static int getNameInfo(
+        const struct sockaddr *sa, 
+        size_t salen,
+        char *host, 
+        size_t hostlen, 
+        char *serv, 
+        size_t servlen, 
+        int flags);
 
     // Gets IP address assosiated with hostName. af indicates the
     // type of address (ipv4 or ipv6) returned.

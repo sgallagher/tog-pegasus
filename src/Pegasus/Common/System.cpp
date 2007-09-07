@@ -194,7 +194,7 @@ Boolean System::getHostIP(const String &hostName, int *af, String &hostIP)
     hints.ai_family = *af;
     hints.ai_protocol = IPPROTO_TCP;   
     hints.ai_socktype = SOCK_STREAM;
-    if (!getaddrinfo(hostName.getCString(), 0, &hints, &info))
+    if (!getAddrInfo(hostName.getCString(), 0, &hints, &info))
     {
         char ipAddress[PEGASUS_INET_ADDRSTR_LEN];
         HostAddress::convertBinaryToText(info->ai_family, 
@@ -211,7 +211,7 @@ Boolean System::getHostIP(const String &hostName, int *af, String &hostIP)
     hints.ai_family = *af;
     hints.ai_protocol = IPPROTO_TCP;
     hints.ai_socktype = SOCK_STREAM;
-    if (!getaddrinfo(hostName.getCString(), 0, &hints, &info))
+    if (!getAddrInfo(hostName.getCString(), 0, &hints, &info))
     {
         char ipAddress[PEGASUS_INET6_ADDRSTR_LEN];
         HostAddress::convertBinaryToText(info->ai_family,
@@ -232,40 +232,19 @@ Boolean System::getHostIP(const String &hostName, int *af, String &hostIP)
     CString hostNameCString = hostName.getCString();
     const char* hostNamePtr = hostNameCString;
 
-#if defined(PEGASUS_OS_LINUX)
     char hostEntryBuffer[8192];
     struct hostent hostEntryStruct;
-    int hostEntryErrno;
-
-    gethostbyname_r(
-        hostNamePtr,
-        &hostEntryStruct,
-        hostEntryBuffer,
-        sizeof(hostEntryBuffer),
-        &hostEntry,
-        &hostEntryErrno);
-#elif defined(PEGASUS_OS_SOLARIS)
-    char hostEntryBuffer[8192];
-    struct hostent hostEntryStruct;
-    int hostEntryErrno;
-
-    hostEntry = gethostbyname_r(
-        (char *)hostNamePtr,
-        &hostEntryStruct,
-        hostEntryBuffer,
-        sizeof(hostEntryBuffer),
-        &hostEntryErrno);
-#else
-    hostEntry = gethostbyname(hostNamePtr);
-#endif
+    hostEntry = getHostByName(hostNamePtr, &hostEntryStruct, 
+        hostEntryBuffer, sizeof (hostEntryBuffer));
 
     if (hostEntry)
     {
         ::memcpy( &inaddr, hostEntry->h_addr,4);
         ipAddress = ::inet_ntoa( inaddr );
+        hostIP = ipAddress;
+        return true;
     }
-    hostIP = ipAddress;
-    return true;
+    return false;
 #endif
 }
 
@@ -299,7 +278,7 @@ Boolean System::_acquireIP(const char* hostname, int *af, void *dst)
 #ifdef PEGASUS_ENABLE_IPV6
     String ipAddress;
     if(getHostIP(hostname, af, ipAddress))
-{
+    {
         HostAddress::convertTextToBinary(*af, ipAddress.getCString(), dst);
         return true;
     }
@@ -322,7 +301,6 @@ Boolean System::_acquireIP(const char* hostname, int *af, void *dst)
 ////////////////////////////////////////////////////////////////////////////////
 
     Uint32 tmp_addr = inet_addr((char *) hostname);
-
     struct hostent* hostEntry;
 
 // Note: 0xFFFFFFFF is actually a valid IP address (255.255.255.255).
@@ -331,44 +309,11 @@ Boolean System::_acquireIP(const char* hostname, int *af, void *dst)
 
     if (tmp_addr == 0xFFFFFFFF)  // if hostname is not an IP address
     {
-#if defined(PEGASUS_OS_LINUX)
         char hostEntryBuffer[8192];
         struct hostent hostEntryStruct;
-        int hostEntryErrno;
+        hostEntry = getHostByName(hostname, &hostEntryStruct, 
+            hostEntryBuffer, sizeof (hostEntryBuffer));
 
-        gethostbyname_r(
-            hostname,
-            &hostEntryStruct,
-            hostEntryBuffer,
-            sizeof(hostEntryBuffer),
-            &hostEntry,
-            &hostEntryErrno);
-#elif defined(PEGASUS_OS_SOLARIS)
-        char hostEntryBuffer[8192];
-        struct hostent hostEntryStruct;
-        int hostEntryErrno;
-
-        hostEntry = gethostbyname_r(
-            (char *)hostname,
-            &hostEntryStruct,
-            hostEntryBuffer,
-            sizeof(hostEntryBuffer),
-            &hostEntryErrno);
-#elif defined(PEGASUS_OS_ZOS)
-        char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
-        if (String::equalNoCase("localhost",String(hostname)))
-        {
-            gethostname( hostName, PEGASUS_MAXHOSTNAMELEN );
-            hostName[sizeof(hostName)-1] = 0;
-            hostEntry = gethostbyname(hostName);
-        }
-        else
-        {
-            hostEntry = gethostbyname((char *)hostname);
-        }
-#else
-        hostEntry = gethostbyname((char *)hostname);
-#endif
         if (!hostEntry)
         {
             // error, couldn't resolve the ip
@@ -391,37 +336,12 @@ Boolean System::_acquireIP(const char* hostname, int *af, void *dst)
         // resolve hostaddr to a real host entry
         // casting to (const char *) as (char *) will work as (void *) too,
         // those it fits all platforms
-#if defined(PEGASUS_OS_LINUX)
         char hostEntryBuffer[8192];
         struct hostent hostEntryStruct;
-        int hostEntryErrno;
+        hostEntry = 
+            getHostByAddr((const char*) &tmp_addr, sizeof(tmp_addr), AF_INET, 
+                &hostEntryStruct, hostEntryBuffer, sizeof (hostEntryBuffer));
 
-        gethostbyaddr_r(
-            (const char*) &tmp_addr,
-            sizeof(tmp_addr),
-            AF_INET,
-            &hostEntryStruct,
-            hostEntryBuffer,
-            sizeof(hostEntryBuffer),
-            &hostEntry,
-            &hostEntryErrno);
-#elif defined(PEGASUS_OS_SOLARIS)
-        char hostEntryBuffer[8192];
-        struct hostent hostEntryStruct;
-        int hostEntryErrno;
-
-        hostEntry = gethostbyaddr_r(
-            (const char *) &tmp_addr,
-            sizeof(tmp_addr),
-            AF_INET,
-            &hostEntryStruct,
-            hostEntryBuffer,
-            sizeof(hostEntryBuffer),
-            &hostEntryErrno);
-#else
-        hostEntry =
-            gethostbyaddr((const char *) &tmp_addr, sizeof(tmp_addr), AF_INET);
-#endif
         if (hostEntry == 0)
         {
             // error, couldn't resolve the ip
@@ -452,37 +372,16 @@ Boolean System::resolveHostNameAtDNS(
     const char* hostname,
     Uint32* resolvedNameIP)
 {
+    struct hostent* hostEntry;
+
     // ask the DNS for hostname resolution to IP address
     // this can mean a time delay for as long as the DNS
     // takes to answer
-    struct hostent* hostEntry;
-
-#if defined(PEGASUS_OS_LINUX)
     char hostEntryBuffer[8192];
     struct hostent hostEntryStruct;
-    int hostEntryErrno;
+    hostEntry = getHostByName(hostname, &hostEntryStruct, 
+        hostEntryBuffer, sizeof (hostEntryBuffer));
 
-    gethostbyname_r(
-        hostname,
-        &hostEntryStruct,
-        hostEntryBuffer,
-        sizeof(hostEntryBuffer),
-        &hostEntry,
-        &hostEntryErrno);
-#elif defined(PEGASUS_OS_SOLARIS)
-    char hostEntryBuffer[8192];
-    struct hostent hostEntryStruct;
-    int hostEntryErrno;
-
-    hostEntry = gethostbyname_r(
-        (char *)hostname,
-        &hostEntryStruct,
-        hostEntryBuffer,
-        sizeof(hostEntryBuffer),
-        &hostEntryErrno);
-#else
-    hostEntry = gethostbyname((char *)hostname);
-#endif
     if (hostEntry == 0)
     {
         // error, couldn't resolve the hostname to an ip address
@@ -507,7 +406,7 @@ Boolean System::resolveIPAtDNS(Uint32 ip_addr, Uint32 * resolvedIP)
 {
     struct hostent *entry;
 
-    entry = gethostbyaddr((const char *) &ip_addr, sizeof(ip_addr), AF_INET);
+    entry = getHostByAddr((const char *) &ip_addr, sizeof(ip_addr), AF_INET);
     
     if (entry == 0)
     {
@@ -565,8 +464,8 @@ Boolean System::isLocalHost(const String &hostName)
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
     res1root = res2root = 0;
-    getaddrinfo(csName, 0, &hints, &res1root);
-    getaddrinfo(localHostName, 0, &hints, &res2root);
+    getAddrInfo(csName, 0, &hints, &res1root);
+    getAddrInfo(localHostName, 0, &hints, &res2root);
 
     res1 = res1root;
     while (res1 && !isLocal)
@@ -604,8 +503,8 @@ Boolean System::isLocalHost(const String &hostName)
 
     hints.ai_family = AF_INET6;
     res1root = res2root = 0;
-    getaddrinfo(csName, 0, &hints, &res1root);
-    getaddrinfo(localHostName, 0, &hints, &res2root);
+    getAddrInfo(csName, 0, &hints, &res1root);
+    getAddrInfo(localHostName, 0, &hints, &res2root);
 
     res1 = res1root;
     while (res1 && !isLocal)
@@ -726,8 +625,144 @@ Boolean System::isLocalHost(const String &hostName)
 #endif
 }
 
+struct hostent* System::getHostByName(
+    const char* name, 
+    struct hostent* he, 
+    char* buf, 
+    size_t len)
+{
+    int hostEntryErrno = 0;
+    struct hostent* hostEntry = 0;
+    unsigned int maxTries = 5;
+
+    do
+    {
+#if defined(PEGASUS_OS_LINUX)
+        gethostbyname_r(name, 
+            he, 
+            buf, 
+            len, 
+            &hostEntry, 
+            &hostEntryErrno);
+#elif defined(PEGASUS_OS_SOLARIS)
+        hostEntry = gethostbyname_r((char *)name, 
+                        he, 
+                        buf, 
+                        len, 
+                        &hostEntryErrno);
+#elif defined(PEGASUS_OS_ZOS)
+        char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
+        if (String::equalNoCase("localhost", String(name)))
+        {
+            gethostname(hostName, PEGASUS_MAXHOSTNAMELEN);
+            hostName[sizeof(hostName) - 1] = 0;
+            hostEntry = gethostbyname(hostName);
+        }
+        else
+        {
+            hostEntry = gethostbyname((char *)name);
+        }
+        hostEntryErrno = h_errno;
+#else
+        hostEntry = gethostbyname((char *)name);
+        hostEntryErrno = h_errno;
+#endif
+    } while (hostEntry == 0 && hostEntryErrno == TRY_AGAIN &&
+             maxTries-- > 0);
+
+    return hostEntry;
+}
+
+struct hostent* System::getHostByAddr(
+    const char *addr, 
+    int len, 
+    int type,
+    struct hostent* he, 
+    char* buf, 
+    size_t buflen)
+{
+    int hostEntryErrno = 0;
+    struct hostent* hostEntry = 0;
+    unsigned int maxTries = 5;
+
+    do
+    {
+#if defined(PEGASUS_OS_LINUX)
+        gethostbyaddr_r(addr, 
+            len, 
+            type, 
+            he, 
+            buf, 
+            buflen, 
+            &hostEntry, 
+            &hostEntryErrno);
+#elif defined(PEGASUS_OS_SOLARIS)
+        char hostEntryBuffer[8192];
+        struct hostent hostEntryStruct;
+
+        hostEntry = gethostbyaddr_r(addr, 
+                        len, 
+                        type, 
+                        he, 
+                        buf, 
+                        buflen, 
+                        &hostEntryErrno);
+#else
+        hostEntry = gethostbyaddr(addr, 
+                        len, 
+                        type);
+        hostEntryErrno = h_errno;
+#endif
+    } while (hostEntry == 0 && hostEntryErrno == TRY_AGAIN &&
+             maxTries-- > 0);
+
+    return hostEntry;
+}
+
+int System::getAddrInfo(
+    const char *hostname, 
+    const char *servname,
+    const struct addrinfo *hints, 
+    struct addrinfo **res)
+{
+    int rc = 0;
+    unsigned int maxTries = 5; 
+
+    while ((rc = getaddrinfo(hostname, 
+                     servname, 
+                     hints, 
+                     res)) == EAI_AGAIN &&
+           maxTries-- > 0)
+        ;
+    return rc;
+}
+
+int System::getNameInfo(
+    const struct sockaddr *sa, 
+    size_t salen,
+    char *host, 
+    size_t hostlen, 
+    char *serv, 
+    size_t servlen, 
+    int flags)
+{
+    int rc = 0;
+    unsigned int maxTries = 5; 
+
+    while ((rc = getnameinfo(sa, 
+                     salen, 
+                     host, 
+                     hostlen, 
+                     serv, 
+                     servlen, 
+                     flags)) == EAI_AGAIN &&
+           maxTries-- > 0)
+        ;
+    return rc;
+}
+
+
 // System ID constants for Logger::put and Logger::trace
 const String System::CIMLISTENER = "cimlistener"; // Listener systme ID
 
 PEGASUS_NAMESPACE_END
-

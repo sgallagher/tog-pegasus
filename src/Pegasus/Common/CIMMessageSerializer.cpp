@@ -825,6 +825,35 @@ void CIMMessageSerializer::_serializeCIMObject(
 }
 
 //
+// _serializeCIMParamValue
+//
+void CIMMessageSerializer::_serializeCIMParamValue(
+    Buffer& out,
+    const CIMParamValue& paramValue)
+{
+    if (paramValue.getValue().isNull())
+    {
+        // The CIM-XML encoding does not preserve type information for null
+        // parameter values, so use our own PGNULLPARAMVALUE element to encode
+        // null parameter values with their type information.
+
+        out << STRLIT("<PGNULLPARAMVALUE PARAMTYPE=\"")
+            << cimTypeToString(paramValue.getValue().getType())
+            << STRLIT("\">\n");
+
+        XmlWriter::appendValueElement(out, paramValue.getParameterName());
+        XmlWriter::appendValueElement(out, paramValue.getValue().isArray());
+
+        out << STRLIT("</PGNULLPARAMVALUE>\n");
+    }
+    else
+    {
+        XmlWriter::appendParamValueElement(out, paramValue);
+    }
+}
+
+
+//
 //
 // Request Messages
 //
@@ -996,7 +1025,7 @@ void CIMMessageSerializer::_serializeCIMSetPropertyRequestMessage(
     _serializeCIMObjectPath(out, message->instanceName);
 
     // Use PARAMVALUE element so we can preserve the CIMType information
-    XmlWriter::appendParamValueElement(
+    _serializeCIMParamValue(
         out,
         CIMParamValue(
             message->propertyName.getString(), message->newValue, true));
@@ -1014,10 +1043,12 @@ void CIMMessageSerializer::_serializeCIMInvokeMethodRequestMessage(
 
     // Use PGPARAMS element so we can find the end of the PARAMVALUE elements
     XmlWriter::append(out, "<PGPARAMS>\n");
+
     for (Uint32 i=0; i < message->inParameters.size(); i++)
     {
-        XmlWriter::appendParamValueElement(out, message->inParameters[i]);
+        _serializeCIMParamValue(out, message->inParameters[i]);
     }
+
     XmlWriter::append(out, "</PGPARAMS>\n");
 }
 
@@ -1423,7 +1454,7 @@ void CIMMessageSerializer::_serializeCIMGetPropertyResponseMessage(
     CIMGetPropertyResponseMessage* message)
 {
     // Use PARAMVALUE element so we can preserve the CIMType information
-    XmlWriter::appendParamValueElement(
+    _serializeCIMParamValue(
         out,
         CIMParamValue(String("ignore"), message->value, true));
 }
@@ -1446,16 +1477,18 @@ void CIMMessageSerializer::_serializeCIMInvokeMethodResponseMessage(
     CIMInvokeMethodResponseMessage* message)
 {
     // Use PARAMVALUE element so we can preserve the CIMType information
-    XmlWriter::appendParamValueElement(
+    _serializeCIMParamValue(        
         out,
         CIMParamValue(String("ignore"), message->retValue, true));
 
     // Use PGPARAMS element so we can find the end of the PARAMVALUE elements
     XmlWriter::append(out, "<PGPARAMS>\n");
+
     for (Uint32 i=0; i < message->outParameters.size(); i++)
     {
-        XmlWriter::appendParamValueElement(out, message->outParameters[i]);
+        _serializeCIMParamValue(out, message->outParameters[i]);
     }
+
     XmlWriter::append(out, "</PGPARAMS>\n");
 
     _serializeCIMName(out, message->methodName);

@@ -989,6 +989,54 @@ Boolean CIMMessageDeserializer::_deserializeCIMObject(
 }
 
 //
+// _deserializeCIMParamValue
+//
+Boolean CIMMessageDeserializer::_deserializeCIMParamValue(
+    XmlParser& parser,
+    CIMParamValue& paramValue)
+{
+    XmlEntry entry;
+
+    if (XmlReader::getParamValueElement(parser, paramValue))
+    {
+        return true;
+    }
+
+    if (XmlReader::testStartTagOrEmptyTag(parser, entry, "PGNULLPARAMVALUE"))
+    {
+        // The parameter value is null; set the correct type
+
+        CIMValue genericValue;
+        CIMType type;
+        String name;
+        Boolean isArray;
+
+        Boolean found = XmlReader::getCimTypeAttribute(
+            parser.getLine(),
+            entry,
+            type,
+            "PGNULLPARAMVALUE",
+            "PARAMTYPE",
+            false);
+        PEGASUS_ASSERT(found);
+
+        XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+        genericValue.get(name);
+
+        XmlReader::getValueElement(parser, CIMTYPE_BOOLEAN, genericValue);
+        genericValue.get(isArray);
+
+        XmlReader::expectEndTag(parser, "PGNULLPARAMVALUE");
+
+        paramValue = CIMParamValue(name, CIMValue(type, isArray), true);
+        return true;
+    }
+
+    return false;
+}
+
+
+//
 //
 // Response Messages
 //
@@ -1403,7 +1451,7 @@ CIMMessageDeserializer::_deserializeCIMSetPropertyRequestMessage(
 
     _deserializeCIMObjectPath(parser, instanceName);
 
-    XmlReader::getParamValueElement(parser, newValue);
+    _deserializeCIMParamValue(parser, newValue);
 
     CIMSetPropertyRequestMessage* message =
         new CIMSetPropertyRequestMessage(
@@ -1435,7 +1483,7 @@ CIMMessageDeserializer::_deserializeCIMInvokeMethodRequestMessage(
 
     // Get inParameter array
     XmlReader::expectStartTag(parser, entry, "PGPARAMS");
-    while (XmlReader::getParamValueElement(parser, genericParamValue))
+    while (_deserializeCIMParamValue(parser, genericParamValue))
     {
         inParameters.append(genericParamValue);
     }
@@ -2184,7 +2232,7 @@ CIMMessageDeserializer::_deserializeCIMGetPropertyResponseMessage(
 {
     CIMParamValue value;
 
-    XmlReader::getParamValueElement(parser, value);
+    _deserializeCIMParamValue(parser, value);
 
     CIMGetPropertyResponseMessage* message =
         new CIMGetPropertyResponseMessage(
@@ -2225,11 +2273,11 @@ CIMMessageDeserializer::_deserializeCIMInvokeMethodResponseMessage(
     CIMName methodName;
     Array<CIMParamValue> outParameters;
 
-    XmlReader::getParamValueElement(parser, retValue);
+    _deserializeCIMParamValue(parser, retValue);
 
     // Get outParameter array
     XmlReader::expectStartTag(parser, entry, "PGPARAMS");
-    while (XmlReader::getParamValueElement(parser, genericParamValue))
+    while (_deserializeCIMParamValue(parser, genericParamValue))
     {
         outParameters.append(genericParamValue);
     }

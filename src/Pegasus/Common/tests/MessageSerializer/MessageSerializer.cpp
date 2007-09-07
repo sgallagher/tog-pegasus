@@ -2069,12 +2069,16 @@ void testMessageSerialization()
     CIMValue val2(CIMDateTime("20060209142430.123456-420"));
     CIMValue val3(path3);
     CIMValue val4(Boolean(false));
+    CIMValue val5(CIMTYPE_UINT8, false);
+    CIMValue val6(CIMTYPE_REFERENCE, true);
 
     // CIMParamValue Arrays
     CIMParamValue pv1;
     CIMParamValue pv2("1", val2);
     CIMParamValue pv3("HiMom", val3);
     CIMParamValue pv4("Howdy do?", val4);
+    CIMParamValue pv5("Test1", val5);
+    CIMParamValue pv6("Test2", val6);
     Array<CIMParamValue> pvArray1;
     Array<CIMParamValue> pvArray2;
     pvArray2.append(pv4);
@@ -2085,6 +2089,8 @@ void testMessageSerialization()
     pvArray4.append(pv4);
     pvArray4.append(pv3);
     pvArray4.append(pv2);
+    pvArray4.append(pv5);
+    pvArray4.append(pv6);
 
     // Boolean Arrays
     Array<Boolean> boolArray1;

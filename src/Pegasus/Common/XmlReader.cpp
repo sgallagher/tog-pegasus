@@ -4225,7 +4225,10 @@ Boolean XmlReader::getParamValueElement(
                 type = CIMTYPE_REFERENCE;
                 gotType = true;
             }
-            // If type==reference but no VALUE.REFERENCE found, use null value
+            else 
+            {
+                gotType = false; // Can't distinguish array and non-array types
+            }
         }
 
         // Parse non-reference value

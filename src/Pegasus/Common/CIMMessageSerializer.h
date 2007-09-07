@@ -142,6 +142,11 @@ private:
         Buffer& out,
         const CIMObject& object);
 
+    PEGASUS_HIDDEN_LINKAGE
+    static void _serializeCIMParamValue(
+        Buffer& out,
+        const CIMParamValue& paramValue);
+
     //
     //
     // CIM Request Messages

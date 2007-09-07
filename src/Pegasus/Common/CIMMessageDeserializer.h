@@ -129,6 +129,11 @@ private:
         XmlParser& parser,
         CIMObject& object);
 
+    PEGASUS_HIDDEN_LINKAGE
+    static Boolean _deserializeCIMParamValue(
+        XmlParser& parser,
+        CIMParamValue& paramValue);
+
     //
     //
     // CIM Request Messages

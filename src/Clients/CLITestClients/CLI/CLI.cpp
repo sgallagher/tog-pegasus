@@ -699,16 +699,14 @@ int main(int argc, char** argv)
                 case ID_InvokeMethod :
                     if (argc < 4)
                     {
-                        cout << "Usage: InvokeMethod requires object"
-                                " and method names\n."
-                             << "       input parameters are optional through"
-                                " -ip option"
-                             << "       or as additional parameters to this"
-                                    " call. For"
-                             << "       additional parameters, enter each"
-                                    " parameter as"
-                             << "       name=value without spaces."
-                             << endl;
+                        cout << "Usage: InvokeMethod requires that object and"
+                            " method names be specified.\n"
+                            "Input parameters are optional and can be"
+                            " specified with the -ip option or as"
+                            " additional parameters to this call. "
+                            "Enter each input parameter as name=value"
+                            " (no spaces around equal sign)."
+                            << endl;
                         exit(1);
                     }
                     opts.objectName = argv[2];

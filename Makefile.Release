@@ -744,11 +744,11 @@ ifdef PEGASUS_PRODUCT_VERSION
 ifdef PEGASUS_PRODUCT_STATUS
 	@$(ECHO-E) "#ifndef Product_Version_h" > $(ROOT)/src/Pegasus/Common/ProductVersion.h
 	@$(ECHO-E) "#define Product_Version_h" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
-	@$(ECHO-E) " " >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
+	@$(ECHO-E) "" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
 	@$(ECHO-E) "#define PEGASUS_PRODUCT_NAME "\""$(PEGASUS_PRODUCT_NAME)"\""" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
 	@$(ECHO-E) "#define PEGASUS_PRODUCT_VERSION "\""$(PEGASUS_PRODUCT_VERSION)"\""" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
 	@$(ECHO-E) "#define PEGASUS_PRODUCT_STATUS "\""$(PEGASUS_PRODUCT_STATUS)"\""" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
-	@$(ECHO-E) " " >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
+	@$(ECHO-E) "" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
 	@$(ECHO-E) "#define PEGASUS_CIMOM_GENERIC_NAME \"Pegasus\"" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
 	@$(ECHO-E) "#define PEGASUS_CIMOM_DESCRIPTION \"\"" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
 	@$(ECHO-E) "#endif /* Product_Version_h */" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
@@ -763,67 +763,48 @@ ifdef PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS
              > $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
 	@$(ECHO-E) "#define Common_Product_Directory_Structure_h" \
              >>  $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) " " \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_SSLCLIENT_CERTIFICATEFILE" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define PEGASUS_SSLCLIENT_CERTIFICATEFILE"  \
-             "\""$(PEGASUS_SSL_CLIENT_TRUSTSTORE)"\"" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_SSLCLIENT_RANDOMFILE" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define PEGASUS_SSLCLIENT_RANDOMFILE"  \
-             "\""$(PEGASUS_VARDATA_DIR)/ssl.rnd"\"" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_LOCAL_AUTH_DIR" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define PEGASUS_LOCAL_AUTH_DIR"  \
-             "\""$(PEGASUS_LOCAL_AUTH_DIR)"\"" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH"  \
-             "\""$(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH)"\"" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_CORE_DIR" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define PEGASUS_CORE_DIR"  \
-             "\""$(PEGASUS_VARDATA_CACHE_DIR)"\"" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_PAM_STANDALONE_PROC_NAME" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define PEGASUS_PAM_STANDALONE_PROC_NAME"  \
-             "\""$(PEGASUS_SBIN_DIR)/cimservera"\"" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_PROVIDER_AGENT_PROC_NAME" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define PEGASUS_PROVIDER_AGENT_PROC_NAME"  \
-             "\""$(PEGASUS_SBIN_DIR)/cimprovagt"\"" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_CIMSERVER_START_LOCK_FILE" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define PEGASUS_CIMSERVER_START_LOCK_FILE"  \
-             "\""$(PEGASUS_CIMSERVER_START_LOCK_FILE)"\"" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_PLANNED_CONFIG_FILE_PATH" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define PEGASUS_PLANNED_CONFIG_FILE_PATH"  \
-             "\""$(PEGASUS_PLANNED_CONFIG_FILE_PATH)"\"" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_CURRENT_CONFIG_FILE_PATH" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define PEGASUS_CURRENT_CONFIG_FILE_PATH"  \
-             "\""$(PEGASUS_CURRENT_CONFIG_FILE_PATH)"\"" \
-             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_CIMSERVER_START_FILE" \
+	@$(ECHO-E) "" \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_CIMSERVER_START_FILE"  \
              "\""$(PEGASUS_CIMSERVER_START_FILE)"\"" \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_CIMSERVER_START_LOCK_FILE"  \
+             "\""$(PEGASUS_CIMSERVER_START_LOCK_FILE)"\"" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_REPOSITORY_DIR"  \
              "\""$(PEGASUS_REPOSITORY_DIR)"\"" \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
-	@$(ECHO-E) " " \
+	@$(ECHO-E) "# define PEGASUS_CURRENT_CONFIG_FILE_PATH"  \
+             "\""$(PEGASUS_CURRENT_CONFIG_FILE_PATH)"\"" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_PLANNED_CONFIG_FILE_PATH"  \
+             "\""$(PEGASUS_PLANNED_CONFIG_FILE_PATH)"\"" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_SSLCLIENT_CERTIFICATEFILE"  \
+             "\""$(PEGASUS_SSL_CLIENT_TRUSTSTORE)"\"" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_SSLCLIENT_RANDOMFILE"  \
+             "\""$(PEGASUS_VARDATA_DIR)/ssl.rnd"\"" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_SSLSERVER_RANDOMFILE"  \
+             "\""$(PEGASUS_VARDATA_DIR)/cimserver.rnd"\"" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_LOCAL_AUTH_DIR"  \
+             "\""$(PEGASUS_LOCAL_AUTH_DIR)"\"" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH"  \
+             "\""$(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH)"\"" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_CORE_DIR"  \
+             "\""$(PEGASUS_VARDATA_CACHE_DIR)"\"" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_PAM_STANDALONE_PROC_NAME"  \
+             "\""$(PEGASUS_SBIN_DIR)/cimservera"\"" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_PROVIDER_AGENT_PROC_NAME"  \
+             "\""$(PEGASUS_SBIN_DIR)/cimprovagt"\"" \
+             >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
+	@$(ECHO-E) "" \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
 	@$(ECHO-E) "#endif /* Common_Product_Directory_Structure_h */ " \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
@@ -836,84 +817,36 @@ ifdef PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS
              > $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "#define Config_Product_Directory_Structure_h" \
              >>  $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) " " \
-             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_PLANNED_CONFIG_FILE_PATH" \
-             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define PEGASUS_PLANNED_CONFIG_FILE_PATH"  \
-             "\""$(PEGASUS_PLANNED_CONFIG_FILE_PATH)"\"" \
-             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_CURRENT_CONFIG_FILE_PATH" \
-             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define PEGASUS_CURRENT_CONFIG_FILE_PATH"  \
-             "\""$(PEGASUS_CURRENT_CONFIG_FILE_PATH)"\"" \
-             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_CIMSERVER_START_FILE" \
-             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define PEGASUS_CIMSERVER_START_FILE"  \
-             "\""$(PEGASUS_CIMSERVER_START_FILE)"\"" \
-             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_LOG_DIR" \
+	@$(ECHO-E) "" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_LOG_DIR"  \
              "\""$(PEGASUS_LOG_DIR)"\"" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_TRACE_FILE_PATH" \
-             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_TRACE_FILE_PATH"  \
              "\""$(PEGASUS_TRACE_FILE_PATH)"\"" \
-             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_CONFIG_DIR" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_CONFIG_DIR"  \
              "\""$(PEGASUS_CONFIG_DIR)"\"" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_SSL_CERT_FILE_PATH" \
-             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_SSL_CERT_FILE_PATH"  \
              "\""$(PEGASUS_SSL_CERT_FILE_PATH)"\"" \
-             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_SSL_KEY_FILE_PATH" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_SSL_KEY_FILE_PATH"  \
              "\""$(PEGASUS_SSL_KEY_FILE_PATH)"\"" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_SSL_SERVER_TRUSTSTORE" \
-             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_SSL_SERVER_TRUSTSTORE"  \
              "\""$(PEGASUS_SSL_SERVER_TRUSTSTORE)"\"" \
-             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_SSL_EXPORT_TRUSTSTORE" \
-             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define PEGASUS_SSL_EXPORT_TRUSTSTORE"  \
-             "\""$(PEGASUS_SSL_EXPORT_TRUSTSTORE)"\"" \
-             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_SSL_SERVER_CRL" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_SSL_SERVER_CRL"  \
              "\""$(PEGASUS_SSL_SERVER_CRL)"\"" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_REPOSITORY_DIR" \
-             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define PEGASUS_REPOSITORY_DIR"  \
-             "\""$(PEGASUS_REPOSITORY_DIR)"\"" \
-             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_PREV_REPOSITORY_DIR" \
-             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_PREV_REPOSITORY_DIR"  \
              "\""$(PEGASUS_PREV_REPOSITORY_DIR)"\"" \
-             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_PROVIDER_LIB_DIR" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_PROVIDER_LIB_DIR"  \
              "\""$(PEGASUS_PROVIDER_LIB_DIR)"\"" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "# undef PEGASUS_MESSAGE_DIR" \
-             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) "# define PEGASUS_MESSAGE_DIR"  \
-             "\""$(PEGASUS_MESSAGE_DIR)"\"" \
-             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
-	@$(ECHO-E) " " \
+	@$(ECHO-E) "" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "#endif /* Config_Product_Directory_Structure_h */ " \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
@@ -997,8 +930,6 @@ create_ProductInstallationVerificationScript: FORCE
 	@$(ECHO-E) "ls -l $(PEGASUS_SSL_CLIENT_TRUSTSTORE)*" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(ECHO-E) "ls -ld $(PEGASUS_SSL_SERVER_TRUSTSTORE)" \
-             >> $(PEGASUS_HOME)/PegasusVerifyInstall
-	@$(ECHO-E) "ls -ld $(PEGASUS_SSL_EXPORT_TRUSTSTORE)" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS CONF FILES\"" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall

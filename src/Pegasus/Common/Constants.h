@@ -209,6 +209,8 @@
 #  define PEGASUS_CORE_DIR                  "/var/opt/wbem"
 #  define PEGASUS_PAM_STANDALONE_PROC_NAME  "/opt/wbem/lbin/cimservera"
 #  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/opt/wbem/lbin/cimprovagt"
+#  define PEGASUS_DEFAULT_MESSAGE_SOURCE    \
+    "/opt/wbem/share/locale/ICU_Messages"
 # elif defined(PEGASUS_OS_PASE)
 #  define PEGASUS_CIMSERVER_START_FILE      \
     "/QOpenSys/QIBM/UserData/UME/Pegasus/cimserver_start.conf"
@@ -232,6 +234,7 @@
     "/QOpenSys/QIBM/ProdData/UME/Pegasus/bin/cimservera"
 #  define PEGASUS_PROVIDER_AGENT_PROC_NAME  \
     "/QOpenSys/QIBM/ProdData/UME/Pegasus/bin/cimprovagt"
+#  undef PEGASUS_DEFAULT_MESSAGE_SOURCE     /* Not defined */
 # elif defined(PEGASUS_OS_AIX)
 #  define PEGASUS_CIMSERVER_START_FILE      "/tmp/cimserver_start.conf"
 #  define PEGASUS_CIMSERVER_START_LOCK_FILE \
@@ -255,6 +258,7 @@
     "/opt/freeware/cimom/pegasus/bin/cimservera"
 #  define PEGASUS_PROVIDER_AGENT_PROC_NAME  \
     "/opt/freeware/cimom/pegasus/bin/cimprovagt"
+#  define PEGASUS_DEFAULT_MESSAGE_SOURCE    "/opt/freeware/cimom/pegasus/msg"
 # elif defined(PEGASUS_OS_LINUX)
 #  define PEGASUS_CIMSERVER_START_FILE      "/var/run/tog-pegasus/cimserver.pid"
 #  define PEGASUS_CIMSERVER_START_LOCK_FILE \
@@ -274,6 +278,7 @@
 #  define PEGASUS_CORE_DIR                  "/var/opt/tog-pegasus/cache"
 #  define PEGASUS_PAM_STANDALONE_PROC_NAME  "/opt/tog-pegasus/sbin/cimservera"
 #  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/opt/tog-pegasus/sbin/cimprovagt"
+#  undef PEGASUS_DEFAULT_MESSAGE_SOURCE     /* Not defined */
 # elif defined(PEGASUS_OS_VMS)
 #  define PEGASUS_CIMSERVER_START_FILE      \
     "/wbem_var/opt/wbem/cimserver_start.conf"
@@ -291,6 +296,7 @@
 #  define PEGASUS_LOCAL_AUTH_DIR            "/wbem_var/opt/wbem/localauth"
 #  undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH   /* Not used */
 #  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/wbem_var/opt/wbem/bin/cimprovagt"
+#  undef PEGASUS_DEFAULT_MESSAGE_SOURCE     /* Not defined */
 # elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 #  define PEGASUS_CIMSERVER_START_FILE      "/var/wbem/cimserver.pid"
 #  define PEGASUS_CIMSERVER_START_LOCK_FILE "/tmp/cimserver_start.lock"
@@ -304,6 +310,7 @@
 #  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/var/wbem/cimxml.socket"
 #  undef PEGASUS_PAM_STANDALONE_PROC_NAME   /* Not used */
 #  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "bin/cimprovagt"
+#  define PEGASUS_DEFAULT_MESSAGE_SOURCE    "/usr/lpp/wbem/msg"
 # elif defined(PEGASUS_OS_DARWIN)
 #  define PEGASUS_CIMSERVER_START_FILE      \
     "/var/cache/pegasus/cimserver_start.conf"
@@ -321,6 +328,7 @@
 #  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/tmp/cimxml.socket"
 #  define PEGASUS_PAM_STANDALONE_PROC_NAME  "bin/cimservera"
 #  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "bin/cimprovagt"
+#  undef PEGASUS_DEFAULT_MESSAGE_SOURCE     /* Not defined */
 # endif
 #endif
 #else  // Not PEGASUS_USE_RELEASE_DIRS
@@ -336,20 +344,11 @@
 # define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/tmp/cimxml.socket"
 # define PEGASUS_PAM_STANDALONE_PROC_NAME  "bin/cimservera"
 # define PEGASUS_PROVIDER_AGENT_PROC_NAME  "bin/cimprovagt"
+# undef PEGASUS_DEFAULT_MESSAGE_SOURCE      /* Not defined */
 #endif
 
 /* Use the PID file as a semaphore for repository access */
 #define PEGASUS_REPOSITORY_LOCK_FILE PEGASUS_CIMSERVER_START_FILE
-
-/* Constant defines for path to icu resource bundles */
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-# define PEGASUS_DEFAULT_MESSAGE_SOURCE  "/usr/lpp/wbem/msg"
-#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) && \
-      !defined(PEGASUS_DEFAULT_MESSAGE_SOURCE)
-# define PEGASUS_DEFAULT_MESSAGE_SOURCE  "/opt/freeware/cimom/pegasus/msg"
-#else
-# undef PEGASUS_DEFAULT_MESSAGE_SOURCE
-#endif
 
 /*
  * Miscellaneous Constants

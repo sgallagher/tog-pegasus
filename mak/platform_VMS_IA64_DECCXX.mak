@@ -27,7 +27,7 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
+#//=============================================================================
 include $(ROOT)/mak/config-vms.mak
 
 OS = VMS
@@ -45,9 +45,11 @@ OBJ_DIR = $(HOME_DIR)/obj/$(TMP_OBJDIR)
 BIN_DIR = $(HOME_DIR)/bin
 LIB_DIR = $(HOME_DIR)/lib
 OPT_DIR = $(HOME_DIR)/opt
-LFLAGS =  /Threads_Enable=Upcalls/symbol_table=$(BIN_VMSDIRA)]$(PROGRAM)/map=$(BIN_VMSDIRA)]$(PROGRAM)/full/cross_reference
+LFLAGS =  /Threads_Enable=Upcalls
+LFLAGS += /symbol_table=$(BIN_VMSDIRA)]$(PROGRAM)
+LFLAGS += /map=$(BIN_VMSDIRA)]$(PROGRAM)/full/cross_reference
 CFLAGS =  /repos=$(CXXREPOSITORY_VMSROOT)/template_def=time
-CCFLAGS = /OPT=INLINE=ALL
+CCFLAGS = /OPT=INLINE
 
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
 CFLAGS += /show=include/lis=$(OBJ_VMSDIRA)]/debug/noopt
@@ -69,7 +71,8 @@ PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER = true
 PEGASUS_ENABLE_SYSTEM_LOG_HANDLER = true
 PEGASUS_ENABLE_EMAIL_HANDLER = true
 
-# Local domain sockets, or an equivalent, is not currently supported on OpenVMS. Bug 2147
+# Local domain sockets, or an equivalent,
+# is not currently supported on OpenVMS. Bug 2147
 PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET=1
 
 # The Provider User Context feature (PEP 197) is not yet supported on OpenVMS

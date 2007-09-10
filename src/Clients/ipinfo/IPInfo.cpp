@@ -156,8 +156,10 @@ IPInfoCommand::IPInfoCommand ()
     usage.append (COMMAND_NAME);
     usage.append (" [ -");
 #ifndef DISABLE_SUPPORT_FOR_REMOTE_CONNECTIONS
+#ifdef PEGASUS_HAS_SSL
     usage.append (_OPTION_SSL);
     usage.append (" ] [ -");
+#endif
     usage.append (_OPTION_HOSTNAME);
     usage.append (" hostname ] [ -");
     usage.append (_OPTION_PORTNUMBER);
@@ -262,6 +264,7 @@ void IPInfoCommand::_connectToServer( CIMClient& client,
     }
     else if( _useSSL )
     {
+#ifdef PEGASUS_HAS_SSL
         //
         // Get environment variables:
         //
@@ -271,9 +274,11 @@ void IPInfoCommand::_connectToServer( CIMClient& client,
                pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
         
         String randFile;
-    
+
+#ifdef PEGASUS_SSL_RANDOMFILE
         randFile = FileSystem::getAbsolutePath(
                 pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
+#endif
         SSLContext  sslcontext (certpath, verifyCertificate, randFile);
 
         if (!_userNameSet)
@@ -286,6 +291,9 @@ void IPInfoCommand::_connectToServer( CIMClient& client,
             _password = _promptForPassword( outPrintWriter );
         }
         client.connect(host, portNumber, sslcontext,  _userName, _password );
+#else
+        PEGASUS_ASSERT(false);
+#endif
     }
     else
     { 
@@ -327,7 +335,9 @@ void IPInfoCommand::setCommand (Uint32 argc, char* argv [])
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     GetOptString.append (_OPTION_PORTNUMBER);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+#ifdef PEGASUS_HAS_SSL
     GetOptString.append (_OPTION_SSL);
+#endif
     GetOptString.append (_OPTION_TIMEOUT);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     GetOptString.append (_OPTION_USERNAME);
@@ -407,7 +417,7 @@ void IPInfoCommand::setCommand (Uint32 argc, char* argv [])
                     _portNumberSet = true;
                     break;
                 }
-    
+#ifdef PEGASUS_HAS_SSL    
                 case _OPTION_SSL: 
                 {
                     //
@@ -418,7 +428,7 @@ void IPInfoCommand::setCommand (Uint32 argc, char* argv [])
                        _portNumber = 5989;
                     break;
                 }
-      
+#endif      
                 case _OPTION_DEBUG:
                 {
                     _enableDebug = true;

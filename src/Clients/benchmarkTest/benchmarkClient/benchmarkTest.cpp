@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Denise Eckstein, Hewlett-Packard Company
-//         Significant portions of the code in this application were copied
-//         from the wbemexec application.
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 //
 //L10N TODO: Internal benchmark utility. Although this module contains
@@ -181,8 +174,10 @@ benchmarkTestCommand::benchmarkTestCommand ()
     String usage = String (_USAGE);
     usage.append (COMMAND_NAME);
     usage.append (" [ -");
+#ifdef PEGASUS_HAS_SSL
     usage.append (_OPTION_SSL);
     usage.append (" ] [ -");
+#endif
     usage.append (_OPTION_VERSION);
     usage.append (" ] [ -");
     usage.append (_OPTION_HOSTNAME);
@@ -278,8 +273,12 @@ String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
         {
            if( _useSSL )
            {
+#ifdef PEGASUS_HAS_SSL
                _portNumber = System::lookupPort( WBEM_HTTPS_SERVICE_NAME,
                                           WBEM_DEFAULT_HTTPS_PORT );
+#else
+               PEGASUS_ASSERT(false);
+#endif
            }
            else
            {
@@ -300,18 +299,21 @@ String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
     }
     else if( _useSSL )
     {
+#ifdef PEGASUS_HAS_SSL
         //
         // Get environment variables:
         //
         const char* pegasusHome = getenv("PEGASUS_HOME");
 
-    String certpath = FileSystem::getAbsolutePath(
-           pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
+        String certpath = FileSystem::getAbsolutePath(
+            pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
 
-    String randFile = String::EMPTY;
+        String randFile = String::EMPTY;
 
-    randFile = FileSystem::getAbsolutePath(
-            pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
+#ifdef PEGASUS_SSL_RANDOMFILE
+        randFile = FileSystem::getAbsolutePath(
+             pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
+#endif 
         SSLContext  sslcontext (certpath, verifyCertificate, randFile);
 
         if (!_userNameSet)
@@ -323,7 +325,10 @@ String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
         {
             _password = _promptForPassword( outPrintWriter );
         }
-    client.connect(host, portNumber, sslcontext,  _userName, _password );
+        client.connect(host, portNumber, sslcontext,  _userName, _password );
+#else
+        PEGASUS_ASSERT(false);
+#endif  
     }
     else
     {
@@ -365,7 +370,9 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
     GetOptString.append (_OPTION_PORTNUMBER);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     GetOptString.append (_OPTION_VERSION);
+#ifdef PEGASUS_HAS_SSL
     GetOptString.append (_OPTION_SSL);
+#endif
     GetOptString.append (_OPTION_TIMEOUT);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     GetOptString.append (_OPTION_USERNAME);
@@ -452,7 +459,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     _portNumberSet = true;
                     break;
                 }
-
+#ifdef PEGASUS_HAS_SSL
                 case _OPTION_SSL:
                 {
                     //
@@ -463,7 +470,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                        _portNumber = 5989;
                     break;
                 }
-
+#endif
                 case _OPTION_VERSION:
                 {
             _displayVersion = true;

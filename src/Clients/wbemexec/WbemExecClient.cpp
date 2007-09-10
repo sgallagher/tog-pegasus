@@ -215,7 +215,6 @@ void WbemExecClient::connectLocal()
 
         _connect();
     }
-#ifdef PEGASUS_HAS_SSL
     catch (CannotConnectException&)
     {
         //
@@ -250,13 +249,7 @@ void WbemExecClient::connectLocal()
 
         _connect();
     }
-#else
-    catch
-    {
-        // do nothing if not trying SSL
-    }
-#endif // PEGASUS_HAS_SSL
-#endif // PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+#endif
     _isRemote = false;
 }
 

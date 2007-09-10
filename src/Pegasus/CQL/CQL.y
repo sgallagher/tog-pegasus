@@ -81,6 +81,11 @@ Array<CQLPredicate> _arglist;
 PEGASUS_NAMESPACE_END
 
 
+void CQL_Arglist_Cleanup()
+{
+    _arglist.clear();
+}
+
 void CQL_Bison_Cleanup(){
     for(Uint32 i = 0; i < _ptrs.size(); i++)
     {
@@ -120,6 +125,7 @@ void CQL_Bison_Cleanup(){
         }
       }
     }
+    CQL_Arglist_Cleanup();
     _ptrs.clear();
    _factory.cleanup();
     _factory = CQLFactory();
@@ -591,7 +597,7 @@ chain : literal
         chain_state = CQLFUNCTION;
         CQLFunction _func(*$1,_arglist);
         $$ = (CQLPredicate*)(_factory.makeObject(&_func,Predicate));
-        _arglist.clear();
+        CQL_Arglist_Cleanup();
     }
 
   | chain TOK_DOT scoped_property

@@ -50,6 +50,7 @@ PEGASUS_USING_STD;
 extern int CQL_parse();
 extern void CQL_restart (FILE *input_file);
 extern void CQL_Bison_Cleanup();
+extern void CQL_Arglist_Cleanup();
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -167,6 +168,9 @@ int CQL_error(const char* errorMessage)
     //  flex does not automatically flush the input buffer in case of error
     //
     CQL_restart (0);
+
+    // flush ArgList 
+    CQL_Arglist_Cleanup();
 
     PEG_METHOD_EXIT();
     return -1;

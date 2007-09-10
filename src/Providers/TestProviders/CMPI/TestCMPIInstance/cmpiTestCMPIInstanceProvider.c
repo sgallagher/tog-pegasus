@@ -109,7 +109,7 @@ static int _testInstance ()
 
     int flag = 1;
 
-    value.uint64 = 10;
+    value.uint64 = PEGASUS_UINT64_LITERAL(5000000000);
 
     PROV_LOG("++++ _testInstance");
 
@@ -135,10 +135,11 @@ static int _testInstance ()
        set. */
     retData = CMGetProperty(instance, "n64", &rc);
 
-    if (retData.type == CMPI_uint64 && retData.value.uint64 == 10)
+    if (retData.type == CMPI_uint64 && 
+           retData.value.uint64 == PEGASUS_UINT64_LITERAL(5000000000))
     {
          PROV_LOG("++++  CMGetProperty for n64 property status : (%s),"
-             "value (%d)",
+             "value (%"PEGASUS_64BIT_CONVERSION_WIDTH"u)",
              strCMPIStatus(rc),
              retData.value.uint64);
     }

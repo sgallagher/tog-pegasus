@@ -37,10 +37,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <ctype.h>
-#if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
-#define PEGASUS_64BIT_CONVERSION_WIDTH "I64"
-#else
-#define PEGASUS_64BIT_CONVERSION_WIDTH "ll"
+#ifndef CMPI_PLATFORM_WIN32_IX86_MSVC
 #include <unistd.h>
 #endif
 

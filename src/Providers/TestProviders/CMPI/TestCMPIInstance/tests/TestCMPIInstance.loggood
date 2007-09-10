@@ -9,7 +9,7 @@
  ++++ make_Instance: CMNewInstance
  ++++  CMNewInstance : (CMPI_RC_OK)
  ++++  SetPropertyWithOrigin for n64 property status : (CMPI_RC_OK)
- ++++  CMGetProperty for n64 property status : (CMPI_RC_OK),value (10)
+ ++++  CMGetProperty for n64 property status : (CMPI_RC_OK),value (5000000000)
  ++++  SetPropertyWithOrigin status : (CMPI_RC_OK)
  ++++  CMGetProperty for property objPath status : (CMPI_RC_OK), Class name(TestCMPI_Instance)
  ++++  SetPropertyWithOrigin status : (CMPI_RC_OK)

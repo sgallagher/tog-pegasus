@@ -32,6 +32,18 @@
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include <Providers/TestProviders/CMPI/TestUtilLib/Linkage.h>
 
+#if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
+#define PEGASUS_64BIT_CONVERSION_WIDTH "I64"
+#else
+#define PEGASUS_64BIT_CONVERSION_WIDTH "ll"
+#endif
+
+#if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
+#define PEGASUS_UINT64_LITERAL(X) ((unsigned __int64)X)
+#else
+#define PEGASUS_UINT64_LITERAL(X) X##ULL
+#endif
+
 PEGASUS_CMPI_TESTPRV_UTILLIB_LINKAGE extern const CMPIBoolean CMPI_true;
 PEGASUS_CMPI_TESTPRV_UTILLIB_LINKAGE extern const CMPIBoolean CMPI_false;
 

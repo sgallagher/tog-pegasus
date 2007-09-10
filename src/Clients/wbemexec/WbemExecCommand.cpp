@@ -330,6 +330,7 @@ WbemExecCommand::WbemExecCommand ()
 
     if( _useSSL )
     {
+#ifdef PEGASUS_HAS_SSL
         if( connectToLocal )
         {
             client.connectLocal();
@@ -353,6 +354,9 @@ WbemExecCommand::WbemExecCommand ()
             SSLContext sslcontext(certpath, verifyCertificate, randFile);
             client.connect(host, portNumber, &sslcontext, _userName, _password);
         }
+#else
+        PEGASUS_ASSERT(false);
+#endif
     }
     else
     {

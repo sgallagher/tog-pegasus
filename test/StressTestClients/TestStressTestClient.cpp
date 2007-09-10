@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author:  Aruran (aruran.shanmug@in.ibm.com) & Melvin (msolomon@in.ibm.com),
-//                                                        IBM for PEP# 241
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "TestStressTestClient.h"
@@ -61,7 +57,9 @@ TestStressTestClient::TestStressTestClient()
         {"help", "false", false, Option::BOOLEAN, 0, 0, "help",
                       "Prints help message with command line options "},
 
+#ifdef PEGASUS_HAS_SSL
         {"ssl", "false", false, Option::BOOLEAN, 0, 0, "ssl", "use SSL"},
+#endif
 
         {"username", "", false, Option::STRING, 0, 0, "username",
                                                "Specifies user name"},
@@ -360,6 +358,7 @@ void TestStressTestClient::connectClient(
 {
     if (useSSL)
     {
+#ifdef PEGASUS_HAS_SSL
         //
         // Get environment variables. 
         //
@@ -385,6 +384,9 @@ void TestStressTestClient::connectClient(
                  << endl;
         }
         client->connect (host, portNumber, sslContext, userName, password);
+#else
+        PEGASUS_ASSERT(false);
+#endif
     } /* useSSL. */
     else
     {

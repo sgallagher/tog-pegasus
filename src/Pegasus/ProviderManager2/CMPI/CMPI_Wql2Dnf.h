@@ -132,10 +132,6 @@ class CMPI_Wql2Dnf
 public:
     CMPI_Wql2Dnf();
 
-    CMPI_Wql2Dnf(const WQLSelectStatement& wqs);
-
-    CMPI_Wql2Dnf(const WQLSelectStatement * wqs);
-
     CMPI_Wql2Dnf(const String &condition, const String &pref); 
 
     ~CMPI_Wql2Dnf();
@@ -146,13 +142,6 @@ public:
     {
         return &_CMPI_tableau;
     }
-
-    Boolean evaluate(WQLPropertySource * source) const;
-
-    void print();
-
-    void printTableau();
-
 
 protected:
     void _populateTableau(void);
@@ -168,29 +157,6 @@ protected:
     void _gatherConj(Array<CMPI_stack_el>& stk, CMPI_stack_el sel);
 
     void _gather(Array<CMPI_stack_el>& stk, CMPI_stack_el sel,Boolean or_flag);
-
-    static inline void _ResolveProperty(
-        WQLOperand& op,
-        const WQLPropertySource* source)
-    {
-        //
-        // Resolve the operand: if it's a property name, look up its value:
-        //
-
-        if( op.getType() == WQLOperand::PROPERTY_NAME )
-        {
-            const String& propertyName = op.getPropertyName();
-
-            if( !source->getValue(propertyName, op) )
-            {
-                PEG_TRACE_STRING(
-                    TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL4,
-                    propertyName + " not found.");
-                throw NoSuchProperty(propertyName);
-            }
-        }
-    }
 
 
     // Structure to contain the compiled DNF form

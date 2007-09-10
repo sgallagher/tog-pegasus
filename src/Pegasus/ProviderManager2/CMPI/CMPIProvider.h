@@ -318,7 +318,7 @@ protected:
     CMPIProviderModule *_module;
     ProviderVector miVector;
     CMPI_Broker broker;
-    Boolean noUnload;
+    CMPIrc unloadStatus;
 
 private:
     virtual void _terminate(Boolean term);

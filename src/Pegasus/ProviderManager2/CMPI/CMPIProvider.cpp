@@ -65,7 +65,7 @@ CMPIProvider::CMPIProvider(
     broker.hdl =0;
     broker.provider = this;
     if (mv) miVector=*mv;
-    noUnload=false;
+    unloadStatus = CMPI_RC_DO_NOT_UNLOAD;
     Time::gettimeofday(&_idleTime);
     PEG_METHOD_EXIT();
 }
@@ -272,7 +272,10 @@ void CMPIProvider::initialize(CIMOMHandle & cimom)
             CMPIProvider::initialize(cimom,miVector,compoundName,broker);
             if (miVector.miTypes & CMPI_MIType_Method)
             {
-                if (miVector.methMI->ft->miName==NULL) noUnload=true;
+                if (miVector.methMI->ft->miName==NULL) 
+                {
+                    unloadStatus = CMPI_RC_OK;
+                }
             }
         }
         catch (...)
@@ -306,11 +309,11 @@ Boolean CMPIProvider::tryTerminate()
 
         try
         {
-            if (noUnload==false)
+            if (unloadStatus != CMPI_RC_OK)
             {
                 // False means that the CIMServer is not shutting down.
                 _terminate(false);
-                if (noUnload==true)
+                if (unloadStatus != CMPI_RC_OK)
                 {
                     _status=savedStatus;
                     PEG_METHOD_EXIT();
@@ -368,50 +371,42 @@ void CMPIProvider::_terminate(Boolean terminating)
     if (miVector.miTypes & CMPI_MIType_Instance)
     {
         rc=miVector.instMI->ft->cleanup(miVector.instMI,&eCtx, terminating);
-        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
-        if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD))
-        {
-            noUnload =true;
-        }
+        unloadStatus = rc.rc;
     }
     if (miVector.miTypes & CMPI_MIType_Association)
     {
         rc=miVector.assocMI->ft->cleanup(miVector.assocMI,&eCtx, terminating);
-        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
-        if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD))
+        if (unloadStatus == CMPI_RC_OK)
         {
-            noUnload =true;
+            unloadStatus = rc.rc;
         }
     }
     if (miVector.miTypes & CMPI_MIType_Method)
     {
         rc=miVector.methMI->ft->cleanup(miVector.methMI,&eCtx, terminating);
-        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
-        if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD))
+        if (unloadStatus == CMPI_RC_OK)
         {
-            noUnload =true;
+            unloadStatus = rc.rc;
         }
     }
     if (miVector.miTypes & CMPI_MIType_Property)
     {
         rc=miVector.propMI->ft->cleanup(miVector.propMI,&eCtx, terminating);
-        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
-        if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD))
+        if (unloadStatus == CMPI_RC_OK)
         {
-            noUnload =true;
+            unloadStatus = rc.rc;
         }
     }
     if (miVector.miTypes & CMPI_MIType_Indication)
     {
         rc=miVector.indMI->ft->cleanup(miVector.indMI,&eCtx, terminating);
-        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
-        if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD))
+        if (unloadStatus == CMPI_RC_OK)
         {
-            noUnload =true;
+            unloadStatus = rc.rc;
         }
     }
 
-    if (noUnload == false)
+    if (unloadStatus == CMPI_RC_OK)
     {
         // Cleanup the class cache
         {
@@ -507,7 +502,7 @@ void CMPIProvider::terminate()
         {
 
             _terminate(true);
-            if (noUnload==true)
+            if (unloadStatus != CMPI_RC_OK)
             {
                 _status=savedStatus;
                 PEG_METHOD_EXIT();
@@ -641,10 +636,15 @@ void CMPIProvider::update_idle_timer()
     Time::gettimeofday(&_idleTime);
 }
 
+/*
+ * This method returns "false" if there are any requests pending with
+ * the provider or Provider has returned CMPI_RC_NEVER_UNLOAD in the last
+ * cleanup() invocation cyle.
+*/
 Boolean CMPIProvider::unload_ok()
 {
     PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPIProvider::unload_ok()");
-    if (noUnload==true)
+    if (unloadStatus == CMPI_RC_NEVER_UNLOAD)
     {
         PEG_METHOD_EXIT();
         return false;

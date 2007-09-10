@@ -559,15 +559,17 @@ CMPIDateTime * native_new_CMPIDateTime_fromChars (
     const char * string,
     CMPIStatus * rc )
 {
+    CMPIUint64 msecs;
+    CMPIBoolean interval;
+    char * str;
     //String length must be 25.
     if (!string || strlen(string) != 25)
     {
         CMSetStatus (rc, CMPI_RC_ERR_INVALID_PARAMETER);
         return NULL;
     }
-    CMPIUint64 msecs;
-    CMPIBoolean interval = ( string[21] == ':' );
-    char * str = strdup ( string );
+    interval = ( string[21] == ':' );
+    str = strdup ( string );
 
     str[21] = 0;
     //msec =  atoll (str + 15) or _atoli64 (str + 15)

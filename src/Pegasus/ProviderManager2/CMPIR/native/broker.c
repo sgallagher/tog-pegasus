@@ -262,12 +262,13 @@ static CMPIBoolean __beft_isOfType (
     const char * type,
     CMPIStatus * rc )
 {
+    char *t;
     if (!object || !type)
     {
         CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
         return 0;
     }
-    char * t =  object == broker ? "CMPIBroker" : *(char **)object;
+    t =  object == broker ? "CMPIBroker" : *(char **)object;
     TRACE_NORMAL(("Verifying encapsulated object type."));
 
     CMSetStatus ( rc, CMPI_RC_OK );

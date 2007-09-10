@@ -208,8 +208,10 @@ OSInfoCommand::OSInfoCommand ()
     usage.append (COMMAND_NAME);
     usage.append (" [ -");
 #ifndef DISABLE_SUPPORT_FOR_REMOTE_CONNECTIONS
+#ifdef PEGASUS_HAS_SSL
     usage.append (_OPTION_SSL);
     usage.append (" ] [ -");
+#endif
     usage.append (_OPTION_HOSTNAME);
     usage.append (" hostname ] [ -");
     usage.append (_OPTION_PORTNUMBER);
@@ -234,8 +236,10 @@ OSInfoCommand::OSInfoCommand ()
     usage.append("    --help     - Display this help message\n");
     usage.append("    -p         - Connect to CIM Server on specified"
                                     " portnumber\n");
+#ifdef PEGASUS_HAS_SSL
     usage.append("    -s         - Use SSL protocol between 'osinfo' client"
                                     " and the CIM Server\n");
+#endif
     usage.append("    -t         - Specify response timeout value in"
                                     " milliseconds\n");
     usage.append("    -u         - Connect to CIM Server using the specified"
@@ -316,8 +320,12 @@ String OSInfoCommand::_promptForPassword( ostream& outPrintWriter )
         {
            if( _useSSL )
            {
+#ifdef PEGASUS_HAS_SSL
                _portNumber = System::lookupPort( WBEM_HTTPS_SERVICE_NAME,
                                           WBEM_DEFAULT_HTTPS_PORT );
+#else
+               PEGASUS_ASSERT(false);
+#endif
            }
            else
            {
@@ -349,6 +357,7 @@ String OSInfoCommand::_promptForPassword( ostream& outPrintWriter )
         }
         if( _useSSL )
         {
+#ifdef PEGASUS_HAS_SSL
            //
            // Get environment variables:
            //
@@ -358,12 +367,16 @@ String OSInfoCommand::_promptForPassword( ostream& outPrintWriter )
               pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
 
            String randFile;
-
+#ifdef PEGASUS_SSL_RANDOMFILE
            randFile = FileSystem::getAbsolutePath(
                pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
+#endif
            SSLContext  sslcontext (certpath, verifyCertificate, randFile);
 
            client.connect(host, portNumber, sslcontext,  _userName, _password );
+#else
+            PEGASUS_ASSERT(false);
+#endif
         }
         else
         {
@@ -403,7 +416,9 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     GetOptString.append (_OPTION_PORTNUMBER);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+#ifdef PEGASUS_HAS_SSL
     GetOptString.append (_OPTION_SSL);
+#endif
     GetOptString.append (_OPTION_TIMEOUT);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     GetOptString.append (_OPTION_USERNAME);

@@ -1281,9 +1281,10 @@ void GetOptions(
                       "Not Used "},
 // remove slp        {"slp", "false", false, Option::BOOLEAN, 0, 0, "slp",
 //                       "use SLP to find cim servers to test"},
+#ifdef PEGASUS_HAS_SSL
          {"ssl", "false", false, Option::BOOLEAN, 0, 0, "ssl",
                          "use SSL"},
-
+#endif
          {"local", "false", false, Option::BOOLEAN, 0, 0, "local",
                          "Use local connection mechanism"},
          {"user", "", false, Option::STRING, 0, 0, "user",
@@ -1448,6 +1449,7 @@ void connectClient(
         client->setTimeout(timeout);
         if (useSSL)
         {
+#ifdef PEGASUS_HAS_SSL
             if (localConnection)
             {
                 cout << "Using local connection mechanism " << endl;
@@ -1477,6 +1479,9 @@ void connectClient(
                 client->connect (host, portNumber, sslcontext, userName, 
                         password);
             }
+#else
+            PEGASUS_ASSERT(false);
+#endif
         } // useSSL
         else
         {
@@ -1618,7 +1623,13 @@ int main(int argc, char** argv)
 
     // setup default connection definitions if needed
     if (useSSL)
+    {
+#ifdef PEGASUS_HAS_SSL
         connectionList.append("localhost:5989");
+#else
+        PEGASUS_ASSERT(false);
+#endif
+    }
     else if(useSLP == false && argc < 2)
         connectionList.append("localhost:5988");
 

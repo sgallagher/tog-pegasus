@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Jenny Yu , Hewlett-Packard Company
-//         (jenny_yu@hp.com)
-//         Sushma Fernandes , Hewlett-Packard Company
-//         (sushma_fernandes@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ClientProvider.h"
@@ -68,132 +63,137 @@ static Boolean verifyCertificate(SSLCertificateInfo &certInfo)
 
 
 void ClientProvider::invokeMethod(
-	const OperationContext & context,
-	const CIMObjectPath & objectReference,
-	const CIMName & methodName,
-	const Array<CIMParamValue> & inParameters,
-	MethodResultResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & objectReference,
+    const CIMName & methodName,
+    const Array<CIMParamValue> & inParameters,
+    MethodResultResponseHandler & handler)
 {
-    handler.processing();
+   handler.processing();
 
-    if (objectReference.getClassName().equal ("Sample_ClientProviderClass"))
-    {
-        if (methodName.equal ("DoConnect"))
-        {
-            if( inParameters.size() > 0 )
-	    {
-	        String 		connectType = String::EMPTY;
-                CIMValue 	paramVal;
-                CIMClient 	client;
+   if (objectReference.getClassName().equal ("Sample_ClientProviderClass"))
+   {
+       if (methodName.equal ("DoConnect"))
+       {
+           if( inParameters.size() > 0 )
+           {
+               String connectType = String::EMPTY;
+               CIMValue paramVal;
+               CIMClient client;
 
-	        paramVal = inParameters[0].getValue();
-		paramVal.get( connectType );
+               paramVal = inParameters[0].getValue();
+               paramVal.get( connectType );
 
-		if( connectType == "Local" )
-		{
-                   client.connectLocal();
+               if( connectType == "Local" )
+               {
+                  client.connectLocal();
 
-                  // Enumerate Instances.
-                  Array<CIMObjectPath> instanceNames = 
-                          client.enumerateInstanceNames(  
-                              "root/cimv2", 
-                              "CIM_ManagedElement");
+                 // Enumerate Instances.
+                 Array<CIMObjectPath> instanceNames = 
+                         client.enumerateInstanceNames(  
+                             "root/cimv2", 
+                             "CIM_ManagedElement");
 
-                  client.disconnect();
-                  handler.deliver(CIMValue(0));
-                }
-                else if ( connectType == "Remote" )
-                {
-                    String HOST     = "localhost";
-                    Uint32 PORT     = 5989;
-                    String USER     = "guest";
-                    String PASSWORD = "guest";
-                    const char* pegasusHome = getenv("PEGASUS_HOME");
+                 client.disconnect();
+                 handler.deliver(CIMValue(0));
+               }
+               else if ( connectType == "Remote" )
+               {
+                   String HOST     = "localhost";
+                   Uint32 PORT     = 5989;
+                   String USER     = "guest";
+                   String PASSWORD = "guest";
 
-                    String certpath = FileSystem::getAbsolutePath(
-                            pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
+#ifdef PEGASUS_HAS_SSL
 
-                    String randFile = String::EMPTY;
+                   const char* pegasusHome = getenv("PEGASUS_HOME");
 
-                    randFile = FileSystem::getAbsolutePath(
-                                pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
+                   String certpath = FileSystem::getAbsolutePath(
+                           pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
 
-                    SSLContext sslcontext(
-                                certpath, verifyCertificate, randFile);
+                   String randFile = String::EMPTY;
 
-                    client.connect( 
-                                   HOST,
-                                   PORT,
-                                   sslcontext,
-                                   USER,
-                                   PASSWORD ); 
-		  }
-                  // Enumerate Instances.
+#ifdef PEGASUS_SSL_RANDOMFILE
+                   randFile = FileSystem::getAbsolutePath(
+                               pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
+#endif
 
-                  Array<CIMObjectPath> instanceNames = client.enumerateInstanceNames( "root/cimv2", "CIM_ManagedElement");
+                   SSLContext sslcontext(
+                               certpath, verifyCertificate, randFile);
 
-                  client.disconnect();
-		  handler.deliver(CIMValue(0));
-	     }
-	     else
-	     {
-		  handler.deliver(CIMValue(1));
-             }
-	}
-    }
-    handler.complete();
+                   client.connect( HOST, PORT, sslcontext, USER, PASSWORD );
+#else 
+                   client.connect( HOST, PORT, USER, PASSWORD );
+#endif
+               }
+               // Enumerate Instances.
+
+               Array<CIMObjectPath> instanceNames = 
+                    client.enumerateInstanceNames( 
+                         "root/cimv2", "CIM_ManagedElement");
+
+               client.disconnect();
+               handler.deliver(CIMValue(0));
+           }
+           else
+           {
+                handler.deliver(CIMValue(1));
+           }
+       }
+   }
+   handler.complete();
 }
 
 
 void ClientProvider::getInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList,
+    InstanceResponseHandler & handler)
 {
 }
 
 void ClientProvider::enumerateInstances(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & classReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList,
+    InstanceResponseHandler & handler)
 {
 }
 
 void ClientProvider::enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	ObjectPathResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & classReference,
+    ObjectPathResponseHandler & handler)
 {
 }
 
 void ClientProvider::modifyInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	const Boolean includeQualifiers,
-	const CIMPropertyList & propertyList,
-	ResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const CIMInstance & instanceObject,
+    const Boolean includeQualifiers,
+    const CIMPropertyList & propertyList,
+    ResponseHandler & handler)
 {
 }
 
 void ClientProvider::createInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	ObjectPathResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const CIMInstance & instanceObject,
+    ObjectPathResponseHandler & handler)
 {
 }
 
 void ClientProvider::deleteInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	ResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    ResponseHandler & handler)
 {
 }
 

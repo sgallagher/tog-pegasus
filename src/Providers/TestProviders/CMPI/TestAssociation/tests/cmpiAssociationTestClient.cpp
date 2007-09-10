@@ -42,7 +42,7 @@
 //     CMPI_TEST_Vehicle
 //     CMPI_TEST_Racing  (association class)
 //     
-// The executable for this CIM client application is:  cmpiAssociationTestClient.
+// The executable for this CIM client application is: cmpiAssociationTestClient.
 // To display the test results (returned instances or classes), define the
 // environment variable PEGASUS_TEST_VERBOSE.
 //
@@ -57,7 +57,6 @@
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
-#include <Pegasus/Provider/CMPI/cmpi_cql.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -151,8 +150,11 @@ void _displayResult(const Array<CIMObjectPath> & objectPaths)
 //  _testAssociators
 ////////////////////////////////////////////////////////////////////////////
 
-void _testAssociators(CIMClient& client, CIMName assocClass, CIMObjectPath instancePath,
-                      Uint32 numExpectedObjects)
+void _testAssociators(
+    CIMClient& client,
+    CIMName assocClass,
+    CIMObjectPath instancePath,
+    Uint32 numExpectedObjects)
 {
     if (verbose)
     {
@@ -278,8 +280,11 @@ void _testReferenceNames(CIMClient& client, CIMObjectPath instancePath,
         CIMName resultClass;
         String role;
 
-        resultObjectPaths =
-            client.referenceNames(providerNamespace, instancePath, resultClass, role);
+        resultObjectPaths = client.referenceNames(
+            providerNamespace,
+            instancePath,
+            resultClass,
+            role);
 
         // verify result
         _verifyResult(resultObjectPaths.size(), numExpectedObjects);
@@ -350,8 +355,13 @@ void _testCMPIAssociationClassOperations(CIMClient& client, CIMName className)
 
     try
     {
-        resultObjectPaths = client.associatorNames(providerNamespace, op, assocClass,
-            resultClass, role, resultRole);
+        resultObjectPaths = client.associatorNames(
+            providerNamespace,
+            op,
+            assocClass,
+            resultClass,
+            role,
+            resultRole);
 
         // display result
         _displayResult(resultObjectPaths);
@@ -370,12 +380,17 @@ void _testCMPIAssociationClassOperations(CIMClient& client, CIMName className)
 
     if (verbose)
     {
-        cout << "+++++ Test references for (" << className.getString() << ")" << endl;
+        cout << "+++++ Test references for (" << className.getString() 
+             << ")" << endl;
     }
 
     try
     {
-        resultObjects = client.references(providerNamespace, op, resultClass, role);
+        resultObjects = client.references(
+            providerNamespace,
+            op,
+            resultClass,
+            role);
 
         // display result
         _displayResult(resultObjects);
@@ -498,8 +513,11 @@ int main(int argc, char** argv)
 
     for (Uint32 i = 0; i < numPersonInstances; i++)
     {
-	_testAssociators(client, CMPI_TEST_RACING, personRefs[i],
-                         resultArray_asso_P1[i]);
+        _testAssociators(
+            client,
+            CMPI_TEST_RACING,
+            personRefs[i],
+            resultArray_asso_P1[i]);
     }
 
     for (Uint32 i = 0; i < numVehicleInstances; i++)

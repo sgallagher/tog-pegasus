@@ -29,33 +29,32 @@
 //
 //==============================================================================
 //
-// Author: Konrad Rzeszutek <konradr@us.ibm.com>
-//
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
-#include <Pegasus/Provider/CMPI/cmpi_cql.h>
 
 /* ---------------------------------------------------------------------------*/
 /*                              Provider Factory                              */
 /* ---------------------------------------------------------------------------*/
 static const CMPIBroker *_broker;
 
-const char *_msg =  "&quot;&lt;MSGS&gt;&lt;MSG COMP=&quot;CIMVM&quot; RC=&quot;400&quot; RS=&quot;65&quot;" \
-					" MSGID=&quot;DNZZMC465E&quot; COMM AND=&quot;Transaction: CimVm::CbCProvisioningService::createUser; Subtask:" \
-					" Process disk settings&quot;&gt;Fehler beim Erstellen eines virtuellen Computersystems"\
-					" (Aktion wurde rückgängig gemacht).&#13;&lt;/MSG&gt;&lt;MSG COMP=&quot;CIMVM&quot;"\
-					" RC=&quot;200&quot; RS=&quot;5&quot; MSGID=&quot;DNZZMC205E&quot;"\
-					" ROOTCAUSE=&quot;true&quot;&gt;&amp;quot;22500&amp;quot; ist keine gültige"\
-					" Einheitennummer.&#13;&lt;/MSG&gt;&lt;/MSGS&gt;&quot;";
+const char *_msg =  "&quot;&lt;MSGS&gt;&lt;MSG COMP=&quot;CIMVM&quot;" \
+    " RC=&quot;400&quot; RS=&quot;65&quot; MSGID=&quot;DNZZMC465E&quot;" \
+    " COMM AND=&quot;Transaction: CimVm::CbCProvisioningService::createUser;" \
+    " Subtask: Process disk settings&quot;&gt;Fehler beim Erstellen eines" \
+    " virtuellen Computersystems (Aktion wurde rückgängig gemacht).&#13;" \
+    "&lt;/MSG&gt;&lt;MSG COMP=&quot;CIMVM&quot; RC=&quot;200&quot;" \
+    " RS=&quot;5&quot; MSGID=&quot;DNZZMC205E&quot; ROOTCAUSE=&quot;" \
+    "true&quot;&gt;&amp;quot;22500&amp;quot; ist keine gültige" \
+    " Einheitennummer.&#13;&lt;/MSG&gt;&lt;/MSGS&gt;&quot;";
 
-CMPIStatus
-TestCMPIFail_4ProviderCleanup (CMPIInstanceMI * mi, const CMPIContext * ctx,
-                                 CMPIBoolean  term)
+CMPIStatus TestCMPIFail_4ProviderCleanup(
+    CMPIInstanceMI * mi,
+    const CMPIContext * ctx,
+    CMPIBoolean  term)
 {
   if (!term) // If CIM Server not terminating
   {
@@ -82,10 +81,12 @@ TestCMPIFail_4ProviderEnumInstances (CMPIInstanceMI * mi,
                                      const CMPIObjectPath * ref,
                                      const char **properties)
 {
-  CMReturnDone(rslt); // This out-of-place macro was added to test bug #4107 
-					  // in which CMReturnDone without a previous CMReturnInstance would
-					  // crash cimserver.
-  CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
+    // This out-of-place macro was added to test bug #4107 
+    // in which CMReturnDone without a previous CMReturnInstance would
+    // crash cimserver.
+
+    CMReturnDone(rslt);
+    CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
 }
 
 CMPIStatus
@@ -95,10 +96,12 @@ TestCMPIFail_4ProviderGetInstance (CMPIInstanceMI * mi,
                                    const CMPIObjectPath * cop,
                                    const char **properties)
 {
-  CMReturnDone(rslt); // This out-of-place macro was added to test bug #4107 
-					  // in which CMReturnDone without a previous CMReturnInstance would
-					  // crash cimserver.
-  CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
+    // This out-of-place macro was added to test bug #4107 
+    // in which CMReturnDone without a previous CMReturnInstance would
+    // crash cimserver.
+
+    CMReturnDone(rslt);
+    CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
 }
 
 CMPIStatus
@@ -108,10 +111,12 @@ TestCMPIFail_4ProviderCreateInstance (CMPIInstanceMI * mi,
                                       const CMPIObjectPath * cop,
                                       const CMPIInstance * ci)
 {
-  CMReturnDone(rslt); // This out-of-place macro was added to test bug #4107 
-					  // in which CMReturnDone without a previous CMReturnInstance would
-					  // crash cimserver.
-  CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
+    // This out-of-place macro was added to test bug #4107 
+    // in which CMReturnDone without a previous CMReturnInstance would
+    // crash cimserver.
+
+    CMReturnDone(rslt); 
+    CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
 }
 
 CMPIStatus
@@ -122,10 +127,12 @@ TestCMPIFail_4ProviderModifyInstance (CMPIInstanceMI * mi,
                                       const CMPIInstance * ci,
                                       const char **properties)
 {
-  CMReturnDone(rslt); // This out-of-place macro was added to test bug #4107 
-					  // in which CMReturnDone without a previous CMReturnInstance would
-					  // crash cimserver.
-  CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
+    // This out-of-place macro was added to test bug #4107 
+    // in which CMReturnDone without a previous CMReturnInstance would
+    // crash cimserver.
+
+    CMReturnDone(rslt);
+    CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
 }
 
 CMPIStatus
@@ -134,10 +141,12 @@ TestCMPIFail_4ProviderDeleteInstance (CMPIInstanceMI * mi,
                                       const CMPIResult * rslt,
                                       const CMPIObjectPath * cop)
 {
-  CMReturnDone(rslt); // This out-of-place macro was added to test bug #4107 
-					  // in which CMReturnDone without a previous CMReturnInstance would
-					  // crash cimserver.
-  CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
+    // This out-of-place macro was added to test bug #4107 
+    // in which CMReturnDone without a previous CMReturnInstance would
+    // crash cimserver.
+
+    CMReturnDone(rslt);
+    CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
 }
 
 /*

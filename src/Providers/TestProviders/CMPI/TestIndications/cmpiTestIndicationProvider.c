@@ -43,7 +43,6 @@
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
-#include <Pegasus/Provider/CMPI/cmpi_cql.h>
 #include <Pegasus/Provider/CMPI/cmpios.h>
 #include <Providers/TestProviders/CMPI/TestUtilLib/cmpiUtilLib.h>
 
@@ -557,10 +556,6 @@ thread (void *args)
 
         PROV_LOG ("-- #5.3 CMNewSelectExp with wrong query lang");
         run_test (broker, ctx, query, "Nonexist query language", inst);
-
-        PROV_LOG (
-          "-- #5.4 CMPI_CQL_NewSelectExp (CIMxCQL) with correct query.");
-        run_test (broker, ctx, query, "CIMxCQL", inst);
 
         PROV_LOG ("-- #5.5 CMNewSelectExp with WQL");
         run_test (broker, ctx, query, "WQL", inst);

@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Konrad Rzeszutek <konradr@us.ibm.com>
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <stdlib.h>
@@ -45,13 +40,13 @@
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
-#include <Pegasus/Provider/CMPI/cmpi_cql.h>
 #include <Providers/TestProviders/CMPI/TestUtilLib/cmpiUtilLib.h>
 
 #define _ClassName "TestCMPI_Instance"
 #define _ClassName_size strlen(_ClassName)
 #define _Namespace    "test/TestProvider"
-#define _ProviderLocation "/src/Providers/TestProviders/CMPI/TestInstance/tests/"
+#define _ProviderLocation \
+    "/src/Providers/TestProviders/CMPI/TestInstance/tests/"
 
 #ifdef CMPI_VER_100
 static const CMPIBroker *_broker;
@@ -350,7 +345,10 @@ TestCMPIInstanceProviderEnumInstanceNames (CMPIInstanceMI * mi,
 
   PROV_LOG ("--- %s CMPI EnumInstanceNames() called", _ClassName);
 
-  op = make_ObjectPath (_broker, CMGetCharPtr (CMGetNameSpace (ref, &rc)), _ClassName);
+  op = make_ObjectPath(
+      _broker,
+      CMGetCharPtr(CMGetNameSpace (ref, &rc)),
+      _ClassName);
 
   /* Just one key */
   CMAddKey (op, "ElementName", (CMPIValue *) _ClassName, CMPI_chars);
@@ -387,7 +385,10 @@ TestCMPIInstanceProviderEnumInstances (CMPIInstanceMI * mi,
   PROV_LOG_OPEN (_ClassName, _ProviderLocation);
   PROV_LOG ("--- %s CMPI EnumInstances() called", _ClassName);
 
-  op = make_ObjectPath (_broker, CMGetCharPtr (CMGetNameSpace (ref, &rc)), _ClassName);
+  op = make_ObjectPath(
+      _broker,
+      CMGetCharPtr(CMGetNameSpace (ref, &rc)),
+      _ClassName);
 
   PROV_LOG (" New Object Path [%s]",
             CMGetCharPtr (CMGetNameSpace (ref, &rc)));
@@ -458,8 +459,8 @@ TestCMPIInstanceProviderCreateInstance (CMPIInstanceMI * mi,
   PROV_LOG_OPEN (_ClassName, _ProviderLocation);
   PROV_LOG ("--- %s CMPI CreateInstance() called", _ClassName);
 
-  CMSetStatusWithChars (_broker, &rc,
-                        CMPI_RC_ERR_NOT_SUPPORTED, "CIM_ERR_NOT_SUPPORTED");
+  CMSetStatusWithChars(_broker, &rc,
+                       CMPI_RC_ERR_NOT_SUPPORTED, "CIM_ERR_NOT_SUPPORTED");
 
   PROV_LOG ("--- %s CMPI CreateInstance() exited", _ClassName);
   PROV_LOG_CLOSE ();
@@ -480,7 +481,8 @@ TestCMPIInstanceProviderSetInstance (CMPIInstanceMI * mi,
                                      CMPIContext * ctx,
                                      CMPIResult * rslt,
                                      CMPIObjectPath * cop,
-                                     CMPIInstance * ci, char **properties)
+                                     CMPIInstance * ci,
+                                     char **properties)
 #endif
 {
   CMPIStatus rc = { CMPI_RC_OK, NULL };
@@ -488,8 +490,11 @@ TestCMPIInstanceProviderSetInstance (CMPIInstanceMI * mi,
   PROV_LOG_OPEN (_ClassName, _ProviderLocation);
   PROV_LOG ("--- %s CMPI SetInstance() called", _ClassName);
 
-  CMSetStatusWithChars (_broker, &rc,
-                        CMPI_RC_ERR_NOT_SUPPORTED, "CIM_ERR_NOT_SUPPORTED");
+  CMSetStatusWithChars(
+      _broker,
+      &rc,
+      CMPI_RC_ERR_NOT_SUPPORTED,
+      "CIM_ERR_NOT_SUPPORTED");
 
   PROV_LOG ("--- %s CMPI SetInstance() exited", _ClassName);
   PROV_LOG_CLOSE ();
@@ -614,17 +619,18 @@ TestCMPIInstanceProviderExecQuery (CMPIInstanceMI * mi,
                   rc_setProperty = _setProperty (inst, data.value.chars);
                   if (rc_setProperty)
                     PROV_LOG ("--- Error finding the property");
-                  // At which point we just leace the function - as we cannot satisfy the
-                  // request. But this is a test-case provider so we are continuing on and we
-                  // just won't send the instance.      Wait you say, won't CMEvaluteSelExp figure
-                  // this too - yes, but only the CQL one. The WQL is not smart enough
+                  // At which point we just leace the function - as we cannot
+                  // satisfy the request. But this is a test-case provider so
+                  // we are continuing on and we just won't send the instance.
+                  // Wait you say, won't CMEvaluteSelExp figure this too - yes,
+                  // but only the CQL one. The WQL is not smart enough
                 }
               if (data.type == CMPI_string)
                 {
                   PROV_LOG ("---- %s (string)",
                             CMGetCharPtr (data.value.string));
-                  // The _setProperty is a simple function to set _only_ properties
-                  // that are needed.
+                  // The _setProperty is a simple function to set _only_ 
+                  // properties that are needed.
                   rc_setProperty =
                     _setProperty (inst, CMGetCharPtr (data.value.string));
                   if (rc_setProperty)
@@ -650,13 +656,8 @@ TestCMPIInstanceProviderExecQuery (CMPIInstanceMI * mi,
         CMRelease (clone);
     }
 
-
-
-  PROV_LOG ("-- #4 CMPI_CQL_NewSelectExp");
-  //se_CQL = CMPI_CQL_NewSelectExp (_broker, query, lang, &projection, &rc_Clone);
-  se_CQL = CMNewSelectExp (_broker, query, "CIMxCQL", &projection, &rc_Clone);
-  PROV_LOG ("---- %s", strCMPIStatus (rc_Clone));
-  /* This can be used to figure what properties to construct against when using CQL */
+  /* This can be used to figure what properties to 
+     construct against when using CQL    */
   if (se_CQL)
     {
       if (projection)
@@ -679,8 +680,8 @@ TestCMPIInstanceProviderExecQuery (CMPIInstanceMI * mi,
                 {
                   PROV_LOG ("---- %s (string)",
                             CMGetCharPtr (data.value.string));
-                  // This is just done for test-purpose. The previous if (se) loop would
-                  // have take care of this.
+                  // This is just done for test-purpose. The previous 
+                  // if (se) loop would have take care of this.
                   _setProperty (inst, CMGetCharPtr (data.value.string));
                 }
             }
@@ -714,8 +715,8 @@ TestCMPIInstanceProviderExecQuery (CMPIInstanceMI * mi,
           /* If it evaluated to true, return the instance */
           if (rc_setProperty)
             {
-              PROV_LOG
-                ("--- Can't send the instances as the SELECT <...> part has incorrect properties");
+              PROV_LOG("--- Can't send the instances as the"
+                       " SELECT <...> part has incorrect properties");
             }
           else
             {

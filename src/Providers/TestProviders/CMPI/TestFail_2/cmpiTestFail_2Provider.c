@@ -29,16 +29,12 @@
 //
 //==============================================================================
 //
-// Author: Konrad Rzeszutek <konradr@us.ibm.com>
-//
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
-#include <Pegasus/Provider/CMPI/cmpi_cql.h>
 
 /* ---------------------------------------------------------------------------*/
 /*                              Provider Factory                              */
@@ -50,9 +46,12 @@
 // We pick an invalid one:
 // TestCMPIInstance_Fail1PRovider_Create_instanceMI
 
-CMPI_EXTERN_C CMPIInstanceMI* TestCMPI_Fail2PRovider_Create_instanceMI(const CMPIBroker* brkr,const CMPIContext *ctx, CMPIStatus *rc) 
+CMPI_EXTERN_C CMPIInstanceMI* TestCMPI_Fail2PRovider_Create_instanceMI(
+    const CMPIBroker* brkr,
+    const CMPIContext *ctx,
+    CMPIStatus *rc) 
 { 
-	return NULL;
+    return NULL;
 }
 
 /* ---------------------------------------------------------------------------*/

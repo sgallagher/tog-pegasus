@@ -38,8 +38,6 @@
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
-#include <Pegasus/Provider/CMPI/cmpi_cql.h>
-
 #include <Providers/TestProviders/CMPI/TestUtilLib/cmpiUtilLib.h>
 
 #define _ClassName "TestCMPI_BrokerInstance"

@@ -38,7 +38,6 @@
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
-#include <Pegasus/Provider/CMPI/cmpi_cql.h>
 
 /* ---------------------------------------------------------------------------*/
 /*                              Provider Factory                              */
@@ -46,34 +45,44 @@
 
 
 
-CMPI_EXTERN_C CMPIInstanceMI* 
-TestCMPIFail_1Provider_Create_InstanceMI(const CMPIBroker* brkr,const CMPIContext *ctx, CMPIStatus *rc) 
+CMPI_EXTERN_C CMPIInstanceMI* TestCMPIFail_1Provider_Create_InstanceMI(
+    const CMPIBroker* brkr,
+    const CMPIContext *ctx,
+    CMPIStatus *rc) 
 { 
-	return NULL;
+    return NULL;
 }
 
-CMPI_EXTERN_C CMPIAssociationMI* 
-TestCMPIFail_1Provider_Create_AssociationMI(const CMPIBroker* brkr,const CMPIContext *ctx,  CMPIStatus *rc) 
+CMPI_EXTERN_C CMPIAssociationMI* TestCMPIFail_1Provider_Create_AssociationMI(
+    const CMPIBroker* brkr,
+    const CMPIContext *ctx,
+    CMPIStatus *rc) 
 {
-	return NULL;
+    return NULL;
 }
 
-CMPI_EXTERN_C CMPIMethodMI* 
-TestCMPIFail_1Provider_Create_MethodMI(const CMPIBroker* brkr, const CMPIContext *ctx,  CMPIStatus *rc)
+CMPI_EXTERN_C CMPIMethodMI* TestCMPIFail_1Provider_Create_MethodMI(
+    const CMPIBroker* brkr,
+    const CMPIContext *ctx,
+    CMPIStatus *rc)
 {
-	return NULL;
+    return NULL;
 }
 
-CMPI_EXTERN_C CMPIPropertyMI* 
-TestCMPIFail_1Provider_Create_PropertyMI(const CMPIBroker* brkr,const CMPIContext *ctx,  CMPIStatus *rc) 
+CMPI_EXTERN_C CMPIPropertyMI* TestCMPIFail_1Provider_Create_PropertyMI(
+    const CMPIBroker* brkr,
+    const CMPIContext *ctx,
+    CMPIStatus *rc) 
 {
-	return NULL;
+    return NULL;
 }
 
-CMPI_EXTERN_C CMPIIndicationMI* 
-TestCMPIFail_1Provider_Create_IndicationMI(const CMPIBroker* brkr,const CMPIContext *ctx,CMPIStatus *rc) 
+CMPI_EXTERN_C CMPIIndicationMI* TestCMPIFail_1Provider_Create_IndicationMI(
+    const CMPIBroker* brkr,
+    const CMPIContext *ctx,
+    CMPIStatus *rc) 
 {
-	return NULL;
+    return NULL;
 }
 /* ---------------------------------------------------------------------------*/
 /*             end of TestCMPIProvider                      */

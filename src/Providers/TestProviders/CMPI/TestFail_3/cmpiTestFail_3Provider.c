@@ -29,16 +29,12 @@
 //
 //==============================================================================
 //
-// Author: Konrad Rzeszutek <konradr@us.ibm.com>
-//
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
-#include <Pegasus/Provider/CMPI/cmpi_cql.h>
 
 /* ---------------------------------------------------------------------------*/
 /*                              Provider Factory                              */
@@ -47,17 +43,22 @@
 
 
 /* Note: These functions will never be executed. */
-CMPI_EXTERN_C CMPIInstanceMI* 
-TestCMPIFail_3Provider_Create_InstanceMI(const CMPIBroker* brkr,const CMPIContext *ctx,  CMPIStatus *rc) 
+CMPI_EXTERN_C CMPIInstanceMI* TestCMPIFail_3Provider_Create_InstanceMI(
+    const CMPIBroker* brkr,
+    const CMPIContext *ctx,
+    CMPIStatus *rc) 
 {
-	return NULL;
+    return NULL;
 }
 
-CMPI_EXTERN_C CMPIInstanceMI* 
-_Generic_Create_InstanceMI(const CMPIBroker* brkr,const CMPIContext *ctx, const char *name, CMPIStatus *rc) 
+CMPI_EXTERN_C CMPIInstanceMI* _Generic_Create_InstanceMI(
+    const CMPIBroker* brkr,
+    const CMPIContext *ctx,
+    const char *name,
+    CMPIStatus *rc) 
 {
-	return NULL;
+    return NULL;
 }
 /* ---------------------------------------------------------------------------*/
-/*             end of TestCMPIProvider                      */
+/*             end of TestCMPIProvider                                        */
 /* ---------------------------------------------------------------------------*/

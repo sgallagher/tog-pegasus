@@ -61,7 +61,6 @@
 #include <Pegasus/CQL/CQLSelectStatement.h>
 #include <Pegasus/CQL/CQLParser.h>
 #include <Pegasus/CQL/CQLChainedIdentifier.h>
-#include <Pegasus/Provider/CMPI/cmpi_cql.h>
 #endif
 
 #include <stdarg.h>

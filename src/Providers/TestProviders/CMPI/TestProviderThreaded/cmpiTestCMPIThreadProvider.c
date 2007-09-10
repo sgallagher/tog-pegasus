@@ -29,16 +29,12 @@
 //
 //==============================================================================
 //
-// Author: Konrad Rzeszutek <konradr@us.ibm.com>
-//
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
-#include <Pegasus/Provider/CMPI/cmpi_cql.h>
 
 #if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
 #include <time.h>

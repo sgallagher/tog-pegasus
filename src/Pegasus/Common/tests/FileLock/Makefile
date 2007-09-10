@@ -41,7 +41,7 @@ SOURCES = FileLock.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-ifeq ($(OS_TYPE),unix)
+ifneq ($(OS_TYPE),vms)
 	$(PROGRAM) master
 endif
 

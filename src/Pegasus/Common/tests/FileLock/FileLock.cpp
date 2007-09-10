@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -33,7 +33,7 @@
 
 /*
     This unit test exercises the AutoFileLock class.  Since a file lock does
-    not protect against multiple locks by the same process, it is necessary 
+    not protect against multiple locks by the same process, it is necessary
     to use separate processes to exercise the locking mechanism.
 
     This test spawns child processes, each of which iterates the steps of
@@ -58,6 +58,16 @@ const char* COUNTER_FILE = "counterFile";
 const Uint32 NUM_SUBTESTS = 10;
 const Uint32 NUM_ITERATIONS = 20;
 
+// PEGASUS_POPEN and PEGASUS_PCLOSE macros are introduced to use a common calls
+// on both unix and windows.
+#if defined(PEGASUS_OS_TYPE_UNIX)
+# define PEGASUS_POPEN popen
+# define PEGASUS_PCLOSE pclose
+#elif defined(PEGASUS_OS_TYPE_WINDOWS)
+# define PEGASUS_POPEN _popen
+# define PEGASUS_PCLOSE _pclose
+#endif
+
 void master(char testProgram[])
 {
     // Master process
@@ -75,8 +85,7 @@ void master(char testProgram[])
     fs.open(COUNTER_FILE, ios::out PEGASUS_OR_IOS_BINARY);
     fs.write("00000000", 8);
     fs.close();
-
-#ifdef PEGASUS_OS_TYPE_UNIX
+#if defined(PEGASUS_OS_TYPE_UNIX) || defined(PEGASUS_OS_TYPE_WINDOWS)
 
     // Start the subtests
 
@@ -85,7 +94,7 @@ void master(char testProgram[])
 
     for ( i = 0; i < NUM_SUBTESTS; i++)
     {
-        fd[i] = popen(testProgram, "r");
+        fd[i] = PEGASUS_POPEN(testProgram, "r");
         PEGASUS_TEST_ASSERT(fd[i]);
     }
 
@@ -93,7 +102,7 @@ void master(char testProgram[])
 
     for ( i = 0; i < NUM_SUBTESTS; i++)
     {
-        pclose(fd[i]);
+        PEGASUS_PCLOSE(fd[i]);
     }
 
 #endif

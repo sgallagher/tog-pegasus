@@ -54,6 +54,10 @@
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/HostAddress.h>
 
+#ifdef PEGASUS_OS_ZOS
+#include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
+#endif
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
@@ -374,12 +378,18 @@ const char* opTypeToOpName(Uint16 type)
 int main(int argc, char** argv)
 {
 
+#ifdef PEGASUS_OS_ZOS
+    // for z/OS set stdout and stderr to EBCDIC
+    setEBCDICEncoding(STDOUT_FILENO);
+    setEBCDICEncoding(STDERR_FILENO);
+#endif
+
     // Get options (from command line and from configuration file); this
     // removes corresponding options and their arguments from the command
     // line.
 
     OptionManager om;
-
+    
     try
     {
         String testHome = ".";

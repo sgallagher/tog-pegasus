@@ -52,6 +52,10 @@
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/PegasusAssert.h>
 
+#ifdef PEGASUS_OS_ZOS
+#include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
+#endif
+
 #define CIMPROVIDERCOMMAND_CLIENT_DEFAULTTIMEOUT 120000
 
 PEGASUS_USING_STD;
@@ -1759,6 +1763,12 @@ int main(int argc, char* argv[])
 
     MessageLoader::_useProcessLocale = true;
     MessageLoader::setPegasusMsgHomeRelative(argv[0]);
+
+#ifdef PEGASUS_OS_ZOS
+    // for z/OS set stdout and stderr to EBCDIC
+    setEBCDICEncoding(STDOUT_FILENO);
+    setEBCDICEncoding(STDERR_FILENO);
+#endif
 
     command.reset(new CIMProviderCommand());
 

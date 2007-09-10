@@ -44,6 +44,10 @@
 
 #include <Pegasus/getoopt/getoopt.h>
 
+#ifdef PEGASUS_OS_ZOS
+#include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
+#endif
+
 #include <iostream>
 
 #ifdef PEGASUS_OS_TYPE_UNIX
@@ -418,6 +422,12 @@ int main (int argc, char* argv[])
 {
     AutoPtr<CIMRepositoryArchiveCommand> command;
     Uint32 retCode;
+#ifdef PEGASUS_OS_ZOS
+    // for z/OS set stdout and stderr to EBCDIC
+    setEBCDICEncoding(STDOUT_FILENO);
+    setEBCDICEncoding(STDERR_FILENO);
+#endif
+
 
     MessageLoader::_useProcessLocale = true;
     MessageLoader::setPegasusMsgHomeRelative(argv[0]);

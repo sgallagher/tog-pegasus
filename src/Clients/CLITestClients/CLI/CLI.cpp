@@ -41,6 +41,11 @@
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/HostLocator.h>
 
+#ifdef PEGASUS_OS_ZOS
+#include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
+#endif
+
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
@@ -228,6 +233,13 @@ public:
 
 int main(int argc, char** argv)
 {
+
+#ifdef PEGASUS_OS_ZOS
+    // for z/OS set stdout and stderr to EBCDIC
+    setEBCDICEncoding(STDOUT_FILENO);
+    setEBCDICEncoding(STDERR_FILENO);
+#endif
+ 
 #ifdef PEGASUS_OS_PASE
     // Allow user group name larger than 8 chars in PASE environemnt
     setenv("PASE_USRGRP_LIMITED","N",1);

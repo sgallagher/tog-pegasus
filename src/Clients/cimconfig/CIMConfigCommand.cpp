@@ -52,6 +52,10 @@
 # include <ILEWrapper/ILEUtilities.h>
 #endif
 
+#ifdef PEGASUS_OS_ZOS
+#include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 //l10n
@@ -1871,6 +1875,12 @@ int main (int argc, char* argv [])
     // Check special authorities in PASE environment
     if (!umeCheckCmdAuthorities(false))
         return Command::RC_ERROR; 
+#endif
+
+#ifdef PEGASUS_OS_ZOS
+    // for z/OS set stdout and stderr to EBCDIC
+    setEBCDICEncoding(STDOUT_FILENO);
+    setEBCDICEncoding(STDERR_FILENO);
 #endif
 
     command.reset(new CIMConfigCommand ());

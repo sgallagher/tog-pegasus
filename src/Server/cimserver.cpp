@@ -96,6 +96,7 @@
 #include <Service/ServerRunStatus.h>
 
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
 #include <Service/ARM_zOS.h>
 # ifdef PEGASUS_ZOS_SECURITY
 // This include file will not be provided in the OpenGroup CVS for now.
@@ -436,6 +437,22 @@ int main(int argc, char** argv)
 
     // Set Message loading to process locale
     MessageLoader::_useProcessLocale = true;
+
+#ifdef PEGASUS_OS_ZOS
+    // Direct standard input to /dev/null,
+    close(STDIN_FILENO);
+    open("/dev/null", O_RDONLY);
+
+    if ( setEBCDICEncoding(STDOUT_FILENO)==-1 ||
+         setEBCDICEncoding(STDERR_FILENO)==-1 )
+    {
+       PEG_TRACE_CSTRING(TRC_SERVER,Tracer::LEVEL4,
+           "Coud not set stdout or stderr to EBCDIC encoding.");
+    }
+    // Need to initialize timezone information in the
+    // initial processing thread (IPT)
+    tzset();
+#endif
 
 #if defined(PEGASUS_OS_AIX) && defined(PEGASUS_HAS_MESSAGES)
     setlocale(LC_ALL, "");
@@ -1119,11 +1136,11 @@ int CIMServerProcess::cimserver_run(
         {
             // Direct standard input, output, and error to /dev/null,
             // since we are running as a daemon.
-            close(0);
+            close(STDIN_FILENO);
             open("/dev/null", O_RDONLY);
-            close(1);
+            close(STDOUT_FILENO);
             open("/dev/null", O_RDWR);
-            close(2);
+            close(STDERR_FILENO);
             open("/dev/null", O_RDWR);
         }
 #endif

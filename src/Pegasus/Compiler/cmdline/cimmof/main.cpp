@@ -53,6 +53,10 @@ using namespace ParserExceptions;
 
 // This is used by the parsing routines to control flow
 // through include files
+#ifdef PEGASUS_OS_ZOS
+#include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
+#endif
+
 static mofCompilerOptions cmdline;
 
 extern "C++" int processCmdLine(int, char **, mofCompilerOptions &, ostream &);
@@ -97,6 +101,12 @@ int main(int argc, char ** argv)
     {
         cerr << e.getMessage() << endl;
         ret = PEGASUS_CIMMOF_CMDLINE_NOREPOSITORY;
+#ifdef PEGASUS_OS_ZOS
+  // for z/OS set stdout and stderr to EBCDIC
+  setEBCDICEncoding(STDOUT_FILENO);
+  setEBCDICEncoding(STDERR_FILENO);
+#endif
+
     }
     catch (CIMException &e)
     {

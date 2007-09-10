@@ -57,6 +57,10 @@
 #include "WbemExecCommand.h"
 #include "WbemExecClient.h"
 
+#ifdef PEGASUS_OS_ZOS
+#include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 /**
@@ -1149,6 +1153,12 @@ int main (int argc, char* argv [])
     WbemExecCommand    command = WbemExecCommand ();
     int                rc;
     MessageLoader::setPegasusMsgHomeRelative(argv[0]);
+
+#ifdef PEGASUS_OS_ZOS
+    // for z/OS set stdout and stderr to EBCDIC
+    setEBCDICEncoding(STDOUT_FILENO);
+    setEBCDICEncoding(STDERR_FILENO);
+#endif
 
     try
     {

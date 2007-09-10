@@ -53,6 +53,10 @@
 # include <Pegasus/Config/ProductDirectoryStructure.h>
 #endif
 
+#ifdef PEGASUS_OS_ZOS
+#include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
+#endif
+
 // Enables debug information.
 // #define REPUPGRADE_DEBUG 1
 
@@ -2229,6 +2233,13 @@ PEGASUS_USING_STD;
 
 int main (int argc, char* argv [])
 {
+
+#ifdef PEGASUS_OS_ZOS
+    // for z/OS set stdout and stderr to EBCDIC
+    setEBCDICEncoding(STDOUT_FILENO);
+    setEBCDICEncoding(STDERR_FILENO);
+#endif
+
     try
     {
         RepositoryUpgrade   command;
@@ -2269,3 +2280,4 @@ int main (int argc, char* argv [])
         return 1;
     }
 }
+

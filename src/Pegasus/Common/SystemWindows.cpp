@@ -189,7 +189,7 @@ String System::getFullyQualifiedHostName ()
         String hostname = getHostName();
         struct hostent* hostEnt;
 
-        hostEnt = gethostbyname((const char *)hostname.getCString());
+        hostEnt = getHostByName((const char *)hostname.getCString());
         if (hostEnt == NULL)
         {
             return String::EMPTY;

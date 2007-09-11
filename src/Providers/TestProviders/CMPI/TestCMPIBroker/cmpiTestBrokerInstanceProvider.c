@@ -235,7 +235,7 @@ CMPIStatus TestCMPIBrokerInstanceProviderCreateInstance (CMPIInstanceMI * mi,
         PROV_LOG ("++++ Status of mbEncGetType with input of type CMPIInstance"
             " : (%s) type(%s)",
             strCMPIStatus (rc),
-            CMGetCharsPtr(type, &rc));
+            CMGetCharsPtr(type, NULL));
 
         bol = CDIsOfType (_broker, ci, "CMPIInstance", &rc);
         if ( bol )
@@ -255,7 +255,7 @@ CMPIStatus TestCMPIBrokerInstanceProviderCreateInstance (CMPIInstanceMI * mi,
         PROV_LOG ("++++ Status of mbEncGetType with input of type "
             "CMPIObjectPath : (%s) type(%s)",
             strCMPIStatus (rc),
-            CMGetCharsPtr(type, &rc));
+            CMGetCharsPtr(type, NULL));
 
         bol = CDIsOfType (_broker, cop, "CMPIObjectPath", &rc);
         if ( bol )
@@ -270,7 +270,7 @@ CMPIStatus TestCMPIBrokerInstanceProviderCreateInstance (CMPIInstanceMI * mi,
         PROV_LOG ("++++ Status of mbEncGetType with input of type "
             "CMPIResult with CMPI_ResultRefOnStack_Ftab : (%s) type(%s)",
             strCMPIStatus (rc),
-            CMGetCharsPtr(type, &rc));
+            CMGetCharsPtr(type, NULL));
 
         bol = CDIsOfType (_broker, rslt, "CMPIResult", &rc);
         if ( bol )
@@ -378,7 +378,7 @@ CMPIStatus TestCMPIBrokerInstanceProviderGetInstance (CMPIInstanceMI * mi,
     PROV_LOG ("++++ Status of mbEncGetType with input of type "
         "CMPIResult with CMPI_ResultInstOnStack_Ftab : (%s) type(%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     bol = CDIsOfType (_broker, rslt, "CMPIResult", &rc);
     if ( bol )
@@ -438,7 +438,7 @@ CMPIStatus TestCMPIBrokerInstanceProviderExecQuery (CMPIInstanceMI * mi,
     PROV_LOG ("++++ Status of mbEncGetType with input of type "
         "CMPIResult with CMPI_ResultExecQueryOnStack_Ftab : (%s) type(%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     bol = CDIsOfType (_broker, rslt, "CMPIResult", &rc);
     if ( bol )
@@ -474,7 +474,7 @@ CMPIStatus TestCMPIBrokerInstanceProviderModifyInstance (CMPIInstanceMI * mi,
     PROV_LOG ("++++ Status of mbEncGetType with input of type "
         "CMPIResult with CMPI_ResultResponseOnStack_Ftab : (%s) type(%s)",
         strCMPIStatus (rc),
-        CMGetCharsPtr(type, &rc));
+        CMGetCharsPtr(type, NULL));
 
     bol = CDIsOfType (_broker, rslt, "CMPIResult", &rc);
     if ( bol )

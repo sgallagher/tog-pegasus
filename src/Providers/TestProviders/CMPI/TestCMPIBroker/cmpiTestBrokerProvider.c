@@ -211,9 +211,10 @@ static int _testBrokerServices(const CMPIContext * ctx,
     PROV_LOG("++++ Status of CMNewObjectPath for CMPI_TEST_Person : (%s)",
         strCMPIStatus(rc));
 
-    name = CMNewString(_broker, (CMPIValue*) "Melvin", &rc);
+    name = CMNewString(_broker, "Melvin", &rc);
     PROV_LOG("++++ Status of CMNewString name with value Melvin : (%s) (%s)",
-        strCMPIStatus(rc), CMGetCharsPtr(name, &rc));
+        strCMPIStatus(rc),
+        CMGetCharsPtr(name, NULL));
 
     value.string = name;
     rc = CMAddKey(objPath, "name", &value, CMPI_string);

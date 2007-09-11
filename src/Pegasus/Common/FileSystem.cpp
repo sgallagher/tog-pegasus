@@ -503,7 +503,8 @@ Boolean FileSystem::changeFileOwner(
     struct passwd* userPasswd;
 #if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) || \
     defined(PEGASUS_OS_HPUX) || \
-    defined (PEGASUS_OS_LINUX)
+    defined(PEGASUS_OS_LINUX) || \
+    defined (PEGASUS_OS_VMS)
 
     const unsigned int PWD_BUFF_SIZE = 1024;
     struct passwd pwd;

@@ -1,0 +1,8 @@
+VXWorks is built with these environment variables:
+
+    PEGASUS_PLATFORM=VXWORKS_PENTIUM_GNU
+    PEGASUS_ROOT=<source-distribution-root>
+    PEGASUS_HOME=<build-directory-path>
+    PEGASUS_DISABLE_PROV_USERCTXT=1
+    PEGASUS_DEFAULT_ENABLE_OOP=false
+

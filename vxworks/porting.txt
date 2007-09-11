@@ -1,0 +1,6 @@
+
+    1. VXWorks has no fork/exec semantics.
+
+    2. VXWorks has no user database maniuplation.
+
+    3. VXWorks has no file ownership management.

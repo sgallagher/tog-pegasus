@@ -27,41 +27,106 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
-ifeq ($(PLATFORM_VERSION_SUPPORTED), yes)
-  ifdef PLATFORM_COMPONENT_NAME
-     DEFINES += -DPLATFORM_COMPONENT_NAME=\"$(PLATFORM_COMPONENT_NAME)\"
-  else
-     DEFINES += -DPLATFORM_COMPONENT_NAME=\"$(PROGRAM)\"
-  endif
+#//=============================================================================
+
+ifndef WIND_BASE
+  $(error "The WIND_BASE environment variable is undefined")
 endif
 
-include $(ROOT)/mak/common.mak
-ifdef PEGASUS_EXTRA_PROGRAM_LINK_FLAGS
-    EXTRA_LINK_FLAGS += $(PEGASUS_EXTRA_PROGRAM_LINK_FLAGS)
+export PEGASUS_ENABLE_IPV6=false
+
+DEFINES = 
+
+OS_TYPE = vxworks
+
+RM = rm -f
+
+RMDIRHIER = rm -rf
+
+MKDIRHIER = mkdir -p 
+
+EXE_OUT = -o
+
+OBJ = .o
+
+OBJ_OUT = -o
+
+EXE =
+
+LIB_PREFIX = lib
+
+DIFF = diff
+
+SORT = sort
+
+COPY = cp
+
+TOUCH = touch
+
+ECHO = echo
+
+DEFINES += -DPEGASUS_PLATFORM_VXWORKS_PENTIUM_GNU
+
+PEGASUS_DEFAULT_ENABLE_OOP = false
+
+PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER = false
+
+OS = vxworks
+
+COMPILER = gnu
+
+PLATFORM_VERSION_SUPPORTED = yes
+
+ifndef CXX
+  CXX = c++pentium
 endif
 
-ifeq ($(OS_TYPE),windows)
-include $(ROOT)/mak/program-windows.mak
+ifndef CC
+  CC = ccpentium
 endif
 
-ifeq ($(OS_TYPE),unix)
-include $(ROOT)/mak/program-unix.mak
-# GCC supports the -fPIE switch in version 3.4 or later
- ifeq ($(OS),linux)
-   ifeq ($(shell expr $(GCC_VERSION) '>=' 3.4), 1)
-      FLAGS := $(FLAGS:-fPIC=-fPIE)
-   endif
- endif
+SH = sh
+
+YACC = bison
+
+RM = rm -f
+
+DIFF = diff
+
+SORT = sort
+
+COPY = cp
+
+MOVE = mv
+
+MKDIRHIER = mkdir -p
+
+PEGASUS_SUPPORTS_DYNLIB = yes
+
+MAJOR_VERSION_NUMBER = 1
+
+LIB_SUFFIX = .so
+
+DEFINES += -DPEGASUS_USE_SYSLOGS -DCPU=SIMPENTIUM -DTOOL_FAMILY=gnu -DTOOL=gnu 
+
+SYS_LIBS =
+
+ifdef PEGASUS_PAM_AUTHENTICATION
+    $(error "vxworks does not support PAM authenticaiton")
 endif
 
-ifeq ($(OS_TYPE),vms)
- include $(ROOT)/mak/program-vms.mak
+FLAGS += -mcpu=i486 -march=i486 -W -Wall -Wno-unused -mrtp -MD -MP
+
+ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
+  FLAGS += -g
+else
+  FLAGS += -Os
 endif
 
-ifeq ($(OS_TYPE),vxworks)
- include $(ROOT)/mak/program-vxworks.mak
-endif
+PEGASUS_HAS_MAKEDEPEND = yes
 
-#l10n
-messages: $(ERROR)
+PEGASUS_ARCH_LIB = lib64
+
+VXWORKS_LIB_COMMON = $(WIND_BASE)/target/usr/lib/simpentium/SIMPENTIUM/common
+
+ROMFS = $(PEGASUS_HOME)/romfs

@@ -27,41 +27,20 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
-ifeq ($(PLATFORM_VERSION_SUPPORTED), yes)
-  ifdef PLATFORM_COMPONENT_NAME
-     DEFINES += -DPLATFORM_COMPONENT_NAME=\"$(PLATFORM_COMPONENT_NAME)\"
-  else
-     DEFINES += -DPLATFORM_COMPONENT_NAME=\"$(PROGRAM)\"
+#//=============================================================================
+
+ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
+  ifeq ($(STATIC),1)
+    BUILD_STATIC=1
   endif
 endif
 
-include $(ROOT)/mak/common.mak
-ifdef PEGASUS_EXTRA_PROGRAM_LINK_FLAGS
-    EXTRA_LINK_FLAGS += $(PEGASUS_EXTRA_PROGRAM_LINK_FLAGS)
-endif
+ifdef BUILD_STATIC
 
-ifeq ($(OS_TYPE),windows)
-include $(ROOT)/mak/program-windows.mak
-endif
+    # ATTN-MEB:
 
-ifeq ($(OS_TYPE),unix)
-include $(ROOT)/mak/program-unix.mak
-# GCC supports the -fPIE switch in version 3.4 or later
- ifeq ($(OS),linux)
-   ifeq ($(shell expr $(GCC_VERSION) '>=' 3.4), 1)
-      FLAGS := $(FLAGS:-fPIC=-fPIE)
-   endif
- endif
-endif
+else
 
-ifeq ($(OS_TYPE),vms)
- include $(ROOT)/mak/program-vms.mak
-endif
+  include $(PEGASUS_ROOT)/mak/shared-library-vxworks.mak
 
-ifeq ($(OS_TYPE),vxworks)
- include $(ROOT)/mak/program-vxworks.mak
 endif
-
-#l10n
-messages: $(ERROR)

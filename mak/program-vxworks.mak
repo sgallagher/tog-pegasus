@@ -27,84 +27,30 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
-ifeq ($(PLATFORM_VERSION_SUPPORTED), yes)
-  ifdef PLATFORM_COMPONENT_NAME
-     DEFINES += -DPLATFORM_COMPONENT_NAME=\"$(PLATFORM_COMPONENT_NAME)\"
-  else
-     DEFINES += -DPLATFORM_COMPONENT_NAME=\"$(LIBRARY)\"
-  endif
-endif
+#//=============================================================================
 
 INCLUDES = -I$(ROOT)/src $(EXTRA_INCLUDES)
 
-include $(ROOT)/mak/common.mak
-
-ifdef PEGASUS_EXTRA_LIBRARY_LINK_FLAGS
-    EXTRA_LINK_FLAGS += $(PEGASUS_EXTRA_LIBRARY_LINK_FLAGS)
-endif
-
-################################################################################
-##
-## Build list of object names.
-##
-################################################################################
-
 TMP_OBJECTS = $(foreach i,$(SOURCES),$(OBJ_DIR)/$i)
-
-ifeq ($(OS_TYPE),windows)
-S_OBJECTS = $(TMP_OBJECTS:.s=.obj)
-CPP_OBJECTS = $(S_OBJECTS:.cpp=.obj)
-OBJECTS = $(CPP_OBJECTS:.c=.obj)
-else
-S_OBJECTS = $(TMP_OBJECTS:.s=.o)
-CPP_OBJECTS = $(S_OBJECTS:.cpp=.o)
+CPP_OBJECTS = $(TMP_OBJECTS:.cpp=.o)
 OBJECTS = $(CPP_OBJECTS:.c=.o)
-endif
 
-################################################################################
-##
-## Library rule:
-##
-################################################################################
+TARGET=$(BIN_DIR)/$(PROGRAM).vxe
 
-ifeq ($(OS_TYPE),windows)
-include $(ROOT)/mak/library-windows.mak
-endif
+LFLAGS = -lstdc++ -L$(WIND_BASE)/target/usr/lib/simpentium/SIMPENTIUM/common -Wl,-rpath /romfs/lib -ldl
 
-ifeq ($(OS_TYPE),unix)
-include $(ROOT)/mak/library-unix.mak
-endif
-
-ifeq ($(OS_TYPE),vms)
- include $(ROOT)/mak/library-vms.mak
-endif
-
-ifeq ($(OS_TYPE),vxworks)
- include $(ROOT)/mak/library-vxworks.mak
-endif
-
-################################################################################
-##
-## Clean rules:
-##
-################################################################################
-
-include $(ROOT)/mak/clean.mak
-
-################################################################################
-##
-## Build list of object names:
-##
-################################################################################
+$(TARGET): $(BIN_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) $(ERROR)
+	$(CXX) $(FLAGS) -o $(TARGET) $(OBJECTS) -non-static $(FULL_LIBRARIES) $(LFLAGS)
 
 include $(ROOT)/mak/objects.mak
 
-include $(ROOT)/mak/depend.mak
+FILES_TO_CLEAN = $(OBJECTS) $(FULL_PROGRAM)
+
+include $(ROOT)/mak/clean.mak
+
+-include $(ROOT)/mak/depend.mak
 
 include $(ROOT)/mak/build.mak
-
-include $(ROOT)/mak/docxx.mak
 
 include $(ROOT)/mak/sub.mak
 
@@ -112,11 +58,6 @@ include $(ROOT)/mak/sub.mak
 
 include $(ROOT)/mak/misc.mak
 
-tests: $(ERROR)
-
-#l10n
-
-messages : $(ERROR)
-
-poststarttests: $(ERROR)
-
+romfs:
+	mkdir -p $(ROMFS)/bin
+	cp $(TARGET) $(ROMFS)/bin

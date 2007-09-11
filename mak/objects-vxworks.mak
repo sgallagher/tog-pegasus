@@ -27,41 +27,16 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
-ifeq ($(PLATFORM_VERSION_SUPPORTED), yes)
-  ifdef PLATFORM_COMPONENT_NAME
-     DEFINES += -DPLATFORM_COMPONENT_NAME=\"$(PLATFORM_COMPONENT_NAME)\"
-  else
-     DEFINES += -DPLATFORM_COMPONENT_NAME=\"$(PROGRAM)\"
-  endif
+#//=============================================================================
+
+SYS_INCLUDES = \
+    -I$(WIND_BASE)/target/usr/h \
+    -I$(WIND_BASE)/target/usr/h/wrn/coreip \
+
+ifdef LIBRARY
+  EFLAGS += -fpic
 endif
 
-include $(ROOT)/mak/common.mak
-ifdef PEGASUS_EXTRA_PROGRAM_LINK_FLAGS
-    EXTRA_LINK_FLAGS += $(PEGASUS_EXTRA_PROGRAM_LINK_FLAGS)
-endif
-
-ifeq ($(OS_TYPE),windows)
-include $(ROOT)/mak/program-windows.mak
-endif
-
-ifeq ($(OS_TYPE),unix)
-include $(ROOT)/mak/program-unix.mak
-# GCC supports the -fPIE switch in version 3.4 or later
- ifeq ($(OS),linux)
-   ifeq ($(shell expr $(GCC_VERSION) '>=' 3.4), 1)
-      FLAGS := $(FLAGS:-fPIC=-fPIE)
-   endif
- endif
-endif
-
-ifeq ($(OS_TYPE),vms)
- include $(ROOT)/mak/program-vms.mak
-endif
-
-ifeq ($(OS_TYPE),vxworks)
- include $(ROOT)/mak/program-vxworks.mak
-endif
-
-#l10n
-messages: $(ERROR)
+$(OBJ_DIR)/%.o: $(OBJ_DIR)/target %.cpp $(ERROR)
+	$(CXX) -c $(FLAGS) $(EFLAGS) $(EXTRA_CXX_FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) -o $@ -c $*.cpp
+	@ $(ECHO)

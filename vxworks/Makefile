@@ -14,6 +14,8 @@ image:
 
 build:
 	( cd image; make TOOL=gnu ROMFS_DIR=$(ROMFS) )
+	cp image/vxWorks .
+	cp image/vxWorks.sym .
 
 clean:
 	rm -rf image

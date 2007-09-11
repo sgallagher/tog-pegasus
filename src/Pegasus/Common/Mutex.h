@@ -66,6 +66,7 @@ inline void mutex_lock(MutexType* mutex) { pthread_mutex_lock(mutex); }
 inline void mutex_unlock(MutexType* mutex) { pthread_mutex_unlock(mutex); }
 struct MutexRep
 {
+    int recursive;
     pthread_mutex_t mutex;
     pthread_cond_t cond;
     pthread_t owner;

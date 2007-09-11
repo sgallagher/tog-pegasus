@@ -28,7 +28,7 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ifeq ($(PEGASUS_OS_TYPE),VMS)
+ifeq ($(OS_TYPE),vms)
 #
 # Make this a program instead of a library.
 # VMS can only share executables!

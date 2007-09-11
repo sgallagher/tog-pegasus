@@ -81,7 +81,7 @@ endif
 ifeq ($(OS_TYPE),windows)
     STRIPCRS = stripcrs $(RESULTFILE) $(MASTERRESULTFILE)
 else
-    ifeq  ($(PEGASUS_OS_TYPE), VMS)
+    ifeq  ($(OS_TYPE), vms)
         STRIPCRS = stripcrs $(RESULTFILE) $(MASTERRESULTFILE)
     else
         STRIPCRS = 

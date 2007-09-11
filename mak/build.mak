@@ -36,7 +36,7 @@ define BUILD_NL
 
 endef
 
-ifeq ($(PEGASUS_OS_TYPE),VMS)
+ifeq ($(OS_TYPE),vms)
 
 $(OBJ_DIR)/target: $(ERROR)
 ifndef VMSPROGRAM

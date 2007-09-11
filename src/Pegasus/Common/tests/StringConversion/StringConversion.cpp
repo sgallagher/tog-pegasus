@@ -1,37 +1,39 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
+
 
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/StringConversion.h>
 #include <cstring>
 #include <iostream>
-#include <math.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -358,30 +360,30 @@ void testStringToSint64()
     PEGASUS_TEST_ASSERT(s64 == 0);
     PEGASUS_TEST_ASSERT(StringConversion::stringToSint64(
         "+9223372036854775807", StringConversion::decimalStringToUint64, s64));
-    PEGASUS_TEST_ASSERT(s64 == PEGASUS_SINT64_LITERAL(0x7FFFFFFFFFFFFFFF));
+    PEGASUS_TEST_ASSERT(s64 == PEGASUS_UINT64_LITERAL(0x7FFFFFFFFFFFFFFF));
     PEGASUS_TEST_ASSERT(StringConversion::stringToSint64(
         "-9223372036854775808", StringConversion::decimalStringToUint64, s64));
-    PEGASUS_TEST_ASSERT(s64 == PEGASUS_SINT64_LITERAL(0x8000000000000000));
+    PEGASUS_TEST_ASSERT(s64 == PEGASUS_UINT64_LITERAL(0x8000000000000000));
 
     PEGASUS_TEST_ASSERT(StringConversion::stringToSint64(
         "0x0", StringConversion::hexStringToUint64, s64));
     PEGASUS_TEST_ASSERT(s64 == 0);
     PEGASUS_TEST_ASSERT(StringConversion::stringToSint64(
         "+0x7FFFFFFFFFFFFFFF", StringConversion::hexStringToUint64, s64));
-    PEGASUS_TEST_ASSERT(s64 == PEGASUS_SINT64_LITERAL(0x7FFFFFFFFFFFFFFF));
+    PEGASUS_TEST_ASSERT(s64 == PEGASUS_UINT64_LITERAL(0x7FFFFFFFFFFFFFFF));
     PEGASUS_TEST_ASSERT(StringConversion::stringToSint64(
         "-0x8000000000000000", StringConversion::hexStringToUint64, s64));
-    PEGASUS_TEST_ASSERT(s64 == PEGASUS_SINT64_LITERAL(0x8000000000000000));
+    PEGASUS_TEST_ASSERT(s64 == PEGASUS_UINT64_LITERAL(0x8000000000000000));
 
     PEGASUS_TEST_ASSERT(StringConversion::stringToSint64(
         "00", StringConversion::octalStringToUint64, s64));
     PEGASUS_TEST_ASSERT(s64 == 0);
     PEGASUS_TEST_ASSERT(StringConversion::stringToSint64(
         "+0777777777777777777777", StringConversion::octalStringToUint64, s64));
-    PEGASUS_TEST_ASSERT(s64 == PEGASUS_SINT64_LITERAL(0x7FFFFFFFFFFFFFFF));
+    PEGASUS_TEST_ASSERT(s64 == PEGASUS_UINT64_LITERAL(0x7FFFFFFFFFFFFFFF));
     PEGASUS_TEST_ASSERT(StringConversion::stringToSint64(
         "-01000000000000000000000", StringConversion::octalStringToUint64,s64));
-    PEGASUS_TEST_ASSERT(s64 == PEGASUS_SINT64_LITERAL(0x8000000000000000));
+    PEGASUS_TEST_ASSERT(s64 == PEGASUS_UINT64_LITERAL(0x8000000000000000));
 
     PEGASUS_TEST_ASSERT(StringConversion::stringToSint64(
         "0b", StringConversion::binaryStringToUint64, s64));
@@ -390,12 +392,12 @@ void testStringToSint64()
         "+111111111111111111111111111111111111111111111111111111111111111b",
         StringConversion::binaryStringToUint64,
         s64));
-    PEGASUS_TEST_ASSERT(s64 == PEGASUS_SINT64_LITERAL(0x7FFFFFFFFFFFFFFF));
+    PEGASUS_TEST_ASSERT(s64 == PEGASUS_UINT64_LITERAL(0x7FFFFFFFFFFFFFFF));
     PEGASUS_TEST_ASSERT(StringConversion::stringToSint64(
         "-1000000000000000000000000000000000000000000000000000000000000000b",
         StringConversion::binaryStringToUint64,
         s64));
-    PEGASUS_TEST_ASSERT(s64 == PEGASUS_SINT64_LITERAL(0x8000000000000000));
+    PEGASUS_TEST_ASSERT(s64 == PEGASUS_UINT64_LITERAL(0x8000000000000000));
 
     PEGASUS_TEST_ASSERT(!StringConversion::stringToSint64(
         0, StringConversion::decimalStringToUint64, s64));
@@ -514,83 +516,7 @@ void testStringToReal64()
         !StringConversion::stringToReal64("1.1e+123456789", r64));
 }
 
-void testReal32ToString()
-{
-    Real32 r32;
-    Real64 r64r;
-    char buffer[128];
-    Uint32 size;
-    {
-        r32 = 1.5;
-        const char* result = Real32ToString(buffer, r32, size);
-        PEGASUS_TEST_ASSERT(strlen(result) == size);
-        PEGASUS_TEST_ASSERT(StringConversion::stringToReal64(result, r64r));
-        PEGASUS_TEST_ASSERT(fabs(r32 - r64r) < r32/1000);
-    }
-
-    {
-        r32 = 0;
-        const char* result = Real32ToString(buffer, r32, size);
-        PEGASUS_TEST_ASSERT(strlen(result) == size);
-        PEGASUS_TEST_ASSERT(StringConversion::stringToReal64(result, r64r));
-        PEGASUS_TEST_ASSERT(fabs(r32 - r64r) < .0001);
-    }
-
-    {
-        r32 = 10.0E-0001;
-        const char* result = Real32ToString(buffer, r32, size);
-        PEGASUS_TEST_ASSERT(strlen(result) == size);
-        PEGASUS_TEST_ASSERT(StringConversion::stringToReal64(result, r64r));
-        PEGASUS_TEST_ASSERT(fabs(r32 - r64r) < r32/1000);
-    }
-    {
-        r32 = 10.0E+5;
-        const char* result = Real32ToString(buffer, r32, size);
-        PEGASUS_TEST_ASSERT(strlen(result) == size);
-        PEGASUS_TEST_ASSERT(StringConversion::stringToReal64(result, r64r));
-        PEGASUS_TEST_ASSERT(fabs(r32 - r64r) < r32/1000);
-    }
-}
-
-void testReal64ToString()
-{
-    Real64 r64;
-    Real64 r64r;
-    char buffer[128];
-    Uint32 size;
-    {
-        r64 = 1.5;
-        const char* result = Real64ToString(buffer, r64, size);
-        PEGASUS_TEST_ASSERT(strlen(result) == size);
-        PEGASUS_TEST_ASSERT(StringConversion::stringToReal64(result, r64r));
-        PEGASUS_TEST_ASSERT(fabs(r64 - r64r) < r64/1000);
-    }
-
-    {
-        r64 = 0;
-        const char* result = Real64ToString(buffer, r64, size);
-        PEGASUS_TEST_ASSERT(strlen(result) == size);
-        PEGASUS_TEST_ASSERT(StringConversion::stringToReal64(result, r64r));
-        PEGASUS_TEST_ASSERT(fabs(r64 - r64r) < .0001);
-    }
-
-    {
-        r64 = 10.0E-0001;
-        const char* result = Real64ToString(buffer, r64, size);
-        PEGASUS_TEST_ASSERT(strlen(result) == size);
-        PEGASUS_TEST_ASSERT(StringConversion::stringToReal64(result, r64r));
-        PEGASUS_TEST_ASSERT(fabs(r64 - r64r) < r64/1000);
-    }
-    {
-        r64 = 10.0E+5;
-        const char* result = Real64ToString(buffer, r64, size);
-        PEGASUS_TEST_ASSERT(strlen(result) == size);
-        PEGASUS_TEST_ASSERT(StringConversion::stringToReal64(result, r64r));
-        PEGASUS_TEST_ASSERT(fabs(r64 - r64r) < r64/1000);
-    }
-}
-
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
     testIntegerToStringConversions();
     testHexCharToNumeric();
@@ -601,8 +527,6 @@ int main(int, char** argv)
     testStringToSint64();
     testCheckSintBounds();
     testStringToReal64();
-    testReal32ToString();
-    testReal64ToString();
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

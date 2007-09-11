@@ -1,148 +1,75 @@
-rtpSp "../home/bin/TestAbstract.vxe"
-sleep 5
-rtpSp "../home/bin/TestAnonymousPipe.vxe"
-sleep 5
-rtpSp "../home/bin/TestArray.vxe"
-sleep 5
-rtpSp "../home/bin/TestAsyncCallback.vxe"
-sleep 5
-rtpSp "../home/bin/TestAsyncQueue.vxe"
-sleep 5
-rtpSp "../home/bin/TestAtomicInt.vxe"
-sleep 5
-rtpSp "../home/bin/TestAuditLogger.vxe"
-sleep 5
-rtpSp "../home/bin/TestAuthenticationInfo.vxe"
-sleep 5
-rtpSp "../home/bin/TestAutoPtr.vxe"
-sleep 5
-rtpSp "../home/bin/TestBase64.vxe"
-sleep 5
-rtpSp "../home/bin/TestBuffer.vxe"
-sleep 5
-rtpSp "../home/bin/TestCimError.vxe"
-sleep 5
-rtpSp "../home/bin/TestCimom.vxe"
-sleep 5
-rtpSp "../home/bin/TestClassDecl.vxe"
-sleep 5
-rtpSp "../home/bin/TestCompare.vxe"
-sleep 5
-rtpSp "../home/bin/TestCondition.vxe"
-sleep 5
-rtpSp "../home/bin/TestConfig.vxe"
-sleep 5
-rtpSp "../home/bin/TestDateTime.vxe"
-sleep 5
-rtpSp "../home/bin/TestDir.vxe"
-sleep 5
-rtpSp "../home/bin/TestDynamicLibrary.vxe"
-sleep 5
-rtpSp "../home/bin/TestExecutor.vxe"
-sleep 5
-rtpSp "../home/bin/TestFileLock.vxe"
-sleep 5
-rtpSp "../home/bin/TestFileSystem.vxe"
-sleep 5
-rtpSp "../home/bin/TestFlavor.vxe"
-sleep 5
-rtpSp "../home/bin/TestFormatter.vxe"
-sleep 5
-rtpSp "../home/bin/TestHashTable.vxe"
-sleep 5
-rtpSp "../home/bin/TestHostAddress.vxe"
-sleep 5
-rtpSp "../home/bin/TestHostLocator.vxe"
-sleep 5
-rtpSp "../home/bin/TestHTTPMessage.vxe"
-sleep 5
-rtpSp "../home/bin/TestIDFactory.vxe"
-sleep 5
-rtpSp "../home/bin/TestIndicationFormatter.vxe"
-sleep 5
-rtpSp "../home/bin/TestInstanceDecl.vxe"
-sleep 5
-rtpSp "../home/bin/TestL10N.vxe"
-sleep 5
-rtpSp "../home/bin/TestList.vxe"
-sleep 5
-rtpSp "../home/bin/TestLogger.vxe"
-sleep 5
-rtpSp "../home/bin/TestMessageQueueService.vxe"
-sleep 5
-rtpSp "../home/bin/TestMessageQueue.vxe"
-sleep 5
-rtpSp "../home/bin/TestMessageSerializer.vxe"
-sleep 5
-rtpSp "../home/bin/TestMethod.vxe"
-sleep 5
-rtpSp "../home/bin/TestModuleController.vxe"
-sleep 5
-rtpSp "../home/bin/TestMutex.vxe"
-sleep 5
-rtpSp "../home/bin/TestObjectNormalizer.vxe"
-sleep 5
-rtpSp "../home/bin/TestObject.vxe"
-sleep 5
-rtpSp "../home/bin/TestOperationContext.vxe"
-sleep 5
-rtpSp "../home/bin/TestOptionManager.vxe"
-sleep 5
-rtpSp "../home/bin/TestParameter.vxe"
-sleep 5
-rtpSp "../home/bin/TestParamValue.vxe"
-sleep 5
-rtpSp "../home/bin/TestProperty.vxe"
-sleep 5
-rtpSp "../home/bin/TestQualifierDecl.vxe"
-sleep 5
-rtpSp "../home/bin/TestQualifierList.vxe"
-sleep 5
-rtpSp "../home/bin/TestQualifier.vxe"
-sleep 5
-rtpSp "../home/bin/TestReference.vxe"
-sleep 5
-rtpSp "../home/bin/TestResolve.vxe"
-sleep 5
-rtpSp "../home/bin/TestScope.vxe"
-sleep 5
-rtpSp "../home/bin/TestSharedPtr.vxe"
-sleep 5
-rtpSp "../home/bin/TestSpinLock.vxe"
-sleep 5
-rtpSp "../home/bin/TestStack.vxe"
-sleep 5
-rtpSp "../home/bin/TestStatisticalData.vxe"
-sleep 5
-rtpSp "../home/bin/TestStopwatch.vxe"
-sleep 5
-rtpSp "../home/bin/TestStringConversion.vxe"
-sleep 5
-rtpSp "../home/bin/TestString.vxe"
-sleep 5
-rtpSp "../home/bin/TestStrToInstName.vxe"
-sleep 5
-rtpSp "../home/bin/TestSystem.vxe"
-sleep 5
-rtpSp "../home/bin/TestThreadPool.vxe"
-sleep 5
-rtpSp "../home/bin/TestThread.vxe"
-sleep 5
-rtpSp "../home/bin/TestTimeValue.vxe"
-sleep 5
-rtpSp "../home/bin/TestToMof.vxe"
-sleep 5
-rtpSp "../home/bin/TestTracer.vxe"
-sleep 5
-rtpSp "../home/bin/TestValidateClass.vxe"
-sleep 5
-rtpSp "../home/bin/TestValue.vxe"
-sleep 5
-rtpSp "../home/bin/TestXmlDump.vxe"
-sleep 5
-rtpSp "../home/bin/TestXmlParser.vxe"
-sleep 5
-rtpSp "../home/bin/TestXmlPrint.vxe"
-sleep 5
-rtpSp "../home/bin/TestXmlReader.vxe"
-sleep 5
+cmd
+rtp exec TestAbstract.vxe
+rtp exec TestAnonymousPipe.vxe
+rtp exec TestArray.vxe
+rtp exec TestAsyncQueue.vxe
+rtp exec TestAsyncCallback.vxe
+rtp exec TestAtomicInt.vxe
+rtp exec TestAuditLogger.vxe
+rtp exec TestAuthenticationInfo.vxe
+rtp exec TestAutoPtr.vxe
+rtp exec TestBase64.vxe
+rtp exec TestBuffer.vxe
+rtp exec TestCimError.vxe
+rtp exec TestCimom.vxe
+rtp exec TestClassDecl.vxe
+rtp exec TestCompare.vxe
+rtp exec TestCondition.vxe
+rtp exec TestConfig.vxe
+rtp exec TestDateTime.vxe
+rtp exec TestDir.vxe
+rtp exec TestDynamicLibrary.vxe
+rtp exec TestExecutor.vxe
+rtp exec TestFileLock.vxe
+rtp exec TestFileSystem.vxe
+rtp exec TestFlavor.vxe
+rtp exec TestFormatter.vxe
+rtp exec TestHashTable.vxe
+rtp exec TestHostAddress.vxe
+rtp exec TestHostLocator.vxe
+rtp exec TestHTTPMessage.vxe
+rtp exec TestIDFactory.vxe
+rtp exec TestIndicationFormatter.vxe
+rtp exec TestInstanceDecl.vxe
+rtp exec TestL10N.vxe
+rtp exec TestList.vxe
+rtp exec TestLogger.vxe
+rtp exec TestMessageQueueService.vxe
+rtp exec TestMessageQueue.vxe
+rtp exec TestMessageSerializer.vxe
+rtp exec TestMethod.vxe
+rtp exec TestModuleController.vxe
+rtp exec TestMutex.vxe
+rtp exec TestObjectNormalizer.vxe
+rtp exec TestObject.vxe
+rtp exec TestOperationContext.vxe
+rtp exec TestOptionManager.vxe
+rtp exec TestParameter.vxe
+rtp exec TestParamValue.vxe
+rtp exec TestProperty.vxe
+rtp exec TestQualifierDecl.vxe
+rtp exec TestQualifierList.vxe
+rtp exec TestQualifier.vxe
+rtp exec TestReference.vxe
+rtp exec TestResolve.vxe
+rtp exec TestScope.vxe
+rtp exec TestSharedPtr.vxe
+rtp exec TestSpinLock.vxe
+rtp exec TestStack.vxe
+rtp exec TestStatisticalData.vxe
+rtp exec TestStopwatch.vxe
+rtp exec TestStringConversion.vxe
+rtp exec TestString.vxe
+rtp exec TestStrToInstName.vxe
+rtp exec TestSystem.vxe
+rtp exec TestThreadPool.vxe
+rtp exec TestThread.vxe
+rtp exec TestTimeValue.vxe
+rtp exec TestToMof.vxe
+rtp exec TestTracer.vxe
+rtp exec TestValidateClass.vxe
+rtp exec TestValue.vxe
+rtp exec TestXmlDump.vxe
+rtp exec TestXmlParser.vxe
+rtp exec TestXmlPrint.vxe
+rtp exec TestXmlReader.vxe

@@ -52,7 +52,7 @@ String getLibraryFileName(const String& libraryName)
 #if defined(PEGASUS_OS_VMS)
     String prefixDir;
 # if defined(PEGASUS_USE_RELEASE_DIRS)
-    prefixDir = String("/wbem_opt/wbem/providers/lib/");
+    prefixDir = String("/wbem_lib/");
 # else
     const char* tmp = getenv("PEGASUS_HOME");
     if (tmp)

@@ -56,8 +56,6 @@ DIRS = \
     TestIndicationStressTestProvider/tests \
     TestCMPIEnumeration \
     TestCMPIEnumeration/tests \
-    TestCMPIBrokerEnc \
-    TestCMPIBrokerEnc/tests \
     TestCMPIInstance \
     TestCMPIInstance/tests 
 
@@ -70,6 +68,8 @@ ifdef PEGASUS_ENABLE_EXECQUERY
 DIRS += \
     TestCMPIBroker \
     TestCMPIBroker/tests \
+    TestCMPIBrokerEnc \
+    TestCMPIBrokerEnc/tests \
     TestExecQuery \
     TestExecQuery/tests
 endif

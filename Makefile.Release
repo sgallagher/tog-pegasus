@@ -1341,7 +1341,7 @@ _append_filesSectionToSpecFile: FORCE
            "$(PEGASUS_SCRIPT_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
 	@$(ECHO-E) "%attr($(Prw_r__r__),$(INSTALL_USR),$(INSTALL_GRP))" \
 	   "$(PEGASUS_MANUSER_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
-	@$(ECHO-E) "%attr($(Prw_r_____),$(INSTALL_USR),$(INSTALL_GRP))" \
+	@$(ECHO-E) "%attr($(Prw_r__r__),$(INSTALL_USR),$(INSTALL_GRP))" \
 	   "$(PEGASUS_MANADMIN_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(PEGASUS_DOC_FILES), \

@@ -476,7 +476,7 @@ fi
 %attr(755,root,pegasus) /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/*.so.1
 %attr(750,root,pegasus) /usr/share/Pegasus/scripts/*
 %attr(644,root,pegasus) /usr/share/man/man1/*
-%attr(640,root,pegasus) /usr/share/man/man8/*
+%attr(644,root,pegasus) /usr/share/man/man8/*
 
 %doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.7/Admin_Guide_Release.pdf
 %doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.7/PegasusSSLGuidelines.htm

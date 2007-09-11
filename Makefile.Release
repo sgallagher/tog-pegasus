@@ -108,8 +108,6 @@ PEGASUS_LIBRARIES = \
    libCertificateProvider \
    libpegqueryexpression \
    libpegquerycommon \
-   libInteropProvider \
-   libCIMOMStatDataProvider \
    libpegservice 
 
 ifndef PEGASUS_DISABLE_CQL

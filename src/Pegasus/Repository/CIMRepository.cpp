@@ -1186,6 +1186,8 @@ void CIMRepository::deleteClass(
     PEG_METHOD_EXIT();
 }
 
+// This function needs to be called from within a transaction scope for
+// proper error handling in compacting index and data files. 
 void _CompactInstanceRepository(
     const String& indexFilePath,
     const String& dataFilePath)
@@ -1307,15 +1309,17 @@ void CIMRepository::deleteInstance(
                 instanceName.toString()));
     }
 
-    transaction.complete();
-
     //
     // Compact the index and data files if the free count max was
     // reached.
     //
 
-    if (freeCount == _MAX_FREE_COUNT)
+    if (freeCount >= _MAX_FREE_COUNT)
+    {
         _CompactInstanceRepository(indexFilePath, dataFilePath);
+    }
+
+    transaction.complete();
 
     //
     // Delete from assocation table (if an assocation).
@@ -2145,15 +2149,17 @@ void CIMRepository::modifyInstance(
                 instanceName.toString()));
     }
 
-    transaction.complete();
-
     //
     // Compact the index and data files if the free count max was
     // reached.
     //
 
-    if (freeCount == _MAX_FREE_COUNT)
+    if (freeCount >= _MAX_FREE_COUNT)
+    {
         _CompactInstanceRepository(indexFilePath, dataFilePath);
+    }
+
+    transaction.complete();
 
     //
     // Resolve the instance:

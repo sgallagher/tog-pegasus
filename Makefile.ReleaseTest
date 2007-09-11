@@ -107,7 +107,7 @@ PEGASUS_TEST_PROVIDERS = \
 
 ifdef PEGASUS_USE_NET_SNMP
    PEGASUS_TEST_PROVIDERS += \
-      libRT_IndicationProvider
+      libIndicationTestProvider 
 endif
 
 POSTSTARTTEST_FILES = \

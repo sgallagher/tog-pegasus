@@ -57,6 +57,55 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+//
+// PASE environment for synchronousSignal and asynchronousSignal
+//
+#ifdef PEGASUS_OS_PASE
+static void _synchronousSignalHandler(int s_n)
+{
+    static bool mark = false;
+
+    if (mark)
+        exit(1);
+
+    mark = true;
+    if (_providerAgent != 0)
+    {
+        _providerAgent->_terminating = true;
+    }
+ 
+    char fullJobName[29];
+    umeGetJobName(fullJobName, true);
+    Logger::put_l(Logger::ERROR_LOG, "provider agent", Logger::SEVERE, \
+        "ProviderManager.ProviderAgent.RECEIVE_SYN_SIGNAL.PEGASUS_OS_PASE", \
+        "$0 received synchronous signal: $1", fullJobName, s_n);
+
+    /* save job log */
+    systemCL ("QSYS/CHGJOB JOB(*) LOG(4 00 *NOLIST)", \
+        SYSTEMCL_MSG_STDOUT | SYSTEMCL_MSG_STDERR);
+}
+
+static void ProviderAgent::_asynchronousSignalHandler(int s_n)
+{
+    static bool amark = false;
+
+    if (amark)
+        exit(1);
+
+    amark = true;
+    if (_providerAgent != 0)
+    {
+        _providerAgent->_terminating = true;
+    }
+
+    char fullJobName[29];
+    umeGetJobName(fullJobName, true);
+    Logger::put_l(Logger::ERROR_LOG, "provider agent", Logger::SEVERE, \
+        "ProviderManager.ProviderAgent.RECEIVE_ASYN_SIGNAL.PEGASUS_OS_PASE", \
+        "$0 received asynchronous signal: $1", fullJobName, s_n);
+}
+#endif
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // ProviderAgentRequest
@@ -764,56 +813,5 @@ void ProviderAgent::_terminateSignalHandler(
 
     PEG_METHOD_EXIT();
 }
-
-//
-// PASE environment for synchronousSignal and asynchronousSignal
-//
-#ifdef PEGASUS_OS_PASE
-void ProviderAgent::_synchronousSignalHandler(
-    int s_n, PEGASUS_SIGINFO_T* s_info, void* sig)
-{
-    static bool mark = false;
-
-    if (mark)
-        exit(1);
-
-    mark = true;
-    if (_providerAgent != 0)
-    {
-        _providerAgent->_terminating = true;
-    }
- 
-    char fullJobName[29];
-    umeGetJobName(fullJobName, true);
-    Logger::put_l(Logger::ERROR_LOG, "provider agent", Logger::SEVERE, \
-        "ProviderManager.ProviderAgent.RECEIVE_SYN_SIGNAL.PEGASUS_OS_PASE", \
-        "$0 received synchronous signal: $1", fullJobName, s_n);
-
-    /* save job log */
-    systemCL ("QSYS/CHGJOB JOB(*) LOG(4 00 *NOLIST)", \
-        SYSTEMCL_MSG_STDOUT | SYSTEMCL_MSG_STDERR);
-}
-
-void ProviderAgent::_asynchronousSignalHandler(
-    int s_n, PEGASUS_SIGINFO_T* s_info, void* sig)
-{
-    static bool amark = false;
-
-    if (amark)
-        exit(1);
-
-    amark = true;
-    if (_providerAgent != 0)
-    {
-        _providerAgent->_terminating = true;
-    }
-
-    char fullJobName[29];
-    umeGetJobName(fullJobName, true);
-    Logger::put_l(Logger::ERROR_LOG, "provider agent", Logger::SEVERE, \
-        "ProviderManager.ProviderAgent.RECEIVE_ASYN_SIGNAL.PEGASUS_OS_PASE", \
-        "$0 received asynchronous signal: $1", fullJobName, s_n);
-}
-#endif
 
 PEGASUS_NAMESPACE_END

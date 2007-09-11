@@ -217,6 +217,7 @@ void WbemExecClient::connectLocal()
     }
     catch (CannotConnectException&)
     {
+#ifdef PEGASUS_HAS_SSL
         //
         // Look up the WBEM HTTPS port number for the local system
         //
@@ -248,8 +249,11 @@ void WbemExecClient::connectLocal()
             new SSLContext(certpath, verifyServerCertificate, randFile));
 
         _connect();
+#else
+        throw;
+#endif // PEGASUS_HAS_SSL
     }
-#endif
+#endif // PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
     _isRemote = false;
 }
 

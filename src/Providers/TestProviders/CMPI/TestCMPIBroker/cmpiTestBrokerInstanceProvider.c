@@ -291,7 +291,8 @@ CMPIStatus TestCMPIBrokerInstanceProviderCreateInstance (CMPIInstanceMI * mi,
         retData = CMGetProperty(_inst, "n64", &rc);
         PROV_LOG("++++ Status of CMGetProperty : (%s)",
             strCMPIStatus(rc));
-        PROV_LOG("n64 = %d", retData.value.uint64);
+        PROV_LOG("n64 = %" PEGASUS_64BIT_CONVERSION_WIDTH "u",
+            retData.value.uint64);
         retData = CMGetProperty(_inst, "n32", &rc);
         PROV_LOG("++++ Status of CMGetProperty : (%s)",
             strCMPIStatus(rc));
@@ -316,7 +317,8 @@ CMPIStatus TestCMPIBrokerInstanceProviderCreateInstance (CMPIInstanceMI * mi,
         retData = CMGetProperty(_inst, "n64", &rc);
         PROV_LOG("++++ Status of CMGetProperty : (%s)",
             strCMPIStatus(rc));
-        PROV_LOG("n64 = %d", retData.value.uint64);
+        PROV_LOG("n64 = %" PEGASUS_64BIT_CONVERSION_WIDTH "u",
+            retData.value.uint64);
         PROV_LOG_CLOSE ();
 
         CMReturnObjectPath(rslt, cop);
@@ -368,7 +370,8 @@ CMPIStatus TestCMPIBrokerInstanceProviderGetInstance (CMPIInstanceMI * mi,
     retData = CMGetProperty(_inst, "n64", &rc);
     PROV_LOG("++++ Status of CMGetProperty : (%s)",
         strCMPIStatus(rc));
-    PROV_LOG("n64 = %d", retData.value.uint64);
+    PROV_LOG("n64 = %" PEGASUS_64BIT_CONVERSION_WIDTH "u",
+        retData.value.uint64);
    
     /* Test cases for increasing coverage in CMPI_BrokerEnc.cpp*/
     type = CDGetType (_broker, rslt, &rc);
@@ -428,7 +431,8 @@ CMPIStatus TestCMPIBrokerInstanceProviderExecQuery (CMPIInstanceMI * mi,
     retData = CMGetProperty(_inst, "n64", &rc);
     PROV_LOG("++++ Status of CMGetProperty : (%s)",
         strCMPIStatus(rc));
-    PROV_LOG("n64 = %d", retData.value.uint64);
+    PROV_LOG("n64 = %" PEGASUS_64BIT_CONVERSION_WIDTH "u",
+        retData.value.uint64);
 
     type = CDGetType (_broker, rslt, &rc);
     PROV_LOG ("++++ Status of mbEncGetType with input of type "

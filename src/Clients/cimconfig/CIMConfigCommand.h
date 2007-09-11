@@ -181,13 +181,6 @@ private:
     */
     Boolean       _plannedValueSet;
 
-#ifdef PEGASUS_OS_PASE
-    /**
-    The flag to indicate whether to disable any output.
-    */
-    Boolean       _defaultQuietSet;
-#endif
-
     /**
     The type of operation specified on the command line.
     */

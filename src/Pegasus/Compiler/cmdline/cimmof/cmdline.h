@@ -55,9 +55,6 @@ enum opttypes {FILESPEC,
            TRACEFLAG,
            XMLFLAG,
 #endif
-#ifdef PEGASUS_OS_PASE
-           QUIETFLAG,
-#endif
            VERSIONFLAG,
            OPTEND_CIMMOF,    //PEP167
            REPOSITORYNAME,

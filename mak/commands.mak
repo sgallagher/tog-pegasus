@@ -229,11 +229,16 @@ ifeq ($(OS),linux)
 # the cimserver process. The CIMSERVERMAIN_USR variable will be set
 # equal to CIMSERVER_USR, and the CIMSERVERMAIN_GRP variable will be set
 # equal to CIMSERVER_GRP.
-# 
+#
+# To further restrict the privileges assigned to the cimservermain
+# process, we recommend creating a new group for the cimservermain
+# process.  By default, the name of this group will be the same as
+# the cimservermain user.  Note: the CIMSERVERMAIN_GRP should be
+# the primary group for the CIMSERVERMAIN_USER. 
 
 ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
     CIMSERVERMAIN_USR = $(PEGASUS_CIMSERVERMAIN_USER)
-    CIMSERVERMAIN_GRP = pegasus
+    CIMSERVERMAIN_GRP = $(PEGASUS_CIMSERVERMAIN_USER)
 else
     CIMSERVERMAIN_USR = $(CIMSERVER_USR)
     CIMSERVERMAIN_GRP = $(CIMSERVER_GRP)

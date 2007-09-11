@@ -301,11 +301,11 @@ fi
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-pre.spec
 
 # When Privilege Separation is enabled, create the 'cimsrvr' user and 
-# 'pegasus' group which are used as the context of the cimservermain process
+# 'cimsrvr' group which are used as the context of the cimservermain process
 if [ $1 -gt 0 ]; then
-    /usr/sbin/groupadd pegasus > /dev/null 2>&1 || :;
+    /usr/sbin/groupadd cimsrvr > /dev/null 2>&1 || :;
     /usr/sbin/useradd -c "tog-pegasus OpenPegasus WBEM/CIM services" \
-        -g pegasus -s /sbin/nologin -r -d %PEGASUS_VARDATA_DIR cimsrvr \
+        -g cimsrvr -s /sbin/nologin -r -d %PEGASUS_VARDATA_DIR cimsrvr \
         > /dev/null 2>&1 || :;
 fi
 
@@ -428,14 +428,14 @@ fi;
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-postun.spec
 
 # When Privilege Separation is enabled, delete the 'cimsrvr' user and 
-# 'pegasus' group which are used as the context of the cimservermain process
+# 'cimsrvr' group which are used as the context of the cimservermain process
 if [ $1 -eq 0 ]; then
     /usr/sbin/userdel cimsrvr > /dev/null 2>&1 || :;
-    /usr/sbin/groupdel pegasus > /dev/null 2>&1 || :;
+    /usr/sbin/groupdel cimsrvr > /dev/null 2>&1 || :;
 fi
 
 %files
-%defattr(600, cimsrvr, pegasus, 700)
+%defattr(600, cimsrvr, cimsrvr, 700)
 /var/lib/Pegasus/repository
 %defattr(600, root, pegasus, 755)
 %dir /usr/share/doc/tog-pegasus-2.7
@@ -452,8 +452,8 @@ fi
 %dir /usr/%PEGASUS_ARCH_LIB/Pegasus/providers 
 
 %dir %attr(755, root, pegasus) /etc/Pegasus
-%dir %attr(755, cimsrvr, pegasus) /var/run/tog-pegasus
-%dir %attr(1755,cimsrvr,pegasus) /var/run/tog-pegasus/socket
+%dir %attr(755, cimsrvr, cimsrvr) /var/run/tog-pegasus
+%dir %attr(1755,cimsrvr,cimsrvr) /var/run/tog-pegasus/socket
 %dir %attr(1777,root,pegasus) /var/lib/Pegasus/cache/trace
 
 /usr/share/Pegasus/mof/CIM29/*
@@ -504,6 +504,6 @@ fi
 %files test
 %defattr(-,root,pegasus,-)
 /usr/share/Pegasus/test
-%defattr(600,cimsrvr, pegasus,700)
+%defattr(600,cimsrvr, cimsrvr,700)
 /var/lib/Pegasus/testrepository
 %endif

@@ -122,8 +122,7 @@ INCLUDE_FILES += \
    Pegasus/Provider/CMPI/cmpidt.h \
    Pegasus/Provider/CMPI/cmpimacs.h \
    Pegasus/Provider/CMPI/cmpios.h \
-   Pegasus/Provider/CMPI/cmpipl.h \
-   Pegasus/Provider/CMPI/cmpi_cql.h 
+   Pegasus/Provider/CMPI/cmpipl.h
 
 SAMPLES_DIRS = \
    Clients \

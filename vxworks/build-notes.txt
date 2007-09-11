@@ -6,3 +6,9 @@ VXWorks is built with these environment variables:
     PEGASUS_DISABLE_PROV_USERCTXT=1
     PEGASUS_DEFAULT_ENABLE_OOP=false
 
+Individual program and libraries can be moved to $PEGASUS_HOME/romfs
+by just typing "make romfs". Programs are moved to $PEGASUS_HOME/romfs/bin
+and libraries are moved to $PEGASUS_HOME/romfs/lib.
+
+A VXWorks simulator image (that includes the romfs above) can be built by
+typing "make" in this directory.

@@ -235,7 +235,8 @@ String System::getHostName()
 
 String System::getFullyQualifiedHostName ()
 {
-#if defined(PEGASUS_OS_ZOS)
+#if defined(PEGASUS_OS_ZOS)|| \
+    defined(PEGASUS_OS_VMS)
 
     char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
     String fqName;
@@ -247,7 +248,7 @@ String System::getFullyQualifiedHostName ()
     {
         return String::EMPTY;
     }
-    resolv = new struct addrinfo;
+    memset (&hint, 0, sizeof(struct addrinfo));
     hint.ai_flags = AI_CANONNAME;
     hint.ai_family = AF_UNSPEC; // any family
     hint.ai_socktype = 0;       // any socket type
@@ -269,7 +270,10 @@ String System::getFullyQualifiedHostName ()
         // else assign unqualified hostname
         fqName.assign(hostName);
     }
-    freeaddrinfo(resolv);
+    if (resolv)
+    {
+        freeaddrinfo(resolv);
+    }
 
     return fqName;
 

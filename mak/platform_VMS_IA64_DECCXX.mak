@@ -27,7 +27,7 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//=============================================================================
+#//==============================================================================
 include $(ROOT)/mak/config-vms.mak
 
 OS = VMS
@@ -45,16 +45,24 @@ OBJ_DIR = $(HOME_DIR)/obj/$(TMP_OBJDIR)
 BIN_DIR = $(HOME_DIR)/bin
 LIB_DIR = $(HOME_DIR)/lib
 OPT_DIR = $(HOME_DIR)/opt
-LFLAGS =  /Threads_Enable=Upcalls
-LFLAGS += /symbol_table=$(BIN_VMSDIRA)]$(PROGRAM)
-LFLAGS += /map=$(BIN_VMSDIRA)]$(PROGRAM)/full/cross_reference
-CFLAGS =  /repos=$(CXXREPOSITORY_VMSROOT)/template_def=time
-CCFLAGS = /OPT=INLINE
+LFLAGS =  /Threads_Enable=(Upcalls,Multiple_Kernel_Threads)
+LFLAGS +=  /symbol_table=$(BIN_VMSDIRA)]$(PROGRAM)
+LFLAGS +=  /map=$(BIN_VMSDIRA)]$(PROGRAM)/full/cross_reference
+CFLAGS =  /main=POSIX_EXIT
+CFLAGS += /names=(shortened)
+CFLAGS += /repos=$(CXXREPOSITORY_VMSROOT)
+
+CCFLAGS = /main=POSIX_EXIT
+CCFLAGS += /names=(shortened)
 
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
 CFLAGS += /show=include/lis=$(OBJ_VMSDIRA)]/debug/noopt
-CCFLAGS = /show=include/lis=$(OBJ_VMSDIRA)]/debug/noopt
+CCFLAGS += /show=include/lis=$(OBJ_VMSDIRA)]/debug/noopt
 LFLAGS += /debug
+else
+CFLAGS += /debug
+CCFLAGS += /debug
+CCFLAGS += /OPT=INLINE
 endif
 
 SYS_LIBS =+sys$share:sys$lib_c/lib
@@ -66,10 +74,11 @@ PEGASUS_HAS_SSL = yes
 OPENSSL_SET_SERIAL_SUPPORTED = true
 
 PEGASUS_ARCHITECTURE_64BIT = yes
- 
+
 PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER = true
 PEGASUS_ENABLE_SYSTEM_LOG_HANDLER = true
 PEGASUS_ENABLE_EMAIL_HANDLER = true
+PEGASUS_ENABLE_COMPRESSED_REPOSITORY = true
 
 # Local domain sockets, or an equivalent,
 # is not currently supported on OpenVMS. Bug 2147

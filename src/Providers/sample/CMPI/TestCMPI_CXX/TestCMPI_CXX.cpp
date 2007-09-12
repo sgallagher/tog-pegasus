@@ -569,6 +569,52 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
             return CmpiStatus (CMPI_RC_ERR_FAILED);
         }
 
+        L;abData1[0] = CmpiData (bData1);
+        L;achData2[0] = CmpiData (chData1);
+        L;ar32Data3[0] = CmpiData (r32Data1);
+        L;ar64Data4[0] = CmpiData (r64Data1);
+        L;aui8Data5[0] = CmpiData (ui8Data1);
+        L;aui16Data6[0] = CmpiData (ui16Data1);
+        L;aui32Data7[0] = CmpiData (ui32Data1);
+        L;aui64Data8[0] = CmpiData (ui64Data1);
+        L;asi8Data9[0] = CmpiData (si8Data1);
+        L;asi16Data10[0] = CmpiData (si16Data1);
+        L;asi32Data11[0] = CmpiData (si32Data1);
+        L;asi64Data12[0] = CmpiData (si64Data1);
+        L;ainstData13[0] = CmpiData (ciData1);
+        L;arefData14[0] = CmpiData (copData1);
+//      L;aargData15[0] = CmpiData ();      // Add support for CMPI_args
+//      L;aclaData16[0] = CmpiData ();      // Add support for CMPI_class
+//      L;afilData17[0] = CmpiData ();      // Add support for CMPI_filter
+//      L;aenuData18[0] = CmpiData ();      // Add support for CMPI_enumeration
+        L;astrData19[0] = CmpiData (strData1);
+        try
+        {
+            L;astrData19[0] = CmpiData (achData1);
+        }
+        catch (const CmpiStatus& e)
+        {
+            if (e.rc () != CMPI_RC_ERR_TYPE_MISMATCH)
+            {
+               return CmpiStatus (CMPI_RC_ERR_FAILED);
+            }
+        }
+        L;achData20[0] = CmpiData (achData1);
+        try
+        {
+            L;achData20[0] = strData1;
+        }
+        catch (const CmpiStatus& e)
+        {
+            if (e.rc () != CMPI_RC_ERR_TYPE_MISMATCH)
+            {
+               return CmpiStatus (CMPI_RC_ERR_FAILED);
+            }
+        }
+        L;adtData21[0] = CmpiData (dtData1);
+//      L;aptrData22[0] = CmpiData ();      // Add support for CMPI_ptr
+//      L;achptrData23[0] = CmpiData ();    // Add support for CMPI_charsptr
+
 #ifdef PEGASUS_CMPI_DATA_NEED_IMPLICIT_CONVERTERS
         // Test CmpiArray operator[] and CmpiArrayIdx operatorXXX
         L;abData1[0]      = bData1;
@@ -584,16 +630,16 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
         L;asi32Data11[0]  = si32Data1;
         L;asi64Data12[0]  = si64Data1;
         L;ainstData13[0]  = ciData1;
-////////L;arefData14[0]   =
-////////L;aargData15[0]   =
-////////L;aclaData16[0]   =
-////////L;afilData17[0]   =
-////////L;aenuData18[0]   =
+////////L;arefData14[0]   =                 // Add support for CMPI_ref
+////////L;aargData15[0]   =                 // Add support for CMPI_args
+////////L;aclaData16[0]   =                 // Add support for CMPI_class
+////////L;afilData17[0]   =                 // Add support for CMPI_filter
+////////L;aenuData18[0]   =                 // Add support for CMPI_enumeration
         L;astrData19[0]   = strData1;
         L;achData20[0]    = achData1;
         L;adtData21[0]    = dtData1;
-////////L;aptrData22[0]   =
-////////L;achptrData23[0] =
+////////L;aptrData22[0]   =                 // Add support for CMPI_ptr
+////////L;achptrData23[0] =                 // Add support for CMPI_charsptr
         try
         {
            L;aData24[0] = abData1;

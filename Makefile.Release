@@ -642,31 +642,6 @@ stage_genOpenPegasusSSLCertsFile: FORCE
 	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-genSSLCerts.spec >> \
              $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/genOpenPegasusSSLCerts
 
-stage_SSLRandomSeedFiles: FORCE
-	$(MAKE) -f $(ROOT)/Makefile.Release createrandomseed FILENAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_CIMSERVER_RANDOMFILE)
-	$(MAKE) -f $(ROOT)/Makefile.Release createrandomseed FILENAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_WBEMEXEC_RANDOMFILE)
-
-setpermissions_SSLRandomSeedFiles: FORCE
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr________)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_CIMSERVER_RANDOMFILE)
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_WBEMEXEC_RANDOMFILE)
-
-stage_ServerCertificateFiles: FORCE
-ifdef PEGASUS_SSL_RANDOMFILE
-	$(OPENSSL_COMMAND) req -x509 -days 3650 -newkey rsa:2048 -rand $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/$(PEGASUS_CIMSERVER_RANDOMFILE) -nodes -config $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf -keyout $(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_KEY_FILE) -out $(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_CERT_FILE) 
-else
-	$(OPENSSL_COMMAND) req -x509 -days 3650 -newkey rsa:2048 -nodes -config $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf -keyout $(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_KEY_FILE) -out $(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_CERT_FILE) 
-endif
-
-setpermissions_ServerCertificateFiles: FORCE
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr________)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_KEY_FILE)
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr________)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_CERT_FILE)
-
-stage_ClientCertificateFiles: FORCE
-	$(COPY) $(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_CERT_FILE) $(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_TRUSTSTORE)
-
-setpermissions_ClientCertificateFiles: FORCE
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_TRUSTSTORE)
-
 stage_PegasusDirectories: FORCE
 	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusProductDirectories
 	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusSocketDirectory

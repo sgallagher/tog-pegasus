@@ -532,7 +532,25 @@ ifdef PEGASUS_USE_NET_SNMP
 endif
 
 ifdef PEGASUS_HAS_SSL
-    DEFINES += -DPEGASUS_HAS_SSL -DPEGASUS_SSL_RANDOMFILE
+    DEFINES += -DPEGASUS_HAS_SSL 
+
+    # Enable SSL Random file by default.
+    ifndef PEGASUS_USE_SSL_RANDOMFILE
+        PEGASUS_USE_SSL_RANDOMFILE = true
+    endif
+
+    # Allow SSL Random file functionality to be optionally disabled.
+    ifdef PEGASUS_USE_SSL_RANDOMFILE
+        ifeq ($(PEGASUS_USE_SSL_RANDOMFILE), true)
+            DEFINES += -DPEGASUS_SSL_RANDOMFILE
+        else
+            ifneq ($(PEGASUS_USE_SSL_RANDOMFILE), false)
+                $(error PEGASUS_USE_SSL_RANDOMFILE\
+                     ($(PEGASUS_USE_SSL_RANDOMFILE)) invalid, \
+                      must be true or false)
+            endif
+        endif
+    endif
 
     ifndef OPENSSL_COMMAND
         ifdef OPENSSL_BIN

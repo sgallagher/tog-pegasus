@@ -297,10 +297,6 @@ private:
 
 /** This class provides the interface that a client uses to create
     SSL context.
-
-    For the OSs that don't have /dev/random device file,
-    must enable PEGASUS_SSL_RANDOMFILE flag and pass
-    random file name to constructor.
 */
 class PEGASUS_COMMON_LINKAGE SSLContext
 {
@@ -311,8 +307,19 @@ public:
         @param verifyCert  function pointer to a certificate verification
         call back function.  A null pointer indicates that no callback is
         requested for certificate verification.
-        @param randomFile  file path of a random file that is used as a seed
+        @param randomFile  file path of a random file that may be used as a seed
         for random number generation by OpenSSL.
+
+        NOTE: 
+        For platforms that support /dev/random(urandom), the /dev/random
+        files will be used to seed OpenSSL.  The specified random file 
+        may be used as a fallback when /dev/random(urandom) is unavailable 
+        or fails.  Using /dev/random to seed OpenSSL is more secure than using 
+        a random file.
+
+        An empty random file string indicates that a random file should not
+        be used. If sufficient randomness is not achieved using /dev/random 
+        and/or a random file, an SSLException is thrown.
 
         @exception SSLException indicates failure to create an SSL context.
     */
@@ -382,8 +389,19 @@ public:
         @param verifyCert  function pointer to a certificate verification
         call back function.  A null pointer indicates that no callback is
         requested for certificate verification.
-        @param randomFile  file path of a random file that is used as a seed
+        @param randomFile  file path of a random file that may be used as a seed
         for random number generation by OpenSSL.
+
+        NOTE: 
+        For platforms that support /dev/random(urandom), the /dev/random
+        files will be used to seed OpenSSL.  The specified random file 
+        may be used as a fallback when /dev/random(urandom) is unavailable 
+        or fails.  Using /dev/random to seed OpenSSL is more secure than using 
+        a random file.
+
+        An empty random file string indicates that a random file should not
+        be used. If sufficient randomness is not achieved using /dev/random 
+        and/or a random file, an SSLException is thrown.
 
         @exception SSLException indicates failure to create an SSL context.
     */
@@ -405,8 +423,19 @@ public:
         @param verifyCert  function pointer to a certificate verification
         call back function.  A null pointer indicates that no callback is
         requested for certificate verification.
-        @param randomFile  file path of a random file that is used as a seed
+        @param randomFile  file path of a random file that may be used as a seed
         for random number generation by OpenSSL.
+
+        NOTE: 
+        For platforms that support /dev/random(urandom), the /dev/random
+        files will be used to seed OpenSSL.  The specified random file 
+        may be used as a fallback when /dev/random(urandom) is unavailable 
+        or fails.  Using /dev/random to seed OpenSSL is more secure than using 
+        a random file.
+
+        An empty random file string indicates that a random file should not
+        be used. If sufficient randomness is not achieved using /dev/random 
+        and/or a random file, an SSLException is thrown.
 
         @exception SSLException indicates failure to create an SSL context.
     */

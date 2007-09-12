@@ -37,7 +37,11 @@ include $(ROOT)/mak/test.mak
 include $(ROOT)/mak/commands.mak
 
 RESULTFILE =  $(TMP_DIR)/result
-MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
+ifdef PEGASUS_DISABLE_CQL
+    MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master.nocql
+else
+    MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
+endif
 
 tests:
 

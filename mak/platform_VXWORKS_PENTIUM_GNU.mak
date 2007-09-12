@@ -115,12 +115,12 @@ ifdef PEGASUS_PAM_AUTHENTICATION
     $(error "vxworks does not support PAM authenticaiton")
 endif
 
-FLAGS += -mcpu=i486 -march=i486 -W -Wall -Wno-unused -mrtp -MD -MP
+FLAGS += -mhard-float -ansi -mcpu=i486 -march=i486 -W -Wall -Wno-unused -mrtp -MD -MP
 
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
   FLAGS += -g
 else
-  FLAGS += -Os
+  FLAGS += -O2
 endif
 
 PEGASUS_HAS_MAKEDEPEND = yes

@@ -31,12 +31,13 @@
 ROOT = ../../../../..
 DIR = Pegasus/Common/tests/Real32
 include $(ROOT)/mak/config.mak
-include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 PROGRAM = TestReal32
 SOURCES = Real32.cpp
+
+LIBRARIES = Foo
 
 include $(ROOT)/mak/program.mak
 

@@ -161,7 +161,20 @@ void AcceptLanguageList::clear()
 static inline bool _equal(Real32 x, Real32 y)
 {
 #if defined(PEGASUS_OS_VXWORKS)
-    return fabs(double(x) - double(y)) < 0.1;
+
+    {
+        float tmp = 1.5;
+        assert(tmp == 1.5);
+        printf("e1[%f]\n", tmp);
+    }
+
+    {
+        float tmp = 1.0;
+        assert(tmp == 1.0);
+        printf("e2[%f]\n", tmp);
+    }
+
+    return fabs(double(x) - double(y)) < 0.00001;
 #else
     return x == y;
 #endif

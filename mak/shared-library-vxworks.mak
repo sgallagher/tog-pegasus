@@ -31,12 +31,12 @@
 
 TARGET=$(LIB_DIR)/lib$(LIBRARY).so
 
-LINK_FLAGS = -lstdc++ -fpic -shared -L$(VXWORKS_LIB_COMMON)/PIC
+LINK_FLAGS = -lstdc++ -shared -L$(VXWORKS_LIB_COMMON)/PIC
 
 DFILES = $(SOURCES:.cpp=.d)
 
 $(TARGET): $(LIB_DIR)/target $(OBJECTS) $(TARGETRARIES) $(ERROR)
-	$(CXX) $(FLAGS) $(LINK_FLAGS) $(OBJECTS) -o $(TARGET)
+	$(CXX) $(FLAGS) -o $(TARGET) $(OBJECTS) $(LINK_FLAGS)
 	rm -rf $(DFILES)
 	@ $(ECHO)
 

@@ -34,9 +34,13 @@ SYS_INCLUDES = \
     -I$(WIND_BASE)/target/usr/h/wrn/coreip \
 
 ifdef LIBRARY
-  EFLAGS += -fpic
+  FLAGS += -fpic
+endif
+
+ifdef LOCAL_DEFINES
+  DEFINES += $(LOCAL_DEFINES)
 endif
 
 $(OBJ_DIR)/%.o: $(OBJ_DIR)/target %.cpp $(ERROR)
-	$(CXX) -c $(FLAGS) $(EFLAGS) $(EXTRA_CXX_FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) -o $@ -c $*.cpp
+	$(CXX) -c -o $@ $(FLAGS) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp
 	@ $(ECHO)

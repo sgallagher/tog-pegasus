@@ -17,6 +17,10 @@ image:
 	( cd image; vxprj parameter set LOCAL_MEM_SIZE 0x04000000 )
 	( cd image; vxprj parameter setstring SHELL_DEFAULT_CONFIG $(SHELL_DEFAULT_CONFIG) )
 
+zzz:
+	( cd image; vxprj component remove INCLUDE_HW_FP )
+	( cd image; vxprj component add INCLUDE_SW_FP )
+
 
 build:
 	( cd image; make TOOL=gnu ROMFS_DIR=$(ROMFS) )

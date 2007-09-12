@@ -169,9 +169,6 @@ inline int gettimeofday(struct timeval *tv, struct timezone *tz)
     if (clock_gettime(CLOCK_REALTIME, &ts) != 0)
         return -1;
 
-printf("SECONDS[%ld]\n", ts.tv_sec);
-printf("NSECONDS[%ld]\n", ts.tv_nsec);
-
     tv->tv_sec = ts.tv_sec;
     tv->tv_usec = ts.tv_nsec / 1000;
 

@@ -58,6 +58,10 @@ SOURCES = \
 	DynamicListenerConfig.cpp \
 	DynamicListener.cpp
 
+ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
+AIX_LIB_PRIORITY = -10
+endif
+
 ifeq ($(OS_TYPE),windows)
 SYS_LIBS = ws2_32.lib advapi32.lib
 endif

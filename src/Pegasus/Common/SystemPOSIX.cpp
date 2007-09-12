@@ -41,6 +41,8 @@
 # include <ttdef.h>             // TT$M_NOBRDCST
 # include <tt2def.h>            // TT2$M_PASTHRU
 # include <starlet.h>
+# include <stsdef.h>            // VMS_STATUS_SUCCESS
+# include <prvdef>              // PRV$M_SETPRV
 #endif
 
 #include <unistd.h>
@@ -519,7 +521,8 @@ String System::getEffectiveUserName()
 
 #if defined(PEGASUS_OS_SOLARIS) || \
     defined(PEGASUS_OS_HPUX) || \
-    defined(PEGASUS_OS_LINUX)
+    defined(PEGASUS_OS_LINUX) || \
+    defined(PEGASUS_OS_VMS)
 
     const unsigned int PWD_BUFF_SIZE = 1024;
     struct passwd       local_pwd;
@@ -596,7 +599,8 @@ Boolean System::isSystemUser(const char* userName)
 {
 #if defined(PEGASUS_OS_SOLARIS) || \
     defined(PEGASUS_OS_HPUX) || \
-    defined(PEGASUS_OS_LINUX)
+    defined(PEGASUS_OS_LINUX) || \
+    defined(PEGASUS_OS_VMS)
 
     const unsigned int PWD_BUFF_SIZE = 1024;
     struct passwd pwd;
@@ -660,19 +664,28 @@ Boolean System::isPrivilegedUser(const String& userName)
     // this function only can be found in PASE environment
     return umeIsPrivilegedUser((const char *)user);
 
-#else
-
+#else // PEGASUS_OS_VMS
+    static union prvdef old_priv_mask;
+    static union prvdef new_priv_mask;
+    char enbflg = 1; // 1 = enable
+    char prmflg = 0; // 0 = life time of image only.
     int retStat;
 
-    unsigned long int prvPrv = 0;
-    retStat = sys$setprv(0, 0, 0, &prvPrv);
+    old_priv_mask.prv$v_sysprv = false;    // SYSPRV privilege.
+    new_priv_mask.prv$v_sysprv = true;     // SYSPRV privilege.
 
-    if (!$VMS_STATUS_SUCCESS(retStat))
+    retStat = sys$setprv(enbflg, &new_priv_mask, prmflg, &old_priv_mask);
+    if (!$VMS_STATUS_SUCCESS(retStat)) 
+    {
         return false;
+    }
 
-    // ATTN-VMS: should this be a bitwise and?
-    return ((PRV$M_SETPRV && prvPrv) == 1);
+    if (retStat == SS$_NOTALLPRIV) 
+    {
+        return false;
+    }
 
+    return true;
 #endif /* default */
 }
 
@@ -685,13 +698,21 @@ static void _initPrivilegedUserName()
 
 #if defined(PEGASUS_OS_SOLARIS) || \
     defined(PEGASUS_OS_HPUX) || \
-    defined(PEGASUS_OS_LINUX)
+    defined(PEGASUS_OS_LINUX) || \
+    defined(PEGASUS_OS_VMS)
 
     const unsigned int PWD_BUFF_SIZE = 1024;
     struct passwd local_pwd;
     char buf[PWD_BUFF_SIZE];
+    PEGASUS_UID_T uid;
 
-    if (getpwuid_r(0, &local_pwd, buf, PWD_BUFF_SIZE, &pwd) != 0)
+#if defined(PEGASUS_OS_VMS)
+    // 65540 = 10004 hex = [1,4] the UIC for [SYSTEM] on OpenVMS
+    uid = 0x10004;
+#else
+    uid = 0;
+#endif
+    if (getpwuid_r(uid, &local_pwd, buf, PWD_BUFF_SIZE, &pwd) != 0)
     {
         String errorMsg = String("getpwuid_r failure : ") +
                 String(strerror(errno));

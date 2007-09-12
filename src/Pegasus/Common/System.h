@@ -49,7 +49,8 @@ typedef unsigned long mode_t;
 #include <windows.h>
 #endif
 
-#if defined (PEGASUS_OS_TYPE_UNIX) || (PEGASUS_OS_VMS)
+#if defined (PEGASUS_OS_TYPE_UNIX) || \
+    defined (PEGASUS_OS_VMS)
 # include <unistd.h>
 # include <fcntl.h>  // File locking
 # define PEGASUS_UID_T uid_t

@@ -27,31 +27,70 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
-// Author: Heather Sterling (hsterl@us.ibm.com) PEP#222
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Constants.h>
-#include <Pegasus/Common/PegasusAssert.h>
-#include <cstdlib>
-#include <Pegasus/Common/System.h>
-#include <Pegasus/Common/Logger.h>
-#include <Pegasus/Common/FileSystem.h>
-#include "ServerProcess.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <Pegasus/Common/Signal.h>
 
-#if defined(PEGASUS_OS_TYPE_WINDOWS)
-# include "ServerProcessWindows.cpp"
-#elif defined(PEGASUS_OS_TYPE_UNIX)
-# include "ServerProcessUnix.cpp"
-#elif defined(PEGASUS_OS_VMS)
-# include "ServerProcessVms.cpp"
-#elif defined(PEGASUS_OS_VXWORKS)
-# include "ServerProcessVxWorks.cpp"
-#else
-# error "Unsupported platform"
-#endif
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
+Boolean handleSigUsr1 = false;
+
+void sigUsr1Handler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
+{
+    handleSigUsr1 = true;
+}
+
+ServerProcess::ServerProcess() 
+{
+}
+
+ServerProcess::~ServerProcess() 
+{
+}
+
+int ServerProcess::cimserver_fork(void) 
+{ 
+    return 0; 
+}
+
+void ServerProcess::cimserver_set_process(void* p) 
+{
+}
+
+void ServerProcess::cimserver_exitRC(int rc) 
+{
+}
+
+int ServerProcess::cimserver_initialize(void)
+{ 
+    return 1; 
+}
+
+int ServerProcess::cimserver_wait(void)
+{ 
+    return 1; 
+}
+
+String ServerProcess::getHome(void) 
+{ 
+    return String::EMPTY; 
+}
+
+void ServerProcess::notify_parent(int id)
+{
+    assert("ServerProcess::notify_parent() not implemented on vxworks" == 0);
+}
+
+int ServerProcess::platform_run(
+    int argc,
+    char** argv,
+    Boolean shutdownOption,
+    Boolean debugOutputOption)
+{
+    return cimserver_run(argc, argv, shutdownOption, debugOutputOption);
+}

@@ -108,6 +108,11 @@
 #endif
 
 /* Undefine this macro (defined in vxWorks.h) */
+#ifdef LOCAL
+# undef LOCAL
+#endif
+
+/* Undefine this macro (defined in vxWorks.h) */
 #ifdef OK
 # undef OK
 #endif

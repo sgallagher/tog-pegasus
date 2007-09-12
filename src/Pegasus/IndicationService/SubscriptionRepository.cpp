@@ -1,38 +1,45 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
+//             (carolann_graves@hp.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/LanguageParser.h>
-#include <Pegasus/Repository/ObjectCache.h>
 
 #include "IndicationConstants.h"
 #include "SubscriptionRepository.h"
@@ -41,92 +48,14 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-
-
-/**
-   Handler and Filter cache
-
-   Note that a single cache can be used for handler and filter instances,
-   since the string representation of the object path is used as the key
-   and this is unique anyway.
-*/
-#define PEGASUS_INDICATION_HANDLER_FILTER_CACHE_SIZE 50
-
-static ObjectCache<CIMInstance>
-    _handlerFilterCache(PEGASUS_INDICATION_HANDLER_FILTER_CACHE_SIZE);
-static Mutex _handlerFilterCacheMutex;
-
-
-static String _getHandlerFilterCacheKey(
-    const CIMObjectPath &instanceName,
-    const CIMNamespaceName &defaultNamespace)
-{
-    CIMObjectPath path = instanceName;
-    if (path.getNameSpace().isNull())
-    {
-        path.setNameSpace(defaultNamespace);
-    }
-    return path.toString();
-}
-
-
 SubscriptionRepository::SubscriptionRepository (
     CIMRepository * repository)
     : _repository (repository)
 {
-    _uncommittedCreateSubscriptionRequests = 0;
-    _normalizedSubscriptionTable.reset(
-        new NormalizedSubscriptionTable(getAllSubscriptions()));
 }
 
 SubscriptionRepository::~SubscriptionRepository ()
 {
-}
-
-Uint32 SubscriptionRepository::getUncommittedCreateSubscriptionRequests()
-{
-    return _uncommittedCreateSubscriptionRequests;
-}
-
-void SubscriptionRepository::beginCreateSubscription(
-    const CIMObjectPath &subPath)
-{
-    Boolean subscriptionExists;
-    AutoMutex mtx(_normalizedSubscriptionTableMutex);
-    if(_normalizedSubscriptionTable->exists(subPath, subscriptionExists))
-    {
-        if (subscriptionExists)
-        {
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS,
-                subPath.toString());
-        }
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms(
-                "IndicationService.IndicationService."
-                    "_MSG_DUPLICATE_SUBSCRIPTION_REQUEST",
-                "Similar create subscription request is being processed. "
-                    "Subscription path : $0",
-                subPath.toString()));
-    }
-    _normalizedSubscriptionTable->add(subPath, false);
-    _uncommittedCreateSubscriptionRequests++;
-}
-
-void SubscriptionRepository::cancelCreateSubscription(
-    const CIMObjectPath &subPath)
-{
-    AutoMutex mtx(_normalizedSubscriptionTableMutex);
-    _normalizedSubscriptionTable->remove(subPath);
-    _uncommittedCreateSubscriptionRequests--;
-}
-
-void SubscriptionRepository::commitCreateSubscription(
-    const CIMObjectPath &subPath)
-{
-    AutoMutex mtx(_normalizedSubscriptionTableMutex);
-    _normalizedSubscriptionTable->remove(subPath);
-    _normalizedSubscriptionTable->add(subPath, true);
-    _uncommittedCreateSubscriptionRequests--;
 }
 
 CIMObjectPath SubscriptionRepository::createInstance (
@@ -160,23 +89,6 @@ CIMObjectPath SubscriptionRepository::createInstance (
             (PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
         creator.setValue (CIMValue (currentUser));
     }
-
-    // Add CreationTime to the Listener Destination instances
-    // Note: CreationTime is added only for CIMXML handlers at present.
-    CIMName className = instance.getPath().getClassName();
-
-    if ((className.equal(PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
-        className.equal(PEGASUS_CLASSNAME_LSTNRDST_CIMXML) || 
-        className.equal(PEGASUS_CLASSNAME_INDHANDLER_WSMAN)) &&
-        instance.findProperty(PEGASUS_PROPERTYNAME_LSTNRDST_CREATIONTIME)
-            == PEG_NOT_FOUND)
-    {
-        instance.addProperty(
-            CIMProperty(
-                PEGASUS_PROPERTYNAME_LSTNRDST_CREATIONTIME,
-                System::getCurrentTimeUsec()));
-    }
-
 
     // l10n
     // Add the language properties to the Instance
@@ -466,7 +378,8 @@ Boolean SubscriptionRepository::getState (
             (stateIndex).getValue ();
         if (stateValue.isNull ())
         {
-            PEG_TRACE_CSTRING (TRC_INDICATION_SERVICE,Tracer::LEVEL1,
+            PEG_TRACE_CSTRING (TRC_INDICATION_SERVICE_INTERNAL,
+                Tracer::LEVEL2,
                 "Null SubscriptionState property value");
 
             //
@@ -477,10 +390,16 @@ Boolean SubscriptionRepository::getState (
         else if ((stateValue.getType () != CIMTYPE_UINT16) ||
             (stateValue.isArray ()))
         {
-            PEG_TRACE((TRC_INDICATION_SERVICE,Tracer::LEVEL1,
-                "SubscriptionState property value of incorrect type:%s %s",
-                (stateValue.isArray()) ? " array of" : " ",
-                cimTypeToString(stateValue.getType())));
+            String traceString;
+            if (stateValue.isArray ())
+            {
+                traceString.append ("array of ");
+            }
+            traceString.append (cimTypeToString (stateValue.getType ()));
+            PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
+               Tracer::LEVEL2,
+               "SubscriptionState property value of incorrect type: "
+               + traceString);
 
             //
             //  This is a corrupted/invalid instance
@@ -494,7 +413,8 @@ Boolean SubscriptionRepository::getState (
     }
     else
     {
-        PEG_TRACE_CSTRING(TRC_INDICATION_SERVICE,Tracer::LEVEL1,
+        PEG_TRACE_CSTRING (TRC_INDICATION_SERVICE_INTERNAL,
+            Tracer::LEVEL2,
             "Missing SubscriptionState property");
 
         //
@@ -522,15 +442,15 @@ CIMInstance SubscriptionRepository::deleteSubscription (
     //
     try
     {
-        subscriptionInstance = _repository->getInstance(
-            nameSpace, subscription);
+        subscriptionInstance = _repository->getInstance (nameSpace,
+            subscription);
     }
     catch (Exception & exception)
     {
-        PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
-            "Exception caught in retrieving subscription (%s): %s",
-            (const char*)subscriptionInstance.getPath().toString().getCString(),
-            (const char*)exception.getMessage().getCString()));
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+            "Exception caught in retrieving subscription (" +
+            subscriptionInstance.getPath ().toString () + "): " +
+            exception.getMessage ());
 
         //
         //  If the subscription could not be retrieved, it may already have
@@ -545,14 +465,14 @@ CIMInstance SubscriptionRepository::deleteSubscription (
     //
     try
     {
-        deleteInstance (nameSpace, subscription);
+        _repository->deleteInstance (nameSpace, subscription);
     }
     catch (Exception & exception)
     {
-        PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
-            "Exception caught in deleting subscription (%s): %s",
-            (const char*)subscriptionInstance.getPath().toString().getCString(),
-            (const char*)exception.getMessage().getCString()));
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+            "Exception caught in deleting subscription (" +
+            subscriptionInstance.getPath ().toString () + "): " +
+            exception.getMessage ());
 
         //
         //  If the subscription could not be deleted, it may already have
@@ -644,7 +564,7 @@ Array <CIMInstance> SubscriptionRepository::deleteReferencingSubscriptions (
                     CIMObjectPath path ("", CIMNamespaceName (),
                         subscriptions [i].getPath ().getClassName (),
                         subscriptions [i].getPath ().getKeyBindings ());
-                    deleteInstance
+                    _repository->deleteInstance
                         (subscriptions [i].getPath ().getNameSpace (), path);
                 }
                 catch (Exception & exception)
@@ -652,13 +572,11 @@ Array <CIMInstance> SubscriptionRepository::deleteReferencingSubscriptions (
                     //
                     //  Deletion of referencing subscription failed
                     //
-                    PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
-                        "Exception caught deleting referencing "
-                        "subscription (%s): %s",
-                        (const char*)subscriptions [i].getPath().toString()
-                               .getCString(),
-                        (const char*)exception.getMessage().getCString()));
-
+                    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
+                        Tracer::LEVEL2,
+                        "Exception caught deleting referencing subscription (" +
+                        subscriptions [i].getPath ().toString () + "): " +
+                        exception.getMessage ());
                 }
 
                 deletedSubscriptions.append (subscriptions [i]);
@@ -680,7 +598,6 @@ CIMInstance SubscriptionRepository::getHandler (
     CIMObjectPath handlerRef;
     CIMInstance handlerInstance;
     CIMNamespaceName nameSpaceName;
-    String handlerName;
 
     //
     //  Get Handler reference from subscription instance
@@ -700,41 +617,30 @@ CIMInstance SubscriptionRepository::getHandler (
         nameSpaceName = subscription.getPath ().getNameSpace ();
     }
 
-    handlerName = _getHandlerFilterCacheKey(handlerRef, nameSpaceName);
-
-    if (!_handlerFilterCache.get(handlerName, handlerInstance))
+    //
+    //  Get Handler instance from the repository
+    //
+    try
     {
-        //
-        //  Not in cache so get Handler instance from the repository
-        //
-        AutoMutex mtx(_handlerFilterCacheMutex);
-        try
-        {
-            handlerInstance = _repository->getInstance(
-                nameSpaceName, handlerRef, false, false, CIMPropertyList());
-        }
-        catch (const Exception & exception)
-        {
-            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "Exception caught trying to get Handler instance (%s): %s",
-                (const char*)handlerRef.toString().getCString(),
-                (const char*)exception.getMessage().getCString()));
-            PEG_METHOD_EXIT ();
-            throw;
-        }
+        handlerInstance = _repository->getInstance
+            (nameSpaceName, handlerRef, false, false, false,
+            CIMPropertyList ());
+    }
+    catch (const Exception & exception)
+    {
+        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Exception caught trying to get Handler instance (" +
+            handlerRef.toString () + "): " +
+            exception.getMessage ());
+        PEG_METHOD_EXIT ();
+        throw;
+    }
 
-        //
-        //  Set namespace in path in CIMInstance
-        //
-        handlerRef.setNameSpace (nameSpaceName);
-        handlerInstance.setPath (handlerRef);
-
-        //
-        //  Add handler to cache
-        //
-        _handlerFilterCache.put(handlerName, handlerInstance);
-
-    } /* if not in cache */
+    //
+    //  Set namespace in path in CIMInstance
+    //
+    handlerRef.setNameSpace (nameSpaceName);
+    handlerInstance.setPath (handlerRef);
 
     PEG_METHOD_EXIT ();
     return handlerInstance;
@@ -755,8 +661,8 @@ Boolean SubscriptionRepository::isTransient (
     //
     CIMInstance instance;
 
-    instance = _repository->getInstance(
-        nameSpace, handler, false, false, CIMPropertyList());
+    instance = _repository->getInstance(nameSpace, handler,
+        false, false, false, CIMPropertyList());
 
     //
     //  Get Persistence Type
@@ -780,159 +686,9 @@ Boolean SubscriptionRepository::isTransient (
 void SubscriptionRepository::getFilterProperties (
     const CIMInstance & subscription,
     String & query,
-    Array<CIMNamespaceName> &sourceNameSpaces,
+    CIMNamespaceName & sourceNameSpace,
     String & queryLanguage,
     String & filterName)
-{
-    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
-        "SubscriptionRepository::getFilterProperties");
-
-    CIMValue filterValue;
-    CIMObjectPath filterReference;
-    CIMInstance filterInstance;
-    CIMNamespaceName nameSpaceName;
-    String filterNameInCache;
-
-    filterValue = subscription.getProperty (subscription.findProperty
-        (PEGASUS_PROPERTYNAME_FILTER)).getValue ();
-
-    filterValue.get (filterReference);
-
-    //
-    //  Get filter namespace - if not set in Filter reference property value,
-    //  namespace is the namespace of the subscription
-    //
-    nameSpaceName = filterReference.getNameSpace ();
-    if (nameSpaceName.isNull ())
-    {
-        nameSpaceName = subscription.getPath ().getNameSpace ();
-    }
-
-    filterNameInCache =
-        _getHandlerFilterCacheKey(filterReference, nameSpaceName);
-
-    if (!_handlerFilterCache.get(filterNameInCache, filterInstance))
-    {
-        //
-        //  Not in cache so get filter instance from the repository
-        //
-        AutoMutex mtx(_handlerFilterCacheMutex);
-        try
-        {
-            filterInstance = _repository->getInstance(
-                nameSpaceName, filterReference);
-        }
-        catch (const Exception & exception)
-        {
-            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "Exception caught trying to get Filter instance (%s): %s",
-                (const char*)filterReference.toString().getCString(),
-                (const char*)exception.getMessage().getCString()));
-            PEG_METHOD_EXIT ();
-            throw;
-        }
-        //
-        //  Add filter to cache
-        //
-       _handlerFilterCache.put(filterNameInCache, filterInstance);
-    }
-
-    query = filterInstance.getProperty (filterInstance.findProperty
-        (PEGASUS_PROPERTYNAME_QUERY)).getValue ().toString ();
-
-
-    queryLanguage = filterInstance.getProperty
-        (filterInstance.findProperty (PEGASUS_PROPERTYNAME_QUERYLANGUAGE)).
-        getValue ().toString ();
-
-    filterName = filterInstance.getProperty
-        (filterInstance.findProperty (PEGASUS_PROPERTYNAME_NAME)).
-        getValue ().toString ();
-
-    getSourceNamespaces(
-        filterInstance,
-        nameSpaceName,
-        sourceNameSpaces);
-
-    PEG_METHOD_EXIT ();
-}
-
-void SubscriptionRepository::getSourceNamespaces(
-    const CIMInstance &instance,
-    const CIMNamespaceName &defaultNameSpace,
-    Array<CIMNamespaceName> &sourceNamespaces)
-{
-    Uint32 srcNSPos = instance.findProperty(_PROPERTY_SOURCENAMESPACE);
-    Uint32 srcNSSPos = instance.findProperty(_PROPERTY_SOURCENAMESPACES);
-
-    CIMValue srcNSValue;
-    if (srcNSPos != PEG_NOT_FOUND)
-    {
-        srcNSValue = instance.getProperty(srcNSPos).getValue();
-    }
-    CIMValue srcNSSValue;
-    if (srcNSSPos != PEG_NOT_FOUND)
-    {
-        srcNSSValue = instance.getProperty(srcNSSPos).getValue();
-    }
-
-    if (!srcNSSValue.isNull())
-    {
-        Array<String> srcNamespaces;
-        srcNSSValue.get(srcNamespaces);
-        for(Uint32 i = 0, n = srcNamespaces.size(); i < n; ++i)
-        {
-            sourceNamespaces.append(srcNamespaces[i]);
-        }
-    }
-
-    if (!srcNSValue.isNull())
-    {
-        String srcNS;
-        srcNSValue.get(srcNS);
-        // If both sourceNamespace and sourceNamespaces properties exist,
-        // sourceNamespaces value should contain sourceNamespace value.
-        if (sourceNamespaces.size())
-        {
-            Boolean found = false;
-            for (Uint32 i = 0; i < sourceNamespaces.size(); ++i)
-            {
-                if (sourceNamespaces[i].equal(srcNS))
-                {
-                    found =true;
-                    break;
-                }
-            }
-            if (!found)
-            {
-                throw PEGASUS_CIM_EXCEPTION_L(
-                    CIM_ERR_INVALID_PARAMETER,
-                    MessageLoaderParms(
-                        "IndicationService.IndicationService."
-                            "_INVALID_SOURCENAMESPACE_VALUE",
-                        "The values in the SourceNamespaces property and the "
-                            "SourceNamespace property are not additive. If both"
-                            " sourceNamespace and SourceNamespaces are non NULL"
-                            ", the namespace defined in sourceNamespace must"
-                            "also exist in sourceNamespaces."));
-            }
-        }
-        else
-        {
-            sourceNamespaces.append(srcNS);
-        }
-    }
-
-    if (sourceNamespaces.size() == 0)
-    {
-        sourceNamespaces.append(defaultNameSpace);
-    }
-}
-
-void SubscriptionRepository::getFilterProperties (
-    const CIMInstance & subscription,
-    String & query,
-    Array<CIMNamespaceName> &sourceNameSpaces)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionRepository::getFilterProperties");
@@ -959,15 +715,15 @@ void SubscriptionRepository::getFilterProperties (
 
     try
     {
-        filterInstance = _repository->getInstance(
-            nameSpaceName, filterReference);
+        filterInstance = _repository->getInstance (nameSpaceName,
+            filterReference);
     }
     catch (const Exception & exception)
     {
-        PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
-            "Exception caught in getting filter instance (%s): %s",
-            (const char*)filterReference.toString().getCString(),
-            (const char*)exception.getMessage().getCString()));
+        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Exception caught trying to get Filter instance (" +
+            filterReference.toString () + "): " +
+            exception.getMessage ());
         PEG_METHOD_EXIT ();
         throw;
     }
@@ -975,11 +731,68 @@ void SubscriptionRepository::getFilterProperties (
     query = filterInstance.getProperty (filterInstance.findProperty
         (PEGASUS_PROPERTYNAME_QUERY)).getValue ().toString ();
 
-    
-    getSourceNamespaces(
-        filterInstance,
-        nameSpaceName,
-        sourceNameSpaces);
+    sourceNameSpace = filterInstance.getProperty (filterInstance.findProperty
+        (_PROPERTY_SOURCENAMESPACE)).getValue ().toString ();
+
+    queryLanguage = filterInstance.getProperty
+        (filterInstance.findProperty (PEGASUS_PROPERTYNAME_QUERYLANGUAGE)).
+        getValue ().toString ();
+
+    filterName = filterInstance.getProperty
+        (filterInstance.findProperty (PEGASUS_PROPERTYNAME_NAME)).
+        getValue ().toString ();
+
+    PEG_METHOD_EXIT ();
+}
+
+void SubscriptionRepository::getFilterProperties (
+    const CIMInstance & subscription,
+    String & query,
+    CIMNamespaceName & sourceNameSpace)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+        "SubscriptionRepository::getFilterProperties");
+
+    CIMValue filterValue;
+    CIMObjectPath filterReference;
+    CIMInstance filterInstance;
+    CIMNamespaceName nameSpaceName;
+
+    filterValue = subscription.getProperty (subscription.findProperty
+        (PEGASUS_PROPERTYNAME_FILTER)).getValue ();
+
+    filterValue.get (filterReference);
+
+    //
+    //  Get filter namespace - if not set in Filter reference property value,
+    //  namespace is the namespace of the subscription
+    //
+    nameSpaceName = filterReference.getNameSpace ();
+    if (nameSpaceName.isNull ())
+    {
+        nameSpaceName = subscription.getPath ().getNameSpace ();
+    }
+
+    try
+    {
+        filterInstance = _repository->getInstance (nameSpaceName,
+            filterReference);
+    }
+    catch (const Exception & exception)
+    {
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+            "Exception caught in getting filter instance (" +
+            filterReference.toString () + "): " +
+            exception.getMessage ());
+        PEG_METHOD_EXIT ();
+        throw;
+    }
+
+    query = filterInstance.getProperty (filterInstance.findProperty
+        (PEGASUS_PROPERTYNAME_QUERY)).getValue ().toString ();
+
+    sourceNameSpace = filterInstance.getProperty (filterInstance.findProperty
+        (_PROPERTY_SOURCENAMESPACE)).getValue ().toString ();
 
     PEG_METHOD_EXIT ();
 }
@@ -1013,15 +826,15 @@ void SubscriptionRepository::getFilterProperties (
 
     try
     {
-        filterInstance = _repository->getInstance(
-            nameSpaceName, filterReference);
+        filterInstance = _repository->getInstance (nameSpaceName,
+            filterReference);
     }
     catch (const Exception & exception)
     {
-        PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
-            "Exception caught in getting filter instance (%s): %s",
-            (const char*)filterReference.toString().getCString(),
-            (const char*)exception.getMessage().getCString()));
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+            "Exception caught in getting filter instance (" +
+            filterReference.toString () + "): " +
+            exception.getMessage ());
         PEG_METHOD_EXIT ();
         throw;
     }
@@ -1053,10 +866,10 @@ Boolean SubscriptionRepository::validateIndicationClassName (
     }
     catch (const Exception & exception)
     {
-        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Exception caught trying to get indication class (%s): %s",
-            (const char*)indicationClassName.getString().getCString(),
-            (const char*)exception.getMessage().getCString()));
+        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Exception caught trying to get indication class (" +
+            indicationClassName.getString () + "): " +
+            exception.getMessage ());
         PEG_METHOD_EXIT ();
         throw;
     }
@@ -1097,7 +910,7 @@ Array <CIMName> SubscriptionRepository::getIndicationSubclasses (
 }
 
 Boolean SubscriptionRepository::reconcileFatalError (
-    const CIMInstance &subscription)
+    const CIMInstance subscription)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionRepository::reconcileFatalError");
@@ -1114,7 +927,7 @@ Boolean SubscriptionRepository::reconcileFatalError (
         (_PROPERTY_ONFATALERRORPOLICY)).getValue ();
     errorPolicyValue.get (onFatalErrorPolicy);
 
-    if (onFatalErrorPolicy == _ERRORPOLICY_DISABLE)
+    if (errorPolicyValue == Uint16(_ERRORPOLICY_DISABLE))
     {
         //
         //  FUTURE: Failure Trigger Time Interval should be allowed to pass
@@ -1125,7 +938,7 @@ Boolean SubscriptionRepository::reconcileFatalError (
         _disableSubscription (subscription);
         removeOrDisable = true;
     }
-    else if (onFatalErrorPolicy == _ERRORPOLICY_REMOVE)
+    else if (errorPolicyValue == Uint16(_ERRORPOLICY_REMOVE))
     {
         //
         //  FUTURE: Failure Trigger Time Interval should be allowed to pass
@@ -1156,10 +969,10 @@ CIMClass SubscriptionRepository::getClass (
     }
     catch (const Exception & exception)
     {
-        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Exception caught trying to get class (%s) %s",
-            (const char*)className.getString().getCString(),
-            (const char*)exception.getMessage().getCString()));
+        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Exception caught trying to get class (" +
+            className.getString () + "): " +
+            exception.getMessage ());
         throw;
     }
 }
@@ -1167,11 +980,12 @@ CIMClass SubscriptionRepository::getClass (
 CIMInstance SubscriptionRepository::getInstance (
     const CIMNamespaceName & nameSpace,
     const CIMObjectPath & instanceName,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
-    return _repository->getInstance (nameSpace, instanceName,
+    return _repository->getInstance (nameSpace, instanceName, localOnly,
         includeQualifiers, includeClassOrigin, propertyList);
 }
 
@@ -1181,103 +995,27 @@ void SubscriptionRepository::modifyInstance (
     Boolean includeQualifiers,
     const CIMPropertyList & propertyList)
 {
-    CIMObjectPath instanceName = modifiedInstance.getPath();
-    if (instanceName.getClassName().equal(
-            PEGASUS_CLASSNAME_INDFILTER) ||
-        instanceName.getClassName().equal(
-            PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
-        instanceName.getClassName().equal(
-            PEGASUS_CLASSNAME_LSTNRDST_CIMXML) ||
-        instanceName.getClassName().equal(
-            PEGASUS_CLASSNAME_INDHANDLER_SNMP) ||
-        instanceName.getClassName().equal(
-            PEGASUS_CLASSNAME_LSTNRDST_FILE) ||
-        instanceName.getClassName().equal(
-            PEGASUS_CLASSNAME_LSTNRDST_EMAIL) ||
-        instanceName.getClassName().equal(
-            PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG) ||
-        instanceName.getClassName().equal(
-            PEGASUS_CLASSNAME_INDHANDLER_WSMAN))
-    {
-        AutoMutex mtx(_handlerFilterCacheMutex);
-
-        _repository->modifyInstance (nameSpace, modifiedInstance,
-             includeQualifiers, propertyList);
-
-        // Try to remove the handler/filter from the cache.
-        // It may not have been added there as it was not used for any
-        // indication processing yet, so we don't care when the remove
-        // fails.
-        String objName = _getHandlerFilterCacheKey(instanceName, nameSpace);
-        _handlerFilterCache.evict(objName);
-    }
-    else
-    {
-        _repository->modifyInstance (nameSpace, modifiedInstance,
-             includeQualifiers, propertyList);
-    }
+    _repository->modifyInstance (nameSpace, modifiedInstance,
+        includeQualifiers, propertyList);
 }
 
 void SubscriptionRepository::deleteInstance (
     const CIMNamespaceName & nameSpace,
     const CIMObjectPath & instanceName)
 {
-    // If deleted instance was SubscriptionInstance, delete from
-    // Normalized subscriptions table.
-    if (instanceName.getClassName().equal(
-        PEGASUS_CLASSNAME_INDSUBSCRIPTION) ||
-        instanceName.getClassName ().equal(
-            PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
-    {
-        _repository->deleteInstance (nameSpace, instanceName);
-
-        CIMObjectPath tmpPath = instanceName;
-        tmpPath.setNameSpace(nameSpace);
-        _normalizedSubscriptionTable->remove(tmpPath);
-    }
-    else if (instanceName.getClassName().equal(
-                 PEGASUS_CLASSNAME_INDFILTER) ||
-             instanceName.getClassName().equal(
-                 PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
-             instanceName.getClassName().equal(
-                 PEGASUS_CLASSNAME_LSTNRDST_CIMXML) ||
-             instanceName.getClassName().equal(
-                 PEGASUS_CLASSNAME_INDHANDLER_SNMP) ||
-             instanceName.getClassName().equal(
-                 PEGASUS_CLASSNAME_LSTNRDST_FILE) ||
-             instanceName.getClassName().equal(
-                 PEGASUS_CLASSNAME_LSTNRDST_EMAIL) ||
-             instanceName.getClassName().equal(
-                 PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG) ||
-             instanceName.getClassName().equal(
-                 PEGASUS_CLASSNAME_INDHANDLER_WSMAN))
-    {
-        AutoMutex mtx(_handlerFilterCacheMutex);
-
-        _repository->deleteInstance (nameSpace, instanceName);
-
-        // Try to remove the handler/filter from the cache.
-        // It may not have been added there as it was not used for any
-        // indication processing yet, so we don't care when the remove
-        // fails.
-        String objName = _getHandlerFilterCacheKey(instanceName, nameSpace);
-        _handlerFilterCache.evict(objName);
-    }
-    else
-    {
-        _repository->deleteInstance (nameSpace, instanceName);
-    }
+    _repository->deleteInstance (nameSpace, instanceName);
 }
 
 Array <CIMInstance> SubscriptionRepository::enumerateInstancesForClass (
     const CIMNamespaceName & nameSpace,
     const CIMName & className,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
     return _repository->enumerateInstancesForClass (nameSpace, className,
-        includeQualifiers, includeClassOrigin, propertyList);
+        localOnly, includeQualifiers, includeClassOrigin, propertyList);
 }
 
 Array <CIMObjectPath> SubscriptionRepository::enumerateInstanceNamesForClass (
@@ -1336,16 +1074,16 @@ void SubscriptionRepository::_disableSubscription (
     }
     catch (Exception & exception)
     {
-        PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
-           "Exception caught in attempting to disable a subscription: %s",
-            (const char*)exception.getMessage().getCString()));
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+           "Exception caught in attempting to disable a subscription: " +
+            exception.getMessage ());
     }
 
     PEG_METHOD_EXIT ();
 }
 
 void SubscriptionRepository::_deleteSubscription (
-    const CIMInstance &subscription)
+    const CIMInstance subscription)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionRepository::_deleteSubscription");
@@ -1355,15 +1093,15 @@ void SubscriptionRepository::_deleteSubscription (
     //
     try
     {
-        deleteInstance
+        _repository->deleteInstance
             (subscription.getPath ().getNameSpace (),
             subscription.getPath ());
     }
     catch (Exception & exception)
     {
-        PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
-           "Exception caught in attempting to delete a subscription: %s",
-           (const char*)exception.getMessage().getCString()));
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+           "Exception caught in attempting to delete a subscription: " +
+            exception.getMessage ());
     }
 
     PEG_METHOD_EXIT ();

@@ -14,3 +14,17 @@
 
     7. access() is broken on VxWorks. It is defined and links but always
        return -1.
+
+    8. Components:
+
+            - Authenticition:
+                - PAM Authentication
+                - Password file Authentication
+                - SSL peer authentication
+                - Local authentication (not required).
+            - Security:
+                - SSL privacy
+            - SLP
+            - IPV6
+            - CMPI
+            - I18N

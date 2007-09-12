@@ -68,26 +68,20 @@ _DIRS1 = \
     Formatter \
     Dir \
     MessageQueueService \
-    async_callback
+    async_callback \
+    MessageSerializer
 
 _DIRS2 = \
-    FileLock \
-    MessageSerializer \
     Tracer \
-    \
     AuditLogger \
     L10N \
     L10N/msg \
-    AnonymousPipe \
 
 ##
 ## Notes on failing tests:
 ##
-##     FileLock - this tests uses popen(), which is unsupported on vxworks.
-##
-##     MessageSerializer - fails due to problems with floating point support.
-##
-##     Tracer - source of failure unknown.
+##     FileLock - uses popen(), unsupported on vxworks.
+##     AnonymousPipe - uses fork(), unsupported by vxworks.
 ##
 
 DIRS1 = $(addprefix $(BASE)/,$(_DIRS1))
@@ -98,10 +92,11 @@ define NL
 
 endef
 
-all: dirs1 dirs2
+all: dirs1
 
 dirs1:
 	$(foreach i, $(DIRS1), $(MAKE) SHELL=$(SH) -SC $(i) tests $(NL) )
 
 dirs2:
 	$(foreach i, $(DIRS2), $(MAKE) SHELL=$(SH) -SC $(i) tests $(NL) )
+

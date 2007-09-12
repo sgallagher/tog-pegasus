@@ -209,6 +209,8 @@ void Mutex::reinitialize()
 
 Mutex::Mutex()
 {
+    memset(&_rep, 0, sizeof(_rep));
+    _rep.recursive = 1;
     pthread_mutex_init(&_rep.mutex, NULL);
     pthread_cond_init(&_rep.cond, NULL);
     _rep.owner = 0;
@@ -217,6 +219,7 @@ Mutex::Mutex()
 
 Mutex::Mutex(RecursiveTag)
 {
+    memset(&_rep, 0, sizeof(_rep));
     _rep.recursive = 1;
     pthread_mutex_init(&_rep.mutex, NULL);
     pthread_cond_init(&_rep.cond, NULL);
@@ -226,6 +229,7 @@ Mutex::Mutex(RecursiveTag)
 
 Mutex::Mutex(NonRecursiveTag)
 {
+    memset(&_rep, 0, sizeof(_rep));
     _rep.recursive = 0;
     pthread_mutex_init(&_rep.mutex, NULL);
 }
@@ -423,6 +427,7 @@ void Mutex::unlock()
 
             _rep.count--;
             _rep.owner = 0;
+
             pthread_cond_signal(&_rep.cond);
         }
         pthread_mutex_unlock(&_rep.mutex);

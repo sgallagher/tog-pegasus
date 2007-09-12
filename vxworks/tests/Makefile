@@ -3,7 +3,6 @@ SH = $(PEGASUS_ROOT)/vxworks/vxexec
 
 _DIRS1 = \
     Abstract \
-    AnonymousPipe \
     Array \
     AutoPtr \
     AtomicInt \
@@ -15,23 +14,13 @@ _DIRS1 = \
     ClassDecl \
     Compare \
     Config \
-    DateTime \
-    Dir \
     DynLib \
-    DynamicLibrary \
-    Executor \
-    FileLock \
-    FileSystem \
     Flavor \
-    Formatter \
     HashTable \
     HTTPMessage \
     InstanceDecl \
     IndicationFormatter \
-    L10N/msg \
-    Logger \
     MessageQueue \
-    MessageQueueService \
     MessageSerializer \
     Method \
     ModuleController \
@@ -74,10 +63,22 @@ _DIRS1 = \
     HostAddress \
     HostLocator
 
-_DIRS2 = async_callback \
+_DIRS2 = \
+    Logger \
+    Formatter \
+    FileSystem \
+    FileLock \
+    Executor \
+    DynamicLibrary \
+    Dir \
+    DateTime \
+    async_callback \
     AuditLogger \
     FileLock  \
-    L10N
+    L10N \
+    L10N/msg \
+    AnonymousPipe \
+    MessageQueueService \
 
 DIRS1 = $(addprefix $(BASE)/,$(_DIRS1))
 DIRS2 = $(addprefix $(BASE)/,$(_DIRS2))

@@ -37,4 +37,6 @@ shift
 echo "$*" > vxexec.tmp
 echo "C reboot(1)" >> vxexec.tmp
 
-vxsim -f $PEGASUS_ROOT/vxworks/vxWorks -exitOnError -s vxexec.tmp
+vxsim -tmpdir /tmp -f $PEGASUS_ROOT/vxworks/vxWorks -exitOnError -s vxexec.tmp
+
+rm -f vxexec.tmp

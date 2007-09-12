@@ -12,6 +12,8 @@ image:
 	mkdir -p image
 	( cd image; vxprj create linux gnu vxsim.wpj )
 	( cd image; vxprj component add INCLUDE_POSIX_PTHREAD_SCHEDULER )
+	( cd image; vxprj component remove INCLUDE_SHELL_BANNER )
+	( cd image; vxprj component remove INCLUDE_WDB_BANNER )
 	( cd image; vxprj parameter set LOCAL_MEM_SIZE 0x04000000 )
 	( cd image; vxprj parameter setstring SHELL_DEFAULT_CONFIG $(SHELL_DEFAULT_CONFIG) )
 

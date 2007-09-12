@@ -35,7 +35,7 @@ ifeq ($(OS_TYPE),vms)
 #
 
 PROGRAM = $(addprefix lib,$(LIBRARY))
-VMSSHARE =/share/symbol_table=$(OBJ_VMSDIRA)]/sysexe
+VMSSHARE =/share/sysexe
 SHARE_COPY = YES
 
 include $(ROOT)/mak/program.mak

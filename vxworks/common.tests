@@ -1,6 +1,5 @@
 cmd
 TestAbstract.vxe
-TestAnonymousPipe.vxe
 TestArray.vxe
 TestAsyncQueue.vxe
 TestAsyncCallback.vxe
@@ -31,7 +30,6 @@ TestHTTPMessage.vxe
 TestIDFactory.vxe
 TestIndicationFormatter.vxe
 TestInstanceDecl.vxe
-TestL10N.vxe
 TestList.vxe
 TestLogger.vxe
 TestMessageQueueService.vxe

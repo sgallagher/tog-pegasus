@@ -1,4 +1,7 @@
 cmd
 TestAnonymousPipe.vxe
+TestAtomicInt.vxe
+TestAuditLogger.vxe
+TestDynamicLibrary.vse
 TestL10N
 

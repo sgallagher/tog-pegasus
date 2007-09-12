@@ -8,7 +8,6 @@
 # (chkconfig --level=345 tog-pegasus on) after installation.
 #
 
-%define srcRelease 1
 Summary:   OpenPegasus WBEM Services for Linux
 Name:      tog-pegasus
 Group:     Systems Management/Base
@@ -16,6 +15,6 @@ License:   Open Group Pegasus Open Source
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 URL:       http://www.openpegasus.org
 
-Source:    %{name}-%{version}-%{srcRelease}.tar.gz
+Source:    %{name}-%{version}-%{packageVersion}.tar.gz
 #
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-intro.spec

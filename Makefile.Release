@@ -991,9 +991,12 @@ _append_OpenPegasusLicenseToSpecFile: FORCE
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 _append_PreambleToSpecFile: FORCE
+	@$(ECHO-E) "%define packageVersion $(PEGASUS_PACKAGE_VERSION)" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "Version: $(PEGASUS_PRODUCT_VERSION)" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "Release: 1%{?LINUX_VERSION:.%{LINUX_VERSION}}" \
+	@$(ECHO-E) "Release:"\
+            "%{packageVersion}%{?LINUX_VERSION:.%{LINUX_VERSION}}" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "Epoch:   1" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)

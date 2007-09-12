@@ -38,7 +38,8 @@
 ###############################################################################
 
 
-HOME_DIR=$(shell pwd)
+include pegasus/env_var_Linux.status
+
 RELEASE:=$(shell lsb_release -r -s)
 IDISTRO:=$(shell lsb_release -i -s)
 PLATFORM:=$(shell /bin/rpm --eval %_target_cpu)
@@ -55,18 +56,8 @@ CP:=cp
 GREP:=grep
 ECHO:=echo
 TOG_INSTALLED_RPMS:=$(shell $(RPM) -qa|grep tog-pegasus)
-PEGASUS_BIN_DIR:=/usr/bin
-PEGASUS_SBIN_DIR:=/usr/sbin
-PEGASUS_SAMPLES_DIR:=/usr/share/Pegasus/samples
-PEGASUS_RPM_TEST_DIR:=/usr/share/Pegasus/test
-PEGASUS_TEST_BIN_DIR:=/usr/share/Pegasus/test/bin
-PEGASUS_SCRIPT_DIR:=/usr/share/Pegasus/scripts
 CIMSERVER_START_SERVICE:=$(PEGASUS_SBIN_DIR)/cimserver
 CIMSERVER_STOP_SERVICE:=$(PEGASUS_SBIN_DIR)/cimserver -s
-
-ifndef PEGASUS_SRC_RELEASE
-    PEGASUS_SRC_RELEASE:=1
-endif
 
 ifdef PEGASUS_BUILD_BRANCH
     ifeq ($(PEGASUS_BUILD_BRANCH),MAIN)
@@ -132,7 +123,7 @@ else
   TOG_PEGASUS_DIR:=tog-pegasus
 endif
 
-VERSION:=$(PEGASUS_RPM_VERSION)-$(PEGASUS_SRC_RELEASE)
+VERSION:=$(PEGASUS_PRODUCT_VERSION)-$(PEGASUS_PACKAGE_VERSION)
 CORE_RPM:=tog-pegasus-$(VERSION).$(PEGASUS_DISTRO_SUFFIX).$(PLATFORM).rpm
 SDK_RPM:=tog-pegasus-devel-$(VERSION).$(PEGASUS_DISTRO_SUFFIX).$(PLATFORM).rpm
 TEST_RPM:=tog-pegasus-test-$(VERSION).$(PEGASUS_DISTRO_SUFFIX).$(PLATFORM).rpm
@@ -159,29 +150,19 @@ usage:
 	$(USAGE)"Input variables:"
 	$(USAGE)"PEGASUS_BUILD_BRANCH - pegasus branch to build"
 	$(USAGE)"                       HEAD is used if MAIN is specified"
-	$(USAGE)"PEGASUS_RPM_VERSION  - pegasus release version (Required)"
-	$(USAGE)"PEGASUS_SRC_RELEASE  - pegasus source release number"
-	$(USAGE)"                       defaults to 1 if not specified"
-	$(USAGE)"PEGASUS_RPM_DIRECTORY- path to target binary rpm directory"
-	$(USAGE)"                       if it is not defined"
-	$(USAGE)"                       defaults to /usr/src/redhat"
-	$(USAGE)"                       for Red Hat distributions"
-	$(USAGE)"                       defaults to /usr/src/packages"
-	$(USAGE)"                       for SUSE distributions"
-	$(USAGE)""
 
 exportSRC:
 	@cvs -d:pserver:anon@cvs.opengroup.org:/cvs/MSB export -r $(PEGASUS_RPM_CVS_TAG) pegasus
 
 createSRCRPM:
 
-ifndef PEGASUS_RPM_VERSION
-	@$(ECHO) "PEGASUS_RPM_VERSION is not defined"
+ifndef PEGASUS_PRODUCT_VERSION
+	@$(ECHO) "PEGASUS_PRODUCT_VERSION is not defined"
 	@exit 2
 endif
-	@$(MV) pegasus tog-pegasus-$(PEGASUS_RPM_VERSION)
-	@$(CP) tog-pegasus-$(PEGASUS_RPM_VERSION)/rpm/tog-pegasus.spec $(PEGASUS_RPM_DIRECTORY)/SPECS 
-	@tar czf tog-pegasus-$(VERSION).tar.gz tog-pegasus-$(PEGASUS_RPM_VERSION)
+	@$(MV) pegasus tog-pegasus-$(PEGASUS_PRODUCT_VERSION)
+	@$(CP) tog-pegasus-$(PEGASUS_PRODUCT_VERSION)/rpm/tog-pegasus.spec $(PEGASUS_RPM_DIRECTORY)/SPECS 
+	@tar czf tog-pegasus-$(VERSION).tar.gz tog-pegasus-$(PEGASUS_PRODUCT_VERSION)
 	@$(CP) tog-pegasus-$(VERSION).tar.gz $(PEGASUS_RPM_DIRECTORY)/SOURCES/$(TOG_PEGASUS_DIR)
 	@$(RPMBUILD) -bs $(PEGASUS_RPM_DIRECTORY)/SPECS/tog-pegasus.spec
 
@@ -196,49 +177,49 @@ tests:
 	# Start cimserver
 	-$(CIMSERVER_STOP_SERVICE)
 	$(CIMSERVER_START_SERVICE)
-	@$(HOME_DIR)/check_for_core
+	@check_for_core
 
 	# Run some sanity tests
 	# osinfo, cimserver -v, cimprovider -l -s, cimconfig -l -c etc
 	@$(ECHO) "+++++ Running sanity checks +++++"
 	@$(ECHO) "+++++ Running osinfo +++++"
 	$(PEGASUS_BIN_DIR)/osinfo
-	-@$(HOME_DIR)/check_for_core
+	-@check_for_core
 
 	@$(ECHO) "+++++ Running cimserver -v +++++"
 	$(PEGASUS_SBIN_DIR)/cimserver -v
-	@$(HOME_DIR)/check_for_core
+	@check_for_core
 
 	@$(ECHO) "+++++ Running cimconfig +++++"
 	$(PEGASUS_SBIN_DIR)/cimconfig -l -c
-	@$(HOME_DIR)/check_for_core
+	@check_for_core
 
 	@$(ECHO) "+++++ Running cimprovider +++++"
 	$(PEGASUS_BIN_DIR)/cimprovider -l -s
-	@$(HOME_DIR)/check_for_core
+	@check_for_core
 
 	@$(ECHO) "+++++ Stopping cimserver +++++"
 	@$(CIMSERVER_STOP_SERVICE)
-	@$(HOME_DIR)/check_for_core
+	@check_for_core
 
 	@$(ECHO) "+++++ Starting cimserver +++++"
 	$(CIMSERVER_START_SERVICE)
-	@$(HOME_DIR)/check_for_core
+	@check_for_core
 
 	# Run samples
 	@$(ECHO) "+++++ Running samples +++++"
 	$(MAKE) --directory=$(PEGASUS_SAMPLES_DIR) -f Makefile
 	$(MAKE) --directory=$(PEGASUS_SAMPLES_DIR) -f Makefile setupSDK
 	$(MAKE) --directory=$(PEGASUS_SAMPLES_DIR) -f Makefile testSDK
-	@$(HOME_DIR)/check_for_core
+	@check_for_core
 
 	# Install the test RPM after running SDK tests. This is because
 	# the test RPM over-writes the repository.
 	@$(ECHO) "+++++ Installing Test RPM +++++"
 	$(RPM) -ih $(PEGASUS_RPM_DIRECTORY)/RPMS/$(PLATFORM)/$(TEST_RPM)
-	$(MAKE) --directory=$(PEGASUS_RPM_TEST_DIR) -f Makefile setupTEST
-	$(MAKE) --directory=$(PEGASUS_RPM_TEST_DIR) -f Makefile tests
-	@$(HOME_DIR)/check_for_core
+	$(MAKE) --directory=$(PEGASUS_TEST_DIR) -f Makefile setupTEST
+	$(MAKE) --directory=$(PEGASUS_TEST_DIR) -f Makefile tests
+	@check_for_core
 
 # Install rpms
 install:
@@ -251,8 +232,8 @@ cleanRPM:
 	-$(RPM) -e $(filter tog-pegasus-test%,$(TOG_INSTALLED_RPMS))
 	-$(RPM) -e $(filter tog-pegasus-devel%,$(TOG_INSTALLED_RPMS))
 	-$(RPM) -e $(filter tog-pegasus-2%,$(TOG_INSTALLED_RPMS))
-	-$(RM) -Rf tog-pegasus-$(PEGASUS_RPM_VERSION).old
-	-$(MV) tog-pegasus-$(PEGASUS_RPM_VERSION) tog-pegasus-$(PEGASUS_RPM_VERSION).old
+	-$(RM) -Rf tog-pegasus-$(PEGASUS_PRODUCT_VERSION).old
+	-$(MV) tog-pegasus-$(PEGASUS_PRODUCT_VERSION) tog-pegasus-$(PEGASUS_PRODUCT_VERSION).old
 
 buildRPM: cleanRPM createSRCRPM createBINRPM
 

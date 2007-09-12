@@ -41,8 +41,9 @@
 # be lost the next time this file is regenerated and submitted to CVS.
 #
 
+%define packageVersion 2
 Version: 2.7.0
-Release: 1%{?LINUX_VERSION:.%{LINUX_VERSION}}
+Release: %{packageVersion}%{?LINUX_VERSION:.%{LINUX_VERSION}}
 Epoch:   1
 
 # Start of section pegasus/rpm/tog-specfiles/tog-pegasus-intro.spec
@@ -55,7 +56,6 @@ Epoch:   1
 # (chkconfig --level=345 tog-pegasus on) after installation.
 #
 
-%define srcRelease 1
 Summary:   OpenPegasus WBEM Services for Linux
 Name:      tog-pegasus
 Group:     Systems Management/Base
@@ -63,7 +63,7 @@ License:   Open Group Pegasus Open Source
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 URL:       http://www.openpegasus.org
 
-Source:    %{name}-%{version}-%{srcRelease}.tar.gz
+Source:    %{name}-%{version}-%{packageVersion}.tar.gz
 #
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-intro.spec
 

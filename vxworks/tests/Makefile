@@ -6,8 +6,6 @@ _DIRS1 = \
     AnonymousPipe \
     Array \
     AutoPtr \
-    AuditLogger \
-    async_callback \
     AtomicInt \
     AuthenticationInfo \
     Base64 \
@@ -30,7 +28,6 @@ _DIRS1 = \
     HTTPMessage \
     InstanceDecl \
     IndicationFormatter \
-    L10N \
     L10N/msg \
     Logger \
     MessageQueue \
@@ -77,7 +74,10 @@ _DIRS1 = \
     HostAddress \
     HostLocator
 
-_DIRS2 = FileLock
+_DIRS2 = async_callback \
+    AuditLogger \
+    FileLock  \
+    L10N
 
 DIRS1 = $(addprefix $(BASE)/,$(_DIRS1))
 DIRS2 = $(addprefix $(BASE)/,$(_DIRS2))

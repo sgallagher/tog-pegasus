@@ -20,10 +20,9 @@
 
 copt=$1
 
-if [ ! "$1" = "-c" ]
+if [ "$1" = "-c" ]
 then
-    echo "Usage: $0 -c command"
-    exit 1
+    shift
 fi
 
 if [ ! -d "$PEGASUS_ROOT" ]
@@ -31,8 +30,6 @@ then
     echo "PEGASUS_ROOT must refer to an actual directory"
     exit 1
 fi
-
-shift
 
 rm -rf vxexec.tmp
 echo "################################################################################" >> vxexec.tmp

@@ -720,6 +720,10 @@ struct hostent* System::getHostByAddr(
     return hostEntry;
 }
 
+#if defined(PEGASUS_OS_ZOS) || \
+    defined(PEGASUS_OS_VMS) || \
+    defined(PEGASUS_ENABLE_IPV6)
+
 int System::getAddrInfo(
     const char *hostname, 
     const char *servname,
@@ -762,6 +766,7 @@ int System::getNameInfo(
     return rc;
 }
 
+#endif
 
 // System ID constants for Logger::put and Logger::trace
 const String System::CIMLISTENER = "cimlistener"; // Listener systme ID

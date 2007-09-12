@@ -146,6 +146,10 @@ public:
         char* buf = 0, 
         size_t buflen = 0);
 
+#if defined(PEGASUS_OS_ZOS) || \
+    defined(PEGASUS_OS_VMS) || \
+    defined(PEGASUS_ENABLE_IPV6)
+
     // The following 2 methods are wrappers around system functions 
     // getaddrinfo/getnameinfo. 
     // In addition to calling corresponding system functions, these
@@ -163,6 +167,8 @@ public:
         char *serv, 
         size_t servlen, 
         int flags);
+
+#endif
 
     // Gets IP address assosiated with hostName. af indicates the
     // type of address (ipv4 or ipv6) returned.

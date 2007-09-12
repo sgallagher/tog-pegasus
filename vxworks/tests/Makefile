@@ -1,7 +1,7 @@
 BASE = $(PEGASUS_ROOT)/src/Pegasus/Common/tests
 SH = $(PEGASUS_ROOT)/vxworks/vxexec
 
-_DIRS = \
+_DIRS1 = \
     Abstract \
     AnonymousPipe \
     Array \
@@ -77,12 +77,20 @@ _DIRS = \
     HostAddress \
     HostLocator
 
-DIRS = $(addprefix $(BASE)/,$(_DIRS))
+_DIRS2 = FileLock
+
+DIRS1 = $(addprefix $(BASE)/,$(_DIRS1))
+DIRS2 = $(addprefix $(BASE)/,$(_DIRS2))
 
 define NL
 
 
 endef
 
-all:
-	$(foreach i, $(DIRS), $(MAKE) SHELL=$(SH) -SC $(i) tests $(NL) )
+all: dirs1 dirs2
+
+dirs1:
+	$(foreach i, $(DIRS1), $(MAKE) SHELL=$(SH) -SC $(i) tests $(NL) )
+
+dirs2:
+	$(foreach i, $(DIRS2), $(MAKE) SHELL=$(SH) -SC $(i) tests $(NL) )

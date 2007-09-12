@@ -34,19 +34,12 @@ fi
 
 shift
 
-echo "################################################################################" > vxexec.tmp
-echo "##                                                                            ##" >> vxexec.tmp
-echo "##                                                                            ##" >> vxexec.tmp
-echo "##                                                                            ##" >> vxexec.tmp
+rm -rf vxexec.tmp
+echo "################################################################################" >> vxexec.tmp
 echo "$*" >> vxexec.tmp
 echo "C reboot(1)" >> vxexec.tmp
 
-vxsim -tmpdir /tmp -f $PEGASUS_ROOT/vxworks/vxWorks -exitOnError -s vxexec.tmp
-
-echo ""
-echo "##                                                                            ##"
-echo "##                                                                            ##"
-echo "##                                                                            ##"
-echo "################################################################################"
+#vxsim -tmpdir /tmp -f $PEGASUS_ROOT/vxworks/vxWorks -exitOnError -s vxexec.tmp
+vxsim -tmpdir /tmp -f $PEGASUS_ROOT/vxworks/vxWorks -s vxexec.tmp
 
 rm -f vxexec.tmp

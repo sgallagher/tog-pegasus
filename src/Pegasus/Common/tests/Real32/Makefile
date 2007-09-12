@@ -37,8 +37,6 @@ LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 PROGRAM = TestReal32
 SOURCES = Real32.cpp
 
-LIBRARIES = Foo
-
 include $(ROOT)/mak/program.mak
 
 tests:

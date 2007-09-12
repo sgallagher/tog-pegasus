@@ -404,9 +404,11 @@ String System::getPassword(const char* prompt)
 
 String System::getEffectiveUserName()
 {
+#if 0
     // ATTN-MEB: fix!
     assert("System::getEffectiveUserName() not implemented on vxworks" == 0);
-    return String();
+#endif
+    return String("vxworks");
 }
 
 String System::encryptPassword(const char* password, const char* salt)

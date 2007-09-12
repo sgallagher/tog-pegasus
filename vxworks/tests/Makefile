@@ -62,13 +62,13 @@ _DIRS1 = \
     XmlReader \
     Reference \
     Executor \
+    DateTime
 
 _DIRS2 = \
-    DateTime \
+    Logger \
     FileSystem \
     MessageSerializer \
     Tracer \
-    Logger \
     Formatter \
     Dir \
     async_callback \

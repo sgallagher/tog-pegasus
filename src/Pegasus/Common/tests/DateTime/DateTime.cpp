@@ -737,9 +737,13 @@ std::cout << currentTime1.toString() << std::endl;
 
             PEGASUS_TEST_ASSERT(!gotException);
 
+// The VxWorks target simulator starts with the clock set to EPOCH 
+// (Jan 1, 1970) and so the following test fails.
+#if !defined(PEGASUS_OS_VXWORKS)
             // The literal value is approximately February 1, 2006.
             PEGASUS_TEST_ASSERT(currentTime1.toMicroSeconds() >
                                 PEGASUS_UINT64_LITERAL(63306000000000000));
+#endif
 
             // We don't expect the two getCurrentDateTime calls to happen more
             // than a second apart.

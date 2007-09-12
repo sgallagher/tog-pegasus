@@ -4,3 +4,11 @@
     2. VXWorks has no user database maniuplation.
 
     3. VXWorks has no file ownership management.
+
+    4. VXWorks has no popen(), but it is only needed in one test.
+
+    5. floating points types are broken (printf does not work and they sometimes
+       exhibit strange behavior).
+
+    6. The vxworks target start with its clock set to epoch.
+

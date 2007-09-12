@@ -36,6 +36,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Executor/Match.h>
 #include "FileSystem.h"
 #include "Dir.h"
 #if !defined(PEGASUS_OS_TYPE_WINDOWS) && !defined(PEGASUS_OS_VXWORKS)
@@ -498,7 +499,7 @@ Boolean FileSystem::changeFileOwner(
     const String& userName)
 {
     // ATTN-MEB: fix!
-    assert(0);
+    assert("FileSystem::changeFileOwner() not implemented on vxworks" == 0);
     return false;
 }
 
@@ -579,6 +580,54 @@ void FileSystem::syncWithDirectoryUpdates(PEGASUS_STD(fstream)& fs)
     // Writes the data from the OS buffers to the disk
     fsync(fs.rdbuf()->fd());
 #endif
+}
+
+Boolean FileSystem::glob(
+    const String& path, 
+    const String& pattern_,
+    Array<String>& filenames)
+{
+    filenames.clear();
+
+    try
+    {
+        CString pattern(pattern_.getCString());
+
+        for (Dir dir(path); dir.more(); dir.next())
+        {
+            const char* name = dir.getName();
+
+            if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
+                continue;
+
+            if (Match(name, pattern) == 0)
+                filenames.append(name);
+        }
+    }
+    catch (...)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+Boolean FileSystem::removeMatchingFiles(
+    const String& path, const String& pattern)
+{
+
+    Array<String> filenames;
+
+    if (!FileSystem::glob(path, pattern, filenames))
+        return false;
+
+    for (size_t i = 0; i < filenames.size(); i++)
+    {
+        if (!FileSystem::removeFile(filenames[i]))
+            return false;
+    }
+
+    return true;
 }
 
 PEGASUS_NAMESPACE_END

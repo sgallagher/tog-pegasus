@@ -40,6 +40,7 @@ PEGASUS_USING_STD;
 
 int main(int argc, char** argv)
 {
+#if 0
     Real32 x = 1.0;
     Real32 y = 0.5;
     Real32 z = 0.1;
@@ -55,12 +56,17 @@ int main(int argc, char** argv)
     assert(!(x < y));
     assert(!(x < z));
     assert(!(y < z));
+#endif
 
-    char buffer[4096];
-    sprintf(buffer, "%f", x);
+    {
+        float tmp = 1.5;
+        printf("e[%f]\n", tmp);
+    }
 
-    printf("buffer[%s]\n", buffer);
-    printf("buffer[%f]\n", x);
+    {
+        float tmp = 1.0;
+        printf("e[%f]\n", tmp);
+    }
 
     printf("(%s) +++++ passed all tests\n", argv[0]);
 

@@ -33,8 +33,11 @@ TARGET=$(LIB_DIR)/lib$(LIBRARY).so
 
 LINK_FLAGS = -lstdc++ -fpic -shared -L$(VXWORKS_LIB_COMMON)/PIC
 
+DFILES = $(SOURCES:.cpp=.d)
+
 $(TARGET): $(LIB_DIR)/target $(OBJECTS) $(TARGETRARIES) $(ERROR)
 	$(CXX) $(FLAGS) $(LINK_FLAGS) $(OBJECTS) -o $(TARGET)
+	rm -rf $(DFILES)
 	@ $(ECHO)
 
 clean-lib: $(ERROR)

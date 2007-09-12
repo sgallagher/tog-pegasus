@@ -39,8 +39,11 @@ TARGET=$(BIN_DIR)/$(PROGRAM)
 
 LFLAGS = -lstdc++ -L$(WIND_BASE)/target/usr/lib/simpentium/SIMPENTIUM/common -Wl,-rpath /romfs/lib -ldl -Wl,-rpath $(LIB_DIR)
 
+DFILES = $(SOURCES:.cpp=.d)
+
 $(TARGET): $(BIN_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) $(ERROR)
 	$(CXX) $(FLAGS) -o $(TARGET) $(OBJECTS) -non-static $(FULL_LIBRARIES) $(LFLAGS)
+	rm -rf $(DFILES)
 
 include $(ROOT)/mak/objects.mak
 

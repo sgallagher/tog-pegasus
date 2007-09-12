@@ -69,7 +69,7 @@ ifeq ($(OS),HPUX)
 	  NISServerService/testclient
 endif
 
-ifeq ($(PEGASUS_OS_TYPE),VMS)
+ifeq ($(OS_TYPE),vms)
   DIRS += NTPProviderSecurity \
           NTPService \
           NTPService/tests \

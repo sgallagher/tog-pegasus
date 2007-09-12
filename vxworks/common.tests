@@ -3,8 +3,6 @@ TestAbstract.vxe
 TestArray.vxe
 TestAsyncQueue.vxe
 TestAsyncCallback.vxe
-TestAtomicInt.vxe
-TestAuditLogger.vxe
 TestAuthenticationInfo.vxe
 TestAutoPtr.vxe
 TestBase64.vxe
@@ -17,7 +15,6 @@ TestCondition.vxe
 TestConfig.vxe
 TestDateTime.vxe
 TestDir.vxe
-TestDynamicLibrary.vxe
 TestExecutor.vxe
 TestFileLock.vxe
 TestFileSystem.vxe

@@ -60,7 +60,10 @@ unsigned long PidFile::getPid()
     }
 
     // get the pid from the file
-    fscanf(pidFile, "%lu\n", &pid);
+    if (fscanf(pidFile, "%lu\n", &pid) != 1)
+    {
+        return 0;
+    }
 
     fclose(pidFile);
 

@@ -99,13 +99,16 @@ void CompareClasses(
 
         cout << " .... differences follow:" << endl << endl;
 
-        system("diff file1 file2");
+        if (system("diff file1 file2") == -1)
+        {
+            cout << "Error:  system(\"diff file1 file2\") failed." << endl;
+        }
 
         if (verbose)
-          {
-        XmlWriter::printClassElement(class1, cout);
-        XmlWriter::printClassElement(class2, cout);
-          }
+        {
+            XmlWriter::printClassElement(class1, cout);
+            XmlWriter::printClassElement(class2, cout);
+        }
         failures++;
     }
     }

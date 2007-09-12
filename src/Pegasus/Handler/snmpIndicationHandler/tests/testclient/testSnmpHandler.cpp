@@ -668,7 +668,10 @@ void _stopSnmptrapd()
     FILE *fd;
     if ((fd = fopen(procIdFileName.getCString(), "r")) != NULL)
     {
-        fscanf(fd, "%d\n", &receiverPid);
+        if (fscanf(fd, "%d\n", &receiverPid) != 1)
+        {
+            throw Exception("Failed to read trapd pid from procIdFile.");
+        }
 
         kill(receiverPid, SIGTERM);
 

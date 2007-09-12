@@ -40,6 +40,7 @@
 #if (defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX)) \
     && defined(PEGASUS_USE_RELEASE_DIRS)
 # include <unistd.h>
+# include <errno.h>
 #endif
 
 #ifdef PEGASUS_OS_PASE
@@ -99,10 +100,10 @@
 #include "BinaryMessageHandler.h"
 #include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
-// NOCHKSRC
-#include <Pegasus/ControlProviders/ConfigSettingProvider/ConfigSettingProvider.h>
-#include <Pegasus/ControlProviders/ProviderRegistrationProvider/ProviderRegistrationProvider.h>
-// DOCHKSRC
+#include <Pegasus/ControlProviders/ConfigSettingProvider/\
+ConfigSettingProvider.h>
+#include <Pegasus/ControlProviders/ProviderRegistrationProvider/\
+ProviderRegistrationProvider.h>
 #include <Pegasus/ControlProviders/NamespaceProvider/NamespaceProvider.h>
 
 #ifndef PEGASUS_DISABLE_PERFINST
@@ -114,9 +115,8 @@
 #endif
 
 #ifndef PEGASUS_DISABLE_CQL
-// NOCHKSRC
-# include <Pegasus/ControlProviders/QueryCapabilitiesProvider/CIMQueryCapabilitiesProvider.h>
-// DOCHKSRC
+# include <Pegasus/ControlProviders/QueryCapabilitiesProvider/\
+CIMQueryCapabilitiesProvider.h>
 #endif
 
 #if defined PEGASUS_ENABLE_INTEROP_PROVIDER
@@ -241,7 +241,11 @@ void CIMServer::_init()
 
 #if (defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX)) \
     && defined(PEGASUS_USE_RELEASE_DIRS)
-    chdir(PEGASUS_CORE_DIR);
+    if (chdir(PEGASUS_CORE_DIR) != 0)
+    {
+        PEG_TRACE((TRC_SERVER, Tracer::LEVEL2,
+            "chdir(\"%s\") failed with errno %d.", PEGASUS_CORE_DIR, errno));
+    }
 #endif
 
     // -- Create a repository:

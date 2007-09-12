@@ -17,7 +17,6 @@ TestDateTime.vxe
 TestDir.vxe
 TestExecutor.vxe
 TestFileLock.vxe
-TestFileSystem.vxe
 TestFlavor.vxe
 TestFormatter.vxe
 TestHashTable.vxe

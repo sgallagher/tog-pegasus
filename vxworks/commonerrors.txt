@@ -3,5 +3,6 @@ TestAnonymousPipe.vxe
 TestAtomicInt.vxe
 TestAuditLogger.vxe
 TestDynamicLibrary.vse
+TestFileSystem.vxe
 TestL10N
 

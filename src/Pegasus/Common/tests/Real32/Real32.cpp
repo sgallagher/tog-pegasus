@@ -60,11 +60,13 @@ int main(int argc, char** argv)
 
     {
         float tmp = 1.5;
+        assert(tmp == 1.5);
         printf("e[%f]\n", tmp);
     }
 
     {
         float tmp = 1.0;
+        assert(tmp == 1.0);
         printf("e[%f]\n", tmp);
     }
 

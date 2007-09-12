@@ -250,13 +250,18 @@ int main(int argc, char** argv)
         String cd(tmpDir);
         cd.append("/TestFile.txt");
         PEGASUS_TEST_ASSERT(FileSystem::exists(cd));
-#ifndef PEGASUS_OS_TYPE_WINDOWS
-        PEGASUS_TEST_ASSERT(
-            FileSystem::changeFilePermissions(cd,S_IRUSR|S_IRGRP|S_IROTH));
-#else
+
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
         PEGASUS_TEST_ASSERT(
             FileSystem::changeFilePermissions(cd, _S_IREAD|_S_IWRITE));
+#elif defined(PEGASUS_OS_VXWORKS)
+        // Test is not meaningful for VxWorks since this file is on the
+        // host and the target may not access this file.
+#else
+        PEGASUS_TEST_ASSERT(
+            FileSystem::changeFilePermissions(cd,S_IRUSR|S_IRGRP|S_IROTH));
 #endif
+
         PEGASUS_TEST_ASSERT(FileSystem::canReadNoCase(cd));
 
         if (System::isPrivilegedUser(System::getEffectiveUserName()))

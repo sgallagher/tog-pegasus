@@ -498,8 +498,11 @@ Boolean FileSystem::changeFileOwner(
     const String& fileName,
     const String& userName)
 {
-    // ATTN-MEB: fix!
-    assert("FileSystem::changeFileOwner() not implemented on vxworks" == 0);
+    // ATTN-MEB: revisit!
+
+    if (userName == PEGASUS_VXWORKS_USER)
+        return true;
+
     return false;
 }
 

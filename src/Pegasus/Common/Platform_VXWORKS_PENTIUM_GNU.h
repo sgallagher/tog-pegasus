@@ -54,6 +54,8 @@
 
 #define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
 
+#define PEGASUS_VXWORKS_USER "vxworks"
+
 #ifndef _GNU_SOURCE
 # define _GNU_SOURCE
 #endif
@@ -89,6 +91,7 @@
 #include <hostLib.h>
 #include <sys/time.h>
 #include <syslog.h>
+#include <unistd.h>
 
 #undef gettimeofday
 

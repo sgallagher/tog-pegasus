@@ -143,12 +143,36 @@ Boolean System::exists(const char* path)
 
 Boolean System::canRead(const char* path)
 {
+#if defined(PEGASUS_OS_VXWORKS)
+    // access() broken on VxWorks.
+
+    int fd = open(path, O_RDONLY);
+
+    if (fd == -1)
+        return false;
+
+    close(fd);
+    return true;
+#else
     return access(path, R_OK) == 0;
+#endif
 }
 
 Boolean System::canWrite(const char* path)
 {
+#if defined(PEGASUS_OS_VXWORKS)
+    // access() broken on VxWorks.
+
+    int fd = open(path, O_WRONLY);
+
+    if (fd == -1)
+        return false;
+
+    close(fd);
+    return true;
+#else
     return access(path, W_OK) == 0;
+#endif
 }
 
 Boolean System::getCurrentDirectory(char* path, Uint32 size)
@@ -404,11 +428,7 @@ String System::getPassword(const char* prompt)
 
 String System::getEffectiveUserName()
 {
-#if 0
-    // ATTN-MEB: fix!
-    assert("System::getEffectiveUserName() not implemented on vxworks" == 0);
-#endif
-    return String("vxworks");
+    return String(PEGASUS_VXWORKS_USER);
 }
 
 String System::encryptPassword(const char* password, const char* salt)
@@ -427,8 +447,7 @@ Boolean System::isSystemUser(const char* userName)
 
 Boolean System::isPrivilegedUser(const String& userName)
 {
-    // ATTN-MEB: fix!
-    assert("System::isPrivilegedUser() not implemented on vxworks" == 0);
+    // ATTN-MEB: revisit!
     return true;
 }
 
@@ -469,9 +488,8 @@ Uint32 System::getPID()
 
 Boolean System::verifyFileOwnership(const char* path)
 {
-    // ATTN-MEB: fix!
-    assert("System::verifyFileOwnership() not implemented on vxworks" == 0);
-    return false;
+    // ATTN-MEB: revisit!
+    return true;
 }
 
 #endif /* defined(PEGASUS_OS_VXWORKS) */

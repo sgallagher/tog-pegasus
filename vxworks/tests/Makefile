@@ -62,11 +62,11 @@ _DIRS1 = \
     XmlReader \
     Reference \
     Executor \
-    DateTime
+    DateTime \
+    FileSystem
 
 _DIRS2 = \
     Logger \
-    FileSystem \
     MessageSerializer \
     Tracer \
     Formatter \

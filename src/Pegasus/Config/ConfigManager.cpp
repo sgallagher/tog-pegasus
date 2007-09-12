@@ -174,7 +174,7 @@ static struct OwnerEntry _properties[] =
          (ConfigPropertyOwner*)ConfigManager::defaultOwner},
     {"maxProviderProcesses",
          (ConfigPropertyOwner*)ConfigManager::defaultOwner},
-#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+#ifdef PEGASUS_ENABLE_AUDIT_LOGGER
     {"enableAuditLog",
          (ConfigPropertyOwner*)ConfigManager::defaultOwner},
 #endif

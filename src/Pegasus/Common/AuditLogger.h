@@ -42,7 +42,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+#ifdef PEGASUS_ENABLE_AUDIT_LOGGER
 
 /**
     This class provides the interfaces to construct a human readable audit

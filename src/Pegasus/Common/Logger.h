@@ -73,7 +73,7 @@ public:
     {
         TRACE_LOG,
         STANDARD_LOG,
-        AUDIT_LOG, // Use only if PEGASUS_DISABLE_AUDIT_LOGGER is not defined
+        AUDIT_LOG, // Use only if PEGASUS_ENABLE_AUDIT_LOGGER is defined
         ERROR_LOG,
         DEBUG_LOG
     };

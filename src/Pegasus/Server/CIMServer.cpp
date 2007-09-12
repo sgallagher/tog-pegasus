@@ -58,6 +58,7 @@
 #include <Pegasus/Common/SSLContextManager.h>
 #include <Pegasus/Common/Time.h>
 #include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/AuditLogger.h>
 
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/ExportServer/CIMExportRequestDispatcher.h>
@@ -72,10 +73,6 @@
 
 #if defined PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 # include "ConsoleManager_zOS.h"
-#endif
-
-#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
-# include <Pegasus/Common/AuditLogger.h>
 #endif
 
 #ifdef PEGASUS_ENABLE_SLP
@@ -516,7 +513,7 @@ void CIMServer::_init()
     // Load and initialize providers registed with AutoStart = true
     _providerRegistrationManager->initializeProviders();
 
-#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+#ifdef PEGASUS_ENABLE_AUDIT_LOGGER
 
     // Register audit logger initialize callback
     AuditLogger::setInitializeCallback(auditLogInitializeCallback);
@@ -1076,7 +1073,7 @@ SSLContext* CIMServer::_getSSLContext()
 
 void CIMServer::auditLogInitializeCallback()
 {
-#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+#ifdef PEGASUS_ENABLE_AUDIT_LOGGER
 
     Array<String> propertyNames;
     Array<String> propertyValues;

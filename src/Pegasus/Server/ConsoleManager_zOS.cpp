@@ -41,13 +41,10 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/AuditLogger.h>
 #include <Pegasus/Config/ConfigManager.h>
 
 #include <sys/__messag.h>
-
-#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
-# include <Pegasus/Common/AuditLogger.h>
-#endif
 
 #include "ConsoleManager_zOS.h"
 #include "CIMServer.h"

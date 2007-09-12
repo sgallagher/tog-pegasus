@@ -50,7 +50,7 @@
 
 #include <stdlib.h>
 
-#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+#ifdef PEGASUS_ENABLE_AUDIT_LOGGER
 
 PEGASUS_USING_STD;
 

@@ -588,17 +588,28 @@ endif
 
 #
 # PEP 258
-# Allow Audit Logger to be disabled
+# Allow Audit Logger to be disabled.  It is enabled by default.
 #
-ifdef PEGASUS_DISABLE_AUDIT_LOGGER
-  ifeq ($(PEGASUS_DISABLE_AUDIT_LOGGER),true)
-    DEFINES += -DPEGASUS_DISABLE_AUDIT_LOGGER
-  else
-    ifneq ($(PEGASUS_DISABLE_AUDIT_LOGGER),false)
-      $(error PEGASUS_DISABLE_AUDIT_LOGGER ($(PEGASUS_DISABLE_AUDIT_LOGGER)) \
-       invalid, must be true or false)
+
+ifndef PEGASUS_ENABLE_AUDIT_LOGGER
+    PEGASUS_ENABLE_AUDIT_LOGGER = true
+endif
+
+ifdef PEGASUS_ENABLE_AUDIT_LOGGER
+    ifeq ($(PEGASUS_ENABLE_AUDIT_LOGGER),true)
+        DEFINES += -DPEGASUS_ENABLE_AUDIT_LOGGER
+    else
+        ifneq ($(PEGASUS_ENABLE_AUDIT_LOGGER),false)
+            $(error PEGASUS_ENABLE_AUDIT_LOGGER \
+              ($(PEGASUS_ENABLE_AUDIT_LOGGER)) invalid, must be true or false)
+        endif
     endif
-  endif
+endif
+
+# Check for use of deprecated variable
+ifdef PEGASUS_DISABLE_AUDIT_LOGGER
+    $(error The PEGASUS_DISABLE_AUDIT_LOGGER variable is deprecated. \
+        Use PEGASUS_ENABLE_AUDIT_LOGGER=false instead)
 endif
 
 

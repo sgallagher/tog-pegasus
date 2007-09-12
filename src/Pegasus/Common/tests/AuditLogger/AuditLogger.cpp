@@ -42,7 +42,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+#ifdef PEGASUS_ENABLE_AUDIT_LOGGER
 
 typedef void (*PEGASUS_AUDITLOGINITIALIZE_CALLBACK_T)();
 
@@ -383,7 +383,7 @@ void testDisabled()
 
 int main(int argc, char** argv)
 {
-#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+#ifdef PEGASUS_ENABLE_AUDIT_LOGGER
 
     AuditLogger::writeAuditLogToFileCallback(writeAuditLogToFile);
 
@@ -434,6 +434,11 @@ int main(int argc, char** argv)
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 
-    return 0;
+#else
+
+    cout << argv[0] << ": AuditLogger is not enabled; test skipped" << endl;
+
 #endif
+
+    return 0;
 }

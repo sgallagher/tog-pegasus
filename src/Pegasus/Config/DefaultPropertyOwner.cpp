@@ -256,7 +256,7 @@ void DefaultPropertyOwner::updateCurrentValue(
     //
     initCurrentValue(name, value);
 
-#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+#ifdef PEGASUS_ENABLE_AUDIT_LOGGER
 
     if (String::equal(name, "enableAuditLog") && isValid(name, value))
     {
@@ -304,7 +304,7 @@ Boolean DefaultPropertyOwner::isValid(
             sscanf(value.getCString(), "%u%c", &timeoutValue, &dummyChar);
         return ((timeoutValue != 0) && (numConversions == 1));
     }
-#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+#ifdef PEGASUS_ENABLE_AUDIT_LOGGER
     else if (String::equal(name, "enableAuditLog"))
     {
         if (!(String::equalNoCase(value, "true")) &&

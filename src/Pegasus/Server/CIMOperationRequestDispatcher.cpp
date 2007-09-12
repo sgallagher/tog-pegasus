@@ -396,7 +396,7 @@ void CIMOperationRequestDispatcher::_logOperation(
     const CIMRequestMessage* request,
     const CIMResponseMessage* response)
 {
-#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+#ifdef PEGASUS_ENABLE_AUDIT_LOGGER
 
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_logOperation");

@@ -44,7 +44,7 @@
     {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"maxProviderProcesses","0", IS_STATIC, 0, 0, IS_VISIBLE},
-# ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+# ifdef PEGASUS_ENABLE_AUDIT_LOGGER
     {"enableAuditLog", "false", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 # endif
     {"home", "/QOpenSys/QIBM/UserData/UME/Pegasus", IS_STATIC, 

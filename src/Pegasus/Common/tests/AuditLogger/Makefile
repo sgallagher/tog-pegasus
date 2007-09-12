@@ -41,10 +41,8 @@ SOURCES = AuditLogger.cpp
 
 include $(ROOT)/mak/program.mak
 
-#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
 tests:
 	$(PROGRAM)
-#endif
 
 poststarttests:
 

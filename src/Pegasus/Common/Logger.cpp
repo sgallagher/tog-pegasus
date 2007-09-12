@@ -163,7 +163,7 @@ public:
         _logFileNames[Logger::STANDARD_LOG] = _constructFileName(homeDirectory,
                                                fileNames[Logger::STANDARD_LOG]);
 
-#ifndef PEGASUS_DISABLE_AUDIT_LOGGER
+#ifdef PEGASUS_ENABLE_AUDIT_LOGGER
         _logFileNames[Logger::AUDIT_LOG] = _constructFileName(homeDirectory,
                                                fileNames[Logger::AUDIT_LOG]);
 #endif

@@ -35,7 +35,7 @@ TMP_OBJECTS = $(foreach i,$(SOURCES),$(OBJ_DIR)/$i)
 CPP_OBJECTS = $(TMP_OBJECTS:.cpp=.o)
 OBJECTS = $(CPP_OBJECTS:.c=.o)
 
-TARGET=$(BIN_DIR)/$(PROGRAM).vxe
+TARGET=$(BIN_DIR)/$(PROGRAM)
 
 LFLAGS = -lstdc++ -L$(WIND_BASE)/target/usr/lib/simpentium/SIMPENTIUM/common -Wl,-rpath /romfs/lib -ldl
 

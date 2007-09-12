@@ -1,0 +1,40 @@
+#!/bin/bash
+
+##==============================================================================
+##
+## vxexec
+## 
+## Usage:
+##
+##     vxexec -c command
+##
+## Synopsis:
+##
+##     This script executes a single command under vxsim.
+##
+## Examples:
+##
+##     vxexec -c TestString.vxe
+##
+##==============================================================================
+
+copt=$1
+
+if [ ! "$1" = "-c" ]
+then
+    echo "Usage: $0 -c command"
+    exit 1
+fi
+
+if [ ! -d "$PEGASUS_ROOT" ]
+then
+    echo "PEGASUS_ROOT must refer to an actual directory"
+    exit 1
+fi
+
+shift
+
+echo "$*" > vxexec.tmp
+echo "C reboot(1)" >> vxexec.tmp
+
+vxsim -f $PEGASUS_ROOT/vxworks/vxWorks -exitOnError -s vxexec.tmp

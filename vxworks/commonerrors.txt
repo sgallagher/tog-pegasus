@@ -1,0 +1,4 @@
+cmd
+TestAnonymousPipe.vxe
+TestL10N
+

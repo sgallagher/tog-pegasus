@@ -32,6 +32,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Config.h>
 
 PEGASUS_USING_PEGASUS;
@@ -54,6 +55,12 @@ int main(int argc, char** argv)
     assert(!(x < y));
     assert(!(x < z));
     assert(!(y < z));
+
+    char buffer[4096];
+    sprintf(buffer, "%f", x);
+
+    printf("buffer[%s]\n", buffer);
+    printf("buffer[%f]\n", x);
 
     printf("(%s) +++++ passed all tests\n", argv[0]);
 

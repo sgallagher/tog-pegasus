@@ -42,13 +42,18 @@ PEGASUS_USING_STD;
 // ATTN-B: Complete this test by reopening the log and making sure it
 // contains what we expect.
 
+static void _cleanup()
+{
+    FileSystem::removeMatchingFiles("./logs", "*.log");
+}
+
 int main(int argc, char** argv)
 {
 #ifndef PEGASUS_OS_HPUX
     Logger::setHomeDirectory("./logs");
 #endif
 
-    FileSystem::removeMatchingFiles("./logs", "*.log");
+    _cleanup();
 
     Logger::put(
     Logger::TRACE_LOG,
@@ -59,9 +64,9 @@ int main(int argc, char** argv)
     "Hello World", 
     7.5);
 
-    FileSystem::removeMatchingFiles("./logs", "*.log");
-
     cout << argv[0] << " +++++ passed all tests" << endl;
+
+    _cleanup();
 
     return 0;
 }

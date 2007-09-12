@@ -481,9 +481,7 @@ Boolean System::changeUserContext_SingleThreaded(
 
 Uint32 System::getPID()
 {
-    // ATTN-MEB: fix!
-    assert("System::getPID() not implemented on vxworks" == 0);
-    return 0;
+    return (Uint32)taskIdSelf();
 }
 
 Boolean System::verifyFileOwnership(const char* path)

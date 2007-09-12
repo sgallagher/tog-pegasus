@@ -426,9 +426,12 @@ void Mutex::unlock()
                 PEGASUS_DEBUG_ASSERT(0);
 
             _rep.count--;
-            _rep.owner = 0;
 
-            pthread_cond_signal(&_rep.cond);
+            if (_rep.count == 0)
+            {
+                _rep.owner = 0;
+                pthread_cond_signal(&_rep.cond);
+            }
         }
         pthread_mutex_unlock(&_rep.mutex);
     }

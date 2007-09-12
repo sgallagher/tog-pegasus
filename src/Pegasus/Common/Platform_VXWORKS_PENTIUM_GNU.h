@@ -86,6 +86,7 @@
 #include <vxWorks.h>
 #include <ioLib.h>
 #include <sockLib.h>
+#include <taskLib.h>
 #include <dirent.h>
 #include <string.h>
 #include <hostLib.h>

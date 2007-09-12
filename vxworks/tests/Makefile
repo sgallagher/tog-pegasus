@@ -63,24 +63,31 @@ _DIRS1 = \
     Reference \
     Executor \
     DateTime \
-    FileSystem
-
-_DIRS2 = \
+    FileSystem \
     Logger \
-    MessageSerializer \
-    Tracer \
     Formatter \
     Dir \
-    async_callback \
+    MessageQueueService \
+    async_callback
+
+_DIRS2 = \
+    FileLock \
+    MessageSerializer \
+    Tracer \
+    \
     AuditLogger \
     L10N \
     L10N/msg \
     AnonymousPipe \
-    MessageQueueService \
 
-## The following tests are unsupported on VxWorks:
+##
+## Notes on failing tests:
 ##
 ##     FileLock - this tests uses popen(), which is unsupported on vxworks.
+##
+##     MessageSerializer - fails due to problems with floating point support.
+##
+##     Tracer - source of failure unknown.
 ##
 
 DIRS1 = $(addprefix $(BASE)/,$(_DIRS1))

@@ -197,7 +197,8 @@ Boolean System::removeFile(const char* path)
 
 Boolean System::renameFile(const char* oldPath, const char* newPath)
 {
-#if defined(PEGASUS_OS_VMS)
+//ATTN-MEB: verify this!
+#if defined(PEGASUS_OS_VMS) || defined(PEGASUS_OS_VXWORKS)
 //   Note: link() on OpenVMS has a different meaning so rename is used.
 //         unlink() is a synonym for remove() so it can be used.
     if (rename(oldPath, newPath) != 0)
@@ -397,42 +398,42 @@ Uint32 System::lookupPort(
 String System::getPassword(const char* prompt)
 {
     // ATTN-MEB: fix!
-    assert(0);
+    assert("System::getPassword() not implemented on vxworks" == 0);
     return String();
 }
 
 String System::getEffectiveUserName()
 {
     // ATTN-MEB: fix!
-    assert(0);
+    assert("System::getEffectiveUserName() not implemented on vxworks" == 0);
     return String();
 }
 
 String System::encryptPassword(const char* password, const char* salt)
 {
     // ATTN-MEB: fix!
-    assert(0);
+    assert("System::encryptPassword() not implemented on vxworks" == 0);
     return String();
 }
 
 Boolean System::isSystemUser(const char* userName)
 {
     // ATTN-MEB: fix!
-    assert(0);
+    assert("System::isSystemUser() not implemented on vxworks" == 0);
     return true;
 }
 
 Boolean System::isPrivilegedUser(const String& userName)
 {
     // ATTN-MEB: fix!
-    assert(0);
+    assert("System::isPrivilegedUser() not implemented on vxworks" == 0);
     return true;
 }
 
 String System::getPrivilegedUserName()
 {
     // ATTN-MEB: fix!
-    assert(0);
+    assert("System::getPrivilegedUserName() not implemented on vxworks" == 0);
     return String();
 }
 
@@ -442,7 +443,7 @@ Boolean System::lookupUserId(
     PEGASUS_GID_T& gid)
 {
     // ATTN-MEB: fix!
-    assert(0);
+    assert("System::lookupUserId() not implemented on vxworks" == 0);
     return false;
 }
 
@@ -452,21 +453,22 @@ Boolean System::changeUserContext_SingleThreaded(
     const PEGASUS_GID_T& gid)
 {
     // ATTN-MEB: fix!
-    assert(0);
+    assert("System::changeUserContext_SingleThreaded() "
+        "not implemented on vxworks" == 0);
     return false;
 }
 
 Uint32 System::getPID()
 {
     // ATTN-MEB: fix!
-    assert(0);
+    assert("System::getPID() not implemented on vxworks" == 0);
     return 0;
 }
 
 Boolean System::verifyFileOwnership(const char* path)
 {
     // ATTN-MEB: fix!
-    assert(0);
+    assert("System::verifyFileOwnership() not implemented on vxworks" == 0);
     return false;
 }
 

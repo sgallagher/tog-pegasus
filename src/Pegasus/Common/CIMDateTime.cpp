@@ -1532,6 +1532,9 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
     struct timezone tz;
 #endif
     gettimeofday(&tv, &tz);
+
+printf("tv_sec[%ld]\n", (long)tv.tv_sec);
+
     sec = tv.tv_sec;
     usec = Uint64(tv.tv_usec);
 

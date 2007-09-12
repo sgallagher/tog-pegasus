@@ -2,6 +2,7 @@ BASE = $(PEGASUS_ROOT)/src/Pegasus/Common/tests
 SH = $(PEGASUS_ROOT)/vxworks/vxexec
 
 _DIRS1 = \
+    DynamicLibrary \
     Abstract \
     Array \
     AutoPtr \
@@ -21,7 +22,6 @@ _DIRS1 = \
     InstanceDecl \
     IndicationFormatter \
     MessageQueue \
-    MessageSerializer \
     Method \
     ModuleController \
     Mutex \
@@ -35,7 +35,6 @@ _DIRS1 = \
     Qualifier \
     QualifierDecl \
     QualifierList \
-    Reference \
     Resolve \
     Scope \
     SpinLock \
@@ -45,40 +44,44 @@ _DIRS1 = \
     String \
     StringConversion \
     System \
-    Thread \
     ThreadPool \
     TimeValue \
     ToMof \
-    Tracer \
     ValidateClass \
     Value \
     XmlDump \
     XmlParser \
     XmlPrint \
-    XmlReader \
     List \
     AsyncQueue \
     IDFactory \
     SharedPtr \
     HostAddress \
-    HostLocator
+    HostLocator \
+    Thread \
+    XmlReader \
+    Reference \
+    Executor \
 
 _DIRS2 = \
+    DateTime \
+    FileSystem \
+    MessageSerializer \
+    Tracer \
     Logger \
     Formatter \
-    FileSystem \
-    FileLock \
-    Executor \
-    DynamicLibrary \
     Dir \
-    DateTime \
     async_callback \
     AuditLogger \
-    FileLock  \
     L10N \
     L10N/msg \
     AnonymousPipe \
     MessageQueueService \
+
+## The following tests are unsupported on VxWorks:
+##
+##     FileLock - this tests uses popen(), which is unsupported on vxworks.
+##
 
 DIRS1 = $(addprefix $(BASE)/,$(_DIRS1))
 DIRS2 = $(addprefix $(BASE)/,$(_DIRS2))

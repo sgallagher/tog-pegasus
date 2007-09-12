@@ -37,7 +37,7 @@ OBJECTS = $(CPP_OBJECTS:.c=.o)
 
 TARGET=$(BIN_DIR)/$(PROGRAM)
 
-LFLAGS = -lstdc++ -L$(WIND_BASE)/target/usr/lib/simpentium/SIMPENTIUM/common -Wl,-rpath /romfs/lib -ldl
+LFLAGS = -lstdc++ -L$(WIND_BASE)/target/usr/lib/simpentium/SIMPENTIUM/common -Wl,-rpath /romfs/lib -ldl -Wl,-rpath $(LIB_DIR)
 
 $(TARGET): $(BIN_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) $(ERROR)
 	$(CXX) $(FLAGS) -o $(TARGET) $(OBJECTS) -non-static $(FULL_LIBRARIES) $(LFLAGS)

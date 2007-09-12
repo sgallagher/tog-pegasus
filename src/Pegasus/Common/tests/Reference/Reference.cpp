@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,9 +37,8 @@
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/MofWriter.h>
 #include <Pegasus/Common/InternalException.h>
-
-#include <Pegasus/General/MofWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -66,7 +67,7 @@ void test01()
 
         if (verbose)
         {
-            XmlWriter::printValueReferenceElement(r, false);
+            XmlWriter::printValueReferenceElement(r);
             cout << r.toString() << endl;
         }
 
@@ -106,8 +107,8 @@ void test01()
             {
                 if (verbose)
                 {
-                    cout << "keyName= " <<  kbArray[i].getName().getString()
-                         << " Value= " << kbArray[i].getValue() << endl;
+                    cout << "keyName= " <<  kbArray[i].getName() << " Value= "
+                         << kbArray[i].getValue() << endl;
                 }
                 if ( kbArray[i].getName() == CIMName ("B") )
                 {
@@ -205,7 +206,7 @@ void test01()
         "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     CIMObjectPath h17("//u812/root/cimv25:"
         "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-
+     
     // Hostname with '_' character support checks, see bug#2556.
     CIMObjectPath h18("//_atp:9999/_root/_cimv25:_TennisPlayer");
     CIMObjectPath h19("//a_tp/_root/_cimv25:_TennisPlayer");
@@ -272,7 +273,7 @@ void test01()
     catch (const Exception&)
     {
        errorDetected = true;
-    }
+    } 
     PEGASUS_TEST_ASSERT(errorDetected);
 
     errorDetected = false;
@@ -285,7 +286,7 @@ void test01()
     catch (const Exception&)
     {
        errorDetected = true;
-    }
+    } 
     PEGASUS_TEST_ASSERT(errorDetected);
 
     errorDetected = false;
@@ -298,7 +299,7 @@ void test01()
     catch (const Exception&)
     {
        errorDetected = true;
-    }
+    } 
     PEGASUS_TEST_ASSERT(errorDetected);
 
     errorDetected = false;
@@ -318,7 +319,20 @@ void test01()
     try
     {
         // Octet out of range
-        CIMObjectPath op("//192.168.256.80:77/root/cimv25:"
+        CIMObjectPath h5("//192.168.256.80:77/root/cimv25:"
+            "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+    } 
+    catch (const Exception&)
+    {
+        errorDetected = true;
+    }
+    PEGASUS_TEST_ASSERT(errorDetected);
+
+    errorDetected = false;
+    try
+    {
+        // Missing port
+        CIMObjectPath h5("//192.168.1.80:/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     }
     catch (const Exception&)
@@ -330,23 +344,10 @@ void test01()
     errorDetected = false;
     try
     {
-        // Missing port is okay, needs be ignored
-        CIMObjectPath op("//192.168.1.80:/root/cimv25:"
-            "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    }
-    catch (const Exception&)
-    {
-        errorDetected = true;
-    }
-    PEGASUS_TEST_ASSERT(!errorDetected);
-
-    errorDetected = false;
-    try
-    {
         // Too many octets
-        CIMObjectPath op("//192.168.1.80.12/root/cimv25:"
+        CIMObjectPath h5("//192.168.1.80.12/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    }
+    } 
     catch (const Exception&)
     {
         errorDetected = true;
@@ -357,7 +358,7 @@ void test01()
     try
     {
         // Too few octets
-        CIMObjectPath op("//192.168.80:77/root/cimv25:"
+        CIMObjectPath h5("//192.168.80:77/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     }
     catch (const Exception&)
@@ -369,21 +370,21 @@ void test01()
     errorDetected = false;
     try
     {
-        // Missing port is okay, needs be ignored
-        CIMObjectPath op("//usopen-9.usta-1-a.org:/root/cimv25:"
+        // Missing port
+        CIMObjectPath h1("//usopen-9.usta-1-a.org:/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     }
     catch (Exception&)
     {
         errorDetected = true;
     }
-    PEGASUS_TEST_ASSERT(!errorDetected);
+    PEGASUS_TEST_ASSERT(errorDetected);
 
     errorDetected = false;
     try
     {
         // Hostname (IP) without trailing '/' (with port)
-        CIMObjectPath op("//192.168.256.80:77");
+        CIMObjectPath h5("//192.168.256.80:77");
     }
     catch (const Exception&)
     {
@@ -395,7 +396,7 @@ void test01()
     try
     {
         // Hostname (IP) without trailing '/' (without port)
-        CIMObjectPath op("//192.168.256.80");
+        CIMObjectPath h5("//192.168.256.80");
     }
     catch (const Exception&)
     {
@@ -407,7 +408,7 @@ void test01()
     try
     {
         // Hostname without trailing '/' (with port)
-        CIMObjectPath op("//usopen-9.usta-1-a.org:77");
+        CIMObjectPath h5("//usopen-9.usta-1-a.org:77");
     }
     catch (const Exception&)
     {
@@ -419,7 +420,7 @@ void test01()
     try
     {
         // Hostname without trailing '/' (without port)
-        CIMObjectPath op("//usopen-9.usta-1-a.org");
+        CIMObjectPath h5("//usopen-9.usta-1-a.org");
     }
     catch (const Exception&)
     {
@@ -431,7 +432,7 @@ void test01()
     try
     {
         // Invalid first character
-        CIMObjectPath op("//+usopen-9.usta-1-a.1org:77/root/cimv25:"
+        CIMObjectPath h1("//+usopen-9.usta-1-a.1org:77/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     }
     catch (Exception&)
@@ -444,7 +445,7 @@ void test01()
     try
     {
         // Non-alphanum char (?)
-        CIMObjectPath op("//usopen-9.usta?-1-a.org:77/root/cimv25:"
+        CIMObjectPath h1("//usopen-9.usta?-1-a.org:77/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     }
     catch (Exception&)
@@ -457,7 +458,7 @@ void test01()
     try
     {
         // Leading dot
-        CIMObjectPath op("//.usopen-9.usta-1-a.org:77/root/cimv25:"
+        CIMObjectPath h2("//.usopen-9.usta-1-a.org:77/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     }
     catch (Exception&)
@@ -470,7 +471,7 @@ void test01()
     try
     {
         // Dot in the wrong spot (before a -)
-        CIMObjectPath op("//usopen.-9.usta-1-a.org:77/root/cimv25:"
+        CIMObjectPath h3("//usopen.-9.usta-1-a.org:77/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     }
     catch (Exception&)
@@ -483,7 +484,7 @@ void test01()
     try
     {
         // Two dots in a row
-        CIMObjectPath op("//usopen-9.usta-1-a..org:77/root/cimv25:"
+        CIMObjectPath h4("//usopen-9.usta-1-a..org:77/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     }
     catch (Exception&)
@@ -496,7 +497,7 @@ void test01()
     try
     {
         // Trailing dot
-        CIMObjectPath op("//usopen-9.usta-1-a.org.:77/root/cimv25:"
+        CIMObjectPath h5("//usopen-9.usta-1-a.org.:77/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     }
     catch (Exception&)
@@ -593,6 +594,9 @@ void test02()
 // Test CIMKeyBinding constructor (CIMValue variety) and equal(CIMValue) method
 void test03()
 {
+// Floating-point precision errors on VXWORKS (I suspect we've been "lucky"
+// on the other platforms).
+#ifndef PEGASUS_OS_VXWORKS
     CIMKeyBinding kb0("test0", Real32(3.14159));
     PEGASUS_TEST_ASSERT(kb0.equal(Real32(3.14159)));
     PEGASUS_TEST_ASSERT(!kb0.equal(Real32(3.141593)));
@@ -600,6 +604,7 @@ void test03()
     CIMKeyBinding kb1("test1", String("3.14159"), CIMKeyBinding::NUMERIC);
     PEGASUS_TEST_ASSERT(kb1.equal(Real32(3.14159)));
     PEGASUS_TEST_ASSERT(!kb1.equal(String("3.14159")));
+#endif
 
     CIMKeyBinding kb2("test2", Uint32(1000));
     PEGASUS_TEST_ASSERT(kb2.equal(Uint32(1000)));
@@ -672,7 +677,7 @@ void test03()
 
     CIMKeyBinding kb11("test11", String("+100"), CIMKeyBinding::NUMERIC);
     // Unsigned ints may not start with "+"
-    PEGASUS_TEST_ASSERT(!kb11.equal(Uint64(100)));
+    PEGASUS_TEST_ASSERT(!kb11.equal(Uint64(100)));  
     PEGASUS_TEST_ASSERT(!kb11.equal(Uint32(100)));
     PEGASUS_TEST_ASSERT(!kb11.equal(Uint16(100)));
     PEGASUS_TEST_ASSERT(!kb11.equal(Uint8(100)));
@@ -733,7 +738,7 @@ void test04()
     PEGASUS_TEST_ASSERT (aPath.identical (aPath2));
 
     CIMInstance instanceB (CIMName ("B"));
-    instanceB.addProperty (CIMProperty (CIMName ("q"),
+    instanceB.addProperty (CIMProperty (CIMName ("q"), 
         String ("pelargonium")));
     instanceB.addProperty (CIMProperty (CIMName ("r"), String ("thyme")));
     instanceB.addProperty (CIMProperty (CIMName ("s"), String ("sage")));
@@ -775,14 +780,12 @@ void test04()
 // Test handling of escape characters
 void test05()
 {
-    {
-        // Test '\' and '"' characters in a key value
-        // This represents MyClass.key1="\\\"\"\\",key2="\"\"\"\"\\\\\\\\"
-        String s1 = "MyClass.key1=\"\\\\\\\"\\\"\\\\\","
+    // Test '\' and '"' characters in a key value
+    // This represents MyClass.key1="\\\"\"\\",key2="\"\"\"\"\\\\\\\\"
+    String s1 = "MyClass.key1=\"\\\\\\\"\\\"\\\\\","
                 "key2=\"\\\"\\\"\\\"\\\"\\\\\\\\\\\\\\\\\"";
-        CIMObjectPath r1 = s1;
-        PEGASUS_TEST_ASSERT(r1.toString() == s1);
-    }
+    CIMObjectPath r1 = s1;
+    PEGASUS_TEST_ASSERT(r1.toString() == s1);
 
     // Catch invalid escape sequences in a key value
     Boolean errorDetected;
@@ -1205,7 +1208,7 @@ void test08()
     PEGASUS_TEST_ASSERT(errorDetected);
 }
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 

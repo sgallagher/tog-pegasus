@@ -148,14 +148,10 @@ inline int isascii(int c)
     return c >= 0 && c < 128;
 }
 
-inline int readdir_r(
-    DIR* dirp, 
-    struct dirent* entry,
-    struct dirent** result)
+inline int readdir_r(DIR* dirp, struct dirent* entry, struct dirent** result)
 {
-    if ((*result = readdir(dirp)) == 0)
-        return -1;
-
+    errno = 0;
+    *result = readdir(dirp);
     return 0;
 }
 
@@ -172,6 +168,9 @@ inline int gettimeofday(struct timeval *tv, struct timezone *tz)
 
     if (clock_gettime(CLOCK_REALTIME, &ts) != 0)
         return -1;
+
+printf("SECONDS[%ld]\n", ts.tv_sec);
+printf("NSECONDS[%ld]\n", ts.tv_nsec);
 
     tv->tv_sec = ts.tv_sec;
     tv->tv_usec = ts.tv_nsec / 1000;

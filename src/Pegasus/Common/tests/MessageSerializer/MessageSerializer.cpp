@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,85 +36,13 @@
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/OperationContextInternal.h>
-#include <Pegasus/Common/SCMOClassCache.h>
-#include <Pegasus/Common/CIMBinMsgSerializer.h>
-#include <Pegasus/Common/CIMBinMsgDeserializer.h>
+#include <Pegasus/Common/CIMMessageSerializer.h>
+#include <Pegasus/Common/CIMMessageDeserializer.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-// Local CIM Class repository for lookup by the SCMOClassCache
-// This is needed for converting CIM objects to SCMOInstances
-static Array<CIMClass>* classArray = 0;
 static Boolean verbose;
-
-
-// Appends a CIMInstance to an array of SCMOInstance
-void getSCMOInstanceFromCIM(
-    Array<SCMOInstance>& instArraySCMO,
-    const CIMInstance& instance)
-{
-    if (!instance.isUninitialized())
-    {
-        // Note, the conversion from CIMInstance to SCMOInstance
-        // causes a lookup in the SCMOClassCache of the CIMClass for
-        // this instance.
-        SCMOInstance scmoInst(instance);
-        instArraySCMO.append(scmoInst);
-    }
-}
-
-// Converts an array of CIMInstance to an array of SCMOInstance
-void getSCMOInstancesFromCIM(
-    Array<SCMOInstance>& instArraySCMO,
-    const Array<CIMInstance>& instances)
-{
-    for (Uint32 x=0; x < instances.size(); x++)
-    {
-        if (!instances[x].isUninitialized())
-        {
-            // Note, the conversion from CIMInstance to SCMOInstance
-            // causes a lookup in the SCMOClassCache of the CIMClass for
-            // this instance.
-            SCMOInstance scmoInst(instances[x]);
-            instArraySCMO.append(scmoInst);
-        }
-    }
-}
-
-// Converts an array of CIMObjectPath to an array of SCMOInstance
-void getSCMOInstancesFromCIM(
-    Array<SCMOInstance>& instArraySCMO,
-    const Array<CIMObjectPath>& instanceNames)
-{
-    for (Uint32 x=0; x < instanceNames.size(); x++)
-    {
-        SCMOInstance scmoInst(instanceNames[x]);
-        instArraySCMO.append(scmoInst);
-    }
-}
-
-// Converts an array of CIMObject to an array of SCMOInstance
-// CIMObjects that represent CIMClasses are ignored
-void getSCMOInstancesFromCIM(
-    Array<SCMOInstance>& instArraySCMO,
-    const Array<CIMObject>& objects)
-{
-    for (Uint32 x=0; x < objects.size(); x++)
-    {
-        if (!objects[x].isUninitialized() && !objects[x].isClass())
-        {
-            // Note, the conversion from CIMObject to SCMOInstance
-            // causes a lookup in the SCMOClassCache of the CIMClass for
-            // this instance.
-            SCMOInstance scmoInst(objects[x]);
-            instArraySCMO.append(scmoInst);
-        }
-    }
-}
-
-
-
 
 //
 // validateCIMPropertyList
@@ -470,26 +400,6 @@ void validateOperationContext(
     catch(const Exception&)
     {
     }
-    
-    try
-    {
-        const UserRoleContainer inContainer =
-            inOperationContext.get(UserRoleContainer::NAME);
-        try
-        {
-            const UserRoleContainer outContainer =
-                outOperationContext.get(UserRoleContainer::NAME);
-            PEGASUS_TEST_ASSERT(
-                inContainer.getUserRole() == outContainer.getUserRole());
-        }
-        catch(const Exception&)
-        {
-            PEGASUS_TEST_ASSERT(0);
-        }
-    }
-    catch(const Exception&)
-    {
-    }
 }
 
 //
@@ -589,14 +499,22 @@ void validateCIMResponseMessageAttributes(
 */
 CIMMessage* serializeDeserializeMessage(CIMMessage* inMessage)
 {
-    CIMBuffer buf(64*1024);
-    CIMBinMsgSerializer::serialize(buf, inMessage);
+    Buffer outBuffer;
+    CIMMessageSerializer::serialize(outBuffer, inMessage);
+    outBuffer.append(0);
 
-    size_t size = buf.size();
-    buf.rewind();
+    char* inBuffer = new char[outBuffer.size()];
+    memcpy(inBuffer, outBuffer.getData(), outBuffer.size());
+
+    if (verbose)
+    {
+        cout << inBuffer << endl;
+    }
 
     CIMMessage* outMessage;
-    outMessage = CIMBinMsgDeserializer::deserialize(buf, size);
+    outMessage = CIMMessageDeserializer::deserialize(inBuffer);
+
+    delete [] inBuffer;
 
     return outMessage;
 }
@@ -606,14 +524,12 @@ CIMMessage* serializeDeserializeMessage(CIMMessage* inMessage)
 //
 void testEmptyMessage()
 {
-    CIMBuffer buf(64*1024);
-    CIMBinMsgSerializer::serialize(buf, 0);
-    PEGASUS_TEST_ASSERT(buf.size() == 0);
+    Buffer outBuffer;
+    CIMMessageSerializer::serialize(outBuffer, 0);
+    PEGASUS_TEST_ASSERT(outBuffer.size() == 0);
 
-    size_t size = buf.size();
-    buf.rewind();
-
-    CIMMessage* outMessage = CIMBinMsgDeserializer::deserialize(buf, size);
+    char inBuffer[1] = { 0 };
+    CIMMessage* outMessage = CIMMessageDeserializer::deserialize(inBuffer);
     PEGASUS_TEST_ASSERT(outMessage == 0);
 }
 
@@ -625,6 +541,7 @@ void testCIMGetInstanceRequestMessage(
     const String& mid,
     const CIMNamespaceName& ns,
     const CIMObjectPath& path,
+    Boolean lo,
     Boolean iq,
     Boolean ico,
     const CIMPropertyList& pl,
@@ -633,7 +550,7 @@ void testCIMGetInstanceRequestMessage(
     const String& user)
 {
     CIMGetInstanceRequestMessage inMessage(
-        mid, ns, path, iq, ico, pl, qids, auth, user);
+        mid, ns, path, lo, iq, ico, pl, qids, auth, user);
     inMessage.operationContext = oc;
     AutoPtr<CIMGetInstanceRequestMessage> outMessage(
         dynamic_cast<CIMGetInstanceRequestMessage*>(
@@ -642,6 +559,7 @@ void testCIMGetInstanceRequestMessage(
 
     validateCIMOperationRequestMessageAttributes(&inMessage, outMessage.get());
     PEGASUS_TEST_ASSERT(inMessage.instanceName == outMessage->instanceName);
+    PEGASUS_TEST_ASSERT(inMessage.localOnly == outMessage->localOnly);
     PEGASUS_TEST_ASSERT(
         inMessage.includeQualifiers == outMessage->includeQualifiers);
     PEGASUS_TEST_ASSERT(
@@ -649,11 +567,6 @@ void testCIMGetInstanceRequestMessage(
     validateCIMPropertyList(inMessage.propertyList, outMessage->propertyList);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMGetInstanceRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -679,11 +592,6 @@ void testCIMCreateInstanceRequestMessage(
     validateCIMInstance(inMessage.newInstance, outMessage->newInstance);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMCreateInstanceRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -716,11 +624,6 @@ void testCIMModifyInstanceRequestMessage(
     validateCIMPropertyList(inMessage.propertyList, outMessage->propertyList);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMModifyInstanceRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -746,11 +649,6 @@ void testCIMDeleteInstanceRequestMessage(
     PEGASUS_TEST_ASSERT(inMessage.instanceName == outMessage->instanceName);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMDeleteInstanceRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -762,6 +660,7 @@ void testCIMEnumerateInstancesRequestMessage(
     const CIMNamespaceName& ns,
     const CIMName& className,
     Boolean di,
+    Boolean lo,
     Boolean iq,
     Boolean ico,
     const CIMPropertyList& pl,
@@ -770,7 +669,7 @@ void testCIMEnumerateInstancesRequestMessage(
     const String& user)
 {
     CIMEnumerateInstancesRequestMessage inMessage(
-        mid, ns, className, di, iq, ico, pl, qids, auth, user);
+        mid, ns, className, di, lo, iq, ico, pl, qids, auth, user);
     inMessage.operationContext = oc;
     AutoPtr<CIMEnumerateInstancesRequestMessage> outMessage(
         dynamic_cast<CIMEnumerateInstancesRequestMessage*>(
@@ -780,6 +679,7 @@ void testCIMEnumerateInstancesRequestMessage(
     validateCIMOperationRequestMessageAttributes(&inMessage, outMessage.get());
     PEGASUS_TEST_ASSERT(
         inMessage.deepInheritance == outMessage->deepInheritance);
+    PEGASUS_TEST_ASSERT(inMessage.localOnly == outMessage->localOnly);
     PEGASUS_TEST_ASSERT(
         inMessage.includeQualifiers == outMessage->includeQualifiers);
     PEGASUS_TEST_ASSERT(
@@ -787,11 +687,6 @@ void testCIMEnumerateInstancesRequestMessage(
     validateCIMPropertyList(inMessage.propertyList, outMessage->propertyList);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMEnumerateInstancesRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -817,11 +712,6 @@ void testCIMEnumerateInstanceNamesRequestMessage(
     validateCIMOperationRequestMessageAttributes(&inMessage, outMessage.get());
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMEnumerateInstanceNamesRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -849,11 +739,6 @@ void testCIMExecQueryRequestMessage(
     PEGASUS_TEST_ASSERT(inMessage.query == outMessage->query);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMExecQueryRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -877,7 +762,7 @@ void testCIMAssociatorsRequestMessage(
 {
     CIMAssociatorsRequestMessage inMessage(
         mid, ns, path, assocClass, resultClass, role, resultRole,
-        iq, ico, pl, qids, false, auth, user);
+        iq, ico, pl, qids, auth, user);
     inMessage.operationContext = oc;
     AutoPtr<CIMAssociatorsRequestMessage> outMessage(
         dynamic_cast<CIMAssociatorsRequestMessage*>(
@@ -897,11 +782,6 @@ void testCIMAssociatorsRequestMessage(
     validateCIMPropertyList(inMessage.propertyList, outMessage->propertyList);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMAssociatorsRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -922,7 +802,7 @@ void testCIMAssociatorNamesRequestMessage(
 {
     CIMAssociatorNamesRequestMessage inMessage(
         mid, ns, path, assocClass, resultClass, role, resultRole,
-        qids, false, auth, user);
+        qids, auth, user);
     inMessage.operationContext = oc;
     AutoPtr<CIMAssociatorNamesRequestMessage> outMessage(
         dynamic_cast<CIMAssociatorNamesRequestMessage*>(
@@ -937,11 +817,6 @@ void testCIMAssociatorNamesRequestMessage(
     PEGASUS_TEST_ASSERT(inMessage.resultRole == outMessage->resultRole);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMAssociatorNamesRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -962,7 +837,7 @@ void testCIMReferencesRequestMessage(
     const String& user)
 {
     CIMReferencesRequestMessage inMessage(
-        mid, ns, path, resultClass, role, iq, ico, pl, qids, false, auth, user);
+        mid, ns, path, resultClass, role, iq, ico, pl, qids, auth, user);
     inMessage.operationContext = oc;
     AutoPtr<CIMReferencesRequestMessage> outMessage(
         dynamic_cast<CIMReferencesRequestMessage*>(
@@ -980,11 +855,6 @@ void testCIMReferencesRequestMessage(
     validateCIMPropertyList(inMessage.propertyList, outMessage->propertyList);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMReferencesRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1002,7 +872,7 @@ void testCIMReferenceNamesRequestMessage(
     const String& user)
 {
     CIMReferenceNamesRequestMessage inMessage(
-        mid, ns, path, resultClass, role, qids, false, auth, user);
+        mid, ns, path, resultClass, role, qids, auth, user);
     inMessage.operationContext = oc;
     AutoPtr<CIMReferenceNamesRequestMessage> outMessage(
         dynamic_cast<CIMReferenceNamesRequestMessage*>(
@@ -1015,11 +885,6 @@ void testCIMReferenceNamesRequestMessage(
     PEGASUS_TEST_ASSERT(inMessage.role == outMessage->role);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMReferenceNamesRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1048,11 +913,6 @@ void testCIMGetPropertyRequestMessage(
     PEGASUS_TEST_ASSERT(inMessage.propertyName == outMessage->propertyName);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMGetPropertyRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1083,11 +943,6 @@ void testCIMSetPropertyRequestMessage(
     PEGASUS_TEST_ASSERT(inMessage.newValue == outMessage->newValue);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMSetPropertyRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1119,11 +974,6 @@ void testCIMInvokeMethodRequestMessage(
         inMessage.inParameters, outMessage->inParameters);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMInvokeMethodRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1162,11 +1012,6 @@ void testCIMCreateSubscriptionRequestMessage(
     PEGASUS_TEST_ASSERT(inMessage.query == outMessage->query);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMCreateSubscriptionRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1205,11 +1050,6 @@ void testCIMModifySubscriptionRequestMessage(
     PEGASUS_TEST_ASSERT(inMessage.query == outMessage->query);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMModifySubscriptionRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1241,11 +1081,6 @@ void testCIMDeleteSubscriptionRequestMessage(
     validateCIMNameArray(inMessage.classNames, outMessage->classNames);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMDeleteSubscriptionRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1275,11 +1110,6 @@ void testCIMExportIndicationRequestMessage(
         inMessage.indicationInstance, outMessage->indicationInstance);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMExportIndicationRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1309,11 +1139,6 @@ void testCIMProcessIndicationRequestMessage(
     validateCIMObjectPathArray(inMessage.subscriptionInstanceNames,
         outMessage->subscriptionInstanceNames);
     validateCIMInstance(inMessage.provider, outMessage->provider);
-
-    if (verbose)
-    {
-        cout << "testCIMProcessIndicationRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1353,11 +1178,6 @@ void testCIMDisableModuleRequestMessage(
     }
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMDisableModuleRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1383,11 +1203,6 @@ void testCIMEnableModuleRequestMessage(
         inMessage.providerModule, outMessage->providerModule);
     PEGASUS_TEST_ASSERT(inMessage.authType == outMessage->authType);
     PEGASUS_TEST_ASSERT(inMessage.userName == outMessage->userName);
-
-    if (verbose)
-    {
-        cout << "testCIMEnableModuleRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1406,11 +1221,24 @@ void testCIMStopAllProvidersRequestMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMRequestMessageAttributes(&inMessage, outMessage.get());
+}
 
-    if (verbose)
-    {
-        cout << "testCIMStopAllProvidersRequestMessage - OK" << endl;
-    }
+//
+// testCIMInitializeProviderRequestMessage
+//
+void testCIMInitializeProviderRequestMessage(
+    const OperationContext& oc,
+    const String& mid,
+    const QueueIdStack& qids)
+{
+    CIMInitializeProviderRequestMessage inMessage(mid, qids);
+    inMessage.operationContext = oc;
+    AutoPtr<CIMInitializeProviderRequestMessage> outMessage(
+        dynamic_cast<CIMInitializeProviderRequestMessage*>(
+            serializeDeserializeMessage(&inMessage)));
+    PEGASUS_TEST_ASSERT(outMessage.get() != 0);
+
+    validateCIMRequestMessageAttributes(&inMessage, outMessage.get());
 }
 
 //
@@ -1447,11 +1275,6 @@ void testCIMInitializeProviderAgentRequestMessage(
     PEGASUS_TEST_ASSERT(inMessage.bindVerbose == outMessage->bindVerbose);
     PEGASUS_TEST_ASSERT(inMessage.subscriptionInitComplete ==
         outMessage->subscriptionInitComplete);
-
-    if (verbose)
-    {
-        cout << "testCIMInitializeProviderAgentRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1479,11 +1302,6 @@ void testCIMNotifyConfigChangeRequestMessage(
         inMessage.newPropertyValue == outMessage->newPropertyValue);
     PEGASUS_TEST_ASSERT(inMessage.currentValueModified ==
         outMessage->currentValueModified);
-
-    if (verbose)
-    {
-        cout << "testCIMNotifyConfigChangeRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1502,37 +1320,6 @@ void testCIMSubscriptionInitCompleteRequestMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMRequestMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMSubscriptionInitCompleteRequestMessage - OK" << endl;
-    }
-}
-
-//
-// testProvAgtGetScmoClassRequestMessage
-//
-void testProvAgtGetScmoClassRequestMessage(
-    const String& mid,
-    const CIMNamespaceName& ns,
-    const CIMName& className,
-    const QueueIdStack& qids)
-{
-    ProvAgtGetScmoClassRequestMessage inMessage(mid, ns, className, qids);    
-    AutoPtr<ProvAgtGetScmoClassRequestMessage> outMessage(
-        dynamic_cast<ProvAgtGetScmoClassRequestMessage*>(
-            serializeDeserializeMessage(&inMessage)));
-    PEGASUS_TEST_ASSERT(outMessage.get() != 0);
-
-    PEGASUS_TEST_ASSERT(
-        inMessage.nameSpace == outMessage->nameSpace);
-    PEGASUS_TEST_ASSERT(
-        inMessage.className == outMessage->className);
-
-    if (verbose)
-    {
-        cout << "testProvAgtGetScmoClassRequestMessage - OK" << endl;
-    }
 }
 
 //
@@ -1545,8 +1332,7 @@ void testCIMGetInstanceResponseMessage(
     const QueueIdStack& qids,
     const CIMInstance& inst)
 {
-    CIMGetInstanceResponseMessage inMessage(mid, ex, qids);
-    inMessage.getResponseData().setInstance(inst);
+    CIMGetInstanceResponseMessage inMessage(mid, ex, qids, inst);
     inMessage.operationContext = oc;
     AutoPtr<CIMGetInstanceResponseMessage> outMessage(
         dynamic_cast<CIMGetInstanceResponseMessage*>(
@@ -1554,44 +1340,7 @@ void testCIMGetInstanceResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-    validateCIMInstance(
-        inMessage.getResponseData().getInstance(),
-        outMessage->getResponseData().getInstance());
-
-    if (verbose)
-    {
-        cout << "testCIMGetInstanceResponseMessage - OK" << endl;
-    }
-}
-
-void testCIMGetInstanceResponseMessageSCMO(
-    const OperationContext& oc,
-    const String& mid,
-    const CIMException& ex,
-    const QueueIdStack& qids,
-    const CIMInstance& inst)
-{
-    Array<SCMOInstance> instArraySCMO;
-    getSCMOInstanceFromCIM(instArraySCMO, inst);
-
-    CIMGetInstanceResponseMessage inMessage(mid, ex, qids);
-    inMessage.binaryResponse=true;
-    inMessage.getResponseData().setSCMO(instArraySCMO);
-    inMessage.operationContext = oc;
-    AutoPtr<CIMGetInstanceResponseMessage> outMessage(
-        dynamic_cast<CIMGetInstanceResponseMessage*>(
-            serializeDeserializeMessage(&inMessage)));
-    PEGASUS_TEST_ASSERT(outMessage.get() != 0);
-
-    validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-    validateCIMInstance(
-        inMessage.getResponseData().getInstance(),
-        outMessage->getResponseData().getInstance());
-
-    if (verbose)
-    {
-        cout << "testCIMGetInstanceResponseMessageSCMO - OK" << endl;
-    }
+    validateCIMInstance(inMessage.cimInstance, outMessage->cimInstance);
 }
 
 //
@@ -1613,11 +1362,6 @@ void testCIMCreateInstanceResponseMessage(
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
     PEGASUS_TEST_ASSERT(inMessage.instanceName == outMessage->instanceName);
-
-    if (verbose)
-    {
-        cout << "testCIMCreateInstanceResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -1637,11 +1381,6 @@ void testCIMModifyInstanceResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMModifyInstanceResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -1661,11 +1400,6 @@ void testCIMDeleteInstanceResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMDeleteInstanceResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -1678,30 +1412,16 @@ void testCIMEnumerateInstancesResponseMessage(
     const QueueIdStack& qids,
     const Array<CIMInstance>& instances)
 {
-    Array<SCMOInstance> instArraySCMO;
-    getSCMOInstancesFromCIM(instArraySCMO, instances);
-
-    CIMEnumerateInstancesResponseMessage inMessage(mid, ex, qids);
-    inMessage.binaryResponse=true;
-    inMessage.getResponseData().setInstances(instances);
-    inMessage.getResponseData().setSCMO(instArraySCMO);
+    CIMEnumerateInstancesResponseMessage inMessage(mid, ex, qids, instances);
     inMessage.operationContext = oc;
     AutoPtr<CIMEnumerateInstancesResponseMessage> outMessage(
         dynamic_cast<CIMEnumerateInstancesResponseMessage*>(
             serializeDeserializeMessage(&inMessage)));
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
-
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
     validateCIMInstanceArray(
-        inMessage.getResponseData().getInstances(),
-        outMessage->getResponseData().getInstances());
-
-    if (verbose)
-    {
-        cout << "testCIMEnumerateInstancesResponseMessage - OK" << endl;
-    }
+        inMessage.cimNamedInstances, outMessage->cimNamedInstances);
 }
 
 //
@@ -1714,13 +1434,8 @@ void testCIMEnumerateInstanceNamesResponseMessage(
     const QueueIdStack& qids,
     const Array<CIMObjectPath>& instNames)
 {
-    Array<SCMOInstance> instArraySCMO;
-    getSCMOInstancesFromCIM(instArraySCMO, instNames);
-
-    CIMEnumerateInstanceNamesResponseMessage inMessage(mid, ex, qids);
-    inMessage.binaryResponse=true;
-    inMessage.getResponseData().setInstanceNames(instNames);
-    inMessage.getResponseData().setSCMO(instArraySCMO);
+    CIMEnumerateInstanceNamesResponseMessage inMessage(
+        mid, ex, qids, instNames);
     inMessage.operationContext = oc;
     AutoPtr<CIMEnumerateInstanceNamesResponseMessage> outMessage(
         dynamic_cast<CIMEnumerateInstanceNamesResponseMessage*>(
@@ -1729,13 +1444,7 @@ void testCIMEnumerateInstanceNamesResponseMessage(
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
     validateCIMObjectPathArray(
-        inMessage.getResponseData().getInstanceNames(),
-        outMessage->getResponseData().getInstanceNames());
-
-    if (verbose)
-    {
-        cout << "testCIMEnumerateInstanceNamesResponseMessage - OK" << endl;
-    }
+        inMessage.instanceNames, outMessage->instanceNames);
 }
 
 //
@@ -1748,13 +1457,7 @@ void testCIMExecQueryResponseMessage(
     const QueueIdStack& qids,
     const Array<CIMObject>& objects)
 {
-    Array<SCMOInstance> instArraySCMO;
-    getSCMOInstancesFromCIM(instArraySCMO, objects);
-
-    CIMExecQueryResponseMessage inMessage(mid, ex, qids);
-    inMessage.binaryResponse=true;
-    inMessage.getResponseData().setObjects(objects);
-    inMessage.getResponseData().setSCMO(instArraySCMO);
+    CIMExecQueryResponseMessage inMessage(mid, ex, qids, objects);
     inMessage.operationContext = oc;
     AutoPtr<CIMExecQueryResponseMessage> outMessage(
         dynamic_cast<CIMExecQueryResponseMessage*>(
@@ -1762,14 +1465,7 @@ void testCIMExecQueryResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-    validateCIMObjectArray(
-        inMessage.getResponseData().getObjects(),
-        outMessage->getResponseData().getObjects());
-
-    if (verbose)
-    {
-        cout << "testCIMExecQueryResponseMessage - OK" << endl;
-    }
+    validateCIMObjectArray(inMessage.cimObjects, outMessage->cimObjects);
 }
 
 //
@@ -1782,13 +1478,7 @@ void testCIMAssociatorsResponseMessage(
     const QueueIdStack& qids,
     const Array<CIMObject>& objArray)
 {
-    Array<SCMOInstance> instArraySCMO;
-    getSCMOInstancesFromCIM(instArraySCMO, objArray);
-
-    CIMAssociatorsResponseMessage inMessage(mid, ex, qids);
-    inMessage.binaryResponse=true;
-    inMessage.getResponseData().setObjects(objArray);
-    inMessage.getResponseData().setSCMO(instArraySCMO);
+    CIMAssociatorsResponseMessage inMessage(mid, ex, qids, objArray);
     inMessage.operationContext = oc;
     AutoPtr<CIMAssociatorsResponseMessage> outMessage(
         dynamic_cast<CIMAssociatorsResponseMessage*>(
@@ -1796,14 +1486,7 @@ void testCIMAssociatorsResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-    validateCIMObjectArray(
-        inMessage.getResponseData().getObjects(),
-        outMessage->getResponseData().getObjects());
-
-    if (verbose)
-    {
-        cout << "testCIMAssociatorsResponseMessage - OK" << endl;
-    }
+    validateCIMObjectArray(inMessage.cimObjects, outMessage->cimObjects);
 }
 
 //
@@ -1816,13 +1499,7 @@ void testCIMAssociatorNamesResponseMessage(
     const QueueIdStack& qids,
     const Array<CIMObjectPath>& pathArray)
 {
-    Array<SCMOInstance> instArraySCMO;
-    getSCMOInstancesFromCIM(instArraySCMO, pathArray);
-
-    CIMAssociatorNamesResponseMessage inMessage(mid, ex, qids);
-    inMessage.binaryResponse=true;
-    inMessage.getResponseData().setInstanceNames(pathArray);
-    inMessage.getResponseData().setSCMO(instArraySCMO);
+    CIMAssociatorNamesResponseMessage inMessage(mid, ex, qids, pathArray);
     inMessage.operationContext = oc;
     AutoPtr<CIMAssociatorNamesResponseMessage> outMessage(
         dynamic_cast<CIMAssociatorNamesResponseMessage*>(
@@ -1830,14 +1507,7 @@ void testCIMAssociatorNamesResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-    validateCIMObjectPathArray(
-        inMessage.getResponseData().getInstanceNames(),
-        outMessage->getResponseData().getInstanceNames());
-
-    if (verbose)
-    {
-        cout << "testCIMAssociatorNamesResponseMessage - OK" << endl;
-    }
+    validateCIMObjectPathArray(inMessage.objectNames, outMessage->objectNames);
 }
 
 //
@@ -1850,13 +1520,7 @@ void testCIMReferencesResponseMessage(
     const QueueIdStack& qids,
     const Array<CIMObject>& objArray)
 {
-    Array<SCMOInstance> instArraySCMO;
-    getSCMOInstancesFromCIM(instArraySCMO, objArray);
-
-    CIMReferencesResponseMessage inMessage(mid, ex, qids);
-    inMessage.binaryResponse=true;
-    inMessage.getResponseData().setObjects(objArray);
-    inMessage.getResponseData().setSCMO(instArraySCMO);
+    CIMReferencesResponseMessage inMessage(mid, ex, qids, objArray);
     inMessage.operationContext = oc;
     AutoPtr<CIMReferencesResponseMessage> outMessage(
         dynamic_cast<CIMReferencesResponseMessage*>(
@@ -1864,14 +1528,7 @@ void testCIMReferencesResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-    validateCIMObjectArray(
-        inMessage.getResponseData().getObjects(),
-        outMessage->getResponseData().getObjects());
-
-    if (verbose)
-    {
-        cout << "testCIMReferencesResponseMessage - OK" << endl;
-    }
+    validateCIMObjectArray(inMessage.cimObjects, outMessage->cimObjects);
 }
 
 //
@@ -1884,13 +1541,7 @@ void testCIMReferenceNamesResponseMessage(
     const QueueIdStack& qids,
     const Array<CIMObjectPath>& pathArray)
 {
-    Array<SCMOInstance> instArraySCMO;
-    getSCMOInstancesFromCIM(instArraySCMO, pathArray);
-
-    CIMReferenceNamesResponseMessage inMessage(mid, ex, qids);
-    inMessage.binaryResponse=true;
-    inMessage.getResponseData().setInstanceNames(pathArray);
-    inMessage.getResponseData().setSCMO(instArraySCMO);
+    CIMReferenceNamesResponseMessage inMessage(mid, ex, qids, pathArray);
     inMessage.operationContext = oc;
     AutoPtr<CIMReferenceNamesResponseMessage> outMessage(
         dynamic_cast<CIMReferenceNamesResponseMessage*>(
@@ -1898,14 +1549,7 @@ void testCIMReferenceNamesResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-    validateCIMObjectPathArray(
-        inMessage.getResponseData().getInstanceNames(),
-        outMessage->getResponseData().getInstanceNames());
-
-    if (verbose)
-    {
-        cout << "testCIMReferenceNamesResponseMessage - OK" << endl;
-    }
+    validateCIMObjectPathArray(inMessage.objectNames, outMessage->objectNames);
 }
 
 //
@@ -1927,11 +1571,6 @@ void testCIMGetPropertyResponseMessage(
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
     PEGASUS_TEST_ASSERT(inMessage.value == outMessage->value);
-
-    if (verbose)
-    {
-        cout << "testCIMGetPropertyResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -1951,11 +1590,6 @@ void testCIMSetPropertyResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMSetPropertyResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -1983,11 +1617,6 @@ void testCIMInvokeMethodResponseMessage(
     validateCIMParamValueArray(
         inMessage.outParameters, outMessage->outParameters);
     PEGASUS_TEST_ASSERT(inMessage.methodName == outMessage->methodName);
-
-    if (verbose)
-    {
-        cout << "testCIMInvokeMethodResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -2007,11 +1636,6 @@ void testCIMCreateSubscriptionResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMCreateSubscriptionResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -2031,11 +1655,6 @@ void testCIMModifySubscriptionResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMModifySubscriptionResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -2055,11 +1674,6 @@ void testCIMDeleteSubscriptionResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMDeleteSubscriptionResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -2079,11 +1693,6 @@ void testCIMExportIndicationResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMExportIndicationResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -2103,11 +1712,6 @@ void testCIMProcessIndicationResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMProcessIndicationResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -2134,11 +1738,6 @@ void testCIMDisableModuleResponseMessage(
     {
         PEGASUS_TEST_ASSERT(inMessage.operationalStatus[i] ==
             outMessage->operationalStatus[i]);
-    }
-
-    if (verbose)
-    {
-        cout << "testCIMDisableModuleResponseMessage - OK" << endl;
     }
 }
 
@@ -2167,11 +1766,6 @@ void testCIMEnableModuleResponseMessage(
         PEGASUS_TEST_ASSERT(inMessage.operationalStatus[i] ==
             outMessage->operationalStatus[i]);
     }
-
-    if (verbose)
-    {
-        cout << "testCIMEnableModuleResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -2191,11 +1785,25 @@ void testCIMStopAllProvidersResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
+}
 
-    if (verbose)
-    {
-        cout << "testCIMStopAllProvidersResponseMessage - OK" << endl;
-    }
+//
+// testCIMInitializeProviderResponseMessage
+//
+void testCIMInitializeProviderResponseMessage(
+    const OperationContext& oc,
+    const String& mid,
+    const CIMException& ex,
+    const QueueIdStack& qids)
+{
+    CIMInitializeProviderResponseMessage inMessage(mid, ex, qids);
+    inMessage.operationContext = oc;
+    AutoPtr<CIMInitializeProviderResponseMessage> outMessage(
+        dynamic_cast<CIMInitializeProviderResponseMessage*>(
+            serializeDeserializeMessage(&inMessage)));
+    PEGASUS_TEST_ASSERT(outMessage.get() != 0);
+
+    validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
 }
 
 //
@@ -2215,11 +1823,6 @@ void testCIMInitializeProviderAgentResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMInitializeProviderAgentResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -2239,11 +1842,6 @@ void testCIMNotifyConfigChangeResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMNotifyConfigChangeResponseMessage - OK" << endl;
-    }
 }
 
 //
@@ -2263,93 +1861,10 @@ void testCIMSubscriptionInitCompleteResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-
-    if (verbose)
-    {
-        cout << "testCIMSubscriptionInitCompleteResponseMessage - OK" << endl;
-    }
 }
-
-SCMOClass _scmoClassCache_GetClass(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className)
-{
-    for (Uint32 x=0; x < classArray->size(); x++)
-    {
-        CIMClass cls = (*classArray)[x];
-        if (!cls.isUninitialized())
-        {
-            if (cls.getClassName() == className &&
-                cls.getPath().getNameSpace() == nameSpace )
-            {
-                return SCMOClass(cls);
-            }
-        }
-    }
-
-    return SCMOClass("","");
-}
-
-//
-// testProvAgtGetScmoClassResponseMessage
-//
-void testProvAgtGetScmoClassResponseMessage(
-    const String& mid,
-    const CIMException& ex,
-    const CIMClass& cls,
-    const QueueIdStack& qids)
-{
-
-    CIMClass inCls;
-    CIMClass outCls;
-
-    SCMOClass inc = SCMOClass("","");
-
-    if (!cls.isUninitialized())
-    {
-        inc = SCMOClass(cls);
-    }
-
-    ProvAgtGetScmoClassResponseMessage inMessage(mid, ex, qids, inc);    
-    AutoPtr<ProvAgtGetScmoClassResponseMessage> outMessage(
-        dynamic_cast<ProvAgtGetScmoClassResponseMessage*>(
-            serializeDeserializeMessage(&inMessage)));
-    PEGASUS_TEST_ASSERT(outMessage.get() != 0);
-
-
-    if (!inMessage.scmoClass.isEmpty() && 
-        !outMessage->scmoClass.isEmpty())
-    {
-        inMessage.scmoClass.getCIMClass(inCls);
-        outMessage->scmoClass.getCIMClass(outCls);
-        PEGASUS_TEST_ASSERT(inCls.identical(outCls));
-    }
-    else
-    {
-       PEGASUS_TEST_ASSERT(
-           inMessage.scmoClass.isEmpty() && 
-           outMessage->scmoClass.isEmpty());
-    }
-
-    if (verbose)
-    {
-        cout << "testProvAgtGetScmoClassResponseMessage - OK" << endl;
-    }
-}
-
 
 void testMessageSerialization()
 {
-    // Initialize the SCMO Class cache and set the callback function
-    // for retrieving CIMClasses to local routine
-    classArray = new Array<CIMClass>();
-
-
-    SCMOClassCache* scmoCache = SCMOClassCache::getInstance();
-    scmoCache->setCallBack(_scmoClassCache_GetClass);
-
-
-
     // Message IDs
     String mid1;
     String mid2 = "123";
@@ -2386,6 +1901,8 @@ void testMessageSerialization()
     CIMException ex4(CIM_ERR_SUCCESS, "How can you have a \"success\" error?");
 
     // Operation flags
+    Boolean lo1 = false;
+    Boolean lo2 = true;
     Boolean di1 = false;
     Boolean di2 = true;
     Boolean iq1 = false;
@@ -2432,7 +1949,7 @@ void testMessageSerialization()
     CIMObjectPath path3("", ns3, name3, kb);
     kb.append(CIMKeyBinding(CIMName("zzzz"), CIMValue(String("sleepy..."))));
     kb.append(CIMKeyBinding(CIMName("HowMany"), CIMValue(Uint32(102030405))));
-    CIMObjectPath path4("", ns4, name4, kb);
+    CIMObjectPath path4("", ns1, name4, kb);
 
     // CIMObjectPath Arrays
     Array<CIMObjectPath> pathArray1;
@@ -2464,39 +1981,21 @@ void testMessageSerialization()
         CIMFlavor::TOSUBCLASS + CIMFlavor::ENABLEOVERRIDE));
     inst4.setPath(path4);
 
-    //CIMProperties
-    CIMProperty prop1("P1", CIMValue(Uint16(65)));
-    CIMProperty prop2("P2", CIMValue(Boolean(false)));
-    CIMProperty prop3("P3", CIMValue(CIMDateTime()));
-    CIMProperty prop4("zzzz", CIMValue(String("sleepy...")));
-    CIMProperty prop5("HowMany", CIMValue(Uint32(102030405)));
-    prop2.addQualifier(CIMQualifier("Q1", CIMValue(Uint32(8)),
-        CIMFlavor::TOSUBCLASS + CIMFlavor::ENABLEOVERRIDE));
-    prop4.addQualifier(CIMQualifier("KEY", CIMValue(Boolean(true))));
-    prop5.addQualifier(CIMQualifier("KEY", CIMValue(Boolean(true))));
-
     // CIMClasses
     CIMClass class1;
-    CIMClass class2(name2);
+    CIMClass class2("TST_EmptyClass");
     class2.setPath(path2);
-    CIMClass class3(name3);
+    CIMClass class3("ClassName3");
     class3.addProperty(CIMProperty("Name", String("BoringInstance")));
     class3.addProperty(CIMProperty("Identifier", String("111")));
     class3.setPath(path3);
-    CIMClass class4(name4);
-    class4.addProperty(prop1);
-    class4.addProperty(prop2);
-    class4.addProperty(prop3);
-    class4.addProperty(prop4);
-    class4.addProperty(prop5);
+    CIMClass class4("TST_ClassDef");
+    class4.addProperty(CIMProperty("P1", CIMValue(Uint16(65))));
+    class4.addProperty(CIMProperty("P2", CIMValue(Boolean(false))));
+    class4.addProperty(CIMProperty("P3", CIMValue(CIMDateTime())));
+    class4.getProperty(1).addQualifier(CIMQualifier("Q1", CIMValue(Uint32(8)),
+        CIMFlavor::TOSUBCLASS + CIMFlavor::ENABLEOVERRIDE));
     class4.setPath(path4);
-
-    // CIMClass Array, use for conversion from CIMInstance to SCMOInstance
-    classArray->append(class1);
-    classArray->append(class2);
-    classArray->append(class3);
-    classArray->append(class4);
-
 
     // CIMName Arrays
     Array<CIMName> nameArray1;
@@ -2641,7 +2140,6 @@ void testMessageSerialization()
     ContentLanguageList cll2;
     oc2.insert(ContentLanguageListContainer(cll2));
     oc2.insert(LocaleContainer(""));
-    oc2.insert(UserRoleContainer(""));
     OperationContext oc3;
     oc3.insert(SubscriptionFilterConditionContainer(ql2, qs3));
     OperationContext oc4;
@@ -2652,7 +2150,7 @@ void testMessageSerialization()
     oc4.insert(SubscriptionInstanceNamesContainer(pathArray4));
     oc4.insert(TimeoutContainer(100000000));
     AcceptLanguageList all4;
-    all4.insert(LanguageTag("en-US"), 1);
+    all4.insert(LanguageTag("en-US"), Real32(1.0));
     all4.insert(LanguageTag("de"), Real32(0.5));
     all4.insert(LanguageTag("*"), Real32(0.1));
     oc4.insert(AcceptLanguageListContainer(all4));
@@ -2662,18 +2160,17 @@ void testMessageSerialization()
     oc4.insert(ContentLanguageListContainer(cll4));
     oc4.insert(SnmpTrapOidContainer("1.43.213.53.23.52.1"));
     oc4.insert(LocaleContainer("here"));
-    oc4.insert(UserRoleContainer("NoRoleUser"));
 
     testEmptyMessage();
 
     testCIMGetInstanceRequestMessage(
-        oc2, mid1, ns3, path1, iq2, ico1, pl4, qids3, auth2, user4);
+        oc2, mid1, ns3, path1, lo1, iq2, ico1, pl4, qids3, auth2, user4);
     testCIMGetInstanceRequestMessage(
-        oc3, mid2, ns4, path2, iq1, ico2, pl1, qids4, auth3, user1);
+        oc3, mid2, ns4, path2, lo2, iq1, ico2, pl1, qids4, auth3, user1);
     testCIMGetInstanceRequestMessage(
-        oc4, mid3, ns1, path3, iq1, ico1, pl2, qids1, auth4, user2);
+        oc4, mid3, ns1, path3, lo1, iq1, ico1, pl2, qids1, auth4, user2);
     testCIMGetInstanceRequestMessage(
-        oc1, mid4, ns2, path4, iq2, ico2, pl3, qids2, auth1, user3);
+        oc1, mid4, ns2, path4, lo1, iq2, ico2, pl3, qids2, auth1, user3);
 
     testCIMCreateInstanceRequestMessage(
         oc1, mid4, ns1, inst2, qids2, auth4, user3);
@@ -2703,13 +2200,13 @@ void testMessageSerialization()
         oc1, mid3, ns2, path2, qids4, auth1, user4);
 
     testCIMEnumerateInstancesRequestMessage(oc2, mid1, ns2, name3,
-        di1, iq2, ico1, pl2, qids4, auth3, user4);
+        di1, lo1, iq2, ico1, pl2, qids4, auth3, user4);
     testCIMEnumerateInstancesRequestMessage(oc3, mid2, ns3, name4,
-        di2, iq1, ico1, pl3, qids1, auth4, user1);
+        di2, lo2, iq1, ico1, pl3, qids1, auth4, user1);
     testCIMEnumerateInstancesRequestMessage(oc4, mid3, ns4, name1,
-        di1, iq2, ico2, pl4, qids2, auth1, user2);
+        di1, lo2, iq2, ico2, pl4, qids2, auth1, user2);
     testCIMEnumerateInstancesRequestMessage(oc1, mid4, ns1, name2,
-        di2, iq1, ico2, pl1, qids3, auth2, user3);
+        di2, lo1, iq1, ico2, pl1, qids3, auth2, user3);
 
     testCIMEnumerateInstanceNamesRequestMessage(
         oc3, mid2, ns3, name1, qids2, auth4, user1);
@@ -2860,6 +2357,11 @@ void testMessageSerialization()
     testCIMStopAllProvidersRequestMessage(oc4, mid3, qids1);
     testCIMStopAllProvidersRequestMessage(oc1, mid4, qids2);
 
+    testCIMInitializeProviderRequestMessage(oc1, mid1, qids2);
+    testCIMInitializeProviderRequestMessage(oc2, mid2, qids3);
+    testCIMInitializeProviderRequestMessage(oc3, mid3, qids4);
+    testCIMInitializeProviderRequestMessage(oc4, mid4, qids1);
+
     testCIMInitializeProviderAgentRequestMessage(
         oc2, mid1, mid4, spa3, false,  true, qids2);
     testCIMInitializeProviderAgentRequestMessage(
@@ -2883,25 +2385,10 @@ void testMessageSerialization()
     testCIMSubscriptionInitCompleteRequestMessage(oc3, mid4, qids1);
     testCIMSubscriptionInitCompleteRequestMessage(oc4, mid1, qids2);
 
-    testProvAgtGetScmoClassRequestMessage(mid4,ns2,name1,qids3);
-    testProvAgtGetScmoClassRequestMessage(mid1,ns3,name3,qids2);
-    testProvAgtGetScmoClassRequestMessage(mid2,ns1,name4,qids4);
-    testProvAgtGetScmoClassRequestMessage(mid3,ns4,name2,qids1);
-
-    testProvAgtGetScmoClassResponseMessage(mid2,ex1,class3,qids4);
-    testProvAgtGetScmoClassResponseMessage(mid1,ex3,class2,qids3);
-    testProvAgtGetScmoClassResponseMessage(mid4,ex2,class1,qids2);
-    testProvAgtGetScmoClassResponseMessage(mid3,ex4,class4,qids1);
-
     testCIMGetInstanceResponseMessage(oc4, mid1, ex2, qids3, inst4);
     testCIMGetInstanceResponseMessage(oc1, mid2, ex3, qids4, inst1);
     testCIMGetInstanceResponseMessage(oc2, mid3, ex4, qids1, inst2);
     testCIMGetInstanceResponseMessage(oc3, mid4, ex1, qids2, inst3);
-
-    testCIMGetInstanceResponseMessageSCMO(oc4, mid1, ex2, qids3, inst4);
-    testCIMGetInstanceResponseMessageSCMO(oc1, mid2, ex3, qids4, inst1);
-    testCIMGetInstanceResponseMessageSCMO(oc2, mid3, ex4, qids1, inst2);
-    testCIMGetInstanceResponseMessageSCMO(oc3, mid4, ex1, qids2, inst3);
 
     testCIMCreateInstanceResponseMessage(oc3, mid4, ex1, qids2, path1);
     testCIMCreateInstanceResponseMessage(oc4, mid1, ex2, qids3, path2);
@@ -3036,6 +2523,11 @@ void testMessageSerialization()
     testCIMStopAllProvidersResponseMessage(oc3, mid4, ex4, qids3);
     testCIMStopAllProvidersResponseMessage(oc4, mid1, ex1, qids4);
 
+    testCIMInitializeProviderResponseMessage(oc1, mid1, ex4, qids3);
+    testCIMInitializeProviderResponseMessage(oc2, mid2, ex1, qids4);
+    testCIMInitializeProviderResponseMessage(oc3, mid3, ex2, qids1);
+    testCIMInitializeProviderResponseMessage(oc4, mid4, ex3, qids2);
+
     testCIMInitializeProviderAgentResponseMessage(oc1, mid4, ex3, qids1);
     testCIMInitializeProviderAgentResponseMessage(oc2, mid1, ex4, qids2);
     testCIMInitializeProviderAgentResponseMessage(oc3, mid2, ex1, qids3);
@@ -3050,18 +2542,12 @@ void testMessageSerialization()
     testCIMSubscriptionInitCompleteResponseMessage(oc2, mid4, ex2, qids3);
     testCIMSubscriptionInitCompleteResponseMessage(oc3, mid1, ex3, qids4);
     testCIMSubscriptionInitCompleteResponseMessage(oc4, mid2, ex4, qids1);
-
-    // Destroy the SCMO Class cache for housekeeping
-    delete classArray;
-
-    scmoCache->destroy();
-
 }
 
 //
 // main
 //
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 

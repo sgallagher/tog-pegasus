@@ -1,37 +1,48 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Sushma Fernandes, Hewlett-Packard Company
+//              (sushma_fernandes@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
+//              Willis White (PEP 192)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/CIMDateTime.h>
-#include <Pegasus/Common/CIMValue.h>
+#include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Exception.h>
 
 PEGASUS_USING_PEGASUS;
@@ -44,8 +55,9 @@ void put(const char *msg, const CIMDateTime & x)
     cout << endl;
 }
 
-int main(int, char **argv)
+int main(int argc, char **argv)
 {
+    Boolean bad = false;
     try
     {
         // ATTN-P2-KS 20 Mar 2002 - Needs expansion of tests.
@@ -59,7 +71,7 @@ int main(int, char **argv)
         PEGASUS_TEST_ASSERT(dt.equal(CIMDateTime("00000000000000.000000:000")));
 
         {
-            Boolean bad = false;
+            bad = false;
 
             try
             {
@@ -89,10 +101,10 @@ int main(int, char **argv)
             PEGASUS_TEST_ASSERT(bad);
         }
         if (verbose)
-            cout << dt.toString() << endl;
+            cout << dt << endl;
 
-        CIMDateTime dtcopy;
-        dtcopy = dt;
+        CIMDateTime dt1;
+        dt1 = dt;
 
 
     /****************************************************************
@@ -344,8 +356,8 @@ int main(int, char **argv)
 
         // Test overflow on timestamp construction from microseconds
         {
-            CIMDateTime dto("99991231235959.999999-000");
-            Uint64 microseconds = dto.toMicroSeconds();
+            CIMDateTime dt("99991231235959.999999-000");
+            Uint64 microseconds = dt.toMicroSeconds();
             Boolean gotException = false;
             try
             {
@@ -363,8 +375,8 @@ int main(int, char **argv)
             Boolean gotException = false;
             try
             {
-                CIMDateTime dto("99991231235959.999999-001");
-                CIMDateTime x(dto.toMicroSeconds(), false);
+                CIMDateTime dt("99991231235959.999999-001");
+                CIMDateTime x(dt.toMicroSeconds(), false);
             }
             catch(const DateTimeOutOfRangeException &)
             {
@@ -375,8 +387,8 @@ int main(int, char **argv)
 
         // Test overflow on interval construction from microseconds
         {
-            CIMDateTime dto("99999999235959.999999:000");
-            Uint64 microseconds = dto.toMicroSeconds();
+            CIMDateTime dt("99999999235959.999999:000");
+            Uint64 microseconds = dt.toMicroSeconds();
             Boolean gotException = false;
             try
             {
@@ -391,8 +403,8 @@ int main(int, char **argv)
 
         // Test overflow on timestamp construction from large, valid interval
         {
-            CIMDateTime dto("99999999235959.999999:000");
-            Uint64 microseconds = dto.toMicroSeconds();
+            CIMDateTime dt("99999999235959.999999:000");
+            Uint64 microseconds = dt.toMicroSeconds();
             Boolean gotException = false;
             try
             {
@@ -513,9 +525,9 @@ int main(int, char **argv)
         }
 
 
-        //
+        // 
         // Tests for getDifference.
-        //
+        // 
 
         // One second difference
         {
@@ -675,7 +687,7 @@ int main(int, char **argv)
             Boolean gotException = false;
             try
             {
-                CIMDateTime::getDifference(dt1, dt2);
+                Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
             }
             catch(const InvalidDateTimeFormatException &)
             {
@@ -693,7 +705,7 @@ int main(int, char **argv)
             Boolean gotException = false;
             try
             {
-                CIMDateTime::getDifference(dt1, dt2);
+                Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
             }
             catch(const InvalidDateTimeFormatException &)
             {
@@ -703,9 +715,9 @@ int main(int, char **argv)
         }
 
 
-        //
+        // 
         // Tests for getCurrentDateTime
-        //
+        // 
         {
             CIMDateTime currentTime1;
             CIMDateTime currentTime2;
@@ -715,6 +727,8 @@ int main(int, char **argv)
             {
                 currentTime1 = CIMDateTime::getCurrentDateTime();
                 currentTime2 = CIMDateTime::getCurrentDateTime();
+
+std::cout << currentTime1.toString() << std::endl;
             }
             catch(...)
             {
@@ -844,7 +858,6 @@ int main(int, char **argv)
         Uint64 tot_num3 = top_num3 + topA_num3;
         top_cdt3 += topA_cdt3;
         Uint64 top_3n = top_cdt3.toMicroSeconds();
-        PEGASUS_TEST_ASSERT(0 != top_3n);
         CIMDateTime tA(tot_num3, false);
         if (tA != top_cdt3)
         {
@@ -869,7 +882,7 @@ int main(int, char **argv)
 
 /*************************************************************************/
 
-        // "testing the operator-
+        // "testing the operator- 
 
 
         Uint64 tfo_m = PEGASUS_UINT64_LITERAL(123456732445);
@@ -926,7 +939,7 @@ int main(int, char **argv)
 
 /*************************************************************************/
 
-        // testing operator-=
+        // testing operator-= 
 
 
         CIMDateTime top_tko4("00040520041412.123435-000");
@@ -972,7 +985,7 @@ int main(int, char **argv)
 
 /*************************************************************************/
 
-//test operator*
+//test operator* 
 
 
         CIMDateTime mul1("00000020041452.123456:000");
@@ -1011,7 +1024,7 @@ int main(int, char **argv)
 
 /*************************************************************************/
 
-        // test operator*=
+        // test operator*= 
 
 
         CIMDateTime ul1("00000020041452.123456:000");
@@ -1058,7 +1071,6 @@ int main(int, char **argv)
         Uint64 dul_cn2 = dul2.toMicroSeconds() / d_num2;
         CIMDateTime dulc(dul_cn2, true);
         Uint64 r_num2 = r_c2.toMicroSeconds();
-        PEGASUS_TEST_ASSERT(0 != r_num2);
         if (dulc != r_c2)
         {
             PEGASUS_TEST_ASSERT(false);
@@ -1067,7 +1079,7 @@ int main(int, char **argv)
 
 /*************************************************************************/
 
-        // testing operator/=
+        // testing operator/= 
 
         d_num1 = 50;
 
@@ -1104,8 +1116,6 @@ int main(int, char **argv)
         Uint64 tii_an2 = tii_a2.toMicroSeconds();
         Uint64 div_n2 = tii_n2 / tii_an2;
         Uint64 div_c2 = tii2 / tii_a2;
-        PEGASUS_TEST_ASSERT(0 != div_n2);
-        PEGASUS_TEST_ASSERT(0 != div_c2);
         if (div_n != div_c)
         {
             PEGASUS_TEST_ASSERT(false);

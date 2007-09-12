@@ -1470,7 +1470,7 @@ inline static CMPICount CMGetArgCount(const CMPIArgs * as, CMPIStatus * rc)
 
 // CMPIString Macros
 
-#define CMGetCharPtr(s)     ((char*)s->hdl)
+#define CMGetCharPtr(st)    ((st)->ft->getCharPtr((st),NULL))
 
 #ifdef CMPI_INLINE
 /**

@@ -36,6 +36,10 @@ shift
 
 rm -rf vxexec.tmp
 echo "################################################################################" >> vxexec.tmp
+echo "##" >> vxexec.tmp
+echo "## $*" >> vxexec.tmp
+echo "##" >> vxexec.tmp
+echo "################################################################################" >> vxexec.tmp
 echo "$*" >> vxexec.tmp
 echo "C reboot(1)" >> vxexec.tmp
 

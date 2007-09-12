@@ -36,6 +36,8 @@
 #ifndef TestAssert_h
 #define TestAssert_h
 
+#include <stdlib.h>
+
 #define PEGASUS_TEST_ASSERT(COND)                                         \
     do                                                                    \
     {                                                                     \

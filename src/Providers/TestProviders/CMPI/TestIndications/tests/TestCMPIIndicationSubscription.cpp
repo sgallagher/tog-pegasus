@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Konrad Rzeszutek <konradr@us.ibm.com>
-//         Carol Ann Krug Graves, Hewlett-Packard Company
-//             (carolann_graves@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -52,17 +48,25 @@ PEGASUS_USING_STD;
 const CIMNamespaceName SOURCENAMESPACE =
 CIMNamespaceName ("test/TestProvider");
 const char *queries_CQL[] = {
-  "SELECT * FROM TestCMPI_Indication WHERE s='s' AND c='c' OR n32>=32 OR n16<=17 OR n64>23 OR r32>=1.0 OR r64=1.2 or b=1 AND s8>1 AND s16>16 AND s32>32 AND s64>64",
-  "SELECT * FROM TestCMPI_Indication WHERE (PropertyA='PropertyA' OR PropertyB='Nothing') AND s='s'",
-  "SELECT PropertyA, PropertyB FROM TestCMPI_Indication WHERE PropertyA='PropertyA' OR PropertyB='Nothing' OR s='s'",
-  "SELECT s FROM TestCMPI_Indication WHERE NOT (PropertyA='PropertyA' OR PropertyB='Nothing') AND PropertyA='AccessorPropertyA'",
-  "SELECT * FROM TestCMPI_Indication WHERE (s IS NOT NULL) OR (c IS NULL)",
-  "SELECT n32,r64 FROM TestCMPI_Indication WHERE n32=42 AND r64>=2.2",
-  "SELECT n8,n16,n32,n64 FROM TestCMPI_Indication WHERE n8=8 AND n16=16 AND n32=32 AND n64>32",
-  "SELECT s8,s16,s32,s64 FROM TestCMPI_Indication WHERE s8>1 AND s16=256 OR s32>9999 or s64>=2232",
-  "SELECT r32,r64 FROM TestCMPI_Indication WHERE r32<=1.23 OR r64=3.14",
-  "SELECT c,b FROM TestCMPI_Indication WHERE c=c OR b=1",
-  "SELECT * FROM TestCMPI_Indication WHERE b!=1 AND c=c",
+    "SELECT * FROM TestCMPI_Indication WHERE "
+        " s='s' AND c='c' OR n32>=32 OR n16<=17 OR n64>23 OR r32>=1.0"
+        " OR r64=1.2 or b=1 AND s8>1 AND s16>16 AND s32>32 AND s64>64",
+    "SELECT * FROM TestCMPI_Indication WHERE "
+        "(PropertyA='PropertyA' OR PropertyB='Nothing') AND s='s'",
+    "SELECT PropertyA, PropertyB FROM TestCMPI_Indication WHERE "
+        "PropertyA='PropertyA' OR PropertyB='Nothing' OR s='s'",
+    "SELECT s FROM TestCMPI_Indication WHERE "
+        "NOT (PropertyA='PropertyA' OR PropertyB='Nothing') "
+        "AND PropertyA='AccessorPropertyA'",
+    "SELECT * FROM TestCMPI_Indication WHERE (s IS NOT NULL) OR (c IS NULL)",
+    "SELECT n32,r64 FROM TestCMPI_Indication WHERE n32=42 AND r64>=2.2",
+    "SELECT n8,n16,n32,n64 FROM TestCMPI_Indication WHERE"
+        " n8=8 AND n16=16 AND n32=32 AND n64>32",
+    "SELECT s8,s16,s32,s64 FROM TestCMPI_Indication WHERE"
+        " s8>1 AND s16=256 OR s32>9999 or s64>=2232",
+    "SELECT r32,r64 FROM TestCMPI_Indication WHERE r32<=1.23 OR r64=3.14",
+    "SELECT c,b FROM TestCMPI_Indication WHERE c=c OR b=1",
+    "SELECT * FROM TestCMPI_Indication WHERE b!=1 AND c=c",
 };
 
 #define QUERIES_CQL 10
@@ -80,11 +84,11 @@ void _addStringProperty
   if (null)
     {
       instance.addProperty (CIMProperty (CIMName (name),
-					 CIMValue (CIMTYPE_STRING, false)));
+                     CIMValue (CIMTYPE_STRING, false)));
     }
   else
     {
-	  instance.addProperty (CIMProperty (CIMName (name), value));
+      instance.addProperty (CIMProperty (CIMName (name), value));
     }
 }
 
@@ -96,11 +100,11 @@ void _addUint16Property
   if (null)
     {
       instance.addProperty (CIMProperty (CIMName (name),
-					 CIMValue (CIMTYPE_UINT16, false)));
+                     CIMValue (CIMTYPE_UINT16, false)));
     }
   else
     {
-	  instance.addProperty (CIMProperty (CIMName (name), value));
+      instance.addProperty (CIMProperty (CIMName (name), value));
     }
 }
 void _addUint64Property
@@ -111,11 +115,11 @@ void _addUint64Property
   if (null)
     {
       instance.addProperty (CIMProperty (CIMName (name),
-					 CIMValue (CIMTYPE_UINT64, false)));
+                     CIMValue (CIMTYPE_UINT64, false)));
     }
   else
     {
-	  instance.addProperty (CIMProperty (CIMName (name), value));
+      instance.addProperty (CIMProperty (CIMName (name), value));
     }
 }
 
@@ -126,16 +130,16 @@ CIMObjectPath _buildFilterOrHandlerPath
 
   Array < CIMKeyBinding > keyBindings;
   keyBindings.append (CIMKeyBinding ("SystemCreationClassName",
-				     System::getSystemCreationClassName (),
-				     CIMKeyBinding::STRING));
+                     System::getSystemCreationClassName (),
+                     CIMKeyBinding::STRING));
   keyBindings.
     append (CIMKeyBinding
-	    ("SystemName", System::getFullyQualifiedHostName (),
-	     CIMKeyBinding::STRING));
+        ("SystemName", System::getFullyQualifiedHostName (),
+         CIMKeyBinding::STRING));
   keyBindings.
     append (CIMKeyBinding
-	    ("CreationClassName", className.getString (),
-	     CIMKeyBinding::STRING));
+        ("CreationClassName", className.getString (),
+         CIMKeyBinding::STRING));
   keyBindings.append (CIMKeyBinding ("Name", name, CIMKeyBinding::STRING));
   path.setClassName (className);
   path.setKeyBindings (keyBindings);
@@ -151,18 +155,18 @@ CIMObjectPath _buildSubscriptionPath
     (PEGASUS_CLASSNAME_INDFILTER, filterName);
 
   CIMObjectPath handlerPath = _buildFilterOrHandlerPath (handlerClass,
-							 handlerName);
+                             handlerName);
 
   Array < CIMKeyBinding > subscriptionKeyBindings;
   subscriptionKeyBindings.append (CIMKeyBinding ("Filter",
-						 filterPath.toString (),
-						 CIMKeyBinding::REFERENCE));
+                         filterPath.toString (),
+                         CIMKeyBinding::REFERENCE));
   subscriptionKeyBindings.
     append (CIMKeyBinding
-	    ("Handler", handlerPath.toString (), CIMKeyBinding::REFERENCE));
+        ("Handler", handlerPath.toString (), CIMKeyBinding::REFERENCE));
   CIMObjectPath subscriptionPath ("", CIMNamespaceName (),
-				  PEGASUS_CLASSNAME_INDSUBSCRIPTION,
-				  subscriptionKeyBindings);
+                  PEGASUS_CLASSNAME_INDSUBSCRIPTION,
+                  subscriptionKeyBindings);
 
   return subscriptionPath;
 }
@@ -174,11 +178,11 @@ CIMInstance _buildSubscriptionInstance
   CIMInstance subscriptionInstance (PEGASUS_CLASSNAME_INDSUBSCRIPTION);
 
   subscriptionInstance.addProperty (CIMProperty (CIMName ("Filter"),
-						 filterPath, 0,
-						 PEGASUS_CLASSNAME_INDFILTER));
+                         filterPath, 0,
+                         PEGASUS_CLASSNAME_INDFILTER));
   subscriptionInstance.
     addProperty (CIMProperty
-		 (CIMName ("Handler"), handlerPath, 0, handlerClass));
+         (CIMName ("Handler"), handlerPath, 0, handlerClass));
 
   return subscriptionInstance;
 }
@@ -195,32 +199,32 @@ void _checkFilterOrHandlerPath
   for (Uint32 i = 0; i < keyBindings.size (); i++)
     {
       if (keyBindings[i].getName ().equal ("SystemCreationClassName"))
-	{
-	  SCCNfound = true;
-	  PEGASUS_TEST_ASSERT (keyBindings[i].getValue () ==
-			  System::getSystemCreationClassName ());
-	}
+    {
+      SCCNfound = true;
+      PEGASUS_TEST_ASSERT (keyBindings[i].getValue () ==
+              System::getSystemCreationClassName ());
+    }
       else if (keyBindings[i].getName ().equal ("SystemName"))
-	{
-	  SNfound = true;
-	  PEGASUS_TEST_ASSERT (keyBindings[i].getValue () ==
-			  System::getFullyQualifiedHostName ());
-	}
+    {
+      SNfound = true;
+      PEGASUS_TEST_ASSERT (keyBindings[i].getValue () ==
+              System::getFullyQualifiedHostName ());
+    }
       else if (keyBindings[i].getName ().equal ("CreationClassName"))
-	{
-	  CCNfound = true;
-	  PEGASUS_TEST_ASSERT (keyBindings[i].getValue () ==
-			  className.getString ());
-	}
+    {
+      CCNfound = true;
+      PEGASUS_TEST_ASSERT (keyBindings[i].getValue () ==
+              className.getString ());
+    }
       else if (keyBindings[i].getName ().equal ("Name"))
-	{
-	  Nfound = true;
-	  PEGASUS_TEST_ASSERT (keyBindings[i].getValue () == name);
-	}
+    {
+      Nfound = true;
+      PEGASUS_TEST_ASSERT (keyBindings[i].getValue () == name);
+    }
       else
-	{
-	  PEGASUS_TEST_ASSERT (false);
-	}
+    {
+      PEGASUS_TEST_ASSERT (false);
+    }
     }
 
   PEGASUS_TEST_ASSERT (SCCNfound);
@@ -234,36 +238,39 @@ void _checkSubscriptionPath
    const String & filterName,
    const CIMName & handlerClass, const String & handlerName)
 {
-  PEGASUS_TEST_ASSERT (path.getClassName () == PEGASUS_CLASSNAME_INDSUBSCRIPTION);
-  Array < CIMKeyBinding > keyBindings = path.getKeyBindings ();
-  Boolean filterFound = false;
-  Boolean handlerFound = false;
-  for (Uint32 i = 0; i < keyBindings.size (); i++)
+    PEGASUS_TEST_ASSERT (
+        path.getClassName () == PEGASUS_CLASSNAME_INDSUBSCRIPTION);
+    Array < CIMKeyBinding > keyBindings = path.getKeyBindings ();
+    Boolean filterFound = false;
+    Boolean handlerFound = false;
+    for (Uint32 i = 0; i < keyBindings.size (); i++)
     {
-      if (keyBindings[i].getName ().equal ("Filter"))
-	{
-	  filterFound = true;
-	  CIMObjectPath filterPath = _buildFilterOrHandlerPath
-	    (PEGASUS_CLASSNAME_INDFILTER, filterName);
-	  PEGASUS_TEST_ASSERT (keyBindings[i].getValue () ==
-			  filterPath.toString ());
-	}
-      else if (keyBindings[i].getName ().equal ("Handler"))
-	{
-	  handlerFound = true;
-	  CIMObjectPath handlerPath = _buildFilterOrHandlerPath
-	    (handlerClass, handlerName);
-	  PEGASUS_TEST_ASSERT (keyBindings[i].getValue () ==
-			  handlerPath.toString ());
-	}
-      else
-	{
-	  PEGASUS_TEST_ASSERT (false);
-	}
+        if (keyBindings[i].getName ().equal ("Filter"))
+        {
+            filterFound = true;
+            CIMObjectPath filterPath = _buildFilterOrHandlerPath(
+                                           PEGASUS_CLASSNAME_INDFILTER, 
+                                           filterName);
+            PEGASUS_TEST_ASSERT (
+                keyBindings[i].getValue () == filterPath.toString ());
+        }
+        else if (keyBindings[i].getName ().equal ("Handler"))
+        {
+            handlerFound = true;
+            CIMObjectPath handlerPath = _buildFilterOrHandlerPath (
+                                            handlerClass, 
+                                            handlerName);
+            PEGASUS_TEST_ASSERT (
+                keyBindings[i].getValue () == handlerPath.toString ());
+        }
+        else
+        {
+            PEGASUS_TEST_ASSERT (false);
+        }
     }
 
-  PEGASUS_TEST_ASSERT (filterFound);
-  PEGASUS_TEST_ASSERT (handlerFound);
+    PEGASUS_TEST_ASSERT (filterFound);
+    PEGASUS_TEST_ASSERT (handlerFound);
 }
 
 void _checkStringProperty
@@ -289,14 +296,14 @@ void _checkStringProperty
       theValue.get (result);
 
       if (verbose)
-	{
-	  if (result != value)
-	    {
-	      cerr << "Property value comparison failed.  ";
-	      cerr << "Expected " << value << "; ";
-	      cerr << "Actual property value was " << result << "." << endl;
-	    }
-	}
+    {
+      if (result != value)
+        {
+          cerr << "Property value comparison failed.  ";
+          cerr << "Expected " << value << "; ";
+          cerr << "Actual property value was " << result << "." << endl;
+        }
+    }
 
       PEGASUS_TEST_ASSERT (result == value);
     }
@@ -320,11 +327,11 @@ void _checkUint16Property
   if (verbose)
     {
       if (result != value)
-	{
-	  cerr << "Property value comparison failed.  ";
-	  cerr << "Expected " << value << "; ";
-	  cerr << "Actual property value was " << result << "." << endl;
-	}
+    {
+      cerr << "Property value comparison failed.  ";
+      cerr << "Expected " << value << "; ";
+      cerr << "Actual property value was " << result << "." << endl;
+    }
     }
 
   PEGASUS_TEST_ASSERT (result == value);
@@ -347,14 +354,14 @@ void _checkUint64Property
   if (verbose)
     {
       if (result != value)
-	{
-	  char buffer[32];	// Should need 21 chars max
-	  sprintf (buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", value);
-	  cerr << "Property value comparison failed.  ";
-	  cerr << "Expected " << buffer << "; ";
-	  sprintf (buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", result);
-	  cerr << "Actual property value was " << buffer << "." << endl;
-	}
+    {
+      char buffer[32];    // Should need 21 chars max
+      sprintf (buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", value);
+      cerr << "Property value comparison failed.  ";
+      cerr << "Expected " << buffer << "; ";
+      sprintf (buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", result);
+      cerr << "Actual property value was " << buffer << "." << endl;
+    }
     }
 
   PEGASUS_TEST_ASSERT (result == value);
@@ -366,11 +373,11 @@ void _checkExceptionCode
   if (verbose)
     {
       if (e.getCode () != expectedCode)
-	{
-	  cerr << "CIMException comparison failed.  ";
-	  cerr << "Expected " << cimStatusCodeToString (expectedCode) << "; ";
-	  cerr << "Actual exception was " << e.getMessage () << "." << endl;
-	}
+    {
+      cerr << "CIMException comparison failed.  ";
+      cerr << "Expected " << cimStatusCodeToString (expectedCode) << "; ";
+      cerr << "Actual exception was " << e.getMessage () << "." << endl;
+    }
     }
 
   PEGASUS_TEST_ASSERT (e.getCode () == expectedCode);
@@ -416,21 +423,21 @@ _usage ()
 //
 void
 _addFilter (CIMClient & client, String & filter, String & query,
-	    String & qlang)
+        String & qlang)
 {
   CIMObjectPath path;
   CIMInstance retrievedInstance;
 
   CIMInstance filter01 (PEGASUS_CLASSNAME_INDFILTER);
   _addStringProperty (filter01, "SystemCreationClassName",
-		      System::getSystemCreationClassName ());
+              System::getSystemCreationClassName ());
   _addStringProperty (filter01, "SystemName",
-		      System::getFullyQualifiedHostName ());
+              System::getFullyQualifiedHostName ());
   _addStringProperty (filter01, "CreationClassName",
-		      PEGASUS_CLASSNAME_INDFILTER.getString ());
+              PEGASUS_CLASSNAME_INDFILTER.getString ());
   _addStringProperty (filter01, "Name", filter);
   _addStringProperty (filter01, "SourceNamespace",
-		      SOURCENAMESPACE.getString ());
+              SOURCENAMESPACE.getString ());
   _addStringProperty (filter01, "Query", query);
   _addStringProperty (filter01, "QueryLanguage", qlang);
   path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, filter01);
@@ -438,14 +445,14 @@ _addFilter (CIMClient & client, String & filter, String & query,
   _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_INDFILTER, filter);
   retrievedInstance = client.getInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
   _checkStringProperty (retrievedInstance, "SystemCreationClassName",
-			System::getSystemCreationClassName ());
+            System::getSystemCreationClassName ());
   _checkStringProperty (retrievedInstance, "SystemName",
-			System::getFullyQualifiedHostName ());
+            System::getFullyQualifiedHostName ());
   _checkStringProperty (retrievedInstance, "CreationClassName",
-			PEGASUS_CLASSNAME_INDFILTER.getString ());
+            PEGASUS_CLASSNAME_INDFILTER.getString ());
   _checkStringProperty (retrievedInstance, "Name", filter);
   _checkStringProperty (retrievedInstance, "SourceNamespace",
-			SOURCENAMESPACE.getString ());
+            SOURCENAMESPACE.getString ());
   _checkStringProperty (retrievedInstance, "Query", query);
   _checkStringProperty (retrievedInstance, "QueryLanguage", qlang);
 
@@ -461,11 +468,11 @@ _addHandler (CIMClient & client, String & handler, String & dest)
   //
   CIMInstance handler01 (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
   _addStringProperty (handler01, "SystemCreationClassName",
-		      System::getSystemCreationClassName ());
+              System::getSystemCreationClassName ());
   _addStringProperty (handler01, "SystemName",
-		      System::getFullyQualifiedHostName ());
+              System::getFullyQualifiedHostName ());
   _addStringProperty (handler01, "CreationClassName",
-		      PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString ());
+              PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString ());
   _addStringProperty (handler01, "Name", handler);
   _addStringProperty (handler01, "Owner", "an owner");
   _addUint16Property (handler01, "PersistenceType", 2);
@@ -476,180 +483,198 @@ _addHandler (CIMClient & client, String & handler, String & dest)
   path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, handler01);
 
   _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
-			     handler);
+                 handler);
 
   retrievedInstance = client.getInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
   _checkStringProperty (retrievedInstance, "SystemCreationClassName",
-			System::getSystemCreationClassName ());
+            System::getSystemCreationClassName ());
   _checkStringProperty (retrievedInstance, "SystemName",
-			System::getFullyQualifiedHostName ());
+            System::getFullyQualifiedHostName ());
   _checkStringProperty (retrievedInstance, "CreationClassName",
-			PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString ());
+            PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString ());
   _checkStringProperty (retrievedInstance, "Name", handler);
   _checkStringProperty (retrievedInstance, "Owner", "an owner");
   _checkUint16Property (retrievedInstance, "PersistenceType", 2);
   _checkStringProperty (retrievedInstance, "OtherPersistenceType",
-			String::EMPTY, true);
+            String::EMPTY, true);
   _checkStringProperty (retrievedInstance, "Destination", dest);
 }
 
-void
-_addSubscription (CIMClient & client, String & filter, String & handler)
+void _addSubscription (CIMClient & client, String & filter, String & handler)
 {
-  CIMObjectPath path;
-  CIMInstance retrievedInstance;
-  //
-  //  Create subscriptions
-  //
-  CIMInstance subscription01 = _buildSubscriptionInstance
-    (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, filter),
-     PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
-     _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
-				handler));
-  _addUint16Property (subscription01, "OnFatalErrorPolicy", 2);
-  _addStringProperty (subscription01, "OtherOnFatalErrorPolicy",
-		      String::EMPTY, true);
-  _addUint64Property (subscription01, "FailureTriggerTimeInterval", 60);
-  _addUint16Property (subscription01, "SubscriptionState", 2);
-  _addStringProperty (subscription01, "OtherSubscriptionState", String::EMPTY,
-		      true);
-  _addUint64Property (subscription01, "SubscriptionDuration",
-		      PEGASUS_UINT64_LITERAL (60000000000));
-  _addUint16Property (subscription01, "RepeatNotificationPolicy", 1);
-  _addStringProperty (subscription01, "OtherRepeatNotificationPolicy",
-		      "another policy");
-  _addUint64Property (subscription01, "RepeatNotificationInterval", 60);
-  _addUint64Property (subscription01, "RepeatNotificationGap", 30);
-  _addUint16Property (subscription01, "RepeatNotificationCount", 5);
-  path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, subscription01);
-
-  _checkSubscriptionPath (path, filter,
-			  PEGASUS_CLASSNAME_INDHANDLER_CIMXML, handler);
-  retrievedInstance = client.getInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
-  _checkUint16Property (retrievedInstance, "OnFatalErrorPolicy", 2);
-  _checkStringProperty (retrievedInstance, "OtherOnFatalErrorPolicy",
-			String::EMPTY, true);
-  _checkUint64Property (retrievedInstance, "FailureTriggerTimeInterval", 60);
-  _checkUint16Property (retrievedInstance, "SubscriptionState", 2);
-  _checkStringProperty (retrievedInstance, "OtherSubscriptionState",
-			String::EMPTY, true);
-  _checkUint64Property (retrievedInstance, "SubscriptionDuration",
-			PEGASUS_UINT64_LITERAL (60000000000));
-  _checkUint16Property (retrievedInstance, "RepeatNotificationPolicy", 1);
-  _checkStringProperty (retrievedInstance, "OtherRepeatNotificationPolicy",
-			"another policy");
-  _checkUint64Property (retrievedInstance, "RepeatNotificationInterval", 60);
-  _checkUint64Property (retrievedInstance, "RepeatNotificationGap", 30);
-  _checkUint16Property (retrievedInstance, "RepeatNotificationCount", 5);
+    CIMObjectPath path;
+    CIMInstance retrievedInstance;
+    //
+    //  Create subscriptions
+    //
+    CIMInstance subscription01 = _buildSubscriptionInstance (
+        _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, filter),
+        PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
+        _buildFilterOrHandlerPath (
+            PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
+            handler) );
+    _addUint16Property (subscription01, "OnFatalErrorPolicy", 2);
+    _addStringProperty (
+        subscription01, 
+        "OtherOnFatalErrorPolicy",
+        String::EMPTY, 
+        true);
+    _addUint64Property (subscription01, "FailureTriggerTimeInterval", 60);
+    _addUint16Property (subscription01, "SubscriptionState", 2);
+    _addStringProperty (
+        subscription01, 
+        "OtherSubscriptionState", 
+        String::EMPTY,
+        true);
+    _addUint64Property (
+        subscription01, 
+        "SubscriptionDuration",
+        PEGASUS_UINT64_LITERAL (60000000000));
+    _addUint16Property (subscription01, "RepeatNotificationPolicy", 1);
+    _addStringProperty (
+        subscription01, 
+        "OtherRepeatNotificationPolicy",
+        "another policy");
+    _addUint64Property (subscription01, "RepeatNotificationInterval", 60);
+    _addUint64Property (subscription01, "RepeatNotificationGap", 30);
+    _addUint16Property (subscription01, "RepeatNotificationCount", 5);
+    path = client.createInstance (
+               PEGASUS_NAMESPACENAME_INTEROP, 
+               subscription01);
+    _checkSubscriptionPath (
+        path, 
+        filter,
+        PEGASUS_CLASSNAME_INDHANDLER_CIMXML, 
+        handler);
+    retrievedInstance = client.getInstance (
+                            PEGASUS_NAMESPACENAME_INTEROP, 
+                            path);
+    _checkUint16Property (retrievedInstance, "OnFatalErrorPolicy", 2);
+    _checkStringProperty (
+        retrievedInstance, 
+        "OtherOnFatalErrorPolicy",
+        String::EMPTY, 
+        true);
+    _checkUint64Property (retrievedInstance, "FailureTriggerTimeInterval", 60);
+    _checkUint16Property (retrievedInstance, "SubscriptionState", 2);
+    _checkStringProperty (
+        retrievedInstance, 
+        "OtherSubscriptionState",
+        String::EMPTY, 
+        true);
+    _checkUint64Property (
+        retrievedInstance, 
+        "SubscriptionDuration",
+        PEGASUS_UINT64_LITERAL (60000000000));
+    _checkUint16Property (retrievedInstance, "RepeatNotificationPolicy", 1);
+    _checkStringProperty (
+        retrievedInstance, 
+        "OtherRepeatNotificationPolicy",
+        "another policy");
+    _checkUint64Property (retrievedInstance, "RepeatNotificationInterval", 60);
+    _checkUint64Property (retrievedInstance, "RepeatNotificationGap", 30);
+    _checkUint16Property (retrievedInstance, "RepeatNotificationCount", 5);
 }
 
-void
-_delete (CIMClient & client, String & filter, String & handler)
+void _delete (CIMClient & client, String & filter, String & handler)
 {
   //
   //  Delete subscription instances
   //
-  _deleteSubscriptionInstance (client, filter,
-			       PEGASUS_CLASSNAME_INDHANDLER_CIMXML, handler);
+    _deleteSubscriptionInstance (
+        client, 
+        filter, 
+        PEGASUS_CLASSNAME_INDHANDLER_CIMXML, 
+        handler);
 
   //
   //  Delete handler instances
   //
-  _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
-			  handler);
+  _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,handler);
   //
   //  Delete filter instances
   //
   _deleteFilterInstance (client, filter);
 }
 
-void
-_test (CIMClient & client)
+void _test (CIMClient & client)
 {
-  try
-  {
-    String cql ("DMTF:CQL");
+    try
+    {
+        String cql ("DMTF:CQL");
+        char cnt[512];
+        String filter;
+        String query;
+        String handler;
+        for (Uint32 i = 0; i < QUERIES_CQL; i++)
+        {
+            filter.clear ();
+            sprintf (cnt, "%d", i);
+            filter.append (_filter);
+            filter.append (cnt);
+           
+            handler.clear ();
+            handler.append (_handler);
+            handler.append (cnt);
 
-    char cnt[512];
-    String filter;
-    String query;
-    String handler;
-    for (Uint32 i = 0; i < QUERIES_CQL; i++)
-      {
+            query.clear ();
+            query.append (queries_CQL[i]);
 
-	filter.clear ();
-	sprintf (cnt, "%d", i);
+            if (verbose)
+            {
+                cerr << " Creating filter " << filter << endl;
+                cerr << " with query: " << query << endl;
+                cerr << " and handler" << handler << endl;
+            }
 
-	filter.append (_filter);
-	filter.append (cnt);
+            // Do the CQL first
+            _addFilter (client, filter, query, cql);
+            _addHandler (client, handler, _destination);
+            _addSubscription (client, filter, handler);
+            _delete (client, filter, handler);
 
-	handler.clear ();
-	handler.append (_handler);
-	handler.append (cnt);
+        }
+    } catch (const Exception &e)
+    {
+        cerr << e.getMessage() << endl;
+        exit(1);
+    }
 
-	query.clear ();
-	query.append (queries_CQL[i]);
-
-	if (verbose)
-	  {
-	    cerr << " Creating filter " << filter << endl;
-	    cerr << " with query: " << query << endl;
-	    cerr << " and handler" << handler << endl;
-	  }
-	// Do the CQL first
-	_addFilter (client, filter, query, cql);
-
-	_addHandler (client, handler, _destination);
-
-	_addSubscription (client, filter, handler);
-
-	_delete (client, filter, handler);
-
-      }
-  } catch (const Exception &e)
-  {
-	 cerr << e.getMessage() << endl;
-	 exit(1);
-  }
-
-  cout << "+++++ test completed successfully" << endl;
+    cout << "+++++ test completed successfully" << endl;
 }
 
-void
-_cleanup (CIMClient & client)
+void _cleanup (CIMClient & client)
 {
+    char cnt[512];
+    String filter;
+    String handler;
 
-  char cnt[512];
-  String filter;
-  String handler;
-
-  for (Uint32 i = 0; i < QUERIES_CQL; i++)
+    for (Uint32 i = 0; i < QUERIES_CQL; i++)
     {
+        sprintf (cnt, "%d", i);
+        filter.clear ();
+        filter.append (_filter);
+        filter.append (cnt);
+        handler.clear ();
+        handler.append (_handler);
+        handler.append (cnt);
 
-      sprintf (cnt, "%d", i);
-
-      filter.clear ();
-      filter.append (_filter);
-      filter.append (cnt);
-
-      handler.clear ();
-      handler.append (_handler);
-      handler.append (cnt);
-
-      if (verbose)
-	{
-	  cerr << " Deleting filter " << filter << endl;
-	  cerr << " Deleting handler" << handler << endl;
-	}
-      //
-      //  Delete subscription instances
-      //
-      try
-      {
-	_deleteSubscriptionInstance (client, filter,
-				     PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
-				     handler);
-      }
+        if (verbose)
+        {
+            cerr << " Deleting filter " << filter << endl;
+            cerr << " Deleting handler" << handler << endl;
+        }
+        //
+        //  Delete subscription instances
+        //
+        try
+        {
+                _deleteSubscriptionInstance (
+                    client, 
+                    filter,
+                    PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
+                    handler);
+        }
       catch (...)
       {
       }
@@ -658,8 +683,8 @@ _cleanup (CIMClient & client)
       //
       try
       {
-	_deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
-				handler);
+          _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
+                                  handler);
       }
       catch (...)
       {
@@ -669,7 +694,7 @@ _cleanup (CIMClient & client)
       //
       try
       {
-	_deleteFilterInstance (client, filter);
+          _deleteFilterInstance (client, filter);
       }
       catch (...)
       {
@@ -679,47 +704,43 @@ _cleanup (CIMClient & client)
 }
 
 
-int
-main (int argc, char **argv)
+int main (int argc, char **argv)
 {
-  verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
-  CIMClient client;
-  try
-  {   
-    client.connectLocal ();
-    client.setTimeout(400000);
-  }
-  catch (const Exception & e)
-  {
-    cerr << e.getMessage () << endl;
-    return -1;
-  }
-
-  if (argc != 2)
+    verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
+    CIMClient client;
+    try
+    {   
+        client.connectLocal ();
+        client.setTimeout(400000);
+    }
+    catch (const Exception & e)
     {
-      _usage ();
-      return 1;
+        cerr << e.getMessage () << endl;
+        return -1;
     }
 
-  else
-    {	
-      const char *opt = argv[1];
-      if (String::equalNoCase (opt, "test"))
-
-	{
-	  _test (client);
-	}
-      else if (String::equalNoCase (opt, "cleanup"))
-	{
-	  _cleanup (client);
-	}
-      else
-	{
-	  cerr << "Invalid option: " << opt << endl;
-	  _usage ();
-	  return -1;
-	}
+    if (argc != 2)
+    {
+         _usage ();
+         return 1;
     }
-
-  return 0;
+    else
+    {
+         const char *opt = argv[1];
+         if (String::equalNoCase (opt, "test"))
+         {
+             _test (client);
+         }
+         else if (String::equalNoCase (opt, "cleanup"))
+         {
+             _cleanup (client);
+         }
+         else
+         {
+             cerr << "Invalid option: " << opt << endl;
+             _usage ();
+             return -1;
+         }
+    }
+    return 0;
 }

@@ -236,7 +236,14 @@ extern "C"
                 {
                     if (!v.isArray())
                     {
-                        throw TypeMismatchException();
+                        PEG_TRACE((
+                            TRC_CMPIPROVIDERINTERFACE,
+                            Tracer::LEVEL2,
+                            "TypeMisMatch, Expected Type: %s, Actual Type: %s",
+                            cimTypeToString(cp.getType()),
+                            cimTypeToString(v.getType())));
+                        PEG_METHOD_EXIT();
+                        CMReturn(CMPI_RC_ERR_TYPE_MISMATCH);
                     }
                     Array<CIMObject> tmpObjs;
                     Array<CIMInstance> tmpInsts;

@@ -301,7 +301,7 @@ extern "C"
         */
 #if defined CMPI_PLATFORM_WIN32_IX86_MSVC
         _ftime(&timebuffer);
-        now.tv_sec = timebuffer.time;
+        now.tv_sec = (long)timebuffer.time;
         now.tv_usec = timebuffer.millitm*1000;
 #else
         struct timeval now;

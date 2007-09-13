@@ -165,7 +165,7 @@ void testIntegerToStringConversions()
     Test<Sint64, Uint64, LO, HI>::testUint(
         "%" PEGASUS_64BIT_CONVERSION_WIDTH "u");
     Test<Sint8, Uint8, 0, 255>::testSint("%d");
-    Test<Sint16, Uint16, 0, 65555>::testSint("%d");
+    Test<Sint16, Uint16, 0, 65535>::testSint("%d");
     Test<Sint32, Uint32, LO, HI>::testSint("%d");
     Test<Sint64, Uint64, LO, HI>::testSint(
         "%" PEGASUS_64BIT_CONVERSION_WIDTH "d");

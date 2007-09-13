@@ -446,6 +446,42 @@ instance of PG_ProviderCapabilities
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods
 };
+
+// ===================================================================
+// Error provider that returns an error for every API class.
+// ===================================================================
+instance of PG_ProviderModule
+{
+   Description = "CMPI Test Fail_5 provider";
+   Name = "TestCMPIFail_5ProviderModule";
+  // The library name on disk
+   Location = "cmpiTestFail_5Provider";
+   Vendor = "OpenPegasus";
+   Version = "2.0.0";
+   InterfaceType = "CMPI";
+   InterfaceVersion = "2.0.0";
+};
+
+instance of PG_Provider
+{
+   ProviderModuleName = "TestCMPIFail_5ProviderModule";
+   // The provider name as referenced in the code!
+   Name = "TestCMPIFail_5Provider";
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "TestCMPIFail_5ProviderModule";
+   ProviderName = "TestCMPIFail_5Provider";
+   CapabilityID = "CMPI Test Instance Fail 5 Provider";
+   // Name of the CIM Class as defined in the mof.
+   ClassName = "TestCMPI_Fail_5";
+   Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
+   ProviderType = { 2 , 3 , 4, 5}; // Instance, Indication, Association & Method
+   SupportedProperties = NULL; // All properties
+   SupportedMethods = NULL; // All methods
+};
+
 // ===================================================================
 // Instance provider that tests thread allocation using
 // broker->xft->newThread functionality.

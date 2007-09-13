@@ -69,3 +69,24 @@ instance of CMPI_TEST_Racing
     driver = "CMPI_TEST_Person.name=\"Melvin\"";
     model = "CMPI_TEST_Vehicle.vehiclename=\"BMW\"";
 };
+
+[Association, Version("1.0.0"), Description(" Executing the Error "
+ "Conditions " ) ]
+class TestCMPI_Fail_5
+{
+    [key] CMPI_TEST_Person ref driver;
+    [key] CMPI_TEST_Vehicle ref model;
+    uint32 test();
+};
+
+instance of TestCMPI_Fail_5
+{
+    driver = "CMPI_TEST_Person.name=\"ABC\"";
+    model = "CMPI_TEST_Vehicle.vehiclename=\"BM1\"";
+};
+instance of TestCMPI_Fail_5
+{
+    driver = "CMPI_TEST_Person.name=\"XYZ\"";
+    model = "CMPI_TEST_Vehicle.vehiclename=\"HYD1\"";
+};
+

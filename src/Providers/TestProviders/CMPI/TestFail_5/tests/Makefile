@@ -17,7 +17,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#//
+#// 
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,53 +28,29 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-
-ROOT = ../../../..
+ROOT = ../../../../../../
+DIR = Providers/TestProviders/CMPI/TestFail_5/tests
 
 include $(ROOT)/mak/config.mak
 
-DIRS = \
-    TestUtilLib \
-    TestMethod \
-    TestMethod/tests \
-    TestError \
-    TestError/tests \
-    TestProperty/tests \
-    TestFail_1 \
-    TestFail_1/tests \
-    TestFail_2 \
-    TestFail_2/tests\
-    TestFail_3 \
-    TestFail_3/tests \
-    TestFail_4 \
-    TestFail_4/tests \
-    TestFail_5 \
-    TestFail_5/tests \
-    TestProviderThreaded \
-    TestProviderThreaded/tests \
-    TestAssociation \
-    TestAssociation/tests \
-    TestIndicationStressTestProvider \
-    TestIndicationStressTestProvider/tests \
-    TestCMPIEnumeration \
-    TestCMPIEnumeration/tests \
-    TestCMPIInstance \
-    TestCMPIInstance/tests 
+LIBRARIES = \
+     pegclient \
+     pegcommon
 
-ifndef PEGASUS_DISABLE_CQL
-DIRS += \
-    TestIndications \
-    TestIndications/tests
+EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-ifdef PEGASUS_ENABLE_EXECQUERY
-DIRS += \
-    TestCMPIBroker \
-    TestCMPIBroker/tests \
-    TestCMPIBrokerEnc \
-    TestCMPIBrokerEnc/tests \
-    TestExecQuery \
-    TestExecQuery/tests
-endif
-endif
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-include $(ROOT)/mak/recurse.mak
+SOURCES = TestCMPI_Fail_5.cpp
+
+PROGRAM = TestCMPI_Fail_5
+
+include $(ROOT)/mak/program.mak
+include $(ROOT)/test/config.mak
+
+tests:
+
+poststarttests: 
+	$(PROGRAM)
+
+install:

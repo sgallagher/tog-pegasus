@@ -1,7 +1,7 @@
-ROOT = ../..
-include ../config.mak
+ROOT = ../../..
+include $(ROOT)/vxworks/config.mak
 include $(ROOT)/mak/config.mak
 
-DIRS = server tests
+DIRS = Common
 
 include $(PEGASUS_ROOT)/mak/recurse.mak

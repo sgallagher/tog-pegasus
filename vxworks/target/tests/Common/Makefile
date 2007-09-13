@@ -1,7 +1,8 @@
-BASE = $(PEGASUS_ROOT)/src/Pegasus/Common/tests
-SH = $(PEGASUS_ROOT)/vxworks/vxexec
+ROOT = ../../../..
+include $(ROOT)/vxworks/config.mak
+include $(ROOT)/mak/config.mak
 
-_DIRS1 = \
+_DIRS = \
     DynamicLibrary \
     Abstract \
     Array \
@@ -71,32 +72,7 @@ _DIRS1 = \
     async_callback \
     MessageSerializer
 
-_DIRS2 = \
-    Tracer \
-    AuditLogger \
-    L10N \
-    L10N/msg \
+BASE = $(PEGASUS_ROOT)/src/Pegasus/Common/tests
+DIRS = $(addprefix $(BASE)/,$(_DIRS))
 
-##
-## Notes on failing tests:
-##
-##     FileLock - uses popen(), unsupported on vxworks.
-##     AnonymousPipe - uses fork(), unsupported by vxworks.
-##
-
-DIRS1 = $(addprefix $(BASE)/,$(_DIRS1))
-DIRS2 = $(addprefix $(BASE)/,$(_DIRS2))
-
-define NL
-
-
-endef
-
-all: dirs1
-
-dirs1:
-	$(foreach i, $(DIRS1), $(MAKE) SHELL=$(SH) -SC $(i) tests $(NL) )
-
-dirs2:
-	$(foreach i, $(DIRS2), $(MAKE) SHELL=$(SH) -SC $(i) tests $(NL) )
-
+include $(PEGASUS_ROOT)/mak/recurse.mak

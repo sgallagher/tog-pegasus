@@ -85,6 +85,8 @@ public:
         @param name A character string containing the CIM name.
         @exception InvalidNameException If the character string does not
             contain a valid CIM name.
+        @exception All exceptions thrown by String(const char* str) can be
+            thrown here
     */
     CIMName(const char* name);
 
@@ -192,6 +194,8 @@ public:
         @return A reference to this CIMName object.
         @exception InvalidNameException If the character string does not
             contain a valid CIM name.
+        @exception All exceptions thrown by String(const char* str) can be
+            thrown here
     */
     CIMName& operator=(const char* name);
 
@@ -273,6 +277,8 @@ public:
         @param name A character string containing the CIM namespace name.
         @exception InvalidNameException If the character string does not
             contain a valid CIM namespace name.
+        @exception All exceptions thrown by String(const char* str) can be
+            thrown here
     */
     CIMNamespaceName(const char* name);
 
@@ -382,6 +388,8 @@ public:
         @return A reference to this CIMNamespaceName object.
         @exception InvalidNameException If the character string does not
             contain a valid CIM namespace name.
+        @exception All exceptions thrown by String(const char* str) can be
+            thrown here
     */
     CIMNamespaceName& operator=(const char* name);
 

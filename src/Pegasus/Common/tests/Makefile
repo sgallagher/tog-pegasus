@@ -42,6 +42,7 @@ DIRS = \
     Base64 \
     Buffer \
     CIMError\
+    CIMName \
     Cimom \
     ClassDecl \
     Compare \

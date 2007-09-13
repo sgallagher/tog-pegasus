@@ -146,6 +146,7 @@ public:
     API supports UTF8
     @exception NullPointer Thrown if str is NULL.
     @exception bad_alloc Thrown if there is insufficient memory.
+    @exception Exception Thrown if str is invalid UTF8
     */
     String(const char* str);
 
@@ -155,6 +156,7 @@ public:
     API supports UTF8
     @exception NullPointer Thrown if str is NULL.
     @exception bad_alloc Thrown if there is insufficient memory.
+    @exception Exception Thrown if str is invalid UTF8
     */
     String(const char* str, Uint32 n);
 
@@ -201,6 +203,7 @@ public:
     API supports UTF8
     @exception NullPointer Thrown if str is NULL.
     @exception bad_alloc Thrown if there is insufficient memory.
+    @exception Exception Thrown if str is invalid UTF8
     */
     String& assign(const char* str);
 
@@ -210,6 +213,7 @@ public:
     API supports UTF8
     @exception NullPointer Thrown if str is NULL.
     @exception bad_alloc Thrown if there is insufficient memory.
+    @exception Exception Thrown if str is invalid UTF8
     */
     String& assign(const char* str, Uint32 n);
 

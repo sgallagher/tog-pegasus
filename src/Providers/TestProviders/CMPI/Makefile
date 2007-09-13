@@ -48,8 +48,6 @@ DIRS = \
     TestFail_3/tests \
     TestFail_4 \
     TestFail_4/tests \
-    TestFail_5 \
-    TestFail_5/tests \
     TestProviderThreaded \
     TestProviderThreaded/tests \
     TestAssociation \

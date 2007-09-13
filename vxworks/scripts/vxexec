@@ -40,7 +40,9 @@ echo "##########################################################################
 echo "$*" >> vxexec.tmp
 echo "C reboot(1)" >> vxexec.tmp
 
-#vxsim -tmpdir /tmp -f $PEGASUS_ROOT/vxworks/vxWorks -exitOnError -s vxexec.tmp
-vxsim -tmpdir /tmp -f $PEGASUS_ROOT/vxworks/vxWorks -s vxexec.tmp
+VXWORKS=$PEGASUS_ROOT/vxworks/image/vxWorks
+
+#vxsim -tmpdir /tmp -f $VXWORKS -exitOnError -s vxexec.tmp
+vxsim -tmpdir /tmp -f $VXWORKS -s vxexec.tmp
 
 rm -f vxexec.tmp

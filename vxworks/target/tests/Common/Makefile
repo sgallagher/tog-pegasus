@@ -72,7 +72,26 @@ _DIRS = \
     async_callback \
     MessageSerializer
 
+BROKEN_TESTS = \
+    Tracer \
+    AuditLogger \
+    L10N \
+    L10N/msg \
+    FileLock \
+    AnonymousPipe
+
 BASE = $(PEGASUS_ROOT)/src/Pegasus/Common/tests
 DIRS = $(addprefix $(BASE)/,$(_DIRS))
 
 include $(PEGASUS_ROOT)/mak/recurse.mak
+
+define NL
+
+
+endef
+
+VXEXEC=$(PEGASUS_ROOT)/vxworks/scripts/vxexec
+
+run:
+	$(foreach i, $(DIRS), $(MAKE) SHELL=$(VXEXEC) -SC $(i) tests $(NL) )
+

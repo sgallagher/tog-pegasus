@@ -763,8 +763,14 @@ int CIMServerProcess::cimserver_run(
         //
         // Check to see if we should start Pegasus as a daemon
         //
+
+// ATTN-MEB: put this back!
+#if defined(PEGASUS_OS_VXWORKS)
+        daemonOption = false;
+#else
         daemonOption = ConfigManager::parseBooleanValue(
             configManager->getCurrentValue("daemon"));
+#endif
 
 #if !defined(PEGASUS_USE_SYSLOGS)
         String logsDirectory = ConfigManager::getHomedPath(

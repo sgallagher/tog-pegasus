@@ -41,6 +41,8 @@ DIRS= \
     SampleClass \
     SampleClass/tests \
     TestCMPI_CXX \
+    InstanceProvider \
+    InstanceProvider/tests \
     MethodProvider \
     MethodProvider/tests
 

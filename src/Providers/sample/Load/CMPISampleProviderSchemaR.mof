@@ -29,5 +29,6 @@
 //
 //==============================================================================
 
+#pragma include ("CMPIInstanceProviderR.mof")
 #pragma include ("CMPIMethodProviderR.mof")
 

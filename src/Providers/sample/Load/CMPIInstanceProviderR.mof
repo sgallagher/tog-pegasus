@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,24 +29,37 @@
 //
 //==============================================================================
 
-[abstract, Version ("1.0.0")]
-class CMPISample_ProviderClass
+
+instance of PG_ProviderModule
 {
-	[key,
-	read]
-	Uint8 Identifier;
+   Description = "CMPI sample Instance provider";
+   Name = "CMPIInstanceProviderModule";
+  // The library name on disk
+   Location = "cmpiSampleInstanceProvider";
+   Vendor = "OpenPegasus";
+   Version = "2.0.0";
+   InterfaceType = "CMPI";
+   InterfaceVersion = "2.0.0";
 };
 
-[Version ("1.0.0")]
-class CMPISample_InstanceProviderClass : CMPISample_ProviderClass
+instance of PG_Provider
 {
-	[read, write]
-	string Message;
+   ProviderModuleName = "CMPIInstanceProviderModule";
+   // The provider name as referenced in the code!
+   Name = "CMPIInstanceProvider";
 };
 
-[Version ("1.0.0")]
-class CMPISample_MethodProviderClass : CMPISample_ProviderClass
+instance of PG_ProviderCapabilities
 {
-	string SayHello( [IN] string Name, [OUT] string place);
+   ProviderModuleName = "CMPIInstanceProviderModule";
+   ProviderName = "CMPIInstanceProvider";
+   CapabilityID = "CMPI sample Instance Provider";
+   // Name of the CIM Class as defined in the mof.
+   ClassName = "CMPISample_InstanceProviderClass";
+   Namespaces = { "root/SampleProvider"};
+   ProviderType = { 2,7 }; //All the different types
+   SupportedProperties = NULL; // All properties
+   SupportedMethods = NULL; // All methods
 };
+
 

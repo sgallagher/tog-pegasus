@@ -149,7 +149,7 @@ extern "C"
                 TRC_CMPIPROVIDERINTERFACE,
                 Tracer::LEVEL2,
                 "Received invalid parameter %s in \
-                CMPIObjectPath:refSetHostName", *hn));
+                CMPIObjectPath:refSetHostName", hn));
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
         ref->setHost(String(hn));
@@ -193,7 +193,7 @@ extern "C"
                 TRC_CMPIPROVIDERINTERFACE,
                 Tracer::LEVEL2,
                 "Received invalid parameter %s in \
-                CMPIObjectPath:refSetClassName", *cn));
+                CMPIObjectPath:refSetClassName", cn));
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
         ref->setClassName(String(cn));
@@ -255,7 +255,7 @@ extern "C"
                 TRC_CMPIPROVIDERINTERFACE,
                 Tracer::LEVEL2,
                 "Received invalid parameter %s in \
-                CMPIObjectPath:refAddKey", *name));
+                CMPIObjectPath:refAddKey", name));
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
         Array<CIMKeyBinding> keyBindings = ref->getKeyBindings();
@@ -297,7 +297,7 @@ extern "C"
                 TRC_CMPIPROVIDERINTERFACE,
                 Tracer::LEVEL2,
                 "Received invalid parameter %s in \
-                CMPIObjectPath:refGetKey", *name));
+                CMPIObjectPath:refGetKey", name));
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return data;
         }

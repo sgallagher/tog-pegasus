@@ -555,7 +555,7 @@ inline Buffer& operator<<(Buffer& out, char x)
 
 inline Buffer& operator<<(Buffer& out, const char* s)
 {
-    out.append(s, strlen(s));
+    out.append(s, (Uint32)strlen(s));
     return out;
 }
 

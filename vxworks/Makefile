@@ -1,5 +1,5 @@
 ROOT = ..
-include config.mak
+include $(ROOT)/vxworks/config.mak
 include $(ROOT)/mak/config.mak
 
 DIRS = target

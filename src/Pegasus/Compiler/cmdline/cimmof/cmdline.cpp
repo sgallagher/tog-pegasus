@@ -333,6 +333,10 @@ static struct optspec optspecs[] =
     {(char*)"trace", TRACEFLAG, true, getoopt::OPTIONALARG},
     {(char*)"xml", XMLFLAG, true, getoopt::NOARG},
 #endif
+#ifdef PEGASUS_OS_PASE
+    //PASE env ship q option
+    {(char*)"q", QUIETFLAG, false, getoopt::NOARG},
+#endif
     {(char*)"", OPTEND_CIMMOF, false, getoopt::NOARG},
     {(char*)"R", REPOSITORYDIR, false, getoopt::MUSTHAVEARG},
     {(char*)"CIMRepository", REPOSITORYDIR, true, getoopt::MUSTHAVEARG},

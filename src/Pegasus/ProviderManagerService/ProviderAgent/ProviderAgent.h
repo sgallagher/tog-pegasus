@@ -139,6 +139,13 @@ private:
     static void _terminateSignalHandler(
         int s_n, PEGASUS_SIGINFO_T* s_info, void* sig);
 
+#ifdef PEGASUS_OS_PASE
+    static void _synchronousSignalHandler(
+        int s_n, PEGASUS_SIGINFO_T* s_info, void* sig);
+    static void _asynchronousSignalHandler(
+        int s_n, PEGASUS_SIGINFO_T* s_info, void* sig);
+#endif
+
     //
     // Private data
     //

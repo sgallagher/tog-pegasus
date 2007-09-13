@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -47,6 +47,7 @@ PEGASUS_USING_STD;
 
 const CIMNamespaceName SOURCENAMESPACE =
 CIMNamespaceName ("test/TestProvider");
+
 const char *queries_CQL[] = {
     "SELECT * FROM TestCMPI_Indication WHERE "
         " s='s' AND c='c' OR n32>=32 OR n16<=17 OR n64>23 OR r32>=1.0"
@@ -63,13 +64,58 @@ const char *queries_CQL[] = {
     "SELECT n8,n16,n32,n64 FROM TestCMPI_Indication WHERE"
         " n8=8 AND n16=16 AND n32=32 AND n64>32",
     "SELECT s8,s16,s32,s64 FROM TestCMPI_Indication WHERE"
-        " s8>1 AND s16=256 OR s32>9999 or s64>=2232",
-    "SELECT r32,r64 FROM TestCMPI_Indication WHERE r32<=1.23 OR r64=3.14",
-    "SELECT c,b FROM TestCMPI_Indication WHERE c=c OR b=1",
-    "SELECT * FROM TestCMPI_Indication WHERE b!=1 AND c=c",
+        " s8>1 AND s16=256 OR s32>9999 AND NOT (r64 > 2.2) AND NOT (s16>=288)"
+        " AND NOT (s IS NULL) AND NOT (c IS NOT NULL)",
+    "SELECT c,b FROM TestCMPI_Indication WHERE "
+        " c=c OR b=1 AND PropertyA LIKE 'Acc' AND NOT (PropertyB LIKE 'Acc')",
+    "SELECT r32,r64 FROM TestCMPI_Indication WHERE "
+        "NOT (s8<3) AND r32<1.23 AND NOT(n16<=17) OR r64=3.14 ",
+    "SELECT * FROM TestCMPI_Indication",
 };
 
-#define QUERIES_CQL 10
+const char *queries_WQL[] = {
+    "SELECT *  FROM TestCMPI_Indication WHERE s IS NOT NULL",
+    "SELECT * FROM TestCMPI_Indication",
+    "SELECT * FROM TestCMPI_Indication WHERE (s IS NOT NULL) OR (c IS NULL)",
+    "SELECT n32,r64 FROM TestCMPI_Indication WHERE n32=42 AND r64>=2.2",
+    "SELECT c,b FROM TestCMPI_Indication WHERE c=c OR b=1",
+    "SELECT * FROM TestCMPI_Indication WHERE b!=1 AND c=c",
+    "SELECT n8,n16,n32,n64 FROM TestCMPI_Indication WHERE "
+        "n8=8 AND n16=16 AND n32=32 AND n64>32",
+    "SELECT s8,s16,s32,s64 FROM TestCMPI_Indication WHERE "
+        "s8>1 AND s16=256 OR s32>9999 or s64>=2232",
+    "SELECT r32,r64 FROM TestCMPI_Indication WHERE r32<=1.23 OR r64=3.14",
+    "SELECT s FROM TestCMPI_Indication WHERE "
+        "NOT NOT (PropertyA=\"PropertyA\" OR PropertyB=\"Nothing\") AND "
+        "PropertyA=\"AccessorPropertyA\"",
+    "SELECT s FROM TestCMPI_Indication WHERE "
+        "NOT (PropertyA=\"PropertyA\" OR PropertyB=\"Nothing\") AND "
+        "(PropertyA=\"AccessorPropertyA\" OR PropertyB=\"Nothing\")",
+    "SELECT s FROM TestCMPI_Indication WHERE "
+        "NOT (PropertyA!=\"PropertyA\") AND NOT (n32<42) AND NOT (r64>64) AND "
+        "NOT (r32<=1.23) AND NOT NOT NOT(r64 >= 20)",
+    "SELECT * FROM TestCMPI_Indication WHERE "
+        "PropertyA<PropertyB AND PropertyB<PropertyA",
+    "SELECT s FROM TestCMPI_Indication WHERE "
+        "NOT (PropertyB=\"Nothing\" AND PropertyA=\"AccessorPropertyA\")",
+    "SELECT PropertyA FROM TestCMPI_Indication WHERE NOT "
+        "(PropertyB=\"Nothing\" AND PropertyA=\"AccessorPropertyA\" "
+        "OR n32=42)",
+    "SELECT * FROM TestCMPI_Indication WHERE "
+        "s=\"s\" AND c=\"c\" OR n32>=32 OR n16<=17 OR n64>23 OR r32>=1.0 OR "
+        "r64=1.2 or b=1 AND s8>1 AND s16>16 AND s32>32 AND s64>64",
+    "SELECT * FROM TestCMPI_Indication WHERE "
+        "(PropertyA=\"PropertyA\" OR PropertyB=\"Nothing\" OR n64>2) AND "
+        "s=\"s\"",
+    "SELECT PropertyA, PropertyB FROM TestCMPI_Indication WHERE "
+        "PropertyA=\"PropertyA\" OR PropertyB=\"Nothing\" OR s=\"s\"",
+    "SELECT s FROM TestCMPI_Indication WHERE "
+        "NOT (PropertyA=\"PropertyA\" OR PropertyB=\"Nothing\") AND "
+        "PropertyA=\"AccessorPropertyA\"",
+};
+
+#define QUERIES_CQL 11
+#define QUERIES_WQL 19
 String _filter ("TestCMPI_Indication_Filter_");
 String _handler ("TestCMPI_Indication_Handler_");
 String _destination ("localhost/CIMListener/Pegasus_SimpleDisplayConsumer");
@@ -249,7 +295,7 @@ void _checkSubscriptionPath
         {
             filterFound = true;
             CIMObjectPath filterPath = _buildFilterOrHandlerPath(
-                                           PEGASUS_CLASSNAME_INDFILTER, 
+                                           PEGASUS_CLASSNAME_INDFILTER,
                                            filterName);
             PEGASUS_TEST_ASSERT (
                 keyBindings[i].getValue () == filterPath.toString ());
@@ -258,7 +304,7 @@ void _checkSubscriptionPath
         {
             handlerFound = true;
             CIMObjectPath handlerPath = _buildFilterOrHandlerPath (
-                                            handlerClass, 
+                                            handlerClass,
                                             handlerName);
             PEGASUS_TEST_ASSERT (
                 keyBindings[i].getValue () == handlerPath.toString ());
@@ -515,60 +561,60 @@ void _addSubscription (CIMClient & client, String & filter, String & handler)
             handler) );
     _addUint16Property (subscription01, "OnFatalErrorPolicy", 2);
     _addStringProperty (
-        subscription01, 
+        subscription01,
         "OtherOnFatalErrorPolicy",
-        String::EMPTY, 
+        String::EMPTY,
         true);
     _addUint64Property (subscription01, "FailureTriggerTimeInterval", 60);
     _addUint16Property (subscription01, "SubscriptionState", 2);
     _addStringProperty (
-        subscription01, 
-        "OtherSubscriptionState", 
+        subscription01,
+        "OtherSubscriptionState",
         String::EMPTY,
         true);
     _addUint64Property (
-        subscription01, 
+        subscription01,
         "SubscriptionDuration",
         PEGASUS_UINT64_LITERAL (60000000000));
     _addUint16Property (subscription01, "RepeatNotificationPolicy", 1);
     _addStringProperty (
-        subscription01, 
+        subscription01,
         "OtherRepeatNotificationPolicy",
         "another policy");
     _addUint64Property (subscription01, "RepeatNotificationInterval", 60);
     _addUint64Property (subscription01, "RepeatNotificationGap", 30);
     _addUint16Property (subscription01, "RepeatNotificationCount", 5);
     path = client.createInstance (
-               PEGASUS_NAMESPACENAME_INTEROP, 
+               PEGASUS_NAMESPACENAME_INTEROP,
                subscription01);
     _checkSubscriptionPath (
-        path, 
+        path,
         filter,
-        PEGASUS_CLASSNAME_INDHANDLER_CIMXML, 
+        PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
         handler);
     retrievedInstance = client.getInstance (
-                            PEGASUS_NAMESPACENAME_INTEROP, 
+                            PEGASUS_NAMESPACENAME_INTEROP,
                             path);
     _checkUint16Property (retrievedInstance, "OnFatalErrorPolicy", 2);
     _checkStringProperty (
-        retrievedInstance, 
+        retrievedInstance,
         "OtherOnFatalErrorPolicy",
-        String::EMPTY, 
+        String::EMPTY,
         true);
     _checkUint64Property (retrievedInstance, "FailureTriggerTimeInterval", 60);
     _checkUint16Property (retrievedInstance, "SubscriptionState", 2);
     _checkStringProperty (
-        retrievedInstance, 
+        retrievedInstance,
         "OtherSubscriptionState",
-        String::EMPTY, 
+        String::EMPTY,
         true);
     _checkUint64Property (
-        retrievedInstance, 
+        retrievedInstance,
         "SubscriptionDuration",
         PEGASUS_UINT64_LITERAL (60000000000));
     _checkUint16Property (retrievedInstance, "RepeatNotificationPolicy", 1);
     _checkStringProperty (
-        retrievedInstance, 
+        retrievedInstance,
         "OtherRepeatNotificationPolicy",
         "another policy");
     _checkUint64Property (retrievedInstance, "RepeatNotificationInterval", 60);
@@ -582,9 +628,9 @@ void _delete (CIMClient & client, String & filter, String & handler)
   //  Delete subscription instances
   //
     _deleteSubscriptionInstance (
-        client, 
-        filter, 
-        PEGASUS_CLASSNAME_INDHANDLER_CIMXML, 
+        client,
+        filter,
+        PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
         handler);
 
   //
@@ -602,6 +648,7 @@ void _test (CIMClient & client)
     try
     {
         String cql ("DMTF:CQL");
+        String wql ("WQL");
         char cnt[512];
         String filter;
         String query;
@@ -612,7 +659,7 @@ void _test (CIMClient & client)
             sprintf (cnt, "%d", i);
             filter.append (_filter);
             filter.append (cnt);
-           
+
             handler.clear ();
             handler.append (_handler);
             handler.append (cnt);
@@ -634,6 +681,35 @@ void _test (CIMClient & client)
             _delete (client, filter, handler);
 
         }
+
+        //WQL Queries
+        for (Uint32 i = 0; i < QUERIES_WQL; i++)
+        {
+            filter.clear ();
+            sprintf (cnt, "%d", i);
+            filter.append (_filter);
+            filter.append (cnt);
+
+            handler.clear ();
+            handler.append (_handler);
+            handler.append (cnt);
+
+            query.clear ();
+            query.append (queries_WQL[i]);
+
+            if (verbose)
+            {
+                cerr << " Creating filter " << filter << endl;
+                cerr << " with query: " << query << endl;
+                cerr << " and handler" << handler << endl;
+            }
+
+            _addFilter (client, filter, query, wql);
+            _addHandler (client, handler, _destination);
+            _addSubscription (client, filter, handler);
+            _delete (client, filter, handler);
+        }
+
     } catch (const Exception &e)
     {
         cerr << e.getMessage() << endl;
@@ -670,7 +746,7 @@ void _cleanup (CIMClient & client)
         try
         {
                 _deleteSubscriptionInstance (
-                    client, 
+                    client,
                     filter,
                     PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
                     handler);
@@ -709,7 +785,7 @@ int main (int argc, char **argv)
     verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
     CIMClient client;
     try
-    {   
+    {
         client.connectLocal ();
         client.setTimeout(400000);
     }

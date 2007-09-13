@@ -36,7 +36,11 @@
 
 #include "cmpipl.h"
 #include <stdlib.h>          // To get the size_t
+#ifndef CMPI_PLATFORM_WIN32_IX86_MSVC
 #define CMPI_THREAD_RETURN      void*
+#else
+# define CMPI_THREAD_RETURN     unsigned
+#endif
 #define CMPI_THREAD_TYPE        void*
 #define CMPI_MUTEX_TYPE         void*
 #define CMPI_COND_TYPE          void*

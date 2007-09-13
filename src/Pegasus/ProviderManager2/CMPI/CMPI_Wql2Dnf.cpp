@@ -528,94 +528,91 @@ void CMPI_Wql2Dnf::_factoring(void)
                 {
                     _found = 1;
                 }
-
-                if( (_found == 0) && (!eval_heap[i].is_terminal2) )
-                {
+            }  
+            if( (_found == 0) && (!eval_heap[i].is_terminal2) )
+            {
                     index = eval_heap[i].opn2; // remember the index
                     if( eval_heap[index].op == WQL_OR )
                     {
                         _found = 2;
                     }
+            }
+
+            if( _found != 0 )
+            {
+                //int u1,u1_t,u2,u2_t,u3,u3_t;
+                CMPI_stack_el s;
+
+                if( _found == 1 )
+                {
+                    s = eval_heap[i].getSecond();
+                }
+                else
+                {
+                    s = eval_heap[i].getFirst();
                 }
 
-                if( _found != 0 )
+                // insert two new expression before entry i
+                CMPI_eval_el evl;
+
+                evl = CMPI_eval_el(false, WQL_OR, i+1, false, i, false);
+                if( (Uint32 )i < eval_heap.size()-1 )
                 {
-                    //int u1,u1_t,u2,u2_t,u3,u3_t;
-                    CMPI_stack_el s;
-
-                    if( _found == 1 )
-                    {
-                        s = eval_heap[i].getSecond();
-                    }
-                    else
-                    {
-                        s = eval_heap[i].getFirst();
-                    }
-
-                    // insert two new expression before entry i
-                    CMPI_eval_el evl;
-
-                    evl = CMPI_eval_el(false, WQL_OR, i+1, false, i, false);
-                    if( (Uint32 )i < eval_heap.size()-1 )
-                    {
-                        eval_heap.insert(i+1, evl);
-                    }
-                    else
-                    {
-                        eval_heap.append(evl);
-                    }
                     eval_heap.insert(i+1, evl);
+                }
+                else
+                {
+                     eval_heap.append(evl);
+                }
+                eval_heap.insert(i+1, evl);
 
-                    for( int j=eval_heap.size()-1; j > i + 2; j-- )
-                    {
-                        //eval_heap[j] = eval_heap[j-2];
+                for( int j=eval_heap.size()-1; j > i + 2; j-- )
+                {
+                    //eval_heap[j] = eval_heap[j-2];
 
-                        // adjust pointers
+                    // adjust pointers
 
-                        if( (!eval_heap[j].is_terminal1)&&
+                    if( (!eval_heap[j].is_terminal1)&&
                         (eval_heap[j].opn1 >= i) )
-                        {
-                            eval_heap[j].opn1 += 2;
-                        }
-
-                        if( (!eval_heap[j].is_terminal2)&&
-                        (eval_heap[j].opn2 >= i) )
-                        {
-                            eval_heap[j].opn2 += 2;
-                        }
+                    {
+                        eval_heap[j].opn1 += 2;
                     }
+                    if( (!eval_heap[j].is_terminal2)&&
+                        (eval_heap[j].opn2 >= i) )
+                    {
+                        eval_heap[j].opn2 += 2;
+                    }
+                }
 
-                    n+=2; // increase size of array
+                n+=2; // increase size of array
 
-                    // generate the new expressions : new OR expression
+                // generate the new expressions : new OR expression
 
+                // first new AND expression
+                eval_heap[i+1].mark = false;
+                eval_heap[i+1].op = WQL_AND;
+                eval_heap[i+1].setFirst(s);
+                eval_heap[i+1].setSecond( eval_heap[index].getFirst());
+                eval_heap[i+1].order();
 
-                    // first new AND expression
-                    eval_heap[i+1].mark = false;
-                    eval_heap[i+1].op = WQL_AND;
-                    eval_heap[i+1].setFirst(s);
-                    eval_heap[i+1].setSecond( eval_heap[index].getFirst());
-                    eval_heap[i+1].order();
+                // second new AND expression
+                eval_heap[i].mark = false;
+                eval_heap[i].op = WQL_AND;
+                eval_heap[i].setFirst(s);
+                eval_heap[i].setSecond( eval_heap[index].getSecond());
+                eval_heap[i].order();
 
+                // mark the indexed expression as inactive
+                //eval_heap[index].op = WQL_IS_TRUE; possible disconnects
+                i--;
 
-                    // second new AND expression
-                    eval_heap[i].mark = false;
-                    eval_heap[i].op = WQL_AND;
-                    eval_heap[i].setFirst(s);
-                    eval_heap[i].setSecond( eval_heap[index].getSecond());
-                    eval_heap[i].order();
+            } /* endif _found > 0 */
 
-                    // mark the indexed expression as inactive
-                    //eval_heap[index].op = WQL_IS_TRUE; possible disconnects
-                    i--;
+        } /* endif found AND operator */
 
-                } /* endif _found > 0 */
-
-            } /* endif found AND operator */
-
-            i++; // increase pointer
-        }
-    }
+        i++; // increase pointer
+    } // end of while loop
+    
     PEG_METHOD_EXIT();
 }
     void CMPI_Wql2Dnf::_gatherDisj(Array<CMPI_stack_el>& stk)
@@ -758,25 +755,24 @@ void CMPI_eval_el::order(void)
     PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPI_eval_el::order()");
     int k;
     if( (!is_terminal1) && (!is_terminal2) )
+    {
         if( (k = opn2) > opn1 )
         {
             opn2 = opn1;
             opn1 =  k;
         }
-        else
+    }
+    else if ((is_terminal1) && (!is_terminal2))
+    {
+        if ((k = opn2) > opn1)
         {
-            if( (is_terminal1) && (!is_terminal2) )
-            {
-                if( (k = opn2) > opn1 )
-                {
-                    opn2 = opn1;
-                    opn1 =  k;
-                    is_terminal1 = false;
-                    is_terminal2 = true;
-                }
-            }
+            opn2 = opn1;
+            opn1 =  k;
+            is_terminal1 = false;
+            is_terminal2 = true;
         }
-    PEG_METHOD_EXIT();
+    }
+       PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END

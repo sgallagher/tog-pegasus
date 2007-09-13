@@ -36,15 +36,14 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/HTTPMessage.h>
-
 #include <Pegasus/Config/ConfigManager.h>
+#include "AuthenticationManager.h"
 
 #ifdef PEGASUS_ENABLE_LOCAL_AUTHENTICATION
 # include "LocalAuthenticationHandler.h"
 #endif
 
 #include "BasicAuthenticationHandler.h"
-#include "AuthenticationManager.h"
 
 #include <Pegasus/Common/AutoPtr.h>
 

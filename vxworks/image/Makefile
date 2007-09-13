@@ -23,8 +23,8 @@ proj:
 
 build:
 	( cd proj; make TOOL=gnu ROMFS_DIR=$(ROMFS) )
-	cp proj/vxWorks ..
-	cp proj/vxWorks.sym ..
+	cp proj/vxWorks .
+	cp proj/vxWorks.sym .
 
 clean:
 	rm -rf proj

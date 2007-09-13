@@ -54,18 +54,13 @@ ifeq ($(OS),HPUX)
     EXTRA_LIBRARIES += -lsec 
 endif
 
-ifneq ($(OS_TYPE),vxworks)
-    PEGASUS_ENABLE_LOCAL_AUTHENTICATION=true
-endif
-
 SOURCES = \
     SecureBasicAuthenticator.cpp \
     PAMBasicAuthenticator.cpp \
     BasicAuthenticationHandler.cpp \
     AuthenticationManager.cpp
 
-ifeq ($(PEGASUS_ENABLE_LOCAL_AUTHENTICATION),true)
-    LOCAL_DEFINES += -DPEGASUS_ENABLE_LOCAL_AUTHENTICATION
+ifneq ($(OS_TYPE),vxworks)
     SOURCES += LocalAuthFile.cpp
     SOURCES += LocalAuthenticationHandler.cpp
     SOURCES += SecureLocalAuthenticator.cpp

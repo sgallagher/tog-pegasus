@@ -44,6 +44,10 @@
 #include <Pegasus/Common/AuthenticationInfo.h>
 #endif
 
+#if !defined(PEGASUS_OS_VXWORKS)
+# define PEGASUS_ENABLE_LOCAL_AUTHENTICATION
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 /** This class implements the HTTP authentication and Pegasus Local

@@ -95,6 +95,11 @@ ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	@ $(ECHO) +++++ Registering CMPI SampleClass Provider  ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" CMPISampleClassR.mof
 
+	@ $(ECHO) +++++ Loading CMPI Sample Provider class definitions into $(SAMPLEPROVIDERNS) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(SAMPLEPROVIDERNS)" CMPISampleProviderSchema.mof
+	
+	@ $(ECHO) +++++ Registering CMPI Sample Providers  ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" CMPISampleProviderSchemaR.mof
 endif
 
 # Load the sample mof through the Client interface compiler but do not
@@ -143,6 +148,11 @@ ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	@ $(ECHO) +++++ Registering SampleClass CMPI Provider  ...
 	@ cimmof "-n$(INTEROPNS)" CMPISampleClassR.mof
 
+	@ $(ECHO) +++++ Loading CMPI Sample Provider class definitions into $(SAMPLEPROVIDERNS) namespace ...
+	@ cimmofl "-n$(SAMPLEPROVIDERNS)" CMPISampleProviderSchema.mof
+	
+	@ $(ECHO) +++++ Registering CMPI Sample Providers  ...
+	@ cimmofl "-n$(INTEROPNS)" CMPISampleProviderSchemaR.mof
 endif
 
 removerepository:
@@ -166,6 +176,7 @@ ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	cimprovider -r -m CMPI_RT_SampleProviderModule
 	cimprovider -r -m FilesAndDirectoriesModule_CXX
 	cimprovider -r -m CMPISampleClassModule
+	cimprovider -r -m SampleCMPIMethodProviderModule
 endif
 
 depend:

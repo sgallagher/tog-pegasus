@@ -30,18 +30,19 @@
 #//==============================================================================
 include $(PEGASUS_ROOT)/mak/config.mak
 
-DIRS = \
-	InstanceProvider \
-	InstanceQueryProvider \
-	MethodProvider \
-	IndicationProvider \
-	SNMPIndicationProvider \
-	AssociationProvider \
-	AssociationProvider/testclient
-
-ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
-DIRS += \
-	CMPI
-endif
+DIRS= \
+    CWS_Util \
+    FilesAndDirectories \
+    FilesAndDirectories/tests \
+    FilesAndDirectories_CXX \
+    FilesAndDirectories_CXX/tests \
+    ProcessIndication \
+    ProcessIndication/tests \
+    SampleClass \
+    SampleClass/tests \
+    TestCMPI_CXX \
+    MethodProvider \
+    MethodProvider/tests
 
 include $(PEGASUS_ROOT)/mak/recurse.mak
+

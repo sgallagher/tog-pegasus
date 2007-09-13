@@ -1,0 +1,77 @@
+
+Configuring VxWorks environment variable:
+=========================================
+
+Add the following to your .bashrc:
+
+    eval `/home/WindRiver/wrenv.sh -p vxworks-6.2 -o print_env -f sh`
+
+
+Creating a "vxWorks" simulator image:
+=====================================
+
+    $ vxprj create linux gnu vxsim.wpj
+    $ make
+
+Starting and querying the registry server:
+==========================================
+
+    $ wtxregd start
+    $ wtxreg
+
+
+Starting the VXWorks simulator:
+===============================
+
+    $ vxsim -f image/vxWorks
+
+
+Starting the target server (to connect to vxsim):
+=================================================
+
+    $ tgtsvr -V -B wdbpipe vxsim
+
+
+Connecting windsh to vxsim (via the target server):
+===================================================
+
+    $ winsh vxsim
+
+
+Running vxsim and running the sample "hello" program:
+=====================================================
+
+    $ vxsim -f image/vxWorks
+    .
+    .
+    .
+    > rtpSp "hello/hello.vxe"
+
+Running vxsim with network support
+
+    Start the simulator support daemon.  Note that right now
+    we must start this as a separate window with the commnad
+    vxsimnetd.  Note also that we set this with setuid 
+    (chmod ugp+sw) so it starts as root when called from server.
+    Note that the default is to set up subnet 192.168.200.0
+
+    The start command is:
+
+    $ vxsimnetd
+
+    This must be done before starting the simulator
+    Then start the simulator defining the network address for this
+    instance of the simulator as follows:
+
+    $ vxsim -f image/vxWorks -d simnet -e 192.168.200.1
+
+    As a test you should be able to ping the simulator.
+
+    $ ping 192.168.200.1
+    
+To get rpath working with /romfs/lib:
+=====================================
+
+    Create a /romfs/lib directory under your host system.
+
+

@@ -28,3 +28,6 @@
             - IPV6
             - CMPI
             - I18N
+
+    9. gettimeofday() implementation (see Platform_VXWORKS_PENTIUM_GNU.h)
+       does not have timezone.

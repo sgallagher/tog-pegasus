@@ -233,8 +233,8 @@ extern "C"
             {
                 char msg[512];
                 sprintf(msg,"arraySetElementAt(): CMPI_RC_ERR_TYPE_MISMATCH."
-                    " Is %p - should be %p",
-                    (void*)(long)type, (void*)(long)dta->type);
+                    " Is %u - should be %u",
+                    type, dta->type);
                 PEG_METHOD_EXIT();
                 CMReturnWithString(
                     CMPI_RC_ERR_TYPE_MISMATCH,

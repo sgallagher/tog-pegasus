@@ -112,6 +112,7 @@ class TestCMPI_Method : TestCMPI_Parent
     Uint32 testErrorPaths();
     Uint32 testSimpleTypes();
     Uint32 testArrayClone();
+    Uint32 testReturn();
 };
 
 class TestCMPI_Enumeration : TestCMPI_Parent

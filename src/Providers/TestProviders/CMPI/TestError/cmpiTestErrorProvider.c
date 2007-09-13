@@ -523,13 +523,13 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
   retData = CBInvokeMethod(_broker,
       ctx,
       objPath,
-      "testSimpleTypes",
+      "testReturn",
       in,
       out,
       &rc);
   PROV_LOG_OPEN (_ClassName, _ProviderLocation);
 
-  if(retData.value.uint32 && rc.rc == CMPI_RC_OK)
+  if(retData.value.uint32 == 2 && rc.rc == CMPI_RC_OK)
   {
       PROV_LOG ("++++ (%s) CMInvokeMethod", strCMPIStatus (rc));
   }

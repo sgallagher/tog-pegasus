@@ -143,8 +143,8 @@ _CDToString (const void *o, char **result)
       p = CMGetCharPtr (type);
       // The pointer to the null value.
       q = p + strlen (p);
-      // The first couple of bytes are the address of the data. We don't want it here
-      // so we are going to skip over them.
+      // The first couple of bytes are the address of the data. We don't want
+      // it here so we are going to skip over them.
       while ((*p != ':') && (p < q))
         p++;
       // Skip over the space after the ':'
@@ -414,20 +414,25 @@ _createInstance()
   PROV_LOG ("---- (rc:%s)", strCMPIStatus (rc));
 
   objName = CMObjectPathToString(temp_objPath, &rc);
-  PROV_LOG ("---- Object path is %s (rc:%s)", CMGetCharPtr(objName), strCMPIStatus (rc));
+  PROV_LOG ("---- Object path is %s (rc:%s)", CMGetCharPtr(objName),
+      strCMPIStatus (rc));
 
   // Create a new ObjectPath, in a different namespace.
   PROV_LOG("Calling CMNewObjectPath for %s", "TestCMPI_Instance");
-  fake_objPath = CMNewObjectPath (_broker, "root/cimv2", "TestCMPI_Instance", &rc);  
-  CMAddKey (fake_objPath, "ElementName", (CMPIValue *) "Fake_ObjPath", CMPI_chars);
+  fake_objPath = 
+      CMNewObjectPath (_broker, "root/cimv2", "TestCMPI_Instance", &rc);
+  CMAddKey (fake_objPath, "ElementName", (CMPIValue *) "Fake_ObjPath",
+      CMPI_chars);
 
   PROV_LOG ("---- (%s)", strCMPIStatus (rc));
   
   objName = CMObjectPathToString(fake_objPath, &rc);
-  PROV_LOG ("---- Object path: %s (rc:%s)", CMGetCharPtr(objName), strCMPIStatus (rc));
+  PROV_LOG ("---- Object path: %s (rc:%s)", CMGetCharPtr(objName),
+      strCMPIStatus (rc));
 
   // Setting objPath to fake_ObjPath
-  PROV_LOG("Calling CMSetObjectPath with object path: %s", CMGetCharPtr(objName));
+  PROV_LOG("Calling CMSetObjectPath with object path: %s",
+      CMGetCharPtr(objName));
   rc = CMSetObjectPath(inst, fake_objPath);
   PROV_LOG ("---- (%s)", strCMPIStatus (rc));
 
@@ -436,7 +441,8 @@ _createInstance()
   temp_objPath = CMGetObjectPath(inst, &rc);
   PROV_LOG ("---- (rc:%s)", strCMPIStatus (rc));
   objName = CMObjectPathToString(temp_objPath, &rc);
-  PROV_LOG ("---- Object path is %s (rc:%s)", CMGetCharPtr(objName), strCMPIStatus (rc));
+  PROV_LOG ("---- Object path is %s (rc:%s)", CMGetCharPtr(objName),
+      strCMPIStatus (rc));
 
   return inst;  
 }
@@ -553,7 +559,8 @@ static int _testArrayClone(const CMPIContext* ctx)
 
             case CMPI_charsptr:
                 value.dataPtr.ptr = "String";
-                value.dataPtr.length = (CMPICount)(strlen((value.dataPtr.ptr)) + 1);
+                value.dataPtr.length = 
+                     (CMPICount)(strlen((value.dataPtr.ptr)) + 1);
                 break;
 
         }
@@ -615,8 +622,8 @@ static int _testArrayClone(const CMPIContext* ctx)
                     (arr_size != arrClone_size))
                 {
                     flag = 0;
-                    PROV_LOG("++++  Cloning of array of type %s is UnSuccessful",
-                        types_arr[i].typeAName);
+                    PROV_LOG("++++  Cloning of array of type %s is"
+                        "UnSuccessful", types_arr[i].typeAName);
                 }
                 break;
 
@@ -674,8 +681,8 @@ static int _testArrayClone(const CMPIContext* ctx)
                 else
                 {
                     flag = 0;
-                    PROV_LOG("++++  Cloning of array of type %s is UnSuccessful",
-                        types_arr[i].typeAName);
+                    PROV_LOG("++++  Cloning of array of type %s is"
+                        " UnSuccessful", types_arr[i].typeAName);
                 }
                 rc = CMRelease(value.ref);
                 PROV_LOG("++++ Status of CMRelease(value.ref) : (%s)",
@@ -717,8 +724,8 @@ static int _testArrayClone(const CMPIContext* ctx)
                     (arr_size != arrClone_size))
                 {
                     flag = 0;
-                    PROV_LOG("++++  Cloning of array of type %s is UnSuccessful",
-                        types_arr[i].typeAName);
+                    PROV_LOG("++++  Cloning of array of type %s is"
+                        "UnSuccessful", types_arr[i].typeAName);
                 }
                 rc = CMRelease(value.args);
                 PROV_LOG("++++ Status of CMRelease(value.args) : (%s)",
@@ -771,7 +778,9 @@ static int _testArrayClone(const CMPIContext* ctx)
                         while(CMHasNext(arr_data.value.Enum,&rc))
                         {
                             data = CMGetNext(arr_data.value.Enum, &rc);
-                            dataClone = CMGetNext(arrClone_data.value.Enum, &rc1);
+                            dataClone = CMGetNext(
+                                arrClone_data.value.Enum,
+                                &rc1);
                             if((rc.rc != CMPI_RC_OK) ||
                                 (rc1.rc != CMPI_RC_OK) ||
                                 (data.type != dataClone.type))
@@ -813,8 +822,8 @@ static int _testArrayClone(const CMPIContext* ctx)
         rc = CMRelease(arr);
         PROV_LOG("++++ Status of CMRelease(arr) : (%s)", strCMPIStatus(rc));
         rc = CMRelease(arrClone);
-        PROV_LOG("++++ Status of CMRelease(arrClone) : (%s)", strCMPIStatus(rc));
-
+        PROV_LOG("++++ Status of CMRelease(arrClone) : (%s)",
+            strCMPIStatus(rc));
     }
     //Test Error Paths
     arr = CMNewArray (_broker, 1, CMPI_charsptr, &rc);
@@ -1288,7 +1297,8 @@ static int _testArrayTypes()
         rc = CMRelease(arr);
         PROV_LOG("++++ Status of CMRelease(arr) : (%s)", strCMPIStatus(rc));
         rc = CMRelease(args_ptr);
-        PROV_LOG("++++ Status of CMRelease(args_ptr) : (%s)", strCMPIStatus(rc));
+        PROV_LOG("++++ Status of CMRelease(args_ptr) : (%s)",
+            strCMPIStatus(rc));
     }
     return flag;
 }// End of _testArrayTypes
@@ -1713,14 +1723,16 @@ static int _testCMPIArray ()
     }
 
     rc = CMSetArrayElementAt(arr_ptr, 2, &value, initArrayType);
-    PROV_LOG ("++++  CMSetArrayElementAt Error Path : (%s)", strCMPIStatus (rc));
+    PROV_LOG ("++++  CMSetArrayElementAt Error Path : (%s)",
+        strCMPIStatus (rc));
     if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
     {
         return 1;
     }
 
     CMGetArrayElementAt(arr_ptr, 5, &rc);
-    PROV_LOG ("++++  CMGetArrayElementAt Error Path : (%s)", strCMPIStatus (rc));
+    PROV_LOG ("++++  CMGetArrayElementAt Error Path : (%s)",
+        strCMPIStatus (rc));
     if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
     {
         return 1;
@@ -1749,7 +1761,8 @@ static int _testCMPIArray ()
     }
 
     rc = CMSetArrayElementAt(arr_ptr, 2, &value, initErrArrayType);
-    PROV_LOG ("++++  CMSetArrayElementAt Error Path : (%s)", strCMPIStatus (rc));
+    PROV_LOG ("++++  CMSetArrayElementAt Error Path : (%s)",
+        strCMPIStatus (rc));
     if (rc.rc != CMPI_RC_ERR_TYPE_MISMATCH)
     {
         return 1;
@@ -1814,7 +1827,8 @@ static int _testCMPIcontext (const CMPIContext* ctx)
         return 1;
     }
     CMGetContextEntryCount(new_ctx, &rc);
-    PROV_LOG ("++++  CMGetContextEntryCount Error Path: (%s)", strCMPIStatus (rc));
+    PROV_LOG ("++++  CMGetContextEntryCount Error Path: (%s)",
+        strCMPIStatus (rc));
     if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
     {
         return 1;
@@ -2443,7 +2457,8 @@ static int _testCMPIObjectPath ()
     }
 
     CMGetKeyAt(objPath, 0, NULL, &rc);
-    PROV_LOG ("++++  ObjectPath getKeyAt Error Path : (%s)", strCMPIStatus (rc));
+    PROV_LOG ("++++  ObjectPath getKeyAt Error Path : (%s)",
+        strCMPIStatus (rc));
     if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
     {
         return 1;
@@ -2457,7 +2472,8 @@ static int _testCMPIObjectPath ()
     }
 
     rc = objPath->ft->release(objPath);
-    PROV_LOG ("++++   ObjectPath Release Error Path : (%s)", strCMPIStatus (rc));
+    PROV_LOG ("++++   ObjectPath Release Error Path : (%s)",
+        strCMPIStatus (rc));
     if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
     {
         return 1;
@@ -3051,6 +3067,15 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
   CMPIUint32 oper_rc = 1;
   char *result = NULL;
 
+   // This dummy method, which tests InvokeMethod UP call.
+
+  if (strncmp ("testReturn", methodName, strlen ("testReturn")) == 0)
+  {
+      oper_rc = 2;
+      CMReturnData (rslt, (CMPIValue *) & oper_rc, CMPI_uint32);
+      CMReturnDone (rslt);
+      return rc;
+  }
 
   PROV_LOG_OPEN (_ClassName, _ProviderLocation);
 
@@ -3100,7 +3125,8 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
           // Parse the CMPIArgs in to figure out which operation it is.
           // There are six of them:
           //   ValueMap { "1", "2", "3", "4", "5", "6", "7"},
-          //        Values {"CDGetType", "CDToString", "CDIsOfType", "CMGetMessage",  "CMLogMessage","CDTraceMessage","CMGetMessage2"}]
+          //   Values {"CDGetType", "CDToString", "CDIsOfType", "CMGetMessage",
+          //           "CMLogMessage","CDTraceMessage","CMGetMessage2"}]
           //    uint32 Operation,
           //    [OUT]string Result);
           PROV_LOG ("++++ Calling CMGetArg");
@@ -3192,7 +3218,8 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
               CMReturnData (rslt, (CMPIValue *) & oper_rc, CMPI_uint32);
               CMReturnDone (rslt);
 
-              // Return the string value value via putting it on the out parameter.
+              // Return the string value value via putting it on the out
+              // parameter.
               PROV_LOG ("++++ Calling CMAddArg");
               rc = CMAddArg (out, "Result", (CMPIValue *) result, CMPI_chars);
               PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
@@ -3240,7 +3267,8 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
           CMReturnData (rslt, (CMPIValue *) & instance, CMPI_instance);
           CMReturnDone (rslt);
         }
-      else if (strncmp("returnDateTime", methodName, strlen("returnDateTime")) == 0)
+      else if (
+          strncmp("returnDateTime", methodName, strlen("returnDateTime")) == 0)
         {
           CMPIUint64 ret_val = 0;
           CMPIStatus rc={CMPI_RC_OK, NULL};
@@ -3287,25 +3315,29 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
         CMReturnDone (rslt);
         paramInst->ft->release(paramInst);
     }
-    else if (strncmp("testArrayTypes", methodName, strlen ("testArrayTypes"))== 0)
+    else if (
+        strncmp("testArrayTypes", methodName, strlen ("testArrayTypes"))== 0)
     {
         oper_rc = _testArrayTypes();
         CMReturnData (rslt, (CMPIValue *) &oper_rc, CMPI_uint32);
         CMReturnDone (rslt);
     }
-    else if (strncmp("testErrorPaths", methodName, strlen ("testErrorPaths"))== 0)
+    else if (
+        strncmp("testErrorPaths", methodName, strlen ("testErrorPaths")) == 0)
     {
         oper_rc = _testErrorPaths();
         CMReturnData (rslt, (CMPIValue *) &oper_rc, CMPI_uint32);
         CMReturnDone (rslt);
     }
-    else if (strncmp("testSimpleTypes", methodName, strlen ("testSimpleTypes"))== 0)
+    else if (
+        strncmp("testSimpleTypes", methodName, strlen ("testSimpleTypes")) == 0)
     {
         oper_rc = _testSimpleTypes();
         CMReturnData (rslt, (CMPIValue *) &oper_rc, CMPI_uint32);
         CMReturnDone (rslt);
     }
-    else if (strncmp("testArrayClone", methodName, strlen ("testArrayClone"))== 0)
+    else if (
+        strncmp("testArrayClone", methodName, strlen ("testArrayClone")) == 0 )
     {
         oper_rc = _testArrayClone(ctx);
         CMReturnData (rslt, (CMPIValue *) &oper_rc, CMPI_uint32);

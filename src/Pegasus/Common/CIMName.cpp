@@ -48,16 +48,52 @@ PEGASUS_NAMESPACE_BEGIN
 # include "ArrayImpl.h"
 #undef PEGASUS_ARRAY_T
 
+
+/**
+    Checks if a given character string consists of ASCII only and
+    legal characters for a CIMName (i.e. letter, numbers and underscore)
+    The first character has to be a letter or underscore
+    @param str character string to be checked
+    @return  0 in case non-legal ASCII character was found
+            >0 length of the character string str
+*/
+static Uint32 _legalASCII(const char* str)
+{
+    const Uint8* p = (const Uint8*)str;
+
+    if (!CharSet::isAlphaUnder(*p++))
+        return 0;
+
+    while (*p)
+    {
+        if (!CharSet::isAlNumUnder(*p++))
+            return 0;
+    }
+
+    return (char*)p - str;
+}
+
 CIMName::CIMName(const String& name) : cimName(name)
 {
     if (!legal(name))
         throw InvalidNameException(name);
 }
 
-CIMName::CIMName(const char* name) : cimName(name)
+CIMName::CIMName(const char* name)
 {
-    if (!legal(name))
-        throw InvalidNameException(name);
+    Uint32 size = _legalASCII(name);
+
+    if (size == 0)
+    {
+        cimName.assign(name);
+
+        if (!legal(cimName))
+            throw InvalidNameException(name);        
+    }
+    else
+    {
+        AssignASCII(cimName, name, size);
+    }
 }
 
 CIMName& CIMName::operator=(const String& name)
@@ -71,10 +107,21 @@ CIMName& CIMName::operator=(const String& name)
 
 CIMName& CIMName::operator=(const char* name)
 {
-    if (!legal(name))
-        throw InvalidNameException(name);
+    Uint32 size = _legalASCII(name);
 
-    cimName = name;
+    if (size == 0)
+    {
+        String tmp(name);
+
+        if (!legal(tmp))
+            throw InvalidNameException(name);
+        
+        cimName.assign(tmp);
+    }
+    else
+    {
+        AssignASCII(cimName, name, size);
+    }
     return *this;
 }
 

@@ -294,6 +294,8 @@ PEGASUS_STRING_INLINE String operator+(const char* s1, const String& s2)
 }
 #endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
 
+PEGASUS_COMMON_LINKAGE void AssignASCII(String& s, const char* str, Uint32 n);
+
 PEGASUS_NAMESPACE_END
 
 #endif /* _Pegasus_StringInline_h */

@@ -1319,6 +1319,38 @@ void StringAppendCharAux(StringRep*& _rep)
     _rep = tmp;
 }
 
+/**
+    Fast way to assign a given character string consisting of ASCII only and
+    legal characters for a CIMName (i.e. letter, numbers and underscore)
+    to a String reference.
+    
+    @param s reference to the String object which will be changed
+    @param str character string
+    @param n number of characters which shall be assigned from str to s
+*/
+void AssignASCII(String& s, const char* str, Uint32 n)
+{
+    class StringLayout
+    {
+    public:
+        StringRep* rep;
+    };
+
+    StringLayout* that = (StringLayout*)&s;
+
+    _checkNullPointer(str);
+
+    if (n > that->rep->cap || that->rep->refs.get() != 1)
+    {
+        StringRep::unref(that->rep);
+        that->rep = StringRep::alloc(n);
+    }
+
+    _copy(that->rep->data, str, n);
+    that->rep->size = n;
+    that->rep->data[that->rep->size] = 0;
+}
+
 PEGASUS_NAMESPACE_END
 
 /*

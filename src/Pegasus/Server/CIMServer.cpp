@@ -707,9 +707,7 @@ void CIMServer::runForever()
 # endif // PEGASUS_SLP_REG_TIMEOUT
 #endif // PEGASUS_ENABLE_SLP
 
-printf("%s(%d): BEFORE MONITOR RUN\n", __FILE__, __LINE__);
         _monitor->run(50000);
-printf("%s(%d): BEFORE MONITOR RUN\n", __FILE__, __LINE__);
 
         static struct timeval lastIdleCleanupTime = {0, 0};
         Time::gettimeofday(&now);

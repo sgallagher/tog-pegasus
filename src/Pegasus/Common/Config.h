@@ -305,5 +305,7 @@ PEGASUS_NAMESPACE_END
 # define PEGASUS_FORMAT(A1, A2) /* not implemented */
 #endif
 
+#define PEGTRACE \
+    printf("PEGTRACE: %s(%d): %s\n", __FILE__, __LINE__, __FUNCTION__)
 
 #endif  /* Pegasus_Config_h */

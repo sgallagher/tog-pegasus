@@ -56,6 +56,9 @@
 
 #define PEGASUS_VXWORKS_USER "vxworks"
 
+#define VXWORKS_TRACE \
+    printf("VXWORKS_TRACE: %s(%d): %s\n", __FILE__, __LINE__, __FUNCTION__)
+
 #ifndef _GNU_SOURCE
 # define _GNU_SOURCE
 #endif
@@ -183,8 +186,19 @@ inline int gettimeofday(struct timeval *tv, struct timezone *tz)
 
     if (tz != NULL)
     {
-        tz->tz_minuteswest = 0;
-        tz->tz_dsttime = 0;
+        struct tm tm;
+        time_t t;
+
+        if (localtime_r(&t, &tm) == 0)
+        {
+            tz->tz_minuteswest = 0;
+            tz->tz_dsttime = tm.tm_isdst;
+        }
+        else
+        {
+            tz->tz_minuteswest = 0;
+            tz->tz_dsttime = 0;
+        }
     }
 
     return 0;

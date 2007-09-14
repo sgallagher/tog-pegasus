@@ -438,6 +438,11 @@ int main(int argc, char** argv)
     // Set Message loading to process locale
     MessageLoader::_useProcessLocale = true;
 
+#if defined(PEGASUS_OS_VXWORKS)
+    // On VxWorks, run cimserver from /romfs (read-only file system).
+    chdir("/romfs");
+#endif
+
 #ifdef PEGASUS_OS_ZOS
     // Direct standard input to /dev/null,
     close(STDIN_FILENO);

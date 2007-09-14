@@ -5939,7 +5939,7 @@ CIM server listening on HTTPS port {0}."}
         *    Substitution {0} is the name of the provider
         *    Substitution {1} is another message string
 	*/
-	ProviderManager.CMPI.CMPIProvider.CANNOT_INIT_API:string {"PGS16503: Error initializing {0} the following API(s): {1}."}
+	ProviderManager.CMPI.CMPIProvider.CANNOT_INIT_API:string {"PGS16503: Error initializing CMPI MI {0}, the following MI factory function(s) returned an error: {1}"}
 
 	/**
 	* @note PGS16504
@@ -6002,6 +6002,15 @@ CIM server listening on HTTPS port {0}."}
         *    Substitution {1} is the name of the method
         */
         ProviderManager.CMPI.CMPIProviderManager.PARAMETER_NOT_FOUND.string {"PGS16513: Parameter {0} not found in definition for method {1}."}
+
+        /**
+        * @note PGS16514
+        *    Substitution {0} is the CMPI MI name/type
+        *    Substitution {1} is the message from the CmpiStatus
+        *    Also note that this message does not have a message prefix, this
+        *    message will be imbedded as part of message PGS16503.
+        */
+	ProviderManager.CMPI.CMPIProvider.MESSAGE_WAS:string {"{0}, message was: {1}"}
 
         // ==========================================================
         // Messages for EmailListenerDestination

@@ -112,21 +112,39 @@ void setError(
     String &error,
     const String &realProviderName,
     const char *generic,
-    const char *spec)
+    const char *spec,
+    const CMPIString *optMsg)
 {
     PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPIProvider:setError()");
     if (error.size() > 0)
     {
-        error.append(", ");
+        error.append("; ");
     }
+
+    String MItype;
     if (miVector.genericMode)
     {
-        error.append(generic);
+        MItype.append(generic);
     }
     else
     {
-        error.append(realProviderName);
-        error.append(spec);
+        MItype.append(realProviderName);
+        MItype.append(spec);
+    }
+
+    if (CMGetCharsPtr(optMsg,NULL))
+    {
+        MessageLoaderParms mlp(
+            "ProviderManager.CMPI.CMPIProvider.MESSAGE_WAS",
+            "$0, message was: $1",
+            MItype,
+            CMGetCharsPtr(optMsg,NULL));
+
+        error.append(MessageLoader::getMessage(mlp));
+    }
+    else
+    {
+        error.append(MItype);
     }
     PEG_METHOD_EXIT();
 }
@@ -207,7 +225,8 @@ void CMPIProvider::initialize(
         if (miVector.instMI == NULL || rcInst.rc != CMPI_RC_OK)
         {
             setError(miVector, error, realProviderName,
-                _Generic_Create_InstanceMI, _Create_InstanceMI);
+                _Generic_Create_InstanceMI, _Create_InstanceMI,
+                rcInst.msg);
         }
     }
     if (miVector.miTypes & CMPI_MIType_Association)
@@ -215,7 +234,8 @@ void CMPIProvider::initialize(
         if (miVector.assocMI == NULL || rcAssoc.rc != CMPI_RC_OK)
         {
             setError(miVector, error, realProviderName,
-                _Generic_Create_AssociationMI, _Create_AssociationMI);
+                _Generic_Create_AssociationMI, _Create_AssociationMI,
+                rcAssoc.msg);
         }
     }
     if (miVector.miTypes & CMPI_MIType_Method)
@@ -223,7 +243,8 @@ void CMPIProvider::initialize(
         if (miVector.methMI == NULL || rcMeth.rc != CMPI_RC_OK)
         {
             setError(miVector, error, realProviderName,
-                _Generic_Create_MethodMI, _Create_MethodMI);
+                _Generic_Create_MethodMI, _Create_MethodMI,
+                rcMeth.msg);
         }
     }
     if (miVector.miTypes & CMPI_MIType_Property)
@@ -231,7 +252,8 @@ void CMPIProvider::initialize(
         if (miVector.propMI == NULL || rcProp.rc != CMPI_RC_OK)
         {
             setError(miVector, error, realProviderName,
-                _Generic_Create_PropertyMI, _Create_PropertyMI);
+                _Generic_Create_PropertyMI, _Create_PropertyMI,
+                rcProp.msg);
         }
     }
     if (miVector.miTypes & CMPI_MIType_Indication)
@@ -239,7 +261,8 @@ void CMPIProvider::initialize(
         if (miVector.indMI == NULL || rcInd.rc != CMPI_RC_OK)
         {
             setError(miVector, error, realProviderName,
-                _Generic_Create_IndicationMI, _Create_IndicationMI);
+                _Generic_Create_IndicationMI, _Create_IndicationMI,
+                rcInd.msg);
         }
     }
 
@@ -247,8 +270,8 @@ void CMPIProvider::initialize(
     {
         throw Exception(MessageLoaderParms(
             "ProviderManager.CMPI.CMPIProvider.CANNOT_INIT_API",
-            "ProviderInitFailure: Error initializing $0 the following "
-            "API(s): $1",
+            "Error initializing CMPI MI $0, "
+            "the following MI factory function(s) returned an error: $1",
             realProviderName,
             error));
     }

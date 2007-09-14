@@ -3442,6 +3442,10 @@ CMPIInstanceMI *CMInstanceMIFactory(chars cn, chars pn);
             provider = 0; \
             rc->rc = lrc.rc(); \
             rc->msg = NULL; \
+            if (lrc.msg ()) \
+            { \
+               rc->msg = CMNewString (broker, lrc.msg (), NULL); \
+            } \
             return NULL; \
          } \
      } \
@@ -3512,6 +3516,10 @@ CMPIAssociationMI *CMAssociationMIFactory(chars cn, chars pn);
             provider = 0; \
             rc->rc = lrc.rc(); \
             rc->msg = NULL; \
+            if (lrc.msg ()) \
+            { \
+               rc->msg = CMNewString (broker, lrc.msg (), NULL); \
+            } \
             return NULL; \
          } \
      } \
@@ -3579,6 +3587,10 @@ CMPIMethodMI *CMMethodMIFactory(chars cn, chars pn);
             provider = 0; \
             rc->rc = lrc.rc(); \
             rc->msg = NULL; \
+            if (lrc.msg ()) \
+            { \
+               rc->msg = CMNewString (broker, lrc.msg (), NULL); \
+            } \
             return NULL; \
          } \
      } \
@@ -3647,6 +3659,10 @@ CMPIPropertyMI *CMPropertyMIFactory(chars cn, chars pn):
             provider = 0; \
             rc->rc = lrc.rc(); \
             rc->msg = NULL; \
+            if (lrc.msg ()) \
+            { \
+               rc->msg = CMNewString (broker, lrc.msg (), NULL); \
+            } \
             return NULL; \
          } \
      } \
@@ -3728,6 +3744,10 @@ CMPIIndicationMI *CMIndicationMIFactory(chars cn, chars pn);
             provider = 0; \
             rc->rc = lrc.rc(); \
             rc->msg = NULL; \
+            if (lrc.msg ()) \
+            { \
+               rc->msg = CMNewString (broker, lrc.msg (), NULL); \
+            } \
             return NULL; \
          } \
      } \

@@ -91,7 +91,7 @@ CIMHandler* HandlerTable::_loadHandler(const String& handlerId)
     String provDir =
         ConfigManager::getInstance()->getCurrentValue("providerDir");
     String fileName = ConfigManager::getHomedPath(provDir) + "/" + 
-        FileSystem::buildLibraryFileName(handlerId) + ".exe";
+        FileSystem::buildLibraryFileName(handlerId);
 #else
     String fileName = ConfigManager::getHomedPath((PEGASUS_DEST_LIB_DIR) +
         String("/") + FileSystem::buildLibraryFileName(handlerId));

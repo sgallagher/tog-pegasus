@@ -47,12 +47,7 @@ ProviderManager::~ProviderManager()
 
 String ProviderManager::_resolvePhysicalName(String physicalName)
 {
-#if defined(PEGASUS_OS_VMS)
-    String fileName =
-        FileSystem::buildLibraryFileName(physicalName) + String(".exe");
-#else
     String fileName = FileSystem::buildLibraryFileName(physicalName);
-#endif
     fileName = FileSystem::getAbsoluteFileName(
         ConfigManager::getHomedPath(
             ConfigManager::getInstance()->getCurrentValue("providerDir")),

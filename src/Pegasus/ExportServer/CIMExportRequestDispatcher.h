@@ -69,6 +69,9 @@ protected:
 
 private:
 
+    static ThreadReturnType PEGASUS_THREAD_CDECL _handleEnqueueOnThread(
+        void* arg);
+
     CIMExportIndicationResponseMessage* _handleExportIndicationRequest(
         CIMExportIndicationRequestMessage* request);
 };

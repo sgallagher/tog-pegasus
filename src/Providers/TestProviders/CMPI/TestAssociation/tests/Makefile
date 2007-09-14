@@ -63,6 +63,7 @@ poststarttests:
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
 	@$(ECHO)  Testing with remote namespace 
 	$(PROGRAM) test/Remote/Localhost
+	@$(RM) $(LOGFILES).log
 else
 	@$(ECHO) "+++++ PEGASUS_ENABLE_REMOTE_CMPI is NOT defined: Skipping remote CMPI tests"
 endif

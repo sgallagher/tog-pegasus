@@ -142,6 +142,11 @@ SAMPLES_DIRS = \
    Providers/CMPI/FilesAndDirectories \
    Providers/CMPI/CWS_Util \
    Providers/Load \
+   Providers/Load/$(PEGASUS_CIM_SCHEMA) \
+   Providers/Load/$(PEGASUS_CIM_SCHEMA)/DMTF \
+   Providers/Load/$(PEGASUS_CIM_SCHEMA)/DMTF/Core \
+   Providers/Load/$(PEGASUS_CIM_SCHEMA)/DMTF/Event \
+   Providers/Load/$(PEGASUS_CIM_SCHEMA)/DMTF/System \
    mak
 
 DOCSRCPATH1FILES = \
@@ -165,9 +170,23 @@ CLIENTSRCPATH1FILES = \
    Clients/DefaultC++/SendTestIndications/SendTestIndications.cpp \
    Clients/DefaultC++/Associations/AssociationTestClient.cpp
 
+CIMMOFFILES = \
+   DMTF/qualifiers.mof \
+   DMTF/qualifiers_optional.mof \
+   DMTF/Core/CIM_ManagedElement.mof \
+   DMTF/Core/CIM_ManagedSystemElement.mof \
+   DMTF/Core/CIM_LogicalElement.mof \
+   DMTF/Core/CIM_Component.mof \
+   DMTF/Event/CIM_Indication.mof \
+   DMTF/System/CIM_LogicalFile.mof \
+   DMTF/System/CIM_DataFile.mof \
+   DMTF/System/CIM_DirectoryContainsFile.mof \
+   DMTF/System/CIM_Directory.mof
+
 PROVIDERSRCPATH1FILES = \
    Makefile \
    Load/Makefile \
+   Load/SDK_CIM_Schema.mof \
    Load/SampleProviderSchema.mof \
    Load/IndicationProviderR.mof \
    Load/InstanceProviderR.mof \
@@ -338,7 +357,7 @@ createSDKEnvVarFile:
 	@$(ECHO) "ifndef PEGASUS_CIM_SCHEMA_DIR" \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/SDKEnvVar.mak
 	@$(ECHO) "   PEGASUS_CIM_SCHEMA_DIR =" \
-            "$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)" \
+            "$(PEGASUS_CIM_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)" \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/SDKEnvVar.mak
 	@$(ECHO) "   CIM_SCHEMA_VER = " \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/SDKEnvVar.mak
@@ -375,6 +394,8 @@ stageSAMPLES:
             $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/$(i)$(NL))
 	@$(foreach i, $(CLIENTSRCPATH1FILES), $(COPY) $(CLIENT_SRCPATH1)/$(i) \
             $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/$(i)$(NL))
+	@$(foreach i, $(CIMMOFFILES), $(COPY) $(CIM_SCHEMA_DIR)/$(i) \
+            $(PEGASUS_STAGING_DIR)$(PEGASUS_CIM_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/$(i)$(NL))
 	@$(foreach i, $(PROVIDERSRCPATH1FILES), $(COPY) $(PROVIDER_SRCPATH1)/$(i) \
             $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/$(i)$(NL))
 	@$(COPY) $(CLIENT_SRCPATH1)/mak/$(PEGASUS_PLATFORM).mak \
@@ -431,7 +452,7 @@ buildSDK:
             PEGASUS_INDICATION_CONSUMER_LOG_DIR= $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/SimpleDisplayConsumer
 	@$(MAKE) --directory=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/Load \
             -f Makefile createrepository \
-            PEGASUS_MOF_DIR=$(PEGASUS_ROOT)/Schemas \
+            PEGASUS_CIM_MOF_DIR=$(PEGASUS_ROOT)/Schemas \
             PEGASUS_BIN_DIR=$(PEGASUS_HOME)/bin
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile  -i \
             registerproviders PEGASUS_BIN_DIR=$(PEGASUS_HOME)/bin

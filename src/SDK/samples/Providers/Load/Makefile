@@ -40,26 +40,10 @@ SAMPLECMPIPROVIDERNS=SDKExamples/CMPI
 
 createCXXrepository:
 	@$(ECHO) "+++++ Creating $(SAMPLECXXPROVIDERNS) namespace ..."
-	@$(ECHO) "+++++ Loading CIM_Core$(CIM_SCHEMA_VER) into" \
+	@$(ECHO) "+++++ Loading SDK_CIM_Schema.mof into" \
             "$(SAMPLECXXPROVIDERNS) namespace ..."
 	@$(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_CIM_SCHEMA_DIR) \
-            -n$(SAMPLECXXPROVIDERNS) \
-            $(PEGASUS_CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) "+++++ Loading CIM_Physical$(CIM_SCHEMA_VER) into" \
-            "$(SAMPLECXXPROVIDERNS) namespace ..."
-	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_CIM_SCHEMA_DIR) \
-            -n$(SAMPLECXXPROVIDERNS) \
-            $(PEGASUS_CIM_SCHEMA_DIR)/CIM_Physical$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) "+++++ Loading CIM_System$(CIM_SCHEMA_VER) into" \
-            "$(SAMPLECXXPROVIDERNS) namespace ..."
-	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_CIM_SCHEMA_DIR) \
-            -n$(SAMPLECXXPROVIDERNS) \
-            $(PEGASUS_CIM_SCHEMA_DIR)/CIM_System$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) "+++++ Loading CIM_Event$(CIM_SCHEMA_VER) into" \
-            "$(SAMPLECXXPROVIDERNS) namespace ..."
-	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_CIM_SCHEMA_DIR) \
-            -n$(SAMPLECXXPROVIDERNS) \
-            $(PEGASUS_CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
+            -n$(SAMPLECXXPROVIDERNS) SDK_CIM_Schema.mof
 	@ $(ECHO) "+++++ Loading class definitions into " \
             "$(SAMPLECXXPROVIDERNS) namespace ..."
 	@ $(PEGASUS_BIN_DIR)/cimmof -n$(SAMPLECXXPROVIDERNS) \
@@ -67,26 +51,10 @@ createCXXrepository:
 
 createCMPIrepository:
 	@$(ECHO) "+++++ Creating $(SAMPLECMPIPROVIDERNS) namespace ..."
-	@$(ECHO) "+++++ Loading CIM_Core$(CIM_SCHEMA_VER) into" \
+	@$(ECHO) "+++++ Loading SDK_CIM_Schema.mof into" \
             "$(SAMPLECMPIPROVIDERNS) namespace ..."
 	@$(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_CIM_SCHEMA_DIR) \
-            -n$(SAMPLECMPIPROVIDERNS) \
-            $(PEGASUS_CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) "+++++ Loading CIM_Physical$(CIM_SCHEMA_VER) into" \
-            "$(SAMPLECMPIPROVIDERNS) namespace ..."
-	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_CIM_SCHEMA_DIR) \
-            -n$(SAMPLECMPIPROVIDERNS) \
-            $(PEGASUS_CIM_SCHEMA_DIR)/CIM_Physical$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) "+++++ Loading CIM_System$(CIM_SCHEMA_VER) into" \
-            "$(SAMPLECMPIPROVIDERNS) namespace ..."
-	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_CIM_SCHEMA_DIR) \
-            -n$(SAMPLECMPIPROVIDERNS) \
-            $(PEGASUS_CIM_SCHEMA_DIR)/CIM_System$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) "+++++ Loading CIM_Event$(CIM_SCHEMA_VER) into" \
-            "$(SAMPLECMPIPROVIDERNS) namespace ..."
-	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_CIM_SCHEMA_DIR) \
-            -n$(SAMPLECMPIPROVIDERNS) \
-            $(PEGASUS_CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
+            -n$(SAMPLECMPIPROVIDERNS) SDK_CIM_Schema.mof
 	@ $(PEGASUS_BIN_DIR)/cimmof -n$(SAMPLECMPIPROVIDERNS) CWS_FilesAndDir.mof
 
 createrepository: createCXXrepository createCMPIrepository

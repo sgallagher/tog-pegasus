@@ -187,8 +187,7 @@ PEGASUS_USER_CMDS = \
    wbemexec
 
 PEGASUS_GENERATED_SCRIPTS = \
-   genOpenPegasusSSLCerts \
-   init_repository
+   genOpenPegasusSSLCerts
 
 ifeq ($(OS),linux)
    PEGASUS_CVS_SCRIPTS += \
@@ -224,237 +223,6 @@ PEGASUS_DOC_FILES = \
    Admin_Guide_Release.pdf \
    PegasusSSLGuidelines.htm \
    license.txt
-
-CIM29_MOF_FILES = \
-   Application_AppRuntime.mof \
-   Application_BIOS.mof \
-   Application_CheckAction.mof \
-   Application_DeploymentModel.mof \
-   Application_InstalledProduct.mof \
-   Application_J2eeAppServer.mof \
-   Application_J2eeAppServerStats.mof \
-   Application_SystemSoftware.mof \
-   CIM_Application.mof \
-   CIM_Core.mof \
-   CIM_Database.mof \
-   CIM_Device.mof \
-   CIM_Event.mof \
-   CIM_IPsecPolicy.mof \
-   CIM_Interop.mof \
-   CIM_Metrics.mof \
-   CIM_Network.mof \
-   CIM_Physical.mof \
-   CIM_Policy.mof \
-   CIM_Schema.mof \
-   CIM_Support.mof \
-   CIM_System.mof \
-   CIM_User.mof \
-   Core_Capabilities.mof \
-   Core_Collection.mof \
-   Core_CoreElements.mof \
-   Core_Device.mof \
-   Core_MethodParms.mof \
-   Core_Physical.mof \
-   Core_PowerMgmt.mof \
-   Core_ProductFRU.mof \
-   Core_Qualifiers.mof \
-   Core_Redundancy.mof \
-   Core_Service.mof \
-   Core_Settings.mof \
-   Core_Software.mof \
-   Core_Statistics.mof \
-   Core_StorageExtent.mof \
-   Database_Statistics.mof \
-   Database_Storage.mof \
-   Database_System.mof \
-   Device_Controller.mof \
-   Device_CoolingAndPower.mof \
-   Device_DeviceElements.mof \
-   Device_DiskGroup.mof \
-   Device_FC.mof \
-   Device_IB.mof \
-   Device_Memory.mof \
-   Device_Modems.mof \
-   Device_NetworkAdapter.mof \
-   Device_Ports.mof \
-   Device_Printing.mof \
-   Device_Processor.mof \
-   Device_ProtocolController.mof \
-   Device_SccExtents.mof \
-   Device_Sensors.mof \
-   Device_StorageDevices.mof \
-   Device_StorageExtents.mof \
-   Device_StorageLib.mof \
-   Device_StorageServices.mof \
-   Device_USB.mof \
-   Device_UserDevices.mof \
-   Metrics_BaseMetric.mof \
-   Metrics_UnitOfWork.mof \
-   Network_BGP.mof \
-   Network_Buffers.mof \
-   Network_Collections.mof \
-   Network_Filtering.mof \
-   Network_IPsec.mof \
-   Network_OSPF.mof \
-   Network_Pipes.mof \
-   Network_ProtocolEndpoints.mof \
-   Network_QoS.mof \
-   Network_Routes.mof \
-   Network_RoutingForwarding.mof \
-   Network_SNMP.mof \
-   Network_SwitchingBridging.mof \
-   Network_Systems.mof \
-   Network_VLAN.mof \
-   Physical_Component.mof \
-   Physical_Connector.mof \
-   Physical_Link.mof \
-   Physical_Misc.mof \
-   Physical_Package.mof \
-   Physical_PhysicalMedia.mof \
-   Physical_StoragePackage.mof \
-   System_Boot.mof \
-   System_Diagnostics.mof \
-   System_FileElements.mof \
-   System_Help.mof \
-   System_Logs.mof \
-   System_OperatingSystem.mof \
-   System_Processing.mof \
-   System_SystemElements.mof \
-   System_SystemResources.mof \
-   System_Time.mof \
-   System_Unix.mof \
-   User_AccessControl.mof \
-   User_Account.mof \
-   User_AuthenticationReqmt.mof \
-   User_Credential.mof \
-   User_Group.mof \
-   User_Identity.mof \
-   User_Kerberos.mof \
-   User_Org.mof \
-   User_Privilege.mof \
-   User_PrivilegeManagementService.mof \
-   User_PublicKey.mof \
-   User_Role.mof \
-   User_SecurityLevel.mof \
-   User_SecurityServices.mof \
-   User_SharedSecret.mof \
-   User_StorageHardwareID.mof \
-   User_UsersAccess.mof
-
-CIM28_MOF_FILES = \
-   Application28_AppRuntime.mof \
-   Application28_BIOS.mof \
-   Application28_CheckAction.mof \
-   Application28_DeploymentModel.mof \
-   Application28_InstalledProduct.mof \
-   Application28_J2eeAppServer.mof \
-   Application28_J2eeAppServerStats.mof \
-   Application28_SystemSoftware.mof \
-   CIM_Application28.mof \
-   CIM_Core28.mof \
-   CIM_Database28.mof \
-   CIM_Device28.mof \
-   CIM_Event28.mof \
-   CIM_Interop28.mof \
-   CIM_IPsecPolicy28.mof \
-   CIM_Metrics28.mof \
-   CIM_Network28.mof \
-   CIM_Physical28.mof \
-   CIM_Policy28.mof \
-   CIM_Schema28.mof \
-   CIM_Support28.mof \
-   CIM_System28.mof \
-   CIM_User28.mof \
-   Core28_Capabilities.mof \
-   Core28_Collection.mof \
-   Core28_CoreElements.mof \
-   Core28_Device.mof \
-   Core28_MethodParms.mof \
-   Core28_Physical.mof \
-   Core28_PowerMgmt.mof \
-   Core28_ProductFRU.mof \
-   Core28_Qualifiers.mof \
-   Core28_Redundancy.mof \
-   Core28_Service.mof \
-   Core28_Settings.mof \
-   Core28_Software.mof \
-   Core28_Statistics.mof \
-   Core28_StorageExtent.mof \
-   Database28_Statistics.mof \
-   Database28_Storage.mof \
-   Database28_System.mof \
-   Device28_Controller.mof \
-   Device28_CoolingAndPower.mof \
-   Device28_DeviceElements.mof \
-   Device28_DiskGroup.mof \
-   Device28_FC.mof \
-   Device28_IB.mof \
-   Device28_Memory.mof \
-   Device28_Modems.mof \
-   Device28_NetworkAdapter.mof \
-   Device28_Ports.mof \
-   Device28_Printing.mof \
-   Device28_Processor.mof \
-   Device28_ProtocolController.mof \
-   Device28_SccExtents.mof \
-   Device28_Sensors.mof \
-   Device28_StorageDevices.mof \
-   Device28_StorageExtents.mof \
-   Device28_StorageLib.mof \
-   Device28_StorageServices.mof \
-   Device28_USB.mof \
-   Device28_UserDevices.mof \
-   Metrics28_BaseMetric.mof \
-   Metrics28_UnitOfWork.mof \
-   Network28_BGP.mof \
-   Network28_Buffers.mof \
-   Network28_Collections.mof \
-   Network28_Filtering.mof \
-   Network28_IPsec.mof \
-   Network28_OSPF.mof \
-   Network28_Pipes.mof \
-   Network28_ProtocolEndpoints.mof \
-   Network28_QoS.mof \
-   Network28_Routes.mof \
-   Network28_RoutingForwarding.mof \
-   Network28_SNMP.mof \
-   Network28_SwitchingBridging.mof \
-   Network28_Systems.mof \
-   Network28_VLAN.mof \
-   Physical28_Component.mof \
-   Physical28_Connector.mof \
-   Physical28_Link.mof \
-   Physical28_Misc.mof \
-   Physical28_Package.mof \
-   Physical28_PhysicalMedia.mof \
-   Physical28_StoragePackage.mof \
-   System28_Boot.mof \
-   System28_Diagnostics.mof \
-   System28_FileElements.mof \
-   System28_Logs.mof \
-   System28_OperatingSystem.mof \
-   System28_Processing.mof \
-   System28_SystemElements.mof \
-   System28_SystemResources.mof \
-   System28_Time.mof \
-   System28_Unix.mof \
-   User28_AccessControl.mof \
-   User28_Account.mof \
-   User28_AuthenticationReqmt.mof \
-   User28_Credential.mof \
-   User28_Group.mof \
-   User28_Identity.mof \
-   User28_Kerberos.mof \
-   User28_Org.mof \
-   User28_PrivilegeManagementService.mof \
-   User28_Privilege.mof \
-   User28_PublicKey.mof \
-   User28_Role.mof \
-   User28_SecurityLevel.mof \
-   User28_SecurityServices.mof \
-   User28_SharedSecret.mof \
-   User28_StorageHardwareID.mof \
-   User28_UsersAccess.mof
 
 INTERNAL_MOF_FILES = \
    PG_Authorization20.mof \
@@ -537,18 +305,10 @@ setpermissions_PegasusProviderLibraryDirectoryFiles: FORCE
 stage_PegasusAdminCmdsDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_ADMIN_CMDS), $(COPY) $(PEGASUS_HOME)/bin/$(i)$(EXE) $(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i)$(EXE);)
 	$(foreach i, $(PEGASUS_CVS_SCRIPTS), $(COPY) $(PEGASUS_ROOT)/installs/scripts/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/$(i);)
-	@$(RM) $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/init_repository
-	@$(ECHO-E) "PEGASUS_MOF_DIR=$(PEGASUS_MOF_DIR)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/init_repository
-	@$(ECHO-E) "PEGASUS_CIMXX_MOF_DIR=$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/init_repository
-	@$(ECHO-E) "PEGASUS_REPOSITORY_DIR=$(PEGASUS_REPOSITORY_DIR)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/init_repository
-	@$(ECHO-E) "PEGASUS_BIN_DIR=$(PEGASUS_BIN_DIR)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/init_repository
-	@$(ECHO-E) "PEGASUS_CIM_SCHEMA=$(PEGASUS_CIM_SCHEMA_VERSION)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/init_repository
-	@$(CAT) $(PEGASUS_ROOT)/installs/scripts/init_repository >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/init_repository
 
 setpermissions_PegasusAdminCmdsDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_ADMIN_CMDS), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr_xr__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i)$(EXE);)
 	$(foreach i, $(PEGASUS_SCRIPT_FILES), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr_xr__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/$(i);)
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prwxr__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)/init_repository
 
 stage_PegasusUserCmdsDirectoryFiles: FORCE
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)
@@ -593,23 +353,13 @@ stage_PegasusDocFiles: FORCE
 setpermissions_PegasusDocFiles: FORCE
 	$(foreach i, $(PEGASUS_DOC_FILES), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_DOC_DIR)/$(i);)
 
-copyCIMSchemaFiles: FORCE
-	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)
-	$(foreach i, $($(PEGASUS_CIM_SCHEMA)_MOF_FILES), $(COPY) $(ROOT)/Schemas/$(PEGASUS_CIM_SCHEMA)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/$(i);)
-	
-setpermissions_CIMSchemaFiles: FORCE
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)
-	$(foreach i, $($(PEGASUS_CIM_SCHEMA)_MOF_FILES), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/$(i);)
-	
 stage_PegasusMOFDirectoryFiles: FORCE
-	$(MAKE) --directory=$(ROOT)/Schemas -f $(ROOT)/Makefile.Release copyCIMSchemaFiles
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus
 	$(foreach i, $(INTERNAL_MOF_FILES), $(COPY) $(ROOT)/Schemas/Pegasus/Internal/VER20/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i);)
 	$(foreach i, $(INTEROP_MOF_FILES), $(COPY) $(ROOT)/Schemas/Pegasus/InterOp/VER20/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i);)
 	$(foreach i, $(MANAGEDSYSTEM_MOF_FILES), $(COPY) $(ROOT)/Schemas/Pegasus/ManagedSystem/VER20/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i);)
 
 setpermissions_PegasusMOFDirectoryFiles: FORCE
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_CIMSchemaFiles
 	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus
 	$(foreach i, $(INTERNAL_MOF_FILES), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i);)
 	$(foreach i, $(INTEROP_MOF_FILES), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i);)
@@ -1272,8 +1022,6 @@ _append_filesSectionToSpecFile: FORCE
 	@$(ECHO-E) "%dir %attr($(Prwxrwxrwt),$(INSTALL_USR),$(INSTALL_GRP))" \
              "$(PEGASUS_TRACE_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/*" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "$(PEGASUS_MOF_DIR)/Pegasus/*" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)

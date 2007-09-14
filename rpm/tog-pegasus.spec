@@ -442,7 +442,6 @@ fi
 %dir /usr/share/Pegasus
 %dir /usr/share/Pegasus/scripts
 %dir /usr/share/Pegasus/mof
-%dir /usr/share/Pegasus/mof/CIM29
 %dir /usr/share/Pegasus/mof/Pegasus
 %dir /var/lib/Pegasus
 %dir /var/lib/Pegasus/cache
@@ -456,7 +455,6 @@ fi
 %dir %attr(1755,cimsrvr,cimsrvr) /var/run/tog-pegasus/socket
 %dir %attr(1777,root,pegasus) /var/lib/Pegasus/cache/trace
 
-/usr/share/Pegasus/mof/CIM29/*
 /usr/share/Pegasus/mof/Pegasus/*
 
 %config %attr(750,root,pegasus) /etc/init.d/tog-pegasus

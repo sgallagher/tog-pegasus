@@ -631,7 +631,35 @@ Boolean System::isSystemUser(const char* userName)
 
 Boolean System::isPrivilegedUser(const String& userName)
 {
-#if !defined(PEGASUS_OS_VMS)
+#if defined(PEGASUS_OS_PASE)
+    CString user = userName.getCString();
+    // this function only can be found in PASE environment
+    return umeIsPrivilegedUser((const char *)user);
+    
+#elif defined(PEGASUS_OS_VMS)
+    static union prvdef old_priv_mask;
+    static union prvdef new_priv_mask;
+    char enbflg = 1; // 1 = enable
+    char prmflg = 0; // 0 = life time of image only.
+    int retStat;
+
+    old_priv_mask.prv$v_sysprv = false;    // SYSPRV privilege.
+    new_priv_mask.prv$v_sysprv = true;     // SYSPRV privilege.
+
+    retStat = sys$setprv(enbflg, &new_priv_mask, prmflg, &old_priv_mask);
+    if (!$VMS_STATUS_SUCCESS(retStat)) 
+    {
+        return false;
+    }
+
+    if (retStat == SS$_NOTALLPRIV) 
+    {
+        return false;
+    }
+
+    return true;
+    
+#else
     struct passwd   pwd;
     struct passwd   *result;
     const unsigned int PWD_BUFF_SIZE = 1024;
@@ -658,35 +686,7 @@ Boolean System::isPrivilegedUser(const String& userName)
         }
     }
     return false;
-
-#elif defined(PEGASUS_OS_PASE)
-    CString user = userName.getCString();
-    // this function only can be found in PASE environment
-    return umeIsPrivilegedUser((const char *)user);
-
-#else // PEGASUS_OS_VMS
-    static union prvdef old_priv_mask;
-    static union prvdef new_priv_mask;
-    char enbflg = 1; // 1 = enable
-    char prmflg = 0; // 0 = life time of image only.
-    int retStat;
-
-    old_priv_mask.prv$v_sysprv = false;    // SYSPRV privilege.
-    new_priv_mask.prv$v_sysprv = true;     // SYSPRV privilege.
-
-    retStat = sys$setprv(enbflg, &new_priv_mask, prmflg, &old_priv_mask);
-    if (!$VMS_STATUS_SUCCESS(retStat)) 
-    {
-        return false;
-    }
-
-    if (retStat == SS$_NOTALLPRIV) 
-    {
-        return false;
-    }
-
-    return true;
-#endif /* default */
+#endif
 }
 
 static String _priviledgedUserName;

@@ -383,6 +383,7 @@ inline void Tracer::setTraceComponents(const String& traceComponents)
 
 # define PEG_METHOD_ENTER(comp, meth) \
     TracerToken __tracerToken; \
+    __tracerToken.method = 0; \
     do \
     { \
         if (Tracer::isTraceOn()) \

@@ -665,7 +665,7 @@ void Tracer::traceExit(
     const char* file,
     size_t line)
 {
-    if (isTraceEnabled(token.component, LEVEL1))
+    if (isTraceEnabled(token.component, LEVEL1) && token.method)
         _traceMethod(
             file, (Uint32)line, token.component,
             _METHOD_EXIT_MSG, token.method);

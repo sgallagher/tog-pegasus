@@ -9,7 +9,8 @@ ROMFS=$(PEGASUS_HOME)/romfs
 romfs:
 	mkdir -p $(ROMFS)/lib
 	cp $(WIND_BASE)/target/usr/root/SIMPENTIUMgnu/bin/libc.so.1 $(ROMFS)/lib
-	cp -r $(PEGASUS_HOME)/repository $(PEGASUS_HOME)/romfs
+	cp -r $(PEGASUS_ROOT)/LINUX_IX86_GNU/repository $(PEGASUS_HOME)/romfs
+	touch $(PEGASUS_HOME)/romfs/cimserver.passwd
 
 SHELL_DEFAULT_CONFIG="LINE_EDIT_MODE=emacs,LINE_LENGTH=256,STRING_FREE=manual,INTERPRETER=Cmd,VXE_PATH=$(PEGASUS_HOME)/bin"
 

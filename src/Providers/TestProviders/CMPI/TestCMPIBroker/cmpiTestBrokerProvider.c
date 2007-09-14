@@ -471,6 +471,25 @@ static int _testBrokerServices(const CMPIContext * ctx,
     PROV_LOG("++++ Status of CMRelease(objPath) : (%s)",
         strCMPIStatus(rc));
 
+    // Call back ourself, this checks whether MB will hang on recursive
+    // call back. See bug 6925.
+    PROV_LOG("++++ Testing with TestCMPIBrokerProvider ++++");
+    objPath = CMNewObjectPath (_broker,
+        "test/TestProvider",
+        "TestCMPI_Broker",
+        &rc);
+    PROV_LOG("++++ Status of CMNewObjectPath : (%s)", strCMPIStatus(rc));
+
+    PROV_LOG_CLOSE();
+    enumeration = CBEnumInstances(_broker,
+        ctx,
+        objPath,
+        NULL,
+        &rc);
+    // Reopen our log file.
+    PROV_LOG_OPEN (_ClassName, _ProviderLocation);
+    PROV_LOG("++++ Status of CBEnumInstances : (%s)", strCMPIStatus(rc));
+
     return flag;
 }
 
@@ -578,6 +597,98 @@ CMPIStatus TestCMPIBrokerProviderInvokeMethod (CMPIMethodMI * mi,
     return rc;
 }
 
+CMPIStatus TestCMPIBrokerProviderCleanup(
+    CMPIInstanceMI * mi,
+    const CMPIContext * ctx,
+    CMPIBoolean term)
+{
+    CMReturn (CMPI_RC_OK);
+}
+
+/* EnumInstanceNames routine for Instance Provider. */
+CMPIStatus TestCMPIBrokerProviderEnumInstanceNames(
+    CMPIInstanceMI * mi,
+    const CMPIContext * ctx,
+    const CMPIResult * rslt,
+    const CMPIObjectPath * ref)
+{
+   CMReturn (CMPI_RC_ERR_NOT_SUPPORTED);
+}
+
+/* EnumInstances routine for Instance Provider.*/
+
+CMPIStatus TestCMPIBrokerProviderEnumInstances(
+    CMPIInstanceMI * mi,
+    const CMPIContext * ctx,
+    const CMPIResult * rslt,
+    const CMPIObjectPath * ref,
+    const char **properties)
+{
+    // This is called when we call back ourself from the InvokeMethod.
+    PROV_LOG_OPEN (_ClassName, _ProviderLocation);
+
+    PROV_LOG ("--- %s CMPI EnumInstances() called", _ClassName);
+    PROV_LOG ("--- SUCCESS ---");
+    CMReturn (CMPI_RC_ERR_NOT_SUPPORTED);
+}
+
+CMPIStatus TestCMPIBrokerProviderGetInstance(
+    CMPIInstanceMI * mi,
+    const CMPIContext * ctx,
+    const CMPIResult * rslt,
+    const CMPIObjectPath * cop,
+    const char **properties)
+{
+    CMReturn (CMPI_RC_ERR_NOT_SUPPORTED);
+}
+
+/* CreateInstance routine for Instance Provider. */
+
+CMPIStatus TestCMPIBrokerProviderCreateInstance(
+    CMPIInstanceMI * mi,
+    const CMPIContext * ctx,
+    const CMPIResult * rslt,
+    const CMPIObjectPath * cop,
+    const CMPIInstance * ci)
+{
+    CMReturn (CMPI_RC_ERR_NOT_SUPPORTED);
+}
+
+/* ModifyInstance routine for Instance Provider. */
+
+CMPIStatus TestCMPIBrokerProviderModifyInstance(
+    CMPIInstanceMI * mi,
+    const CMPIContext * ctx,
+    const CMPIResult * rslt,
+    const CMPIObjectPath * cop,
+    const CMPIInstance * ci,
+    const char **properties)
+{
+    CMReturn (CMPI_RC_ERR_NOT_SUPPORTED);
+}
+
+
+CMPIStatus TestCMPIBrokerProviderDeleteInstance(
+    CMPIInstanceMI * mi,
+    const CMPIContext * ctx,
+    const CMPIResult * rslt,
+    const CMPIObjectPath * cop)
+{
+    CMReturn (CMPI_RC_ERR_NOT_SUPPORTED);
+}
+
+/* ExecQuery routine for Instance Provider. */
+
+CMPIStatus TestCMPIBrokerProviderExecQuery(
+    CMPIInstanceMI * mi,
+    const CMPIContext * ctx,
+    const CMPIResult * rslt,
+    const CMPIObjectPath * ref,
+    const char *lang,
+    const char *query)
+{
+    CMReturn (CMPI_RC_ERR_NOT_SUPPORTED);
+}
 
 /* ---------------------------------------------------------------------------*/
 /*                              Provider Factory                              */
@@ -588,6 +699,13 @@ CMMethodMIStub (TestCMPIBrokerProvider,
     TestCMPIBrokerProvider,
     _broker,
     CMNoHook)
+
+
+CMInstanceMIStub(
+    TestCMPIBrokerProvider,
+    TestCMPIBrokerProvider,
+    _broker,
+    CMNoHook);
 
 /* ---------------------------------------------------------------------------*/
 /*             end of TestCMPIProvider                      */

@@ -418,7 +418,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
             // containers for the class definition and a NormalizerContext.
             AutoPtr<NormalizerContext> tmpNormalizerContext(
                 new CIMOMHandleContext(*pr._cimom_handle));
-            CIMClass classDef(tmpNormalizerContext->getClass(
+            CIMClass classDef(_getClass(
                 request->nameSpace, request->className));
             request->operationContext.insert(
                 CachedClassDefinitionContainer(classDef));
@@ -609,7 +609,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
             // containers for the class definition and a NormalizerContext.
             AutoPtr<NormalizerContext> tmpNormalizerContext(
                 new CIMOMHandleContext(*pr._cimom_handle));
-            CIMClass classDef(tmpNormalizerContext->getClass(
+            CIMClass classDef(_getClass(
                 request->nameSpace, request->className));
             request->operationContext.insert(
                 CachedClassDefinitionContainer(classDef));
@@ -1594,7 +1594,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
             // containers for the class definition and a NormalizerContext.
             AutoPtr<NormalizerContext> tmpNormalizerContext(
                 new CIMOMHandleContext(*pr._cimom_handle));
-            CIMClass classDef(tmpNormalizerContext->getClass(
+            CIMClass classDef(_getClass(
                 request->nameSpace, request->className));
             request->operationContext.insert(
                 CachedClassDefinitionContainer(classDef));
@@ -1972,7 +1972,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
             // containers for the class definition and a NormalizerContext.
             AutoPtr<NormalizerContext> tmpNormalizerContext(
                 new CIMOMHandleContext(*pr._cimom_handle));
-            CIMClass classDef(tmpNormalizerContext->getClass(
+            CIMClass classDef(_getClass(
                 request->nameSpace, request->className));
             request->operationContext.insert(
                 CachedClassDefinitionContainer(classDef));
@@ -2342,7 +2342,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
             // containers for the class definition and a NormalizerContext.
             AutoPtr<NormalizerContext> tmpNormalizerContext(
                 new CIMOMHandleContext(*pr._cimom_handle));
-            CIMClass classDef(tmpNormalizerContext->getClass(
+            CIMClass classDef(_getClass(
                 request->nameSpace, request->className));
             request->operationContext.insert(
                 CachedClassDefinitionContainer(classDef));
@@ -3446,7 +3446,7 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
             // containers for the class definition and a NormalizerContext.
             AutoPtr<NormalizerContext> tmpNormalizerContext(
                 new CIMOMHandleContext(*pr._cimom_handle));
-            CIMClass classDef(tmpNormalizerContext->getClass(
+            CIMClass classDef(_getClass(
                 request->nameSpace, request->className));
             request->operationContext.insert(
                 CachedClassDefinitionContainer(classDef));
@@ -4065,6 +4065,26 @@ void CMPIProviderManager::_callDisableIndications
     }
 
     PEG_METHOD_EXIT ();
+}
+
+CIMClass CMPIProviderManager::_getClass(CIMNamespaceName &nameSpace,
+    CIMName &className)
+{
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::_getClass()");
+
+#ifdef PEGASUS_OS_ZOS
+    CIMOMHandle _handle;
+#else
+    AutoMutex mtx(_classMutex);
+#endif
+   
+    CIMClass clsDef = _handle.getClass (OperationContext(), nameSpace, 
+        className, false, true, true, CIMPropertyList());
+
+    PEG_METHOD_EXIT ();
+    return clsDef;
 }
 
 PEGASUS_NAMESPACE_END

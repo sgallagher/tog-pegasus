@@ -59,4 +59,9 @@
  ++++ Status of CBDeleteInstance : (CMPI_RC_OK)
  ++++ Error Status of CBInvokeMethod: (CMPI_RC_ERR_METHOD_NOT_AVAILABLE)
  ++++ Status of CMRelease(objPath) : (CMPI_RC_OK)
+ ++++ Testing with TestCMPIBrokerProvider ++++
+ ++++ Status of CMNewObjectPath : (CMPI_RC_OK)
+ --- TestCMPI_Broker CMPI EnumInstances() called
+ --- SUCCESS ---
+ ++++ Status of CBEnumInstances : (CMPI_RC_ERR_NOT_SUPPORTED)
  --- TestCMPI_Broker CMPI InvokeMethod() exited

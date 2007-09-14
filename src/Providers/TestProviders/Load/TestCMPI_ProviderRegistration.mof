@@ -270,7 +270,7 @@ instance of PG_ProviderCapabilities
    // Name of the CIM Class as defined in the mof.
    ClassName = "TestCMPI_Broker";
    Namespaces = { "test/TestProvider", "test/Remote/Localhost" };
-   ProviderType = { 5 }; // Method
+   ProviderType = { 2, 5 }; // Instance and Method
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods
 };

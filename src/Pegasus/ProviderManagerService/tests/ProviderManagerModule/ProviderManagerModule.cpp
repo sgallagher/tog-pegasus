@@ -145,8 +145,7 @@ int main(int argc, char** argv)
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
     fileName = String(getenv("PEGASUS_HOME")) + String("/bin/") + FILE_NAME;
 #elif defined(PEGASUS_OS_VMS)
-    fileName = String(getenv("PEGASUS_HOME")) + String("/bin/") + FILE_NAME +
-        String(".exe");
+    fileName = String(getenv("PEGASUS_HOME")) + String("/bin/") + FILE_NAME;
 #else
     fileName = String(getenv("PEGASUS_HOME")) + String("/lib/") + FILE_NAME;
 #endif

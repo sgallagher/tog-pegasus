@@ -66,7 +66,7 @@ String getLibraryFileName(const String& libraryName) {
     }
 # endif
     return prefixDir +
-           FileSystem::buildLibraryFileName(libraryName) + ".exe"; 
+           FileSystem::buildLibraryFileName(libraryName); 
 # else
     return FileSystem::buildLibraryFileName(libraryName);
 #endif

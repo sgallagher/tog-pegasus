@@ -39,9 +39,9 @@ LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 LIBRARY = benchmarkProviderModule
 
 LIBRARIES = \
-	pegcommon \
-	pegprovider \
-        benchmarkDefinition	
+    benchmarkDefinition \
+    pegprovider \
+    pegcommon
 
 SOURCES = \
    benchmarkProvider.cpp \

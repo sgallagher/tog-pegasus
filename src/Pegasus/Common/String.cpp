@@ -1319,15 +1319,6 @@ void StringAppendCharAux(StringRep*& _rep)
     _rep = tmp;
 }
 
-/**
-    Fast way to assign a given character string consisting of ASCII only and
-    legal characters for a CIMName (i.e. letter, numbers and underscore)
-    to a String reference.
-    
-    @param s reference to the String object which will be changed
-    @param str character string
-    @param n number of characters which shall be assigned from str to s
-*/
 void AssignASCII(String& s, const char* str, Uint32 n)
 {
     class StringLayout

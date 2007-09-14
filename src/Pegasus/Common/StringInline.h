@@ -37,13 +37,15 @@
 #include <Pegasus/Common/StringRep.h>
 #include <cstring>
 
+PEGASUS_NAMESPACE_BEGIN
+
+#if !defined(PEGASUS_DISABLE_INTERNAL_INLINES)
+
 #ifdef PEGASUS_INTERNALONLY
 # define PEGASUS_STRING_INLINE inline
 #else
 # define PEGASUS_STRING_INLINE /* empty */
 #endif
-
-PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_STRING_INLINE CString::CString() : _rep(0)
 {
@@ -294,6 +296,17 @@ PEGASUS_STRING_INLINE String operator+(const char* s1, const String& s2)
 }
 #endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
 
+#endif /* !defined(PEGASUS_DISABLE_INTERNAL_INLINES) */
+
+/**
+    Fast way to assign a given character string consisting of ASCII only and
+    legal characters for a CIMName (i.e. letter, numbers and underscore)
+    to a String reference.
+
+    @param s reference to the String object which will be changed
+    @param str character string
+    @param n number of characters which shall be assigned from str to s
+*/
 PEGASUS_COMMON_LINKAGE void AssignASCII(String& s, const char* str, Uint32 n);
 
 PEGASUS_NAMESPACE_END

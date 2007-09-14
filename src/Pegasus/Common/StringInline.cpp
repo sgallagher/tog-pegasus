@@ -30,4 +30,8 @@
 //==============================================================================
 #undef PEGASUS_INTERNALONLY
 #include "String.h"
+// The following undef must occur after the include for String.h because after
+// including String.h, PEGASUS_DISABLE_INTERNAL_INLINES might have been defined
+// by the Platform header file.
+#undef PEGASUS_DISABLE_INTERNAL_INLINES
 #include "StringInline.h"

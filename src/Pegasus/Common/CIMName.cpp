@@ -70,7 +70,7 @@ static Uint32 _legalASCII(const char* str)
             return 0;
     }
 
-    return (char*)p - str;
+    return Uint32((char*)p - str);
 }
 
 CIMName::CIMName(const String& name) : cimName(name)

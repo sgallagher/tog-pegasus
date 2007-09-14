@@ -239,6 +239,7 @@ make_InstanceWithProperties (const CMPIBroker * broker,
     unsigned int idx;
     CMPIString *name = NULL;
     const char *_name = NULL;
+    char * tmpstring;
     PROV_LOG ("-- make_Instance");
     inst = CMNewInstance (broker, objPath, &rc_Inst);
 
@@ -357,13 +358,15 @@ make_InstanceWithProperties (const CMPIBroker * broker,
         name = NULL;
         prop_data = CMGetPropertyAt (inst, idx, &name, &rc_Inst);
         check_CMPIStatus (rc_Inst);
+        tmpstring = _CMPIValueToString (prop_data);
         PROV_LOG ("-- %d: %s(%s: %s: %s) [%s]", idx,
                 CMGetCharsPtr (name, &rc_String),
                 _CMPITypeName (prop_data.type),
                 strCMPIValueState (prop_data.state),
                 (prop_data.type == CMPI_dateTime) ? "":
-                _CMPIValueToString (prop_data), 
+                tmpstring,
                 strCMPIStatus (rc_Inst));
+        free(tmpstring);
 
         check_CMPIStatus (rc_Inst);
         check_CMPIStatus (rc_String);

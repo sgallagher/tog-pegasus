@@ -322,7 +322,7 @@ Array<CIMServerDescription> CIMServerDiscoveryRep::lookup(
         return connections;
     }
 
-    for (int i=0; i< connections.size();i++)
+    for (Uint32 i=0; i < connections.size(); i++)
     {
         Array<Attribute> attrs = connections[i].getAttributes();
         if (0 == attrs.size())

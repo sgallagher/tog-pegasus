@@ -134,7 +134,7 @@ _CDToString (const void *o, char **result)
 {
   CMPIStatus rc = { CMPI_RC_OK, NULL };
   CMPIString *type;
-  char *p, *q;
+  const char *p, *q;
 
   PROV_LOG ("++++ #B CDToString");
   type = CDToString (_broker, o, &rc);
@@ -302,12 +302,13 @@ _CMGetMessage (char **result)
   return 1;
 }
 
-static int _CMGetMessage2 (char **result, char* msgFile, char* msgId, 
-    char* insert1, CMPIUint32 insert2)
+static int _CMGetMessage2 (char **result, const char* msgFile, 
+    const char* msgId, const char* constinsert1, CMPIUint32 insert2)
 {
     CMPIString *str = NULL;
     CMPIStatus rc = { CMPI_RC_OK, NULL};
     CMPIMsgFileHandle msgFileHandle;
+    char *insert1 = strdup(constinsert1);
 
     PROV_LOG ("++++ #A CMOpenMessageFile");
     rc = CMOpenMessageFile(_broker, msgFile, &msgFileHandle);
@@ -317,6 +318,7 @@ static int _CMGetMessage2 (char **result, char* msgFile, char* msgId,
     str = CMGetMessage2 (_broker, msgId, msgFileHandle,
         "CIM_ERR_SUCCESS: Successful.", &rc,
         CMFmtArgs2(CMFmtChars(insert1),CMFmtUint(insert2)));
+    free(insert1);
     PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
     if (str)
     {
@@ -1237,7 +1239,7 @@ static int _testArrayTypes()
                         flag = 0;
                     }
                     rc = CMRelease(value.dateTime);
-                    PROV_LOG("++++ Status of CMRelease(value.dateTime) : (%s)", 
+                    PROV_LOG("++++ Status of CMRelease(value.dateTime) : (%s)",
                         strCMPIStatus(rc));
                     break;
                 

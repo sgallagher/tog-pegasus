@@ -504,7 +504,7 @@ char * _CMPIValueToString (CMPIData data)
 {
     /* TODO - make better effort to determine size of formatted text values */
     char * valuestring = NULL;
-    char * str = NULL;
+    const char * str = NULL;
     CMPIString * datetimestr = NULL;
 
     if (CMIsNullValue(data)) return NULL;

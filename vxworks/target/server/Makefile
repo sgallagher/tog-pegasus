@@ -32,6 +32,7 @@ DIRS = \
     $(SRC)/Pegasus/ControlProviders/ConfigSettingProvider \
     $(SRC)/Pegasus/ControlProviders/UserAuthProvider \
     $(SRC)/Pegasus/Server \
-    $(SRC)/Server
+    $(SRC)/Server \
+    $(SRC)/Providers/ManagedSystem/ComputerSystem
 
 include $(PEGASUS_ROOT)/mak/recurse.mak

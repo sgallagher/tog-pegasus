@@ -1,33 +1,42 @@
 
-    1. VXWorks has no fork/exec semantics.
+    1. VxWorks has no fork/exec semantics.
 
-    2. VXWorks has no user database maniuplation.
+    2. VxWorks has no user database methods.
 
-    3. VXWorks has no file ownership management.
+    3. VxWorks has no file ownership concept.
 
-    4. VXWorks has no popen(), but it is only needed in one test.
+    4. VxWorks has no popen(), but only needed in Pegasus tests.
 
-    5. floating points types are broken (printf does not work and they sometimes
-       exhibit strange behavior).
+    5. VxWorks floating points support is broken.
+    
+        - printf() prints them as 0.0000, whatever their value.
+        - comparisons sometimes fail.
 
-    6. The vxworks target start with its clock set to epoch.
+    6. The vxworks target starts up its date set to Jan 1, 1970.
 
-    7. access() is broken on VxWorks. It is defined and links but always
-       return -1.
+    7. VxWorks does not imlement access. Instead, FileSystem::canRead()
+       and FileSystem::canWrite() were reworked to use open()  with O_WRONLY
+       or O_RDONLY flags.
 
-    8. Components:
+    8. Unsupported components:
 
-            - Authenticition:
-                - PAM Authentication
-                - Password file Authentication
-                - SSL peer authentication
-                - Local authentication (not required).
-            - Security:
-                - SSL privacy
+            - PAM Authentication
+            - SSL peer authentication
+            - Local authentication
             - SLP
             - IPV6
             - CMPI
-            - I18N
 
     9. gettimeofday() implementation (see Platform_VXWORKS_PENTIUM_GNU.h)
        does not have timezone.
+
+    10. VxWorks fails on host file system after roughly 1000 iterations
+        of opendir/readir/closedir.
+
+    11. Restrictions:
+
+            - Repository is read-only (located in /romfs) and must be
+              built and configured prior to VxWorks image creation.
+
+    12. Should VxWorks use the configuration file mechanism.
+

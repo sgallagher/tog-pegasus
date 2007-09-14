@@ -1,0 +1,9 @@
+class Hello
+{
+    [Key] Uint32 Key;
+};
+
+instance of Hello
+{
+    Key = 100;
+};

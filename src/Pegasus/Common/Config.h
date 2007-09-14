@@ -305,6 +305,7 @@ PEGASUS_NAMESPACE_END
 # define PEGASUS_FORMAT(A1, A2) /* not implemented */
 #endif
 
+// ATTN-MEB: remove this when done!
 #define PEGTRACE \
     printf("PEGTRACE: %s(%d): %s\n", __FILE__, __LINE__, __FUNCTION__)
 

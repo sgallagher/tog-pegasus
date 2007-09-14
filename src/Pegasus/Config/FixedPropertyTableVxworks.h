@@ -37,8 +37,8 @@
     defined(PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS)
 # include <Pegasus/Config/ProductDirectoryStructure.h>
 #endif
-## Options that are independent of Release vs. Dev build
-    {"enableBinaryRepository", "true"},
+// Options that are independent of Release vs. Dev build
+/*    {"enableBinaryRepository", "true"}, */
 
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
     {"httpPort",            "5988"},

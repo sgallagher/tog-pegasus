@@ -245,6 +245,14 @@ void GetOptions(
     char** argv,
     Boolean shutdownOption)
 {
+#if defined(PEGASUS_OS_VXWORKS)
+
+    // VxWorks does not use configuration files.
+
+    cm->mergeCommandLine(argc, argv);
+
+#else /* PEGASUS_OS_VXWORKS */
+
     if (shutdownOption)
     {
         cm->loadConfigFiles();
@@ -262,6 +270,8 @@ void GetOptions(
 
     // Enable updates again
     cm->useConfigFiles = true;
+
+#endif /* PEGASUS_OS_VXWORKS */
 }
 
 /* PrintHelp - This is temporary until we expand the options manager to allow
@@ -697,7 +707,10 @@ int CIMServerProcess::cimserver_run(
     // Get an instance of the Config Manager.
     //
     ConfigManager* configManager = ConfigManager::getInstance();
+
+#if !defined(PEGASUS_OS_VXWORKS)
     configManager->useConfigFiles = true;
+#endif
 
     try
     {
@@ -769,13 +782,8 @@ int CIMServerProcess::cimserver_run(
         // Check to see if we should start Pegasus as a daemon
         //
 
-// ATTN-MEB: put this back!
-#if defined(PEGASUS_OS_VXWORKS)
-        daemonOption = false;
-#else
         daemonOption = ConfigManager::parseBooleanValue(
             configManager->getCurrentValue("daemon"));
-#endif
 
 #if !defined(PEGASUS_USE_SYSLOGS)
         String logsDirectory = ConfigManager::getHomedPath(

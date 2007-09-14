@@ -203,6 +203,10 @@ public:
         Uint32 logLevel,
         const String localizedMsg)
     {
+#if defined(PEGASUS_OS_VXWORKS)
+        cout << "LOGGER: " << localizedMsg << endl;
+#endif
+
 #if defined(PEGASUS_USE_SYSLOGS)
 
         // Log the message

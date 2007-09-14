@@ -46,7 +46,7 @@
     {"enableHttpConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableHttpsConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"home", "", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"daemon", "true", IS_STATIC, 0, 0, IS_HIDDEN},
+    {"daemon", "false", IS_STATIC, 0, 0, IS_HIDDEN},
     {"install", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"remove", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
@@ -71,7 +71,7 @@
     {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
 
 #else   // Development Configuration
-    {"logLevel", "INFORMATION", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"logLevel", "INFORMATION", IS_DYNAMIC, 0, 0, IS_VISIBLE},
     {"httpPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
     {"httpsPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableHttpConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},

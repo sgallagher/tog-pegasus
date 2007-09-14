@@ -2239,7 +2239,7 @@ not be valid."}
         */
         Server.CIMOperationRequestDecoder.CIMOBJECT_VALUE_SYNTAX_ERROR:string{"PGS05410: CIMObject value syntax error in the CIM request."}
 
-        Server.CIMOperationRequestDecoder.CIMSERVER_SHUTTING_DOWN:string{"PGS05411: The CIM server is ending."}
+        Server.CIMOperationRequestDecoder.CIMSERVER_SHUTTING_DOWN:string{"PGS05411: CIM Server is shutting down."}
 
         /**
         * @note  PGS05412:

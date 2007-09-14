@@ -61,7 +61,7 @@ String getLibraryFileName(const String& libraryName)
     }
 # endif
     return prefixDir +
-           FileSystem::buildLibraryFileName(libraryName) + ".exe"; 
+           FileSystem::buildLibraryFileName(libraryName); 
 
 #elif defined(PEGASUS_OS_DARWIN)
 

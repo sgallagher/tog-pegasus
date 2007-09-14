@@ -448,7 +448,7 @@ String FileSystem::buildLibraryFileName(const String &libraryName)
 #elif defined(PEGASUS_OS_DARWIN)
     fileName = String("lib") + libraryName + String(".dylib");
 #elif defined(PEGASUS_OS_VMS)
-    fileName = String("lib") + libraryName;
+    fileName = String("lib") + libraryName + String(".exe");
 #else
     fileName = String("lib") + libraryName + String(".so");
 #endif

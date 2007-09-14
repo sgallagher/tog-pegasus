@@ -137,6 +137,11 @@ ProviderManagerService::ProviderManagerService(
 
 ProviderManagerService::~ProviderManagerService(void)
 {
+    CIMStopAllProvidersRequestMessage stopAllProvidersRequest(
+        XmlWriter::getNextMessageId(), QueueIdStack(0));
+    Message* stopAllProvidersResponse =
+        _processMessage(&stopAllProvidersRequest);
+    delete stopAllProvidersResponse;
     delete _basicProviderManagerRouter;
     delete _oopProviderManagerRouter;
     providerManagerService=NULL;

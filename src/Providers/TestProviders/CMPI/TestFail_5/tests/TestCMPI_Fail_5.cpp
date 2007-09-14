@@ -51,7 +51,7 @@ Boolean verbose = false;
 
 void _errorExit(String message)
 {
-    cerr << "cmpiAssociationTestClient error: " << message << endl;
+    cerr << "TestCMPI_Fail_5 error: " << message << endl;
     exit(1);
 }
 
@@ -134,6 +134,7 @@ void _testReferences(CIMClient& client, CIMObjectPath instancePath)
 
 static void _testInstanceError(CIMClient &client)
 {
+#ifndef PEGASUS_DISABLE_EXECQUERY
     try
     {
         String wql ("WQL");
@@ -147,6 +148,7 @@ static void _testInstanceError(CIMClient &client)
     {
         _errorExit(e.getMessage());
     }
+#endif
 }
 // This method calls CMPIProviderManager::handleInvokeMethodRequest and 
 // 'if(rc.rc != CMPI_RC_OK)' condition  in CMPIProviderManager.cpp succeeds.
@@ -172,7 +174,10 @@ void _testMethodError(CIMClient & client)
     } 
     catch (const CIMException &e)
     {
-        caughtException = true;
+        if (e.getCode() == CIM_ERR_NOT_SUPPORTED)
+        {
+            caughtException = true;
+        }
     }
     PEGASUS_TEST_ASSERT (caughtException);
 }
@@ -219,7 +224,6 @@ int main(int argc, char** argv)
         _testReferences(client, personRefs[i]);
     }
 
-    _testInstanceError(client);
     _testInstanceError(client);
     _testMethodError(client);
 

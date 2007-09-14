@@ -132,7 +132,7 @@ void setError(
         MItype.append(spec);
     }
 
-    if (CMGetCharsPtr(optMsg,NULL))
+    if (optMsg && CMGetCharsPtr(optMsg,NULL))
     {
         MessageLoaderParms mlp(
             "ProviderManager.CMPI.CMPIProvider.MESSAGE_WAS",

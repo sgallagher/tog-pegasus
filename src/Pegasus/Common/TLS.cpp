@@ -76,7 +76,7 @@ SSLSocket::SSLSocket(
    _socket(socket),
    _SSLContext(sslcontext),
    _sslContextObjectLock(sslContextObjectLock),
-   _SSLCallbackInfo(0),
+   _ipAddress(ipAddress),
    _certificateVerified(false)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::SSLSocket()");
@@ -120,7 +120,7 @@ SSLSocket::SSLSocket(
 #else
             NULL,
 #endif
-            ipAddress ));
+            _ipAddress ));
 
         if (SSL_set_ex_data(
                 sslConnection,
@@ -370,7 +370,8 @@ Sint32 SSLSocket::accept()
                 // added in OpenSSL 0.9.6:
                 ERR_error_string_n(rc, buff, sizeof(buff));
                 PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL3,
-                    "---> SSL: Not accepted %d %s", ssl_rsn, buff ));
+                    "---> SSL: Not accepted %d %s client IP address : %s", 
+                    ssl_rsn, buff, (const char*)_ipAddress.getCString() ));
             }
 
             PEG_METHOD_EXIT();

@@ -115,6 +115,7 @@ private:
     Uint32 _sslReadErrno;
 
     AutoPtr<SSLCallbackInfo> _SSLCallbackInfo;
+    String _ipAddress;
     Boolean _certificateVerified;
 };
 #else

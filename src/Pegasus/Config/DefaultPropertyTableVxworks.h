@@ -31,11 +31,14 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_DefaultPropertyTableLinux_h
-#define Pegasus_DefaultPropertyTableLinux_h
+#ifndef Pegasus_DefaultPropertyTableVxworks_h
+#define Pegasus_DefaultPropertyTableVxworks_h
 
 // Configuration Property table defined for VxWorks Operating System
+// Defines both development and release config options.
+// 
 
+// Release options for VxWorks
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
     {"logLevel", "SEVERE", IS_STATIC, 0, 0, IS_VISIBLE},
     {"httpPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
@@ -100,4 +103,4 @@
     {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
 #endif
 
-#endif /* Pegasus_DefaultPropertyTableLinux_h */
+#endif /* Pegasus_DefaultPropertyTableVxworks_h */

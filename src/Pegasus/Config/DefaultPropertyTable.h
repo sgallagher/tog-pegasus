@@ -49,7 +49,7 @@
 #elif defined(PEGASUS_OS_VXWORKS)
 # include "DefaultPropertyTableVxworks.h"
 
-// Default when therr is no OS defined property default table
+// Default when there is no OS defined property default table
 #else
     {"httpPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
     {"httpsPort", "", IS_STATIC, 0, 0, IS_VISIBLE},

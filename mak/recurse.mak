@@ -47,8 +47,16 @@ all: $(RECURSE_DEPENDS) $(ERROR)
 depend: $(RECURSE_DEPENDS) $(ERROR)
 	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) "-SC" $(i) depend $(NL) )
 
+ifeq ($(OS_TYPE),vxworks)
+    TEST_FLAGS=SHELL=$(PEGASUS_ROOT)/vxworks/scripts/vxexec
+else
+    TEST_FLAGS=
+endif
+
+
 tests: $(RECURSE_DEPENDS) $(ERROR)
-	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) "-SC" $(i) tests $(NL) )
+	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) $(TEST_FLAGS) "-SC" $(i) tests $(NL) )
+
 
 poststarttests: $(RECURSE_DEPENDS) $(ERROR)
 	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) "-SC" $(i) poststarttests $(NL) )

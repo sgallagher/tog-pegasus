@@ -42,7 +42,38 @@ include $(ROOT)/mak/config.mak
 # DIRS = src cgi
 
 ifeq ($(OS_TYPE),vxworks)
-    DIRS = vxworks/target
+    DIRS = \
+        src/Pegasus/Common \
+        src/Pegasus/Common/tests \
+        src/Pegasus/Config \
+        src/Pegasus/Query/QueryCommon \
+        src/Pegasus/WQL \
+        src/Pegasus/CQL \
+        src/Pegasus/Query/QueryExpression \
+        src/Pegasus/Security/UserManager \
+        src/Pegasus/Client \
+        src/Service \
+        src/Pegasus/Provider \
+        src/Pegasus/Repository \
+        src/Pegasus/Repository/tests \
+        src/Pegasus/Server/ProviderRegistrationManager \
+        src/Pegasus/ProviderManager2 \
+        src/Pegasus/ProviderManager2/Default \
+        src/Pegasus/ExportServer \
+        src/Pegasus/ProviderManagerService \
+        src/Pegasus/Security/Authentication \
+        src/Pegasus/HandlerService \
+        src/Pegasus/IndicationService \
+        src/Pegasus/ControlProviders/InteropProvider \
+        src/Pegasus/ControlProviders/Statistic \
+        src/Pegasus/ControlProviders/QueryCapabilitiesProvider \
+        src/Pegasus/ControlProviders/ProviderRegistrationProvider \
+        src/Pegasus/ControlProviders/NamespaceProvider \
+        src/Pegasus/ControlProviders/ConfigSettingProvider \
+        src/Pegasus/ControlProviders/UserAuthProvider \
+        src/Pegasus/Server \
+        src/Server \
+        src/Providers/ManagedSystem/ComputerSystem
 else
     DIRS = src test Schemas
 endif

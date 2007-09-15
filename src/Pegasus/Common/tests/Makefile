@@ -27,8 +27,9 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
-include $(PEGASUS_ROOT)/mak/config.mak
+#//=============================================================================
+ROOT = ../../../..
+include $(ROOT)/mak/config.mak
 
 DIRS = \
     Abstract \

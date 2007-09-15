@@ -1,7 +1,0 @@
-ROOT = ../..
-include ../config.mak
-include $(ROOT)/mak/config.mak
-
-DIRS = server tests
-
-include $(PEGASUS_ROOT)/mak/recurse.mak

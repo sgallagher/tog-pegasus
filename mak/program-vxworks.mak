@@ -35,14 +35,14 @@ TMP_OBJECTS = $(foreach i,$(SOURCES),$(OBJ_DIR)/$i)
 CPP_OBJECTS = $(TMP_OBJECTS:.cpp=.o)
 OBJECTS = $(CPP_OBJECTS:.c=.o)
 
-TARGET=$(BIN_DIR)/$(PROGRAM)
+TARG=$(BIN_DIR)/$(PROGRAM)
 
 LINK_FLAGS = -lstdc++ -L$(WIND_BASE)/target/usr/lib/simpentium/SIMPENTIUM/common -Wl,-rpath /romfs/lib -ldl -Wl,-rpath $(LIB_DIR)
 
 DFILES = $(SOURCES:.cpp=.d)
 
-$(TARGET): $(BIN_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) $(ERROR)
-	$(CXX) $(FLAGS) -o $(TARGET) $(OBJECTS) -non-static $(FULL_LIBRARIES) $(LINK_FLAGS)
+$(TARG): $(BIN_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) $(ERROR)
+	$(CXX) $(FLAGS) -o $(TARG) $(OBJECTS) -non-static $(FULL_LIBRARIES) $(LINK_FLAGS)
 	rm -rf $(DFILES)
 
 include $(ROOT)/mak/objects.mak
@@ -63,4 +63,4 @@ include $(ROOT)/mak/misc.mak
 
 romfs:
 	mkdir -p $(ROMFS)/bin
-	cp $(TARGET) $(ROMFS)/bin
+	cp $(TARG) $(ROMFS)/bin

@@ -53,9 +53,13 @@ else
     TEST_FLAGS=
 endif
 
+ifdef TARGET
+  VXEXEC=$(PEGASUS_ROOT)/vxworks/scripts/vxexec
+  TFLAGS=SHELL=$(VXEXEC)
+endif
 
 tests: $(RECURSE_DEPENDS) $(ERROR)
-	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) $(TEST_FLAGS) "-SC" $(i) tests $(NL) )
+	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) $(TFLAGS) "-SC" $(i) tests $(NL) )
 
 
 poststarttests: $(RECURSE_DEPENDS) $(ERROR)

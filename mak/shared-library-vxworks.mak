@@ -29,22 +29,22 @@
 #//
 #//=============================================================================
 
-TARGET=$(LIB_DIR)/lib$(LIBRARY).so
+TARG=$(LIB_DIR)/lib$(LIBRARY).so
 
 LINK_FLAGS = -lstdc++ -shared -L$(VXWORKS_LIB_COMMON)/PIC
 
 DFILES = $(SOURCES:.cpp=.d)
 
-$(TARGET): $(LIB_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) $(ERROR)
-	$(CXX) $(FLAGS) -o $(TARGET) $(OBJECTS) $(FULL_LIBRARIES) $(LINK_FLAGS)
+$(TARG): $(LIB_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) $(ERROR)
+	$(CXX) $(FLAGS) -o $(TARG) $(OBJECTS) $(FULL_LIBRARIES) $(LINK_FLAGS)
 	rm -rf $(DFILES)
 	@ $(ECHO)
 
 clean-lib: $(ERROR)
-	rm -f $(TARGET)
+	rm -f $(TARG)
 
-FILES_TO_CLEAN = $(OBJECTS) $(TARGET)
+FILES_TO_CLEAN = $(OBJECTS) $(TARG)
 
 romfs:
 	mkdir -p $(ROMFS)/lib
-	cp $(TARGET) $(ROMFS)/lib
+	cp $(TARG) $(ROMFS)/lib

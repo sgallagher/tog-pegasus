@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 /*
@@ -38,14 +40,15 @@
           for the correct name and name case.
 */
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
+#include <Pegasus/Common/XmlWriter.h>
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-
 static Boolean verbose;
+
 
 const String NAMESPACE = "aa";
 const String targetClass = "MY_targetClass";
@@ -158,11 +161,13 @@ void test03AddInstances(CIMRepository& repository)
 {
     // Get the three classes from the Repository
     CIMClass ct = repository.getClass(NAMESPACE,targetClass);
+    CIMClass ca = repository.getClass(NAMESPACE,associationClass);
     CIMClass ce = repository.getClass(NAMESPACE,associatedClass);
 
     // Create an instance for each class
     //
     CIMInstance it = ct.buildInstance(true,true, CIMPropertyList());
+    CIMInstance ia = ca.buildInstance(true,true, CIMPropertyList());
     CIMInstance ie = ce.buildInstance(true,true, CIMPropertyList());
 
     // Put data into target instance key property
@@ -191,7 +196,7 @@ void test03AddInstances(CIMRepository& repository)
     // Put references into the association instance
     CIMObjectPath assocPath;
     {
-        CIMInstance ia(associationClass);
+        CIMInstance ia(CIMName("MY_associationClass"));
 
         ia.addProperty(CIMProperty(CIMName("ref1"),
             CIMObjectPath(ref1Path),0,CIMName(targetClass)));
@@ -246,12 +251,6 @@ int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
-    if (argc != 2)
-    {
-        cout << "Usage: " << argv[0] << " XML | BIN" << endl;
-        return 1;
-    }
-
     String repositoryRoot;
     const char* tmpDir = getenv ("PEGASUS_TMP");
     if (tmpDir == NULL)
@@ -284,7 +283,7 @@ int main(int argc, char** argv)
         else
         {
             cout << argv[0] << ": invalid argument: " << argv[1] << endl;
-            return 1;
+            return 0;
         }
         CIMRepository r (repositoryRoot, mode);
 

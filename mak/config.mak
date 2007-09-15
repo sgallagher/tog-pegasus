@@ -40,7 +40,7 @@ ifndef ROOT
 endif
 
 ifdef TARGET
--include $(ROOT)/target.mak
+  include $(ROOT)/target.mak
 endif
 
 ifdef PEGASUS_ENVVAR_FILE

@@ -1066,13 +1066,11 @@ Boolean InstanceIndexFile::rollbackTransaction(const String& path)
         if (!FileSystem::removeFileNoCase(path))
         {
             PEG_METHOD_EXIT();
-PEGTRACE;
             return false;
         }
     }
 
     PEG_METHOD_EXIT();
-PEGTRACE;
     return FileSystem::renameFileNoCase(path + ".rollback", path);
 }
 

@@ -46,6 +46,11 @@
 #include <unistd.h>
 #include <dirent.h>
 
+#ifdef PEGASUS_OS_VXWORKS
+# include <sys/types.h>
+# include <sys/stat.h>
+#endif
+
 #ifndef PEGASUS_OS_VXWORKS
 # include <pwd.h>
 # include <grp.h>
@@ -1077,25 +1082,89 @@ Boolean System::truncateFile(
     size_t newSize)
 {
 #if defined(PEGASUS_OS_VXWORKS)
-    int fd = open(path, O_WRONLY);
 
-    if (fd == -1)
-        return false;
+    // First try ftruncate(), which works if file is located on target.
 
-    if (ftruncate(fd, newSize) != 0)
+    for (;;)
     {
+        int fd = open(path, O_WRONLY);
+
+        if (fd == -1)
+            break;
+
+        if (ftruncate(fd, newSize) != 0)
+            break;
+
         close(fd);
-        return false;
+        return true;
     }
 
-    close(fd);
-    return true;
-#else
+    // Since ftruncate() failed, we are forced to rewrite the file.
+    {
+        char tmp[4096];
+        strcpy(tmp, path);
+        strcat(tmp, ".__ftruncate_tmp__");
+
+        unlink(tmp);
+
+        // Rename file to temporary name:
+
+        if (rename(path, tmp) != 0)
+            return false;
+
+        // Open input file:
+
+        int in = open(tmp, O_RDONLY);
+
+        if (in == -1)
+            return false;
+
+        // Open output file:
+
+        int out = open(path, O_WRONLY | O_CREAT, 0666);
+
+        if (out == -1)
+        {
+            close(in);
+            return false;
+        }
+
+        // Perform truncation.
+
+        char buffer[4096];
+        int r = newSize;
+        int n;
+
+        while (r && (n = read(in, buffer, r)) > 0)
+        {
+            if (write(out, buffer, n) != n)
+            {
+                close(in);
+                close(out);
+                return false;
+            }
+
+            r -= n;
+        }
+
+        close(in);
+        close(out);
+
+        struct stat st;
+        int rc = stat(path, &st);
+
+        if (rc != 0 || newSize != st.st_size)
+            return false;
+
+        unlink(tmp);
+        return true;
+    }
+
+#else /* PEGASUS_OS_VXWORKS */
+
     return (truncate(path, newSize) == 0);
 #endif
 }
-
-//BOOKMARK!
 
 Boolean System::is_absolute_path(const char *path)
 {

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 /*
@@ -38,8 +40,8 @@
 
 */
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_USING_PEGASUS;
@@ -70,7 +72,7 @@ void test01(Uint32 mode)
 
     c.addProperty(
     CIMProperty(CIMName ("key"), Uint32(0))
-        .addQualifier(CIMQualifier(CIMName("key"), true, CIMFlavor::DEFAULTS)))
+        .addQualifier(CIMQualifier(CIMName ("key"), true)))
     .addProperty(CIMProperty(CIMName ("ratio"), Real32(1.5)))
     .addProperty(CIMProperty(CIMName ("message"), String("Hello World")));
 
@@ -78,7 +80,7 @@ void test01(Uint32 mode)
 
     CIMConstClass cc;
     cc = r.getClass(CIMNamespaceName ("aa/bb"), CIMName ("MyClass"),
-        false, true, false);
+        false,true, true);
 
     PEGASUS_TEST_ASSERT(c.identical(cc));
     PEGASUS_TEST_ASSERT(cc.identical(c));
@@ -131,9 +133,6 @@ void test02(Uint32 mode)
     subClass.addProperty(CIMProperty(CIMName ("Role"), String()));
     r.createClass(NAMESPACE, subClass);
 
-    // Get back a resolved copy of the class definition
-    subClass = r.getClass(NAMESPACE, SUBCLASS, false, true);
-
     //--------------------------------------------------------------------------
     // Create Instance (of SubClass):
     //--------------------------------------------------------------------------
@@ -154,13 +153,23 @@ void test02(Uint32 mode)
 
     CIMObjectPath instanceName1 = subClassInstance.buildPath(subClass);
 
-    CIMInstance tmp = r.getInstance(NAMESPACE, instanceName1);
+    CIMInstance tmp = r.getInstance(NAMESPACE, instanceName1,false,true,true);
 
     PEGASUS_TEST_ASSERT(subClassInstance.identical(tmp));
 
     //--------------------------------------------------------------------------
     // Miscellaneous tests
     //--------------------------------------------------------------------------
+
+    try
+    {
+    r.execQuery("WQL", "myquery");
+    }
+    catch (CIMException& e)
+    {
+        // execQuery operation is not supported yet
+        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_SUPPORTED);
+    }
 
     // Test to assure that delete of non-existant namespace
     // causes exception.
@@ -176,6 +185,10 @@ void test02(Uint32 mode)
     }
     PEGASUS_TEST_ASSERT(testFailed);
 
+//    ATTN:2.0:ENHANCE:DEFERRED:getProviderName() is not supported.
+//    String providerName = r.getProviderName();
+//    PEGASUS_TEST_ASSERT (providerName == "repository");
+
     Array<CIMName> subClassNames;
     r.getSubClassNames(NAMESPACE, SUPERCLASS, true, subClassNames);
     PEGASUS_TEST_ASSERT(subClassNames.size() == 1);
@@ -189,6 +202,16 @@ void test02(Uint32 mode)
 
 void test03(Uint32 mode)
 {
+    const char* home = getenv("PEGASUS_HOME");
+
+    if (!home)
+    {
+    cerr << "PEGASUS_HOME environment variable not set" << endl;
+    exit(1);
+    }
+
+    String repositoryRoot = home;
+    repositoryRoot.append("/repository");
     CIMRepository r(repositoryRoot, mode);
 
     Array<CIMObjectPath> names = r.associatorNames(
@@ -208,12 +231,6 @@ void test03(Uint32 mode)
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
-
-    if (argc != 2)
-    {
-        cout << "Usage: " << argv[0] << " XML | BIN" << endl;
-        return 1;
-    }
 
     const char* tmpDir = getenv ("PEGASUS_TMP");
     if (tmpDir == NULL)
@@ -244,7 +261,7 @@ int main(int argc, char** argv)
       else
     {
       cout << argv[0] << ": invalid argument: " << argv[1] << endl;
-      return 1;
+      return 0;
     }
 
       test01(mode);

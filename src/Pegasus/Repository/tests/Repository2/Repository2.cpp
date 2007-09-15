@@ -1,43 +1,43 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/PegasusAssert.h>
-#include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/FileSystem.h>
-
-#include <Pegasus/General/MofWriter.h>
-
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/CIMRepository.h>
+#include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/MofWriter.h>
+#include <Pegasus/Common/CIMPropertyList.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -127,14 +127,13 @@ void TestCreateClass(Uint32 mode)
     // Updated test to ensure it works with enabled PEGASUS_REMOVE_DESCRIPTIONS
     // as well as not enabled.
 
-    CIMQualifier d(
-        CIMName("description"), String("*REMOVED*"), CIMFlavor::DEFAULTS);
+    CIMQualifier d(CIMName("description"), String("*REMOVED*"));
     CIMClass c1(CIMName ("SuperClass"));
     c1.addQualifier(d);
     c1.addProperty(CIMProperty(CIMName ("key"), Uint32(0))
-        .addQualifier(CIMQualifier(CIMName("key"), true, CIMFlavor::DEFAULTS)));
+           .addQualifier(CIMQualifier(CIMName ("key"), true)));
 
-    c1.addProperty(CIMProperty(CIMName ("ratio"), Real32(1.5)));
+    c1.addProperty(CIMProperty(CIMName ("ratio"), Uint32(15)));
     c1.addProperty(CIMProperty(CIMName ("message"), String("Hello World")));
 
     //
@@ -142,7 +141,7 @@ void TestCreateClass(Uint32 mode)
     //
     r.createClass(NS, c1);
     CIMConstClass cc1;
-    cc1 = r.getClass(NS, CIMName("SuperClass"), true, true, false);
+    cc1 = r.getClass(NS, CIMName ("SuperClass"),true,true, true);
     PEGASUS_TEST_ASSERT(c1.identical(cc1));
     PEGASUS_TEST_ASSERT(cc1.identical(c1));
 
@@ -155,14 +154,13 @@ void TestCreateClass(Uint32 mode)
     //
     // Add new qualifier that will be local
     //
-    CIMQualifier jq(
-        CIMName("junk"), String("TestQualifier"), CIMFlavor::DEFAULTS);
-    c2.addQualifier(jq);
+    CIMQualifier j(CIMName("junk"), String("TestQualifier"));
+    c2.addQualifier(j);
 
-    c2.addProperty(CIMProperty(CIMName ("junk"), Real32(66.66)));
+    c2.addProperty(CIMProperty(CIMName ("junk"), Uint32(6666)));
     r.createClass(NS, c2);
     CIMConstClass cc2;
-    cc2 = r.getClass(NS, CIMName ("SubClass"), true, true, false);
+    cc2 = r.getClass(NS, CIMName ("SubClass"), false, true, true);
     //XmlWriter::printClassElement(c2);
     //XmlWriter::printClassElement(cc2);
 
@@ -174,7 +172,7 @@ void TestCreateClass(Uint32 mode)
     //
     c2.addProperty(CIMProperty(CIMName ("newProperty"), Uint32(888)));
     r.modifyClass(NS, c2);
-    cc2 = r.getClass(NS, CIMName ("SubClass"), true, true, false);
+    cc2 = r.getClass(NS, CIMName ("SubClass"), false, true, true);
     PEGASUS_TEST_ASSERT(c2.identical(cc2));
     PEGASUS_TEST_ASSERT(cc2.identical(c2));
     // should test for this new property on subclass also.
@@ -216,7 +214,7 @@ void TestCreateClass(Uint32 mode)
     // Test to assure that propagated class qualifier removed and
     // local one not removed
     // The following test does not work because propagated, etc. not set.
-    PEGASUS_TEST_ASSERT (cc2.findQualifier("Description") == PEG_NOT_FOUND);
+    //PEGASUS_TEST_ASSERT (cc2.findQualifier("Description") == PEG_NOT_FOUND);
     PEGASUS_TEST_ASSERT (cc2.findQualifier("junk") != PEG_NOT_FOUND);
 
     // test for qualifier on the junk property.
@@ -260,11 +258,11 @@ void TestCreateClass(Uint32 mode)
     // (localonly false, includequalifiers true, classorigin true)
     //
     cc2 = r.getClass(NS, CIMName ("SubClass"), false, true, true);
-    CIMConstProperty cp;
+    CIMConstProperty p;
     Uint32 pos  =  cc2.findProperty("ratio");
     PEGASUS_TEST_ASSERT(pos != PEG_NOT_FOUND);
-    cp = cc2.getProperty(pos);
-    PEGASUS_TEST_ASSERT(cp.getClassOrigin() == CIMName("SuperClass"));
+    p = cc2.getProperty(pos);
+    PEGASUS_TEST_ASSERT(p.getClassOrigin() == CIMName("SuperClass"));
 
     //
     // Test for Class origin set false. Should return null CIMName.
@@ -362,103 +360,48 @@ void TestCreateClass(Uint32 mode)
     //
     // -- Enumerate instances:
     //
-    Array<CIMInstance> namedInstances = r.enumerateInstancesForSubtree(
-        NS, CIMName("SuperClass"));
+    Array<CIMInstance> namedInstances = r.enumerateInstancesForSubtree(NS,
+        CIMName ("SuperClass"),true, false, true, true);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
 
     //XmlWriter::printInstanceElement(namedInstances[0], cout);
     //XmlWriter::printInstanceElement(inst0, cout);
     //XmlWriter::printInstanceElement(inst1, cout);
+    PEGASUS_TEST_ASSERT(
+    namedInstances[0].identical(inst0) ||
+    namedInstances[0].identical(inst1));
 
-    for (Uint32 i = 0; i < namedInstances.size(); i++)
-    {
-        if (namedInstances[i].getClassName() == CIMName("SuperClass"))
-        {
-            PEGASUS_TEST_ASSERT(namedInstances[i].getProperty(
-                namedInstances[i].findProperty("key")).getValue() ==
-                CIMValue(Uint32(111)));
-        }
-        else
-        {
-            PEGASUS_TEST_ASSERT(namedInstances[i].getClassName() ==
-                CIMName("SubClass"));
-            PEGASUS_TEST_ASSERT(namedInstances[i].getProperty(
-                namedInstances[i].findProperty("key")).getValue() ==
-                CIMValue(Uint32(222)));
-        }
-
-        // Test propagated properties
-        PEGASUS_TEST_ASSERT(namedInstances[i].getProperty(
-            namedInstances[i].findProperty("ratio")).getValue() ==
-            CIMValue(Real32(1.5)));
-        PEGASUS_TEST_ASSERT(namedInstances[i].getProperty(
-            namedInstances[i].findProperty("ratio")).getPropagated());
-        PEGASUS_TEST_ASSERT(namedInstances[i].getProperty(
-            namedInstances[i].findProperty("message")).getValue() ==
-            CIMValue(String("Hello World")));
-        PEGASUS_TEST_ASSERT(namedInstances[i].getProperty(
-            namedInstances[i].findProperty("message")).getPropagated());
-    }
+    PEGASUS_TEST_ASSERT(
+    namedInstances[1].identical(inst0) ||
+    namedInstances[1].identical(inst1));
 
     //
     // Repeat the above tests for the enumerateInstancesForClass function
     //
-    namedInstances = r.enumerateInstancesForClass(NS, CIMName("SuperClass"));
+    namedInstances = r.enumerateInstancesForClass(NS,
+        CIMName("SuperClass"), false, true, true);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 1);
 
     //XmlWriter::printInstanceElement(namedInstances[0], cout);
     //XmlWriter::printInstanceElement(inst0, cout);
+    //XmlWriter::printInstanceElement(inst1, cout);
+    PEGASUS_TEST_ASSERT( namedInstances[0].identical(inst0));
 
-    PEGASUS_TEST_ASSERT(namedInstances[0].getPropertyCount() == 3);
-    PEGASUS_TEST_ASSERT(
-        namedInstances[0].getProperty(namedInstances[0].findProperty("key"))
-        .identical(CIMProperty(CIMName("key"), Uint32(111))));
-    PEGASUS_TEST_ASSERT(
-        namedInstances[0].getProperty(namedInstances[0].findProperty("ratio"))
-        .identical(CIMProperty(CIMName("ratio"), Real32(1.5), 0, CIMName(),
-            CIMName(), true)));
-    PEGASUS_TEST_ASSERT(
-        namedInstances[0].getProperty(namedInstances[0].findProperty("message"))
-        .identical(CIMProperty(CIMName("message"), String("Hello World"), 0,
-            CIMName(), CIMName(), true)));
-
-    namedInstances = r.enumerateInstancesForClass(NS, CIMName("SubClass"));
+    namedInstances = r.enumerateInstancesForClass(NS,
+        CIMName("SubClass"), false, true, true);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 1);
 
-    //XmlWriter::printInstanceElement(namedInstances[0], cout);
-    //XmlWriter::printInstanceElement(inst1, cout);
-
-    PEGASUS_TEST_ASSERT(namedInstances[0].getPropertyCount() == 5);
-    PEGASUS_TEST_ASSERT(
-        namedInstances[0].getProperty(namedInstances[0].findProperty("key"))
-        .identical(CIMProperty(CIMName("key"), Uint32(222))));
-    PEGASUS_TEST_ASSERT(
-        namedInstances[0].getProperty(namedInstances[0].findProperty("ratio"))
-        .identical(CIMProperty(CIMName("ratio"), Real32(1.5), 0, CIMName(),
-            CIMName(), true)));
-    PEGASUS_TEST_ASSERT(
-        namedInstances[0].getProperty(namedInstances[0].findProperty("message"))
-        .identical(CIMProperty(CIMName("message"), String("Hello World"), 0,
-            CIMName(), CIMName(), true)));
-    PEGASUS_TEST_ASSERT(
-        namedInstances[0].getProperty(namedInstances[0].findProperty("junk"))
-        .identical(CIMProperty(CIMName("junk"), Real32(66.66), 0, CIMName(),
-            CIMName(), true)));
-    PEGASUS_TEST_ASSERT(
-        namedInstances[0].getProperty(namedInstances[0].findProperty(
-            "newProperty")).identical(
-                CIMProperty(CIMName("newProperty"), Uint32(888), 0, CIMName(),
-                    CIMName(), true)));
+    PEGASUS_TEST_ASSERT(namedInstances[0].identical(inst1));
 
     //
     // Test enumerating with classOrigin false
     //
 
     namedInstances = r.enumerateInstancesForSubtree(NS,
-        CIMName ("SuperClass"), true, false);
+        CIMName ("SuperClass"),true, false, true, false);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
 
@@ -476,7 +419,7 @@ void TestCreateClass(Uint32 mode)
     // Repeat the above for enumerateinstancesForClass
     //
     namedInstances = r.enumerateInstancesForClass(NS,
-        CIMName("SuperClass"), true, false);
+        CIMName("SuperClass"), false, true, false);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 1);
 
@@ -493,7 +436,7 @@ void TestCreateClass(Uint32 mode)
     // Test for qualifier removal from enumerateinstances
     //
     namedInstances = r.enumerateInstancesForSubtree(NS,
-        CIMName ("SuperClass"), false, false);
+        CIMName ("SuperClass"),true, false, false, false);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
 
@@ -512,7 +455,7 @@ void TestCreateClass(Uint32 mode)
     // Repeat the above for the enumerateinstancesFor Class
     //
     namedInstances = r.enumerateInstancesForClass(NS,
-        CIMName("SuperClass"), false, false);
+        CIMName("SuperClass"), false, false, false);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 1);
 
@@ -539,10 +482,10 @@ void TestCreateClass(Uint32 mode)
     //
     CIMPropertyList pl1(pls_empty);
 
-    // deepInheritance=true,
+    // deepInheritance=true,localOnly=false,
     // includeQualifiers=false,includeClassOrigin=false,
     namedInstances = r.enumerateInstancesForSubtree(NS,
-        CIMName ("SuperClass"), false, false, pl1);
+        CIMName ("SuperClass"),true, false, false, false, pl1);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
 
@@ -571,7 +514,7 @@ void TestCreateClass(Uint32 mode)
     pl1.set(pls1);
 
     namedInstances = r.enumerateInstancesForSubtree(NS,
-        CIMName ("SuperClass"), false, false, pl1);
+        CIMName ("SuperClass"),true, false, false, false, pl1);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
 
@@ -598,10 +541,42 @@ void TestCreateClass(Uint32 mode)
     pls1.append(CIMName("message"));
     pl1.clear();
     pl1.set(pls1);
-    // deepInheritance=true,
+    // deepInheritance=true,localOnly=false,
     // includeQualifiers=false,includeClassOrigin=false,
     namedInstances = r.enumerateInstancesForSubtree(NS,
-        CIMName ("SuperClass"), false, false, pl1);
+        CIMName ("SuperClass"),true, false, false, false, pl1);
+
+    PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
+
+    for (Uint32 i = 0 ; i < namedInstances.size() ; i++)
+    {
+        // Check all properties for qualifiers
+        for (Uint32 j = 0 ; j < namedInstances[i].getPropertyCount() ; j++)
+        {
+            PEGASUS_TEST_ASSERT(
+                namedInstances[i].findProperty("key") == PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT(
+                namedInstances[i].findProperty("ratio") != PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT(
+                namedInstances[i].findProperty("message") != PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT(
+                namedInstances[i].getPropertyCount() == 2);
+        }
+    }
+
+
+    //
+    // retest with two entries in the list and localOnly=true.
+    // results should be same as with LocalOnly=false since it
+    // has been deprecated.
+    //
+    pls1.append(CIMName("message"));
+    pl1.clear();
+    pl1.set(pls1);
+    // deepInheritance=true,localOnly=true,
+    // includeQualifiers=false,includeClassOrigin=false,
+    namedInstances = r.enumerateInstancesForSubtree(NS,
+        CIMName ("SuperClass"),true, true, false, false, pl1);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
 
@@ -631,7 +606,7 @@ void TestCreateClass(Uint32 mode)
     pl1.set(pls1);
 
     namedInstances = r.enumerateInstancesForSubtree(NS,
-        CIMName ("SuperClass"), false, false, pl1);
+        CIMName ("SuperClass"),true, false, false, false, pl1);
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
 
@@ -656,9 +631,6 @@ void TestCreateClass(Uint32 mode)
     // -- Modify one of the instances:
     //
 
-    CIMInstance premodifyInst = r.getInstance(NS, instanceNames[0], true, true);
-    premodifyInst.setPath(instanceNames[0]);
-
     CIMInstance modifiedInst0(CIMName ("SuperClass"));
     modifiedInst0.addProperty(CIMProperty(CIMName ("key"), Uint32(111)));
     modifiedInst0.addProperty(
@@ -669,20 +641,13 @@ void TestCreateClass(Uint32 mode)
     //
     // -- Get instance back and see that it is the same as modified one:
     //
-    CIMInstance tmpInstance = r.getInstance(NS, instanceNames[0], true, true);
-    tmpInstance.setPath(instanceNames[0]);
-    //XmlWriter::printInstanceElement(premodifyInst, cout);
+    CIMInstance tmpInstance = r.getInstance(NS, CIMObjectPath
+        ("SuperClass.key=111"), false, true, true);
+    tmpInstance.setPath (instanceNames[0]);
     //XmlWriter::printInstanceElement(tmpInstance, cout);
+    //XmlWriter::printInstanceElement(modifiedInst0, cout);
 
-    PEGASUS_TEST_ASSERT(
-        tmpInstance.getProperty(tmpInstance.findProperty("message")).getValue()
-            == String("Goodbye World"));
-    PEGASUS_TEST_ASSERT(
-        tmpInstance.getProperty(tmpInstance.findProperty("ratio")).identical(
-            premodifyInst.getProperty(premodifyInst.findProperty("ratio"))));
-    PEGASUS_TEST_ASSERT(
-        tmpInstance.getProperty(tmpInstance.findProperty("key")).identical(
-            premodifyInst.getProperty(premodifyInst.findProperty("key"))));
+    PEGASUS_TEST_ASSERT(tmpInstance.identical(modifiedInst0));
 
     //
     // -- Now modify the "message" property:
@@ -730,44 +695,18 @@ void TestCreateClass(Uint32 mode)
     r.deleteInstance(NS, CIMObjectPath ("SubClass.key=222"));
 
     //
-    // -- Clean up classes:
-    //
-    r.deleteClass(NS, CIMName ("SubClass"));
-    r.deleteClass(NS, CIMName ("SuperClass"));
-
-    //
     // -- Delete the qualifier:
     //
     r.deleteQualifier(NS, CIMName ("key"));
     r.deleteQualifier(NS, CIMName ("description"));
     r.deleteQualifier(NS, CIMName ("junk"));
 
+    //
+    // -- Clean up classes:
+    //
+    r.deleteClass(NS, CIMName ("SubClass"));
+    r.deleteClass(NS, CIMName ("SuperClass"));
     r.deleteNameSpace(NS);
-}
-
-void TestModifyClass(Uint32 mode)
-{
-    //
-    // -- Create repository and test namespace:
-    //
-    CIMRepository r(repositoryRoot, mode);
-    const CIMNamespaceName NS = CIMNamespaceName("TestModifyClass");
-
-    r.createNameSpace(NS);
-
-    // Test NOT_FOUND error when modifying a non-existent class
-
-    CIMClass c("PG_NonExistent", "PG_NonExistentParent");
-    try
-    {
-        r.modifyClass(NS, c);
-        // Should not get here.
-        PEGASUS_TEST_ASSERT(false);
-    }
-    catch (CIMException& e)
-    {
-        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_FOUND);
-    }
 }
 
 void TestQualifiers(Uint32 mode)
@@ -815,12 +754,6 @@ int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
-    if (argc != 2)
-    {
-        cout << "Usage: " << argv[0] << " XML | BIN" << endl;
-        return 1;
-    }
-
     const char* tmpDir = getenv ("PEGASUS_TMP");
     if (tmpDir == NULL)
     {
@@ -850,12 +783,11 @@ int main(int argc, char** argv)
       else
     {
       cout << argv[0] << ": invalid argument: " << argv[1] << endl;
-      return 1;
+      return 0;
     }
 
     TestNameSpaces(mode);
     TestCreateClass(mode);
-    TestModifyClass(mode);
     TestQualifiers(mode);
 
     }
@@ -867,7 +799,7 @@ int main(int argc, char** argv)
 
     FileSystem::removeDirectoryHier(repositoryRoot);
 
-    cout << argv[0] << " +++++ passed all tests" << endl;
+    cout << argv[0] << " " << argv[1] << " +++++ passed all tests" << endl;
 
     return 0;
 }

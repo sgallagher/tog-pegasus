@@ -494,8 +494,14 @@ Boolean System::isLocalHost(const String &hostName)
         }
         res1 = res1->ai_next;
     }   
-    freeaddrinfo(res1root);
-    freeaddrinfo(res2root);
+    if (res1root)
+    {
+        freeaddrinfo(res1root);
+    }
+    if (res2root)
+    {
+        freeaddrinfo(res2root);
+    }
     if (isLocal)
     {
         return true;
@@ -535,9 +541,14 @@ Boolean System::isLocalHost(const String &hostName)
         }
         res1 = res1->ai_next;
     }
-    freeaddrinfo(res1root);
-    freeaddrinfo(res2root);
-
+    if (res1root)
+    {
+        freeaddrinfo(res1root);
+    }
+    if (res2root)
+    {
+        freeaddrinfo(res2root);
+    }
     return isLocal;
 #else
 

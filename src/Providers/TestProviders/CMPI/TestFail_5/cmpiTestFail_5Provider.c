@@ -382,7 +382,7 @@ CMInstanceMIStub(
     TestCMPIFail_5Provider,
     TestCMPIFail_5Provider,
     _broker,
-    CMNoHook);
+    CMNoHook)
 
 CMIndicationMIStub(
     TestCMPIFail_5Provider,

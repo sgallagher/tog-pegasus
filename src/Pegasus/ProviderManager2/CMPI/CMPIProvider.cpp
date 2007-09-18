@@ -391,6 +391,7 @@ void CMPIProvider::_terminate(Boolean terminating)
         CMPI_RC_DO_NOT_UNLOAD Operation successful - do not unload now.
         CMPI_RC_NEVER_UNLOAD Operation successful - never unload.
 */
+    unloadStatus = CMPI_RC_OK;
     if (miVector.miTypes & CMPI_MIType_Instance)
     {
         rc=miVector.instMI->ft->cleanup(miVector.instMI,&eCtx, terminating);

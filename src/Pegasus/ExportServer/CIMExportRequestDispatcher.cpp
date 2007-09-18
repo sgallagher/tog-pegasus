@@ -93,7 +93,7 @@ void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
             PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "CIMExportRequestDispatcher::_handle_async_request got "
                     "unexpected legacy message type '%u'", legacy->getType()));
-	    _make_response(req, async_results::CIM_NAK);
+            _make_response(req, async_results::CIM_NAK);
             delete legacy;
         }
     }
@@ -113,7 +113,7 @@ void CIMExportRequestDispatcher::handleEnqueue(Message* message)
 
     switch (message->getType())
     {
-	case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
+        case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
         {
             CIMExportIndicationResponseMessage* response =
                 _handleExportIndicationRequest(
@@ -122,13 +122,14 @@ void CIMExportRequestDispatcher::handleEnqueue(Message* message)
             PEG_TRACE((
                 TRC_HTTP,
                 Tracer::LEVEL3,
-                "_CIMExportRequestDispatcher::handleEnqueue(message) - message->getCloseConnect() returned %d",
+                "_CIMExportRequestDispatcher::handleEnqueue(message) - "
+                    "message->getCloseConnect() returned %d",
                 message->getCloseConnect()));
 
             response->setCloseConnect(message->getCloseConnect());
 
             SendForget(response);
-	    break;
+            break;
         }
 
         default:
@@ -140,19 +141,62 @@ void CIMExportRequestDispatcher::handleEnqueue(Message* message)
     PEG_METHOD_EXIT();
 }
 
-
 void CIMExportRequestDispatcher::handleEnqueue()
 {
-   PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
-      "CIMExportRequestDispatcher::handleEnqueue");
+    PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
+        "CIMExportRequestDispatcher::handleEnqueue");
 
-   Message *message = dequeue();
-   if(message)
-      handleEnqueue(message);
+    // It is important to handle the enqueued message on a separate thread,
+    // because this method is likely to be processing on a central (Monitor)
+    // thread and handling the message will likely include a call to a
+    // provider.  The thread is launched here rather than at a lower level
+    // because async messages are handled differently and the
+    // _handleExportIndicationRequest message does not have enough context
+    // to manage the difference.
 
-   PEG_METHOD_EXIT();
+    ThreadStatus rtn = PEGASUS_THREAD_OK;
+    while ((rtn = _thread_pool->allocate_and_awaken(
+                      (void *)this,
+                      CIMExportRequestDispatcher::_handleEnqueueOnThread)) !=
+               PEGASUS_THREAD_OK)
+    {
+        if (rtn != PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+        {
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "Could not allocate thread for %s.",
+                getQueueName()));
+            break;
+        }
+
+        Threads::yield();
+    }
+
+    PEG_METHOD_EXIT();
 }
 
+// Note: This method should not throw an exception.  It is used as a thread
+// entry point, and any exceptions thrown are ignored.
+ThreadReturnType PEGASUS_THREAD_CDECL
+CIMExportRequestDispatcher::_handleEnqueueOnThread(void* arg)
+{
+    PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
+        "CIMExportRequestDispatcher::_handleEnqueueOnThread");
+
+    PEGASUS_ASSERT(arg != 0);
+
+    CIMExportRequestDispatcher* dispatcher =
+        reinterpret_cast<CIMExportRequestDispatcher*>(arg);
+    PEGASUS_ASSERT(dispatcher != 0);
+
+    Message* message = dispatcher->dequeue();
+    if (message)
+    {
+        dispatcher->handleEnqueue(message);
+    }
+
+    PEG_METHOD_EXIT();
+    return ThreadReturnType(0);
+}
 
 CIMExportIndicationResponseMessage*
 CIMExportRequestDispatcher::_handleExportIndicationRequest(
@@ -173,10 +217,10 @@ CIMExportRequestDispatcher::_handleExportIndicationRequest(
 
     AsyncLegacyOperationStart * asyncRequest =
         new AsyncLegacyOperationStart(
-	    op,
-	    serviceIds[0],
-	    new CIMExportIndicationRequestMessage(*request),
-	    this->getQueueId());
+            op,
+            serviceIds[0],
+            new CIMExportIndicationRequestMessage(*request),
+            this->getQueueId());
 
     asyncRequest->dest = serviceIds[0];
 

@@ -449,8 +449,13 @@ int main(int argc, char** argv)
     MessageLoader::_useProcessLocale = true;
 
 #if defined(PEGASUS_OS_VXWORKS)
-    // On VxWorks, run cimserver from /romfs (read-only file system).
-    chdir("/romfs");
+    // On VxWorks, run cimserver from /peg:0 (read-only file system).
+    chdir("/peg:0");
+
+    char buffer[4096];
+    *buffer = '\0';
+    getcwd(buffer, sizeof(buffer));
+    printf("CWD[%s]\n", buffer);
 #endif
 
 #ifdef PEGASUS_OS_ZOS

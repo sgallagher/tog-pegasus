@@ -630,6 +630,10 @@ Boolean InstanceIndexFile::_openFile(
 
     const char ZERO_FREE_COUNT[] = "00000000\n";
 
+/*
+ATTN-MEB: VxWorks fails to open file for output on read-only file systems.
+*/
+
     //
     // Open the file:
     //

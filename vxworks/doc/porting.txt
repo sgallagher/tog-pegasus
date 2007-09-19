@@ -40,3 +40,5 @@
 
     12. Should VxWorks use the configuration file mechanism.
 
+    13. ftruncate() fails when against host file system.
+

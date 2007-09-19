@@ -1,38 +1,75 @@
-/* 
 #include "xbdBlkDev.h" 
-void usrIosExtraInit (void)
-*/
 
-    /* Create virtual file */
-#if 1
+static int _exists(const char* path)
+{
+    int fd = open(path, O_RDONLY, 0777);
+
+    if (fd == -1)
+        return 0;
+
+    close(fd);
+    return 1;
+}
+
+static BLK_DEV* _vfs_blk_dev;
+static device_t _vfs_device;
+
+/*
+ * Add a call to this function to end of usrIosExtraInit()
+ */
+static void pegasus_vxsim_init()
+{
+    const char PATH[] = "/tmp/pegasus.vfs";
+    const size_t BYTES_PER_BLOCK = 512;
+    const size_t NUM_BLOCKS = 131072;
+    int exists;
+
+    exists = _exists(PATH);
+
+    if (!(_vfs_blk_dev = virtualDiskCreate((char*)PATH, 
+        BYTES_PER_BLOCK, NUM_BLOCKS, NUM_BLOCKS)))
     {
-        BLK_DEV* bd;
-        device_t d;
-        
-        if (!(bd = virtualDiskCreate("/tmp/peghome", 512, 4000, 4000)))
-            fprintf(stderr, "***************** virtualDiskCreate() failed\n");
+        fprintf(stderr, "********************************\n");
+        fprintf(stderr, "**                            **\n");
+        fprintf(stderr, "** virtualDiskCreate() failed **\n");
+        fprintf(stderr, "**                            **\n");
+        fprintf(stderr, "********************************\n");
+    }
 
-        if ((d = xbdBlkDevCreate(bd, "/peg")) == 0)
-            fprintf(stderr, "***************** xbdBlkDevCreate() failed\n");
+    if ((_vfs_device = xbdBlkDevCreateSync(_vfs_blk_dev, "/peg")) == 0)
+    {
+        fprintf(stderr, "**********************************\n");
+        fprintf(stderr, "**                              **\n");
+        fprintf(stderr, "** xbdBlkDevCreateSync() failed **\n");
+        fprintf(stderr, "**                              **\n");
+        fprintf(stderr, "**********************************\n");
+    }
 
-int fd = open("/peg", O_RDONLY, 0777);
-printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX fd=%d\n", fd);
-
+    if (!exists)
+    {
         if (hrfsFormat("/peg:0", 0, 0, 0) != 0)
-            fprintf(stderr, "***************** failed to format RAM disk\n");
+        {
+            fprintf(stderr, "*************************n");
+            fprintf(stderr, "**                     **\n");
+            fprintf(stderr, "** hrfsFormat() failed **\n");
+            fprintf(stderr, "**                     **\n");
+            fprintf(stderr, "*************************n");
+        }
     }
-#else
-    {
-        BLK_DEV* bd;
-        device_t d;
+}
 
-        if (!(bd = virtualDiskCreate("/tmp/peghome", 512, 32, 416)))
-            fprintf(stderr, "***************** virtualDiskCreate() failed\n");
+#if 0
 
-        if ((d = xbdBlkDevCreate(bd, "/mmm")) == 0)
-            fprintf(stderr, "***************** xbdBlkDevCreate() failed\n");
+/*
+ * Shutdown function, executed atexit().
+ */
+static void pegasus_vxsim_shutdown()
+{
+    fprintf(stderr, "****************************\n");
+    fprintf(stderr, "** pegasus_vxsim_shutdown **\n");
+    fprintf(stderr, "****************************\n");
+    xbdBlkDevDelete(_vfs_device, &_vfs_blk_dev);
+    virtualDiskClose(_vfs_blk_dev);
+}
 
-        if (dosFsVolFormat("/mmm:0", DOS_OPT_BLANK, NULL) != 0)
-            fprintf(stderr, "***************** failed to format RAM disk\n");
-    }
 #endif

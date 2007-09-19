@@ -18,8 +18,6 @@ proj:
 	( cd proj; vxprj create linux gnu vxsim.wpj )
 	( cd proj; vxprj component add INCLUDE_POSIX_PTHREAD_SCHEDULER )
 	( cd proj; vxprj component add INCLUDE_HRFS )
-	( cd proj; vxprj component add INCLUDE_DOSFS )
-	( cd proj; vxprj component add INCLUDE_RAM_DISK )
 	( cd proj; vxprj component add INCLUDE_HRFS_FORMAT )
 	( cd proj; vxprj component add INCLUDE_PEGASUS )
 	( cd proj; vxprj component remove INCLUDE_SHELL_BANNER )
@@ -27,6 +25,10 @@ proj:
 	( cd proj; vxprj parameter set LOCAL_MEM_SIZE 0x08000000 )
 	( cd proj; vxprj parameter set PASSFS_CACHE FALSE )
 	( cd proj; vxprj parameter setstring SHELL_DEFAULT_CONFIG $(SHELL_DEFAULT_CONFIG) )
+
+obsolete:
+	( cd proj; vxprj component add INCLUDE_DOSFS )
+	( cd proj; vxprj component add INCLUDE_RAM_DISK )
 
 build:
 	( cd proj; make TOOL=gnu ROMFS_DIR=$(ROMFS) )

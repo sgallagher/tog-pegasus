@@ -1083,86 +1083,71 @@ Boolean System::truncateFile(
 {
 #if defined(PEGASUS_OS_VXWORKS)
 
-    // First try ftruncate(), which works if file is located on target.
+    // There is no VxWorks 6.2 truncate() and ftruncate() is broken (only 
+    // supports truncation to zero size). Here we invoke the FIOTRUNC system 
+    // call directly.
 
-    for (;;)
+    int fd = open(path, O_WRONLY);
+
+    if (fd == -1)
+        return false;
+
+    if (ioctl(fd, FIOTRUNC, newSize) != 0)
     {
-        int fd = open(path, O_WRONLY);
-
-        if (fd == -1)
-            break;
-
-        if (ftruncate(fd, newSize) != 0)
-            break;
-
-        close(fd);
-        return true;
-    }
-
-    // Since ftruncate() failed, we are forced to rewrite the file.
-    {
-        char tmp[4096];
-        strcpy(tmp, path);
-        strcat(tmp, ".__ftruncate_tmp__");
-
-        unlink(tmp);
-
-        // Rename file to temporary name:
-
-        if (rename(path, tmp) != 0)
-            return false;
-
-        // Open input file:
-
-        int in = open(tmp, O_RDONLY);
-
-        if (in == -1)
-            return false;
-
-        // Open output file:
-
-        int out = open(path, O_WRONLY | O_CREAT, 0666);
-
-        if (out == -1)
+        switch (errno)
         {
-            close(in);
-            return false;
-        }
-
-        // Perform truncation.
-
-        char buffer[4096];
-        int r = newSize;
-        int n;
-
-        while (r && (n = read(in, buffer, r)) > 0)
-        {
-            if (write(out, buffer, n) != n)
-            {
-                close(in);
-                close(out);
+            case EINTR:
+            case EINVAL:
+            case EFBIG:
+            case EIO:
+            case EBADF:
+            case EROFS:
+                close(fd);
                 return false;
+
+            case S_ioLib_WRITE_PROTECTED:
+                errno = EROFS;
+                close(fd);
+                return false;
+
+            case S_dosFsLib_READ_ONLY:
+                errno = EBADF;
+                close(fd);
+                return false;
+
+            case S_ioLib_UNKNOWN_REQUEST:
+            default:
+            {
+                // Some of the VxWorks device drivers report an error when
+                // there is in fact no error. Here we check to see if the
+                // size of the file is now the requested size. If so, then
+                // the operation was successful (or in the worst case, the
+                // failure is not significant since it resulted in a proerly
+                // sized file).
+
+                struct stat st;
+
+                if (fstat(fd, &st) == 0 && st.st_size == newSize)
+                {
+                    close(fd);
+                    return false;
+                }
+
+                // Success!
+                close(fd);
+                errno = EINVAL;
+                return true;
             }
-
-            r -= n;
         }
-
-        close(in);
-        close(out);
-
-        struct stat st;
-        int rc = stat(path, &st);
-
-        if (rc != 0 || newSize != st.st_size)
-            return false;
-
-        unlink(tmp);
-        return true;
     }
+
+    close(fd);
+    return true;
 
 #else /* PEGASUS_OS_VXWORKS */
 
     return (truncate(path, newSize) == 0);
+
 #endif
 }
 

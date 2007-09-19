@@ -49,7 +49,6 @@ CMPIProviderModule::CMPIProviderModule(const String & fileName)
     PEG_METHOD_ENTER(
         TRC_CMPIPROVIDERINTERFACE,
         "CMPIProviderModule::CMPIProviderModule()");
-    genericProviderModule=0;
 
     String resolvedFileName;
 
@@ -208,7 +207,6 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
             realProviderName));
     }
 
-    genericProviderModule=miVector.genericMode!=0;
     PEG_METHOD_EXIT();
     return miVector;
 }

@@ -66,27 +66,11 @@ protected:
 
 private:
     CMPIProviderModule(const String & fileName);
-    const String & getProviderName() const;
-    virtual CIMProvider * getProvider() const;
-
-    String _providerName;
-    CIMProvider * _provider;
-    Boolean genericProviderModule;
 };
 
 inline const String & CMPIProviderModule::getFileName() const
 {
     return _library.getFileName();
-}
-
-inline const String & CMPIProviderModule::getProviderName() const
-{
-    return(_providerName);
-}
-
-inline CIMProvider * CMPIProviderModule::getProvider() const
-{
-    return(_provider);
 }
 
 PEGASUS_NAMESPACE_END

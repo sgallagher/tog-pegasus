@@ -1105,17 +1105,6 @@ Boolean System::truncateFile(
                 close(fd);
                 return false;
 
-            case S_ioLib_WRITE_PROTECTED:
-                errno = EROFS;
-                close(fd);
-                return false;
-
-            case S_dosFsLib_READ_ONLY:
-                errno = EBADF;
-                close(fd);
-                return false;
-
-            case S_ioLib_UNKNOWN_REQUEST:
             default:
             {
                 // Some of the VxWorks device drivers report an error when
@@ -1130,13 +1119,13 @@ Boolean System::truncateFile(
                 if (fstat(fd, &st) == 0 && st.st_size == newSize)
                 {
                     close(fd);
-                    return false;
+                    return true;
                 }
 
                 // Success!
                 close(fd);
                 errno = EINVAL;
-                return true;
+                return false;
             }
         }
     }

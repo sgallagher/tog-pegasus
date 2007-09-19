@@ -1,3 +1,5 @@
+.PHONY: repository
+
 export HOST_PEGASUS_HOME:=$(PEGASUS_HOME)
 include ../config.mak
 ROOT = ../..

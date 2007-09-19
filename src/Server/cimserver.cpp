@@ -1146,6 +1146,10 @@ int CIMServerProcess::cimserver_run(
 #endif
         }
 
+#if defined(PEGASUS_OS_VXWORKS)
+        cout << "Started CIM Server." << endl;
+#endif
+
 #if defined(PEGASUS_DEBUG)
         cout << "Started. " << endl;
 #endif

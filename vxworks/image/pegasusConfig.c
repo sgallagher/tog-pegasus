@@ -11,8 +11,8 @@ void pegasusInit()
 {
     BLK_DEV* _vfs_blk_dev;
     device_t _vfs_device;
-    const size_t BYTES_PER_BLOCK = 512;
-    const size_t NUM_BLOCKS = 131072;
+    const size_t BYTES_PER_BLOCK = 1024;
+    const size_t NUM_BLOCKS = (64 * 1024 * 1024) / BYTES_PER_BLOCK;
     int exists = 0;
 
     {

@@ -178,26 +178,9 @@ Boolean CQLSelectStatementRep::evaluate(const CIMInstance& inCI)
         PEG_METHOD_EXIT();
         return true;
     }
-    else
-    {
-        try
-        {
-            PEG_METHOD_EXIT();
-            return _predicate.evaluate(inCI, *_ctx);
-        }
-        catch (CQLNullContagionException& )
-        {
-            // The null contagion rule.
-            PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL4,"null contagion");
-            PEG_METHOD_EXIT();
-            return false;
-        }
-    }
-    
-    PEGASUS_UNREACHABLE( PEGASUS_ASSERT(false); )
-    PEGASUS_UNREACHABLE( PEG_TRACE_CSTRING (TRC_CQL,
-        Tracer::LEVEL4,"should not get here in evaluate"); )
-    PEGASUS_UNREACHABLE( return true; ) //should never get here
+
+    PEG_METHOD_EXIT();
+    return _predicate.evaluate(inCI, *_ctx);
 }
 
 void CQLSelectStatementRep::applyProjection(CIMInstance& inCI,

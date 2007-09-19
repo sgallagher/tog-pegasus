@@ -373,16 +373,6 @@ public:
   CQLValueType getValueType() const;
 
   /**
-      Clears this object and sets its type to NULL_VALUE
-
-      @param  None.
-      @return None.
-      @throw  None.
-      <I><B>Experimental Interface</B></I><BR>
-  */
-  void setNull();
-
-  /**
       Returns whether the value has been resolved to a primitive.
 
       @param  None.

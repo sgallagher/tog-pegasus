@@ -118,6 +118,13 @@ Function2.query.res: Function2.query
 	@ $(RM) $(TMP_DIR)/Function2.query.res
 	@ $(ECHO) +++ Function2.query passed successfully +++
 
+
+Null.query.res: Null.query
+	@ TestCQL Null.query -test 1 -className CQL_TestNullValueTypes > $(TMP_DIR)/Null.query.res
+	@ $(DIFF) Null.query.resgood $(TMP_DIR)/Null.query.res
+	@ $(RM) $(TMP_DIR)/Null.query.res
+	@ $(ECHO) +++ Null.query passed successfully +++
+
 clean:
 	$(RM) Like.query.res
 	$(RM) isa.query.res
@@ -132,6 +139,7 @@ clean:
 	$(RM) general.query.res
 	$(RM) Function.query.res
 	$(RM) Function2.query.res
+	$(RM) Null.query.res
 
 depend:
 
@@ -149,10 +157,9 @@ poststarttests: \
 	Misc.query.res \
 	NormalizeToDOC.query.res \
 	general.query.res \
-	Function2.query.res
-
-BROKEN_TESTS = \
-	Function.query.res
+	Function2.query.res \
+	Function.query.res \
+	Null.query.res
 
 general:
 

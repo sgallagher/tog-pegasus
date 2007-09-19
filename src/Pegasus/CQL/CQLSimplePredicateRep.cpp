@@ -98,14 +98,6 @@ Boolean CQLSimplePredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
 
     PEGASUS_ASSERT(_operator != IS_NULL && _operator != IS_NOT_NULL);
     
-    if (leftVal.isNull())
-    {
-        // The null contagion rule.  See CQLSelectStatementRep for details.  
-        MessageLoaderParms parms("CQL.CQLSimplePredicateRep.NULL_CONTAGION",
-                                 "The expression evaluates to NULL.");
-        throw CQLNullContagionException(parms); 
-    }
-    
     if (_operator == ISA)
     {
         // Special processing for ISA.  The CQLValue on the right side of ISA
@@ -166,21 +158,6 @@ Boolean CQLSimplePredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
     // Resolve the value of the right side
     CQLValue rightVal = _rightSide.resolveValue(CI, QueryCtx);
     
-    // printf("Left Value - %s, Right value - %s\n", 
-    // (const char *)leftVal.toString().getCString(), 
-    // (const char *)rightVal.toString().getCString());
-  
-    if (rightVal.isNull())
-    {
-        // The null contagion rule.  See CQLSelectStatementRep for details. 
-        // ATTN - change this to a specific CQLException so that it can
-        // be caught above
-        // The null contagion rule.  See CQLSelectStatementRep for details.  
-        MessageLoaderParms parms("CQL.CQLSimplePredicateRep.NULL_CONTAGION",
-                                 "The expression evaluates to NULL.");
-        throw CQLNullContagionException(parms); 
-    }
-
     switch(_operator)
     {
         case LT:

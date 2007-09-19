@@ -257,24 +257,6 @@ public:
     }
 };
 
-class PEGASUS_QUERYCOMMON_LINKAGE CQLNullContagionException :
-    public CQLRuntimeException
-{
-public:
-    static const char MSG[];
-    static const char KEY[];
-
-    CQLNullContagionException(const String& msg)
-        : CQLRuntimeException(MessageLoaderParms(KEY, MSG, msg))
-    {
-    }
-
-    CQLNullContagionException(const MessageLoaderParms& parms)
-        : CQLRuntimeException(parms)
-    {
-    }
-};
-
 // Macros to convert non QueryExceptions to QueryExceptions
 
 #define PEGASUS_QUERY_EXCEPTION(LANGS, MESSAGE) QueryException(LANGS, MESSAGE)

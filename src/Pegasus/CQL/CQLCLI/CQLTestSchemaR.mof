@@ -190,3 +190,14 @@ instance of CIM_ComputerSystem
    EnabledState = 2;
    ResetCapability = 3;
 };
+
+instance of CQL_TestNullValueTypes
+{
+   InstanceId = 1;
+   stringProperty = "stringProperty";
+   sint64Property = -5332;
+   uint64Property = 5332;
+   real64Property = -123.567;
+   datetimeProperty = "20040811105625.000000-360";
+   char16Property = "I";
+};

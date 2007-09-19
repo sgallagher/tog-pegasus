@@ -461,17 +461,17 @@ CQLValueRep& CQLValueRep::operator=(const CQLValueRep& rhs)
 Boolean CQLValueRep::operator==(const CQLValueRep& x)
 {
   PEG_METHOD_ENTER(TRC_CQL, "CQLValueRep::operator==");
+  
   _validate(x);
 
-  if(_theValue.isNull() && x._theValue.isNull())
+  if(isNull() && x.isNull())
     {
       return true;
     }
-  if(_theValue.isNull() || x._theValue.isNull())
+  if(isNull() || x.isNull())
     {
       return false;
     }
-
   if(_theValue.isArray())
     {
       return _compareArray(x);
@@ -619,8 +619,6 @@ Boolean CQLValueRep::operator<=(const CQLValueRep& x)
 
 Boolean CQLValueRep::operator>=(const CQLValueRep& x)
 {
-  _validate(x);
-   
    return !(this->operator<(x));  
 }
 
@@ -828,16 +826,51 @@ CQLValueRep CQLValueRep::operator+(const CQLValueRep x)
 
 CQLValue::CQLValueType CQLValueRep::getValueType()
 {
-   return _valueType;
+    return _valueType;
 }
 
-
-void CQLValueRep::setNull()
+CQLValue::CQLValueType CQLValueRep::_getCQLType(const CIMType &type)
 {
-   _valueType = CQLValue::Null_type;
-   _isResolved = true;
-}
+    switch (type)
+    {
+        case CIMTYPE_BOOLEAN:
+            return CQLValue::Boolean_type;
 
+        case CIMTYPE_UINT8:
+        case CIMTYPE_UINT16:
+        case CIMTYPE_UINT32:
+        case CIMTYPE_UINT64:
+            return CQLValue::Uint64_type;
+
+        case CIMTYPE_SINT8:
+        case CIMTYPE_SINT16:
+        case CIMTYPE_SINT32:
+        case CIMTYPE_SINT64:
+            return CQLValue::Sint64_type;
+
+        case CIMTYPE_REAL32:
+        case CIMTYPE_REAL64:
+            return CQLValue::Real_type;
+
+        case CIMTYPE_CHAR16:
+        case CIMTYPE_STRING:
+            return CQLValue::String_type;
+
+        case CIMTYPE_DATETIME:
+           return CQLValue::CIMDateTime_type;
+
+        case CIMTYPE_REFERENCE:
+            return CQLValue::CIMReference_type;
+
+        case CIMTYPE_OBJECT:
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        case CIMTYPE_INSTANCE:
+#endif
+            return CQLValue::CIMObject_type;
+        default:
+            return CQLValue::Null_type;
+    }
+}
 
 Boolean CQLValueRep::isResolved()
 {
@@ -845,9 +878,9 @@ Boolean CQLValueRep::isResolved()
 }
 
 
-Boolean CQLValueRep::isNull()
+Boolean CQLValueRep::isNull() const
 {
-   if(_valueType == CQLValue::Null_type)
+   if(_valueType == CQLValue::Null_type || _theValue.isNull())
    {
       return true;
    }
@@ -1139,7 +1172,14 @@ String CQLValueRep::toString()const
 void CQLValueRep::_validate(const CQLValueRep& x)
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLValueRep::_validate()");
-  
+ 
+  // Check for Null_type
+  if (_valueType == CQLValue::Null_type || x._valueType == CQLValue::Null_type)
+  {
+      PEG_METHOD_EXIT();
+      return;
+  }
+ 
   // Do not allow an array value be compared to a non array value.
   if(x._theValue.isArray() != _theValue.isArray())
     {
@@ -1151,15 +1191,6 @@ void CQLValueRep::_validate(const CQLValueRep& x)
 
   switch(_valueType)
     {
-    case CQLValue::Null_type:
-      if(x._valueType != CQLValue::Null_type)
-    {
-      MessageLoaderParms mload(String("CQL.CQLValueRep.OP_TYPE_MISMATCH"),
-                   String("Validation type mismatch error for type: $0"),
-                   String("NULLVALUE"));
-      throw CQLRuntimeException(mload);
-    }
-      break;
     case CQLValue::Boolean_type:
       if(x._valueType != CQLValue::Boolean_type)
     {
@@ -1247,7 +1278,9 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 key)
 
   if(cv.isNull())
     {
-      _valueType = CQLValue::Null_type;
+      _theValue = cv;
+      // Get actual value type.
+      _valueType = _getCQLType(cv.getType());
       _isResolved = true;
       PEG_METHOD_EXIT();
       return;
@@ -2031,15 +2064,13 @@ Boolean CQLValueRep::_compareArray(const CQLValueRep& _in)
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLValueRep::_compareArray()");
 
-  if ((_valueType == CQLValue::Null_type) &&
-      (_in._valueType == CQLValue::Null_type))
+  if (isNull() && _in.isNull())
   {
       PEG_METHOD_EXIT();
       return true;
   }
   
-  if ((_valueType == CQLValue::Null_type) ||
-      (_in._valueType == CQLValue::Null_type))
+  if (isNull() ||_in.isNull())
   {
       PEG_METHOD_EXIT();
       return false;

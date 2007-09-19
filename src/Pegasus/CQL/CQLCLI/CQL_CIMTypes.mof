@@ -402,3 +402,67 @@ class CQL_TestPropertyTypesMissing:CQL_TestElement
           "Just a plain old uint8 ")]
      uint8 SomeUint8;
    };
+
+
+// ==================================================================
+// CQL_TestNullValueTypes
+// ==================================================================
+   [Version ("2.2.0"), Description (
+   "CQL_TestNullValueTypes is used for testing CQL NULL values.")]
+   class CQL_TestNullValueTypes
+   {
+      [Key,
+       Description (
+          "An identifier that uniquely identifies each instance "
+          "of the CQL_TestNullValueTypes.") ]
+     uint64 InstanceId;
+
+      [Description (
+          "string property of CQL_TestNullValueTypes class.")]
+     string stringProperty;
+
+      [Description (
+          "string null property of CQL_TestNullValueTypes class.")]
+     string nullStringProperty;
+
+      [Description (
+          "sint64 property of CQL_TestNullValueTypes class.")]
+     sint64 sint64Property;
+
+      [Description (
+          "sint64 null property of CQL_TestNullValueTypes class.")]
+     sint64 nullSint64Property;
+
+      [Description (
+          "uint64 property of CQL_TestNullValueTypes class.")]
+     uint64 uint64Property;
+
+      [Description (
+          "uint64 null property of CQL_TestNullValueTypes class.")]
+     uint64 nullUint64Property;
+
+      [Description (
+          "real64 property of CQL_TestNullValueTypes class.")]
+     real64 real64Property;
+
+      [Description (
+          "real64 null property of CQL_TestNullValueTypes class.")]
+     real64 nullReal64Property;
+
+      [Description (
+          "datetime property of CQL_TestNullValueTypes class.")]
+     datetime datetimeProperty;
+
+      [Description (
+          "datetime null property of CQL_TestNullValueTypes class.")]
+     datetime nullDatetimeProperty;
+
+      [Description (
+          "char16 property of CQL_TestNullValueTypes class.")]
+     char16 char16Property;
+
+      [Description (
+          "char16 null property of CQL_TestNullValueTypes class.")]
+     char16 nullChar16Property;
+   };
+

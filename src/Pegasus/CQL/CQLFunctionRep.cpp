@@ -364,7 +364,7 @@ CQLValue CQLFunctionRep::dateTimeToMicrosecond(const CIMInstance& CI,
     // resolve the parameter
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
         resolveValue(CI,queryCtx);
-    
+   
     if(cqlVal.getValueType() != CQLValue::CIMDateTime_type)
     {
         MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_TYPE",
@@ -375,10 +375,15 @@ CQLValue CQLFunctionRep::dateTimeToMicrosecond(const CIMInstance& CI,
             CQLValueRep::valueTypeToString(cqlVal.getValueType()),
             CQLValueRep::valueTypeToString(CQLValue::CIMDateTime_type));
         throw CQLRuntimeException(mload);
-  }
+    }
 
-  PEG_METHOD_EXIT();
-  return CQLValue(cqlVal.getDateTime().toMicroSeconds()); 
+    if (cqlVal.isNull())
+    {
+        return CQLValue(CIMValue(CIMTYPE_UINT64, false));
+    }  
+
+    PEG_METHOD_EXIT();
+    return CQLValue(cqlVal.getDateTime().toMicroSeconds()); 
 }
 
 CQLValue CQLFunctionRep::stringToUint(const CIMInstance& CI,
@@ -400,7 +405,7 @@ CQLValue CQLFunctionRep::stringToUint(const CIMInstance& CI,
     
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
       resolveValue(CI,queryCtx);
-    
+
     if(cqlVal.getValueType() != CQLValue::String_type)
     {
         MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_TYPE",
@@ -411,10 +416,15 @@ CQLValue CQLFunctionRep::stringToUint(const CIMInstance& CI,
             CQLValueRep::valueTypeToString(cqlVal.getValueType()),
             CQLValueRep::valueTypeToString(CQLValue::String_type));
         throw CQLRuntimeException(mload);
-  }
+    }
 
-  PEG_METHOD_EXIT();
-  return CQLValue(CQLUtilities::stringToUint64(cqlVal.getString()));
+    if (cqlVal.isNull())
+    {
+        return CQLValue(CIMValue(CIMTYPE_UINT64, false));
+    }
+
+    PEG_METHOD_EXIT();
+    return CQLValue(CQLUtilities::stringToUint64(cqlVal.getString()));
 }
 
 CQLValue CQLFunctionRep::stringToSint(const CIMInstance& CI,
@@ -436,7 +446,7 @@ CQLValue CQLFunctionRep::stringToSint(const CIMInstance& CI,
     
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
         resolveValue(CI,queryCtx);
-    
+ 
     if(cqlVal.getValueType() != CQLValue::String_type)
     {
         MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_TYPE",
@@ -449,6 +459,11 @@ CQLValue CQLFunctionRep::stringToSint(const CIMInstance& CI,
         throw CQLRuntimeException(mload);
     }
     
+    if (cqlVal.isNull())
+    {
+        return CQLValue(CIMValue(CIMTYPE_SINT64, false));
+    }
+
     PEG_METHOD_EXIT();
     return CQLValue(CQLUtilities::stringToSint64(cqlVal.getString()));
 }
@@ -472,7 +487,7 @@ CQLValue CQLFunctionRep::stringToReal(const CIMInstance& CI,
     
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
       resolveValue(CI,queryCtx);
-    
+
     if(cqlVal.getValueType() != CQLValue::String_type)
     {
         MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_TYPE",
@@ -484,7 +499,12 @@ CQLValue CQLFunctionRep::stringToReal(const CIMInstance& CI,
             CQLValueRep::valueTypeToString(CQLValue::String_type));
         throw CQLRuntimeException(mload);
     }
-    
+
+    if (cqlVal.isNull())
+    {
+        return CQLValue(CIMValue(CIMTYPE_REAL64, false));
+    }
+        
     PEG_METHOD_EXIT();
     return CQLValue(CQLUtilities::stringToReal64(cqlVal.getString()));
 }
@@ -514,7 +534,7 @@ CQLValue CQLFunctionRep::upperCase(const CIMInstance& CI,
     
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
       resolveValue(CI,queryCtx);
-    
+
     if(cqlVal.getValueType() != CQLValue::String_type)
     {
         MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_TYPE",
@@ -525,6 +545,11 @@ CQLValue CQLFunctionRep::upperCase(const CIMInstance& CI,
             CQLValueRep::valueTypeToString(cqlVal.getValueType()),
             CQLValueRep::valueTypeToString(CQLValue::String_type));
         throw CQLRuntimeException(mload);
+    }
+    
+    if (cqlVal.isNull())
+    {
+        return cqlVal;
     }
     
     String tmpStr = cqlVal.getString();
@@ -555,21 +580,11 @@ CQLValue CQLFunctionRep::numericToString(const CIMInstance& CI,
     
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
         resolveValue(CI,queryCtx);
-    
+
     CQLValue::CQLValueType valType = cqlVal.getValueType();  
-    if (valType == CQLValue::Sint64_type)
-    {
-        sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", 
-                cqlVal.getSint());
-    }
-    else if (valType == CQLValue::Uint64_type)
-    {
-        sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", 
-                cqlVal.getUint());
-    }
-    else if (valType == CQLValue::Real_type)
-        sprintf(buffer, "%.16E", cqlVal.getReal());
-    else
+
+    if (valType != CQLValue::Sint64_type && valType != CQLValue::Uint64_type
+        && valType != CQLValue::Real_type)
     {
         MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_TYPE",
             "Parameter $0 for function $1 has type $2."
@@ -580,6 +595,27 @@ CQLValue CQLFunctionRep::numericToString(const CIMInstance& CI,
             String("Integer or Real"));
         throw CQLRuntimeException(mload);
     }
+
+    if (cqlVal.isNull())
+    {
+        return CQLValue(CIMValue(CIMTYPE_STRING, false));
+    }
+
+    if (valType == CQLValue::Sint64_type)
+    {
+        sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", 
+                cqlVal.getSint());
+    }
+    else if (valType == CQLValue::Uint64_type)
+    {
+        sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", 
+                cqlVal.getUint());
+    }
+    else
+    {
+        sprintf(buffer, "%.16E", cqlVal.getReal());
+    }
+
     String num(buffer);
     if (valType == CQLValue::Real_type)
     {
@@ -610,31 +646,36 @@ CQLValue CQLFunctionRep::referenceToString(const CIMInstance& CI,
     
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
         resolveValue(CI,queryCtx);
-    if (cqlVal.getValueType() == CQLValue::CIMReference_type)
-    {
-        PEG_METHOD_EXIT();
-        return CQLValue(cqlVal.getReference().toString());
-    }
-    
-    if (cqlVal.getValueType() == CQLValue::CIMObject_type)
-    {
-        PEG_METHOD_EXIT();
-        return CQLValue(cqlVal.getObject().getPath().toString());
-    }
-    
-    // If it makes it to this block of code, then no valid type
-    // was found, and hence no return was made.  
-    // Throw invalid parameter type exception.
+   
+    CQLValue::CQLValueType valType = cqlVal.getValueType();
+
+    if (valType != CQLValue::CIMReference_type &&
+        valType != CQLValue::CIMObject_type)
     {
         MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_TYPE",
             "Parameter $0 for function $1 has type $2."
                 "  It must be type $3.",
             "1",
             functionTypeToString(),
-            CQLValueRep::valueTypeToString(cqlVal.getValueType()),
+            CQLValueRep::valueTypeToString(valType),
             String("Reference, or Object"));
         throw CQLRuntimeException(mload);
     }
+
+    if (cqlVal.isNull())
+    {
+        return CQLValue(CIMValue(CIMTYPE_STRING, false));
+    }
+
+    if (valType == CQLValue::CIMReference_type)
+    {
+        PEG_METHOD_EXIT();
+        return CQLValue(cqlVal.getReference().toString());
+    }
+
+    // We have CIMObject now, convert to string.
+    PEG_METHOD_EXIT();
+    return CQLValue(cqlVal.getObject().getPath().toString());
 }
 
 CQLValue CQLFunctionRep::className(const CIMInstance& CI,
@@ -660,14 +701,33 @@ CQLValue CQLFunctionRep::className(const CIMInstance& CI,
     if (parmSize == 0)
     {
         PEG_METHOD_EXIT();
-        //printf("ClassName --> %s\n", (const char *)CI.getClassName().
-        // getString().getCString());
         return CQLValue(CI.getClassName().getString());
     }
 
     // We have a parameter, so resolve it first before we use it.
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
         resolveValue(CI,queryCtx);
+
+    CQLValue::CQLValueType valType = cqlVal.getValueType();
+
+    if (valType != CQLValue::CIMReference_type &&
+        valType != CQLValue::CIMObject_type &&
+        valType != CQLValue::String_type)
+    {
+        MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_TYPE",
+            "Parameter $0 for function $1 has type $2."
+                "  It must be type $3.",
+            "1",
+            functionTypeToString(),
+            CQLValueRep::valueTypeToString(valType),
+            String("Reference, String, or Object"));
+        throw CQLRuntimeException(mload);
+    }
+
+    if (cqlVal.isNull())
+    {
+        return CQLValue(CIMValue(CIMTYPE_STRING, false));
+    }
 
     // If we have a String parameter, then we'll use it to
     //  create a CIMObjectPath in order to verify the format is correct.
@@ -676,8 +736,6 @@ CQLValue CQLFunctionRep::className(const CIMInstance& CI,
     {
         CIMObjectPath objPath(cqlVal.getString());
         PEG_METHOD_EXIT();
-        //printf("ClassName --> %s\n", (const char *)objPath.getClassName()
-        // .getString().getCString());
         return CQLValue(objPath.getClassName().getString());
     }
 
@@ -686,32 +744,12 @@ CQLValue CQLFunctionRep::className(const CIMInstance& CI,
     if (cqlVal.getValueType() == CQLValue::CIMReference_type)
     {
         PEG_METHOD_EXIT();
-        //printf("ClassName --> %s\n", (const char *)cqlVal.getReference().
-        // getClassName().getString().getCString());
         return CQLValue(cqlVal.getReference().getClassName().getString());
     }
 
-    // If we have a CIMObject, then we return the class name of the obejct
-    if (cqlVal.getValueType() == CQLValue::CIMObject_type)
-    {
-        PEG_METHOD_EXIT();
-        //printf("ClassName --> %s\n", (const char *)cqlVal.getObject().
-        // getClassName().getString().getCString());
-        return CQLValue(cqlVal.getObject().getClassName().getString());
-    }
-
-    // If it makes it to this block of code, then no valid type was found,
-    //  and hence no return was made.  Throw invalid parameter type exception.
-    {
-        MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_TYPE",
-            "Parameter $0 for function $1 has type $2."
-                "  It must be type $3.",
-            "1",
-            functionTypeToString(),
-            CQLValueRep::valueTypeToString(cqlVal.getValueType()),
-            String("Reference, String, or Object"));
-        throw CQLRuntimeException(mload);
-    }
+    // We have a CIMObject, then we return the class name of the obejct
+    PEG_METHOD_EXIT();
+    return CQLValue(cqlVal.getObject().getClassName().getString());
 }
 
 CQLValue CQLFunctionRep::nameSpaceName(const CIMInstance& CI,
@@ -747,8 +785,6 @@ CQLValue CQLFunctionRep::nameSpaceName(const CIMInstance& CI,
         if (ns.isNull() || String::equal(ns.getString(), String::EMPTY))
             ns = queryCtx.getNamespace();
         PEG_METHOD_EXIT();
-        //printf("Namespace --> %s\n", (const char *)ns.getString().
-        //  getCString());
         return CQLValue(ns.getString());    
     }
 
@@ -756,56 +792,11 @@ CQLValue CQLFunctionRep::nameSpaceName(const CIMInstance& CI,
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
         resolveValue(CI,queryCtx);
 
-    // If we have a String parameter, then we'll use it to create a
-    //  CIMObjectPath in order to verify the format is correct.
-    //   We will then get the namespace from the object path and return it.
-    //   If there is no namespace in the path given, then an empty string will
-    //  be returned.
-    if (cqlVal.getValueType() == CQLValue::String_type)
-    {
-        CIMObjectPath objPath(cqlVal.getString());
-        PEG_METHOD_EXIT();
-        //printf("Namespace --> %s\n", (const char *)objPath.getNameSpace().
-        // getString().getCString());
-        return CQLValue(objPath.getNameSpace().getString());
-    }
+    CQLValue::CQLValueType valType = cqlVal.getValueType();
 
-    // If we have a CIMReference parameter, then we will just get the
-    //  namespace name from the reference and return it.  A refernce is a 
-    // CIMObjectPath.  If there is no namespace in the path given, then
-    //  an empty string will be returned.
-    if (cqlVal.getValueType() == CQLValue::CIMReference_type)
-    {
-        PEG_METHOD_EXIT();
-        //printf("Namespace --> %s\n", (const char *)cqlVal.getReference().
-        // getNameSpace().getString().getCString());
-        return CQLValue(cqlVal.getReference().getNameSpace().getString());
-    }
-
-    // If we have a CIMObject, then we retrieve the path of the obejct and
-    //  check to see if it has a namespace set in it.  If the path contains
-    //  a namespace, we will return it.  If it does not, then we will
-    //  return the default namespace from the query context.
-    // *** NOTE ***  This does not function entirely according to the CQL spec.
-    //   The CQL spec says to return the namespace of the instance
-    //  regardless if it is set or not.  However, with the current
-    //  implementation (CQL phase 1 PEP 193) we only operate a query
-    //  engine within a single namespace and so we can assume the default 
-    //  namespace. 
-    if (cqlVal.getValueType() == CQLValue::CIMObject_type)
-    {
-        CIMNamespaceName ns = cqlVal.getObject().getPath().getNameSpace();
-        if (ns.isNull() || String::equal(ns.getString(), String::EMPTY))
-            ns = queryCtx.getNamespace();
-        PEG_METHOD_EXIT();
-        //printf("Namespace --> %s\n", (const char *)ns.getString().
-        //getCString());
-        return CQLValue(ns.getString());
-    }
-  
-    // If it makes it to this block of code, then no valid type was
-    //  found, and hence no return was made.
-    //  Throw invalid parameter type exception.
+    if (valType != CQLValue::CIMReference_type &&
+        valType != CQLValue::CIMObject_type &&
+        valType != CQLValue::String_type)
     {
         MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_TYPE",
             "Parameter $0 for function $1 has type $2."
@@ -816,6 +807,49 @@ CQLValue CQLFunctionRep::nameSpaceName(const CIMInstance& CI,
             String("Reference, String, or Object"));
         throw CQLRuntimeException(mload);
     }
+
+    if (cqlVal.isNull())
+    {
+        return CQLValue(CIMValue(CIMTYPE_STRING, false));
+    }
+
+    // If we have a String parameter, then we'll use it to create a
+    //  CIMObjectPath in order to verify the format is correct.
+    //   We will then get the namespace from the object path and return it.
+    //   If there is no namespace in the path given, then an empty string will
+    //  be returned.
+    if (cqlVal.getValueType() == CQLValue::String_type)
+    {
+        CIMObjectPath objPath(cqlVal.getString());
+        PEG_METHOD_EXIT();
+        return CQLValue(objPath.getNameSpace().getString());
+    }
+
+    // If we have a CIMReference parameter, then we will just get the
+    //  namespace name from the reference and return it.  A refernce is a 
+    // CIMObjectPath.  If there is no namespace in the path given, then
+    //  an empty string will be returned.
+    if (cqlVal.getValueType() == CQLValue::CIMReference_type)
+    {
+        PEG_METHOD_EXIT();
+        return CQLValue(cqlVal.getReference().getNameSpace().getString());
+    }
+
+    // We have a CIMObject, now we retrieve the path of the obejct and
+    //  check to see if it has a namespace set in it.  If the path contains
+    //  a namespace, we will return it.  If it does not, then we will
+    //  return the default namespace from the query context.
+    // *** NOTE ***  This does not function entirely according to the CQL spec.
+    //   The CQL spec says to return the namespace of the instance
+    //  regardless if it is set or not.  However, with the current
+    //  implementation (CQL phase 1 PEP 193) we only operate a query
+    //  engine within a single namespace and so we can assume the default 
+    //  namespace. 
+    CIMNamespaceName ns = cqlVal.getObject().getPath().getNameSpace();
+    if (ns.isNull() || String::equal(ns.getString(), String::EMPTY))
+        ns = queryCtx.getNamespace();
+    PEG_METHOD_EXIT();
+    return CQLValue(ns.getString());
 }
 
 CQLValue CQLFunctionRep::nameSpaceType(const CIMInstance& CI,
@@ -886,6 +920,27 @@ CQLValue CQLFunctionRep::hostPort(const CIMInstance& CI,
     // We have a parameter, so resolve it first before we use it.
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
       resolveValue(CI,queryCtx);
+
+    CQLValue::CQLValueType valType = cqlVal.getValueType();
+
+    if (valType != CQLValue::CIMReference_type &&
+        valType != CQLValue::CIMObject_type &&
+        valType != CQLValue::String_type)
+    {
+        MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_TYPE",
+            "Parameter $0 for function $1 has type $2."
+                "  It must be type $3.",
+            String("1"),
+            functionTypeToString(),
+            CQLValueRep::valueTypeToString(valType),
+            String("Reference, String, or Object"));
+        throw CQLRuntimeException(mload);
+    }
+
+    if (cqlVal.isNull())
+    {
+        return CQLValue(CIMValue(CIMTYPE_STRING, false));
+    }
   
     // If we have a String parameter, then we'll use it to create a 
     // CIMObjectPath in order to verify the format is correct.  We will
@@ -895,8 +950,6 @@ CQLValue CQLFunctionRep::hostPort(const CIMInstance& CI,
     {
         CIMObjectPath objPath(cqlVal.getString());
         PEG_METHOD_EXIT();
-        //printf("HostPort -> %s\n", (const char *)objPath.getHost().
-        // getCString());
         return CQLValue(objPath.getHost());
     }
 
@@ -907,34 +960,14 @@ CQLValue CQLFunctionRep::hostPort(const CIMInstance& CI,
     if (cqlVal.getValueType() == CQLValue::CIMReference_type)
     {
         PEG_METHOD_EXIT();
-        //printf("HostPort -> %s\n", (const char *)cqlVal.getReference().
-        // getHost().getCString());
         return CQLValue(cqlVal.getReference().getHost());
     }
 
-    // If we have a CIMObject, then we retrieve the path of the obejct
+    // We have a CIMObject, now we retrieve the path of the obejct
     //  and return the host from the path.  If there is no host in the
     //  path given, then an empty string will be returned.
-    if (cqlVal.getValueType() == CQLValue::CIMObject_type)
-    {
-        PEG_METHOD_EXIT();
-        //printf("HostPort -> %s\n", (const char *)cqlVal.getObject().getPath().
-        // getHost().getCString());
-        return CQLValue(cqlVal.getObject().getPath().getHost());
-    }
-
-    // If it makes it to this block of code, then no valid type was found,
-    //  and hence no return was made.  Throw invalid parameter type exception.
-    {
-        MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_TYPE",
-            "Parameter $0 for function $1 has type $2."
-                "  It must be type $3.",
-            String("1"),
-            functionTypeToString(),
-            CQLValueRep::valueTypeToString(cqlVal.getValueType()),
-            String("Reference, String, or Object"));
-        throw CQLRuntimeException(mload);
-    }
+    PEG_METHOD_EXIT();
+    return CQLValue(cqlVal.getObject().getPath().getHost());
 }
 
 CQLValue CQLFunctionRep::modelPath(const CIMInstance& CI,
@@ -970,6 +1003,27 @@ CQLValue CQLFunctionRep::modelPath(const CIMInstance& CI,
     // We have a parameter, so resolve it first before we use it.
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
       resolveValue(CI,queryCtx);
+
+    CQLValue::CQLValueType valType = cqlVal.getValueType();
+
+    if (valType != CQLValue::CIMReference_type &&
+        valType != CQLValue::CIMObject_type &&
+        valType != CQLValue::String_type)
+    {
+        MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_TYPE",
+            "Parameter $0 for function $1 has type $2."
+                "  It must be type $3.",
+            "1",
+            functionTypeToString(),
+            CQLValueRep::valueTypeToString(valType),
+            String("Reference, String, or Object"));
+        throw CQLRuntimeException(mload);
+    }
+
+    if (cqlVal.isNull())
+    {
+        return CQLValue(CIMValue(CIMTYPE_REFERENCE, false));
+    }
   
     // If we have a String parameter, then we'll use it to create a 
     // CIMObjectPath in order to verify the format is correct.  
@@ -990,26 +1044,10 @@ CQLValue CQLFunctionRep::modelPath(const CIMInstance& CI,
         return buildModelPath(cqlVal.getReference());
     }
 
-    // If we have a CIMObject, then we retrieve the path of the obejct 
+    // We have a CIMObject, now we retrieve the path of the obejct 
     // and return the model path.
-    if (cqlVal.getValueType() == CQLValue::CIMObject_type)
-    {
-        PEG_METHOD_EXIT();
-        return buildModelPath(cqlVal.getObject().getPath());
-    }
-
-    // If it makes it to this block of code, then no valid type was found, 
-    // and hence no return was made.  Throw invalid parameter type exception.
-    {
-        MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_TYPE",
-            "Parameter $0 for function $1 has type $2."
-                "  It must be type $3.",
-            "1",
-            functionTypeToString(),
-            CQLValueRep::valueTypeToString(cqlVal.getValueType()),
-            String("Reference, String, or Object"));
-        throw CQLRuntimeException(mload);
-    }
+    PEG_METHOD_EXIT();
+    return buildModelPath(cqlVal.getObject().getPath());
 }
 
 CQLValue CQLFunctionRep::buildModelPath(const CIMObjectPath& objPath) const
@@ -1066,6 +1104,27 @@ CQLValue CQLFunctionRep::classPath(const CIMInstance& CI,
     // We have a parameter, so resolve it first before we use it.
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
       resolveValue(CI,queryCtx);
+
+    CQLValue::CQLValueType valType = cqlVal.getValueType();
+
+    if (valType != CQLValue::CIMReference_type &&
+        valType != CQLValue::CIMObject_type &&
+        valType != CQLValue::String_type)
+    {
+        MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_TYPE",
+            "Parameter $0 for function $1 has type $2."
+                "  It must be type $3.",
+            "1",
+            functionTypeToString(),
+            CQLValueRep::valueTypeToString(cqlVal.getValueType()),
+            String("Reference, String, or Object"));
+        throw CQLRuntimeException(mload);
+    }
+
+    if (cqlVal.isNull())
+    {
+        return CQLValue(CIMValue(CIMTYPE_REFERENCE, false));
+    }
   
     // If we have a String parameter, then we'll use it to create a 
     // CIMObjectPath in order to verify the format is correct.  We will 
@@ -1089,31 +1148,17 @@ CQLValue CQLFunctionRep::classPath(const CIMInstance& CI,
         return buildClassPath(objPath, objPath.getNameSpace());
     }
 
-    // If we have a CIMObject, then we retrieve the object path  and 
+    // We have a CIMObject, now we retrieve the object path  and 
     // build the class path from it.  If the path does not have a namespace,
     // then the default namespace is used.
-    if (cqlVal.getValueType() == CQLValue::CIMObject_type)
+    CIMObjectPath objPath = cqlVal.getObject().getPath();
+    CIMNamespaceName ns = objPath.getNameSpace();
+    if (ns.isNull() || String::equal(ns.getString(), String::EMPTY))
     {
-        CIMObjectPath objPath = cqlVal.getObject().getPath();
-        CIMNamespaceName ns = objPath.getNameSpace();
-        if (ns.isNull() || String::equal(ns.getString(), String::EMPTY))
-          ns = queryCtx.getNamespace();
-        PEG_METHOD_EXIT();
-        return buildClassPath(objPath, ns);
+        ns = queryCtx.getNamespace();
     }
-
-    // If it makes it to this block of code, then no valid type was found, 
-    // and hence no return was made.  Throw invalid parameter type exception.
-    {
-        MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_TYPE",
-            "Parameter $0 for function $1 has type $2."
-                "  It must be type $3.",
-            "1",
-            functionTypeToString(),
-            CQLValueRep::valueTypeToString(cqlVal.getValueType()),
-            String("Reference, String, or Object"));
-        throw CQLRuntimeException(mload);
-    }
+    PEG_METHOD_EXIT();
+    return buildClassPath(objPath, ns);
 }
 
 CQLValue CQLFunctionRep::buildClassPath(const CIMObjectPath& objPath,
@@ -1174,6 +1219,27 @@ CQLValue CQLFunctionRep::objectPath(const CIMInstance& CI,
     // We have a parameter, so resolve it first before we use it.
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
       resolveValue(CI,queryCtx);
+
+    CQLValue::CQLValueType valType = cqlVal.getValueType();
+
+    if (valType != CQLValue::CIMReference_type &&
+        valType != CQLValue::CIMObject_type &&
+        valType != CQLValue::String_type)
+    {
+        MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_TYPE",
+            "Parameter $0 for function $1 has type $2."
+                "  It must be type $3.",
+            String("1"),
+            functionTypeToString(),
+            CQLValueRep::valueTypeToString(cqlVal.getValueType()),
+            String("Reference, String, or Object"));
+        throw CQLRuntimeException(mload);
+    }
+
+    if (cqlVal.isNull())
+    {
+        return CQLValue(CIMValue(CIMTYPE_REFERENCE, false));
+    }
     
     // If we have a String parameter, then we'll use it to create a 
     // CIMObjectPath in order to verify the format is correct.  
@@ -1197,31 +1263,17 @@ CQLValue CQLFunctionRep::objectPath(const CIMInstance& CI,
         return buildObjectPath(objPath, objPath.getNameSpace());
     }
 
-    // If we have a CIMObject, then we retrieve the object path of the 
+    // We have a CIMObject, now we retrieve the object path of the 
     // obejct and build the object path from it.  If the path does not 
     // have a namespace, then the default namespace is used.
-    if (cqlVal.getValueType() == CQLValue::CIMObject_type)
+    CIMObjectPath objPath = cqlVal.getObject().getPath();
+    CIMNamespaceName ns = objPath.getNameSpace();
+    if (ns.isNull() || String::equal(ns.getString(), String::EMPTY))
     {
-        CIMObjectPath objPath = cqlVal.getObject().getPath();
-        CIMNamespaceName ns = objPath.getNameSpace();
-        if (ns.isNull() || String::equal(ns.getString(), String::EMPTY))
-          ns = queryCtx.getNamespace();
-        PEG_METHOD_EXIT();
-        return buildObjectPath(objPath, ns);
+        ns = queryCtx.getNamespace();
     }
-
-    // If it makes it to this block of code, then no valid type was found, 
-    // and hence no return was made.  Throw invalid parameter type exception.
-    {
-        MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_TYPE",
-            "Parameter $0 for function $1 has type $2."
-                "  It must be type $3.",
-            String("1"),
-            functionTypeToString(),
-            CQLValueRep::valueTypeToString(cqlVal.getValueType()),
-            String("Reference, String, or Object"));
-        throw CQLRuntimeException(mload);
-    }
+    PEG_METHOD_EXIT();
+    return buildObjectPath(objPath, ns);
 }
 
 CQLValue CQLFunctionRep::buildObjectPath(const CIMObjectPath& objPath,
@@ -1237,8 +1289,6 @@ CQLValue CQLFunctionRep::buildObjectPath(const CIMObjectPath& objPath,
     newPath.setClassName(objPath.getClassName());  
     newPath.setNameSpace(ns);
     newPath.setKeyBindings(objPath.getKeyBindings());
-    // printf("ObjectPath --> %s\n", (const char *)newPath.toString().
-    // getCString());
     PEG_METHOD_EXIT();
     return CQLValue(newPath);
 }
@@ -1280,7 +1330,7 @@ CQLValue CQLFunctionRep::instanceToReference(const CIMInstance& CI,
         // We have a parameter, so resolve it first before we use it.
         CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
             resolveValue(CI,queryCtx);
-    
+
         // Parameter MUST be an instance object
         if (cqlVal.getValueType() != CQLValue::CIMObject_type)
         {
@@ -1294,6 +1344,11 @@ CQLValue CQLFunctionRep::instanceToReference(const CIMInstance& CI,
             throw CQLRuntimeException(mload);
         }
 
+        if (cqlVal.isNull())
+        {
+            return CQLValue(CIMValue(CIMTYPE_REFERENCE, false));
+        }
+    
         // REVIEW question.  Inefficient since the CIMobject is copied
         //  via the return by value, then it is copied again via the 
         // assignment.  Is there a better way to handle this?
@@ -1367,6 +1422,7 @@ CQLValue CQLFunctionRep::dateTime(const CIMInstance& CI,
     
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
         resolveValue(CI,queryCtx);  
+
     if(cqlVal.getValueType() != CQLValue::String_type)
     {
         MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_TYPE",
@@ -1377,6 +1433,11 @@ CQLValue CQLFunctionRep::dateTime(const CIMInstance& CI,
             CQLValueRep::valueTypeToString(cqlVal.getValueType()),
             CQLValueRep::valueTypeToString(CQLValue::String_type));
         throw CQLRuntimeException(mload);
+    }
+
+    if (cqlVal.isNull())
+    {
+        return CQLValue(CIMValue(CIMTYPE_DATETIME, false));
     }
     
     CIMDateTime dt(cqlVal.getString());
@@ -1403,6 +1464,7 @@ CQLValue CQLFunctionRep::microsecondToTimestamp(const CIMInstance& CI,
 
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
       resolveValue(CI,queryCtx);
+
     CQLValue::CQLValueType valType = cqlVal.getValueType();  
     if(valType != CQLValue::Uint64_type &&
         valType != CQLValue::Sint64_type)
@@ -1412,11 +1474,16 @@ CQLValue CQLFunctionRep::microsecondToTimestamp(const CIMInstance& CI,
                 "  It must be type $3.",
             "1",
             functionTypeToString(),
-            CQLValueRep::valueTypeToString(cqlVal.getValueType()),
+            CQLValueRep::valueTypeToString(valType),
             String("Integer"));
         throw CQLRuntimeException(mload);
     }
-  
+
+    if (cqlVal.isNull())
+    {
+        return CQLValue(CIMValue(CIMTYPE_UINT64, false));
+    }
+ 
     Uint64 uIntVal = 0;
     if (valType == CQLValue::Sint64_type)
     {
@@ -1462,6 +1529,7 @@ CQLValue CQLFunctionRep::microsecondToInterval(const CIMInstance& CI,
     
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
       resolveValue(CI,queryCtx);
+
     CQLValue::CQLValueType valType = cqlVal.getValueType();  
     if(valType != CQLValue::Uint64_type &&
      valType != CQLValue::Sint64_type)
@@ -1471,9 +1539,14 @@ CQLValue CQLFunctionRep::microsecondToInterval(const CIMInstance& CI,
                 "  It must be type $3.",
             "1",
             functionTypeToString(),
-            CQLValueRep::valueTypeToString(cqlVal.getValueType()),
+            CQLValueRep::valueTypeToString(valType),
             String("Integer"));
         throw CQLRuntimeException(mload);
+    }
+
+    if (cqlVal.isNull())
+    {
+        return CQLValue(CIMValue(CIMTYPE_UINT64, false));
     }
     
     Uint64 uIntVal = 0;

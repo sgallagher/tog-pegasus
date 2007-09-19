@@ -215,11 +215,6 @@ CQLValue::CQLValueType CQLValue::getValueType() const
    return _rep->getValueType();
 }
 
-void CQLValue::setNull()
-{
-   _rep->setNull();
-}
-
 Boolean CQLValue::isResolved() const
 {
    return _rep->isResolved();

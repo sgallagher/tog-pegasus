@@ -84,8 +84,4 @@ const char CQLSyntaxErrorException::MSG[] =
 const char CQLSyntaxErrorException::KEY[] =
     "QueryCommon.QueryException.CQL_SYNTAX_ERROR_EXCEPTION";
 
-const char CQLNullContagionException::MSG[] = "CQL null evaluation error: $0";
-const char CQLNullContagionException::KEY[] =
-    "QueryCommon.QueryException.CQL_NULL_CONTAGION_EXCEPTION";
-
 PEGASUS_NAMESPACE_END

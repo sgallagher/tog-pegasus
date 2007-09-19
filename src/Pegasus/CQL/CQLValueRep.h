@@ -221,11 +221,6 @@ class CQLValueRep
 
     CQLValue::CQLValueType getValueType();
 
-    /** Clears this object and sets its type to NULL_VALUE
-      */
-
-    void setNull();
-
     /** Returns whether the value has been resolved to a primitive.
       */
 
@@ -234,7 +229,7 @@ class CQLValueRep
     /** Returns whether the CQLValue is null.
       */
 
-    Boolean isNull();
+    Boolean isNull() const;
 
     /** Tests to see if this "isa" the input string.
     */
@@ -284,7 +279,7 @@ class CQLValueRep
                        const QueryContext& inQueryContext);
    Boolean _compareObjects(CIMObject& _in1, CIMObject& _in2);
    Boolean _compareArray(const CQLValueRep& _in);
-
+   CQLValue::CQLValueType _getCQLType(const CIMType &type);
    CIMValue _theValue;
 
    CQLChainedIdentifier _CQLChainId;

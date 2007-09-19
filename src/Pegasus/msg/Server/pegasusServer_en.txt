@@ -5689,6 +5689,8 @@ CIM server listening on HTTPS port {0}."}
         * @note  PGS15611
         *     Substitution {0} is the description of the error (a string)
         *     Do not translate CQL since it is the name of the language
+        *
+        *   This message is no longer used as of version 2.7.0
         */
         QueryCommon.QueryException.CQL_NULL_CONTAGION_EXCEPTION:string {"PGS15611: CQL null evaluation error: {0}"}
 

@@ -1,17 +1,17 @@
 Using root/SampleProvider as default namespace.
-Caught Exception: CQL syntax error: syntax error around token 11 in position 82 while processing rule expr->expr_term
+Caught Exception: CQL syntax error: syntax error around token 11 in position 82 while processing rule arg_list->arg_list_sub->expr
 Statement with error = select * from CQL_TestPropertyTypes where PropertyString = UPPERCASE('Bert Rules', 'Not really')
 
-Caught Exception: CQL syntax error: syntax error around token 11 in position 77 while processing rule expr->expr_term
+Caught Exception: CQL syntax error: syntax error around token 11 in position 77 while processing rule arg_list->arg_list_sub->expr
 Statement with error = select * from CQL_TestPropertyTypes where PropertyUint64 = STRINGTOUINT('32', '33')
 
-Caught Exception: CQL syntax error: syntax error around token 11 in position 78 while processing rule expr->expr_term
+Caught Exception: CQL syntax error: syntax error around token 11 in position 78 while processing rule arg_list->arg_list_sub->expr
 Statement with error = select * from CQL_TestPropertyTypes where PropertySint64 = STRINGTOSINT('-32', '-33')
 
-Caught Exception: CQL syntax error: syntax error around token 11 in position 80 while processing rule expr->expr_term
+Caught Exception: CQL syntax error: syntax error around token 11 in position 80 while processing rule arg_list->arg_list_sub->expr
 Statement with error = select * from CQL_TestPropertyTypes where PropertyReal64 = STRINGTOREAL('32.32', '33.33')
 
-Caught Exception: CQL syntax error: syntax error around token 11 in position 84 while processing rule expr->expr_term
+Caught Exception: CQL syntax error: syntax error around token 11 in position 84 while processing rule arg_list->arg_list_sub->expr
 Statement with error = select * from CQL_TestPropertyTypes where PropertyStringSint = NUMERICTOSTRING(-743, -10)
 
 There were 5 statements that did NOT parse.
@@ -103,27 +103,21 @@ Parameter 1 for function UPPERCASE has type Real.  It must be type String.
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE STRINGTOUINT(PropertyStringUint) = 347
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
-ERROR!
-Error converting string to Uint64.  String cannot be empty.
-
+FALSE
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 TRUE
 =========     10     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE STRINGTOSINT(PropertyStringSint) = -743
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
-ERROR!
-Error converting string to Sint64.  String cannot be empty.
-
+FALSE
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 TRUE
 =========     11     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE STRINGTOREAL(PropertyStringReal) = 9.8670000000000002e1
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
-ERROR!
-Error converting string to Real64.  String cannot be empty.
-
+FALSE
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 FALSE
 =========     12     =========

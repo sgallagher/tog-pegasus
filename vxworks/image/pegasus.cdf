@@ -1,0 +1,18 @@
+Parameter PEGASUS_DEV_NAME {
+    NAME Name of pegasus device
+    TYPE string
+    DEFAULT "/pegasus"
+}
+
+Component INCLUDE_PEGASUS {
+    NAME Pegasus
+    SYNOPSIS The Pegasus Component
+    INIT_RTN pegasusInit();
+    CONFIGLETTES pegasusConfig.c    
+    HDR_FILES pegasusConfig.h
+    _INIT_ORDER usrIosExtraInit
+    REQUIRES INCLUDE_POSIX_PTHREAD_SCHEDULER INCLUDE_HRFS INCLUDE_HRFS_FORMAT 
+    EXCLUDES INCLUDE_SHELL_BANNER INCLUDE_WDB_BANNER
+    INCLUDE_WHEN INCLUDE_IO_SYSTEM
+    CFG_PARAMS = PEGASUS_DEV_NAME
+}

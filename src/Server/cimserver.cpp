@@ -449,13 +449,14 @@ int main(int argc, char** argv)
     MessageLoader::_useProcessLocale = true;
 
 #if defined(PEGASUS_OS_VXWORKS)
-    // On VxWorks, run cimserver from /peg:0 (read-only file system).
-    chdir("/peg:0");
-
-    char buffer[4096];
-    *buffer = '\0';
-    getcwd(buffer, sizeof(buffer));
-    printf("CWD[%s]\n", buffer);
+    // On VxWorks, run cimserver in /pegasus:0 directory:
+    {
+        chdir("/pegasus:0");
+        char cwd[4096];
+        cwd[0] = '\0';
+        getcwd(cwd, sizeof(cwd));
+        printf("Changed directory to \"%s\"\n", cwd);
+    }
 #endif
 
 #ifdef PEGASUS_OS_ZOS

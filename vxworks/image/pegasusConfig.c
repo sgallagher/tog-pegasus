@@ -7,7 +7,7 @@
 #include "virtualDiskLib.h"
 #include "hrFsLib.h"
 
-void usrAppInit()
+void pegasusInit()
 {
     BLK_DEV* _vfs_blk_dev;
     device_t _vfs_device;
@@ -15,6 +15,8 @@ void usrAppInit()
     const size_t BYTES_PER_BLOCK = 512;
     const size_t NUM_BLOCKS = 131072;
     int exists = 0;
+
+    fprintf(stderr, "+++++ pegasusInit()...\n");
 
     {
         int fd = open(PATH, O_RDONLY, 0777);
@@ -36,7 +38,7 @@ void usrAppInit()
         fprintf(stderr, "********************************\n");
     }
 
-    if ((_vfs_device = xbdBlkDevCreateSync(_vfs_blk_dev, "/peg")) == 0)
+    if ((_vfs_device = xbdBlkDevCreateSync(_vfs_blk_dev, "/pegasus")) == 0)
     {
         fprintf(stderr, "**********************************\n");
         fprintf(stderr, "**                              **\n");
@@ -47,7 +49,7 @@ void usrAppInit()
 
     if (!exists)
     {
-        if (hrfsFormat("/peg:0", 0, 0, 0) != 0)
+        if (hrfsFormat("/pegasus:0", 0, 0, 0) != 0)
         {
             fprintf(stderr, "*************************n");
             fprintf(stderr, "**                     **\n");

@@ -603,7 +603,7 @@ Boolean FileSystem::glob(
             if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
                 continue;
 
-            if (Match(name, pattern) == 0)
+            if (Match(pattern, name) == 0)
                 filenames.append(name);
         }
     }

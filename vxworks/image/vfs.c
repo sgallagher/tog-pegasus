@@ -15,6 +15,18 @@ static BLK_DEV* _vfs_blk_dev;
 static device_t _vfs_device;
 
 /*
+ * Shutdown function, executed atexit().
+ */
+static void pegasus_vxsim_shutdown()
+{
+    fprintf(stderr, "****************************\n");
+    fprintf(stderr, "** pegasus_vxsim_shutdown **\n");
+    fprintf(stderr, "****************************\n");
+    xbdBlkDevDelete(_vfs_device, &_vfs_blk_dev);
+    virtualDiskClose(_vfs_blk_dev);
+}
+
+/*
  * Add a call to this function to end of usrIosExtraInit()
  */
 static void pegasus_vxsim_init()
@@ -56,20 +68,6 @@ static void pegasus_vxsim_init()
             fprintf(stderr, "*************************n");
         }
     }
+
+    atexit(pegasus_vxsim_shutdown);
 }
-
-#if 0
-
-/*
- * Shutdown function, executed atexit().
- */
-static void pegasus_vxsim_shutdown()
-{
-    fprintf(stderr, "****************************\n");
-    fprintf(stderr, "** pegasus_vxsim_shutdown **\n");
-    fprintf(stderr, "****************************\n");
-    xbdBlkDevDelete(_vfs_device, &_vfs_blk_dev);
-    virtualDiskClose(_vfs_blk_dev);
-}
-
-#endif

@@ -248,7 +248,7 @@ public:
         const CIMNamespaceName& nameSpaceName,
         const CIMName& className) const;
 
-    String getInstanceDirRoot(const CIMNamespaceName& nameSpaceName);
+    String getInstanceDirRoot(const CIMNamespaceName& nameSpaceName) const;
 
 private:
     NameSpace* lookupNameSpace(String&);

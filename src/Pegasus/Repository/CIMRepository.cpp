@@ -768,8 +768,6 @@ void CIMRepository::_rollbackIncompleteTransactions()
         _nameSpaceManager.getSubClassNames(
             namespaceNames[i], CIMName(), true, classNames);
 
-        printf("==== Check1\n");
-
         for (Uint32 j = 0; j < classNames.size(); j++)
         {
             //
@@ -779,25 +777,25 @@ void CIMRepository::_rollbackIncompleteTransactions()
             String indexFilePath = _getInstanceIndexFilePath(
                 namespaceNames[i], classNames[j]);
 
-            if (!_containsNoCase(rollbackFiles, indexFilePath + ".rollback"))
-                continue;
-
             String dataFilePath = _getInstanceDataFilePath(
                 namespaceNames[i], classNames[j]);
 
-            if (!_containsNoCase(rollbackFiles, dataFilePath + ".rollback"))
-                continue;
+            // Only perform rollback processing if there is a rollback file
+            // for either the data or index file.
 
-            printf("==== Check2\n");
+            if (_containsNoCase(rollbackFiles, dataFilePath + ".rollback") ||
+                _containsNoCase(rollbackFiles, indexFilePath + ".rollback"))
+            {
+                //
+                // Attempt rollback (if there are no rollback files, this will
+                // have no effect). This code is here to rollback uncommitted
+                // changes left over from last time an instance-oriented 
+                // function
+                // was called.
+                //
 
-            //
-            // Attempt rollback (if there are no rollback files, this will
-            // have no effect). This code is here to rollback uncommitted
-            // changes left over from last time an instance-oriented function
-            // was called.
-            //
-
-            _rollbackInstanceTransaction(indexFilePath, dataFilePath);
+                _rollbackInstanceTransaction(indexFilePath, dataFilePath);
+            }
         }
     }
 

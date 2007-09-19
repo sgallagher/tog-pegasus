@@ -1994,9 +1994,9 @@ Boolean NameSpaceManager::classExists(
 }
 
 String NameSpaceManager::getInstanceDirRoot(
-    const CIMNamespaceName& nameSpaceName)
+    const CIMNamespaceName& nameSpaceName) const
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::getInstanceDirBase()");
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::getInstanceDirRoot()");
 
     NameSpace *nameSpace = 0;
 
@@ -2007,6 +2007,7 @@ String NameSpaceManager::getInstanceDirRoot(
             CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
     }
 
+    PEG_METHOD_EXIT();
     return nameSpace->getNameSpacePath() + _INSTANCES_SUFFIX;
 }
 

@@ -1,3 +1,9 @@
+Parameter PEGASUS_VFS_NAME {
+    NAME Name of pegasus virtual file system (single file).
+    TYPE string
+    DEFAULT "/tmp/pegasus.vfs"
+}
+
 Parameter PEGASUS_DEV_NAME {
     NAME Name of pegasus device
     TYPE string
@@ -14,5 +20,5 @@ Component INCLUDE_PEGASUS {
     REQUIRES INCLUDE_POSIX_PTHREAD_SCHEDULER INCLUDE_HRFS INCLUDE_HRFS_FORMAT 
     EXCLUDES INCLUDE_SHELL_BANNER INCLUDE_WDB_BANNER
     INCLUDE_WHEN INCLUDE_IO_SYSTEM
-    CFG_PARAMS = PEGASUS_DEV_NAME
+    CFG_PARAMS = PEGASUS_VFS_NAME PEGASUS_DEV_NAME
 }

@@ -13,6 +13,8 @@ romfs:
 
 SHELL_DEFAULT_CONFIG="LINE_EDIT_MODE=emacs,LINE_LENGTH=256,STRING_FREE=manual,INTERPRETER=Cmd,VXE_PATH=$(PEGASUS_HOME)/bin"
 
+VFS=$(HOME)/pegasus.vfs
+
 proj:
 	mkdir -p proj
 	cp pegasusConfig.h proj
@@ -22,6 +24,7 @@ proj:
 	( cd proj; vxprj component remove INCLUDE_SHELL_BANNER )
 	( cd proj; vxprj component remove INCLUDE_WDB_BANNER )
 	( cd proj; vxprj parameter set LOCAL_MEM_SIZE 0x08000000 )
+	( cd proj; vxprj parameter setstring PEGASUS_VFS_NAME $(VFS))
 	( cd proj; vxprj parameter setstring SHELL_DEFAULT_CONFIG $(SHELL_DEFAULT_CONFIG) )
 
 obsolete:

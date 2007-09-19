@@ -15,6 +15,9 @@ SHELL_DEFAULT_CONFIG="LINE_EDIT_MODE=emacs,LINE_LENGTH=256,STRING_FREE=manual,IN
 
 proj:
 	mkdir -p proj
+	cp pegasusConfig.h proj
+	cp pegasusConfig.c proj
+	cp pegasus.cdf proj
 	( cd proj; vxprj create linux gnu vxsim.wpj )
 	( cd proj; vxprj component add INCLUDE_POSIX_PTHREAD_SCHEDULER )
 	( cd proj; vxprj component add INCLUDE_HRFS )

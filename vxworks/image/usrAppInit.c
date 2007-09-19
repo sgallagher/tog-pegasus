@@ -1,42 +1,30 @@
-#include "xbdBlkDev.h" 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdio.h>
+#include "xbdBlkDev.h"
+#include "virtualDiskLib.h"
+#include "hrFsLib.h"
 
-static int _exists(const char* path)
+void usrAppInit()
 {
-    int fd = open(path, O_RDONLY, 0777);
-
-    if (fd == -1)
-        return 0;
-
-    close(fd);
-    return 1;
-}
-
-static BLK_DEV* _vfs_blk_dev;
-static device_t _vfs_device;
-
-/*
- * Shutdown function, executed atexit().
- */
-static void pegasus_vxsim_shutdown()
-{
-    fprintf(stderr, "****************************\n");
-    fprintf(stderr, "** pegasus_vxsim_shutdown **\n");
-    fprintf(stderr, "****************************\n");
-    xbdBlkDevDelete(_vfs_device, &_vfs_blk_dev);
-    virtualDiskClose(_vfs_blk_dev);
-}
-
-/*
- * Add a call to this function to end of usrIosExtraInit()
- */
-static void pegasus_vxsim_init()
-{
+    BLK_DEV* _vfs_blk_dev;
+    device_t _vfs_device;
     const char PATH[] = "/tmp/pegasus.vfs";
     const size_t BYTES_PER_BLOCK = 512;
     const size_t NUM_BLOCKS = 131072;
-    int exists;
+    int exists = 0;
 
-    exists = _exists(PATH);
+    {
+        int fd = open(PATH, O_RDONLY, 0777);
+
+        if (fd >= 0)
+        {
+            exists = 1;
+            close(fd);
+        }
+    }
 
     if (!(_vfs_blk_dev = virtualDiskCreate((char*)PATH, 
         BYTES_PER_BLOCK, NUM_BLOCKS, NUM_BLOCKS)))
@@ -69,5 +57,8 @@ static void pegasus_vxsim_init()
         }
     }
 
-    atexit(pegasus_vxsim_shutdown);
+#if 0
+    xbdBlkDevDelete(_vfs_device, &_vfs_blk_dev);
+    virtualDiskClose(_vfs_blk_dev);
+#endif
 }

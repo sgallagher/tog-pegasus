@@ -27,6 +27,7 @@ proj:
 	( cd proj; vxprj parameter set LOCAL_MEM_SIZE 0x08000000 )
 	( cd proj; vxprj parameter set PASSFS_CACHE FALSE )
 	( cd proj; vxprj parameter setstring SHELL_DEFAULT_CONFIG $(SHELL_DEFAULT_CONFIG) )
+	cp usrAppInit.c proj/usrAppInit.c
 
 build:
 	( cd proj; make TOOL=gnu ROMFS_DIR=$(ROMFS) )

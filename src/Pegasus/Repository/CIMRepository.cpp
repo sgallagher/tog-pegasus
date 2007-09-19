@@ -660,12 +660,14 @@ public:
       _dataFilePath(dataFilePath),
       _isComplete(false)
     {
+printf("InstanceTransactionHandler()\n");
         _rollbackInstanceTransaction(_indexFilePath, _dataFilePath);
         _beginInstanceTransaction(_indexFilePath, _dataFilePath);
     }
 
     ~InstanceTransactionHandler()
     {
+printf("~InstanceTransactionHandler()\n");
         if (!_isComplete)
         {
             _rollbackInstanceTransaction(_indexFilePath, _dataFilePath);
@@ -713,6 +715,7 @@ static Boolean _getDirContents(const String& path, Array<String>& names)
 }
 #endif
 
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // CIMRepository::_rollbackIncompleteTransactions()
@@ -723,6 +726,17 @@ static Boolean _getDirContents(const String& path, Array<String>& names)
 //      outstanding, this method has no effect.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
+static Boolean _containsNoCase(const Array<String>& array, const String& str)
+{
+    for (Uint32 i = 0; i < array.size(); i++)
+    {
+        if (String::equalNoCase(array[i], str))
+            return true;
+    }
+
+    return false;
+}
 
 void CIMRepository::_rollbackIncompleteTransactions()
 {
@@ -737,32 +751,24 @@ void CIMRepository::_rollbackIncompleteTransactions()
 
     for (Uint32 i = 0; i < namespaceNames.size(); i++)
     {
-        //
-        // Check to see if the given namespace directory contains any .rollback 
-        // files. If not, then we can avoid the O(N^2) algorithm below.
-        //
-        {
-            String path = _nameSpaceManager.getInstanceDirRoot(
-                namespaceNames[i]);
+        // Form a list of .rollback files.
 
-            Array<String> names;
+        Array<String> rollbackFiles;
+        FileSystem::glob(
+            _nameSpaceManager.getInstanceDirRoot(namespaceNames[i]),
+            "*.rollback", rollbackFiles);
 
-            if (FileSystem::glob(path, "*.rollback", names))
-            {
-                if (names.size() == 0)
-                    continue;
-            }
-        }
+        // Don't bother doing rollback if there are no rollback files.
+        // The algorithm below is expensive.
 
-#if defined(PEGASUS_OS_VXWORKS)
-        printf("==== Performing rollback processing\n");
-#endif
-
-        // Continue on with processing of existing rollback files.
+        if (rollbackFiles.size() == 0)
+            continue;
 
         Array<CIMName> classNames;
         _nameSpaceManager.getSubClassNames(
             namespaceNames[i], CIMName(), true, classNames);
+
+        printf("==== Check1\n");
 
         for (Uint32 j = 0; j < classNames.size(); j++)
         {
@@ -773,8 +779,16 @@ void CIMRepository::_rollbackIncompleteTransactions()
             String indexFilePath = _getInstanceIndexFilePath(
                 namespaceNames[i], classNames[j]);
 
+            if (!_containsNoCase(rollbackFiles, indexFilePath + ".rollback"))
+                continue;
+
             String dataFilePath = _getInstanceDataFilePath(
                 namespaceNames[i], classNames[j]);
+
+            if (!_containsNoCase(rollbackFiles, dataFilePath + ".rollback"))
+                continue;
+
+            printf("==== Check2\n");
 
             //
             // Attempt rollback (if there are no rollback files, this will

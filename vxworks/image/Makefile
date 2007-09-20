@@ -28,6 +28,8 @@ proj:
 	( cd proj; vxprj parameter set LOCAL_MEM_SIZE 0x08000000 )
 	( cd proj; vxprj parameter setstring PEGASUS_VFS_NAME $(VFS))
 	( cd proj; vxprj parameter setstring SHELL_DEFAULT_CONFIG $(SHELL_DEFAULT_CONFIG) )
+	( cd proj; vxprj parameter set HRFS_DEFAULT_MAX_FILES 128 )
+	( cd proj; vxprj parameter set HRFS_DEFAULT_MAX_BUFFERS 128 )
 
 obsolete:
 	( cd proj; vxprj component add INCLUDE_POSIX_PTHREAD_SCHEDULER )

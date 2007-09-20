@@ -61,6 +61,22 @@
 #include "AssocClassTable.h"
 #include "ObjectCache.h"
 
+/*
+ATTN-MEB: remove this
+*/
+#if 1
+# include <Pegasus/Common/Stopwatch.h>
+static void _mark(Pegasus::Stopwatch& sw, int line)
+{
+    sw.stop();
+    Pegasus::Uint64 x = sw.getElapsedUsec();
+    printf("msg: %d: %llu.%llu\n", line, (x / 1000000), (x % 1000000));
+    sw.reset();
+    sw.start();
+}
+#endif
+
+
 #ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
 // #define win32
 # include <zlib.h>
@@ -454,8 +470,6 @@ void _LoadObject(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_LoadObject");
 
-cout << "LOAD[" << path << "]" << endl;
-
     // Get the real path of the file:
 
     String realPath;
@@ -473,9 +487,7 @@ cout << "LOAD[" << path << "]" << endl;
     // Load file into memory:
 
     Buffer data;
-
     _LoadFileToMemory(data, realPath);
-
     streamer->decode(data, 0, object);
 
     PEG_METHOD_EXIT();
@@ -699,14 +711,12 @@ public:
       _dataFilePath(dataFilePath),
       _isComplete(false)
     {
-printf("InstanceTransactionHandler()\n");
         _rollbackInstanceTransaction(_indexFilePath, _dataFilePath);
         _beginInstanceTransaction(_indexFilePath, _dataFilePath);
     }
 
     ~InstanceTransactionHandler()
     {
-printf("~InstanceTransactionHandler()\n");
         if (!_isComplete)
         {
             _rollbackInstanceTransaction(_indexFilePath, _dataFilePath);
@@ -1073,6 +1083,7 @@ CIMClass CIMRepository::_getClass(
         }
 
     }
+
 
     // if ClassOrigin Flag false, remove classOrigin info from class object
     // by setting the property to Null.

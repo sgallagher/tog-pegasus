@@ -76,7 +76,6 @@ static void _mark(Pegasus::Stopwatch& sw, int line)
 }
 #endif
 
-
 #ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
 // #define win32
 # include <zlib.h>
@@ -509,7 +508,7 @@ void _SaveObject(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_SaveObject");
 
-cout << "SAVE[" << path << "]" << endl;
+// cout << "SAVE[" << path << "]" << endl;
 
 #ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
     if (compressMode)            // PEP214
@@ -734,36 +733,6 @@ private:
     String _dataFilePath;
     Boolean _isComplete;
 };
-
-#if 0
-static Boolean _getDirContents(const String& path, Array<String>& names)
-{
-    try
-    {
-        for (Dir dir(path); dir.more(); dir.next())
-        {
-            const char* name = dir.getName();
-
-            // Skip "." and ".." names:
-
-            if (name[0] == '.' && name[1] == '\0')
-                continue;
-
-            if (name[0] == '.' && name[1] == '.' && name[1] == '\0')
-                continue;
-
-            names.append(name);
-        }
-
-        return true;
-    }
-    catch (...)
-    {
-        return false;
-    }
-}
-#endif
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //

@@ -9,9 +9,9 @@
 
 void pegasusInit()
 {
-    BLK_DEV* _vfs_blk_dev;
-    device_t _vfs_device;
-    const size_t BYTES_PER_BLOCK = 4096;
+    BLK_DEV* blk_dev;
+    device_t device;
+    const size_t BYTES_PER_BLOCK = 1024;
     const size_t NUM_BLOCKS = (64 * 1024 * 1024) / BYTES_PER_BLOCK;
     int exists = 0;
 
@@ -25,7 +25,7 @@ void pegasusInit()
         }
     }
 
-    if (!(_vfs_blk_dev = virtualDiskCreate((char*)PEGASUS_VFS_NAME,
+    if (!(blk_dev = virtualDiskCreate((char*)PEGASUS_VFS_NAME,
         BYTES_PER_BLOCK, NUM_BLOCKS, NUM_BLOCKS)))
     {
         fprintf(stderr, "********************************\n");
@@ -37,11 +37,12 @@ void pegasusInit()
     }
 
     if (!exists)
+    {
         fprintf(stderr, "==== Created virtual file system: \"%s\"\n", 
             PEGASUS_VFS_NAME);
+    }
 
-    if ((_vfs_device = xbdBlkDevCreateSync(_vfs_blk_dev, 
-        PEGASUS_DEV_NAME)) == 0)
+    if ((device = xbdBlkDevCreateSync(blk_dev, PEGASUS_DEV_NAME)) == 0)
     {
         fprintf(stderr, "**********************************\n");
         fprintf(stderr, "**                              **\n");
@@ -53,24 +54,68 @@ void pegasusInit()
 
     fprintf(stderr, "==== Created device: \"%s\"\n", PEGASUS_DEV_NAME);
 
+#if 1
     if (!exists)
     {
-        if (hrfsFormat("/pegasus:0", 0, 0, 0) != 0)
+        if (hrfsFormat(PEGASUS_DEV_NAME ":0", 0, 0, 0) != 0)
         {
-            fprintf(stderr, "*************************n");
+            fprintf(stderr, "*************************\n");
             fprintf(stderr, "**                     **\n");
             fprintf(stderr, "** hrfsFormat() failed **\n");
             fprintf(stderr, "**                     **\n");
-            fprintf(stderr, "*************************n");
+            fprintf(stderr, "*************************\n");
             return;
         }
 
         fprintf(stderr, "==== Formatted virtual file system: \"%s\"\n", 
             PEGASUS_DEV_NAME ":0");
     }
+#elif 0
+    if (!exists)
+    {
+        if (dosFsDevCreate("C:", device, 1024*128, NONE) != 0)
+        {
+            fprintf(stderr, "*****************************\n");
+            fprintf(stderr, "**                         **\n");
+            fprintf(stderr, "** dosFsDevCreate() failed **\n");
+            fprintf(stderr, "**                         **\n");
+            fprintf(stderr, "*****************************\n");
+            return;
+        }
+
+        if (dosFsVolFormat("C:", DOS_OPT_BLANK, NULL) != 0)
+        {
+            fprintf(stderr, "*****************************\n");
+            fprintf(stderr, "**                         **\n");
+            fprintf(stderr, "** dosFsVolFormat() failed **\n");
+            fprintf(stderr, "**                         **\n");
+            fprintf(stderr, "*****************************\n");
+            return;
+        }
+
+        fprintf(stderr, "==== Formatted virtual file system: \"%s\"\n", 
+            PEGASUS_DEV_NAME ":0");
+    }
+#else
+    if (!exists)
+    {
+        if (dosfsDiskFormat(PEGASUS_DEV_NAME ":0") != 0)
+        {
+            fprintf(stderr, "******************************\n");
+            fprintf(stderr, "**                          **\n");
+            fprintf(stderr, "** dosfsDiskFormat() failed **\n");
+            fprintf(stderr, "**                          **\n");
+            fprintf(stderr, "******************************\n");
+            return;
+        }
+
+        fprintf(stderr, "==== Formatted virtual file system: \"%s\"\n", 
+            PEGASUS_DEV_NAME ":0");
+    }
+#endif
 
 #if 0
-    xbdBlkDevDelete(_vfs_device, &_vfs_blk_dev);
-    virtualDiskClose(_vfs_blk_dev);
+    xbdBlkDevDelete(device, &blk_dev);
+    virtualDiskClose(blk_dev);
 #endif
 }

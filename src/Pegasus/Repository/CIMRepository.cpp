@@ -74,7 +74,6 @@
 #define PEG_METHOD_EXIT()
 #endif
 
-
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -86,6 +85,16 @@ static int compressMode = 0; // PEP214
 #endif
 
 // #define TEST_OUTPUT
+
+/*
+ATTN-MEB: take this out!
+*/
+#if 0
+# undef PEG_METHOD_ENTER
+# define PEG_METHOD_ENTER(X, STR) printf("ENTER[%s]\n", STR)
+# undef PEG_METHOD_EXIT
+# define PEG_METHOD_EXIT()
+#endif
 
 //==============================================================================
 //
@@ -445,6 +454,8 @@ void _LoadObject(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_LoadObject");
 
+cout << "LOAD[" << path << "]" << endl;
+
     // Get the real path of the file:
 
     String realPath;
@@ -485,6 +496,8 @@ void _SaveObject(
     ObjectStreamer* streamer)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_SaveObject");
+
+cout << "SAVE[" << path << "]" << endl;
 
 #ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
     if (compressMode)            // PEP214
@@ -610,11 +623,37 @@ void _commitInstanceTransaction(
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+static String _dirName(const String& path)
+{
+    Uint32 n = path.size();
+
+    for (Uint32 i = n; i != 0; )
+    {
+        if (path[--i] == '/')
+            return path.subString(0, i);
+    }
+
+    return String(".");
+}
+
 void _rollbackInstanceTransaction(
     const String& indexFilePath,
     const String& dataFilePath)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "_rollbackInstanceTransaction");
+
+    // Avoid rollback logic if directory has no .rollback files.
+
+    String path = _dirName(indexFilePath);
+    Array<String> rollbackFiles;
+
+    if (FileSystem::glob(path, "*.rollback", rollbackFiles))
+    {
+        if (rollbackFiles.size() == 0)
+            return;
+    }
+
+    // Proceed to rollback logic.
 
     if (!InstanceIndexFile::rollbackTransaction(indexFilePath))
     {

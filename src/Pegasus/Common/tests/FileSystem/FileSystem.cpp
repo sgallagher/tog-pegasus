@@ -43,12 +43,28 @@ PEGASUS_USING_STD;
 
 static char * verbose;
 
+void _printArray(const String& name, const Array<String>& globList)
+    {
+        for (Uint32 i = 0 ; i < globList.size(); i++)
+        {
+            if (verbose)
+            {
+                cout << name << " " << i << " " << globList[i] << endl;
+            }
+        }
+    }
+
 static void _cleanup(const String& tmpDir)
 {
     FileSystem::removeFile(tmpDir + "/TestFile.txt");
     FileSystem::removeFile(tmpDir + "/TestFile1.txt");
     FileSystem::removeFile(tmpDir + "/file1.txt");
     FileSystem::removeFile(tmpDir + "/file2.txt");
+
+    // We should have removed all files from the test directory
+    Array<String> globList;
+    FileSystem::glob(tmpDir + " /*", "*", globList);
+    PEGASUS_TEST_ASSERT(globList.size() == 0);
     FileSystem::removeDirectoryHier(tmpDir + "/TestDirectory2");
 }
 
@@ -77,6 +93,37 @@ int main(int argc, char** argv)
     PEGASUS_TEST_ASSERT(FileSystem::isDirectory("."));
     PEGASUS_TEST_ASSERT(!FileSystem::isDirectory("FileSystem.cpp"));
     PEGASUS_TEST_ASSERT(FileSystem::isDirectory("./testdir"));
+
+    // test the glob function
+    Array<String> globList;
+    FileSystem::glob( ".",  "*", globList);
+    PEGASUS_TEST_ASSERT(globList.size() == 4);
+
+    FileSystem::glob( ".",  "*.cpp", globList);
+    PEGASUS_TEST_ASSERT(globList.size() == 1);
+    PEGASUS_TEST_ASSERT(globList[0] == "FileSystem.cpp");
+
+    FileSystem::glob( ".",  "*ile*.cpp", globList);
+    PEGASUS_TEST_ASSERT(globList.size() == 1);
+    PEGASUS_TEST_ASSERT(globList[0] == "FileSystem.cpp");
+
+    FileSystem::glob( ".",  "*akefile", globList);
+    PEGASUS_TEST_ASSERT(globList.size() == 1);
+    PEGASUS_TEST_ASSERT(globList[0] == "Makefile");
+
+    FileSystem::glob( ".",  "Makefil*", globList);
+    PEGASUS_TEST_ASSERT(globList.size() == 1);
+    PEGASUS_TEST_ASSERT(globList[0] == "Makefile");
+    FileSystem::glob( "testdir",  "*", globList);
+
+    _printArray("glob . Makefil*" , globList);
+
+    PEGASUS_TEST_ASSERT(globList.size() == 4);
+
+    FileSystem::glob( ".",  "*.*", globList);
+    _printArray("glob . *.*" , globList);
+    PEGASUS_TEST_ASSERT(globList[0] == "FileSystem.cpp");
+    PEGASUS_TEST_ASSERT(globList.size() == 1);
 
     Array<String> paths;
     PEGASUS_TEST_ASSERT( FileSystem::getDirectoryContents("./testdir", paths) );
@@ -132,6 +179,9 @@ int main(int argc, char** argv)
         String tf1 (tmpDir);
         tf1.append("/TestFile1.txt");
         CString f1 = tf1.getCString();
+        String tf2 (tmpDir);
+        tf2.append("/TestFileNoExt");
+        CString f2 = tf2.getCString();
 
         FileSystem::makeDirectory(t);
         PEGASUS_TEST_ASSERT(FileSystem::isDirectory(t));
@@ -139,7 +189,6 @@ int main(int argc, char** argv)
         PEGASUS_TEST_ASSERT(!FileSystem::isDirectory(t));
     
         // Tests for remove hierarchy command
-        // ATTN: Removed following until next test ks
         // because remove hiearchy does not work yet.
         FileSystem::makeDirectory(t);
     
@@ -161,6 +210,35 @@ int main(int argc, char** argv)
         of2.close();
         PEGASUS_TEST_ASSERT(FileSystem::exists(tf1));
     
+        ofstream of2a(f2);
+        of2a << "test" << endl;
+        of2a.close();
+        PEGASUS_TEST_ASSERT(FileSystem::exists(tf2));
+
+        FileSystem::glob(".", "*", globList);
+        PEGASUS_TEST_ASSERT(globList.size() == 3);
+
+        FileSystem::glob(".", "T*", globList);
+        PEGASUS_TEST_ASSERT(globList.size() == 3);
+
+        FileSystem::glob(".", "*.*", globList);
+        PEGASUS_TEST_ASSERT(globList.size() == 2);
+
+        FileSystem::glob(".", "*Ext", globList);
+        PEGASUS_TEST_ASSERT(globList.size() == 1);
+        PEGASUS_TEST_ASSERT(globList[0] == "TestFileNoExt");
+
+        FileSystem::glob(".", "T*Ex*", globList);
+        PEGASUS_TEST_ASSERT(globList.size() == 1);
+        PEGASUS_TEST_ASSERT(globList[0] == "TestFileNoExt");
+
+        FileSystem::glob(".", "TestFileNoEx*", globList);
+        PEGASUS_TEST_ASSERT(globList.size() == 1);
+        PEGASUS_TEST_ASSERT(globList[0] == "TestFileNoExt");
+
+        FileSystem::glob(".", "*junk*", globList);
+        PEGASUS_TEST_ASSERT(globList.size() == 0);
+
         // Create a second level directory
         FileSystem::makeDirectory(t1);
     

@@ -449,9 +449,18 @@ int main(int argc, char** argv)
     MessageLoader::_useProcessLocale = true;
 
 #if defined(PEGASUS_OS_VXWORKS)
-    // On VxWorks, run cimserver in /pegasus:0 directory:
+/*
+ATTN-MEB: create constant for this:
+*/
+    // On VxWorks, run cimserver in /ramfs:0 directory:
     {
-        chdir("/pegasus:0");
+        const char PATH[] = "/pegasus:0";
+        if (chdir(PATH) != 0)
+        {
+            fprintf(stderr, "cimserver: failed to chdir to %s\n", PATH);
+            fprintf(stderr, "cimserver: aborting...\n");
+            exit(1);
+        }
         char cwd[4096];
         cwd[0] = '\0';
         getcwd(cwd, sizeof(cwd));

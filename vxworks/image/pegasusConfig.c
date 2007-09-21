@@ -54,7 +54,6 @@ void pegasusInit()
 
     fprintf(stderr, "==== Created device: \"%s\"\n", PEGASUS_DEV_NAME);
 
-#if 1
     if (!exists)
     {
         if (hrfsFormat(PEGASUS_DEV_NAME ":0", 0, 0, 0) != 0)
@@ -70,52 +69,4 @@ void pegasusInit()
         fprintf(stderr, "==== Formatted virtual file system: \"%s\"\n", 
             PEGASUS_DEV_NAME ":0");
     }
-#elif 0
-    if (!exists)
-    {
-        if (dosFsDevCreate("C:", device, 1024*128, NONE) != 0)
-        {
-            fprintf(stderr, "*****************************\n");
-            fprintf(stderr, "**                         **\n");
-            fprintf(stderr, "** dosFsDevCreate() failed **\n");
-            fprintf(stderr, "**                         **\n");
-            fprintf(stderr, "*****************************\n");
-            return;
-        }
-
-        if (dosFsVolFormat("C:", DOS_OPT_BLANK, NULL) != 0)
-        {
-            fprintf(stderr, "*****************************\n");
-            fprintf(stderr, "**                         **\n");
-            fprintf(stderr, "** dosFsVolFormat() failed **\n");
-            fprintf(stderr, "**                         **\n");
-            fprintf(stderr, "*****************************\n");
-            return;
-        }
-
-        fprintf(stderr, "==== Formatted virtual file system: \"%s\"\n", 
-            PEGASUS_DEV_NAME ":0");
-    }
-#else
-    if (!exists)
-    {
-        if (dosfsDiskFormat(PEGASUS_DEV_NAME ":0") != 0)
-        {
-            fprintf(stderr, "******************************\n");
-            fprintf(stderr, "**                          **\n");
-            fprintf(stderr, "** dosfsDiskFormat() failed **\n");
-            fprintf(stderr, "**                          **\n");
-            fprintf(stderr, "******************************\n");
-            return;
-        }
-
-        fprintf(stderr, "==== Formatted virtual file system: \"%s\"\n", 
-            PEGASUS_DEV_NAME ":0");
-    }
-#endif
-
-#if 0
-    xbdBlkDevDelete(device, &blk_dev);
-    virtualDiskClose(blk_dev);
-#endif
 }

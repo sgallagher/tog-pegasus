@@ -19,8 +19,6 @@ VFS=$(HOME)/pegasus.vfs
 
 proj:
 	mkdir -p proj
-	cp pegasusConfig.h proj
-	cp pegasusConfig.c proj
 	cp pegasus.cdf proj
 	( cd proj; vxprj create linux gnu vxsim.wpj )
 	( cd proj; vxprj component remove INCLUDE_SHELL_BANNER )

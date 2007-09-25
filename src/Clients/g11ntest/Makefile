@@ -88,6 +88,6 @@ endif
 ifeq ($(OS_TYPE), unix)
 ifeq ($(PEGASUS_TEST_IPV6), true)
 	@$(ECHO) "Testing with IPv4 Mapped IPv6 Addresses."
-	$(PROGRAM) [::ffff:127.0.0.1]:5988 -l ::ffff:127.0.0.1
+	$(PROGRAM) [::ffff:127.0.0.1]:5988 -l [::ffff:127.0.0.1]:2003
 endif
 endif

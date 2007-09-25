@@ -179,6 +179,7 @@ int GetConfigParam(
     const char* name,
     char value[EXECUTOR_BUFFER_SIZE])
 {
+    const char* configFileName = 0;
     char path[EXECUTOR_BUFFER_SIZE];
     size_t i;
 
@@ -187,9 +188,18 @@ int GetConfigParam(
     if (GetConfigParamFromCommandLine(name, value) == 0)
         return 0;
 
-    /* (2) Next check planned config file. */
+    /* (2) Next check config file. */
 
-    if (GetHomedPath(PEGASUS_PLANNED_CONFIG_FILE_PATH, path) == 0 &&
+    if (strcmp(name, "shutdownTimeout") == 0)
+    {
+        configFileName = PEGASUS_CURRENT_CONFIG_FILE_PATH;
+    }
+    else
+    {
+        configFileName = PEGASUS_PLANNED_CONFIG_FILE_PATH;
+    }
+
+    if (GetHomedPath(configFileName, path) == 0 &&
         GetConfigParamFromFile(path, name, value) == 0)
         return 0;
 

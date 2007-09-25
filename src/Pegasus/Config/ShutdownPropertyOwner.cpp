@@ -39,6 +39,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/Constants.h>
 #include "ShutdownPropertyOwner.h"
 
 
@@ -60,7 +61,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-    {"shutdownTimeout", "30", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"shutdownTimeout", PEGASUS_DEFAULT_SHUTDOWN_TIMEOUT_SECONDS_STRING,
+         IS_DYNAMIC, 0, 0, IS_VISIBLE},
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);

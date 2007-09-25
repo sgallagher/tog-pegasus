@@ -197,7 +197,12 @@ void DefineExecutorMacros(void)
         char buffer[EXECUTOR_BUFFER_SIZE];
 
         if (GetConfigParam("shutdownTimeout", buffer) != 0)
-            Strlcpy(buffer, "5", sizeof(buffer));
+        {
+            Strlcpy(
+                buffer,
+                PEGASUS_DEFAULT_SHUTDOWN_TIMEOUT_SECONDS_STRING,
+                sizeof(buffer));
+        }
 
         DefineMacro("shutdownTimeout", buffer);
     }

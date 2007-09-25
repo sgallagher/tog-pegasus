@@ -2574,24 +2574,66 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
     }
 
     //
+    // Return CIM_ERR_ALREADY_EXISTS if the instance already exists in the
+    // repository
+    //
+
+    {
+        PEGASUS_ASSERT(
+            (className == PEGASUS_CLASSNAME_CONSUMERCAPABILITIES) ||
+            (className == PEGASUS_CLASSNAME_PROVIDERCAPABILITIES));
+
+        instance.getProperty(instance.findProperty(
+            _PROPERTY_PROVIDERMODULENAME)).getValue().get(_providerModule);
+        instance.getProperty(instance.findProperty(
+            _PROPERTY_PROVIDERNAME)).getValue().get(_providerName);
+        String capabilitiesId;
+        instance.getProperty(instance.findProperty(
+            _PROPERTY_CAPABILITIESID)).getValue().get(capabilitiesId);
+
+        Array<CIMKeyBinding> instanceKeys;
+        instanceKeys.append(
+            CIMKeyBinding(_PROPERTY_PROVIDERMODULENAME, _providerModule));
+        instanceKeys.append(
+            CIMKeyBinding(_PROPERTY_PROVIDERNAME, _providerName));
+        instanceKeys.append(
+            CIMKeyBinding(_PROPERTY_CAPABILITIESID, capabilitiesId));
+
+        CIMObjectPath instanceName(
+            String::EMPTY, CIMNamespaceName(), className, instanceKeys);
+
+        Boolean instanceExists = true;
+        try
+        {
+            CIMInstance instance = _repository->getInstance(
+                PEGASUS_NAMESPACENAME_INTEROP, instanceName);
+        }
+        catch (CIMException& e)
+        {
+            if (e.getCode() == CIM_ERR_NOT_FOUND)
+            {
+                instanceExists = false;
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        if (instanceExists)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_ALREADY_EXISTS, instanceName.toString());
+        }
+    }
+
+    //
     // register PG_ConsumerCapabilities class
     //
     if (className.equal (PEGASUS_CLASSNAME_CONSUMERCAPABILITIES))
     {
         Array<String> _indicationDestinations;
         String _consumerKey;
-
-        //
-        // get provider module name
-        //
-        instance.getProperty(instance.findProperty(
-            _PROPERTY_PROVIDERMODULENAME)).getValue().get(_providerModule);
-
-        //
-        // get provider name
-        //
-        instance.getProperty(instance.findProperty(
-            _PROPERTY_PROVIDERNAME)).getValue().get(_providerName);
 
         //
         // create the key by using _providerModule and _providerName
@@ -2663,17 +2705,6 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
         Array<String> _supportedProperties;
         String _className;
         String _capabilityKey;
-
-        //
-        // get provider module name
-        //
-        instance.getProperty(instance.findProperty(
-            _PROPERTY_PROVIDERMODULENAME)).getValue().get(_providerModule);
-        //
-        // get provider name
-        //
-        instance.getProperty(instance.findProperty(
-            _PROPERTY_PROVIDERNAME)).getValue().get(_providerName);
 
         //
         // create the key by using _providerModule and _providerName

@@ -1,0 +1,122 @@
+
+
+PEGASUS FILES
+
+    1. Executables and Libraries - Pegasus will include the server
+    executable and one or more shared libraries for server and
+    provider functions.  Whereas most ports include client files, we
+    expect that there would be no client files in this port.  They
+    would be compiled for the host system.  These files are write-only
+    and probably amount to about 8 mb withn the Pegasus environment
+    
+    2. Configuration Files - Pegasus includes a pair of configuration
+    files so that configuration parameters can be maintained.  There
+    is one file for what are called planned parameters (permanent
+    parameters) and a second for transient (current parameters). These
+    are small files (normally a file and a backup) that "should be"
+    only modified when changes to configuration are made. However,
+    today we are not certain if they are opened for read or
+    modification by the server simply because they have always be
+    maintained as writable by the server. In general, we are assuming
+    that the permanent file should be set by the supplier when the
+    system is shipped and not modified after that (Note that this is a
+    untested assumption at this point) and the transient(current) file
+    is actually used for very little except for setting possible
+    parameters that the user only wants to maintain for the current
+    server startup (ex. turn on tracing).  In any case, for now we
+    must assume that both of these files must be maintained as
+    persistent, writable but with very limited size requirements (a
+    few kilobytes)
+    
+    3. Password File - There is expected to be a password file, in
+    particular because there does not appear to be any user support
+    mechanism for VxWorks. This is the file that would maintain user
+    names and passwords for the server.  We are making the assumption
+    that the users will want to add and modify passwords so that this
+    file must be maintained persistent and writable.  However, it is
+    only a very few kilobytes in size.
+    
+    4. Class repository (Class definition files). We are making the
+    assumption that a VxWorks CIM Server today will NOT require any
+    modification to the class repository.  Thus, the following
+    operations will be disabled (create, modify, delete class and the
+    create, delete qualifier).  Thus, the class repository (which
+    includes the qualifier repository) will be persistent but not
+    writable. The problem with these repositories today is that they
+    are large (about 15 mb) for a full CIM schema class repository
+    with binary encoding.  Note that a typical implementation for the
+    embedded environment does not use the complete repository and so
+    can be expected to be significantly smaller than this (ex. 5 mb)
+    but still large. We are looking at a number of techniques for a)
+    reducing the size, b) possibly eliminating this repository
+    completly in favor of building it in as a compiled component of
+    the server.  These will be treated in a PEP.
+    
+    5. Instance repository (Instance data that is persisted by the
+    server). Typically this is used at least for provider registration
+    information indication subscriptions and some of the core profile
+    information (ex. the register profiles). The size of the instance
+    repository varies with requirements but typically it will include
+    instances of at least 25 - 30 classes including the following:
+    Interop Namespace
+        Object Manager Class
+        Indication Filter Class
+        Indication Destination Class
+        Subscription Class
+        Provider Profile class
+        Provider Module Class
+        Provider Class
+        Provider Capabilities Class
+    General Use Namespace (ex root/cimv2)
+        Indication Subscription
+        Indication Filter
+        Indication Destination
+
+    Typically about 4 kb is required for each instance.  This means
+    that the repository with about 150 instances would require no more
+    than 600 kb of space.  Generally, however it will be required that
+    this space is persistent and writable since we cannot predict
+    which of these instance files can be updated.  Note that the
+    instance repository today consists of two files for each class in
+    each namespace (a data file and an index file) and in addition
+    creates a temporary recovery file each time an instance is
+    modified to allow recovery if there is a system failure during the
+    period of modification of the instance files.
+
+    6. Logs - Pegasus outputs log information either to the syslog
+    interface for systems that support this interface or directly to a
+    log file.
+    
+    7. Trace output - When traces are executed a file is produced that today
+    is in the $PEGASUS_ROOT directory.  This file can be very large in that it
+    is an ascii trace output and trace can be voluminous.  Note, however, that
+    this is user controlled.
+
+    8. localConnect control file - This is a file maintained today in the
+    /tmp directory that controls use of the localConnect mechanism and
+    provides the authentication between the localConnect() client and the
+    server.  It has definite issues today in that it implies that there is
+    only a single server.  The file itself is very small.
+
+Concepts for File types
+
+We expect that a VxWorks implementation would have some combination of
+the following file system types within the environment
+
+ROM File System - Write only, used primarily for executables
+
+RAM File System - Writeable file system with very definite size limits
+and no persistence
+
+Flash File System - Persistent and modifiable files system but with
+very limited space and very slow write.  Typically this type of file
+system should only be used for information of limited size that does
+not change frequently
+
+Persistent writable Disk File System - This is the file system type upon which
+Pegasus is based today. Typically it is readable and writable, minimal
+issues of sizing for Pegasus and also includes characteristics like
+file/user permissions.  Since systems like VxWorks are probably
+significantly limited in the use of a persistent writable file system,
+one of the goals becomes to reallocate various files to other types of
+file systems based on the real requirements of those files

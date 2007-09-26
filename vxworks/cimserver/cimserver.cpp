@@ -29,9 +29,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Server/PegasusServerMain.h>
-
-PEGASUS_USING_PEGASUS;
+extern "C" int PegasusServerMain(int argc, char** argv);
 
 int main(int argc, char** argv)
 {

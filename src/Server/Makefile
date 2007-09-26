@@ -119,7 +119,18 @@ ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
   EXTRA_LINK_FLAGS += -bmaxdata:0x80000000
 endif
 
-include $(ROOT)/mak/program.mak
+##
+## On VxWorks, build a library called pegcimserver rather than a program
+## called cimserver.
+##
+
+ifeq ($(OS_TYPE),vxworks)
+  LOCAL_DEFINES += -DPEGASUS_BUILDING_CIMSERVER_LIBRARY
+  LIBRARY = pegcimserver
+  include $(ROOT)/mak/library.mak
+else
+  include $(ROOT)/mak/program.mak
+endif
 
 ifeq ($(OS_TYPE),windows)
   SYS_LIBS = ws2_32.lib advapi32.lib	

@@ -103,8 +103,7 @@ SOURCES = \
 	BinaryMessageHandler.cpp \
 	reg_table.cpp \
 	QuerySupportRouter.cpp \
-	WQLOperationRequestDispatcher.cpp \
-        PegasusServerMain.cpp
+	WQLOperationRequestDispatcher.cpp
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
 SOURCES += \

@@ -38,6 +38,7 @@ PROGRAM = cimserver
 SOURCES = cimserver.cpp
 
 LIBRARIES = \
+    pegcimserver \
     pegserver \
     pegservice \
     peguser \

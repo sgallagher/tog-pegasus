@@ -43,8 +43,9 @@ struct ProviderTableEntry
 {
     const char* moduleName;
     const char* providerName;
-    CIMProvider* (*createProvider)(const String& providerName);
+    const char* nameSpace;
     const char* className;
+    CIMProvider* (*createProvider)(const String& providerName);
 };
 
 PEGASUS_SERVER_LINKAGE extern ProviderTableEntry* pegasusProviderTable;

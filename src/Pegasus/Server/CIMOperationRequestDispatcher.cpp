@@ -1256,11 +1256,15 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
                     if (!e.moduleName && !e.createProvider || !e.className)
                         continue;
 
-                    String tmp = PEGASUS_QUEUENAME_CONTROLSERVICE "::";
-                    tmp.append(e.moduleName);
-
                     MessageQueueService* mqs = (MessageQueueService*)
                         MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE);
+
+                    String moduleName = PEGASUS_QUEUENAME_CONTROLSERVICE "::";
+                    moduleName.append(e.moduleName);
+                    moduleName.append("::");
+                    moduleName.append(e.providerName);
+
+std::cout << "INSERTRECORD[" << moduleName << "]" << std::endl;
 
                     _routing_table.insert_record(
                         e.className,
@@ -1268,7 +1272,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
                         DynamicRoutingTable::INTERNAL,
                         0,
                         mqs,
-                        PEGASUS_MODULENAME_NAMESPACEPROVIDER,
+                        moduleName,
                         PEGASUS_QUEUENAME_CONTROLSERVICE);
                 }
             }

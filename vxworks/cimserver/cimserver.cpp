@@ -30,45 +30,33 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstdio>
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Server/ProviderTable.h>
+#include <Pegasus/Provider/CIMProvider.h>
+
+PEGASUS_USING_PEGASUS;
 
 extern "C" int PegasusServerMain(int argc, char** argv);
+extern "C" CIMProvider* PegasusCreateProvider_Hello(const String&);
 
-struct PegasusSymbol
+static Pegasus::ProviderTableEntry _providerTable[] =
 {
-    char* libraryName;
-    char* symbolName;
-    void* symbolPtr;
-};
-
-extern PegasusSymbol* pegasusSymbolTable;
-
-extern "C" void PegasusCreateProvider_Hello();
-extern "C" void PegasusCreateProvider_Goodbye();
-
-static PegasusSymbol _symbolTable[] =
-{
-    { 
-        "libHelloProvider.a", 
-        "PegasusCreateProvider",
-        (void*)PegasusCreateProvider_Hello,
-    },
-    { 
-        "libGoodbyeProvider.a", 
-        "PegasusCreateProvider",
-        (void*)PegasusCreateProvider_Goodbye,
-    },
     {
-        0,
-        0,
-        0,
+        "HelloModule", 
+        "HelloProvider", 
+        "root/cimv2", 
+        "Hello",
+        PegasusCreateProvider_Hello,
     },
+    { 0, 0, 0, 0, 0 },
 };
 
 int main(int argc, char** argv)
 {
     // Initialize the Pegasus symbol table (used to resolve "dynamic load"
     // requests).
-    pegasusSymbolTable = _symbolTable;
+    pegasusProviderTable = _providerTable;
 
     return PegasusServerMain(argc, argv);
 }

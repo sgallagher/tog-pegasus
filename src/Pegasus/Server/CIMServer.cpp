@@ -446,7 +446,7 @@ BOOKMARK0:
         {
             const ProviderTableEntry& e = pegasusProviderTable[i];
 
-            if (!e.moduleName && !e.createProvider)
+            if (!e.moduleName && !e.createProvider || !e.className)
                 continue;
 
             CIMProvider* provider = (*e.createProvider)(e.providerName);
@@ -459,12 +459,16 @@ BOOKMARK0:
 
             _controlProviders.append(pmh);
 
-            String tmp = PEGASUS_QUEUENAME_CONTROLSERVICE "::";
-            tmp.append(e.moduleName);
+            String moduleName = PEGASUS_QUEUENAME_CONTROLSERVICE "::";
+            moduleName.append(e.moduleName);
+            moduleName.append("::");
+            moduleName.append(e.providerName);
+
+std::cout << "REGISTERMODULE[" << moduleName << "]" << std::endl;
 
             ModuleController::register_module(
                 PEGASUS_QUEUENAME_CONTROLSERVICE,
-                tmp,
+                moduleName,
                 pmh,
                 controlProviderReceiveMessageCallback,
                 0);

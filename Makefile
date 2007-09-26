@@ -72,7 +72,9 @@ ifeq ($(OS_TYPE),vxworks)
         src/Pegasus/ControlProviders/ConfigSettingProvider \
         src/Pegasus/ControlProviders/UserAuthProvider \
         src/Pegasus/Server \
-        src/Server \
+        vxworks/cimserver
+
+XSOURCES = \
         src/Providers/ManagedSystem/ComputerSystem \
         src/Providers/ManagedSystem/Process \
         src/Providers/ManagedSystem/Processor \

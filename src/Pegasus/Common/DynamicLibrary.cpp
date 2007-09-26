@@ -41,7 +41,7 @@
 #elif defined(PEGASUS_OS_TYPE_UNIX) || defined(PEGASUS_OS_VMS) 
 # include "DynamicLibraryPOSIX.cpp"
 #elif defined(PEGASUS_OS_VXWORKS)
-# include "DynamicLibraryVxWorks.cpp"
+# include "DynamicLibraryPOSIX.cpp"
 #else
 # error "Unsupported platform"
 #endif

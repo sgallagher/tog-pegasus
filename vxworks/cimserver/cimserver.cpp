@@ -39,6 +39,7 @@ PEGASUS_USING_PEGASUS;
 
 extern "C" int PegasusServerMain(int argc, char** argv);
 extern "C" CIMProvider* PegasusCreateProvider_Hello(const String&);
+extern "C" CIMProvider* PegasusCreateProvider_Goodbye(const String&);
 
 static Pegasus::ProviderTableEntry _providerTable[] =
 {
@@ -49,13 +50,18 @@ static Pegasus::ProviderTableEntry _providerTable[] =
         "Hello",
         PegasusCreateProvider_Hello,
     },
+    {
+        "GoodbyeModule", 
+        "GoodbyeProvider", 
+        "root/cimv2", 
+        "Goodbye",
+        PegasusCreateProvider_Goodbye,
+    },
     { 0, 0, 0, 0, 0 },
 };
 
 int main(int argc, char** argv)
 {
-    // Initialize the Pegasus symbol table (used to resolve "dynamic load"
-    // requests).
     pegasusProviderTable = _providerTable;
 
     return PegasusServerMain(argc, argv);

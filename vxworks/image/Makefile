@@ -23,7 +23,6 @@ PEGASUS_PROVIDER_DIR="$(HOSTNAME):$(PEGASUS_HOME)/lib"
 
 proj:
 	mkdir -p proj
-	echo "#define PEGASUS_PROVIDER_DIR \"$(PEGASUS_PROVIDER_DIR)\"" > pegasusEnv.h
 	cp pegasus.cdf proj
 	( cd proj; vxprj create linux gnu vxsim.wpj )
 	( cd proj; vxprj component remove INCLUDE_SHELL_BANNER )

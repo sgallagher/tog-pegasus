@@ -50,3 +50,4 @@ mof:
 
 reg:
 	cimmofl -n root/PG_InterOp HelloProviderR.mof
+

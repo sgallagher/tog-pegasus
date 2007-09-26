@@ -38,10 +38,10 @@
 # include "DynamicLibraryWindows.cpp"
 #elif defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_HPUX_USE_DLOPEN)
 # include "DynamicLibraryHPUX.cpp"
-#elif defined(PEGASUS_OS_TYPE_UNIX) || \
-    defined(PEGASUS_OS_VMS) || \
-    defined(PEGASUS_OS_VXWORKS)
+#elif defined(PEGASUS_OS_TYPE_UNIX) || defined(PEGASUS_OS_VMS) 
 # include "DynamicLibraryPOSIX.cpp"
+#elif defined(PEGASUS_OS_VXWORKS)
+# include "DynamicLibraryVxWorks.cpp"
 #else
 # error "Unsupported platform"
 #endif

@@ -27,13 +27,20 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+//==============================================================================
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Server/PegasusServerMain.h>
+#ifndef Pegasus_Server_PegasusServerMain_h
+#define Pegasus_Server_PegasusServerMain_h
 
-PEGASUS_USING_PEGASUS;
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Server/Linkage.h>
 
-int main(int argc, char** argv)
-{
-    return PegasusServerMain(argc, argv);
-}
+PEGASUS_NAMESPACE_BEGIN
+
+PEGASUS_SERVER_LINKAGE int PegasusServerMain(int argc, char** argv);
+
+PEGASUS_NAMESPACE_END
+
+#endif // Pegasus_Server_PegasusServerMain_h

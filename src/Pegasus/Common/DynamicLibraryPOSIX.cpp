@@ -27,13 +27,71 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+//==============================================================================
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Server/PegasusServerMain.h>
+#include "DynamicLibrary.h"
 
-PEGASUS_USING_PEGASUS;
+#include <dlfcn.h>
 
-int main(int argc, char** argv)
+#if defined(PEGASUS_ZOS_SECURITY)
+# include <sys/stat.h>
+# include "DynamicLibraryzOS_inline.h"
+#endif
+
+PEGASUS_NAMESPACE_BEGIN
+
+Boolean DynamicLibrary::_load()
 {
-    return PegasusServerMain(argc, argv);
+    CString cstr = _fileName.getCString();
+
+#if defined(PEGASUS_ZOS_SECURITY)
+    if (!hasProgramControl(cstr))
+    {
+        return false;
+    }
+#endif
+
+#if defined(PEGASUS_OS_ZOS)
+    _handle = dlopen(cstr, RTLD_LAZY | RTLD_GLOBAL);
+#elif defined(PEGASUS_OS_VMS)
+    _handle = dlopen(cstr, RTLD_NOW);
+#else
+
+    printf("dlopen(%s)\n", (const char*)cstr);
+
+    _handle = dlopen(cstr, RTLD_NOW | RTLD_GLOBAL);
+#endif
+
+    if (_handle == 0)
+    {
+        printf("dlopen(%s) failed\n", (const char*)cstr);
+        // Record the load error message
+        _loadErrorMessage = dlerror();
+    }
+    else
+        printf("dlopen(%s) okay\n", (const char*)cstr);
+
+    return isLoaded();
 }
+
+void DynamicLibrary::_unload()
+{
+    dlclose(_handle);
+}
+
+DynamicLibrary::DynamicSymbolHandle DynamicLibrary::getSymbol(
+    const String& symbolName)
+{
+    PEGASUS_ASSERT(isLoaded());
+
+    CString cstr = symbolName.getCString();
+
+    DynamicSymbolHandle func =
+        (DynamicSymbolHandle) dlsym(_handle, (const char *)cstr);
+
+    return func;
+}
+
+PEGASUS_NAMESPACE_END

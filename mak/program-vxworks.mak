@@ -39,11 +39,24 @@ TARG=$(BIN_DIR)/$(PROGRAM)
 
 LINK_FLAGS = -lstdc++ -L$(WIND_BASE)/target/usr/lib/simpentium/SIMPENTIUM/common -Wl,-rpath /romfs/lib -ldl -Wl,-rpath $(LIB_DIR)
 
-DFILES = $(SOURCES:.cpp=.d)
+ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
+    _P1 = $(addprefix $(LIB_DIR)/$(LIB_PREFIX), $(LIBRARIES))
+    _P2 = $(addsuffix ".a", $(_P1))
+    _FULL_LIBRARIES=$(shell echo $(_P2))
+else
+    _FULL_LIBRARIES=$(FULL_LIBRARIES)
+endif
 
-$(TARG): $(BIN_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) $(ERROR)
-	$(CXX) $(FLAGS) -o $(TARG) $(OBJECTS) -non-static $(FULL_LIBRARIES) $(LINK_FLAGS)
-	rm -rf $(DFILES)
+_DFILES = $(SOURCES:.cpp=.d)
+
+ifneq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
+
+endif
+_EXTRA += -non-static
+
+$(TARG): $(BIN_DIR)/target $(OBJECTS) $(_FULL_LIBRARIES) $(ERROR)
+	$(CXX) $(FLAGS) -o $(TARG) $(OBJECTS) $(_EXTRA) $(_FULL_LIBRARIES) $(LINK_FLAGS)
+	rm -rf $(_DFILES)
 
 include $(ROOT)/mak/objects.mak
 

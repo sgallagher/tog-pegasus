@@ -6,6 +6,7 @@
 #include "xbdBlkDev.h"
 #include "virtualDiskLib.h"
 #include "hrFsLib.h"
+#include "pegasusEnv.h"
 
 void pegasusInit()
 {
@@ -14,6 +15,12 @@ void pegasusInit()
     const size_t BYTES_PER_BLOCK = 1024;
     const size_t NUM_BLOCKS = (64 * 1024 * 1024) / BYTES_PER_BLOCK;
     int exists = 0;
+
+    /* Set PEGASUS_HOME environment variable. */
+
+#if 0
+    putenv("PEGASUS_PROVIDER_DIR=" PEGASUS_PROVIDER_DIR);
+#endif
 
     {
         int fd = open(PEGASUS_VFS_NAME, O_RDONLY, 0777);

@@ -17,8 +17,13 @@ SHELL_DEFAULT_CONFIG="LINE_EDIT_MODE=emacs,LINE_LENGTH=256,STRING_FREE=manual,IN
 
 VFS=$(HOME)/pegasus.vfs
 
+HOSTNAME=$(shell hostname)
+
+PEGASUS_PROVIDER_DIR="$(HOSTNAME):$(PEGASUS_HOME)/lib"
+
 proj:
 	mkdir -p proj
+	echo "#define PEGASUS_PROVIDER_DIR \"$(PEGASUS_PROVIDER_DIR)\"" > pegasusEnv.h
 	cp pegasus.cdf proj
 	( cd proj; vxprj create linux gnu vxsim.wpj )
 	( cd proj; vxprj component remove INCLUDE_SHELL_BANNER )
@@ -28,6 +33,7 @@ proj:
 	( cd proj; vxprj parameter setstring SHELL_DEFAULT_CONFIG $(SHELL_DEFAULT_CONFIG) )
 	( cd proj; vxprj parameter set HRFS_DEFAULT_MAX_FILES 128 )
 	( cd proj; vxprj parameter set HRFS_DEFAULT_MAX_BUFFERS 128 )
+	( cd proj; vxprj parameter set NUM_FILES 128 )
 
 obsolete:
 	( cd proj; vxprj component add INCLUDE_POSIX_PTHREAD_SCHEDULER )
@@ -50,15 +56,42 @@ clean:
 	rm -rf vxWorks.sym
 	rm -rf vxWorks
 
+DEV=/pegasus:0
+TMP=Makefile.tmp
+
+##=======================================================================================================================================
+##
+## repository:
+##
+##=======================================================================================================================================
+
 SRCDIR=$(HOST_PEGASUS_HOME)/repository
-DESTDIR=/pegasus:0/repository
-TMP=repository.tmp
+DESTDIR=$(DEV)/repository
 
 repository:
 	@ rm -rf $(TMP)
 	@ echo "rm -r $(DESTDIR)" >> $(TMP)
 	@ echo "mkdir $(DESTDIR)" >> $(TMP)
 	@ echo "cp -r $(SRCDIR) $(DESTDIR)" >> $(TMP)
+	@ echo "C reboot(1)" >> $(TMP)
+	@ vxsim -exitOnError -s $(TMP)
+	@ echo ""
+	@ rm -rf $(TMP)
+
+##=======================================================================================================================================
+##
+## lib:
+##
+##=======================================================================================================================================
+
+SRCDIR2=$(PEGASUS_HOME)/lib
+DESTDIR2=$(DEV)/lib
+
+lib:
+	@ rm -rf $(TMP)
+	@ echo "rm -r $(DESTDIR2)" >> $(TMP)
+	@ echo "mkdir $(DESTDIR2)" >> $(TMP)
+	@ echo "cp -r $(SRCDIR2) $(DESTDIR2)" >> $(TMP)
 	@ echo "C reboot(1)" >> $(TMP)
 	@ vxsim -exitOnError -s $(TMP)
 	@ echo ""

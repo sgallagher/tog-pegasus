@@ -74,4 +74,8 @@ To get rpath working with /romfs/lib:
 
     Create a /romfs/lib directory under your host system.
 
+Rebuilding vxworks for the simulator:
+=====================================
+
+    $ make CPU=SIMLINUX TOOL=gnu
 

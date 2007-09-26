@@ -30,17 +30,7 @@
 #//=============================================================================
 
 ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
-  ifeq ($(STATIC),1)
-    BUILD_STATIC=1
-  endif
-endif
-
-ifdef BUILD_STATIC
-
-    # ATTN-MEB:
-
+  include $(PEGASUS_ROOT)/mak/static-library-vxworks.mak
 else
-
   include $(PEGASUS_ROOT)/mak/shared-library-vxworks.mak
-
 endif

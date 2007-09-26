@@ -73,6 +73,10 @@ ifeq ($(OS_TYPE),vxworks)
         src/Pegasus/ControlProviders/UserAuthProvider \
         src/Pegasus/Server \
         src/Server \
+        src/Providers/ManagedSystem/ComputerSystem \
+        src/Providers/ManagedSystem/Process \
+        src/Providers/ManagedSystem/Processor \
+        src/Providers/ManagedSystem/IP \
         src/Providers/ManagedSystem/ComputerSystem
 else
     DIRS = src test Schemas

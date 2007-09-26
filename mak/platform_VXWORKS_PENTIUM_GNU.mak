@@ -120,7 +120,7 @@ FLAGS += -mhard-float -ansi -mcpu=i486 -march=i486 -W -Wall -Wno-unused -mrtp -M
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
   FLAGS += -g
 else
-  FLAGS += -O2
+  FLAGS += -Os
 endif
 
 PEGASUS_HAS_MAKEDEPEND = yes

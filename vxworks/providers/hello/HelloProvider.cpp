@@ -63,7 +63,7 @@ void HelloProvider::getInstance(
 
     CIMInstance ci("Hello");
     ci.setPath(CIMObjectPath("Hello.Key=99"));
-    ci.addProperty(CIMProperty("Hello", Uint32(99)));
+    ci.addProperty(CIMProperty("Key", Uint32(99)));
 
     handler.deliver(ci);
     handler.complete();
@@ -81,7 +81,7 @@ void HelloProvider::enumerateInstances(
 
     CIMInstance ci("Hello");
     ci.setPath(CIMObjectPath("Hello.Key=99"));
-    ci.addProperty(CIMProperty("Hello", Uint32(99)));
+    ci.addProperty(CIMProperty("Key", Uint32(99)));
 
     handler.deliver(ci);
     handler.complete();

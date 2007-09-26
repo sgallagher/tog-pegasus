@@ -1261,7 +1261,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 
                     String moduleName = PEGASUS_QUEUENAME_CONTROLSERVICE "::";
                     moduleName.append(e.moduleName);
-                    moduleName.append("::");
+                    moduleName.append(".");
                     moduleName.append(e.providerName);
 
 std::cout << "INSERTRECORD[" << moduleName << "]" << std::endl;

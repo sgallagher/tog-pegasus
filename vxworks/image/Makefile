@@ -13,7 +13,7 @@ romfs:
 	mkdir -p $(ROMFS)/lib
 	cp $(WIND_BASE)/target/usr/root/SIMPENTIUMgnu/bin/libc.so.1 $(ROMFS)/lib
 
-SHELL_DEFAULT_CONFIG="LINE_EDIT_MODE=emacs,LINE_LENGTH=256,STRING_FREE=manual,INTERPRETER=Cmd,VXE_PATH=$(PEGASUS_HOME)/bin"
+CFG="LINE_EDIT_MODE=emacs,LINE_LENGTH=256,STRING_FREE=manual,INTERPRETER=Cmd,VXE_PATH=$(PEGASUS_HOME)/bin"
 
 VFS=$(HOME)/pegasus.vfs
 
@@ -29,7 +29,7 @@ proj:
 	( cd proj; vxprj component remove INCLUDE_WDB_BANNER )
 	( cd proj; vxprj parameter set LOCAL_MEM_SIZE 0x08000000 )
 	( cd proj; vxprj parameter setstring PEGASUS_VFS_NAME $(VFS))
-	( cd proj; vxprj parameter setstring SHELL_DEFAULT_CONFIG $(SHELL_DEFAULT_CONFIG) )
+	( cd proj; vxprj parameter setstring SHELL_DEFAULT_CONFIG $(CFG) )
 	( cd proj; vxprj parameter set HRFS_DEFAULT_MAX_FILES 128 )
 	( cd proj; vxprj parameter set HRFS_DEFAULT_MAX_BUFFERS 128 )
 	( cd proj; vxprj parameter set NUM_FILES 128 )
@@ -63,18 +63,19 @@ TMP=Makefile.tmp
 ##
 SRCDIR=$(HOST_PEGASUS_HOME)/repository
 DESTDIR=$(DEV)/repository
+INTEROP=$(DESTDIR)/root\#PG_InterOp/instances
 
 repository:
 	@ rm -rf $(TMP)
 	@ echo "rm -r $(DESTDIR)" >> $(TMP)
 	@ echo "mkdir $(DESTDIR)" >> $(TMP)
 	@ echo "cp -r $(SRCDIR) $(DESTDIR)" >> $(TMP)
-	@ echo "rm $(DESTDIR)/root#PG_InterOp/instances/PG_ProviderModule.instances" >> $(TMP)
-	@ echo "rm $(DESTDIR)/root#PG_InterOp/instances/PG_ProviderModule.idx" >> $(TMP)
-	@ echo "rm $(DESTDIR)/root#PG_InterOp/instances/PG_Provider.instances" >> $(TMP)
-	@ echo "rm $(DESTDIR)/root#PG_InterOp/instances/PG_Provider.idx" >> $(TMP)
-	@ echo "rm $(DESTDIR)/root#PG_InterOp/instances/PG_ProviderCapabilities.instances" >> $(TMP)
-	@ echo "rm $(DESTDIR)/root#PG_InterOp/instances/PG_ProviderCapabilities.idx" >> $(TMP)
+	@ echo "rm $(INTEROP)/PG_ProviderModule.instances" >> $(TMP)
+	@ echo "rm $(INTEROP)/PG_ProviderModule.idx" >> $(TMP)
+	@ echo "rm $(INTEROP)/PG_Provider.instances" >> $(TMP)
+	@ echo "rm $(INTEROP)/PG_Provider.idx" >> $(TMP)
+	@ echo "rm $(INTEROP)/PG_ProviderCapabilities.instances" >> $(TMP)
+	@ echo "rm $(INTEROP)/PG_ProviderCapabilities.idx" >> $(TMP)
 	@ echo "C reboot(1)" >> $(TMP)
 	@ vxsim -exitOnError -s $(TMP)
 	@ echo ""

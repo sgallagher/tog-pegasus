@@ -73,3 +73,6 @@ LIBRARIES = \
     pegcommon
 
 include $(ROOT)/mak/program.mak
+
+install:
+	cp $(PEGASUS_HOME)/bin/cimserver $(PEGASUS_HOME)/romfs

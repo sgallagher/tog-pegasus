@@ -461,7 +461,7 @@ BOOKMARK0:
 
             String moduleName = PEGASUS_QUEUENAME_CONTROLSERVICE "::";
             moduleName.append(e.moduleName);
-            moduleName.append("::");
+            moduleName.append(".");
             moduleName.append(e.providerName);
 
 std::cout << "REGISTERMODULE[" << moduleName << "]" << std::endl;

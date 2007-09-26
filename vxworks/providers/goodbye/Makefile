@@ -45,7 +45,3 @@ SOURCES = GoodbyeProviderMain.cpp GoodbyeProvider.cpp
 include $(ROOT)/mak/dynamic-library.mak
 
 tests:
-
-reg:
-	cimmofl Goodbye.mof
-	cimmofl -n root/PG_InterOp GoodbyeProviderR.mof

@@ -45,8 +45,3 @@ SOURCES = HelloProviderMain.cpp HelloProvider.cpp
 include $(ROOT)/mak/library.mak
 
 tests:
-
-reg:
-	cimmofl Hello.mof
-	cimmofl -n root/PG_InterOp HelloProviderR.mof
-

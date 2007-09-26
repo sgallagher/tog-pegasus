@@ -1,0 +1,5 @@
+#!/bin/bash
+cimmofl ./providers/hello/Hello.mof
+cimmofl ./providers/goodbye/Goodbye.mof
+cimmofl -n root/PG_InterOp ./providers/hello/HelloProviderR.mof
+cimmofl -n root/PG_InterOp ./providers/goodbye/GoodbyeProviderR.mof

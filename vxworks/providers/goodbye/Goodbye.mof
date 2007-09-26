@@ -1,0 +1,11 @@
+class Goodbye
+{
+    [Key] Uint32 Key;
+};
+
+/*
+instance of Goodbye
+{
+    Key = 100;
+};
+*/

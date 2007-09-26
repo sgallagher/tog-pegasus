@@ -27,48 +27,36 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//==============================================================================
 
-#include <cstdio>
+#pragma locale ("en_US")
 
-extern "C" int PegasusServerMain(int argc, char** argv);
-
-struct PegasusSymbol
+instance of PG_ProviderModule
 {
-    char* libraryName;
-    char* symbolName;
-    void* symbolPtr;
+    Description = "GoodbyeProvider";
+    Caption = "GoodbyeProvider";
+    Name = "GoodbyeProviderModule";
+    Vendor = "OpenPegasus";
+    Version = "2.0.0";
+    InterfaceType = "C++Default";
+    InterfaceVersion = "2.1.0";
+    Location = "GoodbyeProvider";
 };
 
-extern PegasusSymbol* pegasusSymbolTable;
-
-extern "C" void PegasusCreateProvider_Hello();
-extern "C" void PegasusCreateProvider_Goodbye();
-
-static PegasusSymbol _symbolTable[] =
+instance of PG_Provider
 {
-    { 
-        "libHelloProvider.a", 
-        "PegasusCreateProvider",
-        (void*)PegasusCreateProvider_Hello,
-    },
-    { 
-        "libHelloProvider.a", 
-        "PegasusCreateProvider",
-        (void*)PegasusCreateProvider_Goodbye,
-    },
-    {
-        0,
-        0,
-        0,
-    },
+    ProviderModuleName = "GoodbyeProviderModule";
+    Name = "GoodbyeProvider";
 };
 
-int main(int argc, char** argv)
+instance of PG_ProviderCapabilities
 {
-    // Initialize the Pegasus symbol table (used to resolve "dynamic load"
-    // requests).
-    pegasusSymbolTable = _symbolTable;
-
-    return PegasusServerMain(argc, argv);
-}
+    ProviderModuleName = "GoodbyeProviderModule";
+    ProviderName = "GoodbyeProvider";
+    CapabilityID = "GoodbyeProviderCapabilities";
+    ClassName = "Goodbye";
+    Namespaces = { "root/cimv2" };
+    ProviderType = { 2 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};

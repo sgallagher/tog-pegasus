@@ -36,17 +36,16 @@ DIR = vxworks/providers/
 include $(ROOT)/vxworks/config.mak
 include $(ROOT)/mak/config.mak
 
-LIBRARY = HelloProvider
+LIBRARY = GoodbyeProvider
 
 LIBRARIES = pegprovider pegclient pegcommon
 	
-SOURCES = HelloProviderMain.cpp HelloProvider.cpp
+SOURCES = GoodbyeProviderMain.cpp GoodbyeProvider.cpp
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 
 tests:
 
 reg:
-	cimmofl Hello.mof
-	cimmofl -n root/PG_InterOp HelloProviderR.mof
-
+	cimmofl Goodbye.mof
+	cimmofl -n root/PG_InterOp GoodbyeProviderR.mof

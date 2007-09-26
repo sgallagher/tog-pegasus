@@ -47,6 +47,12 @@ ProviderManager::~ProviderManager()
 
 String ProviderManager::_resolvePhysicalName(String physicalName)
 {
+#if defined(PEGASUS_OS_VXWORKS)
+    // VxWorks uses static linking so we just return libraries of the
+    // form "lib<physicalName>.a".
+    return String("lib") + physicalName + String(".a");
+#endif
+
 #if defined(PEGASUS_OS_VMS)
     String fileName =
         FileSystem::buildLibraryFileName(physicalName) + String(".exe");
@@ -54,39 +60,10 @@ String ProviderManager::_resolvePhysicalName(String physicalName)
     String fileName = FileSystem::buildLibraryFileName(physicalName);
 #endif
 
-#if defined(PEGASUS_OS_VXWORKS)
-
-    const char* env = getenv("PEGASUS_PROVIDER_DIR");
-    String path;
-
-    if (env)
-    {
-        path = String(env) + String("/") + fileName;
-    }
-    else
-    {
-        path = FileSystem::getAbsoluteFileName(
-            ConfigManager::getInstance()->getCurrentValue("providerDir"),
-            fileName);
-    }
-
-/*
-ATTN: remove!
-*/
-#if 0
-    std::cout << physicalName << "[" << path << "]" << std::endl;
-#endif
-
-    return path;
-
-#else /* !defined(PEGASUS_OS_VXWORKS) */
-
     fileName = FileSystem::getAbsoluteFileName(
         ConfigManager::getHomedPath(
             ConfigManager::getInstance()->getCurrentValue("providerDir")),
         fileName);
-
-#endif /* !defined(PEGASUS_OS_VXWORKS) */
 
     return fileName;
 }

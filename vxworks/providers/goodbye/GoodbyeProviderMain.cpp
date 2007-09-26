@@ -27,48 +27,25 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+//==============================================================================
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cstdio>
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/String.h>
 
-extern "C" int PegasusServerMain(int argc, char** argv);
+#include "GoodbyeProvider.h"
 
-struct PegasusSymbol
+PEGASUS_USING_PEGASUS;
+
+extern "C" PEGASUS_EXPORT 
+CIMProvider* PegasusCreateProvider_Goodbye(const String& name)
 {
-    char* libraryName;
-    char* symbolName;
-    void* symbolPtr;
-};
-
-extern PegasusSymbol* pegasusSymbolTable;
-
-extern "C" void PegasusCreateProvider_Hello();
-extern "C" void PegasusCreateProvider_Goodbye();
-
-static PegasusSymbol _symbolTable[] =
-{
-    { 
-        "libHelloProvider.a", 
-        "PegasusCreateProvider",
-        (void*)PegasusCreateProvider_Hello,
-    },
-    { 
-        "libHelloProvider.a", 
-        "PegasusCreateProvider",
-        (void*)PegasusCreateProvider_Goodbye,
-    },
+    if (String::equalNoCase(name, "GoodbyeProvider") ||
+        String::equalNoCase(name, "GoodbyeProvider (PROVIDER)"))
     {
-        0,
-        0,
-        0,
-    },
-};
+        return new GoodbyeProvider();
+    }
 
-int main(int argc, char** argv)
-{
-    // Initialize the Pegasus symbol table (used to resolve "dynamic load"
-    // requests).
-    pegasusSymbolTable = _symbolTable;
-
-    return PegasusServerMain(argc, argv);
+    return 0;
 }

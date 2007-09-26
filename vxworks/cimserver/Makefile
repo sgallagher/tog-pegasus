@@ -31,6 +31,7 @@
 
 ROOT = ../..
 DIR = vxworks/cimserver
+include $(ROOT)/vxworks/config.mak
 include $(ROOT)/mak/config.mak
 
 PROGRAM = cimserver
@@ -38,6 +39,8 @@ PROGRAM = cimserver
 SOURCES = cimserver.cpp
 
 LIBRARIES = \
+    GoodbyeProvider \
+    HelloProvider \
     pegcimserver \
     pegserver \
     pegservice \

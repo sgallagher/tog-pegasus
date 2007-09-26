@@ -34,43 +34,77 @@
 #include "DynamicLibrary.h"
 #include <dlfcn.h>
 
+// The user of Pegasus is repsonsiable for building an array of the following
+// structure and setting the pegasusSymbols variable below. Since
+// VxWorks is statically linked, this static table is used to locate dynamic
+// symbols by default.
+
+struct PegasusSymbol
+{
+    char* libraryName;
+    char* symbolName;
+    void* symbolPtr;
+};
+
+PegasusSymbol* pegasusSymbolTable = 0;
+
 PEGASUS_NAMESPACE_BEGIN
 
 Boolean DynamicLibrary::_load()
 {
-    CString cstr = _fileName.getCString();
-    const char* fileName = cstr;
+    CString cstr(_fileName.getCString());
+    const char* libraryName = (const char*)cstr;
 
-    _handle = dlopen(fileName, RTLD_NOW | RTLD_GLOBAL);
 
-    if (!_handle)
+    if (!pegasusSymbolTable)
     {
-        _loadErrorMessage = dlerror();
+printf("DynamicLibrary::_load(%s): failed\n", libraryName);
         return false;
     }
 
-    return true;
+printf("DynamicLibrary::_load(): %s\n", libraryName);
+
+    for (PegasusSymbol* p = pegasusSymbolTable; p->libraryName; p++)
+    {
+        if (strcmp(p->libraryName, libraryName) == 0)
+        {
+            _handle = strdup(libraryName);
+            return true;
+        }
+    }
+
+    // Not found!
+    return false;
 }
 
 void DynamicLibrary::_unload()
 {
-    dlclose(_handle);
+    char* libraryName = (char*)_handle;
+    free(libraryName);
 }
 
 DynamicLibrary::DynamicSymbolHandle DynamicLibrary::getSymbol(
-    const String& symbolName)
+    const String& symbolName_)
 {
     PEGASUS_ASSERT(isLoaded());
-    CString name(symbolName.getCString());
+    CString cstr(symbolName_.getCString());
+    const char* symbolName = (const char*)cstr;
+    const char* libraryName = (const char*)_handle;
 
-    void* sym = dlsym(_handle, name);
+    if (!pegasusSymbolTable || !libraryName)
+        return false;
 
-    if (sym)
-        printf("dlsym(%s) okay\n", (const char*)name);
-    else
-        printf("dlsym(%s) failed\n", (const char*)name);
+    for (PegasusSymbol* p = pegasusSymbolTable; p->libraryName; p++)
+    {
+        if (strcmp(p->libraryName, libraryName) == 0 &&
+            strcmp(p->symbolName, symbolName) == 0)
+        {
+            return p->symbolPtr;
+        }
+    }
 
-    return sym;
+    // Not found!
+    return 0;
 }
 
 PEGASUS_NAMESPACE_END

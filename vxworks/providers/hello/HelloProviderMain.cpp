@@ -36,13 +36,10 @@
 
 #include "HelloProvider.h"
 
-#if defined(PEGASUS_USE_STATIC_PROVIDERS)
-
-#endif
-
 PEGASUS_USING_PEGASUS;
 
-extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& name)
+extern "C" PEGASUS_EXPORT 
+CIMProvider* PegasusCreateProvider_Hello(const String& name)
 {
     if (String::equalNoCase(name, "HelloProvider") ||
         String::equalNoCase(name, "HelloProvider (PROVIDER)"))

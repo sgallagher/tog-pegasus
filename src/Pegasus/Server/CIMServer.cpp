@@ -123,6 +123,8 @@
 # include <Pegasus/ControlProviders/InteropProvider/InteropProvider.h>
 #endif
 
+#include "ProviderTable.h"
+
 PEGASUS_NAMESPACE_BEGIN
 #ifdef PEGASUS_SLP_REG_TIMEOUT
 ThreadReturnType PEGASUS_THREAD_CDECL registerPegasusWithSLP(void *parm);
@@ -428,6 +430,46 @@ void CIMServer::_init()
         controlProviderReceiveMessageCallback,
         0);
 #endif
+
+/*
+BOOKMARK0:
+*/
+
+    //
+    // Register all providers in the global provider table. This table
+    // is typically null unless an end-user has explicitly defined it.
+    //
+
+    if (pegasusProviderTable)
+    {
+        for (size_t i = 0; pegasusProviderTable[i].providerName; i++)
+        {
+            const ProviderTableEntry& e = pegasusProviderTable[i];
+
+            if (!e.moduleName && !e.createProvider)
+                continue;
+
+            CIMProvider* provider = (*e.createProvider)(e.providerName);
+
+            if (!provider)
+                continue;
+
+            ProviderMessageHandler* pmh = new ProviderMessageHandler(
+                e.moduleName, e.providerName, provider, 0, 0, false);
+
+            _controlProviders.append(pmh);
+
+            String tmp = PEGASUS_QUEUENAME_CONTROLSERVICE "::";
+            tmp.append(e.moduleName);
+
+            ModuleController::register_module(
+                PEGASUS_QUEUENAME_CONTROLSERVICE,
+                tmp,
+                pmh,
+                controlProviderReceiveMessageCallback,
+                0);
+        }
+    }
 
     _cimOperationResponseEncoder = new CIMOperationResponseEncoder;
 

@@ -42,6 +42,7 @@
 #include <Pegasus/Server/reg_table.h>
 
 #include <Pegasus/Server/QuerySupportRouter.h>
+#include "ProviderTable.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -1243,6 +1244,35 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
                     String::EMPTY,
                     PEGASUS_QUEUENAME_INDICATIONSERVICE);
             }
+
+            // Enable all providers in the global provider table.
+
+            if (pegasusProviderTable)
+            {
+                for (size_t i = 0; pegasusProviderTable[i].providerName; i++)
+                {
+                    const ProviderTableEntry& e = pegasusProviderTable[i];
+
+                    if (!e.moduleName && !e.createProvider || !e.className)
+                        continue;
+
+                    String tmp = PEGASUS_QUEUENAME_CONTROLSERVICE "::";
+                    tmp.append(e.moduleName);
+
+                    MessageQueueService* mqs = (MessageQueueService*)
+                        MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE);
+
+                    _routing_table.insert_record(
+                        e.className,
+                        _wild,
+                        DynamicRoutingTable::INTERNAL,
+                        0,
+                        mqs,
+                        PEGASUS_MODULENAME_NAMESPACEPROVIDER,
+                        PEGASUS_QUEUENAME_CONTROLSERVICE);
+                }
+            }
+
             _initialized = 1;
         }
     }

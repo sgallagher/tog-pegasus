@@ -1,16 +1,5 @@
 
+    (A) Daemonization?
 
-    (A) Implement static libraries to reduce VxWorks image size.
+    (A) SSL porting.
 
-    (A) Build binary repository to reduce VxWorks image size.
-
-    (A) Test provider writing.
-
-    (A) Move instance repository into writable VxWorks file system so
-        that indications will work.
-
-    (A) Fix daemon option.
-
-    (A) Cleanup "ATTN-MEB" markers.
-
-    (A) Create sample .configure script for host Pegasus build.

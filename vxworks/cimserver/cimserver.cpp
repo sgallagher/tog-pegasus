@@ -53,7 +53,7 @@ static PegasusSymbol _symbolTable[] =
         (void*)PegasusCreateProvider_Hello,
     },
     { 
-        "libHelloProvider.a", 
+        "libGoodbyeProvider.a", 
         "PegasusCreateProvider",
         (void*)PegasusCreateProvider_Goodbye,
     },

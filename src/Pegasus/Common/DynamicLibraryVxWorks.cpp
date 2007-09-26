@@ -57,12 +57,7 @@ Boolean DynamicLibrary::_load()
 
 
     if (!pegasusSymbolTable)
-    {
-printf("DynamicLibrary::_load(%s): failed\n", libraryName);
         return false;
-    }
-
-printf("DynamicLibrary::_load(): %s\n", libraryName);
 
     for (PegasusSymbol* p = pegasusSymbolTable; p->libraryName; p++)
     {

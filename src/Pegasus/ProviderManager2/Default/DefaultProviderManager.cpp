@@ -505,9 +505,6 @@ ProviderMessageHandler* DefaultProviderManager::_initProvider(
     ProviderModule* module = 0;
     CIMProvider* base;
 
-/*
-BOOKMARK1:
-*/
     // lookup provider module
     module = _lookupModule(moduleFileName);
 
@@ -612,11 +609,6 @@ ProviderModule* DefaultProviderManager::_lookupModule(
         // provider module not found in cache, create provider module
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Creating Provider Module " + moduleFileName);
-
-/*
-BOOKMARK2:
-*/
-std::cout << "MODULENAME[" << moduleFileName << "]" << std::endl;
 
         module = new ProviderModule(moduleFileName);
 

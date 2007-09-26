@@ -49,11 +49,6 @@ ProviderModule::~ProviderModule()
 
 CIMProvider* ProviderModule::load(const String& providerName)
 {
-/*
-BOOKMARK3:
-*/
-std::cout << "ProviderModule::load[" << providerName << "]" << std::endl;
-
     // dynamically load the provider library
     if (!_library.load())
     {

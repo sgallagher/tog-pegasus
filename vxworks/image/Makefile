@@ -69,6 +69,12 @@ repository:
 	@ echo "rm -r $(DESTDIR)" >> $(TMP)
 	@ echo "mkdir $(DESTDIR)" >> $(TMP)
 	@ echo "cp -r $(SRCDIR) $(DESTDIR)" >> $(TMP)
+	@ echo "rm $(DESTDIR)/root#PG_InterOp/instances/PG_ProviderModule.instances" >> $(TMP)
+	@ echo "rm $(DESTDIR)/root#PG_InterOp/instances/PG_ProviderModule.idx" >> $(TMP)
+	@ echo "rm $(DESTDIR)/root#PG_InterOp/instances/PG_Provider.instances" >> $(TMP)
+	@ echo "rm $(DESTDIR)/root#PG_InterOp/instances/PG_Provider.idx" >> $(TMP)
+	@ echo "rm $(DESTDIR)/root#PG_InterOp/instances/PG_ProviderCapabilities.instances" >> $(TMP)
+	@ echo "rm $(DESTDIR)/root#PG_InterOp/instances/PG_ProviderCapabilities.idx" >> $(TMP)
 	@ echo "C reboot(1)" >> $(TMP)
 	@ vxsim -exitOnError -s $(TMP)
 	@ echo ""

@@ -47,12 +47,6 @@ ProviderManager::~ProviderManager()
 
 String ProviderManager::_resolvePhysicalName(String physicalName)
 {
-#if defined(PEGASUS_OS_VXWORKS)
-    // VxWorks uses static linking so we just return libraries of the
-    // form "lib<physicalName>.a".
-    return String("lib") + physicalName + String(".a");
-#endif
-
 #if defined(PEGASUS_OS_VMS)
     String fileName =
         FileSystem::buildLibraryFileName(physicalName) + String(".exe");

@@ -58,20 +58,14 @@ Boolean DynamicLibrary::_load()
 #elif defined(PEGASUS_OS_VMS)
     _handle = dlopen(cstr, RTLD_NOW);
 #else
-
-    printf("dlopen(%s)\n", (const char*)cstr);
-
     _handle = dlopen(cstr, RTLD_NOW | RTLD_GLOBAL);
 #endif
 
     if (_handle == 0)
     {
-        printf("dlopen(%s) failed\n", (const char*)cstr);
         // Record the load error message
         _loadErrorMessage = dlerror();
     }
-    else
-        printf("dlopen(%s) okay\n", (const char*)cstr);
 
     return isLoaded();
 }

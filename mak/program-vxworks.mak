@@ -37,7 +37,7 @@ OBJECTS = $(CPP_OBJECTS:.c=.o)
 
 TARG=$(BIN_DIR)/$(PROGRAM)
 
-LINK_FLAGS = -lstdc++ -L$(WIND_BASE)/target/usr/lib/simpentium/SIMPENTIUM/common -Wl,-rpath /romfs/lib -ldl -Wl,-rpath $(LIB_DIR)
+LINK_FLAGS = -lstdc++ -L$(VXWORKS_LIB) -Wl,-rpath /romfs/lib -ldl -Wl,-rpath $(LIB_DIR)
 
 ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
     _P1 = $(addprefix $(LIB_DIR)/$(LIB_PREFIX), $(LIBRARIES))

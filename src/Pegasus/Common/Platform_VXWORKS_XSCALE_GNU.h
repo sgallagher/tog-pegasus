@@ -33,9 +33,9 @@
 //%/////////////////////////////////////////////////////////////////////////////
 */
 
-#ifndef Pegasus_Platform_VXWORKS_PENTIUM_GNU_h
-#define Pegasus_Platform_VXWORKS_PENTIUM_GNU_h
+#ifndef Pegasus_Platform_VXWORKS_XSCALE_GNU_h
+#define Pegasus_Platform_VXWORKS_XSCALE_GNU_h
 
 #include "Platform_VXWORKS_GNU.h"
 
-#endif /* Pegasus_Platform_VXWORKS_PENTIUM_GNU_h */
+#endif /* Pegasus_Platform_VXWORKS_XSCALE_GNU_h */

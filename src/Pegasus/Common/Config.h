@@ -86,6 +86,8 @@
 # include <Pegasus/Common/Platform_LINUX_XSCALE_GNU.h>
 #elif defined (PEGASUS_PLATFORM_VXWORKS_PENTIUM_GNU)
 # include <Pegasus/Common/Platform_VXWORKS_PENTIUM_GNU.h>
+#elif defined (PEGASUS_PLATFORM_VXWORKS_XSCALE_GNU)
+# include <Pegasus/Common/Platform_VXWORKS_XSCALE_GNU.h>
 #else
 # error "<Pegasus/Common/Config.h>: Unsupported Platform"
 #endif

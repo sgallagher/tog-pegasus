@@ -30,9 +30,9 @@
 #//=============================================================================
 
 SYS_INCLUDES = \
-    -I$(WIND_BASE)/target/usr/h \
-    -I$(WIND_BASE)/target/usr/h/wrn/coreip \
-    -I$(WIND_BASE)/target/src/wrn/coreip/common/compress
+    -I$(VXWORKS_ROOT)/target/usr/h \
+    -I$(VXWORKS_ROOT)/target/usr/h/wrn/coreip \
+    -I$(VXWORKS_ROOT)/target/src/wrn/coreip/common/compress
 
 ifneq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
   FLAGS += -fpic

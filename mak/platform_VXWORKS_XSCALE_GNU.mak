@@ -30,11 +30,11 @@
 #//=============================================================================
 
 ifndef WIND_BASE
-  $(error "The WIND_BASE environment variable is undefined. Please initialize VxWorks environment")
+  $(error "The WIND_BASE environment variable is undefined. Please set up VxWorks environment")
 endif
 
 VXWORKS_ROOT = $(WIND_BASE)
-VXWORKS_LIB = $(VXWORKS_ROOT)/target/usr/lib/simpentium/SIMPENTIUM/common
+VXWORKS_LIB = $(VXWORKS_ROOT)/target/usr/lib/arm/XSCALE/common
 
 export PEGASUS_ENABLE_IPV6=false
 
@@ -68,7 +68,7 @@ TOUCH = touch
 
 ECHO = echo
 
-DEFINES += -DPEGASUS_PLATFORM_VXWORKS_PENTIUM_GNU
+DEFINES += -DPEGASUS_PLATFORM_VXWORKS_XSCALE_GNU
 
 PEGASUS_DEFAULT_ENABLE_OOP = false
 
@@ -81,11 +81,11 @@ COMPILER = gnu
 PLATFORM_VERSION_SUPPORTED = yes
 
 ifndef CXX
-  CXX = c++pentium
+  CXX = c++arm
 endif
 
 ifndef CC
-  CC = ccpentium
+  CC = ccarm
 endif
 
 SH = sh
@@ -110,9 +110,9 @@ MAJOR_VERSION_NUMBER = 1
 
 LIB_SUFFIX = .so
 
-AR = arpentium
+AR = ararm
 
-DEFINES += -DPEGASUS_USE_SYSLOGS -DCPU=SIMPENTIUM -DTOOL_FAMILY=gnu -DTOOL=gnu 
+DEFINES += -DPEGASUS_USE_SYSLOGS -DCPU=XSCALE -DTOOL_FAMILY=gnu -DTOOL=gnu 
 
 SYS_LIBS =
 
@@ -120,7 +120,7 @@ ifdef PEGASUS_PAM_AUTHENTICATION
     $(error "vxworks does not support PAM authenticaiton")
 endif
 
-FLAGS += -mhard-float -mcpu=i486 -march=i486 -ansi -fno-builtin -W -Wall -Wno-unused -mrtp
+FLAGS += -txscale -ansi -mrtp -W -Wall -Wno-unused
 
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
   FLAGS += -g
@@ -137,4 +137,3 @@ ROMFS = $(PEGASUS_HOME)/romfs
 PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET=1
 
 export PEGASUS_USE_STATIC_LIBRARIES=true
-

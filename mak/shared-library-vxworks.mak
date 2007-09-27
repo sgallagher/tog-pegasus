@@ -31,7 +31,7 @@
 
 TARG=$(LIB_DIR)/lib$(LIBRARY).so
 
-LINK_FLAGS = -lstdc++ -shared -L$(VXWORKS_LIB_COMMON)/PIC
+LINK_FLAGS = -lstdc++ -shared -L$(VXWORKS_LIB)/PIC
 
 DFILES = $(SOURCES:.cpp=.d)
 

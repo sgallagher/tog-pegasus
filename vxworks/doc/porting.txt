@@ -42,3 +42,8 @@
 
     13. ftruncate() fails when against host file system.
 
+    14. libnet.a was missing for XSCALE/gnu. Needed to do this to build it:
+
+        $ cd /home/WindRiver/vxworks-6.2/target/usr/src/wrn/coreip
+        $ make CPU=XSCALE TOOL=gnu
+

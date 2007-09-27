@@ -160,7 +160,7 @@ public:
         Return false if the base diretory does not exist or cannot be
         accessed.
     */
-    static Boolean FileSystem::glob(
+    static Boolean glob(
         const String& path,
         const String& pattern,
         Array<String>& filenames);

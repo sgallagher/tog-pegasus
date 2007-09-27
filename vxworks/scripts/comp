@@ -1,0 +1,3 @@
+#!/bin/bash
+cimmofl ./providers/hello/Hello.mof
+cimmofl ./providers/goodbye/Goodbye.mof

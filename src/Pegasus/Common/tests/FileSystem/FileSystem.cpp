@@ -215,20 +215,21 @@ int main(int argc, char** argv)
         of2a.close();
         PEGASUS_TEST_ASSERT(FileSystem::exists(tf2));
 
-        FileSystem::glob(".", "*", globList);
+        // test globing of files in the new directory
+        PEGASUS_TEST_ASSERT(FileSystem::glob(".", "*", globList));
         PEGASUS_TEST_ASSERT(globList.size() == 3);
 
-        FileSystem::glob(".", "T*", globList);
+        PEGASUS_TEST_ASSERT(FileSystem::glob(".", "T*", globList));
         PEGASUS_TEST_ASSERT(globList.size() == 3);
 
-        FileSystem::glob(".", "*.*", globList);
+        PEGASUS_TEST_ASSERT(FileSystem::glob(".", "*.*", globList));
         PEGASUS_TEST_ASSERT(globList.size() == 2);
 
-        FileSystem::glob(".", "*Ext", globList);
+        PEGASUS_TEST_ASSERT(FileSystem::glob(".", "*Ext", globList));
         PEGASUS_TEST_ASSERT(globList.size() == 1);
         PEGASUS_TEST_ASSERT(globList[0] == "TestFileNoExt");
 
-        FileSystem::glob(".", "T*Ex*", globList);
+        PEGASUS_TEST_ASSERT(FileSystem::glob(".", "T*Ex*", globList));
         PEGASUS_TEST_ASSERT(globList.size() == 1);
         PEGASUS_TEST_ASSERT(globList[0] == "TestFileNoExt");
 
@@ -236,7 +237,7 @@ int main(int argc, char** argv)
         PEGASUS_TEST_ASSERT(globList.size() == 1);
         PEGASUS_TEST_ASSERT(globList[0] == "TestFileNoExt");
 
-        FileSystem::glob(".", "*junk*", globList);
+        PEGASUS_TEST_ASSERT(FileSystem::glob(".", "*junk*", globList));
         PEGASUS_TEST_ASSERT(globList.size() == 0);
 
         // Create a second level directory

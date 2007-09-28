@@ -1627,69 +1627,69 @@ Uint32 StressTestControllerCommand::execute (
                             if (clientDelayMilliseconds[clientID]<=
                                 nowMilliseconds)
                             {
-                                //
-                                //  Restart all the instances of the client.
-                                //
-                                for (int instanceID =0;
-                                    instanceID<clientInstance[clientID];
-                                    instanceID++)
-                                {
-                                    act_command=String::EMPTY;
+                              //
+                              //  Restart all the instances of the client.
+                              //
+                              for (int instanceID =0;
+                                  instanceID<clientInstance[clientID];
+                                  instanceID++)
+                              {
+                                  act_command=String::EMPTY;
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-                                    act_command.append("start ");
+                                  act_command.append("start ");
 #endif
-                                    act_command.append(
-                                        _clientCommands[clientID].getCString());
-                                    act_command.append(" -clientid ");
-                                    sprintf(str,"%d",clientID+instanceID);
-                                    act_command.append(str);
-                                    act_command.append(" -pidfile ");
-                                    act_command.append(" \"");
-                                    act_command.append(_stressTestClientPIDFile);
-                                    act_command.append("\"");
-                                    act_command.append(" -clientlog");
-                                    act_command.append(" \"");
-                                    act_command.append(_stressTestClientLogFile);
-                                    act_command.append("\"");
-                                    act_command.append("&");
-                                    log_file<<"Restarting client:("<<
-                                        clientID+instanceID<<")"<<endl;
-                                    outPrintWriter<<"Restarting client:("<<
-                                        clientID+instanceID<<")"<<endl;
-                                    if (verboseEnabled)
-                                    {
-                                        outPrintWriter<<"  "<<act_command<<endl;
-                                        log_file<<"     ("<<
-                                            clientID+instanceID<<
-                                            ") \n"<<act_command<<endl;
-                                        tmTime = getCurrentActualTime();
-                                        strftime(
-                                            strTime,
-                                            256,
-                                            "%d/%m/%Y at %H:%M:%S\n",
-                                            &tmTime);
-                                        log_file<<"   Restarted on "<<
-                                            strTime<<endl;
-                                    }
-                                    int rc = system(act_command.getCString());
-                                    if (rc)
-                                    {
-                                        log_file<<"Command failed to Execute."<<
-                                            endl;
-                                        if (verboseEnabled)
-                                        {
-                                            outPrintWriter<<act_command<<
-                                                "Command failed to Execute."<<
-                                                endl;
-                                        }
-                                    }
-                                    clientActive[clientID+instanceID] = true;
-                                } /* for (int instanceID =0;instanceID .. */
-                                clientStopMilliseconds[clientID] =
-                                    nowMilliseconds +
-                                    _clientDurations[clientID];
-                                clientStopped[clientID] = false;
-                                clientDelayed[clientID] = false;
+                                  act_command.append(
+                                      _clientCommands[clientID].getCString());
+                                  act_command.append(" -clientid ");
+                                  sprintf(str,"%d",clientID+instanceID);
+                                  act_command.append(str);
+                                  act_command.append(" -pidfile ");
+                                  act_command.append(" \"");
+                                  act_command.append(_stressTestClientPIDFile);
+                                  act_command.append("\"");
+                                  act_command.append(" -clientlog");
+                                  act_command.append(" \"");
+                                  act_command.append(_stressTestClientLogFile);
+                                  act_command.append("\"");
+                                  act_command.append("&");
+                                  log_file<<"Restarting client:("<<
+                                      clientID+instanceID<<")"<<endl;
+                                  outPrintWriter<<"Restarting client:("<<
+                                      clientID+instanceID<<")"<<endl;
+                                  if (verboseEnabled)
+                                  {
+                                      outPrintWriter<<"  "<<act_command<<endl;
+                                      log_file<<"     ("<<
+                                          clientID+instanceID<<
+                                          ") \n"<<act_command<<endl;
+                                      tmTime = getCurrentActualTime();
+                                      strftime(
+                                          strTime,
+                                          256,
+                                          "%d/%m/%Y at %H:%M:%S\n",
+                                          &tmTime);
+                                      log_file<<"   Restarted on "<<
+                                          strTime<<endl;
+                                  }
+                                  int rc = system(act_command.getCString());
+                                  if (rc)
+                                  {
+                                      log_file<<"Command failed to Execute."<<
+                                          endl;
+                                      if (verboseEnabled)
+                                      {
+                                          outPrintWriter<<act_command<<
+                                              "Command failed to Execute."<<
+                                              endl;
+                                      }
+                                  }
+                                  clientActive[clientID+instanceID] = true;
+                              } /* for (int instanceID =0;instanceID .. */
+                              clientStopMilliseconds[clientID] =
+                                  nowMilliseconds +
+                                  _clientDurations[clientID];
+                              clientStopped[clientID] = false;
+                              clientDelayed[clientID] = false;
                             }/* if(clientDelayMilliseconds[clientID]<=nowMi.. */
                         } /* if(clientDelayed[clientID]) */
                     } /* else ..*/
@@ -2329,7 +2329,8 @@ void StressTestControllerCommand::_getClientOptions(
         }
         if (!(isalpha(*p) || *p == '_'))
         {
-            throw StressTestControllerException(StressTestControllerException::INVALID_OPTION);
+            throw StressTestControllerException
+              (StressTestControllerException::INVALID_OPTION);
         }
 
         name.append(*p++);
@@ -2353,7 +2354,8 @@ void StressTestControllerCommand::_getClientOptions(
         //
         if (*p != '=')
         {
-            throw StressTestControllerException(StressTestControllerException::INVALID_OPERATOR);
+            throw StressTestControllerException
+              (StressTestControllerException::INVALID_OPERATOR);
         }
 
         p++;
@@ -2385,11 +2387,13 @@ void StressTestControllerCommand::_getClientOptions(
 
         if(*p !=']' && *p != ',')
         {
-            throw StressTestControllerException(StressTestControllerException::MISSING_BRACE);
+            throw StressTestControllerException
+              (StressTestControllerException::MISSING_BRACE);
         }
         if(value == String::EMPTY)
         {
-            throw StressTestControllerException(StressTestControllerException::MISSING_VALUE);
+            throw StressTestControllerException
+              (StressTestControllerException::MISSING_VALUE);
         }
 
 #ifdef STRESSTEST_DEBUG
@@ -3235,11 +3239,11 @@ void StressTestControllerCommand::getDefaultClients(ostream& log_file)
                         cout<< "Duplicate name already saved: "<<OPTIONS<<endl;
                     }
                 }
-                log_file<< "            Client Command &  options: cimcli niall"<<
+                log_file<< "         Client Command &  options: cimcli niall"<<
                     endl;
                 if (verboseEnabled)
                 {
-                   cout<< "            Client Command &  options: cimcli niall"<<
+                   cout<< "          Client Command &  options: cimcli niall"<<
                        endl;
                 }
                 break;

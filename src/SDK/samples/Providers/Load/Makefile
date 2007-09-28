@@ -71,15 +71,15 @@ registerproviders:
 	@ $(PEGASUS_BIN_DIR)/cimmof -n$(INTEROPNS) AssociationProviderR.mof
 
 deregisterproviders:
-	@ $(ECHO) "+++++ Deregistering SampleInstanceProvider ..."
-	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SampleInstanceProviderModule
-	@ $(ECHO) "+++++ Deregistering SampleMethodProvider ..."
-	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SampleMethodProviderModule
-	@ $(ECHO) "+++++ Deregistering SampleIndicationProvider ..."
-	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SampleIndicationProviderModule
-	@ $(ECHO) "+++++ Deregistering SimpleDisplayConsumerModule ..."
-	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SimpleDisplayConsumerModule
-	@ $(ECHO) "+++++ Deregistering FilesandDirectoryModule ..." 	 
-	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m FilesAndDirectoriesModule
-	@ $(ECHO) "+++++ Deregistering SampleAssociationModule ..."
-	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SampleAssociationModule
+	@ $(ECHO) "+++++ Deregistering SDKInstanceProviderModule ..."
+	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SDKInstanceProviderModule
+	@ $(ECHO) "+++++ Deregistering SDKMethodProviderModule ..."
+	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SDKMethodProviderModule
+	@ $(ECHO) "+++++ Deregistering SDKIndicationProviderModule ..."
+	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SDKIndicationProviderModule
+	@ $(ECHO) "+++++ Deregistering SDKDisplayConsumerModule ..."
+	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SDKDisplayConsumerModule
+	@ $(ECHO) "+++++ Deregistering SDKFilesandDirectoriesModule ..."
+	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SDKFilesAndDirectoriesModule
+	@ $(ECHO) "+++++ Deregistering SDKAssociationProviderModule ..."
+	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SDKAssociationProviderModule

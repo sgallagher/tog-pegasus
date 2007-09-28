@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -132,8 +134,8 @@ ostream & help(ostream &os, int progtype)
         help.append("       cimmofl");
     else
         help.append("       cimmof ");
-    help.append(" [ -w ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]\n");
-    help.append("               [ -n namespace | --namespace namespace ]");
+    help.append( " [ -w ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]\n");
+    help.append( "              [ -n namespace | --namespace namespace ]");
     if(progtype == 1)
     {
         help.append(
@@ -154,7 +156,8 @@ ostream & help(ostream &os, int progtype)
     help.append(
         "    -uc             - Allow update of an existing class definition\n");
     help.append( "    -aE             - Allow Experimental Schema changes\n");
-    help.append( "    -aV             - Allow any Version Schema change\n");
+    help.append( "    -aV             - Allow both Major and Down Revision"
+                                        " Schema changes\n");
     help.append( "    -aEV            - Allow both Experimental and Version"
                                         " Schema changes\n");
     if(progtype == 1) {
@@ -186,7 +189,7 @@ ostream & help(ostream &os, int progtype)
     help.append( "               [ -n namespace | --namespace namespace ]"
                                 " [ --xml ]\n");
     help.append( "               [ --trace ]");
-#ifdef PEGASUS_OS_PASE
+#ifdef PEGASUS_OS_PASE 
   if(progtype == 1)
       help.append("  [ -q ]");
 #endif
@@ -211,13 +214,18 @@ ostream & help(ostream &os, int progtype)
                                                 " definition\n");
     help.append( "    -aE                 - Allow Experimental Schema"
                                                 " changes\n");
-    help.append("    -aV                 - Allow any Version Schema change\n");
+    help.append( "    -aV                 - Allow both Major and Down Revision"
+                                                " Schema changes\n");
     help.append( "    -aEV                - Allow both Experimental and"
                                                 " Version Schema changes\n");
-#ifdef PEGASUS_OS_PASE
+#ifdef PEGASUS_OS_PASE 
     help.append( "    -q                  - Suppress all messages except"
                                             " command line usage errors\n");
 #endif
+    //PEP167 - Remove and disable 'f' and 'file' options. No longer required
+    //help.append( "  -ffile -- specify file containing a list of MOFs to
+    //compile.\n");
+    //help.append( " --file=file -- specify file containing list of MOFs.\n");
     help.append( "    --xml               - Output XML only, to stdout."
                                                 " Do not update repository\n");
     help.append( "    --trace             - Trace to file (default to stdout)"
@@ -244,21 +252,15 @@ ostream & help(ostream &os, int progtype)
         "                          compiler.)\n");
     }
 
-#ifdef PEGASUS_ENABLE_MRR_GENERATION
     if (progtype == 1)
     {
         help.append(
-        "    -m                  - Create an MRR (memory-resident repository)\n"
-        "                          rather than a disk-resident repository.\n"
-        "                          Classes and qualifier declarations are\n"
-        "                          placed into source files and instances are\n"
-        "                          placed into a flat binary file.\n");
-        help.append(
-        "    -d                  - Discard description qualifiers when\n"
-        "                          creating an MRR (memory-resident\n"
-        "                          repository).\n");
+        "    -s                  - Generate a source code repository, which\n"
+        "                          contains static C++ structure definitions\n"
+        "                          for each MOF class encountered during\n"
+        "                          parsing (instances and qualifier \n"
+        "                          declarations are ignored).\n");
     }
-#endif
 
     if(progtype == 1)
     {
@@ -297,6 +299,27 @@ ostream & help(ostream &os, int progtype)
     return os;
 }
 
+// If the 'f' flag is encountered, it names a file that contains the
+// names of files to be processed.  Open the file and stick them into
+// the filelist.
+static int process_filelist(const String &filename,
+    mofCompilerOptions &cmdlinedata)
+{
+    String line;
+
+    ifstream ifs;
+    Open(ifs, filename);
+
+    while (ifs != 0)
+    {
+        if (GetLine(ifs, line) && (line.size() > 0))
+        {
+            cmdlinedata.add_filespecs(line);
+        }
+    }
+    return 0;
+}
+
 /* flag value, type, islong?, needsValue? */
 static struct optspec optspecs[] =
 {
@@ -313,18 +336,17 @@ static struct optspec optspecs[] =
     {(char*)"u", UPDATEFLAG, false, getoopt::MUSTHAVEARG},
     {(char*)"a", ALLOWFLAG, false, getoopt::MUSTHAVEARG},
 #ifndef PEGASUS_OS_HPUX
+    //PEP167 - 'f' and 'filelist' options disabled as per PEP
+    //{(char*)"f", FILELIST, false, getoopt::MUSTHAVEARG},
+    //{(char*)"filelist", FILELIST, true, getoopt::MUSTHAVEARG},
     {(char*)"E", SYNTAXFLAG, false, getoopt::NOARG},
     {(char*)"trace", TRACEFLAG, true, getoopt::OPTIONALARG},
     {(char*)"xml", XMLFLAG, true, getoopt::NOARG},
 #endif
 #ifdef PEGASUS_OS_PASE
-    //PASE env ship q option
     {(char*)"q", QUIETFLAG, false, getoopt::NOARG},
 #endif
-#ifdef PEGASUS_ENABLE_MRR_GENERATION
-    {(char*)"m", MRRFLAG, false, getoopt::NOARG},
-    {(char*)"d", DISCARDFLAG, false, getoopt::NOARG},
-#endif
+    {(char*)"s", SOURCEFLAG, false, getoopt::NOARG},
     {(char*)"", OPTEND_CIMMOF, false, getoopt::NOARG},
     {(char*)"R", REPOSITORYDIR, false, getoopt::MUSTHAVEARG},
     {(char*)"CIMRepository", REPOSITORYDIR, true, getoopt::MUSTHAVEARG},
@@ -385,7 +407,7 @@ static void applyDefaults(mofCompilerOptions &cmdlinedata)
     if (cmdlinedata.is_local())
     {
 #if defined(PEGASUS_USE_RELEASE_DIRS) && \
-        defined(PEGASUS_OS_ZOS)
+        defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
         cmdlinedata.set_repository_name(ZOS_DEFAULT_PEGASUS_REPOSITORY);
 #elif defined(PEGASUS_OS_PASE)
         cmdlinedata.set_repository(PASE_DEFAULT_PEGASUS_HOME);
@@ -398,7 +420,7 @@ static void applyDefaults(mofCompilerOptions &cmdlinedata)
         {
         }
 #endif // end of #if defined(PEGASUS_USE_RELEASE_DIRS) &&
-       // defined(PEGASUS_OS_ZOS)
+       // defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
     }
     else
     {
@@ -444,23 +466,20 @@ Boolean isCimmoflCommandName(const char *name)
         pos = name;
     else
         pos++;
-    // returns true in case of cimmofl
-    // returns false in case first 6 letter are "cimmof" and no "l" follows
-    // returns true in case anything else but "cimmof" or "cimmofl"
-    if (*pos != 'c' && *pos != 'C') return true;
+    if (*pos != 'c' && *pos != 'C') return -1;
     pos++;
-    if (*pos != 'i' && *pos != 'I') return true;
+    if (*pos != 'i' && *pos != 'I') return -1;
     pos++;
-    if (*pos != 'm' && *pos != 'M') return true;
+    if (*pos != 'm' && *pos != 'M') return -1;
     pos++;
-    if (*pos != 'm' && *pos != 'M') return true;
+    if (*pos != 'm' && *pos != 'M') return -1;
     pos++;
-    if (*pos != 'o' && *pos != 'O') return true;
+    if (*pos != 'o' && *pos != 'O') return -1;
     pos++;
-    if (*pos != 'f' && *pos != 'F') return true;
+    if (*pos != 'f' && *pos != 'F') return -1;
     pos++;
-    if (*pos != 'l' && *pos != 'L') return false;
-    return true;
+    if (*pos != 'l' && *pos != 'L') return 0;
+    return 1;
 }
 
 extern "C++" int processCmdline(int, char **, mofCompilerOptions &, ostream&);
@@ -473,6 +492,7 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
     Boolean isCimmoflCommand = isCimmoflCommandName(argv[0]);
     setCmdLineOpts(cmdline, isCimmoflCommand);
     cmdline.parse(argc, argv);
+
     if (isCimmoflCommand)
     {
         cmdlinedata.set_is_local();
@@ -493,7 +513,6 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                         &ptr) == 0)
                 &&
                     (ptr != 0))
-
         {
             setgid(ptr->pw_gid);
             setuid(ptr->pw_uid);
@@ -512,9 +531,10 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
     if (cmdline.hasErrors())
     {
 
-        // Throw an exception and handle it in the caller
-        MessageLoaderParms parms(
-            "Compiler.cmdline.cimmof.cmdline.CMDLINE_ERRORS",
+        //  throw an exception and hande it in the caller
+        //l10n
+        //String msg = "Command line errors:\n";
+        MessageLoaderParms parms("Compiler.cmdline.cimmof.CMDLINE_ERRORS",
             "Command line errors:\n");
         String msg = MessageLoader::getMessage(parms);
         cmdline.printErrors(msg);
@@ -522,8 +542,7 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
         throw ArgumentErrorsException(msg);
     }
 
-    MessageLoaderParms tooManyOptionsMsgParms(
-        "Compiler.cmdline.cimmof.cmdline.CMDLINE_ERRORS",
+    MessageLoaderParms parms("Compiler.cmdline.cimmof.CMDLINE_ERRORS",
         "Too many options specified.\n");
 
     for (unsigned int i = cmdline.first(); i < cmdline.last(); i++)
@@ -531,16 +550,16 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
         const Optarg &arg = cmdline[i];
         opttypes c = catagorize(arg, isCimmoflCommand);
         if(type == HELPFLAG || type == VERSIONFLAG)
-            throw ArgumentErrorsException(tooManyOptionsMsgParms);
+            throw ArgumentErrorsException(parms);
         switch (c)
         {
             case VERSIONFLAG:
                 if(type != -1)
-                    throw ArgumentErrorsException(tooManyOptionsMsgParms);
+                    throw ArgumentErrorsException(parms);
                 break;
             case HELPFLAG:
                 if(type != -1)
-                    throw ArgumentErrorsException(tooManyOptionsMsgParms);
+                    throw ArgumentErrorsException(parms);
                 break;
             case INCLUDEPATH:
                 cmdlinedata.add_include_path(arg.optarg());
@@ -560,12 +579,21 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
             case REPOSITORYMODE:
                 {
                     cmdlinedata.set_repository_mode(arg.optarg());
-                   if (!String::equalNoCase(arg.optarg(), "XML") &&
-                       !String::equalNoCase(arg.optarg(), "BIN"))
+                    // prevent using binary repository since we do not support
+                    // that in 2.5
+#ifdef PEGASUS_OS_PASE
+                    if (String::equalNoCase(arg.optarg(), "BIN"))
+                    {
+                        throw ArgumentErrorsException("ERROR: THE VALUE BIN IS"
+                            "NOT SUPPORTED FOR THE REPOSITORY MODE."); 
+                    }
+#endif
+                   if(String::equalNoCase(arg.optarg(), "XML") ||
+                       String::equalNoCase(arg.optarg(), "BIN")) {}
+                   else
                    {
                       MessageLoaderParms parms(
-                          "Compiler.cmdline.cimmof.cmdline."
-                              "UNKNOWN_VALUE_OPTION_M",
+                          "Compiler.cmdline.cimmof.UNKNOWN_VALUE_OPTION_A",
                           "Unknown value specified for option -M.");
                       throw ArgumentErrorsException(parms);
                    }
@@ -576,14 +604,14 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                 {
                   if (arg.optarg().size() == 1)
                   {
-                      for (unsigned int j = 0; j < arg.optarg().size(); j++)
+                      for (unsigned int i = 0; i < arg.optarg().size(); i++)
                       {
-                          if (arg.optarg()[j] == 'c')
+                          if (arg.optarg()[i] == 'c')
                               cmdlinedata.set_update_class();
                           else
                           {
                               MessageLoaderParms parms(
-                                  "Compiler.cmdline.cimmof.cmdline."
+                                  "Compiler.cmdline.cimmof."
                                         "UNKNOWN_VALUE_OPTION_U",
                                   "Unknown value specified for option -u.");
                               throw ArgumentErrorsException(parms);
@@ -593,8 +621,7 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                   else
                   {
                       MessageLoaderParms parms(
-                          "Compiler.cmdline.cimmof.cmdline."
-                              "TOO_MANY_VALUES_OPTION_U",
+                          "Compiler.cmdline.cimmof.TOO_MANY_VALUES_OPTION_U",
                           "Too many values specified for option -u.");
                       throw ArgumentErrorsException(parms);
                   }
@@ -604,30 +631,29 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                 {
                   if ((arg.optarg().size() <= 2) && (arg.optarg().size() != 0))
                   {
-                      for (unsigned int j = 0; j < arg.optarg().size(); j++)
+                      for (unsigned int i = 0; i < arg.optarg().size(); i++)
                       {
-                          if (arg.optarg()[j] == 'E')
+                          if (arg.optarg()[i] == 'E')
                               cmdlinedata.set_allow_experimental();
                           else
-                              if (arg.optarg()[j] == 'V')
+                              if (arg.optarg()[i] == 'V')
                                   cmdlinedata.set_allow_version();
                               else
                               {
                                   MessageLoaderParms parms(
-                                      "Compiler.cmdline.cimmof.cmdline."
+                                      "Compiler.cmdline.cimmof."
                                             "UNKNOWN_VALUE_OPTION_A",
                                       "Unknown value specified for option -a.");
                                   throw ArgumentErrorsException(parms);
-                              }
+                          }
                       }
                   }
                   else
                   {
-                      MessageLoaderParms parms(
-                          "Compiler.cmdline.cimmof.cmdline."
-                              "TOO_MANY_VALUES_OPTION_A",
-                          "Too many values specified for option -a.");
-                      throw ArgumentErrorsException(parms);
+                  MessageLoaderParms parms(
+                      "Compiler.cmdline.cimmof.TOO_MANY_VALUES_OPTION_A",
+                      "Too many values specified for option -a.");
+                  throw ArgumentErrorsException(parms);
                   }
                 }
                 break;
@@ -654,8 +680,19 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                 break;
             case XMLFLAG: cmdlinedata.set_xmloutput();
                 break;
+                //PEP167 commenting FILELIST option
+                /*      case FILELIST: {
+                        int stat = process_filelist(arg.optarg(),
+                                                    cmdlinedata);
+                // ATTN: P1 BB 2001 On Process filelist error should throw
+                // an exception
+                if (stat != 1) {
+                return stat;
+                }
+                break;
+                }*/
 #endif
-#ifdef PEGASUS_OS_PASE
+#ifdef PEGASUS_OS_PASE 
             // If quiet mode is chosen then shut down stdout and stderr.
             // This is used during product installation and PTF application.
             // We must be absolutely quiet to avoid a terminal being
@@ -670,6 +707,12 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                 break;
             }
 #endif
+            case SOURCEFLAG:
+            {
+                cmdlinedata.set_source();
+                break;
+            }
+
             case FILESPEC: cmdlinedata.add_filespecs(arg.optarg());
                 break;
             case OPTEND_CIMMOFL:
@@ -679,14 +722,6 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 
             case NO_USAGE_WARNING:
                cmdlinedata.set_no_usage_warning();
-#ifdef PEGASUS_ENABLE_MRR_GENERATION
-            case MRRFLAG:
-                cmdlinedata.set_mrr();
-                break;
-            case DISCARDFLAG:
-                cmdlinedata.set_discard();
-                break;
-#endif
         }
         type = c;
     }
@@ -705,8 +740,8 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
     if (String::equal(cmdlinedata.get_repository(), String::EMPTY)) {
 
         MessageLoaderParms parms(
-            "Compiler.cmdline.cimmof.cmdline.MUST_SPECIFY_R_OR_HOME",
-            "Specify -R or set the PEGASUS_HOME environment variable.");
+            "Compiler.cmdline.cimmof.MUST_SPECIFY_R_OR_HOME",
+            "You must specify -R or set PEGASUS_HOME environment variable");
         throw CmdlineNoRepository(parms);
     }
 

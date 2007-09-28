@@ -677,9 +677,9 @@ PEGASUS_NAMESPACE_END
 //
 //==============================================================================
 
-/* || defined(PEGASUS_PLATFORM_VXWORKS_XSCALE_GNU) */
 
-#if defined (PEGASUS_PLATFORM_LINUX_XSCALE_GNU) 
+#if defined (PEGASUS_PLATFORM_LINUX_XSCALE_GNU) || \
+    defined(PEGASUS_PLATFORM_VXWORKS_XSCALE_GNU)
 # define PEGASUS_ATOMIC_INT_DEFINED
 
 PEGASUS_NAMESPACE_BEGIN

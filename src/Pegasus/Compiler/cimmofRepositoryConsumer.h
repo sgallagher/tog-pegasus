@@ -31,63 +31,76 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+
 //
-// Constants for use by cmdline.cpp
+// interface definition for the cimmofRepositoryConsumer class, a 
+// specialiazation
+// of the Pegasus CIMRepository class with error handling.
 //
 
-#ifndef _CMDLINE_CMDLINE_H_
-#define _CMDLINE_CMDLINE_H_
+#ifndef _CIMMOFREPOSITORY_H_
+#define _CIMMOFREPOSITORY_H_
 
+
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/String.h>
+//#include <Pegasus/Compiler/cimmofParser.h>
+#include <Pegasus/Compiler/compilerDeclContext.h>
+#include <Pegasus/Compiler/Linkage.h>
+#include "cimmofConsumer.h"
 
-enum opttypes {FILESPEC,
-           HELPFLAG,
-           INCLUDEPATH,
-           SUPPRESSFLAG,
-           NAMESPACE,
-           REPOSITORYDIR,
+PEGASUS_NAMESPACE_BEGIN
 
-           UPDATEFLAG,
-           ALLOWFLAG,
-#ifndef PEGASUS_OS_HPUX
-           SYNTAXFLAG,
-//PEP167     FILELIST,
-           TRACEFLAG,
-           XMLFLAG,
-#endif
-#ifdef PEGASUS_OS_PASE
-           QUIETFLAG,
-#endif
-           SOURCEFLAG,
-           VERSIONFLAG,
-           OPTEND_CIMMOF,    //PEP167
-           REPOSITORYNAME,
-           REPOSITORYMODE,
-           NO_USAGE_WARNING,
-           OPTEND_CIMMOFL};  //PEP167
 
-struct optspec
+class PEGASUS_COMPILER_LINKAGE cimmofRepositoryConsumer : public cimmofConsumer
 {
-    char *flag;
-    opttypes catagory;
-    int islong;
-    int needsvalue;
+public:
+
+    cimmofRepositoryConsumer(
+        const String& path,
+        Uint32 mode,
+        compilerCommonDefs::operationType ot);
+
+    virtual ~cimmofRepositoryConsumer();
+
+    virtual void addClass(
+        const CIMNamespaceName& nameSpace,
+        CIMClass& Class);
+
+    virtual void addQualifier(
+        const CIMNamespaceName& nameSpace,
+        CIMQualifierDecl& qual);
+
+    virtual void addInstance(
+        const CIMNamespaceName& nameSpace,
+        CIMInstance& instance);
+
+    virtual CIMQualifierDecl getQualifierDecl(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& qualifierName);
+
+    virtual CIMClass getClass(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className);
+
+    virtual void modifyClass(
+        const CIMNamespaceName& nameSpace,
+        CIMClass& Class);
+
+    virtual void createNameSpace(
+        const CIMNamespaceName& nameSpace);
+
+    virtual void start();
+
+    virtual void finish();
+
+private:
+    CIMRepository *_cimrepository;
+    compilerDeclContext *_context;
+    compilerCommonDefs::operationType _ot;
 };
 
-// Wrap this around the PEGASUS_HOME define for OS/400
+PEGASUS_NAMESPACE_END
 
-#define PEGASUS_HOME "PEGASUS_HOME"
-
-#define PEGASUS_CIMMOF_NO_DEFAULTNAMESPACEPATH    -9
-#define PEGASUS_CIMMOF_COMPILER_GENERAL_EXCEPTION -8
-#define PEGASUS_CIMMOF_BAD_FILENAME               -7
-#define PEGASUS_CIMMOF_PARSING_ERROR              -6
-#define PEGASUS_CIMMOF_PARSER_LEXER_ERROR         -5
-#define PEGASUS_CIMMOF_UNEXPECTED_CONDITION       -4
-#define PEGASUS_CIMMOF_CMDLINE_NOREPOSITORY       -3
-#define PEGASUS_CIMMOF_CIM_EXCEPTION              -2
-
-#define ROOTCIMV2 "root/cimv2"
-#define REPOSITORY_NAME_DEFAULT "repository"
-#define REPOSITORY_MODE_DEFAULT "XML"
 #endif

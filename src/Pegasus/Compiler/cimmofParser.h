@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -59,7 +61,7 @@
 #include <Pegasus/Compiler/Linkage.h>
 #include "parser.h"
 #include "mofCompilerOptions.h"
-#include "cimmofRepositoryInterface.h"
+#include "cimmofConsumer.h"
 #include "cimmofMessages.h"
 #include "memobjs.h"
 
@@ -76,7 +78,7 @@
 
 extern int cimmof_parse(); // the yacc parser entry point
 
-//class cimmofRepository;
+//class cimmofRepositoryConsumer;
 
 // This class extends class parser (see parser.h)
 class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser
@@ -84,8 +86,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser
     private:
         // This is meant to be a singleton, so we hide the constructor
         // and the destructor
-        friend struct DeletePtr<cimmofParser>;
-        static cimmofParser* _instance;
+        static cimmofParser *_instance;
 
         cimmofParser();
 
@@ -103,25 +104,29 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser
                 cimmofMessages::MsgCode& updateMessage,
                 Boolean& classExist);
 
+        Boolean parseVersion(
+                const String& version,
+                int& iM,
+                int& iN,
+                int& iU);
+
         // Here are the members added by this specialization
         const mofCompilerOptions *_cmdline;
 
         String _includefile;  // temp storage for included file to be entered
-
-        cimmofRepositoryInterface _repository; // repository interface object
 
         String _defaultNamespacePath;  // The path we'll use if none is given
 
         String _currentNamespacePath;  // a namespace set from a #pragma
 
         compilerCommonDefs::operationType _ot;
+
+        cimmofConsumer* _consumer; // repository interface object
+
     public:
         // Provide a way for the singleton to be constructed, or a
         // pointer to be returned:
         static cimmofParser *Instance();
-
-        /// Destructs the singleton object created by the Instance() method.
-        static void destroy();
 
         void elog(const String &msg) const; // handle logging of errors
 
@@ -136,7 +141,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser
         const mofCompilerOptions *getCompilerOptions() const;
         // for all, or nearly all, operations, a repository object is needed
         Boolean setRepository(void);
-        const cimmofRepositoryInterface *getRepository() const;
+        const cimmofConsumer *getRepository() const;
         // Whether you need a repository or not depends on the operationsType
         void setOperationType(compilerCommonDefs::operationType);
         compilerCommonDefs::operationType getOperationType() const;
@@ -198,10 +203,10 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser
         CIMInstance *newInstance(const CIMName &name);
 
         // Called when a new property is discovered
-        CIMProperty *newProperty(const CIMName &name,
-            const CIMValue &val,
-            const int arraySize,
-            const CIMName &referencedObj = CIMName()) const;
+        CIMProperty *newProperty(const CIMName &name, const CIMValue &val,
+                const Boolean isArray,
+                const Uint32 arraySize,
+                const CIMName &referencedObj = CIMName()) const;
 
         // Called when a property production inside a class is complete
         int applyProperty(CIMClass &c, CIMProperty &p);
@@ -225,7 +230,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser
 
         // Called when a qualifier value production is complete
         CIMValue *QualifierValue(const CIMName &qualifierName,
-                Boolean isNull, int g_strValType, const String &valstr);
+                Boolean isNull, const String &valstr);
 
         // Called to retrieve the value object for an existing parameter
         CIMProperty *PropertyFromInstance(CIMInstance &instance,
@@ -237,10 +242,12 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser
                 const CIMName &propertyName) const;
 
         // Called when a class alias is found
-        void addClassAlias(const String &alias, const CIMClass *cd);
+        void addClassAlias(const String &alias, const CIMClass *cd,
+                Boolean isInstance);
 
         // Called when an instance alias is found
-        Uint32 addInstanceAlias(const String &alias, const CIMInstance *cd);
+        Uint32 addInstanceAlias(const String &alias, const CIMInstance *cd,
+                Boolean isInstance);
 
         // Called when an instance alias reference is found
         Uint32 getInstanceAlias(const String &alias, CIMObjectPath &ObjPath);

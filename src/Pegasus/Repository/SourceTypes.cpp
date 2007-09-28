@@ -31,63 +31,59 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-//
-// Constants for use by cmdline.cpp
-//
+#include <Pegasus/Common/System.h>
+#include "SourceTypes.h"
 
-#ifndef _CMDLINE_CMDLINE_H_
-#define _CMDLINE_CMDLINE_H_
+PEGASUS_NAMESPACE_BEGIN
 
-#include <Pegasus/Common/String.h>
-
-enum opttypes {FILESPEC,
-           HELPFLAG,
-           INCLUDEPATH,
-           SUPPRESSFLAG,
-           NAMESPACE,
-           REPOSITORYDIR,
-
-           UPDATEFLAG,
-           ALLOWFLAG,
-#ifndef PEGASUS_OS_HPUX
-           SYNTAXFLAG,
-//PEP167     FILELIST,
-           TRACEFLAG,
-           XMLFLAG,
-#endif
-#ifdef PEGASUS_OS_PASE
-           QUIETFLAG,
-#endif
-           SOURCEFLAG,
-           VERSIONFLAG,
-           OPTEND_CIMMOF,    //PEP167
-           REPOSITORYNAME,
-           REPOSITORYMODE,
-           NO_USAGE_WARNING,
-           OPTEND_CIMMOFL};  //PEP167
-
-struct optspec
+const char* _flagNames[] =
 {
-    char *flag;
-    opttypes catagory;
-    int islong;
-    int needsvalue;
+    "Property", /* 0 */
+    "Reference", /* 1 */
+    "Method", /* 2 */
+    "Class", /* 3 */
+    "Abstract", /* 4 */
+    "Aggregate", /* 5 */
+    "Aggregation", /* 6 */
+    "Association", /* 7 */
+    "Composition", /* 8 */
+    "Counter", /* 9 */
+    "Delete", /* 10 */
+    "DN", /* 11 */
+    "EmbeddedObject", /* 12 */
+    "Exception", /* 13 */
+    "Expensive", /* 14 */
+    "Experimental", /* 15 */
+    "Gauge", /* 16 */
+    "IfDeleted", /* 17 */
+    "In", /* 18 */
+    "Indication", /* 19 */
+    "Invisible", /* 20 */
+    "Key", /* 21 */
+    "Large", /* 22 */
+    "OctetString", /* 23 */
+    "Out", /* 24 */
+    "Read", /* 25 */
+    "Required", /* 26 */
+    "Static", /* 27 */
+    "Terminal", /* 28 */
+    "Weak", /* 29 */
+    "Write", /* 30 */
+    "EmbeddedInstance", /* 31 */
 };
 
-// Wrap this around the PEGASUS_HOME define for OS/400
+static const size_t _numFlagNames = sizeof(_flagNames) / sizeof(_flagNames[0]);
 
-#define PEGASUS_HOME "PEGASUS_HOME"
+size_t FlagNameToIndex(const char* name)
+{
+    for (size_t i = 0; i < _numFlagNames; i++)
+    {
+        if (System::strcasecmp(_flagNames[i], name) == 0)
+            return i;
+    }
 
-#define PEGASUS_CIMMOF_NO_DEFAULTNAMESPACEPATH    -9
-#define PEGASUS_CIMMOF_COMPILER_GENERAL_EXCEPTION -8
-#define PEGASUS_CIMMOF_BAD_FILENAME               -7
-#define PEGASUS_CIMMOF_PARSING_ERROR              -6
-#define PEGASUS_CIMMOF_PARSER_LEXER_ERROR         -5
-#define PEGASUS_CIMMOF_UNEXPECTED_CONDITION       -4
-#define PEGASUS_CIMMOF_CMDLINE_NOREPOSITORY       -3
-#define PEGASUS_CIMMOF_CIM_EXCEPTION              -2
+    // Not found!
+    return size_t(-1);
+}
 
-#define ROOTCIMV2 "root/cimv2"
-#define REPOSITORY_NAME_DEFAULT "repository"
-#define REPOSITORY_MODE_DEFAULT "XML"
-#endif
+PEGASUS_NAMESPACE_END

@@ -1067,14 +1067,14 @@ void ProviderManagerService::providerModuleFailureCallback
     request->queueIds = QueueIdStack
         (_indicationServiceQueueId, providerManagerService->getQueueId ());
 
-    AsyncLegacyOperationStart * asyncRequest = new AsyncLegacyOperationStart(
+    AsyncLegacyOperationStart asyncRequest(
         0,
         _indicationServiceQueueId,
         request,
         _indicationServiceQueueId);
 
     AutoPtr <AsyncReply> asyncReply
-        (providerManagerService->SendWait (asyncRequest));
+        (providerManagerService->SendWait (&asyncRequest));
 
     AutoPtr <CIMNotifyProviderFailResponseMessage> response
         (reinterpret_cast <CIMNotifyProviderFailResponseMessage *>

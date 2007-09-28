@@ -690,6 +690,137 @@ void cimmofSourceConsumer::_writeProperty(
     // ATTN: define qualifiers:
 }
 
+void cimmofSourceConsumer::_writeParameter(
+    const CIMNamespaceName& nameSpace,
+    const CIMName& cn,
+    const CIMName& mn,
+    const CIMConstParameter& cp)
+{
+    String ns = _makeIdent(nameSpace.getString());
+    CIMName pn = cp.getName();
+    CIMType ct = cp.getType();
+
+    _outn("static SourceProperty _%s__%s_%s_%s =", 
+        *Str(ns), *Str(cn), *Str(mn), *Str(pn));
+    _outn("{");
+    _indent++;
+
+    // SourceProperty.flags:
+
+    _out("PEGASUS_FLAG_PROPERTY");
+    _writeFlags(_os, cp, false, true);
+    fprintf(_os, ",\n");
+
+    // SourceProperty.name:
+
+    _outn("\"%s\", /* name */", *Str(pn));
+
+    // SourceProperty.type:
+
+    _outn("%s, /* type */", _typeNames[ct]);
+
+    // SourceProperty.subscript:
+
+    if (cp.isArray())
+    {
+        Uint32 n = cp.getArraySize();
+        _outn("%u, /* subscript */", n);
+    }
+    else
+    {
+        _outn("-1, /* subscript */");
+    }
+
+    // SourceProperty.refClass:
+
+    if (ct == CIMTYPE_REFERENCE)
+    {
+        const CIMName& rcn = cp.getReferenceClassName();
+        _outn("&_%s__%s, /* refClass */\n", *Str(ns), *Str(rcn));
+    }
+    else
+    {
+        _outn("0, /* refClass */");
+    }
+
+    _indent--;
+    _outn("};");
+    _nl();
+
+    // ATTN: define qualifiers:
+}
+
+void cimmofSourceConsumer::_writeMethod(
+    const CIMNamespaceName& nameSpace,
+    const CIMName& cn,
+    const CIMConstMethod& cm)
+{
+    String ns = _makeIdent(nameSpace.getString());
+    CIMName mn = cm.getName();
+
+    // Write parameter definitions:
+
+    Array<CIMName> parameterNames;
+
+    for (Uint32 i = 0; i < cm.getParameterCount(); i++)
+    {
+        CIMConstParameter cp = cm.getParameter(i);
+        _writeParameter(nameSpace, cn, mn, cp);
+        parameterNames.append(cp.getName());
+    }
+
+    // Write parameters array:
+
+    _outn("static SourceProperty* _%s__%s_%s_parameters[] =", 
+        *Str(ns), *Str(cn), *Str(mn));
+    _outn("{");
+    _indent++;
+
+    for (Uint32 i = 0; i < parameterNames.size(); i++)
+    {
+        const CIMName& pn = parameterNames[i];
+        _outn("&_%s__%s_%s_%s,", 
+            *Str(ns), *Str(cn), *Str(mn), *Str(pn));
+    }
+
+    _outn("0,");
+    _indent--;
+    _outn("};");
+    _nl();
+
+    // Method header:
+
+    _outn("static SourceMethod _%s__%s_%s =", *Str(ns), *Str(cn), *Str(mn));
+    _outn("{");
+    _indent++;
+
+    // SourceMethod.flags:
+
+    _out("PEGASUS_FLAG_METHOD");
+    _writeFlags(_os, cm, false, false);
+    fprintf(_os, ",\n");
+
+    // SourceMethod.name:
+
+    _outn("\"%s\", /* name */", *Str(cn));
+
+    // SourceMethod.type:
+
+    // SourceProperty.type:
+
+    _outn("%s, /* type */", _typeNames[cm.getType()]);
+
+    // SourceMethod.parameter:
+
+    _outn("_%s__%s_%s_parameters,", *Str(ns), *Str(cn), *Str(mn));
+
+    // Method footer:
+
+    _indent--;
+    _outn("};");
+    _nl();
+}
+
 static bool _testBooleanQualifier(const CIMClass& cc, const CIMName& name)
 {
     Uint32 pos = cc.findQualifier(name);
@@ -731,7 +862,13 @@ void cimmofSourceConsumer::_writeClass(
     }
 
     // Write method definitions:
-    // ATTN:
+
+    for (Uint32 i = 0; i < cc.getMethodCount(); i++)
+    {
+        CIMConstMethod cm = cc.getMethod(i);
+        _writeMethod(nameSpace, cc.getClassName(), cm);
+        featureNames.append(cm.getName());
+    }
 
     // Write feature array:
 
@@ -794,13 +931,50 @@ void cimmofSourceConsumer::_writeClass(
 
 void cimmofSourceConsumer::_writeNameSpace(const CIMNamespaceName& nameSpace)
 {
+    String ns = _makeIdent(nameSpace.getString());
+
+    // Write classes:
+
     for (Uint32 i = 0; i < _classes.size(); i++)
     {
         const Class& c = _classes[i];
 
-        if (c.first == nameSpace)
-            _writeClass(c.first, c.second);
+        if (c.first != nameSpace)
+            continue;
+
+        _writeClass(c.first, c.second);
     }
+
+    // Write classes list:
+
+    _outn("static SourceClass* _%s__classes[] =", *Str(ns));
+    _outn("{");
+    _indent++;
+
+    for (Uint32 i = 0; i < _classes.size(); i++)
+    {
+        const Class& c = _classes[i];
+
+        if (c.first != nameSpace)
+            continue;
+
+        _outn("&_%s__%s,", *Str(ns), *Str(c.second.getClassName()));
+    }
+
+    _outn("0,");
+
+    _indent--;
+    _outn("};");
+    _nl();
+
+    // Write SourceNameSpace structure:
+
+    _outn("SourceNameSpace %s_namespace =", *Str(ns));
+    _outn("{");
+    _outn("    \"%s\",", *Str(nameSpace));
+    _outn("    _%s__classes,", *Str(ns));
+    _outn("};");
+    _nl();
 }
 
 PEGASUS_FORMAT(2, 3)

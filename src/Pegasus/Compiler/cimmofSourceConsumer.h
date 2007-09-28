@@ -110,6 +110,17 @@ private:
         const CIMName& className,
         const CIMConstProperty& cp);
 
+    void _writeParameter(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& cn,
+        const CIMName& mn,
+        const CIMConstParameter& cp);
+
+    void _writeMethod(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& cn,
+        const CIMConstMethod& cm);
+
     void _writeClass(
         const CIMNamespaceName& nameSpace,
         const CIMClass& cimClass);

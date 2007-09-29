@@ -1129,26 +1129,32 @@ void cimmofSourceConsumer::_writeQualifierDecl(const CIMConstQualifierDecl& cq)
 
     // SourceQualifierDecl.name:
 
-    _outn("    \"%s\", /* name */", *Str(qn));
+    _outn("    /* name */");
+    _outn("    \"%s\",", *Str(qn));
 
     // SourceQualifierDecl.type:
 
-    _outn("    %s, /* type */", _typeNames[qt]);
+    _outn("    /* type */");
+    _outn("    %s,", _typeNames[qt]);
 
     // SourceQualifierDecl.subscript:
+
+    _outn("    /* subscript */");
 
     if (cq.isArray())
     {
         Uint32 n = cq.getArraySize();
-        _outn("    %u, /* subscript */", n);
+        _outn("    %u,", n);
     }
     else
     {
-        _outn("    -1, /* subscript */");
+        _outn("    -1,");
     }
 
     // SourceQualifierDecl.scope:
     {
+        _outn("    /* scope */");
+
         CIMScope scope = cq.getScope();
         Array<String> scopes;
 
@@ -1187,6 +1193,8 @@ void cimmofSourceConsumer::_writeQualifierDecl(const CIMConstQualifierDecl& cq)
 
     // SourceQualifierDecl.flavor:
     {
+        _outn("    /* flavor */");
+
         CIMFlavor flavor = cq.getFlavor();
         Array<String> flavors;
 
@@ -1218,6 +1226,7 @@ void cimmofSourceConsumer::_writeQualifierDecl(const CIMConstQualifierDecl& cq)
 
     // SourceQualifierDecl.value:
 
+    _outn("    /* value */");
     _out("    ");
     _writeValue(_os, cv, true);
     _outn(",");
@@ -1285,51 +1294,57 @@ void cimmofSourceConsumer::_writeProperty(
     _outn("static SourceProperty");
     _outn("%s =", *Str(path));
     _outn("{");
-    _indent++;
 
     // SourceProperty.flags:
 
-    _out("PEGASUS_FLAG_PROPERTY");
+    _outn("    /* flags */");
+    _out("    PEGASUS_FLAG_PROPERTY");
     _writeFlags(_os, cp, true, false);
     fprintf(_os, ",\n");
 
     // SourceProperty.name:
 
-    _outn("\"%s\", /* name */", *Str(pn));
+    _outn("    /* name */");
+    _outn("    \"%s\",", *Str(pn));
 
     // SourceProperty.qualifiers:
 
-    _outn("%s_qualifiers, /* qualifiers */", *Str(path));
+    _outn("    /* qualifiers */");
+    _outn("    %s_qualifiers,", *Str(path));
 
     // SourceProperty.type:
 
-    _outn("%s, /* type */", _typeNames[ct]);
+    _outn("    /* type */");
+    _outn("    %s,", _typeNames[ct]);
 
     // SourceProperty.subscript:
+
+    _outn("    /* subscript */");
 
     if (cp.isArray())
     {
         Uint32 n = cp.getArraySize();
-        _outn("%u, /* subscript */", n);
+        _outn("    %u,", n);
     }
     else
     {
-        _outn("-1, /* subscript */");
+        _outn("    -1,");
     }
 
     // SourceProperty.refClass:
 
+    _outn("    /* refClass */");
+
     if (ct == CIMTYPE_REFERENCE)
     {
         const CIMName& rcn = cp.getReferenceClassName();
-        _outn("&_%s, /* refClass */\n", *Str(rcn));
+        _outn("    &_%s,", *Str(rcn));
     }
     else
     {
-        _outn("0, /* refClass */");
+        _outn("    0,");
     }
 
-    _indent--;
     _outn("};");
     _nl();
 }
@@ -1350,51 +1365,58 @@ void cimmofSourceConsumer::_writeParameter(
     _outn("static SourceProperty");
     _outn("%s =", *Str(path));
     _outn("{");
-    _indent++;
 
     // SourceProperty.flags:
 
-    _out("PEGASUS_FLAG_PROPERTY");
+    _outn("    /* flags */");
+
+    _out("    PEGASUS_FLAG_PROPERTY");
     _writeFlags(_os, cp, false, true);
     fprintf(_os, ",\n");
 
     // SourceProperty.name:
 
-    _outn("\"%s\", /* name */", *Str(pn));
+    _outn("    /* name */");
+    _outn("    \"%s\",", *Str(pn));
 
     // SourceProperty.qualifiers:
 
-    _outn("%s_qualifiers, /* qualifiers */", *Str(path));
+    _outn("    /* qualifiers */");
+    _outn("    %s_qualifiers,", *Str(path));
 
     // SourceProperty.type:
 
-    _outn("%s, /* type */", _typeNames[ct]);
+    _outn("    /* type */");
+    _outn("    %s,", _typeNames[ct]);
 
     // SourceProperty.subscript:
+
+    _outn("    /* subscript */");
 
     if (cp.isArray())
     {
         Uint32 n = cp.getArraySize();
-        _outn("%u, /* subscript */", n);
+        _outn("    %u,", n);
     }
     else
     {
-        _outn("-1, /* subscript */");
+        _outn("    -1,");
     }
 
     // SourceProperty.refClass:
 
+    _outn("    /* refClass */");
+
     if (ct == CIMTYPE_REFERENCE)
     {
         const CIMName& rcn = cp.getReferenceClassName();
-        _outn("&_%s, /* refClass */\n", *Str(rcn));
+        _outn("    &_%s,", *Str(rcn));
     }
     else
     {
-        _outn("0, /* refClass */");
+        _outn("    0,");
     }
 
-    _indent--;
     _outn("};");
     _nl();
 }
@@ -1421,16 +1443,14 @@ void cimmofSourceConsumer::_writeMethod(
     _outn("static SourceProperty*");
     _outn("_%s_%s_parameters[] =", *Str(cn), *Str(mn));
     _outn("{");
-    _indent++;
 
     for (Uint32 i = 0; i < parameterNames.size(); i++)
     {
         const CIMName& pn = parameterNames[i];
-        _outn("&_%s_%s_%s,", *Str(cn), *Str(mn), *Str(pn));
+        _outn("    &_%s_%s_%s,", *Str(cn), *Str(mn), *Str(pn));
     }
 
-    _outn("0,");
-    _indent--;
+    _outn("    0,");
     _outn("};");
     _nl();
 
@@ -1443,33 +1463,36 @@ void cimmofSourceConsumer::_writeMethod(
     _outn("static SourceMethod");
     _outn("%s =", *Str(path));
     _outn("{");
-    _indent++;
 
     // SourceMethod.flags:
 
-    _out("PEGASUS_FLAG_METHOD");
+    _outn("    /* flags */");
+    _out("    PEGASUS_FLAG_METHOD");
     _writeFlags(_os, cm, false, false);
     fprintf(_os, ",\n");
 
     // SourceMethod.name:
 
-    _outn("\"%s\", /* name */", *Str(cn));
+    _outn("    /* name */");
+    _outn("    \"%s\",", *Str(cn));
 
     // SourceMethod.qualifiers:
 
-    _outn("%s_qualifiers, /* qualifiers */", *Str(path));
+    _outn("    /* qualifiers */");
+    _outn("    %s_qualifiers,", *Str(path));
 
     // SourceProperty.type:
 
-    _outn("%s, /* type */", _typeNames[cm.getType()]);
+    _outn("    /* type */");
+    _outn("    %s,", _typeNames[cm.getType()]);
 
-    // SourceMethod.parameter:
+    // SourceMethod.parameters:
 
-    _outn("_%s_%s_parameters,", *Str(cn), *Str(mn));
+    _outn("    /* parameters */");
+    _outn("    _%s_%s_parameters,", *Str(cn), *Str(mn));
 
     // Method footer:
 
-    _indent--;
     _outn("};");
     _nl();
 }
@@ -1509,16 +1532,14 @@ void cimmofSourceConsumer::_writeClass(
     _outn("static SourceFeature*");
     _outn("_%s_features[] =", *Str(cn));
     _outn("{");
-    _indent++;
 
     for (Uint32 i = 0; i < featureNames.size(); i++)
     {
         const CIMName& fn = featureNames[i];
-        _outn("(SourceFeature*)&_%s_%s,", *Str(cn), *Str(fn));
+        _outn("    (SourceFeature*)&_%s_%s,", *Str(cn), *Str(fn));
     }
 
-    _outn("0,");
-    _indent--;
+    _outn("    0,");
     _outn("};");
     _nl();
 
@@ -1531,44 +1552,49 @@ void cimmofSourceConsumer::_writeClass(
     _outn("static SourceClass");
     _outn("%s =", *Str(path));
     _outn("{");
-    _indent++;
 
     // SourceClass.flags:
 
+    _outn("    /* flags */");
+
     if (_testBooleanQualifier(cc, "Association"))
-        _out("PEGASUS_FLAG_ASSOCIATION");
+        _out("    PEGASUS_FLAG_ASSOCIATION");
     else if (_testBooleanQualifier(cc, "Indication"))
-        _out("PEGASUS_FLAG_INDICATION");
+        _out("    PEGASUS_FLAG_INDICATION");
     else
-        _out("PEGASUS_FLAG_CLASS");
+        _out("    PEGASUS_FLAG_CLASS");
 
     _writeFlags(_os, cc, false, false);
     fprintf(_os, ",\n");
 
     // SourceClass.name:
 
-    _outn("\"%s\", /* name */", *Str(cn));
+    _outn("    /* name */");
+    _outn("    \"%s\",", *Str(cn));
 
     // SourceClass.qualifiers:
 
-    _outn("%s_qualifiers, /* qualifiers */", *Str(path));
+    _outn("    /* qualifiers */");
+    _outn("    %s_qualifiers,", *Str(path));
 
     // SourceClass.super:
 
     const CIMName& scn = cc.getSuperClassName();
 
+    _outn("    /* super */");
+
     if (scn.isNull())
-        _outn("0, /* super */");
+        _outn("    0,");
     else
-        _outn("&_%s, /* super */", *Str(scn));
+        _outn("    &_%s,", *Str(scn));
 
     // SourceClass.features:
 
-    _outn("_%s_features,", *Str(cn));
+    _outn("    /* features */");
+    _outn("    _%s_features,", *Str(cn));
 
     // Class footer:
 
-    _indent--;
     _outn("};");
     _nl();
 }

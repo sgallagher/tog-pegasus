@@ -90,13 +90,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-template<class T>
-struct SourceArray
-{
-    T* elements;
-    Uint32 size;
-};
-
 struct SourceQualifierDecl
 {
     char* name;

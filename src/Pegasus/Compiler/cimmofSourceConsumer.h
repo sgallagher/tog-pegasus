@@ -44,7 +44,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofSourceConsumer : public cimmofConsumer
 {
 public:
 
-    cimmofSourceConsumer();
+    cimmofSourceConsumer(bool descriptions);
 
     virtual ~cimmofSourceConsumer();
 
@@ -91,19 +91,26 @@ private:
 
     Uint32 _findClass(const CIMName& className) const;
 
-    Uint32 _findQualifier(
-        const CIMNamespaceName& nameSpace, 
-        const CIMName& qualifierName) const;
+    Uint32 _findQualifier(const CIMName& qualifierName) const;
 
     void _writeSourcePrologue();
 
     void _writeSourceEpilogue();
+
+    void _writeQualifier(
+        const Array<CIMQualifierDecl>& qualifierDecls,
+        const String& root,
+        const CIMConstQualifier& qualifier);
 
     void _writeValue(const String& name, const CIMValue& value, Uint32& count);
 
     void _writeQualifierDecl(const CIMConstQualifierDecl& cq);
 
     void _writeNameSpace(const CIMNamespaceName& nameSpace);
+
+    void _writeQualifierArray(
+        const String& root,
+        const Array<CIMConstQualifier>& qualifiers);
 
     void _writeProperty(
         const CIMName& className,
@@ -121,10 +128,11 @@ private:
     void _writeClass(
         const CIMClass& cimClass);
 
+    bool _discard;
+    FILE* _os;
     CIMNamespaceName _nameSpace;
     Array<CIMClass> _classes;
     Array<CIMQualifierDecl> _qualifiers;
-    FILE* _os;
 };
 
 PEGASUS_NAMESPACE_END

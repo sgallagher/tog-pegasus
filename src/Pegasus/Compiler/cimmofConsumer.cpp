@@ -58,7 +58,8 @@ cimmofConsumer* cimmofConsumer::createConsumer(
     cimmofConsumer::ConsumerType type, 
     String location,
     Uint32 mode,
-    compilerCommonDefs::operationType ot)
+    compilerCommonDefs::operationType ot,
+    bool discard)
 {
     String message;
     cimmofMessages::arglist arglist;
@@ -117,7 +118,7 @@ cimmofConsumer* cimmofConsumer::createConsumer(
     }
     else if (type == SOURCE_CONSUMER)
     {
-        return new cimmofSourceConsumer();
+        return new cimmofSourceConsumer(discard);
     }
 
     return 0;

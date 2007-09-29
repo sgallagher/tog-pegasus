@@ -257,9 +257,12 @@ ostream & help(ostream &os, int progtype)
         help.append(
         "    -s                  - Generate a source code repository, which\n"
         "                          contains static C++ structure definitions\n"
-        "                          for each MOF class encountered during\n"
-        "                          parsing (instances and qualifier \n"
-        "                          declarations are ignored).\n");
+        "                          for MOF classes and qualifier declarations\n"
+        "                          encountered during parsing (instances are\n"
+        "                          are ignored).\n");
+        help.append(
+        "    -d                  - Discard description qualifiers from source\n"
+        "                          code repository to conserve space.\n");
     }
 
     if(progtype == 1)
@@ -347,6 +350,7 @@ static struct optspec optspecs[] =
     {(char*)"q", QUIETFLAG, false, getoopt::NOARG},
 #endif
     {(char*)"s", SOURCEFLAG, false, getoopt::NOARG},
+    {(char*)"d", DISCARDFLAG, false, getoopt::NOARG},
     {(char*)"", OPTEND_CIMMOF, false, getoopt::NOARG},
     {(char*)"R", REPOSITORYDIR, false, getoopt::MUSTHAVEARG},
     {(char*)"CIMRepository", REPOSITORYDIR, true, getoopt::MUSTHAVEARG},
@@ -710,6 +714,12 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
             case SOURCEFLAG:
             {
                 cmdlinedata.set_source();
+                break;
+            }
+
+            case DISCARDFLAG:
+            {
+                cmdlinedata.set_discard();
                 break;
             }
 

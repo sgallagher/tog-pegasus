@@ -77,6 +77,7 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   Boolean         _syntax_only;
   Boolean         _is_local;
   Boolean         _source;
+  Boolean         _discard;
   Boolean         _suppress_warnings;
   Boolean         _suppress_all_messages;
   Boolean         _emit_xml;
@@ -101,6 +102,7 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
     _syntax_only(false),
     _is_local(false),
     _source(false),
+    _discard(false),
     _suppress_warnings(false),
     _suppress_all_messages(false),
     _emit_xml(false),
@@ -137,6 +139,9 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   void set_source() { _source = true; }
   void reset_source() { _source = false; }
   Boolean source() const { return _source; }
+  void set_discard() { _discard = true; }
+  void reset_discard() { _discard = false; }
+  Boolean discard() const { return _discard; }
   void set_suppress_warnings() { _suppress_warnings = true; }
   void reset_suppress_warnings() { _suppress_warnings = false; }
   Boolean suppress_warnings() const { return _suppress_warnings; }

@@ -59,6 +59,7 @@ enum opttypes {FILESPEC,
            QUIETFLAG,
 #endif
            SOURCEFLAG,
+           DISCARDFLAG,
            VERSIONFLAG,
            OPTEND_CIMMOF,    //PEP167
            REPOSITORYNAME,

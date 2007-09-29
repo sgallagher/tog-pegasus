@@ -171,8 +171,8 @@ Boolean cimmofParser::setRepository(void)
                     mode = CIMRepository::MODE_BIN;
                 }
 
-                _consumer = cimmofConsumer::createConsumer(
-                    consumerType, combined, mode, _ot);
+                _consumer = cimmofConsumer::createConsumer(consumerType, 
+                    combined, mode, _ot, _cmdline->discard());
 
                 if (_consumer)
                     _consumer->start();

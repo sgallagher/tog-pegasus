@@ -124,7 +124,8 @@ public:
         ConsumerType type, 
         String location, 
         Uint32 mode,
-        compilerCommonDefs::operationType ot);
+        compilerCommonDefs::operationType ot, 
+        bool discard);
 
 private:
 

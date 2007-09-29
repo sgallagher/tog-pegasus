@@ -95,6 +95,7 @@ STATIC=1
 LIBRARY = pegrepository
 
 SOURCES = \
+    root_cimv2_namespace.cpp \
     SourceTypes.cpp \
     InstanceIndexFile.cpp \
     InstanceDataFile.cpp \
@@ -116,4 +117,4 @@ compress:
 	make PEGASUS_ENABLE_COMPRESSED_REPOSITORY=1
 
 rep:
-	cimmofl -s -I $(PEGASUS_ROOT)/Schemas/CIM2131 $(PEGASUS_ROOT)/Schemas/CIM2131/CIM_Schema.mof
+	cimmofl -d -s -I $(PEGASUS_ROOT)/Schemas/CIM2131 $(PEGASUS_ROOT)/Schemas/CIM2131/CIM_Schema.mof

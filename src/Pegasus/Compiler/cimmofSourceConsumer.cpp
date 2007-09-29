@@ -208,7 +208,8 @@ static bool _is_printable(const char* s)
 //
 //==============================================================================
 
-cimmofSourceConsumer::cimmofSourceConsumer() : _os(0)
+cimmofSourceConsumer::cimmofSourceConsumer(bool discard) : 
+    _discard(discard), _os(0)
 {
 }
 
@@ -233,7 +234,7 @@ void cimmofSourceConsumer::addQualifier(
     const CIMNamespaceName& nameSpace,
     CIMQualifierDecl& cimQualifierDecl)
 {
-    if (_findQualifier(nameSpace, cimQualifierDecl.getName()) != PEG_NOT_FOUND)
+    if (_findQualifier(cimQualifierDecl.getName()) != PEG_NOT_FOUND)
     {
         _throw(CIM_ERR_ALREADY_EXISTS, "qualifier already defined: %s:%s", 
             *Str(nameSpace), *Str(cimQualifierDecl.getName()));
@@ -253,7 +254,7 @@ CIMQualifierDecl cimmofSourceConsumer::getQualifierDecl(
     const CIMNamespaceName& nameSpace,
     const CIMName& qualifierName)
 {
-    Uint32 pos = _findQualifier(nameSpace, qualifierName);
+    Uint32 pos = _findQualifier(qualifierName);
 
     if (pos == PEG_NOT_FOUND)
     {
@@ -370,9 +371,7 @@ Uint32 cimmofSourceConsumer::_findClass(const CIMName& className) const
     return PEG_NOT_FOUND;
 }
 
-Uint32 cimmofSourceConsumer::_findQualifier(
-    const CIMNamespaceName& nameSpace, 
-    const CIMName& qualifierName) const
+Uint32 cimmofSourceConsumer::_findQualifier(const CIMName& qualifierName) const
 {
     for (Uint32 i = 0; i < _qualifiers.size(); i++)
     {
@@ -665,41 +664,129 @@ static void _writeStringLiteral(FILE* os, const char* s)
     fputc('"', os);
 }
 
-template<class C>
-static void _writeDescription(
-    FILE* os, 
-    const C& c)
+static void _writeStringLiteralArray(FILE* os, const Array<String>& x)
 {
-#if defined(PEGASUS_INCLUDE_DESCRIPTIONS) || 1
-    Uint32 pos = c.findQualifier("Description");
+    fputc('"', os);
 
-    if (pos != PEG_NOT_FOUND)
+    for (Uint32 i = 0; i < x.size(); i++)
     {
-        CIMConstQualifier cq = c.getQualifier(pos);
-        const CIMValue& cv = cq.getValue();
+        Str str(x[i]);
+        const char* s = str;
+        size_t n = strlen(s);
 
-        if (cv.getType() == CIMTYPE_STRING)
+        for (size_t j = 0; j < n; j++)
         {
-            String x;
-            cv.get(x);
+            char c = s[j];
 
-            fprintf(os, "    ");
-            _writeStringLiteral(os, *Str(x));
-            fprintf(os, ",\n");
-            return;
+            if (isprint(c) && c != '"')
+                fprintf(os, "%c", c);
+            else
+                fprintf(os, "\\%03o", c);
         }
+
+        fprintf(os, "\\000");
     }
 
-#endif /* defined(PEGASUS_INCLUDE_DESCRIPTIONS) */
+    fprintf(os, "\\000");
 
-    fprintf(os, "    0, /* description */\n");
+    fputc('"', os);
+}
+
+void cimmofSourceConsumer::_writeQualifier(
+    const Array<CIMQualifierDecl>& qualifierDecls,
+    const String& root,
+    const CIMConstQualifier& cq)
+{
+    CIMName qn = cq.getName();
+    CIMType qt = cq.getType();
+    CIMValue qv = cq.getValue();
+
+    // Ignore descriptions?
+
+    if (_discard && qn == "Description")
+        return;
+
+#if 0
+    if (qn == "Values" || qn == "ValueMap")
+        return;
+#endif
+
+    // Ignore boolean qualifiers:
+
+    if (qt == CIMTYPE_BOOLEAN && !cq.isArray())
+        return;
+
+    // Print qualifier value structure if any:
+
+    String path = root + "_" + qn.getString() + "_qualifier";
+    Uint32 size = 0;
+
+    if (qt != CIMTYPE_STRING)
+        _writeValue(path, qv, size);
+
+    // Find the qualifier:
+
+    Uint32 pos = _findQualifier(qn);
+
+    if (pos == PEG_NOT_FOUND)
+        _throw(CIM_ERR_FAILED, "undefined qualifier: %s", *Str(qn));
+
+    // Get the original case of the qualifier name:
+
+    qn = _qualifiers[pos].getName();
+
+    // SourceQualifier header:
+
+    _outn("static SourceQualifier");
+    _outn("%s =", *Str(path));
+    _outn("{");
+
+    // SourceQualifier.decl:
+
+    _outn("    &_%s_qualifier_decl,", *Str(qn));
+
+    // SourceQualifier.value:
+
+    if (qt == CIMTYPE_STRING)
+    {
+        if (qv.isArray())
+        {
+            Array<String> x;
+            qv.get(x);
+            size = x.size();
+            _out("    ");
+            _writeStringLiteralArray(_os, x);
+            _outn(",");
+        }
+        else
+        {
+            String x;
+            qv.get(x);
+            _out("    ");
+            _writeStringLiteral(_os, *Str(x));
+            _outn(",");
+        }
+    }
+    else
+    {
+        _outn("    &%s_value,", *Str(path));
+    }
+
+    // SourceQualifier.size:
+
+    _outn("    %u, /* size */", size);
+
+    _outn("};");
+    _nl();
 }
 
 void cimmofSourceConsumer::_writeValue(
-    const String& name, 
+    const String& root, 
     const CIMValue& cv,
     Uint32& size)
 {
+    String path = root + "_value";
+
     size = 0;
 
     if (cv.isNull())
@@ -728,7 +815,7 @@ void cimmofSourceConsumer::_writeValue(
 
     if (cv.isArray())
     {
-        _outn("static %s %s[] =", _typeStrings[cv.getType()], *Str(name));
+        _outn("static %s %s[] =", _typeStrings[cv.getType()], *Str(path));
         _outn("{");
         _indent++;
 
@@ -912,7 +999,7 @@ void cimmofSourceConsumer::_writeValue(
             {
                 bool x;
                 cv.get(x);
-                _outn("static bool %s = %s;", *Str(name), x ? "true" : "false");
+                _outn("static bool %s = %s;", *Str(path), x ? "true" : "false");
                 break;
             }
 
@@ -920,7 +1007,7 @@ void cimmofSourceConsumer::_writeValue(
             {
                 Uint8 x;
                 cv.get(x);
-                _outn("static Uint8 %s = %u;", *Str(name), x);
+                _outn("static Uint8 %s = %u;", *Str(path), x);
                 break;
             }
 
@@ -928,7 +1015,7 @@ void cimmofSourceConsumer::_writeValue(
             {
                 Sint8 x;
                 cv.get(x);
-                _outn("static Sint8 %s = %d;", *Str(name), x);
+                _outn("static Sint8 %s = %d;", *Str(path), x);
                 break;
             }
 
@@ -936,7 +1023,7 @@ void cimmofSourceConsumer::_writeValue(
             {
                 Uint16 x;
                 cv.get(x);
-                _outn("static Uint16 %s = %u;", *Str(name), x);
+                _outn("static Uint16 %s = %u;", *Str(path), x);
                 break;
             }
 
@@ -944,7 +1031,7 @@ void cimmofSourceConsumer::_writeValue(
             {
                 Sint16 x;
                 cv.get(x);
-                _outn("static Sint16 %s = %d;", *Str(name), x);
+                _outn("static Sint16 %s = %d;", *Str(path), x);
                 break;
             }
 
@@ -952,7 +1039,7 @@ void cimmofSourceConsumer::_writeValue(
             {
                 Uint32 x;
                 cv.get(x);
-                _outn("static Uint32 %s = %u;", *Str(name), x);
+                _outn("static Uint32 %s = %u;", *Str(path), x);
                 break;
             }
 
@@ -960,7 +1047,7 @@ void cimmofSourceConsumer::_writeValue(
             {
                 Sint32 x;
                 cv.get(x);
-                _outn("static Sint32 %s = %d;", *Str(name), x);
+                _outn("static Sint32 %s = %d;", *Str(path), x);
                 break;
             }
 
@@ -968,7 +1055,7 @@ void cimmofSourceConsumer::_writeValue(
             {
                 Uint64 x;
                 cv.get(x);
-                _outn("static Uint64 %s = " PEGASUS_LLU ";", *Str(name), x);
+                _outn("static Uint64 %s = " PEGASUS_LLU ";", *Str(path), x);
                 break;
             }
 
@@ -976,7 +1063,7 @@ void cimmofSourceConsumer::_writeValue(
             {
                 Sint64 x;
                 cv.get(x);
-                _outn("static Sint64 %s = " PEGASUS_LLU ";", *Str(name), x);
+                _outn("static Sint64 %s = " PEGASUS_LLD ";", *Str(path), x);
                 break;
             }
 
@@ -984,7 +1071,7 @@ void cimmofSourceConsumer::_writeValue(
             {
                 Real32 x;
                 cv.get(x);
-                _outn("static Real32 %s = %f;", *Str(name), x);
+                _outn("static Real32 %s = %f;", *Str(path), x);
                 break;
             }
 
@@ -992,7 +1079,7 @@ void cimmofSourceConsumer::_writeValue(
             {
                 Real64 x;
                 cv.get(x);
-                _outn("static Real64 %s = %lf;", *Str(name), x);
+                _outn("static Real64 %s = %lf;", *Str(path), x);
                 break;
             }
 
@@ -1000,7 +1087,7 @@ void cimmofSourceConsumer::_writeValue(
             {
                 Char16 x;
                 cv.get(x);
-                _outn("static Uint16 %s = %u;", *Str(name), Uint16(x));
+                _outn("static Uint16 %s = %u;", *Str(path), Uint16(x));
                 break;
             }
 
@@ -1010,7 +1097,7 @@ void cimmofSourceConsumer::_writeValue(
                 cv.get(x);
                 Str str(x);
 
-                _out("static const char* %s = ", *Str(name));
+                _out("static const char* %s = ", *Str(path));
                 _writeStringLiteral(_os, str);
                 _outn(";");
                 break;
@@ -1033,15 +1120,17 @@ void cimmofSourceConsumer::_writeQualifierDecl(const CIMConstQualifierDecl& cq)
     CIMType qt = cq.getType();
     const CIMValue& cv = cq.getValue();
 
-    // Write separe value definition (if any).
+    // Write value definition (if any).
 
-    String vn = String("_") + qn.getString() + "_qualifier_value";
+    String path = "_" + qn.getString() + "_qualifier_decl";
+
     Uint32 size = 0;
-    _writeValue(vn, cv, size);
+    _writeValue(path, cv, size);
 
     // Write SourceQualifierDecl header:
 
-    _outn("static SourceQualifierDecl _%s_qualifier =", *Str(qn));
+    _outn("static SourceQualifierDecl");
+    _outn("%s =", *Str(path));
     _outn("{");
     _indent++;
 
@@ -1143,13 +1232,57 @@ void cimmofSourceConsumer::_writeQualifierDecl(const CIMConstQualifierDecl& cq)
     if (cv.isNull())
         _outn("0, /* value */");
     else
-        _outn("&%s,", *Str(vn));
+        _outn("&%s_value,", *Str(path));
 
     // SourceQualifierDecl.size:
 
     _outn("%u, /* size */", size);
 
     _indent--;
+    _outn("};");
+    _nl();
+}
+
+template<class C>
+Array<CIMConstQualifier> _Qualifiers(const C& c)
+{
+    Array<CIMConstQualifier> tmp;
+
+    for (Uint32 i = 0; i < c.getQualifierCount(); i++)
+        tmp.append(c.getQualifier(i));
+
+    return tmp;
+}
+
+void cimmofSourceConsumer::_writeQualifierArray(
+    const String& root,
+    const Array<CIMConstQualifier>& qualifiers)
+{
+    _outn("static SourceQualifier*");
+    _outn("%s_qualifiers[] =", *Str(root));
+    _outn("{");
+
+    for (Uint32 i = 0; i < qualifiers.size(); i++)
+    {
+        CIMConstQualifier cq = qualifiers[i];
+        CIMName qn = cq.getName();
+
+        if (_discard && qn == "Description")
+            continue;
+
+#if 0
+        if (qn == "Values" || qn == "ValueMap")
+            continue;
+#endif
+
+        if (cq.getType() == CIMTYPE_BOOLEAN && !cq.isArray())
+            continue;
+
+        _outn("    &%s_%s_qualifier,", *Str(root), *Str(cq.getName()));
+    }
+
+    _outn("    0,");
+
     _outn("};");
     _nl();
 }
@@ -1161,7 +1294,19 @@ void cimmofSourceConsumer::_writeProperty(
     CIMName pn = cp.getName();
     CIMType ct = cp.getType();
 
-    _outn("static SourceProperty _%s_%s =", *Str(cn), *Str(pn));
+    String path = "_" + cn.getString() + "_" + pn.getString();
+
+    // Write qualifiers:
+
+    for (Uint32 i = 0; i < cp.getQualifierCount(); i++)
+        _writeQualifier(_qualifiers, path, cp.getQualifier(i));
+
+    _writeQualifierArray(path, _Qualifiers(cp));
+
+    // Header:
+
+    _outn("static SourceProperty");
+    _outn("%s =", *Str(path));
     _outn("{");
     _indent++;
 
@@ -1175,9 +1320,9 @@ void cimmofSourceConsumer::_writeProperty(
 
     _outn("\"%s\", /* name */", *Str(pn));
 
-    // SourceProperty.description:
+    // SourceProperty.qualifiers:
 
-    _writeDescription(_os, cp);
+    _outn("%s_qualifiers, /* qualifiers */", *Str(path));
 
     // SourceProperty.type:
 
@@ -1210,8 +1355,6 @@ void cimmofSourceConsumer::_writeProperty(
     _indent--;
     _outn("};");
     _nl();
-
-    // ATTN: define qualifiers:
 }
 
 void cimmofSourceConsumer::_writeParameter(
@@ -1222,7 +1365,16 @@ void cimmofSourceConsumer::_writeParameter(
     CIMName pn = cp.getName();
     CIMType ct = cp.getType();
 
-    _outn("static SourceProperty _%s_%s_%s =", *Str(cn), *Str(mn), *Str(pn));
+    String path = 
+        "_" + cn.getString() + "_" + mn.getString() + "_" + pn.getString();
+
+    for (Uint32 i = 0; i < cp.getQualifierCount(); i++)
+        _writeQualifier(_qualifiers, path, cp.getQualifier(i));
+
+    _writeQualifierArray(path, _Qualifiers(cp));
+
+    _outn("static SourceProperty");
+    _outn("%s =", *Str(path));
     _outn("{");
     _indent++;
 
@@ -1236,9 +1388,9 @@ void cimmofSourceConsumer::_writeParameter(
 
     _outn("\"%s\", /* name */", *Str(pn));
 
-    // SourceProperty.description:
+    // SourceProperty.qualifiers:
 
-    _writeDescription(_os, cp);
+    _outn("%s_qualifiers, /* qualifiers */", *Str(path));
 
     // SourceProperty.type:
 
@@ -1271,8 +1423,6 @@ void cimmofSourceConsumer::_writeParameter(
     _indent--;
     _outn("};");
     _nl();
-
-    // ATTN: define qualifiers:
 }
 
 void cimmofSourceConsumer::_writeMethod(
@@ -1294,7 +1444,8 @@ void cimmofSourceConsumer::_writeMethod(
 
     // Write parameters array:
 
-    _outn("static SourceProperty* _%s_%s_parameters[] =", *Str(cn), *Str(mn));
+    _outn("static SourceProperty*");
+    _outn("_%s_%s_parameters[] =", *Str(cn), *Str(mn));
     _outn("{");
     _indent++;
 
@@ -1311,7 +1462,15 @@ void cimmofSourceConsumer::_writeMethod(
 
     // Method header:
 
-    _outn("static SourceMethod _%s_%s =", *Str(cn), *Str(mn));
+    String path = "_" + cn.getString() + "_" + mn.getString();
+
+    for (Uint32 i = 0; i < cm.getQualifierCount(); i++)
+        _writeQualifier(_qualifiers, path, cm.getQualifier(i));
+
+    _writeQualifierArray(path, _Qualifiers(cm));
+
+    _outn("static SourceMethod");
+    _outn("%s =", *Str(path));
     _outn("{");
     _indent++;
 
@@ -1325,11 +1484,9 @@ void cimmofSourceConsumer::_writeMethod(
 
     _outn("\"%s\", /* name */", *Str(cn));
 
-    // SourceMethod.description:
+    // SourceMethod.qualifiers:
 
-    _writeDescription(_os, cm);
-
-    // SourceMethod.type:
+    _outn("%s_qualifiers, /* qualifiers */", *Str(path));
 
     // SourceProperty.type:
 
@@ -1395,7 +1552,8 @@ void cimmofSourceConsumer::_writeClass(
 
     // Write feature array:
 
-    _outn("static SourceFeature* _%s_features[] =", *Str(cn));
+    _outn("static SourceFeature*");
+    _outn("_%s_features[] =", *Str(cn));
     _outn("{");
     _indent++;
 
@@ -1412,7 +1570,15 @@ void cimmofSourceConsumer::_writeClass(
 
     // Class header:
 
-    _outn("static SourceClass _%s =", *Str(cn));
+    String path = "_" + cn.getString();
+
+    for (Uint32 i = 0; i < cc.getQualifierCount(); i++)
+        _writeQualifier(_qualifiers, path, cc.getQualifier(i));
+
+    _writeQualifierArray(path, _Qualifiers(cc));
+
+    _outn("static SourceClass");
+    _outn("%s =", *Str(path));
     _outn("{");
     _indent++;
 
@@ -1432,9 +1598,9 @@ void cimmofSourceConsumer::_writeClass(
 
     _outn("\"%s\", /* name */", *Str(cn));
 
-    // SourceClass.description:
+    // SourceClass.qualifiers:
 
-    _writeDescription(_os, cc);
+    _outn("%s_qualifiers, /* qualifiers */", *Str(path));
 
     // SourceClass.super:
 
@@ -1480,13 +1646,14 @@ void cimmofSourceConsumer::_writeNameSpace(const CIMNamespaceName& nameSpace)
     _box(_os, "Qualifier array");
     _nl();
 
-    _outn("static SourceQualifierDecl* _qualifiers[] =");
+    _outn("static SourceQualifierDecl*");
+    _outn("_qualifiers[] =");
     _outn("{");
     _indent++;
 
     for (Uint32 i = 0; i < _qualifiers.size(); i++)
     {
-        _outn("&_%s_qualifier,", *Str(_qualifiers[i].getName()));
+        _outn("&_%s_qualifier_decl,", *Str(_qualifiers[i].getName()));
     }
 
     _outn("0,");
@@ -1500,7 +1667,8 @@ void cimmofSourceConsumer::_writeNameSpace(const CIMNamespaceName& nameSpace)
     _box(_os, "Class array");
     _nl();
 
-    _outn("static SourceClass* _classes[] =");
+    _outn("static SourceClass*");
+    _outn("_classes[] =");
     _outn("{");
     _indent++;
 

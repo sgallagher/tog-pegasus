@@ -95,7 +95,6 @@ STATIC=1
 LIBRARY = pegrepository
 
 SOURCES = \
-    root_cimv2_namespace.cpp \
     SourceTypes.cpp \
     InstanceIndexFile.cpp \
     InstanceDataFile.cpp \

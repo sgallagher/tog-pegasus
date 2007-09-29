@@ -1282,6 +1282,7 @@ void cimmofSourceConsumer::_writeProperty(
 {
     CIMName pn = cp.getName();
     CIMType ct = cp.getType();
+    CIMValue cv = cp.getValue();
 
     String path = "_" + cn.getString() + "_" + pn.getString();
 
@@ -1291,14 +1292,23 @@ void cimmofSourceConsumer::_writeProperty(
 
     // Header:
 
-    _outn("static SourceProperty");
+    if (ct == CIMTYPE_REFERENCE)
+        _outn("static SourceReference");
+    else
+        _outn("static SourceProperty");
+
     _outn("%s =", *Str(path));
     _outn("{");
 
     // SourceProperty.flags:
 
     _outn("    /* flags */");
-    _out("    PEGASUS_FLAG_PROPERTY");
+
+    if (ct == CIMTYPE_REFERENCE)
+        _out("    PEGASUS_FLAG_PROPERTY");
+    else
+        _out("    PEGASUS_FLAG_REFERENCE");
+
     _writeFlags(_os, cp, true, false);
     fprintf(_os, ",\n");
 
@@ -1314,8 +1324,11 @@ void cimmofSourceConsumer::_writeProperty(
 
     // SourceProperty.type:
 
-    _outn("    /* type */");
-    _outn("    %s,", _typeNames[ct]);
+    if (ct != CIMTYPE_REFERENCE)
+    {
+        _outn("    /* type */");
+        _outn("    %s,", _typeNames[ct]);
+    }
 
     // SourceProperty.subscript:
 
@@ -1331,18 +1344,23 @@ void cimmofSourceConsumer::_writeProperty(
         _outn("    -1,");
     }
 
-    // SourceProperty.refClass:
-
-    _outn("    /* refClass */");
+    // SourceReference.refClass:
 
     if (ct == CIMTYPE_REFERENCE)
     {
         const CIMName& rcn = cp.getReferenceClassName();
+        _outn("    /* refClass */");
         _outn("    &_%s,", *Str(rcn));
     }
-    else
+
+    // SourceQualifierDecl.value:
+
+    if (ct != CIMTYPE_REFERENCE)
     {
-        _outn("    0,");
+        _outn("    /* value */");
+        _out("    ");
+        _writeValue(_os, cv, true);
+        _outn(",");
     }
 
     _outn("};");
@@ -1362,7 +1380,11 @@ void cimmofSourceConsumer::_writeParameter(
 
     _writeQualifierArray(path, _Qualifiers(cp));
 
-    _outn("static SourceProperty");
+    if (ct == CIMTYPE_REFERENCE)
+        _outn("static SourceReference");
+    else
+        _outn("static SourceProperty");
+
     _outn("%s =", *Str(path));
     _outn("{");
 
@@ -1370,7 +1392,11 @@ void cimmofSourceConsumer::_writeParameter(
 
     _outn("    /* flags */");
 
-    _out("    PEGASUS_FLAG_PROPERTY");
+    if (ct == CIMTYPE_REFERENCE)
+        _out("    PEGASUS_FLAG_PROPERTY");
+    else
+        _out("    PEGASUS_FLAG_REFERENCE");
+
     _writeFlags(_os, cp, false, true);
     fprintf(_os, ",\n");
 
@@ -1386,8 +1412,11 @@ void cimmofSourceConsumer::_writeParameter(
 
     // SourceProperty.type:
 
-    _outn("    /* type */");
-    _outn("    %s,", _typeNames[ct]);
+    if (ct != CIMTYPE_REFERENCE)
+    {
+        _outn("    /* type */");
+        _outn("    %s,", _typeNames[ct]);
+    }
 
     // SourceProperty.subscript:
 
@@ -1405,15 +1434,18 @@ void cimmofSourceConsumer::_writeParameter(
 
     // SourceProperty.refClass:
 
-    _outn("    /* refClass */");
-
     if (ct == CIMTYPE_REFERENCE)
     {
         const CIMName& rcn = cp.getReferenceClassName();
+        _outn("    /* refClass */");
         _outn("    &_%s,", *Str(rcn));
     }
-    else
+
+    // SourceQualifierDecl.value:
+
+    if (ct != CIMTYPE_REFERENCE)
     {
+        _outn("    /* value */");
         _outn("    0,");
     }
 
@@ -1447,7 +1479,7 @@ void cimmofSourceConsumer::_writeMethod(
     for (Uint32 i = 0; i < parameterNames.size(); i++)
     {
         const CIMName& pn = parameterNames[i];
-        _outn("    &_%s_%s_%s,", *Str(cn), *Str(mn), *Str(pn));
+        _outn("    (SourceProperty*)&_%s_%s_%s,", *Str(cn), *Str(mn), *Str(pn));
     }
 
     _outn("    0,");

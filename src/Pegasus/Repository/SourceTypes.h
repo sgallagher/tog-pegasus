@@ -90,16 +90,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct SourceQualifierDecl
-{
-    char* name;
-    Uint16 type;
-    Sint16 subscript;
-    Uint16 scope;
-    Uint16 flavor;
-    const char* value;
-};
-
 struct SourceFeature
 {
     Uint32 flags;
@@ -107,9 +97,9 @@ struct SourceFeature
     const char** qualifiers;
 };
 
-struct SourceProperty
+struct SourceProperty /* extends SourceFeature */
 {
-    // Inherited fields (from SourceFeature):
+    // Inherited fields:
     Uint32 flags;
     char* name;
     const char** qualifiers;
@@ -117,11 +107,24 @@ struct SourceProperty
     // Local fields:
     Uint16 type;
     Sint16 subscript;
+    const char* value;
+};
+
+struct SourceReference /* extends SourceFeature */
+{
+    // Inherited fields:
+    Uint32 flags;
+    char* name;
+    const char** qualifiers;
+
+    // Local fields:
+    Sint16 subscript;
     struct SourceClass* refClass;
 };
 
-struct SourceMethod
+struct SourceMethod /* extends SourceFeature */
 {
+    // Inherited fields:
     Uint32 flags;
     char* name;
     const char** qualifiers;
@@ -138,6 +141,16 @@ struct SourceClass
     const char** qualifiers;
     SourceClass* super;
     SourceFeature** features;
+};
+
+struct SourceQualifierDecl
+{
+    char* name;
+    Uint16 type;
+    Sint16 subscript;
+    Uint16 scope;
+    Uint16 flavor;
+    const char* value;
 };
 
 struct SourceNameSpace

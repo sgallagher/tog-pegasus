@@ -38,40 +38,75 @@
 #include <Pegasus/Common/CIMType.h>
 #include "Linkage.h"
 
-#define PEGASUS_FLAG_PROPERTY (1 << 0)
-#define PEGASUS_FLAG_REFERENCE (1 << 1)
-#define PEGASUS_FLAG_METHOD (1 << 2)
-#define PEGASUS_FLAG_CLASS (1 << 3)
-#define PEGASUS_FLAG_ABSTRACT (1 << 4)
-#define PEGASUS_FLAG_AGGREGATE (1 << 5)
-#define PEGASUS_FLAG_AGGREGATION (1 << 6)
-#define PEGASUS_FLAG_ASSOCIATION (1 << 7)
-#define PEGASUS_FLAG_COMPOSITION (1 << 8)
-#define PEGASUS_FLAG_COUNTER (1 << 9)
-#define PEGASUS_FLAG_DELETE (1 << 10)
-#define PEGASUS_FLAG_DN (1 << 11)
-#define PEGASUS_FLAG_EMBEDDEDOBJECT (1 << 12)
-#define PEGASUS_FLAG_EXCEPTION (1 << 13)
-#define PEGASUS_FLAG_EXPENSIVE (1 << 14)
-#define PEGASUS_FLAG_EXPERIMENTAL (1 << 15)
-#define PEGASUS_FLAG_GAUGE (1 << 16)
-#define PEGASUS_FLAG_IFDELETED (1 << 17)
-#define PEGASUS_FLAG_IN (1 << 18)
-#define PEGASUS_FLAG_INDICATION (1 << 19)
-#define PEGASUS_FLAG_INVISIBLE (1 << 20)
-#define PEGASUS_FLAG_KEY (1 << 21)
-#define PEGASUS_FLAG_LARGE (1 << 22)
-#define PEGASUS_FLAG_OCTETSTRING (1 << 23)
-#define PEGASUS_FLAG_OUT (1 << 24)
-#define PEGASUS_FLAG_READ (1 << 25)
-#define PEGASUS_FLAG_REQUIRED (1 << 26)
-#define PEGASUS_FLAG_STATIC (1 << 27)
-#define PEGASUS_FLAG_TERMINAL (1 << 28)
-#define PEGASUS_FLAG_WEAK (1 << 29)
-#define PEGASUS_FLAG_WRITE (1 << 30)
-#define PEGASUS_FLAG_EMBEDDEDINSTANCE (1 << 31)
+#define PEGASUS_FLAG_PROPERTY           (1 << 0)
+#define PEGASUS_FLAG_REFERENCE          (1 << 1)
+#define PEGASUS_FLAG_METHOD             (1 << 2)
+#define PEGASUS_FLAG_CLASS              (1 << 3)
+#define PEGASUS_FLAG_ABSTRACT           (1 << 4)
+#define PEGASUS_FLAG_AGGREGATE          (1 << 5)
+#define PEGASUS_FLAG_AGGREGATION        (1 << 6)
+#define PEGASUS_FLAG_ASSOCIATION        (1 << 7)
+#define PEGASUS_FLAG_COMPOSITION        (1 << 8)
+#define PEGASUS_FLAG_COUNTER            (1 << 9)
+#define PEGASUS_FLAG_DELETE             (1 << 10)
+#define PEGASUS_FLAG_DN                 (1 << 11)
+#define PEGASUS_FLAG_EMBEDDEDOBJECT     (1 << 12)
+#define PEGASUS_FLAG_EXCEPTION          (1 << 13)
+#define PEGASUS_FLAG_EXPENSIVE          (1 << 14)
+#define PEGASUS_FLAG_EXPERIMENTAL       (1 << 15)
+#define PEGASUS_FLAG_GAUGE              (1 << 16)
+#define PEGASUS_FLAG_IFDELETED          (1 << 17)
+#define PEGASUS_FLAG_IN                 (1 << 18)
+#define PEGASUS_FLAG_INDICATION         (1 << 19)
+#define PEGASUS_FLAG_INVISIBLE          (1 << 20)
+#define PEGASUS_FLAG_KEY                (1 << 21)
+#define PEGASUS_FLAG_LARGE              (1 << 22)
+#define PEGASUS_FLAG_OCTETSTRING        (1 << 23)
+#define PEGASUS_FLAG_OUT                (1 << 24)
+#define PEGASUS_FLAG_READ               (1 << 25)
+#define PEGASUS_FLAG_REQUIRED           (1 << 26)
+#define PEGASUS_FLAG_STATIC             (1 << 27)
+#define PEGASUS_FLAG_TERMINAL           (1 << 28)
+#define PEGASUS_FLAG_WEAK               (1 << 29)
+#define PEGASUS_FLAG_WRITE              (1 << 30)
+#define PEGASUS_FLAG_EMBEDDEDINSTANCE   (1 << 31)
+
+#define PEGASUS_SCOPE_SCHEMA            (1 << 0)
+#define PEGASUS_SCOPE_CLASS             (1 << 1)
+#define PEGASUS_SCOPE_ASSOCIATION       (1 << 2)
+#define PEGASUS_SCOPE_INDICATION        (1 << 3)
+#define PEGASUS_SCOPE_PROPERTY          (1 << 4)
+#define PEGASUS_SCOPE_REFERENCE         (1 << 5)
+#define PEGASUS_SCOPE_METHOD            (1 << 6)
+#define PEGASUS_SCOPE_PARAMETER         (1 << 7)
+#define PEGASUS_SCOPE_ANY               (1|2|4|8|16|32|64|128)
+
+#define PEGASUS_FLAVOR_OVERRIDABLE      (1 << 0)
+#define PEGASUS_FLAVOR_TOSUBCLASS       (1 << 1)
+#define PEGASUS_FLAVOR_TOINSTANCE       (1 << 2)
+#define PEGASUS_FLAVOR_TRANSLATABLE     (1 << 3)
+#define PEGASUS_FLAVOR_DISABLEOVERRIDE  (1 << 4)
+#define PEGASUS_FLAVOR_RESTRICTED       (1 << 5)
 
 PEGASUS_NAMESPACE_BEGIN
+
+template<class T>
+struct SourceArray
+{
+    T* elements;
+    Uint32 size;
+};
+
+struct SourceQualifierDecl
+{
+    char* name;
+    Uint16 type;
+    Sint16 subscript;
+    Uint16 scope;
+    Uint16 flavor;
+    void* value;
+    Uint32 size;
+};
 
 struct SourceFeature
 {
@@ -84,6 +119,7 @@ struct SourceProperty
     // Inherited fields (from SourceFeature):
     Uint32 flags;
     char* name;
+    char* description;
 
     // Local fields:
     Uint16 type;
@@ -93,20 +129,20 @@ struct SourceProperty
 
 struct SourceMethod
 {
-    // Inherited fields (from SourceFeature):
     Uint32 flags;
     char* name;
+    char* description;
 
     // Local fields:
-    Uint32 type;
-    SourceFeature** features;
-    Uint32 numFeatures;
+    Uint16 type;
+    SourceProperty** parameters;
 };
 
 struct SourceClass
 {
     Uint32 flags;
     char* name;
+    char* description;
     SourceClass* super;
     SourceFeature** features;
 };
@@ -114,6 +150,7 @@ struct SourceClass
 struct SourceNameSpace
 {
     char* nameSpace;
+    SourceQualifierDecl** qualifiers;
     SourceClass** classes;
 };
 
@@ -121,8 +158,6 @@ struct SourceRepository
 {
     SourceNameSpace** nameSpaces;
 };
-
-PEGASUS_REPOSITORY_LINKAGE size_t FlagNameToIndex(const char* name);
 
 PEGASUS_NAMESPACE_END
 

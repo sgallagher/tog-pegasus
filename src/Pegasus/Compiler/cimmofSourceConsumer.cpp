@@ -37,6 +37,9 @@
 #include <Pegasus/Repository/SourceTypes.h>
 #include "cimmofSourceConsumer.h"
 
+#define PEGASUS_LLD "%" PEGASUS_64BIT_CONVERSION_WIDTH "d"
+#define PEGASUS_LLU "%" PEGASUS_64BIT_CONVERSION_WIDTH "u"
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -114,39 +117,34 @@ static void _box(FILE* os, const char* format, ...)
     _line(os);
 }
 
-static void _writeHeaderFile()
+static void _writeHeaderFile(const String& ns)
 {
-    const char text[] =
-        "#ifndef _repository_h\n"
-        "#define _repository_h\n"
+    const char format[] =
+        "#ifndef _%s_namespace_h\n"
+        "#define _%s_namespace_h\n"
         "\n"
         "#include <Pegasus/Repository/SourceTypes.h>\n"
         "\n"
         "PEGASUS_NAMESPACE_BEGIN\n"
         "\n"
-        "extern SourceRepository* source_repository;\n"
+        "extern const SourceNameSpace %s_namespace;\n"
         "\n"
         "PEGASUS_NAMESPACE_END\n"
         "\n"
-        "#endif /* _repository_h */\n"
+        "#endif /* _%s_namespace_h */\n"
         ;
 
-    const char PATH[] = "repository.h";
-    FILE* os = fopen(PATH, "wb");
+    String path = ns + "_namespace.h";
+    FILE* os = fopen(*Str(path), "wb");
 
     if (!os)
     {
-        fprintf(stderr, "cimmofl: failed to open \"%s\" for write\n", PATH);
+        fprintf(stderr, "cimmofl: failed to open \"%s\" for write\n", 
+            *Str(path));
         exit(1);
     }
 
-    size_t n = sizeof(text) - 1;
-
-    if (fwrite(text, 1, n, os) != n)
-    {
-        fprintf(stderr, "cimmofl: failed to write\"%s\"\n", PATH);
-        exit(1);
-    }
+    fprintf(os, format, *Str(ns), *Str(ns), *Str(ns), *Str(ns));
 
     fclose(os);
 }
@@ -193,6 +191,17 @@ static const char* _typeNames[] =
     "CIMTYPE_INSTANCE",
 };
 
+static bool _is_printable(const char* s)
+{
+    for (; *s; s++)
+    {
+        if (!isprint(*s))
+            return false;
+    }
+
+    return true;
+}
+
 //==============================================================================
 //
 // cimmofSourceConsumer
@@ -211,13 +220,13 @@ void cimmofSourceConsumer::addClass(
     const CIMNamespaceName& nameSpace,
     CIMClass& cimClass)
 {
-    if (_findClass(nameSpace, cimClass.getClassName()) != PEG_NOT_FOUND)
+    if (_findClass(cimClass.getClassName()) != PEG_NOT_FOUND)
     {
         _throw(CIM_ERR_ALREADY_EXISTS, "class already defined: %s:%s", 
             *Str(nameSpace), *Str(cimClass.getClassName()));
     }
 
-    _classes.append(Class(nameSpace, cimClass));
+    _classes.append(cimClass);
 }
 
 void cimmofSourceConsumer::addQualifier(
@@ -230,7 +239,7 @@ void cimmofSourceConsumer::addQualifier(
             *Str(nameSpace), *Str(cimQualifierDecl.getName()));
     }
 
-    _qualifiers.append(Qualifier(nameSpace, cimQualifierDecl));
+    _qualifiers.append(cimQualifierDecl);
 }
 
 void cimmofSourceConsumer::addInstance(
@@ -252,14 +261,14 @@ CIMQualifierDecl cimmofSourceConsumer::getQualifierDecl(
             "undefined qualifier: %s:%s", *Str(nameSpace), *Str(qualifierName));
     }
 
-    return _qualifiers[pos].second;
+    return _qualifiers[pos];
 }
 
 CIMClass cimmofSourceConsumer::getClass(
     const CIMNamespaceName& nameSpace,
     const CIMName& className)
 {
-    Uint32 pos = _findClass(nameSpace, className);
+    Uint32 pos = _findClass(className);
 
     if (pos == PEG_NOT_FOUND)
     {
@@ -267,14 +276,14 @@ CIMClass cimmofSourceConsumer::getClass(
             "undefined class: %s:%s", *Str(nameSpace), *Str(className));
     }
 
-    return _classes[pos].second;
+    return _classes[pos];
 }
 
 void cimmofSourceConsumer::modifyClass(
     const CIMNamespaceName& nameSpace,
     CIMClass& cimClass)
 {
-    Uint32 pos = _findClass(nameSpace, cimClass.getClassName());
+    Uint32 pos = _findClass(cimClass.getClassName());
 
     if (pos == PEG_NOT_FOUND)
     {
@@ -282,19 +291,24 @@ void cimmofSourceConsumer::modifyClass(
             *Str(nameSpace), *Str(cimClass.getClassName()));
     }
 
-    _classes[pos].second = cimClass;
+    _classes[pos] = cimClass;
 }
 
 void cimmofSourceConsumer::createNameSpace(
     const CIMNamespaceName& nameSpace)
 {
-    if (_findNameSpace(nameSpace) != PEG_NOT_FOUND)
+    if (_nameSpace == nameSpace)
     {
         _throw(CIM_ERR_ALREADY_EXISTS, "namespace already exists: %s", 
             *Str(nameSpace));
     }
 
-    _nameSpaces.append(nameSpace.getString());
+    if (!_nameSpace.isNull())
+    {
+        _throw(CIM_ERR_FAILED, "cannot create more than one namespace");
+    }
+
+    _nameSpace = nameSpace;
 }
 
 void cimmofSourceConsumer::start()
@@ -303,18 +317,21 @@ void cimmofSourceConsumer::start()
 
 void cimmofSourceConsumer::finish()
 {
+    String ns = _makeIdent(_nameSpace.getString());
+
     // Write header file:
 
-    _writeHeaderFile();
+    _writeHeaderFile(ns);
 
     // Open source file:
 
-    const char PATH[] = "repository.cpp";
-    _os = fopen(PATH, "wb");
+    String path = ns + "_namespace.cpp";
+    _os = fopen(*Str(path), "wb");
 
     if (!_os)
     {
-        fprintf(stderr, "cimmofl: failed to open \"%s\" for write\n", PATH);
+        fprintf(stderr, "cimmofl: failed to open \"%s\" for write\n", 
+            *Str(path));
         exit(1);
     }
 
@@ -322,38 +339,30 @@ void cimmofSourceConsumer::finish()
 
     _writeSourcePrologue();
 
-    // Write each namespace:
+    // Write namespace:
 
-    for (Uint32 i = 0; i < _nameSpaces.size(); i++)
-        _writeNameSpace(_nameSpaces[i]);
+    _writeNameSpace(_nameSpace);
 
     // Write epilogue:
 
     _writeSourceEpilogue();
+
+    // Close file:
+
+    fclose(_os);
+
+    // Write messages:
+
+    printf("Created %s_namespace.h\n", *Str(ns));
+    printf("Created %s_namespace.cpp\n", *Str(ns));
+    printf("\n");
 }
 
-Uint32 cimmofSourceConsumer::_findNameSpace(
-    const CIMNamespaceName& nameSpace) const
-{
-    for (Uint32 i = 0; i < _nameSpaces.size(); i++)
-    {
-        if (_nameSpaces[i] == nameSpace)
-            return i;
-    }
-
-    // Not found!
-    return PEG_NOT_FOUND;
-}
-
-Uint32 cimmofSourceConsumer::_findClass(
-    const CIMNamespaceName& nameSpace, 
-    const CIMName& className) const
+Uint32 cimmofSourceConsumer::_findClass(const CIMName& className) const
 {
     for (Uint32 i = 0; i < _classes.size(); i++)
     {
-        const Class& c = _classes[i];
-
-        if (c.first == nameSpace && c.second.getClassName() == className)
+        if (_classes[i].getClassName() == className)
             return i;
     }
 
@@ -367,9 +376,7 @@ Uint32 cimmofSourceConsumer::_findQualifier(
 {
     for (Uint32 i = 0; i < _qualifiers.size(); i++)
     {
-        const Qualifier& q = _qualifiers[i];
-
-        if (q.first == nameSpace && q.second.getName() == qualifierName)
+        if (_qualifiers[i].getName() == qualifierName)
             return i;
     }
 
@@ -379,7 +386,10 @@ Uint32 cimmofSourceConsumer::_findQualifier(
 
 void cimmofSourceConsumer::_writeSourcePrologue()
 {
-    _outn("#include \"repository.h\"");
+    String ns = _makeIdent(_nameSpace.getString());
+    String path = ns + "_namespace.h";
+
+    _outn("#include \"%s\"", *Str(path));
     _nl();
     _outn("PEGASUS_NAMESPACE_BEGIN");
     _nl();
@@ -426,159 +436,163 @@ static void _writeFlags(
             else
                 flags &= ~PEGASUS_FLAG_KEY;
         }
-        if (System::strcasecmp(*Str(qn), "IN") == 0)
+        else if (System::strcasecmp(*Str(qn), "IN") == 0)
         {
             if (x)
                 flags |= PEGASUS_FLAG_IN;
             else
                 flags &= ~PEGASUS_FLAG_IN;
         }
-        if (System::strcasecmp(*Str(qn), "OUT") == 0)
+        else if (System::strcasecmp(*Str(qn), "OUT") == 0)
         {
             if (x)
                 flags |= PEGASUS_FLAG_OUT;
             else
                 flags &= ~PEGASUS_FLAG_OUT;
         }
-        if (System::strcasecmp(*Str(qn), "ABSTRACT") == 0)
+        else if (System::strcasecmp(*Str(qn), "ABSTRACT") == 0)
         {
             if (x)
                 flags |= PEGASUS_FLAG_ABSTRACT;
             else
                 flags &= ~PEGASUS_FLAG_ABSTRACT;
         }
-        if (System::strcasecmp(*Str(qn), "AGGREGATE") == 0)
+        else if (System::strcasecmp(*Str(qn), "AGGREGATE") == 0)
         {
             if (x)
                 flags |= PEGASUS_FLAG_AGGREGATE;
             else
                 flags &= ~PEGASUS_FLAG_AGGREGATE;
         }
-        if (System::strcasecmp(*Str(qn), "AGGREGATION") == 0)
+        else if (System::strcasecmp(*Str(qn), "AGGREGATION") == 0)
         {
             if (x)
                 flags |= PEGASUS_FLAG_AGGREGATION;
             else
                 flags &= ~PEGASUS_FLAG_AGGREGATION;
         }
-        if (System::strcasecmp(*Str(qn), "COUNTER") == 0)
+        else if (System::strcasecmp(*Str(qn), "COUNTER") == 0)
         {
             if (x)
                 flags |= PEGASUS_FLAG_COUNTER;
             else
                 flags &= ~PEGASUS_FLAG_COUNTER;
         }
-        if (System::strcasecmp(*Str(qn), "DELETE") == 0)
+        else if (System::strcasecmp(*Str(qn), "DELETE") == 0)
         {
             if (x)
                 flags |= PEGASUS_FLAG_DELETE;
             else
                 flags &= ~PEGASUS_FLAG_DELETE;
         }
-        if (System::strcasecmp(*Str(qn), "DN") == 0)
+        else if (System::strcasecmp(*Str(qn), "DN") == 0)
         {
             if (x)
                 flags |= PEGASUS_FLAG_DN;
             else
                 flags &= ~PEGASUS_FLAG_DN;
         }
-        if (System::strcasecmp(*Str(qn), "EMBEDDEDOBJECT") == 0)
+        else if (System::strcasecmp(*Str(qn), "EMBEDDEDOBJECT") == 0)
         {
             if (x)
                 flags |= PEGASUS_FLAG_EMBEDDEDOBJECT;
             else
                 flags &= ~PEGASUS_FLAG_EMBEDDEDOBJECT;
         }
-        if (System::strcasecmp(*Str(qn), "EXPENSIVE") == 0)
+        else if (System::strcasecmp(*Str(qn), "EXPENSIVE") == 0)
         {
             if (x)
                 flags |= PEGASUS_FLAG_EXPENSIVE;
             else
                 flags &= ~PEGASUS_FLAG_EXPENSIVE;
         }
-        if (System::strcasecmp(*Str(qn), "EXPERIMENTAL") == 0)
+        else if (System::strcasecmp(*Str(qn), "EXPERIMENTAL") == 0)
         {
             if (x)
                 flags |= PEGASUS_FLAG_EXPERIMENTAL;
             else
                 flags &= ~PEGASUS_FLAG_EXPERIMENTAL;
         }
-        if (System::strcasecmp(*Str(qn), "GAUGE") == 0)
+        else if (System::strcasecmp(*Str(qn), "GAUGE") == 0)
         {
             if (x)
                 flags |= PEGASUS_FLAG_GAUGE;
             else
                 flags &= ~PEGASUS_FLAG_GAUGE;
         }
-        if (System::strcasecmp(*Str(qn), "IFDELETED") == 0)
+        else if (System::strcasecmp(*Str(qn), "IFDELETED") == 0)
         {
             if (x)
                 flags |= PEGASUS_FLAG_IFDELETED;
             else
                 flags &= ~PEGASUS_FLAG_IFDELETED;
         }
-        if (System::strcasecmp(*Str(qn), "INVISIBLE") == 0)
+        else if (System::strcasecmp(*Str(qn), "INVISIBLE") == 0)
         {
             if (x)
                 flags |= PEGASUS_FLAG_INVISIBLE;
             else
                 flags &= ~PEGASUS_FLAG_INVISIBLE;
         }
-        if (System::strcasecmp(*Str(qn), "LARGE") == 0)
+        else if (System::strcasecmp(*Str(qn), "LARGE") == 0)
         {
             if (x)
                 flags |= PEGASUS_FLAG_LARGE;
             else
                 flags &= ~PEGASUS_FLAG_LARGE;
         }
-        if (System::strcasecmp(*Str(qn), "OCTETSTRING") == 0)
+        else if (System::strcasecmp(*Str(qn), "OCTETSTRING") == 0)
         {
             if (x)
                 flags |= PEGASUS_FLAG_OCTETSTRING;
             else
                 flags &= ~PEGASUS_FLAG_OCTETSTRING;
         }
-        if (System::strcasecmp(*Str(qn), "READ") == 0)
+        else if (System::strcasecmp(*Str(qn), "READ") == 0)
         {
             if (x)
                 flags |= PEGASUS_FLAG_READ;
             else
                 flags &= ~PEGASUS_FLAG_READ;
         }
-        if (System::strcasecmp(*Str(qn), "REQUIRED") == 0)
+        else if (System::strcasecmp(*Str(qn), "REQUIRED") == 0)
         {
             if (x)
                 flags |= PEGASUS_FLAG_REQUIRED;
             else
                 flags &= ~PEGASUS_FLAG_REQUIRED;
         }
-        if (System::strcasecmp(*Str(qn), "STATIC") == 0)
+        else if (System::strcasecmp(*Str(qn), "STATIC") == 0)
         {
             if (x)
                 flags |= PEGASUS_FLAG_STATIC;
             else
                 flags &= ~PEGASUS_FLAG_STATIC;
         }
-        if (System::strcasecmp(*Str(qn), "TERMINAL") == 0)
+        else if (System::strcasecmp(*Str(qn), "TERMINAL") == 0)
         {
             if (x)
                 flags |= PEGASUS_FLAG_TERMINAL;
             else
                 flags &= ~PEGASUS_FLAG_TERMINAL;
         }
-        if (System::strcasecmp(*Str(qn), "WEAK") == 0)
+        else if (System::strcasecmp(*Str(qn), "WEAK") == 0)
         {
             if (x)
                 flags |= PEGASUS_FLAG_WEAK;
             else
                 flags &= ~PEGASUS_FLAG_WEAK;
         }
-        if (System::strcasecmp(*Str(qn), "WRITE") == 0)
+        else if (System::strcasecmp(*Str(qn), "WRITE") == 0)
         {
             if (x)
                 flags |= PEGASUS_FLAG_WRITE;
             else
                 flags &= ~PEGASUS_FLAG_WRITE;
+        }
+        else
+        {
+            // ATTN: Composition qualifier not handled (no more room in mask).
         }
     }
 
@@ -632,16 +646,522 @@ static void _writeFlags(
         fprintf(os, "|PEGASUS_FLAG_WRITE");
 }
 
+static void _writeStringLiteral(FILE* os, const char* s)
+{
+    size_t n = strlen(s);
+
+    fputc('"', os);
+
+    for (size_t i = 0; i < n; i++)
+    {
+        char c = s[i];
+
+        if (isprint(c) && c != '"')
+            fprintf(os, "%c", c);
+        else
+            fprintf(os, "\\%03o", c);
+    }
+
+    fputc('"', os);
+}
+
+template<class C>
+static void _writeDescription(
+    FILE* os, 
+    const C& c)
+{
+#if defined(PEGASUS_INCLUDE_DESCRIPTIONS) || 1
+    Uint32 pos = c.findQualifier("Description");
+
+    if (pos != PEG_NOT_FOUND)
+    {
+        CIMConstQualifier cq = c.getQualifier(pos);
+        const CIMValue& cv = cq.getValue();
+
+        if (cv.getType() == CIMTYPE_STRING)
+        {
+            String x;
+            cv.get(x);
+
+            fprintf(os, "    ");
+            _writeStringLiteral(os, *Str(x));
+            fprintf(os, ",\n");
+            return;
+        }
+    }
+
+#endif /* defined(PEGASUS_INCLUDE_DESCRIPTIONS) */
+
+    fprintf(os, "    0, /* description */\n");
+}
+
+void cimmofSourceConsumer::_writeValue(
+    const String& name, 
+    const CIMValue& cv,
+    Uint32& size)
+{
+    size = 0;
+
+    if (cv.isNull())
+        return;
+
+    static const char* _typeStrings[] =
+    {
+        "bool",
+        "Uint8",
+        "Sint8",
+        "Uint16",
+        "Sint16",
+        "Uint32",
+        "Sint32",
+        "Uint64",
+        "Sint64",
+        "Real32",
+        "Real64",
+        "Uint16", /* CHAR16 */
+        "const char*", /* STRING */
+        "const char*", /* DATETIME */
+        "__not_supported__", /* REFERENCE */
+        "__not_supported__", /* OBJECT */
+        "__not_supported__", /* INSTANCE */
+    };
+
+    if (cv.isArray())
+    {
+        _outn("static %s %s[] =", _typeStrings[cv.getType()], *Str(name));
+        _outn("{");
+        _indent++;
+
+        switch (cv.getType())
+        {
+            case CIMTYPE_BOOLEAN:
+            {
+                Array<Boolean> x;
+                cv.get(x);
+
+                for (Uint8 i = 0; i < x.size(); i++)
+                    _outn("%s,", x[i] ? "true" : "false");
+
+                size = x.size();
+                break;
+            }
+
+            case CIMTYPE_UINT8:
+            {
+                Array<Uint8> x;
+                cv.get(x);
+
+                for (Uint8 i = 0; i < x.size(); i++)
+                    _outn("%u,", x[i]);
+
+                size = x.size();
+                break;
+            }
+
+            case CIMTYPE_SINT8:
+            {
+                Array<Sint8> x;
+                cv.get(x);
+
+                for (Uint8 i = 0; i < x.size(); i++)
+                    _outn("%d,", x[i]);
+
+                size = x.size();
+                break;
+            }
+
+            case CIMTYPE_UINT16:
+            {
+                Array<Uint16> x;
+                cv.get(x);
+
+                for (Uint16 i = 0; i < x.size(); i++)
+                    _outn("%u,", x[i]);
+
+                size = x.size();
+                break;
+            }
+
+            case CIMTYPE_SINT16:
+            {
+                Array<Sint16> x;
+                cv.get(x);
+
+                for (Uint16 i = 0; i < x.size(); i++)
+                    _outn("%d,", x[i]);
+
+                size = x.size();
+                break;
+            }
+
+            case CIMTYPE_UINT32:
+            {
+                Array<Uint32> x;
+                cv.get(x);
+
+                for (Uint32 i = 0; i < x.size(); i++)
+                    _outn("%u,", x[i]);
+
+                size = x.size();
+                break;
+            }
+
+            case CIMTYPE_SINT32:
+            {
+                Array<Sint32> x;
+                cv.get(x);
+
+                for (Uint32 i = 0; i < x.size(); i++)
+                    _outn("%d,", x[i]);
+
+                size = x.size();
+                break;
+            }
+
+            case CIMTYPE_UINT64:
+            {
+                Array<Uint64> x;
+                cv.get(x);
+
+                for (Uint64 i = 0; i < x.size(); i++)
+                    _outn(PEGASUS_LLU ",", x[i]);
+
+                size = x.size();
+                break;
+            }
+
+            case CIMTYPE_SINT64:
+            {
+                Array<Sint64> x;
+                cv.get(x);
+
+                for (Uint64 i = 0; i < x.size(); i++)
+                    _outn(PEGASUS_LLD ",", x[i]);
+
+                size = x.size();
+                break;
+            }
+
+            case CIMTYPE_REAL32:
+            {
+                Array<Real32> x;
+                cv.get(x);
+
+                for (Uint64 i = 0; i < x.size(); i++)
+                    _outn("%f,", x[i]);
+
+                size = x.size();
+                break;
+            }
+
+            case CIMTYPE_REAL64:
+            {
+                Array<Real64> x;
+                cv.get(x);
+
+                for (Uint64 i = 0; i < x.size(); i++)
+                    _outn("%lf,", x[i]);
+
+                size = x.size();
+                break;
+            }
+
+            case CIMTYPE_CHAR16:
+            {
+                Array<Char16> x;
+                cv.get(x);
+
+                for (Uint8 i = 0; i < x.size(); i++)
+                    _outn("%u,", Uint16(x[i]));
+
+                size = x.size();
+                break;
+            }
+
+            case CIMTYPE_STRING:
+            {
+                Array<String> x;
+                cv.get(x);
+
+                for (Uint8 i = 0; i < x.size(); i++)
+                {
+                    fprintf(_os, "    ");
+                    _writeStringLiteral(_os, *Str(x[i]));
+                    fprintf(_os, ",\n");
+                }
+
+                size = x.size();
+                break;
+            }
+
+            default:
+            {
+                assert("not implemented" == 0);
+                break;
+            }
+        }
+
+        _indent--;
+        _outn("};");
+    }
+    else
+    {
+        switch (cv.getType())
+        {
+            case CIMTYPE_BOOLEAN:
+            {
+                bool x;
+                cv.get(x);
+                _outn("static bool %s = %s;", *Str(name), x ? "true" : "false");
+                break;
+            }
+
+            case CIMTYPE_UINT8:
+            {
+                Uint8 x;
+                cv.get(x);
+                _outn("static Uint8 %s = %u;", *Str(name), x);
+                break;
+            }
+
+            case CIMTYPE_SINT8:
+            {
+                Sint8 x;
+                cv.get(x);
+                _outn("static Sint8 %s = %d;", *Str(name), x);
+                break;
+            }
+
+            case CIMTYPE_UINT16:
+            {
+                Uint16 x;
+                cv.get(x);
+                _outn("static Uint16 %s = %u;", *Str(name), x);
+                break;
+            }
+
+            case CIMTYPE_SINT16:
+            {
+                Sint16 x;
+                cv.get(x);
+                _outn("static Sint16 %s = %d;", *Str(name), x);
+                break;
+            }
+
+            case CIMTYPE_UINT32:
+            {
+                Uint32 x;
+                cv.get(x);
+                _outn("static Uint32 %s = %u;", *Str(name), x);
+                break;
+            }
+
+            case CIMTYPE_SINT32:
+            {
+                Sint32 x;
+                cv.get(x);
+                _outn("static Sint32 %s = %d;", *Str(name), x);
+                break;
+            }
+
+            case CIMTYPE_UINT64:
+            {
+                Uint64 x;
+                cv.get(x);
+                _outn("static Uint64 %s = " PEGASUS_LLU ";", *Str(name), x);
+                break;
+            }
+
+            case CIMTYPE_SINT64:
+            {
+                Sint64 x;
+                cv.get(x);
+                _outn("static Sint64 %s = " PEGASUS_LLU ";", *Str(name), x);
+                break;
+            }
+
+            case CIMTYPE_REAL32:
+            {
+                Real32 x;
+                cv.get(x);
+                _outn("static Real32 %s = %f;", *Str(name), x);
+                break;
+            }
+
+            case CIMTYPE_REAL64:
+            {
+                Real64 x;
+                cv.get(x);
+                _outn("static Real64 %s = %lf;", *Str(name), x);
+                break;
+            }
+
+            case CIMTYPE_CHAR16:
+            {
+                Char16 x;
+                cv.get(x);
+                _outn("static Uint16 %s = %u;", *Str(name), Uint16(x));
+                break;
+            }
+
+            case CIMTYPE_STRING:
+            {
+                String x;
+                cv.get(x);
+                Str str(x);
+
+                _out("static const char* %s = ", *Str(name));
+                _writeStringLiteral(_os, str);
+                _outn(";");
+                break;
+            }
+
+            default:
+            {
+                assert("not implemented" == 0);
+                break;
+            }
+        }
+    }
+
+    _nl();
+}
+
+void cimmofSourceConsumer::_writeQualifierDecl(const CIMConstQualifierDecl& cq)
+{
+    CIMName qn = cq.getName();
+    CIMType qt = cq.getType();
+    const CIMValue& cv = cq.getValue();
+
+    // Write separe value definition (if any).
+
+    String vn = String("_") + qn.getString() + "_qualifier_value";
+    Uint32 size = 0;
+    _writeValue(vn, cv, size);
+
+    // Write SourceQualifierDecl header:
+
+    _outn("static SourceQualifierDecl _%s_qualifier =", *Str(qn));
+    _outn("{");
+    _indent++;
+
+    // SourceQualifierDecl.name:
+
+    _outn("\"%s\", /* name */", *Str(qn));
+
+    // SourceQualifierDecl.type:
+
+    _outn("%s, /* type */", _typeNames[qt]);
+
+    // SourceQualifierDecl.subscript:
+
+    if (cq.isArray())
+    {
+        Uint32 n = cq.getArraySize();
+        _outn("%u, /* subscript */", n);
+    }
+    else
+    {
+        _outn("-1, /* subscript */");
+    }
+
+    // SourceQualifierDecl.scope:
+    {
+        CIMScope scope = cq.getScope();
+        Array<String> scopes;
+
+        if (scope.hasScope(CIMScope::ANY))
+            scopes.append("PEGASUS_SCOPE_ANY");
+        else
+        {
+            if (scope.hasScope(CIMScope::CLASS))
+                scopes.append("PEGASUS_SCOPE_CLASS");
+            if (scope.hasScope(CIMScope::ASSOCIATION))
+                scopes.append("PEGASUS_SCOPE_ASSOCIATION");
+            if (scope.hasScope(CIMScope::INDICATION))
+                scopes.append("PEGASUS_SCOPE_INDICATION");
+            if (scope.hasScope(CIMScope::PROPERTY))
+                scopes.append("PEGASUS_SCOPE_PROPERTY");
+            if (scope.hasScope(CIMScope::REFERENCE))
+                scopes.append("PEGASUS_SCOPE_REFERENCE");
+            if (scope.hasScope(CIMScope::METHOD))
+                scopes.append("PEGASUS_SCOPE_METHOD");
+            if (scope.hasScope(CIMScope::PARAMETER))
+                scopes.append("PEGASUS_SCOPE_PARAMETER");
+        }
+
+        _indent--;
+        _out("    ");
+
+        for (Uint32 i = 0; i < scopes.size(); i++)
+        {
+            _out("%s", *Str(scopes[i]));
+
+            if (i + 1 != scopes.size())
+                _out("|");
+        }
+
+        _outn(",");
+        _indent++;
+    }
+
+    // SourceQualifierDecl.flavor:
+    {
+        CIMFlavor flavor = cq.getFlavor();
+        Array<String> flavors;
+
+        if (flavor.hasFlavor(CIMFlavor::OVERRIDABLE))
+            flavors.append("PEGASUS_FLAVOR_OVERRIDABLE");
+        if (flavor.hasFlavor(CIMFlavor::TOSUBCLASS))
+            flavors.append("PEGASUS_FLAVOR_TOSUBCLASS");
+        if (flavor.hasFlavor(CIMFlavor::TOINSTANCE))
+            flavors.append("PEGASUS_FLAVOR_TOINSTANCE");
+        if (flavor.hasFlavor(CIMFlavor::TRANSLATABLE))
+            flavors.append("PEGASUS_FLAVOR_TRANSLATABLE");
+        if (flavor.hasFlavor(CIMFlavor::DISABLEOVERRIDE))
+            flavors.append("PEGASUS_FLAVOR_DISABLEOVERRIDE");
+        if (flavor.hasFlavor(CIMFlavor::RESTRICTED))
+            flavors.append("PEGASUS_FLAVOR_RESTRICTED");
+
+        _indent--;
+        _out("    ");
+
+        for (Uint32 i = 0; i < flavors.size(); i++)
+        {
+            _out("%s", *Str(flavors[i]));
+
+            if (i + 1 != flavors.size())
+                _out("|");
+        }
+
+        _outn(",");
+        _indent++;
+    }
+
+    // SourceQualifierDecl.value:
+
+    if (cv.isNull())
+        _outn("0, /* value */");
+    else
+        _outn("&%s,", *Str(vn));
+
+    // SourceQualifierDecl.size:
+
+    _outn("%u, /* size */", size);
+
+    _indent--;
+    _outn("};");
+    _nl();
+}
+
 void cimmofSourceConsumer::_writeProperty(
-    const CIMNamespaceName& nameSpace,
     const CIMName& cn,
     const CIMConstProperty& cp)
 {
-    String ns = _makeIdent(nameSpace.getString());
     CIMName pn = cp.getName();
     CIMType ct = cp.getType();
 
-    _outn("static SourceProperty _%s__%s_%s =", *Str(ns), *Str(cn), *Str(pn));
+    _outn("static SourceProperty _%s_%s =", *Str(cn), *Str(pn));
     _outn("{");
     _indent++;
 
@@ -654,6 +1174,10 @@ void cimmofSourceConsumer::_writeProperty(
     // SourceProperty.name:
 
     _outn("\"%s\", /* name */", *Str(pn));
+
+    // SourceProperty.description:
+
+    _writeDescription(_os, cp);
 
     // SourceProperty.type:
 
@@ -676,7 +1200,7 @@ void cimmofSourceConsumer::_writeProperty(
     if (ct == CIMTYPE_REFERENCE)
     {
         const CIMName& rcn = cp.getReferenceClassName();
-        _outn("&_%s__%s, /* refClass */\n", *Str(ns), *Str(rcn));
+        _outn("&_%s, /* refClass */\n", *Str(rcn));
     }
     else
     {
@@ -691,17 +1215,14 @@ void cimmofSourceConsumer::_writeProperty(
 }
 
 void cimmofSourceConsumer::_writeParameter(
-    const CIMNamespaceName& nameSpace,
     const CIMName& cn,
     const CIMName& mn,
     const CIMConstParameter& cp)
 {
-    String ns = _makeIdent(nameSpace.getString());
     CIMName pn = cp.getName();
     CIMType ct = cp.getType();
 
-    _outn("static SourceProperty _%s__%s_%s_%s =", 
-        *Str(ns), *Str(cn), *Str(mn), *Str(pn));
+    _outn("static SourceProperty _%s_%s_%s =", *Str(cn), *Str(mn), *Str(pn));
     _outn("{");
     _indent++;
 
@@ -714,6 +1235,10 @@ void cimmofSourceConsumer::_writeParameter(
     // SourceProperty.name:
 
     _outn("\"%s\", /* name */", *Str(pn));
+
+    // SourceProperty.description:
+
+    _writeDescription(_os, cp);
 
     // SourceProperty.type:
 
@@ -736,7 +1261,7 @@ void cimmofSourceConsumer::_writeParameter(
     if (ct == CIMTYPE_REFERENCE)
     {
         const CIMName& rcn = cp.getReferenceClassName();
-        _outn("&_%s__%s, /* refClass */\n", *Str(ns), *Str(rcn));
+        _outn("&_%s, /* refClass */\n", *Str(rcn));
     }
     else
     {
@@ -751,11 +1276,9 @@ void cimmofSourceConsumer::_writeParameter(
 }
 
 void cimmofSourceConsumer::_writeMethod(
-    const CIMNamespaceName& nameSpace,
     const CIMName& cn,
     const CIMConstMethod& cm)
 {
-    String ns = _makeIdent(nameSpace.getString());
     CIMName mn = cm.getName();
 
     // Write parameter definitions:
@@ -765,22 +1288,20 @@ void cimmofSourceConsumer::_writeMethod(
     for (Uint32 i = 0; i < cm.getParameterCount(); i++)
     {
         CIMConstParameter cp = cm.getParameter(i);
-        _writeParameter(nameSpace, cn, mn, cp);
+        _writeParameter(cn, mn, cp);
         parameterNames.append(cp.getName());
     }
 
     // Write parameters array:
 
-    _outn("static SourceProperty* _%s__%s_%s_parameters[] =", 
-        *Str(ns), *Str(cn), *Str(mn));
+    _outn("static SourceProperty* _%s_%s_parameters[] =", *Str(cn), *Str(mn));
     _outn("{");
     _indent++;
 
     for (Uint32 i = 0; i < parameterNames.size(); i++)
     {
         const CIMName& pn = parameterNames[i];
-        _outn("&_%s__%s_%s_%s,", 
-            *Str(ns), *Str(cn), *Str(mn), *Str(pn));
+        _outn("&_%s_%s_%s,", *Str(cn), *Str(mn), *Str(pn));
     }
 
     _outn("0,");
@@ -790,7 +1311,7 @@ void cimmofSourceConsumer::_writeMethod(
 
     // Method header:
 
-    _outn("static SourceMethod _%s__%s_%s =", *Str(ns), *Str(cn), *Str(mn));
+    _outn("static SourceMethod _%s_%s =", *Str(cn), *Str(mn));
     _outn("{");
     _indent++;
 
@@ -804,6 +1325,10 @@ void cimmofSourceConsumer::_writeMethod(
 
     _outn("\"%s\", /* name */", *Str(cn));
 
+    // SourceMethod.description:
+
+    _writeDescription(_os, cm);
+
     // SourceMethod.type:
 
     // SourceProperty.type:
@@ -812,7 +1337,7 @@ void cimmofSourceConsumer::_writeMethod(
 
     // SourceMethod.parameter:
 
-    _outn("_%s__%s_%s_parameters,", *Str(ns), *Str(cn), *Str(mn));
+    _outn("_%s_%s_parameters,", *Str(cn), *Str(mn));
 
     // Method footer:
 
@@ -839,15 +1364,13 @@ static bool _testBooleanQualifier(const CIMClass& cc, const CIMName& name)
 }
 
 void cimmofSourceConsumer::_writeClass(
-    const CIMNamespaceName& nameSpace,
     const CIMClass& cc)
 {
-    String ns = _makeIdent(nameSpace.getString());
     CIMName cn = cc.getClassName();
 
     // Write comment:
 
-    _box(_os, "Class: %s:%s", *Str(nameSpace), *Str(cn));
+    _box(_os, "Class: %s", *Str(cn));
     _nl();
 
     // Write property definitions:
@@ -857,7 +1380,7 @@ void cimmofSourceConsumer::_writeClass(
     for (Uint32 i = 0; i < cc.getPropertyCount(); i++)
     {
         CIMConstProperty cp = cc.getProperty(i);
-        _writeProperty(nameSpace, cc.getClassName(), cp);
+        _writeProperty(cc.getClassName(), cp);
         featureNames.append(cp.getName());
     }
 
@@ -866,20 +1389,20 @@ void cimmofSourceConsumer::_writeClass(
     for (Uint32 i = 0; i < cc.getMethodCount(); i++)
     {
         CIMConstMethod cm = cc.getMethod(i);
-        _writeMethod(nameSpace, cc.getClassName(), cm);
+        _writeMethod(cc.getClassName(), cm);
         featureNames.append(cm.getName());
     }
 
     // Write feature array:
 
-    _outn("static SourceFeature* _%s__%s_features[] =", *Str(ns), *Str(cn));
+    _outn("static SourceFeature* _%s_features[] =", *Str(cn));
     _outn("{");
     _indent++;
 
     for (Uint32 i = 0; i < featureNames.size(); i++)
     {
         const CIMName& fn = featureNames[i];
-        _outn("(SourceFeature*)&_%s__%s_%s,", *Str(ns), *Str(cn), *Str(fn));
+        _outn("(SourceFeature*)&_%s_%s,", *Str(cn), *Str(fn));
     }
 
     _outn("0,");
@@ -889,7 +1412,7 @@ void cimmofSourceConsumer::_writeClass(
 
     // Class header:
 
-    _outn("static SourceClass _%s__%s =", *Str(ns), *Str(cn));
+    _outn("static SourceClass _%s =", *Str(cn));
     _outn("{");
     _indent++;
 
@@ -909,6 +1432,10 @@ void cimmofSourceConsumer::_writeClass(
 
     _outn("\"%s\", /* name */", *Str(cn));
 
+    // SourceClass.description:
+
+    _writeDescription(_os, cc);
+
     // SourceClass.super:
 
     const CIMName& scn = cc.getSuperClassName();
@@ -916,11 +1443,11 @@ void cimmofSourceConsumer::_writeClass(
     if (scn.isNull())
         _outn("0, /* super */");
     else
-        _outn("&_%s__%s, /* super */", *Str(ns), *Str(scn));
+        _outn("&_%s, /* super */", *Str(scn));
 
     // SourceClass.features:
 
-    _outn("_%s__%s_features,", *Str(ns), *Str(cn));
+    _outn("_%s_features,", *Str(cn));
 
     // Class footer:
 
@@ -933,32 +1460,53 @@ void cimmofSourceConsumer::_writeNameSpace(const CIMNamespaceName& nameSpace)
 {
     String ns = _makeIdent(nameSpace.getString());
 
+    // Write qualifiers:
+
+    _box(_os, "Qualifiers");
+    _nl();
+
+    for (Uint32 i = 0; i < _qualifiers.size(); i++)
+    {
+        _writeQualifierDecl(_qualifiers[i]);
+    }
+
     // Write classes:
 
     for (Uint32 i = 0; i < _classes.size(); i++)
+        _writeClass(_classes[i]);
+
+    // Write qualifiers list:
+
+    _box(_os, "Qualifier array");
+    _nl();
+
+    _outn("static SourceQualifierDecl* _qualifiers[] =");
+    _outn("{");
+    _indent++;
+
+    for (Uint32 i = 0; i < _qualifiers.size(); i++)
     {
-        const Class& c = _classes[i];
-
-        if (c.first != nameSpace)
-            continue;
-
-        _writeClass(c.first, c.second);
+        _outn("&_%s_qualifier,", *Str(_qualifiers[i].getName()));
     }
+
+    _outn("0,");
+
+    _indent--;
+    _outn("};");
+    _nl();
 
     // Write classes list:
 
-    _outn("static SourceClass* _%s__classes[] =", *Str(ns));
+    _box(_os, "Class array");
+    _nl();
+
+    _outn("static SourceClass* _classes[] =");
     _outn("{");
     _indent++;
 
     for (Uint32 i = 0; i < _classes.size(); i++)
     {
-        const Class& c = _classes[i];
-
-        if (c.first != nameSpace)
-            continue;
-
-        _outn("&_%s__%s,", *Str(ns), *Str(c.second.getClassName()));
+        _outn("&_%s,", *Str(_classes[i].getClassName()));
     }
 
     _outn("0,");
@@ -969,10 +1517,11 @@ void cimmofSourceConsumer::_writeNameSpace(const CIMNamespaceName& nameSpace)
 
     // Write SourceNameSpace structure:
 
-    _outn("SourceNameSpace %s_namespace =", *Str(ns));
+    _outn("const SourceNameSpace %s_namespace =", *Str(ns));
     _outn("{");
     _outn("    \"%s\",", *Str(nameSpace));
-    _outn("    _%s__classes,", *Str(ns));
+    _outn("    _qualifiers,");
+    _outn("    _classes,");
     _outn("};");
     _nl();
 }

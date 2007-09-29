@@ -89,11 +89,7 @@ private:
 
     void _nl();
 
-    Uint32 _findNameSpace(const CIMNamespaceName& nameSpace) const;
-
-    Uint32 _findClass(
-        const CIMNamespaceName& nameSpace, 
-        const CIMName& className) const;
+    Uint32 _findClass(const CIMName& className) const;
 
     Uint32 _findQualifier(
         const CIMNamespaceName& nameSpace, 
@@ -103,34 +99,31 @@ private:
 
     void _writeSourceEpilogue();
 
+    void _writeValue(const String& name, const CIMValue& value, Uint32& count);
+
+    void _writeQualifierDecl(const CIMConstQualifierDecl& cq);
+
     void _writeNameSpace(const CIMNamespaceName& nameSpace);
 
     void _writeProperty(
-        const CIMNamespaceName& nameSpace,
         const CIMName& className,
         const CIMConstProperty& cp);
 
     void _writeParameter(
-        const CIMNamespaceName& nameSpace,
         const CIMName& cn,
         const CIMName& mn,
         const CIMConstParameter& cp);
 
     void _writeMethod(
-        const CIMNamespaceName& nameSpace,
         const CIMName& cn,
         const CIMConstMethod& cm);
 
     void _writeClass(
-        const CIMNamespaceName& nameSpace,
         const CIMClass& cimClass);
 
-    typedef Pair<CIMNamespaceName, CIMClass> Class;
-    typedef Pair<CIMNamespaceName, CIMQualifierDecl> Qualifier;
-
-    Array<CIMNamespaceName> _nameSpaces;
-    Array<Class> _classes;
-    Array<Qualifier> _qualifiers;
+    CIMNamespaceName _nameSpace;
+    Array<CIMClass> _classes;
+    Array<CIMQualifierDecl> _qualifiers;
     FILE* _os;
 };
 

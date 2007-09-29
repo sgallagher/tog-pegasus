@@ -47,3 +47,6 @@
         $ cd /home/WindRiver/vxworks-6.2/target/usr/src/wrn/coreip
         $ make CPU=XSCALE TOOL=gnu
 
+    15. Generated reposity increases from 206K to 1.4MB when the
+        "description" qualifiers are included.
+

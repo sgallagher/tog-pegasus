@@ -104,22 +104,14 @@ struct SourceQualifierDecl
     Sint16 subscript;
     Uint16 scope;
     Uint16 flavor;
-    const void* value;
-    Uint32 size;
-};
-
-struct SourceQualifier
-{
-    SourceQualifierDecl* decl;
-    const void* value;
-    size_t size;
+    const char* value;
 };
 
 struct SourceFeature
 {
     Uint32 flags;
     char* name;
-    SourceQualifier** qualifiers;
+    const char** qualifiers;
 };
 
 struct SourceProperty
@@ -127,7 +119,7 @@ struct SourceProperty
     // Inherited fields (from SourceFeature):
     Uint32 flags;
     char* name;
-    SourceQualifier** qualifiers;
+    const char** qualifiers;
 
     // Local fields:
     Uint16 type;
@@ -139,7 +131,7 @@ struct SourceMethod
 {
     Uint32 flags;
     char* name;
-    SourceQualifier** qualifiers;
+    const char** qualifiers;
 
     // Local fields:
     Uint16 type;
@@ -150,7 +142,7 @@ struct SourceClass
 {
     Uint32 flags;
     char* name;
-    SourceQualifier** qualifiers;
+    const char** qualifiers;
     SourceClass* super;
     SourceFeature** features;
 };

@@ -99,10 +99,7 @@ private:
 
     void _writeQualifier(
         const Array<CIMQualifierDecl>& qualifierDecls,
-        const String& root,
         const CIMConstQualifier& qualifier);
-
-    void _writeValue(const String& name, const CIMValue& value, Uint32& count);
 
     void _writeQualifierDecl(const CIMConstQualifierDecl& cq);
 

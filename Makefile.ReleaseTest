@@ -317,8 +317,8 @@ _append_preunSectionToSpecFile:
 	@$(ECHO-E) "%if %{PEGASUS_BUILD_TEST_RPM}" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%preun test" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "make --directory $(PEGASUS_TEST_DIR) -s unsetupTEST"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "[ -d $(PEGASUS_TEST_REPOSITORY_DIR)/$(PEGASUS_TEST_REPOSITORY_NAME) ] && \
-                       rm -rf $(PEGASUS_TEST_REPOSITORY_DIR)/$(PEGASUS_TEST_REPOSITORY_NAME);" >> \
+	@$(ECHO-E) "[ -d $(PEGASUS_TEST_REPOSITORY_DIR)/$(PEGASUS_TEST_REPOSITORY_NAME) ] && " \
+                       "rm -rf $(PEGASUS_TEST_REPOSITORY_DIR)/$(PEGASUS_TEST_REPOSITORY_NAME);" >> \
                        $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%endif" >> $(PEGASUS_RPM_SPEC_FILE_PATH)

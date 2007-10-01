@@ -342,15 +342,6 @@ if [ $1 -eq 1 ]; then
 #
    export PEGASUS_ARCH_LIB=%PEGASUS_ARCH_LIB
 
-   if [ -d %PEGASUS_PREV_REPOSITORY_DIR ]; then
-       # Running Repository Upgrade utility
-       %PEGASUS_SBIN_DIR/repupgrade %PEGASUS_PREV_REPOSITORY_DIR \
-           %PEGASUS_REPOSITORY_DIR 2>>%PEGASUS_INSTALL_LOG
-       /bin/tar -C %PEGASUS_REPOSITORY_PARENT_DIR -cf \
-           %PEGASUS_PREV_REPOSITORY_DIR`date '+%Y-%m-%d-%s.%N'`.tar \
-           %PEGASUS_PREV_REPOSITORY_DIR_NAME
-       rm -rf %PEGASUS_PREV_REPOSITORY_DIR
-   fi
    if [ $1 -eq 1 ]; then
 %if %{AUTOSTART}
        /sbin/chkconfig --add tog-pegasus
@@ -364,14 +355,16 @@ if [ $1 -eq 1 ]; then
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-post.spec
 
 elif [ $1 -gt 1 ]; then
-   if [ -d %PEGASUS_PREV_REPOSITORY_DIR ]; then
-     # Running Repository Upgrade utility
-     %PEGASUS_SBIN_DIR/repupgrade 2>>%PEGASUS_INSTALL_LOG
-   fi
    # Check if the cimserver is running
    isRunning=`ps -el | grep cimserver | grep -v "grep cimserver"`
    if [ "$isRunning" ]; then
        /etc/init.d/tog-pegasus stop
+   fi
+   if [ -d %PEGASUS_PREV_REPOSITORY_DIR ]; then
+       # The old repository was moved to /var/lib/Pegasus/prev_repository. It should now be upgraded to the new repository /var/lib/Pegasus/repository.
+       %PEGASUS_SBIN_DIR/repupgrade >> %PEGASUS_INSTALL_LOG 2>&1
+       chown -R cimsrvr %PEGASUS_REPOSITORY_DIR
+       chgrp -R cimsrvr %PEGASUS_REPOSITORY_DIR
    fi
    if [ -f %PEGASUS_TRACE_FILE_PATH ]; then
      /bin/mv %PEGASUS_TRACE_FILE_PATH %PEGASUS_TRACE_FILE_PATH-`date '+%Y-%m-%d-%R'`

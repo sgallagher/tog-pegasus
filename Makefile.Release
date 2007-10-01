@@ -884,13 +884,6 @@ _append_postSectionToSpecFile: FORCE
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "elif [ \044\061 -gt 1 ]; then" \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   if [ -d %PEGASUS_PREV_REPOSITORY_DIR ]; then" \
-             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "     # Running Repository Upgrade utility" \
-             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "     %PEGASUS_SBIN_DIR/repupgrade 2>>%PEGASUS_INSTALL_LOG" \
-             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   # Check if the cimserver is running" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   isRunning=\`ps -el | grep cimserver | grep -v" \
@@ -900,6 +893,21 @@ _append_postSectionToSpecFile: FORCE
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "       /etc/init.d/tog-pegasus stop" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   if [ -d %PEGASUS_PREV_REPOSITORY_DIR ]; then" \
+                   >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "       # The old repository was moved to" \
+                   "/var/lib/Pegasus/prev_repository. It should now be" \
+                   "upgraded to the new repository /var/lib/Pegasus/repository." \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "       %PEGASUS_SBIN_DIR/repupgrade >> %PEGASUS_INSTALL_LOG 2>&1" \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+	@$(ECHO-E) "       chown -R $(CIMSERVERMAIN_USR) %PEGASUS_REPOSITORY_DIR" \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "       chgrp -R $(CIMSERVERMAIN_GRP) %PEGASUS_REPOSITORY_DIR" \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+endif
 	@$(ECHO-E) "   fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
 	@$(ECHO-E) "   if [ -f %PEGASUS_TRACE_FILE_PATH ]; then" \

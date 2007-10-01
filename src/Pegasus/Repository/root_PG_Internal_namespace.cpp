@@ -1,5 +1,6 @@
-/*NOCHKSRC*/
 #include "root_PG_Internal_namespace.h"
+
+/*NOCHKSRC*/
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -1266,7 +1267,7 @@ __root_PG_Internal_PG_Authorization =
     "PG_Authorization",
     /* qualifiers */
     __root_PG_Internal_PG_Authorization_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _PG_Authorization_features,
@@ -1423,7 +1424,7 @@ __root_PG_Internal_PG_ConfigSetting =
     "PG_ConfigSetting",
     /* qualifiers */
     __root_PG_Internal_PG_ConfigSetting_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _PG_ConfigSetting_features,
@@ -1529,11 +1530,11 @@ _PG_User_modifyPassword_newPassword =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _PG_User_modifyPassword_parameters[] =
 {
-    (SourceProperty*)&_PG_User_modifyPassword_oldPassword,
-    (SourceProperty*)&_PG_User_modifyPassword_newPassword,
+    (SourceFeature*)&_PG_User_modifyPassword_oldPassword,
+    (SourceFeature*)&_PG_User_modifyPassword_newPassword,
     0,
 };
 
@@ -1584,7 +1585,7 @@ __root_PG_Internal_PG_User =
     "PG_User",
     /* qualifiers */
     __root_PG_Internal_PG_User_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _PG_User_features,
@@ -1642,11 +1643,11 @@ _PG_ShutdownService_shutdown_timeout =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _PG_ShutdownService_shutdown_parameters[] =
 {
-    (SourceProperty*)&_PG_ShutdownService_shutdown_force,
-    (SourceProperty*)&_PG_ShutdownService_shutdown_timeout,
+    (SourceFeature*)&_PG_ShutdownService_shutdown_force,
+    (SourceFeature*)&_PG_ShutdownService_shutdown_timeout,
     0,
 };
 
@@ -1695,7 +1696,7 @@ __root_PG_Internal_PG_ShutdownService =
     "PG_ShutdownService",
     /* qualifiers */
     __root_PG_Internal_PG_ShutdownService_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _PG_ShutdownService_features,
@@ -1997,12 +1998,12 @@ _PG_SSLCertificate_addCertificate_certificateType =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _PG_SSLCertificate_addCertificate_parameters[] =
 {
-    (SourceProperty*)&_PG_SSLCertificate_addCertificate_certificateContents,
-    (SourceProperty*)&_PG_SSLCertificate_addCertificate_userName,
-    (SourceProperty*)&_PG_SSLCertificate_addCertificate_certificateType,
+    (SourceFeature*)&_PG_SSLCertificate_addCertificate_certificateContents,
+    (SourceFeature*)&_PG_SSLCertificate_addCertificate_userName,
+    (SourceFeature*)&_PG_SSLCertificate_addCertificate_certificateType,
     0,
 };
 
@@ -2060,7 +2061,7 @@ __root_PG_Internal_PG_SSLCertificate =
     "PG_SSLCertificate",
     /* qualifiers */
     __root_PG_Internal_PG_SSLCertificate_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _PG_SSLCertificate_features,
@@ -2212,10 +2213,10 @@ _PG_SSLCertificateRevocationList_addCertificateRevocationList_CRLContents =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _PG_SSLCertificateRevocationList_addCertificateRevocationList_parameters[] =
 {
-    (SourceProperty*)&_PG_SSLCertificateRevocationList_addCertificateRevocationList_CRLContents,
+    (SourceFeature*)&_PG_SSLCertificateRevocationList_addCertificateRevocationList_CRLContents,
     0,
 };
 
@@ -2269,7 +2270,7 @@ __root_PG_Internal_PG_SSLCertificateRevocationList =
     "PG_SSLCertificateRevocationList",
     /* qualifiers */
     __root_PG_Internal_PG_SSLCertificateRevocationList_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _PG_SSLCertificateRevocationList_features,

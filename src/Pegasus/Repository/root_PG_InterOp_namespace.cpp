@@ -1,5 +1,6 @@
-/*NOCHKSRC*/
 #include "root_PG_InterOp_namespace.h"
+
+/*NOCHKSRC*/
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -1472,7 +1473,7 @@ __root_PG_InterOp_CIM_ManagedElement =
     "CIM_ManagedElement",
     /* qualifiers */
     __root_PG_InterOp_CIM_ManagedElement_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_ManagedElement_features,
@@ -1526,7 +1527,7 @@ _CIM_Setting_VerifyOKToApplyToMSE_MSE =
     _CIM_Setting_VerifyOKToApplyToMSE_MSE_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* ref */
     &__root_PG_InterOp_CIM_ManagedSystemElement,
 };
 
@@ -1576,12 +1577,12 @@ _CIM_Setting_VerifyOKToApplyToMSE_MustBeCompletedBy =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_Setting_VerifyOKToApplyToMSE_parameters[] =
 {
-    (SourceProperty*)&_CIM_Setting_VerifyOKToApplyToMSE_MSE,
-    (SourceProperty*)&_CIM_Setting_VerifyOKToApplyToMSE_TimeToApply,
-    (SourceProperty*)&_CIM_Setting_VerifyOKToApplyToMSE_MustBeCompletedBy,
+    (SourceFeature*)&_CIM_Setting_VerifyOKToApplyToMSE_MSE,
+    (SourceFeature*)&_CIM_Setting_VerifyOKToApplyToMSE_TimeToApply,
+    (SourceFeature*)&_CIM_Setting_VerifyOKToApplyToMSE_MustBeCompletedBy,
     0,
 };
 
@@ -1623,7 +1624,7 @@ _CIM_Setting_ApplyToMSE_MSE =
     _CIM_Setting_ApplyToMSE_MSE_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* ref */
     &__root_PG_InterOp_CIM_ManagedSystemElement,
 };
 
@@ -1673,12 +1674,12 @@ _CIM_Setting_ApplyToMSE_MustBeCompletedBy =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_Setting_ApplyToMSE_parameters[] =
 {
-    (SourceProperty*)&_CIM_Setting_ApplyToMSE_MSE,
-    (SourceProperty*)&_CIM_Setting_ApplyToMSE_TimeToApply,
-    (SourceProperty*)&_CIM_Setting_ApplyToMSE_MustBeCompletedBy,
+    (SourceFeature*)&_CIM_Setting_ApplyToMSE_MSE,
+    (SourceFeature*)&_CIM_Setting_ApplyToMSE_TimeToApply,
+    (SourceFeature*)&_CIM_Setting_ApplyToMSE_MustBeCompletedBy,
     0,
 };
 
@@ -1720,7 +1721,7 @@ _CIM_Setting_VerifyOKToApplyToCollection_Collection =
     _CIM_Setting_VerifyOKToApplyToCollection_Collection_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* ref */
     &__root_PG_InterOp_CIM_CollectionOfMSEs,
 };
 
@@ -1793,13 +1794,13 @@ _CIM_Setting_VerifyOKToApplyToCollection_CanNotApply =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_Setting_VerifyOKToApplyToCollection_parameters[] =
 {
-    (SourceProperty*)&_CIM_Setting_VerifyOKToApplyToCollection_Collection,
-    (SourceProperty*)&_CIM_Setting_VerifyOKToApplyToCollection_TimeToApply,
-    (SourceProperty*)&_CIM_Setting_VerifyOKToApplyToCollection_MustBeCompletedBy,
-    (SourceProperty*)&_CIM_Setting_VerifyOKToApplyToCollection_CanNotApply,
+    (SourceFeature*)&_CIM_Setting_VerifyOKToApplyToCollection_Collection,
+    (SourceFeature*)&_CIM_Setting_VerifyOKToApplyToCollection_TimeToApply,
+    (SourceFeature*)&_CIM_Setting_VerifyOKToApplyToCollection_MustBeCompletedBy,
+    (SourceFeature*)&_CIM_Setting_VerifyOKToApplyToCollection_CanNotApply,
     0,
 };
 
@@ -1841,7 +1842,7 @@ _CIM_Setting_ApplyToCollection_Collection =
     _CIM_Setting_ApplyToCollection_Collection_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* ref */
     &__root_PG_InterOp_CIM_CollectionOfMSEs,
 };
 
@@ -1937,14 +1938,14 @@ _CIM_Setting_ApplyToCollection_CanNotApply =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_Setting_ApplyToCollection_parameters[] =
 {
-    (SourceProperty*)&_CIM_Setting_ApplyToCollection_Collection,
-    (SourceProperty*)&_CIM_Setting_ApplyToCollection_TimeToApply,
-    (SourceProperty*)&_CIM_Setting_ApplyToCollection_ContinueOnError,
-    (SourceProperty*)&_CIM_Setting_ApplyToCollection_MustBeCompletedBy,
-    (SourceProperty*)&_CIM_Setting_ApplyToCollection_CanNotApply,
+    (SourceFeature*)&_CIM_Setting_ApplyToCollection_Collection,
+    (SourceFeature*)&_CIM_Setting_ApplyToCollection_TimeToApply,
+    (SourceFeature*)&_CIM_Setting_ApplyToCollection_ContinueOnError,
+    (SourceFeature*)&_CIM_Setting_ApplyToCollection_MustBeCompletedBy,
+    (SourceFeature*)&_CIM_Setting_ApplyToCollection_CanNotApply,
     0,
 };
 
@@ -1986,7 +1987,7 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_MSE =
     _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_MSE_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* ref */
     &__root_PG_InterOp_CIM_ManagedSystemElement,
 };
 
@@ -2059,13 +2060,13 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_PropertiesToApply =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_parameters[] =
 {
-    (SourceProperty*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_MSE,
-    (SourceProperty*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_TimeToApply,
-    (SourceProperty*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_MustBeCompletedBy,
-    (SourceProperty*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_PropertiesToApply,
+    (SourceFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_MSE,
+    (SourceFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_TimeToApply,
+    (SourceFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_MustBeCompletedBy,
+    (SourceFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_PropertiesToApply,
     0,
 };
 
@@ -2107,7 +2108,7 @@ _CIM_Setting_ApplyIncrementalChangeToMSE_MSE =
     _CIM_Setting_ApplyIncrementalChangeToMSE_MSE_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* ref */
     &__root_PG_InterOp_CIM_ManagedSystemElement,
 };
 
@@ -2180,13 +2181,13 @@ _CIM_Setting_ApplyIncrementalChangeToMSE_PropertiesToApply =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_Setting_ApplyIncrementalChangeToMSE_parameters[] =
 {
-    (SourceProperty*)&_CIM_Setting_ApplyIncrementalChangeToMSE_MSE,
-    (SourceProperty*)&_CIM_Setting_ApplyIncrementalChangeToMSE_TimeToApply,
-    (SourceProperty*)&_CIM_Setting_ApplyIncrementalChangeToMSE_MustBeCompletedBy,
-    (SourceProperty*)&_CIM_Setting_ApplyIncrementalChangeToMSE_PropertiesToApply,
+    (SourceFeature*)&_CIM_Setting_ApplyIncrementalChangeToMSE_MSE,
+    (SourceFeature*)&_CIM_Setting_ApplyIncrementalChangeToMSE_TimeToApply,
+    (SourceFeature*)&_CIM_Setting_ApplyIncrementalChangeToMSE_MustBeCompletedBy,
+    (SourceFeature*)&_CIM_Setting_ApplyIncrementalChangeToMSE_PropertiesToApply,
     0,
 };
 
@@ -2228,7 +2229,7 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_Collection =
     _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_Collection_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* ref */
     &__root_PG_InterOp_CIM_CollectionOfMSEs,
 };
 
@@ -2324,14 +2325,14 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_CanNotApply =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_parameters[] =
 {
-    (SourceProperty*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_Collection,
-    (SourceProperty*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_TimeToApply,
-    (SourceProperty*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_MustBeCompletedBy,
-    (SourceProperty*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_PropertiesToApply,
-    (SourceProperty*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_CanNotApply,
+    (SourceFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_Collection,
+    (SourceFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_TimeToApply,
+    (SourceFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_MustBeCompletedBy,
+    (SourceFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_PropertiesToApply,
+    (SourceFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_CanNotApply,
     0,
 };
 
@@ -2373,7 +2374,7 @@ _CIM_Setting_ApplyIncrementalChangeToCollection_Collection =
     _CIM_Setting_ApplyIncrementalChangeToCollection_Collection_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* ref */
     &__root_PG_InterOp_CIM_CollectionOfMSEs,
 };
 
@@ -2492,15 +2493,15 @@ _CIM_Setting_ApplyIncrementalChangeToCollection_CanNotApply =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_Setting_ApplyIncrementalChangeToCollection_parameters[] =
 {
-    (SourceProperty*)&_CIM_Setting_ApplyIncrementalChangeToCollection_Collection,
-    (SourceProperty*)&_CIM_Setting_ApplyIncrementalChangeToCollection_TimeToApply,
-    (SourceProperty*)&_CIM_Setting_ApplyIncrementalChangeToCollection_ContinueOnError,
-    (SourceProperty*)&_CIM_Setting_ApplyIncrementalChangeToCollection_MustBeCompletedBy,
-    (SourceProperty*)&_CIM_Setting_ApplyIncrementalChangeToCollection_PropertiesToApply,
-    (SourceProperty*)&_CIM_Setting_ApplyIncrementalChangeToCollection_CanNotApply,
+    (SourceFeature*)&_CIM_Setting_ApplyIncrementalChangeToCollection_Collection,
+    (SourceFeature*)&_CIM_Setting_ApplyIncrementalChangeToCollection_TimeToApply,
+    (SourceFeature*)&_CIM_Setting_ApplyIncrementalChangeToCollection_ContinueOnError,
+    (SourceFeature*)&_CIM_Setting_ApplyIncrementalChangeToCollection_MustBeCompletedBy,
+    (SourceFeature*)&_CIM_Setting_ApplyIncrementalChangeToCollection_PropertiesToApply,
+    (SourceFeature*)&_CIM_Setting_ApplyIncrementalChangeToCollection_CanNotApply,
     0,
 };
 
@@ -2559,7 +2560,7 @@ __root_PG_InterOp_CIM_Setting =
     "CIM_Setting",
     /* qualifiers */
     __root_PG_InterOp_CIM_Setting_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ManagedElement,
     /* features */
     _CIM_Setting_features,
@@ -2588,7 +2589,7 @@ _CIM_SettingContext_Context =
     _CIM_SettingContext_Context_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Configuration,
 };
 
@@ -2609,7 +2610,7 @@ _CIM_SettingContext_Setting =
     _CIM_SettingContext_Setting_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Setting,
 };
 
@@ -2640,7 +2641,7 @@ __root_PG_InterOp_CIM_SettingContext =
     "CIM_SettingContext",
     /* qualifiers */
     __root_PG_InterOp_CIM_SettingContext_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_SettingContext_features,
@@ -2727,7 +2728,7 @@ __root_PG_InterOp_CIM_SettingData =
     "CIM_SettingData",
     /* qualifiers */
     __root_PG_InterOp_CIM_SettingData_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ManagedElement,
     /* features */
     _CIM_SettingData_features,
@@ -2814,7 +2815,7 @@ __root_PG_InterOp_CIM_Capabilities =
     "CIM_Capabilities",
     /* qualifiers */
     __root_PG_InterOp_CIM_Capabilities_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ManagedElement,
     /* features */
     _CIM_Capabilities_features,
@@ -2851,7 +2852,7 @@ __root_PG_InterOp_CIM_Collection =
     "CIM_Collection",
     /* qualifiers */
     __root_PG_InterOp_CIM_Collection_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ManagedElement,
     /* features */
     _CIM_Collection_features,
@@ -2914,7 +2915,7 @@ __root_PG_InterOp_CIM_CollectionOfMSEs =
     "CIM_CollectionOfMSEs",
     /* qualifiers */
     __root_PG_InterOp_CIM_CollectionOfMSEs_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Collection,
     /* features */
     _CIM_CollectionOfMSEs_features,
@@ -2943,7 +2944,7 @@ _CIM_Component_GroupComponent =
     _CIM_Component_GroupComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -2964,7 +2965,7 @@ _CIM_Component_PartComponent =
     _CIM_Component_PartComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -2995,7 +2996,7 @@ __root_PG_InterOp_CIM_Component =
     "CIM_Component",
     /* qualifiers */
     __root_PG_InterOp_CIM_Component_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_Component_features,
@@ -3056,7 +3057,7 @@ __root_PG_InterOp_CIM_ConcreteCollection =
     "CIM_ConcreteCollection",
     /* qualifiers */
     __root_PG_InterOp_CIM_ConcreteCollection_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Collection,
     /* features */
     _CIM_ConcreteCollection_features,
@@ -3087,7 +3088,7 @@ _CIM_ConcreteComponent_GroupComponent =
     _CIM_ConcreteComponent_GroupComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -3110,7 +3111,7 @@ _CIM_ConcreteComponent_PartComponent =
     _CIM_ConcreteComponent_PartComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -3141,7 +3142,7 @@ __root_PG_InterOp_CIM_ConcreteComponent =
     "CIM_ConcreteComponent",
     /* qualifiers */
     __root_PG_InterOp_CIM_ConcreteComponent_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Component,
     /* features */
     _CIM_ConcreteComponent_features,
@@ -3204,7 +3205,7 @@ __root_PG_InterOp_CIM_Configuration =
     "CIM_Configuration",
     /* qualifiers */
     __root_PG_InterOp_CIM_Configuration_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ManagedElement,
     /* features */
     _CIM_Configuration_features,
@@ -3233,7 +3234,7 @@ _CIM_ConfigurationComponent_ConfigGroup =
     _CIM_ConfigurationComponent_ConfigGroup_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Configuration,
 };
 
@@ -3254,7 +3255,7 @@ _CIM_ConfigurationComponent_ConfigComponent =
     _CIM_ConfigurationComponent_ConfigComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Configuration,
 };
 
@@ -3285,7 +3286,7 @@ __root_PG_InterOp_CIM_ConfigurationComponent =
     "CIM_ConfigurationComponent",
     /* qualifiers */
     __root_PG_InterOp_CIM_ConfigurationComponent_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_ConfigurationComponent_features,
@@ -3314,7 +3315,7 @@ _CIM_Dependency_Antecedent =
     _CIM_Dependency_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -3335,7 +3336,7 @@ _CIM_Dependency_Dependent =
     _CIM_Dependency_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -3366,7 +3367,7 @@ __root_PG_InterOp_CIM_Dependency =
     "CIM_Dependency",
     /* qualifiers */
     __root_PG_InterOp_CIM_Dependency_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_Dependency_features,
@@ -3395,7 +3396,7 @@ _CIM_DependencyContext_Context =
     _CIM_DependencyContext_Context_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Configuration,
 };
 
@@ -3416,7 +3417,7 @@ _CIM_DependencyContext_Dependency =
     _CIM_DependencyContext_Dependency_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Dependency,
 };
 
@@ -3447,7 +3448,7 @@ __root_PG_InterOp_CIM_DependencyContext =
     "CIM_DependencyContext",
     /* qualifiers */
     __root_PG_InterOp_CIM_DependencyContext_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_DependencyContext_features,
@@ -3480,7 +3481,7 @@ _CIM_ElementCapabilities_ManagedElement =
     _CIM_ElementCapabilities_ManagedElement_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -3501,7 +3502,7 @@ _CIM_ElementCapabilities_Capabilities =
     _CIM_ElementCapabilities_Capabilities_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Capabilities,
 };
 
@@ -3532,7 +3533,7 @@ __root_PG_InterOp_CIM_ElementCapabilities =
     "CIM_ElementCapabilities",
     /* qualifiers */
     __root_PG_InterOp_CIM_ElementCapabilities_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_ElementCapabilities_features,
@@ -3657,7 +3658,7 @@ __root_PG_InterOp_CIM_EnabledLogicalElementCapabilities =
     "CIM_EnabledLogicalElementCapabilities",
     /* qualifiers */
     __root_PG_InterOp_CIM_EnabledLogicalElementCapabilities_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Capabilities,
     /* features */
     _CIM_EnabledLogicalElementCapabilities_features,
@@ -3884,7 +3885,7 @@ __root_PG_InterOp_CIM_FRU =
     "CIM_FRU",
     /* qualifiers */
     __root_PG_InterOp_CIM_FRU_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ManagedElement,
     /* features */
     _CIM_FRU_features,
@@ -3917,7 +3918,7 @@ _CIM_HostedDependency_Antecedent =
     _CIM_HostedDependency_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -3940,7 +3941,7 @@ _CIM_HostedDependency_Dependent =
     _CIM_HostedDependency_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -3971,7 +3972,7 @@ __root_PG_InterOp_CIM_HostedDependency =
     "CIM_HostedDependency",
     /* qualifiers */
     __root_PG_InterOp_CIM_HostedDependency_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Dependency,
     /* features */
     _CIM_HostedDependency_features,
@@ -4056,7 +4057,7 @@ __root_PG_InterOp_CIM_LocalizationCapabilities =
     "CIM_LocalizationCapabilities",
     /* qualifiers */
     __root_PG_InterOp_CIM_LocalizationCapabilities_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Capabilities,
     /* features */
     _CIM_LocalizationCapabilities_features,
@@ -4171,7 +4172,7 @@ __root_PG_InterOp_CIM_Location =
     "CIM_Location",
     /* qualifiers */
     __root_PG_InterOp_CIM_Location_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ManagedElement,
     /* features */
     _CIM_Location_features,
@@ -4200,7 +4201,7 @@ _CIM_LogicalIdentity_SystemElement =
     _CIM_LogicalIdentity_SystemElement_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -4221,7 +4222,7 @@ _CIM_LogicalIdentity_SameElement =
     _CIM_LogicalIdentity_SameElement_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -4252,7 +4253,7 @@ __root_PG_InterOp_CIM_LogicalIdentity =
     "CIM_LogicalIdentity",
     /* qualifiers */
     __root_PG_InterOp_CIM_LogicalIdentity_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_LogicalIdentity_features,
@@ -4459,7 +4460,7 @@ __root_PG_InterOp_CIM_ManagedSystemElement =
     "CIM_ManagedSystemElement",
     /* qualifiers */
     __root_PG_InterOp_CIM_ManagedSystemElement_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ManagedElement,
     /* features */
     _CIM_ManagedSystemElement_features,
@@ -4488,7 +4489,7 @@ _CIM_MemberOfCollection_Collection =
     _CIM_MemberOfCollection_Collection_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Collection,
 };
 
@@ -4509,7 +4510,7 @@ _CIM_MemberOfCollection_Member =
     _CIM_MemberOfCollection_Member_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -4540,7 +4541,7 @@ __root_PG_InterOp_CIM_MemberOfCollection =
     "CIM_MemberOfCollection",
     /* qualifiers */
     __root_PG_InterOp_CIM_MemberOfCollection_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_MemberOfCollection_features,
@@ -4594,14 +4595,14 @@ _CIM_MethodParameters_ResetValues_SourceME =
     _CIM_MethodParameters_ResetValues_SourceME_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* ref */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_MethodParameters_ResetValues_parameters[] =
 {
-    (SourceProperty*)&_CIM_MethodParameters_ResetValues_SourceME,
+    (SourceFeature*)&_CIM_MethodParameters_ResetValues_SourceME,
     0,
 };
 
@@ -4653,7 +4654,7 @@ __root_PG_InterOp_CIM_MethodParameters =
     "CIM_MethodParameters",
     /* qualifiers */
     __root_PG_InterOp_CIM_MethodParameters_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ManagedElement,
     /* features */
     _CIM_MethodParameters_features,
@@ -4714,7 +4715,7 @@ __root_PG_InterOp_CIM_OrderedMemberOfCollection =
     "CIM_OrderedMemberOfCollection",
     /* qualifiers */
     __root_PG_InterOp_CIM_OrderedMemberOfCollection_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_MemberOfCollection,
     /* features */
     _CIM_OrderedMemberOfCollection_features,
@@ -4743,7 +4744,7 @@ _CIM_ParametersForMethod_Parameters =
     _CIM_ParametersForMethod_Parameters_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_MethodParameters,
 };
 
@@ -4764,7 +4765,7 @@ _CIM_ParametersForMethod_TheMethod =
     _CIM_ParametersForMethod_TheMethod_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -4821,7 +4822,7 @@ __root_PG_InterOp_CIM_ParametersForMethod =
     "CIM_ParametersForMethod",
     /* qualifiers */
     __root_PG_InterOp_CIM_ParametersForMethod_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_ParametersForMethod_features,
@@ -4850,7 +4851,7 @@ _CIM_ParameterValueSources_Parameters =
     _CIM_ParameterValueSources_Parameters_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_MethodParameters,
 };
 
@@ -4871,7 +4872,7 @@ _CIM_ParameterValueSources_ValueSource =
     _CIM_ParameterValueSources_ValueSource_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -4902,7 +4903,7 @@ __root_PG_InterOp_CIM_ParameterValueSources =
     "CIM_ParameterValueSources",
     /* qualifiers */
     __root_PG_InterOp_CIM_ParameterValueSources_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_ParameterValueSources_features,
@@ -5365,7 +5366,7 @@ __root_PG_InterOp_CIM_PhysicalElement =
     "CIM_PhysicalElement",
     /* qualifiers */
     __root_PG_InterOp_CIM_PhysicalElement_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ManagedSystemElement,
     /* features */
     _CIM_PhysicalElement_features,
@@ -5460,7 +5461,7 @@ __root_PG_InterOp_CIM_PowerManagementCapabilities =
     "CIM_PowerManagementCapabilities",
     /* qualifiers */
     __root_PG_InterOp_CIM_PowerManagementCapabilities_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Capabilities,
     /* features */
     _CIM_PowerManagementCapabilities_features,
@@ -5699,7 +5700,7 @@ __root_PG_InterOp_CIM_Product =
     "CIM_Product",
     /* qualifiers */
     __root_PG_InterOp_CIM_Product_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ManagedElement,
     /* features */
     _CIM_Product_features,
@@ -5732,7 +5733,7 @@ _CIM_ProductComponent_GroupComponent =
     _CIM_ProductComponent_GroupComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Product,
 };
 
@@ -5757,7 +5758,7 @@ _CIM_ProductComponent_PartComponent =
     _CIM_ProductComponent_PartComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Product,
 };
 
@@ -5788,7 +5789,7 @@ __root_PG_InterOp_CIM_ProductComponent =
     "CIM_ProductComponent",
     /* qualifiers */
     __root_PG_InterOp_CIM_ProductComponent_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Component,
     /* features */
     _CIM_ProductComponent_features,
@@ -5819,7 +5820,7 @@ _CIM_ProductFRU_Product =
     _CIM_ProductFRU_Product_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Product,
 };
 
@@ -5840,7 +5841,7 @@ _CIM_ProductFRU_FRU =
     _CIM_ProductFRU_FRU_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_FRU,
 };
 
@@ -5871,7 +5872,7 @@ __root_PG_InterOp_CIM_ProductFRU =
     "CIM_ProductFRU",
     /* qualifiers */
     __root_PG_InterOp_CIM_ProductFRU_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_ProductFRU_features,
@@ -5900,7 +5901,7 @@ _CIM_ProductParentChild_Parent =
     _CIM_ProductParentChild_Parent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Product,
 };
 
@@ -5921,7 +5922,7 @@ _CIM_ProductParentChild_Child =
     _CIM_ProductParentChild_Child_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Product,
 };
 
@@ -5952,7 +5953,7 @@ __root_PG_InterOp_CIM_ProductParentChild =
     "CIM_ProductParentChild",
     /* qualifiers */
     __root_PG_InterOp_CIM_ProductParentChild_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_ProductParentChild_features,
@@ -5985,7 +5986,7 @@ _CIM_ProductPhysicalComponent_GroupComponent =
     _CIM_ProductPhysicalComponent_GroupComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Product,
 };
 
@@ -6008,7 +6009,7 @@ _CIM_ProductPhysicalComponent_PartComponent =
     _CIM_ProductPhysicalComponent_PartComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_PhysicalElement,
 };
 
@@ -6039,7 +6040,7 @@ __root_PG_InterOp_CIM_ProductPhysicalComponent =
     "CIM_ProductPhysicalComponent",
     /* qualifiers */
     __root_PG_InterOp_CIM_ProductPhysicalComponent_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Component,
     /* features */
     _CIM_ProductPhysicalComponent_features,
@@ -6072,7 +6073,7 @@ _CIM_ProductPhysicalElements_Product =
     _CIM_ProductPhysicalElements_Product_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Product,
 };
 
@@ -6095,7 +6096,7 @@ _CIM_ProductPhysicalElements_Component =
     _CIM_ProductPhysicalElements_Component_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_PhysicalElement,
 };
 
@@ -6128,7 +6129,7 @@ __root_PG_InterOp_CIM_ProductPhysicalElements =
     "CIM_ProductPhysicalElements",
     /* qualifiers */
     __root_PG_InterOp_CIM_ProductPhysicalElements_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_ProductPhysicalElements_features,
@@ -6157,7 +6158,7 @@ _CIM_ProductProductDependency_RequiredProduct =
     _CIM_ProductProductDependency_RequiredProduct_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Product,
 };
 
@@ -6178,7 +6179,7 @@ _CIM_ProductProductDependency_DependentProduct =
     _CIM_ProductProductDependency_DependentProduct_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Product,
 };
 
@@ -6237,7 +6238,7 @@ __root_PG_InterOp_CIM_ProductProductDependency =
     "CIM_ProductProductDependency",
     /* qualifiers */
     __root_PG_InterOp_CIM_ProductProductDependency_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_ProductProductDependency_features,
@@ -6298,7 +6299,7 @@ __root_PG_InterOp_CIM_Profile =
     "CIM_Profile",
     /* qualifiers */
     __root_PG_InterOp_CIM_Profile_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Collection,
     /* features */
     _CIM_Profile_features,
@@ -6329,7 +6330,7 @@ _CIM_ReplaceableProductFRU_Product =
     _CIM_ReplaceableProductFRU_Product_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Product,
 };
 
@@ -6350,7 +6351,7 @@ _CIM_ReplaceableProductFRU_FRU =
     _CIM_ReplaceableProductFRU_FRU_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_FRU,
 };
 
@@ -6381,7 +6382,7 @@ __root_PG_InterOp_CIM_ReplaceableProductFRU =
     "CIM_ReplaceableProductFRU",
     /* qualifiers */
     __root_PG_InterOp_CIM_ReplaceableProductFRU_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_ReplaceableProductFRU_features,
@@ -6412,7 +6413,7 @@ _CIM_Spared_Antecedent =
     _CIM_Spared_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -6435,7 +6436,7 @@ _CIM_Spared_Dependent =
     _CIM_Spared_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -6466,7 +6467,7 @@ __root_PG_InterOp_CIM_Spared =
     "CIM_Spared",
     /* qualifiers */
     __root_PG_InterOp_CIM_Spared_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Dependency,
     /* features */
     _CIM_Spared_features,
@@ -6618,10 +6619,10 @@ _CIM_StatisticalData_ResetSelectedStats_SelectedStatistics =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_StatisticalData_ResetSelectedStats_parameters[] =
 {
-    (SourceProperty*)&_CIM_StatisticalData_ResetSelectedStats_SelectedStatistics,
+    (SourceFeature*)&_CIM_StatisticalData_ResetSelectedStats_SelectedStatistics,
     0,
 };
 
@@ -6677,7 +6678,7 @@ __root_PG_InterOp_CIM_StatisticalData =
     "CIM_StatisticalData",
     /* qualifiers */
     __root_PG_InterOp_CIM_StatisticalData_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ManagedElement,
     /* features */
     _CIM_StatisticalData_features,
@@ -6740,7 +6741,7 @@ __root_PG_InterOp_CIM_StatisticalInformation =
     "CIM_StatisticalInformation",
     /* qualifiers */
     __root_PG_InterOp_CIM_StatisticalInformation_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ManagedElement,
     /* features */
     _CIM_StatisticalInformation_features,
@@ -6853,7 +6854,7 @@ __root_PG_InterOp_CIM_StatisticalSetting =
     "CIM_StatisticalSetting",
     /* qualifiers */
     __root_PG_InterOp_CIM_StatisticalSetting_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_SettingData,
     /* features */
     _CIM_StatisticalSetting_features,
@@ -6882,7 +6883,7 @@ _CIM_Statistics_Stats =
     _CIM_Statistics_Stats_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_StatisticalInformation,
 };
 
@@ -6903,7 +6904,7 @@ _CIM_Statistics_Element =
     _CIM_Statistics_Element_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -6934,7 +6935,7 @@ __root_PG_InterOp_CIM_Statistics =
     "CIM_Statistics",
     /* qualifiers */
     __root_PG_InterOp_CIM_Statistics_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_Statistics_features,
@@ -7109,7 +7110,7 @@ __root_PG_InterOp_CIM_SupportAccess =
     "CIM_SupportAccess",
     /* qualifiers */
     __root_PG_InterOp_CIM_SupportAccess_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ManagedElement,
     /* features */
     _CIM_SupportAccess_features,
@@ -7138,7 +7139,7 @@ _CIM_Synchronized_SystemElement =
     _CIM_Synchronized_SystemElement_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -7159,7 +7160,7 @@ _CIM_Synchronized_SyncedElement =
     _CIM_Synchronized_SyncedElement_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -7238,7 +7239,7 @@ __root_PG_InterOp_CIM_Synchronized =
     "CIM_Synchronized",
     /* qualifiers */
     __root_PG_InterOp_CIM_Synchronized_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_Synchronized_features,
@@ -7383,7 +7384,7 @@ __root_PG_InterOp_CIM_SystemConfiguration =
     "CIM_SystemConfiguration",
     /* qualifiers */
     __root_PG_InterOp_CIM_SystemConfiguration_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ManagedElement,
     /* features */
     _CIM_SystemConfiguration_features,
@@ -7530,7 +7531,7 @@ __root_PG_InterOp_CIM_SystemSetting =
     "CIM_SystemSetting",
     /* qualifiers */
     __root_PG_InterOp_CIM_SystemSetting_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Setting,
     /* features */
     _CIM_SystemSetting_features,
@@ -7559,7 +7560,7 @@ _CIM_SystemSettingContext_Context =
     _CIM_SystemSettingContext_Context_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_SystemConfiguration,
 };
 
@@ -7580,7 +7581,7 @@ _CIM_SystemSettingContext_Setting =
     _CIM_SystemSettingContext_Setting_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_SystemSetting,
 };
 
@@ -7611,7 +7612,7 @@ __root_PG_InterOp_CIM_SystemSettingContext =
     "CIM_SystemSettingContext",
     /* qualifiers */
     __root_PG_InterOp_CIM_SystemSettingContext_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_SystemSettingContext_features,
@@ -7672,7 +7673,7 @@ __root_PG_InterOp_CIM_SystemSpecificCollection =
     "CIM_SystemSpecificCollection",
     /* qualifiers */
     __root_PG_InterOp_CIM_SystemSpecificCollection_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Collection,
     /* features */
     _CIM_SystemSpecificCollection_features,
@@ -7819,7 +7820,7 @@ __root_PG_InterOp_CIM_SystemStatisticalInformation =
     "CIM_SystemStatisticalInformation",
     /* qualifiers */
     __root_PG_InterOp_CIM_SystemStatisticalInformation_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_StatisticalInformation,
     /* features */
     _CIM_SystemStatisticalInformation_features,
@@ -7848,7 +7849,7 @@ _CIM_CollectedCollections_Collection =
     _CIM_CollectedCollections_Collection_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_CollectionOfMSEs,
 };
 
@@ -7869,7 +7870,7 @@ _CIM_CollectedCollections_CollectionInCollection =
     _CIM_CollectedCollections_CollectionInCollection_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_CollectionOfMSEs,
 };
 
@@ -7900,7 +7901,7 @@ __root_PG_InterOp_CIM_CollectedCollections =
     "CIM_CollectedCollections",
     /* qualifiers */
     __root_PG_InterOp_CIM_CollectedCollections_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_CollectedCollections_features,
@@ -7931,7 +7932,7 @@ _CIM_CollectedMSEs_Collection =
     _CIM_CollectedMSEs_Collection_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_CollectionOfMSEs,
 };
 
@@ -7954,7 +7955,7 @@ _CIM_CollectedMSEs_Member =
     _CIM_CollectedMSEs_Member_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedSystemElement,
 };
 
@@ -7985,7 +7986,7 @@ __root_PG_InterOp_CIM_CollectedMSEs =
     "CIM_CollectedMSEs",
     /* qualifiers */
     __root_PG_InterOp_CIM_CollectedMSEs_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_MemberOfCollection,
     /* features */
     _CIM_CollectedMSEs_features,
@@ -8016,7 +8017,7 @@ _CIM_CollectionConfiguration_Collection =
     _CIM_CollectionConfiguration_Collection_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_CollectionOfMSEs,
 };
 
@@ -8039,7 +8040,7 @@ _CIM_CollectionConfiguration_Configuration =
     _CIM_CollectionConfiguration_Configuration_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Configuration,
 };
 
@@ -8072,7 +8073,7 @@ __root_PG_InterOp_CIM_CollectionConfiguration =
     "CIM_CollectionConfiguration",
     /* qualifiers */
     __root_PG_InterOp_CIM_CollectionConfiguration_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_CollectionConfiguration_features,
@@ -8101,7 +8102,7 @@ _CIM_CollectionSetting_Collection =
     _CIM_CollectionSetting_Collection_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_CollectionOfMSEs,
 };
 
@@ -8122,7 +8123,7 @@ _CIM_CollectionSetting_Setting =
     _CIM_CollectionSetting_Setting_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Setting,
 };
 
@@ -8153,7 +8154,7 @@ __root_PG_InterOp_CIM_CollectionSetting =
     "CIM_CollectionSetting",
     /* qualifiers */
     __root_PG_InterOp_CIM_CollectionSetting_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_CollectionSetting_features,
@@ -8182,7 +8183,7 @@ _CIM_CompatibleProduct_Product =
     _CIM_CompatibleProduct_Product_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Product,
 };
 
@@ -8203,7 +8204,7 @@ _CIM_CompatibleProduct_CompatibleProduct =
     _CIM_CompatibleProduct_CompatibleProduct_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Product,
 };
 
@@ -8258,7 +8259,7 @@ __root_PG_InterOp_CIM_CompatibleProduct =
     "CIM_CompatibleProduct",
     /* qualifiers */
     __root_PG_InterOp_CIM_CompatibleProduct_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_CompatibleProduct_features,
@@ -8289,7 +8290,7 @@ _CIM_ConcreteDependency_Antecedent =
     _CIM_ConcreteDependency_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -8312,7 +8313,7 @@ _CIM_ConcreteDependency_Dependent =
     _CIM_ConcreteDependency_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -8343,7 +8344,7 @@ __root_PG_InterOp_CIM_ConcreteDependency =
     "CIM_ConcreteDependency",
     /* qualifiers */
     __root_PG_InterOp_CIM_ConcreteDependency_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Dependency,
     /* features */
     _CIM_ConcreteDependency_features,
@@ -8374,7 +8375,7 @@ _CIM_ConcreteIdentity_SystemElement =
     _CIM_ConcreteIdentity_SystemElement_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -8397,7 +8398,7 @@ _CIM_ConcreteIdentity_SameElement =
     _CIM_ConcreteIdentity_SameElement_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -8428,7 +8429,7 @@ __root_PG_InterOp_CIM_ConcreteIdentity =
     "CIM_ConcreteIdentity",
     /* qualifiers */
     __root_PG_InterOp_CIM_ConcreteIdentity_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_LogicalIdentity,
     /* features */
     _CIM_ConcreteIdentity_features,
@@ -8461,7 +8462,7 @@ _CIM_ContainedLocation_GroupComponent =
     _CIM_ContainedLocation_GroupComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Location,
 };
 
@@ -8484,7 +8485,7 @@ _CIM_ContainedLocation_PartComponent =
     _CIM_ContainedLocation_PartComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Location,
 };
 
@@ -8515,7 +8516,7 @@ __root_PG_InterOp_CIM_ContainedLocation =
     "CIM_ContainedLocation",
     /* qualifiers */
     __root_PG_InterOp_CIM_ContainedLocation_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Component,
     /* features */
     _CIM_ContainedLocation_features,
@@ -8718,7 +8719,7 @@ __root_PG_InterOp_CIM_DeviceStatisticalInformation =
     "CIM_DeviceStatisticalInformation",
     /* qualifiers */
     __root_PG_InterOp_CIM_DeviceStatisticalInformation_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_StatisticalInformation,
     /* features */
     _CIM_DeviceStatisticalInformation_features,
@@ -8747,7 +8748,7 @@ _CIM_ElementConfiguration_Element =
     _CIM_ElementConfiguration_Element_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedSystemElement,
 };
 
@@ -8768,7 +8769,7 @@ _CIM_ElementConfiguration_Configuration =
     _CIM_ElementConfiguration_Configuration_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Configuration,
 };
 
@@ -8799,7 +8800,7 @@ __root_PG_InterOp_CIM_ElementConfiguration =
     "CIM_ElementConfiguration",
     /* qualifiers */
     __root_PG_InterOp_CIM_ElementConfiguration_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_ElementConfiguration_features,
@@ -8828,7 +8829,7 @@ _CIM_ElementLocation_Element =
     _CIM_ElementLocation_Element_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -8849,7 +8850,7 @@ _CIM_ElementLocation_PhysicalLocation =
     _CIM_ElementLocation_PhysicalLocation_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Location,
 };
 
@@ -8880,7 +8881,7 @@ __root_PG_InterOp_CIM_ElementLocation =
     "CIM_ElementLocation",
     /* qualifiers */
     __root_PG_InterOp_CIM_ElementLocation_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_ElementLocation_features,
@@ -8909,7 +8910,7 @@ _CIM_ElementProfile_ManagedElement =
     _CIM_ElementProfile_ManagedElement_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -8930,7 +8931,7 @@ _CIM_ElementProfile_Profile =
     _CIM_ElementProfile_Profile_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Profile,
 };
 
@@ -8961,7 +8962,7 @@ __root_PG_InterOp_CIM_ElementProfile =
     "CIM_ElementProfile",
     /* qualifiers */
     __root_PG_InterOp_CIM_ElementProfile_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_ElementProfile_features,
@@ -8990,7 +8991,7 @@ _CIM_ElementSetting_Element =
     _CIM_ElementSetting_Element_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedSystemElement,
 };
 
@@ -9011,7 +9012,7 @@ _CIM_ElementSetting_Setting =
     _CIM_ElementSetting_Setting_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Setting,
 };
 
@@ -9042,7 +9043,7 @@ __root_PG_InterOp_CIM_ElementSetting =
     "CIM_ElementSetting",
     /* qualifiers */
     __root_PG_InterOp_CIM_ElementSetting_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_ElementSetting_features,
@@ -9071,7 +9072,7 @@ _CIM_ElementSettingData_ManagedElement =
     _CIM_ElementSettingData_ManagedElement_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -9092,7 +9093,7 @@ _CIM_ElementSettingData_SettingData =
     _CIM_ElementSettingData_SettingData_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_SettingData,
 };
 
@@ -9179,7 +9180,7 @@ __root_PG_InterOp_CIM_ElementSettingData =
     "CIM_ElementSettingData",
     /* qualifiers */
     __root_PG_InterOp_CIM_ElementSettingData_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_ElementSettingData_features,
@@ -9212,7 +9213,7 @@ _CIM_ElementStatisticalData_ManagedElement =
     _CIM_ElementStatisticalData_ManagedElement_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -9233,7 +9234,7 @@ _CIM_ElementStatisticalData_Stats =
     _CIM_ElementStatisticalData_Stats_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_StatisticalData,
 };
 
@@ -9264,7 +9265,7 @@ __root_PG_InterOp_CIM_ElementStatisticalData =
     "CIM_ElementStatisticalData",
     /* qualifiers */
     __root_PG_InterOp_CIM_ElementStatisticalData_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_ElementStatisticalData_features,
@@ -9295,7 +9296,7 @@ _CIM_FRUIncludesProduct_FRU =
     _CIM_FRUIncludesProduct_FRU_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_FRU,
 };
 
@@ -9316,7 +9317,7 @@ _CIM_FRUIncludesProduct_Component =
     _CIM_FRUIncludesProduct_Component_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Product,
 };
 
@@ -9347,7 +9348,7 @@ __root_PG_InterOp_CIM_FRUIncludesProduct =
     "CIM_FRUIncludesProduct",
     /* qualifiers */
     __root_PG_InterOp_CIM_FRUIncludesProduct_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_FRUIncludesProduct_features,
@@ -9378,7 +9379,7 @@ _CIM_FRUPhysicalElements_FRU =
     _CIM_FRUPhysicalElements_FRU_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_FRU,
 };
 
@@ -9399,7 +9400,7 @@ _CIM_FRUPhysicalElements_Component =
     _CIM_FRUPhysicalElements_Component_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_PhysicalElement,
 };
 
@@ -9430,7 +9431,7 @@ __root_PG_InterOp_CIM_FRUPhysicalElements =
     "CIM_FRUPhysicalElements",
     /* qualifiers */
     __root_PG_InterOp_CIM_FRUPhysicalElements_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_FRUPhysicalElements_features,
@@ -9467,7 +9468,7 @@ __root_PG_InterOp_CIM_LogicalElement =
     "CIM_LogicalElement",
     /* qualifiers */
     __root_PG_InterOp_CIM_LogicalElement_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ManagedSystemElement,
     /* features */
     _CIM_LogicalElement_features,
@@ -9498,7 +9499,7 @@ _CIM_PhysicalElementLocation_Element =
     _CIM_PhysicalElementLocation_Element_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_PhysicalElement,
 };
 
@@ -9523,7 +9524,7 @@ _CIM_PhysicalElementLocation_PhysicalLocation =
     _CIM_PhysicalElementLocation_PhysicalLocation_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Location,
 };
 
@@ -9554,7 +9555,7 @@ __root_PG_InterOp_CIM_PhysicalElementLocation =
     "CIM_PhysicalElementLocation",
     /* qualifiers */
     __root_PG_InterOp_CIM_PhysicalElementLocation_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ElementLocation,
     /* features */
     _CIM_PhysicalElementLocation_features,
@@ -9701,7 +9702,7 @@ __root_PG_InterOp_CIM_PhysicalStatisticalInformation =
     "CIM_PhysicalStatisticalInformation",
     /* qualifiers */
     __root_PG_InterOp_CIM_PhysicalStatisticalInformation_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_StatisticalInformation,
     /* features */
     _CIM_PhysicalStatisticalInformation_features,
@@ -9732,7 +9733,7 @@ _CIM_PhysicalStatistics_Stats =
     _CIM_PhysicalStatistics_Stats_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_PhysicalStatisticalInformation,
 };
 
@@ -9759,7 +9760,7 @@ _CIM_PhysicalStatistics_Element =
     _CIM_PhysicalStatistics_Element_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_PhysicalElement,
 };
 
@@ -9790,7 +9791,7 @@ __root_PG_InterOp_CIM_PhysicalStatistics =
     "CIM_PhysicalStatistics",
     /* qualifiers */
     __root_PG_InterOp_CIM_PhysicalStatistics_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Statistics,
     /* features */
     _CIM_PhysicalStatistics_features,
@@ -9819,7 +9820,7 @@ _CIM_ProductSupport_Product =
     _CIM_ProductSupport_Product_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Product,
 };
 
@@ -9840,7 +9841,7 @@ _CIM_ProductSupport_Support =
     _CIM_ProductSupport_Support_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_SupportAccess,
 };
 
@@ -9871,7 +9872,7 @@ __root_PG_InterOp_CIM_ProductSupport =
     "CIM_ProductSupport",
     /* qualifiers */
     __root_PG_InterOp_CIM_ProductSupport_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_ProductSupport_features,
@@ -9998,7 +9999,7 @@ __root_PG_InterOp_CIM_RedundancyGroup =
     "CIM_RedundancyGroup",
     /* qualifiers */
     __root_PG_InterOp_CIM_RedundancyGroup_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_LogicalElement,
     /* features */
     _CIM_RedundancyGroup_features,
@@ -10239,7 +10240,7 @@ _CIM_RedundancySet_Failover_FailoverFrom =
     _CIM_RedundancySet_Failover_FailoverFrom_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* ref */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -10260,15 +10261,15 @@ _CIM_RedundancySet_Failover_FailoverTo =
     _CIM_RedundancySet_Failover_FailoverTo_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* ref */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_RedundancySet_Failover_parameters[] =
 {
-    (SourceProperty*)&_CIM_RedundancySet_Failover_FailoverFrom,
-    (SourceProperty*)&_CIM_RedundancySet_Failover_FailoverTo,
+    (SourceFeature*)&_CIM_RedundancySet_Failover_FailoverFrom,
+    (SourceFeature*)&_CIM_RedundancySet_Failover_FailoverTo,
     0,
 };
 
@@ -10331,7 +10332,7 @@ __root_PG_InterOp_CIM_RedundancySet =
     "CIM_RedundancySet",
     /* qualifiers */
     __root_PG_InterOp_CIM_RedundancySet_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_SystemSpecificCollection,
     /* features */
     _CIM_RedundancySet_features,
@@ -10360,7 +10361,7 @@ _CIM_RelatedStatisticalData_Stats =
     _CIM_RelatedStatisticalData_Stats_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_StatisticalData,
 };
 
@@ -10381,7 +10382,7 @@ _CIM_RelatedStatisticalData_RelatedStats =
     _CIM_RelatedStatisticalData_RelatedStats_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_StatisticalData,
 };
 
@@ -10436,7 +10437,7 @@ __root_PG_InterOp_CIM_RelatedStatisticalData =
     "CIM_RelatedStatisticalData",
     /* qualifiers */
     __root_PG_InterOp_CIM_RelatedStatisticalData_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_RelatedStatisticalData_features,
@@ -10465,7 +10466,7 @@ _CIM_RelatedStatistics_Stats =
     _CIM_RelatedStatistics_Stats_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_StatisticalInformation,
 };
 
@@ -10486,7 +10487,7 @@ _CIM_RelatedStatistics_RelatedStats =
     _CIM_RelatedStatistics_RelatedStats_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_StatisticalInformation,
 };
 
@@ -10517,7 +10518,7 @@ __root_PG_InterOp_CIM_RelatedStatistics =
     "CIM_RelatedStatistics",
     /* qualifiers */
     __root_PG_InterOp_CIM_RelatedStatistics_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_RelatedStatistics_features,
@@ -10720,7 +10721,7 @@ __root_PG_InterOp_CIM_SAPStatisticalInformation =
     "CIM_SAPStatisticalInformation",
     /* qualifiers */
     __root_PG_InterOp_CIM_SAPStatisticalInformation_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_StatisticalInformation,
     /* features */
     _CIM_SAPStatisticalInformation_features,
@@ -10757,7 +10758,7 @@ __root_PG_InterOp_CIM_ScopedSettingData =
     "CIM_ScopedSettingData",
     /* qualifiers */
     __root_PG_InterOp_CIM_ScopedSettingData_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_SettingData,
     /* features */
     _CIM_ScopedSettingData_features,
@@ -10960,7 +10961,7 @@ __root_PG_InterOp_CIM_ServiceStatisticalInformation =
     "CIM_ServiceStatisticalInformation",
     /* qualifiers */
     __root_PG_InterOp_CIM_ServiceStatisticalInformation_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_StatisticalInformation,
     /* features */
     _CIM_ServiceStatisticalInformation_features,
@@ -10991,7 +10992,7 @@ _CIM_SettingAssociatedToCapabilities_Antecedent =
     _CIM_SettingAssociatedToCapabilities_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Capabilities,
 };
 
@@ -11014,7 +11015,7 @@ _CIM_SettingAssociatedToCapabilities_Dependent =
     _CIM_SettingAssociatedToCapabilities_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_SettingData,
 };
 
@@ -11069,7 +11070,7 @@ __root_PG_InterOp_CIM_SettingAssociatedToCapabilities =
     "CIM_SettingAssociatedToCapabilities",
     /* qualifiers */
     __root_PG_InterOp_CIM_SettingAssociatedToCapabilities_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Dependency,
     /* features */
     _CIM_SettingAssociatedToCapabilities_features,
@@ -11430,7 +11431,7 @@ __root_PG_InterOp_CIM_SoftwareIdentity =
     "CIM_SoftwareIdentity",
     /* qualifiers */
     __root_PG_InterOp_CIM_SoftwareIdentity_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_LogicalElement,
     /* features */
     _CIM_SoftwareIdentity_features,
@@ -11459,7 +11460,7 @@ _CIM_SpareGroup_Failover_FailoverFrom =
     _CIM_SpareGroup_Failover_FailoverFrom_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* ref */
     &__root_PG_InterOp_CIM_ManagedSystemElement,
 };
 
@@ -11480,15 +11481,15 @@ _CIM_SpareGroup_Failover_FailoverTo =
     _CIM_SpareGroup_Failover_FailoverTo_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* ref */
     &__root_PG_InterOp_CIM_ManagedSystemElement,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_SpareGroup_Failover_parameters[] =
 {
-    (SourceProperty*)&_CIM_SpareGroup_Failover_FailoverFrom,
-    (SourceProperty*)&_CIM_SpareGroup_Failover_FailoverTo,
+    (SourceFeature*)&_CIM_SpareGroup_Failover_FailoverFrom,
+    (SourceFeature*)&_CIM_SpareGroup_Failover_FailoverTo,
     0,
 };
 
@@ -11543,7 +11544,7 @@ __root_PG_InterOp_CIM_SpareGroup =
     "CIM_SpareGroup",
     /* qualifiers */
     __root_PG_InterOp_CIM_SpareGroup_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_RedundancyGroup,
     /* features */
     _CIM_SpareGroup_features,
@@ -11628,7 +11629,7 @@ __root_PG_InterOp_CIM_StatisticsCollection =
     "CIM_StatisticsCollection",
     /* qualifiers */
     __root_PG_InterOp_CIM_StatisticsCollection_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_SystemSpecificCollection,
     /* features */
     _CIM_StatisticsCollection_features,
@@ -11781,7 +11782,7 @@ __root_PG_InterOp_CIM_StorageRedundancyGroup =
     "CIM_StorageRedundancyGroup",
     /* qualifiers */
     __root_PG_InterOp_CIM_StorageRedundancyGroup_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_RedundancyGroup,
     /* features */
     _CIM_StorageRedundancyGroup_features,
@@ -11876,7 +11877,7 @@ __root_PG_InterOp_CIM_StorageRedundancySet =
     "CIM_StorageRedundancySet",
     /* qualifiers */
     __root_PG_InterOp_CIM_StorageRedundancySet_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_RedundancySet,
     /* features */
     _CIM_StorageRedundancySet_features,
@@ -11907,7 +11908,7 @@ _CIM_ActsAsSpare_Group =
     _CIM_ActsAsSpare_Group_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_SpareGroup,
 };
 
@@ -11930,7 +11931,7 @@ _CIM_ActsAsSpare_Spare =
     _CIM_ActsAsSpare_Spare_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedSystemElement,
 };
 
@@ -11989,7 +11990,7 @@ __root_PG_InterOp_CIM_ActsAsSpare =
     "CIM_ActsAsSpare",
     /* qualifiers */
     __root_PG_InterOp_CIM_ActsAsSpare_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_ActsAsSpare_features,
@@ -12022,7 +12023,7 @@ _CIM_DefaultSetting_Setting =
     _CIM_DefaultSetting_Setting_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Setting,
 };
 
@@ -12052,7 +12053,7 @@ __root_PG_InterOp_CIM_DefaultSetting =
     "CIM_DefaultSetting",
     /* qualifiers */
     __root_PG_InterOp_CIM_DefaultSetting_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ElementSetting,
     /* features */
     _CIM_DefaultSetting_features,
@@ -12083,7 +12084,7 @@ _CIM_ElementSoftwareIdentity_Antecedent =
     _CIM_ElementSoftwareIdentity_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_SoftwareIdentity,
 };
 
@@ -12106,7 +12107,7 @@ _CIM_ElementSoftwareIdentity_Dependent =
     _CIM_ElementSoftwareIdentity_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -12193,7 +12194,7 @@ __root_PG_InterOp_CIM_ElementSoftwareIdentity =
     "CIM_ElementSoftwareIdentity",
     /* qualifiers */
     __root_PG_InterOp_CIM_ElementSoftwareIdentity_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Dependency,
     /* features */
     _CIM_ElementSoftwareIdentity_features,
@@ -12284,7 +12285,7 @@ __root_PG_InterOp_CIM_ExtraCapacityGroup =
     "CIM_ExtraCapacityGroup",
     /* qualifiers */
     __root_PG_InterOp_CIM_ExtraCapacityGroup_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_RedundancyGroup,
     /* features */
     _CIM_ExtraCapacityGroup_features,
@@ -12315,7 +12316,7 @@ _CIM_IsSpare_Antecedent =
     _CIM_IsSpare_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -12338,7 +12339,7 @@ _CIM_IsSpare_Dependent =
     _CIM_IsSpare_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_RedundancySet,
 };
 
@@ -12425,7 +12426,7 @@ __root_PG_InterOp_CIM_IsSpare =
     "CIM_IsSpare",
     /* qualifiers */
     __root_PG_InterOp_CIM_IsSpare_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Dependency,
     /* features */
     _CIM_IsSpare_features,
@@ -12993,10 +12994,10 @@ _CIM_Job_KillJob_DeleteOnKill =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_Job_KillJob_parameters[] =
 {
-    (SourceProperty*)&_CIM_Job_KillJob_DeleteOnKill,
+    (SourceFeature*)&_CIM_Job_KillJob_DeleteOnKill,
     0,
 };
 
@@ -13074,7 +13075,7 @@ __root_PG_InterOp_CIM_Job =
     "CIM_Job",
     /* qualifiers */
     __root_PG_InterOp_CIM_Job_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_LogicalElement,
     /* features */
     _CIM_Job_features,
@@ -13107,7 +13108,7 @@ _CIM_ProductSoftwareComponent_GroupComponent =
     _CIM_ProductSoftwareComponent_GroupComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Product,
 };
 
@@ -13130,7 +13131,7 @@ _CIM_ProductSoftwareComponent_PartComponent =
     _CIM_ProductSoftwareComponent_PartComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_SoftwareIdentity,
 };
 
@@ -13161,7 +13162,7 @@ __root_PG_InterOp_CIM_ProductSoftwareComponent =
     "CIM_ProductSoftwareComponent",
     /* qualifiers */
     __root_PG_InterOp_CIM_ProductSoftwareComponent_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Component,
     /* features */
     _CIM_ProductSoftwareComponent_features,
@@ -13194,7 +13195,7 @@ _CIM_RedundancyComponent_GroupComponent =
     _CIM_RedundancyComponent_GroupComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_RedundancyGroup,
 };
 
@@ -13219,7 +13220,7 @@ _CIM_RedundancyComponent_PartComponent =
     _CIM_RedundancyComponent_PartComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedSystemElement,
 };
 
@@ -13252,7 +13253,7 @@ __root_PG_InterOp_CIM_RedundancyComponent =
     "CIM_RedundancyComponent",
     /* qualifiers */
     __root_PG_InterOp_CIM_RedundancyComponent_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Component,
     /* features */
     _CIM_RedundancyComponent_features,
@@ -13287,7 +13288,7 @@ _CIM_ScopedSetting_Antecedent =
     _CIM_ScopedSetting_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -13310,7 +13311,7 @@ _CIM_ScopedSetting_Dependent =
     _CIM_ScopedSetting_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ScopedSettingData,
 };
 
@@ -13341,7 +13342,7 @@ __root_PG_InterOp_CIM_ScopedSetting =
     "CIM_ScopedSetting",
     /* qualifiers */
     __root_PG_InterOp_CIM_ScopedSetting_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_HostedDependency,
     /* features */
     _CIM_ScopedSetting_features,
@@ -13524,11 +13525,11 @@ _CIM_ConcreteJob_RequestStateChange_TimeoutPeriod =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_ConcreteJob_RequestStateChange_parameters[] =
 {
-    (SourceProperty*)&_CIM_ConcreteJob_RequestStateChange_RequestedState,
-    (SourceProperty*)&_CIM_ConcreteJob_RequestStateChange_TimeoutPeriod,
+    (SourceFeature*)&_CIM_ConcreteJob_RequestStateChange_RequestedState,
+    (SourceFeature*)&_CIM_ConcreteJob_RequestStateChange_TimeoutPeriod,
     0,
 };
 
@@ -13588,7 +13589,7 @@ __root_PG_InterOp_CIM_ConcreteJob =
     "CIM_ConcreteJob",
     /* qualifiers */
     __root_PG_InterOp_CIM_ConcreteJob_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Job,
     /* features */
     _CIM_ConcreteJob_features,
@@ -13779,7 +13780,7 @@ _CIM_EnabledLogicalElement_RequestStateChange_Job =
     _CIM_EnabledLogicalElement_RequestStateChange_Job_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* ref */
     &__root_PG_InterOp_CIM_ConcreteJob,
 };
 
@@ -13806,12 +13807,12 @@ _CIM_EnabledLogicalElement_RequestStateChange_TimeoutPeriod =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_EnabledLogicalElement_RequestStateChange_parameters[] =
 {
-    (SourceProperty*)&_CIM_EnabledLogicalElement_RequestStateChange_RequestedState,
-    (SourceProperty*)&_CIM_EnabledLogicalElement_RequestStateChange_Job,
-    (SourceProperty*)&_CIM_EnabledLogicalElement_RequestStateChange_TimeoutPeriod,
+    (SourceFeature*)&_CIM_EnabledLogicalElement_RequestStateChange_RequestedState,
+    (SourceFeature*)&_CIM_EnabledLogicalElement_RequestStateChange_Job,
+    (SourceFeature*)&_CIM_EnabledLogicalElement_RequestStateChange_TimeoutPeriod,
     0,
 };
 
@@ -13873,7 +13874,7 @@ __root_PG_InterOp_CIM_EnabledLogicalElement =
     "CIM_EnabledLogicalElement",
     /* qualifiers */
     __root_PG_InterOp_CIM_EnabledLogicalElement_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_LogicalElement,
     /* features */
     _CIM_EnabledLogicalElement_features,
@@ -14392,11 +14393,11 @@ _CIM_LogicalDevice_SetPowerState_Time =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_LogicalDevice_SetPowerState_parameters[] =
 {
-    (SourceProperty*)&_CIM_LogicalDevice_SetPowerState_PowerState,
-    (SourceProperty*)&_CIM_LogicalDevice_SetPowerState_Time,
+    (SourceFeature*)&_CIM_LogicalDevice_SetPowerState_PowerState,
+    (SourceFeature*)&_CIM_LogicalDevice_SetPowerState_Time,
     0,
 };
 
@@ -14423,7 +14424,7 @@ _CIM_LogicalDevice_SetPowerState =
     _CIM_LogicalDevice_SetPowerState_parameters,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_LogicalDevice_Reset_parameters[] =
 {
     0,
@@ -14473,10 +14474,10 @@ _CIM_LogicalDevice_EnableDevice_Enabled =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_LogicalDevice_EnableDevice_parameters[] =
 {
-    (SourceProperty*)&_CIM_LogicalDevice_EnableDevice_Enabled,
+    (SourceFeature*)&_CIM_LogicalDevice_EnableDevice_Enabled,
     0,
 };
 
@@ -14526,10 +14527,10 @@ _CIM_LogicalDevice_OnlineDevice_Online =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_LogicalDevice_OnlineDevice_parameters[] =
 {
-    (SourceProperty*)&_CIM_LogicalDevice_OnlineDevice_Online,
+    (SourceFeature*)&_CIM_LogicalDevice_OnlineDevice_Online,
     0,
 };
 
@@ -14579,10 +14580,10 @@ _CIM_LogicalDevice_QuiesceDevice_Quiesce =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_LogicalDevice_QuiesceDevice_parameters[] =
 {
-    (SourceProperty*)&_CIM_LogicalDevice_QuiesceDevice_Quiesce,
+    (SourceFeature*)&_CIM_LogicalDevice_QuiesceDevice_Quiesce,
     0,
 };
 
@@ -14609,7 +14610,7 @@ _CIM_LogicalDevice_QuiesceDevice =
     _CIM_LogicalDevice_QuiesceDevice_parameters,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_LogicalDevice_SaveProperties_parameters[] =
 {
     0,
@@ -14636,7 +14637,7 @@ _CIM_LogicalDevice_SaveProperties =
     _CIM_LogicalDevice_SaveProperties_parameters,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_LogicalDevice_RestoreProperties_parameters[] =
 {
     0,
@@ -14712,7 +14713,7 @@ __root_PG_InterOp_CIM_LogicalDevice =
     "CIM_LogicalDevice",
     /* qualifiers */
     __root_PG_InterOp_CIM_LogicalDevice_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_EnabledLogicalElement,
     /* features */
     _CIM_LogicalDevice_features,
@@ -14743,7 +14744,7 @@ _CIM_Realizes_Antecedent =
     _CIM_Realizes_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_PhysicalElement,
 };
 
@@ -14766,7 +14767,7 @@ _CIM_Realizes_Dependent =
     _CIM_Realizes_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_LogicalDevice,
 };
 
@@ -14797,7 +14798,7 @@ __root_PG_InterOp_CIM_Realizes =
     "CIM_Realizes",
     /* qualifiers */
     __root_PG_InterOp_CIM_Realizes_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Dependency,
     /* features */
     _CIM_Realizes_features,
@@ -15021,7 +15022,7 @@ _CIM_Service_Started =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_Service_StartService_parameters[] =
 {
     0,
@@ -15048,7 +15049,7 @@ _CIM_Service_StartService =
     _CIM_Service_StartService_parameters,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_Service_StopService_parameters[] =
 {
     0,
@@ -15110,7 +15111,7 @@ __root_PG_InterOp_CIM_Service =
     "CIM_Service",
     /* qualifiers */
     __root_PG_InterOp_CIM_Service_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_EnabledLogicalElement,
     /* features */
     _CIM_Service_features,
@@ -15257,7 +15258,7 @@ __root_PG_InterOp_CIM_ServiceAccessPoint =
     "CIM_ServiceAccessPoint",
     /* qualifiers */
     __root_PG_InterOp_CIM_ServiceAccessPoint_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_EnabledLogicalElement,
     /* features */
     _CIM_ServiceAccessPoint_features,
@@ -15320,7 +15321,7 @@ __root_PG_InterOp_CIM_ServiceAccessURI =
     "CIM_ServiceAccessURI",
     /* qualifiers */
     __root_PG_InterOp_CIM_ServiceAccessURI_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ServiceAccessPoint,
     /* features */
     _CIM_ServiceAccessURI_features,
@@ -15349,7 +15350,7 @@ _CIM_ServiceAffectsElement_AffectedElement =
     _CIM_ServiceAffectsElement_AffectedElement_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -15370,7 +15371,7 @@ _CIM_ServiceAffectsElement_AffectingElement =
     _CIM_ServiceAffectsElement_AffectingElement_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Service,
 };
 
@@ -15461,7 +15462,7 @@ __root_PG_InterOp_CIM_ServiceAffectsElement =
     "CIM_ServiceAffectsElement",
     /* qualifiers */
     __root_PG_InterOp_CIM_ServiceAffectsElement_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_ServiceAffectsElement_features,
@@ -15490,7 +15491,7 @@ _CIM_ServiceAvailableToElement_ServiceProvided =
     _CIM_ServiceAvailableToElement_ServiceProvided_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Service,
 };
 
@@ -15511,7 +15512,7 @@ _CIM_ServiceAvailableToElement_UserOfService =
     _CIM_ServiceAvailableToElement_UserOfService_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -15542,7 +15543,7 @@ __root_PG_InterOp_CIM_ServiceAvailableToElement =
     "CIM_ServiceAvailableToElement",
     /* qualifiers */
     __root_PG_InterOp_CIM_ServiceAvailableToElement_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_ServiceAvailableToElement_features,
@@ -15573,7 +15574,7 @@ _CIM_ServiceComponent_GroupComponent =
     _CIM_ServiceComponent_GroupComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Service,
 };
 
@@ -15596,7 +15597,7 @@ _CIM_ServiceComponent_PartComponent =
     _CIM_ServiceComponent_PartComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Service,
 };
 
@@ -15627,7 +15628,7 @@ __root_PG_InterOp_CIM_ServiceComponent =
     "CIM_ServiceComponent",
     /* qualifiers */
     __root_PG_InterOp_CIM_ServiceComponent_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Component,
     /* features */
     _CIM_ServiceComponent_features,
@@ -15658,7 +15659,7 @@ _CIM_ServiceSAPDependency_Antecedent =
     _CIM_ServiceSAPDependency_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ServiceAccessPoint,
 };
 
@@ -15681,7 +15682,7 @@ _CIM_ServiceSAPDependency_Dependent =
     _CIM_ServiceSAPDependency_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Service,
 };
 
@@ -15712,7 +15713,7 @@ __root_PG_InterOp_CIM_ServiceSAPDependency =
     "CIM_ServiceSAPDependency",
     /* qualifiers */
     __root_PG_InterOp_CIM_ServiceSAPDependency_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Dependency,
     /* features */
     _CIM_ServiceSAPDependency_features,
@@ -15743,7 +15744,7 @@ _CIM_ServiceStatistics_Stats =
     _CIM_ServiceStatistics_Stats_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ServiceStatisticalInformation,
 };
 
@@ -15770,7 +15771,7 @@ _CIM_ServiceStatistics_Element =
     _CIM_ServiceStatistics_Element_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Service,
 };
 
@@ -15801,7 +15802,7 @@ __root_PG_InterOp_CIM_ServiceStatistics =
     "CIM_ServiceStatistics",
     /* qualifiers */
     __root_PG_InterOp_CIM_ServiceStatistics_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Statistics,
     /* features */
     _CIM_ServiceStatistics_features,
@@ -16232,7 +16233,7 @@ __root_PG_InterOp_CIM_StorageExtent =
     "CIM_StorageExtent",
     /* qualifiers */
     __root_PG_InterOp_CIM_StorageExtent_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_LogicalDevice,
     /* features */
     _CIM_StorageExtent_features,
@@ -16429,7 +16430,7 @@ __root_PG_InterOp_CIM_System =
     "CIM_System",
     /* qualifiers */
     __root_PG_InterOp_CIM_System_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_EnabledLogicalElement,
     /* features */
     _CIM_System_features,
@@ -16460,7 +16461,7 @@ _CIM_SystemComponent_GroupComponent =
     _CIM_SystemComponent_GroupComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_System,
 };
 
@@ -16483,7 +16484,7 @@ _CIM_SystemComponent_PartComponent =
     _CIM_SystemComponent_PartComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedSystemElement,
 };
 
@@ -16514,7 +16515,7 @@ __root_PG_InterOp_CIM_SystemComponent =
     "CIM_SystemComponent",
     /* qualifiers */
     __root_PG_InterOp_CIM_SystemComponent_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Component,
     /* features */
     _CIM_SystemComponent_features,
@@ -16549,7 +16550,7 @@ _CIM_SystemDevice_GroupComponent =
     _CIM_SystemDevice_GroupComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_System,
 };
 
@@ -16572,7 +16573,7 @@ _CIM_SystemDevice_PartComponent =
     _CIM_SystemDevice_PartComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_LogicalDevice,
 };
 
@@ -16603,7 +16604,7 @@ __root_PG_InterOp_CIM_SystemDevice =
     "CIM_SystemDevice",
     /* qualifiers */
     __root_PG_InterOp_CIM_SystemDevice_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_SystemComponent,
     /* features */
     _CIM_SystemDevice_features,
@@ -16634,7 +16635,7 @@ _CIM_SystemPackaging_Antecedent =
     _CIM_SystemPackaging_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_PhysicalElement,
 };
 
@@ -16657,7 +16658,7 @@ _CIM_SystemPackaging_Dependent =
     _CIM_SystemPackaging_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_System,
 };
 
@@ -16688,7 +16689,7 @@ __root_PG_InterOp_CIM_SystemPackaging =
     "CIM_SystemPackaging",
     /* qualifiers */
     __root_PG_InterOp_CIM_SystemPackaging_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Dependency,
     /* features */
     _CIM_SystemPackaging_features,
@@ -16719,7 +16720,7 @@ _CIM_SystemStatistics_Stats =
     _CIM_SystemStatistics_Stats_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_SystemStatisticalInformation,
 };
 
@@ -16746,7 +16747,7 @@ _CIM_SystemStatistics_Element =
     _CIM_SystemStatistics_Element_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_System,
 };
 
@@ -16777,7 +16778,7 @@ __root_PG_InterOp_CIM_SystemStatistics =
     "CIM_SystemStatistics",
     /* qualifiers */
     __root_PG_InterOp_CIM_SystemStatistics_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Statistics,
     /* features */
     _CIM_SystemStatistics_features,
@@ -16846,7 +16847,7 @@ __root_PG_InterOp_CIM_AdminDomain =
     "CIM_AdminDomain",
     /* qualifiers */
     __root_PG_InterOp_CIM_AdminDomain_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_System,
     /* features */
     _CIM_AdminDomain_features,
@@ -16877,7 +16878,7 @@ _CIM_BasedOn_Antecedent =
     _CIM_BasedOn_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_StorageExtent,
 };
 
@@ -16900,7 +16901,7 @@ _CIM_BasedOn_Dependent =
     _CIM_BasedOn_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_StorageExtent,
 };
 
@@ -17003,7 +17004,7 @@ __root_PG_InterOp_CIM_BasedOn =
     "CIM_BasedOn",
     /* qualifiers */
     __root_PG_InterOp_CIM_BasedOn_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Dependency,
     /* features */
     _CIM_BasedOn_features,
@@ -17038,7 +17039,7 @@ _CIM_ConfigurationForSystem_Antecedent =
     _CIM_ConfigurationForSystem_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_System,
 };
 
@@ -17061,7 +17062,7 @@ _CIM_ConfigurationForSystem_Dependent =
     _CIM_ConfigurationForSystem_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_SystemConfiguration,
 };
 
@@ -17092,7 +17093,7 @@ __root_PG_InterOp_CIM_ConfigurationForSystem =
     "CIM_ConfigurationForSystem",
     /* qualifiers */
     __root_PG_InterOp_CIM_ConfigurationForSystem_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_HostedDependency,
     /* features */
     _CIM_ConfigurationForSystem_features,
@@ -17123,7 +17124,7 @@ _CIM_ContainedDomain_GroupComponent =
     _CIM_ContainedDomain_GroupComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_AdminDomain,
 };
 
@@ -17146,7 +17147,7 @@ _CIM_ContainedDomain_PartComponent =
     _CIM_ContainedDomain_PartComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_AdminDomain,
 };
 
@@ -17177,7 +17178,7 @@ __root_PG_InterOp_CIM_ContainedDomain =
     "CIM_ContainedDomain",
     /* qualifiers */
     __root_PG_InterOp_CIM_ContainedDomain_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_SystemComponent,
     /* features */
     _CIM_ContainedDomain_features,
@@ -17208,7 +17209,7 @@ _CIM_DeviceSAPImplementation_Antecedent =
     _CIM_DeviceSAPImplementation_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_LogicalDevice,
 };
 
@@ -17231,7 +17232,7 @@ _CIM_DeviceSAPImplementation_Dependent =
     _CIM_DeviceSAPImplementation_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ServiceAccessPoint,
 };
 
@@ -17262,7 +17263,7 @@ __root_PG_InterOp_CIM_DeviceSAPImplementation =
     "CIM_DeviceSAPImplementation",
     /* qualifiers */
     __root_PG_InterOp_CIM_DeviceSAPImplementation_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Dependency,
     /* features */
     _CIM_DeviceSAPImplementation_features,
@@ -17293,7 +17294,7 @@ _CIM_DeviceServiceImplementation_Antecedent =
     _CIM_DeviceServiceImplementation_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_LogicalDevice,
 };
 
@@ -17316,7 +17317,7 @@ _CIM_DeviceServiceImplementation_Dependent =
     _CIM_DeviceServiceImplementation_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Service,
 };
 
@@ -17347,7 +17348,7 @@ __root_PG_InterOp_CIM_DeviceServiceImplementation =
     "CIM_DeviceServiceImplementation",
     /* qualifiers */
     __root_PG_InterOp_CIM_DeviceServiceImplementation_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Dependency,
     /* features */
     _CIM_DeviceServiceImplementation_features,
@@ -17378,7 +17379,7 @@ _CIM_DeviceStatistics_Stats =
     _CIM_DeviceStatistics_Stats_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_DeviceStatisticalInformation,
 };
 
@@ -17405,7 +17406,7 @@ _CIM_DeviceStatistics_Element =
     _CIM_DeviceStatistics_Element_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_LogicalDevice,
 };
 
@@ -17436,7 +17437,7 @@ __root_PG_InterOp_CIM_DeviceStatistics =
     "CIM_DeviceStatistics",
     /* qualifiers */
     __root_PG_InterOp_CIM_DeviceStatistics_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Statistics,
     /* features */
     _CIM_DeviceStatistics_features,
@@ -17469,7 +17470,7 @@ _CIM_ExtentRedundancyComponent_GroupComponent =
     _CIM_ExtentRedundancyComponent_GroupComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_StorageRedundancyGroup,
 };
 
@@ -17494,7 +17495,7 @@ _CIM_ExtentRedundancyComponent_PartComponent =
     _CIM_ExtentRedundancyComponent_PartComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_StorageExtent,
 };
 
@@ -17527,7 +17528,7 @@ __root_PG_InterOp_CIM_ExtentRedundancyComponent =
     "CIM_ExtentRedundancyComponent",
     /* qualifiers */
     __root_PG_InterOp_CIM_ExtentRedundancyComponent_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_RedundancyComponent,
     /* features */
     _CIM_ExtentRedundancyComponent_features,
@@ -17562,7 +17563,7 @@ _CIM_HostedAccessPoint_Antecedent =
     _CIM_HostedAccessPoint_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_System,
 };
 
@@ -17585,7 +17586,7 @@ _CIM_HostedAccessPoint_Dependent =
     _CIM_HostedAccessPoint_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ServiceAccessPoint,
 };
 
@@ -17616,7 +17617,7 @@ __root_PG_InterOp_CIM_HostedAccessPoint =
     "CIM_HostedAccessPoint",
     /* qualifiers */
     __root_PG_InterOp_CIM_HostedAccessPoint_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_HostedDependency,
     /* features */
     _CIM_HostedAccessPoint_features,
@@ -17651,7 +17652,7 @@ _CIM_HostedCollection_Antecedent =
     _CIM_HostedCollection_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_System,
 };
 
@@ -17674,7 +17675,7 @@ _CIM_HostedCollection_Dependent =
     _CIM_HostedCollection_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_SystemSpecificCollection,
 };
 
@@ -17705,7 +17706,7 @@ __root_PG_InterOp_CIM_HostedCollection =
     "CIM_HostedCollection",
     /* qualifiers */
     __root_PG_InterOp_CIM_HostedCollection_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_HostedDependency,
     /* features */
     _CIM_HostedCollection_features,
@@ -17740,7 +17741,7 @@ _CIM_HostedService_Antecedent =
     _CIM_HostedService_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_System,
 };
 
@@ -17763,7 +17764,7 @@ _CIM_HostedService_Dependent =
     _CIM_HostedService_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Service,
 };
 
@@ -17794,7 +17795,7 @@ __root_PG_InterOp_CIM_HostedService =
     "CIM_HostedService",
     /* qualifiers */
     __root_PG_InterOp_CIM_HostedService_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_HostedDependency,
     /* features */
     _CIM_HostedService_features,
@@ -17823,7 +17824,7 @@ _CIM_InstalledSoftwareIdentity_System =
     _CIM_InstalledSoftwareIdentity_System_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_System,
 };
 
@@ -17844,7 +17845,7 @@ _CIM_InstalledSoftwareIdentity_InstalledSoftware =
     _CIM_InstalledSoftwareIdentity_InstalledSoftware_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_SoftwareIdentity,
 };
 
@@ -17875,7 +17876,7 @@ __root_PG_InterOp_CIM_InstalledSoftwareIdentity =
     "CIM_InstalledSoftwareIdentity",
     /* qualifiers */
     __root_PG_InterOp_CIM_InstalledSoftwareIdentity_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_InstalledSoftwareIdentity_features,
@@ -17931,7 +17932,7 @@ _CIM_PowerManagementService_SetPowerState_ManagedElement =
     _CIM_PowerManagementService_SetPowerState_ManagedElement_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* ref */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -17958,12 +17959,12 @@ _CIM_PowerManagementService_SetPowerState_Time =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_PowerManagementService_SetPowerState_parameters[] =
 {
-    (SourceProperty*)&_CIM_PowerManagementService_SetPowerState_PowerState,
-    (SourceProperty*)&_CIM_PowerManagementService_SetPowerState_ManagedElement,
-    (SourceProperty*)&_CIM_PowerManagementService_SetPowerState_Time,
+    (SourceFeature*)&_CIM_PowerManagementService_SetPowerState_PowerState,
+    (SourceFeature*)&_CIM_PowerManagementService_SetPowerState_ManagedElement,
+    (SourceFeature*)&_CIM_PowerManagementService_SetPowerState_Time,
     0,
 };
 
@@ -18014,7 +18015,7 @@ __root_PG_InterOp_CIM_PowerManagementService =
     "CIM_PowerManagementService",
     /* qualifiers */
     __root_PG_InterOp_CIM_PowerManagementService_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Service,
     /* features */
     _CIM_PowerManagementService_features,
@@ -18047,7 +18048,7 @@ _CIM_ProductServiceComponent_GroupComponent =
     _CIM_ProductServiceComponent_GroupComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Product,
 };
 
@@ -18070,7 +18071,7 @@ _CIM_ProductServiceComponent_PartComponent =
     _CIM_ProductServiceComponent_PartComponent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Service,
 };
 
@@ -18101,7 +18102,7 @@ __root_PG_InterOp_CIM_ProductServiceComponent =
     "CIM_ProductServiceComponent",
     /* qualifiers */
     __root_PG_InterOp_CIM_ProductServiceComponent_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Component,
     /* features */
     _CIM_ProductServiceComponent_features,
@@ -18396,7 +18397,7 @@ __root_PG_InterOp_CIM_ProtocolEndpoint =
     "CIM_ProtocolEndpoint",
     /* qualifiers */
     __root_PG_InterOp_CIM_ProtocolEndpoint_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ServiceAccessPoint,
     /* features */
     _CIM_ProtocolEndpoint_features,
@@ -18429,7 +18430,7 @@ _CIM_ProvidesServiceToElement_Antecedent =
     _CIM_ProvidesServiceToElement_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Service,
 };
 
@@ -18454,7 +18455,7 @@ _CIM_ProvidesServiceToElement_Dependent =
     _CIM_ProvidesServiceToElement_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -18487,7 +18488,7 @@ __root_PG_InterOp_CIM_ProvidesServiceToElement =
     "CIM_ProvidesServiceToElement",
     /* qualifiers */
     __root_PG_InterOp_CIM_ProvidesServiceToElement_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Dependency,
     /* features */
     _CIM_ProvidesServiceToElement_features,
@@ -18606,7 +18607,7 @@ __root_PG_InterOp_CIM_RemoteServiceAccessPoint =
     "CIM_RemoteServiceAccessPoint",
     /* qualifiers */
     __root_PG_InterOp_CIM_RemoteServiceAccessPoint_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ServiceAccessPoint,
     /* features */
     _CIM_RemoteServiceAccessPoint_features,
@@ -18635,7 +18636,7 @@ _CIM_SAPAvailableForElement_AvailableSAP =
     _CIM_SAPAvailableForElement_AvailableSAP_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ServiceAccessPoint,
 };
 
@@ -18656,7 +18657,7 @@ _CIM_SAPAvailableForElement_ManagedElement =
     _CIM_SAPAvailableForElement_ManagedElement_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -18687,7 +18688,7 @@ __root_PG_InterOp_CIM_SAPAvailableForElement =
     "CIM_SAPAvailableForElement",
     /* qualifiers */
     __root_PG_InterOp_CIM_SAPAvailableForElement_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_SAPAvailableForElement_features,
@@ -18718,7 +18719,7 @@ _CIM_SAPSAPDependency_Antecedent =
     _CIM_SAPSAPDependency_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ServiceAccessPoint,
 };
 
@@ -18741,7 +18742,7 @@ _CIM_SAPSAPDependency_Dependent =
     _CIM_SAPSAPDependency_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ServiceAccessPoint,
 };
 
@@ -18772,7 +18773,7 @@ __root_PG_InterOp_CIM_SAPSAPDependency =
     "CIM_SAPSAPDependency",
     /* qualifiers */
     __root_PG_InterOp_CIM_SAPSAPDependency_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Dependency,
     /* features */
     _CIM_SAPSAPDependency_features,
@@ -18803,7 +18804,7 @@ _CIM_SAPStatistics_Stats =
     _CIM_SAPStatistics_Stats_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_SAPStatisticalInformation,
 };
 
@@ -18830,7 +18831,7 @@ _CIM_SAPStatistics_Element =
     _CIM_SAPStatistics_Element_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ServiceAccessPoint,
 };
 
@@ -18861,7 +18862,7 @@ __root_PG_InterOp_CIM_SAPStatistics =
     "CIM_SAPStatistics",
     /* qualifiers */
     __root_PG_InterOp_CIM_SAPStatistics_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Statistics,
     /* features */
     _CIM_SAPStatistics_features,
@@ -18892,7 +18893,7 @@ _CIM_ServiceAccessBySAP_Antecedent =
     _CIM_ServiceAccessBySAP_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Service,
 };
 
@@ -18915,7 +18916,7 @@ _CIM_ServiceAccessBySAP_Dependent =
     _CIM_ServiceAccessBySAP_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ServiceAccessPoint,
 };
 
@@ -18946,7 +18947,7 @@ __root_PG_InterOp_CIM_ServiceAccessBySAP =
     "CIM_ServiceAccessBySAP",
     /* qualifiers */
     __root_PG_InterOp_CIM_ServiceAccessBySAP_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Dependency,
     /* features */
     _CIM_ServiceAccessBySAP_features,
@@ -18977,7 +18978,7 @@ _CIM_ServiceServiceDependency_Antecedent =
     _CIM_ServiceServiceDependency_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Service,
 };
 
@@ -19000,7 +19001,7 @@ _CIM_ServiceServiceDependency_Dependent =
     _CIM_ServiceServiceDependency_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Service,
 };
 
@@ -19083,7 +19084,7 @@ __root_PG_InterOp_CIM_ServiceServiceDependency =
     "CIM_ServiceServiceDependency",
     /* qualifiers */
     __root_PG_InterOp_CIM_ServiceServiceDependency_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ProvidesServiceToElement,
     /* features */
     _CIM_ServiceServiceDependency_features,
@@ -19118,7 +19119,7 @@ _CIM_SettingForSystem_Antecedent =
     _CIM_SettingForSystem_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_System,
 };
 
@@ -19141,7 +19142,7 @@ _CIM_SettingForSystem_Dependent =
     _CIM_SettingForSystem_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_SystemSetting,
 };
 
@@ -19172,7 +19173,7 @@ __root_PG_InterOp_CIM_SettingForSystem =
     "CIM_SettingForSystem",
     /* qualifiers */
     __root_PG_InterOp_CIM_SettingForSystem_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_HostedDependency,
     /* features */
     _CIM_SettingForSystem_features,
@@ -19203,7 +19204,7 @@ _CIM_ActiveConnection_Antecedent =
     _CIM_ActiveConnection_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ServiceAccessPoint,
 };
 
@@ -19226,7 +19227,7 @@ _CIM_ActiveConnection_Dependent =
     _CIM_ActiveConnection_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ServiceAccessPoint,
 };
 
@@ -19343,7 +19344,7 @@ __root_PG_InterOp_CIM_ActiveConnection =
     "CIM_ActiveConnection",
     /* qualifiers */
     __root_PG_InterOp_CIM_ActiveConnection_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_SAPSAPDependency,
     /* features */
     _CIM_ActiveConnection_features,
@@ -19374,7 +19375,7 @@ _CIM_BindsTo_Antecedent =
     _CIM_BindsTo_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ProtocolEndpoint,
 };
 
@@ -19397,7 +19398,7 @@ _CIM_BindsTo_Dependent =
     _CIM_BindsTo_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ServiceAccessPoint,
 };
 
@@ -19428,7 +19429,7 @@ __root_PG_InterOp_CIM_BindsTo =
     "CIM_BindsTo",
     /* qualifiers */
     __root_PG_InterOp_CIM_BindsTo_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_SAPSAPDependency,
     /* features */
     _CIM_BindsTo_features,
@@ -19459,7 +19460,7 @@ _CIM_ProvidesEndpoint_Antecedent =
     _CIM_ProvidesEndpoint_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Service,
 };
 
@@ -19482,7 +19483,7 @@ _CIM_ProvidesEndpoint_Dependent =
     _CIM_ProvidesEndpoint_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ProtocolEndpoint,
 };
 
@@ -19513,7 +19514,7 @@ __root_PG_InterOp_CIM_ProvidesEndpoint =
     "CIM_ProvidesEndpoint",
     /* qualifiers */
     __root_PG_InterOp_CIM_ProvidesEndpoint_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ServiceAccessBySAP,
     /* features */
     _CIM_ProvidesEndpoint_features,
@@ -19632,7 +19633,7 @@ __root_PG_InterOp_CIM_RemotePort =
     "CIM_RemotePort",
     /* qualifiers */
     __root_PG_InterOp_CIM_RemotePort_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_RemoteServiceAccessPoint,
     /* features */
     _CIM_RemotePort_features,
@@ -19803,7 +19804,7 @@ __root_PG_InterOp_CIM_Indication =
     "CIM_Indication",
     /* qualifiers */
     __root_PG_InterOp_CIM_Indication_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_Indication_features,
@@ -19864,7 +19865,7 @@ __root_PG_InterOp_CIM_ClassIndication =
     "CIM_ClassIndication",
     /* qualifiers */
     __root_PG_InterOp_CIM_ClassIndication_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Indication,
     /* features */
     _CIM_ClassIndication_features,
@@ -19925,7 +19926,7 @@ __root_PG_InterOp_CIM_ClassModification =
     "CIM_ClassModification",
     /* qualifiers */
     __root_PG_InterOp_CIM_ClassModification_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ClassIndication,
     /* features */
     _CIM_ClassModification_features,
@@ -20140,7 +20141,7 @@ __root_PG_InterOp_CIM_IndicationFilter =
     "CIM_IndicationFilter",
     /* qualifiers */
     __root_PG_InterOp_CIM_IndicationFilter_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ManagedElement,
     /* features */
     _CIM_IndicationFilter_features,
@@ -20253,7 +20254,7 @@ __root_PG_InterOp_CIM_InstIndication =
     "CIM_InstIndication",
     /* qualifiers */
     __root_PG_InterOp_CIM_InstIndication_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Indication,
     /* features */
     _CIM_InstIndication_features,
@@ -20388,7 +20389,7 @@ __root_PG_InterOp_CIM_InstMethodCall =
     "CIM_InstMethodCall",
     /* qualifiers */
     __root_PG_InterOp_CIM_InstMethodCall_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_InstIndication,
     /* features */
     _CIM_InstMethodCall_features,
@@ -20449,7 +20450,7 @@ __root_PG_InterOp_CIM_InstModification =
     "CIM_InstModification",
     /* qualifiers */
     __root_PG_InterOp_CIM_InstModification_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_InstIndication,
     /* features */
     _CIM_InstModification_features,
@@ -20486,7 +20487,7 @@ __root_PG_InterOp_CIM_InstRead =
     "CIM_InstRead",
     /* qualifiers */
     __root_PG_InterOp_CIM_InstRead_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_InstIndication,
     /* features */
     _CIM_InstRead_features,
@@ -20683,7 +20684,7 @@ __root_PG_InterOp_CIM_ListenerDestination =
     "CIM_ListenerDestination",
     /* qualifiers */
     __root_PG_InterOp_CIM_ListenerDestination_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ManagedElement,
     /* features */
     _CIM_ListenerDestination_features,
@@ -20744,7 +20745,7 @@ __root_PG_InterOp_CIM_ListenerDestinationCIMXML =
     "CIM_ListenerDestinationCIMXML",
     /* qualifiers */
     __root_PG_InterOp_CIM_ListenerDestinationCIMXML_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ListenerDestination,
     /* features */
     _CIM_ListenerDestinationCIMXML_features,
@@ -20781,7 +20782,7 @@ __root_PG_InterOp_CIM_ProcessIndication =
     "CIM_ProcessIndication",
     /* qualifiers */
     __root_PG_InterOp_CIM_ProcessIndication_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Indication,
     /* features */
     _CIM_ProcessIndication_features,
@@ -21046,7 +21047,7 @@ __root_PG_InterOp_CIM_SNMPTrapIndication =
     "CIM_SNMPTrapIndication",
     /* qualifiers */
     __root_PG_InterOp_CIM_SNMPTrapIndication_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ProcessIndication,
     /* features */
     _CIM_SNMPTrapIndication_features,
@@ -21523,7 +21524,7 @@ __root_PG_InterOp_CIM_AlertIndication =
     "CIM_AlertIndication",
     /* qualifiers */
     __root_PG_InterOp_CIM_AlertIndication_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ProcessIndication,
     /* features */
     _CIM_AlertIndication_features,
@@ -21610,7 +21611,7 @@ __root_PG_InterOp_CIM_AlertInstIndication =
     "CIM_AlertInstIndication",
     /* qualifiers */
     __root_PG_InterOp_CIM_AlertInstIndication_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_AlertIndication,
     /* features */
     _CIM_AlertInstIndication_features,
@@ -21647,7 +21648,7 @@ __root_PG_InterOp_CIM_ClassCreation =
     "CIM_ClassCreation",
     /* qualifiers */
     __root_PG_InterOp_CIM_ClassCreation_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ClassIndication,
     /* features */
     _CIM_ClassCreation_features,
@@ -21684,7 +21685,7 @@ __root_PG_InterOp_CIM_ClassDeletion =
     "CIM_ClassDeletion",
     /* qualifiers */
     __root_PG_InterOp_CIM_ClassDeletion_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ClassIndication,
     /* features */
     _CIM_ClassDeletion_features,
@@ -21749,7 +21750,7 @@ __root_PG_InterOp_CIM_IndicationHandler =
     "CIM_IndicationHandler",
     /* qualifiers */
     __root_PG_InterOp_CIM_IndicationHandler_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ListenerDestination,
     /* features */
     _CIM_IndicationHandler_features,
@@ -21814,7 +21815,7 @@ __root_PG_InterOp_CIM_IndicationHandlerCIMXML =
     "CIM_IndicationHandlerCIMXML",
     /* qualifiers */
     __root_PG_InterOp_CIM_IndicationHandlerCIMXML_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_IndicationHandler,
     /* features */
     _CIM_IndicationHandlerCIMXML_features,
@@ -21843,7 +21844,7 @@ _CIM_IndicationSubscription_Filter =
     _CIM_IndicationSubscription_Filter_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_IndicationFilter,
 };
 
@@ -21864,7 +21865,7 @@ _CIM_IndicationSubscription_Handler =
     _CIM_IndicationSubscription_Handler_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ListenerDestination,
 };
 
@@ -22253,7 +22254,7 @@ __root_PG_InterOp_CIM_IndicationSubscription =
     "CIM_IndicationSubscription",
     /* qualifiers */
     __root_PG_InterOp_CIM_IndicationSubscription_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_IndicationSubscription_features,
@@ -22290,7 +22291,7 @@ __root_PG_InterOp_CIM_InstCreation =
     "CIM_InstCreation",
     /* qualifiers */
     __root_PG_InterOp_CIM_InstCreation_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_InstIndication,
     /* features */
     _CIM_InstCreation_features,
@@ -22327,7 +22328,7 @@ __root_PG_InterOp_CIM_InstDeletion =
     "CIM_InstDeletion",
     /* qualifiers */
     __root_PG_InterOp_CIM_InstDeletion_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_InstIndication,
     /* features */
     _CIM_InstDeletion_features,
@@ -22442,7 +22443,7 @@ __root_PG_InterOp_CIM_ThresholdIndication =
     "CIM_ThresholdIndication",
     /* qualifiers */
     __root_PG_InterOp_CIM_ThresholdIndication_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_AlertIndication,
     /* features */
     _CIM_ThresholdIndication_features,
@@ -22583,7 +22584,7 @@ __root_PG_InterOp_CIM_FormattedIndicationSubscription =
     "CIM_FormattedIndicationSubscription",
     /* qualifiers */
     __root_PG_InterOp_CIM_FormattedIndicationSubscription_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_IndicationSubscription,
     /* features */
     _CIM_FormattedIndicationSubscription_features,
@@ -22926,7 +22927,7 @@ __root_PG_InterOp_CIM_Namespace =
     "CIM_Namespace",
     /* qualifiers */
     __root_PG_InterOp_CIM_Namespace_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ManagedElement,
     /* features */
     _CIM_Namespace_features,
@@ -23155,7 +23156,7 @@ __root_PG_InterOp_CIM_RegisteredProfile =
     "CIM_RegisteredProfile",
     /* qualifiers */
     __root_PG_InterOp_CIM_RegisteredProfile_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ManagedElement,
     /* features */
     _CIM_RegisteredProfile_features,
@@ -23192,7 +23193,7 @@ __root_PG_InterOp_CIM_RegisteredSubProfile =
     "CIM_RegisteredSubProfile",
     /* qualifiers */
     __root_PG_InterOp_CIM_RegisteredSubProfile_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_RegisteredProfile,
     /* features */
     _CIM_RegisteredSubProfile_features,
@@ -23537,7 +23538,7 @@ __root_PG_InterOp_CIM_SystemIdentification =
     "CIM_SystemIdentification",
     /* qualifiers */
     __root_PG_InterOp_CIM_SystemIdentification_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ManagedElement,
     /* features */
     _CIM_SystemIdentification_features,
@@ -23570,7 +23571,7 @@ _CIM_SystemInNamespace_ManagedNamespace =
     _CIM_SystemInNamespace_ManagedNamespace_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Namespace,
 };
 
@@ -23591,7 +23592,7 @@ _CIM_SystemInNamespace_Identification =
     _CIM_SystemInNamespace_Identification_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_SystemIdentification,
 };
 
@@ -23682,7 +23683,7 @@ __root_PG_InterOp_CIM_SystemInNamespace =
     "CIM_SystemInNamespace",
     /* qualifiers */
     __root_PG_InterOp_CIM_SystemInNamespace_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_SystemInNamespace_features,
@@ -23927,7 +23928,7 @@ __root_PG_InterOp_CIM_CIMOMStatisticalData =
     "CIM_CIMOMStatisticalData",
     /* qualifiers */
     __root_PG_InterOp_CIM_CIMOMStatisticalData_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_StatisticalData,
     /* features */
     _CIM_CIMOMStatisticalData_features,
@@ -23956,7 +23957,7 @@ _CIM_ElementConformsToProfile_ConformantStandard =
     _CIM_ElementConformsToProfile_ConformantStandard_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_RegisteredProfile,
 };
 
@@ -23977,7 +23978,7 @@ _CIM_ElementConformsToProfile_ManagedElement =
     _CIM_ElementConformsToProfile_ManagedElement_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
@@ -24008,7 +24009,7 @@ __root_PG_InterOp_CIM_ElementConformsToProfile =
     "CIM_ElementConformsToProfile",
     /* qualifiers */
     __root_PG_InterOp_CIM_ElementConformsToProfile_qualifiers,
-    /* superClass */
+    /* super */
     0,
     /* features */
     _CIM_ElementConformsToProfile_features,
@@ -24039,7 +24040,7 @@ _CIM_ReferencedProfile_Antecedent =
     _CIM_ReferencedProfile_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_RegisteredProfile,
 };
 
@@ -24062,7 +24063,7 @@ _CIM_ReferencedProfile_Dependent =
     _CIM_ReferencedProfile_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_RegisteredProfile,
 };
 
@@ -24093,7 +24094,7 @@ __root_PG_InterOp_CIM_ReferencedProfile =
     "CIM_ReferencedProfile",
     /* qualifiers */
     __root_PG_InterOp_CIM_ReferencedProfile_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Dependency,
     /* features */
     _CIM_ReferencedProfile_features,
@@ -24126,7 +24127,7 @@ _CIM_SubProfileRequiresProfile_Antecedent =
     _CIM_SubProfileRequiresProfile_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_RegisteredProfile,
 };
 
@@ -24149,7 +24150,7 @@ _CIM_SubProfileRequiresProfile_Dependent =
     _CIM_SubProfileRequiresProfile_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_RegisteredSubProfile,
 };
 
@@ -24180,7 +24181,7 @@ __root_PG_InterOp_CIM_SubProfileRequiresProfile =
     "CIM_SubProfileRequiresProfile",
     /* qualifiers */
     __root_PG_InterOp_CIM_SubProfileRequiresProfile_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ReferencedProfile,
     /* features */
     _CIM_SubProfileRequiresProfile_features,
@@ -24217,7 +24218,7 @@ __root_PG_InterOp_CIM_WBEMService =
     "CIM_WBEMService",
     /* qualifiers */
     __root_PG_InterOp_CIM_WBEMService_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Service,
     /* features */
     _CIM_WBEMService_features,
@@ -24250,7 +24251,7 @@ _CIM_IdentificationOfManagedSystem_Antecedent =
     _CIM_IdentificationOfManagedSystem_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_System,
 };
 
@@ -24275,7 +24276,7 @@ _CIM_IdentificationOfManagedSystem_Dependent =
     _CIM_IdentificationOfManagedSystem_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_SystemIdentification,
 };
 
@@ -24306,7 +24307,7 @@ __root_PG_InterOp_CIM_IdentificationOfManagedSystem =
     "CIM_IdentificationOfManagedSystem",
     /* qualifiers */
     __root_PG_InterOp_CIM_IdentificationOfManagedSystem_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Dependency,
     /* features */
     _CIM_IdentificationOfManagedSystem_features,
@@ -24445,7 +24446,7 @@ __root_PG_InterOp_CIM_ObjectManager =
     "CIM_ObjectManager",
     /* qualifiers */
     __root_PG_InterOp_CIM_ObjectManager_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_WBEMService,
     /* features */
     _CIM_ObjectManager_features,
@@ -24614,7 +24615,7 @@ __root_PG_InterOp_CIM_ObjectManagerAdapter =
     "CIM_ObjectManagerAdapter",
     /* qualifiers */
     __root_PG_InterOp_CIM_ObjectManagerAdapter_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_WBEMService,
     /* features */
     _CIM_ObjectManagerAdapter_features,
@@ -24935,7 +24936,7 @@ __root_PG_InterOp_CIM_ObjectManagerCommunicationMechanism =
     "CIM_ObjectManagerCommunicationMechanism",
     /* qualifiers */
     __root_PG_InterOp_CIM_ObjectManagerCommunicationMechanism_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ServiceAccessPoint,
     /* features */
     _CIM_ObjectManagerCommunicationMechanism_features,
@@ -25088,7 +25089,7 @@ __root_PG_InterOp_CIM_ProtocolAdapter =
     "CIM_ProtocolAdapter",
     /* qualifiers */
     __root_PG_InterOp_CIM_ProtocolAdapter_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_WBEMService,
     /* features */
     _CIM_ProtocolAdapter_features,
@@ -25237,7 +25238,7 @@ __root_PG_InterOp_CIM_CIMXMLCommunicationMechanism =
     "CIM_CIMXMLCommunicationMechanism",
     /* qualifiers */
     __root_PG_InterOp_CIM_CIMXMLCommunicationMechanism_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ObjectManagerCommunicationMechanism,
     /* features */
     _CIM_CIMXMLCommunicationMechanism_features,
@@ -25270,7 +25271,7 @@ _CIM_CommMechanismForAdapter_Antecedent =
     _CIM_CommMechanismForAdapter_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ProtocolAdapter,
 };
 
@@ -25297,7 +25298,7 @@ _CIM_CommMechanismForAdapter_Dependent =
     _CIM_CommMechanismForAdapter_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ObjectManagerCommunicationMechanism,
 };
 
@@ -25330,7 +25331,7 @@ __root_PG_InterOp_CIM_CommMechanismForAdapter =
     "CIM_CommMechanismForAdapter",
     /* qualifiers */
     __root_PG_InterOp_CIM_CommMechanismForAdapter_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Dependency,
     /* features */
     _CIM_CommMechanismForAdapter_features,
@@ -25365,7 +25366,7 @@ _CIM_CommMechanismForManager_Antecedent =
     _CIM_CommMechanismForManager_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ObjectManager,
 };
 
@@ -25390,7 +25391,7 @@ _CIM_CommMechanismForManager_Dependent =
     _CIM_CommMechanismForManager_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ObjectManagerCommunicationMechanism,
 };
 
@@ -25421,7 +25422,7 @@ __root_PG_InterOp_CIM_CommMechanismForManager =
     "CIM_CommMechanismForManager",
     /* qualifiers */
     __root_PG_InterOp_CIM_CommMechanismForManager_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ServiceAccessBySAP,
     /* features */
     _CIM_CommMechanismForManager_features,
@@ -25452,7 +25453,7 @@ _CIM_CommMechanismForObjectManagerAdapter_Antecedent =
     _CIM_CommMechanismForObjectManagerAdapter_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ObjectManagerAdapter,
 };
 
@@ -25477,7 +25478,7 @@ _CIM_CommMechanismForObjectManagerAdapter_Dependent =
     _CIM_CommMechanismForObjectManagerAdapter_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ObjectManagerCommunicationMechanism,
 };
 
@@ -25508,7 +25509,7 @@ __root_PG_InterOp_CIM_CommMechanismForObjectManagerAdapter =
     "CIM_CommMechanismForObjectManagerAdapter",
     /* qualifiers */
     __root_PG_InterOp_CIM_CommMechanismForObjectManagerAdapter_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Dependency,
     /* features */
     _CIM_CommMechanismForObjectManagerAdapter_features,
@@ -25543,7 +25544,7 @@ _CIM_NamespaceInManager_Antecedent =
     _CIM_NamespaceInManager_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_ObjectManager,
 };
 
@@ -25566,7 +25567,7 @@ _CIM_NamespaceInManager_Dependent =
     _CIM_NamespaceInManager_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_CIM_Namespace,
 };
 
@@ -25597,7 +25598,7 @@ __root_PG_InterOp_CIM_NamespaceInManager =
     "CIM_NamespaceInManager",
     /* qualifiers */
     __root_PG_InterOp_CIM_NamespaceInManager_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_HostedDependency,
     /* features */
     _CIM_NamespaceInManager_features,
@@ -25812,7 +25813,7 @@ __root_PG_InterOp_PG_IndicationHandlerSNMPMapper =
     "PG_IndicationHandlerSNMPMapper",
     /* qualifiers */
     __root_PG_InterOp_PG_IndicationHandlerSNMPMapper_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_IndicationHandler,
     /* features */
     _PG_IndicationHandlerSNMPMapper_features,
@@ -25845,7 +25846,7 @@ __root_PG_InterOp_PG_ListenerDestinationSystemLog =
     "PG_ListenerDestinationSystemLog",
     /* qualifiers */
     __root_PG_InterOp_PG_ListenerDestinationSystemLog_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ListenerDestination,
     /* features */
     _PG_ListenerDestinationSystemLog_features,
@@ -25950,7 +25951,7 @@ __root_PG_InterOp_PG_ListenerDestinationEmail =
     "PG_ListenerDestinationEmail",
     /* qualifiers */
     __root_PG_InterOp_PG_ListenerDestinationEmail_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ListenerDestination,
     /* features */
     _PG_ListenerDestinationEmail_features,
@@ -26206,7 +26207,7 @@ _PG_ProviderModule_OtherStatusDescription =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _PG_ProviderModule_start_parameters[] =
 {
     0,
@@ -26233,7 +26234,7 @@ _PG_ProviderModule_start =
     _PG_ProviderModule_start_parameters,
 };
 
-static SourceProperty*
+static SourceFeature*
 _PG_ProviderModule_stop_parameters[] =
 {
     0,
@@ -26295,7 +26296,7 @@ __root_PG_InterOp_PG_ProviderModule =
     "PG_ProviderModule",
     /* qualifiers */
     __root_PG_InterOp_PG_ProviderModule_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_LogicalElement,
     /* features */
     _PG_ProviderModule_features,
@@ -26382,7 +26383,7 @@ __root_PG_InterOp_PG_Provider =
     "PG_Provider",
     /* qualifiers */
     __root_PG_InterOp_PG_Provider_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_LogicalElement,
     /* features */
     _PG_Provider_features,
@@ -26493,7 +26494,7 @@ __root_PG_InterOp_PG_Capabilities =
     "PG_Capabilities",
     /* qualifiers */
     __root_PG_InterOp_PG_Capabilities_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ManagedElement,
     /* features */
     _PG_Capabilities_features,
@@ -26558,7 +26559,7 @@ __root_PG_InterOp_PG_CapabilitiesRegistration =
     "PG_CapabilitiesRegistration",
     /* qualifiers */
     __root_PG_InterOp_PG_CapabilitiesRegistration_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_PG_Capabilities,
     /* features */
     _PG_CapabilitiesRegistration_features,
@@ -26693,7 +26694,7 @@ __root_PG_InterOp_PG_ProviderCapabilities =
     "PG_ProviderCapabilities",
     /* qualifiers */
     __root_PG_InterOp_PG_ProviderCapabilities_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_PG_CapabilitiesRegistration,
     /* features */
     _PG_ProviderCapabilities_features,
@@ -26752,7 +26753,7 @@ __root_PG_InterOp_PG_ConsumerCapabilities =
     "PG_ConsumerCapabilities",
     /* qualifiers */
     __root_PG_InterOp_PG_ConsumerCapabilities_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_PG_CapabilitiesRegistration,
     /* features */
     _PG_ConsumerCapabilities_features,
@@ -26787,7 +26788,7 @@ _PG_ProviderCapabilitiesElements_Antecedent =
     _PG_ProviderCapabilitiesElements_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_PG_Provider,
 };
 
@@ -26810,7 +26811,7 @@ _PG_ProviderCapabilitiesElements_Dependent =
     _PG_ProviderCapabilitiesElements_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_PG_CapabilitiesRegistration,
 };
 
@@ -26839,7 +26840,7 @@ __root_PG_InterOp_PG_ProviderCapabilitiesElements =
     "PG_ProviderCapabilitiesElements",
     /* qualifiers */
     __root_PG_InterOp_PG_ProviderCapabilitiesElements_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Dependency,
     /* features */
     _PG_ProviderCapabilitiesElements_features,
@@ -26874,7 +26875,7 @@ _PG_ProviderModuleElements_Antecedent =
     _PG_ProviderModuleElements_Antecedent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_PG_ProviderModule,
 };
 
@@ -26897,7 +26898,7 @@ _PG_ProviderModuleElements_Dependent =
     _PG_ProviderModuleElements_Dependent_qualifiers,
     /* subscript */
     -1,
-    /* refClassId */
+    /* refId */
     &__root_PG_InterOp_PG_Provider,
 };
 
@@ -26926,7 +26927,7 @@ __root_PG_InterOp_PG_ProviderModuleElements =
     "PG_ProviderModuleElements",
     /* qualifiers */
     __root_PG_InterOp_PG_ProviderModuleElements_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Dependency,
     /* features */
     _PG_ProviderModuleElements_features,
@@ -27039,7 +27040,7 @@ __root_PG_InterOp_PG_CIMXMLCommunicationMechanism =
     "PG_CIMXMLCommunicationMechanism",
     /* qualifiers */
     __root_PG_InterOp_PG_CIMXMLCommunicationMechanism_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_CIMXMLCommunicationMechanism,
     /* features */
     _PG_CIMXMLCommunicationMechanism_features,
@@ -27146,7 +27147,7 @@ __root_PG_InterOp_PG_NameSpace =
     "PG_NameSpace",
     /* qualifiers */
     __root_PG_InterOp_PG_NameSpace_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_Namespace,
     /* features */
     _PG_NameSpace_features,
@@ -27291,7 +27292,7 @@ __root_PG_InterOp_CIM_ComputerSystem =
     "CIM_ComputerSystem",
     /* qualifiers */
     __root_PG_InterOp_CIM_ComputerSystem_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_System,
     /* features */
     _CIM_ComputerSystem_features,
@@ -27530,11 +27531,11 @@ _CIM_UnitaryComputerSystem_SetPowerState_Time =
     0,
 };
 
-static SourceProperty*
+static SourceFeature*
 _CIM_UnitaryComputerSystem_SetPowerState_parameters[] =
 {
-    (SourceProperty*)&_CIM_UnitaryComputerSystem_SetPowerState_PowerState,
-    (SourceProperty*)&_CIM_UnitaryComputerSystem_SetPowerState_Time,
+    (SourceFeature*)&_CIM_UnitaryComputerSystem_SetPowerState_PowerState,
+    (SourceFeature*)&_CIM_UnitaryComputerSystem_SetPowerState_Time,
     0,
 };
 
@@ -27588,7 +27589,7 @@ __root_PG_InterOp_CIM_UnitaryComputerSystem =
     "CIM_UnitaryComputerSystem",
     /* qualifiers */
     __root_PG_InterOp_CIM_UnitaryComputerSystem_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ComputerSystem,
     /* features */
     _CIM_UnitaryComputerSystem_features,
@@ -27779,7 +27780,7 @@ __root_PG_InterOp_PG_ComputerSystem =
     "PG_ComputerSystem",
     /* qualifiers */
     __root_PG_InterOp_PG_ComputerSystem_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_UnitaryComputerSystem,
     /* features */
     _PG_ComputerSystem_features,
@@ -28038,7 +28039,7 @@ __root_PG_InterOp_PG_ProviderProfileCapabilities =
     "PG_ProviderProfileCapabilities",
     /* qualifiers */
     __root_PG_InterOp_PG_ProviderProfileCapabilities_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_PG_Capabilities,
     /* features */
     _PG_ProviderProfileCapabilities_features,
@@ -28273,7 +28274,7 @@ __root_PG_InterOp_PG_ProviderReferencedProfiles =
     "PG_ProviderReferencedProfiles",
     /* qualifiers */
     __root_PG_InterOp_PG_ProviderReferencedProfiles_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_PG_Capabilities,
     /* features */
     _PG_ProviderReferencedProfiles_features,
@@ -28308,7 +28309,7 @@ __root_PG_InterOp_PG_RegisteredProfile =
     "PG_RegisteredProfile",
     /* qualifiers */
     __root_PG_InterOp_PG_RegisteredProfile_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_RegisteredProfile,
     /* features */
     _PG_RegisteredProfile_features,
@@ -28343,7 +28344,7 @@ __root_PG_InterOp_PG_RegisteredSubProfile =
     "PG_RegisteredSubProfile",
     /* qualifiers */
     __root_PG_InterOp_PG_RegisteredSubProfile_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_RegisteredSubProfile,
     /* features */
     _PG_RegisteredSubProfile_features,
@@ -28378,7 +28379,7 @@ __root_PG_InterOp_PG_ReferencedProfile =
     "PG_ReferencedProfile",
     /* qualifiers */
     __root_PG_InterOp_PG_ReferencedProfile_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ReferencedProfile,
     /* features */
     _PG_ReferencedProfile_features,
@@ -28413,7 +28414,7 @@ __root_PG_InterOp_PG_ElementConformsToProfile =
     "PG_ElementConformsToProfile",
     /* qualifiers */
     __root_PG_InterOp_PG_ElementConformsToProfile_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ElementConformsToProfile,
     /* features */
     _PG_ElementConformsToProfile_features,
@@ -28448,7 +28449,7 @@ __root_PG_InterOp_PG_SubProfileRequiresProfile =
     "PG_SubProfileRequiresProfile",
     /* qualifiers */
     __root_PG_InterOp_PG_SubProfileRequiresProfile_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_SubProfileRequiresProfile,
     /* features */
     _PG_SubProfileRequiresProfile_features,
@@ -28483,7 +28484,7 @@ __root_PG_InterOp_PG_SoftwareIdentity =
     "PG_SoftwareIdentity",
     /* qualifiers */
     __root_PG_InterOp_PG_SoftwareIdentity_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_SoftwareIdentity,
     /* features */
     _PG_SoftwareIdentity_features,
@@ -28518,7 +28519,7 @@ __root_PG_InterOp_PG_ElementSoftwareIdentity =
     "PG_ElementSoftwareIdentity",
     /* qualifiers */
     __root_PG_InterOp_PG_ElementSoftwareIdentity_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ElementSoftwareIdentity,
     /* features */
     _PG_ElementSoftwareIdentity_features,
@@ -28553,7 +28554,7 @@ __root_PG_InterOp_PG_ObjectManager =
     "PG_ObjectManager",
     /* qualifiers */
     __root_PG_InterOp_PG_ObjectManager_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_ObjectManager,
     /* features */
     _PG_ObjectManager_features,
@@ -28588,7 +28589,7 @@ __root_PG_InterOp_PG_CommMechanismForManager =
     "PG_CommMechanismForManager",
     /* qualifiers */
     __root_PG_InterOp_PG_CommMechanismForManager_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_CommMechanismForManager,
     /* features */
     _PG_CommMechanismForManager_features,
@@ -28623,7 +28624,7 @@ __root_PG_InterOp_PG_NamespaceInManager =
     "PG_NamespaceInManager",
     /* qualifiers */
     __root_PG_InterOp_PG_NamespaceInManager_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_NamespaceInManager,
     /* features */
     _PG_NamespaceInManager_features,
@@ -28658,7 +28659,7 @@ __root_PG_InterOp_PG_HostedObjectManager =
     "PG_HostedObjectManager",
     /* qualifiers */
     __root_PG_InterOp_PG_HostedObjectManager_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_HostedService,
     /* features */
     _PG_HostedObjectManager_features,
@@ -28693,7 +28694,7 @@ __root_PG_InterOp_PG_HostedAccessPoint =
     "PG_HostedAccessPoint",
     /* qualifiers */
     __root_PG_InterOp_PG_HostedAccessPoint_qualifiers,
-    /* superClass */
+    /* super */
     &__root_PG_InterOp_CIM_HostedAccessPoint,
     /* features */
     _PG_HostedAccessPoint_features,

@@ -1080,6 +1080,8 @@ void cimmofSourceConsumer::_writeSourcePrologue()
 
     _outn("#include \"%s\"", *Str(path));
     _nl();
+    _outn("/*NOCHKSRC*/");
+    _nl();
     _outn("PEGASUS_NAMESPACE_BEGIN");
     _nl();
 }
@@ -1477,14 +1479,14 @@ void cimmofSourceConsumer::_writeMethod(
 
     // Write parameters array:
 
-    _outn("static SourceProperty*");
+    _outn("static SourceFeature*");
     _outn("_%s_%s_parameters[] =", *Str(cn), *Str(mn));
     _outn("{");
 
     for (Uint32 i = 0; i < parameterNames.size(); i++)
     {
         const CIMName& pn = parameterNames[i];
-        _outn("    (SourceProperty*)&_%s_%s_%s,", *Str(cn), *Str(mn), *Str(pn));
+        _outn("    (SourceFeature*)&_%s_%s_%s,", *Str(cn), *Str(mn), *Str(pn));
     }
 
     _outn("    0,");

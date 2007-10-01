@@ -295,7 +295,7 @@ fi
 if [ $1 -eq 2 ]; then
     rm -f %PEGASUS_LOCAL_DOMAIN_SOCKET_PATH;
     rm -f %PEGASUS_CIMSERVER_START_FILE;
-    rm -f %CIMSERVER_LOCK_FILE;
+    rm -f %PEGASUS_CIMSERVER_START_LOCK_FILE;
 fi
 #
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-pre.spec

@@ -95,7 +95,6 @@ STATIC=1
 LIBRARY = pegrepository
 
 SOURCES = \
-    root_cimv2_namespace.cpp \
     SourceTypes.cpp \
     InstanceIndexFile.cpp \
     InstanceDataFile.cpp \
@@ -107,7 +106,13 @@ SOURCES = \
     ObjectCache.cpp \
     InheritanceTree.cpp \
     RepositoryDeclContext.cpp \
-    RepositoryQueryContext.cpp
+    RepositoryQueryContext.cpp \
+    SourceRepository.cpp
+
+SOURCES += \
+    root_cimv2_namespace.cpp \
+    root_PG_InterOp_namespace.cpp \
+    root_PG_Internal_namespace.cpp
 
 include $(ROOT)/mak/library.mak
 
@@ -116,5 +121,11 @@ compress:
 	make depend PEGASUS_ENABLE_COMPRESSED_REPOSITORY=1
 	make PEGASUS_ENABLE_COMPRESSED_REPOSITORY=1
 
+SCHEMAS=$(PEGASUS_ROOT)/Schemas
+CIMMOFL=$(PEGASUS_HOME)/bin/cimmofl -W -d -s
+
 rep:
-	cimmofl -d -s -I $(PEGASUS_ROOT)/Schemas/CIM2131 $(PEGASUS_ROOT)/Schemas/CIM2131/CIM_Schema.mof
+	@ $(CIMMOFL) -n root/PG_Internal -I $(SCHEMAS) root_PG_Internal.mof
+	@ $(CIMMOFL) -n root/PG_InterOp -I $(SCHEMAS) root_PG_InterOp.mof
+	@ $(CIMMOFL) -n root/cimv2 -I $(SCHEMAS) root_cimv2.mof
+

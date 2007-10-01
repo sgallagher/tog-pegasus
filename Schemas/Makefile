@@ -55,9 +55,9 @@ repository:
 	@ $(RMREPOSITORY) $(REPOSITORY_ROOT)
 	@ $(ECHO) +++++ Populating CIM repository - this will take a while
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER).mof into root namespace...
-	$(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" -nroot $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" -nroot $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading CIM_Schema$(CIM_SCHEMA_VER).mof into $(NAMESPACE) namespace...
-	$(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(NAMESPACE)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Schema$(CIM_SCHEMA_VER).mof
+	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(NAMESPACE)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Schema$(CIM_SCHEMA_VER).mof
 
 # The following is a hangover from previous testing and simply loads the
 # core into the namespace defined by NAMESPACE.  It should probably be 
@@ -66,7 +66,7 @@ short:
 	@ $(ECHO) +++++ Populating CIM repository - this will take a minute
 	@ $(RMREPOSITORY) $(REPOSITORY_ROOT)
 	@ $(ECHO) +++++ Loading CIM_Core.mof into root namespace...
-	$(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(NAMESPACE)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(NAMESPACE)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 
 clean:
 	@ $(ECHO) +++++ Removing existing CIM Repository named $(REPOSITORY_ROOT)
@@ -90,7 +90,7 @@ general:
 xml:
 	@ $(RMREPOSITORY) $(TMP_DIR)/repository
 	@ $(ECHO) +++++ Temporarily loading CIM_Core$(CIM_SCHEMA_VER) into xml/cimv2 namespace ...
-	$(CIMMOFCLI) "-R$(TMP_DIR)" "-I$(CIM_SCHEMA_DIR)" -nxml/cimv2 $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ $(CIMMOFCLI) "-R$(TMP_DIR)" "-I$(CIM_SCHEMA_DIR)" -nxml/cimv2 $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Creating XML for CIM Schema$(CIM_SCHEMA_VER).mof in file $(TMP_DIR)/CIM_Schema$(CIM_SCHEMA_VER).xml
-	$(CIMMOFCLI)  "-R$(TMP_DIR)" --xml "-I$(CIM_SCHEMA_DIR)" -nxml/cimv2 $(CIM_SCHEMA_DIR)/CIM_Schema$(CIM_SCHEMA_VER).mof > $(TMP_DIR)/CIM_Schema$(CIM_SCHEMA_VER).xml
+	@ $(CIMMOFCLI)  "-R$(TMP_DIR)" --xml "-I$(CIM_SCHEMA_DIR)" -nxml/cimv2 $(CIM_SCHEMA_DIR)/CIM_Schema$(CIM_SCHEMA_VER).mof > $(TMP_DIR)/CIM_Schema$(CIM_SCHEMA_VER).xml
 	@ $(RMREPOSITORY) $(TMP_DIR)/repository

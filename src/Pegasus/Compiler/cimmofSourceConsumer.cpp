@@ -1277,9 +1277,11 @@ void cimmofSourceConsumer::_writeQualifierArray(
 }
 
 void cimmofSourceConsumer::_writeProperty(
+    const CIMNamespaceName& nameSpace,
     const CIMName& cn,
     const CIMConstProperty& cp)
 {
+    String ns = _makeIdent(nameSpace.getString());
     CIMName pn = cp.getName();
     CIMType ct = cp.getType();
     CIMValue cv = cp.getValue();
@@ -1344,13 +1346,13 @@ void cimmofSourceConsumer::_writeProperty(
         _outn("    -1,");
     }
 
-    // SourceReference.refClass:
+    // SourceReference.ref:
 
     if (ct == CIMTYPE_REFERENCE)
     {
         const CIMName& rcn = cp.getReferenceClassName();
-        _outn("    /* refClass */");
-        _outn("    &_%s,", *Str(rcn));
+        _outn("    /* refId */");
+        _outn("    &__%s_%s,", *Str(ns), *Str(rcn));
     }
 
     // SourceQualifierDecl.value:
@@ -1368,10 +1370,12 @@ void cimmofSourceConsumer::_writeProperty(
 }
 
 void cimmofSourceConsumer::_writeParameter(
+    const CIMNamespaceName& nameSpace,
     const CIMName& cn,
     const CIMName& mn,
     const CIMConstParameter& cp)
 {
+    String ns = _makeIdent(nameSpace.getString());
     CIMName pn = cp.getName();
     CIMType ct = cp.getType();
 
@@ -1432,13 +1436,13 @@ void cimmofSourceConsumer::_writeParameter(
         _outn("    -1,");
     }
 
-    // SourceProperty.refClass:
+    // SourceProperty.ref:
 
     if (ct == CIMTYPE_REFERENCE)
     {
         const CIMName& rcn = cp.getReferenceClassName();
-        _outn("    /* refClass */");
-        _outn("    &_%s,", *Str(rcn));
+        _outn("    /* ref */");
+        _outn("    &__%s_%s,", *Str(ns), *Str(rcn));
     }
 
     // SourceQualifierDecl.value:
@@ -1454,6 +1458,7 @@ void cimmofSourceConsumer::_writeParameter(
 }
 
 void cimmofSourceConsumer::_writeMethod(
+    const CIMNamespaceName& nameSpace,
     const CIMName& cn,
     const CIMConstMethod& cm)
 {
@@ -1466,7 +1471,7 @@ void cimmofSourceConsumer::_writeMethod(
     for (Uint32 i = 0; i < cm.getParameterCount(); i++)
     {
         CIMConstParameter cp = cm.getParameter(i);
-        _writeParameter(cn, mn, cp);
+        _writeParameter(nameSpace, cn, mn, cp);
         parameterNames.append(cp.getName());
     }
 
@@ -1530,8 +1535,10 @@ void cimmofSourceConsumer::_writeMethod(
 }
 
 void cimmofSourceConsumer::_writeClass(
+    const CIMNamespaceName& nameSpace,
     const CIMClass& cc)
 {
+    String ns = _makeIdent(nameSpace.getString());
     CIMName cn = cc.getClassName();
 
     // Write comment:
@@ -1546,7 +1553,7 @@ void cimmofSourceConsumer::_writeClass(
     for (Uint32 i = 0; i < cc.getPropertyCount(); i++)
     {
         CIMConstProperty cp = cc.getProperty(i);
-        _writeProperty(cc.getClassName(), cp);
+        _writeProperty(nameSpace, cc.getClassName(), cp);
         featureNames.append(cp.getName());
     }
 
@@ -1555,7 +1562,7 @@ void cimmofSourceConsumer::_writeClass(
     for (Uint32 i = 0; i < cc.getMethodCount(); i++)
     {
         CIMConstMethod cm = cc.getMethod(i);
-        _writeMethod(cc.getClassName(), cm);
+        _writeMethod(nameSpace, cc.getClassName(), cm);
         featureNames.append(cm.getName());
     }
 
@@ -1577,11 +1584,11 @@ void cimmofSourceConsumer::_writeClass(
 
     // Class header:
 
-    String path = "_" + cn.getString();
+    String path = "__" + ns + "_" + cn.getString();
 
     _writeQualifierArray(path, _Qualifiers(cc));
 
-    _outn("static SourceClass");
+    _outn("SourceClass");
     _outn("%s =", *Str(path));
     _outn("{");
 
@@ -1612,13 +1619,12 @@ void cimmofSourceConsumer::_writeClass(
     // SourceClass.super:
 
     const CIMName& scn = cc.getSuperClassName();
-
     _outn("    /* super */");
 
     if (scn.isNull())
         _outn("    0,");
     else
-        _outn("    &_%s,", *Str(scn));
+        _outn("    &__%s_%s,", *Str(ns), *Str(scn));
 
     // SourceClass.features:
 
@@ -1645,10 +1651,24 @@ void cimmofSourceConsumer::_writeNameSpace(const CIMNamespaceName& nameSpace)
         _writeQualifierDecl(_qualifiers[i]);
     }
 
+    // Forward declare all classes:
+
+    _box(_os, "Forward class declarations");
+
+    _nl();
+
+    for (Uint32 i = 0; i < _classes.size(); i++)
+    {
+        CIMName cn = _classes[i].getClassName();
+        _outn("extern SourceClass __%s_%s;", *Str(ns), *Str(cn));
+    }
+
+    _nl();
+
     // Write classes:
 
     for (Uint32 i = 0; i < _classes.size(); i++)
-        _writeClass(_classes[i]);
+        _writeClass(nameSpace, _classes[i]);
 
     // Write qualifiers list:
 
@@ -1683,7 +1703,8 @@ void cimmofSourceConsumer::_writeNameSpace(const CIMNamespaceName& nameSpace)
 
     for (Uint32 i = 0; i < _classes.size(); i++)
     {
-        _outn("&_%s,", *Str(_classes[i].getClassName()));
+        CIMName cn = _classes[i].getClassName();
+        _outn("&__%s_%s,", *Str(ns), *Str(cn));
     }
 
     _outn("0,");

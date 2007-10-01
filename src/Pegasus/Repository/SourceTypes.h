@@ -119,7 +119,7 @@ struct SourceReference /* extends SourceFeature */
 
     // Local fields:
     Sint16 subscript;
-    struct SourceClass* refClass;
+    struct SourceClass* ref;
 };
 
 struct SourceMethod /* extends SourceFeature */
@@ -131,7 +131,7 @@ struct SourceMethod /* extends SourceFeature */
 
     // Local fields:
     Uint16 type;
-    SourceProperty** parameters;
+    SourceFeature** parameters;
 };
 
 struct SourceClass
@@ -139,7 +139,7 @@ struct SourceClass
     Uint32 flags;
     char* name;
     const char** qualifiers;
-    SourceClass* super;
+    struct SourceClass* super;
     SourceFeature** features;
 };
 
@@ -155,14 +155,9 @@ struct SourceQualifierDecl
 
 struct SourceNameSpace
 {
-    char* nameSpace;
+    char* name;
     SourceQualifierDecl** qualifiers;
     SourceClass** classes;
-};
-
-struct SourceRepository
-{
-    SourceNameSpace** nameSpaces;
 };
 
 PEGASUS_NAMESPACE_END

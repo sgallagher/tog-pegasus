@@ -905,6 +905,13 @@ CIMClass CIMRepository::getClass(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::getClass");
 
+#if defined(PEGASUS_USE_META_REPOSITORY)
+
+    return MetaRepository::getClass(nameSpace, className, 
+        localOnly, includeQualifiers, includeClassOrigin, propertyList);
+
+#else /* PEGASUS_USE_META_REPOSITORY */
+
     ReadLock lock(_lock);
     CIMClass cimClass = _getClass(nameSpace,
                                   className,
@@ -915,6 +922,8 @@ CIMClass CIMRepository::getClass(
 
     PEG_METHOD_EXIT();
     return cimClass;
+
+#endif /* PEGASUS_USE_META_REPOSITORY */
 }
 
 CIMClass CIMRepository::_getClass(
@@ -2270,6 +2279,13 @@ Array<CIMName> CIMRepository::enumerateClassNames(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateClassNames");
 
+#if defined(PEGASUS_USE_META_REPOSITORY)
+
+    return MetaRepository::enumerateClassNames(
+        nameSpace, className, deepInheritance);
+
+#else /* PEGASUS_USE_META_REPOSITORY */
+
     ReadLock lock(_lock);
 
     Array<CIMName> classNames;
@@ -2279,6 +2295,8 @@ Array<CIMName> CIMRepository::enumerateClassNames(
 
     PEG_METHOD_EXIT();
     return classNames;
+
+#endif /* PEGASUS_USE_META_REPOSITORY */
 }
 
 Boolean CIMRepository::_loadAllInstances(

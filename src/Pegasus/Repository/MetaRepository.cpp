@@ -142,10 +142,10 @@ static const MetaClass* _findClass(
 {
     for (size_t i = 0; ns->classes[i]; i++)
     {
-        const MetaClass* sc = ns->classes[i];
+        const MetaClass* mc = ns->classes[i];
 
-        if (_eqi(sc->name, name))
-            return sc;
+        if (_eqi(mc->name, name))
+            return mc;
     }
 
     // Not found!
@@ -605,18 +605,19 @@ static int _makeValue(
 
 struct FeatureInfo
 {
-    const MetaFeature* sf;
-    const MetaClass* sc;
+    const MetaFeature* mf;
+    const MetaClass* mc;
 };
 
 static int _mergeFeatures(
-    const MetaClass* sc,
+    const MetaClass* mc,
+    bool localOnly,
     FeatureInfo features[_MAX_FEATURES],
     size_t& numFeatures)
 {
-    if (sc->super)
+    if (!localOnly && mc->super)
     {
-        if (_mergeFeatures(sc->super, features, numFeatures) != 0)
+        if (_mergeFeatures(mc->super, localOnly, features, numFeatures) != 0)
         {
             printf("T[%u]\n", __LINE__);
             return -1;
@@ -625,9 +626,9 @@ static int _mergeFeatures(
 
     // Process all features of this class:
 
-    for (size_t i = 0; sc->features[i]; i++)
+    for (size_t i = 0; mc->features[i]; i++)
     {
-        const MetaFeature* sf = sc->features[i];
+        const MetaFeature* mf = mc->features[i];
 
         // Override feature if defined by ancestor class:
 
@@ -635,12 +636,12 @@ static int _mergeFeatures(
 
         for (size_t j = 0; j < numFeatures; j++)
         {
-            const MetaFeature* tmp = features[j].sf;
+            const MetaFeature* tmp = features[j].mf;
 
-            if (_eqi(sf->name, tmp->name))
+            if (_eqi(mf->name, tmp->name))
             {
-                features[j].sf = sf;
-                features[j].sc = sc;
+                features[j].mf = mf;
+                features[j].mc = mc;
                 found = true;
                 break;
             }
@@ -656,8 +657,8 @@ static int _mergeFeatures(
                 return -1;
             }
 
-            features[numFeatures].sf = sf;
-            features[numFeatures].sc = sc;
+            features[numFeatures].mf = mf;
+            features[numFeatures].mc = mc;
             numFeatures++;
         }
     }
@@ -668,19 +669,19 @@ static int _mergeFeatures(
 struct QualifierInfo
 {
     const char* qualifier;
-    const MetaClass* sc;
+    const MetaClass* mc;
 };
 
 static const MetaFeature* _findFeature(
-    const MetaClass* sc, 
+    const MetaClass* mc, 
     const char* name)
 {
-    for (size_t i = 0; sc->features[i]; i++)
+    for (size_t i = 0; mc->features[i]; i++)
     {
-        const MetaFeature* sf = sc->features[i];
+        const MetaFeature* mf = mc->features[i];
 
-        if (_eqi(sf->name, name))
-            return sf;
+        if (_eqi(mf->name, name))
+            return mf;
     }
 
     // Not found!
@@ -688,15 +689,15 @@ static const MetaFeature* _findFeature(
 }
 
 static const MetaFeature* _findParameter(
-    const MetaMethod* sm, 
+    const MetaMethod* mm, 
     const char* name)
 {
-    for (size_t i = 0; sm->parameters[i]; i++)
+    for (size_t i = 0; mm->parameters[i]; i++)
     {
-        const MetaFeature* sf = sm->parameters[i];
+        const MetaFeature* mf = mm->parameters[i];
 
-        if (_eqi(sm->name, name))
-            return sf;
+        if (_eqi(mm->name, name))
+            return mf;
     }
 
     // Not found!
@@ -705,7 +706,7 @@ static const MetaFeature* _findParameter(
 
 static int _mergeQualifiers(
     const MetaNameSpace* ns,
-    const MetaClass* sc,
+    const MetaClass* mc,
     const char* featureName,
     const char* parameterName,
     bool depth,
@@ -714,9 +715,9 @@ static int _mergeQualifiers(
 {
     // Merge super-class qualifiers:
 
-    if (sc->super)
+    if (mc->super)
     {
-        _mergeQualifiers(ns, sc->super, featureName, parameterName, depth + 1,
+        _mergeQualifiers(ns, mc->super, featureName, parameterName, depth + 1,
             qualifiers, numQualifiers);
     }
 
@@ -727,27 +728,27 @@ static int _mergeQualifiers(
     if (!featureName && !parameterName)
     {
         // Case 1: get class qualifiers:
-        quals = sc->qualifiers;
+        quals = mc->qualifiers;
     }
     else if (featureName && !parameterName)
     {
         // Case 2: get feature qualifiers:
 
-        const MetaFeature* sf = _findFeature(sc, featureName);
+        const MetaFeature* mf = _findFeature(mc, featureName);
 
-        if (sf)
-            quals = sf->qualifiers;
+        if (mf)
+            quals = mf->qualifiers;
     }
     else if (featureName && parameterName)
     {
         // Case 3: get parameter qualifiers:
 
-        const MetaFeature* sf = _findFeature(sc, featureName);
+        const MetaFeature* mf = _findFeature(mc, featureName);
 
-        if (sf && (sf->flags & META_FLAG_METHOD))
+        if (mf && (mf->flags & META_FLAG_METHOD))
         {
-            const MetaMethod* sm = (const MetaMethod*)sf;
-            const MetaFeature* p = _findParameter(sm, parameterName);
+            const MetaMethod* mm = (const MetaMethod*)mf;
+            const MetaFeature* p = _findParameter(mm, parameterName);
 
             if (p)
                 quals = p->qualifiers;
@@ -774,7 +775,7 @@ static int _mergeQualifiers(
             if (qi[0] == qj[0])
             {
                 qualifiers[j].qualifier = qi;
-                qualifiers[j].sc = sc;
+                qualifiers[j].mc = mc;
                 found = true;
                 break;
             }
@@ -795,7 +796,7 @@ static int _mergeQualifiers(
                 }
 
                 qualifiers[numQualifiers].qualifier = qi;
-                qualifiers[numQualifiers].sc = sc;
+                qualifiers[numQualifiers].mc = mc;
                 numQualifiers++;
             }
         }
@@ -807,7 +808,7 @@ static int _mergeQualifiers(
 template<class C>
 static int _addQualifiers(
     const MetaNameSpace* ns,
-    const MetaClass* sc,
+    const MetaClass* mc,
     const char* featureName,
     const char* parameterName,
     C& c)
@@ -816,7 +817,7 @@ static int _addQualifiers(
     size_t numQualifiers = 0;
 
     if (_mergeQualifiers(
-        ns, sc, featureName, parameterName, 0, qualifiers, numQualifiers) != 0)
+        ns, mc, featureName, parameterName, 0, qualifiers, numQualifiers) != 0)
     {
         printf("T[%u]\n", __LINE__);
         return -1;
@@ -856,17 +857,19 @@ static int _addQualifiers(
 
 static int _addProperty(
     const MetaNameSpace* ns,
-    const MetaClass* sc,
-    const MetaProperty* sp,
+    const MetaClass* mc,
+    const MetaProperty* mp,
     const char* classOrigin,
     bool propagated,
+    bool includeQualifiers,
+    bool includeClassOrigin,
     CIMClass& cc)
 {
     // Make CIMvalue:
 
     CIMValue cv;
 
-    if (_makeValue(cv, sp->type, sp->subscript, sp->value) != 0)
+    if (_makeValue(cv, mp->type, mp->subscript, mp->value) != 0)
     {
         printf("T[%u]\n", __LINE__);
         return -1;
@@ -874,16 +877,22 @@ static int _addProperty(
 
     // Create property:
 
-    CIMProperty cp(sp->name, cv);
-    cp.setClassOrigin(classOrigin);
+    CIMProperty cp(mp->name, cv);
+
+    if (includeClassOrigin)
+        cp.setClassOrigin(classOrigin);
+
     cp.setPropagated(propagated);
 
     // Add qualifiers:
 
-    if (_addQualifiers(ns, sc, sp->name, 0, cp) != 0)
+    if (includeQualifiers)
     {
-        printf("T[%u]\n", __LINE__);
-        return -1;
+        if (_addQualifiers(ns, mc, mp->name, 0, cp) != 0)
+        {
+            printf("T[%u]\n", __LINE__);
+            return -1;
+        }
     }
 
     // Add to class:
@@ -894,10 +903,12 @@ static int _addProperty(
 
 static int _addReference(
     const MetaNameSpace* ns,
-    const MetaClass* sc,
-    const MetaReference* sr,
+    const MetaClass* mc,
+    const MetaReference* mr,
     const char* classOrigin,
     bool propagated,
+    bool includeQualifiers,
+    bool includeClassOrigin,
     CIMClass& cc)
 {
     // Set isArray and arraySize:
@@ -905,7 +916,7 @@ static int _addReference(
     Boolean isArray;
     Uint32 arraySize;
     
-    if (sr->subscript == -1)
+    if (mr->subscript == -1)
     {
         isArray = false;
         arraySize = 0;
@@ -913,12 +924,12 @@ static int _addReference(
     else
     {
         isArray = true;
-        arraySize = sr->subscript;
+        arraySize = mr->subscript;
     }
 
     // Set referenceClassName:
 
-    CIMName rcn = sr->ref->name;
+    CIMName rcn = mr->ref->name;
 
     // Create value:
 
@@ -926,14 +937,22 @@ static int _addReference(
 
     // Create property:
 
-    CIMProperty cp(sr->name, cv, arraySize, rcn, classOrigin, propagated);
+    CIMProperty cp(mr->name, cv, arraySize, rcn);
+
+    if (includeClassOrigin)
+        cp.setClassOrigin(classOrigin);
+
+    cp.setPropagated(propagated);
 
     // Add qualifiers:
 
-    if (_addQualifiers(ns, sc, sr->name, 0, cp) != 0)
+    if (includeQualifiers)
     {
-        printf("T[%u]\n", __LINE__);
-        return -1;
+        if (_addQualifiers(ns, mc, mr->name, 0, cp) != 0)
+        {
+            printf("T[%u]\n", __LINE__);
+            return -1;
+        }
     }
 
     // Add to class:
@@ -944,9 +963,10 @@ static int _addReference(
 
 static int _addPropertyParameter(
     const MetaNameSpace* ns,
-    const MetaClass* sc,
-    const MetaMethod* sm,
-    const MetaProperty* sp,
+    const MetaClass* mc,
+    const MetaMethod* mm,
+    const MetaProperty* mp,
+    bool includeQualifiers,
     CIMMethod& cm)
 {
     // Create property:
@@ -954,7 +974,7 @@ static int _addPropertyParameter(
     bool isArray;
     Uint32 arraySize;
 
-    if (sp->subscript == -1)
+    if (mp->subscript == -1)
     {
         isArray = false;
         arraySize = 0;
@@ -962,17 +982,20 @@ static int _addPropertyParameter(
     else 
     {
         isArray = true;
-        arraySize = Uint32(sp->subscript);
+        arraySize = Uint32(mp->subscript);
     }
 
-    CIMParameter cp(sp->name, CIMType(sp->type), isArray, arraySize);
+    CIMParameter cp(mp->name, CIMType(mp->type), isArray, arraySize);
 
     // Add qualifiers:
 
-    if (_addQualifiers(ns, sc, sm->name, sp->name, cm) != 0)
+    if (includeQualifiers)
     {
-        printf("T[%u]\n", __LINE__);
-        return -1;
+        if (_addQualifiers(ns, mc, mm->name, mp->name, cm) != 0)
+        {
+            printf("T[%u]\n", __LINE__);
+            return -1;
+        }
     }
 
     // Add to method:
@@ -983,9 +1006,10 @@ static int _addPropertyParameter(
 
 static int _addReferenceParameter(
     const MetaNameSpace* ns,
-    const MetaClass* sc,
-    const MetaMethod* sm,
-    const MetaReference* sr,
+    const MetaClass* mc,
+    const MetaMethod* mm,
+    const MetaReference* mr,
+    bool includeQualifiers,
     CIMMethod& cm)
 {
     // Create property:
@@ -993,7 +1017,7 @@ static int _addReferenceParameter(
     bool isArray;
     Uint32 arraySize;
 
-    if (sr->subscript == -1)
+    if (mr->subscript == -1)
     {
         isArray = false;
         arraySize = 0;
@@ -1001,18 +1025,21 @@ static int _addReferenceParameter(
     else 
     {
         isArray = true;
-        arraySize = Uint32(sr->subscript);
+        arraySize = Uint32(mr->subscript);
     }
 
-    CIMName rcn = sr->ref->name;
-    CIMParameter cp(sr->name, CIMTYPE_REFERENCE, isArray, arraySize, rcn);
+    CIMName rcn = mr->ref->name;
+    CIMParameter cp(mr->name, CIMTYPE_REFERENCE, isArray, arraySize, rcn);
 
     // Add qualifiers:
 
-    if (_addQualifiers(ns, sc, sm->name, sr->name, cm) != 0)
+    if (includeQualifiers)
     {
-        printf("T[%u]\n", __LINE__);
-        return -1;
+        if (_addQualifiers(ns, mc, mm->name, mr->name, cm) != 0)
+        {
+            printf("T[%u]\n", __LINE__);
+            return -1;
+        }
     }
 
     // Add to method:
@@ -1023,42 +1050,50 @@ static int _addReferenceParameter(
 
 static int _addMethod(
     const MetaNameSpace* ns,
-    const MetaClass* sc,
-    const MetaMethod* sm,
+    const MetaClass* mc,
+    const MetaMethod* mm,
     const char* classOrigin,
     bool propagated,
+    bool includeQualifiers,
+    bool includeClassOrigin,
     CIMClass& cc)
 {
     // Create method:
 
-    CIMMethod cm(sm->name, CIMType(sm->type));
-    cm.setClassOrigin(classOrigin);
+    CIMMethod cm(mm->name, CIMType(mm->type));
+
+    if (includeClassOrigin)
+        cm.setClassOrigin(classOrigin);
+
     cm.setPropagated(propagated);
 
     // Add parameters:
 
-    for (size_t i = 0; sm->parameters[i]; i++)
+    for (size_t i = 0; mm->parameters[i]; i++)
     {
-        MetaFeature* sf = sm->parameters[i];
+        MetaFeature* mf = mm->parameters[i];
 
-        if (sf->flags & META_FLAG_PROPERTY)
+        if (mf->flags & META_FLAG_PROPERTY)
         {
-            MetaProperty* sp = (MetaProperty*)sf;
-            _addPropertyParameter(ns, sc, sm, sp, cm);
+            MetaProperty* mp = (MetaProperty*)mf;
+            _addPropertyParameter(ns, mc, mm, mp, includeQualifiers, cm);
         }
-        else if (sf->flags & META_FLAG_REFERENCE)
+        else if (mf->flags & META_FLAG_REFERENCE)
         {
-            MetaReference* sr = (MetaReference*)sf;
-            _addReferenceParameter(ns, sc, sm, sr, cm);
+            MetaReference* mr = (MetaReference*)mf;
+            _addReferenceParameter(ns, mc, mm, mr, includeQualifiers, cm);
         }
     }
 
     // Add qualifiers:
 
-    if (_addQualifiers(ns, sc, sm->name, 0, cm) != 0)
+    if (includeQualifiers)
     {
-        printf("T[%u]\n", __LINE__);
-        return -1;
+        if (_addQualifiers(ns, mc, mm->name, 0, cm) != 0)
+        {
+            printf("T[%u]\n", __LINE__);
+            return -1;
+        }
     }
 
     // Add to class:
@@ -1067,18 +1102,32 @@ static int _addMethod(
     return 0;
 }
 
+static bool _hasProperty(const char* const* propertyList, const char* name)
+{
+    for (size_t i = 0; propertyList[i]; i++)
+    {
+        if (_eqi(propertyList[i], name))
+            return true;
+    }
+
+    return false;
+}
+
 static int _addFeatures(
     const MetaNameSpace* ns,
-    const MetaClass* sc,
+    const MetaClass* mc,
+    bool localOnly,
+    bool includeQualifiers,
+    bool includeClassOrigin,
+    const char* const* propertyList,
     CIMClass& cc)
 {
-
     // Merge features from all inheritance levels into a single array:
 
     FeatureInfo features[_MAX_FEATURES];
     size_t numFeatures = 0;
 
-    if (_mergeFeatures(sc, features, numFeatures) != 0)
+    if (_mergeFeatures(mc, localOnly, features, numFeatures) != 0)
     {
         printf("T[%u]\n", __LINE__);
         return -1;
@@ -1092,41 +1141,49 @@ static int _addFeatures(
 
         // Set propagated flag:
 
-        bool propagated = fi.sc != sc;
+        bool propagated = fi.mc != mc;
 
         // Set classOrigin:
 
-        const char* classOrigin = fi.sc->name;
+        const char* classOrigin = fi.mc->name;
+
+        // Skip feature not in property list:
+
+        const MetaFeature* mf = fi.mf;
+
+        if (propertyList && !_hasProperty(propertyList, mf->name))
+            continue;
 
         // Add the feature:
 
-        const MetaFeature* sf = fi.sf;
-
-        if (sf->flags & META_FLAG_PROPERTY)
+        if (mf->flags & META_FLAG_PROPERTY)
         {
-            MetaProperty* sp = (MetaProperty*)sf;
+            MetaProperty* mp = (MetaProperty*)mf;
 
-            if (_addProperty(ns, sc, sp, classOrigin, propagated, cc) != 0)
+            if (_addProperty(ns, mc, mp, classOrigin, propagated, 
+                includeQualifiers, includeClassOrigin, cc) != 0)
             {
                 printf("T[%u]\n", __LINE__);
                 return -1;
             }
         }
-        else if (sf->flags & META_FLAG_REFERENCE)
+        else if (mf->flags & META_FLAG_REFERENCE)
         {
-            MetaReference* sr = (MetaReference*)sf;
+            MetaReference* mr = (MetaReference*)mf;
 
-            if (_addReference(ns, sc, sr, classOrigin, propagated, cc) != 0)
+            if (_addReference(ns, mc, mr, classOrigin, propagated, 
+                includeQualifiers, includeClassOrigin, cc) != 0)
             {
                 printf("T[%u]\n", __LINE__);
                 return -1;
             }
         }
-        else if (sf->flags & META_FLAG_METHOD)
+        else if (mf->flags & META_FLAG_METHOD)
         {
-            MetaMethod* sm = (MetaMethod*)sf;
+            MetaMethod* mm = (MetaMethod*)mf;
 
-            if (_addMethod(ns, sc, sm, classOrigin, propagated, cc) != 0)
+            if (_addMethod(ns, mc, mm, classOrigin, propagated, 
+                includeQualifiers, includeClassOrigin, cc) != 0)
             {
                 printf("T[%u]\n", __LINE__);
                 return -1;
@@ -1139,8 +1196,12 @@ static int _addFeatures(
 
 static int _makeClass(
     const MetaNameSpace* ns,
-    CIMClass& cc, 
-    const MetaClass* sc)
+    const MetaClass* mc,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const char* const* propertyList,
+    CIMClass& cc)
 {
     try
     {
@@ -1148,23 +1209,27 @@ static int _makeClass(
         {
             CIMName scn;
 
-            if (sc->super)
-                scn = sc->super->name;
+            if (mc->super)
+                scn = mc->super->name;
 
-            cc = CIMClass(sc->name, scn);
-    }
+            cc = CIMClass(mc->name, scn);
+        }
 
         // Add qualifiers:
 
-        if (_addQualifiers(ns, sc, 0, 0, cc) != 0)
+        if (includeQualifiers)
         {
-            printf("T[%u]\n", __LINE__);
-            return -1;
+            if (_addQualifiers(ns, mc, 0, 0, cc) != 0)
+            {
+                printf("T[%u]\n", __LINE__);
+                return -1;
+            }
         }
 
         // Features:
 
-        if (_addFeatures(ns, sc, cc) != 0)
+        if (_addFeatures(ns, mc, localOnly, includeQualifiers, 
+            includeClassOrigin, propertyList, cc) != 0)
         {
             printf("T[%u]\n", __LINE__);
             return -1;
@@ -1182,6 +1247,44 @@ static int _makeClass(
     }
 
     return 0;
+}
+
+static char** _makePropertyList(const CIMPropertyList& propertyList)
+{
+    if (propertyList.isNull())
+        return 0;
+
+    size_t size = propertyList.size();
+    char** pl = (char**)malloc(sizeof(char*) * (size + 1));
+
+    for (size_t i = 0; i < size; i++)
+        pl[i] = strdup(*Str(propertyList[i]));
+
+    pl[size] = 0;
+
+    return pl;
+}
+
+static void _freePropertyList(char** pl)
+{
+    if (!pl)
+        return;
+
+    for (size_t i = 0; pl[i]; i++)
+    {
+        free(pl[i]);
+    }
+
+    free(pl);
+}
+
+static void _printPropertyList(const char* const* pl)
+{
+    if (!pl)
+        return;
+
+    for (size_t i = 0; pl[i]; i++)
+        printf("pl[%s]\n", pl[i]);
 }
 
 //==============================================================================
@@ -1221,7 +1324,45 @@ CIMClass MetaRepository::getClass(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    return CIMClass();
+    printf("===== MetaRepository::getClass()\n");
+
+    // ATTN-MEB: propertyList ignored!
+
+#if defined(TEST_META_REPOSITORY)
+    _init();
+#endif
+
+    // Lookup namespace:
+
+    const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
+
+    if (!ns)
+        _throw(CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace));
+
+    // Lookup class:
+
+    const MetaClass* mc = _findClass(ns, *Str(className));
+
+    if (!mc)
+        _throw(CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className));
+
+    // Build property list:
+
+    char** pl = _makePropertyList(propertyList);
+
+    // Make class:
+
+    CIMClass cc;
+
+    if (_makeClass(ns, mc, localOnly, includeQualifiers, 
+        includeQualifiers, pl, cc) != 0)
+    {
+        _freePropertyList(pl);
+        _throw(CIM_ERR_FAILED, "conversion failed: %s", mc->name);
+    }
+
+    _freePropertyList(pl);
+    return cc;
 }
 
 Array<CIMClass> MetaRepository::enumerateClasses(
@@ -1232,11 +1373,11 @@ Array<CIMClass> MetaRepository::enumerateClasses(
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
 {
+    printf("===== MetaRepository::enumerateClasses()\n");
+
 #if defined(TEST_META_REPOSITORY)
     _init();
 #endif
-
-    printf("MetaRepository::enumerateClasses()\n");
 
     // Lookup namespace:
 
@@ -1263,33 +1404,32 @@ Array<CIMClass> MetaRepository::enumerateClasses(
 
     for (size_t i = 0; ns->classes[i]; i++)
     {
-        MetaClass* sc = ns->classes[i];
+        MetaClass* mc = ns->classes[i];
 
-// printf("CLASSNAME[%s]\n", sc->name);
+        bool flag = false;
 
         if (deepInheritance)
         {
-            if (_isSubClass(super, sc))
-            {
-                CIMClass cc;
-
-                if (_makeClass(ns, cc, sc) != 0)
-                    _throw(CIM_ERR_FAILED, "conversion failed: %s", sc->name);
-                else
-                    result.append(cc);
-            }
+            if (_isSubClass(super, mc))
+                flag = true;
         }
         else
         {
-            if (_isDirectSubClass(super, sc))
-            {
-                CIMClass cc;
+            if (_isDirectSubClass(super, mc))
+                flag = true;
+        }
 
-                if (_makeClass(ns, cc, sc) != 0)
-                    _throw(CIM_ERR_FAILED, "conversion failed: %s", sc->name);
-                else
-                    result.append(cc);
+        if (flag)
+        {
+            CIMClass cc;
+
+            if (_makeClass(ns, mc, localOnly, includeQualifiers, 
+                includeQualifiers, 0, cc) != 0)
+            {
+                _throw(CIM_ERR_FAILED, "conversion failed: %s", mc->name);
             }
+            else
+                result.append(cc);
         }
     }
 
@@ -1301,6 +1441,12 @@ Array<CIMName> MetaRepository::enumerateClassNames(
     const CIMName& className,
     Boolean deepInheritance)
 {
+    printf("===== MetaRepository::enumerateClassNames()\n");
+
+#if defined(TEST_META_REPOSITORY)
+    _init();
+#endif
+
     // Lookup namespace:
 
     const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
@@ -1326,17 +1472,17 @@ Array<CIMName> MetaRepository::enumerateClassNames(
 
     for (size_t i = 0; ns->classes[i]; i++)
     {
-        MetaClass* sc = ns->classes[i];
+        MetaClass* mc = ns->classes[i];
 
         if (deepInheritance)
         {
-            if (_isSubClass(super, sc))
-                result.append(sc->name);
+            if (_isSubClass(super, mc))
+                result.append(mc->name);
         }
         else
         {
-            if (_isDirectSubClass(super, sc))
-                result.append(sc->name);
+            if (_isDirectSubClass(super, mc))
+                result.append(mc->name);
         }
     }
 

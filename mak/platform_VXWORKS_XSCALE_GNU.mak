@@ -40,6 +40,12 @@ export PEGASUS_ENABLE_IPV6=false
 
 DEFINES = 
 
+## ATTN-KS Temporary bypass use of password file until we find way around use of this file
+## we need to support the function of persistent changable passwords but not the use of the file
+## or pam authentication
+##
+DEFINES += -DPEGASUS_NO_PASSWORDFILE
+
 OS_TYPE = vxworks
 
 RM = rm -f

@@ -1265,8 +1265,10 @@ void cimmofSourceConsumer::_writeQualifierArray(
         if (_discard && qn == "Description")
             continue;
 
+#if 0
         if (qt == CIMTYPE_BOOLEAN && !cq.isArray())
             continue;
+#endif
 
         _writeQualifier(_qualifiers, cq);
     }
@@ -1309,9 +1311,9 @@ void cimmofSourceConsumer::_writeProperty(
     _outn("    /* flags */");
 
     if (ct == CIMTYPE_REFERENCE)
-        _out("    PEGASUS_FLAG_PROPERTY");
-    else
         _out("    PEGASUS_FLAG_REFERENCE");
+    else
+        _out("    PEGASUS_FLAG_PROPERTY");
 
     _writeFlags(_os, cp, true, false);
     fprintf(_os, ",\n");
@@ -1399,9 +1401,9 @@ void cimmofSourceConsumer::_writeParameter(
     _outn("    /* flags */");
 
     if (ct == CIMTYPE_REFERENCE)
-        _out("    PEGASUS_FLAG_PROPERTY");
-    else
         _out("    PEGASUS_FLAG_REFERENCE");
+    else
+        _out("    PEGASUS_FLAG_PROPERTY");
 
     _writeFlags(_os, cp, false, true);
     fprintf(_os, ",\n");

@@ -36,11 +36,39 @@
 #include "SourceRepository.h"
 #include <Pegasus/Common/System.h>
 
+/*
+ATTN-MEB: take these out!
+*/
+#include "root_cimv2_namespace.h"
+#include "root_PG_Internal_namespace.h"
+#include "root_PG_InterOp_namespace.h"
+
 PEGASUS_NAMESPACE_BEGIN
 
 static const size_t _MAX_NAMESPACES = 32;
 static const SourceNameSpace* _nameSpaces[_MAX_NAMESPACES];
 static size_t _nameSpacesSize = 0;
+
+static const size_t _MAX_FEATURES = 1024;
+static const size_t _MAX_QUALIFIERS = 1024;
+
+/*
+ATTN-MEB: take this out!
+*/
+static void _init()
+{
+    if (_nameSpacesSize == 0)
+    {
+        SourceRepository::addNameSpace(&root_PG_InterOp_namespace);
+        SourceRepository::addNameSpace(&root_cimv2_namespace);
+        SourceRepository::addNameSpace(&root_PG_Internal_namespace);
+    }
+}
+
+static bool _eqi(const char* s1, const char* s2)
+{
+    return System::strcasecmp(s1, s2) == 0;
+}
 
 //==============================================================================
 //
@@ -72,14 +100,14 @@ static void _throw(CIMStatusCode code, const char* format, ...)
     va_start(ap, format);
     vsprintf(buffer, format, ap);
     va_end(ap);
-    throw CIMException(code, format);
+    throw CIMException(code, buffer);
 }
 
 static const SourceNameSpace* _findNameSpace(const char* name)
 {
     for (size_t i = 0; i < _nameSpacesSize; i++)
     {
-        if (System::strcasecmp(_nameSpaces[i]->name, name))
+        if (_eqi(_nameSpaces[i]->name, name))
             return _nameSpaces[i];
     }
 
@@ -116,16 +144,13 @@ static const SourceClass* _findClass(
     {
         const SourceClass* sc = ns->classes[i];
 
-        if (System::strcasecmp(sc->name, name) == 0)
+        if (_eqi(sc->name, name))
             return sc;
     }
 
     // Not found!
     return 0;
 }
-
-static const CIMValue _TRUE(Boolean(true));
-static const CIMValue _FALSE(Boolean(false));
 
 static inline void _readBoolean(const char*& value, Boolean& x)
 {
@@ -355,6 +380,7 @@ static int _makeValue(
             }
 
             default:
+                printf("T[%u]\n", __LINE__);
                 return -1;
         }
     }
@@ -567,92 +593,244 @@ static int _makeValue(
             }
 
             default:
+                printf("T[%u]\n", __LINE__);
                 return -1;
         }
     }
 
     // Unreachable!
+    printf("T[%u]\n", __LINE__);
     return -1;
 }
 
-template<class C>
-static void _addQualifiers(
-    const SourceNameSpace* ns,
-    C& c, 
-    Uint32 flags,
-    const char** qualifiers)
+struct FeatureInfo
 {
-    // ATTN: handle qualifier propagation:
+    const SourceFeature* sf;
+    const SourceClass* sc;
+};
 
-    // Add the boolean qualifiers:
-
-    if (flags & PEGASUS_FLAG_ABSTRACT)
-        c.addQualifier(CIMQualifier("Abstract", _TRUE));
-    if (flags & PEGASUS_FLAG_AGGREGATE)
-        c.addQualifier(CIMQualifier("Aggregate", _TRUE));
-    if (flags & PEGASUS_FLAG_AGGREGATION)
-        c.addQualifier(CIMQualifier("Aggregation", _TRUE));
-    if (flags & PEGASUS_FLAG_ASSOCIATION)
-        c.addQualifier(CIMQualifier("Association", _TRUE));
-    if (flags & PEGASUS_FLAG_COMPOSITION)
-        c.addQualifier(CIMQualifier("Composition", _TRUE));
-    if (flags & PEGASUS_FLAG_COUNTER)
-        c.addQualifier(CIMQualifier("Counter", _TRUE));
-    if (flags & PEGASUS_FLAG_DELETE)
-        c.addQualifier(CIMQualifier("Delete", _TRUE));
-    if (flags & PEGASUS_FLAG_DN)
-        c.addQualifier(CIMQualifier("DN", _TRUE));
-    if (flags & PEGASUS_FLAG_EMBEDDEDOBJECT)
-        c.addQualifier(CIMQualifier("EmbeddedObject", _TRUE));
-    if (flags & PEGASUS_FLAG_EXCEPTION)
-        c.addQualifier(CIMQualifier("Exception", _TRUE));
-    if (flags & PEGASUS_FLAG_EXPENSIVE)
-        c.addQualifier(CIMQualifier("Expensive", _TRUE));
-    if (flags & PEGASUS_FLAG_EXPERIMENTAL)
-        c.addQualifier(CIMQualifier("Experimental", _TRUE));
-    if (flags & PEGASUS_FLAG_GAUGE)
-        c.addQualifier(CIMQualifier("Gauge", _TRUE));
-    if (flags & PEGASUS_FLAG_IFDELETED)
-        c.addQualifier(CIMQualifier("IfDeleted", _TRUE));
-    if (flags & PEGASUS_FLAG_IN)
-        c.addQualifier(CIMQualifier("In", _TRUE));
-    if (flags & PEGASUS_FLAG_INDICATION)
-        c.addQualifier(CIMQualifier("Indication", _TRUE));
-    if (flags & PEGASUS_FLAG_INVISIBLE)
-        c.addQualifier(CIMQualifier("Invisible", _TRUE));
-    if (flags & PEGASUS_FLAG_KEY)
-        c.addQualifier(CIMQualifier("Key", _TRUE));
-    if (flags & PEGASUS_FLAG_LARGE)
-        c.addQualifier(CIMQualifier("Large", _TRUE));
-    if (flags & PEGASUS_FLAG_OCTETSTRING)
-        c.addQualifier(CIMQualifier("OctetString", _TRUE));
-    if (flags & PEGASUS_FLAG_OUT)
-        c.addQualifier(CIMQualifier("Out", _TRUE));
-    if (flags & PEGASUS_FLAG_READ)
-        c.addQualifier(CIMQualifier("Read", _TRUE));
-    if (flags & PEGASUS_FLAG_REQUIRED)
-        c.addQualifier(CIMQualifier("Required", _TRUE));
-    if (flags & PEGASUS_FLAG_STATIC)
-        c.addQualifier(CIMQualifier("Static", _TRUE));
-    if (flags & PEGASUS_FLAG_TERMINAL)
-        c.addQualifier(CIMQualifier("Terminal", _TRUE));
-    if (flags & PEGASUS_FLAG_WEAK)
-        c.addQualifier(CIMQualifier("Weak", _TRUE));
-    if (flags & PEGASUS_FLAG_WRITE)
-        c.addQualifier(CIMQualifier("Write", _TRUE));
-    if (flags & PEGASUS_FLAG_EMBEDDEDINSTANCE)
-        c.addQualifier(CIMQualifier("EmbeddedInstance", _TRUE));
-
-    // Add non-boolean qualifiers:
-
-    for (const char** p = qualifiers; *p; p++)
+static int _mergeFeatures(
+    const SourceClass* sc,
+    FeatureInfo features[_MAX_FEATURES],
+    size_t& numFeatures)
+{
+    if (sc->super)
     {
-        const char* q = *p;
+        if (_mergeFeatures(sc->super, features, numFeatures) != 0)
+        {
+            printf("T[%u]\n", __LINE__);
+            return -1;
+        }
+    }
 
-        // Read qualifier id:
+    // Process all features of this class:
 
-        Uint8 qid;
-        _readUint8(q, qid);
+    for (size_t i = 0; sc->features[i]; i++)
+    {
+        const SourceFeature* sf = sc->features[i];
+
+        // Override feature if defined by ancestor class:
+
+        bool found = false;
+
+        for (size_t j = 0; j < numFeatures; j++)
+        {
+            const SourceFeature* tmp = features[j].sf;
+
+            if (_eqi(sf->name, tmp->name))
+            {
+                features[j].sf = sf;
+                features[j].sc = sc;
+                found = true;
+                break;
+            }
+        }
+
+        // Add new feature if not not defined by ancestor class:
+
+        if (!found)
+        {
+            if (numFeatures == _MAX_FEATURES)
+            {
+                printf("T[%u]\n", __LINE__);
+                return -1;
+            }
+
+            features[numFeatures].sf = sf;
+            features[numFeatures].sc = sc;
+            numFeatures++;
+        }
+    }
+
+    return 0;
+}
+
+struct QualifierInfo
+{
+    const char* qualifier;
+    const SourceClass* sc;
+};
+
+static const SourceFeature* _findFeature(
+    const SourceClass* sc, 
+    const char* name)
+{
+    for (size_t i = 0; sc->features[i]; i++)
+    {
+        const SourceFeature* sf = sc->features[i];
+
+        if (_eqi(sf->name, name))
+            return sf;
+    }
+
+    // Not found!
+    return 0;
+}
+
+static const SourceFeature* _findParameter(
+    const SourceMethod* sm, 
+    const char* name)
+{
+    for (size_t i = 0; sm->parameters[i]; i++)
+    {
+        const SourceFeature* sf = sm->parameters[i];
+
+        if (_eqi(sm->name, name))
+            return sf;
+    }
+
+    // Not found!
+    return 0;
+}
+
+static int _mergeQualifiers(
+    const SourceNameSpace* ns,
+    const SourceClass* sc,
+    const char* featureName,
+    const char* parameterName,
+    bool depth,
+    QualifierInfo qualifiers[_MAX_QUALIFIERS],
+    size_t& numQualifiers)
+{
+    // Merge super-class qualifiers:
+
+    if (sc->super)
+    {
+        _mergeQualifiers(ns, sc->super, featureName, parameterName, depth + 1,
+            qualifiers, numQualifiers);
+    }
+
+    const char** quals = 0;
+
+    // Find qualifiers of the given object:
+
+    if (!featureName && !parameterName)
+    {
+        // Case 1: get class qualifiers:
+        quals = sc->qualifiers;
+    }
+    else if (featureName && !parameterName)
+    {
+        // Case 2: get feature qualifiers:
+
+        const SourceFeature* sf = _findFeature(sc, featureName);
+
+        if (sf)
+            quals = sf->qualifiers;
+    }
+    else if (featureName && parameterName)
+    {
+        // Case 3: get parameter qualifiers:
+
+        const SourceFeature* sf = _findFeature(sc, featureName);
+
+        if (sf && (sf->flags & PEGASUS_FLAG_METHOD))
+        {
+            const SourceMethod* sm = (const SourceMethod*)sf;
+            const SourceFeature* p = _findParameter(sm, parameterName);
+
+            if (p)
+                quals = p->qualifiers;
+        }
+    }
+
+    // Merge quals into the qualifiers array:
+
+    if (!quals)
+        return 0;
+
+    for (size_t i = 0; quals[i]; i++)
+    {
+        const char* qi = quals[i];
+
+        // Override existing qualifier if any:
+
+        bool found = false;
+
+        for (size_t j = 0; j < numQualifiers; j++)
+        {
+            const char* qj = qualifiers[j].qualifier;
+
+            if (qi[0] == qj[0])
+            {
+                qualifiers[j].qualifier = qi;
+                qualifiers[j].sc = sc;
+                found = true;
+                break;
+            }
+        }
+
+        // Inject this qualifier not found:
+
+        if (!found)
+        {
+            SourceQualifierDecl* qd = ns->qualifiers[qi[0]];
+
+            if (depth == 0 || !(qd->flavor & PEGASUS_FLAVOR_RESTRICTED))
+            {
+                if (numQualifiers == _MAX_QUALIFIERS)
+                {
+                    printf("T[%u]\n", __LINE__);
+                    return -1;
+                }
+
+                qualifiers[numQualifiers].qualifier = qi;
+                qualifiers[numQualifiers].sc = sc;
+                numQualifiers++;
+            }
+        }
+    }
+
+    return 0;
+}
+
+template<class C>
+static int _addQualifiers(
+    const SourceNameSpace* ns,
+    const SourceClass* sc,
+    const char* featureName,
+    const char* parameterName,
+    C& c)
+{
+    QualifierInfo qualifiers[_MAX_QUALIFIERS];
+    size_t numQualifiers = 0;
+
+    if (_mergeQualifiers(
+        ns, sc, featureName, parameterName, 0, qualifiers, numQualifiers) != 0)
+    {
+        printf("T[%u]\n", __LINE__);
+        return -1;
+    }
+
+    // Add qualifiers to container:
+
+    for (size_t i = 0; i < numQualifiers; i++)
+    {
+        const char* q = qualifiers[i].qualifier;
+
+        // Get qualifier id:
+
+        Uint8 qid = Uint8(q[0]);
 
         // Get qualifier declaration:
 
@@ -661,68 +839,115 @@ static void _addQualifiers(
         // Make CIMValue:
 
         CIMValue cv;
-        int status = _makeValue(cv, qd->type, qd->subscript, q);
-        assert(status == 0);
+
+        if (_makeValue(cv, qd->type, qd->subscript, q + 1) != 0)
+        {
+            printf("T[%u]\n", __LINE__);
+            return -1;
+        }
 
         // Add qualifier:
 
         c.addQualifier(CIMQualifier(qd->name, cv));
     }
+
+    return 0;
 }
 
-static void _addProperty(
+static int _addProperty(
     const SourceNameSpace* ns,
-    CIMClass& cc, 
-    const SourceProperty* sp)
+    const SourceClass* sc,
+    const SourceProperty* sp,
+    const char* classOrigin,
+    bool propagated,
+    CIMClass& cc)
 {
     // Make CIMvalue:
 
     CIMValue cv;
-    int status = _makeValue(cv, sp->type, sp->subscript, sp->value);
-    assert(status == 0);
+
+    if (_makeValue(cv, sp->type, sp->subscript, sp->value) != 0)
+    {
+        printf("T[%u]\n", __LINE__);
+        return -1;
+    }
 
     // Create property:
 
     CIMProperty cp(sp->name, cv);
+    cp.setClassOrigin(classOrigin);
+    cp.setPropagated(propagated);
 
     // Add qualifiers:
 
-    _addQualifiers(ns, cp, sp->flags, sp->qualifiers);
+    if (_addQualifiers(ns, sc, sp->name, 0, cp) != 0)
+    {
+        printf("T[%u]\n", __LINE__);
+        return -1;
+    }
 
     // Add to class:
 
     cc.addProperty(cp);
+    return 0;
 }
 
-static void _addReference(
+static int _addReference(
     const SourceNameSpace* ns,
-    CIMClass& cc, 
-    const SourceReference* sr)
+    const SourceClass* sc,
+    const SourceReference* sr,
+    const char* classOrigin,
+    bool propagated,
+    CIMClass& cc)
 {
-    // Create reference property:
+    // Set isArray and arraySize:
 
-    CIMValue cv;
+    Boolean isArray;
+    Uint32 arraySize;
     
     if (sr->subscript == -1)
-        cv.setNullValue(CIMTYPE_REFERENCE, false, 0);
+    {
+        isArray = false;
+        arraySize = 0;
+    }
     else
-        cv.setNullValue(CIMTYPE_REFERENCE, true, sr->subscript);
+    {
+        isArray = true;
+        arraySize = sr->subscript;
+    }
 
-    CIMProperty cp(sr->name, cv);
+    // Set referenceClassName:
+
+    CIMName rcn = sr->ref->name;
+
+    // Create value:
+
+    CIMValue cv(CIMTYPE_REFERENCE, isArray, arraySize);
+
+    // Create property:
+
+    CIMProperty cp(sr->name, cv, arraySize, rcn, classOrigin, propagated);
 
     // Add qualifiers:
 
-    _addQualifiers(ns, cp, sr->flags, sr->qualifiers);
+    if (_addQualifiers(ns, sc, sr->name, 0, cp) != 0)
+    {
+        printf("T[%u]\n", __LINE__);
+        return -1;
+    }
 
     // Add to class:
 
     cc.addProperty(cp);
+    return 0;
 }
 
-static void _addPropertyParameter(
+static int _addPropertyParameter(
     const SourceNameSpace* ns,
-    CIMMethod& cm, 
-    const SourceProperty* sp)
+    const SourceClass* sc,
+    const SourceMethod* sm,
+    const SourceProperty* sp,
+    CIMMethod& cm)
 {
     // Create property:
 
@@ -744,24 +969,31 @@ static void _addPropertyParameter(
 
     // Add qualifiers:
 
-    _addQualifiers(ns, cp, sp->flags, sp->qualifiers);
+    if (_addQualifiers(ns, sc, sm->name, sp->name, cm) != 0)
+    {
+        printf("T[%u]\n", __LINE__);
+        return -1;
+    }
 
     // Add to method:
 
     cm.addParameter(cp);
+    return 0;
 }
 
-static void _addReferenceParameter(
+static int _addReferenceParameter(
     const SourceNameSpace* ns,
-    CIMMethod& cm, 
-    const SourceReference* sp)
+    const SourceClass* sc,
+    const SourceMethod* sm,
+    const SourceReference* sr,
+    CIMMethod& cm)
 {
     // Create property:
 
     bool isArray;
     Uint32 arraySize;
 
-    if (sp->subscript == -1)
+    if (sr->subscript == -1)
     {
         isArray = false;
         arraySize = 0;
@@ -769,98 +1001,143 @@ static void _addReferenceParameter(
     else 
     {
         isArray = true;
-        arraySize = Uint32(sp->subscript);
+        arraySize = Uint32(sr->subscript);
     }
 
-    assert(sp->ref != 0);
-    CIMName rcn = sp->ref->name;
-
-    CIMParameter cp(sp->name, CIMTYPE_REFERENCE, isArray, arraySize, rcn);
+    CIMName rcn = sr->ref->name;
+    CIMParameter cp(sr->name, CIMTYPE_REFERENCE, isArray, arraySize, rcn);
 
     // Add qualifiers:
 
-    _addQualifiers(ns, cp, sp->flags, sp->qualifiers);
+    if (_addQualifiers(ns, sc, sm->name, sr->name, cm) != 0)
+    {
+        printf("T[%u]\n", __LINE__);
+        return -1;
+    }
 
     // Add to method:
 
     cm.addParameter(cp);
+    return 0;
 }
 
-static void _addMethod(
+static int _addMethod(
     const SourceNameSpace* ns,
-    CIMClass& cc, 
-    const SourceMethod* sm)
+    const SourceClass* sc,
+    const SourceMethod* sm,
+    const char* classOrigin,
+    bool propagated,
+    CIMClass& cc)
 {
     // Create method:
 
     CIMMethod cm(sm->name, CIMType(sm->type));
+    cm.setClassOrigin(classOrigin);
+    cm.setPropagated(propagated);
 
     // Add parameters:
 
-    for (SourceFeature** p = sm->parameters; *p; p++)
+    for (size_t i = 0; sm->parameters[i]; i++)
     {
-        SourceFeature* sf = *p;
+        SourceFeature* sf = sm->parameters[i];
 
         if (sf->flags & PEGASUS_FLAG_PROPERTY)
         {
             SourceProperty* sp = (SourceProperty*)sf;
-            _addPropertyParameter(ns, cm, sp);
+            _addPropertyParameter(ns, sc, sm, sp, cm);
         }
         else if (sf->flags & PEGASUS_FLAG_REFERENCE)
         {
             SourceReference* sr = (SourceReference*)sf;
-            _addReferenceParameter(ns, cm, sr);
+            _addReferenceParameter(ns, sc, sm, sr, cm);
         }
     }
 
     // Add qualifiers:
 
-    _addQualifiers(ns, cm, sm->flags, sm->qualifiers);
+    if (_addQualifiers(ns, sc, sm->name, 0, cm) != 0)
+    {
+        printf("T[%u]\n", __LINE__);
+        return -1;
+    }
 
     // Add to class:
 
     cc.addMethod(cm);
+    return 0;
 }
 
-static void _addFeatures(
+static int _addFeatures(
     const SourceNameSpace* ns,
-    CIMClass& cc, 
-    const SourceClass* sc)
+    const SourceClass* sc,
+    CIMClass& cc)
 {
-    // Add superclass properties first:
 
-    // ATTN: handle feature overriding.
-    // ATTN: set the feature propagated flag.
-    // ATTN: set the class origin.
+    // Merge features from all inheritance levels into a single array:
 
-    if (sc->super)
-        _addFeatures(ns, cc, sc->super);
+    FeatureInfo features[_MAX_FEATURES];
+    size_t numFeatures = 0;
+
+    if (_mergeFeatures(sc, features, numFeatures) != 0)
+    {
+        printf("T[%u]\n", __LINE__);
+        return -1;
+    }
 
     // For each feature:
 
-    for (SourceFeature** p = sc->features; *p; p++)
+    for (size_t i = 0; i < numFeatures; i++)
     {
-        SourceFeature* sf = *p;
+        const FeatureInfo& fi = features[i];
+
+        // Set propagated flag:
+
+        bool propagated = fi.sc != sc;
+
+        // Set classOrigin:
+
+        const char* classOrigin = fi.sc->name;
+
+        // Add the feature:
+
+        const SourceFeature* sf = fi.sf;
 
         if (sf->flags & PEGASUS_FLAG_PROPERTY)
         {
             SourceProperty* sp = (SourceProperty*)sf;
-            _addProperty(ns, cc, sp);
+
+            if (_addProperty(ns, sc, sp, classOrigin, propagated, cc) != 0)
+            {
+                printf("T[%u]\n", __LINE__);
+                return -1;
+            }
         }
         else if (sf->flags & PEGASUS_FLAG_REFERENCE)
         {
             SourceReference* sr = (SourceReference*)sf;
-            _addReference(ns, cc, sr);
+
+            if (_addReference(ns, sc, sr, classOrigin, propagated, cc) != 0)
+            {
+                printf("T[%u]\n", __LINE__);
+                return -1;
+            }
         }
         else if (sf->flags & PEGASUS_FLAG_METHOD)
         {
             SourceMethod* sm = (SourceMethod*)sf;
-            _addMethod(ns, cc, sm);
+
+            if (_addMethod(ns, sc, sm, classOrigin, propagated, cc) != 0)
+            {
+                printf("T[%u]\n", __LINE__);
+                return -1;
+            }
         }
     }
+
+    return 0;
 }
 
-static bool _makeCIMClass(
+static int _makeClass(
     const SourceNameSpace* ns,
     CIMClass& cc, 
     const SourceClass* sc)
@@ -868,28 +1145,43 @@ static bool _makeCIMClass(
     try
     {
         // Create class:
+        {
+            CIMName scn;
 
-        CIMName scn;
+            if (sc->super)
+                scn = sc->super->name;
 
-        if (sc->super)
-            scn = sc->super->name;
-
-        cc = CIMClass(sc->name, scn);
+            cc = CIMClass(sc->name, scn);
+    }
 
         // Add qualifiers:
 
-        _addQualifiers(ns, cc, sc->flags, sc->qualifiers);
+        if (_addQualifiers(ns, sc, 0, 0, cc) != 0)
+        {
+            printf("T[%u]\n", __LINE__);
+            return -1;
+        }
 
         // Features:
 
-        _addFeatures(ns, cc, sc);
+        if (_addFeatures(ns, sc, cc) != 0)
+        {
+            printf("T[%u]\n", __LINE__);
+            return -1;
+        }
+    }
+    catch (Exception& e)
+    {
+        printf("EXCEPTION[%s]\n", *Str(e));
+        return -1;
     }
     catch (...)
     {
-        return false;
+        printf("T[%u]\n", __LINE__);
+        return -1;
     }
 
-    return true;
+    return 0;
 }
 
 //==============================================================================
@@ -913,7 +1205,7 @@ bool SourceRepository::addNameSpace(const SourceNameSpace* nameSpace)
 
     for (size_t i = 0; i < _nameSpacesSize; i++)
     {
-        if (System::strcasecmp(_nameSpaces[i]->name, nameSpace->name) == 0)
+        if (_eqi(_nameSpaces[i]->name, nameSpace->name))
             return false;
     }
 
@@ -932,7 +1224,7 @@ CIMClass SourceRepository::getClass(
     return CIMClass();
 }
 
-Array<CIMClass> enumerateClasses(
+Array<CIMClass> SourceRepository::enumerateClasses(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
     Boolean deepInheritance,
@@ -940,10 +1232,69 @@ Array<CIMClass> enumerateClasses(
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
 {
-    return Array<CIMClass>();
+    _init();
+
+    printf("SourceRepository::enumerateClasses()\n");
+
+    // Lookup namespace:
+
+    const SourceNameSpace* ns = _findNameSpace(*Str(nameSpace));
+
+    if (!ns)
+        _throw(CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace));
+
+    // Lookup class:
+
+    const SourceClass* super = 0;
+    
+    if (!className.isNull())
+    {
+        super = _findClass(ns, *Str(className));
+
+        if (!super)
+            _throw(CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className));
+    }
+
+    // Iterate all classes looking for matches:
+
+    Array<CIMClass> result;
+
+    for (size_t i = 0; ns->classes[i]; i++)
+    {
+        SourceClass* sc = ns->classes[i];
+
+// printf("CLASSNAME[%s]\n", sc->name);
+
+        if (deepInheritance)
+        {
+            if (_isSubClass(super, sc))
+            {
+                CIMClass cc;
+
+                if (_makeClass(ns, cc, sc) != 0)
+                    _throw(CIM_ERR_FAILED, "conversion failed: %s", sc->name);
+                else
+                    result.append(cc);
+            }
+        }
+        else
+        {
+            if (_isDirectSubClass(super, sc))
+            {
+                CIMClass cc;
+
+                if (_makeClass(ns, cc, sc) != 0)
+                    _throw(CIM_ERR_FAILED, "conversion failed: %s", sc->name);
+                else
+                    result.append(cc);
+            }
+        }
+    }
+
+    return result;
 }
 
-Array<CIMName> enumerateClassNames(
+Array<CIMName> SourceRepository::enumerateClassNames(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
     Boolean deepInheritance)
@@ -959,7 +1310,7 @@ Array<CIMName> enumerateClassNames(
 
     const SourceClass* super = 0;
     
-    if (!nameSpace.isNull())
+    if (!className.isNull())
     {
         super = _findClass(ns, *Str(className));
 

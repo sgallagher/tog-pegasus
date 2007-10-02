@@ -60,21 +60,7 @@
 #include "AssocInstTable.h"
 #include "AssocClassTable.h"
 #include "ObjectCache.h"
-
-/*
-ATTN-MEB: remove this
-*/
-#if 1
-# include <Pegasus/Common/Stopwatch.h>
-static void _mark(Pegasus::Stopwatch& sw, int line)
-{
-    sw.stop();
-    Pegasus::Uint64 x = sw.getElapsedUsec();
-    printf("msg: %d: %llu.%llu\n", line, (x / 1000000), (x % 1000000));
-    sw.reset();
-    sw.start();
-}
-#endif
+#include "SourceRepository.h"
 
 #ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
 // #define win32
@@ -100,16 +86,6 @@ static int compressMode = 0; // PEP214
 #endif
 
 // #define TEST_OUTPUT
-
-/*
-ATTN-MEB: take this out!
-*/
-#if 0
-# undef PEG_METHOD_ENTER
-# define PEG_METHOD_ENTER(X, STR) printf("ENTER[%s]\n", STR)
-# undef PEG_METHOD_EXIT
-# define PEG_METHOD_EXIT()
-#endif
 
 //==============================================================================
 //
@@ -2258,6 +2234,11 @@ Array<CIMClass> CIMRepository::enumerateClasses(
     Boolean includeClassOrigin)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateClasses");
+
+#if 0
+    return SourceRepository::enumerateClasses(nameSpace, className, 
+        deepInheritance, localOnly, includeQualifiers, includeClassOrigin);
+#endif
 
     ReadLock lock(_lock);
 

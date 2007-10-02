@@ -1171,6 +1171,8 @@ extern SourceClass __root_PG_Internal_PG_SSLCertificateRevocationList;
 static const char*
 _PG_Authorization_Username_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -1180,7 +1182,7 @@ static SourceProperty
 _PG_Authorization_Username =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Username",
     /* qualifiers */
@@ -1196,6 +1198,8 @@ _PG_Authorization_Username =
 static const char*
 _PG_Authorization_Namespace_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -1205,7 +1209,7 @@ static SourceProperty
 _PG_Authorization_Namespace =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Namespace",
     /* qualifiers */
@@ -1228,7 +1232,7 @@ static SourceProperty
 _PG_Authorization_Authorization =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Authorization",
     /* qualifiers */
@@ -1282,6 +1286,8 @@ __root_PG_Internal_PG_Authorization =
 static const char*
 _PG_ConfigSetting_PropertyName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -1291,7 +1297,7 @@ static SourceProperty
 _PG_ConfigSetting_PropertyName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "PropertyName",
     /* qualifiers */
@@ -1314,7 +1320,7 @@ static SourceProperty
 _PG_ConfigSetting_DefaultValue =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "DefaultValue",
     /* qualifiers */
@@ -1337,7 +1343,7 @@ static SourceProperty
 _PG_ConfigSetting_CurrentValue =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "CurrentValue",
     /* qualifiers */
@@ -1360,7 +1366,7 @@ static SourceProperty
 _PG_ConfigSetting_PlannedValue =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "PlannedValue",
     /* qualifiers */
@@ -1383,7 +1389,7 @@ static SourceProperty
 _PG_ConfigSetting_DynamicProperty =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "DynamicProperty",
     /* qualifiers */
@@ -1439,6 +1445,8 @@ __root_PG_Internal_PG_ConfigSetting =
 static const char*
 _PG_User_Username_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -1448,7 +1456,7 @@ static SourceProperty
 _PG_User_Username =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Username",
     /* qualifiers */
@@ -1471,7 +1479,7 @@ static SourceProperty
 _PG_User_Password =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Password",
     /* qualifiers */
@@ -1487,6 +1495,8 @@ _PG_User_Password =
 static const char*
 _PG_User_modifyPassword_oldPassword_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -1494,7 +1504,7 @@ static SourceProperty
 _PG_User_modifyPassword_oldPassword =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "oldPassword",
     /* qualifiers */
@@ -1510,6 +1520,8 @@ _PG_User_modifyPassword_oldPassword =
 static const char*
 _PG_User_modifyPassword_newPassword_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -1517,7 +1529,7 @@ static SourceProperty
 _PG_User_modifyPassword_newPassword =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "newPassword",
     /* qualifiers */
@@ -1600,6 +1612,8 @@ __root_PG_Internal_PG_User =
 static const char*
 _PG_ShutdownService_shutdown_force_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -1607,7 +1621,7 @@ static SourceProperty
 _PG_ShutdownService_shutdown_force =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "force",
     /* qualifiers */
@@ -1623,6 +1637,8 @@ _PG_ShutdownService_shutdown_force =
 static const char*
 _PG_ShutdownService_shutdown_timeout_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -1630,7 +1646,7 @@ static SourceProperty
 _PG_ShutdownService_shutdown_timeout =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "timeout",
     /* qualifiers */
@@ -1654,6 +1670,8 @@ _PG_ShutdownService_shutdown_parameters[] =
 static const char*
 _PG_ShutdownService_shutdown_qualifiers[] =
 {
+    /* Static */
+    "\055\001",
     0,
 };
 
@@ -1711,6 +1729,8 @@ __root_PG_Internal_PG_ShutdownService =
 static const char*
 _PG_SSLCertificate_IssuerName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -1720,7 +1740,7 @@ static SourceProperty
 _PG_SSLCertificate_IssuerName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "IssuerName",
     /* qualifiers */
@@ -1736,6 +1756,8 @@ _PG_SSLCertificate_IssuerName =
 static const char*
 _PG_SSLCertificate_SerialNumber_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -1745,7 +1767,7 @@ static SourceProperty
 _PG_SSLCertificate_SerialNumber =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SerialNumber",
     /* qualifiers */
@@ -1761,6 +1783,8 @@ _PG_SSLCertificate_SerialNumber =
 static const char*
 _PG_SSLCertificate_TruststoreType_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* ValueMap */
     "\061\000\0050\0001\0002\0003\0004\000",
     /* Values */
@@ -1772,7 +1796,7 @@ static SourceProperty
 _PG_SSLCertificate_TruststoreType =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "TruststoreType",
     /* qualifiers */
@@ -1797,7 +1821,7 @@ static SourceProperty
 _PG_SSLCertificate_SubjectName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SubjectName",
     /* qualifiers */
@@ -1820,7 +1844,7 @@ static SourceProperty
 _PG_SSLCertificate_NotBefore =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "NotBefore",
     /* qualifiers */
@@ -1843,7 +1867,7 @@ static SourceProperty
 _PG_SSLCertificate_NotAfter =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "NotAfter",
     /* qualifiers */
@@ -1866,7 +1890,7 @@ static SourceProperty
 _PG_SSLCertificate_TruststorePath =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "TruststorePath",
     /* qualifiers */
@@ -1889,7 +1913,7 @@ static SourceProperty
 _PG_SSLCertificate_RegisteredUserName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "RegisteredUserName",
     /* qualifiers */
@@ -1916,7 +1940,7 @@ static SourceProperty
 _PG_SSLCertificate_CertificateType =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "CertificateType",
     /* qualifiers */
@@ -1932,6 +1956,8 @@ _PG_SSLCertificate_CertificateType =
 static const char*
 _PG_SSLCertificate_addCertificate_certificateContents_qualifiers[] =
 {
+    /* in */
+    "\024\001",
     0,
 };
 
@@ -1939,7 +1965,7 @@ static SourceProperty
 _PG_SSLCertificate_addCertificate_certificateContents =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "certificateContents",
     /* qualifiers */
@@ -1955,6 +1981,8 @@ _PG_SSLCertificate_addCertificate_certificateContents =
 static const char*
 _PG_SSLCertificate_addCertificate_userName_qualifiers[] =
 {
+    /* in */
+    "\024\001",
     0,
 };
 
@@ -1962,7 +1990,7 @@ static SourceProperty
 _PG_SSLCertificate_addCertificate_userName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "userName",
     /* qualifiers */
@@ -1978,6 +2006,8 @@ _PG_SSLCertificate_addCertificate_userName =
 static const char*
 _PG_SSLCertificate_addCertificate_certificateType_qualifiers[] =
 {
+    /* in */
+    "\024\001",
     0,
 };
 
@@ -1985,7 +2015,7 @@ static SourceProperty
 _PG_SSLCertificate_addCertificate_certificateType =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "certificateType",
     /* qualifiers */
@@ -2010,6 +2040,8 @@ _PG_SSLCertificate_addCertificate_parameters[] =
 static const char*
 _PG_SSLCertificate_addCertificate_qualifiers[] =
 {
+    /* static */
+    "\055\001",
     0,
 };
 
@@ -2076,6 +2108,8 @@ __root_PG_Internal_PG_SSLCertificate =
 static const char*
 _PG_SSLCertificateRevocationList_IssuerName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -2085,7 +2119,7 @@ static SourceProperty
 _PG_SSLCertificateRevocationList_IssuerName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "IssuerName",
     /* qualifiers */
@@ -2108,7 +2142,7 @@ static SourceProperty
 _PG_SSLCertificateRevocationList_LastUpdate =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "LastUpdate",
     /* qualifiers */
@@ -2131,7 +2165,7 @@ static SourceProperty
 _PG_SSLCertificateRevocationList_NextUpdate =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "NextUpdate",
     /* qualifiers */
@@ -2154,7 +2188,7 @@ static SourceProperty
 _PG_SSLCertificateRevocationList_RevokedSerialNumbers =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "RevokedSerialNumbers",
     /* qualifiers */
@@ -2177,7 +2211,7 @@ static SourceProperty
 _PG_SSLCertificateRevocationList_RevocationDates =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "RevocationDates",
     /* qualifiers */
@@ -2193,6 +2227,8 @@ _PG_SSLCertificateRevocationList_RevocationDates =
 static const char*
 _PG_SSLCertificateRevocationList_addCertificateRevocationList_CRLContents_qualifiers[] =
 {
+    /* in */
+    "\024\001",
     0,
 };
 
@@ -2200,7 +2236,7 @@ static SourceProperty
 _PG_SSLCertificateRevocationList_addCertificateRevocationList_CRLContents =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "CRLContents",
     /* qualifiers */
@@ -2223,6 +2259,8 @@ _PG_SSLCertificateRevocationList_addCertificateRevocationList_parameters[] =
 static const char*
 _PG_SSLCertificateRevocationList_addCertificateRevocationList_qualifiers[] =
 {
+    /* static */
+    "\055\001",
     0,
 };
 

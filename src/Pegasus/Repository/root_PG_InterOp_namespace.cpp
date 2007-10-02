@@ -1386,7 +1386,7 @@ static SourceProperty
 _CIM_ManagedElement_Caption =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Caption",
     /* qualifiers */
@@ -1409,7 +1409,7 @@ static SourceProperty
 _CIM_ManagedElement_Description =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Description",
     /* qualifiers */
@@ -1432,7 +1432,7 @@ static SourceProperty
 _CIM_ManagedElement_ElementName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ElementName",
     /* qualifiers */
@@ -1459,6 +1459,8 @@ __root_PG_InterOp_CIM_ManagedElement_qualifiers[] =
 {
     /* UMLPackagePath */
     "\057CIM::Core::CoreElements",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.10.0",
     0,
@@ -1497,7 +1499,7 @@ static SourceProperty
 _CIM_Setting_SettingID =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SettingID",
     /* qualifiers */
@@ -1513,6 +1515,8 @@ _CIM_Setting_SettingID =
 static const char*
 _CIM_Setting_VerifyOKToApplyToMSE_MSE_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -1520,7 +1524,7 @@ static SourceReference
 _CIM_Setting_VerifyOKToApplyToMSE_MSE =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
     /* name */
     "MSE",
     /* qualifiers */
@@ -1534,6 +1538,8 @@ _CIM_Setting_VerifyOKToApplyToMSE_MSE =
 static const char*
 _CIM_Setting_VerifyOKToApplyToMSE_TimeToApply_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -1541,7 +1547,7 @@ static SourceProperty
 _CIM_Setting_VerifyOKToApplyToMSE_TimeToApply =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "TimeToApply",
     /* qualifiers */
@@ -1557,6 +1563,8 @@ _CIM_Setting_VerifyOKToApplyToMSE_TimeToApply =
 static const char*
 _CIM_Setting_VerifyOKToApplyToMSE_MustBeCompletedBy_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -1564,7 +1572,7 @@ static SourceProperty
 _CIM_Setting_VerifyOKToApplyToMSE_MustBeCompletedBy =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "MustBeCompletedBy",
     /* qualifiers */
@@ -1610,6 +1618,8 @@ _CIM_Setting_VerifyOKToApplyToMSE =
 static const char*
 _CIM_Setting_ApplyToMSE_MSE_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -1617,7 +1627,7 @@ static SourceReference
 _CIM_Setting_ApplyToMSE_MSE =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
     /* name */
     "MSE",
     /* qualifiers */
@@ -1631,6 +1641,8 @@ _CIM_Setting_ApplyToMSE_MSE =
 static const char*
 _CIM_Setting_ApplyToMSE_TimeToApply_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -1638,7 +1650,7 @@ static SourceProperty
 _CIM_Setting_ApplyToMSE_TimeToApply =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "TimeToApply",
     /* qualifiers */
@@ -1654,6 +1666,8 @@ _CIM_Setting_ApplyToMSE_TimeToApply =
 static const char*
 _CIM_Setting_ApplyToMSE_MustBeCompletedBy_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -1661,7 +1675,7 @@ static SourceProperty
 _CIM_Setting_ApplyToMSE_MustBeCompletedBy =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "MustBeCompletedBy",
     /* qualifiers */
@@ -1707,6 +1721,8 @@ _CIM_Setting_ApplyToMSE =
 static const char*
 _CIM_Setting_VerifyOKToApplyToCollection_Collection_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -1714,7 +1730,7 @@ static SourceReference
 _CIM_Setting_VerifyOKToApplyToCollection_Collection =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
     /* name */
     "Collection",
     /* qualifiers */
@@ -1728,6 +1744,8 @@ _CIM_Setting_VerifyOKToApplyToCollection_Collection =
 static const char*
 _CIM_Setting_VerifyOKToApplyToCollection_TimeToApply_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -1735,7 +1753,7 @@ static SourceProperty
 _CIM_Setting_VerifyOKToApplyToCollection_TimeToApply =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "TimeToApply",
     /* qualifiers */
@@ -1751,6 +1769,8 @@ _CIM_Setting_VerifyOKToApplyToCollection_TimeToApply =
 static const char*
 _CIM_Setting_VerifyOKToApplyToCollection_MustBeCompletedBy_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -1758,7 +1778,7 @@ static SourceProperty
 _CIM_Setting_VerifyOKToApplyToCollection_MustBeCompletedBy =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "MustBeCompletedBy",
     /* qualifiers */
@@ -1774,6 +1794,10 @@ _CIM_Setting_VerifyOKToApplyToCollection_MustBeCompletedBy =
 static const char*
 _CIM_Setting_VerifyOKToApplyToCollection_CanNotApply_qualifiers[] =
 {
+    /* IN */
+    "\024\000",
+    /* OUT */
+    "\043\001",
     0,
 };
 
@@ -1781,7 +1805,7 @@ static SourceProperty
 _CIM_Setting_VerifyOKToApplyToCollection_CanNotApply =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_OUT,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_OUT,
     /* name */
     "CanNotApply",
     /* qualifiers */
@@ -1828,6 +1852,8 @@ _CIM_Setting_VerifyOKToApplyToCollection =
 static const char*
 _CIM_Setting_ApplyToCollection_Collection_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -1835,7 +1861,7 @@ static SourceReference
 _CIM_Setting_ApplyToCollection_Collection =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
     /* name */
     "Collection",
     /* qualifiers */
@@ -1849,6 +1875,8 @@ _CIM_Setting_ApplyToCollection_Collection =
 static const char*
 _CIM_Setting_ApplyToCollection_TimeToApply_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -1856,7 +1884,7 @@ static SourceProperty
 _CIM_Setting_ApplyToCollection_TimeToApply =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "TimeToApply",
     /* qualifiers */
@@ -1872,6 +1900,8 @@ _CIM_Setting_ApplyToCollection_TimeToApply =
 static const char*
 _CIM_Setting_ApplyToCollection_ContinueOnError_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -1879,7 +1909,7 @@ static SourceProperty
 _CIM_Setting_ApplyToCollection_ContinueOnError =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "ContinueOnError",
     /* qualifiers */
@@ -1895,6 +1925,8 @@ _CIM_Setting_ApplyToCollection_ContinueOnError =
 static const char*
 _CIM_Setting_ApplyToCollection_MustBeCompletedBy_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -1902,7 +1934,7 @@ static SourceProperty
 _CIM_Setting_ApplyToCollection_MustBeCompletedBy =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "MustBeCompletedBy",
     /* qualifiers */
@@ -1918,6 +1950,10 @@ _CIM_Setting_ApplyToCollection_MustBeCompletedBy =
 static const char*
 _CIM_Setting_ApplyToCollection_CanNotApply_qualifiers[] =
 {
+    /* IN */
+    "\024\000",
+    /* OUT */
+    "\043\001",
     0,
 };
 
@@ -1925,7 +1961,7 @@ static SourceProperty
 _CIM_Setting_ApplyToCollection_CanNotApply =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_OUT,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_OUT,
     /* name */
     "CanNotApply",
     /* qualifiers */
@@ -1973,6 +2009,8 @@ _CIM_Setting_ApplyToCollection =
 static const char*
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_MSE_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -1980,7 +2018,7 @@ static SourceReference
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_MSE =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
     /* name */
     "MSE",
     /* qualifiers */
@@ -1994,6 +2032,8 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_MSE =
 static const char*
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_TimeToApply_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -2001,7 +2041,7 @@ static SourceProperty
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_TimeToApply =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "TimeToApply",
     /* qualifiers */
@@ -2017,6 +2057,8 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_TimeToApply =
 static const char*
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_MustBeCompletedBy_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -2024,7 +2066,7 @@ static SourceProperty
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_MustBeCompletedBy =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "MustBeCompletedBy",
     /* qualifiers */
@@ -2040,6 +2082,8 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_MustBeCompletedBy =
 static const char*
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_PropertiesToApply_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -2047,7 +2091,7 @@ static SourceProperty
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_PropertiesToApply =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "PropertiesToApply",
     /* qualifiers */
@@ -2094,6 +2138,8 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE =
 static const char*
 _CIM_Setting_ApplyIncrementalChangeToMSE_MSE_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -2101,7 +2147,7 @@ static SourceReference
 _CIM_Setting_ApplyIncrementalChangeToMSE_MSE =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
     /* name */
     "MSE",
     /* qualifiers */
@@ -2115,6 +2161,8 @@ _CIM_Setting_ApplyIncrementalChangeToMSE_MSE =
 static const char*
 _CIM_Setting_ApplyIncrementalChangeToMSE_TimeToApply_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -2122,7 +2170,7 @@ static SourceProperty
 _CIM_Setting_ApplyIncrementalChangeToMSE_TimeToApply =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "TimeToApply",
     /* qualifiers */
@@ -2138,6 +2186,8 @@ _CIM_Setting_ApplyIncrementalChangeToMSE_TimeToApply =
 static const char*
 _CIM_Setting_ApplyIncrementalChangeToMSE_MustBeCompletedBy_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -2145,7 +2195,7 @@ static SourceProperty
 _CIM_Setting_ApplyIncrementalChangeToMSE_MustBeCompletedBy =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "MustBeCompletedBy",
     /* qualifiers */
@@ -2161,6 +2211,8 @@ _CIM_Setting_ApplyIncrementalChangeToMSE_MustBeCompletedBy =
 static const char*
 _CIM_Setting_ApplyIncrementalChangeToMSE_PropertiesToApply_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -2168,7 +2220,7 @@ static SourceProperty
 _CIM_Setting_ApplyIncrementalChangeToMSE_PropertiesToApply =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "PropertiesToApply",
     /* qualifiers */
@@ -2215,6 +2267,8 @@ _CIM_Setting_ApplyIncrementalChangeToMSE =
 static const char*
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_Collection_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -2222,7 +2276,7 @@ static SourceReference
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_Collection =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
     /* name */
     "Collection",
     /* qualifiers */
@@ -2236,6 +2290,8 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_Collection =
 static const char*
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_TimeToApply_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -2243,7 +2299,7 @@ static SourceProperty
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_TimeToApply =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "TimeToApply",
     /* qualifiers */
@@ -2259,6 +2315,8 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_TimeToApply =
 static const char*
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_MustBeCompletedBy_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -2266,7 +2324,7 @@ static SourceProperty
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_MustBeCompletedBy =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "MustBeCompletedBy",
     /* qualifiers */
@@ -2282,6 +2340,8 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_MustBeCompletedBy =
 static const char*
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_PropertiesToApply_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -2289,7 +2349,7 @@ static SourceProperty
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_PropertiesToApply =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "PropertiesToApply",
     /* qualifiers */
@@ -2305,6 +2365,10 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_PropertiesToApply =
 static const char*
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_CanNotApply_qualifiers[] =
 {
+    /* IN */
+    "\024\000",
+    /* OUT */
+    "\043\001",
     0,
 };
 
@@ -2312,7 +2376,7 @@ static SourceProperty
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_CanNotApply =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_OUT,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_OUT,
     /* name */
     "CanNotApply",
     /* qualifiers */
@@ -2360,6 +2424,8 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection =
 static const char*
 _CIM_Setting_ApplyIncrementalChangeToCollection_Collection_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -2367,7 +2433,7 @@ static SourceReference
 _CIM_Setting_ApplyIncrementalChangeToCollection_Collection =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
     /* name */
     "Collection",
     /* qualifiers */
@@ -2381,6 +2447,8 @@ _CIM_Setting_ApplyIncrementalChangeToCollection_Collection =
 static const char*
 _CIM_Setting_ApplyIncrementalChangeToCollection_TimeToApply_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -2388,7 +2456,7 @@ static SourceProperty
 _CIM_Setting_ApplyIncrementalChangeToCollection_TimeToApply =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "TimeToApply",
     /* qualifiers */
@@ -2404,6 +2472,8 @@ _CIM_Setting_ApplyIncrementalChangeToCollection_TimeToApply =
 static const char*
 _CIM_Setting_ApplyIncrementalChangeToCollection_ContinueOnError_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -2411,7 +2481,7 @@ static SourceProperty
 _CIM_Setting_ApplyIncrementalChangeToCollection_ContinueOnError =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "ContinueOnError",
     /* qualifiers */
@@ -2427,6 +2497,8 @@ _CIM_Setting_ApplyIncrementalChangeToCollection_ContinueOnError =
 static const char*
 _CIM_Setting_ApplyIncrementalChangeToCollection_MustBeCompletedBy_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -2434,7 +2506,7 @@ static SourceProperty
 _CIM_Setting_ApplyIncrementalChangeToCollection_MustBeCompletedBy =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "MustBeCompletedBy",
     /* qualifiers */
@@ -2450,6 +2522,8 @@ _CIM_Setting_ApplyIncrementalChangeToCollection_MustBeCompletedBy =
 static const char*
 _CIM_Setting_ApplyIncrementalChangeToCollection_PropertiesToApply_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -2457,7 +2531,7 @@ static SourceProperty
 _CIM_Setting_ApplyIncrementalChangeToCollection_PropertiesToApply =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "PropertiesToApply",
     /* qualifiers */
@@ -2473,6 +2547,10 @@ _CIM_Setting_ApplyIncrementalChangeToCollection_PropertiesToApply =
 static const char*
 _CIM_Setting_ApplyIncrementalChangeToCollection_CanNotApply_qualifiers[] =
 {
+    /* IN */
+    "\024\000",
+    /* OUT */
+    "\043\001",
     0,
 };
 
@@ -2480,7 +2558,7 @@ static SourceProperty
 _CIM_Setting_ApplyIncrementalChangeToCollection_CanNotApply =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_OUT,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_OUT,
     /* name */
     "CanNotApply",
     /* qualifiers */
@@ -2546,6 +2624,8 @@ __root_PG_InterOp_CIM_Setting_qualifiers[] =
 {
     /* UMLPackagePath */
     "\057CIM::Core::Settings",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.8.1000",
     0,
@@ -2575,6 +2655,10 @@ __root_PG_InterOp_CIM_Setting =
 static const char*
 _CIM_SettingContext_Context_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
+    /* Aggregate */
+    "\003\001",
     0,
 };
 
@@ -2582,7 +2666,7 @@ static SourceReference
 _CIM_SettingContext_Context =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
     /* name */
     "Context",
     /* qualifiers */
@@ -2596,6 +2680,8 @@ _CIM_SettingContext_Context =
 static const char*
 _CIM_SettingContext_Setting_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -2603,7 +2689,7 @@ static SourceReference
 _CIM_SettingContext_Setting =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Setting",
     /* qualifiers */
@@ -2625,8 +2711,12 @@ _CIM_SettingContext_features[] =
 static const char*
 __root_PG_InterOp_CIM_SettingContext_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Settings",
+    /* Aggregation */
+    "\004\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -2656,6 +2746,8 @@ __root_PG_InterOp_CIM_SettingContext =
 static const char*
 _CIM_SettingData_InstanceID_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -2663,7 +2755,7 @@ static SourceProperty
 _CIM_SettingData_InstanceID =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "InstanceID",
     /* qualifiers */
@@ -2679,6 +2771,8 @@ _CIM_SettingData_InstanceID =
 static const char*
 _CIM_SettingData_ElementName_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* Override */
     "\044ElementName",
     0,
@@ -2688,7 +2782,7 @@ static SourceProperty
 _CIM_SettingData_ElementName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "ElementName",
     /* qualifiers */
@@ -2714,6 +2808,8 @@ __root_PG_InterOp_CIM_SettingData_qualifiers[] =
 {
     /* UMLPackagePath */
     "\057CIM::Core::Settings",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.10.0",
     0,
@@ -2743,6 +2839,8 @@ __root_PG_InterOp_CIM_SettingData =
 static const char*
 _CIM_Capabilities_InstanceID_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -2750,7 +2848,7 @@ static SourceProperty
 _CIM_Capabilities_InstanceID =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "InstanceID",
     /* qualifiers */
@@ -2766,6 +2864,8 @@ _CIM_Capabilities_InstanceID =
 static const char*
 _CIM_Capabilities_ElementName_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* Override */
     "\044ElementName",
     0,
@@ -2775,7 +2875,7 @@ static SourceProperty
 _CIM_Capabilities_ElementName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "ElementName",
     /* qualifiers */
@@ -2801,6 +2901,8 @@ __root_PG_InterOp_CIM_Capabilities_qualifiers[] =
 {
     /* UMLPackagePath */
     "\057CIM::Core::Capabilities",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.7.0",
     0,
@@ -2838,6 +2940,8 @@ __root_PG_InterOp_CIM_Collection_qualifiers[] =
 {
     /* UMLPackagePath */
     "\057CIM::Core::Collection",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -2876,7 +2980,7 @@ static SourceProperty
 _CIM_CollectionOfMSEs_CollectionID =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "CollectionID",
     /* qualifiers */
@@ -2901,6 +3005,8 @@ __root_PG_InterOp_CIM_CollectionOfMSEs_qualifiers[] =
 {
     /* UMLPackagePath */
     "\057CIM::Core::Collection",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.10.0",
     0,
@@ -2930,6 +3036,10 @@ __root_PG_InterOp_CIM_CollectionOfMSEs =
 static const char*
 _CIM_Component_GroupComponent_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
+    /* Aggregate */
+    "\003\001",
     0,
 };
 
@@ -2937,7 +3047,7 @@ static SourceReference
 _CIM_Component_GroupComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -2951,6 +3061,8 @@ _CIM_Component_GroupComponent =
 static const char*
 _CIM_Component_PartComponent_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -2958,7 +3070,7 @@ static SourceReference
 _CIM_Component_PartComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -2980,8 +3092,14 @@ _CIM_Component_features[] =
 static const char*
 __root_PG_InterOp_CIM_Component_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::CoreElements",
+    /* Abstract */
+    "\002\001",
+    /* Aggregation */
+    "\004\001",
     /* Version */
     "\0632.7.0",
     0,
@@ -3011,6 +3129,8 @@ __root_PG_InterOp_CIM_Component =
 static const char*
 _CIM_ConcreteCollection_InstanceID_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -3018,7 +3138,7 @@ static SourceProperty
 _CIM_ConcreteCollection_InstanceID =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "InstanceID",
     /* qualifiers */
@@ -3072,6 +3192,8 @@ __root_PG_InterOp_CIM_ConcreteCollection =
 static const char*
 _CIM_ConcreteComponent_GroupComponent_qualifiers[] =
 {
+    /* Aggregate */
+    "\003\001",
     /* Override */
     "\044GroupComponent",
     0,
@@ -3081,7 +3203,7 @@ static SourceReference
 _CIM_ConcreteComponent_GroupComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -3104,7 +3226,7 @@ static SourceReference
 _CIM_ConcreteComponent_PartComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -3126,8 +3248,12 @@ _CIM_ConcreteComponent_features[] =
 static const char*
 __root_PG_InterOp_CIM_ConcreteComponent_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::CoreElements",
+    /* Aggregation */
+    "\004\001",
     /* Version */
     "\0632.10.0",
     0,
@@ -3157,6 +3283,8 @@ __root_PG_InterOp_CIM_ConcreteComponent =
 static const char*
 _CIM_Configuration_Name_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -3166,7 +3294,7 @@ static SourceProperty
 _CIM_Configuration_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -3220,6 +3348,10 @@ __root_PG_InterOp_CIM_Configuration =
 static const char*
 _CIM_ConfigurationComponent_ConfigGroup_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
+    /* Aggregate */
+    "\003\001",
     0,
 };
 
@@ -3227,7 +3359,7 @@ static SourceReference
 _CIM_ConfigurationComponent_ConfigGroup =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
     /* name */
     "ConfigGroup",
     /* qualifiers */
@@ -3241,6 +3373,8 @@ _CIM_ConfigurationComponent_ConfigGroup =
 static const char*
 _CIM_ConfigurationComponent_ConfigComponent_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -3248,7 +3382,7 @@ static SourceReference
 _CIM_ConfigurationComponent_ConfigComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "ConfigComponent",
     /* qualifiers */
@@ -3270,8 +3404,12 @@ _CIM_ConfigurationComponent_features[] =
 static const char*
 __root_PG_InterOp_CIM_ConfigurationComponent_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Settings",
+    /* Aggregation */
+    "\004\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -3301,6 +3439,8 @@ __root_PG_InterOp_CIM_ConfigurationComponent =
 static const char*
 _CIM_Dependency_Antecedent_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -3308,7 +3448,7 @@ static SourceReference
 _CIM_Dependency_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -3322,6 +3462,8 @@ _CIM_Dependency_Antecedent =
 static const char*
 _CIM_Dependency_Dependent_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -3329,7 +3471,7 @@ static SourceReference
 _CIM_Dependency_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -3351,8 +3493,12 @@ _CIM_Dependency_features[] =
 static const char*
 __root_PG_InterOp_CIM_Dependency_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::CoreElements",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.10.0",
     0,
@@ -3382,6 +3528,10 @@ __root_PG_InterOp_CIM_Dependency =
 static const char*
 _CIM_DependencyContext_Context_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
+    /* Aggregate */
+    "\003\001",
     0,
 };
 
@@ -3389,7 +3539,7 @@ static SourceReference
 _CIM_DependencyContext_Context =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
     /* name */
     "Context",
     /* qualifiers */
@@ -3403,6 +3553,8 @@ _CIM_DependencyContext_Context =
 static const char*
 _CIM_DependencyContext_Dependency_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -3410,7 +3562,7 @@ static SourceReference
 _CIM_DependencyContext_Dependency =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Dependency",
     /* qualifiers */
@@ -3432,8 +3584,12 @@ _CIM_DependencyContext_features[] =
 static const char*
 __root_PG_InterOp_CIM_DependencyContext_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Settings",
+    /* Aggregation */
+    "\004\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -3463,6 +3619,8 @@ __root_PG_InterOp_CIM_DependencyContext =
 static const char*
 _CIM_ElementCapabilities_ManagedElement_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Min */
     "\033\000\000\000\001",
     /* Max */
@@ -3474,7 +3632,7 @@ static SourceReference
 _CIM_ElementCapabilities_ManagedElement =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "ManagedElement",
     /* qualifiers */
@@ -3488,6 +3646,8 @@ _CIM_ElementCapabilities_ManagedElement =
 static const char*
 _CIM_ElementCapabilities_Capabilities_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -3495,7 +3655,7 @@ static SourceReference
 _CIM_ElementCapabilities_Capabilities =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Capabilities",
     /* qualifiers */
@@ -3517,6 +3677,8 @@ _CIM_ElementCapabilities_features[] =
 static const char*
 __root_PG_InterOp_CIM_ElementCapabilities_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Capabilities",
     /* Version */
@@ -3559,7 +3721,7 @@ static SourceProperty
 _CIM_EnabledLogicalElementCapabilities_ElementNameEditSupported =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ElementNameEditSupported",
     /* qualifiers */
@@ -3588,7 +3750,7 @@ static SourceProperty
 _CIM_EnabledLogicalElementCapabilities_MaxElementNameLen =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "MaxElementNameLen",
     /* qualifiers */
@@ -3617,7 +3779,7 @@ static SourceProperty
 _CIM_EnabledLogicalElementCapabilities_RequestedStatesSupported =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "RequestedStatesSupported",
     /* qualifiers */
@@ -3673,6 +3835,8 @@ __root_PG_InterOp_CIM_EnabledLogicalElementCapabilities =
 static const char*
 _CIM_FRU_FRUNumber_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\000\100",
     /* MappingStrings */
@@ -3684,7 +3848,7 @@ static SourceProperty
 _CIM_FRU_FRUNumber =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "FRUNumber",
     /* qualifiers */
@@ -3700,6 +3864,8 @@ _CIM_FRU_FRUNumber =
 static const char*
 _CIM_FRU_IdentifyingNumber_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\000\100",
     /* MappingStrings */
@@ -3711,7 +3877,7 @@ static SourceProperty
 _CIM_FRU_IdentifyingNumber =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "IdentifyingNumber",
     /* qualifiers */
@@ -3727,6 +3893,8 @@ _CIM_FRU_IdentifyingNumber =
 static const char*
 _CIM_FRU_Vendor_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     /* MappingStrings */
@@ -3738,7 +3906,7 @@ static SourceProperty
 _CIM_FRU_Vendor =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Vendor",
     /* qualifiers */
@@ -3765,7 +3933,7 @@ static SourceProperty
 _CIM_FRU_Description =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Description",
     /* qualifiers */
@@ -3790,7 +3958,7 @@ static SourceProperty
 _CIM_FRU_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -3817,7 +3985,7 @@ static SourceProperty
 _CIM_FRU_RevisionLevel =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "RevisionLevel",
     /* qualifiers */
@@ -3840,7 +4008,7 @@ static SourceProperty
 _CIM_FRU_CustomerReplaceable =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "CustomerReplaceable",
     /* qualifiers */
@@ -3911,7 +4079,7 @@ static SourceReference
 _CIM_HostedDependency_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -3934,7 +4102,7 @@ static SourceReference
 _CIM_HostedDependency_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -3956,6 +4124,8 @@ _CIM_HostedDependency_features[] =
 static const char*
 __root_PG_InterOp_CIM_HostedDependency_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::CoreElements",
     /* Version */
@@ -3994,7 +4164,7 @@ static SourceProperty
 _CIM_LocalizationCapabilities_SupportedInputLocales =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SupportedInputLocales",
     /* qualifiers */
@@ -4017,7 +4187,7 @@ static SourceProperty
 _CIM_LocalizationCapabilities_SupportedOutputLocales =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SupportedOutputLocales",
     /* qualifiers */
@@ -4072,6 +4242,8 @@ __root_PG_InterOp_CIM_LocalizationCapabilities =
 static const char*
 _CIM_Location_Name_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -4081,7 +4253,7 @@ static SourceProperty
 _CIM_Location_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -4097,6 +4269,8 @@ _CIM_Location_Name =
 static const char*
 _CIM_Location_PhysicalPosition_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -4106,7 +4280,7 @@ static SourceProperty
 _CIM_Location_PhysicalPosition =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "PhysicalPosition",
     /* qualifiers */
@@ -4131,7 +4305,7 @@ static SourceProperty
 _CIM_Location_Address =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Address",
     /* qualifiers */
@@ -4187,6 +4361,8 @@ __root_PG_InterOp_CIM_Location =
 static const char*
 _CIM_LogicalIdentity_SystemElement_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -4194,7 +4370,7 @@ static SourceReference
 _CIM_LogicalIdentity_SystemElement =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemElement",
     /* qualifiers */
@@ -4208,6 +4384,8 @@ _CIM_LogicalIdentity_SystemElement =
 static const char*
 _CIM_LogicalIdentity_SameElement_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -4215,7 +4393,7 @@ static SourceReference
 _CIM_LogicalIdentity_SameElement =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SameElement",
     /* qualifiers */
@@ -4237,8 +4415,12 @@ _CIM_LogicalIdentity_features[] =
 static const char*
 __root_PG_InterOp_CIM_LogicalIdentity_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::CoreElements",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.10.0",
     0,
@@ -4277,7 +4459,7 @@ static SourceProperty
 _CIM_ManagedSystemElement_InstallDate =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "InstallDate",
     /* qualifiers */
@@ -4302,7 +4484,7 @@ static SourceProperty
 _CIM_ManagedSystemElement_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -4333,7 +4515,7 @@ static SourceProperty
 _CIM_ManagedSystemElement_OperationalStatus =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OperationalStatus",
     /* qualifiers */
@@ -4360,7 +4542,7 @@ static SourceProperty
 _CIM_ManagedSystemElement_StatusDescriptions =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "StatusDescriptions",
     /* qualifiers */
@@ -4389,7 +4571,7 @@ static SourceProperty
 _CIM_ManagedSystemElement_Status =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Status",
     /* qualifiers */
@@ -4416,7 +4598,7 @@ static SourceProperty
 _CIM_ManagedSystemElement_HealthState =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "HealthState",
     /* qualifiers */
@@ -4446,6 +4628,8 @@ __root_PG_InterOp_CIM_ManagedSystemElement_qualifiers[] =
 {
     /* UMLPackagePath */
     "\057CIM::Core::CoreElements",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.11.0",
     0,
@@ -4475,6 +4659,10 @@ __root_PG_InterOp_CIM_ManagedSystemElement =
 static const char*
 _CIM_MemberOfCollection_Collection_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
+    /* Aggregate */
+    "\003\001",
     0,
 };
 
@@ -4482,7 +4670,7 @@ static SourceReference
 _CIM_MemberOfCollection_Collection =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
     /* name */
     "Collection",
     /* qualifiers */
@@ -4496,6 +4684,8 @@ _CIM_MemberOfCollection_Collection =
 static const char*
 _CIM_MemberOfCollection_Member_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -4503,7 +4693,7 @@ static SourceReference
 _CIM_MemberOfCollection_Member =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Member",
     /* qualifiers */
@@ -4525,8 +4715,12 @@ _CIM_MemberOfCollection_features[] =
 static const char*
 __root_PG_InterOp_CIM_MemberOfCollection_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Collection",
+    /* Aggregation */
+    "\004\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -4565,7 +4759,7 @@ static SourceProperty
 _CIM_MethodParameters_MethodParametersId =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "MethodParametersId",
     /* qualifiers */
@@ -4581,6 +4775,8 @@ _CIM_MethodParameters_MethodParametersId =
 static const char*
 _CIM_MethodParameters_ResetValues_SourceME_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -4588,7 +4784,7 @@ static SourceReference
 _CIM_MethodParameters_ResetValues_SourceME =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
     /* name */
     "SourceME",
     /* qualifiers */
@@ -4640,6 +4836,8 @@ __root_PG_InterOp_CIM_MethodParameters_qualifiers[] =
 {
     /* UMLPackagePath */
     "\057CIM::Core::MethodParms",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.10.0",
     0,
@@ -4676,7 +4874,7 @@ static SourceProperty
 _CIM_OrderedMemberOfCollection_AssignedSequence =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "AssignedSequence",
     /* qualifiers */
@@ -4699,8 +4897,12 @@ _CIM_OrderedMemberOfCollection_features[] =
 static const char*
 __root_PG_InterOp_CIM_OrderedMemberOfCollection_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Collection",
+    /* Aggregation */
+    "\004\001",
     /* Version */
     "\0632.10.0",
     0,
@@ -4730,6 +4932,8 @@ __root_PG_InterOp_CIM_OrderedMemberOfCollection =
 static const char*
 _CIM_ParametersForMethod_Parameters_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -4737,7 +4941,7 @@ static SourceReference
 _CIM_ParametersForMethod_Parameters =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Parameters",
     /* qualifiers */
@@ -4751,6 +4955,8 @@ _CIM_ParametersForMethod_Parameters =
 static const char*
 _CIM_ParametersForMethod_TheMethod_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -4758,7 +4964,7 @@ static SourceReference
 _CIM_ParametersForMethod_TheMethod =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "TheMethod",
     /* qualifiers */
@@ -4772,6 +4978,8 @@ _CIM_ParametersForMethod_TheMethod =
 static const char*
 _CIM_ParametersForMethod_MethodName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\000\100",
     0,
@@ -4781,7 +4989,7 @@ static SourceProperty
 _CIM_ParametersForMethod_MethodName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "MethodName",
     /* qualifiers */
@@ -4806,6 +5014,8 @@ _CIM_ParametersForMethod_features[] =
 static const char*
 __root_PG_InterOp_CIM_ParametersForMethod_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::MethodParms",
     /* Version */
@@ -4837,6 +5047,8 @@ __root_PG_InterOp_CIM_ParametersForMethod =
 static const char*
 _CIM_ParameterValueSources_Parameters_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -4844,7 +5056,7 @@ static SourceReference
 _CIM_ParameterValueSources_Parameters =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Parameters",
     /* qualifiers */
@@ -4858,6 +5070,8 @@ _CIM_ParameterValueSources_Parameters =
 static const char*
 _CIM_ParameterValueSources_ValueSource_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -4865,7 +5079,7 @@ static SourceReference
 _CIM_ParameterValueSources_ValueSource =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "ValueSource",
     /* qualifiers */
@@ -4887,6 +5101,8 @@ _CIM_ParameterValueSources_features[] =
 static const char*
 __root_PG_InterOp_CIM_ParameterValueSources_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::MethodParms",
     /* Version */
@@ -4918,6 +5134,8 @@ __root_PG_InterOp_CIM_ParameterValueSources =
 static const char*
 _CIM_PhysicalElement_Tag_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -4927,7 +5145,7 @@ static SourceProperty
 _CIM_PhysicalElement_Tag =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Tag",
     /* qualifiers */
@@ -4954,7 +5172,7 @@ static SourceProperty
 _CIM_PhysicalElement_Description =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Description",
     /* qualifiers */
@@ -4970,6 +5188,8 @@ _CIM_PhysicalElement_Description =
 static const char*
 _CIM_PhysicalElement_CreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -4979,7 +5199,7 @@ static SourceProperty
 _CIM_PhysicalElement_CreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -5006,7 +5226,7 @@ static SourceProperty
 _CIM_PhysicalElement_ElementName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ElementName",
     /* qualifiers */
@@ -5033,7 +5253,7 @@ static SourceProperty
 _CIM_PhysicalElement_Manufacturer =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Manufacturer",
     /* qualifiers */
@@ -5060,7 +5280,7 @@ static SourceProperty
 _CIM_PhysicalElement_Model =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Model",
     /* qualifiers */
@@ -5085,7 +5305,7 @@ static SourceProperty
 _CIM_PhysicalElement_SKU =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SKU",
     /* qualifiers */
@@ -5112,7 +5332,7 @@ static SourceProperty
 _CIM_PhysicalElement_SerialNumber =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SerialNumber",
     /* qualifiers */
@@ -5139,7 +5359,7 @@ static SourceProperty
 _CIM_PhysicalElement_Version =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Version",
     /* qualifiers */
@@ -5166,7 +5386,7 @@ static SourceProperty
 _CIM_PhysicalElement_PartNumber =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "PartNumber",
     /* qualifiers */
@@ -5182,6 +5402,8 @@ _CIM_PhysicalElement_PartNumber =
 static const char*
 _CIM_PhysicalElement_OtherIdentifyingInfo_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* MappingStrings */
     "\026\000\001MIB.IETF|Entity-MIB.entPhysicalAlias\000",
     0,
@@ -5191,7 +5413,7 @@ static SourceProperty
 _CIM_PhysicalElement_OtherIdentifyingInfo =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "OtherIdentifyingInfo",
     /* qualifiers */
@@ -5214,7 +5436,7 @@ static SourceProperty
 _CIM_PhysicalElement_PoweredOn =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "PoweredOn",
     /* qualifiers */
@@ -5237,7 +5459,7 @@ static SourceProperty
 _CIM_PhysicalElement_ManufactureDate =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ManufactureDate",
     /* qualifiers */
@@ -5262,7 +5484,7 @@ static SourceProperty
 _CIM_PhysicalElement_VendorEquipmentType =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "VendorEquipmentType",
     /* qualifiers */
@@ -5278,6 +5500,8 @@ _CIM_PhysicalElement_VendorEquipmentType =
 static const char*
 _CIM_PhysicalElement_UserTracking_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* MappingStrings */
     "\026\000\001MIB.IETF|Entity-MIB.entPhysicalAssetID\000",
     0,
@@ -5287,7 +5511,7 @@ static SourceProperty
 _CIM_PhysicalElement_UserTracking =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "UserTracking",
     /* qualifiers */
@@ -5312,7 +5536,7 @@ static SourceProperty
 _CIM_PhysicalElement_CanBeFRUed =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "CanBeFRUed",
     /* qualifiers */
@@ -5352,6 +5576,8 @@ __root_PG_InterOp_CIM_PhysicalElement_qualifiers[] =
 {
     /* UMLPackagePath */
     "\057CIM::Core::Physical",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.10.0",
     0,
@@ -5396,7 +5622,7 @@ static SourceProperty
 _CIM_PowerManagementCapabilities_PowerCapabilities =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "PowerCapabilities",
     /* qualifiers */
@@ -5421,7 +5647,7 @@ static SourceProperty
 _CIM_PowerManagementCapabilities_OtherPowerCapabilitiesDescriptions =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherPowerCapabilitiesDescriptions",
     /* qualifiers */
@@ -5476,6 +5702,8 @@ __root_PG_InterOp_CIM_PowerManagementCapabilities =
 static const char*
 _CIM_Product_Name_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     /* MappingStrings */
@@ -5489,7 +5717,7 @@ static SourceProperty
 _CIM_Product_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -5505,6 +5733,8 @@ _CIM_Product_Name =
 static const char*
 _CIM_Product_IdentifyingNumber_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\000\100",
     /* MappingStrings */
@@ -5516,7 +5746,7 @@ static SourceProperty
 _CIM_Product_IdentifyingNumber =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "IdentifyingNumber",
     /* qualifiers */
@@ -5532,6 +5762,8 @@ _CIM_Product_IdentifyingNumber =
 static const char*
 _CIM_Product_Vendor_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     /* MappingStrings */
@@ -5545,7 +5777,7 @@ static SourceProperty
 _CIM_Product_Vendor =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Vendor",
     /* qualifiers */
@@ -5561,6 +5793,8 @@ _CIM_Product_Vendor =
 static const char*
 _CIM_Product_Version_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\000\100",
     /* MappingStrings */
@@ -5574,7 +5808,7 @@ static SourceProperty
 _CIM_Product_Version =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Version",
     /* qualifiers */
@@ -5599,7 +5833,7 @@ static SourceProperty
 _CIM_Product_SKUNumber =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SKUNumber",
     /* qualifiers */
@@ -5626,7 +5860,7 @@ static SourceProperty
 _CIM_Product_WarrantyStartDate =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "WarrantyStartDate",
     /* qualifiers */
@@ -5655,7 +5889,7 @@ static SourceProperty
 _CIM_Product_WarrantyDuration =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "WarrantyDuration",
     /* qualifiers */
@@ -5715,6 +5949,8 @@ __root_PG_InterOp_CIM_Product =
 static const char*
 _CIM_ProductComponent_GroupComponent_qualifiers[] =
 {
+    /* Aggregate */
+    "\003\001",
     /* Override */
     "\044GroupComponent",
     /* ModelCorrespondence */
@@ -5726,7 +5962,7 @@ static SourceReference
 _CIM_ProductComponent_GroupComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -5751,7 +5987,7 @@ static SourceReference
 _CIM_ProductComponent_PartComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -5773,8 +6009,14 @@ _CIM_ProductComponent_features[] =
 static const char*
 __root_PG_InterOp_CIM_ProductComponent_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::ProductFRU",
+    /* Aggregation */
+    "\004\001",
+    /* Composition */
+    "\011\001",
     /* Version */
     "\0632.7.0",
     0,
@@ -5804,6 +6046,8 @@ __root_PG_InterOp_CIM_ProductComponent =
 static const char*
 _CIM_ProductFRU_Product_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Max */
     "\027\000\000\000\001",
     0,
@@ -5813,7 +6057,7 @@ static SourceReference
 _CIM_ProductFRU_Product =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Product",
     /* qualifiers */
@@ -5827,6 +6071,8 @@ _CIM_ProductFRU_Product =
 static const char*
 _CIM_ProductFRU_FRU_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -5834,7 +6080,7 @@ static SourceReference
 _CIM_ProductFRU_FRU =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "FRU",
     /* qualifiers */
@@ -5856,6 +6102,8 @@ _CIM_ProductFRU_features[] =
 static const char*
 __root_PG_InterOp_CIM_ProductFRU_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::ProductFRU",
     /* Version */
@@ -5887,6 +6135,10 @@ __root_PG_InterOp_CIM_ProductFRU =
 static const char*
 _CIM_ProductParentChild_Parent_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
+    /* Aggregate */
+    "\003\001",
     0,
 };
 
@@ -5894,7 +6146,7 @@ static SourceReference
 _CIM_ProductParentChild_Parent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
     /* name */
     "Parent",
     /* qualifiers */
@@ -5908,6 +6160,8 @@ _CIM_ProductParentChild_Parent =
 static const char*
 _CIM_ProductParentChild_Child_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -5915,7 +6169,7 @@ static SourceReference
 _CIM_ProductParentChild_Child =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Child",
     /* qualifiers */
@@ -5937,8 +6191,14 @@ _CIM_ProductParentChild_features[] =
 static const char*
 __root_PG_InterOp_CIM_ProductParentChild_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::ProductFRU",
+    /* Aggregation */
+    "\004\001",
+    /* Composition */
+    "\011\001",
     /* Version */
     "\0632.7.0",
     0,
@@ -5979,7 +6239,7 @@ static SourceReference
 _CIM_ProductPhysicalComponent_GroupComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -6002,7 +6262,7 @@ static SourceReference
 _CIM_ProductPhysicalComponent_PartComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -6024,8 +6284,14 @@ _CIM_ProductPhysicalComponent_features[] =
 static const char*
 __root_PG_InterOp_CIM_ProductPhysicalComponent_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::ProductFRU",
+    /* Aggregation */
+    "\004\001",
+    /* Composition */
+    "\011\001",
     /* Version */
     "\0632.7.0",
     0,
@@ -6057,6 +6323,10 @@ _CIM_ProductPhysicalElements_Product_qualifiers[] =
 {
     /* Deprecated */
     "\013\000\001CIM_ProductPhysicalComponent.GroupComponent\000",
+    /* Key */
+    "\025\001",
+    /* Aggregate */
+    "\003\001",
     /* Max */
     "\027\000\000\000\001",
     0,
@@ -6066,7 +6336,7 @@ static SourceReference
 _CIM_ProductPhysicalElements_Product =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
     /* name */
     "Product",
     /* qualifiers */
@@ -6082,6 +6352,8 @@ _CIM_ProductPhysicalElements_Component_qualifiers[] =
 {
     /* Deprecated */
     "\013\000\001CIM_ProductPhysicalComponent.PartComponent\000",
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -6089,7 +6361,7 @@ static SourceReference
 _CIM_ProductPhysicalElements_Component =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Component",
     /* qualifiers */
@@ -6111,10 +6383,16 @@ _CIM_ProductPhysicalElements_features[] =
 static const char*
 __root_PG_InterOp_CIM_ProductPhysicalElements_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* Deprecated */
     "\013\000\001CIM_ProductPhysicalComponent\000",
     /* UMLPackagePath */
     "\057CIM::Core::ProductFRU",
+    /* Aggregation */
+    "\004\001",
+    /* Composition */
+    "\011\001",
     /* Version */
     "\0632.7.0",
     0,
@@ -6144,6 +6422,8 @@ __root_PG_InterOp_CIM_ProductPhysicalElements =
 static const char*
 _CIM_ProductProductDependency_RequiredProduct_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -6151,7 +6431,7 @@ static SourceReference
 _CIM_ProductProductDependency_RequiredProduct =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "RequiredProduct",
     /* qualifiers */
@@ -6165,6 +6445,8 @@ _CIM_ProductProductDependency_RequiredProduct =
 static const char*
 _CIM_ProductProductDependency_DependentProduct_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -6172,7 +6454,7 @@ static SourceReference
 _CIM_ProductProductDependency_DependentProduct =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "DependentProduct",
     /* qualifiers */
@@ -6197,7 +6479,7 @@ static SourceProperty
 _CIM_ProductProductDependency_TypeOfDependency =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "TypeOfDependency",
     /* qualifiers */
@@ -6222,6 +6504,8 @@ _CIM_ProductProductDependency_features[] =
 static const char*
 __root_PG_InterOp_CIM_ProductProductDependency_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::ProductFRU",
     /* Version */
@@ -6253,6 +6537,8 @@ __root_PG_InterOp_CIM_ProductProductDependency =
 static const char*
 _CIM_Profile_InstanceID_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -6260,7 +6546,7 @@ static SourceProperty
 _CIM_Profile_InstanceID =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "InstanceID",
     /* qualifiers */
@@ -6314,6 +6600,8 @@ __root_PG_InterOp_CIM_Profile =
 static const char*
 _CIM_ReplaceableProductFRU_Product_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Max */
     "\027\000\000\000\001",
     0,
@@ -6323,7 +6611,7 @@ static SourceReference
 _CIM_ReplaceableProductFRU_Product =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Product",
     /* qualifiers */
@@ -6337,6 +6625,8 @@ _CIM_ReplaceableProductFRU_Product =
 static const char*
 _CIM_ReplaceableProductFRU_FRU_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -6344,7 +6634,7 @@ static SourceReference
 _CIM_ReplaceableProductFRU_FRU =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "FRU",
     /* qualifiers */
@@ -6366,6 +6656,8 @@ _CIM_ReplaceableProductFRU_features[] =
 static const char*
 __root_PG_InterOp_CIM_ReplaceableProductFRU_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::ProductFRU",
     /* Version */
@@ -6406,7 +6698,7 @@ static SourceReference
 _CIM_Spared_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -6429,7 +6721,7 @@ static SourceReference
 _CIM_Spared_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -6451,6 +6743,8 @@ _CIM_Spared_features[] =
 static const char*
 __root_PG_InterOp_CIM_Spared_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Redundancy",
     /* Version */
@@ -6482,6 +6776,8 @@ __root_PG_InterOp_CIM_Spared =
 static const char*
 _CIM_StatisticalData_InstanceID_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -6489,7 +6785,7 @@ static SourceProperty
 _CIM_StatisticalData_InstanceID =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "InstanceID",
     /* qualifiers */
@@ -6505,6 +6801,8 @@ _CIM_StatisticalData_InstanceID =
 static const char*
 _CIM_StatisticalData_ElementName_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* Override */
     "\044ElementName",
     0,
@@ -6514,7 +6812,7 @@ static SourceProperty
 _CIM_StatisticalData_ElementName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "ElementName",
     /* qualifiers */
@@ -6537,7 +6835,7 @@ static SourceProperty
 _CIM_StatisticalData_StartStatisticTime =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "StartStatisticTime",
     /* qualifiers */
@@ -6560,7 +6858,7 @@ static SourceProperty
 _CIM_StatisticalData_StatisticTime =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "StatisticTime",
     /* qualifiers */
@@ -6583,7 +6881,7 @@ static SourceProperty
 _CIM_StatisticalData_SampleInterval =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SampleInterval",
     /* qualifiers */
@@ -6599,6 +6897,8 @@ _CIM_StatisticalData_SampleInterval =
 static const char*
 _CIM_StatisticalData_ResetSelectedStats_SelectedStatistics_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -6606,7 +6906,7 @@ static SourceProperty
 _CIM_StatisticalData_ResetSelectedStats_SelectedStatistics =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "SelectedStatistics",
     /* qualifiers */
@@ -6664,6 +6964,8 @@ __root_PG_InterOp_CIM_StatisticalData_qualifiers[] =
 {
     /* UMLPackagePath */
     "\057CIM::Core::Statistics",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.8.0",
     0,
@@ -6702,7 +7004,7 @@ static SourceProperty
 _CIM_StatisticalInformation_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -6727,6 +7029,8 @@ __root_PG_InterOp_CIM_StatisticalInformation_qualifiers[] =
 {
     /* UMLPackagePath */
     "\057CIM::Core::Statistics",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -6756,6 +7060,8 @@ __root_PG_InterOp_CIM_StatisticalInformation =
 static const char*
 _CIM_StatisticalSetting_StartStatisticTime_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* ModelCorrespondence */
     "\036\000\001CIM_StatisticalData.StartStatisticTime\000",
     0,
@@ -6765,7 +7071,7 @@ static SourceProperty
 _CIM_StatisticalSetting_StartStatisticTime =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "StartStatisticTime",
     /* qualifiers */
@@ -6781,6 +7087,8 @@ _CIM_StatisticalSetting_StartStatisticTime =
 static const char*
 _CIM_StatisticalSetting_EndStatisticTime_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     0,
 };
 
@@ -6788,7 +7096,7 @@ static SourceProperty
 _CIM_StatisticalSetting_EndStatisticTime =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "EndStatisticTime",
     /* qualifiers */
@@ -6804,6 +7112,8 @@ _CIM_StatisticalSetting_EndStatisticTime =
 static const char*
 _CIM_StatisticalSetting_SampleInterval_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* ModelCorrespondence */
     "\036\000\001CIM_StatisticalData.SampleInterval\000",
     0,
@@ -6813,7 +7123,7 @@ static SourceProperty
 _CIM_StatisticalSetting_SampleInterval =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "SampleInterval",
     /* qualifiers */
@@ -6869,6 +7179,8 @@ __root_PG_InterOp_CIM_StatisticalSetting =
 static const char*
 _CIM_Statistics_Stats_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -6876,7 +7188,7 @@ static SourceReference
 _CIM_Statistics_Stats =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Stats",
     /* qualifiers */
@@ -6890,6 +7202,8 @@ _CIM_Statistics_Stats =
 static const char*
 _CIM_Statistics_Element_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -6897,7 +7211,7 @@ static SourceReference
 _CIM_Statistics_Element =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Element",
     /* qualifiers */
@@ -6919,6 +7233,8 @@ _CIM_Statistics_features[] =
 static const char*
 __root_PG_InterOp_CIM_Statistics_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Statistics",
     /* Version */
@@ -6950,6 +7266,8 @@ __root_PG_InterOp_CIM_Statistics =
 static const char*
 _CIM_SupportAccess_SupportAccessId_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -6959,7 +7277,7 @@ static SourceProperty
 _CIM_SupportAccess_SupportAccessId =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SupportAccessId",
     /* qualifiers */
@@ -6986,7 +7304,7 @@ static SourceProperty
 _CIM_SupportAccess_Description =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Description",
     /* qualifiers */
@@ -7011,7 +7329,7 @@ static SourceProperty
 _CIM_SupportAccess_CommunicationInfo =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "CommunicationInfo",
     /* qualifiers */
@@ -7040,7 +7358,7 @@ static SourceProperty
 _CIM_SupportAccess_CommunicationMode =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "CommunicationMode",
     /* qualifiers */
@@ -7067,7 +7385,7 @@ static SourceProperty
 _CIM_SupportAccess_Locale =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Locale",
     /* qualifiers */
@@ -7125,6 +7443,8 @@ __root_PG_InterOp_CIM_SupportAccess =
 static const char*
 _CIM_Synchronized_SystemElement_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -7132,7 +7452,7 @@ static SourceReference
 _CIM_Synchronized_SystemElement =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemElement",
     /* qualifiers */
@@ -7146,6 +7466,8 @@ _CIM_Synchronized_SystemElement =
 static const char*
 _CIM_Synchronized_SyncedElement_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -7153,7 +7475,7 @@ static SourceReference
 _CIM_Synchronized_SyncedElement =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SyncedElement",
     /* qualifiers */
@@ -7174,7 +7496,7 @@ static SourceProperty
 _CIM_Synchronized_WhenSynced =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "WhenSynced",
     /* qualifiers */
@@ -7197,7 +7519,7 @@ static SourceProperty
 _CIM_Synchronized_SyncMaintained =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SyncMaintained",
     /* qualifiers */
@@ -7223,6 +7545,8 @@ _CIM_Synchronized_features[] =
 static const char*
 __root_PG_InterOp_CIM_Synchronized_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::CoreElements",
     /* Version */
@@ -7254,6 +7578,8 @@ __root_PG_InterOp_CIM_Synchronized =
 static const char*
 _CIM_SystemConfiguration_SystemCreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_System.CreationClassName",
     /* MaxLen */
@@ -7265,7 +7591,7 @@ static SourceProperty
 _CIM_SystemConfiguration_SystemCreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -7281,6 +7607,8 @@ _CIM_SystemConfiguration_SystemCreationClassName =
 static const char*
 _CIM_SystemConfiguration_SystemName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_System.Name",
     /* MaxLen */
@@ -7292,7 +7620,7 @@ static SourceProperty
 _CIM_SystemConfiguration_SystemName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -7308,6 +7636,8 @@ _CIM_SystemConfiguration_SystemName =
 static const char*
 _CIM_SystemConfiguration_CreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -7317,7 +7647,7 @@ static SourceProperty
 _CIM_SystemConfiguration_CreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -7333,6 +7663,8 @@ _CIM_SystemConfiguration_CreationClassName =
 static const char*
 _CIM_SystemConfiguration_Name_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -7342,7 +7674,7 @@ static SourceProperty
 _CIM_SystemConfiguration_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -7399,6 +7731,8 @@ __root_PG_InterOp_CIM_SystemConfiguration =
 static const char*
 _CIM_SystemSetting_SystemCreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_System.CreationClassName",
     /* MaxLen */
@@ -7410,7 +7744,7 @@ static SourceProperty
 _CIM_SystemSetting_SystemCreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -7426,6 +7760,8 @@ _CIM_SystemSetting_SystemCreationClassName =
 static const char*
 _CIM_SystemSetting_SystemName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_System.Name",
     /* MaxLen */
@@ -7437,7 +7773,7 @@ static SourceProperty
 _CIM_SystemSetting_SystemName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -7453,6 +7789,8 @@ _CIM_SystemSetting_SystemName =
 static const char*
 _CIM_SystemSetting_CreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -7462,7 +7800,7 @@ static SourceProperty
 _CIM_SystemSetting_CreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -7478,6 +7816,8 @@ _CIM_SystemSetting_CreationClassName =
 static const char*
 _CIM_SystemSetting_SettingID_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Override */
     "\044SettingID",
     /* MaxLen */
@@ -7489,7 +7829,7 @@ static SourceProperty
 _CIM_SystemSetting_SettingID =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SettingID",
     /* qualifiers */
@@ -7517,6 +7857,8 @@ __root_PG_InterOp_CIM_SystemSetting_qualifiers[] =
 {
     /* UMLPackagePath */
     "\057CIM::Core::Settings",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.10.0",
     0,
@@ -7546,6 +7888,10 @@ __root_PG_InterOp_CIM_SystemSetting =
 static const char*
 _CIM_SystemSettingContext_Context_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
+    /* Aggregate */
+    "\003\001",
     0,
 };
 
@@ -7553,7 +7899,7 @@ static SourceReference
 _CIM_SystemSettingContext_Context =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
     /* name */
     "Context",
     /* qualifiers */
@@ -7567,6 +7913,8 @@ _CIM_SystemSettingContext_Context =
 static const char*
 _CIM_SystemSettingContext_Setting_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -7574,7 +7922,7 @@ static SourceReference
 _CIM_SystemSettingContext_Setting =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Setting",
     /* qualifiers */
@@ -7596,8 +7944,12 @@ _CIM_SystemSettingContext_features[] =
 static const char*
 __root_PG_InterOp_CIM_SystemSettingContext_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Settings",
+    /* Aggregation */
+    "\004\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -7627,6 +7979,8 @@ __root_PG_InterOp_CIM_SystemSettingContext =
 static const char*
 _CIM_SystemSpecificCollection_InstanceID_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -7634,7 +7988,7 @@ static SourceProperty
 _CIM_SystemSpecificCollection_InstanceID =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "InstanceID",
     /* qualifiers */
@@ -7688,6 +8042,8 @@ __root_PG_InterOp_CIM_SystemSpecificCollection =
 static const char*
 _CIM_SystemStatisticalInformation_SystemCreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_System.CreationClassName",
     /* MaxLen */
@@ -7699,7 +8055,7 @@ static SourceProperty
 _CIM_SystemStatisticalInformation_SystemCreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -7715,6 +8071,8 @@ _CIM_SystemStatisticalInformation_SystemCreationClassName =
 static const char*
 _CIM_SystemStatisticalInformation_SystemName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_System.Name",
     /* MaxLen */
@@ -7726,7 +8084,7 @@ static SourceProperty
 _CIM_SystemStatisticalInformation_SystemName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -7742,6 +8100,8 @@ _CIM_SystemStatisticalInformation_SystemName =
 static const char*
 _CIM_SystemStatisticalInformation_CreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -7751,7 +8111,7 @@ static SourceProperty
 _CIM_SystemStatisticalInformation_CreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -7767,6 +8127,8 @@ _CIM_SystemStatisticalInformation_CreationClassName =
 static const char*
 _CIM_SystemStatisticalInformation_Name_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Override */
     "\044Name",
     /* MaxLen */
@@ -7778,7 +8140,7 @@ static SourceProperty
 _CIM_SystemStatisticalInformation_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -7835,6 +8197,10 @@ __root_PG_InterOp_CIM_SystemStatisticalInformation =
 static const char*
 _CIM_CollectedCollections_Collection_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
+    /* Aggregate */
+    "\003\001",
     0,
 };
 
@@ -7842,7 +8208,7 @@ static SourceReference
 _CIM_CollectedCollections_Collection =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
     /* name */
     "Collection",
     /* qualifiers */
@@ -7856,6 +8222,8 @@ _CIM_CollectedCollections_Collection =
 static const char*
 _CIM_CollectedCollections_CollectionInCollection_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -7863,7 +8231,7 @@ static SourceReference
 _CIM_CollectedCollections_CollectionInCollection =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "CollectionInCollection",
     /* qualifiers */
@@ -7885,8 +8253,12 @@ _CIM_CollectedCollections_features[] =
 static const char*
 __root_PG_InterOp_CIM_CollectedCollections_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Collection",
+    /* Aggregation */
+    "\004\001",
     /* Version */
     "\0632.10.0",
     0,
@@ -7916,6 +8288,8 @@ __root_PG_InterOp_CIM_CollectedCollections =
 static const char*
 _CIM_CollectedMSEs_Collection_qualifiers[] =
 {
+    /* Aggregate */
+    "\003\001",
     /* Override */
     "\044Collection",
     0,
@@ -7925,7 +8299,7 @@ static SourceReference
 _CIM_CollectedMSEs_Collection =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
     /* name */
     "Collection",
     /* qualifiers */
@@ -7948,7 +8322,7 @@ static SourceReference
 _CIM_CollectedMSEs_Member =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Member",
     /* qualifiers */
@@ -7970,8 +8344,12 @@ _CIM_CollectedMSEs_features[] =
 static const char*
 __root_PG_InterOp_CIM_CollectedMSEs_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Collection",
+    /* Aggregation */
+    "\004\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -8003,6 +8381,8 @@ _CIM_CollectionConfiguration_Collection_qualifiers[] =
 {
     /* Deprecated */
     "\013\000\002CIM_ElementSettingData.ManagedElement\000CIM_CollectionSetting.Collection\000",
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -8010,7 +8390,7 @@ static SourceReference
 _CIM_CollectionConfiguration_Collection =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Collection",
     /* qualifiers */
@@ -8026,6 +8406,8 @@ _CIM_CollectionConfiguration_Configuration_qualifiers[] =
 {
     /* Deprecated */
     "\013\000\002CIM_ElementSettingData.SettingData\000CIM_CollectionSetting.Setting\000",
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -8033,7 +8415,7 @@ static SourceReference
 _CIM_CollectionConfiguration_Configuration =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Configuration",
     /* qualifiers */
@@ -8055,6 +8437,8 @@ _CIM_CollectionConfiguration_features[] =
 static const char*
 __root_PG_InterOp_CIM_CollectionConfiguration_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* Deprecated */
     "\013\000\002CIM_ElementSettingData\000CIM_CollectionSetting\000",
     /* UMLPackagePath */
@@ -8088,6 +8472,8 @@ __root_PG_InterOp_CIM_CollectionConfiguration =
 static const char*
 _CIM_CollectionSetting_Collection_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -8095,7 +8481,7 @@ static SourceReference
 _CIM_CollectionSetting_Collection =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Collection",
     /* qualifiers */
@@ -8109,6 +8495,8 @@ _CIM_CollectionSetting_Collection =
 static const char*
 _CIM_CollectionSetting_Setting_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -8116,7 +8504,7 @@ static SourceReference
 _CIM_CollectionSetting_Setting =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Setting",
     /* qualifiers */
@@ -8138,6 +8526,8 @@ _CIM_CollectionSetting_features[] =
 static const char*
 __root_PG_InterOp_CIM_CollectionSetting_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Settings",
     /* Version */
@@ -8169,6 +8559,8 @@ __root_PG_InterOp_CIM_CollectionSetting =
 static const char*
 _CIM_CompatibleProduct_Product_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -8176,7 +8568,7 @@ static SourceReference
 _CIM_CompatibleProduct_Product =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Product",
     /* qualifiers */
@@ -8190,6 +8582,8 @@ _CIM_CompatibleProduct_Product =
 static const char*
 _CIM_CompatibleProduct_CompatibleProduct_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -8197,7 +8591,7 @@ static SourceReference
 _CIM_CompatibleProduct_CompatibleProduct =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "CompatibleProduct",
     /* qualifiers */
@@ -8218,7 +8612,7 @@ static SourceProperty
 _CIM_CompatibleProduct_CompatibilityDescription =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "CompatibilityDescription",
     /* qualifiers */
@@ -8243,6 +8637,8 @@ _CIM_CompatibleProduct_features[] =
 static const char*
 __root_PG_InterOp_CIM_CompatibleProduct_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::ProductFRU",
     /* Version */
@@ -8283,7 +8679,7 @@ static SourceReference
 _CIM_ConcreteDependency_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -8306,7 +8702,7 @@ static SourceReference
 _CIM_ConcreteDependency_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -8328,6 +8724,8 @@ _CIM_ConcreteDependency_features[] =
 static const char*
 __root_PG_InterOp_CIM_ConcreteDependency_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::CoreElements",
     /* Version */
@@ -8368,7 +8766,7 @@ static SourceReference
 _CIM_ConcreteIdentity_SystemElement =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "SystemElement",
     /* qualifiers */
@@ -8391,7 +8789,7 @@ static SourceReference
 _CIM_ConcreteIdentity_SameElement =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "SameElement",
     /* qualifiers */
@@ -8413,6 +8811,8 @@ _CIM_ConcreteIdentity_features[] =
 static const char*
 __root_PG_InterOp_CIM_ConcreteIdentity_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::CoreElements",
     /* Version */
@@ -8444,6 +8844,8 @@ __root_PG_InterOp_CIM_ConcreteIdentity =
 static const char*
 _CIM_ContainedLocation_GroupComponent_qualifiers[] =
 {
+    /* Aggregate */
+    "\003\001",
     /* Override */
     "\044GroupComponent",
     /* Max */
@@ -8455,7 +8857,7 @@ static SourceReference
 _CIM_ContainedLocation_GroupComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -8478,7 +8880,7 @@ static SourceReference
 _CIM_ContainedLocation_PartComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -8500,8 +8902,14 @@ _CIM_ContainedLocation_features[] =
 static const char*
 __root_PG_InterOp_CIM_ContainedLocation_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Physical",
+    /* Aggregation */
+    "\004\001",
+    /* Composition */
+    "\011\001",
     /* Version */
     "\0632.7.0",
     0,
@@ -8531,6 +8939,8 @@ __root_PG_InterOp_CIM_ContainedLocation =
 static const char*
 _CIM_DeviceStatisticalInformation_SystemCreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_LogicalDevice.SystemCreationClassName",
     /* MaxLen */
@@ -8542,7 +8952,7 @@ static SourceProperty
 _CIM_DeviceStatisticalInformation_SystemCreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -8558,6 +8968,8 @@ _CIM_DeviceStatisticalInformation_SystemCreationClassName =
 static const char*
 _CIM_DeviceStatisticalInformation_SystemName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_LogicalDevice.SystemName",
     /* MaxLen */
@@ -8569,7 +8981,7 @@ static SourceProperty
 _CIM_DeviceStatisticalInformation_SystemName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -8585,6 +8997,8 @@ _CIM_DeviceStatisticalInformation_SystemName =
 static const char*
 _CIM_DeviceStatisticalInformation_DeviceCreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_LogicalDevice.CreationClassName",
     /* MaxLen */
@@ -8596,7 +9010,7 @@ static SourceProperty
 _CIM_DeviceStatisticalInformation_DeviceCreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "DeviceCreationClassName",
     /* qualifiers */
@@ -8612,6 +9026,8 @@ _CIM_DeviceStatisticalInformation_DeviceCreationClassName =
 static const char*
 _CIM_DeviceStatisticalInformation_DeviceID_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_LogicalDevice.DeviceID",
     /* MaxLen */
@@ -8623,7 +9039,7 @@ static SourceProperty
 _CIM_DeviceStatisticalInformation_DeviceID =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "DeviceID",
     /* qualifiers */
@@ -8639,6 +9055,8 @@ _CIM_DeviceStatisticalInformation_DeviceID =
 static const char*
 _CIM_DeviceStatisticalInformation_CreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -8648,7 +9066,7 @@ static SourceProperty
 _CIM_DeviceStatisticalInformation_CreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -8664,6 +9082,8 @@ _CIM_DeviceStatisticalInformation_CreationClassName =
 static const char*
 _CIM_DeviceStatisticalInformation_Name_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Override */
     "\044Name",
     /* MaxLen */
@@ -8675,7 +9095,7 @@ static SourceProperty
 _CIM_DeviceStatisticalInformation_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -8734,6 +9154,8 @@ __root_PG_InterOp_CIM_DeviceStatisticalInformation =
 static const char*
 _CIM_ElementConfiguration_Element_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -8741,7 +9163,7 @@ static SourceReference
 _CIM_ElementConfiguration_Element =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Element",
     /* qualifiers */
@@ -8755,6 +9177,8 @@ _CIM_ElementConfiguration_Element =
 static const char*
 _CIM_ElementConfiguration_Configuration_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -8762,7 +9186,7 @@ static SourceReference
 _CIM_ElementConfiguration_Configuration =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Configuration",
     /* qualifiers */
@@ -8784,6 +9208,8 @@ _CIM_ElementConfiguration_features[] =
 static const char*
 __root_PG_InterOp_CIM_ElementConfiguration_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Settings",
     /* Version */
@@ -8815,6 +9241,8 @@ __root_PG_InterOp_CIM_ElementConfiguration =
 static const char*
 _CIM_ElementLocation_Element_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -8822,7 +9250,7 @@ static SourceReference
 _CIM_ElementLocation_Element =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Element",
     /* qualifiers */
@@ -8836,6 +9264,8 @@ _CIM_ElementLocation_Element =
 static const char*
 _CIM_ElementLocation_PhysicalLocation_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -8843,7 +9273,7 @@ static SourceReference
 _CIM_ElementLocation_PhysicalLocation =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "PhysicalLocation",
     /* qualifiers */
@@ -8865,6 +9295,8 @@ _CIM_ElementLocation_features[] =
 static const char*
 __root_PG_InterOp_CIM_ElementLocation_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Physical",
     /* Version */
@@ -8896,6 +9328,8 @@ __root_PG_InterOp_CIM_ElementLocation =
 static const char*
 _CIM_ElementProfile_ManagedElement_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -8903,7 +9337,7 @@ static SourceReference
 _CIM_ElementProfile_ManagedElement =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "ManagedElement",
     /* qualifiers */
@@ -8917,6 +9351,8 @@ _CIM_ElementProfile_ManagedElement =
 static const char*
 _CIM_ElementProfile_Profile_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -8924,7 +9360,7 @@ static SourceReference
 _CIM_ElementProfile_Profile =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Profile",
     /* qualifiers */
@@ -8946,6 +9382,8 @@ _CIM_ElementProfile_features[] =
 static const char*
 __root_PG_InterOp_CIM_ElementProfile_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Settings",
     /* Version */
@@ -8977,6 +9415,8 @@ __root_PG_InterOp_CIM_ElementProfile =
 static const char*
 _CIM_ElementSetting_Element_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -8984,7 +9424,7 @@ static SourceReference
 _CIM_ElementSetting_Element =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Element",
     /* qualifiers */
@@ -8998,6 +9438,8 @@ _CIM_ElementSetting_Element =
 static const char*
 _CIM_ElementSetting_Setting_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -9005,7 +9447,7 @@ static SourceReference
 _CIM_ElementSetting_Setting =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Setting",
     /* qualifiers */
@@ -9027,6 +9469,8 @@ _CIM_ElementSetting_features[] =
 static const char*
 __root_PG_InterOp_CIM_ElementSetting_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Settings",
     /* Version */
@@ -9058,6 +9502,8 @@ __root_PG_InterOp_CIM_ElementSetting =
 static const char*
 _CIM_ElementSettingData_ManagedElement_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -9065,7 +9511,7 @@ static SourceReference
 _CIM_ElementSettingData_ManagedElement =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "ManagedElement",
     /* qualifiers */
@@ -9079,6 +9525,8 @@ _CIM_ElementSettingData_ManagedElement =
 static const char*
 _CIM_ElementSettingData_SettingData_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -9086,7 +9534,7 @@ static SourceReference
 _CIM_ElementSettingData_SettingData =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SettingData",
     /* qualifiers */
@@ -9111,7 +9559,7 @@ static SourceProperty
 _CIM_ElementSettingData_IsDefault =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "IsDefault",
     /* qualifiers */
@@ -9138,7 +9586,7 @@ static SourceProperty
 _CIM_ElementSettingData_IsCurrent =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "IsCurrent",
     /* qualifiers */
@@ -9164,6 +9612,8 @@ _CIM_ElementSettingData_features[] =
 static const char*
 __root_PG_InterOp_CIM_ElementSettingData_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Settings",
     /* Version */
@@ -9195,6 +9645,8 @@ __root_PG_InterOp_CIM_ElementSettingData =
 static const char*
 _CIM_ElementStatisticalData_ManagedElement_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Min */
     "\033\000\000\000\001",
     /* Max */
@@ -9206,7 +9658,7 @@ static SourceReference
 _CIM_ElementStatisticalData_ManagedElement =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "ManagedElement",
     /* qualifiers */
@@ -9220,6 +9672,8 @@ _CIM_ElementStatisticalData_ManagedElement =
 static const char*
 _CIM_ElementStatisticalData_Stats_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -9227,7 +9681,7 @@ static SourceReference
 _CIM_ElementStatisticalData_Stats =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Stats",
     /* qualifiers */
@@ -9249,6 +9703,8 @@ _CIM_ElementStatisticalData_features[] =
 static const char*
 __root_PG_InterOp_CIM_ElementStatisticalData_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Statistics",
     /* Version */
@@ -9280,6 +9736,10 @@ __root_PG_InterOp_CIM_ElementStatisticalData =
 static const char*
 _CIM_FRUIncludesProduct_FRU_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
+    /* Aggregate */
+    "\003\001",
     /* Max */
     "\027\000\000\000\001",
     0,
@@ -9289,7 +9749,7 @@ static SourceReference
 _CIM_FRUIncludesProduct_FRU =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
     /* name */
     "FRU",
     /* qualifiers */
@@ -9303,6 +9763,8 @@ _CIM_FRUIncludesProduct_FRU =
 static const char*
 _CIM_FRUIncludesProduct_Component_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -9310,7 +9772,7 @@ static SourceReference
 _CIM_FRUIncludesProduct_Component =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Component",
     /* qualifiers */
@@ -9332,8 +9794,14 @@ _CIM_FRUIncludesProduct_features[] =
 static const char*
 __root_PG_InterOp_CIM_FRUIncludesProduct_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::ProductFRU",
+    /* Aggregation */
+    "\004\001",
+    /* Composition */
+    "\011\001",
     /* Version */
     "\0632.7.0",
     0,
@@ -9363,6 +9831,10 @@ __root_PG_InterOp_CIM_FRUIncludesProduct =
 static const char*
 _CIM_FRUPhysicalElements_FRU_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
+    /* Aggregate */
+    "\003\001",
     /* Max */
     "\027\000\000\000\001",
     0,
@@ -9372,7 +9844,7 @@ static SourceReference
 _CIM_FRUPhysicalElements_FRU =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
     /* name */
     "FRU",
     /* qualifiers */
@@ -9386,6 +9858,8 @@ _CIM_FRUPhysicalElements_FRU =
 static const char*
 _CIM_FRUPhysicalElements_Component_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -9393,7 +9867,7 @@ static SourceReference
 _CIM_FRUPhysicalElements_Component =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Component",
     /* qualifiers */
@@ -9415,8 +9889,14 @@ _CIM_FRUPhysicalElements_features[] =
 static const char*
 __root_PG_InterOp_CIM_FRUPhysicalElements_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::ProductFRU",
+    /* Aggregation */
+    "\004\001",
+    /* Composition */
+    "\011\001",
     /* Version */
     "\0632.7.0",
     0,
@@ -9454,6 +9934,8 @@ __root_PG_InterOp_CIM_LogicalElement_qualifiers[] =
 {
     /* UMLPackagePath */
     "\057CIM::Core::CoreElements",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -9492,7 +9974,7 @@ static SourceReference
 _CIM_PhysicalElementLocation_Element =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Element",
     /* qualifiers */
@@ -9517,7 +9999,7 @@ static SourceReference
 _CIM_PhysicalElementLocation_PhysicalLocation =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "PhysicalLocation",
     /* qualifiers */
@@ -9539,6 +10021,8 @@ _CIM_PhysicalElementLocation_features[] =
 static const char*
 __root_PG_InterOp_CIM_PhysicalElementLocation_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Physical",
     /* Version */
@@ -9570,6 +10054,8 @@ __root_PG_InterOp_CIM_PhysicalElementLocation =
 static const char*
 _CIM_PhysicalStatisticalInformation_PhysicalCreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_PhysicalElement.CreationClassName",
     /* MaxLen */
@@ -9581,7 +10067,7 @@ static SourceProperty
 _CIM_PhysicalStatisticalInformation_PhysicalCreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "PhysicalCreationClassName",
     /* qualifiers */
@@ -9597,6 +10083,8 @@ _CIM_PhysicalStatisticalInformation_PhysicalCreationClassName =
 static const char*
 _CIM_PhysicalStatisticalInformation_Tag_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_PhysicalElement.Tag",
     /* MaxLen */
@@ -9608,7 +10096,7 @@ static SourceProperty
 _CIM_PhysicalStatisticalInformation_Tag =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Tag",
     /* qualifiers */
@@ -9624,6 +10112,8 @@ _CIM_PhysicalStatisticalInformation_Tag =
 static const char*
 _CIM_PhysicalStatisticalInformation_CreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -9633,7 +10123,7 @@ static SourceProperty
 _CIM_PhysicalStatisticalInformation_CreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -9649,6 +10139,8 @@ _CIM_PhysicalStatisticalInformation_CreationClassName =
 static const char*
 _CIM_PhysicalStatisticalInformation_Name_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Override */
     "\044Name",
     /* MaxLen */
@@ -9660,7 +10152,7 @@ static SourceProperty
 _CIM_PhysicalStatisticalInformation_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -9719,6 +10211,8 @@ _CIM_PhysicalStatistics_Stats_qualifiers[] =
 {
     /* Override */
     "\044Stats",
+    /* Weak */
+    "\064\001",
     0,
 };
 
@@ -9726,7 +10220,7 @@ static SourceReference
 _CIM_PhysicalStatistics_Stats =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
     /* name */
     "Stats",
     /* qualifiers */
@@ -9753,7 +10247,7 @@ static SourceReference
 _CIM_PhysicalStatistics_Element =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Element",
     /* qualifiers */
@@ -9775,6 +10269,8 @@ _CIM_PhysicalStatistics_features[] =
 static const char*
 __root_PG_InterOp_CIM_PhysicalStatistics_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Statistics",
     /* Version */
@@ -9806,6 +10302,8 @@ __root_PG_InterOp_CIM_PhysicalStatistics =
 static const char*
 _CIM_ProductSupport_Product_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -9813,7 +10311,7 @@ static SourceReference
 _CIM_ProductSupport_Product =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Product",
     /* qualifiers */
@@ -9827,6 +10325,8 @@ _CIM_ProductSupport_Product =
 static const char*
 _CIM_ProductSupport_Support_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -9834,7 +10334,7 @@ static SourceReference
 _CIM_ProductSupport_Support =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Support",
     /* qualifiers */
@@ -9856,6 +10356,8 @@ _CIM_ProductSupport_features[] =
 static const char*
 __root_PG_InterOp_CIM_ProductSupport_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::ProductFRU",
     /* Version */
@@ -9889,6 +10391,8 @@ _CIM_RedundancyGroup_CreationClassName_qualifiers[] =
 {
     /* Deprecated */
     "\013\000\001No Value\000",
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -9898,7 +10402,7 @@ static SourceProperty
 _CIM_RedundancyGroup_CreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -9916,6 +10420,8 @@ _CIM_RedundancyGroup_Name_qualifiers[] =
 {
     /* Deprecated */
     "\013\000\001CIM_RedundancySet.InstanceID\000",
+    /* Key */
+    "\025\001",
     /* Override */
     "\044Name",
     /* MaxLen */
@@ -9927,7 +10433,7 @@ static SourceProperty
 _CIM_RedundancyGroup_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -9956,7 +10462,7 @@ static SourceProperty
 _CIM_RedundancyGroup_RedundancyStatus =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "RedundancyStatus",
     /* qualifiers */
@@ -10027,7 +10533,7 @@ static SourceProperty
 _CIM_RedundancySet_RedundancyStatus =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "RedundancyStatus",
     /* qualifiers */
@@ -10058,7 +10564,7 @@ static SourceProperty
 _CIM_RedundancySet_TypeOfSet =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "TypeOfSet",
     /* qualifiers */
@@ -10083,7 +10589,7 @@ static SourceProperty
 _CIM_RedundancySet_MinNumberNeeded =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "MinNumberNeeded",
     /* qualifiers */
@@ -10106,7 +10612,7 @@ static SourceProperty
 _CIM_RedundancySet_MaxNumberSupported =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "MaxNumberSupported",
     /* qualifiers */
@@ -10129,7 +10635,7 @@ static SourceProperty
 _CIM_RedundancySet_VendorIdentifyingInfo =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "VendorIdentifyingInfo",
     /* qualifiers */
@@ -10156,7 +10662,7 @@ static SourceProperty
 _CIM_RedundancySet_OtherTypeOfSet =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherTypeOfSet",
     /* qualifiers */
@@ -10172,6 +10678,8 @@ _CIM_RedundancySet_OtherTypeOfSet =
 static const char*
 _CIM_RedundancySet_LoadBalanceAlgorithm_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* ValueMap */
     "\061\000\0100\0001\0002\0003\0004\0005\0006\0007\000",
     /* Values */
@@ -10185,7 +10693,7 @@ static SourceProperty
 _CIM_RedundancySet_LoadBalanceAlgorithm =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "LoadBalanceAlgorithm",
     /* qualifiers */
@@ -10201,6 +10709,8 @@ _CIM_RedundancySet_LoadBalanceAlgorithm =
 static const char*
 _CIM_RedundancySet_OtherLoadBalanceAlgorithm_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* ModelCorrespondence */
     "\036\000\001CIM_RedundancySet.LoadBalanceAlgorithm\000",
     0,
@@ -10210,7 +10720,7 @@ static SourceProperty
 _CIM_RedundancySet_OtherLoadBalanceAlgorithm =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "OtherLoadBalanceAlgorithm",
     /* qualifiers */
@@ -10226,6 +10736,8 @@ _CIM_RedundancySet_OtherLoadBalanceAlgorithm =
 static const char*
 _CIM_RedundancySet_Failover_FailoverFrom_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -10233,7 +10745,7 @@ static SourceReference
 _CIM_RedundancySet_Failover_FailoverFrom =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
     /* name */
     "FailoverFrom",
     /* qualifiers */
@@ -10247,6 +10759,8 @@ _CIM_RedundancySet_Failover_FailoverFrom =
 static const char*
 _CIM_RedundancySet_Failover_FailoverTo_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -10254,7 +10768,7 @@ static SourceReference
 _CIM_RedundancySet_Failover_FailoverTo =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
     /* name */
     "FailoverTo",
     /* qualifiers */
@@ -10347,6 +10861,8 @@ __root_PG_InterOp_CIM_RedundancySet =
 static const char*
 _CIM_RelatedStatisticalData_Stats_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -10354,7 +10870,7 @@ static SourceReference
 _CIM_RelatedStatisticalData_Stats =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Stats",
     /* qualifiers */
@@ -10368,6 +10884,8 @@ _CIM_RelatedStatisticalData_Stats =
 static const char*
 _CIM_RelatedStatisticalData_RelatedStats_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -10375,7 +10893,7 @@ static SourceReference
 _CIM_RelatedStatisticalData_RelatedStats =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "RelatedStats",
     /* qualifiers */
@@ -10396,7 +10914,7 @@ static SourceProperty
 _CIM_RelatedStatisticalData_Description =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Description",
     /* qualifiers */
@@ -10421,6 +10939,8 @@ _CIM_RelatedStatisticalData_features[] =
 static const char*
 __root_PG_InterOp_CIM_RelatedStatisticalData_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Statistics",
     /* Version */
@@ -10452,6 +10972,8 @@ __root_PG_InterOp_CIM_RelatedStatisticalData =
 static const char*
 _CIM_RelatedStatistics_Stats_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -10459,7 +10981,7 @@ static SourceReference
 _CIM_RelatedStatistics_Stats =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Stats",
     /* qualifiers */
@@ -10473,6 +10995,8 @@ _CIM_RelatedStatistics_Stats =
 static const char*
 _CIM_RelatedStatistics_RelatedStats_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -10480,7 +11004,7 @@ static SourceReference
 _CIM_RelatedStatistics_RelatedStats =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "RelatedStats",
     /* qualifiers */
@@ -10502,6 +11026,8 @@ _CIM_RelatedStatistics_features[] =
 static const char*
 __root_PG_InterOp_CIM_RelatedStatistics_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Statistics",
     /* Version */
@@ -10533,6 +11059,8 @@ __root_PG_InterOp_CIM_RelatedStatistics =
 static const char*
 _CIM_SAPStatisticalInformation_SystemCreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_ServiceAccessPoint.SystemCreationClassName",
     /* MaxLen */
@@ -10544,7 +11072,7 @@ static SourceProperty
 _CIM_SAPStatisticalInformation_SystemCreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -10560,6 +11088,8 @@ _CIM_SAPStatisticalInformation_SystemCreationClassName =
 static const char*
 _CIM_SAPStatisticalInformation_SystemName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_ServiceAccessPoint.SystemName",
     /* MaxLen */
@@ -10571,7 +11101,7 @@ static SourceProperty
 _CIM_SAPStatisticalInformation_SystemName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -10587,6 +11117,8 @@ _CIM_SAPStatisticalInformation_SystemName =
 static const char*
 _CIM_SAPStatisticalInformation_SAPCreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_ServiceAccessPoint.CreationClassName",
     /* MaxLen */
@@ -10598,7 +11130,7 @@ static SourceProperty
 _CIM_SAPStatisticalInformation_SAPCreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SAPCreationClassName",
     /* qualifiers */
@@ -10614,6 +11146,8 @@ _CIM_SAPStatisticalInformation_SAPCreationClassName =
 static const char*
 _CIM_SAPStatisticalInformation_SAPName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_ServiceAccessPoint.Name",
     /* MaxLen */
@@ -10625,7 +11159,7 @@ static SourceProperty
 _CIM_SAPStatisticalInformation_SAPName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SAPName",
     /* qualifiers */
@@ -10641,6 +11175,8 @@ _CIM_SAPStatisticalInformation_SAPName =
 static const char*
 _CIM_SAPStatisticalInformation_CreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -10650,7 +11186,7 @@ static SourceProperty
 _CIM_SAPStatisticalInformation_CreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -10666,6 +11202,8 @@ _CIM_SAPStatisticalInformation_CreationClassName =
 static const char*
 _CIM_SAPStatisticalInformation_Name_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Override */
     "\044Name",
     /* MaxLen */
@@ -10677,7 +11215,7 @@ static SourceProperty
 _CIM_SAPStatisticalInformation_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -10744,6 +11282,8 @@ __root_PG_InterOp_CIM_ScopedSettingData_qualifiers[] =
 {
     /* UMLPackagePath */
     "\057CIM::Core::Settings",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.10.0",
     0,
@@ -10773,6 +11313,8 @@ __root_PG_InterOp_CIM_ScopedSettingData =
 static const char*
 _CIM_ServiceStatisticalInformation_SystemCreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_Service.SystemCreationClassName",
     /* MaxLen */
@@ -10784,7 +11326,7 @@ static SourceProperty
 _CIM_ServiceStatisticalInformation_SystemCreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -10800,6 +11342,8 @@ _CIM_ServiceStatisticalInformation_SystemCreationClassName =
 static const char*
 _CIM_ServiceStatisticalInformation_SystemName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_Service.SystemName",
     /* MaxLen */
@@ -10811,7 +11355,7 @@ static SourceProperty
 _CIM_ServiceStatisticalInformation_SystemName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -10827,6 +11371,8 @@ _CIM_ServiceStatisticalInformation_SystemName =
 static const char*
 _CIM_ServiceStatisticalInformation_ServiceCreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_Service.CreationClassName",
     /* MaxLen */
@@ -10838,7 +11384,7 @@ static SourceProperty
 _CIM_ServiceStatisticalInformation_ServiceCreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "ServiceCreationClassName",
     /* qualifiers */
@@ -10854,6 +11400,8 @@ _CIM_ServiceStatisticalInformation_ServiceCreationClassName =
 static const char*
 _CIM_ServiceStatisticalInformation_ServiceName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_Service.Name",
     /* MaxLen */
@@ -10865,7 +11413,7 @@ static SourceProperty
 _CIM_ServiceStatisticalInformation_ServiceName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "ServiceName",
     /* qualifiers */
@@ -10881,6 +11429,8 @@ _CIM_ServiceStatisticalInformation_ServiceName =
 static const char*
 _CIM_ServiceStatisticalInformation_CreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -10890,7 +11440,7 @@ static SourceProperty
 _CIM_ServiceStatisticalInformation_CreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -10906,6 +11456,8 @@ _CIM_ServiceStatisticalInformation_CreationClassName =
 static const char*
 _CIM_ServiceStatisticalInformation_Name_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Override */
     "\044Name",
     /* MaxLen */
@@ -10917,7 +11469,7 @@ static SourceProperty
 _CIM_ServiceStatisticalInformation_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -10985,7 +11537,7 @@ static SourceReference
 _CIM_SettingAssociatedToCapabilities_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -11008,7 +11560,7 @@ static SourceReference
 _CIM_SettingAssociatedToCapabilities_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -11022,6 +11574,8 @@ _CIM_SettingAssociatedToCapabilities_Dependent =
 static const char*
 _CIM_SettingAssociatedToCapabilities_DefaultSetting_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -11029,7 +11583,7 @@ static SourceProperty
 _CIM_SettingAssociatedToCapabilities_DefaultSetting =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "DefaultSetting",
     /* qualifiers */
@@ -11054,6 +11608,8 @@ _CIM_SettingAssociatedToCapabilities_features[] =
 static const char*
 __root_PG_InterOp_CIM_SettingAssociatedToCapabilities_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::System::FilesystemServices",
     /* Version */
@@ -11085,6 +11641,8 @@ __root_PG_InterOp_CIM_SettingAssociatedToCapabilities =
 static const char*
 _CIM_SoftwareIdentity_InstanceID_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -11092,7 +11650,7 @@ static SourceProperty
 _CIM_SoftwareIdentity_InstanceID =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "InstanceID",
     /* qualifiers */
@@ -11115,7 +11673,7 @@ static SourceProperty
 _CIM_SoftwareIdentity_MajorVersion =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "MajorVersion",
     /* qualifiers */
@@ -11138,7 +11696,7 @@ static SourceProperty
 _CIM_SoftwareIdentity_MinorVersion =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "MinorVersion",
     /* qualifiers */
@@ -11161,7 +11719,7 @@ static SourceProperty
 _CIM_SoftwareIdentity_RevisionNumber =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "RevisionNumber",
     /* qualifiers */
@@ -11184,7 +11742,7 @@ static SourceProperty
 _CIM_SoftwareIdentity_BuildNumber =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "BuildNumber",
     /* qualifiers */
@@ -11207,7 +11765,7 @@ static SourceProperty
 _CIM_SoftwareIdentity_VersionString =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "VersionString",
     /* qualifiers */
@@ -11230,7 +11788,7 @@ static SourceProperty
 _CIM_SoftwareIdentity_TargetOperatingSystems =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "TargetOperatingSystems",
     /* qualifiers */
@@ -11253,7 +11811,7 @@ static SourceProperty
 _CIM_SoftwareIdentity_Manufacturer =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Manufacturer",
     /* qualifiers */
@@ -11276,7 +11834,7 @@ static SourceProperty
 _CIM_SoftwareIdentity_Languages =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Languages",
     /* qualifiers */
@@ -11307,7 +11865,7 @@ static SourceProperty
 _CIM_SoftwareIdentity_Classifications =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Classifications",
     /* qualifiers */
@@ -11334,7 +11892,7 @@ static SourceProperty
 _CIM_SoftwareIdentity_ClassificationDescriptions =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ClassificationDescriptions",
     /* qualifiers */
@@ -11357,7 +11915,7 @@ static SourceProperty
 _CIM_SoftwareIdentity_SerialNumber =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SerialNumber",
     /* qualifiers */
@@ -11380,7 +11938,7 @@ static SourceProperty
 _CIM_SoftwareIdentity_ReleaseDate =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ReleaseDate",
     /* qualifiers */
@@ -11446,6 +12004,8 @@ __root_PG_InterOp_CIM_SoftwareIdentity =
 static const char*
 _CIM_SpareGroup_Failover_FailoverFrom_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -11453,7 +12013,7 @@ static SourceReference
 _CIM_SpareGroup_Failover_FailoverFrom =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
     /* name */
     "FailoverFrom",
     /* qualifiers */
@@ -11467,6 +12027,8 @@ _CIM_SpareGroup_Failover_FailoverFrom =
 static const char*
 _CIM_SpareGroup_Failover_FailoverTo_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -11474,7 +12036,7 @@ static SourceReference
 _CIM_SpareGroup_Failover_FailoverTo =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
     /* name */
     "FailoverTo",
     /* qualifiers */
@@ -11566,7 +12128,7 @@ static SourceProperty
 _CIM_StatisticsCollection_SampleInterval =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SampleInterval",
     /* qualifiers */
@@ -11589,7 +12151,7 @@ static SourceProperty
 _CIM_StatisticsCollection_TimeLastSampled =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "TimeLastSampled",
     /* qualifiers */
@@ -11659,7 +12221,7 @@ static SourceProperty
 _CIM_StorageRedundancyGroup_TypeOfAlgorithm =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "TypeOfAlgorithm",
     /* qualifiers */
@@ -11688,7 +12250,7 @@ static SourceProperty
 _CIM_StorageRedundancyGroup_StorageRedundancy =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "StorageRedundancy",
     /* qualifiers */
@@ -11713,7 +12275,7 @@ static SourceProperty
 _CIM_StorageRedundancyGroup_IsStriped =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "IsStriped",
     /* qualifiers */
@@ -11738,7 +12300,7 @@ static SourceProperty
 _CIM_StorageRedundancyGroup_IsConcatenated =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "IsConcatenated",
     /* qualifiers */
@@ -11812,7 +12374,7 @@ static SourceProperty
 _CIM_StorageRedundancySet_TypeOfAlgorithm =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "TypeOfAlgorithm",
     /* qualifiers */
@@ -11837,7 +12399,7 @@ static SourceProperty
 _CIM_StorageRedundancySet_OtherAlgorithm =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherAlgorithm",
     /* qualifiers */
@@ -11894,6 +12456,8 @@ _CIM_ActsAsSpare_Group_qualifiers[] =
 {
     /* Deprecated */
     "\013\000\001CIM_IsSpare.Dependent\000",
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -11901,7 +12465,7 @@ static SourceReference
 _CIM_ActsAsSpare_Group =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Group",
     /* qualifiers */
@@ -11917,6 +12481,8 @@ _CIM_ActsAsSpare_Spare_qualifiers[] =
 {
     /* Deprecated */
     "\013\000\001CIM_IsSpare.Antecedent\000",
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -11924,7 +12490,7 @@ static SourceReference
 _CIM_ActsAsSpare_Spare =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Spare",
     /* qualifiers */
@@ -11947,7 +12513,7 @@ static SourceProperty
 _CIM_ActsAsSpare_HotStandby =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "HotStandby",
     /* qualifiers */
@@ -11972,6 +12538,8 @@ _CIM_ActsAsSpare_features[] =
 static const char*
 __root_PG_InterOp_CIM_ActsAsSpare_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* Deprecated */
     "\013\000\001CIM_IsSpare\000",
     /* UMLPackagePath */
@@ -12016,7 +12584,7 @@ static SourceReference
 _CIM_DefaultSetting_Setting =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Setting",
     /* qualifiers */
@@ -12037,6 +12605,8 @@ _CIM_DefaultSetting_features[] =
 static const char*
 __root_PG_InterOp_CIM_DefaultSetting_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Settings",
     /* Version */
@@ -12077,7 +12647,7 @@ static SourceReference
 _CIM_ElementSoftwareIdentity_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -12100,7 +12670,7 @@ static SourceReference
 _CIM_ElementSoftwareIdentity_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -12127,7 +12697,7 @@ static SourceProperty
 _CIM_ElementSoftwareIdentity_UpgradeCondition =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "UpgradeCondition",
     /* qualifiers */
@@ -12152,7 +12722,7 @@ static SourceProperty
 _CIM_ElementSoftwareIdentity_OtherUpgradeCondition =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherUpgradeCondition",
     /* qualifiers */
@@ -12178,6 +12748,8 @@ _CIM_ElementSoftwareIdentity_features[] =
 static const char*
 __root_PG_InterOp_CIM_ElementSoftwareIdentity_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Software",
     /* Version */
@@ -12218,7 +12790,7 @@ static SourceProperty
 _CIM_ExtraCapacityGroup_MinNumberNeeded =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "MinNumberNeeded",
     /* qualifiers */
@@ -12243,7 +12815,7 @@ static SourceProperty
 _CIM_ExtraCapacityGroup_LoadBalancedGroup =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "LoadBalancedGroup",
     /* qualifiers */
@@ -12309,7 +12881,7 @@ static SourceReference
 _CIM_IsSpare_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -12332,7 +12904,7 @@ static SourceReference
 _CIM_IsSpare_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -12357,7 +12929,7 @@ static SourceProperty
 _CIM_IsSpare_SpareStatus =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SpareStatus",
     /* qualifiers */
@@ -12384,7 +12956,7 @@ static SourceProperty
 _CIM_IsSpare_FailoverSupported =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "FailoverSupported",
     /* qualifiers */
@@ -12410,6 +12982,8 @@ _CIM_IsSpare_features[] =
 static const char*
 __root_PG_InterOp_CIM_IsSpare_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Redundancy",
     /* Version */
@@ -12450,7 +13024,7 @@ static SourceProperty
 _CIM_Job_JobStatus =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "JobStatus",
     /* qualifiers */
@@ -12473,7 +13047,7 @@ static SourceProperty
 _CIM_Job_TimeSubmitted =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "TimeSubmitted",
     /* qualifiers */
@@ -12491,6 +13065,8 @@ _CIM_Job_ScheduledStartTime_qualifiers[] =
 {
     /* Deprecated */
     "\013\000\004CIM_Job.RunMonth\000CIM_Job.RunDay\000CIM_Job.RunDayOfWeek\000CIM_Job.RunStartInterval\000",
+    /* Write */
+    "\065\001",
     0,
 };
 
@@ -12498,7 +13074,7 @@ static SourceProperty
 _CIM_Job_ScheduledStartTime =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "ScheduledStartTime",
     /* qualifiers */
@@ -12521,7 +13097,7 @@ static SourceProperty
 _CIM_Job_StartTime =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "StartTime",
     /* qualifiers */
@@ -12544,7 +13120,7 @@ static SourceProperty
 _CIM_Job_ElapsedTime =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ElapsedTime",
     /* qualifiers */
@@ -12560,6 +13136,8 @@ _CIM_Job_ElapsedTime =
 static const char*
 _CIM_Job_JobRunTimes_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     0,
 };
 
@@ -12567,7 +13145,7 @@ static SourceProperty
 _CIM_Job_JobRunTimes =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "JobRunTimes",
     /* qualifiers */
@@ -12583,6 +13161,8 @@ _CIM_Job_JobRunTimes =
 static const char*
 _CIM_Job_RunMonth_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* ValueMap */
     "\061\000\0140\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\000",
     /* Values */
@@ -12596,7 +13176,7 @@ static SourceProperty
 _CIM_Job_RunMonth =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "RunMonth",
     /* qualifiers */
@@ -12612,6 +13192,8 @@ _CIM_Job_RunMonth =
 static const char*
 _CIM_Job_RunDay_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* MinValue */
     "\035\377\377\377\377\377\377\377\341",
     /* MaxValue */
@@ -12625,7 +13207,7 @@ static SourceProperty
 _CIM_Job_RunDay =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "RunDay",
     /* qualifiers */
@@ -12641,6 +13223,8 @@ _CIM_Job_RunDay =
 static const char*
 _CIM_Job_RunDayOfWeek_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* ValueMap */
     "\061\000\017-7\000-6\000-5\000-4\000-3\000-2\000-1\0000\0001\0002\0003\0004\0005\0006\0007\000",
     /* Values */
@@ -12654,7 +13238,7 @@ static SourceProperty
 _CIM_Job_RunDayOfWeek =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "RunDayOfWeek",
     /* qualifiers */
@@ -12670,6 +13254,8 @@ _CIM_Job_RunDayOfWeek =
 static const char*
 _CIM_Job_RunStartInterval_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* ModelCorrespondence */
     "\036\000\004CIM_Job.RunMonth\000CIM_Job.RunDay\000CIM_Job.RunDayOfWeek\000CIM_Job.RunStartInterval\000",
     0,
@@ -12679,7 +13265,7 @@ static SourceProperty
 _CIM_Job_RunStartInterval =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "RunStartInterval",
     /* qualifiers */
@@ -12695,6 +13281,8 @@ _CIM_Job_RunStartInterval =
 static const char*
 _CIM_Job_LocalOrUtcTime_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* ValueMap */
     "\061\000\0021\0002\000",
     /* Values */
@@ -12706,7 +13294,7 @@ static SourceProperty
 _CIM_Job_LocalOrUtcTime =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "LocalOrUtcTime",
     /* qualifiers */
@@ -12722,6 +13310,8 @@ _CIM_Job_LocalOrUtcTime =
 static const char*
 _CIM_Job_UntilTime_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* ModelCorrespondence */
     "\036\000\001CIM_Job.LocalOrUtcTime\000",
     0,
@@ -12731,7 +13321,7 @@ static SourceProperty
 _CIM_Job_UntilTime =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "UntilTime",
     /* qualifiers */
@@ -12747,6 +13337,8 @@ _CIM_Job_UntilTime =
 static const char*
 _CIM_Job_Notify_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     0,
 };
 
@@ -12754,7 +13346,7 @@ static SourceProperty
 _CIM_Job_Notify =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "Notify",
     /* qualifiers */
@@ -12779,7 +13371,7 @@ static SourceProperty
 _CIM_Job_Owner =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Owner",
     /* qualifiers */
@@ -12795,6 +13387,8 @@ _CIM_Job_Owner =
 static const char*
 _CIM_Job_Priority_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     0,
 };
 
@@ -12802,7 +13396,7 @@ static SourceProperty
 _CIM_Job_Priority =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "Priority",
     /* qualifiers */
@@ -12831,7 +13425,7 @@ static SourceProperty
 _CIM_Job_PercentComplete =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "PercentComplete",
     /* qualifiers */
@@ -12847,6 +13441,8 @@ _CIM_Job_PercentComplete =
 static const char*
 _CIM_Job_DeleteOnCompletion_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     0,
 };
 
@@ -12854,7 +13450,7 @@ static SourceProperty
 _CIM_Job_DeleteOnCompletion =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "DeleteOnCompletion",
     /* qualifiers */
@@ -12879,7 +13475,7 @@ static SourceProperty
 _CIM_Job_ErrorCode =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ErrorCode",
     /* qualifiers */
@@ -12904,7 +13500,7 @@ static SourceProperty
 _CIM_Job_ErrorDescription =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ErrorDescription",
     /* qualifiers */
@@ -12933,7 +13529,7 @@ static SourceProperty
 _CIM_Job_RecoveryAction =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "RecoveryAction",
     /* qualifiers */
@@ -12958,7 +13554,7 @@ static SourceProperty
 _CIM_Job_OtherRecoveryAction =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherRecoveryAction",
     /* qualifiers */
@@ -12974,6 +13570,8 @@ _CIM_Job_OtherRecoveryAction =
 static const char*
 _CIM_Job_KillJob_DeleteOnKill_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -12981,7 +13579,7 @@ static SourceProperty
 _CIM_Job_KillJob_DeleteOnKill =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "DeleteOnKill",
     /* qualifiers */
@@ -13061,6 +13659,8 @@ __root_PG_InterOp_CIM_Job_qualifiers[] =
 {
     /* UMLPackagePath */
     "\057CIM::Core::CoreElements",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.10.0",
     0,
@@ -13101,7 +13701,7 @@ static SourceReference
 _CIM_ProductSoftwareComponent_GroupComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -13124,7 +13724,7 @@ static SourceReference
 _CIM_ProductSoftwareComponent_PartComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -13146,8 +13746,14 @@ _CIM_ProductSoftwareComponent_features[] =
 static const char*
 __root_PG_InterOp_CIM_ProductSoftwareComponent_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::ProductFRU",
+    /* Aggregation */
+    "\004\001",
+    /* Composition */
+    "\011\001",
     /* Version */
     "\0632.7.0",
     0,
@@ -13179,6 +13785,8 @@ _CIM_RedundancyComponent_GroupComponent_qualifiers[] =
 {
     /* Deprecated */
     "\013\000\001CIM_MemberOfCollection.Collection\000",
+    /* Aggregate */
+    "\003\001",
     /* Override */
     "\044GroupComponent",
     0,
@@ -13188,7 +13796,7 @@ static SourceReference
 _CIM_RedundancyComponent_GroupComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -13213,7 +13821,7 @@ static SourceReference
 _CIM_RedundancyComponent_PartComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -13235,10 +13843,14 @@ _CIM_RedundancyComponent_features[] =
 static const char*
 __root_PG_InterOp_CIM_RedundancyComponent_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* Deprecated */
     "\013\000\001CIM_MemberOfCollection\000",
     /* UMLPackagePath */
     "\057CIM::Core::Redundancy",
+    /* Aggregation */
+    "\004\001",
     /* Version */
     "\0632.13.0",
     0,
@@ -13281,7 +13893,7 @@ static SourceReference
 _CIM_ScopedSetting_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -13304,7 +13916,7 @@ static SourceReference
 _CIM_ScopedSetting_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -13326,6 +13938,8 @@ _CIM_ScopedSetting_features[] =
 static const char*
 __root_PG_InterOp_CIM_ScopedSetting_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Settings",
     /* Version */
@@ -13357,6 +13971,8 @@ __root_PG_InterOp_CIM_ScopedSetting =
 static const char*
 _CIM_ConcreteJob_InstanceID_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -13364,7 +13980,7 @@ static SourceProperty
 _CIM_ConcreteJob_InstanceID =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "InstanceID",
     /* qualifiers */
@@ -13380,6 +13996,8 @@ _CIM_ConcreteJob_InstanceID =
 static const char*
 _CIM_ConcreteJob_Name_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* Override */
     "\044Name",
     0,
@@ -13389,7 +14007,7 @@ static SourceProperty
 _CIM_ConcreteJob_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "Name",
     /* qualifiers */
@@ -13416,7 +14034,7 @@ static SourceProperty
 _CIM_ConcreteJob_JobState =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "JobState",
     /* qualifiers */
@@ -13439,7 +14057,7 @@ static SourceProperty
 _CIM_ConcreteJob_TimeOfLastStateChange =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "TimeOfLastStateChange",
     /* qualifiers */
@@ -13455,6 +14073,10 @@ _CIM_ConcreteJob_TimeOfLastStateChange =
 static const char*
 _CIM_ConcreteJob_TimeBeforeRemoval_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
+    /* Write */
+    "\065\001",
     0,
 };
 
@@ -13462,7 +14084,7 @@ static SourceProperty
 _CIM_ConcreteJob_TimeBeforeRemoval =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED|PEGASUS_FLAG_WRITE,
     /* name */
     "TimeBeforeRemoval",
     /* qualifiers */
@@ -13478,6 +14100,8 @@ _CIM_ConcreteJob_TimeBeforeRemoval =
 static const char*
 _CIM_ConcreteJob_RequestStateChange_RequestedState_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     /* ValueMap */
     "\061\000\0072\0003\0004\0005\0006\0007..32767\00032768..65535\000",
     /* Values */
@@ -13489,7 +14113,7 @@ static SourceProperty
 _CIM_ConcreteJob_RequestStateChange_RequestedState =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "RequestedState",
     /* qualifiers */
@@ -13505,6 +14129,8 @@ _CIM_ConcreteJob_RequestStateChange_RequestedState =
 static const char*
 _CIM_ConcreteJob_RequestStateChange_TimeoutPeriod_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -13512,7 +14138,7 @@ static SourceProperty
 _CIM_ConcreteJob_RequestStateChange_TimeoutPeriod =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "TimeoutPeriod",
     /* qualifiers */
@@ -13617,7 +14243,7 @@ static SourceProperty
 _CIM_EnabledLogicalElement_EnabledState =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "EnabledState",
     /* qualifiers */
@@ -13642,7 +14268,7 @@ static SourceProperty
 _CIM_EnabledLogicalElement_OtherEnabledState =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherEnabledState",
     /* qualifiers */
@@ -13671,7 +14297,7 @@ static SourceProperty
 _CIM_EnabledLogicalElement_RequestedState =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "RequestedState",
     /* qualifiers */
@@ -13687,6 +14313,8 @@ _CIM_EnabledLogicalElement_RequestedState =
 static const char*
 _CIM_EnabledLogicalElement_EnabledDefault_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* ValueMap */
     "\061\000\0072\0003\0005\0006\0007\0008..32767\00032768..65535\000",
     /* Values */
@@ -13698,7 +14326,7 @@ static SourceProperty
 _CIM_EnabledLogicalElement_EnabledDefault =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "EnabledDefault",
     /* qualifiers */
@@ -13721,7 +14349,7 @@ static SourceProperty
 _CIM_EnabledLogicalElement_TimeOfLastStateChange =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "TimeOfLastStateChange",
     /* qualifiers */
@@ -13737,6 +14365,8 @@ _CIM_EnabledLogicalElement_TimeOfLastStateChange =
 static const char*
 _CIM_EnabledLogicalElement_RequestStateChange_RequestedState_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     /* ValueMap */
     "\061\000\0132\0003\0004\0006\0007\0008\0009\00010\00011\000..\00032768..65535\000",
     /* Values */
@@ -13750,7 +14380,7 @@ static SourceProperty
 _CIM_EnabledLogicalElement_RequestStateChange_RequestedState =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "RequestedState",
     /* qualifiers */
@@ -13766,6 +14396,10 @@ _CIM_EnabledLogicalElement_RequestStateChange_RequestedState =
 static const char*
 _CIM_EnabledLogicalElement_RequestStateChange_Job_qualifiers[] =
 {
+    /* IN */
+    "\024\000",
+    /* OUT */
+    "\043\001",
     0,
 };
 
@@ -13773,7 +14407,7 @@ static SourceReference
 _CIM_EnabledLogicalElement_RequestStateChange_Job =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_OUT,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_OUT,
     /* name */
     "Job",
     /* qualifiers */
@@ -13787,6 +14421,8 @@ _CIM_EnabledLogicalElement_RequestStateChange_Job =
 static const char*
 _CIM_EnabledLogicalElement_RequestStateChange_TimeoutPeriod_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -13794,7 +14430,7 @@ static SourceProperty
 _CIM_EnabledLogicalElement_RequestStateChange_TimeoutPeriod =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "TimeoutPeriod",
     /* qualifiers */
@@ -13860,6 +14496,8 @@ __root_PG_InterOp_CIM_EnabledLogicalElement_qualifiers[] =
 {
     /* UMLPackagePath */
     "\057CIM::Core::CoreElements",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.10.0",
     0,
@@ -13889,6 +14527,8 @@ __root_PG_InterOp_CIM_EnabledLogicalElement =
 static const char*
 _CIM_LogicalDevice_SystemCreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_System.CreationClassName",
     /* MaxLen */
@@ -13900,7 +14540,7 @@ static SourceProperty
 _CIM_LogicalDevice_SystemCreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -13916,6 +14556,8 @@ _CIM_LogicalDevice_SystemCreationClassName =
 static const char*
 _CIM_LogicalDevice_SystemName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_System.Name",
     /* MaxLen */
@@ -13927,7 +14569,7 @@ static SourceProperty
 _CIM_LogicalDevice_SystemName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -13943,6 +14585,8 @@ _CIM_LogicalDevice_SystemName =
 static const char*
 _CIM_LogicalDevice_CreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -13952,7 +14596,7 @@ static SourceProperty
 _CIM_LogicalDevice_CreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -13968,6 +14612,8 @@ _CIM_LogicalDevice_CreationClassName =
 static const char*
 _CIM_LogicalDevice_DeviceID_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\000\100",
     0,
@@ -13977,7 +14623,7 @@ static SourceProperty
 _CIM_LogicalDevice_DeviceID =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "DeviceID",
     /* qualifiers */
@@ -14002,7 +14648,7 @@ static SourceProperty
 _CIM_LogicalDevice_PowerManagementSupported =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "PowerManagementSupported",
     /* qualifiers */
@@ -14031,7 +14677,7 @@ static SourceProperty
 _CIM_LogicalDevice_PowerManagementCapabilities =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "PowerManagementCapabilities",
     /* qualifiers */
@@ -14062,7 +14708,7 @@ static SourceProperty
 _CIM_LogicalDevice_Availability =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Availability",
     /* qualifiers */
@@ -14093,7 +14739,7 @@ static SourceProperty
 _CIM_LogicalDevice_StatusInfo =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "StatusInfo",
     /* qualifiers */
@@ -14118,7 +14764,7 @@ static SourceProperty
 _CIM_LogicalDevice_LastErrorCode =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "LastErrorCode",
     /* qualifiers */
@@ -14143,7 +14789,7 @@ static SourceProperty
 _CIM_LogicalDevice_ErrorDescription =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ErrorDescription",
     /* qualifiers */
@@ -14168,7 +14814,7 @@ static SourceProperty
 _CIM_LogicalDevice_ErrorCleared =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ErrorCleared",
     /* qualifiers */
@@ -14197,7 +14843,7 @@ static SourceProperty
 _CIM_LogicalDevice_OtherIdentifyingInfo =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherIdentifyingInfo",
     /* qualifiers */
@@ -14215,6 +14861,8 @@ _CIM_LogicalDevice_PowerOnHours_qualifiers[] =
 {
     /* Units */
     "\060Hours",
+    /* Counter */
+    "\012\001",
     0,
 };
 
@@ -14222,7 +14870,7 @@ static SourceProperty
 _CIM_LogicalDevice_PowerOnHours =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_COUNTER|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_COUNTER|PEGASUS_FLAG_READ,
     /* name */
     "PowerOnHours",
     /* qualifiers */
@@ -14240,6 +14888,8 @@ _CIM_LogicalDevice_TotalPowerOnHours_qualifiers[] =
 {
     /* Units */
     "\060Hours",
+    /* Counter */
+    "\012\001",
     0,
 };
 
@@ -14247,7 +14897,7 @@ static SourceProperty
 _CIM_LogicalDevice_TotalPowerOnHours =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_COUNTER|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_COUNTER|PEGASUS_FLAG_READ,
     /* name */
     "TotalPowerOnHours",
     /* qualifiers */
@@ -14274,7 +14924,7 @@ static SourceProperty
 _CIM_LogicalDevice_IdentifyingDescriptions =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "IdentifyingDescriptions",
     /* qualifiers */
@@ -14303,7 +14953,7 @@ static SourceProperty
 _CIM_LogicalDevice_AdditionalAvailability =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "AdditionalAvailability",
     /* qualifiers */
@@ -14330,7 +14980,7 @@ static SourceProperty
 _CIM_LogicalDevice_MaxQuiesceTime =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "MaxQuiesceTime",
     /* qualifiers */
@@ -14346,6 +14996,8 @@ _CIM_LogicalDevice_MaxQuiesceTime =
 static const char*
 _CIM_LogicalDevice_SetPowerState_PowerState_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     /* ValueMap */
     "\061\000\0061\0002\0003\0004\0005\0006\000",
     /* Values */
@@ -14357,7 +15009,7 @@ static SourceProperty
 _CIM_LogicalDevice_SetPowerState_PowerState =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "PowerState",
     /* qualifiers */
@@ -14373,6 +15025,8 @@ _CIM_LogicalDevice_SetPowerState_PowerState =
 static const char*
 _CIM_LogicalDevice_SetPowerState_Time_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -14380,7 +15034,7 @@ static SourceProperty
 _CIM_LogicalDevice_SetPowerState_Time =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "Time",
     /* qualifiers */
@@ -14454,6 +15108,8 @@ _CIM_LogicalDevice_Reset =
 static const char*
 _CIM_LogicalDevice_EnableDevice_Enabled_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -14461,7 +15117,7 @@ static SourceProperty
 _CIM_LogicalDevice_EnableDevice_Enabled =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "Enabled",
     /* qualifiers */
@@ -14507,6 +15163,8 @@ _CIM_LogicalDevice_EnableDevice =
 static const char*
 _CIM_LogicalDevice_OnlineDevice_Online_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -14514,7 +15172,7 @@ static SourceProperty
 _CIM_LogicalDevice_OnlineDevice_Online =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "Online",
     /* qualifiers */
@@ -14560,6 +15218,8 @@ _CIM_LogicalDevice_OnlineDevice =
 static const char*
 _CIM_LogicalDevice_QuiesceDevice_Quiesce_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -14567,7 +15227,7 @@ static SourceProperty
 _CIM_LogicalDevice_QuiesceDevice_Quiesce =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "Quiesce",
     /* qualifiers */
@@ -14699,6 +15359,8 @@ __root_PG_InterOp_CIM_LogicalDevice_qualifiers[] =
 {
     /* UMLPackagePath */
     "\057CIM::Core::Device",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.8.0",
     0,
@@ -14737,7 +15399,7 @@ static SourceReference
 _CIM_Realizes_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -14760,7 +15422,7 @@ static SourceReference
 _CIM_Realizes_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -14782,6 +15444,8 @@ _CIM_Realizes_features[] =
 static const char*
 __root_PG_InterOp_CIM_Realizes_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Device",
     /* Version */
@@ -14813,6 +15477,8 @@ __root_PG_InterOp_CIM_Realizes =
 static const char*
 _CIM_Service_SystemCreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_System.CreationClassName",
     /* MaxLen */
@@ -14824,7 +15490,7 @@ static SourceProperty
 _CIM_Service_SystemCreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -14840,6 +15506,8 @@ _CIM_Service_SystemCreationClassName =
 static const char*
 _CIM_Service_SystemName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_System.Name",
     /* MaxLen */
@@ -14851,7 +15519,7 @@ static SourceProperty
 _CIM_Service_SystemName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -14867,6 +15535,8 @@ _CIM_Service_SystemName =
 static const char*
 _CIM_Service_CreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -14876,7 +15546,7 @@ static SourceProperty
 _CIM_Service_CreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -14892,6 +15562,8 @@ _CIM_Service_CreationClassName =
 static const char*
 _CIM_Service_Name_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Override */
     "\044Name",
     /* MaxLen */
@@ -14903,7 +15575,7 @@ static SourceProperty
 _CIM_Service_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -14919,6 +15591,8 @@ _CIM_Service_Name =
 static const char*
 _CIM_Service_PrimaryOwnerName_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* MaxLen */
     "\030\000\000\000\100",
     /* MappingStrings */
@@ -14930,7 +15604,7 @@ static SourceProperty
 _CIM_Service_PrimaryOwnerName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "PrimaryOwnerName",
     /* qualifiers */
@@ -14946,6 +15620,8 @@ _CIM_Service_PrimaryOwnerName =
 static const char*
 _CIM_Service_PrimaryOwnerContact_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* MaxLen */
     "\030\000\000\001\000",
     /* MappingStrings */
@@ -14957,7 +15633,7 @@ static SourceProperty
 _CIM_Service_PrimaryOwnerContact =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "PrimaryOwnerContact",
     /* qualifiers */
@@ -14986,7 +15662,7 @@ static SourceProperty
 _CIM_Service_StartMode =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "StartMode",
     /* qualifiers */
@@ -15009,7 +15685,7 @@ static SourceProperty
 _CIM_Service_Started =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Started",
     /* qualifiers */
@@ -15097,6 +15773,8 @@ __root_PG_InterOp_CIM_Service_qualifiers[] =
 {
     /* UMLPackagePath */
     "\057CIM::Core::Service",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.10.0",
     0,
@@ -15126,6 +15804,8 @@ __root_PG_InterOp_CIM_Service =
 static const char*
 _CIM_ServiceAccessPoint_SystemCreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_System.CreationClassName",
     /* MaxLen */
@@ -15137,7 +15817,7 @@ static SourceProperty
 _CIM_ServiceAccessPoint_SystemCreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -15153,6 +15833,8 @@ _CIM_ServiceAccessPoint_SystemCreationClassName =
 static const char*
 _CIM_ServiceAccessPoint_SystemName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_System.Name",
     /* MaxLen */
@@ -15164,7 +15846,7 @@ static SourceProperty
 _CIM_ServiceAccessPoint_SystemName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -15180,6 +15862,8 @@ _CIM_ServiceAccessPoint_SystemName =
 static const char*
 _CIM_ServiceAccessPoint_CreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -15189,7 +15873,7 @@ static SourceProperty
 _CIM_ServiceAccessPoint_CreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -15205,6 +15889,8 @@ _CIM_ServiceAccessPoint_CreationClassName =
 static const char*
 _CIM_ServiceAccessPoint_Name_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Override */
     "\044Name",
     /* MaxLen */
@@ -15216,7 +15902,7 @@ static SourceProperty
 _CIM_ServiceAccessPoint_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -15244,6 +15930,8 @@ __root_PG_InterOp_CIM_ServiceAccessPoint_qualifiers[] =
 {
     /* UMLPackagePath */
     "\057CIM::Core::Service",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.10.0",
     0,
@@ -15273,6 +15961,8 @@ __root_PG_InterOp_CIM_ServiceAccessPoint =
 static const char*
 _CIM_ServiceAccessURI_LabeledURI_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -15282,7 +15972,7 @@ static SourceProperty
 _CIM_ServiceAccessURI_LabeledURI =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "LabeledURI",
     /* qualifiers */
@@ -15336,6 +16026,8 @@ __root_PG_InterOp_CIM_ServiceAccessURI =
 static const char*
 _CIM_ServiceAffectsElement_AffectedElement_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -15343,7 +16035,7 @@ static SourceReference
 _CIM_ServiceAffectsElement_AffectedElement =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "AffectedElement",
     /* qualifiers */
@@ -15357,6 +16049,8 @@ _CIM_ServiceAffectsElement_AffectedElement =
 static const char*
 _CIM_ServiceAffectsElement_AffectingElement_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -15364,7 +16058,7 @@ static SourceReference
 _CIM_ServiceAffectsElement_AffectingElement =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "AffectingElement",
     /* qualifiers */
@@ -15393,7 +16087,7 @@ static SourceProperty
 _CIM_ServiceAffectsElement_ElementEffects =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ElementEffects",
     /* qualifiers */
@@ -15420,7 +16114,7 @@ static SourceProperty
 _CIM_ServiceAffectsElement_OtherElementEffectsDescriptions =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherElementEffectsDescriptions",
     /* qualifiers */
@@ -15446,6 +16140,8 @@ _CIM_ServiceAffectsElement_features[] =
 static const char*
 __root_PG_InterOp_CIM_ServiceAffectsElement_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Service",
     /* Version */
@@ -15477,6 +16173,8 @@ __root_PG_InterOp_CIM_ServiceAffectsElement =
 static const char*
 _CIM_ServiceAvailableToElement_ServiceProvided_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -15484,7 +16182,7 @@ static SourceReference
 _CIM_ServiceAvailableToElement_ServiceProvided =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "ServiceProvided",
     /* qualifiers */
@@ -15498,6 +16196,8 @@ _CIM_ServiceAvailableToElement_ServiceProvided =
 static const char*
 _CIM_ServiceAvailableToElement_UserOfService_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -15505,7 +16205,7 @@ static SourceReference
 _CIM_ServiceAvailableToElement_UserOfService =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "UserOfService",
     /* qualifiers */
@@ -15527,6 +16227,8 @@ _CIM_ServiceAvailableToElement_features[] =
 static const char*
 __root_PG_InterOp_CIM_ServiceAvailableToElement_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Service",
     /* Version */
@@ -15558,6 +16260,8 @@ __root_PG_InterOp_CIM_ServiceAvailableToElement =
 static const char*
 _CIM_ServiceComponent_GroupComponent_qualifiers[] =
 {
+    /* Aggregate */
+    "\003\001",
     /* Override */
     "\044GroupComponent",
     0,
@@ -15567,7 +16271,7 @@ static SourceReference
 _CIM_ServiceComponent_GroupComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -15590,7 +16294,7 @@ static SourceReference
 _CIM_ServiceComponent_PartComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -15612,8 +16316,12 @@ _CIM_ServiceComponent_features[] =
 static const char*
 __root_PG_InterOp_CIM_ServiceComponent_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Service",
+    /* Aggregation */
+    "\004\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -15652,7 +16360,7 @@ static SourceReference
 _CIM_ServiceSAPDependency_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -15675,7 +16383,7 @@ static SourceReference
 _CIM_ServiceSAPDependency_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -15697,6 +16405,8 @@ _CIM_ServiceSAPDependency_features[] =
 static const char*
 __root_PG_InterOp_CIM_ServiceSAPDependency_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Service",
     /* Version */
@@ -15730,6 +16440,8 @@ _CIM_ServiceStatistics_Stats_qualifiers[] =
 {
     /* Override */
     "\044Stats",
+    /* Weak */
+    "\064\001",
     0,
 };
 
@@ -15737,7 +16449,7 @@ static SourceReference
 _CIM_ServiceStatistics_Stats =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
     /* name */
     "Stats",
     /* qualifiers */
@@ -15764,7 +16476,7 @@ static SourceReference
 _CIM_ServiceStatistics_Element =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Element",
     /* qualifiers */
@@ -15786,6 +16498,8 @@ _CIM_ServiceStatistics_features[] =
 static const char*
 __root_PG_InterOp_CIM_ServiceStatistics_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Statistics",
     /* Version */
@@ -15828,7 +16542,7 @@ static SourceProperty
 _CIM_StorageExtent_DataOrganization =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "DataOrganization",
     /* qualifiers */
@@ -15853,7 +16567,7 @@ static SourceProperty
 _CIM_StorageExtent_Purpose =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Purpose",
     /* qualifiers */
@@ -15880,7 +16594,7 @@ static SourceProperty
 _CIM_StorageExtent_Access =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Access",
     /* qualifiers */
@@ -15903,7 +16617,7 @@ static SourceProperty
 _CIM_StorageExtent_ErrorMethodology =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ErrorMethodology",
     /* qualifiers */
@@ -15930,7 +16644,7 @@ static SourceProperty
 _CIM_StorageExtent_BlockSize =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "BlockSize",
     /* qualifiers */
@@ -15955,7 +16669,7 @@ static SourceProperty
 _CIM_StorageExtent_NumberOfBlocks =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "NumberOfBlocks",
     /* qualifiers */
@@ -15978,7 +16692,7 @@ static SourceProperty
 _CIM_StorageExtent_ConsumableBlocks =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ConsumableBlocks",
     /* qualifiers */
@@ -16001,7 +16715,7 @@ static SourceProperty
 _CIM_StorageExtent_IsBasedOnUnderlyingRedundancy =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "IsBasedOnUnderlyingRedundancy",
     /* qualifiers */
@@ -16024,7 +16738,7 @@ static SourceProperty
 _CIM_StorageExtent_SequentialAccess =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SequentialAccess",
     /* qualifiers */
@@ -16051,7 +16765,7 @@ static SourceProperty
 _CIM_StorageExtent_ExtentStatus =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ExtentStatus",
     /* qualifiers */
@@ -16076,7 +16790,7 @@ static SourceProperty
 _CIM_StorageExtent_NoSinglePointOfFailure =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "NoSinglePointOfFailure",
     /* qualifiers */
@@ -16101,7 +16815,7 @@ static SourceProperty
 _CIM_StorageExtent_DataRedundancy =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "DataRedundancy",
     /* qualifiers */
@@ -16126,7 +16840,7 @@ static SourceProperty
 _CIM_StorageExtent_PackageRedundancy =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "PackageRedundancy",
     /* qualifiers */
@@ -16157,7 +16871,7 @@ static SourceProperty
 _CIM_StorageExtent_DeltaReservation =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "DeltaReservation",
     /* qualifiers */
@@ -16180,7 +16894,7 @@ static SourceProperty
 _CIM_StorageExtent_Primordial =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Primordial",
     /* qualifiers */
@@ -16248,6 +16962,8 @@ __root_PG_InterOp_CIM_StorageExtent =
 static const char*
 _CIM_System_CreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -16257,7 +16973,7 @@ static SourceProperty
 _CIM_System_CreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -16273,6 +16989,8 @@ _CIM_System_CreationClassName =
 static const char*
 _CIM_System_Name_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Override */
     "\044Name",
     /* MaxLen */
@@ -16284,7 +17002,7 @@ static SourceProperty
 _CIM_System_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -16309,7 +17027,7 @@ static SourceProperty
 _CIM_System_NameFormat =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "NameFormat",
     /* qualifiers */
@@ -16325,6 +17043,8 @@ _CIM_System_NameFormat =
 static const char*
 _CIM_System_PrimaryOwnerName_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* MaxLen */
     "\030\000\000\000\100",
     /* MappingStrings */
@@ -16336,7 +17056,7 @@ static SourceProperty
 _CIM_System_PrimaryOwnerName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "PrimaryOwnerName",
     /* qualifiers */
@@ -16352,6 +17072,8 @@ _CIM_System_PrimaryOwnerName =
 static const char*
 _CIM_System_PrimaryOwnerContact_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* MaxLen */
     "\030\000\000\001\000",
     /* MappingStrings */
@@ -16363,7 +17085,7 @@ static SourceProperty
 _CIM_System_PrimaryOwnerContact =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "PrimaryOwnerContact",
     /* qualifiers */
@@ -16379,6 +17101,8 @@ _CIM_System_PrimaryOwnerContact =
 static const char*
 _CIM_System_Roles_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     0,
 };
 
@@ -16386,7 +17110,7 @@ static SourceProperty
 _CIM_System_Roles =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "Roles",
     /* qualifiers */
@@ -16416,6 +17140,8 @@ __root_PG_InterOp_CIM_System_qualifiers[] =
 {
     /* UMLPackagePath */
     "\057CIM::Core::CoreElements",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.7.0",
     0,
@@ -16445,6 +17171,8 @@ __root_PG_InterOp_CIM_System =
 static const char*
 _CIM_SystemComponent_GroupComponent_qualifiers[] =
 {
+    /* Aggregate */
+    "\003\001",
     /* Override */
     "\044GroupComponent",
     0,
@@ -16454,7 +17182,7 @@ static SourceReference
 _CIM_SystemComponent_GroupComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -16477,7 +17205,7 @@ static SourceReference
 _CIM_SystemComponent_PartComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -16499,8 +17227,12 @@ _CIM_SystemComponent_features[] =
 static const char*
 __root_PG_InterOp_CIM_SystemComponent_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::CoreElements",
+    /* Aggregation */
+    "\004\001",
     /* Version */
     "\0632.10.0",
     0,
@@ -16530,6 +17262,8 @@ __root_PG_InterOp_CIM_SystemComponent =
 static const char*
 _CIM_SystemDevice_GroupComponent_qualifiers[] =
 {
+    /* Aggregate */
+    "\003\001",
     /* Override */
     "\044GroupComponent",
     /* Min */
@@ -16543,7 +17277,7 @@ static SourceReference
 _CIM_SystemDevice_GroupComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -16559,6 +17293,8 @@ _CIM_SystemDevice_PartComponent_qualifiers[] =
 {
     /* Override */
     "\044PartComponent",
+    /* Weak */
+    "\064\001",
     0,
 };
 
@@ -16566,7 +17302,7 @@ static SourceReference
 _CIM_SystemDevice_PartComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -16588,8 +17324,14 @@ _CIM_SystemDevice_features[] =
 static const char*
 __root_PG_InterOp_CIM_SystemDevice_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Device",
+    /* Aggregation */
+    "\004\001",
+    /* Composition */
+    "\011\001",
     /* Version */
     "\0632.10.0",
     0,
@@ -16628,7 +17370,7 @@ static SourceReference
 _CIM_SystemPackaging_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -16651,7 +17393,7 @@ static SourceReference
 _CIM_SystemPackaging_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -16673,6 +17415,8 @@ _CIM_SystemPackaging_features[] =
 static const char*
 __root_PG_InterOp_CIM_SystemPackaging_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Physical",
     /* Version */
@@ -16706,6 +17450,8 @@ _CIM_SystemStatistics_Stats_qualifiers[] =
 {
     /* Override */
     "\044Stats",
+    /* Weak */
+    "\064\001",
     0,
 };
 
@@ -16713,7 +17459,7 @@ static SourceReference
 _CIM_SystemStatistics_Stats =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
     /* name */
     "Stats",
     /* qualifiers */
@@ -16740,7 +17486,7 @@ static SourceReference
 _CIM_SystemStatistics_Element =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Element",
     /* qualifiers */
@@ -16762,6 +17508,8 @@ _CIM_SystemStatistics_features[] =
 static const char*
 __root_PG_InterOp_CIM_SystemStatistics_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Statistics",
     /* Version */
@@ -16808,7 +17556,7 @@ static SourceProperty
 _CIM_AdminDomain_NameFormat =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "NameFormat",
     /* qualifiers */
@@ -16871,7 +17619,7 @@ static SourceReference
 _CIM_BasedOn_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -16894,7 +17642,7 @@ static SourceReference
 _CIM_BasedOn_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -16915,7 +17663,7 @@ static SourceProperty
 _CIM_BasedOn_StartingAddress =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "StartingAddress",
     /* qualifiers */
@@ -16938,7 +17686,7 @@ static SourceProperty
 _CIM_BasedOn_EndingAddress =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "EndingAddress",
     /* qualifiers */
@@ -16961,7 +17709,7 @@ static SourceProperty
 _CIM_BasedOn_OrderIndex =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OrderIndex",
     /* qualifiers */
@@ -16988,6 +17736,8 @@ _CIM_BasedOn_features[] =
 static const char*
 __root_PG_InterOp_CIM_BasedOn_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::StorageExtent",
     /* Version */
@@ -17032,7 +17782,7 @@ static SourceReference
 _CIM_ConfigurationForSystem_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -17048,6 +17798,8 @@ _CIM_ConfigurationForSystem_Dependent_qualifiers[] =
 {
     /* Override */
     "\044Dependent",
+    /* Weak */
+    "\064\001",
     0,
 };
 
@@ -17055,7 +17807,7 @@ static SourceReference
 _CIM_ConfigurationForSystem_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -17077,6 +17829,8 @@ _CIM_ConfigurationForSystem_features[] =
 static const char*
 __root_PG_InterOp_CIM_ConfigurationForSystem_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Settings",
     /* Version */
@@ -17108,6 +17862,8 @@ __root_PG_InterOp_CIM_ConfigurationForSystem =
 static const char*
 _CIM_ContainedDomain_GroupComponent_qualifiers[] =
 {
+    /* Aggregate */
+    "\003\001",
     /* Override */
     "\044GroupComponent",
     0,
@@ -17117,7 +17873,7 @@ static SourceReference
 _CIM_ContainedDomain_GroupComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -17140,7 +17896,7 @@ static SourceReference
 _CIM_ContainedDomain_PartComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -17162,8 +17918,12 @@ _CIM_ContainedDomain_features[] =
 static const char*
 __root_PG_InterOp_CIM_ContainedDomain_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::CoreElements",
+    /* Aggregation */
+    "\004\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -17202,7 +17962,7 @@ static SourceReference
 _CIM_DeviceSAPImplementation_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -17225,7 +17985,7 @@ static SourceReference
 _CIM_DeviceSAPImplementation_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -17247,6 +18007,8 @@ _CIM_DeviceSAPImplementation_features[] =
 static const char*
 __root_PG_InterOp_CIM_DeviceSAPImplementation_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Device",
     /* Version */
@@ -17287,7 +18049,7 @@ static SourceReference
 _CIM_DeviceServiceImplementation_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -17310,7 +18072,7 @@ static SourceReference
 _CIM_DeviceServiceImplementation_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -17332,6 +18094,8 @@ _CIM_DeviceServiceImplementation_features[] =
 static const char*
 __root_PG_InterOp_CIM_DeviceServiceImplementation_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Device",
     /* Version */
@@ -17365,6 +18129,8 @@ _CIM_DeviceStatistics_Stats_qualifiers[] =
 {
     /* Override */
     "\044Stats",
+    /* Weak */
+    "\064\001",
     0,
 };
 
@@ -17372,7 +18138,7 @@ static SourceReference
 _CIM_DeviceStatistics_Stats =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
     /* name */
     "Stats",
     /* qualifiers */
@@ -17399,7 +18165,7 @@ static SourceReference
 _CIM_DeviceStatistics_Element =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Element",
     /* qualifiers */
@@ -17421,6 +18187,8 @@ _CIM_DeviceStatistics_features[] =
 static const char*
 __root_PG_InterOp_CIM_DeviceStatistics_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Statistics",
     /* Version */
@@ -17454,6 +18222,8 @@ _CIM_ExtentRedundancyComponent_GroupComponent_qualifiers[] =
 {
     /* Deprecated */
     "\013\000\001CIM_MemberOfCollection.Collection\000",
+    /* Aggregate */
+    "\003\001",
     /* Override */
     "\044GroupComponent",
     0,
@@ -17463,7 +18233,7 @@ static SourceReference
 _CIM_ExtentRedundancyComponent_GroupComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -17488,7 +18258,7 @@ static SourceReference
 _CIM_ExtentRedundancyComponent_PartComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -17510,10 +18280,14 @@ _CIM_ExtentRedundancyComponent_features[] =
 static const char*
 __root_PG_InterOp_CIM_ExtentRedundancyComponent_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* Deprecated */
     "\013\000\001CIM_MemberOfCollection\000",
     /* UMLPackagePath */
     "\057CIM::Core::Redundancy",
+    /* Aggregation */
+    "\004\001",
     /* Version */
     "\0632.13.0",
     0,
@@ -17556,7 +18330,7 @@ static SourceReference
 _CIM_HostedAccessPoint_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -17572,6 +18346,8 @@ _CIM_HostedAccessPoint_Dependent_qualifiers[] =
 {
     /* Override */
     "\044Dependent",
+    /* Weak */
+    "\064\001",
     0,
 };
 
@@ -17579,7 +18355,7 @@ static SourceReference
 _CIM_HostedAccessPoint_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -17601,6 +18377,8 @@ _CIM_HostedAccessPoint_features[] =
 static const char*
 __root_PG_InterOp_CIM_HostedAccessPoint_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Service",
     /* Version */
@@ -17645,7 +18423,7 @@ static SourceReference
 _CIM_HostedCollection_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -17668,7 +18446,7 @@ static SourceReference
 _CIM_HostedCollection_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -17690,6 +18468,8 @@ _CIM_HostedCollection_features[] =
 static const char*
 __root_PG_InterOp_CIM_HostedCollection_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Collection",
     /* Version */
@@ -17734,7 +18514,7 @@ static SourceReference
 _CIM_HostedService_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -17750,6 +18530,8 @@ _CIM_HostedService_Dependent_qualifiers[] =
 {
     /* Override */
     "\044Dependent",
+    /* Weak */
+    "\064\001",
     0,
 };
 
@@ -17757,7 +18539,7 @@ static SourceReference
 _CIM_HostedService_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -17779,6 +18561,8 @@ _CIM_HostedService_features[] =
 static const char*
 __root_PG_InterOp_CIM_HostedService_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Service",
     /* Version */
@@ -17810,6 +18594,8 @@ __root_PG_InterOp_CIM_HostedService =
 static const char*
 _CIM_InstalledSoftwareIdentity_System_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -17817,7 +18603,7 @@ static SourceReference
 _CIM_InstalledSoftwareIdentity_System =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "System",
     /* qualifiers */
@@ -17831,6 +18617,8 @@ _CIM_InstalledSoftwareIdentity_System =
 static const char*
 _CIM_InstalledSoftwareIdentity_InstalledSoftware_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -17838,7 +18626,7 @@ static SourceReference
 _CIM_InstalledSoftwareIdentity_InstalledSoftware =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "InstalledSoftware",
     /* qualifiers */
@@ -17860,6 +18648,8 @@ _CIM_InstalledSoftwareIdentity_features[] =
 static const char*
 __root_PG_InterOp_CIM_InstalledSoftwareIdentity_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Software",
     /* Version */
@@ -17891,6 +18681,8 @@ __root_PG_InterOp_CIM_InstalledSoftwareIdentity =
 static const char*
 _CIM_PowerManagementService_SetPowerState_PowerState_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     /* ValueMap */
     "\061\000\0101\0002\0003\0004\0005\0006\0007\0008\000",
     /* Values */
@@ -17902,7 +18694,7 @@ static SourceProperty
 _CIM_PowerManagementService_SetPowerState_PowerState =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "PowerState",
     /* qualifiers */
@@ -17918,6 +18710,8 @@ _CIM_PowerManagementService_SetPowerState_PowerState =
 static const char*
 _CIM_PowerManagementService_SetPowerState_ManagedElement_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -17925,7 +18719,7 @@ static SourceReference
 _CIM_PowerManagementService_SetPowerState_ManagedElement =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
     /* name */
     "ManagedElement",
     /* qualifiers */
@@ -17939,6 +18733,8 @@ _CIM_PowerManagementService_SetPowerState_ManagedElement =
 static const char*
 _CIM_PowerManagementService_SetPowerState_Time_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -17946,7 +18742,7 @@ static SourceProperty
 _CIM_PowerManagementService_SetPowerState_Time =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "Time",
     /* qualifiers */
@@ -18030,6 +18826,8 @@ __root_PG_InterOp_CIM_PowerManagementService =
 static const char*
 _CIM_ProductServiceComponent_GroupComponent_qualifiers[] =
 {
+    /* Aggregate */
+    "\003\001",
     /* Override */
     "\044GroupComponent",
     /* Max */
@@ -18041,7 +18839,7 @@ static SourceReference
 _CIM_ProductServiceComponent_GroupComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_AGGREGATE|PEGASUS_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -18064,7 +18862,7 @@ static SourceReference
 _CIM_ProductServiceComponent_PartComponent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -18086,8 +18884,14 @@ _CIM_ProductServiceComponent_features[] =
 static const char*
 __root_PG_InterOp_CIM_ProductServiceComponent_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::ProductFRU",
+    /* Aggregation */
+    "\004\001",
+    /* Composition */
+    "\011\001",
     /* Version */
     "\0632.7.0",
     0,
@@ -18128,7 +18932,7 @@ static SourceProperty
 _CIM_ProtocolEndpoint_Description =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Description",
     /* qualifiers */
@@ -18155,7 +18959,7 @@ static SourceProperty
 _CIM_ProtocolEndpoint_OperationalStatus =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OperationalStatus",
     /* qualifiers */
@@ -18182,7 +18986,7 @@ static SourceProperty
 _CIM_ProtocolEndpoint_EnabledState =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "EnabledState",
     /* qualifiers */
@@ -18209,7 +19013,7 @@ static SourceProperty
 _CIM_ProtocolEndpoint_TimeOfLastStateChange =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "TimeOfLastStateChange",
     /* qualifiers */
@@ -18236,7 +19040,7 @@ static SourceProperty
 _CIM_ProtocolEndpoint_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -18261,7 +19065,7 @@ static SourceProperty
 _CIM_ProtocolEndpoint_NameFormat =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "NameFormat",
     /* qualifiers */
@@ -18292,7 +19096,7 @@ static SourceProperty
 _CIM_ProtocolEndpoint_ProtocolType =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ProtocolType",
     /* qualifiers */
@@ -18323,7 +19127,7 @@ static SourceProperty
 _CIM_ProtocolEndpoint_ProtocolIFType =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ProtocolIFType",
     /* qualifiers */
@@ -18350,7 +19154,7 @@ static SourceProperty
 _CIM_ProtocolEndpoint_OtherTypeDescription =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherTypeDescription",
     /* qualifiers */
@@ -18423,7 +19227,7 @@ static SourceReference
 _CIM_ProvidesServiceToElement_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -18448,7 +19252,7 @@ static SourceReference
 _CIM_ProvidesServiceToElement_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -18470,6 +19274,8 @@ _CIM_ProvidesServiceToElement_features[] =
 static const char*
 __root_PG_InterOp_CIM_ProvidesServiceToElement_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* Deprecated */
     "\013\000\001CIM_ServiceAvailableToElement\000",
     /* UMLPackagePath */
@@ -18512,7 +19318,7 @@ static SourceProperty
 _CIM_RemoteServiceAccessPoint_AccessInfo =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "AccessInfo",
     /* qualifiers */
@@ -18541,7 +19347,7 @@ static SourceProperty
 _CIM_RemoteServiceAccessPoint_InfoFormat =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "InfoFormat",
     /* qualifiers */
@@ -18566,7 +19372,7 @@ static SourceProperty
 _CIM_RemoteServiceAccessPoint_OtherInfoFormatDescription =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherInfoFormatDescription",
     /* qualifiers */
@@ -18622,6 +19428,8 @@ __root_PG_InterOp_CIM_RemoteServiceAccessPoint =
 static const char*
 _CIM_SAPAvailableForElement_AvailableSAP_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -18629,7 +19437,7 @@ static SourceReference
 _CIM_SAPAvailableForElement_AvailableSAP =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "AvailableSAP",
     /* qualifiers */
@@ -18643,6 +19451,8 @@ _CIM_SAPAvailableForElement_AvailableSAP =
 static const char*
 _CIM_SAPAvailableForElement_ManagedElement_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -18650,7 +19460,7 @@ static SourceReference
 _CIM_SAPAvailableForElement_ManagedElement =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "ManagedElement",
     /* qualifiers */
@@ -18672,6 +19482,8 @@ _CIM_SAPAvailableForElement_features[] =
 static const char*
 __root_PG_InterOp_CIM_SAPAvailableForElement_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Service",
     /* Version */
@@ -18712,7 +19524,7 @@ static SourceReference
 _CIM_SAPSAPDependency_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -18735,7 +19547,7 @@ static SourceReference
 _CIM_SAPSAPDependency_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -18757,6 +19569,8 @@ _CIM_SAPSAPDependency_features[] =
 static const char*
 __root_PG_InterOp_CIM_SAPSAPDependency_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Service",
     /* Version */
@@ -18790,6 +19604,8 @@ _CIM_SAPStatistics_Stats_qualifiers[] =
 {
     /* Override */
     "\044Stats",
+    /* Weak */
+    "\064\001",
     0,
 };
 
@@ -18797,7 +19613,7 @@ static SourceReference
 _CIM_SAPStatistics_Stats =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
     /* name */
     "Stats",
     /* qualifiers */
@@ -18824,7 +19640,7 @@ static SourceReference
 _CIM_SAPStatistics_Element =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Element",
     /* qualifiers */
@@ -18846,6 +19662,8 @@ _CIM_SAPStatistics_features[] =
 static const char*
 __root_PG_InterOp_CIM_SAPStatistics_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Statistics",
     /* Version */
@@ -18886,7 +19704,7 @@ static SourceReference
 _CIM_ServiceAccessBySAP_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -18909,7 +19727,7 @@ static SourceReference
 _CIM_ServiceAccessBySAP_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -18931,6 +19749,8 @@ _CIM_ServiceAccessBySAP_features[] =
 static const char*
 __root_PG_InterOp_CIM_ServiceAccessBySAP_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Service",
     /* Version */
@@ -18971,7 +19791,7 @@ static SourceReference
 _CIM_ServiceServiceDependency_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -18994,7 +19814,7 @@ static SourceReference
 _CIM_ServiceServiceDependency_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -19019,7 +19839,7 @@ static SourceProperty
 _CIM_ServiceServiceDependency_TypeOfDependency =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "TypeOfDependency",
     /* qualifiers */
@@ -19042,7 +19862,7 @@ static SourceProperty
 _CIM_ServiceServiceDependency_RestartService =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "RestartService",
     /* qualifiers */
@@ -19068,6 +19888,8 @@ _CIM_ServiceServiceDependency_features[] =
 static const char*
 __root_PG_InterOp_CIM_ServiceServiceDependency_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Service",
     /* Version */
@@ -19112,7 +19934,7 @@ static SourceReference
 _CIM_SettingForSystem_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -19128,6 +19950,8 @@ _CIM_SettingForSystem_Dependent_qualifiers[] =
 {
     /* Override */
     "\044Dependent",
+    /* Weak */
+    "\064\001",
     0,
 };
 
@@ -19135,7 +19959,7 @@ static SourceReference
 _CIM_SettingForSystem_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -19157,6 +19981,8 @@ _CIM_SettingForSystem_features[] =
 static const char*
 __root_PG_InterOp_CIM_SettingForSystem_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Settings",
     /* Version */
@@ -19197,7 +20023,7 @@ static SourceReference
 _CIM_ActiveConnection_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -19220,7 +20046,7 @@ static SourceReference
 _CIM_ActiveConnection_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -19249,7 +20075,7 @@ static SourceProperty
 _CIM_ActiveConnection_TrafficType =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "TrafficType",
     /* qualifiers */
@@ -19278,7 +20104,7 @@ static SourceProperty
 _CIM_ActiveConnection_OtherTrafficDescription =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherTrafficDescription",
     /* qualifiers */
@@ -19301,7 +20127,7 @@ static SourceProperty
 _CIM_ActiveConnection_IsUnidirectional =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "IsUnidirectional",
     /* qualifiers */
@@ -19328,6 +20154,8 @@ _CIM_ActiveConnection_features[] =
 static const char*
 __root_PG_InterOp_CIM_ActiveConnection_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Service",
     /* Version */
@@ -19368,7 +20196,7 @@ static SourceReference
 _CIM_BindsTo_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -19391,7 +20219,7 @@ static SourceReference
 _CIM_BindsTo_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -19413,6 +20241,8 @@ _CIM_BindsTo_features[] =
 static const char*
 __root_PG_InterOp_CIM_BindsTo_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Service",
     /* Version */
@@ -19453,7 +20283,7 @@ static SourceReference
 _CIM_ProvidesEndpoint_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -19476,7 +20306,7 @@ static SourceReference
 _CIM_ProvidesEndpoint_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -19498,6 +20328,8 @@ _CIM_ProvidesEndpoint_features[] =
 static const char*
 __root_PG_InterOp_CIM_ProvidesEndpoint_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Core::Service",
     /* Version */
@@ -19538,7 +20370,7 @@ static SourceProperty
 _CIM_RemotePort_PortInfo =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "PortInfo",
     /* qualifiers */
@@ -19567,7 +20399,7 @@ static SourceProperty
 _CIM_RemotePort_PortProtocol =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "PortProtocol",
     /* qualifiers */
@@ -19592,7 +20424,7 @@ static SourceProperty
 _CIM_RemotePort_OtherProtocolDescription =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherProtocolDescription",
     /* qualifiers */
@@ -19657,7 +20489,7 @@ static SourceProperty
 _CIM_Indication_IndicationIdentifier =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "IndicationIdentifier",
     /* qualifiers */
@@ -19684,7 +20516,7 @@ static SourceProperty
 _CIM_Indication_CorrelatedIndications =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "CorrelatedIndications",
     /* qualifiers */
@@ -19707,7 +20539,7 @@ static SourceProperty
 _CIM_Indication_IndicationTime =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "IndicationTime",
     /* qualifiers */
@@ -19736,7 +20568,7 @@ static SourceProperty
 _CIM_Indication_PerceivedSeverity =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "PerceivedSeverity",
     /* qualifiers */
@@ -19761,7 +20593,7 @@ static SourceProperty
 _CIM_Indication_OtherSeverity =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherSeverity",
     /* qualifiers */
@@ -19788,8 +20620,12 @@ _CIM_Indication_features[] =
 static const char*
 __root_PG_InterOp_CIM_Indication_qualifiers[] =
 {
+    /* INDICATION */
+    "\001\001",
     /* UMLPackagePath */
     "\057CIM::Event",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.7.0",
     0,
@@ -19819,6 +20655,10 @@ __root_PG_InterOp_CIM_Indication =
 static const char*
 _CIM_ClassIndication_ClassDefinition_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
+    /* EmbeddedObject */
+    "\020\001",
     0,
 };
 
@@ -19826,7 +20666,7 @@ static SourceProperty
 _CIM_ClassIndication_ClassDefinition =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_EMBEDDEDOBJECT|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_EMBEDDEDOBJECT|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "ClassDefinition",
     /* qualifiers */
@@ -19849,8 +20689,12 @@ _CIM_ClassIndication_features[] =
 static const char*
 __root_PG_InterOp_CIM_ClassIndication_qualifiers[] =
 {
+    /* INDICATION */
+    "\001\001",
     /* UMLPackagePath */
     "\057CIM::Event",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -19880,6 +20724,10 @@ __root_PG_InterOp_CIM_ClassIndication =
 static const char*
 _CIM_ClassModification_PreviousClassDefinition_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
+    /* EmbeddedObject */
+    "\020\001",
     0,
 };
 
@@ -19887,7 +20735,7 @@ static SourceProperty
 _CIM_ClassModification_PreviousClassDefinition =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_EMBEDDEDOBJECT|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_EMBEDDEDOBJECT|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "PreviousClassDefinition",
     /* qualifiers */
@@ -19910,6 +20758,8 @@ _CIM_ClassModification_features[] =
 static const char*
 __root_PG_InterOp_CIM_ClassModification_qualifiers[] =
 {
+    /* INDICATION */
+    "\001\001",
     /* UMLPackagePath */
     "\057CIM::Event",
     /* Version */
@@ -19941,6 +20791,8 @@ __root_PG_InterOp_CIM_ClassModification =
 static const char*
 _CIM_IndicationFilter_SystemCreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -19950,7 +20802,7 @@ static SourceProperty
 _CIM_IndicationFilter_SystemCreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -19966,6 +20818,8 @@ _CIM_IndicationFilter_SystemCreationClassName =
 static const char*
 _CIM_IndicationFilter_SystemName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -19975,7 +20829,7 @@ static SourceProperty
 _CIM_IndicationFilter_SystemName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -19991,6 +20845,8 @@ _CIM_IndicationFilter_SystemName =
 static const char*
 _CIM_IndicationFilter_CreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -20000,7 +20856,7 @@ static SourceProperty
 _CIM_IndicationFilter_CreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -20016,6 +20872,8 @@ _CIM_IndicationFilter_CreationClassName =
 static const char*
 _CIM_IndicationFilter_Name_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -20023,7 +20881,7 @@ static SourceProperty
 _CIM_IndicationFilter_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -20046,7 +20904,7 @@ static SourceProperty
 _CIM_IndicationFilter_SourceNamespace =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SourceNamespace",
     /* qualifiers */
@@ -20062,6 +20920,8 @@ _CIM_IndicationFilter_SourceNamespace =
 static const char*
 _CIM_IndicationFilter_Query_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* ModelCorrespondence */
     "\036\000\001CIM_IndicationFilter.QueryLanguage\000",
     0,
@@ -20071,7 +20931,7 @@ static SourceProperty
 _CIM_IndicationFilter_Query =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "Query",
     /* qualifiers */
@@ -20087,6 +20947,8 @@ _CIM_IndicationFilter_Query =
 static const char*
 _CIM_IndicationFilter_QueryLanguage_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* ModelCorrespondence */
     "\036\000\001CIM_IndicationFilter.Query\000",
     0,
@@ -20096,7 +20958,7 @@ static SourceProperty
 _CIM_IndicationFilter_QueryLanguage =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "QueryLanguage",
     /* qualifiers */
@@ -20156,6 +21018,10 @@ __root_PG_InterOp_CIM_IndicationFilter =
 static const char*
 _CIM_InstIndication_SourceInstance_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
+    /* EmbeddedObject */
+    "\020\001",
     0,
 };
 
@@ -20163,7 +21029,7 @@ static SourceProperty
 _CIM_InstIndication_SourceInstance =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_EMBEDDEDOBJECT|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_EMBEDDEDOBJECT|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "SourceInstance",
     /* qualifiers */
@@ -20188,7 +21054,7 @@ static SourceProperty
 _CIM_InstIndication_SourceInstanceModelPath =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SourceInstanceModelPath",
     /* qualifiers */
@@ -20213,7 +21079,7 @@ static SourceProperty
 _CIM_InstIndication_SourceInstanceHost =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SourceInstanceHost",
     /* qualifiers */
@@ -20238,8 +21104,12 @@ _CIM_InstIndication_features[] =
 static const char*
 __root_PG_InterOp_CIM_InstIndication_qualifiers[] =
 {
+    /* INDICATION */
+    "\001\001",
     /* UMLPackagePath */
     "\057CIM::Event",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.9.0",
     0,
@@ -20269,6 +21139,8 @@ __root_PG_InterOp_CIM_InstIndication =
 static const char*
 _CIM_InstMethodCall_MethodName_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -20276,7 +21148,7 @@ static SourceProperty
 _CIM_InstMethodCall_MethodName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "MethodName",
     /* qualifiers */
@@ -20292,6 +21164,8 @@ _CIM_InstMethodCall_MethodName =
 static const char*
 _CIM_InstMethodCall_MethodParameters_qualifiers[] =
 {
+    /* EmbeddedObject */
+    "\020\001",
     0,
 };
 
@@ -20299,7 +21173,7 @@ static SourceProperty
 _CIM_InstMethodCall_MethodParameters =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_EMBEDDEDOBJECT|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_EMBEDDEDOBJECT|PEGASUS_FLAG_READ,
     /* name */
     "MethodParameters",
     /* qualifiers */
@@ -20324,7 +21198,7 @@ static SourceProperty
 _CIM_InstMethodCall_ReturnValue =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ReturnValue",
     /* qualifiers */
@@ -20340,6 +21214,8 @@ _CIM_InstMethodCall_ReturnValue =
 static const char*
 _CIM_InstMethodCall_PreCall_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -20347,7 +21223,7 @@ static SourceProperty
 _CIM_InstMethodCall_PreCall =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "PreCall",
     /* qualifiers */
@@ -20373,6 +21249,8 @@ _CIM_InstMethodCall_features[] =
 static const char*
 __root_PG_InterOp_CIM_InstMethodCall_qualifiers[] =
 {
+    /* INDICATION */
+    "\001\001",
     /* UMLPackagePath */
     "\057CIM::Event",
     /* Version */
@@ -20404,6 +21282,10 @@ __root_PG_InterOp_CIM_InstMethodCall =
 static const char*
 _CIM_InstModification_PreviousInstance_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
+    /* EmbeddedObject */
+    "\020\001",
     0,
 };
 
@@ -20411,7 +21293,7 @@ static SourceProperty
 _CIM_InstModification_PreviousInstance =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_EMBEDDEDOBJECT|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_EMBEDDEDOBJECT|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "PreviousInstance",
     /* qualifiers */
@@ -20434,6 +21316,8 @@ _CIM_InstModification_features[] =
 static const char*
 __root_PG_InterOp_CIM_InstModification_qualifiers[] =
 {
+    /* INDICATION */
+    "\001\001",
     /* UMLPackagePath */
     "\057CIM::Event",
     /* Version */
@@ -20471,6 +21355,8 @@ _CIM_InstRead_features[] =
 static const char*
 __root_PG_InterOp_CIM_InstRead_qualifiers[] =
 {
+    /* INDICATION */
+    "\001\001",
     /* UMLPackagePath */
     "\057CIM::Event",
     /* Version */
@@ -20502,6 +21388,8 @@ __root_PG_InterOp_CIM_InstRead =
 static const char*
 _CIM_ListenerDestination_SystemCreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -20511,7 +21399,7 @@ static SourceProperty
 _CIM_ListenerDestination_SystemCreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -20527,6 +21415,8 @@ _CIM_ListenerDestination_SystemCreationClassName =
 static const char*
 _CIM_ListenerDestination_SystemName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -20536,7 +21426,7 @@ static SourceProperty
 _CIM_ListenerDestination_SystemName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -20552,6 +21442,8 @@ _CIM_ListenerDestination_SystemName =
 static const char*
 _CIM_ListenerDestination_CreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -20561,7 +21453,7 @@ static SourceProperty
 _CIM_ListenerDestination_CreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -20577,6 +21469,8 @@ _CIM_ListenerDestination_CreationClassName =
 static const char*
 _CIM_ListenerDestination_Name_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -20586,7 +21480,7 @@ static SourceProperty
 _CIM_ListenerDestination_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -20615,7 +21509,7 @@ static SourceProperty
 _CIM_ListenerDestination_PersistenceType =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "PersistenceType",
     /* qualifiers */
@@ -20640,7 +21534,7 @@ static SourceProperty
 _CIM_ListenerDestination_OtherPersistenceType =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherPersistenceType",
     /* qualifiers */
@@ -20670,6 +21564,8 @@ __root_PG_InterOp_CIM_ListenerDestination_qualifiers[] =
 {
     /* UMLPackagePath */
     "\057CIM::Event",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.8.0",
     0,
@@ -20699,6 +21595,8 @@ __root_PG_InterOp_CIM_ListenerDestination =
 static const char*
 _CIM_ListenerDestinationCIMXML_Destination_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -20706,7 +21604,7 @@ static SourceProperty
 _CIM_ListenerDestinationCIMXML_Destination =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "Destination",
     /* qualifiers */
@@ -20766,8 +21664,12 @@ _CIM_ProcessIndication_features[] =
 static const char*
 __root_PG_InterOp_CIM_ProcessIndication_qualifiers[] =
 {
+    /* INDICATION */
+    "\001\001",
     /* UMLPackagePath */
     "\057CIM::Event",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -20806,7 +21708,7 @@ static SourceProperty
 _CIM_SNMPTrapIndication_Enterprise =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Enterprise",
     /* qualifiers */
@@ -20831,7 +21733,7 @@ static SourceProperty
 _CIM_SNMPTrapIndication_AgentAddress =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "AgentAddress",
     /* qualifiers */
@@ -20860,7 +21762,7 @@ static SourceProperty
 _CIM_SNMPTrapIndication_GenericTrap =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "GenericTrap",
     /* qualifiers */
@@ -20885,7 +21787,7 @@ static SourceProperty
 _CIM_SNMPTrapIndication_SpecificTrap =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SpecificTrap",
     /* qualifiers */
@@ -20910,7 +21812,7 @@ static SourceProperty
 _CIM_SNMPTrapIndication_TimeStamp =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "TimeStamp",
     /* qualifiers */
@@ -20939,7 +21841,7 @@ static SourceProperty
 _CIM_SNMPTrapIndication_VarBindNames =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "VarBindNames",
     /* qualifiers */
@@ -20972,7 +21874,7 @@ static SourceProperty
 _CIM_SNMPTrapIndication_VarBindSyntaxes =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "VarBindSyntaxes",
     /* qualifiers */
@@ -20988,6 +21890,8 @@ _CIM_SNMPTrapIndication_VarBindSyntaxes =
 static const char*
 _CIM_SNMPTrapIndication_VarBindValues_qualifiers[] =
 {
+    /* OctetString */
+    "\042\001",
     /* MappingStrings */
     "\026\000\001PDU.IETF|RFC1157-TRAP-PDU.variable-bindings\000",
     /* ArrayType */
@@ -21001,7 +21905,7 @@ static SourceProperty
 _CIM_SNMPTrapIndication_VarBindValues =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_OCTETSTRING|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_OCTETSTRING|PEGASUS_FLAG_READ,
     /* name */
     "VarBindValues",
     /* qualifiers */
@@ -21031,6 +21935,8 @@ _CIM_SNMPTrapIndication_features[] =
 static const char*
 __root_PG_InterOp_CIM_SNMPTrapIndication_qualifiers[] =
 {
+    /* INDICATION */
+    "\001\001",
     /* UMLPackagePath */
     "\057CIM::Event",
     /* Version */
@@ -21071,7 +21977,7 @@ static SourceProperty
 _CIM_AlertIndication_Description =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Description",
     /* qualifiers */
@@ -21096,7 +22002,7 @@ static SourceProperty
 _CIM_AlertIndication_AlertingManagedElement =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "AlertingManagedElement",
     /* qualifiers */
@@ -21125,7 +22031,7 @@ static SourceProperty
 _CIM_AlertIndication_AlertingElementFormat =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "AlertingElementFormat",
     /* qualifiers */
@@ -21150,7 +22056,7 @@ static SourceProperty
 _CIM_AlertIndication_OtherAlertingElementFormat =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherAlertingElementFormat",
     /* qualifiers */
@@ -21166,6 +22072,8 @@ _CIM_AlertIndication_OtherAlertingElementFormat =
 static const char*
 _CIM_AlertIndication_AlertType_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* ValueMap */
     "\061\000\0101\0002\0003\0004\0005\0006\0007\0008\000",
     /* Values */
@@ -21179,7 +22087,7 @@ static SourceProperty
 _CIM_AlertIndication_AlertType =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "AlertType",
     /* qualifiers */
@@ -21204,7 +22112,7 @@ static SourceProperty
 _CIM_AlertIndication_OtherAlertType =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherAlertType",
     /* qualifiers */
@@ -21220,6 +22128,8 @@ _CIM_AlertIndication_OtherAlertType =
 static const char*
 _CIM_AlertIndication_PerceivedSeverity_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* Override */
     "\044PerceivedSeverity",
     /* ValueMap */
@@ -21235,7 +22145,7 @@ static SourceProperty
 _CIM_AlertIndication_PerceivedSeverity =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "PerceivedSeverity",
     /* qualifiers */
@@ -21251,6 +22161,8 @@ _CIM_AlertIndication_PerceivedSeverity =
 static const char*
 _CIM_AlertIndication_ProbableCause_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* ValueMap */
     "\061\000\2030\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\00016\00017\00018\00019\00020\00021\00022\00023\00024\00025\00026\00027\00028\00029\00030\00031\00032\00033\00034\00035\00036\00037\00038\00039\00040\00041\00042\00043\00044\00045\00046\00047\00048\00049\00050\00051\00052\00053\00054\00055\00056\00057\00058\00059\00060\00061\00062\00063\00064\00065\00066\00067\00068\00069\00070\00071\00072\00073\00074\00075\00076\00077\00078\00079\00080\00081\00082\00083\00084\00085\00086\00087\00088\00089\00090\00091\00092\00093\00094\00095\00096\00097\00098\00099\000100\000101\000102\000103\000104\000105\000106\000107\000108\000109\000110\000111\000112\000113\000114\000115\000116\000117\000118\000119\000120\000121\000122\000123\000124\000125\000126\000127\000128\000129\000130\000",
     /* Values */
@@ -21266,7 +22178,7 @@ static SourceProperty
 _CIM_AlertIndication_ProbableCause =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "ProbableCause",
     /* qualifiers */
@@ -21291,7 +22203,7 @@ static SourceProperty
 _CIM_AlertIndication_ProbableCauseDescription =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ProbableCauseDescription",
     /* qualifiers */
@@ -21320,7 +22232,7 @@ static SourceProperty
 _CIM_AlertIndication_Trending =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Trending",
     /* qualifiers */
@@ -21345,7 +22257,7 @@ static SourceProperty
 _CIM_AlertIndication_RecommendedActions =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "RecommendedActions",
     /* qualifiers */
@@ -21370,7 +22282,7 @@ static SourceProperty
 _CIM_AlertIndication_EventID =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "EventID",
     /* qualifiers */
@@ -21395,7 +22307,7 @@ static SourceProperty
 _CIM_AlertIndication_EventTime =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "EventTime",
     /* qualifiers */
@@ -21420,7 +22332,7 @@ static SourceProperty
 _CIM_AlertIndication_SystemCreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -21445,7 +22357,7 @@ static SourceProperty
 _CIM_AlertIndication_SystemName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -21470,7 +22382,7 @@ static SourceProperty
 _CIM_AlertIndication_ProviderName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ProviderName",
     /* qualifiers */
@@ -21508,6 +22420,8 @@ _CIM_AlertIndication_features[] =
 static const char*
 __root_PG_InterOp_CIM_AlertIndication_qualifiers[] =
 {
+    /* INDICATION */
+    "\001\001",
     /* UMLPackagePath */
     "\057CIM::Event",
     /* Version */
@@ -21548,7 +22462,7 @@ static SourceProperty
 _CIM_AlertInstIndication_AlertType =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "AlertType",
     /* qualifiers */
@@ -21564,6 +22478,10 @@ _CIM_AlertInstIndication_AlertType =
 static const char*
 _CIM_AlertInstIndication_IndObject_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
+    /* EmbeddedObject */
+    "\020\001",
     0,
 };
 
@@ -21571,7 +22489,7 @@ static SourceProperty
 _CIM_AlertInstIndication_IndObject =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_EMBEDDEDOBJECT|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_EMBEDDEDOBJECT|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "IndObject",
     /* qualifiers */
@@ -21595,6 +22513,8 @@ _CIM_AlertInstIndication_features[] =
 static const char*
 __root_PG_InterOp_CIM_AlertInstIndication_qualifiers[] =
 {
+    /* INDICATION */
+    "\001\001",
     /* UMLPackagePath */
     "\057CIM::Event",
     /* Version */
@@ -21632,6 +22552,8 @@ _CIM_ClassCreation_features[] =
 static const char*
 __root_PG_InterOp_CIM_ClassCreation_qualifiers[] =
 {
+    /* INDICATION */
+    "\001\001",
     /* UMLPackagePath */
     "\057CIM::Event",
     /* Version */
@@ -21669,6 +22591,8 @@ _CIM_ClassDeletion_features[] =
 static const char*
 __root_PG_InterOp_CIM_ClassDeletion_qualifiers[] =
 {
+    /* INDICATION */
+    "\001\001",
     /* UMLPackagePath */
     "\057CIM::Event",
     /* Version */
@@ -21709,7 +22633,7 @@ static SourceProperty
 _CIM_IndicationHandler_Owner =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Owner",
     /* qualifiers */
@@ -21736,6 +22660,8 @@ __root_PG_InterOp_CIM_IndicationHandler_qualifiers[] =
     "\013\000\001CIM_ListenerDestination\000",
     /* UMLPackagePath */
     "\057CIM::Event",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.8.0",
     0,
@@ -21767,6 +22693,8 @@ _CIM_IndicationHandlerCIMXML_Destination_qualifiers[] =
 {
     /* Deprecated */
     "\013\000\001CIM_ListenerDestinationCIMXML.Destination\000",
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -21774,7 +22702,7 @@ static SourceProperty
 _CIM_IndicationHandlerCIMXML_Destination =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "Destination",
     /* qualifiers */
@@ -21830,6 +22758,8 @@ __root_PG_InterOp_CIM_IndicationHandlerCIMXML =
 static const char*
 _CIM_IndicationSubscription_Filter_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -21837,7 +22767,7 @@ static SourceReference
 _CIM_IndicationSubscription_Filter =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Filter",
     /* qualifiers */
@@ -21851,6 +22781,8 @@ _CIM_IndicationSubscription_Filter =
 static const char*
 _CIM_IndicationSubscription_Handler_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -21858,7 +22790,7 @@ static SourceReference
 _CIM_IndicationSubscription_Handler =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Handler",
     /* qualifiers */
@@ -21883,7 +22815,7 @@ static SourceProperty
 _CIM_IndicationSubscription_OnFatalErrorPolicy =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OnFatalErrorPolicy",
     /* qualifiers */
@@ -21906,7 +22838,7 @@ static SourceProperty
 _CIM_IndicationSubscription_OtherOnFatalErrorPolicy =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherOnFatalErrorPolicy",
     /* qualifiers */
@@ -21931,7 +22863,7 @@ static SourceProperty
 _CIM_IndicationSubscription_FailureTriggerTimeInterval =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "FailureTriggerTimeInterval",
     /* qualifiers */
@@ -21947,6 +22879,8 @@ _CIM_IndicationSubscription_FailureTriggerTimeInterval =
 static const char*
 _CIM_IndicationSubscription_SubscriptionState_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* ValueMap */
     "\061\000\0050\0001\0002\0003\0004\000",
     /* Values */
@@ -21958,7 +22892,7 @@ static SourceProperty
 _CIM_IndicationSubscription_SubscriptionState =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "SubscriptionState",
     /* qualifiers */
@@ -21981,7 +22915,7 @@ static SourceProperty
 _CIM_IndicationSubscription_OtherSubscriptionState =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherSubscriptionState",
     /* qualifiers */
@@ -22004,7 +22938,7 @@ static SourceProperty
 _CIM_IndicationSubscription_TimeOfLastStateChange =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "TimeOfLastStateChange",
     /* qualifiers */
@@ -22020,6 +22954,8 @@ _CIM_IndicationSubscription_TimeOfLastStateChange =
 static const char*
 _CIM_IndicationSubscription_SubscriptionDuration_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* Units */
     "\060Seconds",
     0,
@@ -22029,7 +22965,7 @@ static SourceProperty
 _CIM_IndicationSubscription_SubscriptionDuration =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "SubscriptionDuration",
     /* qualifiers */
@@ -22052,7 +22988,7 @@ static SourceProperty
 _CIM_IndicationSubscription_SubscriptionStartTime =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SubscriptionStartTime",
     /* qualifiers */
@@ -22077,7 +23013,7 @@ static SourceProperty
 _CIM_IndicationSubscription_SubscriptionTimeRemaining =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SubscriptionTimeRemaining",
     /* qualifiers */
@@ -22104,7 +23040,7 @@ static SourceProperty
 _CIM_IndicationSubscription_RepeatNotificationPolicy =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "RepeatNotificationPolicy",
     /* qualifiers */
@@ -22127,7 +23063,7 @@ static SourceProperty
 _CIM_IndicationSubscription_OtherRepeatNotificationPolicy =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherRepeatNotificationPolicy",
     /* qualifiers */
@@ -22152,7 +23088,7 @@ static SourceProperty
 _CIM_IndicationSubscription_RepeatNotificationInterval =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "RepeatNotificationInterval",
     /* qualifiers */
@@ -22177,7 +23113,7 @@ static SourceProperty
 _CIM_IndicationSubscription_RepeatNotificationGap =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "RepeatNotificationGap",
     /* qualifiers */
@@ -22200,7 +23136,7 @@ static SourceProperty
 _CIM_IndicationSubscription_RepeatNotificationCount =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "RepeatNotificationCount",
     /* qualifiers */
@@ -22238,6 +23174,8 @@ _CIM_IndicationSubscription_features[] =
 static const char*
 __root_PG_InterOp_CIM_IndicationSubscription_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Event",
     /* Version */
@@ -22275,6 +23213,8 @@ _CIM_InstCreation_features[] =
 static const char*
 __root_PG_InterOp_CIM_InstCreation_qualifiers[] =
 {
+    /* INDICATION */
+    "\001\001",
     /* UMLPackagePath */
     "\057CIM::Event",
     /* Version */
@@ -22312,6 +23252,8 @@ _CIM_InstDeletion_features[] =
 static const char*
 __root_PG_InterOp_CIM_InstDeletion_qualifiers[] =
 {
+    /* INDICATION */
+    "\001\001",
     /* UMLPackagePath */
     "\057CIM::Event",
     /* Version */
@@ -22352,7 +23294,7 @@ static SourceProperty
 _CIM_ThresholdIndication_ThresholdIdentifier =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ThresholdIdentifier",
     /* qualifiers */
@@ -22377,7 +23319,7 @@ static SourceProperty
 _CIM_ThresholdIndication_ThresholdValue =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ThresholdValue",
     /* qualifiers */
@@ -22402,7 +23344,7 @@ static SourceProperty
 _CIM_ThresholdIndication_ObservedValue =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ObservedValue",
     /* qualifiers */
@@ -22427,6 +23369,8 @@ _CIM_ThresholdIndication_features[] =
 static const char*
 __root_PG_InterOp_CIM_ThresholdIndication_qualifiers[] =
 {
+    /* INDICATION */
+    "\001\001",
     /* UMLPackagePath */
     "\057CIM::Event",
     /* Version */
@@ -22467,7 +23411,7 @@ static SourceProperty
 _CIM_FormattedIndicationSubscription_TextFormatOwningEntity =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "TextFormatOwningEntity",
     /* qualifiers */
@@ -22492,7 +23436,7 @@ static SourceProperty
 _CIM_FormattedIndicationSubscription_TextFormatID =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "TextFormatID",
     /* qualifiers */
@@ -22515,7 +23459,7 @@ static SourceProperty
 _CIM_FormattedIndicationSubscription_TextFormat =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "TextFormat",
     /* qualifiers */
@@ -22542,7 +23486,7 @@ static SourceProperty
 _CIM_FormattedIndicationSubscription_TextFormatParameters =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "TextFormatParameters",
     /* qualifiers */
@@ -22568,6 +23512,8 @@ _CIM_FormattedIndicationSubscription_features[] =
 static const char*
 __root_PG_InterOp_CIM_FormattedIndicationSubscription_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Event",
     /* Version */
@@ -22599,6 +23545,8 @@ __root_PG_InterOp_CIM_FormattedIndicationSubscription =
 static const char*
 _CIM_Namespace_SystemCreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_ObjectManager.SystemCreationClassName",
     /* MaxLen */
@@ -22610,7 +23558,7 @@ static SourceProperty
 _CIM_Namespace_SystemCreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -22626,6 +23574,8 @@ _CIM_Namespace_SystemCreationClassName =
 static const char*
 _CIM_Namespace_SystemName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_ObjectManager.SystemName",
     /* MaxLen */
@@ -22637,7 +23587,7 @@ static SourceProperty
 _CIM_Namespace_SystemName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -22653,6 +23603,8 @@ _CIM_Namespace_SystemName =
 static const char*
 _CIM_Namespace_ObjectManagerCreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_ObjectManager.CreationClassName",
     /* MaxLen */
@@ -22664,7 +23616,7 @@ static SourceProperty
 _CIM_Namespace_ObjectManagerCreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "ObjectManagerCreationClassName",
     /* qualifiers */
@@ -22680,6 +23632,8 @@ _CIM_Namespace_ObjectManagerCreationClassName =
 static const char*
 _CIM_Namespace_ObjectManagerName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_ObjectManager.Name",
     /* MaxLen */
@@ -22691,7 +23645,7 @@ static SourceProperty
 _CIM_Namespace_ObjectManagerName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "ObjectManagerName",
     /* qualifiers */
@@ -22707,6 +23661,8 @@ _CIM_Namespace_ObjectManagerName =
 static const char*
 _CIM_Namespace_CreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -22716,7 +23672,7 @@ static SourceProperty
 _CIM_Namespace_CreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -22732,6 +23688,8 @@ _CIM_Namespace_CreationClassName =
 static const char*
 _CIM_Namespace_Name_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -22741,7 +23699,7 @@ static SourceProperty
 _CIM_Namespace_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -22759,6 +23717,10 @@ _CIM_Namespace_ClassInfo_qualifiers[] =
 {
     /* Deprecated */
     "\013\000\001CIM_Namespace.ClassType\000",
+    /* Required */
+    "\050\001",
+    /* Write */
+    "\065\001",
     /* ValueMap */
     "\061\000\0170\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\000200\000201\000202\000",
     /* Values */
@@ -22772,7 +23734,7 @@ static SourceProperty
 _CIM_Namespace_ClassInfo =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED|PEGASUS_FLAG_WRITE,
     /* name */
     "ClassInfo",
     /* qualifiers */
@@ -22790,6 +23752,8 @@ _CIM_Namespace_DescriptionOfClassInfo_qualifiers[] =
 {
     /* Deprecated */
     "\013\000\001CIM_Namespace.DescriptionOfClassType\000",
+    /* Write */
+    "\065\001",
     /* ModelCorrespondence */
     "\036\000\001CIM_Namespace.ClassInfo\000",
     0,
@@ -22799,7 +23763,7 @@ static SourceProperty
 _CIM_Namespace_DescriptionOfClassInfo =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "DescriptionOfClassInfo",
     /* qualifiers */
@@ -22815,6 +23779,8 @@ _CIM_Namespace_DescriptionOfClassInfo =
 static const char*
 _CIM_Namespace_ClassType_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* ValueMap */
     "\061\000\0060\0001\0002\000200\000201\000202\000",
     /* Values */
@@ -22828,7 +23794,7 @@ static SourceProperty
 _CIM_Namespace_ClassType =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "ClassType",
     /* qualifiers */
@@ -22844,6 +23810,8 @@ _CIM_Namespace_ClassType =
 static const char*
 _CIM_Namespace_ClassTypeVersion_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* ModelCorrespondence */
     "\036\000\002CIM_Namespace.DescriptionOfClassType\000CIM_Namespace.ClassType\000",
     0,
@@ -22853,7 +23821,7 @@ static SourceProperty
 _CIM_Namespace_ClassTypeVersion =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "ClassTypeVersion",
     /* qualifiers */
@@ -22869,6 +23837,8 @@ _CIM_Namespace_ClassTypeVersion =
 static const char*
 _CIM_Namespace_DescriptionOfClassType_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* ModelCorrespondence */
     "\036\000\002CIM_Namespace.ClassType\000CIM_Namespace.ClassTypeVersion\000",
     0,
@@ -22878,7 +23848,7 @@ static SourceProperty
 _CIM_Namespace_DescriptionOfClassType =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "DescriptionOfClassType",
     /* qualifiers */
@@ -22942,6 +23912,8 @@ __root_PG_InterOp_CIM_Namespace =
 static const char*
 _CIM_RegisteredProfile_InstanceID_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -22949,7 +23921,7 @@ static SourceProperty
 _CIM_RegisteredProfile_InstanceID =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "InstanceID",
     /* qualifiers */
@@ -22965,6 +23937,8 @@ _CIM_RegisteredProfile_InstanceID =
 static const char*
 _CIM_RegisteredProfile_RegisteredOrganization_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* ValueMap */
     "\061\000\0231\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\00016\00017\00018\00019\000",
     /* Values */
@@ -22978,7 +23952,7 @@ static SourceProperty
 _CIM_RegisteredProfile_RegisteredOrganization =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "RegisteredOrganization",
     /* qualifiers */
@@ -23005,7 +23979,7 @@ static SourceProperty
 _CIM_RegisteredProfile_OtherRegisteredOrganization =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherRegisteredOrganization",
     /* qualifiers */
@@ -23021,6 +23995,8 @@ _CIM_RegisteredProfile_OtherRegisteredOrganization =
 static const char*
 _CIM_RegisteredProfile_RegisteredName_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -23030,7 +24006,7 @@ static SourceProperty
 _CIM_RegisteredProfile_RegisteredName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "RegisteredName",
     /* qualifiers */
@@ -23046,6 +24022,8 @@ _CIM_RegisteredProfile_RegisteredName =
 static const char*
 _CIM_RegisteredProfile_RegisteredVersion_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -23053,7 +24031,7 @@ static SourceProperty
 _CIM_RegisteredProfile_RegisteredVersion =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "RegisteredVersion",
     /* qualifiers */
@@ -23069,6 +24047,8 @@ _CIM_RegisteredProfile_RegisteredVersion =
 static const char*
 _CIM_RegisteredProfile_AdvertiseTypes_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* ValueMap */
     "\061\000\0031\0002\0003\000",
     /* Values */
@@ -23084,7 +24064,7 @@ static SourceProperty
 _CIM_RegisteredProfile_AdvertiseTypes =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "AdvertiseTypes",
     /* qualifiers */
@@ -23111,7 +24091,7 @@ static SourceProperty
 _CIM_RegisteredProfile_AdvertiseTypeDescriptions =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "AdvertiseTypeDescriptions",
     /* qualifiers */
@@ -23208,6 +24188,8 @@ __root_PG_InterOp_CIM_RegisteredSubProfile =
 static const char*
 _CIM_SystemIdentification_SystemCreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_Namespace.SystemCreationClassName",
     /* MaxLen */
@@ -23219,7 +24201,7 @@ static SourceProperty
 _CIM_SystemIdentification_SystemCreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -23235,6 +24217,8 @@ _CIM_SystemIdentification_SystemCreationClassName =
 static const char*
 _CIM_SystemIdentification_SystemName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_Namespace.SystemName",
     /* MaxLen */
@@ -23246,7 +24230,7 @@ static SourceProperty
 _CIM_SystemIdentification_SystemName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -23262,6 +24246,8 @@ _CIM_SystemIdentification_SystemName =
 static const char*
 _CIM_SystemIdentification_ObjectManagerCreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_Namespace.ObjectManagerCreationClassName",
     /* MaxLen */
@@ -23273,7 +24259,7 @@ static SourceProperty
 _CIM_SystemIdentification_ObjectManagerCreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "ObjectManagerCreationClassName",
     /* qualifiers */
@@ -23289,6 +24275,8 @@ _CIM_SystemIdentification_ObjectManagerCreationClassName =
 static const char*
 _CIM_SystemIdentification_ObjectManagerName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_Namespace.ObjectManagerName",
     /* MaxLen */
@@ -23300,7 +24288,7 @@ static SourceProperty
 _CIM_SystemIdentification_ObjectManagerName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "ObjectManagerName",
     /* qualifiers */
@@ -23316,6 +24304,8 @@ _CIM_SystemIdentification_ObjectManagerName =
 static const char*
 _CIM_SystemIdentification_NamespaceCreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_Namespace.CreationClassName",
     /* MaxLen */
@@ -23327,7 +24317,7 @@ static SourceProperty
 _CIM_SystemIdentification_NamespaceCreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "NamespaceCreationClassName",
     /* qualifiers */
@@ -23343,6 +24333,8 @@ _CIM_SystemIdentification_NamespaceCreationClassName =
 static const char*
 _CIM_SystemIdentification_NamespaceName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045CIM_Namespace.Name",
     /* MaxLen */
@@ -23354,7 +24346,7 @@ static SourceProperty
 _CIM_SystemIdentification_NamespaceName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "NamespaceName",
     /* qualifiers */
@@ -23370,6 +24362,8 @@ _CIM_SystemIdentification_NamespaceName =
 static const char*
 _CIM_SystemIdentification_CreationClassName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -23379,7 +24373,7 @@ static SourceProperty
 _CIM_SystemIdentification_CreationClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -23395,6 +24389,8 @@ _CIM_SystemIdentification_CreationClassName =
 static const char*
 _CIM_SystemIdentification_Name_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* MaxLen */
     "\030\000\000\001\000",
     0,
@@ -23404,7 +24400,7 @@ static SourceProperty
 _CIM_SystemIdentification_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -23420,6 +24416,10 @@ _CIM_SystemIdentification_Name =
 static const char*
 _CIM_SystemIdentification_IdentificationFormats_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
+    /* Write */
+    "\065\001",
     /* ValueMap */
     "\061\000\0140\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\000",
     /* Values */
@@ -23435,7 +24435,7 @@ static SourceProperty
 _CIM_SystemIdentification_IdentificationFormats =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED|PEGASUS_FLAG_WRITE,
     /* name */
     "IdentificationFormats",
     /* qualifiers */
@@ -23451,6 +24451,8 @@ _CIM_SystemIdentification_IdentificationFormats =
 static const char*
 _CIM_SystemIdentification_FormatDescriptions_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* ArrayType */
     "\005Indexed",
     /* ModelCorrespondence */
@@ -23462,7 +24464,7 @@ static SourceProperty
 _CIM_SystemIdentification_FormatDescriptions =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "FormatDescriptions",
     /* qualifiers */
@@ -23478,6 +24480,8 @@ _CIM_SystemIdentification_FormatDescriptions =
 static const char*
 _CIM_SystemIdentification_IdentificationData_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* ArrayType */
     "\005Indexed",
     /* ModelCorrespondence */
@@ -23489,7 +24493,7 @@ static SourceProperty
 _CIM_SystemIdentification_IdentificationData =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "IdentificationData",
     /* qualifiers */
@@ -23553,6 +24557,8 @@ __root_PG_InterOp_CIM_SystemIdentification =
 static const char*
 _CIM_SystemInNamespace_ManagedNamespace_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Min */
     "\033\000\000\000\001",
     /* Max */
@@ -23564,7 +24570,7 @@ static SourceReference
 _CIM_SystemInNamespace_ManagedNamespace =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "ManagedNamespace",
     /* qualifiers */
@@ -23578,6 +24584,10 @@ _CIM_SystemInNamespace_ManagedNamespace =
 static const char*
 _CIM_SystemInNamespace_Identification_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
+    /* Weak */
+    "\064\001",
     0,
 };
 
@@ -23585,7 +24595,7 @@ static SourceReference
 _CIM_SystemInNamespace_Identification =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
     /* name */
     "Identification",
     /* qualifiers */
@@ -23599,6 +24609,10 @@ _CIM_SystemInNamespace_Identification =
 static const char*
 _CIM_SystemInNamespace_ScopeOfContainedData_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
+    /* Write */
+    "\065\001",
     /* ValueMap */
     "\061\000\0050\0001\0002\0003\0004\000",
     /* Values */
@@ -23614,7 +24628,7 @@ static SourceProperty
 _CIM_SystemInNamespace_ScopeOfContainedData =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED|PEGASUS_FLAG_WRITE,
     /* name */
     "ScopeOfContainedData",
     /* qualifiers */
@@ -23630,6 +24644,8 @@ _CIM_SystemInNamespace_ScopeOfContainedData =
 static const char*
 _CIM_SystemInNamespace_DescriptionOfContainedData_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     /* ArrayType */
     "\005Indexed",
     /* ModelCorrespondence */
@@ -23641,7 +24657,7 @@ static SourceProperty
 _CIM_SystemInNamespace_DescriptionOfContainedData =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "DescriptionOfContainedData",
     /* qualifiers */
@@ -23667,6 +24683,8 @@ _CIM_SystemInNamespace_features[] =
 static const char*
 __root_PG_InterOp_CIM_SystemInNamespace_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Interop",
     /* Version */
@@ -23707,7 +24725,7 @@ static SourceProperty
 _CIM_CIMOMStatisticalData_InstanceID =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "InstanceID",
     /* qualifiers */
@@ -23723,6 +24741,8 @@ _CIM_CIMOMStatisticalData_InstanceID =
 static const char*
 _CIM_CIMOMStatisticalData_OperationType_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* ValueMap */
     "\061\000\0330\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015\00016\00017\00018\00019\00020\00021\00022\00023\00024\00025\00026\000",
     /* Values */
@@ -23736,7 +24756,7 @@ static SourceProperty
 _CIM_CIMOMStatisticalData_OperationType =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "OperationType",
     /* qualifiers */
@@ -23763,7 +24783,7 @@ static SourceProperty
 _CIM_CIMOMStatisticalData_OtherOperationType =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherOperationType",
     /* qualifiers */
@@ -23779,6 +24799,10 @@ _CIM_CIMOMStatisticalData_OtherOperationType =
 static const char*
 _CIM_CIMOMStatisticalData_NumberOfOperations_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
+    /* Counter */
+    "\012\001",
     0,
 };
 
@@ -23786,7 +24810,7 @@ static SourceProperty
 _CIM_CIMOMStatisticalData_NumberOfOperations =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_COUNTER|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_COUNTER|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "NumberOfOperations",
     /* qualifiers */
@@ -23802,6 +24826,8 @@ _CIM_CIMOMStatisticalData_NumberOfOperations =
 static const char*
 _CIM_CIMOMStatisticalData_CimomElapsedTime_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -23809,7 +24835,7 @@ static SourceProperty
 _CIM_CIMOMStatisticalData_CimomElapsedTime =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "CimomElapsedTime",
     /* qualifiers */
@@ -23825,6 +24851,8 @@ _CIM_CIMOMStatisticalData_CimomElapsedTime =
 static const char*
 _CIM_CIMOMStatisticalData_ProviderElapsedTime_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -23832,7 +24860,7 @@ static SourceProperty
 _CIM_CIMOMStatisticalData_ProviderElapsedTime =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "ProviderElapsedTime",
     /* qualifiers */
@@ -23850,6 +24878,8 @@ _CIM_CIMOMStatisticalData_RequestSize_qualifiers[] =
 {
     /* Units */
     "\060Bytes",
+    /* Counter */
+    "\012\001",
     0,
 };
 
@@ -23857,7 +24887,7 @@ static SourceProperty
 _CIM_CIMOMStatisticalData_RequestSize =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_COUNTER|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_COUNTER|PEGASUS_FLAG_READ,
     /* name */
     "RequestSize",
     /* qualifiers */
@@ -23875,6 +24905,8 @@ _CIM_CIMOMStatisticalData_ResponseSize_qualifiers[] =
 {
     /* Units */
     "\060Bytes",
+    /* Counter */
+    "\012\001",
     0,
 };
 
@@ -23882,7 +24914,7 @@ static SourceProperty
 _CIM_CIMOMStatisticalData_ResponseSize =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_COUNTER|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_COUNTER|PEGASUS_FLAG_READ,
     /* name */
     "ResponseSize",
     /* qualifiers */
@@ -23943,6 +24975,8 @@ __root_PG_InterOp_CIM_CIMOMStatisticalData =
 static const char*
 _CIM_ElementConformsToProfile_ConformantStandard_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -23950,7 +24984,7 @@ static SourceReference
 _CIM_ElementConformsToProfile_ConformantStandard =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "ConformantStandard",
     /* qualifiers */
@@ -23964,6 +24998,8 @@ _CIM_ElementConformsToProfile_ConformantStandard =
 static const char*
 _CIM_ElementConformsToProfile_ManagedElement_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -23971,7 +25007,7 @@ static SourceReference
 _CIM_ElementConformsToProfile_ManagedElement =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "ManagedElement",
     /* qualifiers */
@@ -23993,6 +25029,8 @@ _CIM_ElementConformsToProfile_features[] =
 static const char*
 __root_PG_InterOp_CIM_ElementConformsToProfile_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Interop",
     /* Version */
@@ -24033,7 +25071,7 @@ static SourceReference
 _CIM_ReferencedProfile_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -24056,7 +25094,7 @@ static SourceReference
 _CIM_ReferencedProfile_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -24078,6 +25116,8 @@ _CIM_ReferencedProfile_features[] =
 static const char*
 __root_PG_InterOp_CIM_ReferencedProfile_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Interop",
     /* Version */
@@ -24120,7 +25160,7 @@ static SourceReference
 _CIM_SubProfileRequiresProfile_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -24143,7 +25183,7 @@ static SourceReference
 _CIM_SubProfileRequiresProfile_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -24165,6 +25205,8 @@ _CIM_SubProfileRequiresProfile_features[] =
 static const char*
 __root_PG_InterOp_CIM_SubProfileRequiresProfile_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Interop",
     /* Version */
@@ -24204,6 +25246,8 @@ __root_PG_InterOp_CIM_WBEMService_qualifiers[] =
 {
     /* UMLPackagePath */
     "\057CIM::Interop",
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -24244,7 +25288,7 @@ static SourceReference
 _CIM_IdentificationOfManagedSystem_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -24269,7 +25313,7 @@ static SourceReference
 _CIM_IdentificationOfManagedSystem_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -24291,6 +25335,8 @@ _CIM_IdentificationOfManagedSystem_features[] =
 static const char*
 __root_PG_InterOp_CIM_IdentificationOfManagedSystem_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Interop",
     /* Version */
@@ -24322,6 +25368,8 @@ __root_PG_InterOp_CIM_IdentificationOfManagedSystem =
 static const char*
 _CIM_ObjectManager_GatherStatisticalData_qualifiers[] =
 {
+    /* Write */
+    "\065\001",
     0,
 };
 
@@ -24329,7 +25377,7 @@ static SourceProperty
 _CIM_ObjectManager_GatherStatisticalData =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WRITE,
     /* name */
     "GatherStatisticalData",
     /* qualifiers */
@@ -24354,7 +25402,7 @@ static SourceProperty
 _CIM_ObjectManager_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -24379,7 +25427,7 @@ static SourceProperty
 _CIM_ObjectManager_ElementName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ElementName",
     /* qualifiers */
@@ -24404,7 +25452,7 @@ static SourceProperty
 _CIM_ObjectManager_Description =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Description",
     /* qualifiers */
@@ -24470,7 +25518,7 @@ static SourceProperty
 _CIM_ObjectManagerAdapter_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -24495,7 +25543,7 @@ static SourceProperty
 _CIM_ObjectManagerAdapter_ElementName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ElementName",
     /* qualifiers */
@@ -24511,6 +25559,8 @@ _CIM_ObjectManagerAdapter_ElementName =
 static const char*
 _CIM_ObjectManagerAdapter_Handle_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -24518,7 +25568,7 @@ static SourceProperty
 _CIM_ObjectManagerAdapter_Handle =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "Handle",
     /* qualifiers */
@@ -24534,6 +25584,8 @@ _CIM_ObjectManagerAdapter_Handle =
 static const char*
 _CIM_ObjectManagerAdapter_AdapterType_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* ValueMap */
     "\061\000\0051\0002\0003\0004\0005\000",
     /* Values */
@@ -24547,7 +25599,7 @@ static SourceProperty
 _CIM_ObjectManagerAdapter_AdapterType =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "AdapterType",
     /* qualifiers */
@@ -24572,7 +25624,7 @@ static SourceProperty
 _CIM_ObjectManagerAdapter_OtherAdapterTypeDescription =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherAdapterTypeDescription",
     /* qualifiers */
@@ -24630,6 +25682,8 @@ __root_PG_InterOp_CIM_ObjectManagerAdapter =
 static const char*
 _CIM_ObjectManagerCommunicationMechanism_CommunicationMechanism_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* ValueMap */
     "\061\000\0060\0001\0002\0003\0004\0005\000",
     /* Values */
@@ -24643,7 +25697,7 @@ static SourceProperty
 _CIM_ObjectManagerCommunicationMechanism_CommunicationMechanism =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "CommunicationMechanism",
     /* qualifiers */
@@ -24668,7 +25722,7 @@ static SourceProperty
 _CIM_ObjectManagerCommunicationMechanism_OtherCommunicationMechanismDescription =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherCommunicationMechanismDescription",
     /* qualifiers */
@@ -24684,6 +25738,8 @@ _CIM_ObjectManagerCommunicationMechanism_OtherCommunicationMechanismDescription 
 static const char*
 _CIM_ObjectManagerCommunicationMechanism_FunctionalProfilesSupported_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* ValueMap */
     "\061\000\0120\0001\0002\0003\0004\0005\0006\0007\0008\0009\000",
     /* Values */
@@ -24699,7 +25755,7 @@ static SourceProperty
 _CIM_ObjectManagerCommunicationMechanism_FunctionalProfilesSupported =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "FunctionalProfilesSupported",
     /* qualifiers */
@@ -24726,7 +25782,7 @@ static SourceProperty
 _CIM_ObjectManagerCommunicationMechanism_FunctionalProfileDescriptions =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "FunctionalProfileDescriptions",
     /* qualifiers */
@@ -24742,6 +25798,8 @@ _CIM_ObjectManagerCommunicationMechanism_FunctionalProfileDescriptions =
 static const char*
 _CIM_ObjectManagerCommunicationMechanism_MultipleOperationsSupported_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -24749,7 +25807,7 @@ static SourceProperty
 _CIM_ObjectManagerCommunicationMechanism_MultipleOperationsSupported =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "MultipleOperationsSupported",
     /* qualifiers */
@@ -24765,6 +25823,8 @@ _CIM_ObjectManagerCommunicationMechanism_MultipleOperationsSupported =
 static const char*
 _CIM_ObjectManagerCommunicationMechanism_AuthenticationMechanismsSupported_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* ValueMap */
     "\061\000\0050\0001\0002\0003\0004\000",
     /* Values */
@@ -24780,7 +25840,7 @@ static SourceProperty
 _CIM_ObjectManagerCommunicationMechanism_AuthenticationMechanismsSupported =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "AuthenticationMechanismsSupported",
     /* qualifiers */
@@ -24807,7 +25867,7 @@ static SourceProperty
 _CIM_ObjectManagerCommunicationMechanism_AuthenticationMechanismDescriptions =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "AuthenticationMechanismDescriptions",
     /* qualifiers */
@@ -24823,6 +25883,8 @@ _CIM_ObjectManagerCommunicationMechanism_AuthenticationMechanismDescriptions =
 static const char*
 _CIM_ObjectManagerCommunicationMechanism_Version_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -24830,7 +25892,7 @@ static SourceProperty
 _CIM_ObjectManagerCommunicationMechanism_Version =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "Version",
     /* qualifiers */
@@ -24846,6 +25908,8 @@ _CIM_ObjectManagerCommunicationMechanism_Version =
 static const char*
 _CIM_ObjectManagerCommunicationMechanism_AdvertiseTypes_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* ValueMap */
     "\061\000\0031\0002\0003\000",
     /* Values */
@@ -24861,7 +25925,7 @@ static SourceProperty
 _CIM_ObjectManagerCommunicationMechanism_AdvertiseTypes =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "AdvertiseTypes",
     /* qualifiers */
@@ -24888,7 +25952,7 @@ static SourceProperty
 _CIM_ObjectManagerCommunicationMechanism_AdvertiseTypeDescriptions =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "AdvertiseTypeDescriptions",
     /* qualifiers */
@@ -24962,7 +26026,7 @@ static SourceProperty
 _CIM_ProtocolAdapter_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -24980,6 +26044,8 @@ _CIM_ProtocolAdapter_Handle_qualifiers[] =
 {
     /* Deprecated */
     "\013\000\001CIM_ObjectManagerAdapter.Handle\000",
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -24987,7 +26053,7 @@ static SourceProperty
 _CIM_ProtocolAdapter_Handle =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "Handle",
     /* qualifiers */
@@ -25005,6 +26071,8 @@ _CIM_ProtocolAdapter_ProtocolAdapterType_qualifiers[] =
 {
     /* Deprecated */
     "\013\000\001CIM_ObjectManagerAdapter.AdapterType\000",
+    /* Required */
+    "\050\001",
     /* ValueMap */
     "\061\000\0031\0002\0003\000",
     /* Values */
@@ -25018,7 +26086,7 @@ static SourceProperty
 _CIM_ProtocolAdapter_ProtocolAdapterType =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "ProtocolAdapterType",
     /* qualifiers */
@@ -25045,7 +26113,7 @@ static SourceProperty
 _CIM_ProtocolAdapter_OtherProtocolAdapterType =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherProtocolAdapterType",
     /* qualifiers */
@@ -25104,6 +26172,8 @@ __root_PG_InterOp_CIM_ProtocolAdapter =
 static const char*
 _CIM_CIMXMLCommunicationMechanism_CommunicationMechanism_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* Override */
     "\044CommunicationMechanism",
     /* ValueMap */
@@ -25117,7 +26187,7 @@ static SourceProperty
 _CIM_CIMXMLCommunicationMechanism_CommunicationMechanism =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "CommunicationMechanism",
     /* qualifiers */
@@ -25133,6 +26203,8 @@ _CIM_CIMXMLCommunicationMechanism_CommunicationMechanism =
 static const char*
 _CIM_CIMXMLCommunicationMechanism_Version_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* Override */
     "\044Version",
     /* ValueMap */
@@ -25144,7 +26216,7 @@ static SourceProperty
 _CIM_CIMXMLCommunicationMechanism_Version =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "Version",
     /* qualifiers */
@@ -25162,6 +26234,8 @@ _CIM_CIMXMLCommunicationMechanism_CIMXMLProtocolVersion_qualifiers[] =
 {
     /* Deprecated */
     "\013\000\001CIM_CIMXMLCommunicationMechanism.Version\000",
+    /* Required */
+    "\050\001",
     /* ValueMap */
     "\061\000\0020\0001\000",
     /* Values */
@@ -25173,7 +26247,7 @@ static SourceProperty
 _CIM_CIMXMLCommunicationMechanism_CIMXMLProtocolVersion =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "CIMXMLProtocolVersion",
     /* qualifiers */
@@ -25189,6 +26263,8 @@ _CIM_CIMXMLCommunicationMechanism_CIMXMLProtocolVersion =
 static const char*
 _CIM_CIMXMLCommunicationMechanism_CIMValidated_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -25196,7 +26272,7 @@ static SourceProperty
 _CIM_CIMXMLCommunicationMechanism_CIMValidated =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "CIMValidated",
     /* qualifiers */
@@ -25264,7 +26340,7 @@ static SourceReference
 _CIM_CommMechanismForAdapter_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -25291,7 +26367,7 @@ static SourceReference
 _CIM_CommMechanismForAdapter_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -25313,6 +26389,8 @@ _CIM_CommMechanismForAdapter_features[] =
 static const char*
 __root_PG_InterOp_CIM_CommMechanismForAdapter_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* Deprecated */
     "\013\000\001CIM_CommMechanismForObjectManagerAdapter\000",
     /* UMLPackagePath */
@@ -25359,7 +26437,7 @@ static SourceReference
 _CIM_CommMechanismForManager_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -25384,7 +26462,7 @@ static SourceReference
 _CIM_CommMechanismForManager_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -25406,6 +26484,8 @@ _CIM_CommMechanismForManager_features[] =
 static const char*
 __root_PG_InterOp_CIM_CommMechanismForManager_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Interop",
     /* Version */
@@ -25446,7 +26526,7 @@ static SourceReference
 _CIM_CommMechanismForObjectManagerAdapter_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -25471,7 +26551,7 @@ static SourceReference
 _CIM_CommMechanismForObjectManagerAdapter_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -25493,6 +26573,8 @@ _CIM_CommMechanismForObjectManagerAdapter_features[] =
 static const char*
 __root_PG_InterOp_CIM_CommMechanismForObjectManagerAdapter_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Interop",
     /* Version */
@@ -25537,7 +26619,7 @@ static SourceReference
 _CIM_NamespaceInManager_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -25553,6 +26635,8 @@ _CIM_NamespaceInManager_Dependent_qualifiers[] =
 {
     /* Override */
     "\044Dependent",
+    /* Weak */
+    "\064\001",
     0,
 };
 
@@ -25560,7 +26644,7 @@ static SourceReference
 _CIM_NamespaceInManager_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -25582,6 +26666,8 @@ _CIM_NamespaceInManager_features[] =
 static const char*
 __root_PG_InterOp_CIM_NamespaceInManager_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* UMLPackagePath */
     "\057CIM::Interop",
     /* Version */
@@ -25613,6 +26699,8 @@ __root_PG_InterOp_CIM_NamespaceInManager =
 static const char*
 _PG_IndicationHandlerSNMPMapper_TargetHost_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -25620,7 +26708,7 @@ static SourceProperty
 _PG_IndicationHandlerSNMPMapper_TargetHost =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "TargetHost",
     /* qualifiers */
@@ -25636,6 +26724,8 @@ _PG_IndicationHandlerSNMPMapper_TargetHost =
 static const char*
 _PG_IndicationHandlerSNMPMapper_TargetHostFormat_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* ValueMap */
     "\061\000\0051\0002\0003\0004\0005..65535\000",
     /* Values */
@@ -25649,7 +26739,7 @@ static SourceProperty
 _PG_IndicationHandlerSNMPMapper_TargetHostFormat =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "TargetHostFormat",
     /* qualifiers */
@@ -25674,7 +26764,7 @@ static SourceProperty
 _PG_IndicationHandlerSNMPMapper_OtherTargetHostFormat =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherTargetHostFormat",
     /* qualifiers */
@@ -25697,7 +26787,7 @@ static SourceProperty
 _PG_IndicationHandlerSNMPMapper_PortNumber =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "PortNumber",
     /* qualifiers */
@@ -25713,6 +26803,8 @@ _PG_IndicationHandlerSNMPMapper_PortNumber =
 static const char*
 _PG_IndicationHandlerSNMPMapper_SNMPVersion_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* ValueMap */
     "\061\000\0062\0003\0004\0005\0006\0007..65535\000",
     /* Values */
@@ -25724,7 +26816,7 @@ static SourceProperty
 _PG_IndicationHandlerSNMPMapper_SNMPVersion =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "SNMPVersion",
     /* qualifiers */
@@ -25749,7 +26841,7 @@ static SourceProperty
 _PG_IndicationHandlerSNMPMapper_SNMPSecurityName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SNMPSecurityName",
     /* qualifiers */
@@ -25772,7 +26864,7 @@ static SourceProperty
 _PG_IndicationHandlerSNMPMapper_SNMPEngineID =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SNMPEngineID",
     /* qualifiers */
@@ -25861,6 +26953,8 @@ __root_PG_InterOp_PG_ListenerDestinationSystemLog =
 static const char*
 _PG_ListenerDestinationEmail_MailTo_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -25868,7 +26962,7 @@ static SourceProperty
 _PG_ListenerDestinationEmail_MailTo =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "MailTo",
     /* qualifiers */
@@ -25891,7 +26985,7 @@ static SourceProperty
 _PG_ListenerDestinationEmail_MailCc =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "MailCc",
     /* qualifiers */
@@ -25907,6 +27001,8 @@ _PG_ListenerDestinationEmail_MailCc =
 static const char*
 _PG_ListenerDestinationEmail_MailSubject_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -25914,7 +27010,7 @@ static SourceProperty
 _PG_ListenerDestinationEmail_MailSubject =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "MailSubject",
     /* qualifiers */
@@ -25966,6 +27062,8 @@ __root_PG_InterOp_PG_ListenerDestinationEmail =
 static const char*
 _PG_ProviderModule_Name_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Override */
     "\044Name",
     0,
@@ -25975,7 +27073,7 @@ static SourceProperty
 _PG_ProviderModule_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -25991,6 +27089,8 @@ _PG_ProviderModule_Name =
 static const char*
 _PG_ProviderModule_Vendor_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -25998,7 +27098,7 @@ static SourceProperty
 _PG_ProviderModule_Vendor =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "Vendor",
     /* qualifiers */
@@ -26014,6 +27114,8 @@ _PG_ProviderModule_Vendor =
 static const char*
 _PG_ProviderModule_Version_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -26021,7 +27123,7 @@ static SourceProperty
 _PG_ProviderModule_Version =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "Version",
     /* qualifiers */
@@ -26037,6 +27139,8 @@ _PG_ProviderModule_Version =
 static const char*
 _PG_ProviderModule_InterfaceType_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -26044,7 +27148,7 @@ static SourceProperty
 _PG_ProviderModule_InterfaceType =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "InterfaceType",
     /* qualifiers */
@@ -26060,6 +27164,8 @@ _PG_ProviderModule_InterfaceType =
 static const char*
 _PG_ProviderModule_InterfaceVersion_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -26067,7 +27173,7 @@ static SourceProperty
 _PG_ProviderModule_InterfaceVersion =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "InterfaceVersion",
     /* qualifiers */
@@ -26083,6 +27189,8 @@ _PG_ProviderModule_InterfaceVersion =
 static const char*
 _PG_ProviderModule_Location_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -26090,7 +27198,7 @@ static SourceProperty
 _PG_ProviderModule_Location =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "Location",
     /* qualifiers */
@@ -26117,7 +27225,7 @@ static SourceProperty
 _PG_ProviderModule_UserContext =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "UserContext",
     /* qualifiers */
@@ -26140,7 +27248,7 @@ static SourceProperty
 _PG_ProviderModule_DesignatedUserContext =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "DesignatedUserContext",
     /* qualifiers */
@@ -26169,7 +27277,7 @@ static SourceProperty
 _PG_ProviderModule_OperationalStatus =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OperationalStatus",
     /* qualifiers */
@@ -26194,7 +27302,7 @@ static SourceProperty
 _PG_ProviderModule_OtherStatusDescription =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherStatusDescription",
     /* qualifiers */
@@ -26311,6 +27419,8 @@ __root_PG_InterOp_PG_ProviderModule =
 static const char*
 _PG_Provider_ProviderModuleName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045PG_ProviderModule.Name",
     0,
@@ -26320,7 +27430,7 @@ static SourceProperty
 _PG_Provider_ProviderModuleName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "ProviderModuleName",
     /* qualifiers */
@@ -26336,6 +27446,8 @@ _PG_Provider_ProviderModuleName =
 static const char*
 _PG_Provider_Name_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Override */
     "\044Name",
     0,
@@ -26345,7 +27457,7 @@ static SourceProperty
 _PG_Provider_Name =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -26398,6 +27510,8 @@ __root_PG_InterOp_PG_Provider =
 static const char*
 _PG_Capabilities_ProviderModuleName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045PG_Provider.ProviderModuleName",
     0,
@@ -26407,7 +27521,7 @@ static SourceProperty
 _PG_Capabilities_ProviderModuleName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "ProviderModuleName",
     /* qualifiers */
@@ -26423,6 +27537,8 @@ _PG_Capabilities_ProviderModuleName =
 static const char*
 _PG_Capabilities_ProviderName_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Propagated */
     "\045PG_Provider.Name",
     0,
@@ -26432,7 +27548,7 @@ static SourceProperty
 _PG_Capabilities_ProviderName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "ProviderName",
     /* qualifiers */
@@ -26448,6 +27564,8 @@ _PG_Capabilities_ProviderName =
 static const char*
 _PG_Capabilities_CapabilityID_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -26455,7 +27573,7 @@ static SourceProperty
 _PG_Capabilities_CapabilityID =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "CapabilityID",
     /* qualifiers */
@@ -26480,6 +27598,8 @@ _PG_Capabilities_features[] =
 static const char*
 __root_PG_InterOp_PG_Capabilities_qualifiers[] =
 {
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -26509,6 +27629,8 @@ __root_PG_InterOp_PG_Capabilities =
 static const char*
 _PG_CapabilitiesRegistration_ProviderType_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* ArrayType */
     "\005Indexed",
     /* ValueMap */
@@ -26522,7 +27644,7 @@ static SourceProperty
 _PG_CapabilitiesRegistration_ProviderType =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "ProviderType",
     /* qualifiers */
@@ -26545,6 +27667,8 @@ _PG_CapabilitiesRegistration_features[] =
 static const char*
 __root_PG_InterOp_PG_CapabilitiesRegistration_qualifiers[] =
 {
+    /* Abstract */
+    "\002\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -26574,6 +27698,8 @@ __root_PG_InterOp_PG_CapabilitiesRegistration =
 static const char*
 _PG_ProviderCapabilities_ClassName_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -26581,7 +27707,7 @@ static SourceProperty
 _PG_ProviderCapabilities_ClassName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "ClassName",
     /* qualifiers */
@@ -26597,6 +27723,8 @@ _PG_ProviderCapabilities_ClassName =
 static const char*
 _PG_ProviderCapabilities_Namespaces_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -26604,7 +27732,7 @@ static SourceProperty
 _PG_ProviderCapabilities_Namespaces =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "Namespaces",
     /* qualifiers */
@@ -26629,7 +27757,7 @@ static SourceProperty
 _PG_ProviderCapabilities_SupportedProperties =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SupportedProperties",
     /* qualifiers */
@@ -26654,7 +27782,7 @@ static SourceProperty
 _PG_ProviderCapabilities_SupportedMethods =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SupportedMethods",
     /* qualifiers */
@@ -26709,6 +27837,8 @@ __root_PG_InterOp_PG_ProviderCapabilities =
 static const char*
 _PG_ConsumerCapabilities_Destinations_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -26716,7 +27846,7 @@ static SourceProperty
 _PG_ConsumerCapabilities_Destinations =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "Destinations",
     /* qualifiers */
@@ -26768,6 +27898,8 @@ __root_PG_InterOp_PG_ConsumerCapabilities =
 static const char*
 _PG_ProviderCapabilitiesElements_Antecedent_qualifiers[] =
 {
+    /* Key */
+    "\025\001",
     /* Override */
     "\044Antecedent",
     /* Min */
@@ -26781,7 +27913,7 @@ static SourceReference
 _PG_ProviderCapabilitiesElements_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -26797,6 +27929,8 @@ _PG_ProviderCapabilitiesElements_Dependent_qualifiers[] =
 {
     /* Override */
     "\044Dependent",
+    /* Weak */
+    "\064\001",
     0,
 };
 
@@ -26804,7 +27938,7 @@ static SourceReference
 _PG_ProviderCapabilitiesElements_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -26826,6 +27960,8 @@ _PG_ProviderCapabilitiesElements_features[] =
 static const char*
 __root_PG_InterOp_PG_ProviderCapabilitiesElements_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* Version */
     "\0632.4.0",
     0,
@@ -26861,6 +27997,8 @@ _PG_ProviderModuleElements_Antecedent_qualifiers[] =
     "\033\000\000\000\001",
     /* Max */
     "\027\000\000\000\001",
+    /* Key */
+    "\025\001",
     0,
 };
 
@@ -26868,7 +28006,7 @@ static SourceReference
 _PG_ProviderModuleElements_Antecedent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -26884,6 +28022,8 @@ _PG_ProviderModuleElements_Dependent_qualifiers[] =
 {
     /* Override */
     "\044Dependent",
+    /* Weak */
+    "\064\001",
     0,
 };
 
@@ -26891,7 +28031,7 @@ static SourceReference
 _PG_ProviderModuleElements_Dependent =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
+    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_WEAK,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -26913,6 +28053,8 @@ _PG_ProviderModuleElements_features[] =
 static const char*
 __root_PG_InterOp_PG_ProviderModuleElements_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* Version */
     "\0632.0.0",
     0,
@@ -26951,7 +28093,7 @@ static SourceProperty
 _PG_CIMXMLCommunicationMechanism_namespaceType =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "namespaceType",
     /* qualifiers */
@@ -26978,7 +28120,7 @@ static SourceProperty
 _PG_CIMXMLCommunicationMechanism_namespaceAccessProtocol =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "namespaceAccessProtocol",
     /* qualifiers */
@@ -27001,7 +28143,7 @@ static SourceProperty
 _PG_CIMXMLCommunicationMechanism_IPAddress =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "IPAddress",
     /* qualifiers */
@@ -27062,7 +28204,7 @@ static SourceProperty
 _PG_NameSpace_SchemaUpdatesAllowed =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SchemaUpdatesAllowed",
     /* qualifiers */
@@ -27085,7 +28227,7 @@ static SourceProperty
 _PG_NameSpace_IsShareable =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "IsShareable",
     /* qualifiers */
@@ -27108,7 +28250,7 @@ static SourceProperty
 _PG_NameSpace_ParentNamespace =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ParentNamespace",
     /* qualifiers */
@@ -27173,7 +28315,7 @@ static SourceProperty
 _CIM_ComputerSystem_NameFormat =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "NameFormat",
     /* qualifiers */
@@ -27202,7 +28344,7 @@ static SourceProperty
 _CIM_ComputerSystem_OtherIdentifyingInfo =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherIdentifyingInfo",
     /* qualifiers */
@@ -27229,7 +28371,7 @@ static SourceProperty
 _CIM_ComputerSystem_IdentifyingDescriptions =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "IdentifyingDescriptions",
     /* qualifiers */
@@ -27254,7 +28396,7 @@ static SourceProperty
 _CIM_ComputerSystem_Dedicated =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "Dedicated",
     /* qualifiers */
@@ -27280,6 +28422,8 @@ _CIM_ComputerSystem_features[] =
 static const char*
 __root_PG_InterOp_CIM_ComputerSystem_qualifiers[] =
 {
+    /* Abstract */
+    "\002\001",
     0,
 };
 
@@ -27314,7 +28458,7 @@ static SourceProperty
 _CIM_UnitaryComputerSystem_InitialLoadInfo =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "InitialLoadInfo",
     /* qualifiers */
@@ -27339,7 +28483,7 @@ static SourceProperty
 _CIM_UnitaryComputerSystem_LastLoadInfo =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "LastLoadInfo",
     /* qualifiers */
@@ -27362,7 +28506,7 @@ static SourceProperty
 _CIM_UnitaryComputerSystem_PowerManagementSupported =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "PowerManagementSupported",
     /* qualifiers */
@@ -27387,7 +28531,7 @@ static SourceProperty
 _CIM_UnitaryComputerSystem_PowerState =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "PowerState",
     /* qualifiers */
@@ -27412,7 +28556,7 @@ static SourceProperty
 _CIM_UnitaryComputerSystem_WakeUpType =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "WakeUpType",
     /* qualifiers */
@@ -27441,7 +28585,7 @@ static SourceProperty
 _CIM_UnitaryComputerSystem_ResetCapability =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ResetCapability",
     /* qualifiers */
@@ -27468,7 +28612,7 @@ static SourceProperty
 _CIM_UnitaryComputerSystem_PowerManagementCapabilities =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "PowerManagementCapabilities",
     /* qualifiers */
@@ -27484,6 +28628,8 @@ _CIM_UnitaryComputerSystem_PowerManagementCapabilities =
 static const char*
 _CIM_UnitaryComputerSystem_SetPowerState_PowerState_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     /* ValueMap */
     "\061\000\0101\0002\0003\0004\0005\0006\0007\0008\000",
     /* Values */
@@ -27495,7 +28641,7 @@ static SourceProperty
 _CIM_UnitaryComputerSystem_SetPowerState_PowerState =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "PowerState",
     /* qualifiers */
@@ -27511,6 +28657,8 @@ _CIM_UnitaryComputerSystem_SetPowerState_PowerState =
 static const char*
 _CIM_UnitaryComputerSystem_SetPowerState_Time_qualifiers[] =
 {
+    /* IN */
+    "\024\001",
     0,
 };
 
@@ -27518,7 +28666,7 @@ static SourceProperty
 _CIM_UnitaryComputerSystem_SetPowerState_Time =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_IN,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
     /* name */
     "Time",
     /* qualifiers */
@@ -27613,7 +28761,7 @@ static SourceProperty
 _PG_ComputerSystem_PrimaryOwnerPager =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "PrimaryOwnerPager",
     /* qualifiers */
@@ -27638,7 +28786,7 @@ static SourceProperty
 _PG_ComputerSystem_SecondaryOwnerName =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SecondaryOwnerName",
     /* qualifiers */
@@ -27663,7 +28811,7 @@ static SourceProperty
 _PG_ComputerSystem_SecondaryOwnerContact =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SecondaryOwnerContact",
     /* qualifiers */
@@ -27688,7 +28836,7 @@ static SourceProperty
 _PG_ComputerSystem_SecondaryOwnerPager =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SecondaryOwnerPager",
     /* qualifiers */
@@ -27713,7 +28861,7 @@ static SourceProperty
 _PG_ComputerSystem_SerialNumber =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SerialNumber",
     /* qualifiers */
@@ -27738,7 +28886,7 @@ static SourceProperty
 _PG_ComputerSystem_IdentificationNumber =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "IdentificationNumber",
     /* qualifiers */
@@ -27795,6 +28943,8 @@ __root_PG_InterOp_PG_ComputerSystem =
 static const char*
 _PG_ProviderProfileCapabilities_RegisteredProfile_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* ValueMap */
     "\061\000\0200\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\000..\000",
     /* Values */
@@ -27806,7 +28956,7 @@ static SourceProperty
 _PG_ProviderProfileCapabilities_RegisteredProfile =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "RegisteredProfile",
     /* qualifiers */
@@ -27822,6 +28972,8 @@ _PG_ProviderProfileCapabilities_RegisteredProfile =
 static const char*
 _PG_ProviderProfileCapabilities_RegisteredSubProfiles_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* ValueMap */
     "\061\000\0660\0001..1000\0001001\0001002\0001003\0001004\0001005\0001006\0001007\0001008\0001009\0001010\0001011\0001012\0001013\0001014\0001015\0001016\0001017\0001018\0001019\0001020\0001021\0001022\0001023\0001024\0001025\0001026\0001027\0001028\0001029\0001030\0001031\0001032\0001033\0001034\0001035\0001036\0001037\0001038\0001039\0001040\0001041\0001042\0001043\0001044\0001045\0001046\0001047\0001048\0001049\0001050\0001051\000..\000",
     /* Values */
@@ -27833,7 +28985,7 @@ static SourceProperty
 _PG_ProviderProfileCapabilities_RegisteredSubProfiles =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "RegisteredSubProfiles",
     /* qualifiers */
@@ -27849,6 +29001,8 @@ _PG_ProviderProfileCapabilities_RegisteredSubProfiles =
 static const char*
 _PG_ProviderProfileCapabilities_ProfileVersion_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -27856,7 +29010,7 @@ static SourceProperty
 _PG_ProviderProfileCapabilities_ProfileVersion =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "ProfileVersion",
     /* qualifiers */
@@ -27879,7 +29033,7 @@ static SourceProperty
 _PG_ProviderProfileCapabilities_SubProfileVersions =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "SubProfileVersions",
     /* qualifiers */
@@ -27902,7 +29056,7 @@ static SourceProperty
 _PG_ProviderProfileCapabilities_OtherRegisteredProfile =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherRegisteredProfile",
     /* qualifiers */
@@ -27925,7 +29079,7 @@ static SourceProperty
 _PG_ProviderProfileCapabilities_OtherProfileOrganization =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherProfileOrganization",
     /* qualifiers */
@@ -27948,7 +29102,7 @@ static SourceProperty
 _PG_ProviderProfileCapabilities_OtherRegisteredSubProfiles =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherRegisteredSubProfiles",
     /* qualifiers */
@@ -27971,7 +29125,7 @@ static SourceProperty
 _PG_ProviderProfileCapabilities_OtherSubProfileOrganizations =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherSubProfileOrganizations",
     /* qualifiers */
@@ -27994,7 +29148,7 @@ static SourceProperty
 _PG_ProviderProfileCapabilities_ConformingElements =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "ConformingElements",
     /* qualifiers */
@@ -28054,6 +29208,8 @@ __root_PG_InterOp_PG_ProviderProfileCapabilities =
 static const char*
 _PG_ProviderReferencedProfiles_RegisteredProfiles_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* ValueMap */
     "\061\000\1040\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015..1000\0001001\0001002\0001003\0001004\0001005\0001006\0001007\0001008\0001009\0001010\0001011\0001012\0001013\0001014\0001015\0001016\0001017\0001018\0001019\0001020\0001021\0001022\0001023\0001024\0001025\0001026\0001027\0001028\0001029\0001030\0001031\0001032\0001033\0001034\0001035\0001036\0001037\0001038\0001039\0001040\0001041\0001042\0001043\0001044\0001045\0001046\0001047\0001048\0001049\0001050\0001051\000..\000",
     /* Values */
@@ -28065,7 +29221,7 @@ static SourceProperty
 _PG_ProviderReferencedProfiles_RegisteredProfiles =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "RegisteredProfiles",
     /* qualifiers */
@@ -28081,6 +29237,8 @@ _PG_ProviderReferencedProfiles_RegisteredProfiles =
 static const char*
 _PG_ProviderReferencedProfiles_DependentProfiles_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     /* ValueMap */
     "\061\000\1040\0001\0002\0003\0004\0005\0006\0007\0008\0009\00010\00011\00012\00013\00014\00015..1000\0001001\0001002\0001003\0001004\0001005\0001006\0001007\0001008\0001009\0001010\0001011\0001012\0001013\0001014\0001015\0001016\0001017\0001018\0001019\0001020\0001021\0001022\0001023\0001024\0001025\0001026\0001027\0001028\0001029\0001030\0001031\0001032\0001033\0001034\0001035\0001036\0001037\0001038\0001039\0001040\0001041\0001042\0001043\0001044\0001045\0001046\0001047\0001048\0001049\0001050\0001051\000..\000",
     /* Values */
@@ -28092,7 +29250,7 @@ static SourceProperty
 _PG_ProviderReferencedProfiles_DependentProfiles =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "DependentProfiles",
     /* qualifiers */
@@ -28108,6 +29266,8 @@ _PG_ProviderReferencedProfiles_DependentProfiles =
 static const char*
 _PG_ProviderReferencedProfiles_RegisteredProfileVersions_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -28115,7 +29275,7 @@ static SourceProperty
 _PG_ProviderReferencedProfiles_RegisteredProfileVersions =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "RegisteredProfileVersions",
     /* qualifiers */
@@ -28131,6 +29291,8 @@ _PG_ProviderReferencedProfiles_RegisteredProfileVersions =
 static const char*
 _PG_ProviderReferencedProfiles_DependentProfileVersions_qualifiers[] =
 {
+    /* Required */
+    "\050\001",
     0,
 };
 
@@ -28138,7 +29300,7 @@ static SourceProperty
 _PG_ProviderReferencedProfiles_DependentProfileVersions =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ|PEGASUS_FLAG_REQUIRED,
     /* name */
     "DependentProfileVersions",
     /* qualifiers */
@@ -28161,7 +29323,7 @@ static SourceProperty
 _PG_ProviderReferencedProfiles_OtherRegisteredProfiles =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherRegisteredProfiles",
     /* qualifiers */
@@ -28184,7 +29346,7 @@ static SourceProperty
 _PG_ProviderReferencedProfiles_OtherDependentProfiles =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherDependentProfiles",
     /* qualifiers */
@@ -28207,7 +29369,7 @@ static SourceProperty
 _PG_ProviderReferencedProfiles_OtherRegisteredProfileOrganizations =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherRegisteredProfileOrganizations",
     /* qualifiers */
@@ -28230,7 +29392,7 @@ static SourceProperty
 _PG_ProviderReferencedProfiles_OtherDependentProfileOrganizations =
 {
     /* flags */
-    PEGASUS_FLAG_REFERENCE|PEGASUS_FLAG_READ,
+    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
     /* name */
     "OtherDependentProfileOrganizations",
     /* qualifiers */
@@ -28365,6 +29527,8 @@ _PG_ReferencedProfile_features[] =
 static const char*
 __root_PG_InterOp_PG_ReferencedProfile_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -28400,6 +29564,8 @@ _PG_ElementConformsToProfile_features[] =
 static const char*
 __root_PG_InterOp_PG_ElementConformsToProfile_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -28435,6 +29601,8 @@ _PG_SubProfileRequiresProfile_features[] =
 static const char*
 __root_PG_InterOp_PG_SubProfileRequiresProfile_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -28505,6 +29673,8 @@ _PG_ElementSoftwareIdentity_features[] =
 static const char*
 __root_PG_InterOp_PG_ElementSoftwareIdentity_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -28540,6 +29710,8 @@ _PG_ObjectManager_features[] =
 static const char*
 __root_PG_InterOp_PG_ObjectManager_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -28575,6 +29747,8 @@ _PG_CommMechanismForManager_features[] =
 static const char*
 __root_PG_InterOp_PG_CommMechanismForManager_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -28610,6 +29784,8 @@ _PG_NamespaceInManager_features[] =
 static const char*
 __root_PG_InterOp_PG_NamespaceInManager_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -28645,6 +29821,8 @@ _PG_HostedObjectManager_features[] =
 static const char*
 __root_PG_InterOp_PG_HostedObjectManager_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* Version */
     "\0632.6.0",
     0,
@@ -28680,6 +29858,8 @@ _PG_HostedAccessPoint_features[] =
 static const char*
 __root_PG_InterOp_PG_HostedAccessPoint_qualifiers[] =
 {
+    /* ASSOCIATION */
+    "\000\001",
     /* Version */
     "\0632.6.0",
     0,

@@ -82,7 +82,7 @@ public:
     {
         REPOSITORY_CONSUMER = 1,
         CLIENT_CONSUMER = 2,
-        SOURCE_CONSUMER = 3,
+        META_CONSUMER = 3,
     };
 
     cimmofConsumer();

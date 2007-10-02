@@ -95,7 +95,7 @@ STATIC=1
 LIBRARY = pegrepository
 
 SOURCES = \
-    SourceTypes.cpp \
+    MetaTypes.cpp \
     InstanceIndexFile.cpp \
     InstanceDataFile.cpp \
     CIMRepository.cpp \
@@ -107,9 +107,9 @@ SOURCES = \
     InheritanceTree.cpp \
     RepositoryDeclContext.cpp \
     RepositoryQueryContext.cpp \
-    SourceRepository.cpp
+    MetaRepository.cpp
 
-SOURCES += \
+XSOURCES += \
     root_cimv2_namespace.cpp \
     root_PG_InterOp_namespace.cpp \
     root_PG_Internal_namespace.cpp

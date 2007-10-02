@@ -60,7 +60,7 @@
 #include "AssocInstTable.h"
 #include "AssocClassTable.h"
 #include "ObjectCache.h"
-#include "SourceRepository.h"
+#include "MetaRepository.h"
 
 #ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
 // #define win32
@@ -2236,7 +2236,7 @@ Array<CIMClass> CIMRepository::enumerateClasses(
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateClasses");
 
 #if 0
-    return SourceRepository::enumerateClasses(nameSpace, className, 
+    return MetaRepository::enumerateClasses(nameSpace, className, 
         deepInheritance, localOnly, includeQualifiers, includeClassOrigin);
 #endif
 

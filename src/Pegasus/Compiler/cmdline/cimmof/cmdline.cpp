@@ -255,11 +255,11 @@ ostream & help(ostream &os, int progtype)
     if (progtype == 1)
     {
         help.append(
-        "    -s                  - Generate a source code repository, which\n"
-        "                          contains static C++ structure definitions\n"
-        "                          for MOF classes and qualifier declarations\n"
-        "                          encountered during parsing (instances are\n"
-        "                          are ignored).\n");
+        "    -s                  - Generate compilable C++ source code rather\n"
+        "                          than disk files. The generated C++ source\n"
+        "                          file contains meta class and meta\n"
+        "                          qualifier definitions, which are used\n"
+        "                          to build read-only repositories.\n");
         help.append(
         "    -d                  - Discard description qualifiers from source\n"
         "                          code repository to conserve space.\n");

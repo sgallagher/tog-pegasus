@@ -920,7 +920,9 @@ int CIMServerProcess::cimserver_run(
 
     try
     {
-#if defined(PEGASUS_OS_TYPE_UNIX) || defined(PEGASUS_OS_VXWORKS)
+#if defined(PEGASUS_OS_TYPE_UNIX)
+
+        // ATTN KS This file not used for VxWorks
         //
         // Lock the CIMSERVER_LOCK_FILE during CIM Server start-up to prevent
         // concurrent writes to this file by multiple cimserver processes

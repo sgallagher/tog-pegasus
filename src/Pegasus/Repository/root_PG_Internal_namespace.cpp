@@ -10,7 +10,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 //==============================================================================
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _ASSOCIATION_qualifier_decl =
 {
     /* name */
@@ -27,7 +27,7 @@ _ASSOCIATION_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _INDICATION_qualifier_decl =
 {
     /* name */
@@ -44,7 +44,7 @@ _INDICATION_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Abstract_qualifier_decl =
 {
     /* name */
@@ -61,7 +61,7 @@ _Abstract_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Aggregate_qualifier_decl =
 {
     /* name */
@@ -78,7 +78,7 @@ _Aggregate_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Aggregation_qualifier_decl =
 {
     /* name */
@@ -95,7 +95,7 @@ _Aggregation_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _ArrayType_qualifier_decl =
 {
     /* name */
@@ -112,7 +112,7 @@ _ArrayType_qualifier_decl =
     "Bag",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _BitMap_qualifier_decl =
 {
     /* name */
@@ -129,7 +129,7 @@ _BitMap_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _BitValues_qualifier_decl =
 {
     /* name */
@@ -146,7 +146,7 @@ _BitValues_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _ClassConstraint_qualifier_decl =
 {
     /* name */
@@ -163,7 +163,7 @@ _ClassConstraint_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Composition_qualifier_decl =
 {
     /* name */
@@ -180,7 +180,7 @@ _Composition_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Counter_qualifier_decl =
 {
     /* name */
@@ -197,7 +197,7 @@ _Counter_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Deprecated_qualifier_decl =
 {
     /* name */
@@ -214,7 +214,7 @@ _Deprecated_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Description_qualifier_decl =
 {
     /* name */
@@ -231,7 +231,7 @@ _Description_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _DisplayName_qualifier_decl =
 {
     /* name */
@@ -248,7 +248,7 @@ _DisplayName_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _DN_qualifier_decl =
 {
     /* name */
@@ -265,7 +265,7 @@ _DN_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _EmbeddedInstance_qualifier_decl =
 {
     /* name */
@@ -282,7 +282,7 @@ _EmbeddedInstance_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _EmbeddedObject_qualifier_decl =
 {
     /* name */
@@ -299,7 +299,7 @@ _EmbeddedObject_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Exception_qualifier_decl =
 {
     /* name */
@@ -316,7 +316,7 @@ _Exception_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Experimental_qualifier_decl =
 {
     /* name */
@@ -333,7 +333,7 @@ _Experimental_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Gauge_qualifier_decl =
 {
     /* name */
@@ -350,7 +350,7 @@ _Gauge_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _In_qualifier_decl =
 {
     /* name */
@@ -367,7 +367,7 @@ _In_qualifier_decl =
     "\001",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Key_qualifier_decl =
 {
     /* name */
@@ -384,7 +384,7 @@ _Key_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _MappingStrings_qualifier_decl =
 {
     /* name */
@@ -401,7 +401,7 @@ _MappingStrings_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Max_qualifier_decl =
 {
     /* name */
@@ -418,7 +418,7 @@ _Max_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _MaxLen_qualifier_decl =
 {
     /* name */
@@ -435,7 +435,7 @@ _MaxLen_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _MaxValue_qualifier_decl =
 {
     /* name */
@@ -452,7 +452,7 @@ _MaxValue_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _MethodConstraint_qualifier_decl =
 {
     /* name */
@@ -469,7 +469,7 @@ _MethodConstraint_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Min_qualifier_decl =
 {
     /* name */
@@ -486,7 +486,7 @@ _Min_qualifier_decl =
     "\000\000\000\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _MinLen_qualifier_decl =
 {
     /* name */
@@ -503,7 +503,7 @@ _MinLen_qualifier_decl =
     "\000\000\000\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _MinValue_qualifier_decl =
 {
     /* name */
@@ -520,7 +520,7 @@ _MinValue_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _ModelCorrespondence_qualifier_decl =
 {
     /* name */
@@ -537,7 +537,7 @@ _ModelCorrespondence_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Nonlocal_qualifier_decl =
 {
     /* name */
@@ -554,7 +554,7 @@ _Nonlocal_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _NonlocalType_qualifier_decl =
 {
     /* name */
@@ -571,7 +571,7 @@ _NonlocalType_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _NullValue_qualifier_decl =
 {
     /* name */
@@ -588,7 +588,7 @@ _NullValue_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Octetstring_qualifier_decl =
 {
     /* name */
@@ -605,7 +605,7 @@ _Octetstring_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Out_qualifier_decl =
 {
     /* name */
@@ -622,7 +622,7 @@ _Out_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Override_qualifier_decl =
 {
     /* name */
@@ -639,7 +639,7 @@ _Override_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Propagated_qualifier_decl =
 {
     /* name */
@@ -656,7 +656,7 @@ _Propagated_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _PropertyConstraint_qualifier_decl =
 {
     /* name */
@@ -673,7 +673,7 @@ _PropertyConstraint_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Read_qualifier_decl =
 {
     /* name */
@@ -690,7 +690,7 @@ _Read_qualifier_decl =
     "\001",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Required_qualifier_decl =
 {
     /* name */
@@ -707,7 +707,7 @@ _Required_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Revision_qualifier_decl =
 {
     /* name */
@@ -724,7 +724,7 @@ _Revision_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _CLASS_qualifier_decl =
 {
     /* name */
@@ -741,7 +741,7 @@ _CLASS_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Source_qualifier_decl =
 {
     /* name */
@@ -758,7 +758,7 @@ _Source_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _SourceType_qualifier_decl =
 {
     /* name */
@@ -775,7 +775,7 @@ _SourceType_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Static_qualifier_decl =
 {
     /* name */
@@ -792,7 +792,7 @@ _Static_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Terminal_qualifier_decl =
 {
     /* name */
@@ -809,7 +809,7 @@ _Terminal_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _UMLPackagePath_qualifier_decl =
 {
     /* name */
@@ -826,7 +826,7 @@ _UMLPackagePath_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Units_qualifier_decl =
 {
     /* name */
@@ -843,7 +843,7 @@ _Units_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _ValueMap_qualifier_decl =
 {
     /* name */
@@ -860,7 +860,7 @@ _ValueMap_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Values_qualifier_decl =
 {
     /* name */
@@ -877,7 +877,7 @@ _Values_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Version_qualifier_decl =
 {
     /* name */
@@ -894,7 +894,7 @@ _Version_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Weak_qualifier_decl =
 {
     /* name */
@@ -911,7 +911,7 @@ _Weak_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Write_qualifier_decl =
 {
     /* name */
@@ -928,7 +928,7 @@ _Write_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Alias_qualifier_decl =
 {
     /* name */
@@ -945,7 +945,7 @@ _Alias_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Delete_qualifier_decl =
 {
     /* name */
@@ -962,7 +962,7 @@ _Delete_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Expensive_qualifier_decl =
 {
     /* name */
@@ -979,7 +979,7 @@ _Expensive_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Ifdeleted_qualifier_decl =
 {
     /* name */
@@ -996,7 +996,7 @@ _Ifdeleted_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Invisible_qualifier_decl =
 {
     /* name */
@@ -1013,7 +1013,7 @@ _Invisible_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Large_qualifier_decl =
 {
     /* name */
@@ -1030,7 +1030,7 @@ _Large_qualifier_decl =
     "\000",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _PropertyUsage_qualifier_decl =
 {
     /* name */
@@ -1047,7 +1047,7 @@ _PropertyUsage_qualifier_decl =
     "CurrentContext",
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Provider_qualifier_decl =
 {
     /* name */
@@ -1064,7 +1064,7 @@ _Provider_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _SyntaxType_qualifier_decl =
 {
     /* name */
@@ -1081,7 +1081,7 @@ _SyntaxType_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _Syntax_qualifier_decl =
 {
     /* name */
@@ -1098,7 +1098,7 @@ _Syntax_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _TriggerType_qualifier_decl =
 {
     /* name */
@@ -1115,7 +1115,7 @@ _TriggerType_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _UnknownValues_qualifier_decl =
 {
     /* name */
@@ -1132,7 +1132,7 @@ _UnknownValues_qualifier_decl =
     0,
 };
 
-static SourceQualifierDecl
+static MetaQualifierDecl
 _UnsupportedValues_qualifier_decl =
 {
     /* name */
@@ -1155,12 +1155,12 @@ _UnsupportedValues_qualifier_decl =
 //
 //==============================================================================
 
-extern SourceClass __root_PG_Internal_PG_Authorization;
-extern SourceClass __root_PG_Internal_PG_ConfigSetting;
-extern SourceClass __root_PG_Internal_PG_User;
-extern SourceClass __root_PG_Internal_PG_ShutdownService;
-extern SourceClass __root_PG_Internal_PG_SSLCertificate;
-extern SourceClass __root_PG_Internal_PG_SSLCertificateRevocationList;
+extern MetaClass __root_PG_Internal_PG_Authorization;
+extern MetaClass __root_PG_Internal_PG_ConfigSetting;
+extern MetaClass __root_PG_Internal_PG_User;
+extern MetaClass __root_PG_Internal_PG_ShutdownService;
+extern MetaClass __root_PG_Internal_PG_SSLCertificate;
+extern MetaClass __root_PG_Internal_PG_SSLCertificateRevocationList;
 
 //==============================================================================
 //
@@ -1178,11 +1178,11 @@ _PG_Authorization_Username_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_Authorization_Username =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
     /* name */
     "Username",
     /* qualifiers */
@@ -1205,11 +1205,11 @@ _PG_Authorization_Namespace_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_Authorization_Namespace =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
     /* name */
     "Namespace",
     /* qualifiers */
@@ -1228,11 +1228,11 @@ _PG_Authorization_Authorization_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_Authorization_Authorization =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_READ,
     /* name */
     "Authorization",
     /* qualifiers */
@@ -1245,12 +1245,12 @@ _PG_Authorization_Authorization =
     0,
 };
 
-static SourceFeature*
+static MetaFeature*
 _PG_Authorization_features[] =
 {
-    (SourceFeature*)&_PG_Authorization_Username,
-    (SourceFeature*)&_PG_Authorization_Namespace,
-    (SourceFeature*)&_PG_Authorization_Authorization,
+    (MetaFeature*)&_PG_Authorization_Username,
+    (MetaFeature*)&_PG_Authorization_Namespace,
+    (MetaFeature*)&_PG_Authorization_Authorization,
     0,
 };
 
@@ -1262,11 +1262,11 @@ __root_PG_Internal_PG_Authorization_qualifiers[] =
     0,
 };
 
-SourceClass
+MetaClass
 __root_PG_Internal_PG_Authorization =
 {
     /* flags */
-    PEGASUS_FLAG_CLASS,
+    META_FLAG_CLASS,
     /* name */
     "PG_Authorization",
     /* qualifiers */
@@ -1293,11 +1293,11 @@ _PG_ConfigSetting_PropertyName_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_ConfigSetting_PropertyName =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
     /* name */
     "PropertyName",
     /* qualifiers */
@@ -1316,11 +1316,11 @@ _PG_ConfigSetting_DefaultValue_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_ConfigSetting_DefaultValue =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_READ,
     /* name */
     "DefaultValue",
     /* qualifiers */
@@ -1339,11 +1339,11 @@ _PG_ConfigSetting_CurrentValue_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_ConfigSetting_CurrentValue =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_READ,
     /* name */
     "CurrentValue",
     /* qualifiers */
@@ -1362,11 +1362,11 @@ _PG_ConfigSetting_PlannedValue_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_ConfigSetting_PlannedValue =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_READ,
     /* name */
     "PlannedValue",
     /* qualifiers */
@@ -1385,11 +1385,11 @@ _PG_ConfigSetting_DynamicProperty_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_ConfigSetting_DynamicProperty =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_READ,
     /* name */
     "DynamicProperty",
     /* qualifiers */
@@ -1402,14 +1402,14 @@ _PG_ConfigSetting_DynamicProperty =
     0,
 };
 
-static SourceFeature*
+static MetaFeature*
 _PG_ConfigSetting_features[] =
 {
-    (SourceFeature*)&_PG_ConfigSetting_PropertyName,
-    (SourceFeature*)&_PG_ConfigSetting_DefaultValue,
-    (SourceFeature*)&_PG_ConfigSetting_CurrentValue,
-    (SourceFeature*)&_PG_ConfigSetting_PlannedValue,
-    (SourceFeature*)&_PG_ConfigSetting_DynamicProperty,
+    (MetaFeature*)&_PG_ConfigSetting_PropertyName,
+    (MetaFeature*)&_PG_ConfigSetting_DefaultValue,
+    (MetaFeature*)&_PG_ConfigSetting_CurrentValue,
+    (MetaFeature*)&_PG_ConfigSetting_PlannedValue,
+    (MetaFeature*)&_PG_ConfigSetting_DynamicProperty,
     0,
 };
 
@@ -1421,11 +1421,11 @@ __root_PG_Internal_PG_ConfigSetting_qualifiers[] =
     0,
 };
 
-SourceClass
+MetaClass
 __root_PG_Internal_PG_ConfigSetting =
 {
     /* flags */
-    PEGASUS_FLAG_CLASS,
+    META_FLAG_CLASS,
     /* name */
     "PG_ConfigSetting",
     /* qualifiers */
@@ -1452,11 +1452,11 @@ _PG_User_Username_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_User_Username =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
     /* name */
     "Username",
     /* qualifiers */
@@ -1475,11 +1475,11 @@ _PG_User_Password_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_User_Password =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_READ,
     /* name */
     "Password",
     /* qualifiers */
@@ -1500,11 +1500,11 @@ _PG_User_modifyPassword_oldPassword_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_User_modifyPassword_oldPassword =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
+    META_FLAG_PROPERTY|META_FLAG_IN,
     /* name */
     "oldPassword",
     /* qualifiers */
@@ -1525,11 +1525,11 @@ _PG_User_modifyPassword_newPassword_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_User_modifyPassword_newPassword =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
+    META_FLAG_PROPERTY|META_FLAG_IN,
     /* name */
     "newPassword",
     /* qualifiers */
@@ -1542,11 +1542,11 @@ _PG_User_modifyPassword_newPassword =
     0,
 };
 
-static SourceFeature*
+static MetaFeature*
 _PG_User_modifyPassword_parameters[] =
 {
-    (SourceFeature*)&_PG_User_modifyPassword_oldPassword,
-    (SourceFeature*)&_PG_User_modifyPassword_newPassword,
+    (MetaFeature*)&_PG_User_modifyPassword_oldPassword,
+    (MetaFeature*)&_PG_User_modifyPassword_newPassword,
     0,
 };
 
@@ -1556,11 +1556,11 @@ _PG_User_modifyPassword_qualifiers[] =
     0,
 };
 
-static SourceMethod
+static MetaMethod
 _PG_User_modifyPassword =
 {
     /* flags */
-    PEGASUS_FLAG_METHOD,
+    META_FLAG_METHOD,
     /* name */
     "PG_User",
     /* qualifiers */
@@ -1571,12 +1571,12 @@ _PG_User_modifyPassword =
     _PG_User_modifyPassword_parameters,
 };
 
-static SourceFeature*
+static MetaFeature*
 _PG_User_features[] =
 {
-    (SourceFeature*)&_PG_User_Username,
-    (SourceFeature*)&_PG_User_Password,
-    (SourceFeature*)&_PG_User_modifyPassword,
+    (MetaFeature*)&_PG_User_Username,
+    (MetaFeature*)&_PG_User_Password,
+    (MetaFeature*)&_PG_User_modifyPassword,
     0,
 };
 
@@ -1588,11 +1588,11 @@ __root_PG_Internal_PG_User_qualifiers[] =
     0,
 };
 
-SourceClass
+MetaClass
 __root_PG_Internal_PG_User =
 {
     /* flags */
-    PEGASUS_FLAG_CLASS,
+    META_FLAG_CLASS,
     /* name */
     "PG_User",
     /* qualifiers */
@@ -1617,11 +1617,11 @@ _PG_ShutdownService_shutdown_force_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_ShutdownService_shutdown_force =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
+    META_FLAG_PROPERTY|META_FLAG_IN,
     /* name */
     "force",
     /* qualifiers */
@@ -1642,11 +1642,11 @@ _PG_ShutdownService_shutdown_timeout_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_ShutdownService_shutdown_timeout =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
+    META_FLAG_PROPERTY|META_FLAG_IN,
     /* name */
     "timeout",
     /* qualifiers */
@@ -1659,11 +1659,11 @@ _PG_ShutdownService_shutdown_timeout =
     0,
 };
 
-static SourceFeature*
+static MetaFeature*
 _PG_ShutdownService_shutdown_parameters[] =
 {
-    (SourceFeature*)&_PG_ShutdownService_shutdown_force,
-    (SourceFeature*)&_PG_ShutdownService_shutdown_timeout,
+    (MetaFeature*)&_PG_ShutdownService_shutdown_force,
+    (MetaFeature*)&_PG_ShutdownService_shutdown_timeout,
     0,
 };
 
@@ -1675,11 +1675,11 @@ _PG_ShutdownService_shutdown_qualifiers[] =
     0,
 };
 
-static SourceMethod
+static MetaMethod
 _PG_ShutdownService_shutdown =
 {
     /* flags */
-    PEGASUS_FLAG_METHOD|PEGASUS_FLAG_STATIC,
+    META_FLAG_METHOD|META_FLAG_STATIC,
     /* name */
     "PG_ShutdownService",
     /* qualifiers */
@@ -1690,10 +1690,10 @@ _PG_ShutdownService_shutdown =
     _PG_ShutdownService_shutdown_parameters,
 };
 
-static SourceFeature*
+static MetaFeature*
 _PG_ShutdownService_features[] =
 {
-    (SourceFeature*)&_PG_ShutdownService_shutdown,
+    (MetaFeature*)&_PG_ShutdownService_shutdown,
     0,
 };
 
@@ -1705,11 +1705,11 @@ __root_PG_Internal_PG_ShutdownService_qualifiers[] =
     0,
 };
 
-SourceClass
+MetaClass
 __root_PG_Internal_PG_ShutdownService =
 {
     /* flags */
-    PEGASUS_FLAG_CLASS,
+    META_FLAG_CLASS,
     /* name */
     "PG_ShutdownService",
     /* qualifiers */
@@ -1736,11 +1736,11 @@ _PG_SSLCertificate_IssuerName_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_SSLCertificate_IssuerName =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
     /* name */
     "IssuerName",
     /* qualifiers */
@@ -1763,11 +1763,11 @@ _PG_SSLCertificate_SerialNumber_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_SSLCertificate_SerialNumber =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
     /* name */
     "SerialNumber",
     /* qualifiers */
@@ -1792,11 +1792,11 @@ _PG_SSLCertificate_TruststoreType_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_SSLCertificate_TruststoreType =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
     /* name */
     "TruststoreType",
     /* qualifiers */
@@ -1817,11 +1817,11 @@ _PG_SSLCertificate_SubjectName_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_SSLCertificate_SubjectName =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_READ,
     /* name */
     "SubjectName",
     /* qualifiers */
@@ -1840,11 +1840,11 @@ _PG_SSLCertificate_NotBefore_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_SSLCertificate_NotBefore =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_READ,
     /* name */
     "NotBefore",
     /* qualifiers */
@@ -1863,11 +1863,11 @@ _PG_SSLCertificate_NotAfter_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_SSLCertificate_NotAfter =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_READ,
     /* name */
     "NotAfter",
     /* qualifiers */
@@ -1886,11 +1886,11 @@ _PG_SSLCertificate_TruststorePath_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_SSLCertificate_TruststorePath =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_READ,
     /* name */
     "TruststorePath",
     /* qualifiers */
@@ -1909,11 +1909,11 @@ _PG_SSLCertificate_RegisteredUserName_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_SSLCertificate_RegisteredUserName =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_READ,
     /* name */
     "RegisteredUserName",
     /* qualifiers */
@@ -1936,11 +1936,11 @@ _PG_SSLCertificate_CertificateType_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_SSLCertificate_CertificateType =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_READ,
     /* name */
     "CertificateType",
     /* qualifiers */
@@ -1961,11 +1961,11 @@ _PG_SSLCertificate_addCertificate_certificateContents_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_SSLCertificate_addCertificate_certificateContents =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
+    META_FLAG_PROPERTY|META_FLAG_IN,
     /* name */
     "certificateContents",
     /* qualifiers */
@@ -1986,11 +1986,11 @@ _PG_SSLCertificate_addCertificate_userName_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_SSLCertificate_addCertificate_userName =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
+    META_FLAG_PROPERTY|META_FLAG_IN,
     /* name */
     "userName",
     /* qualifiers */
@@ -2011,11 +2011,11 @@ _PG_SSLCertificate_addCertificate_certificateType_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_SSLCertificate_addCertificate_certificateType =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
+    META_FLAG_PROPERTY|META_FLAG_IN,
     /* name */
     "certificateType",
     /* qualifiers */
@@ -2028,12 +2028,12 @@ _PG_SSLCertificate_addCertificate_certificateType =
     0,
 };
 
-static SourceFeature*
+static MetaFeature*
 _PG_SSLCertificate_addCertificate_parameters[] =
 {
-    (SourceFeature*)&_PG_SSLCertificate_addCertificate_certificateContents,
-    (SourceFeature*)&_PG_SSLCertificate_addCertificate_userName,
-    (SourceFeature*)&_PG_SSLCertificate_addCertificate_certificateType,
+    (MetaFeature*)&_PG_SSLCertificate_addCertificate_certificateContents,
+    (MetaFeature*)&_PG_SSLCertificate_addCertificate_userName,
+    (MetaFeature*)&_PG_SSLCertificate_addCertificate_certificateType,
     0,
 };
 
@@ -2045,11 +2045,11 @@ _PG_SSLCertificate_addCertificate_qualifiers[] =
     0,
 };
 
-static SourceMethod
+static MetaMethod
 _PG_SSLCertificate_addCertificate =
 {
     /* flags */
-    PEGASUS_FLAG_METHOD|PEGASUS_FLAG_STATIC,
+    META_FLAG_METHOD|META_FLAG_STATIC,
     /* name */
     "PG_SSLCertificate",
     /* qualifiers */
@@ -2060,19 +2060,19 @@ _PG_SSLCertificate_addCertificate =
     _PG_SSLCertificate_addCertificate_parameters,
 };
 
-static SourceFeature*
+static MetaFeature*
 _PG_SSLCertificate_features[] =
 {
-    (SourceFeature*)&_PG_SSLCertificate_IssuerName,
-    (SourceFeature*)&_PG_SSLCertificate_SerialNumber,
-    (SourceFeature*)&_PG_SSLCertificate_TruststoreType,
-    (SourceFeature*)&_PG_SSLCertificate_SubjectName,
-    (SourceFeature*)&_PG_SSLCertificate_NotBefore,
-    (SourceFeature*)&_PG_SSLCertificate_NotAfter,
-    (SourceFeature*)&_PG_SSLCertificate_TruststorePath,
-    (SourceFeature*)&_PG_SSLCertificate_RegisteredUserName,
-    (SourceFeature*)&_PG_SSLCertificate_CertificateType,
-    (SourceFeature*)&_PG_SSLCertificate_addCertificate,
+    (MetaFeature*)&_PG_SSLCertificate_IssuerName,
+    (MetaFeature*)&_PG_SSLCertificate_SerialNumber,
+    (MetaFeature*)&_PG_SSLCertificate_TruststoreType,
+    (MetaFeature*)&_PG_SSLCertificate_SubjectName,
+    (MetaFeature*)&_PG_SSLCertificate_NotBefore,
+    (MetaFeature*)&_PG_SSLCertificate_NotAfter,
+    (MetaFeature*)&_PG_SSLCertificate_TruststorePath,
+    (MetaFeature*)&_PG_SSLCertificate_RegisteredUserName,
+    (MetaFeature*)&_PG_SSLCertificate_CertificateType,
+    (MetaFeature*)&_PG_SSLCertificate_addCertificate,
     0,
 };
 
@@ -2084,11 +2084,11 @@ __root_PG_Internal_PG_SSLCertificate_qualifiers[] =
     0,
 };
 
-SourceClass
+MetaClass
 __root_PG_Internal_PG_SSLCertificate =
 {
     /* flags */
-    PEGASUS_FLAG_CLASS,
+    META_FLAG_CLASS,
     /* name */
     "PG_SSLCertificate",
     /* qualifiers */
@@ -2115,11 +2115,11 @@ _PG_SSLCertificateRevocationList_IssuerName_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_SSLCertificateRevocationList_IssuerName =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_KEY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
     /* name */
     "IssuerName",
     /* qualifiers */
@@ -2138,11 +2138,11 @@ _PG_SSLCertificateRevocationList_LastUpdate_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_SSLCertificateRevocationList_LastUpdate =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_READ,
     /* name */
     "LastUpdate",
     /* qualifiers */
@@ -2161,11 +2161,11 @@ _PG_SSLCertificateRevocationList_NextUpdate_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_SSLCertificateRevocationList_NextUpdate =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_READ,
     /* name */
     "NextUpdate",
     /* qualifiers */
@@ -2184,11 +2184,11 @@ _PG_SSLCertificateRevocationList_RevokedSerialNumbers_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_SSLCertificateRevocationList_RevokedSerialNumbers =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_READ,
     /* name */
     "RevokedSerialNumbers",
     /* qualifiers */
@@ -2207,11 +2207,11 @@ _PG_SSLCertificateRevocationList_RevocationDates_qualifiers[] =
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_SSLCertificateRevocationList_RevocationDates =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_READ,
+    META_FLAG_PROPERTY|META_FLAG_READ,
     /* name */
     "RevocationDates",
     /* qualifiers */
@@ -2232,11 +2232,11 @@ _PG_SSLCertificateRevocationList_addCertificateRevocationList_CRLContents_qualif
     0,
 };
 
-static SourceProperty
+static MetaProperty
 _PG_SSLCertificateRevocationList_addCertificateRevocationList_CRLContents =
 {
     /* flags */
-    PEGASUS_FLAG_PROPERTY|PEGASUS_FLAG_IN,
+    META_FLAG_PROPERTY|META_FLAG_IN,
     /* name */
     "CRLContents",
     /* qualifiers */
@@ -2249,10 +2249,10 @@ _PG_SSLCertificateRevocationList_addCertificateRevocationList_CRLContents =
     0,
 };
 
-static SourceFeature*
+static MetaFeature*
 _PG_SSLCertificateRevocationList_addCertificateRevocationList_parameters[] =
 {
-    (SourceFeature*)&_PG_SSLCertificateRevocationList_addCertificateRevocationList_CRLContents,
+    (MetaFeature*)&_PG_SSLCertificateRevocationList_addCertificateRevocationList_CRLContents,
     0,
 };
 
@@ -2264,11 +2264,11 @@ _PG_SSLCertificateRevocationList_addCertificateRevocationList_qualifiers[] =
     0,
 };
 
-static SourceMethod
+static MetaMethod
 _PG_SSLCertificateRevocationList_addCertificateRevocationList =
 {
     /* flags */
-    PEGASUS_FLAG_METHOD|PEGASUS_FLAG_STATIC,
+    META_FLAG_METHOD|META_FLAG_STATIC,
     /* name */
     "PG_SSLCertificateRevocationList",
     /* qualifiers */
@@ -2279,15 +2279,15 @@ _PG_SSLCertificateRevocationList_addCertificateRevocationList =
     _PG_SSLCertificateRevocationList_addCertificateRevocationList_parameters,
 };
 
-static SourceFeature*
+static MetaFeature*
 _PG_SSLCertificateRevocationList_features[] =
 {
-    (SourceFeature*)&_PG_SSLCertificateRevocationList_IssuerName,
-    (SourceFeature*)&_PG_SSLCertificateRevocationList_LastUpdate,
-    (SourceFeature*)&_PG_SSLCertificateRevocationList_NextUpdate,
-    (SourceFeature*)&_PG_SSLCertificateRevocationList_RevokedSerialNumbers,
-    (SourceFeature*)&_PG_SSLCertificateRevocationList_RevocationDates,
-    (SourceFeature*)&_PG_SSLCertificateRevocationList_addCertificateRevocationList,
+    (MetaFeature*)&_PG_SSLCertificateRevocationList_IssuerName,
+    (MetaFeature*)&_PG_SSLCertificateRevocationList_LastUpdate,
+    (MetaFeature*)&_PG_SSLCertificateRevocationList_NextUpdate,
+    (MetaFeature*)&_PG_SSLCertificateRevocationList_RevokedSerialNumbers,
+    (MetaFeature*)&_PG_SSLCertificateRevocationList_RevocationDates,
+    (MetaFeature*)&_PG_SSLCertificateRevocationList_addCertificateRevocationList,
     0,
 };
 
@@ -2299,11 +2299,11 @@ __root_PG_Internal_PG_SSLCertificateRevocationList_qualifiers[] =
     0,
 };
 
-SourceClass
+MetaClass
 __root_PG_Internal_PG_SSLCertificateRevocationList =
 {
     /* flags */
-    PEGASUS_FLAG_CLASS,
+    META_FLAG_CLASS,
     /* name */
     "PG_SSLCertificateRevocationList",
     /* qualifiers */
@@ -2320,7 +2320,7 @@ __root_PG_Internal_PG_SSLCertificateRevocationList =
 //
 //==============================================================================
 
-static SourceQualifierDecl*
+static MetaQualifierDecl*
 _qualifiers[] =
 {
     &_ASSOCIATION_qualifier_decl,
@@ -2399,7 +2399,7 @@ _qualifiers[] =
 //
 //==============================================================================
 
-static SourceClass*
+static MetaClass*
 _classes[] =
 {
     &__root_PG_Internal_PG_Authorization,
@@ -2411,7 +2411,7 @@ _classes[] =
     0,
 };
 
-const SourceNameSpace root_PG_Internal_namespace =
+const MetaNameSpace root_PG_Internal_namespace =
 {
     "root/PG_Internal",
     _qualifiers,

@@ -122,7 +122,7 @@ compress:
 	make PEGASUS_ENABLE_COMPRESSED_REPOSITORY=1
 
 SCHEMAS=$(PEGASUS_ROOT)/Schemas
-CIMMOFL=$(PEGASUS_HOME)/bin/cimmofl -W -d -s
+CIMMOFL=$(PEGASUS_HOME)/bin/cimmofl -W -d -m
 
 rep:
 	@ $(CIMMOFL) -n root/PG_Internal -I $(SCHEMAS) root_PG_Internal.mof

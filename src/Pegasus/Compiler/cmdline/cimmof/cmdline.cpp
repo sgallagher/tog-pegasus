@@ -255,11 +255,11 @@ ostream & help(ostream &os, int progtype)
     if (progtype == 1)
     {
         help.append(
-        "    -s                  - Generate compilable C++ source code rather\n"
-        "                          than disk files. The generated C++ source\n"
-        "                          file contains meta class and meta\n"
-        "                          qualifier definitions, which are used\n"
-        "                          to build read-only repositories.\n");
+        "    -m                  - Generate C++ meta definitions rather than\n"
+        "                          disk files. The generated C++ source code\n"
+        "                          contains meta-class and meta-qualifier\n"
+        "                          definitions, which are compiled to form\n"
+        "                          an in-memory read-only repository.\n");
         help.append(
         "    -d                  - Discard description qualifiers from source\n"
         "                          code repository to conserve space.\n");
@@ -349,7 +349,7 @@ static struct optspec optspecs[] =
 #ifdef PEGASUS_OS_PASE
     {(char*)"q", QUIETFLAG, false, getoopt::NOARG},
 #endif
-    {(char*)"s", SOURCEFLAG, false, getoopt::NOARG},
+    {(char*)"m", METAFLAG, false, getoopt::NOARG},
     {(char*)"d", DISCARDFLAG, false, getoopt::NOARG},
     {(char*)"", OPTEND_CIMMOF, false, getoopt::NOARG},
     {(char*)"R", REPOSITORYDIR, false, getoopt::MUSTHAVEARG},
@@ -711,9 +711,9 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                 break;
             }
 #endif
-            case SOURCEFLAG:
+            case METAFLAG:
             {
-                cmdlinedata.set_source();
+                cmdlinedata.set_meta();
                 break;
             }
 

@@ -36,13 +36,12 @@
 #include "MetaRepository.h"
 #include <Pegasus/Common/System.h>
 
-/*
-ATTN-MEB: take these out!
-*/
-#if 0
-#include "root_cimv2_namespace.h"
-#include "root_PG_Internal_namespace.h"
-#include "root_PG_InterOp_namespace.h"
+#define TEST_META_REPOSITORY
+
+#if defined(TEST_META_REPOSITORY)
+# include "root_cimv2_namespace.h"
+# include "root_PG_Internal_namespace.h"
+# include "root_PG_InterOp_namespace.h"
 #endif 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -54,10 +53,7 @@ static size_t _nameSpacesSize = 0;
 static const size_t _MAX_FEATURES = 1024;
 static const size_t _MAX_QUALIFIERS = 1024;
 
-#if 0
-/*
-ATTN-MEB: take this out!
-*/
+#if defined(TEST_META_REPOSITORY)
 static void _init()
 {
     if (_nameSpacesSize == 0)
@@ -1236,7 +1232,7 @@ Array<CIMClass> MetaRepository::enumerateClasses(
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
 {
-#if 0
+#if defined(TEST_META_REPOSITORY)
     _init();
 #endif
 

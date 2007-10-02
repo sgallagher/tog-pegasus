@@ -38,6 +38,12 @@ EXTRA_INCLUDES = -I..
 
 LOCAL_DEFINES = -DPEGASUS_REPOSITORY_INTERNAL -DPEGASUS_INTERNALONLY
 
+ifdef PEGASUS_USE_META_REPOSITORY
+    LOCAL_DEFINES += -DPEGASUS_USE_META_REPOSITORY
+endif
+
+LOCAL_DEFINES += -DPEGASUS_USE_META_REPOSITORY
+
 LIBRARIES = pegcommon pegquerycommon pegconfig
 
 ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
@@ -109,7 +115,7 @@ SOURCES = \
     RepositoryQueryContext.cpp \
     MetaRepository.cpp
 
-XSOURCES += \
+SOURCES += \
     root_cimv2_namespace.cpp \
     root_PG_InterOp_namespace.cpp \
     root_PG_Internal_namespace.cpp

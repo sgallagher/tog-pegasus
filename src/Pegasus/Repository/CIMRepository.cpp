@@ -2235,10 +2235,12 @@ Array<CIMClass> CIMRepository::enumerateClasses(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateClasses");
 
-#if 0
+#if defined(PEGASUS_USE_META_REPOSITORY)
+
     return MetaRepository::enumerateClasses(nameSpace, className, 
         deepInheritance, localOnly, includeQualifiers, includeClassOrigin);
-#endif
+
+#else /* PEGASUS_USE_META_REPOSITORY */
 
     ReadLock lock(_lock);
 
@@ -2257,6 +2259,8 @@ Array<CIMClass> CIMRepository::enumerateClasses(
 
     PEG_METHOD_EXIT();
     return result;
+
+#endif /* PEGASUS_USE_META_REPOSITORY */
 }
 
 Array<CIMName> CIMRepository::enumerateClassNames(

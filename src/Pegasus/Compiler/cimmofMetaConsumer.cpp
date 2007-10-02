@@ -1161,23 +1161,23 @@ void cimmofMetaConsumer::_writeQualifierDecl(const CIMConstQualifierDecl& cq)
         Array<String> scopes;
 
         if (scope.hasScope(CIMScope::ANY))
-            scopes.append("PEGASUS_SCOPE_ANY");
+            scopes.append("META_SCOPE_ANY");
         else
         {
             if (scope.hasScope(CIMScope::CLASS))
-                scopes.append("PEGASUS_SCOPE_CLASS");
+                scopes.append("META_SCOPE_CLASS");
             if (scope.hasScope(CIMScope::ASSOCIATION))
-                scopes.append("PEGASUS_SCOPE_ASSOCIATION");
+                scopes.append("META_SCOPE_ASSOCIATION");
             if (scope.hasScope(CIMScope::INDICATION))
-                scopes.append("PEGASUS_SCOPE_INDICATION");
+                scopes.append("META_SCOPE_INDICATION");
             if (scope.hasScope(CIMScope::PROPERTY))
-                scopes.append("PEGASUS_SCOPE_PROPERTY");
+                scopes.append("META_SCOPE_PROPERTY");
             if (scope.hasScope(CIMScope::REFERENCE))
-                scopes.append("PEGASUS_SCOPE_REFERENCE");
+                scopes.append("META_SCOPE_REFERENCE");
             if (scope.hasScope(CIMScope::METHOD))
-                scopes.append("PEGASUS_SCOPE_METHOD");
+                scopes.append("META_SCOPE_METHOD");
             if (scope.hasScope(CIMScope::PARAMETER))
-                scopes.append("PEGASUS_SCOPE_PARAMETER");
+                scopes.append("META_SCOPE_PARAMETER");
         }
 
         _out("    ");
@@ -1201,17 +1201,17 @@ void cimmofMetaConsumer::_writeQualifierDecl(const CIMConstQualifierDecl& cq)
         Array<String> flavors;
 
         if (flavor.hasFlavor(CIMFlavor::OVERRIDABLE))
-            flavors.append("PEGASUS_FLAVOR_OVERRIDABLE");
+            flavors.append("META_FLAVOR_OVERRIDABLE");
         if (flavor.hasFlavor(CIMFlavor::TOSUBCLASS))
-            flavors.append("PEGASUS_FLAVOR_TOSUBCLASS");
+            flavors.append("META_FLAVOR_TOSUBCLASS");
         if (flavor.hasFlavor(CIMFlavor::TOINSTANCE))
-            flavors.append("PEGASUS_FLAVOR_TOINSTANCE");
+            flavors.append("META_FLAVOR_TOINSTANCE");
         if (flavor.hasFlavor(CIMFlavor::TRANSLATABLE))
-            flavors.append("PEGASUS_FLAVOR_TRANSLATABLE");
+            flavors.append("META_FLAVOR_TRANSLATABLE");
         if (flavor.hasFlavor(CIMFlavor::DISABLEOVERRIDE))
-            flavors.append("PEGASUS_FLAVOR_DISABLEOVERRIDE");
+            flavors.append("META_FLAVOR_DISABLEOVERRIDE");
         if (flavor.hasFlavor(CIMFlavor::RESTRICTED))
-            flavors.append("PEGASUS_FLAVOR_RESTRICTED");
+            flavors.append("META_FLAVOR_RESTRICTED");
 
         _out("    ");
 

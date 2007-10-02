@@ -36,6 +36,8 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMClass.h>
+#include <Pegasus/Common/CIMQualifierDecl.h>
+#include <Pegasus/Common/HashTable.h>
 #include "Linkage.h"
 #include "MetaTypes.h"
 
@@ -45,11 +47,10 @@ class PEGASUS_REPOSITORY_LINKAGE MetaRepository
 {
 public:
 
-    MetaRepository();
+    typedef HashTable <String, String, EqualNoCaseFunc, HashLowerCaseFunc>
+        NameSpaceAttributes;
 
-    ~MetaRepository();
-
-    static bool addNameSpace(const MetaNameSpace* nameSpace);
+    // Class operations:
 
     static CIMClass getClass(
         const CIMNamespaceName& nameSpace,
@@ -83,6 +84,66 @@ public:
     static void modifyClass(
         const CIMNamespaceName& nameSpace,
         const CIMClass& modifiedClass);
+
+    static void getSubClassNames(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        Boolean deepInheritance,
+        Array<CIMName>& subClassNames);
+
+    static void getSuperClassNames(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        Array<CIMName>& superClassNames);
+
+    // Namespace operations:
+
+    static bool addNameSpace(
+        const MetaNameSpace* nameSpace);
+
+    static void createNameSpace(
+        const CIMNamespaceName& nameSpace,
+        const NameSpaceAttributes& attributes);
+
+    static void modifyNameSpace(
+        const CIMNamespaceName& nameSpace,
+        const NameSpaceAttributes& attributes);
+
+    static Array<CIMNamespaceName> enumerateNameSpaces();
+
+    static void deleteNameSpace(
+        const CIMNamespaceName& nameSpace);
+
+    static Boolean getNameSpaceAttributes(
+        const CIMNamespaceName& nameSpace,
+        NameSpaceAttributes& attributes);
+
+    static Boolean isRemoteNameSpace(
+        const CIMNamespaceName& nameSpace,
+        String& remoteInfo);
+
+    // Qualifier operations:
+
+    static CIMQualifierDecl getQualifier(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& qualifierName);
+
+    static void setQualifier(
+        const CIMNamespaceName& nameSpace,
+        const CIMQualifierDecl& qualifierDecl);
+
+    static void deleteQualifier(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& qualifierName);
+
+    static Array<CIMQualifierDecl> enumerateQualifiers(
+        const CIMNamespaceName& nameSpace);
+
+private:
+
+    MetaRepository();
+
+    ~MetaRepository();
 };
 
 PEGASUS_NAMESPACE_END

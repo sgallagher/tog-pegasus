@@ -53,17 +53,17 @@ static size_t _nameSpacesSize = 0;
 static const size_t _MAX_FEATURES = 1024;
 static const size_t _MAX_QUALIFIERS = 1024;
 
-#if defined(TEST_META_REPOSITORY)
-static void _init()
+static inline void _init()
 {
+#if defined(TEST_META_REPOSITORY)
     if (_nameSpacesSize == 0)
     {
         MetaRepository::addNameSpace(&root_PG_InterOp_namespace);
         MetaRepository::addNameSpace(&root_cimv2_namespace);
         MetaRepository::addNameSpace(&root_PG_Internal_namespace);
     }
-}
 #endif
+}
 
 static bool _eqi(const char* s1, const char* s2)
 {
@@ -146,6 +146,22 @@ static const MetaClass* _findClass(
 
         if (_eqi(mc->name, name))
             return mc;
+    }
+
+    // Not found!
+    return 0;
+}
+
+static const MetaQualifierDecl* _findQualifierDecl(
+    const MetaNameSpace* ns, 
+    const char* name)
+{
+    for (size_t i = 0; ns->classes[i]; i++)
+    {
+        const MetaQualifierDecl* mqd = ns->qualifiers[i];
+
+        if (_eqi(mqd->name, name))
+            return mqd;
     }
 
     // Not found!
@@ -1287,6 +1303,71 @@ static void _printPropertyList(const char* const* pl)
         printf("pl[%s]\n", pl[i]);
 }
 
+static int _makeQualifierDecl(
+    const MetaNameSpace* ns,
+    const MetaQualifierDecl* mqd,
+    CIMQualifierDecl& cqd)
+{
+    // Value:
+
+    CIMValue cv;
+
+    if (_makeValue(cv, mqd->type, mqd->subscript, mqd->value) != 0)
+    {
+        printf("T[%u]\n", __LINE__);
+        return -1;
+    }
+
+    // Scope:
+
+    CIMScope scope;
+
+    if (mqd->scope & META_SCOPE_CLASS)
+        scope.addScope(CIMScope::CLASS);
+    if (mqd->scope & META_SCOPE_ASSOCIATION)
+        scope.addScope(CIMScope::ASSOCIATION);
+    if (mqd->scope & META_SCOPE_INDICATION)
+        scope.addScope(CIMScope::INDICATION);
+    if (mqd->scope & META_SCOPE_PROPERTY)
+        scope.addScope(CIMScope::PROPERTY);
+    if (mqd->scope & META_SCOPE_REFERENCE)
+        scope.addScope(CIMScope::REFERENCE);
+    if (mqd->scope & META_SCOPE_METHOD)
+        scope.addScope(CIMScope::METHOD);
+    if (mqd->scope & META_SCOPE_PARAMETER);
+        scope.addScope(CIMScope::PARAMETER);
+
+    // Flavor:
+
+    CIMFlavor flavor;
+
+    if (mqd->flavor & META_FLAVOR_OVERRIDABLE)
+        flavor.addFlavor(CIMFlavor::OVERRIDABLE);
+    if (mqd->flavor & META_FLAVOR_TOSUBCLASS)
+        flavor.addFlavor(CIMFlavor::TOSUBCLASS);
+    if (mqd->flavor & META_FLAVOR_TOINSTANCE)
+        flavor.addFlavor(CIMFlavor::TOINSTANCE);
+    if (mqd->flavor & META_FLAVOR_TRANSLATABLE)
+        flavor.addFlavor(CIMFlavor::TRANSLATABLE);
+    if (mqd->flavor & META_FLAVOR_DISABLEOVERRIDE)
+        flavor.addFlavor(CIMFlavor::DISABLEOVERRIDE);
+    if (mqd->flavor & META_FLAVOR_RESTRICTED)
+        flavor.addFlavor(CIMFlavor::RESTRICTED);
+
+    // Array size:
+
+    Uint32 arraySize;
+
+    if (mqd->subscript == -1)
+        arraySize = 0;
+    else
+        arraySize = mqd->subscript;
+
+    cqd = CIMQualifierDecl(mqd->name, cv, scope, flavor, arraySize);
+
+    return 0;
+}
+
 //==============================================================================
 //
 // class MetaRepository
@@ -1325,12 +1406,7 @@ CIMClass MetaRepository::getClass(
     const CIMPropertyList& propertyList)
 {
     printf("===== MetaRepository::getClass()\n");
-
-    // ATTN-MEB: propertyList ignored!
-
-#if defined(TEST_META_REPOSITORY)
     _init();
-#endif
 
     // Lookup namespace:
 
@@ -1374,10 +1450,7 @@ Array<CIMClass> MetaRepository::enumerateClasses(
     Boolean includeClassOrigin)
 {
     printf("===== MetaRepository::enumerateClasses()\n");
-
-#if defined(TEST_META_REPOSITORY)
     _init();
-#endif
 
     // Lookup namespace:
 
@@ -1442,10 +1515,7 @@ Array<CIMName> MetaRepository::enumerateClassNames(
     Boolean deepInheritance)
 {
     printf("===== MetaRepository::enumerateClassNames()\n");
-
-#if defined(TEST_META_REPOSITORY)
     _init();
-#endif
 
     // Lookup namespace:
 
@@ -1508,6 +1578,193 @@ void MetaRepository::modifyClass(
     const CIMClass& newClass)
 {
     _throw(CIM_ERR_NOT_SUPPORTED, "modifyClass()");
+}
+
+void MetaRepository::getSubClassNames(
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    Boolean deepInheritance,
+    Array<CIMName>& subClassNames)
+{
+    printf("===== MetaRepository::getSubClassNames()\n");
+    _init();
+
+    subClassNames = MetaRepository::enumerateClassNames(
+        nameSpace, className, deepInheritance);
+}
+
+void MetaRepository::getSuperClassNames(
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    Array<CIMName>& superClassNames)
+{
+    printf("===== MetaRepository::getSuperClassNames()\n");
+    _init();
+
+    superClassNames.clear();
+
+    // Lookup namespace:
+
+    const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
+
+    if (!ns)
+        _throw(CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace));
+
+    // Lookup class:
+
+    const MetaClass* mc = _findClass(ns, *Str(className));
+    
+    if (!mc)
+        _throw(CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className));
+
+    // Append superclass names:
+
+    for (const MetaClass* p = mc->super; p; p = p->super)
+        superClassNames.append(p->name);
+}
+
+void MetaRepository::createNameSpace(
+    const CIMNamespaceName& nameSpace,
+    const NameSpaceAttributes& attributes)
+{
+    printf("===== MetaRepository::createNameSpace()\n");
+
+    _throw(CIM_ERR_NOT_SUPPORTED, "createNameSpace()");
+}
+
+void MetaRepository::modifyNameSpace(
+    const CIMNamespaceName& nameSpace,
+    const NameSpaceAttributes& attributes)
+{
+    printf("===== MetaRepository::modifyNameSpace()\n");
+
+    _throw(CIM_ERR_NOT_SUPPORTED, "modifyNameSpace()");
+}
+
+Array<CIMNamespaceName> MetaRepository::enumerateNameSpaces()
+{
+    printf("===== MetaRepository::enumerateNameSpaces()\n");
+    _init();
+
+    Array<CIMNamespaceName> nameSpaces;
+
+    for (size_t i = 0; i < _nameSpacesSize; i++)
+        nameSpaces.append(_nameSpaces[i]->name);
+
+    return Array<CIMNamespaceName>();
+}
+
+void MetaRepository::deleteNameSpace(
+    const CIMNamespaceName& nameSpace)
+{
+    printf("===== MetaRepository::deleteNameSpace()\n");
+
+    _throw(CIM_ERR_NOT_SUPPORTED, "deleteNameSpace()");
+}
+
+Boolean MetaRepository::getNameSpaceAttributes(
+    const CIMNamespaceName& nameSpace,
+    NameSpaceAttributes& attributes)
+{
+    printf("===== MetaRepository::getNameSpaceAttributes()\n");
+
+    _throw(CIM_ERR_NOT_SUPPORTED, "getNameSpaceAttributes()");
+
+    return false;
+}
+
+Boolean MetaRepository::isRemoteNameSpace(
+    const CIMNamespaceName& nameSpace,
+    String& remoteInfo)
+{
+    printf("===== MetaRepository::isRemoteNameSpace()\n");
+
+    return false;
+}
+
+CIMQualifierDecl MetaRepository::getQualifier(
+    const CIMNamespaceName& nameSpace,
+    const CIMName& qualifierName)
+{
+    printf("===== MetaRepository::getQualifier()\n");
+    _init();
+
+    // Lookup namespace:
+
+    const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
+
+    if (!ns)
+        _throw(CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace));
+
+    // Lookup qualifier:
+
+    const MetaQualifierDecl* mqd = _findQualifierDecl(ns, *Str(qualifierName));
+    
+    if (!mqd)
+        _throw(CIM_ERR_NOT_FOUND, "unknown qualifier: %s", *Str(qualifierName));
+
+    // Make the qualifier declaration:
+
+    CIMQualifierDecl cqd;
+
+    if (_makeQualifierDecl(ns, mqd, cqd) != 0)
+    {
+        _throw(CIM_ERR_FAILED, "conversion failed: %s", mqd->name);
+    }
+
+    return cqd;
+}
+
+void MetaRepository::setQualifier(
+    const CIMNamespaceName& nameSpace,
+    const CIMQualifierDecl& qualifierDecl)
+{
+    printf("===== MetaRepository::setQualifier()\n");
+
+    _throw(CIM_ERR_NOT_SUPPORTED, "setQualifier()");
+
+}
+
+void MetaRepository::deleteQualifier(
+    const CIMNamespaceName& nameSpace,
+    const CIMName& qualifierName)
+{
+    printf("===== MetaRepository::deleteQualifier()\n");
+
+    _throw(CIM_ERR_NOT_SUPPORTED, "deleteQualifier()");
+}
+
+Array<CIMQualifierDecl> MetaRepository::enumerateQualifiers(
+    const CIMNamespaceName& nameSpace)
+{
+    printf("===== MetaRepository::enumerateQualifiers()\n");
+    _init();
+
+    // Lookup namespace:
+
+    const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
+
+    if (!ns)
+        _throw(CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace));
+
+    // Build the array of qualifier declarations:
+
+    Array<CIMQualifierDecl> result;
+
+    for (size_t i = 0; ns->qualifiers[i]; i++)
+    {
+        const MetaQualifierDecl* mqd = ns->qualifiers[i];
+        CIMQualifierDecl cqd;
+
+        if (_makeQualifierDecl(ns, mqd, cqd) != 0)
+        {
+            _throw(CIM_ERR_FAILED, "conversion failed: %s", mqd->name);
+        }
+
+        result.append(cqd);
+    }
+
+    return result;
 }
 
 PEGASUS_NAMESPACE_END

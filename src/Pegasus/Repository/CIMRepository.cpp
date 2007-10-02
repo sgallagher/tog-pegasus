@@ -903,14 +903,14 @@ CIMClass CIMRepository::getClass(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::getClass");
-
 #if defined(PEGASUS_USE_META_REPOSITORY)
 
     return MetaRepository::getClass(nameSpace, className, 
         localOnly, includeQualifiers, includeClassOrigin, propertyList);
 
 #else /* PEGASUS_USE_META_REPOSITORY */
+
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::getClass");
 
     ReadLock lock(_lock);
     CIMClass cimClass = _getClass(nameSpace,
@@ -1213,6 +1213,12 @@ void CIMRepository::deleteClass(
     const CIMNamespaceName& nameSpace,
     const CIMName& className)
 {
+#if defined(PEGASUS_USE_META_REPOSITORY)
+
+    return MetaRepository::deleteClass(nameSpace, className);
+
+#else /* PEGASUS_USE_META_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY,"CIMRepository::deleteClass");
 
     WriteLock lock(_lock);
@@ -1230,12 +1236,12 @@ void CIMRepository::deleteClass(
     // Delete the class. The NameSpaceManager::deleteClass() method throws
     // an exception if the class has subclasses.
     //
-#ifdef PEGASUS_USE_CLASS_CACHE
+# ifdef PEGASUS_USE_CLASS_CACHE
 
     _classCache.evict(_nameSpaceManager.getClassFilePath(
         nameSpace, className, NameSpaceRead));
 
-#endif /* PEGASUS_USE_CLASS_CACHE */
+# endif /* PEGASUS_USE_CLASS_CACHE */
 
     _nameSpaceManager.deleteClass(nameSpace, className);
 
@@ -1253,6 +1259,8 @@ void CIMRepository::deleteClass(
     }
 
     PEG_METHOD_EXIT();
+
+#endif /* PEGASUS_USE_META_REPOSITORY */
 }
 
 void _CompactInstanceRepository(
@@ -1464,6 +1472,12 @@ void CIMRepository::createClass(
     const CIMClass& newClass,
     const ContentLanguageList& contentLangs)
 {
+#if defined(PEGASUS_USE_META_REPOSITORY)
+
+    return MetaRepository::createClass(nameSpace, newClass);
+
+#else /* PEGASUS_USE_META_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createClass");
 
     WriteLock lock(_lock);
@@ -1471,6 +1485,8 @@ void CIMRepository::createClass(
     _createClass(nameSpace, newClass);
 
     PEG_METHOD_EXIT();
+
+#endif /* PEGASUS_USE_META_REPOSITORY */
 }
 
 void CIMRepository::_createClass(
@@ -1796,6 +1812,12 @@ void CIMRepository::modifyClass(
     const CIMClass& modifiedClass,
     const ContentLanguageList& contentLangs)
 {
+#if defined(PEGASUS_USE_META_REPOSITORY)
+
+    return MetaRepository::modifyClass(nameSpace, modifiedClass);
+
+#else /* PEGASUS_USE_META_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyClass");
 
     WriteLock lock(_lock);
@@ -1803,6 +1825,8 @@ void CIMRepository::modifyClass(
     _modifyClass(nameSpace, modifiedClass);
 
     PEG_METHOD_EXIT();
+
+#endif /* PEGASUS_USE_META_REPOSITORY */
 }
 
 void CIMRepository::_modifyClass(
@@ -2242,14 +2266,14 @@ Array<CIMClass> CIMRepository::enumerateClasses(
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateClasses");
-
 #if defined(PEGASUS_USE_META_REPOSITORY)
 
     return MetaRepository::enumerateClasses(nameSpace, className, 
         deepInheritance, localOnly, includeQualifiers, includeClassOrigin);
 
 #else /* PEGASUS_USE_META_REPOSITORY */
+
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateClasses");
 
     ReadLock lock(_lock);
 
@@ -2277,14 +2301,14 @@ Array<CIMName> CIMRepository::enumerateClassNames(
     const CIMName& className,
     Boolean deepInheritance)
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateClassNames");
-
 #if defined(PEGASUS_USE_META_REPOSITORY)
 
     return MetaRepository::enumerateClassNames(
         nameSpace, className, deepInheritance);
 
 #else /* PEGASUS_USE_META_REPOSITORY */
+
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateClassNames");
 
     ReadLock lock(_lock);
 
@@ -3035,6 +3059,12 @@ CIMQualifierDecl CIMRepository::getQualifier(
     const CIMNamespaceName& nameSpace,
     const CIMName& qualifierName)
 {
+#if defined(PEGASUS_USE_META_REPOSITORY)
+
+    return MetaRepository::getQualifier(nameSpace, qualifierName);
+
+#else /* PEGASUS_USE_META_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::getQualifier");
 
     ReadLock lock(_lock);
@@ -3042,6 +3072,8 @@ CIMQualifierDecl CIMRepository::getQualifier(
 
     PEG_METHOD_EXIT();
     return qualifierDecl;
+
+#endif /* PEGASUS_USE_META_REPOSITORY */
 }
 
 CIMQualifierDecl CIMRepository::_getQualifier(
@@ -3094,6 +3126,12 @@ void CIMRepository::setQualifier(
     const CIMQualifierDecl& qualifierDecl,
     const ContentLanguageList& contentLangs)
 {
+#if defined(PEGASUS_USE_META_REPOSITORY)
+
+    MetaRepository::setQualifier(nameSpace, qualifierDecl);
+
+#else /* PEGASUS_USE_META_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::setQualifier");
 
     WriteLock lock(_lock);
@@ -3101,6 +3139,8 @@ void CIMRepository::setQualifier(
     _setQualifier(nameSpace, qualifierDecl);
 
     PEG_METHOD_EXIT();
+
+#endif /* PEGASUS_USE_META_REPOSITORY */
 }
 
 void CIMRepository::_setQualifier(
@@ -3139,6 +3179,12 @@ void CIMRepository::deleteQualifier(
     const CIMNamespaceName& nameSpace,
     const CIMName& qualifierName)
 {
+#if defined(PEGASUS_USE_META_REPOSITORY)
+
+    MetaRepository::deleteQualifier(nameSpace, qualifierName);
+
+#else /* PEGASUS_USE_META_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::deleteQualifier");
 
     WriteLock lock(_lock);
@@ -3161,11 +3207,19 @@ void CIMRepository::deleteQualifier(
     _qualifierCache.evict(qualifierFilePath);
 
     PEG_METHOD_EXIT();
+
+#endif /* PEGASUS_USE_META_REPOSITORY */
 }
 
 Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
     const CIMNamespaceName& nameSpace)
 {
+#if defined(PEGASUS_USE_META_REPOSITORY)
+
+    return MetaRepository::enumerateQualifiers(nameSpace);
+
+#else /* PEGASUS_USE_META_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateQualifiers");
 
     ReadLock lock(_lock);
@@ -3188,24 +3242,32 @@ Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
 
     for (Uint32 i = 0; i < qualifierNames.size(); i++)
     {
-#ifdef PEGASUS_REPOSITORY_ESCAPE_UTF8
+# ifdef PEGASUS_REPOSITORY_ESCAPE_UTF8
     // All chars above 0x7F will be escape.
       CIMQualifierDecl qualifier =
             _getQualifier(nameSpace, escapeStringDecoder(qualifierNames[i]));
-#else
+# else
       CIMQualifierDecl qualifier =
             _getQualifier(nameSpace, qualifierNames[i]);
-#endif
+# endif
       qualifiers.append(qualifier);
     }
 
     PEG_METHOD_EXIT();
     return qualifiers;
+
+#endif /* PEGASUS_USE_META_REPOSITORY */
 }
 
 void CIMRepository::createNameSpace(const CIMNamespaceName& nameSpace,
         const NameSpaceAttributes& attributes)
 {
+#if defined(PEGASUS_USE_META_REPOSITORY)
+
+    return MetaRepository::createNameSpace(nameSpace, attributes);
+
+#else /* PEGASUS_USE_META_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createNameSpace");
 
     WriteLock lock(_lock);
@@ -3213,11 +3275,19 @@ void CIMRepository::createNameSpace(const CIMNamespaceName& nameSpace,
     _nameSpaceManager.createNameSpace(nameSpace, attributes);
 
     PEG_METHOD_EXIT();
+
+#endif /* PEGASUS_USE_META_REPOSITORY */
 }
 
 void CIMRepository::modifyNameSpace(const CIMNamespaceName& nameSpace,
         const NameSpaceAttributes& attributes)
 {
+#if defined(PEGASUS_USE_META_REPOSITORY)
+
+    return MetaRepository::modifyNameSpace(nameSpace, attributes);
+
+#else /* PEGASUS_USE_META_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyNameSpace");
 
     WriteLock lock(_lock);
@@ -3225,10 +3295,18 @@ void CIMRepository::modifyNameSpace(const CIMNamespaceName& nameSpace,
     _nameSpaceManager.modifyNameSpace(nameSpace, attributes);
 
     PEG_METHOD_EXIT();
+
+#endif /* PEGASUS_USE_META_REPOSITORY */
 }
 
 Array<CIMNamespaceName> CIMRepository::enumerateNameSpaces() const
 {
+#if defined(PEGASUS_USE_META_REPOSITORY)
+
+    return MetaRepository::enumerateNameSpaces();
+
+#else /* PEGASUS_USE_META_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateNameSpaces");
 
     ReadLock lock(const_cast<ReadWriteSem&>(_lock));
@@ -3238,10 +3316,18 @@ Array<CIMNamespaceName> CIMRepository::enumerateNameSpaces() const
 
     PEG_METHOD_EXIT();
     return nameSpaceNames;
+
+#endif /* PEGASUS_USE_META_REPOSITORY */
 }
 
 void CIMRepository::deleteNameSpace(const CIMNamespaceName& nameSpace)
 {
+#if defined(PEGASUS_USE_META_REPOSITORY)
+
+    MetaRepository::deleteNameSpace(nameSpace);
+
+#else /* PEGASUS_USE_META_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::deleteNameSpace");
 
     WriteLock lock(_lock);
@@ -3249,26 +3335,44 @@ void CIMRepository::deleteNameSpace(const CIMNamespaceName& nameSpace)
     _nameSpaceManager.deleteNameSpace(nameSpace);
 
     PEG_METHOD_EXIT();
+
+#endif /* PEGASUS_USE_META_REPOSITORY */
 }
 
 Boolean CIMRepository::getNameSpaceAttributes(const CIMNamespaceName& nameSpace,
         NameSpaceAttributes& attributes)
 {
+#if defined(PEGASUS_USE_META_REPOSITORY)
+
+    return MetaRepository::getNameSpaceAttributes(nameSpace, attributes);
+
+#else /* PEGASUS_USE_META_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::deleteNameSpace");
 
     ReadLock lock(const_cast<ReadWriteSem&>(_lock));
     attributes.clear();
     PEG_METHOD_EXIT();
     return _nameSpaceManager.getNameSpaceAttributes(nameSpace, attributes);
+
+#endif /* PEGASUS_USE_META_REPOSITORY */
 }
 
 Boolean CIMRepository::isRemoteNameSpace(const CIMNamespaceName& nameSpaceName,
         String& remoteInfo)
 {
+#if defined(PEGASUS_USE_META_REPOSITORY)
+
+    return MetaRepository::isRemoteNameSpace(nameSpaceName, remoteInfo);
+
+#else /* PEGASUS_USE_META_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::isRemoteNamespace");
     ReadLock lock(const_cast<ReadWriteSem&>(_lock));
     PEG_METHOD_EXIT();
     return _nameSpaceManager.isRemoteNameSpace(nameSpaceName, remoteInfo);
+
+#endif /* PEGASUS_USE_META_REPOSITORY */
 }
 
 //----------------------------------------------------------------------
@@ -3371,5 +3475,49 @@ void CIMRepository::setDeclContext(RepositoryDeclContext* context)
         _qualifierCache.DisplayCacheStatistics();
     }
 #endif
+
+void CIMRepository::getSubClassNames(
+    const CIMNamespaceName& nameSpaceName,
+    const CIMName& className,
+    Boolean deepInheritance,
+    Array<CIMName>& subClassNames) const
+{
+#if defined(PEGASUS_USE_META_REPOSITORY)
+
+    return MetaRepository::getSubClassNames(
+        nameSpaceName, className, deepInheritance, subClassNames);
+
+#else /* PEGASUS_USE_META_REPOSITORY */
+
+    ReadLock lock(const_cast<ReadWriteSem&>(_lock));
+    _nameSpaceManager.getSubClassNames(nameSpaceName,
+                                       className,
+                                       deepInheritance,
+                                       subClassNames);
+
+#endif /* PEGASUS_USE_META_REPOSITORY */
+}
+
+/** Get the names of all superclasses (direct and indirect) of this
+    class.
+*/
+void CIMRepository::getSuperClassNames(
+    const CIMNamespaceName& nameSpaceName,
+    const CIMName& className,
+    Array<CIMName>& superClassNames) const
+{
+#if defined(PEGASUS_USE_META_REPOSITORY)
+
+    return MetaRepository::getSuperClassNames(
+        nameSpaceName, className, superClassNames);
+
+#else /* PEGASUS_USE_META_REPOSITORY */
+
+    ReadLock lock(const_cast<ReadWriteSem&>(_lock));
+    _nameSpaceManager.getSuperClassNames(
+        nameSpaceName, className, superClassNames);
+
+#endif /* PEGASUS_USE_META_REPOSITORY */
+}
 
 PEGASUS_NAMESPACE_END

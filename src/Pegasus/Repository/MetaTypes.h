@@ -160,6 +160,20 @@ struct MetaNameSpace
     MetaClass** classes;
 };
 
+int MakeClass(
+    const MetaNameSpace* ns,
+    const MetaClass* mc,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const char* const* propertyList,
+    class CIMClass& cc);
+
+int MakeQualifierDecl(
+    const MetaNameSpace* ns,
+    const MetaQualifierDecl* mqd,
+    class CIMQualifierDecl& cqd);
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_MetaTypes_h */

@@ -32,7 +32,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/CQL/CQLValue.h>
 #include <Pegasus/CQL/CQLValueRep.h>
-#include <Pegasus/Repository/NameSpaceManager.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/CQL/CQLIdentifier.h>

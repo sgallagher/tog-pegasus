@@ -2602,6 +2602,26 @@ Array<CIMObject> CIMRepository::associators(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
+#if defined(PEGASUS_USE_META_REPOSITORY)
+
+    // Route class-oriented requests to MetaRepository:
+
+    if (objectName.getKeyBindings().size() == 0)
+    {
+        return MetaRepository::associatorClasses(
+            nameSpace,
+            objectName.getClassName(),
+            assocClass,
+            resultClass,
+            role,
+            resultRole,
+            includeQualifiers,
+            includeClassOrigin,
+            propertyList);
+    }
+
+#endif /* PEGASUS_USE_META_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::associators");
 
     ReadLock lock(_lock);
@@ -2679,6 +2699,23 @@ Array<CIMObjectPath> CIMRepository::associatorNames(
     const String& role,
     const String& resultRole)
 {
+#if defined(PEGASUS_USE_META_REPOSITORY)
+
+    // Route class-oriented requests to MetaRepository:
+
+    if (objectName.getKeyBindings().size() == 0)
+    {
+        return MetaRepository::associatorClassPaths(
+            nameSpace,
+            objectName.getClassName(),
+            assocClass,
+            resultClass,
+            role,
+            resultRole);
+    }
+
+#endif /* PEGASUS_USE_META_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::associatorNames");
 
     ReadLock lock(_lock);
@@ -2790,6 +2827,19 @@ Array<CIMObject> CIMRepository::references(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
+#if defined(PEGASUS_USE_META_REPOSITORY)
+
+    // Route class-oriented requests to MetaRepository:
+
+    if (objectName.getKeyBindings().size() == 0)
+    {
+        return MetaRepository::referenceClasses(nameSpace, 
+            objectName.getClassName(), resultClass, role, includeQualifiers, 
+            includeClassOrigin, propertyList);
+    }
+
+#endif /* PEGASUS_USE_META_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::references");
 
     ReadLock lock(_lock);
@@ -2862,6 +2912,18 @@ Array<CIMObjectPath> CIMRepository::referenceNames(
     const CIMName& resultClass,
     const String& role)
 {
+#if defined(PEGASUS_USE_META_REPOSITORY)
+
+    // Route class-oriented requests to MetaRepository:
+
+    if (objectName.getKeyBindings().size() == 0)
+    {
+        return MetaRepository::referenceClassPaths(
+            nameSpace, objectName.getClassName(), resultClass, role);
+    }
+
+#endif /* PEGASUS_USE_META_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::referenceNames");
 
     ReadLock lock(_lock);

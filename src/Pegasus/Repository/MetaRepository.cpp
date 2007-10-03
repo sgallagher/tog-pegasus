@@ -35,9 +35,16 @@
 #include <cassert>
 #include "MetaRepository.h"
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/Once.h>
 #include "MetaTypes.h"
 
 PEGASUS_NAMESPACE_BEGIN
+
+typedef const MetaClass* ConstMetaClassPtr;
+#define PEGASUS_ARRAY_T ConstMetaClassPtr
+# include <Pegasus/Common/ArrayInter.h>
+# include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
 
 static const size_t _MAX_NAMESPACES = 32;
 static const MetaNameSpace* _nameSpaces[_MAX_NAMESPACES];
@@ -45,12 +52,6 @@ static size_t _nameSpacesSize = 0;
 
 static const size_t _MAX_FEATURES = 1024;
 static const size_t _MAX_QUALIFIERS = 1024;
-
-//==============================================================================
-//
-// Local definitions:
-//
-//==============================================================================
 
 PEGASUS_FORMAT(2, 3)
 static void _throw(CIMStatusCode code, const char* format, ...)
@@ -117,38 +118,6 @@ static inline bool _isDirectSubClass(
     return sub->super == super;
 }
 
-static const MetaClass* _findClass(
-    const MetaNameSpace* ns, 
-    const char* name)
-{
-    for (size_t i = 0; ns->classes[i]; i++)
-    {
-        const MetaClass* mc = ns->classes[i];
-
-        if (_eqi(mc->name, name))
-            return mc;
-    }
-
-    // Not found!
-    return 0;
-}
-
-static const MetaQualifierDecl* _findQualifierDecl(
-    const MetaNameSpace* ns, 
-    const char* name)
-{
-    for (size_t i = 0; ns->classes[i]; i++)
-    {
-        const MetaQualifierDecl* mqd = ns->qualifiers[i];
-
-        if (_eqi(mqd->name, name))
-            return mqd;
-    }
-
-    // Not found!
-    return 0;
-}
-
 static char** _makePropertyList(const CIMPropertyList& propertyList)
 {
     if (propertyList.isNull())
@@ -185,6 +154,240 @@ static void _printPropertyList(const char* const* pl)
 
     for (size_t i = 0; pl[i]; i++)
         printf("pl[%s]\n", pl[i]);
+}
+
+static bool _contains(const Array<const MetaClass*>& x, const MetaClass* mc)
+{
+    Uint32 n = x.size();
+    const MetaClass* const* p = x.getData();
+
+    while (n--)
+    {
+        if (*p++ == mc)
+            return true;
+    }
+
+    return false;
+}
+
+static void _associators(
+    const MetaNameSpace* ns,
+    const CIMName& className,
+    const CIMName& assocClass,
+    const CIMName& resultClass,
+    const String& role,
+    const String& resultRole,
+    Array<const MetaClass*>& result)
+{
+    // Lookup source class:
+
+    const MetaClass* mc = FindClass(ns, *Str(className));
+    
+    if (!mc)
+        _throw(CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className));
+
+
+    // Lookup result class (if any).
+
+    const MetaClass* rmc = 0;
+
+    if (!resultClass.isNull())
+    {
+        rmc = FindClass(ns, *Str(resultClass));
+
+        if (!rmc)
+            _throw(CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(resultClass));
+    }
+
+    // Convert these to UTF8 now to avoid doing so in loop below.
+
+    Str ac(assocClass);
+    Str r(role);
+    Str rr(resultRole);
+
+    // Process association classes:
+
+    for (size_t i = 0; ns->classes[i]; i++)
+    {
+        MetaClass* amc = ns->classes[i];
+
+        // Skip non-association classes:
+
+        if (!(amc->flags & META_FLAG_ASSOCIATION))
+            continue;
+
+        // Filter by assocClass parameter:
+
+        if (!assocClass.isNull() && !_eqi(ac, amc->name))
+            continue;
+
+        // Process reference properties:
+
+        MetaFeatureInfo features[META_MAX_FEATURES];
+        size_t size = 0;
+        MergeFeatures(amc, false, META_FLAG_REFERENCE, features, size);
+
+        for (size_t j = 0; j < size; j++)
+        {
+            const MetaFeature* mf = features[j].mf;
+
+            // Skip non references:
+
+            if (!(mf->flags & META_FLAG_REFERENCE))
+                continue;
+
+            const MetaReference* mr = (const MetaReference*)mf;
+
+            // Filter by role parameter.
+
+            if (role.size() && !_eqi(r, mf->name))
+                continue;
+
+            // Filter by source class:
+
+            if (!IsA(mr->ref, mc))
+                continue;
+
+            // Process result reference:
+
+            for (size_t k = 0; k < size; k++)
+            {
+                const MetaFeature* rmf = features[k].mf;
+
+                // Skip the feature under consideration:
+
+                if (rmf == mf)
+                    continue;
+
+                // Skip non references:
+
+                if (!(rmf->flags & META_FLAG_REFERENCE))
+                    continue;
+
+                const MetaReference* rmr = (const MetaReference*)rmf;
+
+                // Filter by resultRole parameter.
+
+                if (resultRole.size() && !_eqi(rr, rmf->name))
+                    continue;
+
+                // Skip references not of the result class kind:
+
+                if (rmc && !IsA(rmr->ref, rmc))
+                    continue;
+
+                // ATTN: should we include entire class hierarchy under
+                // result class?
+
+                // If reached, then save this one.
+
+                if (!_contains(result, rmr->ref))
+                    result.append(rmr->ref);
+            }
+        }
+    }
+}
+
+static void _references(
+    const MetaNameSpace* ns,
+    const CIMName& className,
+    const CIMName& resultClass,
+    const String& role,
+    Array<const MetaClass*>& result)
+{
+    // Lookup source class:
+
+    const MetaClass* mc = FindClass(ns, *Str(className));
+    
+    if (!mc)
+        _throw(CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className));
+
+    // Lookup result class (if any).
+
+    const MetaClass* rmc = 0;
+
+    if (!resultClass.isNull())
+    {
+        rmc = FindClass(ns, *Str(resultClass));
+
+        if (!rmc)
+            _throw(CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(resultClass));
+    }
+
+    // Convert these to UTF8 now to avoid doing so in loop below.
+
+    Str r(role);
+
+    // Process association classes:
+
+    for (size_t i = 0; ns->classes[i]; i++)
+    {
+        MetaClass* amc = ns->classes[i];
+
+        // Skip non-association classes:
+
+        if (!(amc->flags & META_FLAG_ASSOCIATION))
+            continue;
+
+        // Filter by result class:
+
+        if (rmc && !IsA(rmc, amc))
+            continue;
+
+        // Process reference properties:
+
+        MetaFeatureInfo features[META_MAX_FEATURES];
+        size_t size = 0;
+        MergeFeatures(amc, false, META_FLAG_REFERENCE, features, size);
+
+        for (size_t j = 0; j < size; j++)
+        {
+            const MetaFeature* mf = features[j].mf;
+
+            // Skip non references:
+
+            if (!(mf->flags & META_FLAG_REFERENCE))
+                continue;
+
+            const MetaReference* mr = (const MetaReference*)mf;
+
+            // Filter by role parameter.
+
+            if (role.size() && !_eqi(r, mf->name))
+                continue;
+
+            // Filter by source class:
+
+            if (!IsA(mr->ref, mc))
+                continue;
+
+            // Add this one to the output:
+
+            if (!_contains(result, amc))
+                result.append((MetaClass*)amc);
+        }
+    }
+}
+
+//==============================================================================
+//
+// _getHostName()
+//
+//==============================================================================
+
+static Once _once = PEGASUS_ONCE_INITIALIZER;
+static const char* _hostName = 0;
+
+static void _initHostName()
+{
+    String hn = System::getHostName();
+    _hostName = strdup(*Str(hn));
+}
+
+static inline const char* _getHostName()
+{
+    once(&_once, _initHostName);
+    return _hostName;
 }
 
 //==============================================================================
@@ -224,8 +427,6 @@ CIMClass MetaRepository::getClass(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    printf("===== MetaRepository::getClass()\n");
-
     // Lookup namespace:
 
     const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
@@ -235,7 +436,7 @@ CIMClass MetaRepository::getClass(
 
     // Lookup class:
 
-    const MetaClass* mc = _findClass(ns, *Str(className));
+    const MetaClass* mc = FindClass(ns, *Str(className));
 
     if (!mc)
         _throw(CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className));
@@ -248,8 +449,8 @@ CIMClass MetaRepository::getClass(
 
     CIMClass cc;
 
-    if (MakeClass(ns, mc, localOnly, includeQualifiers, 
-        includeQualifiers, pl, cc) != 0)
+    if (MakeClass(_getHostName(), ns, mc, localOnly, includeQualifiers, 
+        includeClassOrigin, pl, cc) != 0)
     {
         _freePropertyList(pl);
         _throw(CIM_ERR_FAILED, "conversion failed: %s", mc->name);
@@ -267,8 +468,6 @@ Array<CIMClass> MetaRepository::enumerateClasses(
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
 {
-    printf("===== MetaRepository::enumerateClasses()\n");
-
     // Lookup namespace:
 
     const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
@@ -282,7 +481,7 @@ Array<CIMClass> MetaRepository::enumerateClasses(
     
     if (!className.isNull())
     {
-        super = _findClass(ns, *Str(className));
+        super = FindClass(ns, *Str(className));
 
         if (!super)
             _throw(CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className));
@@ -313,13 +512,13 @@ Array<CIMClass> MetaRepository::enumerateClasses(
         {
             CIMClass cc;
 
-            if (MakeClass(ns, mc, localOnly, includeQualifiers, 
-                includeQualifiers, 0, cc) != 0)
+            if (MakeClass(_getHostName(), ns, mc, localOnly, includeQualifiers, 
+                includeClassOrigin, 0, cc) != 0)
             {
                 _throw(CIM_ERR_FAILED, "conversion failed: %s", mc->name);
             }
-            else
-                result.append(cc);
+
+            result.append(cc);
         }
     }
 
@@ -331,8 +530,6 @@ Array<CIMName> MetaRepository::enumerateClassNames(
     const CIMName& className,
     Boolean deepInheritance)
 {
-    printf("===== MetaRepository::enumerateClassNames()\n");
-
     // Lookup namespace:
 
     const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
@@ -346,7 +543,7 @@ Array<CIMName> MetaRepository::enumerateClassNames(
     
     if (!className.isNull())
     {
-        super = _findClass(ns, *Str(className));
+        super = FindClass(ns, *Str(className));
 
         if (!super)
             _throw(CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className));
@@ -402,8 +599,6 @@ void MetaRepository::getSubClassNames(
     Boolean deepInheritance,
     Array<CIMName>& subClassNames)
 {
-    printf("===== MetaRepository::getSubClassNames()\n");
-
     subClassNames = MetaRepository::enumerateClassNames(
         nameSpace, className, deepInheritance);
 }
@@ -413,8 +608,6 @@ void MetaRepository::getSuperClassNames(
     const CIMName& className,
     Array<CIMName>& superClassNames)
 {
-    printf("===== MetaRepository::getSuperClassNames()\n");
-
     superClassNames.clear();
 
     // Lookup namespace:
@@ -426,7 +619,7 @@ void MetaRepository::getSuperClassNames(
 
     // Lookup class:
 
-    const MetaClass* mc = _findClass(ns, *Str(className));
+    const MetaClass* mc = FindClass(ns, *Str(className));
     
     if (!mc)
         _throw(CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className));
@@ -441,8 +634,6 @@ void MetaRepository::createNameSpace(
     const CIMNamespaceName& nameSpace,
     const NameSpaceAttributes& attributes)
 {
-    printf("===== MetaRepository::createNameSpace()\n");
-
     _throw(CIM_ERR_NOT_SUPPORTED, "createNameSpace()");
 }
 
@@ -450,15 +641,11 @@ void MetaRepository::modifyNameSpace(
     const CIMNamespaceName& nameSpace,
     const NameSpaceAttributes& attributes)
 {
-    printf("===== MetaRepository::modifyNameSpace()\n");
-
     _throw(CIM_ERR_NOT_SUPPORTED, "modifyNameSpace()");
 }
 
 Array<CIMNamespaceName> MetaRepository::enumerateNameSpaces()
 {
-    printf("===== MetaRepository::enumerateNameSpaces()\n");
-
     Array<CIMNamespaceName> nameSpaces;
 
     for (size_t i = 0; i < _nameSpacesSize; i++)
@@ -470,8 +657,6 @@ Array<CIMNamespaceName> MetaRepository::enumerateNameSpaces()
 void MetaRepository::deleteNameSpace(
     const CIMNamespaceName& nameSpace)
 {
-    printf("===== MetaRepository::deleteNameSpace()\n");
-
     _throw(CIM_ERR_NOT_SUPPORTED, "deleteNameSpace()");
 }
 
@@ -479,8 +664,6 @@ Boolean MetaRepository::getNameSpaceAttributes(
     const CIMNamespaceName& nameSpace,
     NameSpaceAttributes& attributes)
 {
-    printf("===== MetaRepository::getNameSpaceAttributes()\n");
-
     _throw(CIM_ERR_NOT_SUPPORTED, "getNameSpaceAttributes()");
 
     return false;
@@ -490,8 +673,6 @@ Boolean MetaRepository::isRemoteNameSpace(
     const CIMNamespaceName& nameSpace,
     String& remoteInfo)
 {
-    printf("===== MetaRepository::isRemoteNameSpace()\n");
-
     return false;
 }
 
@@ -499,8 +680,6 @@ CIMQualifierDecl MetaRepository::getQualifier(
     const CIMNamespaceName& nameSpace,
     const CIMName& qualifierName)
 {
-    printf("===== MetaRepository::getQualifier()\n");
-
     // Lookup namespace:
 
     const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
@@ -510,7 +689,7 @@ CIMQualifierDecl MetaRepository::getQualifier(
 
     // Lookup qualifier:
 
-    const MetaQualifierDecl* mqd = _findQualifierDecl(ns, *Str(qualifierName));
+    const MetaQualifierDecl* mqd = FindQualifierDecl(ns, *Str(qualifierName));
     
     if (!mqd)
         _throw(CIM_ERR_NOT_FOUND, "unknown qualifier: %s", *Str(qualifierName));
@@ -531,8 +710,6 @@ void MetaRepository::setQualifier(
     const CIMNamespaceName& nameSpace,
     const CIMQualifierDecl& qualifierDecl)
 {
-    printf("===== MetaRepository::setQualifier()\n");
-
     _throw(CIM_ERR_NOT_SUPPORTED, "setQualifier()");
 
 }
@@ -541,16 +718,12 @@ void MetaRepository::deleteQualifier(
     const CIMNamespaceName& nameSpace,
     const CIMName& qualifierName)
 {
-    printf("===== MetaRepository::deleteQualifier()\n");
-
     _throw(CIM_ERR_NOT_SUPPORTED, "deleteQualifier()");
 }
 
 Array<CIMQualifierDecl> MetaRepository::enumerateQualifiers(
     const CIMNamespaceName& nameSpace)
 {
-    printf("===== MetaRepository::enumerateQualifiers()\n");
-
     // Lookup namespace:
 
     const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
@@ -574,6 +747,158 @@ Array<CIMQualifierDecl> MetaRepository::enumerateQualifiers(
 
         result.append(cqd);
     }
+
+    return result;
+}
+
+Array<CIMObjectPath> MetaRepository::associatorClassPaths(
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    const CIMName& assocClass,
+    const CIMName& resultClass,
+    const String& role,
+    const String& resultRole)
+{
+    // Lookup namespace:
+
+    const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
+
+    if (!ns)
+        _throw(CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace));
+
+    // Get associator meta-classes:
+
+    Array<const MetaClass*> mcs;
+    _associators(ns, className, assocClass, resultClass, role, resultRole, mcs);
+
+    // Convert meta-classes to object names:
+
+    Array<CIMObjectPath> result;
+
+    for (Uint32 i = 0; i < mcs.size(); i++)
+        result.append(CIMObjectPath(_getHostName(), nameSpace, mcs[i]->name));
+
+    return result;
+}
+
+Array<CIMObject> MetaRepository::associatorClasses(
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    const CIMName& assocClass,
+    const CIMName& resultClass,
+    const String& role,
+    const String& resultRole,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
+{
+    // Lookup namespace:
+
+    const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
+
+    if (!ns)
+        _throw(CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace));
+
+    // Get associator meta-classes:
+
+    Array<const MetaClass*> mcs;
+    _associators(ns, className, assocClass, resultClass, role, resultRole, mcs);
+
+    // Convert meta-classes to classes.
+
+    Array<CIMObject> result;
+
+    char** pl = _makePropertyList(propertyList);
+
+    for (Uint32 i = 0; i < mcs.size(); i++)
+    {
+        const MetaClass* mc = mcs[i];
+        CIMClass cc;
+
+        if (MakeClass(_getHostName(), ns, mc, false, includeQualifiers, 
+            includeClassOrigin, pl, cc) != 0)
+        {
+            _freePropertyList(pl);
+            _throw(CIM_ERR_FAILED, "conversion failed: %s", mc->name);
+        }
+
+        result.append(cc);
+    }
+
+    _freePropertyList(pl);
+    return result;
+}
+
+Array<CIMObject> MetaRepository::referenceClasses(
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    const CIMName& resultClass,
+    const String& role,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
+{
+    // Lookup namespace:
+
+    const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
+
+    if (!ns)
+        _throw(CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace));
+
+    // Get reference meta-classes:
+
+    Array<const MetaClass*> mcs;
+    _references(ns, className, resultClass, role, mcs);
+
+    // Convert meta-classes to classes.
+
+    Array<CIMObject> result;
+
+    char** pl = _makePropertyList(propertyList);
+
+    for (Uint32 i = 0; i < mcs.size(); i++)
+    {
+        const MetaClass* mc = mcs[i];
+        CIMClass cc;
+
+        if (MakeClass(_getHostName(), ns, mc, false, includeQualifiers, 
+            includeClassOrigin, pl, cc) != 0)
+        {
+            _freePropertyList(pl);
+            _throw(CIM_ERR_FAILED, "conversion failed: %s", mc->name);
+        }
+
+        result.append(cc);
+    }
+
+    _freePropertyList(pl);
+    return result;
+}
+
+Array<CIMObjectPath> MetaRepository::referenceClassPaths(
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    const CIMName& resultClass,
+    const String& role)
+{
+    // Lookup namespace:
+
+    const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
+
+    if (!ns)
+        _throw(CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace));
+
+    // Get reference meta-classes:
+
+    Array<const MetaClass*> mcs;
+    _references(ns, className, resultClass, role, mcs);
+
+    // Convert meta-classes to object paths.
+
+    Array<CIMObjectPath> result;
+
+    for (Uint32 i = 0; i < mcs.size(); i++)
+        result.append(CIMObjectPath(_getHostName(), nameSpace, mcs[i]->name));
 
     return result;
 }

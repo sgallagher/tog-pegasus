@@ -139,6 +139,40 @@ public:
     static Array<CIMQualifierDecl> enumerateQualifiers(
         const CIMNamespaceName& nameSpace);
 
+    static Array<CIMObject> associatorClasses(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        const CIMName& assocClass,
+        const CIMName& resultClass,
+        const String& role,
+        const String& resultRole,
+        Boolean includeQualifiers,
+        Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList);
+
+    static Array<CIMObjectPath> associatorClassPaths(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        const CIMName& assocClass,
+        const CIMName& resultClass,
+        const String& role,
+        const String& resultRole);
+
+    static Array<CIMObject> referenceClasses(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        const CIMName& resultClass,
+        const String& role,
+        Boolean includeQualifiers,
+        Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList);
+
+    static Array<CIMObjectPath> referenceClassPaths(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        const CIMName& resultClass,
+        const String& role);
+
 private:
 
     MetaRepository();

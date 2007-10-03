@@ -39,7 +39,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-static const size_t _MAX_FEATURES = 1024;
 static const size_t _MAX_QUALIFIERS = 1024;
 
 static bool _eqi(const char* s1, const char* s2)
@@ -290,7 +289,6 @@ static int _makeValue(
             }
 
             default:
-                printf("T[%u]\n", __LINE__);
                 return -1;
         }
     }
@@ -503,33 +501,26 @@ static int _makeValue(
             }
 
             default:
-                printf("T[%u]\n", __LINE__);
                 return -1;
         }
     }
 
     // Unreachable!
-    printf("T[%u]\n", __LINE__);
     return -1;
 }
 
-struct FeatureInfo
-{
-    const MetaFeature* mf;
-    const MetaClass* mc;
-};
-
-static int _mergeFeatures(
+int MergeFeatures(
     const MetaClass* mc,
     bool localOnly,
-    FeatureInfo features[_MAX_FEATURES],
+    Uint32 flags,
+    MetaFeatureInfo features[META_MAX_FEATURES],
     size_t& numFeatures)
 {
     if (!localOnly && mc->super)
     {
-        if (_mergeFeatures(mc->super, localOnly, features, numFeatures) != 0)
+        if (MergeFeatures(
+            mc->super, localOnly, 0xFFFFFFFF, features, numFeatures) != 0)
         {
-            printf("T[%u]\n", __LINE__);
             return -1;
         }
     }
@@ -539,6 +530,9 @@ static int _mergeFeatures(
     for (size_t i = 0; mc->features[i]; i++)
     {
         const MetaFeature* mf = mc->features[i];
+        
+        if (!(mf->flags & flags))
+            continue;
 
         // Override feature if defined by ancestor class:
 
@@ -561,9 +555,8 @@ static int _mergeFeatures(
 
         if (!found)
         {
-            if (numFeatures == _MAX_FEATURES)
+            if (numFeatures == META_MAX_FEATURES)
             {
-                printf("T[%u]\n", __LINE__);
                 return -1;
             }
 
@@ -701,7 +694,6 @@ static int _mergeQualifiers(
             {
                 if (numQualifiers == _MAX_QUALIFIERS)
                 {
-                    printf("T[%u]\n", __LINE__);
                     return -1;
                 }
 
@@ -729,7 +721,6 @@ static int _addQualifiers(
     if (_mergeQualifiers(
         ns, mc, featureName, parameterName, 0, qualifiers, numQualifiers) != 0)
     {
-        printf("T[%u]\n", __LINE__);
         return -1;
     }
 
@@ -753,7 +744,6 @@ static int _addQualifiers(
 
         if (_makeValue(cv, qd->type, qd->subscript, q + 1) != 0)
         {
-            printf("T[%u]\n", __LINE__);
             return -1;
         }
 
@@ -781,7 +771,6 @@ static int _addProperty(
 
     if (_makeValue(cv, mp->type, mp->subscript, mp->value) != 0)
     {
-        printf("T[%u]\n", __LINE__);
         return -1;
     }
 
@@ -800,7 +789,6 @@ static int _addProperty(
     {
         if (_addQualifiers(ns, mc, mp->name, 0, cp) != 0)
         {
-            printf("T[%u]\n", __LINE__);
             return -1;
         }
     }
@@ -860,7 +848,6 @@ static int _addReference(
     {
         if (_addQualifiers(ns, mc, mr->name, 0, cp) != 0)
         {
-            printf("T[%u]\n", __LINE__);
             return -1;
         }
     }
@@ -903,7 +890,6 @@ static int _addPropertyParameter(
     {
         if (_addQualifiers(ns, mc, mm->name, mp->name, cm) != 0)
         {
-            printf("T[%u]\n", __LINE__);
             return -1;
         }
     }
@@ -947,7 +933,6 @@ static int _addReferenceParameter(
     {
         if (_addQualifiers(ns, mc, mm->name, mr->name, cm) != 0)
         {
-            printf("T[%u]\n", __LINE__);
             return -1;
         }
     }
@@ -1001,7 +986,6 @@ static int _addMethod(
     {
         if (_addQualifiers(ns, mc, mm->name, 0, cm) != 0)
         {
-            printf("T[%u]\n", __LINE__);
             return -1;
         }
     }
@@ -1034,12 +1018,11 @@ static int _addFeatures(
 {
     // Merge features from all inheritance levels into a single array:
 
-    FeatureInfo features[_MAX_FEATURES];
+    MetaFeatureInfo features[META_MAX_FEATURES];
     size_t numFeatures = 0;
 
-    if (_mergeFeatures(mc, localOnly, features, numFeatures) != 0)
+    if (MergeFeatures(mc, localOnly, 0xFFFFFFFF, features, numFeatures) != 0)
     {
-        printf("T[%u]\n", __LINE__);
         return -1;
     }
 
@@ -1047,7 +1030,7 @@ static int _addFeatures(
 
     for (size_t i = 0; i < numFeatures; i++)
     {
-        const FeatureInfo& fi = features[i];
+        const MetaFeatureInfo& fi = features[i];
 
         // Set propagated flag:
 
@@ -1073,7 +1056,6 @@ static int _addFeatures(
             if (_addProperty(ns, mc, mp, classOrigin, propagated, 
                 includeQualifiers, includeClassOrigin, cc) != 0)
             {
-                printf("T[%u]\n", __LINE__);
                 return -1;
             }
         }
@@ -1084,7 +1066,6 @@ static int _addFeatures(
             if (_addReference(ns, mc, mr, classOrigin, propagated, 
                 includeQualifiers, includeClassOrigin, cc) != 0)
             {
-                printf("T[%u]\n", __LINE__);
                 return -1;
             }
         }
@@ -1095,7 +1076,6 @@ static int _addFeatures(
             if (_addMethod(ns, mc, mm, classOrigin, propagated, 
                 includeQualifiers, includeClassOrigin, cc) != 0)
             {
-                printf("T[%u]\n", __LINE__);
                 return -1;
             }
         }
@@ -1105,6 +1085,7 @@ static int _addFeatures(
 }
 
 int MakeClass(
+    const char* hostName,
     const MetaNameSpace* ns,
     const MetaClass* mc,
     Boolean localOnly,
@@ -1131,7 +1112,6 @@ int MakeClass(
         {
             if (_addQualifiers(ns, mc, 0, 0, cc) != 0)
             {
-                printf("T[%u]\n", __LINE__);
                 return -1;
             }
         }
@@ -1141,9 +1121,12 @@ int MakeClass(
         if (_addFeatures(ns, mc, localOnly, includeQualifiers, 
             includeClassOrigin, propertyList, cc) != 0)
         {
-            printf("T[%u]\n", __LINE__);
             return -1;
         }
+
+        // Object path:
+
+        cc.setPath(CIMObjectPath(hostName, ns->name, mc->name));
     }
     catch (Exception& e)
     {
@@ -1152,7 +1135,6 @@ int MakeClass(
     }
     catch (...)
     {
-        printf("T[%u]\n", __LINE__);
         return -1;
     }
 
@@ -1170,7 +1152,6 @@ int MakeQualifierDecl(
 
     if (_makeValue(cv, mqd->type, mqd->subscript, mqd->value) != 0)
     {
-        printf("T[%u]\n", __LINE__);
         return -1;
     }
 
@@ -1222,6 +1203,50 @@ int MakeQualifierDecl(
     cqd = CIMQualifierDecl(mqd->name, cv, scope, flavor, arraySize);
 
     return 0;
+}
+
+const MetaClass* FindClass(const MetaNameSpace* ns, const char* name)
+{
+    for (size_t i = 0; ns->classes[i]; i++)
+    {
+        const MetaClass* mc = ns->classes[i];
+
+        if (_eqi(mc->name, name))
+            return mc;
+    }
+
+    // Not found!
+    return 0;
+}
+
+const MetaQualifierDecl* FindQualifierDecl(
+    const MetaNameSpace* ns, 
+    const char* name)
+{
+    for (size_t i = 0; ns->classes[i]; i++)
+    {
+        const MetaQualifierDecl* mqd = ns->qualifiers[i];
+
+        if (_eqi(mqd->name, name))
+            return mqd;
+    }
+
+    // Not found!
+    return 0;
+}
+
+bool IsSubClass(const MetaClass* super, const MetaClass* sub)
+{
+    if (!super)
+        return true;
+
+    for (MetaClass* p = sub->super; p; p = p->super)
+    {
+        if (p == super)
+            return true;
+    }
+
+    return false;
 }
 
 PEGASUS_NAMESPACE_END

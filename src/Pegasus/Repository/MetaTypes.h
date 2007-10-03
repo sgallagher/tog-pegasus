@@ -88,6 +88,8 @@
 #define META_FLAVOR_DISABLEOVERRIDE  (1 << 4)
 #define META_FLAVOR_RESTRICTED       (1 << 5)
 
+#define META_MAX_FEATURES 1024
+
 PEGASUS_NAMESPACE_BEGIN
 
 struct MetaFeature
@@ -160,7 +162,34 @@ struct MetaNameSpace
     MetaClass** classes;
 };
 
+const MetaQualifierDecl* FindQualifierDecl(
+    const MetaNameSpace* ns, 
+    const char* name);
+
+const MetaClass* FindClass(const MetaNameSpace* ns, const char* name);
+
+bool IsSubClass(const MetaClass* super, const MetaClass* sub);
+
+inline bool IsA(const MetaClass* super, const MetaClass* sub)
+{
+    return sub == super || IsSubClass(super, sub);
+}
+
+struct MetaFeatureInfo
+{
+    const MetaFeature* mf;
+    const MetaClass* mc;
+};
+
+int MergeFeatures(
+    const MetaClass* mc,
+    bool localOnly,
+    Uint32 flags,
+    MetaFeatureInfo features[META_MAX_FEATURES],
+    size_t& numFeatures);
+
 int MakeClass(
+    const char* hostName,
     const MetaNameSpace* ns,
     const MetaClass* mc,
     Boolean localOnly,

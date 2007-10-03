@@ -36,7 +36,11 @@ include $(ROOT)/mak/config.mak
 
 PROGRAM = cimserver
 
-SOURCES = cimserver.cpp
+SOURCES = \
+    cimserver.cpp \
+    root_cimv2_namespace.cpp \
+    root_PG_Internal_namespace.cpp \
+    root_PG_InterOp_namespace.cpp
 
 LIBRARIES = \
     GoodbyeProvider \
@@ -76,3 +80,17 @@ include $(ROOT)/mak/program.mak
 
 install:
 	cp $(PEGASUS_HOME)/bin/cimserver $(PEGASUS_HOME)/romfs
+
+##==============================================================================
+##
+## rep:
+##
+##==============================================================================
+
+SCHEMAS=$(PEGASUS_ROOT)/Schemas
+CIMMOFL=cimmofl -W -d -m
+
+rep:
+	@ $(CIMMOFL) -n root/PG_Internal -I $(SCHEMAS) root_PG_Internal.mof
+	@ $(CIMMOFL) -n root/PG_InterOp -I $(SCHEMAS) root_PG_InterOp.mof
+	@ $(CIMMOFL) -n root/cimv2 -I $(SCHEMAS) root_cimv2.mof

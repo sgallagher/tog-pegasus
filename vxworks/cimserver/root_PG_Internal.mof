@@ -1,0 +1,2 @@
+#pragma include("CIM2131/Core_Qualifiers.mof")
+#pragma include("Pegasus/Internal/VER20/PG_InternalSchema20.mof")

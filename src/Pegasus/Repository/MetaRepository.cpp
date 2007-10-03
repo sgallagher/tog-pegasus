@@ -37,7 +37,9 @@
 #include "MetaRepository.h"
 #include <Pegasus/Common/System.h>
 
-#define TEST_META_REPOSITORY
+#if 0
+# define TEST_META_REPOSITORY
+#endif
 
 #if defined(TEST_META_REPOSITORY)
 # include "root_cimv2_namespace.h"

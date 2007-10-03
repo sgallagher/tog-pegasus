@@ -32,8 +32,12 @@
 #include <cstdio>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Repository/MetaRepository.h>
 #include <Pegasus/Server/ProviderTable.h>
 #include <Pegasus/Provider/CIMProvider.h>
+#include "root_cimv2_namespace.h"
+#include "root_PG_Internal_namespace.h"
+#include "root_PG_InterOp_namespace.h"
 
 PEGASUS_USING_PEGASUS;
 
@@ -63,6 +67,10 @@ static Pegasus::ProviderTableEntry _providerTable[] =
 int main(int argc, char** argv)
 {
     pegasusProviderTable = _providerTable;
+
+    MetaRepository::addNameSpace(&root_PG_InterOp_namespace);
+    MetaRepository::addNameSpace(&root_cimv2_namespace);
+    MetaRepository::addNameSpace(&root_PG_Internal_namespace);
 
     return PegasusServerMain(argc, argv);
 }

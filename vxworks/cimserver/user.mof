@@ -1,0 +1,9 @@
+class Hello
+{
+    [Key] Uint32 Key;
+};
+
+class Goodbye
+{
+    [Key] Uint32 Key;
+};

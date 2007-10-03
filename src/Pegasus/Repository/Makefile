@@ -115,11 +115,6 @@ SOURCES = \
     RepositoryQueryContext.cpp \
     MetaRepository.cpp
 
-SOURCES += \
-    root_cimv2_namespace.cpp \
-    root_PG_InterOp_namespace.cpp \
-    root_PG_Internal_namespace.cpp
-
 include $(ROOT)/mak/library.mak
 
 compress:
@@ -129,9 +124,3 @@ compress:
 
 SCHEMAS=$(PEGASUS_ROOT)/Schemas
 CIMMOFL=$(PEGASUS_HOME)/bin/cimmofl -W -d -m
-
-rep:
-	@ $(CIMMOFL) -n root/PG_Internal -I $(SCHEMAS) root_PG_Internal.mof
-	@ $(CIMMOFL) -n root/PG_InterOp -I $(SCHEMAS) root_PG_InterOp.mof
-	@ $(CIMMOFL) -n root/cimv2 -I $(SCHEMAS) root_cimv2.mof
-

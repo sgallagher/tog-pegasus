@@ -31,21 +31,11 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "MetaTypes.h"
 #include <cstdarg>
 #include <cassert>
 #include "MetaRepository.h"
 #include <Pegasus/Common/System.h>
-
-#if 0
-# define TEST_META_REPOSITORY
-#endif
-
-#if defined(TEST_META_REPOSITORY)
-# include "root_cimv2_namespace.h"
-# include "root_PG_Internal_namespace.h"
-# include "root_PG_InterOp_namespace.h"
-#endif 
+#include "MetaTypes.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -55,18 +45,6 @@ static size_t _nameSpacesSize = 0;
 
 static const size_t _MAX_FEATURES = 1024;
 static const size_t _MAX_QUALIFIERS = 1024;
-
-static inline void _init()
-{
-#if defined(TEST_META_REPOSITORY)
-    if (_nameSpacesSize == 0)
-    {
-        MetaRepository::addNameSpace(&root_PG_InterOp_namespace);
-        MetaRepository::addNameSpace(&root_cimv2_namespace);
-        MetaRepository::addNameSpace(&root_PG_Internal_namespace);
-    }
-#endif
-}
 
 //==============================================================================
 //
@@ -247,7 +225,6 @@ CIMClass MetaRepository::getClass(
     const CIMPropertyList& propertyList)
 {
     printf("===== MetaRepository::getClass()\n");
-    _init();
 
     // Lookup namespace:
 
@@ -291,7 +268,6 @@ Array<CIMClass> MetaRepository::enumerateClasses(
     Boolean includeClassOrigin)
 {
     printf("===== MetaRepository::enumerateClasses()\n");
-    _init();
 
     // Lookup namespace:
 
@@ -356,7 +332,6 @@ Array<CIMName> MetaRepository::enumerateClassNames(
     Boolean deepInheritance)
 {
     printf("===== MetaRepository::enumerateClassNames()\n");
-    _init();
 
     // Lookup namespace:
 
@@ -428,7 +403,6 @@ void MetaRepository::getSubClassNames(
     Array<CIMName>& subClassNames)
 {
     printf("===== MetaRepository::getSubClassNames()\n");
-    _init();
 
     subClassNames = MetaRepository::enumerateClassNames(
         nameSpace, className, deepInheritance);
@@ -440,7 +414,6 @@ void MetaRepository::getSuperClassNames(
     Array<CIMName>& superClassNames)
 {
     printf("===== MetaRepository::getSuperClassNames()\n");
-    _init();
 
     superClassNames.clear();
 
@@ -485,7 +458,6 @@ void MetaRepository::modifyNameSpace(
 Array<CIMNamespaceName> MetaRepository::enumerateNameSpaces()
 {
     printf("===== MetaRepository::enumerateNameSpaces()\n");
-    _init();
 
     Array<CIMNamespaceName> nameSpaces;
 
@@ -528,7 +500,6 @@ CIMQualifierDecl MetaRepository::getQualifier(
     const CIMName& qualifierName)
 {
     printf("===== MetaRepository::getQualifier()\n");
-    _init();
 
     // Lookup namespace:
 
@@ -579,7 +550,6 @@ Array<CIMQualifierDecl> MetaRepository::enumerateQualifiers(
     const CIMNamespaceName& nameSpace)
 {
     printf("===== MetaRepository::enumerateQualifiers()\n");
-    _init();
 
     // Lookup namespace:
 

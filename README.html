@@ -14,7 +14,7 @@
 <hr>
 <p><b>Abstract:</b>&nbsp; Installation, build, and operation
 information on
-the OpenPegasus Version 2.6.0
+the OpenPegasus Version 2.7.0
 Release. Note that if this readme
 conflicts with the documentation in the release notes or interface
 definition documents for a particular release, those documents should
@@ -93,8 +93,8 @@ test functions,
 and administrative
 functions.</li>
   <li>More complete information on the exact functions
-and their functional state is available from the release notes for each
-OpenPegasus release, and at the OpenPegasus <a
+and their functional state is available from the Release Notes
+(pegasus/ReleaseNotes.htm) and the OpenPegasus <a
  href="http://www.openpegasus.org/page.tpl?CALLER=index.tpl&amp;ggid=799">Feature
 Status Page</a>.</li>
 </ol>
@@ -165,10 +165,9 @@ variety of platforms by the
 development group.&nbsp; The results of the nightly tests can be found
 here on our <a
  href="http://cvs.opengroup.org/cgi-bin/pegasus-build-status.cgi">Nightly
-Build and Test Status</a> page.&nbsp; The Release Notes provide
-additional details
-regarding the platforms.&nbsp;
-PEP 287 contains the Release Notes for the 2.6.0 release.<br>
+Build and Test Status</a> page.&nbsp; The Release Notes
+(pegasus/ReleaseNotes.htm) provide additional details
+regarding the platforms.<br>
 </p>
 <h2><a name="peg_dep">Dependencies</a></h2>
 <p style="margin-left: 40px;">
@@ -184,13 +183,10 @@ have standardized on a set of build tools including: GNUMAKE. We are
 using GNUMAKE 3.79.1 successfully both in Windows and Linux
 environments. It is available from <a href="http://www.gnu.org">http://www.gnu.org</a>.
   </li>
-  <li><b>FLEX </b>and<b> BISON</b> - These tools were used to develop
-the
-MOF
-compiler and WQL
-parser.&nbsp; <font style="color: rgb(0, 0, 0);">These tools are
-required only for
-development of the parsers, not for building OpenPegasus.</font></li>
+  <li><b>FLEX</b> and <b>BISON</b> - These tools were used to develop the MOF
+compiler and WQL parser.&nbsp; These tools are required only for
+development of the parsers, not for building OpenPegasus.&nbsp; Bison
+version 2.3 or later and flex version 2.5.4 or later are required.</li>
   <li><b>DOC++ </b>- The OpenPegasus documentation is taken from a
 combination of text files
 and header files themselves. This documentation is
@@ -213,7 +209,7 @@ to use
 OpenSLP as your choice of SLP implementations, then it will need to be
 installed and available to OpenPegasus. Refer to the
 PEGASUS_USE_OPENSLP and PEGASUS_OPENSLP_HOME build variables in PEP
-277, and the OpenSLP web site (<a href="http://www.openslp.org">http://www.openslp.org</a>).</li>
+292, and the OpenSLP web site (<a href="http://www.openslp.org">http://www.openslp.org</a>).</li>
   <li><span style="font-weight: bold;">zlib</span> - If you choose to
 enable the compressed repository feature with the
 PEGASUS_ENABLE_COMPRESSED_REPOSITORY build variable, you will need to
@@ -287,7 +283,7 @@ exact format of the start and stop options.</li>
   <li>The cimuser command is used to manage OpenPegasus users only when
 the CIM Server is compiled without the PEGASUS_PAM_AUTHENTICATION
 environment variable defined. See PEP
-277 for more information.<span style="color: rgb(204, 51, 204);"></span><br>
+292 for more information.<br>
   </li>
 </ol>
 <font><font color="RED"><span style="color: rgb(0, 0, 0);"></span></font></font><span
@@ -352,7 +348,7 @@ the complete list.<br>
 Variables</strong></a></h2>
 <p style="margin-left: 40px;">Before building, installing, or running
 OpenPegasus, some environment variables may
-have to be defined or updated.&nbsp; See PEP 277 for the full list of
+have to be defined or updated.&nbsp; See PEP 292 for the full list of
 environment variables and configuration options for OpenPegasus. The
 minimum set is:<br>
 </p>
@@ -440,10 +436,10 @@ cimmof compiler.<br>
 repository (if one exists).</span><br>
     </li>
     <li>Generates the default
-CIM Schema (currently v2.9)
+CIM Schema (currently v2.13.1)
 in the repository (skeleton of CIM
 objects).&nbsp; Refer to
-PEGASUS_CIM_SCHEMA in PEP 277 for alternate versions.<br>
+PEGASUS_CIM_SCHEMA in PEP 292 for alternate versions.<br>
     </li>
     <li>Loads
 schema for CIM Server functions (shutdown, add users, etc) and
@@ -574,7 +570,7 @@ standard
 directory so OpenPegasus can find them. If that's not
 the case, set the environment variable OPENSSL_HOME= to point where
 your OpenSSL
-installation is (refer to PEP 277
+installation is (refer to PEP 292
 for more details on build variables).<br>
 </p>
 <p style="margin-left: 40px;">You

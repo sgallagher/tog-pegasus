@@ -111,7 +111,8 @@ SOURCES = \
     InheritanceTree.cpp \
     RepositoryDeclContext.cpp \
     RepositoryQueryContext.cpp \
-    MetaRepository.cpp
+    MetaRepository.cpp \
+    MetaRepositoryDeclContext.cpp \
 
 include $(ROOT)/mak/library.mak
 

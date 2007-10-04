@@ -61,6 +61,7 @@
 #include "AssocClassTable.h"
 #include "ObjectCache.h"
 #include "MetaRepository.h"
+#include "MetaRepositoryDeclContext.h"
 
 #ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
 // #define win32
@@ -865,7 +866,12 @@ CIMRepository::CIMRepository(
         ((AutoStreamer*)streamer)->addReader(new XmlStreamer(), 0);
     }
 
+#ifdef PEGASUS_USE_META_REPOSITORY
+    _context = new MetaRepositoryDeclContext;
+#else
     _context = new RepositoryDeclContext(this);
+#endif
+
     _isDefaultInstanceProvider = ConfigManager::parseBooleanValue(
         ConfigManager::getInstance()->getCurrentValue(
             "repositoryIsDefaultInstanceProvider"));

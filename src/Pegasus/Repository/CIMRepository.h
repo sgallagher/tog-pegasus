@@ -580,7 +580,7 @@ protected:
 
     friend class compilerDeclContext;
     friend class RepositoryDeclContext;
-    RepositoryDeclContext* _context;
+    DeclContext* _context;
 
     /** Used by getInstance(); indicates whether instance should be resolved
         after it is retrieved from the file.

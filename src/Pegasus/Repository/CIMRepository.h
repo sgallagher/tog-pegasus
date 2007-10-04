@@ -49,6 +49,10 @@
 #include <Pegasus/Common/ObjectStreamer.h>
 #include <Pegasus/Repository/MetaRepository.h>
 
+#ifdef PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY
+# include <Pegasus/Repository/MemoryResidentInstanceRepository.h>
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 class RepositoryDeclContext;
@@ -586,6 +590,10 @@ protected:
         after it is retrieved from the file.
      */
     Boolean _resolveInstance;
+
+#ifdef PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY
+    MemoryResidentInstanceRepository _memoryResidentInstanceRepository;
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 
     CString _lockFile;
 };

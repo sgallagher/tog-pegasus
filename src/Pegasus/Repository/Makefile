@@ -38,8 +38,8 @@ EXTRA_INCLUDES = -I..
 
 LOCAL_DEFINES = -DPEGASUS_REPOSITORY_INTERNAL -DPEGASUS_INTERNALONLY
 
-ifdef PEGASUS_USE_META_REPOSITORY
-    LOCAL_DEFINES += -DPEGASUS_USE_META_REPOSITORY
+ifdef PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY
+    LOCAL_DEFINES += -DPEGASUS_USE_MEMORY_RESIDENT_REPOSITORY
 endif
 
 LIBRARIES = pegcommon pegquerycommon pegconfig
@@ -113,6 +113,8 @@ SOURCES = \
     RepositoryQueryContext.cpp \
     MetaRepository.cpp \
     MetaRepositoryDeclContext.cpp \
+    MemoryResidentInstanceRepository.cpp \
+    Filtering.cpp 
 
 include $(ROOT)/mak/library.mak
 

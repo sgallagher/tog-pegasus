@@ -1249,4 +1249,21 @@ bool IsSubClass(const MetaClass* super, const MetaClass* sub)
     return false;
 }
 
+const MetaFeature* FindFeature(
+    const MetaClass* mc, 
+    const char* name, 
+    Uint32 flags)
+{
+    for (size_t i = 0; mc->features[i]; i++)
+    {
+        const MetaFeature* mf = mc->features[i];
+
+        if (mf->flags & flags && _eqi(mf->name, name))
+            return mf;
+    }
+
+    // Not found!
+    return 0;
+}
+
 PEGASUS_NAMESPACE_END

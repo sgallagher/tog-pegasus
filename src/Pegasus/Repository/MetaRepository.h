@@ -173,6 +173,10 @@ public:
         const CIMName& resultClass,
         const String& role);
 
+    static const MetaClass* findMetaClass(
+        const char* nameSpace,
+        const char* className);
+
 private:
 
     MetaRepository();

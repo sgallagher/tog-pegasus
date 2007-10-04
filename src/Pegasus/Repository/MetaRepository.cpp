@@ -903,4 +903,18 @@ Array<CIMObjectPath> MetaRepository::referenceClassPaths(
     return result;
 }
 
+const MetaClass* MetaRepository::findMetaClass(
+    const char* nameSpace,
+    const char* className)
+{
+    // Lookup namespace:
+
+    const MetaNameSpace* ns = _findNameSpace(nameSpace);
+
+    if (!ns)
+        return 0;
+
+    return FindClass(ns, className);
+}
+
 PEGASUS_NAMESPACE_END

@@ -203,6 +203,11 @@ int MakeQualifierDecl(
     const MetaQualifierDecl* mqd,
     class CIMQualifierDecl& cqd);
 
+const MetaFeature* FindFeature(
+    const MetaClass* mc, 
+    const char* name,
+    Uint32 flags = (META_FLAG_PROPERTY|META_FLAG_REFERENCE|META_FLAG_METHOD));
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_MetaTypes_h */

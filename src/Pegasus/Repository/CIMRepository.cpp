@@ -63,6 +63,8 @@
 #include "MetaRepository.h"
 #include "MetaRepositoryDeclContext.h"
 
+#include "Filtering.h"
+
 #ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
 // #define win32
 # include <zlib.h>
@@ -158,275 +160,6 @@ void _LoadFileToMemory(Buffer& data, const String& path)
     FileSystem::loadFileToMemory(data, path);
 
 #endif /* PEGASUS_ENABLE_COMPRESSED_REPOSITORY */
-}
-
-
-//
-//  The following _xx functions are local to the repository implementation
-//
-////////////////////////////////////////////////////////////////////////////////
-//
-//   _containsProperty
-//
-////////////////////////////////////////////////////////////////////////////////
-
-/** Check to see if the specified property is in the property list
-    @param property the specified property
-    @param propertyList the property list
-    @return true if the property is in the list otherwise false.
-*/
-Boolean _containsProperty(
-    CIMProperty& property,
-    const CIMPropertyList& propertyList)
-{
-    //  For each property in the propertly list
-    for (Uint32 p=0; p<propertyList.size(); p++)
-    {
-        if (propertyList[p].equal(property.getName()))
-            return true;
-    }
-    return false;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// removeAllQualifiers - Remove all of the qualifiers from a class
-//
-////////////////////////////////////////////////////////////////////////////////
-
-/* removes all Qualifiers from a CIMClass.  This function removes all
-   of the qualifiers from the class, from all of the properties,
-   from the methods, and from the parameters attached to the methods.
-   @param cimClass reference to the class from which qualifiers are to
-   be removed.
-   NOTE: This would be logical to be moved to CIMClass since it may be
-   more general than this usage.
-*/
-void _removeAllQualifiers(CIMClass& cimClass)
-{
-    // remove qualifiers of the class
-    Uint32 count = 0;
-    while ((count = cimClass.getQualifierCount()) > 0)
-        cimClass.removeQualifier(count - 1);
-
-    // remove qualifiers from the properties
-    for (Uint32 i = 0; i < cimClass.getPropertyCount(); i++)
-    {
-        CIMProperty p = cimClass.getProperty(i);
-        count = 0;
-        while ((count = p.getQualifierCount()) > 0)
-            p.removeQualifier(count - 1);
-    }
-
-    // remove qualifiers from the methods
-    for (Uint32 i = 0; i < cimClass.getMethodCount(); i++)
-    {
-        CIMMethod m = cimClass.getMethod(i);
-        for (Uint32 j = 0 ; j < m.getParameterCount(); j++)
-        {
-            CIMParameter p = m.getParameter(j);
-            count = 0;
-            while ((count = p.getQualifierCount()) > 0)
-                p.removeQualifier(count - 1);
-        }
-        count = 0;
-        while ((count = m.getQualifierCount()) > 0)
-            m.removeQualifier(count - 1);
-    }
-}
-
-/////////////////////////////////////////////////////////////////////////
-//
-// _removePropagatedQualifiers - Removes all qualifiers from the class
-// that are marked propagated
-//
-/////////////////////////////////////////////////////////////////////////
-
-/* removes propagatedQualifiers from the defined CIMClass.
-   This function removes the qualifiers from the class,
-   from each of the properties, from the methods and
-   the parameters if the qualifiers are marked propagated.
-   NOTE: This could be logical to be moved to CIMClass since it may be
-   more general than the usage here.
-*/
-void _removePropagatedQualifiers(CIMClass& cimClass)
-{
-    Uint32 count = cimClass.getQualifierCount();
-    // Remove nonlocal qualifiers from Class
-    for (Sint32 i = (count - 1); i >= 0; i--)
-    {
-        CIMQualifier q = cimClass.getQualifier(i);
-        if (q.getPropagated())
-        {
-            cimClass.removeQualifier(i);
-        }
-    }
-
-    // remove  non localOnly qualifiers from the properties
-    for (Uint32 i = 0; i < cimClass.getPropertyCount(); i++)
-    {
-        CIMProperty p = cimClass.getProperty(i);
-        // loop to search qualifiers for nonlocal parameters
-        count = p.getQualifierCount();
-        for (Sint32 j = (count - 1); j >= 0; j--)
-        {
-            CIMQualifier q = p.getQualifier(j);
-            if (q.getPropagated())
-            {
-                p.removeQualifier(j);
-            }
-        }
-    }
-
-    // remove non LocalOnly qualifiers from the methods and parameters
-    for (Uint32 i = 0; i < cimClass.getMethodCount(); i++)
-    {
-        CIMMethod m = cimClass.getMethod(i);
-        // Remove  nonlocal qualifiers from all parameters
-        for (Uint32 j = 0 ; j < m.getParameterCount(); j++)
-        {
-            CIMParameter p = m.getParameter(j);
-            count = p.getQualifierCount();
-            for (Sint32 k = (count - 1); k >= 0; k--)
-            {
-                CIMQualifier q = p.getQualifier(k);
-                if (q.getPropagated())
-                {
-                    p.removeQualifier(k);
-                }
-            }
-        }
-
-        // remove nonlocal qualifiers from the method
-        count = m.getQualifierCount();
-        for (Sint32 j = (count - 1); j >= 0; j--)
-        {
-            CIMQualifier q = m.getQualifier(j);
-            if (q.getPropagated())
-            {
-                m.removeQualifier(j);
-            }
-        }
-    }
-}
-
-/* remove the properties from an instance based on attributes.
-    @param Instance from which properties will be removed.
-    @param propertyList PropertyList is used in the removal algorithm
-    @param localOnly - Boolean used in the removal.
-    NOTE: This could be logical to move to CIMInstance since the
-    usage is more general than just in the repository
-*/
-void _removeProperties(
-    CIMInstance& cimInstance,
-    const CIMPropertyList& propertyList,
-    Boolean localOnly)
-{
-    Boolean propertyListNull = propertyList.isNull();
-    if ((!propertyListNull) || localOnly)
-    {
-        // Loop through properties to remove those that do not filter through
-        // local only attribute and are not in the property list.
-        Uint32 count = cimInstance.getPropertyCount();
-        // Work backwards because removal may be cheaper. Sint32 covers count=0
-        for (Sint32 i = (count - 1); i >= 0; i--)
-        {
-            CIMProperty p = cimInstance.getProperty(i);
-
-            // if localOnly == true, ignore properties defined in super class
-            if (localOnly && (p.getPropagated()))
-            {
-                cimInstance.removeProperty(i);
-                continue;
-            }
-
-            // propertyList NULL means deliver properties.  PropertyList
-            // empty, none.
-            // Test for removal if propertyList not NULL. The empty list option
-            // is covered by fact that property is not in the list.
-            if (!propertyListNull)
-                if (!_containsProperty(p, propertyList))
-                    cimInstance.removeProperty(i);
-        }
-    }
-}
-
-/* remove all Qualifiers from a single CIMInstance. Removes
-    all of the qualifiers from the instance and from properties
-    within the instance.
-    @param instance from which parameters are removed.
-    NOTE: This could be logical to be moved to CIMInstance since
-    the usage may be more general than just in the repository.
-*/
-void _removeAllQualifiers(CIMInstance& cimInstance)
-{
-    // remove qualifiers from the instance
-    Uint32 count = 0;
-    while ((count = cimInstance.getQualifierCount()) > 0)
-        cimInstance.removeQualifier(count - 1);
-
-    // remove qualifiers from the properties
-    for (Uint32 i = 0; i < cimInstance.getPropertyCount(); i++)
-    {
-        CIMProperty p = cimInstance.getProperty(i);
-        count = 0;
-        while ((count = p.getQualifierCount()) > 0)
-            p.removeQualifier(count - 1);
-    }
-}
-
-/* removes all ClassOrigin attributes from a single CIMInstance. Removes
-    the classOrigin attribute from each property in the Instance.
-   @param Instance from which the ClassOrigin Properties will be removed.
-   NOTE: Logical to be moved to CIMInstance since it may be more general
-   than just the repositoryl
-*/
-void _removeClassOrigins(CIMInstance& cimInstance)
-{
-    PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4, "Remove Class Origins");
-
-    Uint32 propertyCount = cimInstance.getPropertyCount();
-    for (Uint32 i = 0; i < propertyCount ; i++)
-        cimInstance.getProperty(i).setClassOrigin(CIMName());
-}
-
-/* Filters the properties, qualifiers, and classorigin out of a single instance.
-    Based on the parameters provided for localOnly, includeQualifiers,
-    and includeClassOrigin, this function simply filters the properties
-    qualifiers, and classOrigins out of a single instance.  This function
-    was created to have a single piece of code that processes getinstance
-    and enumerateInstances returns.
-    @param cimInstance reference to instance to be processed.
-    @param localOnly defines if request is for localOnly parameters.
-    @param includeQualifiers Boolean defining if qualifiers to be returned.
-    @param includeClassOrigin Boolean defining if ClassOrigin attribute to
-    be removed from properties.
-*/
-void _filterInstance(
-    CIMInstance& cimInstance,
-    const CIMPropertyList& propertyList,
-    Boolean localOnly,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin)
-{
-    // Remove properties based on propertyList and localOnly flag
-    _removeProperties(cimInstance, propertyList, localOnly);
-
-    // If includequalifiers false, remove all qualifiers from
-    // properties.
-
-    if (!includeQualifiers)
-    {
-        _removeAllQualifiers(cimInstance);
-    }
-
-    // if ClassOrigin Flag false, remove classOrigin info from Instance object
-    // by setting the classOrigin to Null.
-
-    if (!includeClassOrigin)
-    {
-        _removeClassOrigins(cimInstance);
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -866,7 +599,7 @@ CIMRepository::CIMRepository(
         ((AutoStreamer*)streamer)->addReader(new XmlStreamer(), 0);
     }
 
-#ifdef PEGASUS_USE_META_REPOSITORY
+#ifdef PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY
     _context = new MetaRepositoryDeclContext;
 #else
     _context = new RepositoryDeclContext(this);
@@ -909,12 +642,12 @@ CIMClass CIMRepository::getClass(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-#if defined(PEGASUS_USE_META_REPOSITORY)
+#if defined(PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY)
 
     return MetaRepository::getClass(nameSpace, className, 
         localOnly, includeQualifiers, includeClassOrigin, propertyList);
 
-#else /* PEGASUS_USE_META_REPOSITORY */
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::getClass");
 
@@ -929,7 +662,7 @@ CIMClass CIMRepository::getClass(
     PEG_METHOD_EXIT();
     return cimClass;
 
-#endif /* PEGASUS_USE_META_REPOSITORY */
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 CIMClass CIMRepository::_getClass(
@@ -986,80 +719,12 @@ CIMClass CIMRepository::_getClass(
     // Remove properties based on propertylist and localOnly flag (Bug 565)
     Boolean propertyListNull = propertyList.isNull();
 
-    // if localOnly OR there is a property list, process properties
-    if ((!propertyListNull) || localOnly)
-    {
-        // Loop through properties to remove those that do not filter through
-        // local only attribute and are not in the property list.
-        Uint32 count = cimClass.getPropertyCount();
-        // Work backwards because removal may be cheaper. Sint32 covers count=0
-        for (Sint32 i = (count - 1); i >= 0; i--)
-        {
-            CIMProperty p = cimClass.getProperty(i);
-            // if localOnly==true, ignore properties defined in super class
-            if (localOnly && (p.getPropagated()))
-            {
-                cimClass.removeProperty(i);
-                continue;
-            }
-
-            // propertyList NULL means all properties.  PropertyList
-            // empty, none.
-            // Test for removal if propertyList not NULL. The empty list option
-            // is covered by fact that property is not in the list.
-            if (!propertyListNull)
-                if (!_containsProperty(p, propertyList))
-                    cimClass.removeProperty(i);
-        }
-    }
-
-    // remove methods based on localOnly flag
-    if (localOnly)
-    {
-        Uint32 count = cimClass.getMethodCount();
-        // Work backwards because removal may be cheaper.
-        for (Sint32 i = (count - 1); i >= 0; i--)
-        {
-            CIMMethod m = cimClass.getMethod(i);
-
-            // if localOnly==true, ignore properties defined in super class
-            if (localOnly && (m.getPropagated()))
-                cimClass.removeMethod(i);
-        }
-
-    }
-    // If includequalifiers false, remove all qualifiers from
-    // properties, methods and parameters.
-    if (!includeQualifiers)
-    {
-        _removeAllQualifiers(cimClass);
-    }
-    else
-    {
-        // if includequalifiers and localOnly, remove nonLocal qualifiers
-        if (localOnly)
-        {
-            _removePropagatedQualifiers(cimClass);
-        }
-
-    }
-
-
-    // if ClassOrigin Flag false, remove classOrigin info from class object
-    // by setting the property to Null.
-    if (!includeClassOrigin)
-    {
-        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
-            "Remove Class Origins");
-
-        Uint32 propertyCount = cimClass.getPropertyCount();
-        for (Uint32 i = 0; i < propertyCount ; i++)
-            cimClass.getProperty(i).setClassOrigin(CIMName());
-
-        Uint32 methodCount =  cimClass.getMethodCount();
-        for (Uint32 i=0; i < methodCount ; i++)
-            cimClass.getMethod(i).setClassOrigin(CIMName());
-    }
+    Filtering::filterClass(
+        cimClass, 
+        localOnly, 
+        includeQualifiers,
+        includeClassOrigin, 
+        propertyList);
 
     PEG_METHOD_EXIT();
     return cimClass;
@@ -1114,6 +779,14 @@ CIMInstance CIMRepository::getInstance(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
+#ifdef PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY
+
+    return _memoryResidentInstanceRepository.getInstance(
+        nameSpace, instanceName, localOnly, includeClassOrigin, 
+        includeClassOrigin, propertyList);
+
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::getInstance");
 
     ReadLock lock(_lock);
@@ -1128,6 +801,8 @@ CIMInstance CIMRepository::getInstance(
 
     PEG_METHOD_EXIT();
     return cimInstance;
+
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 CIMInstance CIMRepository::_getInstance(
@@ -1204,12 +879,12 @@ CIMInstance CIMRepository::_getInstance(
             true);
     }
 
-    _filterInstance(
+    Filtering::filterInstance(
         cimInstance,
-        propertyList,
         localOnly,
         includeQualifiers,
-        includeClassOrigin);
+        includeClassOrigin,
+        propertyList);
 
     PEG_METHOD_EXIT();
     return cimInstance;
@@ -1219,11 +894,11 @@ void CIMRepository::deleteClass(
     const CIMNamespaceName& nameSpace,
     const CIMName& className)
 {
-#if defined(PEGASUS_USE_META_REPOSITORY)
+#if defined(PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY)
 
     return MetaRepository::deleteClass(nameSpace, className);
 
-#else /* PEGASUS_USE_META_REPOSITORY */
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 
     PEG_METHOD_ENTER(TRC_REPOSITORY,"CIMRepository::deleteClass");
 
@@ -1266,7 +941,7 @@ void CIMRepository::deleteClass(
 
     PEG_METHOD_EXIT();
 
-#endif /* PEGASUS_USE_META_REPOSITORY */
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 void _CompactInstanceRepository(
@@ -1325,6 +1000,13 @@ void CIMRepository::deleteInstance(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName)
 {
+#ifdef PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY
+
+    return _memoryResidentInstanceRepository.deleteInstance(
+        nameSpace, instanceName);
+
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::deleteInstance");
 
     //
@@ -1410,6 +1092,8 @@ void CIMRepository::deleteInstance(
         AssocInstTable::deleteAssociation(assocFileName, instanceName);
 
     PEG_METHOD_EXIT();
+
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 void CIMRepository::_createAssocClassEntries(
@@ -1478,11 +1162,11 @@ void CIMRepository::createClass(
     const CIMClass& newClass,
     const ContentLanguageList& contentLangs)
 {
-#if defined(PEGASUS_USE_META_REPOSITORY)
+#if defined(PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY)
 
     return MetaRepository::createClass(nameSpace, newClass);
 
-#else /* PEGASUS_USE_META_REPOSITORY */
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createClass");
 
@@ -1492,7 +1176,7 @@ void CIMRepository::createClass(
 
     PEG_METHOD_EXIT();
 
-#endif /* PEGASUS_USE_META_REPOSITORY */
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 void CIMRepository::_createClass(
@@ -1688,6 +1372,13 @@ CIMObjectPath CIMRepository::createInstance(
     const CIMInstance& newInstance,
     const ContentLanguageList& contentLangs)
 {
+#ifdef PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY
+
+    return _memoryResidentInstanceRepository.createInstance(
+        nameSpace, newInstance);
+
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createInstance");
 
     WriteLock lock(_lock);
@@ -1696,6 +1387,8 @@ CIMObjectPath CIMRepository::createInstance(
 
     PEG_METHOD_EXIT();
     return instanceName;
+
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 CIMObjectPath CIMRepository::_createInstance(
@@ -1818,11 +1511,11 @@ void CIMRepository::modifyClass(
     const CIMClass& modifiedClass,
     const ContentLanguageList& contentLangs)
 {
-#if defined(PEGASUS_USE_META_REPOSITORY)
+#if defined(PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY)
 
     return MetaRepository::modifyClass(nameSpace, modifiedClass);
 
-#else /* PEGASUS_USE_META_REPOSITORY */
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyClass");
 
@@ -1832,7 +1525,7 @@ void CIMRepository::modifyClass(
 
     PEG_METHOD_EXIT();
 
-#endif /* PEGASUS_USE_META_REPOSITORY */
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 void CIMRepository::_modifyClass(
@@ -1934,6 +1627,13 @@ void CIMRepository::modifyInstance(
     const CIMPropertyList& propertyList,
     const ContentLanguageList& contentLangs)
 {
+#ifdef PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY
+
+    return _memoryResidentInstanceRepository.modifyInstance(nameSpace,
+        modifiedInstance, includeQualifiers, propertyList);
+
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyInstance");
 
     WriteLock lock(_lock);
@@ -2262,6 +1962,8 @@ void CIMRepository::modifyInstance(
         true);
 
     PEG_METHOD_EXIT();
+
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 Array<CIMClass> CIMRepository::enumerateClasses(
@@ -2272,12 +1974,12 @@ Array<CIMClass> CIMRepository::enumerateClasses(
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
 {
-#if defined(PEGASUS_USE_META_REPOSITORY)
+#if defined(PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY)
 
     return MetaRepository::enumerateClasses(nameSpace, className, 
         deepInheritance, localOnly, includeQualifiers, includeClassOrigin);
 
-#else /* PEGASUS_USE_META_REPOSITORY */
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateClasses");
 
@@ -2299,7 +2001,7 @@ Array<CIMClass> CIMRepository::enumerateClasses(
     PEG_METHOD_EXIT();
     return result;
 
-#endif /* PEGASUS_USE_META_REPOSITORY */
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 Array<CIMName> CIMRepository::enumerateClassNames(
@@ -2307,12 +2009,12 @@ Array<CIMName> CIMRepository::enumerateClassNames(
     const CIMName& className,
     Boolean deepInheritance)
 {
-#if defined(PEGASUS_USE_META_REPOSITORY)
+#if defined(PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY)
 
     return MetaRepository::enumerateClassNames(
         nameSpace, className, deepInheritance);
 
-#else /* PEGASUS_USE_META_REPOSITORY */
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateClassNames");
 
@@ -2326,7 +2028,7 @@ Array<CIMName> CIMRepository::enumerateClassNames(
     PEG_METHOD_EXIT();
     return classNames;
 
-#endif /* PEGASUS_USE_META_REPOSITORY */
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 Boolean CIMRepository::_loadAllInstances(
@@ -2416,6 +2118,14 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForSubtree(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
+#ifdef PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY
+
+    return _memoryResidentInstanceRepository.enumerateInstancesForSubtree(
+        nameSpace, className, deepInheritance, localOnly, includeQualifiers, 
+        includeClassOrigin, propertyList);
+
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY,
         "CIMRepository::enumerateInstancesForSubtree");
 
@@ -2446,17 +2156,19 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForSubtree(
         // ATTN: Handles everything but deepInheritance.
         for (Uint32 i = 0 ; i < localNamedInstances.size(); i++)
         {
-            _filterInstance(localNamedInstances[i],
-                propertyList,
+            Filtering::filterInstance(localNamedInstances[i],
                 localOnly,
                 includeQualifiers,
-                includeClassOrigin);
+                includeClassOrigin,
+                propertyList);
         }
         namedInstances.appendArray(localNamedInstances);
     }
 
     PEG_METHOD_EXIT();
     return namedInstances;
+
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
@@ -2467,6 +2179,14 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
+#ifdef PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY
+
+    return _memoryResidentInstanceRepository.enumerateInstancesForClass(
+        nameSpace, className, localOnly, includeQualifiers, includeClassOrigin,
+        propertyList);
+
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY,
         "CIMRepository::enumerateInstancesForClass");
 
@@ -2492,21 +2212,30 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
     // on the returned instances.
     for (Uint32 i = 0 ; i < namedInstances.size(); i++)
     {
-        _filterInstance(namedInstances[i],
-            propertyList,
+        Filtering::filterInstance(namedInstances[i],
             localOnly,
             includeQualifiers,
-            includeClassOrigin);
+            includeClassOrigin,
+            propertyList);
     }
 
     PEG_METHOD_EXIT();
     return namedInstances;
+
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 Array<CIMObjectPath> CIMRepository::enumerateInstanceNamesForSubtree(
     const CIMNamespaceName& nameSpace,
     const CIMName& className)
 {
+#ifdef PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY
+
+    return _memoryResidentInstanceRepository.enumerateInstanceNamesForSubtree(
+        nameSpace, className);
+
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY,
         "CIMRepository::enumerateInstanceNamesForSubtree");
 
@@ -2535,12 +2264,21 @@ Array<CIMObjectPath> CIMRepository::enumerateInstanceNamesForSubtree(
 
     PEG_METHOD_EXIT();
     return instanceNames;
+
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 Array<CIMObjectPath> CIMRepository::enumerateInstanceNamesForClass(
     const CIMNamespaceName& nameSpace,
     const CIMName& className)
 {
+#ifdef PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY
+
+    return _memoryResidentInstanceRepository.enumerateInstanceNamesForClass(
+        nameSpace, className);
+
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
+
     PEG_METHOD_ENTER(TRC_REPOSITORY,
         "CIMRepository::enumerateInstanceNamesForClass");
 
@@ -2579,6 +2317,8 @@ Array<CIMObjectPath> CIMRepository::enumerateInstanceNamesForClass(
 
     PEG_METHOD_EXIT();
     return instanceNames;
+
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 
@@ -2608,7 +2348,7 @@ Array<CIMObject> CIMRepository::associators(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-#if defined(PEGASUS_USE_META_REPOSITORY)
+#if defined(PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY)
 
     // Route class-oriented requests to MetaRepository:
 
@@ -2626,7 +2366,7 @@ Array<CIMObject> CIMRepository::associators(
             propertyList);
     }
 
-#endif /* PEGASUS_USE_META_REPOSITORY */
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::associators");
 
@@ -2705,7 +2445,7 @@ Array<CIMObjectPath> CIMRepository::associatorNames(
     const String& role,
     const String& resultRole)
 {
-#if defined(PEGASUS_USE_META_REPOSITORY)
+#if defined(PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY)
 
     // Route class-oriented requests to MetaRepository:
 
@@ -2720,7 +2460,7 @@ Array<CIMObjectPath> CIMRepository::associatorNames(
             resultRole);
     }
 
-#endif /* PEGASUS_USE_META_REPOSITORY */
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::associatorNames");
 
@@ -2833,7 +2573,7 @@ Array<CIMObject> CIMRepository::references(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-#if defined(PEGASUS_USE_META_REPOSITORY)
+#if defined(PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY)
 
     // Route class-oriented requests to MetaRepository:
 
@@ -2844,7 +2584,7 @@ Array<CIMObject> CIMRepository::references(
             includeClassOrigin, propertyList);
     }
 
-#endif /* PEGASUS_USE_META_REPOSITORY */
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::references");
 
@@ -2918,7 +2658,7 @@ Array<CIMObjectPath> CIMRepository::referenceNames(
     const CIMName& resultClass,
     const String& role)
 {
-#if defined(PEGASUS_USE_META_REPOSITORY)
+#if defined(PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY)
 
     // Route class-oriented requests to MetaRepository:
 
@@ -2928,7 +2668,7 @@ Array<CIMObjectPath> CIMRepository::referenceNames(
             nameSpace, objectName.getClassName(), resultClass, role);
     }
 
-#endif /* PEGASUS_USE_META_REPOSITORY */
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::referenceNames");
 
@@ -3127,11 +2867,11 @@ CIMQualifierDecl CIMRepository::getQualifier(
     const CIMNamespaceName& nameSpace,
     const CIMName& qualifierName)
 {
-#if defined(PEGASUS_USE_META_REPOSITORY)
+#if defined(PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY)
 
     return MetaRepository::getQualifier(nameSpace, qualifierName);
 
-#else /* PEGASUS_USE_META_REPOSITORY */
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::getQualifier");
 
@@ -3141,7 +2881,7 @@ CIMQualifierDecl CIMRepository::getQualifier(
     PEG_METHOD_EXIT();
     return qualifierDecl;
 
-#endif /* PEGASUS_USE_META_REPOSITORY */
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 CIMQualifierDecl CIMRepository::_getQualifier(
@@ -3194,11 +2934,11 @@ void CIMRepository::setQualifier(
     const CIMQualifierDecl& qualifierDecl,
     const ContentLanguageList& contentLangs)
 {
-#if defined(PEGASUS_USE_META_REPOSITORY)
+#if defined(PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY)
 
     MetaRepository::setQualifier(nameSpace, qualifierDecl);
 
-#else /* PEGASUS_USE_META_REPOSITORY */
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::setQualifier");
 
@@ -3208,7 +2948,7 @@ void CIMRepository::setQualifier(
 
     PEG_METHOD_EXIT();
 
-#endif /* PEGASUS_USE_META_REPOSITORY */
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 void CIMRepository::_setQualifier(
@@ -3247,11 +2987,11 @@ void CIMRepository::deleteQualifier(
     const CIMNamespaceName& nameSpace,
     const CIMName& qualifierName)
 {
-#if defined(PEGASUS_USE_META_REPOSITORY)
+#if defined(PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY)
 
     MetaRepository::deleteQualifier(nameSpace, qualifierName);
 
-#else /* PEGASUS_USE_META_REPOSITORY */
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::deleteQualifier");
 
@@ -3276,17 +3016,17 @@ void CIMRepository::deleteQualifier(
 
     PEG_METHOD_EXIT();
 
-#endif /* PEGASUS_USE_META_REPOSITORY */
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
     const CIMNamespaceName& nameSpace)
 {
-#if defined(PEGASUS_USE_META_REPOSITORY)
+#if defined(PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY)
 
     return MetaRepository::enumerateQualifiers(nameSpace);
 
-#else /* PEGASUS_USE_META_REPOSITORY */
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateQualifiers");
 
@@ -3324,17 +3064,17 @@ Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
     PEG_METHOD_EXIT();
     return qualifiers;
 
-#endif /* PEGASUS_USE_META_REPOSITORY */
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 void CIMRepository::createNameSpace(const CIMNamespaceName& nameSpace,
         const NameSpaceAttributes& attributes)
 {
-#if defined(PEGASUS_USE_META_REPOSITORY)
+#if defined(PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY)
 
     return MetaRepository::createNameSpace(nameSpace, attributes);
 
-#else /* PEGASUS_USE_META_REPOSITORY */
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createNameSpace");
 
@@ -3344,17 +3084,17 @@ void CIMRepository::createNameSpace(const CIMNamespaceName& nameSpace,
 
     PEG_METHOD_EXIT();
 
-#endif /* PEGASUS_USE_META_REPOSITORY */
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 void CIMRepository::modifyNameSpace(const CIMNamespaceName& nameSpace,
         const NameSpaceAttributes& attributes)
 {
-#if defined(PEGASUS_USE_META_REPOSITORY)
+#if defined(PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY)
 
     return MetaRepository::modifyNameSpace(nameSpace, attributes);
 
-#else /* PEGASUS_USE_META_REPOSITORY */
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyNameSpace");
 
@@ -3364,16 +3104,16 @@ void CIMRepository::modifyNameSpace(const CIMNamespaceName& nameSpace,
 
     PEG_METHOD_EXIT();
 
-#endif /* PEGASUS_USE_META_REPOSITORY */
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 Array<CIMNamespaceName> CIMRepository::enumerateNameSpaces() const
 {
-#if defined(PEGASUS_USE_META_REPOSITORY)
+#if defined(PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY)
 
     return MetaRepository::enumerateNameSpaces();
 
-#else /* PEGASUS_USE_META_REPOSITORY */
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateNameSpaces");
 
@@ -3385,16 +3125,16 @@ Array<CIMNamespaceName> CIMRepository::enumerateNameSpaces() const
     PEG_METHOD_EXIT();
     return nameSpaceNames;
 
-#endif /* PEGASUS_USE_META_REPOSITORY */
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 void CIMRepository::deleteNameSpace(const CIMNamespaceName& nameSpace)
 {
-#if defined(PEGASUS_USE_META_REPOSITORY)
+#if defined(PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY)
 
     MetaRepository::deleteNameSpace(nameSpace);
 
-#else /* PEGASUS_USE_META_REPOSITORY */
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::deleteNameSpace");
 
@@ -3404,17 +3144,17 @@ void CIMRepository::deleteNameSpace(const CIMNamespaceName& nameSpace)
 
     PEG_METHOD_EXIT();
 
-#endif /* PEGASUS_USE_META_REPOSITORY */
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 Boolean CIMRepository::getNameSpaceAttributes(const CIMNamespaceName& nameSpace,
         NameSpaceAttributes& attributes)
 {
-#if defined(PEGASUS_USE_META_REPOSITORY)
+#if defined(PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY)
 
     return MetaRepository::getNameSpaceAttributes(nameSpace, attributes);
 
-#else /* PEGASUS_USE_META_REPOSITORY */
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::deleteNameSpace");
 
@@ -3423,24 +3163,24 @@ Boolean CIMRepository::getNameSpaceAttributes(const CIMNamespaceName& nameSpace,
     PEG_METHOD_EXIT();
     return _nameSpaceManager.getNameSpaceAttributes(nameSpace, attributes);
 
-#endif /* PEGASUS_USE_META_REPOSITORY */
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 Boolean CIMRepository::isRemoteNameSpace(const CIMNamespaceName& nameSpaceName,
         String& remoteInfo)
 {
-#if defined(PEGASUS_USE_META_REPOSITORY)
+#if defined(PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY)
 
     return MetaRepository::isRemoteNameSpace(nameSpaceName, remoteInfo);
 
-#else /* PEGASUS_USE_META_REPOSITORY */
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::isRemoteNamespace");
     ReadLock lock(const_cast<ReadWriteSem&>(_lock));
     PEG_METHOD_EXIT();
     return _nameSpaceManager.isRemoteNameSpace(nameSpaceName, remoteInfo);
 
-#endif /* PEGASUS_USE_META_REPOSITORY */
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 //----------------------------------------------------------------------
@@ -3550,12 +3290,12 @@ void CIMRepository::getSubClassNames(
     Boolean deepInheritance,
     Array<CIMName>& subClassNames) const
 {
-#if defined(PEGASUS_USE_META_REPOSITORY)
+#if defined(PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY)
 
     return MetaRepository::getSubClassNames(
         nameSpaceName, className, deepInheritance, subClassNames);
 
-#else /* PEGASUS_USE_META_REPOSITORY */
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 
     ReadLock lock(const_cast<ReadWriteSem&>(_lock));
     _nameSpaceManager.getSubClassNames(nameSpaceName,
@@ -3563,7 +3303,7 @@ void CIMRepository::getSubClassNames(
                                        deepInheritance,
                                        subClassNames);
 
-#endif /* PEGASUS_USE_META_REPOSITORY */
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 /** Get the names of all superclasses (direct and indirect) of this
@@ -3574,18 +3314,18 @@ void CIMRepository::getSuperClassNames(
     const CIMName& className,
     Array<CIMName>& superClassNames) const
 {
-#if defined(PEGASUS_USE_META_REPOSITORY)
+#if defined(PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY)
 
     return MetaRepository::getSuperClassNames(
         nameSpaceName, className, superClassNames);
 
-#else /* PEGASUS_USE_META_REPOSITORY */
+#else /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 
     ReadLock lock(const_cast<ReadWriteSem&>(_lock));
     _nameSpaceManager.getSuperClassNames(
         nameSpaceName, className, superClassNames);
 
-#endif /* PEGASUS_USE_META_REPOSITORY */
+#endif /* PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY */
 }
 
 PEGASUS_NAMESPACE_END

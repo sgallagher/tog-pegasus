@@ -48,7 +48,6 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/MessageLoader.h>
-#include <Pegasus/Common/AuditLogger.h>
 
 #include "SSLContext.h"
 #include "SSLContextRep.h"
@@ -317,7 +316,6 @@ int SSLCallback::verificationCRLCallback(
 int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX* ctx)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLCallback::callback()");
-
     char   buf[256];
     X509   *currentCert;
     SSL    *ssl;
@@ -325,7 +323,7 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX* ctx)
     int    revoked = -1;
 
     PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
-        "--->SSL: Preverify Error %d", verifyError));
+        "--->SSL: Preverify result %d", preVerifyOk));
 
     //
     // get the verification callback info specific to each SSL connection
@@ -381,8 +379,6 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX* ctx)
     // get the serial number of the certificate
     //
     long serialNumber = ASN1_INTEGER_get(X509_get_serialNumber(currentCert));
-    char serialNumberString[32];
-    sprintf(serialNumberString, "%lu", serialNumber);
 
     //
     // get the validity of the certificate
@@ -442,13 +438,6 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX* ctx)
             "Certificate was not yet valid.");
 
         X509_STORE_CTX_set_error(ctx, X509_V_ERR_CERT_NOT_YET_VALID);
-
-        PEG_AUDIT_LOG(logCertificateBasedAuthentication(
-            issuerName,
-            subjectName,
-            serialNumberString,
-            exData->_rep->ipAddress,
-            false));
     }
 
     //
@@ -463,13 +452,7 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX* ctx)
     //
     if (exData->_rep->verifyCertificateCallback == NULL)
     {
-        PEG_AUDIT_LOG(logCertificateBasedAuthentication(
-            issuerName,
-            subjectName,
-            serialNumberString,
-            exData->_rep->ipAddress,
-            preVerifyOk));
-
+        PEG_METHOD_EXIT();
         return preVerifyOk;
     }
     else
@@ -480,14 +463,6 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX* ctx)
             PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
                 "--> SSL: _rep->verifyCertificateCallback() returned "
                     "X509_V_OK");
-
-            PEG_AUDIT_LOG(logCertificateBasedAuthentication(
-                 issuerName,
-                 subjectName,
-                 serialNumberString,
-                 exData->_rep->ipAddress,
-                 true));
-
             PEG_METHOD_EXIT();
             return 1;
         }
@@ -496,13 +471,6 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX* ctx)
             PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
                 "--> SSL: _rep->verifyCertificateCallback() returned error %d",
                 exData->_rep->peerCertificate[0]->getErrorCode()));
-
-            PEG_AUDIT_LOG(logCertificateBasedAuthentication(
-                 issuerName,
-                 subjectName,
-                 serialNumberString,
-                 exData->_rep->ipAddress,
-                 false));
 
             PEG_METHOD_EXIT();
             return 0;

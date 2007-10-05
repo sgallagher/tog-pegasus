@@ -38,6 +38,7 @@
 #include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/AuditLogger.h>
 
 #include "TLS.h"
 
@@ -374,6 +375,32 @@ Sint32 SSLSocket::accept()
                     ssl_rsn, buff, (const char*)_ipAddress.getCString() ));
             }
 
+            //
+            // If there was a verification error, create a audit log entry.
+            //
+            if (!(ssl_rsn == SSL_ERROR_SYSCALL || 
+                  ssl_rsn == SSL_ERROR_ZERO_RETURN) &&
+                _SSLContext->isPeerVerificationEnabled())
+            {
+                Array<SSLCertificateInfo*> certs = 
+                    getPeerCertificateChain(); 
+                if (certs.size() > 0) 
+                {
+                    SSLCertificateInfo* clientCert = certs[0];
+                    PEGASUS_ASSERT(clientCert != NULL);
+
+                    char serialNumberString[32];
+                    sprintf(serialNumberString, "%lu", 
+                        clientCert->getSerialNumber());
+
+                    PEG_AUDIT_LOG(logCertificateBasedAuthentication(
+                        clientCert->getIssuerName(),
+                        clientCert->getSubjectName(),
+                        serialNumberString,
+                        _ipAddress,
+                        false));
+                }
+            }
             PEG_METHOD_EXIT();
             return -1;
         }
@@ -404,33 +431,29 @@ Sint32 SSLSocket::accept()
         //
         // get client's certificate
         //
-        X509 * client_cert = SSL_get_peer_certificate(sslConnection);
-        if (client_cert != NULL)
+        Array<SSLCertificateInfo*> certs = getPeerCertificateChain();
+        if (certs.size() > 0)
         {
+            SSLCertificateInfo* clientCert = certs[0];
+            PEGASUS_ASSERT(clientCert != NULL);
+     
             //
-            // get certificate verification result
+            // get certificate verification result and create a audit log entry.
             //
             int verifyResult = SSL_get_verify_result(sslConnection);
             PEG_TRACE((TRC_SSL, Tracer::LEVEL3,
                 "Verification Result:  %d", verifyResult ));
+            _certificateVerified = (verifyResult == X509_V_OK);
 
-            if (verifyResult == X509_V_OK)
-            {
-                PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL2,
-                    "---> SSL: Client Certificate verified.");
-                //
-                // set flag to indicate that the certificate was verified in
-                // the trust store.
-                //
-                _certificateVerified = true;
-            }
-            else
-            {
-                PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL2,
-                     "---> SSL: Client Certificate not verified");
-            }
+            char serialNumberString[32];
+            sprintf(serialNumberString, "%lu", clientCert->getSerialNumber());
 
-            X509_free(client_cert);
+            PEG_AUDIT_LOG(logCertificateBasedAuthentication(
+                clientCert->getIssuerName(),
+                clientCert->getSubjectName(),
+                serialNumberString,
+                _ipAddress,
+                _certificateVerified));
         }
         else
         {
@@ -441,7 +464,7 @@ Sint32 SSLSocket::accept()
     else
     {
         PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3,
-            "---> SSL: Client certification disabled");
+            "---> SSL: Client certificate verification disabled");
     }
 
     PEG_METHOD_EXIT();

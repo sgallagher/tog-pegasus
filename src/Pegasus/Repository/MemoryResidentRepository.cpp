@@ -40,6 +40,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#define PEGASUS_ARRAY_T NamespaceInstancePair
+# include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+
 //==============================================================================
 //
 // Local routines:

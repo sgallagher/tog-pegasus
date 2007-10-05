@@ -98,11 +98,9 @@ endif
 STATIC=1
 LIBRARY = pegrepository
 
-SOURCES = \
-    MemoryResidentRepository.cpp \
+DEFAULT_REPOSITORY_SOURCES = \
     Repository.cpp \
     DefaultRepository.cpp \
-    MetaTypes.cpp \
     InstanceIndexFile.cpp \
     InstanceDataFile.cpp \
     CIMRepository.cpp \
@@ -114,8 +112,24 @@ SOURCES = \
     InheritanceTree.cpp \
     RepositoryDeclContext.cpp \
     RepositoryQueryContext.cpp \
+    Filtering.cpp 
+
+MEMORY_RESIDENT_REPOSITORY_SOURCES = \
+    MemoryResidentRepository.cpp \
+    Repository.cpp \
+    MetaTypes.cpp \
+    CIMRepository.cpp \
+    RepositoryDeclContext.cpp \
+    RepositoryQueryContext.cpp \
     MetaRepository.cpp \
     Filtering.cpp 
+
+ifdef PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY
+  SOURCES += $(MEMORY_RESIDENT_REPOSITORY_SOURCES)
+else
+  SOURCES += $(DEFAULT_REPOSITORY_SOURCES)
+endif
+
 
 include $(ROOT)/mak/library.mak
 

@@ -34,6 +34,7 @@
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/InheritanceTree.h>
 #include <Pegasus/Repository/CIMRepository.h>
+#include <Pegasus/Repository/NameSpaceManager.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

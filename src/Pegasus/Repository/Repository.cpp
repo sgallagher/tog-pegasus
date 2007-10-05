@@ -31,37 +31,18 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "MetaRepositoryDeclContext.h"
-#include "MetaRepository.h"
+#include "Repository.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-MetaRepositoryDeclContext::MetaRepositoryDeclContext()
+Repository::Repository(const String& repositoryRoot, Uint32 repositoryMode) :
+    _repositoryRoot(repositoryRoot), _repositoryMode(repositoryMode)
+
 {
 }
 
-MetaRepositoryDeclContext::~MetaRepositoryDeclContext()
+Repository::~Repository()
 {
-}
-
-CIMQualifierDecl MetaRepositoryDeclContext::lookupQualifierDecl(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& qualifierName) const
-{
-    return MetaRepository::getQualifier(nameSpace, qualifierName);
-}
-
-CIMClass MetaRepositoryDeclContext::lookupClass(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className) const
-{
-    return MetaRepository::getClass(
-        nameSpace, 
-        className,
-        false, /* localOnly */
-        true, /* includeQualifiers */
-        true, /* includeClassOrigin */
-        CIMPropertyList());
 }
 
 PEGASUS_NAMESPACE_END

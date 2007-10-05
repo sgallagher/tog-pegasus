@@ -33,18 +33,12 @@
 
 #include <cstdarg>
 #include <Pegasus/Common/Resolver.h>
-#include "MemoryResidentInstanceRepository.h"
+#include "MemoryResidentRepository.h"
+#include "RepositoryDeclContext.h"
 #include "MetaRepository.h"
-#include "MetaRepositoryDeclContext.h"
 #include "Filtering.h"
 
 PEGASUS_NAMESPACE_BEGIN
-
-#define PEGASUS_ARRAY_T NamespaceInstancePair
-# include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
-
-#define TRACE printf("TRACE: %s(%d): %s\n", __FILE__, __LINE__, __FUNCTION__)
 
 //==============================================================================
 //
@@ -145,19 +139,42 @@ static void _print(const CIMInstance& ci)
 
 //==============================================================================
 //
-// class MemoryResidentInstanceRepository
+// class MemoryResidentRepository:
 //
 //==============================================================================
 
-MemoryResidentInstanceRepository::MemoryResidentInstanceRepository()
+MemoryResidentRepository::MemoryResidentRepository(
+    const String& repositoryRoot, 
+    Uint32 repositoryMode) 
+    : 
+    Repository(repositoryRoot, repositoryMode)
 {
 }
 
-MemoryResidentInstanceRepository::~MemoryResidentInstanceRepository()
+MemoryResidentRepository::~MemoryResidentRepository()
 {
 }
 
-CIMInstance MemoryResidentInstanceRepository::getInstance(
+CIMClass MemoryResidentRepository::getClass(
+    bool lock,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
+{
+    return MetaRepository::getClass(
+        nameSpace, 
+        className, 
+        localOnly,
+        includeQualifiers,
+        includeClassOrigin,
+        propertyList);
+}
+
+CIMInstance MemoryResidentRepository::getInstance(
+    bool lock,
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
     Boolean localOnly,
@@ -165,8 +182,6 @@ CIMInstance MemoryResidentInstanceRepository::getInstance(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    TRACE;
-
     Uint32 pos = _findInstance(nameSpace, instanceName);
 
     if (pos == PEG_NOT_FOUND)
@@ -184,12 +199,21 @@ CIMInstance MemoryResidentInstanceRepository::getInstance(
     return cimInstance;
 }
 
-void MemoryResidentInstanceRepository::deleteInstance(
+void MemoryResidentRepository::deleteClass(
+    bool lock,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className)
+{
+    MetaRepository::deleteClass(
+        nameSpace,
+        className);
+}
+
+void MemoryResidentRepository::deleteInstance(
+    bool lock,
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName)
 {
-    TRACE;
-
     Uint32 pos = _findInstance(nameSpace, instanceName);
 
     if (pos == PEG_NOT_FOUND)
@@ -198,17 +222,28 @@ void MemoryResidentInstanceRepository::deleteInstance(
     _rep.remove(pos);
 }
 
-CIMObjectPath MemoryResidentInstanceRepository::createInstance(
+void MemoryResidentRepository::createClass(
+    bool lock,
     const CIMNamespaceName& nameSpace,
-    const CIMInstance& newInstance)
+    const CIMClass& newClass,
+    const ContentLanguageList& contentLangs)
 {
-    TRACE;
+    MetaRepository::createClass(
+        nameSpace,
+        newClass);
+}
 
+CIMObjectPath MemoryResidentRepository::createInstance(
+    bool lock,
+    const CIMNamespaceName& nameSpace,
+    const CIMInstance& newInstance,
+    const ContentLanguageList& contentLangs)
+{
     // Resolve the instance first:
 
     CIMInstance ci(newInstance.clone());
     CIMConstClass cc;
-    MetaRepositoryDeclContext context;
+    RepositoryDeclContext context(this);
     Resolver::resolveInstance(ci, &context, nameSpace, cc, false);
     CIMObjectPath cop = ci.buildPath(cc);
 
@@ -226,14 +261,25 @@ CIMObjectPath MemoryResidentInstanceRepository::createInstance(
     return cop;
 }
 
-void MemoryResidentInstanceRepository::modifyInstance(
+void MemoryResidentRepository::modifyClass(
+    bool lock,
+    const CIMNamespaceName& nameSpace,
+    const CIMClass& modifiedClass,
+    const ContentLanguageList& contentLangs)
+{
+    MetaRepository::modifyClass(
+        nameSpace,
+        modifiedClass);
+}
+
+void MemoryResidentRepository::modifyInstance(
+    bool lock,
     const CIMNamespaceName& nameSpace,
     const CIMInstance& modifiedInstance,
     Boolean includeQualifiers,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList,
+    const ContentLanguageList& contentLangs)
 {
-    TRACE;
-
     const CIMObjectPath& cop = modifiedInstance.getPath();
     CIMName className = cop.getClassName();
 
@@ -268,7 +314,7 @@ void MemoryResidentInstanceRepository::modifyInstance(
     // Resolve the instance.
 
     CIMConstClass cc;
-    MetaRepositoryDeclContext context;
+    RepositoryDeclContext context(this);
     Resolver::resolveInstance(resultInstance, &context, nameSpace, cc, false);
 
     // Replace original instance.
@@ -276,8 +322,38 @@ void MemoryResidentInstanceRepository::modifyInstance(
     _rep[pos].second = resultInstance;
 }
 
-Array<CIMInstance> 
-MemoryResidentInstanceRepository::enumerateInstancesForSubtree(
+Array<CIMClass> MemoryResidentRepository::enumerateClasses(
+    bool lock,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    Boolean deepInheritance,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin)
+{
+    return MetaRepository::enumerateClasses(
+        nameSpace,
+        className,
+        deepInheritance,
+        localOnly,
+        includeQualifiers,
+        includeClassOrigin);
+}
+
+Array<CIMName> MemoryResidentRepository::enumerateClassNames(
+    bool lock,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    Boolean deepInheritance)
+{
+    return MetaRepository::enumerateClassNames(
+        nameSpace,
+        className,
+        deepInheritance);
+}
+
+Array<CIMInstance> MemoryResidentRepository::enumerateInstancesForSubtree(
+    bool lock,
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
     Boolean deepInheritance,
@@ -286,8 +362,6 @@ MemoryResidentInstanceRepository::enumerateInstancesForSubtree(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    TRACE;
-
     // Form array of classnames for this class and descendent classes:
 
     Array<CIMName> classNames;
@@ -300,9 +374,9 @@ MemoryResidentInstanceRepository::enumerateInstancesForSubtree(
 
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
-        Array<CIMInstance> instances = enumerateInstancesForClass(nameSpace, 
-            classNames[i], false, includeQualifiers, includeClassOrigin, 
-            propertyList);
+        Array<CIMInstance> instances = enumerateInstancesForClass(false, 
+            nameSpace, classNames[i], false, includeQualifiers, 
+            includeClassOrigin, propertyList);
 
         for (Uint32 i = 0 ; i < instances.size(); i++)
         {
@@ -320,7 +394,8 @@ MemoryResidentInstanceRepository::enumerateInstancesForSubtree(
     return result;
 }
 
-Array<CIMInstance> MemoryResidentInstanceRepository::enumerateInstancesForClass(
+Array<CIMInstance> MemoryResidentRepository::enumerateInstancesForClass(
+    bool lock,
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
     Boolean localOnly,
@@ -328,8 +403,6 @@ Array<CIMInstance> MemoryResidentInstanceRepository::enumerateInstancesForClass(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    TRACE;
-
     Array<CIMInstance> result;
 
     for (Uint32 i = 0; i < _rep.size(); i++)
@@ -357,13 +430,11 @@ Array<CIMInstance> MemoryResidentInstanceRepository::enumerateInstancesForClass(
     return result;
 }
 
-Array<CIMObjectPath> 
-MemoryResidentInstanceRepository::enumerateInstanceNamesForSubtree(
+Array<CIMObjectPath> MemoryResidentRepository::enumerateInstanceNamesForSubtree(
+    bool lock,
     const CIMNamespaceName& nameSpace,
     const CIMName& className)
 {
-    TRACE;
-
     // Form array of classnames for this class and descendent classes:
 
     Array<CIMName> classNames;
@@ -376,8 +447,8 @@ MemoryResidentInstanceRepository::enumerateInstanceNamesForSubtree(
 
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
-        Array<CIMObjectPath> paths =
-            enumerateInstanceNamesForClass(nameSpace, classNames[i]);
+        Array<CIMObjectPath> paths = enumerateInstanceNamesForClass(
+            false, nameSpace, classNames[i]);
 
         result.appendArray(paths);
     }
@@ -385,13 +456,11 @@ MemoryResidentInstanceRepository::enumerateInstanceNamesForSubtree(
     return result;
 }
 
-Array<CIMObjectPath> 
-MemoryResidentInstanceRepository::enumerateInstanceNamesForClass(
+Array<CIMObjectPath> MemoryResidentRepository::enumerateInstanceNamesForClass(
+    bool lock,
     const CIMNamespaceName& nameSpace,
     const CIMName& className)
 {
-    TRACE;
-
     Array<CIMObjectPath> result;
 
     for (Uint32 i = 0; i < _rep.size(); i++)
@@ -408,12 +477,272 @@ MemoryResidentInstanceRepository::enumerateInstanceNamesForClass(
     return result;
 }
 
-Uint32 MemoryResidentInstanceRepository::_findInstance(
+Array<CIMInstance> MemoryResidentRepository::execQuery(
+    bool lock,
+    const String& queryLanguage,
+    const String& query)
+{
+    _throw(CIM_ERR_NOT_SUPPORTED, "execQuery()");
+    return Array<CIMInstance>();
+}
+
+Array<CIMObject> MemoryResidentRepository::associators(
+    bool lock,
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& objectName,
+    const CIMName& assocClass,
+    const CIMName& resultClass,
+    const String& role,
+    const String& resultRole,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
+{
+    if (objectName.getKeyBindings().size() == 0)
+    {
+        return MetaRepository::associatorClasses(
+            nameSpace,
+            objectName.getClassName(),
+            assocClass,
+            resultClass,
+            role,
+            resultRole,
+            includeQualifiers,
+            includeClassOrigin,
+            propertyList);
+    }
+    else
+    {
+        _throw(CIM_ERR_NOT_SUPPORTED, "associators()");
+        return Array<CIMObject>();
+    }
+}
+
+Array<CIMObjectPath> MemoryResidentRepository::associatorNames(
+    bool lock,
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& objectName,
+    const CIMName& assocClass,
+    const CIMName& resultClass,
+    const String& role,
+    const String& resultRole)
+{
+    if (objectName.getKeyBindings().size() == 0)
+    {
+        return MetaRepository::associatorClassPaths(
+            nameSpace,
+            objectName.getClassName(),
+            assocClass,
+            resultClass,
+            role,
+            resultRole);
+    }
+    else
+    {
+        _throw(CIM_ERR_NOT_SUPPORTED, "associatorNames()");
+        return Array<CIMObjectPath>();
+    }
+}
+
+Array<CIMObject> MemoryResidentRepository::references(
+    bool lock,
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& objectName,
+    const CIMName& resultClass,
+    const String& role,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
+{
+    if (objectName.getKeyBindings().size() == 0)
+    {
+        return MetaRepository::referenceClasses(
+            nameSpace,
+            objectName.getClassName(),
+            resultClass,
+            role,
+            includeQualifiers,
+            includeClassOrigin,
+            propertyList);
+    }
+    else
+    {
+        _throw(CIM_ERR_NOT_SUPPORTED, "references()");
+        return Array<CIMObject>();
+    }
+}
+
+Array<CIMObjectPath> MemoryResidentRepository::referenceNames(
+    bool lock,
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& objectName,
+    const CIMName& resultClass,
+    const String& role)
+{
+    if (objectName.getKeyBindings().size() == 0)
+    {
+        return MetaRepository::referenceClassPaths(
+            nameSpace,
+            objectName.getClassName(),
+            resultClass,
+            role);
+    }
+    else
+    {
+        _throw(CIM_ERR_NOT_SUPPORTED, "referenceNames()");
+        return Array<CIMObjectPath>();
+    }
+}
+
+CIMValue MemoryResidentRepository::getProperty(
+    bool lock,
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& instanceName,
+    const CIMName& propertyName)
+{
+    _throw(CIM_ERR_NOT_SUPPORTED, "getProperty()");
+    return CIMValue();
+}
+
+void MemoryResidentRepository::setProperty(
+    bool lock,
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& instanceName,
+    const CIMName& propertyName,
+    const CIMValue& newValue,
+    const ContentLanguageList& contentLangs)
+{
+    _throw(CIM_ERR_NOT_SUPPORTED, "setProperty()");
+}
+
+CIMQualifierDecl MemoryResidentRepository::getQualifier(
+    bool lock,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& qualifierName)
+{
+    return MetaRepository::getQualifier(nameSpace, qualifierName);
+}
+
+void MemoryResidentRepository::setQualifier(
+    bool lock,
+    const CIMNamespaceName& nameSpace,
+    const CIMQualifierDecl& qualifierDecl,
+    const ContentLanguageList& contentLangs)
+{
+    MetaRepository::setQualifier(nameSpace, qualifierDecl);
+}
+
+void MemoryResidentRepository::deleteQualifier(
+    bool lock,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& qualifierName)
+{
+    MetaRepository::deleteQualifier(nameSpace, qualifierName);
+}
+
+Array<CIMQualifierDecl> MemoryResidentRepository::enumerateQualifiers(
+    bool lock,
+    const CIMNamespaceName& nameSpace)
+{
+    return MetaRepository::enumerateQualifiers(nameSpace);
+}
+
+void MemoryResidentRepository::createNameSpace(
+    bool lock,
+    const CIMNamespaceName& nameSpace,
+    const NameSpaceAttributes& attributes)
+{
+    MetaRepository::createNameSpace(nameSpace, attributes);
+}
+
+void MemoryResidentRepository::modifyNameSpace(
+    bool lock,
+    const CIMNamespaceName& nameSpace,
+    const NameSpaceAttributes& attributes)
+{
+    MetaRepository::createNameSpace(nameSpace, attributes);
+}
+
+Array<CIMNamespaceName> MemoryResidentRepository::enumerateNameSpaces(
+    bool lock) const
+{
+    return MetaRepository::enumerateNameSpaces();
+}
+
+void MemoryResidentRepository::deleteNameSpace(
+    bool lock,
+    const CIMNamespaceName& nameSpace)
+{
+    MetaRepository::deleteNameSpace(nameSpace);
+}
+
+Boolean MemoryResidentRepository::getNameSpaceAttributes(
+    bool lock,
+    const CIMNamespaceName& nameSpace,
+    NameSpaceAttributes& attributes)
+{
+    attributes.clear();
+    return false;
+}
+
+void MemoryResidentRepository::setDeclContext(
+    bool lock,
+    RepositoryDeclContext* context)
+{
+    _throw(CIM_ERR_NOT_SUPPORTED, "setDeclContext()");
+}
+
+Boolean MemoryResidentRepository::isDefaultInstanceProvider(
+    bool lock)
+{
+    return true;
+}
+
+void MemoryResidentRepository::getSubClassNames(
+    bool lock,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    Boolean deepInheritance,
+    Array<CIMName>& subClassNames) const
+{
+    MetaRepository::getSubClassNames(
+        nameSpace,
+        className,
+        deepInheritance,
+        subClassNames);
+}
+
+void MemoryResidentRepository::getSuperClassNames(
+    bool lock,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    Array<CIMName>& superClassNames) const
+{
+    MetaRepository::getSuperClassNames(
+        nameSpace,
+        className,
+        superClassNames);
+}
+
+Boolean MemoryResidentRepository::isRemoteNameSpace(
+    bool lock,
+    const CIMNamespaceName& nameSpace,
+    String& remoteInfo)
+{
+    return false;
+}
+
+#ifdef PEGASUS_DEBUG
+void MemoryResidentRepository::DisplayCacheStatistics(
+    bool lock)
+{
+}
+#endif
+
+Uint32 MemoryResidentRepository::_findInstance(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName)
 {
-    TRACE;
-
     for (Uint32 i = 0; i < _rep.size(); i++)
     {
         if (_rep[i].first == nameSpace &&
@@ -425,7 +754,5 @@ Uint32 MemoryResidentInstanceRepository::_findInstance(
 
     return PEG_NOT_FOUND;
 }
-
-// ATTN-MEB: Implement associator operations!
 
 PEGASUS_NAMESPACE_END

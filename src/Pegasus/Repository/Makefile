@@ -99,6 +99,9 @@ STATIC=1
 LIBRARY = pegrepository
 
 SOURCES = \
+    MemoryResidentRepository.cpp \
+    Repository.cpp \
+    DefaultRepository.cpp \
     MetaTypes.cpp \
     InstanceIndexFile.cpp \
     InstanceDataFile.cpp \
@@ -112,8 +115,6 @@ SOURCES = \
     RepositoryDeclContext.cpp \
     RepositoryQueryContext.cpp \
     MetaRepository.cpp \
-    MetaRepositoryDeclContext.cpp \
-    MemoryResidentInstanceRepository.cpp \
     Filtering.cpp 
 
 include $(ROOT)/mak/library.mak

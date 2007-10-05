@@ -43,6 +43,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/CIMRepository.h>
+#include <Pegasus/Repository/NameSpaceManager.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

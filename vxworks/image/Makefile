@@ -15,6 +15,8 @@ romfs:
 
 CFG="LINE_EDIT_MODE=emacs,LINE_LENGTH=256,STRING_FREE=manual,INTERPRETER=Cmd,VXE_PATH=$(PEGASUS_HOME)/bin"
 
+HOSTNAME=$(shell hostname)
+
 proj:
 	mkdir -p proj
 	( cd proj; vxprj create linux gnu vxsim.wpj )

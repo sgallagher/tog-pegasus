@@ -454,7 +454,7 @@ ATTN-MEB: create constant for this:
 */
     // On VxWorks, run cimserver in /ramfs:0 directory:
     {
-        const char PATH[] = "/pegasus:0";
+        const char PATH[] = "/romfs";
         if (chdir(PATH) != 0)
         {
             fprintf(stderr, "cimserver: failed to chdir to %s\n", PATH);

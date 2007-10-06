@@ -7,7 +7,7 @@
 #include "virtualDiskLib.h"
 #include "hrFsLib.h"
 
-void pegasusInit()
+static void pegasusVFSInit()
 {
     BLK_DEV* blk_dev;
     device_t device;
@@ -71,7 +71,143 @@ void pegasusInit()
     }
 }
 
+void pegasusRamFsInit()
+{
+    BLK_DEV* blk_dev;
+    device_t device;
+    const size_t BYTES_PER_BLOCK = 1024;
+    const size_t NUM_BLOCKS = (64 * 1024 * 1024) / BYTES_PER_BLOCK;
+    int exists = 0;
+
+    /*
+     * Create RAM block device.
+     */
+
+    blk_dev = ramDevCreate (NULL, BYTES_PER_BLOCK, NUM_BLOCKS, NUM_BLOCKS,  0);
+
+    if (!blk_dev)
+    {
+        fprintf(stderr, "\n");
+        fprintf(stderr, "****\n");
+        fprintf(stderr, "**** ramDevCreate() failed\n");
+        fprintf(stderr, "****\n");
+        fprintf(stderr, "\n");
+        return;
+    }
+
+    fprintf(stderr, "==== Created RAM disk\n");
+    taskDelay(10);
+
+    if ((device = xbdBlkDevCreateSync(blk_dev, PEGASUS_DEV_NAME)) == 0)
+    {
+        fprintf(stderr, "**********************************\n");
+        fprintf(stderr, "**                              **\n");
+        fprintf(stderr, "** xbdBlkDevCreateSync() failed **\n");
+        fprintf(stderr, "**                              **\n");
+        fprintf(stderr, "**********************************\n");
+        return;
+    }
+
+    fprintf(stderr, "==== Created device: \"%s\"\n", PEGASUS_DEV_NAME);
+
+    if (!exists)
+    {
+        if (hrfsFormat(PEGASUS_DEV_NAME ":0", 0, 0, 0) != 0)
+        {
+            fprintf(stderr, "*************************\n");
+            fprintf(stderr, "**                     **\n");
+            fprintf(stderr, "** hrfsFormat() failed **\n");
+            fprintf(stderr, "**                     **\n");
+            fprintf(stderr, "*************************\n");
+            return;
+        }
+
+        fprintf(stderr, "==== Formatted virtual file system: \"%s\"\n", 
+            PEGASUS_DEV_NAME ":0");
+    }
+}
+
+void pegasusInit()
+{
+    pegasusRamFsInit();
+}
+
 #if 0
+void pegasusRamDriveInit()
+{
+    BLK_DEV* blk_dev;
+    device_t device;
+    int status;
+    const size_t TOTAL_BLOCKS = 32 * 1024;
+
+    /*
+     * Create RAM block device.
+     */
+
+    blk_dev = ramDevCreate (NULL, 1024, TOTAL_BLOCKS, TOTAL_BLOCKS,  0);
+
+    if (!blk_dev)
+    {
+        fprintf(stderr, "\n");
+        fprintf(stderr, "****\n");
+        fprintf(stderr, "**** ramDevCreate() failed\n");
+        fprintf(stderr, "****\n");
+        fprintf(stderr, "\n");
+        return;
+    }
+
+    fprintf(stderr, "==== Created RAM disk\n");
+    taskDelay(10);
+
+    /*
+     * Create RAM device.
+     */
+
+    device = xbdBlkDevCreateSync(blk_dev, "/ramfs");
+
+    if (device == 0)
+    {
+        fprintf(stderr, "\n");
+        fprintf(stderr, "****\n");
+        fprintf(stderr, "**** ramDevCreate() failed\n");
+        fprintf(stderr, "****\n");
+        fprintf(stderr, "\n");
+        return;
+    }
+
+    fprintf(stderr, "==== Created device: \"%s\"\n", "/ramfs");
+
+    /*
+     * Format RAM drive.
+     */
+
+    status = hrfsFormat("/ramfs:0", 0, 0, 0);
+
+    if (status != 0)
+    {
+        fprintf(stderr, "\n");
+        fprintf(stderr, "****\n");
+        fprintf(stderr, "**** hrfsFormat() failed\n");
+        fprintf(stderr, "****\n");
+        fprintf(stderr, "\n");
+        return;
+    }
+
+    fprintf(stderr, "==== Formatted ram drive: \"%s\"\n", 
+        "/ramfs" ":0");
+
+    if (chdir("/ramfs:0") != 0)
+    {
+        fprintf(stderr, "\n");
+        fprintf(stderr, "****\n");
+        fprintf(stderr, "**** chdir() failed\n");
+        fprintf(stderr, "****\n");
+        fprintf(stderr, "\n");
+        return;
+    }
+
+}
+
 void pegasusRamDriveInit()
 {
     BLK_DEV* blk_dev;

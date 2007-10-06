@@ -27,124 +27,21 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//=============================================================================
+#//==============================================================================
+ROOT = ../../../../..
+DIR = Pegasus/Repository/tests/Serialization
+include $(ROOT)/mak/config.mak
+include ../libraries.mak
 
-ifndef WIND_BASE
-  $(error "The WIND_BASE environment variable is undefined. Please initialize VxWorks environment")
-endif
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-VXWORKS_ROOT = $(WIND_BASE)
-VXWORKS_LIB = $(VXWORKS_ROOT)/target/usr/lib/simpentium/SIMPENTIUM/common
+PROGRAM = TestSerialization
+SOURCES = Serialization.cpp
 
-export PEGASUS_ENABLE_IPV6=false
+include $(ROOT)/mak/program.mak
 
+tests:
+	$(PROGRAM)
 
+poststarttests:
 
-DEFINES = 
-## ATTN-KS Temporary bypass use of password file until we find way around use of this file
-## we need to support the function of persistent changable passwords but not the use of the file
-## or pam authentication
-##
-DEFINES += -DPEGASUS_NO_PASSWORDFILE
-
-OS_TYPE = vxworks
-
-RM = rm -f
-
-RMDIRHIER = rm -rf
-
-MKDIRHIER = mkdir -p 
-
-EXE_OUT = -o
-
-OBJ = .o
-
-OBJ_OUT = -o
-
-EXE =
-
-LIB_PREFIX = lib
-
-DIFF = diff
-
-SORT = sort
-
-COPY = cp
-
-TOUCH = touch
-
-ECHO = echo
-
-DEFINES += -DPEGASUS_PLATFORM_VXWORKS_PENTIUM_GNU
-
-PEGASUS_DEFAULT_ENABLE_OOP = false
-
-PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER = false
-
-OS = vxworks
-
-COMPILER = gnu
-
-PLATFORM_VERSION_SUPPORTED = yes
-
-ifndef CXX
-  CXX = c++pentium
-endif
-
-ifndef CC
-  CC = ccpentium
-endif
-
-SH = sh
-
-YACC = bison
-
-RM = rm -f
-
-DIFF = diff
-
-SORT = sort
-
-COPY = cp
-
-MOVE = mv
-
-MKDIRHIER = mkdir -p
-
-PEGASUS_SUPPORTS_DYNLIB = yes
-
-MAJOR_VERSION_NUMBER = 1
-
-LIB_SUFFIX = .so
-
-AR = arpentium
-
-DEFINES += -DPEGASUS_USE_SYSLOGS -DCPU=SIMPENTIUM -DTOOL_FAMILY=gnu -DTOOL=gnu 
-
-SYS_LIBS =
-
-ifdef PEGASUS_PAM_AUTHENTICATION
-    $(error "vxworks does not support PAM authenticaiton")
-endif
-
-FLAGS += -mhard-float -mcpu=i486 -march=i486 -ansi -fno-builtin -W -Wall -Wno-unused -mrtp
-
-ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
-  FLAGS += -g
-else
-  FLAGS += -Os
-endif
-
-PEGASUS_HAS_MAKEDEPEND = yes
-
-PEGASUS_ARCH_LIB = lib64
-
-ROMFS = $(PEGASUS_HOME)/romfs
-
-PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET=1
-
-PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY=1
-
-PEGASUS_REMOVE_TRACE=1
-
-export PEGASUS_USE_STATIC_LIBRARIES=true

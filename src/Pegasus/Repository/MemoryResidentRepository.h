@@ -37,6 +37,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Repository/Repository.h>
 #include <Pegasus/Common/Pair.h>
+#include <Pegasus/Common/Buffer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -49,9 +50,10 @@ typedef Pair<CIMNamespaceName, CIMInstance> NamespaceInstancePair;
 class RepositoryDeclContext;
 class compilerDeclContext;
 
+
 /** Virtual base class for CIMRepository implementations.
 */
-class MemoryResidentRepository : public Repository
+class PEGASUS_REPOSITORY_LINKAGE MemoryResidentRepository : public Repository
 {
 public:
 
@@ -288,11 +290,25 @@ public:
         bool lock);
 #endif
 
-private:
+    // Sets the global save handler that is called whenever the memory-resident
+    // instance repository is modified. The buffer argument is a serialized
+    // copy of the memory-resident instance repository. The handler can do
+    // things such as save the buffer on disk for later use.
+    static void setSaveHandler(void (*handler)(const Buffer& buffer));
 
+    // Sets the global load handler that is called whenever an instance of
+    // MemoryResidentRepository is created in order to load the initial set
+    // of instances (if any).
+    static void setLoadHandler(void (*handler)(Buffer& buffer));
+
+private:
     Uint32 _findInstance(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName);
+
+    void _processSaveHandler();
+
+    void _processLoadHandler();
 
     Array<NamespaceInstancePair> _rep;
 };

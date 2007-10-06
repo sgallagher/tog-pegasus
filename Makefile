@@ -55,7 +55,6 @@ ifeq ($(OS_TYPE),vxworks)
         src/Service \
         src/Pegasus/Provider \
         src/Pegasus/Repository \
-        src/Pegasus/Repository/tests \
         src/Pegasus/Server/ProviderRegistrationManager \
         src/Pegasus/ProviderManager2 \
         src/Pegasus/ProviderManager2/Default \

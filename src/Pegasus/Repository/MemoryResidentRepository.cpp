@@ -37,6 +37,7 @@
 #include "RepositoryDeclContext.h"
 #include "MetaRepository.h"
 #include "Filtering.h"
+#include "Serialization.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -147,12 +148,17 @@ static void _print(const CIMInstance& ci)
 //
 //==============================================================================
 
+static void (*_saveHandler)(const Buffer& buffer);
+static void (*_loadHandler)(Buffer& buffer);
+
 MemoryResidentRepository::MemoryResidentRepository(
     const String& repositoryRoot, 
     Uint32 repositoryMode) 
     : 
     Repository(repositoryRoot, repositoryMode)
 {
+    // Load users data if any:
+    _processLoadHandler();
 }
 
 MemoryResidentRepository::~MemoryResidentRepository()
@@ -224,6 +230,7 @@ void MemoryResidentRepository::deleteInstance(
         _throw(CIM_ERR_NOT_FOUND, "%s", *Str(instanceName));
 
     _rep.remove(pos);
+    _processSaveHandler();
 }
 
 void MemoryResidentRepository::createClass(
@@ -261,6 +268,7 @@ CIMObjectPath MemoryResidentRepository::createInstance(
     // Add instance to array:
 
     _rep.append(NamespaceInstancePair(nameSpace, ci));
+    _processSaveHandler();
 
     return cop;
 }
@@ -324,6 +332,7 @@ void MemoryResidentRepository::modifyInstance(
     // Replace original instance.
 
     _rep[pos].second = resultInstance;
+    _processSaveHandler();
 }
 
 Array<CIMClass> MemoryResidentRepository::enumerateClasses(
@@ -757,6 +766,66 @@ Uint32 MemoryResidentRepository::_findInstance(
     }
 
     return PEG_NOT_FOUND;
+}
+
+void MemoryResidentRepository::setSaveHandler(
+    void (*handler)(const Buffer& buffer))
+{
+    _saveHandler = handler;
+}
+
+void MemoryResidentRepository::setLoadHandler(
+    void (*handler)(Buffer& buffer))
+{
+    _loadHandler = handler;
+}
+
+void MemoryResidentRepository::_processSaveHandler()
+{
+    if (!_saveHandler)
+        return;
+
+    Buffer out;
+
+    for (Uint32 i = 0; i < _rep.size(); i++)
+    {
+        SerializeNameSpace(out, _rep[i].first);
+        SerializeInstance(out, _rep[i].second);
+    }
+
+    (*_saveHandler)(out);
+}
+
+void MemoryResidentRepository::_processLoadHandler()
+{
+    if (!_loadHandler)
+        return;
+
+    Buffer in;
+    (*_loadHandler)(in);
+    size_t pos = 0;
+
+    while (pos != in.size())
+    {
+        CIMNamespaceName nameSpace;
+
+        if (DeserializeNameSpace(in, pos, nameSpace) != 0)
+        {
+            printf("***** DeserializeNameSpace() failed\n");
+            return;
+        }
+
+        CIMInstance cimInstance;
+
+        if (DeserializeInstance(in, pos, cimInstance) != 0)
+        {
+            printf("***** DeserializeInstance() failed\n");
+            return;
+        }
+
+        printf("===== MemoryResidentRepository: loaded instance\n");
+        _rep.append(NamespaceInstancePair(nameSpace, cimInstance));
+    }
 }
 
 PEGASUS_NAMESPACE_END

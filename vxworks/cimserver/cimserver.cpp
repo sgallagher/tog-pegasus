@@ -33,6 +33,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Repository/MetaRepository.h>
+#include <Pegasus/Repository/MemoryResidentRepository.h>
 #include <Pegasus/Server/ProviderTable.h>
 #include <Pegasus/Provider/CIMProvider.h>
 #include "root_cimv2_namespace.h"
@@ -64,13 +65,73 @@ static Pegasus::ProviderTableEntry _providerTable[] =
     { 0, 0, 0, 0, 0 },
 };
 
+static const char INSTANCE_REPOISTORY_PATH[] = "redbird:/tmp/instances.dat";
+
+static void _loadHandler(Buffer& buffer)
+{
+    printf("===== _loadHandler()\n");
+
+    // If this file exists, pass its contents to the memory resident 
+    // repository.
+
+    FILE* is = fopen(INSTANCE_REPOISTORY_PATH, "rb");
+
+    if (!is)
+    {
+        printf("DOES NOT EXIST[%s]\n", INSTANCE_REPOISTORY_PATH);
+        return;
+    }
+
+    size_t n;
+    char buf[4096];
+
+    while ((n = fread(buf, 1, sizeof(buf), is)) > 0)
+        buffer.append(buf, n);
+
+    fclose(is);
+}
+
+static void _saveHandler(const Buffer& buffer)
+{
+    printf("===== _saveHandler()\n");
+
+    FILE* os = fopen(INSTANCE_REPOISTORY_PATH, "wb");
+
+    if (!os)
+    {
+        printf("FAILED TO OPEN[%s]\n", INSTANCE_REPOISTORY_PATH);
+        return;
+    }
+
+    const char* data = buffer.getData();
+    size_t size = buffer.size();
+
+    if (fwrite(data, 1, size, os) != size)
+    {
+        printf("FAILED TO WRITE[%s]\n", INSTANCE_REPOISTORY_PATH);
+    }
+
+    fclose(os);
+}
+
 int main(int argc, char** argv)
 {
+    // Setup the provider table:
+
     pegasusProviderTable = _providerTable;
+
+    // Add namespaces to the meta-repository:
 
     MetaRepository::addNameSpace(&root_PG_InterOp_namespace);
     MetaRepository::addNameSpace(&root_cimv2_namespace);
     MetaRepository::addNameSpace(&root_PG_Internal_namespace);
+
+    // Arrange for load/save repository handlers to be invoked.
+
+    MemoryResidentRepository::setLoadHandler(_loadHandler);
+    MemoryResidentRepository::setSaveHandler(_saveHandler);
+
+    // Run the pegasus server:
 
     return PegasusServerMain(argc, argv);
 }

@@ -517,14 +517,14 @@ static void _writeSint32(FILE* os, Sint32 x)
 
 static void _writeUint64(FILE* os, Uint64 x)
 {
-    Uint64 x0 = (x >> 56) & 0x000000FF;
-    Uint64 x1 = (x >> 48) & 0x000000FF;
-    Uint64 x2 = (x >> 40) & 0x000000FF;
-    Uint64 x3 = (x >> 32) & 0x000000FF;
-    Uint64 x4 = (x >> 24) & 0x000000FF;
-    Uint64 x5 = (x >> 16) & 0x000000FF;
-    Uint64 x6 = (x >>  8) & 0x000000FF;
-    Uint64 x7 = (x >>  0) & 0x000000FF;
+    Uint64 x0 = (x >> 56) & 0x00000000000000FF;
+    Uint64 x1 = (x >> 48) & 0x00000000000000FF;
+    Uint64 x2 = (x >> 40) & 0x00000000000000FF;
+    Uint64 x3 = (x >> 32) & 0x00000000000000FF;
+    Uint64 x4 = (x >> 24) & 0x00000000000000FF;
+    Uint64 x5 = (x >> 16) & 0x00000000000000FF;
+    Uint64 x6 = (x >>  8) & 0x00000000000000FF;
+    Uint64 x7 = (x >>  0) & 0x00000000000000FF;
     fprintf(os, "\\%03o", (int)x0);
     fprintf(os, "\\%03o", (int)x1);
     fprintf(os, "\\%03o", (int)x2);

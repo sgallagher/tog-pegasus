@@ -112,7 +112,7 @@ DEFAULT_REPOSITORY_SOURCES = \
     InheritanceTree.cpp \
     RepositoryDeclContext.cpp \
     RepositoryQueryContext.cpp \
-    Filtering.cpp 
+    Filtering.cpp
 
 MEMORY_RESIDENT_REPOSITORY_SOURCES = \
     MemoryResidentRepository.cpp \
@@ -122,7 +122,8 @@ MEMORY_RESIDENT_REPOSITORY_SOURCES = \
     RepositoryDeclContext.cpp \
     RepositoryQueryContext.cpp \
     MetaRepository.cpp \
-    Filtering.cpp 
+    Filtering.cpp \
+    Serialization.cpp
 
 ifdef PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY
   SOURCES += $(MEMORY_RESIDENT_REPOSITORY_SOURCES)

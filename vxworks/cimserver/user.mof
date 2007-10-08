@@ -7,3 +7,8 @@ class Goodbye
 {
     [Key] Uint32 Key;
 };
+
+class Junk
+{
+    [Key] Uint32 Key;
+};

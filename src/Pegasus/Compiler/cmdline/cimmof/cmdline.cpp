@@ -255,14 +255,15 @@ ostream & help(ostream &os, int progtype)
     if (progtype == 1)
     {
         help.append(
-        "    -m                  - Generate C++ meta definitions rather than\n"
-        "                          disk files. The generated C++ source code\n"
-        "                          contains meta-class and meta-qualifier\n"
-        "                          definitions, which are compiled to form\n"
-        "                          an in-memory read-only repository.\n");
+        "    -m                  - Create an MRR (memory-resident repository)\n"
+        "                          rather than a disk-resident repository.\n"
+        "                          Classes and qualifier declarations are\n"
+        "                          placed into source files and instances are\n"
+        "                          placed into a flat binary file.\n");
         help.append(
-        "    -d                  - Discard description qualifiers from source\n"
-        "                          code repository to conserve space.\n");
+        "    -d                  - Discard description qualifiers when\n"
+        "                          creating an MRR (memory-resident\n"
+        "                          repository).\n");
     }
 
     if(progtype == 1)
@@ -349,7 +350,7 @@ static struct optspec optspecs[] =
 #ifdef PEGASUS_OS_PASE
     {(char*)"q", QUIETFLAG, false, getoopt::NOARG},
 #endif
-    {(char*)"m", METAFLAG, false, getoopt::NOARG},
+    {(char*)"m", MRRFLAG, false, getoopt::NOARG},
     {(char*)"d", DISCARDFLAG, false, getoopt::NOARG},
     {(char*)"", OPTEND_CIMMOF, false, getoopt::NOARG},
     {(char*)"R", REPOSITORYDIR, false, getoopt::MUSTHAVEARG},
@@ -711,9 +712,9 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                 break;
             }
 #endif
-            case METAFLAG:
+            case MRRFLAG:
             {
-                cmdlinedata.set_meta();
+                cmdlinedata.set_mrr();
                 break;
             }
 

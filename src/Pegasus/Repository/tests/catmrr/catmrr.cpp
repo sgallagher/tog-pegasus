@@ -29,66 +29,79 @@
 //
 //==============================================================================
 //
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
-//
-// Constants for use by cmdline.cpp
-//
+#include <cstdio>
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/MofWriter.h>
+#include <Pegasus/Repository/Serialization.h>
 
-#ifndef _CMDLINE_CMDLINE_H_
-#define _CMDLINE_CMDLINE_H_
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
-#include <Pegasus/Common/String.h>
-
-enum opttypes {FILESPEC,
-           HELPFLAG,
-           INCLUDEPATH,
-           SUPPRESSFLAG,
-           NAMESPACE,
-           REPOSITORYDIR,
-
-           UPDATEFLAG,
-           ALLOWFLAG,
-#ifndef PEGASUS_OS_HPUX
-           SYNTAXFLAG,
-//PEP167     FILELIST,
-           TRACEFLAG,
-           XMLFLAG,
-#endif
-#ifdef PEGASUS_OS_PASE
-           QUIETFLAG,
-#endif
-           MRRFLAG,
-           DISCARDFLAG,
-           VERSIONFLAG,
-           OPTEND_CIMMOF,    //PEP167
-           REPOSITORYNAME,
-           REPOSITORYMODE,
-           NO_USAGE_WARNING,
-           OPTEND_CIMMOFL};  //PEP167
-
-struct optspec
+int main(int argc, char** argv)
 {
-    char *flag;
-    opttypes catagory;
-    int islong;
-    int needsvalue;
-};
+    // Usage:
 
-// Wrap this around the PEGASUS_HOME define for OS/400
+    if (argc != 2)
+    {
+        fprintf(stderr, "Usage: %s path\n", argv[0]);
+        exit(1);
+    }
 
-#define PEGASUS_HOME "PEGASUS_HOME"
+    // Open input file:
 
-#define PEGASUS_CIMMOF_NO_DEFAULTNAMESPACEPATH    -9
-#define PEGASUS_CIMMOF_COMPILER_GENERAL_EXCEPTION -8
-#define PEGASUS_CIMMOF_BAD_FILENAME               -7
-#define PEGASUS_CIMMOF_PARSING_ERROR              -6
-#define PEGASUS_CIMMOF_PARSER_LEXER_ERROR         -5
-#define PEGASUS_CIMMOF_UNEXPECTED_CONDITION       -4
-#define PEGASUS_CIMMOF_CMDLINE_NOREPOSITORY       -3
-#define PEGASUS_CIMMOF_CIM_EXCEPTION              -2
+    FILE* is = fopen(argv[1], "rb");
 
-#define ROOTCIMV2 "root/cimv2"
-#define REPOSITORY_NAME_DEFAULT "repository"
-#define REPOSITORY_MODE_DEFAULT "XML"
-#endif
+    if (!is)
+    {
+        fprintf(stderr, "%s: failed to open \"%s\"\n", argv[0], argv[1]);
+        exit(1);
+    }
+
+    // Read file into memory:
+
+    Buffer in;
+    {
+        char buf[4096];
+        size_t n;
+
+        while ((n = fread(buf, 1, sizeof(buf), is)) > 0)
+            in.append(buf, n);
+    }
+
+    // Close file:
+
+    fclose(is);
+
+    // Deserialize and print instances to standard output:
+
+    size_t pos = 0;
+
+    while (in.size() != pos)
+    {
+        CIMNamespaceName ns;
+        CIMInstance ci;
+
+        if (DeserializeNameSpace(in, pos, ns) != 0 ||
+            DeserializeInstance(in, pos, ci) != 0)
+        {
+            fprintf(stderr, "%s: malformed instance file: \"%s\"\n", 
+                argv[0], argv[1]);
+            exit(1);
+        }
+
+        printf("//\n");
+        printf("// Namespace: %s\n", (const char*)ns.getString().getCString());
+        printf("//\n");
+        printf("\n");
+
+        Buffer out;
+        MofWriter::appendInstanceElement(out, ci);
+
+        printf("%s\n", out.getData());
+    }
+
+    return 0;
+}

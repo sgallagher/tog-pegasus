@@ -40,7 +40,7 @@
 #include "cimmofConsumer.h"
 #include "cimmofRepositoryConsumer.h"
 #include "cimmofClientConsumer.h"
-#include "cimmofMetaConsumer.h"
+#include "cimmofMRRConsumer.h"
 
 PEGASUS_USING_PEGASUS;
 
@@ -116,9 +116,9 @@ cimmofConsumer* cimmofConsumer::createConsumer(
             return 0;
         }
     }
-    else if (type == META_CONSUMER)
+    else if (type == MRR_CONSUMER)
     {
-        return new cimmofMetaConsumer(discard);
+        return new cimmofMRRConsumer(discard);
     }
 
     return 0;

@@ -76,7 +76,7 @@ SOURCES = \
     cimmofConsumer.cpp \
     cimmofClientConsumer.cpp \
     cimmofRepositoryConsumer.cpp \
-    cimmofMetaConsumer.cpp
+    cimmofMRRConsumer.cpp
 
 include $(ROOT)/mak/library.mak
 

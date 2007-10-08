@@ -152,8 +152,8 @@ Boolean cimmofParser::setRepository(void)
         {
             cimmofConsumer::ConsumerType consumerType;
 
-            if (_cmdline->meta())
-                consumerType = cimmofConsumer::META_CONSUMER;
+            if (_cmdline->mrr())
+                consumerType = cimmofConsumer::MRR_CONSUMER;
             else if (_cmdline->is_local())
                 consumerType = cimmofConsumer::REPOSITORY_CONSUMER;
             else

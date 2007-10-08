@@ -87,9 +87,8 @@ void test()
 
     Buffer out;
     {
-        Array<String> tbl;
-        SerializeInstance(tbl, out, ci1);
-        SerializeInstance(tbl, out, ci1);
+        SerializeInstance(out, ci1);
+        SerializeInstance(out, ci1);
     }
 
     // _dump(out.getData(), out.size());
@@ -99,10 +98,9 @@ void test()
     CIMInstance ci2;
     {
         Buffer in(out);
-        Array<String> tbl;
         size_t pos = 0;
 
-        if (DeserializeInstance(tbl, in, pos, ci2) != 0)
+        if (DeserializeInstance(in, pos, ci2) != 0)
             PEGASUS_TEST_ASSERT(0);
     }
 

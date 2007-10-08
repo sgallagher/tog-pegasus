@@ -112,7 +112,8 @@ DEFAULT_REPOSITORY_SOURCES = \
     InheritanceTree.cpp \
     RepositoryDeclContext.cpp \
     RepositoryQueryContext.cpp \
-    Filtering.cpp
+    Filtering.cpp \
+    Serialization.cpp
 
 MEMORY_RESIDENT_REPOSITORY_SOURCES = \
     MemoryResidentRepository.cpp \

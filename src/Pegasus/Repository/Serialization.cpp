@@ -52,6 +52,7 @@ PEGASUS_NAMESPACE_BEGIN
 //==============================================================================
 
 static Uint32 _INSTANCE_MAGIC = 0x20D54A36;
+static Uint32 _NAMESPACE_MAGIC = 0x06979333;
 
 class Str
 {
@@ -1388,6 +1389,12 @@ void SerializeNameSpace(
     Buffer& out, 
     const CIMNamespaceName& nameSpace)
 {
+    // Serialize magic number:
+
+    _PutUint32(out, _NAMESPACE_MAGIC);
+
+    // Serialize namespace string:
+
     _PutString(out, nameSpace.getString());
 }
 
@@ -1396,12 +1403,28 @@ int DeserializeNameSpace(
     size_t& pos,
     CIMNamespaceName& nameSpace)
 {
+    // Deserialize magic number:
+
+    Uint32 magic;
+
+    if (_GetUint32(in, pos, magic) != 0 || magic != _NAMESPACE_MAGIC)
+        RETURN_FAILURE;
+
+    // Deserialize namespace string:
+
     String tmp;
 
     if (_GetString(in, pos, tmp) != 0)
         RETURN_FAILURE;
 
-    nameSpace = tmp;
+    try
+    {
+        nameSpace = tmp;
+    }
+    catch (...)
+    {
+        return -1;
+    }
     return 0;
 }
 

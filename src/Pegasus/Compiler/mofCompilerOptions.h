@@ -76,7 +76,7 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   String                _namespacePath;
   Boolean         _syntax_only;
   Boolean         _is_local;
-  Boolean         _meta;
+  Boolean         _mrr;
   Boolean         _discard;
   Boolean         _suppress_warnings;
   Boolean         _suppress_all_messages;
@@ -101,7 +101,7 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
     _namespacePath(""),
     _syntax_only(false),
     _is_local(false),
-    _meta(false),
+    _mrr(false),
     _discard(false),
     _suppress_warnings(false),
     _suppress_all_messages(false),
@@ -136,9 +136,9 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   void set_is_local() { _is_local = true; }
   void reset_is_local() { _is_local = false; }
   Boolean is_local() const { return _is_local; }
-  void set_meta() { _meta = true; }
-  void reset_meta() { _meta = false; }
-  Boolean meta() const { return _meta; }
+  void set_mrr() { _mrr = true; }
+  void reset_mrr() { _mrr = false; }
+  Boolean mrr() const { return _mrr; }
   void set_discard() { _discard = true; }
   void reset_discard() { _discard = false; }
   Boolean discard() const { return _discard; }

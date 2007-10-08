@@ -27,118 +27,118 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
 //
-
 //%/////////////////////////////////////////////////////////////////////////////
-//
-// This class is the interface between the cimmof compiler, in its various
-// forms, and the various Pegasus repository interfaces which as the
-// time this class was created were CIMRepository and CIMClient.
-//
-// This class supports only the operations that the compiler needs, which
-// are
-//     addClass()
-//     addInstance()
-//     addQualifier()
-//     createNameSpace()
-//
-// If we create compiler-like tools to do mass changes to the repository,
-// then I expect that we will add methods to deal with the modification.
-// This class is intended to be very light, basically making it easy
-// to choose what repository and what repository interface to use.
-// It includes both, since there's nothing to be saved by splitting them.
-// Anything that the client or repository interface throws gets passed
-// to the cimmofParser level, which is equipped to handle the exceptions
-//
 
-#ifndef cimmofConsumer_h
-#define cimmofConsumer_h
+#ifndef _cimmofMRRConsumer_h
+#define _cimmofMRRConsumer_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMName.h>
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Compiler/Linkage.h>
-#include "mofCompilerOptions.h"
-#include <Pegasus/Repository/CIMRepository.h>
+#include <Pegasus/Common/CIMClass.h>
+#include <cstdio>
+#include "cimmofConsumer.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-// Forward declarations
-class cimmofRepositoryConsumer;
-class cimmofClientConsumer;
-class CIMClass;
-class CIMQualifierDecl;
-class CIMInstance;
-
-/** This class consumer parsed entities. It is the base class for other 
-    consumers.
+/** The MRR (Memory Resident Repository) Consumer.
 */
-class PEGASUS_COMPILER_LINKAGE cimmofConsumer
+class PEGASUS_COMPILER_LINKAGE cimmofMRRConsumer : public cimmofConsumer
 {
 public:
 
-    enum ConsumerType 
-    {
-        REPOSITORY_CONSUMER = 1,
-        CLIENT_CONSUMER = 2,
-        MRR_CONSUMER = 3,
-    };
+    cimmofMRRConsumer(bool descriptions);
 
-    cimmofConsumer();
-
-    virtual ~cimmofConsumer();
+    virtual ~cimmofMRRConsumer();
 
     virtual void addClass(
         const CIMNamespaceName& nameSpace,
-        CIMClass& Class) = 0;
+        CIMClass& Class);
 
     virtual void addQualifier(
         const CIMNamespaceName& nameSpace,
-        CIMQualifierDecl& qual) = 0;
+        CIMQualifierDecl& qual);
 
     virtual void addInstance(
         const CIMNamespaceName& nameSpace,
-        CIMInstance& instance) = 0;
+        CIMInstance& instance);
 
     virtual CIMQualifierDecl getQualifierDecl(
         const CIMNamespaceName& nameSpace,
-        const CIMName& qualifierName) = 0;
+        const CIMName& qualifierName);
 
     virtual CIMClass getClass(
         const CIMNamespaceName& nameSpace,
-        const CIMName& className) = 0;
+        const CIMName& className);
 
     virtual void modifyClass(
         const CIMNamespaceName& nameSpace,
-        CIMClass& Class) = 0;
+        CIMClass& Class);
 
     virtual void createNameSpace(
-        const CIMNamespaceName& nameSpace) = 0;
+        const CIMNamespaceName& nameSpace);
 
-    virtual void start() = 0;
+    virtual void start();
 
-    virtual void finish() = 0;
-
-    static cimmofConsumer* createConsumer(
-        ConsumerType type, 
-        String location, 
-        Uint32 mode,
-        compilerCommonDefs::operationType ot, 
-        bool discard);
+    virtual void finish();
 
 private:
 
-    PEGASUS_FORMAT(3, 4) 
-    void _out1(FILE* os, const char* format, ...);
+    PEGASUS_FORMAT(2, 3)
+    void _out(const char* format, ...);
 
-    PEGASUS_FORMAT(3, 4) 
-    void _out2(FILE* os, const char* format, ...);
+    PEGASUS_FORMAT(2, 3)
+    void _outn(const char* format, ...);
 
-    cimmofConsumer(const cimmofConsumer&);
-    cimmofConsumer& operator=(const cimmofConsumer&);
+    void _nl();
+
+    Uint32 _findClass(const CIMName& className) const;
+
+    Uint32 _findQualifier(const CIMName& qualifierName) const;
+
+    void _writeMetaPrologue();
+
+    void _writeMetaEpilogue();
+
+    void _writeQualifier(
+        const Array<CIMQualifierDecl>& qualifierDecls,
+        const CIMConstQualifier& qualifier);
+
+    void _writeQualifierDecl(const CIMConstQualifierDecl& cq);
+
+    void _writeNameSpace(const CIMNamespaceName& nameSpace);
+
+    void _writeQualifierArray(
+        const String& root,
+        const Array<CIMConstQualifier>& qualifiers);
+
+    void _writeProperty(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        const CIMConstProperty& cp);
+
+    void _writeParameter(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& cn,
+        const CIMName& mn,
+        const CIMConstParameter& cp);
+
+    void _writeMethod(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& cn,
+        const CIMConstMethod& cm);
+
+    void _writeClass(
+        const CIMNamespaceName& nameSpace,
+        const CIMClass& cimClass);
+
+    bool _discard;
+    FILE* _os;
+    CIMNamespaceName _nameSpace;
+    Array<CIMClass> _classes;
+    Array<CIMQualifierDecl> _qualifiers;
+    Array<CIMInstance> _instances;
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* cimmofConsumer_h */
+#endif /* _cimmofMRRConsumer_h */

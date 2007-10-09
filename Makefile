@@ -51,7 +51,6 @@ ifeq ($(OS_TYPE),vxworks)
         src/Pegasus/CQL \
         src/Pegasus/Query/QueryExpression \
         src/Pegasus/Security/UserManager \
-        src/Pegasus/Client \
         src/Service \
         src/Pegasus/Provider \
         src/Pegasus/Repository \

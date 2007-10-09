@@ -46,8 +46,11 @@ LIBRARIES = \
 SOURCES = \
     PidFile.cpp \
     ServerProcess.cpp \
-    ServerRunStatus.cpp \
-    ServerShutdownClient.cpp
+    ServerRunStatus.cpp
+
+ifndef PEGASUS_REMOVE_SERVER_CLIENT_USAGE
+    SOURCES += ServerShutdownClient.cpp
+endif
 
 SOURCES_ZOS = ARM_zOS.cpp AutoRestartMgr_ZOS_ZSERIES_IBM.s
 

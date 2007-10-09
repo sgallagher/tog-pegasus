@@ -89,11 +89,14 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/LanguageParser.h>
 #include <Pegasus/Config/ConfigManager.h>
-#include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Server/CIMServer.h>
 #include <Service/ServerProcess.h>
-#include <Service/ServerShutdownClient.h>
 #include <Service/ServerRunStatus.h>
+
+#if !defined(PEGASUS_REMOVE_SERVER_CLIENT_USAGE)
+# include <Pegasus/Client/CIMClient.h>
+# include <Service/ServerShutdownClient.h>
+#endif
 
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 #include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
@@ -818,6 +821,10 @@ int CIMServerProcess::cimserver_run(
 # endif
 #endif
 
+    //
+    // Some platforms do not support using client to shutdown server.
+    //
+#if !defined(PEGASUS_REMOVE_SERVER_CLIENT_USAGE)
         //
         // Check to see if we need to shutdown CIMOM
         //
@@ -827,10 +834,10 @@ int CIMServerProcess::cimserver_run(
                 configManager->getCurrentValue("shutdownTimeout");
             Uint32 timeoutValue =
                 strtol(configTimeout.getCString(), (char **)0, 10);
-#ifdef PEGASUS_SLP_REG_TIMEOUT
+# ifdef PEGASUS_SLP_REG_TIMEOUT
             // To deregister Pegasus with SLP
             unregisterPegasusFromSLP();
-#endif
+# endif
 
             ServerShutdownClient serverShutdownClient(&_serverRunStatus);
             serverShutdownClient.shutdown(timeoutValue);
@@ -842,6 +849,7 @@ int CIMServerProcess::cimserver_run(
             cout << MessageLoader::getMessage(parms) << endl;
             return 0;
         }
+#endif /* PEGASUS_REMOVE_SERVER_CLIENT_USAGE */
 
 #if defined(PEGASUS_DEBUG) && !defined(PEGASUS_USE_SYSLOGS)
         // Leave this in until people get familiar with the logs.

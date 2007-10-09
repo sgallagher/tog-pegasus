@@ -65,3 +65,8 @@
 
     (*) Tracing (turned off for now).
 
+    (*) How do we shutdownt the server?
+
+    (*) Get rid of PID file.
+
+    (*) Remove daeminization code.

@@ -73,7 +73,6 @@ LIBRARIES = \
     pegexportserver \
     pegrepository \
     pegconfig \
-    pegclient \
     pegcommon
 
 include $(ROOT)/mak/program.mak

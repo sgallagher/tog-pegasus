@@ -134,6 +134,10 @@ else
   FLAGS += -Os
 endif
 
+ifeq ($(shell expr $(GCC_VERSION) '>=' 3.0), 1)
+  FLAGS += -fno-enforce-eh-specs
+endif
+
 PEGASUS_HAS_MAKEDEPEND = yes
 
 PEGASUS_ARCH_LIB = lib64

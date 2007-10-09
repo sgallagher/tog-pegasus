@@ -2,3 +2,4 @@
 
     1.  How do we set environment variabes in the vxsim shell?
         (e.g., PEGASUS_HOME).
+

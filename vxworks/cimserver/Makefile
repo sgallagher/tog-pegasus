@@ -92,6 +92,7 @@ CIMMOFL=cimmofl -d -W -m
 #CIMMOFL=cimmofl -W -m
 
 rep:
-	@ $(CIMMOFL) -n root/PG_Internal -I $(SCHEMAS) root_PG_Internal.mof
-	@ $(CIMMOFL) -n root/PG_InterOp -I $(SCHEMAS) root_PG_InterOp.mof
-	@ $(CIMMOFL) -n root/cimv2 -I $(SCHEMAS) root_cimv2.mof
+	@ $(CIMMOFL) -n root/PG_Internal -I $(SCHEMAS) root_PG_Internal_namespace.mof
+	@ $(CIMMOFL) -n root/PG_InterOp -I $(SCHEMAS) root_PG_InterOp_namespace.mof
+	@ $(CIMMOFL) -n root/cimv2 -I $(SCHEMAS) root_cimv2_namespace.mof
+

@@ -1,5 +1,67 @@
 
-    (A) Daemonization?
+    (*) SSL porting.
 
-    (A) SSL porting.
+        - SSL linkage and testing.
+
+        - Certificate management. 
+
+    (*) Password-file authentication.
+
+    (*) Memory limits.
+
+        - Throttling.
+
+        - Reduce memory usage of enumerate-classes.
+
+    (*) CIMPLE porting.
+
+    (*) VxWorks 5.5 porting.
+
+    (*) XScale target-board testing.
+
+    (*) Formalize embedded-server SDK.
+
+    (*) Eliminate configuration files dependencies.
+
+    (*) Indications.
+
+        - Test indications.
+
+        - Control-provider indications.
+
+    (*) Removing uneeded source modules.
+
+        (*) Client.
+
+        (*) UserManager
+
+        (*) ProviderRegistrationManager
+
+        (*) ProviderManager2
+
+        (*) Default provider manager.
+
+        (*) ExportServer.
+
+        (*) ProviderRegistrationProvider.
+
+        (*) ConfigSettingProvider.
+
+        (*) UserAuthProvider.
+
+        (*) Managed system.
+
+    (*) Class reduction (round 2).
+
+    (*) Generalize VxWorks-specific code options.
+
+    (*) Code-reduction.
+
+    (*) Message-catalogue localization.
+
+    (*) CIM_ComputerSystem provider.
+
+    (*) Logging.
+
+    (*) Tracing (turned off for now).
 

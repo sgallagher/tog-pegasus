@@ -131,12 +131,18 @@ private:
         const CIMNamespaceName& nameSpace,
         const CIMClass& cimClass);
 
+    void _loadClassFile(
+        Array<CIMName>& classes, const String& path);
+
+    bool _includeClass(const CIMName& cn);
+
     bool _discard;
     FILE* _os;
     CIMNamespaceName _nameSpace;
     Array<CIMClass> _classes;
     Array<CIMQualifierDecl> _qualifiers;
     Array<CIMInstance> _instances;
+    Array<CIMName> _closure;
 };
 
 PEGASUS_NAMESPACE_END

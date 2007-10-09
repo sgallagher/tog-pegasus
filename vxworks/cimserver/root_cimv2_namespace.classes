@@ -1,0 +1,16 @@
+CIM_CIMOMStatisticalData
+CIM_Namespace
+CIM_IndicationSubscription
+CIM_FormattedIndicationSubscription
+CIM_IndicationHandler
+CIM_ListenerDestinationCIMXML
+CIM_IndicationHandlerCIMXML
+PG_IndicationHandlerSNMPMapper
+PG_ListenerDestinationSystemLog
+PG_ListenerDestinationEmail
+CIM_IndicationFilter
+##
+## Put user defined classes here:
+##
+Hello
+Goodbye

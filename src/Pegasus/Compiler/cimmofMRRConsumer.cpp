@@ -37,6 +37,7 @@
 #include <Pegasus/Repository/MetaTypes.h>
 #include <Pegasus/Repository/Serialization.h>
 #include "cimmofMRRConsumer.h"
+#include "Closure.h"
 
 #define PEGASUS_LLD "%" PEGASUS_64BIT_CONVERSION_WIDTH "d"
 #define PEGASUS_LLU "%" PEGASUS_64BIT_CONVERSION_WIDTH "u"
@@ -1023,9 +1024,111 @@ void cimmofMRRConsumer::start()
 {
 }
 
+void cimmofMRRConsumer::_loadClassFile(
+    Array<CIMName>& classes, const String& path)
+{
+    classes.clear();
+
+    // Open class file:
+
+    FILE* is = fopen(*Str(path), "r");
+
+    if (!is)
+        return;
+
+    char buffer[1024];
+
+    for (int line = 1; fgets(buffer, sizeof(buffer), is) != NULL; line++)
+    {
+        if (buffer[0] == '#')
+            continue;
+
+        char* start = buffer;
+
+        // Remove leading whitespace.
+
+        while (isspace(*start))
+            start++;
+
+        // Remove trailing whitespace.
+
+        char* p = start;
+
+        while (*p)
+            p++;
+
+        while (p != start && isspace(p[-1]))
+            *--p = '\0';
+
+        // Skip empty lines.
+
+        if (*start == '\0')
+            continue;
+
+        // Skip comment lines:
+
+        if (*start == '#')
+            continue;
+
+        /* Check whether legal class name. */
+
+        if (_findClass(start) == PEG_NOT_FOUND)
+        {
+            fprintf(stderr, 
+                "cimmofl: unknown class on line %d of %s: \"%s\"\n", 
+                line, *Str(path), start);
+            exit(1);
+        }
+
+        /* Append class to list. */
+
+        bool found = false;
+
+        for (Uint32 i = 0; i < classes.size(); i++)
+        {
+            if (classes[i] == start)
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found)
+            classes.append(start);
+    }
+
+    fclose(is);
+}
+
 void cimmofMRRConsumer::finish()
 {
     String ns = _makeIdent(_nameSpace.getString());
+
+    // Open classes file, if any.
+
+    Array<CIMName> classNames;
+    String classFile = ns + "_namespace.classes";
+    _loadClassFile(classNames, classFile);
+
+    // Calculate closure class file was non-empty.
+
+    _closure.clear();
+
+    if (classNames.size())
+    {
+        printf("Using %s to reduce class list\n", *Str(classFile));
+
+        for (Uint32 i = 0; i < classNames.size(); i++)
+        {
+            const CIMName& cn = classNames[i];
+
+            if (Closure(cn, _classes, _closure) != 0)
+            {
+                printf("cimmofl: failed to calculate closure for class %s\n",
+                    *Str(cn));
+            }
+        }
+    }
 
     // Write header file:
 
@@ -1729,7 +1832,9 @@ void cimmofMRRConsumer::_writeNameSpace(const CIMNamespaceName& nameSpace)
     for (Uint32 i = 0; i < _classes.size(); i++)
     {
         CIMName cn = _classes[i].getClassName();
-        _outn("extern MetaClass __%s_%s;", *Str(ns), *Str(cn));
+
+        if (_includeClass(cn))
+            _outn("extern MetaClass __%s_%s;", *Str(ns), *Str(cn));
     }
 
     _nl();
@@ -1737,7 +1842,12 @@ void cimmofMRRConsumer::_writeNameSpace(const CIMNamespaceName& nameSpace)
     // Write classes:
 
     for (Uint32 i = 0; i < _classes.size(); i++)
-        _writeClass(nameSpace, _classes[i]);
+    {
+        CIMName cn = _classes[i].getClassName();
+
+        if (_includeClass(cn))
+            _writeClass(nameSpace, _classes[i]);
+    }
 
     // Write qualifiers list:
 
@@ -1773,7 +1883,9 @@ void cimmofMRRConsumer::_writeNameSpace(const CIMNamespaceName& nameSpace)
     for (Uint32 i = 0; i < _classes.size(); i++)
     {
         CIMName cn = _classes[i].getClassName();
-        _outn("&__%s_%s,", *Str(ns), *Str(cn));
+
+        if (_includeClass(cn))
+            _outn("&__%s_%s,", *Str(ns), *Str(cn));
     }
 
     _outn("0,");
@@ -1815,6 +1927,20 @@ void cimmofMRRConsumer::_outn(const char* format, ...)
 void cimmofMRRConsumer::_nl()
 {
     _out("\n");
+}
+
+bool cimmofMRRConsumer::_includeClass(const CIMName& cn)
+{
+    if (_closure.size() == 0)
+        return true;
+
+    for (Uint32 i = 0; i < _closure.size(); i++)
+    {
+        if (_closure[i] == cn)
+            return true;
+    }
+
+    return false;
 }
 
 PEGASUS_NAMESPACE_END

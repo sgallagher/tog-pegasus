@@ -1110,7 +1110,7 @@ void cimmofMRRConsumer::finish()
     String classFile = ns + "_namespace.classes";
     _loadClassFile(classNames, classFile);
 
-    // Calculate closure class file was non-empty.
+    // Find closure of select classes:
 
     _closure.clear();
 
@@ -1118,9 +1118,25 @@ void cimmofMRRConsumer::finish()
     {
         printf("Using %s to reduce class list\n", *Str(classFile));
 
+        // Find closure of classes from class file:
+
         for (Uint32 i = 0; i < classNames.size(); i++)
         {
             const CIMName& cn = classNames[i];
+
+            if (Closure(cn, _classes, _closure) != 0)
+            {
+                printf("cimmofl: failed to calculate closure for class %s\n",
+                    *Str(cn));
+            }
+        }
+
+        // Find closure of classes referred to by instances:
+
+        for (Uint32 i = 0; i < _instances.size(); i++)
+        {
+            const CIMInstance& ci = _instances[i];
+            const CIMName& cn = ci.getClassName();
 
             if (Closure(cn, _classes, _closure) != 0)
             {

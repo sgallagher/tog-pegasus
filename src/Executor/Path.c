@@ -179,7 +179,7 @@ int GetPegasusInternalBinDir(char path[EXECUTOR_BUFFER_SIZE])
 
     if (buffer[0] == '/')
     {
-        Strlcat(path, buffer, EXECUTOR_BUFFER_SIZE);
+        Strlcpy(path, buffer, EXECUTOR_BUFFER_SIZE);
     }
     else
     {

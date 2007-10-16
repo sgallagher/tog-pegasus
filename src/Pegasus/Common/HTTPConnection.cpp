@@ -932,6 +932,10 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
         _incomingBuffer.clear();
         _transferEncodingTEValues.clear();
 
+        // Reset the transfer encoding chunk offset. If it is not reset here,
+        // then a request sent with chunked encoding may not be properly read
+        // off of a connection in which a chunked response has been sent.
+        _transferEncodingChunkOffset = 0;
         //
         // decrement request count
         //

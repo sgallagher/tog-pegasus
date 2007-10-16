@@ -523,6 +523,7 @@ Boolean FileSystem::changeFileOwner(
 
     struct passwd* userPasswd;
 #if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) || \
+    defined(PEGASUS_OS_VMS) || \
     defined(PEGASUS_OS_HPUX) || \
     defined (PEGASUS_OS_LINUX)
 

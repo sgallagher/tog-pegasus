@@ -69,10 +69,10 @@ public:
     : _manager(0)
     {
 #if defined (PEGASUS_OS_VMS)
-        _physicalName =
-            ConfigManager::getInstance()->getCurrentValue("providerDir") +
-                String("/") + FileSystem::buildLibraryFileName(physicalName) +
-                String(".exe");
+    String provDir = ConfigManager::getInstance()->
+        getCurrentValue("providerDir");
+    _physicalName = ConfigManager::getHomedPath(provDir) + "/" +
+        FileSystem::buildLibraryFileName(physicalName);
 #elif defined (PEGASUS_OS_OS400)
         _physicalName = physicalName;
 #else

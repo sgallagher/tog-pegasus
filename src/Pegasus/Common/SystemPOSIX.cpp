@@ -48,6 +48,8 @@
 # include <ttdef.h>             // TT$M_NOBRDCST
 # include <tt2def.h>            // TT2$M_PASTHRU
 # include <starlet.h>
+# include <stsdef.h>            // VMS_STATUS_SUCCESS
+# include <prvdef.h>            // PRV$M_SETPRV
 #endif
 
 #include <unistd.h>
@@ -381,9 +383,7 @@ static int _getHostByName(
 
 String System::getFullyQualifiedHostName ()
 {
-#if defined(PEGASUS_OS_ZOS) || \
-    defined(PEGASUS_OS_VMS) 
-
+#if defined(PEGASUS_OS_ZOS)
 
     char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
     String fqName;
@@ -395,7 +395,7 @@ String System::getFullyQualifiedHostName ()
     {
         return String::EMPTY;
     }
-    memset(&hint, 0, sizeof(struct addrinfo));
+    resolv = new struct addrinfo;
     hint.ai_flags = AI_CANONNAME;
     hint.ai_family = AF_UNSPEC; // any family
     hint.ai_socktype = 0;       // any socket type
@@ -417,10 +417,7 @@ String System::getFullyQualifiedHostName ()
         // else assign unqualified hostname
         fqName.assign(hostName);
     }
-    if (resolv)
-    {
-        freeaddrinfo(resolv);
-    }
+    freeaddrinfo(resolv);
 
     return fqName;
 
@@ -737,7 +734,8 @@ String System::getEffectiveUserName()
 #if defined(PEGASUS_OS_SOLARIS) || \
     defined(PEGASUS_OS_HPUX) || \
     defined(PEGASUS_OS_LINUX) || \
-    defined(PEGASUS_OS_OS400)
+    defined(PEGASUS_OS_OS400) || \
+    defined(PEGASUS_OS_VMS)
 
     const unsigned int PWD_BUFF_SIZE = 1024;
     struct passwd       local_pwd;
@@ -823,7 +821,8 @@ Boolean System::isSystemUser(const char* userName)
 #if defined(PEGASUS_OS_SOLARIS) || \
     defined(PEGASUS_OS_HPUX) || \
     defined(PEGASUS_OS_LINUX) || \
-    defined(PEGASUS_OS_OS400)
+    defined(PEGASUS_OS_OS400) || \
+    defined(PEGASUS_OS_VMS)
 
     const unsigned int PWD_BUFF_SIZE = 1024;
     struct passwd pwd;
@@ -867,7 +866,39 @@ Boolean System::isSystemUser(const char* userName)
 
 Boolean System::isPrivilegedUser(const String& userName)
 {
-#if !defined(PEGASUS_OS_OS400)
+#if defined(PEGASUS_OS_OS400) 
+
+    CString user = userName.getCString();
+    const char * tmp = (const char *)user;
+    AtoE((char *)tmp);
+    return ycmCheckUserCmdAuthorities(tmp);
+
+#elif defined(PEGASUS_OS_VMS)
+
+    static union prvdef old_priv_mask;
+    static union prvdef new_priv_mask;
+    char enbflg = 1; // 1 = enable
+    char prmflg = 0; // 0 = life time of image only.
+    int retStat;
+
+    old_priv_mask.prv$v_sysprv = false;    // SYSPRV privilege.
+    new_priv_mask.prv$v_sysprv = true;     // SYSPRV privilege.
+
+    retStat = sys$setprv(enbflg, &new_priv_mask, prmflg, &old_priv_mask);
+    if (!$VMS_STATUS_SUCCESS(retStat))
+    {
+        return false;
+    }
+
+    if (retStat == SS$_NOTALLPRIV)
+    {
+        return false;
+    }
+
+    return true;
+
+#else /* default */
+
     struct passwd   pwd;
     struct passwd   *result;
     const unsigned int PWD_BUFF_SIZE = 1024;
@@ -895,26 +926,6 @@ Boolean System::isPrivilegedUser(const String& userName)
     }
     return false;
 
-#elif defined(PEGASUS_OS_VMS)
-
-    int retStat;
-
-    unsigned long int prvPrv = 0;
-    retStat = sys$setprv(0, 0, 0, &prvPrv);
-
-    if (!$VMS_STATUS_SUCCESS(retStat))
-        return false;
-
-    // ATTN-VMS: should this be a bitwise and?
-    return ((PRV$M_SETPRV && prvPrv) == 1);
-
-#else /* default */
-
-    CString user = userName.getCString();
-    const char * tmp = (const char *)user;
-    AtoE((char *)tmp);
-    return ycmCheckUserCmdAuthorities(tmp);
-
 #endif /* default */
 }
 
@@ -933,8 +944,15 @@ static void _initPrivilegedUserName()
     const unsigned int PWD_BUFF_SIZE = 1024;
     struct passwd local_pwd;
     char buf[PWD_BUFF_SIZE];
+    PEGASUS_UID_T uid;
 
-    if (getpwuid_r(0, &local_pwd, buf, PWD_BUFF_SIZE, &pwd) != 0)
+#if defined(PEGASUS_OS_VMS)
+    // 65540 = 10004 hex = [1,4] the UIC for [SYSTEM] on OpenVMS
+    uid = 0x10004;
+#else
+    uid = 0;
+#endif
+    if (getpwuid_r(uid, &local_pwd, buf, PWD_BUFF_SIZE, &pwd) != 0)
     {
         String errorMsg = String("getpwuid_r failure : ") +
                 String(strerror(errno));

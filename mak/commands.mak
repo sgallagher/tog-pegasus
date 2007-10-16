@@ -271,7 +271,7 @@ ifeq ($(OS),zos)
 endif
 
 ifeq ($(OS),VMS)
-    STRIPCRS =$(MUEXE) echo "STRIPCRS not defined in commands.mak"
+    STRIPCRS =
     DIFF = mu compare
     SORT = mu sort
     REDIRECTERROR = $(MUEXE) echo "REDIRECTERROR not defined in commands.mak"

@@ -1520,26 +1520,36 @@ int main(int argc, char** argv)
        cout << "password = " << password << endl;
     }
 
-    Boolean useSLP =  false;
     Boolean localConnection = (om.valueEquals("local", "true"))? true: false;
     Boolean useSSL =  om.isTrue("ssl");
 
-     Array<String> connectionList;
-    if (argc > 1 && !localConnection)
-                 for (Sint32 i = 1; i < argc; i++)
-                     connectionList.append(argv[i]);
-
-    // setup default connection definitions if needed
-    if (useSSL)
+    if ((argc > 2) || (localConnection && (argc > 1)))
     {
-#ifdef PEGASUS_HAS_SSL
-        connectionList.append("localhost:5989");
-#else
-        PEGASUS_ASSERT(false);
-#endif
+        cerr << argv[0] << ": Error:  Multiple targets specified." << endl;
+        exit(1);
     }
-    else if(useSLP == false && argc < 2)
-        connectionList.append("localhost:5988");
+
+    String connectionTarget;
+
+    if (argc > 1)
+    {
+        connectionTarget = argv[1];
+    }
+    else
+    {
+        if (useSSL)
+        {
+#ifdef PEGASUS_HAS_SSL
+            connectionTarget = "localhost:5989";
+#else
+            PEGASUS_ASSERT(false);
+#endif
+        }
+        else
+        {
+            connectionTarget = "localhost:5988";
+        }
+    }
 
     // timeout
     Uint32 timeout = 30000;
@@ -1549,66 +1559,63 @@ int main(int argc, char** argv)
     Uint32 clients = 1;
     om.lookupIntegerValue("simultaneous",clients);
 
-    String host;
-    Uint32 portNumber;
-    for (Uint32 i = 0; i < connectionList.size(); i++)
-    {
     // ----------------------------------------
-        // * Get host and port number from hostport
-        // ----------------------------------------
-        HostLocator addr(connectionList[i]);
-        String host = addr.getHost();
-        Uint32 portNumber = 0;
-        if (addr.isPortSpecified())
-        {
-            portNumber = addr.getPort();
-        }
+    // * Get host and port number from hostport
+    // ----------------------------------------
+    HostLocator addr(connectionTarget);
+    String host = addr.getHost();
+    Uint32 portNumber = 0;
+    if (addr.isPortSpecified())
+    {
+        portNumber = addr.getPort();
+    }
 
-        Array<CIMClient*> clientConnections;
+    Array<CIMClient*> clientConnections;
 
-        CIMClient* client;
-        for(Uint32 i = 0; i < clients; i++)
-        {
-            client = new CIMClient();
-            clientConnections.append(client);
-        }
+    CIMClient* client;
+    for (Uint32 i = 0; i < clients; i++)
+    {
+        client = new CIMClient();
+        clientConnections.append(client);
+    }
 
-        // connect the clients
-        for(Uint32 i=0; i<clients; i++)
-        {
-            connectClient(clientConnections[i], host, portNumber, userName, 
-                password, useSSL, localConnection, timeout);
-        }
+    // connect the clients
+    for (Uint32 i = 0; i < clients; i++)
+    {
+        connectClient(clientConnections[i], host, portNumber, userName, 
+            password, useSSL, localConnection, timeout);
+    }
 
-        // run tests
-        Array<Thread *> clientThreads;
-        Stopwatch elapsedTime;
-        testStart("Begin tests...");
-        elapsedTime.reset();
-        elapsedTime.start();
+    // run tests
+    Array<Thread *> clientThreads;
+    Stopwatch elapsedTime;
+    testStart("Begin tests...");
+    elapsedTime.reset();
+    elapsedTime.start();
 
-        for(Uint32 i=0; i< clientConnections.size(); i++)
-        {
-            clientThreads.append(runTests(clientConnections[i], 
-                        repeatTestCount, activeTest, verboseTest, i));
-        }
+    for (Uint32 i = 0; i < clientConnections.size(); i++)
+    {
+        clientThreads.append(runTests(
+            clientConnections[i], repeatTestCount, activeTest, verboseTest, i));
+    }
 
-        for(Uint32 i=0; i< clientThreads.size(); i++)
-        {
-            clientThreads[i]->join();
-        }
+    for (Uint32 i = 0; i < clientThreads.size(); i++)
+    {
+        clientThreads[i]->join();
+    }
       
-        cout << "+++++ Overall time taken for the operation +++++" << endl;
-        elapsedTime.stop();
-        testEnd(elapsedTime.getElapsed());
+    cout << "+++++ Overall time taken for the operation +++++" << endl;
+    elapsedTime.stop();
+    testEnd(elapsedTime.getElapsed());
 
-        // clean up
-        for(Uint32 i=0; i< clientConnections.size(); i++){
-        if(clientConnections[i]) delete clientConnections[i];
-        }
-            for(Uint32 i=0; i < clientThreads.size(); i++){
-                if(clientThreads[i]) delete clientThreads[i];
-        }
+    // clean up
+    for (Uint32 i = 0; i< clientConnections.size(); i++)
+    {
+        delete clientConnections[i];
+    }
+    for (Uint32 i = 0; i < clientThreads.size(); i++)
+    {
+        delete clientThreads[i];
     }
 
     if (errorCount.get() == 0)

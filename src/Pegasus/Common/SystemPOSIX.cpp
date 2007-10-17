@@ -396,7 +396,7 @@ String System::getFullyQualifiedHostName ()
     {
         return String::EMPTY;
     }
-    memset(&hints, 0, sizeof(hints));
+    memset(&hint, 0, sizeof(hint));
     hint.ai_flags = AI_CANONNAME;
     hint.ai_family = AF_UNSPEC; // any family
     hint.ai_socktype = 0;       // any socket type

@@ -1,4 +1,4 @@
-.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man8.Z/cimconfig.8,v 1.3 2005/05/09 15:41:09 martin Exp $
+.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man8.Z/cimconfig.8,v 1.4 2007/10/17 21:00:49 denise.eckstein Exp $
 .\" .TA c \" lowercase initial leter of .TH name
 .TH "cimconfig" "8" "" "" ""
 .SH "NAME"
@@ -60,6 +60,21 @@ Associators, AssociatorNames, References, and ReferenceNames.
 .BR "Default Value: " True
 .IP 
 .BR Dynamic: \0No
+.PD
+.PP
+.B enableAuditLog
+.IP
+.BR Description: " If True, audit log entries for certain types of CIM
+Server activities will be written to the system log.  Examples of audited
+activities include a CIM Server configuration change, a Provider registration
+change, an authentication attempt and a modification to the CIM Schema or a
+CIM Instance.  An audit log entry describes the who, what, and when associated
+with an audited activity.
+.PD 0
+.IP
+.BR "Default Value: " False
+.IP
+.BR Dynamic: \0Yes
 .PD
 .PP 
 .B enableIndicationService
@@ -155,6 +170,39 @@ Minimum value is 2 seconds.
 .PD 0
 .IP 
 .BR "Default Value: " 10
+.IP 
+.BR Dynamic: \0No
+.PD
+.PP 
+.B sslClientVerificationMode 
+.IP 
+.BR Description: " Defines the desired level of support for
+certificate-based authentication. It can be set to 
+.B required, optional
+or
+.B disabled.
+If set to
+.B required,
+the CIM Server will require all clients connecting
+over HTTPS to authenticate using a certificate.  If the client
+certificate is not sent or not trusted the connection 
+will be rejected.
+If set to
+.B optional,
+the CIM Server will allow, but not require, HTTPS clients
+to authenticate using a certificate. If the client does not
+send a certificate, the CIM Server will attempt to authenticate
+the client using HTTP basic authentication.
+If set to
+.B disabled,
+the CIM Server will not allow HTTPS clients to authenticate
+using a certificate. Basic authentication will be used
+to authenticate all HTTPS clients. This property is only used if
+.B enableHttpsConnection
+is true.
+.PD 0
+.IP 
+.BR "Default Value: " disabled
 .IP 
 .BR Dynamic: \0No
 .PD

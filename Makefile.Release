@@ -59,6 +59,7 @@ rebuild: FORCE
 	@$(ECHO) "build completed successfully"
 
 repository: FORCE
+	$(CHMOD) $(Prwxrwxrwx) $(PEGASUS_HOME)
 	$(MAKE) "-SC" Schemas/Pegasus repository
 
 stage: FORCE

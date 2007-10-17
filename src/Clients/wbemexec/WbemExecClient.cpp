@@ -61,6 +61,8 @@ static const char PASSWORD_BLANK []  =
 static const Uint32 MAX_PW_RETRIES =  3;
 
 
+#ifdef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+// This callback is used when using SSL for a "local" connection.
 static Boolean verifyServerCertificate(SSLCertificateInfo &certInfo)
 {
     //
@@ -76,6 +78,7 @@ static Boolean verifyServerCertificate(SSLCertificateInfo &certInfo)
         return false;
     }
 }
+#endif
 
 WbemExecClient::WbemExecClient(Uint32 timeoutMilliseconds)
     :

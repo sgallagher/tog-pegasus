@@ -181,39 +181,8 @@ const String & cimmofMessages::msgCodeToString(MsgCode code)
     return _cimmofMessages[(unsigned int)code];
 }
 
-static int find(const String &haystack, const String &needle)
-{
-    unsigned int size = haystack.size();
-    unsigned int npos = 0;
-    unsigned int nsize = needle.size();
-    for (unsigned int i = 0; i < size; i++)
-    {
-        if (haystack[i] == '\\')
-            i++;
-        if (haystack[i] == needle[npos])
-        {
-            npos++;
-            if (npos >= nsize)
-                return ( (int)(i - nsize + 1) );
-        }
-        else
-        {
-            npos = 0;
-        }
-    }
-    return -1;
-}
-
-static void replace(String &s, unsigned int pos, unsigned int len,
-    const String &r)
-{
-    String s1 = s.subString(0, pos) + r + s.subString(pos  + len);
-    s = s1;
-}
-
 void cimmofMessages::getMessage(String &out, MsgCode code, const arglist &args)
 {
-    //l10n
     Array<String> _args;
     for (unsigned int i = 0; i < 10; i++)
     {
@@ -229,20 +198,6 @@ void cimmofMessages::getMessage(String &out, MsgCode code, const arglist &args)
         _args[5],_args[6],_args[7],_args[8],_args[9]);
 
     out = MessageLoader::getMessage(parms);
-
-    //String s = msgCodeToString(code);
-    //out = s;
-    //int pos;
-    //for (unsigned int i = 0; i < args.size(); i++) {
-    //int state = 0;
-    //char buf[40];
-    //sprintf(buf, "%d", i + 1);
-    //String srchstr = "%";
-    //srchstr.append(buf);
-    //if ( (pos = find(out, srchstr)) != -1 ) {
-    //replace(out, pos, srchstr.size(), args[i]);
-    //}
-    //}
 }
 
 PEGASUS_NAMESPACE_END

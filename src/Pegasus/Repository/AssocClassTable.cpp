@@ -73,91 +73,6 @@ static inline Boolean _ContainsClass(
     return false;
 }
 
-
-static String _Escape(const String& str)
-{
-    String result;
-
-    for (Uint32 i = 0, n = str.size(); i < n; i++)
-    {
-        Char16 c = str[i];
-
-        switch (c)
-        {
-            case '\n':
-                result.append("\\n");
-                break;
-
-            case '\r':
-                result.append("\\r");
-                break;
-
-            case '\t':
-                result.append("\\t");
-                break;
-
-            case '\f':
-                result.append("\\f");
-                break;
-
-            case '\\':
-                result.append("\\\\");
-                break;
-
-            default:
-                result.append(c);
-        }
-    }
-
-    return result;
-}
-
-static String _Unescape(const String& str)
-{
-    String result;
-
-    for (Uint32 i = 0, n = str.size(); i < n; i++)
-    {
-        Char16 c = str[i];
-
-        if (c == '\\')
-        {
-            if (i + 1 == n)
-                break;
-
-            c = str[i + 1];
-
-            switch (c)
-            {
-                case 'n':
-                    result.append("\n");
-                    break;
-
-                case 'r':
-                    result.append("\r");
-                    break;
-
-                case 't':
-                    result.append("\t");
-                    break;
-
-                case 'f':
-                    result.append("\f");
-                    break;
-
-                default:
-                    result.append(c);
-            }
-
-            i++;
-        }
-        else
-            result.append(c);
-    }
-
-    return result;
-}
-
 static Boolean _GetRecord(ifstream& is, Array<String>& fields)
 {
     fields.clear();
@@ -185,9 +100,10 @@ static void _PutRecord(ofstream& os, Array<String>& fields)
 {
     for (Uint32 i = 0, n = fields.size(); i < n; i++)
     {
-        // Calling getCString to ensure utf-8 goes to the file
-        // Calling write to ensure no data conversion by the stream
-        CString  buffer = _Escape(fields[i]).getCString();
+        // Write the field in UTF-8.  Call write() to ensure no data
+        // conversion by the stream.  Since all the fields contain CIM names,
+        // it is not necessary to escape CR/LF characters.
+        CString buffer = fields[i].getCString();
         os.write((const char *)buffer,
             static_cast<streamsize>(strlen((const char *)buffer)));
         os << endl;

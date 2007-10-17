@@ -177,37 +177,6 @@ ThreadStatus Thread::run()
     return PEGASUS_THREAD_OK;
 }
 
-static sigset_t *block_signal_mask(sigset_t * sig)
-{
-    sigemptyset(sig);
-    // should not be used for main()
-    sigaddset(sig, SIGHUP);
-    sigaddset(sig, SIGINT);
-    // maybe useless, since KILL can't be blocked according to POSIX
-    sigaddset(sig, SIGKILL);
-
-    sigaddset(sig, SIGABRT);
-    sigaddset(sig, SIGALRM);
-    sigaddset(sig, SIGPIPE);
-
-
-// Note: older versions of the linux pthreads library use SIGUSR1 and SIGUSR2
-// internally to stop and start threads that are blocking, the newer ones
-// implement this through the kernel's real time signals
-// since SIGSTOP/CONT can handle suspend()/resume() on Linux
-// block them
-// #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
-//     sigaddset(sig, SIGUSR1);
-//     sigaddset(sig, SIGUSR2);
-// #endif
-#if defined (PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined (PEGASUS_OS_VMS)
-    sigprocmask(SIG_BLOCK, sig, NULL);
-#else
-    pthread_sigmask(SIG_BLOCK, sig, NULL);
-#endif
-    return sig;
-}
-
 Thread::Thread(
     ThreadReturnType(PEGASUS_THREAD_CDECL* start) (void*),
     void* parameter,

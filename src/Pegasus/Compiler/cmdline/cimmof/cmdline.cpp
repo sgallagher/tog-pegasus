@@ -222,10 +222,6 @@ ostream & help(ostream &os, int progtype)
     help.append( "    -q                  - Suppress all messages except"
                                             " command line usage errors\n");
 #endif
-    //PEP167 - Remove and disable 'f' and 'file' options. No longer required
-    //help.append( "  -ffile -- specify file containing a list of MOFs to
-    //compile.\n");
-    //help.append( " --file=file -- specify file containing list of MOFs.\n");
     help.append( "    --xml               - Output XML only, to stdout."
                                                 " Do not update repository\n");
     help.append( "    --trace             - Trace to file (default to stdout)"
@@ -289,27 +285,6 @@ ostream & help(ostream &os, int progtype)
     return os;
 }
 
-// If the 'f' flag is encountered, it names a file that contains the
-// names of files to be processed.  Open the file and stick them into
-// the filelist.
-static int process_filelist(const String &filename,
-    mofCompilerOptions &cmdlinedata)
-{
-    String line;
-
-    ifstream ifs;
-    Open(ifs, filename);
-
-    while (ifs != 0)
-    {
-        if (GetLine(ifs, line) && (line.size() > 0))
-        {
-            cmdlinedata.add_filespecs(line);
-        }
-    }
-    return 0;
-}
-
 /* flag value, type, islong?, needsValue? */
 static struct optspec optspecs[] =
 {
@@ -326,9 +301,6 @@ static struct optspec optspecs[] =
     {(char*)"u", UPDATEFLAG, false, getoopt::MUSTHAVEARG},
     {(char*)"a", ALLOWFLAG, false, getoopt::MUSTHAVEARG},
 #ifndef PEGASUS_OS_HPUX
-    //PEP167 - 'f' and 'filelist' options disabled as per PEP
-    //{(char*)"f", FILELIST, false, getoopt::MUSTHAVEARG},
-    //{(char*)"filelist", FILELIST, true, getoopt::MUSTHAVEARG},
     {(char*)"E", SYNTAXFLAG, false, getoopt::NOARG},
     {(char*)"trace", TRACEFLAG, true, getoopt::OPTIONALARG},
     {(char*)"xml", XMLFLAG, true, getoopt::NOARG},
@@ -669,17 +641,6 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                 break;
             case XMLFLAG: cmdlinedata.set_xmloutput();
                 break;
-                //PEP167 commenting FILELIST option
-                /*      case FILELIST: {
-                        int stat = process_filelist(arg.optarg(),
-                                                    cmdlinedata);
-                // ATTN: P1 BB 2001 On Process filelist error should throw
-                // an exception
-                if (stat != 1) {
-                return stat;
-                }
-                break;
-                }*/
 #endif
 #ifdef PEGASUS_OS_PASE 
             // If quiet mode is chosen then shut down stdout and stderr.

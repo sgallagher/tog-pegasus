@@ -105,11 +105,6 @@ void CIMQualifierDeclRep::setName(const CIMName& name)
     _name = name;
 }
 
-static const char* _toString(Boolean x)
-{
-    return x ? "true" : "false";
-}
-
 void CIMQualifierDeclRep::toXml(Buffer& out) const
 {
     out << STRLIT("<QUALIFIER.DECLARATION NAME=\"") << _name;

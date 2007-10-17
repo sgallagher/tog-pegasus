@@ -96,40 +96,6 @@ void Threads::sleep(int msec)
 
 //==============================================================================
 //
-// Thread id TSD:
-//
-//==============================================================================
-
-static Once _once = PEGASUS_ONCE_INITIALIZER;
-static TSDKeyType _key;
-
-static void _create_key()
-{
-    TSDKey::create(&_key);
-}
-
-static inline void _set_id_tsd(Uint32 id)
-{
-    once(&_once, _create_key);
-    TSDKey::set_thread_specific(_key, (void*)(long)id);
-}
-
-static inline Uint32 _get_id_tsd()
-{
-    once(&_once, _create_key);
-    void* ptr = TSDKey::get_thread_specific(_key);
-
-    if (!ptr)
-    {
-        // Main thread's id is 1!
-        return 1;
-    }
-
-    return (Uint32)(long)ptr;
-}
-
-//==============================================================================
-//
 // _get_stack_multiplier()
 //
 //==============================================================================
@@ -175,8 +141,10 @@ static inline int _get_stack_multiplier()
     }
 
     return _multiplier;
-#else
+#elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
     return 2;
+#else
+    return 1;
 #endif
 }
 
@@ -213,18 +181,18 @@ int Threads::create(
 
     // Stack size:
 
-#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_OS_VMS)
+    int multiplier = _get_stack_multiplier();
+
+    if (multiplier != 1)
     {
         size_t stacksize;
 
         if (pthread_attr_getstacksize(&attr, &stacksize) == 0)
         {
-            int m = _get_stack_multiplier();
-            int rc = pthread_attr_setstacksize(&attr, stacksize * m);
+            int rc = pthread_attr_setstacksize(&attr, stacksize * multiplier);
             PEGASUS_ASSERT(rc == 0);
         }
     }
-#endif
 
     // Scheduling policy:
 

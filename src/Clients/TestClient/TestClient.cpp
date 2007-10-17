@@ -314,15 +314,6 @@ static void TestEnumerateClassNames (CIMClient* client, Boolean activeTest,
 
 }
 
-static void TestGetClass(CIMClient* client, Boolean activeTest,
-             Boolean verboseTest, String uniqueID)
-{
-    CIMClass c = client->getClass(
-        globalNamespace, CIMName ("CIM_ComputerSystem"), false, false, true);
-
-    XmlWriter::printClassElement(c);
-}
-
 /* This is both an active and passive class test and so uses the
     activetest variable
 */
@@ -991,80 +982,6 @@ static void TestAssociationOperations(CIMClient* client, Boolean
     return;
 }
 
-/* Creates an instance with a method, executes the method and then deletes
-the instance
-
-Warning: This test works only as long as there is a provider, in this case, 
-it goes to the repository and gets dropped on the floor.
-*/
-
-static void TestMethodOperations( CIMClient* client, Boolean
-                     activeTest, Boolean verboseTest, String uniqueID)
-
-{
-    // Since the test modifies the repository, don't do it unless active set.
-    if (!activeTest)
-        return;
-
-    String name = uniqueID.append("_").append("TestSoftwarePkg");
-    CIMName cimName(name);
-    //Indication to be created
-    CIMClass cimClass = client->getClass(globalNamespace, cimName, false);
-    CIMInstance cimInstance(cimName);
-    cimInstance.addProperty(CIMProperty(CIMName ("PkgName"), String("WBEM")));
-    cimInstance.addProperty(CIMProperty(CIMName ("PkgIndex"), Uint32(101)));
-    cimInstance.addProperty(CIMProperty(CIMName ("trapOid"),
-        String("1.3.6.1.4.1.11.2.3.1.7.0.4")));
-    cimInstance.addProperty(CIMProperty(CIMName ("computerName"),
-        String("NU744781")));
-    CIMObjectPath instanceName = cimInstance.buildPath(cimClass);
-    instanceName.setNameSpace(globalNamespace);
-    client->createInstance(globalNamespace, cimInstance);
-
-    try
-    {
-        Array<CIMParamValue> inParams;
-        Array<CIMParamValue> outParams;
-        inParams.append(CIMParamValue("param1",
-            CIMValue(String("Hewlett-Packard"))));
-        inParams.append(CIMParamValue("param2",
-            CIMValue(String("California"))));
-            Uint32 testRepeat = 100;
-
-        for (Uint32 i = 0; i < testRepeat; i++)        // repeat the test x time
-            {
-                CIMValue retValue = client->invokeMethod(
-                    globalNamespace,
-                    instanceName,
-                    CIMName ("ChangeName"),
-                    inParams,
-                    outParams);
-                if (verboseTest)
-                {
-                        cout << "Output : " << retValue.toString() << endl;
-                        for (Uint8 i = 0; i < outParams.size(); i++)
-                            cout << outParams[i].getParameterName()
-                                << " : "
-                                << outParams[i].getValue().toString()
-                                << endl;
-                }
-            }
-            cout << "Executed " << testRepeat << " methods" << endl;
-    }
-    catch(ConnectionTimeoutException& e)
-    {
-        PEGASUS_STD(cerr) << "Warning: " << e.getMessage() << PEGASUS_STD(endl);
-        exit(2);
-    }
-    catch(Exception& e)
-    {
-        PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-        exit(1);
-    }
-
-    client->deleteInstance(globalNamespace, instanceName);
-}
-
 /*
    Tests the invoke method request via the sample method provider.
 */
@@ -1384,15 +1301,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL executeTests(void *parm){
         TestAssociationOperations(client, activeTest, verboseTest, uniqueID);
         elapsedTime.stop();
         testEnd(elapsedTime.getElapsed());
-
-        /* Turn this one off until we get valid method to execute
-        testStart("Test Method Execution");
-        elapsedTime.reset();
-        elapsedTime.start();
-        TestMethodOperations(client, activeTest, verboseTest, uniqueID);
-        elapsedTime.stop();
-        testEnd(elapsedTime.getElapsed());
-        */
 
         testStart("Test Invoke Method Execution");
         elapsedTime.reset();

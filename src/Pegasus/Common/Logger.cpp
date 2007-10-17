@@ -72,45 +72,77 @@ String Logger::_homeDirectory = ".";
 
 const Uint32 Logger::_NUM_LOGLEVEL = 5;
 
-// Set separator
-const char Logger::_SEPARATOR = '@';
-
 Uint32 Logger::_severityMask;
 
-Uint32 Logger::_writeControlMask = 0xF;   // Set all on by default
+///////////////////////////////////////////////////////////////////////////////
+//
+// LoggerRep
+//
+///////////////////////////////////////////////////////////////////////////////
 
-// Set the return codes
-const Boolean Logger::_SUCCESS = 1;
-const Boolean Logger::_FAILURE = 0;
+#if defined(PEGASUS_USE_SYSLOGS)
 
-    static const char* fileNames[] =
+class LoggerRep
+{
+public:
+
+    LoggerRep(const String& homeDirectory)
     {
-        "PegasusTrace.log",
-        "PegasusStandard.log",
-        "PegasusAudit.log",
-        "PegasusError.log",
-        "PegasusDebug.log"
-    };
-static const char* lockFileName =  "PegasusLog.lock";
+# ifdef PEGASUS_OS_ZOS
+        logIdentity = strdup(System::CIMSERVER.getCString());
+        // If System Log is used open it
+        System::openlog(logIdentity, LOG_PID, LOG_DAEMON);
+# endif
+    }
 
+    ~LoggerRep()
+    {
+# ifdef PEGASUS_OS_ZOS
+        System::closelog();
+        free(logIdentity);
+# endif
+    }
 
-/* _constructFileName prepares the absolute file name from homeDirectory
+    // Actual logging is done in this routine
+    void log(Logger::LogFileType logFileType,
+        const String& systemId,
+        Uint32 logLevel,
+        const String localizedMsg)
+    {
+        // Log the message
+        System::syslog(systemId, logLevel, localizedMsg.getCString());
+    }
+
+private:
+
+# ifdef PEGASUS_OS_ZOS
+    char* logIdentity;
+# endif
+};
+
+#else    // !defined(PEGASUS_USE_SYSLOGS)
+
+static const char* fileNames[] =
+{
+    "PegasusTrace.log",
+    "PegasusStandard.log",
+    "PegasusAudit.log",
+    "PegasusError.log",
+    "PegasusDebug.log"
+};
+static const char* lockFileName = "PegasusLog.lock";
+
+/*
+    _constructFileName builds the absolute file name from homeDirectory
     and fileName.
-
-    Today this is static.  However, it should be completely
-    configerable and driven from the config file so that
-    Log organization and names are open.
-    ATTN: rewrite this so that names, choice to do logs and
-    mask for level of severity are all driven from configuration
-    input.
 */
 static CString _constructFileName(
     const String& homeDirectory,
     const char * fileName)
 {
     String result;
-    result.reserveCapacity((Uint32)(homeDirectory.size() + 1 +
-        strlen(fileName)));
+    result.reserveCapacity(
+        (Uint32)(homeDirectory.size() + 1 + strlen(fileName)));
     result.append(homeDirectory);
     result.append('/');
     result.append(fileName);
@@ -123,7 +155,6 @@ public:
 
     LoggerRep(const String& homeDirectory)
     {
-#if !defined(PEGASUS_USE_SYSLOGS)
         // Add test for home directory set.
 
         // If home directory does not exist, create it.
@@ -143,7 +174,7 @@ public:
         }
 
        //Filelocks are not used for VMS
-#if !defined(PEGASUS_OS_VMS)
+# if !defined(PEGASUS_OS_VMS)
         _loggerLockFileName = _constructFileName(homeDirectory, lockFileName);
 
         // Open and close a file to make sure that the file exists, on which
@@ -154,8 +185,7 @@ public:
         {
             fclose(fileLockFilePointer);
         }
-#endif
-
+# endif
 
         _logFileNames[Logger::TRACE_LOG] = _constructFileName(homeDirectory,
                                                fileNames[Logger::TRACE_LOG]);
@@ -163,35 +193,20 @@ public:
         _logFileNames[Logger::STANDARD_LOG] = _constructFileName(homeDirectory,
                                                fileNames[Logger::STANDARD_LOG]);
 
-#ifdef PEGASUS_ENABLE_AUDIT_LOGGER
+# ifdef PEGASUS_ENABLE_AUDIT_LOGGER
         _logFileNames[Logger::AUDIT_LOG] = _constructFileName(homeDirectory,
                                                fileNames[Logger::AUDIT_LOG]);
-#endif
+# endif
 
         _logFileNames[Logger::ERROR_LOG] = _constructFileName(homeDirectory,
                                                fileNames[Logger::ERROR_LOG]);
 
         _logFileNames[Logger::DEBUG_LOG] = _constructFileName(homeDirectory,
                                                fileNames[Logger::DEBUG_LOG]);
-#else
-
-#ifdef PEGASUS_OS_ZOS
-       logIdentity = strdup(System::CIMSERVER.getCString());
-        // If System Log is used open it
-        System::openlog(logIdentity, LOG_PID, LOG_DAEMON);
-#endif
-
-#endif
-
     }
 
     ~LoggerRep()
     {
-
-#ifdef PEGASUS_OS_ZOS
-        System::closelog();
-        free(logIdentity);
-#endif
     }
 
     // Actual logging is done in this routine
@@ -200,12 +215,6 @@ public:
         Uint32 logLevel,
         const String localizedMsg)
     {
-#if defined(PEGASUS_USE_SYSLOGS)
-
-        // Log the message
-        System::syslog(systemId, logLevel, localizedMsg.getCString());
-
-#else
         // Prepend the systemId to the incoming message
         String messageString(systemId);
         messageString.append(": ");
@@ -236,7 +245,7 @@ public:
 
         // Check if the size of the logfile is exceeding 32MB.
         if ( logFileSize > PEGASUS_MAX_LOGFILE_SIZE)
-    {
+        {
             // Prepare appropriate file name based on the logFileType.
             // Eg: if Logfile name is PegasusStandard.log, pruned logfile name
             // will be PegasusStandard-062607-122302.log,where 062607-122302
@@ -276,20 +285,26 @@ public:
         logFileStream << System::getCurrentASCIITime()
            << " " << tmp << (const char *)messageString.getCString() << endl;
         logFileStream.close();
-#endif // ifndef PEGASUS_USE_SYSLOGS
     }
 
 private:
 
-#ifdef PEGASUS_OS_ZOS
-    char* logIdentity;
-#endif
     CString _logFileNames[int(Logger::NUM_LOGS)];
-#ifndef PEGASUS_OS_VMS
+
+# ifndef PEGASUS_OS_VMS
     CString _loggerLockFileName;
     Mutex _mutex;
-#endif
+# endif
 };
+
+#endif    // !defined(PEGASUS_USE_SYSLOGS)
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Logger
+//
+///////////////////////////////////////////////////////////////////////////////
 
 void Logger::_putInternal(
     LogFileType logFileType,
@@ -799,7 +814,7 @@ Boolean Logger::isValidlogLevel(const String logLevel)
     else
     {
         // logLevels is empty, it is a valid value so return true
-        return _SUCCESS;
+        return true;
     }
 
     return validlogLevel;

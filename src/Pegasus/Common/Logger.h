@@ -369,10 +369,6 @@ public:
     */
     static void setlogLevelMask(const String logLevelList);
 
-    /** setLogWriteControlMask
-    */
-    static void setLogWriteControlMask(const Uint32);
-
     /** Returns true if the given string is one of the legal log levels.
     */
     static Boolean isValidlogLevel(const String logLevel);
@@ -403,13 +399,8 @@ private:
     static LoggerRep* _rep;
     static String _homeDirectory;
     static Uint32 _severityMask;
-    static Uint32 _writeControlMask;
 
-    static const char   _SEPARATOR;
     static const Uint32 _NUM_LOGLEVEL;
-
-    static const Boolean _SUCCESS;
-    static const Boolean _FAILURE;
 
     static void _putInternal(
         LogFileType logFileType,

@@ -297,7 +297,7 @@ Boolean Process::getCreationDate(CIMDateTime& d) const
 
   // convert to CIMDateTime format
   char timstr[26];
-  sprintf(timstr,"%04d%02d%02d%02d%02d%02d.000000%c%03d",t->tm_year+1900,
+  sprintf(timstr,"%04d%02d%02d%02d%02d%02d.000000%c%03ld",t->tm_year+1900,
                        t->tm_mon+1,
                        t->tm_mday,
                        t->tm_hour,
@@ -791,7 +791,7 @@ NOTES             :
 Boolean Process::getParentProcessID(String& s) const
 {
   char buf[100];
-  sprintf(buf,"%d",pInfo.pst_ppid);
+  sprintf(buf,"%ld",pInfo.pst_ppid);
   s = buf;
   return true;
 }
@@ -830,7 +830,7 @@ NOTES             :
 String Process::getHandle(void) const
 {
   char buf[100];
-  sprintf(buf,"%d",pInfo.pst_pid);
+  sprintf(buf,"%ld",pInfo.pst_pid);
   return String(buf);
 }
 

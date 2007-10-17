@@ -444,7 +444,7 @@ void ComputerSystem::initialize()
     char timstr[26];
     sprintf(
         timstr,
-        "%04d%02d%02d%02d%02d%02d.000000%c%03d",
+        "%04d%02d%02d%02d%02d%02d.000000%c%03ld",
         t->tm_year+1900,
         t->tm_mon+1,
         t->tm_mday,

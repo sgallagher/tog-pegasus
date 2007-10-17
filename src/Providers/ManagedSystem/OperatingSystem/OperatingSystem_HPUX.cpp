@@ -922,7 +922,7 @@ Boolean OperatingSystem::getOperatingSystemCapability(String& scapability)
     ret = sysconf (_SC_KERNEL_BITS);
     if (ret != -1)
     {
-        sprintf (capability, "%d bit", ret);
+        sprintf (capability, "%ld bit", ret);
     }
     else
     {

@@ -96,7 +96,8 @@ NISServerService::getHostName(String serverAddress, String & hostName)
      struct in_addr ia;
 
      hostName.clear();
-     if((ia.s_addr = inet_addr(serverAddress.getCString())) != -1) {
+     if ((ia.s_addr = inet_addr(serverAddress.getCString())) != INADDR_NONE)
+     {
           host = gethostbyaddr((const char *)&ia,
                                 sizeof(struct in_addr),
                                 AF_INET);

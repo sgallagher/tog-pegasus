@@ -43,7 +43,8 @@ ifeq ($(HPUX_IA64_NATIVE_COMPILER), yes)
   DEFINES += -DHPUX_IA64_NATIVE_COMPILER
 endif
 
-FLAGS += +Z +DD64 -AA -mt -Wl,+rpathfirst
+FLAGS += +Z +DD64 -mt -Wl,+rpathfirst
+EXTRA_CXX_FLAGS += -AA
 
 ifdef PEGASUS_PAM_AUTHENTICATION
     SYS_LIBS += -lpam

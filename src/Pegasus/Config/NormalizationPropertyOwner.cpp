@@ -243,8 +243,6 @@ struct ConfigProperty* NormalizationPropertyOwner::_lookupConfigProperty(
     {
         throw UnrecognizedConfigProperty(name);
     }
-
-    PEGASUS_UNREACHABLE( return 0; )
 }
 
 PEGASUS_NAMESPACE_END

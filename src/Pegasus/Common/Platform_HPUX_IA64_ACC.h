@@ -66,4 +66,6 @@
 
 #define PEGASUS_HAS_SIGNALS
 
+#define PEGASUS_SUPPRESS_UNREACHABLE_STATEMENTS
+
 #endif /* Pegasus_Platform_HPUX_IA64_ACC_h */

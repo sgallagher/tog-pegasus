@@ -1520,69 +1520,65 @@ int main (int argc, char** argv)
         return -1;
     }
 
-    if (argc <= 3)
+    if ((argc <= 3) || (argc > 7))
     {
         cerr << "Invalid argument count: " << argc << endl;
         _usage();
         return 1;
     }
+
+    const char* opt = argv[3];
+    const char* optTwo = NULL;
+    const char* optThree = NULL;
+    const char* optFour = NULL;
+
+    if (argc > 4)
+    {
+        optTwo = argv[4];
+    }
+
+    if (argc > 5)
+    {
+        optThree = argv[5];
+    }
+
+    if (argc > 6)
+    {
+        optFour = argv[6];
+    }
+
+    Ipv6Test = false;
+
+    // Check if class name is IPv6TestClass, handle this class name
+    // differently. We use default class-name and namespace for 
+    // IPv6TestClass class. IPv6TestClass class does not exist, it is used
+    // to test IndicationStressTestProvider on IPv6.
+    if (!strcmp(argv[1], "IPv6TestClass"))
+    {
+        Ipv6Test = true;
+        indicationClassName = DEFAULT_CLASS_NAME;
+        sourceNamespace = DEFAULT_NAMESPACE;
+        cout << "++++ Testing with IPv6 LoopBack address " << endl;
+    }
     else
     {
-        const char * opt = argv[3];
-        const char * optTwo;
-        const char * optThree;
-        const char * optFour;
+        indicationClassName = argv[1];
+        sourceNamespace = CIMNamespaceName (argv[2]);
+    } 
+    cout << "++++ Testing with class " << indicationClassName
+         << " and Namespace " << sourceNamespace.getString () << endl;
 
-        if (argc == 7) {
-            optTwo = argv[4];
-            optThree = argv[5];
-            optFour = argv[6];
-        }
+    int rc = 0;
 
-        else if (argc == 6) {
-            optTwo = argv[4];
-            optThree = argv[5];
-            optFour = NULL;
-        }
-        else if (argc == 5) {
-            optTwo = argv[4];
-            optThree = NULL;
-            optFour = NULL;
-        }
-        else {
-            optTwo = NULL;
-            optThree = NULL;
-            optFour = NULL;
-        }
-        Ipv6Test = false;
-        // Check if class name is IPv6TestClass, handle this class name
-        // differently. We use default class-name and namespace for 
-        // IPv6TestClass class. IPv6TestClass class does not exist, it is used
-        // to test IndicationStressTestProvider on IPv6.
-        if (!strcmp(argv[1], "IPv6TestClass"))
-        {
-            Ipv6Test = true;
-            indicationClassName = DEFAULT_CLASS_NAME;
-            sourceNamespace = DEFAULT_NAMESPACE;
-            cout << "++++ Testing with IPv6 LoopBack address " << endl;
-        }
-        else
-        {
-            indicationClassName = argv[1];
-            sourceNamespace = CIMNamespaceName (argv[2]);
-        } 
-        cout << "++++ Testing with class " << indicationClassName
-             << " and Namespace " << sourceNamespace.getString () << endl;
-        try
-        {
-            int rc = _beginTest(workClient, opt, optTwo, optThree, optFour);
-            return rc;
-        }
-        catch (Exception & e)
-        {
-            cerr << e.getMessage () << endl;
-            return -1;
-        }
+    try
+    {
+        rc = _beginTest(workClient, opt, optTwo, optThree, optFour);
     }
-    PEGASUS_UNREACHABLE( return 0; )
+    catch (Exception & e)
+    {
+        cerr << e.getMessage() << endl;
+        rc = -1;
+    }
+
+    return rc;
 }

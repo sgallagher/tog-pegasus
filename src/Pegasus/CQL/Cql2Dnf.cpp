@@ -35,6 +35,7 @@
 #include "Cql2Dnf.h"
 #include <Pegasus/Common/Stack.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/PegasusAssert.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -491,21 +492,24 @@ OperationType Cql2Dnf::_convertOpType(ExpressionOpType op){
     }
 }
 
-ExpressionOpType Cql2Dnf::_convertOpType(OperationType op){
-        switch(op){
-            case CQL_EQ: return EQ;
-            case CQL_NE: return NE;
-            case CQL_GT: return GT;
-            case CQL_LT: return LT;
-            case CQL_GE: return GE;
-            case CQL_LE: return LE;
-            case CQL_IS_NULL: return IS_NULL; 
-            case CQL_IS_NOT_NULL: return IS_NOT_NULL;
-            case CQL_ISA: return ISA;
-            case CQL_LIKE: return LIKE;
-            default: return EQ; // should never get here
-        }
-    PEGASUS_UNREACHABLE(return EQ;) // should never get here
+ExpressionOpType Cql2Dnf::_convertOpType(OperationType op)
+{
+    switch(op)
+    {
+        case CQL_EQ: return EQ;
+        case CQL_NE: return NE;
+        case CQL_GT: return GT;
+        case CQL_LT: return LT;
+        case CQL_GE: return GE;
+        case CQL_LE: return LE;
+        case CQL_IS_NULL: return IS_NULL; 
+        case CQL_IS_NOT_NULL: return IS_NOT_NULL;
+        case CQL_ISA: return ISA;
+        case CQL_LIKE: return LIKE;
+        default: break; // should never get here
+    }
+    PEGASUS_ASSERT(0);
+    return EQ;
 }
 
 void Cql2Dnf::_destruct(CQLPredicate& _p){

@@ -213,11 +213,6 @@ public:
         const CIMName& className);
 
 
-    /// execQuery
-    virtual Array<CIMInstance> execQuery(
-        const String& queryLanguage,
-        const String& query) ;
-
     /// associators
     virtual Array<CIMObject> associators(
         const CIMNamespaceName& nameSpace,

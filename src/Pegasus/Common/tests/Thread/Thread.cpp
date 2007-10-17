@@ -52,6 +52,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 Boolean die = false;
+Boolean alwaysTrue = true;
 
 ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm);
 ThreadReturnType PEGASUS_THREAD_CDECL writing_thread(void *parm);
@@ -458,8 +459,9 @@ void test3_thread_cleanup1(void*)
 ThreadReturnType PEGASUS_THREAD_CDECL test4_thread( void* parm )
 {
     Thread* thread = (Thread*)parm;
+
     // Simulate a deadlocked thread
-    while( true )
+    while (alwaysTrue)
     {
 #if defined(PEGASUS_OS_DARWIN) || defined(PEGASUS_OS_VMS)
        // 
@@ -470,6 +472,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL test4_thread( void* parm )
 #endif
        Threads::sleep( 2000 );
     }
-    PEGASUS_UNREACHABLE (thread->exit_self( (ThreadReturnType)52 );
-    return( (ThreadReturnType)52 );)
+
+    thread->exit_self((ThreadReturnType)52);
+    return (ThreadReturnType)52;
 }

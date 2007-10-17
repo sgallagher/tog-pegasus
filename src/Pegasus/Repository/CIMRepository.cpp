@@ -2471,21 +2471,6 @@ Array<CIMObjectPath> CIMRepository::enumerateInstanceNamesForClass(
 }
 
 
-Array<CIMInstance> CIMRepository::execQuery(
-    const String& queryLanguage,
-    const String& query)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::execQuery");
-
-    ReadLock lock(_lock);
-
-    PEG_METHOD_EXIT();
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "execQuery()");
-
-    PEGASUS_UNREACHABLE(PEG_METHOD_EXIT();
-    return Array<CIMInstance>();)
-}
-
 Array<CIMObject> CIMRepository::associators(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,

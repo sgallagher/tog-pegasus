@@ -595,26 +595,17 @@ int main (int argc, char** argv)
         return 1;
     }
 
-    else
-    {
-        const char * opt = argv [1];
-        const char * optLang = argv [2];
-        String qlang(optLang);
+    const char* opt = argv[1];
+    const char* optLang = argv[2];
+    String qlang(optLang);
 
 #ifdef PEGASUS_DISABLE_CQL
-        if (qlang == "DMTF:CQL")
-        {
-          PEGASUS_STD (cout) << "+++++ cql test disabled" << PEGASUS_STD (endl);
-          return 0;
-        }
-        else
-        {
-          return _test(client, opt, qlang);
-        }
-#else
-        return _test(client, opt, qlang);
-#endif
+    if (qlang == "DMTF:CQL")
+    {
+        PEGASUS_STD(cout) << "+++++ cql test disabled" << PEGASUS_STD(endl);
+        return 0;
     }
+#endif
 
-    PEGASUS_UNREACHABLE( return 0; )
+    return _test(client, opt, qlang);
 }

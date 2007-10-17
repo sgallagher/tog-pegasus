@@ -72,9 +72,12 @@ public:
 
     Str& operator=(const Str& x)
     {
-        _constructions++;
-        delete [] _str;
-        _str = _clone(x._str);
+        if (&x != this)
+        {
+            _constructions++;
+            delete [] _str;
+            _str = _clone(x._str);
+        }
         return *this;
     }
 

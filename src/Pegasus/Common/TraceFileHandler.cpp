@@ -179,60 +179,41 @@ Boolean TraceFileHandler::isValidFilePath(const char* filePath)
     FileSystem::translateSlashes(fileName);
     if (FileSystem::isDirectory(fileName))
     {
-        return 0;
+        return false;
     }
 
     // Check if the file exists and is writable
     if (FileSystem::exists(fileName))
     {
-        if (!FileSystem::canWrite(fileName))
-        {
-            return 0;
-        }
-        else
-        {
-            return 1;
-        }
+        return FileSystem::canWrite(fileName);
     }
-    else
+
+    // Check if directory is writable
+    Uint32 index = fileName.reverseFind('/');
+
+    if (index != PEG_NOT_FOUND)
     {
-        // Check if directory is writable
-        Uint32 index = fileName.reverseFind('/');
+        String dirName = fileName.subString(0,index);
 
-        if (index != PEG_NOT_FOUND)
+        if (dirName.size() == 0)
         {
-            String dirName = fileName.subString(0,index);
-            if (!FileSystem::isDirectory(dirName))
-            {
-                return 0;
-            }
-            if (!FileSystem::canWrite(dirName) )
-            {
-                return 0;
-            }
-            else
-            {
-                return 1;
-            }
+            dirName = "/";
         }
-        else
+
+        if (!FileSystem::isDirectory(dirName))
         {
-            String currentDir;
-
-            // Check if there is permission to write in the
-            // current working directory
-            FileSystem::getCurrentDirectory(currentDir);
-
-            if (!FileSystem::canWrite(currentDir))
-            {
-                return 0;
-            }
-            else
-            {
-                return 1;
-            }
+            return false;
         }
+
+        return FileSystem::canWrite(dirName);
     }
-    PEGASUS_UNREACHABLE(return 1;)
+
+    String currentDir;
+
+    // Check if there is permission to write in the
+    // current working directory
+    FileSystem::getCurrentDirectory(currentDir);
+
+    return FileSystem::canWrite(currentDir);
 }
 PEGASUS_NAMESPACE_END

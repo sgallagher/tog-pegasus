@@ -3955,9 +3955,8 @@ Boolean XmlReader::getObjectNameElement(
         objectName.set(String(), CIMNamespaceName(), className);
         return true;
     }
-    else if (getInstanceNameElement(parser, objectName))
-        return true;
-    else
+
+    if (!getInstanceNameElement(parser, objectName))
     {
         MessageLoaderParms mlParms(
             "Common.XmlReader.EXPECTED_CLASSNAME_OR_INSTANCENAME_ELEMENT",
@@ -3965,7 +3964,7 @@ Boolean XmlReader::getObjectNameElement(
         throw XmlValidationError(parser.getLine(), mlParms);
     }
 
-    PEGASUS_UNREACHABLE( return false; )
+    return true;
 }
 
 //------------------------------------------------------------------------------
@@ -3983,17 +3982,8 @@ Boolean XmlReader::getObjectPathElement(
     if (!testStartTag(parser, entry, "OBJECTPATH"))
         return false;
 
-    if (getClassPathElement(parser, objectPath))
-    {
-        expectEndTag(parser, "OBJECTPATH");
-        return true;
-    }
-    else if (getInstancePathElement(parser, objectPath))
-    {
-        expectEndTag(parser, "OBJECTPATH");
-        return true;
-    }
-    else
+    if (!getClassPathElement(parser, objectPath) &&
+        !getInstancePathElement(parser, objectPath))
     {
         MessageLoaderParms mlParms(
             "Common.XmlReader.EXPECTED_INSTANCEPATH_OR_CLASSPATH_ELEMENT",
@@ -4001,7 +3991,8 @@ Boolean XmlReader::getObjectPathElement(
         throw XmlValidationError(parser.getLine(), mlParms);
     }
 
-    PEGASUS_UNREACHABLE(return false;)
+    expectEndTag(parser, "OBJECTPATH");
+    return true;
 }
 
 //------------------------------------------------------------------------------

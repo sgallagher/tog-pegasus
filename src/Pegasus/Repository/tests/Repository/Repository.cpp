@@ -160,16 +160,6 @@ void test02(Uint32 mode)
     // Miscellaneous tests
     //--------------------------------------------------------------------------
 
-    try
-    {
-    r.execQuery("WQL", "myquery");
-    }
-    catch (CIMException& e)
-    {
-        // execQuery operation is not supported yet
-        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_SUPPORTED);
-    }
-
     // Test to assure that delete of non-existant namespace
     // causes exception.
     Boolean testFailed=false;

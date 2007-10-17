@@ -1075,5 +1075,5 @@ int main (int argc, char** argv)
         cerr << "Error: " << e.getMessage() << endl;
     }
 
-    PEGASUS_UNREACHABLE( return 0; )
+    return -1;
 }

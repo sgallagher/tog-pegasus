@@ -270,7 +270,7 @@
 #include "cimmofParser.h"
 #include "valueFactory.h"
 #include "memobjs.h"
-#include "qualifierList.h"
+#include <Pegasus/Common/CIMQualifierList.h>
 
 //include any useful debugging stuff here
 
@@ -310,7 +310,7 @@ extern int   cimmof_leng;
   CIMFlavor g_flavor = CIMFlavor (CIMFlavor::NONE);
   CIMScope g_scope = CIMScope ();
   //ATTN: BB 2001 BB P1 - Fixed size qualifier list max 20. Make larger or var
-  qualifierList g_qualifierList(20);
+  CIMQualifierList g_qualifierList;
   CIMMethod *g_currentMethod = 0;
   CIMClass *g_currentClass = 0;
   CIMInstance *g_currentInstance = 0;
@@ -771,8 +771,8 @@ static const yytype_uint16 yyrline[] =
     1065,  1066,  1080,  1082,  1083,  1084,  1085,  1088,  1090,  1093,
     1094,  1098,  1099,  1100,  1101,  1102,  1105,  1106,  1107,  1108,
     1109,  1110,  1111,  1112,  1113,  1116,  1118,  1128,  1130,  1134,
-    1139,  1141,  1144,  1158,  1160,  1166,  1172,  1178,  1184,  1191,
-    1194
+    1139,  1141,  1144,  1159,  1161,  1167,  1173,  1179,  1185,  1192,
+    1195
 };
 #endif
 
@@ -1932,7 +1932,7 @@ yyreduce:
     (yyval.mofclass) = cimmofParser::Instance()->newClassDecl(*(yyvsp[(3) - (5)].cimnameval), *(yyvsp[(5) - (5)].cimnameval));
 
     // put list of qualifiers into class
-    applyQualifierList(&g_qualifierList, (yyval.mofclass));
+    applyQualifierList(g_qualifierList, *(yyval.mofclass));
 
     g_currentAliasRef = *(yyvsp[(4) - (5)].strval);
     if (g_currentClass)
@@ -2007,7 +2007,7 @@ yyreduce:
     (yyval.method) = g_currentMethod;
 
     // apply the method qualifier list.
-    applyQualifierList(&g_qualifierList, (yyval.method));
+    applyQualifierList(g_qualifierList, *(yyval.method));
 
     delete (yyvsp[(2) - (2)].cimnameval);
 ;}
@@ -2039,7 +2039,7 @@ yyreduce:
     g_referenceClassName = CIMName();
 
     YACCTRACE("parameter:applyQualifierList");
-    applyQualifierList(&g_qualifierList, p);
+    applyQualifierList(g_qualifierList, *p);
 
     cp->applyParameter(*g_currentMethod, *p);
     delete p;
@@ -2068,7 +2068,7 @@ yyreduce:
     // applied.
     YACCTRACE("propertyDeclaration:");
     (yyval.property) = (yyvsp[(2) - (3)].property);
-    applyQualifierList(&g_qualifierList, (yyval.property));
+    applyQualifierList(g_qualifierList, *(yyval.property));
 ;}
     break;
 
@@ -2101,7 +2101,7 @@ yyreduce:
     CIMValue *v = valueFactory::createValue(CIMTYPE_REFERENCE, -1, true, &s);
     //KS add the isArray and arraysize parameters. 8 mar 2002
     (yyval.property) = cimmofParser::Instance()->newProperty(*(yyvsp[(4) - (6)].strval), *v, false,0, *(yyvsp[(2) - (6)].strval));
-    applyQualifierList(&g_qualifierList, (yyval.property));
+    applyQualifierList(g_qualifierList, *(yyval.property));
     delete (yyvsp[(2) - (6)].strval);
     delete (yyvsp[(4) - (6)].strval);
     delete (yyvsp[(5) - (6)].strval);
@@ -2513,7 +2513,7 @@ yyreduce:
     g_currentInstance = cimmofParser::Instance()->newInstance(*(yyvsp[(4) - (5)].cimnameval));
     // apply the qualifierlist to the current instance
     (yyval.instance) = g_currentInstance;
-    applyQualifierList(&g_qualifierList, (yyval.instance));
+    applyQualifierList(g_qualifierList, *(yyval.instance));
     delete (yyvsp[(4) - (5)].cimnameval);
     delete (yyvsp[(5) - (5)].strval);
     if (g_currentAliasDecl != String::EMPTY)
@@ -2556,7 +2556,7 @@ yyreduce:
     CIMProperty *newprop = cp->copyPropertyWithNewValue(*oldprop, *v);
 
     //   5. apply the qualifiers;
-    applyQualifierList(&g_qualifierList, newprop);
+    applyQualifierList(g_qualifierList, *newprop);
 
     //   6. and apply the CIMProperty to g_currentInstance.
     cp->applyProperty(*g_currentInstance, *newprop);
@@ -2833,7 +2833,7 @@ yyreduce:
     {
     //yydebug = 1; stderr = stdout;
     YACCTRACE("qualifierListbegin");
-    g_qualifierList.init(); ;}
+    g_qualifierList.clear(); ;}
     break;
 
   case 150:
@@ -2855,7 +2855,8 @@ yyreduce:
     CIMValue *v = p->QualifierValue(*(yyvsp[(1) - (3)].strval),
                   ((yyvsp[(2) - (3)].typedinitializer)->type == CIMMOF_NULL_VALUE), *(yyvsp[(2) - (3)].typedinitializer)->value);
     (yyval.qualifier) = p->newQualifier(*(yyvsp[(1) - (3)].strval), *v, g_flavor);
-    g_qualifierList.add((yyval.qualifier));
+    g_qualifierList.add(*(yyval.qualifier));
+    delete (yyval.qualifier);
     delete (yyvsp[(1) - (3)].strval);
     delete (yyvsp[(2) - (3)].typedinitializer)->value;
     delete v;
@@ -2863,20 +2864,20 @@ yyreduce:
     break;
 
   case 153:
-#line 1158 "cimmof.y"
+#line 1159 "cimmof.y"
     {
         g_flavor = CIMFlavor (CIMFlavor::NONE); ;}
     break;
 
   case 154:
-#line 1160 "cimmof.y"
+#line 1161 "cimmof.y"
     {
         (yyval.strval) = new String((*(yyvsp[(1) - (1)].scope)).toString ());
         g_flavor = CIMFlavor (CIMFlavor::NONE); ;}
     break;
 
   case 155:
-#line 1167 "cimmof.y"
+#line 1168 "cimmof.y"
     {
             g_typedInitializerValue.type = CIMMOF_CONSTANT_VALUE;
             g_typedInitializerValue.value =  (yyvsp[(2) - (3)].strval);
@@ -2885,7 +2886,7 @@ yyreduce:
     break;
 
   case 156:
-#line 1173 "cimmof.y"
+#line 1174 "cimmof.y"
     {
             g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
             g_typedInitializerValue.value = new String(String::EMPTY);
@@ -2894,7 +2895,7 @@ yyreduce:
     break;
 
   case 157:
-#line 1179 "cimmof.y"
+#line 1180 "cimmof.y"
     {
             g_typedInitializerValue.type = CIMMOF_ARRAY_VALUE;
             g_typedInitializerValue.value =  (yyvsp[(1) - (1)].strval);
@@ -2903,7 +2904,7 @@ yyreduce:
     break;
 
   case 158:
-#line 1184 "cimmof.y"
+#line 1185 "cimmof.y"
     {   /* empty */
             g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
             g_typedInitializerValue.value = new String(String::EMPTY);
@@ -2912,18 +2913,18 @@ yyreduce:
     break;
 
   case 159:
-#line 1191 "cimmof.y"
+#line 1192 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
   case 160:
-#line 1194 "cimmof.y"
+#line 1195 "cimmof.y"
     { (yyval.strval) = (yyvsp[(1) - (1)].strval); ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 2925 "cimmoftemp"
+#line 2926 "cimmoftemp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -3137,7 +3138,7 @@ yyreturn:
 }
 
 
-#line 1196 "cimmof.y"
+#line 1197 "cimmof.y"
 
 
 /*

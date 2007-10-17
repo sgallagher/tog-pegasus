@@ -83,7 +83,7 @@
 #include "cimmofParser.h"
 #include "valueFactory.h"
 #include "memobjs.h"
-#include "qualifierList.h"
+#include <Pegasus/Common/CIMQualifierList.h>
 
 //include any useful debugging stuff here
 
@@ -123,7 +123,7 @@ extern int   cimmof_leng;
   CIMFlavor g_flavor = CIMFlavor (CIMFlavor::NONE);
   CIMScope g_scope = CIMScope ();
   //ATTN: BB 2001 BB P1 - Fixed size qualifier list max 20. Make larger or var
-  qualifierList g_qualifierList(20);
+  CIMQualifierList g_qualifierList;
   CIMMethod *g_currentMethod = 0;
   CIMClass *g_currentClass = 0;
   CIMInstance *g_currentInstance = 0;
@@ -349,7 +349,7 @@ classHead: qualifierList TOK_CLASS className alias superClass
     $$ = cimmofParser::Instance()->newClassDecl(*$3, *$5);
 
     // put list of qualifiers into class
-    applyQualifierList(&g_qualifierList, $$);
+    applyQualifierList(g_qualifierList, *$$);
 
     g_currentAliasRef = *$4;
     if (g_currentClass)
@@ -416,8 +416,8 @@ methodDeclaration: qualifierList methodHead methodBody methodEnd
 
 
 // methodHead processes the datatype and methodName and puts qualifierList.
-// BUG 366. qualifier list was originally placed on in methoddeclaration
-// which meant it might be overwritten by parameter qualifier lists.
+// Note that the qualifierList is parsed in methodDeclaration and applied here
+// so that it is not overwritten by parameter qualifier lists.
 methodHead: dataType methodName
 {
     YACCTRACE("methodHead");
@@ -431,7 +431,7 @@ methodHead: dataType methodName
     $$ = g_currentMethod;
 
     // apply the method qualifier list.
-    applyQualifierList(&g_qualifierList, $$);
+    applyQualifierList(g_qualifierList, *$$);
 
     delete $2;
 } ;
@@ -474,7 +474,7 @@ parameter: qualifierList parameterType parameterName array
     g_referenceClassName = CIMName();
 
     YACCTRACE("parameter:applyQualifierList");
-    applyQualifierList(&g_qualifierList, p);
+    applyQualifierList(g_qualifierList, *p);
 
     cp->applyParameter(*g_currentMethod, *p);
     delete p;
@@ -504,7 +504,7 @@ propertyDeclaration: qualifierList propertyBody propertyEnd
     // applied.
     YACCTRACE("propertyDeclaration:");
     $$ = $2;
-    applyQualifierList(&g_qualifierList, $$);
+    applyQualifierList(g_qualifierList, *$$);
 } ;
 
 
@@ -547,7 +547,7 @@ referenceDeclaration: qualifierList referencedObject TOK_REF referenceName
     CIMValue *v = valueFactory::createValue(CIMTYPE_REFERENCE, -1, true, &s);
     //KS add the isArray and arraysize parameters. 8 mar 2002
     $$ = cimmofParser::Instance()->newProperty(*$4, *v, false,0, *$2);
-    applyQualifierList(&g_qualifierList, $$);
+    applyQualifierList(g_qualifierList, *$$);
     delete $2;
     delete $4;
     delete $5;
@@ -881,7 +881,7 @@ instanceHead: qualifierList TOK_INSTANCE TOK_OF className alias
     g_currentInstance = cimmofParser::Instance()->newInstance(*$4);
     // apply the qualifierlist to the current instance
     $$ = g_currentInstance;
-    applyQualifierList(&g_qualifierList, $$);
+    applyQualifierList(g_qualifierList, *$$);
     delete $4;
     delete $5;
     if (g_currentAliasDecl != String::EMPTY)
@@ -938,7 +938,7 @@ valueInitializer: qualifierList TOK_SIMPLE_IDENTIFIER TOK_EQUAL
     CIMProperty *newprop = cp->copyPropertyWithNewValue(*oldprop, *v);
 
     //   5. apply the qualifiers;
-    applyQualifierList(&g_qualifierList, newprop);
+    applyQualifierList(g_qualifierList, *newprop);
 
     //   6. and apply the CIMProperty to g_currentInstance.
     cp->applyProperty(*g_currentInstance, *newprop);
@@ -1134,7 +1134,7 @@ qualifierList: qualifierListBegin qualifiers TOK_RIGHTSQUAREBRACKET
 qualifierListBegin: TOK_LEFTSQUAREBRACKET {
     //yydebug = 1; stderr = stdout;
     YACCTRACE("qualifierListbegin");
-    g_qualifierList.init(); } ;
+    g_qualifierList.clear(); } ;
 
 qualifiers: qualifier
         { }
@@ -1149,7 +1149,8 @@ qualifier: qualifierName typedQualifierParameter flavor
     CIMValue *v = p->QualifierValue(*$1,
                   ($2->type == CIMMOF_NULL_VALUE), *$2->value);
     $$ = p->newQualifier(*$1, *v, g_flavor);
-    g_qualifierList.add($$);
+    g_qualifierList.add(*$$);
+    delete $$;
     delete $1;
     delete $2->value;
     delete v;

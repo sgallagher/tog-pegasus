@@ -112,6 +112,11 @@ public:
     */
     void removeQualifier(Uint32 index);
 
+    /**
+        Removes all the qualifiers from the list.
+    */
+    void clear();
+
     /** find - Searches for a qualifier with the specified `
         input name if it exists in the class
         @param name CIMName of the qualifier
@@ -142,9 +147,6 @@ public:
         @return Boolean True if the qualifier exists,
     */
     Boolean isTrue(const CIMName& name) const;
-
-    /// findReverse - See find
-    Uint32 findReverse(const CIMName& name) const;
 
     /** resolve - Resolves the qualifierList based on the information provided.
         The resolved qualifiers are the result of validating and testing the
@@ -201,6 +203,22 @@ private:
 
     Array<CIMQualifier> _qualifiers;
 };
+
+/**
+    Applies a specified qualifier list to a specified object, using an
+    addQualifier method which is expected to exist for the object type.
+    @param qualifierList The CIMQualifierList to apply to the object.
+    @param object The object to which to apply the qualifierList.
+*/
+template <class T>
+void applyQualifierList(CIMQualifierList& qualifierList, T& object)
+{
+    for (Uint32 i = 0; i < qualifierList.getCount(); i++)
+    {
+        object.addQualifier(qualifierList.getQualifier(i));
+    }
+    qualifierList.clear();
+}
 
 PEGASUS_NAMESPACE_END
 

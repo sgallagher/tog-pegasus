@@ -73,7 +73,6 @@ SOURCES = \
     cimmofRepository.cpp \
     cimmof_tab_wrapper.cpp \
     parser.cpp \
-    qualifierList.cpp \
     valueFactory.cpp \
     compilerDeclContext.cpp
 

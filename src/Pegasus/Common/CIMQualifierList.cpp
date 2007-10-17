@@ -74,16 +74,20 @@ CIMQualifierList& CIMQualifierList::add(const CIMQualifier& qualifier)
 
     return *this;
 }
-//ATTN: Why do we not do the outofbounds check here. KS 18 May 2k
+
 CIMQualifier& CIMQualifierList::getQualifier(Uint32 index)
 {
     return _qualifiers[index];
 }
 
-//ATTN: added ks 18 may 2001. Should we have outofbounds?
 void CIMQualifierList::removeQualifier(Uint32 index)
 {
     _qualifiers.remove(index);
+}
+
+void CIMQualifierList::clear()
+{
+    _qualifiers.clear();
 }
 
 Uint32 CIMQualifierList::find(const CIMName& name) const
@@ -113,17 +117,6 @@ Boolean CIMQualifierList::isTrue(const CIMName& name) const
 
     value.get(flag);
     return flag;
-}
-
-Uint32 CIMQualifierList::findReverse(const CIMName& name) const
-{
-    for (Uint32 i = _qualifiers.size(); i; --i)
-    {
-        if (name.equal(_qualifiers[i-1].getName()))
-            return i - 1;
-    }
-
-    return PEG_NOT_FOUND;
 }
 
 void CIMQualifierList::resolve(

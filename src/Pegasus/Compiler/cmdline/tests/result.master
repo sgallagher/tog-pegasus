@@ -81,13 +81,14 @@ Options :
                           under very controlled situations. cimmof
                           is the recommended OpenPegasus MOF
                           compiler.)
-    -m                  - Generate C++ meta definitions rather than
-                          disk files. The generated C++ source code
-                          contains meta-class and meta-qualifier
-                          definitions, which are compiled to form
-                          an in-memory read-only repository.
-    -d                  - Discard description qualifiers from source
-                          code repository to conserve space.
+    -m                  - Create an MRR (memory-resident repository)
+                          rather than a disk-resident repository.
+                          Classes and qualifier declarations are
+                          placed into source files and instances are
+                          placed into a flat binary file.
+    -d                  - Discard description qualifiers when
+                          creating an MRR (memory-resident
+                          repository).
 
 
 Warning: Use of cimmofl can corrupt the CIM Server Repository.
@@ -124,13 +125,14 @@ Options :
                           under very controlled situations. cimmof
                           is the recommended OpenPegasus MOF
                           compiler.)
-    -m                  - Generate C++ meta definitions rather than
-                          disk files. The generated C++ source code
-                          contains meta-class and meta-qualifier
-                          definitions, which are compiled to form
-                          an in-memory read-only repository.
-    -d                  - Discard description qualifiers from source
-                          code repository to conserve space.
+    -m                  - Create an MRR (memory-resident repository)
+                          rather than a disk-resident repository.
+                          Classes and qualifier declarations are
+                          placed into source files and instances are
+                          placed into a flat binary file.
+    -d                  - Discard description qualifiers when
+                          creating an MRR (memory-resident
+                          repository).
 
 
 Warning: Use of cimmofl can corrupt the CIM Server Repository.

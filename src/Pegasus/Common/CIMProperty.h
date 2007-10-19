@@ -363,8 +363,6 @@ private:
 
     CIMProperty(CIMPropertyRep* rep);
 
-    void _checkRep() const;
-
     friend class CIMConstProperty;
     friend class CIMClassRep;
     friend class CIMInstanceRep;
@@ -601,8 +599,6 @@ public:
     Boolean isUninitialized() const;
 
 private:
-
-    void _checkRep() const;
 
     CIMPropertyRep* _rep;
 

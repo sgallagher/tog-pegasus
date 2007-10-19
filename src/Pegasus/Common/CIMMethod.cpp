@@ -229,12 +229,6 @@ CIMMethod CIMMethod::clone() const
     return CIMMethod(_rep->clone());
 }
 
-void CIMMethod::_checkRep() const
-{
-    if (!_rep)
-        throw UninitializedObjectException();
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -366,12 +360,6 @@ Boolean CIMConstMethod::identical(const CIMConstMethod& x) const
 CIMMethod CIMConstMethod::clone() const
 {
     return CIMMethod(_rep->clone());
-}
-
-void CIMConstMethod::_checkRep() const
-{
-    if (!_rep)
-        throw UninitializedObjectException();
 }
 
 PEGASUS_NAMESPACE_END

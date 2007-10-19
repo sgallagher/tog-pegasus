@@ -462,8 +462,6 @@ private:
 
     CIMClass(CIMClassRep* rep);
 
-    void _checkRep() const;
-
     friend class CIMConstClass;
     friend class CIMObject;
     friend class CIMConstObject;
@@ -745,8 +743,6 @@ public:
 private:
 
     CIMClassRep* _rep;
-
-    void _checkRep() const;
 
     friend class CIMClassRep;
     friend class CIMClass;

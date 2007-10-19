@@ -281,8 +281,6 @@ private:
 
     CIMParameter(CIMParameterRep* rep);
 
-    void _checkRep() const;
-
     CIMParameterRep* _rep;
 
     friend class CIMConstParameter;
@@ -479,8 +477,6 @@ public:
     CIMParameter clone() const;
 
 private:
-
-    void _checkRep() const;
 
     CIMParameterRep* _rep;
     friend class CIMParameter;

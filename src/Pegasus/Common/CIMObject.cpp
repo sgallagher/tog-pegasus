@@ -237,11 +237,6 @@ CIMObject CIMObject::clone() const
     return CIMObject(_rep->clone());
 }
 
-void CIMObject::_checkRep() const
-{
-    if (!_rep)
-        throw UninitializedObjectException();
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -398,12 +393,6 @@ Boolean CIMConstObject::identical(const CIMConstObject& x) const
 CIMObject CIMConstObject::clone() const
 {
     return CIMObject(_rep->clone());
-}
-
-void CIMConstObject::_checkRep() const
-{
-    if (!_rep)
-        throw UninitializedObjectException();
 }
 
 PEGASUS_NAMESPACE_END

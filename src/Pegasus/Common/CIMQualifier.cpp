@@ -169,12 +169,6 @@ CIMQualifier CIMQualifier::clone() const
     return CIMQualifier(_rep->clone());
 }
 
-void CIMQualifier::_checkRep() const
-{
-    if (!_rep)
-        throw UninitializedObjectException();
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -284,12 +278,6 @@ Boolean CIMConstQualifier::identical(const CIMConstQualifier& x) const
 CIMQualifier CIMConstQualifier::clone() const
 {
     return CIMQualifier(_rep->clone());
-}
-
-void CIMConstQualifier::_checkRep() const
-{
-    if (!_rep)
-        throw UninitializedObjectException();
 }
 
 PEGASUS_NAMESPACE_END

@@ -245,8 +245,6 @@ private:
 
     CIMQualifier(CIMQualifierRep* rep);
 
-    void _checkRep() const;
-
     CIMQualifierRep* _rep;
 
     friend class CIMConstQualifier;
@@ -424,8 +422,6 @@ public:
     CIMQualifier clone() const;
 
 private:
-
-    void _checkRep() const;
 
     CIMQualifierRep* _rep;
 

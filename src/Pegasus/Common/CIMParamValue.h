@@ -183,8 +183,6 @@ private:
 
     CIMParamValue(CIMParamValueRep* rep);
 
-    void _checkRep() const;
-
     CIMParamValueRep* _rep;
 
     friend class XmlWriter;

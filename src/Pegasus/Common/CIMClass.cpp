@@ -272,12 +272,6 @@ Boolean CIMClass::hasKeys() const
     return _rep->hasKeys();
 }
 
-void CIMClass::_checkRep() const
-{
-    if (!_rep)
-        throw UninitializedObjectException();
-}
-
 CIMInstance CIMClass::buildInstance(Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList) const
@@ -466,12 +460,6 @@ Boolean CIMConstClass::hasKeys() const
 {
     CheckRep(_rep);
     return _rep->hasKeys();
-}
-
-void CIMConstClass::_checkRep() const
-{
-    if (!_rep)
-        throw UninitializedObjectException();
 }
 
 PEGASUS_NAMESPACE_END

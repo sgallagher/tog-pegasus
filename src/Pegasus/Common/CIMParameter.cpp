@@ -177,12 +177,6 @@ CIMParameter CIMParameter::clone() const
     return CIMParameter(_rep->clone());
 }
 
-void CIMParameter::_checkRep() const
-{
-    if (!_rep)
-        throw UninitializedObjectException();
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -304,12 +298,6 @@ Boolean CIMConstParameter::identical(const CIMConstParameter& x) const
 CIMParameter CIMConstParameter::clone() const
 {
     return CIMParameter(_rep->clone());
-}
-
-void CIMConstParameter::_checkRep() const
-{
-    if (!_rep)
-        throw UninitializedObjectException();
 }
 
 PEGASUS_NAMESPACE_END

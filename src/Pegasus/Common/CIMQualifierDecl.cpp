@@ -158,12 +158,6 @@ CIMQualifierDecl CIMQualifierDecl::clone() const
     return CIMQualifierDecl(_rep->clone());
 }
 
-void CIMQualifierDecl::_checkRep() const
-{
-    if (!_rep)
-        throw UninitializedObjectException();
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -282,12 +276,6 @@ Boolean CIMConstQualifierDecl::identical(const CIMConstQualifierDecl& x) const
 CIMQualifierDecl CIMConstQualifierDecl::clone() const
 {
     return CIMQualifierDecl(_rep->clone());
-}
-
-void CIMConstQualifierDecl::_checkRep() const
-{
-    if (!_rep)
-        throw UninitializedObjectException();
 }
 
 PEGASUS_NAMESPACE_END

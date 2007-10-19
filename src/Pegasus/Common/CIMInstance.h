@@ -338,8 +338,6 @@ private:
 
     CIMInstance(CIMInstanceRep* rep);
 
-    void _checkRep() const;
-
     friend class CIMConstInstance;
     friend class CIMObject;
     friend class CIMConstObject;
@@ -558,8 +556,6 @@ public:
 private:
 
     CIMInstanceRep* _rep;
-
-    void _checkRep() const;
 
     friend class CIMInstance;
     friend class CIMObject;

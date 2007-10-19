@@ -500,8 +500,6 @@ private:
     */
     explicit CIMMethod(const CIMConstMethod& x);
 
-    void _checkRep() const;
-
     CIMMethodRep* _rep;
     friend class CIMConstMethod;
     friend class Resolver;
@@ -811,8 +809,6 @@ public:
     CIMMethod clone() const;
 
 private:
-
-    void _checkRep() const;
 
     CIMMethodRep* _rep;
 

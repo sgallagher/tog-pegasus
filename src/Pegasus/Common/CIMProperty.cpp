@@ -215,11 +215,6 @@ CIMProperty CIMProperty::clone() const
     return CIMProperty(_rep->clone());
 }
 
-void CIMProperty::_checkRep() const
-{
-    if (!_rep)
-        throw UninitializedObjectException();
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -360,12 +355,6 @@ Boolean CIMConstProperty::identical(const CIMConstProperty& x) const
 CIMProperty CIMConstProperty::clone() const
 {
     return CIMProperty(_rep->clone());
-}
-
-void CIMConstProperty::_checkRep() const
-{
-    if (!_rep)
-        throw UninitializedObjectException();
 }
 
 PEGASUS_NAMESPACE_END

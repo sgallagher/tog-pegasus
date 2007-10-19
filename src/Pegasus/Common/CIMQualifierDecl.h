@@ -229,8 +229,6 @@ private:
 
     CIMQualifierDecl(CIMQualifierDeclRep* rep);
 
-    void _checkRep() const;
-
     CIMQualifierDeclRep* _rep;
 
     friend class CIMConstQualifierDecl;
@@ -411,8 +409,6 @@ public:
     CIMQualifierDecl clone() const;
 
 private:
-
-    void _checkRep() const;
 
     CIMQualifierDeclRep* _rep;
 

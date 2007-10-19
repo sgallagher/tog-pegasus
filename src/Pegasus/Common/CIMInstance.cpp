@@ -210,13 +210,6 @@ CIMObjectPath CIMInstance::buildPath(const CIMConstClass& cimClass) const
     return _rep->buildPath(cimClass);
 }
 
-void CIMInstance::_checkRep() const
-{
-    if (!_rep)
-        throw UninitializedObjectException();
-}
-
-
 void CIMInstance::filter(Boolean includeQualifiers, Boolean includeClassOrigin,
                         const CIMPropertyList& propertyList)
 {
@@ -359,12 +352,6 @@ CIMObjectPath CIMConstInstance::buildPath(const CIMConstClass& cimClass) const
 {
     CheckRep(_rep);
     return _rep->buildPath(cimClass);
-}
-
-void CIMConstInstance::_checkRep() const
-{
-    if (!_rep)
-        throw UninitializedObjectException();
 }
 
 PEGASUS_NAMESPACE_END

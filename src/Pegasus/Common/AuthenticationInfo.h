@@ -363,12 +363,6 @@ private:
 
     }
     
-    void _checkRep() const
-    {
-        if (!_rep)
-            throw UninitializedObjectException();
-    }
-
     AuthenticationInfoRep* _rep;
 };
 

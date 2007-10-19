@@ -42,6 +42,7 @@
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/Exception.h>
 #include "ArrayIterator.h"
+#include "HostAddress.h"
 #include <errno.h>
 
 PEGASUS_USING_STD;
@@ -49,6 +50,267 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 static AtomicInt _connections(0);
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Tickler
+//
+////////////////////////////////////////////////////////////////////////////////
+
+Tickler::Tickler()
+    : _listenSocket(PEGASUS_INVALID_SOCKET),
+      _clientSocket(PEGASUS_INVALID_SOCKET),
+      _serverSocket(PEGASUS_INVALID_SOCKET)
+{
+}
+
+Tickler::~Tickler()
+{
+    uninitialize();
+}
+
+Boolean Tickler::initialize()
+{
+    //
+    // Set up the addresses for the listen, client, and server sockets
+    // based on whether IPv6 is enabled.
+    //
+
+#ifdef PEGASUS_ENABLE_IPV6
+    struct sockaddr_storage listenAddress;
+    struct sockaddr_storage clientAddress;
+    struct sockaddr_storage serverAddress;
+#else
+    struct sockaddr_in listenAddress;
+    struct sockaddr_in clientAddress;
+    struct sockaddr_in serverAddress;
+#endif
+
+    int addressFamily;
+    SocketLength addressLength;
+
+#ifdef PEGASUS_ENABLE_IPV6
+    if (System::isIPv6StackActive())
+    {
+        // Use the IPv6 loopback address for the listen sockets
+        HostAddress::convertTextToBinary(
+            HostAddress::AT_IPV6,
+            "::1",
+            &reinterpret_cast<struct sockaddr_in6*>(&listenAddress)->sin6_addr);
+        listenAddress.ss_family = AF_INET6;
+        reinterpret_cast<struct sockaddr_in6*>(&listenAddress)->sin6_port = 0;
+
+        addressFamily = AF_INET6;
+        addressLength = sizeof(struct sockaddr_in6);
+    }
+    else
+#endif
+    {
+        // Use the IPv4 loopback address for the listen sockets
+        HostAddress::convertTextToBinary(
+            HostAddress::AT_IPV4,
+            "127.0.0.1",
+            &reinterpret_cast<struct sockaddr_in*>(
+                &listenAddress)->sin_addr.s_addr);
+        reinterpret_cast<struct sockaddr_in*>(&listenAddress)->sin_family =
+            AF_INET;
+        reinterpret_cast<struct sockaddr_in*>(&listenAddress)->sin_port = 0;
+
+        addressFamily = AF_INET;
+        addressLength = sizeof(struct sockaddr_in);
+    }
+
+    // Use the same address for the client socket as the listen socket
+    clientAddress = listenAddress;
+
+    //
+    // Set up a listen socket to allow the tickle client and server to connect
+    //
+
+    // Create the listen socket
+    if ((_listenSocket = Socket::createSocket(addressFamily, SOCK_STREAM, 0)) ==
+             PEGASUS_INVALID_SOCKET)
+    {
+        MessageLoaderParms parms(
+            "Common.Monitor.TICKLE_CREATE",
+            "Received error number $0 while creating the internal socket.",
+            getSocketError());
+        throw Exception(parms);
+    }
+
+    // Bind the listen socket to the loopback address
+    if (::bind(
+            _listenSocket,
+            reinterpret_cast<struct sockaddr*>(&listenAddress),
+            addressLength) < 0)
+    {
+#ifdef PEGASUS_OS_ZOS
+        MessageLoaderParms parms(
+            "Common.Monitor.TICKLE_BIND_LONG",
+            "Received error:$0 while binding the internal socket.",
+            strerror(errno));
+#else
+        MessageLoaderParms parms(
+            "Common.Monitor.TICKLE_BIND",
+            "Received error number $0 while binding the internal socket.",
+            getSocketError());
+#endif
+        throw Exception(parms);
+    }
+
+    // Listen for a connection from the tickle client
+    if ((::listen(_listenSocket, 3)) < 0)
+    {
+        MessageLoaderParms parms(
+            "Common.Monitor.TICKLE_LISTEN",
+            "Received error number $0 while listening to the internal socket.",
+            getSocketError());
+        throw Exception(parms);
+    }
+
+    // Verify we have the correct listen socket
+    SocketLength tmpAddressLength = addressLength;
+    int sock = ::getsockname(
+        _listenSocket,
+        reinterpret_cast<struct sockaddr*>(&listenAddress),
+        &tmpAddressLength);
+    if (sock < 0)
+    {
+        MessageLoaderParms parms(
+            "Common.Monitor.TICKLE_SOCKNAME",
+            "Received error number $0 while getting the internal socket name.",
+            getSocketError());
+        throw Exception(parms);
+    }
+
+    //
+    // Set up the client side of the tickle connection.
+    //
+
+    // Create the client socket
+    if ((_clientSocket = Socket::createSocket(addressFamily, SOCK_STREAM, 0)) ==
+             PEGASUS_INVALID_SOCKET)
+    {
+        MessageLoaderParms parms(
+            "Common.Monitor.TICKLE_CLIENT_CREATE",
+            "Received error number $0 while creating the internal client "
+                "socket.",
+            getSocketError());
+        throw Exception(parms);
+    }
+
+    // Bind the client socket to the loopback address
+    if (::bind(
+            _clientSocket,
+            reinterpret_cast<struct sockaddr*>(&clientAddress),
+            addressLength) < 0)
+    {
+        MessageLoaderParms parms(
+            "Common.Monitor.TICKLE_CLIENT_BIND",
+            "Received error number $0 while binding the internal client "
+                "socket.",
+            getSocketError());
+        throw Exception(parms);
+    }
+
+    // Connect the client socket to the listen socket address
+    if (::connect(
+            _clientSocket,
+            reinterpret_cast<struct sockaddr*>(&listenAddress),
+            addressLength) < 0)
+    {
+        MessageLoaderParms parms(
+            "Common.Monitor.TICKLE_CLIENT_CONNECT",
+            "Received error number $0 while connecting the internal client "
+                "socket.",
+            getSocketError());
+        throw Exception(parms);
+    }
+
+    //
+    // Set up the server side of the tickle connection.
+    //
+
+    tmpAddressLength = addressLength;
+
+    // Accept the client socket connection.  The accept call may fail with
+    // EAGAIN.  Try a max of 20 times to establish this connection.
+    unsigned int retries = 0;
+    do
+    {
+        _serverSocket = ::accept(
+            _listenSocket,
+            reinterpret_cast<struct sockaddr*>(&serverAddress),
+            &tmpAddressLength);
+
+        if ((_serverSocket != PEGASUS_SOCKET_ERROR) ||
+            (getSocketError() != PEGASUS_NETWORK_TRYAGAIN))
+        {
+            break;
+        }
+
+        Threads::sleep(1);
+        retries++;
+    } while (retries <= 20);
+
+    if (_serverSocket == PEGASUS_SOCKET_ERROR)
+    {
+        if (getSocketError() == PEGASUS_NETWORK_TCPIP_STOPPED)
+        {
+            // TCP/IP is down
+            uninitialize();
+            return false;
+        }
+
+        MessageLoaderParms parms(
+            "Common.Monitor.TICKLE_ACCEPT",
+            "Received error number $0 while accepting the internal socket "
+                "connection.",
+            getSocketError());
+        throw Exception(parms);
+    }
+
+    //
+    // Close the listen socket and make the other sockets non-blocking
+    //
+
+    Socket::close(_listenSocket);
+    _listenSocket = PEGASUS_INVALID_SOCKET;
+
+    Socket::disableBlocking(_serverSocket);
+    Socket::disableBlocking(_clientSocket);
+    return true;
+}
+
+void Tickler::uninitialize()
+{
+    PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4, "uninitializing interface");
+
+    try
+    {
+        if (_serverSocket != PEGASUS_INVALID_SOCKET)
+        {
+            Socket::close(_serverSocket);
+            _serverSocket = PEGASUS_INVALID_SOCKET;
+        }
+        if (_clientSocket != PEGASUS_INVALID_SOCKET)
+        {
+            Socket::close(_clientSocket);
+            _clientSocket = PEGASUS_INVALID_SOCKET;
+        }
+        if (_listenSocket != PEGASUS_INVALID_SOCKET)
+        {
+            Socket::close(_listenSocket);
+            _listenSocket = PEGASUS_INVALID_SOCKET;
+        }
+    }
+    catch (...)
+    {
+        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
+            "Failed to close tickle sockets");
+    }
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -60,10 +322,7 @@ static AtomicInt _connections(0);
 Monitor::Monitor()
    : _stopConnections(0),
      _stopConnectionsSem(0),
-     _solicitSocketCount(0),
-     _tickle_client_socket(-1),
-     _tickle_server_socket(-1),
-     _tickle_peer_socket(-1)
+     _solicitSocketCount(0)
 {
     int numberOfMonitorEntriesToAllocate = MAX_NUMBER_OF_MONITOR_ENTRIES;
     Socket::initializeInterface();
@@ -84,248 +343,41 @@ Monitor::Monitor()
 
 Monitor::~Monitor()
 {
-    uninitializeTickler();
+    _tickler.uninitialize();
     Socket::uninitializeInterface();
     PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
                   "returning from monitor destructor");
 }
-void Monitor::uninitializeTickler()
-{
-    PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4, "uninitializing interface");
-
-    try
-    {
-        if (_tickle_peer_socket >= 0)
-        {
-            Socket::close(_tickle_peer_socket);
-        }
-        if (_tickle_client_socket >= 0)
-        {
-            Socket::close(_tickle_client_socket);
-        }
-        if (_tickle_server_socket >= 0)
-        {
-            Socket::close(_tickle_server_socket);
-        }
-    }
-    catch (...)
-    {
-        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
-                  "Failed to close tickle sockets");
-    }
-
-}
 
 void Monitor::initializeTickler()
 {
-    /*
-       NOTE: On any errors trying to
-             setup out tickle connection,
-             throw an exception/end the server
-    */
-
-    /* setup the tickle server/listener */
-    // try until the tcpip is restarted
-    do
+    while (!_tickler.initialize())
     {
-        // get a socket for the server side
-        if ((_tickle_server_socket =
-                 Socket::createSocket(PF_INET, SOCK_STREAM, 0)) ==
-             PEGASUS_INVALID_SOCKET)
-        {
-            MessageLoaderParms parms(
-                "Common.Monitor.TICKLE_CREATE",
-                "Received error number $0 while creating the internal socket.",
-                getSocketError());
-            throw Exception(parms);
-        }
+        // Retry until TCP/IP is started
+    }
 
-        // initialize the address
-        memset(&_tickle_server_addr, 0, sizeof(_tickle_server_addr));
-
-        _tickle_server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-        _tickle_server_addr.sin_family = PF_INET;
-        _tickle_server_addr.sin_port = 0;
-
-        SocketLength _addr_size = sizeof(_tickle_server_addr);
-
-        // bind server side to socket
-        if ((::bind(_tickle_server_socket,
-                 reinterpret_cast<struct sockaddr*>(&_tickle_server_addr),
-                 sizeof(_tickle_server_addr))) < 0)
-        {
-#ifdef PEGASUS_OS_ZOS
-            MessageLoaderParms parms(
-                "Common.Monitor.TICKLE_BIND_LONG",
-                "Received error:$0 while binding the internal socket.",
-                strerror(errno));
-#else
-            MessageLoaderParms parms(
-                "Common.Monitor.TICKLE_BIND",
-                "Received error number $0 while binding the internal socket.",
-                getSocketError());
-#endif
-            throw Exception(parms);
-        }
-
-        // tell the kernel we are a server
-        if ((::listen(_tickle_server_socket, 3)) < 0)
-        {
-            MessageLoaderParms parms(
-                "Common.Monitor.TICKLE_LISTEN",
-                "Received error number $0 while listening to the internal "
-                    "socket.",
-                getSocketError());
-            throw Exception(parms);
-        }
-
-        // make sure we have the correct socket for our server
-        int sock = ::getsockname(
-            _tickle_server_socket,
-            reinterpret_cast<struct sockaddr*>(&_tickle_server_addr),
-            &_addr_size);
-        if (sock < 0)
-        {
-            MessageLoaderParms parms(
-                "Common.Monitor.TICKLE_SOCKNAME",
-                "Received error number $0 while getting the internal socket "
-                    "name.",
-                getSocketError());
-            throw Exception(parms);
-        }
-
-        /* set up the tickle client/connector */
-
-        // get a socket for our tickle client
-        if ((_tickle_client_socket =
-                 Socket::createSocket(PF_INET, SOCK_STREAM, 0)) ==
-            PEGASUS_INVALID_SOCKET)
-        {
-            MessageLoaderParms parms(
-                "Common.Monitor.TICKLE_CLIENT_CREATE",
-                "Received error number $0 while creating the internal client "
-                    "socket.",
-                getSocketError());
-            throw Exception(parms);
-        }
-
-        // setup the address of the client
-        memset(&_tickle_client_addr, 0, sizeof(_tickle_client_addr));
-
-        _tickle_client_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-        _tickle_client_addr.sin_family = PF_INET;
-        _tickle_client_addr.sin_port = 0;
-
-        // bind socket to client side
-        if ((::bind(_tickle_client_socket,
-                 reinterpret_cast<struct sockaddr*>(&_tickle_client_addr),
-                 sizeof(_tickle_client_addr))) < 0)
-        {
-            MessageLoaderParms parms(
-                "Common.Monitor.TICKLE_CLIENT_BIND",
-                "Received error number $0 while binding the internal client "
-                    "socket.",
-                getSocketError());
-            throw Exception(parms);
-        }
-
-        // connect to server side
-        if ((::connect(_tickle_client_socket,
-                 reinterpret_cast<struct sockaddr*>(&_tickle_server_addr),
-                 sizeof(_tickle_server_addr))) < 0)
-        {
-            MessageLoaderParms parms(
-                "Common.Monitor.TICKLE_CLIENT_CONNECT",
-                "Received error number $0 while connecting the internal "
-                    "client socket.",
-                getSocketError());
-            throw Exception(parms);
-        }
-
-        /* set up the slave connection */
-        memset(&_tickle_peer_addr, 0, sizeof(_tickle_peer_addr));
-        SocketLength peer_size = sizeof(_tickle_peer_addr);
-        Threads::sleep(1);
-
-        // this call may fail, we will try a max of 20 times to establish
-        // this peer connection
-        if ((_tickle_peer_socket = ::accept(_tickle_server_socket,
-                 reinterpret_cast<struct sockaddr*>(&_tickle_peer_addr),
-                 &peer_size)) < 0)
-        {
-            if (_tickle_peer_socket == PEGASUS_SOCKET_ERROR &&
-                getSocketError() == PEGASUS_NETWORK_TRYAGAIN)
-            {
-                int retries = 0;
-                do
-                {
-                    Threads::sleep(1);
-                    _tickle_peer_socket = ::accept(
-                        _tickle_server_socket,
-                        reinterpret_cast<struct sockaddr*>(&_tickle_peer_addr),
-                        &peer_size);
-                    retries++;
-                } while (_tickle_peer_socket == PEGASUS_SOCKET_ERROR &&
-                         getSocketError() == PEGASUS_NETWORK_TRYAGAIN &&
-                         retries < 20);
-            }
-            // TCP/IP is down, destroy sockets and retry again.
-            if (_tickle_peer_socket == PEGASUS_SOCKET_ERROR &&
-                getSocketError() == PEGASUS_NETWORK_TCPIP_STOPPED)
-            {
-                // destroy everything
-                uninitializeTickler();
-                // retry again.
-                continue;
-            }
-        }
-        if (_tickle_peer_socket == PEGASUS_SOCKET_ERROR)
-        {
-            MessageLoaderParms parms(
-                "Common.Monitor.TICKLE_ACCEPT",
-                "Received error number $0 while accepting the internal "
-                    "socket connection.",
-                getSocketError());
-            throw Exception(parms);
-        }
-        else
-        {
-            // socket is ok
-            break;
-        }
-    } while (1); // try until TCP/IP is restarted
-
-    Socket::disableBlocking(_tickle_peer_socket);
-    Socket::disableBlocking(_tickle_client_socket);
-
-    // add the tickler to the list of entries to be monitored and set to
-    // IDLE because Monitor only
-    // checks entries with IDLE state for events
-    _MonitorEntry entry(_tickle_peer_socket, 1, INTERNAL);
+    // Create a MonitorEntry for the tickler and set its state to IDLE so the
+    // Monitor will watch for its events.
+    _MonitorEntry entry(_tickler.getServerSocket(), 1, INTERNAL);
     entry._status = _MonitorEntry::IDLE;
 
-    // is the tickler initalized as first socket on startup ?
-    if (_entries.size()==0)
+    if (_entries.size() == 0)
     {
-       // if yes, append a new entry
-       _entries.append(entry);
+        // The tickler has not been initialized before; add its entry at the
+        // beginning of the list.
+        _entries.append(entry);
     }
     else
     {
-       // if not, overwrite the tickler entry with new socket
-       _entries[0]=entry;
+        // Overwrite the existing tickler entry.
+        _entries[0] = entry;
     }
 }
 
 void Monitor::tickle()
 {
-    static char _buffer[] =
-    {
-      '0','0'
-    };
-
-    AutoMutex autoMutex(_tickle_mutex);
-    Socket::write(_tickle_client_socket,&_buffer, 2);
+    AutoMutex autoMutex(_tickleMutex);
+    Socket::write(_tickler.getClientSocket(), "\0\0", 2);
 }
 
 void Monitor::setState(
@@ -339,8 +391,6 @@ void Monitor::setState(
 
 void Monitor::run(Uint32 milliseconds)
 {
-
-
     struct timeval tv = {milliseconds/1000, milliseconds%1000*1000};
 
     fd_set fdread;
@@ -606,7 +656,7 @@ void Monitor::run(Uint32 milliseconds)
                                 "Monitor::run: Tickler socket got an IO error. "
                                     "Going to re-create Socket and wait for "
                                     "TCP/IP restart.");
-                            uninitializeTickler();
+                            _tickler.uninitialize();
                             initializeTickler();
                         }
                         else

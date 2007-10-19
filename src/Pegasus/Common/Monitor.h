@@ -111,6 +111,47 @@ public:
     Uint32 events;
 };
 
+/**
+    The Tickler class provides a loopback socket connection that can be
+    included in a select() socket array to allow the select() call to return
+    on demand.
+*/
+class Tickler
+{
+public:
+    Tickler();
+    ~Tickler();
+
+    /**
+        Initializes the Tickler connection.
+        @return True if the connection is initialized successfully, false if
+            the initialization failed because TCP/IP is not started.
+        @exception Exception if the initialization fails for any reason other
+            than TCP/IP is not started.
+    */
+    Boolean initialize();
+
+    /**
+        Uninitializes the Tickler connection.
+    */
+    void uninitialize();
+
+    SocketHandle getClientSocket()
+    {
+        return _clientSocket;
+    }
+
+    SocketHandle getServerSocket()
+    {
+        return _serverSocket;
+    }
+
+private:
+    SocketHandle _listenSocket;
+    SocketHandle _clientSocket;
+    SocketHandle _serverSocket;
+};
+
 /** This class monitors system-level events and notifies its clients of these
     events by posting messages to their queues.
 
@@ -181,9 +222,8 @@ public:
     void setState( Uint32 index, _MonitorEntry::entry_status status );
 
     void initializeTickler();
-    void uninitializeTickler();
-
     void tickle();
+
     /** Monitor system-level for the given number of milliseconds. Post a
         message to the corresponding queue when such an event occurs.
         Return after the time has elapsed or a single event has occurred,
@@ -237,14 +277,9 @@ private:
     Semaphore _stopConnectionsSem;
     /** tracks how many times solicitSocketCount() has been called */
     Uint32 _solicitSocketCount;
+    Tickler _tickler;
+    Mutex _tickleMutex;
     friend class HTTPConnection;
-    struct sockaddr_in _tickle_server_addr;
-    struct sockaddr_in _tickle_client_addr;
-    struct sockaddr_in _tickle_peer_addr;
-    SocketHandle _tickle_client_socket;
-    SocketHandle _tickle_server_socket;
-    SocketHandle _tickle_peer_socket;
-    Mutex _tickle_mutex;
 };
 
 PEGASUS_NAMESPACE_END

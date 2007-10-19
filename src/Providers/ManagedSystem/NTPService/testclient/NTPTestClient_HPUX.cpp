@@ -363,7 +363,7 @@ Boolean NTPTestClient::goodServerAddress(
     char key[50];
     char host[50];
     char buffer[5000];
-    long lstPos;
+    long lstPos = 0;
     Boolean ok = false,
             okRet = false;
     String strValue;
@@ -380,7 +380,6 @@ Boolean NTPTestClient::goodServerAddress(
         return ok;
 
     srvAddr.clear();
-    memset(buffer, 0, sizeof(buffer));
     memset(buffer, 0, sizeof(buffer));
     while(fgets(buffer, sizeof(buffer), fp) != NULL)
     {

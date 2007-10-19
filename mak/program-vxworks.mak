@@ -37,6 +37,8 @@ OBJECTS = $(CPP_OBJECTS:.c=.o)
 
 TARG=$(BIN_DIR)/$(PROGRAM)
 
+#LINK_FLAGS = -lstdc++ -L$(VXWORKS_LIB)
+
 LINK_FLAGS = -lstdc++ -L$(VXWORKS_LIB) -Wl,-rpath /romfs/lib -ldl -Wl,-rpath $(LIB_DIR)
 
 ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
@@ -53,6 +55,7 @@ ifneq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
 
 endif
 _EXTRA += -non-static
+#_EXTRA += -static
 
 $(TARG): $(BIN_DIR)/target $(OBJECTS) $(_FULL_LIBRARIES) $(ERROR)
 	$(CXX) $(FLAGS) -o $(TARG) $(OBJECTS) $(_EXTRA) $(_FULL_LIBRARIES) $(LINK_FLAGS)

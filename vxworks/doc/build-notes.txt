@@ -13,6 +13,11 @@ and libraries are moved to $PEGASUS_HOME/romfs/lib.
 A VXWorks simulator image (that includes the romfs above) can be built by
 typing "make" in this directory.
 
+ROMFS:
+======
+
+Must create /romfs/lib directory on root machine.
+
 How to create a msdos file system:
 ==================================
 

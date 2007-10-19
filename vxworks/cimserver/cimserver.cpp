@@ -116,6 +116,8 @@ static void _saveHandler(const Buffer& buffer)
 
 int main(int argc, char** argv)
 {
+    printf("===== CIMSERVER =====\n");
+
     // Setup the provider table:
 
     pegasusProviderTable = _providerTable;

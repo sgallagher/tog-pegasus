@@ -242,188 +242,188 @@ CIMValue* valueFactory::_buildArrayValue(
     {
         case CIMTYPE_BOOLEAN:
             {
-                Array<Boolean> *a = new Array<Boolean>;
+                Array<Boolean> a;
                 if (strsize != 0)
                 {
                     do
                     {
                         start = nextcsv(rep, ',', start, end, sval);
                         if (sval[0] == 'T')
-                            a->append(1);
+                            a.append(1);
                         else
-                            a->append(0);
+                            a.append(0);
                     } while (start < end);
                 }
-                return new CIMValue(*a);
+                return new CIMValue(a);
             }
         case CIMTYPE_UINT8:
             {
-                Array<Uint8> *a = new Array<Uint8>;
+                Array<Uint8> a;
                 if (strsize != 0)
                 {
                     do
                     {
                         start = nextcsv(rep, ',', start, end, sval);
-                        a->append((Uint8)stringToUint(sval, type));
+                        a.append((Uint8)stringToUint(sval, type));
                     } while (start < end);
                 }
-                return new CIMValue(*a);
+                return new CIMValue(a);
             }
         case CIMTYPE_SINT8:
             {
-                Array<Sint8> *a = new Array<Sint8>;
+                Array<Sint8> a;
                 if (strsize != 0)
                 {
                     do
                     {
                         start = nextcsv(rep, ',', start, end, sval);
-                        a->append((Sint8)stringToSint(sval, type));
+                        a.append((Sint8)stringToSint(sval, type));
                     } while (start < end);
                 }
-                return new CIMValue(*a);
+                return new CIMValue(a);
             }
         case CIMTYPE_UINT16:
             {
-                Array<Uint16> *a = new Array<Uint16>;
+                Array<Uint16> a;
                 if (strsize != 0)
                 {
                     do
                     {
                         start = nextcsv(rep, ',', start, end, sval);
-                        a->append((Uint16)stringToUint(sval, type));
+                        a.append((Uint16)stringToUint(sval, type));
                     } while (start < end);
                 }
-                return new CIMValue(*a);
+                return new CIMValue(a);
             }
         case CIMTYPE_SINT16:
             {
-                Array<Sint16> *a = new Array<Sint16>;
+                Array<Sint16> a;
                 if (strsize != 0)
                 {
                     do
                     {
                         start = nextcsv(rep, ',', start, end, sval);
-                        a->append((Sint16)stringToSint(sval, type));
+                        a.append((Sint16)stringToSint(sval, type));
                     } while (start < end);
                 }
-                return new CIMValue(*a);
+                return new CIMValue(a);
             }
         case CIMTYPE_UINT32:
             {
-                Array<Uint32> *a = new Array<Uint32>;
+                Array<Uint32> a;
                 if (strsize != 0)
                 {
                     do
                     {
                         start = nextcsv(rep, ',', start, end, sval);
-                        a->append((Uint32)stringToUint(sval, type));
+                        a.append((Uint32)stringToUint(sval, type));
                     } while (start < end);
                 }
-                return new CIMValue(*a);
+                return new CIMValue(a);
             }
         case CIMTYPE_SINT32:
             {
-                Array<Sint32> *a = new Array<Sint32>;
+                Array<Sint32> a;
                 if (strsize != 0)
                 {
                     do
                     {
                         start = nextcsv(rep, ',', start, end, sval);
-                        a->append((Sint32)stringToSint(sval, type));
+                        a.append((Sint32)stringToSint(sval, type));
                     } while (start < end);
                 }
-                return new CIMValue(*a);
+                return new CIMValue(a);
             }
         case CIMTYPE_UINT64:
             {
-                Array<Uint64> *a = new Array<Uint64>;
+                Array<Uint64> a;
                 if (strsize != 0)
                 {
                     do
                     {
                         start = nextcsv(rep, ',', start, end, sval);
-                        a->append((Uint64)stringToUint(sval, type));
+                        a.append((Uint64)stringToUint(sval, type));
                     } while (start < end);
                 }
-                return new CIMValue(*a);
+                return new CIMValue(a);
             }
         case CIMTYPE_SINT64:
             {
-                Array<Sint64> *a = new Array<Sint64>;
+                Array<Sint64> a;
                 if (strsize != 0)
                 {
                     do
                     {
                         start = nextcsv(rep, ',', start, end, sval);
-                        a->append((Sint64)stringToSint(sval, type));
+                        a.append((Sint64)stringToSint(sval, type));
                     } while (start < end);
                 }
-                return new CIMValue(*a);
+                return new CIMValue(a);
             }
         case CIMTYPE_REAL32:
             {
-                Array<Real32> *a = new Array<Real32>;
+                Array<Real32> a;
                 if (strsize != 0)
                 {
                     do
                     {
                         start = nextcsv(rep, ',', start, end, sval);
-                        a->append((Real32)stringToReal(sval, type));
+                        a.append((Real32)stringToReal(sval, type));
                     } while (start < end);
                 }
-                return new CIMValue(*a);
+                return new CIMValue(a);
             }
         case CIMTYPE_REAL64:
-            {
-                 Array<Real64> *a = new Array<Real64>;
+             {
+                 Array<Real64> a;
                  if (strsize != 0)
                  {
                      do
                      {
                          start =
-                            nextcsv(rep, ',', start, end, sval);
-                         a->append((Real64)stringToReal(sval, type));
+                             nextcsv(rep, ',', start, end, sval);
+                         a.append((Real64)stringToReal(sval, type));
                      } while (start < end);
                  }
-                 return new CIMValue(*a);
+                 return new CIMValue(a);
              }
         case CIMTYPE_CHAR16:
              {
-                 Array<Char16> *a = new Array<Char16>;
+                 Array<Char16> a;
                  if (strsize != 0)
                  {
                      do
                      {
                          start =
                             nextcsv(rep, ',', start, end, sval);
-                         a->append(sval[0]);
+                         a.append(sval[0]);
                      } while (start < end);
                  }
-                 return new CIMValue(*a);
+                 return new CIMValue(a);
              }
         case CIMTYPE_STRING:
              {
-                 Array<String> *a = new Array<String>;
+                 Array<String> a;
                  if (strsize != 0)
                  {
                      do
                      {
                          start =
                             nextcsv(rep, ',', start, end, sval);
-                         a->append(sval);
+                         a.append(sval);
                      } while (start < end);
                  }
-                 return new CIMValue(*a);
+                 return new CIMValue(a);
              }
         case CIMTYPE_DATETIME:
              {
-                 Array<CIMDateTime> *a = new Array<CIMDateTime>;
+                 Array<CIMDateTime> a;
                  while (strsize &&
                          (start = nextcsv(rep, ',', start, end, sval)) < end )
                  {
-                     a->append(CIMDateTime(sval));
+                     a.append(CIMDateTime(sval));
                  }
-                 return new CIMValue(*a);
+                 return new CIMValue(a);
              }
         case CIMTYPE_REFERENCE:
              break;

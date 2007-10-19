@@ -50,6 +50,7 @@ cimmofClient::cimmofClient() :
 
 cimmofClient::~cimmofClient()
 {
+    delete _client;
 }
 
 void cimmofClient::init(String &location, compilerCommonDefs::operationType ot)

@@ -363,6 +363,20 @@ fi
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-preun.spec
 
 %preun devel
+# Check if the SDK has been setup
+if [ -f /usr/share/Pegasus/samples/SDKIsSetup ]; then
+   make --directory /usr/share/Pegasus/samples -s unsetupSDK
+   if [ $? != 0 ]; then
+      echo "++++++++++++++++++++++++++++++++++++++++++++++" >&2
+      echo "ERROR: Failed to deregister sample providers." >&2
+      echo "To remove the SDK rpm without deregistering" >&2
+      echo "the sample providers, first remove file" >&2
+      echo "/usr/share/Pegasus/samples/SDKIsSetup," >&2
+      echo "then remove SDK rpm." >&2
+      echo "++++++++++++++++++++++++++++++++++++++++++++++" >&2
+      exit 1
+   fi
+fi
 make --directory /usr/share/Pegasus/samples -s clean
 
 %if %{PEGASUS_BUILD_TEST_RPM}

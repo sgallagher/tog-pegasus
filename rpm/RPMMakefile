@@ -226,6 +226,7 @@ tests:
 	$(MAKE) --directory=$(PEGASUS_SAMPLES_DIR) -f Makefile
 	$(MAKE) --directory=$(PEGASUS_SAMPLES_DIR) -f Makefile setupSDK
 	$(MAKE) --directory=$(PEGASUS_SAMPLES_DIR) -f Makefile testSDK
+	$(MAKE) --directory=$(PEGASUS_SAMPLES_DIR) -f Makefile unsetupSDK
 	@$(HOME_DIR)/check_for_core
 
 	# Install the test RPM after running SDK tests. This is because

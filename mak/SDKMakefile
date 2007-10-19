@@ -392,6 +392,31 @@ stageHTML:
 
 _append_preunSectionToSpecFile:
 	@$(ECHO-E) "%preun devel" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "# Check if the SDK has been setup" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "if [ -f $(PEGASUS_SAMPLES_DIR)/SDKIsSetup ]; then" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   make --directory $(PEGASUS_SAMPLES_DIR) -s unsetupSDK" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   if [ \044? != 0 ]; then" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "      echo \"++++++++++++++++++++++++++++++++++++++++++++++\" >&2" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "      echo \"ERROR: Failed to deregister sample providers.\" >&2" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "      echo \"To remove the SDK rpm without deregistering\" >&2" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "      echo \"the sample providers, first remove file\" >&2" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "      echo \"$(PEGASUS_SAMPLES_DIR)/SDKIsSetup,\" >&2" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "      echo \"then remove SDK rpm.\" >&2" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "      echo \"++++++++++++++++++++++++++++++++++++++++++++++\" >&2" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "      exit 1" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "make --directory $(PEGASUS_SAMPLES_DIR) -s clean" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)

@@ -1,5 +1,10 @@
+    (*) XScale target-board testing.
+
+    (*) CIMPLE porting to xScale and the new provider model.
 
     (*) SSL porting.
+    
+        - Integrate vxWorks SSL in vXworks image.
 
         - SSL linkage and testing.
 
@@ -8,16 +13,20 @@
     (*) Password-file authentication.
 
     (*) Memory limits.
+	
+	- Setting server max memory usage in configuration
 
         - Throttling.
 
+		- operations
+
+    		- Indications
+
         - Reduce memory usage of enumerate-classes.
 
-    (*) CIMPLE porting.
+        - Modify enumerateClass operations to reduce memory usage.
 
     (*) VxWorks 5.5 porting.
-
-    (*) XScale target-board testing.
 
     (*) Formalize embedded-server SDK.
 
@@ -25,31 +34,32 @@
 
     (*) Indications.
 
-        - Test indications.
+        - Control-provider indications extension.  Need to handle enable/disable indications and receive of indications
 
-        - Control-provider indications.
+        - Test indications.
 
     (*) Removing uneeded source modules.
 
-        (*) Client.
+        (*) Client - Not required
 
-        (*) UserManager
+        (*) UserManager 
 
-        (*) ProviderRegistrationManager
+        (*) ProviderRegistrationManager - Not required without dynamic providers
 
-        (*) ProviderManager2
+        (*) ProviderManager2 - Not required without dynamic providers
 
         (*) Default provider manager.
 
-        (*) ExportServer.
+        (*) Indication Export Server. Not used in any configuriation except HP.
 
-        (*) ProviderRegistrationProvider.
+        (*) ProviderRegistrationControlProvider. Not required because no providers registered
 
-        (*) ConfigSettingProvider.
+        (*) ConfigSettingControlProvider. Not required if we do not have dynamic settings
 
-        (*) UserAuthProvider.
+        (*) UserAuthControlProvider. Can eliminate if there are external means to set user 
+	    names and providers
 
-        (*) Managed system.
+        (*) Managed system providers. Does Fujitsu need them or will they write their own.
 
     (*) Class reduction (round 2).
 
@@ -61,13 +71,19 @@
 
     (*) CIM_ComputerSystem provider.
 
-    (*) Logging.
+    (*) Logging. - Proposed solution is to move to virtual definition of the log serializer and allow the function
+	to be defined in the embedded system main. This will allow embedded system developer to define
+        any output mechanism for logs.
 
-    (*) Tracing (turned off for now).
+    (*) Tracing (turned off for now).  It appears that this will be the permanent solution.  The alternative is to
+        do the same thing we are going to do with logs, create a callback mechanism whereby the embedded system
+        developer can decide what he wants to do with the line output.
 
-    (*) How do we shutdownt the server?
+    (*) How do we shutdownt the server? Initial conclusion is that we do it through a signal. We could
+        develop a function in the CIMServer main that the embedded system provider that defines the signal
+        to be used as the starting point for shutdown.
 
-    (*) Get rid of PID file.
+    (*) Get rid of PID file.  - I believe that this is already done. ks
 
     (*) Remove daeminization code.
 

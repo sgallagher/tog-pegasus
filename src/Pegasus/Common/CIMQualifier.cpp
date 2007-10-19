@@ -140,7 +140,7 @@ const CIMFlavor & CIMQualifier::getFlavor() const
     return _rep->getFlavor();
 }
 
-const Uint32 CIMQualifier::getPropagated() const
+Uint32 CIMQualifier::getPropagated() const
 {
     CheckRep(_rep);
     return (_rep->getPropagated()) ? 1 : 0;
@@ -263,7 +263,7 @@ const CIMFlavor & CIMConstQualifier::getFlavor() const
     return _rep->getFlavor();
 }
 
-const Uint32 CIMConstQualifier::getPropagated() const
+Uint32 CIMConstQualifier::getPropagated() const
 {
     CheckRep(_rep);
     return (_rep->getPropagated()) ? 1 : 0;

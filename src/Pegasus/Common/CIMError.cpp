@@ -534,7 +534,7 @@ void _Check(const String& name, CIMConstProperty& p, T* tag)
     }
 }
 
-const void CIMError::setInstance(const CIMInstance& instance)
+void CIMError::setInstance(const CIMInstance& instance)
 {
     for (Uint32 i = 0; i < instance.getPropertyCount(); i++)
     {

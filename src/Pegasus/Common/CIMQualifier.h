@@ -204,7 +204,7 @@ public:
         @exception UninitializedObjectException If the object is not
             initialized.
     */
-    const Uint32 getPropagated() const;
+    Uint32 getPropagated() const;
 
     /**
         Sets the propagated attribute.  Normally this is used by a CIM Server
@@ -395,7 +395,7 @@ public:
         @exception UninitializedObjectException If the object is not
             initialized.
     */
-    const Uint32 getPropagated() const;
+    Uint32 getPropagated() const;
 
     /**
         Determines whether the object has been initialized.

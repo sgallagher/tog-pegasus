@@ -725,7 +725,7 @@ class PEGASUS_COMMON_LINKAGE CIMError { public:
             CIM_Error err1;
             CIMInstance instance1 err1.getInstance();
     */
-    const void setInstance(const CIMInstance& instance);
+    void setInstance(const CIMInstance& instance);
 
     /** Print this object to standard output. This is a diagnostic outut
         and the exact format of the output cannot be depended on.  It prints

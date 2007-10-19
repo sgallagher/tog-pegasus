@@ -84,7 +84,7 @@ public:
         return _referenceClassName;
     }
 
-    const CIMType getType() const
+    CIMType getType() const
     {
         return _type;
     }

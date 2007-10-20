@@ -1,3 +1,8 @@
+
+    (*) Switch to diab toolchain?
+
+    (*) Re-port XSCALE in Kernel mode.
+
     (*) XScale target-board testing.
 
     (*) CIMPLE porting to xScale and the new provider model.

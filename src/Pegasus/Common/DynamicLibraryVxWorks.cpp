@@ -1,4 +1,3 @@
-/*
 //%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -31,37 +30,26 @@
 //==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
-*/
 
-#ifndef Pegasus_Platform_VXWORKS_GNU_h
-#define Pegasus_Platform_VXWORKS_GNU_h
+#include "DynamicLibrary.h"
 
-#define PEGASUS_OS_TYPE_VXWORKS
+PEGASUS_NAMESPACE_BEGIN
 
-#define PEGASUS_OS_VXWORKS
+Boolean DynamicLibrary::_load()
+{
+    PEGASUS_ASSERT(false);
+    return false;
+}
 
-#define PEGASUS_ARCHITECTURE_IX86
+void DynamicLibrary::_unload()
+{
+    PEGASUS_ASSERT(false);
+}
 
-#define PEGASUS_COMPILER_GNU
+DynamicLibrary::DynamicSymbolHandle DynamicLibrary::getSymbol(
+    const String& symbolName)
+{
+    PEGASUS_ASSERT(false);
+}
 
-#define PEGASUS_UINT64 unsigned long long
-
-#define PEGASUS_SINT64 long long
-
-#define PEGASUS_HAVE_NAMESPACES
-
-#define PEGASUS_HAVE_FOR_SCOPE
-
-#define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
-
-#define PEGASUS_HAVE_PTHREADS
-
-#define PEGASUS_HAVE_NANOSLEEP
-
-#define PEGASUS_VXWORKS_PRIVILEGED_USER "root"
-
-#ifdef PEGASUS_INTERNALONLY
-# include "Platform_VXWORKS_GNU_Internal.h"
-#endif
-
-#endif /* Pegasus_Platform_VXWORKS_GNU_h */
+PEGASUS_NAMESPACE_END

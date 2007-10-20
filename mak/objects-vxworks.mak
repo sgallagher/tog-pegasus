@@ -30,13 +30,9 @@
 #//=============================================================================
 
 SYS_INCLUDES = \
-    -I$(VXWORKS_ROOT)/target/usr/h \
-    -I$(VXWORKS_ROOT)/target/usr/h/wrn/coreip \
-    -I$(VXWORKS_ROOT)/target/src/wrn/coreip/common/compress
-
-ifneq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
-  FLAGS += -fpic
-endif
+    -I$(VXWORKS_ROOT)/target/h \
+    -I$(VXWORKS_ROOT)/target/h/wrn/coreip \
+    -I$(PEGASUS_ROOT)/src/StandardIncludes/vxworks
 
 ifdef LOCAL_DEFINES
   DEFINES += $(LOCAL_DEFINES)
@@ -45,4 +41,3 @@ endif
 $(OBJ_DIR)/%.o: $(OBJ_DIR)/target %.cpp $(ERROR)
 	$(CXX) -c -o $@ $(FLAGS) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp
 	@ $(ECHO)
-

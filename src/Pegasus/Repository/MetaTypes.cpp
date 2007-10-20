@@ -39,7 +39,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-static const size_t _MAX_QUALIFIERS = 1024;
+static const size_t _MAX_QUALIFIERS = 32;
 
 static bool _eqi(const char* s1, const char* s2)
 {

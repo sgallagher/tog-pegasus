@@ -204,7 +204,7 @@ public:
         const String localizedMsg)
     {
 #if defined(PEGASUS_OS_VXWORKS)
-        cout << "LOGGER: " << localizedMsg << endl;
+        printf("LOGGER[%s]\n", (const char*)localizedMsg.getCString());
 #endif
 
 #if defined(PEGASUS_USE_SYSLOGS)

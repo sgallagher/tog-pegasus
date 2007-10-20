@@ -29,41 +29,87 @@
 #//
 #//=============================================================================
 
+##==============================================================================
+##
+## INCLUDES
+##
+##==============================================================================
+
 INCLUDES = -I$(ROOT)/src $(EXTRA_INCLUDES)
 
-TMP_OBJECTS = $(foreach i,$(SOURCES),$(OBJ_DIR)/$i)
-CPP_OBJECTS = $(TMP_OBJECTS:.cpp=.o)
-OBJECTS = $(CPP_OBJECTS:.c=.o)
+##==============================================================================
+##
+## _OBJECTS
+##
+##==============================================================================
 
-TARG=$(BIN_DIR)/$(PROGRAM)
+_OBJECTS1 = $(foreach i,$(SOURCES),$(OBJ_DIR)/$i)
+_OBJECTS2 = $(_OBJECTS1:.cpp=.o)
+_OBJECTS = $(_OBJECTS2:.c=.o)
 
-#LINK_FLAGS = -lstdc++ -L$(VXWORKS_LIB)
+##==============================================================================
+##
+## _LIBRARIES
+##
+##==============================================================================
 
-LINK_FLAGS = -lstdc++ -L$(VXWORKS_LIB) -Wl,-rpath /romfs/lib -ldl -Wl,-rpath $(LIB_DIR)
+_LIBRARIES1 = $(addprefix $(LIB_DIR)/$(LIB_PREFIX), $(LIBRARIES))
+_LIBRARIES2 = $(addsuffix ".a", $(_LIBRARIES1))
+_LIBRARIES = $(shell echo $(_LIBRARIES2))
 
-ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
-    _P1 = $(addprefix $(LIB_DIR)/$(LIB_PREFIX), $(LIBRARIES))
-    _P2 = $(addsuffix ".a", $(_P1))
-    _FULL_LIBRARIES=$(shell echo $(_P2))
-else
-    _FULL_LIBRARIES=$(FULL_LIBRARIES)
-endif
+##==============================================================================
+##
+## _CTDT
+##
+##==============================================================================
 
-_DFILES = $(SOURCES:.cpp=.d)
+_CTDT = $(OBJ_DIR)/ctdt.o
 
-ifneq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
+##==============================================================================
+##
+## _TARGET
+##
+##==============================================================================
 
-endif
-_EXTRA += -non-static
-#_EXTRA += -static
+_TARGET = $(BIN_DIR)/$(PROGRAM)
 
-$(TARG): $(BIN_DIR)/target $(OBJECTS) $(_FULL_LIBRARIES) $(ERROR)
-	$(CXX) $(FLAGS) -o $(TARG) $(OBJECTS) $(_EXTRA) $(_FULL_LIBRARIES) $(LINK_FLAGS)
-	rm -rf $(_DFILES)
+all: $(_CTDT) $(_TARGET)
+
+$(_TARGET): $(BIN_DIR)/target $(_OBJECTS) $(_LIBRARIES) $(ERROR)
+	$(CC) $(LINK_FLAGS) -o $(_TARGET) $(_CTDT) $(_OBJECTS) $(_LIBRARIES)
+	@ echo "Created $(_TARGET)"
+
+relink: clean-target
+	$(MAKE) $(_TARGET)
+
+clean-target:
+	rm -f $(_TARGET)
+
+##==============================================================================
+##
+## _CTDT (C++ muncher object file)
+##
+##==============================================================================
+
+$(_CTDT): $(_LIBRARIES)
+	$(NM) $(_LIBRARIES) | wtxtcl $(MUNCH) -c pentium > /tmp/ctdt.c
+	$(CC) -c -o $(_CTDT) $(FLAGS) $(DEFINES) $(INCLUDES) /tmp/ctdt.c
+
+##==============================================================================
+##
+## FILES_TO_CLEAN
+##
+##==============================================================================
+
+FILES_TO_CLEAN = $(_OBJECTS) $(_TARGET) $(_CTDT)
+
+##==============================================================================
+##
+## Include other makefiles:
+##
+##==============================================================================
 
 include $(ROOT)/mak/objects.mak
-
-FILES_TO_CLEAN = $(OBJECTS) $(FULL_PROGRAM)
 
 include $(ROOT)/mak/clean.mak
 
@@ -76,7 +122,3 @@ include $(ROOT)/mak/sub.mak
 -include $(OBJ_DIR)/depend.mak
 
 include $(ROOT)/mak/misc.mak
-
-romfs:
-	mkdir -p $(ROMFS)/bin
-	cp $(TARG) $(ROMFS)/bin

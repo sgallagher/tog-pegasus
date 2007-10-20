@@ -15,15 +15,19 @@ romfs:
 
 CFG="LINE_EDIT_MODE=emacs,LINE_LENGTH=256,STRING_FREE=manual,INTERPRETER=Cmd,VXE_PATH=$(PEGASUS_HOME)/bin"
 
-HOSTNAME=$(shell hostname)
-
 proj:
 	mkdir -p proj
 	( cd proj; vxprj create linux gnu vxsim.wpj )
-	( cd proj; vxprj component add INCLUDE_POSIX_PTHREAD_SCHEDULER )
 	( cd proj; vxprj component remove INCLUDE_SHELL_BANNER )
 	( cd proj; vxprj component remove INCLUDE_WDB_BANNER )
+	( cd proj; vxprj component add INCLUDE_CPLUS_IOSTREAMS )
+	( cd proj; vxprj component add INCLUDE_GETSERVBYNAME )
+	( cd proj; vxprj component add INCLUDE_GETADDRINFO )
+	( cd proj; vxprj component add INCLUDE_GETNAMEINFO )
+	( cd proj; vxprj component add INCLUDE_GETNAMEINFO_SYSCTL )
+	( cd proj; vxprj component add INCLUDE_GETNETBYNAME )
 	( cd proj; vxprj parameter set LOCAL_MEM_SIZE 0x08000000 )
+	( cd proj; vxprj parameter set JOB_TASK_STACK_SIZE 16000 )
 	( cd proj; vxprj parameter setstring SHELL_DEFAULT_CONFIG $(CFG) )
 	( cd proj; vxprj parameter set NUM_FILES 128 )
 

@@ -34,7 +34,7 @@ ifndef WIND_BASE
 endif
 
 VXWORKS_ROOT = $(WIND_BASE)
-VXWORKS_LIB = $(VXWORKS_ROOT)/target/usr/lib/simpentium/SIMPENTIUM/common
+VXWORKS_LIB = $(VXWORKS_ROOT)/target/lib/pentium/PENTIUM/common
 
 export PEGASUS_ENABLE_IPV6=false
 
@@ -95,6 +95,8 @@ ifndef CC
   CC = ccpentium
 endif
 
+NM = nmpentium
+
 SH = sh
 
 YACC = bison
@@ -119,7 +121,7 @@ LIB_SUFFIX = .so
 
 AR = arpentium
 
-DEFINES += -DPEGASUS_USE_SYSLOGS -DCPU=SIMPENTIUM -DTOOL_FAMILY=gnu -DTOOL=gnu 
+DEFINES += -DPEGASUS_USE_SYSLOGS -DCPU=PENTIUM -DTOOL_FAMILY=gnu -DTOOL=gnu 
 
 SYS_LIBS =
 
@@ -127,17 +129,37 @@ ifdef PEGASUS_PAM_AUTHENTICATION
     $(error "vxworks does not support PAM authenticaiton")
 endif
 
-FLAGS += -mhard-float -march=i486 -ansi -fno-builtin -W -Wall -Wno-unused -mrtp
+# ATTN-MEB: do we need -mhard-float?
+
+##==============================================================================
+##
+## FLAGS
+##
+##==============================================================================
+
+FLAGS += -mhard-float -march=i486 -ansi -fno-builtin -W -Wall -Wno-unused
 
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
   FLAGS += -g
 else
-  FLAGS += -Os
+  FLAGS += -O2
 endif
 
-ifeq ($(shell expr $(GCC_VERSION) '>=' 3.0), 1)
-  FLAGS += -fno-enforce-eh-specs
-endif
+#ifeq ($(shell expr $(GCC_VERSION) '>=' 3.0), 1)
+#  FLAGS += -fno-enforce-eh-specs
+#endif
+
+##==============================================================================
+##
+## Linkage definitions:
+##
+##==============================================================================
+
+DOLLARS = -fdollars-in-identifiers
+
+MUNCH = $(WIND_BASE)/host/resource/hutils/tcl/munch.tcl
+
+LINK_FLAGS = -r -nostdlib -Wl,-X $(WIND_BASE)/target/h/tool/gnu/ldscripts/link.OUT
 
 PEGASUS_HAS_MAKEDEPEND = yes
 

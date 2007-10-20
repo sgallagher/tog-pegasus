@@ -29,6 +29,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <vxWorksCommon.h>
+#undef NONE
 #include <cstdio>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
@@ -106,7 +108,7 @@ static void _saveHandler(const Buffer& buffer)
     const char* data = buffer.getData();
     size_t size = buffer.size();
 
-    if (fwrite(data, 1, size, os) != size)
+    if (fwrite(data, 1, size, os) != ssize_t(size))
     {
         printf("FAILED TO WRITE[%s]\n", INSTANCE_REPOISTORY_PATH);
     }
@@ -114,7 +116,7 @@ static void _saveHandler(const Buffer& buffer)
     fclose(os);
 }
 
-int main(int argc, char** argv)
+extern "C" int cimserver_main(int argc, char** argv)
 {
     printf("===== CIMSERVER =====\n");
 

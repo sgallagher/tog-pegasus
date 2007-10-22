@@ -819,6 +819,11 @@ void CIMServer::setState(Uint32 state)
 
     if (state == CIMServerState::TERMINATING)
     {
+#ifdef PEGASUS_SLP_REG_TIMEOUT
+        // To deregister Pegasus with SLP
+        unregisterPegasusFromSLP();
+#endif
+
         // tell decoder that CIMServer is terminating
         _cimOperationRequestDecoder->setServerTerminating(true);
         _cimExportRequestDecoder->setServerTerminating(true);
@@ -1322,34 +1327,47 @@ ThreadReturnType PEGASUS_THREAD_CDECL registerPegasusWithSLP(void* parm)
                                                  FALSE,
                                                  FALSE)))
          {
-             if (foundHttpProtocol &&
-                 (!client->srv_reg_local(client, 
-                                         (const char*)httpUrl,
-                                         (const char*)httpAttrs, 
-                                         (const char*)type, 
-                                         scopes, 
-                                         life)))
+             if (foundHttpProtocol)
              {
-                 Logger::put_l(
-                     Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                     "Pegasus.Server.SLP."
-                         "EXTERNAL_SLP_REGISTRATION_FAILED_ERROR",
-                     "CIM Server registration with External SLP Failed.");
+                 if (!client->srv_reg_local(client, 
+                                            (const char*)httpUrl,
+                                            (const char*)httpAttrs, 
+                                            (const char*)type, 
+                                            scopes, 
+                                            life))
+                 {
+                     Logger::put_l(
+                         Logger::STANDARD_LOG, System::CIMSERVER,
+                         Logger::WARNING,
+                         "Pegasus.Server.SLP."
+                             "EXTERNAL_SLP_REGISTRATION_FAILED_ERROR",
+                         "CIM Server registration with External SLP Failed.");
+                 }
+                 else
+                 {
+                     _slpRegistrationComplete = true;
+                 }
              }
-
-             if (foundHttpsProtocol &&
-                 (!client->srv_reg_local(client, 
-                                         (const char*)httpsUrl,
-                                         (const char*)httpsAttrs, 
-                                         (const char*)type, 
-                                         scopes, 
-                                         life)))
+             if (foundHttpsProtocol)
              {
-                 Logger::put_l(
-                     Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                     "Pegasus.Server.SLP."
-                         "EXTERNAL_SLP_REGISTRATION_FAILED_ERROR",
-                     "CIM Server registration with External SLP Failed.");
+                 if (!client->srv_reg_local(client, 
+                                            (const char*)httpsUrl,
+                                            (const char*)httpsAttrs, 
+                                            (const char*)type, 
+                                            scopes, 
+                                            life))
+                 {
+                     Logger::put_l(
+                         Logger::STANDARD_LOG, System::CIMSERVER,
+                         Logger::WARNING,
+                         "Pegasus.Server.SLP."
+                             "EXTERNAL_SLP_REGISTRATION_FAILED_ERROR",
+                         "CIM Server registration with External SLP Failed.");
+                 }
+                 else
+                 {
+                     _slpRegistrationComplete = true;
+                 }
              }
          }
      }

@@ -793,10 +793,6 @@ int CIMServerProcess::cimserver_run(
                 configManager->getCurrentValue("shutdownTimeout");
             Uint32 timeoutValue =
                 strtol(configTimeout.getCString(), (char **)0, 10);
-#ifdef PEGASUS_SLP_REG_TIMEOUT
-            // To deregister Pegasus with SLP
-            unregisterPegasusFromSLP();
-#endif
 
             ServerShutdownClient serverShutdownClient(&_serverRunStatus);
             serverShutdownClient.shutdown(timeoutValue);

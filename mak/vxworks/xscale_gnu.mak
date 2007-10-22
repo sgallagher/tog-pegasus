@@ -29,9 +29,10 @@
 #//
 #//=============================================================================
 
+include $(ROOT)/mak/vxworks/common.mak
+
 __TARGET__ = arm
 __CPU__ = XSCALE
-
 include $(ROOT)/mak/vxworks/gnu.mak
 
 FLAGS += -txscale

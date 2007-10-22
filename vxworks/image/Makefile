@@ -1,14 +1,19 @@
 .PHONY: repository
+.PHONY: romfs
 
-export HOST_PEGASUS_HOME:=$(PEGASUS_HOME)
 include ../config.mak
 ROOT = ../..
 include $(ROOT)/mak/config.mak
 
+CWD=$(shell pwd)
+
+ROMFS=$(CWD)/romfs
+
 all: romfs proj build
 
 romfs:
-	cp $(BIN_DIR)/cimserver $(PEGASUS_HOME)/romfs
+	mkdir -p $(ROMFS)
+	cp $(BIN_DIR)/cimserver $(ROMFS)
 
 CFG="LINE_EDIT_MODE=emacs,LINE_LENGTH=256,STRING_FREE=manual,INTERPRETER=Cmd,VXE_PATH=$(PEGASUS_HOME)/bin"
 
@@ -34,6 +39,7 @@ build:
 	cp proj/vxWorks.sym .
 
 clean:
+	rm -rf romfs
 	rm -rf proj
 	rm -rf counterFile
 	rm -rf nvram.vxWorks0

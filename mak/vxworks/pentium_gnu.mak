@@ -29,9 +29,10 @@
 #//
 #//=============================================================================
 
+include $(ROOT)/mak/vxworks/common.mak
+
 __TARGET__ = pentium
 __CPU__ = PENTIUM
-
 include $(ROOT)/mak/vxworks/gnu.mak
 
 FLAGS += -mtune=i486 

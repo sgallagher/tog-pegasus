@@ -29,5 +29,4 @@
 #//
 #//=============================================================================
 
-include $(ROOT)/mak/vxworks/common.mak
 include $(ROOT)/mak/vxworks/pentium_gnu.mak

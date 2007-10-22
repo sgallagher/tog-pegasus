@@ -30,10 +30,7 @@
 #//=============================================================================
 
 ROOT = ../../..
-
 DIR = vxworks/providers/
-
-include $(ROOT)/vxworks/config.mak
 include $(ROOT)/mak/config.mak
 
 LIBRARY = GoodbyeProvider

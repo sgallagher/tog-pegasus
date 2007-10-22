@@ -31,7 +31,6 @@
 
 ROOT = ../..
 DIR = vxworks/cimserver
-include $(ROOT)/vxworks/config.mak
 include $(ROOT)/mak/config.mak
 
 PROGRAM = cimserver

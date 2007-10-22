@@ -46,9 +46,10 @@ typedef const MetaClass* ConstMetaClassPtr;
 # include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
 
-static const size_t _MAX_NAMESPACES = 32;
-static const MetaNameSpace* _nameSpaces[_MAX_NAMESPACES];
-static size_t _nameSpacesSize = 0;
+//
+// Callback function and client data used to obtain namespaces from client.
+//
+static const MetaNameSpace* const* _nameSpaces;
 
 static const size_t _MAX_FEATURES = 1024;
 static const size_t _MAX_QUALIFIERS = 1024;
@@ -87,10 +88,15 @@ private:
 
 static const MetaNameSpace* _findNameSpace(const char* name)
 {
-    for (size_t i = 0; i < _nameSpacesSize; i++)
+    if (!_nameSpaces)
+        return 0;
+
+    for (const MetaNameSpace* const* p = _nameSpaces; *p; p++)
     {
-        if (_eqi(_nameSpaces[i]->name, name))
-            return _nameSpaces[i];
+        const MetaNameSpace* ns = *p;
+
+        if (_eqi(ns->name, name))
+            return ns;
     }
 
     // Not found!
@@ -404,21 +410,6 @@ MetaRepository::~MetaRepository()
 {
 }
 
-bool MetaRepository::addNameSpace(const MetaNameSpace* nameSpace)
-{
-    if (_nameSpacesSize == _MAX_NAMESPACES || !nameSpace)
-        return false;
-
-    for (size_t i = 0; i < _nameSpacesSize; i++)
-    {
-        if (_eqi(_nameSpaces[i]->name, nameSpace->name))
-            return false;
-    }
-
-    _nameSpaces[_nameSpacesSize++] = nameSpace;
-    return true;
-}
-
 CIMClass MetaRepository::getClass(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
@@ -646,12 +637,18 @@ void MetaRepository::modifyNameSpace(
 
 Array<CIMNamespaceName> MetaRepository::enumerateNameSpaces()
 {
-    Array<CIMNamespaceName> nameSpaces;
+    Array<CIMNamespaceName> result;
 
-    for (size_t i = 0; i < _nameSpacesSize; i++)
-        nameSpaces.append(_nameSpaces[i]->name);
+    if (!_nameSpaces)
+        return Array<CIMNamespaceName>();
 
-    return Array<CIMNamespaceName>();
+    for (const MetaNameSpace* const* p = _nameSpaces; *p; p++)
+    {
+        const MetaNameSpace* ns = *p;
+        result.append(ns->name);
+    }
+
+    return result;
 }
 
 void MetaRepository::deleteNameSpace(
@@ -915,6 +912,11 @@ const MetaClass* MetaRepository::findMetaClass(
         return 0;
 
     return FindClass(ns, className);
+}
+
+void MetaRepository::installNameSpaces(const MetaNameSpace* const* nameSpaces)
+{
+    _nameSpaces = nameSpaces;
 }
 
 PEGASUS_NAMESPACE_END

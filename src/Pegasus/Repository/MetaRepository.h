@@ -98,9 +98,6 @@ public:
 
     // Namespace operations:
 
-    static bool addNameSpace(
-        const MetaNameSpace* nameSpace);
-
     static void createNameSpace(
         const CIMNamespaceName& nameSpace,
         const NameSpaceAttributes& attributes);
@@ -121,6 +118,9 @@ public:
     static Boolean isRemoteNameSpace(
         const CIMNamespaceName& nameSpace,
         String& remoteInfo);
+
+    // Set null-terminated namespaces array.
+    static void installNameSpaces(const MetaNameSpace* const* nameSpaces);
 
     // Qualifier operations:
 

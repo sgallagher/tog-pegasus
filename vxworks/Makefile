@@ -1,5 +1,4 @@
 ROOT = ..
-include $(ROOT)/vxworks/config.mak
 include $(ROOT)/mak/config.mak
 
 DIRS = providers/hello providers/goodbye cimserver

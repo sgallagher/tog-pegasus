@@ -88,6 +88,10 @@
 # include <Pegasus/Common/Platform_VXWORKS_PENTIUM_GNU.h>
 #elif defined (PEGASUS_PLATFORM_VXWORKS_XSCALE_GNU)
 # include <Pegasus/Common/Platform_VXWORKS_XSCALE_GNU.h>
+#elif defined (PEGASUS_PLATFORM_VXWORKS_PENTIUM_DIAB)
+# include <Pegasus/Common/Platform_VXWORKS_PENTIUM_DIAB.h>
+#elif defined (PEGASUS_PLATFORM_VXWORKS_XSCALE_DIAB)
+# include <Pegasus/Common/Platform_VXWORKS_XSCALE_DIAB.h>
 #else
 # error "<Pegasus/Common/Config.h>: Unsupported Platform"
 #endif

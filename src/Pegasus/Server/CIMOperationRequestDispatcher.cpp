@@ -1264,8 +1264,6 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
                     moduleName.append(".");
                     moduleName.append(e.providerName);
 
-std::cout << "INSERTRECORD[" << moduleName << "]" << std::endl;
-
                     _routing_table.insert_record(
                         e.className,
                         _wild,

@@ -71,10 +71,11 @@ _CTDT = $(OBJ_DIR)/ctdt.o
 ##
 ##==============================================================================
 
+
 _TARGET = $(BIN_DIR)/$(PROGRAM)
 
 $(_TARGET): $(BIN_DIR)/target $(_OBJECTS) $(_LIBRARIES) $(_CTDT) $(ERROR)
-	$(CC) $(LINK_FLAGS) -o $(_TARGET) $(_CTDT) $(_OBJECTS) $(_LIBRARIES)
+	$(LINK) $(LINK_FLAGS) -o $(_TARGET) $(_CTDT) $(_OBJECTS) $(_LIBRARIES)
 	@ echo "Created $(_TARGET)"
 
 ##==============================================================================

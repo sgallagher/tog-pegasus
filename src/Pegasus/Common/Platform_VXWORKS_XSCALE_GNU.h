@@ -33,9 +33,49 @@
 //%/////////////////////////////////////////////////////////////////////////////
 */
 
-#ifndef Pegasus_Platform_VXWORKS_XSCALE_GNU_h
-#define Pegasus_Platform_VXWORKS_XSCALE_GNU_h
+#ifndef _Pegasus_Platform_VXWORKS_XSCALE_GNU_h
+#define _Pegasus_Platform_VXWORKS_XSCALE_GNU_h
 
-#include "Platform_VXWORKS_GNU.h"
+#include <vxWorksCommon.h>
 
-#endif /* Pegasus_Platform_VXWORKS_XSCALE_GNU_h */
+/* This VxWorks definition breaks the compile on several Pegasus headers. */
+#ifdef NONE
+# undef NONE
+#endif
+
+#define PEGASUS_OS_TYPE_VXWORKS
+
+#define PEGASUS_OS_VXWORKS
+
+#define PEGASUS_ARCHITECTURE_XSCALE
+
+#define PEGASUS_COMPILER_GNU
+
+#define PEGASUS_UINT64 unsigned long long
+
+#define PEGASUS_SINT64 long long
+
+#define PEGASUS_HAVE_NAMESPACES
+
+#define PEGASUS_HAVE_FOR_SCOPE
+
+#define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
+
+#define PEGASUS_HAVE_PTHREADS
+
+#define PEGASUS_HAVE_NANOSLEEP
+
+#define PEGASUS_VXWORKS_PRIVILEGED_USER "root"
+
+#ifdef PEGASUS_INTERNALONLY
+# include "Platform_VXWORKS_Internal.h"
+# ifndef _GNU_SOURCE
+#  define _GNU_SOURCE
+# endif
+# ifndef _REENTRANT
+#  define _REENTRANT
+# endif
+# define _THREAD_SAFE
+#endif
+
+#endif /* _Pegasus_Common_Platform_VXWORKS_XSCALE_GNU_h */

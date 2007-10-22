@@ -31,11 +31,7 @@
 
 #include <cstdio>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Repository/MetaRepository.h>
-#include <Pegasus/Repository/MemoryResidentRepository.h>
-#include <Pegasus/Server/ProviderTable.h>
-#include <Pegasus/Provider/CIMProvider.h>
+#include <Pegasus/Server/EmbeddedServer.h>
 #include "root_cimv2_namespace.h"
 #include "root_PG_Internal_namespace.h"
 #include "root_PG_InterOp_namespace.h"
@@ -67,9 +63,17 @@ static Pegasus::ProviderTableEntry _providerTable[] =
 
 static const char INSTANCE_REPOISTORY_PATH[] = "redbird:/tmp/instances.dat";
 
-static void _loadHandler(Buffer& buffer)
+static const MetaNameSpace* _nameSpaces[] =
 {
-    printf("===== _loadHandler()\n");
+    &root_PG_InterOp_namespace,
+    &root_cimv2_namespace,
+    &root_PG_Internal_namespace,
+    0,
+};
+
+static void _loadCallback(Buffer& buffer, void* data)
+{
+    printf("===== _loadCallback()\n");
 
     // If this file exists, pass its contents to the memory resident 
     // repository.
@@ -91,9 +95,9 @@ static void _loadHandler(Buffer& buffer)
     fclose(is);
 }
 
-static void _saveHandler(const Buffer& buffer)
+static void _saveCallback(const Buffer& buffer, void* data)
 {
-    printf("===== _saveHandler()\n");
+    printf("===== _saveCallback()\n");
 
     FILE* os = fopen(INSTANCE_REPOISTORY_PATH, "wb");
 
@@ -103,10 +107,10 @@ static void _saveHandler(const Buffer& buffer)
         return;
     }
 
-    const char* data = buffer.getData();
+    const char* ptr = buffer.getData();
     size_t size = buffer.size();
 
-    if (fwrite(data, 1, size, os) != ssize_t(size))
+    if (fwrite(ptr, 1, size, os) != ssize_t(size))
     {
         printf("FAILED TO WRITE[%s]\n", INSTANCE_REPOISTORY_PATH);
     }
@@ -114,24 +118,22 @@ static void _saveHandler(const Buffer& buffer)
     fclose(os);
 }
 
-extern "C" int cimserver_main(int argc, char** argv)
+extern "C" int cimserver(int argc, char** argv)
 {
     printf("===== CIMSERVER =====\n");
 
     // Setup the provider table:
 
-    pegasusProviderTable = _providerTable;
+    EmbeddedServer::installProviderTable(_providerTable);
 
-    // Add namespaces to the meta-repository:
+    // Set the namespace array:
 
-    MetaRepository::addNameSpace(&root_PG_InterOp_namespace);
-    MetaRepository::addNameSpace(&root_cimv2_namespace);
-    MetaRepository::addNameSpace(&root_PG_Internal_namespace);
+    EmbeddedServer::installNameSpaces(_nameSpaces);
 
-    // Arrange for load/save repository handlers to be invoked.
+    // Install load/save callbacks:
 
-    MemoryResidentRepository::setLoadHandler(_loadHandler);
-    MemoryResidentRepository::setSaveHandler(_saveHandler);
+    EmbeddedServer::installLoadRepositoryCallback(_loadCallback, 0);
+    EmbeddedServer::installSaveRepositoryCallback(_saveCallback, 0);
 
     // Run the pegasus server:
 

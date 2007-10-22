@@ -137,6 +137,8 @@ static CIMServer* _cimserver = NULL;
 
 static Boolean _slpRegistrationComplete;
 
+extern ProviderTableEntry* pegasusProviderTable;
+
 // Need a static method to act as a callback for the control provider.
 // This doesn't belong here, but I don't have a better place to put it.
 static Message* controlProviderReceiveMessageCallback(
@@ -463,8 +465,6 @@ BOOKMARK0:
             moduleName.append(e.moduleName);
             moduleName.append(".");
             moduleName.append(e.providerName);
-
-std::cout << "REGISTERMODULE[" << moduleName << "]" << std::endl;
 
             ModuleController::register_module(
                 PEGASUS_QUEUENAME_CONTROLSERVICE,

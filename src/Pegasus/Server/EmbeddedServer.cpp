@@ -1,4 +1,3 @@
-/*
 //%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -31,44 +30,36 @@
 //==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
-*/
 
-#ifndef Pegasus_Platform_VXWORKS_GNU_h
-#define Pegasus_Platform_VXWORKS_GNU_h
+#include "EmbeddedServer.h"
 
-#include <vxWorksCommon.h>
+PEGASUS_NAMESPACE_BEGIN
 
-/* This VxWorks definition breaks the compile on several Pegasus headers. */
-#ifdef NONE
-# undef NONE
-#endif
+extern ProviderTableEntry* pegasusProviderTable;
 
-#define PEGASUS_OS_TYPE_VXWORKS
+void EmbeddedServer::installProviderTable(
+    ProviderTableEntry* providerTable)
+{
+    pegasusProviderTable = providerTable;
+}
 
-#define PEGASUS_OS_VXWORKS
+void EmbeddedServer::installNameSpaces(const MetaNameSpace* const* nameSpaces)
+{
+    MetaRepository::installNameSpaces(nameSpaces);
+}
 
-#define PEGASUS_ARCHITECTURE_IX86
+void EmbeddedServer::installSaveRepositoryCallback(
+    void (*callback)(const Buffer& buffer, void* data),
+    void* data)
+{
+    MemoryResidentRepository::installSaveCallback(callback, data);
+}
 
-#define PEGASUS_COMPILER_GNU
+void EmbeddedServer::installLoadRepositoryCallback(
+    void (*callback)(Buffer& buffer, void* data),
+    void* data)
+{
+    MemoryResidentRepository::installLoadCallback(callback, data);
+}
 
-#define PEGASUS_UINT64 unsigned long long
-
-#define PEGASUS_SINT64 long long
-
-#define PEGASUS_HAVE_NAMESPACES
-
-#define PEGASUS_HAVE_FOR_SCOPE
-
-#define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
-
-#define PEGASUS_HAVE_PTHREADS
-
-#define PEGASUS_HAVE_NANOSLEEP
-
-#define PEGASUS_VXWORKS_PRIVILEGED_USER "root"
-
-#ifdef PEGASUS_INTERNALONLY
-# include "Platform_VXWORKS_GNU_Internal.h"
-#endif
-
-#endif /* Pegasus_Platform_VXWORKS_GNU_h */
+PEGASUS_NAMESPACE_END

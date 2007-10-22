@@ -290,16 +290,20 @@ public:
         bool lock);
 #endif
 
-    // Sets the global save handler that is called whenever the memory-resident
+    // Sets the global save callback that is called whenever the memory-resident
     // instance repository is modified. The buffer argument is a serialized
     // copy of the memory-resident instance repository. The handler can do
     // things such as save the buffer on disk for later use.
-    static void setSaveHandler(void (*handler)(const Buffer& buffer));
+    static void installSaveCallback(
+        void (*callback)(const Buffer& buffer, void* data),
+        void* data);
 
-    // Sets the global load handler that is called whenever an instance of
+    // Sets the global load callback that is called whenever an instance of
     // MemoryResidentRepository is created in order to load the initial set
     // of instances (if any).
-    static void setLoadHandler(void (*handler)(Buffer& buffer));
+    static void installLoadCallback(
+        void (*callback)(Buffer& buffer, void* data),
+        void* data);
 
 private:
     Uint32 _findInstance(

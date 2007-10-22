@@ -50,6 +50,7 @@ DynamicLibrary::DynamicSymbolHandle DynamicLibrary::getSymbol(
     const String& symbolName)
 {
     PEGASUS_ASSERT(false);
+    return 0;
 }
 
 PEGASUS_NAMESPACE_END

@@ -29,6 +29,12 @@
 #//
 #//=============================================================================
 
+##==============================================================================
+##
+## Check predefined macros:
+##
+##==============================================================================
+
 ifndef __TARGET__
    $(error "__TARGET__ is undefined")
 endif
@@ -36,6 +42,12 @@ endif
 ifndef __CPU__
    $(error "__CPU__ is undefined")
 endif
+
+##==============================================================================
+##
+## Compiler definitions:
+##
+##==============================================================================
 
 COMPILER = gnu
 
@@ -46,8 +58,6 @@ else
   CXX = c++$(__TARGET__)
   CC = cc$(__TARGET__)
 endif
-
-NM = nm$(__TARGET__)
 
 FLAGS += -ansi
 FLAGS += -W
@@ -68,10 +78,21 @@ DEFINES += -DCPU=$(__CPU__)
 DEFINES += -DTOOL_FAMILY=gnu 
 DEFINES += -DTOOL=gnu 
 DEFINES += -DPEGASUS_PLATFORM_VXWORKS_$(__CPU__)_GNU
+DEFINES += -D_WRS_KERNEL
 
-MUNCH = wtxtcl $(WIND_BASE)/host/resource/hutils/tcl/munch.tcl -c $(__TARGET__)
+##==============================================================================
+##
+## Linker definitions:
+##
+##==============================================================================
+
+LINK = $(CC)
 
 LINK_FLAGS += -r 
 LINK_FLAGS += -nostdlib 
 LINK_FLAGS += -Wl,-X
 LINK_FLAGS += $(WIND_BASE)/target/h/tool/gnu/ldscripts/link.OUT
+
+NM = nm$(__TARGET__)
+
+MUNCH = wtxtcl $(WIND_BASE)/host/resource/hutils/tcl/munch.tcl -c $(__TARGET__)

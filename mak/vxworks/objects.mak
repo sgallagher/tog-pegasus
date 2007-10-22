@@ -41,4 +41,3 @@ endif
 $(OBJ_DIR)/%.o: $(OBJ_DIR)/target %.cpp $(ERROR)
 	$(CXX) -c -o $@ $(FLAGS) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp
 	@ $(ECHO)
-

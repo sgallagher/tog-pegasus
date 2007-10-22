@@ -28,7 +28,41 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-#include "Config.h"
-#undef PEGASUS_INTERNALONLY
-#include "String.h"
-#include "StringInline.h"
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
+#ifndef Pegasus_EmbeddedServer_h
+#define Pegasus_EmbeddedServer_h
+
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Repository/MetaRepository.h>
+#include <Pegasus/Repository/MemoryResidentRepository.h>
+#include "Linkage.h"
+#include "ProviderTable.h"
+
+PEGASUS_NAMESPACE_BEGIN
+
+class PEGASUS_SERVER_LINKAGE EmbeddedServer
+{
+public:
+
+    static void installProviderTable(ProviderTableEntry* providerTable);
+
+    static void installNameSpaces(const MetaNameSpace* const* nameSpaces);
+
+    static void installSaveRepositoryCallback(
+        void (*callback)(const Buffer& buffer, void* data),
+        void* data);
+
+    static void installLoadRepositoryCallback(
+        void (*callback)(Buffer& buffer, void* data),
+        void* data);
+
+private:
+
+    EmbeddedServer();
+};
+
+PEGASUS_NAMESPACE_END
+
+#endif // Pegasus_EmbeddedServer_h

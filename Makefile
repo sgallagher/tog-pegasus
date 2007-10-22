@@ -44,7 +44,6 @@ include $(ROOT)/mak/config.mak
 ifeq ($(OS_TYPE),vxworks)
     DIRS = \
         src/Pegasus/Common \
-        src/Pegasus/Common/tests \
         src/Pegasus/Config \
         src/Pegasus/Query/QueryCommon \
         src/Pegasus/WQL \

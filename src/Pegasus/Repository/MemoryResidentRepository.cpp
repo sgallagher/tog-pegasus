@@ -148,8 +148,10 @@ static void _print(const CIMInstance& ci)
 //
 //==============================================================================
 
-static void (*_saveHandler)(const Buffer& buffer);
-static void (*_loadHandler)(Buffer& buffer);
+static void (*_saveCallback)(const Buffer& buffer, void* data);
+static void* _saveData;
+static void (*_loadCallback)(Buffer& buffer, void* data);
+static void* _loadData;
 
 MemoryResidentRepository::MemoryResidentRepository(
     const String& repositoryRoot, 
@@ -768,21 +770,25 @@ Uint32 MemoryResidentRepository::_findInstance(
     return PEG_NOT_FOUND;
 }
 
-void MemoryResidentRepository::setSaveHandler(
-    void (*handler)(const Buffer& buffer))
+void MemoryResidentRepository::installSaveCallback(
+    void (*handler)(const Buffer& buffer, void* data),
+    void * data)
 {
-    _saveHandler = handler;
+    _saveCallback = handler;
+    _saveData = data;
 }
 
-void MemoryResidentRepository::setLoadHandler(
-    void (*handler)(Buffer& buffer))
+void MemoryResidentRepository::installLoadCallback(
+    void (*handler)(Buffer& buffer, void* data),
+    void * data)
 {
-    _loadHandler = handler;
+    _loadCallback = handler;
+    _loadData = data;
 }
 
 void MemoryResidentRepository::_processSaveHandler()
 {
-    if (!_saveHandler)
+    if (!_saveCallback)
         return;
 
     Buffer out;
@@ -793,16 +799,16 @@ void MemoryResidentRepository::_processSaveHandler()
         SerializeInstance(out, _rep[i].second);
     }
 
-    (*_saveHandler)(out);
+    (*_saveCallback)(out, _saveData);
 }
 
 void MemoryResidentRepository::_processLoadHandler()
 {
-    if (!_loadHandler)
+    if (!_loadCallback)
         return;
 
     Buffer in;
-    (*_loadHandler)(in);
+    (*_loadCallback)(in, _loadData);
     size_t pos = 0;
 
     while (pos != in.size())
@@ -810,20 +816,13 @@ void MemoryResidentRepository::_processLoadHandler()
         CIMNamespaceName nameSpace;
 
         if (DeserializeNameSpace(in, pos, nameSpace) != 0)
-        {
-            printf("***** DeserializeNameSpace() failed\n");
             return;
-        }
 
         CIMInstance cimInstance;
 
         if (DeserializeInstance(in, pos, cimInstance) != 0)
-        {
-            printf("***** DeserializeInstance() failed\n");
             return;
-        }
 
-        printf("===== MemoryResidentRepository: loaded instance\n");
         _rep.append(NamespaceInstancePair(nameSpace, cimInstance));
     }
 }

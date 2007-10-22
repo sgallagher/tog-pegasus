@@ -31,94 +31,118 @@
 
 ##==============================================================================
 ##
-## INCLUDES
+## This file contains definitions common to any VxWorks platform:
 ##
 ##==============================================================================
 
-INCLUDES = -I$(ROOT)/src $(EXTRA_INCLUDES)
+ifndef WIND_BASE
+  $(error "VxWorks environment is uninitialized (WIND_BASE undefined)")
+endif
+
+OS_TYPE = vxworks
+
+RM = rm -f
+
+RMDIRHIER = rm -rf
+
+MKDIRHIER = mkdir -p 
+
+EXE_OUT = -o
+
+LIB_PREFIX = lib
+
+DIFF = diff
+
+SORT = sort
+
+COPY = cp
+
+TOUCH = touch
+
+ECHO = echo
+
+OS = vxworks
+
+SH = sh
+
+YACC = bison
+
+RM = rm -f
+
+DIFF = diff
+
+SORT = sort
+
+COPY = cp
+
+MOVE = mv
+
+MKDIRHIER = mkdir -p
+
+PEGASUS_SUPPORTS_DYNLIB = yes
+
+MAJOR_VERSION_NUMBER = 1
+
+LIB_SUFFIX = .so
+
+AR = arpentium
+
+SYS_LIBS =
 
 ##==============================================================================
 ##
-## _OBJECTS
+## DEFINES
 ##
 ##==============================================================================
 
-_OBJECTS1 = $(foreach i,$(SOURCES),$(OBJ_DIR)/$i)
-_OBJECTS2 = $(_OBJECTS1:.cpp=.o)
-_OBJECTS = $(_OBJECTS2:.c=.o)
+DEFINES =
+
+DEFINES += -DPEGASUS_USE_SYSLOGS 
+
+## ATTN-KS Temporary bypass use of password file until we find way around use 
+## of this file we need to support the function of persistent changable 
+## passwords but not the use of the file or pam authentication
+DEFINES += -DPEGASUS_NO_PASSWORDFILE
+
+DEFINES += -DPEGASUS_REMOVE_SERVER_CLIENT_USAGE
 
 ##==============================================================================
 ##
-## _LIBRARIES
+## PEGASUS_HAS_MAKEDEPEND
+##
+##     Whether compilation environment has makedepend command. Otherwise,
+##     use mu.
 ##
 ##==============================================================================
 
-_LIBRARIES1 = $(addprefix $(LIB_DIR)/$(LIB_PREFIX), $(LIBRARIES))
-_LIBRARIES2 = $(addsuffix ".a", $(_LIBRARIES1))
-_LIBRARIES = $(shell echo $(_LIBRARIES2))
+PEGASUS_HAS_MAKEDEPEND = yes
 
 ##==============================================================================
 ##
-## _CTDT
+## Select Pegasus features:
 ##
 ##==============================================================================
 
-_CTDT = $(OBJ_DIR)/ctdt.o
+PLATFORM_VERSION_SUPPORTED = yes
 
-##==============================================================================
-##
-## _TARGET
-##
-##==============================================================================
+PEGASUS_DEFAULT_ENABLE_OOP = false
 
-_TARGET = $(BIN_DIR)/$(PROGRAM)
+PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER = false
 
-all: $(_CTDT) $(_TARGET)
+PEGASUS_ARCH_LIB = lib64
 
-$(_TARGET): $(BIN_DIR)/target $(_OBJECTS) $(_LIBRARIES) $(ERROR)
-	$(CC) $(LINK_FLAGS) -o $(_TARGET) $(_CTDT) $(_OBJECTS) $(_LIBRARIES)
-	@ echo "Created $(_TARGET)"
+PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET=1
 
-relink: clean-target
-	$(MAKE) $(_TARGET)
+PEGASUS_REMOVE_TRACE=1
 
-clean-target:
-	rm -f $(_TARGET)
+PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY=1
 
-##==============================================================================
-##
-## _CTDT (C++ muncher object file)
-##
-##==============================================================================
+PEGASUS_REMOVE_SERVER_CLIENT_USAGE=1
 
-$(_CTDT): $(_LIBRARIES)
-	$(NM) $(_LIBRARIES) | wtxtcl $(MUNCH) -c pentium > /tmp/ctdt.c
-	$(CC) -c -o $(_CTDT) $(FLAGS) $(DEFINES) $(INCLUDES) /tmp/ctdt.c
+PEGASUS_ENABLE_IPV6=false
 
-##==============================================================================
-##
-## FILES_TO_CLEAN
-##
-##==============================================================================
+PEGASUS_USE_STATIC_LIBRARIES=true
 
-FILES_TO_CLEAN = $(_OBJECTS) $(_TARGET) $(_CTDT)
-
-##==============================================================================
-##
-## Include other makefiles:
-##
-##==============================================================================
-
-include $(ROOT)/mak/objects.mak
-
-include $(ROOT)/mak/clean.mak
-
--include $(ROOT)/mak/depend.mak
-
-include $(ROOT)/mak/build.mak
-
-include $(ROOT)/mak/sub.mak
-
--include $(OBJ_DIR)/depend.mak
-
-include $(ROOT)/mak/misc.mak
+ifdef PEGASUS_PAM_AUTHENTICATION
+    $(error "vxworks does not support PAM authenticaiton")
+endif

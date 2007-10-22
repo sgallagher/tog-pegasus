@@ -29,22 +29,12 @@
 #//
 #//=============================================================================
 
-TARG=$(LIB_DIR)/lib$(LIBRARY).so
+__TARGET__ = pentium
+__CPU__ = PENTIUM
 
-LINK_FLAGS = -lstdc++ -shared -L$(VXWORKS_LIB)/PIC
+include $(ROOT)/mak/vxworks/gnu.mak
 
-DFILES = $(SOURCES:.cpp=.d)
-
-$(TARG): $(LIB_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) $(ERROR)
-	$(CXX) $(FLAGS) -o $(TARG) $(OBJECTS) $(FULL_LIBRARIES) $(LINK_FLAGS)
-	rm -rf $(DFILES)
-	@ $(ECHO)
-
-clean-lib: $(ERROR)
-	rm -f $(TARG)
-
-FILES_TO_CLEAN = $(OBJECTS) $(TARG)
-
-romfs:
-	mkdir -p $(ROMFS)/lib
-	cp $(TARG) $(ROMFS)/lib
+FLAGS += -mtune=i486 
+FLAGS += -march=i486 
+FLAGS += -mhard-float 
+FLAGS += -fno-builtin 

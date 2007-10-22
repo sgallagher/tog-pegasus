@@ -36,6 +36,13 @@
 #ifndef Pegasus_Platform_VXWORKS_GNU_h
 #define Pegasus_Platform_VXWORKS_GNU_h
 
+#include <vxWorksCommon.h>
+
+/* This VxWorks definition breaks the compile on several Pegasus headers. */
+#ifdef NONE
+# undef NONE
+#endif
+
 #define PEGASUS_OS_TYPE_VXWORKS
 
 #define PEGASUS_OS_VXWORKS

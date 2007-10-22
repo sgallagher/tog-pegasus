@@ -29,15 +29,49 @@
 #//
 #//=============================================================================
 
-SYS_INCLUDES = \
-    -I$(VXWORKS_ROOT)/target/h \
-    -I$(VXWORKS_ROOT)/target/h/wrn/coreip \
-    -I$(PEGASUS_ROOT)/src/StandardIncludes/vxworks
-
-ifdef LOCAL_DEFINES
-  DEFINES += $(LOCAL_DEFINES)
+ifndef __TARGET__
+   $(error "__TARGET__ is undefined")
 endif
 
-$(OBJ_DIR)/%.o: $(OBJ_DIR)/target %.cpp $(ERROR)
-	$(CXX) -c -o $@ $(FLAGS) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp
-	@ $(ECHO)
+ifndef __CPU__
+   $(error "__CPU__ is undefined")
+endif
+
+COMPILER = gnu
+
+ifdef CCACHE
+  CXX = $(CCACHE) c++$(__TARGET__)
+  CC = $(CCACHE) cc$(__TARGET__)
+else
+  CXX = c++$(__TARGET__)
+  CC = cc$(__TARGET__)
+endif
+
+NM = nm$(__TARGET__)
+
+FLAGS += -ansi
+FLAGS += -W
+FLAGS += -Wall
+FLAGS += -Wno-unused
+
+ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
+  FLAGS += -g
+else
+  FLAGS += -O2
+endif
+
+#ifeq ($(shell expr $(GCC_VERSION) '>=' 3.0), 1)
+#  FLAGS += -fno-enforce-eh-specs
+#endif
+
+DEFINES += -DCPU=$(__CPU__)
+DEFINES += -DTOOL_FAMILY=gnu 
+DEFINES += -DTOOL=gnu 
+DEFINES += -DPEGASUS_PLATFORM_VXWORKS_$(__CPU__)_GNU
+
+MUNCH = wtxtcl $(WIND_BASE)/host/resource/hutils/tcl/munch.tcl -c $(__TARGET__)
+
+LINK_FLAGS += -r 
+LINK_FLAGS += -nostdlib 
+LINK_FLAGS += -Wl,-X
+LINK_FLAGS += $(WIND_BASE)/target/h/tool/gnu/ldscripts/link.OUT

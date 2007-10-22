@@ -81,7 +81,7 @@ ifeq ($(OS_TYPE),vms)
 endif
 
 ifeq ($(OS_TYPE),vxworks)
- include $(ROOT)/mak/library-vxworks.mak
+ include $(ROOT)/mak/vxworks/library.mak
 endif
 
 ################################################################################

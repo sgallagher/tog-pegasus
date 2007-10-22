@@ -29,8 +29,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <vxWorksCommon.h>
-#undef NONE
 #include <cstdio>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>

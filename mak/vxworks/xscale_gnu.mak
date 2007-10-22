@@ -29,8 +29,9 @@
 #//
 #//=============================================================================
 
-ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
-  include $(PEGASUS_ROOT)/mak/static-library-vxworks.mak
-else
-  include $(PEGASUS_ROOT)/mak/shared-library-vxworks.mak
-endif
+__TARGET__ = arm
+__CPU__ = XSCALE
+
+include $(ROOT)/mak/vxworks/gnu.mak
+
+FLAGS += -txscale

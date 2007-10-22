@@ -27,42 +27,18 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
+#//=============================================================================
 
-##==============================================================================
-##
-## Add dynamic flags if we are not building a static library.
-##
-##==============================================================================
+SYS_INCLUDES = \
+    -I$(WIND_BASE)/target/h \
+    -I$(WIND_BASE)/target/h/wrn/coreip \
+    -I$(PEGASUS_ROOT)/src/StandardIncludes/vxworks
 
-ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
-  ifeq ($(STATIC),1)
-    BUILD_STATIC=1
-  endif
+ifdef LOCAL_DEFINES
+  DEFINES += $(LOCAL_DEFINES)
 endif
 
-ifndef BUILD_STATIC
-FLAGS += $(DYNAMIC_FLAGS)
-endif
+$(OBJ_DIR)/%.o: $(OBJ_DIR)/target %.cpp $(ERROR)
+	$(CXX) -c -o $@ $(FLAGS) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp
+	@ $(ECHO)
 
-##==============================================================================
-
-ifeq ($(OS_TYPE),windows)
-include $(ROOT)/mak/objects-windows.mak
-endif
-
-ifeq ($(COMPILER),ibm)
-include $(ROOT)/mak/objects-zos.mak
-endif
-
-ifeq ($(OS_TYPE),unix)
-include $(ROOT)/mak/objects-unix.mak
-endif
-
-ifeq ($(OS_TYPE),vms)
- include $(ROOT)/mak/objects-vms.mak
-endif
-
-ifeq ($(OS_TYPE),vxworks)
- include $(ROOT)/mak/vxworks/objects.mak
-endif

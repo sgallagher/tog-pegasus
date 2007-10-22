@@ -7,11 +7,8 @@ include $(ROOT)/mak/config.mak
 
 all: romfs proj build
 
-ROMFS=$(PEGASUS_HOME)/romfs
-
 romfs:
-	mkdir -p $(ROMFS)/lib
-	cp $(WIND_BASE)/target/usr/root/SIMPENTIUMgnu/bin/libc.so.1 $(ROMFS)/lib
+	cp $(BIN_DIR)/cimserver $(PEGASUS_HOME)/romfs
 
 CFG="LINE_EDIT_MODE=emacs,LINE_LENGTH=256,STRING_FREE=manual,INTERPRETER=Cmd,VXE_PATH=$(PEGASUS_HOME)/bin"
 
@@ -38,7 +35,6 @@ build:
 
 clean:
 	rm -rf proj
-	rm -rf $(ROMFS)/lib/libc.so.1
 	rm -rf counterFile
 	rm -rf nvram.vxWorks0
 	rm -rf vxWorks.sym

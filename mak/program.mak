@@ -60,7 +60,7 @@ ifeq ($(OS_TYPE),vms)
 endif
 
 ifeq ($(OS_TYPE),vxworks)
- include $(ROOT)/mak/program-vxworks.mak
+ include $(ROOT)/mak/vxworks/program.mak
 endif
 
 #l10n

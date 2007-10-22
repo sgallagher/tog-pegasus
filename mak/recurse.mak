@@ -47,20 +47,8 @@ all: $(RECURSE_DEPENDS) $(ERROR)
 depend: $(RECURSE_DEPENDS) $(ERROR)
 	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) "-SC" $(i) depend $(NL) )
 
-ifeq ($(OS_TYPE),vxworks)
-    TEST_FLAGS=SHELL=$(PEGASUS_ROOT)/vxworks/scripts/vxexec
-else
-    TEST_FLAGS=
-endif
-
-ifdef TARGET
-  VXEXEC=$(PEGASUS_ROOT)/vxworks/scripts/vxexec
-  TFLAGS=SHELL=$(VXEXEC)
-endif
-
 tests: $(RECURSE_DEPENDS) $(ERROR)
-	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) $(TFLAGS) "-SC" $(i) tests $(NL) )
-
+	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) "-SC" $(i) tests $(NL) )
 
 poststarttests: $(RECURSE_DEPENDS) $(ERROR)
 	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) "-SC" $(i) poststarttests $(NL) )
@@ -89,9 +77,3 @@ prepend-license: $(RECURSE_DEPENDS) $(ERROR)
 #l10n
 messages: $(RECURSE_DEPENDS) $(ERROR)
 	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) "-SC" $(i) messages $(NL) )
-
-
-ifeq ($(OS_TYPE),vxworks)
-romfs: $(RECURSE_DEPENDS) $(ERROR)
-	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) "-SC" $(i) romfs $(NL) )
-endif

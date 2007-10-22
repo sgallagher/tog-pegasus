@@ -104,7 +104,3 @@ depend:
 tests: $(ERROR)
 
 poststarttests: $(ERROR)
-
-ifeq ($(OS_TYPE),vxworks)
-romfs:
-endif

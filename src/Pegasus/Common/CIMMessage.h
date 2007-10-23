@@ -75,28 +75,8 @@ public:
 
     CIMMessage(MessageType type, const String& messageId_);
 
-#ifdef PEGASUS_DEBUG
-    virtual void print(PEGASUS_STD(ostream)& os, Boolean printHeader) const
-    {
-        if (printHeader)
-        {
-            os << "CIMMessage\n";
-            os << "{";
-        }
-
-        Message::print(os, false);
-
-        os << "    messageId=" << messageId << PEGASUS_STD(endl);
-
-        if (printHeader)
-        {
-            os << "}";
-        }
-    }
-#endif
-
     String messageId;
-        OperationContext operationContext;
+    OperationContext operationContext;
 };
 
 
@@ -111,26 +91,6 @@ public:
         const QueueIdStack& queueIds_);
 
     virtual CIMResponseMessage* buildResponse() const = 0;
-
-#ifdef PEGASUS_DEBUG
-    virtual void print(PEGASUS_STD(ostream)& os, Boolean printHeader) const
-    {
-        if (printHeader)
-        {
-            os << "CIMRequestMessage\n";
-            os << "{";
-        }
-
-        CIMMessage::print(os, false);
-
-        os << "    queueIds=" << "<not shown for now>" << PEGASUS_STD(endl);
-
-        if (printHeader)
-        {
-            os << "}";
-        }
-    }
-#endif
 
     QueueIdStack queueIds;
 };
@@ -564,29 +524,6 @@ public:
          nameSpace_, className_)
     {
     }
-
-#ifdef PEGASUS_DEBUG
-    virtual void print(PEGASUS_STD(ostream)& os, Boolean printHeader) const
-    {
-        if (printHeader)
-        {
-            os << "CIMEnumerateInstanceNamesRequestMessage\n";
-            os << "{";
-        }
-
-        CIMRequestMessage::print(os, false);
-
-        os << "    nameSpace=" << nameSpace << PEGASUS_STD(endl);
-        os << "    className=" << className << PEGASUS_STD(endl);
-        os << "    authType=" << authType << PEGASUS_STD(endl);
-        os << "    userName=" << userName << PEGASUS_STD(endl);
-
-        if (printHeader)
-        {
-            os << "}";
-        }
-    }
-#endif
 
     virtual CIMResponseMessage* buildResponse() const;
 };

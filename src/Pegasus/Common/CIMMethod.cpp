@@ -70,11 +70,6 @@ CIMMethod::CIMMethod(CIMMethodRep* rep)
 {
 }
 
-CIMMethod::CIMMethod(const CIMConstMethod& x)
-{
-    Inc(_rep = x._rep);
-}
-
 CIMMethod::~CIMMethod()
 {
     Dec(_rep);

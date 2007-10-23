@@ -491,15 +491,6 @@ private:
 
     CIMMethod(CIMMethodRep* rep);
 
-    /**
-        This method is not implemented.  It is defined to explicitly disallow
-        construction of a CIMMethod from a CIMConstMethod.  Because the
-        CIMMethod class uses a shared representation model, allowing this
-        construction would effectively allow modification of CIMConstMethod
-        objects.
-    */
-    explicit CIMMethod(const CIMConstMethod& x);
-
     CIMMethodRep* _rep;
     friend class CIMConstMethod;
     friend class Resolver;

@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//         (carolann_graves@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -41,7 +36,8 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/System.h>
-#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
+#include <Pegasus/Server/ProviderRegistrationManager/\
+ProviderRegistrationManager.h>
 #include <Pegasus/Client/CIMClient.h>
 
 PEGASUS_USING_PEGASUS;
@@ -54,324 +50,324 @@ static const CIMNamespaceName NAMESPACE = CIMNamespaceName("test/testProvider");
 
 static Boolean verbose;
 
-void _createModuleInstance
-    (CIMClient & client,
-     const String & name,
-     const String & location,
-     Uint16 userContext)
+void _createModuleInstance(
+    CIMClient& client,
+    const String& name,
+    const String& location,
+    Uint16 userContext)
 {
-    CIMInstance moduleInstance (PEGASUS_CLASSNAME_PROVIDERMODULE);
-    moduleInstance.addProperty (CIMProperty (CIMName ("Name"), name));
-    moduleInstance.addProperty (CIMProperty (CIMName ("Vendor"),
-        String ("OpenPegasus")));
-    moduleInstance.addProperty (CIMProperty (CIMName ("Version"),
-        String ("2.0")));
-    moduleInstance.addProperty (CIMProperty (CIMName ("InterfaceType"),
-        String ("C++Default")));
-    moduleInstance.addProperty (CIMProperty (CIMName ("InterfaceVersion"),
-        String ("2.5.0")));
-    moduleInstance.addProperty (CIMProperty (CIMName ("Location"), location));
+    CIMInstance moduleInstance(PEGASUS_CLASSNAME_PROVIDERMODULE);
+    moduleInstance.addProperty(CIMProperty(CIMName("Name"), name));
+    moduleInstance.addProperty(CIMProperty(CIMName("Vendor"),
+        String("OpenPegasus")));
+    moduleInstance.addProperty(CIMProperty(CIMName("Version"),
+        String("2.0")));
+    moduleInstance.addProperty(CIMProperty(CIMName("InterfaceType"),
+        String("C++Default")));
+    moduleInstance.addProperty(CIMProperty(CIMName("InterfaceVersion"),
+        String("2.5.0")));
+    moduleInstance.addProperty(CIMProperty(CIMName("Location"), location));
 #ifndef PEGASUS_DISABLE_PROV_USERCTXT
     if (userContext != 0)
     {
-        moduleInstance.addProperty (CIMProperty (CIMName ("UserContext"),
+        moduleInstance.addProperty(CIMProperty(CIMName("UserContext"),
             userContext));
     }
 #endif
 
-    CIMObjectPath path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP,
+    CIMObjectPath path = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP,
         moduleInstance);
 }
 
-void _createProviderInstance
-    (CIMClient & client,
-     const String & name,
-     const String & providerModuleName)
+void _createProviderInstance(
+    CIMClient& client,
+    const String& name,
+    const String& providerModuleName)
 {
-    CIMInstance providerInstance (PEGASUS_CLASSNAME_PROVIDER);
-    providerInstance.addProperty (CIMProperty (CIMName ("Name"), name));
-    providerInstance.addProperty (CIMProperty (CIMName ("ProviderModuleName"),
+    CIMInstance providerInstance(PEGASUS_CLASSNAME_PROVIDER);
+    providerInstance.addProperty(CIMProperty(CIMName("Name"), name));
+    providerInstance.addProperty(CIMProperty(CIMName("ProviderModuleName"),
         providerModuleName));
 
-    CIMObjectPath path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP,
+    CIMObjectPath path = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP,
         providerInstance);
 }
 
-void _createCapabilityInstance
-    (CIMClient & client,
-     const String & providerModuleName,
-     const String & providerName,
-     const String & capabilityID,
-     const String & className,
-     const Array <String> & namespaces,
-     const Array <Uint16> & providerType,
-     const CIMPropertyList & supportedProperties,
-     const CIMPropertyList & supportedMethods)
+void _createCapabilityInstance(
+    CIMClient& client,
+    const String& providerModuleName,
+    const String& providerName,
+    const String& capabilityID,
+    const String& className,
+    const Array<String>& namespaces,
+    const Array<Uint16>& providerType,
+    const CIMPropertyList& supportedProperties,
+    const CIMPropertyList& supportedMethods)
 {
-    CIMInstance capabilityInstance (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES);
-    capabilityInstance.addProperty (CIMProperty (CIMName ("ProviderModuleName"),
+    CIMInstance capabilityInstance(PEGASUS_CLASSNAME_PROVIDERCAPABILITIES);
+    capabilityInstance.addProperty(CIMProperty(CIMName("ProviderModuleName"),
         providerModuleName));
-    capabilityInstance.addProperty (CIMProperty (CIMName ("ProviderName"),
+    capabilityInstance.addProperty(CIMProperty(CIMName("ProviderName"),
         providerName));
-    capabilityInstance.addProperty (CIMProperty (CIMName ("CapabilityID"),
+    capabilityInstance.addProperty(CIMProperty(CIMName("CapabilityID"),
         capabilityID));
-    capabilityInstance.addProperty (CIMProperty (CIMName ("ClassName"),
+    capabilityInstance.addProperty(CIMProperty(CIMName("ClassName"),
         className));
-    capabilityInstance.addProperty (CIMProperty (CIMName ("Namespaces"),
+    capabilityInstance.addProperty(CIMProperty(CIMName("Namespaces"),
         namespaces));
-    capabilityInstance.addProperty (CIMProperty (CIMName ("ProviderType"),
-        CIMValue (providerType)));
-    if (!supportedProperties.isNull ())
+    capabilityInstance.addProperty(CIMProperty(CIMName("ProviderType"),
+        CIMValue(providerType)));
+    if (!supportedProperties.isNull())
     {
-        Array <String> propertyNameStrings;
-        for (Uint32 i = 0; i < supportedProperties.size (); i++)
+        Array<String> propertyNameStrings;
+        for (Uint32 i = 0; i < supportedProperties.size(); i++)
         {
-            propertyNameStrings.append (supportedProperties [i].getString ());
+            propertyNameStrings.append(supportedProperties [i].getString());
         }
-        capabilityInstance.addProperty (CIMProperty
-            (CIMName ("supportedProperties"), CIMValue (propertyNameStrings)));
+        capabilityInstance.addProperty(CIMProperty(
+            CIMName("supportedProperties"), CIMValue(propertyNameStrings)));
     }
-    if (!supportedMethods.isNull ())
+    if (!supportedMethods.isNull())
     {
-        Array <String> methodNameStrings;
-        for (Uint32 i = 0; i < supportedMethods.size (); i++)
+        Array<String> methodNameStrings;
+        for (Uint32 i = 0; i < supportedMethods.size(); i++)
         {
-            methodNameStrings.append (supportedMethods [i].getString ());
+            methodNameStrings.append(supportedMethods [i].getString());
         }
-        capabilityInstance.addProperty (CIMProperty
-            (CIMName ("supportedMethods"), CIMValue (methodNameStrings)));
+        capabilityInstance.addProperty(CIMProperty(
+            CIMName("supportedMethods"), CIMValue(methodNameStrings)));
     }
 
-    CIMObjectPath path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP,
+    CIMObjectPath path = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP,
         capabilityInstance);
 }
 
-void _deleteCapabilityInstance
-    (CIMClient & client,
-     const String & providerModuleName,
-     const String & providerName,
-     const String & capabilityID)
+void _deleteCapabilityInstance(
+    CIMClient& client,
+    const String& providerModuleName,
+    const String& providerName,
+    const String& capabilityID)
 {
     Array<CIMKeyBinding> keyBindings;
-    keyBindings.append (CIMKeyBinding ("ProviderModuleName",
+    keyBindings.append(CIMKeyBinding("ProviderModuleName",
         providerModuleName, CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("ProviderName",
+    keyBindings.append(CIMKeyBinding("ProviderName",
         providerName, CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("CapabilityID",
+    keyBindings.append(CIMKeyBinding("CapabilityID",
         capabilityID, CIMKeyBinding::STRING));
-    CIMObjectPath path ("", CIMNamespaceName (),
-        CIMName ("PG_ProviderCapabilities"), keyBindings);
-    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
+    CIMObjectPath path("", CIMNamespaceName(),
+        CIMName("PG_ProviderCapabilities"), keyBindings);
+    client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, path);
 }
 
-void _deleteProviderInstance
-    (CIMClient & client,
-     const String & name,
-     const String & providerModuleName)
+void _deleteProviderInstance(
+    CIMClient& client,
+    const String& name,
+    const String& providerModuleName)
 {
     Array<CIMKeyBinding> keyBindings;
-    keyBindings.append (CIMKeyBinding ("Name",
+    keyBindings.append(CIMKeyBinding("Name",
         name, CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("ProviderModuleName",
+    keyBindings.append(CIMKeyBinding("ProviderModuleName",
         providerModuleName, CIMKeyBinding::STRING));
-    CIMObjectPath path ("", CIMNamespaceName (),
-        CIMName ("PG_Provider"), keyBindings);
-    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
+    CIMObjectPath path("", CIMNamespaceName(),
+        CIMName("PG_Provider"), keyBindings);
+    client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, path);
 }
 
-void _deleteModuleInstance
-    (CIMClient & client,
-     const String & name)
+void _deleteModuleInstance(
+    CIMClient& client,
+    const String& name)
 {
-    Array <CIMKeyBinding> keyBindings;
-    keyBindings.append (CIMKeyBinding ("Name",
+    Array<CIMKeyBinding> keyBindings;
+    keyBindings.append(CIMKeyBinding("Name",
         name, CIMKeyBinding::STRING));
-    CIMObjectPath path ("", CIMNamespaceName (),
-        CIMName ("PG_ProviderModule"), keyBindings);
-    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
+    CIMObjectPath path("", CIMNamespaceName(),
+        CIMName("PG_ProviderModule"), keyBindings);
+    client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, path);
 }
 
-void _createFilterInstance
-    (CIMClient & client,
-     const String & name,
-     const String & query,
-     const String & qlang)
+void _createFilterInstance(
+    CIMClient& client,
+    const String& name,
+    const String& query,
+    const String& qlang)
 {
-    CIMInstance filterInstance (PEGASUS_CLASSNAME_INDFILTER);
-    filterInstance.addProperty (CIMProperty (CIMName
-        ("SystemCreationClassName"), System::getSystemCreationClassName ()));
-    filterInstance.addProperty (CIMProperty (CIMName ("SystemName"),
-        System::getFullyQualifiedHostName ()));
-    filterInstance.addProperty (CIMProperty (CIMName ("CreationClassName"),
-        PEGASUS_CLASSNAME_INDFILTER.getString ()));
-    filterInstance.addProperty (CIMProperty (CIMName ("Name"), name));
-    filterInstance.addProperty (CIMProperty (CIMName ("Query"), query));
-    filterInstance.addProperty (CIMProperty (CIMName ("QueryLanguage"),
-        String (qlang)));
-    filterInstance.addProperty (CIMProperty (CIMName ("SourceNamespace"),
-        NAMESPACE.getString ()));
+    CIMInstance filterInstance(PEGASUS_CLASSNAME_INDFILTER);
+    filterInstance.addProperty(CIMProperty(CIMName
+       ("SystemCreationClassName"), System::getSystemCreationClassName()));
+    filterInstance.addProperty(CIMProperty(CIMName("SystemName"),
+        System::getFullyQualifiedHostName()));
+    filterInstance.addProperty(CIMProperty(CIMName("CreationClassName"),
+        PEGASUS_CLASSNAME_INDFILTER.getString()));
+    filterInstance.addProperty(CIMProperty(CIMName("Name"), name));
+    filterInstance.addProperty(CIMProperty(CIMName("Query"), query));
+    filterInstance.addProperty(CIMProperty(CIMName("QueryLanguage"),
+        String(qlang)));
+    filterInstance.addProperty(CIMProperty(CIMName("SourceNamespace"),
+        NAMESPACE.getString()));
 
-    CIMObjectPath path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP,
+    CIMObjectPath path = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP,
         filterInstance);
 }
 
-void _createHandlerInstance
-    (CIMClient & client,
-     const String & name,
-     const String & destination)
+void _createHandlerInstance(
+    CIMClient& client,
+    const String& name,
+    const String& destination)
 {
-    CIMInstance handlerInstance (PEGASUS_CLASSNAME_LSTNRDST_CIMXML);
-    handlerInstance.addProperty (CIMProperty (CIMName
-        ("SystemCreationClassName"), System::getSystemCreationClassName ()));
-    handlerInstance.addProperty (CIMProperty (CIMName ("SystemName"),
-        System::getFullyQualifiedHostName ()));
-    handlerInstance.addProperty (CIMProperty (CIMName ("CreationClassName"),
-        PEGASUS_CLASSNAME_LSTNRDST_CIMXML.getString ()));
-    handlerInstance.addProperty (CIMProperty (CIMName ("Name"), name));
-    handlerInstance.addProperty (CIMProperty (CIMName ("Destination"),
+    CIMInstance handlerInstance(PEGASUS_CLASSNAME_LSTNRDST_CIMXML);
+    handlerInstance.addProperty(CIMProperty(CIMName
+       ("SystemCreationClassName"), System::getSystemCreationClassName()));
+    handlerInstance.addProperty(CIMProperty(CIMName("SystemName"),
+        System::getFullyQualifiedHostName()));
+    handlerInstance.addProperty(CIMProperty(CIMName("CreationClassName"),
+        PEGASUS_CLASSNAME_LSTNRDST_CIMXML.getString()));
+    handlerInstance.addProperty(CIMProperty(CIMName("Name"), name));
+    handlerInstance.addProperty(CIMProperty(CIMName("Destination"),
         destination));
 
-    CIMObjectPath path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP,
+    CIMObjectPath path = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP,
         handlerInstance);
 }
 
-CIMObjectPath _buildFilterOrHandlerPath
-    (const CIMName & className,
-     const String & name,
-     const String & host,
-     const CIMNamespaceName & namespaceName = CIMNamespaceName ())
+CIMObjectPath _buildFilterOrHandlerPath(
+    const CIMName& className,
+    const String& name,
+    const String& host,
+    const CIMNamespaceName& namespaceName = CIMNamespaceName())
 {
     CIMObjectPath path;
 
-    Array <CIMKeyBinding> keyBindings;
-    keyBindings.append (CIMKeyBinding ("SystemCreationClassName",
-        System::getSystemCreationClassName (), CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("SystemName",
-        System::getFullyQualifiedHostName (), CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("CreationClassName",
+    Array<CIMKeyBinding> keyBindings;
+    keyBindings.append(CIMKeyBinding("SystemCreationClassName",
+        System::getSystemCreationClassName(), CIMKeyBinding::STRING));
+    keyBindings.append(CIMKeyBinding("SystemName",
+        System::getFullyQualifiedHostName(), CIMKeyBinding::STRING));
+    keyBindings.append(CIMKeyBinding("CreationClassName",
         className.getString(), CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("Name", name, CIMKeyBinding::STRING));
-    path.setClassName (className);
-    path.setKeyBindings (keyBindings);
-    path.setNameSpace (namespaceName);
-    path.setHost (host);
+    keyBindings.append(CIMKeyBinding("Name", name, CIMKeyBinding::STRING));
+    path.setClassName(className);
+    path.setKeyBindings(keyBindings);
+    path.setNameSpace(namespaceName);
+    path.setHost(host);
 
     return path;
 }
 
-void _createSubscriptionInstance
-    (CIMClient & client,
-     const CIMObjectPath & filterPath,
-     const CIMObjectPath & handlerPath)
+void _createSubscriptionInstance(
+    CIMClient& client,
+    const CIMObjectPath& filterPath,
+    const CIMObjectPath& handlerPath)
 {
-    CIMInstance subscriptionInstance (PEGASUS_CLASSNAME_INDSUBSCRIPTION);
-    subscriptionInstance.addProperty (CIMProperty (CIMName ("Filter"),
+    CIMInstance subscriptionInstance(PEGASUS_CLASSNAME_INDSUBSCRIPTION);
+    subscriptionInstance.addProperty(CIMProperty(CIMName("Filter"),
         filterPath, 0, PEGASUS_CLASSNAME_INDFILTER));
-    subscriptionInstance.addProperty (CIMProperty (CIMName ("Handler"),
+    subscriptionInstance.addProperty(CIMProperty(CIMName("Handler"),
         handlerPath, 0, PEGASUS_CLASSNAME_LSTNRDST_CIMXML));
-    subscriptionInstance.addProperty (CIMProperty
-        (CIMName ("SubscriptionState"), CIMValue ((Uint16) 2)));
+    subscriptionInstance.addProperty(CIMProperty(
+        CIMName("SubscriptionState"), CIMValue((Uint16) 2)));
 
-    CIMObjectPath path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP,
+    CIMObjectPath path = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP,
         subscriptionInstance);
 }
 
-void _createSubscription (
-    CIMClient & client,
-    const String & filterName)
+void _createSubscription(
+    CIMClient& client,
+    const String& filterName)
 {
     CIMObjectPath filterPath;
     CIMObjectPath handlerPath;
-    filterPath = _buildFilterOrHandlerPath
-        (PEGASUS_CLASSNAME_INDFILTER, filterName, String::EMPTY,
-        CIMNamespaceName ());
-    handlerPath = _buildFilterOrHandlerPath
-        (PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "OOPHandler01", String::EMPTY,
-        CIMNamespaceName ());
-    _createSubscriptionInstance (client, filterPath, handlerPath);
+    filterPath = _buildFilterOrHandlerPath(
+        PEGASUS_CLASSNAME_INDFILTER, filterName, String::EMPTY,
+        CIMNamespaceName());
+    handlerPath = _buildFilterOrHandlerPath(
+        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "OOPHandler01", String::EMPTY,
+        CIMNamespaceName());
+    _createSubscriptionInstance(client, filterPath, handlerPath);
 }
 
-void _deleteSubscriptionInstance
-    (CIMClient & client,
-     const String & filterName,
-     const String & handlerName)
+void _deleteSubscriptionInstance(
+    CIMClient& client,
+    const String& filterName,
+    const String& handlerName)
 {
     Array<CIMKeyBinding> filterKeyBindings;
-    filterKeyBindings.append (CIMKeyBinding ("SystemCreationClassName",
-        System::getSystemCreationClassName (), CIMKeyBinding::STRING));
-    filterKeyBindings.append (CIMKeyBinding ("SystemName",
-        System::getFullyQualifiedHostName (), CIMKeyBinding::STRING));
-    filterKeyBindings.append (CIMKeyBinding ("CreationClassName",
+    filterKeyBindings.append(CIMKeyBinding("SystemCreationClassName",
+        System::getSystemCreationClassName(), CIMKeyBinding::STRING));
+    filterKeyBindings.append(CIMKeyBinding("SystemName",
+        System::getFullyQualifiedHostName(), CIMKeyBinding::STRING));
+    filterKeyBindings.append(CIMKeyBinding("CreationClassName",
         PEGASUS_CLASSNAME_INDFILTER.getString(), CIMKeyBinding::STRING));
-    filterKeyBindings.append (CIMKeyBinding ("Name", filterName,
+    filterKeyBindings.append(CIMKeyBinding("Name", filterName,
         CIMKeyBinding::STRING));
-    CIMObjectPath filterPath ("", CIMNamespaceName (),
+    CIMObjectPath filterPath("", CIMNamespaceName(),
         PEGASUS_CLASSNAME_INDFILTER, filterKeyBindings);
 
     Array<CIMKeyBinding> handlerKeyBindings;
-    handlerKeyBindings.append (CIMKeyBinding ("SystemCreationClassName",
-        System::getSystemCreationClassName (), CIMKeyBinding::STRING));
-    handlerKeyBindings.append (CIMKeyBinding ("SystemName",
-        System::getFullyQualifiedHostName (), CIMKeyBinding::STRING));
-    handlerKeyBindings.append (CIMKeyBinding ("CreationClassName",
+    handlerKeyBindings.append(CIMKeyBinding("SystemCreationClassName",
+        System::getSystemCreationClassName(), CIMKeyBinding::STRING));
+    handlerKeyBindings.append(CIMKeyBinding("SystemName",
+        System::getFullyQualifiedHostName(), CIMKeyBinding::STRING));
+    handlerKeyBindings.append(CIMKeyBinding("CreationClassName",
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML.getString(),
         CIMKeyBinding::STRING));
-    handlerKeyBindings.append (CIMKeyBinding ("Name", handlerName,
+    handlerKeyBindings.append(CIMKeyBinding("Name", handlerName,
         CIMKeyBinding::STRING));
-    CIMObjectPath handlerPath ("", CIMNamespaceName (),
+    CIMObjectPath handlerPath("", CIMNamespaceName(),
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML, handlerKeyBindings);
 
     Array<CIMKeyBinding> subscriptionKeyBindings;
-    subscriptionKeyBindings.append (CIMKeyBinding ("Filter",
-        filterPath.toString (), CIMKeyBinding::REFERENCE));
-    subscriptionKeyBindings.append (CIMKeyBinding ("Handler",
-        handlerPath.toString (), CIMKeyBinding::REFERENCE));
-    CIMObjectPath subscriptionPath ("", CIMNamespaceName (),
+    subscriptionKeyBindings.append(CIMKeyBinding("Filter",
+        filterPath.toString(), CIMKeyBinding::REFERENCE));
+    subscriptionKeyBindings.append(CIMKeyBinding("Handler",
+        handlerPath.toString(), CIMKeyBinding::REFERENCE));
+    CIMObjectPath subscriptionPath("", CIMNamespaceName(),
         PEGASUS_CLASSNAME_INDSUBSCRIPTION, subscriptionKeyBindings);
-    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, subscriptionPath);
+    client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, subscriptionPath);
 }
 
-void _deleteHandlerInstance
-    (CIMClient & client,
-     const String & name)
+void _deleteHandlerInstance(
+    CIMClient& client,
+    const String& name)
 {
     Array<CIMKeyBinding> keyBindings;
-    keyBindings.append (CIMKeyBinding ("SystemCreationClassName",
-        System::getSystemCreationClassName (), CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("SystemName",
-        System::getFullyQualifiedHostName (), CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("CreationClassName",
+    keyBindings.append(CIMKeyBinding("SystemCreationClassName",
+        System::getSystemCreationClassName(), CIMKeyBinding::STRING));
+    keyBindings.append(CIMKeyBinding("SystemName",
+        System::getFullyQualifiedHostName(), CIMKeyBinding::STRING));
+    keyBindings.append(CIMKeyBinding("CreationClassName",
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML.getString(),
         CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("Name", name,
+    keyBindings.append(CIMKeyBinding("Name", name,
         CIMKeyBinding::STRING));
-    CIMObjectPath path ("", CIMNamespaceName (),
+    CIMObjectPath path("", CIMNamespaceName(),
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML, keyBindings);
-    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
+    client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, path);
 }
 
-void _deleteFilterInstance
-    (CIMClient & client,
-     const String & name)
+void _deleteFilterInstance(
+    CIMClient& client,
+    const String& name)
 {
     Array<CIMKeyBinding> keyBindings;
-    keyBindings.append (CIMKeyBinding ("SystemCreationClassName",
-        System::getSystemCreationClassName (), CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("SystemName",
-        System::getFullyQualifiedHostName (), CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("CreationClassName",
+    keyBindings.append(CIMKeyBinding("SystemCreationClassName",
+        System::getSystemCreationClassName(), CIMKeyBinding::STRING));
+    keyBindings.append(CIMKeyBinding("SystemName",
+        System::getFullyQualifiedHostName(), CIMKeyBinding::STRING));
+    keyBindings.append(CIMKeyBinding("CreationClassName",
         PEGASUS_CLASSNAME_INDFILTER.getString(), CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("Name", name,
+    keyBindings.append(CIMKeyBinding("Name", name,
         CIMKeyBinding::STRING));
-    CIMObjectPath path ("", CIMNamespaceName (),
+    CIMObjectPath path("", CIMNamespaceName(),
         PEGASUS_CLASSNAME_INDFILTER, keyBindings);
-    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
+    client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, path);
 }
 
-void _invokeMethod
-    (CIMClient & client,
-    const CIMName & methodName,
-    const String & identifier)
+void _invokeMethod(
+    CIMClient& client,
+    const CIMName& methodName,
+    const String& identifier)
 {
     //
     //  Remove previous indication log file, if there
@@ -379,49 +375,49 @@ void _invokeMethod
     String previousIndicationFile, oldIndicationFile;
 
     previousIndicationFile = INDICATION_DIR;
-    previousIndicationFile.append ("/indicationLog");
+    previousIndicationFile.append("/indicationLog");
 
-    if (FileSystem::exists (previousIndicationFile))
+    if (FileSystem::exists(previousIndicationFile))
     {
         oldIndicationFile = INDICATION_DIR;
-        oldIndicationFile.append ("/oldIndicationLog");
-        if (FileSystem::exists (oldIndicationFile))
+        oldIndicationFile.append("/oldIndicationLog");
+        if (FileSystem::exists(oldIndicationFile))
         {
-            FileSystem::removeFile (oldIndicationFile);
+            FileSystem::removeFile(oldIndicationFile);
         }
-        if (!FileSystem::renameFile (previousIndicationFile, oldIndicationFile))
+        if (!FileSystem::renameFile(previousIndicationFile, oldIndicationFile))
         {
-            FileSystem::removeFile (previousIndicationFile);
+            FileSystem::removeFile(previousIndicationFile);
         }
     }
 
     //
     //  Invoke method to send test indication or cause failure
     //
-    Array <CIMParamValue> inParams;
-    CIMParamValue inValue (String ("identifier"), CIMValue (identifier), true);
-    inParams.append (inValue);
-    Array <CIMParamValue> outParams;
-    Array <CIMKeyBinding> keyBindings;
+    Array<CIMParamValue> inParams;
+    CIMParamValue inValue(String("identifier"), CIMValue(identifier), true);
+    inParams.append(inValue);
+    Array<CIMParamValue> outParams;
+    Array<CIMKeyBinding> keyBindings;
     Sint32 result;
 
     CIMValue retValue;
 
-    CIMObjectPath className (String::EMPTY, CIMNamespaceName (),
-        CIMName ("FailureTestIndication"), keyBindings);
+    CIMObjectPath className(String::EMPTY, CIMNamespaceName(),
+        CIMName("FailureTestIndication"), keyBindings);
 
-    retValue = client.invokeMethod
-        (NAMESPACE,
+    retValue = client.invokeMethod(
+        NAMESPACE,
         className,
         methodName,
         inParams,
         outParams);
 
-    retValue.get (result);
-    PEGASUS_TEST_ASSERT (result == 0);
+    retValue.get(result);
+    PEGASUS_TEST_ASSERT(result == 0);
 }
 
-void _renameLogFile (const String & indicationLogFileName)
+void _renameLogFile(const String& indicationLogFileName)
 {
     String indicationLogFailedFileName;
 
@@ -429,8 +425,8 @@ void _renameLogFile (const String & indicationLogFileName)
     //  Rename the indication log file upon verification failure
     //
     indicationLogFailedFileName = INDICATION_DIR;
-    indicationLogFailedFileName.append ("/indicationLog_FAILED");
-    FileSystem::renameFile (indicationLogFileName, indicationLogFailedFileName);
+    indicationLogFailedFileName.append("/indicationLog_FAILED");
+    FileSystem::renameFile(indicationLogFileName, indicationLogFailedFileName);
 }
 
 //
@@ -439,9 +435,9 @@ void _renameLogFile (const String & indicationLogFileName)
 //  incorrect.  Returns -1 if result cannot yet be determined (writing of log
 //  file may not yet have been completed).
 //
-Sint16 _verifyIndication (
-    const String & indicationLogFileName,
-    const String & identifier)
+Sint16 _verifyIndication(
+    const String& indicationLogFileName,
+    const String& identifier)
 {
     try
     {
@@ -450,26 +446,26 @@ Sint16 _verifyIndication (
         const char* theLog = contents.getData();
         String log(theLog);
         Uint32 newline;
-        newline = log.find ('\n');
+        newline = log.find('\n');
         if (newline == PEG_NOT_FOUND)
         {
             cerr << "Expected newline" << endl;
             return -1;
         }
-        String header = log.subString (0, newline);
-        if (header [header.size () - 1] == '\r')
+        String header = log.subString(0, newline);
+        if (header [header.size() - 1] == '\r')
         {
-            header = header.subString (0, newline - 1);
+            header = header.subString(0, newline - 1);
         }
-        if (!String::equal (header,
+        if (!String::equal(header,
             "++++++++++++++ Received Indication +++++++++++++++++"))
         {
             cerr << "Expected Received Indication header" << endl;
             return -1;
         }
-        if (log.size () > (newline + 1))
+        if (log.size() > (newline + 1))
         {
-            log = log.subString (newline + 1);
+            log = log.subString(newline + 1);
         }
         else
         {
@@ -482,34 +478,34 @@ Sint16 _verifyIndication (
         String propertyValue;
         for (Uint32 i = 0; i < numProperties; i++)
         {
-            newline = log.find ('\n');
+            newline = log.find('\n');
             if (newline == PEG_NOT_FOUND)
             {
                 cerr << "Expected newline" << endl;
                 return -1;
             }
-            String line = log.subString (0, newline);
-            if (line [line.size () - 1] == '\r')
+            String line = log.subString(0, newline);
+            if (line [line.size() - 1] == '\r')
             {
-                line = line.subString (0, newline - 1);
+                line = line.subString(0, newline - 1);
             }
-            Uint32 eq = line.find (String (" = "));
+            Uint32 eq = line.find(String(" = "));
             if (eq == PEG_NOT_FOUND)
             {
                 cerr << "Expected =" << endl;
                 return -1;
             }
-            propertyName.clear ();
-            propertyValue.clear ();
-            propertyName = line.subString (0, eq);
-            if (line.size () > (eq + 3))
+            propertyName.clear();
+            propertyValue.clear();
+            propertyName = line.subString(0, eq);
+            if (line.size() > (eq + 3))
             {
-                propertyValue = line.subString (eq + 3);
+                propertyValue = line.subString(eq + 3);
             }
-            if (String::equalNoCase (propertyName,
+            if (String::equalNoCase(propertyName,
                 "AlertType"))
             {
-                if (!String::equal (propertyValue, String ("1")))
+                if (!String::equal(propertyValue, String("1")))
                 {
                     //
                     //  Unexpected property value
@@ -519,9 +515,9 @@ Sint16 _verifyIndication (
                     return 0;
                 }
             }
-            else if (String::equalNoCase (propertyName, "PerceivedSeverity"))
+            else if (String::equalNoCase(propertyName, "PerceivedSeverity"))
             {
-                if (!String::equal (propertyValue, String ("2")))
+                if (!String::equal(propertyValue, String("2")))
                 {
                     //
                     //  Unexpected property value
@@ -531,9 +527,9 @@ Sint16 _verifyIndication (
                     return 0;
                 }
             }
-            else if (String::equalNoCase (propertyName, "IndicationIdentifier"))
+            else if (String::equalNoCase(propertyName, "IndicationIdentifier"))
             {
-                if (!String::equal (propertyValue, identifier))
+                if (!String::equal(propertyValue, identifier))
                 {
                     //
                     //  Unexpected property value
@@ -545,7 +541,7 @@ Sint16 _verifyIndication (
                     return 0;
                 }
             }
-            else if (String::equalNoCase (propertyName, "IndicationTime"))
+            else if (String::equalNoCase(propertyName, "IndicationTime"))
             {
                 //  Don't try to validate the value
             }
@@ -557,9 +553,9 @@ Sint16 _verifyIndication (
                 cerr << "Unexpected property name: " << propertyName << endl;
                 return 0;
             }
-            if (log.size () > (newline + 1))
+            if (log.size() > (newline + 1))
             {
-                log = log.subString (newline + 1);
+                log = log.subString(newline + 1);
             }
             else
             {
@@ -570,31 +566,31 @@ Sint16 _verifyIndication (
             }
         }
 
-        newline = log.find ('\n');
+        newline = log.find('\n');
         if (newline == PEG_NOT_FOUND)
         {
             cerr << "Expected newline" << endl;
             return -1;
         }
-        String footer = log.subString (0, newline);
-        if (footer [footer.size () - 1] == '\r')
+        String footer = log.subString(0, newline);
+        if (footer [footer.size() - 1] == '\r')
         {
-            footer = footer.subString (0, newline - 1);
+            footer = footer.subString(0, newline - 1);
         }
-        if (!String::equal (footer,
+        if (!String::equal(footer,
             "++++++++++++++++++++++++++++++++++++++++++++++++++++"))
         {
             cerr << "Expected footer" << endl;
             return -1;
         }
-        if (log.size () > newline + 1)
+        if (log.size() > newline + 1)
         {
-            log = log.subString (newline + 1);
+            log = log.subString(newline + 1);
             if (log [0] == '\r')
             {
-                log = log.subString (1);
+                log = log.subString(1);
             }
-            if ((log.size () != 1) || (log [0] != '\n'))
+            if ((log.size() != 1) || (log [0] != '\n'))
             {
                 cerr << "Extra contents in log after indication" << endl;
                 return 0;
@@ -611,7 +607,7 @@ Sint16 _verifyIndication (
         //
         return 1;
     }
-    catch (CannotOpenFile &)
+    catch (CannotOpenFile&)
     {
         cerr << "Could not open indication log file" << endl;
         return -1;
@@ -623,12 +619,12 @@ Sint16 _verifyIndication (
     }
 }
 
-Boolean _validateIndicationReceipt (
-    const String & identifier)
+Boolean _validateIndicationReceipt(
+    const String& identifier)
 {
     String indicationLogFileName;
     indicationLogFileName = INDICATION_DIR;
-    indicationLogFileName.append ("/indicationLog");
+    indicationLogFileName.append("/indicationLog");
 
     //
     //  Wait for indication to be logged to file
@@ -638,14 +634,14 @@ Boolean _validateIndicationReceipt (
     while (iteration < MAX_ITERATIONS)
     {
         iteration++;
-        if (FileSystem::exists (indicationLogFileName))
+        if (FileSystem::exists(indicationLogFileName))
         {
             fileExists = true;
             break;
         }
         else
         {
-            System::sleep (SLEEP_SEC);
+            System::sleep(SLEEP_SEC);
         }
     }
 
@@ -661,7 +657,7 @@ Boolean _validateIndicationReceipt (
     while (iteration < MAX_ITERATIONS)
     {
         iteration++;
-        Sint16 verifyResult = _verifyIndication (indicationLogFileName,
+        Sint16 verifyResult = _verifyIndication(indicationLogFileName,
             identifier);
 
         //
@@ -673,7 +669,7 @@ Boolean _validateIndicationReceipt (
             //  Remove the indication log file on successful verification
             //
             indicationVerified = true;
-            FileSystem::removeFile (indicationLogFileName);
+            FileSystem::removeFile(indicationLogFileName);
             break;
         }
         //
@@ -684,7 +680,7 @@ Boolean _validateIndicationReceipt (
             //
             //  Rename the indication log file on unsuccessful verification
             //
-            _renameLogFile (indicationLogFileName);
+            _renameLogFile(indicationLogFileName);
             break;
         }
         //
@@ -695,51 +691,51 @@ Boolean _validateIndicationReceipt (
             //
             //  Retry
             //
-            System::sleep (SLEEP_SEC);
+            System::sleep(SLEEP_SEC);
         }
     }
 
     return indicationVerified;
 }
 
-CIMInstance _getModuleInstance (
-    CIMClient & client,
-    const String & providerModuleName)
+CIMInstance _getModuleInstance(
+    CIMClient& client,
+    const String& providerModuleName)
 {
     CIMInstance moduleInstance;
-    CIMKeyBinding keyBinding (CIMName ("Name"), providerModuleName,
+    CIMKeyBinding keyBinding(CIMName("Name"), providerModuleName,
         CIMKeyBinding::STRING);
-    Array <CIMKeyBinding> kbArray;
-    kbArray.append (keyBinding);
-    CIMObjectPath modulePath ("", PEGASUS_NAMESPACENAME_INTEROP,
+    Array<CIMKeyBinding> kbArray;
+    kbArray.append(keyBinding);
+    CIMObjectPath modulePath("", PEGASUS_NAMESPACENAME_INTEROP,
         PEGASUS_CLASSNAME_PROVIDERMODULE, kbArray);
 
-    moduleInstance = client.getInstance (PEGASUS_NAMESPACENAME_INTEROP,
+    moduleInstance = client.getInstance(PEGASUS_NAMESPACENAME_INTEROP,
         modulePath);
 
     return moduleInstance;
 }
 
-Sint16 _invokeModuleMethod (
-    CIMClient & client,
-    const CIMInstance & moduleInstance,
-    const String & providerModuleName,
-    const CIMName & methodName)
+Sint16 _invokeModuleMethod(
+    CIMClient& client,
+    const CIMInstance& moduleInstance,
+    const String& providerModuleName,
+    const CIMName& methodName)
 {
-    CIMObjectPath path = moduleInstance.getPath ();
-    path.setNameSpace (PEGASUS_NAMESPACENAME_INTEROP);
-    path.setClassName (PEGASUS_CLASSNAME_PROVIDERMODULE);
+    CIMObjectPath path = moduleInstance.getPath();
+    path.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
+    path.setClassName(PEGASUS_CLASSNAME_PROVIDERMODULE);
 
-    CIMKeyBinding kb (CIMName ("Name"), providerModuleName,
+    CIMKeyBinding kb(CIMName("Name"), providerModuleName,
         CIMKeyBinding::STRING);
-    Array <CIMKeyBinding> keys;
-    keys.append (kb);
-    path.setKeyBindings (keys);
+    Array<CIMKeyBinding> keys;
+    keys.append(kb);
+    path.setKeyBindings(keys);
 
-    Array <CIMParamValue> inParams;
-    Array <CIMParamValue> outParams;
+    Array<CIMParamValue> inParams;
+    Array<CIMParamValue> outParams;
 
-    CIMValue ret_value = client.invokeMethod (
+    CIMValue ret_value = client.invokeMethod(
         PEGASUS_NAMESPACENAME_INTEROP,
         path,
         methodName,
@@ -747,50 +743,50 @@ Sint16 _invokeModuleMethod (
         outParams);
 
     Sint16 retValue;
-    ret_value.get (retValue);
+    ret_value.get(retValue);
 
     return retValue;
 }
 
-void _disableModule (
-    CIMClient & client,
-    const String & providerModuleName)
+void _disableModule(
+    CIMClient& client,
+    const String& providerModuleName)
 {
     //
     //  Get the module instance
     //
     CIMInstance moduleInstance =
-        _getModuleInstance (client, providerModuleName);
+        _getModuleInstance(client, providerModuleName);
 
     //
     //  Invoke method to disable the module
     //
-    Sint16 returnValue = _invokeModuleMethod (client, moduleInstance,
-        providerModuleName, CIMName ("stop"));
-    PEGASUS_TEST_ASSERT (returnValue == 0);
+    Sint16 returnValue = _invokeModuleMethod(client, moduleInstance,
+        providerModuleName, CIMName("stop"));
+    PEGASUS_TEST_ASSERT(returnValue == 0);
 }
 
-void _enableModule (
-    CIMClient & client,
-    const String & providerModuleName)
+void _enableModule(
+    CIMClient& client,
+    const String& providerModuleName)
 {
     //
     //  Get the module instance
     //
     CIMInstance moduleInstance =
-        _getModuleInstance (client, providerModuleName);
+        _getModuleInstance(client, providerModuleName);
 
     //
     //  Invoke method to enable the module
     //
-    Sint16 returnValue = _invokeModuleMethod (client, moduleInstance,
-        providerModuleName, CIMName ("start"));
-    PEGASUS_TEST_ASSERT (returnValue == 0);
+    Sint16 returnValue = _invokeModuleMethod(client, moduleInstance,
+        providerModuleName, CIMName("start"));
+    PEGASUS_TEST_ASSERT(returnValue == 0);
 }
 
-Boolean _validateStatus (
-    CIMClient & client,
-    const String & providerModuleName,
+Boolean _validateStatus(
+    CIMClient& client,
+    const String& providerModuleName,
     Uint16 expectedStatus)
 {
     Boolean result = false;
@@ -801,30 +797,30 @@ Boolean _validateStatus (
         //  Get instance for module
         //
         CIMInstance moduleInstance;
-        CIMKeyBinding keyBinding (CIMName ("Name"), providerModuleName,
+        CIMKeyBinding keyBinding(CIMName("Name"), providerModuleName,
             CIMKeyBinding::STRING);
-        Array <CIMKeyBinding> kbArray;
-        kbArray.append (keyBinding);
-        CIMObjectPath modulePath ("", PEGASUS_NAMESPACENAME_INTEROP,
+        Array<CIMKeyBinding> kbArray;
+        kbArray.append(keyBinding);
+        CIMObjectPath modulePath("", PEGASUS_NAMESPACENAME_INTEROP,
             PEGASUS_CLASSNAME_PROVIDERMODULE, kbArray);
 
-        moduleInstance = client.getInstance (PEGASUS_NAMESPACENAME_INTEROP,
+        moduleInstance = client.getInstance(PEGASUS_NAMESPACENAME_INTEROP,
             modulePath);
 
         //
         //  Get status from instance
         //
-        Array <Uint16> operationalStatus;
-        Uint32 index = moduleInstance.findProperty
-            (CIMName ("OperationalStatus"));
+        Array<Uint16> operationalStatus;
+        Uint32 index = moduleInstance.findProperty(
+            CIMName("OperationalStatus"));
         if (index != PEG_NOT_FOUND)
         {
             CIMValue statusValue =
-                moduleInstance.getProperty (index).getValue ();
-            if (!statusValue.isNull ())
+                moduleInstance.getProperty(index).getValue();
+            if (!statusValue.isNull())
             {
-                statusValue.get (operationalStatus);
-                for (Uint32 i = 0; i < operationalStatus.size (); i++)
+                statusValue.get(operationalStatus);
+                for (Uint32 i = 0; i < operationalStatus.size(); i++)
                 {
                     if (operationalStatus [i] == expectedStatus)
                     {
@@ -845,9 +841,9 @@ Boolean _validateStatus (
     return result;
 }
 
-void _checkStatus (
-    CIMClient & client,
-    const String & providerModuleName,
+void _checkStatus(
+    CIMClient& client,
+    const String& providerModuleName,
     Uint16 expectedStatus)
 {
     //
@@ -861,81 +857,81 @@ void _checkStatus (
     while (iteration < MAX_ITERATIONS)
     {
         iteration++;
-        if (_validateStatus (client, providerModuleName, expectedStatus))
+        if (_validateStatus(client, providerModuleName, expectedStatus))
         {
             expectedStatusObserved = true;
             break;
         }
         else
         {
-            System::sleep (SLEEP_SEC);
+            System::sleep(SLEEP_SEC);
         }
     }
 
-    PEGASUS_TEST_ASSERT (expectedStatusObserved);
+    PEGASUS_TEST_ASSERT(expectedStatusObserved);
 }
 
-void _checkExceptionCode
-    (const CIMException & e,
-     const CIMStatusCode expectedCode)
+void _checkExceptionCode(
+    const CIMException& e,
+    const CIMStatusCode expectedCode)
 {
-    if (e.getCode () != expectedCode)
+    if (e.getCode() != expectedCode)
     {
         cerr << "CIMException comparison failed.  ";
-        cerr << "Expected " << cimStatusCodeToString (expectedCode) << "; ";
-        cerr << "Actual exception was " << e.getMessage () << "." << endl;
+        cerr << "Expected " << cimStatusCodeToString(expectedCode) << "; ";
+        cerr << "Actual exception was " << e.getMessage() << "." << endl;
     }
 
-    PEGASUS_TEST_ASSERT (e.getCode () == expectedCode);
+    PEGASUS_TEST_ASSERT(e.getCode() == expectedCode);
 }
 
-void _setup (CIMClient & client)
+void _setup(CIMClient& client)
 {
     //
     //  Create Filters and Handler for subscriptions
     //
-    _createFilterInstance (client, String ("OOPFilter01"), String
-        ("SELECT AlertType, PerceivedSeverity, "
-         "IndicationIdentifier, IndicationTime FROM FailureTestIndication"),
+    _createFilterInstance(client, String("OOPFilter01"),
+        String("SELECT AlertType, PerceivedSeverity, "
+            "IndicationIdentifier, IndicationTime FROM FailureTestIndication"),
         "WQL");
 
-    _createFilterInstance (client, String ("OOPFilter02"), String
-        ("SELECT PerceivedSeverity FROM FailureTestIndication"),
+    _createFilterInstance(client, String("OOPFilter02"),
+        String("SELECT PerceivedSeverity FROM FailureTestIndication"),
         "WQL");
 
-    _createHandlerInstance (client, String ("OOPHandler01"),
-        String ("localhost/CIMListener/Pegasus_SimpleDisplayConsumer"));
+    _createHandlerInstance(client, String("OOPHandler01"),
+        String("localhost/CIMListener/Pegasus_SimpleDisplayConsumer"));
 }
 
-void _register
-    (CIMClient & client,
-     Uint16 userContext,
-     const String & providerModuleName,
-     const String & providerName,
-     const String & capabilityID,
-     const String & className,
-     const Array <String> & namespaces,
-     const Array <Uint16> & providerType,
-     const CIMPropertyList & supportedProperties,
-     const CIMPropertyList & supportedMethods)
+void _register(
+    CIMClient& client,
+    Uint16 userContext,
+    const String& providerModuleName,
+    const String& providerName,
+    const String& capabilityID,
+    const String& className,
+    const Array<String>& namespaces,
+    const Array<Uint16>& providerType,
+    const CIMPropertyList& supportedProperties,
+    const CIMPropertyList& supportedMethods)
 {
     //
     //  Create provider module instance
     //
-    _createModuleInstance (
+    _createModuleInstance(
         client,
         providerModuleName,
-        String ("OOPModuleFailureTestProvider"),
+        String("OOPModuleFailureTestProvider"),
         userContext);
 
     //
     //  Create the provider and capability instances
     //
-    _createProviderInstance (
+    _createProviderInstance(
         client,
         providerName,
         providerModuleName);
-    _createCapabilityInstance (
+    _createCapabilityInstance(
         client,
         providerModuleName,
         providerName,
@@ -947,62 +943,62 @@ void _register
         supportedMethods);
 }
 
-void _deregister (
-    CIMClient & client,
-    const String & providerModuleName,
-    const String & providerName,
-    const String & capabilityID)
+void _deregister(
+    CIMClient& client,
+    const String& providerModuleName,
+    const String& providerName,
+    const String& capabilityID)
 {
-    _deleteCapabilityInstance (
+    _deleteCapabilityInstance(
         client,
         providerModuleName,
         providerName,
         capabilityID);
-    _deleteProviderInstance (
+    _deleteProviderInstance(
         client,
         providerName,
         providerModuleName);
-    _deleteModuleInstance (
+    _deleteModuleInstance(
         client,
         providerModuleName);
 }
 
-void _cleanup (CIMClient & client)
+void _cleanup(CIMClient& client)
 {
     //
     //  Delete Filters and Handler for subscriptions
     //
-    _deleteHandlerInstance (client, String ("OOPHandler01"));
-    _deleteFilterInstance (client, String ("OOPFilter01"));
-    _deleteFilterInstance (client, String ("OOPFilter02"));
+    _deleteHandlerInstance(client, String("OOPHandler01"));
+    _deleteFilterInstance(client, String("OOPFilter01"));
+    _deleteFilterInstance(client, String("OOPFilter02"));
 }
 
 //
 //  Scenario 1: Provider failure of a module with no indication providers
 //              Provider fails upon "Fail" invokeMethod call
-//  
+//
 //  Register the provider
 //  Invoke method to cause provider failure
 //  Verify provider module status is OK after provider failure
 //  De-register the provider
-//  
+//
 //  Test providers:
 //      OOPModuleInvokeFailureTestProvider
 //
-void _testScenario1 (
-    CIMClient & client,
+void _testScenario1(
+    CIMClient& client,
     Uint16 userContext,
-    const String & providerModuleName,
-    const String & providerName,
-    const String & capabilityID,
-    const String & className,
-    const Array <String> & namespaces,
-    const Array <Uint16> & providerType)
+    const String& providerModuleName,
+    const String& providerName,
+    const String& capabilityID,
+    const String& className,
+    const Array<String>& namespaces,
+    const Array<Uint16>& providerType)
 {
     //
     //  Register the provider
     //
-    _register (
+    _register(
         client,
         userContext,
         providerModuleName,
@@ -1011,8 +1007,8 @@ void _testScenario1 (
         className,
         namespaces,
         providerType,
-        CIMPropertyList (),
-        CIMPropertyList ());
+        CIMPropertyList(),
+        CIMPropertyList());
 
     //
     //  Invoke method to cause provider failure
@@ -1020,23 +1016,23 @@ void _testScenario1 (
     try
     {
         String identifier = "Scenario 1: " + providerName;
-        _invokeMethod (client, String ("Fail"), identifier);
-        PEGASUS_TEST_ASSERT (false);
+        _invokeMethod(client, String("Fail"), identifier);
+        PEGASUS_TEST_ASSERT(false);
     }
-    catch (const CIMException & e)
+    catch (const CIMException& e)
     {
-        _checkExceptionCode (e, CIM_ERR_FAILED);
+        _checkExceptionCode(e, CIM_ERR_FAILED);
     }
 
     //
     //  Verify module status is OK
     //
-    _checkStatus (client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_OK);
+    _checkStatus(client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_OK);
 
     //
     //  De-register the provider
     //
-    _deregister (
+    _deregister(
         client,
         providerModuleName,
         providerName,
@@ -1049,7 +1045,7 @@ void _testScenario1 (
 //              Provider fails in initialize call or
 //              Provider fails in createSubscription call or
 //              Provider fails in enableIndications call
-//  
+//
 //  Register the provider
 //  Attempt to create a subscription fails and results in provider failure
 //  Verify module status is OK
@@ -1060,20 +1056,20 @@ void _testScenario1 (
 //      OOPModuleCreateFailureTestProvider
 //      OOPModuleEnableFailureTestProvider
 //
-void _testScenario2 (
-    CIMClient & client,
+void _testScenario2(
+    CIMClient& client,
     Uint16 userContext,
-    const String & providerModuleName,
-    const String & providerName,
-    const String & capabilityID,
-    const String & className,
-    const Array <String> & namespaces,
-    const Array <Uint16> & providerType)
+    const String& providerModuleName,
+    const String& providerName,
+    const String& capabilityID,
+    const String& className,
+    const Array<String>& namespaces,
+    const Array<Uint16>& providerType)
 {
     //
     //  Register the provider
     //
-    _register (
+    _register(
         client,
         userContext,
         providerModuleName,
@@ -1082,31 +1078,31 @@ void _testScenario2 (
         className,
         namespaces,
         providerType,
-        CIMPropertyList (),
-        CIMPropertyList ());
+        CIMPropertyList(),
+        CIMPropertyList());
 
     //
     //  Create a subscription
     //
     try
     {
-        _createSubscription (client, String ("OOPFilter01"));
-        PEGASUS_TEST_ASSERT (false);
+        _createSubscription(client, String("OOPFilter01"));
+        PEGASUS_TEST_ASSERT(false);
     }
-    catch (const CIMException & e)
+    catch (const CIMException& e)
     {
-        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
+        _checkExceptionCode(e, CIM_ERR_NOT_SUPPORTED);
     }
-    
+
     //
     //  Verify module status is OK
     //
-    _checkStatus (client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_OK);
+    _checkStatus(client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_OK);
 
     //
     //  De-register the provider
     //
-    _deregister (
+    _deregister(
         client,
         providerModuleName,
         providerName,
@@ -1117,7 +1113,7 @@ void _testScenario2 (
 //  Scenario 3: Provider failure on creation of a subscription,
 //                  with a pre-existing subscription
 //              Provider fails in createSubscription call
-//  
+//
 //  Register the provider
 //  Create a subscription
 //  Invoke method to send test indication
@@ -1132,20 +1128,20 @@ void _testScenario2 (
 //  Test providers:
 //      OOPModuleCreate2FailureTestProvider
 //
-void _testScenario3 (
-    CIMClient & client,
+void _testScenario3(
+    CIMClient& client,
     Uint16 userContext,
-    const String & providerModuleName,
-    const String & providerName,
-    const String & capabilityID,
-    const String & className,
-    const Array <String> & namespaces,
-    const Array <Uint16> & providerType)
+    const String& providerModuleName,
+    const String& providerName,
+    const String& capabilityID,
+    const String& className,
+    const Array<String>& namespaces,
+    const Array<Uint16>& providerType)
 {
     //
     //  Register the provider
     //
-    _register (
+    _register(
         client,
         userContext,
         providerModuleName,
@@ -1154,68 +1150,68 @@ void _testScenario3 (
         className,
         namespaces,
         providerType,
-        CIMPropertyList (),
-        CIMPropertyList ());
+        CIMPropertyList(),
+        CIMPropertyList());
 
     //
     //  Create a subscription
     //
-    _createSubscription (client, String ("OOPFilter01"));
-    
+    _createSubscription(client, String("OOPFilter01"));
+
     //
     //  Invoke method to send test indication
     //
     String identifier = "Scenario 3a: " + providerName;
-    _invokeMethod (client, String ("SendTestIndication"), identifier);
-    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
+    _invokeMethod(client, String("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT(_validateIndicationReceipt(identifier));
 
     //
     //  Create a subscription that will cause provider failure
     //
     try
     {
-        _createSubscription (client, String ("OOPFilter02"));
-        PEGASUS_TEST_ASSERT (false);
+        _createSubscription(client, String("OOPFilter02"));
+        PEGASUS_TEST_ASSERT(false);
     }
-    catch (const CIMException & e)
+    catch (const CIMException& e)
     {
-        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
+        _checkExceptionCode(e, CIM_ERR_NOT_SUPPORTED);
     }
-    
+
     //
     //  Verify module status is Degraded
     //
-    _checkStatus (client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_DEGRADED);
-        
+    _checkStatus(client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_DEGRADED);
+
     //
     //  Disable provider and verify module status is Stopped
     //
-    _disableModule (client, providerModuleName);
-    _checkStatus (client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_STOPPED);
-        
+    _disableModule(client, providerModuleName);
+    _checkStatus(client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_STOPPED);
+
     //
     //  Re-enable provider and verify module status is OK
     //
-    _enableModule (client, providerModuleName);
-    _checkStatus (client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_OK);
+    _enableModule(client, providerModuleName);
+    _checkStatus(client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_OK);
 
     //
     //  Invoke method to send test indication
     //
     identifier = "Scenario 3b: " + providerName;
-    _invokeMethod (client, String ("SendTestIndication"), identifier);
-    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
+    _invokeMethod(client, String("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT(_validateIndicationReceipt(identifier));
 
     //
     //  Delete the subscription
     //
-    _deleteSubscriptionInstance (client, String ("OOPFilter01"),
-        String ("OOPHandler01"));
+    _deleteSubscriptionInstance(client, String("OOPFilter01"),
+        String("OOPHandler01"));
 
     //
     //  De-register the provider
     //
-    _deregister (
+    _deregister(
         client,
         providerModuleName,
         providerName,
@@ -1226,7 +1222,7 @@ void _testScenario3 (
 //  Scenario 4: Provider failure after successful creation of a subscription
 //              Provider fails in modifySubscription call or
 //              Provider fails in invokeMethod call
-//  
+//
 //  Register the provider
 //  Create a subscription
 //  Invoke method to send test indication
@@ -1242,20 +1238,20 @@ void _testScenario3 (
 //      OOPModuleModifyFailureTestProvider
 //      OOPModuleInvokeFailureTestProvider
 //
-void _testScenario4 (
-    CIMClient & client,
+void _testScenario4(
+    CIMClient& client,
     Uint16 userContext,
-    const String & providerModuleName,
-    const String & providerName,
-    const String & capabilityID,
-    const String & className,
-    const Array <String> & namespaces,
-    const Array <Uint16> & providerType)
+    const String& providerModuleName,
+    const String& providerName,
+    const String& capabilityID,
+    const String& className,
+    const Array<String>& namespaces,
+    const Array<Uint16>& providerType)
 {
     //
     //  Register the provider
     //
-    _register (
+    _register(
         client,
         userContext,
         providerModuleName,
@@ -1264,26 +1260,26 @@ void _testScenario4 (
         className,
         namespaces,
         providerType,
-        CIMPropertyList (),
-        CIMPropertyList ());
+        CIMPropertyList(),
+        CIMPropertyList());
 
     //
     //  Create a subscription
     //
-    _createSubscription (client, String ("OOPFilter01"));
-    
+    _createSubscription(client, String("OOPFilter01"));
+
     //
     //  Invoke method to send test indication
     //
     String identifier = "Scenario 4a: " + providerName;
-    _invokeMethod (client, String ("SendTestIndication"), identifier);
-    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
+    _invokeMethod(client, String("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT(_validateIndicationReceipt(identifier));
 
     //
     //  Cause provider failure
     //
-    if (String::equalNoCase
-        (providerName, "OOPModuleInvokeFailureTestProvider"))
+    if (String::equalNoCase(
+            providerName, "OOPModuleInvokeFailureTestProvider"))
     {
         //
         //  Invoke method to cause provider failure
@@ -1291,67 +1287,67 @@ void _testScenario4 (
         try
         {
             identifier = "Scenario 4b: " + providerName;
-            _invokeMethod (client, String ("Fail"), identifier);
-            PEGASUS_TEST_ASSERT (false);
+            _invokeMethod(client, String("Fail"), identifier);
+            PEGASUS_TEST_ASSERT(false);
         }
-        catch (const CIMException & e)
+        catch (const CIMException& e)
         {
-            _checkExceptionCode (e, CIM_ERR_FAILED);
+            _checkExceptionCode(e, CIM_ERR_FAILED);
         }
     }
-    else if (String::equalNoCase
-        (providerName, "OOPModuleModifyFailureTestProvider"))
+    else if (String::equalNoCase(
+                 providerName, "OOPModuleModifyFailureTestProvider"))
     {
         //
         //  Create additional provider capability that will result in a
         //  modifySubscription call to the provider
         //
-        _createCapabilityInstance (
+        _createCapabilityInstance(
             client,
             providerModuleName,
             providerName,
-            String ("OOPCapability010"),
-            String ("FailureTestIndicationSubclass"),
+            String("OOPCapability010"),
+            String("FailureTestIndicationSubclass"),
             namespaces,
             providerType,
-            CIMPropertyList (),
-            CIMPropertyList ());
+            CIMPropertyList(),
+            CIMPropertyList());
     }
 
     //
     //  Verify module status is Degraded
     //
-    _checkStatus (client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_DEGRADED);
-        
+    _checkStatus(client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_DEGRADED);
+
     //
     //  Disable provider and verify module status is Stopped
     //
-    _disableModule (client, providerModuleName);
-    _checkStatus (client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_STOPPED);
-        
+    _disableModule(client, providerModuleName);
+    _checkStatus(client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_STOPPED);
+
     //
     //  Re-enable provider and verify module status is OK
     //
-    _enableModule (client, providerModuleName);
-    _checkStatus (client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_OK);
+    _enableModule(client, providerModuleName);
+    _checkStatus(client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_OK);
 
     //
     //  Invoke method to send test indication
     //
     identifier = "Scenario 4c: " + providerName;
-    _invokeMethod (client, String ("SendTestIndication"), identifier);
-    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
+    _invokeMethod(client, String("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT(_validateIndicationReceipt(identifier));
 
     //
     //  Delete the subscription
     //
-    _deleteSubscriptionInstance (client, String ("OOPFilter01"),
-        String ("OOPHandler01"));
+    _deleteSubscriptionInstance(client, String("OOPFilter01"),
+        String("OOPHandler01"));
 
     //
     //  De-register the provider
     //
-    _deregister (
+    _deregister(
         client,
         providerModuleName,
         providerName,
@@ -1378,20 +1374,20 @@ void _testScenario4 (
 //  Test providers:
 //      OOPModuleDelete2FailureTestProvider
 //
-void _testScenario5 (
-    CIMClient & client,
+void _testScenario5(
+    CIMClient& client,
     Uint16 userContext,
-    const String & providerModuleName,
-    const String & providerName,
-    const String & capabilityID,
-    const String & className,
-    const Array <String> & namespaces,
-    const Array <Uint16> & providerType)
+    const String& providerModuleName,
+    const String& providerName,
+    const String& capabilityID,
+    const String& className,
+    const Array<String>& namespaces,
+    const Array<Uint16>& providerType)
 {
     //
     //  Register the provider
     //
-    _register (
+    _register(
         client,
         userContext,
         providerModuleName,
@@ -1400,66 +1396,66 @@ void _testScenario5 (
         className,
         namespaces,
         providerType,
-        CIMPropertyList (),
-        CIMPropertyList ());
+        CIMPropertyList(),
+        CIMPropertyList());
 
     //
     //  Create a subscription
     //
-    _createSubscription (client, String ("OOPFilter01"));
-    
+    _createSubscription(client, String("OOPFilter01"));
+
     //
     //  Invoke method to send test indication
     //
     String identifier = "Scenario 5a: " + providerName;
-    _invokeMethod (client, String ("SendTestIndication"), identifier);
-    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
+    _invokeMethod(client, String("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT(_validateIndicationReceipt(identifier));
 
     //
     //  Create a second subscription
     //
-    _createSubscription (client, String ("OOPFilter02"));
-    
+    _createSubscription(client, String("OOPFilter02"));
+
     //
     //  Delete the second subscription to cause provider failure
     //
-    _deleteSubscriptionInstance (client, String ("OOPFilter02"),
-        String ("OOPHandler01"));
+    _deleteSubscriptionInstance(client, String("OOPFilter02"),
+        String("OOPHandler01"));
 
     //
     //  Verify module status is Degraded
     //
-    _checkStatus (client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_DEGRADED);
-        
+    _checkStatus(client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_DEGRADED);
+
     //
     //  Disable provider and verify module status is Stopped
     //
-    _disableModule (client, providerModuleName);
-    _checkStatus (client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_STOPPED);
-        
+    _disableModule(client, providerModuleName);
+    _checkStatus(client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_STOPPED);
+
     //
     //  Re-enable provider and verify module status is OK
     //
-    _enableModule (client, providerModuleName);
-    _checkStatus (client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_OK);
+    _enableModule(client, providerModuleName);
+    _checkStatus(client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_OK);
 
     //
     //  Invoke method to send test indication
     //
     identifier = "Scenario 5b: " + providerName;
-    _invokeMethod (client, String ("SendTestIndication"), identifier);
-    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
+    _invokeMethod(client, String("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT(_validateIndicationReceipt(identifier));
 
     //
     //  Delete the first subscription
     //
-    _deleteSubscriptionInstance (client, String ("OOPFilter01"),
-        String ("OOPHandler01"));
+    _deleteSubscriptionInstance(client, String("OOPFilter01"),
+        String("OOPHandler01"));
 
     //
     //  De-register the provider
     //
-    _deregister (
+    _deregister(
         client,
         providerModuleName,
         providerName,
@@ -1470,32 +1466,32 @@ void _testScenario5 (
 //  Scenario 6: Provider failure after successful deletion of a subscription
 //              Provider fails in deleteSubscription call or
 //              Provider fails in disableIndications call
-//  
+//
 //  Register the provider
 //  Create a subscription
 //  Invoke method to send test indication
 //  Delete the subscription to cause provider failure
 //  Verify module status is OK
 //  De-register the provider
-//  
+//
 //  Test providers:
 //      OOPModuleDeleteFailureTestProvider
 //      OOPModuleDisableFailureTestProvider
 //
-void _testScenario6 (
-    CIMClient & client,
+void _testScenario6(
+    CIMClient& client,
     Uint16 userContext,
-    const String & providerModuleName,
-    const String & providerName,
-    const String & capabilityID,
-    const String & className,
-    const Array <String> & namespaces,
-    const Array <Uint16> & providerType)
+    const String& providerModuleName,
+    const String& providerName,
+    const String& capabilityID,
+    const String& className,
+    const Array<String>& namespaces,
+    const Array<Uint16>& providerType)
 {
     //
     //  Register the provider
     //
-    _register (
+    _register(
         client,
         userContext,
         providerModuleName,
@@ -1504,36 +1500,36 @@ void _testScenario6 (
         className,
         namespaces,
         providerType,
-        CIMPropertyList (),
-        CIMPropertyList ());
+        CIMPropertyList(),
+        CIMPropertyList());
 
     //
     //  Create a subscription
     //
-    _createSubscription (client, String ("OOPFilter01"));
-    
+    _createSubscription(client, String("OOPFilter01"));
+
     //
     //  Invoke method to send test indication
     //
     String identifier = "Scenario 6: " + providerName;
-    _invokeMethod (client, String ("SendTestIndication"), identifier);
-    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
+    _invokeMethod(client, String("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT(_validateIndicationReceipt(identifier));
 
     //
     //  Delete the subscription to cause provider failure
     //
-    _deleteSubscriptionInstance (client, String ("OOPFilter01"),
-        String ("OOPHandler01"));
+    _deleteSubscriptionInstance(client, String("OOPFilter01"),
+        String("OOPHandler01"));
 
     //
     //  Verify module status is OK
     //
-    _checkStatus (client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_OK);
-        
+    _checkStatus(client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_OK);
+
     //
     //  De-register the provider
     //
-    _deregister (
+    _deregister(
         client,
         providerModuleName,
         providerName,
@@ -1543,7 +1539,7 @@ void _testScenario6 (
 //
 //  Scenario 7: Provider failure upon disable of provider
 //              Provider fails in terminate call
-//  
+//
 //  Register the provider
 //  Create a subscription
 //  Invoke method to send test indication
@@ -1554,24 +1550,24 @@ void _testScenario6 (
 //  Invoke method to send test indication
 //  Delete the subscription
 //  De-register the provider
-//  
+//
 //  Test providers:
 //      OOPModuleTermFailureTestProvider
 //
-void _testScenario7 (
-    CIMClient & client,
+void _testScenario7(
+    CIMClient& client,
     Uint16 userContext,
-    const String & providerModuleName,
-    const String & providerName,
-    const String & capabilityID,
-    const String & className,
-    const Array <String> & namespaces,
-    const Array <Uint16> & providerType)
+    const String& providerModuleName,
+    const String& providerName,
+    const String& capabilityID,
+    const String& className,
+    const Array<String>& namespaces,
+    const Array<Uint16>& providerType)
 {
     //
     //  Register the provider
     //
-    _register (
+    _register(
         client,
         userContext,
         providerModuleName,
@@ -1580,20 +1576,20 @@ void _testScenario7 (
         className,
         namespaces,
         providerType,
-        CIMPropertyList (),
-        CIMPropertyList ());
+        CIMPropertyList(),
+        CIMPropertyList());
 
     //
     //  Create a subscription
     //
-    _createSubscription (client, String ("OOPFilter01"));
-    
+    _createSubscription(client, String("OOPFilter01"));
+
     //
     //  Invoke method to send test indication
     //
     String identifier = "Scenario 7a: " + providerName;
-    _invokeMethod (client, String ("SendTestIndication"), identifier);
-    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
+    _invokeMethod(client, String("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT(_validateIndicationReceipt(identifier));
 
     //
     //  Disable provider to cause provider failure
@@ -1601,43 +1597,43 @@ void _testScenario7 (
     //
     try
     {
-        _disableModule (client, providerModuleName);
+        _disableModule(client, providerModuleName);
     }
-    catch (const CIMException & e)
+    catch (const CIMException& e)
     {
-        _checkExceptionCode (e, CIM_ERR_FAILED);
+        _checkExceptionCode(e, CIM_ERR_FAILED);
     }
-    _checkStatus (client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_DEGRADED);
-        
+    _checkStatus(client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_DEGRADED);
+
     //
     //  Disable provider and verify module status is Stopped
     //
-    _disableModule (client, providerModuleName);
-    _checkStatus (client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_STOPPED);
-        
+    _disableModule(client, providerModuleName);
+    _checkStatus(client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_STOPPED);
+
     //
     //  Re-enable provider and verify module status is OK
     //
-    _enableModule (client, providerModuleName);
-    _checkStatus (client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_OK);
+    _enableModule(client, providerModuleName);
+    _checkStatus(client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_OK);
 
     //
     //  Invoke method to send test indication
     //
     identifier = "Scenario 7b: " + providerName;
-    _invokeMethod (client, String ("SendTestIndication"), identifier);
-    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
+    _invokeMethod(client, String("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT(_validateIndicationReceipt(identifier));
 
     //
     //  Delete the subscription
     //
-    _deleteSubscriptionInstance (client, String ("OOPFilter01"),
-        String ("OOPHandler01"));
+    _deleteSubscriptionInstance(client, String("OOPFilter01"),
+        String("OOPHandler01"));
 
     //
     //  De-register the provider
     //
-    _deregister (
+    _deregister(
         client,
         providerModuleName,
         providerName,
@@ -1647,7 +1643,7 @@ void _testScenario7 (
 //
 //  Scenario 8: Provider failure with a provider in another module continuing
 //              to successfully serve the subscription
-//  
+//
 //  Register the provider
 //  Register additional provider in another module
 //  Create a subscription
@@ -1660,20 +1656,20 @@ void _testScenario7 (
 //  Delete the subscription
 //  De-register the providers
 //
-void _testScenario8 (
-    CIMClient & client,
+void _testScenario8(
+    CIMClient& client,
     Uint16 userContext,
-    const String & providerModuleName,
-    const String & providerName,
-    const String & capabilityID,
-    const String & className,
-    const Array <String> & namespaces,
-    const Array <Uint16> & providerType)
+    const String& providerModuleName,
+    const String& providerName,
+    const String& capabilityID,
+    const String& className,
+    const Array<String>& namespaces,
+    const Array<Uint16>& providerType)
 {
     //
     //  Register the provider
     //
-    _register (
+    _register(
         client,
         userContext,
         providerModuleName,
@@ -1682,45 +1678,45 @@ void _testScenario8 (
         className,
         namespaces,
         providerType,
-        CIMPropertyList (),
-        CIMPropertyList ());
+        CIMPropertyList(),
+        CIMPropertyList());
 
     //
     //  Register additional provider in another module
     //
-    _createModuleInstance (
+    _createModuleInstance(
         client,
-        String ("AlertIndicationProviderModule"),
-        String ("AlertIndicationProvider"),
+        String("AlertIndicationProviderModule"),
+        String("AlertIndicationProvider"),
         0);
-    _createProviderInstance (
+    _createProviderInstance(
         client,
-        String ("AlertIndicationProvider"),
-        String ("AlertIndicationProviderModule"));
-    Array <Uint16> myProviderType;
-    myProviderType.append (_INDICATION_PROVIDER);
-    _createCapabilityInstance (
+        String("AlertIndicationProvider"),
+        String("AlertIndicationProviderModule"));
+    Array<Uint16> myProviderType;
+    myProviderType.append(_INDICATION_PROVIDER);
+    _createCapabilityInstance(
         client,
-        String ("AlertIndicationProviderModule"),
-        String ("AlertIndicationProvider"),
-        String ("OOPCapability012"),
-        String ("FailureTestIndication"),
+        String("AlertIndicationProviderModule"),
+        String("AlertIndicationProvider"),
+        String("OOPCapability012"),
+        String("FailureTestIndication"),
         namespaces,
         myProviderType,
-        CIMPropertyList (),
-        CIMPropertyList ());
+        CIMPropertyList(),
+        CIMPropertyList());
 
     //
     //  Create a subscription
     //
-    _createSubscription (client, String ("OOPFilter01"));
-    
+    _createSubscription(client, String("OOPFilter01"));
+
     //
     //  Invoke method to send test indication
     //
     String identifier = "Scenario 8a: " + providerName;
-    _invokeMethod (client, String ("SendTestIndication"), identifier);
-    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
+    _invokeMethod(client, String("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT(_validateIndicationReceipt(identifier));
 
     //
     //  Invoke method to cause provider failure
@@ -1728,62 +1724,62 @@ void _testScenario8 (
     try
     {
         identifier = "Scenario 8b: " + providerName;
-        _invokeMethod (client, String ("Fail"), identifier);
-        PEGASUS_TEST_ASSERT (false);
+        _invokeMethod(client, String("Fail"), identifier);
+        PEGASUS_TEST_ASSERT(false);
     }
-    catch (const CIMException & e)
+    catch (const CIMException& e)
     {
-        _checkExceptionCode (e, CIM_ERR_FAILED);
+        _checkExceptionCode(e, CIM_ERR_FAILED);
     }
 
     //
     //  Verify module status is Degraded
     //
-    _checkStatus (client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_DEGRADED);
-        
+    _checkStatus(client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_DEGRADED);
+
     //
     //  Disable provider and verify module status is Stopped
     //
-    _disableModule (client, providerModuleName);
-    _checkStatus (client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_STOPPED);
-        
+    _disableModule(client, providerModuleName);
+    _checkStatus(client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_STOPPED);
+
     //
     //  Re-enable provider and verify module status is OK
     //
-    _enableModule (client, providerModuleName);
-    _checkStatus (client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_OK);
+    _enableModule(client, providerModuleName);
+    _checkStatus(client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_OK);
 
     //
     //  Invoke method to send test indication
     //
     identifier = "Scenario 8c: " + providerName;
-    _invokeMethod (client, String ("SendTestIndication"), identifier);
-    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
+    _invokeMethod(client, String("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT(_validateIndicationReceipt(identifier));
 
     //
     //  Delete the subscription
     //
-    _deleteSubscriptionInstance (client, String ("OOPFilter01"),
-        String ("OOPHandler01"));
+    _deleteSubscriptionInstance(client, String("OOPFilter01"),
+        String("OOPHandler01"));
 
     //
     //  De-register the providers
     //
-    _deregister (
+    _deregister(
         client,
         providerModuleName,
         providerName,
         capabilityID);
 
-    _deregister (
+    _deregister(
         client,
-        String ("AlertIndicationProviderModule"),
-        String ("AlertIndicationProvider"),
-        String ("OOPCapability012"));
+        String("AlertIndicationProviderModule"),
+        String("AlertIndicationProvider"),
+        String("OOPCapability012"));
 }
 
-void _testScenarios (
-    CIMClient & client,
+void _testScenarios(
+    CIMClient& client,
     Uint16 userContext)
 {
     if (verbose)
@@ -1804,76 +1800,76 @@ void _testScenarios (
         cout << endl;
     }
 
-    Array <String> namespaces;
-    namespaces.append (NAMESPACE.getString ());
-    Array <Uint16> providerType;
-    providerType.append (_METHOD_PROVIDER);
-    providerType.append (_INDICATION_PROVIDER);
+    Array<String> namespaces;
+    namespaces.append(NAMESPACE.getString());
+    Array<Uint16> providerType;
+    providerType.append(_METHOD_PROVIDER);
+    providerType.append(_INDICATION_PROVIDER);
 
     //
     //  Test failure of a provider in invokeMethod
     //
-    _testScenario4 (
+    _testScenario4(
         client,
         userContext,
-        String ("OOPModuleFailureTestProviderModule"), 
-        String ("OOPModuleInvokeFailureTestProvider"),
-        String ("OOPCapability007"),
-        String ("FailureTestIndication"),
+        String("OOPModuleFailureTestProviderModule"),
+        String("OOPModuleInvokeFailureTestProvider"),
+        String("OOPCapability007"),
+        String("FailureTestIndication"),
         namespaces,
         providerType);
 
     if (verbose)
     {
-        cout << 
+        cout <<
         "+++++ Test of failure of provider in invokeMethod method "
         "completed successfully" <<
         endl;
     }
 
-    providerType.clear ();
-    providerType.append (_METHOD_PROVIDER);
+    providerType.clear();
+    providerType.append(_METHOD_PROVIDER);
 
     //
     //  Test failure of provider module with no indication providers
     //
-    _testScenario1 (
+    _testScenario1(
         client,
         userContext,
-        String ("OOPModuleFailureTestProviderModule"), 
-        String ("OOPModuleInvokeFailureTestProvider"),
-        String ("OOPCapability001"),
-        String ("FailureTestIndication"),
+        String("OOPModuleFailureTestProviderModule"),
+        String("OOPModuleInvokeFailureTestProvider"),
+        String("OOPCapability001"),
+        String("FailureTestIndication"),
         namespaces,
         providerType);
 
     if (verbose)
     {
-        cout << 
+        cout <<
         "+++++ Test of failure of provider module with no indication providers "
         "completed successfully" <<
         endl;
     }
 
-    providerType.clear ();
-    providerType.append (_INDICATION_PROVIDER);
+    providerType.clear();
+    providerType.append(_INDICATION_PROVIDER);
 
     //
     //  Test failure of a provider in initialize
     //
-    _testScenario2 (
+    _testScenario2(
         client,
         userContext,
-        String ("OOPModuleFailureTestProviderModule"), 
-        String ("OOPModuleInitFailureTestProvider"),
-        String ("OOPCapability002"),
-        String ("FailureTestIndication"),
+        String("OOPModuleFailureTestProviderModule"),
+        String("OOPModuleInitFailureTestProvider"),
+        String("OOPCapability002"),
+        String("FailureTestIndication"),
         namespaces,
         providerType);
 
     if (verbose)
     {
-        cout << 
+        cout <<
         "+++++ Test of failure of provider in initialize method "
         "completed successfully" <<
         endl;
@@ -1882,19 +1878,19 @@ void _testScenarios (
     //
     //  Test failure of a provider in createSubscription
     //
-    _testScenario2 (
+    _testScenario2(
         client,
         userContext,
-        String ("OOPModuleFailureTestProviderModule"), 
-        String ("OOPModuleCreateFailureTestProvider"),
-        String ("OOPCapability003"),
-        String ("FailureTestIndication"),
+        String("OOPModuleFailureTestProviderModule"),
+        String("OOPModuleCreateFailureTestProvider"),
+        String("OOPCapability003"),
+        String("FailureTestIndication"),
         namespaces,
         providerType);
 
     if (verbose)
     {
-        cout << 
+        cout <<
         "+++++ Test of failure of provider in createSubscription method "
         "completed successfully" <<
         endl;
@@ -1903,42 +1899,42 @@ void _testScenarios (
     //
     //  Test failure of a provider in enableIndications
     //
-    _testScenario2 (
+    _testScenario2(
         client,
         userContext,
-        String ("OOPModuleFailureTestProviderModule"), 
-        String ("OOPModuleEnableFailureTestProvider"),
-        String ("OOPCapability004"),
-        String ("FailureTestIndication"),
+        String("OOPModuleFailureTestProviderModule"),
+        String("OOPModuleEnableFailureTestProvider"),
+        String("OOPCapability004"),
+        String("FailureTestIndication"),
         namespaces,
         providerType);
 
     if (verbose)
     {
-        cout << 
+        cout <<
         "+++++ Test of failure of provider in enableIndications method "
         "completed successfully" <<
         endl;
     }
 
-    providerType.append (_METHOD_PROVIDER);
+    providerType.append(_METHOD_PROVIDER);
 
     //
     //  Test failure of a provider in modifySubscription
     //
-    _testScenario4 (
+    _testScenario4(
         client,
         userContext,
-        String ("OOPModuleFailureTestProviderModule"), 
-        String ("OOPModuleModifyFailureTestProvider"),
-        String ("OOPCapability005"),
-        String ("FailureTestIndication"),
+        String("OOPModuleFailureTestProviderModule"),
+        String("OOPModuleModifyFailureTestProvider"),
+        String("OOPCapability005"),
+        String("FailureTestIndication"),
         namespaces,
         providerType);
 
     if (verbose)
     {
-        cout << 
+        cout <<
         "+++++ Test of failure of provider in modifySubscription method "
         "completed successfully" <<
         endl;
@@ -1948,19 +1944,19 @@ void _testScenarios (
     //  Test failure of a provider in createSubscription
     //  with an existing subscription
     //
-    _testScenario3 (
+    _testScenario3(
         client,
         userContext,
-        String ("OOPModuleFailureTestProviderModule"), 
-        String ("OOPModuleCreate2FailureTestProvider"),
-        String ("OOPCapability006"),
-        String ("FailureTestIndication"),
+        String("OOPModuleFailureTestProviderModule"),
+        String("OOPModuleCreate2FailureTestProvider"),
+        String("OOPCapability006"),
+        String("FailureTestIndication"),
         namespaces,
         providerType);
 
     if (verbose)
     {
-        cout << 
+        cout <<
         "+++++ Test of failure of provider in createSubscription method "
         "with an existing subscription completed successfully" <<
         endl;
@@ -1970,19 +1966,19 @@ void _testScenarios (
     //  Test failure of a provider in deleteSubscription
     //  with a remaining subscription
     //
-    _testScenario5 (
+    _testScenario5(
         client,
         userContext,
-        String ("OOPModuleFailureTestProviderModule"), 
-        String ("OOPModuleDelete2FailureTestProvider"),
-        String ("OOPCapability008"),
-        String ("FailureTestIndication"),
+        String("OOPModuleFailureTestProviderModule"),
+        String("OOPModuleDelete2FailureTestProvider"),
+        String("OOPCapability008"),
+        String("FailureTestIndication"),
         namespaces,
         providerType);
 
     if (verbose)
     {
-        cout << 
+        cout <<
         "+++++ Test of failure of provider in deleteSubscription method "
         "with a remaining subscription completed successfully" <<
         endl;
@@ -1991,19 +1987,19 @@ void _testScenarios (
     //
     //  Test failure of a provider in deleteSubscription
     //
-    _testScenario6 (
+    _testScenario6(
         client,
         userContext,
-        String ("OOPModuleFailureTestProviderModule"), 
-        String ("OOPModuleDeleteFailureTestProvider"),
-        String ("OOPCapability009"),
-        String ("FailureTestIndication"),
+        String("OOPModuleFailureTestProviderModule"),
+        String("OOPModuleDeleteFailureTestProvider"),
+        String("OOPCapability009"),
+        String("FailureTestIndication"),
         namespaces,
         providerType);
 
     if (verbose)
     {
-        cout << 
+        cout <<
         "+++++ Test of failure of provider in deleteSubscription method "
         "completed successfully" <<
         endl;
@@ -2012,19 +2008,19 @@ void _testScenarios (
     //
     //  Test failure of a provider in disableIndications
     //
-    _testScenario6 (
+    _testScenario6(
         client,
         userContext,
-        String ("OOPModuleFailureTestProviderModule"), 
-        String ("OOPModuleDisableFailureTestProvider"),
-        String ("OOPCapability010"),
-        String ("FailureTestIndication"),
+        String("OOPModuleFailureTestProviderModule"),
+        String("OOPModuleDisableFailureTestProvider"),
+        String("OOPCapability010"),
+        String("FailureTestIndication"),
         namespaces,
         providerType);
 
     if (verbose)
     {
-        cout << 
+        cout <<
         "+++++ Test of failure of provider in disableIndications method "
         "completed successfully" <<
         endl;
@@ -2033,19 +2029,19 @@ void _testScenarios (
     //
     //  Test failure of a provider in terminate
     //
-    _testScenario7 (
+    _testScenario7(
         client,
         userContext,
-        String ("OOPModuleFailureTestProviderModule"), 
-        String ("OOPModuleTermFailureTestProvider"),
-        String ("OOPCapability011"),
-        String ("FailureTestIndication"),
+        String("OOPModuleFailureTestProviderModule"),
+        String("OOPModuleTermFailureTestProvider"),
+        String("OOPCapability011"),
+        String("FailureTestIndication"),
         namespaces,
         providerType);
 
     if (verbose)
     {
-        cout << 
+        cout <<
         "+++++ Test of failure of provider in terminate method "
         "completed successfully" <<
         endl;
@@ -2055,105 +2051,105 @@ void _testScenarios (
     //  Test failure with a provider in another module continuing to
     //  serve the subscription
     //
-    _testScenario8 (
+    _testScenario8(
         client,
         userContext,
-        String ("OOPModuleFailureTestProviderModule"), 
-        String ("OOPModuleInvokeFailureTestProvider"),
-        String ("OOPCapability007"),
-        String ("FailureTestIndication"),
+        String("OOPModuleFailureTestProviderModule"),
+        String("OOPModuleInvokeFailureTestProvider"),
+        String("OOPCapability007"),
+        String("FailureTestIndication"),
         namespaces,
         providerType);
 
     if (verbose)
     {
-        cout << 
+        cout <<
         "+++++ Test of failure of provider with provider in another module "
         "continuing to serve the subscription completed successfully" <<
         endl;
     }
 }
 
-void _testISInita (CIMClient & client)
+void _testISInita(CIMClient& client)
 {
     if (verbose)
     {
-        cout << 
+        cout <<
         "+++++ Testing OOP provider module failure during Indication Service "
         "initialization (test setup) " <<
         endl;
     }
 
-    _setup (client);
+    _setup(client);
 
-    Array <String> namespaces;
-    namespaces.append (NAMESPACE.getString ());
-    Array <Uint16> providerType;
-    providerType.append (_INDICATION_PROVIDER);
+    Array<String> namespaces;
+    namespaces.append(NAMESPACE.getString());
+    Array<Uint16> providerType;
+    providerType.append(_INDICATION_PROVIDER);
 
     //
     //  Register the OOPModuleModifyFailureTestProvider provider
     //
-    _register (
+    _register(
         client,
         PG_PROVMODULE_USERCTXT_REQUESTOR,
-        String ("OOPModuleFailureTestProviderModule"),
-        String ("OOPModuleModifyFailureTestProvider"),
-        String ("OOPCapability005"),
-        String ("FailureTestIndication"),
+        String("OOPModuleFailureTestProviderModule"),
+        String("OOPModuleModifyFailureTestProvider"),
+        String("OOPCapability005"),
+        String("FailureTestIndication"),
         namespaces,
         providerType,
-        CIMPropertyList (),
-        CIMPropertyList ());
+        CIMPropertyList(),
+        CIMPropertyList());
 
     //
     //  Create subscription
     //
-    _createSubscription (client, String ("OOPFilter01"));
+    _createSubscription(client, String("OOPFilter01"));
 
     //
     //  De-register OOPModuleModifyFailureTestProvider
     //  Subscription remains enabled but has no provider to serve it
     //
-    _deleteCapabilityInstance (
+    _deleteCapabilityInstance(
         client,
-        String ("OOPModuleFailureTestProviderModule"),
-        String ("OOPModuleModifyFailureTestProvider"),
-        String ("OOPCapability005"));
-    _deleteProviderInstance (
+        String("OOPModuleFailureTestProviderModule"),
+        String("OOPModuleModifyFailureTestProvider"),
+        String("OOPCapability005"));
+    _deleteProviderInstance(
         client,
-        String ("OOPModuleModifyFailureTestProvider"),
-        String ("OOPModuleFailureTestProviderModule"));
+        String("OOPModuleModifyFailureTestProvider"),
+        String("OOPModuleFailureTestProviderModule"));
 
     //
     //  Register the OOPModuleInitFailureTestProvider provider
     //  The OOPModuleInitFailureTestProvider provider can serve the subscription
     //  but will fail in the initialize method
     //
-    _createProviderInstance (
+    _createProviderInstance(
         client,
-        String ("OOPModuleInitFailureTestProvider"),
-        String ("OOPModuleFailureTestProviderModule"));
-    _createCapabilityInstance (
+        String("OOPModuleInitFailureTestProvider"),
+        String("OOPModuleFailureTestProviderModule"));
+    _createCapabilityInstance(
         client,
-        String ("OOPModuleFailureTestProviderModule"), 
-        String ("OOPModuleInitFailureTestProvider"),
-        String ("OOPCapability002"),
-        String ("FailureTestIndication"),
+        String("OOPModuleFailureTestProviderModule"),
+        String("OOPModuleInitFailureTestProvider"),
+        String("OOPCapability002"),
+        String("FailureTestIndication"),
         namespaces,
         providerType,
-        CIMPropertyList (),
-        CIMPropertyList ());
+        CIMPropertyList(),
+        CIMPropertyList());
 
     //
     //  Verify module status is OK
     //
-    _checkStatus (client, String ("OOPModuleFailureTestProviderModule"),
+    _checkStatus(client, String("OOPModuleFailureTestProviderModule"),
         CIM_MSE_OPSTATUS_VALUE_OK);
 
     if (verbose)
     {
-        cout << 
+        cout <<
         "+++++ Test of OOP provider module failure during Indication Service "
         "initialization (test setup) "
         "completed successfully" <<
@@ -2161,11 +2157,11 @@ void _testISInita (CIMClient & client)
     }
 }
 
-void _testISInitb (CIMClient & client)
+void _testISInitb(CIMClient& client)
 {
     if (verbose)
     {
-        cout << 
+        cout <<
         "+++++ Testing OOP provider module failure during Indication Service "
         "initialization (test) " <<
         endl;
@@ -2180,29 +2176,29 @@ void _testISInitb (CIMClient & client)
     //
     //  Verify module status is OK
     //
-    _checkStatus (client, String ("OOPModuleFailureTestProviderModule"),
+    _checkStatus(client, String("OOPModuleFailureTestProviderModule"),
         CIM_MSE_OPSTATUS_VALUE_OK);
 
     //
     //  Delete subscription
     //
-    _deleteSubscriptionInstance (client, String ("OOPFilter01"),
-        String ("OOPHandler01"));
+    _deleteSubscriptionInstance(client, String("OOPFilter01"),
+        String("OOPHandler01"));
 
     //
     //  De-register the OOPModuleInitFailureTestProvider
     //
-    _deregister (
+    _deregister(
         client,
-        String ("OOPModuleFailureTestProviderModule"), 
-        String ("OOPModuleInitFailureTestProvider"),
-        String ("OOPCapability002"));
+        String("OOPModuleFailureTestProviderModule"),
+        String("OOPModuleInitFailureTestProvider"),
+        String("OOPCapability002"));
 
-    _cleanup (client);
+    _cleanup(client);
 
     if (verbose)
     {
-        cout << 
+        cout <<
         "+++++ Test of OOP provider module failure during Indication Service "
         "initialization (test) "
         "completed successfully" <<
@@ -2210,7 +2206,7 @@ void _testISInitb (CIMClient & client)
     }
 }
 
-void _testCSRestarta (CIMClient & client)
+void _testCSRestarta(CIMClient& client)
 {
     if (verbose)
     {
@@ -2220,58 +2216,58 @@ void _testCSRestarta (CIMClient & client)
         endl;
     }
 
-    _setup (client);
+    _setup(client);
 
-    Array <String> namespaces;
-    namespaces.append (NAMESPACE.getString ());
-    Array <Uint16> providerType;
-    providerType.append (_INDICATION_PROVIDER);
-    providerType.append (_METHOD_PROVIDER);
+    Array<String> namespaces;
+    namespaces.append(NAMESPACE.getString());
+    Array<Uint16> providerType;
+    providerType.append(_INDICATION_PROVIDER);
+    providerType.append(_METHOD_PROVIDER);
 
     //
     //  Register the OOPModuleCreate2FailureTestProvider provider
     //
-    _register (
+    _register(
         client,
         PG_PROVMODULE_USERCTXT_REQUESTOR,
-        String ("OOPModuleFailureTestProviderModule"),
-        String ("OOPModuleCreate2FailureTestProvider"),
-        String ("OOPCapability006"),
-        String ("FailureTestIndication"),
+        String("OOPModuleFailureTestProviderModule"),
+        String("OOPModuleCreate2FailureTestProvider"),
+        String("OOPCapability006"),
+        String("FailureTestIndication"),
         namespaces,
         providerType,
-        CIMPropertyList (),
-        CIMPropertyList ());
+        CIMPropertyList(),
+        CIMPropertyList());
 
     //
     //  Create a subscription
     //
-    _createSubscription (client, String ("OOPFilter01"));
+    _createSubscription(client, String("OOPFilter01"));
 
     //
     //  Invoke method to send test indication
     //
     String identifier = "CSRestarta: OOPModuleCreate2FailureTestProvider";
-    _invokeMethod (client, String ("SendTestIndication"), identifier);
-    PEGASUS_TEST_ASSERT (_validateIndicationReceipt (identifier));
+    _invokeMethod(client, String("SendTestIndication"), identifier);
+    PEGASUS_TEST_ASSERT(_validateIndicationReceipt(identifier));
 
     //
     //  Create a subscription that will cause provider failure
     //
     try
     {
-        _createSubscription (client, String ("OOPFilter02"));
-        PEGASUS_TEST_ASSERT (false);
+        _createSubscription(client, String("OOPFilter02"));
+        PEGASUS_TEST_ASSERT(false);
     }
-    catch (const CIMException & e)
+    catch (const CIMException& e)
     {
-        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
+        _checkExceptionCode(e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //
     //  Verify module status is Degraded
     //
-    _checkStatus (client, String ("OOPModuleFailureTestProviderModule"),
+    _checkStatus(client, String("OOPModuleFailureTestProviderModule"),
         CIM_MSE_OPSTATUS_VALUE_DEGRADED);
 
     if (verbose)
@@ -2284,7 +2280,7 @@ void _testCSRestarta (CIMClient & client)
     }
 }
 
-void _testCSRestartb (CIMClient & client)
+void _testCSRestartb(CIMClient& client)
 {
     if (verbose)
     {
@@ -2302,25 +2298,25 @@ void _testCSRestartb (CIMClient & client)
     //
     //  Verify module status is OK
     //
-    _checkStatus (client, String ("OOPModuleFailureTestProviderModule"),
+    _checkStatus(client, String("OOPModuleFailureTestProviderModule"),
         CIM_MSE_OPSTATUS_VALUE_OK);
 
     //
     //  Delete subscription
     //
-    _deleteSubscriptionInstance (client, String ("OOPFilter01"),
-        String ("OOPHandler01"));
+    _deleteSubscriptionInstance(client, String("OOPFilter01"),
+        String("OOPHandler01"));
 
     //
     //  De-register the OOPModuleCreate2FailureTestProvider
     //
-    _deregister (
+    _deregister(
         client,
-        String ("OOPModuleFailureTestProviderModule"),
-        String ("OOPModuleCreate2FailureTestProvider"),
-        String ("OOPCapability006"));
+        String("OOPModuleFailureTestProviderModule"),
+        String("OOPModuleCreate2FailureTestProvider"),
+        String("OOPCapability006"));
 
-    _cleanup (client);
+    _cleanup(client);
 
     if (verbose)
     {
@@ -2332,11 +2328,11 @@ void _testCSRestartb (CIMClient & client)
     }
 }
 
-void _test (CIMClient & client, char * argv0)
+void _test(CIMClient& client, char * argv0)
 {
-    _setup (client);
+    _setup(client);
 
-    _testScenarios (client, 0);
+    _testScenarios(client, 0);
 
 #ifndef PEGASUS_DISABLE_PROV_USERCTXT
     _testScenarios(client, PG_PROVMODULE_USERCTXT_PRIVILEGED);
@@ -2347,15 +2343,15 @@ void _test (CIMClient & client, char * argv0)
         "PEGASUS_DISABLE_PROV_USERCTXT is defined" << endl;
 #endif
 
-    _cleanup (client);
+    _cleanup(client);
 }
 
-int main (int argc, char** argv)
+int main(int argc, char** argv)
 {
-    verbose = getenv ("PEGASUS_TEST_VERBOSE") ? true : false;
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
     CIMClient client;
-    client.connectLocal ();
+    client.connectLocal();
 
     try
     {
@@ -2364,7 +2360,7 @@ int main (int argc, char** argv)
 #ifndef PEGASUS_DISABLE_PROV_USERCTXT
             _testISInita(client);
 #else
-            cout << argv[0] << 
+            cout << argv[0] <<
                 ": Indication Service initialization tests skipped because"
                 " PEGASUS_DISABLE_PROV_USERCTXT is defined" << endl;
 #endif
@@ -2375,7 +2371,7 @@ int main (int argc, char** argv)
 #ifndef PEGASUS_DISABLE_PROV_USERCTXT
             _testISInitb(client);
 #else
-            cout << argv [0] << 
+            cout << argv [0] <<
                 ": Indication Service initialization tests skipped because"
                 " PEGASUS_DISABLE_PROV_USERCTXT is defined" << endl;
 #endif
@@ -2386,7 +2382,7 @@ int main (int argc, char** argv)
 #ifndef PEGASUS_DISABLE_PROV_USERCTXT
             _testCSRestarta(client);
 #else
-            cout << argv [0] << 
+            cout << argv [0] <<
                 ": CIM Server restart tests skipped because"
                 " PEGASUS_DISABLE_PROV_USERCTXT is defined" << endl;
 #endif
@@ -2397,7 +2393,7 @@ int main (int argc, char** argv)
 #ifndef PEGASUS_DISABLE_PROV_USERCTXT
             _testCSRestartb(client);
 #else
-            cout << argv [0] << 
+            cout << argv [0] <<
                 ": CIM Server restart tests skipped because"
                 " PEGASUS_DISABLE_PROV_USERCTXT is defined" << endl;
 #endif
@@ -2405,12 +2401,12 @@ int main (int argc, char** argv)
 
         else if (argc == 1)
         {
-            _test (client, argv [0]);
+            _test(client, argv [0]);
         }
     }
-    catch (Exception & e)
+    catch (Exception& e)
     {
-        cerr << argv [0] << " failed: " << e.getMessage () << endl;
+        cerr << argv [0] << " failed: " << e.getMessage() << endl;
         return 1;
     }
 

@@ -37,22 +37,29 @@
 
 #include "DynamicIndicationProvider.h"
 
-/** This test provider allows you to generate indications on demand using an invokeMethod call.
- * The method, sendIndication(), takes the indication classname, severity, and description as arguments. 
- * This is a lot easier than hard-coding indication providers to do what you want for testing/debugging purposes.
- * 
- * To register the provider, use the following commands (this will vary based on configuration):
- * cp *.mof pegasus/mof
- * cd pegasus/mof
- * ../bin/cimmof -nroot/pg_interop DynamicIndicationProviderRegistration.mof
- * ../bin/cimmof -nroot/cimv2 DynamicIndicationProviderSchema.mof
- * 
- * You must create a subscription against one of the provider's indication classes in order for it to be enabled
- * for indications.
- * 
- * To exercise the provider, you can script commands using cimcli:
- *  >./cimcli im PG_DynamicIndication sendIndication severity=0 classname=MyTestIndication description=test
- */ 
+/**
+    This test provider allows you to generate indications on demand using an
+    invokeMethod call.  The method, sendIndication(), takes the indication
+    class name, severity, and description as arguments.  This is a lot easier
+    than hard-coding indication providers to do what you want for
+    testing/debugging purposes.
+
+    To register the provider, use the following commands (this will vary based
+    on configuration):
+
+      cp *.mof pegasus/mof
+      cd pegasus/mof
+      ../bin/cimmof -nroot/pg_interop DynamicIndicationProviderRegistration.mof
+      ../bin/cimmof -nroot/cimv2 DynamicIndicationProviderSchema.mof
+
+    You must create a subscription against one of the provider's indication
+    classes in order for it to be enabled for indications.
+
+    To exercise the provider, you can script commands using cimcli:
+
+      cimcli im PG_DynamicIndication sendIndication severity=0 \
+          classname=MyTestIndication description=test
+*/
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -61,7 +68,7 @@ PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& providerName)
 {
     if (String::equalNoCase(providerName, "DynamicIndicationProvider"))
     {
-         return(new DynamicIndicationProvider());
+         return new DynamicIndicationProvider();
     }
     return 0;
 }

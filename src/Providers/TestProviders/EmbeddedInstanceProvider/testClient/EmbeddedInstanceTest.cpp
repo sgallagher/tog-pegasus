@@ -29,9 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Alex Dunfey (dunfey_alexander@emc.com)
-//
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Thread.h>
@@ -54,7 +51,8 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const CIMNamespaceName TEST_NAMESPACE = CIMNamespaceName ("test/EmbeddedInstance/Dynamic");
+const CIMNamespaceName TEST_NAMESPACE =
+    CIMNamespaceName("test/EmbeddedInstance/Dynamic");
 const int listenerPort = 2003;
 CIMObjectPath destinationPath;
 CIMObjectPath filterPath;
@@ -71,7 +69,7 @@ Array<CIMName> indicationPropList;
 
 int receivedIndications;
 AutoPtr<CIMInstance> receivedIndication;
-Mutex *mut = 0;
+Mutex* mut = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -85,8 +83,9 @@ public:
     EmbeddedInstanceIndicationConsumer();
     ~EmbeddedInstanceIndicationConsumer();
 
-    void consumeIndication(const OperationContext& context,
-        const String & url,
+    void consumeIndication(
+        const OperationContext& context,
+        const String& url,
         const CIMInstance& indicationInstance);
 };
 
@@ -99,21 +98,21 @@ EmbeddedInstanceIndicationConsumer::~EmbeddedInstanceIndicationConsumer()
 }
 
 void EmbeddedInstanceIndicationConsumer::consumeIndication(
-                         const OperationContext & context,
-                         const String & url,
-                         const CIMInstance& indicationInstance)
+    const OperationContext& context,
+    const String& url,
+    const CIMInstance& indicationInstance)
 {
     AutoMutex a(*mut);
-    if(receivedIndications == 0)
+    if (receivedIndications == 0)
         receivedIndication.reset(new CIMInstance(indicationInstance));
-    else if(!receivedIndication->identical(indicationInstance))
+    else if (!receivedIndication->identical(indicationInstance))
     {
         cout << "Received multiple different indications" << endl;
     }
     receivedIndications++;
 }
 
-int createErrorInstance(CIMClient & client)
+int createErrorInstance(CIMClient& client)
 {
     // Build the embedded instance
     Array<CIMKeyBinding> embeddedPathKeys;
@@ -125,10 +124,11 @@ int createErrorInstance(CIMClient & client)
     embeddedPathKeys.append(CIMKeyBinding(key1Name, key1Value));
     embeddedPathKeys.append(CIMKeyBinding(key2Name, key2Value));
 
-    CIMObjectPath embeddedPath("localhost",
-      TEST_NAMESPACE,
-      CIMName("PG_EmbeddedClass"),
-      embeddedPathKeys);
+    CIMObjectPath embeddedPath(
+        "localhost",
+        TEST_NAMESPACE,
+        CIMName("PG_EmbeddedClass"),
+        embeddedPathKeys);
 
     embeddedInstance.reset(new CIMInstance(CIMName("PG_EmbeddedClass")));
     //embeddedInstance->setPath(embeddedPath);
@@ -164,72 +164,77 @@ int createErrorInstance(CIMClient & client)
     CIMName errorKeyName("errorKey");
     CIMValue errorKeyValue(String("error key 1"));
     errorPathKeys.append(CIMKeyBinding(errorKeyName, errorKeyValue));
-    CIMObjectPath localErrorPath("localhost",
-      TEST_NAMESPACE,
-      CIMName("PG_EmbeddedError"),
-      errorPathKeys);
+    CIMObjectPath localErrorPath(
+        "localhost",
+        TEST_NAMESPACE,
+        CIMName("PG_EmbeddedError"),
+        errorPathKeys);
     errorInstance.reset(new CIMInstance(CIMName("PG_EmbeddedError")));
     errorInstance->setPath(localErrorPath);
     errorInstance->addProperty(CIMProperty(errorKeyName,
         errorKeyValue));
     errorInstance->addProperty(CIMProperty(CIMName("EmbeddedInst"),
         CIMValue(*embeddedInstance)));
-    try {
-      errorPath = client.createInstance(TEST_NAMESPACE, *errorInstance);
-      PEGASUS_STD(cout) << "Created EmbeddedError: " << errorPath.toString()
-          << PEGASUS_STD(endl);
-      errorInstance->setPath(errorPath);
-    }
-    catch(Exception & e)
+    try
     {
-      PEGASUS_STD(cout) << "Exception while creating Error Instance: "
-        << e.getMessage() << PEGASUS_STD(endl);
-      return -1;
+        errorPath = client.createInstance(TEST_NAMESPACE, *errorInstance);
+        PEGASUS_STD(cout) << "Created EmbeddedError: " << errorPath.toString()
+            << PEGASUS_STD(endl);
+        errorInstance->setPath(errorPath);
+    }
+    catch (Exception& e)
+    {
+        PEGASUS_STD(cout) << "Exception while creating Error Instance: "
+            << e.getMessage() << PEGASUS_STD(endl);
+        return -1;
     }
 
     return 0;
 }
 
-int retrieveErrorInstance(CIMClient & client)
+int retrieveErrorInstance(CIMClient& client)
 {
-    try {
+    try
+    {
         PEGASUS_STD(cout) << "Getting error instance: " << errorPath.toString()
             << PEGASUS_STD(endl);
-        CIMInstance ret = client.getInstance(TEST_NAMESPACE, errorPath,
-          true, false, false, errorPropList);
+        CIMInstance ret = client.getInstance(
+            TEST_NAMESPACE, errorPath, true, false, false, errorPropList);
         ret.setPath(errorPath);
-        if(!errorInstance->identical(ret))
+        if (!errorInstance->identical(ret))
         {
-            if(!ret.getPath().identical(errorInstance->getPath()))
+            if (!ret.getPath().identical(errorInstance->getPath()))
             {
-              PEGASUS_STD(cout) << "Object Paths not identical"
-                << PEGASUS_STD(endl);
+                PEGASUS_STD(cout) << "Object Paths not identical"
+                    << PEGASUS_STD(endl);
             }
             PEGASUS_STD(cout) << "Error Instance and instance retrieved "
-              << "through GetInstance operation not the same\n"
-              << PEGASUS_STD(endl);
+                << "through GetInstance operation not the same\n"
+                << PEGASUS_STD(endl);
             PEGASUS_STD(cout) << "Local Error Instance: "
-              << errorInstance->getPath().toString() << PEGASUS_STD(endl);
-            for(unsigned int i = 0, n = errorInstance->getPropertyCount();
-              i < n; i++)
+                << errorInstance->getPath().toString() << PEGASUS_STD(endl);
+            for (unsigned int i = 0, n = errorInstance->getPropertyCount();
+                 i < n; i++)
             {
-              CIMProperty prop = errorInstance->getProperty(i);
-              PEGASUS_STD(cout) << i << ". " << prop.getName().getString()
-                << prop.getValue().toString() << PEGASUS_STD(endl);
+                CIMProperty prop = errorInstance->getProperty(i);
+                PEGASUS_STD(cout) << i << ". " << prop.getName().getString()
+                    << prop.getValue().toString() << PEGASUS_STD(endl);
             }
 
-            PEGASUS_STD(cout) << "Retrieved Error Instance: " << 
-              ret.getPath().toString() << PEGASUS_STD(endl);
-            for(unsigned int i = 0, n = ret.getPropertyCount();
-              i < n; i++)
+            PEGASUS_STD(cout) << "Retrieved Error Instance: " <<
+                ret.getPath().toString() << PEGASUS_STD(endl);
+            for (unsigned int i = 0, n = ret.getPropertyCount();
+                 i < n; i++)
             {
-              CIMProperty prop = ret.getProperty(i);
-              PEGASUS_STD(cout) << i << ". " << prop.getName().getString()
-                << prop.getValue().toString() << PEGASUS_STD(endl);
+                CIMProperty prop = ret.getProperty(i);
+                PEGASUS_STD(cout) << i << ". " << prop.getName().getString()
+                    << prop.getValue().toString() << PEGASUS_STD(endl);
             }
 
-            CIMProperty localEmbeddedProp = errorInstance->getProperty(errorInstance->findProperty("EmbeddedInst"));
-            CIMProperty retEmbeddedProp = ret.getProperty(ret.findProperty("EmbeddedInst"));
+            CIMProperty localEmbeddedProp = errorInstance->getProperty(
+                errorInstance->findProperty("EmbeddedInst"));
+            CIMProperty retEmbeddedProp = ret.getProperty(
+                ret.findProperty("EmbeddedInst"));
             CIMInstance localEmbeddedInst;
             CIMInstance retEmbeddedInst;
             localEmbeddedProp.getValue().get(localEmbeddedInst);
@@ -237,32 +242,42 @@ int retrieveErrorInstance(CIMClient & client)
             CIMObjectPath localEmbeddedPath = localEmbeddedInst.getPath();
             CIMObjectPath retEmbeddedPath = retEmbeddedInst.getPath();
 
-            PEGASUS_STD(cout) << "Local Embedded Path: " << localEmbeddedPath.toString() << PEGASUS_STD(endl);
-            PEGASUS_STD(cout) << "Ret Embedded Path: " << retEmbeddedPath.toString() << PEGASUS_STD(endl);
+            PEGASUS_STD(cout) << "Local Embedded Path: " <<
+                localEmbeddedPath.toString() << PEGASUS_STD(endl);
+            PEGASUS_STD(cout) << "Ret Embedded Path: " <<
+                retEmbeddedPath.toString() << PEGASUS_STD(endl);
             return -1;
         }
     }
-    catch (Exception & e)
+    catch (Exception& e)
     {
         cout << "Exception caught while getting error instance: "
             << e.getMessage() << endl;
         return -1;
     }
 
-    try {
-        Array<CIMInstance> ret = client.enumerateInstances(TEST_NAMESPACE, "PG_EmbeddedError",
-          true, true, false, false, errorPropList);
+    try
+    {
+        Array<CIMInstance> ret = client.enumerateInstances(
+            TEST_NAMESPACE,
+            "PG_EmbeddedError",
+            true,
+            true,
+            false,
+            false,
+            errorPropList);
         int count = ret.size();
-        for(int i = 0; i < count; i++)
+        for (int i = 0; i < count; i++)
         {
-            if(!errorInstance->identical(ret[i]))
+            if (!errorInstance->identical(ret[i]))
             {
-                printf("Error instance and instance retrieved through EnumerateInstances operation not the same\n");
+                printf("Error instance and instance retrieved through "
+                    "EnumerateInstances operation not the same\n");
                 return -1;
             }
         }
     }
-    catch (Exception & e)
+    catch (Exception& e)
     {
         cout << "Exception caught while enumerating error instances: "
             << e.getMessage() << endl;
@@ -272,7 +287,7 @@ int retrieveErrorInstance(CIMClient & client)
     return 0;
 }
 
-int createSubscription(CIMClient & client)
+int createSubscription(CIMClient& client)
 {
     // Create a Listener Destination
     CIMInstance destinationInstance("CIM_ListenerDestinationCIMXML");
@@ -288,10 +303,12 @@ int createSubscription(CIMClient & client)
     destinationInstance.addProperty(CIMProperty(CIMName("Destination"),
       String("http://localhost:2003")));
 
-    try {
-        destinationPath = client.createInstance(TEST_NAMESPACE, destinationInstance);
+    try
+    {
+        destinationPath =
+            client.createInstance(TEST_NAMESPACE, destinationInstance);
     }
-    catch (Exception & e)
+    catch (Exception& e)
     {
         cout << "Exception caught while creating listener destination: "
             << e.getMessage() << endl;
@@ -307,19 +324,20 @@ int createSubscription(CIMClient & client)
         System::getFullyQualifiedHostName()));
     filterInstance.addProperty(CIMProperty(CIMName("CreationClassName"),
         String("CIM_IndicationFilter")));
-    filterInstance.addProperty(CIMProperty(CIMName("Name"), 
+    filterInstance.addProperty(CIMProperty(CIMName("Name"),
         String("Embedded Instance Test Filter")));
-    filterInstance.addProperty(CIMProperty(CIMName("Query"), 
+    filterInstance.addProperty(CIMProperty(CIMName("Query"),
         String("SELECT * FROM PG_InstMethodIndication")));
     filterInstance.addProperty(CIMProperty(CIMName("QueryLanguage"),
         String("CIM:CQL")));
     filterInstance.addProperty(CIMProperty(CIMName("SourceNamespace"),
         TEST_NAMESPACE.getString()));
 
-    try {
+    try
+    {
         filterPath = client.createInstance (TEST_NAMESPACE, filterInstance);
     }
-    catch (Exception & e)
+    catch (Exception& e)
     {
         cout << "Exception caught while creating indication filter: "
             << e.getMessage() << endl;
@@ -335,33 +353,38 @@ int createSubscription(CIMClient & client)
     subscriptionInstance.addProperty(CIMProperty(
         CIMName("SubscriptionState"), CIMValue((Uint16) 2)));
 
-    try {
-        subscriptionPath = client.createInstance(TEST_NAMESPACE, 
+    try
+    {
+        subscriptionPath = client.createInstance(TEST_NAMESPACE,
             subscriptionInstance);
     }
-    catch (Exception & e)
+    catch (Exception& e)
     {
         cout << "Exception caught while creating subscription: "
             << e.getMessage() << endl;
         return -1;
     }
 
-
     return 0;
 }
 
-int signalIndication(CIMClient & client)
+int signalIndication(CIMClient& client)
 {
     AutoMutex a(*mut);
     Array<CIMParamValue> inParameters;
     Array<CIMParamValue> outParameters;
 
-    try {
+    try
+    {
         inParameters.append(CIMParamValue("error", CIMValue(*errorInstance)));
-        client.invokeMethod(TEST_NAMESPACE, errorPath, CIMName("PropagateError"),
-            inParameters, outParameters);
+        client.invokeMethod(
+            TEST_NAMESPACE,
+            errorPath,
+            CIMName("PropagateError"),
+            inParameters,
+            outParameters);
 
-        if(outParameters.size() != 1)
+        if (outParameters.size() != 1)
         {
             cout << "Expected to get 1 output parameter from PropagateError. "
                 << "Received " << outParameters.size() << endl;
@@ -371,13 +394,13 @@ int signalIndication(CIMClient & client)
         CIMInstance outParamInstance;
         outParameters[0].getValue().get(outParamInstance);
         outParamInstance.setPath(errorInstance->getPath());
-        if(!errorInstance->identical(outParamInstance))
+        if (!errorInstance->identical(outParamInstance))
         {
             cout << "Output Instance differs from Input Instance" << endl;
             return -1;
         }
     }
-    catch(Exception & e)
+    catch (Exception& e)
     {
         cout << "Exception caught during invoke method of PropagateError: "
             << e.getMessage() << endl;
@@ -387,11 +410,11 @@ int signalIndication(CIMClient & client)
     return 0;
 }
 
-int retrieveIndicationInstance(CIMClient & client)
+int retrieveIndicationInstance(CIMClient& client)
 {
     // Approximates a timeout, each loop is roughly 1 second
     Uint32 loopCount = 0;
-    while((receivedIndications == 0) && (loopCount < MAX_COUNT))
+    while ((receivedIndications == 0) && (loopCount < MAX_COUNT))
     {
         Thread::sleep(1000);
         loopCount++;
@@ -399,18 +422,19 @@ int retrieveIndicationInstance(CIMClient & client)
 
     AutoMutex a(*mut);
     Array<CIMInstance> indications;
-    try {
+    try
+    {
         indications = client.enumerateInstances(
             TEST_NAMESPACE, "PG_InstMethodIndication");
     }
-    catch (Exception & e)
+    catch (Exception& e)
     {
         cout << "Exception caught while enumerating indications: "
             << e.getMessage() << endl;
         return -1;
     }
 
-    if(indications.size() != 5)
+    if (indications.size() != 5)
     {
         cout << "Expected to get one instance. Received "
             << indications.size() << endl;
@@ -419,61 +443,66 @@ int retrieveIndicationInstance(CIMClient & client)
 
     indicationInstance.reset(new CIMInstance(indications[0]));
 
-    if(receivedIndication.get() == 0)
+    if (receivedIndication.get() == 0)
     {
-      PEGASUS_STD(cout) << "Did not receive indication via listener" << PEGASUS_STD(endl);
-      return -1;
+        PEGASUS_STD(cout) << "Did not receive indication via listener" <<
+            PEGASUS_STD(endl);
+        return -1;
     }
 
-    if(!indicationInstance->identical(*receivedIndication))
+    if (!indicationInstance->identical(*receivedIndication))
     {
-      PEGASUS_STD(cout) 
-        << "Indication instance retrieved via listener does not match "
-        << "instance retrieved via enumeration" << PEGASUS_STD(endl);
-      return -1;
+        PEGASUS_STD(cout)
+            << "Indication instance retrieved via listener does not match "
+            << "instance retrieved via enumeration" << PEGASUS_STD(endl);
+        return -1;
     }
 
     return 0;
 }
 
-int removeErrorInstance(CIMClient & client)
+int removeErrorInstance(CIMClient& client)
 {
-    try {
+    try
+    {
         client.deleteInstance(TEST_NAMESPACE, errorPath);
     }
-    catch(Exception & e)
+    catch (Exception & e)
     {
-      PEGASUS_STD(cout) 
-        << "Exception encountered while removing Error Instance: "
-        << e.getMessage() << PEGASUS_STD(endl);
+        PEGASUS_STD(cout)
+            << "Exception encountered while removing Error Instance: "
+            << e.getMessage() << PEGASUS_STD(endl);
     }
     return 0;
 }
 
-int removeSubscription(CIMClient & client)
+int removeSubscription(CIMClient& client)
 {
-    try {
+    try
+    {
         client.deleteInstance(TEST_NAMESPACE, subscriptionPath);
     }
-    catch (Exception & e)
+    catch (Exception& e)
     {
         cout << "Exception caught while deleting subscription: "
             << e.getMessage() << endl;
     }
 
-    try {
+    try
+    {
         client.deleteInstance(TEST_NAMESPACE, filterPath);
     }
-    catch (Exception & e)
+    catch (Exception& e)
     {
         cout << "Exception caught while deleting indication filter: "
             << e.getMessage() << endl;
     }
 
-    try {
+    try
+    {
         client.deleteInstance(TEST_NAMESPACE, destinationPath);
     }
-    catch (Exception & e)
+    catch (Exception& e)
     {
         cout << "Exception caught while deleting listener destination: "
             << e.getMessage() << endl;
@@ -482,7 +511,7 @@ int removeSubscription(CIMClient & client)
     return 0;
 }
 
-int main (int argc, char** argv)
+int main(int argc, char** argv)
 {
     CIMClient client;
     CIMListener listener(listenerPort);
@@ -491,7 +520,8 @@ int main (int argc, char** argv)
     listener.addConsumer(new EmbeddedInstanceIndicationConsumer());
     listener.start();
 
-    try {
+    try
+    {
         client.connectLocal();
     }
     catch (...)
@@ -504,24 +534,24 @@ int main (int argc, char** argv)
 
     ret = createSubscription(client);
 
-    if(ret == 0)
+    if (ret == 0)
         ret = createErrorInstance(client);
 
     errorPropList.append("errorKey");
     errorPropList.append("EmbeddedInst");
-    if(ret == 0)
+    if (ret == 0)
         ret = retrieveErrorInstance(client);
 
-    if(ret == 0)
+    if (ret == 0)
         ret = signalIndication(client);
 
-    if(ret == 0)
+    if (ret == 0)
         ret = retrieveIndicationInstance(client);
 
-    if(ret == 0)
+    if (ret == 0)
         ret = removeErrorInstance(client);
 
-    if(ret == 0)
+    if (ret == 0)
         ret = removeSubscription(client);
     else
     {
@@ -529,7 +559,7 @@ int main (int argc, char** argv)
         removeSubscription(client);
     }
 
-    if(ret == 0)
+    if (ret == 0)
         printf("+++EmbeddedInstanceTest passed+++\n");
     delete mut;
     return ret;

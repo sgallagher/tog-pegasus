@@ -38,104 +38,104 @@
 PEGASUS_USING_PEGASUS;
 
 class TestServerProfileProvider :
-	public CIMInstanceProvider,
+    public CIMInstanceProvider,
     public CIMAssociationProvider
 {
 public:
-	TestServerProfileProvider(const String &);
-	virtual ~TestServerProfileProvider();
+    TestServerProfileProvider(const String&);
+    virtual ~TestServerProfileProvider();
 
-	virtual void initialize(CIMOMHandle & cimom);
-	virtual void terminate();
+    virtual void initialize(CIMOMHandle& cimom);
+    virtual void terminate();
 
-	// Instance Provider interface
-	virtual void getInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
+    // Instance Provider interface
+    virtual void getInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        InstanceResponseHandler& handler);
 
-	virtual void enumerateInstances(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
+    virtual void enumerateInstances(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        InstanceResponseHandler& handler);
 
-	virtual void enumerateInstanceNames(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		ObjectPathResponseHandler & handler);
+    virtual void enumerateInstanceNames(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        ObjectPathResponseHandler& handler);
 
-	virtual void modifyInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const CIMInstance & obj,
-		const Boolean includeQualifiers,
-		const CIMPropertyList & propertyList,
-		ResponseHandler & handler);
+    virtual void modifyInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const CIMInstance& obj,
+        const Boolean includeQualifiers,
+        const CIMPropertyList& propertyList,
+        ResponseHandler& handler);
 
-	virtual void createInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const CIMInstance & obj,
-		ObjectPathResponseHandler & handler);
+    virtual void createInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const CIMInstance& obj,
+        ObjectPathResponseHandler& handler);
 
-	virtual void deleteInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		ResponseHandler & handler);
+    virtual void deleteInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        ResponseHandler& handler);
 
     //
     // Association Provider Interface
     //
     virtual void associators(
-		const OperationContext & context,
-		const CIMObjectPath & objectName,
-		const CIMName & associationClass,
-		const CIMName & resultClass,
-		const String & role,
-		const String & resultRole,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		ObjectResponseHandler & handler);
+        const OperationContext& context,
+        const CIMObjectPath& objectName,
+        const CIMName& associationClass,
+        const CIMName& resultClass,
+        const String& role,
+        const String& resultRole,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        ObjectResponseHandler& handler);
 
-	virtual void associatorNames(
-		const OperationContext & context,
-		const CIMObjectPath & objectName,
-		const CIMName & associationClass,
-		const CIMName & resultClass,
-		const String & role,
-		const String & resultRole,
-		ObjectPathResponseHandler & handler);
+    virtual void associatorNames(
+        const OperationContext& context,
+        const CIMObjectPath& objectName,
+        const CIMName& associationClass,
+        const CIMName& resultClass,
+        const String& role,
+        const String& resultRole,
+        ObjectPathResponseHandler& handler);
 
-	virtual void references(
-		const OperationContext & context,
-		const CIMObjectPath & objectName,
-		const CIMName & resultClass,
-		const String & role,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		ObjectResponseHandler & handler);
+    virtual void references(
+        const OperationContext& context,
+        const CIMObjectPath& objectName,
+        const CIMName& resultClass,
+        const String& role,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        ObjectResponseHandler& handler);
 
-	virtual void referenceNames(
-		const OperationContext & context,
-		const CIMObjectPath & objectName,
-		const CIMName & resultClass,
-		const String & role,
-		ObjectPathResponseHandler & handler);
+    virtual void referenceNames(
+        const OperationContext& context,
+        const CIMObjectPath& objectName,
+        const CIMName& resultClass,
+        const String& role,
+        ObjectPathResponseHandler& handler);
 
 private:
     Array<CIMInstance> localEnumerateInstances(
-        const CIMName & className,
+        const CIMName& className,
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
-        const CIMPropertyList & propList);
+        const CIMPropertyList& propList);
 
     CIMOMHandle cimomHandle;
     CIMName testClassName;

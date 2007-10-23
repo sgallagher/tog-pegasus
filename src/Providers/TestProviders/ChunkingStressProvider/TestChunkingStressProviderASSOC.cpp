@@ -29,45 +29,41 @@
 //
 //==============================================================================
 //
-// Author: Dave Sudlik
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "TestChunkingStressProviderASSOC.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-TestChunkingStressProviderASSOC::TestChunkingStressProviderASSOC(void)
+TestChunkingStressProviderASSOC::TestChunkingStressProviderASSOC()
 {
 }
 
-TestChunkingStressProviderASSOC::~TestChunkingStressProviderASSOC(void)
+TestChunkingStressProviderASSOC::~TestChunkingStressProviderASSOC()
 {
 }
 
-void TestChunkingStressProviderASSOC::initialize(CIMOMHandle & cimom)
+void TestChunkingStressProviderASSOC::initialize(CIMOMHandle& cimom)
 {
     _cimom = cimom;
 }
 
-void TestChunkingStressProviderASSOC::terminate(void)
+void TestChunkingStressProviderASSOC::terminate()
 {
     delete this;
 }
 
 void TestChunkingStressProviderASSOC::associators(
-    const OperationContext & context,
-    const CIMObjectPath & objectName,
-    const CIMName & associationClass,
-    const CIMName & resultClass,
-    const String & role,
-    const String & resultRole,
+    const OperationContext& context,
+    const CIMObjectPath& objectName,
+    const CIMName& associationClass,
+    const CIMName& resultClass,
+    const String& role,
+    const String& resultRole,
     const Boolean includeQualifiers,
     const Boolean includeClassOrigin,
-    const CIMPropertyList & propertyList,
-    ObjectResponseHandler & handler)
+    const CIMPropertyList& propertyList,
+    ObjectResponseHandler& handler)
 {
     CIMNamespaceName NAMESPACE(String("test/TestProvider"));
     CIMName CLASSNAME(String("TST_ChunkingStressInstance"));
@@ -88,19 +84,19 @@ void TestChunkingStressProviderASSOC::associators(
     {
         handler.deliver(cimObjects[i]);
     }
-    
+
     // complete processing the request
     handler.complete();
 }
 
 void TestChunkingStressProviderASSOC::associatorNames(
-    const OperationContext & context,
-    const CIMObjectPath & objectName,
-    const CIMName & associationClass,
-    const CIMName & resultClass,
-    const String & role,
-    const String & resultRole,
-    ObjectPathResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& objectName,
+    const CIMName& associationClass,
+    const CIMName& resultClass,
+    const String& role,
+    const String& resultRole,
+    ObjectPathResponseHandler& handler)
 {
     CIMNamespaceName NAMESPACE(String("test/TestProvider"));
     CIMName CLASSNAME(String("TST_ChunkingStressInstance"));
@@ -111,39 +107,41 @@ void TestChunkingStressProviderASSOC::associatorNames(
     {
         AutoMutex autoMut(_CIMOMHandle_mut);
         cimObjectNames = _cimom.enumerateInstanceNames(
-                context, NAMESPACE, CLASSNAME);
+            context, NAMESPACE, CLASSNAME);
     }
-        
+
     for (Uint32 i = 0, n = cimObjectNames.size(); i < n; i++)
     {
         handler.deliver(cimObjectNames[i]);
     }
-    
+
     // complete processing the request
     handler.complete();
 }
 
 void TestChunkingStressProviderASSOC::references(
-    const OperationContext & context,
-    const CIMObjectPath & objectName,
-    const CIMName & resultClass,
-    const String & role,
+    const OperationContext& context,
+    const CIMObjectPath& objectName,
+    const CIMName& resultClass,
+    const String& role,
     const Boolean includeQualifiers,
     const Boolean includeClassOrigin,
-    const CIMPropertyList & propertyList,
-    ObjectResponseHandler & handler)
+    const CIMPropertyList& propertyList,
+    ObjectResponseHandler& handler)
 {
-    throw CIMNotSupportedException("TestChunkingStressProviderASSOC::references");
+    throw CIMNotSupportedException(
+        "TestChunkingStressProviderASSOC::references");
 }
 
 void TestChunkingStressProviderASSOC::referenceNames(
-    const OperationContext & context,
-    const CIMObjectPath & objectName,
-    const CIMName & resultClass,
-    const String & role,
-    ObjectPathResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& objectName,
+    const CIMName& resultClass,
+    const String& role,
+    ObjectPathResponseHandler& handler)
 {
-    throw CIMNotSupportedException("TestChunkingStressProviderASSOC::referenceNames");
+    throw CIMNotSupportedException(
+        "TestChunkingStressProviderASSOC::referenceNames");
 }
 
 PEGASUS_NAMESPACE_END

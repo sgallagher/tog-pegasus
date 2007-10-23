@@ -29,92 +29,82 @@
 //
 //==============================================================================
 //
-// Author: Dave Sudlik, IBM (dsudlik@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMDateTime.h>
-//#include <Pegasus/Common/OperationContext.h>
-//#include <Pegasus/Common/System.h>
-//#include <Pegasus/Query/QueryExpression/QueryExpression.h>
-//#include <Pegasus/Provider/CIMOMHandleQueryContext.h>
-
 #include "IndicationStressTestProvider.h"
 
 PEGASUS_USING_STD;
-
 PEGASUS_USING_PEGASUS;
 
-static IndicationResponseHandler * _indication_handler = 0;
+static IndicationResponseHandler* _indication_handler = 0;
 static Boolean _enabled = false;
 static Uint32 _nextUID = 1;
 static Uint32 _numSubscriptions = 0;
 
 static CIMObjectPath path;
-static Array <String> correlatedIndications;
+static Array<String> correlatedIndications;
 
 
-IndicationStressTestProvider::IndicationStressTestProvider (void) throw ()
+IndicationStressTestProvider::IndicationStressTestProvider() throw()
 {
-  // Set the destination of indications for all threads once
+    // Set the destination of indications for all threads once
 
-            path.setNameSpace("test/TestProvider");
-            path.setClassName("IndicationStressTestClass");
+    path.setNameSpace("test/TestProvider");
+    path.setClassName("IndicationStressTestClass");
 }
 
-IndicationStressTestProvider::~IndicationStressTestProvider (void) throw ()
+IndicationStressTestProvider::~IndicationStressTestProvider() throw()
 {
 }
 
-void IndicationStressTestProvider::initialize (CIMOMHandle & cimom)
+void IndicationStressTestProvider::initialize(CIMOMHandle& cimom)
 {
-  _cimom = cimom;
+    _cimom = cimom;
 }
 
-void IndicationStressTestProvider::terminate (void)
+void IndicationStressTestProvider::terminate()
 {
     delete this;
 }
 
-void IndicationStressTestProvider::enableIndications (
-    IndicationResponseHandler & handler)
+void IndicationStressTestProvider::enableIndications(
+    IndicationResponseHandler& handler)
 {
     _enabled = true;
     _indication_handler = &handler;
 }
 
-void IndicationStressTestProvider::disableIndications (void)
+void IndicationStressTestProvider::disableIndications()
 {
     _enabled = false;
-    _indication_handler->complete ();
+    _indication_handler->complete();
 }
 
-void IndicationStressTestProvider::createSubscription (
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array <CIMObjectPath> & classNames,
-    const CIMPropertyList & propertyList,
+void IndicationStressTestProvider::createSubscription(
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array <CIMObjectPath>& classNames,
+    const CIMPropertyList& propertyList,
     const Uint16 repeatNotificationPolicy)
 {
     _numSubscriptions++;
 }
 
-void IndicationStressTestProvider::modifySubscription (
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array <CIMObjectPath> & classNames,
-    const CIMPropertyList & propertyList,
+void IndicationStressTestProvider::modifySubscription(
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array <CIMObjectPath>& classNames,
+    const CIMPropertyList& propertyList,
     const Uint16 repeatNotificationPolicy)
 {
 }
 
-void IndicationStressTestProvider::deleteSubscription (
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array <CIMObjectPath> & classNames)
+void IndicationStressTestProvider::deleteSubscription(
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array <CIMObjectPath>& classNames)
 {
     _numSubscriptions--;
 
@@ -124,62 +114,58 @@ void IndicationStressTestProvider::deleteSubscription (
 
 void SendIndication(int seqNum, char *UIDbuffer)
 {
-  CIMInstance indicationInstance (CIMName ("IndicationStressTestClass"));
+    CIMInstance indicationInstance(CIMName("IndicationStressTestClass"));
 
-  indicationInstance.setPath(path);
+    indicationInstance.setPath(path);
 
-  indicationInstance.addProperty
-    (CIMProperty ("IndicationIdentifier",String(UIDbuffer)));
+    indicationInstance.addProperty(
+        CIMProperty("IndicationIdentifier", String(UIDbuffer)));
 
-  indicationInstance.addProperty
-    (CIMProperty ("CorrelatedIndications", correlatedIndications));
+    indicationInstance.addProperty(
+        CIMProperty("CorrelatedIndications", correlatedIndications));
 
-  CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
+    CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime();
 
-  indicationInstance.addProperty
-    (CIMProperty ("IndicationTime", currentDateTime));
+    indicationInstance.addProperty(
+        CIMProperty("IndicationTime", currentDateTime));
 
-  indicationInstance.addProperty
-    (CIMProperty ("IndicationSequenceNumber", CIMValue(Uint64(seqNum))));
+    indicationInstance.addProperty(
+        CIMProperty("IndicationSequenceNumber", CIMValue(Uint64(seqNum))));
 
-  // cout << "IndicationStressTestProvider instance = " << ((CIMObject)indicationInstance).toString() << endl;
+    // cout << "IndicationStressTestProvider instance = " <<
+    //     ((CIMObject)indicationInstance).toString() << endl;
 
-  _indication_handler->deliver (indicationInstance);
-
-  return;
+    _indication_handler->deliver(indicationInstance);
 }
-
 
 void IndicationStressTestProvider::invokeMethod(
-        const OperationContext & context,
-        const CIMObjectPath & objectReference,
-        const CIMName & methodName,
-        const Array<CIMParamValue> & inParameters,
-        MethodResultResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& objectReference,
+    const CIMName& methodName,
+    const Array<CIMParamValue>& inParameters,
+    MethodResultResponseHandler& handler)
 {
-        Boolean sendIndication = false;
-        Uint32 indicationSendCount;
-        CIMIndication indicationInstance;
-        char UIDbuffer[32];
+    Boolean sendIndication = false;
+    Uint32 indicationSendCount;
+    CIMIndication indicationInstance;
+    char UIDbuffer[32];
 
-        handler.processing();
+    handler.processing();
 
-        inParameters[0].getValue().get(indicationSendCount);
+    inParameters[0].getValue().get(indicationSendCount);
 
-        if (_enabled)
+    if (_enabled)
+    {
+        handler.deliver(CIMValue(0));
+    }
+    handler.complete();
+
+    if (indicationSendCount > 0)
+    {
+        for (Uint32 seqNum = 1; seqNum < indicationSendCount+1; seqNum++)
         {
-            handler.deliver( CIMValue( 0 ) );
+            sprintf(UIDbuffer, "%d", _nextUID++);
+            SendIndication(seqNum, UIDbuffer);
         }
-        handler.complete();
-
-        if (indicationSendCount > 0)
-          {
-            for (Uint32 seqNum = 1; seqNum < indicationSendCount+1; seqNum++)
-              {
-                sprintf(UIDbuffer, "%d", _nextUID++);
-                SendIndication(seqNum, UIDbuffer);               
-              }
-          }
+    }
 }
-
-

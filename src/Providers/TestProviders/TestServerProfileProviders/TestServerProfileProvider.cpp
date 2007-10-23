@@ -46,15 +46,15 @@ const String otherSystemProvider("OtherSystemTestProvider");
 const CIMName otherSystemClass("Test_OtherSystem");
 
 TestServerProfileProvider::TestServerProfileProvider(
-    const String & providerName)
+    const String& providerName)
 {
-    if(String::equalNoCase(providerName, storageSystemProvider))
+    if (String::equalNoCase(providerName, storageSystemProvider))
     {
         testClassName = storageSystemClass;
         names.append(String("StorageSystemInstance1"));
         names.append(String("StorageSystemInstance2"));
     }
-    else if(String::equalNoCase(providerName, mcsStorageSystemProvider))
+    else if (String::equalNoCase(providerName, mcsStorageSystemProvider))
     {
         testClassName = mcsStorageSystemClass;
         names.append(String("MCSStorageSystemInstance1"));
@@ -64,7 +64,7 @@ TestServerProfileProvider::TestServerProfileProvider(
         names.append(String("MCSStorageSystemInstance2-1"));
         names.append(String("MCSStorageSystemInstance2-2"));
     }
-    else if(String::equalNoCase(providerName, otherSystemProvider))
+    else if (String::equalNoCase(providerName, otherSystemProvider))
     {
         testClassName = otherSystemClass;
         names.append(String("OtherSystemInstance1"));
@@ -80,7 +80,7 @@ TestServerProfileProvider::~TestServerProfileProvider()
 {
 }
 
-void TestServerProfileProvider::initialize(CIMOMHandle & cimom)
+void TestServerProfileProvider::initialize(CIMOMHandle& cimom)
 {
     cimomHandle = cimom;
     testClass = cimomHandle.getClass(
@@ -90,29 +90,29 @@ void TestServerProfileProvider::initialize(CIMOMHandle & cimom)
 
 void TestServerProfileProvider::terminate()
 {
-	delete this;
+    delete this;
 }
 
 void TestServerProfileProvider::getInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& instanceReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    InstanceResponseHandler& handler)
 {
     handler.processing();
-	Array<CIMInstance> instances = localEnumerateInstances(
+    Array<CIMInstance> instances = localEnumerateInstances(
         instanceReference.getClassName(),
         includeQualifiers, includeClassOrigin, propertyList);
     CIMObjectPath instancePath(String::EMPTY,
         CIMNamespaceName("test/TestProvider"),
         instanceReference.getClassName(), instanceReference.getKeyBindings());
     bool found = false;
-    for(unsigned int i = 0, n = instances.size(); i < n; ++i)
+    for (unsigned int i = 0, n = instances.size(); i < n; ++i)
     {
-        CIMInstance & currentInst = instances[i];
-        if(currentInst.getPath() == instancePath)
+        CIMInstance& currentInst = instances[i];
+        if (currentInst.getPath() == instancePath)
         {
             handler.deliver(currentInst);
             found = true;
@@ -120,7 +120,7 @@ void TestServerProfileProvider::getInstance(
         }
     }
 
-    if(!found)
+    if (!found)
     {
         throw CIMObjectNotFoundException(instanceReference.toString());
     }
@@ -129,182 +129,182 @@ void TestServerProfileProvider::getInstance(
 }
 
 void TestServerProfileProvider::enumerateInstances(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& classReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    InstanceResponseHandler& handler)
 {
-	// begin processing the request
-	handler.processing();
+    // begin processing the request
+    handler.processing();
     Array<CIMInstance> instances = localEnumerateInstances(
         classReference.getClassName(),
         includeQualifiers, includeClassOrigin, propertyList);
-	for(Uint32 i = 0, n = instances.size(); i < n; ++i)
-	{
-		// deliver instance
-		handler.deliver(instances[i]);
-	}
+    for (Uint32 i = 0, n = instances.size(); i < n; ++i)
+    {
+        // deliver instance
+        handler.deliver(instances[i]);
+    }
 
-	// complete processing the request
-	handler.complete();
+    // complete processing the request
+    handler.complete();
 }
 
 void TestServerProfileProvider::enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	ObjectPathResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& classReference,
+    ObjectPathResponseHandler& handler)
 {
-	// begin processing the request
-	handler.processing();
+    // begin processing the request
+    handler.processing();
     Array<CIMInstance> instances = localEnumerateInstances(
         classReference.getClassName(), false, false,
         CIMPropertyList(Array<CIMName>()));
-	for(Uint32 i = 0, n = instances.size(); i < n; ++i)
-	{
-		// deliver instance name
-		handler.deliver(instances[i].getPath());
-	}
+    for (Uint32 i = 0, n = instances.size(); i < n; ++i)
+    {
+        // deliver instance name
+        handler.deliver(instances[i].getPath());
+    }
 
-	// complete processing the request
-	handler.complete();
+    // complete processing the request
+    handler.complete();
 }
 
 
 void TestServerProfileProvider::modifyInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	const Boolean includeQualifiers,
-	const CIMPropertyList & propertyList,
-	ResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& instanceReference,
+    const CIMInstance& instanceObject,
+    const Boolean includeQualifiers,
+    const CIMPropertyList& propertyList,
+    ResponseHandler& handler)
 {
-  // deliver exception to the ProviderManager, which in turn will return the 
-  // error message to the requestor
-  
-  throw CIMNotSupportedException(
-      "TestServerProfileProvider::modifyInstance()");
+    // deliver exception to the ProviderManager, which in turn will return the
+    // error message to the requestor
+
+    throw CIMNotSupportedException(
+          "TestServerProfileProvider::modifyInstance()");
 }
 
 void TestServerProfileProvider::createInstance(
-    const OperationContext & context,
-    const CIMObjectPath & instanceReference,
-    const CIMInstance & instanceObject,
-    ObjectPathResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& instanceReference,
+    const CIMInstance& instanceObject,
+    ObjectPathResponseHandler& handler)
 {
-  // deliver exception to the ProviderManager, which in turn will return the 
-  // error message to the requestor
-  
-  throw CIMNotSupportedException(
-      "TestServerProfileProvider::createInstance()");
+    // deliver exception to the ProviderManager, which in turn will return the
+    // error message to the requestor
+
+    throw CIMNotSupportedException(
+        "TestServerProfileProvider::createInstance()");
 }
 
 
 void TestServerProfileProvider::deleteInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	ResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& instanceReference,
+    ResponseHandler& handler)
 {
-  throw CIMNotSupportedException(
-      "TestServerProfileProvider::deleteInstance()");
+    throw CIMNotSupportedException(
+        "TestServerProfileProvider::deleteInstance()");
 }
 
 void TestServerProfileProvider::associators(
-	const OperationContext & context,
-	const CIMObjectPath & objectName,
-	const CIMName & associationClass,
-	const CIMName & resultClass,
-	const String & role,
-	const String & resultRole,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	ObjectResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& objectName,
+    const CIMName& associationClass,
+    const CIMName& resultClass,
+    const String& role,
+    const String& resultRole,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    ObjectResponseHandler& handler)
 {
     throw CIMNotSupportedException(
         "TestServerProfileProvider::associators()");
 }
 
 void TestServerProfileProvider::associatorNames(
-	const OperationContext & context,
-	const CIMObjectPath & objectName,
-	const CIMName & associationClass,
-	const CIMName & resultClass,
-	const String & role,
-	const String & resultRole,
-	ObjectPathResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& objectName,
+    const CIMName& associationClass,
+    const CIMName& resultClass,
+    const String& role,
+    const String& resultRole,
+    ObjectPathResponseHandler& handler)
 {
     throw CIMNotSupportedException(
         "TestServerProfileProvider::associatorNames()");
 }
 
 void TestServerProfileProvider::references(
-	const OperationContext & context,
-	const CIMObjectPath & objectName,
-	const CIMName & resultClass,
-	const String & role,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	ObjectResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& objectName,
+    const CIMName& resultClass,
+    const String& role,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    ObjectResponseHandler& handler)
 {
     throw CIMNotSupportedException(
         "TestServerProfileProvider::references()");
 }
 
 void TestServerProfileProvider::referenceNames(
-	const OperationContext & context,
-	const CIMObjectPath & objectName,
-	const CIMName & resultClass,
-	const String & role,
-	ObjectPathResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& objectName,
+    const CIMName& resultClass,
+    const String& role,
+    ObjectPathResponseHandler& handler)
 {
     throw CIMNotSupportedException(
         "TestServerProfileProvider::referenceNames()");
 }
 
 Array<CIMInstance> TestServerProfileProvider::localEnumerateInstances(
-    const CIMName & enumClass,
+    const CIMName& enumClass,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList & propList)
+    const CIMPropertyList& propList)
 {
     Array<CIMInstance> instances;
 
-    if(enumClass == testClassName)
+    if (enumClass == testClassName)
     {
         CIMInstance templateInstance = testClass.buildInstance(
             includeQualifiers, includeClassOrigin, propList);
 
         Uint32 propIndex = templateInstance.findProperty("CreationClassName");
-        if(propIndex != PEG_NOT_FOUND)
+        if (propIndex != PEG_NOT_FOUND)
         {
             templateInstance.getProperty(propIndex).setValue(
                 CIMValue(testClassName.getString()));
         }
 
         propIndex = templateInstance.findProperty("ElementName");
-        if(propIndex != PEG_NOT_FOUND)
+        if (propIndex != PEG_NOT_FOUND)
         {
             templateInstance.getProperty(propIndex).setValue(
                 CIMValue(String("Instance of ") + testClassName.getString()));
         }
 
         propIndex = templateInstance.findProperty("OtherIdentifyingInfo");
-        if(propIndex != PEG_NOT_FOUND)
+        if (propIndex != PEG_NOT_FOUND)
         {
             templateInstance.getProperty(propIndex).setValue(Array<String>());
         }
 
         propIndex = templateInstance.findProperty("IdentifyingDescriptions");
-        if(propIndex != PEG_NOT_FOUND)
+        if (propIndex != PEG_NOT_FOUND)
         {
             templateInstance.getProperty(propIndex).setValue(Array<String>());
         }
 
         propIndex = templateInstance.findProperty("OperationalStatus");
-        if(propIndex != PEG_NOT_FOUND)
+        if (propIndex != PEG_NOT_FOUND)
         {
             Array<Uint16> opStatus;
             opStatus.append(2); // Ok
@@ -312,18 +312,18 @@ Array<CIMInstance> TestServerProfileProvider::localEnumerateInstances(
         }
 
         propIndex = templateInstance.findProperty("NameFormat");
-        if(propIndex != PEG_NOT_FOUND)
+        if (propIndex != PEG_NOT_FOUND)
         {
             templateInstance.getProperty(propIndex).setValue(
                 CIMValue(String("Pegasus Test Format")));
         }
 
 
-        for(unsigned int i = 0, n = names.size(); i < n; ++i)
+        for (unsigned int i = 0, n = names.size(); i < n; ++i)
         {
             CIMInstance currentInstance = templateInstance.clone();
             propIndex = currentInstance.findProperty(CIMName("Name"));
-            if(propIndex != PEG_NOT_FOUND)
+            if (propIndex != PEG_NOT_FOUND)
             {
                 currentInstance.getProperty(propIndex).setValue(
                     CIMValue(names[i]));
@@ -342,7 +342,7 @@ Array<CIMInstance> TestServerProfileProvider::localEnumerateInstances(
             instances.append(currentInstance);
         }
     }
-    else if(testClassName == mcsStorageSystemClass &&
+    else if (testClassName == mcsStorageSystemClass &&
         enumClass == elementConformsClass)
     {
         Array<CIMInstance> registeredProfiles = cimomHandle.enumerateInstances(
@@ -352,17 +352,17 @@ Array<CIMInstance> TestServerProfileProvider::localEnumerateInstances(
         Array<CIMObjectPath> profilePaths;
         unsigned int i = 0;
         unsigned int n = registeredProfiles.size();
-        for(; i < n; ++i)
+        for (; i < n; ++i)
         {
             CIMInstance currentInstance = registeredProfiles[i];
             Uint32 propIndex = currentInstance.findProperty(
                 CIMName("RegisteredName"));
-            if(propIndex != PEG_NOT_FOUND)
+            if (propIndex != PEG_NOT_FOUND)
             {
                 String profileName;
                 currentInstance.getProperty(propIndex).getValue().get(
                     profileName);
-                if(profileName == arrayProfileName)
+                if (profileName == arrayProfileName)
                 {
                     profilePaths.append(currentInstance.getPath());
                 }
@@ -375,17 +375,17 @@ Array<CIMInstance> TestServerProfileProvider::localEnumerateInstances(
             testClassName, false, false, CIMPropertyList());
         i = 0;
         n = storageSystems.size();
-        for(; i < n; ++i)
+        for (; i < n; ++i)
         {
             CIMInstance currentSystem = storageSystems[i];
             Uint32 propIndex = currentSystem.findProperty(CIMName("Name"));
-            if(propIndex != PEG_NOT_FOUND)
+            if (propIndex != PEG_NOT_FOUND)
             {
                 String arrayName;
                 currentSystem.getProperty(propIndex).getValue().get(arrayName);
-                if(arrayName.find('-') == PEG_NOT_FOUND)
+                if (arrayName.find('-') == PEG_NOT_FOUND)
                 {
-                    for(unsigned int j = 0, m = profilePaths.size();
+                    for (unsigned int j = 0, m = profilePaths.size();
                         j < m; ++j)
                     {
                         // Create an instance of Element Conforms To Profile
@@ -407,7 +407,7 @@ Array<CIMInstance> TestServerProfileProvider::localEnumerateInstances(
                             CIMName("ManagedElement"),
                             CIMValue(currentSystem.getPath())));
                         elementConformsInstance.setPath(CIMObjectPath(
-                            String::EMPTY, 
+                            String::EMPTY,
                             CIMNamespaceName("test/TestProviders"),
                             elementConformsClass,
                             pathKeys));

@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Jenny Yu, Hewlett-Packard Company ( jenny_yu@hp.com )
-//         Sushma Fernandes, Hewlett-Packard Company 
-//              sushma_fernandes@hp.com
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ClientProvider_h
@@ -50,70 +44,69 @@ PEGASUS_NAMESPACE_BEGIN
 class ClientProvider : public CIMMethodProvider, public CIMInstanceProvider
 {
 public:
-	ClientProvider(void);
-	virtual ~ClientProvider(void);
+    ClientProvider();
+    virtual ~ClientProvider();
 
-	// CIMProvider interface
-	virtual void initialize(CIMOMHandle & cimom);
-	virtual void terminate(void);
+    // CIMProvider interface
+    virtual void initialize(CIMOMHandle& cimom);
+    virtual void terminate();
 
-        // Method Provider Interface.
-        // Implemented.
-	virtual void invokeMethod(
-		const OperationContext & context,
-		const CIMObjectPath & objectReference,
-		const CIMName & methodName,
-		const Array<CIMParamValue> & inParameters,
-		MethodResultResponseHandler & handler);
+    // Method Provider Interface.
+    // Implemented.
+    virtual void invokeMethod(
+        const OperationContext& context,
+        const CIMObjectPath& objectReference,
+        const CIMName& methodName,
+        const Array<CIMParamValue>& inParameters,
+        MethodResultResponseHandler& handler);
 
-	// CIMInstanceProvider interface
-	virtual void getInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
+    // CIMInstanceProvider interface
+    virtual void getInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        InstanceResponseHandler& handler);
 
-	virtual void enumerateInstances(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
+    virtual void enumerateInstances(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        InstanceResponseHandler& handler);
 
-        // Implemented.
-	virtual void enumerateInstanceNames(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		ObjectPathResponseHandler & handler);
+    // Implemented.
+    virtual void enumerateInstanceNames(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        ObjectPathResponseHandler& handler);
 
-        // Not Implemented.
-	virtual void modifyInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const CIMInstance & obj,
-		const Boolean includeQualifiers,
-		const CIMPropertyList & propertyList,
-		ResponseHandler & handler);
+    // Not Implemented.
+    virtual void modifyInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const CIMInstance& obj,
+        const Boolean includeQualifiers,
+        const CIMPropertyList& propertyList,
+        ResponseHandler& handler);
 
-	virtual void createInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const CIMInstance & obj,
-		ObjectPathResponseHandler & handler);
+    virtual void createInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const CIMInstance& obj,
+        ObjectPathResponseHandler& handler);
 
-	virtual void deleteInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		ResponseHandler & handler);
+    virtual void deleteInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        ResponseHandler& handler);
 
 protected:
-	Array<CIMObjectPath> _instanceNames;
-	Array<CIMInstance> _instances;
-Mutex mutex;
-
+    Array<CIMObjectPath> _instanceNames;
+    Array<CIMInstance> _instances;
+    Mutex mutex;
 };
 
 PEGASUS_NAMESPACE_END

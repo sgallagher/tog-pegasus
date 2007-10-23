@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -44,22 +40,23 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String& providerName)
+extern "C"
+PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& providerName)
 {
-    if(String::equalNoCase(providerName, "TestProviderA"))
+    if (String::equalNoCase(providerName, "TestProviderA"))
     {
-        return(new TestProviderA());
+        return new TestProviderA();
     }
-    else if(String::equalNoCase(providerName, "TestProviderB"))
+    else if (String::equalNoCase(providerName, "TestProviderB"))
     {
-        return(new TestProviderB());
+        return new TestProviderB();
     }
     else if (String::equalNoCase(providerName, "TestOperationsProvider"))
     {
-        return(new TestOperationsProvider());
+        return new TestOperationsProvider();
     }
 
-    return(0);
+    return 0;
 }
 
 PEGASUS_NAMESPACE_END

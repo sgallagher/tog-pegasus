@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Client/CIMClient.h>
@@ -51,7 +47,7 @@ static const String B_CLASSNAME("TST_InstanceB");
 // get repository instances (TST_InstanceZ)
 void Test1(CIMClient& client)
 {
-    if(verbose)
+    if (verbose)
     {
         cout << "Test1()" << endl;
     }
@@ -61,19 +57,20 @@ void Test1(CIMClient& client)
             NAMESPACE,
             Z_CLASSNAME);
 
-    for(Uint32 i = 0, n = zInstances.size(); i < n; i++)
+    for (Uint32 i = 0, n = zInstances.size(); i < n; i++)
     {
-        if(verbose)
+        if (verbose)
         {
             cout << zInstances[i].getPath().toString() << endl;
         }
     }
 }
 
-// compare repository instances (TST_InstanceZ) with TestProviderA instances (TST_InstanceA)
+// compare repository instances (TST_InstanceZ) with TestProviderA instances
+// (TST_InstanceA)
 void Test2(CIMClient& client)
 {
-    if(verbose)
+    if (verbose)
     {
         cout << "Test2()" << endl;
     }
@@ -83,9 +80,9 @@ void Test2(CIMClient& client)
             NAMESPACE,
             Z_CLASSNAME);
 
-    for(Uint32 i = 0, n = zInstances.size(); i < n; i++)
+    for (Uint32 i = 0, n = zInstances.size(); i < n; i++)
     {
-        if(verbose)
+        if (verbose)
         {
             cout << zInstances[i].getPath().toString() << endl;
         }
@@ -96,55 +93,58 @@ void Test2(CIMClient& client)
             NAMESPACE,
             A_CLASSNAME);
 
-    for(Uint32 i = 0, n = aInstances.size(); i < n; i++)
+    for (Uint32 i = 0, n = aInstances.size(); i < n; i++)
     {
-        if(verbose)
+        if (verbose)
         {
             cout << aInstances[i].getPath().toString() << endl;
         }
 
         bool match = false;
 
-        String aName = aInstances[i].getProperty(aInstances[i].findProperty("Name")).getValue().toString();
-        CIMObjectPath aS = aInstances[i].getProperty(aInstances[i].findProperty("s")).getValue().toString();
+        String aName = aInstances[i].getProperty(
+            aInstances[i].findProperty("Name")).getValue().toString();
+        CIMObjectPath aS = aInstances[i].getProperty(
+            aInstances[i].findProperty("s")).getValue().toString();
 
-        if(verbose)
+        if (verbose)
         {
             cout << "aName = " << aName << endl;
             cout << "aS = " << aS.toString() << endl;
         }
 
         // search for a match (instances sets are not ordered).
-        for(Uint32 j = 0, m = zInstances.size(); j < m; j++)
+        for (Uint32 j = 0, m = zInstances.size(); j < m; j++)
         {
-            String zName = zInstances[i].getProperty(zInstances[i].findProperty("Name")).getValue().toString();
+            String zName = zInstances[i].getProperty(
+                zInstances[i].findProperty("Name")).getValue().toString();
             CIMObjectPath zS = zInstances[i].getPath();
 
-            if(verbose)
+            if (verbose)
             {
                 cout << "zName = " << zName << endl;
                 cout << "zS = " << zS.toString() << endl;
             }
 
-            if(String::equalNoCase(aName, zName) && (aS == zS))
+            if (String::equalNoCase(aName, zName) && (aS == zS))
             {
                 match = true;
-
                 break;
             }
         }
 
-        if(!match)
+        if (!match)
         {
             throw Exception("could not find match");
         }
     }
 }
 
-// compare TestProviderA instances (TST_InstanceA) with TestProviderB instances (TST_InstanceB)
+// compare TestProviderA instances (TST_InstanceA) with TestProviderB
+// instances (TST_InstanceB)
 void Test3(CIMClient& client)
 {
-    if(verbose)
+    if (verbose)
     {
         cout << "Test3()" << endl;
     }
@@ -154,9 +154,9 @@ void Test3(CIMClient& client)
             NAMESPACE,
             A_CLASSNAME);
 
-    for(Uint32 i = 0, n = aInstances.size(); i < n; i++)
+    for (Uint32 i = 0, n = aInstances.size(); i < n; i++)
     {
-        if(verbose)
+        if (verbose)
         {
             cout << aInstances[i].getPath().toString() << endl;
         }
@@ -167,45 +167,47 @@ void Test3(CIMClient& client)
             NAMESPACE,
             B_CLASSNAME);
 
-    for(Uint32 i = 0, n = bInstances.size(); i < n; i++)
+    for (Uint32 i = 0, n = bInstances.size(); i < n; i++)
     {
-        if(verbose)
+        if (verbose)
         {
             cout << bInstances[i].getPath().toString() << endl;
         }
 
         bool match = false;
 
-        String bName = bInstances[i].getProperty(bInstances[i].findProperty("Name")).getValue().toString();
-        CIMObjectPath bS = bInstances[i].getProperty(bInstances[i].findProperty("s")).getValue().toString();
+        String bName = bInstances[i].getProperty(
+            bInstances[i].findProperty("Name")).getValue().toString();
+        CIMObjectPath bS = bInstances[i].getProperty(
+            bInstances[i].findProperty("s")).getValue().toString();
 
-        if(verbose)
+        if (verbose)
         {
             cout << "bName = " << bName << endl;
             cout << "bS = " << bS.toString() << endl;
         }
 
         // search for a match (instances sets are not ordered).
-        for(Uint32 j = 0, m = aInstances.size(); j < m; j++)
+        for (Uint32 j = 0, m = aInstances.size(); j < m; j++)
         {
-            String aName = aInstances[i].getProperty(aInstances[i].findProperty("Name")).getValue().toString();
+            String aName = aInstances[i].getProperty(
+                aInstances[i].findProperty("Name")).getValue().toString();
             CIMObjectPath aS = aInstances[i].getPath();
 
-            if(verbose)
+            if (verbose)
             {
                 cout << "aName = " << aName << endl;
                 cout << "aS = " << aS.toString() << endl;
             }
 
-            if(String::equalNoCase(bName, aName) && (bS == aS))
+            if (String::equalNoCase(bName, aName) && (bS == aS))
             {
                 match = true;
-
                 break;
             }
         }
 
-        if(!match)
+        if (!match)
         {
             throw Exception("could not find match");
         }
@@ -278,34 +280,35 @@ int main(int argc, char** argv)
             return 1;
         }
     }
-    catch(const CIMException & e)
+    catch (const CIMException& e)
     {
         client.disconnect();
 
-        cout << "CIMException: " << e.getCode() << " " << e.getMessage() << endl;
+        cout << "CIMException: " << e.getCode() << " " << e.getMessage() <<
+            endl;
 
-        return(1);
+        return 1;
     }
-    catch(const Exception & e)
+    catch (const Exception& e)
     {
         client.disconnect();
 
         cout << "Exception: " << e.getMessage() << endl;
 
-        return(1);
+        return 1;
     }
-    catch(...)
+    catch (...)
     {
         client.disconnect();
 
         cout << "unknown exception" << endl;
 
-        return(1);
+        return 1;
     }
 
     client.disconnect();
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 
-    return(0);
+    return 0;
 }

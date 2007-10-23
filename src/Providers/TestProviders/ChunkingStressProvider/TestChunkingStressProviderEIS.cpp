@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Dave Sudlik (dsudlik@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstring>
@@ -44,58 +42,58 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-TestChunkingStressProviderEIS::TestChunkingStressProviderEIS(void)
+TestChunkingStressProviderEIS::TestChunkingStressProviderEIS()
 {
 }
 
-TestChunkingStressProviderEIS::~TestChunkingStressProviderEIS(void)
+TestChunkingStressProviderEIS::~TestChunkingStressProviderEIS()
 {
 }
 
-void TestChunkingStressProviderEIS::initialize(CIMOMHandle & cimom)
+void TestChunkingStressProviderEIS::initialize(CIMOMHandle& cimom)
 {
-	// save cimom handle
-	//_cimom = cimom;
+    // save cimom handle
+    //_cimom = cimom;
 
     char namebuf[20];
     char pathbuf[45];
     memset(namebuf, 0x00, sizeof(namebuf));
     memset(pathbuf, 0x00, sizeof(pathbuf));
 
-	// create default instances
-    for(Uint32 i = 1; i <= 1001; i++)
+    // create default instances
+    for (Uint32 i = 1; i <= 1001; i++)
     {
-      sprintf(namebuf, "%u", i);
-      sprintf(pathbuf, "TST_ChunkingStressInstanceS.Name=\"%u\"", i);
-      {
-        CIMInstance instance("TST_ChunkingStressInstanceS");
+        sprintf(namebuf, "%u", i);
+        sprintf(pathbuf, "TST_ChunkingStressInstanceS.Name=\"%u\"", i);
+        {
+            CIMInstance instance("TST_ChunkingStressInstanceS");
 
-        instance.addProperty(CIMProperty("name", String(namebuf))); 
-        instance.addProperty(CIMProperty("s", String("specified")));
-        instance.addProperty(CIMProperty("n", Uint64(i)));
-        instance.addProperty(CIMProperty("f", Real64(Real64(i)+0.001)));
-        instance.addProperty(CIMProperty("d", CIMDateTime::getCurrentDateTime()));
+            instance.addProperty(CIMProperty("name", String(namebuf)));
+            instance.addProperty(CIMProperty("s", String("specified")));
+            instance.addProperty(CIMProperty("n", Uint64(i)));
+            instance.addProperty(CIMProperty("f", Real64(Real64(i)+0.001)));
+            instance.addProperty(
+                CIMProperty("d", CIMDateTime::getCurrentDateTime()));
 
-        instance.setPath(CIMObjectPath(pathbuf));
+            instance.setPath(CIMObjectPath(pathbuf));
 
-        _instances.append(instance);
-      }
+            _instances.append(instance);
+        }
     }
-
 }
 
-void TestChunkingStressProviderEIS::terminate(void)
+void TestChunkingStressProviderEIS::terminate()
 {
     delete this;
 }
 
 void TestChunkingStressProviderEIS::getInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& instanceReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    InstanceResponseHandler& handler)
 {
     handler.processing();
 
@@ -105,15 +103,15 @@ void TestChunkingStressProviderEIS::getInstance(
     cimObjectPath.setHost(String());
     cimObjectPath.setNameSpace(CIMNamespaceName());
 
-    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    for (Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
-        if(cimObjectPath == _instances[i].getPath())
+        if (cimObjectPath == _instances[i].getPath())
         {
             try
             {
                 handler.deliver(_instances[i]);
             }
-            catch(CIMException &)
+            catch (CIMException&)
             {
                 // suppress error
             }
@@ -126,22 +124,22 @@ void TestChunkingStressProviderEIS::getInstance(
 }
 
 void TestChunkingStressProviderEIS::enumerateInstances(
-	const OperationContext & context,
-	const CIMObjectPath & ref,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& ref,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    InstanceResponseHandler& handler)
 {
     handler.processing();
 
-    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    for (Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
         try
         {
             handler.deliver(_instances[i]);
         }
-        catch(CIMException &)
+        catch (CIMException&)
         {
             // suppress error
         }
@@ -151,19 +149,19 @@ void TestChunkingStressProviderEIS::enumerateInstances(
 }
 
 void TestChunkingStressProviderEIS::enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	ObjectPathResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& classReference,
+    ObjectPathResponseHandler& handler)
 {
     handler.processing();
 
-    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    for (Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
         try
         {
             handler.deliver(_instances[i].getPath());
         }
-        catch(CIMException &)
+        catch (CIMException&)
         {
             // suppress error
         }
@@ -173,29 +171,29 @@ void TestChunkingStressProviderEIS::enumerateInstanceNames(
 }
 
 void TestChunkingStressProviderEIS::modifyInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	const Boolean includeQualifiers,
-	const CIMPropertyList & propertyList,
-	ResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& instanceReference,
+    const CIMInstance& instanceObject,
+    const Boolean includeQualifiers,
+    const CIMPropertyList& propertyList,
+    ResponseHandler& handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void TestChunkingStressProviderEIS::createInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	ObjectPathResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& instanceReference,
+    const CIMInstance& instanceObject,
+    ObjectPathResponseHandler& handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void TestChunkingStressProviderEIS::deleteInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	ResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& instanceReference,
+    ResponseHandler& handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }

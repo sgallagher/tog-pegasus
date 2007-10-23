@@ -28,6 +28,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
+
 #ifndef Pegasus_DynamicIndicationProvider_h
 #define Pegasus_DynamicIndicationProvider_h
 
@@ -46,92 +47,94 @@ class DynamicIndicationProvider :
 {
 
 public:
-    DynamicIndicationProvider(void);
-    virtual ~DynamicIndicationProvider(void);
+    DynamicIndicationProvider();
+    virtual ~DynamicIndicationProvider();
 
     // CIMProvider interface
-    virtual void initialize(CIMOMHandle & cimom);
-    virtual void terminate(void);
+    virtual void initialize(CIMOMHandle& cimom);
+    virtual void terminate();
 
     // CIMMethodProvider Interface
     void invokeMethod(
-        const OperationContext & context,
-        const CIMObjectPath & objectReference,
-        const CIMName & methodName,
-        const Array<CIMParamValue> & inParameters,
-        MethodResultResponseHandler & handler);
-    
-    // CIMIndicationProvider interface
-    virtual void enableIndications(IndicationResponseHandler & handler);
+        const OperationContext& context,
+        const CIMObjectPath& objectReference,
+        const CIMName& methodName,
+        const Array<CIMParamValue>& inParameters,
+        MethodResultResponseHandler& handler);
 
-    virtual void disableIndications(void);
+    // CIMIndicationProvider interface
+    virtual void enableIndications(IndicationResponseHandler& handler);
+
+    virtual void disableIndications();
 
     virtual void createSubscription(
-        const OperationContext & context,
-        const CIMObjectPath & subscriptionName,
-        const Array<CIMObjectPath> & classNames,
-        const CIMPropertyList & propertyList,
+        const OperationContext& context,
+        const CIMObjectPath& subscriptionName,
+        const Array<CIMObjectPath>& classNames,
+        const CIMPropertyList& propertyList,
         const Uint16 repeatNotificationPolicy);
 
     virtual void modifySubscription(
-        const OperationContext & context,
-        const CIMObjectPath & subscriptionName,
-        const Array<CIMObjectPath> & classNames,
-        const CIMPropertyList & propertyList,
+        const OperationContext& context,
+        const CIMObjectPath& subscriptionName,
+        const Array<CIMObjectPath>& classNames,
+        const CIMPropertyList& propertyList,
         const Uint16 repeatNotificationPolicy);
 
     virtual void deleteSubscription(
-        const OperationContext & context,
-        const CIMObjectPath & subscriptionName,
-        const Array<CIMObjectPath> & classNames);
+        const OperationContext& context,
+        const CIMObjectPath& subscriptionName,
+        const Array<CIMObjectPath>& classNames);
 
     // CIMInstanceProvider interface
     virtual void getInstance(
-        const OperationContext & context,
-        const CIMObjectPath & instanceReference,
+        const OperationContext& context,
+        const CIMObjectPath& instanceReference,
         const Boolean includeQualifiers,
         const Boolean includeClassOrigin,
-        const CIMPropertyList & propertyList,
-        InstanceResponseHandler & handler);
+        const CIMPropertyList& propertyList,
+        InstanceResponseHandler& handler);
 
     virtual void enumerateInstances(
-        const OperationContext & context,
-        const CIMObjectPath & classReference,
+        const OperationContext& context,
+        const CIMObjectPath& classReference,
         const Boolean includeQualifiers,
         const Boolean includeClassOrigin,
-        const CIMPropertyList & propertyList,
-        InstanceResponseHandler & handler);
+        const CIMPropertyList& propertyList,
+        InstanceResponseHandler& handler);
 
     virtual void enumerateInstanceNames(
-        const OperationContext & context,
-        const CIMObjectPath & classReference,
-        ObjectPathResponseHandler & handler);
+        const OperationContext& context,
+        const CIMObjectPath& classReference,
+        ObjectPathResponseHandler& handler);
 
     virtual void createInstance(
-        const OperationContext & context,
-        const CIMObjectPath & instanceReference,
-        const CIMInstance & instanceObject,
-        ObjectPathResponseHandler & handler);
+        const OperationContext& context,
+        const CIMObjectPath& instanceReference,
+        const CIMInstance& instanceObject,
+        ObjectPathResponseHandler& handler);
 
     virtual void modifyInstance(
-        const OperationContext & context,
-        const CIMObjectPath & instanceReference,
-        const CIMInstance & instanceObject,
+        const OperationContext& context,
+        const CIMObjectPath& instanceReference,
+        const CIMInstance& instanceObject,
         const Boolean includeQualifiers,
-        const CIMPropertyList & propertyList,
-        ResponseHandler & handler);
+        const CIMPropertyList& propertyList,
+        ResponseHandler& handler);
 
     virtual void deleteInstance(
-        const OperationContext & context,
-        const CIMObjectPath & instanceReference,
-        ResponseHandler & handler);
+        const OperationContext& context,
+        const CIMObjectPath& instanceReference,
+        ResponseHandler& handler);
 
 public:
-    virtual void sendIndication(int severity, String classname, String description);
+    virtual void sendIndication(
+        int severity,
+        String classname,
+        String description);
 
 protected:
-    // CIMOMHandle _cimom;
-    IndicationResponseHandler *_pHandler;
+    IndicationResponseHandler* _pHandler;
 
 private:
     static AtomicInt _refCnt;
@@ -141,17 +144,3 @@ private:
 PEGASUS_NAMESPACE_END
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-

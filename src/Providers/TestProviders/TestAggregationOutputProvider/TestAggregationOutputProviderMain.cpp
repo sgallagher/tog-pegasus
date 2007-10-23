@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Aruran, IBM (ashanmug@in.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -42,13 +38,12 @@
 
 PEGASUS_USING_PEGASUS;
 
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)
+extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& name)
 {
-        if (String::equalNoCase(name, "TestAggregationOutputProvider"))
-        {
-                return(new TestAggregationOutputProvider());
-        }
+    if (String::equalNoCase(name, "TestAggregationOutputProvider"))
+    {
+        return new TestAggregationOutputProvider();
+    }
 
-        return(0);
+    return 0;
 }
-

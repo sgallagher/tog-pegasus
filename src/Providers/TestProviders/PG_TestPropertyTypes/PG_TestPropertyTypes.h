@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Yi Zhou (yi_zhou@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_PG_TestPropertyTypes_h
@@ -44,70 +40,70 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class PG_TestPropertyTypes :
-	public CIMInstanceProvider
+    public CIMInstanceProvider
 {
 public:
-	PG_TestPropertyTypes(void);
-	virtual ~PG_TestPropertyTypes(void);
+    PG_TestPropertyTypes();
+    virtual ~PG_TestPropertyTypes();
 
-	// CIMProvider interface
-	virtual void initialize(CIMOMHandle & cimom);
-	virtual void terminate(void);
+    // CIMProvider interface
+    virtual void initialize(CIMOMHandle& cimom);
+    virtual void terminate();
 
-	// CIMInstanceProvider interface
-	virtual void getInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
+    // CIMInstanceProvider interface
+    virtual void getInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        InstanceResponseHandler& handler);
 
-	virtual void enumerateInstances(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
+    virtual void enumerateInstances(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        InstanceResponseHandler& handler);
 
-	virtual void enumerateInstanceNames(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		ObjectPathResponseHandler & handler);
+    virtual void enumerateInstanceNames(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        ObjectPathResponseHandler& handler);
 
-	virtual void modifyInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const CIMInstance & obj,
-		const Boolean includeQualifiers,
-		const CIMPropertyList & propertyList,
-		ResponseHandler & handler);
+    virtual void modifyInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const CIMInstance& obj,
+        const Boolean includeQualifiers,
+        const CIMPropertyList& propertyList,
+        ResponseHandler& handler);
 
-	virtual void createInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const CIMInstance & obj,
-		ObjectPathResponseHandler & handler);
+    virtual void createInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const CIMInstance& obj,
+        ObjectPathResponseHandler& handler);
 
-	virtual void deleteInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		ResponseHandler & handler);
-
-protected:
-	Array<CIMObjectPath> _enumerateInstanceNames(
-		const OperationContext & context,
-		const CIMObjectPath & classReference);
+    virtual void deleteInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        ResponseHandler& handler);
 
 protected:
-	CIMOMHandle         _cimom;
+    Array<CIMObjectPath> _enumerateInstanceNames(
+    const OperationContext& context,
+    const CIMObjectPath& classReference);
 
-	Array<CIMInstance>	_instances;
-        CIMInstance   realValueTestInstance;
+protected:
+    CIMOMHandle _cimom;
+
+    Array<CIMInstance> _instances;
+    CIMInstance realValueTestInstance;
+
 private:
-	void _testPropertyTypesValue(const CIMInstance & instanceObject);
-
+    void _testPropertyTypesValue(const CIMInstance& instanceObject);
 };
 
 PEGASUS_NAMESPACE_END

@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Client/CIMClient.h>
@@ -49,23 +44,24 @@ static const String CLASSNAME("TST_Instance1");
 
 Boolean isValid(const CIMObjectPath & cimObjectPath)
 {
-    if(!String::equalNoCase(cimObjectPath.getClassName().getString(), CLASSNAME))
+    if (!String::equalNoCase(
+            cimObjectPath.getClassName().getString(), CLASSNAME))
     {
-        return(false);
+        return false;
     }
 
-    if(cimObjectPath.getKeyBindings().size() == 0)  // singleton?
+    if (cimObjectPath.getKeyBindings().size() == 0)  // singleton?
     {
-        return(false);
+        return false;
     }
 
-    return(true);
+    return true;
 }
 
 // instance name normalization
 void Test1(CIMClient& client)
 {
-    if(verbose)
+    if (verbose)
     {
         cout << "Test1()" << endl;
     }
@@ -76,11 +72,12 @@ void Test1(CIMClient& client)
                 NAMESPACE,
                 CLASSNAME);
 
-        for(Uint32 i = 0, n = cimInstanceNames.size(); i < n; i++)
+        for (Uint32 i = 0, n = cimInstanceNames.size(); i < n; i++)
         {
-            if(verbose)
+            if (verbose)
             {
-                cout << (isValid(cimInstanceNames[i]) ? "GOOD" : "BAD") << ": " << cimInstanceNames[i].toString() << endl;
+                cout << (isValid(cimInstanceNames[i]) ? "GOOD" : "BAD") <<
+                    ": " << cimInstanceNames[i].toString() << endl;
             }
         }
     }
@@ -89,7 +86,7 @@ void Test1(CIMClient& client)
 // get instance normalization (with request permutations)
 void Test2(CIMClient& client)
 {
-    if(verbose)
+    if (verbose)
     {
         cout << "Test2()" << endl;
     }
@@ -104,21 +101,24 @@ void Test2(CIMClient& client)
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;
 
-        if(verbose)
+        if (verbose)
         {
             cout << "localOnly = " << (localOnly ? "true" : "false") << endl;
-            cout << "includeQualifiers = " << (includeQualifiers ? "true" : "false") << endl;
-            cout << "includeClassOrigin = " << (includeClassOrigin ? "true" : "false") << endl;
+            cout << "includeQualifiers = " <<
+                (includeQualifiers ? "true" : "false") << endl;
+            cout << "includeClassOrigin = " <<
+                (includeClassOrigin ? "true" : "false") << endl;
         }
 
-        for(Uint32 i = 0, n = cimInstanceNames.size(); i < n; i++)
+        for (Uint32 i = 0, n = cimInstanceNames.size(); i < n; i++)
         {
-            if(verbose)
+            if (verbose)
             {
-                cout << (isValid(cimInstanceNames[i]) ? "GOOD" : "BAD") << ": " << cimInstanceNames[i].toString() << endl;
+                cout << (isValid(cimInstanceNames[i]) ? "GOOD" : "BAD") <<
+                    ": " << cimInstanceNames[i].toString() << endl;
             }
 
-            if(isValid(cimInstanceNames[i]))
+            if (isValid(cimInstanceNames[i]))
             {
                 CIMInstance cimInstance;
 
@@ -132,24 +132,26 @@ void Test2(CIMClient& client)
                         includeClassOrigin,
                         CIMPropertyList());
 
-                    if(verbose)
+                    if (verbose)
                     {
                         XmlWriter::printInstanceElement(cimInstance);
                     }
                 }
-                catch(CIMException & e)
+                catch (CIMException& e)
                 {
-                    if(verbose)
+                    if (verbose)
                     {
-                        cout << "CIMException(" << e.getCode() << "): " << e.getMessage() << endl;
+                        cout << "CIMException(" << e.getCode() << "): " <<
+                            e.getMessage() << endl;
                     }
                 }
             }
             else
             {
-                if(verbose)
+                if (verbose)
                 {
-                    cout << "skipping getInstance() because of bad class name (tolerated for now)." << endl << endl;
+                    cout << "skipping getInstance() because of bad class name "
+                        "(tolerated for now)." << endl << endl;
                 }
             }
         }
@@ -160,21 +162,24 @@ void Test2(CIMClient& client)
         Boolean includeQualifiers = true;
         Boolean includeClassOrigin = false;
 
-        if(verbose)
+        if (verbose)
         {
             cout << "localOnly = " << (localOnly ? "true" : "false") << endl;
-            cout << "includeQualifiers = " << (includeQualifiers ? "true" : "false") << endl;
-            cout << "includeClassOrigin = " << (includeClassOrigin ? "true" : "false") << endl;
+            cout << "includeQualifiers = " <<
+                (includeQualifiers ? "true" : "false") << endl;
+            cout << "includeClassOrigin = " <<
+                (includeClassOrigin ? "true" : "false") << endl;
         }
 
-        for(Uint32 i = 0, n = cimInstanceNames.size(); i < n; i++)
+        for (Uint32 i = 0, n = cimInstanceNames.size(); i < n; i++)
         {
-            if(verbose)
+            if (verbose)
             {
-                cout << (isValid(cimInstanceNames[i]) ? "GOOD" : "BAD") << ": " << cimInstanceNames[i].toString() << endl;
+                cout << (isValid(cimInstanceNames[i]) ? "GOOD" : "BAD") <<
+                    ": " << cimInstanceNames[i].toString() << endl;
             }
 
-            if(isValid(cimInstanceNames[i]))
+            if (isValid(cimInstanceNames[i]))
             {
                 try
                 {
@@ -187,24 +192,26 @@ void Test2(CIMClient& client)
                             includeClassOrigin,
                             CIMPropertyList());
 
-                    if(verbose)
+                    if (verbose)
                     {
                         XmlWriter::printInstanceElement(cimInstance);
                     }
                 }
-                catch(CIMException & e)
+                catch (CIMException& e)
                 {
-                    if(verbose)
+                    if (verbose)
                     {
-                        cout << "CIMException(" << e.getCode() << "): " << e.getMessage() << endl;
+                        cout << "CIMException(" << e.getCode() << "): " <<
+                            e.getMessage() << endl;
                     }
                 }
             }
             else
             {
-                if(verbose)
+                if (verbose)
                 {
-                    cout << "skipping getInstance() because of bad class name (tolerated for now)." << endl << endl;
+                    cout << "skipping getInstance() because of bad class name "
+                        "(tolerated for now)." << endl << endl;
                 }
             }
         }
@@ -215,21 +222,24 @@ void Test2(CIMClient& client)
         Boolean includeQualifiers = true;
         Boolean includeClassOrigin = true;
 
-        if(verbose)
+        if (verbose)
         {
             cout << "localOnly = " << (localOnly ? "true" : "false") << endl;
-            cout << "includeQualifiers = " << (includeQualifiers ? "true" : "false") << endl;
-            cout << "includeClassOrigin = " << (includeClassOrigin ? "true" : "false") << endl;
+            cout << "includeQualifiers = " <<
+                (includeQualifiers ? "true" : "false") << endl;
+            cout << "includeClassOrigin = " <<
+                (includeClassOrigin ? "true" : "false") << endl;
         }
 
-        for(Uint32 i = 0, n = cimInstanceNames.size(); i < n; i++)
+        for (Uint32 i = 0, n = cimInstanceNames.size(); i < n; i++)
         {
-            if(verbose)
+            if (verbose)
             {
-                cout << (isValid(cimInstanceNames[i]) ? "GOOD" : "BAD") << ": " << cimInstanceNames[i].toString() << endl;
+                cout << (isValid(cimInstanceNames[i]) ? "GOOD" : "BAD") <<
+                    ": " << cimInstanceNames[i].toString() << endl;
             }
 
-            if(isValid(cimInstanceNames[i]))
+            if (isValid(cimInstanceNames[i]))
             {
                 try
                 {
@@ -242,24 +252,26 @@ void Test2(CIMClient& client)
                             includeClassOrigin,
                             CIMPropertyList());
 
-                    if(verbose)
+                    if (verbose)
                     {
                         XmlWriter::printInstanceElement(cimInstance);
                     }
                 }
-                catch(CIMException & e)
+                catch (CIMException& e)
                 {
-                    if(verbose)
+                    if (verbose)
                     {
-                        cout << "CIMException(" << e.getCode() << "): " << e.getMessage() << endl;
+                        cout << "CIMException(" << e.getCode() << "): " <<
+                            e.getMessage() << endl;
                     }
                 }
             }
             else
             {
-                if(verbose)
+                if (verbose)
                 {
-                    cout << "skipping getInstance() because of bad class name (tolerated for now)." << endl << endl;
+                    cout << "skipping getInstance() because of bad class name "
+                        "(tolerated for now)." << endl << endl;
                 }
             }
         }
@@ -269,7 +281,7 @@ void Test2(CIMClient& client)
 // enumerate instances normalization (with request permutations)
 void Test3(CIMClient& client)
 {
-    if(verbose)
+    if (verbose)
     {
         cout << "Test3()" << endl;
     }
@@ -280,12 +292,16 @@ void Test3(CIMClient& client)
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;
 
-        if(verbose)
+        if (verbose)
         {
-            cout << "deepInheritance = " << (deepInheritance ? "true" : "false") << endl;
-            cout << "localOnly = " << (localOnly ? "true" : "false") << endl;
-            cout << "includeQualifiers = " << (includeQualifiers ? "true" : "false") << endl;
-            cout << "includeClassOrigin = " << (includeClassOrigin ? "true" : "false") << endl;
+            cout << "deepInheritance = " <<
+                (deepInheritance ? "true" : "false") << endl;
+            cout << "localOnly = " <<
+                (localOnly ? "true" : "false") << endl;
+            cout << "includeQualifiers = " <<
+                (includeQualifiers ? "true" : "false") << endl;
+            cout << "includeClassOrigin = " <<
+                (includeClassOrigin ? "true" : "false") << endl;
         }
 
         Array<CIMInstance> cimInstances =
@@ -298,11 +314,12 @@ void Test3(CIMClient& client)
                 includeClassOrigin,
                 CIMPropertyList());
 
-        for(Uint32 i = 0, n = cimInstances.size(); i < n; i++)
+        for (Uint32 i = 0, n = cimInstances.size(); i < n; i++)
         {
-            if(verbose)
+            if (verbose)
             {
-                cout << (isValid(cimInstances[i].getPath()) ? "GOOD" : "BAD") << ": " << cimInstances[i].getPath().toString() << endl;
+                cout << (isValid(cimInstances[i].getPath()) ? "GOOD" : "BAD") <<
+                    ": " << cimInstances[i].getPath().toString() << endl;
 
                 XmlWriter::printInstanceElement(cimInstances[i]);
             }
@@ -315,12 +332,16 @@ void Test3(CIMClient& client)
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;
 
-        if(verbose)
+        if (verbose)
         {
-            cout << "deepInheritance = " << (deepInheritance ? "true" : "false") << endl;
-            cout << "localOnly = " << (localOnly ? "true" : "false") << endl;
-            cout << "includeQualifiers = " << (includeQualifiers ? "true" : "false") << endl;
-            cout << "includeClassOrigin = " << (includeClassOrigin ? "true" : "false") << endl;
+            cout << "deepInheritance = " <<
+                (deepInheritance ? "true" : "false") << endl;
+            cout << "localOnly = " <<
+                (localOnly ? "true" : "false") << endl;
+            cout << "includeQualifiers = " <<
+                (includeQualifiers ? "true" : "false") << endl;
+            cout << "includeClassOrigin = " <<
+                (includeClassOrigin ? "true" : "false") << endl;
         }
 
         Array<CIMInstance> cimInstances =
@@ -333,11 +354,12 @@ void Test3(CIMClient& client)
                 includeClassOrigin,
                 CIMPropertyList());
 
-        for(Uint32 i = 0, n = cimInstances.size(); i < n; i++)
+        for (Uint32 i = 0, n = cimInstances.size(); i < n; i++)
         {
-            if(verbose)
+            if (verbose)
             {
-                cout << (isValid(cimInstances[i].getPath()) ? "GOOD" : "BAD") << ": " << cimInstances[i].getPath().toString() << endl;
+                cout << (isValid(cimInstances[i].getPath()) ? "GOOD" : "BAD") <<
+                    ": " << cimInstances[i].getPath().toString() << endl;
 
                 XmlWriter::printInstanceElement(cimInstances[i]);
             }
@@ -350,12 +372,16 @@ void Test3(CIMClient& client)
         Boolean includeQualifiers = true;
         Boolean includeClassOrigin = false;
 
-        if(verbose)
+        if (verbose)
         {
-            cout << "deepInheritance = " << (deepInheritance ? "true" : "false") << endl;
-            cout << "localOnly = " << (localOnly ? "true" : "false") << endl;
-            cout << "includeQualifiers = " << (includeQualifiers ? "true" : "false") << endl;
-            cout << "includeClassOrigin = " << (includeClassOrigin ? "true" : "false") << endl;
+            cout << "deepInheritance = " <<
+                (deepInheritance ? "true" : "false") << endl;
+            cout << "localOnly = " <<
+                (localOnly ? "true" : "false") << endl;
+            cout << "includeQualifiers = " <<
+                (includeQualifiers ? "true" : "false") << endl;
+            cout << "includeClassOrigin = " <<
+                (includeClassOrigin ? "true" : "false") << endl;
         }
 
         Array<CIMInstance> cimInstances =
@@ -368,11 +394,12 @@ void Test3(CIMClient& client)
                 includeClassOrigin,
                 CIMPropertyList());
 
-        for(Uint32 i = 0, n = cimInstances.size(); i < n; i++)
+        for (Uint32 i = 0, n = cimInstances.size(); i < n; i++)
         {
-            if(verbose)
+            if (verbose)
             {
-                cout << (isValid(cimInstances[i].getPath()) ? "GOOD" : "BAD") << ": " << cimInstances[i].getPath().toString() << endl;
+                cout << (isValid(cimInstances[i].getPath()) ? "GOOD" : "BAD") <<
+                    ": " << cimInstances[i].getPath().toString() << endl;
 
                 XmlWriter::printInstanceElement(cimInstances[i]);
             }
@@ -385,12 +412,16 @@ void Test3(CIMClient& client)
         Boolean includeQualifiers = true;
         Boolean includeClassOrigin = true;
 
-        if(verbose)
+        if (verbose)
         {
-            cout << "deepInheritance = " << (deepInheritance ? "true" : "false") << endl;
-            cout << "localOnly = " << (localOnly ? "true" : "false") << endl;
-            cout << "includeQualifiers = " << (includeQualifiers ? "true" : "false") << endl;
-            cout << "includeClassOrigin = " << (includeClassOrigin ? "true" : "false") << endl;
+            cout << "deepInheritance = " <<
+                (deepInheritance ? "true" : "false") << endl;
+            cout << "localOnly = " <<
+                (localOnly ? "true" : "false") << endl;
+            cout << "includeQualifiers = " <<
+                (includeQualifiers ? "true" : "false") << endl;
+            cout << "includeClassOrigin = " <<
+                (includeClassOrigin ? "true" : "false") << endl;
         }
 
         Array<CIMInstance> cimInstances =
@@ -403,11 +434,12 @@ void Test3(CIMClient& client)
                 includeClassOrigin,
                 CIMPropertyList());
 
-        for(Uint32 i = 0, n = cimInstances.size(); i < n; i++)
+        for (Uint32 i = 0, n = cimInstances.size(); i < n; i++)
         {
-            if(verbose)
+            if (verbose)
             {
-                cout << (isValid(cimInstances[i].getPath()) ? "GOOD" : "BAD") << ": " << cimInstances[i].getPath().toString() << endl;
+                cout << (isValid(cimInstances[i].getPath()) ? "GOOD" : "BAD") <<
+                    ": " << cimInstances[i].getPath().toString() << endl;
 
                 XmlWriter::printInstanceElement(cimInstances[i]);
             }
@@ -428,34 +460,35 @@ int main(int argc, char** argv)
         Test2(client);
         Test3(client);
     }
-    catch(const CIMException & e)
+    catch (const CIMException & e)
     {
         client.disconnect();
 
-        cout << "CIMException: " << e.getCode() << " " << e.getMessage() << endl;
+        cout << "CIMException: " << e.getCode() << " " << e.getMessage() <<
+            endl;
 
-        return(1);
+        return 1;
     }
-    catch(const Exception & e)
+    catch (const Exception & e)
     {
         client.disconnect();
 
         cout << "Exception: " << e.getMessage() << endl;
 
-        return(1);
+        return 1;
     }
-    catch(...)
+    catch (...)
     {
         client.disconnect();
 
         cout << "unknown exception" << endl;
 
-        return(1);
+        return 1;
     }
 
     client.disconnect();
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 
-    return(0);
+    return 0;
 }

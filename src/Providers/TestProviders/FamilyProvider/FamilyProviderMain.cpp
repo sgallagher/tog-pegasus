@@ -29,14 +29,11 @@
 //
 //==============================================================================
 //
-// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
-// This is a sample provider that provides the instance and association operations
-// associated with the TST_Family MOF for the dynamic versions of the classes.
-// It provides the TST_PersonDynamic instances and the
+
+// This is a sample provider that provides the instance and association
+// operations associated with the TST_Family MOF for the dynamic versions of
+// the classes.  It provides the TST_PersonDynamic instances and the
 // TST_LineageDynamic and TST_LabeledLineageDynamic Associations
 // When started it builds the classes into an internal table.
 // ISSUE: How do I create a multiple provider (instance and association)
@@ -56,14 +53,13 @@ PEGASUS_USING_PEGASUS;
 //
 // NOTE: The name of the provider must be correct to be loadable.
 
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)
+extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& name)
 {
-	if(String::equalNoCase(name, "FamilyProvider") ||
-		String::equalNoCase(name, "FamilyProvider (PROVIDER)"))
-	{
-        return(new FamilyProvider());
-	}
+    if (String::equalNoCase(name, "FamilyProvider") ||
+        String::equalNoCase(name, "FamilyProvider (PROVIDER)"))
+    {
+        return new FamilyProvider();
+    }
 
-	return(0);
+    return 0;
 }
-

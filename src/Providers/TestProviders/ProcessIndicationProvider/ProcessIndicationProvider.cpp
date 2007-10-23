@@ -37,56 +37,56 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-ProcessIndicationProvider::ProcessIndicationProvider (void) throw ()
+ProcessIndicationProvider::ProcessIndicationProvider() throw()
 {
 }
 
-ProcessIndicationProvider::~ProcessIndicationProvider (void) throw ()
+ProcessIndicationProvider::~ProcessIndicationProvider() throw()
 {
 }
 
-void ProcessIndicationProvider::initialize (CIMOMHandle & cimom)
+void ProcessIndicationProvider::initialize(CIMOMHandle& cimom)
 {
     // save cimom handle
     _cimom = cimom;
 }
 
-void ProcessIndicationProvider::terminate (void)
+void ProcessIndicationProvider::terminate()
 {
     delete this;
 }
 
-void ProcessIndicationProvider::enableIndications (
-    IndicationResponseHandler & handler)
+void ProcessIndicationProvider::enableIndications(
+    IndicationResponseHandler& handler)
 {
 }
 
-void ProcessIndicationProvider::disableIndications (void)
+void ProcessIndicationProvider::disableIndications()
 {
 }
 
-void ProcessIndicationProvider::createSubscription (
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array <CIMObjectPath> & classNames,
-    const CIMPropertyList & propertyList,
+void ProcessIndicationProvider::createSubscription(
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array <CIMObjectPath>& classNames,
+    const CIMPropertyList& propertyList,
     const Uint16 repeatNotificationPolicy)
 {
 }
 
-void ProcessIndicationProvider::modifySubscription (
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array <CIMObjectPath> & classNames,
-    const CIMPropertyList & propertyList,
+void ProcessIndicationProvider::modifySubscription(
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array <CIMObjectPath>& classNames,
+    const CIMPropertyList& propertyList,
     const Uint16 repeatNotificationPolicy)
 {
 }
 
-void ProcessIndicationProvider::deleteSubscription (
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array <CIMObjectPath> & classNames)
+void ProcessIndicationProvider::deleteSubscription(
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array <CIMObjectPath>& classNames)
 {
 }
 

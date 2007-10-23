@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -42,20 +40,20 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-TestInstanceProvider::TestInstanceProvider(void)
+TestInstanceProvider::TestInstanceProvider()
 {
 }
 
-TestInstanceProvider::~TestInstanceProvider(void)
+TestInstanceProvider::~TestInstanceProvider()
 {
 }
 
-void TestInstanceProvider::initialize(CIMOMHandle & cimom)
+void TestInstanceProvider::initialize(CIMOMHandle& cimom)
 {
-	// save cimom handle
-	//_cimom = cimom;
+    // save cimom handle
+    //_cimom = cimom;
 
-	// create default instances
+    // create default instances
     {
         CIMInstance instance("tst_instance1");
 
@@ -64,7 +62,8 @@ void TestInstanceProvider::initialize(CIMOMHandle & cimom)
         instance.addProperty(CIMProperty("s", String("specified")));
         instance.addProperty(CIMProperty("n", Uint64(001)));
         instance.addProperty(CIMProperty("f", Real64(1.001)));
-        instance.addProperty(CIMProperty("d", CIMDateTime::getCurrentDateTime()));
+        instance.addProperty(
+            CIMProperty("d", CIMDateTime::getCurrentDateTime()));
 
         instance.setPath(CIMObjectPath("TST_Instance1.Name=\"001\""));
 
@@ -79,7 +78,8 @@ void TestInstanceProvider::initialize(CIMOMHandle & cimom)
         instance.addProperty(CIMProperty("s", String("specified")));
         instance.addProperty(CIMProperty("n", Uint64(002)));
         instance.addProperty(CIMProperty("f", Real64(1.002)));
-        instance.addProperty(CIMProperty("d", CIMDateTime::getCurrentDateTime()));
+        instance.addProperty(
+            CIMProperty("d", CIMDateTime::getCurrentDateTime()));
 
         instance.addProperty(CIMProperty("e", String("extra property")));
 
@@ -96,7 +96,8 @@ void TestInstanceProvider::initialize(CIMOMHandle & cimom)
         //instance.addProperty(CIMProperty("s", String("specified")));
         instance.addProperty(CIMProperty("n", Uint64(003)));
         instance.addProperty(CIMProperty("f", Real64(1.003)));
-        instance.addProperty(CIMProperty("d", CIMDateTime::getCurrentDateTime()));
+        instance.addProperty(
+            CIMProperty("d", CIMDateTime::getCurrentDateTime()));
 
         instance.setPath(CIMObjectPath("TST_Instance1.Name=\"003\""));
 
@@ -112,7 +113,8 @@ void TestInstanceProvider::initialize(CIMOMHandle & cimom)
         instance.addProperty(CIMProperty("s", String("specified")));
         instance.addProperty(CIMProperty("n", Uint64(004)));
         instance.addProperty(CIMProperty("f", Real64(1.004)));
-        instance.addProperty(CIMProperty("d", CIMDateTime::getCurrentDateTime()));
+        instance.addProperty(
+            CIMProperty("d", CIMDateTime::getCurrentDateTime()));
 
         //instance.setPath(CIMObjectPath("TST_Instance1.Name=\"004\""));
 
@@ -128,7 +130,8 @@ void TestInstanceProvider::initialize(CIMOMHandle & cimom)
         instance.addProperty(CIMProperty("s", String("specified")));
         instance.addProperty(CIMProperty("n", Uint64(005)));
         instance.addProperty(CIMProperty("f", Real64(1.005)));
-        instance.addProperty(CIMProperty("d", CIMDateTime::getCurrentDateTime()));
+        instance.addProperty(
+            CIMProperty("d", CIMDateTime::getCurrentDateTime()));
 
         instance.setPath(CIMObjectPath("TST_InstanceBAD.Name=\"005\""));
 
@@ -144,7 +147,8 @@ void TestInstanceProvider::initialize(CIMOMHandle & cimom)
         instance.addProperty(CIMProperty("s", String("specified")));
         instance.addProperty(CIMProperty("n", Uint64(006)));
         instance.addProperty(CIMProperty("f", Real64(1.006)));
-        instance.addProperty(CIMProperty("d", CIMDateTime::getCurrentDateTime()));
+        instance.addProperty(
+            CIMProperty("d", CIMDateTime::getCurrentDateTime()));
 
         instance.setPath(CIMObjectPath("TST_Instance1.Name=\"006\""));
 
@@ -152,18 +156,18 @@ void TestInstanceProvider::initialize(CIMOMHandle & cimom)
     }
 }
 
-void TestInstanceProvider::terminate(void)
+void TestInstanceProvider::terminate()
 {
     delete this;
 }
 
 void TestInstanceProvider::getInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& instanceReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    InstanceResponseHandler& handler)
 {
     handler.processing();
 
@@ -173,15 +177,15 @@ void TestInstanceProvider::getInstance(
     cimObjectPath.setHost(String());
     cimObjectPath.setNameSpace(CIMNamespaceName());
 
-    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    for (Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
-        if(cimObjectPath == _instances[i].getPath())
+        if (cimObjectPath == _instances[i].getPath())
         {
             try
             {
                 handler.deliver(_instances[i]);
             }
-            catch(CIMException &)
+            catch (CIMException&)
             {
                 // suppress error
             }
@@ -194,22 +198,22 @@ void TestInstanceProvider::getInstance(
 }
 
 void TestInstanceProvider::enumerateInstances(
-	const OperationContext & context,
-	const CIMObjectPath & ref,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& ref,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    InstanceResponseHandler& handler)
 {
     handler.processing();
 
-    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    for (Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
         try
         {
             handler.deliver(_instances[i]);
         }
-        catch(CIMException &)
+        catch (CIMException&)
         {
             // suppress error
         }
@@ -219,19 +223,19 @@ void TestInstanceProvider::enumerateInstances(
 }
 
 void TestInstanceProvider::enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	ObjectPathResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& classReference,
+    ObjectPathResponseHandler& handler)
 {
     handler.processing();
 
-    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    for (Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
         try
         {
             handler.deliver(_instances[i].getPath());
         }
-        catch(CIMException &)
+        catch (CIMException&)
         {
             // suppress error
         }
@@ -241,29 +245,29 @@ void TestInstanceProvider::enumerateInstanceNames(
 }
 
 void TestInstanceProvider::modifyInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	const Boolean includeQualifiers,
-	const CIMPropertyList & propertyList,
-	ResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& instanceReference,
+    const CIMInstance& instanceObject,
+    const Boolean includeQualifiers,
+    const CIMPropertyList& propertyList,
+    ResponseHandler& handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void TestInstanceProvider::createInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	ObjectPathResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& instanceReference,
+    const CIMInstance& instanceObject,
+    ObjectPathResponseHandler& handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void TestInstanceProvider::deleteInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	ResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& instanceReference,
+    ResponseHandler& handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }

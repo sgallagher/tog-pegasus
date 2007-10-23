@@ -27,9 +27,6 @@
 //
 //==============================================================================
 //
-// Author: Alex Dunfey (dunfey_alexander@emc.com)
-//
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_EmbeddedInstanceProvider_h
@@ -53,84 +50,84 @@ public:
     virtual ~EmbeddedInstanceProvider();
 
     // CIMProvider interface
-    void initialize (CIMOMHandle & cimom);
+    void initialize(CIMOMHandle& cimom);
     void terminate();
 
     // CIMIndicationProvider interface
-    void enableIndications (IndicationResponseHandler & handler);
+    void enableIndications(IndicationResponseHandler& handler);
     void disableIndications();
 
-    void createSubscription (
-	    const OperationContext & context,
-	    const CIMObjectPath & subscriptionName,
-	    const Array <CIMObjectPath> & classNames,
-	    const CIMPropertyList & propertyList,
-	    const Uint16 repeatNotificationPolicy);
+    void createSubscription(
+        const OperationContext& context,
+        const CIMObjectPath& subscriptionName,
+        const Array <CIMObjectPath>& classNames,
+        const CIMPropertyList& propertyList,
+        const Uint16 repeatNotificationPolicy);
 
-    void modifySubscription (
-	    const OperationContext & context,
-	    const CIMObjectPath & subscriptionName,
-	    const Array <CIMObjectPath> & classNames,
-	    const CIMPropertyList & propertyList,
-	    const Uint16 repeatNotificationPolicy);
+    void modifySubscription(
+        const OperationContext& context,
+        const CIMObjectPath& subscriptionName,
+        const Array <CIMObjectPath>& classNames,
+        const CIMPropertyList& propertyList,
+        const Uint16 repeatNotificationPolicy);
 
-    void deleteSubscription (
-	    const OperationContext & context,
-	    const CIMObjectPath & subscriptionName,
-	    const Array <CIMObjectPath> & classNames);
+    void deleteSubscription(
+        const OperationContext& context,
+        const CIMObjectPath& subscriptionName,
+        const Array <CIMObjectPath>& classNames);
 
     // CIMMethodProvider Interface
     void invokeMethod(
-         const OperationContext & context,
-         const CIMObjectPath & objectReference,
-         const CIMName & methodName,
-         const Array<CIMParamValue> & inParameters,
-         MethodResultResponseHandler & handler);
+         const OperationContext& context,
+         const CIMObjectPath& objectReference,
+         const CIMName& methodName,
+         const Array<CIMParamValue>& inParameters,
+         MethodResultResponseHandler& handler);
 
     // CIMInstanceProvider interface
-	void getInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
+    void getInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        InstanceResponseHandler& handler);
 
-	void enumerateInstances(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
+    void enumerateInstances(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        InstanceResponseHandler& handler);
 
-	void enumerateInstanceNames(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		ObjectPathResponseHandler & handler);
+    void enumerateInstanceNames(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        ObjectPathResponseHandler& handler);
 
-	void modifyInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const CIMInstance & obj,
-		const Boolean includeQualifiers,
-		const CIMPropertyList & propertyList,
-		ResponseHandler & handler);
+    void modifyInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const CIMInstance& obj,
+        const Boolean includeQualifiers,
+        const CIMPropertyList& propertyList,
+        ResponseHandler& handler);
 
-	void createInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const CIMInstance & obj,
-		ObjectPathResponseHandler & handler);
+    void createInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const CIMInstance& obj,
+        ObjectPathResponseHandler& handler);
 
-	void deleteInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		ResponseHandler & handler);
+    void deleteInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        ResponseHandler& handler);
 
 
 private:
-    IndicationResponseHandler *indicationHandler;
+    IndicationResponseHandler* indicationHandler;
     AutoPtr<CIMInstance> errorInstance;
     AutoPtr<CIMInstance> indicationInstance;
     CIMNamespaceName STATIC_REPOSITORY;
@@ -139,4 +136,3 @@ private:
 };
 
 #endif
-

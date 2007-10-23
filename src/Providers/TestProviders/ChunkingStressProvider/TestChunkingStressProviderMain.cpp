@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Dave Sudlik (dsudlik@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -41,23 +39,25 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & providerName)
+extern "C"
+PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& providerName)
 {
-    if(String::equalNoCase(providerName, "TestChunkingStressProviderEI"))
+    if (String::equalNoCase(providerName, "TestChunkingStressProviderEI"))
     {
-        return(new TestChunkingStressProviderEI());
+        return new TestChunkingStressProviderEI();
     }
-    else if(String::equalNoCase(providerName, "TestChunkingStressProviderEIS"))
+    else if (String::equalNoCase(providerName, "TestChunkingStressProviderEIS"))
     {
-        return(new TestChunkingStressProviderEIS());
+        return new TestChunkingStressProviderEIS();
     }
-    else if(String::equalNoCase(providerName, "TestChunkingStressProviderASSOC"))
+    else if (String::equalNoCase(
+                 providerName, "TestChunkingStressProviderASSOC"))
     {
-        return(new TestChunkingStressProviderASSOC());
+        return new TestChunkingStressProviderASSOC();
     }
 
 
-    return(0);
+    return 0;
 }
 
 PEGASUS_NAMESPACE_END

@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//         (carolann_graves@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -43,16 +38,16 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider
-    (const String & providerName)
+extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(
+    const String& providerName)
 {
-    if ((String::equalNoCase (providerName, "ProcessIndicationProvider")) ||
-        (String::equalNoCase (providerName, "ProcessIndicationProvider2")))
+    if ((String::equalNoCase(providerName, "ProcessIndicationProvider")) ||
+        (String::equalNoCase(providerName, "ProcessIndicationProvider2")))
     {
-	return (new ProcessIndicationProvider ());
+        return new ProcessIndicationProvider();
     }
 
-    return (0);
+    return 0;
 }
 
 PEGASUS_NAMESPACE_END

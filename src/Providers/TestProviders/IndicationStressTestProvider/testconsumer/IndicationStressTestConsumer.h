@@ -44,11 +44,11 @@ class IndicationStressTestConsumer :
 {
 public:
 
-    IndicationStressTestConsumer(void);
-    virtual ~IndicationStressTestConsumer(void);
+    IndicationStressTestConsumer();
+    virtual ~IndicationStressTestConsumer();
 
     void initialize(CIMOMHandle& handle);
-    void terminate(void);
+    void terminate();
 
     void invokeMethod(
         const OperationContext& context,
@@ -58,9 +58,9 @@ public:
         MethodResultResponseHandler& handler);
 
     void consumeIndication(
-	const OperationContext & context,
-	const String& url,
-	const CIMInstance& indicationInstance);
+        const OperationContext & context,
+        const String& url,
+        const CIMInstance& indicationInstance);
 };
 
 PEGASUS_NAMESPACE_END

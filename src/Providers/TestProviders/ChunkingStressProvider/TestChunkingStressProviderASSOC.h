@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Dave Sudlik (dsudlik@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_TestChunkingStressProviderASSOC_h
@@ -45,55 +41,55 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class TestChunkingStressProviderASSOC :
-	public CIMAssociationProvider
+    public CIMAssociationProvider
 {
 public:
-	TestChunkingStressProviderASSOC(void);
-	virtual ~TestChunkingStressProviderASSOC(void);
+    TestChunkingStressProviderASSOC();
+    virtual ~TestChunkingStressProviderASSOC();
 
-	// CIMProvider interface
-	virtual void initialize(CIMOMHandle & cimom);
-	virtual void terminate(void);
+    // CIMProvider interface
+    virtual void initialize(CIMOMHandle& cimom);
+    virtual void terminate();
 
-	// CIMAssociationProvider interface
-        // CIMAssociationProvider interface
-        virtual void associators(
-                const OperationContext & context,
-                const CIMObjectPath & objectName,
-                const CIMName & associationClass,
-                const CIMName & resultClass,
-                const String & role,
-                const String & resultRole,
-                const Boolean includeQualifiers,
-                const Boolean includeClassOrigin,
-                const CIMPropertyList & propertyList,
-                ObjectResponseHandler & handler);
+    // CIMAssociationProvider interface
+    // CIMAssociationProvider interface
+    virtual void associators(
+        const OperationContext& context,
+        const CIMObjectPath& objectName,
+        const CIMName& associationClass,
+        const CIMName& resultClass,
+        const String& role,
+        const String& resultRole,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        ObjectResponseHandler& handler);
 
-        virtual void associatorNames(
-                const OperationContext & context,
-                const CIMObjectPath & objectName,
-                const CIMName & associationClass,
-                const CIMName & resultClass,
-                const String & role,
-                const String & resultRole,
-                ObjectPathResponseHandler & handler);
+    virtual void associatorNames(
+        const OperationContext& context,
+        const CIMObjectPath& objectName,
+        const CIMName& associationClass,
+        const CIMName& resultClass,
+        const String& role,
+        const String& resultRole,
+        ObjectPathResponseHandler& handler);
 
-        virtual void references(
-                const OperationContext & context,
-                const CIMObjectPath & objectName,
-                const CIMName & resultClass,
-                const String & role,
-                const Boolean includeQualifiers,
-                const Boolean includeClassOrigin,
-                const CIMPropertyList & propertyList,
-                ObjectResponseHandler & handler);
+    virtual void references(
+        const OperationContext& context,
+        const CIMObjectPath& objectName,
+        const CIMName& resultClass,
+        const String& role,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        ObjectResponseHandler& handler);
 
-        virtual void referenceNames(
-                const OperationContext & context,
-                const CIMObjectPath & objectName,
-                const CIMName & resultClass,
-                const String & role,
-                ObjectPathResponseHandler & handler);
+    virtual void referenceNames(
+        const OperationContext& context,
+        const CIMObjectPath& objectName,
+        const CIMName& resultClass,
+        const String& role,
+        ObjectPathResponseHandler& handler);
 
 protected:
     CIMOMHandle _cimom;

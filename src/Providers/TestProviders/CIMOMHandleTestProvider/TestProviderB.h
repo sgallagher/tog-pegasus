@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _TestProviderB_h
@@ -43,18 +39,18 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class TestProviderB : public CIMInstanceProvider 
+class TestProviderB : public CIMInstanceProvider
 {
 public:
-    TestProviderB(void);
-    virtual ~TestProviderB(void);
+    TestProviderB();
+    virtual ~TestProviderB();
 
     // CIMProvider interface
     virtual void initialize(CIMOMHandle& cimom);
-    virtual void terminate(void);
+    virtual void terminate();
 
     // CIMInstanceProvider interface
-    virtual void getInstance( 
+    virtual void getInstance(
         const OperationContext& context,
         const CIMObjectPath& instanceReference,
         const Boolean includeQualifiers,
@@ -62,7 +58,7 @@ public:
         const CIMPropertyList& propertyList,
         InstanceResponseHandler& handler);
 
-    virtual void enumerateInstances( 
+    virtual void enumerateInstances(
         const OperationContext& context,
         const CIMObjectPath& classReference,
         const Boolean includeQualifiers,
@@ -70,12 +66,12 @@ public:
         const CIMPropertyList& propertyList,
         InstanceResponseHandler& handler);
 
-    virtual void enumerateInstanceNames( 
+    virtual void enumerateInstanceNames(
         const OperationContext& context,
         const CIMObjectPath& classReference,
         ObjectPathResponseHandler& handler);
 
-    virtual void modifyInstance( 
+    virtual void modifyInstance(
         const OperationContext& context,
         const CIMObjectPath& instanceReference,
         const CIMInstance& instanceObject,
@@ -83,13 +79,13 @@ public:
         const CIMPropertyList& propertyList,
         ResponseHandler& handler);
 
-    virtual void createInstance( 
+    virtual void createInstance(
         const OperationContext& context,
         const CIMObjectPath& instanceReference,
         const CIMInstance& instanceObject,
         ObjectPathResponseHandler& handler);
 
-    virtual void deleteInstance( 
+    virtual void deleteInstance(
         const OperationContext& context,
         const CIMObjectPath& instanceReference,
         ResponseHandler& handler);

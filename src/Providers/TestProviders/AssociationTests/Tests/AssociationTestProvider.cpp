@@ -29,27 +29,20 @@
 //
 //==============================================================================
 //
-// Author: Karl Schopmeyer<k.schopmeyer@opengroup.org>
-//
-// Modified By:
-//
-//
 //%////////////////////////////////////////////////////////////////////////////
 
-/** Function: This CIM Client executable tests the Association provider defined in
- * the providers/testproviders/AssociationTest directory
- *
- * This code tests associations as provided by the associationtest provider
- * AND the associationtest.mof defined as part of the association test.
- * It tests the following:
- * referencenames, references, associatornames, associators  class request as
- * defined in the MOF.
+/**
+    Function: This CIM Client executable tests the Association provider
+    defined in the providers/testproviders/AssociationTest directory
 
- *
- * */
-//#define CDEBUG(X) PEGASUS_STD(cout) << "AssociationTestPGM " << X << PEGASUS_STD(endl)
+    This code tests associations as provided by the associationtest provider
+    AND the associationtest.mof defined as part of the association test.
+    It tests the following:
+    referencenames, references, associatornames, associators  class request as
+    defined in the MOF.
+*/
+//#define CDEBUG(X) cout << "AssociationTestPGM " << X << endl
 #define CDEBUG(X)
-//#define DEBUG(X) Logger::put (Logger::DEBUG_LOG, "Linux_ProcessorProvider", Logger::INFORMATION, "$0", X)
 
 // ==========================================================================
 // Includes
@@ -66,17 +59,7 @@
 #define PORTNUMBER 5988
 #define TIMEOUT   10000                    // timeout value in milliseconds
 
-// ==========================================================================
-// Class names.  These values are the names of the classes that
-// are common for all of the providers.
-// ==========================================================================
-static char * verbose;
-
-
-// ==========================================================================
-// Property names.  These values are returned by the provider as
-// the property names.
-// ==========================================================================
+static char* verbose;
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -85,40 +68,40 @@ CIMClient c;
 
 void errorExit(Exception& e)
 {
-  cout << "Error: Failed" << endl << e.getMessage() << endl;
-  exit(1);
+    cout << "Error: Failed" << endl << e.getMessage() << endl;
+    exit(1);
 }
 
 // Test a Class by enumerating the instances.
 int testClass(const CIMName& className)
 {
-  Array<CIMObjectPath> refs;
+    Array<CIMObjectPath> refs;
 
-  // =======================================================================
-  // enumerateInstanceNames
-  // =======================================================================
+    // =======================================================================
+    // enumerateInstanceNames
+    // =======================================================================
 
-  cout << "+++++ enumerateInstanceNames(" <<NAMESPACE << " " << className << ") ";
-  try
-  {
-    refs = c.enumerateInstanceNames(NAMESPACE,className);
-  }
-  catch (Exception& e)
-  {
-    cout << endl;
-    errorExit(e);
-  }
+    cout << "+++++ enumerateInstanceNames(" << NAMESPACE << " " <<
+        className << ") ";
+    try
+    {
+        refs = c.enumerateInstanceNames(NAMESPACE,className);
+    }
+    catch (Exception& e)
+    {
+        cout << endl;
+        errorExit(e);
+    }
 
-  cout << refs.size() << " instances" << endl;
-  // if zero instances, not an error, but can't proceed
-  if (refs.size() == 0)
-  {
-    cout << "+++++ test completed early" << endl;
+    cout << refs.size() << " instances" << endl;
+    // if zero instances, not an error, but can't proceed
+    if (refs.size() == 0)
+    {
+        cout << "+++++ test completed early" << endl;
+        return 0;
+    }
     return 0;
-  }
-  return 0;
 }
-
 
 // Simply run through the classes and check number of instances
 int testClassList(const Array<CIMName>& classList)
@@ -131,35 +114,40 @@ int testClassList(const Array<CIMName>& classList)
     }
     return 0;
 }
-int testAssocNames(const CIMObjectPath& objectName,
-                   const CIMName& assocClass,
-                   const CIMName& resultClass,
-                   const String& role,
-                   const String& resultRole,
-                   Uint32 expectedCount )
+
+int testAssocNames(
+    const CIMObjectPath& objectName,
+    const CIMName& assocClass,
+    const CIMName& resultClass,
+    const String& role,
+    const String& resultRole,
+    Uint32 expectedCount)
 {
     //CIMObjectPath instanceName = CIMObjectPath ("Person.name=\"Mike\"");
-    CDEBUG ("testReferenceNames " << objectName.toString() << " resultClass " << resultClass << " role " << role);
+    CDEBUG("testReferenceNames " << objectName.toString() <<
+        " resultClass " << resultClass << " role " << role);
 
     Array<CIMObjectPath> result = c.associatorNames(
-        	NAMESPACE,
-        	objectName,
-            assocClass,
-        	resultClass,
-        	role,
-            resultRole);
+        NAMESPACE,
+        objectName,
+        assocClass,
+        resultClass,
+        role,
+        resultRole);
     Array<CIMObject> resultObjects = c.associators(
-        	NAMESPACE,
-        	objectName,
-            assocClass,
-        	resultClass,
-        	role,
-            resultClass);
+        NAMESPACE,
+        objectName,
+        assocClass,
+        resultClass,
+        role,
+        resultClass);
 
     if (result.size() != resultObjects.size())
     {
-        cout << "ERROR, Associator and AssociatorName count returned difference" << endl;
+        cout << "ERROR, Associator and AssociatorName count returned difference"
+             << endl;
     }
+
     for (Uint32 i = 0; i < result.size(); i++)
     {
         if (resultObjects[i].getPath().toString() != result[i].toString())
@@ -167,15 +155,16 @@ int testAssocNames(const CIMObjectPath& objectName,
             cout << "Name response Error" << endl;
         }
     }
+
     if (verbose)
     {
         cout << "REQUEST: Associators, Object: " << objectName
-                << " assocClass " << assocClass
-                << " resultClass " << resultClass
-                << " role " << role
-                << " resultClass " << resultClass
-                << endl
-                << "RESPONSE: ";
+             << " assocClass " << assocClass
+             << " resultClass " << resultClass
+             << " role " << role
+             << " resultClass " << resultClass
+             << endl
+             << "RESPONSE: ";
         for (Uint32 i = 0; i < result.size(); i++)
             cout << " " << result[i].toString() << " ";
         cout << endl;
@@ -183,28 +172,34 @@ int testAssocNames(const CIMObjectPath& objectName,
 
     if (result.size() != expectedCount)
     {
-        cout << "AssociatorName Error Object " << objectName.toString() << "Expected count = " << expectedCount << " received " << result.size();
+        cout << "AssociatorName Error Object " << objectName.toString() <<
+            "Expected count = " << expectedCount <<
+            " received " << result.size();
         return 1;
     }
     return 0;
-
 }
 
-/** testReferences -
- *
- */
-int testReferences(const CIMObjectPath& objectName, const CIMName& resultClass,
-    const String& role, CIMPropertyList& propertyList, Uint32 expectedCount )
+/**
+    testReferences -
+*/
+int testReferences(
+    const CIMObjectPath& objectName,
+    const CIMName& resultClass,
+    const String& role,
+    CIMPropertyList& propertyList,
+    Uint32 expectedCount)
 {
-    CDEBUG ("testRefrenceNames " << objectName.toString() << " resultClass " << resultClass << " role " << role);
+    CDEBUG("testRefrenceNames " << objectName.toString() <<
+        " resultClass " << resultClass << " role " << role);
     Array<CIMObject> result = c.references(
-        	NAMESPACE,
-        	objectName,
-        	resultClass,
-        	role,
-            false,
-            false,
-            propertyList);
+        NAMESPACE,
+        objectName,
+        resultClass,
+        role,
+        false,
+        false,
+        propertyList);
 
     CDEBUG(" Rtned from c.references ");
     if (verbose)
@@ -218,47 +213,54 @@ int testReferences(const CIMObjectPath& objectName, const CIMName& resultClass,
 
     if (result.size() != expectedCount)
     {
-        cout << "ReferenceName Error Object " << objectName.toString() << "Expected count = " << expectedCount << " received " << result.size();
+        cout << "ReferenceName Error Object " << objectName.toString() <<
+            "Expected count = " << expectedCount <<
+            " received " << result.size();
     }
 
     return 0;
-
 }
 
 // Test references and reference names common elements.
-/** testReferences executes the references and referencenames against the defined
-    set of input parameters.  It compares the return from the two of them and
-    reports differences between the information received.
-    @param objectName - Class or instance name for the object being requested. Corresponds
-    to the objectName parameter in the refrences request.
-    @param resultClass - CIMName() i.e. NULL or class name to be supplied with the request
+/**
+    testReferences executes the references and referencenames against the
+    defined set of input parameters.  It compares the return from the two of
+    them and reports differences between the information received.
+
+    NOTE: One of the objectives is to compare the results between references
+    and referencenames requests.  They should have the same number of items
+    and the same objectpath.
+    ATTN: Does the existence of the propertyList change that?  Therefore we
+    do not include this on the operation.
+
+    @param objectName - Class or instance name for the object being requested.
+        Corresponds to the objectName parameter in the refrences request.
+    @param resultClass - CIMName() i.e. NULL or class name to be supplied with
+        the request
     @param role - empty string or valid role parameter
     @param expectedCount - Defines number of objects expected on the return.
-    NOTE: One of the objectives is to compare the results between references and referencenames
-    requests.  They should have the same number of items and the same objectpath.
-    ATTN: Does the existence of the propertyList change that?  Therefore we do not
- * include this on the operation.
- */
-
-int testReferenceNames(const CIMObjectPath& objectName, const CIMName& resultClass,
-    const String& role, Uint32 expectedCount )
+*/
+int testReferenceNames(
+    const CIMObjectPath& objectName,
+    const CIMName& resultClass,
+    const String& role,
+    Uint32 expectedCount)
 {
-
     //CIMObjectPath instanceName = CIMObjectPath ("Person.name=\"Mike\"");
     CDEBUG ("testReferenceNames " << objectName.toString() << " resultClass "
         << resultClass << " role " << role);
 
     Array<CIMObjectPath> result = c.referenceNames(
-        	NAMESPACE,
-        	objectName,
-        	resultClass,
-        	role);
+        NAMESPACE,
+        objectName,
+        resultClass,
+        role);
     CDEBUG("Return from Instance Names");
     Array<CIMObject> resultObjects = c.references(
-        	NAMESPACE,
-        	objectName,
-        	resultClass,
-        	role);
+        NAMESPACE,
+        objectName,
+        resultClass,
+        role);
 
     CDEBUG("Return from calls. compare sizes");
     if (result.size() != resultObjects.size())
@@ -291,13 +293,15 @@ int testReferenceNames(const CIMObjectPath& objectName, const CIMName& resultCla
     if (result.size() != expectedCount)
     {
         cout << "ReferenceName Error Object " << objectName.toString()
-        << "Expected count: " << expectedCount << " Received: " << result.size()
-        <<endl;
+            << "Expected count: " << expectedCount
+            << " Received: " << result.size()
+            << endl;
 
         return 0;
     }
     return 0;
 }
+
 #define ASRT(X) X
 //#define ASRT(X) PEGASUS_TEST_ASSERT(X)
 
@@ -308,141 +312,177 @@ int testReferenceNames(const CIMObjectPath& objectName, const CIMName& resultCla
 // ===========================================================================
 int main()
 {
+    //verbose = getenv("PEGASUS_TEST_VERBOSE");
+    verbose = "test";
+    cout << "+++++ Testing AssociationTest Provider" << endl;
 
-  //verbose = getenv("PEGASUS_TEST_VERBOSE");
-  verbose = "test";
-  cout << "+++++ Testing AssociationTest Provider" << endl;
+    // Build array of classes
+    Array<CIMName> Classes;
+    Classes.append("TST_ClassA");
+    Classes.append("TST_ClassB");
+    Classes.append("TST_ClassC");
+    Classes.append("TST_ClassD");
+    Classes.append("TSTDY_ClassA");
+    Classes.append("TSTDY_ClassB");
+    Classes.append("TSTDY_ClassC");
+    Classes.append("TSTDY_ClassD");
 
-  // Build array of classes
-  Array<CIMName> Classes;
-  Classes.append("TST_ClassA");
-  Classes.append("TST_ClassB");
-  Classes.append("TST_ClassC");
-  Classes.append("TST_ClassD");
-  Classes.append("TSTDY_ClassA");
-  Classes.append("TSTDY_ClassB");
-  Classes.append("TSTDY_ClassC");
-  Classes.append("TSTDY_ClassD");
+    Array<CIMName> AssocClasses;
+    AssocClasses.append("TST_AssocI1");
+    AssocClasses.append("TST_AssocI2");
+    AssocClasses.append("TST_AssocI3");
+    AssocClasses.append("TST_AssocI4");
+    AssocClasses.append("TST_AssocI5");
+    AssocClasses.append("TST_AssocI6");
+
+    AssocClasses.append("TST_AssocNI1");
+    AssocClasses.append("TST_AssocNI2");
+    AssocClasses.append("TST_AssocNI3");
+    AssocClasses.append("TST_AssocNI4");
+    AssocClasses.append("TST_AssocNI5");
+    AssocClasses.append("TST_AssocNI6");
+
+    // Connect
+    try
+    {
+        c.connect (HOST, PORTNUMBER, String::EMPTY, String::EMPTY);
+    }
+    catch (Exception& e)
+    {
+        errorExit(e);
+    }
+
+    int rc;
+    // Start by confirming the existence of the classes, etc.
+    if ((rc = testClassList(Classes)) != 0) return rc;
+    if ((rc = testClassList(AssocClasses)) != 0) return rc;
+    // Now start the association tests.
+    // Reference Names Test
+
+    // Class A Refrence Names Test
+
+    ASRT(testReferenceNames(CIMObjectPath("TST_ClassA"), CIMName(), "", 2));
+    ASRT(testReferenceNames(CIMObjectPath("TST_ClassA"), CIMName(), "to", 2));
+    ASRT(testReferenceNames(CIMObjectPath("TST_ClassA"), CIMName(), "from", 2));
+
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassA"), CIMName("TST_AssocI1"), "", 1));
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassA"), CIMName("TST_AssocI1"), "to", 1));
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassA"), CIMName("TST_AssocI1"), "from", 1));
+
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassA"), CIMName("TST_AssocI3"), "", 1));
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassA"), CIMName("TST_AssocI3"), "to", 0));
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassA"), CIMName("TST_AssocI3"), "from", 1));
+
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassA"), CIMName("TST_AssocI5"), "", 0));
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassA"), CIMName("TST_AssocI5"), "to", 0));
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassA"), CIMName("TST_AssocI5"), "from", 0));
+
+    // Class B Refrence Names Test
+    ASRT(testReferenceNames(CIMObjectPath("TST_ClassB"), CIMName(), "", 4));
+    ASRT(testReferenceNames(CIMObjectPath("TST_ClassB"), CIMName(), "to", 2));
+    ASRT(testReferenceNames(CIMObjectPath("TST_ClassB"), CIMName(), "from", 4));
+
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassB"), CIMName("TST_AssocI2"), "", 1));
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassB"), CIMName("TST_AssocI2"), "to", 1));
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassB"), CIMName("TST_AssocI2"), "from", 1));
+
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassB"), CIMName("TST_AssocI2"), "", 1));
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassB"), CIMName("TST_AssocI2"), "to", 0));
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassB"), CIMName("TST_AssocI2"), "from", 1));
+
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassB"), CIMName("TST_AssocI5"), "", 1));
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassB"), CIMName("TST_AssocI5"), "to", 1));
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassB"), CIMName("TST_AssocI5"), "from", 1));
+
+    // TODO TestReferences for class c and class d
+
+    // testRefernceName Instances from static store
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassA.name=\"InstanceA1\""), CIMName(), "", 2));
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassA.name=\"InstanceA1\""), CIMName(), "to", 2));
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassA.name=\"InstanceA1\""), CIMName(), "from", 2));
+
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassA.name=\"InstanceA1\""),
+        CIMName("TST_AssocI1"), "", 1));
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassA.name=\"InstanceA1\""),
+        CIMName("TST_AssocI1"), "to", 1));
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassA.name=\"InstanceA1\""),
+        CIMName("TST_AssocI1"), "from", 1));
+
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassA.name=\"InstanceA1\""),
+        CIMName("TST_AssocI3"), "", 1));
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassA.name=\"InstanceA1\""),
+        CIMName("TST_AssocI3"), "to", 0));
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassA.name=\"InstanceA1\""),
+        CIMName("TST_AssocI3"), "from", 1));
+
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassA.name=\"InstanceA1\""),
+        CIMName("TST_AssocI5"), "", 0));
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassA.name=\"InstanceA1\""),
+        CIMName("TST_AssocI5"), "to", 0));
+    ASRT(testReferenceNames(
+        CIMObjectPath("TST_ClassA.name=\"InstanceA1\""),
+        CIMName("TST_AssocI5"), "from", 0));
+
+    // Lets make the previous a common test between ref and ref names.
+
+    // References
+    // Limited test since we learned most in the previous test of reference
+    // names
+    CIMPropertyList NullPL;
+
+    CIMPropertyList emptyPL;
+
+    CIMPropertyList fullPL;
+    Array<CIMName> fullPLinput;
+    fullPLinput.append("name");
+    fullPL.set(fullPLinput);
 
 
+    CIMPropertyList errorPL;
+    Array<CIMName> errorPLinput;
+    errorPLinput.append("junk");
+    errorPL.set(errorPLinput);
 
-  Array<CIMName> AssocClasses;
-  AssocClasses.append("TST_AssocI1");
-  AssocClasses.append("TST_AssocI2");
-  AssocClasses.append("TST_AssocI3");
-  AssocClasses.append("TST_AssocI4");
-  AssocClasses.append("TST_AssocI5");
-  AssocClasses.append("TST_AssocI6");
+    ASRT(testReferences(CIMObjectPath("TST_ClassA"), CIMName(), "", emptyPL,2));
 
-  AssocClasses.append("TST_AssocNI1");
-  AssocClasses.append("TST_AssocNI2");
-  AssocClasses.append("TST_AssocNI3");
-  AssocClasses.append("TST_AssocNI4");
-  AssocClasses.append("TST_AssocNI5");
-  AssocClasses.append("TST_AssocNI6");
+    ASRT(testReferences(
+        CIMObjectPath("TST_ClassA.name=\"InstanceA1\""),
+        CIMName(), "", fullPL,2));
 
-  // Connect
-  try
-  {
-    c.connect (HOST, PORTNUMBER, String::EMPTY, String::EMPTY);
-  }
-  catch (Exception& e)
-  {
-    errorExit(e);
-  }
+    // Testing associators and and associator names functions.
 
-  int rc;
-  // Start by confirming the existence of the classes, etc.
-  if ((rc = testClassList(Classes)) != 0) return rc;
-  if ((rc = testClassList(AssocClasses)) != 0) return rc;
-  // Now start the association tests.
-  // Reference Names Test
+    ASRT(testAssocNames(
+        CIMObjectPath("TST_ClassA"), CIMName(), CIMName(), "", "", 3));
 
-  // Class A Refrence Names Test
-
-
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA"),CIMName(), "", 2));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA"),CIMName(), "to", 2));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA"),CIMName(), "from", 2));
-
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA"),CIMName("TST_AssocI1"), "", 1));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA"),CIMName("TST_AssocI1"), "to", 1));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA"),CIMName("TST_AssocI1"), "from", 1));
-
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA"),CIMName("TST_AssocI3"), "", 1));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA"),CIMName("TST_AssocI3"), "to", 0));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA"),CIMName("TST_AssocI3"), "from", 1));
-
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA"),CIMName("TST_AssocI5"), "", 0));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA"),CIMName("TST_AssocI5"), "to", 0));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA"),CIMName("TST_AssocI5"), "from", 0));
-
-  // Class B Refrence Names Test
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassB"),CIMName(), "", 4));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassB"),CIMName(), "to", 2));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassB"),CIMName(), "from", 4));
-
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassB"),CIMName("TST_AssocI2"), "", 1));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassB"),CIMName("TST_AssocI2"), "to", 1));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassB"),CIMName("TST_AssocI2"), "from", 1));
-
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassB"),CIMName("TST_AssocI2"), "", 1));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassB"),CIMName("TST_AssocI2"), "to", 0));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassB"),CIMName("TST_AssocI2"), "from", 1));
-
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassB"),CIMName("TST_AssocI5"), "", 1));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassB"),CIMName("TST_AssocI5"), "to", 1));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassB"),CIMName("TST_AssocI5"), "from", 1));
-
-
-  // TODO TestReferences for class c and class d
-
-  // testRefernceName Instances from static store
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA.name=\"InstanceA1\""),CIMName(), "", 2));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA.name=\"InstanceA1\""),CIMName(), "to", 2));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA.name=\"InstanceA1\""),CIMName(), "from", 2));
-
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA.name=\"InstanceA1\""),CIMName("TST_AssocI1"), "", 1));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA.name=\"InstanceA1\""),CIMName("TST_AssocI1"), "to", 1));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA.name=\"InstanceA1\""),CIMName("TST_AssocI1"), "from", 1));
-
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA.name=\"InstanceA1\""),CIMName("TST_AssocI3"), "", 1));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA.name=\"InstanceA1\""),CIMName("TST_AssocI3"), "to", 0));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA.name=\"InstanceA1\""),CIMName("TST_AssocI3"), "from", 1));
-
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA.name=\"InstanceA1\""),CIMName("TST_AssocI5"), "", 0));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA.name=\"InstanceA1\""),CIMName("TST_AssocI5"), "to", 0));
-  ASRT(testReferenceNames(CIMObjectPath("TST_ClassA.name=\"InstanceA1\""),CIMName("TST_AssocI5"), "from", 0));
-
-  // Lets make the previous a common test between ref and ref names.
-
-  // References
-  // Limited test since we learned most in the previous test of reference names
-  CIMPropertyList NullPL;
-  NullPL.clear();
-
-  CIMPropertyList emptyPL;
-
-  CIMPropertyList fullPL;
-  Array<CIMName> fullPLinput;
-  fullPLinput.append("name");
-  fullPL.set(fullPLinput);
-
-
-  CIMPropertyList errorPL ;
-  Array<CIMName> errorPLinput;
-  errorPLinput.append("junk");
-  errorPL.set(errorPLinput);
-
-  ASRT(testReferences(CIMObjectPath("TST_ClassA"),CIMName(), "", emptyPL,2));
-
-  ASRT(testReferences(CIMObjectPath("TST_ClassA.name=\"InstanceA1\""),CIMName(), "", fullPL,2));
-
-  // Testing associators and and associator names functions.
-
-  ASRT(testAssocNames(CIMObjectPath("TST_ClassA"),CIMName(),CIMName(),"", "", 3));
-
-  cout << "+++++ passed all tests" << endl;
-  return 0;
+    cout << "+++++ passed all tests" << endl;
+    return 0;
 }
-

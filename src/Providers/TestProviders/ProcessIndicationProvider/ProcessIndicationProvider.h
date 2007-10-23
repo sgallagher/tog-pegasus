@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//         (carolann_graves@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ProcessIndicationProvider_h
@@ -48,42 +43,40 @@ class ProcessIndicationProvider :
     public CIMIndicationProvider
 {
 public:
-    ProcessIndicationProvider (void) throw ();
-    virtual ~ProcessIndicationProvider (void) throw ();
+    ProcessIndicationProvider() throw();
+    virtual ~ProcessIndicationProvider() throw();
 
     // CIMProvider interface
-    virtual void initialize (CIMOMHandle & cimom);
-    virtual void terminate (void);
+    virtual void initialize(CIMOMHandle& cimom);
+    virtual void terminate();
 
     // CIMIndicationProvider interface
-    virtual void enableIndications (IndicationResponseHandler & handler);
-    virtual void disableIndications (void);
+    virtual void enableIndications(IndicationResponseHandler& handler);
+    virtual void disableIndications();
 
-    virtual void createSubscription (
-	const OperationContext & context,
-	const CIMObjectPath & subscriptionName,
-	const Array <CIMObjectPath> & classNames,
-	const CIMPropertyList & propertyList,
-	const Uint16 repeatNotificationPolicy);
+    virtual void createSubscription(
+        const OperationContext& context,
+        const CIMObjectPath& subscriptionName,
+        const Array<CIMObjectPath>& classNames,
+        const CIMPropertyList& propertyList,
+        const Uint16 repeatNotificationPolicy);
 
-    virtual void modifySubscription (
-	const OperationContext & context,
-	const CIMObjectPath & subscriptionName,
-	const Array <CIMObjectPath> & classNames,
-	const CIMPropertyList & propertyList,
-	const Uint16 repeatNotificationPolicy);
+    virtual void modifySubscription(
+        const OperationContext& context,
+        const CIMObjectPath& subscriptionName,
+        const Array<CIMObjectPath>& classNames,
+        const CIMPropertyList& propertyList,
+        const Uint16 repeatNotificationPolicy);
 
-    virtual void deleteSubscription (
-	const OperationContext & context,
-	const CIMObjectPath & subscriptionName,
-	const Array <CIMObjectPath> & classNames);
+    virtual void deleteSubscription(
+        const OperationContext& context,
+        const CIMObjectPath& subscriptionName,
+        const Array<CIMObjectPath>& classNames);
 
 protected:
     CIMOMHandle _cimom;
-
 };
 
 PEGASUS_NAMESPACE_END
 
 #endif
-

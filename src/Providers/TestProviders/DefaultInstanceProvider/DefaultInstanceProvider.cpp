@@ -29,11 +29,8 @@
 //
 //==============================================================================
 //
-// Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
+
 //
 // This is a generic instance provider for any CIM class.  It serves as
 // a testing tool to allow client developers to test their client
@@ -57,7 +54,7 @@
 // to the new repository.  After the new repository is created, all
 // subsequent requests on the same CIM class will be processed using
 // the repository interface to access objects stored in the new repository.
-// 
+//
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
@@ -70,15 +67,15 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-DefaultInstanceProvider::DefaultInstanceProvider(void)
+DefaultInstanceProvider::DefaultInstanceProvider()
 {
 }
 
-DefaultInstanceProvider::~DefaultInstanceProvider(void)
+DefaultInstanceProvider::~DefaultInstanceProvider()
 {
 }
 
-void DefaultInstanceProvider::initialize(CIMOMHandle & cimom)
+void DefaultInstanceProvider::initialize(CIMOMHandle& cimom)
 {
     // get the test repository path
     const char* testRepositoryPath = getenv("PEGASUS_TEST_REPOSITORY");
@@ -99,26 +96,26 @@ void DefaultInstanceProvider::initialize(CIMOMHandle & cimom)
     _repository = new CIMRepository(repositoryDir);
 }
 
-void DefaultInstanceProvider::terminate(void)
+void DefaultInstanceProvider::terminate()
 {
     delete this;
 }
 
 /***************************************************************************
-   _copyClass 
+   _copyClass
 ***************************************************************************/
 
 void DefaultInstanceProvider::_copyClass(
-    const String & nameSpace,
-    const String & className)
+    const String& nameSpace,
+    const String& className)
 {
     CIMClient client;
-    try 
+    try
     {
         // connect to the CIM server as a client
         client.connectLocal();
     }
-    catch( Exception& ex )
+    catch (Exception& ex)
     {
         const String msg = "Connect failed. " + ex.getMessage();
         throw CIMOperationFailedException( msg );
@@ -132,11 +129,14 @@ void DefaultInstanceProvider::_copyClass(
 
     try
     {
-        cimClass = client.getClass(nameSpace, CIMName(className),
-                                   localOnly, includeQualifiers,
-                                   includeClassOrigin);
+        cimClass = client.getClass(
+            nameSpace,
+            CIMName(className),
+            localOnly,
+            includeQualifiers,
+            includeClassOrigin);
     }
-    catch( Exception& ex )
+    catch (Exception& ex)
     {
         const String msg = "Get Class failed. " + ex.getMessage();
         throw CIMOperationFailedException( msg );
@@ -152,24 +152,24 @@ void DefaultInstanceProvider::_copyClass(
     // now we can copy the base class
     try
     {
-        _repository->createClass( nameSpace, cimClass );
+        _repository->createClass(nameSpace, cimClass);
     }
-    catch( Exception& ex )
+    catch (Exception& ex)
     {
         const String msg = "Create Class failed. " + ex.getMessage();
-        throw CIMOperationFailedException( msg );
+        throw CIMOperationFailedException(msg);
     }
 }
 
 /***************************************************************************
-   _copySuperClasses 
+   _copySuperClasses
 ***************************************************************************/
 
 void DefaultInstanceProvider::_copySuperClasses(
-    CIMClient & client,
-    const String & nameSpace,
-    const CIMClass & cimClass,
-    Array<CIMClass> & superClasses)
+    CIMClient& client,
+    const String& nameSpace,
+    const CIMClass& cimClass,
+    Array<CIMClass>& superClasses)
 {
     // get the super class name
     CIMName superClassName = cimClass.getSuperClassName();
@@ -191,8 +191,8 @@ void DefaultInstanceProvider::_copySuperClasses(
             CIMClass cimClass;
             try
             {
-                cimClass = _repository->getClass(nameSpace, 
-                                          superClasses[i-1].getClassName());
+                cimClass = _repository->getClass(
+                    nameSpace, superClasses[i-1].getClassName());
             }
             catch (Exception&)
             {
@@ -201,19 +201,20 @@ void DefaultInstanceProvider::_copySuperClasses(
                 //
                 try
                 {
-                    _repository->createClass( nameSpace, superClasses[i-1] );
+                    _repository->createClass(nameSpace, superClasses[i-1]);
                 }
-                catch( Exception& ex )
+                catch (Exception& ex)
                 {
-                    const String msg  = "Create superClass failed. " + ex.getMessage();
-                    throw CIMOperationFailedException( msg );
+                    const String msg = "Create superClass failed. " +
+                        ex.getMessage();
+                    throw CIMOperationFailedException(msg);
                 }
             }
         }
         return;
     }
 
-    // get the super class 
+    // get the super class
     CIMClass superClass;
     Boolean localOnly = false;
     Boolean includeQualifiers = true;
@@ -221,26 +222,29 @@ void DefaultInstanceProvider::_copySuperClasses(
 
     try
     {
-        superClass = client.getClass(nameSpace, superClassName,
-                                     localOnly, includeQualifiers,
-                                     includeClassOrigin);
+        superClass = client.getClass(
+            nameSpace,
+            superClassName,
+            localOnly,
+            includeQualifiers,
+            includeClassOrigin);
 
         // add superclass to array
         superClasses.append(superClass);
     }
-    catch( Exception& ex )
+    catch (Exception& ex)
     {
         const String msg = "Get Super Class failed. " + ex.getMessage();
-        throw CIMOperationFailedException( msg );
+        throw CIMOperationFailedException(msg);
     }
 
     // recursive call.  copy superclasses of this class
-    _copySuperClasses( client, nameSpace, superClass, superClasses); 
+    _copySuperClasses(client, nameSpace, superClass, superClasses);
 }
 
 /***************************************************************************
-/  _nameSpaceExists 
-/ 
+/  _nameSpaceExists
+/
 /  Returns true if the namespace already exists.  Returns false otherwise.
 ***************************************************************************/
 
@@ -255,7 +259,7 @@ Boolean DefaultInstanceProvider::_nameSpaceExists(
     nameSpaceNames = _repository->enumerateNameSpaces();
 
     //
-    //  check for the existence of the specified namespace 
+    //  check for the existence of the specified namespace
     //
     for (Uint8 i = 0; i < nameSpaceNames.size (); i++)
     {
@@ -271,38 +275,39 @@ Boolean DefaultInstanceProvider::_nameSpaceExists(
 }
 
 /***************************************************************************
-/  _copyNameSpace 
-/ 
+/  _copyNameSpace
+/
 /  Copies the specified namespace to the test repository.  The new namespace
 /  will contain the same qualifiers as the specified namespace, class and
 /  all its super classes.
 ***************************************************************************/
-  
-void DefaultInstanceProvider::_copyNameSpace(const String & nameSpace,
-                                             const String & className)
+
+void DefaultInstanceProvider::_copyNameSpace(
+    const String& nameSpace,
+    const String& className)
 {
     try
     {
         // create the new name space
         _repository->createNameSpace(nameSpace);
     }
-    catch( Exception& ex )
+    catch (Exception& ex)
     {
         const String msg = "Failed to create namespace: " + ex.getMessage();
-        throw CIMOperationFailedException( msg );
+        throw CIMOperationFailedException(msg);
     }
-        
+
     CIMClient client;
 
-    try 
+    try
     {
         // connect to the CIM server as a client
         client.connectLocal();
     }
-    catch( Exception& ex )
+    catch (Exception& ex)
     {
         const String msg = "Connect failed. " + ex.getMessage();
-        throw CIMOperationFailedException( msg );
+        throw CIMOperationFailedException(msg);
     }
 
     //
@@ -310,29 +315,30 @@ void DefaultInstanceProvider::_copyNameSpace(const String & nameSpace,
     //
     try
     {
-        Array<CIMQualifierDecl> quals = client.enumerateQualifiers( nameSpace );
+        Array<CIMQualifierDecl> quals = client.enumerateQualifiers(nameSpace);
 
         int size = quals.size();
-        for( int i = 0; i < size; ++i )
+        for (int i = 0; i < size; ++i)
         {
-            try 
+            try
             {
-                _repository->setQualifier( nameSpace, quals[i] );
-            } 
-            catch( Exception& ex ) 
+                _repository->setQualifier(nameSpace, quals[i]);
+            }
+            catch (Exception& ex)
             {
-                const String msg = "Failed to copy qualifiers. " + ex.getMessage();
-                throw CIMOperationFailedException( msg );
+                const String msg = "Failed to copy qualifiers. " +
+                    ex.getMessage();
+                throw CIMOperationFailedException(msg);
             }
         }
 
         // disconnect from the server
         client.disconnect();
     }
-    catch( Exception& ex )
+    catch (Exception& ex)
     {
         const String msg = "Copy class failed. " + ex.getMessage();
-        throw CIMOperationFailedException( msg );
+        throw CIMOperationFailedException(msg);
     }
 }
 
@@ -341,76 +347,76 @@ void DefaultInstanceProvider::_copyNameSpace(const String & nameSpace,
 ***************************************************************************/
 
 void DefaultInstanceProvider::getInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& instanceReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    InstanceResponseHandler& handler)
 {
-        CIMNamespaceName nameSpace = instanceReference.getNameSpace();
+    CIMNamespaceName nameSpace = instanceReference.getNameSpace();
 
-        // get the class name
-        CIMName className = instanceReference.getClassName();
+    // get the class name
+    CIMName className = instanceReference.getClassName();
 
-        Boolean localOnly = true;
-        CIMInstance cimInstance;
+    Boolean localOnly = true;
+    CIMInstance cimInstance;
 
-        // create the namespace if necessary
-        if (!_nameSpaceExists(nameSpace))
-        {
-            _copyNameSpace(nameSpace.getString(), className.getString());
-        }
+    // create the namespace if necessary
+    if (!_nameSpaceExists(nameSpace))
+    {
+        _copyNameSpace(nameSpace.getString(), className.getString());
+    }
 
-        // check to see if class already exists
-        // if not, copy the class
+    // check to see if class already exists
+    // if not, copy the class
+    //
+    try
+    {
+        CIMClass cimClass = _repository->getClass(nameSpace, className);
+    }
+    catch (Exception&)
+    {
+        // class does not exist
+
         //
-        try
-        {
-            CIMClass cimClass = _repository->getClass(nameSpace, className);
-        }
-        catch (Exception&)
-        {
-            // class does not exist
+        // copy the class
+        //
+        _copyClass(nameSpace.getString(), className.getString());
+    }
 
-            //
-            // copy the class
-            //
-            _copyClass(nameSpace.getString(), className.getString()); 
-        }
+    // convert a potential fully qualified reference into a local reference
+    // (class name and keys only).
+    CIMObjectPath localReference = CIMObjectPath(
+        String(),
+        String(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
 
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
-	
-        try
-        {
-           cimInstance = _repository->getInstance(
-             nameSpace,
-             localReference,
-             localOnly,
-             includeQualifiers,
-             includeClassOrigin,
-             propertyList);
-        }
-        catch( Exception& ex )
-        {
-            const String msg = "Get Instance failed. " + ex.getMessage();
-            throw CIMOperationFailedException( msg );
-        }
+    try
+    {
+        cimInstance = _repository->getInstance(
+            nameSpace,
+            localReference,
+            localOnly,
+            includeQualifiers,
+            includeClassOrigin,
+            propertyList);
+    }
+    catch (Exception& ex)
+    {
+        const String msg = "Get Instance failed. " + ex.getMessage();
+        throw CIMOperationFailedException( msg );
+    }
 
-        // begin processing the request
-        handler.processing();
+    // begin processing the request
+    handler.processing();
 
-        // deliver requested instance
-        handler.deliver(cimInstance);
+    // deliver requested instance
+    handler.deliver(cimInstance);
 
-	// complete processing the request
-	handler.complete();
+    // complete processing the request
+    handler.complete();
 }
 
 /***************************************************************************
@@ -418,72 +424,72 @@ void DefaultInstanceProvider::getInstance(
 ***************************************************************************/
 
 void DefaultInstanceProvider::enumerateInstances(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& classReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    InstanceResponseHandler& handler)
 {
-        CIMNamespaceName nameSpace = classReference.getNameSpace();
+    CIMNamespaceName nameSpace = classReference.getNameSpace();
 
-        // get the class name
-        CIMName className = classReference.getClassName();
+    // get the class name
+    CIMName className = classReference.getClassName();
 
-        // create the namespace if necessary
-        if (!_nameSpaceExists(nameSpace))
-        {
-            _copyNameSpace(nameSpace.getString(), className.getString());
-        }
+    // create the namespace if necessary
+    if (!_nameSpaceExists(nameSpace))
+    {
+        _copyNameSpace(nameSpace.getString(), className.getString());
+    }
 
-        // check to see if class already exists
-        // if not, copy the class
+    // check to see if class already exists
+    // if not, copy the class
+    //
+    try
+    {
+        CIMClass cimClass = _repository->getClass(nameSpace, className);
+    }
+    catch (Exception&)
+    {
+        // class does not exist
+
         //
-        try
-        {
-            CIMClass cimClass = _repository->getClass(nameSpace, className);
-        }
-        catch (Exception&)
-        {
-            // class does not exist
+        // copy the class
+        //
+        _copyClass(nameSpace.getString(), className.getString());
+    }
 
-            //
-            // copy the class
-            //
-            _copyClass(nameSpace.getString(), className.getString()); 
-        }
+    Array<CIMInstance> cimNamedInstances;
 
-        Array<CIMInstance> cimNamedInstances;
+    Boolean localOnly = true;
 
-        Boolean localOnly = true;
+    try
+    {
+        cimNamedInstances = _repository->enumerateInstancesForClass(
+            nameSpace,
+            className,
+            localOnly,
+            includeQualifiers,
+            includeClassOrigin,
+            propertyList);
+    }
+    catch (Exception& ex)
+    {
+        const String msg = "Enumerate Instances failed. " + ex.getMessage();
+        throw CIMOperationFailedException( msg );
+    }
 
-        try
-        {
-           cimNamedInstances = _repository->enumerateInstancesForClass(
-              nameSpace,
-              className,
-              localOnly,
-              includeQualifiers,
-              includeClassOrigin,
-              propertyList);
-        }
-        catch( Exception& ex )
-        {
-            const String msg = "Enumerate Instances failed. " + ex.getMessage();
-            throw CIMOperationFailedException( msg );
-        }
+    // begin processing the request
+    handler.processing();
 
-	// begin processing the request
-	handler.processing();
+    for (Uint32 i = 0, n = cimNamedInstances.size(); i < n; i++)
+    {
+        // deliver instance
+        handler.deliver(cimNamedInstances[i]);
+    }
 
-        for (Uint32 i = 0, n = cimNamedInstances.size(); i < n; i++)
-	{
-	    // deliver instance
-	    handler.deliver(cimNamedInstances[i]);
-	}
-
-	// complete processing the request
-	handler.complete();
+    // complete processing the request
+    handler.complete();
 }
 
 /***************************************************************************
@@ -491,60 +497,60 @@ void DefaultInstanceProvider::enumerateInstances(
 ***************************************************************************/
 
 void DefaultInstanceProvider::enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	ObjectPathResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& classReference,
+    ObjectPathResponseHandler& handler)
 {
-        CIMNamespaceName nameSpace = classReference.getNameSpace();
-        CIMName className = classReference.getClassName();
-        
-        // create the namespace if necessary
-        if (!_nameSpaceExists(nameSpace))
-        {
-            _copyNameSpace(nameSpace.getString(), className.getString());
-        }
+    CIMNamespaceName nameSpace = classReference.getNameSpace();
+    CIMName className = classReference.getClassName();
 
-        // check to see if class already exists
-        // if not, copy the class
+    // create the namespace if necessary
+    if (!_nameSpaceExists(nameSpace))
+    {
+        _copyNameSpace(nameSpace.getString(), className.getString());
+    }
+
+    // check to see if class already exists
+    // if not, copy the class
+    //
+    try
+    {
+        CIMClass cimClass = _repository->getClass(nameSpace, className);
+    }
+    catch (Exception&)
+    {
+        // class does not exist
+
         //
-        try
-        {
-            CIMClass cimClass = _repository->getClass(nameSpace, className);
-        }
-        catch (Exception&)
-        {
-            // class does not exist
+        // copy the class
+        //
+        _copyClass(nameSpace.getString(), className.getString());
+    }
 
-            //
-            // copy the class
-            //
-            _copyClass(nameSpace.getString(), className.getString()); 
-        }
+    Array<CIMObjectPath> instanceNames;
 
-        Array<CIMObjectPath> instanceNames;
+    try
+    {
+        instanceNames = _repository->enumerateInstanceNamesForClass(
+            nameSpace, className);
+    }
+    catch (Exception& ex)
+    {
+        const String msg = "Enumerate InstanceNames failed. " + ex.getMessage();
+        throw CIMOperationFailedException(msg);
+    }
 
-        try
-        {
-            instanceNames = _repository->enumerateInstanceNamesForClass(
-                nameSpace, className);
-        }
-        catch (Exception & ex)
-        {
-            const String msg = "Enumerate InstanceNames failed. " + ex.getMessage();
-            throw CIMOperationFailedException( msg );
-        }
-    
-	// begin processing the request
-	handler.processing();
+    // begin processing the request
+    handler.processing();
 
-	for(Uint32 i = 0, n = instanceNames.size(); i < n; i++)
-	{
-		// deliver reference
-		handler.deliver(instanceNames[i]);
-	}
+    for (Uint32 i = 0, n = instanceNames.size(); i < n; i++)
+    {
+        // deliver reference
+        handler.deliver(instanceNames[i]);
+    }
 
-	// complete processing the request
-	handler.complete();
+    // complete processing the request
+    handler.complete();
 }
 
 /***************************************************************************
@@ -552,70 +558,70 @@ void DefaultInstanceProvider::enumerateInstanceNames(
 ***************************************************************************/
 
 void DefaultInstanceProvider::modifyInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	const Boolean includeQualifiers,
-	const CIMPropertyList & propertyList,
-	ResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& instanceReference,
+    const CIMInstance& instanceObject,
+    const Boolean includeQualifiers,
+    const CIMPropertyList& propertyList,
+    ResponseHandler& handler)
 {
-        CIMNamespaceName nameSpace = instanceReference.getNameSpace();
+    CIMNamespaceName nameSpace = instanceReference.getNameSpace();
 
-        // get the class name
-        CIMName className = instanceReference.getClassName();
+    // get the class name
+    CIMName className = instanceReference.getClassName();
 
-        Array<CIMObjectPath> instanceNames;
+    Array<CIMObjectPath> instanceNames;
 
-        // create the namespace if necessary
-        if (!_nameSpaceExists(nameSpace))
-        {
-            _copyNameSpace(nameSpace.getString(), className.getString());
-        }
+    // create the namespace if necessary
+    if (!_nameSpaceExists(nameSpace))
+    {
+        _copyNameSpace(nameSpace.getString(), className.getString());
+    }
 
-        // check to see if class already exists
-        // if not, copy the class
+    // check to see if class already exists
+    // if not, copy the class
+    //
+    try
+    {
+        CIMClass cimClass = _repository->getClass(nameSpace, className);
+    }
+    catch (Exception&)
+    {
+        // class does not exist
+
         //
-        try
-        {
-            CIMClass cimClass = _repository->getClass(nameSpace, className);
-        }
-        catch (Exception&)
-        {
-            // class does not exist
+        // copy the class
+        //
+        _copyClass(nameSpace.getString(), className.getString());
+    }
 
-            //
-            // copy the class
-            //
-            _copyClass(nameSpace.getString(), className.getString()); 
-        }
+    // convert a potential fully qualified reference into a local reference
+    // (class name and keys only).
+    CIMObjectPath localReference = CIMObjectPath(
+        String(),
+        String(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
 
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
-	
-        try
-        {
-           _repository->modifyInstance(
-                nameSpace,
-                instanceObject,
-                includeQualifiers,
-                propertyList);
-        }
-        catch( Exception& ex )
-        {
-            const String msg = "Modify Instance failed. " + ex.getMessage();
-            throw CIMOperationFailedException( msg );
-        }
+    try
+    {
+       _repository->modifyInstance(
+            nameSpace,
+            instanceObject,
+            includeQualifiers,
+            propertyList);
+    }
+    catch (Exception& ex)
+    {
+        const String msg = "Modify Instance failed. " + ex.getMessage();
+        throw CIMOperationFailedException( msg );
+    }
 
-	// begin processing the request
-	handler.processing();
+    // begin processing the request
+    handler.processing();
 
-	// complete processing the request
-	handler.complete();
+    // complete processing the request
+    handler.complete();
 }
 
 /***************************************************************************
@@ -623,59 +629,59 @@ void DefaultInstanceProvider::modifyInstance(
 ***************************************************************************/
 
 void DefaultInstanceProvider::createInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	ObjectPathResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& instanceReference,
+    const CIMInstance& instanceObject,
+    ObjectPathResponseHandler& handler)
 {
-        CIMNamespaceName nameSpace = instanceReference.getNameSpace();
+    CIMNamespaceName nameSpace = instanceReference.getNameSpace();
 
-        // get the class name
-        CIMName className = instanceReference.getClassName();
+    // get the class name
+    CIMName className = instanceReference.getClassName();
 
-        // create the namespace if necessary
-        if (!_nameSpaceExists(nameSpace))
-        {
-            _copyNameSpace(nameSpace.getString(), className.getString());
-        }
+    // create the namespace if necessary
+    if (!_nameSpaceExists(nameSpace))
+    {
+        _copyNameSpace(nameSpace.getString(), className.getString());
+    }
 
-        // check to see if class already exists
-        // if not, copy the class
+    // check to see if class already exists
+    // if not, copy the class
+    //
+    try
+    {
+        CIMClass cimClass = _repository->getClass(nameSpace, className);
+    }
+    catch (Exception&)
+    {
+        // class does not exist
+
         //
-        try
-        {
-            CIMClass cimClass = _repository->getClass(nameSpace, className);
-        }
-        catch (Exception&)
-        {
-            // class does not exist
+        // copy the class
+        //
+        _copyClass(nameSpace.getString(), className.getString());
+    }
 
-            //
-            // copy the class
-            //
-            _copyClass(nameSpace.getString(), className.getString()); 
-        }
+    CIMObjectPath cimRef;
 
-        CIMObjectPath cimRef;
+    // begin processing the request
+    handler.processing();
 
-	// begin processing the request
-	handler.processing();
+    try
+    {
+        cimRef = _repository->createInstance(nameSpace, instanceObject);
+    }
+    catch (Exception& ex)
+    {
+        const String msg = "create Instance failed. " + ex.getMessage();
+        throw CIMOperationFailedException( msg );
+    }
 
-        try
-        {
-            cimRef = _repository->createInstance(nameSpace, instanceObject);
-        }
-        catch (Exception & ex)
-        {
-            const String msg = "create Instance failed. " + ex.getMessage();
-            throw CIMOperationFailedException( msg );
-        }
+    // deliver the new instance
+    handler.deliver(cimRef);
 
-	// deliver the new instance
-	handler.deliver(cimRef);
-
-	// complete processing the request
-	handler.complete();
+    // complete processing the request
+    handler.complete();
 }
 
 /***************************************************************************
@@ -683,58 +689,58 @@ void DefaultInstanceProvider::createInstance(
 ***************************************************************************/
 
 void DefaultInstanceProvider::deleteInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	ResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& instanceReference,
+    ResponseHandler& handler)
 {
-        CIMNamespaceName nameSpace = instanceReference.getNameSpace();
+    CIMNamespaceName nameSpace = instanceReference.getNameSpace();
 
-        // get the class name
-        CIMName className = instanceReference.getClassName();
+    // get the class name
+    CIMName className = instanceReference.getClassName();
 
-        // create the namespace if necessary
-        if (!_nameSpaceExists(nameSpace))
-        {
-            _copyNameSpace(nameSpace.getString(), className.getString());
-        }
+    // create the namespace if necessary
+    if (!_nameSpaceExists(nameSpace))
+    {
+        _copyNameSpace(nameSpace.getString(), className.getString());
+    }
 
-        // check to see if class already exists
-        // if not, copy the class
+    // check to see if class already exists
+    // if not, copy the class
+    //
+    try
+    {
+        CIMClass cimClass = _repository->getClass(nameSpace, className);
+    }
+    catch (Exception&)
+    {
+        // Class does not exist.  Copy the class.
         //
-        try
-        {
-            CIMClass cimClass = _repository->getClass(nameSpace, className);
-        }
-        catch (Exception&)
-        {
-            // Class does not exist.  Copy the class.
-            //
-            _copyClass(nameSpace.getString(), className.getString()); 
-        }
+        _copyClass(nameSpace.getString(), className.getString());
+    }
 
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
-	
-	// begin processing the request
-	handler.processing();
+    // convert a potential fully qualified reference into a local reference
+    // (class name and keys only).
+    CIMObjectPath localReference = CIMObjectPath(
+        String(),
+        String(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
 
-        try
-        {
-           _repository->deleteInstance(nameSpace, localReference);
-        }
-        catch (Exception & ex)
-        {
-            const String msg = "delete Instance failed. " + ex.getMessage();
-            throw CIMOperationFailedException( msg );
-        }
+    // begin processing the request
+    handler.processing();
 
-	// complete processing the request
-	handler.complete();
+    try
+    {
+       _repository->deleteInstance(nameSpace, localReference);
+    }
+    catch (Exception& ex)
+    {
+        const String msg = "delete Instance failed. " + ex.getMessage();
+        throw CIMOperationFailedException( msg );
+    }
+
+    // complete processing the request
+    handler.complete();
 }
 
 PEGASUS_NAMESPACE_END

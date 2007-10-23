@@ -52,9 +52,11 @@ const CIMName TEST_TEACHES         = CIMName ("TEST_Teaches");
 const CIMName TEST_WORKS           = CIMName ("TEST_Works");
 const CIMName TEST_MARRIAGE        = CIMName ("TEST_Marriage");
 const CIMName TEST_FAMILY          = CIMName ("TEST_Family");
-const CIMName REPOSITORY_DEFAULT   = CIMName ("repositoryIsDefaultInstanceProvider");
+const CIMName REPOSITORY_DEFAULT   =
+    CIMName ("repositoryIsDefaultInstanceProvider");
 
-// Variable used for collecting properties from CIMServer after the CIM Configuration
+// Variable used for collecting properties from CIMServer after the CIM
+// Configuration
 static const CIMName PROPERTY_NAME      = CIMName ("PropertyName");
 static const CIMName DEFAULT_VALUE      = CIMName ("DefaultValue");
 static const CIMName CURRENT_VALUE      = CIMName ("CurrentValue");
@@ -80,10 +82,10 @@ void _errorExit(String message)
 // This would get the property values from CIMServer and return that for
 // checking whether Repository Is Default InstanceProvider or not.
 
-void getPropertiesFromCIMServer(CIMClient& client, 
-                                const CIMName&    propName,
-                                 Array <String>&   propValues
-    ) 
+void getPropertiesFromCIMServer(
+    CIMClient& client,
+    const CIMName& propName,
+    Array <String>& propValues)
 {
     CIMProperty prop;
 
@@ -131,9 +133,10 @@ void getPropertiesFromCIMServer(CIMClient& client,
 ////////////////////////////////////////////////////////////////////////////
 // This returns the total number of associators of the instances.
 
-Uint32 _testAssociators(CIMClient& client,
-                        CIMName assocClass, 
-                        CIMObjectPath instancePath)
+Uint32 _testAssociators(
+    CIMClient& client,
+    CIMName assocClass,
+    CIMObjectPath instancePath)
 {
     if (verbose)
     {
@@ -148,13 +151,13 @@ Uint32 _testAssociators(CIMClient& client,
     // Get the CIM instances that are associated with the specified source
     // instance via an instance of the AssocClass
     //
-    Array<CIMObject> resultObjects = 
+    Array<CIMObject> resultObjects =
         client.associators(NAMESPACE, instancePath, assocClass, resultClass,
                            role, resultRole);
     Uint32 size = resultObjects.size();
-    if(verbose)
+    if (verbose)
     {
-        if(size > 0)
+        if (size > 0)
         {
             cout << " \n     " <<  assocClass.getString() << " :: ";
             for (Uint32 i = 0; i < size ; ++i)
@@ -172,8 +175,8 @@ Uint32 _testAssociators(CIMClient& client,
 ////////////////////////////////////////////////////////////////////////////
 // This returns the total number of Associator Names of the instances.
 
-Uint32 _testAssociatorNames(CIMClient& client, 
-                            CIMName assocClass, 
+Uint32 _testAssociatorNames(CIMClient& client,
+                            CIMName assocClass,
                             CIMObjectPath instancePath)
 {
     if (verbose)
@@ -198,9 +201,10 @@ Uint32 _testAssociatorNames(CIMClient& client,
 ////////////////////////////////////////////////////////////////////////////
 // This returns the total number of References of the instances.
 
-Uint32 _testReferences(CIMClient& client,
-                       CIMObjectPath instancePath,
-                       CIMName referenceClass)
+Uint32 _testReferences(
+    CIMClient& client,
+    CIMObjectPath instancePath,
+    CIMName referenceClass)
 {
     if (verbose)
     {
@@ -210,12 +214,12 @@ Uint32 _testReferences(CIMClient& client,
     // get the association reference instances
     //
     String role;
-    Array<CIMObject> resultObjects = 
-           client.references(NAMESPACE, instancePath, referenceClass,role);
-    Uint32 size  = resultObjects.size();
-    if(verbose)
+    Array<CIMObject> resultObjects =
+        client.references(NAMESPACE, instancePath, referenceClass,role);
+    Uint32 size = resultObjects.size();
+    if (verbose)
     {
-        if(size > 0)
+        if (size > 0)
         {
             cout << " \n     " <<  referenceClass.getString() << " :: ";
             for (Uint32 i = 0; i < size ; ++i)
@@ -254,10 +258,11 @@ Uint32 _testReferenceNames(CIMClient& client,
 ////////////////////////////////////////////////////////////////////////////
 //  _testaggregation
 ////////////////////////////////////////////////////////////////////////////
-// This would test the aggregation of all the enumerateinstances,enumerateinstanceNames,
-// associators, associatorNames, references, referenceNames of the TEST_Teaches class
-// and its subclass TEST_TeachesDynamic. TEST_Teaches class has some static instances, 
-// associators. TEST_TeachesDynamic has some Dynamic instances built by this 
+// This would test the aggregation of all the enumerateinstances,
+// enumerateinstanceNames, associators, associatorNames, references,
+// referenceNames of the TEST_Teaches class and its subclass
+// TEST_TeachesDynamic. TEST_Teaches class has some static instances,
+// associators.  TEST_TeachesDynamic has some Dynamic instances built by this
 // TestAggregationOutputProvider.
 // Output : As per the table in TestCaseReadMe.doc.
 
@@ -287,13 +292,15 @@ void _testaggregation(CIMClient& client)
         // Checking the RepositoryIsDefaultInstanceProvider and the number
         // of instances returned.
 
-        if(My_isDefaultInstanceProvider == 1 && 2 != numteachesInstances)
+        if (My_isDefaultInstanceProvider == 1 && 2 != numteachesInstances)
         {
-            throw Exception(" Unexpected number of instances returned with Repository Enabled. ");
+            throw Exception(" Unexpected number of instances returned with "
+                "Repository Enabled. ");
         }
-        else if(My_isDefaultInstanceProvider == 0 && 1 != numteachesInstances)
+        else if (My_isDefaultInstanceProvider == 0 && 1 != numteachesInstances)
         {
-            throw Exception(" Unexpected number of instances returned with Repository Disabled. ");
+            throw Exception(" Unexpected number of instances returned with "
+                "Repository Disabled. ");
         }
 
         personRefs = client.enumerateInstanceNames(NAMESPACE, TEST_PERSON);
@@ -302,31 +309,38 @@ void _testaggregation(CIMClient& client)
         for (Uint32 i = 0; i < numpersonInstances; ++i)
         {
             a_count  += _testAssociators(client, TEST_TEACHES, personRefs[i]);
-            an_count += _testAssociatorNames(client, TEST_TEACHES, personRefs[i]);
+            an_count +=
+                _testAssociatorNames(client, TEST_TEACHES, personRefs[i]);
             r_count  += _testReferences(client, personRefs[i],TEST_TEACHES);
-            rn_count += _testReferenceNames(client, personRefs[i], TEST_TEACHES);
+            rn_count +=
+                _testReferenceNames(client, personRefs[i], TEST_TEACHES);
         }
-        if ( a_count != 2*numteachesInstances || an_count != 2*numteachesInstances ||
-           r_count != 2*numteachesInstances || rn_count != 2*numteachesInstances )
+        if (a_count != 2*numteachesInstances ||
+            an_count != 2*numteachesInstances ||
+            r_count != 2*numteachesInstances ||
+            rn_count != 2*numteachesInstances)
         {
             throw Exception(" The number of instances returned is incorrect.");
         }
     }
-    catch (Exception &e)
+    catch (Exception& e)
     {
-       _errorExit(e.getMessage());
+        _errorExit(e.getMessage());
     }
-    cout << "\n+++++ Test aggregation of Static and Dynamic instances passed" << endl;
+    cout << "\n+++++ Test aggregation of Static and Dynamic instances passed"
+         << endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 //  _testFromRepository
 ////////////////////////////////////////////////////////////////////////////
-// This would test the aggregation of all the enumerateinstances,enumerateinstanceNames,
-// associators, associatorNames, references, referenceNames of the TEST_Works class and its
-// subclass TEST_WorksDynamic. TEST_Works class has some static instances, associators and  
-// TEST_WorksDynamic does not have any dynamic isntances built and the 
-// TestAggregationOutputProvider returns the CIM_ERR_NOT_SUPPORTED for this class.
+// This would test the aggregation of all the enumerateinstances,
+// enumerateinstanceNames, associators, associatorNames, references,
+// referenceNames of the TEST_Works class and its subclass TEST_WorksDynamic.
+// TEST_Works class has some static instances, associators and
+// TEST_WorksDynamic does not have any dynamic isntances built and the
+// TestAggregationOutputProvider returns the CIM_ERR_NOT_SUPPORTED for this
+// class.
 // Output : As per the table in TestCaseReadMe.doc.
 
 void _testFromRepository(CIMClient& client)
@@ -336,7 +350,8 @@ void _testFromRepository(CIMClient& client)
     Uint32 r_count = 0;
     Uint32 rn_count = 0;
 
-    cout << "\n+++++ Test for Static instance and Not supported Dynamic instance" << endl;
+    cout << "\n+++++ Test for Static instance and Not supported Dynamic "
+        "instance" << endl;
     try
     {
         Array<CIMObjectPath> worksRefs;
@@ -355,13 +370,15 @@ void _testFromRepository(CIMClient& client)
         // Checking the RepositoryIsDefaultInstanceProvider and the number
         // of instances returned.
 
-        if(My_isDefaultInstanceProvider == 1 && 1 != numworksInstances)
+        if (My_isDefaultInstanceProvider == 1 && 1 != numworksInstances)
         {
-            throw Exception(" Unexpected number of instances returned with Repository Enabled. ");
+            throw Exception(" Unexpected number of instances returned with "
+                "Repository Enabled. ");
         }
-        else if(My_isDefaultInstanceProvider == 0 && 0 != numworksInstances)
+        else if (My_isDefaultInstanceProvider == 0 && 0 != numworksInstances)
         {
-            throw Exception(" Unexpected number of instances returned with Repository Disabled. ");
+            throw Exception(" Unexpected number of instances returned with "
+                "Repository Disabled. ");
         }
 
         personRefs = client.enumerateInstanceNames(NAMESPACE, TEST_PERSON);
@@ -374,10 +391,12 @@ void _testFromRepository(CIMClient& client)
             r_count  += _testReferences(client, personRefs[i],TEST_WORKS);
             rn_count += _testReferenceNames(client, personRefs[i], TEST_WORKS);
         }
-        if ( a_count != 2*numworksInstances || an_count != 2*numworksInstances ||
-             r_count != 2*numworksInstances || rn_count != 2*numworksInstances )
+        if (a_count != 2*numworksInstances ||
+            an_count != 2*numworksInstances ||
+            r_count != 2*numworksInstances ||
+            rn_count != 2*numworksInstances)
         {
-           throw Exception(" The number of instances returned is incorrect.");
+            throw Exception(" The number of instances returned is incorrect.");
         }
     }
     catch (const CIMException& ex)
@@ -388,22 +407,25 @@ void _testFromRepository(CIMClient& client)
             throw Exception(" Test From Repository Failed. ");
         }
     }
-    catch (Exception)
+    catch (Exception&)
     {
-       throw Exception(" Test From Repository Failed. ");
+        throw Exception(" Test From Repository Failed. ");
     }
-    cout << "\n+++++ Test for Static instance and Not supported Dynamic instance passed" << endl;
+    cout << "\n+++++ Test for Static instance and Not supported Dynamic "
+        "instance passed" << endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 //  _testNotSupported
 ////////////////////////////////////////////////////////////////////////////
-// This would test the aggregation of all the enumerateinstances,enumerateinstanceNames,
-// associators, associatorNames, references, referenceNames of the TEST_Marriage class and its
-// subclass TEST_MarriageDynamic. TEST_Marriage class does not have any static instances, associators. 
-// and also TEST_MarriageDynamic does not have any dynamic isntances built. 
-// So the repository would return 0 instances and the TestAggregationOutputProvider would return the
-// CIM_ERR_NOT_SUPPORTED exception for this class.
+// This would test the aggregation of all the enumerateinstances,
+// enumerateinstanceNames, associators, associatorNames, references,
+// referenceNames of the TEST_Marriage class and its subclass
+// TEST_MarriageDynamic. TEST_Marriage class does not have any static
+// instances, associators. and also TEST_MarriageDynamic does not have any
+// dynamic instances built. So the repository would return 0 instances and
+// the TestAggregationOutputProvider would return the CIM_ERR_NOT_SUPPORTED
+// exception for this class.
 // Output : As per the table in TestCaseReadMe.doc.
 
 void _testNotSupported(CIMClient& client)
@@ -413,7 +435,8 @@ void _testNotSupported(CIMClient& client)
     Uint32 r_count = 0;
     Uint32 rn_count = 0;
 
-    cout << "\n+++++ Test for Not Supported Static and Dynamic instance" << endl;
+    cout << "\n+++++ Test for Not Supported Static and Dynamic instance"
+         << endl;
     Array<CIMObjectPath> marriageRefs;
     Array<CIMObjectPath> personRefs;
     Uint32 nummarriageInstances = 0;
@@ -432,13 +455,15 @@ void _testNotSupported(CIMClient& client)
         // Checking the RepositoryIsDefaultInstanceProvider and the number
         // of instances returned.
 
-        if(My_isDefaultInstanceProvider == 1 && 0 != nummarriageInstances)
+        if (My_isDefaultInstanceProvider == 1 && 0 != nummarriageInstances)
         {
-            throw Exception(" Unexpected number of instances returned with Repository Enabled. ");
+            throw Exception(" Unexpected number of instances returned with "
+                "Repository Enabled. ");
         }
-        else if(My_isDefaultInstanceProvider == 0 && 0 != nummarriageInstances)
+        else if (My_isDefaultInstanceProvider == 0 && 0 != nummarriageInstances)
         {
-            throw Exception(" Unexpected number of instances returned with Repository Disabled. ");
+            throw Exception(" Unexpected number of instances returned with "
+                "Repository Disabled. ");
         }
     }
     catch (const CIMException& ex)
@@ -451,8 +476,8 @@ void _testNotSupported(CIMClient& client)
     }
     catch (Exception &e)
     {
-        cout << "ex message is "<<e.getMessage() << endl;
-       throw Exception(" Test Not Supported Failed. ");
+        cout << "ex message is " << e.getMessage() << endl;
+        throw Exception(" Test Not Supported Failed. ");
     }
     try
     {
@@ -462,14 +487,18 @@ void _testNotSupported(CIMClient& client)
         for (Uint32 i = 0; i < numpersonInstances; ++i)
         {
             a_count  += _testAssociators(client, TEST_MARRIAGE, personRefs[i]);
-            an_count += _testAssociatorNames(client, TEST_MARRIAGE, personRefs[i]);
+            an_count +=
+                _testAssociatorNames(client, TEST_MARRIAGE, personRefs[i]);
             r_count  += _testReferences(client, personRefs[i],TEST_MARRIAGE);
-            rn_count += _testReferenceNames(client, personRefs[i], TEST_MARRIAGE);
+            rn_count +=
+                _testReferenceNames(client, personRefs[i], TEST_MARRIAGE);
         }
-        if ( a_count != nummarriageInstances || an_count != nummarriageInstances ||
-             r_count != nummarriageInstances || rn_count != nummarriageInstances )
+        if (a_count != nummarriageInstances ||
+            an_count != nummarriageInstances ||
+            r_count != nummarriageInstances ||
+            rn_count != nummarriageInstances)
         {
-           throw Exception(" The number of instances returned is incorrect.");
+            throw Exception(" The number of instances returned is incorrect.");
         }
     }
     catch (const CIMException& ex)
@@ -480,23 +509,26 @@ void _testNotSupported(CIMClient& client)
             throw Exception(" Test Not Supported Failed. ");
         }
     }
-    catch (Exception &e)
+    catch (Exception& e)
     {
         cout << "ex message is "<<e.getMessage() << endl;
         throw Exception(" Test Not Supported Failed. ");
     }
-    cout << "\n+++++ Test for Not Supported Static and Dynamic instance passed" << endl;
+    cout << "\n+++++ Test for Not Supported Static and Dynamic instance passed"
+         << endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 //  _testNotFound
 ////////////////////////////////////////////////////////////////////////////
-//This would test the aggregation of all the enumerateinstances,enumerateinstanceNames,
-// associators, associatorNames, references, referenceNames of the TEST_Family class and its
-// subclass TEST_FamilyDynamic. TEST_Family class has some static instances, associators. 
-// and TEST_FamilyDynamic does not have any dynamic isntances built and the TestAggregationOutputProvider
-// would return CIM_ERR_NOT_FOUND exception. So the output of methods on the class TEST_Family
-// would return the static instances from the repository and the CIM_ERR_NOT_FOUND from the Provider. 
+// This would test the aggregation of all the enumerateinstances,
+// enumerateinstanceNames, associators, associatorNames, references,
+// referenceNames of the TEST_Family class and its subclass TEST_FamilyDynamic.
+// TEST_Family class has some static instances, associators.  and
+// TEST_FamilyDynamic does not have any dynamic instances built and the
+// TestAggregationOutputProvider would return CIM_ERR_NOT_FOUND exception.
+// So the output of methods on the class TEST_Family would return the static
+// instances from the repository and the CIM_ERR_NOT_FOUND from the Provider.
 // Output : As per the table in TestCaseReadMe.doc.
 
 void _testNotFound(CIMClient& client)
@@ -506,11 +538,12 @@ void _testNotFound(CIMClient& client)
     Uint32 r_count = 0;
     Uint32 rn_count = 0;
 
-     cout << "\n+++++ Test for Supported Static and Not Found Dynamic instance" << endl;
-     Array<CIMObjectPath> familyRefs;
-     Array<CIMObjectPath> personRefs;
-     Uint32 numfamilyInstances = 0;
-     Uint32 numpersonInstances ;
+    cout << "\n+++++ Test for Supported Static and Not Found Dynamic instance"
+         << endl;
+    Array<CIMObjectPath> familyRefs;
+    Array<CIMObjectPath> personRefs;
+    Uint32 numfamilyInstances = 0;
+    Uint32 numpersonInstances;
 
     try
     {
@@ -525,13 +558,15 @@ void _testNotFound(CIMClient& client)
         // Checking the RepositoryIsDefaultInstanceProvider and the number
         // of instances returned.
 
-        if(My_isDefaultInstanceProvider == 1 && 0 != numfamilyInstances)
+        if (My_isDefaultInstanceProvider == 1 && 0 != numfamilyInstances)
         {
-            throw Exception(" Unexpected number of instances returned with Repository Enabled. ");
+            throw Exception(" Unexpected number of instances returned with "
+                "Repository Enabled. ");
         }
-        else if(My_isDefaultInstanceProvider == 0 && 0 != numfamilyInstances)
+        else if (My_isDefaultInstanceProvider == 0 && 0 != numfamilyInstances)
         {
-            throw Exception(" Unexpected number of instances returned with Repository Disabled. ");
+            throw Exception(" Unexpected number of instances returned with "
+                "Repository Disabled. ");
         }
     }
     catch (const CIMException& ex)
@@ -542,7 +577,7 @@ void _testNotFound(CIMClient& client)
             throw Exception(" Test Not Supported Failed. ");
         }
     }
-    catch (Exception)
+    catch (Exception&)
     {
        throw Exception(" Test Not Supported Failed. ");
     }
@@ -554,12 +589,16 @@ void _testNotFound(CIMClient& client)
         for (Uint32 i = 0; i < numpersonInstances; ++i)
         {
             a_count  += _testAssociators(client, TEST_FAMILY, personRefs[i]);
-            an_count += _testAssociatorNames(client, TEST_FAMILY, personRefs[i]);
+            an_count +=
+                _testAssociatorNames(client, TEST_FAMILY, personRefs[i]);
             r_count  += _testReferences(client, personRefs[i],TEST_FAMILY);
-            rn_count += _testReferenceNames(client, personRefs[i], TEST_FAMILY);
+            rn_count +=
+                _testReferenceNames(client, personRefs[i], TEST_FAMILY);
         }
-        if ( a_count != numfamilyInstances || an_count != numfamilyInstances ||
-             r_count != numfamilyInstances || rn_count != numfamilyInstances )
+        if (a_count != numfamilyInstances ||
+            an_count != numfamilyInstances ||
+            r_count != numfamilyInstances ||
+            rn_count != numfamilyInstances)
         {
             throw Exception(" The number of instances returned is incorrect.");
         }
@@ -572,11 +611,12 @@ void _testNotFound(CIMClient& client)
             throw Exception(" Test Not Supported Failed. ");
         }
     }
-    catch (Exception)
+    catch (Exception&)
     {
-       throw Exception(" Test Not Supported Failed. ");
+        throw Exception(" Test Not Supported Failed. ");
     }
-    cout << "\n+++++ Test for Supported Static and Not Found Dynamic instance Passed" << endl;
+    cout << "\n+++++ Test for Supported Static and Not Found Dynamic instance "
+        "Passed" << endl;
 }
 
 
@@ -596,10 +636,10 @@ int main(int argc, char** argv)
     if (argc > 2)
     {
         cerr << "Usage: TestAggregationOutputClient [-v]" << endl;
-        return(1);
+        return 1;
     }
 
-    if (2 == argc )
+    if (2 == argc)
     {
         const char *opt = argv[1];
         if (0 == strcmp(opt, "-v"))
@@ -609,7 +649,7 @@ int main(int argc, char** argv)
         else
         {
             cerr << "Usage: TestAggregationOutputClient [-v]" << endl;
-            return(1);
+            return 1;
         }
     }
 
@@ -627,8 +667,8 @@ int main(int argc, char** argv)
 
     getPropertiesFromCIMServer(client, REPOSITORY_DEFAULT, propertyValues);
     currentValue = propertyValues[2];
-    
-    if ( currentValue == "true" )
+
+    if (currentValue == "true")
        My_isDefaultInstanceProvider = 1;
 
     cout << "+++++ Test AggregationOutput Provider" << endl;
@@ -646,7 +686,7 @@ int main(int argc, char** argv)
         _testNotSupported(client);
         _testNotFound(client);
     }
-    catch(Exception)
+    catch (Exception&)
     {
         cout << "\n----- Test Aggregation Failed" << endl;
     }
@@ -660,5 +700,5 @@ int main(int argc, char** argv)
         _errorExit(e.getMessage());
     }
 
-    return(0);
+    return 0;
 }

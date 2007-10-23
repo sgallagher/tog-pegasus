@@ -29,9 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Alex Dunfey (dunfey_alexander@emc.com)
-//
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -41,15 +38,14 @@
 
 PEGASUS_USING_PEGASUS;
 
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(
-    const String & providerName)
+extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(
+    const String& providerName)
 {
     printf("Creating Embedded Instance Provider\n");
     if (String::equalNoCase(providerName, "EmbeddedInstanceProvider"))
     {
-	    return new EmbeddedInstanceProvider();
+        return new EmbeddedInstanceProvider();
     }
 
     return 0;
 }
-

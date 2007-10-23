@@ -29,75 +29,73 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "TestProviderB.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-static CIMObjectPath _convertObjectPathBtoA(const CIMObjectPath & objectPath)
+static CIMObjectPath _convertObjectPathBtoA(const CIMObjectPath& objectPath)
 {
     CIMObjectPath temp = objectPath;
 
     temp.setClassName("TST_InstanceA");
 
-    return(temp);
+    return temp;
 }
 
-static CIMObjectPath _convertObjectPathAtoB(const CIMObjectPath & objectPath)
+static CIMObjectPath _convertObjectPathAtoB(const CIMObjectPath& objectPath)
 {
     CIMObjectPath temp = objectPath;
 
     temp.setClassName("TST_InstanceB");
 
-    return(temp);
+    return temp;
 }
 
-static CIMInstance _convertInstanceAtoB(const CIMInstance & instance)
+static CIMInstance _convertInstanceAtoB(const CIMInstance& instance)
 {
     CIMInstance temp("TST_InstanceB");
 
-    temp.addProperty(CIMProperty("Name", instance.getProperty(instance.findProperty("Name")).getValue()));
+    temp.addProperty(CIMProperty(
+        "Name",
+        instance.getProperty(instance.findProperty("Name")).getValue()));
     temp.addProperty(CIMProperty("s", instance.getPath().toString()));
 
     temp.setPath(_convertObjectPathAtoB(instance.getPath()));
 
-    return(temp);
+    return temp;
 }
 
-TestProviderB::TestProviderB(void)
+TestProviderB::TestProviderB()
 {
 }
 
-TestProviderB::~TestProviderB(void)
+TestProviderB::~TestProviderB()
 {
 }
 
-void TestProviderB::initialize(CIMOMHandle & cimom)
+void TestProviderB::initialize(CIMOMHandle& cimom)
 {
-	_cimom = cimom;
+    _cimom = cimom;
 }
 
-void TestProviderB::terminate(void)
+void TestProviderB::terminate()
 {
     delete this;
 }
 
 void TestProviderB::getInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& instanceReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    InstanceResponseHandler& handler)
 {
     handler.processing();
 
-    CIMInstance cimInstance = 
+    CIMInstance cimInstance =
         _cimom.getInstance(
             context,
             instanceReference.getNameSpace(),
@@ -113,12 +111,12 @@ void TestProviderB::getInstance(
 }
 
 void TestProviderB::enumerateInstances(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& classReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    InstanceResponseHandler& handler)
 {
     handler.processing();
 
@@ -133,7 +131,7 @@ void TestProviderB::enumerateInstances(
             includeClassOrigin,
             propertyList);
 
-    for(Uint32 i = 0, n = cimInstances.size(); i < n; i++)
+    for (Uint32 i = 0, n = cimInstances.size(); i < n; i++)
     {
         handler.deliver(_convertInstanceAtoB(cimInstances[i]));
     }
@@ -142,9 +140,9 @@ void TestProviderB::enumerateInstances(
 }
 
 void TestProviderB::enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	ObjectPathResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& classReference,
+    ObjectPathResponseHandler& handler)
 {
     handler.processing();
 
@@ -154,7 +152,7 @@ void TestProviderB::enumerateInstanceNames(
             classReference.getNameSpace(),
             _convertObjectPathBtoA(classReference).getClassName());
 
-    for(Uint32 i = 0, n = cimInstanceNames.size(); i < n; i++)
+    for (Uint32 i = 0, n = cimInstanceNames.size(); i < n; i++)
     {
         handler.deliver(_convertObjectPathAtoB(cimInstanceNames[i]));
     }
@@ -163,29 +161,29 @@ void TestProviderB::enumerateInstanceNames(
 }
 
 void TestProviderB::modifyInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	const Boolean includeQualifiers,
-	const CIMPropertyList & propertyList,
-	ResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& instanceReference,
+    const CIMInstance& instanceObject,
+    const Boolean includeQualifiers,
+    const CIMPropertyList& propertyList,
+    ResponseHandler& handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void TestProviderB::createInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	ObjectPathResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& instanceReference,
+    const CIMInstance& instanceObject,
+    ObjectPathResponseHandler& handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void TestProviderB::deleteInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	ResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& instanceReference,
+    ResponseHandler& handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }

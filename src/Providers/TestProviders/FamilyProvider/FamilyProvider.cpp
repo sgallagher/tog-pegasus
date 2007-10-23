@@ -547,11 +547,11 @@ CIMInstance _buildInstanceLabeledLineageDynamic(
 }
 
 /**************************** FamilyProvider class Implementation*********/
-FamilyProvider::FamilyProvider(void)
+FamilyProvider::FamilyProvider()
 {
 }
 
-FamilyProvider::~FamilyProvider(void)
+FamilyProvider::~FamilyProvider()
 {
 }
 
@@ -575,14 +575,14 @@ CIMClass FamilyProvider::_getClass(const CIMName& className)
             true,
             CIMPropertyList());
     }
-    catch(CIMException& e)
+    catch (CIMException& e)
     {
         PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "FamilyProvider GetClass operation failed: Class %s. Msg %s",
             (const char*) className.getString().getCString(),
             (const char*) e.getMessage().getCString()));
     }
-    return(c);
+    return c;
 }
 
 void FamilyProvider::initialize(CIMOMHandle & cimom)
@@ -652,7 +652,7 @@ void FamilyProvider::initialize(CIMOMHandle & cimom)
     _instances.append(_buildPersonDynamicInstance(_personDynamicClass,
         String("Daughter1"), String( "five"), 5));
 
-    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    for (Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
         // Create Instance Names
         _instanceNames.append(_instances[i].buildPath(_personDynamicClass));
@@ -681,7 +681,7 @@ void FamilyProvider::initialize(CIMOMHandle & cimom)
         _instancesLineageDynamic.append(_buildInstanceLineageDynamic(
             _assocClass, _instanceNames[Mother],_instanceNames[Daughter1]));
 
-        for(Uint32 i = 0, n = _instancesLineageDynamic.size(); i < n; i++)
+        for (Uint32 i = 0, n = _instancesLineageDynamic.size(); i < n; i++)
         {
             // Create Instance Names
             _instanceNamesLineageDynamic.append(
@@ -718,7 +718,7 @@ void FamilyProvider::initialize(CIMOMHandle & cimom)
                 _assocLabeledClass, _instanceNames[Mother],
                 _instanceNames[Daughter1], String("six")));
 
-        for(Uint32 i=0, n = _instancesLabeledLineageDynamic.size(); i < n; i++)
+        for (Uint32 i=0, n = _instancesLabeledLineageDynamic.size(); i < n; i++)
         {
             // Create Instance Names
             _instanceNamesLabeledLineageDynamic.append(
@@ -734,7 +734,7 @@ void FamilyProvider::initialize(CIMOMHandle & cimom)
     PEG_METHOD_EXIT();
 }
 
-void FamilyProvider::terminate(void)
+void FamilyProvider::terminate()
 {
     PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Terminate");
     delete this;
@@ -763,12 +763,11 @@ void FamilyProvider::_getInstance(
 {
     // convert a potential fully qualified reference into a local reference
     // (class name and keys only).
-    CIMObjectPath localReference =
-            _makeRefLocal(instanceReference);
+    CIMObjectPath localReference = _makeRefLocal(instanceReference);
 
-    for(Uint32 i = 0, n = instanceArray.size(); i < n; i++)
+    for (Uint32 i = 0, n = instanceArray.size(); i < n; i++)
     {
-        if(localReference == instanceArray[i].getPath())
+        if (localReference == instanceArray[i].getPath())
         {
             // deliver filtered clone of requested instance
             handler.deliver(filterInstance(instanceArray[i],
@@ -848,7 +847,7 @@ void FamilyProvider::_enumerateInstances(
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
-    for(Uint32 i = 0, n = instanceArray.size(); i < n; i++)
+    for (Uint32 i = 0, n = instanceArray.size(); i < n; i++)
     {
         handler.deliver(filterInstance(instanceArray[i],
             includeQualifiers, includeClassOrigin, propertyList,
@@ -917,7 +916,7 @@ void FamilyProvider::_enumerateInstanceNames(
     const CIMObjectPath & classReference,
     ObjectPathResponseHandler & handler)
 {
-    for(Uint32 i = 0, n = instanceArray.size(); i < n; i++)
+    for (Uint32 i = 0, n = instanceArray.size(); i < n; i++)
     {
         // Set the host and namespace into these.
         handler.deliver(setCompleteObjectPath(instanceArray[i].getPath(),
@@ -978,10 +977,10 @@ void FamilyProvider::_modifyInstance(
     ResponseHandler & handler)
 {
 
-    for(Uint32 i = 0, n = instanceArray.size(); i < n; i++)
+    for (Uint32 i = 0, n = instanceArray.size(); i < n; i++)
     {
         // ATTN: We will need to localize the input here.
-        if(localReference == instanceArray[i].getPath())
+        if (localReference == instanceArray[i].getPath())
         {
             // overwrite existing instance
             // ATTN:too simplistic.  Does not take into accout
@@ -1059,11 +1058,10 @@ void FamilyProvider::_createInstance(
     // (class name and keys only).
     CIMObjectPath localReference = _makeRefLocal(instanceReference);
     CIMInstance saveInstance = instanceObject.clone();
-    for(Uint32 i = 0, n = instanceArray.size(); i < n; i++)
+    for (Uint32 i = 0, n = instanceArray.size(); i < n; i++)
     {
-        if(localReference == instanceArray[i].buildPath(_personDynamicClass))
-            throw CIMObjectAlreadyExistsException(
-                                  localReference.toString());
+        if (localReference == instanceArray[i].buildPath(_personDynamicClass))
+            throw CIMObjectAlreadyExistsException(localReference.toString());
     }
     // add the new instance to the array
     // Note that we make it local.  This is a decicision of this provider
@@ -1135,9 +1133,9 @@ void FamilyProvider::_deleteInstance(
     const CIMObjectPath & localReference,
     ResponseHandler & handler)
 {
-    for(Uint32 i = 0, n = instanceArray.size(); i < n; i++)
+    for (Uint32 i = 0, n = instanceArray.size(); i < n; i++)
     {
-        if(localReference == instanceArray[i].getPath())
+        if (localReference == instanceArray[i].getPath())
         {
             // remove instance from the array
             instanceArray.remove(i);
@@ -1230,11 +1228,11 @@ void FamilyProvider::_associators(
         {
             // instance index corresponds to reference index
             // For each resultInstance, if matches result path, Deliver.
-            for(Uint32 j = 0, n = resultInstanceArray.size(); j < n; j++)
+            for (Uint32 j = 0, n = resultInstanceArray.size(); j < n; j++)
             {
                 CIMObjectPath newPath = resultInstanceArray[j].getPath();
 
-                if(resultPaths[i].identical(newPath))
+                if (resultPaths[i].identical(newPath))
                 {
 
                     handler.deliver(filterInstance(resultInstanceArray[j],

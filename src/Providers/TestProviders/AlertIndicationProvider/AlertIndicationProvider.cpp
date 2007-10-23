@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//         (carolann_graves@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -43,56 +38,56 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-AlertIndicationProvider::AlertIndicationProvider (void) throw ()
+AlertIndicationProvider::AlertIndicationProvider() throw()
 {
 }
 
-AlertIndicationProvider::~AlertIndicationProvider (void) throw ()
+AlertIndicationProvider::~AlertIndicationProvider() throw()
 {
 }
 
-void AlertIndicationProvider::initialize (CIMOMHandle & cimom)
+void AlertIndicationProvider::initialize(CIMOMHandle& cimom)
 {
     // save cimom handle
     _cimom = cimom;
 }
 
-void AlertIndicationProvider::terminate (void)
+void AlertIndicationProvider::terminate()
 {
     delete this;
 }
 
-void AlertIndicationProvider::enableIndications (
-    IndicationResponseHandler & handler)
+void AlertIndicationProvider::enableIndications(
+    IndicationResponseHandler& handler)
 {
 }
 
-void AlertIndicationProvider::disableIndications (void)
+void AlertIndicationProvider::disableIndications()
 {
 }
 
-void AlertIndicationProvider::createSubscription (
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array <CIMObjectPath> & classNames,
-    const CIMPropertyList & propertyList,
+void AlertIndicationProvider::createSubscription(
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array <CIMObjectPath>& classNames,
+    const CIMPropertyList& propertyList,
     const Uint16 repeatNotificationPolicy)
 {
 }
 
-void AlertIndicationProvider::modifySubscription (
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array <CIMObjectPath> & classNames,
-    const CIMPropertyList & propertyList,
+void AlertIndicationProvider::modifySubscription(
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array <CIMObjectPath>& classNames,
+    const CIMPropertyList& propertyList,
     const Uint16 repeatNotificationPolicy)
 {
 }
 
-void AlertIndicationProvider::deleteSubscription (
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array <CIMObjectPath> & classNames)
+void AlertIndicationProvider::deleteSubscription(
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array <CIMObjectPath>& classNames)
 {
 }
 

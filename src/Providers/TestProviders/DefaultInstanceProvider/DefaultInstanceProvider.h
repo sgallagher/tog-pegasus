@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_DefaultInstanceProvider_h
@@ -48,72 +44,75 @@ PEGASUS_NAMESPACE_BEGIN
 class DefaultInstanceProvider : public CIMInstanceProvider
 {
 public:
-	DefaultInstanceProvider(void);
-	~DefaultInstanceProvider(void);
+    DefaultInstanceProvider();
+    ~DefaultInstanceProvider();
 
-	// CIMProvider interface
-	virtual void initialize(CIMOMHandle & cimom);
-	virtual void terminate(void);
+    // CIMProvider interface
+    virtual void initialize(CIMOMHandle& cimom);
+    virtual void terminate();
 
-	// CIMInstanceProvider interface
-	void getInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
+    // CIMInstanceProvider interface
+    void getInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        InstanceResponseHandler& handler);
 
-	void enumerateInstances(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
+    void enumerateInstances(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        InstanceResponseHandler& handler);
 
-	void enumerateInstanceNames(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		ObjectPathResponseHandler & handler);
+    void enumerateInstanceNames(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        ObjectPathResponseHandler& handler);
 
-	void modifyInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const CIMInstance & obj,
-		const Boolean includeQualifiers,
-		const CIMPropertyList & propertyList,
-		ResponseHandler & handler);
+    void modifyInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const CIMInstance& obj,
+        const Boolean includeQualifiers,
+        const CIMPropertyList& propertyList,
+        ResponseHandler& handler);
 
-	void createInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const CIMInstance & obj,
-		ObjectPathResponseHandler & handler);
+    void createInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const CIMInstance& obj,
+        ObjectPathResponseHandler& handler);
 
-	void deleteInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		ResponseHandler & handler);
+    void deleteInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        ResponseHandler& handler);
 
 protected:
-	Array<CIMObjectPath> _instanceNames;
-	Array<CIMInstance>   _instances;
-        CIMRepository *      _repository;
+    Array<CIMObjectPath> _instanceNames;
+    Array<CIMInstance> _instances;
+    CIMRepository* _repository;
 
 private:
-        Boolean _nameSpaceExists(const CIMNamespaceName& nameSpaceName) const;
+    Boolean _nameSpaceExists(const CIMNamespaceName& nameSpaceName) const;
 
-        void _copyNameSpace(const String & nameSpace, 
-                            const String & className);
+    void _copyNameSpace(
+        const String& nameSpace,
+        const String& className);
 
-        void _copyClass(const String & nameSpace,
-                        const String & className);
+    void _copyClass(
+        const String& nameSpace,
+        const String& className);
 
-        void _copySuperClasses(CIMClient & client, 
-                           const String & nameSpace, 
-                           const CIMClass & cimClass, 
-                           Array<CIMClass> & superClasses);
+    void _copySuperClasses(
+        CIMClient& client,
+        const String& nameSpace,
+        const CIMClass& cimClass,
+        Array<CIMClass>& superClasses);
 };
 
 #endif

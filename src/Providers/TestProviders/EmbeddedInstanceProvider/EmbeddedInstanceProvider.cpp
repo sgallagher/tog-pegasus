@@ -29,9 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Alex Dunfey (dunfey_alexander@emc.com)
-//
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -45,9 +42,11 @@ PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
 
-EmbeddedInstanceProvider::EmbeddedInstanceProvider() :
-    indicationHandler(0), errorInstance(0), indicationInstance(0),
-    STATIC_REPOSITORY("test/EmbeddedInstance/Static")
+EmbeddedInstanceProvider::EmbeddedInstanceProvider()
+    : indicationHandler(0),
+      errorInstance(0),
+      indicationInstance(0),
+      STATIC_REPOSITORY("test/EmbeddedInstance/Static")
 {
 }
 
@@ -55,7 +54,7 @@ EmbeddedInstanceProvider::~EmbeddedInstanceProvider()
 {
 }
 
-void EmbeddedInstanceProvider::initialize(CIMOMHandle & cimomHandle)
+void EmbeddedInstanceProvider::initialize(CIMOMHandle& cimomHandle)
 {
     cimom = cimomHandle;
 }
@@ -64,8 +63,8 @@ void EmbeddedInstanceProvider::terminate()
 {
 }
 
-void EmbeddedInstanceProvider::enableIndications (
-    IndicationResponseHandler & handler)
+void EmbeddedInstanceProvider::enableIndications(
+    IndicationResponseHandler& handler)
 {
     indicationHandler = &handler;
 }
@@ -75,88 +74,90 @@ void EmbeddedInstanceProvider::disableIndications()
     indicationHandler = 0;
 }
 
-void EmbeddedInstanceProvider::createSubscription (
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array <CIMObjectPath> & classNames,
-    const CIMPropertyList & propertyList,
+void EmbeddedInstanceProvider::createSubscription(
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array <CIMObjectPath>& classNames,
+    const CIMPropertyList& propertyList,
     const Uint16 repeatNotificationPolicy)
 {
     // I'm only expecting to receive one indication, and this is just
     // a test provider
 }
 
-void EmbeddedInstanceProvider::modifySubscription (
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array <CIMObjectPath> & classNames,
-    const CIMPropertyList & propertyList,
+void EmbeddedInstanceProvider::modifySubscription(
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array <CIMObjectPath>& classNames,
+    const CIMPropertyList& propertyList,
     const Uint16 repeatNotificationPolicy)
 {
     // I'm only expecting to receive one indication, and this is just
     // a test provider
 }
 
-void EmbeddedInstanceProvider::deleteSubscription (
-    const OperationContext & context,
-    const CIMObjectPath & subscriptionName,
-    const Array <CIMObjectPath> & classNames)
+void EmbeddedInstanceProvider::deleteSubscription(
+    const OperationContext& context,
+    const CIMObjectPath& subscriptionName,
+    const Array <CIMObjectPath>& classNames)
 {
     // I'm only expecting to receive one indication, and this is just
     // a test provider
 }
 
 /**
-  * When the "PropagateError" method is invoked, this function
-  * will read a CIM_Error embedded instance from the inParameters and use
-  * that instance to create an InstMethodIndication populating the Error[]
-  * property with the CIM_Error parameter and errorInstance stored in this
-  * class (if it's been created already). The output parameter of this method
-  * will contain the embedded instance received as input, and the newly
-  * created InstMethodIndication will be sent by the provider to any
-  * registered listeners.
-  */
+    When the "PropagateError" method is invoked, this function
+    will read a CIM_Error embedded instance from the inParameters and use
+    that instance to create an InstMethodIndication populating the Error[]
+    property with the CIM_Error parameter and errorInstance stored in this
+    class (if it's been created already). The output parameter of this method
+    will contain the embedded instance received as input, and the newly
+    created InstMethodIndication will be sent by the provider to any
+    registered listeners.
+*/
 void EmbeddedInstanceProvider::invokeMethod(
-        const OperationContext & context,
-        const CIMObjectPath & objectReference,
-        const CIMName & methodName,
-        const Array<CIMParamValue> & inParameters,
-        MethodResultResponseHandler & handler)
+        const OperationContext& context,
+        const CIMObjectPath& objectReference,
+        const CIMName& methodName,
+        const Array<CIMParamValue>& inParameters,
+        MethodResultResponseHandler& handler)
 {
     // This should start sending indications with the stored Job instance
     // embedded in the InstMethodIndication
     handler.processing();
-    if(!methodName.equal(CIMName("PropagateError")))
-      throw CIMException(CIM_ERR_METHOD_NOT_AVAILABLE);
+    if (!methodName.equal(CIMName("PropagateError")))
+        throw CIMException(CIM_ERR_METHOD_NOT_AVAILABLE);
 
-    if(inParameters.size() != 1)
+    if (inParameters.size() != 1)
     {
-      throw CIMException(CIM_ERR_INVALID_PARAMETER, "Did not receive exactly 1 parameter");
+        throw CIMException(
+            CIM_ERR_INVALID_PARAMETER, "Did not receive exactly 1 parameter");
     }
 
     CIMParamValue errorParam = inParameters[0];
-    if(!String::equal(errorParam.getParameterName(), String("error")))
+    if (!String::equal(errorParam.getParameterName(), String("error")))
     {
-      throw CIMException(CIM_ERR_INVALID_PARAMETER, "Did not find \"error\" parameter");
+        throw CIMException(
+            CIM_ERR_INVALID_PARAMETER, "Did not find \"error\" parameter");
     }
 
     CIMInstance errorParamInst;
     errorParam.getValue().get(errorParamInst);
-    if(!errorParamInst.getPath().getClassName().equal(CIMName("PG_EmbeddedError")))
+    if (errorParamInst.getPath().getClassName() != "PG_EmbeddedError")
     {
         throw CIMException(CIM_ERR_INVALID_PARAMETER);
     }
     errorParamInst.setPath(errorInstance->getPath());
     Array<CIMName> propList;
-    for(unsigned int i = 0, n = errorParamInst.getPropertyCount(); i < n; i++)
+    for (unsigned int i = 0, n = errorParamInst.getPropertyCount(); i < n; i++)
     {
         propList.append(errorParamInst.getProperty(i).getName());
     }
     CIMInstance tmpErrorInstance(errorInstance->clone());
     tmpErrorInstance.filter(false, false, propList);
-    if(!tmpErrorInstance.identical(errorParamInst))
+    if (!tmpErrorInstance.identical(errorParamInst))
     {
-      throw Exception("Did not receive expected ErrorInstance");
+        throw Exception("Did not receive expected ErrorInstance");
     }
 
     // Build new indication instance
@@ -166,19 +167,19 @@ void EmbeddedInstanceProvider::invokeMethod(
     indicationInstance.reset(new CIMInstance("PG_InstMethodIndication"));
     indicationInstance->setPath(indicationPath);
     indicationInstance->addProperty(CIMProperty("MethodName",
-      CIMValue(String("PropagateError"))));
+        CIMValue(String("PropagateError"))));
     indicationInstance->addProperty(CIMProperty("PreCall",
-      CIMValue(Boolean(false))));
+        CIMValue(Boolean(false))));
     indicationInstance->addProperty(CIMProperty("SourceInstance",
-      CIMValue(CIMObject(*errorInstance))));
+        CIMValue(CIMObject(*errorInstance))));
     Array<CIMInstance> errorInstances;
     errorInstances.append(*errorInstance);
     errorInstances.append(*errorInstance);
     indicationInstance->addProperty(CIMProperty("Error",
-      CIMValue(errorInstances)));
+        CIMValue(errorInstances)));
 
     handler.deliverParamValue(CIMParamValue(String("sameError"),
-      CIMValue(errorParamInst)));
+        CIMValue(errorParamInst)));
     handler.deliver(CIMValue(Uint32(1)));
     handler.complete();
 
@@ -186,23 +187,23 @@ void EmbeddedInstanceProvider::invokeMethod(
 }
 
 /**
-  * Retrieves either the stored errorInstance or indicationInstance from
-  * both the class and the static repository, performs a comparison, and
-  * returns the instance if they are the same.
-  */
+    Retrieves either the stored errorInstance or indicationInstance from
+    both the class and the static repository, performs a comparison, and
+    returns the instance if they are the same.
+*/
 void EmbeddedInstanceProvider::getInstance(
-	const OperationContext & context,
-	const CIMObjectPath & ref,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& ref,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    InstanceResponseHandler& handler)
 {
     handler.processing();
     CIMInstance retInst;
-    if(ref.getClassName().equal(CIMName("PG_EmbeddedError")))
+    if (ref.getClassName().equal(CIMName("PG_EmbeddedError")))
         retInst = errorInstance->clone();
-    else if(ref.getClassName().equal(CIMName("PG_InstMethodIndication")))
+    else if (ref.getClassName().equal(CIMName("PG_InstMethodIndication")))
         retInst = indicationInstance->clone();
 
     retInst.filter(includeQualifiers, includeClassOrigin, propertyList);
@@ -211,89 +212,89 @@ void EmbeddedInstanceProvider::getInstance(
 }
 
 /**
-  * Will send a number of copies of either the stored errorInstance
-  * or indicationInstance.
-  */
+    Will send a number of copies of either the stored errorInstance
+    or indicationInstance.
+*/
 void EmbeddedInstanceProvider::enumerateInstances(
-	const OperationContext & context,
-	const CIMObjectPath & ref,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& ref,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    InstanceResponseHandler& handler)
 {
     handler.processing();
     CIMInstance retInst;
-    if(ref.getClassName().equal(CIMName("PG_EmbeddedError")))
-      retInst = errorInstance->clone();
-    else if(ref.getClassName().equal(CIMName("PG_InstMethodIndication")))
-      retInst = indicationInstance->clone();
+    if (ref.getClassName().equal(CIMName("PG_EmbeddedError")))
+        retInst = errorInstance->clone();
+    else if (ref.getClassName().equal(CIMName("PG_InstMethodIndication")))
+        retInst = indicationInstance->clone();
 
     retInst.filter(includeQualifiers, includeClassOrigin, propertyList);
 
-    for(int i = 0; i < 5; i++)
-      handler.deliver(retInst);
+    for (int i = 0; i < 5; i++)
+        handler.deliver(retInst);
     handler.complete();
 }
 
 /**
-  * Returns the instance names of the errorInstance or indicationInstance
-  * stored in this class.
-  */
+    Returns the instance names of the errorInstance or indicationInstance
+    stored in this class.
+*/
 void EmbeddedInstanceProvider::enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMObjectPath & ref,
-	ObjectPathResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& ref,
+    ObjectPathResponseHandler& handler)
 {
     handler.processing();
-    if(ref.getClassName().equal(CIMName("PG_EmbeddedError")))
+    if (ref.getClassName().equal(CIMName("PG_EmbeddedError")))
     {
-      CIMObjectPath errorInstancePath = errorInstance->getPath();
-      handler.deliver(errorInstancePath);
-      handler.deliver(errorInstancePath);
-      handler.deliver(errorInstancePath);
-      handler.deliver(errorInstancePath);
-      handler.deliver(errorInstancePath);
+        CIMObjectPath errorInstancePath = errorInstance->getPath();
+        handler.deliver(errorInstancePath);
+        handler.deliver(errorInstancePath);
+        handler.deliver(errorInstancePath);
+        handler.deliver(errorInstancePath);
+        handler.deliver(errorInstancePath);
     }
-    else if(ref.getClassName().equal(CIMName("PG_InstMethodIndication")))
+    else if (ref.getClassName().equal(CIMName("PG_InstMethodIndication")))
     {
-      CIMObjectPath indicationInstancePath = indicationInstance->getPath();
-      handler.deliver(indicationInstancePath);
-      handler.deliver(indicationInstancePath);
-      handler.deliver(indicationInstancePath);
-      handler.deliver(indicationInstancePath);
-      handler.deliver(indicationInstancePath);
+        CIMObjectPath indicationInstancePath = indicationInstance->getPath();
+        handler.deliver(indicationInstancePath);
+        handler.deliver(indicationInstancePath);
+        handler.deliver(indicationInstancePath);
+        handler.deliver(indicationInstancePath);
+        handler.deliver(indicationInstancePath);
     }
     handler.complete();
 }
 
 /**
-  * TBD?
-  */
+    TBD?
+*/
 void EmbeddedInstanceProvider::modifyInstance(
-	const OperationContext & context,
-	const CIMObjectPath & ref,
-	const CIMInstance & obj,
-	const Boolean includeQualifiers,
-	const CIMPropertyList & propertyList,
-	ResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& ref,
+    const CIMInstance& obj,
+    const Boolean includeQualifiers,
+    const CIMPropertyList& propertyList,
+    ResponseHandler& handler)
 {
-  throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 //    handler.processing();
 //    handler.complete();
 }
 
 /**
-  * Stores a copy of the provided instance locally in the errorInstance
-  * class property, and also creates a copy of the instance in the static
-  * repository namespace. The instance is then read back out of the repository
-  * and compared against the one stored by the class.
-  */
+    Stores a copy of the provided instance locally in the errorInstance
+    class property, and also creates a copy of the instance in the static
+    repository namespace. The instance is then read back out of the repository
+    and compared against the one stored by the class.
+*/
 void EmbeddedInstanceProvider::createInstance(
-	const OperationContext & context,
-	const CIMObjectPath & ref,
-	const CIMInstance & obj,
-	ObjectPathResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& ref,
+    const CIMInstance& obj,
+    ObjectPathResponseHandler& handler)
 {
     handler.processing();
     errorInstance.reset(new CIMInstance(obj));
@@ -301,27 +302,38 @@ void EmbeddedInstanceProvider::createInstance(
     propNameList.append(CIMName("errorKey"));
     propNameList.append(CIMName("EmbeddedInst"));
     CIMPropertyList propList(propNameList);
-    CIMClass objClass = cimom.getClass(context,
-      STATIC_REPOSITORY,
-      obj.getClassName(),
-      false, true, false, propList);
+    CIMClass objClass = cimom.getClass(
+        context,
+        STATIC_REPOSITORY,
+        obj.getClassName(),
+        false,
+        true,
+        false,
+        propList);
     CIMObjectPath objPath = obj.buildPath(objClass);
     errorInstance->setPath(objPath);
 
-    repositoryPath = cimom.createInstance(context,
-      STATIC_REPOSITORY, *errorInstance);
+    repositoryPath = cimom.createInstance(
+        context, STATIC_REPOSITORY, *errorInstance);
 
-    CIMInstance repositoryInstance = cimom.getInstance(context,
-      STATIC_REPOSITORY, repositoryPath, false, false, false,
-      propList);
+    CIMInstance repositoryInstance = cimom.getInstance(
+        context,
+        STATIC_REPOSITORY,
+        repositoryPath,
+        false,
+        false,
+        false,
+        propList);
     repositoryInstance.setPath(repositoryPath);
     repositoryInstance.filter(false, false, propList);
     errorInstance->filter(false, false, propList);
-    if(!errorInstance->identical(repositoryInstance))
+    if (!errorInstance->identical(repositoryInstance))
     {
-      throw Exception("Repository instance and local instance for embedded error not identical");
+        throw Exception(
+            "Repository instance and local instance for embedded error not "
+                "identical");
     }
-    
+
     handler.deliver(objPath);
     handler.complete();
 }
@@ -331,16 +343,17 @@ void EmbeddedInstanceProvider::createInstance(
   * then tries to retrieve the instance from the repository which should fail.
   */
 void EmbeddedInstanceProvider::deleteInstance(
-	const OperationContext & context,
-	const CIMObjectPath & ref,
-	ResponseHandler & handler)
+    const OperationContext& context,
+    const CIMObjectPath& ref,
+    ResponseHandler& handler)
 {
     handler.processing();
-    if(ref.getClassName().equal(CIMName("PG_EmbeddedError")))
+    if (ref.getClassName().equal(CIMName("PG_EmbeddedError")))
     {
-      cimom.deleteInstance(context,
-        STATIC_REPOSITORY,
-        repositoryPath);
+      cimom.deleteInstance(
+          context,
+          STATIC_REPOSITORY,
+          repositoryPath);
     }
     handler.complete();
 }

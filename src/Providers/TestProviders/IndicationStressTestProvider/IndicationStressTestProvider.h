@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Dave Sudlik, IBM (dsudlik@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_IndicationStressTestProvider_h
@@ -49,43 +45,43 @@ class IndicationStressTestProvider :
     public CIMIndicationProvider
 {
 public:
-    IndicationStressTestProvider (void) throw ();
-    virtual ~IndicationStressTestProvider (void) throw ();
+    IndicationStressTestProvider() throw();
+    virtual ~IndicationStressTestProvider() throw();
 
     // CIMProvider interface
-    virtual void initialize (CIMOMHandle & cimom);
-    virtual void terminate (void);
+    virtual void initialize(CIMOMHandle& cimom);
+    virtual void terminate();
 
     // CIMIndicationProvider interface
-    virtual void enableIndications (IndicationResponseHandler & handler);
-    virtual void disableIndications (void);
+    virtual void enableIndications(IndicationResponseHandler& handler);
+    virtual void disableIndications();
 
-    virtual void createSubscription (
-	const OperationContext & context,
-	const CIMObjectPath & subscriptionName,
-	const Array <CIMObjectPath> & classNames,
-	const CIMPropertyList & propertyList,
-	const Uint16 repeatNotificationPolicy);
+    virtual void createSubscription(
+        const OperationContext& context,
+        const CIMObjectPath& subscriptionName,
+        const Array <CIMObjectPath>& classNames,
+        const CIMPropertyList& propertyList,
+        const Uint16 repeatNotificationPolicy);
 
-    virtual void modifySubscription (
-	const OperationContext & context,
-	const CIMObjectPath & subscriptionName,
-	const Array <CIMObjectPath> & classNames,
-	const CIMPropertyList & propertyList,
-	const Uint16 repeatNotificationPolicy);
+    virtual void modifySubscription(
+        const OperationContext& context,
+        const CIMObjectPath& subscriptionName,
+        const Array <CIMObjectPath>& classNames,
+        const CIMPropertyList& propertyList,
+        const Uint16 repeatNotificationPolicy);
 
-    virtual void deleteSubscription (
-	const OperationContext & context,
-	const CIMObjectPath & subscriptionName,
-	const Array <CIMObjectPath> & classNames);
+    virtual void deleteSubscription(
+        const OperationContext& context,
+        const CIMObjectPath& subscriptionName,
+        const Array <CIMObjectPath>& classNames);
 
     // CIMMethodProvider Interface
-     virtual void invokeMethod(
-         const OperationContext & context,
-         const CIMObjectPath & objectReference,
-         const CIMName & methodName,
-         const Array<CIMParamValue> & inParameters,
-         MethodResultResponseHandler & handler);
+    virtual void invokeMethod(
+        const OperationContext& context,
+        const CIMObjectPath& objectReference,
+        const CIMName& methodName,
+        const Array<CIMParamValue>& inParameters,
+        MethodResultResponseHandler& handler);
 
 private:
 
@@ -93,4 +89,3 @@ private:
 };
 
 #endif
-

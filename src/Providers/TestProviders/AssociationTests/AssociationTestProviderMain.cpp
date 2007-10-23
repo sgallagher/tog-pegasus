@@ -29,13 +29,11 @@
 //
 //==============================================================================
 //
-// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
-// This is a sample provider that provides the instance and association operations
-// associated with the AssociationTest MOF for the dynamic versions of the classes.
+
+// This is a sample provider that provides the instance and association
+// operations associated with the AssociationTest MOF for the dynamic versions
+// of the classes.
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
@@ -51,16 +49,16 @@ PEGASUS_NAMESPACE_BEGIN
 //
 // NOTE: The name of the provider must be correct to be loadable.
 
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)
+extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& name)
 {
     CDEBUG("Create AssociationProvider " << name);
-	if(String::equalNoCase(name, "associationtestprovider") ||
-		String::equalNoCase(name, "associationtestprovider (PROVIDER)"))
-	{
-        return(new AssociationTestProvider());
-	}
+    if (String::equalNoCase(name, "associationtestprovider") ||
+        String::equalNoCase(name, "associationtestprovider (PROVIDER)"))
+    {
+        return new AssociationTestProvider();
+    }
 
-	return(0);
+    return 0;
 }
 
 PEGASUS_NAMESPACE_END

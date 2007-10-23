@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_AssociationTestProvider_h
@@ -44,113 +40,113 @@
 
 // Debug Tools
 
-#define CDEBUG(X) PEGASUS_STD(cout) << "MCCA_AssocTestProvider " << X << PEGASUS_STD(endl)
+#define CDEBUG(X) \
+    PEGASUS_STD(cout) << "MCCA_AssocTestProvider " << X << PEGASUS_STD(endl)
 //#define CDEBUG(X)
-//#define DEBUG(X) Logger::put (Logger::DEBUG_LOG, "Linux_ProcessorProvider", Logger::INFORMATION, "$0", X)
 
 PEGASUS_NAMESPACE_BEGIN
 
 class AssociationTestProvider :
-	public CIMInstanceProvider, public CIMAssociationProvider
+    public CIMInstanceProvider, public CIMAssociationProvider
 {
 public:
-	AssociationTestProvider(void);
-	virtual ~AssociationTestProvider(void);
+    AssociationTestProvider();
+    virtual ~AssociationTestProvider();
 
-	// CIMProvider interface
-	virtual void initialize(CIMOMHandle & cimom);
-	virtual void terminate(void);
+    // CIMProvider interface
+    virtual void initialize(CIMOMHandle& cimom);
+    virtual void terminate();
 
-	// CIMInstanceProvider interfaces
-	virtual void getInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
+    // CIMInstanceProvider interfaces
+    virtual void getInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        InstanceResponseHandler& handler);
 
-	virtual void enumerateInstances(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
+    virtual void enumerateInstances(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        InstanceResponseHandler& handler);
 
-	virtual void enumerateInstanceNames(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		ObjectPathResponseHandler & handler);
+    virtual void enumerateInstanceNames(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        ObjectPathResponseHandler& handler);
 
-	virtual void modifyInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const CIMInstance & obj,
-		const Boolean includeQualifiers,
-		const CIMPropertyList & propertyList,
-		ResponseHandler & handler);
+    virtual void modifyInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const CIMInstance& obj,
+        const Boolean includeQualifiers,
+        const CIMPropertyList& propertyList,
+        ResponseHandler& handler);
 
-	virtual void createInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const CIMInstance & obj,
-		ObjectPathResponseHandler & handler);
+    virtual void createInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        const CIMInstance& obj,
+        ObjectPathResponseHandler& handler);
 
-	virtual void deleteInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		ResponseHandler & handler);
-    
-	// CIMAssociationProvider interface
-	virtual void associators(
-		const OperationContext & context,
-		const CIMObjectPath & objectName,
-		const CIMName & associationClass,
-		const CIMName & resultClass,
-		const String & role,
-		const String & resultRole,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		ObjectResponseHandler & handler);
+    virtual void deleteInstance(
+        const OperationContext& context,
+        const CIMObjectPath& ref,
+        ResponseHandler& handler);
 
-	virtual void associatorNames(
-		const OperationContext & context,
-		const CIMObjectPath & objectName,
-		const CIMName & associationClass,
-		const CIMName & resultClass,
-		const String & role,
-		const String & resultRole,
-		ObjectPathResponseHandler & handler);
+    // CIMAssociationProvider interface
+    virtual void associators(
+        const OperationContext& context,
+        const CIMObjectPath& objectName,
+        const CIMName& associationClass,
+        const CIMName& resultClass,
+        const String& role,
+        const String& resultRole,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        ObjectResponseHandler& handler);
 
-	virtual void references(
-		const OperationContext & context,
-		const CIMObjectPath & objectName,
-		const CIMName & resultClass,
-		const String & role,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		ObjectResponseHandler & handler);
+    virtual void associatorNames(
+        const OperationContext& context,
+        const CIMObjectPath& objectName,
+        const CIMName& associationClass,
+        const CIMName& resultClass,
+        const String& role,
+        const String& resultRole,
+        ObjectPathResponseHandler& handler);
 
-	virtual void referenceNames(
-		const OperationContext & context,
-		const CIMObjectPath & objectName,
-		const CIMName & resultClass,
-		const String & role,
-		ObjectPathResponseHandler & handler);
-    
+    virtual void references(
+        const OperationContext& context,
+        const CIMObjectPath& objectName,
+        const CIMName& resultClass,
+        const String& role,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        ObjectResponseHandler& handler);
+
+    virtual void referenceNames(
+        const OperationContext& context,
+        const CIMObjectPath& objectName,
+        const CIMName& resultClass,
+        const String& role,
+        ObjectPathResponseHandler& handler);
 
 protected:
-    struct _classTableItem {
+    struct _classTableItem
+    {
         CIMName className;
         CIMClass thisClass;
         Array<CIMInstance> instances;
     };
     Array<_classTableItem> _classTable;
     CIMOMHandle _cimom;
-	// save for the class objects that we use
+    // save for the class objects that we use
     CIMClass _referencedClass;
     CIMClass _referencedClassA;
     CIMClass _assocClass;
@@ -159,13 +155,13 @@ protected:
     // Built arrays of instances for each type
     // corresponds to referencedClass
     Array<CIMObjectPath> _instanceNames;
-	Array<CIMInstance> _instances;
+    Array<CIMInstance> _instances;
 
     // Corresponds to Lineage association class
     Array<CIMObjectPath> _instanceNamesLineageDynamic;
     Array<CIMInstance> _instancesLineageDynamic;
     Uint32 _delay;
-    
+
     // Corresponds to the LineageLabeled Class
     Array<CIMObjectPath> _instanceNamesLabeledLineageDynamic;
     Array<CIMInstance> _instancesLabeledLineageDynamic;

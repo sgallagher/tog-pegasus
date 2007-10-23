@@ -630,11 +630,6 @@ void CIMClassRep::toMof(Buffer& out) const
     out << STRLIT("\n};\n");
 }
 
-
-CIMClassRep::CIMClassRep()
-{
-}
-
 CIMClassRep::CIMClassRep(const CIMClassRep& x) :
     CIMObjectRep(x),
     _superClassName(x._superClassName)

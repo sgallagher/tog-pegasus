@@ -49,10 +49,6 @@ PEGASUS_USING_STD;
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-CIMQualifierRep::CIMQualifierRep()
-{
-}
-
 CIMQualifierRep::CIMQualifierRep(const CIMQualifierRep& x) :
     Sharable(),
     _name(x._name),

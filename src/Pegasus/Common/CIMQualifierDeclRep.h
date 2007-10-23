@@ -115,17 +115,11 @@ public:
 
 private:
 
-    CIMQualifierDeclRep();
-
     CIMQualifierDeclRep(const CIMQualifierDeclRep& x);
 
-    // This method is declared and made private so that the compiler does
-    // not implicitly define a default copy constructor.
-    CIMQualifierDeclRep& operator=(const CIMQualifierDeclRep& x)
-    {
-        //PEGASUS_ASSERT(0);
-        return *this;
-    }
+    CIMQualifierDeclRep();    // Unimplemented
+    // Unimplemented
+    CIMQualifierDeclRep& operator=(const CIMQualifierDeclRep& x);
 
     CIMName _name;
     CIMValue _value;

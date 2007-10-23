@@ -45,10 +45,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMMethodRep::CIMMethodRep()
-{
-}
-
 CIMMethodRep::CIMMethodRep(const CIMMethodRep& x) :
     Sharable(),
     _name(x._name),

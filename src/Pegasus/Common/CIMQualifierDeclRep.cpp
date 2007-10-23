@@ -202,12 +202,6 @@ void CIMQualifierDeclRep::toMof(Buffer& out) const
     out << STRLIT(";\n");
 }
 
-
-CIMQualifierDeclRep::CIMQualifierDeclRep()
-{
-
-}
-
 CIMQualifierDeclRep::CIMQualifierDeclRep(const CIMQualifierDeclRep& x) :
     Sharable(),
     _name(x._name),

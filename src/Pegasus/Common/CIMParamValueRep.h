@@ -85,17 +85,10 @@ public:
 
 private:
 
-    CIMParamValueRep();
-
     CIMParamValueRep(const CIMParamValueRep& x);
 
-    // This method is declared and made private so that the compiler does
-    // not implicitly define a default copy constructor.
-    CIMParamValueRep& operator=(const CIMParamValueRep& x)
-    {
-        //PEGASUS_ASSERT(0);
-        return *this;
-    }
+    CIMParamValueRep();    // Unimplemented
+    CIMParamValueRep& operator=(const CIMParamValueRep& x);    // Unimplemented
 
     String _parameterName;
     CIMValue _value;

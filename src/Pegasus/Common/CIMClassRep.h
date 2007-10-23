@@ -112,17 +112,10 @@ public:
 
 private:
 
-    CIMClassRep();
-
     CIMClassRep(const CIMClassRep& x);
 
-    // This method is declared and made private so that the compiler does
-    // not implicitly define a default copy constructor.
-    CIMClassRep& operator=(const CIMClassRep& x)
-    {
-        //PEGASUS_ASSERT(0);
-        return *this;
-    }
+    CIMClassRep();    // Unimplemented
+    CIMClassRep& operator=(const CIMClassRep& x);    // Unimplemented
 
     CIMName _superClassName;
     Array<CIMMethod> _methods;

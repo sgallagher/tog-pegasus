@@ -103,10 +103,6 @@ void CIMParamValueRep::toXml(Buffer& out) const
     out << STRLIT("</PARAMVALUE>\n");
 }
 
-CIMParamValueRep::CIMParamValueRep()
-{
-}
-
 CIMParamValueRep::CIMParamValueRep(const CIMParamValueRep& x) :
     Sharable(),
     _parameterName(x._parameterName),

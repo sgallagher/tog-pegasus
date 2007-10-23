@@ -162,19 +162,13 @@ public:
 
 private:
 
-    CIMPropertyRep();
-
     // Cloning constructor:
 
     CIMPropertyRep(const CIMPropertyRep& x, Boolean propagateQualifiers);
 
-    // This method is declared and made private so that the compiler does
-    // not implicitly define a default copy constructor.
-    CIMPropertyRep& operator=(const CIMPropertyRep& x)
-    {
-        //PEGASUS_ASSERT(0);
-        return *this;
-    }
+    CIMPropertyRep();    // Unimplemented
+    CIMPropertyRep(const CIMPropertyRep& x);    // Unimplemented
+    CIMPropertyRep& operator=(const CIMPropertyRep& x);    // Unimplemented
 
     CIMName _name;
     CIMValue _value;

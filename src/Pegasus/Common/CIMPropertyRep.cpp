@@ -45,10 +45,6 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMPropertyRep::CIMPropertyRep()
-{
-}
-
 CIMPropertyRep::CIMPropertyRep(
     const CIMPropertyRep& x,
     Boolean propagateQualifiers)

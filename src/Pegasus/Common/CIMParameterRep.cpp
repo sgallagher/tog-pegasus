@@ -43,10 +43,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMParameterRep::CIMParameterRep()
-{
-}
-
 CIMParameterRep::CIMParameterRep(const CIMParameterRep& x) :
     Sharable(),
     _name(x._name),

@@ -137,8 +137,6 @@ public:
 
 protected:
 
-    CIMObjectRep();
-
     CIMObjectRep(const CIMObjectRep& x);
 
     CIMObjectPath _reference;
@@ -148,13 +146,8 @@ protected:
 
 private:
 
-    // This method is declared and made private so that the compiler does
-    // not implicitly define a default copy constructor.
-    CIMObjectRep& operator=(const CIMObjectRep& x)
-    {
-        //PEGASUS_ASSERT(0);
-        return *this;
-    }
+    CIMObjectRep();    // Unimplemented
+    CIMObjectRep& operator=(const CIMObjectRep& x);    // Unimplemented
 
     friend class CIMObject;
     friend class BinaryStreamer;

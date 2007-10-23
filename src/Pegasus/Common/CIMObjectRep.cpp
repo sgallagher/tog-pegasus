@@ -40,10 +40,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
 
-CIMObjectRep::CIMObjectRep()
-{
-}
-
 CIMObjectRep::CIMObjectRep(const CIMObjectRep& x)
     : Sharable(), _reference(x._reference),
     _resolved(x._resolved)

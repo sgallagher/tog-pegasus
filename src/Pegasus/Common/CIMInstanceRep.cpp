@@ -207,14 +207,8 @@ void CIMInstanceRep::resolve(
 #endif
 }
 
-CIMInstanceRep::CIMInstanceRep()
-{
-
-}
-
 CIMInstanceRep::CIMInstanceRep(const CIMInstanceRep& x) : CIMObjectRep(x)
 {
-
 }
 
 void CIMInstanceRep::toXml(Buffer& out) const

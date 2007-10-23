@@ -77,17 +77,10 @@ public:
             const CIMPropertyList & propertyList);
 private:
 
-    CIMInstanceRep();
-
     CIMInstanceRep(const CIMInstanceRep& x);
 
-    // This method is declared and made private so that the compiler does
-    // not implicitly define a default copy constructor.
-    CIMInstanceRep& operator=(const CIMInstanceRep& x)
-    {
-        //PEGASUS_ASSERT(0);
-        return *this;
-    }
+    CIMInstanceRep();    // Unimplemented
+    CIMInstanceRep& operator=(const CIMInstanceRep& x);    // Unimplemented
 
     friend class CIMInstance;
     friend class CIMClassRep;

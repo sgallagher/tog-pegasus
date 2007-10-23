@@ -556,10 +556,14 @@ setupCBATestCertificates:
 	$(MKDIRHIER) $(PEGASUS_TEST_CERT_DIR)
 	$(RM) $(PEGASUS_CBA_TEST_CA_DATABASE_FILE)
 	$(TOUCH) $(PEGASUS_CBA_TEST_CA_DATABASE_FILE)
-	$(MAKE) -f TestMakefile createCBATestSSLConfigurationFile
-	$(MAKE) -f TestMakefile createCBATestCertificates
-	$(MAKE) -f TestMakefile registerInvalidCBATestCertificates
-	$(MAKE) -f TestMakefile registerValidCBATestCertificates
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
+            createCBATestSSLConfigurationFile
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
+            createCBATestCertificates
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
+            registerInvalidCBATestCertificates
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
+            registerValidCBATestCertificates
 
 ###############################################################################
 deleteCBATestCertificateFiles:
@@ -573,7 +577,8 @@ deleteCBATestCertificate:
 	cimtrust -r \
             -i $($($(TEST_NAME_SYM)_ISSUER_SYM)_SUBJECT) \
             -n $($(TEST_NAME_SYM)_SERIAL_NO)
-	$(MAKE) -f TestMakefile deleteCBATestCertificateFiles \
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
+             deleteCBATestCertificateFiles \
              TEST_CERT_NAME=$($(TEST_NAME_SYM))
 
 ###############################################################################
@@ -589,10 +594,12 @@ deleteCBATestCertificate:
 ###############################################################################
 deleteCBATestCertificates: FORCE
 	$(foreach i, $(PEGASUS_REG_CERT_NAME_SYMBOLS), \
-            $(MAKESH) $(MAKE) -f TestMakefile deleteCBATestCertificate -i \
+            $(MAKESH) $(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
+                deleteCBATestCertificate -i \
                 TEST_NAME_SYM=$(i) $(NL))
 	$(foreach i, $(PEGASUS_NOT_REG_CERT_NAME_SYMBOLS), \
-            $(MAKESH) $(MAKE) -f TestMakefile deleteCBATestCertificateFiles \
+            $(MAKESH) $(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
+                deleteCBATestCertificateFiles \
                 TEST_NAME_SYM=$(i) $(NL))
 
 ###############################################################################
@@ -605,10 +612,10 @@ deleteCBATestCertificates: FORCE
 cleanupCBATestCertificate_CONFIG_OPTIONS = \
     enableHttpsConnection=true  sslClientVerificationMode=optional
 cleanupCBATestCertificate_TESTSUITE_CMDS = \
-       $(MAKE)@@-f@@TestMakefile@@deleteCBATestCertificates
+       $(MAKE)@@--directory=$(PEGASUS_ROOT)@@-f@@TestMakefile@@deleteCBATestCertificates
 
 cleanupCBATestCertificates: FORCE
-	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile runTestSuite \
         CIMSERVER_CONFIG_OPTIONS="$(cleanupCBATestCertificate_CONFIG_OPTIONS)" \
         TESTSUITE_CMDS="$(cleanupCBATestCertificate_TESTSUITE_CMDS)"
 	$(RM) $(PEGASUS_CBA_TEST_CA_DATABASE_FILE)
@@ -627,9 +634,9 @@ cleanupCBATestCertificates: FORCE
 #
 ###############################################################################
 runCBATestSuites: FORCE
-	$(MAKE) -f TestMakefile runCBATestConfiguration1
-	$(MAKE) -f TestMakefile runCBATestConfiguration2
-	$(MAKE) -f TestMakefile runCBATestConfiguration3
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile runCBATestConfiguration1
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile runCBATestConfiguration2
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile runCBATestConfiguration3
 
 ###############################################################################
 #  The displayTestCerticate option uses the "openssl x509" command line tool
@@ -654,13 +661,13 @@ displayCBATestCertificate: FORCE
 ###############################################################################
 displayCBATestCertificates: FORCE
 	@$(foreach i, $(PEGASUS_CERT_NAME_SYMBOLS), \
-            $(MAKESH) $(MAKE) -f TestMakefile displayCBATestCertificate \
-                TEST_CERT_NAME=$($(i)) $(NL))
+            $(MAKESH) $(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
+                displayCBATestCertificate TEST_CERT_NAME=$($(i)) $(NL))
 
 registerInvalidCBATestCertificates:
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	$(foreach i, $(PEGASUS_NOT_VALIDATED_REG_CERT_NAME_SYMBOLS), \
-            $(MAKESH) $(MAKE) -f TestMakefile \
+            $(MAKESH) $(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
                 registerInvalidCBATestCertificate \
                 TEST_NAME_SYM=$(i) \
                 TEST_CERT_EXPIRED=$($(i)_EXPIRED) \
@@ -767,14 +774,16 @@ createSelfSignedCBATestCertificate:
             -in $(PEGASUS_TEST_CERT_DIR)/$($(TEST_NAME_SYM)).csr \
             -req -signkey $(PEGASUS_TEST_CERT_DIR)/$($(TEST_NAME_SYM)).key \
             -out $(PEGASUS_TEST_CERT_DIR)/$($(TEST_NAME_SYM)).cert
-	$(MAKE) -f TestMakefile signCBATestCertificate \
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
+            signCBATestCertificate \
             TEST_CERT_NAME=$($(TEST_NAME_SYM)) \
             TEST_CERT_ISSUER_SYM=$($(TEST_NAME_SYM)_ISSUER_SYM) \
             TEST_CERT_EXPIRED=$($(TEST_NAME_SYM)_EXPIRED) \
             TEST_CERT_IN_TS=$($(TEST_NAME_SYM)_IN_TS)
 
 createSelfSignedCACBATestCertificate:
-	$(MAKE) -f TestMakefile createSelfSignedCBATestCertificate \
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
+            createSelfSignedCBATestCertificate \
             TEST_NAME_SYM=$(TEST_NAME_SYM) \
             TEST_CERT_SET_SERIAL=$(TEST_NAME_SYM)
 
@@ -799,7 +808,8 @@ createCASignedCBATestCertificate:
           -CAkey \
              $(PEGASUS_TEST_CERT_DIR)/$($($(TEST_NAME_SYM)_ISSUER_SYM)).key \
           -out $(PEGASUS_TEST_CERT_DIR)/$($(TEST_NAME_SYM)).cert
-	$(MAKE) -f TestMakefile signCBATestCertificate \
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
+            signCBATestCertificate \
             TEST_CERT_NAME=$($(TEST_NAME_SYM)) \
             TEST_CERT_ISSUER_SYM=$($(TEST_NAME_SYM)_ISSUER_SYM) \
             TEST_CERT_EXPIRED=$($(TEST_NAME_SYM)_EXPIRED) \
@@ -821,17 +831,18 @@ registerValidCBATestCertificates_CONFIG_OPTIONS = \
     enableHttpsConnection=true sslClientVerificationMode=optional \
     enableAuthentication=true
 registerValidCBATestCertificates_TESTSUITE_CMDS = \
-       $(MAKE)@@-f@@TestMakefile@@internal_RegisterValidCBATestCertificates
+       $(MAKE)@@--directory=$(PEGASUS_ROOT)@@-f@@TestMakefile@@internal_RegisterValidCBATestCertificates
 
 registerValidCBATestCertificates: FORCE
-	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile runTestSuite \
             CIMSERVER_CONFIG_OPTIONS= \
                 "$(registerValidCBATestCertificates_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(registerValidCBATestCertificates_TESTSUITE_CMDS)"
 
 internal_RegisterValidCBATestCertificates:
 	$(foreach i, $(PEGASUS_VALIDATED_REG_CERT_NAME_SYMBOLS), \
-            $(MAKESH) $(MAKE) -f TestMakefile registerCBATestCertificate \
+            $(MAKESH) $(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
+                registerCBATestCertificate \
                 TEST_CERT_NAME=$($(i)) \
 		TEST_CERT_TYPE=$($(i)_TYPE) \
                 TEST_CERT_USER=$($(i)_USER_NAME) $(NL))
@@ -846,31 +857,31 @@ internal_RegisterValidCBATestCertificates:
 createCBATestCertificates:
 ifeq ($(OPENSSL_SET_SERIAL_SUPPORTED),true)
 	$(foreach i, $(PEGASUS_SCERT_NAME_SYMBOLS), \
-            $(MAKESH) $(MAKE) -f TestMakefile \
+            $(MAKESH) $(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
                 createSelfSignedCBATestCertificate \
                 TEST_NAME_SYM=$(i) \
                 TEST_CERT_SET_SERIAL="-set_serial $($(i)_SERIAL_NO)" $(NL))
 	$(foreach i, $(PEGASUS_RACERT_NAME_SYMBOLS), \
-            $(MAKESH) $(MAKE) -f TestMakefile \
+            $(MAKESH) $(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
                 createSelfSignedCACBATestCertificate \
                 TEST_NAME_SYM=$(i) \
                 TEST_CERT_SET_SERIAL="-set_serial $($(i)_SERIAL_NO)" $(NL))
 	$(foreach i, $(PEGASUS_ECERT_NAME_SYMBOLS), \
-            $(MAKESH) $(MAKE) -f TestMakefile \
+            $(MAKESH) $(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
                 createCASignedCBATestCertificate \
                 TEST_NAME_SYM=$(i) \
                 TEST_CERT_SET_SERIAL="-set_serial $($(i)_SERIAL_NO)" $(NL))
 else
 	$(foreach i, $(PEGASUS_SCERT_NAME_SYMBOLS), \
-            $(MAKESH) $(MAKE) -f TestMakefile \
+            $(MAKESH) $(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
                 createSelfSignedCBATestCertificate \
                 TEST_NAME_SYM=$(i) $(NL))
 	$(foreach i, $(PEGASUS_RACERT_NAME_SYMBOLS), \
-            $(MAKESH) $(MAKE) -f TestMakefile \
+            $(MAKESH) $(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
                 createSelfSignedCACBATestCertificate \
                 TEST_NAME_SYM=$(i) $(NL))
 	$(foreach i, $(PEGASUS_ECERT_NAME_SYMBOLS), \
-            $(MAKESH) $(MAKE) -f TestMakefile \
+            $(MAKESH) $(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
                 createCASignedCBATestCertificate \
                 TEST_NAME_SYM=$(i) $(NL))
 endif
@@ -891,10 +902,10 @@ runCBATestConfiguration1_CONFIG_OPTIONS = \
        enableHttpsConnection=true sslClientVerificationMode=disabled \
        enableAuthentication=true
 runCBATestConfiguration1_TESTSUITE_CMDS = \
-       $(MAKE)@@-f@@TestMakefile@@internal_runCBATestConfiguration1
+       $(MAKE)@@--directory=$(PEGASUS_ROOT)@@-f@@TestMakefile@@internal_runCBATestConfiguration1
 
 runCBATestConfiguration1: FORCE
-	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile runTestSuite \
          CIMSERVER_CONFIG_OPTIONS="$(runCBATestConfiguration1_CONFIG_OPTIONS)" \
          TESTSUITE_CMDS="$(runCBATestConfiguration1_TESTSUITE_CMDS)"
 
@@ -1375,10 +1386,10 @@ runCBATestConfiguration2_CONFIG_OPTIONS = \
       enableHttpsConnection=true sslClientVerificationMode=optional \
       enableAuthentication=true
 runCBATestConfiguration2_TESTSUITE_CMDS = \
-      $(MAKE)@@-f@@TestMakefile@@internal_runCBATestConfiguration$(configurationType)
+      $(MAKE)@@--directory=$(PEGASUS_ROOT)@@-f@@TestMakefile@@internal_runCBATestConfiguration$(configurationType)
 
 runCBATestConfiguration2: FORCE
-	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile runTestSuite \
          CIMSERVER_CONFIG_OPTIONS="$(runCBATestConfiguration2_CONFIG_OPTIONS)" \
          TESTSUITE_CMDS="$(runCBATestConfiguration2_TESTSUITE_CMDS)"
 
@@ -2318,10 +2329,10 @@ runCBATestConfiguration3_CONFIG_OPTIONS = \
        enableHttpsConnection=true sslClientVerificationMode=required \
        enableAuthentication=true
 runCBATestConfiguration3_TESTSUITE_CMDS = \
-       $(MAKE)@@-f@@TestMakefile@@internal_runCBATestConfiguration3
+       $(MAKE)@@--directory=$(PEGASUS_ROOT)@@-f@@TestMakefile@@internal_runCBATestConfiguration3
 
 runCBATestConfiguration3: FORCE
-	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile runTestSuite \
          CIMSERVER_CONFIG_OPTIONS="$(runCBATestConfiguration3_CONFIG_OPTIONS)" \
          TESTSUITE_CMDS="$(runCBATestConfiguration3_TESTSUITE_CMDS)"
 

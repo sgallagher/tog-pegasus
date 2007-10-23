@@ -119,22 +119,13 @@ public:
 class Tickler
 {
 public:
+    /**
+        Constructs a Tickler object and initializes its connection.
+        @exception Exception if the initialization fails.
+    */
     Tickler();
+
     ~Tickler();
-
-    /**
-        Initializes the Tickler connection.
-        @return True if the connection is initialized successfully, false if
-            the initialization failed because TCP/IP is not started.
-        @exception Exception if the initialization fails for any reason other
-            than TCP/IP is not started.
-    */
-    Boolean initialize();
-
-    /**
-        Uninitializes the Tickler connection.
-    */
-    void uninitialize();
 
     SocketHandle getClientSocket()
     {
@@ -147,6 +138,17 @@ public:
     }
 
 private:
+    /**
+        Initializes the Tickler connection.
+        @exception Exception if the initialization fails.
+    */
+    void _initialize();
+
+    /**
+        Uninitializes the Tickler connection.
+    */
+    void _uninitialize();
+
     SocketHandle _listenSocket;
     SocketHandle _clientSocket;
     SocketHandle _serverSocket;
@@ -221,7 +223,6 @@ public:
         thread. Bug# 2057 */
     void setState( Uint32 index, _MonitorEntry::entry_status status );
 
-    void initializeTickler();
     void tickle();
 
     /** Monitor system-level for the given number of milliseconds. Post a

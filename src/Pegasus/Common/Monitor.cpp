@@ -49,8 +49,6 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-static AtomicInt _connections(0);
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Tickler
@@ -62,34 +60,69 @@ Tickler::Tickler()
       _clientSocket(PEGASUS_INVALID_SOCKET),
       _serverSocket(PEGASUS_INVALID_SOCKET)
 {
+    try
+    {
+        _initialize();
+    }
+    catch (...)
+    {
+        _uninitialize();
+        throw;
+    }
 }
 
 Tickler::~Tickler()
 {
-    uninitialize();
+    _uninitialize();
 }
 
-Boolean Tickler::initialize()
+#if defined(PEGASUS_OS_TYPE_UNIX) || defined(PEGASUS_OS_VMS)
+
+// Use an anonymous pipe for the tickle connection.
+
+void Tickler::_initialize()
+{
+    int fds[2];
+
+    if (pipe(fds) == -1)
+    {
+        MessageLoaderParms parms(
+            "Common.Monitor.TICKLE_CREATE",
+            "Received error number $0 while creating the internal socket.",
+            getSocketError());
+        throw Exception(parms);
+    }
+
+    _serverSocket = fds[0];
+    _clientSocket = fds[1];
+}
+
+#else
+
+// Use an external loopback socket connection to allow the tickle socket to
+// be included in the select() array on Windows.
+
+void Tickler::_initialize()
 {
     //
     // Set up the addresses for the listen, client, and server sockets
     // based on whether IPv6 is enabled.
     //
 
-#ifdef PEGASUS_ENABLE_IPV6
+# ifdef PEGASUS_ENABLE_IPV6
     struct sockaddr_storage listenAddress;
     struct sockaddr_storage clientAddress;
     struct sockaddr_storage serverAddress;
-#else
+# else
     struct sockaddr_in listenAddress;
     struct sockaddr_in clientAddress;
     struct sockaddr_in serverAddress;
-#endif
+# endif
 
     int addressFamily;
     SocketLength addressLength;
 
-#ifdef PEGASUS_ENABLE_IPV6
+# ifdef PEGASUS_ENABLE_IPV6
     if (System::isIPv6StackActive())
     {
         // Use the IPv6 loopback address for the listen sockets
@@ -104,7 +137,7 @@ Boolean Tickler::initialize()
         addressLength = sizeof(struct sockaddr_in6);
     }
     else
-#endif
+# endif
     {
         // Use the IPv4 loopback address for the listen sockets
         HostAddress::convertTextToBinary(
@@ -144,17 +177,10 @@ Boolean Tickler::initialize()
             reinterpret_cast<struct sockaddr*>(&listenAddress),
             addressLength) < 0)
     {
-#ifdef PEGASUS_OS_ZOS
-        MessageLoaderParms parms(
-            "Common.Monitor.TICKLE_BIND_LONG",
-            "Received error:$0 while binding the internal socket.",
-            strerror(errno));
-#else
         MessageLoaderParms parms(
             "Common.Monitor.TICKLE_BIND",
             "Received error number $0 while binding the internal socket.",
             getSocketError());
-#endif
         throw Exception(parms);
     }
 
@@ -233,35 +259,14 @@ Boolean Tickler::initialize()
 
     tmpAddressLength = addressLength;
 
-    // Accept the client socket connection.  The accept call may fail with
-    // EAGAIN.  Try a max of 20 times to establish this connection.
-    unsigned int retries = 0;
-    do
-    {
-        _serverSocket = ::accept(
-            _listenSocket,
-            reinterpret_cast<struct sockaddr*>(&serverAddress),
-            &tmpAddressLength);
-
-        if ((_serverSocket != PEGASUS_SOCKET_ERROR) ||
-            (getSocketError() != PEGASUS_NETWORK_TRYAGAIN))
-        {
-            break;
-        }
-
-        Threads::sleep(1);
-        retries++;
-    } while (retries <= 20);
+    // Accept the client socket connection.
+    _serverSocket = ::accept(
+        _listenSocket,
+        reinterpret_cast<struct sockaddr*>(&serverAddress),
+        &tmpAddressLength);
 
     if (_serverSocket == PEGASUS_SOCKET_ERROR)
     {
-        if (getSocketError() == PEGASUS_NETWORK_TCPIP_STOPPED)
-        {
-            // TCP/IP is down
-            uninitialize();
-            return false;
-        }
-
         MessageLoaderParms parms(
             "Common.Monitor.TICKLE_ACCEPT",
             "Received error number $0 while accepting the internal socket "
@@ -279,10 +284,11 @@ Boolean Tickler::initialize()
 
     Socket::disableBlocking(_serverSocket);
     Socket::disableBlocking(_clientSocket);
-    return true;
 }
 
-void Tickler::uninitialize()
+#endif
+
+void Tickler::_uninitialize()
 {
     PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4, "uninitializing interface");
 
@@ -328,12 +334,13 @@ Monitor::Monitor()
     Socket::initializeInterface();
     _entries.reserveCapacity(numberOfMonitorEntriesToAllocate);
 
-    // setup the tickler
-    initializeTickler();
+    // Create a MonitorEntry for the Tickler and set its state to IDLE so the
+    // Monitor will watch for its events.
+    _MonitorEntry entry(_tickler.getServerSocket(), 1, INTERNAL);
+    entry._status = _MonitorEntry::IDLE;
+    _entries.append(entry);
 
-    // Start the count at 1 because initilizeTickler()
-    // has added an entry in the first position of the
-    // _entries array
+    // Start the count at 1 because _entries[0] is the Tickler
     for (int i = 1; i < numberOfMonitorEntriesToAllocate; i++)
     {
        _MonitorEntry entry(0, 0, 0);
@@ -343,35 +350,9 @@ Monitor::Monitor()
 
 Monitor::~Monitor()
 {
-    _tickler.uninitialize();
     Socket::uninitializeInterface();
     PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
                   "returning from monitor destructor");
-}
-
-void Monitor::initializeTickler()
-{
-    while (!_tickler.initialize())
-    {
-        // Retry until TCP/IP is started
-    }
-
-    // Create a MonitorEntry for the tickler and set its state to IDLE so the
-    // Monitor will watch for its events.
-    _MonitorEntry entry(_tickler.getServerSocket(), 1, INTERNAL);
-    entry._status = _MonitorEntry::IDLE;
-
-    if (_entries.size() == 0)
-    {
-        // The tickler has not been initialized before; add its entry at the
-        // beginning of the list.
-        _entries.append(entry);
-    }
-    else
-    {
-        // Overwrite the existing tickler entry.
-        _entries[0] = entry;
-    }
 }
 
 void Monitor::tickle()
@@ -649,20 +630,7 @@ void Monitor::run(Uint32 milliseconds)
                         Sint32 amt =
                             Socket::read(entries[indx].socket,&buffer, 2);
 
-                        if (amt == PEGASUS_SOCKET_ERROR &&
-                            getSocketError() == PEGASUS_NETWORK_TCPIP_STOPPED)
-                        {
-                            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
-                                "Monitor::run: Tickler socket got an IO error. "
-                                    "Going to re-create Socket and wait for "
-                                    "TCP/IP restart.");
-                            _tickler.uninitialize();
-                            initializeTickler();
-                        }
-                        else
-                        {
-                            entries[indx]._status = _MonitorEntry::IDLE;
-                        }
+                        entries[indx]._status = _MonitorEntry::IDLE;
                     }
                     else
                     {

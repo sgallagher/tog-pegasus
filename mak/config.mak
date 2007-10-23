@@ -224,16 +224,15 @@ endif
 # option of the mof compiler needs to be set.
 # *****
 
-ifdef PEGASUS_CIM_SCHEMA
-    CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/$(PEGASUS_CIM_SCHEMA)
-    ifeq ($(findstring $(patsubst CIM%,%,$(patsubst CIMPrelim%,%,$(PEGASUS_CIM_SCHEMA))),1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 271 28),)
-       CIM_SCHEMA_VER=
-    else
-       CIM_SCHEMA_VER=$(patsubst CIM%,%,$(patsubst CIMPrelim%,%,$(PEGASUS_CIM_SCHEMA)))
-    endif
-else
-    CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/CIM2131
+ifndef PEGASUS_CIM_SCHEMA
+    PEGASUS_CIM_SCHEMA=CIM2131
+endif
+
+CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/$(PEGASUS_CIM_SCHEMA)
+ifeq ($(findstring $(patsubst CIM%,%,$(patsubst CIMPrelim%,%,$(PEGASUS_CIM_SCHEMA))),1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 271 28),)
     CIM_SCHEMA_VER=
+else
+    CIM_SCHEMA_VER=$(patsubst CIM%,%,$(patsubst CIMPrelim%,%,$(PEGASUS_CIM_SCHEMA)))
 endif
 
 ifneq (, $(findstring Prelim, $(CIM_SCHEMA_DIR)))

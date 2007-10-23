@@ -46,7 +46,11 @@ endif
 ifndef PEGASUS_HTML_DIR
    PEGASUS_HTML_DIR = html
 endif
-   
+
+ifndef PEGASUS_DOC_DIR
+   PEGASUS_DOC_DIR = doc
+endif
+
 
 INCLUDE_SRCPATH = $(PEGASUS_ROOT)/src
 
@@ -357,7 +361,7 @@ createSDKEnvVarFile:
 	@$(ECHO) "ifndef PEGASUS_CIM_SCHEMA_DIR" \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/SDKEnvVar.mak
 	@$(ECHO) "   PEGASUS_CIM_SCHEMA_DIR =" \
-            "$(PEGASUS_CIM_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)" \
+            "$(PEGASUS_SAMPLES_DIR)/Providers/Load/$(PEGASUS_CIM_SCHEMA)" \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/SDKEnvVar.mak
 	@$(ECHO) "   CIM_SCHEMA_VER = " \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/SDKEnvVar.mak
@@ -379,6 +383,7 @@ createConfigFile:
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 
 stageDOCS:
+	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_DOC_DIR)
 	@$(foreach i, $(DOCSRCPATH1FILES), $(COPY) $(DOC_SRCPATH1)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_DOC_DIR)/$(i)$(NL))
 
 stageSAMPLES:
@@ -395,7 +400,7 @@ stageSAMPLES:
 	@$(foreach i, $(CLIENTSRCPATH1FILES), $(COPY) $(CLIENT_SRCPATH1)/$(i) \
             $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/$(i)$(NL))
 	@$(foreach i, $(CIMMOFFILES), $(COPY) $(CIM_SCHEMA_DIR)/$(i) \
-            $(PEGASUS_STAGING_DIR)$(PEGASUS_CIM_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/$(i)$(NL))
+            $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/Load/$(PEGASUS_CIM_SCHEMA)/$(i)$(NL))
 	@$(foreach i, $(PROVIDERSRCPATH1FILES), $(COPY) $(PROVIDER_SRCPATH1)/$(i) \
             $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/$(i)$(NL))
 	@$(COPY) $(CLIENT_SRCPATH1)/mak/$(PEGASUS_PLATFORM).mak \
@@ -455,8 +460,10 @@ _append_filesSectionToSpecFile:
 
 removeSampleProviderNamespace:
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile -i cimstop
-	@$(ECHO) +++++ Removing existing repository named root#SampleProvider 
-	@$(RMREPOSITORY) $(REPOSITORY_ROOT)/root\#SampleProvider
+	@$(ECHO) +++++ Removing existing repository named SDKExamples#DefaultCXX
+	@$(RMREPOSITORY) $(REPOSITORY_ROOT)/SDKExamples\#DefaultCXX
+	@$(ECHO) +++++ Removing existing repository named SDKExamples#CMPI
+	@$(RMREPOSITORY) $(REPOSITORY_ROOT)/SDKExamples\#CMPI
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile cimstart
 
 buildSDK:
@@ -467,6 +474,9 @@ buildSDK:
 	@$(MAKE) --directory=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR) \
             -f Makefile clean \
             PEGASUS_SAMPLES_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR) \
+            PEGASUS_SAMPLE_OBJ_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/obj \
+            PEGASUS_SAMPLE_BIN_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/bin \
+            PEGASUS_SAMPLE_LIB_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/lib \
             PEGASUS_PROVIDER_LIB_DIR=$(PEGASUS_HOME)/lib
 	@$(MAKE) --directory=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR) \
             -f Makefile all \
@@ -474,11 +484,14 @@ buildSDK:
             PEGASUS_INCLUDE_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR) \
             PEGASUS_DEST_LIB_DIR=$(PEGASUS_HOME)/lib \
             PEGASUS_SAMPLES_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR) \
-            PEGASUS_INDICATION_CONSUMER_LOG_DIR= $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/SimpleDisplayConsumer
+            PEGASUS_SAMPLE_OBJ_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/obj \
+            PEGASUS_SAMPLE_BIN_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/bin \
+            PEGASUS_SAMPLE_LIB_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/lib \
+            PEGASUS_INDICATION_CONSUMER_LOG_DIR=\
+                $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/SimpleDisplayConsumer
 	@$(MAKE) --directory=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/Load \
-            -f Makefile createrepository \
-            PEGASUS_CIM_MOF_DIR=$(PEGASUS_ROOT)/Schemas \
-            PEGASUS_BIN_DIR=$(PEGASUS_HOME)/bin
+            -f Makefile createrepository PEGASUS_BIN_DIR=$(PEGASUS_HOME)/bin \
+                PEGASUS_CIM_SCHEMA_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/Load/$(PEGASUS_CIM_SCHEMA)
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile  -i \
             registerproviders PEGASUS_BIN_DIR=$(PEGASUS_HOME)/bin
 
@@ -494,5 +507,6 @@ registerproviders:
 
 testSDK:
 	@$(MAKE) --directory=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR) \
-            -f Makefile  tests \
-            PEGASUS_SAMPLES_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)
+            -f Makefile  testSDK \
+            PEGASUS_SAMPLES_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR) \
+            PEGASUS_SAMPLE_BIN_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/bin

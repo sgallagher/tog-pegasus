@@ -654,6 +654,12 @@ Boolean CIMClassRep::identical(const CIMObjectRep* x) const
     if (!tmprep)
         return false;
 
+    // If the pointers are the same, the objects must be identical
+    if (this == tmprep)
+    {
+        return true;
+    }
+
     if (!_superClassName.equal (tmprep->_superClassName))
         return false;
 

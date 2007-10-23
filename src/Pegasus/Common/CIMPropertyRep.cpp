@@ -639,6 +639,12 @@ void CIMPropertyRep::toMof(Boolean isDeclaration, Buffer& out) const
 
 Boolean CIMPropertyRep::identical(const CIMPropertyRep* x) const
 {
+    // If the pointers are the same, the objects must be identical
+    if (this == x)
+    {
+        return true;
+    }
+
     if (!_name.equal (x->_name))
         return false;
 

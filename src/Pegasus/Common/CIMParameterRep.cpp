@@ -267,6 +267,12 @@ void CIMParameterRep::toMof(Buffer& out) const
 
 Boolean CIMParameterRep::identical(const CIMParameterRep* x) const
 {
+    // If the pointers are the same, the objects must be identical
+    if (this == x)
+    {
+        return true;
+    }
+
     if (!_name.equal (x->_name))
         return false;
 

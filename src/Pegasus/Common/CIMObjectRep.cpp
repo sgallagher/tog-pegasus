@@ -140,6 +140,12 @@ Uint32 CIMObjectRep::getPropertyCount() const
 
 Boolean CIMObjectRep::identical(const CIMObjectRep* x) const
 {
+    // If the pointers are the same, the objects must be identical
+    if (this == x)
+    {
+        return true;
+    }
+
     if (!_reference.identical(x->_reference))
     {
         return false;

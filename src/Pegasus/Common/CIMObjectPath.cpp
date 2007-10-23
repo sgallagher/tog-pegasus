@@ -1053,10 +1053,11 @@ String CIMObjectPath::_toStringCanonical() const
 Boolean CIMObjectPath::identical(const CIMObjectPath& x) const
 {
     return
-        String::equalNoCase(_rep->_host, x._rep->_host) &&
-        _rep->_nameSpace.equal(x._rep->_nameSpace) &&
-        _rep->_className.equal(x._rep->_className) &&
-        _rep->_keyBindings == x._rep->_keyBindings;
+        (_rep == x._rep) ||
+        (String::equalNoCase(_rep->_host, x._rep->_host) &&
+         _rep->_nameSpace.equal(x._rep->_nameSpace) &&
+         _rep->_className.equal(x._rep->_className) &&
+         (_rep->_keyBindings == x._rep->_keyBindings));
 }
 
 Uint32 CIMObjectPath::makeHashCode() const

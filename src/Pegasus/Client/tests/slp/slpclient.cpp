@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Tony Fiorentino (fiorentino_tony@emc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -49,57 +45,65 @@ PEGASUS_USING_STD;
 int main(int argc, char** argv)
 {
 #ifdef PEGASUS_ENABLE_SLP
-  try
+    try
     {
-      CIMServerDiscovery disco;
+        CIMServerDiscovery disco;
 
-      Array<Attribute> criteria;
-      Attribute attr(PEG_WBEM_SLP_SERVICE_ID"="PEG_WBEM_SLP_SERVICE_ID_DEFAULT);
-      Array<CIMServerDescription> connections ;
-	      SLPClientOptions* opts = (SLPClientOptions*)NULL; //new SLPClientOptions();
-      if(argc==2){
-	      // argv[1] should be a DA address
-	      opts = new SLPClientOptions();
-	      opts->target_address = strdup(argv[1]);
-	      opts->scopes=strdup("DEFAULT");
-	      opts->spi=strdup("");
-	      opts->use_directory_agent = false;
-      }
-      connections = disco.lookup(opts);
-      if((SLPClientOptions*)NULL!=opts){
-	      delete opts;
-      }
-	
-      for (Uint32 i=0; i<connections.size(); i++)
+        Array<Attribute> criteria;
+        Attribute attr(
+            PEG_WBEM_SLP_SERVICE_ID"="PEG_WBEM_SLP_SERVICE_ID_DEFAULT);
+        Array<CIMServerDescription> connections;
+        SLPClientOptions* opts = (SLPClientOptions*)NULL;
+        if (argc == 2)
         {
-          PEGASUS_STD(cout) << "\n======================================================" << PEGASUS_STD(endl);
-          PEGASUS_STD(cout) << connections[i].getUrl() << PEGASUS_STD(endl);
-          PEGASUS_STD(cout) << "======================================================" << PEGASUS_STD(endl);
-          Array<Attribute> attributes = connections[i].getAttributes();
-          for (Uint32 j=0; j<attributes.size(); j++)
+            // argv[1] should be a DA address
+            opts = new SLPClientOptions();
+            opts->target_address = strdup(argv[1]);
+            opts->scopes=strdup("DEFAULT");
+            opts->spi=strdup("");
+            opts->use_directory_agent = false;
+        }
+        connections = disco.lookup(opts);
+        if ((SLPClientOptions*)NULL != opts)
+        {
+            delete opts;
+        }
+
+        for (Uint32 i = 0; i < connections.size(); i++)
+        {
+            cout << "\n======================================================"
+                 << endl;
+            cout << connections[i].getUrl() << endl;
+            cout << "======================================================"
+                 << endl;
+            Array<Attribute> attributes = connections[i].getAttributes();
+            for (Uint32 j = 0; j < attributes.size(); j++)
             {
-              PEGASUS_STD(cout) << "'" << attributes[j] << "'" << PEGASUS_STD(endl);
+                cout << "'" << attributes[j] << "'" << endl;
             }
         }
 
-      if (connections.size() == 0)
+        if (connections.size() == 0)
         {
-          if (criteria.size() > 0)
-            PEGASUS_STD(cout) << "Warning: No registered wbem connections found using criteria: '" << attr << "'" << PEGASUS_STD(endl);
-          else
-            PEGASUS_STD(cout) << "Warning: No registered wbem connections found." << PEGASUS_STD(endl);
+            if (criteria.size() > 0)
+                cout << "Warning: No registered wbem connections found using "
+                    "criteria: '" << attr << "'" << endl;
+            else
+                cout << "Warning: No registered wbem connections found."
+                     << endl;
         }
     }
-  catch(Exception& e)
+    catch (Exception& e)
     {
-      PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-      exit(1);
+        cerr << "Error: " << e.getMessage() << endl;
+        exit(1);
     }
 
-  PEGASUS_STD(cout) << "+++++ passed all tests" << PEGASUS_STD(endl);
+    cout << "+++++ passed all tests" << endl;
 #else
-  PEGASUS_STD(cout) << "+++++ PEGASUS_ENABLE_SLP *not* set during the pegasus build" << PEGASUS_STD(endl);
+    cout << "+++++ PEGASUS_ENABLE_SLP *not* set during the pegasus build"
+         << endl;
 #endif // PEGASUS_ENABLE_SLP
 
-  return 0;
+    return 0;
 }

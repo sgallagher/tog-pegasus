@@ -33,17 +33,18 @@ PEGASUS_USING_STD;
 
 int main(int argc, char** argv)
 {
-    const CIMNamespaceName NAMESPACE = CIMNamespaceName ("SDKExamples/DefaultCXX");
-    const CIMName          CLASSNAME = CIMName ("Sample_MethodProviderClass");
+    const CIMNamespaceName NAMESPACE =
+        CIMNamespaceName("SDKExamples/DefaultCXX");
+    const CIMName CLASSNAME = CIMName("Sample_MethodProviderClass");
 
     try
     {
-        Array<CIMKeyBinding>      kbArray;
-        CIMKeyBinding             kb;
-	Array<CIMParamValue> 	  inParams;
-	Array<CIMParamValue>      outParams;
-	String			  hostName = "";
-        CIMClient 	          client;
+        Array<CIMKeyBinding> kbArray;
+        CIMKeyBinding        kb;
+        Array<CIMParamValue> inParams;
+        Array<CIMParamValue> outParams;
+        String               hostName;
+        CIMClient            client;
 
         //
         // Connect to CIM Server.
@@ -62,37 +63,35 @@ int main(int argc, char** argv)
         //
         // Build the params.
         //
-        kb.setName(CIMName ("Identifier"));
+        kb.setName(CIMName("Identifier"));
         kb.setValue("1");
         kb.setType(CIMKeyBinding::NUMERIC);
 
         kbArray.append(kb);
 
-        CIMObjectPath reference(
-            hostName, NAMESPACE,
-            CLASSNAME, kbArray);
-	
+        CIMObjectPath reference(hostName, NAMESPACE, CLASSNAME, kbArray);
+
         //
         // Invoke Method "SayHello".
         //
-	CIMValue retValue = client.invokeMethod(
-	    NAMESPACE, 
-	    reference, 
-	    CIMName ("SayHello"), 
-	    inParams, 
-	    outParams);
+        CIMValue retValue = client.invokeMethod(
+            NAMESPACE,
+            reference,
+            CIMName ("SayHello"),
+            inParams,
+            outParams);
 
-	cout << "Output : " << retValue.toString() << endl;
-	for (Uint8 i = 0; i < outParams.size(); i++)
-	    cout << outParams[i].getParameterName() 
-		<< " : " 
-		<< outParams[i].getValue().toString()
-		<< endl;
+        cout << "Output : " << retValue.toString() << endl;
+        for (Uint8 i = 0; i < outParams.size(); i++)
+            cout << outParams[i].getParameterName()
+                << " : "
+                << outParams[i].getValue().toString()
+                << endl;
     }
-    catch(Exception& e)
+    catch (Exception& e)
     {
-	cerr << "Error: " << e.getMessage() << endl;
-	exit(1);
+        cerr << "Error: " << e.getMessage() << endl;
+        exit(1);
     }
 
     return 0;

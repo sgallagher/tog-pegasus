@@ -33,17 +33,18 @@ PEGASUS_USING_STD;
 
 int main(int argc, char** argv)
 {
-    const CIMNamespaceName NAMESPACE = CIMNamespaceName ("SDKExamples/DefaultCXX");
-    const CIMName          CLASSNAME = CIMName ("Sample_InstanceProviderClass");
+    const CIMNamespaceName NAMESPACE =
+        CIMNamespaceName("SDKExamples/DefaultCXX");
+    const CIMName CLASSNAME = CIMName("Sample_InstanceProviderClass");
 
     try
     {
-	Boolean 		deepInheritance = true;
-	Boolean 		localOnly = true;
-	Boolean 		includeQualifiers = false;
-	Boolean 		includeClassOrigin = false;
-	Array<CIMInstance> 	cimInstances;
-	CIMClient 		client;
+        Boolean                 deepInheritance = true;
+        Boolean                 localOnly = true;
+        Boolean                 includeQualifiers = false;
+        Boolean                 includeClassOrigin = false;
+        Array<CIMInstance>      cimInstances;
+        CIMClient               client;
 
         //
         // The connectLocal Client API creates a connection to the server for
@@ -53,7 +54,7 @@ int main(int argc, char** argv)
         // User name and Password information can be passed
         // using the connect Client API.
         //
-	client.connectLocal();
+        client.connectLocal();
 
         //
         // Enumerate Instances.
@@ -62,15 +63,15 @@ int main(int argc, char** argv)
                                 NAMESPACE,  
                                 CLASSNAME, 
                                 deepInheritance,
-				localOnly,  
+                                localOnly,  
                                 includeQualifiers,
-			        includeClassOrigin );
+                                includeClassOrigin);
 
         cout << "Total Number of Instances: " << cimInstances.size() << endl;
     }
-    catch(Exception& e)
+    catch (Exception& e)
     {
-	cerr << "Error: " << e.getMessage() << endl;
+        cerr << "Error: " << e.getMessage() << endl;
         exit(1);
     }
 

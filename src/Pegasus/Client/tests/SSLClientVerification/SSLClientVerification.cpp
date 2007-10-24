@@ -39,27 +39,29 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/cimv2");
+const CIMNamespaceName NAMESPACE = CIMNamespaceName("root/cimv2");
 
 /*
- * This is a test for basic SSL Client Verification that was introduced in PEP#165.
+ * This is a test for basic SSL Client Verification that was introduced in
+ * PEP#165.
  *
  * The cimserver must be configured as following to test this:
  *
- *	enableHttpsConnection=true
+ *  enableHttpsConnection=true
  *  enableAuthentication=true
  *  sslClientVerificationMode=optional
  *  sslTrustStore=<directory>
  *  sslTrustStoreUserName=<valid sys user>
- * 
+ *
  * To test optional truststore automatic update:
  *
  *  PEGASUS_USE_AUTOMATIC_TRUSTSTORE_UPDATE is defined
- *  enableSSLTrustStoreAutoUpdate=true 
+ *  enableSSLTrustStoreAutoUpdate=true
  *
- * Additionally, the client must have its own certificate and private key to present to the server during the handshake.
- * Finally, the client certificate must be located in the server's truststore in the correct format: "<subject-hash>.0"
- *
+ * Additionally, the client must have its own certificate and private key to
+ * present to the server during the handshake.
+ * Finally, the client certificate must be located in the server's truststore
+ * in the correct format: "<subject-hash>.0"
  */
 
 int main(int argc, char** argv)
@@ -67,81 +69,91 @@ int main(int argc, char** argv)
     String host;
 
 #ifdef PEGASUS_HAS_SSL
-	try
-	{
+    try
+    {
+        if (argc == 1)
+        {
+            host = System::getHostName();
+        }
+        else
+        {
+            if (argc == 2)
+            {
+                 host = argv[1];
+            }
+            else
+            {
+                cerr << "Usage of " << argv[0] <<" :" << endl;
+                cerr << "No argument: test to localhost" << endl;
+                cerr << "1st argument: test to specified host" << endl;
+                exit(1);
+            }
+        }
 
-       if(argc == 1)
-       {
-           host = System::getHostName();
-       } else
-           if(argc == 2)
-           {
-               host = argv[1];
-           } else
-           {
-               PEGASUS_STD(cerr) << "Usage of " << argv[0] <<" :" << PEGASUS_STD(endl);
-               PEGASUS_STD(cerr) << "No argument: test to localhost" << PEGASUS_STD(endl);
-               PEGASUS_STD(cerr) << "1st argument: test to specified host" << PEGASUS_STD(endl);
-               exit(1);
+        Uint32 port = System::lookupPort(
+            WBEM_HTTPS_SERVICE_NAME, WBEM_DEFAULT_HTTPS_PORT);
 
-           }
+        //
+        // Note that these files are separate from the client.pem which
+        // represents the client's truststore.
+        //
+        const char* pegasusHome = getenv("PEGASUS_HOME");
+        String certPath = FileSystem::getAbsolutePath(
+            pegasusHome, "clientkeystore/client_cert.pem");
+        String keyPath = FileSystem::getAbsolutePath(
+            pegasusHome, "clientkeystore/client_key.pem");
 
-		Uint32 port = System::lookupPort(WBEM_HTTPS_SERVICE_NAME, WBEM_DEFAULT_HTTPS_PORT);
+        cerr << "certPath is " << certPath << endl;
+        cerr << "keyPath is " << keyPath << endl;
 
-		//
-		// Note that these files are separate from the client.pem which represents the client's truststore.
-		//
-		const char* pegasusHome = getenv("PEGASUS_HOME");
-		String certPath = FileSystem::getAbsolutePath(pegasusHome, "clientkeystore/client_cert.pem"); 
-		String keyPath = FileSystem::getAbsolutePath(pegasusHome, "clientkeystore/client_key.pem");
+        String randPath;
+# ifdef PEGASUS_SSL_RANDOMFILE
+        randPath = FileSystem::getAbsolutePath(
+            pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
+# endif
 
-		PEGASUS_STD(cerr) << "certPath is " << certPath << "\n";
-		PEGASUS_STD(cerr) << "keyPath is " << keyPath << "\n";
+        CIMClient client;
 
-		String randPath;
-#ifdef PEGASUS_SSL_RANDOMFILE
-		randPath = FileSystem::getAbsolutePath(pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
+        client.connect(
+                      host,
+                      port,
+                      SSLContext("", certPath, keyPath, NULL, randPath),
+                      String::EMPTY,
+                      String::EMPTY);
+
+        //
+        // Do a generic call.  We have to do this call to test whether or not
+        // we get 401'ed.
+        //
+        CIMClass cimClass = client.getClass(
+                                           CIMNamespaceName("root/cimv2"),
+                                           CIMName ("CIM_ManagedElement"),
+                                           true,
+                                           false,
+                                           false,
+                                           CIMPropertyList());
+
+        client.disconnect();
+    }
+    catch (Exception& e)
+    {
+        cerr << "Error: " << e.getMessage() << endl;
+        cerr << "Root cause could be PEGASUS_HAS_SSL is defined but "
+            "enableHttpsConnection=false" << endl;
+        exit(1);
+    }
+
+    cout << "+++++ passed all tests" << endl;
+
+    return 0;
+
 #endif
 
-		CIMClient client;
+    //
+    // This returns a false positive result.
+    // But we should never get here since this test is only run if
+    // PEGASUS_HAS_SSL is defined.
+    //
 
-		client.connect(
-					  host, 
-					  port,
-					  SSLContext("", certPath, keyPath, NULL, randPath),
-					  String::EMPTY, 
-					  String::EMPTY);
-
-		//
-		// Do a generic call.  We have to do this call to test whether or not we get 401'ed.
-		//
-		CIMClass cimClass = client.getClass(
-										   CIMNamespaceName("root/cimv2"), 
-										   CIMName ("CIM_ManagedElement"),
-										   true,
-										   false,
-										   false,
-										   CIMPropertyList());
-
-		client.disconnect();
-
-	} catch (Exception& e)
-	{
-		PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-		PEGASUS_STD(cerr) << "Root cause could be PEGASUS_HAS_SSL is defined but enableHttpsConnection=false" << PEGASUS_STD(endl);
-		exit(1);  
-	}
-
-	PEGASUS_STD(cout) << "+++++ passed all tests" << PEGASUS_STD(endl);
-
-	return 0;
-
-#endif
-
-	//
-	// This returns a false positive result.
-	// But we should never get here since this test is only run if PEGASUS_HAS_SSL is defined.
-	//
-
-	return 0;
+    return 0;
 }

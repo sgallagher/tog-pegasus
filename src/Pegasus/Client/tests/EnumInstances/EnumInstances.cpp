@@ -29,13 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Warren Otsuka (warren_otsuka@hp.com) 
-//
-// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
-//                   (carolann_graves@hp.com)
-//               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//        
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -55,34 +48,37 @@ int main(int argc, char** argv)
 {
     try
     {
-	CIMClient client;
-	client.connectLocal();
+        CIMClient client;
+        client.connectLocal();
 
-	Boolean deepInheritance = true;
-	Boolean localOnly = true;
-	Boolean includeQualifiers = false;
-	Boolean includeClassOrigin = false;
-	Array<CIMInstance> cimNInstances = 
-	  client.enumerateInstances(NAMESPACE, CLASSNAME, deepInheritance,
-				    localOnly, includeQualifiers,
-				    includeClassOrigin );
+        Boolean deepInheritance = true;
+        Boolean localOnly = true;
+        Boolean includeQualifiers = false;
+        Boolean includeClassOrigin = false;
+        Array<CIMInstance> cimNInstances = client.enumerateInstances(
+            NAMESPACE,
+            CLASSNAME,
+            deepInheritance,
+            localOnly,
+            includeQualifiers,
+            includeClassOrigin);
 
-	PEGASUS_TEST_ASSERT(cimNInstances.size() == 3);
-	for (Uint32 i = 0; i < cimNInstances.size(); i++)
+        PEGASUS_TEST_ASSERT(cimNInstances.size() == 3);
+        for (Uint32 i = 0; i < cimNInstances.size(); i++)
         {
-	    if (!((cimNInstances[i].getPath() == INSTANCE1) ||
-	          (cimNInstances[i].getPath() == INSTANCE2) ||
-	          (cimNInstances[i].getPath() == INSTANCE3)))
+            if (!((cimNInstances[i].getPath() == INSTANCE1) ||
+                  (cimNInstances[i].getPath() == INSTANCE2) ||
+                  (cimNInstances[i].getPath() == INSTANCE3)))
             {
                 cerr << "Error: EnumInstances failed" << endl;
                 exit(1);
             }
         }
     }
-    catch(Exception& e)
+    catch (Exception& e)
     {
-	cerr << "Error: " << e.getMessage() << endl;
-	exit(1);
+        cerr << "Error: " << e.getMessage() << endl;
+        exit(1);
     }
 
     cout << "EnumInstances +++++ passed all tests" << endl;

@@ -29,6 +29,9 @@
 //
 //==============================================================================
 //
+//%/////////////////////////////////////////////////////////////////////////////
+
+//
 // This CIM client program is used to test the SampleAssociationProvider.
 //
 // This program makes CIMClient association method calls (associators,
@@ -52,7 +55,6 @@
 // is considered a failure.  If there is a failure, an error message is
 // displayed and the program terminates.
 //
-// ==========================================================================
 
 #include <Pegasus/Client/CIMClient.h>
 #include <string.h>
@@ -60,11 +62,11 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-const CIMNamespaceName NAMESPACE = CIMNamespaceName ("SDKExamples/DefaultCXX");
-const CIMName SAMPLE_TEACHER = CIMName ("Sample_Teacher");
-const CIMName SAMPLE_STUDENT = CIMName ("Sample_Student");
-const CIMName SAMPLE_TEACHERSTUDENT = CIMName ("Sample_TeacherStudent");
-const CIMName SAMPLE_ADVISORSTUDENT = CIMName ("Sample_AdvisorStudent");
+const CIMNamespaceName NAMESPACE = CIMNamespaceName("SDKExamples/DefaultCXX");
+const CIMName SAMPLE_TEACHER = CIMName("Sample_Teacher");
+const CIMName SAMPLE_STUDENT = CIMName("Sample_Student");
+const CIMName SAMPLE_TEACHERSTUDENT = CIMName("Sample_TeacherStudent");
+const CIMName SAMPLE_ADVISORSTUDENT = CIMName("Sample_AdvisorStudent");
 
 static Boolean verbose = false;
 // exepected results - number of returned objects expected for each test
@@ -80,7 +82,7 @@ static const Uint32 resultArray_ref_S[] = { 4, 4, 3 };
 //  _errorExit
 ////////////////////////////////////////////////////////////////////////////
 
-void _errorExit(String message)
+void _errorExit(const String& message)
 {
     cerr << "AssociationTestClient error: " << message << endl;
     exit(1);
@@ -95,7 +97,9 @@ void _errorExit(String message)
 //  number of objects returned is not expected, display an error and
 //  terminate the program.
 //
-void _verifyResult(const Uint32 numObjects, const Uint32 numExpectedObjects)
+void _verifyResult(
+    const Uint32 numObjects,
+    const Uint32 numExpectedObjects)
 {
     if (numObjects != numExpectedObjects)
     {
@@ -113,7 +117,7 @@ void _verifyResult(const Uint32 numObjects, const Uint32 numExpectedObjects)
 //
 //  Display the result objects if verbose option is specified.
 //
-void _displayResult(const Array<CIMObject> & objects)
+void _displayResult(const Array<CIMObject>& objects)
 {
     if (verbose)
     {
@@ -132,7 +136,7 @@ void _displayResult(const Array<CIMObject> & objects)
 //
 //  Display the result object names if verbose option is specified.
 //
-void _displayResult(const Array<CIMObjectPath> & objectPaths)
+void _displayResult(const Array<CIMObjectPath>& objectPaths)
 {
     if (verbose)
     {
@@ -148,7 +152,10 @@ void _displayResult(const Array<CIMObjectPath> & objectPaths)
 //  _testAssociators
 ////////////////////////////////////////////////////////////////////////////
 
-void _testAssociators(CIMClient& client, CIMName assocClass, CIMObjectPath instancePath,
+void _testAssociators(
+    CIMClient& client,
+    const CIMName& assocClass,
+    const CIMObjectPath& instancePath,
     Uint32 numExpectedObjects)
 {
     if (verbose)
@@ -166,9 +173,13 @@ void _testAssociators(CIMClient& client, CIMName assocClass, CIMObjectPath insta
         // Get the CIM instances that are associated with the specified source
         // instance via an instance of the AssocClass
         //
-        Array<CIMObject> resultObjects =
-            client.associators(NAMESPACE, instancePath, assocClass,
-                               resultClass, role, resultRole);
+        Array<CIMObject> resultObjects = client.associators(
+            NAMESPACE,
+            instancePath,
+            assocClass,
+            resultClass,
+            role,
+            resultRole);
 
         // verify result
         _verifyResult(resultObjects.size(), numExpectedObjects);
@@ -186,8 +197,11 @@ void _testAssociators(CIMClient& client, CIMName assocClass, CIMObjectPath insta
 //  _testAssociatorNames
 ////////////////////////////////////////////////////////////////////////////
 
-void _testAssociatorNames(CIMClient& client, CIMName assocClass,
-						  CIMObjectPath instancePath, Uint32 numExpectedObjects)
+void _testAssociatorNames(
+    CIMClient& client,
+    const CIMName& assocClass,
+    const CIMObjectPath& instancePath,
+    Uint32 numExpectedObjects)
 {
     if (verbose)
     {
@@ -204,9 +218,13 @@ void _testAssociatorNames(CIMClient& client, CIMName assocClass,
         String role;
         String resultRole;
 
-        Array<CIMObjectPath> resultObjectPaths =
-            client.associatorNames(NAMESPACE, instancePath,
-                                   assocClass, resultClass, role, resultRole);
+        Array<CIMObjectPath> resultObjectPaths = client.associatorNames(
+            NAMESPACE,
+            instancePath,
+            assocClass,
+            resultClass,
+            role,
+            resultRole);
 
         // verify result
         _verifyResult(resultObjectPaths.size(), numExpectedObjects);
@@ -224,7 +242,10 @@ void _testAssociatorNames(CIMClient& client, CIMName assocClass,
 //  _testReferences
 ////////////////////////////////////////////////////////////////////////////
 
-void _testReferences(CIMClient& client, CIMObjectPath instancePath, Uint32 numExpectedObjects)
+void _testReferences(
+    CIMClient& client,
+    const CIMObjectPath& instancePath,
+    Uint32 numExpectedObjects)
 {
     if (verbose)
     {
@@ -258,7 +279,10 @@ void _testReferences(CIMClient& client, CIMObjectPath instancePath, Uint32 numEx
 //  _testReferenceNames
 ////////////////////////////////////////////////////////////////////////////
 
-void _testReferenceNames(CIMClient& client, CIMObjectPath instancePath, Uint32 numExpectedObjects)
+void _testReferenceNames(
+    CIMClient& client,
+    const CIMObjectPath& instancePath,
+    Uint32 numExpectedObjects)
 {
     if (verbose)
     {
@@ -298,9 +322,15 @@ void _testReferenceNames(CIMClient& client, CIMObjectPath instancePath, Uint32 n
 //
 ////////////////////////////////////////////////////////////////////////////
 
-void _testAssociatorFilters(CIMClient& client, String instancePath, String role,
-	String resultRole, CIMName resultClass, CIMName assocClass,
-	Uint32 numExpectedObjects, String testMsg)
+void _testAssociatorFilters(
+    CIMClient& client,
+    const String& instancePath,
+    const String& role,
+    const String& resultRole,
+    const CIMName& resultClass,
+    const CIMName& assocClass,
+    Uint32 numExpectedObjects,
+    const String& testMsg)
 {
     Array<CIMObjectPath> resultObjectPaths;
     Array<CIMObject> resultObjects;
@@ -323,10 +353,10 @@ void _testAssociatorFilters(CIMClient& client, String instancePath, String role,
             resultClass, role, resultRole);
 
         // verify result
-	_verifyResult(resultObjects.size(), numExpectedObjects);
+        _verifyResult(resultObjects.size(), numExpectedObjects);
 
         // display result
-	_displayResult(resultObjects);
+        _displayResult(resultObjects);
     }
     catch (Exception& e)
     {
@@ -349,11 +379,11 @@ void _testAssociatorFilters(CIMClient& client, String instancePath, String role,
         resultObjectPaths = client.associatorNames(NAMESPACE, op, assocClass,
             resultClass, role, resultRole);
 
-	// verify result
-	_verifyResult(resultObjectPaths.size(), numExpectedObjects);
+        // verify result
+        _verifyResult(resultObjectPaths.size(), numExpectedObjects);
 
         // display result
-	_displayResult(resultObjectPaths);
+        _displayResult(resultObjectPaths);
     }
     catch (Exception& e)
     {
@@ -365,9 +395,14 @@ void _testAssociatorFilters(CIMClient& client, String instancePath, String role,
 //  _testReferenceFilter
 ////////////////////////////////////////////////////////////////////////////
 
-void _testReferenceFilter(CIMClient& client, String instancePath, String role,
-	String resultRole, CIMName resultClass, CIMName assocClass,
-	Uint32 numExpectedObjects)
+void _testReferenceFilter(
+    CIMClient& client,
+    const String& instancePath,
+    const String& role,
+    const String& resultRole,
+    const CIMName& resultClass,
+    const CIMName& assocClass,
+    Uint32 numExpectedObjects)
 {
     Array<CIMObjectPath> resultObjectPaths;
     Array<CIMObject> resultObjects;
@@ -389,10 +424,10 @@ void _testReferenceFilter(CIMClient& client, String instancePath, String role,
         resultObjects = client.references(NAMESPACE, op, resultClass, role);
 
         // verify result
-	_verifyResult(resultObjects.size(), numExpectedObjects);
+        _verifyResult(resultObjects.size(), numExpectedObjects);
 
         // display result
-	_displayResult(resultObjects);
+        _displayResult(resultObjects);
     }
     catch (Exception& e)
     {
@@ -416,10 +451,10 @@ void _testReferenceFilter(CIMClient& client, String instancePath, String role,
             client.referenceNames(NAMESPACE, op, resultClass, role);
 
         // verify result
-	_verifyResult(resultObjectPaths.size(), numExpectedObjects);
+        _verifyResult(resultObjectPaths.size(), numExpectedObjects);
 
         // display result
-	_displayResult(resultObjectPaths);
+        _displayResult(resultObjectPaths);
     }
     catch (Exception& e)
     {
@@ -431,7 +466,9 @@ void _testReferenceFilter(CIMClient& client, String instancePath, String role,
 //  _testAssociationClassOperations
 ////////////////////////////////////////////////////////////////////////////
 
-void _testAssociationClassOperations(CIMClient& client, CIMName className)
+void _testAssociationClassOperations(
+    CIMClient& client,
+    const CIMName& className)
 {
     Array<CIMObjectPath> resultObjectPaths;
     Array<CIMObject> resultObjects;
@@ -502,7 +539,8 @@ void _testAssociationClassOperations(CIMClient& client, CIMName className)
 
     if (verbose)
     {
-        cout << "\n+++++ Test references for (" << className.getString() << ")" << endl;
+        cout << "\n+++++ Test references for (" << className.getString() << ")"
+             << endl;
     }
 
     try
@@ -526,8 +564,8 @@ void _testAssociationClassOperations(CIMClient& client, CIMName className)
 
     if (verbose)
     {
-        cout << "\n+++++ Test referenceNames for (" << className.getString();
-        cout << ")" << endl;
+        cout << "\n+++++ Test referenceNames for (" << className.getString()
+             << ")" << endl;
     }
 
     try
@@ -556,7 +594,7 @@ int main(int argc, char** argv)
     if (argc > 2)
     {
         cerr << "Usage: AssociationTestClient [-v]" << endl;
-        return(1);
+        return 1;
     }
 
     if (argc == 2)
@@ -569,7 +607,7 @@ int main(int argc, char** argv)
         else
         {
             cerr << "Usage: AssociationTestClient [-v]" << endl;
-            return(1);
+            return 1;
         }
     }
 
@@ -833,5 +871,5 @@ int main(int argc, char** argv)
     // =======================================================================
 
     cout << "\n+++++ passed all tests" << endl;
-    return(0);
+    return 0;
 }

@@ -29,6 +29,9 @@
 //
 //==============================================================================
 //
+//%/////////////////////////////////////////////////////////////////////////////
+
+//
 // This is a sample CIM client application that calls the CIMClient association
 // methods (associators, associatorNames, references, referenceNames) to 
 // get information about the relationships between the Sample_Teacher and
@@ -65,7 +68,6 @@
 // is considered a failure.  If there is a failure, an error message is
 // displayed and the program terminates.
 //
-//%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Client/CIMClient.h>
@@ -75,11 +77,11 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/SampleProvider");
-const CIMName SAMPLE_TEACHER = CIMName ("Sample_Teacher");
-const CIMName SAMPLE_STUDENT = CIMName ("Sample_Student");
-const CIMName SAMPLE_TEACHERSTUDENT = CIMName ("Sample_TeacherStudent");
-const CIMName SAMPLE_ADVISORSTUDENT = CIMName ("Sample_AdvisorStudent");
+const CIMNamespaceName NAMESPACE = CIMNamespaceName("root/SampleProvider");
+const CIMName SAMPLE_TEACHER = CIMName("Sample_Teacher");
+const CIMName SAMPLE_STUDENT = CIMName("Sample_Student");
+const CIMName SAMPLE_TEACHERSTUDENT = CIMName("Sample_TeacherStudent");
+const CIMName SAMPLE_ADVISORSTUDENT = CIMName("Sample_AdvisorStudent");
 
 //
 //  Verify that the number of objects returned is as expected.  If the
@@ -93,9 +95,9 @@ int _verifyResult(const Uint32 numObjects, const Uint32 expectedNumObjects)
         cerr << "Error: Unexpected number of objects returned.  ";
         cerr << "Expected " << expectedNumObjects << " object(s), but ";
         cerr << numObjects << " object(s) were returned." << endl;
-        return(1);
+        return 1;
     }
-    return(0);
+    return 0;
 }
 
 //
@@ -219,7 +221,7 @@ int main(int argc, char** argv)
         // invalid role parameter syntax
         String invalidRole = "Teaches_*student";
 
-	Boolean gotException = false;
+        Boolean gotException = false;
         try 
         {
             resultObjects = client.associators(
@@ -231,14 +233,15 @@ int main(int argc, char** argv)
                                     resultRole);
 
         }
-        catch(CIMException& e)
+        catch (CIMException& e)
         {
             if (e.getCode() == CIM_ERR_INVALID_PARAMETER)
             {
                 gotException = true;
                 if (verbose)
                 {
-                    cout << "Test role parameter syntax: " << e.getMessage() << endl;
+                    cout << "Test role parameter syntax: " <<
+                        e.getMessage() << endl;
                 }
             }
             else
@@ -262,14 +265,15 @@ int main(int argc, char** argv)
                                     invalidResultRole);
 
         }
-        catch(CIMException& e)
+        catch (CIMException& e)
         {
             if (e.getCode() == CIM_ERR_INVALID_PARAMETER)
             {
                 gotException = true;
                 if (verbose)
                 {
-                    cout << "Test resultRole parameter syntax: " << e.getMessage() << endl;
+                    cout << "Test resultRole parameter syntax: " <<
+                        e.getMessage() << endl;
                 }
             }
             else
@@ -323,14 +327,15 @@ int main(int argc, char** argv)
                                     invalidRole, 
                                     resultRole);
         }
-        catch(CIMException& e)
+        catch (CIMException& e)
         {
             if (e.getCode() == CIM_ERR_INVALID_PARAMETER)
             {
                 gotException = true;
                 if (verbose)
                 {
-                    cout << "Test role parameter syntax: " << e.getMessage() << endl;
+                    cout << "Test role parameter syntax: " <<
+                        e.getMessage() << endl;
                 }
             }
             else
@@ -352,14 +357,15 @@ int main(int argc, char** argv)
                                     role, 
                                     invalidResultRole);
         }
-        catch(CIMException& e)
+        catch (CIMException& e)
         {
             if (e.getCode() == CIM_ERR_INVALID_PARAMETER)
             {
                 gotException = true;
                 if (verbose)
                 {
-                    cout << "Test resultRole parameter syntax: " << e.getMessage() << endl;
+                    cout << "Test resultRole parameter syntax: " <<
+                        e.getMessage() << endl;
                 }
             }
             else
@@ -408,14 +414,15 @@ int main(int argc, char** argv)
                                     resultClass,
                                     invalidRole); 
         }
-        catch(CIMException& e)
+        catch (CIMException& e)
         {
             if (e.getCode() == CIM_ERR_INVALID_PARAMETER)
             {
                 gotException = true;
                 if (verbose)
                 {
-                    cout << "Test role parameter syntax: " << e.getMessage() << endl;
+                    cout << "Test role parameter syntax: " <<
+                        e.getMessage() << endl;
                 }
             }
             else
@@ -464,14 +471,15 @@ int main(int argc, char** argv)
                                         resultClass,
                                         invalidRole); 
         }
-        catch(CIMException& e)
+        catch (CIMException& e)
         {
             if (e.getCode() == CIM_ERR_INVALID_PARAMETER)
             {
                 gotException = true;
                 if (verbose)
                 {
-                    cout << "Test role parameter syntax: " << e.getMessage() << endl;
+                    cout << "Test role parameter syntax: " <<
+                        e.getMessage() << endl;
                 }
             }
             else
@@ -606,7 +614,8 @@ int main(int argc, char** argv)
             return -1;
 
         // display result
-        // cout << "Number of associated class objects = " << numObjects << endl;
+        // cout << "Number of associated class objects = " <<
+        //     numObjects << endl;
         _displayResult(resultObjects, verbose);
 
         //
@@ -624,10 +633,11 @@ int main(int argc, char** argv)
             return -1;
 
         // display result
-        // cout << "Number of association class objects = " << numObjects << endl;
+        // cout << "Number of association class objects = " <<
+        //     numObjects << endl;
         _displayResult(resultObjects, verbose);
     }
-    catch(Exception& e)
+    catch (Exception& e)
     {
         cerr << "Error: " << e.getMessage() << endl;
         return -1;

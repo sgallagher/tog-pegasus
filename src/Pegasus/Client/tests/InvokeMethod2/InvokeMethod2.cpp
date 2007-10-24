@@ -45,65 +45,62 @@ const String OUTSTRING = "Yoda";
 const String GOODREPLY = "Hello, " + OUTSTRING + "!";
 const String GOODPARAM = "From Neverland";
 
-
 int main(int argc, char** argv)
 {
-
-    const CIMObjectPath instanceName = CIMObjectPath 
-        ("Sample_MethodProviderClass.Identifier=1");
+    const CIMObjectPath instanceName = CIMObjectPath(
+        "Sample_MethodProviderClass.Identifier=1");
 
     try
     {
-	Array<CIMParamValue> inParams;
-	Array<CIMParamValue> outParams;
+        Array<CIMParamValue> inParams;
+        Array<CIMParamValue> outParams;
 
-	CIMClient client;
-	client.connectLocal();
-	inParams.append( CIMParamValue(  "Name", CIMValue( String(OUTSTRING) ) ) );
-	CIMValue retValue = client.invokeMethod(
-	    NAMESPACE, 
-	    instanceName, 
-	    methodName,
-	    inParams, 
-	    outParams);
+        CIMClient client;
+        client.connectLocal();
+        inParams.append(CIMParamValue("Name", CIMValue(OUTSTRING)));
+        CIMValue retValue = client.invokeMethod(
+            NAMESPACE,
+            instanceName,
+            methodName,
+            inParams,
+            outParams);
 
-	if( retValue.toString() != GOODREPLY )
-	  {
-	    PEGASUS_STD(cerr) << "Error: bad reply \"" <<
-	      retValue.toString() << "\""  << PEGASUS_STD(endl);
-	    exit( 1 );
-	  }
-	else
-	  {
-	    if( outParams.size() > 0 )
-	      {
-		String outReply;
-		CIMValue paramVal = outParams[0].getValue();
-		paramVal.get( outReply );
-		if( outReply == GOODPARAM )
-		  {
-		    PEGASUS_STD(cout) << "+++++ InvokeMethod2 passed all tests" << 
-		      PEGASUS_STD(endl);
-		    return 0;
-		  }
-		else
-		  {
-		    PEGASUS_STD(cerr) << "Error: bad output parameter: \"" <<
-		      outReply << "\"" << PEGASUS_STD(endl);
-		    exit( 1 );
-		  }
-	      }
-	    else
-	      {
-		PEGASUS_STD(cerr) << "Error: output parameter missing. Reply: \"" <<
-		  retValue.toString() << "\"" << PEGASUS_STD(endl);
-		exit( 1 );
-	      }
-	  }
-   }
-    catch(Exception& e)
+        if (retValue.toString() != GOODREPLY)
+        {
+            cerr << "Error: bad reply \"" << retValue.toString() << "\"" <<
+                endl;
+            exit(1);
+        }
+        else
+        {
+            if (outParams.size() > 0)
+            {
+                String outReply;
+                CIMValue paramVal = outParams[0].getValue();
+                paramVal.get(outReply);
+                if (outReply == GOODPARAM)
+                {
+                    cout << "+++++ InvokeMethod2 passed all tests" << endl;
+                    return 0;
+                }
+                else
+                {
+                    cerr << "Error: bad output parameter: \"" << outReply <<
+                        "\"" << endl;
+                    exit(1);
+                }
+            }
+            else
+            {
+                cerr << "Error: output parameter missing. Reply: \"" <<
+                    retValue.toString() << "\"" << endl;
+                exit(1);
+            }
+        }
+    }
+    catch (Exception& e)
     {
-	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-	exit(1);
+        cerr << "Error: " << e.getMessage() << endl;
+        exit(1);
     }
 }

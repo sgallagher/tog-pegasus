@@ -289,7 +289,16 @@ extern "C" {
       AutoPtr<CIMObjectPath> objPath(NULL);
       AutoPtr<CMPI_Object> obj(NULL);
       try {
-            if (clsRef.getKeyBindings().size()==0) {
+            /* Check if NameSpace is NULL before calling GetClass. When
+               providers run out-of-process and getClass request is made
+               through CIMClient,  CIMOperationRequestEncoder tries to
+               encode the request and finds the namespace is invalid
+               (empty) and throws InvalidNamespaceNameException.
+            */
+
+            if (clsRef.getKeyBindings().size()==0 && 
+                !clsRef.getNameSpace().isNull())
+            {
               CIMClass *cc=mbGetClass(CMPI_ThreadContext::getBroker(),clsRef);
               // It seems that when converting the CIMInstnace to XML form, we 
               // miss CIMObjectPath from it. When we don't have namespace we

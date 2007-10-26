@@ -105,6 +105,7 @@ int ServerProcess::cimserver_fork()
     if (Executor::detectExecutor() == 0)
     {
         // We don't need to fork if we're running with Privilege Separation
+        setsid();
         return 0;
     }
 

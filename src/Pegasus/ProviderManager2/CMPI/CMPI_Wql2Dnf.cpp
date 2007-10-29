@@ -254,21 +254,20 @@ void CMPI_Wql2Dnf::_populateTableau(void)
     {
         TableauRow_WQL tr_wql = _tableau[i];
 
+        CMPI_TableauRow tr;
         for( Uint32 j=0,m = tr_wql.size(); j < m; j++ )
         {
             term_el_WQL t = tr_wql[j]; 
 
-            CMPI_TableauRow tr;
             CMPI_QueryOperand lhs(WQL2String(t.opn1),
             WQL2Type(t.opn1.getType()));
             CMPI_QueryOperand rhs(WQL2String(t.opn2), 
             WQL2Type(t.opn2.getType()));
 
             tr.append(CMPI_term_el(t.mark, WQL2PredOp(t.op), lhs, rhs));
-            _CMPI_tableau.append (tr);
 
         }
-
+        _CMPI_tableau.append (tr);
     }
     PEG_METHOD_EXIT();
 }

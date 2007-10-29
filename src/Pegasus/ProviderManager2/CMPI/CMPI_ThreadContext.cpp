@@ -70,7 +70,10 @@ void CMPI_ThreadContext::add(CMPI_Object *o)
 void CMPI_ThreadContext::addObject(CMPI_Object* o) 
 {
     CMPI_ThreadContext* ctx=getThreadContext();
-    ctx->add(o);
+    if (ctx)
+    {
+        ctx->add(o);
+    }
 }
 
 void CMPI_ThreadContext::remove(CMPI_Object *o)
@@ -85,7 +88,10 @@ void CMPI_ThreadContext::remove(CMPI_Object *o)
 void CMPI_ThreadContext::remObject(CMPI_Object* o)
 {
     CMPI_ThreadContext* ctx=getThreadContext();
-    ctx->remove(o);
+    if (ctx)
+    {
+        ctx->remove(o);
+    }
 }
 
 CMPI_ThreadContext* CMPI_ThreadContext::getThreadContext()

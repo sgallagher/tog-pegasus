@@ -344,6 +344,15 @@ extern "C" {
                   const CMPIObjectPath *cop, const char *assocClass, const char *resultClass,
                   const char *role, const char *resultRole, const char **properties, CMPIStatus *rc) {
       DDD(cout<<"--- mbAssociators()"<<endl);
+      //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+      //  distinguish instanceNames from classNames in every case
+      //  The instanceName of a singleton instance of a keyless class has no
+      //  key bindings
+      if (!CM_ObjectPath(cop)->getKeyBindings().size())
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+          return 0;
+      }
       mb=CM_BROKER;
       CMPIFlags flgs=ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
       const CIMPropertyList props=getList(properties);
@@ -399,6 +408,15 @@ extern "C" {
 					     const char *resultClass,
          const char *role, const char *resultRole, CMPIStatus *rc) {
       DDD(cout<<"--- mbAssociatorsNames()"<<endl);
+      //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+      //  distinguish instanceNames from classNames in every case
+      //  The instanceName of a singleton instance of a keyless class has no
+      //  key bindings
+      if (!CM_ObjectPath(cop)->getKeyBindings().size())
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+          return 0;
+      }
       mb=CM_BROKER;
       CIMObjectPath qop(String::EMPTY,CIMNamespaceName(),
                         CM_ObjectPath(cop)->getClassName(),
@@ -440,6 +458,15 @@ extern "C" {
                   const CMPIObjectPath *cop,  const char *resultClass, const char *role ,
          const char **properties, CMPIStatus *rc) {
       DDD(cout<<"--- mbReferences()"<<endl);
+      //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+      //  distinguish instanceNames from classNames in every case
+      //  The instanceName of a singleton instance of a keyless class has no
+      //  key bindings
+      if (!CM_ObjectPath(cop)->getKeyBindings().size())
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+          return 0;
+      }
       mb=CM_BROKER;
       CMPIFlags flgs=ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
       CIMPropertyList props=getList(properties);
@@ -488,6 +515,15 @@ extern "C" {
                   const CMPIObjectPath *cop, const char *resultClass, const char *role,
                   CMPIStatus *rc) {
       DDD(cout<<"--- mbReferencesNames()"<<endl);
+      //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+      //  distinguish instanceNames from classNames in every case
+      //  The instanceName of a singleton instance of a keyless class has no
+      //  key bindings
+      if (!CM_ObjectPath(cop)->getKeyBindings().size())
+      {
+          CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+          return 0;
+      }
       mb=CM_BROKER;
       CIMObjectPath qop(String::EMPTY,CIMNamespaceName(),
                         CM_ObjectPath(cop)->getClassName(),

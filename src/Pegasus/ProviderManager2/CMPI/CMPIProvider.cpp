@@ -64,7 +64,7 @@ CMPIProvider::CMPIProvider(const String & name,
    broker.hdl =0;
    broker.provider = this;
    if (mv) miVector=*mv;
-   noUnload=false;
+   unloadStatus = CMPI_RC_DO_NOT_UNLOAD;
    Time::gettimeofday(&_idleTime);
 }
 
@@ -245,7 +245,10 @@ void CMPIProvider::initialize(CIMOMHandle & cimom)
       try {
 	 CMPIProvider::initialize(cimom,miVector,compoundName,broker);
 	      if (miVector.miTypes & CMPI_MIType_Method) {
-	        if (miVector.methMI->ft->miName==NULL) noUnload=true;
+	        if (miVector.methMI->ft->miName==NULL)
+                {
+                    unloadStatus = CMPI_RC_OK;
+                }
 	      }
       }
       catch(...) {
@@ -272,10 +275,10 @@ Boolean CMPIProvider::tryTerminate(void)
 
       try
       {
-	if (noUnload==false) {
+	if (unloadStatus != CMPI_RC_OK) {
 		// False means that the CIMServer is not shutting down.
 	   _terminate(false);
-	   if (noUnload==true) {
+	   if (unloadStatus != CMPI_RC_OK) {
 	      _status=savedStatus;
 	      return false;
 	   }
@@ -322,33 +325,41 @@ void CMPIProvider::_terminate(Boolean terminating)
         CMPI_RC_DO_NOT_UNLOAD Operation successful - do not unload now.
         CMPI_RC_NEVER_UNLOAD Operation successful - never unload.
 */
+    unloadStatus = CMPI_RC_OK;
     if (miVector.miTypes & CMPI_MIType_Instance) {
        rc=miVector.instMI->ft->cleanup(miVector.instMI,&eCtx, terminating);
-       if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
-	   if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD)) noUnload =true;
+       unloadStatus = rc.rc;
     }
     if (miVector.miTypes & CMPI_MIType_Association) {
        rc=miVector.assocMI->ft->cleanup(miVector.assocMI,&eCtx, terminating);
-       if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
-	   if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD)) noUnload =true;
+       if (unloadStatus == CMPI_RC_OK)
+       {
+           unloadStatus = rc.rc;
+       }
     }
     if (miVector.miTypes & CMPI_MIType_Method) {
        rc=miVector.methMI->ft->cleanup(miVector.methMI,&eCtx, terminating);
-       if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
-	   if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD)) noUnload =true;
+       if (unloadStatus == CMPI_RC_OK)
+       {
+           unloadStatus = rc.rc;
+       }
     }
     if (miVector.miTypes & CMPI_MIType_Property) {
        rc=miVector.propMI->ft->cleanup(miVector.propMI,&eCtx, terminating);
-       if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
-	   if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD)) noUnload =true;
+       if (unloadStatus == CMPI_RC_OK)
+       {
+           unloadStatus = rc.rc;
+       }
     }
     if (miVector.miTypes & CMPI_MIType_Indication) {
        rc=miVector.indMI->ft->cleanup(miVector.indMI,&eCtx, terminating);
-       if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
-	   if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD)) noUnload =true;
+       if (unloadStatus == CMPI_RC_OK)
+       {
+           unloadStatus = rc.rc;
+       }
     }
 
-    if (noUnload == false)
+    if (unloadStatus != CMPI_RC_OK)
     {
         // Cleanup the class cache
         {
@@ -430,10 +441,11 @@ void CMPIProvider::terminate()
     {
 
         _terminate(true);
-	      if (noUnload==true) {
+        if (unloadStatus == CMPI_RC_OK)
+        {
             _status=savedStatus;
-	          return;
-	      }
+            return;
+        }
     }
         catch(...)
     {
@@ -552,9 +564,17 @@ void CMPIProvider::update_idle_timer(void)
     Time::gettimeofday(&_idleTime);
 }
 
+/*
+ * This method returns "false" if there are any requests pending with
+ * the provider or Provider has returned CMPI_RC_NEVER_UNLOAD in the last
+ * cleanup() invocation cyle.
+*/
 Boolean CMPIProvider::unload_ok(void)
 {
-   if (noUnload==true) return false;
+   if (unloadStatus == CMPI_RC_NEVER_UNLOAD)
+   {
+       return false;
+   }
    if(_no_unload.get() )
       return false;
 

@@ -31,6 +31,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+//NOCHKSRC
+
 #include <Pegasus/Common/CIMNameUnchecked.h>
 #include "CMPI_Version.h"
 
@@ -981,7 +983,8 @@ extern "C" {
           }
         if (st)
 	  CMSetStatus (st, CMPI_RC_OK);
-        return (CMPISelectExp *) new CMPI_SelectExp (selectStatement);
+        return (CMPISelectExp *) new CMPI_SelectExp (selectStatement, false,
+            qcontext.clone());
       }
 #endif
     if (st)

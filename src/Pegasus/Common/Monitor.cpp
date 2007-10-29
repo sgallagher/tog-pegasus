@@ -109,6 +109,8 @@ void Tickler::_initialize()
     // based on whether IPv6 is enabled.
     //
 
+    Socket::initializeInterface();
+
 # ifdef PEGASUS_ENABLE_IPV6
     struct sockaddr_storage listenAddress;
     struct sockaddr_storage clientAddress;
@@ -315,6 +317,7 @@ void Tickler::_uninitialize()
         PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
             "Failed to close tickle sockets");
     }
+    Socket::uninitializeInterface();
 }
 
 
@@ -331,7 +334,6 @@ Monitor::Monitor()
      _solicitSocketCount(0)
 {
     int numberOfMonitorEntriesToAllocate = MAX_NUMBER_OF_MONITOR_ENTRIES;
-    Socket::initializeInterface();
     _entries.reserveCapacity(numberOfMonitorEntriesToAllocate);
 
     // Create a MonitorEntry for the Tickler and set its state to IDLE so the
@@ -350,7 +352,6 @@ Monitor::Monitor()
 
 Monitor::~Monitor()
 {
-    Socket::uninitializeInterface();
     PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
                   "returning from monitor destructor");
 }

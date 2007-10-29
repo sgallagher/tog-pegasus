@@ -35,6 +35,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+//NOCHKSRC
+
 #include "CMPI_Version.h"
 
 #include "CMPI_Broker.h"
@@ -54,6 +56,19 @@
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
+
+static const CMPIUint32 MB_CAPABILITIES =
+#   ifdef CMPI_VER_200
+    CMPI_MB_Supports_Extended_Error |
+#   endif
+    CMPI_MB_BasicRead | CMPI_MB_BasicWrite | CMPI_MB_InstanceManipulation |
+    CMPI_MB_AssociationTraversal | CMPI_MB_QueryNormalization |
+    CMPI_MB_Indications | CMPI_MB_BasicQualifierSupport |
+    CMPI_MB_OSEncapsulationSupport
+#   ifndef PEGASUS_DISABLE_EXECQUERY
+    | CMPI_MB_QueryExecution
+#   endif
+    ;
 
 #define DDD(X)   if (_cmpi_trace) X;
 
@@ -685,7 +700,7 @@ extern "C" {
 }
 
 static CMPIBrokerFT broker_FT={
-     0, // brokerClassification;
+     MB_CAPABILITIES, // brokerClassification;
      CMPICurrentVersion,
      "Pegasus",
      mbPrepareAttachThread,

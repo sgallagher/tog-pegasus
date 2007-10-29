@@ -193,14 +193,31 @@ extern "C" {
          // used. If the property's type is CIMTYPE_INSTANCE, and the value's
          // type is CIMTYPE_OBJECT, then we convert the value's type to match
          // the property's type.
-
-         if (cp.getType() == CIMTYPE_INSTANCE && v.getType() == CIMTYPE_OBJECT)
+         if (cp.getType() == CIMTYPE_INSTANCE &&
+             v.getType() == CIMTYPE_OBJECT)
          {
-            CIMObject co;
-            v.get(co);
-            
-            if (co.isInstance())
-                v.set(CIMInstance(co));
+             if (cp.isArray())
+             {
+                 if (!v.isArray())
+                 {
+                     CMReturn(CMPI_RC_ERR_TYPE_MISMATCH);
+                 }
+                 Array<CIMObject> tmpObjs;
+                 Array<CIMInstance> tmpInsts;
+                 v.get(tmpObjs);
+                 for (Uint32 i = 0; i < tmpObjs.size() ; ++i)
+                 {
+                     tmpInsts.append(CIMInstance(tmpObjs[i]));
+                 }
+                 v.set(tmpInsts);
+             }
+             else
+             {
+                 CIMObject co;
+                 v.get(co);
+                 if (co.isInstance())
+                     v.set(CIMInstance(co));
+             }
          }
 
          try 

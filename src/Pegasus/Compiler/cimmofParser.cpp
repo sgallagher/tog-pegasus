@@ -93,7 +93,7 @@ extern void *create_cimmof_buffer_wrapper(const FILE *f, int size);
 
 const char LexerError::MSG[] = "";
 
-cimmofParser *cimmofParser::_instance = 0;
+AutoPtr<cimmofParser> cimmofParser::_instance;
 
 cimmofParser::cimmofParser():
   parser(),  _cmdline(0),
@@ -107,11 +107,11 @@ cimmofParser::~cimmofParser()
 
 cimmofParser * cimmofParser::Instance()
 {
-    if (!_instance)
+    if (!_instance.get())
     {
-        _instance = new cimmofParser();
+        _instance.reset(new cimmofParser());
     }
-    return _instance;
+    return _instance.get();
 }
 
 

@@ -57,6 +57,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/InternalException.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Compiler/compilerCommonDefs.h>
 #include <Pegasus/Compiler/Linkage.h>
 #include "parser.h"
@@ -86,7 +87,8 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser
     private:
         // This is meant to be a singleton, so we hide the constructor
         // and the destructor
-        static cimmofParser *_instance;
+        friend class DeletePtr<cimmofParser>;
+        static AutoPtr<cimmofParser> _instance;
 
         cimmofParser();
 

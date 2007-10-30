@@ -40,6 +40,7 @@
     {"home",                ""},
     {"daemon",              "false"},
     {"slp",                 "false"},
+    {"enableAuthentication", "true"},
     {"enableIndicationService", "true"},
     {"sslClientVerificationMode", "disabled"},
     {"httpAuthType",        "Basic"},
@@ -65,7 +66,8 @@
     {"logdir",              "logs"},
 #endif
 
-#if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && !defined(PEGASUS_USE_RELEASE_DIRS)
+#if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && \
+    !defined(PEGASUS_USE_RELEASE_DIRS)
     {"bogus", "MyBogusValue"}      // Remove this line if others are added
 #endif
 

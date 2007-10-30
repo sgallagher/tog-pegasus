@@ -300,7 +300,7 @@
 #  undef PEGASUS_DEFAULT_MESSAGE_SOURCE     /* Not defined */
 # elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 #  define PEGASUS_CIMSERVER_START_FILE      "/var/wbem/cimserver.pid"
-#  define PEGASUS_CIMSERVER_START_LOCK_FILE "/tmp/cimserver_start.lock"
+#  define PEGASUS_CIMSERVER_START_LOCK_FILE "/var/wbem/cimserver_start.lock"
 #  define PEGASUS_REPOSITORY_DIR            "/var/wbem/repository"
 #  define PEGASUS_CURRENT_CONFIG_FILE_PATH  "/etc/wbem/cimserver_current.conf"
 #  define PEGASUS_PLANNED_CONFIG_FILE_PATH  "/etc/wbem/cimserver_planned.conf"

@@ -124,6 +124,8 @@ void Tickler::_initialize()
     int addressFamily;
     SocketLength addressLength;
 
+    memset(&listenAddress, 0, sizeof (listenAddress));
+
 # ifdef PEGASUS_ENABLE_IPV6
     if (System::isIPv6StackActive())
     {

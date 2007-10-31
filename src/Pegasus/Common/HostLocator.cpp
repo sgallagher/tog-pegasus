@@ -35,91 +35,131 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-void HostLocator::_init()
+static bool _parseLocator(
+    const String &locator, 
+    HostAddress& addr,
+    Uint32& port)
 {
-    _isValid = false;
-    _portNumber = PORT_UNSPECIFIED;
-}
+    const Uint16* first = (const Uint16*)locator.getChar16Data();
+    const Uint16* last = first + locator.size();
 
-void HostLocator::_parseLocator(const String &locator)
-{
-    if (locator == String::EMPTY)
+    port = HostLocator::PORT_UNSPECIFIED;
+
+    // Reject zero length locators.
+
+    if (first == last)
     {
-        return;
+        return false;
     }
-    int i = 0;
-    String host;
-    Boolean enclosed =  false;
-    if (locator[0] == '[')
-    {   
-        i = 1;
-        while (locator[i] && locator[i] != ']')
+
+    // Parse the host address.
+
+    const Uint16* p = first;
+
+    if (*p == '[')
+    {
+        // Parse "[...]" expresion.
+
+        const Uint16* start = ++p;
+
+        while (*p && *p != ']')
+            p++;
+
+        if (*p != ']')
         {
-            ++i;
+            return false;
         }
-        if (locator[i] != ']')
+
+        addr.setHostAddress(String((const Char16*)start, p - start));
+        p++;
+
+        // Only IPV6 addresses may be enclosed in braces.
+
+        if (addr.getAddressType() != HostAddress::AT_IPV6)
         {
-            return;
+            return false;
         }
-        host = locator.subString (1, i - 1);
-        ++i;
-        enclosed = true;
     }
     else
     {
-        while (locator[i] && locator[i] != ':')
+        // Find end-of-string host address (null terminator or colon).
+
+        const Uint16* start = p;
+
+        while (*p && *p != ':')
+            p++;
+
+        addr.setHostAddress(String((const Char16*)start, p - start));
+
+        if (!addr.isValid())
         {
-            ++i;
+            return false;
         }
-        host = locator.subString(0, i);
-    }
-    _hostAddr.setHostAddress(host);
-    if (!_hostAddr.isValid() ||
-        _hostAddr.getAddressType() == HostAddress::AT_IPV6 && !enclosed ||
-        _hostAddr.getAddressType() != HostAddress::AT_IPV6 && enclosed)
-    {
-        return;
+
+        // IPV6 addresses must be enclosed in braces.
+
+        if (addr.getAddressType() == HostAddress::AT_IPV6)
+        {
+            return false;
+        }
     }
 
-    // Check for Port number.
-    Uint32 port = 0;  
-    if (locator[i] == ':')
+    // Parse the port number:
+
+    if (*p == ':')
     {
-        ++i;
-        _portNumber = PORT_INVALID;
-        while (isascii(locator[i]) && isdigit(locator[i]))
+        const Uint16* start = ++p;
+        port = HostLocator::PORT_INVALID;
+
+        // If empty port number, fail.
+
+        if (start == last)
         {
-            port = port * 10 + ( locator[i] - '0' );
-            if (port > MAX_PORT_NUMBER)
-            {
-                return;  
-            }
-            ++i;
+            return false;
         }
-        if (locator[i-1] != ':' && locator[i] == char(0))
+
+        // Convert string port number to integer (start at end of string).
+
+        Uint32 r = 1;
+        Uint32 x = 0;
+
+        for (const Uint16* q = last; q != start; q--)
         {
-            _portNumber = port;
+            Uint16 c = q[-1];
+
+            if (c > 127 || !isdigit(c))
+                return false;
+
+            x += r * (c - '0');
+            r *= 10;
         }
-        else
+        
+        if (x > HostLocator::MAX_PORT_NUMBER)
         {
-            return;
+            return false;
         }
+
+        port = x;
+
+        p++;
+        return true;
     }
-    if (!locator[i])
+    else if (*p != '\0')
     {
-        _isValid = true;
+        return false;
     }
+
+    // Unreachable!
+    return true;
 }
 
-HostLocator::HostLocator()
+HostLocator::HostLocator() : _isValid(false), _portNumber(PORT_UNSPECIFIED)
 {
-    _init();
 }
 
 HostLocator::HostLocator(const String &locator)
 {
-    _init();
-    _parseLocator(locator);
+    _isValid = _parseLocator(locator, _hostAddr, _portNumber);
 }
 
 HostLocator& HostLocator::operator =(const HostLocator &rhs)
@@ -145,8 +185,7 @@ HostLocator::~HostLocator()
 
 void HostLocator::setHostLocator(const String &locator)
 {
-    _init();
-    _parseLocator(locator);
+    _isValid = _parseLocator(locator, _hostAddr, _portNumber);
 }
 
 Uint32 HostLocator::getPort()

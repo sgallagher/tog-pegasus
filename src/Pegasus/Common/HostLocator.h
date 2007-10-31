@@ -104,8 +104,6 @@ public:
     Uint16 getAddressType();
 
 private:
-    void _init();
-    void _parseLocator(const String &locator);
     HostAddress _hostAddr;
     Boolean _isValid;
     Uint32 _portNumber;

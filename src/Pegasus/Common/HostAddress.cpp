@@ -389,34 +389,46 @@ Boolean HostAddress::equal(int af, void *p1, void *p2)
 
 void HostAddress::_parseAddress()
 {
-    if (_hostAddrStr == String::EMPTY)
-    {
+    if (_hostAddrStr.size() == 0)
         return;
-    }
-    if ((_isValid = isValidIPV6Address(_hostAddrStr)))
+
+    if (isValidIPV4Address(_hostAddrStr))
     {
-        _addrType = AT_IPV6;
-    }
-    else if( (_isValid = isValidIPV4Address(_hostAddrStr)))
-    {
+        _isValid = true;
         _addrType = AT_IPV4;
     } 
-    else if((_isValid = isValidHostName(_hostAddrStr)))
+    else if (isValidIPV6Address(_hostAddrStr))
     {
+        _isValid = true;
+        _addrType = AT_IPV6;
+    } 
+    else if (isValidHostName(_hostAddrStr))
+    {
+        _isValid = true;
         _addrType = AT_HOSTNAME;
     }
 }
 
 Boolean HostAddress::isValidIPV6Address (const String &ipv6Address)
 {
-    int i = 0;
-    while (ipv6Address[i])
+    const Uint16* p = (const Uint16*)ipv6Address.getChar16Data();
+    int numColons = 0;
+
+    while (*p)
     {
-        if (!isascii(ipv6Address[i++]))
-        {
+        if (*p > 127)
             return false;
-        }
+
+        if (*p == ':')
+            numColons++;
+
+        p++;
     }
+
+    // No need to check whether IPV6 if no colons found.
+
+    if (numColons == 0)
+        return false;
 
     CString addr = ipv6Address.getCString();
 #ifdef PEGASUS_ENABLE_IPV6
@@ -424,30 +436,48 @@ Boolean HostAddress::isValidIPV6Address (const String &ipv6Address)
 #else
     char iaddr[PEGASUS_IN6_ADDR_SIZE];
 #endif
-    return  1 == convertTextToBinary(AT_IPV6, (const char*) addr,
-                     (void*)&iaddr);
+    return  convertTextToBinary(AT_IPV6, (const char*)addr, (void*)&iaddr) == 1;
 }
 
 Boolean HostAddress::isValidIPV4Address (const String &ipv4Address)
 {
-    int i = 0;
-    while (ipv4Address[i])
+    const Uint16* src = (const Uint16*)ipv4Address.getChar16Data();
+    Uint16 octetValue[4] = {0};
+
+    for (Uint32 octet = 1, i = 0; octet <= 4; octet++)
     {
-        if (!isascii(ipv4Address[i++]))
-        {
+        int j = 0;
+
+        if (!(isascii(src[i]) && isdigit(src[i])))
             return false;
+
+        while (isascii(src[i]) && isdigit(src[i]))
+        {
+            if (j == 3)
+                return false;
+
+            octetValue[octet-1] = octetValue[octet-1] * 10 + (src[i] - '0');
+            i++;
+            j++;
         }
+
+        if (octetValue[octet-1] > 255)
+            return false;
+
+        if ((octet != 4) && (src[i++] != '.'))
+            return false;
+
+        if ((octet == 4) && (src[i] != ':') && src[i] != char(0))
+            return false;
     }
 
-    CString addr = ipv4Address.getCString();
-    struct in_addr iaddr;
-
-    return  1 == convertTextToBinary(AT_IPV4, (const char*) addr,
-                     (void*)&iaddr);
+    return true;
 }
 
-Boolean HostAddress::isValidHostName (const String &hostName)
+Boolean HostAddress::isValidHostName (const String &hostName_)
 {
+    const Uint16* hostName = (const Uint16*)hostName_.getChar16Data();
+
     Uint32 i = 0;
     Boolean expectHostSegment = true;
     Boolean hostSegmentIsNumeric;

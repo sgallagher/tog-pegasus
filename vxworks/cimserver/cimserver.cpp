@@ -29,18 +29,62 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+/* This module is a typical implementation of server main for an embedded
+   environment.
+   This work is based on the definitions in PEP 305 and the EmbeddedSystemBuild
+   readme.
+   This example creates an embedded cim server and adds the static provider
+   definitions and memory-resident repository definitions.
+   It is expected that an embedded system creator could use this example to
+   create a cim server main specifically for their needs and define their
+   providers and repository in that main.  There is no need that the code
+   exist in the Pegasus CVS source tree. This example is in the source tree
+   to make it available as a working example.
+
+   This example was created specifically for VxWorks and the kernel mode.
+*/
+
 #include <cstdio>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Server/EmbeddedServer.h>
+
+// Header files for each of the namespaces that are to be created for this
+// server.
+// Each include statement below should define a c++ header file created by the 
+// compilation of a set of cim classes and qualifiers into a single namespace.
+// These are the header files that are created by the compilation.
+// 
 #include "root_cimv2_namespace.h"
 #include "root_PG_Internal_namespace.h"
 #include "root_PG_InterOp_namespace.h"
 
 PEGASUS_USING_PEGASUS;
 
+// Define the Pegasus Servermain that will be called by this main function
+
 extern "C" int PegasusServerMain(int argc, char** argv);
+
+//
+//  Define the static providers that will be installed and registered as part
+//  of the startup of the server.
+//  NOTE that Pegasus standard control providers are defined elsewhere.
+//
+
+// Defines the entry point for each provider. 
 extern "C" CIMProvider* PegasusCreateProvider_Hello(const String&);
 extern "C" CIMProvider* PegasusCreateProvider_Goodbye(const String&);
+
+//
+// This table defines an entry for each provider to be registered when the
+// server starts.  Each entry consists of the following information.
+// ModuleName
+// Provider Name
+// Namespace in which this provider will be registered
+// Class for which this provider is registered
+// Entry point for the provider
+// NOTE: The table MUST end with an all zeros entry.  That is the terminator
+// for the functions that perform the installation.
+//
 
 static Pegasus::ProviderTableEntry _providerTable[] =
 {
@@ -63,14 +107,32 @@ static Pegasus::ProviderTableEntry _providerTable[] =
 
 static const char INSTANCE_REPOISTORY_PATH[] = "redbird:/tmp/instances.dat";
 
+//
+// Definition of namespaces that will be defined in the installation of
+// the repository. These names correspond to the source files for the class
+// and qualifier definitions for individual namespaces that were created with
+// cimmofl.
+// Note that this table must include a zero entry to terminate the table.
+// Create a single entry in this table for each namespace which was compiled.
+
 static const MetaNameSpace* _nameSpaces[] =
 {
-    &root_PG_InterOp_namespace,
+    &root_PG_InterOp_namespace,            // root/PG_InterOp namespace
     &root_cimv2_namespace,
     &root_PG_Internal_namespace,
     0,
 };
 
+//
+// Callbacks for the save and restore of the instance repository. The
+// implementations here are examples where the persistent store is a
+// file.
+//
+
+// Example of the instance repository load function.  The function is expected
+// to acquire data from a persistent store and place it into the buffer
+// parameter. The data parameter represents data defined by the install of
+// this callback.
 static void _loadCallback(Buffer& buffer, void* data)
 {
     printf("===== _loadCallback()\n");
@@ -95,6 +157,16 @@ static void _loadCallback(Buffer& buffer, void* data)
     fclose(is);
 }
 
+// the save instance repository callback function.  This function is called
+// by the memory-resident CIM repository function upon the completion of any
+// change to the instance repository. the buffer parameter contains the data
+// to be persisted.  The data parameter defines data which the user defined 
+// upon the installation of the callback.  This function is an example of the
+// implementation of a function to persist the instance repository. It simply
+// writes the repository to a file and, of course, depends on the existence
+// of a file system that would support the fopen, fwrite. The only requirement
+// on the save and load functions is that they be able to persist the buffer
+// in the saveCallback function and restore it in the _loadCallback function.
 static void _saveCallback(const Buffer& buffer, void* data)
 {
     printf("===== _saveCallback()\n");
@@ -118,6 +190,12 @@ static void _saveCallback(const Buffer& buffer, void* data)
     fclose(os);
 }
 
+// main function for the cimserver. Note that in this sample code the
+// main function is named cimserver because this example is based on
+// use of VxWorks and of the kernel mode rather than the
+// real-time-process mode so that the symbol cimserver becomse the 
+// explicit start point for the cimserver.  If this were a VxWorks
+// RTP, this would be main(...)
 extern "C" int cimserver(int argc, char** argv)
 {
     printf("===== CIMSERVER =====\n");
@@ -126,7 +204,8 @@ extern "C" int cimserver(int argc, char** argv)
 
     EmbeddedServer::installProviderTable(_providerTable);
 
-    // Set the namespace array:
+    // Install the namespaces, classes and qualifiers defined
+    // into the memory-resident repository.
 
     EmbeddedServer::installNameSpaces(_nameSpaces);
 
@@ -135,7 +214,9 @@ extern "C" int cimserver(int argc, char** argv)
     EmbeddedServer::installLoadRepositoryCallback(_loadCallback, 0);
     EmbeddedServer::installSaveRepositoryCallback(_saveCallback, 0);
 
-    // Run the pegasus server:
+    // Run the pegasus server
+    // for embedded systems, the cimserver main has been redefined
+    // to PegasusServerMain, a Pegasus function.
 
     return PegasusServerMain(argc, argv);
 }

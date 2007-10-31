@@ -29,17 +29,31 @@
 #//
 #//=============================================================================
 
+# the following is an example implementation of an embedded system
+# cim server main() function for VxWorks.
+# this Makefile builds the repositories and main module. This Makefile should
+# be treated an an example for a particular embedded server implementation.
+
 ROOT = ../..
 DIR = vxworks/cimserver
 include $(ROOT)/mak/config.mak
 
 PROGRAM = cimserver
 
+#
+# The sources include the main module (cimserver) and the
+# cimmofl generated files for each namespace to be installed
+#
 SOURCES = \
     cimserver.cpp \
     root_cimv2_namespace.cpp \
     root_PG_Internal_namespace.cpp \
     root_PG_InterOp_namespace.cpp
+
+# The libraries include the pegasus functions AND the providers
+# that were created for this embedded cim server.
+# Note that GoodbyeProvider and HelloProvider are simple example 
+# providers
 
 LIBRARIES = \
     GoodbyeProvider \
@@ -81,7 +95,7 @@ install:
 
 ##==============================================================================
 ##
-## rep:
+## repository: Builds the repository
 ##
 ##==============================================================================
 
@@ -89,7 +103,7 @@ SCHEMAS=$(PEGASUS_ROOT)/Schemas
 CIMMOFL=cimmofl -d -W -m
 #CIMMOFL=cimmofl -W -m
 
-rep:
+repository:
 	@ $(CIMMOFL) -n root/PG_Internal -I $(SCHEMAS) root_PG_Internal_namespace.mof
 	@ $(CIMMOFL) -n root/PG_InterOp -I $(SCHEMAS) root_PG_InterOp_namespace.mof
 	@ $(CIMMOFL) -n root/cimv2 -I $(SCHEMAS) root_cimv2_namespace.mof

@@ -61,7 +61,7 @@ static struct ConfigPropertyRow properties[] =
 #elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
     {"providerDir", "lib:provider", IS_STATIC, 0, 0, IS_VISIBLE},
 #elif defined(PEGASUS_OS_VMS)
-    {"providerDir", "bin", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"providerDir", "/wbem_lib", IS_STATIC, 0, 0, IS_VISIBLE},
 #else
     {"providerDir", "lib", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
@@ -93,43 +93,45 @@ Boolean isProviderDirValid(const String& dirName)
       Uint32 token=0;
 
       do {
-	if (( pos = temp.find(FileSystem::getPathDelimiter())) == PEG_NOT_FOUND) {
-		pos = temp.size();
-		token = 0;
-	}
-	else {
-		token = 1;
-	}
-	path = temp.subString(0,pos);
+        if (( pos = temp.find(FileSystem::getPathDelimiter())) == 
+              PEG_NOT_FOUND) 
+        {
+                pos = temp.size();
+                token = 0;
+        }
+        else {
+                token = 1;
+        }
+        path = temp.subString(0,pos);
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
     path.assign(ConfigManager::getHomedPath(path));
 #endif
-	if (FileSystem::canWrite(path)) {
-		Logger::put_l(Logger::ERROR_LOG,System::CIMSERVER,
+        if (FileSystem::canWrite(path)) {
+                Logger::put_l(Logger::ERROR_LOG,System::CIMSERVER,
                         Logger::WARNING,
                         "$0 is writeable! Possible security risk.",
                         path);
-	}
-	if ( !FileSystem::isDirectory(path)  ||
-	     !FileSystem::canRead(path)) {
-		if (!FileSystem::isDirectory(path)) {
- 			Logger::put_l(Logger::ERROR_LOG,System::CIMSERVER,
+        }
+        if ( !FileSystem::isDirectory(path)  ||
+             !FileSystem::canRead(path)) {
+                if (!FileSystem::isDirectory(path)) {
+                        Logger::put_l(Logger::ERROR_LOG,System::CIMSERVER,
                         Logger::SEVERE,
                         "$0 is not a directory!",
                         path);
-		}
-		if (!FileSystem::canRead(path)) {
-		 	Logger::put_l(Logger::ERROR_LOG,System::CIMSERVER,
+                }
+                if (!FileSystem::canRead(path)) {
+                        Logger::put_l(Logger::ERROR_LOG,System::CIMSERVER,
                         Logger::SEVERE,
                         "Cannot $0 is not readable!",
                         path);
-		}
-		//cerr << "Not a good directory.\n";
-		return false;
-	}	
-	temp.remove(0,pos+token);	
+                }
+                //cerr << "Not a good directory.\n";
+                return false;
+        }
+        temp.remove(0,pos+token);
       }
-      while ( temp.size() > 0 );	
+      while ( temp.size() > 0 );
       
     return true;
 }

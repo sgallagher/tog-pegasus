@@ -603,6 +603,8 @@ PEGASUS_COMMON_LINKAGE
 #  undef PEGASUS_PROVIDER_AGENT_PROC_NAME
 #  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/wbem_var/opt/wbem/bin/cimprovagt"
 # elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#  undef CIMSERVER_LOCK_FILE
+#  define CIMSERVER_LOCK_FILE               "/var/wbem/cimserver_start.lock"
 #  undef PEGASUS_REPOSITORY_DIR
 #  define PEGASUS_REPOSITORY_DIR            "/var/wbem/repository"
 #  undef PEGASUS_CURRENT_CONFIG_FILE_PATH

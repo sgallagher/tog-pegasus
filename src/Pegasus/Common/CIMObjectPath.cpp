@@ -408,12 +408,12 @@ Boolean operator==(const CIMKeyBinding& x, const CIMKeyBinding& y)
 class CIMObjectPathRep
 {
 public:
-    CIMObjectPathRep()
+    CIMObjectPathRep(): _refCounter(1)
     {
     }
 
     CIMObjectPathRep(const CIMObjectPathRep& x)
-        : _host(x._host), _nameSpace(x._nameSpace),
+        : _refCounter(1), _host(x._host), _nameSpace(x._nameSpace),
         _className(x._className), _keyBindings(x._keyBindings)
     {
     }
@@ -423,7 +423,7 @@ public:
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         const Array<CIMKeyBinding>& keyBindings)
-        : _host(host), _nameSpace(nameSpace),
+        : _refCounter(1), _host(host), _nameSpace(nameSpace),
         _className(className), _keyBindings(keyBindings)
     {
     }
@@ -451,6 +451,9 @@ public:
         return addr.isValid();
     }
 
+    // reference counter as member to avoid
+    // virtual function resolution overhead
+    AtomicInt _refCounter;
     //
     // Contains port as well (e.g., myhost:1234).
     //
@@ -461,6 +464,18 @@ public:
     Array<CIMKeyBinding> _keyBindings;
 };
 
+template<class REP>
+inline void Ref(REP* rep)
+{
+        rep->_refCounter++;
+}
+
+template<class REP>
+inline void Unref(REP* rep)
+{
+    if (rep->_refCounter.decAndTestIfZero())
+        delete rep;
+}
 
 CIMObjectPath::CIMObjectPath()
 {
@@ -469,7 +484,8 @@ CIMObjectPath::CIMObjectPath()
 
 CIMObjectPath::CIMObjectPath(const CIMObjectPath& x)
 {
-    _rep = new CIMObjectPathRep(*x._rep);
+    _rep = x._rep;
+    Ref(_rep);
 }
 
 CIMObjectPath::CIMObjectPath(const String& objectName)
@@ -477,8 +493,9 @@ CIMObjectPath::CIMObjectPath(const String& objectName)
     // Test the objectName out to see if we get an exception
     CIMObjectPath tmpRef;
     tmpRef.set(objectName);
-
-    _rep = new CIMObjectPathRep(*tmpRef._rep);
+    
+    _rep = tmpRef._rep;
+    Ref(_rep);
 }
 
 CIMObjectPath::CIMObjectPath(
@@ -490,27 +507,60 @@ CIMObjectPath::CIMObjectPath(
     // Test the objectName out to see if we get an exception
     CIMObjectPath tmpRef;
     tmpRef.set(host, nameSpace, className, keyBindings);
-
-    _rep = new CIMObjectPathRep(*tmpRef._rep);
+    _rep = tmpRef._rep;
+    Ref(_rep);
 }
 
 CIMObjectPath::~CIMObjectPath()
 {
-    delete _rep;
+    Unref(_rep);
 }
 
 CIMObjectPath& CIMObjectPath::operator=(const CIMObjectPath& x)
 {
-    *_rep = *x._rep;
+    if (x._rep != _rep)
+    {
+        Unref(_rep);
+        _rep = x._rep;
+        Ref(_rep);
+    }
     return *this;
+}
+
+static inline CIMObjectPathRep* _copyOnWriteCIMObjectPathRep(
+    CIMObjectPathRep* rep)
+{
+    if (rep->_refCounter.get() > 1)
+    {
+        CIMObjectPathRep* tmpRep= new CIMObjectPathRep(*rep);
+        Unref(rep);
+        return tmpRep;
+    }
+    else
+    {
+        return rep;
+    }
 }
 
 void CIMObjectPath::clear()
 {
-    _rep->_host.clear();
-    _rep->_nameSpace.clear();
-    _rep->_className.clear();
-    _rep->_keyBindings.clear();
+    // If there is more than one reference
+    // remove reference and get a new shiny empty representation
+    if (_rep->_refCounter.get() > 1)
+    {
+        Unref(_rep);
+        _rep = new CIMObjectPathRep();
+    }
+    else
+    {
+        // If there is only one reference
+        // no need to copy the data, we own it
+        // just clear the fields
+        _rep->_host.clear();
+        _rep->_nameSpace.clear();
+        _rep->_className.clear();
+        _rep->_keyBindings.clear();
+    }
 }
 
 void CIMObjectPath::set(
@@ -519,10 +569,18 @@ void CIMObjectPath::set(
     const CIMName& className,
     const Array<CIMKeyBinding>& keyBindings)
 {
-   setHost(host);
-   setNameSpace(nameSpace);
-   setClassName(className);
-   setKeyBindings(keyBindings);
+    if ((host != String::EMPTY) && !CIMObjectPathRep::isValidHostname(host))
+    {
+        throw MalformedObjectNameException(host);
+    }
+    
+    _rep = _copyOnWriteCIMObjectPathRep(_rep);
+
+    _rep->_host.assign(host);
+    _rep->_nameSpace = nameSpace;
+    _rep->_className = className;
+    _rep->_keyBindings = keyBindings;
+    _BubbleSort(_rep->_keyBindings);
 }
 
 Boolean _parseHostElement(
@@ -786,6 +844,8 @@ void _parseKeyBindingPairs(
 
 void CIMObjectPath::set(const String& objectName)
 {
+    // the clear automatically ensures
+    // we have our own copy of the representation
     clear();
 
     //--------------------------------------------------------------------------
@@ -844,6 +904,7 @@ void CIMObjectPath::set(const String& objectName)
 
 CIMObjectPath& CIMObjectPath::operator=(const String& objectName)
 {
+    // set will call clear, which will cause copyOnWrite if necessary
     set(objectName);
     return *this;
 }
@@ -859,6 +920,7 @@ void CIMObjectPath::setHost(const String& host)
     {
         throw MalformedObjectNameException(host);
     }
+    _rep = _copyOnWriteCIMObjectPathRep(_rep);
 
     _rep->_host = host;
 }
@@ -870,6 +932,7 @@ const CIMNamespaceName& CIMObjectPath::getNameSpace() const
 
 void CIMObjectPath::setNameSpace(const CIMNamespaceName& nameSpace)
 {
+    _rep = _copyOnWriteCIMObjectPathRep(_rep);
    _rep->_nameSpace = nameSpace;
 }
 
@@ -880,6 +943,7 @@ const CIMName& CIMObjectPath::getClassName() const
 
 void CIMObjectPath::setClassName(const CIMName& className)
 {
+    _rep = _copyOnWriteCIMObjectPathRep(_rep);
     _rep->_className = className;
 }
 
@@ -890,6 +954,7 @@ const Array<CIMKeyBinding>& CIMObjectPath::getKeyBindings() const
 
 void CIMObjectPath::setKeyBindings(const Array<CIMKeyBinding>& keyBindings)
 {
+    _rep = _copyOnWriteCIMObjectPathRep(_rep);
     _rep->_keyBindings = keyBindings;
     _BubbleSort(_rep->_keyBindings);
 }
@@ -963,7 +1028,8 @@ String CIMObjectPath::toString() const
 
 String CIMObjectPath::_toStringCanonical() const
 {
-    CIMObjectPath ref = *this;
+    CIMObjectPath ref;
+    *ref._rep = *this->_rep;
 
     // Normalize hostname by changing to lower case
     ref._rep->_host.toLower(); // ICU_TODO:

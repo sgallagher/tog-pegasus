@@ -446,21 +446,26 @@ BOOKMARK0:
     {
         for (size_t i = 0; pegasusProviderTable[i].providerName; i++)
         {
+            // get the next entry
             const ProviderTableEntry& e = pegasusProviderTable[i];
 
+            // if there are errors in the table entry, terminate
             if (!e.moduleName && !e.createProvider || !e.className)
                 continue;
 
             CIMProvider* provider = (*e.createProvider)(e.providerName);
 
+            // Last entry of the table must be 0 to indicate end of table
             if (!provider)
                 continue;
 
+            // add the defined provider to the message handler
             ProviderMessageHandler* pmh = new ProviderMessageHandler(
                 e.moduleName, e.providerName, provider, 0, 0, false);
 
             _controlProviders.append(pmh);
 
+            // Register the module with the ModuleController
             String moduleName = PEGASUS_QUEUENAME_CONTROLSERVICE "::";
             moduleName.append(e.moduleName);
             moduleName.append(".");

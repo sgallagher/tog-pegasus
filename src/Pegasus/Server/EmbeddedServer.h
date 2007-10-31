@@ -31,6 +31,13 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+/* This module defines a class EmbeddedServer that provides functions for
+   defining the setup of embedded servers where the providers are statically
+   defined and the pegasus memory-resident CIM repository is used.
+   See PEP 305 and the embeddedsystembuild readmes for more detailed
+   information.
+*/
+
 #ifndef Pegasus_EmbeddedServer_h
 #define Pegasus_EmbeddedServer_h
 
@@ -46,14 +53,59 @@ class PEGASUS_SERVER_LINKAGE EmbeddedServer
 {
 public:
 
+    /**
+     *  Install the provider table defined by the parameter.
+     *  This function passes the pointer to the table of providers
+     *  that will be installed as part of the server startup.
+     *  @param ProviderTableEntry pointer defining a table of
+     *  provider definitions that represents the providers to be
+     *  registered for this cimserver.
+     *  See the file Pegasus/Server/ProviderTable.h for more
+     *  information on the definition of this table
+     */
     static void installProviderTable(ProviderTableEntry* providerTable);
+
+    /**
+     * Install the memory-resident class repository defined by list 
+     * of namespaces defined by the input parameter. 
+     *  
+     * @param namespaces pointer to MetaNameSpace objects that 
+     * define the namespaces/classes/qualifiers that define the 
+     * class repository to be installed.  This is a pointer to an 
+     * array of MetaNameSpace entities each of which represents one 
+     * namespace.  The last entry in this array MUST BE a zero entry 
+     * to terminate the array. 
+     */
 
     static void installNameSpaces(const MetaNameSpace* const* nameSpaces);
 
+    /**
+     * define the callback for a particular implementation of the
+     * function to save the instance repository.
+     * @param callback defines the function that will be called.
+     * @param data void* pointer to data which will be passed to the
+     * function defined by callback on each call.
+     */
     static void installSaveRepositoryCallback(
         void (*callback)(const Buffer& buffer, void* data),
         void* data);
 
+    /** Define the callback function for a particular implementation
+     * of the function to load the instance repsository from
+     * persistent storage and provide that set of instances to
+     * Repository implementation.
+     * @param callback defines the function that will be called
+     * @param data void* pointer to data which will be passed to the
+     * function defined by callback on each call.
+     * Example: 
+     *  
+     *   static void _loadCallback(Buffer& buffer, void* data)
+     *   { // Function that implements the instance repository load
+     *   }
+     *   ...
+     *   EmbeddedServer::installLoadRepositoryCallback(_loadCallback,
+     *   0); 
+     */
     static void installLoadRepositoryCallback(
         void (*callback)(Buffer& buffer, void* data),
         void* data);

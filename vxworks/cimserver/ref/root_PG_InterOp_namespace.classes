@@ -1,0 +1,20 @@
+CIM_CIMOMStatisticalData
+PG_ObjectManager
+CIM_Namespace
+PG_Namespace
+PG_ProviderModule
+PG_Provider
+PG_ProviderCapabilities
+PG_ConsumerCapabilities
+CIM_IndicationSubscription
+CIM_FormattedIndicationSubscription
+CIM_IndicationHandler
+CIM_ListenerDestinationCIMXML
+CIM_IndicationHandlerCIMXML
+PG_IndicationHandlerSNMPMapper
+PG_ListenerDestinationSystemLog
+PG_ListenerDestinationEmail
+CIM_IndicationFilter
+##
+## Put user defined classes here:
+##

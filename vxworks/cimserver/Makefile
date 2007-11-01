@@ -100,10 +100,17 @@ install:
 ##==============================================================================
 
 SCHEMAS=$(PEGASUS_ROOT)/Schemas
+
+# set the following parameters for the compiler
+#  -d - TBD 
+#  -W - TBD
+#  -m - Build the classes into source files.
 CIMMOFL=cimmofl -d -W -m
 #CIMMOFL=cimmofl -W -m
 
 repository:
+        # build the root/PG_Internal namespace into the file root_PG_Internal namespace
+	# The input is all of the mof to be included in this namespace.
 	@ $(CIMMOFL) -n root/PG_Internal -I $(SCHEMAS) root_PG_Internal_namespace.mof
 	@ $(CIMMOFL) -n root/PG_InterOp -I $(SCHEMAS) root_PG_InterOp_namespace.mof
 	@ $(CIMMOFL) -n root/cimv2 -I $(SCHEMAS) root_cimv2_namespace.mof

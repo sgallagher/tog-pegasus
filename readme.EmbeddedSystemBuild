@@ -1,0 +1,84 @@
+Title: Building Pegasus for Embedded Systems
+Date: 1 November 2007
+Status: Draft
+
+
+Separation of the server and client builds
+
+When building for embedded systems typically the server is built targeted to one
+platform and the clients and support tools are build targeted to another (host)
+platform.  Thus, for example, for VxWorks, the cim server would be targeted to
+the target VxWorks platform and the remiaining components of Pegasus (clients,
+compiler, end-end tests) would be targeted towards the development system.
+
+Pegasus build environment has been extended to make this possible.  The user may
+elect to work from either a single source tree or multiple source trees. But
+in any case, two separate build sequences are required for a complete Pegasus
+build, the target platform build (cross compile) of the cimserver and server unit tests and the 
+host build.  The sections below describe these processes.
+
+Note that this work has expanded the make structure of pegasus to include a new make configuration
+file (config.mak) located in the PEGASUS_ROOT directory. If this file exists, the definitions
+included in the file are included in the mak/configure.mak file which means that this file
+can be used to setup configuration parameters for the make.  The host / target make structure
+uses this new file.
+
+
+Building the server for the target platform
+
+1. Set up a configure.mak in the pegasus source root directory with the specific
+directives for the target make.  Note that there are several sample configure.mak
+files defined in the pegasus.vxworks directory.  Since there may be a number of variations
+of the make structure depending on the test configuraiton, it is logical to set up a
+configure.mak for each and simply copy or softlink the correct one into the pegasus source root.
+
+2. 
+
+
+
+
+Building the clients on the host platform
+
+The host platform build is the same as as any normal pegasus build.  It is 
+initiated through the top level make file and builds all components of the envrionment
+for execution on the host system.  Typically this can be executed with the alternatives
+defined below.
+
+    make new world    -- builds everything
+    make              -- build the source
+    make repository   -- builds the repository for the host system.
+
+There is no specific make today to simply build the non-server components.
+
+NOTE: The $PEGASUS_ROOT/configure.mak is normally used to set up the the configuration for
+the target build.   It need not be used for the host build.  It can be used to generate
+parameters for this build
+
+
+Special characteristics of the Embedded OpenPegasus Server
+
+OpenPegasus implemented several special characteristics to support embedded platforms
+including:
+
+1. Memory-Resident Repository (PEP 305)
+2. Static providers
+3. Single image build that produces a single output file containing the server,
+   providers, and the memory-resident class repository.
+
+This section provides an overview of how to create a complete embedded server.
+Note that there is a working example in the directory vxWorks/cimserver of a
+build with some sample providers and a complete class repository containing 3
+namespaces.
+
+Building the Memory-Resident Repository
+
+See the note readme.MemoryResidentRepository file for detailed information on the
+memory-resident repository
+
+Building Providers
+
+See the note readme.StaticProviders for detailed information on building static
+providers for OpenPegasus embedded systems.
+
+
+

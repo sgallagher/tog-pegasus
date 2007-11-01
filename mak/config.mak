@@ -39,7 +39,11 @@ ifndef ROOT
     ROOT =  $(subst \,/,$(PEGASUS_ROOT))
 endif
 
--include $(ROOT)/configure.mak
+ifdef CONFIGURATION
+  include $(CONFIGURATION)
+else
+  -include $(ROOT)/configure.mak
+endif
 
 ifdef PEGASUS_ENVVAR_FILE
     include $(PEGASUS_ENVVAR_FILE)

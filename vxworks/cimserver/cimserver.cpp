@@ -70,24 +70,30 @@ extern "C" int PegasusServerMain(int argc, char** argv);
 //  NOTE that Pegasus standard control providers are defined elsewhere.
 //
 
-// Defines the entry point for each provider. 
+// Defines the entry point for each static provider. 
 extern "C" CIMProvider* PegasusCreateProvider_Hello(const String&);
 extern "C" CIMProvider* PegasusCreateProvider_Goodbye(const String&);
 
 //
+// Table of user static providers to be registered
+//
+//
 // This table defines an entry for each provider to be registered when the
 // server starts.  Each entry consists of the following information.
-// ModuleName
-// Provider Name
-// Namespace in which this provider will be registered
-// Class for which this provider is registered
-// Entry point for the provider
-// NOTE: The table MUST end with an all zeros entry.  That is the terminator
-// for the functions that perform the installation.
+//   ModuleName
+//   Provider Name
+//   Namespace in which this provider will be registered Class for which
+//     this provider is registered Entry point for the provider
+//   The provider entry point
+// 
+//   NOTE: The table MUST end with an all zeros entry. That is
+//   the terminator for the functions that perform the
+//   installation.
 //
 
 static Pegasus::ProviderTableEntry _providerTable[] =
 {
+    // Define HelloProvider in its own module
     {
         "HelloModule", 
         "HelloProvider", 
@@ -95,6 +101,7 @@ static Pegasus::ProviderTableEntry _providerTable[] =
         "Hello",
         PegasusCreateProvider_Hello,
     },
+    // Define GoodbyeProvider in its own module
     {
         "GoodbyeModule", 
         "GoodbyeProvider", 
@@ -102,18 +109,21 @@ static Pegasus::ProviderTableEntry _providerTable[] =
         "Goodbye",
         PegasusCreateProvider_Goodbye,
     },
+    // empty entry defines end of table
     { 0, 0, 0, 0, 0 },
 };
 
 static const char INSTANCE_REPOISTORY_PATH[] = "redbird:/tmp/instances.dat";
 
 //
-// Definition of namespaces that will be defined in the installation of
+// Definition of class repository that will be defined in the installation of
 // the repository. These names correspond to the source files for the class
 // and qualifier definitions for individual namespaces that were created with
 // cimmofl.
-// Note that this table must include a zero entry to terminate the table.
+// 
+// NOTE: that this table must include a zero entry to terminate the table.
 // Create a single entry in this table for each namespace which was compiled.
+// 
 
 static const MetaNameSpace* _nameSpaces[] =
 {
@@ -157,8 +167,8 @@ static void _loadCallback(Buffer& buffer, void* data)
     fclose(is);
 }
 
-// the save instance repository callback function.  This function is called
-// by the memory-resident CIM repository function upon the completion of any
+// The save instance repository callback function.  This function is called by
+// the memory-resident CIM repository function upon the completion of any
 // change to the instance repository. the buffer parameter contains the data
 // to be persisted.  The data parameter defines data which the user defined 
 // upon the installation of the callback.  This function is an example of the
@@ -167,6 +177,7 @@ static void _loadCallback(Buffer& buffer, void* data)
 // of a file system that would support the fopen, fwrite. The only requirement
 // on the save and load functions is that they be able to persist the buffer
 // in the saveCallback function and restore it in the _loadCallback function.
+
 static void _saveCallback(const Buffer& buffer, void* data)
 {
     printf("===== _saveCallback()\n");
@@ -196,11 +207,12 @@ static void _saveCallback(const Buffer& buffer, void* data)
 // real-time-process mode so that the symbol cimserver becomse the 
 // explicit start point for the cimserver.  If this were a VxWorks
 // RTP, this would be main(...)
+
 extern "C" int cimserver(int argc, char** argv)
 {
     printf("===== CIMSERVER =====\n");
 
-    // Setup the provider table:
+    // Setup the provider table defined above:
 
     EmbeddedServer::installProviderTable(_providerTable);
 
@@ -209,7 +221,7 @@ extern "C" int cimserver(int argc, char** argv)
 
     EmbeddedServer::installNameSpaces(_nameSpaces);
 
-    // Install load/save callbacks:
+    // Install instance repository load/save callback functions:
 
     EmbeddedServer::installLoadRepositoryCallback(_loadCallback, 0);
     EmbeddedServer::installSaveRepositoryCallback(_saveCallback, 0);

@@ -62,13 +62,11 @@ LIBRARIES = \
     pegserver \
     pegservice \
     peguser \
-    pegprm \
     NamespaceProvider \
     pegindicationservice \
     peghandlerservice \
     ConfigSettingProvider \
     DefaultProviderManager \
-    ProviderRegistrationProvider \
     pegauthentication \
     UserAuthProvider \
     pegqueryexpression \
@@ -87,6 +85,10 @@ LIBRARIES = \
     pegrepository \
     pegconfig \
     pegcommon
+
+## Removing the provider registration capability removes the following
+##    ProviderRegistrationProvider \
+##    pegprm \
 
 include $(ROOT)/mak/program.mak
 

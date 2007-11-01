@@ -35,8 +35,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-extern ProviderTableEntry* pegasusProviderTable;
-
 void EmbeddedServer::installProviderTable(
     ProviderTableEntry* providerTable)
 {

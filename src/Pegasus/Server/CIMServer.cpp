@@ -137,8 +137,6 @@ static CIMServer* _cimserver = NULL;
 
 static Boolean _slpRegistrationComplete;
 
-extern ProviderTableEntry* pegasusProviderTable;
-
 // Need a static method to act as a callback for the control provider.
 // This doesn't belong here, but I don't have a better place to put it.
 static Message* controlProviderReceiveMessageCallback(

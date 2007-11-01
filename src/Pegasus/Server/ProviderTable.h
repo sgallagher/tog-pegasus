@@ -48,6 +48,8 @@ struct ProviderTableEntry
     CIMProvider* (*createProvider)(const String& providerName);
 };
 
+extern ProviderTableEntry* pegasusProviderTable;
+
 PEGASUS_NAMESPACE_END
 
 #endif // Pegasus_ProviderTable_h

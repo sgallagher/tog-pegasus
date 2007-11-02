@@ -1,0 +1,57 @@
+Synopsis:
+=========
+
+This document explains how to get VxWorks running on the IQ8134.
+
+Configuring RedBoot:
+====================
+
+RedBoot> fconfig -i
+
+<...answer prompts...>
+
+Downloading the VxWorks image:
+==============================
+
+RedBoot> load -m HTTP -h 192.168.1.20 /vxWorks
+Entry point: 0x00200000, address range: 0x00200000-0x002d8450
+
+RedBoot> load -v -m tftp -h 192.168.1.20 /vxWorks
+
+Running VxWorks:
+================
+
+RedBoot> exec
+
+Flashing the IQ8134:
+====================
+
+Image               Flash Address
+---------------------------------
+dual_boot.bin       0x00000000
+bootrom_0.bin       0x00040000
+bootrom_1.bin       0x00400000
+
+Flash log:
+
+    RedBoot> load -b 0x500000 -r -m tftp bootrom_0.bin
+    RedBoot> fis unlock -f 0xF0040000 -l 0x80000
+    RedBoot> fis write -b 0x500000 -f 0xF0040000 -l 0x80000
+    RedBoot> fis lock -f 0xF0040000 -l 0x80000
+
+    RedBoot> load -b 0x500000 -r -m tftp bootrom_1.bin
+    RedBoot> fis unlock -f 0xF0400000 -l 0x80000
+    RedBoot> fis write -b 0x500000 -f 0xF0400000 -l 0x80000
+    RedBoot> fis lock -f 0xF0400000 -l 0x80000
+
+    RedBoot> load -b 0x500000 -r -m tftp dual_boot.bin
+    RedBoot> fis unlock -f 0xF0000000 -l 0x20000
+    RedBoot> fis write -b 0x500000 -f 0xF0000000 -l 0x20000
+    RedBoot> fis lock -f 0xF0000000 -l 0x20000
+
+Creating the BSP:
+=================
+
+    $ vxprj create iq8134x diab vxsim.wpj
+    $ make RAM_LOW_ADRS=07200000 RAM_HIGH_ADRS=07600000 
+

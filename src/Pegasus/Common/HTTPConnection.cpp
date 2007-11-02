@@ -2013,18 +2013,38 @@ void HTTPConnection::_handleReadEvent()
             PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
                 "_requestCount = %d", _requestCount.get()));
 
-            PEG_METHOD_EXIT();
-            return;
+            //
+            // If we are executing on the server side, the connection
+            // is closed, return. Do not forward an empty HTTP message.
+            //
+            if (!_isClient())
+            {
+                PEG_METHOD_EXIT();
+                return;
+            }
         }
 
-        // A message was received, so process it.  If the connection was
-        // closed, we will handle that in the next iteration.
+        // If the connection was closed and we are executing on the client
+        // side send an empty HTTP message. Otherwise, a message was
+        // received, so process it.
 
         HTTPMessage* message = new HTTPMessage(_incomingBuffer, getQueueId());
         message->authInfo = _authInfo.get();
         message->ipAddress = _ipAddress;
         message->contentLanguages = contentLanguages;
         message->dest = _outputMessageQueue->getQueueId();
+
+        //
+        // The _closeConnection method sets the _connectionClosePending flag.
+        // If we are executing on the client side and the
+        // _connectionClosePending flag is set, send an empty HTTP message.
+        //
+        if (_connectionClosePending)
+        {
+            _outputMessageQueue->enqueue(message);
+            PEG_METHOD_EXIT();
+            return;
+        }
 
         if (_isClient() == false)
         {
@@ -2054,7 +2074,7 @@ void HTTPConnection::_handleReadEvent()
         //
         // Set the entry status to BUSY.
         //
-        if (_isClient() == false && !_connectionClosePending)
+        if (_isClient() == false)
         {
             PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
                 "Now setting state to %d", _MonitorEntry::BUSY));

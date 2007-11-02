@@ -29,9 +29,9 @@
 #//
 #//=============================================================================
 
-# the following is an example implementation of an embedded system
-# cim server main() function for VxWorks.
-# this Makefile builds the repositories and main module. This Makefile should
+# This Makefile is an example implementation of an embedded system
+# cim server make for VxWorks.
+# This Makefile builds the repositories and main module. This Makefile should
 # be treated an an example for a particular embedded server implementation.
 
 ROOT = ../..
@@ -78,6 +78,8 @@ LIBRARIES = \
     pegprovidermanager \
     CIMOMStatDataProvider \
     InteropProvider \
+    ProviderRegistrationProvider \
+    pegprm \
     pegprovidermanager \
     pegpmservice \
     pegprovider \
@@ -105,13 +107,15 @@ SCHEMAS=$(PEGASUS_ROOT)/Schemas
 
 # set the following parameters for the compiler
 #  -d - TBD 
-#  -W - TBD
-#  -m - Build the classes into source files.
+#  -W - suppress the cimmofl usage warning message
+#  -m - Compile classes to source files for memory-resident repository
+
 CIMMOFL=cimmofl -d -W -m
 #CIMMOFL=cimmofl -W -m
 
 repository:
-        # build the root/PG_Internal namespace into the file root_PG_Internal namespace
+        # build the root/PG_Internal namespace into the file 
+	#       root_PG_Internal namespace
 	# The input is all of the mof to be included in this namespace.
 	@ $(CIMMOFL) -n root/PG_Internal -I $(SCHEMAS) root_PG_Internal_namespace.mof
 	@ $(CIMMOFL) -n root/PG_InterOp -I $(SCHEMAS) root_PG_InterOp_namespace.mof

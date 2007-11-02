@@ -6209,6 +6209,19 @@ CIM server listening on HTTPS port {0}."}
         *    Do not translate 'READ', 'CIMSERV CL(WBEM)' as it are RACF names
         */
         Security.Authentication.SecureBasicAuthenticator.NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS:string {"PGS17202: Request UserID {0} does not have READ permission to profile CIMSERV CL(WBEM)."}
+ 
+         /**
+         * @note  PGS17203:
+         *    Substitution {0} is a user name (a string)
+         */
+         Security.Authentication.SecureBasicAuthenticator.EMPTY_PASSWD.PEGASUS_OS_ZOS:string {"PGS17203: Request UserID {0} misses password."}
+ 
+         /**
+         * @note  PGS17204:
+         *    Substitution {0} is a user name (a string)
+         *    Do not translate 'passticket' and 'OMVSAPPL' as it is a RACF term
+         */
+         Security.Authentication.SecureBasicAuthenticator.APPLID_OMVSAPPL.PEGASUS_OS_ZOS:string {"PGS17204: CIM Server passticket validation is using application ID OMVSAPPL."}
         
         // ==========================================================
         // Messages for Security LocalAuthenticationHandler

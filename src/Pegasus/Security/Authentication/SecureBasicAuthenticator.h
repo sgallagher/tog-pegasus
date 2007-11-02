@@ -79,6 +79,22 @@ public:
 
 private:
 
+#ifdef PEGASUS_OS_ZOS
+#if (__TARGET_LIB__ >= 0x410A0000)
+
+    String        _zosAPPLID;
+
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+
+    /** Set the applicatoin ID to CFZAPPL for validatition of passtickes.
+        This function is only needed if the compile target system is z/OS R9
+        or earlier and 32 Bit !
+         @return true on success.
+    */
+    Boolean set_ZOS_ApplicationID( void );
+#endif // end PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#endif // end PEGASUS_OS_ZOS
+
     String        _realm;
     UserManager*  _userManager;
 };

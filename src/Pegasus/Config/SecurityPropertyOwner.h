@@ -205,11 +205,6 @@ private:
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     AutoPtr<struct ConfigProperty> _kerberosServiceName;
 #endif
-
-#ifdef PEGASUS_OS_ZOS
-    AutoPtr<struct ConfigProperty> _enableCFZAPPLID;
-#endif
-
 };
 
 PEGASUS_NAMESPACE_END

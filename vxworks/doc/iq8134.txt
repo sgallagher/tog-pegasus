@@ -55,3 +55,11 @@ Creating the BSP:
     $ vxprj create iq8134x diab vxsim.wpj
     $ make RAM_LOW_ADRS=07200000 RAM_HIGH_ADRS=07600000 
 
+
+Connecting to target:
+=====================
+
+    $ wtxregd start
+    $ tgtsvr -V -R `pwd` -RW 192.168.1.55
+    $ windsh 192.168.1.55@redbird
+

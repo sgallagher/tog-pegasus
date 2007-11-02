@@ -62,8 +62,8 @@ cimmofRepository::~cimmofRepository()
 {
     if (_cimrepository)
         delete(_cimrepository);
-    if (_context)
-        delete(_context);
+    //ATTN: Do not delete _conext here, it has already been deleted in 
+    // CIMRepository destructor.
 }
 
 int cimmofRepository::addClass(const CIMNamespaceName &nameSpace,

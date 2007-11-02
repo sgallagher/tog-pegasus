@@ -1041,7 +1041,11 @@ Message* CIMClientRep::_doRequest(
 
     Uint64 startMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
     Uint64 nowMilliseconds = startMilliseconds;
+#ifdef PEGASUS_DISABLE_CLIENT_TIMEOUT
+    Uint64 stopMilliseconds = (Uint64) -1;
+#else
     Uint64 stopMilliseconds = nowMilliseconds + _timeoutMilliseconds;
+#endif
 
     while (nowMilliseconds < stopMilliseconds)
     {

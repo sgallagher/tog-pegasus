@@ -45,7 +45,6 @@ ifndef LINK_RPATH_LINK
 endif
 
 
-
 TMP_OBJECTS = $(foreach i,$(SOURCES),$(OBJ_DIR)/$i)
 
 S_OBJECTS = $(TMP_OBJECTS:.s=.o)
@@ -149,6 +148,11 @@ else
 	$(LINK_WRAPPER) $(CXX) $(FLAGS) $(EXTRA_LINK_FLAGS) $(EXE_OUTPUT) $(OBJECTS) $(FULL_LIBRARIES) $(SYS_LIBS) $(EXTRA_LIBRARIES)
 endif
 	$(TOUCH) $(FULL_PROGRAM)
+ifdef PEGASUS_TEST_VALGRIND_LOG
+	echo "#!/bin/bash" > $(VALGRIND_SCRIPT_BIN_DIR)/$(PROGRAM)$(EXE)
+	echo -e "valgrind --log-file=$(PEGASUS_TEST_VALGRIND_LOG) --num-callers=25 --tool=memcheck --leak-check=full --error-limit=no $(FULL_PROGRAM) \x24@" >> $(VALGRIND_SCRIPT_BIN_DIR)/$(PROGRAM)$(EXE)
+	chmod 755 $(VALGRIND_SCRIPT_BIN_DIR)/$(PROGRAM)$(EXE)
+endif
 	@ $(ECHO)
 
 include $(ROOT)/mak/objects.mak

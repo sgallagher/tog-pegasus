@@ -64,6 +64,9 @@ $(OBJ_DIR)/target: $(ERROR)
 	@ $(TOUCH) $(OBJ_DIR)/target
 
 $(BIN_DIR)/target: $(ERROR)
+ifdef PEGASUS_TEST_VALGRIND_LOG
+	@ $(MKDIRHIER) $(VALGRIND_SCRIPT_BIN_DIR)
+endif
 	@ $(MKDIRHIER) $(BIN_DIR)
 	@ $(TOUCH) $(BIN_DIR)/target
 

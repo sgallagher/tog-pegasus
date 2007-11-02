@@ -119,7 +119,12 @@ endif
 
 #############################################################################
 
-BIN_DIR = $(HOME_DIR)/bin
+ifdef PEGASUS_TEST_VALGRIND_LOG
+    BIN_DIR = $(HOME_DIR)/bin_exe
+    VALGRIND_SCRIPT_BIN_DIR = $(HOME_DIR)/bin
+else
+    BIN_DIR = $(HOME_DIR)/bin
+endif
 LIB_DIR = $(HOME_DIR)/lib
 
 # l10n
@@ -1034,3 +1039,9 @@ else
 	PEGASUS_JAVA_JAR		= jar
 	PEGASUS_JAVA_INTERPRETER	= java
 endif
+
+# Disable client timeouts when we're doing a valgrind build
+ifdef PEGASUS_TEST_VALGRIND_LOG
+    DEFINES += -DPEGASUS_DISABLE_CLIENT_TIMEOUT
+endif
+

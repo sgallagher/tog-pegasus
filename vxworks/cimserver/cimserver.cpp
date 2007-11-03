@@ -46,6 +46,7 @@
 
 #include <cstdio>
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Server/EmbeddedServer.h>
 
 // Header files for each of the namespaces that are to be created for this
@@ -145,6 +146,7 @@ static const MetaNameSpace* _nameSpaces[] =
 // this callback.
 static void _loadCallback(Buffer& buffer, void* data)
 {
+#if 0
     printf("===== _loadCallback()\n");
 
     // If this file exists, pass its contents to the memory resident 
@@ -165,6 +167,7 @@ static void _loadCallback(Buffer& buffer, void* data)
         buffer.append(buf, n);
 
     fclose(is);
+#endif
 }
 
 // The save instance repository callback function.  This function is called by
@@ -180,6 +183,7 @@ static void _loadCallback(Buffer& buffer, void* data)
 
 static void _saveCallback(const Buffer& buffer, void* data)
 {
+#if 0
     printf("===== _saveCallback()\n");
 
     FILE* os = fopen(INSTANCE_REPOISTORY_PATH, "wb");
@@ -199,6 +203,7 @@ static void _saveCallback(const Buffer& buffer, void* data)
     }
 
     fclose(os);
+#endif
 }
 
 // main function for the cimserver. Note that in this sample code the
@@ -210,9 +215,9 @@ static void _saveCallback(const Buffer& buffer, void* data)
 
 extern "C" int cimserver(int argc, char** argv)
 {
-    printf("===== CIMSERVER =====\n");
+    printf("\n===== CIMSERVER =====\n");
 
-    // Setup the provider table defined above:
+    // Setup the provider table:
 
     EmbeddedServer::installProviderTable(_providerTable);
 
@@ -230,5 +235,13 @@ extern "C" int cimserver(int argc, char** argv)
     // for embedded systems, the cimserver main has been redefined
     // to PegasusServerMain, a Pegasus function.
 
-    return PegasusServerMain(argc, argv);
+    try
+    {
+        return PegasusServerMain(argc, argv);
+    }
+    catch (...)
+    {
+        printf("cimserver(): exception\n");
+        return -1;
+    }
 }

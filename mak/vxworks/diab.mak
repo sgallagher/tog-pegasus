@@ -67,6 +67,7 @@ FLAGS += $(__MINUS_T__)
 FLAGS += -Xansi
 FLAGS += -Xlocal-data-area-static-only
 FLAGS += -Xforce-declarations
+FLAGS += -Xcode-absolute-far
 
 # suppress "warning (etoa:4550): variable X was set but never used"
 FLAGS += -ei4550
@@ -77,6 +78,9 @@ FLAGS += -ei4177
 # suppress "line 471: warning (etoa:4111): statement is unreachable"
 FLAGS += -ei4111
 
+
+#ATTN-MEB:
+PEGASUS_USE_DEBUG_BUILD_OPTIONS=1
 
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
   FLAGS += -g -W:c:,-Xclib-optim-off

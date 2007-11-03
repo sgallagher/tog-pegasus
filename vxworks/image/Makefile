@@ -60,3 +60,4 @@ clean:
 	rm -rf nvram.vxWorks0
 	rm -rf vxWorks.sym
 	rm -rf vxWorks
+

@@ -60,6 +60,33 @@ Connecting to target:
 =====================
 
     $ wtxregd start
-    $ tgtsvr -V -R `pwd` -RW 192.168.1.55
+    $ tgtsvr -V -RW 192.168.1.55 (image must be at /vxWorks and /tftp/vxWorks)
     $ windsh 192.168.1.55@redbird
+
+NFS:
+====
+
+    $ hostAdd("redbird", "192.168.1.20")
+    value = 0 = 0x0
+    $ nfsMount("redbird", "/iq8134x", 0)
+    value = 0 = 0x0
+
+Boot params:
+============
+boot device          : gei
+unit number          : 0 
+processor number     : 0 
+host name            : host
+file name            : /share/vxWorks
+inet on ethernet (e) : 192.168.1.55
+inet on backplane (b): 192.168.1.55
+host inet (h)        : 192.168.1.20
+flags (f)            : 0x80 
+target name (tn)     : iq8134
+
+Loading a task:
+===============
+
+    $ lkAddr cimserver
+    $ taskSpawn("t123", 100, 0x19, 64536, 0x079217e4)
 

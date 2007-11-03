@@ -451,26 +451,6 @@ extern "C" int PegasusServerMain(int argc, char** argv)
     // Set Message loading to process locale
     MessageLoader::_useProcessLocale = true;
 
-#if defined(PEGASUS_OS_VXWORKS)
-/*
-ATTN-MEB: create constant for this:
-*/
-    // On VxWorks, run cimserver in /ramfs:0 directory:
-    {
-        const char PATH[] = "/romfs";
-        if (chdir(PATH) != 0)
-        {
-            fprintf(stderr, "cimserver: failed to chdir to %s\n", PATH);
-            fprintf(stderr, "cimserver: aborting...\n");
-            exit(1);
-        }
-        char cwd[4096];
-        cwd[0] = '\0';
-        getcwd(cwd, sizeof(cwd));
-        printf("Changed directory to \"%s\"\n", cwd);
-    }
-#endif
-
 #ifdef PEGASUS_OS_ZOS
     // Direct standard input to /dev/null,
     close(STDIN_FILENO);

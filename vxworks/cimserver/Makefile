@@ -121,3 +121,6 @@ repository:
 	@ $(CIMMOFL) -n root/PG_InterOp -I $(SCHEMAS) root_PG_InterOp_namespace.mof
 	@ $(CIMMOFL) -n root/cimv2 -I $(SCHEMAS) root_cimv2_namespace.mof
 
+
+share:
+	cp $(BIN_DIR)/$(PROGRAM) /share

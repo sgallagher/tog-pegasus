@@ -51,17 +51,31 @@ PEGASUS_NAMESPACE_BEGIN
 //
 //==============================================================================
 
-PEGASUS_FORMAT(2, 3)
-static void _throw(CIMStatusCode code, const char* format, ...)
+class ThrowContext
 {
-    char buffer[4096];
+public:
 
-    va_list ap;
-    va_start(ap, format);
-    vsprintf(buffer, format, ap);
-    va_end(ap);
-    throw CIMException(code, buffer);
-}
+    PEGASUS_FORMAT(3, 4)
+    ThrowContext(CIMStatusCode code_, const char* format, ...) : code(code_)
+    {
+        char buffer[1024];
+        va_list ap;
+        va_start(ap, format);
+        vsprintf(buffer, format, ap);
+        va_end(ap);
+        msg = buffer;
+    }
+    CIMStatusCode code;
+    String msg;
+};
+
+#define Throw(ARGS) \
+    do \
+    { \
+        ThrowContext c ARGS; \
+        throw CIMException(c.code, c.msg); \
+    } \
+    while (0)
 
 class Str
 {
@@ -111,18 +125,18 @@ static void _applyModifiedInstance(
 
             if (!mf)
             {
-                _throw(CIM_ERR_NOT_FOUND, 
+                Throw((CIM_ERR_NOT_FOUND, 
                     "modifyInstance() failed: unknown property: %s",
-                    *Str(cp.getName()));
+                    *Str(cp.getName())));
             }
 
             // Reject attempts to modify key properties:
 
             if (mf->flags & META_FLAG_KEY)
             {
-                _throw(CIM_ERR_FAILED,
+                Throw((CIM_ERR_FAILED,
                     "modifyInstance() failed to modify key property: %s",
-                    *Str(cp.getName()));
+                    *Str(cp.getName())));
             }
 
             // Add or replace property in result instance:
@@ -197,7 +211,7 @@ CIMInstance MemoryResidentRepository::getInstance(
     Uint32 pos = _findInstance(nameSpace, instanceName);
 
     if (pos == PEG_NOT_FOUND)
-        _throw(CIM_ERR_NOT_FOUND, "%s", *Str(instanceName));
+        Throw((CIM_ERR_NOT_FOUND, "%s", *Str(instanceName)));
 
     CIMInstance cimInstance = _rep[pos].second.clone();
 
@@ -229,7 +243,7 @@ void MemoryResidentRepository::deleteInstance(
     Uint32 pos = _findInstance(nameSpace, instanceName);
 
     if (pos == PEG_NOT_FOUND)
-        _throw(CIM_ERR_NOT_FOUND, "%s", *Str(instanceName));
+        Throw((CIM_ERR_NOT_FOUND, "%s", *Str(instanceName)));
 
     _rep.remove(pos);
     _processSaveHandler();
@@ -265,7 +279,7 @@ CIMObjectPath MemoryResidentRepository::createInstance(
     // Reject if an instance with this name already exists:
 
     if (_findInstance(nameSpace, cop) != PEG_NOT_FOUND)
-        _throw(CIM_ERR_ALREADY_EXISTS, "%s", *Str(cop));
+        Throw((CIM_ERR_ALREADY_EXISTS, "%s", *Str(cop)));
 
     // Add instance to array:
 
@@ -304,9 +318,9 @@ void MemoryResidentRepository::modifyInstance(
 
     if (!mc)
     {
-        _throw(CIM_ERR_FAILED, 
+        Throw((CIM_ERR_FAILED, 
             "modifyInstance() failed: unknown class: %s:%s",
-            *Str(nameSpace), *Str(className));
+            *Str(nameSpace), *Str(className)));
     }
 
     // Get original instance to be modified:
@@ -315,8 +329,9 @@ void MemoryResidentRepository::modifyInstance(
 
     if (pos == PEG_NOT_FOUND)
     {
-        _throw(CIM_ERR_NOT_FOUND, "modified() failed: unknown instance: %s",
-            *Str(cop.toString()));
+        Throw((CIM_ERR_NOT_FOUND, 
+            "modifyInstance() failed: unknown instance: %s",
+            *Str(cop.toString())));
     }
 
     CIMInstance resultInstance = _rep[pos].second.clone();
@@ -497,7 +512,7 @@ Array<CIMInstance> MemoryResidentRepository::execQuery(
     const String& queryLanguage,
     const String& query)
 {
-    _throw(CIM_ERR_NOT_SUPPORTED, "execQuery()");
+    Throw((CIM_ERR_NOT_SUPPORTED, "execQuery()"));
     return Array<CIMInstance>();
 }
 
@@ -528,7 +543,7 @@ Array<CIMObject> MemoryResidentRepository::associators(
     }
     else
     {
-        _throw(CIM_ERR_NOT_SUPPORTED, "associators()");
+        Throw((CIM_ERR_NOT_SUPPORTED, "associators()"));
         return Array<CIMObject>();
     }
 }
@@ -554,7 +569,7 @@ Array<CIMObjectPath> MemoryResidentRepository::associatorNames(
     }
     else
     {
-        _throw(CIM_ERR_NOT_SUPPORTED, "associatorNames()");
+        Throw((CIM_ERR_NOT_SUPPORTED, "associatorNames()"));
         return Array<CIMObjectPath>();
     }
 }
@@ -582,7 +597,7 @@ Array<CIMObject> MemoryResidentRepository::references(
     }
     else
     {
-        _throw(CIM_ERR_NOT_SUPPORTED, "references()");
+        Throw((CIM_ERR_NOT_SUPPORTED, "references()"));
         return Array<CIMObject>();
     }
 }
@@ -604,7 +619,7 @@ Array<CIMObjectPath> MemoryResidentRepository::referenceNames(
     }
     else
     {
-        _throw(CIM_ERR_NOT_SUPPORTED, "referenceNames()");
+        Throw((CIM_ERR_NOT_SUPPORTED, "referenceNames()"));
         return Array<CIMObjectPath>();
     }
 }
@@ -615,7 +630,7 @@ CIMValue MemoryResidentRepository::getProperty(
     const CIMObjectPath& instanceName,
     const CIMName& propertyName)
 {
-    _throw(CIM_ERR_NOT_SUPPORTED, "getProperty()");
+    Throw((CIM_ERR_NOT_SUPPORTED, "getProperty()"));
     return CIMValue();
 }
 
@@ -627,7 +642,7 @@ void MemoryResidentRepository::setProperty(
     const CIMValue& newValue,
     const ContentLanguageList& contentLangs)
 {
-    _throw(CIM_ERR_NOT_SUPPORTED, "setProperty()");
+    Throw((CIM_ERR_NOT_SUPPORTED, "setProperty()"));
 }
 
 CIMQualifierDecl MemoryResidentRepository::getQualifier(
@@ -704,7 +719,7 @@ void MemoryResidentRepository::setDeclContext(
     bool lock,
     RepositoryDeclContext* context)
 {
-    _throw(CIM_ERR_NOT_SUPPORTED, "setDeclContext()");
+    Throw((CIM_ERR_NOT_SUPPORTED, "setDeclContext()"));
 }
 
 Boolean MemoryResidentRepository::isDefaultInstanceProvider(

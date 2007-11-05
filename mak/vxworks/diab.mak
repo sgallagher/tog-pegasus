@@ -101,6 +101,7 @@ DEFINES += -D_WRS_KERNEL
 ##==============================================================================
 
 LINK = dld
+AR = dar
 
 LINK_FLAGS += $(__MINUS_T__)
 LINK_FLAGS += -X 
@@ -110,5 +111,3 @@ LINK_FLAGS += -r4
 NM = ddump -Ng
 
 MUNCH = wtxtcl $(WIND_BASE)/host/resource/hutils/tcl/munch.tcl -c $(__TARGET__)
-
-AR = dar

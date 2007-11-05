@@ -391,7 +391,7 @@ HTTPConnection* HTTPConnector::connect(
     if (-1 == (_entry_index = _monitor->solicitSocketMessages(
             connection->getSocket(),
             SocketMessage::READ | SocketMessage::EXCEPTION,
-            connection->getQueueId(), Monitor::CONNECTOR)))
+            connection->getQueueId(), MonitorEntry::TYPE_CONNECTOR)))
     {
         (connection->getMPSocket()).close();
     }

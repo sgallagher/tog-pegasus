@@ -46,53 +46,58 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE _MonitorEntry
+class PEGASUS_COMMON_LINKAGE MonitorEntry
 {
 public:
+    enum Status
+    {
+        STATUS_IDLE,
+        STATUS_BUSY,
+        STATUS_DYING,
+        STATUS_EMPTY
+    };
+
+    enum Type
+    {
+        TYPE_UNTYPED,
+        TYPE_ACCEPTOR,
+        TYPE_CONNECTION,
+        TYPE_CONNECTOR,
+        TYPE_INTERNAL
+    };
+
+    MonitorEntry()
+    {
+        reset();
+    }
+
+    MonitorEntry(
+        SocketHandle socket_,
+        Uint32 queueId_,
+        Uint32 status_,
+        Uint32 type_)
+        : socket(socket_),
+          queueId(queueId_),
+          status(status_),
+          type(type_)
+    {
+    }
+
+    // NOTE: Using the default implementation of the copy constructor and
+    // assignment operator.
+
+    void reset()
+    {
+        socket = PEGASUS_INVALID_SOCKET;
+        queueId = 0;
+        status = STATUS_EMPTY;
+        type = TYPE_UNTYPED;
+    }
+
     SocketHandle socket;
     Uint32 queueId;
-    AtomicInt _status;
-
-    // This copy constructor is inecessary since AtomicInt does not support
-    // copy construction.
-    _MonitorEntry(const _MonitorEntry& x) :
-        socket(x.socket),
-        queueId(x.queueId),
-        _status(x._status.get()),
-        _type(x._type)
-    {
-    }
-    int _type;
-
-    _MonitorEntry(SocketHandle sock, Uint32 q, int Type)
-        : socket(sock), queueId(q), _status(EMPTY), _type(Type)
-    {
-    }
-
-    _MonitorEntry() : socket(0), queueId(0), _status(EMPTY), _type(0)
-    {
-    }
-
-    _MonitorEntry& operator=(const _MonitorEntry& entry)
-    {
-        if (this != &entry)
-        {
-            this->socket = entry.socket;
-            this->queueId = entry.queueId;
-            this->_status = entry._status.get();
-            this->_type = entry._type;
-        }
-
-        return *this;
-    }
-
-    enum entry_status
-    {
-        IDLE,
-        BUSY,
-        DYING,
-        EMPTY
-    };
+    Uint32 status;
+    Uint32 type;
 };
 
 /** This message occurs when there is activity on a socket. */
@@ -207,11 +212,6 @@ private:
 class PEGASUS_COMMON_LINKAGE Monitor
 {
 public:
-    enum Type
-    {
-        UNTYPED, ACCEPTOR, CONNECTOR, CONNECTION, INTERNAL
-    };
-
     /** Default constructor. */
     Monitor();
 
@@ -221,7 +221,9 @@ public:
     /** Sets the state of the monitor entry to the specified state.
         This is used to synchronize the monitor and the worker
         thread. Bug# 2057 */
-    void setState( Uint32 index, _MonitorEntry::entry_status status );
+    void setState(
+        Uint32 index,
+        MonitorEntry::Status status);
 
     void tickle();
 
@@ -231,7 +233,6 @@ public:
         whichever occurs first.
 
         @param timeoutMsec the number of milliseconds to wait for an event.
-        @return true if an event occured.
     */
     void run(Uint32 timeoutMsec);
 
@@ -248,7 +249,7 @@ public:
         SocketHandle socket,
         Uint32 events,
         Uint32 queueId,
-        int type);
+        Uint32 type);
 
     /** Unsolicit messages on the given socket.
 
@@ -257,30 +258,26 @@ public:
     */
     void unsolicitSocketMessages(SocketHandle);
 
-    /** dispatch a message to the cimom on an independent thread
-        Note: The Monitor class uses the MessageQueueService ThreadPool.
-        This ThreadPool is only available if it has been initialized by
-        the MessageQueueService.  Therefore, the Monitor class should
-        only be used when the MessageQueueService is active in the
-        system.
-     */
-    static ThreadReturnType PEGASUS_THREAD_CDECL _dispatch(void *);
-
     /** stop listening for client connections
      */
     void stopListeningForConnections(Boolean wait);
 
 private:
 
-    Array<_MonitorEntry> _entries;
-    Mutex _entry_mut;
+    Array<MonitorEntry> _entries;
+    /**
+        This mutex must be locked when accessing the _entries array or any
+        of its MonitorEntry objects.
+    */
+    Mutex _entriesMutex;
+
     AtomicInt _stopConnections;
     Semaphore _stopConnectionsSem;
+
     /** tracks how many times solicitSocketCount() has been called */
     Uint32 _solicitSocketCount;
+
     Tickler _tickler;
-    Mutex _tickleMutex;
-    friend class HTTPConnection;
 };
 
 PEGASUS_NAMESPACE_END

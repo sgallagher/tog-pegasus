@@ -340,15 +340,16 @@ Monitor::Monitor()
 
     // Create a MonitorEntry for the Tickler and set its state to IDLE so the
     // Monitor will watch for its events.
-    _MonitorEntry entry(_tickler.getServerSocket(), 1, INTERNAL);
-    entry._status = _MonitorEntry::IDLE;
-    _entries.append(entry);
+    _entries.append(MonitorEntry(
+        _tickler.getServerSocket(),
+        1,
+        MonitorEntry::STATUS_IDLE,
+        MonitorEntry::TYPE_INTERNAL));
 
     // Start the count at 1 because _entries[0] is the Tickler
     for (int i = 1; i < numberOfMonitorEntriesToAllocate; i++)
     {
-       _MonitorEntry entry(0, 0, 0);
-       _entries.append(entry);
+        _entries.append(MonitorEntry());
     }
 }
 
@@ -360,17 +361,16 @@ Monitor::~Monitor()
 
 void Monitor::tickle()
 {
-    AutoMutex autoMutex(_tickleMutex);
-    Socket::write(_tickler.getClientSocket(), "\0\0", 2);
+    Socket::write(_tickler.getClientSocket(), "\0", 1);
 }
 
 void Monitor::setState(
     Uint32 index,
-    _MonitorEntry::entry_status status)
+    MonitorEntry::Status status)
 {
-    AutoMutex autoEntryMutex(_entry_mut);
+    AutoMutex autoEntryMutex(_entriesMutex);
     // Set the state to requested state
-    _entries[index]._status = status;
+    _entries[index].status = status;
 }
 
 void Monitor::run(Uint32 milliseconds)
@@ -380,43 +380,44 @@ void Monitor::run(Uint32 milliseconds)
     fd_set fdread;
     FD_ZERO(&fdread);
 
-    AutoMutex autoEntryMutex(_entry_mut);
+    AutoMutex autoEntryMutex(_entriesMutex);
 
-    ArrayIterator<_MonitorEntry> entries(_entries);
+    ArrayIterator<MonitorEntry> entries(_entries);
 
     // Check the stopConnections flag.  If set, clear the Acceptor monitor
     // entries
     if (_stopConnections.get() == 1)
     {
-        for ( int indx = 0; indx < (int)entries.size(); indx++)
+        for (Uint32 indx = 0; indx < entries.size(); indx++)
         {
-            if (entries[indx]._type == Monitor::ACCEPTOR)
+            if (entries[indx].type == MonitorEntry::TYPE_ACCEPTOR)
             {
-                if ( entries[indx]._status.get() != _MonitorEntry::EMPTY)
+                if (entries[indx].status != MonitorEntry::STATUS_EMPTY)
                 {
-                   if ( entries[indx]._status.get() == _MonitorEntry::IDLE ||
-                        entries[indx]._status.get() == _MonitorEntry::DYING )
-                   {
-                       // remove the entry
-                       entries[indx]._status = _MonitorEntry::EMPTY;
-                   }
-                   else
-                   {
-                       // set status to DYING
-                      entries[indx]._status = _MonitorEntry::DYING;
-                   }
-               }
-           }
+                    if (entries[indx].status == MonitorEntry::STATUS_IDLE ||
+                        entries[indx].status == MonitorEntry::STATUS_DYING)
+                    {
+                        // remove the entry
+                        entries[indx].status = MonitorEntry::STATUS_EMPTY;
+                    }
+                    else
+                    {
+                        // set status to DYING
+                        entries[indx].status = MonitorEntry::STATUS_DYING;
+                    }
+                }
+            }
         }
         _stopConnections = 0;
         _stopConnectionsSem.signal();
     }
 
-    for (int indx = 0; indx < (int)entries.size(); indx++)
+    for (Uint32 indx = 0; indx < entries.size(); indx++)
     {
-        const _MonitorEntry &entry = entries[indx];
-        if ((entry._status.get() == _MonitorEntry::DYING) &&
-            (entry._type == Monitor::CONNECTION))
+        const MonitorEntry& entry = entries[indx];
+
+        if ((entry.status == MonitorEntry::STATUS_DYING) &&
+            (entry.type == MonitorEntry::TYPE_CONNECTION))
         {
             MessageQueue *q = MessageQueue::lookup(entry.queueId);
             PEGASUS_ASSERT(q != 0);
@@ -457,9 +458,9 @@ void Monitor::run(Uint32 milliseconds)
             // unlocked will not result in an ArrayIndexOutOfBounds
             // exception.
 
-            _entry_mut.unlock();
+            _entriesMutex.unlock();
             o.enqueue(message);
-            _entry_mut.lock();
+            _entriesMutex.lock();
 
             // After enqueue a message and the autoEntryMutex has been
             // released and locked again, the array of _entries can be
@@ -478,16 +479,16 @@ void Monitor::run(Uint32 milliseconds)
         because we have to traverse the entire array.
     */
     SocketHandle maxSocketCurrentPass = 0;
-    for (int indx = 0; indx < (int)entries.size(); indx++)
+    for (Uint32 indx = 0; indx < entries.size(); indx++)
     {
-       if (maxSocketCurrentPass < entries[indx].socket)
-           maxSocketCurrentPass = entries[indx].socket;
+        if (maxSocketCurrentPass < entries[indx].socket)
+            maxSocketCurrentPass = entries[indx].socket;
 
-       if (entries[indx]._status.get() == _MonitorEntry::IDLE)
-       {
-           _idleEntries++;
-           FD_SET(entries[indx].socket, &fdread);
-       }
+        if (entries[indx].status == MonitorEntry::STATUS_IDLE)
+        {
+            _idleEntries++;
+            FD_SET(entries[indx].socket, &fdread);
+        }
     }
 
     /*
@@ -496,7 +497,7 @@ void Monitor::run(Uint32 milliseconds)
     */
     maxSocketCurrentPass++;
 
-    _entry_mut.unlock();
+    _entriesMutex.unlock();
 
     //
     // The first argument to select() is ignored on Windows and it is not
@@ -508,7 +509,7 @@ void Monitor::run(Uint32 milliseconds)
 #else
     int events = select(maxSocketCurrentPass, &fdread, NULL, NULL, &tv);
 #endif
-    _entry_mut.lock();
+    _entriesMutex.lock();
 
     // After enqueue a message and the autoEntryMutex has been released and
     // locked again, the array of _entries can be changed. The ArrayIterator
@@ -532,56 +533,34 @@ void Monitor::run(Uint32 milliseconds)
             "Monitor::run select event received events = %d, monitoring %d "
                 "idle entries",
             events, _idleEntries));
-        for (int indx = 0; indx < (int)entries.size(); indx++)
+        for (Uint32 indx = 0; indx < entries.size(); indx++)
         {
             // The Monitor should only look at entries in the table that are
             // IDLE (i.e., owned by the Monitor).
-            if ((entries[indx]._status.get() == _MonitorEntry::IDLE) &&
+            if ((entries[indx].status == MonitorEntry::STATUS_IDLE) &&
                 (FD_ISSET(entries[indx].socket, &fdread)))
             {
-                MessageQueue *q = MessageQueue::lookup(entries[indx].queueId);
+                MessageQueue* q = MessageQueue::lookup(entries[indx].queueId);
+                PEGASUS_ASSERT(q != 0);
                 PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
-                    "Monitor::run indx = %d, queueId =  %d, q = %p",
+                    "Monitor::run indx = %d, queueId = %d, q = %p",
                     indx, entries[indx].queueId, q));
-                PEGASUS_ASSERT(q !=0);
 
                 try
                 {
-                    if (entries[indx]._type == Monitor::CONNECTION)
+                    if (entries[indx].type == MonitorEntry::TYPE_CONNECTION)
                     {
                         PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
-                            "entries[indx].type for indx = %d is "
-                                "Monitor::CONNECTION",
+                            "entries[%d].type is TYPE_CONNECTION",
                             indx));
                         static_cast<HTTPConnection *>(q)->_entry_index = indx;
 
-                        // Do not update the entry just yet. The entry gets
-                        // updated once the request has been read.
-                        //entries[indx]._status = _MonitorEntry::BUSY;
-
-                        // If allocate_and_awaken failure, retry on next
-                        // iteration
-/* Removed for PEP 183.
-                        if (!MessageQueueService::get_thread_pool()->
-                                allocate_and_awaken((void *)q, _dispatch))
-                        {
-                            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA,
-                                Tracer::LEVEL2,
-                                "Monitor::run: Insufficient resources to "
-                                    "process request.");
-                            entries[indx]._status = _MonitorEntry::IDLE;
-                            return true;
-                        }
-*/
-// Added for PEP 183
                         HTTPConnection *dst =
                             reinterpret_cast<HTTPConnection *>(q);
                         PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
-                            "Monitor::_dispatch: entering run() for "
+                            "Entering HTTPConnection::run() for "
                                 "indx = %d, queueId = %d, q = %p",
-                            dst->_entry_index,
-                            dst->_monitor->_entries[dst->_entry_index].queueId,
-                            dst));
+                            indx, entries[indx].queueId, q));
 
                         try
                         {
@@ -589,51 +568,17 @@ void Monitor::run(Uint32 milliseconds)
                         }
                         catch (...)
                         {
-                            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
-                                "Monitor::_dispatch: exception received");
+                            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL2,
+                                "Caught exception from HTTPConnection::run()");
                         }
-                        PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
-                            "Monitor::_dispatch: exited run() for index %d",
-                            dst->_entry_index));
-
-                        // It is possible the entry status may not be set to
-                        // busy.  The following will fail in that case.
-                        // PEGASUS_ASSERT(dst->_monitor->_entries[
-                        //     dst->_entry_index]._status.get() ==
-                        //    _MonitorEntry::BUSY);
-                        // Once the HTTPConnection thread has set the status
-                        // value to either Monitor::DYING or Monitor::IDLE,
-                        // it has returned control of the connection to the
-                        // Monitor.  It is no longer permissible to access
-                        // the connection or the entry in the _entries table.
-
-                        // The following is not relevant as the worker thread
-                        // or the reader thread will update the status of the
-                        // entry.
-                        //if (dst->_connectionClosePending)
-                        //{
-                        //  dst->_monitor->_entries[dst->_entry_index]._status =
-                        //    _MonitorEntry::DYING;
-                        //}
-                        //else
-                        //{
-                        //  dst->_monitor->_entries[dst->_entry_index]._status =
-                        //    _MonitorEntry::IDLE;
-                        //}
-// end Added for PEP 183
+                        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
+                            "Exited HTTPConnection::run()");
                     }
-                    else if (entries[indx]._type == Monitor::INTERNAL)
+                    else if (entries[indx].type == MonitorEntry::TYPE_INTERNAL)
                     {
-                        // set ourself to BUSY,
-                        // read the data
-                        // and set ourself back to IDLE
-
-                        entries[indx]._status = _MonitorEntry::BUSY;
-                        static char buffer[2];
-                        Sint32 amt =
-                            Socket::read(entries[indx].socket,&buffer, 2);
-
-                        entries[indx]._status = _MonitorEntry::IDLE;
+                        char buffer;
+                        Sint32 ignored =
+                            Socket::read(entries[indx].socket, &buffer, 1);
                     }
                     else
                     {
@@ -645,17 +590,17 @@ void Monitor::run(Uint32 milliseconds)
                         events |= SocketMessage::READ;
                         Message* msg = new SocketMessage(
                             entries[indx].socket, events);
-                        entries[indx]._status = _MonitorEntry::BUSY;
-                        _entry_mut.unlock();
+                        entries[indx].status = MonitorEntry::STATUS_BUSY;
+                        _entriesMutex.unlock();
                         q->enqueue(msg);
-                        _entry_mut.lock();
+                        _entriesMutex.lock();
 
                         // After enqueue a message and the autoEntryMutex has
                         // been released and locked again, the array of
-                        // entries can be changed. The ArrayIterator has be
-                        // reset with the original _entries
+                        // entries can be changed. The ArrayIterator has to be
+                        // reset with the latest _entries.
                         entries.reset(_entries);
-                        entries[indx]._status = _MonitorEntry::IDLE;
+                        entries[indx].status = MonitorEntry::STATUS_IDLE;
                     }
                 }
                 catch (...)
@@ -689,37 +634,33 @@ int Monitor::solicitSocketMessages(
     SocketHandle socket,
     Uint32 events,
     Uint32 queueId,
-    int type)
+    Uint32 type)
 {
     PEG_METHOD_ENTER(TRC_HTTP, "Monitor::solicitSocketMessages");
-    AutoMutex autoMut(_entry_mut);
+    AutoMutex autoMut(_entriesMutex);
+
     // Check to see if we need to dynamically grow the _entries array
-    // We always want the _entries array to 2 bigger than the
+    // We always want the _entries array to be 2 bigger than the
     // current connections requested
     _solicitSocketCount++;  // bump the count
-    int size = (int)_entries.size();
-    if ((int)_solicitSocketCount >= (size-1))
+
+    for (Uint32 i = _entries.size(); i < _solicitSocketCount + 1; i++)
     {
-        for (int i = 0; i < ((int)_solicitSocketCount - (size-1)); i++)
-        {
-            _MonitorEntry entry(0, 0, 0);
-            _entries.append(entry);
-        }
+        _entries.append(MonitorEntry());
     }
 
-    int index;
-    for (index = 1; index < (int)_entries.size(); index++)
+    for (Uint32 index = 1; index < _entries.size(); index++)
     {
         try
         {
-            if (_entries[index]._status.get() == _MonitorEntry::EMPTY)
+            if (_entries[index].status == MonitorEntry::STATUS_EMPTY)
             {
                 _entries[index].socket = socket;
                 _entries[index].queueId  = queueId;
-                _entries[index]._type = type;
-                _entries[index]._status = _MonitorEntry::IDLE;
+                _entries[index].type = type;
+                _entries[index].status = MonitorEntry::STATUS_IDLE;
 
-                return index;
+                return (int)index;
             }
         }
         catch (...)
@@ -735,19 +676,17 @@ int Monitor::solicitSocketMessages(
 void Monitor::unsolicitSocketMessages(SocketHandle socket)
 {
     PEG_METHOD_ENTER(TRC_HTTP, "Monitor::unsolicitSocketMessages");
-    AutoMutex autoMut(_entry_mut);
+    AutoMutex autoMut(_entriesMutex);
 
     /*
         Start at index = 1 because _entries[0] is the tickle entry which
-        never needs to be EMPTY;
+        never needs to be reset to EMPTY;
     */
-    unsigned int index;
-    for (index = 1; index < _entries.size(); index++)
+    for (Uint32 index = 1; index < _entries.size(); index++)
     {
         if (_entries[index].socket == socket)
         {
-            _entries[index]._status = _MonitorEntry::EMPTY;
-            _entries[index].socket = PEGASUS_INVALID_SOCKET;
+            _entries[index].reset();
             _solicitSocketCount--;
             break;
         }
@@ -760,57 +699,15 @@ void Monitor::unsolicitSocketMessages(SocketHandle socket)
         first NON EMPTY.  This prevents the positions, of the NON EMPTY
         entries, from being changed.
     */
-    index = _entries.size() - 1;
-    while (_entries[index]._status.get() == _MonitorEntry::EMPTY)
+    for (Uint32 index = _entries.size() - 1;
+         (_entries[index].status == MonitorEntry::STATUS_EMPTY) &&
+             (index >= MAX_NUMBER_OF_MONITOR_ENTRIES);
+         index--)
     {
-        if (_entries.size() > MAX_NUMBER_OF_MONITOR_ENTRIES)
-                _entries.remove(index);
-        index--;
+        _entries.remove(index);
     }
+
     PEG_METHOD_EXIT();
-}
-
-// Note: this is no longer called with PEP 183.
-ThreadReturnType PEGASUS_THREAD_CDECL Monitor::_dispatch(void* parm)
-{
-    HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(parm);
-    PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
-        "Monitor::_dispatch: entering run() for indx  = %d, queueId = %d, "
-            "q = %p",
-        dst->_entry_index,
-        dst->_monitor->_entries[dst->_entry_index].queueId,
-        dst));
-
-    try
-    {
-        dst->run(1);
-    }
-    catch (...)
-    {
-        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
-            "Monitor::_dispatch: exception received");
-    }
-    PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
-        "Monitor::_dispatch: exited run() for index %d", dst->_entry_index));
-
-    PEGASUS_ASSERT(dst->_monitor->_entries[dst->_entry_index]._status.get() ==
-        _MonitorEntry::BUSY);
-
-    // Once the HTTPConnection thread has set the status value to either
-    // Monitor::DYING or Monitor::IDLE, it has returned control of the
-    // connection to the Monitor.  It is no longer permissible to access the
-    // connection or the entry in the _entries table.
-    if (dst->_connectionClosePending)
-    {
-        dst->_monitor->_entries[dst->_entry_index]._status =
-            _MonitorEntry::DYING;
-    }
-    else
-    {
-        dst->_monitor->_entries[dst->_entry_index]._status =
-            _MonitorEntry::IDLE;
-    }
-    return 0;
 }
 
 PEGASUS_NAMESPACE_END

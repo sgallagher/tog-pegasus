@@ -515,7 +515,7 @@ void HTTPAcceptor::_bind()
             _rep->socket,
             SocketMessage::READ | SocketMessage::EXCEPTION,
             getQueueId(),
-            Monitor::ACCEPTOR)))
+            MonitorEntry::TYPE_ACCEPTOR)))
     {
         Socket::close(_rep->socket);
         delete _rep;
@@ -873,7 +873,7 @@ void HTTPAcceptor::_acceptConnection()
     if (-1 ==  (index = _monitor->solicitSocketMessages(
             connection->getSocket(),
             SocketMessage::READ | SocketMessage::EXCEPTION,
-            connection->getQueueId(), Monitor::CONNECTION)) )
+            connection->getQueueId(), MonitorEntry::TYPE_CONNECTION)) )
     {
         // ATTN-DE-P2-2003100503::TODO::Need to enhance code to return
         // an error message to Client application.

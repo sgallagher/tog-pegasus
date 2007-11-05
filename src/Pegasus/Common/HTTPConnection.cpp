@@ -975,8 +975,8 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             else
             {
                 PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
-                    "Now setting state to %d", _MonitorEntry::IDLE));
-                _monitor->setState (_entry_index, _MonitorEntry::IDLE);
+                    "Now setting state to %d", MonitorEntry::STATUS_IDLE));
+                _monitor->setState(_entry_index, MonitorEntry::STATUS_IDLE);
                 _monitor->tickle();
             }
             cimException = CIMException();
@@ -1370,8 +1370,8 @@ void HTTPConnection::_closeConnection()
 
         // still set to DYING
         PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
-            "Now setting state to %d", _MonitorEntry::DYING));
-        _monitor->setState (_entry_index, _MonitorEntry::DYING);
+            "Now setting state to %d", MonitorEntry::STATUS_DYING));
+        _monitor->setState(_entry_index, MonitorEntry::STATUS_DYING);
         _monitor->tickle();
     }
 
@@ -2075,8 +2075,8 @@ void HTTPConnection::_handleReadEvent()
         if (_isClient() == false)
         {
             PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
-                "Now setting state to %d", _MonitorEntry::BUSY));
-            _monitor->setState (_entry_index, _MonitorEntry::BUSY);
+                "Now setting state to %d", MonitorEntry::STATUS_BUSY));
+            _monitor->setState(_entry_index, MonitorEntry::STATUS_BUSY);
             _monitor->tickle();
         }
 

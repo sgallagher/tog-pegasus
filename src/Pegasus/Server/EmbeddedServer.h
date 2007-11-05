@@ -31,13 +31,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-/* This module defines a class EmbeddedServer that provides functions for
-   defining the setup of embedded servers where the providers are statically
-   defined and the pegasus memory-resident CIM repository is used.
-   See PEP 305 and the embeddedsystembuild readmes for more detailed
-   information.
-*/
-
 #ifndef Pegasus_EmbeddedServer_h
 #define Pegasus_EmbeddedServer_h
 
@@ -49,6 +42,12 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+/** This module defines a class EmbeddedServer that provides functions for
+    defining the setup of embedded servers where the providers are statically
+    defined and the pegasus memory-resident CIM repository is used.
+    See PEP 305 and the embeddedsystembuild readmes for more detailed
+    information.
+*/
 class PEGASUS_SERVER_LINKAGE EmbeddedServer
 {
 public:
@@ -94,9 +93,12 @@ public:
      * of the function to load the instance repsository from
      * persistent storage and provide that set of instances to
      * Repository implementation.
+     *
      * @param callback defines the function that will be called
+     *
      * @param data void* pointer to data which will be passed to the
      * function defined by callback on each call.
+     *
      * Example: 
      *  
      *   static void _loadCallback(Buffer& buffer, void* data)
@@ -109,6 +111,28 @@ public:
     static void installLoadRepositoryCallback(
         void (*callback)(Buffer& buffer, void* data),
         void* data);
+
+    /** Log callback, passed to installLogCallback().
+        @param type log type (1=TRACE, 2=STANDARD, 3=AUDIT, 4=ERROR, 5=DEBUG).
+        @param system name of system performing log.
+        @param level log level (1=TRACE, 2=INFO, 3=WARNING, 4=SEVERE, 5=FATAL).
+        @param message the localized log message.
+        @param data data passed to the callback.
+    */
+    typedef void (*LogCallback)(
+        int type,
+        const char* system,
+        int level,
+        const char* message,
+        void* data);
+
+    /** Install the callback used to add log records to the log. The
+        implementation of that log is left to the implementer.
+
+        @param callback the callback.
+        @param data data passed as last argument to callback.
+    */
+    static void installLogCallback(LogCallback callback, void* data);
 
 private:
 

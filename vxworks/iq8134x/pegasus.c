@@ -8,22 +8,14 @@
 #include <symLib.h>
 #include "prjParams.h"
 
-
-/******************************************************************************
-*
-* usrAppInit - initialize the users application
-*/ 
-
 IMPORT SYMTAB_ID sysSymTbl;
 
-static void load_cimserver(const char* root)
+static void _run_cimserver(const char* root)
 {
     char path[1024];
     int fd;
     char* value;
     SYM_TYPE type;
-
-
 
     /* Load cimserver module */
 
@@ -64,14 +56,9 @@ static void load_cimserver(const char* root)
     }
 }
 
-void usrAppInit (void)
+static void _mount_nfs(const char* path)
 {
-    const char path[] = "/share";
     int rc;
-
-    /* 
-     * NFS mount 
-     */
 
     rc = hostAdd("nfshost", "192.168.1.20");
 
@@ -88,10 +75,13 @@ void usrAppInit (void)
         printf("***** nfsMount() failed\n");
         return;
     }
+}
 
-    /*
-     * Load cimserver:
-     */
+void pegasusInit()
+{
+    const char nfs_root[] = "/share";
 
-    load_cimserver(path);
+    _mount_nfs(nfs_root);
+
+    _run_cimserver(nfs_root);
 }

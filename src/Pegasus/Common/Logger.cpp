@@ -49,6 +49,10 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+// Log callback function and data.
+static Logger::LogCallback _callback;
+static void* _data;
+
 // Maximum logfile size is defined as 32 MB = 32 * 1024 * 1024
 # define PEGASUS_MAX_LOGFILE_SIZE 0X2000000
 
@@ -203,9 +207,74 @@ public:
         Uint32 logLevel,
         const String localizedMsg)
     {
-#if defined(PEGASUS_OS_VXWORKS)
-        printf("LOGGER[%s]\n", (const char*)localizedMsg.getCString());
-#endif
+        // Use logging callback if installed and bypass logging logic below.
+
+        if (_callback)
+        {
+            // Set type:
+
+            int type;
+
+            switch (logFileType)
+            {
+                case Logger::TRACE_LOG:
+                    type = 1;
+                    break;
+                case Logger::STANDARD_LOG:
+                    type = 2;
+                    break;
+                case Logger::AUDIT_LOG:
+                    type = 3;
+                    break;
+                case Logger::ERROR_LOG:
+                    type = 4;
+                    break;
+                case Logger::DEBUG_LOG:
+                    type = 5;
+                    break;
+                default:
+                    return;
+            }
+
+            // Set system:
+
+            CString system(systemId.getCString());
+
+            // Set level:
+
+            int level;
+
+            switch (logLevel)
+            {
+                case Logger::TRACE:
+                    level = 1;
+                    break;
+                case Logger::INFORMATION:
+                    level = 2;
+                    break;
+                case Logger::WARNING:
+                    level = 3;
+                    break;
+                case Logger::SEVERE:
+                    level = 4;
+                    break;
+                case Logger::FATAL:
+                    level = 5;
+                    break;
+                default:
+                    return;
+            }
+
+            // Set message:
+
+            CString message(localizedMsg.getCString());
+
+            // Invoke the callback.
+
+            (*_callback)(type, system, level, message, _data);
+
+            return;
+        }
 
 #if defined(PEGASUS_USE_SYSLOGS)
 
@@ -810,6 +879,13 @@ Boolean Logger::isValidlogLevel(const String logLevel)
     }
 
     return validlogLevel;
+}
+
+
+void Logger::setLogCallback(Logger::LogCallback callback, void* data)
+{
+    _callback = callback;
+    _data = data;
 }
 
 PEGASUS_NAMESPACE_END

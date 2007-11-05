@@ -110,3 +110,5 @@ LINK_FLAGS += -r4
 NM = ddump -Ng
 
 MUNCH = wtxtcl $(WIND_BASE)/host/resource/hutils/tcl/munch.tcl -c $(__TARGET__)
+
+AR = dar

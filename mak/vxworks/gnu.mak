@@ -96,3 +96,5 @@ LINK_FLAGS += $(WIND_BASE)/target/h/tool/gnu/ldscripts/link.OUT
 NM = nm$(__TARGET__)
 
 MUNCH = wtxtcl $(WIND_BASE)/host/resource/hutils/tcl/munch.tcl -c $(__TARGET__)
+
+AR = ar$(__TARGET__)

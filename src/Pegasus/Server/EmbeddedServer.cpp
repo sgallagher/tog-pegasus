@@ -32,6 +32,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "EmbeddedServer.h"
+#include <Pegasus/Common/Logger.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -58,6 +59,11 @@ void EmbeddedServer::installLoadRepositoryCallback(
     void* data)
 {
     MemoryResidentRepository::installLoadCallback(callback, data);
+}
+
+void EmbeddedServer::installLogCallback(LogCallback callback, void* data)
+{
+    Logger::setLogCallback(callback, data);
 }
 
 PEGASUS_NAMESPACE_END

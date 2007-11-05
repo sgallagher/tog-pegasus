@@ -206,6 +206,22 @@ static void _saveCallback(const Buffer& buffer, void* data)
 #endif
 }
 
+// Logging callback:
+
+void _logCallback(
+        int type,
+        const char* system,
+        int level,
+        const char* message,
+        void* data)
+{
+    printf("LogCallback:\n");
+    printf("    type=%d\n", type);
+    printf("    system=%s\n", system);
+    printf("    level=%d\n", level);
+    printf("    message=%s\n", message);
+}
+
 // main function for the cimserver. Note that in this sample code the
 // main function is named cimserver because this example is based on
 // use of VxWorks and of the kernel mode rather than the
@@ -230,6 +246,10 @@ extern "C" int cimserver(int argc, char** argv)
 
     EmbeddedServer::installLoadRepositoryCallback(_loadCallback, 0);
     EmbeddedServer::installSaveRepositoryCallback(_saveCallback, 0);
+
+    // Install the log callback.
+
+    EmbeddedServer::installLogCallback(_logCallback, 0);
 
     // Run the pegasus server
     // for embedded systems, the cimserver main has been redefined

@@ -85,8 +85,6 @@ MAJOR_VERSION_NUMBER = 1
 
 LIB_SUFFIX = .so
 
-AR = arpentium
-
 SYS_LIBS =
 
 ##==============================================================================

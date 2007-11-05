@@ -128,6 +128,7 @@ static struct ConfigPropertyRow properties[] =
 #endif
 #ifdef PEGASUS_OS_ZOS
     {"enableRemotePrivilegedUserAccess", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableCFZAPPLID", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 #else
     {"enableRemotePrivilegedUserAccess", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
@@ -163,6 +164,10 @@ SecurityPropertyOwner::SecurityPropertyOwner()
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     _kerberosServiceName.reset(new ConfigProperty());
 #endif
+#ifdef PEGASUS_OS_ZOS
+    _enableCFZAPPLID.reset(new ConfigProperty());
+#endif
+
 }
 
 
@@ -386,6 +391,21 @@ void SecurityPropertyOwner::initialize()
                 properties[i].externallyVisible;
         }
 #endif
+#ifdef PEGASUS_OS_ZOS
+        else if (String::equalNoCase(
+                     properties[i].propertyName, "enableCFZAPPLID"))
+        {
+            _enableCFZAPPLID->propertyName = properties[i].propertyName;
+            _enableCFZAPPLID->defaultValue = properties[i].defaultValue;
+            _enableCFZAPPLID->currentValue = properties[i].defaultValue;
+            _enableCFZAPPLID->plannedValue = properties[i].defaultValue;
+            _enableCFZAPPLID->dynamic = properties[i].dynamic;
+            _enableCFZAPPLID->domain = properties[i].domain;
+            _enableCFZAPPLID->domainSize = properties[i].domainSize;
+            _enableCFZAPPLID->externallyVisible =
+                properties[i].externallyVisible;
+        }
+#endif
     }
 
 }
@@ -458,6 +478,12 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
     else if (String::equalNoCase(_kerberosServiceName->propertyName, name))
     {
         return _kerberosServiceName.get();
+    }
+#endif
+#ifdef PEGASUS_OS_ZOS
+    else if (String::equalNoCase(_enableCFZAPPLID->propertyName, name))
+    {
+        return _enableCFZAPPLID.get();
     }
 #endif
     else
@@ -833,6 +859,16 @@ Boolean SecurityPropertyOwner::isValid(
         else
         {
            retVal =  true;
+        }
+    }
+#endif
+#ifdef PEGASUS_OS_ZOS
+    else if (String::equalNoCase(_enableCFZAPPLID->propertyName, name))
+    {
+        if (String::equalNoCase(value, "true") 
+           || String::equalNoCase(value, "false"))
+        {
+            retVal = true;
         }
     }
 #endif

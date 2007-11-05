@@ -144,6 +144,10 @@ static struct OwnerEntry _properties[] =
     {"kerberosServiceName",
          (ConfigPropertyOwner*)ConfigManager::securityOwner},
 #endif
+#ifdef PEGASUS_OS_ZOS
+    {"enableCFZAPPLID",
+         (ConfigPropertyOwner*)ConfigManager::securityOwner},
+#endif
     {"repositoryIsDefaultInstanceProvider",
          (ConfigPropertyOwner*)ConfigManager::repositoryOwner},
     {"enableBinaryRepository",

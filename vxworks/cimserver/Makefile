@@ -46,6 +46,7 @@ PROGRAM = cimserver
 #
 SOURCES = \
     cimserver.cpp \
+    MyEmbeddedServer.cpp \
     root_cimv2_namespace.cpp \
     root_PG_Internal_namespace.cpp \
     root_PG_InterOp_namespace.cpp
@@ -111,12 +112,10 @@ SCHEMAS=$(PEGASUS_ROOT)/Schemas
 #  -m - Compile classes to source files for memory-resident repository
 
 CIMMOFL=cimmofl -d -W -m
-#CIMMOFL=cimmofl -W -m
 
+# build the root/PG_Internal namespace into the file root_PG_Internal namespace
+# The input is all of the mof to be included in this namespace.
 repository:
-        # build the root/PG_Internal namespace into the file 
-	#       root_PG_Internal namespace
-	# The input is all of the mof to be included in this namespace.
 	@ $(CIMMOFL) -n root/PG_Internal -I $(SCHEMAS) root_PG_Internal_namespace.mof
 	@ $(CIMMOFL) -n root/PG_InterOp -I $(SCHEMAS) root_PG_InterOp_namespace.mof
 	@ $(CIMMOFL) -n root/cimv2 -I $(SCHEMAS) root_cimv2_namespace.mof

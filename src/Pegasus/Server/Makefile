@@ -116,10 +116,6 @@ SOURCES += \
         SLPAttrib.cpp
 endif
 
-ifeq ($(OS_TYPE),vxworks)
-    SOURCES += EmbeddedServer.cpp
-endif
-
 ifeq ($(OS_TYPE),windows)
 SYS_LIBS = ws2_32.lib advapi32.lib
 endif

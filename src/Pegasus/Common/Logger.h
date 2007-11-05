@@ -418,7 +418,7 @@ public:
 
     /** Install a callback that is called whenever a log record is logged.
     */
-    static void setLogCallback(Logger::LogCallback callback, void* data);
+    static void installLogCallback(Logger::LogCallback callback, void* data);
 
 private:
 

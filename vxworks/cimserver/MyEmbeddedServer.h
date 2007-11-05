@@ -27,43 +27,37 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "EmbeddedServer.h"
-#include <Pegasus/Common/Logger.h>
+#include <Server/EmbeddedServer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-void EmbeddedServer::installProviderTable(
-    ProviderTableEntry* providerTable)
+class MyEmbeddedServer : public EmbeddedServer
 {
-    pegasusProviderTable = providerTable;
-}
+public:
 
-void EmbeddedServer::installNameSpaces(const MetaNameSpace* const* nameSpaces)
-{
-    MetaRepository::installNameSpaces(nameSpaces);
-}
+    MyEmbeddedServer();
 
-void EmbeddedServer::installSaveRepositoryCallback(
-    void (*callback)(const Buffer& buffer, void* data),
-    void* data)
-{
-    MemoryResidentRepository::installSaveCallback(callback, data);
-}
+    virtual ~MyEmbeddedServer();
 
-void EmbeddedServer::installLoadRepositoryCallback(
-    void (*callback)(Buffer& buffer, void* data),
-    void* data)
-{
-    MemoryResidentRepository::installLoadCallback(callback, data);
-}
+    virtual void loadRepository(
+        Array<Uint8>& data);
+    
+    virtual void saveRepository(
+        const Array<Uint8>& data);
 
-void EmbeddedServer::installLogCallback(LogCallback callback, void* data)
-{
-    Logger::setLogCallback(callback, data);
-}
+    virtual void putLog(
+        int type,
+        const char* system,
+        int level,
+        const char* message);
+
+private:
+
+    // This implementation maintains a memory-resident repository (rather than
+    // saving it on disk).
+    Array<Uint8> _repository;
+};
 
 PEGASUS_NAMESPACE_END

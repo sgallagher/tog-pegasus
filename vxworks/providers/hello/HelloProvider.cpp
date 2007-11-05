@@ -60,7 +60,6 @@ void HelloProvider::getInstance(
     InstanceResponseHandler& handler)
 {
     handler.processing();
-printf("HelloProvider::getInstance()\n");
 
     CIMInstance ci("Hello");
     ci.setPath(CIMObjectPath("Hello.Key=99"));
@@ -78,7 +77,6 @@ void HelloProvider::enumerateInstances(
     const CIMPropertyList& propertyList,
     InstanceResponseHandler& handler)
 {
-printf("HelloProvider::enumerateInstances()\n");
     handler.processing();
 
     CIMInstance ci("Hello");

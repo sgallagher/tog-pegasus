@@ -119,9 +119,6 @@ public:
         const CIMNamespaceName& nameSpace,
         String& remoteInfo);
 
-    // Set null-terminated namespaces array.
-    static void installNameSpaces(const MetaNameSpace* const* nameSpaces);
-
     // Qualifier operations:
 
     static CIMQualifierDecl getQualifier(
@@ -176,6 +173,9 @@ public:
     static const MetaClass* findMetaClass(
         const char* nameSpace,
         const char* className);
+
+    // Add new namespace to meta-repository.
+    static Boolean addNameSpace(const MetaNameSpace* nameSpace);
 
 private:
 

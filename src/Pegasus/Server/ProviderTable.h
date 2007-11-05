@@ -48,7 +48,9 @@ struct ProviderTableEntry
     CIMProvider* (*createProvider)(const String& providerName);
 };
 
-extern ProviderTableEntry* pegasusProviderTable;
+enum { MAX_PROVIDER_TABLE_SIZE = 200 };
+extern ProviderTableEntry providerTable[MAX_PROVIDER_TABLE_SIZE];
+extern size_t providerTableSize;
 
 PEGASUS_NAMESPACE_END
 

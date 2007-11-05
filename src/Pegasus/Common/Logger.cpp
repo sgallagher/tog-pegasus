@@ -882,7 +882,7 @@ Boolean Logger::isValidlogLevel(const String logLevel)
 }
 
 
-void Logger::setLogCallback(Logger::LogCallback callback, void* data)
+void Logger::installLogCallback(Logger::LogCallback callback, void* data)
 {
     _callback = callback;
     _data = data;

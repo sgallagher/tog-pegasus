@@ -1247,32 +1247,29 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 
             // Enable all providers in the global provider table.
 
-            if (pegasusProviderTable)
+            for (size_t i = 0; i < providerTableSize; i++)
             {
-                for (size_t i = 0; pegasusProviderTable[i].providerName; i++)
-                {
-                    const ProviderTableEntry& e = pegasusProviderTable[i];
+                const ProviderTableEntry& e = providerTable[i];
 
-                    if (!e.moduleName && !e.createProvider || !e.className)
-                        continue;
+                if (!e.moduleName && !e.createProvider || !e.className)
+                    continue;
 
-                    MessageQueueService* mqs = (MessageQueueService*)
-                        MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE);
+                MessageQueueService* mqs = (MessageQueueService*)
+                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE);
 
-                    String moduleName = PEGASUS_QUEUENAME_CONTROLSERVICE "::";
-                    moduleName.append(e.moduleName);
-                    moduleName.append(".");
-                    moduleName.append(e.providerName);
+                String moduleName = PEGASUS_QUEUENAME_CONTROLSERVICE "::";
+                moduleName.append(e.moduleName);
+                moduleName.append(".");
+                moduleName.append(e.providerName);
 
-                    _routing_table.insert_record(
-                        e.className,
-                        _wild,
-                        DynamicRoutingTable::INTERNAL,
-                        0,
-                        mqs,
-                        moduleName,
-                        PEGASUS_QUEUENAME_CONTROLSERVICE);
-                }
+                _routing_table.insert_record(
+                    e.className,
+                    _wild,
+                    DynamicRoutingTable::INTERNAL,
+                    0,
+                    mqs,
+                    moduleName,
+                    PEGASUS_QUEUENAME_CONTROLSERVICE);
             }
 
             _initialized = 1;

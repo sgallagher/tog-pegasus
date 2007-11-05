@@ -431,51 +431,44 @@ void CIMServer::_init()
         0);
 #endif
 
-/*
-BOOKMARK0:
-*/
-
     //
     // Register all providers in the global provider table. This table
     // is typically null unless an end-user has explicitly defined it.
     //
 
-    if (pegasusProviderTable)
+    for (size_t i = 0; i < providerTableSize; i++)
     {
-        for (size_t i = 0; pegasusProviderTable[i].providerName; i++)
-        {
-            // get the next entry
-            const ProviderTableEntry& e = pegasusProviderTable[i];
+        // get the next entry
+        const ProviderTableEntry& e = providerTable[i];
 
-            // if there are errors in the table entry, terminate
-            if (!e.moduleName && !e.createProvider || !e.className)
-                continue;
+        // if there are errors in the table entry, terminate
+        if (!e.moduleName && !e.createProvider || !e.className)
+            continue;
 
-            CIMProvider* provider = (*e.createProvider)(e.providerName);
+        CIMProvider* provider = (*e.createProvider)(e.providerName);
 
-            // Last entry of the table must be 0 to indicate end of table
-            if (!provider)
-                continue;
+        // Last entry of the table must be 0 to indicate end of table
+        if (!provider)
+            continue;
 
-            // add the defined provider to the message handler
-            ProviderMessageHandler* pmh = new ProviderMessageHandler(
-                e.moduleName, e.providerName, provider, 0, 0, false);
+        // add the defined provider to the message handler
+        ProviderMessageHandler* pmh = new ProviderMessageHandler(
+            e.moduleName, e.providerName, provider, 0, 0, false);
 
-            _controlProviders.append(pmh);
+        _controlProviders.append(pmh);
 
-            // Register the module with the ModuleController
-            String moduleName = PEGASUS_QUEUENAME_CONTROLSERVICE "::";
-            moduleName.append(e.moduleName);
-            moduleName.append(".");
-            moduleName.append(e.providerName);
+        // Register the module with the ModuleController
+        String moduleName = PEGASUS_QUEUENAME_CONTROLSERVICE "::";
+        moduleName.append(e.moduleName);
+        moduleName.append(".");
+        moduleName.append(e.providerName);
 
-            ModuleController::register_module(
-                PEGASUS_QUEUENAME_CONTROLSERVICE,
-                moduleName,
-                pmh,
-                controlProviderReceiveMessageCallback,
-                0);
-        }
+        ModuleController::register_module(
+            PEGASUS_QUEUENAME_CONTROLSERVICE,
+            moduleName,
+            pmh,
+            controlProviderReceiveMessageCallback,
+            0);
     }
 
     _cimOperationResponseEncoder = new CIMOperationResponseEncoder;

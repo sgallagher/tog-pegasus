@@ -565,6 +565,11 @@ void IPInfoCommand::getIPInfo(ostream& outPrintWriter,
         IPPEpInfo ippep(client, _enableDebug, outPrintWriter, errPrintWriter);
         BIPTLEpInfo ipbiptle(client, _enableDebug, outPrintWriter,
                              errPrintWriter);
+        NextHopIPRouteInfo nhipr (
+            client, 
+            _enableDebug, 
+            outPrintWriter, 
+            errPrintWriter);
 
     }  // end try
 

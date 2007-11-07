@@ -157,14 +157,26 @@ void IPPEpInfo::_gatherProperties(CIMInstance &inst)
         else if (propertyName.equal("Address"))
             inst.getProperty(j).getValue().get(_ipAddress); 
 
+        else if (propertyName.equal("IPv6Address"))
+            inst.getProperty(j).getValue().get(_ipIPv6Address); 
+
+        else if (propertyName.equal("IPv4Address"))
+            inst.getProperty(j).getValue().get(_ipIPv4Address); 
+
         else if (propertyName.equal("SubnetMask"))
             inst.getProperty(j).getValue().get(_ipSubnetMask); 
+
+        else if (propertyName.equal("PrefixLength"))
+            inst.getProperty(j).getValue().get(_ipPrefixLength); 
 
         else if (propertyName.equal("AddressType"))
             inst.getProperty(j).getValue().get(_ipAddrType); 
 
         else if (propertyName.equal("IPVersionSupport"))
             inst.getProperty(j).getValue().get(_ipIPVersionSupport); 
+
+        else if (propertyName.equal("ProtocolIFType"))
+            inst.getProperty(j).getValue().get(_ipProtocolIFType); 
 
    } // end for loop through properties
 
@@ -193,18 +205,22 @@ void IPPEpInfo::_outputHeader(ostream &outPrintWriter)
         outPrintWriter << "Name Format                 : " 
         << _ipNameFormat << endl;
 
+/*
     outPrintWriter << "IP Version Support          : ";
     if (_ipIPVersionSupport == 1)
         outPrintWriter << "IPv4 Only" << endl;
     else if (_ipIPVersionSupport == 2)
         outPrintWriter << "IPv6 Only" << endl;
+    else if (_ipIPVersionSupport == 3)
+        outPrintWriter << "Both IPv4 and IPv6" << endl;
     else
         outPrintWriter << "Unknown" << endl;
+*/
 
     char header[81];
 
     sprintf(header, HeaderFormat, "Endpoint", "AddrType", "Protocol",
-                  "Address", "SubnetMask");
+        "Address", "SubnetMask/PrefixLength");
 
     outPrintWriter << endl << header << endl;
     
@@ -216,33 +232,93 @@ void IPPEpInfo::_outputHeader(ostream &outPrintWriter)
 void IPPEpInfo::_outputInstance(ostream &outPrintWriter)
 {
     String _ipAT,  // Address Type
-       _ipPT;  // Protocol Type
-
-
-    if (_ipAddrType == 1)
-        _ipAT = "IPv4";
-    else if (_ipAddrType == 2)
-        _ipAT = "IPv6";
-    else
-        _ipAT = "Unk";
+        _ipPT;  // Protocol Type
 
     if (_ipProtocolType == 0)
+    {
         _ipPT = "Unknown";
-    else if (_ipProtocolType == 2)
-        _ipPT = "IPv4";
-    else if (_ipProtocolType == 3)
-        _ipPT = "IPv6";
-    else
-        _ipPT = "Unk";
+    }
+    else 
+    {
+        if (_ipProtocolType == 2)
+        {
+            _ipPT = "IPv4";
+        }
+        else 
+        {
+            if (_ipProtocolType == 3)
+            {
+                _ipPT = "IPv6";
+            }
+            else
+            {
+                _ipPT = "Unk";
+            }
+        }
+    }
 
     char row[81];
 
-    sprintf(row, HeaderFormat, (const char *)_ipName.getCString(),
-        (const char *)_ipAT.getCString(),
-        (const char *)_ipPT.getCString(),
-        (const char *)_ipAddress.getCString(),
-        (const char *)_ipSubnetMask.getCString()
-        );
+    if (_ipAddrType == 1)
+    {
+        sprintf(
+            row, 
+            HeaderFormat, 
+            (const char *)_ipName.getCString(),
+            "IPv4",
+            (const char *)_ipPT.getCString(),
+            (const char *)_ipAddress.getCString(),
+            (const char *)_ipSubnetMask.getCString());
+    }
+    else 
+    {
+        if (_ipAddrType == 2)
+        {
+            _ipAT = "IPv6";
+
+            char _pl[10];
+            sprintf(_pl,"%d",_ipPrefixLength);
+
+            if (_ipAddress.size() > 15)
+            {
+                sprintf(
+                    row, 
+                    HeaderFormat, 
+                    (const char *)_ipName.getCString(),
+                    (const char *)_ipAT.getCString(),
+                    (const char *)_ipPT.getCString(),
+                    (const char *)_ipAddress.getCString(),
+                    "");
+                outPrintWriter << row << endl;
+    
+                _ipName.clear();
+                _ipPT.clear();
+                _ipAT.clear();
+                _ipAddress.clear();
+            }
+
+            sprintf(
+                row,
+                HeaderFormat,
+                (const char *)_ipName.getCString(),
+                (const char *)_ipAT.getCString(),
+                (const char *)_ipPT.getCString(),
+                (const char *)_ipAddress.getCString(),
+                _pl);
+        }
+        else
+        {
+            sprintf(
+                row,
+                HeaderFormat,
+                (const char *)_ipName.getCString(),
+                "Unk",
+                (const char *)_ipPT.getCString(),
+                (const char *)_ipAddress.getCString(),
+                (const char *)_ipSubnetMask.getCString());
+        }
+    }
+
     outPrintWriter << row << endl;
     
 }

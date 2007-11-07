@@ -333,9 +333,13 @@ private:
     String  _ipNameFormat;
     Uint16  _ipProtocolType;
     String  _ipAddress;
+    String _ipIPv6Address;
+    String _ipIPv4Address;
     String  _ipSubnetMask;
+    Uint8 _ipPrefixLength;
     Uint16  _ipAddrType;
     Uint16  _ipIPVersionSupport;
+    Uint16 _ipProtocolIFType;
 
     Boolean _enableDebug;
 };
@@ -362,6 +366,36 @@ private:
 
     // Other properties to grab
     Uint16  _ipFrameType;
+
+    Boolean _enableDebug;
+};
+
+class NextHopIPRouteInfo
+{
+public:
+    NextHopIPRouteInfo(
+        CIMClient &client, 
+        Boolean enableDebug,
+        ostream& outPrintWriter, 
+        ostream& errPrintWriter);
+    ~NextHopIPRouteInfo(void);
+
+private:
+    void _gatherProperties(CIMInstance &inst);
+    void _outputHeader(ostream &outPrintWriter);
+    void _outputInstance(ostream &outPrintWriter);
+
+    // Keys
+    String _ipInstanceID;
+
+    // Other properties to grab
+    String _ipIPDestAddr;
+    String _ipIPDestMask;
+    String _ipCaption;
+    String _ipDescription;
+    String _ipName;
+    Uint16 _ipAddrType;
+    Uint8 _ipPrefixLength;
 
     Boolean _enableDebug;
 };

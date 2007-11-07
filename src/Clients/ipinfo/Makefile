@@ -47,6 +47,7 @@ SOURCES = IPInfoException.cpp \
           IPRoute.cpp \
           BIPTLEp.cpp \
           IPPEp.cpp \
+          NextHopIPRoute.cpp 
 
 include $(ROOT)/mak/program.mak
 

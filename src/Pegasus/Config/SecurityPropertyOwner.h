@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,7 +52,7 @@ PEGASUS_NAMESPACE_BEGIN
 ///////////////////////////////////////////////////////////////////
 
 /**
-    This is Security property owner class that extends ConfigPropertyOwner
+    This is Log property owner class that extends ConfigPropertyOwner
     class and provide implementation.
 */
 class PEGASUS_CONFIG_LINKAGE SecurityPropertyOwner : public ConfigPropertyOwner
@@ -71,20 +73,13 @@ public:
     /**
         Get information about the specified property.
 
-        @param name   The name of the property.
+        @param propertyName   The name of the property.
         @param propertyInfo   List to store the property info.
         @exception UnrecognizedConfigProperty  if the property is not defined.
     */
     void getPropertyInfo(
         const String& name,
         Array<String>& propertyInfo) const;
-
-    /**
-       Supplemental help information above and beyond
-       getPropertyHelp.  Overrides function in ConfigPropertyOwner
-       to provide possible values.
-     */
-////    String getPropertyHelpSupplement(const String& name) const;
 
     /**
         Get default value of the specified property.
@@ -146,17 +141,11 @@ public:
 
         @param name The name of the property.
         @param value The current value of the property.
-        @param  userName User requesting the update.
-        @param timeoutSeconds Timeout in seconds to complete the update.
         @exception NonDynamicConfigProperty if the property is not dynamic.
         @exception InvalidPropertyValue if the property value is not valid.
         @exception UnrecognizedConfigProperty if the property is not defined.
     */
-    void updateCurrentValue(
-        const String& name,
-        const String& value,
-        const String& userName,
-        Uint32 timeoutSeconds);
+    void updateCurrentValue(const String& name, const String& value);
         //throw (NonDynamicConfigProperty, InvalidPropertyValue,
         //    UnrecognizedConfigProperty);
 
@@ -208,8 +197,6 @@ private:
     AutoPtr<struct ConfigProperty> _sslClientVerificationMode;
     AutoPtr<struct ConfigProperty> _sslTrustStoreUserName;
     AutoPtr<struct ConfigProperty> _enableSubscriptionsForNonprivilegedUsers;
-    AutoPtr<struct ConfigProperty> _cipherSuite;
-    AutoPtr<struct ConfigProperty> _sslBackwardCompatibility;
 
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
     AutoPtr<struct ConfigProperty> _authorizedUserGroups;

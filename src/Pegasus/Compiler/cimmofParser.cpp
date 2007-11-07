@@ -93,7 +93,7 @@ extern void *create_cimmof_buffer_wrapper(const FILE *f, int size);
 
 const char LexerError::MSG[] = "";
 
-AutoPtr<cimmofParser> cimmofParser::_instance;
+cimmofParser* cimmofParser::_instance = 0;
 
 cimmofParser::cimmofParser():
   parser(),  _cmdline(0),
@@ -107,13 +107,18 @@ cimmofParser::~cimmofParser()
 
 cimmofParser * cimmofParser::Instance()
 {
-    if (!_instance.get())
+    if (!_instance)
     {
-        _instance.reset(new cimmofParser());
+        _instance = new cimmofParser();
     }
-    return _instance.get();
+    return _instance;
 }
 
+void cimmofParser::destroy()
+{
+    delete _instance;
+    _instance = 0;
+}
 
   //------------------------------------------------------------------
   // Methods for manipulating the members added in this specialization

@@ -233,6 +233,8 @@ int main(int argc, char ** argv)
         }
     }
 
+    p->destroy();
+
     if (msg_.size() > 0)
     {
         cerr << msg_ << endl;

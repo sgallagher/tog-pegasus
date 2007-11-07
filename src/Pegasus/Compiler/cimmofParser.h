@@ -57,7 +57,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Compiler/compilerCommonDefs.h>
 #include <Pegasus/Compiler/Linkage.h>
 #include "parser.h"
@@ -88,7 +87,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser
         // This is meant to be a singleton, so we hide the constructor
         // and the destructor
         friend class DeletePtr<cimmofParser>;
-        static AutoPtr<cimmofParser> _instance;
+        static cimmofParser* _instance;
 
         cimmofParser();
 
@@ -128,6 +127,9 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser
         // Provide a way for the singleton to be constructed, or a
         // pointer to be returned:
         static cimmofParser *Instance();
+
+        /// Destructs the singleton object created by the Instance() method.
+        static void destroy();
 
         void elog(const String &msg) const; // handle logging of errors
 

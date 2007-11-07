@@ -100,7 +100,7 @@ ProviderManagerService::ProviderManagerService(
         ConfigManager::getInstance()->getCurrentValue(
             "forceProviderProcesses"));
 
-#ifdef PEGASUS_DISABLE_PROV_USERCTXT
+#if defined(PEGASUS_DISABLE_PROV_USERCTXT) || defined(PEGASUS_OS_ZOS)
     if (_forceProviderProcesses)
     {
         _oopProviderManagerRouter = new OOPProviderManagerRouter(
@@ -737,7 +737,7 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
         // on the CIM Server configuration and the UserContext setting.
 
         if (_forceProviderProcesses
-#ifndef PEGASUS_DISABLE_PROV_USERCTXT
+#if !defined(PEGASUS_DISABLE_PROV_USERCTXT) && !defined(PEGASUS_OS_ZOS)
             || (userContext == PG_PROVMODULE_USERCTXT_REQUESTOR)
             || (userContext == PG_PROVMODULE_USERCTXT_DESIGNATED)
             || ((userContext == PG_PROVMODULE_USERCTXT_PRIVILEGED) &&

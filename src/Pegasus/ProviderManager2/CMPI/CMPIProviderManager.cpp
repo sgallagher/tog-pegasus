@@ -476,7 +476,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -670,7 +670,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -827,7 +827,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -983,7 +983,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -1140,7 +1140,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -1294,7 +1294,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -1458,7 +1458,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -1665,7 +1665,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -1839,7 +1839,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -2039,7 +2039,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -2206,7 +2206,7 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -2402,7 +2402,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -2745,7 +2745,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -2970,7 +2970,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -3509,7 +3509,7 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -3733,7 +3733,7 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         {
             StatProviderTimeMeasurement providerTime(response);

@@ -308,7 +308,7 @@ public:
             String path = FileSystem::getAbsolutePath(
                 pegasusHome.getCString(), PEGASUS_PROVIDER_AGENT_PROC_NAME);
 
-#  if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
+#  if !defined(PEGASUS_DISABLE_PROV_USERCTXT) && !defined(PEGASUS_OS_ZOS)
 
             PEGASUS_UID_T newUid = (PEGASUS_UID_T)-1;
             PEGASUS_GID_T newGid = (PEGASUS_GID_T)-1;
@@ -377,7 +377,7 @@ public:
 
 #  endif /* !defined(PEGASUS_OS_VMS) */
 
-#  if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
+#  if !defined(PEGASUS_DISABLE_PROV_USERCTXT) && !defined(PEGASUS_OS_ZOS)
 
                 // Set uid and gid for the new provider agent process.
 

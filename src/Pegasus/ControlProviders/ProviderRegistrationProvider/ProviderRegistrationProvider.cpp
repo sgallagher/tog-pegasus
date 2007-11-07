@@ -499,9 +499,11 @@ void ProviderRegistrationProvider::createInstance(
             }
 #else
             if (!((userContext == PG_PROVMODULE_USERCTXT_REQUESTOR) ||
-                  (userContext == PG_PROVMODULE_USERCTXT_DESIGNATED) ||
+#ifndef PEGASUS_OS_ZOS
+                  (userContext == PG_PROVMODULE_USERCTXT_CIMSERVER) ||
                   (userContext == PG_PROVMODULE_USERCTXT_PRIVILEGED) ||
-                  (userContext == PG_PROVMODULE_USERCTXT_CIMSERVER)))
+#endif
+                  (userContext == PG_PROVMODULE_USERCTXT_DESIGNATED)))
             {
                 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
                     MessageLoaderParms(

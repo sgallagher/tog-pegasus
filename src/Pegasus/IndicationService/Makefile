@@ -56,7 +56,8 @@ SOURCES = \
     SubscriptionRepository.cpp \
     SubscriptionTable.cpp \
     IndicationService.cpp \
-    IndicationConstants.cpp
+    IndicationConstants.cpp \
+    NormalizedSubscriptionTable.cpp
 
 ifeq ($(OS_TYPE),windows)
 SYS_LIBS = ws2_32.lib advapi32.lib

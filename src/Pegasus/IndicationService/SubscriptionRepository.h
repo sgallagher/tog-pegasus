@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//             (carolann_graves@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_SubscriptionRepository_h
@@ -49,7 +44,7 @@
 #include <Pegasus/Common/AcceptLanguageList.h>
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Repository/CIMRepository.h>
-
+#include "NormalizedSubscriptionTable.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -387,6 +382,9 @@ public:
         const CIMNamespaceName & nameSpace,
         const CIMName & className);
 
+    void beginCreateSubscription(const CIMObjectPath &subPath);
+    void cancelCreateSubscription(const CIMObjectPath &subPath);
+    void commitCreateSubscription(const CIMObjectPath &subPath);
 private:
 
     /**
@@ -414,6 +412,9 @@ private:
         const CIMInstance subscription);
 
     CIMRepository * _repository;
+
+    NormalizedSubscriptionTable *_normalizedSubscriptionTable;   
+    Mutex _normalizedSubscriptionTableMutex;
 };
 
 PEGASUS_NAMESPACE_END

@@ -384,6 +384,10 @@ void IndicationTestProvider::invokeMethod(
             sendIndication = true;
             handler.deliver( CIMValue( 0 ) );
         }
+        else if (methodName.equal("GetSubscriptionCount"))
+        {
+            handler.deliver(CIMValue(_numSubscriptions));
+        }
     }
 
     else if ((objectReference.getClassName().equal(

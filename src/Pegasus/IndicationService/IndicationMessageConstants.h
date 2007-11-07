@@ -200,6 +200,13 @@ static const char _MSG_PROPERTY_NOT_SUPPORTED [] =
 static const char _MSG_PROPERTY_NOT_SUPPORTED_KEY [] =
     "IndicationService.IndicationService._MSG_PROPERTY_NOT_SUPPORTED";
 
+static const char _MSG_DUPLICATE_SUBSCRIPTION_REQUEST_KEY [] = 
+    "IndicationService.IndicationService._MSG_DUPLICATE_SUBSCRIPTION_REQUEST";
+
+static const char _MSG_DUPLICATE_SUBSCRIPTION_REQUEST [] = 
+    "Similar create subscription request is being processed. "
+        "Subscription path : $0";
+
 PEGASUS_NAMESPACE_END
 
 #endif  /* Pegasus_IndicationMessageConstants_h */

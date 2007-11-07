@@ -37,6 +37,7 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/Thread.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -45,6 +46,12 @@ PEGASUS_USING_STD;
 const CIMNamespaceName NAMESPACE1 = CIMNamespaceName ("root/SampleProvider");
 const CIMNamespaceName NAMESPACE2 = CIMNamespaceName ("root/cimv2");
 const CIMNamespaceName NAMESPACE3 = CIMNamespaceName ("test/TestProvider");
+const String QUERY1 = "select * from Test_IndicationProviderClass";
+AtomicInt exceptionCount;
+
+CIMObjectPath SubscriptionPath;
+CIMObjectPath FilterPath;
+CIMObjectPath HandlerPath;
 
 CIMObjectPath CreateHandler1Instance (CIMClient& client,
     const CIMNamespaceName & handlerNS)
@@ -323,6 +330,185 @@ int _test(CIMClient& client, String& qlang, String& query1, String& query2)
     }
 }
 
+void _createDuplicate(CIMClient &client,
+    const String &filterHost,
+    const CIMNamespaceName &filterNameSpace,
+    CIMObjectPath &filterPath,
+    const String &handlerHost,
+    const CIMNamespaceName &handlerNameSpace,
+    CIMObjectPath &handlerPath)
+{
+    Boolean exceptionCaught = false;
+    //
+    //  Set Host and Namespace in filter CIMObjectPath
+    //
+    filterPath.setHost(filterHost);
+    filterPath.setNameSpace(filterNameSpace);
+
+    //
+    //  Set Host and Namespace in handler CIMObjectPath
+    //
+    handlerPath.setHost (handlerHost);
+    handlerPath.setNameSpace (handlerNameSpace);
+
+    try
+    {
+        CreateSbscriptionInstance(client, handlerPath,
+            filterPath, PEGASUS_NAMESPACENAME_INTEROP);
+    }
+    catch (CIMException &e)
+    {
+        if (e.getCode() != CIM_ERR_ALREADY_EXISTS)
+        {
+            PEGASUS_TEST_ASSERT(0); 
+        }
+        exceptionCaught =  true;
+    }
+    PEGASUS_TEST_ASSERT(exceptionCaught);
+}
+
+void _checkSubscriptionCount(CIMClient &client)
+{
+    CIMObjectPath path;
+    path.setNameSpace("test/TestProvider");
+    path.setClassName("Test_IndicationProviderClass");
+
+    Array<CIMParamValue> inParams;
+    Array<CIMParamValue> outParams;
+
+    CIMValue ret_value = client.invokeMethod(
+        "test/TestProvider",
+        path,
+        "GetSubscriptionCount",
+        inParams,
+        outParams);
+    Uint32 n;
+    ret_value.get(n);
+    PEGASUS_TEST_ASSERT( n == 1);
+}
+
+void _testDuplicate(CIMClient &client)
+{
+    CIMObjectPath filterPath;
+    CIMObjectPath handlerPath;
+    CIMObjectPath subscriptionPath;
+   
+    try
+    {
+        handlerPath = CreateHandler1Instance(client,
+            PEGASUS_NAMESPACENAME_INTEROP);
+        filterPath = CreateFilterInstance(client, 
+            QUERY1, "WQL", "Filter1",
+            PEGASUS_NAMESPACENAME_INTEROP);
+        subscriptionPath = CreateSbscriptionInstance(client, handlerPath,
+            filterPath, PEGASUS_NAMESPACENAME_INTEROP);
+
+        _createDuplicate(client, String::EMPTY, CIMNamespaceName(),
+            filterPath, String::EMPTY, CIMNamespaceName(), handlerPath);
+
+        _createDuplicate(client, String::EMPTY,
+            PEGASUS_NAMESPACENAME_INTEROP, filterPath,
+            String::EMPTY,PEGASUS_NAMESPACENAME_INTEROP, handlerPath);
+
+        _createDuplicate(client, "127.0.0.1", 
+            PEGASUS_NAMESPACENAME_INTEROP, filterPath,
+            String::EMPTY, CIMNamespaceName(), handlerPath);
+
+        _createDuplicate(client, "127.0.0.1",PEGASUS_NAMESPACENAME_INTEROP,
+            filterPath, "127.0.0.1", PEGASUS_NAMESPACENAME_INTEROP,
+            handlerPath);
+
+        _createDuplicate(client, String::EMPTY, CIMNamespaceName(),
+            filterPath, "127.0.0.1", PEGASUS_NAMESPACENAME_INTEROP,
+            handlerPath);
+        _checkSubscriptionCount(client);
+        DeleteInstance(client, subscriptionPath, PEGASUS_NAMESPACENAME_INTEROP);
+        DeleteInstance(client, filterPath, PEGASUS_NAMESPACENAME_INTEROP);
+        DeleteInstance(client, handlerPath, PEGASUS_NAMESPACENAME_INTEROP);
+    }
+    catch (const CIMException &e)
+    {
+        PEGASUS_STD(cerr) << "Exception: " << e.getMessage()
+                          << PEGASUS_STD (endl);
+        PEGASUS_TEST_ASSERT(0);
+    }        
+}
+
+ThreadReturnType PEGASUS_THREAD_CDECL createSubscriptionFunc(void *parm)
+{
+    Thread* my_handle = reinterpret_cast<Thread *>(parm);
+    Boolean cimExceptionCaught = false;
+    CIMClient client;
+    CIMException theCIMException;
+    try
+    {
+        client.connectLocal();
+        SubscriptionPath = CreateSbscriptionInstance(client, HandlerPath,
+            FilterPath, PEGASUS_NAMESPACENAME_INTEROP);
+    }
+    catch (CIMException& e)
+    {
+        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_ALREADY_EXISTS ||
+            e.getCode() == CIM_ERR_FAILED);
+        exceptionCount++;
+    }
+    catch (Exception& e)
+    {
+        cout << e.getMessage() << endl;
+    }
+
+    my_handle->exit_self((ThreadReturnType) 1);
+    return 0;
+}
+
+//
+// Tests subscription creation by sending the similar concurrent subscription
+// creation requests .
+//
+void _testConcurrent(CIMClient &client)
+{
+    CIMObjectPath filterPath;
+    CIMObjectPath handlerPath;
+    CIMObjectPath subscriptionPath;
+    try
+    {
+        HandlerPath = CreateHandler1Instance(client,
+            PEGASUS_NAMESPACENAME_INTEROP);
+        FilterPath = CreateFilterInstance(client,
+            QUERY1, "WQL", "Filter1",
+            PEGASUS_NAMESPACENAME_INTEROP);
+
+        Thread thread1(createSubscriptionFunc, (void *)0, false);
+        Thread thread2(createSubscriptionFunc, (void *)0, false);
+        Thread thread3(createSubscriptionFunc, (void *)0, false);
+        Thread thread4(createSubscriptionFunc, (void *)0, false);
+
+        thread1.run();
+        thread2.run();
+        thread3.run();
+        thread4.run();
+
+        thread1.join();
+        thread2.join();
+        thread3.join();
+        thread4.join();
+
+        _checkSubscriptionCount(client);
+
+        PEGASUS_TEST_ASSERT(exceptionCount.get() == 3);
+
+        DeleteInstance(client, SubscriptionPath, PEGASUS_NAMESPACENAME_INTEROP);
+        DeleteInstance(client, FilterPath, PEGASUS_NAMESPACENAME_INTEROP);
+        DeleteInstance(client, HandlerPath, PEGASUS_NAMESPACENAME_INTEROP);
+   }
+   catch(const CIMException &e)
+   {
+      PEGASUS_STD(cerr) << "Exception: " << e.getMessage()
+                        << PEGASUS_STD (endl);
+      PEGASUS_TEST_ASSERT(0);
+   } 
+}
+
 int main(int argc, char** argv)
 {
     CIMClient client;
@@ -359,7 +545,17 @@ int main(int argc, char** argv)
     rc = _test(client, wql, query1, query2wql);
     if (rc != 0)
       return rc;
+    PEGASUS_STD (cout) << "+++++ start dupliacte subscription test" 
+                       << PEGASUS_STD (endl);
+    _testDuplicate(client);
+    PEGASUS_STD (cout) << "+++++ duplicate subscription test completed"
+                       << PEGASUS_STD (endl);
 
+    PEGASUS_STD (cout) << "+++++ start concurrent subscription test" 
+                       << PEGASUS_STD (endl);
+    _testConcurrent(client);
+    PEGASUS_STD (cout) << "+++++ concurrent subscription test completed"
+                       << PEGASUS_STD (endl);
 #ifndef PEGASUS_DISABLE_CQL
     PEGASUS_STD (cout) << "+++++ start cql test" << PEGASUS_STD (endl);
     return _test(client, cql, query1, query2cql);

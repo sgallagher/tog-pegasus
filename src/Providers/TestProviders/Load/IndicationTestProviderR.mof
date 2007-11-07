@@ -66,7 +66,8 @@ instance of PG_ProviderCapabilities
                         "SendTestIndicationExtraProperty",
                         "SendTestIndicationMatchingInstance",
                         "SendTestIndicationUnmatchingNamespace",
-                        "SendTestIndicationUnmatchingClassName"};
+                        "SendTestIndicationUnmatchingClassName",
+                        "GetSubscriptionCount"};
 };
 
 instance of PG_ProviderCapabilities

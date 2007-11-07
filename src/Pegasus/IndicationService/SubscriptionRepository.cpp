@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//             (carolann_graves@hp.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -43,6 +37,7 @@
 
 #include "IndicationConstants.h"
 #include "SubscriptionRepository.h"
+#include "IndicationMessageConstants.h"
 
 PEGASUS_USING_STD;
 
@@ -52,10 +47,46 @@ SubscriptionRepository::SubscriptionRepository (
     CIMRepository * repository)
     : _repository (repository)
 {
+    _normalizedSubscriptionTable = 
+        new NormalizedSubscriptionTable(getAllSubscriptions());
 }
 
 SubscriptionRepository::~SubscriptionRepository ()
 {
+}
+
+void SubscriptionRepository::beginCreateSubscription(
+    const CIMObjectPath &subPath)
+{
+    Boolean subscriptionExists;
+    AutoMutex mtx(_normalizedSubscriptionTableMutex);
+    if(_normalizedSubscriptionTable->exists(subPath, subscriptionExists))
+    {
+        if (subscriptionExists)
+        {
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ALREADY_EXISTS,
+                subPath.toString());
+        }
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                  MessageLoaderParms(_MSG_DUPLICATE_SUBSCRIPTION_REQUEST_KEY,
+                      _MSG_DUPLICATE_SUBSCRIPTION_REQUEST, subPath.toString()));
+    }
+    _normalizedSubscriptionTable->add(subPath, false);
+}
+
+void SubscriptionRepository::cancelCreateSubscription(
+    const CIMObjectPath &subPath)
+{
+    AutoMutex mtx(_normalizedSubscriptionTableMutex);
+    _normalizedSubscriptionTable->remove(subPath);
+}
+
+void SubscriptionRepository::commitCreateSubscription(
+    const CIMObjectPath &subPath)
+{
+    AutoMutex mtx(_normalizedSubscriptionTableMutex);
+    _normalizedSubscriptionTable->remove(subPath);
+    _normalizedSubscriptionTable->add(subPath, true);
 }
 
 CIMObjectPath SubscriptionRepository::createInstance (
@@ -465,7 +496,7 @@ CIMInstance SubscriptionRepository::deleteSubscription (
     //
     try
     {
-        _repository->deleteInstance (nameSpace, subscription);
+        deleteInstance (nameSpace, subscription);
     }
     catch (Exception & exception)
     {
@@ -564,7 +595,7 @@ Array <CIMInstance> SubscriptionRepository::deleteReferencingSubscriptions (
                     CIMObjectPath path ("", CIMNamespaceName (),
                         subscriptions [i].getPath ().getClassName (),
                         subscriptions [i].getPath ().getKeyBindings ());
-                    _repository->deleteInstance
+                    deleteInstance
                         (subscriptions [i].getPath ().getNameSpace (), path);
                 }
                 catch (Exception & exception)
@@ -1004,6 +1035,17 @@ void SubscriptionRepository::deleteInstance (
     const CIMObjectPath & instanceName)
 {
     _repository->deleteInstance (nameSpace, instanceName);
+    // If deleted instance was SubscriptionInstance, delete from
+    // Normalized subscriptions table. 
+    if (instanceName.getClassName().equal(
+        PEGASUS_CLASSNAME_INDSUBSCRIPTION) ||
+        instanceName.getClassName ().equal(
+            PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
+    {
+        CIMObjectPath tmpPath = instanceName;
+        tmpPath.setNameSpace(nameSpace);
+        _normalizedSubscriptionTable->remove(tmpPath);
+    }
 }
 
 Array <CIMInstance> SubscriptionRepository::enumerateInstancesForClass (
@@ -1093,7 +1135,7 @@ void SubscriptionRepository::_deleteSubscription (
     //
     try
     {
-        _repository->deleteInstance
+        deleteInstance
             (subscription.getPath ().getNameSpace (),
             subscription.getPath ());
     }

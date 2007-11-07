@@ -238,6 +238,17 @@ void IPTestClient::_validateKeys(
 
       } // end of keys for LANEndpoint
 
+      else if (className.equal(CLASS_PG_NEXT_HOP_IP_ROUTE))
+      {
+
+          if (keyName.equal(PROPERTY_INSTANCE_ID))
+          {
+              String keyVal = keyBindings[j].getValue();
+              _check_NHIPRoute_InstanceID(keyVal, verbose);
+          }
+
+      } // end of properties for PG_NexHopIPRoute
+
    } // end for loop of keys
 }
 
@@ -397,6 +408,34 @@ void IPTestClient::_validateProperties(
                 _check_IPPEp_IPVersionSupport(propertyValue, verbose);
             }
 
+            else if (propertyName.equal(PROPERTY_PREFIX_LENGTH))
+            {
+                Uint8 propertyValue;
+                inst.getProperty(j).getValue().get(propertyValue);
+                _check_IPPEp_PrefixLength(propertyValue, verbose);
+            }
+
+            else if (propertyName.equal(PROPERTY_IPV6_ADDRESS))
+            {
+                String propertyValue;
+                inst.getProperty(j).getValue().get(propertyValue);
+                _check_IPPEp_IPv6Address(propertyValue, verbose);
+            }
+
+            else if (propertyName.equal(PROPERTY_IPV4_ADDRESS))
+            {
+                String propertyValue;
+                inst.getProperty(j).getValue().get(propertyValue);
+                _check_IPPEp_IPv4Address(propertyValue, verbose);
+            }
+
+            else if (propertyName.equal(PROPERTY_PROTOCOL_IF_TYPE))
+            {
+                Uint16 propertyValue;
+                inst.getProperty(j).getValue().get(propertyValue);
+                _check_IPPEp_ProtocolIFType(propertyValue, verbose);
+            }
+
         } // end of properties for IPProtocolEndpoint
 
         else if (className.equal(CLASS_PG_IP_ROUTE))
@@ -521,7 +560,62 @@ void IPTestClient::_validateProperties(
                 _check_IPRoute_DestinationMask(propertyValue, verbose);
             }
 
-      } // end of properties for IPRoute
+        } // end of properties for IPRoute
+
+        else if (className.equal(CLASS_PG_NEXT_HOP_IP_ROUTE))
+        {
+
+            if (propertyName.equal(PROPERTY_NAME))
+            {
+                String propertyValue;
+                inst.getProperty(j).getValue().get(propertyValue);
+                _check_NHIPRoute_Name(propertyValue, verbose);
+            }
+
+            else if (propertyName.equal(PROPERTY_CAPTION))
+            {
+                String propertyValue;
+                inst.getProperty(j).getValue().get(propertyValue);
+                _check_NHIPRoute_Caption(propertyValue, verbose);
+            }
+
+            else if (propertyName.equal(PROPERTY_DESCRIPTION))
+            {
+                String propertyValue;
+                inst.getProperty(j).getValue().get(propertyValue);
+                _check_NHIPRoute_Description(propertyValue, verbose);
+            }
+
+            else if (propertyName.equal(PROPERTY_DESTINATION_ADDRESS))
+            {
+                String propertyValue;
+                inst.getProperty(j).getValue().get(propertyValue);
+                _check_NHIPRoute_DestinationAddress(propertyValue, verbose);
+            }
+
+            else if (propertyName.equal(PROPERTY_DESTINATION_MASK))
+            {
+                String propertyValue;
+                inst.getProperty(j).getValue().get(propertyValue);
+                _check_NHIPRoute_DestinationMask(propertyValue, verbose);
+            }
+
+            else if (propertyName.equal(PROPERTY_PREFIX_LENGTH))
+            {
+                Uint8 propertyValue;
+                inst.getProperty(j).getValue().get(propertyValue);
+                _check_NHIPRoute_PrefixLength(propertyValue, verbose);
+            }
+
+            else if (propertyName.equal(PROPERTY_ADDRESS_TYPE))
+            {
+                Uint16 propertyValue;
+                inst.getProperty(j).getValue().get(propertyValue);
+                _check_NHIPRoute_AddressType(propertyValue, verbose);
+            }
+
+        } // end of properties for PG_NextHopIPRoute.
+
 
    }  // end for loop of all properties
 
@@ -781,6 +875,10 @@ int main(int argc, char** argv)
         testClient.testEIN(client, CLASS_PG_BINDS_IP_TO_LAN_ENDPOINT, verbose);
         testClient.testEI(client, CLASS_PG_BINDS_IP_TO_LAN_ENDPOINT, verbose);
         testClient.testGI(client, CLASS_PG_BINDS_IP_TO_LAN_ENDPOINT, verbose);
+
+        testClient.testEIN(client, CLASS_PG_NEXT_HOP_IP_ROUTE, verbose);
+        testClient.testEI(client, CLASS_PG_NEXT_HOP_IP_ROUTE, verbose);
+        testClient.testGI(client, CLASS_PG_NEXT_HOP_IP_ROUTE, verbose);
 
         cout << "IPTestClient disconnecting from CIMOM " << endl;
         client.disconnect();

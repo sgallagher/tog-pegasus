@@ -200,6 +200,26 @@ void IPTestClient::_check_IPPEp_Address(String &pv, Boolean verbose)
 }
 
 //------------------------------------------------------------------------------
+void IPTestClient::_check_IPPEp_IPv6Address(String &pv, Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking CIM_IPProtocolEndpoint IPv6Address `" <<
+             pv << "' . . ." << endl;
+    }
+}
+
+//------------------------------------------------------------------------------
+void IPTestClient::_check_IPPEp_IPv4Address(String &pv, Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking CIM_IPProtocolEndpoint IPv4Address `" <<
+             pv << "' . . ." << endl;
+    }
+}
+
+//------------------------------------------------------------------------------
 void IPTestClient::_check_IPPEp_SubnetMask(String &pv, Boolean verbose)
 {
     if (verbose)
@@ -226,6 +246,26 @@ void IPTestClient::_check_IPPEp_IPVersionSupport(Uint16 &pv,
     if (verbose)
     {
         cout << "  >> checking CIM_IPProtocolEndpoint IPVersionSupport `" <<
+             pv << "' . . ." << endl;
+    }
+}
+
+//------------------------------------------------------------------------------
+void IPTestClient::_check_IPPEp_PrefixLength(Uint8 &pv, Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking CIM_IPProtocolEndpoint PrefixLength `" <<
+             (Uint16)pv << "' . . ." << endl;
+    }
+}
+
+//------------------------------------------------------------------------------
+void IPTestClient::_check_IPPEp_ProtocolIFType(Uint16 &pv, Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking CIM_IPProtocolEndpoint ProtocolIFType `" <<
              pv << "' . . ." << endl;
     }
 }
@@ -409,6 +449,88 @@ void IPTestClient::_check_IPRoute_DestinationMask(String &pv,
 }
 
 //------------------------------------------------------------------------------
+void IPTestClient::_check_NHIPRoute_InstanceID(String &pv, Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking PG_NextHopIPRoute InstanceID `" <<
+             pv << "' . . ." << endl;
+    }
+}
+
+//------------------------------------------------------------------------------
+void IPTestClient::_check_NHIPRoute_Caption(String &pv, Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking PG_NextHopIPRoute Caption `" <<
+             pv << "' . . ." << endl;
+    }
+}
+
+//------------------------------------------------------------------------------
+void IPTestClient::_check_NHIPRoute_Name(String &pv, Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking PG_NextHopIPRoute Name `" <<
+             pv << "' . . ." << endl;
+    }
+}
+
+//------------------------------------------------------------------------------
+void IPTestClient::_check_NHIPRoute_Description(String &pv, Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking PG_NextHopIPRoute Description `" <<
+             pv << "' . . ." << endl;
+    }
+}
+
+//------------------------------------------------------------------------------
+void IPTestClient::_check_NHIPRoute_DestinationMask(String &pv, Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking PG_NextHopIPRoute DestinationMask `" <<
+             pv << "' . . ." << endl;
+    }
+}
+
+//------------------------------------------------------------------------------
+void IPTestClient::_check_NHIPRoute_DestinationAddress(
+    String &pv, 
+    Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking PG_NextHopIPRoute DestinationAddress `" <<
+             pv << "' . . ." << endl;
+    }
+}
+
+//------------------------------------------------------------------------------
+void IPTestClient::_check_NHIPRoute_PrefixLength(Uint8 &pv, Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking PG_NextHopIPRoute PrefixLength `" <<
+             (Uint16)pv << "' . . ." << endl;
+    }
+}
+
+//------------------------------------------------------------------------------
+void IPTestClient::_check_NHIPRoute_AddressType(Uint16 &pv, Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking PG_NextHopIPRoute AddressType `" <<
+             pv << "' . . ." << endl;
+    }
+}
+
+//------------------------------------------------------------------------------
 void IPTestClient::_check_LEP_SystemCreationClassName(String &pv,
                                                      Boolean verbose)
 {
@@ -448,5 +570,14 @@ void IPTestClient::_check_LEP_Name(String &pv, Boolean verbose)
         cout << "  >> checking CIM_LANEndpoint Name `" <<
              pv << "' . . ." << endl;
     }
+}
+
+//------------------------------------------------------------------------------
+void IPTestClient::_check_Address_Format(
+    String &addr,
+    const CIMName &className,
+    const CIMName &propertyName)
+{
+    // Never should be called in Stub.
 }
 

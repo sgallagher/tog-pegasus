@@ -152,9 +152,10 @@ void IPTestClient::_check_IPPEp_Caption(String &pv, Boolean verbose)
              pv << "' . . ." << endl;
     }
 
-    if (pv.find('.') == PEG_NOT_FOUND)
-        _errorExit(CLASS_CIM_IP_PROTOCOL_ENDPOINT.getString() +
-                   ": Caption not an address in dot format.");
+    _check_Address_Format(
+        pv, 
+        CLASS_CIM_IP_PROTOCOL_ENDPOINT, 
+        PROPERTY_CAPTION);
 
 }
 
@@ -171,9 +172,10 @@ void IPTestClient::_check_IPPEp_Description(String &pv, Boolean verbose)
         _errorExit(CLASS_CIM_IP_PROTOCOL_ENDPOINT.getString() +
                    ": Description does not contain standard prefix.");
 
-    if (pv.find('.') == PEG_NOT_FOUND)
-        _errorExit(CLASS_CIM_IP_PROTOCOL_ENDPOINT.getString() +
-                   ": Description does not contain address in dot format.");
+    _check_Address_Format(
+        pv,
+        CLASS_CIM_IP_PROTOCOL_ENDPOINT,
+        PROPERTY_DESCRIPTION);
 
     if (pv.find('(') == PEG_NOT_FOUND || pv.find(')') == PEG_NOT_FOUND)
         _errorExit(CLASS_CIM_IP_PROTOCOL_ENDPOINT.getString() +
@@ -332,10 +334,40 @@ void IPTestClient::_check_IPPEp_Address(String &pv, Boolean verbose)
              pv << "' . . ." << endl;
     }
 
-    if (pv.find('.') == PEG_NOT_FOUND)
-        _errorExit(CLASS_CIM_IP_PROTOCOL_ENDPOINT.getString() +
-                   ": Address does not contain address in dot format.");
+    _check_Address_Format(
+        pv,
+        CLASS_CIM_IP_PROTOCOL_ENDPOINT,
+        PROPERTY_ADDRESS);
+}
 
+//------------------------------------------------------------------------------
+void IPTestClient::_check_IPPEp_IPv6Address(String &pv, Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking CIM_IPProtocolEndpoint IPv6Address `" <<
+             pv << "' . . ." << endl;
+    }
+
+    _check_Address_Format(
+        pv,
+        CLASS_CIM_IP_PROTOCOL_ENDPOINT,
+        PROPERTY_IPV6_ADDRESS);
+}
+
+//------------------------------------------------------------------------------
+void IPTestClient::_check_IPPEp_IPv4Address(String &pv, Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking CIM_IPProtocolEndpoint IPv4Address `" <<
+             pv << "' . . ." << endl;
+    }
+
+    _check_Address_Format(
+        pv,
+        CLASS_CIM_IP_PROTOCOL_ENDPOINT,
+        PROPERTY_IPV4_ADDRESS);
 }
 
 //------------------------------------------------------------------------------
@@ -347,10 +379,10 @@ void IPTestClient::_check_IPPEp_SubnetMask(String &pv, Boolean verbose)
              pv << "' . . ." << endl;
     }
 
-    if (pv.find('.') == PEG_NOT_FOUND)
-        _errorExit(CLASS_CIM_IP_PROTOCOL_ENDPOINT.getString() +
-                   ": SubnetMask does not contain address in dot format.");
-
+    _check_Address_Format(
+        pv,
+        CLASS_CIM_IP_PROTOCOL_ENDPOINT,
+        PROPERTY_SUBNET_MASK);
 }
 
 //------------------------------------------------------------------------------
@@ -378,10 +410,42 @@ void IPTestClient::_check_IPPEp_IPVersionSupport(Uint16 &pv,
              pv << "' . . ." << endl;
     }
 
-    if (pv != 1 && pv != 2)
+    if (pv != 1 && pv != 2 && pv != 3)
         _errorExit(CLASS_CIM_IP_PROTOCOL_ENDPOINT.getString() +
                    ": Unexpected IPVersionSupport.");
 
+}
+
+//------------------------------------------------------------------------------
+void IPTestClient::_check_IPPEp_PrefixLength(Uint8 &pv, Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking CIM_IPProtocolEndpoint PrefixLength `" <<
+             (Uint16)pv << "' . . ." << endl;
+    }
+
+    // Don't know how to test yet.
+
+}
+
+//------------------------------------------------------------------------------
+void IPTestClient::_check_IPPEp_ProtocolIFType(Uint16 &pv, Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking CIM_IPProtocolEndpoint ProtocolIFType `" <<
+             pv << "' . . ." << endl;
+    }
+
+    if (pv != 4096 && 
+        pv != 4097 && 
+        pv != 4098)
+    {
+        _errorExit(
+            CLASS_CIM_IP_PROTOCOL_ENDPOINT.getString() +
+            ": Unexpected ProtocolIFType.");
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -655,6 +719,138 @@ void IPTestClient::_check_IPRoute_DestinationMask(String &pv,
 }
 
 //------------------------------------------------------------------------------
+void IPTestClient::_check_NHIPRoute_InstanceID(String &pv, Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking PG_NextHopIPRoute InstanceID `" <<
+             pv << "' . . ." << endl;
+    }
+
+    _check_Address_Format(pv, CLASS_PG_NEXT_HOP_IP_ROUTE, PROPERTY_INSTANCE_ID);
+
+}
+
+//------------------------------------------------------------------------------
+void IPTestClient::_check_NHIPRoute_Caption(String &pv, Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking PG_NextHopIPRoute Caption `" <<
+             pv << "' . . ." << endl;
+    }
+
+    _check_Address_Format(pv, CLASS_PG_NEXT_HOP_IP_ROUTE, PROPERTY_CAPTION);
+
+}
+
+//------------------------------------------------------------------------------
+void IPTestClient::_check_NHIPRoute_Name(String &pv, Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking PG_NextHopIPRoute Name `" <<
+             pv << "' . . ." << endl;
+    }
+
+    _check_Address_Format(
+        pv, 
+        CLASS_PG_NEXT_HOP_IP_ROUTE, 
+        PROPERTY_NAME);
+
+}
+
+//------------------------------------------------------------------------------
+void IPTestClient::_check_NHIPRoute_Description(String &pv, Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking PG_NextHopIPRoute Description `" <<
+             pv << "' . . ." << endl;
+    }
+
+    if (pv.find(NHIPROUTE_DESCRIPTION_PREFIX) != 0)
+        _errorExit(CLASS_PG_NEXT_HOP_IP_ROUTE.getString() +
+                   ": Description does not contain standard prefix.");
+
+    _check_Address_Format(
+        pv,
+        CLASS_PG_NEXT_HOP_IP_ROUTE,
+        PROPERTY_DESCRIPTION);
+
+    if (pv.find('(') == PEG_NOT_FOUND || pv.find(')') == PEG_NOT_FOUND)
+        _errorExit(CLASS_PG_NEXT_HOP_IP_ROUTE.getString() +
+                   ": Description missing address.");
+
+    if (pv.find("IPv") == PEG_NOT_FOUND)
+        _errorExit(CLASS_PG_NEXT_HOP_IP_ROUTE.getString() +
+                   ": Description does not have protocol type.");
+
+}
+
+//------------------------------------------------------------------------------
+void IPTestClient::_check_NHIPRoute_DestinationMask(String &pv, Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking PG_NextHopIPRoute DestinationMask `" <<
+             pv << "' . . ." << endl;
+    }
+
+    _check_Address_Format(
+        pv, 
+        CLASS_PG_NEXT_HOP_IP_ROUTE, 
+        PROPERTY_DESTINATION_MASK);
+
+}
+
+//------------------------------------------------------------------------------
+void IPTestClient::_check_NHIPRoute_DestinationAddress(
+    String &pv, 
+    Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking PG_NextHopIPRoute DestinationAddress `" <<
+             pv << "' . . ." << endl;
+    }
+
+    _check_Address_Format(
+        pv, 
+        CLASS_PG_NEXT_HOP_IP_ROUTE, 
+        PROPERTY_DESTINATION_ADDRESS);
+
+}
+
+//------------------------------------------------------------------------------
+void IPTestClient::_check_NHIPRoute_PrefixLength(Uint8 &pv, Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking PG_NextHopIPRoute PrefixLength `" <<
+             (Uint16)pv << "' . . ." << endl;
+    }
+
+    // Don't know how to test yet.
+
+}
+
+//------------------------------------------------------------------------------
+void IPTestClient::_check_NHIPRoute_AddressType(Uint16 &pv, Boolean verbose)
+{
+    if (verbose)
+    {
+        cout << "  >> checking PG_NextHopIPRoute AddressType `" <<
+             pv << "' . . ." << endl;
+    }
+
+    if (pv != 1 && pv != 2)
+        _errorExit(CLASS_PG_NEXT_HOP_IP_ROUTE.getString() +
+                   ": Unexpected AddressType.");
+
+}
+
+//------------------------------------------------------------------------------
 void IPTestClient::_check_LEP_SystemCreationClassName(String &pv,
                                                      Boolean verbose)
 {
@@ -720,6 +916,25 @@ void IPTestClient::_check_LEP_Name(String &pv, Boolean verbose)
     {
         cout << "  >> checking CIM_LANEndpoint Name `" <<
              pv << "' . . ." << endl;
+    }
+}
+
+//------------------------------------------------------------------------------
+void IPTestClient::_check_Address_Format(
+    String &addr,
+    const CIMName &className,
+    const CIMName &propertyName)
+{
+    if (addr.find('.') == PEG_NOT_FOUND &&
+        addr.find(':') == PEG_NOT_FOUND)
+    {
+            _errorExit(
+                className.getString() +
+                ": " +
+                propertyName.getString() +
+                " not an IPv4 (IPv6) address in dot (colon) format. (" +
+                addr +
+                ")");
     }
 }
 

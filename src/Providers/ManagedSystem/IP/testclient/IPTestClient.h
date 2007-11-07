@@ -47,6 +47,8 @@ static const String IPPEP_DESCRIPTION_PREFIX
                     ("IP Protocol Endpoint for ");
 static const String IPROUTE_DESCRIPTION_PREFIX
                     ("IP Route for Destination Address:");
+static const String NHIPROUTE_DESCRIPTION_PREFIX
+                    ("Next Hop IP Route for Destination Address:");
 static const String NAME_FORMAT("<Protocol>_<InterfaceName>");
 
 
@@ -60,11 +62,14 @@ static const CIMName CLASS_PG_IP_ROUTE = CIMName ("PG_IPRoute");
 static const CIMName CLASS_CIM_LAN_ENDPOINT = CIMName ("CIM_LANEndpoint");
 static const CIMName CLASS_CIM_UNITARY_COMPUTER_SYSTEM = CIMName
                      ("CIM_UnitaryComputerSystem");
+static const CIMName CLASS_PG_NEXT_HOP_IP_ROUTE = CIMName("PG_NextHopIPRoute");
 
 
 // Property Names
 
 static const CIMName PROPERTY_ADDRESS = CIMName ("Address");
+static const CIMName PROPERTY_IPV6_ADDRESS = CIMName ("IPv6Address");
+static const CIMName PROPERTY_IPV4_ADDRESS = CIMName ("IPv4Address");
 static const CIMName PROPERTY_ADDRESS_TYPE = CIMName ("AddressType");
 static const CIMName PROPERTY_ANTECEDENT = CIMName ("Antecedent");
 static const CIMName PROPERTY_CAPTION = CIMName ("Caption");
@@ -97,7 +102,9 @@ static const CIMName PROPERTY_SUBNET_MASK = CIMName ("SubnetMask");
 static const CIMName PROPERTY_SYSTEM_CREATION_CLASS_NAME = CIMName
                      ("SystemCreationClassName");
 static const CIMName PROPERTY_SYSTEM_NAME = CIMName ("SystemName");
-
+static const CIMName PROPERTY_PROTOCOL_IF_TYPE = CIMName("ProtocolIFType");
+static const CIMName PROPERTY_INSTANCE_ID = CIMName("InstanceID");
+static const CIMName PROPERTY_PREFIX_LENGTH = CIMName("PrefixLength");
 
 class IPTestClient
 {
@@ -141,6 +148,10 @@ private:
     void _check_IPPEp_SubnetMask(String &pv, Boolean verbose);
     void _check_IPPEp_AddressType(Uint16 &pv, Boolean verbose);
     void _check_IPPEp_IPVersionSupport(Uint16 &pv, Boolean verbose);
+    void _check_IPPEp_IPv6Address(String &pv, Boolean verbose);
+    void _check_IPPEp_IPv4Address(String &pv, Boolean verbose);
+    void _check_IPPEp_PrefixLength(Uint8 &pv, Boolean verbose);
+    void _check_IPPEp_ProtocolIFType(Uint16 &pv, Boolean verbose);
 
     // PG_IPRoute Checks
     void _check_IPRoute_Caption(String &pv, Boolean verbose);
@@ -161,6 +172,16 @@ private:
     void _check_IPRoute_DestinationAddress(String &pv, Boolean verbose);
     void _check_IPRoute_DestinationMask(String &pv, Boolean verbose);
 
+    // PG_NextHopIPRoute Checks.
+    void _check_NHIPRoute_InstanceID(String &pv, Boolean verbose);
+    void _check_NHIPRoute_DestinationAddress(String &pv, Boolean verbose);
+    void _check_NHIPRoute_DestinationMask(String &pv, Boolean verbose);
+    void _check_NHIPRoute_PrefixLength(Uint8 &pv, Boolean verbose);
+    void _check_NHIPRoute_AddressType(Uint16 &pv, Boolean verbose);
+    void _check_NHIPRoute_Caption(String &pv, Boolean verbose);
+    void _check_NHIPRoute_Description(String &pv, Boolean verbose);
+    void _check_NHIPRoute_Name(String &pv, Boolean verbose);
+
     // PG_LANEndpoint Checks -- need because it's referenced by
     //                          PG_BindsToLANEndpoint
     void _check_LEP_SystemCreationClassName(String &pv, Boolean verbose);
@@ -180,6 +201,9 @@ private:
         CIMInstance &cimInst,
         CIMName classname,
         Boolean verboseTest);
+
+    // Validate dot (IPv4) or colon (IPv6) address format.
+    void _check_Address_Format(String&, const CIMName&, const CIMName&);
 };
 
 #endif

@@ -1,4 +1,4 @@
-.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man8.Z/cimconfig.8,v 1.4 2007/10/17 21:00:49 denise.eckstein Exp $
+.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man8.Z/cimconfig.8,v 1.5 2007/11/07 23:16:04 yi.zhou Exp $
 .\" .TA c \" lowercase initial leter of .TH name
 .TH "cimconfig" "8" "" "" ""
 .SH "NAME"
@@ -50,6 +50,22 @@ properties are those whose current values may be set while the CIM server is
 running.
 .PP 
 The following configuration properties are available:
+.PP 
+.B authorizedUserGroups
+.IP 
+.BR Description: " If set, the value is interpreted as a list of
+comma-separated user groups whose members may issue CIM requests.
+A user who is not a member of any of these groups is restricted
+from issuing CIM requests, with the exception of privileged users
+(superuser). If unset, any user may issue CIM requests. Note:
+This configuration property operates in conjunction with other
+CIM request authorization conditions rather than overriding them.
+.PD 0
+.IP 
+.BR "Default Value: " (None)
+.IP 
+.BR Dynamic: \0No
+.PD
 .PP 
 .B enableAssociationTraversal
 .IP 
@@ -139,6 +155,18 @@ privileged user from a remote system
 .BR Description: " If True, nonprivileged user of the system will be 
 allowed to create Indication Subscription, otherwise privileged access
 is required.
+.PD 0
+.IP 
+.BR "Default Value: " True
+.IP 
+.BR Dynamic: \0No
+.PD
+.PP 
+.B forceProviderProcesses
+.IP 
+.BR Description: " If true, the CIM Server runs Providers in separate
+processes rather than loading and calling Provider libraries directly
+within the CIM Server process.
 .PD 0
 .IP 
 .BR "Default Value: " True

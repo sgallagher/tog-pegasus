@@ -33,6 +33,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/PegasusVersion.h>
 #include <Service/ServerRunStatus.h>
 #include <Service/ServerShutdownClient.h>
 

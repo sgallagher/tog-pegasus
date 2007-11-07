@@ -35,6 +35,7 @@
 
 #include <Executor/PAMAuth.h>
 #include <Executor/Socket.h>
+#include <Pegasus/Common/PegasusVersion.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <syslog.h>

@@ -51,6 +51,7 @@
 #include "Macro.h"
 #include "Assert.h"
 #include "Options.h"
+#include <Pegasus/Common/PegasusVersion.h>
 
 /*
 **==============================================================================

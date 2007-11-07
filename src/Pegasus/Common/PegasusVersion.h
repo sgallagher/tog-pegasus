@@ -1,3 +1,4 @@
+/*
 //%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -30,13 +31,12 @@
 //==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
+*/
 
 #ifndef Pegasus_Version_h
 #define Pegasus_Version_h
 
 #include <Pegasus/Common/Config.h>
-
-PEGASUS_NAMESPACE_BEGIN
 
 #ifdef PEGASUS_OVERRIDE_PRODUCT_ID
 # include <Pegasus/Common/ProductVersion.h>
@@ -150,7 +150,5 @@ static const char *PLATFORM_EMBEDDED_IDENTIFICATION_STRING =
 // integrating with versions prior to 2.5.1.
 //
 #define PEGASUS_VERSION_NUMBER 0x02080000
-
-PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Version_h */

@@ -34,6 +34,7 @@
 #include "ProviderManager.h"
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Config/ConfigManager.h>
+#include <Pegasus/Common/PegasusVersion.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -101,3 +101,24 @@ instance of PG_ProviderCapabilities
   SupportedProperties = NULL; // All properties
   SupportedMethods = NULL; // All methods
 };
+
+// Provider for PG_NextHopIPRoute
+
+instance of PG_Provider
+{
+  ProviderModuleName = "IPProviderModule";
+  Name = "NextHopIPRouteProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+  ProviderModuleName = "IPProviderModule";
+  ProviderName = "NextHopIPRouteProvider";
+  CapabilityID = "1";
+  ClassName = "PG_NextHopIPRoute";
+  Namespaces = { "root/cimv2" };
+  ProviderType = { 2 }; // Instance
+  SupportedProperties = NULL; // All properties
+  SupportedMethods = NULL; // All methods
+};
+

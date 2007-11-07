@@ -54,6 +54,7 @@ SOURCES = \
 	IPPEpProvider.cpp \
         BIPTLEpProvider.cpp \
 	IPRouteProvider.cpp \
+	NextHopIPRouteProvider.cpp \
 	IPMain.cpp
 
 LIBRARIES = \

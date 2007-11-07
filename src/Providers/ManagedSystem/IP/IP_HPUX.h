@@ -62,9 +62,9 @@ PEGASUS_USING_PEGASUS;
 
 // Support IP PROTOCOL TYPES
 
-#define PROTOCOL_IPV4  "IPv4"
-#define PROTOCOL_IPV6  "IPv6"
-
+#define PROTOCOL_IPV4     "IPv4"
+#define PROTOCOL_IPV6     "IPv6"
+#define PROTOCOL_IPV4_V6  "IPv4/v6"
 
 // =============================================================================
 // Type Definitions.
@@ -88,9 +88,13 @@ public:
     Boolean getProtocolType(Uint16&) const;
     Boolean getOtherTypeDescription(String&) const;
     Boolean getAddress(String&) const;
+    Boolean getIPv4Address(String&) const;
+    Boolean getIPv6Address(String&) const;
+    Boolean getPrefixLength(Uint8&) const;
     Boolean getSubnetMask(String&) const;
     Boolean getAddressType(Uint16&) const;
     Boolean getIPVersionSupport(Uint16&) const;
+    Boolean getProtocolIFType(Uint16&) const;
     Boolean getFrameType(Uint16&) const;
 
     // System name is the same for all instances
@@ -108,14 +112,16 @@ public:
     // Methods to Load Instances
 
     void set_address(const String& addr);
+    void set_prefixLength(const Uint8& pl);
     void set_subnetMask(const String& snm);
     void set_protocol(const String& proto);
     void set_simpleIfName(const String& name);
 
 private:
 
-    String _address;           // dot (IPv4) or colon (IPv6) notation
-    String _subnetMask;        // dot (IPv4) or colon (IPv6) notation
+    String _address;           // dot (IPv4) colon (IPv6) notation
+    String _subnetMask;        // dot (IPv4) notation
+    Uint8  _prefixLength;      // IPv6 Prefix Length
     String _protocol;          // e.g. IPv4, IPv6
     String _simpleIfName;      // e.g. lan0, lan0:1, lan1, lo0
     static String _hostname;   // fully qualified hostname
@@ -211,6 +217,78 @@ public:
 private:
 
     vector<IPRoute> _iprl;
+
+};
+
+class NextHopIPRoute
+{
+public:
+
+    NextHopIPRoute();
+    ~NextHopIPRoute();
+
+
+    // Property Accessor Methods
+    
+    Boolean getCaption(String&) const;
+    Boolean getDescription(String&) const;
+    Boolean getInstallDate(CIMDateTime&) const;
+    Boolean getName(String&) const;
+    Boolean getStatus(String&) const;
+    Boolean getDestinationAddress(String&) const;
+    Boolean getDestinationMask(String&) const;
+    Boolean getRouteDerivation(Uint16&) const;
+    Boolean getOtherDerivation(String&) const;
+    Boolean getPrefixLength(Uint8&) const;
+    Boolean getInstanceID(String&) const;
+    Boolean getAdminDistance(Uint16&) const;
+    Boolean getRouteMetric(Uint16&) const;
+    Boolean getTypeOfRoute(Uint16&) const;
+    Boolean getNextHop(String&) const;
+    Boolean getIsStatic(Boolean&) const;
+    Boolean getAddressType(Uint16&) const;
+
+    // Methods to Load Instances
+
+    void set_prefixLength(const Uint8 &pl);
+    void set_nextHop(const String& nhop);
+    void set_destAddr(const String& addr);
+    void set_destMask(const String& dm);
+    void set_protocolType(const String& pt);
+
+private:
+
+    String _nextHop;         // colon (IPv6) notation
+    Uint8 _prefixLength;      // IPv6 Prefix Length
+    String _destAddr;
+    String _protocolType;
+    String _destMask;
+
+};
+
+class NextHopRouteList
+{
+public:
+
+    NextHopRouteList();  // Constructor - should load list of interfaces
+
+    ~NextHopRouteList();
+
+    // Method to find a particular IP Route based on a Instance ID
+    // Returns false if a match is not found.
+    Boolean findRoute(
+        const String &instanceID,
+        NextHopIPRoute &ipRInst) const;
+
+    // Method to get a particular element based on an index
+    NextHopIPRoute getRoute(const int index) const;
+ 
+    // Number of Elements in the IP Route
+    int size() const;
+
+private:
+
+    vector<NextHopIPRoute> _nhiprl;
 
 };
 

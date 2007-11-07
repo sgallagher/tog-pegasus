@@ -215,6 +215,53 @@ Boolean IPInterface::getAddress(String& s) const
   return false;
 }
 
+================================================================================
+NAME              : getIPv4Address
+DESCRIPTION       : The IPv4 address that this ProtocolEndpoint represents.
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean IPInterface::getIPv4Address(String& s) const
+{
+  // not supported
+  return false;
+}
+
+/*
+================================================================================
+NAME              : getIPv6Address
+DESCRIPTION       : The IPv6 address that this ProtocolEndpoint represents.
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean IPInterface::getIPv6Address(String& s) const
+{
+  // not supported
+  return false;
+}
+
+/*
+================================================================================
+NAME              : getPrefixLength
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean IPInterface::getPrefixLength(Uint8& i8) const
+{
+  // not supported
+  return false;
+}
+
 /*
 ================================================================================
 NAME              : getSubnetMask
@@ -258,6 +305,22 @@ NOTES             :
 ================================================================================
 */
 Boolean IPInterface::getIPVersionSupport(Uint16& i16) const
+{
+  // not supported
+  return false;
+}
+
+/*
+================================================================================
+NAME              : getProtocolIFType
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             : Deprecated by ProtocolIFType
+================================================================================
+*/
+Boolean IPInterface::getProtocolIFType(Uint16& i16) const
 {
   // not supported
   return false;
@@ -668,6 +731,372 @@ NOTES             :
 ================================================================================
 */
 int RouteList::size() const
+{
+    return 0;
+}
+
+/////////////////////////////////////////////////////////////////////////
+
+NextHopIPRoute::NextHopIPRoute()
+{
+}
+
+NextHopIPRoute::~NextHopIPRoute()
+{
+}
+
+/*
+================================================================================
+NAME              : getCaption
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getCaption(String& s) const
+{
+    // not supported
+    return false;
+}
+
+/*
+================================================================================
+NAME              : getDescription
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getDescription(String& s) const
+{
+    // not supported
+    return false;
+}
+
+/*
+================================================================================
+NAME              : getInstallDate
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getInstallDate(CIMDateTime& d) const
+{
+    // Not supported. This property is inherited from
+    // CIM_ManagedSystemElement, but has no useful meaning
+    // for an IP Route.
+    return false;
+}
+
+/*
+================================================================================
+NAME              : getName
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getName(String& s) const
+{
+    // not supported
+    return false;
+}
+
+/*
+================================================================================
+NAME              : getStatus
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getStatus(String& s) const
+{
+    // This property, inherited from CIM_ManagedSystemElement,
+    // is not relevant.
+    return false;
+}
+
+/*
+================================================================================
+NAME              : getInstanceID
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getInstanceID(String& s) const
+{
+    // not supported
+    return false;
+}
+
+/*
+================================================================================
+NAME              : getDestinationAddress
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getDestinationAddress(String& s) const
+{
+    // not supported
+    return false;
+}
+
+/*
+================================================================================
+NAME              : getDestinationMask
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getDestinationMask(String& s) const
+{
+    // not supported
+    return false;
+}
+
+/*
+================================================================================
+NAME              : getPrefixLength
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getPrefixLength(Uint8& pl) const
+{
+    // not supported
+    return false;
+}
+
+/*
+================================================================================
+NAME              : getNextHop
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getNextHop(String& s) const
+{
+    // not supported
+    return false;
+}
+
+/*
+================================================================================
+NAME              : getRouteDerivation
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getRouteDerivation(Uint16& s) const
+{
+    // not supported
+    return false;
+}
+
+/*
+================================================================================
+NAME              : getOtherDerivation
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getOtherDerivation(String& s) const
+{
+    // not supported
+    return false;
+}
+
+/*
+================================================================================
+NAME              : getRouteMetric
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getRouteMetric(Uint16& s) const
+{
+    // not supported
+    return false;
+}
+
+/*
+================================================================================
+NAME              : getAdminDistance
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getAdminDistance(Uint16& s) const
+{
+    // not supported
+    return false;
+}
+
+/*
+================================================================================
+NAME              : getTypeOfRoute
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getTypeOfRoute(Uint16& s) const
+{
+    // not supported
+    return false;
+}
+
+/*
+================================================================================
+NAME              : getIsStatic
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getIsStatic(Boolean& s) const
+{
+    // not supported
+    return false;
+}
+
+/*
+================================================================================
+NAME              : getAddressType
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getAddressType(Uint16& i16) const
+{
+    // not supported
+    return false;
+}
+
+/*
+================================================================================
+NAME              : NextHopRouteList Constructor
+DESCRIPTION       : Build the list of IP Routes
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+NextHopRouteList::NextHopRouteList()
+{
+}
+
+/*
+================================================================================
+NAME              : NextHopRouteList Destructor
+DESCRIPTION       : None
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+NextHopRouteList::~NextHopRouteList()
+{
+}
+
+/*
+================================================================================
+NAME              : findRoute
+DESCRIPTION       : Find the requested IP Route based on the destination
+                  : address, destination mask, prefix length, and address type.
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopRouteList::findRoute(
+    const String &instanceID,
+    NextHopIPRoute &ipRInst) const
+{
+    // not supported
+    return false;
+}
+
+
+/*
+================================================================================
+NAME              : getRoute
+DESCRIPTION       : Get an IP Route based on an index.
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+NextHopIPRoute NextHopRouteList::getRoute(const int index) const
+{
+    // give a route (this should never get called since size will
+    // always be zero).
+    NextHopIPRoute i;
+    return i;
+}
+
+/*
+================================================================================
+NAME              : size
+DESCRIPTION       : Find the size of the Route List.
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+int NextHopRouteList::size() const
 {
     return 0;
 }

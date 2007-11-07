@@ -534,6 +534,16 @@ class PG_IPRoute : CIM_IPRoute {
 };
 
 
+// ==================================================================
+//    PG_NextHopIPRoute
+// ==================================================================
+        [Version ("0.6.0"), Description (
+         "This class is used to make concrete instances of the "
+         "abstract class CIM_NextHopIPRoute. ") ]
+class PG_NextHopIPRoute : CIM_NextHopIPRoute {
+};
+
+
 // ===================================================================
 // end of file
 // ===================================================================

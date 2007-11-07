@@ -96,12 +96,16 @@ static const CIMName PROPERTY_OTHER_TYPE_DESCRIPTION     = CIMName(
 // Properties in CIM_IProtocolEndpoint
 
 static const CIMName PROPERTY_ADDRESS                    = CIMName("Address");
+static const CIMName PROPERTY_IPV4_ADDRESS = CIMName("IPv4Address");
+static const CIMName PROPERTY_IPV6_ADDRESS = CIMName("IPv6Address");
+static const CIMName PROPERTY_PREFIX_LENGTH = CIMName("PrefixLength");
 static const CIMName PROPERTY_SUBNET_MASK                = CIMName(
     "SubnetMask");
 static const CIMName PROPERTY_ADDRESS_TYPE               = CIMName(
     "AddressType");
 static const CIMName PROPERTY_IP_VERSION_SUPPORT         = CIMName(
     "IPVersionSupport");
+static const CIMName PROPERTY_PROTOCOL_IF_TYPE = CIMName("ProtocolIFType");
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -573,6 +577,7 @@ CIMInstance IPPEpProvider::_constructInstance(
 
   String s;
   Uint16 i16;
+  Uint8 i8;
   CIMDateTime d;
 
   CIMInstance inst(className);
@@ -666,9 +671,27 @@ CIMInstance IPPEpProvider::_constructInstance(
   if (_ipif.getAddress(s))
     inst.addProperty(CIMProperty(PROPERTY_ADDRESS,s));
 
+//   string IPv4Address
+    if (_ipif.getIPv4Address(s))
+    {
+        inst.addProperty(CIMProperty(PROPERTY_IPV4_ADDRESS,s));
+    }
+
+//   string IPv6Address
+    if (_ipif.getIPv6Address(s))
+    {
+        inst.addProperty(CIMProperty(PROPERTY_IPV6_ADDRESS,s));
+    }  
+
 //   string SubnetMask
   if (_ipif.getSubnetMask(s))
     inst.addProperty(CIMProperty(PROPERTY_SUBNET_MASK,s));
+
+//   uint8 PrefixLength
+    if (_ipif.getPrefixLength(i8))
+    {
+        inst.addProperty(CIMProperty(PROPERTY_PREFIX_LENGTH,i8));
+    }
 
 //   uint16 AddressType
   if (_ipif.getAddressType(i16))
@@ -677,6 +700,12 @@ CIMInstance IPPEpProvider::_constructInstance(
 //   uint16 IPVersionSupport
   if (_ipif.getIPVersionSupport(i16))
     inst.addProperty(CIMProperty(PROPERTY_IP_VERSION_SUPPORT,i16));
+
+//   uint16 ProtocolIFType
+    if (_ipif.getProtocolIFType(i16))
+    {
+        inst.addProperty(CIMProperty(PROPERTY_PROTOCOL_IF_TYPE,i16));
+    }
 
 #ifdef DEBUG
   cout << "IPPEpProvider::_constructInstance() -- done" << endl;

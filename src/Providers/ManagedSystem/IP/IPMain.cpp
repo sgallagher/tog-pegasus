@@ -34,6 +34,7 @@
 #include "IPPEpProvider.h"
 #include "BIPTLEpProvider.h"
 #include "IPRouteProvider.h"
+#include "NextHopIPRouteProvider.h"
 //
 // Required to build this provider from SDK
 //
@@ -53,5 +54,16 @@ extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(String &name)
         return new BIPTLEpProvider;
     else if (name == "IPRouteProvider")
         return new IPRouteProvider;
-    else return 0;
+    else 
+    {
+        if (name == "NextHopIPRouteProvider")
+        {
+            return new NextHopIPRouteProvider;
+        }
+        else 
+        {
+            return 0;
+        }
+    }
 }
+

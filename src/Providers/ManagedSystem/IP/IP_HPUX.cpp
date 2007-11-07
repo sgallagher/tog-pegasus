@@ -271,7 +271,76 @@ Boolean IPInterface::getAddress(String& s) const
 
 /*
 ================================================================================
-NAME              : getSubnetMask
+NAME              : getIPv4Address.
+DESCRIPTION       : The IPv4 address that this ProtocolEndpoint represents.
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean IPInterface::getIPv4Address(String& s) const
+{
+    if (String::equal(_protocol,PROTOCOL_IPV4))
+    {
+        s = _address;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+/*
+================================================================================
+NAME              : getIPv6Address.
+DESCRIPTION       : The IPv6 address that this ProtocolEndpoint represents.
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean IPInterface::getIPv6Address(String& s) const
+{
+    if (String::equal(_protocol,PROTOCOL_IPV6))
+    {
+        s = _address;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+/*
+================================================================================
+NAME              : getPrefixLength.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean IPInterface::getPrefixLength(Uint8& i8) const
+{
+    if (String::equal(_protocol,PROTOCOL_IPV6))
+    {
+        i8 = _prefixLength;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+/*
+================================================================================
+NAME              : getSubnetMask.
 DESCRIPTION       :
 ASSUMPTIONS       :
 PRE-CONDITIONS    :
@@ -281,8 +350,15 @@ NOTES             :
 */
 Boolean IPInterface::getSubnetMask(String& s) const
 {
-    s = _subnetMask;
-    return true;
+    if (String::equal(_protocol,PROTOCOL_IPV4))
+    {
+        s = _subnetMask;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 /*
@@ -324,7 +400,7 @@ DESCRIPTION       :
 ASSUMPTIONS       :
 PRE-CONDITIONS    :
 POST-CONDITIONS   :
-NOTES             :
+NOTES             : 
 ================================================================================
 */
 Boolean IPInterface::getIPVersionSupport(Uint16& i16) const
@@ -348,6 +424,52 @@ Boolean IPInterface::getIPVersionSupport(Uint16& i16) const
     else return false;
 
 }
+
+/*
+================================================================================
+NAME              : getProtocolIFType
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean IPInterface::getProtocolIFType(Uint16& i16) const
+{
+    // From CIM v2.6.0 MOF for CIM_IPProtocolEndpoint.ProtocolIFType:
+    //    ValueMap { "1", "225..4095", "4096", "4097", "4098",
+    //       "4301..32767", "32768.." },
+    //    Values { "Other", "IANA Reserved", "IPv4", "IPv6", "IPv4/v6",
+    //       "DMTF Reserved", "Vendor Reserved" }]
+
+    if (String::equal(_protocol,PROTOCOL_IPV4))
+    {
+        i16 = 4096;  // IPv4 Only.
+        return true;
+    }
+    else 
+    {
+        if (String::equal(_protocol,PROTOCOL_IPV6))
+        {
+            i16 = 4097;  // IPv6 Only.
+            return true;
+        }
+        else 
+        {
+            if (String::equal(_protocol,PROTOCOL_IPV4_V6))
+            {
+                i16 = 4098;  // IPv4/v6.
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+} 
+
 
 /*
 ================================================================================
@@ -452,6 +574,21 @@ void IPInterface::set_address(const String& addr)
 
 /*
 ================================================================================
+NAME              : set_prefixLength.
+DESCRIPTION       : Platform-specific routine to set IPv6 PrefixLength.
+ASSUMPTIONS       : 
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+void IPInterface::set_prefixLength(const Uint8& pl)
+{
+    _prefixLength = pl;
+}
+
+/*
+================================================================================
 NAME              : set_subnetMask
 DESCRIPTION       : Platform-specific routine to set the Subnet Mask
 ASSUMPTIONS       : None
@@ -507,24 +644,34 @@ NOTES             :
 */
 InterfaceList::InterfaceList()
 {
-    int fd,                      // file descriptor
-        i, j,                    // general purpose indicies
-        numif,                   // number of interfaces
-        numip;                   // number of IP addresses
-    struct ifconf ifconf;        // interface configuration
-    unsigned int len;            // length of get_mib_info() buffer
-    struct nmparms parms;        // get_mib_info() arguments
-    mib_ipAdEnt * addr_buf;      // IP Address Buffer
-    struct in_addr t;            // temporary variable for extracting
-                                 //     IP Address Buffer contents
-    struct sockaddr_in *sin;     // temporary variable for extracting
-                                 //     interface name
+    int fd,                       // file descriptors
+        i, j,                     // general purpose indicies
+        numif,                    // number of interfaces
+        numip;                    // number of IP addresses
+    struct ifconf ifconf;         // interface configuration for IPv4
+    unsigned int len;             // length of get_mib_info() buffer
+    struct nmparms parms;         // get_mib_info() arguments
+    mib_ipAdEnt * addr_buf;       // IP Address Buffer
+    struct in_addr t;             // temporary variable for extracting
+                                  //     IP Address Buffer contents
+    struct sockaddr_in *sin;      // temporary variable for extracting
+                                  //     interface name for IPv4
+#ifdef PEGASUS_ENABLE_IPV6
+    struct if_laddrconf ifconf6;  // Interface configuration for IPv6.
+    mib_ipv6AddrEnt * addr6_buf;  // IPv6 Address Buffer.
+    struct in6_addr t6;           // Temporary variable for extracting
+                                  // IPv6 Address Buffer contents.
+    struct sockaddr_in6 *sin6;    // Temporary variable for extracting
+                                  // interface name for IPv6.
+    int numif6, numip6;           // equivalent for IPv6.
+    Boolean _ipv6Present=false;   // Flag to check if ipv6 is available.
+#endif
 
 #ifdef DEBUG
     cout << "InterfaceList::InterfaceList()" << endl;
 #endif
 
-    // Load the interface name structures.
+    // Load the IPv4 interface name structures.
 
     if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
     {
@@ -565,12 +712,71 @@ InterfaceList::InterfaceList()
 
     close(fd);
 
-    if ((fd = open_mib("/dev/ip", O_RDONLY, 0, 0)) < 0)
+#ifdef PEGASUS_ENABLE_IPV6
+    // Load the IPv6 interface name structures.
+
+    if ((fd = socket(AF_INET6, SOCK_DGRAM, 0)) >= 0)
     {
-        free (ifconf.ifc_req);
-        throw CIMOperationFailedException(
-            "Can't open /dev/ip: " + String(strerror(errno)));
+        if (ioctl(fd, SIOCGLIFNUM, &numif6) < 0)
+        {
+            free (ifconf.ifc_req);
+            throw CIMOperationFailedException(
+                "Error in ioctl() request SIOCGIFNUM: "
+                + String(strerror(errno)));
+        }
+
+        ifconf6.iflc_len = numif6 * sizeof (struct if_laddrreq);
+        ifconf6.iflc_req = (struct if_laddrreq *) calloc(
+            numif6, sizeof (struct if_laddrreq));
+
+        if (ioctl (fd, SIOCGLIFCONF, &ifconf6) < 0)
+        {
+            free (ifconf.ifc_req);
+            free (ifconf6.iflc_req);
+            throw CIMOperationFailedException(
+                "Error in ioctl() request SIOCGIFCONF: " 
+                + String(strerror(errno)));
+        }
     }
+    else
+    {
+        if (errno != EPROTONOSUPPORT)
+        {
+            free (ifconf.ifc_req);
+            throw CIMOperationFailedException(
+                "Error in opening socket: " + String(strerror(errno)));
+        }
+    }
+
+    close(fd);
+
+    if ((fd = open_mib("/dev/ip6", O_RDONLY, 0, 0)) == -1)
+    {
+        // Failed to open the /dev/ip6 device file. Therefore the IPv6 product
+        // is not installed on the system. An application should use the
+        // existing IPv4 code.
+        free (ifconf6.iflc_req);
+#endif
+
+        if ((fd = open_mib("/dev/ip", O_RDONLY, 0, 0)) < 0)
+        {
+            free (ifconf.ifc_req);
+            throw CIMOperationFailedException(
+                "Can't open /dev/ip: " + String(strerror(errno)));
+        }
+
+#ifdef PEGASUS_ENABLE_IPV6
+    }
+    else
+    {
+        // The /dev/ip6 device file does exists, so the IPv6 product
+        // is probably installed. IPv6 APIs can handle both IPv4 and
+        // IPv6 traffic.
+        _ipv6Present = true;
+    }
+#endif
+
+    // IPv4
 
     parms.objid = ID_ipAddrNumEnt;
     parms.buffer = (char *) &numip;
@@ -580,6 +786,9 @@ InterfaceList::InterfaceList()
     if (get_mib_info (fd, &parms) < 0)
     {
         free(ifconf.ifc_req);
+#ifdef PEGASUS_ENABLE_IPV6
+        free(ifconf6.iflc_req);
+#endif
         throw CIMOperationFailedException(
             "Can't get ID_ipAddrNumEnt from get_mib_info(): " +
                 String(strerror(errno)));
@@ -590,6 +799,9 @@ InterfaceList::InterfaceList()
     if (addr_buf == 0)
     {
         free (ifconf.ifc_req);
+#ifdef PEGASUS_ENABLE_IPV6
+        free (ifconf6.iflc_req);
+#endif
         free (addr_buf);
         throw CIMOperationFailedException(
             "Error in allocating space for the kernel interface table: " +
@@ -604,13 +816,16 @@ InterfaceList::InterfaceList()
     if (get_mib_info (fd, &parms) < 0)
     {
         free(ifconf.ifc_req);
+#ifdef PEGASUS_ENABLE_IPV6
+        free (ifconf6.iflc_req);
+#endif
         free(addr_buf);
         throw CIMOperationFailedException(
             "Can't get ID_ipAddrTable from get_mib_info(): " +
                 String(strerror(errno)));
     }
 
-    // Create the interface list entries
+    // Create the IPv4 interface list entries
 
     for (i=0; i < numip ; i++)
     {
@@ -619,7 +834,6 @@ InterfaceList::InterfaceList()
         t.s_addr = addr_buf[i].Addr;
         _ipif.set_address(inet_ntoa(t));
 
-        // ATTN-LEW-2002-07-30: Enhance this to deal with IPv6 too.
         _ipif.set_protocol(PROTOCOL_IPV4);
 
         for (j = 0; j < numif; j++)
@@ -639,9 +853,116 @@ InterfaceList::InterfaceList()
 
     } /* for */
 
-    close_mib(fd);
+    // Freeing up structures not needed anymore.
     free(ifconf.ifc_req);
     free(addr_buf);
+
+#ifdef PEGASUS_ENABLE_IPV6
+    if (_ipv6Present)
+    {
+        // IPv6.
+
+        parms.objid = ID_ipv6AddrTableNumEnt;
+        parms.buffer = (char *) &numip6;
+        len = sizeof(numip6);
+        parms.len = &len;
+
+        if (get_mib_info (fd, &parms) < 0)
+        {
+            free(ifconf6.iflc_req);
+            throw CIMOperationFailedException(
+                "Can't get ID_ipv6AddrTableNumEnt from get_mib_info(): " +
+                    String(strerror(errno)));
+        }  
+
+        addr6_buf = (mib_ipv6AddrEnt *)malloc(numip6*sizeof(mib_ipv6AddrEnt));
+
+        if (addr6_buf == 0)
+        {
+            free (ifconf6.iflc_req);
+            free (addr6_buf);
+            throw CIMOperationFailedException(
+                "Error in allocating space for the kernel " +
+                String("IPv6 interface table: ") +
+                String(strerror(errno)));
+        }
+
+        parms.objid = ID_ipv6AddrTable;
+        parms.buffer = (char *) addr6_buf;
+        len = numip6 * sizeof(mib_ipv6AddrEnt);
+        parms.len = &len;
+
+        if (get_mib_info (fd, &parms) < 0)
+        {
+            free(ifconf6.iflc_req);
+            free(addr6_buf);
+            throw CIMOperationFailedException(
+                "Can't get ID_ipv6AddrTable from get_mib_info(): " +
+                    String(strerror(errno)));
+        }
+
+        // Create the IPv6 interface list entries.
+
+        for (i=0; i < numip6 ; i++)
+        {
+            IPInterface _ipif;
+
+            t6 = addr6_buf[i].ipv6AddrAddress;
+            char _dest[INET6_ADDRSTRLEN];
+            if (inet_ntop(AF_INET6, &t6, _dest, INET6_ADDRSTRLEN) < 0)
+            {
+                free(ifconf6.iflc_req);
+                free(addr6_buf);
+                throw CIMOperationFailedException(
+                    "Can't convert number to string in IPv6 format. " +
+                        String(strerror(errno)));
+            }
+
+            _ipif.set_address(_dest);
+            _ipif.set_protocol(PROTOCOL_IPV6);
+            _ipif.set_prefixLength((Uint8)addr6_buf[i].ipv6AddrPfxLength);
+
+            for (j = 0; j < numif6; j++)
+            {
+                sin6 = reinterpret_cast<struct sockaddr_in6*>(
+                    &ifconf6.iflc_req[j].iflr_addr);
+ 
+                char _addr1[INET6_ADDRSTRLEN], _addr2[INET6_ADDRSTRLEN];
+                if (inet_ntop(
+                    AF_INET6, 
+                    t6.s6_addr, 
+                    _addr1,
+                    INET6_ADDRSTRLEN) < 0 ||
+                    inet_ntop(
+                    AF_INET6, 
+                    sin6->sin6_addr.s6_addr, 
+                    _addr2, 
+                    INET6_ADDRSTRLEN) < 0)
+                {
+                    free(ifconf6.iflc_req);
+                    free(addr6_buf);
+                    throw CIMOperationFailedException(
+                        "Can't convert number to string in IPv6 format. " +
+                            String(strerror(errno)));
+                }
+
+                if ( strcmp(_addr1, _addr2) == 0 )
+                { 
+                    _ipif.set_simpleIfName(ifconf6.iflc_req[j].iflr_name);
+                }
+            } 
+        
+            _ifl.push_back(_ipif);   // Add another IP interface to the list.
+
+        }
+
+        free(ifconf6.iflc_req);
+        free(addr6_buf);
+
+    }
+#endif
+
+    close_mib(fd);
 
 #ifdef DEBUG
     cout << "InterfaceList::InterfaceList() -- done" << endl;
@@ -852,8 +1173,8 @@ NOTES             :
 */
 Boolean IPRoute::getDestinationMask(String& s) const
 {
-  s = _destMask;
-  return true;
+    s = _destMask;
+    return true;
 }
 
 /*
@@ -1172,5 +1493,694 @@ NOTES             :
 int RouteList::size() const
 {
     return _iprl.size();
+}
+
+
+/////////////////////////////////////////////////////////////////////////
+
+NextHopIPRoute::NextHopIPRoute()
+{
+}
+
+NextHopIPRoute::~NextHopIPRoute()
+{
+}
+
+/*
+================================================================================
+NAME              : getCaption.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getCaption(String& s) const
+{
+  s = _destAddr;
+  return true;
+}
+
+/*
+================================================================================
+NAME              : getDescription.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getDescription(String& s) const
+{
+  s = "Next Hop IP Route for Destination Address: " + 
+      _destAddr +
+      " (" + 
+      _protocolType + 
+      ")";
+  return true;
+}
+
+/*
+================================================================================
+NAME              : getInstallDate.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getInstallDate(CIMDateTime& d) const
+{
+  // Not supported. This property is inherited from
+  // CIM_ManagedSystemElement, but has no useful meaning
+  // for an IP Route.
+
+  return false;
+}
+
+/*
+================================================================================
+NAME              : getName.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getName(String& s) const
+{
+  s = _destAddr;
+  return true;
+}
+
+/*
+================================================================================
+NAME              : getStatus.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getStatus(String& s) const
+{
+  // This property, inherited from CIM_ManagedSystemElement,
+  // is not relevant.
+
+  return false;
+}
+
+/*
+================================================================================
+NAME              : getInstanceID.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getInstanceID(String& s) const
+{
+    s = _destAddr;
+    return true;
+}
+
+/*
+================================================================================
+NAME              : getDestinationAddress.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getDestinationAddress(String& s) const
+{
+  s = _destAddr;
+  return true;
+}
+
+/*
+================================================================================
+NAME              : getDestinationMask.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getDestinationMask(String& s) const
+{
+    if (String::equal(_protocolType,PROTOCOL_IPV4))
+    {
+        s = _destMask;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+/*
+================================================================================
+NAME              : getPrefixLength.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getPrefixLength(Uint8& pl) const
+{
+    if (String::equal(_protocolType,PROTOCOL_IPV6))
+    {
+        pl = _prefixLength;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+/*
+================================================================================
+NAME              : getNextHop.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getNextHop(String& s) const
+{
+  s = _nextHop;
+  return true;
+}
+
+/*
+================================================================================
+NAME              : getRouteDerivation.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getRouteDerivation(Uint16& s) const
+{
+  // Don't know how to get this property.
+  return false;
+}
+
+/*
+================================================================================
+NAME              : getOtherDerivation.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getOtherDerivation(String& s) const
+{
+  // Don't know how to get this property.
+  return false;
+}
+
+/*
+================================================================================
+NAME              : getRouteMetric.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getRouteMetric(Uint16& s) const
+{
+  // Don't know how to get this property.
+  return false;
+}
+
+/*
+================================================================================
+NAME              : getAdminDistance.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getAdminDistance(Uint16& s) const
+{
+  // Don't know how to get this property.
+  return false;
+}
+
+/*
+================================================================================
+NAME              : getTypeOfRoute.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getTypeOfRoute(Uint16& s) const
+{
+  // Don't know how to get this property.
+  return false;
+}
+
+/*
+================================================================================
+NAME              : getIsStatic.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getIsStatic(Boolean& s) const
+{
+  // Don't know how to get this property.
+  return false;
+}
+
+/*
+================================================================================
+NAME              : getAddressType.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getAddressType(Uint16& i16) const
+{
+    // From CIM v2.6.0 MOF for CIM_IPRoute.AddressType:
+    //       ValueMap {"0", "1", "2"},
+    //       Values {"Unknown", "IPv4", "IPv6"} ]
+
+    if (String::equal(_protocolType,PROTOCOL_IPV4))
+    {
+        i16 = 1;  // IPv4
+        return true;
+    }
+    else 
+    {
+        if (String::equal(_protocolType,PROTOCOL_IPV6))
+        {
+            i16 = 2;  // IPv6
+            return true;
+        }
+        else 
+        {
+            return false;
+        }
+    }
+}
+
+/*
+================================================================================
+NAME              : set_destAddress.
+DESCRIPTION       : Platform-specific routine to set the IP Destination Address.
+ASSUMPTIONS       : None.
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+void NextHopIPRoute::set_destAddr(const String& addr)
+{
+    _destAddr = addr;
+}
+
+/*
+================================================================================
+NAME              : set_destMask.
+DESCRIPTION       : Platform-specific routine to set the IPv4 Destination Mask.
+ASSUMPTIONS       : _protocolType is IPv4.
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+void NextHopIPRoute::set_destMask(const String& dm)
+{
+    _destMask = dm;
+}
+
+/*
+================================================================================
+NAME              : set_prefixLength.
+DESCRIPTION       : Platform-specific routine to set the (IPv6) prefix length.
+ASSUMPTIONS       : _protocolType is IPv6.
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+void NextHopIPRoute::set_prefixLength(const Uint8& pl)
+{
+    _prefixLength = pl;
+}
+
+/*
+================================================================================
+NAME              : set_nextHop.
+DESCRIPTION       : Platform-specific routine to set the Next Hop Address.
+ASSUMPTIONS       : None.
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+void NextHopIPRoute::set_nextHop(const String& nh)
+{
+    _nextHop = nh;
+}
+
+/*
+================================================================================
+NAME              : set_protocolType.
+DESCRIPTION       : Platform-specific routine to set the Protocol Type.
+ASSUMPTIONS       : None.
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+void NextHopIPRoute::set_protocolType(const String& pt)
+{
+    _protocolType = pt;
+}
+
+/*
+================================================================================
+NAME              : NextHopRouteList Constructor.
+DESCRIPTION       : Build the list of IP Routes.
+ASSUMPTIONS       : None.
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+NextHopRouteList::NextHopRouteList()
+{
+    int fd,                          // File descriptor.
+        i,                           // General purpose indicies.
+        count;                       // Number of raw IP Routes.
+    struct nmparms parms;            // Get_mib_info() arguments.
+    mib_ipRouteEnt * route_buf;      // IPv4 Route Buffer.
+    unsigned int len;                // Length of get_mib_info() buffer.
+    struct in_addr t;                // Temporary variable for extracting
+                                     // IPv4 route buffer contents.
+
+#ifdef PEGASUS_ENABLE_IPV6
+    mib_ipv6RouteEnt * route6_buf;   // IPv6 Route Buffer.
+    struct in6_addr t6;              // Temporary variable for extracting
+                                     // IPv6 route buffer contents.
+    Boolean _ipv6Present = false;    // Flag to check if ipv6 is available.
+#endif
+
+#ifdef DEBUG
+    cout << "NextHopRouteList::NextHopRouteList()" << endl;
+#endif
+
+    // Load the interface name structures.
+
+#ifdef PEGASUS_ENABLE_IPV6
+    if ((fd = open_mib("/dev/ip6", O_RDONLY, 0, 0)) == -1)
+    {
+        // Failed to open the /dev/ip6 device file. Therefore the IPv6 product
+        // is not installed on the system. An application should use the
+        // existing IPv4 code.
+#endif
+
+        if ((fd = open_mib("/dev/ip", O_RDONLY, 0, 0)) < 0)
+        {
+            throw CIMOperationFailedException(
+                "Can't open /dev/ip: " + String(strerror(errno)));
+        }
+
+#ifdef PEGASUS_ENABLE_IPV6
+    }
+    else
+    { 
+        // The /dev/ip6 device file does exists, so the IPv6 product 
+        // is probably installed. IPv6 APIs can handle both IPv4 and
+        // IPv6 traffic.
+        _ipv6Present = true;
+    }
+#endif
+
+    // IPv4.
+
+    parms.objid = ID_ipRouteNumEnt;
+    parms.buffer = (char *) &count;
+    len = sizeof(count);
+    parms.len = (unsigned int *) &len;
+
+    if (get_mib_info (fd, &parms) < 0)
+    {
+        throw CIMOperationFailedException(
+            "Can't get ID_ipRouteNumEnt from get_mib_info(): " +
+            String(strerror(errno)));
+    }
+
+    route_buf = (mib_ipRouteEnt *)malloc(count*sizeof(mib_ipRouteEnt));
+
+    if (route_buf == 0)
+    {
+        free(route_buf);
+        throw CIMOperationFailedException(
+            "Error in allocating space for the kernel interface table: " +
+            String(strerror(errno)));
+    }
+
+    parms.objid = ID_ipRouteTable;
+    parms.buffer = (char *) route_buf;
+    len = count * sizeof(mib_ipRouteEnt);
+    parms.len = &len;
+
+    if (get_mib_info (fd, &parms) < 0)
+    {
+        free(route_buf);
+        throw CIMOperationFailedException(
+            "Can't get ID_ipRouteTable from get_mib_info(): " +
+            String(strerror(errno)));
+    }
+
+    // Create the IPv4 Route List entries.
+
+    for (i=0; i < count ; i++)
+    {
+        NextHopIPRoute _ipr;
+
+        // check to see that this is a valid type to represent.
+        if (route_buf[i].Type == 3 || route_buf[i].Type == 4)
+        {
+            _ipr.set_protocolType(PROTOCOL_IPV4);
+
+            t.s_addr = route_buf[i].Dest;
+            _ipr.set_destAddr(inet_ntoa(t));
+
+            t.s_addr = route_buf[i].Mask;
+            _ipr.set_destMask(inet_ntoa(t));
+
+            t.s_addr = route_buf[i].NextHop;
+            _ipr.set_nextHop(inet_ntoa(t));
+
+            _nhiprl.push_back(_ipr);   // Add another IP Route to the list.
+        }
+
+    } 
+
+    free(route_buf);
+
+#ifdef PEGASUS_ENABLE_IPV6
+    if (_ipv6Present)
+    {
+        // IPv6.
+
+        parms.objid = ID_ipv6RouteTableNumEnt;
+        parms.buffer = (char *) &count;
+        len = sizeof(count);
+        parms.len = (unsigned int *) &len;
+
+        if (get_mib_info (fd, &parms) < 0)
+        {
+            throw CIMOperationFailedException(
+                "Can't get ID_ipRouteNumEnt from get_mib_info(): " +
+                String(strerror(errno)));
+        }
+
+        route6_buf = (mib_ipv6RouteEnt *)malloc(count*sizeof(mib_ipv6RouteEnt));
+
+        if (route6_buf == 0)
+        {
+            free(route6_buf);
+            throw CIMOperationFailedException(
+                "Error in allocating space for the kernel interface table: " +
+                String(strerror(errno)));
+        }
+
+        parms.objid = ID_ipv6RouteTable;
+        parms.buffer = (char *) route6_buf;
+        len = count * sizeof(mib_ipv6RouteEnt);
+        parms.len = &len;
+
+        if (get_mib_info (fd, &parms) < 0)
+        {
+            free(route6_buf);
+            throw CIMOperationFailedException(
+                "Can't get ID_ipRouteTable from get_mib_info(): " +
+                String(strerror(errno)));
+        }
+
+        // Create the IPv6 Route List entries.
+
+        for (i=0; i < count ; i++)
+        {
+            NextHopIPRoute _nhipr;
+
+            // check to see that this is a valid type to represent.
+            if (route6_buf[i].ipv6RouteType == 3 ||
+                route6_buf[i].ipv6RouteType == 4)
+            {
+                _nhipr.set_protocolType(PROTOCOL_IPV6);
+
+                char _dest[INET6_ADDRSTRLEN];
+                t6 = route6_buf[i].ipv6RouteDest;
+                _nhipr.set_destAddr(
+                    inet_ntop(AF_INET6, &t6, _dest, INET6_ADDRSTRLEN));
+
+                _nhipr.set_prefixLength(
+                    (Uint8)route6_buf[i].ipv6RoutePfxLength);
+
+                t6 = route6_buf[i].ipv6RouteNextHop;
+                _nhipr.set_nextHop(
+                    inet_ntop(AF_INET6, &t6, _dest, INET6_ADDRSTRLEN));
+
+                _nhiprl.push_back(_nhipr); // Add another IP Route to the list.
+            }
+
+        }
+
+        free(route6_buf);
+
+    }
+#endif
+
+    close_mib(fd);
+
+#ifdef DEBUG
+    cout << "NextHopRouteList::NextHopRouteList() -- done" << endl;
+#endif
+
+}
+
+/*
+================================================================================
+NAME              : NextHopRouteList Destructor.
+DESCRIPTION       : None.
+ASSUMPTIONS       : None.
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+NextHopRouteList::~NextHopRouteList()
+{
+}
+
+
+/*
+================================================================================
+NAME              : findRoute.
+DESCRIPTION       : Find the requested IP Route based on the destination
+                  : address, destination mask, prefix length, and address type.
+ASSUMPTIONS       : None.
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopRouteList::findRoute(
+    const String &instanceID,
+    NextHopIPRoute &ipRInst) const
+{
+    int i;
+
+    for (i = 0; i < _nhiprl.size(); i++)
+    {
+        String _instID;
+
+        if (_nhiprl[i].getInstanceID(_instID) &&
+            String::equal(_instID,instanceID))
+        {
+            ipRInst = _nhiprl[i];
+            return true;
+        }
+    }
+
+#ifdef DEBUG
+    cout << "NextHopRouteList::findRoute(): NOT FOUND instanceID=" 
+         << instanceID << endl;
+#endif
+
+    // IP Route not found.
+    return false;
+}
+
+
+/*
+================================================================================
+NAME              : getRoute.
+DESCRIPTION       : Get an IP Route based on an index.
+ASSUMPTIONS       : None.
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+NextHopIPRoute NextHopRouteList::getRoute(const int index) const
+{
+    return _nhiprl[index];
+}
+
+/*
+================================================================================
+NAME              : size.
+DESCRIPTION       : Find the size of the Route List.
+ASSUMPTIONS       : None.
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+int NextHopRouteList::size() const
+{
+    return _nhiprl.size();
 }
 

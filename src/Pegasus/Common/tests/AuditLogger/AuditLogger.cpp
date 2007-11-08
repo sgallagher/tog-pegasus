@@ -39,6 +39,11 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/AuditLogger.h>
 
+#ifdef PEGASUS_OS_ZOS
+#include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
+#include <Pegasus/Common/Audit_zOS_SMF.h>
+#endif
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
@@ -48,6 +53,13 @@ typedef void (*PEGASUS_AUDITLOGINITIALIZE_CALLBACK_T)();
 
 const String TEST_USER("guest");
 const String TEST_IP("127.0.0.1");
+
+#ifdef PEGASUS_OS_ZOS
+const String MASTER_FILE("/src/Pegasus/Common"
+                 "/tests/AuditLogger/masterOutput_zOS");
+#else
+const String MASTER_FILE("/src/Pegasus/Common/tests/AuditLogger/masterOutput");
+#endif
 
 CIMInstance _createModuleInstance(
     const String & name,
@@ -87,6 +99,92 @@ void testLogCurrentConf()
     AuditLogger::logCurrentConfig(propertyNames, propertyValues);
 }
 
+#ifdef PEGASUS_OS_ZOS
+static void printSMFRecord (int subtype, char* record )
+{
+    char printLine[3][80];
+    int p;
+    int len;
+    char item;
+    int total = ((_smf86_header *)record)->SMF86LEN;
+
+    const char* pegasusHomeDir = getenv ("PEGASUS_HOME");
+
+    if (pegasusHomeDir == NULL)
+    {
+        pegasusHomeDir = "./";
+    }
+
+    String auditTestLogFile (pegasusHomeDir);
+    auditTestLogFile.append("/AuditTest.log");
+
+    FILE * _auditTestLogFileHandle =
+        fopen(auditTestLogFile.getCString(), "a+");
+
+    setEBCDICEncoding(fileno(_auditTestLogFileHandle));
+
+    for (int i = 0; i <= total;i=i+1)
+    {
+        p = i%80;
+
+        if (p == 0 && i > 0 ||
+            i == total )
+        {
+            for (int y = 0; y < 3; y=y+1)
+            {
+                if (p == 0)
+                {
+                    len = 80;
+                } else
+                {
+                    len = p;
+                }
+
+                for (int x = 0; x < len; x=x+1)
+                {
+                    if (y == 0)
+                    {
+                        fprintf(_auditTestLogFileHandle,"%c",printLine[y][x]);
+                    }
+                    else
+                    {
+                        fprintf( _auditTestLogFileHandle,"%1X",printLine[y][x]);
+                    }
+                }
+                fprintf(_auditTestLogFileHandle,"\n");
+            }
+            fprintf(_auditTestLogFileHandle, "\n");
+        }
+
+        // delete CIM software level, MVS software level, 
+        // System and Sysplex name, Process ID, and Thread ID
+        // to be able to comparable with master result
+        if (i > 51 && i < 110 )
+        {
+          record[i] = 0;
+        }
+
+        item = record[i];
+        __e2a_l(&item,1);
+
+        if (item < 32 || item > 126 )
+        {
+            printLine[0][p] = '.';
+        } else
+        {
+            printLine[0][p] = item;
+        }
+
+        printLine[1][p] = record[i]/16;
+        printLine[2][p] = record[i]%16;
+
+    }
+
+    fclose(_auditTestLogFileHandle);
+}
+
+#else
+
 static void writeAuditLogToFile(
     AuditLogger::AuditType auditType, AuditLogger::AuditSubType auditSubType,
     AuditLogger::AuditEvent auditEvent,
@@ -111,6 +209,7 @@ static void writeAuditLogToFile(
    fclose(_auditTestLogFileHandle);
 }
 
+#endif
 void testLogCurrentRegProvider()
 {
     Array<CIMInstance> instances;
@@ -385,7 +484,11 @@ int main(int argc, char** argv)
 {
 #ifdef PEGASUS_ENABLE_AUDIT_LOGGER
 
-    AuditLogger::writeAuditLogToFileCallback(writeAuditLogToFile);
+#ifdef PEGASUS_OS_ZOS
+    AuditLogger::setAuditLogWriterCallback(printSMFRecord);
+#else
+    AuditLogger::setAuditLogWriterCallback(writeAuditLogToFile);
+#endif
 
     const char* pegasusHomeDir = getenv ("PEGASUS_HOME");
 
@@ -394,10 +497,19 @@ int main(int argc, char** argv)
 
     System::removeFile(auditTestLogFile.getCString());
 
+#ifdef PEGASUS_OS_ZOS
+    // set file encoding to EBCDIC, because the z/OS master file is
+    // in EBCDIC and we are running in ASCII.
+    FILE * _auditTestLogFileHandle =
+        fopen(auditTestLogFile.getCString(), "a+");
+    setEBCDICEncoding(fileno(_auditTestLogFileHandle));
+    fclose(_auditTestLogFileHandle);
+#endif 
+
     const char * masterDir = getenv("PEGASUS_ROOT");
 
     String masterFile (masterDir);
-    masterFile.append("/src/Pegasus/Common/tests/AuditLogger/masterOutput");
+    masterFile.append(MASTER_FILE);
 
     try
     {

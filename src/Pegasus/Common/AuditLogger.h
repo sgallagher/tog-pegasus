@@ -282,8 +282,13 @@ public:
 
     typedef void (*PEGASUS_AUDITLOGINITIALIZE_CALLBACK_T)();
 
+#ifdef PEGASUS_OS_ZOS
+    typedef void (*PEGASUS_AUDITLOG_CALLBACK_T) 
+        (int subtype, char* record );
+#else
     typedef void (*PEGASUS_AUDITLOG_CALLBACK_T) (AuditType,
         AuditSubType, AuditEvent, Uint32, MessageLoaderParms &);
+#endif
 
     /**
         Registers an audit log initialize callback
@@ -305,11 +310,11 @@ public:
     static Boolean isEnabled();
 
     /**
-        Registers writing audit messages to a file callback
+        Registers audit messages callback
         @param writeAuditMessageCallback - The callback function to write
                                            audit message
     */
-    static void writeAuditLogToFileCallback(
+    static void setAuditLogWriterCallback(
         PEGASUS_AUDITLOG_CALLBACK_T writeAuditMessageCallback);
 
 private:
@@ -324,7 +329,29 @@ private:
     /**
         The function to write audit messages
     */
-    static PEGASUS_AUDITLOG_CALLBACK_T _writeAuditMessageToFile;
+    static PEGASUS_AUDITLOG_CALLBACK_T _writeAuditMessage;
+
+#ifdef PEGASUS_OS_ZOS
+
+    static inline void _writeAuthenticationRecord( 
+        unsigned short authMode,
+        String userID,
+        Boolean isAuthenticated,
+        String clientIP );
+
+    static inline void _writeCIMOperationRecord(
+        unsigned short cimOpType,
+        String userID,
+        unsigned short cimStatusCode,
+        String clientIP,
+        String operName,
+        String objPath,
+        String nameSpace,
+        String provName,
+        String provModName
+        );
+
+#else
 
     /** Default function to write a auditMessage to a file
         @param AuditType - Type of audit record (Authentication etc)
@@ -337,7 +364,7 @@ private:
         "WARNING"
         @param msgParms - The message loader parameters
     */
-    static void _writeAuditMessage(
+    static void _writeAuditMessageToLog(
         AuditType auditType,
         AuditSubType auditSubType,
         AuditEvent auditEvent,
@@ -349,6 +376,8 @@ private:
         @param moduleStatus - The module status
     */
     static String _getModuleStatusValue(const Array<Uint16>  moduleStatus);
+
+#endif
 
 };
 

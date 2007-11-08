@@ -1,36 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2007////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/HostAddress.h>
-#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -41,7 +42,7 @@ PEGASUS_NAMESPACE_BEGIN
 */
 
 /*
-    Converts given "src" text address (Ex: 127.0.0.1) to equivalent binary form
+    Converts given "src" text address (Ex: 127.0.0.1) to equivalent binary form 
     and stores in "dst"  buffer (Ex 0x7f000001). Returns 1 if given ipv4 address
     is valid or returns -1 if invalid. Returns value in network byte order.
 */
@@ -108,7 +109,7 @@ static int _inet_ptonv4(const char *src, void *dst)
 }
 
 /*
-     Converts given ipv6 text address (ex. ::1) to binary form and stores
+     Converts given ipv6 text address (ex. ::1) to binary form and stroes
      in "dst" buffer (ex. 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1). Returns 1
      if src ipv6 address is valid or returns -1 if invalid. Returns value
      in network byte order.
@@ -118,7 +119,7 @@ static int _inet_ptonv6(const char *src, void *dst)
     int ccIndex = -1;
     int sNumber = 0;
     Uint16 sValues[8] = {0};
-    Boolean ipv4Mapped = false;
+    Boolean ipv4Mapped = false; 
 
     while (*src && sNumber < 8)
     {
@@ -127,7 +128,7 @@ static int _inet_ptonv6(const char *src, void *dst)
             if (!*++src)
             {
                 return 0;
-            }
+            } 
             if (*src == ':')
             {
                 if (ccIndex != -1)
@@ -138,23 +139,23 @@ static int _inet_ptonv6(const char *src, void *dst)
                 if (!*++src)
                 {
                     break;
-                }
-            }
-        }
+                }   
+            } 
+        } 
         if ((isalpha(*src) && tolower(*src) <= 'f') || isdigit(*src))
         {
             // Check for ipv4 compatible ipv6 or ipv4 mapped ipv6 addresses
             if(!strchr(src, ':') && strchr(src, '.'))
             {
-                if ( _inet_ptonv4 (src, sValues + sNumber) != 1)
+                if ( _inet_ptonv4 (src, sValues + sNumber) != 1) 
                 {
                     return 0;
-                }
-                sNumber += 2;
+                }  
+                sNumber += 2;              
                 ipv4Mapped = true;
                 break;
             }
-            int chars = 0;
+            int chars = 0;            
             while (*src && *src != ':')
             {
                 if (chars++ == 4)
@@ -175,10 +176,10 @@ static int _inet_ptonv6(const char *src, void *dst)
         else
         {
             return 0;
-        }
+        }  
     }
 
-    if ((!ipv4Mapped &&*src) || (ccIndex == -1 && sNumber < 8) ||
+    if ((!ipv4Mapped &&*src) || (ccIndex == -1 && sNumber < 8) || 
         (ccIndex != -1 && sNumber == 8) )
     {
         return 0;
@@ -207,17 +208,17 @@ static const char *_inet_ntopv4(const void *src, char *dst, Uint32 size)
 
    Uint32 n;
 
-   memset(dst, 0, size);
-   memcpy(&n, src, sizeof (Uint32));
+   memset(dst, 0, size); 
+   memcpy(&n, src, sizeof (Uint32));   
    n = ntohl(n);
-   sprintf(dst, "%u.%u.%u.%u", n >> 24 & 0xFF ,
-       n >> 16 & 0xFF, n >> 8 & 0xFF, n & 0xFF);
+   sprintf(dst, "%u.%u.%u.%u", n >> 24 & 0xFF , 
+       n >> 16 & 0xFF, n >> 8 & 0xFF, n & 0xFF); 
 
-   return dst;
+   return dst; 
 }
 
-/*
-    Converts given ipv6 address in binary form to text form. Ex.
+/*  
+    Converts given ipv6 address in binary form to text form. Ex. 
     0000000000000001 to ::1.
 */
 static const char *_inet_ntopv6(const void *src, char *dst, Uint32 size)
@@ -230,7 +231,7 @@ static const char *_inet_ntopv6(const void *src, char *dst, Uint32 size)
     int index = 0;
 
     memcpy (n, src, PEGASUS_IN6_ADDR_SIZE);
-    memset(dst, 0, size);
+    memset(dst, 0, size); 
     for (int i = 0; i < 8 ; ++i)
     {
         if (n[i])
@@ -239,7 +240,7 @@ static const char *_inet_ntopv6(const void *src, char *dst, Uint32 size)
             {
                 if (zeroCnt > maxZeroCnt)
                 {
-                    ccIndex = index;
+                    ccIndex = index; 
                     maxZeroCnt = zeroCnt;
                 }
                 zeroCnt = index = 0;
@@ -252,13 +253,13 @@ static const char *_inet_ntopv6(const void *src, char *dst, Uint32 size)
             {
                 if (ccIndex == -1)
                 {
-                    ccIndex = i;
+                    ccIndex = i;   
                 }
                 index = i;
             }
         }
     }
-    char tmp[50];
+    char tmp[50];  
     *dst = 0;
     zeroCnt = 0;
 
@@ -273,23 +274,23 @@ static const char *_inet_ntopv6(const void *src, char *dst, Uint32 size)
                 ++zeroCnt;
             }
             --i;
-        }
+        } 
         else
         {
             Boolean mapped = false;
             if (ccIndex == 0 && zeroCnt > 4)
             {
-                // check for ipv4 mapped ipv6 and ipv4 compatible ipv6
+                // check for ipv4 mapped ipv6 and ipv4 compatible ipv6 
                 // addresses.
                 if (zeroCnt == 5 && n[i] == 0xffff)
                 {
-                    strcat(dst,"ffff:");
+                    strcat(dst,"ffff:"); 
                     mapped = true;
                 }
                 else if (zeroCnt == 6 && n[6])
                 {
                     mapped = true;
-                }
+                } 
             }
             if (mapped)
             {
@@ -311,14 +312,23 @@ static const char *_inet_ntopv6(const void *src, char *dst, Uint32 size)
 }
 #endif  // defined (PEGASUS_OS_TYPE_WINDOWS) || !defined (PEGASUS_ENABLE_IPV6)
 
-HostAddress::HostAddress():    
-    _hostAddrStr(),
-    _addrType(AT_INVALID),
-    _isValid(false),
-    _isAddrLinkLocal(false),
-    _scopeID(0)
-    
+void HostAddress::_init()
 {
+    _hostAddrStr = String::EMPTY;
+    _isValid = false;
+    _addrType = AT_INVALID;
+}
+
+HostAddress::HostAddress()
+{
+    _init();
+}
+
+HostAddress::HostAddress(const String &addrStr)
+{
+    _init();
+    _hostAddrStr = addrStr;
+    _parseAddress();
 }
 
 HostAddress& HostAddress::operator =(const HostAddress &rhs)
@@ -328,8 +338,6 @@ HostAddress& HostAddress::operator =(const HostAddress &rhs)
         _hostAddrStr = rhs._hostAddrStr;
         _isValid = rhs._isValid;
         _addrType = rhs._addrType;
-        _scopeID = rhs._scopeID;
-        _isAddrLinkLocal = rhs._isAddrLinkLocal;
     }
 
     return *this;
@@ -344,60 +352,24 @@ HostAddress::~HostAddress()
 {
 }
 
-Boolean HostAddress::setHostAddress(const String &addrStr)
+void HostAddress::setHostAddress(const String &addrStr)
 {
-
-    if (addrStr.size() != 0)
-    {
-
-        if (isValidIPV4Address(addrStr))
-        {
-            _isValid = true;
-            _addrType = AT_IPV4;
-            _hostAddrStr = addrStr;
-            _scopeID = 0;
-            _isAddrLinkLocal = false;
-            return _isValid;
-        }
-
-        if (isValidHostName(addrStr))
-        {
-            _isValid = true;
-            _addrType = AT_HOSTNAME;
-            _hostAddrStr = addrStr;
-            _scopeID = 0;
-            _isAddrLinkLocal = false;
-            return _isValid;
-        }
-
-        if (_checkIPv6AndLinkLocal( addrStr ))
-        {
-            _isValid = true;
-            _addrType = AT_IPV6;
-            return _isValid;
-        }
-
-    } // if addrStr == 0 or no valid address specified.
-
-    _hostAddrStr.clear();
-    _isValid = false;
-    _addrType = AT_INVALID;
-    _scopeID = 0;
-    _isAddrLinkLocal = false;
-    return _isValid;
+    _init();
+    _hostAddrStr = addrStr;
+    _parseAddress();
 }
 
-Uint32 HostAddress::getAddressType() const
+Uint32 HostAddress::getAddressType()
 {
     return _addrType;
 }
 
-Boolean HostAddress::isValid() const
+Boolean HostAddress::isValid()
 {
     return _isValid;
 }
 
-String HostAddress::getHost() const
+String HostAddress::getHost()
 {
     return _hostAddrStr;
 }
@@ -410,77 +382,31 @@ Boolean HostAddress::equal(int af, void *p1, void *p2)
              return !memcmp(p1, p2, PEGASUS_IN6_ADDR_SIZE);
         case AT_IPV4:
              return !memcmp(p1, p2, sizeof(struct in_addr));
-    }
+    }    
 
     return false;
 }
 
-Boolean HostAddress::_checkIPv6AndLinkLocal( const String &ip6add2check)
+void HostAddress::_parseAddress()
 {
-    _isValid = false;
-    _isAddrLinkLocal = false;
-    _scopeID = 0;
+    if (_hostAddrStr.size() == 0)
+        return;
 
-    String iptmp = ip6add2check;
-    String tmp = iptmp.subString(0, 4);
-    // If the IP address starts with "fe80" it is a link-local address
-    if(String::equalNoCase(tmp, "fe80"))
+    if (isValidIPV4Address(_hostAddrStr))
     {
-        Uint32 idx = iptmp.find('%');
-        if(idx != PEG_NOT_FOUND)
-        {
-#if defined PEGASUS_OS_TYPE_WINDOWS
-            // On Windows the zone ID/inteface index for link-local is an 
-            // integer value starting with 1.
-            _scopeID = atoi(
-                    (const char *)(iptmp.subString(idx+1).getCString()));
-#else
-            // if_nametoindex() retruns 0 when zone ID was not valid/found.
-            _scopeID = if_nametoindex(
-                    (const char *)(iptmp.subString(idx+1).getCString()));
-#endif
-            // The scope ID should not be 0, even RFC4007 specifies 0 as the 
-            // default interface. But 
-            if (0 == _scopeID) 
-            {
-                PEG_TRACE((TRC_HTTP,Tracer::LEVEL1,
-                    "The zone index of IPv6 link-local address %s is invalid.",
-                    (const char*)ip6add2check.getCString()));
-                return false;
-            }
-            // Remove the zone id before checkeing for a valid IPv6 address.
-            iptmp.remove(idx);
-            _isAddrLinkLocal = true; 
-        }
-        else
-        {
-            PEG_TRACE((TRC_HTTP,Tracer::LEVEL1,
-                "The IPv6 link-local address %s has no zone index specified.",
-                (const char*)ip6add2check.getCString()));
-            return false;
-        }
-    }
-
-    if (isValidIPV6Address(iptmp))
-    {
-        _hostAddrStr = iptmp;
         _isValid = true;
-        return true;
+        _addrType = AT_IPV4;
+    } 
+    else if (isValidIPV6Address(_hostAddrStr))
+    {
+        _isValid = true;
+        _addrType = AT_IPV6;
+    } 
+    else if (isValidHostName(_hostAddrStr))
+    {
+        _isValid = true;
+        _addrType = AT_HOSTNAME;
     }
-    PEG_TRACE((TRC_HTTP,Tracer::LEVEL1,
-        "Invalid IPv6 address %s specified.",
-        (const char*)ip6add2check.getCString()));
-    return false;
-}
-
-Uint32 HostAddress::getScopeID() const
-{
-    return _scopeID;
-}
-
-Boolean HostAddress::isHostAddLinkLocal() const
-{
-    return _isAddrLinkLocal;
 }
 
 Boolean HostAddress::isValidIPV6Address (const String &ipv6Address)
@@ -544,6 +470,7 @@ Boolean HostAddress::isValidIPV4Address (const String &ipv4Address)
         if ((octet == 4) && (src[i] != ':') && src[i] != char(0))
             return false;
     }
+
     return true;
 }
 
@@ -607,7 +534,7 @@ int HostAddress::convertTextToBinary(int af, const char *src, void *dst)
     return -1; // Unsupported address family.
 #else
     return ::inet_pton(af, src, dst);
-#endif
+#endif 
 }
 
 const char * HostAddress::convertBinaryToText(int af, const void *src,
@@ -625,7 +552,7 @@ const char * HostAddress::convertBinaryToText(int af, const void *src,
     return 0; // Unsupported address family.
 #else
     return ::inet_ntop(af, src, dst, size);
-#endif
+#endif 
 }
 
 PEGASUS_NAMESPACE_END

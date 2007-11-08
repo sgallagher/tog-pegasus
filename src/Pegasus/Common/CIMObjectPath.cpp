@@ -93,40 +93,43 @@ static String _escapeSpecialCharacters(const String& str)
     return result;
 }
 
-static void _BubbleSort(Array<CIMKeyBinding>& x)
+static int _compare(const void* p1, const void* p2)
 {
-    Uint32 n = x.size();
+    const CIMKeyBinding* kb1 = (const CIMKeyBinding*)p1;
+    const CIMKeyBinding* kb2 = (const CIMKeyBinding*)p2;
+
+    return String::compareNoCase(
+        kb1->getName().getString(),
+        kb2->getName().getString());
+}
+
+static void _Sort(Array<CIMKeyBinding>& x)
+{
+    CIMKeyBinding* data = (CIMKeyBinding*)x.getData();
+    Uint32 size = x.size();
 
     //
     //  If the key is a reference, the keys in the reference must also be
     //  sorted
     //
-    for (Uint32 k = 0; k < n ; k++)
-        if (x[k].getType () == CIMKeyBinding::REFERENCE)
-        {
-            CIMObjectPath tmp (x[k].getValue ());
-            Array <CIMKeyBinding> keyBindings = tmp.getKeyBindings ();
-            _BubbleSort (keyBindings);
-            tmp.setKeyBindings (keyBindings);
-            x[k].setValue (tmp.toString ());
-        }
-
-    if (n < 2)
-        return;
-
-    for (Uint32 i = 0; i < n - 1; i++)
+    for (Uint32 k = 0; k < size; k++)
     {
-        for (Uint32 j = 0; j < n - 1; j++)
+        CIMKeyBinding& kb = data[k];
+
+        if (kb.getType() == CIMKeyBinding::REFERENCE)
         {
-            if (String::compareNoCase(x[j].getName().getString(),
-                                      x[j+1].getName().getString()) > 0)
-            {
-                CIMKeyBinding t = x[j];
-                x[j] = x[j+1];
-                x[j+1] = t;
-            }
+            CIMObjectPath tmp(kb.getValue());
+            Array<CIMKeyBinding> keyBindings = tmp.getKeyBindings();
+            _Sort(keyBindings);
+            tmp.setKeyBindings(keyBindings);
+            kb.setValue(tmp.toString());
         }
     }
+
+    if (size < 2)
+        return;
+
+    qsort((void*)data, size, sizeof(CIMKeyBinding), _compare);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -580,7 +583,7 @@ void CIMObjectPath::set(
     _rep->_nameSpace = nameSpace;
     _rep->_className = className;
     _rep->_keyBindings = keyBindings;
-    _BubbleSort(_rep->_keyBindings);
+    _Sort(_rep->_keyBindings);
 }
 
 Boolean _parseHostElement(
@@ -839,7 +842,7 @@ void _parseKeyBindingPairs(
         }
     }
 
-    _BubbleSort(keyBindings);
+    _Sort(keyBindings);
 }
 
 void CIMObjectPath::set(const String& objectName)
@@ -958,7 +961,7 @@ void CIMObjectPath::setKeyBindings(const Array<CIMKeyBinding>& keyBindings)
 {
     _rep = _copyOnWriteCIMObjectPathRep(_rep);
     _rep->_keyBindings = keyBindings;
-    _BubbleSort(_rep->_keyBindings);
+    _Sort(_rep->_keyBindings);
 }
 
 String CIMObjectPath::toString() const

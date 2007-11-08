@@ -277,7 +277,7 @@ void _beginInstanceTransaction(
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.DefaultRepository.BEGIN_FAILED",
+            MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
                 "begin failed"));
     }
 
@@ -285,7 +285,7 @@ void _beginInstanceTransaction(
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.DefaultRepository.BEGIN_FAILED",
+            MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
                 "begin failed"));
     }
 
@@ -314,7 +314,7 @@ void _commitInstanceTransaction(
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.DefaultRepository.COMMIT_FAILED",
+            MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
                 "commit failed"));
     }
 
@@ -322,7 +322,7 @@ void _commitInstanceTransaction(
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.DefaultRepository.COMMIT_FAILED",
+            MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
                 "commit failed"));
     }
 
@@ -374,7 +374,7 @@ void _rollbackInstanceTransaction(
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.DefaultRepository.ROLLBACK_FAILED",
+            MessageLoaderParms("Repository.CIMRepository.ROLLBACK_FAILED",
                 "rollback failed"));
     }
 
@@ -383,7 +383,7 @@ void _rollbackInstanceTransaction(
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
-                "Repository.DefaultRepository.ROLLBACK_FAILED",
+                "Repository.CIMRepository.ROLLBACK_FAILED",
                 "rollback failed"));
     }
 
@@ -540,18 +540,19 @@ void DefaultRepository::_rollbackIncompleteTransactions()
 
 DefaultRepository::DefaultRepository(
     const String& repositoryRoot,
-    Uint32 mode) 
+    Uint32 repositoryMode) 
     : 
-    Repository(repositoryRoot, mode),
+    _repositoryRoot(repositoryRoot), 
+    _repositoryMode(repositoryMode),
     _nameSpaceManager(repositoryRoot),
     _lock(),
     _resolveInstance(true)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::DefaultRepository");
 
-    Boolean binaryMode = mode & DefaultRepository::MODE_BIN;
+    Boolean binaryMode = repositoryMode & DefaultRepository::MODE_BIN;
 
-    if (mode == DefaultRepository::MODE_DEFAULT)
+    if (repositoryMode == DefaultRepository::MODE_DEFAULT)
     {
         binaryMode = ConfigManager::parseBooleanValue(
             ConfigManager::getInstance()->getCurrentValue(
@@ -636,7 +637,7 @@ CIMClass DefaultRepository::getClass(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::getClass");
 
-    ConditionalReadLock rlock(_lock, lock);
+    ReadLock rlock(_lock, lock);
 
     PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "nameSpace= " +
                      nameSpace.getString() + ", className= " +
@@ -745,7 +746,7 @@ CIMInstance DefaultRepository::getInstance(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::getInstance");
 
-    ConditionalReadLock rlock(_lock, lock);
+    ReadLock rlock(_lock, lock);
 
     //
     // Validate namespace
@@ -830,8 +831,8 @@ void DefaultRepository::deleteClass(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY,"DefaultRepository::deleteClass");
 
-    ConditionalWriteLock wlock(_lock, lock);
-    AutoFileLock fileLock(_lockFile);
+    WriteLock wlock(_lock, lock);
+    AutoFileLock fileLock(_lockFile, lock);
 
     //
     // Get the class and check to see if it is an association class:
@@ -892,7 +893,7 @@ void _CompactInstanceRepository(
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
-                "Repository.DefaultRepository.INDEX_ENUM_ENTRIES_FAILED",
+                "Repository.CIMRepository.INDEX_ENUM_ENTRIES_FAILED",
                 "Failed to obtain the entries from the Repository Instance"
                 " Index file."));
     }
@@ -902,7 +903,7 @@ void _CompactInstanceRepository(
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
-                "Repository.DefaultRepository.COMPACT_FAILED",
+                "Repository.CIMRepository.COMPACT_FAILED",
                 "Failed to compact the Repository Instance Data file."));
     }
 
@@ -915,7 +916,7 @@ void _CompactInstanceRepository(
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
-                "Repository.DefaultRepository.INDEX_COMPACT_FAILED",
+                "Repository.CIMRepository.INDEX_COMPACT_FAILED",
                 "Failed to compact the Repository Instance Index file."));
     }
 
@@ -940,8 +941,8 @@ void DefaultRepository::deleteInstance(
             CIM_ERR_NOT_FOUND, instanceName.toString());
     }
 
-    ConditionalWriteLock wlock(_lock, lock);
-    AutoFileLock fileLock(_lockFile);
+    WriteLock wlock(_lock, lock);
+    AutoFileLock fileLock(_lockFile, lock);
 
     String errMessage;
 
@@ -987,7 +988,7 @@ void DefaultRepository::deleteInstance(
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
-                "Repository.DefaultRepository.FAILED_TO_DELETE_INSTANCE",
+                "Repository.CIMRepository.FAILED_TO_DELETE_INSTANCE",
                 "Failed to delete instance: $0",
                 instanceName.toString()));
     }
@@ -1084,8 +1085,8 @@ void DefaultRepository::createClass(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::createClass");
 
-    ConditionalWriteLock wlock(_lock, lock);
-    AutoFileLock fileLock(_lockFile);
+    WriteLock wlock(_lock, lock);
+    AutoFileLock fileLock(_lockFile, lock);
 
     // -- Resolve the class:
         CIMClass cimClass(newClass);
@@ -1279,8 +1280,8 @@ CIMObjectPath DefaultRepository::createInstance(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::createInstance");
 
-    ConditionalWriteLock wlock(_lock, lock);
-    AutoFileLock fileLock(_lockFile);
+    WriteLock wlock(_lock, lock);
+    AutoFileLock fileLock(_lockFile, lock);
 
     String errMessage;
 
@@ -1304,7 +1305,7 @@ CIMObjectPath DefaultRepository::createInstance(
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.DefaultRepository.CLASS_HAS_NO_KEYS",
+            MessageLoaderParms("Repository.CIMRepository.CLASS_HAS_NO_KEYS",
                 "class has no keys: $0",
                 cimClass.getClassName().getString()));
     }
@@ -1361,7 +1362,7 @@ CIMObjectPath DefaultRepository::createInstance(
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
                 MessageLoaderParms(
-                    "Repository.DefaultRepository.FAILED_TO_CREATE_INSTANCE",
+                    "Repository.CIMRepository.FAILED_TO_CREATE_INSTANCE",
                     "Failed to create instance: $0",
                     instanceName.toString()));
         }
@@ -1377,7 +1378,7 @@ CIMObjectPath DefaultRepository::createInstance(
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
-                "Repository.DefaultRepository.FAILED_TO_CREATE_INSTANCE",
+                "Repository.CIMRepository.FAILED_TO_CREATE_INSTANCE",
                 "Failed to create instance: $0",
                 instanceName.toString()));
     }
@@ -1400,8 +1401,8 @@ void DefaultRepository::modifyClass(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::modifyClass");
 
-    ConditionalWriteLock wlock(_lock, lock);
-    AutoFileLock fileLock(_lockFile);
+    WriteLock wlock(_lock, lock);
+    AutoFileLock fileLock(_lockFile, lock);
 
     //
     // Resolve the class:
@@ -1443,7 +1444,7 @@ void DefaultRepository::modifyClass(
         String str = "DefaultRepository::modifyClass()";
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
-                "Repository.DefaultRepository.FAILED_TO_REMOVE_FILE",
+                "Repository.CIMRepository.FAILED_TO_REMOVE_FILE",
                 "failed to remove file in $0", str));
     }
 
@@ -1499,8 +1500,8 @@ void DefaultRepository::modifyInstance(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::modifyInstance");
 
-    ConditionalWriteLock wlock(_lock, lock);
-    AutoFileLock fileLock(_lockFile);
+    WriteLock wlock(_lock, lock);
+    AutoFileLock fileLock(_lockFile, lock);
 
     //
     // Do this:
@@ -1740,7 +1741,7 @@ void DefaultRepository::modifyInstance(
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
-                "Repository.DefaultRepository.ATTEMPT_TO_MODIFY_KEY_PROPERTY",
+                "Repository.CIMRepository.ATTEMPT_TO_MODIFY_KEY_PROPERTY",
                 "Attempted to modify a key property"));
     }
 
@@ -1793,7 +1794,7 @@ void DefaultRepository::modifyInstance(
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
                 MessageLoaderParms(
-                    "Repository.DefaultRepository.FAILED_TO_MODIFY_INSTANCE",
+                    "Repository.CIMRepository.FAILED_TO_MODIFY_INSTANCE",
                     "Failed to modify instance $0",
                     instanceName.toString()));
         }
@@ -1811,7 +1812,7 @@ void DefaultRepository::modifyInstance(
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
-                "Repository.DefaultRepository.FAILED_TO_MODIFY_INSTANCE",
+                "Repository.CIMRepository.FAILED_TO_MODIFY_INSTANCE",
                 "Failed to modify instance $0",
                 instanceName.toString()));
     }
@@ -1847,7 +1848,7 @@ Array<CIMClass> DefaultRepository::enumerateClasses(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::enumerateClasses");
 
-    ConditionalReadLock rlock(_lock, lock);
+    ReadLock rlock(_lock, lock);
 
     Array<CIMName> classNames;
 
@@ -1874,7 +1875,7 @@ Array<CIMName> DefaultRepository::enumerateClassNames(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::enumerateClassNames");
 
-    ConditionalReadLock rlock(_lock, lock);
+    ReadLock rlock(_lock, lock);
 
     Array<CIMName> classNames;
 
@@ -2028,7 +2029,7 @@ Array<CIMInstance> DefaultRepository::enumerateInstancesForClass(
     PEG_METHOD_ENTER(TRC_REPOSITORY,
         "DefaultRepository::enumerateInstancesForClass");
 
-    ConditionalReadLock rlock(_lock, lock);
+    ReadLock rlock(_lock, lock);
 
     //
     // Get all instances for this class
@@ -2041,7 +2042,7 @@ Array<CIMInstance> DefaultRepository::enumerateInstancesForClass(
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
-                "Repository.DefaultRepository.FAILED_TO_LOAD_INSTANCES",
+                "Repository.CIMRepository.FAILED_TO_LOAD_INSTANCES",
                 "Failed to load instances in class $0",
                 className.getString()));
     }
@@ -2104,7 +2105,7 @@ Array<CIMObjectPath> DefaultRepository::enumerateInstanceNamesForClass(
     PEG_METHOD_ENTER(TRC_REPOSITORY,
         "DefaultRepository::enumerateInstanceNamesForClass");
 
-    ConditionalReadLock rlock(_lock, lock);
+    ReadLock rlock(_lock, lock);
 
     //
     // Get instance names from the instance index file for the class:
@@ -2132,7 +2133,7 @@ Array<CIMObjectPath> DefaultRepository::enumerateInstanceNamesForClass(
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
-                "Repository.DefaultRepository.FAILED_TO_LOAD_INSTANCE_NAMES",
+                "Repository.CIMRepository.FAILED_TO_LOAD_INSTANCE_NAMES",
                 "Failed to load instance names in class $0",
                 className.getString()));
     }
@@ -2149,7 +2150,7 @@ Array<CIMInstance> DefaultRepository::execQuery(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::execQuery");
 
-    ConditionalReadLock rlock(_lock, lock);
+    ReadLock rlock(_lock, lock);
 
     PEG_METHOD_EXIT();
     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "execQuery()");
@@ -2172,7 +2173,7 @@ Array<CIMObject> DefaultRepository::associators(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::associators");
 
-    ConditionalReadLock rlock(_lock, lock);
+    ReadLock rlock(_lock, lock);
 
     Array<CIMObjectPath> names = associatorNames(
         false,
@@ -2253,7 +2254,7 @@ Array<CIMObjectPath> DefaultRepository::associatorNames(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::associatorNames");
 
-    ConditionalReadLock rlock(_lock, lock);
+    ReadLock rlock(_lock, lock);
 
     Array<String> associatorNames;
 
@@ -2350,7 +2351,7 @@ Array<CIMObject> DefaultRepository::references(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::references");
 
-    ConditionalReadLock rlock(_lock, lock);
+    ReadLock rlock(_lock, lock);
 
     Array<CIMObjectPath> names = referenceNames(
         false,
@@ -2426,7 +2427,7 @@ Array<CIMObjectPath> DefaultRepository::referenceNames(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::referenceNames");
 
-    ConditionalReadLock rlock(_lock, lock);
+    ReadLock rlock(_lock, lock);
 
     Array<String> tmpReferenceNames;
 
@@ -2534,7 +2535,7 @@ CIMValue DefaultRepository::getProperty(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::getProperty");
 
-    ConditionalReadLock rlock(_lock, lock);
+    ReadLock rlock(_lock, lock);
 
     //
     // Retrieve the specified instance
@@ -2618,7 +2619,7 @@ CIMQualifierDecl DefaultRepository::getQualifier(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::getQualifier");
 
-    ConditionalReadLock rlock(_lock, lock);
+    ReadLock rlock(_lock, lock);
 
     //
     // Get path of qualifier file:
@@ -2667,8 +2668,8 @@ void DefaultRepository::setQualifier(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::setQualifier");
 
-    ConditionalWriteLock wlock(_lock, lock);
-    AutoFileLock fileLock(_lockFile);
+    WriteLock wlock(_lock, lock);
+    AutoFileLock fileLock(_lockFile, lock);
 
     // -- Get path of qualifier file:
 
@@ -2703,8 +2704,8 @@ void DefaultRepository::deleteQualifier(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::deleteQualifier");
 
-    ConditionalWriteLock wlock(_lock, lock);
-    AutoFileLock fileLock(_lockFile);
+    WriteLock wlock(_lock, lock);
+    AutoFileLock fileLock(_lockFile, lock);
 
     // -- Get path of qualifier file:
 
@@ -2731,7 +2732,7 @@ Array<CIMQualifierDecl> DefaultRepository::enumerateQualifiers(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::enumerateQualifiers");
 
-    ConditionalReadLock rlock(_lock, lock);
+    ReadLock rlock(_lock, lock);
 
     String qualifiersRoot = _nameSpaceManager.getQualifiersRoot(nameSpace);
 
@@ -2742,7 +2743,7 @@ Array<CIMQualifierDecl> DefaultRepository::enumerateQualifiers(
         PEG_METHOD_EXIT();
         String str ="enumerateQualifiers()";
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("Repository.DefaultRepository.INTERNAL_ERROR",
+            MessageLoaderParms("Repository.CIMRepository.INTERNAL_ERROR",
                 "$0: internal error",
                 str));
     }
@@ -2773,8 +2774,8 @@ void DefaultRepository::createNameSpace(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::createNameSpace");
 
-    ConditionalWriteLock wlock(_lock, lock);
-    AutoFileLock fileLock(_lockFile);
+    WriteLock wlock(_lock, lock);
+    AutoFileLock fileLock(_lockFile, lock);
     _nameSpaceManager.createNameSpace(nameSpace, attributes);
 
     PEG_METHOD_EXIT();
@@ -2787,8 +2788,8 @@ void DefaultRepository::modifyNameSpace(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::modifyNameSpace");
 
-    ConditionalWriteLock wlock(_lock, lock);
-    AutoFileLock fileLock(_lockFile);
+    WriteLock wlock(_lock, lock);
+    AutoFileLock fileLock(_lockFile, lock);
     _nameSpaceManager.modifyNameSpace(nameSpace, attributes);
 
     PEG_METHOD_EXIT();
@@ -2799,7 +2800,7 @@ Array<CIMNamespaceName> DefaultRepository::enumerateNameSpaces(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::enumerateNameSpaces");
 
-    ConditionalReadLock rlock(const_cast<ReadWriteSem&>(_lock), lock);
+    ReadLock rlock(const_cast<ReadWriteSem&>(_lock), lock);
 
     Array<CIMNamespaceName> nameSpaceNames;
     _nameSpaceManager.getNameSpaceNames(nameSpaceNames);
@@ -2814,8 +2815,8 @@ void DefaultRepository::deleteNameSpace(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::deleteNameSpace");
 
-    ConditionalWriteLock wlock(_lock, lock);
-    AutoFileLock fileLock(_lockFile);
+    WriteLock wlock(_lock, lock);
+    AutoFileLock fileLock(_lockFile, lock);
     _nameSpaceManager.deleteNameSpace(nameSpace);
 
     PEG_METHOD_EXIT();
@@ -2828,7 +2829,7 @@ Boolean DefaultRepository::getNameSpaceAttributes(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::deleteNameSpace");
 
-    ConditionalReadLock rlock(const_cast<ReadWriteSem&>(_lock), lock);
+    ReadLock rlock(const_cast<ReadWriteSem&>(_lock), lock);
     attributes.clear();
     PEG_METHOD_EXIT();
     return _nameSpaceManager.getNameSpaceAttributes(nameSpace, attributes);
@@ -2840,7 +2841,7 @@ Boolean DefaultRepository::isRemoteNameSpace(
     String& remoteInfo)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::isRemoteNamespace");
-    ConditionalReadLock rlock(const_cast<ReadWriteSem&>(_lock), lock);
+    ReadLock rlock(const_cast<ReadWriteSem&>(_lock), lock);
     PEG_METHOD_EXIT();
     return _nameSpaceManager.isRemoteNameSpace(nameSpaceName, remoteInfo);
 }
@@ -2930,8 +2931,8 @@ void DefaultRepository::setDeclContext(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "DefaultRepository::setDeclContext");
 
-    ConditionalWriteLock wlock(_lock, lock);
-    AutoFileLock fileLock(_lockFile);
+    WriteLock wlock(_lock, lock);
+    AutoFileLock fileLock(_lockFile, lock);
     _context = context;
 
     PEG_METHOD_EXIT();
@@ -2957,7 +2958,7 @@ void DefaultRepository::getSubClassNames(
     Boolean deepInheritance,
     Array<CIMName>& subClassNames) const
 {
-    ConditionalReadLock rlock(const_cast<ReadWriteSem&>(_lock), lock);
+    ReadLock rlock(const_cast<ReadWriteSem&>(_lock), lock);
     _nameSpaceManager.getSubClassNames(nameSpaceName,
                                        className,
                                        deepInheritance,
@@ -2973,7 +2974,7 @@ void DefaultRepository::getSuperClassNames(
     const CIMName& className,
     Array<CIMName>& superClassNames) const
 {
-    ConditionalReadLock rlock(const_cast<ReadWriteSem&>(_lock), lock);
+    ReadLock rlock(const_cast<ReadWriteSem&>(_lock), lock);
     _nameSpaceManager.getSuperClassNames(
         nameSpaceName, className, superClassNames);
 }

@@ -58,9 +58,7 @@ public:
     typedef HashTable <String, String, EqualNoCaseFunc, HashLowerCaseFunc>
         NameSpaceAttributes;
 
-    Repository(
-        const String& repositoryRoot, 
-        Uint32 repositoryMode);
+    Repository();
 
     virtual ~Repository();
 
@@ -290,11 +288,6 @@ public:
     virtual void DisplayCacheStatistics(
         bool lock) = 0;
 #endif
-
-protected:
-
-    String _repositoryRoot;
-    Uint32 _repositoryMode;
 };
 
 PEGASUS_NAMESPACE_END

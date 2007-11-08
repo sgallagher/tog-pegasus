@@ -38,7 +38,7 @@
 #include <Pegasus/Repository/Repository.h>
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/Buffer.h>
-#include "MetaTypes.h"
+#include "SchemaTypes.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -58,9 +58,7 @@ class PEGASUS_REPOSITORY_LINKAGE MemoryResidentRepository : public Repository
 {
 public:
 
-    MemoryResidentRepository(
-        const String& repositoryRoot, 
-        Uint32 repositoryMode);
+    MemoryResidentRepository();
 
     virtual ~MemoryResidentRepository();
 
@@ -306,7 +304,7 @@ public:
         void (*callback)(Buffer& buffer, void* data),
         void* data);
 
-    static Boolean addNameSpace(const MetaNameSpace* nameSpace);
+    static Boolean addNameSpace(const SchemaNameSpace* nameSpace);
 
 private:
     Uint32 _findInstance(

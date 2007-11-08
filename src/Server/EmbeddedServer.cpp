@@ -34,7 +34,6 @@
 #include "EmbeddedServer.h"
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Server/ProviderTable.h>
-#include <Pegasus/Repository/MetaRepository.h>
 #include <Pegasus/Repository/MemoryResidentRepository.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -104,9 +103,9 @@ Boolean EmbeddedServer::addProvider(
     return true;
 }
 
-Boolean EmbeddedServer::addNameSpace(const MetaNameSpace* nameSpace)
+Boolean EmbeddedServer::addNameSpace(const SchemaNameSpace* nameSpace)
 {
-    return MetaRepository::addNameSpace(nameSpace);
+    return MemoryResidentRepository::addNameSpace(nameSpace);
 }
 
 void EmbeddedServer::loadRepository(Array<Uint8>& data)

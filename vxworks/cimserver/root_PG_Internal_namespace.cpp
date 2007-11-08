@@ -16,7 +16,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 //==============================================================================
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _ASSOCIATION_qualifier_decl =
 {
     /* name */
@@ -26,14 +26,14 @@ _ASSOCIATION_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_ASSOCIATION,
+    SCHEMA_SCOPE_ASSOCIATION,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _INDICATION_qualifier_decl =
 {
     /* name */
@@ -43,14 +43,14 @@ _INDICATION_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_INDICATION,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_INDICATION,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Abstract_qualifier_decl =
 {
     /* name */
@@ -60,14 +60,14 @@ _Abstract_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_ASSOCIATION|META_SCOPE_INDICATION,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_INDICATION,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_RESTRICTED,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_RESTRICTED,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Aggregate_qualifier_decl =
 {
     /* name */
@@ -77,14 +77,14 @@ _Aggregate_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_REFERENCE,
+    SCHEMA_SCOPE_REFERENCE,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Aggregation_qualifier_decl =
 {
     /* name */
@@ -94,14 +94,14 @@ _Aggregation_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_ASSOCIATION,
+    SCHEMA_SCOPE_ASSOCIATION,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _ArrayType_qualifier_decl =
 {
     /* name */
@@ -111,14 +111,14 @@ _ArrayType_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "Bag",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _BitMap_qualifier_decl =
 {
     /* name */
@@ -128,14 +128,14 @@ _BitMap_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _BitValues_qualifier_decl =
 {
     /* name */
@@ -145,14 +145,14 @@ _BitValues_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS|META_FLAVOR_TRANSLATABLE,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_TRANSLATABLE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _ClassConstraint_qualifier_decl =
 {
     /* name */
@@ -162,14 +162,14 @@ _ClassConstraint_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_ASSOCIATION|META_SCOPE_INDICATION,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_INDICATION,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Composition_qualifier_decl =
 {
     /* name */
@@ -179,14 +179,14 @@ _Composition_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_ASSOCIATION,
+    SCHEMA_SCOPE_ASSOCIATION,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Counter_qualifier_decl =
 {
     /* name */
@@ -196,14 +196,14 @@ _Counter_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Deprecated_qualifier_decl =
 {
     /* name */
@@ -213,14 +213,14 @@ _Deprecated_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_ANY,
+    SCHEMA_SCOPE_ANY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_RESTRICTED,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_RESTRICTED,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Description_qualifier_decl =
 {
     /* name */
@@ -230,14 +230,14 @@ _Description_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_ANY,
+    SCHEMA_SCOPE_ANY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS|META_FLAVOR_TRANSLATABLE,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_TRANSLATABLE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _DisplayName_qualifier_decl =
 {
     /* name */
@@ -247,14 +247,14 @@ _DisplayName_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_ANY,
+    SCHEMA_SCOPE_ANY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS|META_FLAVOR_TRANSLATABLE,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_TRANSLATABLE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _DN_qualifier_decl =
 {
     /* name */
@@ -264,14 +264,14 @@ _DN_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _EmbeddedInstance_qualifier_decl =
 {
     /* name */
@@ -281,14 +281,14 @@ _EmbeddedInstance_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _EmbeddedObject_qualifier_decl =
 {
     /* name */
@@ -298,14 +298,14 @@ _EmbeddedObject_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Exception_qualifier_decl =
 {
     /* name */
@@ -315,14 +315,14 @@ _Exception_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_INDICATION,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_INDICATION,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_TOINSTANCE|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_TOINSTANCE|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Experimental_qualifier_decl =
 {
     /* name */
@@ -332,14 +332,14 @@ _Experimental_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_ANY,
+    SCHEMA_SCOPE_ANY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_RESTRICTED,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_RESTRICTED,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Gauge_qualifier_decl =
 {
     /* name */
@@ -349,14 +349,14 @@ _Gauge_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _In_qualifier_decl =
 {
     /* name */
@@ -366,14 +366,14 @@ _In_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\001",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Key_qualifier_decl =
 {
     /* name */
@@ -383,14 +383,14 @@ _Key_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_REFERENCE,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_REFERENCE,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _MappingStrings_qualifier_decl =
 {
     /* name */
@@ -400,14 +400,14 @@ _MappingStrings_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_ANY,
+    SCHEMA_SCOPE_ANY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Max_qualifier_decl =
 {
     /* name */
@@ -417,14 +417,14 @@ _Max_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_REFERENCE,
+    SCHEMA_SCOPE_REFERENCE,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _MaxLen_qualifier_decl =
 {
     /* name */
@@ -434,14 +434,14 @@ _MaxLen_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _MaxValue_qualifier_decl =
 {
     /* name */
@@ -451,14 +451,14 @@ _MaxValue_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _MethodConstraint_qualifier_decl =
 {
     /* name */
@@ -468,14 +468,14 @@ _MethodConstraint_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_METHOD,
+    SCHEMA_SCOPE_METHOD,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Min_qualifier_decl =
 {
     /* name */
@@ -485,14 +485,14 @@ _Min_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_REFERENCE,
+    SCHEMA_SCOPE_REFERENCE,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\000\000\000\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _MinLen_qualifier_decl =
 {
     /* name */
@@ -502,14 +502,14 @@ _MinLen_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\000\000\000\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _MinValue_qualifier_decl =
 {
     /* name */
@@ -519,14 +519,14 @@ _MinValue_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _ModelCorrespondence_qualifier_decl =
 {
     /* name */
@@ -536,14 +536,14 @@ _ModelCorrespondence_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_ANY,
+    SCHEMA_SCOPE_ANY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Nonlocal_qualifier_decl =
 {
     /* name */
@@ -553,14 +553,14 @@ _Nonlocal_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_REFERENCE,
+    SCHEMA_SCOPE_REFERENCE,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _NonlocalType_qualifier_decl =
 {
     /* name */
@@ -570,14 +570,14 @@ _NonlocalType_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_REFERENCE,
+    SCHEMA_SCOPE_REFERENCE,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _NullValue_qualifier_decl =
 {
     /* name */
@@ -587,14 +587,14 @@ _NullValue_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY,
+    SCHEMA_SCOPE_PROPERTY,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Octetstring_qualifier_decl =
 {
     /* name */
@@ -604,14 +604,14 @@ _Octetstring_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Out_qualifier_decl =
 {
     /* name */
@@ -621,14 +621,14 @@ _Out_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Override_qualifier_decl =
 {
     /* name */
@@ -638,14 +638,14 @@ _Override_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_REFERENCE|META_SCOPE_METHOD,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_REFERENCE|SCHEMA_SCOPE_METHOD,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_RESTRICTED,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_RESTRICTED,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Propagated_qualifier_decl =
 {
     /* name */
@@ -655,14 +655,14 @@ _Propagated_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY,
+    SCHEMA_SCOPE_PROPERTY,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _PropertyConstraint_qualifier_decl =
 {
     /* name */
@@ -672,14 +672,14 @@ _PropertyConstraint_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_REFERENCE,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_REFERENCE,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Read_qualifier_decl =
 {
     /* name */
@@ -689,14 +689,14 @@ _Read_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY,
+    SCHEMA_SCOPE_PROPERTY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\001",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Required_qualifier_decl =
 {
     /* name */
@@ -706,14 +706,14 @@ _Required_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_REFERENCE|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_REFERENCE|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Revision_qualifier_decl =
 {
     /* name */
@@ -723,14 +723,14 @@ _Revision_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_ASSOCIATION|META_SCOPE_INDICATION,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_INDICATION,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS|META_FLAVOR_TRANSLATABLE,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_TRANSLATABLE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _CLASS_qualifier_decl =
 {
     /* name */
@@ -740,14 +740,14 @@ _CLASS_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_TRANSLATABLE|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_TRANSLATABLE|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Source_qualifier_decl =
 {
     /* name */
@@ -757,14 +757,14 @@ _Source_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_ASSOCIATION|META_SCOPE_INDICATION,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_INDICATION,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _SourceType_qualifier_decl =
 {
     /* name */
@@ -774,14 +774,14 @@ _SourceType_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_ASSOCIATION|META_SCOPE_INDICATION|META_SCOPE_REFERENCE,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_INDICATION|SCHEMA_SCOPE_REFERENCE,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Static_qualifier_decl =
 {
     /* name */
@@ -791,14 +791,14 @@ _Static_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Terminal_qualifier_decl =
 {
     /* name */
@@ -808,14 +808,14 @@ _Terminal_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_ASSOCIATION|META_SCOPE_INDICATION,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_INDICATION,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _UMLPackagePath_qualifier_decl =
 {
     /* name */
@@ -825,14 +825,14 @@ _UMLPackagePath_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_ASSOCIATION|META_SCOPE_INDICATION,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_INDICATION,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Units_qualifier_decl =
 {
     /* name */
@@ -842,14 +842,14 @@ _Units_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS|META_FLAVOR_TRANSLATABLE,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_TRANSLATABLE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _ValueMap_qualifier_decl =
 {
     /* name */
@@ -859,14 +859,14 @@ _ValueMap_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Values_qualifier_decl =
 {
     /* name */
@@ -876,14 +876,14 @@ _Values_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS|META_FLAVOR_TRANSLATABLE,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_TRANSLATABLE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Version_qualifier_decl =
 {
     /* name */
@@ -893,14 +893,14 @@ _Version_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_ASSOCIATION|META_SCOPE_INDICATION,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_INDICATION,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TRANSLATABLE|META_FLAVOR_RESTRICTED,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TRANSLATABLE|SCHEMA_FLAVOR_RESTRICTED,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Weak_qualifier_decl =
 {
     /* name */
@@ -910,14 +910,14 @@ _Weak_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_REFERENCE,
+    SCHEMA_SCOPE_REFERENCE,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_TOINSTANCE|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_TOINSTANCE|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Write_qualifier_decl =
 {
     /* name */
@@ -927,14 +927,14 @@ _Write_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY,
+    SCHEMA_SCOPE_PROPERTY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Alias_qualifier_decl =
 {
     /* name */
@@ -944,14 +944,14 @@ _Alias_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_REFERENCE|META_SCOPE_METHOD,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_REFERENCE|SCHEMA_SCOPE_METHOD,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS|META_FLAVOR_TRANSLATABLE,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_TRANSLATABLE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Delete_qualifier_decl =
 {
     /* name */
@@ -961,14 +961,14 @@ _Delete_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_ASSOCIATION|META_SCOPE_REFERENCE,
+    SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_REFERENCE,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Expensive_qualifier_decl =
 {
     /* name */
@@ -978,14 +978,14 @@ _Expensive_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_ANY,
+    SCHEMA_SCOPE_ANY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Ifdeleted_qualifier_decl =
 {
     /* name */
@@ -995,14 +995,14 @@ _Ifdeleted_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_ASSOCIATION|META_SCOPE_REFERENCE,
+    SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_REFERENCE,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Invisible_qualifier_decl =
 {
     /* name */
@@ -1012,14 +1012,14 @@ _Invisible_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_ASSOCIATION|META_SCOPE_PROPERTY|META_SCOPE_REFERENCE|META_SCOPE_METHOD,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_REFERENCE|SCHEMA_SCOPE_METHOD,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Large_qualifier_decl =
 {
     /* name */
@@ -1029,14 +1029,14 @@ _Large_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_PROPERTY,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_PROPERTY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _PropertyUsage_qualifier_decl =
 {
     /* name */
@@ -1046,14 +1046,14 @@ _PropertyUsage_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY,
+    SCHEMA_SCOPE_PROPERTY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "CurrentContext",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Provider_qualifier_decl =
 {
     /* name */
@@ -1063,14 +1063,14 @@ _Provider_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_ANY,
+    SCHEMA_SCOPE_ANY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _SyntaxType_qualifier_decl =
 {
     /* name */
@@ -1080,14 +1080,14 @@ _SyntaxType_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_REFERENCE|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_REFERENCE|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Syntax_qualifier_decl =
 {
     /* name */
@@ -1097,14 +1097,14 @@ _Syntax_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_REFERENCE|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_REFERENCE|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _TriggerType_qualifier_decl =
 {
     /* name */
@@ -1114,14 +1114,14 @@ _TriggerType_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_ASSOCIATION|META_SCOPE_INDICATION|META_SCOPE_PROPERTY|META_SCOPE_REFERENCE|META_SCOPE_METHOD,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_INDICATION|SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_REFERENCE|SCHEMA_SCOPE_METHOD,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _UnknownValues_qualifier_decl =
 {
     /* name */
@@ -1131,14 +1131,14 @@ _UnknownValues_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_PROPERTY,
+    SCHEMA_SCOPE_PROPERTY,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _UnsupportedValues_qualifier_decl =
 {
     /* name */
@@ -1148,9 +1148,9 @@ _UnsupportedValues_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_PROPERTY,
+    SCHEMA_SCOPE_PROPERTY,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     0,
 };
@@ -1161,12 +1161,12 @@ _UnsupportedValues_qualifier_decl =
 //
 //==============================================================================
 
-extern MetaClass __root_PG_Internal_PG_Authorization;
-extern MetaClass __root_PG_Internal_PG_ConfigSetting;
-extern MetaClass __root_PG_Internal_PG_User;
-extern MetaClass __root_PG_Internal_PG_ShutdownService;
-extern MetaClass __root_PG_Internal_PG_SSLCertificate;
-extern MetaClass __root_PG_Internal_PG_SSLCertificateRevocationList;
+extern SchemaClass __root_PG_Internal_PG_Authorization;
+extern SchemaClass __root_PG_Internal_PG_ConfigSetting;
+extern SchemaClass __root_PG_Internal_PG_User;
+extern SchemaClass __root_PG_Internal_PG_ShutdownService;
+extern SchemaClass __root_PG_Internal_PG_SSLCertificate;
+extern SchemaClass __root_PG_Internal_PG_SSLCertificateRevocationList;
 
 //==============================================================================
 //
@@ -1184,11 +1184,11 @@ _PG_Authorization_Username_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_Authorization_Username =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Username",
     /* qualifiers */
@@ -1211,11 +1211,11 @@ _PG_Authorization_Namespace_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_Authorization_Namespace =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Namespace",
     /* qualifiers */
@@ -1234,11 +1234,11 @@ _PG_Authorization_Authorization_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_Authorization_Authorization =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Authorization",
     /* qualifiers */
@@ -1251,12 +1251,12 @@ _PG_Authorization_Authorization =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_Authorization_features[] =
 {
-    (MetaFeature*)&_PG_Authorization_Username,
-    (MetaFeature*)&_PG_Authorization_Namespace,
-    (MetaFeature*)&_PG_Authorization_Authorization,
+    (SchemaFeature*)&_PG_Authorization_Username,
+    (SchemaFeature*)&_PG_Authorization_Namespace,
+    (SchemaFeature*)&_PG_Authorization_Authorization,
     0,
 };
 
@@ -1268,11 +1268,11 @@ __root_PG_Internal_PG_Authorization_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_Internal_PG_Authorization =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "PG_Authorization",
     /* qualifiers */
@@ -1299,11 +1299,11 @@ _PG_ConfigSetting_PropertyName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ConfigSetting_PropertyName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "PropertyName",
     /* qualifiers */
@@ -1322,11 +1322,11 @@ _PG_ConfigSetting_DefaultValue_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ConfigSetting_DefaultValue =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "DefaultValue",
     /* qualifiers */
@@ -1345,11 +1345,11 @@ _PG_ConfigSetting_CurrentValue_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ConfigSetting_CurrentValue =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "CurrentValue",
     /* qualifiers */
@@ -1368,11 +1368,11 @@ _PG_ConfigSetting_PlannedValue_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ConfigSetting_PlannedValue =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "PlannedValue",
     /* qualifiers */
@@ -1391,11 +1391,11 @@ _PG_ConfigSetting_DynamicProperty_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ConfigSetting_DynamicProperty =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "DynamicProperty",
     /* qualifiers */
@@ -1408,14 +1408,14 @@ _PG_ConfigSetting_DynamicProperty =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_ConfigSetting_features[] =
 {
-    (MetaFeature*)&_PG_ConfigSetting_PropertyName,
-    (MetaFeature*)&_PG_ConfigSetting_DefaultValue,
-    (MetaFeature*)&_PG_ConfigSetting_CurrentValue,
-    (MetaFeature*)&_PG_ConfigSetting_PlannedValue,
-    (MetaFeature*)&_PG_ConfigSetting_DynamicProperty,
+    (SchemaFeature*)&_PG_ConfigSetting_PropertyName,
+    (SchemaFeature*)&_PG_ConfigSetting_DefaultValue,
+    (SchemaFeature*)&_PG_ConfigSetting_CurrentValue,
+    (SchemaFeature*)&_PG_ConfigSetting_PlannedValue,
+    (SchemaFeature*)&_PG_ConfigSetting_DynamicProperty,
     0,
 };
 
@@ -1427,11 +1427,11 @@ __root_PG_Internal_PG_ConfigSetting_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_Internal_PG_ConfigSetting =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "PG_ConfigSetting",
     /* qualifiers */
@@ -1458,11 +1458,11 @@ _PG_User_Username_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_User_Username =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Username",
     /* qualifiers */
@@ -1481,11 +1481,11 @@ _PG_User_Password_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_User_Password =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Password",
     /* qualifiers */
@@ -1506,11 +1506,11 @@ _PG_User_modifyPassword_oldPassword_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_User_modifyPassword_oldPassword =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "oldPassword",
     /* qualifiers */
@@ -1531,11 +1531,11 @@ _PG_User_modifyPassword_newPassword_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_User_modifyPassword_newPassword =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "newPassword",
     /* qualifiers */
@@ -1548,11 +1548,11 @@ _PG_User_modifyPassword_newPassword =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_User_modifyPassword_parameters[] =
 {
-    (MetaFeature*)&_PG_User_modifyPassword_oldPassword,
-    (MetaFeature*)&_PG_User_modifyPassword_newPassword,
+    (SchemaFeature*)&_PG_User_modifyPassword_oldPassword,
+    (SchemaFeature*)&_PG_User_modifyPassword_newPassword,
     0,
 };
 
@@ -1562,11 +1562,11 @@ _PG_User_modifyPassword_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _PG_User_modifyPassword =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "PG_User",
     /* qualifiers */
@@ -1577,12 +1577,12 @@ _PG_User_modifyPassword =
     _PG_User_modifyPassword_parameters,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_User_features[] =
 {
-    (MetaFeature*)&_PG_User_Username,
-    (MetaFeature*)&_PG_User_Password,
-    (MetaFeature*)&_PG_User_modifyPassword,
+    (SchemaFeature*)&_PG_User_Username,
+    (SchemaFeature*)&_PG_User_Password,
+    (SchemaFeature*)&_PG_User_modifyPassword,
     0,
 };
 
@@ -1594,11 +1594,11 @@ __root_PG_Internal_PG_User_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_Internal_PG_User =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "PG_User",
     /* qualifiers */
@@ -1623,11 +1623,11 @@ _PG_ShutdownService_shutdown_force_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ShutdownService_shutdown_force =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "force",
     /* qualifiers */
@@ -1648,11 +1648,11 @@ _PG_ShutdownService_shutdown_timeout_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ShutdownService_shutdown_timeout =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "timeout",
     /* qualifiers */
@@ -1665,11 +1665,11 @@ _PG_ShutdownService_shutdown_timeout =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_ShutdownService_shutdown_parameters[] =
 {
-    (MetaFeature*)&_PG_ShutdownService_shutdown_force,
-    (MetaFeature*)&_PG_ShutdownService_shutdown_timeout,
+    (SchemaFeature*)&_PG_ShutdownService_shutdown_force,
+    (SchemaFeature*)&_PG_ShutdownService_shutdown_timeout,
     0,
 };
 
@@ -1681,11 +1681,11 @@ _PG_ShutdownService_shutdown_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _PG_ShutdownService_shutdown =
 {
     /* flags */
-    META_FLAG_METHOD|META_FLAG_STATIC,
+    SCHEMA_FLAG_METHOD|SCHEMA_FLAG_STATIC,
     /* name */
     "PG_ShutdownService",
     /* qualifiers */
@@ -1696,10 +1696,10 @@ _PG_ShutdownService_shutdown =
     _PG_ShutdownService_shutdown_parameters,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_ShutdownService_features[] =
 {
-    (MetaFeature*)&_PG_ShutdownService_shutdown,
+    (SchemaFeature*)&_PG_ShutdownService_shutdown,
     0,
 };
 
@@ -1711,11 +1711,11 @@ __root_PG_Internal_PG_ShutdownService_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_Internal_PG_ShutdownService =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "PG_ShutdownService",
     /* qualifiers */
@@ -1742,11 +1742,11 @@ _PG_SSLCertificate_IssuerName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_SSLCertificate_IssuerName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "IssuerName",
     /* qualifiers */
@@ -1769,11 +1769,11 @@ _PG_SSLCertificate_SerialNumber_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_SSLCertificate_SerialNumber =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SerialNumber",
     /* qualifiers */
@@ -1798,11 +1798,11 @@ _PG_SSLCertificate_TruststoreType_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_SSLCertificate_TruststoreType =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "TruststoreType",
     /* qualifiers */
@@ -1823,11 +1823,11 @@ _PG_SSLCertificate_SubjectName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_SSLCertificate_SubjectName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SubjectName",
     /* qualifiers */
@@ -1846,11 +1846,11 @@ _PG_SSLCertificate_NotBefore_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_SSLCertificate_NotBefore =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "NotBefore",
     /* qualifiers */
@@ -1869,11 +1869,11 @@ _PG_SSLCertificate_NotAfter_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_SSLCertificate_NotAfter =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "NotAfter",
     /* qualifiers */
@@ -1892,11 +1892,11 @@ _PG_SSLCertificate_TruststorePath_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_SSLCertificate_TruststorePath =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "TruststorePath",
     /* qualifiers */
@@ -1915,11 +1915,11 @@ _PG_SSLCertificate_RegisteredUserName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_SSLCertificate_RegisteredUserName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "RegisteredUserName",
     /* qualifiers */
@@ -1942,11 +1942,11 @@ _PG_SSLCertificate_CertificateType_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_SSLCertificate_CertificateType =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "CertificateType",
     /* qualifiers */
@@ -1967,11 +1967,11 @@ _PG_SSLCertificate_addCertificate_certificateContents_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_SSLCertificate_addCertificate_certificateContents =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "certificateContents",
     /* qualifiers */
@@ -1992,11 +1992,11 @@ _PG_SSLCertificate_addCertificate_userName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_SSLCertificate_addCertificate_userName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "userName",
     /* qualifiers */
@@ -2017,11 +2017,11 @@ _PG_SSLCertificate_addCertificate_certificateType_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_SSLCertificate_addCertificate_certificateType =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "certificateType",
     /* qualifiers */
@@ -2034,12 +2034,12 @@ _PG_SSLCertificate_addCertificate_certificateType =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_SSLCertificate_addCertificate_parameters[] =
 {
-    (MetaFeature*)&_PG_SSLCertificate_addCertificate_certificateContents,
-    (MetaFeature*)&_PG_SSLCertificate_addCertificate_userName,
-    (MetaFeature*)&_PG_SSLCertificate_addCertificate_certificateType,
+    (SchemaFeature*)&_PG_SSLCertificate_addCertificate_certificateContents,
+    (SchemaFeature*)&_PG_SSLCertificate_addCertificate_userName,
+    (SchemaFeature*)&_PG_SSLCertificate_addCertificate_certificateType,
     0,
 };
 
@@ -2051,11 +2051,11 @@ _PG_SSLCertificate_addCertificate_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _PG_SSLCertificate_addCertificate =
 {
     /* flags */
-    META_FLAG_METHOD|META_FLAG_STATIC,
+    SCHEMA_FLAG_METHOD|SCHEMA_FLAG_STATIC,
     /* name */
     "PG_SSLCertificate",
     /* qualifiers */
@@ -2066,19 +2066,19 @@ _PG_SSLCertificate_addCertificate =
     _PG_SSLCertificate_addCertificate_parameters,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_SSLCertificate_features[] =
 {
-    (MetaFeature*)&_PG_SSLCertificate_IssuerName,
-    (MetaFeature*)&_PG_SSLCertificate_SerialNumber,
-    (MetaFeature*)&_PG_SSLCertificate_TruststoreType,
-    (MetaFeature*)&_PG_SSLCertificate_SubjectName,
-    (MetaFeature*)&_PG_SSLCertificate_NotBefore,
-    (MetaFeature*)&_PG_SSLCertificate_NotAfter,
-    (MetaFeature*)&_PG_SSLCertificate_TruststorePath,
-    (MetaFeature*)&_PG_SSLCertificate_RegisteredUserName,
-    (MetaFeature*)&_PG_SSLCertificate_CertificateType,
-    (MetaFeature*)&_PG_SSLCertificate_addCertificate,
+    (SchemaFeature*)&_PG_SSLCertificate_IssuerName,
+    (SchemaFeature*)&_PG_SSLCertificate_SerialNumber,
+    (SchemaFeature*)&_PG_SSLCertificate_TruststoreType,
+    (SchemaFeature*)&_PG_SSLCertificate_SubjectName,
+    (SchemaFeature*)&_PG_SSLCertificate_NotBefore,
+    (SchemaFeature*)&_PG_SSLCertificate_NotAfter,
+    (SchemaFeature*)&_PG_SSLCertificate_TruststorePath,
+    (SchemaFeature*)&_PG_SSLCertificate_RegisteredUserName,
+    (SchemaFeature*)&_PG_SSLCertificate_CertificateType,
+    (SchemaFeature*)&_PG_SSLCertificate_addCertificate,
     0,
 };
 
@@ -2090,11 +2090,11 @@ __root_PG_Internal_PG_SSLCertificate_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_Internal_PG_SSLCertificate =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "PG_SSLCertificate",
     /* qualifiers */
@@ -2121,11 +2121,11 @@ _PG_SSLCertificateRevocationList_IssuerName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_SSLCertificateRevocationList_IssuerName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "IssuerName",
     /* qualifiers */
@@ -2144,11 +2144,11 @@ _PG_SSLCertificateRevocationList_LastUpdate_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_SSLCertificateRevocationList_LastUpdate =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "LastUpdate",
     /* qualifiers */
@@ -2167,11 +2167,11 @@ _PG_SSLCertificateRevocationList_NextUpdate_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_SSLCertificateRevocationList_NextUpdate =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "NextUpdate",
     /* qualifiers */
@@ -2190,11 +2190,11 @@ _PG_SSLCertificateRevocationList_RevokedSerialNumbers_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_SSLCertificateRevocationList_RevokedSerialNumbers =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "RevokedSerialNumbers",
     /* qualifiers */
@@ -2213,11 +2213,11 @@ _PG_SSLCertificateRevocationList_RevocationDates_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_SSLCertificateRevocationList_RevocationDates =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "RevocationDates",
     /* qualifiers */
@@ -2238,11 +2238,11 @@ _PG_SSLCertificateRevocationList_addCertificateRevocationList_CRLContents_qualif
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_SSLCertificateRevocationList_addCertificateRevocationList_CRLContents =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "CRLContents",
     /* qualifiers */
@@ -2255,10 +2255,10 @@ _PG_SSLCertificateRevocationList_addCertificateRevocationList_CRLContents =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_SSLCertificateRevocationList_addCertificateRevocationList_parameters[] =
 {
-    (MetaFeature*)&_PG_SSLCertificateRevocationList_addCertificateRevocationList_CRLContents,
+    (SchemaFeature*)&_PG_SSLCertificateRevocationList_addCertificateRevocationList_CRLContents,
     0,
 };
 
@@ -2270,11 +2270,11 @@ _PG_SSLCertificateRevocationList_addCertificateRevocationList_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _PG_SSLCertificateRevocationList_addCertificateRevocationList =
 {
     /* flags */
-    META_FLAG_METHOD|META_FLAG_STATIC,
+    SCHEMA_FLAG_METHOD|SCHEMA_FLAG_STATIC,
     /* name */
     "PG_SSLCertificateRevocationList",
     /* qualifiers */
@@ -2285,15 +2285,15 @@ _PG_SSLCertificateRevocationList_addCertificateRevocationList =
     _PG_SSLCertificateRevocationList_addCertificateRevocationList_parameters,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_SSLCertificateRevocationList_features[] =
 {
-    (MetaFeature*)&_PG_SSLCertificateRevocationList_IssuerName,
-    (MetaFeature*)&_PG_SSLCertificateRevocationList_LastUpdate,
-    (MetaFeature*)&_PG_SSLCertificateRevocationList_NextUpdate,
-    (MetaFeature*)&_PG_SSLCertificateRevocationList_RevokedSerialNumbers,
-    (MetaFeature*)&_PG_SSLCertificateRevocationList_RevocationDates,
-    (MetaFeature*)&_PG_SSLCertificateRevocationList_addCertificateRevocationList,
+    (SchemaFeature*)&_PG_SSLCertificateRevocationList_IssuerName,
+    (SchemaFeature*)&_PG_SSLCertificateRevocationList_LastUpdate,
+    (SchemaFeature*)&_PG_SSLCertificateRevocationList_NextUpdate,
+    (SchemaFeature*)&_PG_SSLCertificateRevocationList_RevokedSerialNumbers,
+    (SchemaFeature*)&_PG_SSLCertificateRevocationList_RevocationDates,
+    (SchemaFeature*)&_PG_SSLCertificateRevocationList_addCertificateRevocationList,
     0,
 };
 
@@ -2305,11 +2305,11 @@ __root_PG_Internal_PG_SSLCertificateRevocationList_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_Internal_PG_SSLCertificateRevocationList =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "PG_SSLCertificateRevocationList",
     /* qualifiers */
@@ -2326,7 +2326,7 @@ __root_PG_Internal_PG_SSLCertificateRevocationList =
 //
 //==============================================================================
 
-static MetaQualifierDecl*
+static SchemaQualifierDecl*
 _qualifiers[] =
 {
     &_ASSOCIATION_qualifier_decl,
@@ -2405,7 +2405,7 @@ _qualifiers[] =
 //
 //==============================================================================
 
-static MetaClass*
+static SchemaClass*
 _classes[] =
 {
     &__root_PG_Internal_PG_Authorization,
@@ -2417,7 +2417,7 @@ _classes[] =
     0,
 };
 
-const MetaNameSpace root_PG_Internal_namespace =
+const SchemaNameSpace root_PG_Internal_namespace =
 {
     "root/PG_Internal",
     _qualifiers,

@@ -104,7 +104,7 @@ public:
         @param nameSpace pointer to generated namespace to be added.
         @return true if successful.
     */
-    Boolean addNameSpace(const struct MetaNameSpace* nameSpace);
+    Boolean addNameSpace(const struct SchemaNameSpace* nameSpace);
 
     /** Run the cimserver. This function returns when the server is shut down.
         @param argc

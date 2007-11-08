@@ -224,18 +224,22 @@ class ReadLock
 {
 public:
 
-    ReadLock(ReadWriteSem& rwsem) : _rwsem(rwsem)
+    ReadLock(ReadWriteSem& rwsem, bool performLock = true) 
+        : _rwsem(rwsem), _performLock(performLock)
     {
-        _rwsem.wait_read(Threads::self());
+        if (_performLock)
+            _rwsem.wait_read(Threads::self());
     }
 
     ~ReadLock()
     {
-        _rwsem.unlock_read(Threads::self());
+        if (_performLock)
+            _rwsem.unlock_read(Threads::self());
     }
 
 private:
     ReadWriteSem & _rwsem;
+    bool _performLock;
 };
 
 //==============================================================================
@@ -248,76 +252,22 @@ class WriteLock
 {
 public:
 
-    WriteLock(ReadWriteSem& rwsem) : _rwsem(rwsem)
+    WriteLock(ReadWriteSem& rwsem, bool performLock = true) 
+        : _rwsem(rwsem), _performLock(performLock)
     {
-        _rwsem.wait_write(Threads::self());
+        if (_performLock)
+            _rwsem.wait_write(Threads::self());
     }
 
     ~WriteLock()
     {
-        _rwsem.unlock_write(Threads::self());
+        if (_performLock)
+            _rwsem.unlock_write(Threads::self());
     }
 
 private:
     ReadWriteSem & _rwsem;
-};
-
-//==============================================================================
-//
-// ConditionalReadLock
-//
-//     Like ReadLock but only locks/unlocks if cond parameter is true.
-//
-//==============================================================================
-
-class ConditionalReadLock
-{
-public:
-
-    ConditionalReadLock(ReadWriteSem& sem, bool cond) : _sem(sem), _cond(cond)
-    {
-        if (_cond)
-            _sem.wait_read(Threads::self());
-    }
-
-    ~ConditionalReadLock()
-    {
-        if (_cond)
-            _sem.unlock_read(Threads::self());
-    }
-
-private:
-    ReadWriteSem& _sem;
-    bool _cond;
-};
-
-//==============================================================================
-//
-// ConditionalWriteLock
-//
-//     Like WriteLock but only locks/unlocks if cond parameter is true.
-//
-//==============================================================================
-
-class ConditionalWriteLock
-{
-public:
-
-    ConditionalWriteLock(ReadWriteSem& sem, bool cond) : _sem(sem), _cond(cond)
-    {
-        if (_cond)
-            _sem.wait_write(Threads::self());
-    }
-
-    ~ConditionalWriteLock()
-    {
-        if (_cond)
-            _sem.unlock_write(Threads::self());
-    }
-
-private:
-    ReadWriteSem& _sem;
-    bool _cond;
+    bool _performLock;
 };
 
 PEGASUS_NAMESPACE_END

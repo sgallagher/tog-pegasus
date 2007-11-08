@@ -35,9 +35,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-Repository::Repository(const String& repositoryRoot, Uint32 repositoryMode) :
-    _repositoryRoot(repositoryRoot), _repositoryMode(repositoryMode)
-
+Repository::Repository()
 {
 }
 

@@ -34,7 +34,7 @@
 #include <cstdarg>
 #include <cctype>
 #include <Pegasus/Common/System.h>
-#include <Pegasus/Repository/MetaTypes.h>
+#include <Pegasus/Repository/SchemaTypes.h>
 #include <Pegasus/Repository/Serialization.h>
 #include "cimmofMRRConsumer.h"
 #include "Closure.h"
@@ -126,11 +126,11 @@ static void _writeHeaderFile(const String& ns)
         "#ifndef _%s_namespace_h\n"
         "#define _%s_namespace_h\n"
         "\n"
-        "#include <Pegasus/Repository/MetaTypes.h>\n"
+        "#include <Pegasus/Repository/SchemaTypes.h>\n"
         "\n"
         "PEGASUS_NAMESPACE_BEGIN\n"
         "\n"
-        "extern const MetaNameSpace %s_namespace;\n"
+        "extern const SchemaNameSpace %s_namespace;\n"
         "\n"
         "PEGASUS_NAMESPACE_END\n"
         "\n"
@@ -221,10 +221,10 @@ static void _writeFlags(
     Uint32 flags = 0;
 
     if (isProperty)
-        flags |= META_FLAG_READ;
+        flags |= SCHEMA_FLAG_READ;
 
     if (isParameter)
-        flags |= META_FLAG_IN;
+        flags |= SCHEMA_FLAG_IN;
 
     for (Uint32 i = 0; i < c.getQualifierCount(); i++)
     {
@@ -241,163 +241,163 @@ static void _writeFlags(
         if (System::strcasecmp(*Str(qn), "KEY") == 0)
         {
             if (x)
-                flags |= META_FLAG_KEY;
+                flags |= SCHEMA_FLAG_KEY;
             else
-                flags &= ~META_FLAG_KEY;
+                flags &= ~SCHEMA_FLAG_KEY;
         }
         else if (System::strcasecmp(*Str(qn), "IN") == 0)
         {
             if (x)
-                flags |= META_FLAG_IN;
+                flags |= SCHEMA_FLAG_IN;
             else
-                flags &= ~META_FLAG_IN;
+                flags &= ~SCHEMA_FLAG_IN;
         }
         else if (System::strcasecmp(*Str(qn), "OUT") == 0)
         {
             if (x)
-                flags |= META_FLAG_OUT;
+                flags |= SCHEMA_FLAG_OUT;
             else
-                flags &= ~META_FLAG_OUT;
+                flags &= ~SCHEMA_FLAG_OUT;
         }
         else if (System::strcasecmp(*Str(qn), "ABSTRACT") == 0)
         {
             if (x)
-                flags |= META_FLAG_ABSTRACT;
+                flags |= SCHEMA_FLAG_ABSTRACT;
             else
-                flags &= ~META_FLAG_ABSTRACT;
+                flags &= ~SCHEMA_FLAG_ABSTRACT;
         }
         else if (System::strcasecmp(*Str(qn), "AGGREGATE") == 0)
         {
             if (x)
-                flags |= META_FLAG_AGGREGATE;
+                flags |= SCHEMA_FLAG_AGGREGATE;
             else
-                flags &= ~META_FLAG_AGGREGATE;
+                flags &= ~SCHEMA_FLAG_AGGREGATE;
         }
         else if (System::strcasecmp(*Str(qn), "AGGREGATION") == 0)
         {
             if (x)
-                flags |= META_FLAG_AGGREGATION;
+                flags |= SCHEMA_FLAG_AGGREGATION;
             else
-                flags &= ~META_FLAG_AGGREGATION;
+                flags &= ~SCHEMA_FLAG_AGGREGATION;
         }
         else if (System::strcasecmp(*Str(qn), "COUNTER") == 0)
         {
             if (x)
-                flags |= META_FLAG_COUNTER;
+                flags |= SCHEMA_FLAG_COUNTER;
             else
-                flags &= ~META_FLAG_COUNTER;
+                flags &= ~SCHEMA_FLAG_COUNTER;
         }
         else if (System::strcasecmp(*Str(qn), "DELETE") == 0)
         {
             if (x)
-                flags |= META_FLAG_DELETE;
+                flags |= SCHEMA_FLAG_DELETE;
             else
-                flags &= ~META_FLAG_DELETE;
+                flags &= ~SCHEMA_FLAG_DELETE;
         }
         else if (System::strcasecmp(*Str(qn), "DN") == 0)
         {
             if (x)
-                flags |= META_FLAG_DN;
+                flags |= SCHEMA_FLAG_DN;
             else
-                flags &= ~META_FLAG_DN;
+                flags &= ~SCHEMA_FLAG_DN;
         }
         else if (System::strcasecmp(*Str(qn), "EMBEDDEDOBJECT") == 0)
         {
             if (x)
-                flags |= META_FLAG_EMBEDDEDOBJECT;
+                flags |= SCHEMA_FLAG_EMBEDDEDOBJECT;
             else
-                flags &= ~META_FLAG_EMBEDDEDOBJECT;
+                flags &= ~SCHEMA_FLAG_EMBEDDEDOBJECT;
         }
         else if (System::strcasecmp(*Str(qn), "EXPENSIVE") == 0)
         {
             if (x)
-                flags |= META_FLAG_EXPENSIVE;
+                flags |= SCHEMA_FLAG_EXPENSIVE;
             else
-                flags &= ~META_FLAG_EXPENSIVE;
+                flags &= ~SCHEMA_FLAG_EXPENSIVE;
         }
         else if (System::strcasecmp(*Str(qn), "EXPERIMENTAL") == 0)
         {
             if (x)
-                flags |= META_FLAG_EXPERIMENTAL;
+                flags |= SCHEMA_FLAG_EXPERIMENTAL;
             else
-                flags &= ~META_FLAG_EXPERIMENTAL;
+                flags &= ~SCHEMA_FLAG_EXPERIMENTAL;
         }
         else if (System::strcasecmp(*Str(qn), "GAUGE") == 0)
         {
             if (x)
-                flags |= META_FLAG_GAUGE;
+                flags |= SCHEMA_FLAG_GAUGE;
             else
-                flags &= ~META_FLAG_GAUGE;
+                flags &= ~SCHEMA_FLAG_GAUGE;
         }
         else if (System::strcasecmp(*Str(qn), "IFDELETED") == 0)
         {
             if (x)
-                flags |= META_FLAG_IFDELETED;
+                flags |= SCHEMA_FLAG_IFDELETED;
             else
-                flags &= ~META_FLAG_IFDELETED;
+                flags &= ~SCHEMA_FLAG_IFDELETED;
         }
         else if (System::strcasecmp(*Str(qn), "INVISIBLE") == 0)
         {
             if (x)
-                flags |= META_FLAG_INVISIBLE;
+                flags |= SCHEMA_FLAG_INVISIBLE;
             else
-                flags &= ~META_FLAG_INVISIBLE;
+                flags &= ~SCHEMA_FLAG_INVISIBLE;
         }
         else if (System::strcasecmp(*Str(qn), "LARGE") == 0)
         {
             if (x)
-                flags |= META_FLAG_LARGE;
+                flags |= SCHEMA_FLAG_LARGE;
             else
-                flags &= ~META_FLAG_LARGE;
+                flags &= ~SCHEMA_FLAG_LARGE;
         }
         else if (System::strcasecmp(*Str(qn), "OCTETSTRING") == 0)
         {
             if (x)
-                flags |= META_FLAG_OCTETSTRING;
+                flags |= SCHEMA_FLAG_OCTETSTRING;
             else
-                flags &= ~META_FLAG_OCTETSTRING;
+                flags &= ~SCHEMA_FLAG_OCTETSTRING;
         }
         else if (System::strcasecmp(*Str(qn), "READ") == 0)
         {
             if (x)
-                flags |= META_FLAG_READ;
+                flags |= SCHEMA_FLAG_READ;
             else
-                flags &= ~META_FLAG_READ;
+                flags &= ~SCHEMA_FLAG_READ;
         }
         else if (System::strcasecmp(*Str(qn), "REQUIRED") == 0)
         {
             if (x)
-                flags |= META_FLAG_REQUIRED;
+                flags |= SCHEMA_FLAG_REQUIRED;
             else
-                flags &= ~META_FLAG_REQUIRED;
+                flags &= ~SCHEMA_FLAG_REQUIRED;
         }
         else if (System::strcasecmp(*Str(qn), "STATIC") == 0)
         {
             if (x)
-                flags |= META_FLAG_STATIC;
+                flags |= SCHEMA_FLAG_STATIC;
             else
-                flags &= ~META_FLAG_STATIC;
+                flags &= ~SCHEMA_FLAG_STATIC;
         }
         else if (System::strcasecmp(*Str(qn), "TERMINAL") == 0)
         {
             if (x)
-                flags |= META_FLAG_TERMINAL;
+                flags |= SCHEMA_FLAG_TERMINAL;
             else
-                flags &= ~META_FLAG_TERMINAL;
+                flags &= ~SCHEMA_FLAG_TERMINAL;
         }
         else if (System::strcasecmp(*Str(qn), "WEAK") == 0)
         {
             if (x)
-                flags |= META_FLAG_WEAK;
+                flags |= SCHEMA_FLAG_WEAK;
             else
-                flags &= ~META_FLAG_WEAK;
+                flags &= ~SCHEMA_FLAG_WEAK;
         }
         else if (System::strcasecmp(*Str(qn), "WRITE") == 0)
         {
             if (x)
-                flags |= META_FLAG_WRITE;
+                flags |= SCHEMA_FLAG_WRITE;
             else
-                flags &= ~META_FLAG_WRITE;
+                flags &= ~SCHEMA_FLAG_WRITE;
         }
         else
         {
@@ -407,52 +407,52 @@ static void _writeFlags(
 
     // Write flags mask:
 
-    if (flags & META_FLAG_KEY)
-        fprintf(os, "|META_FLAG_KEY");
-    if (flags && (flags & META_FLAG_IN))
-        fprintf(os, "|META_FLAG_IN");
-    if (flags && (flags & META_FLAG_OUT))
-        fprintf(os, "|META_FLAG_OUT");
-    if (flags & META_FLAG_ABSTRACT)
-        fprintf(os, "|META_FLAG_ABSTRACT");
-    if (flags & META_FLAG_AGGREGATE)
-        fprintf(os, "|META_FLAG_AGGREGATE");
-    if (flags & META_FLAG_AGGREGATION)
-        fprintf(os, "|META_FLAG_AGGREGATION");
-    if (flags & META_FLAG_COUNTER)
-        fprintf(os, "|META_FLAG_COUNTER");
-    if (flags & META_FLAG_DELETE)
-        fprintf(os, "|META_FLAG_DELETE");
-    if (flags & META_FLAG_DN)
-        fprintf(os, "|META_FLAG_DN");
-    if (flags & META_FLAG_EMBEDDEDOBJECT)
-        fprintf(os, "|META_FLAG_EMBEDDEDOBJECT");
-    if (flags & META_FLAG_EXPENSIVE)
-        fprintf(os, "|META_FLAG_EXPENSIVE");
-    if (flags & META_FLAG_EXPERIMENTAL)
-        fprintf(os, "|META_FLAG_EXPERIMENTAL");
-    if (flags & META_FLAG_GAUGE)
-        fprintf(os, "|META_FLAG_GAUGE");
-    if (flags & META_FLAG_IFDELETED)
-        fprintf(os, "|META_FLAG_IFDELETED");
-    if (flags & META_FLAG_INVISIBLE)
-        fprintf(os, "|META_FLAG_INVISIBLE");
-    if (flags & META_FLAG_LARGE)
-        fprintf(os, "|META_FLAG_LARGE");
-    if (flags & META_FLAG_OCTETSTRING)
-        fprintf(os, "|META_FLAG_OCTETSTRING");
-    if (flags & META_FLAG_READ)
-        fprintf(os, "|META_FLAG_READ");
-    if (flags & META_FLAG_REQUIRED)
-        fprintf(os, "|META_FLAG_REQUIRED");
-    if (flags & META_FLAG_STATIC)
-        fprintf(os, "|META_FLAG_STATIC");
-    if (flags & META_FLAG_TERMINAL)
-        fprintf(os, "|META_FLAG_TERMINAL");
-    if (flags & META_FLAG_WEAK)
-        fprintf(os, "|META_FLAG_WEAK");
-    if (flags & META_FLAG_WRITE)
-        fprintf(os, "|META_FLAG_WRITE");
+    if (flags & SCHEMA_FLAG_KEY)
+        fprintf(os, "|SCHEMA_FLAG_KEY");
+    if (flags && (flags & SCHEMA_FLAG_IN))
+        fprintf(os, "|SCHEMA_FLAG_IN");
+    if (flags && (flags & SCHEMA_FLAG_OUT))
+        fprintf(os, "|SCHEMA_FLAG_OUT");
+    if (flags & SCHEMA_FLAG_ABSTRACT)
+        fprintf(os, "|SCHEMA_FLAG_ABSTRACT");
+    if (flags & SCHEMA_FLAG_AGGREGATE)
+        fprintf(os, "|SCHEMA_FLAG_AGGREGATE");
+    if (flags & SCHEMA_FLAG_AGGREGATION)
+        fprintf(os, "|SCHEMA_FLAG_AGGREGATION");
+    if (flags & SCHEMA_FLAG_COUNTER)
+        fprintf(os, "|SCHEMA_FLAG_COUNTER");
+    if (flags & SCHEMA_FLAG_DELETE)
+        fprintf(os, "|SCHEMA_FLAG_DELETE");
+    if (flags & SCHEMA_FLAG_DN)
+        fprintf(os, "|SCHEMA_FLAG_DN");
+    if (flags & SCHEMA_FLAG_EMBEDDEDOBJECT)
+        fprintf(os, "|SCHEMA_FLAG_EMBEDDEDOBJECT");
+    if (flags & SCHEMA_FLAG_EXPENSIVE)
+        fprintf(os, "|SCHEMA_FLAG_EXPENSIVE");
+    if (flags & SCHEMA_FLAG_EXPERIMENTAL)
+        fprintf(os, "|SCHEMA_FLAG_EXPERIMENTAL");
+    if (flags & SCHEMA_FLAG_GAUGE)
+        fprintf(os, "|SCHEMA_FLAG_GAUGE");
+    if (flags & SCHEMA_FLAG_IFDELETED)
+        fprintf(os, "|SCHEMA_FLAG_IFDELETED");
+    if (flags & SCHEMA_FLAG_INVISIBLE)
+        fprintf(os, "|SCHEMA_FLAG_INVISIBLE");
+    if (flags & SCHEMA_FLAG_LARGE)
+        fprintf(os, "|SCHEMA_FLAG_LARGE");
+    if (flags & SCHEMA_FLAG_OCTETSTRING)
+        fprintf(os, "|SCHEMA_FLAG_OCTETSTRING");
+    if (flags & SCHEMA_FLAG_READ)
+        fprintf(os, "|SCHEMA_FLAG_READ");
+    if (flags & SCHEMA_FLAG_REQUIRED)
+        fprintf(os, "|SCHEMA_FLAG_REQUIRED");
+    if (flags & SCHEMA_FLAG_STATIC)
+        fprintf(os, "|SCHEMA_FLAG_STATIC");
+    if (flags & SCHEMA_FLAG_TERMINAL)
+        fprintf(os, "|SCHEMA_FLAG_TERMINAL");
+    if (flags & SCHEMA_FLAG_WEAK)
+        fprintf(os, "|SCHEMA_FLAG_WEAK");
+    if (flags & SCHEMA_FLAG_WRITE)
+        fprintf(os, "|SCHEMA_FLAG_WRITE");
 }
 
 static bool _testBooleanQualifier(const CIMClass& cc, const CIMName& name)
@@ -544,12 +544,12 @@ static void _writeSint64(FILE* os, Sint64 x)
 
 static void _writeReal32(FILE* os, Real32 x)
 {
-    _writeUint32(os, *((Uint32*)&x));
+    _writeUint32(os, *((Uint32*)(void*)&x));
 }
 
 static void _writeReal64(FILE* os, Real64 x)
 {
-    _writeUint64(os, *((Uint64*)&x));
+    _writeUint64(os, *((Uint64*)(void*)&x));
 }
 
 static void _writeChar16(FILE* os, const Char16& x)
@@ -1307,23 +1307,23 @@ void cimmofMRRConsumer::_writeQualifierDecl(const CIMConstQualifierDecl& cq)
 
     String path = "_" + qn.getString() + "_qualifier_decl";
 
-    // Write MetaQualifierDecl header:
+    // Write SchemaQualifierDecl header:
 
-    _outn("static MetaQualifierDecl");
+    _outn("static SchemaQualifierDecl");
     _outn("%s =", *Str(path));
     _outn("{");
 
-    // MetaQualifierDecl.name:
+    // SchemaQualifierDecl.name:
 
     _outn("    /* name */");
     _outn("    \"%s\",", *Str(qn));
 
-    // MetaQualifierDecl.type:
+    // SchemaQualifierDecl.type:
 
     _outn("    /* type */");
     _outn("    %s,", _typeNames[qt]);
 
-    // MetaQualifierDecl.subscript:
+    // SchemaQualifierDecl.subscript:
 
     _outn("    /* subscript */");
 
@@ -1337,7 +1337,7 @@ void cimmofMRRConsumer::_writeQualifierDecl(const CIMConstQualifierDecl& cq)
         _outn("    -1,");
     }
 
-    // MetaQualifierDecl.scope:
+    // SchemaQualifierDecl.scope:
     {
         _outn("    /* scope */");
 
@@ -1345,23 +1345,23 @@ void cimmofMRRConsumer::_writeQualifierDecl(const CIMConstQualifierDecl& cq)
         Array<String> scopes;
 
         if (scope.hasScope(CIMScope::ANY))
-            scopes.append("META_SCOPE_ANY");
+            scopes.append("SCHEMA_SCOPE_ANY");
         else
         {
             if (scope.hasScope(CIMScope::CLASS))
-                scopes.append("META_SCOPE_CLASS");
+                scopes.append("SCHEMA_SCOPE_CLASS");
             if (scope.hasScope(CIMScope::ASSOCIATION))
-                scopes.append("META_SCOPE_ASSOCIATION");
+                scopes.append("SCHEMA_SCOPE_ASSOCIATION");
             if (scope.hasScope(CIMScope::INDICATION))
-                scopes.append("META_SCOPE_INDICATION");
+                scopes.append("SCHEMA_SCOPE_INDICATION");
             if (scope.hasScope(CIMScope::PROPERTY))
-                scopes.append("META_SCOPE_PROPERTY");
+                scopes.append("SCHEMA_SCOPE_PROPERTY");
             if (scope.hasScope(CIMScope::REFERENCE))
-                scopes.append("META_SCOPE_REFERENCE");
+                scopes.append("SCHEMA_SCOPE_REFERENCE");
             if (scope.hasScope(CIMScope::METHOD))
-                scopes.append("META_SCOPE_METHOD");
+                scopes.append("SCHEMA_SCOPE_METHOD");
             if (scope.hasScope(CIMScope::PARAMETER))
-                scopes.append("META_SCOPE_PARAMETER");
+                scopes.append("SCHEMA_SCOPE_PARAMETER");
         }
 
         _out("    ");
@@ -1377,7 +1377,7 @@ void cimmofMRRConsumer::_writeQualifierDecl(const CIMConstQualifierDecl& cq)
         _outn(",");
     }
 
-    // MetaQualifierDecl.flavor:
+    // SchemaQualifierDecl.flavor:
     {
         _outn("    /* flavor */");
 
@@ -1385,17 +1385,17 @@ void cimmofMRRConsumer::_writeQualifierDecl(const CIMConstQualifierDecl& cq)
         Array<String> flavors;
 
         if (flavor.hasFlavor(CIMFlavor::OVERRIDABLE))
-            flavors.append("META_FLAVOR_OVERRIDABLE");
+            flavors.append("SCHEMA_FLAVOR_OVERRIDABLE");
         if (flavor.hasFlavor(CIMFlavor::TOSUBCLASS))
-            flavors.append("META_FLAVOR_TOSUBCLASS");
+            flavors.append("SCHEMA_FLAVOR_TOSUBCLASS");
         if (flavor.hasFlavor(CIMFlavor::TOINSTANCE))
-            flavors.append("META_FLAVOR_TOINSTANCE");
+            flavors.append("SCHEMA_FLAVOR_TOINSTANCE");
         if (flavor.hasFlavor(CIMFlavor::TRANSLATABLE))
-            flavors.append("META_FLAVOR_TRANSLATABLE");
+            flavors.append("SCHEMA_FLAVOR_TRANSLATABLE");
         if (flavor.hasFlavor(CIMFlavor::DISABLEOVERRIDE))
-            flavors.append("META_FLAVOR_DISABLEOVERRIDE");
+            flavors.append("SCHEMA_FLAVOR_DISABLEOVERRIDE");
         if (flavor.hasFlavor(CIMFlavor::RESTRICTED))
-            flavors.append("META_FLAVOR_RESTRICTED");
+            flavors.append("SCHEMA_FLAVOR_RESTRICTED");
 
         _out("    ");
 
@@ -1410,7 +1410,7 @@ void cimmofMRRConsumer::_writeQualifierDecl(const CIMConstQualifierDecl& cq)
         _outn(",");
     }
 
-    // MetaQualifierDecl.value:
+    // SchemaQualifierDecl.value:
 
     _outn("    /* value */");
     _out("    ");
@@ -1483,36 +1483,36 @@ void cimmofMRRConsumer::_writeProperty(
     // Header:
 
     if (ct == CIMTYPE_REFERENCE)
-        _outn("static MetaReference");
+        _outn("static SchemaReference");
     else
-        _outn("static MetaProperty");
+        _outn("static SchemaProperty");
 
     _outn("%s =", *Str(path));
     _outn("{");
 
-    // MetaProperty.flags:
+    // SchemaProperty.flags:
 
     _outn("    /* flags */");
 
     if (ct == CIMTYPE_REFERENCE)
-        _out("    META_FLAG_REFERENCE");
+        _out("    SCHEMA_FLAG_REFERENCE");
     else
-        _out("    META_FLAG_PROPERTY");
+        _out("    SCHEMA_FLAG_PROPERTY");
 
     _writeFlags(_os, cp, true, false);
     fprintf(_os, ",\n");
 
-    // MetaProperty.name:
+    // SchemaProperty.name:
 
     _outn("    /* name */");
     _outn("    \"%s\",", *Str(pn));
 
-    // MetaProperty.qualifiers:
+    // SchemaProperty.qualifiers:
 
     _outn("    /* qualifiers */");
     _outn("    %s_qualifiers,", *Str(path));
 
-    // MetaProperty.type:
+    // SchemaProperty.type:
 
     if (ct != CIMTYPE_REFERENCE)
     {
@@ -1520,7 +1520,7 @@ void cimmofMRRConsumer::_writeProperty(
         _outn("    %s,", _typeNames[ct]);
     }
 
-    // MetaProperty.subscript:
+    // SchemaProperty.subscript:
 
     _outn("    /* subscript */");
 
@@ -1534,7 +1534,7 @@ void cimmofMRRConsumer::_writeProperty(
         _outn("    -1,");
     }
 
-    // MetaReference.ref:
+    // SchemaReference.ref:
 
     if (ct == CIMTYPE_REFERENCE)
     {
@@ -1543,7 +1543,7 @@ void cimmofMRRConsumer::_writeProperty(
         _outn("    &__%s_%s,", *Str(ns), *Str(rcn));
     }
 
-    // MetaQualifierDecl.value:
+    // SchemaQualifierDecl.value:
 
     if (ct != CIMTYPE_REFERENCE)
     {
@@ -1573,36 +1573,36 @@ void cimmofMRRConsumer::_writeParameter(
     _writeQualifierArray(path, _Qualifiers(cp));
 
     if (ct == CIMTYPE_REFERENCE)
-        _outn("static MetaReference");
+        _outn("static SchemaReference");
     else
-        _outn("static MetaProperty");
+        _outn("static SchemaProperty");
 
     _outn("%s =", *Str(path));
     _outn("{");
 
-    // MetaProperty.flags:
+    // SchemaProperty.flags:
 
     _outn("    /* flags */");
 
     if (ct == CIMTYPE_REFERENCE)
-        _out("    META_FLAG_REFERENCE");
+        _out("    SCHEMA_FLAG_REFERENCE");
     else
-        _out("    META_FLAG_PROPERTY");
+        _out("    SCHEMA_FLAG_PROPERTY");
 
     _writeFlags(_os, cp, false, true);
     fprintf(_os, ",\n");
 
-    // MetaProperty.name:
+    // SchemaProperty.name:
 
     _outn("    /* name */");
     _outn("    \"%s\",", *Str(pn));
 
-    // MetaProperty.qualifiers:
+    // SchemaProperty.qualifiers:
 
     _outn("    /* qualifiers */");
     _outn("    %s_qualifiers,", *Str(path));
 
-    // MetaProperty.type:
+    // SchemaProperty.type:
 
     if (ct != CIMTYPE_REFERENCE)
     {
@@ -1610,7 +1610,7 @@ void cimmofMRRConsumer::_writeParameter(
         _outn("    %s,", _typeNames[ct]);
     }
 
-    // MetaProperty.subscript:
+    // SchemaProperty.subscript:
 
     _outn("    /* subscript */");
 
@@ -1624,7 +1624,7 @@ void cimmofMRRConsumer::_writeParameter(
         _outn("    -1,");
     }
 
-    // MetaProperty.ref:
+    // SchemaProperty.ref:
 
     if (ct == CIMTYPE_REFERENCE)
     {
@@ -1633,7 +1633,7 @@ void cimmofMRRConsumer::_writeParameter(
         _outn("    &__%s_%s,", *Str(ns), *Str(rcn));
     }
 
-    // MetaQualifierDecl.value:
+    // SchemaQualifierDecl.value:
 
     if (ct != CIMTYPE_REFERENCE)
     {
@@ -1665,14 +1665,14 @@ void cimmofMRRConsumer::_writeMethod(
 
     // Write parameters array:
 
-    _outn("static MetaFeature*");
+    _outn("static SchemaFeature*");
     _outn("_%s_%s_parameters[] =", *Str(cn), *Str(mn));
     _outn("{");
 
     for (Uint32 i = 0; i < parameterNames.size(); i++)
     {
         const CIMName& pn = parameterNames[i];
-        _outn("    (MetaFeature*)&_%s_%s_%s,", *Str(cn), *Str(mn), *Str(pn));
+        _outn("    (SchemaFeature*)&_%s_%s_%s,", *Str(cn), *Str(mn), *Str(pn));
     }
 
     _outn("    0,");
@@ -1685,33 +1685,33 @@ void cimmofMRRConsumer::_writeMethod(
 
     _writeQualifierArray(path, _Qualifiers(cm));
 
-    _outn("static MetaMethod");
+    _outn("static SchemaMethod");
     _outn("%s =", *Str(path));
     _outn("{");
 
-    // MetaMethod.flags:
+    // SchemaMethod.flags:
 
     _outn("    /* flags */");
-    _out("    META_FLAG_METHOD");
+    _out("    SCHEMA_FLAG_METHOD");
     _writeFlags(_os, cm, false, false);
     fprintf(_os, ",\n");
 
-    // MetaMethod.name:
+    // SchemaMethod.name:
 
     _outn("    /* name */");
     _outn("    \"%s\",", *Str(cn));
 
-    // MetaMethod.qualifiers:
+    // SchemaMethod.qualifiers:
 
     _outn("    /* qualifiers */");
     _outn("    %s_qualifiers,", *Str(path));
 
-    // MetaProperty.type:
+    // SchemaProperty.type:
 
     _outn("    /* type */");
     _outn("    %s,", _typeNames[cm.getType()]);
 
-    // MetaMethod.parameters:
+    // SchemaMethod.parameters:
 
     _outn("    /* parameters */");
     _outn("    _%s_%s_parameters,", *Str(cn), *Str(mn));
@@ -1756,14 +1756,14 @@ void cimmofMRRConsumer::_writeClass(
 
     // Write feature array:
 
-    _outn("static MetaFeature*");
+    _outn("static SchemaFeature*");
     _outn("_%s_features[] =", *Str(cn));
     _outn("{");
 
     for (Uint32 i = 0; i < featureNames.size(); i++)
     {
         const CIMName& fn = featureNames[i];
-        _outn("    (MetaFeature*)&_%s_%s,", *Str(cn), *Str(fn));
+        _outn("    (SchemaFeature*)&_%s_%s,", *Str(cn), *Str(fn));
     }
 
     _outn("    0,");
@@ -1776,35 +1776,35 @@ void cimmofMRRConsumer::_writeClass(
 
     _writeQualifierArray(path, _Qualifiers(cc));
 
-    _outn("MetaClass");
+    _outn("SchemaClass");
     _outn("%s =", *Str(path));
     _outn("{");
 
-    // MetaClass.flags:
+    // SchemaClass.flags:
 
     _outn("    /* flags */");
 
     if (_testBooleanQualifier(cc, "Association"))
-        _out("    META_FLAG_ASSOCIATION");
+        _out("    SCHEMA_FLAG_ASSOCIATION");
     else if (_testBooleanQualifier(cc, "Indication"))
-        _out("    META_FLAG_INDICATION");
+        _out("    SCHEMA_FLAG_INDICATION");
     else
-        _out("    META_FLAG_CLASS");
+        _out("    SCHEMA_FLAG_CLASS");
 
     _writeFlags(_os, cc, false, false);
     fprintf(_os, ",\n");
 
-    // MetaClass.name:
+    // SchemaClass.name:
 
     _outn("    /* name */");
     _outn("    \"%s\",", *Str(cn));
 
-    // MetaClass.qualifiers:
+    // SchemaClass.qualifiers:
 
     _outn("    /* qualifiers */");
     _outn("    %s_qualifiers,", *Str(path));
 
-    // MetaClass.super:
+    // SchemaClass.super:
 
     const CIMName& scn = cc.getSuperClassName();
     _outn("    /* super */");
@@ -1814,7 +1814,7 @@ void cimmofMRRConsumer::_writeClass(
     else
         _outn("    &__%s_%s,", *Str(ns), *Str(scn));
 
-    // MetaClass.features:
+    // SchemaClass.features:
 
     _outn("    /* features */");
     _outn("    _%s_features,", *Str(cn));
@@ -1850,7 +1850,7 @@ void cimmofMRRConsumer::_writeNameSpace(const CIMNamespaceName& nameSpace)
         CIMName cn = _classes[i].getClassName();
 
         if (_includeClass(cn))
-            _outn("extern MetaClass __%s_%s;", *Str(ns), *Str(cn));
+            _outn("extern SchemaClass __%s_%s;", *Str(ns), *Str(cn));
     }
 
     _nl();
@@ -1870,7 +1870,7 @@ void cimmofMRRConsumer::_writeNameSpace(const CIMNamespaceName& nameSpace)
     _box(_os, "Qualifier array");
     _nl();
 
-    _outn("static MetaQualifierDecl*");
+    _outn("static SchemaQualifierDecl*");
     _outn("_qualifiers[] =");
     _outn("{");
     _indent++;
@@ -1891,7 +1891,7 @@ void cimmofMRRConsumer::_writeNameSpace(const CIMNamespaceName& nameSpace)
     _box(_os, "Class array");
     _nl();
 
-    _outn("static MetaClass*");
+    _outn("static SchemaClass*");
     _outn("_classes[] =");
     _outn("{");
     _indent++;
@@ -1910,9 +1910,9 @@ void cimmofMRRConsumer::_writeNameSpace(const CIMNamespaceName& nameSpace)
     _outn("};");
     _nl();
 
-    // Write MetaNameSpace structure:
+    // Write SchemaNameSpace structure:
 
-    _outn("const MetaNameSpace %s_namespace =", *Str(ns));
+    _outn("const SchemaNameSpace %s_namespace =", *Str(ns));
     _outn("{");
     _outn("    \"%s\",", *Str(nameSpace));
     _outn("    _qualifiers,");

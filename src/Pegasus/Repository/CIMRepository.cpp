@@ -44,7 +44,7 @@ CIMRepository::CIMRepository(
     Uint32 mode)
 {
 #ifdef PEGASUS_USE_MEMORY_RESIDENT_REPOSITORY
-    _rep = new MemoryResidentRepository(repositoryRoot, mode);
+    _rep = new MemoryResidentRepository();
 #else
     _rep = new DefaultRepository(repositoryRoot, mode);
 #endif

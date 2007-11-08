@@ -16,7 +16,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 //==============================================================================
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _ASSOCIATION_qualifier_decl =
 {
     /* name */
@@ -26,14 +26,14 @@ _ASSOCIATION_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_ASSOCIATION,
+    SCHEMA_SCOPE_ASSOCIATION,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _INDICATION_qualifier_decl =
 {
     /* name */
@@ -43,14 +43,14 @@ _INDICATION_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_INDICATION,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_INDICATION,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Abstract_qualifier_decl =
 {
     /* name */
@@ -60,14 +60,14 @@ _Abstract_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_ASSOCIATION|META_SCOPE_INDICATION,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_INDICATION,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_RESTRICTED,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_RESTRICTED,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Aggregate_qualifier_decl =
 {
     /* name */
@@ -77,14 +77,14 @@ _Aggregate_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_REFERENCE,
+    SCHEMA_SCOPE_REFERENCE,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Aggregation_qualifier_decl =
 {
     /* name */
@@ -94,14 +94,14 @@ _Aggregation_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_ASSOCIATION,
+    SCHEMA_SCOPE_ASSOCIATION,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _ArrayType_qualifier_decl =
 {
     /* name */
@@ -111,14 +111,14 @@ _ArrayType_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "Bag",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _BitMap_qualifier_decl =
 {
     /* name */
@@ -128,14 +128,14 @@ _BitMap_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _BitValues_qualifier_decl =
 {
     /* name */
@@ -145,14 +145,14 @@ _BitValues_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS|META_FLAVOR_TRANSLATABLE,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_TRANSLATABLE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _ClassConstraint_qualifier_decl =
 {
     /* name */
@@ -162,14 +162,14 @@ _ClassConstraint_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_ASSOCIATION|META_SCOPE_INDICATION,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_INDICATION,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Composition_qualifier_decl =
 {
     /* name */
@@ -179,14 +179,14 @@ _Composition_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_ASSOCIATION,
+    SCHEMA_SCOPE_ASSOCIATION,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Counter_qualifier_decl =
 {
     /* name */
@@ -196,14 +196,14 @@ _Counter_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Deprecated_qualifier_decl =
 {
     /* name */
@@ -213,14 +213,14 @@ _Deprecated_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_ANY,
+    SCHEMA_SCOPE_ANY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_RESTRICTED,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_RESTRICTED,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Description_qualifier_decl =
 {
     /* name */
@@ -230,14 +230,14 @@ _Description_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_ANY,
+    SCHEMA_SCOPE_ANY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS|META_FLAVOR_TRANSLATABLE,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_TRANSLATABLE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _DisplayName_qualifier_decl =
 {
     /* name */
@@ -247,14 +247,14 @@ _DisplayName_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_ANY,
+    SCHEMA_SCOPE_ANY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS|META_FLAVOR_TRANSLATABLE,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_TRANSLATABLE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _DN_qualifier_decl =
 {
     /* name */
@@ -264,14 +264,14 @@ _DN_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _EmbeddedInstance_qualifier_decl =
 {
     /* name */
@@ -281,14 +281,14 @@ _EmbeddedInstance_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _EmbeddedObject_qualifier_decl =
 {
     /* name */
@@ -298,14 +298,14 @@ _EmbeddedObject_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Exception_qualifier_decl =
 {
     /* name */
@@ -315,14 +315,14 @@ _Exception_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_INDICATION,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_INDICATION,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_TOINSTANCE|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_TOINSTANCE|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Experimental_qualifier_decl =
 {
     /* name */
@@ -332,14 +332,14 @@ _Experimental_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_ANY,
+    SCHEMA_SCOPE_ANY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_RESTRICTED,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_RESTRICTED,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Gauge_qualifier_decl =
 {
     /* name */
@@ -349,14 +349,14 @@ _Gauge_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _In_qualifier_decl =
 {
     /* name */
@@ -366,14 +366,14 @@ _In_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\001",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Key_qualifier_decl =
 {
     /* name */
@@ -383,14 +383,14 @@ _Key_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_REFERENCE,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_REFERENCE,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _MappingStrings_qualifier_decl =
 {
     /* name */
@@ -400,14 +400,14 @@ _MappingStrings_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_ANY,
+    SCHEMA_SCOPE_ANY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Max_qualifier_decl =
 {
     /* name */
@@ -417,14 +417,14 @@ _Max_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_REFERENCE,
+    SCHEMA_SCOPE_REFERENCE,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _MaxLen_qualifier_decl =
 {
     /* name */
@@ -434,14 +434,14 @@ _MaxLen_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _MaxValue_qualifier_decl =
 {
     /* name */
@@ -451,14 +451,14 @@ _MaxValue_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _MethodConstraint_qualifier_decl =
 {
     /* name */
@@ -468,14 +468,14 @@ _MethodConstraint_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_METHOD,
+    SCHEMA_SCOPE_METHOD,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Min_qualifier_decl =
 {
     /* name */
@@ -485,14 +485,14 @@ _Min_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_REFERENCE,
+    SCHEMA_SCOPE_REFERENCE,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\000\000\000\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _MinLen_qualifier_decl =
 {
     /* name */
@@ -502,14 +502,14 @@ _MinLen_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\000\000\000\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _MinValue_qualifier_decl =
 {
     /* name */
@@ -519,14 +519,14 @@ _MinValue_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _ModelCorrespondence_qualifier_decl =
 {
     /* name */
@@ -536,14 +536,14 @@ _ModelCorrespondence_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_ANY,
+    SCHEMA_SCOPE_ANY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Nonlocal_qualifier_decl =
 {
     /* name */
@@ -553,14 +553,14 @@ _Nonlocal_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_REFERENCE,
+    SCHEMA_SCOPE_REFERENCE,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _NonlocalType_qualifier_decl =
 {
     /* name */
@@ -570,14 +570,14 @@ _NonlocalType_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_REFERENCE,
+    SCHEMA_SCOPE_REFERENCE,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _NullValue_qualifier_decl =
 {
     /* name */
@@ -587,14 +587,14 @@ _NullValue_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY,
+    SCHEMA_SCOPE_PROPERTY,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Octetstring_qualifier_decl =
 {
     /* name */
@@ -604,14 +604,14 @@ _Octetstring_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Out_qualifier_decl =
 {
     /* name */
@@ -621,14 +621,14 @@ _Out_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Override_qualifier_decl =
 {
     /* name */
@@ -638,14 +638,14 @@ _Override_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_REFERENCE|META_SCOPE_METHOD,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_REFERENCE|SCHEMA_SCOPE_METHOD,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_RESTRICTED,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_RESTRICTED,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Propagated_qualifier_decl =
 {
     /* name */
@@ -655,14 +655,14 @@ _Propagated_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY,
+    SCHEMA_SCOPE_PROPERTY,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _PropertyConstraint_qualifier_decl =
 {
     /* name */
@@ -672,14 +672,14 @@ _PropertyConstraint_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_REFERENCE,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_REFERENCE,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Read_qualifier_decl =
 {
     /* name */
@@ -689,14 +689,14 @@ _Read_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY,
+    SCHEMA_SCOPE_PROPERTY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\001",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Required_qualifier_decl =
 {
     /* name */
@@ -706,14 +706,14 @@ _Required_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_REFERENCE|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_REFERENCE|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Revision_qualifier_decl =
 {
     /* name */
@@ -723,14 +723,14 @@ _Revision_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_ASSOCIATION|META_SCOPE_INDICATION,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_INDICATION,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS|META_FLAVOR_TRANSLATABLE,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_TRANSLATABLE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _CLASS_qualifier_decl =
 {
     /* name */
@@ -740,14 +740,14 @@ _CLASS_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_TRANSLATABLE|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_TRANSLATABLE|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Source_qualifier_decl =
 {
     /* name */
@@ -757,14 +757,14 @@ _Source_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_ASSOCIATION|META_SCOPE_INDICATION,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_INDICATION,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _SourceType_qualifier_decl =
 {
     /* name */
@@ -774,14 +774,14 @@ _SourceType_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_ASSOCIATION|META_SCOPE_INDICATION|META_SCOPE_REFERENCE,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_INDICATION|SCHEMA_SCOPE_REFERENCE,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Static_qualifier_decl =
 {
     /* name */
@@ -791,14 +791,14 @@ _Static_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Terminal_qualifier_decl =
 {
     /* name */
@@ -808,14 +808,14 @@ _Terminal_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_ASSOCIATION|META_SCOPE_INDICATION,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_INDICATION,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _UMLPackagePath_qualifier_decl =
 {
     /* name */
@@ -825,14 +825,14 @@ _UMLPackagePath_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_ASSOCIATION|META_SCOPE_INDICATION,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_INDICATION,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Units_qualifier_decl =
 {
     /* name */
@@ -842,14 +842,14 @@ _Units_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS|META_FLAVOR_TRANSLATABLE,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_TRANSLATABLE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _ValueMap_qualifier_decl =
 {
     /* name */
@@ -859,14 +859,14 @@ _ValueMap_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Values_qualifier_decl =
 {
     /* name */
@@ -876,14 +876,14 @@ _Values_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS|META_FLAVOR_TRANSLATABLE,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_TRANSLATABLE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Version_qualifier_decl =
 {
     /* name */
@@ -893,14 +893,14 @@ _Version_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_ASSOCIATION|META_SCOPE_INDICATION,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_INDICATION,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TRANSLATABLE|META_FLAVOR_RESTRICTED,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TRANSLATABLE|SCHEMA_FLAVOR_RESTRICTED,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Weak_qualifier_decl =
 {
     /* name */
@@ -910,14 +910,14 @@ _Weak_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_REFERENCE,
+    SCHEMA_SCOPE_REFERENCE,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_TOINSTANCE|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_TOINSTANCE|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Write_qualifier_decl =
 {
     /* name */
@@ -927,14 +927,14 @@ _Write_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY,
+    SCHEMA_SCOPE_PROPERTY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Alias_qualifier_decl =
 {
     /* name */
@@ -944,14 +944,14 @@ _Alias_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_REFERENCE|META_SCOPE_METHOD,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_REFERENCE|SCHEMA_SCOPE_METHOD,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS|META_FLAVOR_TRANSLATABLE,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_TRANSLATABLE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Delete_qualifier_decl =
 {
     /* name */
@@ -961,14 +961,14 @@ _Delete_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_ASSOCIATION|META_SCOPE_REFERENCE,
+    SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_REFERENCE,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Expensive_qualifier_decl =
 {
     /* name */
@@ -978,14 +978,14 @@ _Expensive_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_ANY,
+    SCHEMA_SCOPE_ANY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Ifdeleted_qualifier_decl =
 {
     /* name */
@@ -995,14 +995,14 @@ _Ifdeleted_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_ASSOCIATION|META_SCOPE_REFERENCE,
+    SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_REFERENCE,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Invisible_qualifier_decl =
 {
     /* name */
@@ -1012,14 +1012,14 @@ _Invisible_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_ASSOCIATION|META_SCOPE_PROPERTY|META_SCOPE_REFERENCE|META_SCOPE_METHOD,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_REFERENCE|SCHEMA_SCOPE_METHOD,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Large_qualifier_decl =
 {
     /* name */
@@ -1029,14 +1029,14 @@ _Large_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_PROPERTY,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_PROPERTY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "\000",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _PropertyUsage_qualifier_decl =
 {
     /* name */
@@ -1046,14 +1046,14 @@ _PropertyUsage_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY,
+    SCHEMA_SCOPE_PROPERTY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     "CurrentContext",
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Provider_qualifier_decl =
 {
     /* name */
@@ -1063,14 +1063,14 @@ _Provider_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_ANY,
+    SCHEMA_SCOPE_ANY,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _SyntaxType_qualifier_decl =
 {
     /* name */
@@ -1080,14 +1080,14 @@ _SyntaxType_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_REFERENCE|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_REFERENCE|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _Syntax_qualifier_decl =
 {
     /* name */
@@ -1097,14 +1097,14 @@ _Syntax_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_PROPERTY|META_SCOPE_REFERENCE|META_SCOPE_METHOD|META_SCOPE_PARAMETER,
+    SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_REFERENCE|SCHEMA_SCOPE_METHOD|SCHEMA_SCOPE_PARAMETER,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _TriggerType_qualifier_decl =
 {
     /* name */
@@ -1114,14 +1114,14 @@ _TriggerType_qualifier_decl =
     /* subscript */
     -1,
     /* scope */
-    META_SCOPE_CLASS|META_SCOPE_ASSOCIATION|META_SCOPE_INDICATION|META_SCOPE_PROPERTY|META_SCOPE_REFERENCE|META_SCOPE_METHOD,
+    SCHEMA_SCOPE_CLASS|SCHEMA_SCOPE_ASSOCIATION|SCHEMA_SCOPE_INDICATION|SCHEMA_SCOPE_PROPERTY|SCHEMA_SCOPE_REFERENCE|SCHEMA_SCOPE_METHOD,
     /* flavor */
-    META_FLAVOR_OVERRIDABLE|META_FLAVOR_TOSUBCLASS,
+    SCHEMA_FLAVOR_OVERRIDABLE|SCHEMA_FLAVOR_TOSUBCLASS,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _UnknownValues_qualifier_decl =
 {
     /* name */
@@ -1131,14 +1131,14 @@ _UnknownValues_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_PROPERTY,
+    SCHEMA_SCOPE_PROPERTY,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     0,
 };
 
-static MetaQualifierDecl
+static SchemaQualifierDecl
 _UnsupportedValues_qualifier_decl =
 {
     /* name */
@@ -1148,9 +1148,9 @@ _UnsupportedValues_qualifier_decl =
     /* subscript */
     0,
     /* scope */
-    META_SCOPE_PROPERTY,
+    SCHEMA_SCOPE_PROPERTY,
     /* flavor */
-    META_FLAVOR_TOSUBCLASS|META_FLAVOR_DISABLEOVERRIDE,
+    SCHEMA_FLAVOR_TOSUBCLASS|SCHEMA_FLAVOR_DISABLEOVERRIDE,
     /* value */
     0,
 };
@@ -1161,218 +1161,218 @@ _UnsupportedValues_qualifier_decl =
 //
 //==============================================================================
 
-extern MetaClass __root_PG_InterOp_CIM_ManagedElement;
-extern MetaClass __root_PG_InterOp_CIM_Setting;
-extern MetaClass __root_PG_InterOp_CIM_SettingContext;
-extern MetaClass __root_PG_InterOp_CIM_SettingData;
-extern MetaClass __root_PG_InterOp_CIM_Capabilities;
-extern MetaClass __root_PG_InterOp_CIM_Collection;
-extern MetaClass __root_PG_InterOp_CIM_CollectionOfMSEs;
-extern MetaClass __root_PG_InterOp_CIM_Component;
-extern MetaClass __root_PG_InterOp_CIM_ConcreteCollection;
-extern MetaClass __root_PG_InterOp_CIM_ConcreteComponent;
-extern MetaClass __root_PG_InterOp_CIM_Configuration;
-extern MetaClass __root_PG_InterOp_CIM_ConfigurationComponent;
-extern MetaClass __root_PG_InterOp_CIM_Dependency;
-extern MetaClass __root_PG_InterOp_CIM_DependencyContext;
-extern MetaClass __root_PG_InterOp_CIM_ElementCapabilities;
-extern MetaClass __root_PG_InterOp_CIM_EnabledLogicalElementCapabilities;
-extern MetaClass __root_PG_InterOp_CIM_FRU;
-extern MetaClass __root_PG_InterOp_CIM_HostedDependency;
-extern MetaClass __root_PG_InterOp_CIM_LocalizationCapabilities;
-extern MetaClass __root_PG_InterOp_CIM_Location;
-extern MetaClass __root_PG_InterOp_CIM_LogicalIdentity;
-extern MetaClass __root_PG_InterOp_CIM_ManagedSystemElement;
-extern MetaClass __root_PG_InterOp_CIM_MemberOfCollection;
-extern MetaClass __root_PG_InterOp_CIM_MethodParameters;
-extern MetaClass __root_PG_InterOp_CIM_OrderedMemberOfCollection;
-extern MetaClass __root_PG_InterOp_CIM_ParametersForMethod;
-extern MetaClass __root_PG_InterOp_CIM_ParameterValueSources;
-extern MetaClass __root_PG_InterOp_CIM_PhysicalElement;
-extern MetaClass __root_PG_InterOp_CIM_PowerManagementCapabilities;
-extern MetaClass __root_PG_InterOp_CIM_Product;
-extern MetaClass __root_PG_InterOp_CIM_ProductComponent;
-extern MetaClass __root_PG_InterOp_CIM_ProductFRU;
-extern MetaClass __root_PG_InterOp_CIM_ProductParentChild;
-extern MetaClass __root_PG_InterOp_CIM_ProductPhysicalComponent;
-extern MetaClass __root_PG_InterOp_CIM_ProductPhysicalElements;
-extern MetaClass __root_PG_InterOp_CIM_ProductProductDependency;
-extern MetaClass __root_PG_InterOp_CIM_Profile;
-extern MetaClass __root_PG_InterOp_CIM_ReplaceableProductFRU;
-extern MetaClass __root_PG_InterOp_CIM_Spared;
-extern MetaClass __root_PG_InterOp_CIM_StatisticalData;
-extern MetaClass __root_PG_InterOp_CIM_StatisticalInformation;
-extern MetaClass __root_PG_InterOp_CIM_StatisticalSetting;
-extern MetaClass __root_PG_InterOp_CIM_Statistics;
-extern MetaClass __root_PG_InterOp_CIM_SupportAccess;
-extern MetaClass __root_PG_InterOp_CIM_Synchronized;
-extern MetaClass __root_PG_InterOp_CIM_SystemConfiguration;
-extern MetaClass __root_PG_InterOp_CIM_SystemSetting;
-extern MetaClass __root_PG_InterOp_CIM_SystemSettingContext;
-extern MetaClass __root_PG_InterOp_CIM_SystemSpecificCollection;
-extern MetaClass __root_PG_InterOp_CIM_SystemStatisticalInformation;
-extern MetaClass __root_PG_InterOp_CIM_CollectedCollections;
-extern MetaClass __root_PG_InterOp_CIM_CollectedMSEs;
-extern MetaClass __root_PG_InterOp_CIM_CollectionConfiguration;
-extern MetaClass __root_PG_InterOp_CIM_CollectionSetting;
-extern MetaClass __root_PG_InterOp_CIM_CompatibleProduct;
-extern MetaClass __root_PG_InterOp_CIM_ConcreteDependency;
-extern MetaClass __root_PG_InterOp_CIM_ConcreteIdentity;
-extern MetaClass __root_PG_InterOp_CIM_ContainedLocation;
-extern MetaClass __root_PG_InterOp_CIM_DeviceStatisticalInformation;
-extern MetaClass __root_PG_InterOp_CIM_ElementConfiguration;
-extern MetaClass __root_PG_InterOp_CIM_ElementLocation;
-extern MetaClass __root_PG_InterOp_CIM_ElementProfile;
-extern MetaClass __root_PG_InterOp_CIM_ElementSetting;
-extern MetaClass __root_PG_InterOp_CIM_ElementSettingData;
-extern MetaClass __root_PG_InterOp_CIM_ElementStatisticalData;
-extern MetaClass __root_PG_InterOp_CIM_FRUIncludesProduct;
-extern MetaClass __root_PG_InterOp_CIM_FRUPhysicalElements;
-extern MetaClass __root_PG_InterOp_CIM_LogicalElement;
-extern MetaClass __root_PG_InterOp_CIM_PhysicalElementLocation;
-extern MetaClass __root_PG_InterOp_CIM_PhysicalStatisticalInformation;
-extern MetaClass __root_PG_InterOp_CIM_PhysicalStatistics;
-extern MetaClass __root_PG_InterOp_CIM_ProductSupport;
-extern MetaClass __root_PG_InterOp_CIM_RedundancyGroup;
-extern MetaClass __root_PG_InterOp_CIM_RedundancySet;
-extern MetaClass __root_PG_InterOp_CIM_RelatedStatisticalData;
-extern MetaClass __root_PG_InterOp_CIM_RelatedStatistics;
-extern MetaClass __root_PG_InterOp_CIM_SAPStatisticalInformation;
-extern MetaClass __root_PG_InterOp_CIM_ScopedSettingData;
-extern MetaClass __root_PG_InterOp_CIM_ServiceStatisticalInformation;
-extern MetaClass __root_PG_InterOp_CIM_SettingAssociatedToCapabilities;
-extern MetaClass __root_PG_InterOp_CIM_SoftwareIdentity;
-extern MetaClass __root_PG_InterOp_CIM_SpareGroup;
-extern MetaClass __root_PG_InterOp_CIM_StatisticsCollection;
-extern MetaClass __root_PG_InterOp_CIM_StorageRedundancyGroup;
-extern MetaClass __root_PG_InterOp_CIM_StorageRedundancySet;
-extern MetaClass __root_PG_InterOp_CIM_ActsAsSpare;
-extern MetaClass __root_PG_InterOp_CIM_DefaultSetting;
-extern MetaClass __root_PG_InterOp_CIM_ElementSoftwareIdentity;
-extern MetaClass __root_PG_InterOp_CIM_ExtraCapacityGroup;
-extern MetaClass __root_PG_InterOp_CIM_IsSpare;
-extern MetaClass __root_PG_InterOp_CIM_Job;
-extern MetaClass __root_PG_InterOp_CIM_ProductSoftwareComponent;
-extern MetaClass __root_PG_InterOp_CIM_RedundancyComponent;
-extern MetaClass __root_PG_InterOp_CIM_ScopedSetting;
-extern MetaClass __root_PG_InterOp_CIM_ConcreteJob;
-extern MetaClass __root_PG_InterOp_CIM_EnabledLogicalElement;
-extern MetaClass __root_PG_InterOp_CIM_LogicalDevice;
-extern MetaClass __root_PG_InterOp_CIM_Realizes;
-extern MetaClass __root_PG_InterOp_CIM_Service;
-extern MetaClass __root_PG_InterOp_CIM_ServiceAccessPoint;
-extern MetaClass __root_PG_InterOp_CIM_ServiceAccessURI;
-extern MetaClass __root_PG_InterOp_CIM_ServiceAffectsElement;
-extern MetaClass __root_PG_InterOp_CIM_ServiceAvailableToElement;
-extern MetaClass __root_PG_InterOp_CIM_ServiceComponent;
-extern MetaClass __root_PG_InterOp_CIM_ServiceSAPDependency;
-extern MetaClass __root_PG_InterOp_CIM_ServiceStatistics;
-extern MetaClass __root_PG_InterOp_CIM_StorageExtent;
-extern MetaClass __root_PG_InterOp_CIM_System;
-extern MetaClass __root_PG_InterOp_CIM_SystemComponent;
-extern MetaClass __root_PG_InterOp_CIM_SystemDevice;
-extern MetaClass __root_PG_InterOp_CIM_SystemPackaging;
-extern MetaClass __root_PG_InterOp_CIM_SystemStatistics;
-extern MetaClass __root_PG_InterOp_CIM_AdminDomain;
-extern MetaClass __root_PG_InterOp_CIM_BasedOn;
-extern MetaClass __root_PG_InterOp_CIM_ConfigurationForSystem;
-extern MetaClass __root_PG_InterOp_CIM_ContainedDomain;
-extern MetaClass __root_PG_InterOp_CIM_DeviceSAPImplementation;
-extern MetaClass __root_PG_InterOp_CIM_DeviceServiceImplementation;
-extern MetaClass __root_PG_InterOp_CIM_DeviceStatistics;
-extern MetaClass __root_PG_InterOp_CIM_ExtentRedundancyComponent;
-extern MetaClass __root_PG_InterOp_CIM_HostedAccessPoint;
-extern MetaClass __root_PG_InterOp_CIM_HostedCollection;
-extern MetaClass __root_PG_InterOp_CIM_HostedService;
-extern MetaClass __root_PG_InterOp_CIM_InstalledSoftwareIdentity;
-extern MetaClass __root_PG_InterOp_CIM_PowerManagementService;
-extern MetaClass __root_PG_InterOp_CIM_ProductServiceComponent;
-extern MetaClass __root_PG_InterOp_CIM_ProtocolEndpoint;
-extern MetaClass __root_PG_InterOp_CIM_ProvidesServiceToElement;
-extern MetaClass __root_PG_InterOp_CIM_RemoteServiceAccessPoint;
-extern MetaClass __root_PG_InterOp_CIM_SAPAvailableForElement;
-extern MetaClass __root_PG_InterOp_CIM_SAPSAPDependency;
-extern MetaClass __root_PG_InterOp_CIM_SAPStatistics;
-extern MetaClass __root_PG_InterOp_CIM_ServiceAccessBySAP;
-extern MetaClass __root_PG_InterOp_CIM_ServiceServiceDependency;
-extern MetaClass __root_PG_InterOp_CIM_SettingForSystem;
-extern MetaClass __root_PG_InterOp_CIM_ActiveConnection;
-extern MetaClass __root_PG_InterOp_CIM_BindsTo;
-extern MetaClass __root_PG_InterOp_CIM_ProvidesEndpoint;
-extern MetaClass __root_PG_InterOp_CIM_RemotePort;
-extern MetaClass __root_PG_InterOp_CIM_Indication;
-extern MetaClass __root_PG_InterOp_CIM_ClassIndication;
-extern MetaClass __root_PG_InterOp_CIM_ClassModification;
-extern MetaClass __root_PG_InterOp_CIM_IndicationFilter;
-extern MetaClass __root_PG_InterOp_CIM_InstIndication;
-extern MetaClass __root_PG_InterOp_CIM_InstMethodCall;
-extern MetaClass __root_PG_InterOp_CIM_InstModification;
-extern MetaClass __root_PG_InterOp_CIM_InstRead;
-extern MetaClass __root_PG_InterOp_CIM_ListenerDestination;
-extern MetaClass __root_PG_InterOp_CIM_ListenerDestinationCIMXML;
-extern MetaClass __root_PG_InterOp_CIM_ProcessIndication;
-extern MetaClass __root_PG_InterOp_CIM_SNMPTrapIndication;
-extern MetaClass __root_PG_InterOp_CIM_AlertIndication;
-extern MetaClass __root_PG_InterOp_CIM_AlertInstIndication;
-extern MetaClass __root_PG_InterOp_CIM_ClassCreation;
-extern MetaClass __root_PG_InterOp_CIM_ClassDeletion;
-extern MetaClass __root_PG_InterOp_CIM_IndicationHandler;
-extern MetaClass __root_PG_InterOp_CIM_IndicationHandlerCIMXML;
-extern MetaClass __root_PG_InterOp_CIM_IndicationSubscription;
-extern MetaClass __root_PG_InterOp_CIM_InstCreation;
-extern MetaClass __root_PG_InterOp_CIM_InstDeletion;
-extern MetaClass __root_PG_InterOp_CIM_ThresholdIndication;
-extern MetaClass __root_PG_InterOp_CIM_FormattedIndicationSubscription;
-extern MetaClass __root_PG_InterOp_CIM_Namespace;
-extern MetaClass __root_PG_InterOp_CIM_RegisteredProfile;
-extern MetaClass __root_PG_InterOp_CIM_RegisteredSubProfile;
-extern MetaClass __root_PG_InterOp_CIM_SystemIdentification;
-extern MetaClass __root_PG_InterOp_CIM_SystemInNamespace;
-extern MetaClass __root_PG_InterOp_CIM_CIMOMStatisticalData;
-extern MetaClass __root_PG_InterOp_CIM_ElementConformsToProfile;
-extern MetaClass __root_PG_InterOp_CIM_ReferencedProfile;
-extern MetaClass __root_PG_InterOp_CIM_SubProfileRequiresProfile;
-extern MetaClass __root_PG_InterOp_CIM_WBEMService;
-extern MetaClass __root_PG_InterOp_CIM_IdentificationOfManagedSystem;
-extern MetaClass __root_PG_InterOp_CIM_ObjectManager;
-extern MetaClass __root_PG_InterOp_CIM_ObjectManagerAdapter;
-extern MetaClass __root_PG_InterOp_CIM_ObjectManagerCommunicationMechanism;
-extern MetaClass __root_PG_InterOp_CIM_ProtocolAdapter;
-extern MetaClass __root_PG_InterOp_CIM_CIMXMLCommunicationMechanism;
-extern MetaClass __root_PG_InterOp_CIM_CommMechanismForAdapter;
-extern MetaClass __root_PG_InterOp_CIM_CommMechanismForManager;
-extern MetaClass __root_PG_InterOp_CIM_CommMechanismForObjectManagerAdapter;
-extern MetaClass __root_PG_InterOp_CIM_NamespaceInManager;
-extern MetaClass __root_PG_InterOp_PG_IndicationHandlerSNMPMapper;
-extern MetaClass __root_PG_InterOp_PG_ListenerDestinationSystemLog;
-extern MetaClass __root_PG_InterOp_PG_ListenerDestinationEmail;
-extern MetaClass __root_PG_InterOp_PG_ProviderModule;
-extern MetaClass __root_PG_InterOp_PG_Provider;
-extern MetaClass __root_PG_InterOp_PG_Capabilities;
-extern MetaClass __root_PG_InterOp_PG_CapabilitiesRegistration;
-extern MetaClass __root_PG_InterOp_PG_ProviderCapabilities;
-extern MetaClass __root_PG_InterOp_PG_ConsumerCapabilities;
-extern MetaClass __root_PG_InterOp_PG_ProviderCapabilitiesElements;
-extern MetaClass __root_PG_InterOp_PG_ProviderModuleElements;
-extern MetaClass __root_PG_InterOp_PG_CIMXMLCommunicationMechanism;
-extern MetaClass __root_PG_InterOp_PG_NameSpace;
-extern MetaClass __root_PG_InterOp_CIM_ComputerSystem;
-extern MetaClass __root_PG_InterOp_CIM_UnitaryComputerSystem;
-extern MetaClass __root_PG_InterOp_PG_ComputerSystem;
-extern MetaClass __root_PG_InterOp_PG_ProviderProfileCapabilities;
-extern MetaClass __root_PG_InterOp_PG_ProviderReferencedProfiles;
-extern MetaClass __root_PG_InterOp_PG_RegisteredProfile;
-extern MetaClass __root_PG_InterOp_PG_RegisteredSubProfile;
-extern MetaClass __root_PG_InterOp_PG_ReferencedProfile;
-extern MetaClass __root_PG_InterOp_PG_ElementConformsToProfile;
-extern MetaClass __root_PG_InterOp_PG_SubProfileRequiresProfile;
-extern MetaClass __root_PG_InterOp_PG_SoftwareIdentity;
-extern MetaClass __root_PG_InterOp_PG_ElementSoftwareIdentity;
-extern MetaClass __root_PG_InterOp_PG_ObjectManager;
-extern MetaClass __root_PG_InterOp_PG_CommMechanismForManager;
-extern MetaClass __root_PG_InterOp_PG_NamespaceInManager;
-extern MetaClass __root_PG_InterOp_PG_HostedObjectManager;
-extern MetaClass __root_PG_InterOp_PG_HostedAccessPoint;
+extern SchemaClass __root_PG_InterOp_CIM_ManagedElement;
+extern SchemaClass __root_PG_InterOp_CIM_Setting;
+extern SchemaClass __root_PG_InterOp_CIM_SettingContext;
+extern SchemaClass __root_PG_InterOp_CIM_SettingData;
+extern SchemaClass __root_PG_InterOp_CIM_Capabilities;
+extern SchemaClass __root_PG_InterOp_CIM_Collection;
+extern SchemaClass __root_PG_InterOp_CIM_CollectionOfMSEs;
+extern SchemaClass __root_PG_InterOp_CIM_Component;
+extern SchemaClass __root_PG_InterOp_CIM_ConcreteCollection;
+extern SchemaClass __root_PG_InterOp_CIM_ConcreteComponent;
+extern SchemaClass __root_PG_InterOp_CIM_Configuration;
+extern SchemaClass __root_PG_InterOp_CIM_ConfigurationComponent;
+extern SchemaClass __root_PG_InterOp_CIM_Dependency;
+extern SchemaClass __root_PG_InterOp_CIM_DependencyContext;
+extern SchemaClass __root_PG_InterOp_CIM_ElementCapabilities;
+extern SchemaClass __root_PG_InterOp_CIM_EnabledLogicalElementCapabilities;
+extern SchemaClass __root_PG_InterOp_CIM_FRU;
+extern SchemaClass __root_PG_InterOp_CIM_HostedDependency;
+extern SchemaClass __root_PG_InterOp_CIM_LocalizationCapabilities;
+extern SchemaClass __root_PG_InterOp_CIM_Location;
+extern SchemaClass __root_PG_InterOp_CIM_LogicalIdentity;
+extern SchemaClass __root_PG_InterOp_CIM_ManagedSystemElement;
+extern SchemaClass __root_PG_InterOp_CIM_MemberOfCollection;
+extern SchemaClass __root_PG_InterOp_CIM_MethodParameters;
+extern SchemaClass __root_PG_InterOp_CIM_OrderedMemberOfCollection;
+extern SchemaClass __root_PG_InterOp_CIM_ParametersForMethod;
+extern SchemaClass __root_PG_InterOp_CIM_ParameterValueSources;
+extern SchemaClass __root_PG_InterOp_CIM_PhysicalElement;
+extern SchemaClass __root_PG_InterOp_CIM_PowerManagementCapabilities;
+extern SchemaClass __root_PG_InterOp_CIM_Product;
+extern SchemaClass __root_PG_InterOp_CIM_ProductComponent;
+extern SchemaClass __root_PG_InterOp_CIM_ProductFRU;
+extern SchemaClass __root_PG_InterOp_CIM_ProductParentChild;
+extern SchemaClass __root_PG_InterOp_CIM_ProductPhysicalComponent;
+extern SchemaClass __root_PG_InterOp_CIM_ProductPhysicalElements;
+extern SchemaClass __root_PG_InterOp_CIM_ProductProductDependency;
+extern SchemaClass __root_PG_InterOp_CIM_Profile;
+extern SchemaClass __root_PG_InterOp_CIM_ReplaceableProductFRU;
+extern SchemaClass __root_PG_InterOp_CIM_Spared;
+extern SchemaClass __root_PG_InterOp_CIM_StatisticalData;
+extern SchemaClass __root_PG_InterOp_CIM_StatisticalInformation;
+extern SchemaClass __root_PG_InterOp_CIM_StatisticalSetting;
+extern SchemaClass __root_PG_InterOp_CIM_Statistics;
+extern SchemaClass __root_PG_InterOp_CIM_SupportAccess;
+extern SchemaClass __root_PG_InterOp_CIM_Synchronized;
+extern SchemaClass __root_PG_InterOp_CIM_SystemConfiguration;
+extern SchemaClass __root_PG_InterOp_CIM_SystemSetting;
+extern SchemaClass __root_PG_InterOp_CIM_SystemSettingContext;
+extern SchemaClass __root_PG_InterOp_CIM_SystemSpecificCollection;
+extern SchemaClass __root_PG_InterOp_CIM_SystemStatisticalInformation;
+extern SchemaClass __root_PG_InterOp_CIM_CollectedCollections;
+extern SchemaClass __root_PG_InterOp_CIM_CollectedMSEs;
+extern SchemaClass __root_PG_InterOp_CIM_CollectionConfiguration;
+extern SchemaClass __root_PG_InterOp_CIM_CollectionSetting;
+extern SchemaClass __root_PG_InterOp_CIM_CompatibleProduct;
+extern SchemaClass __root_PG_InterOp_CIM_ConcreteDependency;
+extern SchemaClass __root_PG_InterOp_CIM_ConcreteIdentity;
+extern SchemaClass __root_PG_InterOp_CIM_ContainedLocation;
+extern SchemaClass __root_PG_InterOp_CIM_DeviceStatisticalInformation;
+extern SchemaClass __root_PG_InterOp_CIM_ElementConfiguration;
+extern SchemaClass __root_PG_InterOp_CIM_ElementLocation;
+extern SchemaClass __root_PG_InterOp_CIM_ElementProfile;
+extern SchemaClass __root_PG_InterOp_CIM_ElementSetting;
+extern SchemaClass __root_PG_InterOp_CIM_ElementSettingData;
+extern SchemaClass __root_PG_InterOp_CIM_ElementStatisticalData;
+extern SchemaClass __root_PG_InterOp_CIM_FRUIncludesProduct;
+extern SchemaClass __root_PG_InterOp_CIM_FRUPhysicalElements;
+extern SchemaClass __root_PG_InterOp_CIM_LogicalElement;
+extern SchemaClass __root_PG_InterOp_CIM_PhysicalElementLocation;
+extern SchemaClass __root_PG_InterOp_CIM_PhysicalStatisticalInformation;
+extern SchemaClass __root_PG_InterOp_CIM_PhysicalStatistics;
+extern SchemaClass __root_PG_InterOp_CIM_ProductSupport;
+extern SchemaClass __root_PG_InterOp_CIM_RedundancyGroup;
+extern SchemaClass __root_PG_InterOp_CIM_RedundancySet;
+extern SchemaClass __root_PG_InterOp_CIM_RelatedStatisticalData;
+extern SchemaClass __root_PG_InterOp_CIM_RelatedStatistics;
+extern SchemaClass __root_PG_InterOp_CIM_SAPStatisticalInformation;
+extern SchemaClass __root_PG_InterOp_CIM_ScopedSettingData;
+extern SchemaClass __root_PG_InterOp_CIM_ServiceStatisticalInformation;
+extern SchemaClass __root_PG_InterOp_CIM_SettingAssociatedToCapabilities;
+extern SchemaClass __root_PG_InterOp_CIM_SoftwareIdentity;
+extern SchemaClass __root_PG_InterOp_CIM_SpareGroup;
+extern SchemaClass __root_PG_InterOp_CIM_StatisticsCollection;
+extern SchemaClass __root_PG_InterOp_CIM_StorageRedundancyGroup;
+extern SchemaClass __root_PG_InterOp_CIM_StorageRedundancySet;
+extern SchemaClass __root_PG_InterOp_CIM_ActsAsSpare;
+extern SchemaClass __root_PG_InterOp_CIM_DefaultSetting;
+extern SchemaClass __root_PG_InterOp_CIM_ElementSoftwareIdentity;
+extern SchemaClass __root_PG_InterOp_CIM_ExtraCapacityGroup;
+extern SchemaClass __root_PG_InterOp_CIM_IsSpare;
+extern SchemaClass __root_PG_InterOp_CIM_Job;
+extern SchemaClass __root_PG_InterOp_CIM_ProductSoftwareComponent;
+extern SchemaClass __root_PG_InterOp_CIM_RedundancyComponent;
+extern SchemaClass __root_PG_InterOp_CIM_ScopedSetting;
+extern SchemaClass __root_PG_InterOp_CIM_ConcreteJob;
+extern SchemaClass __root_PG_InterOp_CIM_EnabledLogicalElement;
+extern SchemaClass __root_PG_InterOp_CIM_LogicalDevice;
+extern SchemaClass __root_PG_InterOp_CIM_Realizes;
+extern SchemaClass __root_PG_InterOp_CIM_Service;
+extern SchemaClass __root_PG_InterOp_CIM_ServiceAccessPoint;
+extern SchemaClass __root_PG_InterOp_CIM_ServiceAccessURI;
+extern SchemaClass __root_PG_InterOp_CIM_ServiceAffectsElement;
+extern SchemaClass __root_PG_InterOp_CIM_ServiceAvailableToElement;
+extern SchemaClass __root_PG_InterOp_CIM_ServiceComponent;
+extern SchemaClass __root_PG_InterOp_CIM_ServiceSAPDependency;
+extern SchemaClass __root_PG_InterOp_CIM_ServiceStatistics;
+extern SchemaClass __root_PG_InterOp_CIM_StorageExtent;
+extern SchemaClass __root_PG_InterOp_CIM_System;
+extern SchemaClass __root_PG_InterOp_CIM_SystemComponent;
+extern SchemaClass __root_PG_InterOp_CIM_SystemDevice;
+extern SchemaClass __root_PG_InterOp_CIM_SystemPackaging;
+extern SchemaClass __root_PG_InterOp_CIM_SystemStatistics;
+extern SchemaClass __root_PG_InterOp_CIM_AdminDomain;
+extern SchemaClass __root_PG_InterOp_CIM_BasedOn;
+extern SchemaClass __root_PG_InterOp_CIM_ConfigurationForSystem;
+extern SchemaClass __root_PG_InterOp_CIM_ContainedDomain;
+extern SchemaClass __root_PG_InterOp_CIM_DeviceSAPImplementation;
+extern SchemaClass __root_PG_InterOp_CIM_DeviceServiceImplementation;
+extern SchemaClass __root_PG_InterOp_CIM_DeviceStatistics;
+extern SchemaClass __root_PG_InterOp_CIM_ExtentRedundancyComponent;
+extern SchemaClass __root_PG_InterOp_CIM_HostedAccessPoint;
+extern SchemaClass __root_PG_InterOp_CIM_HostedCollection;
+extern SchemaClass __root_PG_InterOp_CIM_HostedService;
+extern SchemaClass __root_PG_InterOp_CIM_InstalledSoftwareIdentity;
+extern SchemaClass __root_PG_InterOp_CIM_PowerManagementService;
+extern SchemaClass __root_PG_InterOp_CIM_ProductServiceComponent;
+extern SchemaClass __root_PG_InterOp_CIM_ProtocolEndpoint;
+extern SchemaClass __root_PG_InterOp_CIM_ProvidesServiceToElement;
+extern SchemaClass __root_PG_InterOp_CIM_RemoteServiceAccessPoint;
+extern SchemaClass __root_PG_InterOp_CIM_SAPAvailableForElement;
+extern SchemaClass __root_PG_InterOp_CIM_SAPSAPDependency;
+extern SchemaClass __root_PG_InterOp_CIM_SAPStatistics;
+extern SchemaClass __root_PG_InterOp_CIM_ServiceAccessBySAP;
+extern SchemaClass __root_PG_InterOp_CIM_ServiceServiceDependency;
+extern SchemaClass __root_PG_InterOp_CIM_SettingForSystem;
+extern SchemaClass __root_PG_InterOp_CIM_ActiveConnection;
+extern SchemaClass __root_PG_InterOp_CIM_BindsTo;
+extern SchemaClass __root_PG_InterOp_CIM_ProvidesEndpoint;
+extern SchemaClass __root_PG_InterOp_CIM_RemotePort;
+extern SchemaClass __root_PG_InterOp_CIM_Indication;
+extern SchemaClass __root_PG_InterOp_CIM_ClassIndication;
+extern SchemaClass __root_PG_InterOp_CIM_ClassModification;
+extern SchemaClass __root_PG_InterOp_CIM_IndicationFilter;
+extern SchemaClass __root_PG_InterOp_CIM_InstIndication;
+extern SchemaClass __root_PG_InterOp_CIM_InstMethodCall;
+extern SchemaClass __root_PG_InterOp_CIM_InstModification;
+extern SchemaClass __root_PG_InterOp_CIM_InstRead;
+extern SchemaClass __root_PG_InterOp_CIM_ListenerDestination;
+extern SchemaClass __root_PG_InterOp_CIM_ListenerDestinationCIMXML;
+extern SchemaClass __root_PG_InterOp_CIM_ProcessIndication;
+extern SchemaClass __root_PG_InterOp_CIM_SNMPTrapIndication;
+extern SchemaClass __root_PG_InterOp_CIM_AlertIndication;
+extern SchemaClass __root_PG_InterOp_CIM_AlertInstIndication;
+extern SchemaClass __root_PG_InterOp_CIM_ClassCreation;
+extern SchemaClass __root_PG_InterOp_CIM_ClassDeletion;
+extern SchemaClass __root_PG_InterOp_CIM_IndicationHandler;
+extern SchemaClass __root_PG_InterOp_CIM_IndicationHandlerCIMXML;
+extern SchemaClass __root_PG_InterOp_CIM_IndicationSubscription;
+extern SchemaClass __root_PG_InterOp_CIM_InstCreation;
+extern SchemaClass __root_PG_InterOp_CIM_InstDeletion;
+extern SchemaClass __root_PG_InterOp_CIM_ThresholdIndication;
+extern SchemaClass __root_PG_InterOp_CIM_FormattedIndicationSubscription;
+extern SchemaClass __root_PG_InterOp_CIM_Namespace;
+extern SchemaClass __root_PG_InterOp_CIM_RegisteredProfile;
+extern SchemaClass __root_PG_InterOp_CIM_RegisteredSubProfile;
+extern SchemaClass __root_PG_InterOp_CIM_SystemIdentification;
+extern SchemaClass __root_PG_InterOp_CIM_SystemInNamespace;
+extern SchemaClass __root_PG_InterOp_CIM_CIMOMStatisticalData;
+extern SchemaClass __root_PG_InterOp_CIM_ElementConformsToProfile;
+extern SchemaClass __root_PG_InterOp_CIM_ReferencedProfile;
+extern SchemaClass __root_PG_InterOp_CIM_SubProfileRequiresProfile;
+extern SchemaClass __root_PG_InterOp_CIM_WBEMService;
+extern SchemaClass __root_PG_InterOp_CIM_IdentificationOfManagedSystem;
+extern SchemaClass __root_PG_InterOp_CIM_ObjectManager;
+extern SchemaClass __root_PG_InterOp_CIM_ObjectManagerAdapter;
+extern SchemaClass __root_PG_InterOp_CIM_ObjectManagerCommunicationMechanism;
+extern SchemaClass __root_PG_InterOp_CIM_ProtocolAdapter;
+extern SchemaClass __root_PG_InterOp_CIM_CIMXMLCommunicationMechanism;
+extern SchemaClass __root_PG_InterOp_CIM_CommMechanismForAdapter;
+extern SchemaClass __root_PG_InterOp_CIM_CommMechanismForManager;
+extern SchemaClass __root_PG_InterOp_CIM_CommMechanismForObjectManagerAdapter;
+extern SchemaClass __root_PG_InterOp_CIM_NamespaceInManager;
+extern SchemaClass __root_PG_InterOp_PG_IndicationHandlerSNMPMapper;
+extern SchemaClass __root_PG_InterOp_PG_ListenerDestinationSystemLog;
+extern SchemaClass __root_PG_InterOp_PG_ListenerDestinationEmail;
+extern SchemaClass __root_PG_InterOp_PG_ProviderModule;
+extern SchemaClass __root_PG_InterOp_PG_Provider;
+extern SchemaClass __root_PG_InterOp_PG_Capabilities;
+extern SchemaClass __root_PG_InterOp_PG_CapabilitiesRegistration;
+extern SchemaClass __root_PG_InterOp_PG_ProviderCapabilities;
+extern SchemaClass __root_PG_InterOp_PG_ConsumerCapabilities;
+extern SchemaClass __root_PG_InterOp_PG_ProviderCapabilitiesElements;
+extern SchemaClass __root_PG_InterOp_PG_ProviderModuleElements;
+extern SchemaClass __root_PG_InterOp_PG_CIMXMLCommunicationMechanism;
+extern SchemaClass __root_PG_InterOp_PG_NameSpace;
+extern SchemaClass __root_PG_InterOp_CIM_ComputerSystem;
+extern SchemaClass __root_PG_InterOp_CIM_UnitaryComputerSystem;
+extern SchemaClass __root_PG_InterOp_PG_ComputerSystem;
+extern SchemaClass __root_PG_InterOp_PG_ProviderProfileCapabilities;
+extern SchemaClass __root_PG_InterOp_PG_ProviderReferencedProfiles;
+extern SchemaClass __root_PG_InterOp_PG_RegisteredProfile;
+extern SchemaClass __root_PG_InterOp_PG_RegisteredSubProfile;
+extern SchemaClass __root_PG_InterOp_PG_ReferencedProfile;
+extern SchemaClass __root_PG_InterOp_PG_ElementConformsToProfile;
+extern SchemaClass __root_PG_InterOp_PG_SubProfileRequiresProfile;
+extern SchemaClass __root_PG_InterOp_PG_SoftwareIdentity;
+extern SchemaClass __root_PG_InterOp_PG_ElementSoftwareIdentity;
+extern SchemaClass __root_PG_InterOp_PG_ObjectManager;
+extern SchemaClass __root_PG_InterOp_PG_CommMechanismForManager;
+extern SchemaClass __root_PG_InterOp_PG_NamespaceInManager;
+extern SchemaClass __root_PG_InterOp_PG_HostedObjectManager;
+extern SchemaClass __root_PG_InterOp_PG_HostedAccessPoint;
 
 //==============================================================================
 //
@@ -1388,11 +1388,11 @@ _CIM_ManagedElement_Caption_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ManagedElement_Caption =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Caption",
     /* qualifiers */
@@ -1411,11 +1411,11 @@ _CIM_ManagedElement_Description_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ManagedElement_Description =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Description",
     /* qualifiers */
@@ -1434,11 +1434,11 @@ _CIM_ManagedElement_ElementName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ManagedElement_ElementName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ElementName",
     /* qualifiers */
@@ -1451,12 +1451,12 @@ _CIM_ManagedElement_ElementName =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ManagedElement_features[] =
 {
-    (MetaFeature*)&_CIM_ManagedElement_Caption,
-    (MetaFeature*)&_CIM_ManagedElement_Description,
-    (MetaFeature*)&_CIM_ManagedElement_ElementName,
+    (SchemaFeature*)&_CIM_ManagedElement_Caption,
+    (SchemaFeature*)&_CIM_ManagedElement_Description,
+    (SchemaFeature*)&_CIM_ManagedElement_ElementName,
     0,
 };
 
@@ -1472,11 +1472,11 @@ __root_PG_InterOp_CIM_ManagedElement_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ManagedElement =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_ManagedElement",
     /* qualifiers */
@@ -1501,11 +1501,11 @@ _CIM_Setting_SettingID_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_SettingID =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SettingID",
     /* qualifiers */
@@ -1526,11 +1526,11 @@ _CIM_Setting_VerifyOKToApplyToMSE_MSE_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_Setting_VerifyOKToApplyToMSE_MSE =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_IN,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_IN,
     /* name */
     "MSE",
     /* qualifiers */
@@ -1549,11 +1549,11 @@ _CIM_Setting_VerifyOKToApplyToMSE_TimeToApply_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_VerifyOKToApplyToMSE_TimeToApply =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "TimeToApply",
     /* qualifiers */
@@ -1574,11 +1574,11 @@ _CIM_Setting_VerifyOKToApplyToMSE_MustBeCompletedBy_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_VerifyOKToApplyToMSE_MustBeCompletedBy =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "MustBeCompletedBy",
     /* qualifiers */
@@ -1591,12 +1591,12 @@ _CIM_Setting_VerifyOKToApplyToMSE_MustBeCompletedBy =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Setting_VerifyOKToApplyToMSE_parameters[] =
 {
-    (MetaFeature*)&_CIM_Setting_VerifyOKToApplyToMSE_MSE,
-    (MetaFeature*)&_CIM_Setting_VerifyOKToApplyToMSE_TimeToApply,
-    (MetaFeature*)&_CIM_Setting_VerifyOKToApplyToMSE_MustBeCompletedBy,
+    (SchemaFeature*)&_CIM_Setting_VerifyOKToApplyToMSE_MSE,
+    (SchemaFeature*)&_CIM_Setting_VerifyOKToApplyToMSE_TimeToApply,
+    (SchemaFeature*)&_CIM_Setting_VerifyOKToApplyToMSE_MustBeCompletedBy,
     0,
 };
 
@@ -1606,11 +1606,11 @@ _CIM_Setting_VerifyOKToApplyToMSE_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_Setting_VerifyOKToApplyToMSE =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_Setting",
     /* qualifiers */
@@ -1629,11 +1629,11 @@ _CIM_Setting_ApplyToMSE_MSE_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_Setting_ApplyToMSE_MSE =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_IN,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_IN,
     /* name */
     "MSE",
     /* qualifiers */
@@ -1652,11 +1652,11 @@ _CIM_Setting_ApplyToMSE_TimeToApply_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_ApplyToMSE_TimeToApply =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "TimeToApply",
     /* qualifiers */
@@ -1677,11 +1677,11 @@ _CIM_Setting_ApplyToMSE_MustBeCompletedBy_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_ApplyToMSE_MustBeCompletedBy =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "MustBeCompletedBy",
     /* qualifiers */
@@ -1694,12 +1694,12 @@ _CIM_Setting_ApplyToMSE_MustBeCompletedBy =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Setting_ApplyToMSE_parameters[] =
 {
-    (MetaFeature*)&_CIM_Setting_ApplyToMSE_MSE,
-    (MetaFeature*)&_CIM_Setting_ApplyToMSE_TimeToApply,
-    (MetaFeature*)&_CIM_Setting_ApplyToMSE_MustBeCompletedBy,
+    (SchemaFeature*)&_CIM_Setting_ApplyToMSE_MSE,
+    (SchemaFeature*)&_CIM_Setting_ApplyToMSE_TimeToApply,
+    (SchemaFeature*)&_CIM_Setting_ApplyToMSE_MustBeCompletedBy,
     0,
 };
 
@@ -1709,11 +1709,11 @@ _CIM_Setting_ApplyToMSE_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_Setting_ApplyToMSE =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_Setting",
     /* qualifiers */
@@ -1732,11 +1732,11 @@ _CIM_Setting_VerifyOKToApplyToCollection_Collection_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_Setting_VerifyOKToApplyToCollection_Collection =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_IN,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_IN,
     /* name */
     "Collection",
     /* qualifiers */
@@ -1755,11 +1755,11 @@ _CIM_Setting_VerifyOKToApplyToCollection_TimeToApply_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_VerifyOKToApplyToCollection_TimeToApply =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "TimeToApply",
     /* qualifiers */
@@ -1780,11 +1780,11 @@ _CIM_Setting_VerifyOKToApplyToCollection_MustBeCompletedBy_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_VerifyOKToApplyToCollection_MustBeCompletedBy =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "MustBeCompletedBy",
     /* qualifiers */
@@ -1807,11 +1807,11 @@ _CIM_Setting_VerifyOKToApplyToCollection_CanNotApply_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_VerifyOKToApplyToCollection_CanNotApply =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_OUT,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_OUT,
     /* name */
     "CanNotApply",
     /* qualifiers */
@@ -1824,13 +1824,13 @@ _CIM_Setting_VerifyOKToApplyToCollection_CanNotApply =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Setting_VerifyOKToApplyToCollection_parameters[] =
 {
-    (MetaFeature*)&_CIM_Setting_VerifyOKToApplyToCollection_Collection,
-    (MetaFeature*)&_CIM_Setting_VerifyOKToApplyToCollection_TimeToApply,
-    (MetaFeature*)&_CIM_Setting_VerifyOKToApplyToCollection_MustBeCompletedBy,
-    (MetaFeature*)&_CIM_Setting_VerifyOKToApplyToCollection_CanNotApply,
+    (SchemaFeature*)&_CIM_Setting_VerifyOKToApplyToCollection_Collection,
+    (SchemaFeature*)&_CIM_Setting_VerifyOKToApplyToCollection_TimeToApply,
+    (SchemaFeature*)&_CIM_Setting_VerifyOKToApplyToCollection_MustBeCompletedBy,
+    (SchemaFeature*)&_CIM_Setting_VerifyOKToApplyToCollection_CanNotApply,
     0,
 };
 
@@ -1840,11 +1840,11 @@ _CIM_Setting_VerifyOKToApplyToCollection_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_Setting_VerifyOKToApplyToCollection =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_Setting",
     /* qualifiers */
@@ -1863,11 +1863,11 @@ _CIM_Setting_ApplyToCollection_Collection_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_Setting_ApplyToCollection_Collection =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_IN,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_IN,
     /* name */
     "Collection",
     /* qualifiers */
@@ -1886,11 +1886,11 @@ _CIM_Setting_ApplyToCollection_TimeToApply_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_ApplyToCollection_TimeToApply =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "TimeToApply",
     /* qualifiers */
@@ -1911,11 +1911,11 @@ _CIM_Setting_ApplyToCollection_ContinueOnError_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_ApplyToCollection_ContinueOnError =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "ContinueOnError",
     /* qualifiers */
@@ -1936,11 +1936,11 @@ _CIM_Setting_ApplyToCollection_MustBeCompletedBy_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_ApplyToCollection_MustBeCompletedBy =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "MustBeCompletedBy",
     /* qualifiers */
@@ -1963,11 +1963,11 @@ _CIM_Setting_ApplyToCollection_CanNotApply_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_ApplyToCollection_CanNotApply =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_OUT,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_OUT,
     /* name */
     "CanNotApply",
     /* qualifiers */
@@ -1980,14 +1980,14 @@ _CIM_Setting_ApplyToCollection_CanNotApply =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Setting_ApplyToCollection_parameters[] =
 {
-    (MetaFeature*)&_CIM_Setting_ApplyToCollection_Collection,
-    (MetaFeature*)&_CIM_Setting_ApplyToCollection_TimeToApply,
-    (MetaFeature*)&_CIM_Setting_ApplyToCollection_ContinueOnError,
-    (MetaFeature*)&_CIM_Setting_ApplyToCollection_MustBeCompletedBy,
-    (MetaFeature*)&_CIM_Setting_ApplyToCollection_CanNotApply,
+    (SchemaFeature*)&_CIM_Setting_ApplyToCollection_Collection,
+    (SchemaFeature*)&_CIM_Setting_ApplyToCollection_TimeToApply,
+    (SchemaFeature*)&_CIM_Setting_ApplyToCollection_ContinueOnError,
+    (SchemaFeature*)&_CIM_Setting_ApplyToCollection_MustBeCompletedBy,
+    (SchemaFeature*)&_CIM_Setting_ApplyToCollection_CanNotApply,
     0,
 };
 
@@ -1997,11 +1997,11 @@ _CIM_Setting_ApplyToCollection_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_Setting_ApplyToCollection =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_Setting",
     /* qualifiers */
@@ -2020,11 +2020,11 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_MSE_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_MSE =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_IN,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_IN,
     /* name */
     "MSE",
     /* qualifiers */
@@ -2043,11 +2043,11 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_TimeToApply_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_TimeToApply =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "TimeToApply",
     /* qualifiers */
@@ -2068,11 +2068,11 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_MustBeCompletedBy_qualifiers[
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_MustBeCompletedBy =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "MustBeCompletedBy",
     /* qualifiers */
@@ -2093,11 +2093,11 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_PropertiesToApply_qualifiers[
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_PropertiesToApply =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "PropertiesToApply",
     /* qualifiers */
@@ -2110,13 +2110,13 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_PropertiesToApply =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_parameters[] =
 {
-    (MetaFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_MSE,
-    (MetaFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_TimeToApply,
-    (MetaFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_MustBeCompletedBy,
-    (MetaFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_PropertiesToApply,
+    (SchemaFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_MSE,
+    (SchemaFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_TimeToApply,
+    (SchemaFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_MustBeCompletedBy,
+    (SchemaFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_PropertiesToApply,
     0,
 };
 
@@ -2126,11 +2126,11 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_Setting",
     /* qualifiers */
@@ -2149,11 +2149,11 @@ _CIM_Setting_ApplyIncrementalChangeToMSE_MSE_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_Setting_ApplyIncrementalChangeToMSE_MSE =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_IN,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_IN,
     /* name */
     "MSE",
     /* qualifiers */
@@ -2172,11 +2172,11 @@ _CIM_Setting_ApplyIncrementalChangeToMSE_TimeToApply_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_ApplyIncrementalChangeToMSE_TimeToApply =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "TimeToApply",
     /* qualifiers */
@@ -2197,11 +2197,11 @@ _CIM_Setting_ApplyIncrementalChangeToMSE_MustBeCompletedBy_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_ApplyIncrementalChangeToMSE_MustBeCompletedBy =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "MustBeCompletedBy",
     /* qualifiers */
@@ -2222,11 +2222,11 @@ _CIM_Setting_ApplyIncrementalChangeToMSE_PropertiesToApply_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_ApplyIncrementalChangeToMSE_PropertiesToApply =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "PropertiesToApply",
     /* qualifiers */
@@ -2239,13 +2239,13 @@ _CIM_Setting_ApplyIncrementalChangeToMSE_PropertiesToApply =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Setting_ApplyIncrementalChangeToMSE_parameters[] =
 {
-    (MetaFeature*)&_CIM_Setting_ApplyIncrementalChangeToMSE_MSE,
-    (MetaFeature*)&_CIM_Setting_ApplyIncrementalChangeToMSE_TimeToApply,
-    (MetaFeature*)&_CIM_Setting_ApplyIncrementalChangeToMSE_MustBeCompletedBy,
-    (MetaFeature*)&_CIM_Setting_ApplyIncrementalChangeToMSE_PropertiesToApply,
+    (SchemaFeature*)&_CIM_Setting_ApplyIncrementalChangeToMSE_MSE,
+    (SchemaFeature*)&_CIM_Setting_ApplyIncrementalChangeToMSE_TimeToApply,
+    (SchemaFeature*)&_CIM_Setting_ApplyIncrementalChangeToMSE_MustBeCompletedBy,
+    (SchemaFeature*)&_CIM_Setting_ApplyIncrementalChangeToMSE_PropertiesToApply,
     0,
 };
 
@@ -2255,11 +2255,11 @@ _CIM_Setting_ApplyIncrementalChangeToMSE_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_Setting_ApplyIncrementalChangeToMSE =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_Setting",
     /* qualifiers */
@@ -2278,11 +2278,11 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_Collection_qualifiers[
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_Collection =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_IN,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_IN,
     /* name */
     "Collection",
     /* qualifiers */
@@ -2301,11 +2301,11 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_TimeToApply_qualifiers
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_TimeToApply =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "TimeToApply",
     /* qualifiers */
@@ -2326,11 +2326,11 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_MustBeCompletedBy_qual
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_MustBeCompletedBy =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "MustBeCompletedBy",
     /* qualifiers */
@@ -2351,11 +2351,11 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_PropertiesToApply_qual
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_PropertiesToApply =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "PropertiesToApply",
     /* qualifiers */
@@ -2378,11 +2378,11 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_CanNotApply_qualifiers
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_CanNotApply =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_OUT,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_OUT,
     /* name */
     "CanNotApply",
     /* qualifiers */
@@ -2395,14 +2395,14 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_CanNotApply =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_parameters[] =
 {
-    (MetaFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_Collection,
-    (MetaFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_TimeToApply,
-    (MetaFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_MustBeCompletedBy,
-    (MetaFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_PropertiesToApply,
-    (MetaFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_CanNotApply,
+    (SchemaFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_Collection,
+    (SchemaFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_TimeToApply,
+    (SchemaFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_MustBeCompletedBy,
+    (SchemaFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_PropertiesToApply,
+    (SchemaFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_CanNotApply,
     0,
 };
 
@@ -2412,11 +2412,11 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_Setting",
     /* qualifiers */
@@ -2435,11 +2435,11 @@ _CIM_Setting_ApplyIncrementalChangeToCollection_Collection_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_Setting_ApplyIncrementalChangeToCollection_Collection =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_IN,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_IN,
     /* name */
     "Collection",
     /* qualifiers */
@@ -2458,11 +2458,11 @@ _CIM_Setting_ApplyIncrementalChangeToCollection_TimeToApply_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_ApplyIncrementalChangeToCollection_TimeToApply =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "TimeToApply",
     /* qualifiers */
@@ -2483,11 +2483,11 @@ _CIM_Setting_ApplyIncrementalChangeToCollection_ContinueOnError_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_ApplyIncrementalChangeToCollection_ContinueOnError =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "ContinueOnError",
     /* qualifiers */
@@ -2508,11 +2508,11 @@ _CIM_Setting_ApplyIncrementalChangeToCollection_MustBeCompletedBy_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_ApplyIncrementalChangeToCollection_MustBeCompletedBy =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "MustBeCompletedBy",
     /* qualifiers */
@@ -2533,11 +2533,11 @@ _CIM_Setting_ApplyIncrementalChangeToCollection_PropertiesToApply_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_ApplyIncrementalChangeToCollection_PropertiesToApply =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "PropertiesToApply",
     /* qualifiers */
@@ -2560,11 +2560,11 @@ _CIM_Setting_ApplyIncrementalChangeToCollection_CanNotApply_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Setting_ApplyIncrementalChangeToCollection_CanNotApply =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_OUT,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_OUT,
     /* name */
     "CanNotApply",
     /* qualifiers */
@@ -2577,15 +2577,15 @@ _CIM_Setting_ApplyIncrementalChangeToCollection_CanNotApply =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Setting_ApplyIncrementalChangeToCollection_parameters[] =
 {
-    (MetaFeature*)&_CIM_Setting_ApplyIncrementalChangeToCollection_Collection,
-    (MetaFeature*)&_CIM_Setting_ApplyIncrementalChangeToCollection_TimeToApply,
-    (MetaFeature*)&_CIM_Setting_ApplyIncrementalChangeToCollection_ContinueOnError,
-    (MetaFeature*)&_CIM_Setting_ApplyIncrementalChangeToCollection_MustBeCompletedBy,
-    (MetaFeature*)&_CIM_Setting_ApplyIncrementalChangeToCollection_PropertiesToApply,
-    (MetaFeature*)&_CIM_Setting_ApplyIncrementalChangeToCollection_CanNotApply,
+    (SchemaFeature*)&_CIM_Setting_ApplyIncrementalChangeToCollection_Collection,
+    (SchemaFeature*)&_CIM_Setting_ApplyIncrementalChangeToCollection_TimeToApply,
+    (SchemaFeature*)&_CIM_Setting_ApplyIncrementalChangeToCollection_ContinueOnError,
+    (SchemaFeature*)&_CIM_Setting_ApplyIncrementalChangeToCollection_MustBeCompletedBy,
+    (SchemaFeature*)&_CIM_Setting_ApplyIncrementalChangeToCollection_PropertiesToApply,
+    (SchemaFeature*)&_CIM_Setting_ApplyIncrementalChangeToCollection_CanNotApply,
     0,
 };
 
@@ -2595,11 +2595,11 @@ _CIM_Setting_ApplyIncrementalChangeToCollection_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_Setting_ApplyIncrementalChangeToCollection =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_Setting",
     /* qualifiers */
@@ -2610,18 +2610,18 @@ _CIM_Setting_ApplyIncrementalChangeToCollection =
     _CIM_Setting_ApplyIncrementalChangeToCollection_parameters,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Setting_features[] =
 {
-    (MetaFeature*)&_CIM_Setting_SettingID,
-    (MetaFeature*)&_CIM_Setting_VerifyOKToApplyToMSE,
-    (MetaFeature*)&_CIM_Setting_ApplyToMSE,
-    (MetaFeature*)&_CIM_Setting_VerifyOKToApplyToCollection,
-    (MetaFeature*)&_CIM_Setting_ApplyToCollection,
-    (MetaFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE,
-    (MetaFeature*)&_CIM_Setting_ApplyIncrementalChangeToMSE,
-    (MetaFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection,
-    (MetaFeature*)&_CIM_Setting_ApplyIncrementalChangeToCollection,
+    (SchemaFeature*)&_CIM_Setting_SettingID,
+    (SchemaFeature*)&_CIM_Setting_VerifyOKToApplyToMSE,
+    (SchemaFeature*)&_CIM_Setting_ApplyToMSE,
+    (SchemaFeature*)&_CIM_Setting_VerifyOKToApplyToCollection,
+    (SchemaFeature*)&_CIM_Setting_ApplyToCollection,
+    (SchemaFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE,
+    (SchemaFeature*)&_CIM_Setting_ApplyIncrementalChangeToMSE,
+    (SchemaFeature*)&_CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection,
+    (SchemaFeature*)&_CIM_Setting_ApplyIncrementalChangeToCollection,
     0,
 };
 
@@ -2637,11 +2637,11 @@ __root_PG_InterOp_CIM_Setting_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_Setting =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_Setting",
     /* qualifiers */
@@ -2668,11 +2668,11 @@ _CIM_SettingContext_Context_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SettingContext_Context =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_AGGREGATE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_AGGREGATE|SCHEMA_FLAG_READ,
     /* name */
     "Context",
     /* qualifiers */
@@ -2691,11 +2691,11 @@ _CIM_SettingContext_Setting_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SettingContext_Setting =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Setting",
     /* qualifiers */
@@ -2706,11 +2706,11 @@ _CIM_SettingContext_Setting =
     &__root_PG_InterOp_CIM_Setting,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SettingContext_features[] =
 {
-    (MetaFeature*)&_CIM_SettingContext_Context,
-    (MetaFeature*)&_CIM_SettingContext_Setting,
+    (SchemaFeature*)&_CIM_SettingContext_Context,
+    (SchemaFeature*)&_CIM_SettingContext_Setting,
     0,
 };
 
@@ -2728,11 +2728,11 @@ __root_PG_InterOp_CIM_SettingContext_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SettingContext =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_SettingContext",
     /* qualifiers */
@@ -2757,11 +2757,11 @@ _CIM_SettingData_InstanceID_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SettingData_InstanceID =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "InstanceID",
     /* qualifiers */
@@ -2784,11 +2784,11 @@ _CIM_SettingData_ElementName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SettingData_ElementName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "ElementName",
     /* qualifiers */
@@ -2801,11 +2801,11 @@ _CIM_SettingData_ElementName =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SettingData_features[] =
 {
-    (MetaFeature*)&_CIM_SettingData_InstanceID,
-    (MetaFeature*)&_CIM_SettingData_ElementName,
+    (SchemaFeature*)&_CIM_SettingData_InstanceID,
+    (SchemaFeature*)&_CIM_SettingData_ElementName,
     0,
 };
 
@@ -2821,11 +2821,11 @@ __root_PG_InterOp_CIM_SettingData_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SettingData =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_SettingData",
     /* qualifiers */
@@ -2850,11 +2850,11 @@ _CIM_Capabilities_InstanceID_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Capabilities_InstanceID =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "InstanceID",
     /* qualifiers */
@@ -2877,11 +2877,11 @@ _CIM_Capabilities_ElementName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Capabilities_ElementName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "ElementName",
     /* qualifiers */
@@ -2894,11 +2894,11 @@ _CIM_Capabilities_ElementName =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Capabilities_features[] =
 {
-    (MetaFeature*)&_CIM_Capabilities_InstanceID,
-    (MetaFeature*)&_CIM_Capabilities_ElementName,
+    (SchemaFeature*)&_CIM_Capabilities_InstanceID,
+    (SchemaFeature*)&_CIM_Capabilities_ElementName,
     0,
 };
 
@@ -2914,11 +2914,11 @@ __root_PG_InterOp_CIM_Capabilities_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_Capabilities =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_Capabilities",
     /* qualifiers */
@@ -2935,7 +2935,7 @@ __root_PG_InterOp_CIM_Capabilities =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Collection_features[] =
 {
     0,
@@ -2953,11 +2953,11 @@ __root_PG_InterOp_CIM_Collection_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_Collection =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_Collection",
     /* qualifiers */
@@ -2982,11 +2982,11 @@ _CIM_CollectionOfMSEs_CollectionID_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_CollectionOfMSEs_CollectionID =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "CollectionID",
     /* qualifiers */
@@ -2999,10 +2999,10 @@ _CIM_CollectionOfMSEs_CollectionID =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_CollectionOfMSEs_features[] =
 {
-    (MetaFeature*)&_CIM_CollectionOfMSEs_CollectionID,
+    (SchemaFeature*)&_CIM_CollectionOfMSEs_CollectionID,
     0,
 };
 
@@ -3018,11 +3018,11 @@ __root_PG_InterOp_CIM_CollectionOfMSEs_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_CollectionOfMSEs =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_CollectionOfMSEs",
     /* qualifiers */
@@ -3049,11 +3049,11 @@ _CIM_Component_GroupComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_Component_GroupComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_AGGREGATE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_AGGREGATE|SCHEMA_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -3072,11 +3072,11 @@ _CIM_Component_PartComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_Component_PartComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -3087,11 +3087,11 @@ _CIM_Component_PartComponent =
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Component_features[] =
 {
-    (MetaFeature*)&_CIM_Component_GroupComponent,
-    (MetaFeature*)&_CIM_Component_PartComponent,
+    (SchemaFeature*)&_CIM_Component_GroupComponent,
+    (SchemaFeature*)&_CIM_Component_PartComponent,
     0,
 };
 
@@ -3111,11 +3111,11 @@ __root_PG_InterOp_CIM_Component_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_Component =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_ABSTRACT|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_ABSTRACT|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_Component",
     /* qualifiers */
@@ -3140,11 +3140,11 @@ _CIM_ConcreteCollection_InstanceID_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ConcreteCollection_InstanceID =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "InstanceID",
     /* qualifiers */
@@ -3157,10 +3157,10 @@ _CIM_ConcreteCollection_InstanceID =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ConcreteCollection_features[] =
 {
-    (MetaFeature*)&_CIM_ConcreteCollection_InstanceID,
+    (SchemaFeature*)&_CIM_ConcreteCollection_InstanceID,
     0,
 };
 
@@ -3174,11 +3174,11 @@ __root_PG_InterOp_CIM_ConcreteCollection_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ConcreteCollection =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_ConcreteCollection",
     /* qualifiers */
@@ -3205,11 +3205,11 @@ _CIM_ConcreteComponent_GroupComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ConcreteComponent_GroupComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_AGGREGATE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_AGGREGATE|SCHEMA_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -3228,11 +3228,11 @@ _CIM_ConcreteComponent_PartComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ConcreteComponent_PartComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -3243,11 +3243,11 @@ _CIM_ConcreteComponent_PartComponent =
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ConcreteComponent_features[] =
 {
-    (MetaFeature*)&_CIM_ConcreteComponent_GroupComponent,
-    (MetaFeature*)&_CIM_ConcreteComponent_PartComponent,
+    (SchemaFeature*)&_CIM_ConcreteComponent_GroupComponent,
+    (SchemaFeature*)&_CIM_ConcreteComponent_PartComponent,
     0,
 };
 
@@ -3265,11 +3265,11 @@ __root_PG_InterOp_CIM_ConcreteComponent_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ConcreteComponent =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_ConcreteComponent",
     /* qualifiers */
@@ -3296,11 +3296,11 @@ _CIM_Configuration_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Configuration_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -3313,10 +3313,10 @@ _CIM_Configuration_Name =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Configuration_features[] =
 {
-    (MetaFeature*)&_CIM_Configuration_Name,
+    (SchemaFeature*)&_CIM_Configuration_Name,
     0,
 };
 
@@ -3330,11 +3330,11 @@ __root_PG_InterOp_CIM_Configuration_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_Configuration =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_Configuration",
     /* qualifiers */
@@ -3361,11 +3361,11 @@ _CIM_ConfigurationComponent_ConfigGroup_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ConfigurationComponent_ConfigGroup =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_AGGREGATE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_AGGREGATE|SCHEMA_FLAG_READ,
     /* name */
     "ConfigGroup",
     /* qualifiers */
@@ -3384,11 +3384,11 @@ _CIM_ConfigurationComponent_ConfigComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ConfigurationComponent_ConfigComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "ConfigComponent",
     /* qualifiers */
@@ -3399,11 +3399,11 @@ _CIM_ConfigurationComponent_ConfigComponent =
     &__root_PG_InterOp_CIM_Configuration,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ConfigurationComponent_features[] =
 {
-    (MetaFeature*)&_CIM_ConfigurationComponent_ConfigGroup,
-    (MetaFeature*)&_CIM_ConfigurationComponent_ConfigComponent,
+    (SchemaFeature*)&_CIM_ConfigurationComponent_ConfigGroup,
+    (SchemaFeature*)&_CIM_ConfigurationComponent_ConfigComponent,
     0,
 };
 
@@ -3421,11 +3421,11 @@ __root_PG_InterOp_CIM_ConfigurationComponent_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ConfigurationComponent =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_ConfigurationComponent",
     /* qualifiers */
@@ -3450,11 +3450,11 @@ _CIM_Dependency_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_Dependency_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -3473,11 +3473,11 @@ _CIM_Dependency_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_Dependency_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -3488,11 +3488,11 @@ _CIM_Dependency_Dependent =
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Dependency_features[] =
 {
-    (MetaFeature*)&_CIM_Dependency_Antecedent,
-    (MetaFeature*)&_CIM_Dependency_Dependent,
+    (SchemaFeature*)&_CIM_Dependency_Antecedent,
+    (SchemaFeature*)&_CIM_Dependency_Dependent,
     0,
 };
 
@@ -3510,11 +3510,11 @@ __root_PG_InterOp_CIM_Dependency_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_Dependency =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_Dependency",
     /* qualifiers */
@@ -3541,11 +3541,11 @@ _CIM_DependencyContext_Context_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_DependencyContext_Context =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_AGGREGATE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_AGGREGATE|SCHEMA_FLAG_READ,
     /* name */
     "Context",
     /* qualifiers */
@@ -3564,11 +3564,11 @@ _CIM_DependencyContext_Dependency_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_DependencyContext_Dependency =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Dependency",
     /* qualifiers */
@@ -3579,11 +3579,11 @@ _CIM_DependencyContext_Dependency =
     &__root_PG_InterOp_CIM_Dependency,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_DependencyContext_features[] =
 {
-    (MetaFeature*)&_CIM_DependencyContext_Context,
-    (MetaFeature*)&_CIM_DependencyContext_Dependency,
+    (SchemaFeature*)&_CIM_DependencyContext_Context,
+    (SchemaFeature*)&_CIM_DependencyContext_Dependency,
     0,
 };
 
@@ -3601,11 +3601,11 @@ __root_PG_InterOp_CIM_DependencyContext_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_DependencyContext =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_DependencyContext",
     /* qualifiers */
@@ -3634,11 +3634,11 @@ _CIM_ElementCapabilities_ManagedElement_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ElementCapabilities_ManagedElement =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "ManagedElement",
     /* qualifiers */
@@ -3657,11 +3657,11 @@ _CIM_ElementCapabilities_Capabilities_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ElementCapabilities_Capabilities =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Capabilities",
     /* qualifiers */
@@ -3672,11 +3672,11 @@ _CIM_ElementCapabilities_Capabilities =
     &__root_PG_InterOp_CIM_Capabilities,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ElementCapabilities_features[] =
 {
-    (MetaFeature*)&_CIM_ElementCapabilities_ManagedElement,
-    (MetaFeature*)&_CIM_ElementCapabilities_Capabilities,
+    (SchemaFeature*)&_CIM_ElementCapabilities_ManagedElement,
+    (SchemaFeature*)&_CIM_ElementCapabilities_Capabilities,
     0,
 };
 
@@ -3692,11 +3692,11 @@ __root_PG_InterOp_CIM_ElementCapabilities_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ElementCapabilities =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ElementCapabilities",
     /* qualifiers */
@@ -3723,11 +3723,11 @@ _CIM_EnabledLogicalElementCapabilities_ElementNameEditSupported_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_EnabledLogicalElementCapabilities_ElementNameEditSupported =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ElementNameEditSupported",
     /* qualifiers */
@@ -3752,11 +3752,11 @@ _CIM_EnabledLogicalElementCapabilities_MaxElementNameLen_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_EnabledLogicalElementCapabilities_MaxElementNameLen =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "MaxElementNameLen",
     /* qualifiers */
@@ -3781,11 +3781,11 @@ _CIM_EnabledLogicalElementCapabilities_RequestedStatesSupported_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_EnabledLogicalElementCapabilities_RequestedStatesSupported =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "RequestedStatesSupported",
     /* qualifiers */
@@ -3798,12 +3798,12 @@ _CIM_EnabledLogicalElementCapabilities_RequestedStatesSupported =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_EnabledLogicalElementCapabilities_features[] =
 {
-    (MetaFeature*)&_CIM_EnabledLogicalElementCapabilities_ElementNameEditSupported,
-    (MetaFeature*)&_CIM_EnabledLogicalElementCapabilities_MaxElementNameLen,
-    (MetaFeature*)&_CIM_EnabledLogicalElementCapabilities_RequestedStatesSupported,
+    (SchemaFeature*)&_CIM_EnabledLogicalElementCapabilities_ElementNameEditSupported,
+    (SchemaFeature*)&_CIM_EnabledLogicalElementCapabilities_MaxElementNameLen,
+    (SchemaFeature*)&_CIM_EnabledLogicalElementCapabilities_RequestedStatesSupported,
     0,
 };
 
@@ -3817,11 +3817,11 @@ __root_PG_InterOp_CIM_EnabledLogicalElementCapabilities_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_EnabledLogicalElementCapabilities =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_EnabledLogicalElementCapabilities",
     /* qualifiers */
@@ -3850,11 +3850,11 @@ _CIM_FRU_FRUNumber_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_FRU_FRUNumber =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "FRUNumber",
     /* qualifiers */
@@ -3879,11 +3879,11 @@ _CIM_FRU_IdentifyingNumber_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_FRU_IdentifyingNumber =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "IdentifyingNumber",
     /* qualifiers */
@@ -3908,11 +3908,11 @@ _CIM_FRU_Vendor_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_FRU_Vendor =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Vendor",
     /* qualifiers */
@@ -3935,11 +3935,11 @@ _CIM_FRU_Description_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_FRU_Description =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Description",
     /* qualifiers */
@@ -3960,11 +3960,11 @@ _CIM_FRU_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_FRU_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -3987,11 +3987,11 @@ _CIM_FRU_RevisionLevel_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_FRU_RevisionLevel =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "RevisionLevel",
     /* qualifiers */
@@ -4010,11 +4010,11 @@ _CIM_FRU_CustomerReplaceable_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_FRU_CustomerReplaceable =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "CustomerReplaceable",
     /* qualifiers */
@@ -4027,16 +4027,16 @@ _CIM_FRU_CustomerReplaceable =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_FRU_features[] =
 {
-    (MetaFeature*)&_CIM_FRU_FRUNumber,
-    (MetaFeature*)&_CIM_FRU_IdentifyingNumber,
-    (MetaFeature*)&_CIM_FRU_Vendor,
-    (MetaFeature*)&_CIM_FRU_Description,
-    (MetaFeature*)&_CIM_FRU_Name,
-    (MetaFeature*)&_CIM_FRU_RevisionLevel,
-    (MetaFeature*)&_CIM_FRU_CustomerReplaceable,
+    (SchemaFeature*)&_CIM_FRU_FRUNumber,
+    (SchemaFeature*)&_CIM_FRU_IdentifyingNumber,
+    (SchemaFeature*)&_CIM_FRU_Vendor,
+    (SchemaFeature*)&_CIM_FRU_Description,
+    (SchemaFeature*)&_CIM_FRU_Name,
+    (SchemaFeature*)&_CIM_FRU_RevisionLevel,
+    (SchemaFeature*)&_CIM_FRU_CustomerReplaceable,
     0,
 };
 
@@ -4050,11 +4050,11 @@ __root_PG_InterOp_CIM_FRU_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_FRU =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_FRU",
     /* qualifiers */
@@ -4081,11 +4081,11 @@ _CIM_HostedDependency_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_HostedDependency_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -4104,11 +4104,11 @@ _CIM_HostedDependency_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_HostedDependency_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -4119,11 +4119,11 @@ _CIM_HostedDependency_Dependent =
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_HostedDependency_features[] =
 {
-    (MetaFeature*)&_CIM_HostedDependency_Antecedent,
-    (MetaFeature*)&_CIM_HostedDependency_Dependent,
+    (SchemaFeature*)&_CIM_HostedDependency_Antecedent,
+    (SchemaFeature*)&_CIM_HostedDependency_Dependent,
     0,
 };
 
@@ -4139,11 +4139,11 @@ __root_PG_InterOp_CIM_HostedDependency_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_HostedDependency =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_HostedDependency",
     /* qualifiers */
@@ -4166,11 +4166,11 @@ _CIM_LocalizationCapabilities_SupportedInputLocales_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LocalizationCapabilities_SupportedInputLocales =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SupportedInputLocales",
     /* qualifiers */
@@ -4189,11 +4189,11 @@ _CIM_LocalizationCapabilities_SupportedOutputLocales_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LocalizationCapabilities_SupportedOutputLocales =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SupportedOutputLocales",
     /* qualifiers */
@@ -4206,11 +4206,11 @@ _CIM_LocalizationCapabilities_SupportedOutputLocales =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_LocalizationCapabilities_features[] =
 {
-    (MetaFeature*)&_CIM_LocalizationCapabilities_SupportedInputLocales,
-    (MetaFeature*)&_CIM_LocalizationCapabilities_SupportedOutputLocales,
+    (SchemaFeature*)&_CIM_LocalizationCapabilities_SupportedInputLocales,
+    (SchemaFeature*)&_CIM_LocalizationCapabilities_SupportedOutputLocales,
     0,
 };
 
@@ -4224,11 +4224,11 @@ __root_PG_InterOp_CIM_LocalizationCapabilities_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_LocalizationCapabilities =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_LocalizationCapabilities",
     /* qualifiers */
@@ -4255,11 +4255,11 @@ _CIM_Location_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Location_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -4282,11 +4282,11 @@ _CIM_Location_PhysicalPosition_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Location_PhysicalPosition =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "PhysicalPosition",
     /* qualifiers */
@@ -4307,11 +4307,11 @@ _CIM_Location_Address_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Location_Address =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Address",
     /* qualifiers */
@@ -4324,12 +4324,12 @@ _CIM_Location_Address =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Location_features[] =
 {
-    (MetaFeature*)&_CIM_Location_Name,
-    (MetaFeature*)&_CIM_Location_PhysicalPosition,
-    (MetaFeature*)&_CIM_Location_Address,
+    (SchemaFeature*)&_CIM_Location_Name,
+    (SchemaFeature*)&_CIM_Location_PhysicalPosition,
+    (SchemaFeature*)&_CIM_Location_Address,
     0,
 };
 
@@ -4343,11 +4343,11 @@ __root_PG_InterOp_CIM_Location_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_Location =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_Location",
     /* qualifiers */
@@ -4372,11 +4372,11 @@ _CIM_LogicalIdentity_SystemElement_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_LogicalIdentity_SystemElement =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemElement",
     /* qualifiers */
@@ -4395,11 +4395,11 @@ _CIM_LogicalIdentity_SameElement_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_LogicalIdentity_SameElement =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SameElement",
     /* qualifiers */
@@ -4410,11 +4410,11 @@ _CIM_LogicalIdentity_SameElement =
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_LogicalIdentity_features[] =
 {
-    (MetaFeature*)&_CIM_LogicalIdentity_SystemElement,
-    (MetaFeature*)&_CIM_LogicalIdentity_SameElement,
+    (SchemaFeature*)&_CIM_LogicalIdentity_SystemElement,
+    (SchemaFeature*)&_CIM_LogicalIdentity_SameElement,
     0,
 };
 
@@ -4432,11 +4432,11 @@ __root_PG_InterOp_CIM_LogicalIdentity_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_LogicalIdentity =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_LogicalIdentity",
     /* qualifiers */
@@ -4461,11 +4461,11 @@ _CIM_ManagedSystemElement_InstallDate_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ManagedSystemElement_InstallDate =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "InstallDate",
     /* qualifiers */
@@ -4486,11 +4486,11 @@ _CIM_ManagedSystemElement_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ManagedSystemElement_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -4517,11 +4517,11 @@ _CIM_ManagedSystemElement_OperationalStatus_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ManagedSystemElement_OperationalStatus =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OperationalStatus",
     /* qualifiers */
@@ -4544,11 +4544,11 @@ _CIM_ManagedSystemElement_StatusDescriptions_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ManagedSystemElement_StatusDescriptions =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "StatusDescriptions",
     /* qualifiers */
@@ -4573,11 +4573,11 @@ _CIM_ManagedSystemElement_Status_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ManagedSystemElement_Status =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Status",
     /* qualifiers */
@@ -4600,11 +4600,11 @@ _CIM_ManagedSystemElement_HealthState_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ManagedSystemElement_HealthState =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "HealthState",
     /* qualifiers */
@@ -4617,15 +4617,15 @@ _CIM_ManagedSystemElement_HealthState =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ManagedSystemElement_features[] =
 {
-    (MetaFeature*)&_CIM_ManagedSystemElement_InstallDate,
-    (MetaFeature*)&_CIM_ManagedSystemElement_Name,
-    (MetaFeature*)&_CIM_ManagedSystemElement_OperationalStatus,
-    (MetaFeature*)&_CIM_ManagedSystemElement_StatusDescriptions,
-    (MetaFeature*)&_CIM_ManagedSystemElement_Status,
-    (MetaFeature*)&_CIM_ManagedSystemElement_HealthState,
+    (SchemaFeature*)&_CIM_ManagedSystemElement_InstallDate,
+    (SchemaFeature*)&_CIM_ManagedSystemElement_Name,
+    (SchemaFeature*)&_CIM_ManagedSystemElement_OperationalStatus,
+    (SchemaFeature*)&_CIM_ManagedSystemElement_StatusDescriptions,
+    (SchemaFeature*)&_CIM_ManagedSystemElement_Status,
+    (SchemaFeature*)&_CIM_ManagedSystemElement_HealthState,
     0,
 };
 
@@ -4641,11 +4641,11 @@ __root_PG_InterOp_CIM_ManagedSystemElement_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ManagedSystemElement =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_ManagedSystemElement",
     /* qualifiers */
@@ -4672,11 +4672,11 @@ _CIM_MemberOfCollection_Collection_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_MemberOfCollection_Collection =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_AGGREGATE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_AGGREGATE|SCHEMA_FLAG_READ,
     /* name */
     "Collection",
     /* qualifiers */
@@ -4695,11 +4695,11 @@ _CIM_MemberOfCollection_Member_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_MemberOfCollection_Member =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Member",
     /* qualifiers */
@@ -4710,11 +4710,11 @@ _CIM_MemberOfCollection_Member =
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_MemberOfCollection_features[] =
 {
-    (MetaFeature*)&_CIM_MemberOfCollection_Collection,
-    (MetaFeature*)&_CIM_MemberOfCollection_Member,
+    (SchemaFeature*)&_CIM_MemberOfCollection_Collection,
+    (SchemaFeature*)&_CIM_MemberOfCollection_Member,
     0,
 };
 
@@ -4732,11 +4732,11 @@ __root_PG_InterOp_CIM_MemberOfCollection_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_MemberOfCollection =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_MemberOfCollection",
     /* qualifiers */
@@ -4761,11 +4761,11 @@ _CIM_MethodParameters_MethodParametersId_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_MethodParameters_MethodParametersId =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "MethodParametersId",
     /* qualifiers */
@@ -4786,11 +4786,11 @@ _CIM_MethodParameters_ResetValues_SourceME_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_MethodParameters_ResetValues_SourceME =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_IN,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_IN,
     /* name */
     "SourceME",
     /* qualifiers */
@@ -4801,10 +4801,10 @@ _CIM_MethodParameters_ResetValues_SourceME =
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_MethodParameters_ResetValues_parameters[] =
 {
-    (MetaFeature*)&_CIM_MethodParameters_ResetValues_SourceME,
+    (SchemaFeature*)&_CIM_MethodParameters_ResetValues_SourceME,
     0,
 };
 
@@ -4814,11 +4814,11 @@ _CIM_MethodParameters_ResetValues_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_MethodParameters_ResetValues =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_MethodParameters",
     /* qualifiers */
@@ -4829,11 +4829,11 @@ _CIM_MethodParameters_ResetValues =
     _CIM_MethodParameters_ResetValues_parameters,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_MethodParameters_features[] =
 {
-    (MetaFeature*)&_CIM_MethodParameters_MethodParametersId,
-    (MetaFeature*)&_CIM_MethodParameters_ResetValues,
+    (SchemaFeature*)&_CIM_MethodParameters_MethodParametersId,
+    (SchemaFeature*)&_CIM_MethodParameters_ResetValues,
     0,
 };
 
@@ -4849,11 +4849,11 @@ __root_PG_InterOp_CIM_MethodParameters_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_MethodParameters =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_MethodParameters",
     /* qualifiers */
@@ -4876,11 +4876,11 @@ _CIM_OrderedMemberOfCollection_AssignedSequence_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_OrderedMemberOfCollection_AssignedSequence =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "AssignedSequence",
     /* qualifiers */
@@ -4893,10 +4893,10 @@ _CIM_OrderedMemberOfCollection_AssignedSequence =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_OrderedMemberOfCollection_features[] =
 {
-    (MetaFeature*)&_CIM_OrderedMemberOfCollection_AssignedSequence,
+    (SchemaFeature*)&_CIM_OrderedMemberOfCollection_AssignedSequence,
     0,
 };
 
@@ -4914,11 +4914,11 @@ __root_PG_InterOp_CIM_OrderedMemberOfCollection_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_OrderedMemberOfCollection =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_OrderedMemberOfCollection",
     /* qualifiers */
@@ -4943,11 +4943,11 @@ _CIM_ParametersForMethod_Parameters_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ParametersForMethod_Parameters =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Parameters",
     /* qualifiers */
@@ -4966,11 +4966,11 @@ _CIM_ParametersForMethod_TheMethod_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ParametersForMethod_TheMethod =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "TheMethod",
     /* qualifiers */
@@ -4991,11 +4991,11 @@ _CIM_ParametersForMethod_MethodName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ParametersForMethod_MethodName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "MethodName",
     /* qualifiers */
@@ -5008,12 +5008,12 @@ _CIM_ParametersForMethod_MethodName =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ParametersForMethod_features[] =
 {
-    (MetaFeature*)&_CIM_ParametersForMethod_Parameters,
-    (MetaFeature*)&_CIM_ParametersForMethod_TheMethod,
-    (MetaFeature*)&_CIM_ParametersForMethod_MethodName,
+    (SchemaFeature*)&_CIM_ParametersForMethod_Parameters,
+    (SchemaFeature*)&_CIM_ParametersForMethod_TheMethod,
+    (SchemaFeature*)&_CIM_ParametersForMethod_MethodName,
     0,
 };
 
@@ -5029,11 +5029,11 @@ __root_PG_InterOp_CIM_ParametersForMethod_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ParametersForMethod =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ParametersForMethod",
     /* qualifiers */
@@ -5058,11 +5058,11 @@ _CIM_ParameterValueSources_Parameters_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ParameterValueSources_Parameters =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Parameters",
     /* qualifiers */
@@ -5081,11 +5081,11 @@ _CIM_ParameterValueSources_ValueSource_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ParameterValueSources_ValueSource =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "ValueSource",
     /* qualifiers */
@@ -5096,11 +5096,11 @@ _CIM_ParameterValueSources_ValueSource =
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ParameterValueSources_features[] =
 {
-    (MetaFeature*)&_CIM_ParameterValueSources_Parameters,
-    (MetaFeature*)&_CIM_ParameterValueSources_ValueSource,
+    (SchemaFeature*)&_CIM_ParameterValueSources_Parameters,
+    (SchemaFeature*)&_CIM_ParameterValueSources_ValueSource,
     0,
 };
 
@@ -5116,11 +5116,11 @@ __root_PG_InterOp_CIM_ParameterValueSources_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ParameterValueSources =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ParameterValueSources",
     /* qualifiers */
@@ -5147,11 +5147,11 @@ _CIM_PhysicalElement_Tag_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PhysicalElement_Tag =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Tag",
     /* qualifiers */
@@ -5174,11 +5174,11 @@ _CIM_PhysicalElement_Description_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PhysicalElement_Description =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Description",
     /* qualifiers */
@@ -5201,11 +5201,11 @@ _CIM_PhysicalElement_CreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PhysicalElement_CreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -5228,11 +5228,11 @@ _CIM_PhysicalElement_ElementName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PhysicalElement_ElementName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ElementName",
     /* qualifiers */
@@ -5255,11 +5255,11 @@ _CIM_PhysicalElement_Manufacturer_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PhysicalElement_Manufacturer =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Manufacturer",
     /* qualifiers */
@@ -5282,11 +5282,11 @@ _CIM_PhysicalElement_Model_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PhysicalElement_Model =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Model",
     /* qualifiers */
@@ -5307,11 +5307,11 @@ _CIM_PhysicalElement_SKU_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PhysicalElement_SKU =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SKU",
     /* qualifiers */
@@ -5334,11 +5334,11 @@ _CIM_PhysicalElement_SerialNumber_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PhysicalElement_SerialNumber =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SerialNumber",
     /* qualifiers */
@@ -5361,11 +5361,11 @@ _CIM_PhysicalElement_Version_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PhysicalElement_Version =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Version",
     /* qualifiers */
@@ -5388,11 +5388,11 @@ _CIM_PhysicalElement_PartNumber_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PhysicalElement_PartNumber =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "PartNumber",
     /* qualifiers */
@@ -5415,11 +5415,11 @@ _CIM_PhysicalElement_OtherIdentifyingInfo_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PhysicalElement_OtherIdentifyingInfo =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "OtherIdentifyingInfo",
     /* qualifiers */
@@ -5438,11 +5438,11 @@ _CIM_PhysicalElement_PoweredOn_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PhysicalElement_PoweredOn =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "PoweredOn",
     /* qualifiers */
@@ -5461,11 +5461,11 @@ _CIM_PhysicalElement_ManufactureDate_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PhysicalElement_ManufactureDate =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ManufactureDate",
     /* qualifiers */
@@ -5486,11 +5486,11 @@ _CIM_PhysicalElement_VendorEquipmentType_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PhysicalElement_VendorEquipmentType =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "VendorEquipmentType",
     /* qualifiers */
@@ -5513,11 +5513,11 @@ _CIM_PhysicalElement_UserTracking_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PhysicalElement_UserTracking =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "UserTracking",
     /* qualifiers */
@@ -5538,11 +5538,11 @@ _CIM_PhysicalElement_CanBeFRUed_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PhysicalElement_CanBeFRUed =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "CanBeFRUed",
     /* qualifiers */
@@ -5555,25 +5555,25 @@ _CIM_PhysicalElement_CanBeFRUed =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_PhysicalElement_features[] =
 {
-    (MetaFeature*)&_CIM_PhysicalElement_Tag,
-    (MetaFeature*)&_CIM_PhysicalElement_Description,
-    (MetaFeature*)&_CIM_PhysicalElement_CreationClassName,
-    (MetaFeature*)&_CIM_PhysicalElement_ElementName,
-    (MetaFeature*)&_CIM_PhysicalElement_Manufacturer,
-    (MetaFeature*)&_CIM_PhysicalElement_Model,
-    (MetaFeature*)&_CIM_PhysicalElement_SKU,
-    (MetaFeature*)&_CIM_PhysicalElement_SerialNumber,
-    (MetaFeature*)&_CIM_PhysicalElement_Version,
-    (MetaFeature*)&_CIM_PhysicalElement_PartNumber,
-    (MetaFeature*)&_CIM_PhysicalElement_OtherIdentifyingInfo,
-    (MetaFeature*)&_CIM_PhysicalElement_PoweredOn,
-    (MetaFeature*)&_CIM_PhysicalElement_ManufactureDate,
-    (MetaFeature*)&_CIM_PhysicalElement_VendorEquipmentType,
-    (MetaFeature*)&_CIM_PhysicalElement_UserTracking,
-    (MetaFeature*)&_CIM_PhysicalElement_CanBeFRUed,
+    (SchemaFeature*)&_CIM_PhysicalElement_Tag,
+    (SchemaFeature*)&_CIM_PhysicalElement_Description,
+    (SchemaFeature*)&_CIM_PhysicalElement_CreationClassName,
+    (SchemaFeature*)&_CIM_PhysicalElement_ElementName,
+    (SchemaFeature*)&_CIM_PhysicalElement_Manufacturer,
+    (SchemaFeature*)&_CIM_PhysicalElement_Model,
+    (SchemaFeature*)&_CIM_PhysicalElement_SKU,
+    (SchemaFeature*)&_CIM_PhysicalElement_SerialNumber,
+    (SchemaFeature*)&_CIM_PhysicalElement_Version,
+    (SchemaFeature*)&_CIM_PhysicalElement_PartNumber,
+    (SchemaFeature*)&_CIM_PhysicalElement_OtherIdentifyingInfo,
+    (SchemaFeature*)&_CIM_PhysicalElement_PoweredOn,
+    (SchemaFeature*)&_CIM_PhysicalElement_ManufactureDate,
+    (SchemaFeature*)&_CIM_PhysicalElement_VendorEquipmentType,
+    (SchemaFeature*)&_CIM_PhysicalElement_UserTracking,
+    (SchemaFeature*)&_CIM_PhysicalElement_CanBeFRUed,
     0,
 };
 
@@ -5589,11 +5589,11 @@ __root_PG_InterOp_CIM_PhysicalElement_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_PhysicalElement =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_PhysicalElement",
     /* qualifiers */
@@ -5624,11 +5624,11 @@ _CIM_PowerManagementCapabilities_PowerCapabilities_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PowerManagementCapabilities_PowerCapabilities =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "PowerCapabilities",
     /* qualifiers */
@@ -5649,11 +5649,11 @@ _CIM_PowerManagementCapabilities_OtherPowerCapabilitiesDescriptions_qualifiers[]
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PowerManagementCapabilities_OtherPowerCapabilitiesDescriptions =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherPowerCapabilitiesDescriptions",
     /* qualifiers */
@@ -5666,11 +5666,11 @@ _CIM_PowerManagementCapabilities_OtherPowerCapabilitiesDescriptions =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_PowerManagementCapabilities_features[] =
 {
-    (MetaFeature*)&_CIM_PowerManagementCapabilities_PowerCapabilities,
-    (MetaFeature*)&_CIM_PowerManagementCapabilities_OtherPowerCapabilitiesDescriptions,
+    (SchemaFeature*)&_CIM_PowerManagementCapabilities_PowerCapabilities,
+    (SchemaFeature*)&_CIM_PowerManagementCapabilities_OtherPowerCapabilitiesDescriptions,
     0,
 };
 
@@ -5684,11 +5684,11 @@ __root_PG_InterOp_CIM_PowerManagementCapabilities_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_PowerManagementCapabilities =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_PowerManagementCapabilities",
     /* qualifiers */
@@ -5719,11 +5719,11 @@ _CIM_Product_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Product_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -5748,11 +5748,11 @@ _CIM_Product_IdentifyingNumber_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Product_IdentifyingNumber =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "IdentifyingNumber",
     /* qualifiers */
@@ -5779,11 +5779,11 @@ _CIM_Product_Vendor_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Product_Vendor =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Vendor",
     /* qualifiers */
@@ -5810,11 +5810,11 @@ _CIM_Product_Version_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Product_Version =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Version",
     /* qualifiers */
@@ -5835,11 +5835,11 @@ _CIM_Product_SKUNumber_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Product_SKUNumber =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SKUNumber",
     /* qualifiers */
@@ -5862,11 +5862,11 @@ _CIM_Product_WarrantyStartDate_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Product_WarrantyStartDate =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "WarrantyStartDate",
     /* qualifiers */
@@ -5891,11 +5891,11 @@ _CIM_Product_WarrantyDuration_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Product_WarrantyDuration =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "WarrantyDuration",
     /* qualifiers */
@@ -5908,16 +5908,16 @@ _CIM_Product_WarrantyDuration =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Product_features[] =
 {
-    (MetaFeature*)&_CIM_Product_Name,
-    (MetaFeature*)&_CIM_Product_IdentifyingNumber,
-    (MetaFeature*)&_CIM_Product_Vendor,
-    (MetaFeature*)&_CIM_Product_Version,
-    (MetaFeature*)&_CIM_Product_SKUNumber,
-    (MetaFeature*)&_CIM_Product_WarrantyStartDate,
-    (MetaFeature*)&_CIM_Product_WarrantyDuration,
+    (SchemaFeature*)&_CIM_Product_Name,
+    (SchemaFeature*)&_CIM_Product_IdentifyingNumber,
+    (SchemaFeature*)&_CIM_Product_Vendor,
+    (SchemaFeature*)&_CIM_Product_Version,
+    (SchemaFeature*)&_CIM_Product_SKUNumber,
+    (SchemaFeature*)&_CIM_Product_WarrantyStartDate,
+    (SchemaFeature*)&_CIM_Product_WarrantyDuration,
     0,
 };
 
@@ -5931,11 +5931,11 @@ __root_PG_InterOp_CIM_Product_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_Product =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_Product",
     /* qualifiers */
@@ -5964,11 +5964,11 @@ _CIM_ProductComponent_GroupComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ProductComponent_GroupComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_AGGREGATE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_AGGREGATE|SCHEMA_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -5989,11 +5989,11 @@ _CIM_ProductComponent_PartComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ProductComponent_PartComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -6004,11 +6004,11 @@ _CIM_ProductComponent_PartComponent =
     &__root_PG_InterOp_CIM_Product,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ProductComponent_features[] =
 {
-    (MetaFeature*)&_CIM_ProductComponent_GroupComponent,
-    (MetaFeature*)&_CIM_ProductComponent_PartComponent,
+    (SchemaFeature*)&_CIM_ProductComponent_GroupComponent,
+    (SchemaFeature*)&_CIM_ProductComponent_PartComponent,
     0,
 };
 
@@ -6028,11 +6028,11 @@ __root_PG_InterOp_CIM_ProductComponent_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ProductComponent =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_ProductComponent",
     /* qualifiers */
@@ -6059,11 +6059,11 @@ _CIM_ProductFRU_Product_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ProductFRU_Product =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Product",
     /* qualifiers */
@@ -6082,11 +6082,11 @@ _CIM_ProductFRU_FRU_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ProductFRU_FRU =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "FRU",
     /* qualifiers */
@@ -6097,11 +6097,11 @@ _CIM_ProductFRU_FRU =
     &__root_PG_InterOp_CIM_FRU,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ProductFRU_features[] =
 {
-    (MetaFeature*)&_CIM_ProductFRU_Product,
-    (MetaFeature*)&_CIM_ProductFRU_FRU,
+    (SchemaFeature*)&_CIM_ProductFRU_Product,
+    (SchemaFeature*)&_CIM_ProductFRU_FRU,
     0,
 };
 
@@ -6117,11 +6117,11 @@ __root_PG_InterOp_CIM_ProductFRU_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ProductFRU =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ProductFRU",
     /* qualifiers */
@@ -6148,11 +6148,11 @@ _CIM_ProductParentChild_Parent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ProductParentChild_Parent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_AGGREGATE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_AGGREGATE|SCHEMA_FLAG_READ,
     /* name */
     "Parent",
     /* qualifiers */
@@ -6171,11 +6171,11 @@ _CIM_ProductParentChild_Child_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ProductParentChild_Child =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Child",
     /* qualifiers */
@@ -6186,11 +6186,11 @@ _CIM_ProductParentChild_Child =
     &__root_PG_InterOp_CIM_Product,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ProductParentChild_features[] =
 {
-    (MetaFeature*)&_CIM_ProductParentChild_Parent,
-    (MetaFeature*)&_CIM_ProductParentChild_Child,
+    (SchemaFeature*)&_CIM_ProductParentChild_Parent,
+    (SchemaFeature*)&_CIM_ProductParentChild_Child,
     0,
 };
 
@@ -6210,11 +6210,11 @@ __root_PG_InterOp_CIM_ProductParentChild_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ProductParentChild =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_ProductParentChild",
     /* qualifiers */
@@ -6241,11 +6241,11 @@ _CIM_ProductPhysicalComponent_GroupComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ProductPhysicalComponent_GroupComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -6264,11 +6264,11 @@ _CIM_ProductPhysicalComponent_PartComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ProductPhysicalComponent_PartComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -6279,11 +6279,11 @@ _CIM_ProductPhysicalComponent_PartComponent =
     &__root_PG_InterOp_CIM_PhysicalElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ProductPhysicalComponent_features[] =
 {
-    (MetaFeature*)&_CIM_ProductPhysicalComponent_GroupComponent,
-    (MetaFeature*)&_CIM_ProductPhysicalComponent_PartComponent,
+    (SchemaFeature*)&_CIM_ProductPhysicalComponent_GroupComponent,
+    (SchemaFeature*)&_CIM_ProductPhysicalComponent_PartComponent,
     0,
 };
 
@@ -6303,11 +6303,11 @@ __root_PG_InterOp_CIM_ProductPhysicalComponent_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ProductPhysicalComponent =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_ProductPhysicalComponent",
     /* qualifiers */
@@ -6338,11 +6338,11 @@ _CIM_ProductPhysicalElements_Product_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ProductPhysicalElements_Product =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_AGGREGATE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_AGGREGATE|SCHEMA_FLAG_READ,
     /* name */
     "Product",
     /* qualifiers */
@@ -6363,11 +6363,11 @@ _CIM_ProductPhysicalElements_Component_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ProductPhysicalElements_Component =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Component",
     /* qualifiers */
@@ -6378,11 +6378,11 @@ _CIM_ProductPhysicalElements_Component =
     &__root_PG_InterOp_CIM_PhysicalElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ProductPhysicalElements_features[] =
 {
-    (MetaFeature*)&_CIM_ProductPhysicalElements_Product,
-    (MetaFeature*)&_CIM_ProductPhysicalElements_Component,
+    (SchemaFeature*)&_CIM_ProductPhysicalElements_Product,
+    (SchemaFeature*)&_CIM_ProductPhysicalElements_Component,
     0,
 };
 
@@ -6404,11 +6404,11 @@ __root_PG_InterOp_CIM_ProductPhysicalElements_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ProductPhysicalElements =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_ProductPhysicalElements",
     /* qualifiers */
@@ -6433,11 +6433,11 @@ _CIM_ProductProductDependency_RequiredProduct_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ProductProductDependency_RequiredProduct =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "RequiredProduct",
     /* qualifiers */
@@ -6456,11 +6456,11 @@ _CIM_ProductProductDependency_DependentProduct_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ProductProductDependency_DependentProduct =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "DependentProduct",
     /* qualifiers */
@@ -6481,11 +6481,11 @@ _CIM_ProductProductDependency_TypeOfDependency_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ProductProductDependency_TypeOfDependency =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "TypeOfDependency",
     /* qualifiers */
@@ -6498,12 +6498,12 @@ _CIM_ProductProductDependency_TypeOfDependency =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ProductProductDependency_features[] =
 {
-    (MetaFeature*)&_CIM_ProductProductDependency_RequiredProduct,
-    (MetaFeature*)&_CIM_ProductProductDependency_DependentProduct,
-    (MetaFeature*)&_CIM_ProductProductDependency_TypeOfDependency,
+    (SchemaFeature*)&_CIM_ProductProductDependency_RequiredProduct,
+    (SchemaFeature*)&_CIM_ProductProductDependency_DependentProduct,
+    (SchemaFeature*)&_CIM_ProductProductDependency_TypeOfDependency,
     0,
 };
 
@@ -6519,11 +6519,11 @@ __root_PG_InterOp_CIM_ProductProductDependency_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ProductProductDependency =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ProductProductDependency",
     /* qualifiers */
@@ -6548,11 +6548,11 @@ _CIM_Profile_InstanceID_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Profile_InstanceID =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "InstanceID",
     /* qualifiers */
@@ -6565,10 +6565,10 @@ _CIM_Profile_InstanceID =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Profile_features[] =
 {
-    (MetaFeature*)&_CIM_Profile_InstanceID,
+    (SchemaFeature*)&_CIM_Profile_InstanceID,
     0,
 };
 
@@ -6582,11 +6582,11 @@ __root_PG_InterOp_CIM_Profile_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_Profile =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_Profile",
     /* qualifiers */
@@ -6613,11 +6613,11 @@ _CIM_ReplaceableProductFRU_Product_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ReplaceableProductFRU_Product =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Product",
     /* qualifiers */
@@ -6636,11 +6636,11 @@ _CIM_ReplaceableProductFRU_FRU_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ReplaceableProductFRU_FRU =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "FRU",
     /* qualifiers */
@@ -6651,11 +6651,11 @@ _CIM_ReplaceableProductFRU_FRU =
     &__root_PG_InterOp_CIM_FRU,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ReplaceableProductFRU_features[] =
 {
-    (MetaFeature*)&_CIM_ReplaceableProductFRU_Product,
-    (MetaFeature*)&_CIM_ReplaceableProductFRU_FRU,
+    (SchemaFeature*)&_CIM_ReplaceableProductFRU_Product,
+    (SchemaFeature*)&_CIM_ReplaceableProductFRU_FRU,
     0,
 };
 
@@ -6671,11 +6671,11 @@ __root_PG_InterOp_CIM_ReplaceableProductFRU_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ReplaceableProductFRU =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ReplaceableProductFRU",
     /* qualifiers */
@@ -6700,11 +6700,11 @@ _CIM_Spared_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_Spared_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -6723,11 +6723,11 @@ _CIM_Spared_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_Spared_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -6738,11 +6738,11 @@ _CIM_Spared_Dependent =
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Spared_features[] =
 {
-    (MetaFeature*)&_CIM_Spared_Antecedent,
-    (MetaFeature*)&_CIM_Spared_Dependent,
+    (SchemaFeature*)&_CIM_Spared_Antecedent,
+    (SchemaFeature*)&_CIM_Spared_Dependent,
     0,
 };
 
@@ -6758,11 +6758,11 @@ __root_PG_InterOp_CIM_Spared_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_Spared =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_Spared",
     /* qualifiers */
@@ -6787,11 +6787,11 @@ _CIM_StatisticalData_InstanceID_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StatisticalData_InstanceID =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "InstanceID",
     /* qualifiers */
@@ -6814,11 +6814,11 @@ _CIM_StatisticalData_ElementName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StatisticalData_ElementName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "ElementName",
     /* qualifiers */
@@ -6837,11 +6837,11 @@ _CIM_StatisticalData_StartStatisticTime_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StatisticalData_StartStatisticTime =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "StartStatisticTime",
     /* qualifiers */
@@ -6860,11 +6860,11 @@ _CIM_StatisticalData_StatisticTime_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StatisticalData_StatisticTime =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "StatisticTime",
     /* qualifiers */
@@ -6883,11 +6883,11 @@ _CIM_StatisticalData_SampleInterval_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StatisticalData_SampleInterval =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SampleInterval",
     /* qualifiers */
@@ -6908,11 +6908,11 @@ _CIM_StatisticalData_ResetSelectedStats_SelectedStatistics_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StatisticalData_ResetSelectedStats_SelectedStatistics =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "SelectedStatistics",
     /* qualifiers */
@@ -6925,10 +6925,10 @@ _CIM_StatisticalData_ResetSelectedStats_SelectedStatistics =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_StatisticalData_ResetSelectedStats_parameters[] =
 {
-    (MetaFeature*)&_CIM_StatisticalData_ResetSelectedStats_SelectedStatistics,
+    (SchemaFeature*)&_CIM_StatisticalData_ResetSelectedStats_SelectedStatistics,
     0,
 };
 
@@ -6938,11 +6938,11 @@ _CIM_StatisticalData_ResetSelectedStats_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_StatisticalData_ResetSelectedStats =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_StatisticalData",
     /* qualifiers */
@@ -6953,15 +6953,15 @@ _CIM_StatisticalData_ResetSelectedStats =
     _CIM_StatisticalData_ResetSelectedStats_parameters,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_StatisticalData_features[] =
 {
-    (MetaFeature*)&_CIM_StatisticalData_InstanceID,
-    (MetaFeature*)&_CIM_StatisticalData_ElementName,
-    (MetaFeature*)&_CIM_StatisticalData_StartStatisticTime,
-    (MetaFeature*)&_CIM_StatisticalData_StatisticTime,
-    (MetaFeature*)&_CIM_StatisticalData_SampleInterval,
-    (MetaFeature*)&_CIM_StatisticalData_ResetSelectedStats,
+    (SchemaFeature*)&_CIM_StatisticalData_InstanceID,
+    (SchemaFeature*)&_CIM_StatisticalData_ElementName,
+    (SchemaFeature*)&_CIM_StatisticalData_StartStatisticTime,
+    (SchemaFeature*)&_CIM_StatisticalData_StatisticTime,
+    (SchemaFeature*)&_CIM_StatisticalData_SampleInterval,
+    (SchemaFeature*)&_CIM_StatisticalData_ResetSelectedStats,
     0,
 };
 
@@ -6977,11 +6977,11 @@ __root_PG_InterOp_CIM_StatisticalData_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_StatisticalData =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_StatisticalData",
     /* qualifiers */
@@ -7006,11 +7006,11 @@ _CIM_StatisticalInformation_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StatisticalInformation_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -7023,10 +7023,10 @@ _CIM_StatisticalInformation_Name =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_StatisticalInformation_features[] =
 {
-    (MetaFeature*)&_CIM_StatisticalInformation_Name,
+    (SchemaFeature*)&_CIM_StatisticalInformation_Name,
     0,
 };
 
@@ -7042,11 +7042,11 @@ __root_PG_InterOp_CIM_StatisticalInformation_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_StatisticalInformation =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_StatisticalInformation",
     /* qualifiers */
@@ -7073,11 +7073,11 @@ _CIM_StatisticalSetting_StartStatisticTime_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StatisticalSetting_StartStatisticTime =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "StartStatisticTime",
     /* qualifiers */
@@ -7098,11 +7098,11 @@ _CIM_StatisticalSetting_EndStatisticTime_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StatisticalSetting_EndStatisticTime =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "EndStatisticTime",
     /* qualifiers */
@@ -7125,11 +7125,11 @@ _CIM_StatisticalSetting_SampleInterval_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StatisticalSetting_SampleInterval =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "SampleInterval",
     /* qualifiers */
@@ -7142,12 +7142,12 @@ _CIM_StatisticalSetting_SampleInterval =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_StatisticalSetting_features[] =
 {
-    (MetaFeature*)&_CIM_StatisticalSetting_StartStatisticTime,
-    (MetaFeature*)&_CIM_StatisticalSetting_EndStatisticTime,
-    (MetaFeature*)&_CIM_StatisticalSetting_SampleInterval,
+    (SchemaFeature*)&_CIM_StatisticalSetting_StartStatisticTime,
+    (SchemaFeature*)&_CIM_StatisticalSetting_EndStatisticTime,
+    (SchemaFeature*)&_CIM_StatisticalSetting_SampleInterval,
     0,
 };
 
@@ -7161,11 +7161,11 @@ __root_PG_InterOp_CIM_StatisticalSetting_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_StatisticalSetting =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_StatisticalSetting",
     /* qualifiers */
@@ -7190,11 +7190,11 @@ _CIM_Statistics_Stats_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_Statistics_Stats =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Stats",
     /* qualifiers */
@@ -7213,11 +7213,11 @@ _CIM_Statistics_Element_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_Statistics_Element =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Element",
     /* qualifiers */
@@ -7228,11 +7228,11 @@ _CIM_Statistics_Element =
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Statistics_features[] =
 {
-    (MetaFeature*)&_CIM_Statistics_Stats,
-    (MetaFeature*)&_CIM_Statistics_Element,
+    (SchemaFeature*)&_CIM_Statistics_Stats,
+    (SchemaFeature*)&_CIM_Statistics_Element,
     0,
 };
 
@@ -7248,11 +7248,11 @@ __root_PG_InterOp_CIM_Statistics_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_Statistics =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_Statistics",
     /* qualifiers */
@@ -7279,11 +7279,11 @@ _CIM_SupportAccess_SupportAccessId_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SupportAccess_SupportAccessId =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SupportAccessId",
     /* qualifiers */
@@ -7306,11 +7306,11 @@ _CIM_SupportAccess_Description_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SupportAccess_Description =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Description",
     /* qualifiers */
@@ -7331,11 +7331,11 @@ _CIM_SupportAccess_CommunicationInfo_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SupportAccess_CommunicationInfo =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "CommunicationInfo",
     /* qualifiers */
@@ -7360,11 +7360,11 @@ _CIM_SupportAccess_CommunicationMode_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SupportAccess_CommunicationMode =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "CommunicationMode",
     /* qualifiers */
@@ -7387,11 +7387,11 @@ _CIM_SupportAccess_Locale_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SupportAccess_Locale =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Locale",
     /* qualifiers */
@@ -7404,14 +7404,14 @@ _CIM_SupportAccess_Locale =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SupportAccess_features[] =
 {
-    (MetaFeature*)&_CIM_SupportAccess_SupportAccessId,
-    (MetaFeature*)&_CIM_SupportAccess_Description,
-    (MetaFeature*)&_CIM_SupportAccess_CommunicationInfo,
-    (MetaFeature*)&_CIM_SupportAccess_CommunicationMode,
-    (MetaFeature*)&_CIM_SupportAccess_Locale,
+    (SchemaFeature*)&_CIM_SupportAccess_SupportAccessId,
+    (SchemaFeature*)&_CIM_SupportAccess_Description,
+    (SchemaFeature*)&_CIM_SupportAccess_CommunicationInfo,
+    (SchemaFeature*)&_CIM_SupportAccess_CommunicationMode,
+    (SchemaFeature*)&_CIM_SupportAccess_Locale,
     0,
 };
 
@@ -7425,11 +7425,11 @@ __root_PG_InterOp_CIM_SupportAccess_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SupportAccess =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_SupportAccess",
     /* qualifiers */
@@ -7454,11 +7454,11 @@ _CIM_Synchronized_SystemElement_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_Synchronized_SystemElement =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemElement",
     /* qualifiers */
@@ -7477,11 +7477,11 @@ _CIM_Synchronized_SyncedElement_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_Synchronized_SyncedElement =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SyncedElement",
     /* qualifiers */
@@ -7498,11 +7498,11 @@ _CIM_Synchronized_WhenSynced_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Synchronized_WhenSynced =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "WhenSynced",
     /* qualifiers */
@@ -7521,11 +7521,11 @@ _CIM_Synchronized_SyncMaintained_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Synchronized_SyncMaintained =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SyncMaintained",
     /* qualifiers */
@@ -7538,13 +7538,13 @@ _CIM_Synchronized_SyncMaintained =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Synchronized_features[] =
 {
-    (MetaFeature*)&_CIM_Synchronized_SystemElement,
-    (MetaFeature*)&_CIM_Synchronized_SyncedElement,
-    (MetaFeature*)&_CIM_Synchronized_WhenSynced,
-    (MetaFeature*)&_CIM_Synchronized_SyncMaintained,
+    (SchemaFeature*)&_CIM_Synchronized_SystemElement,
+    (SchemaFeature*)&_CIM_Synchronized_SyncedElement,
+    (SchemaFeature*)&_CIM_Synchronized_WhenSynced,
+    (SchemaFeature*)&_CIM_Synchronized_SyncMaintained,
     0,
 };
 
@@ -7560,11 +7560,11 @@ __root_PG_InterOp_CIM_Synchronized_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_Synchronized =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_Synchronized",
     /* qualifiers */
@@ -7593,11 +7593,11 @@ _CIM_SystemConfiguration_SystemCreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemConfiguration_SystemCreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -7622,11 +7622,11 @@ _CIM_SystemConfiguration_SystemName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemConfiguration_SystemName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -7649,11 +7649,11 @@ _CIM_SystemConfiguration_CreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemConfiguration_CreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -7676,11 +7676,11 @@ _CIM_SystemConfiguration_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemConfiguration_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -7693,13 +7693,13 @@ _CIM_SystemConfiguration_Name =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SystemConfiguration_features[] =
 {
-    (MetaFeature*)&_CIM_SystemConfiguration_SystemCreationClassName,
-    (MetaFeature*)&_CIM_SystemConfiguration_SystemName,
-    (MetaFeature*)&_CIM_SystemConfiguration_CreationClassName,
-    (MetaFeature*)&_CIM_SystemConfiguration_Name,
+    (SchemaFeature*)&_CIM_SystemConfiguration_SystemCreationClassName,
+    (SchemaFeature*)&_CIM_SystemConfiguration_SystemName,
+    (SchemaFeature*)&_CIM_SystemConfiguration_CreationClassName,
+    (SchemaFeature*)&_CIM_SystemConfiguration_Name,
     0,
 };
 
@@ -7713,11 +7713,11 @@ __root_PG_InterOp_CIM_SystemConfiguration_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SystemConfiguration =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_SystemConfiguration",
     /* qualifiers */
@@ -7746,11 +7746,11 @@ _CIM_SystemSetting_SystemCreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemSetting_SystemCreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -7775,11 +7775,11 @@ _CIM_SystemSetting_SystemName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemSetting_SystemName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -7802,11 +7802,11 @@ _CIM_SystemSetting_CreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemSetting_CreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -7831,11 +7831,11 @@ _CIM_SystemSetting_SettingID_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemSetting_SettingID =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SettingID",
     /* qualifiers */
@@ -7848,13 +7848,13 @@ _CIM_SystemSetting_SettingID =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SystemSetting_features[] =
 {
-    (MetaFeature*)&_CIM_SystemSetting_SystemCreationClassName,
-    (MetaFeature*)&_CIM_SystemSetting_SystemName,
-    (MetaFeature*)&_CIM_SystemSetting_CreationClassName,
-    (MetaFeature*)&_CIM_SystemSetting_SettingID,
+    (SchemaFeature*)&_CIM_SystemSetting_SystemCreationClassName,
+    (SchemaFeature*)&_CIM_SystemSetting_SystemName,
+    (SchemaFeature*)&_CIM_SystemSetting_CreationClassName,
+    (SchemaFeature*)&_CIM_SystemSetting_SettingID,
     0,
 };
 
@@ -7870,11 +7870,11 @@ __root_PG_InterOp_CIM_SystemSetting_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SystemSetting =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_SystemSetting",
     /* qualifiers */
@@ -7901,11 +7901,11 @@ _CIM_SystemSettingContext_Context_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SystemSettingContext_Context =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_AGGREGATE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_AGGREGATE|SCHEMA_FLAG_READ,
     /* name */
     "Context",
     /* qualifiers */
@@ -7924,11 +7924,11 @@ _CIM_SystemSettingContext_Setting_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SystemSettingContext_Setting =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Setting",
     /* qualifiers */
@@ -7939,11 +7939,11 @@ _CIM_SystemSettingContext_Setting =
     &__root_PG_InterOp_CIM_SystemSetting,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SystemSettingContext_features[] =
 {
-    (MetaFeature*)&_CIM_SystemSettingContext_Context,
-    (MetaFeature*)&_CIM_SystemSettingContext_Setting,
+    (SchemaFeature*)&_CIM_SystemSettingContext_Context,
+    (SchemaFeature*)&_CIM_SystemSettingContext_Setting,
     0,
 };
 
@@ -7961,11 +7961,11 @@ __root_PG_InterOp_CIM_SystemSettingContext_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SystemSettingContext =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_SystemSettingContext",
     /* qualifiers */
@@ -7990,11 +7990,11 @@ _CIM_SystemSpecificCollection_InstanceID_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemSpecificCollection_InstanceID =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "InstanceID",
     /* qualifiers */
@@ -8007,10 +8007,10 @@ _CIM_SystemSpecificCollection_InstanceID =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SystemSpecificCollection_features[] =
 {
-    (MetaFeature*)&_CIM_SystemSpecificCollection_InstanceID,
+    (SchemaFeature*)&_CIM_SystemSpecificCollection_InstanceID,
     0,
 };
 
@@ -8024,11 +8024,11 @@ __root_PG_InterOp_CIM_SystemSpecificCollection_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SystemSpecificCollection =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_SystemSpecificCollection",
     /* qualifiers */
@@ -8057,11 +8057,11 @@ _CIM_SystemStatisticalInformation_SystemCreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemStatisticalInformation_SystemCreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -8086,11 +8086,11 @@ _CIM_SystemStatisticalInformation_SystemName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemStatisticalInformation_SystemName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -8113,11 +8113,11 @@ _CIM_SystemStatisticalInformation_CreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemStatisticalInformation_CreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -8142,11 +8142,11 @@ _CIM_SystemStatisticalInformation_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemStatisticalInformation_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -8159,13 +8159,13 @@ _CIM_SystemStatisticalInformation_Name =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SystemStatisticalInformation_features[] =
 {
-    (MetaFeature*)&_CIM_SystemStatisticalInformation_SystemCreationClassName,
-    (MetaFeature*)&_CIM_SystemStatisticalInformation_SystemName,
-    (MetaFeature*)&_CIM_SystemStatisticalInformation_CreationClassName,
-    (MetaFeature*)&_CIM_SystemStatisticalInformation_Name,
+    (SchemaFeature*)&_CIM_SystemStatisticalInformation_SystemCreationClassName,
+    (SchemaFeature*)&_CIM_SystemStatisticalInformation_SystemName,
+    (SchemaFeature*)&_CIM_SystemStatisticalInformation_CreationClassName,
+    (SchemaFeature*)&_CIM_SystemStatisticalInformation_Name,
     0,
 };
 
@@ -8179,11 +8179,11 @@ __root_PG_InterOp_CIM_SystemStatisticalInformation_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SystemStatisticalInformation =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_SystemStatisticalInformation",
     /* qualifiers */
@@ -8210,11 +8210,11 @@ _CIM_CollectedCollections_Collection_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_CollectedCollections_Collection =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_AGGREGATE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_AGGREGATE|SCHEMA_FLAG_READ,
     /* name */
     "Collection",
     /* qualifiers */
@@ -8233,11 +8233,11 @@ _CIM_CollectedCollections_CollectionInCollection_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_CollectedCollections_CollectionInCollection =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "CollectionInCollection",
     /* qualifiers */
@@ -8248,11 +8248,11 @@ _CIM_CollectedCollections_CollectionInCollection =
     &__root_PG_InterOp_CIM_CollectionOfMSEs,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_CollectedCollections_features[] =
 {
-    (MetaFeature*)&_CIM_CollectedCollections_Collection,
-    (MetaFeature*)&_CIM_CollectedCollections_CollectionInCollection,
+    (SchemaFeature*)&_CIM_CollectedCollections_Collection,
+    (SchemaFeature*)&_CIM_CollectedCollections_CollectionInCollection,
     0,
 };
 
@@ -8270,11 +8270,11 @@ __root_PG_InterOp_CIM_CollectedCollections_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_CollectedCollections =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_CollectedCollections",
     /* qualifiers */
@@ -8301,11 +8301,11 @@ _CIM_CollectedMSEs_Collection_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_CollectedMSEs_Collection =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_AGGREGATE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_AGGREGATE|SCHEMA_FLAG_READ,
     /* name */
     "Collection",
     /* qualifiers */
@@ -8324,11 +8324,11 @@ _CIM_CollectedMSEs_Member_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_CollectedMSEs_Member =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Member",
     /* qualifiers */
@@ -8339,11 +8339,11 @@ _CIM_CollectedMSEs_Member =
     &__root_PG_InterOp_CIM_ManagedSystemElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_CollectedMSEs_features[] =
 {
-    (MetaFeature*)&_CIM_CollectedMSEs_Collection,
-    (MetaFeature*)&_CIM_CollectedMSEs_Member,
+    (SchemaFeature*)&_CIM_CollectedMSEs_Collection,
+    (SchemaFeature*)&_CIM_CollectedMSEs_Member,
     0,
 };
 
@@ -8361,11 +8361,11 @@ __root_PG_InterOp_CIM_CollectedMSEs_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_CollectedMSEs =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_CollectedMSEs",
     /* qualifiers */
@@ -8392,11 +8392,11 @@ _CIM_CollectionConfiguration_Collection_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_CollectionConfiguration_Collection =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Collection",
     /* qualifiers */
@@ -8417,11 +8417,11 @@ _CIM_CollectionConfiguration_Configuration_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_CollectionConfiguration_Configuration =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Configuration",
     /* qualifiers */
@@ -8432,11 +8432,11 @@ _CIM_CollectionConfiguration_Configuration =
     &__root_PG_InterOp_CIM_Configuration,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_CollectionConfiguration_features[] =
 {
-    (MetaFeature*)&_CIM_CollectionConfiguration_Collection,
-    (MetaFeature*)&_CIM_CollectionConfiguration_Configuration,
+    (SchemaFeature*)&_CIM_CollectionConfiguration_Collection,
+    (SchemaFeature*)&_CIM_CollectionConfiguration_Configuration,
     0,
 };
 
@@ -8454,11 +8454,11 @@ __root_PG_InterOp_CIM_CollectionConfiguration_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_CollectionConfiguration =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_CollectionConfiguration",
     /* qualifiers */
@@ -8483,11 +8483,11 @@ _CIM_CollectionSetting_Collection_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_CollectionSetting_Collection =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Collection",
     /* qualifiers */
@@ -8506,11 +8506,11 @@ _CIM_CollectionSetting_Setting_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_CollectionSetting_Setting =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Setting",
     /* qualifiers */
@@ -8521,11 +8521,11 @@ _CIM_CollectionSetting_Setting =
     &__root_PG_InterOp_CIM_Setting,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_CollectionSetting_features[] =
 {
-    (MetaFeature*)&_CIM_CollectionSetting_Collection,
-    (MetaFeature*)&_CIM_CollectionSetting_Setting,
+    (SchemaFeature*)&_CIM_CollectionSetting_Collection,
+    (SchemaFeature*)&_CIM_CollectionSetting_Setting,
     0,
 };
 
@@ -8541,11 +8541,11 @@ __root_PG_InterOp_CIM_CollectionSetting_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_CollectionSetting =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_CollectionSetting",
     /* qualifiers */
@@ -8570,11 +8570,11 @@ _CIM_CompatibleProduct_Product_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_CompatibleProduct_Product =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Product",
     /* qualifiers */
@@ -8593,11 +8593,11 @@ _CIM_CompatibleProduct_CompatibleProduct_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_CompatibleProduct_CompatibleProduct =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "CompatibleProduct",
     /* qualifiers */
@@ -8614,11 +8614,11 @@ _CIM_CompatibleProduct_CompatibilityDescription_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_CompatibleProduct_CompatibilityDescription =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "CompatibilityDescription",
     /* qualifiers */
@@ -8631,12 +8631,12 @@ _CIM_CompatibleProduct_CompatibilityDescription =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_CompatibleProduct_features[] =
 {
-    (MetaFeature*)&_CIM_CompatibleProduct_Product,
-    (MetaFeature*)&_CIM_CompatibleProduct_CompatibleProduct,
-    (MetaFeature*)&_CIM_CompatibleProduct_CompatibilityDescription,
+    (SchemaFeature*)&_CIM_CompatibleProduct_Product,
+    (SchemaFeature*)&_CIM_CompatibleProduct_CompatibleProduct,
+    (SchemaFeature*)&_CIM_CompatibleProduct_CompatibilityDescription,
     0,
 };
 
@@ -8652,11 +8652,11 @@ __root_PG_InterOp_CIM_CompatibleProduct_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_CompatibleProduct =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_CompatibleProduct",
     /* qualifiers */
@@ -8681,11 +8681,11 @@ _CIM_ConcreteDependency_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ConcreteDependency_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -8704,11 +8704,11 @@ _CIM_ConcreteDependency_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ConcreteDependency_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -8719,11 +8719,11 @@ _CIM_ConcreteDependency_Dependent =
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ConcreteDependency_features[] =
 {
-    (MetaFeature*)&_CIM_ConcreteDependency_Antecedent,
-    (MetaFeature*)&_CIM_ConcreteDependency_Dependent,
+    (SchemaFeature*)&_CIM_ConcreteDependency_Antecedent,
+    (SchemaFeature*)&_CIM_ConcreteDependency_Dependent,
     0,
 };
 
@@ -8739,11 +8739,11 @@ __root_PG_InterOp_CIM_ConcreteDependency_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ConcreteDependency =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ConcreteDependency",
     /* qualifiers */
@@ -8768,11 +8768,11 @@ _CIM_ConcreteIdentity_SystemElement_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ConcreteIdentity_SystemElement =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "SystemElement",
     /* qualifiers */
@@ -8791,11 +8791,11 @@ _CIM_ConcreteIdentity_SameElement_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ConcreteIdentity_SameElement =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "SameElement",
     /* qualifiers */
@@ -8806,11 +8806,11 @@ _CIM_ConcreteIdentity_SameElement =
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ConcreteIdentity_features[] =
 {
-    (MetaFeature*)&_CIM_ConcreteIdentity_SystemElement,
-    (MetaFeature*)&_CIM_ConcreteIdentity_SameElement,
+    (SchemaFeature*)&_CIM_ConcreteIdentity_SystemElement,
+    (SchemaFeature*)&_CIM_ConcreteIdentity_SameElement,
     0,
 };
 
@@ -8826,11 +8826,11 @@ __root_PG_InterOp_CIM_ConcreteIdentity_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ConcreteIdentity =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ConcreteIdentity",
     /* qualifiers */
@@ -8859,11 +8859,11 @@ _CIM_ContainedLocation_GroupComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ContainedLocation_GroupComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_AGGREGATE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_AGGREGATE|SCHEMA_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -8882,11 +8882,11 @@ _CIM_ContainedLocation_PartComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ContainedLocation_PartComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -8897,11 +8897,11 @@ _CIM_ContainedLocation_PartComponent =
     &__root_PG_InterOp_CIM_Location,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ContainedLocation_features[] =
 {
-    (MetaFeature*)&_CIM_ContainedLocation_GroupComponent,
-    (MetaFeature*)&_CIM_ContainedLocation_PartComponent,
+    (SchemaFeature*)&_CIM_ContainedLocation_GroupComponent,
+    (SchemaFeature*)&_CIM_ContainedLocation_PartComponent,
     0,
 };
 
@@ -8921,11 +8921,11 @@ __root_PG_InterOp_CIM_ContainedLocation_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ContainedLocation =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_ContainedLocation",
     /* qualifiers */
@@ -8954,11 +8954,11 @@ _CIM_DeviceStatisticalInformation_SystemCreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_DeviceStatisticalInformation_SystemCreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -8983,11 +8983,11 @@ _CIM_DeviceStatisticalInformation_SystemName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_DeviceStatisticalInformation_SystemName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -9012,11 +9012,11 @@ _CIM_DeviceStatisticalInformation_DeviceCreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_DeviceStatisticalInformation_DeviceCreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "DeviceCreationClassName",
     /* qualifiers */
@@ -9041,11 +9041,11 @@ _CIM_DeviceStatisticalInformation_DeviceID_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_DeviceStatisticalInformation_DeviceID =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "DeviceID",
     /* qualifiers */
@@ -9068,11 +9068,11 @@ _CIM_DeviceStatisticalInformation_CreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_DeviceStatisticalInformation_CreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -9097,11 +9097,11 @@ _CIM_DeviceStatisticalInformation_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_DeviceStatisticalInformation_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -9114,15 +9114,15 @@ _CIM_DeviceStatisticalInformation_Name =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_DeviceStatisticalInformation_features[] =
 {
-    (MetaFeature*)&_CIM_DeviceStatisticalInformation_SystemCreationClassName,
-    (MetaFeature*)&_CIM_DeviceStatisticalInformation_SystemName,
-    (MetaFeature*)&_CIM_DeviceStatisticalInformation_DeviceCreationClassName,
-    (MetaFeature*)&_CIM_DeviceStatisticalInformation_DeviceID,
-    (MetaFeature*)&_CIM_DeviceStatisticalInformation_CreationClassName,
-    (MetaFeature*)&_CIM_DeviceStatisticalInformation_Name,
+    (SchemaFeature*)&_CIM_DeviceStatisticalInformation_SystemCreationClassName,
+    (SchemaFeature*)&_CIM_DeviceStatisticalInformation_SystemName,
+    (SchemaFeature*)&_CIM_DeviceStatisticalInformation_DeviceCreationClassName,
+    (SchemaFeature*)&_CIM_DeviceStatisticalInformation_DeviceID,
+    (SchemaFeature*)&_CIM_DeviceStatisticalInformation_CreationClassName,
+    (SchemaFeature*)&_CIM_DeviceStatisticalInformation_Name,
     0,
 };
 
@@ -9136,11 +9136,11 @@ __root_PG_InterOp_CIM_DeviceStatisticalInformation_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_DeviceStatisticalInformation =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_DeviceStatisticalInformation",
     /* qualifiers */
@@ -9165,11 +9165,11 @@ _CIM_ElementConfiguration_Element_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ElementConfiguration_Element =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Element",
     /* qualifiers */
@@ -9188,11 +9188,11 @@ _CIM_ElementConfiguration_Configuration_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ElementConfiguration_Configuration =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Configuration",
     /* qualifiers */
@@ -9203,11 +9203,11 @@ _CIM_ElementConfiguration_Configuration =
     &__root_PG_InterOp_CIM_Configuration,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ElementConfiguration_features[] =
 {
-    (MetaFeature*)&_CIM_ElementConfiguration_Element,
-    (MetaFeature*)&_CIM_ElementConfiguration_Configuration,
+    (SchemaFeature*)&_CIM_ElementConfiguration_Element,
+    (SchemaFeature*)&_CIM_ElementConfiguration_Configuration,
     0,
 };
 
@@ -9223,11 +9223,11 @@ __root_PG_InterOp_CIM_ElementConfiguration_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ElementConfiguration =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ElementConfiguration",
     /* qualifiers */
@@ -9252,11 +9252,11 @@ _CIM_ElementLocation_Element_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ElementLocation_Element =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Element",
     /* qualifiers */
@@ -9275,11 +9275,11 @@ _CIM_ElementLocation_PhysicalLocation_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ElementLocation_PhysicalLocation =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "PhysicalLocation",
     /* qualifiers */
@@ -9290,11 +9290,11 @@ _CIM_ElementLocation_PhysicalLocation =
     &__root_PG_InterOp_CIM_Location,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ElementLocation_features[] =
 {
-    (MetaFeature*)&_CIM_ElementLocation_Element,
-    (MetaFeature*)&_CIM_ElementLocation_PhysicalLocation,
+    (SchemaFeature*)&_CIM_ElementLocation_Element,
+    (SchemaFeature*)&_CIM_ElementLocation_PhysicalLocation,
     0,
 };
 
@@ -9310,11 +9310,11 @@ __root_PG_InterOp_CIM_ElementLocation_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ElementLocation =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ElementLocation",
     /* qualifiers */
@@ -9339,11 +9339,11 @@ _CIM_ElementProfile_ManagedElement_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ElementProfile_ManagedElement =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "ManagedElement",
     /* qualifiers */
@@ -9362,11 +9362,11 @@ _CIM_ElementProfile_Profile_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ElementProfile_Profile =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Profile",
     /* qualifiers */
@@ -9377,11 +9377,11 @@ _CIM_ElementProfile_Profile =
     &__root_PG_InterOp_CIM_Profile,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ElementProfile_features[] =
 {
-    (MetaFeature*)&_CIM_ElementProfile_ManagedElement,
-    (MetaFeature*)&_CIM_ElementProfile_Profile,
+    (SchemaFeature*)&_CIM_ElementProfile_ManagedElement,
+    (SchemaFeature*)&_CIM_ElementProfile_Profile,
     0,
 };
 
@@ -9397,11 +9397,11 @@ __root_PG_InterOp_CIM_ElementProfile_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ElementProfile =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ElementProfile",
     /* qualifiers */
@@ -9426,11 +9426,11 @@ _CIM_ElementSetting_Element_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ElementSetting_Element =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Element",
     /* qualifiers */
@@ -9449,11 +9449,11 @@ _CIM_ElementSetting_Setting_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ElementSetting_Setting =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Setting",
     /* qualifiers */
@@ -9464,11 +9464,11 @@ _CIM_ElementSetting_Setting =
     &__root_PG_InterOp_CIM_Setting,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ElementSetting_features[] =
 {
-    (MetaFeature*)&_CIM_ElementSetting_Element,
-    (MetaFeature*)&_CIM_ElementSetting_Setting,
+    (SchemaFeature*)&_CIM_ElementSetting_Element,
+    (SchemaFeature*)&_CIM_ElementSetting_Setting,
     0,
 };
 
@@ -9484,11 +9484,11 @@ __root_PG_InterOp_CIM_ElementSetting_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ElementSetting =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ElementSetting",
     /* qualifiers */
@@ -9513,11 +9513,11 @@ _CIM_ElementSettingData_ManagedElement_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ElementSettingData_ManagedElement =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "ManagedElement",
     /* qualifiers */
@@ -9536,11 +9536,11 @@ _CIM_ElementSettingData_SettingData_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ElementSettingData_SettingData =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SettingData",
     /* qualifiers */
@@ -9561,11 +9561,11 @@ _CIM_ElementSettingData_IsDefault_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ElementSettingData_IsDefault =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "IsDefault",
     /* qualifiers */
@@ -9588,11 +9588,11 @@ _CIM_ElementSettingData_IsCurrent_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ElementSettingData_IsCurrent =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "IsCurrent",
     /* qualifiers */
@@ -9605,13 +9605,13 @@ _CIM_ElementSettingData_IsCurrent =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ElementSettingData_features[] =
 {
-    (MetaFeature*)&_CIM_ElementSettingData_ManagedElement,
-    (MetaFeature*)&_CIM_ElementSettingData_SettingData,
-    (MetaFeature*)&_CIM_ElementSettingData_IsDefault,
-    (MetaFeature*)&_CIM_ElementSettingData_IsCurrent,
+    (SchemaFeature*)&_CIM_ElementSettingData_ManagedElement,
+    (SchemaFeature*)&_CIM_ElementSettingData_SettingData,
+    (SchemaFeature*)&_CIM_ElementSettingData_IsDefault,
+    (SchemaFeature*)&_CIM_ElementSettingData_IsCurrent,
     0,
 };
 
@@ -9627,11 +9627,11 @@ __root_PG_InterOp_CIM_ElementSettingData_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ElementSettingData =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ElementSettingData",
     /* qualifiers */
@@ -9660,11 +9660,11 @@ _CIM_ElementStatisticalData_ManagedElement_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ElementStatisticalData_ManagedElement =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "ManagedElement",
     /* qualifiers */
@@ -9683,11 +9683,11 @@ _CIM_ElementStatisticalData_Stats_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ElementStatisticalData_Stats =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Stats",
     /* qualifiers */
@@ -9698,11 +9698,11 @@ _CIM_ElementStatisticalData_Stats =
     &__root_PG_InterOp_CIM_StatisticalData,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ElementStatisticalData_features[] =
 {
-    (MetaFeature*)&_CIM_ElementStatisticalData_ManagedElement,
-    (MetaFeature*)&_CIM_ElementStatisticalData_Stats,
+    (SchemaFeature*)&_CIM_ElementStatisticalData_ManagedElement,
+    (SchemaFeature*)&_CIM_ElementStatisticalData_Stats,
     0,
 };
 
@@ -9718,11 +9718,11 @@ __root_PG_InterOp_CIM_ElementStatisticalData_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ElementStatisticalData =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ElementStatisticalData",
     /* qualifiers */
@@ -9751,11 +9751,11 @@ _CIM_FRUIncludesProduct_FRU_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_FRUIncludesProduct_FRU =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_AGGREGATE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_AGGREGATE|SCHEMA_FLAG_READ,
     /* name */
     "FRU",
     /* qualifiers */
@@ -9774,11 +9774,11 @@ _CIM_FRUIncludesProduct_Component_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_FRUIncludesProduct_Component =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Component",
     /* qualifiers */
@@ -9789,11 +9789,11 @@ _CIM_FRUIncludesProduct_Component =
     &__root_PG_InterOp_CIM_Product,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_FRUIncludesProduct_features[] =
 {
-    (MetaFeature*)&_CIM_FRUIncludesProduct_FRU,
-    (MetaFeature*)&_CIM_FRUIncludesProduct_Component,
+    (SchemaFeature*)&_CIM_FRUIncludesProduct_FRU,
+    (SchemaFeature*)&_CIM_FRUIncludesProduct_Component,
     0,
 };
 
@@ -9813,11 +9813,11 @@ __root_PG_InterOp_CIM_FRUIncludesProduct_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_FRUIncludesProduct =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_FRUIncludesProduct",
     /* qualifiers */
@@ -9846,11 +9846,11 @@ _CIM_FRUPhysicalElements_FRU_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_FRUPhysicalElements_FRU =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_AGGREGATE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_AGGREGATE|SCHEMA_FLAG_READ,
     /* name */
     "FRU",
     /* qualifiers */
@@ -9869,11 +9869,11 @@ _CIM_FRUPhysicalElements_Component_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_FRUPhysicalElements_Component =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Component",
     /* qualifiers */
@@ -9884,11 +9884,11 @@ _CIM_FRUPhysicalElements_Component =
     &__root_PG_InterOp_CIM_PhysicalElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_FRUPhysicalElements_features[] =
 {
-    (MetaFeature*)&_CIM_FRUPhysicalElements_FRU,
-    (MetaFeature*)&_CIM_FRUPhysicalElements_Component,
+    (SchemaFeature*)&_CIM_FRUPhysicalElements_FRU,
+    (SchemaFeature*)&_CIM_FRUPhysicalElements_Component,
     0,
 };
 
@@ -9908,11 +9908,11 @@ __root_PG_InterOp_CIM_FRUPhysicalElements_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_FRUPhysicalElements =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_FRUPhysicalElements",
     /* qualifiers */
@@ -9929,7 +9929,7 @@ __root_PG_InterOp_CIM_FRUPhysicalElements =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_LogicalElement_features[] =
 {
     0,
@@ -9947,11 +9947,11 @@ __root_PG_InterOp_CIM_LogicalElement_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_LogicalElement =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_LogicalElement",
     /* qualifiers */
@@ -9976,11 +9976,11 @@ _CIM_PhysicalElementLocation_Element_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_PhysicalElementLocation_Element =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Element",
     /* qualifiers */
@@ -10001,11 +10001,11 @@ _CIM_PhysicalElementLocation_PhysicalLocation_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_PhysicalElementLocation_PhysicalLocation =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "PhysicalLocation",
     /* qualifiers */
@@ -10016,11 +10016,11 @@ _CIM_PhysicalElementLocation_PhysicalLocation =
     &__root_PG_InterOp_CIM_Location,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_PhysicalElementLocation_features[] =
 {
-    (MetaFeature*)&_CIM_PhysicalElementLocation_Element,
-    (MetaFeature*)&_CIM_PhysicalElementLocation_PhysicalLocation,
+    (SchemaFeature*)&_CIM_PhysicalElementLocation_Element,
+    (SchemaFeature*)&_CIM_PhysicalElementLocation_PhysicalLocation,
     0,
 };
 
@@ -10036,11 +10036,11 @@ __root_PG_InterOp_CIM_PhysicalElementLocation_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_PhysicalElementLocation =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_PhysicalElementLocation",
     /* qualifiers */
@@ -10069,11 +10069,11 @@ _CIM_PhysicalStatisticalInformation_PhysicalCreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PhysicalStatisticalInformation_PhysicalCreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "PhysicalCreationClassName",
     /* qualifiers */
@@ -10098,11 +10098,11 @@ _CIM_PhysicalStatisticalInformation_Tag_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PhysicalStatisticalInformation_Tag =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Tag",
     /* qualifiers */
@@ -10125,11 +10125,11 @@ _CIM_PhysicalStatisticalInformation_CreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PhysicalStatisticalInformation_CreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -10154,11 +10154,11 @@ _CIM_PhysicalStatisticalInformation_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PhysicalStatisticalInformation_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -10171,13 +10171,13 @@ _CIM_PhysicalStatisticalInformation_Name =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_PhysicalStatisticalInformation_features[] =
 {
-    (MetaFeature*)&_CIM_PhysicalStatisticalInformation_PhysicalCreationClassName,
-    (MetaFeature*)&_CIM_PhysicalStatisticalInformation_Tag,
-    (MetaFeature*)&_CIM_PhysicalStatisticalInformation_CreationClassName,
-    (MetaFeature*)&_CIM_PhysicalStatisticalInformation_Name,
+    (SchemaFeature*)&_CIM_PhysicalStatisticalInformation_PhysicalCreationClassName,
+    (SchemaFeature*)&_CIM_PhysicalStatisticalInformation_Tag,
+    (SchemaFeature*)&_CIM_PhysicalStatisticalInformation_CreationClassName,
+    (SchemaFeature*)&_CIM_PhysicalStatisticalInformation_Name,
     0,
 };
 
@@ -10191,11 +10191,11 @@ __root_PG_InterOp_CIM_PhysicalStatisticalInformation_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_PhysicalStatisticalInformation =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_PhysicalStatisticalInformation",
     /* qualifiers */
@@ -10222,11 +10222,11 @@ _CIM_PhysicalStatistics_Stats_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_PhysicalStatistics_Stats =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ|META_FLAG_WEAK,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ|SCHEMA_FLAG_WEAK,
     /* name */
     "Stats",
     /* qualifiers */
@@ -10249,11 +10249,11 @@ _CIM_PhysicalStatistics_Element_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_PhysicalStatistics_Element =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Element",
     /* qualifiers */
@@ -10264,11 +10264,11 @@ _CIM_PhysicalStatistics_Element =
     &__root_PG_InterOp_CIM_PhysicalElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_PhysicalStatistics_features[] =
 {
-    (MetaFeature*)&_CIM_PhysicalStatistics_Stats,
-    (MetaFeature*)&_CIM_PhysicalStatistics_Element,
+    (SchemaFeature*)&_CIM_PhysicalStatistics_Stats,
+    (SchemaFeature*)&_CIM_PhysicalStatistics_Element,
     0,
 };
 
@@ -10284,11 +10284,11 @@ __root_PG_InterOp_CIM_PhysicalStatistics_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_PhysicalStatistics =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_PhysicalStatistics",
     /* qualifiers */
@@ -10313,11 +10313,11 @@ _CIM_ProductSupport_Product_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ProductSupport_Product =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Product",
     /* qualifiers */
@@ -10336,11 +10336,11 @@ _CIM_ProductSupport_Support_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ProductSupport_Support =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Support",
     /* qualifiers */
@@ -10351,11 +10351,11 @@ _CIM_ProductSupport_Support =
     &__root_PG_InterOp_CIM_SupportAccess,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ProductSupport_features[] =
 {
-    (MetaFeature*)&_CIM_ProductSupport_Product,
-    (MetaFeature*)&_CIM_ProductSupport_Support,
+    (SchemaFeature*)&_CIM_ProductSupport_Product,
+    (SchemaFeature*)&_CIM_ProductSupport_Support,
     0,
 };
 
@@ -10371,11 +10371,11 @@ __root_PG_InterOp_CIM_ProductSupport_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ProductSupport =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ProductSupport",
     /* qualifiers */
@@ -10404,11 +10404,11 @@ _CIM_RedundancyGroup_CreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RedundancyGroup_CreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -10435,11 +10435,11 @@ _CIM_RedundancyGroup_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RedundancyGroup_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -10464,11 +10464,11 @@ _CIM_RedundancyGroup_RedundancyStatus_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RedundancyGroup_RedundancyStatus =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "RedundancyStatus",
     /* qualifiers */
@@ -10481,12 +10481,12 @@ _CIM_RedundancyGroup_RedundancyStatus =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_RedundancyGroup_features[] =
 {
-    (MetaFeature*)&_CIM_RedundancyGroup_CreationClassName,
-    (MetaFeature*)&_CIM_RedundancyGroup_Name,
-    (MetaFeature*)&_CIM_RedundancyGroup_RedundancyStatus,
+    (SchemaFeature*)&_CIM_RedundancyGroup_CreationClassName,
+    (SchemaFeature*)&_CIM_RedundancyGroup_Name,
+    (SchemaFeature*)&_CIM_RedundancyGroup_RedundancyStatus,
     0,
 };
 
@@ -10502,11 +10502,11 @@ __root_PG_InterOp_CIM_RedundancyGroup_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_RedundancyGroup =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_RedundancyGroup",
     /* qualifiers */
@@ -10535,11 +10535,11 @@ _CIM_RedundancySet_RedundancyStatus_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RedundancySet_RedundancyStatus =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "RedundancyStatus",
     /* qualifiers */
@@ -10566,11 +10566,11 @@ _CIM_RedundancySet_TypeOfSet_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RedundancySet_TypeOfSet =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "TypeOfSet",
     /* qualifiers */
@@ -10591,11 +10591,11 @@ _CIM_RedundancySet_MinNumberNeeded_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RedundancySet_MinNumberNeeded =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "MinNumberNeeded",
     /* qualifiers */
@@ -10614,11 +10614,11 @@ _CIM_RedundancySet_MaxNumberSupported_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RedundancySet_MaxNumberSupported =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "MaxNumberSupported",
     /* qualifiers */
@@ -10637,11 +10637,11 @@ _CIM_RedundancySet_VendorIdentifyingInfo_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RedundancySet_VendorIdentifyingInfo =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "VendorIdentifyingInfo",
     /* qualifiers */
@@ -10664,11 +10664,11 @@ _CIM_RedundancySet_OtherTypeOfSet_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RedundancySet_OtherTypeOfSet =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherTypeOfSet",
     /* qualifiers */
@@ -10695,11 +10695,11 @@ _CIM_RedundancySet_LoadBalanceAlgorithm_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RedundancySet_LoadBalanceAlgorithm =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "LoadBalanceAlgorithm",
     /* qualifiers */
@@ -10722,11 +10722,11 @@ _CIM_RedundancySet_OtherLoadBalanceAlgorithm_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RedundancySet_OtherLoadBalanceAlgorithm =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "OtherLoadBalanceAlgorithm",
     /* qualifiers */
@@ -10747,11 +10747,11 @@ _CIM_RedundancySet_Failover_FailoverFrom_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_RedundancySet_Failover_FailoverFrom =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_IN,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_IN,
     /* name */
     "FailoverFrom",
     /* qualifiers */
@@ -10770,11 +10770,11 @@ _CIM_RedundancySet_Failover_FailoverTo_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_RedundancySet_Failover_FailoverTo =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_IN,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_IN,
     /* name */
     "FailoverTo",
     /* qualifiers */
@@ -10785,11 +10785,11 @@ _CIM_RedundancySet_Failover_FailoverTo =
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_RedundancySet_Failover_parameters[] =
 {
-    (MetaFeature*)&_CIM_RedundancySet_Failover_FailoverFrom,
-    (MetaFeature*)&_CIM_RedundancySet_Failover_FailoverTo,
+    (SchemaFeature*)&_CIM_RedundancySet_Failover_FailoverFrom,
+    (SchemaFeature*)&_CIM_RedundancySet_Failover_FailoverTo,
     0,
 };
 
@@ -10803,11 +10803,11 @@ _CIM_RedundancySet_Failover_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_RedundancySet_Failover =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_RedundancySet",
     /* qualifiers */
@@ -10818,18 +10818,18 @@ _CIM_RedundancySet_Failover =
     _CIM_RedundancySet_Failover_parameters,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_RedundancySet_features[] =
 {
-    (MetaFeature*)&_CIM_RedundancySet_RedundancyStatus,
-    (MetaFeature*)&_CIM_RedundancySet_TypeOfSet,
-    (MetaFeature*)&_CIM_RedundancySet_MinNumberNeeded,
-    (MetaFeature*)&_CIM_RedundancySet_MaxNumberSupported,
-    (MetaFeature*)&_CIM_RedundancySet_VendorIdentifyingInfo,
-    (MetaFeature*)&_CIM_RedundancySet_OtherTypeOfSet,
-    (MetaFeature*)&_CIM_RedundancySet_LoadBalanceAlgorithm,
-    (MetaFeature*)&_CIM_RedundancySet_OtherLoadBalanceAlgorithm,
-    (MetaFeature*)&_CIM_RedundancySet_Failover,
+    (SchemaFeature*)&_CIM_RedundancySet_RedundancyStatus,
+    (SchemaFeature*)&_CIM_RedundancySet_TypeOfSet,
+    (SchemaFeature*)&_CIM_RedundancySet_MinNumberNeeded,
+    (SchemaFeature*)&_CIM_RedundancySet_MaxNumberSupported,
+    (SchemaFeature*)&_CIM_RedundancySet_VendorIdentifyingInfo,
+    (SchemaFeature*)&_CIM_RedundancySet_OtherTypeOfSet,
+    (SchemaFeature*)&_CIM_RedundancySet_LoadBalanceAlgorithm,
+    (SchemaFeature*)&_CIM_RedundancySet_OtherLoadBalanceAlgorithm,
+    (SchemaFeature*)&_CIM_RedundancySet_Failover,
     0,
 };
 
@@ -10843,11 +10843,11 @@ __root_PG_InterOp_CIM_RedundancySet_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_RedundancySet =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_RedundancySet",
     /* qualifiers */
@@ -10872,11 +10872,11 @@ _CIM_RelatedStatisticalData_Stats_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_RelatedStatisticalData_Stats =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Stats",
     /* qualifiers */
@@ -10895,11 +10895,11 @@ _CIM_RelatedStatisticalData_RelatedStats_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_RelatedStatisticalData_RelatedStats =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "RelatedStats",
     /* qualifiers */
@@ -10916,11 +10916,11 @@ _CIM_RelatedStatisticalData_Description_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RelatedStatisticalData_Description =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Description",
     /* qualifiers */
@@ -10933,12 +10933,12 @@ _CIM_RelatedStatisticalData_Description =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_RelatedStatisticalData_features[] =
 {
-    (MetaFeature*)&_CIM_RelatedStatisticalData_Stats,
-    (MetaFeature*)&_CIM_RelatedStatisticalData_RelatedStats,
-    (MetaFeature*)&_CIM_RelatedStatisticalData_Description,
+    (SchemaFeature*)&_CIM_RelatedStatisticalData_Stats,
+    (SchemaFeature*)&_CIM_RelatedStatisticalData_RelatedStats,
+    (SchemaFeature*)&_CIM_RelatedStatisticalData_Description,
     0,
 };
 
@@ -10954,11 +10954,11 @@ __root_PG_InterOp_CIM_RelatedStatisticalData_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_RelatedStatisticalData =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_RelatedStatisticalData",
     /* qualifiers */
@@ -10983,11 +10983,11 @@ _CIM_RelatedStatistics_Stats_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_RelatedStatistics_Stats =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Stats",
     /* qualifiers */
@@ -11006,11 +11006,11 @@ _CIM_RelatedStatistics_RelatedStats_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_RelatedStatistics_RelatedStats =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "RelatedStats",
     /* qualifiers */
@@ -11021,11 +11021,11 @@ _CIM_RelatedStatistics_RelatedStats =
     &__root_PG_InterOp_CIM_StatisticalInformation,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_RelatedStatistics_features[] =
 {
-    (MetaFeature*)&_CIM_RelatedStatistics_Stats,
-    (MetaFeature*)&_CIM_RelatedStatistics_RelatedStats,
+    (SchemaFeature*)&_CIM_RelatedStatistics_Stats,
+    (SchemaFeature*)&_CIM_RelatedStatistics_RelatedStats,
     0,
 };
 
@@ -11041,11 +11041,11 @@ __root_PG_InterOp_CIM_RelatedStatistics_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_RelatedStatistics =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_RelatedStatistics",
     /* qualifiers */
@@ -11074,11 +11074,11 @@ _CIM_SAPStatisticalInformation_SystemCreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SAPStatisticalInformation_SystemCreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -11103,11 +11103,11 @@ _CIM_SAPStatisticalInformation_SystemName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SAPStatisticalInformation_SystemName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -11132,11 +11132,11 @@ _CIM_SAPStatisticalInformation_SAPCreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SAPStatisticalInformation_SAPCreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SAPCreationClassName",
     /* qualifiers */
@@ -11161,11 +11161,11 @@ _CIM_SAPStatisticalInformation_SAPName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SAPStatisticalInformation_SAPName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SAPName",
     /* qualifiers */
@@ -11188,11 +11188,11 @@ _CIM_SAPStatisticalInformation_CreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SAPStatisticalInformation_CreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -11217,11 +11217,11 @@ _CIM_SAPStatisticalInformation_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SAPStatisticalInformation_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -11234,15 +11234,15 @@ _CIM_SAPStatisticalInformation_Name =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SAPStatisticalInformation_features[] =
 {
-    (MetaFeature*)&_CIM_SAPStatisticalInformation_SystemCreationClassName,
-    (MetaFeature*)&_CIM_SAPStatisticalInformation_SystemName,
-    (MetaFeature*)&_CIM_SAPStatisticalInformation_SAPCreationClassName,
-    (MetaFeature*)&_CIM_SAPStatisticalInformation_SAPName,
-    (MetaFeature*)&_CIM_SAPStatisticalInformation_CreationClassName,
-    (MetaFeature*)&_CIM_SAPStatisticalInformation_Name,
+    (SchemaFeature*)&_CIM_SAPStatisticalInformation_SystemCreationClassName,
+    (SchemaFeature*)&_CIM_SAPStatisticalInformation_SystemName,
+    (SchemaFeature*)&_CIM_SAPStatisticalInformation_SAPCreationClassName,
+    (SchemaFeature*)&_CIM_SAPStatisticalInformation_SAPName,
+    (SchemaFeature*)&_CIM_SAPStatisticalInformation_CreationClassName,
+    (SchemaFeature*)&_CIM_SAPStatisticalInformation_Name,
     0,
 };
 
@@ -11256,11 +11256,11 @@ __root_PG_InterOp_CIM_SAPStatisticalInformation_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SAPStatisticalInformation =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_SAPStatisticalInformation",
     /* qualifiers */
@@ -11277,7 +11277,7 @@ __root_PG_InterOp_CIM_SAPStatisticalInformation =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ScopedSettingData_features[] =
 {
     0,
@@ -11295,11 +11295,11 @@ __root_PG_InterOp_CIM_ScopedSettingData_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ScopedSettingData =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_ScopedSettingData",
     /* qualifiers */
@@ -11328,11 +11328,11 @@ _CIM_ServiceStatisticalInformation_SystemCreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ServiceStatisticalInformation_SystemCreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -11357,11 +11357,11 @@ _CIM_ServiceStatisticalInformation_SystemName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ServiceStatisticalInformation_SystemName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -11386,11 +11386,11 @@ _CIM_ServiceStatisticalInformation_ServiceCreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ServiceStatisticalInformation_ServiceCreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "ServiceCreationClassName",
     /* qualifiers */
@@ -11415,11 +11415,11 @@ _CIM_ServiceStatisticalInformation_ServiceName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ServiceStatisticalInformation_ServiceName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "ServiceName",
     /* qualifiers */
@@ -11442,11 +11442,11 @@ _CIM_ServiceStatisticalInformation_CreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ServiceStatisticalInformation_CreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -11471,11 +11471,11 @@ _CIM_ServiceStatisticalInformation_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ServiceStatisticalInformation_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -11488,15 +11488,15 @@ _CIM_ServiceStatisticalInformation_Name =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ServiceStatisticalInformation_features[] =
 {
-    (MetaFeature*)&_CIM_ServiceStatisticalInformation_SystemCreationClassName,
-    (MetaFeature*)&_CIM_ServiceStatisticalInformation_SystemName,
-    (MetaFeature*)&_CIM_ServiceStatisticalInformation_ServiceCreationClassName,
-    (MetaFeature*)&_CIM_ServiceStatisticalInformation_ServiceName,
-    (MetaFeature*)&_CIM_ServiceStatisticalInformation_CreationClassName,
-    (MetaFeature*)&_CIM_ServiceStatisticalInformation_Name,
+    (SchemaFeature*)&_CIM_ServiceStatisticalInformation_SystemCreationClassName,
+    (SchemaFeature*)&_CIM_ServiceStatisticalInformation_SystemName,
+    (SchemaFeature*)&_CIM_ServiceStatisticalInformation_ServiceCreationClassName,
+    (SchemaFeature*)&_CIM_ServiceStatisticalInformation_ServiceName,
+    (SchemaFeature*)&_CIM_ServiceStatisticalInformation_CreationClassName,
+    (SchemaFeature*)&_CIM_ServiceStatisticalInformation_Name,
     0,
 };
 
@@ -11510,11 +11510,11 @@ __root_PG_InterOp_CIM_ServiceStatisticalInformation_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ServiceStatisticalInformation =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_ServiceStatisticalInformation",
     /* qualifiers */
@@ -11539,11 +11539,11 @@ _CIM_SettingAssociatedToCapabilities_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SettingAssociatedToCapabilities_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -11562,11 +11562,11 @@ _CIM_SettingAssociatedToCapabilities_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SettingAssociatedToCapabilities_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -11585,11 +11585,11 @@ _CIM_SettingAssociatedToCapabilities_DefaultSetting_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SettingAssociatedToCapabilities_DefaultSetting =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "DefaultSetting",
     /* qualifiers */
@@ -11602,12 +11602,12 @@ _CIM_SettingAssociatedToCapabilities_DefaultSetting =
     "\000",
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SettingAssociatedToCapabilities_features[] =
 {
-    (MetaFeature*)&_CIM_SettingAssociatedToCapabilities_Antecedent,
-    (MetaFeature*)&_CIM_SettingAssociatedToCapabilities_Dependent,
-    (MetaFeature*)&_CIM_SettingAssociatedToCapabilities_DefaultSetting,
+    (SchemaFeature*)&_CIM_SettingAssociatedToCapabilities_Antecedent,
+    (SchemaFeature*)&_CIM_SettingAssociatedToCapabilities_Dependent,
+    (SchemaFeature*)&_CIM_SettingAssociatedToCapabilities_DefaultSetting,
     0,
 };
 
@@ -11623,11 +11623,11 @@ __root_PG_InterOp_CIM_SettingAssociatedToCapabilities_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SettingAssociatedToCapabilities =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_SettingAssociatedToCapabilities",
     /* qualifiers */
@@ -11652,11 +11652,11 @@ _CIM_SoftwareIdentity_InstanceID_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SoftwareIdentity_InstanceID =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "InstanceID",
     /* qualifiers */
@@ -11675,11 +11675,11 @@ _CIM_SoftwareIdentity_MajorVersion_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SoftwareIdentity_MajorVersion =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "MajorVersion",
     /* qualifiers */
@@ -11698,11 +11698,11 @@ _CIM_SoftwareIdentity_MinorVersion_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SoftwareIdentity_MinorVersion =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "MinorVersion",
     /* qualifiers */
@@ -11721,11 +11721,11 @@ _CIM_SoftwareIdentity_RevisionNumber_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SoftwareIdentity_RevisionNumber =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "RevisionNumber",
     /* qualifiers */
@@ -11744,11 +11744,11 @@ _CIM_SoftwareIdentity_BuildNumber_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SoftwareIdentity_BuildNumber =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "BuildNumber",
     /* qualifiers */
@@ -11767,11 +11767,11 @@ _CIM_SoftwareIdentity_VersionString_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SoftwareIdentity_VersionString =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "VersionString",
     /* qualifiers */
@@ -11790,11 +11790,11 @@ _CIM_SoftwareIdentity_TargetOperatingSystems_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SoftwareIdentity_TargetOperatingSystems =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "TargetOperatingSystems",
     /* qualifiers */
@@ -11813,11 +11813,11 @@ _CIM_SoftwareIdentity_Manufacturer_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SoftwareIdentity_Manufacturer =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Manufacturer",
     /* qualifiers */
@@ -11836,11 +11836,11 @@ _CIM_SoftwareIdentity_Languages_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SoftwareIdentity_Languages =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Languages",
     /* qualifiers */
@@ -11867,11 +11867,11 @@ _CIM_SoftwareIdentity_Classifications_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SoftwareIdentity_Classifications =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Classifications",
     /* qualifiers */
@@ -11894,11 +11894,11 @@ _CIM_SoftwareIdentity_ClassificationDescriptions_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SoftwareIdentity_ClassificationDescriptions =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ClassificationDescriptions",
     /* qualifiers */
@@ -11917,11 +11917,11 @@ _CIM_SoftwareIdentity_SerialNumber_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SoftwareIdentity_SerialNumber =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SerialNumber",
     /* qualifiers */
@@ -11940,11 +11940,11 @@ _CIM_SoftwareIdentity_ReleaseDate_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SoftwareIdentity_ReleaseDate =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ReleaseDate",
     /* qualifiers */
@@ -11957,22 +11957,22 @@ _CIM_SoftwareIdentity_ReleaseDate =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SoftwareIdentity_features[] =
 {
-    (MetaFeature*)&_CIM_SoftwareIdentity_InstanceID,
-    (MetaFeature*)&_CIM_SoftwareIdentity_MajorVersion,
-    (MetaFeature*)&_CIM_SoftwareIdentity_MinorVersion,
-    (MetaFeature*)&_CIM_SoftwareIdentity_RevisionNumber,
-    (MetaFeature*)&_CIM_SoftwareIdentity_BuildNumber,
-    (MetaFeature*)&_CIM_SoftwareIdentity_VersionString,
-    (MetaFeature*)&_CIM_SoftwareIdentity_TargetOperatingSystems,
-    (MetaFeature*)&_CIM_SoftwareIdentity_Manufacturer,
-    (MetaFeature*)&_CIM_SoftwareIdentity_Languages,
-    (MetaFeature*)&_CIM_SoftwareIdentity_Classifications,
-    (MetaFeature*)&_CIM_SoftwareIdentity_ClassificationDescriptions,
-    (MetaFeature*)&_CIM_SoftwareIdentity_SerialNumber,
-    (MetaFeature*)&_CIM_SoftwareIdentity_ReleaseDate,
+    (SchemaFeature*)&_CIM_SoftwareIdentity_InstanceID,
+    (SchemaFeature*)&_CIM_SoftwareIdentity_MajorVersion,
+    (SchemaFeature*)&_CIM_SoftwareIdentity_MinorVersion,
+    (SchemaFeature*)&_CIM_SoftwareIdentity_RevisionNumber,
+    (SchemaFeature*)&_CIM_SoftwareIdentity_BuildNumber,
+    (SchemaFeature*)&_CIM_SoftwareIdentity_VersionString,
+    (SchemaFeature*)&_CIM_SoftwareIdentity_TargetOperatingSystems,
+    (SchemaFeature*)&_CIM_SoftwareIdentity_Manufacturer,
+    (SchemaFeature*)&_CIM_SoftwareIdentity_Languages,
+    (SchemaFeature*)&_CIM_SoftwareIdentity_Classifications,
+    (SchemaFeature*)&_CIM_SoftwareIdentity_ClassificationDescriptions,
+    (SchemaFeature*)&_CIM_SoftwareIdentity_SerialNumber,
+    (SchemaFeature*)&_CIM_SoftwareIdentity_ReleaseDate,
     0,
 };
 
@@ -11986,11 +11986,11 @@ __root_PG_InterOp_CIM_SoftwareIdentity_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SoftwareIdentity =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_SoftwareIdentity",
     /* qualifiers */
@@ -12015,11 +12015,11 @@ _CIM_SpareGroup_Failover_FailoverFrom_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SpareGroup_Failover_FailoverFrom =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_IN,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_IN,
     /* name */
     "FailoverFrom",
     /* qualifiers */
@@ -12038,11 +12038,11 @@ _CIM_SpareGroup_Failover_FailoverTo_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SpareGroup_Failover_FailoverTo =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_IN,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_IN,
     /* name */
     "FailoverTo",
     /* qualifiers */
@@ -12053,11 +12053,11 @@ _CIM_SpareGroup_Failover_FailoverTo =
     &__root_PG_InterOp_CIM_ManagedSystemElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SpareGroup_Failover_parameters[] =
 {
-    (MetaFeature*)&_CIM_SpareGroup_Failover_FailoverFrom,
-    (MetaFeature*)&_CIM_SpareGroup_Failover_FailoverTo,
+    (SchemaFeature*)&_CIM_SpareGroup_Failover_FailoverFrom,
+    (SchemaFeature*)&_CIM_SpareGroup_Failover_FailoverTo,
     0,
 };
 
@@ -12069,11 +12069,11 @@ _CIM_SpareGroup_Failover_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_SpareGroup_Failover =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_SpareGroup",
     /* qualifiers */
@@ -12084,10 +12084,10 @@ _CIM_SpareGroup_Failover =
     _CIM_SpareGroup_Failover_parameters,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SpareGroup_features[] =
 {
-    (MetaFeature*)&_CIM_SpareGroup_Failover,
+    (SchemaFeature*)&_CIM_SpareGroup_Failover,
     0,
 };
 
@@ -12103,11 +12103,11 @@ __root_PG_InterOp_CIM_SpareGroup_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SpareGroup =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_SpareGroup",
     /* qualifiers */
@@ -12130,11 +12130,11 @@ _CIM_StatisticsCollection_SampleInterval_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StatisticsCollection_SampleInterval =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SampleInterval",
     /* qualifiers */
@@ -12153,11 +12153,11 @@ _CIM_StatisticsCollection_TimeLastSampled_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StatisticsCollection_TimeLastSampled =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "TimeLastSampled",
     /* qualifiers */
@@ -12170,11 +12170,11 @@ _CIM_StatisticsCollection_TimeLastSampled =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_StatisticsCollection_features[] =
 {
-    (MetaFeature*)&_CIM_StatisticsCollection_SampleInterval,
-    (MetaFeature*)&_CIM_StatisticsCollection_TimeLastSampled,
+    (SchemaFeature*)&_CIM_StatisticsCollection_SampleInterval,
+    (SchemaFeature*)&_CIM_StatisticsCollection_TimeLastSampled,
     0,
 };
 
@@ -12188,11 +12188,11 @@ __root_PG_InterOp_CIM_StatisticsCollection_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_StatisticsCollection =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_StatisticsCollection",
     /* qualifiers */
@@ -12223,11 +12223,11 @@ _CIM_StorageRedundancyGroup_TypeOfAlgorithm_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StorageRedundancyGroup_TypeOfAlgorithm =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "TypeOfAlgorithm",
     /* qualifiers */
@@ -12252,11 +12252,11 @@ _CIM_StorageRedundancyGroup_StorageRedundancy_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StorageRedundancyGroup_StorageRedundancy =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "StorageRedundancy",
     /* qualifiers */
@@ -12277,11 +12277,11 @@ _CIM_StorageRedundancyGroup_IsStriped_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StorageRedundancyGroup_IsStriped =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "IsStriped",
     /* qualifiers */
@@ -12302,11 +12302,11 @@ _CIM_StorageRedundancyGroup_IsConcatenated_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StorageRedundancyGroup_IsConcatenated =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "IsConcatenated",
     /* qualifiers */
@@ -12319,13 +12319,13 @@ _CIM_StorageRedundancyGroup_IsConcatenated =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_StorageRedundancyGroup_features[] =
 {
-    (MetaFeature*)&_CIM_StorageRedundancyGroup_TypeOfAlgorithm,
-    (MetaFeature*)&_CIM_StorageRedundancyGroup_StorageRedundancy,
-    (MetaFeature*)&_CIM_StorageRedundancyGroup_IsStriped,
-    (MetaFeature*)&_CIM_StorageRedundancyGroup_IsConcatenated,
+    (SchemaFeature*)&_CIM_StorageRedundancyGroup_TypeOfAlgorithm,
+    (SchemaFeature*)&_CIM_StorageRedundancyGroup_StorageRedundancy,
+    (SchemaFeature*)&_CIM_StorageRedundancyGroup_IsStriped,
+    (SchemaFeature*)&_CIM_StorageRedundancyGroup_IsConcatenated,
     0,
 };
 
@@ -12341,11 +12341,11 @@ __root_PG_InterOp_CIM_StorageRedundancyGroup_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_StorageRedundancyGroup =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_StorageRedundancyGroup",
     /* qualifiers */
@@ -12376,11 +12376,11 @@ _CIM_StorageRedundancySet_TypeOfAlgorithm_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StorageRedundancySet_TypeOfAlgorithm =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "TypeOfAlgorithm",
     /* qualifiers */
@@ -12401,11 +12401,11 @@ _CIM_StorageRedundancySet_OtherAlgorithm_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StorageRedundancySet_OtherAlgorithm =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherAlgorithm",
     /* qualifiers */
@@ -12418,11 +12418,11 @@ _CIM_StorageRedundancySet_OtherAlgorithm =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_StorageRedundancySet_features[] =
 {
-    (MetaFeature*)&_CIM_StorageRedundancySet_TypeOfAlgorithm,
-    (MetaFeature*)&_CIM_StorageRedundancySet_OtherAlgorithm,
+    (SchemaFeature*)&_CIM_StorageRedundancySet_TypeOfAlgorithm,
+    (SchemaFeature*)&_CIM_StorageRedundancySet_OtherAlgorithm,
     0,
 };
 
@@ -12436,11 +12436,11 @@ __root_PG_InterOp_CIM_StorageRedundancySet_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_StorageRedundancySet =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_StorageRedundancySet",
     /* qualifiers */
@@ -12467,11 +12467,11 @@ _CIM_ActsAsSpare_Group_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ActsAsSpare_Group =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Group",
     /* qualifiers */
@@ -12492,11 +12492,11 @@ _CIM_ActsAsSpare_Spare_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ActsAsSpare_Spare =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Spare",
     /* qualifiers */
@@ -12515,11 +12515,11 @@ _CIM_ActsAsSpare_HotStandby_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ActsAsSpare_HotStandby =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "HotStandby",
     /* qualifiers */
@@ -12532,12 +12532,12 @@ _CIM_ActsAsSpare_HotStandby =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ActsAsSpare_features[] =
 {
-    (MetaFeature*)&_CIM_ActsAsSpare_Group,
-    (MetaFeature*)&_CIM_ActsAsSpare_Spare,
-    (MetaFeature*)&_CIM_ActsAsSpare_HotStandby,
+    (SchemaFeature*)&_CIM_ActsAsSpare_Group,
+    (SchemaFeature*)&_CIM_ActsAsSpare_Spare,
+    (SchemaFeature*)&_CIM_ActsAsSpare_HotStandby,
     0,
 };
 
@@ -12555,11 +12555,11 @@ __root_PG_InterOp_CIM_ActsAsSpare_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ActsAsSpare =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ActsAsSpare",
     /* qualifiers */
@@ -12586,11 +12586,11 @@ _CIM_DefaultSetting_Setting_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_DefaultSetting_Setting =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Setting",
     /* qualifiers */
@@ -12601,10 +12601,10 @@ _CIM_DefaultSetting_Setting =
     &__root_PG_InterOp_CIM_Setting,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_DefaultSetting_features[] =
 {
-    (MetaFeature*)&_CIM_DefaultSetting_Setting,
+    (SchemaFeature*)&_CIM_DefaultSetting_Setting,
     0,
 };
 
@@ -12620,11 +12620,11 @@ __root_PG_InterOp_CIM_DefaultSetting_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_DefaultSetting =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_DefaultSetting",
     /* qualifiers */
@@ -12649,11 +12649,11 @@ _CIM_ElementSoftwareIdentity_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ElementSoftwareIdentity_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -12672,11 +12672,11 @@ _CIM_ElementSoftwareIdentity_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ElementSoftwareIdentity_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -12699,11 +12699,11 @@ _CIM_ElementSoftwareIdentity_UpgradeCondition_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ElementSoftwareIdentity_UpgradeCondition =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "UpgradeCondition",
     /* qualifiers */
@@ -12724,11 +12724,11 @@ _CIM_ElementSoftwareIdentity_OtherUpgradeCondition_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ElementSoftwareIdentity_OtherUpgradeCondition =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherUpgradeCondition",
     /* qualifiers */
@@ -12741,13 +12741,13 @@ _CIM_ElementSoftwareIdentity_OtherUpgradeCondition =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ElementSoftwareIdentity_features[] =
 {
-    (MetaFeature*)&_CIM_ElementSoftwareIdentity_Antecedent,
-    (MetaFeature*)&_CIM_ElementSoftwareIdentity_Dependent,
-    (MetaFeature*)&_CIM_ElementSoftwareIdentity_UpgradeCondition,
-    (MetaFeature*)&_CIM_ElementSoftwareIdentity_OtherUpgradeCondition,
+    (SchemaFeature*)&_CIM_ElementSoftwareIdentity_Antecedent,
+    (SchemaFeature*)&_CIM_ElementSoftwareIdentity_Dependent,
+    (SchemaFeature*)&_CIM_ElementSoftwareIdentity_UpgradeCondition,
+    (SchemaFeature*)&_CIM_ElementSoftwareIdentity_OtherUpgradeCondition,
     0,
 };
 
@@ -12763,11 +12763,11 @@ __root_PG_InterOp_CIM_ElementSoftwareIdentity_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ElementSoftwareIdentity =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ElementSoftwareIdentity",
     /* qualifiers */
@@ -12792,11 +12792,11 @@ _CIM_ExtraCapacityGroup_MinNumberNeeded_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ExtraCapacityGroup_MinNumberNeeded =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "MinNumberNeeded",
     /* qualifiers */
@@ -12817,11 +12817,11 @@ _CIM_ExtraCapacityGroup_LoadBalancedGroup_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ExtraCapacityGroup_LoadBalancedGroup =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "LoadBalancedGroup",
     /* qualifiers */
@@ -12834,11 +12834,11 @@ _CIM_ExtraCapacityGroup_LoadBalancedGroup =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ExtraCapacityGroup_features[] =
 {
-    (MetaFeature*)&_CIM_ExtraCapacityGroup_MinNumberNeeded,
-    (MetaFeature*)&_CIM_ExtraCapacityGroup_LoadBalancedGroup,
+    (SchemaFeature*)&_CIM_ExtraCapacityGroup_MinNumberNeeded,
+    (SchemaFeature*)&_CIM_ExtraCapacityGroup_LoadBalancedGroup,
     0,
 };
 
@@ -12854,11 +12854,11 @@ __root_PG_InterOp_CIM_ExtraCapacityGroup_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ExtraCapacityGroup =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_ExtraCapacityGroup",
     /* qualifiers */
@@ -12883,11 +12883,11 @@ _CIM_IsSpare_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_IsSpare_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -12906,11 +12906,11 @@ _CIM_IsSpare_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_IsSpare_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -12931,11 +12931,11 @@ _CIM_IsSpare_SpareStatus_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IsSpare_SpareStatus =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SpareStatus",
     /* qualifiers */
@@ -12958,11 +12958,11 @@ _CIM_IsSpare_FailoverSupported_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IsSpare_FailoverSupported =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "FailoverSupported",
     /* qualifiers */
@@ -12975,13 +12975,13 @@ _CIM_IsSpare_FailoverSupported =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_IsSpare_features[] =
 {
-    (MetaFeature*)&_CIM_IsSpare_Antecedent,
-    (MetaFeature*)&_CIM_IsSpare_Dependent,
-    (MetaFeature*)&_CIM_IsSpare_SpareStatus,
-    (MetaFeature*)&_CIM_IsSpare_FailoverSupported,
+    (SchemaFeature*)&_CIM_IsSpare_Antecedent,
+    (SchemaFeature*)&_CIM_IsSpare_Dependent,
+    (SchemaFeature*)&_CIM_IsSpare_SpareStatus,
+    (SchemaFeature*)&_CIM_IsSpare_FailoverSupported,
     0,
 };
 
@@ -12997,11 +12997,11 @@ __root_PG_InterOp_CIM_IsSpare_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_IsSpare =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_IsSpare",
     /* qualifiers */
@@ -13026,11 +13026,11 @@ _CIM_Job_JobStatus_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Job_JobStatus =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "JobStatus",
     /* qualifiers */
@@ -13049,11 +13049,11 @@ _CIM_Job_TimeSubmitted_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Job_TimeSubmitted =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "TimeSubmitted",
     /* qualifiers */
@@ -13076,11 +13076,11 @@ _CIM_Job_ScheduledStartTime_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Job_ScheduledStartTime =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "ScheduledStartTime",
     /* qualifiers */
@@ -13099,11 +13099,11 @@ _CIM_Job_StartTime_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Job_StartTime =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "StartTime",
     /* qualifiers */
@@ -13122,11 +13122,11 @@ _CIM_Job_ElapsedTime_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Job_ElapsedTime =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ElapsedTime",
     /* qualifiers */
@@ -13147,11 +13147,11 @@ _CIM_Job_JobRunTimes_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Job_JobRunTimes =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "JobRunTimes",
     /* qualifiers */
@@ -13178,11 +13178,11 @@ _CIM_Job_RunMonth_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Job_RunMonth =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "RunMonth",
     /* qualifiers */
@@ -13209,11 +13209,11 @@ _CIM_Job_RunDay_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Job_RunDay =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "RunDay",
     /* qualifiers */
@@ -13240,11 +13240,11 @@ _CIM_Job_RunDayOfWeek_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Job_RunDayOfWeek =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "RunDayOfWeek",
     /* qualifiers */
@@ -13267,11 +13267,11 @@ _CIM_Job_RunStartInterval_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Job_RunStartInterval =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "RunStartInterval",
     /* qualifiers */
@@ -13296,11 +13296,11 @@ _CIM_Job_LocalOrUtcTime_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Job_LocalOrUtcTime =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "LocalOrUtcTime",
     /* qualifiers */
@@ -13323,11 +13323,11 @@ _CIM_Job_UntilTime_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Job_UntilTime =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "UntilTime",
     /* qualifiers */
@@ -13348,11 +13348,11 @@ _CIM_Job_Notify_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Job_Notify =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "Notify",
     /* qualifiers */
@@ -13373,11 +13373,11 @@ _CIM_Job_Owner_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Job_Owner =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Owner",
     /* qualifiers */
@@ -13398,11 +13398,11 @@ _CIM_Job_Priority_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Job_Priority =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "Priority",
     /* qualifiers */
@@ -13427,11 +13427,11 @@ _CIM_Job_PercentComplete_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Job_PercentComplete =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "PercentComplete",
     /* qualifiers */
@@ -13452,11 +13452,11 @@ _CIM_Job_DeleteOnCompletion_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Job_DeleteOnCompletion =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "DeleteOnCompletion",
     /* qualifiers */
@@ -13477,11 +13477,11 @@ _CIM_Job_ErrorCode_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Job_ErrorCode =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ErrorCode",
     /* qualifiers */
@@ -13502,11 +13502,11 @@ _CIM_Job_ErrorDescription_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Job_ErrorDescription =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ErrorDescription",
     /* qualifiers */
@@ -13531,11 +13531,11 @@ _CIM_Job_RecoveryAction_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Job_RecoveryAction =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "RecoveryAction",
     /* qualifiers */
@@ -13556,11 +13556,11 @@ _CIM_Job_OtherRecoveryAction_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Job_OtherRecoveryAction =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherRecoveryAction",
     /* qualifiers */
@@ -13581,11 +13581,11 @@ _CIM_Job_KillJob_DeleteOnKill_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Job_KillJob_DeleteOnKill =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "DeleteOnKill",
     /* qualifiers */
@@ -13598,10 +13598,10 @@ _CIM_Job_KillJob_DeleteOnKill =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Job_KillJob_parameters[] =
 {
-    (MetaFeature*)&_CIM_Job_KillJob_DeleteOnKill,
+    (SchemaFeature*)&_CIM_Job_KillJob_DeleteOnKill,
     0,
 };
 
@@ -13617,11 +13617,11 @@ _CIM_Job_KillJob_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_Job_KillJob =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_Job",
     /* qualifiers */
@@ -13632,31 +13632,31 @@ _CIM_Job_KillJob =
     _CIM_Job_KillJob_parameters,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Job_features[] =
 {
-    (MetaFeature*)&_CIM_Job_JobStatus,
-    (MetaFeature*)&_CIM_Job_TimeSubmitted,
-    (MetaFeature*)&_CIM_Job_ScheduledStartTime,
-    (MetaFeature*)&_CIM_Job_StartTime,
-    (MetaFeature*)&_CIM_Job_ElapsedTime,
-    (MetaFeature*)&_CIM_Job_JobRunTimes,
-    (MetaFeature*)&_CIM_Job_RunMonth,
-    (MetaFeature*)&_CIM_Job_RunDay,
-    (MetaFeature*)&_CIM_Job_RunDayOfWeek,
-    (MetaFeature*)&_CIM_Job_RunStartInterval,
-    (MetaFeature*)&_CIM_Job_LocalOrUtcTime,
-    (MetaFeature*)&_CIM_Job_UntilTime,
-    (MetaFeature*)&_CIM_Job_Notify,
-    (MetaFeature*)&_CIM_Job_Owner,
-    (MetaFeature*)&_CIM_Job_Priority,
-    (MetaFeature*)&_CIM_Job_PercentComplete,
-    (MetaFeature*)&_CIM_Job_DeleteOnCompletion,
-    (MetaFeature*)&_CIM_Job_ErrorCode,
-    (MetaFeature*)&_CIM_Job_ErrorDescription,
-    (MetaFeature*)&_CIM_Job_RecoveryAction,
-    (MetaFeature*)&_CIM_Job_OtherRecoveryAction,
-    (MetaFeature*)&_CIM_Job_KillJob,
+    (SchemaFeature*)&_CIM_Job_JobStatus,
+    (SchemaFeature*)&_CIM_Job_TimeSubmitted,
+    (SchemaFeature*)&_CIM_Job_ScheduledStartTime,
+    (SchemaFeature*)&_CIM_Job_StartTime,
+    (SchemaFeature*)&_CIM_Job_ElapsedTime,
+    (SchemaFeature*)&_CIM_Job_JobRunTimes,
+    (SchemaFeature*)&_CIM_Job_RunMonth,
+    (SchemaFeature*)&_CIM_Job_RunDay,
+    (SchemaFeature*)&_CIM_Job_RunDayOfWeek,
+    (SchemaFeature*)&_CIM_Job_RunStartInterval,
+    (SchemaFeature*)&_CIM_Job_LocalOrUtcTime,
+    (SchemaFeature*)&_CIM_Job_UntilTime,
+    (SchemaFeature*)&_CIM_Job_Notify,
+    (SchemaFeature*)&_CIM_Job_Owner,
+    (SchemaFeature*)&_CIM_Job_Priority,
+    (SchemaFeature*)&_CIM_Job_PercentComplete,
+    (SchemaFeature*)&_CIM_Job_DeleteOnCompletion,
+    (SchemaFeature*)&_CIM_Job_ErrorCode,
+    (SchemaFeature*)&_CIM_Job_ErrorDescription,
+    (SchemaFeature*)&_CIM_Job_RecoveryAction,
+    (SchemaFeature*)&_CIM_Job_OtherRecoveryAction,
+    (SchemaFeature*)&_CIM_Job_KillJob,
     0,
 };
 
@@ -13672,11 +13672,11 @@ __root_PG_InterOp_CIM_Job_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_Job =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_Job",
     /* qualifiers */
@@ -13703,11 +13703,11 @@ _CIM_ProductSoftwareComponent_GroupComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ProductSoftwareComponent_GroupComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -13726,11 +13726,11 @@ _CIM_ProductSoftwareComponent_PartComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ProductSoftwareComponent_PartComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -13741,11 +13741,11 @@ _CIM_ProductSoftwareComponent_PartComponent =
     &__root_PG_InterOp_CIM_SoftwareIdentity,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ProductSoftwareComponent_features[] =
 {
-    (MetaFeature*)&_CIM_ProductSoftwareComponent_GroupComponent,
-    (MetaFeature*)&_CIM_ProductSoftwareComponent_PartComponent,
+    (SchemaFeature*)&_CIM_ProductSoftwareComponent_GroupComponent,
+    (SchemaFeature*)&_CIM_ProductSoftwareComponent_PartComponent,
     0,
 };
 
@@ -13765,11 +13765,11 @@ __root_PG_InterOp_CIM_ProductSoftwareComponent_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ProductSoftwareComponent =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_ProductSoftwareComponent",
     /* qualifiers */
@@ -13798,11 +13798,11 @@ _CIM_RedundancyComponent_GroupComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_RedundancyComponent_GroupComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_AGGREGATE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_AGGREGATE|SCHEMA_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -13823,11 +13823,11 @@ _CIM_RedundancyComponent_PartComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_RedundancyComponent_PartComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -13838,11 +13838,11 @@ _CIM_RedundancyComponent_PartComponent =
     &__root_PG_InterOp_CIM_ManagedSystemElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_RedundancyComponent_features[] =
 {
-    (MetaFeature*)&_CIM_RedundancyComponent_GroupComponent,
-    (MetaFeature*)&_CIM_RedundancyComponent_PartComponent,
+    (SchemaFeature*)&_CIM_RedundancyComponent_GroupComponent,
+    (SchemaFeature*)&_CIM_RedundancyComponent_PartComponent,
     0,
 };
 
@@ -13862,11 +13862,11 @@ __root_PG_InterOp_CIM_RedundancyComponent_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_RedundancyComponent =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_RedundancyComponent",
     /* qualifiers */
@@ -13895,11 +13895,11 @@ _CIM_ScopedSetting_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ScopedSetting_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -13918,11 +13918,11 @@ _CIM_ScopedSetting_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ScopedSetting_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -13933,11 +13933,11 @@ _CIM_ScopedSetting_Dependent =
     &__root_PG_InterOp_CIM_ScopedSettingData,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ScopedSetting_features[] =
 {
-    (MetaFeature*)&_CIM_ScopedSetting_Antecedent,
-    (MetaFeature*)&_CIM_ScopedSetting_Dependent,
+    (SchemaFeature*)&_CIM_ScopedSetting_Antecedent,
+    (SchemaFeature*)&_CIM_ScopedSetting_Dependent,
     0,
 };
 
@@ -13953,11 +13953,11 @@ __root_PG_InterOp_CIM_ScopedSetting_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ScopedSetting =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ScopedSetting",
     /* qualifiers */
@@ -13982,11 +13982,11 @@ _CIM_ConcreteJob_InstanceID_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ConcreteJob_InstanceID =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "InstanceID",
     /* qualifiers */
@@ -14009,11 +14009,11 @@ _CIM_ConcreteJob_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ConcreteJob_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "Name",
     /* qualifiers */
@@ -14036,11 +14036,11 @@ _CIM_ConcreteJob_JobState_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ConcreteJob_JobState =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "JobState",
     /* qualifiers */
@@ -14059,11 +14059,11 @@ _CIM_ConcreteJob_TimeOfLastStateChange_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ConcreteJob_TimeOfLastStateChange =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "TimeOfLastStateChange",
     /* qualifiers */
@@ -14086,11 +14086,11 @@ _CIM_ConcreteJob_TimeBeforeRemoval_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ConcreteJob_TimeBeforeRemoval =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED|SCHEMA_FLAG_WRITE,
     /* name */
     "TimeBeforeRemoval",
     /* qualifiers */
@@ -14115,11 +14115,11 @@ _CIM_ConcreteJob_RequestStateChange_RequestedState_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ConcreteJob_RequestStateChange_RequestedState =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "RequestedState",
     /* qualifiers */
@@ -14140,11 +14140,11 @@ _CIM_ConcreteJob_RequestStateChange_TimeoutPeriod_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ConcreteJob_RequestStateChange_TimeoutPeriod =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "TimeoutPeriod",
     /* qualifiers */
@@ -14157,11 +14157,11 @@ _CIM_ConcreteJob_RequestStateChange_TimeoutPeriod =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ConcreteJob_RequestStateChange_parameters[] =
 {
-    (MetaFeature*)&_CIM_ConcreteJob_RequestStateChange_RequestedState,
-    (MetaFeature*)&_CIM_ConcreteJob_RequestStateChange_TimeoutPeriod,
+    (SchemaFeature*)&_CIM_ConcreteJob_RequestStateChange_RequestedState,
+    (SchemaFeature*)&_CIM_ConcreteJob_RequestStateChange_TimeoutPeriod,
     0,
 };
 
@@ -14175,11 +14175,11 @@ _CIM_ConcreteJob_RequestStateChange_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_ConcreteJob_RequestStateChange =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_ConcreteJob",
     /* qualifiers */
@@ -14190,15 +14190,15 @@ _CIM_ConcreteJob_RequestStateChange =
     _CIM_ConcreteJob_RequestStateChange_parameters,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ConcreteJob_features[] =
 {
-    (MetaFeature*)&_CIM_ConcreteJob_InstanceID,
-    (MetaFeature*)&_CIM_ConcreteJob_Name,
-    (MetaFeature*)&_CIM_ConcreteJob_JobState,
-    (MetaFeature*)&_CIM_ConcreteJob_TimeOfLastStateChange,
-    (MetaFeature*)&_CIM_ConcreteJob_TimeBeforeRemoval,
-    (MetaFeature*)&_CIM_ConcreteJob_RequestStateChange,
+    (SchemaFeature*)&_CIM_ConcreteJob_InstanceID,
+    (SchemaFeature*)&_CIM_ConcreteJob_Name,
+    (SchemaFeature*)&_CIM_ConcreteJob_JobState,
+    (SchemaFeature*)&_CIM_ConcreteJob_TimeOfLastStateChange,
+    (SchemaFeature*)&_CIM_ConcreteJob_TimeBeforeRemoval,
+    (SchemaFeature*)&_CIM_ConcreteJob_RequestStateChange,
     0,
 };
 
@@ -14212,11 +14212,11 @@ __root_PG_InterOp_CIM_ConcreteJob_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ConcreteJob =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_ConcreteJob",
     /* qualifiers */
@@ -14245,11 +14245,11 @@ _CIM_EnabledLogicalElement_EnabledState_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_EnabledLogicalElement_EnabledState =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "EnabledState",
     /* qualifiers */
@@ -14270,11 +14270,11 @@ _CIM_EnabledLogicalElement_OtherEnabledState_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_EnabledLogicalElement_OtherEnabledState =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherEnabledState",
     /* qualifiers */
@@ -14299,11 +14299,11 @@ _CIM_EnabledLogicalElement_RequestedState_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_EnabledLogicalElement_RequestedState =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "RequestedState",
     /* qualifiers */
@@ -14328,11 +14328,11 @@ _CIM_EnabledLogicalElement_EnabledDefault_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_EnabledLogicalElement_EnabledDefault =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "EnabledDefault",
     /* qualifiers */
@@ -14351,11 +14351,11 @@ _CIM_EnabledLogicalElement_TimeOfLastStateChange_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_EnabledLogicalElement_TimeOfLastStateChange =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "TimeOfLastStateChange",
     /* qualifiers */
@@ -14382,11 +14382,11 @@ _CIM_EnabledLogicalElement_RequestStateChange_RequestedState_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_EnabledLogicalElement_RequestStateChange_RequestedState =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "RequestedState",
     /* qualifiers */
@@ -14409,11 +14409,11 @@ _CIM_EnabledLogicalElement_RequestStateChange_Job_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_EnabledLogicalElement_RequestStateChange_Job =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_OUT,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_OUT,
     /* name */
     "Job",
     /* qualifiers */
@@ -14432,11 +14432,11 @@ _CIM_EnabledLogicalElement_RequestStateChange_TimeoutPeriod_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_EnabledLogicalElement_RequestStateChange_TimeoutPeriod =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "TimeoutPeriod",
     /* qualifiers */
@@ -14449,12 +14449,12 @@ _CIM_EnabledLogicalElement_RequestStateChange_TimeoutPeriod =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_EnabledLogicalElement_RequestStateChange_parameters[] =
 {
-    (MetaFeature*)&_CIM_EnabledLogicalElement_RequestStateChange_RequestedState,
-    (MetaFeature*)&_CIM_EnabledLogicalElement_RequestStateChange_Job,
-    (MetaFeature*)&_CIM_EnabledLogicalElement_RequestStateChange_TimeoutPeriod,
+    (SchemaFeature*)&_CIM_EnabledLogicalElement_RequestStateChange_RequestedState,
+    (SchemaFeature*)&_CIM_EnabledLogicalElement_RequestStateChange_Job,
+    (SchemaFeature*)&_CIM_EnabledLogicalElement_RequestStateChange_TimeoutPeriod,
     0,
 };
 
@@ -14470,11 +14470,11 @@ _CIM_EnabledLogicalElement_RequestStateChange_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_EnabledLogicalElement_RequestStateChange =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_EnabledLogicalElement",
     /* qualifiers */
@@ -14485,15 +14485,15 @@ _CIM_EnabledLogicalElement_RequestStateChange =
     _CIM_EnabledLogicalElement_RequestStateChange_parameters,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_EnabledLogicalElement_features[] =
 {
-    (MetaFeature*)&_CIM_EnabledLogicalElement_EnabledState,
-    (MetaFeature*)&_CIM_EnabledLogicalElement_OtherEnabledState,
-    (MetaFeature*)&_CIM_EnabledLogicalElement_RequestedState,
-    (MetaFeature*)&_CIM_EnabledLogicalElement_EnabledDefault,
-    (MetaFeature*)&_CIM_EnabledLogicalElement_TimeOfLastStateChange,
-    (MetaFeature*)&_CIM_EnabledLogicalElement_RequestStateChange,
+    (SchemaFeature*)&_CIM_EnabledLogicalElement_EnabledState,
+    (SchemaFeature*)&_CIM_EnabledLogicalElement_OtherEnabledState,
+    (SchemaFeature*)&_CIM_EnabledLogicalElement_RequestedState,
+    (SchemaFeature*)&_CIM_EnabledLogicalElement_EnabledDefault,
+    (SchemaFeature*)&_CIM_EnabledLogicalElement_TimeOfLastStateChange,
+    (SchemaFeature*)&_CIM_EnabledLogicalElement_RequestStateChange,
     0,
 };
 
@@ -14509,11 +14509,11 @@ __root_PG_InterOp_CIM_EnabledLogicalElement_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_EnabledLogicalElement =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_EnabledLogicalElement",
     /* qualifiers */
@@ -14542,11 +14542,11 @@ _CIM_LogicalDevice_SystemCreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LogicalDevice_SystemCreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -14571,11 +14571,11 @@ _CIM_LogicalDevice_SystemName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LogicalDevice_SystemName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -14598,11 +14598,11 @@ _CIM_LogicalDevice_CreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LogicalDevice_CreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -14625,11 +14625,11 @@ _CIM_LogicalDevice_DeviceID_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LogicalDevice_DeviceID =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "DeviceID",
     /* qualifiers */
@@ -14650,11 +14650,11 @@ _CIM_LogicalDevice_PowerManagementSupported_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LogicalDevice_PowerManagementSupported =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "PowerManagementSupported",
     /* qualifiers */
@@ -14679,11 +14679,11 @@ _CIM_LogicalDevice_PowerManagementCapabilities_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LogicalDevice_PowerManagementCapabilities =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "PowerManagementCapabilities",
     /* qualifiers */
@@ -14710,11 +14710,11 @@ _CIM_LogicalDevice_Availability_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LogicalDevice_Availability =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Availability",
     /* qualifiers */
@@ -14741,11 +14741,11 @@ _CIM_LogicalDevice_StatusInfo_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LogicalDevice_StatusInfo =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "StatusInfo",
     /* qualifiers */
@@ -14766,11 +14766,11 @@ _CIM_LogicalDevice_LastErrorCode_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LogicalDevice_LastErrorCode =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "LastErrorCode",
     /* qualifiers */
@@ -14791,11 +14791,11 @@ _CIM_LogicalDevice_ErrorDescription_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LogicalDevice_ErrorDescription =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ErrorDescription",
     /* qualifiers */
@@ -14816,11 +14816,11 @@ _CIM_LogicalDevice_ErrorCleared_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LogicalDevice_ErrorCleared =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ErrorCleared",
     /* qualifiers */
@@ -14845,11 +14845,11 @@ _CIM_LogicalDevice_OtherIdentifyingInfo_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LogicalDevice_OtherIdentifyingInfo =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherIdentifyingInfo",
     /* qualifiers */
@@ -14872,11 +14872,11 @@ _CIM_LogicalDevice_PowerOnHours_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LogicalDevice_PowerOnHours =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_COUNTER|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_COUNTER|SCHEMA_FLAG_READ,
     /* name */
     "PowerOnHours",
     /* qualifiers */
@@ -14899,11 +14899,11 @@ _CIM_LogicalDevice_TotalPowerOnHours_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LogicalDevice_TotalPowerOnHours =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_COUNTER|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_COUNTER|SCHEMA_FLAG_READ,
     /* name */
     "TotalPowerOnHours",
     /* qualifiers */
@@ -14926,11 +14926,11 @@ _CIM_LogicalDevice_IdentifyingDescriptions_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LogicalDevice_IdentifyingDescriptions =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "IdentifyingDescriptions",
     /* qualifiers */
@@ -14955,11 +14955,11 @@ _CIM_LogicalDevice_AdditionalAvailability_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LogicalDevice_AdditionalAvailability =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "AdditionalAvailability",
     /* qualifiers */
@@ -14982,11 +14982,11 @@ _CIM_LogicalDevice_MaxQuiesceTime_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LogicalDevice_MaxQuiesceTime =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "MaxQuiesceTime",
     /* qualifiers */
@@ -15011,11 +15011,11 @@ _CIM_LogicalDevice_SetPowerState_PowerState_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LogicalDevice_SetPowerState_PowerState =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "PowerState",
     /* qualifiers */
@@ -15036,11 +15036,11 @@ _CIM_LogicalDevice_SetPowerState_Time_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LogicalDevice_SetPowerState_Time =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "Time",
     /* qualifiers */
@@ -15053,11 +15053,11 @@ _CIM_LogicalDevice_SetPowerState_Time =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_LogicalDevice_SetPowerState_parameters[] =
 {
-    (MetaFeature*)&_CIM_LogicalDevice_SetPowerState_PowerState,
-    (MetaFeature*)&_CIM_LogicalDevice_SetPowerState_Time,
+    (SchemaFeature*)&_CIM_LogicalDevice_SetPowerState_PowerState,
+    (SchemaFeature*)&_CIM_LogicalDevice_SetPowerState_Time,
     0,
 };
 
@@ -15069,11 +15069,11 @@ _CIM_LogicalDevice_SetPowerState_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_LogicalDevice_SetPowerState =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_LogicalDevice",
     /* qualifiers */
@@ -15084,7 +15084,7 @@ _CIM_LogicalDevice_SetPowerState =
     _CIM_LogicalDevice_SetPowerState_parameters,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_LogicalDevice_Reset_parameters[] =
 {
     0,
@@ -15096,11 +15096,11 @@ _CIM_LogicalDevice_Reset_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_LogicalDevice_Reset =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_LogicalDevice",
     /* qualifiers */
@@ -15119,11 +15119,11 @@ _CIM_LogicalDevice_EnableDevice_Enabled_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LogicalDevice_EnableDevice_Enabled =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "Enabled",
     /* qualifiers */
@@ -15136,10 +15136,10 @@ _CIM_LogicalDevice_EnableDevice_Enabled =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_LogicalDevice_EnableDevice_parameters[] =
 {
-    (MetaFeature*)&_CIM_LogicalDevice_EnableDevice_Enabled,
+    (SchemaFeature*)&_CIM_LogicalDevice_EnableDevice_Enabled,
     0,
 };
 
@@ -15151,11 +15151,11 @@ _CIM_LogicalDevice_EnableDevice_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_LogicalDevice_EnableDevice =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_LogicalDevice",
     /* qualifiers */
@@ -15174,11 +15174,11 @@ _CIM_LogicalDevice_OnlineDevice_Online_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LogicalDevice_OnlineDevice_Online =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "Online",
     /* qualifiers */
@@ -15191,10 +15191,10 @@ _CIM_LogicalDevice_OnlineDevice_Online =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_LogicalDevice_OnlineDevice_parameters[] =
 {
-    (MetaFeature*)&_CIM_LogicalDevice_OnlineDevice_Online,
+    (SchemaFeature*)&_CIM_LogicalDevice_OnlineDevice_Online,
     0,
 };
 
@@ -15206,11 +15206,11 @@ _CIM_LogicalDevice_OnlineDevice_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_LogicalDevice_OnlineDevice =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_LogicalDevice",
     /* qualifiers */
@@ -15229,11 +15229,11 @@ _CIM_LogicalDevice_QuiesceDevice_Quiesce_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_LogicalDevice_QuiesceDevice_Quiesce =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "Quiesce",
     /* qualifiers */
@@ -15246,10 +15246,10 @@ _CIM_LogicalDevice_QuiesceDevice_Quiesce =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_LogicalDevice_QuiesceDevice_parameters[] =
 {
-    (MetaFeature*)&_CIM_LogicalDevice_QuiesceDevice_Quiesce,
+    (SchemaFeature*)&_CIM_LogicalDevice_QuiesceDevice_Quiesce,
     0,
 };
 
@@ -15261,11 +15261,11 @@ _CIM_LogicalDevice_QuiesceDevice_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_LogicalDevice_QuiesceDevice =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_LogicalDevice",
     /* qualifiers */
@@ -15276,7 +15276,7 @@ _CIM_LogicalDevice_QuiesceDevice =
     _CIM_LogicalDevice_QuiesceDevice_parameters,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_LogicalDevice_SaveProperties_parameters[] =
 {
     0,
@@ -15288,11 +15288,11 @@ _CIM_LogicalDevice_SaveProperties_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_LogicalDevice_SaveProperties =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_LogicalDevice",
     /* qualifiers */
@@ -15303,7 +15303,7 @@ _CIM_LogicalDevice_SaveProperties =
     _CIM_LogicalDevice_SaveProperties_parameters,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_LogicalDevice_RestoreProperties_parameters[] =
 {
     0,
@@ -15315,11 +15315,11 @@ _CIM_LogicalDevice_RestoreProperties_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_LogicalDevice_RestoreProperties =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_LogicalDevice",
     /* qualifiers */
@@ -15330,33 +15330,33 @@ _CIM_LogicalDevice_RestoreProperties =
     _CIM_LogicalDevice_RestoreProperties_parameters,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_LogicalDevice_features[] =
 {
-    (MetaFeature*)&_CIM_LogicalDevice_SystemCreationClassName,
-    (MetaFeature*)&_CIM_LogicalDevice_SystemName,
-    (MetaFeature*)&_CIM_LogicalDevice_CreationClassName,
-    (MetaFeature*)&_CIM_LogicalDevice_DeviceID,
-    (MetaFeature*)&_CIM_LogicalDevice_PowerManagementSupported,
-    (MetaFeature*)&_CIM_LogicalDevice_PowerManagementCapabilities,
-    (MetaFeature*)&_CIM_LogicalDevice_Availability,
-    (MetaFeature*)&_CIM_LogicalDevice_StatusInfo,
-    (MetaFeature*)&_CIM_LogicalDevice_LastErrorCode,
-    (MetaFeature*)&_CIM_LogicalDevice_ErrorDescription,
-    (MetaFeature*)&_CIM_LogicalDevice_ErrorCleared,
-    (MetaFeature*)&_CIM_LogicalDevice_OtherIdentifyingInfo,
-    (MetaFeature*)&_CIM_LogicalDevice_PowerOnHours,
-    (MetaFeature*)&_CIM_LogicalDevice_TotalPowerOnHours,
-    (MetaFeature*)&_CIM_LogicalDevice_IdentifyingDescriptions,
-    (MetaFeature*)&_CIM_LogicalDevice_AdditionalAvailability,
-    (MetaFeature*)&_CIM_LogicalDevice_MaxQuiesceTime,
-    (MetaFeature*)&_CIM_LogicalDevice_SetPowerState,
-    (MetaFeature*)&_CIM_LogicalDevice_Reset,
-    (MetaFeature*)&_CIM_LogicalDevice_EnableDevice,
-    (MetaFeature*)&_CIM_LogicalDevice_OnlineDevice,
-    (MetaFeature*)&_CIM_LogicalDevice_QuiesceDevice,
-    (MetaFeature*)&_CIM_LogicalDevice_SaveProperties,
-    (MetaFeature*)&_CIM_LogicalDevice_RestoreProperties,
+    (SchemaFeature*)&_CIM_LogicalDevice_SystemCreationClassName,
+    (SchemaFeature*)&_CIM_LogicalDevice_SystemName,
+    (SchemaFeature*)&_CIM_LogicalDevice_CreationClassName,
+    (SchemaFeature*)&_CIM_LogicalDevice_DeviceID,
+    (SchemaFeature*)&_CIM_LogicalDevice_PowerManagementSupported,
+    (SchemaFeature*)&_CIM_LogicalDevice_PowerManagementCapabilities,
+    (SchemaFeature*)&_CIM_LogicalDevice_Availability,
+    (SchemaFeature*)&_CIM_LogicalDevice_StatusInfo,
+    (SchemaFeature*)&_CIM_LogicalDevice_LastErrorCode,
+    (SchemaFeature*)&_CIM_LogicalDevice_ErrorDescription,
+    (SchemaFeature*)&_CIM_LogicalDevice_ErrorCleared,
+    (SchemaFeature*)&_CIM_LogicalDevice_OtherIdentifyingInfo,
+    (SchemaFeature*)&_CIM_LogicalDevice_PowerOnHours,
+    (SchemaFeature*)&_CIM_LogicalDevice_TotalPowerOnHours,
+    (SchemaFeature*)&_CIM_LogicalDevice_IdentifyingDescriptions,
+    (SchemaFeature*)&_CIM_LogicalDevice_AdditionalAvailability,
+    (SchemaFeature*)&_CIM_LogicalDevice_MaxQuiesceTime,
+    (SchemaFeature*)&_CIM_LogicalDevice_SetPowerState,
+    (SchemaFeature*)&_CIM_LogicalDevice_Reset,
+    (SchemaFeature*)&_CIM_LogicalDevice_EnableDevice,
+    (SchemaFeature*)&_CIM_LogicalDevice_OnlineDevice,
+    (SchemaFeature*)&_CIM_LogicalDevice_QuiesceDevice,
+    (SchemaFeature*)&_CIM_LogicalDevice_SaveProperties,
+    (SchemaFeature*)&_CIM_LogicalDevice_RestoreProperties,
     0,
 };
 
@@ -15372,11 +15372,11 @@ __root_PG_InterOp_CIM_LogicalDevice_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_LogicalDevice =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_LogicalDevice",
     /* qualifiers */
@@ -15401,11 +15401,11 @@ _CIM_Realizes_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_Realizes_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -15424,11 +15424,11 @@ _CIM_Realizes_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_Realizes_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -15439,11 +15439,11 @@ _CIM_Realizes_Dependent =
     &__root_PG_InterOp_CIM_LogicalDevice,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Realizes_features[] =
 {
-    (MetaFeature*)&_CIM_Realizes_Antecedent,
-    (MetaFeature*)&_CIM_Realizes_Dependent,
+    (SchemaFeature*)&_CIM_Realizes_Antecedent,
+    (SchemaFeature*)&_CIM_Realizes_Dependent,
     0,
 };
 
@@ -15459,11 +15459,11 @@ __root_PG_InterOp_CIM_Realizes_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_Realizes =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_Realizes",
     /* qualifiers */
@@ -15492,11 +15492,11 @@ _CIM_Service_SystemCreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Service_SystemCreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -15521,11 +15521,11 @@ _CIM_Service_SystemName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Service_SystemName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -15548,11 +15548,11 @@ _CIM_Service_CreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Service_CreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -15577,11 +15577,11 @@ _CIM_Service_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Service_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -15606,11 +15606,11 @@ _CIM_Service_PrimaryOwnerName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Service_PrimaryOwnerName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "PrimaryOwnerName",
     /* qualifiers */
@@ -15635,11 +15635,11 @@ _CIM_Service_PrimaryOwnerContact_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Service_PrimaryOwnerContact =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "PrimaryOwnerContact",
     /* qualifiers */
@@ -15664,11 +15664,11 @@ _CIM_Service_StartMode_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Service_StartMode =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "StartMode",
     /* qualifiers */
@@ -15687,11 +15687,11 @@ _CIM_Service_Started_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Service_Started =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Started",
     /* qualifiers */
@@ -15704,7 +15704,7 @@ _CIM_Service_Started =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Service_StartService_parameters[] =
 {
     0,
@@ -15716,11 +15716,11 @@ _CIM_Service_StartService_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_Service_StartService =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_Service",
     /* qualifiers */
@@ -15731,7 +15731,7 @@ _CIM_Service_StartService =
     _CIM_Service_StartService_parameters,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Service_StopService_parameters[] =
 {
     0,
@@ -15743,11 +15743,11 @@ _CIM_Service_StopService_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_Service_StopService =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_Service",
     /* qualifiers */
@@ -15758,19 +15758,19 @@ _CIM_Service_StopService =
     _CIM_Service_StopService_parameters,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Service_features[] =
 {
-    (MetaFeature*)&_CIM_Service_SystemCreationClassName,
-    (MetaFeature*)&_CIM_Service_SystemName,
-    (MetaFeature*)&_CIM_Service_CreationClassName,
-    (MetaFeature*)&_CIM_Service_Name,
-    (MetaFeature*)&_CIM_Service_PrimaryOwnerName,
-    (MetaFeature*)&_CIM_Service_PrimaryOwnerContact,
-    (MetaFeature*)&_CIM_Service_StartMode,
-    (MetaFeature*)&_CIM_Service_Started,
-    (MetaFeature*)&_CIM_Service_StartService,
-    (MetaFeature*)&_CIM_Service_StopService,
+    (SchemaFeature*)&_CIM_Service_SystemCreationClassName,
+    (SchemaFeature*)&_CIM_Service_SystemName,
+    (SchemaFeature*)&_CIM_Service_CreationClassName,
+    (SchemaFeature*)&_CIM_Service_Name,
+    (SchemaFeature*)&_CIM_Service_PrimaryOwnerName,
+    (SchemaFeature*)&_CIM_Service_PrimaryOwnerContact,
+    (SchemaFeature*)&_CIM_Service_StartMode,
+    (SchemaFeature*)&_CIM_Service_Started,
+    (SchemaFeature*)&_CIM_Service_StartService,
+    (SchemaFeature*)&_CIM_Service_StopService,
     0,
 };
 
@@ -15786,11 +15786,11 @@ __root_PG_InterOp_CIM_Service_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_Service =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_Service",
     /* qualifiers */
@@ -15819,11 +15819,11 @@ _CIM_ServiceAccessPoint_SystemCreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ServiceAccessPoint_SystemCreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -15848,11 +15848,11 @@ _CIM_ServiceAccessPoint_SystemName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ServiceAccessPoint_SystemName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -15875,11 +15875,11 @@ _CIM_ServiceAccessPoint_CreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ServiceAccessPoint_CreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -15904,11 +15904,11 @@ _CIM_ServiceAccessPoint_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ServiceAccessPoint_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -15921,13 +15921,13 @@ _CIM_ServiceAccessPoint_Name =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ServiceAccessPoint_features[] =
 {
-    (MetaFeature*)&_CIM_ServiceAccessPoint_SystemCreationClassName,
-    (MetaFeature*)&_CIM_ServiceAccessPoint_SystemName,
-    (MetaFeature*)&_CIM_ServiceAccessPoint_CreationClassName,
-    (MetaFeature*)&_CIM_ServiceAccessPoint_Name,
+    (SchemaFeature*)&_CIM_ServiceAccessPoint_SystemCreationClassName,
+    (SchemaFeature*)&_CIM_ServiceAccessPoint_SystemName,
+    (SchemaFeature*)&_CIM_ServiceAccessPoint_CreationClassName,
+    (SchemaFeature*)&_CIM_ServiceAccessPoint_Name,
     0,
 };
 
@@ -15943,11 +15943,11 @@ __root_PG_InterOp_CIM_ServiceAccessPoint_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ServiceAccessPoint =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_ServiceAccessPoint",
     /* qualifiers */
@@ -15974,11 +15974,11 @@ _CIM_ServiceAccessURI_LabeledURI_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ServiceAccessURI_LabeledURI =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "LabeledURI",
     /* qualifiers */
@@ -15991,10 +15991,10 @@ _CIM_ServiceAccessURI_LabeledURI =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ServiceAccessURI_features[] =
 {
-    (MetaFeature*)&_CIM_ServiceAccessURI_LabeledURI,
+    (SchemaFeature*)&_CIM_ServiceAccessURI_LabeledURI,
     0,
 };
 
@@ -16008,11 +16008,11 @@ __root_PG_InterOp_CIM_ServiceAccessURI_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ServiceAccessURI =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_ServiceAccessURI",
     /* qualifiers */
@@ -16037,11 +16037,11 @@ _CIM_ServiceAffectsElement_AffectedElement_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ServiceAffectsElement_AffectedElement =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "AffectedElement",
     /* qualifiers */
@@ -16060,11 +16060,11 @@ _CIM_ServiceAffectsElement_AffectingElement_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ServiceAffectsElement_AffectingElement =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "AffectingElement",
     /* qualifiers */
@@ -16089,11 +16089,11 @@ _CIM_ServiceAffectsElement_ElementEffects_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ServiceAffectsElement_ElementEffects =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ElementEffects",
     /* qualifiers */
@@ -16116,11 +16116,11 @@ _CIM_ServiceAffectsElement_OtherElementEffectsDescriptions_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ServiceAffectsElement_OtherElementEffectsDescriptions =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherElementEffectsDescriptions",
     /* qualifiers */
@@ -16133,13 +16133,13 @@ _CIM_ServiceAffectsElement_OtherElementEffectsDescriptions =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ServiceAffectsElement_features[] =
 {
-    (MetaFeature*)&_CIM_ServiceAffectsElement_AffectedElement,
-    (MetaFeature*)&_CIM_ServiceAffectsElement_AffectingElement,
-    (MetaFeature*)&_CIM_ServiceAffectsElement_ElementEffects,
-    (MetaFeature*)&_CIM_ServiceAffectsElement_OtherElementEffectsDescriptions,
+    (SchemaFeature*)&_CIM_ServiceAffectsElement_AffectedElement,
+    (SchemaFeature*)&_CIM_ServiceAffectsElement_AffectingElement,
+    (SchemaFeature*)&_CIM_ServiceAffectsElement_ElementEffects,
+    (SchemaFeature*)&_CIM_ServiceAffectsElement_OtherElementEffectsDescriptions,
     0,
 };
 
@@ -16155,11 +16155,11 @@ __root_PG_InterOp_CIM_ServiceAffectsElement_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ServiceAffectsElement =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ServiceAffectsElement",
     /* qualifiers */
@@ -16184,11 +16184,11 @@ _CIM_ServiceAvailableToElement_ServiceProvided_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ServiceAvailableToElement_ServiceProvided =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "ServiceProvided",
     /* qualifiers */
@@ -16207,11 +16207,11 @@ _CIM_ServiceAvailableToElement_UserOfService_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ServiceAvailableToElement_UserOfService =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "UserOfService",
     /* qualifiers */
@@ -16222,11 +16222,11 @@ _CIM_ServiceAvailableToElement_UserOfService =
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ServiceAvailableToElement_features[] =
 {
-    (MetaFeature*)&_CIM_ServiceAvailableToElement_ServiceProvided,
-    (MetaFeature*)&_CIM_ServiceAvailableToElement_UserOfService,
+    (SchemaFeature*)&_CIM_ServiceAvailableToElement_ServiceProvided,
+    (SchemaFeature*)&_CIM_ServiceAvailableToElement_UserOfService,
     0,
 };
 
@@ -16242,11 +16242,11 @@ __root_PG_InterOp_CIM_ServiceAvailableToElement_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ServiceAvailableToElement =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ServiceAvailableToElement",
     /* qualifiers */
@@ -16273,11 +16273,11 @@ _CIM_ServiceComponent_GroupComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ServiceComponent_GroupComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_AGGREGATE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_AGGREGATE|SCHEMA_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -16296,11 +16296,11 @@ _CIM_ServiceComponent_PartComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ServiceComponent_PartComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -16311,11 +16311,11 @@ _CIM_ServiceComponent_PartComponent =
     &__root_PG_InterOp_CIM_Service,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ServiceComponent_features[] =
 {
-    (MetaFeature*)&_CIM_ServiceComponent_GroupComponent,
-    (MetaFeature*)&_CIM_ServiceComponent_PartComponent,
+    (SchemaFeature*)&_CIM_ServiceComponent_GroupComponent,
+    (SchemaFeature*)&_CIM_ServiceComponent_PartComponent,
     0,
 };
 
@@ -16333,11 +16333,11 @@ __root_PG_InterOp_CIM_ServiceComponent_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ServiceComponent =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_ServiceComponent",
     /* qualifiers */
@@ -16362,11 +16362,11 @@ _CIM_ServiceSAPDependency_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ServiceSAPDependency_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -16385,11 +16385,11 @@ _CIM_ServiceSAPDependency_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ServiceSAPDependency_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -16400,11 +16400,11 @@ _CIM_ServiceSAPDependency_Dependent =
     &__root_PG_InterOp_CIM_Service,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ServiceSAPDependency_features[] =
 {
-    (MetaFeature*)&_CIM_ServiceSAPDependency_Antecedent,
-    (MetaFeature*)&_CIM_ServiceSAPDependency_Dependent,
+    (SchemaFeature*)&_CIM_ServiceSAPDependency_Antecedent,
+    (SchemaFeature*)&_CIM_ServiceSAPDependency_Dependent,
     0,
 };
 
@@ -16420,11 +16420,11 @@ __root_PG_InterOp_CIM_ServiceSAPDependency_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ServiceSAPDependency =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ServiceSAPDependency",
     /* qualifiers */
@@ -16451,11 +16451,11 @@ _CIM_ServiceStatistics_Stats_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ServiceStatistics_Stats =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ|META_FLAG_WEAK,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ|SCHEMA_FLAG_WEAK,
     /* name */
     "Stats",
     /* qualifiers */
@@ -16478,11 +16478,11 @@ _CIM_ServiceStatistics_Element_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ServiceStatistics_Element =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Element",
     /* qualifiers */
@@ -16493,11 +16493,11 @@ _CIM_ServiceStatistics_Element =
     &__root_PG_InterOp_CIM_Service,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ServiceStatistics_features[] =
 {
-    (MetaFeature*)&_CIM_ServiceStatistics_Stats,
-    (MetaFeature*)&_CIM_ServiceStatistics_Element,
+    (SchemaFeature*)&_CIM_ServiceStatistics_Stats,
+    (SchemaFeature*)&_CIM_ServiceStatistics_Element,
     0,
 };
 
@@ -16513,11 +16513,11 @@ __root_PG_InterOp_CIM_ServiceStatistics_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ServiceStatistics =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ServiceStatistics",
     /* qualifiers */
@@ -16544,11 +16544,11 @@ _CIM_StorageExtent_DataOrganization_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StorageExtent_DataOrganization =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "DataOrganization",
     /* qualifiers */
@@ -16569,11 +16569,11 @@ _CIM_StorageExtent_Purpose_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StorageExtent_Purpose =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Purpose",
     /* qualifiers */
@@ -16596,11 +16596,11 @@ _CIM_StorageExtent_Access_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StorageExtent_Access =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Access",
     /* qualifiers */
@@ -16619,11 +16619,11 @@ _CIM_StorageExtent_ErrorMethodology_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StorageExtent_ErrorMethodology =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ErrorMethodology",
     /* qualifiers */
@@ -16646,11 +16646,11 @@ _CIM_StorageExtent_BlockSize_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StorageExtent_BlockSize =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "BlockSize",
     /* qualifiers */
@@ -16671,11 +16671,11 @@ _CIM_StorageExtent_NumberOfBlocks_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StorageExtent_NumberOfBlocks =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "NumberOfBlocks",
     /* qualifiers */
@@ -16694,11 +16694,11 @@ _CIM_StorageExtent_ConsumableBlocks_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StorageExtent_ConsumableBlocks =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ConsumableBlocks",
     /* qualifiers */
@@ -16717,11 +16717,11 @@ _CIM_StorageExtent_IsBasedOnUnderlyingRedundancy_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StorageExtent_IsBasedOnUnderlyingRedundancy =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "IsBasedOnUnderlyingRedundancy",
     /* qualifiers */
@@ -16740,11 +16740,11 @@ _CIM_StorageExtent_SequentialAccess_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StorageExtent_SequentialAccess =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SequentialAccess",
     /* qualifiers */
@@ -16767,11 +16767,11 @@ _CIM_StorageExtent_ExtentStatus_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StorageExtent_ExtentStatus =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ExtentStatus",
     /* qualifiers */
@@ -16792,11 +16792,11 @@ _CIM_StorageExtent_NoSinglePointOfFailure_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StorageExtent_NoSinglePointOfFailure =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "NoSinglePointOfFailure",
     /* qualifiers */
@@ -16817,11 +16817,11 @@ _CIM_StorageExtent_DataRedundancy_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StorageExtent_DataRedundancy =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "DataRedundancy",
     /* qualifiers */
@@ -16842,11 +16842,11 @@ _CIM_StorageExtent_PackageRedundancy_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StorageExtent_PackageRedundancy =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "PackageRedundancy",
     /* qualifiers */
@@ -16873,11 +16873,11 @@ _CIM_StorageExtent_DeltaReservation_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StorageExtent_DeltaReservation =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "DeltaReservation",
     /* qualifiers */
@@ -16896,11 +16896,11 @@ _CIM_StorageExtent_Primordial_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_StorageExtent_Primordial =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Primordial",
     /* qualifiers */
@@ -16913,24 +16913,24 @@ _CIM_StorageExtent_Primordial =
     "\000",
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_StorageExtent_features[] =
 {
-    (MetaFeature*)&_CIM_StorageExtent_DataOrganization,
-    (MetaFeature*)&_CIM_StorageExtent_Purpose,
-    (MetaFeature*)&_CIM_StorageExtent_Access,
-    (MetaFeature*)&_CIM_StorageExtent_ErrorMethodology,
-    (MetaFeature*)&_CIM_StorageExtent_BlockSize,
-    (MetaFeature*)&_CIM_StorageExtent_NumberOfBlocks,
-    (MetaFeature*)&_CIM_StorageExtent_ConsumableBlocks,
-    (MetaFeature*)&_CIM_StorageExtent_IsBasedOnUnderlyingRedundancy,
-    (MetaFeature*)&_CIM_StorageExtent_SequentialAccess,
-    (MetaFeature*)&_CIM_StorageExtent_ExtentStatus,
-    (MetaFeature*)&_CIM_StorageExtent_NoSinglePointOfFailure,
-    (MetaFeature*)&_CIM_StorageExtent_DataRedundancy,
-    (MetaFeature*)&_CIM_StorageExtent_PackageRedundancy,
-    (MetaFeature*)&_CIM_StorageExtent_DeltaReservation,
-    (MetaFeature*)&_CIM_StorageExtent_Primordial,
+    (SchemaFeature*)&_CIM_StorageExtent_DataOrganization,
+    (SchemaFeature*)&_CIM_StorageExtent_Purpose,
+    (SchemaFeature*)&_CIM_StorageExtent_Access,
+    (SchemaFeature*)&_CIM_StorageExtent_ErrorMethodology,
+    (SchemaFeature*)&_CIM_StorageExtent_BlockSize,
+    (SchemaFeature*)&_CIM_StorageExtent_NumberOfBlocks,
+    (SchemaFeature*)&_CIM_StorageExtent_ConsumableBlocks,
+    (SchemaFeature*)&_CIM_StorageExtent_IsBasedOnUnderlyingRedundancy,
+    (SchemaFeature*)&_CIM_StorageExtent_SequentialAccess,
+    (SchemaFeature*)&_CIM_StorageExtent_ExtentStatus,
+    (SchemaFeature*)&_CIM_StorageExtent_NoSinglePointOfFailure,
+    (SchemaFeature*)&_CIM_StorageExtent_DataRedundancy,
+    (SchemaFeature*)&_CIM_StorageExtent_PackageRedundancy,
+    (SchemaFeature*)&_CIM_StorageExtent_DeltaReservation,
+    (SchemaFeature*)&_CIM_StorageExtent_Primordial,
     0,
 };
 
@@ -16944,11 +16944,11 @@ __root_PG_InterOp_CIM_StorageExtent_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_StorageExtent =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_StorageExtent",
     /* qualifiers */
@@ -16975,11 +16975,11 @@ _CIM_System_CreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_System_CreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -17004,11 +17004,11 @@ _CIM_System_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_System_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -17029,11 +17029,11 @@ _CIM_System_NameFormat_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_System_NameFormat =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "NameFormat",
     /* qualifiers */
@@ -17058,11 +17058,11 @@ _CIM_System_PrimaryOwnerName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_System_PrimaryOwnerName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "PrimaryOwnerName",
     /* qualifiers */
@@ -17087,11 +17087,11 @@ _CIM_System_PrimaryOwnerContact_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_System_PrimaryOwnerContact =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "PrimaryOwnerContact",
     /* qualifiers */
@@ -17112,11 +17112,11 @@ _CIM_System_Roles_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_System_Roles =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "Roles",
     /* qualifiers */
@@ -17129,15 +17129,15 @@ _CIM_System_Roles =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_System_features[] =
 {
-    (MetaFeature*)&_CIM_System_CreationClassName,
-    (MetaFeature*)&_CIM_System_Name,
-    (MetaFeature*)&_CIM_System_NameFormat,
-    (MetaFeature*)&_CIM_System_PrimaryOwnerName,
-    (MetaFeature*)&_CIM_System_PrimaryOwnerContact,
-    (MetaFeature*)&_CIM_System_Roles,
+    (SchemaFeature*)&_CIM_System_CreationClassName,
+    (SchemaFeature*)&_CIM_System_Name,
+    (SchemaFeature*)&_CIM_System_NameFormat,
+    (SchemaFeature*)&_CIM_System_PrimaryOwnerName,
+    (SchemaFeature*)&_CIM_System_PrimaryOwnerContact,
+    (SchemaFeature*)&_CIM_System_Roles,
     0,
 };
 
@@ -17153,11 +17153,11 @@ __root_PG_InterOp_CIM_System_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_System =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_System",
     /* qualifiers */
@@ -17184,11 +17184,11 @@ _CIM_SystemComponent_GroupComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SystemComponent_GroupComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_AGGREGATE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_AGGREGATE|SCHEMA_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -17207,11 +17207,11 @@ _CIM_SystemComponent_PartComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SystemComponent_PartComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -17222,11 +17222,11 @@ _CIM_SystemComponent_PartComponent =
     &__root_PG_InterOp_CIM_ManagedSystemElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SystemComponent_features[] =
 {
-    (MetaFeature*)&_CIM_SystemComponent_GroupComponent,
-    (MetaFeature*)&_CIM_SystemComponent_PartComponent,
+    (SchemaFeature*)&_CIM_SystemComponent_GroupComponent,
+    (SchemaFeature*)&_CIM_SystemComponent_PartComponent,
     0,
 };
 
@@ -17244,11 +17244,11 @@ __root_PG_InterOp_CIM_SystemComponent_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SystemComponent =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_SystemComponent",
     /* qualifiers */
@@ -17279,11 +17279,11 @@ _CIM_SystemDevice_GroupComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SystemDevice_GroupComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_AGGREGATE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_AGGREGATE|SCHEMA_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -17304,11 +17304,11 @@ _CIM_SystemDevice_PartComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SystemDevice_PartComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ|META_FLAG_WEAK,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ|SCHEMA_FLAG_WEAK,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -17319,11 +17319,11 @@ _CIM_SystemDevice_PartComponent =
     &__root_PG_InterOp_CIM_LogicalDevice,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SystemDevice_features[] =
 {
-    (MetaFeature*)&_CIM_SystemDevice_GroupComponent,
-    (MetaFeature*)&_CIM_SystemDevice_PartComponent,
+    (SchemaFeature*)&_CIM_SystemDevice_GroupComponent,
+    (SchemaFeature*)&_CIM_SystemDevice_PartComponent,
     0,
 };
 
@@ -17343,11 +17343,11 @@ __root_PG_InterOp_CIM_SystemDevice_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SystemDevice =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_SystemDevice",
     /* qualifiers */
@@ -17372,11 +17372,11 @@ _CIM_SystemPackaging_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SystemPackaging_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -17395,11 +17395,11 @@ _CIM_SystemPackaging_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SystemPackaging_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -17410,11 +17410,11 @@ _CIM_SystemPackaging_Dependent =
     &__root_PG_InterOp_CIM_System,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SystemPackaging_features[] =
 {
-    (MetaFeature*)&_CIM_SystemPackaging_Antecedent,
-    (MetaFeature*)&_CIM_SystemPackaging_Dependent,
+    (SchemaFeature*)&_CIM_SystemPackaging_Antecedent,
+    (SchemaFeature*)&_CIM_SystemPackaging_Dependent,
     0,
 };
 
@@ -17430,11 +17430,11 @@ __root_PG_InterOp_CIM_SystemPackaging_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SystemPackaging =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_SystemPackaging",
     /* qualifiers */
@@ -17461,11 +17461,11 @@ _CIM_SystemStatistics_Stats_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SystemStatistics_Stats =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ|META_FLAG_WEAK,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ|SCHEMA_FLAG_WEAK,
     /* name */
     "Stats",
     /* qualifiers */
@@ -17488,11 +17488,11 @@ _CIM_SystemStatistics_Element_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SystemStatistics_Element =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Element",
     /* qualifiers */
@@ -17503,11 +17503,11 @@ _CIM_SystemStatistics_Element =
     &__root_PG_InterOp_CIM_System,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SystemStatistics_features[] =
 {
-    (MetaFeature*)&_CIM_SystemStatistics_Stats,
-    (MetaFeature*)&_CIM_SystemStatistics_Element,
+    (SchemaFeature*)&_CIM_SystemStatistics_Stats,
+    (SchemaFeature*)&_CIM_SystemStatistics_Element,
     0,
 };
 
@@ -17523,11 +17523,11 @@ __root_PG_InterOp_CIM_SystemStatistics_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SystemStatistics =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_SystemStatistics",
     /* qualifiers */
@@ -17558,11 +17558,11 @@ _CIM_AdminDomain_NameFormat_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_AdminDomain_NameFormat =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "NameFormat",
     /* qualifiers */
@@ -17575,10 +17575,10 @@ _CIM_AdminDomain_NameFormat =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_AdminDomain_features[] =
 {
-    (MetaFeature*)&_CIM_AdminDomain_NameFormat,
+    (SchemaFeature*)&_CIM_AdminDomain_NameFormat,
     0,
 };
 
@@ -17592,11 +17592,11 @@ __root_PG_InterOp_CIM_AdminDomain_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_AdminDomain =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_AdminDomain",
     /* qualifiers */
@@ -17621,11 +17621,11 @@ _CIM_BasedOn_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_BasedOn_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -17644,11 +17644,11 @@ _CIM_BasedOn_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_BasedOn_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -17665,11 +17665,11 @@ _CIM_BasedOn_StartingAddress_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_BasedOn_StartingAddress =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "StartingAddress",
     /* qualifiers */
@@ -17688,11 +17688,11 @@ _CIM_BasedOn_EndingAddress_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_BasedOn_EndingAddress =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "EndingAddress",
     /* qualifiers */
@@ -17711,11 +17711,11 @@ _CIM_BasedOn_OrderIndex_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_BasedOn_OrderIndex =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OrderIndex",
     /* qualifiers */
@@ -17728,14 +17728,14 @@ _CIM_BasedOn_OrderIndex =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_BasedOn_features[] =
 {
-    (MetaFeature*)&_CIM_BasedOn_Antecedent,
-    (MetaFeature*)&_CIM_BasedOn_Dependent,
-    (MetaFeature*)&_CIM_BasedOn_StartingAddress,
-    (MetaFeature*)&_CIM_BasedOn_EndingAddress,
-    (MetaFeature*)&_CIM_BasedOn_OrderIndex,
+    (SchemaFeature*)&_CIM_BasedOn_Antecedent,
+    (SchemaFeature*)&_CIM_BasedOn_Dependent,
+    (SchemaFeature*)&_CIM_BasedOn_StartingAddress,
+    (SchemaFeature*)&_CIM_BasedOn_EndingAddress,
+    (SchemaFeature*)&_CIM_BasedOn_OrderIndex,
     0,
 };
 
@@ -17751,11 +17751,11 @@ __root_PG_InterOp_CIM_BasedOn_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_BasedOn =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_BasedOn",
     /* qualifiers */
@@ -17784,11 +17784,11 @@ _CIM_ConfigurationForSystem_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ConfigurationForSystem_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -17809,11 +17809,11 @@ _CIM_ConfigurationForSystem_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ConfigurationForSystem_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ|META_FLAG_WEAK,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ|SCHEMA_FLAG_WEAK,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -17824,11 +17824,11 @@ _CIM_ConfigurationForSystem_Dependent =
     &__root_PG_InterOp_CIM_SystemConfiguration,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ConfigurationForSystem_features[] =
 {
-    (MetaFeature*)&_CIM_ConfigurationForSystem_Antecedent,
-    (MetaFeature*)&_CIM_ConfigurationForSystem_Dependent,
+    (SchemaFeature*)&_CIM_ConfigurationForSystem_Antecedent,
+    (SchemaFeature*)&_CIM_ConfigurationForSystem_Dependent,
     0,
 };
 
@@ -17844,11 +17844,11 @@ __root_PG_InterOp_CIM_ConfigurationForSystem_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ConfigurationForSystem =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ConfigurationForSystem",
     /* qualifiers */
@@ -17875,11 +17875,11 @@ _CIM_ContainedDomain_GroupComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ContainedDomain_GroupComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_AGGREGATE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_AGGREGATE|SCHEMA_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -17898,11 +17898,11 @@ _CIM_ContainedDomain_PartComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ContainedDomain_PartComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -17913,11 +17913,11 @@ _CIM_ContainedDomain_PartComponent =
     &__root_PG_InterOp_CIM_AdminDomain,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ContainedDomain_features[] =
 {
-    (MetaFeature*)&_CIM_ContainedDomain_GroupComponent,
-    (MetaFeature*)&_CIM_ContainedDomain_PartComponent,
+    (SchemaFeature*)&_CIM_ContainedDomain_GroupComponent,
+    (SchemaFeature*)&_CIM_ContainedDomain_PartComponent,
     0,
 };
 
@@ -17935,11 +17935,11 @@ __root_PG_InterOp_CIM_ContainedDomain_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ContainedDomain =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_ContainedDomain",
     /* qualifiers */
@@ -17964,11 +17964,11 @@ _CIM_DeviceSAPImplementation_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_DeviceSAPImplementation_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -17987,11 +17987,11 @@ _CIM_DeviceSAPImplementation_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_DeviceSAPImplementation_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -18002,11 +18002,11 @@ _CIM_DeviceSAPImplementation_Dependent =
     &__root_PG_InterOp_CIM_ServiceAccessPoint,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_DeviceSAPImplementation_features[] =
 {
-    (MetaFeature*)&_CIM_DeviceSAPImplementation_Antecedent,
-    (MetaFeature*)&_CIM_DeviceSAPImplementation_Dependent,
+    (SchemaFeature*)&_CIM_DeviceSAPImplementation_Antecedent,
+    (SchemaFeature*)&_CIM_DeviceSAPImplementation_Dependent,
     0,
 };
 
@@ -18022,11 +18022,11 @@ __root_PG_InterOp_CIM_DeviceSAPImplementation_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_DeviceSAPImplementation =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_DeviceSAPImplementation",
     /* qualifiers */
@@ -18051,11 +18051,11 @@ _CIM_DeviceServiceImplementation_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_DeviceServiceImplementation_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -18074,11 +18074,11 @@ _CIM_DeviceServiceImplementation_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_DeviceServiceImplementation_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -18089,11 +18089,11 @@ _CIM_DeviceServiceImplementation_Dependent =
     &__root_PG_InterOp_CIM_Service,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_DeviceServiceImplementation_features[] =
 {
-    (MetaFeature*)&_CIM_DeviceServiceImplementation_Antecedent,
-    (MetaFeature*)&_CIM_DeviceServiceImplementation_Dependent,
+    (SchemaFeature*)&_CIM_DeviceServiceImplementation_Antecedent,
+    (SchemaFeature*)&_CIM_DeviceServiceImplementation_Dependent,
     0,
 };
 
@@ -18109,11 +18109,11 @@ __root_PG_InterOp_CIM_DeviceServiceImplementation_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_DeviceServiceImplementation =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_DeviceServiceImplementation",
     /* qualifiers */
@@ -18140,11 +18140,11 @@ _CIM_DeviceStatistics_Stats_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_DeviceStatistics_Stats =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ|META_FLAG_WEAK,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ|SCHEMA_FLAG_WEAK,
     /* name */
     "Stats",
     /* qualifiers */
@@ -18167,11 +18167,11 @@ _CIM_DeviceStatistics_Element_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_DeviceStatistics_Element =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Element",
     /* qualifiers */
@@ -18182,11 +18182,11 @@ _CIM_DeviceStatistics_Element =
     &__root_PG_InterOp_CIM_LogicalDevice,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_DeviceStatistics_features[] =
 {
-    (MetaFeature*)&_CIM_DeviceStatistics_Stats,
-    (MetaFeature*)&_CIM_DeviceStatistics_Element,
+    (SchemaFeature*)&_CIM_DeviceStatistics_Stats,
+    (SchemaFeature*)&_CIM_DeviceStatistics_Element,
     0,
 };
 
@@ -18202,11 +18202,11 @@ __root_PG_InterOp_CIM_DeviceStatistics_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_DeviceStatistics =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_DeviceStatistics",
     /* qualifiers */
@@ -18235,11 +18235,11 @@ _CIM_ExtentRedundancyComponent_GroupComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ExtentRedundancyComponent_GroupComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_AGGREGATE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_AGGREGATE|SCHEMA_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -18260,11 +18260,11 @@ _CIM_ExtentRedundancyComponent_PartComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ExtentRedundancyComponent_PartComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -18275,11 +18275,11 @@ _CIM_ExtentRedundancyComponent_PartComponent =
     &__root_PG_InterOp_CIM_StorageExtent,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ExtentRedundancyComponent_features[] =
 {
-    (MetaFeature*)&_CIM_ExtentRedundancyComponent_GroupComponent,
-    (MetaFeature*)&_CIM_ExtentRedundancyComponent_PartComponent,
+    (SchemaFeature*)&_CIM_ExtentRedundancyComponent_GroupComponent,
+    (SchemaFeature*)&_CIM_ExtentRedundancyComponent_PartComponent,
     0,
 };
 
@@ -18299,11 +18299,11 @@ __root_PG_InterOp_CIM_ExtentRedundancyComponent_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ExtentRedundancyComponent =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_ExtentRedundancyComponent",
     /* qualifiers */
@@ -18332,11 +18332,11 @@ _CIM_HostedAccessPoint_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_HostedAccessPoint_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -18357,11 +18357,11 @@ _CIM_HostedAccessPoint_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_HostedAccessPoint_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ|META_FLAG_WEAK,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ|SCHEMA_FLAG_WEAK,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -18372,11 +18372,11 @@ _CIM_HostedAccessPoint_Dependent =
     &__root_PG_InterOp_CIM_ServiceAccessPoint,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_HostedAccessPoint_features[] =
 {
-    (MetaFeature*)&_CIM_HostedAccessPoint_Antecedent,
-    (MetaFeature*)&_CIM_HostedAccessPoint_Dependent,
+    (SchemaFeature*)&_CIM_HostedAccessPoint_Antecedent,
+    (SchemaFeature*)&_CIM_HostedAccessPoint_Dependent,
     0,
 };
 
@@ -18392,11 +18392,11 @@ __root_PG_InterOp_CIM_HostedAccessPoint_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_HostedAccessPoint =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_HostedAccessPoint",
     /* qualifiers */
@@ -18425,11 +18425,11 @@ _CIM_HostedCollection_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_HostedCollection_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -18448,11 +18448,11 @@ _CIM_HostedCollection_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_HostedCollection_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -18463,11 +18463,11 @@ _CIM_HostedCollection_Dependent =
     &__root_PG_InterOp_CIM_SystemSpecificCollection,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_HostedCollection_features[] =
 {
-    (MetaFeature*)&_CIM_HostedCollection_Antecedent,
-    (MetaFeature*)&_CIM_HostedCollection_Dependent,
+    (SchemaFeature*)&_CIM_HostedCollection_Antecedent,
+    (SchemaFeature*)&_CIM_HostedCollection_Dependent,
     0,
 };
 
@@ -18483,11 +18483,11 @@ __root_PG_InterOp_CIM_HostedCollection_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_HostedCollection =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_HostedCollection",
     /* qualifiers */
@@ -18516,11 +18516,11 @@ _CIM_HostedService_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_HostedService_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -18541,11 +18541,11 @@ _CIM_HostedService_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_HostedService_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ|META_FLAG_WEAK,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ|SCHEMA_FLAG_WEAK,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -18556,11 +18556,11 @@ _CIM_HostedService_Dependent =
     &__root_PG_InterOp_CIM_Service,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_HostedService_features[] =
 {
-    (MetaFeature*)&_CIM_HostedService_Antecedent,
-    (MetaFeature*)&_CIM_HostedService_Dependent,
+    (SchemaFeature*)&_CIM_HostedService_Antecedent,
+    (SchemaFeature*)&_CIM_HostedService_Dependent,
     0,
 };
 
@@ -18576,11 +18576,11 @@ __root_PG_InterOp_CIM_HostedService_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_HostedService =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_HostedService",
     /* qualifiers */
@@ -18605,11 +18605,11 @@ _CIM_InstalledSoftwareIdentity_System_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_InstalledSoftwareIdentity_System =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "System",
     /* qualifiers */
@@ -18628,11 +18628,11 @@ _CIM_InstalledSoftwareIdentity_InstalledSoftware_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_InstalledSoftwareIdentity_InstalledSoftware =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "InstalledSoftware",
     /* qualifiers */
@@ -18643,11 +18643,11 @@ _CIM_InstalledSoftwareIdentity_InstalledSoftware =
     &__root_PG_InterOp_CIM_SoftwareIdentity,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_InstalledSoftwareIdentity_features[] =
 {
-    (MetaFeature*)&_CIM_InstalledSoftwareIdentity_System,
-    (MetaFeature*)&_CIM_InstalledSoftwareIdentity_InstalledSoftware,
+    (SchemaFeature*)&_CIM_InstalledSoftwareIdentity_System,
+    (SchemaFeature*)&_CIM_InstalledSoftwareIdentity_InstalledSoftware,
     0,
 };
 
@@ -18663,11 +18663,11 @@ __root_PG_InterOp_CIM_InstalledSoftwareIdentity_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_InstalledSoftwareIdentity =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_InstalledSoftwareIdentity",
     /* qualifiers */
@@ -18696,11 +18696,11 @@ _CIM_PowerManagementService_SetPowerState_PowerState_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PowerManagementService_SetPowerState_PowerState =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "PowerState",
     /* qualifiers */
@@ -18721,11 +18721,11 @@ _CIM_PowerManagementService_SetPowerState_ManagedElement_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_PowerManagementService_SetPowerState_ManagedElement =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_IN,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_IN,
     /* name */
     "ManagedElement",
     /* qualifiers */
@@ -18744,11 +18744,11 @@ _CIM_PowerManagementService_SetPowerState_Time_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_PowerManagementService_SetPowerState_Time =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "Time",
     /* qualifiers */
@@ -18761,12 +18761,12 @@ _CIM_PowerManagementService_SetPowerState_Time =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_PowerManagementService_SetPowerState_parameters[] =
 {
-    (MetaFeature*)&_CIM_PowerManagementService_SetPowerState_PowerState,
-    (MetaFeature*)&_CIM_PowerManagementService_SetPowerState_ManagedElement,
-    (MetaFeature*)&_CIM_PowerManagementService_SetPowerState_Time,
+    (SchemaFeature*)&_CIM_PowerManagementService_SetPowerState_PowerState,
+    (SchemaFeature*)&_CIM_PowerManagementService_SetPowerState_ManagedElement,
+    (SchemaFeature*)&_CIM_PowerManagementService_SetPowerState_Time,
     0,
 };
 
@@ -18776,11 +18776,11 @@ _CIM_PowerManagementService_SetPowerState_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_PowerManagementService_SetPowerState =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_PowerManagementService",
     /* qualifiers */
@@ -18791,10 +18791,10 @@ _CIM_PowerManagementService_SetPowerState =
     _CIM_PowerManagementService_SetPowerState_parameters,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_PowerManagementService_features[] =
 {
-    (MetaFeature*)&_CIM_PowerManagementService_SetPowerState,
+    (SchemaFeature*)&_CIM_PowerManagementService_SetPowerState,
     0,
 };
 
@@ -18808,11 +18808,11 @@ __root_PG_InterOp_CIM_PowerManagementService_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_PowerManagementService =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_PowerManagementService",
     /* qualifiers */
@@ -18841,11 +18841,11 @@ _CIM_ProductServiceComponent_GroupComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ProductServiceComponent_GroupComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_AGGREGATE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_AGGREGATE|SCHEMA_FLAG_READ,
     /* name */
     "GroupComponent",
     /* qualifiers */
@@ -18864,11 +18864,11 @@ _CIM_ProductServiceComponent_PartComponent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ProductServiceComponent_PartComponent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "PartComponent",
     /* qualifiers */
@@ -18879,11 +18879,11 @@ _CIM_ProductServiceComponent_PartComponent =
     &__root_PG_InterOp_CIM_Service,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ProductServiceComponent_features[] =
 {
-    (MetaFeature*)&_CIM_ProductServiceComponent_GroupComponent,
-    (MetaFeature*)&_CIM_ProductServiceComponent_PartComponent,
+    (SchemaFeature*)&_CIM_ProductServiceComponent_GroupComponent,
+    (SchemaFeature*)&_CIM_ProductServiceComponent_PartComponent,
     0,
 };
 
@@ -18903,11 +18903,11 @@ __root_PG_InterOp_CIM_ProductServiceComponent_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ProductServiceComponent =
 {
     /* flags */
-    META_FLAG_ASSOCIATION|META_FLAG_AGGREGATION,
+    SCHEMA_FLAG_ASSOCIATION|SCHEMA_FLAG_AGGREGATION,
     /* name */
     "CIM_ProductServiceComponent",
     /* qualifiers */
@@ -18934,11 +18934,11 @@ _CIM_ProtocolEndpoint_Description_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ProtocolEndpoint_Description =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Description",
     /* qualifiers */
@@ -18961,11 +18961,11 @@ _CIM_ProtocolEndpoint_OperationalStatus_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ProtocolEndpoint_OperationalStatus =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OperationalStatus",
     /* qualifiers */
@@ -18988,11 +18988,11 @@ _CIM_ProtocolEndpoint_EnabledState_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ProtocolEndpoint_EnabledState =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "EnabledState",
     /* qualifiers */
@@ -19015,11 +19015,11 @@ _CIM_ProtocolEndpoint_TimeOfLastStateChange_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ProtocolEndpoint_TimeOfLastStateChange =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "TimeOfLastStateChange",
     /* qualifiers */
@@ -19042,11 +19042,11 @@ _CIM_ProtocolEndpoint_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ProtocolEndpoint_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -19067,11 +19067,11 @@ _CIM_ProtocolEndpoint_NameFormat_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ProtocolEndpoint_NameFormat =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "NameFormat",
     /* qualifiers */
@@ -19098,11 +19098,11 @@ _CIM_ProtocolEndpoint_ProtocolType_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ProtocolEndpoint_ProtocolType =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ProtocolType",
     /* qualifiers */
@@ -19129,11 +19129,11 @@ _CIM_ProtocolEndpoint_ProtocolIFType_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ProtocolEndpoint_ProtocolIFType =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ProtocolIFType",
     /* qualifiers */
@@ -19156,11 +19156,11 @@ _CIM_ProtocolEndpoint_OtherTypeDescription_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ProtocolEndpoint_OtherTypeDescription =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherTypeDescription",
     /* qualifiers */
@@ -19173,18 +19173,18 @@ _CIM_ProtocolEndpoint_OtherTypeDescription =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ProtocolEndpoint_features[] =
 {
-    (MetaFeature*)&_CIM_ProtocolEndpoint_Description,
-    (MetaFeature*)&_CIM_ProtocolEndpoint_OperationalStatus,
-    (MetaFeature*)&_CIM_ProtocolEndpoint_EnabledState,
-    (MetaFeature*)&_CIM_ProtocolEndpoint_TimeOfLastStateChange,
-    (MetaFeature*)&_CIM_ProtocolEndpoint_Name,
-    (MetaFeature*)&_CIM_ProtocolEndpoint_NameFormat,
-    (MetaFeature*)&_CIM_ProtocolEndpoint_ProtocolType,
-    (MetaFeature*)&_CIM_ProtocolEndpoint_ProtocolIFType,
-    (MetaFeature*)&_CIM_ProtocolEndpoint_OtherTypeDescription,
+    (SchemaFeature*)&_CIM_ProtocolEndpoint_Description,
+    (SchemaFeature*)&_CIM_ProtocolEndpoint_OperationalStatus,
+    (SchemaFeature*)&_CIM_ProtocolEndpoint_EnabledState,
+    (SchemaFeature*)&_CIM_ProtocolEndpoint_TimeOfLastStateChange,
+    (SchemaFeature*)&_CIM_ProtocolEndpoint_Name,
+    (SchemaFeature*)&_CIM_ProtocolEndpoint_NameFormat,
+    (SchemaFeature*)&_CIM_ProtocolEndpoint_ProtocolType,
+    (SchemaFeature*)&_CIM_ProtocolEndpoint_ProtocolIFType,
+    (SchemaFeature*)&_CIM_ProtocolEndpoint_OtherTypeDescription,
     0,
 };
 
@@ -19198,11 +19198,11 @@ __root_PG_InterOp_CIM_ProtocolEndpoint_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ProtocolEndpoint =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_ProtocolEndpoint",
     /* qualifiers */
@@ -19229,11 +19229,11 @@ _CIM_ProvidesServiceToElement_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ProvidesServiceToElement_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -19254,11 +19254,11 @@ _CIM_ProvidesServiceToElement_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ProvidesServiceToElement_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -19269,11 +19269,11 @@ _CIM_ProvidesServiceToElement_Dependent =
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ProvidesServiceToElement_features[] =
 {
-    (MetaFeature*)&_CIM_ProvidesServiceToElement_Antecedent,
-    (MetaFeature*)&_CIM_ProvidesServiceToElement_Dependent,
+    (SchemaFeature*)&_CIM_ProvidesServiceToElement_Antecedent,
+    (SchemaFeature*)&_CIM_ProvidesServiceToElement_Dependent,
     0,
 };
 
@@ -19291,11 +19291,11 @@ __root_PG_InterOp_CIM_ProvidesServiceToElement_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ProvidesServiceToElement =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ProvidesServiceToElement",
     /* qualifiers */
@@ -19320,11 +19320,11 @@ _CIM_RemoteServiceAccessPoint_AccessInfo_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RemoteServiceAccessPoint_AccessInfo =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "AccessInfo",
     /* qualifiers */
@@ -19349,11 +19349,11 @@ _CIM_RemoteServiceAccessPoint_InfoFormat_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RemoteServiceAccessPoint_InfoFormat =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "InfoFormat",
     /* qualifiers */
@@ -19374,11 +19374,11 @@ _CIM_RemoteServiceAccessPoint_OtherInfoFormatDescription_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RemoteServiceAccessPoint_OtherInfoFormatDescription =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherInfoFormatDescription",
     /* qualifiers */
@@ -19391,12 +19391,12 @@ _CIM_RemoteServiceAccessPoint_OtherInfoFormatDescription =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_RemoteServiceAccessPoint_features[] =
 {
-    (MetaFeature*)&_CIM_RemoteServiceAccessPoint_AccessInfo,
-    (MetaFeature*)&_CIM_RemoteServiceAccessPoint_InfoFormat,
-    (MetaFeature*)&_CIM_RemoteServiceAccessPoint_OtherInfoFormatDescription,
+    (SchemaFeature*)&_CIM_RemoteServiceAccessPoint_AccessInfo,
+    (SchemaFeature*)&_CIM_RemoteServiceAccessPoint_InfoFormat,
+    (SchemaFeature*)&_CIM_RemoteServiceAccessPoint_OtherInfoFormatDescription,
     0,
 };
 
@@ -19410,11 +19410,11 @@ __root_PG_InterOp_CIM_RemoteServiceAccessPoint_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_RemoteServiceAccessPoint =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_RemoteServiceAccessPoint",
     /* qualifiers */
@@ -19439,11 +19439,11 @@ _CIM_SAPAvailableForElement_AvailableSAP_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SAPAvailableForElement_AvailableSAP =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "AvailableSAP",
     /* qualifiers */
@@ -19462,11 +19462,11 @@ _CIM_SAPAvailableForElement_ManagedElement_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SAPAvailableForElement_ManagedElement =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "ManagedElement",
     /* qualifiers */
@@ -19477,11 +19477,11 @@ _CIM_SAPAvailableForElement_ManagedElement =
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SAPAvailableForElement_features[] =
 {
-    (MetaFeature*)&_CIM_SAPAvailableForElement_AvailableSAP,
-    (MetaFeature*)&_CIM_SAPAvailableForElement_ManagedElement,
+    (SchemaFeature*)&_CIM_SAPAvailableForElement_AvailableSAP,
+    (SchemaFeature*)&_CIM_SAPAvailableForElement_ManagedElement,
     0,
 };
 
@@ -19497,11 +19497,11 @@ __root_PG_InterOp_CIM_SAPAvailableForElement_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SAPAvailableForElement =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_SAPAvailableForElement",
     /* qualifiers */
@@ -19526,11 +19526,11 @@ _CIM_SAPSAPDependency_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SAPSAPDependency_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -19549,11 +19549,11 @@ _CIM_SAPSAPDependency_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SAPSAPDependency_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -19564,11 +19564,11 @@ _CIM_SAPSAPDependency_Dependent =
     &__root_PG_InterOp_CIM_ServiceAccessPoint,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SAPSAPDependency_features[] =
 {
-    (MetaFeature*)&_CIM_SAPSAPDependency_Antecedent,
-    (MetaFeature*)&_CIM_SAPSAPDependency_Dependent,
+    (SchemaFeature*)&_CIM_SAPSAPDependency_Antecedent,
+    (SchemaFeature*)&_CIM_SAPSAPDependency_Dependent,
     0,
 };
 
@@ -19584,11 +19584,11 @@ __root_PG_InterOp_CIM_SAPSAPDependency_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SAPSAPDependency =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_SAPSAPDependency",
     /* qualifiers */
@@ -19615,11 +19615,11 @@ _CIM_SAPStatistics_Stats_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SAPStatistics_Stats =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ|META_FLAG_WEAK,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ|SCHEMA_FLAG_WEAK,
     /* name */
     "Stats",
     /* qualifiers */
@@ -19642,11 +19642,11 @@ _CIM_SAPStatistics_Element_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SAPStatistics_Element =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Element",
     /* qualifiers */
@@ -19657,11 +19657,11 @@ _CIM_SAPStatistics_Element =
     &__root_PG_InterOp_CIM_ServiceAccessPoint,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SAPStatistics_features[] =
 {
-    (MetaFeature*)&_CIM_SAPStatistics_Stats,
-    (MetaFeature*)&_CIM_SAPStatistics_Element,
+    (SchemaFeature*)&_CIM_SAPStatistics_Stats,
+    (SchemaFeature*)&_CIM_SAPStatistics_Element,
     0,
 };
 
@@ -19677,11 +19677,11 @@ __root_PG_InterOp_CIM_SAPStatistics_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SAPStatistics =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_SAPStatistics",
     /* qualifiers */
@@ -19706,11 +19706,11 @@ _CIM_ServiceAccessBySAP_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ServiceAccessBySAP_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -19729,11 +19729,11 @@ _CIM_ServiceAccessBySAP_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ServiceAccessBySAP_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -19744,11 +19744,11 @@ _CIM_ServiceAccessBySAP_Dependent =
     &__root_PG_InterOp_CIM_ServiceAccessPoint,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ServiceAccessBySAP_features[] =
 {
-    (MetaFeature*)&_CIM_ServiceAccessBySAP_Antecedent,
-    (MetaFeature*)&_CIM_ServiceAccessBySAP_Dependent,
+    (SchemaFeature*)&_CIM_ServiceAccessBySAP_Antecedent,
+    (SchemaFeature*)&_CIM_ServiceAccessBySAP_Dependent,
     0,
 };
 
@@ -19764,11 +19764,11 @@ __root_PG_InterOp_CIM_ServiceAccessBySAP_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ServiceAccessBySAP =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ServiceAccessBySAP",
     /* qualifiers */
@@ -19793,11 +19793,11 @@ _CIM_ServiceServiceDependency_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ServiceServiceDependency_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -19816,11 +19816,11 @@ _CIM_ServiceServiceDependency_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ServiceServiceDependency_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -19841,11 +19841,11 @@ _CIM_ServiceServiceDependency_TypeOfDependency_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ServiceServiceDependency_TypeOfDependency =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "TypeOfDependency",
     /* qualifiers */
@@ -19864,11 +19864,11 @@ _CIM_ServiceServiceDependency_RestartService_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ServiceServiceDependency_RestartService =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "RestartService",
     /* qualifiers */
@@ -19881,13 +19881,13 @@ _CIM_ServiceServiceDependency_RestartService =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ServiceServiceDependency_features[] =
 {
-    (MetaFeature*)&_CIM_ServiceServiceDependency_Antecedent,
-    (MetaFeature*)&_CIM_ServiceServiceDependency_Dependent,
-    (MetaFeature*)&_CIM_ServiceServiceDependency_TypeOfDependency,
-    (MetaFeature*)&_CIM_ServiceServiceDependency_RestartService,
+    (SchemaFeature*)&_CIM_ServiceServiceDependency_Antecedent,
+    (SchemaFeature*)&_CIM_ServiceServiceDependency_Dependent,
+    (SchemaFeature*)&_CIM_ServiceServiceDependency_TypeOfDependency,
+    (SchemaFeature*)&_CIM_ServiceServiceDependency_RestartService,
     0,
 };
 
@@ -19903,11 +19903,11 @@ __root_PG_InterOp_CIM_ServiceServiceDependency_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ServiceServiceDependency =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ServiceServiceDependency",
     /* qualifiers */
@@ -19936,11 +19936,11 @@ _CIM_SettingForSystem_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SettingForSystem_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -19961,11 +19961,11 @@ _CIM_SettingForSystem_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SettingForSystem_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ|META_FLAG_WEAK,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ|SCHEMA_FLAG_WEAK,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -19976,11 +19976,11 @@ _CIM_SettingForSystem_Dependent =
     &__root_PG_InterOp_CIM_SystemSetting,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SettingForSystem_features[] =
 {
-    (MetaFeature*)&_CIM_SettingForSystem_Antecedent,
-    (MetaFeature*)&_CIM_SettingForSystem_Dependent,
+    (SchemaFeature*)&_CIM_SettingForSystem_Antecedent,
+    (SchemaFeature*)&_CIM_SettingForSystem_Dependent,
     0,
 };
 
@@ -19996,11 +19996,11 @@ __root_PG_InterOp_CIM_SettingForSystem_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SettingForSystem =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_SettingForSystem",
     /* qualifiers */
@@ -20025,11 +20025,11 @@ _CIM_ActiveConnection_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ActiveConnection_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -20048,11 +20048,11 @@ _CIM_ActiveConnection_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ActiveConnection_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -20077,11 +20077,11 @@ _CIM_ActiveConnection_TrafficType_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ActiveConnection_TrafficType =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "TrafficType",
     /* qualifiers */
@@ -20106,11 +20106,11 @@ _CIM_ActiveConnection_OtherTrafficDescription_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ActiveConnection_OtherTrafficDescription =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherTrafficDescription",
     /* qualifiers */
@@ -20129,11 +20129,11 @@ _CIM_ActiveConnection_IsUnidirectional_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ActiveConnection_IsUnidirectional =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "IsUnidirectional",
     /* qualifiers */
@@ -20146,14 +20146,14 @@ _CIM_ActiveConnection_IsUnidirectional =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ActiveConnection_features[] =
 {
-    (MetaFeature*)&_CIM_ActiveConnection_Antecedent,
-    (MetaFeature*)&_CIM_ActiveConnection_Dependent,
-    (MetaFeature*)&_CIM_ActiveConnection_TrafficType,
-    (MetaFeature*)&_CIM_ActiveConnection_OtherTrafficDescription,
-    (MetaFeature*)&_CIM_ActiveConnection_IsUnidirectional,
+    (SchemaFeature*)&_CIM_ActiveConnection_Antecedent,
+    (SchemaFeature*)&_CIM_ActiveConnection_Dependent,
+    (SchemaFeature*)&_CIM_ActiveConnection_TrafficType,
+    (SchemaFeature*)&_CIM_ActiveConnection_OtherTrafficDescription,
+    (SchemaFeature*)&_CIM_ActiveConnection_IsUnidirectional,
     0,
 };
 
@@ -20169,11 +20169,11 @@ __root_PG_InterOp_CIM_ActiveConnection_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ActiveConnection =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ActiveConnection",
     /* qualifiers */
@@ -20198,11 +20198,11 @@ _CIM_BindsTo_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_BindsTo_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -20221,11 +20221,11 @@ _CIM_BindsTo_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_BindsTo_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -20236,11 +20236,11 @@ _CIM_BindsTo_Dependent =
     &__root_PG_InterOp_CIM_ServiceAccessPoint,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_BindsTo_features[] =
 {
-    (MetaFeature*)&_CIM_BindsTo_Antecedent,
-    (MetaFeature*)&_CIM_BindsTo_Dependent,
+    (SchemaFeature*)&_CIM_BindsTo_Antecedent,
+    (SchemaFeature*)&_CIM_BindsTo_Dependent,
     0,
 };
 
@@ -20256,11 +20256,11 @@ __root_PG_InterOp_CIM_BindsTo_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_BindsTo =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_BindsTo",
     /* qualifiers */
@@ -20285,11 +20285,11 @@ _CIM_ProvidesEndpoint_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ProvidesEndpoint_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -20308,11 +20308,11 @@ _CIM_ProvidesEndpoint_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ProvidesEndpoint_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -20323,11 +20323,11 @@ _CIM_ProvidesEndpoint_Dependent =
     &__root_PG_InterOp_CIM_ProtocolEndpoint,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ProvidesEndpoint_features[] =
 {
-    (MetaFeature*)&_CIM_ProvidesEndpoint_Antecedent,
-    (MetaFeature*)&_CIM_ProvidesEndpoint_Dependent,
+    (SchemaFeature*)&_CIM_ProvidesEndpoint_Antecedent,
+    (SchemaFeature*)&_CIM_ProvidesEndpoint_Dependent,
     0,
 };
 
@@ -20343,11 +20343,11 @@ __root_PG_InterOp_CIM_ProvidesEndpoint_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ProvidesEndpoint =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ProvidesEndpoint",
     /* qualifiers */
@@ -20372,11 +20372,11 @@ _CIM_RemotePort_PortInfo_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RemotePort_PortInfo =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "PortInfo",
     /* qualifiers */
@@ -20401,11 +20401,11 @@ _CIM_RemotePort_PortProtocol_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RemotePort_PortProtocol =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "PortProtocol",
     /* qualifiers */
@@ -20426,11 +20426,11 @@ _CIM_RemotePort_OtherProtocolDescription_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RemotePort_OtherProtocolDescription =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherProtocolDescription",
     /* qualifiers */
@@ -20443,12 +20443,12 @@ _CIM_RemotePort_OtherProtocolDescription =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_RemotePort_features[] =
 {
-    (MetaFeature*)&_CIM_RemotePort_PortInfo,
-    (MetaFeature*)&_CIM_RemotePort_PortProtocol,
-    (MetaFeature*)&_CIM_RemotePort_OtherProtocolDescription,
+    (SchemaFeature*)&_CIM_RemotePort_PortInfo,
+    (SchemaFeature*)&_CIM_RemotePort_PortProtocol,
+    (SchemaFeature*)&_CIM_RemotePort_OtherProtocolDescription,
     0,
 };
 
@@ -20462,11 +20462,11 @@ __root_PG_InterOp_CIM_RemotePort_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_RemotePort =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_RemotePort",
     /* qualifiers */
@@ -20491,11 +20491,11 @@ _CIM_Indication_IndicationIdentifier_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Indication_IndicationIdentifier =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "IndicationIdentifier",
     /* qualifiers */
@@ -20518,11 +20518,11 @@ _CIM_Indication_CorrelatedIndications_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Indication_CorrelatedIndications =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "CorrelatedIndications",
     /* qualifiers */
@@ -20541,11 +20541,11 @@ _CIM_Indication_IndicationTime_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Indication_IndicationTime =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "IndicationTime",
     /* qualifiers */
@@ -20570,11 +20570,11 @@ _CIM_Indication_PerceivedSeverity_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Indication_PerceivedSeverity =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "PerceivedSeverity",
     /* qualifiers */
@@ -20595,11 +20595,11 @@ _CIM_Indication_OtherSeverity_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Indication_OtherSeverity =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherSeverity",
     /* qualifiers */
@@ -20612,14 +20612,14 @@ _CIM_Indication_OtherSeverity =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Indication_features[] =
 {
-    (MetaFeature*)&_CIM_Indication_IndicationIdentifier,
-    (MetaFeature*)&_CIM_Indication_CorrelatedIndications,
-    (MetaFeature*)&_CIM_Indication_IndicationTime,
-    (MetaFeature*)&_CIM_Indication_PerceivedSeverity,
-    (MetaFeature*)&_CIM_Indication_OtherSeverity,
+    (SchemaFeature*)&_CIM_Indication_IndicationIdentifier,
+    (SchemaFeature*)&_CIM_Indication_CorrelatedIndications,
+    (SchemaFeature*)&_CIM_Indication_IndicationTime,
+    (SchemaFeature*)&_CIM_Indication_PerceivedSeverity,
+    (SchemaFeature*)&_CIM_Indication_OtherSeverity,
     0,
 };
 
@@ -20637,11 +20637,11 @@ __root_PG_InterOp_CIM_Indication_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_Indication =
 {
     /* flags */
-    META_FLAG_INDICATION|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_INDICATION|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_Indication",
     /* qualifiers */
@@ -20668,11 +20668,11 @@ _CIM_ClassIndication_ClassDefinition_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ClassIndication_ClassDefinition =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_EMBEDDEDOBJECT|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_EMBEDDEDOBJECT|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "ClassDefinition",
     /* qualifiers */
@@ -20685,10 +20685,10 @@ _CIM_ClassIndication_ClassDefinition =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ClassIndication_features[] =
 {
-    (MetaFeature*)&_CIM_ClassIndication_ClassDefinition,
+    (SchemaFeature*)&_CIM_ClassIndication_ClassDefinition,
     0,
 };
 
@@ -20706,11 +20706,11 @@ __root_PG_InterOp_CIM_ClassIndication_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ClassIndication =
 {
     /* flags */
-    META_FLAG_INDICATION|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_INDICATION|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_ClassIndication",
     /* qualifiers */
@@ -20737,11 +20737,11 @@ _CIM_ClassModification_PreviousClassDefinition_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ClassModification_PreviousClassDefinition =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_EMBEDDEDOBJECT|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_EMBEDDEDOBJECT|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "PreviousClassDefinition",
     /* qualifiers */
@@ -20754,10 +20754,10 @@ _CIM_ClassModification_PreviousClassDefinition =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ClassModification_features[] =
 {
-    (MetaFeature*)&_CIM_ClassModification_PreviousClassDefinition,
+    (SchemaFeature*)&_CIM_ClassModification_PreviousClassDefinition,
     0,
 };
 
@@ -20773,11 +20773,11 @@ __root_PG_InterOp_CIM_ClassModification_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ClassModification =
 {
     /* flags */
-    META_FLAG_INDICATION,
+    SCHEMA_FLAG_INDICATION,
     /* name */
     "CIM_ClassModification",
     /* qualifiers */
@@ -20804,11 +20804,11 @@ _CIM_IndicationFilter_SystemCreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IndicationFilter_SystemCreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -20831,11 +20831,11 @@ _CIM_IndicationFilter_SystemName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IndicationFilter_SystemName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -20858,11 +20858,11 @@ _CIM_IndicationFilter_CreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IndicationFilter_CreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -20883,11 +20883,11 @@ _CIM_IndicationFilter_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IndicationFilter_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -20906,11 +20906,11 @@ _CIM_IndicationFilter_SourceNamespace_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IndicationFilter_SourceNamespace =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SourceNamespace",
     /* qualifiers */
@@ -20933,11 +20933,11 @@ _CIM_IndicationFilter_Query_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IndicationFilter_Query =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "Query",
     /* qualifiers */
@@ -20960,11 +20960,11 @@ _CIM_IndicationFilter_QueryLanguage_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IndicationFilter_QueryLanguage =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "QueryLanguage",
     /* qualifiers */
@@ -20977,16 +20977,16 @@ _CIM_IndicationFilter_QueryLanguage =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_IndicationFilter_features[] =
 {
-    (MetaFeature*)&_CIM_IndicationFilter_SystemCreationClassName,
-    (MetaFeature*)&_CIM_IndicationFilter_SystemName,
-    (MetaFeature*)&_CIM_IndicationFilter_CreationClassName,
-    (MetaFeature*)&_CIM_IndicationFilter_Name,
-    (MetaFeature*)&_CIM_IndicationFilter_SourceNamespace,
-    (MetaFeature*)&_CIM_IndicationFilter_Query,
-    (MetaFeature*)&_CIM_IndicationFilter_QueryLanguage,
+    (SchemaFeature*)&_CIM_IndicationFilter_SystemCreationClassName,
+    (SchemaFeature*)&_CIM_IndicationFilter_SystemName,
+    (SchemaFeature*)&_CIM_IndicationFilter_CreationClassName,
+    (SchemaFeature*)&_CIM_IndicationFilter_Name,
+    (SchemaFeature*)&_CIM_IndicationFilter_SourceNamespace,
+    (SchemaFeature*)&_CIM_IndicationFilter_Query,
+    (SchemaFeature*)&_CIM_IndicationFilter_QueryLanguage,
     0,
 };
 
@@ -21000,11 +21000,11 @@ __root_PG_InterOp_CIM_IndicationFilter_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_IndicationFilter =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_IndicationFilter",
     /* qualifiers */
@@ -21031,11 +21031,11 @@ _CIM_InstIndication_SourceInstance_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_InstIndication_SourceInstance =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_EMBEDDEDOBJECT|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_EMBEDDEDOBJECT|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "SourceInstance",
     /* qualifiers */
@@ -21056,11 +21056,11 @@ _CIM_InstIndication_SourceInstanceModelPath_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_InstIndication_SourceInstanceModelPath =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SourceInstanceModelPath",
     /* qualifiers */
@@ -21081,11 +21081,11 @@ _CIM_InstIndication_SourceInstanceHost_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_InstIndication_SourceInstanceHost =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SourceInstanceHost",
     /* qualifiers */
@@ -21098,12 +21098,12 @@ _CIM_InstIndication_SourceInstanceHost =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_InstIndication_features[] =
 {
-    (MetaFeature*)&_CIM_InstIndication_SourceInstance,
-    (MetaFeature*)&_CIM_InstIndication_SourceInstanceModelPath,
-    (MetaFeature*)&_CIM_InstIndication_SourceInstanceHost,
+    (SchemaFeature*)&_CIM_InstIndication_SourceInstance,
+    (SchemaFeature*)&_CIM_InstIndication_SourceInstanceModelPath,
+    (SchemaFeature*)&_CIM_InstIndication_SourceInstanceHost,
     0,
 };
 
@@ -21121,11 +21121,11 @@ __root_PG_InterOp_CIM_InstIndication_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_InstIndication =
 {
     /* flags */
-    META_FLAG_INDICATION|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_INDICATION|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_InstIndication",
     /* qualifiers */
@@ -21150,11 +21150,11 @@ _CIM_InstMethodCall_MethodName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_InstMethodCall_MethodName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "MethodName",
     /* qualifiers */
@@ -21175,11 +21175,11 @@ _CIM_InstMethodCall_MethodParameters_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_InstMethodCall_MethodParameters =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_EMBEDDEDOBJECT|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_EMBEDDEDOBJECT|SCHEMA_FLAG_READ,
     /* name */
     "MethodParameters",
     /* qualifiers */
@@ -21200,11 +21200,11 @@ _CIM_InstMethodCall_ReturnValue_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_InstMethodCall_ReturnValue =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ReturnValue",
     /* qualifiers */
@@ -21225,11 +21225,11 @@ _CIM_InstMethodCall_PreCall_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_InstMethodCall_PreCall =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "PreCall",
     /* qualifiers */
@@ -21242,13 +21242,13 @@ _CIM_InstMethodCall_PreCall =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_InstMethodCall_features[] =
 {
-    (MetaFeature*)&_CIM_InstMethodCall_MethodName,
-    (MetaFeature*)&_CIM_InstMethodCall_MethodParameters,
-    (MetaFeature*)&_CIM_InstMethodCall_ReturnValue,
-    (MetaFeature*)&_CIM_InstMethodCall_PreCall,
+    (SchemaFeature*)&_CIM_InstMethodCall_MethodName,
+    (SchemaFeature*)&_CIM_InstMethodCall_MethodParameters,
+    (SchemaFeature*)&_CIM_InstMethodCall_ReturnValue,
+    (SchemaFeature*)&_CIM_InstMethodCall_PreCall,
     0,
 };
 
@@ -21264,11 +21264,11 @@ __root_PG_InterOp_CIM_InstMethodCall_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_InstMethodCall =
 {
     /* flags */
-    META_FLAG_INDICATION,
+    SCHEMA_FLAG_INDICATION,
     /* name */
     "CIM_InstMethodCall",
     /* qualifiers */
@@ -21295,11 +21295,11 @@ _CIM_InstModification_PreviousInstance_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_InstModification_PreviousInstance =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_EMBEDDEDOBJECT|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_EMBEDDEDOBJECT|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "PreviousInstance",
     /* qualifiers */
@@ -21312,10 +21312,10 @@ _CIM_InstModification_PreviousInstance =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_InstModification_features[] =
 {
-    (MetaFeature*)&_CIM_InstModification_PreviousInstance,
+    (SchemaFeature*)&_CIM_InstModification_PreviousInstance,
     0,
 };
 
@@ -21331,11 +21331,11 @@ __root_PG_InterOp_CIM_InstModification_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_InstModification =
 {
     /* flags */
-    META_FLAG_INDICATION,
+    SCHEMA_FLAG_INDICATION,
     /* name */
     "CIM_InstModification",
     /* qualifiers */
@@ -21352,7 +21352,7 @@ __root_PG_InterOp_CIM_InstModification =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_InstRead_features[] =
 {
     0,
@@ -21370,11 +21370,11 @@ __root_PG_InterOp_CIM_InstRead_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_InstRead =
 {
     /* flags */
-    META_FLAG_INDICATION,
+    SCHEMA_FLAG_INDICATION,
     /* name */
     "CIM_InstRead",
     /* qualifiers */
@@ -21401,11 +21401,11 @@ _CIM_ListenerDestination_SystemCreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ListenerDestination_SystemCreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -21428,11 +21428,11 @@ _CIM_ListenerDestination_SystemName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ListenerDestination_SystemName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -21455,11 +21455,11 @@ _CIM_ListenerDestination_CreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ListenerDestination_CreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -21482,11 +21482,11 @@ _CIM_ListenerDestination_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ListenerDestination_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -21511,11 +21511,11 @@ _CIM_ListenerDestination_PersistenceType_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ListenerDestination_PersistenceType =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "PersistenceType",
     /* qualifiers */
@@ -21536,11 +21536,11 @@ _CIM_ListenerDestination_OtherPersistenceType_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ListenerDestination_OtherPersistenceType =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherPersistenceType",
     /* qualifiers */
@@ -21553,15 +21553,15 @@ _CIM_ListenerDestination_OtherPersistenceType =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ListenerDestination_features[] =
 {
-    (MetaFeature*)&_CIM_ListenerDestination_SystemCreationClassName,
-    (MetaFeature*)&_CIM_ListenerDestination_SystemName,
-    (MetaFeature*)&_CIM_ListenerDestination_CreationClassName,
-    (MetaFeature*)&_CIM_ListenerDestination_Name,
-    (MetaFeature*)&_CIM_ListenerDestination_PersistenceType,
-    (MetaFeature*)&_CIM_ListenerDestination_OtherPersistenceType,
+    (SchemaFeature*)&_CIM_ListenerDestination_SystemCreationClassName,
+    (SchemaFeature*)&_CIM_ListenerDestination_SystemName,
+    (SchemaFeature*)&_CIM_ListenerDestination_CreationClassName,
+    (SchemaFeature*)&_CIM_ListenerDestination_Name,
+    (SchemaFeature*)&_CIM_ListenerDestination_PersistenceType,
+    (SchemaFeature*)&_CIM_ListenerDestination_OtherPersistenceType,
     0,
 };
 
@@ -21577,11 +21577,11 @@ __root_PG_InterOp_CIM_ListenerDestination_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ListenerDestination =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_ListenerDestination",
     /* qualifiers */
@@ -21606,11 +21606,11 @@ _CIM_ListenerDestinationCIMXML_Destination_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ListenerDestinationCIMXML_Destination =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "Destination",
     /* qualifiers */
@@ -21623,10 +21623,10 @@ _CIM_ListenerDestinationCIMXML_Destination =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ListenerDestinationCIMXML_features[] =
 {
-    (MetaFeature*)&_CIM_ListenerDestinationCIMXML_Destination,
+    (SchemaFeature*)&_CIM_ListenerDestinationCIMXML_Destination,
     0,
 };
 
@@ -21640,11 +21640,11 @@ __root_PG_InterOp_CIM_ListenerDestinationCIMXML_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ListenerDestinationCIMXML =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_ListenerDestinationCIMXML",
     /* qualifiers */
@@ -21661,7 +21661,7 @@ __root_PG_InterOp_CIM_ListenerDestinationCIMXML =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ProcessIndication_features[] =
 {
     0,
@@ -21681,11 +21681,11 @@ __root_PG_InterOp_CIM_ProcessIndication_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ProcessIndication =
 {
     /* flags */
-    META_FLAG_INDICATION|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_INDICATION|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_ProcessIndication",
     /* qualifiers */
@@ -21710,11 +21710,11 @@ _CIM_SNMPTrapIndication_Enterprise_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SNMPTrapIndication_Enterprise =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Enterprise",
     /* qualifiers */
@@ -21735,11 +21735,11 @@ _CIM_SNMPTrapIndication_AgentAddress_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SNMPTrapIndication_AgentAddress =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "AgentAddress",
     /* qualifiers */
@@ -21764,11 +21764,11 @@ _CIM_SNMPTrapIndication_GenericTrap_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SNMPTrapIndication_GenericTrap =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "GenericTrap",
     /* qualifiers */
@@ -21789,11 +21789,11 @@ _CIM_SNMPTrapIndication_SpecificTrap_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SNMPTrapIndication_SpecificTrap =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SpecificTrap",
     /* qualifiers */
@@ -21814,11 +21814,11 @@ _CIM_SNMPTrapIndication_TimeStamp_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SNMPTrapIndication_TimeStamp =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "TimeStamp",
     /* qualifiers */
@@ -21843,11 +21843,11 @@ _CIM_SNMPTrapIndication_VarBindNames_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SNMPTrapIndication_VarBindNames =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "VarBindNames",
     /* qualifiers */
@@ -21876,11 +21876,11 @@ _CIM_SNMPTrapIndication_VarBindSyntaxes_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SNMPTrapIndication_VarBindSyntaxes =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "VarBindSyntaxes",
     /* qualifiers */
@@ -21907,11 +21907,11 @@ _CIM_SNMPTrapIndication_VarBindValues_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SNMPTrapIndication_VarBindValues =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_OCTETSTRING|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_OCTETSTRING|SCHEMA_FLAG_READ,
     /* name */
     "VarBindValues",
     /* qualifiers */
@@ -21924,17 +21924,17 @@ _CIM_SNMPTrapIndication_VarBindValues =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SNMPTrapIndication_features[] =
 {
-    (MetaFeature*)&_CIM_SNMPTrapIndication_Enterprise,
-    (MetaFeature*)&_CIM_SNMPTrapIndication_AgentAddress,
-    (MetaFeature*)&_CIM_SNMPTrapIndication_GenericTrap,
-    (MetaFeature*)&_CIM_SNMPTrapIndication_SpecificTrap,
-    (MetaFeature*)&_CIM_SNMPTrapIndication_TimeStamp,
-    (MetaFeature*)&_CIM_SNMPTrapIndication_VarBindNames,
-    (MetaFeature*)&_CIM_SNMPTrapIndication_VarBindSyntaxes,
-    (MetaFeature*)&_CIM_SNMPTrapIndication_VarBindValues,
+    (SchemaFeature*)&_CIM_SNMPTrapIndication_Enterprise,
+    (SchemaFeature*)&_CIM_SNMPTrapIndication_AgentAddress,
+    (SchemaFeature*)&_CIM_SNMPTrapIndication_GenericTrap,
+    (SchemaFeature*)&_CIM_SNMPTrapIndication_SpecificTrap,
+    (SchemaFeature*)&_CIM_SNMPTrapIndication_TimeStamp,
+    (SchemaFeature*)&_CIM_SNMPTrapIndication_VarBindNames,
+    (SchemaFeature*)&_CIM_SNMPTrapIndication_VarBindSyntaxes,
+    (SchemaFeature*)&_CIM_SNMPTrapIndication_VarBindValues,
     0,
 };
 
@@ -21950,11 +21950,11 @@ __root_PG_InterOp_CIM_SNMPTrapIndication_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SNMPTrapIndication =
 {
     /* flags */
-    META_FLAG_INDICATION,
+    SCHEMA_FLAG_INDICATION,
     /* name */
     "CIM_SNMPTrapIndication",
     /* qualifiers */
@@ -21979,11 +21979,11 @@ _CIM_AlertIndication_Description_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_AlertIndication_Description =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Description",
     /* qualifiers */
@@ -22004,11 +22004,11 @@ _CIM_AlertIndication_AlertingManagedElement_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_AlertIndication_AlertingManagedElement =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "AlertingManagedElement",
     /* qualifiers */
@@ -22033,11 +22033,11 @@ _CIM_AlertIndication_AlertingElementFormat_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_AlertIndication_AlertingElementFormat =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "AlertingElementFormat",
     /* qualifiers */
@@ -22058,11 +22058,11 @@ _CIM_AlertIndication_OtherAlertingElementFormat_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_AlertIndication_OtherAlertingElementFormat =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherAlertingElementFormat",
     /* qualifiers */
@@ -22089,11 +22089,11 @@ _CIM_AlertIndication_AlertType_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_AlertIndication_AlertType =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "AlertType",
     /* qualifiers */
@@ -22114,11 +22114,11 @@ _CIM_AlertIndication_OtherAlertType_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_AlertIndication_OtherAlertType =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherAlertType",
     /* qualifiers */
@@ -22147,11 +22147,11 @@ _CIM_AlertIndication_PerceivedSeverity_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_AlertIndication_PerceivedSeverity =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "PerceivedSeverity",
     /* qualifiers */
@@ -22180,11 +22180,11 @@ _CIM_AlertIndication_ProbableCause_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_AlertIndication_ProbableCause =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "ProbableCause",
     /* qualifiers */
@@ -22205,11 +22205,11 @@ _CIM_AlertIndication_ProbableCauseDescription_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_AlertIndication_ProbableCauseDescription =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ProbableCauseDescription",
     /* qualifiers */
@@ -22234,11 +22234,11 @@ _CIM_AlertIndication_Trending_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_AlertIndication_Trending =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Trending",
     /* qualifiers */
@@ -22259,11 +22259,11 @@ _CIM_AlertIndication_RecommendedActions_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_AlertIndication_RecommendedActions =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "RecommendedActions",
     /* qualifiers */
@@ -22284,11 +22284,11 @@ _CIM_AlertIndication_EventID_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_AlertIndication_EventID =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "EventID",
     /* qualifiers */
@@ -22309,11 +22309,11 @@ _CIM_AlertIndication_EventTime_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_AlertIndication_EventTime =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "EventTime",
     /* qualifiers */
@@ -22334,11 +22334,11 @@ _CIM_AlertIndication_SystemCreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_AlertIndication_SystemCreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -22359,11 +22359,11 @@ _CIM_AlertIndication_SystemName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_AlertIndication_SystemName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -22384,11 +22384,11 @@ _CIM_AlertIndication_ProviderName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_AlertIndication_ProviderName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ProviderName",
     /* qualifiers */
@@ -22401,25 +22401,25 @@ _CIM_AlertIndication_ProviderName =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_AlertIndication_features[] =
 {
-    (MetaFeature*)&_CIM_AlertIndication_Description,
-    (MetaFeature*)&_CIM_AlertIndication_AlertingManagedElement,
-    (MetaFeature*)&_CIM_AlertIndication_AlertingElementFormat,
-    (MetaFeature*)&_CIM_AlertIndication_OtherAlertingElementFormat,
-    (MetaFeature*)&_CIM_AlertIndication_AlertType,
-    (MetaFeature*)&_CIM_AlertIndication_OtherAlertType,
-    (MetaFeature*)&_CIM_AlertIndication_PerceivedSeverity,
-    (MetaFeature*)&_CIM_AlertIndication_ProbableCause,
-    (MetaFeature*)&_CIM_AlertIndication_ProbableCauseDescription,
-    (MetaFeature*)&_CIM_AlertIndication_Trending,
-    (MetaFeature*)&_CIM_AlertIndication_RecommendedActions,
-    (MetaFeature*)&_CIM_AlertIndication_EventID,
-    (MetaFeature*)&_CIM_AlertIndication_EventTime,
-    (MetaFeature*)&_CIM_AlertIndication_SystemCreationClassName,
-    (MetaFeature*)&_CIM_AlertIndication_SystemName,
-    (MetaFeature*)&_CIM_AlertIndication_ProviderName,
+    (SchemaFeature*)&_CIM_AlertIndication_Description,
+    (SchemaFeature*)&_CIM_AlertIndication_AlertingManagedElement,
+    (SchemaFeature*)&_CIM_AlertIndication_AlertingElementFormat,
+    (SchemaFeature*)&_CIM_AlertIndication_OtherAlertingElementFormat,
+    (SchemaFeature*)&_CIM_AlertIndication_AlertType,
+    (SchemaFeature*)&_CIM_AlertIndication_OtherAlertType,
+    (SchemaFeature*)&_CIM_AlertIndication_PerceivedSeverity,
+    (SchemaFeature*)&_CIM_AlertIndication_ProbableCause,
+    (SchemaFeature*)&_CIM_AlertIndication_ProbableCauseDescription,
+    (SchemaFeature*)&_CIM_AlertIndication_Trending,
+    (SchemaFeature*)&_CIM_AlertIndication_RecommendedActions,
+    (SchemaFeature*)&_CIM_AlertIndication_EventID,
+    (SchemaFeature*)&_CIM_AlertIndication_EventTime,
+    (SchemaFeature*)&_CIM_AlertIndication_SystemCreationClassName,
+    (SchemaFeature*)&_CIM_AlertIndication_SystemName,
+    (SchemaFeature*)&_CIM_AlertIndication_ProviderName,
     0,
 };
 
@@ -22435,11 +22435,11 @@ __root_PG_InterOp_CIM_AlertIndication_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_AlertIndication =
 {
     /* flags */
-    META_FLAG_INDICATION,
+    SCHEMA_FLAG_INDICATION,
     /* name */
     "CIM_AlertIndication",
     /* qualifiers */
@@ -22464,11 +22464,11 @@ _CIM_AlertInstIndication_AlertType_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_AlertInstIndication_AlertType =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "AlertType",
     /* qualifiers */
@@ -22491,11 +22491,11 @@ _CIM_AlertInstIndication_IndObject_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_AlertInstIndication_IndObject =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_EMBEDDEDOBJECT|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_EMBEDDEDOBJECT|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "IndObject",
     /* qualifiers */
@@ -22508,11 +22508,11 @@ _CIM_AlertInstIndication_IndObject =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_AlertInstIndication_features[] =
 {
-    (MetaFeature*)&_CIM_AlertInstIndication_AlertType,
-    (MetaFeature*)&_CIM_AlertInstIndication_IndObject,
+    (SchemaFeature*)&_CIM_AlertInstIndication_AlertType,
+    (SchemaFeature*)&_CIM_AlertInstIndication_IndObject,
     0,
 };
 
@@ -22528,11 +22528,11 @@ __root_PG_InterOp_CIM_AlertInstIndication_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_AlertInstIndication =
 {
     /* flags */
-    META_FLAG_INDICATION,
+    SCHEMA_FLAG_INDICATION,
     /* name */
     "CIM_AlertInstIndication",
     /* qualifiers */
@@ -22549,7 +22549,7 @@ __root_PG_InterOp_CIM_AlertInstIndication =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ClassCreation_features[] =
 {
     0,
@@ -22567,11 +22567,11 @@ __root_PG_InterOp_CIM_ClassCreation_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ClassCreation =
 {
     /* flags */
-    META_FLAG_INDICATION,
+    SCHEMA_FLAG_INDICATION,
     /* name */
     "CIM_ClassCreation",
     /* qualifiers */
@@ -22588,7 +22588,7 @@ __root_PG_InterOp_CIM_ClassCreation =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ClassDeletion_features[] =
 {
     0,
@@ -22606,11 +22606,11 @@ __root_PG_InterOp_CIM_ClassDeletion_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ClassDeletion =
 {
     /* flags */
-    META_FLAG_INDICATION,
+    SCHEMA_FLAG_INDICATION,
     /* name */
     "CIM_ClassDeletion",
     /* qualifiers */
@@ -22635,11 +22635,11 @@ _CIM_IndicationHandler_Owner_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IndicationHandler_Owner =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Owner",
     /* qualifiers */
@@ -22652,10 +22652,10 @@ _CIM_IndicationHandler_Owner =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_IndicationHandler_features[] =
 {
-    (MetaFeature*)&_CIM_IndicationHandler_Owner,
+    (SchemaFeature*)&_CIM_IndicationHandler_Owner,
     0,
 };
 
@@ -22673,11 +22673,11 @@ __root_PG_InterOp_CIM_IndicationHandler_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_IndicationHandler =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_IndicationHandler",
     /* qualifiers */
@@ -22704,11 +22704,11 @@ _CIM_IndicationHandlerCIMXML_Destination_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IndicationHandlerCIMXML_Destination =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "Destination",
     /* qualifiers */
@@ -22721,10 +22721,10 @@ _CIM_IndicationHandlerCIMXML_Destination =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_IndicationHandlerCIMXML_features[] =
 {
-    (MetaFeature*)&_CIM_IndicationHandlerCIMXML_Destination,
+    (SchemaFeature*)&_CIM_IndicationHandlerCIMXML_Destination,
     0,
 };
 
@@ -22740,11 +22740,11 @@ __root_PG_InterOp_CIM_IndicationHandlerCIMXML_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_IndicationHandlerCIMXML =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_IndicationHandlerCIMXML",
     /* qualifiers */
@@ -22769,11 +22769,11 @@ _CIM_IndicationSubscription_Filter_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_IndicationSubscription_Filter =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Filter",
     /* qualifiers */
@@ -22792,11 +22792,11 @@ _CIM_IndicationSubscription_Handler_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_IndicationSubscription_Handler =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Handler",
     /* qualifiers */
@@ -22817,11 +22817,11 @@ _CIM_IndicationSubscription_OnFatalErrorPolicy_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IndicationSubscription_OnFatalErrorPolicy =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OnFatalErrorPolicy",
     /* qualifiers */
@@ -22840,11 +22840,11 @@ _CIM_IndicationSubscription_OtherOnFatalErrorPolicy_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IndicationSubscription_OtherOnFatalErrorPolicy =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherOnFatalErrorPolicy",
     /* qualifiers */
@@ -22865,11 +22865,11 @@ _CIM_IndicationSubscription_FailureTriggerTimeInterval_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IndicationSubscription_FailureTriggerTimeInterval =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "FailureTriggerTimeInterval",
     /* qualifiers */
@@ -22894,11 +22894,11 @@ _CIM_IndicationSubscription_SubscriptionState_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IndicationSubscription_SubscriptionState =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "SubscriptionState",
     /* qualifiers */
@@ -22917,11 +22917,11 @@ _CIM_IndicationSubscription_OtherSubscriptionState_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IndicationSubscription_OtherSubscriptionState =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherSubscriptionState",
     /* qualifiers */
@@ -22940,11 +22940,11 @@ _CIM_IndicationSubscription_TimeOfLastStateChange_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IndicationSubscription_TimeOfLastStateChange =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "TimeOfLastStateChange",
     /* qualifiers */
@@ -22967,11 +22967,11 @@ _CIM_IndicationSubscription_SubscriptionDuration_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IndicationSubscription_SubscriptionDuration =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "SubscriptionDuration",
     /* qualifiers */
@@ -22990,11 +22990,11 @@ _CIM_IndicationSubscription_SubscriptionStartTime_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IndicationSubscription_SubscriptionStartTime =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SubscriptionStartTime",
     /* qualifiers */
@@ -23015,11 +23015,11 @@ _CIM_IndicationSubscription_SubscriptionTimeRemaining_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IndicationSubscription_SubscriptionTimeRemaining =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SubscriptionTimeRemaining",
     /* qualifiers */
@@ -23042,11 +23042,11 @@ _CIM_IndicationSubscription_RepeatNotificationPolicy_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IndicationSubscription_RepeatNotificationPolicy =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "RepeatNotificationPolicy",
     /* qualifiers */
@@ -23065,11 +23065,11 @@ _CIM_IndicationSubscription_OtherRepeatNotificationPolicy_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IndicationSubscription_OtherRepeatNotificationPolicy =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherRepeatNotificationPolicy",
     /* qualifiers */
@@ -23090,11 +23090,11 @@ _CIM_IndicationSubscription_RepeatNotificationInterval_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IndicationSubscription_RepeatNotificationInterval =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "RepeatNotificationInterval",
     /* qualifiers */
@@ -23115,11 +23115,11 @@ _CIM_IndicationSubscription_RepeatNotificationGap_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IndicationSubscription_RepeatNotificationGap =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "RepeatNotificationGap",
     /* qualifiers */
@@ -23138,11 +23138,11 @@ _CIM_IndicationSubscription_RepeatNotificationCount_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_IndicationSubscription_RepeatNotificationCount =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "RepeatNotificationCount",
     /* qualifiers */
@@ -23155,25 +23155,25 @@ _CIM_IndicationSubscription_RepeatNotificationCount =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_IndicationSubscription_features[] =
 {
-    (MetaFeature*)&_CIM_IndicationSubscription_Filter,
-    (MetaFeature*)&_CIM_IndicationSubscription_Handler,
-    (MetaFeature*)&_CIM_IndicationSubscription_OnFatalErrorPolicy,
-    (MetaFeature*)&_CIM_IndicationSubscription_OtherOnFatalErrorPolicy,
-    (MetaFeature*)&_CIM_IndicationSubscription_FailureTriggerTimeInterval,
-    (MetaFeature*)&_CIM_IndicationSubscription_SubscriptionState,
-    (MetaFeature*)&_CIM_IndicationSubscription_OtherSubscriptionState,
-    (MetaFeature*)&_CIM_IndicationSubscription_TimeOfLastStateChange,
-    (MetaFeature*)&_CIM_IndicationSubscription_SubscriptionDuration,
-    (MetaFeature*)&_CIM_IndicationSubscription_SubscriptionStartTime,
-    (MetaFeature*)&_CIM_IndicationSubscription_SubscriptionTimeRemaining,
-    (MetaFeature*)&_CIM_IndicationSubscription_RepeatNotificationPolicy,
-    (MetaFeature*)&_CIM_IndicationSubscription_OtherRepeatNotificationPolicy,
-    (MetaFeature*)&_CIM_IndicationSubscription_RepeatNotificationInterval,
-    (MetaFeature*)&_CIM_IndicationSubscription_RepeatNotificationGap,
-    (MetaFeature*)&_CIM_IndicationSubscription_RepeatNotificationCount,
+    (SchemaFeature*)&_CIM_IndicationSubscription_Filter,
+    (SchemaFeature*)&_CIM_IndicationSubscription_Handler,
+    (SchemaFeature*)&_CIM_IndicationSubscription_OnFatalErrorPolicy,
+    (SchemaFeature*)&_CIM_IndicationSubscription_OtherOnFatalErrorPolicy,
+    (SchemaFeature*)&_CIM_IndicationSubscription_FailureTriggerTimeInterval,
+    (SchemaFeature*)&_CIM_IndicationSubscription_SubscriptionState,
+    (SchemaFeature*)&_CIM_IndicationSubscription_OtherSubscriptionState,
+    (SchemaFeature*)&_CIM_IndicationSubscription_TimeOfLastStateChange,
+    (SchemaFeature*)&_CIM_IndicationSubscription_SubscriptionDuration,
+    (SchemaFeature*)&_CIM_IndicationSubscription_SubscriptionStartTime,
+    (SchemaFeature*)&_CIM_IndicationSubscription_SubscriptionTimeRemaining,
+    (SchemaFeature*)&_CIM_IndicationSubscription_RepeatNotificationPolicy,
+    (SchemaFeature*)&_CIM_IndicationSubscription_OtherRepeatNotificationPolicy,
+    (SchemaFeature*)&_CIM_IndicationSubscription_RepeatNotificationInterval,
+    (SchemaFeature*)&_CIM_IndicationSubscription_RepeatNotificationGap,
+    (SchemaFeature*)&_CIM_IndicationSubscription_RepeatNotificationCount,
     0,
 };
 
@@ -23189,11 +23189,11 @@ __root_PG_InterOp_CIM_IndicationSubscription_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_IndicationSubscription =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_IndicationSubscription",
     /* qualifiers */
@@ -23210,7 +23210,7 @@ __root_PG_InterOp_CIM_IndicationSubscription =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_InstCreation_features[] =
 {
     0,
@@ -23228,11 +23228,11 @@ __root_PG_InterOp_CIM_InstCreation_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_InstCreation =
 {
     /* flags */
-    META_FLAG_INDICATION,
+    SCHEMA_FLAG_INDICATION,
     /* name */
     "CIM_InstCreation",
     /* qualifiers */
@@ -23249,7 +23249,7 @@ __root_PG_InterOp_CIM_InstCreation =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_InstDeletion_features[] =
 {
     0,
@@ -23267,11 +23267,11 @@ __root_PG_InterOp_CIM_InstDeletion_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_InstDeletion =
 {
     /* flags */
-    META_FLAG_INDICATION,
+    SCHEMA_FLAG_INDICATION,
     /* name */
     "CIM_InstDeletion",
     /* qualifiers */
@@ -23296,11 +23296,11 @@ _CIM_ThresholdIndication_ThresholdIdentifier_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ThresholdIndication_ThresholdIdentifier =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ThresholdIdentifier",
     /* qualifiers */
@@ -23321,11 +23321,11 @@ _CIM_ThresholdIndication_ThresholdValue_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ThresholdIndication_ThresholdValue =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ThresholdValue",
     /* qualifiers */
@@ -23346,11 +23346,11 @@ _CIM_ThresholdIndication_ObservedValue_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ThresholdIndication_ObservedValue =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ObservedValue",
     /* qualifiers */
@@ -23363,12 +23363,12 @@ _CIM_ThresholdIndication_ObservedValue =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ThresholdIndication_features[] =
 {
-    (MetaFeature*)&_CIM_ThresholdIndication_ThresholdIdentifier,
-    (MetaFeature*)&_CIM_ThresholdIndication_ThresholdValue,
-    (MetaFeature*)&_CIM_ThresholdIndication_ObservedValue,
+    (SchemaFeature*)&_CIM_ThresholdIndication_ThresholdIdentifier,
+    (SchemaFeature*)&_CIM_ThresholdIndication_ThresholdValue,
+    (SchemaFeature*)&_CIM_ThresholdIndication_ObservedValue,
     0,
 };
 
@@ -23384,11 +23384,11 @@ __root_PG_InterOp_CIM_ThresholdIndication_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ThresholdIndication =
 {
     /* flags */
-    META_FLAG_INDICATION,
+    SCHEMA_FLAG_INDICATION,
     /* name */
     "CIM_ThresholdIndication",
     /* qualifiers */
@@ -23413,11 +23413,11 @@ _CIM_FormattedIndicationSubscription_TextFormatOwningEntity_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_FormattedIndicationSubscription_TextFormatOwningEntity =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "TextFormatOwningEntity",
     /* qualifiers */
@@ -23438,11 +23438,11 @@ _CIM_FormattedIndicationSubscription_TextFormatID_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_FormattedIndicationSubscription_TextFormatID =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "TextFormatID",
     /* qualifiers */
@@ -23461,11 +23461,11 @@ _CIM_FormattedIndicationSubscription_TextFormat_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_FormattedIndicationSubscription_TextFormat =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "TextFormat",
     /* qualifiers */
@@ -23488,11 +23488,11 @@ _CIM_FormattedIndicationSubscription_TextFormatParameters_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_FormattedIndicationSubscription_TextFormatParameters =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "TextFormatParameters",
     /* qualifiers */
@@ -23505,13 +23505,13 @@ _CIM_FormattedIndicationSubscription_TextFormatParameters =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_FormattedIndicationSubscription_features[] =
 {
-    (MetaFeature*)&_CIM_FormattedIndicationSubscription_TextFormatOwningEntity,
-    (MetaFeature*)&_CIM_FormattedIndicationSubscription_TextFormatID,
-    (MetaFeature*)&_CIM_FormattedIndicationSubscription_TextFormat,
-    (MetaFeature*)&_CIM_FormattedIndicationSubscription_TextFormatParameters,
+    (SchemaFeature*)&_CIM_FormattedIndicationSubscription_TextFormatOwningEntity,
+    (SchemaFeature*)&_CIM_FormattedIndicationSubscription_TextFormatID,
+    (SchemaFeature*)&_CIM_FormattedIndicationSubscription_TextFormat,
+    (SchemaFeature*)&_CIM_FormattedIndicationSubscription_TextFormatParameters,
     0,
 };
 
@@ -23527,11 +23527,11 @@ __root_PG_InterOp_CIM_FormattedIndicationSubscription_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_FormattedIndicationSubscription =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_FormattedIndicationSubscription",
     /* qualifiers */
@@ -23560,11 +23560,11 @@ _CIM_Namespace_SystemCreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Namespace_SystemCreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -23589,11 +23589,11 @@ _CIM_Namespace_SystemName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Namespace_SystemName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -23618,11 +23618,11 @@ _CIM_Namespace_ObjectManagerCreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Namespace_ObjectManagerCreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "ObjectManagerCreationClassName",
     /* qualifiers */
@@ -23647,11 +23647,11 @@ _CIM_Namespace_ObjectManagerName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Namespace_ObjectManagerName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "ObjectManagerName",
     /* qualifiers */
@@ -23674,11 +23674,11 @@ _CIM_Namespace_CreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Namespace_CreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -23701,11 +23701,11 @@ _CIM_Namespace_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Namespace_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -23736,11 +23736,11 @@ _CIM_Namespace_ClassInfo_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Namespace_ClassInfo =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED|SCHEMA_FLAG_WRITE,
     /* name */
     "ClassInfo",
     /* qualifiers */
@@ -23765,11 +23765,11 @@ _CIM_Namespace_DescriptionOfClassInfo_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Namespace_DescriptionOfClassInfo =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "DescriptionOfClassInfo",
     /* qualifiers */
@@ -23796,11 +23796,11 @@ _CIM_Namespace_ClassType_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Namespace_ClassType =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "ClassType",
     /* qualifiers */
@@ -23823,11 +23823,11 @@ _CIM_Namespace_ClassTypeVersion_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Namespace_ClassTypeVersion =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "ClassTypeVersion",
     /* qualifiers */
@@ -23850,11 +23850,11 @@ _CIM_Namespace_DescriptionOfClassType_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_Namespace_DescriptionOfClassType =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "DescriptionOfClassType",
     /* qualifiers */
@@ -23867,20 +23867,20 @@ _CIM_Namespace_DescriptionOfClassType =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_Namespace_features[] =
 {
-    (MetaFeature*)&_CIM_Namespace_SystemCreationClassName,
-    (MetaFeature*)&_CIM_Namespace_SystemName,
-    (MetaFeature*)&_CIM_Namespace_ObjectManagerCreationClassName,
-    (MetaFeature*)&_CIM_Namespace_ObjectManagerName,
-    (MetaFeature*)&_CIM_Namespace_CreationClassName,
-    (MetaFeature*)&_CIM_Namespace_Name,
-    (MetaFeature*)&_CIM_Namespace_ClassInfo,
-    (MetaFeature*)&_CIM_Namespace_DescriptionOfClassInfo,
-    (MetaFeature*)&_CIM_Namespace_ClassType,
-    (MetaFeature*)&_CIM_Namespace_ClassTypeVersion,
-    (MetaFeature*)&_CIM_Namespace_DescriptionOfClassType,
+    (SchemaFeature*)&_CIM_Namespace_SystemCreationClassName,
+    (SchemaFeature*)&_CIM_Namespace_SystemName,
+    (SchemaFeature*)&_CIM_Namespace_ObjectManagerCreationClassName,
+    (SchemaFeature*)&_CIM_Namespace_ObjectManagerName,
+    (SchemaFeature*)&_CIM_Namespace_CreationClassName,
+    (SchemaFeature*)&_CIM_Namespace_Name,
+    (SchemaFeature*)&_CIM_Namespace_ClassInfo,
+    (SchemaFeature*)&_CIM_Namespace_DescriptionOfClassInfo,
+    (SchemaFeature*)&_CIM_Namespace_ClassType,
+    (SchemaFeature*)&_CIM_Namespace_ClassTypeVersion,
+    (SchemaFeature*)&_CIM_Namespace_DescriptionOfClassType,
     0,
 };
 
@@ -23894,11 +23894,11 @@ __root_PG_InterOp_CIM_Namespace_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_Namespace =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_Namespace",
     /* qualifiers */
@@ -23923,11 +23923,11 @@ _CIM_RegisteredProfile_InstanceID_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RegisteredProfile_InstanceID =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "InstanceID",
     /* qualifiers */
@@ -23954,11 +23954,11 @@ _CIM_RegisteredProfile_RegisteredOrganization_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RegisteredProfile_RegisteredOrganization =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "RegisteredOrganization",
     /* qualifiers */
@@ -23981,11 +23981,11 @@ _CIM_RegisteredProfile_OtherRegisteredOrganization_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RegisteredProfile_OtherRegisteredOrganization =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherRegisteredOrganization",
     /* qualifiers */
@@ -24008,11 +24008,11 @@ _CIM_RegisteredProfile_RegisteredName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RegisteredProfile_RegisteredName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "RegisteredName",
     /* qualifiers */
@@ -24033,11 +24033,11 @@ _CIM_RegisteredProfile_RegisteredVersion_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RegisteredProfile_RegisteredVersion =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "RegisteredVersion",
     /* qualifiers */
@@ -24066,11 +24066,11 @@ _CIM_RegisteredProfile_AdvertiseTypes_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RegisteredProfile_AdvertiseTypes =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "AdvertiseTypes",
     /* qualifiers */
@@ -24093,11 +24093,11 @@ _CIM_RegisteredProfile_AdvertiseTypeDescriptions_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_RegisteredProfile_AdvertiseTypeDescriptions =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "AdvertiseTypeDescriptions",
     /* qualifiers */
@@ -24110,16 +24110,16 @@ _CIM_RegisteredProfile_AdvertiseTypeDescriptions =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_RegisteredProfile_features[] =
 {
-    (MetaFeature*)&_CIM_RegisteredProfile_InstanceID,
-    (MetaFeature*)&_CIM_RegisteredProfile_RegisteredOrganization,
-    (MetaFeature*)&_CIM_RegisteredProfile_OtherRegisteredOrganization,
-    (MetaFeature*)&_CIM_RegisteredProfile_RegisteredName,
-    (MetaFeature*)&_CIM_RegisteredProfile_RegisteredVersion,
-    (MetaFeature*)&_CIM_RegisteredProfile_AdvertiseTypes,
-    (MetaFeature*)&_CIM_RegisteredProfile_AdvertiseTypeDescriptions,
+    (SchemaFeature*)&_CIM_RegisteredProfile_InstanceID,
+    (SchemaFeature*)&_CIM_RegisteredProfile_RegisteredOrganization,
+    (SchemaFeature*)&_CIM_RegisteredProfile_OtherRegisteredOrganization,
+    (SchemaFeature*)&_CIM_RegisteredProfile_RegisteredName,
+    (SchemaFeature*)&_CIM_RegisteredProfile_RegisteredVersion,
+    (SchemaFeature*)&_CIM_RegisteredProfile_AdvertiseTypes,
+    (SchemaFeature*)&_CIM_RegisteredProfile_AdvertiseTypeDescriptions,
     0,
 };
 
@@ -24133,11 +24133,11 @@ __root_PG_InterOp_CIM_RegisteredProfile_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_RegisteredProfile =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_RegisteredProfile",
     /* qualifiers */
@@ -24154,7 +24154,7 @@ __root_PG_InterOp_CIM_RegisteredProfile =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_RegisteredSubProfile_features[] =
 {
     0,
@@ -24170,11 +24170,11 @@ __root_PG_InterOp_CIM_RegisteredSubProfile_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_RegisteredSubProfile =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_RegisteredSubProfile",
     /* qualifiers */
@@ -24203,11 +24203,11 @@ _CIM_SystemIdentification_SystemCreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemIdentification_SystemCreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemCreationClassName",
     /* qualifiers */
@@ -24232,11 +24232,11 @@ _CIM_SystemIdentification_SystemName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemIdentification_SystemName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "SystemName",
     /* qualifiers */
@@ -24261,11 +24261,11 @@ _CIM_SystemIdentification_ObjectManagerCreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemIdentification_ObjectManagerCreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "ObjectManagerCreationClassName",
     /* qualifiers */
@@ -24290,11 +24290,11 @@ _CIM_SystemIdentification_ObjectManagerName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemIdentification_ObjectManagerName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "ObjectManagerName",
     /* qualifiers */
@@ -24319,11 +24319,11 @@ _CIM_SystemIdentification_NamespaceCreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemIdentification_NamespaceCreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "NamespaceCreationClassName",
     /* qualifiers */
@@ -24348,11 +24348,11 @@ _CIM_SystemIdentification_NamespaceName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemIdentification_NamespaceName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "NamespaceName",
     /* qualifiers */
@@ -24375,11 +24375,11 @@ _CIM_SystemIdentification_CreationClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemIdentification_CreationClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "CreationClassName",
     /* qualifiers */
@@ -24402,11 +24402,11 @@ _CIM_SystemIdentification_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemIdentification_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -24437,11 +24437,11 @@ _CIM_SystemIdentification_IdentificationFormats_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemIdentification_IdentificationFormats =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED|SCHEMA_FLAG_WRITE,
     /* name */
     "IdentificationFormats",
     /* qualifiers */
@@ -24466,11 +24466,11 @@ _CIM_SystemIdentification_FormatDescriptions_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemIdentification_FormatDescriptions =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "FormatDescriptions",
     /* qualifiers */
@@ -24495,11 +24495,11 @@ _CIM_SystemIdentification_IdentificationData_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemIdentification_IdentificationData =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "IdentificationData",
     /* qualifiers */
@@ -24512,20 +24512,20 @@ _CIM_SystemIdentification_IdentificationData =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SystemIdentification_features[] =
 {
-    (MetaFeature*)&_CIM_SystemIdentification_SystemCreationClassName,
-    (MetaFeature*)&_CIM_SystemIdentification_SystemName,
-    (MetaFeature*)&_CIM_SystemIdentification_ObjectManagerCreationClassName,
-    (MetaFeature*)&_CIM_SystemIdentification_ObjectManagerName,
-    (MetaFeature*)&_CIM_SystemIdentification_NamespaceCreationClassName,
-    (MetaFeature*)&_CIM_SystemIdentification_NamespaceName,
-    (MetaFeature*)&_CIM_SystemIdentification_CreationClassName,
-    (MetaFeature*)&_CIM_SystemIdentification_Name,
-    (MetaFeature*)&_CIM_SystemIdentification_IdentificationFormats,
-    (MetaFeature*)&_CIM_SystemIdentification_FormatDescriptions,
-    (MetaFeature*)&_CIM_SystemIdentification_IdentificationData,
+    (SchemaFeature*)&_CIM_SystemIdentification_SystemCreationClassName,
+    (SchemaFeature*)&_CIM_SystemIdentification_SystemName,
+    (SchemaFeature*)&_CIM_SystemIdentification_ObjectManagerCreationClassName,
+    (SchemaFeature*)&_CIM_SystemIdentification_ObjectManagerName,
+    (SchemaFeature*)&_CIM_SystemIdentification_NamespaceCreationClassName,
+    (SchemaFeature*)&_CIM_SystemIdentification_NamespaceName,
+    (SchemaFeature*)&_CIM_SystemIdentification_CreationClassName,
+    (SchemaFeature*)&_CIM_SystemIdentification_Name,
+    (SchemaFeature*)&_CIM_SystemIdentification_IdentificationFormats,
+    (SchemaFeature*)&_CIM_SystemIdentification_FormatDescriptions,
+    (SchemaFeature*)&_CIM_SystemIdentification_IdentificationData,
     0,
 };
 
@@ -24539,11 +24539,11 @@ __root_PG_InterOp_CIM_SystemIdentification_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SystemIdentification =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_SystemIdentification",
     /* qualifiers */
@@ -24572,11 +24572,11 @@ _CIM_SystemInNamespace_ManagedNamespace_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SystemInNamespace_ManagedNamespace =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "ManagedNamespace",
     /* qualifiers */
@@ -24597,11 +24597,11 @@ _CIM_SystemInNamespace_Identification_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SystemInNamespace_Identification =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ|META_FLAG_WEAK,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WEAK,
     /* name */
     "Identification",
     /* qualifiers */
@@ -24630,11 +24630,11 @@ _CIM_SystemInNamespace_ScopeOfContainedData_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemInNamespace_ScopeOfContainedData =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED|SCHEMA_FLAG_WRITE,
     /* name */
     "ScopeOfContainedData",
     /* qualifiers */
@@ -24659,11 +24659,11 @@ _CIM_SystemInNamespace_DescriptionOfContainedData_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_SystemInNamespace_DescriptionOfContainedData =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "DescriptionOfContainedData",
     /* qualifiers */
@@ -24676,13 +24676,13 @@ _CIM_SystemInNamespace_DescriptionOfContainedData =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SystemInNamespace_features[] =
 {
-    (MetaFeature*)&_CIM_SystemInNamespace_ManagedNamespace,
-    (MetaFeature*)&_CIM_SystemInNamespace_Identification,
-    (MetaFeature*)&_CIM_SystemInNamespace_ScopeOfContainedData,
-    (MetaFeature*)&_CIM_SystemInNamespace_DescriptionOfContainedData,
+    (SchemaFeature*)&_CIM_SystemInNamespace_ManagedNamespace,
+    (SchemaFeature*)&_CIM_SystemInNamespace_Identification,
+    (SchemaFeature*)&_CIM_SystemInNamespace_ScopeOfContainedData,
+    (SchemaFeature*)&_CIM_SystemInNamespace_DescriptionOfContainedData,
     0,
 };
 
@@ -24698,11 +24698,11 @@ __root_PG_InterOp_CIM_SystemInNamespace_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SystemInNamespace =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_SystemInNamespace",
     /* qualifiers */
@@ -24727,11 +24727,11 @@ _CIM_CIMOMStatisticalData_InstanceID_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_CIMOMStatisticalData_InstanceID =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "InstanceID",
     /* qualifiers */
@@ -24758,11 +24758,11 @@ _CIM_CIMOMStatisticalData_OperationType_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_CIMOMStatisticalData_OperationType =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "OperationType",
     /* qualifiers */
@@ -24785,11 +24785,11 @@ _CIM_CIMOMStatisticalData_OtherOperationType_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_CIMOMStatisticalData_OtherOperationType =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherOperationType",
     /* qualifiers */
@@ -24812,11 +24812,11 @@ _CIM_CIMOMStatisticalData_NumberOfOperations_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_CIMOMStatisticalData_NumberOfOperations =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_COUNTER|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_COUNTER|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "NumberOfOperations",
     /* qualifiers */
@@ -24837,11 +24837,11 @@ _CIM_CIMOMStatisticalData_CimomElapsedTime_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_CIMOMStatisticalData_CimomElapsedTime =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "CimomElapsedTime",
     /* qualifiers */
@@ -24862,11 +24862,11 @@ _CIM_CIMOMStatisticalData_ProviderElapsedTime_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_CIMOMStatisticalData_ProviderElapsedTime =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "ProviderElapsedTime",
     /* qualifiers */
@@ -24889,11 +24889,11 @@ _CIM_CIMOMStatisticalData_RequestSize_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_CIMOMStatisticalData_RequestSize =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_COUNTER|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_COUNTER|SCHEMA_FLAG_READ,
     /* name */
     "RequestSize",
     /* qualifiers */
@@ -24916,11 +24916,11 @@ _CIM_CIMOMStatisticalData_ResponseSize_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_CIMOMStatisticalData_ResponseSize =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_COUNTER|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_COUNTER|SCHEMA_FLAG_READ,
     /* name */
     "ResponseSize",
     /* qualifiers */
@@ -24933,17 +24933,17 @@ _CIM_CIMOMStatisticalData_ResponseSize =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_CIMOMStatisticalData_features[] =
 {
-    (MetaFeature*)&_CIM_CIMOMStatisticalData_InstanceID,
-    (MetaFeature*)&_CIM_CIMOMStatisticalData_OperationType,
-    (MetaFeature*)&_CIM_CIMOMStatisticalData_OtherOperationType,
-    (MetaFeature*)&_CIM_CIMOMStatisticalData_NumberOfOperations,
-    (MetaFeature*)&_CIM_CIMOMStatisticalData_CimomElapsedTime,
-    (MetaFeature*)&_CIM_CIMOMStatisticalData_ProviderElapsedTime,
-    (MetaFeature*)&_CIM_CIMOMStatisticalData_RequestSize,
-    (MetaFeature*)&_CIM_CIMOMStatisticalData_ResponseSize,
+    (SchemaFeature*)&_CIM_CIMOMStatisticalData_InstanceID,
+    (SchemaFeature*)&_CIM_CIMOMStatisticalData_OperationType,
+    (SchemaFeature*)&_CIM_CIMOMStatisticalData_OtherOperationType,
+    (SchemaFeature*)&_CIM_CIMOMStatisticalData_NumberOfOperations,
+    (SchemaFeature*)&_CIM_CIMOMStatisticalData_CimomElapsedTime,
+    (SchemaFeature*)&_CIM_CIMOMStatisticalData_ProviderElapsedTime,
+    (SchemaFeature*)&_CIM_CIMOMStatisticalData_RequestSize,
+    (SchemaFeature*)&_CIM_CIMOMStatisticalData_ResponseSize,
     0,
 };
 
@@ -24957,11 +24957,11 @@ __root_PG_InterOp_CIM_CIMOMStatisticalData_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_CIMOMStatisticalData =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_CIMOMStatisticalData",
     /* qualifiers */
@@ -24986,11 +24986,11 @@ _CIM_ElementConformsToProfile_ConformantStandard_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ElementConformsToProfile_ConformantStandard =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "ConformantStandard",
     /* qualifiers */
@@ -25009,11 +25009,11 @@ _CIM_ElementConformsToProfile_ManagedElement_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ElementConformsToProfile_ManagedElement =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "ManagedElement",
     /* qualifiers */
@@ -25024,11 +25024,11 @@ _CIM_ElementConformsToProfile_ManagedElement =
     &__root_PG_InterOp_CIM_ManagedElement,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ElementConformsToProfile_features[] =
 {
-    (MetaFeature*)&_CIM_ElementConformsToProfile_ConformantStandard,
-    (MetaFeature*)&_CIM_ElementConformsToProfile_ManagedElement,
+    (SchemaFeature*)&_CIM_ElementConformsToProfile_ConformantStandard,
+    (SchemaFeature*)&_CIM_ElementConformsToProfile_ManagedElement,
     0,
 };
 
@@ -25044,11 +25044,11 @@ __root_PG_InterOp_CIM_ElementConformsToProfile_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ElementConformsToProfile =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ElementConformsToProfile",
     /* qualifiers */
@@ -25073,11 +25073,11 @@ _CIM_ReferencedProfile_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ReferencedProfile_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -25096,11 +25096,11 @@ _CIM_ReferencedProfile_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_ReferencedProfile_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -25111,11 +25111,11 @@ _CIM_ReferencedProfile_Dependent =
     &__root_PG_InterOp_CIM_RegisteredProfile,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ReferencedProfile_features[] =
 {
-    (MetaFeature*)&_CIM_ReferencedProfile_Antecedent,
-    (MetaFeature*)&_CIM_ReferencedProfile_Dependent,
+    (SchemaFeature*)&_CIM_ReferencedProfile_Antecedent,
+    (SchemaFeature*)&_CIM_ReferencedProfile_Dependent,
     0,
 };
 
@@ -25131,11 +25131,11 @@ __root_PG_InterOp_CIM_ReferencedProfile_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ReferencedProfile =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_ReferencedProfile",
     /* qualifiers */
@@ -25162,11 +25162,11 @@ _CIM_SubProfileRequiresProfile_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SubProfileRequiresProfile_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -25185,11 +25185,11 @@ _CIM_SubProfileRequiresProfile_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_SubProfileRequiresProfile_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -25200,11 +25200,11 @@ _CIM_SubProfileRequiresProfile_Dependent =
     &__root_PG_InterOp_CIM_RegisteredSubProfile,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_SubProfileRequiresProfile_features[] =
 {
-    (MetaFeature*)&_CIM_SubProfileRequiresProfile_Antecedent,
-    (MetaFeature*)&_CIM_SubProfileRequiresProfile_Dependent,
+    (SchemaFeature*)&_CIM_SubProfileRequiresProfile_Antecedent,
+    (SchemaFeature*)&_CIM_SubProfileRequiresProfile_Dependent,
     0,
 };
 
@@ -25220,11 +25220,11 @@ __root_PG_InterOp_CIM_SubProfileRequiresProfile_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_SubProfileRequiresProfile =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_SubProfileRequiresProfile",
     /* qualifiers */
@@ -25241,7 +25241,7 @@ __root_PG_InterOp_CIM_SubProfileRequiresProfile =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_WBEMService_features[] =
 {
     0,
@@ -25259,11 +25259,11 @@ __root_PG_InterOp_CIM_WBEMService_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_WBEMService =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_WBEMService",
     /* qualifiers */
@@ -25290,11 +25290,11 @@ _CIM_IdentificationOfManagedSystem_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_IdentificationOfManagedSystem_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -25315,11 +25315,11 @@ _CIM_IdentificationOfManagedSystem_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_IdentificationOfManagedSystem_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -25330,11 +25330,11 @@ _CIM_IdentificationOfManagedSystem_Dependent =
     &__root_PG_InterOp_CIM_SystemIdentification,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_IdentificationOfManagedSystem_features[] =
 {
-    (MetaFeature*)&_CIM_IdentificationOfManagedSystem_Antecedent,
-    (MetaFeature*)&_CIM_IdentificationOfManagedSystem_Dependent,
+    (SchemaFeature*)&_CIM_IdentificationOfManagedSystem_Antecedent,
+    (SchemaFeature*)&_CIM_IdentificationOfManagedSystem_Dependent,
     0,
 };
 
@@ -25350,11 +25350,11 @@ __root_PG_InterOp_CIM_IdentificationOfManagedSystem_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_IdentificationOfManagedSystem =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_IdentificationOfManagedSystem",
     /* qualifiers */
@@ -25379,11 +25379,11 @@ _CIM_ObjectManager_GatherStatisticalData_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ObjectManager_GatherStatisticalData =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_WRITE,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_WRITE,
     /* name */
     "GatherStatisticalData",
     /* qualifiers */
@@ -25404,11 +25404,11 @@ _CIM_ObjectManager_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ObjectManager_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -25429,11 +25429,11 @@ _CIM_ObjectManager_ElementName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ObjectManager_ElementName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ElementName",
     /* qualifiers */
@@ -25454,11 +25454,11 @@ _CIM_ObjectManager_Description_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ObjectManager_Description =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Description",
     /* qualifiers */
@@ -25471,13 +25471,13 @@ _CIM_ObjectManager_Description =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ObjectManager_features[] =
 {
-    (MetaFeature*)&_CIM_ObjectManager_GatherStatisticalData,
-    (MetaFeature*)&_CIM_ObjectManager_Name,
-    (MetaFeature*)&_CIM_ObjectManager_ElementName,
-    (MetaFeature*)&_CIM_ObjectManager_Description,
+    (SchemaFeature*)&_CIM_ObjectManager_GatherStatisticalData,
+    (SchemaFeature*)&_CIM_ObjectManager_Name,
+    (SchemaFeature*)&_CIM_ObjectManager_ElementName,
+    (SchemaFeature*)&_CIM_ObjectManager_Description,
     0,
 };
 
@@ -25491,11 +25491,11 @@ __root_PG_InterOp_CIM_ObjectManager_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ObjectManager =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_ObjectManager",
     /* qualifiers */
@@ -25520,11 +25520,11 @@ _CIM_ObjectManagerAdapter_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ObjectManagerAdapter_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -25545,11 +25545,11 @@ _CIM_ObjectManagerAdapter_ElementName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ObjectManagerAdapter_ElementName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ElementName",
     /* qualifiers */
@@ -25570,11 +25570,11 @@ _CIM_ObjectManagerAdapter_Handle_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ObjectManagerAdapter_Handle =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "Handle",
     /* qualifiers */
@@ -25601,11 +25601,11 @@ _CIM_ObjectManagerAdapter_AdapterType_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ObjectManagerAdapter_AdapterType =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "AdapterType",
     /* qualifiers */
@@ -25626,11 +25626,11 @@ _CIM_ObjectManagerAdapter_OtherAdapterTypeDescription_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ObjectManagerAdapter_OtherAdapterTypeDescription =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherAdapterTypeDescription",
     /* qualifiers */
@@ -25643,14 +25643,14 @@ _CIM_ObjectManagerAdapter_OtherAdapterTypeDescription =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ObjectManagerAdapter_features[] =
 {
-    (MetaFeature*)&_CIM_ObjectManagerAdapter_Name,
-    (MetaFeature*)&_CIM_ObjectManagerAdapter_ElementName,
-    (MetaFeature*)&_CIM_ObjectManagerAdapter_Handle,
-    (MetaFeature*)&_CIM_ObjectManagerAdapter_AdapterType,
-    (MetaFeature*)&_CIM_ObjectManagerAdapter_OtherAdapterTypeDescription,
+    (SchemaFeature*)&_CIM_ObjectManagerAdapter_Name,
+    (SchemaFeature*)&_CIM_ObjectManagerAdapter_ElementName,
+    (SchemaFeature*)&_CIM_ObjectManagerAdapter_Handle,
+    (SchemaFeature*)&_CIM_ObjectManagerAdapter_AdapterType,
+    (SchemaFeature*)&_CIM_ObjectManagerAdapter_OtherAdapterTypeDescription,
     0,
 };
 
@@ -25664,11 +25664,11 @@ __root_PG_InterOp_CIM_ObjectManagerAdapter_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ObjectManagerAdapter =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_ObjectManagerAdapter",
     /* qualifiers */
@@ -25699,11 +25699,11 @@ _CIM_ObjectManagerCommunicationMechanism_CommunicationMechanism_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ObjectManagerCommunicationMechanism_CommunicationMechanism =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "CommunicationMechanism",
     /* qualifiers */
@@ -25724,11 +25724,11 @@ _CIM_ObjectManagerCommunicationMechanism_OtherCommunicationMechanismDescription_
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ObjectManagerCommunicationMechanism_OtherCommunicationMechanismDescription =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherCommunicationMechanismDescription",
     /* qualifiers */
@@ -25757,11 +25757,11 @@ _CIM_ObjectManagerCommunicationMechanism_FunctionalProfilesSupported_qualifiers[
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ObjectManagerCommunicationMechanism_FunctionalProfilesSupported =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "FunctionalProfilesSupported",
     /* qualifiers */
@@ -25784,11 +25784,11 @@ _CIM_ObjectManagerCommunicationMechanism_FunctionalProfileDescriptions_qualifier
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ObjectManagerCommunicationMechanism_FunctionalProfileDescriptions =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "FunctionalProfileDescriptions",
     /* qualifiers */
@@ -25809,11 +25809,11 @@ _CIM_ObjectManagerCommunicationMechanism_MultipleOperationsSupported_qualifiers[
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ObjectManagerCommunicationMechanism_MultipleOperationsSupported =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "MultipleOperationsSupported",
     /* qualifiers */
@@ -25842,11 +25842,11 @@ _CIM_ObjectManagerCommunicationMechanism_AuthenticationMechanismsSupported_quali
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ObjectManagerCommunicationMechanism_AuthenticationMechanismsSupported =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "AuthenticationMechanismsSupported",
     /* qualifiers */
@@ -25869,11 +25869,11 @@ _CIM_ObjectManagerCommunicationMechanism_AuthenticationMechanismDescriptions_qua
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ObjectManagerCommunicationMechanism_AuthenticationMechanismDescriptions =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "AuthenticationMechanismDescriptions",
     /* qualifiers */
@@ -25894,11 +25894,11 @@ _CIM_ObjectManagerCommunicationMechanism_Version_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ObjectManagerCommunicationMechanism_Version =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "Version",
     /* qualifiers */
@@ -25927,11 +25927,11 @@ _CIM_ObjectManagerCommunicationMechanism_AdvertiseTypes_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ObjectManagerCommunicationMechanism_AdvertiseTypes =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "AdvertiseTypes",
     /* qualifiers */
@@ -25954,11 +25954,11 @@ _CIM_ObjectManagerCommunicationMechanism_AdvertiseTypeDescriptions_qualifiers[] 
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ObjectManagerCommunicationMechanism_AdvertiseTypeDescriptions =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "AdvertiseTypeDescriptions",
     /* qualifiers */
@@ -25971,19 +25971,19 @@ _CIM_ObjectManagerCommunicationMechanism_AdvertiseTypeDescriptions =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ObjectManagerCommunicationMechanism_features[] =
 {
-    (MetaFeature*)&_CIM_ObjectManagerCommunicationMechanism_CommunicationMechanism,
-    (MetaFeature*)&_CIM_ObjectManagerCommunicationMechanism_OtherCommunicationMechanismDescription,
-    (MetaFeature*)&_CIM_ObjectManagerCommunicationMechanism_FunctionalProfilesSupported,
-    (MetaFeature*)&_CIM_ObjectManagerCommunicationMechanism_FunctionalProfileDescriptions,
-    (MetaFeature*)&_CIM_ObjectManagerCommunicationMechanism_MultipleOperationsSupported,
-    (MetaFeature*)&_CIM_ObjectManagerCommunicationMechanism_AuthenticationMechanismsSupported,
-    (MetaFeature*)&_CIM_ObjectManagerCommunicationMechanism_AuthenticationMechanismDescriptions,
-    (MetaFeature*)&_CIM_ObjectManagerCommunicationMechanism_Version,
-    (MetaFeature*)&_CIM_ObjectManagerCommunicationMechanism_AdvertiseTypes,
-    (MetaFeature*)&_CIM_ObjectManagerCommunicationMechanism_AdvertiseTypeDescriptions,
+    (SchemaFeature*)&_CIM_ObjectManagerCommunicationMechanism_CommunicationMechanism,
+    (SchemaFeature*)&_CIM_ObjectManagerCommunicationMechanism_OtherCommunicationMechanismDescription,
+    (SchemaFeature*)&_CIM_ObjectManagerCommunicationMechanism_FunctionalProfilesSupported,
+    (SchemaFeature*)&_CIM_ObjectManagerCommunicationMechanism_FunctionalProfileDescriptions,
+    (SchemaFeature*)&_CIM_ObjectManagerCommunicationMechanism_MultipleOperationsSupported,
+    (SchemaFeature*)&_CIM_ObjectManagerCommunicationMechanism_AuthenticationMechanismsSupported,
+    (SchemaFeature*)&_CIM_ObjectManagerCommunicationMechanism_AuthenticationMechanismDescriptions,
+    (SchemaFeature*)&_CIM_ObjectManagerCommunicationMechanism_Version,
+    (SchemaFeature*)&_CIM_ObjectManagerCommunicationMechanism_AdvertiseTypes,
+    (SchemaFeature*)&_CIM_ObjectManagerCommunicationMechanism_AdvertiseTypeDescriptions,
     0,
 };
 
@@ -25997,11 +25997,11 @@ __root_PG_InterOp_CIM_ObjectManagerCommunicationMechanism_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ObjectManagerCommunicationMechanism =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_ObjectManagerCommunicationMechanism",
     /* qualifiers */
@@ -26028,11 +26028,11 @@ _CIM_ProtocolAdapter_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ProtocolAdapter_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -26055,11 +26055,11 @@ _CIM_ProtocolAdapter_Handle_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ProtocolAdapter_Handle =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "Handle",
     /* qualifiers */
@@ -26088,11 +26088,11 @@ _CIM_ProtocolAdapter_ProtocolAdapterType_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ProtocolAdapter_ProtocolAdapterType =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "ProtocolAdapterType",
     /* qualifiers */
@@ -26115,11 +26115,11 @@ _CIM_ProtocolAdapter_OtherProtocolAdapterType_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ProtocolAdapter_OtherProtocolAdapterType =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherProtocolAdapterType",
     /* qualifiers */
@@ -26132,13 +26132,13 @@ _CIM_ProtocolAdapter_OtherProtocolAdapterType =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ProtocolAdapter_features[] =
 {
-    (MetaFeature*)&_CIM_ProtocolAdapter_Name,
-    (MetaFeature*)&_CIM_ProtocolAdapter_Handle,
-    (MetaFeature*)&_CIM_ProtocolAdapter_ProtocolAdapterType,
-    (MetaFeature*)&_CIM_ProtocolAdapter_OtherProtocolAdapterType,
+    (SchemaFeature*)&_CIM_ProtocolAdapter_Name,
+    (SchemaFeature*)&_CIM_ProtocolAdapter_Handle,
+    (SchemaFeature*)&_CIM_ProtocolAdapter_ProtocolAdapterType,
+    (SchemaFeature*)&_CIM_ProtocolAdapter_OtherProtocolAdapterType,
     0,
 };
 
@@ -26154,11 +26154,11 @@ __root_PG_InterOp_CIM_ProtocolAdapter_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ProtocolAdapter =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_ProtocolAdapter",
     /* qualifiers */
@@ -26189,11 +26189,11 @@ _CIM_CIMXMLCommunicationMechanism_CommunicationMechanism_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_CIMXMLCommunicationMechanism_CommunicationMechanism =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "CommunicationMechanism",
     /* qualifiers */
@@ -26218,11 +26218,11 @@ _CIM_CIMXMLCommunicationMechanism_Version_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_CIMXMLCommunicationMechanism_Version =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "Version",
     /* qualifiers */
@@ -26249,11 +26249,11 @@ _CIM_CIMXMLCommunicationMechanism_CIMXMLProtocolVersion_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_CIMXMLCommunicationMechanism_CIMXMLProtocolVersion =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "CIMXMLProtocolVersion",
     /* qualifiers */
@@ -26274,11 +26274,11 @@ _CIM_CIMXMLCommunicationMechanism_CIMValidated_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_CIMXMLCommunicationMechanism_CIMValidated =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "CIMValidated",
     /* qualifiers */
@@ -26291,13 +26291,13 @@ _CIM_CIMXMLCommunicationMechanism_CIMValidated =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_CIMXMLCommunicationMechanism_features[] =
 {
-    (MetaFeature*)&_CIM_CIMXMLCommunicationMechanism_CommunicationMechanism,
-    (MetaFeature*)&_CIM_CIMXMLCommunicationMechanism_Version,
-    (MetaFeature*)&_CIM_CIMXMLCommunicationMechanism_CIMXMLProtocolVersion,
-    (MetaFeature*)&_CIM_CIMXMLCommunicationMechanism_CIMValidated,
+    (SchemaFeature*)&_CIM_CIMXMLCommunicationMechanism_CommunicationMechanism,
+    (SchemaFeature*)&_CIM_CIMXMLCommunicationMechanism_Version,
+    (SchemaFeature*)&_CIM_CIMXMLCommunicationMechanism_CIMXMLProtocolVersion,
+    (SchemaFeature*)&_CIM_CIMXMLCommunicationMechanism_CIMValidated,
     0,
 };
 
@@ -26311,11 +26311,11 @@ __root_PG_InterOp_CIM_CIMXMLCommunicationMechanism_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_CIMXMLCommunicationMechanism =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_CIMXMLCommunicationMechanism",
     /* qualifiers */
@@ -26342,11 +26342,11 @@ _CIM_CommMechanismForAdapter_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_CommMechanismForAdapter_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -26369,11 +26369,11 @@ _CIM_CommMechanismForAdapter_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_CommMechanismForAdapter_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -26384,11 +26384,11 @@ _CIM_CommMechanismForAdapter_Dependent =
     &__root_PG_InterOp_CIM_ObjectManagerCommunicationMechanism,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_CommMechanismForAdapter_features[] =
 {
-    (MetaFeature*)&_CIM_CommMechanismForAdapter_Antecedent,
-    (MetaFeature*)&_CIM_CommMechanismForAdapter_Dependent,
+    (SchemaFeature*)&_CIM_CommMechanismForAdapter_Antecedent,
+    (SchemaFeature*)&_CIM_CommMechanismForAdapter_Dependent,
     0,
 };
 
@@ -26406,11 +26406,11 @@ __root_PG_InterOp_CIM_CommMechanismForAdapter_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_CommMechanismForAdapter =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_CommMechanismForAdapter",
     /* qualifiers */
@@ -26439,11 +26439,11 @@ _CIM_CommMechanismForManager_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_CommMechanismForManager_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -26464,11 +26464,11 @@ _CIM_CommMechanismForManager_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_CommMechanismForManager_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -26479,11 +26479,11 @@ _CIM_CommMechanismForManager_Dependent =
     &__root_PG_InterOp_CIM_ObjectManagerCommunicationMechanism,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_CommMechanismForManager_features[] =
 {
-    (MetaFeature*)&_CIM_CommMechanismForManager_Antecedent,
-    (MetaFeature*)&_CIM_CommMechanismForManager_Dependent,
+    (SchemaFeature*)&_CIM_CommMechanismForManager_Antecedent,
+    (SchemaFeature*)&_CIM_CommMechanismForManager_Dependent,
     0,
 };
 
@@ -26499,11 +26499,11 @@ __root_PG_InterOp_CIM_CommMechanismForManager_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_CommMechanismForManager =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_CommMechanismForManager",
     /* qualifiers */
@@ -26528,11 +26528,11 @@ _CIM_CommMechanismForObjectManagerAdapter_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_CommMechanismForObjectManagerAdapter_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -26553,11 +26553,11 @@ _CIM_CommMechanismForObjectManagerAdapter_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_CommMechanismForObjectManagerAdapter_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -26568,11 +26568,11 @@ _CIM_CommMechanismForObjectManagerAdapter_Dependent =
     &__root_PG_InterOp_CIM_ObjectManagerCommunicationMechanism,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_CommMechanismForObjectManagerAdapter_features[] =
 {
-    (MetaFeature*)&_CIM_CommMechanismForObjectManagerAdapter_Antecedent,
-    (MetaFeature*)&_CIM_CommMechanismForObjectManagerAdapter_Dependent,
+    (SchemaFeature*)&_CIM_CommMechanismForObjectManagerAdapter_Antecedent,
+    (SchemaFeature*)&_CIM_CommMechanismForObjectManagerAdapter_Dependent,
     0,
 };
 
@@ -26588,11 +26588,11 @@ __root_PG_InterOp_CIM_CommMechanismForObjectManagerAdapter_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_CommMechanismForObjectManagerAdapter =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_CommMechanismForObjectManagerAdapter",
     /* qualifiers */
@@ -26621,11 +26621,11 @@ _CIM_NamespaceInManager_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_NamespaceInManager_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -26646,11 +26646,11 @@ _CIM_NamespaceInManager_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _CIM_NamespaceInManager_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ|META_FLAG_WEAK,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ|SCHEMA_FLAG_WEAK,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -26661,11 +26661,11 @@ _CIM_NamespaceInManager_Dependent =
     &__root_PG_InterOp_CIM_Namespace,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_NamespaceInManager_features[] =
 {
-    (MetaFeature*)&_CIM_NamespaceInManager_Antecedent,
-    (MetaFeature*)&_CIM_NamespaceInManager_Dependent,
+    (SchemaFeature*)&_CIM_NamespaceInManager_Antecedent,
+    (SchemaFeature*)&_CIM_NamespaceInManager_Dependent,
     0,
 };
 
@@ -26681,11 +26681,11 @@ __root_PG_InterOp_CIM_NamespaceInManager_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_NamespaceInManager =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "CIM_NamespaceInManager",
     /* qualifiers */
@@ -26710,11 +26710,11 @@ _PG_IndicationHandlerSNMPMapper_TargetHost_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_IndicationHandlerSNMPMapper_TargetHost =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "TargetHost",
     /* qualifiers */
@@ -26741,11 +26741,11 @@ _PG_IndicationHandlerSNMPMapper_TargetHostFormat_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_IndicationHandlerSNMPMapper_TargetHostFormat =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "TargetHostFormat",
     /* qualifiers */
@@ -26766,11 +26766,11 @@ _PG_IndicationHandlerSNMPMapper_OtherTargetHostFormat_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_IndicationHandlerSNMPMapper_OtherTargetHostFormat =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherTargetHostFormat",
     /* qualifiers */
@@ -26789,11 +26789,11 @@ _PG_IndicationHandlerSNMPMapper_PortNumber_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_IndicationHandlerSNMPMapper_PortNumber =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "PortNumber",
     /* qualifiers */
@@ -26818,11 +26818,11 @@ _PG_IndicationHandlerSNMPMapper_SNMPVersion_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_IndicationHandlerSNMPMapper_SNMPVersion =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "SNMPVersion",
     /* qualifiers */
@@ -26843,11 +26843,11 @@ _PG_IndicationHandlerSNMPMapper_SNMPSecurityName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_IndicationHandlerSNMPMapper_SNMPSecurityName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SNMPSecurityName",
     /* qualifiers */
@@ -26866,11 +26866,11 @@ _PG_IndicationHandlerSNMPMapper_SNMPEngineID_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_IndicationHandlerSNMPMapper_SNMPEngineID =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SNMPEngineID",
     /* qualifiers */
@@ -26883,16 +26883,16 @@ _PG_IndicationHandlerSNMPMapper_SNMPEngineID =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_IndicationHandlerSNMPMapper_features[] =
 {
-    (MetaFeature*)&_PG_IndicationHandlerSNMPMapper_TargetHost,
-    (MetaFeature*)&_PG_IndicationHandlerSNMPMapper_TargetHostFormat,
-    (MetaFeature*)&_PG_IndicationHandlerSNMPMapper_OtherTargetHostFormat,
-    (MetaFeature*)&_PG_IndicationHandlerSNMPMapper_PortNumber,
-    (MetaFeature*)&_PG_IndicationHandlerSNMPMapper_SNMPVersion,
-    (MetaFeature*)&_PG_IndicationHandlerSNMPMapper_SNMPSecurityName,
-    (MetaFeature*)&_PG_IndicationHandlerSNMPMapper_SNMPEngineID,
+    (SchemaFeature*)&_PG_IndicationHandlerSNMPMapper_TargetHost,
+    (SchemaFeature*)&_PG_IndicationHandlerSNMPMapper_TargetHostFormat,
+    (SchemaFeature*)&_PG_IndicationHandlerSNMPMapper_OtherTargetHostFormat,
+    (SchemaFeature*)&_PG_IndicationHandlerSNMPMapper_PortNumber,
+    (SchemaFeature*)&_PG_IndicationHandlerSNMPMapper_SNMPVersion,
+    (SchemaFeature*)&_PG_IndicationHandlerSNMPMapper_SNMPSecurityName,
+    (SchemaFeature*)&_PG_IndicationHandlerSNMPMapper_SNMPEngineID,
     0,
 };
 
@@ -26902,11 +26902,11 @@ __root_PG_InterOp_PG_IndicationHandlerSNMPMapper_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_IndicationHandlerSNMPMapper =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "PG_IndicationHandlerSNMPMapper",
     /* qualifiers */
@@ -26923,7 +26923,7 @@ __root_PG_InterOp_PG_IndicationHandlerSNMPMapper =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _PG_ListenerDestinationSystemLog_features[] =
 {
     0,
@@ -26935,11 +26935,11 @@ __root_PG_InterOp_PG_ListenerDestinationSystemLog_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_ListenerDestinationSystemLog =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "PG_ListenerDestinationSystemLog",
     /* qualifiers */
@@ -26964,11 +26964,11 @@ _PG_ListenerDestinationEmail_MailTo_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ListenerDestinationEmail_MailTo =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "MailTo",
     /* qualifiers */
@@ -26987,11 +26987,11 @@ _PG_ListenerDestinationEmail_MailCc_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ListenerDestinationEmail_MailCc =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "MailCc",
     /* qualifiers */
@@ -27012,11 +27012,11 @@ _PG_ListenerDestinationEmail_MailSubject_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ListenerDestinationEmail_MailSubject =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "MailSubject",
     /* qualifiers */
@@ -27029,12 +27029,12 @@ _PG_ListenerDestinationEmail_MailSubject =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_ListenerDestinationEmail_features[] =
 {
-    (MetaFeature*)&_PG_ListenerDestinationEmail_MailTo,
-    (MetaFeature*)&_PG_ListenerDestinationEmail_MailCc,
-    (MetaFeature*)&_PG_ListenerDestinationEmail_MailSubject,
+    (SchemaFeature*)&_PG_ListenerDestinationEmail_MailTo,
+    (SchemaFeature*)&_PG_ListenerDestinationEmail_MailCc,
+    (SchemaFeature*)&_PG_ListenerDestinationEmail_MailSubject,
     0,
 };
 
@@ -27044,11 +27044,11 @@ __root_PG_InterOp_PG_ListenerDestinationEmail_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_ListenerDestinationEmail =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "PG_ListenerDestinationEmail",
     /* qualifiers */
@@ -27075,11 +27075,11 @@ _PG_ProviderModule_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderModule_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -27100,11 +27100,11 @@ _PG_ProviderModule_Vendor_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderModule_Vendor =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "Vendor",
     /* qualifiers */
@@ -27125,11 +27125,11 @@ _PG_ProviderModule_Version_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderModule_Version =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "Version",
     /* qualifiers */
@@ -27150,11 +27150,11 @@ _PG_ProviderModule_InterfaceType_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderModule_InterfaceType =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "InterfaceType",
     /* qualifiers */
@@ -27175,11 +27175,11 @@ _PG_ProviderModule_InterfaceVersion_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderModule_InterfaceVersion =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "InterfaceVersion",
     /* qualifiers */
@@ -27200,11 +27200,11 @@ _PG_ProviderModule_Location_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderModule_Location =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "Location",
     /* qualifiers */
@@ -27227,11 +27227,11 @@ _PG_ProviderModule_UserContext_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderModule_UserContext =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "UserContext",
     /* qualifiers */
@@ -27250,11 +27250,11 @@ _PG_ProviderModule_DesignatedUserContext_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderModule_DesignatedUserContext =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "DesignatedUserContext",
     /* qualifiers */
@@ -27279,11 +27279,11 @@ _PG_ProviderModule_OperationalStatus_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderModule_OperationalStatus =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OperationalStatus",
     /* qualifiers */
@@ -27304,11 +27304,11 @@ _PG_ProviderModule_OtherStatusDescription_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderModule_OtherStatusDescription =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherStatusDescription",
     /* qualifiers */
@@ -27321,7 +27321,7 @@ _PG_ProviderModule_OtherStatusDescription =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_ProviderModule_start_parameters[] =
 {
     0,
@@ -27333,11 +27333,11 @@ _PG_ProviderModule_start_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _PG_ProviderModule_start =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "PG_ProviderModule",
     /* qualifiers */
@@ -27348,7 +27348,7 @@ _PG_ProviderModule_start =
     _PG_ProviderModule_start_parameters,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_ProviderModule_stop_parameters[] =
 {
     0,
@@ -27360,11 +27360,11 @@ _PG_ProviderModule_stop_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _PG_ProviderModule_stop =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "PG_ProviderModule",
     /* qualifiers */
@@ -27375,21 +27375,21 @@ _PG_ProviderModule_stop =
     _PG_ProviderModule_stop_parameters,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_ProviderModule_features[] =
 {
-    (MetaFeature*)&_PG_ProviderModule_Name,
-    (MetaFeature*)&_PG_ProviderModule_Vendor,
-    (MetaFeature*)&_PG_ProviderModule_Version,
-    (MetaFeature*)&_PG_ProviderModule_InterfaceType,
-    (MetaFeature*)&_PG_ProviderModule_InterfaceVersion,
-    (MetaFeature*)&_PG_ProviderModule_Location,
-    (MetaFeature*)&_PG_ProviderModule_UserContext,
-    (MetaFeature*)&_PG_ProviderModule_DesignatedUserContext,
-    (MetaFeature*)&_PG_ProviderModule_OperationalStatus,
-    (MetaFeature*)&_PG_ProviderModule_OtherStatusDescription,
-    (MetaFeature*)&_PG_ProviderModule_start,
-    (MetaFeature*)&_PG_ProviderModule_stop,
+    (SchemaFeature*)&_PG_ProviderModule_Name,
+    (SchemaFeature*)&_PG_ProviderModule_Vendor,
+    (SchemaFeature*)&_PG_ProviderModule_Version,
+    (SchemaFeature*)&_PG_ProviderModule_InterfaceType,
+    (SchemaFeature*)&_PG_ProviderModule_InterfaceVersion,
+    (SchemaFeature*)&_PG_ProviderModule_Location,
+    (SchemaFeature*)&_PG_ProviderModule_UserContext,
+    (SchemaFeature*)&_PG_ProviderModule_DesignatedUserContext,
+    (SchemaFeature*)&_PG_ProviderModule_OperationalStatus,
+    (SchemaFeature*)&_PG_ProviderModule_OtherStatusDescription,
+    (SchemaFeature*)&_PG_ProviderModule_start,
+    (SchemaFeature*)&_PG_ProviderModule_stop,
     0,
 };
 
@@ -27401,11 +27401,11 @@ __root_PG_InterOp_PG_ProviderModule_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_ProviderModule =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "PG_ProviderModule",
     /* qualifiers */
@@ -27432,11 +27432,11 @@ _PG_Provider_ProviderModuleName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_Provider_ProviderModuleName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "ProviderModuleName",
     /* qualifiers */
@@ -27459,11 +27459,11 @@ _PG_Provider_Name_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_Provider_Name =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Name",
     /* qualifiers */
@@ -27476,11 +27476,11 @@ _PG_Provider_Name =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_Provider_features[] =
 {
-    (MetaFeature*)&_PG_Provider_ProviderModuleName,
-    (MetaFeature*)&_PG_Provider_Name,
+    (SchemaFeature*)&_PG_Provider_ProviderModuleName,
+    (SchemaFeature*)&_PG_Provider_Name,
     0,
 };
 
@@ -27492,11 +27492,11 @@ __root_PG_InterOp_PG_Provider_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_Provider =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "PG_Provider",
     /* qualifiers */
@@ -27523,11 +27523,11 @@ _PG_Capabilities_ProviderModuleName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_Capabilities_ProviderModuleName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "ProviderModuleName",
     /* qualifiers */
@@ -27550,11 +27550,11 @@ _PG_Capabilities_ProviderName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_Capabilities_ProviderName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "ProviderName",
     /* qualifiers */
@@ -27575,11 +27575,11 @@ _PG_Capabilities_CapabilityID_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_Capabilities_CapabilityID =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "CapabilityID",
     /* qualifiers */
@@ -27592,12 +27592,12 @@ _PG_Capabilities_CapabilityID =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_Capabilities_features[] =
 {
-    (MetaFeature*)&_PG_Capabilities_ProviderModuleName,
-    (MetaFeature*)&_PG_Capabilities_ProviderName,
-    (MetaFeature*)&_PG_Capabilities_CapabilityID,
+    (SchemaFeature*)&_PG_Capabilities_ProviderModuleName,
+    (SchemaFeature*)&_PG_Capabilities_ProviderName,
+    (SchemaFeature*)&_PG_Capabilities_CapabilityID,
     0,
 };
 
@@ -27611,11 +27611,11 @@ __root_PG_InterOp_PG_Capabilities_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_Capabilities =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "PG_Capabilities",
     /* qualifiers */
@@ -27646,11 +27646,11 @@ _PG_CapabilitiesRegistration_ProviderType_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_CapabilitiesRegistration_ProviderType =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "ProviderType",
     /* qualifiers */
@@ -27663,10 +27663,10 @@ _PG_CapabilitiesRegistration_ProviderType =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_CapabilitiesRegistration_features[] =
 {
-    (MetaFeature*)&_PG_CapabilitiesRegistration_ProviderType,
+    (SchemaFeature*)&_PG_CapabilitiesRegistration_ProviderType,
     0,
 };
 
@@ -27680,11 +27680,11 @@ __root_PG_InterOp_PG_CapabilitiesRegistration_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_CapabilitiesRegistration =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "PG_CapabilitiesRegistration",
     /* qualifiers */
@@ -27709,11 +27709,11 @@ _PG_ProviderCapabilities_ClassName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderCapabilities_ClassName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "ClassName",
     /* qualifiers */
@@ -27734,11 +27734,11 @@ _PG_ProviderCapabilities_Namespaces_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderCapabilities_Namespaces =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "Namespaces",
     /* qualifiers */
@@ -27759,11 +27759,11 @@ _PG_ProviderCapabilities_SupportedProperties_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderCapabilities_SupportedProperties =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SupportedProperties",
     /* qualifiers */
@@ -27784,11 +27784,11 @@ _PG_ProviderCapabilities_SupportedMethods_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderCapabilities_SupportedMethods =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SupportedMethods",
     /* qualifiers */
@@ -27801,13 +27801,13 @@ _PG_ProviderCapabilities_SupportedMethods =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_ProviderCapabilities_features[] =
 {
-    (MetaFeature*)&_PG_ProviderCapabilities_ClassName,
-    (MetaFeature*)&_PG_ProviderCapabilities_Namespaces,
-    (MetaFeature*)&_PG_ProviderCapabilities_SupportedProperties,
-    (MetaFeature*)&_PG_ProviderCapabilities_SupportedMethods,
+    (SchemaFeature*)&_PG_ProviderCapabilities_ClassName,
+    (SchemaFeature*)&_PG_ProviderCapabilities_Namespaces,
+    (SchemaFeature*)&_PG_ProviderCapabilities_SupportedProperties,
+    (SchemaFeature*)&_PG_ProviderCapabilities_SupportedMethods,
     0,
 };
 
@@ -27819,11 +27819,11 @@ __root_PG_InterOp_PG_ProviderCapabilities_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_ProviderCapabilities =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "PG_ProviderCapabilities",
     /* qualifiers */
@@ -27848,11 +27848,11 @@ _PG_ConsumerCapabilities_Destinations_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ConsumerCapabilities_Destinations =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "Destinations",
     /* qualifiers */
@@ -27865,10 +27865,10 @@ _PG_ConsumerCapabilities_Destinations =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_ConsumerCapabilities_features[] =
 {
-    (MetaFeature*)&_PG_ConsumerCapabilities_Destinations,
+    (SchemaFeature*)&_PG_ConsumerCapabilities_Destinations,
     0,
 };
 
@@ -27880,11 +27880,11 @@ __root_PG_InterOp_PG_ConsumerCapabilities_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_ConsumerCapabilities =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "PG_ConsumerCapabilities",
     /* qualifiers */
@@ -27915,11 +27915,11 @@ _PG_ProviderCapabilitiesElements_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _PG_ProviderCapabilitiesElements_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -27940,11 +27940,11 @@ _PG_ProviderCapabilitiesElements_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _PG_ProviderCapabilitiesElements_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ|META_FLAG_WEAK,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ|SCHEMA_FLAG_WEAK,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -27955,11 +27955,11 @@ _PG_ProviderCapabilitiesElements_Dependent =
     &__root_PG_InterOp_PG_CapabilitiesRegistration,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_ProviderCapabilitiesElements_features[] =
 {
-    (MetaFeature*)&_PG_ProviderCapabilitiesElements_Antecedent,
-    (MetaFeature*)&_PG_ProviderCapabilitiesElements_Dependent,
+    (SchemaFeature*)&_PG_ProviderCapabilitiesElements_Antecedent,
+    (SchemaFeature*)&_PG_ProviderCapabilitiesElements_Dependent,
     0,
 };
 
@@ -27973,11 +27973,11 @@ __root_PG_InterOp_PG_ProviderCapabilitiesElements_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_ProviderCapabilitiesElements =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "PG_ProviderCapabilitiesElements",
     /* qualifiers */
@@ -28008,11 +28008,11 @@ _PG_ProviderModuleElements_Antecedent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _PG_ProviderModuleElements_Antecedent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_KEY|META_FLAG_READ,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_KEY|SCHEMA_FLAG_READ,
     /* name */
     "Antecedent",
     /* qualifiers */
@@ -28033,11 +28033,11 @@ _PG_ProviderModuleElements_Dependent_qualifiers[] =
     0,
 };
 
-static MetaReference
+static SchemaReference
 _PG_ProviderModuleElements_Dependent =
 {
     /* flags */
-    META_FLAG_REFERENCE|META_FLAG_READ|META_FLAG_WEAK,
+    SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_READ|SCHEMA_FLAG_WEAK,
     /* name */
     "Dependent",
     /* qualifiers */
@@ -28048,11 +28048,11 @@ _PG_ProviderModuleElements_Dependent =
     &__root_PG_InterOp_PG_Provider,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_ProviderModuleElements_features[] =
 {
-    (MetaFeature*)&_PG_ProviderModuleElements_Antecedent,
-    (MetaFeature*)&_PG_ProviderModuleElements_Dependent,
+    (SchemaFeature*)&_PG_ProviderModuleElements_Antecedent,
+    (SchemaFeature*)&_PG_ProviderModuleElements_Dependent,
     0,
 };
 
@@ -28066,11 +28066,11 @@ __root_PG_InterOp_PG_ProviderModuleElements_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_ProviderModuleElements =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "PG_ProviderModuleElements",
     /* qualifiers */
@@ -28095,11 +28095,11 @@ _PG_CIMXMLCommunicationMechanism_namespaceType_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_CIMXMLCommunicationMechanism_namespaceType =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "namespaceType",
     /* qualifiers */
@@ -28122,11 +28122,11 @@ _PG_CIMXMLCommunicationMechanism_namespaceAccessProtocol_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_CIMXMLCommunicationMechanism_namespaceAccessProtocol =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "namespaceAccessProtocol",
     /* qualifiers */
@@ -28145,11 +28145,11 @@ _PG_CIMXMLCommunicationMechanism_IPAddress_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_CIMXMLCommunicationMechanism_IPAddress =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "IPAddress",
     /* qualifiers */
@@ -28162,12 +28162,12 @@ _PG_CIMXMLCommunicationMechanism_IPAddress =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_CIMXMLCommunicationMechanism_features[] =
 {
-    (MetaFeature*)&_PG_CIMXMLCommunicationMechanism_namespaceType,
-    (MetaFeature*)&_PG_CIMXMLCommunicationMechanism_namespaceAccessProtocol,
-    (MetaFeature*)&_PG_CIMXMLCommunicationMechanism_IPAddress,
+    (SchemaFeature*)&_PG_CIMXMLCommunicationMechanism_namespaceType,
+    (SchemaFeature*)&_PG_CIMXMLCommunicationMechanism_namespaceAccessProtocol,
+    (SchemaFeature*)&_PG_CIMXMLCommunicationMechanism_IPAddress,
     0,
 };
 
@@ -28179,11 +28179,11 @@ __root_PG_InterOp_PG_CIMXMLCommunicationMechanism_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_CIMXMLCommunicationMechanism =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "PG_CIMXMLCommunicationMechanism",
     /* qualifiers */
@@ -28206,11 +28206,11 @@ _PG_NameSpace_SchemaUpdatesAllowed_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_NameSpace_SchemaUpdatesAllowed =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SchemaUpdatesAllowed",
     /* qualifiers */
@@ -28229,11 +28229,11 @@ _PG_NameSpace_IsShareable_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_NameSpace_IsShareable =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "IsShareable",
     /* qualifiers */
@@ -28252,11 +28252,11 @@ _PG_NameSpace_ParentNamespace_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_NameSpace_ParentNamespace =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ParentNamespace",
     /* qualifiers */
@@ -28269,12 +28269,12 @@ _PG_NameSpace_ParentNamespace =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_NameSpace_features[] =
 {
-    (MetaFeature*)&_PG_NameSpace_SchemaUpdatesAllowed,
-    (MetaFeature*)&_PG_NameSpace_IsShareable,
-    (MetaFeature*)&_PG_NameSpace_ParentNamespace,
+    (SchemaFeature*)&_PG_NameSpace_SchemaUpdatesAllowed,
+    (SchemaFeature*)&_PG_NameSpace_IsShareable,
+    (SchemaFeature*)&_PG_NameSpace_ParentNamespace,
     0,
 };
 
@@ -28286,11 +28286,11 @@ __root_PG_InterOp_PG_NameSpace_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_NameSpace =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "PG_NameSpace",
     /* qualifiers */
@@ -28317,11 +28317,11 @@ _CIM_ComputerSystem_NameFormat_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ComputerSystem_NameFormat =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "NameFormat",
     /* qualifiers */
@@ -28346,11 +28346,11 @@ _CIM_ComputerSystem_OtherIdentifyingInfo_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ComputerSystem_OtherIdentifyingInfo =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherIdentifyingInfo",
     /* qualifiers */
@@ -28373,11 +28373,11 @@ _CIM_ComputerSystem_IdentifyingDescriptions_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ComputerSystem_IdentifyingDescriptions =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "IdentifyingDescriptions",
     /* qualifiers */
@@ -28398,11 +28398,11 @@ _CIM_ComputerSystem_Dedicated_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_ComputerSystem_Dedicated =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "Dedicated",
     /* qualifiers */
@@ -28415,13 +28415,13 @@ _CIM_ComputerSystem_Dedicated =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_ComputerSystem_features[] =
 {
-    (MetaFeature*)&_CIM_ComputerSystem_NameFormat,
-    (MetaFeature*)&_CIM_ComputerSystem_OtherIdentifyingInfo,
-    (MetaFeature*)&_CIM_ComputerSystem_IdentifyingDescriptions,
-    (MetaFeature*)&_CIM_ComputerSystem_Dedicated,
+    (SchemaFeature*)&_CIM_ComputerSystem_NameFormat,
+    (SchemaFeature*)&_CIM_ComputerSystem_OtherIdentifyingInfo,
+    (SchemaFeature*)&_CIM_ComputerSystem_IdentifyingDescriptions,
+    (SchemaFeature*)&_CIM_ComputerSystem_Dedicated,
     0,
 };
 
@@ -28433,11 +28433,11 @@ __root_PG_InterOp_CIM_ComputerSystem_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_ComputerSystem =
 {
     /* flags */
-    META_FLAG_CLASS|META_FLAG_ABSTRACT,
+    SCHEMA_FLAG_CLASS|SCHEMA_FLAG_ABSTRACT,
     /* name */
     "CIM_ComputerSystem",
     /* qualifiers */
@@ -28460,11 +28460,11 @@ _CIM_UnitaryComputerSystem_InitialLoadInfo_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_UnitaryComputerSystem_InitialLoadInfo =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "InitialLoadInfo",
     /* qualifiers */
@@ -28485,11 +28485,11 @@ _CIM_UnitaryComputerSystem_LastLoadInfo_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_UnitaryComputerSystem_LastLoadInfo =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "LastLoadInfo",
     /* qualifiers */
@@ -28508,11 +28508,11 @@ _CIM_UnitaryComputerSystem_PowerManagementSupported_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_UnitaryComputerSystem_PowerManagementSupported =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "PowerManagementSupported",
     /* qualifiers */
@@ -28533,11 +28533,11 @@ _CIM_UnitaryComputerSystem_PowerState_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_UnitaryComputerSystem_PowerState =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "PowerState",
     /* qualifiers */
@@ -28558,11 +28558,11 @@ _CIM_UnitaryComputerSystem_WakeUpType_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_UnitaryComputerSystem_WakeUpType =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "WakeUpType",
     /* qualifiers */
@@ -28587,11 +28587,11 @@ _CIM_UnitaryComputerSystem_ResetCapability_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_UnitaryComputerSystem_ResetCapability =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ResetCapability",
     /* qualifiers */
@@ -28614,11 +28614,11 @@ _CIM_UnitaryComputerSystem_PowerManagementCapabilities_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_UnitaryComputerSystem_PowerManagementCapabilities =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "PowerManagementCapabilities",
     /* qualifiers */
@@ -28643,11 +28643,11 @@ _CIM_UnitaryComputerSystem_SetPowerState_PowerState_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_UnitaryComputerSystem_SetPowerState_PowerState =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "PowerState",
     /* qualifiers */
@@ -28668,11 +28668,11 @@ _CIM_UnitaryComputerSystem_SetPowerState_Time_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _CIM_UnitaryComputerSystem_SetPowerState_Time =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_IN,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_IN,
     /* name */
     "Time",
     /* qualifiers */
@@ -28685,11 +28685,11 @@ _CIM_UnitaryComputerSystem_SetPowerState_Time =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_UnitaryComputerSystem_SetPowerState_parameters[] =
 {
-    (MetaFeature*)&_CIM_UnitaryComputerSystem_SetPowerState_PowerState,
-    (MetaFeature*)&_CIM_UnitaryComputerSystem_SetPowerState_Time,
+    (SchemaFeature*)&_CIM_UnitaryComputerSystem_SetPowerState_PowerState,
+    (SchemaFeature*)&_CIM_UnitaryComputerSystem_SetPowerState_Time,
     0,
 };
 
@@ -28699,11 +28699,11 @@ _CIM_UnitaryComputerSystem_SetPowerState_qualifiers[] =
     0,
 };
 
-static MetaMethod
+static SchemaMethod
 _CIM_UnitaryComputerSystem_SetPowerState =
 {
     /* flags */
-    META_FLAG_METHOD,
+    SCHEMA_FLAG_METHOD,
     /* name */
     "CIM_UnitaryComputerSystem",
     /* qualifiers */
@@ -28714,17 +28714,17 @@ _CIM_UnitaryComputerSystem_SetPowerState =
     _CIM_UnitaryComputerSystem_SetPowerState_parameters,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _CIM_UnitaryComputerSystem_features[] =
 {
-    (MetaFeature*)&_CIM_UnitaryComputerSystem_InitialLoadInfo,
-    (MetaFeature*)&_CIM_UnitaryComputerSystem_LastLoadInfo,
-    (MetaFeature*)&_CIM_UnitaryComputerSystem_PowerManagementSupported,
-    (MetaFeature*)&_CIM_UnitaryComputerSystem_PowerState,
-    (MetaFeature*)&_CIM_UnitaryComputerSystem_WakeUpType,
-    (MetaFeature*)&_CIM_UnitaryComputerSystem_ResetCapability,
-    (MetaFeature*)&_CIM_UnitaryComputerSystem_PowerManagementCapabilities,
-    (MetaFeature*)&_CIM_UnitaryComputerSystem_SetPowerState,
+    (SchemaFeature*)&_CIM_UnitaryComputerSystem_InitialLoadInfo,
+    (SchemaFeature*)&_CIM_UnitaryComputerSystem_LastLoadInfo,
+    (SchemaFeature*)&_CIM_UnitaryComputerSystem_PowerManagementSupported,
+    (SchemaFeature*)&_CIM_UnitaryComputerSystem_PowerState,
+    (SchemaFeature*)&_CIM_UnitaryComputerSystem_WakeUpType,
+    (SchemaFeature*)&_CIM_UnitaryComputerSystem_ResetCapability,
+    (SchemaFeature*)&_CIM_UnitaryComputerSystem_PowerManagementCapabilities,
+    (SchemaFeature*)&_CIM_UnitaryComputerSystem_SetPowerState,
     0,
 };
 
@@ -28734,11 +28734,11 @@ __root_PG_InterOp_CIM_UnitaryComputerSystem_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_CIM_UnitaryComputerSystem =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "CIM_UnitaryComputerSystem",
     /* qualifiers */
@@ -28763,11 +28763,11 @@ _PG_ComputerSystem_PrimaryOwnerPager_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ComputerSystem_PrimaryOwnerPager =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "PrimaryOwnerPager",
     /* qualifiers */
@@ -28788,11 +28788,11 @@ _PG_ComputerSystem_SecondaryOwnerName_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ComputerSystem_SecondaryOwnerName =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SecondaryOwnerName",
     /* qualifiers */
@@ -28813,11 +28813,11 @@ _PG_ComputerSystem_SecondaryOwnerContact_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ComputerSystem_SecondaryOwnerContact =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SecondaryOwnerContact",
     /* qualifiers */
@@ -28838,11 +28838,11 @@ _PG_ComputerSystem_SecondaryOwnerPager_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ComputerSystem_SecondaryOwnerPager =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SecondaryOwnerPager",
     /* qualifiers */
@@ -28863,11 +28863,11 @@ _PG_ComputerSystem_SerialNumber_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ComputerSystem_SerialNumber =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SerialNumber",
     /* qualifiers */
@@ -28888,11 +28888,11 @@ _PG_ComputerSystem_IdentificationNumber_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ComputerSystem_IdentificationNumber =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "IdentificationNumber",
     /* qualifiers */
@@ -28905,15 +28905,15 @@ _PG_ComputerSystem_IdentificationNumber =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_ComputerSystem_features[] =
 {
-    (MetaFeature*)&_PG_ComputerSystem_PrimaryOwnerPager,
-    (MetaFeature*)&_PG_ComputerSystem_SecondaryOwnerName,
-    (MetaFeature*)&_PG_ComputerSystem_SecondaryOwnerContact,
-    (MetaFeature*)&_PG_ComputerSystem_SecondaryOwnerPager,
-    (MetaFeature*)&_PG_ComputerSystem_SerialNumber,
-    (MetaFeature*)&_PG_ComputerSystem_IdentificationNumber,
+    (SchemaFeature*)&_PG_ComputerSystem_PrimaryOwnerPager,
+    (SchemaFeature*)&_PG_ComputerSystem_SecondaryOwnerName,
+    (SchemaFeature*)&_PG_ComputerSystem_SecondaryOwnerContact,
+    (SchemaFeature*)&_PG_ComputerSystem_SecondaryOwnerPager,
+    (SchemaFeature*)&_PG_ComputerSystem_SerialNumber,
+    (SchemaFeature*)&_PG_ComputerSystem_IdentificationNumber,
     0,
 };
 
@@ -28925,11 +28925,11 @@ __root_PG_InterOp_PG_ComputerSystem_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_ComputerSystem =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "PG_ComputerSystem",
     /* qualifiers */
@@ -28958,11 +28958,11 @@ _PG_ProviderProfileCapabilities_RegisteredProfile_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderProfileCapabilities_RegisteredProfile =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "RegisteredProfile",
     /* qualifiers */
@@ -28987,11 +28987,11 @@ _PG_ProviderProfileCapabilities_RegisteredSubProfiles_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderProfileCapabilities_RegisteredSubProfiles =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "RegisteredSubProfiles",
     /* qualifiers */
@@ -29012,11 +29012,11 @@ _PG_ProviderProfileCapabilities_ProfileVersion_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderProfileCapabilities_ProfileVersion =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "ProfileVersion",
     /* qualifiers */
@@ -29035,11 +29035,11 @@ _PG_ProviderProfileCapabilities_SubProfileVersions_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderProfileCapabilities_SubProfileVersions =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "SubProfileVersions",
     /* qualifiers */
@@ -29058,11 +29058,11 @@ _PG_ProviderProfileCapabilities_OtherRegisteredProfile_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderProfileCapabilities_OtherRegisteredProfile =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherRegisteredProfile",
     /* qualifiers */
@@ -29081,11 +29081,11 @@ _PG_ProviderProfileCapabilities_OtherProfileOrganization_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderProfileCapabilities_OtherProfileOrganization =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherProfileOrganization",
     /* qualifiers */
@@ -29104,11 +29104,11 @@ _PG_ProviderProfileCapabilities_OtherRegisteredSubProfiles_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderProfileCapabilities_OtherRegisteredSubProfiles =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherRegisteredSubProfiles",
     /* qualifiers */
@@ -29127,11 +29127,11 @@ _PG_ProviderProfileCapabilities_OtherSubProfileOrganizations_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderProfileCapabilities_OtherSubProfileOrganizations =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherSubProfileOrganizations",
     /* qualifiers */
@@ -29150,11 +29150,11 @@ _PG_ProviderProfileCapabilities_ConformingElements_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderProfileCapabilities_ConformingElements =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "ConformingElements",
     /* qualifiers */
@@ -29167,18 +29167,18 @@ _PG_ProviderProfileCapabilities_ConformingElements =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_ProviderProfileCapabilities_features[] =
 {
-    (MetaFeature*)&_PG_ProviderProfileCapabilities_RegisteredProfile,
-    (MetaFeature*)&_PG_ProviderProfileCapabilities_RegisteredSubProfiles,
-    (MetaFeature*)&_PG_ProviderProfileCapabilities_ProfileVersion,
-    (MetaFeature*)&_PG_ProviderProfileCapabilities_SubProfileVersions,
-    (MetaFeature*)&_PG_ProviderProfileCapabilities_OtherRegisteredProfile,
-    (MetaFeature*)&_PG_ProviderProfileCapabilities_OtherProfileOrganization,
-    (MetaFeature*)&_PG_ProviderProfileCapabilities_OtherRegisteredSubProfiles,
-    (MetaFeature*)&_PG_ProviderProfileCapabilities_OtherSubProfileOrganizations,
-    (MetaFeature*)&_PG_ProviderProfileCapabilities_ConformingElements,
+    (SchemaFeature*)&_PG_ProviderProfileCapabilities_RegisteredProfile,
+    (SchemaFeature*)&_PG_ProviderProfileCapabilities_RegisteredSubProfiles,
+    (SchemaFeature*)&_PG_ProviderProfileCapabilities_ProfileVersion,
+    (SchemaFeature*)&_PG_ProviderProfileCapabilities_SubProfileVersions,
+    (SchemaFeature*)&_PG_ProviderProfileCapabilities_OtherRegisteredProfile,
+    (SchemaFeature*)&_PG_ProviderProfileCapabilities_OtherProfileOrganization,
+    (SchemaFeature*)&_PG_ProviderProfileCapabilities_OtherRegisteredSubProfiles,
+    (SchemaFeature*)&_PG_ProviderProfileCapabilities_OtherSubProfileOrganizations,
+    (SchemaFeature*)&_PG_ProviderProfileCapabilities_ConformingElements,
     0,
 };
 
@@ -29190,11 +29190,11 @@ __root_PG_InterOp_PG_ProviderProfileCapabilities_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_ProviderProfileCapabilities =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "PG_ProviderProfileCapabilities",
     /* qualifiers */
@@ -29223,11 +29223,11 @@ _PG_ProviderReferencedProfiles_RegisteredProfiles_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderReferencedProfiles_RegisteredProfiles =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "RegisteredProfiles",
     /* qualifiers */
@@ -29252,11 +29252,11 @@ _PG_ProviderReferencedProfiles_DependentProfiles_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderReferencedProfiles_DependentProfiles =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "DependentProfiles",
     /* qualifiers */
@@ -29277,11 +29277,11 @@ _PG_ProviderReferencedProfiles_RegisteredProfileVersions_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderReferencedProfiles_RegisteredProfileVersions =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "RegisteredProfileVersions",
     /* qualifiers */
@@ -29302,11 +29302,11 @@ _PG_ProviderReferencedProfiles_DependentProfileVersions_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderReferencedProfiles_DependentProfileVersions =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ|META_FLAG_REQUIRED,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ|SCHEMA_FLAG_REQUIRED,
     /* name */
     "DependentProfileVersions",
     /* qualifiers */
@@ -29325,11 +29325,11 @@ _PG_ProviderReferencedProfiles_OtherRegisteredProfiles_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderReferencedProfiles_OtherRegisteredProfiles =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherRegisteredProfiles",
     /* qualifiers */
@@ -29348,11 +29348,11 @@ _PG_ProviderReferencedProfiles_OtherDependentProfiles_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderReferencedProfiles_OtherDependentProfiles =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherDependentProfiles",
     /* qualifiers */
@@ -29371,11 +29371,11 @@ _PG_ProviderReferencedProfiles_OtherRegisteredProfileOrganizations_qualifiers[] 
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderReferencedProfiles_OtherRegisteredProfileOrganizations =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherRegisteredProfileOrganizations",
     /* qualifiers */
@@ -29394,11 +29394,11 @@ _PG_ProviderReferencedProfiles_OtherDependentProfileOrganizations_qualifiers[] =
     0,
 };
 
-static MetaProperty
+static SchemaProperty
 _PG_ProviderReferencedProfiles_OtherDependentProfileOrganizations =
 {
     /* flags */
-    META_FLAG_PROPERTY|META_FLAG_READ,
+    SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_READ,
     /* name */
     "OtherDependentProfileOrganizations",
     /* qualifiers */
@@ -29411,17 +29411,17 @@ _PG_ProviderReferencedProfiles_OtherDependentProfileOrganizations =
     0,
 };
 
-static MetaFeature*
+static SchemaFeature*
 _PG_ProviderReferencedProfiles_features[] =
 {
-    (MetaFeature*)&_PG_ProviderReferencedProfiles_RegisteredProfiles,
-    (MetaFeature*)&_PG_ProviderReferencedProfiles_DependentProfiles,
-    (MetaFeature*)&_PG_ProviderReferencedProfiles_RegisteredProfileVersions,
-    (MetaFeature*)&_PG_ProviderReferencedProfiles_DependentProfileVersions,
-    (MetaFeature*)&_PG_ProviderReferencedProfiles_OtherRegisteredProfiles,
-    (MetaFeature*)&_PG_ProviderReferencedProfiles_OtherDependentProfiles,
-    (MetaFeature*)&_PG_ProviderReferencedProfiles_OtherRegisteredProfileOrganizations,
-    (MetaFeature*)&_PG_ProviderReferencedProfiles_OtherDependentProfileOrganizations,
+    (SchemaFeature*)&_PG_ProviderReferencedProfiles_RegisteredProfiles,
+    (SchemaFeature*)&_PG_ProviderReferencedProfiles_DependentProfiles,
+    (SchemaFeature*)&_PG_ProviderReferencedProfiles_RegisteredProfileVersions,
+    (SchemaFeature*)&_PG_ProviderReferencedProfiles_DependentProfileVersions,
+    (SchemaFeature*)&_PG_ProviderReferencedProfiles_OtherRegisteredProfiles,
+    (SchemaFeature*)&_PG_ProviderReferencedProfiles_OtherDependentProfiles,
+    (SchemaFeature*)&_PG_ProviderReferencedProfiles_OtherRegisteredProfileOrganizations,
+    (SchemaFeature*)&_PG_ProviderReferencedProfiles_OtherDependentProfileOrganizations,
     0,
 };
 
@@ -29433,11 +29433,11 @@ __root_PG_InterOp_PG_ProviderReferencedProfiles_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_ProviderReferencedProfiles =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "PG_ProviderReferencedProfiles",
     /* qualifiers */
@@ -29454,7 +29454,7 @@ __root_PG_InterOp_PG_ProviderReferencedProfiles =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _PG_RegisteredProfile_features[] =
 {
     0,
@@ -29468,11 +29468,11 @@ __root_PG_InterOp_PG_RegisteredProfile_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_RegisteredProfile =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "PG_RegisteredProfile",
     /* qualifiers */
@@ -29489,7 +29489,7 @@ __root_PG_InterOp_PG_RegisteredProfile =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _PG_RegisteredSubProfile_features[] =
 {
     0,
@@ -29503,11 +29503,11 @@ __root_PG_InterOp_PG_RegisteredSubProfile_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_RegisteredSubProfile =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "PG_RegisteredSubProfile",
     /* qualifiers */
@@ -29524,7 +29524,7 @@ __root_PG_InterOp_PG_RegisteredSubProfile =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _PG_ReferencedProfile_features[] =
 {
     0,
@@ -29540,11 +29540,11 @@ __root_PG_InterOp_PG_ReferencedProfile_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_ReferencedProfile =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "PG_ReferencedProfile",
     /* qualifiers */
@@ -29561,7 +29561,7 @@ __root_PG_InterOp_PG_ReferencedProfile =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _PG_ElementConformsToProfile_features[] =
 {
     0,
@@ -29577,11 +29577,11 @@ __root_PG_InterOp_PG_ElementConformsToProfile_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_ElementConformsToProfile =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "PG_ElementConformsToProfile",
     /* qualifiers */
@@ -29598,7 +29598,7 @@ __root_PG_InterOp_PG_ElementConformsToProfile =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _PG_SubProfileRequiresProfile_features[] =
 {
     0,
@@ -29614,11 +29614,11 @@ __root_PG_InterOp_PG_SubProfileRequiresProfile_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_SubProfileRequiresProfile =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "PG_SubProfileRequiresProfile",
     /* qualifiers */
@@ -29635,7 +29635,7 @@ __root_PG_InterOp_PG_SubProfileRequiresProfile =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _PG_SoftwareIdentity_features[] =
 {
     0,
@@ -29649,11 +29649,11 @@ __root_PG_InterOp_PG_SoftwareIdentity_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_SoftwareIdentity =
 {
     /* flags */
-    META_FLAG_CLASS,
+    SCHEMA_FLAG_CLASS,
     /* name */
     "PG_SoftwareIdentity",
     /* qualifiers */
@@ -29670,7 +29670,7 @@ __root_PG_InterOp_PG_SoftwareIdentity =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _PG_ElementSoftwareIdentity_features[] =
 {
     0,
@@ -29686,11 +29686,11 @@ __root_PG_InterOp_PG_ElementSoftwareIdentity_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_ElementSoftwareIdentity =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "PG_ElementSoftwareIdentity",
     /* qualifiers */
@@ -29707,7 +29707,7 @@ __root_PG_InterOp_PG_ElementSoftwareIdentity =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _PG_ObjectManager_features[] =
 {
     0,
@@ -29723,11 +29723,11 @@ __root_PG_InterOp_PG_ObjectManager_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_ObjectManager =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "PG_ObjectManager",
     /* qualifiers */
@@ -29744,7 +29744,7 @@ __root_PG_InterOp_PG_ObjectManager =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _PG_CommMechanismForManager_features[] =
 {
     0,
@@ -29760,11 +29760,11 @@ __root_PG_InterOp_PG_CommMechanismForManager_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_CommMechanismForManager =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "PG_CommMechanismForManager",
     /* qualifiers */
@@ -29781,7 +29781,7 @@ __root_PG_InterOp_PG_CommMechanismForManager =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _PG_NamespaceInManager_features[] =
 {
     0,
@@ -29797,11 +29797,11 @@ __root_PG_InterOp_PG_NamespaceInManager_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_NamespaceInManager =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "PG_NamespaceInManager",
     /* qualifiers */
@@ -29818,7 +29818,7 @@ __root_PG_InterOp_PG_NamespaceInManager =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _PG_HostedObjectManager_features[] =
 {
     0,
@@ -29834,11 +29834,11 @@ __root_PG_InterOp_PG_HostedObjectManager_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_HostedObjectManager =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "PG_HostedObjectManager",
     /* qualifiers */
@@ -29855,7 +29855,7 @@ __root_PG_InterOp_PG_HostedObjectManager =
 //
 //==============================================================================
 
-static MetaFeature*
+static SchemaFeature*
 _PG_HostedAccessPoint_features[] =
 {
     0,
@@ -29871,11 +29871,11 @@ __root_PG_InterOp_PG_HostedAccessPoint_qualifiers[] =
     0,
 };
 
-MetaClass
+SchemaClass
 __root_PG_InterOp_PG_HostedAccessPoint =
 {
     /* flags */
-    META_FLAG_ASSOCIATION,
+    SCHEMA_FLAG_ASSOCIATION,
     /* name */
     "PG_HostedAccessPoint",
     /* qualifiers */
@@ -29892,7 +29892,7 @@ __root_PG_InterOp_PG_HostedAccessPoint =
 //
 //==============================================================================
 
-static MetaQualifierDecl*
+static SchemaQualifierDecl*
 _qualifiers[] =
 {
     &_ASSOCIATION_qualifier_decl,
@@ -29971,7 +29971,7 @@ _qualifiers[] =
 //
 //==============================================================================
 
-static MetaClass*
+static SchemaClass*
 _classes[] =
 {
     &__root_PG_InterOp_CIM_ManagedElement,
@@ -30189,7 +30189,7 @@ _classes[] =
     0,
 };
 
-const MetaNameSpace root_PG_InterOp_namespace =
+const SchemaNameSpace root_PG_InterOp_namespace =
 {
     "root/PG_InterOp",
     _qualifiers,

@@ -39,12 +39,12 @@
 #include "RepositoryDeclContext.h"
 #include "Filtering.h"
 #include "Serialization.h"
-#include "MetaTypes.h"
+#include "SchemaTypes.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-typedef const MetaClass* ConstMetaClassPtr;
-#define PEGASUS_ARRAY_T ConstMetaClassPtr
+typedef const SchemaClass* ConstSchemaClassPtr;
+#define PEGASUS_ARRAY_T ConstSchemaClassPtr
 # include <Pegasus/Common/ArrayInter.h>
 # include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
@@ -60,7 +60,7 @@ typedef const MetaClass* ConstMetaClassPtr;
 //==============================================================================
 
 static size_t const _MAX_NAMESPACE_TABLE_SIZE = 64;
-static const MetaNameSpace* _nameSpaceTable[_MAX_NAMESPACE_TABLE_SIZE];
+static const SchemaNameSpace* _nameSpaceTable[_MAX_NAMESPACE_TABLE_SIZE];
 static size_t _nameSpaceTableSize = 0;
 
 static const size_t _MAX_FEATURES = 128;
@@ -119,7 +119,7 @@ static bool _contains(const CIMPropertyList& propertyList, const CIMName& name)
 }
 
 static void _applyModifiedInstance(
-    const MetaClass* mc,
+    const SchemaClass* mc,
     const CIMInstance& modifiedInstance_,
     const CIMPropertyList& propertyList,
     CIMInstance& resultInstance)
@@ -135,8 +135,8 @@ static void _applyModifiedInstance(
         {
             // Reject attempts to add properties not in class:
 
-            const MetaFeature* mf = FindFeature(
-                mc, *Str(cp.getName()), META_FLAG_PROPERTY|META_FLAG_REFERENCE);
+            const SchemaFeature* mf = FindFeature(mc, 
+                *Str(cp.getName()), SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_REFERENCE);
 
             if (!mf)
             {
@@ -147,7 +147,7 @@ static void _applyModifiedInstance(
 
             // Reject attempts to modify key properties:
 
-            if (mf->flags & META_FLAG_KEY)
+            if (mf->flags & SCHEMA_FLAG_KEY)
             {
                 Throw((CIM_ERR_FAILED,
                     "modifyInstance() failed to modify key property: %s",
@@ -191,11 +191,11 @@ static bool _eqi(const char* s1, const char* s2)
     return System::strcasecmp(s1, s2) == 0;
 }
 
-static const MetaNameSpace* _findNameSpace(const char* name)
+static const SchemaNameSpace* _findNameSpace(const char* name)
 {
     for (size_t i = 0; i < _nameSpaceTableSize; i++)
     {
-        const MetaNameSpace* ns = _nameSpaceTable[i];
+        const SchemaNameSpace* ns = _nameSpaceTable[i];
 
         if (_eqi(ns->name, name))
             return ns;
@@ -205,12 +205,12 @@ static const MetaNameSpace* _findNameSpace(const char* name)
     return 0;
 }
 
-static bool _isSubClass(const MetaClass* super, const MetaClass* sub)
+static bool _isSubClass(const SchemaClass* super, const SchemaClass* sub)
 {
     if (!super)
         return true;
 
-    for (MetaClass* p = sub->super; p; p = p->super)
+    for (SchemaClass* p = sub->super; p; p = p->super)
     {
         if (p == super)
             return true;
@@ -220,8 +220,8 @@ static bool _isSubClass(const MetaClass* super, const MetaClass* sub)
 }
 
 static inline bool _isDirectSubClass(
-    const MetaClass* super, 
-    const MetaClass* sub)
+    const SchemaClass* super, 
+    const SchemaClass* sub)
 {
     return sub->super == super;
 }
@@ -264,10 +264,10 @@ static void _printPropertyList(const char* const* pl)
         printf("pl[%s]\n", pl[i]);
 }
 
-static bool _contains(const Array<const MetaClass*>& x, const MetaClass* mc)
+static bool _contains(const Array<const SchemaClass*>& x, const SchemaClass* mc)
 {
     Uint32 n = x.size();
-    const MetaClass* const* p = x.getData();
+    const SchemaClass* const* p = x.getData();
 
     while (n--)
     {
@@ -279,17 +279,17 @@ static bool _contains(const Array<const MetaClass*>& x, const MetaClass* mc)
 }
 
 static void _associators(
-    const MetaNameSpace* ns,
+    const SchemaNameSpace* ns,
     const CIMName& className,
     const CIMName& assocClass,
     const CIMName& resultClass,
     const String& role,
     const String& resultRole,
-    Array<const MetaClass*>& result)
+    Array<const SchemaClass*>& result)
 {
     // Lookup source class:
 
-    const MetaClass* mc = FindClass(ns, *Str(className));
+    const SchemaClass* mc = FindClass(ns, *Str(className));
     
     if (!mc)
         Throw((CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className)));
@@ -297,7 +297,7 @@ static void _associators(
 
     // Lookup result class (if any).
 
-    const MetaClass* rmc = 0;
+    const SchemaClass* rmc = 0;
 
     if (!resultClass.isNull())
     {
@@ -317,11 +317,11 @@ static void _associators(
 
     for (size_t i = 0; ns->classes[i]; i++)
     {
-        MetaClass* amc = ns->classes[i];
+        SchemaClass* amc = ns->classes[i];
 
         // Skip non-association classes:
 
-        if (!(amc->flags & META_FLAG_ASSOCIATION))
+        if (!(amc->flags & SCHEMA_FLAG_ASSOCIATION))
             continue;
 
         // Filter by assocClass parameter:
@@ -331,20 +331,20 @@ static void _associators(
 
         // Process reference properties:
 
-        MetaFeatureInfo features[META_MAX_FEATURES];
+        SchemaFeatureInfo features[SCHEMA_MAX_FEATURES];
         size_t size = 0;
-        MergeFeatures(amc, false, META_FLAG_REFERENCE, features, size);
+        MergeFeatures(amc, false, SCHEMA_FLAG_REFERENCE, features, size);
 
         for (size_t j = 0; j < size; j++)
         {
-            const MetaFeature* mf = features[j].mf;
+            const SchemaFeature* mf = features[j].mf;
 
             // Skip non references:
 
-            if (!(mf->flags & META_FLAG_REFERENCE))
+            if (!(mf->flags & SCHEMA_FLAG_REFERENCE))
                 continue;
 
-            const MetaReference* mr = (const MetaReference*)mf;
+            const SchemaReference* mr = (const SchemaReference*)mf;
 
             // Filter by role parameter.
 
@@ -360,7 +360,7 @@ static void _associators(
 
             for (size_t k = 0; k < size; k++)
             {
-                const MetaFeature* rmf = features[k].mf;
+                const SchemaFeature* rmf = features[k].mf;
 
                 // Skip the feature under consideration:
 
@@ -369,10 +369,10 @@ static void _associators(
 
                 // Skip non references:
 
-                if (!(rmf->flags & META_FLAG_REFERENCE))
+                if (!(rmf->flags & SCHEMA_FLAG_REFERENCE))
                     continue;
 
-                const MetaReference* rmr = (const MetaReference*)rmf;
+                const SchemaReference* rmr = (const SchemaReference*)rmf;
 
                 // Filter by resultRole parameter.
 
@@ -397,22 +397,22 @@ static void _associators(
 }
 
 static void _references(
-    const MetaNameSpace* ns,
+    const SchemaNameSpace* ns,
     const CIMName& className,
     const CIMName& resultClass,
     const String& role,
-    Array<const MetaClass*>& result)
+    Array<const SchemaClass*>& result)
 {
     // Lookup source class:
 
-    const MetaClass* mc = FindClass(ns, *Str(className));
+    const SchemaClass* mc = FindClass(ns, *Str(className));
     
     if (!mc)
         Throw((CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className)));
 
     // Lookup result class (if any).
 
-    const MetaClass* rmc = 0;
+    const SchemaClass* rmc = 0;
 
     if (!resultClass.isNull())
     {
@@ -430,11 +430,11 @@ static void _references(
 
     for (size_t i = 0; ns->classes[i]; i++)
     {
-        MetaClass* amc = ns->classes[i];
+        SchemaClass* amc = ns->classes[i];
 
         // Skip non-association classes:
 
-        if (!(amc->flags & META_FLAG_ASSOCIATION))
+        if (!(amc->flags & SCHEMA_FLAG_ASSOCIATION))
             continue;
 
         // Filter by result class:
@@ -444,20 +444,20 @@ static void _references(
 
         // Process reference properties:
 
-        MetaFeatureInfo features[META_MAX_FEATURES];
+        SchemaFeatureInfo features[SCHEMA_MAX_FEATURES];
         size_t size = 0;
-        MergeFeatures(amc, false, META_FLAG_REFERENCE, features, size);
+        MergeFeatures(amc, false, SCHEMA_FLAG_REFERENCE, features, size);
 
         for (size_t j = 0; j < size; j++)
         {
-            const MetaFeature* mf = features[j].mf;
+            const SchemaFeature* mf = features[j].mf;
 
             // Skip non references:
 
-            if (!(mf->flags & META_FLAG_REFERENCE))
+            if (!(mf->flags & SCHEMA_FLAG_REFERENCE))
                 continue;
 
-            const MetaReference* mr = (const MetaReference*)mf;
+            const SchemaReference* mr = (const SchemaReference*)mf;
 
             // Filter by role parameter.
 
@@ -472,18 +472,18 @@ static void _references(
             // Add this one to the output:
 
             if (!_contains(result, amc))
-                result.append((MetaClass*)amc);
+                result.append((SchemaClass*)amc);
         }
     }
 }
 
-static const MetaClass* _findMetaClass(
+static const SchemaClass* _findSchemaClass(
     const char* nameSpace,
     const char* className)
 {
     // Lookup namespace:
 
-    const MetaNameSpace* ns = _findNameSpace(nameSpace);
+    const SchemaNameSpace* ns = _findNameSpace(nameSpace);
 
     if (!ns)
         return 0;
@@ -498,14 +498,14 @@ static Array<CIMName> _enumerateClassNames(
 {
     // Lookup namespace:
 
-    const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
+    const SchemaNameSpace* ns = _findNameSpace(*Str(nameSpace));
 
     if (!ns)
         Throw((CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace)));
 
     // Lookup class:
 
-    const MetaClass* super = 0;
+    const SchemaClass* super = 0;
     
     if (!className.isNull())
     {
@@ -521,7 +521,7 @@ static Array<CIMName> _enumerateClassNames(
 
     for (size_t i = 0; ns->classes[i]; i++)
     {
-        MetaClass* mc = ns->classes[i];
+        SchemaClass* mc = ns->classes[i];
 
         if (deepInheritance)
         {
@@ -561,17 +561,17 @@ static Array<CIMObject> _associatorClasses(
 {
     // Lookup namespace:
 
-    const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
+    const SchemaNameSpace* ns = _findNameSpace(*Str(nameSpace));
 
     if (!ns)
         Throw((CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace)));
 
-    // Get associator meta-classes:
+    // Get associator schema-classes:
 
-    Array<const MetaClass*> mcs;
+    Array<const SchemaClass*> mcs;
     _associators(ns, className, assocClass, resultClass, role, resultRole, mcs);
 
-    // Convert meta-classes to classes.
+    // Convert schema-classes to classes.
 
     Array<CIMObject> result;
 
@@ -579,7 +579,7 @@ static Array<CIMObject> _associatorClasses(
 
     for (Uint32 i = 0; i < mcs.size(); i++)
     {
-        const MetaClass* mc = mcs[i];
+        const SchemaClass* mc = mcs[i];
         CIMClass cc;
 
         if (MakeClass(_getHostName(), ns, mc, false, includeQualifiers, 
@@ -606,17 +606,17 @@ static Array<CIMObjectPath> _associatorClassPaths(
 {
     // Lookup namespace:
 
-    const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
+    const SchemaNameSpace* ns = _findNameSpace(*Str(nameSpace));
 
     if (!ns)
         Throw((CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace)));
 
-    // Get associator meta-classes:
+    // Get associator schema-classes:
 
-    Array<const MetaClass*> mcs;
+    Array<const SchemaClass*> mcs;
     _associators(ns, className, assocClass, resultClass, role, resultRole, mcs);
 
-    // Convert meta-classes to object names:
+    // Convert schema-classes to object names:
 
     Array<CIMObjectPath> result;
 
@@ -637,17 +637,17 @@ static Array<CIMObject> _referenceClasses(
 {
     // Lookup namespace:
 
-    const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
+    const SchemaNameSpace* ns = _findNameSpace(*Str(nameSpace));
 
     if (!ns)
         Throw((CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace)));
 
-    // Get reference meta-classes:
+    // Get reference schema-classes:
 
-    Array<const MetaClass*> mcs;
+    Array<const SchemaClass*> mcs;
     _references(ns, className, resultClass, role, mcs);
 
-    // Convert meta-classes to classes.
+    // Convert schema-classes to classes.
 
     Array<CIMObject> result;
 
@@ -655,7 +655,7 @@ static Array<CIMObject> _referenceClasses(
 
     for (Uint32 i = 0; i < mcs.size(); i++)
     {
-        const MetaClass* mc = mcs[i];
+        const SchemaClass* mc = mcs[i];
         CIMClass cc;
 
         if (MakeClass(_getHostName(), ns, mc, false, includeQualifiers, 
@@ -680,17 +680,17 @@ static Array<CIMObjectPath> _referenceClassPaths(
 {
     // Lookup namespace:
 
-    const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
+    const SchemaNameSpace* ns = _findNameSpace(*Str(nameSpace));
 
     if (!ns)
         Throw((CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace)));
 
-    // Get reference meta-classes:
+    // Get reference schema-classes:
 
-    Array<const MetaClass*> mcs;
+    Array<const SchemaClass*> mcs;
     _references(ns, className, resultClass, role, mcs);
 
-    // Convert meta-classes to object paths.
+    // Convert schema-classes to object paths.
 
     Array<CIMObjectPath> result;
 
@@ -706,14 +706,14 @@ static CIMQualifierDecl _getQualifier(
 {
     // Lookup namespace:
 
-    const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
+    const SchemaNameSpace* ns = _findNameSpace(*Str(nameSpace));
 
     if (!ns)
         Throw((CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace)));
 
     // Lookup qualifier:
 
-    const MetaQualifierDecl* mqd = FindQualifierDecl(ns, *Str(qualifierName));
+    const SchemaQualifierDecl* mqd = FindQualifierDecl(ns, *Str(qualifierName));
     
     if (!mqd)
         Throw((CIM_ERR_NOT_FOUND, 
@@ -736,7 +736,7 @@ static Array<CIMQualifierDecl> _enumerateQualifiers(
 {
     // Lookup namespace:
 
-    const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
+    const SchemaNameSpace* ns = _findNameSpace(*Str(nameSpace));
 
     if (!ns)
         Throw((CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace)));
@@ -747,7 +747,7 @@ static Array<CIMQualifierDecl> _enumerateQualifiers(
 
     for (size_t i = 0; ns->qualifiers[i]; i++)
     {
-        const MetaQualifierDecl* mqd = ns->qualifiers[i];
+        const SchemaQualifierDecl* mqd = ns->qualifiers[i];
         CIMQualifierDecl cqd;
 
         if (MakeQualifierDecl(ns, mqd, cqd) != 0)
@@ -768,7 +768,7 @@ static Array<CIMNamespaceName> _enumerateNameSpaces()
 
     for (size_t i = 0; i < _nameSpaceTableSize; i++)
     {
-        const MetaNameSpace* ns = _nameSpaceTable[i];
+        const SchemaNameSpace* ns = _nameSpaceTable[i];
         result.append(ns->name);
     }
 
@@ -784,21 +784,21 @@ static void _getSuperClassNames(
 
     // Lookup namespace:
 
-    const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
+    const SchemaNameSpace* ns = _findNameSpace(*Str(nameSpace));
 
     if (!ns)
         Throw((CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace)));
 
     // Lookup class:
 
-    const MetaClass* mc = FindClass(ns, *Str(className));
+    const SchemaClass* mc = FindClass(ns, *Str(className));
     
     if (!mc)
         Throw((CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className)));
 
     // Append superclass names:
 
-    for (const MetaClass* p = mc->super; p; p = p->super)
+    for (const SchemaClass* p = mc->super; p; p = p->super)
         superClassNames.append(p->name);
 }
 
@@ -813,11 +813,7 @@ static void* _saveData;
 static void (*_loadCallback)(Buffer& buffer, void* data);
 static void* _loadData;
 
-MemoryResidentRepository::MemoryResidentRepository(
-    const String& repositoryRoot, 
-    Uint32 repositoryMode) 
-    : 
-    Repository(repositoryRoot, repositoryMode)
+MemoryResidentRepository::MemoryResidentRepository()
 {
     // Load users data if any:
     _processLoadHandler();
@@ -838,14 +834,14 @@ CIMClass MemoryResidentRepository::getClass(
 {
     // Lookup namespace:
 
-    const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
+    const SchemaNameSpace* ns = _findNameSpace(*Str(nameSpace));
 
     if (!ns)
         Throw((CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace)));
 
     // Lookup class:
 
-    const MetaClass* mc = FindClass(ns, *Str(className));
+    const SchemaClass* mc = FindClass(ns, *Str(className));
 
     if (!mc)
     {
@@ -977,9 +973,9 @@ void MemoryResidentRepository::modifyInstance(
     const CIMObjectPath& cop = modifiedInstance.getPath();
     CIMName className = cop.getClassName();
 
-    // Get the meta class for this instance.
+    // Get the schema-class for this instance.
 
-    const MetaClass* mc = _findMetaClass(*Str(nameSpace), *Str(className));
+    const SchemaClass* mc = _findSchemaClass(*Str(nameSpace), *Str(className));
 
     if (!mc)
     {
@@ -1028,14 +1024,14 @@ Array<CIMClass> MemoryResidentRepository::enumerateClasses(
 {
     // Lookup namespace:
 
-    const MetaNameSpace* ns = _findNameSpace(*Str(nameSpace));
+    const SchemaNameSpace* ns = _findNameSpace(*Str(nameSpace));
 
     if (!ns)
         Throw((CIM_ERR_INVALID_NAMESPACE, "%s", *Str(nameSpace)));
 
     // Lookup class:
 
-    const MetaClass* super = 0;
+    const SchemaClass* super = 0;
     
     if (!className.isNull())
     {
@@ -1051,7 +1047,7 @@ Array<CIMClass> MemoryResidentRepository::enumerateClasses(
 
     for (size_t i = 0; ns->classes[i]; i++)
     {
-        MetaClass* mc = ns->classes[i];
+        SchemaClass* mc = ns->classes[i];
 
         bool flag = false;
 
@@ -1545,7 +1541,7 @@ void MemoryResidentRepository::_processLoadHandler()
     }
 }
 
-Boolean MemoryResidentRepository::addNameSpace(const MetaNameSpace* nameSpace)
+Boolean MemoryResidentRepository::addNameSpace(const SchemaNameSpace* nameSpace)
 {
     if (!nameSpace)
         return false;

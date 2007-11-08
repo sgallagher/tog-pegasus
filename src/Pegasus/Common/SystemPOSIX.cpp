@@ -1359,8 +1359,12 @@ Boolean System::isIpOnNetworkInterface(Uint32 inIP)
 // AutoFileLock class
 ///////////////////////////////////////////////////////////////////////////////
 
-AutoFileLock::AutoFileLock(const char* fileName)
+AutoFileLock::AutoFileLock(const char* fileName, bool performLock)
+    : _performLock(performLock)
 {
+    if (!_performLock)
+        return;
+
 #ifdef PEGASUS_OS_TYPE_UNIX
     _fl.l_type = F_WRLCK;
     _fl.l_whence = SEEK_SET;
@@ -1401,6 +1405,9 @@ AutoFileLock::AutoFileLock(const char* fileName)
 
 AutoFileLock::~AutoFileLock()
 {
+    if (!_performLock)
+        return;
+
 #ifdef PEGASUS_OS_TYPE_UNIX
     if (_fd != -1)
     {

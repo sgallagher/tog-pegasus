@@ -522,35 +522,17 @@ private:
         const CIMName& className,
         Array<CIMInstance>& namedInstances);
 
-    /** Modifies an instance object saved in the disk file.  The byte position
-        and the size of the newly added instance record are returned.  Returns
-        true on success.
+private:
 
-        @param   path      the file path of the instance file
-        @param   object    the modified CIMInstance object
-        @param   oldIndex  the byte positon of the old instance record
-        @param   oldSize   the size of the old instance record
-        @param   newIndex  the byte positon of the new instance record
-        @param   newSize   the size of the new instance record
+    String _repositoryRoot;
 
-        @return  true      if successful
-                 false     if an error occurs in modifying the instance
-     */
-    Boolean _modifyInstance(
-        const String& path,
-        const CIMInstance& object,
-        Uint32 oldIndex,
-        Uint32 oldSize,
-        Uint32& newIndex,
-        Uint32& newSize);
+    Uint32 _repositoryMode;
 
     NameSpaceManager _nameSpaceManager;
 
     // This must be initialized in the constructor using values from the
     // ConfigManager.
     Boolean _isDefaultInstanceProvider;
-
-protected:
 
     ObjectStreamer *streamer;
     ReadWriteSem _lock;

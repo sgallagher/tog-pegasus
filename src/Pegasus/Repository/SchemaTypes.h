@@ -177,12 +177,12 @@ inline bool IsA(const SchemaClass* super, const SchemaClass* sub)
 
 struct SchemaFeatureInfo
 {
-    const SchemaFeature* mf;
-    const SchemaClass* mc;
+    const SchemaFeature* sf;
+    const SchemaClass* sc;
 };
 
 int MergeFeatures(
-    const SchemaClass* mc,
+    const SchemaClass* sc,
     bool localOnly,
     Uint32 flags,
     SchemaFeatureInfo features[SCHEMA_MAX_FEATURES],
@@ -191,7 +191,7 @@ int MergeFeatures(
 int MakeClass(
     const char* hostName,
     const SchemaNameSpace* ns,
-    const SchemaClass* mc,
+    const SchemaClass* sc,
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
@@ -204,7 +204,7 @@ int MakeQualifierDecl(
     class CIMQualifierDecl& cqd);
 
 const SchemaFeature* FindFeature(
-    const SchemaClass* mc, 
+    const SchemaClass* sc, 
     const char* name,
     Uint32 flags = 
         (SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_REFERENCE|SCHEMA_FLAG_METHOD));

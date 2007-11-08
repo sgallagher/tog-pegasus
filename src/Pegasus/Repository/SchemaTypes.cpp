@@ -510,16 +510,16 @@ static int _makeValue(
 }
 
 int MergeFeatures(
-    const SchemaClass* mc,
+    const SchemaClass* sc,
     bool localOnly,
     Uint32 flags,
     SchemaFeatureInfo features[SCHEMA_MAX_FEATURES],
     size_t& numFeatures)
 {
-    if (!localOnly && mc->super)
+    if (!localOnly && sc->super)
     {
         if (MergeFeatures(
-            mc->super, localOnly, 0xFFFFFFFF, features, numFeatures) != 0)
+            sc->super, localOnly, 0xFFFFFFFF, features, numFeatures) != 0)
         {
             return -1;
         }
@@ -527,11 +527,11 @@ int MergeFeatures(
 
     // Process all features of this class:
 
-    for (size_t i = 0; mc->features[i]; i++)
+    for (size_t i = 0; sc->features[i]; i++)
     {
-        const SchemaFeature* mf = mc->features[i];
+        const SchemaFeature* sf = sc->features[i];
         
-        if (!(mf->flags & flags))
+        if (!(sf->flags & flags))
             continue;
 
         // Override feature if defined by ancestor class:
@@ -540,12 +540,12 @@ int MergeFeatures(
 
         for (size_t j = 0; j < numFeatures; j++)
         {
-            const SchemaFeature* tmp = features[j].mf;
+            const SchemaFeature* tmp = features[j].sf;
 
-            if (_eqi(mf->name, tmp->name))
+            if (_eqi(sf->name, tmp->name))
             {
-                features[j].mf = mf;
-                features[j].mc = mc;
+                features[j].sf = sf;
+                features[j].sc = sc;
                 found = true;
                 break;
             }
@@ -560,8 +560,8 @@ int MergeFeatures(
                 return -1;
             }
 
-            features[numFeatures].mf = mf;
-            features[numFeatures].mc = mc;
+            features[numFeatures].sf = sf;
+            features[numFeatures].sc = sc;
             numFeatures++;
         }
     }
@@ -572,19 +572,19 @@ int MergeFeatures(
 struct QualifierInfo
 {
     const char* qualifier;
-    const SchemaClass* mc;
+    const SchemaClass* sc;
 };
 
 static const SchemaFeature* _findFeature(
-    const SchemaClass* mc, 
+    const SchemaClass* sc, 
     const char* name)
 {
-    for (size_t i = 0; mc->features[i]; i++)
+    for (size_t i = 0; sc->features[i]; i++)
     {
-        const SchemaFeature* mf = mc->features[i];
+        const SchemaFeature* sf = sc->features[i];
 
-        if (_eqi(mf->name, name))
-            return mf;
+        if (_eqi(sf->name, name))
+            return sf;
     }
 
     // Not found!
@@ -592,15 +592,15 @@ static const SchemaFeature* _findFeature(
 }
 
 static const SchemaFeature* _findParameter(
-    const SchemaMethod* mm, 
+    const SchemaMethod* sm, 
     const char* name)
 {
-    for (size_t i = 0; mm->parameters[i]; i++)
+    for (size_t i = 0; sm->parameters[i]; i++)
     {
-        const SchemaFeature* mf = mm->parameters[i];
+        const SchemaFeature* sf = sm->parameters[i];
 
-        if (_eqi(mm->name, name))
-            return mf;
+        if (_eqi(sm->name, name))
+            return sf;
     }
 
     // Not found!
@@ -609,7 +609,7 @@ static const SchemaFeature* _findParameter(
 
 static int _mergeQualifiers(
     const SchemaNameSpace* ns,
-    const SchemaClass* mc,
+    const SchemaClass* sc,
     const char* featureName,
     const char* parameterName,
     bool depth,
@@ -618,9 +618,9 @@ static int _mergeQualifiers(
 {
     // Merge super-class qualifiers:
 
-    if (mc->super)
+    if (sc->super)
     {
-        _mergeQualifiers(ns, mc->super, featureName, parameterName, depth + 1,
+        _mergeQualifiers(ns, sc->super, featureName, parameterName, depth + 1,
             qualifiers, numQualifiers);
     }
 
@@ -631,27 +631,27 @@ static int _mergeQualifiers(
     if (!featureName && !parameterName)
     {
         // Case 1: get class qualifiers:
-        quals = mc->qualifiers;
+        quals = sc->qualifiers;
     }
     else if (featureName && !parameterName)
     {
         // Case 2: get feature qualifiers:
 
-        const SchemaFeature* mf = _findFeature(mc, featureName);
+        const SchemaFeature* sf = _findFeature(sc, featureName);
 
-        if (mf)
-            quals = mf->qualifiers;
+        if (sf)
+            quals = sf->qualifiers;
     }
     else if (featureName && parameterName)
     {
         // Case 3: get parameter qualifiers:
 
-        const SchemaFeature* mf = _findFeature(mc, featureName);
+        const SchemaFeature* sf = _findFeature(sc, featureName);
 
-        if (mf && (mf->flags & SCHEMA_FLAG_METHOD))
+        if (sf && (sf->flags & SCHEMA_FLAG_METHOD))
         {
-            const SchemaMethod* mm = (const SchemaMethod*)mf;
-            const SchemaFeature* p = _findParameter(mm, parameterName);
+            const SchemaMethod* sm = (const SchemaMethod*)sf;
+            const SchemaFeature* p = _findParameter(sm, parameterName);
 
             if (p)
                 quals = p->qualifiers;
@@ -678,7 +678,7 @@ static int _mergeQualifiers(
             if (qi[0] == qj[0])
             {
                 qualifiers[j].qualifier = qi;
-                qualifiers[j].mc = mc;
+                qualifiers[j].sc = sc;
                 found = true;
                 break;
             }
@@ -698,7 +698,7 @@ static int _mergeQualifiers(
                 }
 
                 qualifiers[numQualifiers].qualifier = qi;
-                qualifiers[numQualifiers].mc = mc;
+                qualifiers[numQualifiers].sc = sc;
                 numQualifiers++;
             }
         }
@@ -710,7 +710,7 @@ static int _mergeQualifiers(
 template<class C>
 static int _addQualifiers(
     const SchemaNameSpace* ns,
-    const SchemaClass* mc,
+    const SchemaClass* sc,
     const char* featureName,
     const char* parameterName,
     C& c)
@@ -719,7 +719,7 @@ static int _addQualifiers(
     size_t numQualifiers = 0;
 
     if (_mergeQualifiers(
-        ns, mc, featureName, parameterName, 0, qualifiers, numQualifiers) != 0)
+        ns, sc, featureName, parameterName, 0, qualifiers, numQualifiers) != 0)
     {
         return -1;
     }
@@ -757,8 +757,8 @@ static int _addQualifiers(
 
 static int _addProperty(
     const SchemaNameSpace* ns,
-    const SchemaClass* mc,
-    const SchemaProperty* mp,
+    const SchemaClass* sc,
+    const SchemaProperty* sp,
     const char* classOrigin,
     bool propagated,
     bool includeQualifiers,
@@ -769,14 +769,14 @@ static int _addProperty(
 
     CIMValue cv;
 
-    if (_makeValue(cv, mp->type, mp->subscript, mp->value) != 0)
+    if (_makeValue(cv, sp->type, sp->subscript, sp->value) != 0)
     {
         return -1;
     }
 
     // Create property:
 
-    CIMProperty cp(mp->name, cv);
+    CIMProperty cp(sp->name, cv);
 
     if (includeClassOrigin)
         cp.setClassOrigin(classOrigin);
@@ -787,7 +787,7 @@ static int _addProperty(
 
     if (includeQualifiers)
     {
-        if (_addQualifiers(ns, mc, mp->name, 0, cp) != 0)
+        if (_addQualifiers(ns, sc, sp->name, 0, cp) != 0)
         {
             return -1;
         }
@@ -801,8 +801,8 @@ static int _addProperty(
 
 static int _addReference(
     const SchemaNameSpace* ns,
-    const SchemaClass* mc,
-    const SchemaReference* mr,
+    const SchemaClass* sc,
+    const SchemaReference* sr,
     const char* classOrigin,
     bool propagated,
     bool includeQualifiers,
@@ -814,7 +814,7 @@ static int _addReference(
     Boolean isArray;
     Uint32 arraySize;
     
-    if (mr->subscript == -1)
+    if (sr->subscript == -1)
     {
         isArray = false;
         arraySize = 0;
@@ -822,12 +822,12 @@ static int _addReference(
     else
     {
         isArray = true;
-        arraySize = mr->subscript;
+        arraySize = sr->subscript;
     }
 
     // Set referenceClassName:
 
-    CIMName rcn = mr->ref->name;
+    CIMName rcn = sr->ref->name;
 
     // Create value:
 
@@ -835,7 +835,7 @@ static int _addReference(
 
     // Create property:
 
-    CIMProperty cp(mr->name, cv, arraySize, rcn);
+    CIMProperty cp(sr->name, cv, arraySize, rcn);
 
     if (includeClassOrigin)
         cp.setClassOrigin(classOrigin);
@@ -846,7 +846,7 @@ static int _addReference(
 
     if (includeQualifiers)
     {
-        if (_addQualifiers(ns, mc, mr->name, 0, cp) != 0)
+        if (_addQualifiers(ns, sc, sr->name, 0, cp) != 0)
         {
             return -1;
         }
@@ -860,9 +860,9 @@ static int _addReference(
 
 static int _addPropertyParameter(
     const SchemaNameSpace* ns,
-    const SchemaClass* mc,
-    const SchemaMethod* mm,
-    const SchemaProperty* mp,
+    const SchemaClass* sc,
+    const SchemaMethod* sm,
+    const SchemaProperty* sp,
     bool includeQualifiers,
     CIMMethod& cm)
 {
@@ -871,7 +871,7 @@ static int _addPropertyParameter(
     bool isArray;
     Uint32 arraySize;
 
-    if (mp->subscript == -1)
+    if (sp->subscript == -1)
     {
         isArray = false;
         arraySize = 0;
@@ -879,16 +879,16 @@ static int _addPropertyParameter(
     else 
     {
         isArray = true;
-        arraySize = Uint32(mp->subscript);
+        arraySize = Uint32(sp->subscript);
     }
 
-    CIMParameter cp(mp->name, CIMType(mp->type), isArray, arraySize);
+    CIMParameter cp(sp->name, CIMType(sp->type), isArray, arraySize);
 
     // Add qualifiers:
 
     if (includeQualifiers)
     {
-        if (_addQualifiers(ns, mc, mm->name, mp->name, cm) != 0)
+        if (_addQualifiers(ns, sc, sm->name, sp->name, cm) != 0)
         {
             return -1;
         }
@@ -902,9 +902,9 @@ static int _addPropertyParameter(
 
 static int _addReferenceParameter(
     const SchemaNameSpace* ns,
-    const SchemaClass* mc,
-    const SchemaMethod* mm,
-    const SchemaReference* mr,
+    const SchemaClass* sc,
+    const SchemaMethod* sm,
+    const SchemaReference* sr,
     bool includeQualifiers,
     CIMMethod& cm)
 {
@@ -913,7 +913,7 @@ static int _addReferenceParameter(
     bool isArray;
     Uint32 arraySize;
 
-    if (mr->subscript == -1)
+    if (sr->subscript == -1)
     {
         isArray = false;
         arraySize = 0;
@@ -921,17 +921,17 @@ static int _addReferenceParameter(
     else 
     {
         isArray = true;
-        arraySize = Uint32(mr->subscript);
+        arraySize = Uint32(sr->subscript);
     }
 
-    CIMName rcn = mr->ref->name;
-    CIMParameter cp(mr->name, CIMTYPE_REFERENCE, isArray, arraySize, rcn);
+    CIMName rcn = sr->ref->name;
+    CIMParameter cp(sr->name, CIMTYPE_REFERENCE, isArray, arraySize, rcn);
 
     // Add qualifiers:
 
     if (includeQualifiers)
     {
-        if (_addQualifiers(ns, mc, mm->name, mr->name, cm) != 0)
+        if (_addQualifiers(ns, sc, sm->name, sr->name, cm) != 0)
         {
             return -1;
         }
@@ -945,8 +945,8 @@ static int _addReferenceParameter(
 
 static int _addMethod(
     const SchemaNameSpace* ns,
-    const SchemaClass* mc,
-    const SchemaMethod* mm,
+    const SchemaClass* sc,
+    const SchemaMethod* sm,
     const char* classOrigin,
     bool propagated,
     bool includeQualifiers,
@@ -955,7 +955,7 @@ static int _addMethod(
 {
     // Create method:
 
-    CIMMethod cm(mm->name, CIMType(mm->type));
+    CIMMethod cm(sm->name, CIMType(sm->type));
 
     if (includeClassOrigin)
         cm.setClassOrigin(classOrigin);
@@ -964,19 +964,19 @@ static int _addMethod(
 
     // Add parameters:
 
-    for (size_t i = 0; mm->parameters[i]; i++)
+    for (size_t i = 0; sm->parameters[i]; i++)
     {
-        SchemaFeature* mf = mm->parameters[i];
+        SchemaFeature* sf = sm->parameters[i];
 
-        if (mf->flags & SCHEMA_FLAG_PROPERTY)
+        if (sf->flags & SCHEMA_FLAG_PROPERTY)
         {
-            SchemaProperty* mp = (SchemaProperty*)mf;
-            _addPropertyParameter(ns, mc, mm, mp, includeQualifiers, cm);
+            SchemaProperty* sp = (SchemaProperty*)sf;
+            _addPropertyParameter(ns, sc, sm, sp, includeQualifiers, cm);
         }
-        else if (mf->flags & SCHEMA_FLAG_REFERENCE)
+        else if (sf->flags & SCHEMA_FLAG_REFERENCE)
         {
-            SchemaReference* mr = (SchemaReference*)mf;
-            _addReferenceParameter(ns, mc, mm, mr, includeQualifiers, cm);
+            SchemaReference* sr = (SchemaReference*)sf;
+            _addReferenceParameter(ns, sc, sm, sr, includeQualifiers, cm);
         }
     }
 
@@ -984,7 +984,7 @@ static int _addMethod(
 
     if (includeQualifiers)
     {
-        if (_addQualifiers(ns, mc, mm->name, 0, cm) != 0)
+        if (_addQualifiers(ns, sc, sm->name, 0, cm) != 0)
         {
             return -1;
         }
@@ -1009,7 +1009,7 @@ static bool _hasProperty(const char* const* propertyList, const char* name)
 
 static int _addFeatures(
     const SchemaNameSpace* ns,
-    const SchemaClass* mc,
+    const SchemaClass* sc,
     bool localOnly,
     bool includeQualifiers,
     bool includeClassOrigin,
@@ -1021,7 +1021,7 @@ static int _addFeatures(
     SchemaFeatureInfo features[SCHEMA_MAX_FEATURES];
     size_t numFeatures = 0;
 
-    if (MergeFeatures(mc, localOnly, 0xFFFFFFFF, features, numFeatures) != 0)
+    if (MergeFeatures(sc, localOnly, 0xFFFFFFFF, features, numFeatures) != 0)
     {
         return -1;
     }
@@ -1034,46 +1034,46 @@ static int _addFeatures(
 
         // Set propagated flag:
 
-        bool propagated = fi.mc != mc;
+        bool propagated = fi.sc != sc;
 
         // Set classOrigin:
 
-        const char* classOrigin = fi.mc->name;
+        const char* classOrigin = fi.sc->name;
 
         // Skip feature not in property list:
 
-        const SchemaFeature* mf = fi.mf;
+        const SchemaFeature* sf = fi.sf;
 
-        if (propertyList && !_hasProperty(propertyList, mf->name))
+        if (propertyList && !_hasProperty(propertyList, sf->name))
             continue;
 
         // Add the feature:
 
-        if (mf->flags & SCHEMA_FLAG_PROPERTY)
+        if (sf->flags & SCHEMA_FLAG_PROPERTY)
         {
-            SchemaProperty* mp = (SchemaProperty*)mf;
+            SchemaProperty* sp = (SchemaProperty*)sf;
 
-            if (_addProperty(ns, mc, mp, classOrigin, propagated, 
+            if (_addProperty(ns, sc, sp, classOrigin, propagated, 
                 includeQualifiers, includeClassOrigin, cc) != 0)
             {
                 return -1;
             }
         }
-        else if (mf->flags & SCHEMA_FLAG_REFERENCE)
+        else if (sf->flags & SCHEMA_FLAG_REFERENCE)
         {
-            SchemaReference* mr = (SchemaReference*)mf;
+            SchemaReference* sr = (SchemaReference*)sf;
 
-            if (_addReference(ns, mc, mr, classOrigin, propagated, 
+            if (_addReference(ns, sc, sr, classOrigin, propagated, 
                 includeQualifiers, includeClassOrigin, cc) != 0)
             {
                 return -1;
             }
         }
-        else if (mf->flags & SCHEMA_FLAG_METHOD)
+        else if (sf->flags & SCHEMA_FLAG_METHOD)
         {
-            SchemaMethod* mm = (SchemaMethod*)mf;
+            SchemaMethod* sm = (SchemaMethod*)sf;
 
-            if (_addMethod(ns, mc, mm, classOrigin, propagated, 
+            if (_addMethod(ns, sc, sm, classOrigin, propagated, 
                 includeQualifiers, includeClassOrigin, cc) != 0)
             {
                 return -1;
@@ -1087,7 +1087,7 @@ static int _addFeatures(
 int MakeClass(
     const char* hostName,
     const SchemaNameSpace* ns,
-    const SchemaClass* mc,
+    const SchemaClass* sc,
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
@@ -1100,17 +1100,17 @@ int MakeClass(
         {
             CIMName scn;
 
-            if (mc->super)
-                scn = mc->super->name;
+            if (sc->super)
+                scn = sc->super->name;
 
-            cc = CIMClass(mc->name, scn);
+            cc = CIMClass(sc->name, scn);
         }
 
         // Add qualifiers:
 
         if (includeQualifiers)
         {
-            if (_addQualifiers(ns, mc, 0, 0, cc) != 0)
+            if (_addQualifiers(ns, sc, 0, 0, cc) != 0)
             {
                 return -1;
             }
@@ -1118,7 +1118,7 @@ int MakeClass(
 
         // Features:
 
-        if (_addFeatures(ns, mc, localOnly, includeQualifiers, 
+        if (_addFeatures(ns, sc, localOnly, includeQualifiers, 
             includeClassOrigin, propertyList, cc) != 0)
         {
             return -1;
@@ -1126,7 +1126,7 @@ int MakeClass(
 
         // Object path:
 
-        cc.setPath(CIMObjectPath(hostName, ns->name, mc->name));
+        cc.setPath(CIMObjectPath(hostName, ns->name, sc->name));
     }
     catch (Exception& e)
     {
@@ -1209,10 +1209,10 @@ const SchemaClass* FindClass(const SchemaNameSpace* ns, const char* name)
 {
     for (size_t i = 0; ns->classes[i]; i++)
     {
-        const SchemaClass* mc = ns->classes[i];
+        const SchemaClass* sc = ns->classes[i];
 
-        if (_eqi(mc->name, name))
-            return mc;
+        if (_eqi(sc->name, name))
+            return sc;
     }
 
     // Not found!
@@ -1250,16 +1250,16 @@ bool IsSubClass(const SchemaClass* super, const SchemaClass* sub)
 }
 
 const SchemaFeature* FindFeature(
-    const SchemaClass* mc, 
+    const SchemaClass* sc, 
     const char* name, 
     Uint32 flags)
 {
-    for (size_t i = 0; mc->features[i]; i++)
+    for (size_t i = 0; sc->features[i]; i++)
     {
-        const SchemaFeature* mf = mc->features[i];
+        const SchemaFeature* sf = sc->features[i];
 
-        if (mf->flags & flags && _eqi(mf->name, name))
-            return mf;
+        if (sf->flags & flags && _eqi(sf->name, name))
+            return sf;
     }
 
     // Not found!

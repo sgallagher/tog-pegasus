@@ -63,9 +63,6 @@ static size_t const _MAX_NAMESPACE_TABLE_SIZE = 64;
 static const SchemaNameSpace* _nameSpaceTable[_MAX_NAMESPACE_TABLE_SIZE];
 static size_t _nameSpaceTableSize = 0;
 
-static const size_t _MAX_FEATURES = 128;
-static const size_t _MAX_QUALIFIERS = 128;
-
 class ThrowContext
 {
 public:
@@ -119,7 +116,7 @@ static bool _contains(const CIMPropertyList& propertyList, const CIMName& name)
 }
 
 static void _applyModifiedInstance(
-    const SchemaClass* mc,
+    const SchemaClass* sc,
     const CIMInstance& modifiedInstance_,
     const CIMPropertyList& propertyList,
     CIMInstance& resultInstance)
@@ -135,10 +132,10 @@ static void _applyModifiedInstance(
         {
             // Reject attempts to add properties not in class:
 
-            const SchemaFeature* mf = FindFeature(mc, 
+            const SchemaFeature* sf = FindFeature(sc, 
                 *Str(cp.getName()), SCHEMA_FLAG_PROPERTY|SCHEMA_FLAG_REFERENCE);
 
-            if (!mf)
+            if (!sf)
             {
                 Throw((CIM_ERR_NOT_FOUND, 
                     "modifyInstance() failed: unknown property: %s",
@@ -147,7 +144,7 @@ static void _applyModifiedInstance(
 
             // Reject attempts to modify key properties:
 
-            if (mf->flags & SCHEMA_FLAG_KEY)
+            if (sf->flags & SCHEMA_FLAG_KEY)
             {
                 Throw((CIM_ERR_FAILED,
                     "modifyInstance() failed to modify key property: %s",
@@ -264,14 +261,14 @@ static void _printPropertyList(const char* const* pl)
         printf("pl[%s]\n", pl[i]);
 }
 
-static bool _contains(const Array<const SchemaClass*>& x, const SchemaClass* mc)
+static bool _contains(const Array<const SchemaClass*>& x, const SchemaClass* sc)
 {
     Uint32 n = x.size();
     const SchemaClass* const* p = x.getData();
 
     while (n--)
     {
-        if (*p++ == mc)
+        if (*p++ == sc)
             return true;
     }
 
@@ -289,9 +286,9 @@ static void _associators(
 {
     // Lookup source class:
 
-    const SchemaClass* mc = FindClass(ns, *Str(className));
+    const SchemaClass* sc = FindClass(ns, *Str(className));
     
-    if (!mc)
+    if (!sc)
         Throw((CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className)));
 
 
@@ -337,34 +334,34 @@ static void _associators(
 
         for (size_t j = 0; j < size; j++)
         {
-            const SchemaFeature* mf = features[j].mf;
+            const SchemaFeature* sf = features[j].sf;
 
             // Skip non references:
 
-            if (!(mf->flags & SCHEMA_FLAG_REFERENCE))
+            if (!(sf->flags & SCHEMA_FLAG_REFERENCE))
                 continue;
 
-            const SchemaReference* mr = (const SchemaReference*)mf;
+            const SchemaReference* sr = (const SchemaReference*)sf;
 
             // Filter by role parameter.
 
-            if (role.size() && !_eqi(r, mf->name))
+            if (role.size() && !_eqi(r, sf->name))
                 continue;
 
             // Filter by source class:
 
-            if (!IsA(mr->ref, mc))
+            if (!IsA(sr->ref, sc))
                 continue;
 
             // Process result reference:
 
             for (size_t k = 0; k < size; k++)
             {
-                const SchemaFeature* rmf = features[k].mf;
+                const SchemaFeature* rmf = features[k].sf;
 
                 // Skip the feature under consideration:
 
-                if (rmf == mf)
+                if (rmf == sf)
                     continue;
 
                 // Skip non references:
@@ -405,9 +402,9 @@ static void _references(
 {
     // Lookup source class:
 
-    const SchemaClass* mc = FindClass(ns, *Str(className));
+    const SchemaClass* sc = FindClass(ns, *Str(className));
     
-    if (!mc)
+    if (!sc)
         Throw((CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className)));
 
     // Lookup result class (if any).
@@ -450,23 +447,23 @@ static void _references(
 
         for (size_t j = 0; j < size; j++)
         {
-            const SchemaFeature* mf = features[j].mf;
+            const SchemaFeature* sf = features[j].sf;
 
             // Skip non references:
 
-            if (!(mf->flags & SCHEMA_FLAG_REFERENCE))
+            if (!(sf->flags & SCHEMA_FLAG_REFERENCE))
                 continue;
 
-            const SchemaReference* mr = (const SchemaReference*)mf;
+            const SchemaReference* sr = (const SchemaReference*)sf;
 
             // Filter by role parameter.
 
-            if (role.size() && !_eqi(r, mf->name))
+            if (role.size() && !_eqi(r, sf->name))
                 continue;
 
             // Filter by source class:
 
-            if (!IsA(mr->ref, mc))
+            if (!IsA(sr->ref, sc))
                 continue;
 
             // Add this one to the output:
@@ -521,17 +518,17 @@ static Array<CIMName> _enumerateClassNames(
 
     for (size_t i = 0; ns->classes[i]; i++)
     {
-        SchemaClass* mc = ns->classes[i];
+        SchemaClass* sc = ns->classes[i];
 
         if (deepInheritance)
         {
-            if (_isSubClass(super, mc))
-                result.append(mc->name);
+            if (_isSubClass(super, sc))
+                result.append(sc->name);
         }
         else
         {
-            if (_isDirectSubClass(super, mc))
-                result.append(mc->name);
+            if (_isDirectSubClass(super, sc))
+                result.append(sc->name);
         }
     }
 
@@ -579,14 +576,14 @@ static Array<CIMObject> _associatorClasses(
 
     for (Uint32 i = 0; i < mcs.size(); i++)
     {
-        const SchemaClass* mc = mcs[i];
+        const SchemaClass* sc = mcs[i];
         CIMClass cc;
 
-        if (MakeClass(_getHostName(), ns, mc, false, includeQualifiers, 
+        if (MakeClass(_getHostName(), ns, sc, false, includeQualifiers, 
             includeClassOrigin, pl, cc) != 0)
         {
             _freePropertyList(pl);
-            Throw((CIM_ERR_FAILED, "conversion failed: %s", mc->name));
+            Throw((CIM_ERR_FAILED, "conversion failed: %s", sc->name));
         }
 
         result.append(cc);
@@ -655,14 +652,14 @@ static Array<CIMObject> _referenceClasses(
 
     for (Uint32 i = 0; i < mcs.size(); i++)
     {
-        const SchemaClass* mc = mcs[i];
+        const SchemaClass* sc = mcs[i];
         CIMClass cc;
 
-        if (MakeClass(_getHostName(), ns, mc, false, includeQualifiers, 
+        if (MakeClass(_getHostName(), ns, sc, false, includeQualifiers, 
             includeClassOrigin, pl, cc) != 0)
         {
             _freePropertyList(pl);
-            Throw((CIM_ERR_FAILED, "conversion failed: %s", mc->name));
+            Throw((CIM_ERR_FAILED, "conversion failed: %s", sc->name));
         }
 
         result.append(cc);
@@ -791,14 +788,14 @@ static void _getSuperClassNames(
 
     // Lookup class:
 
-    const SchemaClass* mc = FindClass(ns, *Str(className));
+    const SchemaClass* sc = FindClass(ns, *Str(className));
     
-    if (!mc)
+    if (!sc)
         Throw((CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className)));
 
     // Append superclass names:
 
-    for (const SchemaClass* p = mc->super; p; p = p->super)
+    for (const SchemaClass* p = sc->super; p; p = p->super)
         superClassNames.append(p->name);
 }
 
@@ -841,9 +838,9 @@ CIMClass MemoryResidentRepository::getClass(
 
     // Lookup class:
 
-    const SchemaClass* mc = FindClass(ns, *Str(className));
+    const SchemaClass* sc = FindClass(ns, *Str(className));
 
-    if (!mc)
+    if (!sc)
     {
         Throw((CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className)));
     }
@@ -856,11 +853,11 @@ CIMClass MemoryResidentRepository::getClass(
 
     CIMClass cc;
 
-    if (MakeClass(_getHostName(), ns, mc, localOnly, includeQualifiers, 
+    if (MakeClass(_getHostName(), ns, sc, localOnly, includeQualifiers, 
         includeClassOrigin, pl, cc) != 0)
     {
         _freePropertyList(pl);
-        Throw((CIM_ERR_FAILED, "conversion failed: %s", mc->name));
+        Throw((CIM_ERR_FAILED, "conversion failed: %s", sc->name));
     }
 
     _freePropertyList(pl);
@@ -975,9 +972,9 @@ void MemoryResidentRepository::modifyInstance(
 
     // Get the schema-class for this instance.
 
-    const SchemaClass* mc = _findSchemaClass(*Str(nameSpace), *Str(className));
+    const SchemaClass* sc = _findSchemaClass(*Str(nameSpace), *Str(className));
 
-    if (!mc)
+    if (!sc)
     {
         Throw((CIM_ERR_FAILED, 
             "modifyInstance() failed: unknown class: %s:%s",
@@ -999,7 +996,7 @@ void MemoryResidentRepository::modifyInstance(
 
     // Apply features of modifiedInstance to result instance.
 
-    _applyModifiedInstance(mc, modifiedInstance, propertyList, resultInstance);
+    _applyModifiedInstance(sc, modifiedInstance, propertyList, resultInstance);
 
     // Resolve the instance.
 
@@ -1047,18 +1044,18 @@ Array<CIMClass> MemoryResidentRepository::enumerateClasses(
 
     for (size_t i = 0; ns->classes[i]; i++)
     {
-        SchemaClass* mc = ns->classes[i];
+        SchemaClass* sc = ns->classes[i];
 
         bool flag = false;
 
         if (deepInheritance)
         {
-            if (_isSubClass(super, mc))
+            if (_isSubClass(super, sc))
                 flag = true;
         }
         else
         {
-            if (_isDirectSubClass(super, mc))
+            if (_isDirectSubClass(super, sc))
                 flag = true;
         }
 
@@ -1066,10 +1063,10 @@ Array<CIMClass> MemoryResidentRepository::enumerateClasses(
         {
             CIMClass cc;
 
-            if (MakeClass(_getHostName(), ns, mc, localOnly, includeQualifiers, 
+            if (MakeClass(_getHostName(), ns, sc, localOnly, includeQualifiers, 
                 includeClassOrigin, 0, cc) != 0)
             {
-                Throw((CIM_ERR_FAILED, "conversion failed: %s", mc->name));
+                Throw((CIM_ERR_FAILED, "conversion failed: %s", sc->name));
             }
 
             result.append(cc);

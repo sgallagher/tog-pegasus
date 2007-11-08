@@ -130,12 +130,12 @@ static void _PutSint64(Buffer& out, Sint64 x)
 
 static void _PutReal32(Buffer& out, Real32 x)
 {
-    return _PutUint32(out, *((Uint32*)&x));
+    return _PutUint32(out, *((Uint32*)(void*)&x));
 }
 
 static void _PutReal64(Buffer& out, Real64 x)
 {
-    return _PutUint64(out, *((Uint64*)&x));
+    return _PutUint64(out, *((Uint64*)(void*)&x));
 }
 
 static void _PutChar16(Buffer& out, Char16 x)

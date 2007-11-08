@@ -38,6 +38,7 @@
 #include <Pegasus/Repository/Repository.h>
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/Buffer.h>
+#include "MetaTypes.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -304,6 +305,8 @@ public:
     static void installLoadCallback(
         void (*callback)(Buffer& buffer, void* data),
         void* data);
+
+    static Boolean addNameSpace(const MetaNameSpace* nameSpace);
 
 private:
     Uint32 _findInstance(

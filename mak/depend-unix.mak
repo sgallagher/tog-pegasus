@@ -30,10 +30,17 @@
 #//==============================================================================
 DEPEND_MAK = $(OBJ_DIR)/depend.mak
 
-ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
+ifeq ($(CXX), g++)
+    PEGASUS_CXX_MAKEDEPEND_OPTION = -M
+endif
+ifeq ($(CXX), CC)
+    PEGASUS_CXX_MAKEDEPEND_OPTION = -xM1
+endif
+
+ifdef PEGASUS_CXX_MAKEDEPEND_OPTION 
 depend: $(OBJ_DIR)/target $(ERROR)
-	$(CXX) -xM1 $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $(SOURCES) | sed -e 's=^\(.*:\)='$(OBJ_DIR)'/\1=' > $(DEPEND_MAK)
-	
+	$(CXX) $(PEGASUS_CXX_MAKEDEPEND_OPTION) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $(SOURCES) | sed -e 's=^\(.*:\)='$(OBJ_DIR)'/\1=' > $(DEPEND_MAK)
+
 else
 ifdef PEGASUS_HAS_MAKEDEPEND
 DEPEND_INCLUDES += -DPEGASUS_OS_TYPE_UNIX -I/usr/include $(SYS_INCLUDES)

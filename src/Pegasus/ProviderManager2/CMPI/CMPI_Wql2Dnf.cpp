@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,7 +45,7 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 //
-// Terminal element methods
+// Terminal element methods 
 //
 void term_el_WQL::negate(void)
 {
@@ -82,7 +84,7 @@ static bool operator==(const WQLOperand& x, const WQLOperand& y)
                 return x.getBooleanValue()==y.getBooleanValue();
             case WQLOperand::STRING_VALUE:
                 return x.getStringValue()==y.getStringValue();
-            case WQLOperand::NULL_VALUE:
+            case WQLOperand::NULL_VALUE: 
                 return true;
         }
     }
@@ -91,8 +93,8 @@ static bool operator==(const WQLOperand& x, const WQLOperand& y)
 
 static bool operator==(const term_el_WQL& x, const term_el_WQL& y)
 {
-    return x.op == y.op &&
-    x.opn1 == y.opn1 &&
+    return x.op == y.op && 
+    x.opn1 == y.opn1 && 
     x.opn2 == y.opn2;
 }
 
@@ -113,7 +115,7 @@ static void addIfNotExists(TableauRow_WQL &tr, const term_el_WQL& el)
     PEG_METHOD_EXIT();
 }
 
-CMPI_Wql2Dnf::CMPI_Wql2Dnf(const String &condition, const String &pref)
+CMPI_Wql2Dnf::CMPI_Wql2Dnf(const String &condition, const String &pref) 
 {
     WQLSelectStatement wqs;
     WQLParser::parse(pref+condition,wqs);
@@ -123,7 +125,7 @@ CMPI_Wql2Dnf::CMPI_Wql2Dnf(const String &condition, const String &pref)
     compile(&wqs);
 }
 
-CMPI_Wql2Dnf::CMPI_Wql2Dnf()
+CMPI_Wql2Dnf::CMPI_Wql2Dnf() 
 {
     eval_heap.reserveCapacity(16);
     terminal_heap.reserveCapacity(16);
@@ -255,11 +257,11 @@ void CMPI_Wql2Dnf::_populateTableau(void)
         CMPI_TableauRow tr;
         for( Uint32 j=0,m = tr_wql.size(); j < m; j++ )
         {
-            term_el_WQL t = tr_wql[j];
+            term_el_WQL t = tr_wql[j]; 
 
             CMPI_QueryOperand lhs(WQL2String(t.opn1),
             WQL2Type(t.opn1.getType()));
-            CMPI_QueryOperand rhs(WQL2String(t.opn2),
+            CMPI_QueryOperand rhs(WQL2String(t.opn2), 
             WQL2Type(t.opn2.getType()));
 
             tr.append(CMPI_term_el(t.mark, WQL2PredOp(t.op), lhs, rhs));
@@ -325,7 +327,7 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
 
                     // generate Eval expression
                     eval_heap.append(CMPI_eval_el(
-                                         0, op , op1.opn,
+                                         0, op , op1.opn, 
                                          op1.is_terminal,-1, true));
 
                     stack.top() = CMPI_stack_el(eval_heap.size()-1, false);
@@ -363,10 +365,9 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
             case WQL_IS_NULL:
                 {
                     PEGASUS_ASSERT(wqsrep->_operands.size() >= 1);
-                    WQLOperand operand = wqsrep->_operands[j++];
+                    WQLOperand op = wqsrep->_operands[j++];
 
-                    terminal_heap.push(
-                        term_el_WQL(false, WQL_EQ, operand, dummy));
+                    terminal_heap.push(term_el_WQL(false, WQL_EQ, op, dummy));
 
                     stack.push(CMPI_stack_el(terminal_heap.size()-1, true));
 
@@ -376,10 +377,9 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
             case WQL_IS_NOT_NULL:
                 {
                     PEGASUS_ASSERT(wqsrep->_operands.size() >= 1);
-                    WQLOperand operand = wqsrep->_operands[j++];
+                    WQLOperand op = wqsrep->_operands[j++];
 
-                    terminal_heap.push(
-                        term_el_WQL(false, WQL_NE, operand, dummy));
+                    terminal_heap.push(term_el_WQL(false, WQL_NE, op, dummy));
 
                     stack.push(CMPI_stack_el(terminal_heap.size()-1, true));
 
@@ -527,7 +527,7 @@ void CMPI_Wql2Dnf::_factoring(void)
                 {
                     _found = 1;
                 }
-            }
+            }  
             if( (_found == 0) && (!eval_heap[i].is_terminal2) )
             {
                     index = eval_heap[i].opn2; // remember the index
@@ -611,7 +611,7 @@ void CMPI_Wql2Dnf::_factoring(void)
 
         i++; // increase pointer
     } // end of while loop
-
+    
     PEG_METHOD_EXIT();
 }
     void CMPI_Wql2Dnf::_gatherDisj(Array<CMPI_stack_el>& stk)

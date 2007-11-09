@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -65,14 +67,14 @@
         }                                                              \
         catch (CIMException& e)                                        \
         {                                                              \
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,            \
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,            \
                 "Provider CIMException: %s",                           \
                 (const char*)e.getMessage().getCString()));            \
             handler.setCIMException(e);                                \
         }                                                              \
         catch (Exception& e)                                           \
         {                                                              \
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,            \
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,            \
                 "Provider Exception: %s",                              \
                 (const char*)e.getMessage().getCString()));            \
             handler.setStatus(                                         \
@@ -82,13 +84,13 @@
         }                                                              \
         catch (const PEGASUS_STD(exception)& e)                        \
         {                                                              \
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,            \
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,            \
                 "Provider exception: %s", e.what()));                  \
             handler.setStatus(CIM_ERR_FAILED, e.what());               \
         }                                                              \
         catch (...)                                                    \
         {                                                              \
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,     \
+            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,     \
                 "Provider unknown exception");                         \
             handler.setStatus(CIM_ERR_FAILED, "Unknown error.");       \
         }                                                              \
@@ -165,7 +167,7 @@ void ProviderMessageHandler::initialize(CIMOMHandle& cimom)
     }
     catch (...)
     {
-        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "Caught exception from provider %s initialize() method.",
             (const char*)_fullyQualifiedProviderName.getCString()));
         throw;
@@ -190,7 +192,7 @@ void ProviderMessageHandler::terminate()
     }
     catch (...)
     {
-        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "Caught exception from provider %s terminate() method.",
             (const char*)_fullyQualifiedProviderName.getCString()));
         throw;
@@ -209,11 +211,6 @@ void ProviderMessageHandler::subscriptionInitComplete()
     }
 
     _subscriptionInitComplete = true;
-}
-
-void ProviderMessageHandler::indicationServiceDisabled()
-{
-    _subscriptionInitComplete = false;
 }
 
 CIMResponseMessage* ProviderMessageHandler::processMessage(
@@ -302,29 +299,29 @@ CIMResponseMessage* ProviderMessageHandler::processMessage(
             break;
 
         default:
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+            PEGASUS_ASSERT(0);
             break;
         }
     }
     catch (CIMException& e)
     {
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,"CIMException: %s",
-            (const char*)e.getMessage().getCString()));
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "CIMException: " + e.getMessage());
         response = request->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION_LANG(
             e.getContentLanguages(), e.getCode(), e.getMessage());
     }
     catch (Exception& e)
     {
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,"Exception: %s",
-            (const char*)e.getMessage().getCString()));
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Exception: " + e.getMessage());
         response = request->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION_LANG(
             e.getContentLanguages(), CIM_ERR_FAILED, e.getMessage());
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Exception: Unknown");
         response = request->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION(
@@ -344,11 +341,6 @@ OperationContext ProviderMessageHandler::_createProviderOperationContext(
     providerContext.insert(context.get(IdentityContainer::NAME));
     providerContext.insert(context.get(AcceptLanguageListContainer::NAME));
     providerContext.insert(context.get(ContentLanguageListContainer::NAME));
-
-    if (context.contains(UserRoleContainer::NAME))
-    {
-        providerContext.insert(context.get(UserRoleContainer::NAME));
-    }
 
     return providerContext;
 }
@@ -379,12 +371,10 @@ CIMResponseMessage* ProviderMessageHandler::_handleGetInstanceRequest(
         request->instanceName.getClassName(),
         request->instanceName.getKeyBindings());
 
-    PEG_TRACE((
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL3,
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
         "ProviderMessageHandler::_handleGetInstanceRequest - "
-            "Object path: %s",
-        (const char*) objectPath.toString().getCString()));
+            "Object path: $0",
+        objectPath.toString()));
 
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
@@ -436,12 +426,10 @@ CIMResponseMessage* ProviderMessageHandler::_handleEnumerateInstancesRequest(
         request->nameSpace,
         request->className);
 
-    PEG_TRACE((
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL3,
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
         "ProviderMessageHandler::_handleEnumerateInstancesRequest - "
-            "Object path: %s",
-        (const char*) objectPath.toString().getCString()));
+            "Object path: $0",
+        objectPath.toString()));
 
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
@@ -494,12 +482,10 @@ CIMResponseMessage*
         request->nameSpace,
         request->className);
 
-    PEG_TRACE((
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL3,
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
         "ProviderMessageHandler::_handleEnumerateInstanceNamesRequest - "
-            "Object path: %s",
-        (const char*) objectPath.toString().getCString()));
+            "Object path: $0",
+        objectPath.toString()));
 
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
@@ -549,12 +535,10 @@ CIMResponseMessage* ProviderMessageHandler::_handleCreateInstanceRequest(
         request->newInstance.getPath().getClassName(),
         request->newInstance.getPath().getKeyBindings());
 
-    PEG_TRACE((
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL3,
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
         "ProviderMessageHandler::_handleCreateInstanceRequest - "
-            "Object path: %s",
-        (const char*) objectPath.toString().getCString()));
+            "Object path: $0",
+        objectPath.toString()));
 
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
@@ -605,12 +589,10 @@ CIMResponseMessage* ProviderMessageHandler::_handleModifyInstanceRequest(
         request->modifiedInstance.getPath().getClassName(),
         request->modifiedInstance.getPath().getKeyBindings());
 
-    PEG_TRACE((
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL3,
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
         "ProviderMessageHandler::_handleModifyInstanceRequest - "
-            "Object path: %s",
-        (const char*) objectPath.toString().getCString()));
+            "Object path: $0",
+        objectPath.toString()));
 
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
@@ -663,12 +645,10 @@ CIMResponseMessage* ProviderMessageHandler::_handleDeleteInstanceRequest(
         request->instanceName.getClassName(),
         request->instanceName.getKeyBindings());
 
-    PEG_TRACE((
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL3,
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
         "ProviderMessageHandler::_handleDeleteInstanceRequest - "
-            "Object path: %s",
-        (const char*) objectPath.toString().getCString()));
+            "Object path: $0",
+        objectPath.toString()));
 
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
@@ -717,12 +697,10 @@ CIMResponseMessage* ProviderMessageHandler::_handleExecQueryRequest(
         request->nameSpace,
         request->className);
 
-    PEG_TRACE((
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL3,
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
         "ProviderMessageHandler::_handleExecQueryRequest - "
-            "Object path: %s",
-        (const char*) objectPath.toString().getCString()));
+            "Object path: $0",
+        objectPath.toString()));
 
     QueryExpression qx(request->queryLanguage,request->query);
 
@@ -776,12 +754,10 @@ CIMResponseMessage* ProviderMessageHandler::_handleAssociatorsRequest(
 
     objectPath.setKeyBindings(request->objectName.getKeyBindings());
 
-    PEG_TRACE((
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL3,
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
         "ProviderMessageHandler::_handleAssociatorsRequest - "
-            "Object path: %s",
-        (const char*) objectPath.toString().getCString()));
+            "Object path: $0",
+        objectPath.toString()));
 
     CIMObjectPath assocPath(
         System::getHostName(),
@@ -844,12 +820,10 @@ CIMResponseMessage* ProviderMessageHandler::_handleAssociatorNamesRequest(
 
     objectPath.setKeyBindings(request->objectName.getKeyBindings());
 
-    PEG_TRACE((
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL3,
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
         "ProviderMessageHandler::_handleAssociationNamesRequest - "
-            "Object path: %s",
-        (const char*) objectPath.toString().getCString()));
+            "Object path: $0",
+        objectPath.toString()));
 
     CIMObjectPath assocPath(
         System::getHostName(),
@@ -909,12 +883,10 @@ CIMResponseMessage* ProviderMessageHandler::_handleReferencesRequest(
 
     objectPath.setKeyBindings(request->objectName.getKeyBindings());
 
-    PEG_TRACE((
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL3,
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
         "ProviderMessageHandler::_handleReferencesRequest - "
-            "Object path: %s",
-        (const char*) objectPath.toString().getCString()));
+            "Object path: $0",
+        objectPath.toString()));
 
     CIMObjectPath resultPath(
         System::getHostName(),
@@ -975,12 +947,10 @@ CIMResponseMessage* ProviderMessageHandler::_handleReferenceNamesRequest(
 
     objectPath.setKeyBindings(request->objectName.getKeyBindings());
 
-    PEG_TRACE((
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL3,
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
         "ProviderMessageHandler::_handleReferenceNamesRequest - "
-            "Object path: %s",
-        (const char*) objectPath.toString().getCString()));
+            "Object path: $0",
+        objectPath.toString()));
 
     CIMObjectPath resultPath(
         System::getHostName(),
@@ -1037,6 +1007,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleGetPropertyRequest(
         request->messageId,
         request->nameSpace,
         request->instanceName,
+        false,  // localOnly
         false,  // includeQualifiers
         false,  // includeClassOrigin
         propertyList,
@@ -1064,13 +1035,10 @@ CIMResponseMessage* ProviderMessageHandler::_handleGetPropertyRequest(
         getInstanceRequest.instanceName.getClassName(),
         getInstanceRequest.instanceName.getKeyBindings());
 
-    PEG_TRACE((
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL3,
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
         "ProviderMessageHandler::_handleGetPropertyRequest - "
-            "Object path: %s, Property: %s",
-        (const char*) objectPath.toString().getCString(),
-        (const char*) request->propertyName.getString().getCString()));
+            "Object path: $0, Property: $1",
+        objectPath.toString(), request->propertyName.getString()));
 
     OperationContext providerContext(
         _createProviderOperationContext(getInstanceRequest.operationContext));
@@ -1101,8 +1069,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleGetPropertyRequest(
 
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
-        CIMInstance instance = 
-            getInstanceResponse->getResponseData().getInstance();
+        CIMInstance instance = getInstanceResponse->cimInstance;
 
         Uint32 pos = instance.findProperty(request->propertyName);
 
@@ -1181,13 +1148,10 @@ CIMResponseMessage* ProviderMessageHandler::_handleSetPropertyRequest(
     ModifyInstanceResponseHandler handler(
         &modifyInstanceRequest, modifyInstanceResponse.get(), 0);
 
-    PEG_TRACE((
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL3,
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
         "ProviderMessageHandler::_handleSetPropertyRequest - "
-            "Object path: %s, Property: %s",
-        (const char*) objectPath.toString().getCString(),
-        (const char*) request->propertyName.getString().getCString()));
+            "Object path: $0, Property: $1",
+        objectPath.toString(), request->propertyName.getString()));
 
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
@@ -1247,13 +1211,10 @@ CIMResponseMessage* ProviderMessageHandler::_handleInvokeMethodRequest(
         request->instanceName.getClassName(),
         request->instanceName.getKeyBindings());
 
-    PEG_TRACE((
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL3,
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
         "ProviderMessageHandler::_handleInvokeMethodRequest - "
-            "Object path: %s, Method: %s",
-        (const char*) objectPath.toString().getCString(),
-        (const char*) request->methodName.getString().getCString()));
+            "Object path: $0, Method: $1",
+        objectPath.toString(), request->methodName.getString()));
 
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
@@ -1309,14 +1270,13 @@ CIMResponseMessage* ProviderMessageHandler::_handleCreateSubscriptionRequest(
         }
     }
 
-    PEG_TRACE((
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL3,
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
+        Logger::TRACE,
         "ProviderMessageHandler::_handleCreateSubscriptionRequest - "
-            "Host name: %s  Name space: %s  Class name(s): %s",
-        (const char*) System::getHostName().getCString(),
-        (const char*) request->nameSpace.getString().getCString(),
-        (const char*) temp.getCString()));
+            "Host name: $0  Name space: $1  Class name(s): $2",
+        System::getHostName(),
+        request->nameSpace.getString(),
+        temp));
 
     //
     //  Save the provider instance from the request
@@ -1418,14 +1378,13 @@ CIMResponseMessage* ProviderMessageHandler::_handleModifySubscriptionRequest(
         }
     }
 
-    PEG_TRACE((
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL3,
-        "ProviderMessageHandler::_handleModifySubscriptionRequest - "
-            "Host name: %s  Name space: %s  Class name(s): %s",
-        (const char*) System::getHostName().getCString(),
-        (const char*) request->nameSpace.getString().getCString(),
-        (const char*) temp.getCString()));
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
+        Logger::TRACE,
+        "ProviderMessageHandler::_handleCreateSubscriptionRequest - "
+            "Host name: $0  Name space: $1  Class name(s): $2",
+        System::getHostName(),
+        request->nameSpace.getString(),
+        temp));
 
     // convert arguments
 
@@ -1501,14 +1460,13 @@ CIMResponseMessage* ProviderMessageHandler::_handleDeleteSubscriptionRequest(
         }
     }
 
-    PEG_TRACE((
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL3,
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
+        Logger::TRACE,
         "ProviderMessageHandler::_handleDeleteSubscriptionRequest - "
-            "Host name: %s  Name space: %s  Class name(s): %s",
-        (const char*) System::getHostName().getCString(),
-        (const char*) request->nameSpace.getString().getCString(),
-        (const char*) temp.getCString()));
+            "Host name: $0  Name space: $1  Class name(s): $2",
+        System::getHostName(),
+        request->nameSpace.getString(),
+        temp));
 
     Array<CIMObjectPath> classNames;
 
@@ -1591,6 +1549,8 @@ CIMResponseMessage* ProviderMessageHandler::_handleExportIndicationRequest(
     providerContext.insert(request->operationContext.get(
         ContentLanguageListContainer::NAME));
 
+    AutoPThreadSecurity threadLevelSecurity(providerContext);
+
     CIMIndicationConsumerProvider* provider =
         getProviderInterface<CIMIndicationConsumerProvider>(_provider);
 
@@ -1640,7 +1600,7 @@ void ProviderMessageHandler::_enableIndications()
         }
         catch (...)
         {
-            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "Caught exception from provider %s "
                     "enableIndications() method.",
                 (const char*)_fullyQualifiedProviderName.getCString()));
@@ -1653,21 +1613,25 @@ void ProviderMessageHandler::_enableIndications()
     }
     catch (Exception& e)
     {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Exception: " + e.getMessage());
+
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            MessageLoaderParms(
-                "ProviderManager.Default.DefaultProviderManager."
-                    "ENABLE_INDICATIONS_FAILED",
-                "Failed to enable indications for provider $0: $1.",
-                 _fullyQualifiedProviderName, e.getMessage()));
+            "ProviderManager.Default.DefaultProviderManager."
+                "ENABLE_INDICATIONS_FAILED",
+            "Failed to enable indications for provider $0: $1.",
+             _fullyQualifiedProviderName, e.getMessage());
     }
     catch(...)
     {
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Unexpected error in _enableIndications");
+
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            MessageLoaderParms(
-                "ProviderManager.Default.DefaultProviderManager."
-                    "ENABLE_INDICATIONS_FAILED_UNKNOWN",
-                "Failed to enable indications for provider $0.",
-                _fullyQualifiedProviderName));
+            "ProviderManager.Default.DefaultProviderManager."
+                "ENABLE_INDICATIONS_FAILED_UNKNOWN",
+            "Failed to enable indications for provider $0.",
+            _fullyQualifiedProviderName);
     }
 
     PEG_METHOD_EXIT();
@@ -1695,7 +1659,7 @@ void ProviderMessageHandler::_disableIndications()
             }
             catch (...)
             {
-                PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
                     "Caught exception from provider %s "
                         "disableIndications() method.",
                     (const char*)_fullyQualifiedProviderName.getCString()));

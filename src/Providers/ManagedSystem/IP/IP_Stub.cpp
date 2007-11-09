@@ -215,6 +215,7 @@ Boolean IPInterface::getAddress(String& s) const
   return false;
 }
 
+/*
 ================================================================================
 NAME              : getIPv4Address
 DESCRIPTION       : The IPv4 address that this ProtocolEndpoint represents.
@@ -230,6 +231,7 @@ Boolean IPInterface::getIPv4Address(String& s) const
   return false;
 }
 
+/*
 ================================================================================
 NAME              : getIPv6Address
 DESCRIPTION       : The IPv6 address that this ProtocolEndpoint represents.
@@ -257,11 +259,8 @@ NOTES             :
 */
 Boolean IPInterface::getPrefixLength(Uint8& i8) const
 {
-    if (String::equal(_protocol,PROTOCOL_IPV4))
-        return false;
-
-    i8 = _prefixLength;
-    return true;
+    // not supported. 
+    return false;
 }
 
 /*

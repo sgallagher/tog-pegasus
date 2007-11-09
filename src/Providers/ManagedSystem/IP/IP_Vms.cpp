@@ -215,6 +215,7 @@ Boolean IPInterface::getAddress(String& s) const
   return false;
 }
 
+/*
 ================================================================================
 NAME              : getIPv4Address
 DESCRIPTION       : The IPv4 address that this ProtocolEndpoint represents.

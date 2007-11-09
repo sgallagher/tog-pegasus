@@ -1,41 +1,40 @@
 /*
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 */
-
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <string.h>
-#include <signal.h>
-#include <time.h>
 #include "Config.h"
 #include "Child.h"
 #include "Parent.h"
@@ -53,14 +52,6 @@
 #include "Assert.h"
 #include "Options.h"
 #include <Pegasus/Common/PegasusVersion.h>
-
-#define CIMSERVER_COMMAND_TIMEOUT_SECONDS 240
-
-#ifdef PEGASUS_FLAVOR
-# define CIMSERVER_LOG_IDENTITY "cimserver" PEGASUS_FLAVOR
-#else
-# define CIMSERVER_LOG_IDENTITY "cimserver"
-#endif
 
 /*
 **==============================================================================
@@ -153,10 +144,6 @@ void DefineExecutorMacros(void)
 
     DefineMacro("cimprovagt", CIMPROVAGT);
 
-    /* Define ${cimprovagt} */
-
-    DefineMacro("cimprovagt32", CIMPROVAGT32);
-
     /* Define ${cimshutdown} */
 
     DefineMacro("cimshutdown", CIMSHUTDOWN);
@@ -183,16 +170,6 @@ void DefineExecutorMacros(void)
             Fatal(FL, "failed to resolve cimprovagtPath");
 
         DefineMacro("cimprovagtPath", path);
-    }
-
-    /* Define ${cimprovagt32Path} */
-    {
-        char path[EXECUTOR_BUFFER_SIZE];
-
-        if (ExpandMacros("${internalBinDir}/${cimprovagt32}", path) != 0)
-            Fatal(FL, "failed to resolve cimprovagt32Path");
-
-        DefineMacro("cimprovagt32Path", path);
     }
 
     /* Define ${cimshutdownPath} */
@@ -276,10 +253,6 @@ void DefineExecutorMacros(void)
 
     if (DefineConfigPathMacro("crlStore", "crl") != 0)
         Fatal(FL, "missing \"crlStore\" configuration parameter.");
-
-    /* Define ${localAuthDir} */
-    if(DefineMacro("localAuthDir",PEGASUS_LOCAL_AUTH_DIR) != 0)
-        Fatal(FL, "missing \"localAuthDir\" configuration parameter.");
 }
 
 /*
@@ -290,14 +263,10 @@ void DefineExecutorMacros(void)
 **==============================================================================
 */
 
-
 int main(int argc, char** argv)
 {
     const char* cimservermainPath;
-    const char* workingDirectory;
     int pair[2];
-    int initCompletePipe[2];
-    int pid;
     char username[EXECUTOR_BUFFER_SIZE];
     const char* childUserName;
     int childUid;
@@ -316,7 +285,7 @@ int main(int argc, char** argv)
 
     /* Open the log. */
 
-    OpenLog(CIMSERVER_LOG_IDENTITY);
+    OpenLog("cimserver");
 
     /* Define macros needed by the executor. */
 
@@ -346,32 +315,17 @@ int main(int argc, char** argv)
      * passed through to CIMSERVERMAIN).
      */
 
-    if (!options.version && !options.help)
+    if (!options.version &&
+        !options.help &&
+        TestProcessRunning(PEGASUS_CIMSERVER_START_FILE, CIMSERVERMAIN) == 0)
     {
-        int isRunning = (TestProcessRunning(
-            PEGASUS_CIMSERVER_START_FILE, CIMSERVERMAIN) == 0);
-        if (options.status)
-        {
-            if (isRunning)
-            {
-                fprintf(stderr, "CIM Server is running.\n");
-                exit(0);
-            } 
-            else
-            {
-                fprintf(stderr, "CIM Server is not running.\n");
-                exit(2);
-            }
-        }
-        else if (isRunning)
-        {
-            fprintf(stderr,
-                "%s: cimserver is already running (the PID found in the file "
-                "\"%s\" corresponds to an existing process named \"%s\").\n\n",
-                globals.argv[0], PEGASUS_CIMSERVER_START_FILE, CIMSERVERMAIN);  
-            exit(1);
-        }
-    } 
+        fprintf(stderr,
+            "%s: cimserver is already running (the PID found in the file "
+            "\"%s\" corresponds to an existing process named \"%s\").\n\n",
+            globals.argv[0], PEGASUS_CIMSERVER_START_FILE, CIMSERVERMAIN);
+
+        exit(1);
+    }
 
     /* Get enableAuthentication configuration option. */
 
@@ -385,11 +339,18 @@ int main(int argc, char** argv)
         }
     }
 
+    /* Create a socket pair for communicating with the child process. */
+
+    if (CreateSocketPair(pair) != 0)
+        Fatal(FL, "Failed to create socket pair");
+
+    CloseOnExec(pair[1]);
+
     /* Initialize the log-level from the configuration parameter. */
 
     InitLogLevel();
 
-    Log(LL_TRACE, "starting");
+    Log(LL_INFORMATION, "starting");
 
     /* Be sure this process is running as root (otherwise fail). */
 
@@ -411,122 +372,9 @@ int main(int argc, char** argv)
     Log(LL_TRACE, "running as %s (uid=%d, gid=%d)",
         username, (int)getuid(), (int)getgid());
 
-    /* Change the current directory */
-
-#if defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_CORE_DIR)
-    workingDirectory = PEGASUS_CORE_DIR;
-#elif defined(PEGASUS_DEBUG)
-    workingDirectory = getenv("PEGASUS_TMP");
-#endif
-    if (workingDirectory == NULL)
-    {
-        workingDirectory = "/";
-    }
-    if (chdir(workingDirectory) != 0)
-    {
-        Log(LL_WARNING, "Failed to change working directory to %s",
-            workingDirectory);
-    }
-
-    /* Create a pipe for communicating with cimserver daemon process. */
-
-    if (pipe(initCompletePipe) != 0)
-        Fatal(FL, "Failed to create pipe");
-
-    CloseOnExec(initCompletePipe[0]);
-    CloseOnExec(initCompletePipe[1]);
-
-    /* Fork to ensure we are not a session leader so setsid() will succeed. */
-
-    pid = fork();
-
-    if (pid < 0)
-    {
-        Fatal(FL, "fork() failed");
-    }
-
-    if (pid > 0)
-    {
-        /* Wait until daemon writes an exit code or closes the pipe. */
-
-        char exitRC;
-        ssize_t result;
-        time_t startTime;
-        time_t now;
-
-        close(initCompletePipe[1]);
-        SetNonBlocking(initCompletePipe[0]);
-        time(&startTime);
-
-        do
-        {
-            time(&now);
-            result = WaitForReadEnable(
-                initCompletePipe[0],
-                (CIMSERVER_COMMAND_TIMEOUT_SECONDS - (now - startTime)) * 1000);
-        } while (result == -1 && errno == EINTR);
-
-        if (result == 0)
-        {
-            fprintf(stderr,
-                "The cimserver command timed out waiting for the CIM server "
-                    "to start.");
-            _exit(0);
-        }
-
-        EXECUTOR_RESTART(read(initCompletePipe[0], &exitRC, 1), result);
-        if (result <= 0)
-        {
-            exitRC = 1;
-        }
-        _exit(exitRC);
-    }
-
-    close(initCompletePipe[0]);
-
-    /* Become session leader (so that our child process will not be one) */
-
-    if (setsid() < 0)
-    {
-        Fatal(FL, "setsid() failed");
-    }
-
-    /* Ignore SIGHUP: */
-
-    signal(SIGHUP, SIG_IGN);
-
-    /* Ignore SIGCHLD: */
-
-    signal(SIGCHLD, SIG_IGN);
-
-    /* Ignore SIGPIPE: */
-
-    signal(SIGPIPE, SIG_IGN);
-
-    /* Fork cimserver daemon process (not a session leader since parent is). */
-
-    pid = fork();
-
-    if (pid < 0)
-    {
-        Fatal(FL, "fork() failed");
-    }
-
-    if (pid > 0)
-    {
-        _exit(0);
-    }
-
     /* Determine user for running CIMSERVERMAIN. */
 
     GetServerUser(&childUserName, &childUid, &childGid);
-
-    /* Create a socket pair for communicating with the child process. */
-
-    if (CreateSocketPair(pair) != 0)
-        Fatal(FL, "Failed to create socket pair");
-
-    CloseOnExec(pair[1]);
 
     /* Fork child process. */
 
@@ -549,7 +397,7 @@ int main(int argc, char** argv)
     {
         /* Parent. */
         close(pair[0]);
-        Parent(pair[1], initCompletePipe[1], childPid, options.bindVerbose);
+        Parent(pair[1], childPid, options.bindVerbose);
     }
     else
     {

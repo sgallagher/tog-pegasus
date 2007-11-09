@@ -268,6 +268,7 @@ static int _compare(const Uint16* s1, const Uint16* s2)
     return 0;
 }
 
+#ifdef PEGASUS_STRING_NO_UTF8
 static int _compareNoUTF8(const Uint16* s1, const char* s2)
 {
     Uint16 c1;
@@ -285,6 +286,7 @@ static int _compareNoUTF8(const Uint16* s1, const char* s2)
 
     return c1 - c2;
 }
+#endif
 
 static inline void _copy(Uint16* s1, const Uint16* s2, size_t n)
 {
@@ -1330,7 +1332,7 @@ void AssignASCII(String& s, const char* str, Uint32 n)
         StringRep* rep;
     };
 
-    StringLayout* that = (StringLayout*)&s;
+    StringLayout* that = reinterpret_cast<StringLayout*>(&s);
 
     _checkNullPointer(str);
 

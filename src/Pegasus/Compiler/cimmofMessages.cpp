@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +44,7 @@ PEGASUS_USING_STD;
 
 const cimmofMessages::arglist cimmofMessages::EMPTYLIST;
 
-static const char* _cimmofMessages[] =
+static String _cimmofMessages[] =
 {
     "OK", //CIM_ERR_SUCCESS
     "$0:$1: $2 before '$3'", //PARSER_SYNTAX_ERROR
@@ -117,14 +119,9 @@ static const char* _cimmofMessages[] =
     "Invalid version format in mof class or repository class"
         " (valid format is m.n.u)", //INVALID_VERSION_FORMAT
     "Invalid $0 value: $1",    // INVALID_LITERAL_VALUE
-    "Class alias $0 found for class $1. This function not implemented",
-    "Class $1 not found for instance alias $0",
-    "Warning: Pragma \"$0\" not implemented by the compiler. Ignored",
-    "Warning: Pragma locale value \"$0\" not defined by compiler. Ignored",
     ""
 };
-
-static const char* _cimmofMessagesKeys [] =
+static String _cimmofMessagesKeys [] =
 {
     "Compiler.cimmofMessages.CIM_ERR_SUCCESS",
     "Compiler.cimmofMessages.PARSER_SYNTAX_ERROR",
@@ -175,15 +172,11 @@ static const char* _cimmofMessagesKeys [] =
     "Compiler.cimmofMessages.NO_CLASS_UPDATE",
     "Compiler.cimmofMessages.INVALID_VERSION_FORMAT",
     "Compiler.cimmofMessages.INVALID_LITERAL_VALUE",
-    "Compiler.cimmofMessages::CLASS_ALIAS_FOUND",
-    "Compiler.cimmofMessages::INSTANCE_ALIAS_CLASS_NOT_FOUND",
-    "Compiler.cimmofMessages::PRAGMA_NOT_IMPLEMENTED_WARNING",
-    "Compiler.commofMessages::LOCALE_NOT_IMPLEMENTED_WARNING",
     "Compiler.cimmofMessages.END"
 };
 
 
-const char* cimmofMessages::msgCodeToString(MsgCode code)
+const String & cimmofMessages::msgCodeToString(MsgCode code)
 {
     return _cimmofMessages[(unsigned int)code];
 }

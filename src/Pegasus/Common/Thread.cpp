@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +35,6 @@
 #include <errno.h>
 #include <exception>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/AutoPtr.h>
 #include "Time.h"
 
 PEGASUS_USING_STD;
@@ -56,34 +57,57 @@ struct StartWrapperArg
 
 extern "C" void *_start_wrapper(void *arg_)
 {
-    // Clean up dynamic memory now to prevent a leak if the thread is canceled.
-    StartWrapperArg arg;
-    arg.start = ((StartWrapperArg *) arg_)->start;
-    arg.arg = ((StartWrapperArg *) arg_)->arg;
-    delete (StartWrapperArg *) arg_;
+    StartWrapperArg *arg = (StartWrapperArg *) arg_;
 
-    // establish cancelability of the thread
-    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
-
-    void *return_value = (*arg.start) (arg.arg);
+    void *return_value = (*arg->start) (arg->arg);
+    delete arg;
 
     return return_value;
 }
 
 void Thread::cancel()
 {
+    _cancelled = true;
     pthread_cancel(_handle.thid.thread);
+}
+
+void Thread::test_cancel()
+{
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+    pthread_testintr();
+#else
+    pthread_testcancel();
+#endif
+}
+
+Boolean Thread::is_cancelled()
+{
+    return _cancelled;
 }
 
 void Thread::thread_switch()
 {
-#if defined(PEGASUS_OS_ZOS)
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
     pthread_yield(NULL);
 #else
     sched_yield();
 #endif
 }
+
+/*
+ATTN: why are these missing on other platforms?
+*/
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+void Thread::suspend()
+{
+    pthread_kill(_handle.thid.thread, SIGSTOP);
+}
+
+void Thread::resume()
+{
+    pthread_kill(_handle.thid.thread, SIGCONT);
+}
+#endif
 
 void Thread::sleep(Uint32 msec)
 {
@@ -98,10 +122,22 @@ void Thread::join()
     Threads::clear(_handle.thid);
 }
 
+void Thread::thread_init()
+{
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+    pthread_setintr(PTHREAD_INTR_ENABLE);
+    pthread_setintrtype(PTHREAD_INTR_ASYNCHRONOUS);
+#else
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
+#endif
+    _cancel_enabled = true;
+}
+
 void Thread::detach()
 {
     _is_detached = true;
-#if defined(PEGASUS_OS_ZOS)
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
     pthread_t  thread_id=_handle.thid.thread;
     pthread_detach(&thread_id);
 #else
@@ -146,13 +182,15 @@ Thread::Thread(
     void* parameter,
     Boolean detached)
     : _is_detached(detached),
+      _cancel_enabled(true),
+      _cancelled(false),
       _start(start),
       _cleanup(),
+      _tsd(),
       _thread_parm(parameter),
       _exit_code(0)
 {
     Threads::clear(_handle.thid);
-    memset(_tsd, 0, sizeof(_tsd));
 }
 
 Thread::~Thread()
@@ -210,6 +248,19 @@ void Thread::cancel()
     _cancelled = true;
 }
 
+void Thread::test_cancel()
+{
+    if (_cancel_enabled && _cancelled)
+    {
+        exit_self(0);
+    }
+}
+
+Boolean Thread::is_cancelled()
+{
+    return _cancelled;
+}
+
 void Thread::thread_switch()
 {
     Sleep(0);
@@ -254,23 +305,24 @@ void Thread::join()
     }
 }
 
+void Thread::thread_init()
+{
+    _cancel_enabled = true;
+}
+
 void Thread::detach()
 {
     _is_detached = true;
 }
 
-Thread::Thread(
-    ThreadReturnType(PEGASUS_THREAD_CDECL* start)(void*),
-    void *parameter,
-    Boolean detached) :_is_detached(detached),
-    _cancelled(false),
-    _start(start),
-    _cleanup(),
-    _thread_parm(parameter),
-    _exit_code(0)
+Thread::Thread(ThreadReturnType(PEGASUS_THREAD_CDECL * start) (void *),
+               void *parameter,
+               Boolean detached):_is_detached(detached),
+_cancel_enabled(true),
+_cancelled(false),
+_start(start), _cleanup(), _tsd(), _thread_parm(parameter), _exit_code(0)
 {
     Threads::clear(_handle.thid);
-    memset(_tsd, 0, sizeof(_tsd));
 }
 
 Thread::~Thread()
@@ -292,6 +344,12 @@ Thread::~Thread()
 // Common implementation:
 //
 //==============================================================================
+
+void thread_data::default_delete(void *data)
+{
+    if (data != NULL)
+        ::operator  delete(data);
+}
 
 void language_delete(void *data)
 {
@@ -326,14 +384,12 @@ void Thread::cleanup_pop(Boolean execute)
     {
         cu.reset(_cleanup.remove_front());
     }
-    catch (...)
+    catch (IPCException &)
     {
         PEGASUS_ASSERT(0);
     }
     if (execute == true)
-    {
         cu->execute();
-    }
 }
 
 
@@ -350,7 +406,7 @@ void Thread::exit_self(ThreadReturnType exit_code)
         {
             cleanup_pop(true);
         }
-        catch (...)
+        catch (IPCException &)
         {
             PEGASUS_ASSERT(0);
             break;
@@ -369,7 +425,7 @@ Sint8 Thread::initializeKey()
     {
         if (Thread::_key_error)
         {
-            PEG_TRACE_CSTRING(TRC_THREAD, Tracer::LEVEL1,
+            PEG_TRACE_CSTRING(TRC_THREAD, Tracer::LEVEL4,
                           "Thread: ERROR - thread key error");
             return -1;
         }
@@ -382,7 +438,7 @@ Sint8 Thread::initializeKey()
         }
         else
         {
-            PEG_TRACE_CSTRING(TRC_THREAD, Tracer::LEVEL1,
+            PEG_TRACE_CSTRING(TRC_THREAD, Tracer::LEVEL4,
                           "Thread: ERROR - unable to create a thread key");
             Thread::_key_error = true;
             return -1;
@@ -418,7 +474,7 @@ void Thread::setCurrent(Thread * thrd)
         }
         else
         {
-            PEG_TRACE_CSTRING(TRC_THREAD, Tracer::LEVEL1,
+            PEG_TRACE_CSTRING(TRC_THREAD, Tracer::LEVEL4,
                 "ERROR: error setting Thread * into thread specific storage");
         }
     }
@@ -433,29 +489,23 @@ AcceptLanguageList *Thread::getLanguages()
     if (curThrd == NULL)
         return NULL;
     AcceptLanguageList *acceptLangs =
-        (AcceptLanguageList *) curThrd->reference_tsd(TSD_ACCEPT_LANGUAGES);
+        (AcceptLanguageList *) curThrd->reference_tsd("acceptLanguages");
     curThrd->dereference_tsd();
     PEG_METHOD_EXIT();
     return acceptLangs;
 }
 
-void Thread::setLanguages(const AcceptLanguageList& langs)
+void Thread::setLanguages(AcceptLanguageList * langs)
 {
     PEG_METHOD_ENTER(TRC_THREAD, "Thread::setLanguages");
 
     Thread *currentThrd = Thread::getCurrent();
     if (currentThrd != NULL)
     {
-        AutoPtr<AcceptLanguageList> langsCopy(new AcceptLanguageList(langs));
-
         // deletes the old tsd and creates a new one
-        currentThrd->put_tsd(
-            TSD_ACCEPT_LANGUAGES,
-            language_delete,
-            sizeof (AcceptLanguageList *),
-            langsCopy.get());
-
-        langsCopy.release();
+        currentThrd->put_tsd("acceptLanguages",
+                             language_delete,
+                             sizeof (AcceptLanguageList *), langs);
     }
 
     PEG_METHOD_EXIT();
@@ -469,7 +519,7 @@ void Thread::clearLanguages()
     if (currentThrd != NULL)
     {
         // deletes the old tsd
-        currentThrd->delete_tsd(TSD_ACCEPT_LANGUAGES);
+        currentThrd->delete_tsd("acceptLanguages");
     }
 
     PEG_METHOD_EXIT();

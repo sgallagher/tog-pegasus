@@ -210,13 +210,16 @@ $(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) \
 	$(LINK_COMMAND) $(LINK_ARGUMENTS) $(LINK_OUT) $(FULL_LIB) $(OBJECTS) $(FULL_LIBRARIES) $(EXTRA_LIBRARIES) $(SYS_LIBS)
   endif
     ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
-	ln -f -s $(LIB_DIR)/lib$(LIBRARY)$(LIB_SUFFIX) $(LIB_DIR)/lib$(LIBRARY).sl
+	$(MAKE) --directory=$(LIB_DIR) -f $(PEGASUS_ROOT)/mak/library-unix.mak \
+            ln LIBRARY=lib$(LIBRARY) SUFFIX=$(LIB_SUFFIX) PLATFORM_SUFFIX=sl
     endif
     ifeq ($(PEGASUS_PLATFORM),HPUX_IA64_ACC)
-	ln -f -s $(LIB_DIR)/lib$(LIBRARY)$(LIB_SUFFIX) $(LIB_DIR)/lib$(LIBRARY).so
+	$(MAKE) --directory=$(LIB_DIR) -f $(PEGASUS_ROOT)/mak/library-unix.mak \
+            ln LIBRARY=lib$(LIBRARY) SUFFIX=$(LIB_SUFFIX) PLATFORM_SUFFIX=so
     endif
     ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-	ln -f -s $(LIB_DIR)/lib$(LIBRARY)$(LIB_SUFFIX) $(LIB_DIR)/lib$(LIBRARY).so
+	$(MAKE) --directory=$(LIB_DIR) -f $(PEGASUS_ROOT)/mak/library-unix.mak \
+            ln LIBRARY=lib$(LIBRARY) SUFFIX=$(LIB_SUFFIX) PLATFORM_SUFFIX=so
     endif
 	$(TOUCH) $(FULL_LIB)
 	@ $(ECHO)
@@ -229,6 +232,19 @@ $(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) \
 
 clean-lib: $(ERROR)
 	rm -f $(FULL_LIB)
+
+##==============================================================================
+##
+## ln (target to create soft link)
+##
+## This target is used to allow the current working directory to be set in a
+## separate "make" execution, to avoid using fully-specified paths in the link
+## command.
+##
+##==============================================================================
+
+ln:
+	ln -f -s $(LIBRARY)$(SUFFIX) $(LIBRARY).$(PLATFORM_SUFFIX)
 
 ##==============================================================================
 ##

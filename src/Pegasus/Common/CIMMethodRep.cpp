@@ -50,9 +50,12 @@ CIMMethodRep::CIMMethodRep(const CIMMethodRep& x) :
     _name(x._name),
     _type(x._type),
     _classOrigin(x._classOrigin),
-    _propagated(x._propagated)
+    _propagated(x._propagated),
+    _ownerCount(0)
 {
     x._qualifiers.cloneTo(_qualifiers);
+    // Set the CIM name tag.
+    _nameTag = generateCIMNameTag(_name);
 
     _parameters.reserveCapacity(x._parameters.size());
 
@@ -68,13 +71,17 @@ CIMMethodRep::CIMMethodRep(
     const CIMName& classOrigin,
     Boolean propagated)
     : _name(name), _type(type),
-    _classOrigin(classOrigin), _propagated(propagated)
+    _classOrigin(classOrigin),
+    _propagated(propagated),
+    _ownerCount(0)
 {
     // ensure name is not null
     if (name.isNull())
     {
         throw UninitializedObjectException();
     }
+    // Set the CIM name tag.
+    _nameTag = generateCIMNameTag(_name);
 }
 
 CIMMethodRep::~CIMMethodRep()
@@ -88,8 +95,17 @@ void CIMMethodRep::setName(const CIMName& name)
     {
         throw UninitializedObjectException();
     }
-
+    if (_ownerCount != 0 && _name != name)
+    {
+        MessageLoaderParms parms(
+            "Common.CIMMethodRep.CONTAINED_METHOD_NAMECHANGEDEXCEPTION",
+            "Attempted to change the name of a method"
+                " already in a container.");
+        throw Exception(parms);
+    }
     _name = name;
+    // Set the CIM name tag.
+    _nameTag = generateCIMNameTag(_name);
 }
 
 void CIMMethodRep::setClassOrigin(const CIMName& classOrigin)
@@ -115,13 +131,7 @@ void CIMMethodRep::addParameter(const CIMParameter& x)
 
 Uint32 CIMMethodRep::findParameter(const CIMName& name) const
 {
-    for (Uint32 i = 0, n = _parameters.size(); i < n; i++)
-    {
-        if (name.equal(_parameters[i].getName()))
-            return i;
-    }
-
-    return PEG_NOT_FOUND;
+    return _parameters.find(name, generateCIMNameTag(name));
 }
 
 CIMParameter CIMMethodRep::getParameter(Uint32 index)

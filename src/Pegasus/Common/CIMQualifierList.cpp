@@ -43,11 +43,15 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include "StrLit.h"
 #include "ArrayIterator.h"
+#include "CIMQualifierRep.h"
 
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
-CIMQualifierList::CIMQualifierList()
+static CIMName _KEY("Key");
+
+CIMQualifierList::CIMQualifierList() : 
+                    _keyIndex(PEGASUS_ORDEREDSET_INDEX_UNKNOWN)
 {
 
 }
@@ -71,6 +75,11 @@ CIMQualifierList& CIMQualifierList::add(const CIMQualifier& qualifier)
     }
 
     _qualifiers.append(qualifier);
+    
+    // Update key index:
+    if (_keyIndex == PEGASUS_ORDEREDSET_INDEX_UNKNOWN && 
+            qualifier._rep->_name == _KEY)
+        _keyIndex = _qualifiers.size()-1;
 
     return *this;
 }
@@ -83,6 +92,7 @@ CIMQualifier& CIMQualifierList::getQualifier(Uint32 index)
 void CIMQualifierList::removeQualifier(Uint32 index)
 {
     _qualifiers.remove(index);
+    _keyIndex = PEGASUS_ORDEREDSET_INDEX_UNKNOWN;
 }
 
 void CIMQualifierList::clear()
@@ -92,16 +102,9 @@ void CIMQualifierList::clear()
 
 Uint32 CIMQualifierList::find(const CIMName& name) const
 {
-    ConstArrayIterator<CIMQualifier> qualifiers(_qualifiers);
-
-    for (Uint32 i = 0, n = qualifiers.size(); i < n; i++)
-    {
-        if (name.equal(qualifiers[i].getName()))
-            return i;
-    }
-
-    return PEG_NOT_FOUND;
+    return _qualifiers.find(name, generateCIMNameTag(name));
 }
+
 Boolean CIMQualifierList::isTrue(const CIMName& name) const
 {
     Uint32 index = find(name);
@@ -127,6 +130,8 @@ void CIMQualifierList::resolve(
     CIMQualifierList& inheritedQualifiers,
     Boolean propagateQualifiers)  // Apparently not used ks 24 mar 2002
 {
+    _keyIndex = PEGASUS_ORDEREDSET_INDEX_UNKNOWN;
+
     PEG_METHOD_ENTER(TRC_OBJECTRESOLUTION, "CIMQualifierList::resolve()");
     // For each qualifier in the qualifiers array, the following
     // is checked:
@@ -322,7 +327,7 @@ void CIMQualifierList::resolve(
 
         CIMQualifier q = iq.clone();
         q.setPropagated(true);
-        _qualifiers.prepend(q);
+        _qualifiers.insert(0, q);
     }
     PEG_METHOD_EXIT();
 }
@@ -389,11 +394,44 @@ Boolean CIMQualifierList::identical(const CIMQualifierList& x) const
 
 void CIMQualifierList::cloneTo(CIMQualifierList& x) const
 {
+    x._keyIndex = PEGASUS_ORDEREDSET_INDEX_UNKNOWN;
     x._qualifiers.clear();
     x._qualifiers.reserveCapacity(_qualifiers.size());
 
     for (Uint32 i = 0, n = _qualifiers.size(); i < n; i++)
         x._qualifiers.append(_qualifiers[i].clone());
+    x._keyIndex = _keyIndex;
+}
+
+Boolean CIMQualifierList::isKey() const
+{
+    static Uint32 _KEY_TAG = generateCIMNameTag(_KEY);
+
+    // Resolve key index if unresolved.
+
+    if (_keyIndex == PEGASUS_ORDEREDSET_INDEX_UNKNOWN)
+    {
+        Uint32 pos = _qualifiers.find(_KEY, _KEY_TAG);
+        ((CIMQualifierList*)this)->_keyIndex = int(pos);
+    }
+
+    // If no key qualifier in list, then return false (default key value).
+
+    if (_keyIndex == PEGASUS_ORDEREDSET_INDEX_NOTFOUND)
+        return false;
+
+    // Obtain value of key qualifier.
+
+    const CIMValue& value = _qualifiers[_keyIndex]._rep->_value;
+    if (!value.isNull() &&
+        value.getType() == CIMTYPE_BOOLEAN)
+    {
+        Boolean boolVal;
+        value.get(boolVal);
+        return boolVal;
+    }
+
+    return false;
 }
 
 PEGASUS_NAMESPACE_END

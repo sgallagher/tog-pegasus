@@ -36,6 +36,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/Sharable.h>
@@ -44,6 +45,7 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/CIMFlavor.h>
 #include <Pegasus/Common/Buffer.h>
+#include <Pegasus/Common/OrderedSet.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -65,6 +67,23 @@ public:
     const CIMName& getName() const
     {
         return _name;
+    }
+
+    const Uint32 getNameTag() const
+    {
+        return _nameTag;
+    }
+
+    void increaseOwnerCount()
+    {
+        _ownerCount++;
+        return;
+    }
+
+    void decreaseOwnerCount()
+    {
+        _ownerCount++;
+        return;
     }
 
     void setName(const CIMName& name);
@@ -137,6 +156,10 @@ private:
     CIMValue _value;
     CIMFlavor _flavor;
     Boolean _propagated;
+    Uint32 _nameTag;
+    Uint32 _ownerCount;
+
+    friend class CIMQualifierList;
 };
 
 PEGASUS_NAMESPACE_END

@@ -180,6 +180,7 @@ public:
         @return A CIMName containing the new name of the method.
         @exception UninitializedObjectException If the object is not
             initialized.
+        @exception Exception If the object is already contained by CIMClass
     */
     void setName(const CIMName& name);
 

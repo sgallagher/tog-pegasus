@@ -118,7 +118,10 @@ private:
     CIMClassRep& operator=(const CIMClassRep& x);    // Unimplemented
 
     CIMName _superClassName;
-    Array<CIMMethod> _methods;
+    typedef OrderedSet<CIMMethod,
+                       CIMMethodRep,
+                       PEGASUS_METHOD_ORDEREDSET_HASHSIZE> MethodSet;
+    MethodSet _methods;
 
     friend class CIMClass;
     friend class CIMInstanceRep;

@@ -54,8 +54,11 @@ CIMQualifierRep::CIMQualifierRep(const CIMQualifierRep& x) :
     _name(x._name),
     _value(x._value),
     _flavor(x._flavor),
-    _propagated(x._propagated)
+    _propagated(x._propagated),
+    _ownerCount(0)
 {
+    // Set the CIM name tag.
+    _nameTag = generateCIMNameTag(_name);
 }
 
 CIMQualifierRep::CIMQualifierRep(
@@ -67,13 +70,16 @@ CIMQualifierRep::CIMQualifierRep(
     _name(name),
     _value(value),
     _flavor(flavor),
-    _propagated(propagated)
+    _propagated(propagated),
+    _ownerCount(0)
 {
     // ensure name is not null
     if (name.isNull())
     {
         throw UninitializedObjectException();
     }
+    // Set the CIM name tag.
+    _nameTag = generateCIMNameTag(_name);
 }
 
 CIMQualifierRep::~CIMQualifierRep()
@@ -88,7 +94,19 @@ void CIMQualifierRep::setName(const CIMName& name)
         throw UninitializedObjectException();
     }
 
+    if (_ownerCount != 0 && _name != name)
+    {
+        MessageLoaderParms parms(
+            "Common.CIMQualifierRep.CONTAINED_QUALIFIER_NAMECHANGEDEXCEPTION",
+            "Attempted to change the name of a qualifier"
+                " already in a container.");
+        throw Exception(parms);
+    }
+
     _name = name;
+
+    // Set the CIM name tag.
+    _nameTag = generateCIMNameTag(_name);
 }
 
 void CIMQualifierRep::resolveFlavor (

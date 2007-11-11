@@ -148,6 +148,7 @@ public:
         @param name A CIMName indicating the new name for the parameter.
         @exception UninitializedObjectException If the object is not
             initialized.
+        @exception Exception If the object is already contained by CIMMethod
     */
     void setName(const CIMName& name);
 

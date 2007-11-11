@@ -81,6 +81,8 @@ public:
     static Uint8 toLower(Uint8 c) { return _toLower[c]; }
     static Uint8 isNotSpaceNorTerm(Uint8 c) { return _isNotSpaceNorTerm[c]; }
 
+    static Uint16 toUpperHash(Uint8 c) { return _toUpperHash[c]; }
+
 private:
     static const Uint8 _isAlphaUnder[256];
     static const Uint8 _isAlNumUnder[256];
@@ -89,6 +91,7 @@ private:
     static const Uint8 _isSpace[256];
     static const Uint8 _isXmlWhiteSpace[256];
     static const Uint8 _isNotSpaceNorTerm[256];
+    static const Uint16 _toUpperHash[256];
 };
 
 PEGASUS_NAMESPACE_END

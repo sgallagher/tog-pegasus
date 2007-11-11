@@ -105,7 +105,8 @@ DIRS = \
     IDFactory \
     SharedPtr \
     HostAddress \
-    HostLocator
+    HostLocator \
+    OrderedSet
     
 
 ifndef PEGASUS_DISABLE_PERFINST

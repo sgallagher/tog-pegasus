@@ -178,6 +178,8 @@ public:
         @param name A CIMName containing the new name of the property.
         @exception UninitializedObjectException If the object is not
             initialized.
+        @exception Exception If the object is already contained by 
+            CIMClass, CIMInstance or CIMObject
     */
     void setName(const CIMName& name);
 
@@ -370,6 +372,9 @@ private:
     friend class XmlWriter;
     friend class MofWriter;
     friend class BinaryStreamer;
+    friend class CIMObjectRep;
+    friend class CIMPropertyContainer;
+    friend class CIMPropertyInternal;
 
     CIMPropertyRep* _rep;
 };
@@ -606,6 +611,7 @@ private:
     friend class CIMPropertyRep;
     friend class XmlWriter;
     friend class MofWriter;
+    friend class CIMPropertyInternal;
 };
 
 #define PEGASUS_ARRAY_T CIMProperty

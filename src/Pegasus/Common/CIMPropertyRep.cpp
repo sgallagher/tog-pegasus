@@ -55,8 +55,12 @@ CIMPropertyRep::CIMPropertyRep(
     _arraySize(x._arraySize),
     _referenceClassName(x._referenceClassName),
     _classOrigin(x._classOrigin),
-    _propagated(x._propagated)
+    _propagated(x._propagated),
+    _ownerCount(0)
 {
+    // Set the CIM name tag.
+    _nameTag = generateCIMNameTag(_name);
+
     if (propagateQualifiers)
         x._qualifiers.cloneTo(_qualifiers);
 }
@@ -71,13 +75,16 @@ CIMPropertyRep::CIMPropertyRep(
     :
     _name(name), _value(value), _arraySize(arraySize),
     _referenceClassName(referenceClassName), _classOrigin(classOrigin),
-    _propagated(propagated)
+    _propagated(propagated), _ownerCount(0)
 {
     // ensure name is not null
     if (name.isNull())
     {
         throw UninitializedObjectException();
     }
+
+    // Set the CIM name tag.
+    _nameTag = generateCIMNameTag(_name);
 
     if ((arraySize != 0) &&
         (!value.isArray() || value.getArraySize() != arraySize))
@@ -118,7 +125,19 @@ void CIMPropertyRep::setName(const CIMName& name)
         throw UninitializedObjectException();
     }
 
+    if (_ownerCount != 0 && _name != name)
+    {
+        MessageLoaderParms parms(
+            "Common.CIMPropertyRep.CONTAINED_PROPERTY_NAMECHANGEDEXCEPTION",
+            "Attempted to change the name of a property"
+                " already in a container.");
+        throw Exception(parms);
+    }
+
     _name = name;
+
+    // Set the CIM name tag.
+    _nameTag = generateCIMNameTag(_name);
 }
 
 void CIMPropertyRep::setClassOrigin(const CIMName& classOrigin)

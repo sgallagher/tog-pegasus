@@ -36,14 +36,17 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMQualifierList.h>
 #include <Pegasus/Common/CIMParameter.h>
+#include <Pegasus/Common/CIMParameterRep.h>
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Pair.h>
+#include <Pegasus/Common/OrderedSet.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -67,6 +70,23 @@ public:
         return _name;
     }
 
+    const Uint32 getNameTag() const
+    {
+        return _nameTag;
+    }
+
+    void increaseOwnerCount()
+    {
+        _ownerCount++;
+        return;
+    }
+
+    void decreaseOwnerCount()
+    {
+        _ownerCount++;
+        return;
+    }
+    
     void setName(const CIMName& name);
 
     CIMType getType() const
@@ -172,7 +192,13 @@ private:
     CIMName _classOrigin;
     Boolean _propagated;
     CIMQualifierList _qualifiers;
-    Array<CIMParameter> _parameters;
+    Uint32 _nameTag;
+    Uint32 _ownerCount;
+
+    typedef OrderedSet<CIMParameter,
+                       CIMParameterRep,
+                       PEGASUS_PARAMETER_ORDEREDSET_HASHSIZE> ParameterSet;
+    ParameterSet _parameters;
 
     friend class CIMClassRep;
 };

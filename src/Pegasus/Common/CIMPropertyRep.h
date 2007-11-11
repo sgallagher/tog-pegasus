@@ -35,6 +35,7 @@
 #define Pegasus_PropertyRep_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMName.h>
@@ -43,6 +44,7 @@
 #include <Pegasus/Common/CIMQualifierList.h>
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/OrderedSet.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -68,6 +70,23 @@ public:
     const CIMName& getName() const
     {
         return _name;
+    }
+
+    const Uint32 getNameTag() const
+    {
+        return _nameTag;
+    }
+
+    void increaseOwnerCount()
+    {
+        _ownerCount++;
+        return;
+    }
+
+    void decreaseOwnerCount()
+    {
+        _ownerCount++;
+        return;
     }
 
     void setName(const CIMName& name);
@@ -177,8 +196,19 @@ private:
     CIMName _classOrigin;
     Boolean _propagated;
     CIMQualifierList _qualifiers;
+    Uint32 _nameTag;
+
+    // Number of containers in which this property is a member. Adding a
+    // property to a container increments this count. Removing a property
+    // from a container decrements this count. When this count is non-zero,
+    // any attempt to change the _name member results in an exception (see
+    // setName()).
+    Uint32 _ownerCount;
 
     friend class CIMClassRep;
+    friend class CIMObjectRep;
+    friend class CIMProperty;
+    friend class CIMPropertyInternal;
 };
 
 PEGASUS_NAMESPACE_END

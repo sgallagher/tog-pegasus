@@ -43,6 +43,8 @@
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMQualifierList.h>
 #include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/OrderedSet.h>
+#include <Pegasus/Common/CIMPropertyRep.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -114,7 +116,15 @@ public:
 
     virtual void addProperty(const CIMProperty& x);
 
-    Uint32 findProperty(const CIMName& name) const;
+    Uint32 findProperty(const CIMName& name, Uint32 nameTag) const
+    {
+        return _properties.find(name, nameTag);
+    }
+
+    Uint32 findProperty(const CIMName& name) const
+    {
+        return _properties.find(name, generateCIMNameTag(name));
+    }
 
     CIMProperty getProperty(Uint32 index);
 
@@ -125,7 +135,10 @@ public:
 
     void removeProperty(Uint32 index);
 
-    Uint32 getPropertyCount() const;
+    Uint32 getPropertyCount() const
+    {
+        return _properties.size();
+    }
 
     virtual Boolean identical(const CIMObjectRep* x) const;
 
@@ -141,7 +154,10 @@ protected:
 
     CIMObjectPath _reference;
     CIMQualifierList _qualifiers;
-    Array<CIMProperty> _properties;
+    typedef OrderedSet<CIMProperty,
+                       CIMPropertyRep,
+                       PEGASUS_PROPERTY_ORDEREDSET_HASHSIZE> PropertySet;
+    PropertySet _properties;
     Boolean _resolved;
 
 private:

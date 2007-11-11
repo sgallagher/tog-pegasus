@@ -49,9 +49,12 @@ CIMParameterRep::CIMParameterRep(const CIMParameterRep& x) :
     _type(x._type),
     _isArray(x._isArray),
     _arraySize(x._arraySize),
-    _referenceClassName(x._referenceClassName)
+    _referenceClassName(x._referenceClassName),
+    _ownerCount(0)
 {
     x._qualifiers.cloneTo(_qualifiers);
+    // Set the CIM name tag.
+    _nameTag = generateCIMNameTag(_name);
 }
 
 CIMParameterRep::CIMParameterRep(
@@ -62,13 +65,16 @@ CIMParameterRep::CIMParameterRep(
     const CIMName& referenceClassName)
     : _name(name), _type(type),
     _isArray(isArray), _arraySize(arraySize),
-    _referenceClassName(referenceClassName)
-{
+    _referenceClassName(referenceClassName),
+    _ownerCount(0)
+{    
     // ensure name is not null
     if (name.isNull())
     {
         throw UninitializedObjectException();
     }
+    // Set the CIM name tag.
+    _nameTag = generateCIMNameTag(_name);
 
     if ((_arraySize != 0) && !_isArray)
     {
@@ -102,8 +108,17 @@ void CIMParameterRep::setName(const CIMName& name)
     {
         throw UninitializedObjectException();
     }
-
-    _name = name;
+    if (_ownerCount != 0 && _name != name)
+    {
+        MessageLoaderParms parms(
+            "Common.CIMParameterRep.CONTAINED_PARAMETER_NAMECHANGEDEXCEPTION",
+            "Attempted to change the name of a parameter"
+                " already in a container.");
+        throw Exception(parms);
+    }
+    _name = name;    
+    // Set the CIM name tag.
+    _nameTag = generateCIMNameTag(_name);
 }
 
 void CIMParameterRep::removeQualifier(Uint32 index)

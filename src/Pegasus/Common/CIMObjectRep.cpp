@@ -35,6 +35,7 @@
 
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/MessageLoader.h>
+#include "CIMPropertyRep.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -79,7 +80,7 @@ void CIMObjectRep::addProperty(const CIMProperty& x)
 
     // Reject duplicate property names:
 
-    if (findProperty(x.getName()) != PEG_NOT_FOUND)
+    if (findProperty(x._rep->_name, x._rep->_nameTag) != PEG_NOT_FOUND)
     {
         MessageLoaderParms parms(
             "Common.CIMObjectRep.PROPERTY",
@@ -92,19 +93,6 @@ void CIMObjectRep::addProperty(const CIMProperty& x)
     // Append property:
 
     _properties.append(x);
-}
-
-Uint32 CIMObjectRep::findProperty(const CIMName& name) const
-{
-    for (Uint32 i = 0, n = _properties.size(); i < n; i++)
-    {
-        if (name.equal(_properties[i].getName()))
-        {
-            return i;
-        }
-    }
-
-    return PEG_NOT_FOUND;
 }
 
 CIMProperty CIMObjectRep::getProperty(Uint32 index)
@@ -127,13 +115,6 @@ void CIMObjectRep::removeProperty(Uint32 index)
     _properties.remove(index);
 }
 
-
-Uint32 CIMObjectRep::getPropertyCount() const
-{
-    return _properties.size();
-}
-
-
 Boolean CIMObjectRep::identical(const CIMObjectRep* x) const
 {
     // If the pointers are the same, the objects must be identical
@@ -155,8 +136,8 @@ Boolean CIMObjectRep::identical(const CIMObjectRep* x) const
     // Compare properties:
 
     {
-        const Array<CIMProperty>& tmp1 = _properties;
-        const Array<CIMProperty>& tmp2 = x->_properties;
+        const PropertySet& tmp1 = _properties;
+        const PropertySet& tmp2 = x->_properties;
 
         if (tmp1.size() != tmp2.size())
         {

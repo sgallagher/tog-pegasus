@@ -34,6 +34,7 @@
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMPropertyList.h>
+#include <Pegasus/Common/CIMPropertyInternal.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/MofWriter.h>
 #include <Pegasus/Common/CIMObjectPath.h>
@@ -114,6 +115,9 @@ void test01()
             }
         }
         PEGASUS_TEST_ASSERT (isKey);
+    // Test for key property using CIMPropertyInternal
+        PEGASUS_TEST_ASSERT (CIMPropertyInternal::isKeyProperty(p1));
+        PEGASUS_TEST_ASSERT (CIMPropertyInternal::isKeyProperty(p2));
 
     // Test getArraySize
         PEGASUS_TEST_ASSERT(p1.getArraySize() == 0);

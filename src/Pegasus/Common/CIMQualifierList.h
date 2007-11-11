@@ -36,12 +36,14 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMScope.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/Buffer.h>
+#include <Pegasus/Common/OrderedSet.h>
 
 
 /*  ATTN: P2 KS 25 Mar 2002 - The function names are a mismash of local and
@@ -53,7 +55,6 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class DeclContext;
-
 
 /* ATTN: KS P3 DEFER 1 May 2002.
     We have list processors (really array processors) for
@@ -199,9 +200,24 @@ public:
     ///
     void cloneTo(CIMQualifierList& x) const;
 
+    Boolean isKey() const;
+
 private:
 
-    Array<CIMQualifier> _qualifiers;
+    typedef OrderedSet<CIMQualifier,
+                       CIMQualifierRep,
+                       PEGASUS_QUALIFIER_ORDEREDSET_HASHSIZE> QualifierSet;
+    QualifierSet _qualifiers;
+
+    /** Index of key qualifier or the meaning is as follows:
+           PEGASUS_ORDEREDSET_INDEX_NOTFOUND -- 
+               there is no key qualifier in the list.
+           PEGASUS_ORDEREDSET_INDEX_UNKNOWN --
+               the index is unresolved.
+    */
+    Uint32 _keyIndex;
+
+    friend class CIMPropertyInternal;
 };
 
 /**

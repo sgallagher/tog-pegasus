@@ -6354,13 +6354,13 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note PGS17805:
         */
-        Common.AuditLogger.ENABLE_AUDIT_LOG:string {"PGS17805: Audit logging is enabled.\n"} 
+        Common.AuditLogger.ENABLE_AUDIT_LOG:string {"PGS17805: Audit logging is enabled."} 
 
         /**
         * @note PGS17806:
         *     
         */
-        Common.AuditLogger.DISABLE_AUDIT_LOG:string {"PGS17806: Audit logging is disabled.\n"} 
+        Common.AuditLogger.DISABLE_AUDIT_LOG:string {"PGS17806: Audit logging is disabled."} 
 
         /**
         * @note PGS17807:

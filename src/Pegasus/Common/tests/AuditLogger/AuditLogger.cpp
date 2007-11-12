@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +40,7 @@
 #include <Pegasus/Common/AuditLogger.h>
 
 #ifdef PEGASUS_OS_ZOS
-#include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
+#include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
 #include <Pegasus/Common/Audit_zOS_SMF.h>
 #endif
 
@@ -58,8 +60,6 @@ const String MASTER_FILE("/src/Pegasus/Common"
 #else
 const String MASTER_FILE("/src/Pegasus/Common/tests/AuditLogger/masterOutput");
 #endif
-
-String auditTestLogFile;
 
 CIMInstance _createModuleInstance(
     const String & name,
@@ -100,7 +100,6 @@ void testLogCurrentConf()
 }
 
 #ifdef PEGASUS_OS_ZOS
-
 static void printSMFRecord (int subtype, char* record )
 {
     char printLine[3][80];
@@ -108,6 +107,16 @@ static void printSMFRecord (int subtype, char* record )
     int len;
     char item;
     int total = ((_smf86_header *)record)->SMF86LEN;
+
+    const char* pegasusHomeDir = getenv ("PEGASUS_HOME");
+
+    if (pegasusHomeDir == NULL)
+    {
+        pegasusHomeDir = "./";
+    }
+
+    String auditTestLogFile (pegasusHomeDir);
+    auditTestLogFile.append("/AuditTest.log");
 
     FILE * _auditTestLogFileHandle =
         fopen(auditTestLogFile.getCString(), "a+");
@@ -147,7 +156,7 @@ static void printSMFRecord (int subtype, char* record )
             fprintf(_auditTestLogFileHandle, "\n");
         }
 
-        // delete CIM software level, MVS software level,
+        // delete CIM software level, MVS software level, 
         // System and Sysplex name, Process ID, and Thread ID
         // to be able to comparable with master result
         if (i > 51 && i < 110 )
@@ -181,18 +190,26 @@ static void writeAuditLogToFile(
     AuditLogger::AuditEvent auditEvent,
     Uint32 logLevel, MessageLoaderParms & msgParms)
 {
+    const char* pegasusHomeDir = getenv ("PEGASUS_HOME");
+
+    if (pegasusHomeDir == NULL)
+    {
+        pegasusHomeDir = "./";
+    }
+
+    String auditTestLogFile (pegasusHomeDir);
+    auditTestLogFile.append("/AuditTest.log");
+
     FILE * _auditTestLogFileHandle =
         fopen(auditTestLogFile.getCString(), "a+");
-    PEGASUS_TEST_ASSERT(_auditTestLogFileHandle);
 
     fprintf(_auditTestLogFileHandle, "%s\n",
         (const char *)MessageLoader::getMessage(msgParms).getCString());
 
-    fclose(_auditTestLogFileHandle);
+   fclose(_auditTestLogFileHandle);
 }
 
 #endif
-
 void testLogCurrentRegProvider()
 {
     Array<CIMInstance> instances;
@@ -246,6 +263,7 @@ void testLogCurrentRegProvider()
         "AuditLogProvider13", status13));
 
     AuditLogger::logCurrentRegProvider(instances);
+
 }
 
 void testLogSetConfigProperty()
@@ -462,7 +480,7 @@ void testDisabled()
 }
 #endif
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
 #ifdef PEGASUS_ENABLE_AUDIT_LOGGER
 
@@ -472,14 +490,9 @@ int main(int, char** argv)
     AuditLogger::setAuditLogWriterCallback(writeAuditLogToFile);
 #endif
 
-    const char* pegasusHomeDir = getenv("PEGASUS_HOME");
+    const char* pegasusHomeDir = getenv ("PEGASUS_HOME");
 
-    if (pegasusHomeDir == NULL)
-    {
-        pegasusHomeDir = ".";
-    }
-
-    auditTestLogFile = pegasusHomeDir;
+    String auditTestLogFile (pegasusHomeDir);
     auditTestLogFile.append("/AuditTest.log");
 
     System::removeFile(auditTestLogFile.getCString());
@@ -491,7 +504,7 @@ int main(int, char** argv)
         fopen(auditTestLogFile.getCString(), "a+");
     setEBCDICEncoding(fileno(_auditTestLogFileHandle));
     fclose(_auditTestLogFileHandle);
-#endif
+#endif 
 
     const char * masterDir = getenv("PEGASUS_ROOT");
 
@@ -530,7 +543,6 @@ int main(int, char** argv)
         return 1;
     }
 
-    System::removeFile(auditTestLogFile.getCString());
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

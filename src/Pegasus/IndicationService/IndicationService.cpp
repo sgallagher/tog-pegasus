@@ -960,6 +960,7 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
     Boolean responseSent = false;
 
     CIMObjectPath instanceRef;
+    CIMObjectPath subscriptionPath;
 
     CIMInstance instance = request->newInstance.clone ();
 
@@ -998,6 +999,9 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                 (instance.getClassName ().equal
                 (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION)))
             {
+                _subscriptionRepository->
+                    beginCreateSubscription(instance.getPath());
+                subscriptionPath = instance.getPath();
                 //
                 //  Get subscription state
                 //
@@ -1024,7 +1028,6 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                         //  There are no providers that can support this
                         //  subscription
                         //
-                        PEG_METHOD_EXIT ();
 
                         // l10n
                         // throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
@@ -1093,6 +1096,13 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
     //
     if (!responseSent)
     {
+        // Cancel creates subscription request if Exception was thrown.
+        if (subscriptionPath.getKeyBindings().size() &&
+            cimException.getCode() != CIM_ERR_SUCCESS)
+        {
+            _subscriptionRepository->cancelCreateSubscription(subscriptionPath);
+        } 
+
 // l10n - no Content-Language in response
         CIMCreateInstanceResponseMessage * response = dynamic_cast
             <CIMCreateInstanceResponseMessage *> (request->buildResponse ());
@@ -6783,6 +6793,13 @@ void IndicationService::_handleCreateResponseAggregation (
     CIMCreateSubscriptionRequestMessage * request =
         (CIMCreateSubscriptionRequestMessage *)
             operationAggregate->getRequest (0);
+
+    if (operationAggregate->getOrigType() ==
+        CIM_CREATE_INSTANCE_REQUEST_MESSAGE)
+    {
+        instanceRef = request->subscriptionInstance.getPath();
+    }
+
     if (acceptedProviders.size () == 0)
     {
         //
@@ -6867,6 +6884,20 @@ void IndicationService::_handleCreateResponseAggregation (
                 acceptedProviders,
                 operationAggregate->getIndicationSubclasses (),
                 request->nameSpace);
+        }
+    }
+
+    // If subscription could not be created, cancel create subscription request
+    // or commit create subscription request if subscription was created.
+    if (instanceRef.getKeyBindings().size())
+    {
+        if (cimException.getCode() != CIM_ERR_SUCCESS)
+        {
+            _subscriptionRepository->cancelCreateSubscription(instanceRef);
+        }
+        else
+        {
+            _subscriptionRepository->commitCreateSubscription(instanceRef);
         }
     }
 

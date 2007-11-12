@@ -3654,6 +3654,12 @@ CIM server listening on HTTPS port {0}."}
         */
         IndicationService.IndicationService.INVALID_SUBSCRIPTION_INSTANCE_IGNORED:string {"PGS10229: An invalid Subscription instance was ignored: {0}."}
 
+        /**
+        * @note  PGS10230:
+        *    Substitution {0} is a string containing subscription path.
+        */
+        IndicationService.IndicationService._MSG_DUPLICATE_SUBSCRIPTION_REQUEST:string {"PGS10230: Similar create subscription request is being processed. Subscription path : {0}."}
+
         // ==========================================================
         // Messages for IndicationHandlerService
         //  Please use message prefix "PGS10400"

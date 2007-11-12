@@ -1,33 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
+
+//NOCHKSRC
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/FileSystem.h>
@@ -44,7 +48,7 @@ PEGASUS_USING_STD;
 const CIMNamespaceName NAMESPACE1 = CIMNamespaceName ("root/SampleProvider");
 const CIMNamespaceName NAMESPACE2 = CIMNamespaceName ("root/cimv2");
 const CIMNamespaceName NAMESPACE3 = CIMNamespaceName ("test/TestProvider");
-const String QUERY1 = "select * from Test_IndicationProviderClass";
+const String QUERY1 = "select * from RT_TestIndication";
 AtomicInt exceptionCount;
 
 CIMObjectPath SubscriptionPath;
@@ -56,9 +60,9 @@ CIMObjectPath CreateHandler1Instance (CIMClient& client,
 {
     CIMInstance handlerInstance(PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
     handlerInstance.addProperty(CIMProperty (CIMName("SystemCreationClassName"),
-        System::getSystemCreationClassName()));
+        System::getSystemCreationClassName ()));
     handlerInstance.addProperty(CIMProperty(CIMName ("SystemName"),
-        System::getFullyQualifiedHostName()));
+        System::getFullyQualifiedHostName ()));
     handlerInstance.addProperty(CIMProperty(CIMName ("CreationClassName"),
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString()));
     handlerInstance.addProperty(CIMProperty(CIMName ("Name"),
@@ -79,9 +83,9 @@ CIMObjectPath CreateFilterInstance (CIMClient& client,
 {
     CIMInstance filterInstance(PEGASUS_CLASSNAME_INDFILTER);
     filterInstance.addProperty(CIMProperty (CIMName ("SystemCreationClassName"),
-        System::getSystemCreationClassName()));
+        System::getSystemCreationClassName ()));
     filterInstance.addProperty(CIMProperty(CIMName ("SystemName"),
-        System::getFullyQualifiedHostName()));
+        System::getFullyQualifiedHostName ()));
     filterInstance.addProperty(CIMProperty(CIMName ("CreationClassName"),
         PEGASUS_CLASSNAME_INDFILTER.getString()));
     filterInstance.addProperty(CIMProperty(CIMName ("Name"),
@@ -91,7 +95,7 @@ CIMObjectPath CreateFilterInstance (CIMClient& client,
     filterInstance.addProperty (CIMProperty(CIMName ("QueryLanguage"),
         String(qlang)));
     filterInstance.addProperty (CIMProperty(CIMName ("SourceNamespace"),
-        String("test/TestProvider")));
+        String("root/SampleProvider")));
 
     CIMObjectPath Ref = client.createInstance(filterNS, filterInstance);
     Ref.setNameSpace (filterNS);
@@ -99,7 +103,7 @@ CIMObjectPath CreateFilterInstance (CIMClient& client,
 }
 
 CIMObjectPath CreateSbscriptionInstance (CIMClient& client,
-    const CIMObjectPath handlerRef,
+    const CIMObjectPath handlerRef, 
     const CIMObjectPath filterRef,
     const CIMNamespaceName & subscriptionNS)
 {
@@ -120,11 +124,11 @@ CIMObjectPath CreateSbscriptionInstance (CIMClient& client,
 
 void generateIndication(CIMClient& client)
 {
-    CIMInstance indicationInstance(CIMName("Test_IndicationProviderClass"));
+    CIMInstance indicationInstance (CIMName("RT_TestIndication"));
 
     CIMObjectPath path ;
-    path.setNameSpace("test/TestProvider");
-    path.setClassName("Test_IndicationProviderClass");
+    path.setNameSpace("root/SampleProvider");
+    path.setClassName("RT_TestIndication");
 
     indicationInstance.setPath(path);
 
@@ -132,11 +136,11 @@ void generateIndication(CIMClient& client)
     Array<CIMParamValue> outParams;
 
     CIMValue ret_value = client.invokeMethod(
-        "test/TestProvider",
+	"root/SampleProvider",
         path,
-        "SendTestIndication",
+	"SendTestIndication",
         inParams,
-        outParams);
+	outParams);
 }
 
 void DeleteInstance (CIMClient& client, const CIMObjectPath Ref,
@@ -147,26 +151,25 @@ void DeleteInstance (CIMClient& client, const CIMObjectPath Ref,
 
 int _test(CIMClient& client, String& qlang, String& query1, String& query2)
 {
-    CIMObjectPath Handler1Ref, Handler2Ref;
+    CIMObjectPath Handler1Ref, Handler2Ref; 
     CIMObjectPath Filter1Ref, Filter2Ref;
     CIMObjectPath Subscription1Ref, Subscription2Ref;
 
     try
     {
-        Handler1Ref =
-            CreateHandler1Instance(client, PEGASUS_NAMESPACENAME_INTEROP);
-        Handler2Ref = CreateHandler1Instance(client, NAMESPACE2);
+        Handler1Ref = CreateHandler1Instance (client, PEGASUS_NAMESPACENAME_INTEROP);
+        Handler2Ref = CreateHandler1Instance (client, NAMESPACE2);
     }
     catch (Exception& e)
     {
-        PEGASUS_STD (cerr) << "Exception: " << e.getMessage()
+        PEGASUS_STD (cerr) << "Exception: " << e.getMessage () 
                            << PEGASUS_STD (endl);
-        PEGASUS_STD (cerr) << "create handler instance failed"
+        PEGASUS_STD (cerr) << "create handler instance failed" 
                            << PEGASUS_STD (endl);
         return -1;
     }
 
-    PEGASUS_STD (cout) << "+++++ handler instances created"
+    PEGASUS_STD (cout) << "+++++ handler instances created" 
                        << PEGASUS_STD (endl);
     try
     {
@@ -179,42 +182,42 @@ int _test(CIMClient& client, String& qlang, String& query1, String& query2)
     }
     catch (Exception& e)
     {
-        PEGASUS_STD (cerr) << "Exception: " << e.getMessage()
+        PEGASUS_STD (cerr) << "Exception: " << e.getMessage () 
                            << PEGASUS_STD (endl);
-        PEGASUS_STD (cerr) << "create filter instances failed"
+        PEGASUS_STD (cerr) << "create filter instances failed" 
                            << PEGASUS_STD (endl);
         return -1;
     }
 
     PEGASUS_STD (cout) << "+++++ filter instances created for "
-                       << qlang
+                       << qlang 
                        << PEGASUS_STD (endl);
     try
     {
-        Subscription1Ref =
+        Subscription1Ref = 
           CreateSbscriptionInstance (client, Handler1Ref, Filter1Ref,
               PEGASUS_NAMESPACENAME_INTEROP);
-        Subscription2Ref =
+        Subscription2Ref = 
           CreateSbscriptionInstance (client, Handler1Ref, Filter2Ref,
               NAMESPACE3);
     }
     catch (Exception& e)
     {
-        PEGASUS_STD (cerr) << "Exception: " << e.getMessage()
+        PEGASUS_STD (cerr) << "Exception: " << e.getMessage () 
                            << PEGASUS_STD (endl);
-        PEGASUS_STD (cerr) << "create subscription instance failed"
+        PEGASUS_STD (cerr) << "create subscription instance failed" 
                            << PEGASUS_STD (endl);
         return -1;
     }
 
-    PEGASUS_STD (cout) << "+++++ subscription instances created"
+    PEGASUS_STD (cout) << "+++++ subscription instances created" 
                        << PEGASUS_STD (endl);
 
     // get display consumer
     String indicationFile2, oldIndicationFile;
 
     indicationFile2 = INDICATION_DIR;
-    indicationFile2.append("/indicationLog");
+    indicationFile2.append("/indicationLog"); 
 
     if (FileSystem::exists(indicationFile2))
     {
@@ -242,14 +245,14 @@ int _test(CIMClient& client, String& qlang, String& query1, String& query2)
     }
     catch (Exception& e)
     {
-      PEGASUS_STD (cerr) << "Exception: " << e.getMessage()
+      PEGASUS_STD (cerr) << "Exception: " << e.getMessage () 
                          << PEGASUS_STD (endl);
-      PEGASUS_STD (cerr) << "generate indication failed"
+      PEGASUS_STD (cerr) << "generate indication failed" 
                          << PEGASUS_STD (endl);
       return -1;
     }
 
-    PEGASUS_STD (cout) << "+++++ indications generated"
+    PEGASUS_STD (cout) << "+++++ indications generated" 
                        << PEGASUS_STD (endl);
 
     System::sleep(5);
@@ -268,14 +271,14 @@ int _test(CIMClient& client, String& qlang, String& query1, String& query2)
     }
     catch (Exception& e)
     {
-      PEGASUS_STD (cerr) << "Exception: " << e.getMessage()
+      PEGASUS_STD (cerr) << "Exception: " << e.getMessage () 
                          << PEGASUS_STD (endl);
-      PEGASUS_STD (cerr) << "delete instance failed"
+      PEGASUS_STD (cerr) << "delete instance failed" 
                          << PEGASUS_STD (endl);
       return -1;
     }
 
-    PEGASUS_STD (cout) << "+++++ instances deleted"
+    PEGASUS_STD (cout) << "+++++ instances deleted" 
                        << PEGASUS_STD (endl);
 
     //
@@ -284,12 +287,11 @@ int _test(CIMClient& client, String& qlang, String& query1, String& query2)
     String indicationFile, masterFile, indication_failed;
 
     indicationFile = INDICATION_DIR;
-    indicationFile.append("/indicationLog");
+    indicationFile.append("/indicationLog"); 
 
     // Get environment variable:
     masterFile = getenv("PEGASUS_ROOT");
-    masterFile.append(
-        "/src/Pegasus/IndicationService/tests/IndicationProcess/masterOutput");
+    masterFile.append("/src/Pegasus/IndicationService/tests/IndicationProcess/masterOutput");
 
     if (FileSystem::exists(indicationFile) && FileSystem::exists(masterFile))
     {
@@ -303,7 +305,7 @@ int _test(CIMClient& client, String& qlang, String& query1, String& query2)
       else
       {
         PEGASUS_STD (cerr) << "----- tests failed" << PEGASUS_STD (endl);
-        // rename indicationFile to be indicationLog_FAILED
+        // rename indicationFile to be indicationLog_FAILED 
         // and remove indicationFile
         indication_failed = INDICATION_DIR;
         indication_failed.append("/indicationLog_FAILED");
@@ -315,7 +317,7 @@ int _test(CIMClient& client, String& qlang, String& query1, String& query2)
     else
     {
       PEGASUS_STD (cerr) << "----- tests failed" << PEGASUS_STD (endl);
-      // rename indicationFile to be indicationFile_FAILED
+      // rename indicationFile to be indicationFile_FAILED 
       // and remove indicationFile
       if (FileSystem::exists(indicationFile))
       {
@@ -358,7 +360,7 @@ void _createDuplicate(CIMClient &client,
     {
         if (e.getCode() != CIM_ERR_ALREADY_EXISTS)
         {
-            PEGASUS_TEST_ASSERT(0);
+            PEGASUS_TEST_ASSERT(0); 
         }
         exceptionCaught =  true;
     }
@@ -368,14 +370,14 @@ void _createDuplicate(CIMClient &client,
 void _checkSubscriptionCount(CIMClient &client)
 {
     CIMObjectPath path;
-    path.setNameSpace("test/TestProvider");
-    path.setClassName("Test_IndicationProviderClass");
+    path.setNameSpace("root/SampleProvider");
+    path.setClassName("RT_TestIndication");
 
     Array<CIMParamValue> inParams;
     Array<CIMParamValue> outParams;
 
     CIMValue ret_value = client.invokeMethod(
-        "test/TestProvider",
+        "root/SampleProvider",
         path,
         "GetSubscriptionCount",
         inParams,
@@ -390,12 +392,12 @@ void _testDuplicate(CIMClient &client)
     CIMObjectPath filterPath;
     CIMObjectPath handlerPath;
     CIMObjectPath subscriptionPath;
-
+   
     try
     {
         handlerPath = CreateHandler1Instance(client,
             PEGASUS_NAMESPACENAME_INTEROP);
-        filterPath = CreateFilterInstance(client,
+        filterPath = CreateFilterInstance(client, 
             QUERY1, "WQL", "Filter1",
             PEGASUS_NAMESPACENAME_INTEROP);
         subscriptionPath = CreateSbscriptionInstance(client, handlerPath,
@@ -408,7 +410,7 @@ void _testDuplicate(CIMClient &client)
             PEGASUS_NAMESPACENAME_INTEROP, filterPath,
             String::EMPTY,PEGASUS_NAMESPACENAME_INTEROP, handlerPath);
 
-        _createDuplicate(client, "127.0.0.1",
+        _createDuplicate(client, "127.0.0.1", 
             PEGASUS_NAMESPACENAME_INTEROP, filterPath,
             String::EMPTY, CIMNamespaceName(), handlerPath);
 
@@ -429,11 +431,13 @@ void _testDuplicate(CIMClient &client)
         PEGASUS_STD(cerr) << "Exception: " << e.getMessage()
                           << PEGASUS_STD (endl);
         PEGASUS_TEST_ASSERT(0);
-    }
+    }        
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL createSubscriptionFunc(void *parm)
 {
+    Thread* my_handle = reinterpret_cast<Thread *>(parm);
+    Boolean cimExceptionCaught = false;
     CIMClient client;
     CIMException theCIMException;
     try
@@ -453,7 +457,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL createSubscriptionFunc(void *parm)
         cout << e.getMessage() << endl;
     }
 
-    return ThreadReturnType(0);
+    my_handle->exit_self((ThreadReturnType) 1);
+    return 0;
 }
 
 //
@@ -501,10 +506,10 @@ void _testConcurrent(CIMClient &client)
       PEGASUS_STD(cerr) << "Exception: " << e.getMessage()
                         << PEGASUS_STD (endl);
       PEGASUS_TEST_ASSERT(0);
-   }
+   } 
 }
 
-int main()
+int main(int argc, char** argv)
 {
     CIMClient client;
     try
@@ -513,25 +518,21 @@ int main()
     }
     catch (Exception& e)
     {
-      PEGASUS_STD (cerr) << "Exception: " << e.getMessage()
+      PEGASUS_STD (cerr) << "Exception: " << e.getMessage () 
                          << PEGASUS_STD (endl);
-      PEGASUS_STD (cerr) << "connectLocal failed"
+      PEGASUS_STD (cerr) << "connectLocal failed" 
                          << PEGASUS_STD (endl);
       return -1;
     }
 
-    String query1="SELECT MethodName FROM Test_IndicationProviderClass";
+    String query1="SELECT MethodName FROM rt_testindication";
 
-    // Note that CQL expects single quote around string literals,
+    // Note that CQL expects single quote around string literals, 
     // while WQL expects double quote.
     // Note that CQL use <> for the inequality operator.
-    String query2wql =
-        "SELECT MethodName FROM Test_IndicationProviderClass "
-            "WHERE IndicationIdentifier != \"x\"";
-    String query2cql =
-        "SELECT MethodName FROM Test_IndicationProviderClass "
-            "WHERE IndicationIdentifier <> 'x'";
-
+    String query2wql="SELECT MethodName FROM RT_TestIndication WHERE IndicationIdentifier != \"x\"";
+    String query2cql="SELECT MethodName FROM RT_TestIndication WHERE IndicationIdentifier <> 'x'";
+    
     String wql("WQL");
     String cql("DMTF:CQL");
 
@@ -540,22 +541,23 @@ int main()
     rc = _test(client, wql, query1, query2wql);
     if (rc != 0)
       return rc;
+
     PEGASUS_STD (cout) << "+++++ start dupliacte subscription test"
                        << PEGASUS_STD (endl);
     _testDuplicate(client);
     PEGASUS_STD (cout) << "+++++ duplicate subscription test completed"
                        << PEGASUS_STD (endl);
-
     PEGASUS_STD (cout) << "+++++ start concurrent subscription test"
                        << PEGASUS_STD (endl);
     _testConcurrent(client);
     PEGASUS_STD (cout) << "+++++ concurrent subscription test completed"
                        << PEGASUS_STD (endl);
-#ifdef PEGASUS_ENABLE_CQL
+
+#ifndef PEGASUS_DISABLE_CQL  
     PEGASUS_STD (cout) << "+++++ start cql test" << PEGASUS_STD (endl);
-    return _test(client, cql, query1, query2cql);
+    return _test(client, cql, query1, query2cql);      
 #else
-    PEGASUS_STD (cout) << "+++++ cql test disabled" << PEGASUS_STD (endl);
+    PEGASUS_STD (cout) << "+++++ cql test disabled" << PEGASUS_STD (endl); 
     return 0;
 #endif
 }

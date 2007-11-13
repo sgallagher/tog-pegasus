@@ -163,7 +163,6 @@ void EmbeddedServer::initialize()
 {
 }
 
-#if 0
 Boolean EmbeddedServer::addProvider(
     const String& moduleName,
     const String& providerName,
@@ -185,7 +184,6 @@ Boolean EmbeddedServer::addProvider(
 
     return true;
 }
-#endif
 
 Boolean EmbeddedServer::addNameSpace(const SchemaNameSpace* nameSpace)
 {

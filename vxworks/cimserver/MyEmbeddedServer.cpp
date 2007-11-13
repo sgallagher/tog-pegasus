@@ -106,13 +106,13 @@ void MyEmbeddedServer::initialize()
 
     // Register "Hello" provider:
 
-    if (!registerProviderSimple(
+    if (!registerSingletonProvider(
         nameSpaces,
         "Hello", /* classname */
         MyEmbeddedServer::PEGASUS_PROVIDER_INTERFACE,
         MyEmbeddedServer::INSTANCE_PROVIDER_TYPE))
     {
-        printf("***** registerProviderSimple() failed: Hello\n");
+        printf("***** registerSingletonProvider() failed: Hello\n");
     }
 
     // Add entry point to symbol table for "Hello" provider:
@@ -125,13 +125,13 @@ void MyEmbeddedServer::initialize()
 
     // Register "Goodbye" provider:
 
-    if (!registerProviderSimple(
+    if (!registerSingletonProvider(
         nameSpaces,
         "Goodbye", /* classname */
         MyEmbeddedServer::PEGASUS_PROVIDER_INTERFACE,
         MyEmbeddedServer::INSTANCE_PROVIDER_TYPE))
     {
-        printf("***** registerProviderSimple() failed: Goodbye\n");
+        printf("***** registerSingletonProvider() failed: Goodbye\n");
     }
 
     // Add entry point to symbol table for "Goodbye" provider:

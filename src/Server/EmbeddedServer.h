@@ -143,10 +143,12 @@ public:
         const Array<CIMNamespaceName>& nameSpaces,
         Uint32 providerTypes);
 
-    /** Shortcut for registering a provider module, provider, and provider
-        capabilities instances in one step (assuming one provider per module).
+    /** Shortcut for registering a PG_ProviderModule instance, a PG_Provider
+        instance, and a PG_ProviderCapabilities instance for the special
+        case in which there is one provider per module. Such a provider is
+        known as a "singleton provider".
     */
-    bool registerProviderSimple(
+    bool registerSingletonProvider(
         const Array<CIMNamespaceName>& nameSpaces,
         const CIMName& className,
         ProviderInterface providerInterface,

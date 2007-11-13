@@ -163,6 +163,7 @@ void EmbeddedServer::initialize()
 {
 }
 
+#if 0
 Boolean EmbeddedServer::addProvider(
     const String& moduleName,
     const String& providerName,
@@ -184,6 +185,7 @@ Boolean EmbeddedServer::addProvider(
 
     return true;
 }
+#endif
 
 Boolean EmbeddedServer::addNameSpace(const SchemaNameSpace* nameSpace)
 {
@@ -541,7 +543,7 @@ bool EmbeddedServer::registerProviderCapabilities(
     return true;
 }
 
-bool EmbeddedServer::registerProviderSimple(
+bool EmbeddedServer::registerSingletonProvider(
     const Array<CIMNamespaceName>& nameSpaces,
     const CIMName& className,
     ProviderInterface providerInterface,

@@ -3,9 +3,17 @@
 
     (A) CIMPLE port.
 
+    (A) Disable saving instances of PG_ProviderModule, PG_Provider, and 
+        PG_ProviderCapabilities.
+
     ============================================================================
 
-    (B) Provider load/terminate operations.
+    (B) Use exceptions rather than boolean return types to report errors in
+        EmbeddedServer interface.
+
+    (X) Provider load/terminate operations.
+
+    (X) Mention "refusal to unload" feature to users.
 
     (B) SSL porting.
     
@@ -21,21 +29,16 @@
 
     (B) Eliminate configuration files dependencies.
 
-    (B) Control-provider indications.
+    (X) Control-provider indications (not required).
 
     (B) Generalize VxWorks-specific code options.
 
     (B) Message-catalogue localization.
 
-    (B) Logging. - Proposed solution is to move to virtual definition of the 
+    (X) Logging. - Proposed solution is to move to virtual definition of the 
         log serializer and allow the function to be defined in the embedded 
         system main. This will allow embedded system developer to define
         any output mechanism for logs.
-
-    (B) Tracing (turned off for now). It appears that this will be the 
-        permanent solution.  The alternative is to do the same thing we are 
-        going to do with logs, create a callback mechanism whereby the embedded
-        system developer can decide what he wants to do with the line output.
 
     (B) Shutdown - How do we shutdownt the server? Initial conclusion is that 
         we do it through a signal. We could develop a function in the CIMServer
@@ -46,11 +49,18 @@
 
     (B) Remove daeminization code.
 
+    (B) Add -c option to cimmofl.
+
+        $ cimmofl -c classnames.txt
+
     ============================================================================
 
-    (C) CIM_ComputerSystem provider.
+    (C) Tracing (turned off for now). It appears that this will be the 
+        permanent solution.  The alternative is to do the same thing we are 
+        going to do with logs, create a callback mechanism whereby the embedded
+        system developer can decide what he wants to do with the line output.
 
-    (C) Removing unused code.
+    (C) CIM_ComputerSystem provider.
 
     (C) Class reduction as cimmofl option.
 
@@ -59,12 +69,6 @@
         (*) Client - Not required
 
         (*) UserManager 
-
-        (*) ProviderRegistrationManager - Not required without dynamic providers
-
-        (*) ProviderManager2 - Not required without dynamic providers
-
-        (*) Default provider manager.
 
         (*) Indication Export Server. Not used in any configuriation except HP.
 

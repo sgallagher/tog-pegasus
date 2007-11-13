@@ -43,16 +43,6 @@
 #include <cstdio>
 #include "MyEmbeddedServer.h"
 
-// Header files for each of the namespaces that are to be created for this
-// server.
-// Each include statement below should define a c++ header file created by the 
-// compilation of a set of cim classes and qualifiers into a single namespace.
-// These are the header files that are created by the compilation.
-// 
-#include "root_cimv2_namespace.h"
-#include "root_PG_Internal_namespace.h"
-#include "root_PG_InterOp_namespace.h"
-
 PEGASUS_USING_PEGASUS;
 
 // main function for the cimserver. Note that in this sample code the

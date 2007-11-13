@@ -42,8 +42,8 @@
 PEGASUS_NAMESPACE_BEGIN
 
 // Define entry points for each static provider. 
-extern "C" CIMProvider* PegasusCreateProvider_Hello(const String&);
-extern "C" CIMProvider* PegasusCreateProvider_Goodbye(const String&);
+extern "C" class CIMProvider* PegasusCreateProvider_Hello(const String&);
+extern "C" class CIMProvider* PegasusCreateProvider_Goodbye(const String&);
 
 MyEmbeddedServer::MyEmbeddedServer()
 {

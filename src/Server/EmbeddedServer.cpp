@@ -582,12 +582,12 @@ bool EmbeddedServer::registerSingletonProvider(
     return true;
 }
 
-bool EmbeddedServer::addSymbol(
+static bool _addSymbol(
+    EmbeddedServerRep* rep,
     const String& path,
     const String& name,
     void* address)
 {
-    EmbeddedServerRep* rep = (EmbeddedServerRep*)_opaque;
 
     if (_lookupSymbolCallback(path.getCString(), name.getCString(), rep))
         return false;
@@ -601,6 +601,16 @@ bool EmbeddedServer::addSymbol(
     rep->symbols = symbol;
     
     return true;
+}
+
+bool EmbeddedServer::registerPegasusProviderEntryPoint(
+    const String& location,
+    class CIMProvider* (*entryPoint)(const String&))
+{
+    EmbeddedServerRep* rep = (EmbeddedServerRep*)_opaque;
+
+    return _addSymbol(
+        rep, location, "PegasusCreateProvider", (void*)entryPoint);
 }
 
 PEGASUS_NAMESPACE_END

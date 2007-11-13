@@ -145,8 +145,7 @@ public:
 
     /** Shortcut for registering a PG_ProviderModule instance, a PG_Provider
         instance, and a PG_ProviderCapabilities instance for the special
-        case in which there is one provider per module. Such a provider is
-        known as a "singleton provider".
+        case in which there is one provider per module (a "singleton provider").
     */
     bool registerSingletonProvider(
         const Array<CIMNamespaceName>& nameSpaces,
@@ -154,15 +153,11 @@ public:
         ProviderInterface providerInterface,
         Uint32 providerTypes);
 
-    /** Add a symbol to the symbol table used to perform simulated dynamic
-        loading. Return true on success or false on error (if such a symbol
-        is already in the symbol table). This symbol table is used to perform
-        dynamic loading of providers (both CMPI and Default C++).
+    /** Register the provider entry point for the given provider.
     */
-    bool addSymbol(
-        const String& path,
-        const String& name,
-        void* address);
+    bool registerPegasusProviderEntryPoint(
+        const String& location,
+        class CIMProvider* (*entryPoint)(const String&));
 
 private:
     EmbeddedServer(const EmbeddedServer&);

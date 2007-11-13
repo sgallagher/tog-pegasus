@@ -117,8 +117,8 @@ void MyEmbeddedServer::initialize()
 
     // Add entry point to symbol table for "Hello" provider:
 
-    if (!addSymbol("HelloProviderModule", "PegasusCreateProvider",
-            (void*)PegasusCreateProvider_Hello))
+    if (!registerPegasusProviderEntryPoint(
+        "HelloProviderModule", PegasusCreateProvider_Hello))
     {
         printf("***** addSymbol() failed: Hello\n");
     }
@@ -136,8 +136,8 @@ void MyEmbeddedServer::initialize()
 
     // Add entry point to symbol table for "Goodbye" provider:
 
-    if (!addSymbol("GoodbyeProviderModule", "PegasusCreateProvider",
-            (void*)PegasusCreateProvider_Goodbye))
+    if (!registerPegasusProviderEntryPoint(
+        "GoodbyeProviderModule", PegasusCreateProvider_Goodbye))
     {
         printf("***** addSymbol() failed: Goodbye\n");
     }

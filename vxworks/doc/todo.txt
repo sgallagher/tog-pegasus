@@ -8,6 +8,10 @@
 
     ============================================================================
 
+    (B) Build Linux embedded server pilot implementation.
+
+    (B) Limit memory used by enumerateClasses operation.
+
     (B) Use exceptions rather than boolean return types to report errors in
         EmbeddedServer interface.
 
@@ -20,6 +24,8 @@
     (B) Authentication.
 
     (B) Memory management.
+
+        (*) Add memory measurement utility.
 	
 	(*) Memory limits.
 

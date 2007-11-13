@@ -35,22 +35,29 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+void* (*lookupSymbolCallback)(const char* path, const char* name, void* data);
+void* lookupSymbolData;
+
 Boolean DynamicLibrary::_load()
 {
-    PEGASUS_ASSERT(false);
-    return false;
+    _handle = (void*)1;
+    return true;
 }
 
 void DynamicLibrary::_unload()
 {
-    PEGASUS_ASSERT(false);
 }
 
 DynamicLibrary::DynamicSymbolHandle DynamicLibrary::getSymbol(
     const String& symbolName)
 {
-    PEGASUS_ASSERT(false);
-    return 0;
+    if (lookupSymbolCallback)
+    {
+        return (*lookupSymbolCallback)(
+            _fileName.getCString(), symbolName.getCString(), lookupSymbolData);
+    }
+    else
+        return 0;
 }
 
 PEGASUS_NAMESPACE_END

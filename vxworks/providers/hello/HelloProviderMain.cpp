@@ -33,6 +33,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <cassert>
 
 #include "HelloProvider.h"
 

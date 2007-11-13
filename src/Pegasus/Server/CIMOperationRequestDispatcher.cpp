@@ -1496,6 +1496,10 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
             false,
             &hasNoQuery);
 
+/* 
+BOOKMARK: lookup instance provider!
+*/
+
     if (hasProvider)
     {
         providerInfo.serviceName = PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP;

@@ -55,10 +55,6 @@
 
 PEGASUS_USING_PEGASUS;
 
-// Defines the entry point for each static provider. 
-extern "C" CIMProvider* PegasusCreateProvider_Hello(const String&);
-extern "C" CIMProvider* PegasusCreateProvider_Goodbye(const String&);
-
 // main function for the cimserver. Note that in this sample code the
 // main function is named cimserver because this example is based on
 // use of VxWorks and of the kernel mode rather than the real-time-process 
@@ -69,33 +65,7 @@ extern "C" int cimserver(int argc, char** argv)
 {
     printf("\n===== CIMSERVER =====\n");
 
-    // Create the embedded server:
-
     MyEmbeddedServer server;
-
-    // Add namespaces:
-
-    server.addNameSpace(&root_PG_InterOp_namespace);
-    server.addNameSpace(&root_cimv2_namespace);
-    server.addNameSpace(&root_PG_Internal_namespace);
-
-    // Add providers:
-
-    server.addProvider(
-        "HelloModule", /* moduleName */
-        "HelloProvider", /* providerName */
-        "root/cimv2", /* nameSpace */
-        "Hello", /* className */
-        PegasusCreateProvider_Hello); /* createProvider */
-
-    server.addProvider(
-        "GoodbyeModule", /* moduleName */
-        "GoodbyeProvider", /* providerName */
-        "root/cimv2", /* nameSpace */
-        "Goodbye", /* className */
-        PegasusCreateProvider_Goodbye); /* createProvider */
-
-    // Run the server:
 
     server.run(argc, argv);
 

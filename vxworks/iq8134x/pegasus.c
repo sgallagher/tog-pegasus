@@ -48,7 +48,7 @@ static void _run_cimserver(const char* root)
 
     /* spawn cimserver task */
 
-    if (taskSpawn("cimsrv", 100,0x19, 64536, 
+    if (taskSpawn("cimsrv", 100,0x19, 2 * 64536, 
         (FUNCPTR)value, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) == ERROR)
     {
         printf("***** taskSpawn() failed\n");

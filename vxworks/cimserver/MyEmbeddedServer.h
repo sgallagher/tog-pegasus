@@ -53,6 +53,8 @@ public:
         int level,
         const char* message);
 
+    virtual void initialize();
+
 private:
 
     // This implementation maintains a memory-resident repository (rather than

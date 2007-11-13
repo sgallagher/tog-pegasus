@@ -1171,7 +1171,7 @@ int MakeQualifierDecl(
         scope.addScope(CIMScope::REFERENCE);
     if (mqd->scope & SCHEMA_SCOPE_METHOD)
         scope.addScope(CIMScope::METHOD);
-    if (mqd->scope & SCHEMA_SCOPE_PARAMETER);
+    if (mqd->scope & SCHEMA_SCOPE_PARAMETER)
         scope.addScope(CIMScope::PARAMETER);
 
     // Flavor:

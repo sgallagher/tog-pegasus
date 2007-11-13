@@ -807,13 +807,22 @@ static void _getSuperClassNames(
 
 static void (*_saveCallback)(const Buffer& buffer, void* data);
 static void* _saveData;
+
 static void (*_loadCallback)(Buffer& buffer, void* data);
 static void* _loadData;
+
+static void (*_initializeCallback)(MemoryResidentRepository* rep, void* data);
+static void* _initializeData;
 
 MemoryResidentRepository::MemoryResidentRepository()
 {
     // Load users data if any:
-    _processLoadHandler();
+    _processLoadCallback();
+
+    // Call initialize callback if any.
+
+    if (_initializeCallback)
+        (*_initializeCallback)(this, _initializeData);
 }
 
 MemoryResidentRepository::~MemoryResidentRepository()
@@ -909,7 +918,7 @@ void MemoryResidentRepository::deleteInstance(
         Throw((CIM_ERR_NOT_FOUND, "%s", *Str(instanceName)));
 
     _rep.remove(pos);
-    _processSaveHandler();
+    _processSaveCallback();
 }
 
 void MemoryResidentRepository::createClass(
@@ -945,7 +954,7 @@ CIMObjectPath MemoryResidentRepository::createInstance(
     // Add instance to array:
 
     _rep.append(NamespaceInstancePair(nameSpace, ci));
-    _processSaveHandler();
+    _processSaveCallback();
 
     return cop;
 }
@@ -1007,7 +1016,7 @@ void MemoryResidentRepository::modifyInstance(
     // Replace original instance.
 
     _rep[pos].second = resultInstance;
-    _processSaveHandler();
+    _processSaveCallback();
 }
 
 Array<CIMClass> MemoryResidentRepository::enumerateClasses(
@@ -1333,8 +1342,17 @@ CIMValue MemoryResidentRepository::getProperty(
     const CIMObjectPath& instanceName,
     const CIMName& propertyName)
 {
-    Throw((CIM_ERR_NOT_SUPPORTED, "getProperty()"));
-    return CIMValue();
+    CIMInstance ci = getInstance(
+        false, nameSpace, instanceName, false, true, true, CIMPropertyList());
+
+    Uint32 pos = ci.findProperty(propertyName);
+
+    if (pos == PEG_NOT_FOUND)
+    {
+        Throw((CIM_ERR_NO_SUCH_PROPERTY, "%s", *Str(propertyName)));
+    }
+
+    return ci.getProperty(pos).getValue();
 }
 
 void MemoryResidentRepository::setProperty(
@@ -1345,7 +1363,16 @@ void MemoryResidentRepository::setProperty(
     const CIMValue& newValue,
     const ContentLanguageList& contentLangs)
 {
-    Throw((CIM_ERR_NOT_SUPPORTED, "setProperty()"));
+    CIMInstance ci(instanceName.getClassName());
+    ci.addProperty(CIMProperty(propertyName, newValue));
+    ci.setPath(instanceName);
+
+    Array<CIMName> tmp;
+    tmp.append(propertyName);
+    CIMPropertyList properties(tmp);
+
+    modifyInstance(
+        true, nameSpace, ci, false, properties, ContentLanguageList());
 }
 
 CIMQualifierDecl MemoryResidentRepository::getQualifier(
@@ -1482,22 +1509,22 @@ Uint32 MemoryResidentRepository::_findInstance(
 }
 
 void MemoryResidentRepository::installSaveCallback(
-    void (*handler)(const Buffer& buffer, void* data),
+    void (*callback)(const Buffer& buffer, void* data),
     void * data)
 {
-    _saveCallback = handler;
+    _saveCallback = callback;
     _saveData = data;
 }
 
 void MemoryResidentRepository::installLoadCallback(
-    void (*handler)(Buffer& buffer, void* data),
+    void (*callback)(Buffer& buffer, void* data),
     void * data)
 {
-    _loadCallback = handler;
+    _loadCallback = callback;
     _loadData = data;
 }
 
-void MemoryResidentRepository::_processSaveHandler()
+void MemoryResidentRepository::_processSaveCallback()
 {
     if (!_saveCallback)
         return;
@@ -1513,7 +1540,7 @@ void MemoryResidentRepository::_processSaveHandler()
     (*_saveCallback)(out, _saveData);
 }
 
-void MemoryResidentRepository::_processLoadHandler()
+void MemoryResidentRepository::_processLoadCallback()
 {
     if (!_loadCallback)
         return;
@@ -1552,6 +1579,14 @@ Boolean MemoryResidentRepository::addNameSpace(const SchemaNameSpace* nameSpace)
     _nameSpaceTable[_nameSpaceTableSize++] = nameSpace;
 
     return true;
+}
+
+void MemoryResidentRepository::installInitializeCallback(
+    void (*callback)(MemoryResidentRepository* repository, void * data),
+    void *data)
+{
+    _initializeCallback = callback;
+    _initializeData = data;
 }
 
 PEGASUS_NAMESPACE_END

@@ -31,7 +31,19 @@
 
 #include "MyEmbeddedServer.h"
 
+// Header files for each of the namespaces that are to be created for this
+// server. Each include statement below should define a c++ header file created
+// by the compilation of a set of cim classes and qualifiers into a single
+// namespace. These are the header files that are created by the compilation.
+#include "root_cimv2_namespace.h"
+#include "root_PG_Internal_namespace.h"
+#include "root_PG_InterOp_namespace.h"
+
 PEGASUS_NAMESPACE_BEGIN
+
+// Define entry points for each static provider. 
+extern "C" CIMProvider* PegasusCreateProvider_Hello(const String&);
+extern "C" CIMProvider* PegasusCreateProvider_Goodbye(const String&);
 
 MyEmbeddedServer::MyEmbeddedServer()
 {
@@ -79,6 +91,56 @@ void MyEmbeddedServer::putLog(
     printf("    system=%s\n", system);
     printf("    level=%d\n", level);
     printf("    message=%s\n", message);
+}
+
+void MyEmbeddedServer::initialize()
+{
+    printf("MyEmbeddedServer::initialize()\n");
+
+    addNameSpace(&root_PG_InterOp_namespace);
+    addNameSpace(&root_cimv2_namespace);
+    addNameSpace(&root_PG_Internal_namespace);
+
+    Array<CIMNamespaceName> nameSpaces;
+    nameSpaces.append("root/cimv2");
+
+    // Register "Hello" provider:
+
+    if (!registerProviderSimple(
+        nameSpaces,
+        "Hello", /* classname */
+        MyEmbeddedServer::PEGASUS_PROVIDER_INTERFACE,
+        MyEmbeddedServer::INSTANCE_PROVIDER_TYPE))
+    {
+        printf("***** registerProviderSimple() failed: Hello\n");
+    }
+
+    // Add entry point to symbol table for "Hello" provider:
+
+    if (!addSymbol("HelloProviderModule", "PegasusCreateProvider",
+            (void*)PegasusCreateProvider_Hello))
+    {
+        printf("***** addSymbol() failed: Hello\n");
+    }
+
+    // Register "Goodbye" provider:
+
+    if (!registerProviderSimple(
+        nameSpaces,
+        "Goodbye", /* classname */
+        MyEmbeddedServer::PEGASUS_PROVIDER_INTERFACE,
+        MyEmbeddedServer::INSTANCE_PROVIDER_TYPE))
+    {
+        printf("***** registerProviderSimple() failed: Goodbye\n");
+    }
+
+    // Add entry point to symbol table for "Goodbye" provider:
+
+    if (!addSymbol("GoodbyeProviderModule", "PegasusCreateProvider",
+            (void*)PegasusCreateProvider_Goodbye))
+    {
+        printf("***** addSymbol() failed: Goodbye\n");
+    }
 }
 
 PEGASUS_NAMESPACE_END

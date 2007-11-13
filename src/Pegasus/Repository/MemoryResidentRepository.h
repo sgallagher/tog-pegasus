@@ -289,31 +289,39 @@ public:
         bool lock);
 #endif
 
-    // Sets the global save callback that is called whenever the memory-resident
+    // Installs the initialize callback that is called when the repository is 
+    // initially created (from the MemoryResidentRepository constructor).
+    static void installInitializeCallback(
+        void (*callback)(MemoryResidentRepository* repository, void * data),
+        void *data);
+
+    // Installs the global save callback that is called when the memory-resident
     // instance repository is modified. The buffer argument is a serialized
-    // copy of the memory-resident instance repository. The handler can do
+    // copy of the memory-resident instance repository. The callback can do
     // things such as save the buffer on disk for later use.
     static void installSaveCallback(
         void (*callback)(const Buffer& buffer, void* data),
         void* data);
 
-    // Sets the global load callback that is called whenever an instance of
+    // Installs the global load callback that is called when an instance of
     // MemoryResidentRepository is created in order to load the initial set
     // of instances (if any).
     static void installLoadCallback(
         void (*callback)(Buffer& buffer, void* data),
         void* data);
 
+    // Add the given namespace of qualifier declarations and classes.
     static Boolean addNameSpace(const SchemaNameSpace* nameSpace);
 
 private:
+
     Uint32 _findInstance(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName);
 
-    void _processSaveHandler();
+    void _processSaveCallback();
 
-    void _processLoadHandler();
+    void _processLoadCallback();
 
     Array<NamespaceInstancePair> _rep;
 };

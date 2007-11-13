@@ -383,7 +383,7 @@ ProviderName DefaultProviderManager::_resolveProviderName(
     const ProviderIdContainer& providerId)
 {
     String providerName;
-    String fileName;
+    String location;
     String moduleName;
     CIMValue genericValue;
 
@@ -397,9 +397,15 @@ ProviderName DefaultProviderManager::_resolveProviderName(
 
     genericValue = providerId.getModule().getProperty(
         providerId.getModule().findProperty("Location")).getValue();
-    genericValue.get(fileName);
+    genericValue.get(location);
 
-    String resolvedFileName = _resolvePhysicalName(fileName);
+#if defined(PEGASUS_NO_DYNAMIC_LIBRARIES)
+
+    return ProviderName(moduleName, providerName, location);
+
+#else /* PEGASUS_NO_DYNAMIC_LIBRARIES */
+
+    String resolvedFileName = _resolvePhysicalName(location);
 
     if (resolvedFileName == String::EMPTY)
     {
@@ -412,10 +418,12 @@ ProviderName DefaultProviderManager::_resolveProviderName(
         throw Exception(MessageLoaderParms(
             "ProviderManager.ProviderManagerService.PROVIDER_FILE_NOT_FOUND",
             "File \"$0\" was not found for provider module \"$1\".",
-            FileSystem::buildLibraryFileName(fileName), moduleName));
+            FileSystem::buildLibraryFileName(location), moduleName));
     }
 
     return ProviderName(moduleName, providerName, resolvedFileName);
+
+#endif /* PEGASUS_NO_DYNAMIC_LIBRARIES */
 }
 
 ProviderOperationCounter DefaultProviderManager::_getProvider(

@@ -40,6 +40,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+
 /** This module defines a class EmbeddedServer that provides functions for
     defining the setup of embedded servers where the providers are statically
     defined and the pegasus memory-resident CIM repository is used.
@@ -50,6 +51,20 @@ class EmbeddedServer
 {
 public:
 
+    static const Uint32 INSTANCE_PROVIDER_TYPE;
+    static const Uint32 ASSOCIATION_PROVIDER_TYPE;
+    static const Uint32 INDICATION_PROVIDER_TYPE;
+    static const Uint32 METHOD_PROVIDER_TYPE;
+    static const Uint32 INSTANCE_QUERY_PROVIDER_TYPE;
+
+    /** Provider interface type used in call to registerProviderModule.
+    */
+    enum ProviderInterface
+    {
+        PEGASUS_PROVIDER_INTERFACE,
+        CMPI_PROVIDER_INTERFACE,
+    };
+
     /** Constructor.
     */
     EmbeddedServer();
@@ -57,6 +72,11 @@ public:
     /** Destructor.
     */
     virtual ~EmbeddedServer();
+
+    /** This method is called once the repository is initialized. Provider
+        modules should be registered from this function.
+    */
+    virtual void initialize();
 
     /** Load the repository. The derived class may optionally override and
         implement this function; otherwise, this function takes no action.
@@ -85,21 +105,6 @@ public:
         int level,
         const char* message);
 
-    /** Add a provider to the provider table.
-        @param moduleName name of provider module.
-        @param providerName name of the provider.
-        @param providerName namespace provider responds on.
-        @param className class provided by this provider.
-        @param createProvider provider entry point function.
-        @return true on success.
-    */
-    Boolean addProvider(
-        const String& moduleName,
-        const String& providerName,
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        class CIMProvider* (*createProvider)(const String& providerName));
-
     /** Add a namespace to the meta-repository.
         @param nameSpace pointer to generated namespace to be added.
         @return true if successful.
@@ -113,9 +118,57 @@ public:
     */
     Boolean run(int argc, char** argv);
 
+    /** Register a provider module. This function must be called from
+        initialize().
+    */
+    bool registerProviderModule(
+        const String& moduleName,
+        const String& location,
+        ProviderInterface providerInterface);
+
+    /** Register a provider. This function must be called from initialize().
+    */
+    bool registerProvider(
+        const String& moduleName,
+        const String& providerName);
+
+    /** Register provider capabilities. This function must be called from 
+        initialize().
+    */
+    bool registerProviderCapabilities(
+        const String& moduleName,
+        const String& providerName,
+        const String& capabilityId,
+        const CIMName& className,
+        const Array<CIMNamespaceName>& nameSpaces,
+        Uint32 providerTypes);
+
+    /** Shortcut for registering a provider module, provider, and provider
+        capabilities instances in one step (assuming one provider per module).
+    */
+    bool registerProviderSimple(
+        const Array<CIMNamespaceName>& nameSpaces,
+        const CIMName& className,
+        ProviderInterface providerInterface,
+        Uint32 providerTypes);
+
+    /** Add a symbol to the symbol table used to perform simulated dynamic
+        loading. Return true on success or false on error (if such a symbol
+        is already in the symbol table). This symbol table is used to perform
+        dynamic loading of providers (both CMPI and Default C++).
+    */
+    bool addSymbol(
+        const String& path,
+        const String& name,
+        void* address);
+
 private:
     EmbeddedServer(const EmbeddedServer&);
     EmbeddedServer& operator=(const EmbeddedServer&);
+
+    // Opaque implementation state data.
+    char _opaque[128];
+    friend struct EmbeddedServerRep;
 };
 
 PEGASUS_NAMESPACE_END

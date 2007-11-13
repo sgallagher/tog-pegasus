@@ -1,69 +1,151 @@
-Title: the OpenPegasus memory-resident repository
+Title: The OpenPegasus memory-resident repository
 Date: 1 November 2007
-Refernece: PEP 307
+Reference: PEP 307
+Status: Draft
 
-Overview
+Overview of the Memory-Resident Repository
 
-        The memory-resident repository is designed to be used primarily by embedded
-        systems.  It has the following characteristics.
+    The memory-resident repository is an implementation of the
+    OpenPegasus CIM Class and Instance repository that operate
+    completely in memory and was designed to be used primarily by
+    embedded systems.  It has the following characteristics.
         
-        1. The class repository is read-only and must be built and installed as part
-        of the server startup.  There is no capability to add, modify, delete classes
-        or qualifiers once the OpenPegasus server has been built.
+        1. The class repository is read-only and must be built and installed
+           as part of the server startup.  There is no capability to add,
+           modify, delete classes or qualifiers once the OpenPegasus server
+           has been built.
         
-        2. The instance repository is maintained in core and is fully read/write. The
-        persistence of the instance repository is maintained through a set of callbacks
-        that the system creator must create to save and restore the instance repository.
+        2. The instance repository is maintained in core and is fully
+           read/write. The persistence of the instance repository is
+           maintained through a set of callbacks that the system creator must
+           create to save and restore the instance repository.
 
-How to build the memory-resident class repository
+How to Build the Memory-Resident Class Repository
 
-The repository is built using the Pegasus compiler cimmofl.  Note that in the
-memory-resident repository there is no capability to modify the class repository
-subsequent to building the system so the complete class repository must be
-compiled prior to building the system.
+    Thisepository is built with the Pegasus compiler cimmofl.  Note that in
+    the memory-resident repository there is no capability to modify the class
+    repository subsequent to building the system so the complete class 
+    repository must be compiled prior to building the system.
 
-To build the memory-resident repository, first determine the CIM namespaces to be
-used and the classes that will be included in each namespace.  
+    To build the memory-resident repository, first determine the CIM namespaces
+    to be used and the classes that will be included in each namespace.  
 
-The complete set of classes and qualifiers for a single namespace must be compiled
-with the OpenPegasus cimmofl compiler in a single call using the -m option on the
-compiler to generate the C++ source output that represents the classes/qualifiers
-to be compiled into the namespace.
+    The complete set of classes and qualifiers for a single namespace must be
+    compiled with the OpenPegasus cimmofl compiler in a single call using
+    the -m option on the cimmofl MOF compiler to generate the C++ source
+    output that represents the classes/qualifiers to be compiled into the
+    target namespace.
 
-Typically this means building a single mof file that represents the include of all
-of classes and qualifiers for the target namespace.  The following is an example
-of such a mof file, the root_PG_Internal-namespace.mof file
+    Typically this means building a single mof file that represents the
+    include of all of classes and qualifiers for the target namespace.
+    The following is an example of such a mof file, the 
+    root_PG_Internal-namespace.mof file
 
-#pragma include("CIM2131/Core_Qualifiers.mof")
-#pragma include("Pegasus/Internal/VER20/PG_InternalSchema20.mof")
+        #pragma include("CIM2131/Core_Qualifiers.mof")
+        #pragma include("Pegasus/Internal/VER20/PG_InternalSchema20.mof")
 
-The c++ source for that namespace is built with cimmofl using the -m option.
+    The c++ source for that namespace is built with cimmofl using the -m option
+    to generate the c++ source file defining the namespace and its
+    contents..
 
-Within a Makefile the repository compile this can be defined as:
+    Within a Makefile the repository compile this can be defined as:
 
-SCHEMAS=$(PEGASUS_ROOT)/Schemas
-CIMMOFL=cimmofl -d -W -m
+        SCHEMAS=$(PEGASUS_ROOT)/Schemas
+        CIMMOFL=cimmofl -d -W -m
 
-repository:
-    @ $(CIMMOFL) root/PG_Internal -I $(SCHEMAS) root_PG_Internal_namespace.mof
+        repository:
+        @ $(CIMMOFL) root/PG_Internal -I $(SCHEMAS) \
+            root_PG_Internal_namespace.mof
 
-   -m - generates memory-resident repository source files for the class and
+   -m - Generate memory-resident repository source files for the class and
         qualifier definitions.
-   -d - TBD
+   -d - Discard Description qualifiers
    -W - Bypass the warning that you are using the cimmofl compiler
 
-This builds all of the classes and qualifiers for the root/PG_Internal namespace
-and outputs the result to the file root_PG_Internal_namespace.h and .cpp files
-for installation into the embedded system.  
+    This builds all of the classes and qualifiers for the root/PG_Internal
+    namespace and outputs the result to the file root_PG_Internal_namespace.h
+    and .cpp files for installation into the embedded system.  
 
-The input mof is contained in root_PG_Interlan_namespace.mof.  It is the
-responsibility of the developer to encapsulate all of the mof required for this
-namespace into the single input file.
+    The input mof is contained in root_PG_Internal_namespace.mof.  It is the
+    responsibility of the developer to encapsulate all of the mof required
+    for this namespace into the single input file.
 
-NOTE: There is a working example of this build mechanism for VxWorks in the
-directory
+    NOTE: There is a working example of this build mechanism for VxWorks in
+    the directory
 
         pegasus/vxworks/cimserver
+
+Building Repositories with Filterd Sets of Classes
+
+    Normally an OpenPegasus system does not require the complete DMTF class
+    hiearchy for any selected profile or set of providers. However,
+    the task of manually reducing the full set of DMTF and user
+    classes to the required subset is both error prone and tedious.
+    Each leaf class implemented in a provider requires a set of
+    additional classes in the repository that represent the class
+    hiearchy for this target class and association and associated
+    classes that may be used by this class.
+
+    Therefore, the cimmofl compiler includes a mechanism that will aid
+    in the filtering of classes to be compiled.  The compiler accepts
+    a supplementary file with a commandline option (NOTE: today the
+    option is -c but that is temporary) that defines a supplementary
+    file containing a list of classes.  The compiler will filter the
+    classes to be compiled from the input mof to those classes on this
+    list and classes that are associated with these classes as:
+
+    * superclasses in the assiearchy
+    * Association and associated classes directly associated with the
+    classes in this list.
+
+    Thus, the user should be able to define the required classes for
+    any namespace as the list of classes defined in the profiles to be
+    incuded in the namespace.
+    
+    Note that there are some classes required by OpenPegasus and these
+    classes must also be in this list.
+
+The Description Qualifiers in the Repository
+    
+    Typically, the Description Qualifiers take a significant
+    percentage of the space for Class and Qualifier declaractions. It
+    appears that with the memory resident repository, about 666666 the
+    total space usage for the repository in memory is the Description
+    Qualifiers.  Therefore, to provide for an absolutely minimal class
+    repository, an option has been added to the cimmofl compiler to
+    discard the Description qualifiers and the MOF is compiled.  
+    This is option -d and the only effect is that any Description
+    Qualifiers in the input MOF are discarded from the class and
+    qualifier objects as they are compiled.
+
+Memory-Resident Repository Size
+
+    The key resource parameter for the memory-resident class
+    repository is the size. Typically, the size of the repository is
+    about 5% to 10% of the corresponding disk repository.  As an
+    example, the compile of the complete 2.15 repository yields a
+    repository that is used about 1.2 MB of memory with the Descripton
+    qualifiers and about .5 MB without the Description Qualifiers
+
+    The actual size of the class repository for each namespace can be
+    determined by TBD.
+
+Persistence of the Memory-Resident Repository Instance Repository
+
+    The instance repository is maintained completely in memory and it
+    is the responsibility of the final implementor of the system to
+    provide a set of functions that will provide persistence of the
+    instances in this repository by implementing a set of callback
+    functions for saving and restoring the repository. The functions
+    required to be implemented to accomplish this are defined in PEP
+    307 and an example of these callback functions is provided in the
+    sample embedded server define in the file
+
+        pegasus/vxworks/cimserver/cimserver.cpp
+
+    If the embedded system implementor does not chose to implement
+    these functions, the instance repository is considered transient
+    and is started empty upon each startup of the server.
 
 
 

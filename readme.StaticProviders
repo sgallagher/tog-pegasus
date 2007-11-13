@@ -1,12 +1,58 @@
 Title: Building static providers for OpenPegasus embedded systems
 Date: 1 November 2007
 Status: Draft
+Reference: pegasus PEP 309
 
-Overview
+Overview of the Static Provider Functionality
 
+    For embedded system implementations of OpenPegasus, the dynamic shared
+    library model for provider implementation sometimes does not work
+    (see PEP 305 for background).  Therefore, a static model for
+    providers has been implemented whereby the providers become part
+    of the server image, directly linked into the server.
 
+    Note that this feature is based on the existing provider linking
+    mechanism for control providers in Pegasus but with cleaner
+    interfaces.
 
 Building Static Providers
 
+    NOTE: There is an example of the building of providers in the
+    directory pegauss/vxworks.providers with two simple sample
+    providers.
+
+    Building providers is very similar to the standard provider build
+    except that only the libraries are build, not shared libraries.
+
+    Note that the interfaces are exactly the same between the static
+    providers and normal pegasus providers and that exactly the same
+    provider interface functionality is supported.
+
+    There is an example of building static providers in the directory
+
+        pegaus/vxworks/providers
 
 Installing Static Providers
+
+    The installation/registration process for static providers is
+    completely different than for dynamic providers. Whereas dynamic
+    providers are installed with a registration process that uses
+    instances of provider classes to define the provider and its
+    capabilities, the static provider is installed as part of the
+    creation of the server image (linked) and registered as part of
+    the startup process for the OpenPegasus server.
+
+    Once a provider has been coded and compiled it is built into the
+    startup OpenPegasus provider registration by defining the provider
+    information in a table that is defined in the server startup code.
+
+    NOTE: For the moment, PEP 309 provides the definition of how to
+    build this table.
+
+    There is an example of this table defined in the file 
+
+        pegasus/vxworks/cimserver/cimserver.cpp
+
+
+
+

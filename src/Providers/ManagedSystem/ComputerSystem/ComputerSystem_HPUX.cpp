@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -53,7 +55,7 @@
 #ifndef _CS_MACHINE_SERIAL
 # define _CS_MACHINE_SERIAL 10005
 #endif
-#ifndef _CS_MACHINE_IDENT
+#ifndef _CS_MACHINE_IDENT 
 # define _CS_MACHINE_IDENT 10003
 #endif
 
@@ -80,32 +82,6 @@ static String _secondaryOwnerPager;
 String _status;
 Array<Uint16> _operationalStatus;
 Array<String> _statusDescriptions;
-
-#ifdef HPUX_USE_IPMI_ID
-// Macros/Structs used for the IPMI specific ioctl requests/responses.
-//ipmi.h is the standard IPMI headerfile
-# include <ipmi.h>
-# define HPUX_MAX_UUID 64
-# define HPUX_MAX_SN 32
-
-# define HPUX_OEM_NETFN1 0x32
-# define HPUX_CMD_GET_PHYS_SYS_VAR 0x59
-// Structure used for passing the ioctl request
-typedef struct
-{
-    BYTE subCmd;
-} IpmiGetPhysSysVarReqT;
-
-// Structure used for passing the ioctl response
-typedef struct
-{
-    BYTE status;
-    BYTE data[18];
-} IpmiGetPhysSysVarRetT;
-
-# define HPUX_UUID 0x00
-# define HPUX_SERIAL_NUMBER 0x01
-#endif
 
 ComputerSystem::ComputerSystem()
 {
@@ -286,8 +262,8 @@ Boolean ComputerSystem::getPowerState(CIMProperty& p)
     // hardcoded
     /*
         ValueMap {"1", "2", "3", "4", "5", "6", "7", "8"},
-        Values {"Full Power", "Power Save - Low Power Mode",
-                "Power Save - Standby", "Power Save - Other",
+        Values {"Full Power", "Power Save - Low Power Mode", 
+                "Power Save - Standby", "Power Save - Other", 
                 "Power Cycle", "Power Off", "Hibernate", "Soft Off"}
     */
     // Full Power on PA-RISC!!
@@ -355,7 +331,7 @@ Boolean ComputerSystem::setSecondaryOwnerPager(const String&)
 
 Boolean ComputerSystem::getSerialNumber(CIMProperty& p)
 {
-    p = CIMProperty(PROPERTY_SERIAL_NUMBER, _serialNumber);
+    p = CIMProperty(PROPERTY_SERIAL_NUMBER, _serialNumber); 
     return true;
 }
 
@@ -365,86 +341,6 @@ Boolean ComputerSystem::getIdentificationNumber(CIMProperty& p)
     p = CIMProperty(PROPERTY_IDENTIFICATION_NUMBER, _uuid);
     return true;
 }
-Boolean ComputerSystem::getElementName(CIMProperty& p)
-{
-    // We're just going to re-use the caption
-    p = CIMProperty(PROPERTY_ELEMENTNAME, String(CAPTION));
-    return true;
-}
-
-#ifdef HPUX_USE_IPMI_ID
-//Generic function to fetch the Physical Serial number
-//and UUID from the IPMI Interface
-//using the ioctl calls.
-int getPhysSysVar(int fd, BYTE varCmd, BYTE * buf, int len)
-{
-    BYTE    reqBuffer[MAX_BUFFER_SIZE];
-    BYTE    respBuffer[MAX_BUFFER_SIZE];
-
-    //These are the standard Request and Response structures defined in ipmi.h
-    ImbRequestBuffer *imbReq = (ImbRequestBuffer *)reqBuffer;
-    ImbResponseBuffer *imbResp = (ImbResponseBuffer *)respBuffer;
-
-    uint32_t bytesreturned = 0;
-    ipmi_data_t data;
-    int status = 0;
-
-    BYTE cCode;
-
-    /* request data */
-    IpmiGetPhysSysVarReqT * getSysVar =
-        (IpmiGetPhysSysVarReqT *) imbReq->req.data;
-
-    /* response data */
-    IpmiGetPhysSysVarRetT *sysVar =
-        (IpmiGetPhysSysVarRetT *) imbResp;
-    data.InBuffer = (caddr_t)imbReq;
-    data.InBufferLength = MIN_IMB_REQ_BUF_SIZE + sizeof(*getSysVar );
-    data.OutBuffer = (caddr_t)imbResp;
-    data.OutBufferLength = sizeof(respBuffer);
-    data.BytesReturned = &bytesreturned;
-    data.status = 0x00;
-
-    imbReq->flags = 0x00;
-    imbReq->timeOut = DEFAULT_MESSAGE_TIMEOUT * 3;
-    imbReq->req.rsSa = BMC_SA;
-    imbReq->req.netFn = HPUX_OEM_NETFN1;
-    imbReq->req.rsLun = BMC_LUN;
-
-    imbResp->cCode = 0xff;
-
-    imbReq->req.cmd = HPUX_CMD_GET_PHYS_SYS_VAR;
-
-    getSysVar->subCmd = varCmd;
-
-    imbReq->req.dataLength = sizeof(*getSysVar);
-
-    // IOCTL system call to get the physical information(Serial Number and UUID)
-    status = ioctl(fd,IOCTL_IMB_SEND_MESSAGE,&data);
-
-    if (status != 0)
-    {
-        return -1;
-    }
-
-
-    /* The ioctl returned okay */
-    cCode = imbResp->cCode;
-
-    /* Check the completion code for the SEND MESSAGE */
-    if (cCode != CCODE_OK)
-    {
-        return -1;
-    }
-
-    if (buf)
-    {
-        memcpy(buf, sysVar->data, len);
-    }
-
-    return sysVar->status;
-}
-#endif
 
 void ComputerSystem::initialize()
 {
@@ -462,113 +358,31 @@ void ComputerSystem::initialize()
     hn[sizeof(hn)-1] = 0;
 
     // find out what nameservices think is full name
-    if ((he = gethostbyname(hn)) != 0)
+    if (he=gethostbyname(hn))
         _hostName = he->h_name;
     else
         _hostName = hn;
 
     size_t bufSize;
 
-#ifdef HPUX_USE_IPMI_ID
-
-    int fd, interface;
-    int i;
-    BYTE physUuid[HPUX_MAX_UUID];
-    BYTE physSn[HPUX_MAX_SN];
-    char physUuidStr[HPUX_MAX_UUID];
-    char uuid[HPUX_MAX_UUID];
-    char sn[HPUX_MAX_SN];
-    /*Serial Number(SN) not implemented on this platform firmware*/
-    Boolean ipmiSNSupported=false;
-    /*UUID not implemented on this platform firmware*/
-    Boolean ipmiUUIDSupported=false;
-
-    /* First try to get the Physical information from the IPMI interface. */
-    /* open ipmi device file */
-    fd=open("/dev/ipmi",O_RDONLY);
-    if (fd >= 0)
+    // get serial number using confstr  
+    bufSize = confstr(_CS_MACHINE_SERIAL, NULL, 0);
+    if (bufSize != 0)
     {
-        interface = sysconf(_SC_IPMI_INTERFACE);
-        if (interface != -1)
+        char* serialNumber = new char[bufSize];
+        try
         {
-            /* Get the physical Serial Number from IPMI */
-            if (getPhysSysVar(fd, HPUX_SERIAL_NUMBER, physSn, HPUX_MAX_SN) == 0)
+            if (confstr(_CS_MACHINE_SERIAL, serialNumber, bufSize) != 0)
             {
-                // We are able to get the serial number from IPMI interface
-                ipmiSNSupported=true;
-                _serialNumber.set(String((char*)physSn));
-            }
-            /* Get the physical UUID from IPMI */
-            if (getPhysSysVar(fd, HPUX_UUID, physUuid, HPUX_MAX_UUID) == 0)
-            {
-                // We are able to get the UUID from IPMI interface
-                ipmiUUIDSupported = true;
-                /* sprintf the bytes in the UUID format */
-                sprintf(
-                   physUuidStr,
-                   "%2.2x%2.2x%2.2x%2.2x-%2.2x%2.2x-%2.2x%2.2x"
-                     "-%2.2x%2.2x-%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x",
-                   physUuid[0],physUuid[1],physUuid[2],physUuid[3],
-                   physUuid[4],physUuid[5],physUuid[6],physUuid[7],
-                   physUuid[8],physUuid[9],physUuid[10],physUuid[11],
-                   physUuid[12],physUuid[13],physUuid[14],physUuid[15]);
-
-                _uuid.set(String(physUuidStr));
+                _serialNumber.set(String(serialNumber));
             }
         }
-        // close the fd opened for /dev/ipmi
-        close(fd);
-    }
-    /* We want the failure to be transperant to the user.
-       If fetching data from IPMI is failed get the data using confstr.
-     */
-    if (!ipmiSNSupported)
-#endif
-    {
-        // get serial number using confstr
-        bufSize = confstr(_CS_MACHINE_SERIAL, NULL, 0);
-        if (bufSize != 0)
+        catch(...)
         {
-            char* serialNumber = new char[bufSize];
-            try
-            {
-                if (confstr(_CS_MACHINE_SERIAL, serialNumber, bufSize) != 0)
-                {
-                    _serialNumber.set(String(serialNumber));
-                }
-            }
-            catch(...)
-            {
-                delete [] serialNumber;
-                throw;
-            }
             delete [] serialNumber;
+            throw;
         }
-    }
-#ifdef HPUX_USE_IPMI_ID
-    // If fetching the UUID from IPMI fails get the UUID from confstr
-    if (!ipmiUUIDSupported)
-#endif
-    {
-        // get system UUID using confstr.
-        bufSize = confstr(_CS_MACHINE_IDENT, NULL, 0);
-        if (bufSize != 0)
-        {
-            char* uuid = new char[bufSize];
-            try
-            {
-                if (confstr(_CS_MACHINE_IDENT, uuid, bufSize) != 0)
-                {
-                    _uuid.set(String(uuid));
-                }
-            }
-            catch(...)
-            {
-                delete [] uuid;
-                throw;
-            }
-            delete [] uuid;
-        }
+        delete [] serialNumber;
     }
 
     // get model using command
@@ -581,6 +395,25 @@ void ComputerSystem::initialize()
     pclose(s);
     _model = String(buf);
 
+    // get system UUID using confstr.  
+    bufSize = confstr(_CS_MACHINE_IDENT, NULL, 0);
+    if (bufSize != 0)
+    {
+        char* uuid = new char[bufSize];
+        try
+        {
+            if (confstr(_CS_MACHINE_IDENT, uuid, bufSize) != 0)
+            {
+                _uuid.set(String(uuid));
+            }
+        }
+        catch(...)
+        {
+            delete [] uuid;
+            throw;
+        }
+        delete [] uuid;
+    }
 
     // InstallDate
     /*
@@ -689,7 +522,7 @@ void ComputerSystem::initialize()
         {
             continue;
         }
-
+    
         if (attrId == GenInfoSysPUser_E)
         {
             _primaryOwnerName = value;
@@ -835,8 +668,6 @@ CIMInstance ComputerSystem::buildInstance(const CIMName& className)
     if (getOperationalStatus(p)) instance.addProperty(p);
 
     if (getStatusDescriptions(p)) instance.addProperty(p);
-
-    if (getElementName(p)) instance.addProperty(p);
 
     if (getCreationClassName(p)) instance.addProperty(p);
 

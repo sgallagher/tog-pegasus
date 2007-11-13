@@ -37,9 +37,38 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Provider/CMPI/cmpimacs.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
+#ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+
+typedef CMPIInstanceMI* (*CreateInstanceMIEntryPoint)(
+    const CMPIBroker* broker,
+    const CMPIContext *context,
+    CMPIStatus* status);
+
+typedef CMPIAssociationMI* (*CreateAssociationMIEntryPoint)(
+    const CMPIBroker* broker,
+    const CMPIContext *context,
+    CMPIStatus* status);
+
+typedef CMPIMethodMI* (*CreateMethodMIEntryPoint)(
+    const CMPIBroker* broker,
+    const CMPIContext *context,
+    CMPIStatus* status);
+
+typedef CMPIIndicationMI* (*CreateIndicationMIEntryPoint)(
+    const CMPIBroker* broker,
+    const CMPIContext *context,
+    CMPIStatus* status);
+
+typedef CMPIPropertyMI* (*CreatePropertyMIEntryPoint)(
+    const CMPIBroker* broker,
+    const CMPIContext *context,
+    CMPIStatus* status);
+
+#endif /* PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER */
 
 /** This module defines a class EmbeddedServer that provides functions for
     defining the setup of embedded servers where the providers are statically
@@ -153,11 +182,50 @@ public:
         ProviderInterface providerInterface,
         Uint32 providerTypes);
 
-    /** Register the provider entry point for the given provider.
+    /** Register the provider entry point for the given Pegasus provider.
     */
     bool registerPegasusProviderEntryPoint(
         const String& location,
         class CIMProvider* (*entryPoint)(const String&));
+
+#ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+
+    /** Register the provider entry point for the given CMPIE provider.
+    */
+    bool registerCMPIProviderEntryPoint(
+        const String& location,
+        const String& providerName,
+        CreateInstanceMIEntryPoint entryPoint);
+
+    /** Register the provider entry point for the given CMPIE provider.
+    */
+    bool registerCMPIProviderEntryPoint(
+        const String& location,
+        const String& providerName,
+        CreateAssociationMIEntryPoint entryPoint);
+
+    /** Register the provider entry point for the given CMPIE provider.
+    */
+    bool registerCMPIProviderEntryPoint(
+        const String& location,
+        const String& providerName,
+        CreateMethodMIEntryPoint entryPoint);
+
+    /** Register the provider entry point for the given CMPIE provider.
+    */
+    bool registerCMPIProviderEntryPoint(
+        const String& location,
+        const String& providerName,
+        CreateIndicationMIEntryPoint entryPoint);
+
+    /** Register the provider entry point for the given CMPIE provider.
+    */
+    bool registerCMPIProviderEntryPoint(
+        const String& location,
+        const String& providerName,
+        CreatePropertyMIEntryPoint entryPoint);
+
+#endif /* PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER */
 
 private:
     EmbeddedServer(const EmbeddedServer&);

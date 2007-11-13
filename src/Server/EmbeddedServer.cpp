@@ -613,4 +613,58 @@ bool EmbeddedServer::registerPegasusProviderEntryPoint(
         rep, location, "PegasusCreateProvider", (void*)entryPoint);
 }
 
+#ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+
+bool EmbeddedServer::registerCMPIProviderEntryPoint(
+    const String& location,
+    const String& providerName,
+    CreateInstanceMIEntryPoint entryPoint)
+{
+    EmbeddedServerRep* rep = (EmbeddedServerRep*)_opaque;
+    String name = providerName + "_Create_InstanceMI";
+    return _addSymbol(rep, location, name, (void*)entryPoint);
+}
+
+bool EmbeddedServer::registerCMPIProviderEntryPoint(
+    const String& location,
+    const String& providerName,
+    CreateAssociationMIEntryPoint entryPoint)
+{
+    EmbeddedServerRep* rep = (EmbeddedServerRep*)_opaque;
+    String name = providerName + "_Create_AssociationMI";
+    return _addSymbol(rep, location, name, (void*)entryPoint);
+}
+
+bool EmbeddedServer::registerCMPIProviderEntryPoint(
+    const String& location,
+    const String& providerName,
+    CreateMethodMIEntryPoint entryPoint)
+{
+    EmbeddedServerRep* rep = (EmbeddedServerRep*)_opaque;
+    String name = providerName + "_Create_MethodMI";
+    return _addSymbol(rep, location, name, (void*)entryPoint);
+}
+
+bool EmbeddedServer::registerCMPIProviderEntryPoint(
+    const String& location,
+    const String& providerName,
+    CreateIndicationMIEntryPoint entryPoint)
+{
+    EmbeddedServerRep* rep = (EmbeddedServerRep*)_opaque;
+    String name = providerName + "_Create_IndicationMI";
+    return _addSymbol(rep, location, name, (void*)entryPoint);
+}
+
+bool EmbeddedServer::registerCMPIProviderEntryPoint(
+    const String& location,
+    const String& providerName,
+    CreatePropertyMIEntryPoint entryPoint)
+{
+    EmbeddedServerRep* rep = (EmbeddedServerRep*)_opaque;
+    String name = providerName + "_Create_PropertyMI";
+    return _addSymbol(rep, location, name, (void*)entryPoint);
+}
+
+#endif /* PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER */
+
 PEGASUS_NAMESPACE_END

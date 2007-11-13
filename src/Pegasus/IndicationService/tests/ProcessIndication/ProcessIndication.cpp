@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -117,7 +119,8 @@ void _renameLogFile (const String & indicationLogFileName)
 }
 
 Boolean _checkIndicationLog
-    (const String & methodName,
+    (Uint32 id,
+     const String & methodName,
      Boolean allProperties,
      Boolean noIndications,
      const String & qlang)
@@ -174,7 +177,7 @@ Boolean _checkIndicationLog
             }
             else
             {
-                numProperties = 2;
+                numProperties = 3;
             }
 
             if (String::equal (methodName,
@@ -216,7 +219,15 @@ Boolean _checkIndicationLog
                 }
                 if (String::equalNoCase (propertyName, "IndicationIdentifier"))
                 {
-                    if (!allProperties)
+                    if (qlang == "DMTF:CQL")
+                    {
+                      id += 10;
+                    }
+
+                    char idStr[10];
+                    sprintf(idStr, "%d", id);
+
+                    if (!String::equal (propertyValue, idStr))
                     {
                         _renameLogFile (indicationLogFileName);
                         return false;
@@ -551,7 +562,7 @@ void _setup (CIMClient & client, String& qlang)
     try
     {
         _createFilterInstance (client, String ("PIFilter01"), String
-            ("SELECT MethodName, CorrelatedIndications "
+            ("SELECT IndicationIdentifier, MethodName, CorrelatedIndications "
              "FROM Test_IndicationProviderClass"),
             qlang);
         _createFilterInstance (client, String ("PIFilter02"),
@@ -590,13 +601,13 @@ void _setup (CIMClient & client, String& qlang)
             //  properties, and the indication is not forwarded.
             //
             _createFilterInstance (client, String ("PIFilter03"), String
-                ("SELECT MethodName, "
+                ("SELECT IndicationIdentifier, MethodName, "
                  "CorrelatedIndications "
                  "FROM Test_IndicationProviderClass "
                  "WHERE CorrelatedIndications IS NOT NULL"),
                 qlang);
             _createFilterInstance (client, String ("PIFilter04"), String
-                ("SELECT MethodName, "
+                ("SELECT IndicationIdentifier, MethodName, "
                  "CorrelatedIndications "
                  "FROM Test_IndicationProviderClass "
                  "WHERE CorrelatedIndications IS NULL"),
@@ -880,12 +891,13 @@ void _sendUnmatchingClassName (CIMClient & client)
 
 void _check
     (const String & opt,
+     Uint32 id,
      const String & methodName,
      Boolean allProperties,
      Boolean noIndications,
      const String & qlang)
 {
-    Boolean result = _checkIndicationLog (methodName, allProperties,
+    Boolean result = _checkIndicationLog (id, methodName, allProperties,
         noIndications, qlang);
 
     if (!result)
@@ -1056,7 +1068,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  Only the properties included in the SELECT list of the filter
     //  query should be included in the indication instance
     //
-    _check (opt, String ("SendTestIndicationNormal"),
+    _check (opt, 1, String ("SendTestIndicationNormal"),
             false, false, qlang);
   }
   else if (String::equalNoCase (opt, "checkSubclass"))
@@ -1066,7 +1078,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  Only the properties included in the SELECT list of the filter
     //  query should be included in the indication instance
     //
-    _check (opt, String ("SendTestIndicationSubclass"), false, false, qlang);
+    _check (opt, 2, String ("SendTestIndicationSubclass"), false, false, qlang);
   }
   else if (String::equalNoCase (opt, "checkMissing"))
   {
@@ -1075,7 +1087,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  An indication should be received because the missing property is a
     //  project list property, not a property required by the WHERE clause
     //
-    _check (opt,
+    _check (opt, 3,
             String ("SendTestIndicationMissingProperty"), false, false, qlang);
   }
   else if (String::equalNoCase (opt, "checkExtra"))
@@ -1087,7 +1099,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  Only the properties included in the SELECT list of the filter
     //  query should be included in the indication instance
     //
-    _check (opt,
+    _check (opt, 4,
             String ("SendTestIndicationExtraProperty"), false, false, qlang);
   }
   else if (String::equalNoCase (opt, "checkMatching"))
@@ -1097,7 +1109,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  Only the properties included in the SELECT list of the filter
     //  query should be included in the indication instance
     //
-    _check (opt,
+    _check (opt, 5,
             String ("SendTestIndicationMatchingInstance"), false, false, qlang);
   }
   else if (String::equalNoCase (opt, "checkUnmatchingNamespace"))
@@ -1109,7 +1121,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  source namespace of the subscription instance name in the
     //  operation context
     //
-    _check (opt,
+    _check (opt, 6,
             String ("SendTestIndicationUnmatchingNamespace"),
             false, true, qlang);
   }
@@ -1122,7 +1134,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  query indication class of the subscription instance name in the
     //  operation context
     //
-    _check (opt,
+    _check (opt, 7,
             String ("SendTestIndicationUnmatchingClassName"),
             false, true, qlang);
   }
@@ -1133,7 +1145,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  All properties should be included in the indication instance,
     //  since the filter query specifies SELECT *
     //
-    _check (opt,
+    _check (opt, 8,
             String ("SendTestIndicationNormal"), true, false, qlang);
    }
   else if (String::equalNoCase (opt, "checkMissingAll"))
@@ -1143,7 +1155,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  An indication should be received because the missing property is a
     //  project list property, not a property required by the WHERE clause
     //
-    _check (opt,
+    _check (opt, 9,
             String ("SendTestIndicationMissingProperty"), true, false, qlang);
   }
   else if (String::equalNoCase (opt, "checkExtraAll"))
@@ -1155,7 +1167,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  All properties should be included in the indication instance,
     //  since the filter query specifies SELECT *
     //
-    _check (opt,
+    _check (opt, 10,
             String ("SendTestIndicationExtraProperty"), true, false, qlang);
   }
   else if (String::equalNoCase (opt, "checkNormalWhere"))
@@ -1167,7 +1179,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  Only the properties included in the SELECT list of the filter
     //  query should be included in the indication instance
     //
-    _check (opt, String ("SendTestIndicationNormal"),
+    _check (opt, 11, String ("SendTestIndicationNormal"),
             false, false, qlang);
   }
   else if (String::equalNoCase (opt, "checkMissingWhere"))
@@ -1177,7 +1189,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  No indication should be received because the missing property is a
     //  property required by the WHERE clause
     //
-    _check (opt,
+    _check (opt, 12,
             String ("SendTestIndicationMissingProperty"), false, true, qlang);
   }
   else if (String::equalNoCase (opt, "checkNormalWhereNotSatisfied"))
@@ -1187,7 +1199,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  No indication should be received because the generated instance does
     //  not satisfy the WHERE clause condition
     //
-    _check (opt,
+    _check (opt, 13,
             String ("SendTestIndicationNormal"), true, true, qlang);
    }
   else if (String::equalNoCase (opt, "delete1"))
@@ -1244,7 +1256,7 @@ int main (int argc, char** argv)
     const char* optLang = argv[2];
     String qlang(optLang);
 
-#ifndef PEGASUS_ENABLE_CQL
+#ifdef PEGASUS_DISABLE_CQL
     if (qlang == "DMTF:CQL")
     {
         PEGASUS_STD(cout) << "+++++ cql test disabled" << PEGASUS_STD(endl);

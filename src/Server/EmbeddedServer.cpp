@@ -228,7 +228,7 @@ Boolean EmbeddedServer::run(int argc, char** argv)
     return true;
 }
 
-static bool _providerModuleInstanceExists(
+static Boolean _providerModuleInstanceExists(
     MemoryResidentRepository* mrr, 
     const String& name)
 {
@@ -253,7 +253,7 @@ static bool _providerModuleInstanceExists(
     return false;
 }
 
-static bool _providerInstanceExists(
+static Boolean _providerInstanceExists(
     MemoryResidentRepository* mrr, 
     const String& providerModuleName,
     const String& name)
@@ -281,7 +281,7 @@ static bool _providerInstanceExists(
     return false;
 }
 
-bool EmbeddedServer::registerProviderModule(
+Boolean EmbeddedServer::registerProviderModule(
     const String& moduleName,
     const String& location,
     ProviderInterface providerInterface)
@@ -350,7 +350,7 @@ bool EmbeddedServer::registerProviderModule(
     return true;
 }
 
-bool EmbeddedServer::registerProvider(
+Boolean EmbeddedServer::registerProvider(
     const String& moduleName,
     const String& providerName)
 {
@@ -397,7 +397,7 @@ bool EmbeddedServer::registerProvider(
     return true;
 }
 
-bool EmbeddedServer::registerProviderCapabilities(
+Boolean EmbeddedServer::registerProviderCapabilities(
     const String& moduleName,
     const String& providerName,
     const String& capabilityId,
@@ -440,7 +440,7 @@ bool EmbeddedServer::registerProviderCapabilities(
 
         for (Uint32 i = 0; i < nameSpaces.size(); i++)
         {
-            bool found = false;
+            Boolean found = false;
 
             for (Uint32 j = 0; j < tmp.size(); j++)
             {
@@ -543,7 +543,7 @@ bool EmbeddedServer::registerProviderCapabilities(
     return true;
 }
 
-bool EmbeddedServer::registerSingletonProvider(
+Boolean EmbeddedServer::registerSingletonProvider(
     const Array<CIMNamespaceName>& nameSpaces,
     const CIMName& className,
     ProviderInterface providerInterface,
@@ -582,7 +582,7 @@ bool EmbeddedServer::registerSingletonProvider(
     return true;
 }
 
-static bool _addSymbol(
+static Boolean _addSymbol(
     EmbeddedServerRep* rep,
     const String& path,
     const String& name,
@@ -603,7 +603,7 @@ static bool _addSymbol(
     return true;
 }
 
-bool EmbeddedServer::registerPegasusProviderEntryPoint(
+Boolean EmbeddedServer::registerPegasusProviderEntryPoint(
     const String& location,
     class CIMProvider* (*entryPoint)(const String&))
 {
@@ -615,7 +615,7 @@ bool EmbeddedServer::registerPegasusProviderEntryPoint(
 
 #ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 
-bool EmbeddedServer::registerCMPIProviderEntryPoint(
+Boolean EmbeddedServer::registerCMPIProviderEntryPoint(
     const String& location,
     const String& providerName,
     CreateInstanceMIEntryPoint entryPoint)
@@ -625,7 +625,7 @@ bool EmbeddedServer::registerCMPIProviderEntryPoint(
     return _addSymbol(rep, location, name, (void*)entryPoint);
 }
 
-bool EmbeddedServer::registerCMPIProviderEntryPoint(
+Boolean EmbeddedServer::registerCMPIProviderEntryPoint(
     const String& location,
     const String& providerName,
     CreateAssociationMIEntryPoint entryPoint)
@@ -635,7 +635,7 @@ bool EmbeddedServer::registerCMPIProviderEntryPoint(
     return _addSymbol(rep, location, name, (void*)entryPoint);
 }
 
-bool EmbeddedServer::registerCMPIProviderEntryPoint(
+Boolean EmbeddedServer::registerCMPIProviderEntryPoint(
     const String& location,
     const String& providerName,
     CreateMethodMIEntryPoint entryPoint)
@@ -645,7 +645,7 @@ bool EmbeddedServer::registerCMPIProviderEntryPoint(
     return _addSymbol(rep, location, name, (void*)entryPoint);
 }
 
-bool EmbeddedServer::registerCMPIProviderEntryPoint(
+Boolean EmbeddedServer::registerCMPIProviderEntryPoint(
     const String& location,
     const String& providerName,
     CreateIndicationMIEntryPoint entryPoint)
@@ -655,7 +655,7 @@ bool EmbeddedServer::registerCMPIProviderEntryPoint(
     return _addSymbol(rep, location, name, (void*)entryPoint);
 }
 
-bool EmbeddedServer::registerCMPIProviderEntryPoint(
+Boolean EmbeddedServer::registerCMPIProviderEntryPoint(
     const String& location,
     const String& providerName,
     CreatePropertyMIEntryPoint entryPoint)

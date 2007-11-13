@@ -37,7 +37,10 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMName.h>
-#include <Pegasus/Provider/CMPI/cmpimacs.h>
+
+#ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+# include <Pegasus/Provider/CMPI/cmpimacs.h>
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -45,27 +48,27 @@ PEGASUS_NAMESPACE_BEGIN
 
 typedef CMPIInstanceMI* (*CreateInstanceMIEntryPoint)(
     const CMPIBroker* broker,
-    const CMPIContext *context,
+    const CMPIContext* context,
     CMPIStatus* status);
 
 typedef CMPIAssociationMI* (*CreateAssociationMIEntryPoint)(
     const CMPIBroker* broker,
-    const CMPIContext *context,
+    const CMPIContext* context,
     CMPIStatus* status);
 
 typedef CMPIMethodMI* (*CreateMethodMIEntryPoint)(
     const CMPIBroker* broker,
-    const CMPIContext *context,
+    const CMPIContext* context,
     CMPIStatus* status);
 
 typedef CMPIIndicationMI* (*CreateIndicationMIEntryPoint)(
     const CMPIBroker* broker,
-    const CMPIContext *context,
+    const CMPIContext* context,
     CMPIStatus* status);
 
 typedef CMPIPropertyMI* (*CreatePropertyMIEntryPoint)(
     const CMPIBroker* broker,
-    const CMPIContext *context,
+    const CMPIContext* context,
     CMPIStatus* status);
 
 #endif /* PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER */
@@ -140,31 +143,25 @@ public:
     */
     Boolean addNameSpace(const struct SchemaNameSpace* nameSpace);
 
-    /** Run the cimserver. This function returns when the server is shut down.
-        @param argc
-        @param argv
-        @return false if server generated an exception.
+    /** Register a provider module, creating the PG_ProviderModule instance. 
+        This function must be called from initialize().
     */
-    Boolean run(int argc, char** argv);
-
-    /** Register a provider module. This function must be called from
-        initialize().
-    */
-    bool registerProviderModule(
+    Boolean registerProviderModule(
         const String& moduleName,
         const String& location,
         ProviderInterface providerInterface);
 
-    /** Register a provider. This function must be called from initialize().
+    /** Register a provider, creating the PG_Provider instances. This function 
+        must be called from initialize().
     */
-    bool registerProvider(
+    Boolean registerProvider(
         const String& moduleName,
         const String& providerName);
 
-    /** Register provider capabilities. This function must be called from 
-        initialize().
+    /** Register provider capabilities, creating the PG_ProviderCapabilities
+        instance. This function must be called from initialize().
     */
-    bool registerProviderCapabilities(
+    Boolean registerProviderCapabilities(
         const String& moduleName,
         const String& providerName,
         const String& capabilityId,
@@ -176,7 +173,7 @@ public:
         instance, and a PG_ProviderCapabilities instance for the special
         case in which there is one provider per module (a "singleton provider").
     */
-    bool registerSingletonProvider(
+    Boolean registerSingletonProvider(
         const Array<CIMNamespaceName>& nameSpaces,
         const CIMName& className,
         ProviderInterface providerInterface,
@@ -184,7 +181,7 @@ public:
 
     /** Register the provider entry point for the given Pegasus provider.
     */
-    bool registerPegasusProviderEntryPoint(
+    Boolean registerPegasusProviderEntryPoint(
         const String& location,
         class CIMProvider* (*entryPoint)(const String&));
 
@@ -192,40 +189,47 @@ public:
 
     /** Register the provider entry point for the given CMPIE provider.
     */
-    bool registerCMPIProviderEntryPoint(
+    Boolean registerCMPIProviderEntryPoint(
         const String& location,
         const String& providerName,
         CreateInstanceMIEntryPoint entryPoint);
 
     /** Register the provider entry point for the given CMPIE provider.
     */
-    bool registerCMPIProviderEntryPoint(
+    Boolean registerCMPIProviderEntryPoint(
         const String& location,
         const String& providerName,
         CreateAssociationMIEntryPoint entryPoint);
 
     /** Register the provider entry point for the given CMPIE provider.
     */
-    bool registerCMPIProviderEntryPoint(
+    Boolean registerCMPIProviderEntryPoint(
         const String& location,
         const String& providerName,
         CreateMethodMIEntryPoint entryPoint);
 
     /** Register the provider entry point for the given CMPIE provider.
     */
-    bool registerCMPIProviderEntryPoint(
+    Boolean registerCMPIProviderEntryPoint(
         const String& location,
         const String& providerName,
         CreateIndicationMIEntryPoint entryPoint);
 
     /** Register the provider entry point for the given CMPIE provider.
     */
-    bool registerCMPIProviderEntryPoint(
+    Boolean registerCMPIProviderEntryPoint(
         const String& location,
         const String& providerName,
         CreatePropertyMIEntryPoint entryPoint);
 
 #endif /* PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER */
+
+    /** Run the cimserver. This function returns when the server is shut down.
+        @param argc
+        @param argv
+        @return false if server generated an exception.
+    */
+    Boolean run(int argc, char** argv);
 
 private:
     EmbeddedServer(const EmbeddedServer&);

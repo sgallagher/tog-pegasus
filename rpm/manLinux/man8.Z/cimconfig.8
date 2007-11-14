@@ -1,4 +1,4 @@
-.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man8.Z/cimconfig.8,v 1.3.56.1 2007/11/14 23:24:18 yi.zhou Exp $
+.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man8.Z/cimconfig.8,v 1.3.56.2 2007/11/14 23:30:37 yi.zhou Exp $
 .\" .TA c \" lowercase initial leter of .TH name
 .TH "cimconfig" "8" "" "" ""
 .SH "NAME"
@@ -142,7 +142,7 @@ allowed to create Indication Subscription, otherwise privileged access
 is required.
 .PD 0
 .IP 
-.BR "Default Value: " True
+.BR "Default Value: " False
 .IP 
 .BR Dynamic: \0No
 .PD
@@ -159,17 +159,6 @@ within the CIM Server process.
 .BR Dynamic: \0No
 .PD
 .PP 
-.B logLevel
-.IP 
-.BR Description: " Defines the desired level of logging. Valid values include: 
-TRACE, INFORMATION, WARNING, SEVERE, FATAL
-.PD 0
-.IP 
-.BR "Default Value: " INFORMATION
-.IP 
-.BR Dynamic: \0Yes
-.PD
-.PP 
 .B shutdownTimeout
 .IP 
 .BR Description: " When a
@@ -182,9 +171,9 @@ still CIM operations in progress.
 Minimum value is 2 seconds.
 .PD 0
 .IP 
-.BR "Default Value: " 10
+.BR "Default Value: " 30
 .IP 
-.BR Dynamic: \0No
+.BR Dynamic: \0Yes
 .PD
 .PP
 If both the 

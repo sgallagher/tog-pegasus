@@ -30,16 +30,25 @@
 #//==============================================================================
 DEPEND_MAK = $(OBJ_DIR)/depend.mak
 
+ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+  SOURCES_NO_ASM = $(patsubst %.s,,$(SOURCES))
+else
+  SOURCES_NO_ASM = $(SOURCES)
+endif
+
 ifeq ($(CXX), g++)
     PEGASUS_CXX_MAKEDEPEND_OPTION = -M
 endif
 ifeq ($(CXX), CC)
     PEGASUS_CXX_MAKEDEPEND_OPTION = -xM1
 endif
+ifeq ($(CXX), aCC)
+    PEGASUS_CXX_MAKEDEPEND_OPTION = +make -E
+endif
 
 ifdef PEGASUS_CXX_MAKEDEPEND_OPTION 
 depend: $(OBJ_DIR)/target $(ERROR)
-	$(CXX) $(PEGASUS_CXX_MAKEDEPEND_OPTION) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $(SOURCES) | sed -e 's=^\(.*:\)='$(OBJ_DIR)'/\1=' > $(DEPEND_MAK)
+	$(CXX) $(PEGASUS_CXX_MAKEDEPEND_OPTION) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $(SOURCES_NO_ASM) | sed -e 's=^\(.*:\)='$(OBJ_DIR)'/\1=' > $(DEPEND_MAK)
 
 else
 ifdef PEGASUS_HAS_MAKEDEPEND
@@ -47,10 +56,10 @@ DEPEND_INCLUDES += -DPEGASUS_OS_TYPE_UNIX -I/usr/include $(SYS_INCLUDES)
 
 depend: $(OBJ_DIR)/target $(ERROR)
 	touch $(DEPEND_MAK)
-	makedepend -v $(LOCAL_DEFINES) $(DEFINES) $(DEPEND_DEFINES) $(PRE_DEPEND_INCLUDES) $(DEPEND_INCLUDES) $(INCLUDES) $(SOURCES) -f $(DEPEND_MAK) -p $(OBJ_DIR)/
+	makedepend -v $(LOCAL_DEFINES) $(DEFINES) $(DEPEND_DEFINES) $(PRE_DEPEND_INCLUDES) $(DEPEND_INCLUDES) $(INCLUDES) $(SOURCES_NO_ASM) -f $(DEPEND_MAK) -p $(OBJ_DIR)/
 else
 depend: $(OBJ_DIR)/target $(ERROR)
-	mu depend -O$(OBJ_DIR) $(INCLUDES) $(SOURCES) > $(DEPEND_MAK)
+	mu depend -O$(OBJ_DIR) $(INCLUDES) $(SOURCES_NO_ASM) > $(DEPEND_MAK)
 endif
 endif
 

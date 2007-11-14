@@ -35,6 +35,11 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+// This implementation emulates dynamic loading for platforms that do not 
+// support it or for configurations of Pegasus that opt not to use it. The
+// user of this mechanism must install a callback that resolves a path-name
+// tuple to an address.
+
 void* (*lookupSymbolCallback)(const char* path, const char* name, void* data);
 void* lookupSymbolData;
 

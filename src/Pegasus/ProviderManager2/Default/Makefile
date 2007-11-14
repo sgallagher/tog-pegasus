@@ -63,8 +63,4 @@ SOURCES = \
     ProviderMessageHandler.cpp \
     ProviderStatus.cpp
 
-ifdef PEGASUS_NO_DYNAMIC_LIBRARIES
-    LOCAL_DEFINES += -DPEGASUS_NO_DYNAMIC_LIBRARIES
-endif
-
 include $(ROOT)/mak/library.mak

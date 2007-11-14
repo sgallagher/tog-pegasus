@@ -399,11 +399,11 @@ ProviderName DefaultProviderManager::_resolveProviderName(
         providerId.getModule().findProperty("Location")).getValue();
     genericValue.get(location);
 
-#if defined(PEGASUS_NO_DYNAMIC_LIBRARIES)
+#if defined(PEGASUS_EMULATE_DYNAMIC_LOADING)
 
     return ProviderName(moduleName, providerName, location);
 
-#else /* PEGASUS_NO_DYNAMIC_LIBRARIES */
+#else /* PEGASUS_EMULATE_DYNAMIC_LOADING */
 
     String resolvedFileName = _resolvePhysicalName(location);
 
@@ -423,7 +423,7 @@ ProviderName DefaultProviderManager::_resolveProviderName(
 
     return ProviderName(moduleName, providerName, resolvedFileName);
 
-#endif /* PEGASUS_NO_DYNAMIC_LIBRARIES */
+#endif /* PEGASUS_EMULATE_DYNAMIC_LOADING */
 }
 
 ProviderOperationCounter DefaultProviderManager::_getProvider(

@@ -8,6 +8,8 @@
 
     ============================================================================
 
+    (B) Implement emulated dynamic loading in CMPI provider manager.
+
     (B) Build Linux embedded server pilot implementation.
 
     (B) Limit memory used by enumerateClasses operation.

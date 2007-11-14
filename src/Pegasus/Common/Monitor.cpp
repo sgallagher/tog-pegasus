@@ -76,7 +76,7 @@ Tickler::~Tickler()
     _uninitialize();
 }
 
-#if defined(PEGASUS_OS_TYPE_UNIX) || defined(PEGASUS_OS_VMS)
+#if defined(PEGASUS_OS_TYPE_UNIX)
 
 // Use an anonymous pipe for the tickle connection.
 
@@ -100,7 +100,7 @@ void Tickler::_initialize()
 #else
 
 // Use an external loopback socket connection to allow the tickle socket to
-// be included in the select() array on Windows.
+// be included in the select() array on non-Unix platforms.
 
 void Tickler::_initialize()
 {

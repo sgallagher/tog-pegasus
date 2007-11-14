@@ -195,33 +195,6 @@ public class testCIMParameter
 
       // -----
 
-      String pszNewParameterName = "bob";
-
-      cp.setName (pszNewParameterName);
-
-      pszName = cp.getName ();
-
-      if (DEBUG)
-      {
-         System.out.println ("testCIMParameter: pszName = " + pszName);
-      }
-
-      if (pszName == null)
-      {
-         System.out.println ("FAILURE: testCIMParameter: cp.getName () 3");
-
-         return false;
-      }
-
-      if (!pszName.equals (pszNewParameterName))
-      {
-         System.out.println ("FAILURE: testCIMParameter: cp.getName () 4");
-
-         return false;
-      }
-
-      // -----
-
       if (DEBUG)
       {
          System.out.println ("testCIMParameter: cp.isArray () = " + cp.isArray ());

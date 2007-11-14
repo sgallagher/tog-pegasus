@@ -186,21 +186,34 @@ public class testCIMProperty
       // -----
 
       String pszNewName = "bob";
+      CIMValue cimValue = null;
+      CIMProperty newNameProperty = null;
+      try
+      {
+          cimValue = new CIMValue (new UnsignedInt64("1"));
+          newNameProperty = new CIMProperty ("fred", cimValue);
+      }
+      catch (Exception e)
+      {
+         System.out.println ("FAILURE: testCIMProperty: caught " + e + ", in CIMValue and CIMProperty creation.");
+   
+         return false;
+      }
 
-      cp.setName (pszNewName);
+      newNameProperty.setName (pszNewName);
 
       if (DEBUG)
       {
-         System.out.println ("testCIMProperty: cp = " + cp);
+         System.out.println ("testCIMProperty: newNameProperty = " + newNameProperty);
       }
 
-      retPropertyName = cp.getName ();
+      retPropertyName = newNameProperty.getName ();
 
       if (  retPropertyName == null
          || !retPropertyName.equals (pszNewName)
          )
       {
-         System.out.println ("FAILURE: testCIMProperty: cp.setName ()");
+         System.out.println ("FAILURE: testCIMProperty: retPropertyName.setName ()");
 
          return false;
       }

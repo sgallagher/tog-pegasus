@@ -69,14 +69,6 @@ public class CIMParameter
       return null;
    }
 
-   public void setName (String name)
-   {
-      if (cInst != 0)
-      {
-         _setName (cInst, name);
-      }
-   }
-
    public boolean isArray ()
    {
       if (cInst != 0)

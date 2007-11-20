@@ -54,7 +54,7 @@ class PEGASUS_REPOSITORY_LINKAGE RepositoryDeclContext : public DeclContext
 {
 public:
 
-    RepositoryDeclContext(CIMRepository* repository);
+    RepositoryDeclContext();
 
     virtual ~RepositoryDeclContext();
 
@@ -65,6 +65,9 @@ public:
     virtual CIMClass lookupClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className) const;
+
+    void setRepository (CIMRepository* repository) 
+    { _repository = repository; }
 
 protected:
 

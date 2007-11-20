@@ -71,7 +71,8 @@ public:
     /// Constructor
     CIMRepository(
         const String& repositoryRoot,
-        Uint32 mode = CIMRepository::MODE_DEFAULT);
+        Uint32 mode = CIMRepository::MODE_DEFAULT,
+        RepositoryDeclContext* declContext = 0);
 
     /// Descructor
     virtual ~CIMRepository();
@@ -321,13 +322,6 @@ public:
         NameSpaceAttributes& attributes);
 
     ////////////////////////////////////////////////////////////////////////////
-
-    /** CIMMethod setDeclContext - allows the Declaration Context set
-        by default in the CIMRepository constructor to be overridden.
-        This is useful, for example, when a compiler wants to check syntax
-        without actually adding to the repository.
-    */
-    void setDeclContext(RepositoryDeclContext* context);
 
     /** Indicates whether instance operations that do not have a provider
         registered should be served by this repository.

@@ -49,26 +49,29 @@ cimmofRepository::cimmofRepository(const String& path,
     compilerCommonDefs::operationType ot)
     : _cimrepository(0), _context(0), _ot(ot)
 {
+    // Decl context is allocated here but will be owned and deleted by
+    // the CIMRepository class
+    _context = new compilerDeclContext(_ot);
+
     // don't catch the exceptions that might be thrown.  They should go up.
     if (_ot != compilerCommonDefs::IGNORE_REPOSITORY) {
-        _cimrepository = new CIMRepository(path, mode);
+        _cimrepository = new CIMRepository(path, mode, _context);
     }
-    _context = new compilerDeclContext(_cimrepository, _ot);
+
     if (_cimrepository)
-        _cimrepository->setDeclContext(_context);
+    {
+        _context->setRepository(_cimrepository);
+    }
+    else if (ot != compilerCommonDefs::IGNORE_REPOSITORY)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+            "attempt to initialize repository with invalid data");
+    }
 }
 
 cimmofRepository::~cimmofRepository()
 {
-    if (_cimrepository)
-    {
-        // Set the CIMRepository DeclContext to NULL so that it will not be
-        // deleted by the CIMRepository destructor.
-        _cimrepository->setDeclContext(0);
-        delete _cimrepository;
-    }
-
-    delete _context;
+    delete _cimrepository;
 }
 
 int cimmofRepository::addClass(const CIMNamespaceName &nameSpace,

@@ -36,14 +36,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-compilerDeclContext::compilerDeclContext(CIMRepository *repository,
-                    compilerCommonDefs::operationType ot) :
-  RepositoryDeclContext(repository), _cimRepository(repository), _ot(ot)
+compilerDeclContext::compilerDeclContext(compilerCommonDefs::operationType ot):
+    _ot(ot)
 {
-    if (!repository && ot != compilerCommonDefs::IGNORE_REPOSITORY)
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                "attempt to initialize repository with "
-                "invalid data");
 }
 
 compilerDeclContext::~compilerDeclContext() {}

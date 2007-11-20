@@ -59,8 +59,7 @@ class PEGASUS_COMPILER_LINKAGE compilerDeclContext :
 public RepositoryDeclContext
 {
  public:
-  compilerDeclContext(CIMRepository *repository,
-                  compilerCommonDefs::operationType ot);
+  compilerDeclContext(compilerCommonDefs::operationType ot);
 
   virtual ~compilerDeclContext();
 
@@ -84,7 +83,6 @@ public RepositoryDeclContext
                      CIMClass &x);
 
  private:
-  CIMRepository *_cimRepository;
   compilerCommonDefs::operationType _ot;
   Array<CIMClass>         _classes;
   Array<CIMQualifierDecl> _qualifiers;

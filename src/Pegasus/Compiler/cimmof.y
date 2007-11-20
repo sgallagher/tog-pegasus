@@ -364,8 +364,15 @@ classHead: qualifierList TOK_CLASS className alias superClass
 className: TOK_SIMPLE_IDENTIFIER {} ;
 
 
-superClass: TOK_COLON className { $$ = new CIMName(*$2); }
-    | /* empty */ { $$ = new CIMName(); } ;
+superClass: TOK_COLON className 
+{ 
+    $$ = new CIMName(*$2); 
+    delete $2;
+}
+| /* empty */ 
+{ 
+    $$ = new CIMName(); 
+}
 
 
 classBody: TOK_LEFTCURLYBRACE classFeatures TOK_RIGHTCURLYBRACE TOK_SEMICOLON
@@ -443,7 +450,11 @@ methodBody: TOK_LEFTPAREN parameters TOK_RIGHTPAREN ;
 methodEnd: TOK_SEMICOLON ;
 
 
-methodName: TOK_SIMPLE_IDENTIFIER { $$ = new CIMName(*$1); } ;
+methodName: TOK_SIMPLE_IDENTIFIER 
+{ 
+    $$ = new CIMName(*$1); 
+    delete $1;
+}
 
 
 //
@@ -565,14 +576,25 @@ referencePath: TOK_EQUAL stringValue { $$ = $2; }
     | /* empty */ { $$ = new String(String::EMPTY); } ;
 
 
-objectRef: className TOK_REF {
-    g_referenceClassName = *$1; } ;
+objectRef: className TOK_REF 
+{
+    g_referenceClassName = *$1; 
+    delete $1;
+}
 
 
-parameterName: TOK_SIMPLE_IDENTIFIER { $$ = new CIMName(*$1); } ;
+parameterName: TOK_SIMPLE_IDENTIFIER 
+{ 
+    $$ = new CIMName(*$1); 
+    delete $1;
+}
 
 
-propertyName: TOK_SIMPLE_IDENTIFIER { $$ = new CIMName(*$1); } ;
+propertyName: TOK_SIMPLE_IDENTIFIER 
+{ 
+    $$ = new CIMName(*$1); 
+    delete $1;
+}
 
 
 array: TOK_LEFTSQUAREBRACKET TOK_POSITIVE_DECIMAL_VALUE
@@ -1004,10 +1026,10 @@ compilerDirectivePragma: TOK_PRAGMA pragmaName
 qualifierDeclaration: TOK_QUALIFIER qualifierName qualifierValue scope
                        defaultFlavor TOK_SEMICOLON
 {
-//    CIMQualifierDecl *qd = new CIMQualifierDecl($2, $3, $4, $5);
     $$ = cimmofParser::Instance()->newQualifierDecl(*$2, $3, *$4, *$5);
-        delete $2;
+    delete $2;
     delete $3;  // CIMValue object created in qualifierValue production
+    delete $4;  // CIMScope object created in scope/metaElements production
 } ;
 
 
@@ -1031,7 +1053,10 @@ scope_begin: TOK_COMMA TOK_SCOPE TOK_LEFTPAREN
 
 metaElements: metaElement { $$ = $1; }
     | metaElements TOK_COMMA metaElement
-        { $$->addScope(*$3); } ;
+        { 
+            $$->addScope(*$3); 
+            delete $3;
+        } ;
 // ATTN:  2001 P3 defer There is not CIMScope::SCHEMA. Spec Limit KS
 
 
@@ -1051,8 +1076,11 @@ metaElement: TOK_CLASS       { $$ = new CIMScope(CIMScope::CLASS);        }
 // Correction KS 4 march 2002 - Set the default if empty
 defaultFlavor: TOK_COMMA flavorHead explicitFlavors TOK_RIGHTPAREN
     { $$ = &g_flavor; }
-| /* empty */ 
-    { $$ = new CIMFlavor (CIMFlavor::NONE); } ;
+    | /* empty */ 
+    {
+        g_flavor = CIMFlavor (CIMFlavor::NONE);
+        $$ = &g_flavor;
+    } ;
 
 
 // Correction KS 4 March 2002 - set the defaults (was zero)
@@ -1087,7 +1115,10 @@ explicitFlavor: TOK_ENABLEOVERRIDE
 
 flavor: overrideFlavors { $$ = &g_flavor; }
     | /* empty */ 
-        { $$ = new CIMFlavor (CIMFlavor::NONE); };
+    { 
+        g_flavor = CIMFlavor (CIMFlavor::NONE);
+        $$ = &g_flavor;
+    } ;
 
 
 overrideFlavors: explicitFlavor
@@ -1160,7 +1191,8 @@ qualifierName: TOK_SIMPLE_IDENTIFIER {
         g_flavor = CIMFlavor (CIMFlavor::NONE); }
     | metaElement {
         $$ = new String((*$1).toString ());
-        g_flavor = CIMFlavor (CIMFlavor::NONE); } ;
+        g_flavor = CIMFlavor (CIMFlavor::NONE); 
+        delete $1; } ;
 
 
 

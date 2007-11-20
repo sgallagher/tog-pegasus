@@ -38,8 +38,7 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-RepositoryDeclContext::RepositoryDeclContext(CIMRepository* repository)
-    : _repository(repository)
+RepositoryDeclContext::RepositoryDeclContext()
 {
 }
 

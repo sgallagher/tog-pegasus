@@ -749,11 +749,15 @@ void CIMRepository::_rollbackIncompleteTransactions()
 //     Note that invokeMethod() will not never implemented since it is not
 //     meaningful for a repository.
 //
+//     Note that if declContext is passed to the CIMRepository constructor,
+//     the repository object will own it and will delete it when appropriate.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 CIMRepository::CIMRepository(
     const String& repositoryRoot,
-    Uint32 mode)
+    Uint32 mode,
+    RepositoryDeclContext* declContext)
     : _repositoryRoot(repositoryRoot),
       _nameSpaceManager(repositoryRoot),
       _lock(),
@@ -806,7 +810,15 @@ CIMRepository::CIMRepository(
         ((AutoStreamer*)streamer)->addReader(new XmlStreamer(), 0);
     }
 
-    _context = new RepositoryDeclContext(this);
+    // If declContext is supplied by the caller, don't allocate it.
+    // CIMRepository will take ownership and will be responsible for 
+    // deleting it.
+    if (declContext)
+        _context = declContext;
+    else
+        _context = new RepositoryDeclContext();
+    _context->setRepository(this);
+
     _isDefaultInstanceProvider = ConfigManager::parseBooleanValue(
         ConfigManager::getInstance()->getCurrentValue(
             "repositoryIsDefaultInstanceProvider"));
@@ -3246,23 +3258,11 @@ Boolean CIMRepository::_loadInstance(
     //
 
     streamer->decode(data, 0, object);
-    //XmlParser parser((char*)data.getData());
-    //XmlReader::getObject(parser, object);
 
     PEG_METHOD_EXIT();
     return true;
 }
 
-void CIMRepository::setDeclContext(RepositoryDeclContext* context)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::setDeclContext");
-
-    WriteLock lock(_lock);
-    AutoFileLock fileLock(_lockFile);
-    _context = context;
-
-    PEG_METHOD_EXIT();
-}
 
 #ifdef PEGASUS_DEBUG
     void CIMRepository::DisplayCacheStatistics()

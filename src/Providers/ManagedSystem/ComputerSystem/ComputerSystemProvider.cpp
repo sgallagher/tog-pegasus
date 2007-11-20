@@ -153,7 +153,7 @@ void ComputerSystemProvider::enumerateInstances(
         Array<CIMKeyBinding> keys;
         keys.append(CIMKeyBinding(
             PROPERTY_CREATION_CLASS_NAME,
-            CLASS_CIM_COMPUTER_SYSTEM,
+            CLASS_EXTENDED_COMPUTER_SYSTEM,
             CIMKeyBinding::STRING));
         keys.append(CIMKeyBinding(
             PROPERTY_NAME,

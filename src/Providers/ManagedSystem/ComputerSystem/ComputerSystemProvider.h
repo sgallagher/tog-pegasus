@@ -81,6 +81,8 @@
 #define PROPERTY_POWER_MANAGEMENT_CAPABILITIES "PowerManagementCapabilities"
 #define METHOD_SET_POWER_STATE               "SetPowerState"
 #define METHOD_SET_POWER_STATE_WITH_OPTIONS  "SetPowerStateWithOptions"
+#define PROPERTY_ELEMENTNAME                 "ElementName"
+
 
 // CIM_UnitaryComputerSystem
 #define PROPERTY_INITIAL_LOAD_INFO           "InitialLoadInfo"

@@ -35,8 +35,8 @@
 #define _COMPUTERSYSTEM_H
 
 #define CAPTION "Computer System"
-#define DESCRIPTION "This is the CIM_ComputerSystem object"
-#define NAME_FORMAT "IP"
+#define DESCRIPTION "WBEM-enabled computer system"
+#define NAME_FORMAT "Other"
 #define STATUS "OK"
 
 #include <Pegasus/Provider/CIMInstanceProvider.h>
@@ -70,6 +70,7 @@ public:
     Boolean getDedicated(CIMProperty&);
     Boolean getResetCapability(CIMProperty&);
     Boolean getPowerManagementCapabilities(CIMProperty&);
+    Boolean getElementName(CIMProperty&);
 
 // CIM_UnitaryComputerSystem
     Boolean getInitialLoadInfo(CIMProperty&);

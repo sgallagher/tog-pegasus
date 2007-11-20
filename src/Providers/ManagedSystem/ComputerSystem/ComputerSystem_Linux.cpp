@@ -95,7 +95,7 @@ Boolean ComputerSystem::getCreationClassName(CIMProperty& p)
     // can vary, depending on class
     p = CIMProperty(
         PROPERTY_CREATION_CLASS_NAME,
-        String(CLASS_CIM_COMPUTER_SYSTEM));
+        String(CLASS_EXTENDED_COMPUTER_SYSTEM));
     return true;
 }
 
@@ -108,8 +108,10 @@ Boolean ComputerSystem::getName(CIMProperty& p)
 
 Boolean ComputerSystem::getOperationalStatus(CIMProperty& p)
 {
-    // not supported.
-    return false;
+    Array<Uint16> opStatus;
+    opStatus.append(2); // OK
+    p = CIMProperty(PROPERTY_OPERATIONAL_STATUS, opStatus);
+    return true;
 }
 
 Boolean ComputerSystem::getStatusDescriptions(CIMProperty& p)
@@ -294,6 +296,13 @@ Boolean ComputerSystem::getIdentificationNumber(CIMProperty& p)
 {
     // not supported
     return false;
+}
+
+Boolean ComputerSystem::getElementName(CIMProperty& p)
+{
+    // We're just going to re-use the caption
+    p = CIMProperty(PROPERTY_ELEMENTNAME, String(CAPTION));
+    return true;
 }
 
 /**

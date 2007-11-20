@@ -50,14 +50,15 @@ ComputerSystem::~ComputerSystem()
 Boolean ComputerSystem::getCaption(CIMProperty& p)
 {
     // hardcoded
-    p = CIMProperty("ElementName", String(CAPTION));
+    p = CIMProperty(PROPERTY_CAPTION, String(CAPTION));
+
     return true;
 }
 
 Boolean ComputerSystem::getDescription(CIMProperty& p)
 {
     // hardcoded
-    p = CIMProperty(PROPERTY_DESCRIPTION, String(CAPTION));
+    p = CIMProperty(PROPERTY_DESCRIPTION, String(DESCRIPTION));
     return true;
 }
 
@@ -89,7 +90,10 @@ Boolean ComputerSystem::getStatus(CIMProperty& p)
 
 Boolean ComputerSystem::getOperationalStatus(CIMProperty& p)
 {
-  return false;
+  Array<Uint16> opStatus;
+  opStatus.append(2); // OK
+  p = CIMProperty(PROPERTY_OPERATIONAL_STATUS, opStatus);
+  return true;
 }
 
 Boolean ComputerSystem::getStatusDescriptions(CIMProperty& p)
@@ -226,6 +230,13 @@ Boolean ComputerSystem::getSerialNumber(CIMProperty& p)
 Boolean ComputerSystem::getIdentificationNumber(CIMProperty& p)
 {
   return false;
+}
+
+Boolean ComputerSystem::getElementName(CIMProperty& p)
+{
+  // We're just going to re-use the caption
+  p = CIMProperty(PROPERTY_ELEMENTNAME, String(CAPTION));
+  return true;
 }
 
 void ComputerSystem::initialize(void)

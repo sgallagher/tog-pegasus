@@ -65,6 +65,8 @@ CIMInstance ComputerSystem::buildInstance(const CIMName& className)
     if (getOperationalStatus(p)) instance.addProperty(p);
 
     if (getStatusDescriptions(p)) instance.addProperty(p);
+    
+    if (getElementName(p)) instance.addProperty(p);
 
     if (getCreationClassName(p)) instance.addProperty(p);
 

@@ -391,8 +391,10 @@ Boolean ComputerSystem::getStatus(CIMProperty& p)
 
 Boolean ComputerSystem::getOperationalStatus(CIMProperty& p)
 {
-  // not supported.
-  return false;
+    Array<Uint16> opStatus;
+    opStatus.append(2); // OK
+    p = CIMProperty(PROPERTY_OPERATIONAL_STATUS, opStatus);
+    return true;
 }
 
 Boolean ComputerSystem::getStatusDescriptions(CIMProperty& p)
@@ -684,6 +686,13 @@ Boolean ComputerSystem::getIdentificationNumber(CIMProperty& p)
 {
   // Not supported
   return false;
+}
+
+Boolean ComputerSystem::getElementName(CIMProperty& p)
+{
+  // We're just going to re-use the caption
+    p = CIMProperty(PROPERTY_ELEMENTNAME, String(CAPTION));
+    return true;
 }
 
 void ComputerSystem::initialize(void)

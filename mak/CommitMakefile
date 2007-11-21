@@ -151,7 +151,7 @@ list:
 # Show the differences between the updated files and the versions that were
 # checked out from the CVS repository.
 diff:
-	@cvs diff $(UPDATEDFILES); cd .;
+	@cvs diff -u $(UPDATEDFILES); cd .;
 
 # Run chksrc against the added and updated files.
 chksrc:

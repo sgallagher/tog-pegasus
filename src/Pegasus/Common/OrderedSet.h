@@ -55,8 +55,8 @@ inline Uint32 generateCIMNameTag(const CIMName& name)
     const Uint16* p = reinterpret_cast<const Uint16*> (str.getChar16Data());
     Uint32 n = str.size();
     return
-        (Uint32(CharSet::toUpperHash(p[0])) << 1) | 
-        Uint32(CharSet::toUpperHash(p[n-1]));
+        (Uint32(CharSet::toUpperHash(p[0] & 0xFF)) << 1) | 
+        Uint32(CharSet::toUpperHash(p[n-1] & 0xFF));
 }
 
 /** OrderedSet maintains an "ordered set" of named elements. It provides

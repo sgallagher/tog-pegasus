@@ -44,6 +44,7 @@
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/AtomicInt.h>
 
 #include <Pegasus/Client/CIMClient.h>
 
@@ -59,15 +60,16 @@ PEGASUS_USING_STD;
 
 static char * verbose = 0;
 static Boolean shutdownFlag = false;
+AtomicInt expectedResults;
+AtomicInt actualResults;
 
 CIMObjectPath referenceObjName;
 
 static const String NAMESPACE("test/TestProvider");
 static const String CLASSNAME("TST_ChunkingStressInstance");
 static const String ASSOC_CLASSNAME("TST_ChunkingStressAssoc");
-// NOCHKSRC
-//////////////////////////////////////////////////////////////////////////////////
-// DOCHKSRC
+////////////////////////////////////////////////////////////////////////////////
+//
 // Thread Parameters Class
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -156,6 +158,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeEI(void *parm)
         elapsedTime.reset();
         while ((elapsedSeconds < duration) && !shutdownFlag)
         {
+            expectedResults++;
+
             iterations++; 
             elapsedTime.start();
 
@@ -164,6 +168,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeEI(void *parm)
 
             elapsedTime.stop();
             elapsedSeconds = elapsedTime.getElapsed();
+
+            actualResults++;
 
             if (cimInstances.size() == EXPECTED_INSTANCES)
             {
@@ -193,7 +199,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeEI(void *parm)
     }
     catch(Exception e)
     {
-        cout << e.getMessage() << endl;
+        cout << "---- EI thread " << uniqueID << " caught exception: " 
+            << e.getMessage() << endl;
     }
     my_thread->exit_self((ThreadReturnType)0);
     return(0);
@@ -219,6 +226,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeNI(void *parm)
         elapsedTime.reset();
         while ((elapsedSeconds < duration) && !shutdownFlag)
         {
+            expectedResults++;
+
             iterations++; 
             elapsedTime.start();
 
@@ -227,6 +236,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeNI(void *parm)
 
             elapsedTime.stop();
             elapsedSeconds = elapsedTime.getElapsed();
+
+            actualResults++;
 
             if (cimInstanceNames.size() == EXPECTED_INSTANCENAMES)
             {
@@ -256,7 +267,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeNI(void *parm)
     }
     catch(Exception e)
     {
-        cout << e.getMessage() << endl;
+        cout << "---- NI thread " << uniqueID << " caught exception: " 
+            << e.getMessage() << endl;
     }
     my_thread->exit_self((ThreadReturnType)0);
     return(0);
@@ -282,6 +294,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeA(void *parm)
         elapsedTime.reset();
         while ((elapsedSeconds < duration) && !shutdownFlag)
         {
+            expectedResults++;
+
             iterations++; 
             elapsedTime.start();
 
@@ -290,6 +304,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeA(void *parm)
 
             elapsedTime.stop();
             elapsedSeconds = elapsedTime.getElapsed();
+
+            actualResults++;
 
             if (cimObjects.size() == EXPECTED_ASSOCIATORS)
             {
@@ -319,7 +335,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeA(void *parm)
     }
     catch(Exception e)
     {
-        cout << e.getMessage() << endl;
+        cout << "---- A  thread " << uniqueID << " caught exception: " 
+            << e.getMessage() << endl;
     }
     my_thread->exit_self((ThreadReturnType)0);
     return(0);
@@ -345,6 +362,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeAN(void *parm)
         elapsedTime.reset();
         while ((elapsedSeconds < duration) && !shutdownFlag)
         {
+            expectedResults++;
+
             iterations++; 
             elapsedTime.start();
 
@@ -353,6 +372,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeAN(void *parm)
 
             elapsedTime.stop();
             elapsedSeconds = elapsedTime.getElapsed();
+
+            actualResults++;
 
             if (cimObjectNames.size() == EXPECTED_ASSOCIATORNAMES)
             {
@@ -382,7 +403,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeAN(void *parm)
     }
     catch(Exception e)
     {
-        cout << e.getMessage() << endl;
+        cout << "---- AN thread " << uniqueID << " caught exception: "
+            << e.getMessage() << endl;
     }
     my_thread->exit_self((ThreadReturnType)0);
     return(0);
@@ -408,6 +430,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeR(void *parm)
         elapsedTime.reset();
         while ((elapsedSeconds < duration) && !shutdownFlag)
         {
+            expectedResults++;
+
             iterations++; 
             elapsedTime.start();
 
@@ -416,6 +440,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeR(void *parm)
 
             elapsedTime.stop();
             elapsedSeconds = elapsedTime.getElapsed();
+
+            actualResults++;
 
             if (cimObjects.size() == EXPECTED_REFERENCES)
             {
@@ -445,7 +471,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeR(void *parm)
     }
     catch(Exception e)
     {
-        cout << e.getMessage() << endl;
+        cout << "---- R  thread " << uniqueID << " caught exception: "
+            << e.getMessage() << endl;
     }
     my_thread->exit_self((ThreadReturnType)0);
     return(0);
@@ -471,6 +498,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeRN(void *parm)
         elapsedTime.reset();
         while ((elapsedSeconds < duration) && !shutdownFlag)
         {
+            expectedResults++;
+
             iterations++; 
             elapsedTime.start();
 
@@ -479,6 +508,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeRN(void *parm)
 
             elapsedTime.stop();
             elapsedSeconds = elapsedTime.getElapsed();
+
+            actualResults++;
 
             if (cimObjectNames.size() == EXPECTED_REFERENCENAMES)
             {
@@ -508,7 +539,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeRN(void *parm)
     }
     catch(Exception e)
     {
-        cout << e.getMessage() << endl;
+        cout << "---- RN thread " << uniqueID << " caught exception: "
+            << e.getMessage() << endl;
     }
     my_thread->exit_self((ThreadReturnType)0);
     return(0);
@@ -642,6 +674,8 @@ void _beginTest(const Uint32 duration, const char* thdCountStr)
 int main(int argc, char** argv)
 {
     Uint32 duration = 0;
+    expectedResults.set(0);
+    actualResults.set(0);
 
     verbose = getenv("PEGASUS_TEST_VERBOSE");
 
@@ -675,12 +709,18 @@ int main(int argc, char** argv)
             workClient.disconnect();
         }
         _beginTest(duration, optTwo);
+        cout << "Expected Results: " << expectedResults.get() << endl;
+        cout << "Actual Results  : " << actualResults.get() << endl;
+        if (expectedResults.get() != actualResults.get())
+        {
+            cerr << " ---- failed tests" << endl;
+            return(1);
+        }
     }
     catch(const CIMException & e)
     {
-// NOCHKSRC
-        cout << "CIMException: " << e.getCode() << " " << e.getMessage() << endl;
-// DOCHKSRC
+        cout << "CIMException: " << e.getCode() << " " 
+            << e.getMessage() << endl;
         return(1);
     }
     catch(const Exception & e)

@@ -296,7 +296,8 @@ Boolean DefaultPropertyOwner::isValid(
     // By default, no validation is done. It can optionally be added here
     // per property.
     //
-    if (String::equalNoCase(name, "socketWriteTimeout"))
+    if (String::equalNoCase(name, "socketWriteTimeout") ||
+        String::equalNoCase(name, "idleConnectionTimeout"))
     {
         Uint32 timeoutValue;
         char dummyChar;

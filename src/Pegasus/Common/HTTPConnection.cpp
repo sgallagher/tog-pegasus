@@ -206,7 +206,8 @@ HTTPConnection::HTTPConnection(
     _contentOffset(-1),
     _contentLength(-1),
     _connectionClosePending(false),
-    _acceptPending(false)
+    _acceptPending(false),
+    _idleConnectionTimeoutSeconds(0)
 {
     PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::HTTPConnection");
 
@@ -302,6 +303,44 @@ void HTTPConnection::handleEnqueue(Message *message)
     delete message;
 
     PEG_METHOD_EXIT();
+}
+
+/*
+ * Used on Server side to close outstanding connections waiting for SSL
+ * handshake to complete if timeout expired or to close idle connections if 
+ * idleConnectionTimeout config property value has specified.
+ * Returns 'true' if connection is closed (or is closePending).
+*/
+
+Boolean HTTPConnection::closeConnectionOnTimeout(struct timeval* timeNow)
+{
+    // if SSL Handshake is not complete.
+    if (_acceptPending)
+    {
+        PEGASUS_ASSERT(!_isClient());
+        if (timeNow->tv_sec - _acceptPendingStartTime.tv_sec
+            > PEGASUS_SSL_ACCEPT_TIMEOUT_SECONDS)
+        {
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "HTTPConnection: close acceptPending connection for timeout");
+            _closeConnection(); 
+            return true;  // return 'true' to indicate connection was closed
+        }
+    }
+    // else if connection timeout is active
+    else if (_idleConnectionTimeoutSeconds)
+    {
+        if ((Uint32)(timeNow->tv_sec - _idleStartTime.tv_sec) >
+            _idleConnectionTimeoutSeconds)
+        {
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "HTTPConnection: close idle connection for timeout "
+                "of %d seconds\n", _idleConnectionTimeoutSeconds));
+            _closeConnection();
+            return true;  // return 'true' to indicate connection was closed
+        }
+    }
+    return false;  // connection was not closed
 }
 
 /*
@@ -978,6 +1017,12 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                     "Now setting state to %d", MonitorEntry::STATUS_IDLE));
                 _monitor->setState(_entry_index, MonitorEntry::STATUS_IDLE);
                 _monitor->tickle();
+                // MonitorEntry has been set to STATUS_IDLE. Update beginning
+                // of connection idle time.
+                if (_idleConnectionTimeoutSeconds)
+                {
+                    Time::gettimeofday(&_idleStartTime);
+                }
             }
             cimException = CIMException();
         }

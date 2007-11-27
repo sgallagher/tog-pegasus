@@ -183,6 +183,8 @@ static struct OwnerEntry _properties[] =
          (ConfigPropertyOwner*)ConfigManager::defaultOwner},
 #endif
     {"socketWriteTimeout",
+         (ConfigPropertyOwner*)ConfigManager::defaultOwner},
+    {"idleConnectionTimeout",
          (ConfigPropertyOwner*)ConfigManager::defaultOwner}
 };
 

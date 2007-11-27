@@ -511,6 +511,9 @@ void Monitor::run(Uint32 milliseconds)
 #endif
     _entriesMutex.lock();
 
+    struct timeval timeNow;
+    Time::gettimeofday(&timeNow);
+
     // After enqueue a message and the autoEntryMutex has been released and
     // locked again, the array of _entries can be changed. The ArrayIterator
     // has be reset with the original _entries
@@ -553,26 +556,43 @@ void Monitor::run(Uint32 milliseconds)
                         PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
                             "entries[%d].type is TYPE_CONNECTION",
                             indx));
-                        static_cast<HTTPConnection *>(q)->_entry_index = indx;
 
-                        HTTPConnection *dst =
+                        HTTPConnection *dst = 
                             reinterpret_cast<HTTPConnection *>(q);
-                        PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
-                            "Entering HTTPConnection::run() for "
-                                "indx = %d, queueId = %d, q = %p",
-                            indx, entries[indx].queueId, q));
+                        dst->_entry_index = indx;
 
-                        try
+                        // Update idle start time because we have received some
+                        // data. Any data is good data at this point, and we'll
+                        // keep the connection alive, even if we've exceeded
+                        // the idleConnectionTimeout, which will be checked
+                        // when we call closeConnectionOnTimeout() next.
+                        Time::gettimeofday(&dst->_idleStartTime);
+
+                        // Check for accept pending (ie. SSL handshake pending)
+                        // or idle connection timeouts for sockets from which
+                        // we received data (avoiding extra queue lookup below).
+                        if (!dst->closeConnectionOnTimeout(&timeNow))
                         {
-                            dst->run(1);
-                        }
-                        catch (...)
-                        {
-                            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL2,
-                                "Caught exception from HTTPConnection::run()");
-                        }
-                        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
-                            "Exited HTTPConnection::run()");
+                            PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+                                "Entering HTTPConnection::run() for "
+                                    "indx = %d, queueId = %d, q = %p",
+                                indx, entries[indx].queueId, q));
+
+                            try
+                            {
+                                dst->run(1);
+                            }
+                            catch (...)
+                            {
+                                PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL2,
+                                    "Caught exception from "
+                                    "HTTPConnection::run()");
+                            }
+                            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
+                                "Exited HTTPConnection::run()");
+                            }
+
+
                     }
                     else if (entries[indx].type == MonitorEntry::TYPE_INTERNAL)
                     {
@@ -606,6 +626,34 @@ void Monitor::run(Uint32 milliseconds)
                 catch (...)
                 {
                 }
+            }
+            // else check for accept pending (ie. SSL handshake pending) or
+            // idle connection timeouts for sockets from which we did not
+            // receive data.
+            else if ((entries[indx].status == MonitorEntry::STATUS_IDLE) &&
+                entries[indx].type == MonitorEntry::TYPE_CONNECTION)
+
+            {
+                MessageQueue* q = MessageQueue::lookup(entries[indx].queueId);
+                HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(q);
+                dst->_entry_index = indx;
+                dst->closeConnectionOnTimeout(&timeNow);
+            }
+        }
+    }
+    // else if "events" is zero (ie. select timed out) then we still need
+    // to check if there are any pending SSL handshakes that have timed out.
+    else
+    {
+        for (Uint32 indx = 0; indx < entries.size(); indx++)
+        {
+            if ((entries[indx].status == MonitorEntry::STATUS_IDLE) &&
+                entries[indx].type == MonitorEntry::TYPE_CONNECTION)
+            {
+                MessageQueue* q = MessageQueue::lookup(entries[indx].queueId);
+                HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(q);
+                dst->_entry_index = indx;
+                dst->closeConnectionOnTimeout(&timeNow);
             }
         }
     }

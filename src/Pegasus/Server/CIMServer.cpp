@@ -219,6 +219,13 @@ CIMServer::CIMServer()
     _cimserver = this;
     _init();
 
+    // Get value of idle connection timeout in seconds.
+    String idleConnectionConfigTimeout =
+        ConfigManager::getInstance()->getCurrentValue("idleConnectionTimeout");
+
+    _idleConnectionTimeoutSeconds =
+        strtol(idleConnectionConfigTimeout.getCString(), (char**)0, 10);
+ 
     PEG_METHOD_EXIT();
 }
 
@@ -657,6 +664,9 @@ void CIMServer::addAcceptor(
         socketWriteTimeout = PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS;
     acceptor->setSocketWriteTimeout(socketWriteTimeout);
 
+    // Set idle connection timeout in seconds.
+    acceptor->setIdleConnectionTimeout(_idleConnectionTimeoutSeconds);
+
     _acceptors.append(acceptor);
 }
 
@@ -709,7 +719,6 @@ void CIMServer::runForever()
 #endif // PEGASUS_ENABLE_SLP
 
         _monitor->run(500000);
-
         static struct timeval lastIdleCleanupTime = {0, 0};
         Time::gettimeofday(&now);
 

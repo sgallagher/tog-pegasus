@@ -157,6 +157,7 @@ public:
 
 private:
     Boolean _dieNow;
+    Uint32 _idleConnectionTimeoutSeconds;
 
 #ifdef PEGASUS_ENABLE_SLP
     Boolean _runSLP;

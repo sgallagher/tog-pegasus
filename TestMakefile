@@ -307,6 +307,8 @@ serversuite: FORCE
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER),true)
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_Cmpi_Sub
 endif
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_idleConnectionTimeout1
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_idleConnectionTimeout2
 
 #####################
 #
@@ -744,6 +746,42 @@ endif
 
 ###############################################################################
 
+
+
+###############################################################################
+##  idleConnectionTimeout Test Suite 1:  uses ChunkingStressProvider Tests
+##
+##  Configuration Options: idleConnectionTime=20
+##
+###############################################################################
+IDLE_CONNECTION_TIMEOUT_1_CONFIG_OPTIONS = idleConnectionTimeout=20
+IDLE_CONNECTION_TIMEOUT_1_TEST_CMDS = \
+	$(MAKE)@@--directory \
+            $(PEGASUS_ROOT)/src/Providers/TestProviders/ChunkingStressProvider/testclient \
+            -f@@Makefile@@poststarttests
+run_idleConnectionTimeout1: FORCE
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(IDLE_CONNECTION_TIMEOUT_1_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(IDLE_CONNECTION_TIMEOUT_1_TEST_CMDS)"
+###############################################################################
+
+
+###############################################################################
+##  idleConnectionTimeout Test Suite 2:  uses IdleConnectionTimeout client test
+##
+##  Configuration Options: idleConnectionTime=6
+##
+###############################################################################
+IDLE_CONNECTION_TIMEOUT_2_CONFIG_OPTIONS = idleConnectionTimeout=6
+IDLE_CONNECTION_TIMEOUT_2_TEST_CMDS = \
+	$(MAKE)@@--directory \
+            $(PEGASUS_ROOT)/src/Pegasus/Client/tests/IdleConnectionTimeout/ \
+            -f@@Makefile@@timeoutTest@@IDLETIME=10
+run_idleConnectionTimeout2: FORCE
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(IDLE_CONNECTION_TIMEOUT_2_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(IDLE_CONNECTION_TIMEOUT_2_TEST_CMDS)"
+###############################################################################
 
 
 ###############################################################################

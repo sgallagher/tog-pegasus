@@ -34,6 +34,7 @@ include $(ROOT)/mak/config.mak
 
 DIRS =	AssociationClient \
 	Client \
+	IdleConnectionTimeout \
 	InvokeMethod2 \
 	EnumInstances \
 	DeleteNamespace \

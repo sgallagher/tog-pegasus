@@ -529,5 +529,5 @@ static CMPIBrokerExtFT brokerExt_FT={
     NULL                       // Signal not supported yet
 };
 
-CMPIBrokerExtFT *CMPI_BrokerExt_Ftab = &brokerExt_FT;
+PEGASUS_EXPORT CMPIBrokerExtFT *CMPI_BrokerExt_Ftab = &brokerExt_FT;
 

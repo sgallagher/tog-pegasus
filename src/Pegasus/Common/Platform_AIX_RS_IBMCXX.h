@@ -41,7 +41,7 @@
 
 #include <sys/param.h>
 
-#ifdef PEGASUS_OS_AIX4
+#if PEGASUS_AIX_VERSION == 4
 #include <strings.h>
 #endif
 

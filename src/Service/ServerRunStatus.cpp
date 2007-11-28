@@ -50,12 +50,16 @@
 #endif
 
 #if defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_PASE)
+# include <procinfo.h>
+# define PROCSIZE sizeof(struct procsinfo)
+# if PEGASUS_AIX_VERSION <= 5
+// AIX version 5 does not define getprocs() in procinfo.h
 extern "C"
 {
-# include <procinfo.h>
-extern int getprocs(struct procsinfo *, int, struct fdsinfo *, int,pid_t *,int);
-# define PROCSIZE sizeof(struct procsinfo)
+    extern int getprocs(
+        struct procsinfo *, int, struct fdsinfo *, int,pid_t *,int);
 }
+# endif
 #endif
 
 PEGASUS_NAMESPACE_BEGIN

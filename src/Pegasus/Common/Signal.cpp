@@ -172,6 +172,21 @@ void SignalHandler::ignore(unsigned signum)
 #endif
 }
 
+void SignalHandler::defaultAction(unsigned signum)
+{
+
+    verifySignum(signum);
+
+    struct sigaction sig_acts;
+
+    sig_acts.sa_handler = SIG_DFL;
+    sigfillset(&(sig_acts.sa_mask));
+    sig_acts.sa_flags = 0;
+
+    sigaction(signum, &sig_acts, NULL);
+}
+
+
 #else // PEGASUS_HAS_SIGNALS
 
 SignalHandler::SignalHandler() { }
@@ -188,6 +203,8 @@ void SignalHandler::deactivate(unsigned signum) { }
 void SignalHandler::deactivateAll() { }
 
 void SignalHandler::ignore(unsigned signum) { }
+
+void SignalHandler::defaultAction(unsigned signum) { }
 
 #endif // PEGASUS_HAS_SIGNALS
 

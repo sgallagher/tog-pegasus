@@ -109,6 +109,8 @@ public:
 
     static void ignore(unsigned signum);
 
+    static void defaultAction(unsigned signum);
+
 private:
 
 #ifdef PEGASUS_HAS_SIGNALS

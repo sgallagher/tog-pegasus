@@ -751,10 +751,10 @@ endif
 ###############################################################################
 ##  idleConnectionTimeout Test Suite 1:  uses ChunkingStressProvider Tests
 ##
-##  Configuration Options: idleConnectionTime=20
+##  Configuration Options: idleConnectionTime=55
 ##
 ###############################################################################
-IDLE_CONNECTION_TIMEOUT_1_CONFIG_OPTIONS = idleConnectionTimeout=20
+IDLE_CONNECTION_TIMEOUT_1_CONFIG_OPTIONS = idleConnectionTimeout=55
 IDLE_CONNECTION_TIMEOUT_1_TEST_CMDS = \
 	$(MAKE)@@--directory \
             $(PEGASUS_ROOT)/src/Providers/TestProviders/ChunkingStressProvider/testclient \

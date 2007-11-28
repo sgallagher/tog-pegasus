@@ -489,10 +489,6 @@ static void HandleDaemonizeExecutorRequest(int sock, int bindVerbose)
 
     signal(SIGTERM, _sigHandler);
 
-    /* Make root the current directory. */
-
-    chdir("/");
-
     if (!bindVerbose)
     {
         /* Close these file descriptors (stdin, stdout, stderr). */

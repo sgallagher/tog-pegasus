@@ -372,6 +372,15 @@ int main(int argc, char** argv)
     Log(LL_TRACE, "running as %s (uid=%d, gid=%d)",
         username, (int)getuid(), (int)getgid());
 
+    /* Change the current directory */
+
+#if (defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX)) \
+    && defined(PEGASUS_USE_RELEASE_DIRS)
+    chdir(PEGASUS_CORE_DIR);
+#else
+    chdir("/");
+#endif
+
     /* Determine user for running CIMSERVERMAIN. */
 
     GetServerUser(&childUserName, &childUid, &childGid);

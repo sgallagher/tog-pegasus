@@ -233,7 +233,9 @@ Linkable* ListRep::remove_front()
 Linkable* ListRep::remove_back()
 {
     PEGASUS_DEBUG_ASSERT(_magic);
-    PEGASUS_DEBUG_ASSERT(_size > 0);
+
+    if (_size == 0)
+        return 0;
 
     Linkable* elem = _back;
     remove(elem);

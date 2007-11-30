@@ -32,6 +32,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/StatisticalData.h>
 #include "CIMMessage.h"
 
 PEGASUS_USING_STD;
@@ -528,13 +529,53 @@ CIMResponseMessage* CIMNotifyConfigChangeRequestMessage::buildResponse() const
 CIMMessage::CIMMessage(
     MessageType type,
     const String& messageId_)
-    : Message(type), messageId(messageId_)
+    : Message(type),
+      messageId(messageId_)
+#ifndef PEGASUS_DISABLE_PERFINST
+      ,_serverStartTimeMicroseconds(0),
+      _providerTimeMicroseconds(0),
+      _totalServerTimeMicroseconds(0)
+#endif
 {
     operationContext.insert(
         AcceptLanguageListContainer(AcceptLanguageList()));
     operationContext.insert(
         ContentLanguageListContainer(ContentLanguageList()));
 }
+
+#ifndef PEGASUS_DISABLE_PERFINST
+void CIMMessage::endServer()
+{
+    PEGASUS_ASSERT(_serverStartTimeMicroseconds != 0);
+
+    _totalServerTimeMicroseconds =
+        TimeValue::getCurrentTime().toMicroseconds() -
+            _serverStartTimeMicroseconds;
+
+    Uint64 serverTimeMicroseconds =
+        _totalServerTimeMicroseconds - _providerTimeMicroseconds;
+
+    Uint16 statType = (Uint16)((getType() >= CIM_GET_CLASS_RESPONSE_MESSAGE) ?
+        getType() - CIM_GET_CLASS_RESPONSE_MESSAGE : getType() - 1);
+
+    StatisticalData::current()->addToValue(serverTimeMicroseconds, statType,
+        StatisticalData::PEGASUS_STATDATA_SERVER);
+
+    StatisticalData::current()->addToValue(_providerTimeMicroseconds, statType,
+        StatisticalData::PEGASUS_STATDATA_PROVIDER);
+
+    /* This adds the number of bytes read to the total.the request size
+       value must be stored (requSize) and passed to the StatisticalData
+       object at the end of processingm otherwise it will be the ONLY value
+       that is passed to the client which reports the current state of the
+       object, not the previous (one command ago) state */
+
+    StatisticalData::current()->addToValue(
+        StatisticalData::current()->requSize,
+        statType,
+        StatisticalData::PEGASUS_STATDATA_BYTES_READ);
+}
+#endif
 
 CIMRequestMessage::CIMRequestMessage(
     MessageType type_,

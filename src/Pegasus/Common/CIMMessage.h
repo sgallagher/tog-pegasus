@@ -75,8 +75,53 @@ public:
 
     CIMMessage(MessageType type, const String& messageId_);
 
+#ifndef PEGASUS_DISABLE_PERFINST
+    //
+    // Needed for performance measurement
+    //
+
+    Uint64 getServerStartTime() const
+    {
+        return _serverStartTimeMicroseconds;
+    }
+
+    void setServerStartTime(Uint64 serverStartTimeMicroseconds)
+    {
+        _serverStartTimeMicroseconds = serverStartTimeMicroseconds;
+    }
+
+    void endServer();
+
+    Uint64 getProviderTime() const
+    {
+        return _providerTimeMicroseconds;
+    }
+
+    void setProviderTime(Uint64 providerTimeMicroseconds)
+    {
+        _providerTimeMicroseconds = providerTimeMicroseconds;
+    }
+
+    Uint64 getTotalServerTime() const
+    {
+        return _totalServerTimeMicroseconds;
+    }
+
+    void setTotalServerTime(Uint64 totalServerTimeMicroseconds)
+    {
+        _totalServerTimeMicroseconds = totalServerTimeMicroseconds;
+    }
+#endif
+
     String messageId;
     OperationContext operationContext;
+
+private:
+#ifndef PEGASUS_DISABLE_PERFINST
+    Uint64 _serverStartTimeMicroseconds;
+    Uint64 _providerTimeMicroseconds;
+    Uint64 _totalServerTimeMicroseconds;
+#endif
 };
 
 

@@ -46,6 +46,7 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Common/Time.h>
+#include <Pegasus/Common/TimeValue.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

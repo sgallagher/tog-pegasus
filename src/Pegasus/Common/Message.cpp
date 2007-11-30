@@ -33,7 +33,6 @@
 
 #include "Message.h"
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/PegasusAssert.h>
 
 PEGASUS_USING_STD;
@@ -337,40 +336,6 @@ CIMOperationType Message::convertMessageTypetoCIMOpType(MessageType type)
     return enum_type;
 }
 
-
-#ifndef PEGASUS_DISABLE_PERFINST
-void Message::endServer()
-{
-    PEGASUS_ASSERT(_serverStartTimeMicroseconds != 0);
-
-    _totalServerTimeMicroseconds =
-        TimeValue::getCurrentTime().toMicroseconds() -
-            _serverStartTimeMicroseconds;
-
-    Uint64 serverTimeMicroseconds =
-        _totalServerTimeMicroseconds - _providerTimeMicroseconds;
-
-    Uint16 statType = (Uint16)((_type >= CIM_GET_CLASS_RESPONSE_MESSAGE) ?
-        _type - CIM_GET_CLASS_RESPONSE_MESSAGE : _type - 1);
-
-    StatisticalData::current()->addToValue(serverTimeMicroseconds, statType,
-        StatisticalData::PEGASUS_STATDATA_SERVER);
-
-    StatisticalData::current()->addToValue(_providerTimeMicroseconds, statType,
-        StatisticalData::PEGASUS_STATDATA_PROVIDER);
-
-    /* This adds the number of bytes read to the total.the request size
-       value must be stored (requSize) and passed to the StatisticalData
-       object at the end of processingm otherwise it will be the ONLY value
-       that is passed to the client which reports the current state of the
-       object, not the previous (one command ago) state */
-
-    StatisticalData::current()->addToValue(
-        StatisticalData::current()->requSize,
-        statType,
-        StatisticalData::PEGASUS_STATDATA_BYTES_READ);
-}
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 //

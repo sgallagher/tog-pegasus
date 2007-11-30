@@ -39,7 +39,6 @@
 #include <cstring>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/TimeValue.h>
 #include <Pegasus/Common/CIMOperationType.h>
 #include <Pegasus/Common/Threads.h>
 #include <Pegasus/Common/Linkable.h>
@@ -226,11 +225,6 @@ public:
         _type(type),
         _mask(mask),
         _httpMethod (HTTP_METHOD__POST),
-#ifndef PEGASUS_DISABLE_PERFINST
-        _serverStartTimeMicroseconds(0),
-        _providerTimeMicroseconds(0),
-        _totalServerTimeMicroseconds(0),
-#endif
         _close_connect(false),
         _last_thread_id(Threads::self()),
         _async(0),
@@ -262,45 +256,6 @@ public:
     HttpMethod getHttpMethod() const { return _httpMethod; }
 
     void setHttpMethod(HttpMethod httpMethod) {_httpMethod = httpMethod;}
-
-#ifndef PEGASUS_DISABLE_PERFINST
-    //
-    // Needed for performance measurement
-    //
-
-    Uint64 getServerStartTime() const
-    {
-        return _serverStartTimeMicroseconds;
-    }
-
-    void setServerStartTime(Uint64 serverStartTimeMicroseconds)
-    {
-         _serverStartTimeMicroseconds = serverStartTimeMicroseconds;
-    }
-
-    void endServer();
-
-    Uint64 getProviderTime() const
-    {
-        return _providerTimeMicroseconds;
-    }
-
-    void setProviderTime(Uint64 providerTimeMicroseconds)
-    {
-        _providerTimeMicroseconds = providerTimeMicroseconds;
-    }
-
-    Uint64 getTotalServerTime() const
-    {
-        return _totalServerTimeMicroseconds;
-    }
-
-    void setTotalServerTime(Uint64 totalServerTimeMicroseconds)
-    {
-        _totalServerTimeMicroseconds = totalServerTimeMicroseconds;
-    }
-
-#endif
 
     static CIMOperationType convertMessageTypetoCIMOpType(MessageType type);
 
@@ -362,12 +317,6 @@ private:
     Uint32 _mask;
     HttpMethod _httpMethod;
 
-#ifndef PEGASUS_DISABLE_PERFINST
-    // Needed for performance measurement
-    Uint64 _serverStartTimeMicroseconds;
-    Uint64 _providerTimeMicroseconds;
-    Uint64 _totalServerTimeMicroseconds;
-#endif
     Boolean _close_connect;
 
     // << Tue Jul  1 11:02:35 2003 mdd >> pep_88 and helper for i18n and l10n

@@ -42,6 +42,7 @@
 #include "XmlReader.h"
 #include "ArrayInternal.h"
 #include "HostLocator.h"
+#include "System.h"
 
 PEGASUS_NAMESPACE_BEGIN
 

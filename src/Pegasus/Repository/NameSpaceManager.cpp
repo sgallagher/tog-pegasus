@@ -1993,4 +1993,22 @@ Boolean NameSpaceManager::classExists(
     return exists;
 }
 
+String NameSpaceManager::getInstanceDirRoot(
+    const CIMNamespaceName& nameSpaceName) const
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::getInstanceDirRoot()");
+
+    NameSpace *nameSpace = 0;
+
+    if (!_rep->table.lookup(nameSpaceName.getString(), nameSpace))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
+    }
+
+    PEG_METHOD_EXIT();
+    return nameSpace->getNameSpacePath() + _INSTANCES_SUFFIX;
+}
+
 PEGASUS_NAMESPACE_END

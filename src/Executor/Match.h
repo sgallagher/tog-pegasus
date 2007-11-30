@@ -36,7 +36,54 @@
 
 #include "Defines.h"
 
-EXECUTOR_LINKAGE
-int Match(const char* pattern, const char* str);
+static int Match(const char* pattern, const char* str)
+{
+    const char* p;
+    const char* q;
+
+    /* Now match expression to str. */
+
+    for (p = pattern, q = str; *p && *q; )
+    {
+        if (*p == '*')
+        {
+            const char* r;
+
+            p++;
+
+            /* Recursively call to find the shortest match. */
+
+            for (r = q; *r; r++)
+            {
+                if (Match(p, r) == 0)
+                    break;
+            }
+
+            q = r;
+
+        }
+        else if (*p == *q)
+        {
+            p++;
+            q++;
+        }
+        else
+            return -1;
+    }
+
+    /* If src was exhausted but pattern has a single '*' remaining charcters,
+     * then match the result.
+     */
+
+    if (p[0] == '*' && p[1] == '\0')
+        return 0;
+
+    /* If anything left over, then they do not match. */
+
+    if (*p || *q)
+        return -1;
+
+    return 0;
+}
 
 #endif /* _Executor_Match_h */

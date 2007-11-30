@@ -154,6 +154,17 @@ public:
     */
     static Boolean removeFileNoCase(const String& path);
 
+    /** Produces an array of filenames that match the given pattern under
+        the directory given by path. The pattern is limited to asterisks
+        only. Examples: "*.txt", "hello*world.c". Returns true on success.
+        Return false if the base diretory does not exist or cannot be
+        accessed.
+    */
+    static Boolean glob(
+        const String& path,
+        const String& pattern,
+        Array<String>& filenames);
+
     /** Loads contents of the file into the array. Note that the file is
         opened using binary mode (newline sequences are not expanded to
         carriage-return-line-feed sequences on Windows).

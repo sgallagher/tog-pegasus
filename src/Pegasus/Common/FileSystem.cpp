@@ -36,6 +36,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Executor/Match.h>
 #include "FileSystem.h"
 #include "Dir.h"
 #ifndef PEGASUS_OS_TYPE_WINDOWS
@@ -75,6 +76,16 @@ Boolean FileSystem::getCurrentDirectory(String& path)
 
 Boolean FileSystem::existsNoCase(const String& path, String& realPath)
 {
+    // If a file exists that has the same case as the path parmater,
+    // then we can bypass the expensive directory scanning below.
+
+    if (FileSystem::exists(path))
+    {
+        realPath = path;
+        return true;
+    }
+
+
     realPath.clear();
     CString cpath = _clonePath(path);
     const char* p = cpath;
@@ -551,6 +562,36 @@ void FileSystem::syncWithDirectoryUpdates(PEGASUS_STD(fstream)& fs)
     // Writes the data from the OS buffers to the disk
     fsync(fs.rdbuf()->fd());
 #endif
+}
+
+Boolean FileSystem::glob(
+    const String& path, 
+    const String& pattern_,
+    Array<String>& filenames)
+{
+    filenames.clear();
+
+    try
+    {
+        CString pattern(pattern_.getCString());
+
+        for (Dir dir(path); dir.more(); dir.next())
+        {
+            const char* name = dir.getName();
+
+            if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
+                continue;
+
+            if (Match(pattern, name) == 0)
+                filenames.append(name);
+        }
+    }
+    catch (CannotOpenDirectory&)
+    {
+        return false;
+    }
+
+    return true;
 }
 
 PEGASUS_NAMESPACE_END

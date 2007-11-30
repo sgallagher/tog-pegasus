@@ -40,20 +40,7 @@ SOURCES = FileSystem.cpp
 
 include $(ROOT)/mak/program.mak
 
-LOCAL_FILES_TO_CLEAN = \
-	$(TMP_DIR)/TestFile.txt \
-	$(TMP_DIR)/TestFile1.txt \
-	$(TMP_DIR)/file1.txt \
-	$(TMP_DIR)/file2.txt
-
-LOCAL_DIRS_TO_CLEAN = \
-	$(TMP_DIR)/TestDirectory2
-
 tests:
-	$(RM) $(LOCAL_FILES_TO_CLEAN)
-	$(RMDIRHIER) $(LOCAL_DIRS_TO_CLEAN)
 	$(PROGRAM)
-	$(RM) $(LOCAL_FILES_TO_CLEAN)
-	$(RMDIRHIER) $(LOCAL_DIRS_TO_CLEAN)
 
 poststarttests:

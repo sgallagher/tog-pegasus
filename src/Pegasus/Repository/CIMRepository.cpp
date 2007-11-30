@@ -47,6 +47,7 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/Common/ReadWriteSem.h>
+#include <Pegasus/Common/Dir.h>
 
 #include <Pegasus/Common/XmlStreamer.h>
 #include <Pegasus/Common/BinaryStreamer.h>
@@ -609,11 +610,37 @@ void _commitInstanceTransaction(
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+static String _dirName(const String& path)
+{
+    Uint32 n = path.size();
+
+    for (Uint32 i = n; i != 0; )
+    {
+        if (path[--i] == '/')
+            return path.subString(0, i);
+    }
+
+    return String(".");
+}
+
 void _rollbackInstanceTransaction(
     const String& indexFilePath,
     const String& dataFilePath)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "_rollbackInstanceTransaction");
+
+    // Avoid rollback logic if directory has no .rollback files.
+
+    String path = _dirName(indexFilePath);
+    Array<String> rollbackFiles;
+
+    if (FileSystem::glob(path, "*.rollback", rollbackFiles))
+    {
+        if (rollbackFiles.size() == 0)
+            return;
+    }
+
+    // Proceed to rollback logic.
 
     if (!InstanceIndexFile::rollbackTransaction(indexFilePath))
     {
@@ -694,6 +721,17 @@ private:
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+static Boolean _containsNoCase(const Array<String>& array, const String& str)
+{
+    for (Uint32 i = 0; i < array.size(); i++)
+    {
+        if (String::equalNoCase(array[i], str))
+            return true;
+    }
+
+    return false;
+}
+
 void CIMRepository::_rollbackIncompleteTransactions()
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY,
@@ -707,6 +745,19 @@ void CIMRepository::_rollbackIncompleteTransactions()
 
     for (Uint32 i = 0; i < namespaceNames.size(); i++)
     {
+        // Form a list of .rollback files.
+
+        Array<String> rollbackFiles;
+        FileSystem::glob(
+            _nameSpaceManager.getInstanceDirRoot(namespaceNames[i]),
+            "*.rollback", rollbackFiles);
+
+        // Don't bother doing rollback if there are no rollback files.
+        // The algorithm below is expensive.
+
+        if (rollbackFiles.size() == 0)
+            continue;
+
         Array<CIMName> classNames;
         _nameSpaceManager.getSubClassNames(
             namespaceNames[i], CIMName(), true, classNames);
@@ -723,14 +774,22 @@ void CIMRepository::_rollbackIncompleteTransactions()
             String dataFilePath = _getInstanceDataFilePath(
                 namespaceNames[i], classNames[j]);
 
-            //
-            // Attempt rollback (if there are no rollback files, this will
-            // have no effect). This code is here to rollback uncommitted
-            // changes left over from last time an instance-oriented function
-            // was called.
-            //
+            // Only perform rollback processing if there is a rollback file
+            // for either the data or index file.
 
-            _rollbackInstanceTransaction(indexFilePath, dataFilePath);
+            if (_containsNoCase(rollbackFiles, dataFilePath + ".rollback") ||
+                _containsNoCase(rollbackFiles, indexFilePath + ".rollback"))
+            {
+                //
+                // Attempt rollback (if there are no rollback files, this will
+                // have no effect). This code is here to rollback uncommitted
+                // changes left over from last time an instance-oriented 
+                // function
+                // was called.
+                //
+
+                _rollbackInstanceTransaction(indexFilePath, dataFilePath);
+            }
         }
     }
 
@@ -970,6 +1029,7 @@ CIMClass CIMRepository::_getClass(
     // properties, methods and parameters.
     if (!includeQualifiers)
     {
+
         _removeAllQualifiers(cimClass);
     }
     else

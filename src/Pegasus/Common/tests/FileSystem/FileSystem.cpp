@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -43,6 +43,33 @@ PEGASUS_USING_STD;
 
 static char * verbose;
 
+void _printArray(const String& name, const Array<String>& globList)
+    {
+        if (verbose)
+        {    
+            cout << name << " count= " << globList.size() << endl;
+            for (Uint32 i = 0 ; i < globList.size(); i++)
+            {
+                cout << name << " " << i << " " << globList[i] << endl;
+            }
+        }
+    }
+
+static void _cleanup(const String& tmpDir)
+{
+    FileSystem::removeFile(tmpDir + "/TestFile.txt");
+    FileSystem::removeFile(tmpDir + "/TestFile1.txt");
+    FileSystem::removeFile(tmpDir + "/file1.txt");
+    FileSystem::removeFile(tmpDir + "/file2.txt");
+
+    // We should have removed all files from the test directory
+    Array<String> globList;
+    FileSystem::glob(tmpDir + " /*", "*", globList);
+    PEGASUS_TEST_ASSERT(globList.size() == 0);
+    FileSystem::removeDirectoryHier(tmpDir + "/TestDirectory2");
+    FileSystem::removeDirectoryHier(tmpDir + "/TestDirectory");
+}
+
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
@@ -51,10 +78,13 @@ int main(int argc, char** argv)
     {
         tmpDir = ".";
     }
+
+    _cleanup(tmpDir);
+
     String path;
     PEGASUS_TEST_ASSERT(FileSystem::getCurrentDirectory(path));
     // Need to add test to confirm that the directory
-    // is indeed FileSystem. 
+    // is indeed FileSystem.
     PEGASUS_TEST_ASSERT(FileSystem::exists("FileSystem.cpp"));
     PEGASUS_TEST_ASSERT(!FileSystem::exists("NoSuchFile.dat"));
     // PEGASUS_TEST_ASSERT(!FileSystem::canExecute("FileSytem.cpp"));
@@ -65,6 +95,35 @@ int main(int argc, char** argv)
     PEGASUS_TEST_ASSERT(FileSystem::isDirectory("."));
     PEGASUS_TEST_ASSERT(!FileSystem::isDirectory("FileSystem.cpp"));
     PEGASUS_TEST_ASSERT(FileSystem::isDirectory("./testdir"));
+
+    // test the glob function
+    // Test for explicit patterns because we may not know all
+    // files in the directory.
+    Array<String> globList;
+
+    PEGASUS_TEST_ASSERT(FileSystem::glob(path ,  "*", globList));
+    _printArray("glob 1 . *" , globList);
+    PEGASUS_TEST_ASSERT(globList.size() >= 4);
+
+    PEGASUS_TEST_ASSERT(FileSystem::glob( ".",  "*.cpp", globList));
+    PEGASUS_TEST_ASSERT(globList.size() == 1);
+    PEGASUS_TEST_ASSERT(globList[0] == "FileSystem.cpp");
+
+    PEGASUS_TEST_ASSERT(FileSystem::glob( ".",  "*ile*.cpp", globList));
+    PEGASUS_TEST_ASSERT(globList.size() == 1);
+    PEGASUS_TEST_ASSERT(globList[0] == "FileSystem.cpp");
+
+    PEGASUS_TEST_ASSERT(FileSystem::glob( ".",  "*akefile", globList));
+    PEGASUS_TEST_ASSERT(globList.size() == 1);
+    PEGASUS_TEST_ASSERT(globList[0] == "Makefile");
+
+    PEGASUS_TEST_ASSERT(FileSystem::glob( ".",  "Makefil*", globList));
+    PEGASUS_TEST_ASSERT(globList.size() == 1);
+    PEGASUS_TEST_ASSERT(globList[0] == "Makefile");
+
+    PEGASUS_TEST_ASSERT(FileSystem::glob( "testdir",  "*", globList));
+    _printArray("glob . Makefil*" , globList);
+    PEGASUS_TEST_ASSERT(globList.size() == 4);
 
     Array<String> paths;
     PEGASUS_TEST_ASSERT( FileSystem::getDirectoryContents("./testdir", paths) );
@@ -83,9 +142,9 @@ int main(int argc, char** argv)
     PEGASUS_TEST_ASSERT(String::equal(realName, "FileSystem.cpp"));
 
     PEGASUS_TEST_ASSERT(FileSystem::existsNoCase(
-    "../FileSystem/filesystem.cpp", realName));
+        "../FileSystem/filesystem.cpp", realName));
     PEGASUS_TEST_ASSERT(String::equal(realName,
-                                      "../FileSystem/FileSystem.cpp"));
+        "../FileSystem/FileSystem.cpp"));
 
     BubbleSort(paths);
     PEGASUS_TEST_ASSERT(paths.size() == 3);
@@ -120,52 +179,84 @@ int main(int argc, char** argv)
         String tf1 (tmpDir);
         tf1.append("/TestFile1.txt");
         CString f1 = tf1.getCString();
+        String tf2 (tmpDir);
+        tf2.append("/TestFileNoExt");
+        CString f2 = tf2.getCString();
 
         FileSystem::makeDirectory(t);
         PEGASUS_TEST_ASSERT(FileSystem::isDirectory(t));
         FileSystem::removeDirectory(t);
         PEGASUS_TEST_ASSERT(!FileSystem::isDirectory(t));
-    
+
         // Tests for remove hierarchy command
-        // ATTN: Removed following until next test ks
         // because remove hiearchy does not work yet.
         FileSystem::makeDirectory(t);
-    
+
         String save_cwd;
         FileSystem::getCurrentDirectory(save_cwd);
-    
+
         // create some files in new directory
         if (!FileSystem::changeDirectory(t))
             // ATTN: what is valid error return?
             return -1;
-    
+
         ofstream of1(f);
         of1 << "test" << endl;
         of1.close();
         PEGASUS_TEST_ASSERT(FileSystem::exists(tf));
-    
+
         ofstream of2(f1);
         of2 << "test" << endl;
         of2.close();
         PEGASUS_TEST_ASSERT(FileSystem::exists(tf1));
-    
+
+        ofstream of2a(f2);
+        of2a << "test" << endl;
+        of2a.close();
+        PEGASUS_TEST_ASSERT(FileSystem::exists(tf2));
+
+        // test globing of files in the new directory
+        PEGASUS_TEST_ASSERT(FileSystem::glob(".", "*", globList));
+        PEGASUS_TEST_ASSERT(globList.size() == 3);
+
+        PEGASUS_TEST_ASSERT(FileSystem::glob(".", "T*", globList));
+        PEGASUS_TEST_ASSERT(globList.size() == 3);
+
+        PEGASUS_TEST_ASSERT(FileSystem::glob(".", "*.*", globList));
+        PEGASUS_TEST_ASSERT(globList.size() == 2);
+
+        PEGASUS_TEST_ASSERT(FileSystem::glob(".", "*Ext", globList));
+        PEGASUS_TEST_ASSERT(globList.size() == 1);
+        PEGASUS_TEST_ASSERT(globList[0] == "TestFileNoExt");
+
+        PEGASUS_TEST_ASSERT(FileSystem::glob(".", "T*Ex*", globList));
+        PEGASUS_TEST_ASSERT(globList.size() == 1);
+        PEGASUS_TEST_ASSERT(globList[0] == "TestFileNoExt");
+
+        FileSystem::glob(".", "TestFileNoEx*", globList);
+        PEGASUS_TEST_ASSERT(globList.size() == 1);
+        PEGASUS_TEST_ASSERT(globList[0] == "TestFileNoExt");
+
+        PEGASUS_TEST_ASSERT(FileSystem::glob(".", "*junk*", globList));
+        PEGASUS_TEST_ASSERT(globList.size() == 0);
+
         // Create a second level directory
         FileSystem::makeDirectory(t1);
-    
+
         // Create files in this dir
         if (!FileSystem::changeDirectory(t1))
             return -1;
-    
+
         ofstream of3("testfile3.txt");
         of3 << "test" << endl;
         of3.close();
-    
+
             ofstream of4("testfile4.txt");
         of4 << "test" << endl;
         of4.close();
-    
+
         // Go back to top level directory
-    
+
         FileSystem::changeDirectory(save_cwd);
             PEGASUS_TEST_ASSERT(FileSystem::isDirectory(t));
         FileSystem::removeDirectoryHier(t);
@@ -183,13 +274,13 @@ int main(int argc, char** argv)
         of1 << "test" << endl;
         of1.close();
         PEGASUS_TEST_ASSERT(FileSystem::exists(FILE1));
-    
+
         PEGASUS_TEST_ASSERT(FileSystem::exists(FILE1));
         PEGASUS_TEST_ASSERT(!FileSystem::exists(FILE2));
         PEGASUS_TEST_ASSERT(FileSystem::renameFile(FILE1, FILE2));
-    
+
         PEGASUS_TEST_ASSERT(!FileSystem::exists(FILE1));
-    
+
         PEGASUS_TEST_ASSERT(FileSystem::exists(FILE2));
         PEGASUS_TEST_ASSERT(FileSystem::renameFile(FILE2, FILE1));
         PEGASUS_TEST_ASSERT(FileSystem::exists(FILE1));
@@ -203,7 +294,7 @@ int main(int argc, char** argv)
         String pathName = FileSystem::getAbsoluteFileName("./testdir","a");
         PEGASUS_TEST_ASSERT(pathName.size()!=0);    // It should be there.
         pathName = FileSystem::getAbsoluteFileName("./testdir","#$@#(@$#!");
-        PEGASUS_TEST_ASSERT(pathName.size()==0);    // It should not be there.  
+        PEGASUS_TEST_ASSERT(pathName.size()==0);    // It should not be there.
     }
 
     // Test changeFileOwner
@@ -238,13 +329,18 @@ int main(int argc, char** argv)
         String cd(tmpDir);
         cd.append("/TestFile.txt");
         PEGASUS_TEST_ASSERT(FileSystem::exists(cd));
-#ifndef PEGASUS_OS_TYPE_WINDOWS
-        PEGASUS_TEST_ASSERT(
-            FileSystem::changeFilePermissions(cd,S_IRUSR|S_IRGRP|S_IROTH));
-#else
+
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
         PEGASUS_TEST_ASSERT(
             FileSystem::changeFilePermissions(cd, _S_IREAD|_S_IWRITE));
+#elif defined(PEGASUS_OS_VXWORKS)
+        // Test is not meaningful for VxWorks since this file is on the
+        // host and the target may not access this file.
+#else
+        PEGASUS_TEST_ASSERT(
+            FileSystem::changeFilePermissions(cd,S_IRUSR|S_IRGRP|S_IROTH));
 #endif
+
         PEGASUS_TEST_ASSERT(FileSystem::canReadNoCase(cd));
 
         if (System::isPrivilegedUser(System::getEffectiveUserName()))
@@ -252,8 +348,8 @@ int main(int argc, char** argv)
             PEGASUS_TEST_ASSERT(FileSystem::canWrite(cd));
         }
 
-        // While granting access permissions Windows seems to be not  
-        // considering the privilege level of the user (i.e. either admin or 
+        // While granting access permissions Windows seems to be not
+        // considering the privilege level of the user (i.e. either admin or
         // normaluser).  In case of normal user also write permission is
         // granted. Hence the below assert is failing. To avoid this
         // failure, added ifndef.
@@ -264,6 +360,8 @@ int main(int argc, char** argv)
         }
 #endif
     }
+
+    _cleanup(tmpDir);
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

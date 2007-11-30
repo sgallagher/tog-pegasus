@@ -573,26 +573,27 @@ Boolean MessageQueueService::_enqueueResponse(
         }
     }
 
-    if (request->_async != 0)
+    AsyncRequest* asyncRequest =
+        static_cast<AsyncRequest*>(request->get_async());
+
+    if (asyncRequest != 0)
     {
-        Uint32 mask = request->_async->getMask();
-        PEGASUS_ASSERT(mask &
+        PEGASUS_ASSERT(asyncRequest->getMask() &
             (MessageMask::ha_async | MessageMask::ha_request));
 
-        AsyncRequest *async = static_cast<AsyncRequest *>(request->_async);
-        AsyncOpNode *op = async->op;
-        request->_async = 0;
+        AsyncOpNode* op = asyncRequest->op;
+
         // the legacy request is going to be deleted by its handler
         // remove it from the op node
 
-        static_cast<AsyncLegacyOperationStart *>(async)->get_action();
+        static_cast<AsyncLegacyOperationStart *>(asyncRequest)->get_action();
 
         AsyncLegacyOperationResult *async_result =
             new AsyncLegacyOperationResult(
                 op,
                 response);
         _completeAsyncResponse(
-            async,
+            asyncRequest,
             async_result,
             ASYNC_OPSTATE_COMPLETE,
             0);

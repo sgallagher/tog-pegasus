@@ -322,8 +322,9 @@ private:
     // << Tue Jul  1 11:02:35 2003 mdd >> pep_88 and helper for i18n and l10n
     ThreadType _last_thread_id;
 
+    Message* _async;
+
 public:
-    Message *_async;
     Uint32 dest;
 
 private:

@@ -67,7 +67,7 @@ void BinaryMessageHandler::handleEnqueue(Message* message)
     AsyncRequest* asyncRequest;
     AsyncOpNode* op;
 
-    message->_async = 0;
+    message->put_async(0);
 
     PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
         "Converting legacy message to AsyncLegacyOperationStart");
@@ -214,7 +214,7 @@ BinaryMessageHandler::handle_binary_message(void* parm)
         }
         if (msg && legacy)
         {
-            legacy->_async = 0;
+            legacy->put_async(0);
 
             switch(legacy->getType())
             {
@@ -481,7 +481,7 @@ void BinaryMessageHandler::_handleRequest(
     AsyncRequest* async_request =
         static_cast<AsyncRequest*>(op->removeRequest());
 
-    msg->_async = 0;
+    msg->put_async(0);
     try
     {
         _outputQueue->enqueue(msg);
@@ -514,7 +514,7 @@ void BinaryMessageHandler::_handleResponse(
             static_cast<AsyncReply*>(op->removeResponse());
         delete asyncReply;
     }
-    msg->_async = 0;
+    msg->put_async(0);
 
     MessageQueue* dest =
         MessageQueue::lookup(((CIMRequestMessage*)msg)->queueIds.top());

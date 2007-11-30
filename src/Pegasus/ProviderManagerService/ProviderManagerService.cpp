@@ -170,14 +170,10 @@ void ProviderManagerService::handleEnqueue(Message * message)
 {
     PEGASUS_ASSERT(message != 0);
 
-    AsyncLegacyOperationStart * asyncRequest;
+    AsyncLegacyOperationStart* asyncRequest =
+        static_cast<AsyncLegacyOperationStart*>(message->get_async());
 
-    if (message->_async != NULL)
-    {
-        asyncRequest =
-            static_cast<AsyncLegacyOperationStart *>(message->_async);
-    }
-    else
+    if (asyncRequest == 0)
     {
         asyncRequest = new AsyncLegacyOperationStart(
             0,
@@ -603,13 +599,13 @@ void ProviderManagerService::responseChunkCallback(
         PEGASUS_ASSERT(response->isComplete() == false);
 
         AsyncLegacyOperationStart *requestAsync =
-            dynamic_cast<AsyncLegacyOperationStart *>(request->_async);
+            dynamic_cast<AsyncLegacyOperationStart *>(request->get_async());
+        request->put_async(requestAsync);  // Put it back for the next chunk
         PEGASUS_ASSERT(requestAsync);
         AsyncOpNode *op = requestAsync->op;
         PEGASUS_ASSERT(op);
-        PEGASUS_ASSERT(!response->_async);
-        response->_async = new AsyncLegacyOperationResult(
-            op, response);
+        PEGASUS_ASSERT(!response->get_async());
+        response->put_async(new AsyncLegacyOperationResult(op, response));
 
         // set the destination
         op->_op_dest = op->_callback_response_q;

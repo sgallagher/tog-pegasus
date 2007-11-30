@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -42,6 +44,8 @@
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
+
+static String _hostName;
 
 ComputerSystem::ComputerSystem()
 {
@@ -118,7 +122,7 @@ Boolean ComputerSystem::getStatusDescriptions(CIMProperty& p)
 
 Boolean ComputerSystem::getStatus(CIMProperty& p)
 {
-    // hardcoded
+    // hardcoded 
     p = CIMProperty(PROPERTY_STATUS,String(STATUS));
     return true;
 }
@@ -220,11 +224,11 @@ Boolean ComputerSystem::getPowerState(CIMProperty& p)
     // hardcoded
     /*
         ValueMap {"1", "2", "3", "4", "5", "6", "7", "8"},
-        Values {"Full Power", "Power Save - Low Power Mode",
-                "Power Save - Standby", "Power Save - Other",
+        Values {"Full Power", "Power Save - Low Power Mode", 
+                "Power Save - Standby", "Power Save - Other", 
                 "Power Cycle", "Power Off", "Hibernate", "Soft Off"}
     */
-    p = CIMProperty(PROPERTY_POWER_STATE,Uint16(1));
+    p = CIMProperty(PROPERTY_POWER_STATE,Uint16(1));  
     return true;
 }
 
@@ -302,14 +306,48 @@ Boolean ComputerSystem::getElementName(CIMProperty& p)
 }
 
 /**
- * This is empty as we get the hostname through
- * System class
+ * initialize primarily functions to initialize static global variables
+ * that will not be changed frequently. These variables are currently
+ * _hostName.
+ *
  */
 void ComputerSystem::initialize()
 {
+    char    hostName[PEGASUS_MAXHOSTNAMELEN + 1];
+    struct  hostent *hostEntry;
+
+    if (gethostname(hostName, sizeof(hostName)) != 0)
+    {
+        _hostName.assign("Not initialized");
+    }
+    hostName[sizeof(hostName)-1] = 0;
+
+    // Now get the official hostname.  If this call fails then return
+    // the value from gethostname().
+
+    char hostEntryBuffer[8192];
+    struct hostent hostEntryStruct;
+    int hostEntryErrno;
+
+    gethostbyname_r(
+        hostName,
+        &hostEntryStruct,
+        hostEntryBuffer,
+        sizeof(hostEntryBuffer),
+        &hostEntry,
+        &hostEntryErrno);
+
+    if (hostEntry)
+    {
+        _hostName.assign(hostEntry->h_name);
+    }
+    else
+    {
+        _hostName.assign(hostName);
+    }
 }
 
 String ComputerSystem::getHostName()
 {
-    return System::getFullyQualifiedHostName();
+    return _hostName;
 }

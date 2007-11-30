@@ -341,6 +341,12 @@ Boolean ComputerSystem::getIdentificationNumber(CIMProperty& p)
     p = CIMProperty(PROPERTY_IDENTIFICATION_NUMBER, _uuid);
     return true;
 }
+Boolean ComputerSystem::getElementName(CIMProperty& p)
+{
+    // We're just going to re-use the caption
+    p = CIMProperty(PROPERTY_ELEMENTNAME, String(CAPTION));
+    return true;
+}
 
 void ComputerSystem::initialize()
 {
@@ -668,6 +674,8 @@ CIMInstance ComputerSystem::buildInstance(const CIMName& className)
     if (getOperationalStatus(p)) instance.addProperty(p);
 
     if (getStatusDescriptions(p)) instance.addProperty(p);
+
+    if (getElementName(p)) instance.addProperty(p);
 
     if (getCreationClassName(p)) instance.addProperty(p);
 

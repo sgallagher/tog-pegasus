@@ -79,6 +79,9 @@ int main(int argc, char** argv)
         tmpDir = ".";
     }
 
+    // ATTN:  PEGASUS_TMP is not used.  See Bug 7159.
+    tmpDir = ".";
+
     _cleanup(tmpDir);
 
     String path;

@@ -308,7 +308,7 @@ Boolean ServerRunStatus::_isServerProcess(PEGASUS_PID_T pid)
     static char path[32];
     static struct stat statBuffer;
 
-    sprintf(path, "/proc/%d", pid);
+    sprintf(path, "/proc/%d", (int)pid);
     if (stat(path, &statBuffer) == -1)          // process stopped running
     {
         return false;

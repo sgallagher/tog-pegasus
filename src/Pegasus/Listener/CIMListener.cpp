@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -114,7 +116,6 @@ public:
 private:
     Uint32 _portNumber;
     SSLContext *_sslContext;
-    ReadWriteSem _sslContextObjectLock;
     Monitor *_monitor;
     Mutex _monitorMutex;
     HTTPAcceptor *_ip6Acceptor;
@@ -185,42 +186,20 @@ void CIMListenerService::init()
     {
         if (NULL == _ip6Acceptor)
         {
-            if (NULL == _sslContext)
-            {
-                _ip6Acceptor = new HTTPAcceptor(
-                        _monitor, _requestDecoder,
-                        HTTPAcceptor::IPV6_CONNECTION,
-                        _portNumber, 0, 0);
-            }
-            else
-            {
-                _ip6Acceptor = new HTTPAcceptor(
-                        _monitor, _requestDecoder,
-                        HTTPAcceptor::IPV6_CONNECTION,
-                        _portNumber, _sslContext, &_sslContextObjectLock);
-            }
+            _ip6Acceptor = new HTTPAcceptor(
+                _monitor, _requestDecoder, HTTPAcceptor::IPV6_CONNECTION,
+                _portNumber, _sslContext, 0);
         }
     }
 #ifndef PEGASUS_OS_TYPE_WINDOWS
-    else
+    else   
 #endif
 #endif
     if (NULL == _ip4Acceptor)
     {
-        if (NULL == _sslContext)
-        {
-            _ip4Acceptor = new HTTPAcceptor(
-                    _monitor, _requestDecoder,
-                    HTTPAcceptor::IPV4_CONNECTION,
-                    _portNumber, 0, 0);
-        }
-        else
-        {
-            _ip4Acceptor = new HTTPAcceptor(
-                    _monitor, _requestDecoder,
-                    HTTPAcceptor::IPV4_CONNECTION,
-                    _portNumber, _sslContext, &_sslContextObjectLock);
-        }
+        _ip4Acceptor = new HTTPAcceptor(
+            _monitor, _requestDecoder, HTTPAcceptor::IPV4_CONNECTION,
+            _portNumber, _sslContext, 0);
     }
     bind();
 
@@ -389,7 +368,7 @@ CIMListenerService::_listener_routine(void *param)
     }
     catch(...)
     {
-        PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL1,
+        PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL2,
                       "Unknown exception thrown in _listener_routine.");
     }
 
@@ -458,7 +437,18 @@ CIMListenerRep::CIMListenerRep(
 
 CIMListenerRep::~CIMListenerRep()
 {
-    stop();
+    // if port is alive, clean up the port
+    if (_thread_pool != 0)
+    {
+        // Block incoming export requests and unbind the port
+        _svc->stopClientConnection();
+
+        // Wait until pending export requests in the server are done.
+        waitForPendingRequests(10);
+
+        // Shutdown the CIMListenerService
+        _svc->shutdown();
+    }
 
     delete _sslContext;
     delete _dispatcher;
@@ -511,9 +501,14 @@ void CIMListenerRep::start()
             svc.get(), CIMListenerService::_listener_routine, sem.get())
             != PEGASUS_THREAD_OK)
         {
+            Logger::put(
+                Logger::STANDARD_LOG, System::CIMLISTENER,
+                Logger::TRACE,
+                "Not enough threads to start CIMListernerService.");
+
             PEG_TRACE_CSTRING(
                 TRC_SERVER,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Could not allocate thread for "
                 "CIMListenerService::_listener_routine.");
             throw
@@ -555,7 +550,11 @@ void CIMListenerRep::stop()
         // The thread could be delivering an export, so give it 3sec.
         // Note that _listener_routine deletes the CIMListenerService,
         // so no need to delete _svc.
-        if (!_listener_sem->time_wait(3000))
+        try
+        {
+            _listener_sem->time_wait(3000);
+        }
+        catch(const TimeOut &)
         {
             // No need to do anything, the thread pool will be deleted below
             // to cancel the _listener_routine thread if it is still running.

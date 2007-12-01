@@ -1547,10 +1547,7 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
 
     int tzMinutesEast;
     {
-# if defined(PEGASUS_OS_SOLARIS)
-        tzMinutesEast =
-            -(int)((tmval->tm_isdst > 0 && daylight) ? altzone : timezone) / 60;
-# elif defined(PEGASUS_OS_HPUX)
+# if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_SOLARIS)
         tzMinutesEast = - (int) timezone / 60;
         if ((tmval->tm_isdst > 0) && daylight)
         {

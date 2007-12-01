@@ -54,10 +54,18 @@
 
 #define PEGASUS_HAVE_FOR_SCOPE
 
-// #define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
+#if defined(__GNUC__)
+# if (__GNUC__ >= 3)
+#  define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
+# endif
+#endif
 
 #define PEGASUS_HAVE_PTHREADS
 
 #define PEGASUS_HAVE_RECURSIVE_MUTEXES
+
+#define PEGASUS_HAS_SIGNALS
+
+extern char** environ;
 
 #endif /* Pegasus_Platform_SOLARIS_SPARC_GNU_h */

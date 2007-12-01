@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,13 +42,12 @@ PEGASUS_USING_STD;
 
 static const int SHUTDOWN_TIMEOUT = 10; //seconds
 
-ListenerService::ListenerService(ConsumerManager* consumerManager) :
+ListenerService::ListenerService(ConsumerManager* consumerManager) : 
 _consumerManager(consumerManager),
 _dispatcher(0),
 _portNumber(0),
 _useSSL(false),
 _sslContext(0),
-_sslContextObjectLock(0),
 _initialized(0),
 _running(0),
 _dieNow(0),
@@ -78,6 +79,8 @@ ListenerService::~ListenerService()
     {
         //cleanup everything we initialized
 
+        delete _sslContext;
+
         delete _dispatcher;
 
         delete _responseEncoder;
@@ -85,7 +88,7 @@ ListenerService::~ListenerService()
         delete _requestDecoder;
 
         delete _shutdownSem;
-
+        
         //do not delete _consumerManager
         //it is deleted by CIMListener
     }
@@ -97,11 +100,8 @@ ListenerService::ListenerService(const ListenerService& x)
 {
 }
 
-Boolean ListenerService::initializeListener(
-    Uint32 portNumber,
-    Boolean useSSL,
-    SSLContext* sslContext,
-    ReadWriteSem*  sslContextObjectLock)
+Boolean ListenerService::initializeListener(Uint32 portNumber, 
+    Boolean useSSL, SSLContext* sslContext)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ListenerService::initializeListener");
 
@@ -115,7 +115,6 @@ Boolean ListenerService::initializeListener(
     _portNumber = portNumber;
     _useSSL = useSSL;
     _sslContext = sslContext;
-    _sslContextObjectLock = sslContextObjectLock;
 
     if (_useSSL && (_sslContext == NULL))
     {
@@ -162,19 +161,19 @@ Boolean ListenerService::runListener()
             "DynListener.ListenerService.ALREADY_RUNNING",
             "Error: The listener is already running."));
     }
-
+    
     _monitor = new Monitor();
 
 #ifdef PEGASUS_ENABLE_IPV6
     if (System::isIPv6StackActive())
     {
         _ip6Acceptor = new HTTPAcceptor(
-                                _monitor,
-                                _requestDecoder,
+                                _monitor, 
+                                _requestDecoder, 
                                 HTTPAcceptor::IPV6_CONNECTION,
-                                _portNumber,
+                                _portNumber, 
                                 _sslContext,
-                                _sslContextObjectLock);
+                                0);
     }
 #ifndef PEGASUS_OS_TYPE_WINDOWS
     else
@@ -182,12 +181,12 @@ Boolean ListenerService::runListener()
 #endif
     {
         _ip4Acceptor = new HTTPAcceptor(
-                                _monitor,
-                                _requestDecoder,
-                                HTTPAcceptor::IPV4_CONNECTION,
-                                _portNumber,
+                                _monitor, 
+                                _requestDecoder, 
+                                HTTPAcceptor::IPV4_CONNECTION, 
+                                _portNumber, 
                                 _sslContext,
-                                _sslContextObjectLock);
+                                0);
     }
 
     //create listening thread
@@ -199,7 +198,7 @@ Boolean ListenerService::runListener()
         _ip6Acceptor->bind();
     }
     if (_ip4Acceptor)
-    {
+    {    
         _ip4Acceptor->bind();
     }
 
@@ -210,23 +209,23 @@ Boolean ListenerService::runListener()
     if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
             Threads::yield();
     else {
-        // We need to set _running to true so that we can shutdown the
+        // We need to set _running to true so that we can shutdown the 
         // rest of the classes
         delete _listening_thread; _listening_thread = 0;
             _running = true;
-        shutdownListener();
+        shutdownListener();        
             throw Exception(MessageLoaderParms(
                 "DynListener.ListenerService.CANNOT_ALLOCATE_THREAD",
                 "Error: Cannot allocate thread."));
     }
-
+    
     }
-
+    
     if (_consumerManager->getEnableConsumerUnload())
     {
         //create polling thread
         _polling_thread = new Thread(_polling_routine , this, 0);
-
+    
         //start polling thread
         while ( (rtn=_polling_thread->run()) != PEGASUS_THREAD_OK)
         {
@@ -238,7 +237,7 @@ Boolean ListenerService::runListener()
                    of how to turn of the _listening_thread? */
               delete _polling_thread; _polling_thread = 0;
               _running = true;
-              shutdownListener();
+              shutdownListener();        
               throw Exception(MessageLoaderParms(
                   "DynListener.ListenerService.CANNOT_ALLOCATE_THREAD",
                   "Error: Cannot allocate thread."));
@@ -252,13 +251,13 @@ Boolean ListenerService::runListener()
     return true;
 }
 
-ThreadReturnType PEGASUS_THREAD_CDECL
+ThreadReturnType PEGASUS_THREAD_CDECL 
      ListenerService::_listener_routine(void *param)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ListenerService::_listener_routine");
 
     Thread *myself = reinterpret_cast<Thread *>(param);
-    ListenerService* listenerService =
+    ListenerService* listenerService = 
         reinterpret_cast<ListenerService*>(myself->get_parm());
 
     while (!(listenerService->_dieNow))
@@ -270,7 +269,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL
          if (now.tv_sec - lastIdleCleanupTime.tv_sec > 300)
          {
              lastIdleCleanupTime.tv_sec = now.tv_sec;
-             try
+             try 
              {
                  MessageQueueService::get_thread_pool()->cleanupIdleThreads();
              }
@@ -280,7 +279,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL
          }
     }
 
-    PEG_TRACE_CSTRING(TRC_LISTENER,
+    PEG_TRACE_CSTRING(TRC_LISTENER, 
                      Tracer::LEVEL4,
                      "ListenerService::Stopping _listener_routine");
     PEG_METHOD_EXIT();
@@ -288,7 +287,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL
 }
 
 
-ThreadReturnType PEGASUS_THREAD_CDECL
+ThreadReturnType PEGASUS_THREAD_CDECL 
     ListenerService::_polling_routine(void *param)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ListenerService::_polling_routine");
@@ -299,17 +298,20 @@ ThreadReturnType PEGASUS_THREAD_CDECL
 
     while (true)
     {
-        //do a timed wait so we do can process a shutdown signal immediately
-        if (listenerService->_shutdownSem->time_wait(
-            listenerService->_consumerManager->getIdleTimeout()))
+        try
         {
+            //do a timed wait so we do can process a shutdown signal immediately
+            listenerService->_shutdownSem->time_wait(
+                listenerService->_consumerManager->getIdleTimeout());
+
             if (listenerService->_dieNow)
             {
                 //shutdown
                 break;
             }
+
         }
-        else
+        catch (TimeOut&)
         {
             //time to check for idle consumers
             PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL3,
@@ -328,7 +330,7 @@ Boolean ListenerService::shutdownListener()
 
     if (!_running)
     {
-        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4,
             "Warning: The listener is not currently running.");
 
         return true;
@@ -351,7 +353,7 @@ Boolean ListenerService::shutdownListener()
     //allow client threads to complete, wait 10 sec max
     PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4,
         "ListenerService::Waiting for outstanding requests...");
-    Uint32 reqCount;
+    Uint32 reqCount = 0;
     Uint32 countDown = SHUTDOWN_TIMEOUT;
     for (; countDown > 0; countDown--)
     {
@@ -445,9 +447,9 @@ Boolean ListenerService::shutdownListener()
 
     if (gracefulShutdown)
     {
-        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL3,
+        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4,
             "Listener shutdown gracefully");
-    }
+    } 
 
     PEG_METHOD_EXIT();
     return(gracefulShutdown);

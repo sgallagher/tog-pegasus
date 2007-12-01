@@ -31,7 +31,7 @@
 
 ROOT = ../../..
 
-DIR = vxworks/providers/
+DIR = vxworks/providers/hello
 include $(ROOT)/mak/config.mak
 
 LIBRARY = HelloProvider

@@ -1,0 +1,18 @@
+class Employee
+{
+    [Key] uint32 Id;
+    string First;
+    string Last;
+    [Values{"Male", "Female"}, ValueMap{"1", "2"}]
+    uint32 Gender;
+    boolean Active = true;
+    boolean OutOfOffice;
+
+    uint32 SetOutOfOfficeState(
+        [In]
+        boolean OutOfOfficeState,
+        [In(false), Out]
+        boolean PreviousOutOfOfficeState);
+
+    [Static] uint32 GetEmployeeCount();
+};

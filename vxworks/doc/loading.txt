@@ -1,0 +1,77 @@
+                        Loading the cimserver on VxWorks
+                        ================================
+
+
+Loading from Kernel Shell:
+==========================
+
+
+-> ld < PATH
+
+-> lkAddr cimserver
+0x073dbe08 std::collate<char>::id    text    
+0x079217e4 cimserver                 text    
+0x079438c8 $a                        text     (local)
+0x0794398c $d                        text     (local)
+0x0794399c $a                        text     (local)
+0x0794399c __static_initialization_and_destruction_0(int, int) text     (local)
+0x079439ec $d                        text     (local)
+0x079439f0 _GLOBAL__I_cimserver      text    
+0x079439f0 $a                        text     (local)
+0x07943a00 _GLOBAL__D_cimserver      text    
+0x07943a10 Pegasus::MyEmbeddedServer::MyEmbeddedServer() [subobject] text    
+0x07943a10 $a                        text     (local)
+value = 0 = 0x0
+
+# Use address from list above as last argument:
+-> taskSpawn("t123", 100, 0x19, 64536, 0x079217e4)
+
+Loading in program:
+===================
+
+    {
+        char path[1024];
+        int fd;
+        char* value;
+        SYM_TYPE type;
+
+        /* Load cimserver module */
+
+        sprintf(path, "%s/cimserver", root);
+
+        if ((fd = open(path, O_RDONLY, 0)) < 0)
+        {
+            printf("***** open() failed\n");
+            return;
+        }
+
+
+
+        if (loadModule(fd, LOAD_ALL_SYMBOLS) == NULL)
+        {
+            printf("***** loadModule() failed\n");
+            return;
+        }
+
+        close(fd);
+
+        /* Lookup cimserver entry point. */
+
+
+        if (symFindByName(sysSymTbl, "cimserver", &value, &type) != 0)
+        {
+            printf("***** symFindByName() failed\n");
+            return;
+        }
+
+        /* spawn cimserver task */
+
+        if (taskSpawn("cimsrv", 100,0x19, 2 * 64536, 
+            (FUNCPTR)value, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) == ERROR)
+        {
+            printf("***** taskSpawn() failed\n");
+            return;
+        }
+    }
+
+

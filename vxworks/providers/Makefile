@@ -1,6 +1,6 @@
 ROOT = ../..
 include $(ROOT)/mak/config.mak
 
-DIRS = hello goodbye
+DIRS = hello goodbye employee
 
 include $(PEGASUS_ROOT)/mak/recurse.mak

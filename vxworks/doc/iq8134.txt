@@ -87,6 +87,8 @@ target name (tn)     : iq8134
 Loading a task:
 ===============
 
+    $ ld < cimserver
     $ lkAddr cimserver
+    ... (get address from this list and use in next command ) ...
     $ taskSpawn("t123", 100, 0x19, 64536, 0x079217e4)
 

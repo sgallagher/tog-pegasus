@@ -57,8 +57,12 @@ SOURCES = \
 # providers
 
 LIBRARIES = \
+    cimplepegadap \
+    cimplepegutils \
+    cimple \
     GoodbyeProvider \
     HelloProvider \
+    EmployeeProvider \
     pegcimserver \
     pegserver \
     pegservice \
@@ -95,9 +99,6 @@ LIBRARIES = \
 
 include $(ROOT)/mak/program.mak
 
-install:
-	cp $(PEGASUS_HOME)/bin/cimserver $(PEGASUS_HOME)/romfs
-
 ##==============================================================================
 ##
 ## repository: Builds the repository
@@ -119,7 +120,6 @@ repository:
 	@ $(CIMMOFL) -n root/PG_Internal -I $(SCHEMAS) root_PG_Internal_namespace.mof
 	@ $(CIMMOFL) -n root/PG_InterOp -I $(SCHEMAS) root_PG_InterOp_namespace.mof
 	@ $(CIMMOFL) -n root/cimv2 -I $(SCHEMAS) root_cimv2_namespace.mof
-
 
 share:
 	cp $(BIN_DIR)/$(PROGRAM) /share

@@ -44,6 +44,3 @@ tests:
 	$(PROGRAM)
 
 poststarttests:
-
-zzz:
-	echo $(FULL_LIBRARIES)

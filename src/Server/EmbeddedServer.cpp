@@ -551,7 +551,7 @@ Boolean EmbeddedServer::registerSingletonProvider(
 {
     // Register PG_ProviderModule:
 
-    String moduleName = className.getString() + "ProviderModule";
+    String moduleName = className.getString() + "_Module";
     String location = moduleName;
 
     if (!registerProviderModule(moduleName, location, providerInterface))
@@ -561,7 +561,7 @@ Boolean EmbeddedServer::registerSingletonProvider(
 
     // Register PG_Provider:
 
-    String providerName = className.getString() + "Provider";
+    String providerName = className.getString() + "_Provider";
 
     if (!registerProvider(moduleName, providerName))
     {
@@ -571,7 +571,7 @@ Boolean EmbeddedServer::registerSingletonProvider(
     // Register PG_ProviderCapabilities:
 
 
-    String capabilityId = className.getString() + "ProviderCapabilities";
+    String capabilityId = className.getString();
 
     if (!registerProviderCapabilities(moduleName, providerName, capabilityId,
         className, nameSpaces, providerTypes))

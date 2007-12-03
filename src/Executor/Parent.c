@@ -1,34 +1,35 @@
 /*
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 */
-
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/types.h>
@@ -39,6 +40,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <signal.h>
+#include <grp.h>
 #include "Parent.h"
 #include "Log.h"
 #include "Messages.h"
@@ -54,13 +56,9 @@
 #include "PasswordFile.h"
 #include "Policy.h"
 #include "Macro.h"
-#include "FileHandle.h"
 
 #if defined(PEGASUS_PAM_AUTHENTICATION)
 # include "PAMAuth.h"
-#else
-/* PAM_SUCCESS is defined to 0 by PAM */
-#define PAM_SUCCESS 0
 #endif
 
 /*
@@ -75,7 +73,7 @@
 
 static void _sigHandler(int signum)
 {
-    globals.signalMask |= (1UL << signum);
+    globals.signalMask |= (1 << signum);
 }
 
 /*
@@ -193,7 +191,7 @@ static void HandleOpenFileRequest(int sock)
             case 'w':
                 fd = open(
                     request.path,
-                    O_WRONLY | O_TRUNC,
+                    O_WRONLY | O_CREAT | O_TRUNC,
                     permissions);
                 break;
 
@@ -201,32 +199,14 @@ static void HandleOpenFileRequest(int sock)
             {
                 fd = open(
                     request.path,
-                    O_WRONLY | O_APPEND,
+                    O_WRONLY | O_CREAT | O_APPEND,
                     permissions);
                 break;
             }
         }
-        /* If the open call fails with ENOENT errno,then create the file.
-        If the umask is set to a non default value,then the file will not
-        get created with permissions specified in the open system call.
-        So set the permissions for the file explicitly using fchmod.
-        */
+
         if (fd == -1)
-        {
-            if (errno == ENOENT && (request.mode == 'w' || request.mode == 'a'))
-            {
-                fd = open(request.path,O_CREAT | O_WRONLY,permissions);
-                if (fchmod(fd,permissions) != 0)
-                {
-                    response.status = -1;
-                    close(fd);
-                }
-            }
-            else
-            {
-                response.status = -1;
-            }
-        }
+            response.status = -1;
     }
     while (0);
 
@@ -264,6 +244,8 @@ static void HandleOpenFileRequest(int sock)
 static void HandleStartProviderAgentRequest(int sock)
 {
     int status;
+    int uid;
+    int gid;
     int pid;
     int to[2];
     int from[2];
@@ -292,32 +274,15 @@ static void HandleStartProviderAgentRequest(int sock)
 
         const char* path;
 
-        if (request.moduleBitness == BITNESS_DEFAULT)
-        {
-            if ((path = FindMacro("cimprovagtPath")) == NULL)
-                Fatal(FL, "Failed to locate %s program", CIMPROVAGT);
-        }
-        else if (request.moduleBitness == BITNESS_32)
-        {
-            if ((path = FindMacro("cimprovagt32Path")) == NULL)
-                Fatal(FL, "Failed to locate %s program", CIMPROVAGT32);
-        }
-        else
-        {
-            status = -1;
-            break;
-        }
+        if ((path = FindMacro("cimprovagtPath")) == NULL)
+            Fatal(FL, "Failed to locate %s program", CIMPROVAGT);
+
 #if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
 
         /* Look up the user ID and group ID of the specified user. */
 
-        int uid;
-        int gid;
         if (GetUserInfo(request.userName, &uid, &gid) != 0)
         {
-            Log(LL_WARNING, "User %s does not exist on this system, " 
-                "hence cannot start the provider agent %s", 
-                request.userName, request.module);
             status = -1;
             break;
         }
@@ -339,8 +304,6 @@ static void HandleStartProviderAgentRequest(int sock)
 
         if (pipe(from) != 0)
         {
-            close(to[0]);
-            close(to[1]);
             status = -1;
             break;
         }
@@ -352,10 +315,6 @@ static void HandleStartProviderAgentRequest(int sock)
         if (pid < 0)
         {
             Log(LL_SEVERE, "fork failed");
-            close(to[0]);
-            close(to[1]);
-            close(from[0]);
-            close(from[1]);
             status = -1;
             break;
         }
@@ -364,33 +323,58 @@ static void HandleStartProviderAgentRequest(int sock)
 
         if (pid == 0)
         {
-            char toPipeArg[32];
-            char fromPipeArg[32];
-            /* The user context is set here; no need to do it in cimprovagt. */
-            const char* setUserContextFlag = "0";
+            struct rlimit rlim;
+            char arg1[32];
+            char arg2[32];
 
             /* Close unused pipe descriptors: */
 
             close(to[1]);
             close(from[0]);
 
-            /* Redirect terminal I/O if required and not yet daemonized. */
-
-            if (globals.initCompletePipe != -1 && !globals.bindVerbose)
-            {
-                RedirectTerminalIO();
-            }
-
             /*
              * Close unused descriptors. Leave stdin, stdout, stderr, and the
              * child's pipe descriptors open.
              */
 
-            CloseUnusedDescriptors(to[0], from[1]);
+            if (getrlimit(RLIMIT_NOFILE, &rlim) == 0)
+            {
+                int i;
+
+                for (i = 3; i < (int)rlim.rlim_cur; i++)
+                {
+                    if (i != to[0] && i != from[1])
+                        close(i);
+                }
+            }
 
 #if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
 
-            SetUserContext(request.userName, uid, gid);
+            if ((int)getgid() != gid)
+            {
+                if (setgid((gid_t)gid) != 0)
+                {
+                    Log(LL_SEVERE, "setgid(%d) failed\n", gid);
+                    _exit(1);
+                }
+            }
+
+            if ((int)getuid() != uid)
+            {
+                if (initgroups(request.userName, gid) != 0)
+                {
+                    Log(LL_SEVERE, "initgroups(%s, %d) failed\n",
+                        request.userName,
+                        gid);
+                    _exit(1);
+                }
+
+                if (setuid((uid_t)uid) != 0)
+                {
+                    Log(LL_SEVERE, "setuid(%d) failed\n", uid);
+                    _exit(1);
+                }
+            }
 
             Log(LL_TRACE, "starting %s on module %s as user %s",
                 path, request.module, request.userName);
@@ -399,46 +383,26 @@ static void HandleStartProviderAgentRequest(int sock)
 
             /* Exec the CIMPROVAGT program. */
 
-            sprintf(toPipeArg, "%d", to[0]);
-            sprintf(fromPipeArg, "%d", from[1]);
+            sprintf(arg1, "%d", to[0]);
+            sprintf(arg2, "%d", from[1]);
 
-            Log(LL_TRACE, "execl(%s, %s, %s, %s, %s, %s, %s)\n",
-                path,
-                path,
-                setUserContextFlag,
-                toPipeArg,
-                fromPipeArg,
-                request.userName,
-                request.module);
+            Log(LL_TRACE, "execl(%s, %s, %s, %s, %s)\n",
+                path, path, arg1, arg2, request.module);
 
             /* Flawfinder: ignore */
-            execl(
-                path,
-                path,
-                setUserContextFlag,
-                toPipeArg,
-                fromPipeArg,
-                request.userName,
-                request.module,
-                (char*)0);
+            execl(path, path, arg1, arg2, request.module, (char*)0);
 
-            Log(LL_SEVERE, "execl(%s, %s, %s, %s, %s, %s, %s): failed\n",
-                path,
-                path,
-                setUserContextFlag,
-                toPipeArg,
-                fromPipeArg,
-                request.userName,
-                request.module);
+            Log(LL_SEVERE, "execl(%s, %s, %s, %s, %s): failed\n",
+                path, path, arg1, arg2, request.module);
             _exit(1);
         }
-
-        /* We are the parent process.  Close the child's ends of the pipes. */
-
-        close(to[0]);
-        close(from[1]);
     }
     while (0);
+
+    /* Close unused pipe descriptors. */
+
+    close(to[0]);
+    close(from[1]);
 
     /* Send response. */
 
@@ -469,26 +433,75 @@ static void HandleStartProviderAgentRequest(int sock)
 **==============================================================================
 */
 
-static void HandleDaemonizeExecutorRequest(int sock)
+static void HandleDaemonizeExecutorRequest(int sock, int bindVerbose)
 {
     struct ExecutorDaemonizeExecutorResponse response;
+    int pid;
 
     memset(&response, 0, sizeof(response));
 
     Log(LL_TRACE, "HandleDaemonizeExecutorRequest()");
 
-    if (!globals.bindVerbose)
+    /* Fork (parent exits; child continues) */
+    /* (Ensures we are not a session leader so that setsid() will succeed.) */
+
+    pid = fork();
+
+    if (pid < 0)
     {
-        RedirectTerminalIO();
+        response.status = -1;
+        Fatal(FL, "fork() failed");
     }
 
-    if (globals.initCompletePipe != -1)
-    {
-        ssize_t result;
+    if (pid > 0)
+        _exit(0);
 
-        EXECUTOR_RESTART(write(globals.initCompletePipe, "\0", 1), result);
-        close(globals.initCompletePipe);
-        globals.initCompletePipe = -1;
+    /* Become session leader (so that our child process will not be one) */
+
+    if (setsid() < 0)
+    {
+        response.status = -1;
+        Fatal(FL, "setsid() failed");
+    }
+
+    /* Ignore SIGHUP: */
+
+    signal(SIGHUP, SIG_IGN);
+
+    /* Ignore SIGCHLD: */
+
+    signal(SIGCHLD, SIG_IGN);
+
+    /* Fork again (so we are not a session leader because our parent is): */
+
+    pid = fork();
+
+    if (pid < 0)
+    {
+        response.status = -1;
+        Fatal(FL, "fork() failed");
+    }
+
+    if (pid > 0)
+        _exit(0);
+
+    /* Catch SIGTERM: */
+
+    signal(SIGTERM, _sigHandler);
+
+    if (!bindVerbose)
+    {
+        /* Close these file descriptors (stdin, stdout, stderr). */
+
+        close(0);
+        close(1);
+        close(2);
+
+        /* Direct standard input, output, and error to /dev/null: */
+
+        open("/dev/null", O_RDONLY);
+        open("/dev/null", O_RDWR);
+        open("/dev/null", O_RDWR);
     }
 
     response.status = 0;
@@ -613,6 +626,8 @@ static void HandleAuthenticatePasswordRequest(int sock)
     int status;
     struct ExecutorAuthenticatePasswordRequest request;
     struct ExecutorAuthenticatePasswordResponse response;
+    int gid;
+    int uid;
 
     memset(&response, 0, sizeof(response));
 
@@ -631,38 +646,24 @@ static void HandleAuthenticatePasswordRequest(int sock)
 
     do
     {
+        if (GetUserInfo(request.username, &uid, &gid) != 0)
+        {
+            status = -1;
+            break;
+        }
 
 #if defined(PEGASUS_PAM_AUTHENTICATION)
 
-        status = PAMAuthenticate(request.username, request.password);
+        if (PAMAuthenticate(request.username, request.password) != 0)
+        {
+            status = -1;
+            break;
+        }
 
-        if (status == PAM_SUCCESS)
-        {
-            Log(LL_TRACE,
-                "Basic authentication through PAM: "
-                    "username = %s, successful.",
-                request.username);
-        }
-        else
-        {
-            Log(LL_TRACE,
-                "Basic authentication through PAM: "
-                    "username = %s, failed with PAM return code= %d.",
-                request.username,
-                status);
-        }
-        
+
 #else /* !PEGASUS_PAM_AUTHENTICATION */
 
         {
-            int gid;
-            int uid;
-            if (GetUserInfo(request.username, &uid, &gid) != 0)
-            {
-                status = -1;
-                break;
-            }
-
             const char* path = FindMacro("passwordFilePath");
 
             if (!path)
@@ -679,13 +680,20 @@ static void HandleAuthenticatePasswordRequest(int sock)
             }
         }
 
-        Log(LL_TRACE, "Basic authentication attempt: username = %s, "
-            "successful = %s",
-            request.username, status == PAM_SUCCESS ? "TRUE" : "FALSE" );
-
 #endif /* !PEGASUS_PAM_AUTHENTICATION */
     }
     while (0);
+
+    if (status != 0)
+    {
+        Log(LL_WARNING, "Basic authentication failed for username %s",
+            request.username);
+    }
+    else
+    {
+        Log(LL_TRACE, "Basic authentication succeeded for username %s",
+            request.username);
+    }
 
     /* Send response message. */
 
@@ -725,7 +733,8 @@ static void HandleValidateUserRequest(int sock)
 
 #if defined(PEGASUS_PAM_AUTHENTICATION)
 
-    status = PAMValidateUser(request.username);
+    if (PAMValidateUser(request.username) != 0)
+        status = -1;
 
 #else /* !PEGASUS_PAM_AUTHENTICATION */
 
@@ -748,6 +757,9 @@ static void HandleValidateUserRequest(int sock)
     while (0);
 
 #endif /* !PEGASUS_PAM_AUTHENTICATION */
+
+    if (status != 0)
+        Log(LL_WARNING, "User validation failed on %s", request.username);
 
     /* Send response message. */
 
@@ -784,7 +796,12 @@ static void HandleChallengeLocalRequest(int sock)
 
     /* Send response message. */
 
-    if (response.status == 0)
+    if (response.status != 0)
+    {
+        Log(LL_WARNING, "Local authentication failed for user \"%s\"",
+            request.user);
+    }
+    else
     {
         Strlcpy(response.challenge, challenge, sizeof(response.challenge));
     }
@@ -817,6 +834,13 @@ static void HandleAuthenticateLocalRequest(int sock)
     /* Perform operation. */
 
     status = FinishLocalAuthentication(request.challenge, request.response);
+
+    /* Log result. */
+
+    if (status != 0)
+    {
+        Log(LL_WARNING, "Local authentication failed");
+    }
 
     /* Send response. */
 
@@ -874,7 +898,7 @@ static void HandleUpdateLogLevelRequest(int sock)
 **==============================================================================
 */
 
-void Parent(int sock, int initCompletePipe, int childPid, int bindVerbose)
+void Parent(int sock, int childPid, int bindVerbose)
 {
     /* Handle Ctrl-C. */
 
@@ -896,14 +920,6 @@ void Parent(int sock, int initCompletePipe, int childPid, int bindVerbose)
     /* Save child PID globally; it is used by Exit() function. */
 
     globals.childPid = childPid;
-
-    /* Save initCompletePipe; it is used at daemonization. */
-
-    globals.initCompletePipe = initCompletePipe;
-
-    /* Save bindVerbose; it is used at daemonization and cimprovagt start. */
-
-    globals.bindVerbose = bindVerbose;
 
     /* Prepares socket into non-blocking I/O. */
 
@@ -949,7 +965,7 @@ void Parent(int sock, int initCompletePipe, int childPid, int bindVerbose)
                 break;
 
             case EXECUTOR_DAEMONIZE_EXECUTOR_MESSAGE:
-                HandleDaemonizeExecutorRequest(sock);
+                HandleDaemonizeExecutorRequest(sock, bindVerbose);
                 break;
 
             case EXECUTOR_RENAME_FILE_MESSAGE:

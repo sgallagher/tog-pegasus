@@ -1,39 +1,39 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Signal.h>
 #include <Pegasus/Common/AutoPtr.h>
-#include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/Pegasus_inl.h>
 #include <Service/PidFile.h>
 #include <Service/ServerRunStatus.h>
 
@@ -45,7 +45,7 @@
 # include <libgen.h>
 #endif
 
-#if defined(PEGASUS_OS_ZOS)
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 # include <sys/ps.h>
 #endif
 
@@ -59,7 +59,7 @@ extern "C"
     extern int getprocs(
         struct procsinfo *, int, struct fdsinfo *, int,pid_t *,int);
 }
-# endif
+#endif
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
@@ -86,7 +86,10 @@ ServerRunStatus::ServerRunStatus(
 
 ServerRunStatus::~ServerRunStatus()
 {
-    setServerNotRunning();
+    if (_event != NULL)
+    {
+        CloseHandle(_event);
+    }
 }
 
 Boolean ServerRunStatus::isServerRunning()
@@ -94,27 +97,11 @@ Boolean ServerRunStatus::isServerRunning()
     return _wasAlreadyRunning;
 }
 
-void ServerRunStatus::setServerNotRunning()
-{
-    if (_event != NULL)
-    {
-        CloseHandle(_event);
-        _event = NULL;
-    }
-}
-
 void ServerRunStatus::setServerRunning()
 {
     if (_event == NULL)
     {
         _event = CreateEvent(NULL, TRUE, TRUE, _serverName);
-        if (_event == NULL)
-        {
-            throw Exception(MessageLoaderParms(
-                "src.Server.cimserver_windows.EVENT_CREATION_FAILED",
-                "Event Creation Failed : $0.",
-                PEGASUS_SYSTEM_ERRORMSG_NLS));
-        }
         if ((_event != NULL) && (GetLastError() != ERROR_ALREADY_EXISTS))
         {
             _wasAlreadyRunning = false;
@@ -151,16 +138,10 @@ ServerRunStatus::ServerRunStatus(
 
 ServerRunStatus::~ServerRunStatus()
 {
-    setServerNotRunning();
-}
-
-void ServerRunStatus::setServerNotRunning()
-{
     if (_isRunningServerInstance)
     {
         PidFile pidFile(_pidFilePath);
         pidFile.remove();
-        _isRunningServerInstance = false;
     }
 }
 
@@ -208,7 +189,7 @@ Boolean ServerRunStatus::kill()
 #if defined(PEGASUS_OS_HPUX) || \
     defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
     defined(PEGASUS_OS_SOLARIS) || \
-    defined(PEGASUS_OS_ZOS) || \
+    defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || \
     defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_PASE)
 
     ::kill(pid, SIGKILL);
@@ -219,7 +200,7 @@ Boolean ServerRunStatus::kill()
     return true;
 }
 
-# if defined(PEGASUS_OS_ZOS)
+# if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 
 ///////////////////////////////////////////////////////
 // z/OS implementation of _isServerProcess
@@ -388,7 +369,7 @@ static struct procsinfo* _getProcessData(int& cnt)
             cnt += rtncnt;
             if (rtncnt >= count)
             {
-                proctable = (struct procsinfo *)peg_inln_realloc(
+                proctable=(struct procsinfo *) realloc(
                     (void*)proctable, (size_t) (PROCSIZE*(cnt+count)));
                 if (!proctable)
                 {

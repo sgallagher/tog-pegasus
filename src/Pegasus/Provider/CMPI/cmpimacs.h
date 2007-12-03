@@ -621,7 +621,7 @@ inline static CMPIString *CMGetMessage(
         "TestProvider","Entering EnumerateInstance", NULL);
     @param mb Broker this pointer
     @param severity The severity is from 1-4. 1 is for information,
-    2, is for warning, 3 for severe and 4 for fatal.
+    2 is for warning, 3 is for severe, and 4 is for fatal.
     @param id The ID of the provider.
     @param text The message. If not NULL, is the message text to be logged.
     @param string The message. If not NULL,  is the message text to be logged. 
@@ -630,7 +630,7 @@ inline static CMPIString *CMGetMessage(
 */
 inline static CMPIStatus CMLogMessage(
     const CMPIBroker * b,
-    int severity,
+    CMPISeverity severity,
     const char *id,
     const char *text,
     const CMPIString * string)
@@ -649,7 +649,8 @@ inline static CMPIStatus CMLogMessage(
     Logs the message to the trace facility.
     @example  CMTraceMessage( );
     @param mb Broker this pointer
-    @param level The severity is from 1-4. 
+    @param level The level of the log message. 1 is for info, 2 is for warning,
+    and 3 is for verbose.
     @param component The component name to use for logging. The available 
     facilities are defined in TraceComponents.h file.
     @param text The message. If not NULL, is the message text to be logged.
@@ -659,7 +660,7 @@ inline static CMPIStatus CMLogMessage(
 */
 inline static CMPIStatus CMTraceMessage(
     const CMPIBroker * b,
-    int level,
+    CMPILevel level,
     const char *component,
     const char *text,
     const CMPIString * string)

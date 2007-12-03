@@ -323,7 +323,7 @@ static CMPIString*  __beft_getMessage (
 
 static CMPIStatus __beft_logMessage(
     const CMPIBroker*broker,
-    int severity ,
+    CMPISeverity severity ,
     const char *id,
     const char *text,
     const CMPIString *string)
@@ -339,7 +339,7 @@ static CMPIStatus __beft_logMessage(
 
 static CMPIStatus __beft_traceMessage(
     const CMPIBroker* broker,
-    int level,
+    CMPILevel level,
     const char *component,
     const char *text,
     const CMPIString *string)

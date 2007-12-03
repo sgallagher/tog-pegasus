@@ -144,14 +144,14 @@ struct _NativeCMPIBrokerFT
         ...);
     CMPIStatus (*logMessage) (
         const CMPIBroker*,
-        int severity ,
+        CMPISeverity severity ,
         const char *id,
         const char *text,
         const CMPIString *string);
 
     CMPIStatus (*trace) (
         const CMPIBroker*,
-        int level,
+        CMPILevel level,
         const char *component,
         const char *text,
         const CMPIString *string);

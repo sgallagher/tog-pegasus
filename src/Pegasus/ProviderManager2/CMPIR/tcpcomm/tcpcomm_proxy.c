@@ -685,7 +685,7 @@ static void TCPCOMM_logMessage (
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
-    CMPIUint32 severity;
+    CMPISeverity severity;
     char *id,*text;
     CMPIString *string;
     CMPIStatus rc = { CMPI_RC_OK,NULL};
@@ -703,7 +703,7 @@ static void TCPCOMM_trace (
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
-    CMPIUint32 level;
+    CMPILevel level;
     char *component,*text;
     CMPIString *string;
     CMPIStatus rc = { CMPI_RC_OK,NULL};

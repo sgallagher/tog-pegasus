@@ -1607,7 +1607,7 @@ CMPIBoolean TCPCOMM_classPathIsA(
 
 CMPIStatus TCPCOMM_logMessage(
     const CMPIBroker* broker,
-    int severity ,
+    CMPISeverity severity ,
     const char *id,
     const char *text,
     const CMPIString *string)
@@ -1648,7 +1648,7 @@ CMPIStatus TCPCOMM_logMessage(
 
 CMPIStatus  TCPCOMM_trace(
     const CMPIBroker* broker,
-    int level,
+    CMPILevel level,
     const char *component,
     const char *text,
     const CMPIString *string)

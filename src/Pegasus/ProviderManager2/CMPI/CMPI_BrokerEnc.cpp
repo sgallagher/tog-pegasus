@@ -524,7 +524,7 @@ extern "C"
         if (obj==NULL)
         {
             sprintf(msg,"** Null object ptr (%p) **",o);
-            CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+            CMSetStatus(rc,CMPI_RC_ERR_INVALID_PARAMETER);
             CMPIString* cmpiString =
                 reinterpret_cast<CMPIString*>(new CMPI_Object(msg));
             PEG_METHOD_EXIT();
@@ -534,7 +534,7 @@ extern "C"
         if (obj->getHdl()==NULL)
         {
             sprintf(msg,"** Null object hdl (%p) **",o);
-            CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+            CMSetStatus(rc,CMPI_RC_ERR_INVALID_PARAMETER);
             CMPIString* cmpiString =
                 reinterpret_cast<CMPIString*>(new CMPI_Object(msg));
             PEG_METHOD_EXIT();
@@ -579,7 +579,7 @@ extern "C"
         else
         {
             sprintf(msg,"** Object not recognized (%p) **",o);
-            CMSetStatus(rc,CMPI_RC_ERR_FAILED);
+            CMSetStatus(rc,CMPI_RC_ERR_INVALID_PARAMETER);
             CMPIString* cmpiString =
                 reinterpret_cast<CMPIString*>(new CMPI_Object(msg));
             PEG_METHOD_EXIT();
@@ -1205,7 +1205,7 @@ extern "C"
 #if defined(CMPI_VER_100)
     CMPIStatus mbEncLogMessage(
         const CMPIBroker*,
-        int severity,
+        CMPISeverity severity,
         const char *id,
         const char *text,
         const CMPIString *string)
@@ -1248,21 +1248,20 @@ extern "C"
         CMReturn ( CMPI_RC_OK);
     }
 
-    inline Uint32 mapTraceLevel(int level)
+    inline Uint32 mapTraceLevel(CMPILevel level)
     {
         // There are no notion in CMPI spec about what 'level' means.
         // So we are going to try to map . We don't want to map to LEVEL1
         // as it requires the PEG_METHOD_ENTER and PEG_METHOD_EXIT macros.
         switch (level)
         {
-            case 1:
-            case 2:
+            case CMPI_LEV_INFO:
                 return Tracer::LEVEL2;
                 break;
-            case 3:
+            case CMPI_LEV_WARNING:
                 return Tracer::LEVEL3;
                 break;
-            case 4:
+            case CMPI_LEV_VERBOSE:
                 return Tracer::LEVEL4;
                 break;
             default:
@@ -1283,7 +1282,7 @@ extern "C"
 
     CMPIStatus mbEncTracer(
         const CMPIBroker*,
-        int level,
+        CMPILevel level,
         const char *component,
         const char *text,
         const CMPIString *string)

@@ -131,7 +131,7 @@ static void TCPCOMM_InstanceMI_enumInstanceNames(
     START_DEBUGGER;
     if (mi)
     {
-        rc = mi->ft->enumInstanceNames(mi, ctx, result, cop);;
+        rc = mi->ft->enumerateInstanceNames(mi, ctx, result, cop);;
     }
     else
     {
@@ -158,7 +158,8 @@ static void TCPCOMM_InstanceMI_enumInstances(
     START_DEBUGGER;
     if (mi)
     {
-        rc = mi->ft->enumInstances(mi, ctx, result, cop, (CONST char **)props);
+        rc = mi->ft->
+            enumerateInstances(mi, ctx, result, cop, (CONST char **)props);
     }
     else
     {

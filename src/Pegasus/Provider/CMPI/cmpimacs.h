@@ -2622,11 +2622,11 @@ inline static CMPIEnumeration *CBEnumInstanceNames(
     const CMPIObjectPath * op,
     CMPIStatus * rc)
 {
-    return((mb)->bft->enumInstanceNames ((mb), (ctx), (op), (rc)));
+    return((mb)->bft->enumerateInstanceNames ((mb), (ctx), (op), (rc)));
 }
 #else
 # define CBEnumInstanceNames(b,c,p,rc) \
-      ((b)->bft->enumInstanceNames((b),(c),(p),(rc)))
+      ((b)->bft->enumerateInstanceNames((b),(c),(p),(rc)))
 #endif
 
 #ifdef CMPI_INLINE
@@ -2650,11 +2650,11 @@ inline static CMPIEnumeration *CBEnumInstances(
     const char **properties,
     CMPIStatus * rc)
 {
-    return((mb)->bft->enumInstances ((mb), (ctx), (op), (properties), (rc)));
+    return((mb)->bft->enumerateInstances ((mb),(ctx),(op),(properties),(rc)));
 }
 #else
 # define CBEnumInstances(b,c,p,pr,rc) \
-      ((b)->bft->enumInstances((b),(c),(p),(pr),(rc)))
+      ((b)->bft->enumerateInstances((b),(c),(p),(pr),(rc)))
 #endif
 
 #ifdef CMPI_INLINE

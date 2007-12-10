@@ -675,7 +675,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
         {
             StatProviderTimeMeasurement providerTime(response);
 
-            rc = pr.miVector.instMI->ft->enumInstances(
+            rc = pr.miVector.instMI->ft->enumerateInstances(
                 pr.miVector.instMI,
                 &eCtx,
                 &eRes,
@@ -832,7 +832,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
         {
             StatProviderTimeMeasurement providerTime(response);
 
-            rc = pr.miVector.instMI->ft->enumInstanceNames(
+            rc = pr.miVector.instMI->ft->enumerateInstanceNames(
                 pr.miVector.instMI,&eCtx,&eRes,&eRef);
         }
 

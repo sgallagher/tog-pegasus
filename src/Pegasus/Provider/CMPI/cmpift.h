@@ -462,7 +462,7 @@ extern "C"
             @param rc Output: Service return status (suppressed when NULL).
             @return Enumeration of ObjectPathes.
         */
-        CMPIEnumeration *(*enumInstanceNames)(
+        CMPIEnumeration *(*enumerateInstanceNames)(
             const CMPIBroker * mb,
             const CMPIContext * ctx,
             const CMPIObjectPath * op,
@@ -569,7 +569,7 @@ extern "C"
             @param rc Output: Service return status (suppressed when NULL).
             @return Enumeration of Instances.
        */
-        CMPIEnumeration *(*enumInstances)(
+        CMPIEnumeration *(*enumerateInstances)(
             const CMPIBroker * mb,
             const CMPIContext * ctx,
             const CMPIObjectPath * op,
@@ -3117,7 +3117,7 @@ extern "C"
              CMPI_RC_ERR_ACCESS_DENIED Not authorized.
              CMPI_RC_ERR_NOT_FOUND Instance not found.
         */
-        CMPIStatus (*enumInstanceNames)(
+        CMPIStatus (*enumerateInstanceNames)(
             CMPIInstanceMI * mi,
             const CMPIContext * ctx,
             const CMPIResult * rslt,
@@ -3140,7 +3140,7 @@ extern "C"
              CMPI_RC_ERR_ACCESS_DENIED Not authorized.
              CMPI_RC_ERR_NOT_FOUND Instance not found.
         */
-        CMPIStatus (*enumInstances)(
+        CMPIStatus (*enumerateInstances)(
             CMPIInstanceMI * mi,
             const CMPIContext * ctx,
             const CMPIResult * rslt,

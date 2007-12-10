@@ -2568,7 +2568,7 @@ CmpiEnumeration CmpiBroker::enumInstanceNames(
     const CmpiObjectPath& cop)
 {
     CMPIStatus rc={CMPI_RC_OK,NULL};
-    CMPIEnumeration* en=getEnc()->bft->enumInstanceNames(
+    CMPIEnumeration* en=getEnc()->bft->enumerateInstanceNames(
         getEnc(),
         ctx.getEnc(),
         cop.getEnc(),
@@ -2678,7 +2678,7 @@ CmpiEnumeration CmpiBroker::enumInstances(
     const char** properties)
 {
     CMPIStatus rc={CMPI_RC_OK,NULL};
-    CMPIEnumeration* en=getEnc()->bft->enumInstances(
+    CMPIEnumeration* en=getEnc()->bft->enumerateInstances(
         getEnc(),
         ctx.getEnc(),
         cop.getEnc(),

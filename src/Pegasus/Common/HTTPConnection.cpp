@@ -252,6 +252,16 @@ HTTPConnection::~HTTPConnection()
 {
     PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::~HTTPConnection");
 
+    // We need to acquire this mutex in order to give handleEnqueue()
+    // a chance to finish processing. If we don't, we may run into a
+    // situation where the connection is marked to be closed by the
+    // idle connection timeout mechanism and there are no pending 
+    // responses (the _responsePending flag is cleared in 
+    // _handleWriteEvent()). This causes the monitor to clean up the
+    // connection. But if processing is not out of 
+    // HTTPConnection::handleEnqueue(), we are running a risk of 
+    // accessing a deleted object and crashing cimserver.
+    AutoMutex connectionLock(_connection_mut);
      _socket->close();
 
     PEG_METHOD_EXIT();

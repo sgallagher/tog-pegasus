@@ -50,11 +50,14 @@
 #endif
 #define MAX_WAIT_TIME 240
 #if defined(PEGASUS_OS_AIX)
-extern "C" {
 #include <procinfo.h>
-extern int getprocs(struct procsinfo *, int, struct fdsinfo *, int,pid_t *,int);
 #define PROCSIZE sizeof(struct procsinfo)
+#if PEGASUS_AIX_VERSION <= 5
+// AIX version 5 does not define getprocs() in procinfo.h
+extern "C" {
+extern int getprocs(struct procsinfo *, int, struct fdsinfo *, int,pid_t *,int);
 }
+#endif
 #endif
 
 PEGASUS_USING_PEGASUS;
@@ -148,9 +151,11 @@ int ServerProcess::cimserver_fork(void)
       }
       if( !handleSigUsr1 )
         {
+        //NOCHKSRC
         MessageLoaderParms parms("src.Service.ServerProcessUnix.CIMSERVER_START_TIMEOUT",
           "The cimserver command timed out waiting for the CIM server to start.");
         PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
+        //DOCHKSRC
       }
       exit(graveError);
   }
@@ -305,8 +310,8 @@ Boolean isProcRunning(pid_t pid)
             // "cimserver", then a cimserver is still running.
             if (strstr(buf.ps_pathptr,"cimserver")!= NULL )
             {
-            free(buf.ps_conttyptr);                                                    
-            free(buf.ps_pathptr);                                                      
+            free(buf.ps_conttyptr);
+            free(buf.ps_pathptr);
             free(buf.ps_cmdptr);
             return true;
         }

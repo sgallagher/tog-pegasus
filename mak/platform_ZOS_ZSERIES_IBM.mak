@@ -49,11 +49,11 @@ endif
 
 
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS
-FLAGS = -W "c,debug,ASCII,XPLINK,dll,expo,langlvl(extended),rtti(dynamiccast),float(ieee),goff"
-PR_FLAGS = -W "c,debug,ASCII,XPLINK,dll,expo,langlvl(extended),rtti(dynamiccast),FLOAT(IEEE),goff" -W "l,XPLINK,dll"
+FLAGS = -W "c,debug,ASCII,XPLINK,dll,expo,langlvl(extended,newexcp),rtti(dynamiccast),float(ieee),goff"
+PR_FLAGS = -W "c,debug,ASCII,XPLINK,dll,expo,langlvl(extended,newexcp),rtti(dynamiccast),FLOAT(IEEE),goff" -W "l,XPLINK,dll"
 else
-FLAGS = -O2 -W "c,ASCII,XPLINK,dll,expo,langlvl(extended),rtti(dynamiccast),float(ieee),goff"
-PR_FLAGS = -O2 -W "c,ASCII,XPLINK,dll,expo,langlvl(extended),rtti(dynamiccast),FLOAT(IEEE),goff" -W "l,XPLINK,dll,EDIT=NO"
+FLAGS = -O2 -W "c,ASCII,XPLINK,dll,expo,langlvl(extended,newexcp),rtti(dynamiccast),float(ieee),goff"
+PR_FLAGS = -O2 -W "c,ASCII,XPLINK,dll,expo,langlvl(extended,newexcp),rtti(dynamiccast),FLOAT(IEEE),goff" -W "l,XPLINK,dll,EDIT=NO"
 endif
 
 ifdef PEGASUS_GENERATE_LISTINGS

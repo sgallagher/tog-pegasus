@@ -50,15 +50,13 @@ BufferRep Buffer::_empty_rep =
     {0} /* data[0] */
 };
 
-static const Uint32 MIN_CAPACITY = 2048;
-
-static Uint32 _next_pow_2(Uint32 x)
+static Uint32 _next_pow_2(Uint32 x, Uint32 minCap)
 {
     // Check for potential overflow in x.
     PEGASUS_CHECK_CAPACITY_OVERFLOW(x);
 
-    if (x < MIN_CAPACITY)
-        return MIN_CAPACITY;
+    if (x < minCap)
+        return minCap;
 
     x--;
     x |= (x >> 1);
@@ -71,10 +69,10 @@ static Uint32 _next_pow_2(Uint32 x)
     return x;
 }
 
-static inline BufferRep* _allocate(Uint32 cap)
+static inline BufferRep* _allocate(Uint32 cap, Uint32 minCap)
 {
-    if (cap < MIN_CAPACITY)
-        cap = MIN_CAPACITY;
+    if (cap < minCap)
+        cap = minCap;
 
     // Allocate an extra byte for null-termination performed by getData().
     BufferRep* rep = (BufferRep*)malloc(sizeof(BufferRep) + cap + 1);
@@ -102,14 +100,15 @@ static inline BufferRep* _reallocate(BufferRep* rep, Uint32 cap)
 
 Buffer::Buffer(const Buffer& x)
 {
-    _rep = _allocate(x._rep->cap);
+    _rep = _allocate(x._rep->cap, x._minCap);
     memcpy(_rep->data, x._rep->data, x._rep->size);
     _rep->size = x._rep->size;
+    _minCap=x._minCap;
 }
 
-Buffer::Buffer(const char* data, Uint32 size)
+Buffer::Buffer(const char* data, Uint32 size, Uint32 minCap): _minCap(minCap)
 {
-    _rep = _allocate(size);
+    _rep = _allocate(size, _minCap);
     _rep->size = size;
     memcpy(_rep->data, data, size);
 }
@@ -123,11 +122,12 @@ Buffer& Buffer::operator=(const Buffer& x)
             if (_rep->cap != 0)
                 free(_rep);
 
-            _rep = _allocate(x._rep->cap);
+            _rep = _allocate(x._rep->cap, x._minCap);
         }
 
         memcpy(_rep->data, x._rep->data, x._rep->size);
         _rep->size = x._rep->size;
+        _minCap = x._minCap;
     }
     return *this;
 }
@@ -136,25 +136,25 @@ void Buffer::_reserve_aux(Uint32 cap)
 {
     if (_rep->cap == 0)
     {
-        _rep = _allocate(cap);
+        _rep = _allocate(cap, _minCap);
         _rep->size = 0;
     }
     else
-        _rep = _reallocate(_rep, _next_pow_2(cap));
+        _rep = _reallocate(_rep, _next_pow_2(cap, _minCap));
 }
 
 void Buffer::_append_char_aux()
 {
     if (_rep->cap == 0)
     {
-        _rep = _allocate(MIN_CAPACITY);
+        _rep = _allocate(_minCap, _minCap);
         _rep->size = 0;
     }
     else
     {
         // Check for potential overflow.
         PEGASUS_CHECK_CAPACITY_OVERFLOW(_rep->cap);
-        _rep = _reallocate(_rep, _rep->cap ? (2 * _rep->cap) : MIN_CAPACITY);
+        _rep = _reallocate(_rep, _rep->cap ? (2 * _rep->cap) : _minCap);
     }
 }
 
@@ -168,7 +168,7 @@ void Buffer::insert(Uint32 pos, const char* data, Uint32 size)
 
     if (cap > _rep->cap)
     {
-        BufferRep* rep = _allocate(cap);
+        BufferRep* rep = _allocate(cap, _minCap);
         rep->size = cap;
 
         memcpy(rep->data, _rep->data, pos);

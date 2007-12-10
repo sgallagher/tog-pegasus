@@ -51,11 +51,11 @@ class PEGASUS_COMMON_LINKAGE Buffer
 {
 public:
 
-    Buffer();
+    Buffer(Uint32 minCap=2048);
 
     Buffer(const Buffer& x);
 
-    Buffer(const char* data, Uint32 size);
+    Buffer(const char* data, Uint32 size, Uint32 minCap=2048);
 
     ~Buffer();
 
@@ -109,10 +109,11 @@ private:
 
     BufferRep* _rep;
     static BufferRep _empty_rep;
+    Uint32 _minCap;
 };
 
-inline Buffer::Buffer() : _rep(&_empty_rep)
-{
+inline Buffer::Buffer(Uint32 minCap) : _rep(&_empty_rep), _minCap(minCap)
+{    
 }
 
 inline Buffer::~Buffer()

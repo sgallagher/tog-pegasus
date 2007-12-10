@@ -149,13 +149,13 @@ private:
     /* Fast access hash table of nodes implemented
        as static array. Used for name based lookups
     */
-    Node* _table[N];
+    Node* (*_table)[N];
 
     Uint32 _size;
 };
 
 template<class T, class R, Uint32 N>
-inline OrderedSet<T, R, N>::OrderedSet() : _size(0)
+inline OrderedSet<T, R, N>::OrderedSet() : _array(64), _table(0), _size(0)
 {
     /* Do not place code in this constructor
        to avoid construction overhead for empty OrderedSets
@@ -177,6 +177,7 @@ inline OrderedSet<T, R, N>::~OrderedSet()
             Dec(data[i].rep);
         }
     }
+    free(_table);
 }
 
 template<class T, class R, Uint32 N>
@@ -184,6 +185,8 @@ inline void OrderedSet<T, R, N>::clear()
 {
     /* Both, the dynamic, ordered list of elements(_array) and
        the hash table need to be cleaned up */
+    if (_table)
+        memset((*_table), 0, sizeof(Node*) * N);
     if (_size > 0)
     {
         Node* data = (Node*) _array.getData();
@@ -193,8 +196,6 @@ inline void OrderedSet<T, R, N>::clear()
             data[i].rep->decreaseOwnerCount();
             Dec(data[i].rep);
         }
-    
-        memset(_table, 0, sizeof(_table));
         _size = 0;
         _array.clear();
     }
@@ -211,7 +212,7 @@ inline Uint32 OrderedSet<T, R, N>::find(const CIMName& name,
     {
         Uint32 code = nameTag % N;
         
-        for (const Node* p = _table[code]; p != 0; p = p->next)
+        for (const Node* p = (*_table)[code]; p != 0; p = p->next)
         {
             if (p->rep->getNameTag() == nameTag)
             {
@@ -227,7 +228,7 @@ template<class T, class R, Uint32 N>
 inline void OrderedSet<T, R, N>::append(const T& x)
 {
     /* To append an element to the OrderedSet we have to
-       update the hash table(_table) and append the element to
+       update the hash table((*_table)) and append the element to
        the dynamic, ordered list(_array)
     */       
     struct Layout
@@ -242,16 +243,28 @@ inline void OrderedSet<T, R, N>::append(const T& x)
     // initialise array and hash table
     if (_size  == 0)
     {
-        reserveCapacity(N);
-        memset(_table, 0, sizeof(_table));
+        if (!_table)
+        {
+            _table = (Node* (*)[N]) malloc(sizeof(Node*) * N);
+        }
+        if (!_table)
+            throw PEGASUS_STD(bad_alloc)();
+        memset((*_table), 0, sizeof(Node*) * N);
     }
+
+    // Check if Buffer capacity changes
+    // this would relocate a good number of pointers
+    // which following have to be _reorganized
+    Boolean reOrg = (_array.capacity() < sizeof(Node) + _array.size());
+    if (reOrg)
+        reserveCapacity((_size + 1) << 1);
 
     // First append to _array(dynamic, ordered list):
     {
         Node node;
         node.rep = layout->rep;
         node.index = _size;
-        node.next = _table[code];
+        node.next = (*_table)[code];
 
         _array.append((const char*) &node, sizeof(node));
     }
@@ -259,12 +272,17 @@ inline void OrderedSet<T, R, N>::append(const T& x)
     // Now add to hash table
     {
         Node* data = (Node*) _array.getData();
-        _table[code] = &data[_size];
+        (*_table)[code] = &data[_size];
     }
 
     layout->rep->increaseOwnerCount();
     Inc(layout->rep);
     _size++;
+    
+    // Reorganize hash table to reflect state of dynamic, ordered list
+    // if necessary
+    if (reOrg)
+        _reorganize();
 }
 
 template<class T, class R, Uint32 N>
@@ -283,7 +301,6 @@ inline void OrderedSet<T, R, N>::remove(Uint32 index)
     }
 
     // Reorganize hash table to reflect state of dynamic, ordered list
-
     _reorganize();
 }
 
@@ -297,8 +314,14 @@ inline void OrderedSet<T, R, N>::insert(Uint32 index, const T& x)
     // initialise array and hash table
     if (_size  == 0)
     {
-        reserveCapacity(N);
-        memset(_table, 0, sizeof(_table));
+        // reserveCapacity(N);
+        if (!_table)
+        {
+            _table = (Node* (*)[N]) malloc(sizeof(Node*) * N);
+        }
+        if (!_table)
+            throw PEGASUS_STD(bad_alloc)();
+        memset((*_table), 0, sizeof(Node*) * N);
     }
 
     struct Layout
@@ -346,7 +369,7 @@ void OrderedSet<T, R, N>::_reorganize()
     /* Resets index values of the hash table to reflect
        current state of the dynamic, ordered list
     */
-    memset(_table, 0, sizeof(_table));
+    memset((*_table), 0, sizeof(Node*) * N);
     Node* data = (Node*) _array.getData();
 
     for (Uint32 i = 0; i < _size; i++)
@@ -355,8 +378,8 @@ void OrderedSet<T, R, N>::_reorganize()
 
         node->index = i;
         Uint32 code = node->rep->getNameTag() % N;
-        node->next = _table[code];
-        _table[code] = node;
+        node->next = (*_table)[code];
+        (*_table)[code] = node;
     }
 }
 

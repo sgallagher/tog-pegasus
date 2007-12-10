@@ -359,21 +359,8 @@ void CMPIProvider::_terminate(Boolean terminating)
        }
     }
 
-    if (unloadStatus != CMPI_RC_OK)
-    {
-        // Cleanup the class cache
+    if (unloadStatus == CMPI_RC_OK)
         {
-           WriteLock writeLock (broker.rwsemClassCache);
-
-           if (broker.clsCache) {
-              ClassCache::Iterator i=broker.clsCache->start();
-              for (; i; i++) {
-                 delete i.value();
-              }
-              delete broker.clsCache;
-              broker.clsCache=NULL;
-           }
-        }
 
 	  // Check the thread list to make sure the thread has been de-allocated
 	  if (_threadWatchList.size() != 0)
@@ -428,6 +415,19 @@ void CMPIProvider::_terminate(Boolean terminating)
 
           // Wait until all of the threads have been cleaned.
           waitUntilThreadsDone();
+          // Cleanup the class cache
+          {
+             WriteLock writeLock (broker.rwsemClassCache);
+
+             if (broker.clsCache) {
+                ClassCache::Iterator i=broker.clsCache->start();
+                for (; i; i++) {
+                   delete i.value();
+                }
+                delete broker.clsCache;
+                broker.clsCache=NULL;
+             }
+          }
     }
 }
 

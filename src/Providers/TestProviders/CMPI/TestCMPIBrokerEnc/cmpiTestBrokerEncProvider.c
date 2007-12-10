@@ -243,7 +243,7 @@ static int _testBrokerEnc (const CMPIContext * ctx,
         strCMPIStatus (rc));
 
     type = CDToString (_broker, objPath1, &rc);
-    if ( rc.rc == CMPI_RC_ERR_FAILED)
+    if ( rc.rc == CMPI_RC_ERR_INVALID_PARAMETER)
     {
         PROV_LOG ("++++ Error status of mbEncToString with object path with "
             "NULL handle: (%s)",

@@ -354,7 +354,7 @@ inline T& OrderedSet<T, R, N>::operator[](Uint32 index)
         throw IndexOutOfBoundsException();
 
     const Node* node = (const Node*) _array.getData() + index;
-    return *((T*)node);
+    return *const_cast<T*>(reinterpret_cast<const T*>(node));
 }
 
 template<class T, class R, Uint32 N>

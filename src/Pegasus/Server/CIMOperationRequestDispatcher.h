@@ -86,7 +86,7 @@ public:
           serviceName(providerInfo.serviceName),
           controlProviderName(providerInfo.controlProviderName),
           hasProvider(providerInfo.hasProvider),
-          hasProviderNormalization(false),
+          hasProviderNormalization(providerInfo.hasProviderNormalization),
           hasNoQuery(providerInfo.hasNoQuery)
     {
         if (providerInfo.providerIdContainer.get() != 0)

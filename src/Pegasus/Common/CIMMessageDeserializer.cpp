@@ -719,6 +719,15 @@ void CIMMessageDeserializer::_deserializeOperationContext(
         XmlReader::expectEndTag(parser, "PGOCPI");
     }
 
+    if (XmlReader::testStartTag(parser, entry, "PGOCCCD"))
+    {
+        CIMClass cimClass;
+
+        XmlReader::getClassElement(parser, cimClass);
+        operationContext.insert(CachedClassDefinitionContainer(cimClass));
+        XmlReader::expectEndTag(parser, "PGOCCCD");
+    }
+
     XmlReader::expectEndTag(parser, "PGOC");
 }
 

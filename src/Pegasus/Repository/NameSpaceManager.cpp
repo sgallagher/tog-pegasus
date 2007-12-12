@@ -395,6 +395,7 @@ NameSpace::NameSpace(
 
     if (extDir)
         sharedDirName = *extDir;
+    PEG_METHOD_EXIT();
 }
 
 #else
@@ -443,6 +444,7 @@ NameSpace::NameSpace(
 
     if (extDir)
         sharedDirName = *extDir;
+    PEG_METHOD_EXIT();
 }
 
 #endif
@@ -465,7 +467,10 @@ NameSpace* NameSpace::newNameSpace(
     String nameSpaceName = _dirNameToNamespaceName((*nameSpaceNames)[index]);
     nameSpace.reset(nsm->lookupNameSpace(nameSpaceName));
     if ((nameSpace.get()) != 0)
+    {
+        PEG_METHOD_EXIT();
         return nameSpace.release();
+    }
 
     specialNameSpace* pns = (*specialNames)[index];
 
@@ -491,6 +496,7 @@ NameSpace* NameSpace::newNameSpace(
     nameSpace.reset(new NameSpace(nameSpacePath, nameSpaceName,pns));
 
     nsm->_rep->table.insert(nameSpaceName, nameSpace.get());
+    PEG_METHOD_EXIT();
     return nameSpace.release();
 }
 
@@ -508,7 +514,10 @@ NameSpace* NameSpace::newNameSpace(
     String nameSpaceName = _dirNameToNamespaceName((*nameSpaceNames)[index]);
     nameSpace.reset(nsm->lookupNameSpace(nameSpaceName));
     if ((nameSpace.get()) != 0)
+    {
+        PEG_METHOD_EXIT();
         return nameSpace.release();
+    }
 
     specialNameSpace* pns=(*specialNames)[index];
 
@@ -532,6 +541,7 @@ NameSpace* NameSpace::newNameSpace(
     nameSpace.reset(new NameSpace(nameSpacePath, nameSpaceName,pns));
 
     nsm->_rep->table.insert(nameSpaceName, nameSpace.get());
+    PEG_METHOD_EXIT();
     return nameSpace.release();
 }
 
@@ -565,17 +575,24 @@ void NameSpace::modify(
     {
         String path = nameSpacePath + "/" + newDir;
         if (!FileSystem::makeDirectory(path))
+        {
+            PEG_METHOD_EXIT();
             throw CannotCreateDirectory(path);
+        }
         path = nameSpacePath + "/" + sharedDirName;
         if (sharedDirName.size())
             if (!FileSystem::removeDirectoryHier(path))
+            {
+                PEG_METHOD_EXIT();
                 throw CannotRemoveDirectory(path);
+    }
     }
 
     ro = !updatesAllowed;
     final = !shareable;
 
     sharedDirName = newDir;
+    PEG_METHOD_EXIT();
 }
 
 NameSpace* NameSpace::primaryParent()
@@ -712,7 +729,10 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
     if (!FileSystem::isDirectory(_repositoryRoot))
     {
         if (!FileSystem::makeDirectory(_repositoryRoot))
+        {
+            PEG_METHOD_EXIT();
             throw CannotCreateDirectory(_repositoryRoot);
+        }
 
         // Create a root namespace per ...
         // Specification for CIM Operations over HTTP
@@ -922,6 +942,7 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
     }
     nameSpaceNames = NULL;
     specialNames = NULL;
+    PEG_METHOD_EXIT();
 }
 
 NameSpaceManager::~NameSpaceManager()
@@ -1019,8 +1040,11 @@ void NameSpaceManager::createNameSpace(
     Uint32 len = tmp.size();
     for (Uint32 i = 0; i < len; ++i)
         if ((Uint16)tmp[i] > 0x007F)
+        {
+            PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(
                 CIM_ERR_INVALID_PARAMETER, nameSpaceName.getString());
+        }
 #endif
 
 
@@ -1310,6 +1334,7 @@ String NameSpaceManager::getClassFilePath(
     case NameSpaceRead:
         if (classExists(nameSpace, className, false))
             break;
+        PEG_METHOD_EXIT();
         return nameSpace->parent->getClassFilePath(className);
     case NameSpaceDelete:
         classExists(nameSpace->parent, className, true);
@@ -1338,8 +1363,9 @@ String NameSpaceManager::getInstanceDataFileBase(
             CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
     }
 
+    String ret = nameSpace->getInstanceDataFileBase(className);
     PEG_METHOD_EXIT();
-    return nameSpace->getInstanceDataFileBase(className);
+    return ret;
 }
 
 String NameSpaceManager::getInstanceDataFileBase(
@@ -1349,8 +1375,9 @@ String NameSpaceManager::getInstanceDataFileBase(
     PEG_METHOD_ENTER(TRC_REPOSITORY,
         "NameSpaceManager::getInstanceDataFileBase()");
 
+    String ret = nameSpace->getInstanceDataFileBase(className);
     PEG_METHOD_EXIT();
-    return nameSpace->getInstanceDataFileBase(className);
+    return ret;
 }
 
 String NameSpaceManager::getQualifierFilePath(
@@ -1365,6 +1392,7 @@ String NameSpaceManager::getQualifierFilePath(
 
     if (!_rep->table.lookup(nameSpaceName.getString (), nameSpace))
     {
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(
             CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
     }
@@ -1612,8 +1640,11 @@ void NameSpaceManager::createClass(
     Uint32 len = tmp.size();
     for (Uint32 i = 0; i < len; ++i)
         if ((Uint16)tmp[i] > 0x007F)
+        {
+            PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(
                 CIM_ERR_INVALID_PARAMETER, nameSpaceName.getString());
+        }
 #endif
 
 
@@ -1671,7 +1702,6 @@ void NameSpaceManager::checkModify(
     if (!superClassName.equal(oldSuperClassName))
     {
         PEG_METHOD_EXIT();
-
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
                 "Repository.NameSpaceManager.ATTEMPT_TO_CHANGE_SUPERCLASS",
@@ -1740,6 +1770,7 @@ void NameSpaceManager::getSubClassNames(
                 if (it.getSubClassNames(
                     className, deepInheritance, subClassNames, 0))
                 {
+                    PEG_METHOD_EXIT();
                     return;
                 }
             }
@@ -1750,6 +1781,7 @@ void NameSpaceManager::getSubClassNames(
             if (it.getSubClassNames(
                     className, deepInheritance, subClassNames, 0))
             {
+                PEG_METHOD_EXIT();
                 return;
             }
         }
@@ -1809,8 +1841,9 @@ String NameSpaceManager::getQualifiersRoot(
             CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
     }
 
+    String ret = nameSpace->getNameSpacePath() + _QUALIFIERS_SUFFIX;
     PEG_METHOD_EXIT();
-    return nameSpace->getNameSpacePath() + _QUALIFIERS_SUFFIX;
+    return ret;
 }
 
 Array<String> NameSpaceManager::getAssocClassPath(

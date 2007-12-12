@@ -92,7 +92,7 @@ static const CIMName PG_NAMESPACE_PROPERTY_PARENTNAMESPACE(
 Array<CIMInstance> InteropProvider::enumNamespaceInstances()
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-        "InteropProvider::_getInstancesCIMNamespace()");
+        "InteropProvider::enumNamespaceInstances()");
 
     Array<CIMNamespaceName> namespaceNames = repository->enumerateNameSpaces();
     Array<CIMInstance> instanceArray;
@@ -116,7 +116,7 @@ Array<CIMInstance> InteropProvider::enumNamespaceInstances()
 Array<CIMInstance> InteropProvider::enumNamespaceInManagerInstances()
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-        "InteropProvider::buildInstancesNamespaceInManager");
+        "InteropProvider::enumNamespaceInManagerInstances()");
 
     Array<CIMInstance> namespaceInstances = enumNamespaceInstances();
 
@@ -155,7 +155,7 @@ CIMInstance InteropProvider::buildNamespaceInstance(
     const String & nameSpace)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-        "InteropProvider::buildInstancePGNamespace");
+        "InteropProvider::buildNamespaceInstance()");
 
     CIMClass targetClass;
     CIMInstance instance = buildInstanceSkeleton(
@@ -279,7 +279,7 @@ String buildNamespacePath(
     const String & objectManagerName)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-        "InteropProvider::buildNamespacePath");
+        "buildNamespacePath()");
 
     unsigned int propIndex = PEG_NOT_FOUND;
     CIMName propertyName;
@@ -375,7 +375,7 @@ CIMNamespaceName validateNamespaceKeys(
     const String & objectManagerName)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-        "InteropProvider::validatePGNamespaceKeys");
+        "validateNamespaceKeys()");
 
     CIMName propertyName;
     if(!validateRequiredProperty(

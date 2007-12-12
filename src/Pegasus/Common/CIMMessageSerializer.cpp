@@ -675,6 +675,17 @@ void CIMMessageSerializer::_serializeOperationContext(
         XmlWriter::append(out, "</PGOCPI>\n");
     }
 
+    if (operationContext.contains(CachedClassDefinitionContainer::NAME))
+    {
+        const CachedClassDefinitionContainer container =
+            operationContext.get(CachedClassDefinitionContainer::NAME);
+
+        CIMClass cimClass = container.getClass();
+        XmlWriter::append(out, "<PGOCCCD>\n");
+        XmlWriter::appendClassElement(out, cimClass);
+        XmlWriter::append(out, "</PGOCCCD>\n");
+    }
+
     XmlWriter::append(out, "</PGOC>\n");
 }
 

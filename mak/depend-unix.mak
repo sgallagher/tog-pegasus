@@ -43,7 +43,7 @@ ifeq ($(CXX), CC)
     PEGASUS_CXX_MAKEDEPEND_OPTION = -xM1
 endif
 ifeq ($(CXX), aCC)
-    PEGASUS_CXX_MAKEDEPEND_OPTION = +make -E
+    PEGASUS_CXX_MAKEDEPEND_OPTION = +Make -E
     acc_sed_filter = -e 's=$(OBJ_DIR).*cpp:==g'
 endif
 

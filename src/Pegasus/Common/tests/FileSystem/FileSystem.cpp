@@ -79,9 +79,6 @@ int main(int argc, char** argv)
         tmpDir = ".";
     }
 
-    // ATTN:  PEGASUS_TMP is not used.  See Bug 7159.
-    tmpDir = ".";
-
     _cleanup(tmpDir);
 
     String path;
@@ -176,15 +173,9 @@ int main(int argc, char** argv)
         t.append("/TestDirectory");
         String t1 (tmpDir);
         t1.append("/TestDirectory2");
-        String tf (tmpDir);
-        tf.append("/TestFile.txt");
-        CString f = tf.getCString();
-        String tf1 (tmpDir);
-        tf1.append("/TestFile1.txt");
-        CString f1 = tf1.getCString();
-        String tf2 (tmpDir);
-        tf2.append("/TestFileNoExt");
-        CString f2 = tf2.getCString();
+        String tf ("TestFile.txt");
+        String tf1 ("TestFile1.txt");
+        String tf2 ("TestFileNoExt");
 
         FileSystem::makeDirectory(t);
         PEGASUS_TEST_ASSERT(FileSystem::isDirectory(t));
@@ -203,17 +194,17 @@ int main(int argc, char** argv)
             // ATTN: what is valid error return?
             return -1;
 
-        ofstream of1(f);
+        ofstream of1(tf.getCString());
         of1 << "test" << endl;
         of1.close();
         PEGASUS_TEST_ASSERT(FileSystem::exists(tf));
 
-        ofstream of2(f1);
+        ofstream of2(tf1.getCString());
         of2 << "test" << endl;
         of2.close();
         PEGASUS_TEST_ASSERT(FileSystem::exists(tf1));
 
-        ofstream of2a(f2);
+        ofstream of2a(tf2.getCString());
         of2a << "test" << endl;
         of2a.close();
         PEGASUS_TEST_ASSERT(FileSystem::exists(tf2));

@@ -35,6 +35,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/AtomicInt.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
@@ -42,8 +43,8 @@
 #include <Pegasus/Client/CIMClient.h>
 
 #define NUM_THREADS 2
-#define PASSED true
-#define FAILED false
+#define TEST_PASSED true
+#define TEST_FAILED false
 #define OSINFO_NAMESPACE CIMNamespaceName ("root/cimv2")
 #define OSINFO_CLASSNAME CIMName ("PG_OperatingSystem")
 
@@ -51,12 +52,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 Boolean test2CaughtException;
-Boolean connectLocal;
-char * testUseridPtr;
-char * testPasswdPtr;
-char testUserid[256];
-char testPasswd[256];
-char testHostname[256];
+AtomicInt sleepIterations;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -64,10 +60,10 @@ char testHostname[256];
 //
 ////////////////////////////////////////////////////////////////////////////////
 class T_Parms{
-   public:
-    AutoPtr<CIMClient> client;
-    Uint32 duration;
-    Uint32 uniqueID;
+    public:
+        Uint32 durationSeconds;
+        const char * testUserid;
+        const char * testPasswd;
 };
 
 
@@ -75,15 +71,43 @@ ThreadReturnType PEGASUS_THREAD_CDECL _runningThd(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
-    CIMClient *client = parms->client.get();
-    Uint32 duration = parms->duration;
-    Uint32 uniqueID = parms->uniqueID;
+    Uint32 durationSeconds = parms->durationSeconds;
+    const char * testUserid = parms->testUserid;
+    const char * testPasswd = parms->testPasswd;
 
-    for(Uint32 i = 0; i <= duration; i++)
+    CIMClient client;
+
+    for(Uint32 i = 0; i <= durationSeconds; i++)
     {
         Threads::sleep(1000);
-        CIMClass tmpClass = 
-            client->getClass (OSINFO_NAMESPACE, OSINFO_CLASSNAME);
+        sleepIterations++;
+        if (testUserid == NULL)
+        {
+            client.connectLocal();
+        }
+        else
+        {
+            client.connect(System::getHostName(), 5988, 
+                String(testUserid), String(testPasswd));
+        }
+
+        try
+        {
+            CIMClass tmpClass = 
+                client.getClass (OSINFO_NAMESPACE, OSINFO_CLASSNAME);
+        }
+        catch(Exception& e)
+        {
+            // Ignore idle timeout -- may happen on slow or loaded systems.
+            if (!String::equal(
+                e.getMessage(),"Connection closed by CIM Server."))
+            {
+                cerr << "Error: " << e.getMessage() << endl;
+                throw;
+            }
+        }
+
+        client.disconnect();
     }
 
     my_thread->exit_self((ThreadReturnType)0);
@@ -94,21 +118,37 @@ ThreadReturnType PEGASUS_THREAD_CDECL _idleThd(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
-    CIMClient *client = parms->client.get();
-    Uint32 duration = parms->duration;
-    Uint32 uniqueID = parms->uniqueID;
+    Uint32 durationSeconds = parms->durationSeconds;
+    const char * testUserid = parms->testUserid;
+    const char * testPasswd = parms->testPasswd;
+
+    CIMClient client;
 
     try
     {
-        CIMClass tmpClass = 
-            client->getClass (OSINFO_NAMESPACE, OSINFO_CLASSNAME);
+        if (testUserid == NULL)
+        {
+            client.connectLocal();
+        }
+        else
+        {
+            client.connect(System::getHostName(), 5988, 
+                String(testUserid), String(testPasswd));
+        }
 
-        cout << "Test 2 of 2: Begin " << duration 
+        CIMClass tmpClass = 
+            client.getClass (OSINFO_NAMESPACE, OSINFO_CLASSNAME);
+
+        cout << "Test 2 of 2: Begin " << durationSeconds 
             << " second idle period..." << endl;
-        Threads::sleep(duration*1000);
+
+        while (sleepIterations.get() < durationSeconds)
+        {
+            Threads::sleep(1000);
+        }
 
         CIMClass tmpClass2 = 
-            client->getClass (OSINFO_NAMESPACE, OSINFO_CLASSNAME);
+            client.getClass (OSINFO_NAMESPACE, OSINFO_CLASSNAME);
     }
     catch(Exception& e)
     {
@@ -122,22 +162,23 @@ ThreadReturnType PEGASUS_THREAD_CDECL _idleThd(void *parm)
             cerr << "Error: " << e.getMessage() << endl;
         }
     }
+    client.disconnect();
 
     my_thread->exit_self((ThreadReturnType)0);
     return 0;
 }
 
 Thread * _runTestThreads(
-    CIMClient* client,
     ThreadReturnType (PEGASUS_THREAD_CDECL *_executeFn)(void *),
-    const Uint32 duration,
-    Uint32 uniqueID)
+    const Uint32 durationSeconds,
+    const char * testUserid,
+    const char * testPasswd)
 {
     // package parameters, create thread and run...
     AutoPtr<T_Parms> parms(new T_Parms());
-    parms->client.reset(client);
-    parms->duration = duration;
-    parms->uniqueID = uniqueID;
+    parms->durationSeconds = durationSeconds;
+    parms->testUserid = testUserid;
+    parms->testPasswd = testPasswd;
     AutoPtr<Thread> t(new Thread(_executeFn, (void*)parms.release(), false));
     // zzzzz... (1 second) zzzzz...
     Threads::sleep(1000);
@@ -149,30 +190,29 @@ Thread * _runTestThreads(
 // if there is no other server activity, even if the idleConnectionTimeout
 // period has been exceeded. In this case, no exception should occur for the
 // second call to getClass().
-Boolean _test1(int duration, Boolean connectLocal)
+Boolean _test1(
+    int durationSeconds, const char * testUserid, const char * testPasswd)
 {
     try
     {
         CIMClient client;
 
-        if (connectLocal)
+        if (testUserid == NULL)
         {
             client.connectLocal();
         }
         else
         {
-            cout << "Connecting to " << System::getHostName() << ":5988" 
-                << endl;
             client.connect(System::getHostName(), 5988, 
-                testUserid, testPasswd);
+                String(testUserid), String(testPasswd));
         }
 
         CIMClass tmpClass = 
             client.getClass (OSINFO_NAMESPACE, OSINFO_CLASSNAME);
 
-        cout << "Test 1 of 2: Begin " << duration 
+        cout << "Test 1 of 2: Begin " << durationSeconds
             << " second idle period..." << endl;
-        Threads::sleep(duration*1000);
+        Threads::sleep(durationSeconds*1000);
 
         CIMClass tmpClass2 = 
             client.getClass (OSINFO_NAMESPACE, OSINFO_CLASSNAME);
@@ -180,10 +220,10 @@ Boolean _test1(int duration, Boolean connectLocal)
     catch(Exception& e)
     {
         cerr << "Error: " << e.getMessage() << endl;
-        return FAILED;
+        return TEST_FAILED;
     }
     cout << "Test 1 success." << endl;
-    return PASSED;
+    return TEST_PASSED;
 }
 
 // _test2 verifies that a CIM Operation on a client connection does not
@@ -192,46 +232,24 @@ Boolean _test1(int duration, Boolean connectLocal)
 // will wake up and check for timeouts. In this case, the second call to
 // getClass() in _idleThd() should receive an exception because the
 // connection has been closed due to the timeout.
-Boolean _test2(int duration, Boolean connectLocal)
+Boolean _test2(
+    int durationSeconds, const char * testUserid, const char * testPasswd)
 {
     try
     {
-        Array<CIMClient *> clientConnections;
-
-        // declare the clients
-        CIMClient * tmpClient;
-        for(Uint32 i = 0; i < NUM_THREADS; i++)
-        {
-            tmpClient = new CIMClient();
-            clientConnections.append(tmpClient);
-        }
-
-        // connect the clients
-        for(Uint32 i = 0; i < NUM_THREADS; i++)
-        {
-            if (connectLocal)
-            {
-                clientConnections[i]->connectLocal();
-            }
-            else
-            {
-                cout << "Connecting to " << System::getHostName() << ":5988" 
-                    << endl;
-                clientConnections[i]->connect(System::getHostName(), 5988, 
-                    testUserid, testPasswd);
-            }
-        }
-
+        sleepIterations.set(0);
         // run tests
         Array<Thread *> clientThreads;
 
         test2CaughtException = false;
 
         clientThreads.append(
-            _runTestThreads(clientConnections[0], _runningThd, duration, 0));
+            _runTestThreads(
+                _runningThd, durationSeconds, testUserid, testPasswd));
 
         clientThreads.append(
-            _runTestThreads(clientConnections[1], _idleThd, duration, 1));
+            _runTestThreads(
+                _idleThd, durationSeconds, testUserid, testPasswd));
 
         // wait for threads to terminate
         for(Uint32 i=0; i< clientThreads.size(); i++)
@@ -239,12 +257,6 @@ Boolean _test2(int duration, Boolean connectLocal)
             clientThreads[i]->join();
         }
 
-        // clean up connections
-        for(Uint32 i=0; i< clientConnections.size(); i++)
-        {
-            if(clientConnections[i])
-                delete clientConnections[i];
-        }
         // clean up threads
         for(Uint32 i=0; i < clientThreads.size(); i++)
         {
@@ -255,7 +267,7 @@ Boolean _test2(int duration, Boolean connectLocal)
     catch(Exception& e)
     {
         cerr << "Error: " << e.getMessage() << endl;
-        return FAILED;
+        return TEST_FAILED;
     }
 
     // We except the exception in this case, so if it was caught
@@ -265,7 +277,9 @@ Boolean _test2(int duration, Boolean connectLocal)
 
 int main(int argc, char** argv)
 {
-    int duration = 0;
+    int durationSeconds = 0;
+    char testUserid[256];
+    char testPasswd[256];
 
     if (argc != 2)
     {
@@ -276,39 +290,43 @@ int main(int argc, char** argv)
     }
 
     const char * optOne = argv[1];
-    duration = atoi(optOne);
+    durationSeconds = atoi(optOne);
 
     cout << "Testing connectLocal()" << endl;
 
-    if (_test1(duration, true) == FAILED)
+    if (_test1(durationSeconds, NULL, NULL) == TEST_FAILED)
     {
         cerr << argv[0] << "----- _test1() localConnect failed" << endl;
         return 1;
     }
 
-    if (_test2(duration, true) == FAILED)
+    if (_test2(durationSeconds, NULL, NULL) == TEST_FAILED)
     {
         cerr << argv[0] << "----- _test2() localConnect failed" << endl;
         return 1;
     }
 
-    if ((testUseridPtr = getenv("PEGASUS_TEST_USER_ID")) &&
-        (testPasswdPtr = getenv("PEGASUS_TEST_USER_PASS")))
+    if ((getenv("PEGASUS_TEST_USER_ID")) &&
+        (getenv("PEGASUS_TEST_USER_PASS")))
     {
 
-        strncpy(testUserid, testUseridPtr, sizeof(testUserid));
-        strncpy(testPasswd, testPasswdPtr, sizeof(testPasswd));
+        strncpy(testUserid, getenv("PEGASUS_TEST_USER_ID"), 
+            sizeof(testUserid));
+        strncpy(testPasswd, getenv("PEGASUS_TEST_USER_PASS"), 
+            sizeof(testPasswd));
 
-        cout << "Testing connect() with user: " 
-            << testUserid << ", passwd: " << testPasswd << endl;
+        cout << "Testing connect() with "
+            << "host: " << System::getHostName() 
+            << ", port: 5988"
+            << ", user: " << testUserid << endl;
 
-        if (_test1(duration, false) == FAILED)
+        if (_test1(durationSeconds, testUserid, testPasswd) == TEST_FAILED)
         {
             cerr << argv[0] << "----- _test1() connect failed" << endl;
             return 1;
         }
 
-        if (_test2(duration, false) == FAILED)
+        if (_test2(durationSeconds, testUserid, testPasswd) == TEST_FAILED)
         {
             cerr << argv[0] << "----- _test2() connect failed" << endl;
             return 1;

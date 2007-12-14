@@ -865,6 +865,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                                return ;
                            }
 #endif
+                           // It is not necessary to check remote privileged 
+                           // user access for local connections; 
+                           // set the flag to "check done"
+                           httpMessage->authInfo->
+                               setRemotePrivilegedUserAccessChecked();
+
                            httpMessage->authInfo->setAuthenticatedUser(
                                requestUserName);
 

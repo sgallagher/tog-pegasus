@@ -484,6 +484,9 @@ void Monitor::run(Uint32 milliseconds)
 #endif
     _entry_mut.lock();
 
+    struct timeval timeNow;
+    Time::gettimeofday(&timeNow);
+
     // After enqueue a message and the autoEntryMutex has been released and
     // locked again, the array of _entries can be changed. The ArrayIterator
     // has be reset with the original _entries
@@ -527,33 +530,28 @@ void Monitor::run(Uint32 milliseconds)
                             "entries[indx].type for indx = %d is "
                                 "Monitor::CONNECTION",
                             indx));
-                        static_cast<HTTPConnection *>(q)->_entry_index = indx;
-
-                        // Do not update the entry just yet. The entry gets
-                        // updated once the request has been read.
-                        //entries[indx]._status = _MonitorEntry::BUSY;
-
-                        // If allocate_and_awaken failure, retry on next
-                        // iteration
-/* Removed for PEP 183.
-                        if (!MessageQueueService::get_thread_pool()->
-                                allocate_and_awaken((void *)q, _dispatch))
-                        {
-                            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                                "Monitor::run: Insufficient resources to "
-                                    "process request.");
-                            entries[indx]._status = _MonitorEntry::IDLE;
-                            return true;
-                        }
-*/
-// Added for PEP 183
                         HTTPConnection *dst =
                             reinterpret_cast<HTTPConnection *>(q);
+                        dst->_entry_index = indx;
+
+                        // Update idle start time because we have received some
+                        // data. Any data is good data at this point, and we'll
+                        // keep the connection alive, even if we've exceeded
+                        // the idleConnectionTimeout, which will be checked
+                        // when we call closeConnectionOnTimeout() next.
+                        Time::gettimeofday(&dst->_idleStartTime);
+
+                        // Check for accept pending (ie. SSL handshake pending)
+                        // or idle connection timeouts for sockets from which
+                        // we received data (avoiding extra queue lookup below).
+                        if (!dst->closeConnectionOnTimeout(&timeNow))
+                        {
                         PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
                             "Monitor::_dispatch: entering run() for "
                                 "indx = %d, queueId = %d, q = %p",
                             dst->_entry_index,
-                            dst->_monitor->_entries[dst->_entry_index].queueId,
+                                dst->_monitor->
+                                    _entries[dst->_entry_index].queueId,
                             dst));
 
                         try
@@ -568,32 +566,7 @@ void Monitor::run(Uint32 milliseconds)
                         PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
                             "Monitor::_dispatch: exited run() for index %d",
                             dst->_entry_index));
-
-                        // It is possible the entry status may not be set to
-                        // busy.  The following will fail in that case.
-                        // PEGASUS_ASSERT(dst->_monitor->_entries[
-                        //     dst->_entry_index]._status.get() ==
-                        //    _MonitorEntry::BUSY);
-                        // Once the HTTPConnection thread has set the status
-                        // value to either Monitor::DYING or Monitor::IDLE,
-                        // it has returned control of the connection to the
-                        // Monitor.  It is no longer permissible to access
-                        // the connection or the entry in the _entries table.
-
-                        // The following is not relevant as the worker thread
-                        // or the reader thread will update the status of the
-                        // entry.
-                        //if (dst->_connectionClosePending)
-                        //{
-                        //  dst->_monitor->_entries[dst->_entry_index]._status =
-                        //    _MonitorEntry::DYING;
-                        //}
-                        //else
-                        //{
-                        //  dst->_monitor->_entries[dst->_entry_index]._status =
-                        //    _MonitorEntry::IDLE;
-                        //}
-// end Added for PEP 183
+                        }
                     }
                     else if (entries[indx]._type == Monitor::INTERNAL)
                     {
@@ -647,6 +620,33 @@ void Monitor::run(Uint32 milliseconds)
                 catch (...)
                 {
                 }
+            }
+            // else check for accept pending (ie. SSL handshake pending) or
+            // idle connection timeouts for sockets from which we did not
+            // receive data.
+            else if ((entries[indx]._status.get() == _MonitorEntry::IDLE) &&
+                entries[indx]._type == Monitor::CONNECTION)
+            {
+                MessageQueue *q = MessageQueue::lookup(entries[indx].queueId);
+                HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(q);
+                dst->_entry_index = indx;
+                dst->closeConnectionOnTimeout(&timeNow);
+            }
+        }
+    }
+    // else if "events" is zero (ie. select timed out) then we still need
+    // to check if there are any pending SSL handshakes that have timed out.
+    else
+    {
+        for (int indx = 0; indx < (int)entries.size(); indx++)
+        {
+            if ((entries[indx]._status.get() == _MonitorEntry::IDLE) &&
+                entries[indx]._type == Monitor::CONNECTION)
+            {
+                MessageQueue *q = MessageQueue::lookup(entries[indx].queueId);
+                HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(q);
+                dst->_entry_index = indx;
+                dst->closeConnectionOnTimeout(&timeNow);
             }
         }
     }

@@ -119,7 +119,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     {
         MessageLoaderParms mlParms(
             "Client.CIMOperationResponseDecoder.EMPTY_RESPONSE",
-            "Empty HTTP response message.");
+            "Connection closed by CIM Server.");
         String mlString(MessageLoader::getMessage(mlParms));
 
         CIMClientMalformedHTTPException* malformedHTTPException =

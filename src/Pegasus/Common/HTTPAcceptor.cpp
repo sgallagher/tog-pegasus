@@ -131,7 +131,8 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
      _connectionType(connectionType),
      _portNumber(portNumber),
      _sslcontext(sslcontext),
-     _sslContextObjectLock(sslContextObjectLock)
+     _sslContextObjectLock(sslContextObjectLock),
+     _idleConnectionTimeoutSeconds(0)
 {
    Socket::initializeInterface();
 
@@ -624,6 +625,11 @@ void HTTPAcceptor::setSocketWriteTimeout(Uint32 socketWriteTimeout)
     _socketWriteTimeout = socketWriteTimeout;
 }
 
+void HTTPAcceptor::setIdleConnectionTimeout(Uint32 idleConnectionTimeoutSeconds)
+{
+    _idleConnectionTimeoutSeconds = idleConnectionTimeoutSeconds;
+}
+
 void HTTPAcceptor::unbind()
 {
     if (_rep)
@@ -825,11 +831,19 @@ void HTTPAcceptor::_acceptConnection()
     HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket,
         ipAddress, this, static_cast<MessageQueue *>(_outputMessageQueue));
 
+    if (_idleConnectionTimeoutSeconds)
+    {
+        connection->_idleConnectionTimeoutSeconds = 
+            _idleConnectionTimeoutSeconds;
+        Time::gettimeofday(&connection->_idleStartTime);
+    }
+
     if (socketAcceptStatus == 0)
     {
         PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL2,
             "HTTPAcceptor: SSL_accept() pending");
         connection->_acceptPending = true;
+        Time::gettimeofday(&connection->_acceptPendingStartTime); 
     }
 
     // Solicit events on this new connection's socket:

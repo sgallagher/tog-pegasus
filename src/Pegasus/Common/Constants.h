@@ -437,6 +437,13 @@ PEGASUS_COMMON_LINKAGE
 #define SNMP_TRAP_DEFAULT_PORT 162
 
 
+/*
+ * Default timeout value for SSL accept pending
+ */
+
+#define PEGASUS_SSL_ACCEPT_TIMEOUT_SECONDS 5
+
+
 //
 // Wbem service names
 //

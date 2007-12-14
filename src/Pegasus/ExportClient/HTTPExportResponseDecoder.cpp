@@ -75,7 +75,7 @@ void HTTPExportResponseDecoder::parseHTTPHeaders(
     {
         MessageLoaderParms mlParms(
             "ExportClient.CIMExportResponseDecoder.EMPTY_RESPONSE",
-            "Empty HTTP response message.");
+            "Connection closed by CIM Server.");
         String mlString(MessageLoader::getMessage(mlParms));
         AutoPtr<CIMClientMalformedHTTPException> malformedHTTPException(
             new CIMClientMalformedHTTPException(mlString));

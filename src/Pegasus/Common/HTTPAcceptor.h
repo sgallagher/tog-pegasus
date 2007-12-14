@@ -128,6 +128,7 @@ public:
     Uint32 getPortNumber() const;
 
     void setSocketWriteTimeout(Uint32 socketWriteTimeout);
+    void setIdleConnectionTimeout(Uint32 idleConnectionTimeoutSeconds);
 
 private:
 
@@ -147,6 +148,7 @@ private:
     SSLContext* _sslcontext;
     ReadWriteSem*  _sslContextObjectLock;
     Uint32 _socketWriteTimeout;
+    Uint32 _idleConnectionTimeoutSeconds;
 };
 
 PEGASUS_NAMESPACE_END

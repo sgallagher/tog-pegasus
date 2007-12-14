@@ -73,7 +73,8 @@
 # include <Pegasus/Client/CIMClient.h>
 #endif
 
-// PEGASUS_SLP_REG_TIMEOUT is the time interval in minute for reregistration with SLP.
+// PEGASUS_SLP_REG_TIMEOUT is the time interval in minute for reregistration 
+// with SLP.
 #ifdef PEGASUS_SLP_REG_TIMEOUT
 #include "SLPAttrib.h"
 #include <slp/slp_client/src/cmd-utils/slp_client/lslp-common-defs.h>
@@ -92,7 +93,8 @@
 #include \
     <Pegasus/ControlProviders/ConfigSettingProvider/ConfigSettingProvider.h>
 #include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
-#include <Pegasus/ControlProviders/ProviderRegistrationProvider/ProviderRegistrationProvider.h>
+#include <Pegasus/ControlProviders/ProviderRegistrationProvider/\
+ProviderRegistrationProvider.h>
 #include <Pegasus/ControlProviders/NamespaceProvider/NamespaceProvider.h>
 
 #ifndef PEGASUS_DISABLE_PERFINST
@@ -104,7 +106,8 @@
 #endif
 
 #ifndef PEGASUS_DISABLE_CQL
-# include <Pegasus/ControlProviders/QueryCapabilitiesProvider/CIMQueryCapabilitiesProvider.h>
+# include <Pegasus/ControlProviders/QueryCapabilitiesProvider/\
+CIMQueryCapabilitiesProvider.h>
 #endif
 
 #if !defined(PEGASUS_DISABLE_PERFINST) || defined(PEGASUS_ENABLE_SLP)
@@ -170,7 +173,8 @@ void* waitForStopCommand(void*)
             sprintf(str_errno2,"%08X",__errno2());
 
             PEG_TRACE((TRC_SERVER, Tracer::LEVEL2,
-                "Failed to issue __console() command: %s",strerror(errornumber)));
+                "Failed to issue __console() command: %s",
+                strerror(errornumber)));
             Logger::put_l(
                 Logger::ERROR_LOG, "CIM Server", Logger::SEVERE,
                 "Server.CIMServer.CONSOLE_ERROR.PEGASUS_OS_ZOS",
@@ -244,6 +248,13 @@ CIMServer::CIMServer(Monitor* monitor)
     _cimserver = this;
     _init();
 
+    // Get value of idle connection timeout in seconds.
+    String idleConnectionConfigTimeout =
+        ConfigManager::getInstance()->getCurrentValue("idleConnectionTimeout");
+
+    _idleConnectionTimeoutSeconds =
+        strtol(idleConnectionConfigTimeout.getCString(), (char**)0, 10);
+ 
     PEG_METHOD_EXIT();
 }
 
@@ -673,6 +684,9 @@ void CIMServer::addAcceptor(
     // equal what went wrong, there has to be a timeout
     if (socketWriteTimeout == 0) socketWriteTimeout = 20;
     acceptor->setSocketWriteTimeout(socketWriteTimeout);
+
+    // Set idle connection timeout in seconds.
+    acceptor->setIdleConnectionTimeout(_idleConnectionTimeoutSeconds);
 
     _acceptors.append(acceptor);
 }
@@ -1251,7 +1265,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _callSLPProvider(void* parm)
 
         _slpRegistrationComplete = true;
 
-        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, 
+            Logger::INFORMATION,
             "Pegasus.Server.SLP.SLP_REGISTRATION_INITIATED",
             "SLP Registration Initiated");
     }
@@ -1350,8 +1365,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL registerPegasusWithSLP(void* parm)
              {
                  Logger::put_l(
                      Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                     "Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_ERROR",
-                     "CIM Server registration with External SLP Failed.");
+                     "Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_ERROR"
+                     ,"CIM Server registration with External SLP Failed.");
              }
 
              if (foundHttpsProtocol &&
@@ -1364,8 +1379,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL registerPegasusWithSLP(void* parm)
              {
                  Logger::put_l(
                      Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                     "Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_ERROR",
-                     "CIM Server registration with External SLP Failed.");
+                     "Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_ERROR"
+                     ,"CIM Server registration with External SLP Failed.");
              }
          }
      }
@@ -1450,13 +1465,13 @@ void PEGASUS_SERVER_LINKAGE unregisterPegasusFromSLP()
         if (foundHttpProtocol)
         {
             client->srv_reg_local(client, (const char*)httpUrl,
-                                  (const char*)httpAttrs, (const char*)type, scopes, 0);
+                (const char*)httpAttrs, (const char*)type, scopes, 0);
         }
 
         if (foundHttpsProtocol)
         {
             client->srv_reg_local(client, (const char*)httpsUrl,
-                                   (const char*)httpsAttrs, (const char*)type, scopes, 0);
+                (const char*)httpsAttrs, (const char*)type, scopes, 0);
         }
 
         destroy_slp_client(client);

@@ -3957,7 +3957,7 @@ CIM server listening on HTTPS port {0}."}
         */
         ExportClient.CIMExportResponseDecoder.EXPECTED_EXPMETHODRESPONSE_ELEMENT:string {"PGS11401:  An EXPMETHODRESPONSE element is expected for CIM in XML."}
 
-        ExportClient.CIMExportResponseDecoder.EMPTY_RESPONSE:string {"PGS11402: The HTTP response message is empty."}
+        ExportClient.CIMExportResponseDecoder.EMPTY_RESPONSE:string {"PGS11402: Connection closed by CIM Server."}
 
         ExportClient.CIMExportResponseDecoder.MALFORMED_RESPONSE:string {"PGS11403:  The HTTP response message is not valid."}
 
@@ -4111,7 +4111,7 @@ CIM server listening on HTTPS port {0}."}
         */
         Client.CIMOperationResponseDecoder.UNRECOGNIZED_NAME:string {"PGS12006:  The name {0} of the IMETHODRESPONSE element is not recognized."}
 
-        Client.CIMOperationResponseDecoder.EMPTY_RESPONSE:string {"PGS12007: The HTTP response message is empty."}
+        Client.CIMOperationResponseDecoder.EMPTY_RESPONSE:string {"PGS12007: Connection closed by CIM Server."}
 
         Client.CIMOperationResponseDecoder.MALFORMED_RESPONSE:string {"PGS12008: The HTTP response message is not valid."}
 

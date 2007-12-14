@@ -63,7 +63,6 @@
 #include <Pegasus/Compiler/Linkage.h>
 #include <iostream>
 
-PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
 class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
@@ -163,16 +162,25 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   Boolean xml_output() const { return _emit_xml; }
   void set_traceos(PEGASUS_STD(ostream) &os) { _traceos = &os; }
   void reset_traceos() { _traceos = 0; }
-  ostream &traceos() const
-      { return _traceos ? (ostream&)*_traceos : (ostream&)cout; }
-  void set_erroros(ostream &os) { _erroros = &os; }
+  PEGASUS_STD(ostream) &traceos() const
+  { 
+      return _traceos ? (PEGASUS_STD(ostream)&)*_traceos : 
+          (PEGASUS_STD(ostream)&)PEGASUS_STD(cout); 
+  }
+  void set_erroros(PEGASUS_STD(ostream) &os) { _erroros = &os; }
   void reset_erroros() { _erroros = 0; }
-  ostream &erroros() const
-      { return _erroros ? (ostream&)*_erroros : (ostream&)cerr; }
-  void set_warningos(ostream &os) { _warningos = &os; }
+  PEGASUS_STD(ostream) &erroros() const
+  { 
+      return _erroros ? (PEGASUS_STD(ostream)&)*_erroros : 
+          (PEGASUS_STD(ostream)&)PEGASUS_STD(cerr); 
+  }
+  void set_warningos(PEGASUS_STD(ostream &os)) { _warningos = &os; }
   void reset_warningos() { _warningos = 0; }
-  ostream &warningos() const
-      {return _warningos ? (ostream&)*_warningos : (ostream&)cerr;}
+  PEGASUS_STD(ostream) &warningos() const
+  {
+      return _warningos ? (PEGASUS_STD(ostream)&)*_warningos :
+          (PEGASUS_STD(ostream)&)PEGASUS_STD(cerr);
+  }
   void set_namespacePath(const String &path) { _namespacePath = path; }
   const String &get_namespacePath() const  { return _namespacePath; }
   void set_no_usage_warning() { _no_usage_warning = true; }

@@ -48,6 +48,7 @@
 //      Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3610
 //
 //%////////////////////////////////////////////////////////////////////////////
+//NOCHKSRC
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -146,7 +147,8 @@ static struct OwnerEntry _properties[] =
 #endif
     {"forceProviderProcesses", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"maxProviderProcesses", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
-    {"socketWriteTimeout", (ConfigPropertyOwner* )ConfigManager::defaultOwner}
+    {"socketWriteTimeout", (ConfigPropertyOwner*)ConfigManager::defaultOwner},
+    {"idleConnectionTimeout", (ConfigPropertyOwner*)ConfigManager::defaultOwner}
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(_properties) / sizeof(struct OwnerEntry);

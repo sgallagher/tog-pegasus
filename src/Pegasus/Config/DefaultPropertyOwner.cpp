@@ -39,6 +39,7 @@
 //              Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
 //
 //%/////////////////////////////////////////////////////////////////////////////
+//NOCHKSRC
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -292,7 +293,8 @@ const
     // By default, no validation is done. It can optionally be added here
     // per property.
     //
-    if (String::equalNoCase(name, "socketWriteTimeout"))
+    if (String::equalNoCase(name, "socketWriteTimeout") ||
+        String::equalNoCase(name, "idleConnectionTimeout"))
     {
         Uint32 timeoutValue;
         char dummyChar;        

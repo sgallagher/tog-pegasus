@@ -28,23 +28,23 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = ../../../../
-
+ROOT = ../../../../..
+DIR = Pegasus/Client/tests/IdleConnectionTimeout
 include $(ROOT)/mak/config.mak
+include ../libraries.mak
 
-DIRS =	AssociationClient \
-	Client \
-	IdleConnectionTimeout \
-	InvokeMethod2 \
-	EnumInstances \
-	DeleteNamespace \
-	ClientStatistics
+EXTRA_INCLUDES = $(SYS_INCLUDES) $(ACE_INCLUDES)
 
-DIRS_SLP = \
-    slp
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-ifeq ($(PEGASUS_ENABLE_SLP),true)
-  DIRS += $(DIRS_SLP)
-endif
+PROGRAM = TestIdleConnectionTimeout
+SOURCES = IdleConnectionTimeout.cpp
 
-include $(ROOT)/mak/recurse.mak
+include $(ROOT)/mak/program.mak
+
+tests:
+
+poststarttests:
+
+timeoutTest:
+	$(PROGRAM) $(IDLETIME)

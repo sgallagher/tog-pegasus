@@ -36,6 +36,7 @@
 //               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
+//NOCHKSRC
 
 #ifndef Pegasus_HTTPAcceptor_h
 #define Pegasus_HTTPAcceptor_h
@@ -133,6 +134,7 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
       Uint32 getPortNumber() const;
 
       void setSocketWriteTimeout(Uint32 socketWriteTimeout);
+      void setIdleConnectionTimeout(Uint32 idleConnectionTimeoutSeconds);
 
    private:
 
@@ -154,6 +156,7 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
       Boolean _exportConnection;
       ReadWriteSem*  _sslContextObjectLock;
       Uint32  _socketWriteTimeout;
+      Uint32 _idleConnectionTimeoutSeconds;
 };
 
 PEGASUS_NAMESPACE_END

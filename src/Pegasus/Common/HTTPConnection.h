@@ -134,6 +134,8 @@ public:
 
     void setSocketWriteTimeout(Uint32 socketWriteTimeout);
 
+    Boolean closeConnectionOnTimeout(const TimeValue& timeNow);
+
     // ATTN-RK-P1-20020521: This is a major hack, required to get the CIM
     // server and tests to run successfully.  The problem is that the
     // HTTPAcceptor is deleting an HTTPConnection before all the threads
@@ -213,6 +215,9 @@ private:
     // completed.
     Boolean _acceptPending;
 
+    // Holds time since the accept pending condition was detected.
+    TimeValue _acceptPendingStartTime;
+
     int _entry_index;
 
     // When used by the client, it is an offset (from start of http message)
@@ -229,6 +234,13 @@ private:
 
     // 2 digit prefix on http header if mpost was used
     String _mpostPrefix;
+
+    // Holds time since this connection is idle.
+    TimeValue _idleStartTime;
+
+    // Idle session timeout in milli seconds specified by Config property
+    // idleSessionTimeout.
+    Uint32 _idleConnectionTimeoutSeconds;
 
     friend class Monitor;
     friend class HTTPAcceptor;

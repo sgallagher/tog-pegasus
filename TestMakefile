@@ -263,6 +263,8 @@ serversuite: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_INDSSL_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_SSL_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_G11N_TS1
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_idleConnectionTimeout1
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_idleConnectionTimeout2
 
 ####################
 #
@@ -561,6 +563,42 @@ run_G11N_TS1:
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
             CIMSERVER_CONFIG_OPTIONS="$(G11N_TS1_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(G11N_TS1_TEST_CMDS)"
+###############################################################################
+
+
+###############################################################################
+##  idleConnectionTimeout Test Suite 1:  uses ChunkingStressProvider Tests
+##
+##  Configuration Options: idleConnectionTime=55
+##
+###############################################################################
+IDLE_CONNECTION_TIMEOUT_1_CONFIG_OPTIONS = idleConnectionTimeout=55
+IDLE_CONNECTION_TIMEOUT_1_TEST_CMDS = \
+	$(MAKE)@@--directory \
+            $(PEGASUS_ROOT)/src/Providers/TestProviders/ChunkingStressProvider/testclient \
+            -f@@Makefile@@poststarttests
+run_idleConnectionTimeout1: FORCE
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(IDLE_CONNECTION_TIMEOUT_1_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(IDLE_CONNECTION_TIMEOUT_1_TEST_CMDS)"
+###############################################################################
+
+
+###############################################################################
+##  idleConnectionTimeout Test Suite 2:  uses IdleConnectionTimeout client test
+##
+##  Configuration Options: idleConnectionTime=6
+##
+###############################################################################
+IDLE_CONNECTION_TIMEOUT_2_CONFIG_OPTIONS = idleConnectionTimeout=6
+IDLE_CONNECTION_TIMEOUT_2_TEST_CMDS = \
+	$(MAKE)@@--directory \
+            $(PEGASUS_ROOT)/src/Pegasus/Client/tests/IdleConnectionTimeout/ \
+            -f@@Makefile@@timeoutTest@@IDLETIME=10
+run_idleConnectionTimeout2: FORCE
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(IDLE_CONNECTION_TIMEOUT_2_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(IDLE_CONNECTION_TIMEOUT_2_TEST_CMDS)"
 ###############################################################################
 
 

@@ -45,6 +45,7 @@
 //          John Alex, IBM (johnalex@us.ibm.com) for Bug#3312
 //
 //%/////////////////////////////////////////////////////////////////////////////
+//NOCHKSRC
 
 #include "Config.h"
 #include "Constants.h"
@@ -169,7 +170,8 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
      _portNumber(portNumber),
      _sslcontext(sslcontext),
      _exportConnection(exportConnection),
-     _sslContextObjectLock(sslContextObjectLock)
+     _sslContextObjectLock(sslContextObjectLock),
+     _idleConnectionTimeoutSeconds(0)
 {
    Socket::initializeInterface();
 
@@ -607,6 +609,11 @@ void HTTPAcceptor::setSocketWriteTimeout(Uint32 socketWriteTimeout)
     _socketWriteTimeout = socketWriteTimeout;
 }
 
+void HTTPAcceptor::setIdleConnectionTimeout(Uint32 idleConnectionTimeoutSeconds)
+{
+    _idleConnectionTimeoutSeconds = idleConnectionTimeoutSeconds;
+}
+
 void HTTPAcceptor::unbind()
 {
    if (_rep)
@@ -754,11 +761,19 @@ void HTTPAcceptor::_acceptConnection()
    HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket,
        this, static_cast<MessageQueue *>(_outputMessageQueue), _exportConnection);
 
+   if (_idleConnectionTimeoutSeconds)
+   {
+       connection->_idleConnectionTimeoutSeconds = 
+           _idleConnectionTimeoutSeconds;
+       connection->_idleStartTime = TimeValue::getCurrentTime();
+   }
+
    if (socketAcceptStatus == 0)
    {
        PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
            "HTTPAcceptor: SSL_accept() pending");
        connection->_acceptPending = true;
+       connection->_acceptPendingStartTime = TimeValue::getCurrentTime();
    }
 
    // Solicit events on this new connection's socket:

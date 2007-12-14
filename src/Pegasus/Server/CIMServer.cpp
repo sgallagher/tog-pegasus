@@ -45,6 +45,7 @@
 //         Amit K Arora, IBM (amita@in.ibm.com) for PEP 193
 //
 //%/////////////////////////////////////////////////////////////////////////////
+//NOCHKSRC
 
 #include <Pegasus/Common/Config.h>
 
@@ -160,6 +161,14 @@ CIMServer::CIMServer(Monitor* monitor)
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::CIMServer()");
     _init();
     _cimserver = this;
+
+    // Get value of idle connection timeout in seconds.
+    String idleConnectionConfigTimeout =
+        ConfigManager::getInstance()->getCurrentValue("idleConnectionTimeout");
+
+    _idleConnectionTimeoutSeconds =
+        strtol(idleConnectionConfigTimeout.getCString(), (char**)0, 10);
+ 
     PEG_METHOD_EXIT();
 }
 
@@ -572,6 +581,9 @@ void CIMServer::addAcceptor(
     // equal what went wrong, there has to be a timeout
     if (socketWriteTimeout == 0) socketWriteTimeout = 20;
     acceptor->setSocketWriteTimeout(socketWriteTimeout);
+
+    // Set idle connection timeout in seconds.
+    acceptor->setIdleConnectionTimeout(_idleConnectionTimeoutSeconds);
 
     _acceptors.append(acceptor);
 }

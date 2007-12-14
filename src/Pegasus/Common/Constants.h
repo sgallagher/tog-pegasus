@@ -34,11 +34,12 @@
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
-//				Willis White (whiwill@us.ibm.com) Bug 1596
+//              Willis White (whiwill@us.ibm.com) Bug 1596
 //              Amit K Arora, IBM (amitarora@in.ibm.com) for PEP 193
 //              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
+//NOCHKSRC
 
 #ifndef Pegasus_Constants_h
 #define Pegasus_Constants_h
@@ -155,7 +156,7 @@ static const CIMName PEGASUS_CLASSNAME_LSTNRDST           =
 static const CIMName PEGASUS_CLASSNAME_INDHANDLER_CIMXML    = 
     CIMName ("CIM_IndicationHandlerCIMXML");
 static const CIMName PEGASUS_CLASSNAME_LSTNRDST_CIMXML    = 
-		CIMName ("CIM_ListenerDestinationCIMXML");
+    CIMName ("CIM_ListenerDestinationCIMXML");
 static const CIMName PEGASUS_CLASSNAME_INDHANDLER_SNMP      = 
     CIMName ("PG_IndicationHandlerSNMPMapper");
 static const CIMName PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG      =
@@ -327,6 +328,13 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 #define WBEM_DEFAULT_HTTPS_PORT 5989
 
 #define SNMP_TRAP_DEFAULT_PORT 162
+
+
+/*
+ * Default timeout value for SSL accept pending
+ */
+
+#define PEGASUS_SSL_ACCEPT_TIMEOUT_SECONDS 5
 
 
 //

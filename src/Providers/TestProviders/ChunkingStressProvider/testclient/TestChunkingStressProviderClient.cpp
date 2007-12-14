@@ -1,31 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Dave Sudlik (dsudlik@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,11 +41,10 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/AtomicInt.h>
-
-#include <Pegasus/General/Stopwatch.h>
 
 #include <Pegasus/Client/CIMClient.h>
 
@@ -53,7 +58,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static Boolean verbose = 0;
+static char * verbose = 0;
 static Boolean shutdownFlag = false;
 AtomicInt expectedResults;
 AtomicInt actualResults;
@@ -70,7 +75,7 @@ static const String ASSOC_CLASSNAME("TST_ChunkingStressAssoc");
 ////////////////////////////////////////////////////////////////////////////////
 class T_Parms{
    public:
-    CIMClient* client;
+    AutoPtr<CIMClient> client;
     Uint32 duration;
     Uint32 uniqueID;
 };
@@ -108,26 +113,26 @@ time to execute.  Grow this to a class so we have start and stop and time
 display with success/failure for each function.
 */
 static void _testStart(
-    const String& cimop, const Uint32 uniqueID,
+    const String& cimop, const Uint32 uniqueID, 
     const Uint32 duration, const String& message)
 {
-    cout << "+++++ " << cimop << " thread " << uniqueID << ": " << message
+    cout << "+++++ " << cimop << " thread " << uniqueID << ": " << message 
          << " for " << duration << " seconds" << endl;
 }
 
 static void _testEnd(
-    const String& cimop, const Uint32 uniqueID,
+    const String& cimop, const Uint32 uniqueID, 
     const Uint32 iterations, const double elapsedTime)
 {
     if (shutdownFlag)
     {
-        cout << "????? " << cimop << " thread " << uniqueID
-             << ": shutting down due to indicated failure on another thread"
+        cout << "????? " << cimop << " thread " << uniqueID 
+             << ": shutting down due to indicated failure on another thread" 
              << endl;
     }
     else
     {
-        cout << "+++++ " << cimop << " thread " << uniqueID
+        cout << "+++++ " << cimop << " thread " << uniqueID 
              << ": passed in " << elapsedTime
              << " seconds with " << iterations << " iterations" << endl;
     }
@@ -137,7 +142,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeEI(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
-    CIMClient *client = parms->client;
+    CIMClient *client = parms->client.get();
     Uint32 duration = parms->duration;
     Uint32 uniqueID = parms->uniqueID;
 
@@ -155,7 +160,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeEI(void *parm)
         {
             expectedResults++;
 
-            iterations++;
+            iterations++; 
             elapsedTime.start();
 
             Array<CIMInstance> cimInstances =
@@ -168,21 +173,21 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeEI(void *parm)
 
             if (cimInstances.size() == EXPECTED_INSTANCES)
             {
-                if (verbose)
+                if (true) // alternative: check verbose flag
                 {
-                    cout << "      EI thread " << uniqueID
-                         << ": iteration " << iterations
+                    cout << "      EI thread " << uniqueID 
+                         << ": iteration " << iterations 
                          << ": received " << cimInstances.size()
-                         << " instances,"
+                         << " instances," 
                          << " et " << elapsedSeconds
                          << " of " << duration << endl;
                 }
             }
-            else
+            else 
             {
                 shutdownFlag = true;
-                sprintf(exceptionMsg,
-                    "----- EI thread %u expected %d instances, received %u",
+                sprintf(exceptionMsg, 
+                    "----- EI thread %d expected %d instances, received %d",
                     uniqueID,
                     EXPECTED_INSTANCES,
                     cimInstances.size());
@@ -192,22 +197,20 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeEI(void *parm)
         }
         _testEnd("EI", uniqueID, iterations, elapsedSeconds);
     }
-    catch (Exception& e)
+    catch(Exception e)
     {
-        cout << "---- EI thread " << uniqueID << " caught exception: "
+        cout << "---- EI thread " << uniqueID << " caught exception: " 
             << e.getMessage() << endl;
     }
-
-    delete parms;
-
-    return ThreadReturnType(0);
+    my_thread->exit_self((ThreadReturnType)0);
+    return(0);
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL _executeNI(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
-    CIMClient *client = parms->client;
+    CIMClient *client = parms->client.get();
     Uint32 duration = parms->duration;
     Uint32 uniqueID = parms->uniqueID;
 
@@ -225,7 +228,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeNI(void *parm)
         {
             expectedResults++;
 
-            iterations++;
+            iterations++; 
             elapsedTime.start();
 
             Array<CIMObjectPath> cimInstanceNames =
@@ -238,21 +241,21 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeNI(void *parm)
 
             if (cimInstanceNames.size() == EXPECTED_INSTANCENAMES)
             {
-                if (verbose)
+                if (true) // alternative: check verbose flag
                 {
-                    cout << "      NI thread " << uniqueID
-                         << ": iteration " << iterations
+                    cout << "      NI thread " << uniqueID 
+                         << ": iteration " << iterations 
                          << ": received " << cimInstanceNames.size()
-                         << " inst names,"
+                         << " inst names," 
                          << " et " << elapsedSeconds
                          << " of " << duration << endl;
                 }
             }
-            else
+            else 
             {
                 shutdownFlag = true;
-                sprintf(exceptionMsg,
-                    "----- NI thread %u expected %d instancenames, received %u",
+                sprintf(exceptionMsg, 
+                    "----- NI thread %d expected %d instancenames, received %d",
                     uniqueID,
                     EXPECTED_INSTANCENAMES,
                     cimInstanceNames.size());
@@ -262,22 +265,20 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeNI(void *parm)
         }
         _testEnd("NI", uniqueID, iterations, elapsedSeconds);
     }
-    catch (Exception& e)
+    catch(Exception e)
     {
-        cout << "---- NI thread " << uniqueID << " caught exception: "
+        cout << "---- NI thread " << uniqueID << " caught exception: " 
             << e.getMessage() << endl;
     }
-
-    delete parms;
-
-    return ThreadReturnType(0);
+    my_thread->exit_self((ThreadReturnType)0);
+    return(0);
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL _executeA(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
-    CIMClient *client = parms->client;
+    CIMClient *client = parms->client.get();
     Uint32 duration = parms->duration;
     Uint32 uniqueID = parms->uniqueID;
 
@@ -295,7 +296,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeA(void *parm)
         {
             expectedResults++;
 
-            iterations++;
+            iterations++; 
             elapsedTime.start();
 
             Array<CIMObject> cimObjects =
@@ -308,21 +309,21 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeA(void *parm)
 
             if (cimObjects.size() == EXPECTED_ASSOCIATORS)
             {
-                if (verbose) // alternative: check verbose flag
+                if (true) // alternative: check verbose flag
                 {
-                    cout << "      A  thread " << uniqueID
-                         << ": iteration " << iterations
+                    cout << "      A  thread " << uniqueID 
+                         << ": iteration " << iterations 
                          << ": received " << cimObjects.size()
-                         << " objects,"
+                         << " objects," 
                          << " et " << elapsedSeconds
                          << " of " << duration << endl;
                 }
             }
-            else
+            else 
             {
                 shutdownFlag = true;
-                sprintf(exceptionMsg,
-                    "----- A  thread %u expected %d objects, received %u",
+                sprintf(exceptionMsg, 
+                    "----- A  thread %d expected %d objects, received %d",
                     uniqueID,
                     EXPECTED_ASSOCIATORS,
                     cimObjects.size());
@@ -332,22 +333,20 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeA(void *parm)
         }
         _testEnd("A ", uniqueID, iterations, elapsedSeconds);
     }
-    catch (Exception& e)
+    catch(Exception e)
     {
-        cout << "---- A  thread " << uniqueID << " caught exception: "
+        cout << "---- A  thread " << uniqueID << " caught exception: " 
             << e.getMessage() << endl;
     }
-
-    delete parms;
-
-    return ThreadReturnType(0);
+    my_thread->exit_self((ThreadReturnType)0);
+    return(0);
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL _executeAN(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
-    CIMClient *client = parms->client;
+    CIMClient *client = parms->client.get();
     Uint32 duration = parms->duration;
     Uint32 uniqueID = parms->uniqueID;
 
@@ -365,7 +364,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeAN(void *parm)
         {
             expectedResults++;
 
-            iterations++;
+            iterations++; 
             elapsedTime.start();
 
             Array<CIMObjectPath> cimObjectNames =
@@ -378,21 +377,21 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeAN(void *parm)
 
             if (cimObjectNames.size() == EXPECTED_ASSOCIATORNAMES)
             {
-                if (verbose) // alternative: check verbose flag
+                if (true) // alternative: check verbose flag
                 {
-                    cout << "      AN thread " << uniqueID
-                         << ": iteration " << iterations
+                    cout << "      AN thread " << uniqueID 
+                         << ": iteration " << iterations 
                          << ": received " << cimObjectNames.size()
-                         << " object names,"
+                         << " object names," 
                          << " et " << elapsedSeconds
                          << " of " << duration << endl;
                 }
             }
-            else
+            else 
             {
                 shutdownFlag = true;
-                sprintf(exceptionMsg,
-                    "----- AN thread %u expected %d objectnames, received %u",
+                sprintf(exceptionMsg, 
+                    "----- AN thread %d expected %d objectnames, received %d",
                     uniqueID,
                     EXPECTED_ASSOCIATORNAMES,
                     cimObjectNames.size());
@@ -402,22 +401,20 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeAN(void *parm)
         }
         _testEnd("AN", uniqueID, iterations, elapsedSeconds);
     }
-    catch (Exception& e)
+    catch(Exception e)
     {
         cout << "---- AN thread " << uniqueID << " caught exception: "
             << e.getMessage() << endl;
     }
-
-    delete parms;
-
-    return ThreadReturnType(0);
+    my_thread->exit_self((ThreadReturnType)0);
+    return(0);
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL _executeR(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
-    CIMClient *client = parms->client;
+    CIMClient *client = parms->client.get();
     Uint32 duration = parms->duration;
     Uint32 uniqueID = parms->uniqueID;
 
@@ -435,7 +432,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeR(void *parm)
         {
             expectedResults++;
 
-            iterations++;
+            iterations++; 
             elapsedTime.start();
 
             Array<CIMObject> cimObjects =
@@ -448,21 +445,21 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeR(void *parm)
 
             if (cimObjects.size() == EXPECTED_REFERENCES)
             {
-                if (verbose) // alternative: check verbose flag
+                if (true) // alternative: check verbose flag
                 {
-                    cout << "      R  thread " << uniqueID
-                         << ": iteration " << iterations
+                    cout << "      R  thread " << uniqueID 
+                         << ": iteration " << iterations 
                          << ": received " << cimObjects.size()
-                         << " objects,"
+                         << " objects," 
                          << " et " << elapsedSeconds
                          << " of " << duration << endl;
                 }
             }
-            else
+            else 
             {
                 shutdownFlag = true;
-                sprintf(exceptionMsg,
-                    "----- R  thread %u expected %d objects, received %u",
+                sprintf(exceptionMsg, 
+                    "----- R  thread %d expected %d objects, received %d",
                     uniqueID,
                     EXPECTED_REFERENCES,
                     cimObjects.size());
@@ -472,22 +469,20 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeR(void *parm)
         }
         _testEnd("R ", uniqueID, iterations, elapsedSeconds);
     }
-    catch (Exception& e)
+    catch(Exception e)
     {
         cout << "---- R  thread " << uniqueID << " caught exception: "
             << e.getMessage() << endl;
     }
-
-    delete parms;
-
-    return ThreadReturnType(0);
+    my_thread->exit_self((ThreadReturnType)0);
+    return(0);
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL _executeRN(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
-    CIMClient *client = parms->client;
+    CIMClient *client = parms->client.get();
     Uint32 duration = parms->duration;
     Uint32 uniqueID = parms->uniqueID;
 
@@ -505,7 +500,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeRN(void *parm)
         {
             expectedResults++;
 
-            iterations++;
+            iterations++; 
             elapsedTime.start();
 
             Array<CIMObjectPath> cimObjectNames =
@@ -518,21 +513,21 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeRN(void *parm)
 
             if (cimObjectNames.size() == EXPECTED_REFERENCENAMES)
             {
-                if (verbose) // alternative: check verbose flag
+                if (true) // alternative: check verbose flag
                 {
-                    cout << "      RN thread " << uniqueID
-                         << ": iteration " << iterations
+                    cout << "      RN thread " << uniqueID 
+                         << ": iteration " << iterations 
                          << ": received " << cimObjectNames.size()
-                         << " object names,"
+                         << " object names," 
                          << " et " << elapsedSeconds
                          << " of " << duration << endl;
                 }
             }
-            else
+            else 
             {
                 shutdownFlag = true;
-                sprintf(exceptionMsg,
-                    "----- RN thread %u expected %d objectnames, received %u",
+                sprintf(exceptionMsg, 
+                    "----- RN thread %d expected %d objectnames, received %d",
                     uniqueID,
                     EXPECTED_REFERENCENAMES,
                     cimObjectNames.size());
@@ -542,15 +537,13 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeRN(void *parm)
         }
         _testEnd("RN", uniqueID, iterations, elapsedSeconds);
     }
-    catch (Exception& e)
+    catch(Exception e)
     {
         cout << "---- RN thread " << uniqueID << " caught exception: "
             << e.getMessage() << endl;
     }
-
-    delete parms;
-
-    return ThreadReturnType(0);
+    my_thread->exit_self((ThreadReturnType)0);
+    return(0);
 }
 
 Thread * _runTestThreads(
@@ -561,7 +554,7 @@ Thread * _runTestThreads(
 {
     // package parameters, create thread and run...
     AutoPtr<T_Parms> parms(new T_Parms());
-    parms->client = client;
+    parms->client.reset(client);
     parms->duration = duration;
     parms->uniqueID = uniqueID;
     AutoPtr<Thread> t(new Thread(_executeFn, (void*)parms.release(), false));
@@ -577,7 +570,7 @@ void _beginTest(const Uint32 duration, const char* thdCountStr)
     // of the chunking CIM operations.
     Uint32 totalThdCount;
     Uint32 ei_count, ni_count, a_count, an_count, r_count, rn_count;
-    sscanf(thdCountStr, "%1u%1u%1u%1u%1u%1u",
+    sscanf(thdCountStr, "%1u%1u%1u%1u%1u%1u", 
            &ei_count, &ni_count, &a_count, &an_count, &r_count, &rn_count);
 
     totalThdCount = ei_count+ni_count+a_count+an_count+r_count+rn_count;
@@ -666,13 +659,16 @@ void _beginTest(const Uint32 duration, const char* thdCountStr)
     // clean up connections
     for(Uint32 i=0; i< clientConnections.size(); i++)
     {
-        delete clientConnections[i];
+        if(clientConnections[i])
+            delete clientConnections[i];
     }
     // clean up threads
     for(Uint32 i=0; i < clientThreads.size(); i++)
     {
-        delete clientThreads[i];
+        if(clientThreads[i])
+            delete clientThreads[i];
     }
+
 }
 
 int main(int argc, char** argv)
@@ -681,7 +677,7 @@ int main(int argc, char** argv)
     expectedResults.set(0);
     actualResults.set(0);
 
-    verbose = getenv("PEGASUS_TEST_VERBOSE")? true : false;
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
 
     if (argc <=1 || argc > 3)
     {
@@ -723,7 +719,7 @@ int main(int argc, char** argv)
     }
     catch(const CIMException & e)
     {
-        cout << "CIMException: " << e.getCode() << " "
+        cout << "CIMException: " << e.getCode() << " " 
             << e.getMessage() << endl;
         return(1);
     }

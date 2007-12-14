@@ -1,4 +1,4 @@
-.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man8.Z/cimconfig.8,v 1.3.56.2 2007/11/14 23:30:37 yi.zhou Exp $
+.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man8.Z/cimconfig.8,v 1.3.56.3 2007/12/14 20:32:36 dave.sudlik Exp $
 .\" .TA c \" lowercase initial leter of .TH name
 .TH "cimconfig" "8" "" "" ""
 .SH "NAME"
@@ -155,6 +155,29 @@ within the CIM Server process.
 .PD 0
 .IP 
 .BR "Default Value: " True
+.IP 
+.BR Dynamic: \0No
+.PD
+.PP 
+.B idleConnectionTimeout
+.IP 
+.BR Description: " If set to a positive integer, this value specifies a
+minimum timeout value for idle client connections.  If set to zero, idle
+client connections do not time out.
+.BR A client connection is considered idle when it is not in the process of
+sending a request and the CIM Server is not processing a request from that
+connection.  An idle connection timeout allows reclamation of the system
+resources allocated for idle CIM Server connections.  Note that the
+CIM Server may allow an idle connection to persist longer than the configured
+timeout value based on server activity.
+.BR Some client applications may not behave correctly if a connection timeout
+is introduced.  Client compatibility should be considered when configuring an
+idle connection timeout value.
+.BR The idle connection time is computed using the system clock.  Thus,
+resetting the system clock may cause unexpected timeout behavior.
+.PD 0
+.IP 
+.BR "Default Value: " 0
 .IP 
 .BR Dynamic: \0No
 .PD

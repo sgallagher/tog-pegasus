@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,9 +41,7 @@
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/BinaryCodec.h>
 #include "CIMOperationResponseDecoder.h"
-#include "CIMClientRep.h"
 
 #include <Pegasus/Common/MessageLoader.h>
 
@@ -52,12 +52,14 @@ PEGASUS_NAMESPACE_BEGIN
 CIMOperationResponseDecoder::CIMOperationResponseDecoder(
     MessageQueue* outputQueue,
     MessageQueue* encoderQueue,
-    ClientAuthenticator* authenticator)
+    ClientAuthenticator* authenticator,
+    Uint32 showInput)
     :
     MessageQueue(PEGASUS_QUEUENAME_OPRESPDECODER),
     _outputQueue(outputQueue),
     _encoderQueue(encoderQueue),
-    _authenticator(authenticator)
+    _authenticator(authenticator),
+    _showInput(showInput)
 {
 }
 
@@ -87,7 +89,7 @@ void CIMOperationResponseDecoder::handleEnqueue()
         }
 
         default:
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+            PEGASUS_ASSERT(0);
             break;
     }
 
@@ -106,9 +108,10 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     //
     TimeValue networkEndTime = TimeValue::getCurrentTime();
 
+    String  connectClose;
     String  startLine;
     Array<HTTPHeader> headers;
-    const char* content;
+    char*   content;
     Uint32  contentLength;
     Boolean cimReconnect=false;
 
@@ -125,9 +128,6 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         ClientExceptionMessage * response =
             new ClientExceptionMessage(malformedHTTPException);
 
-       //reconnect and resend next request
-        response->setCloseConnect(true);
-
         _outputQueue->enqueue(response);
         return;
     }
@@ -138,10 +138,9 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     //
     // Check for Connection: Close
     //
-    const char* connectClose;
     if (HTTPMessage::lookupHeader(headers, "Connection", connectClose, false))
     {
-        if (System::strcasecmp(connectClose, "Close") == 0)
+        if (String::equalNoCase(connectClose, "Close"))
         {
             //reconnect and then resend next request.
             cimReconnect=true;
@@ -175,18 +174,21 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         return;
     }
 
-    if (ClientTrace::displayOutput(ClientTrace::TRACE_CON))    {
+#ifdef PEGASUS_CLIENT_TRACE_ENABLE
+    if (_showInput & 1)
+    {
         cout << "CIMOperatonResponseDecoder";
         httpMessage->printAll(cout);
     }
-    if (ClientTrace::displayOutput(ClientTrace::TRACE_LOG))
+    if (_showInput & 2)
     {
         Logger::put(Logger::STANDARD_LOG,
-            "CIMCLient",
-            Logger::INFORMATION,
-            "CIMOperationRequestDecoder::Response, XML content: $0",
+            System::CIMSERVER,
+            Logger::TRACE,
+            "CIMOperationRequestDecoder::Response, XML content: $1",
             httpMessage->message.getData());
     }
+#endif
 
     try
     {
@@ -273,7 +275,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     //
     // Search for "CIMOperation" header:
     //
-    const char* cimOperation;
+    String cimOperation;
 
     if (!HTTPMessage::lookupHeader(
         headers, "CIMOperation", cimOperation, true))
@@ -305,27 +307,23 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     // content-type header  value format:
     //              type "/" subtype *( ";" parameter )
     // ex. text/xml;Charset="utf8"
-    const char* cimContentType;
-    bool binaryResponse = false;
+    String cimContentType;
 
     if (HTTPMessage::lookupHeader(
             headers, "Content-Type", cimContentType, true))
     {
-        String type;
-        String charset;
+        Uint32 len;
+        String contentTypeValue;
+        if ((len = cimContentType.find(';')) != PEG_NOT_FOUND)
+            contentTypeValue = cimContentType.subString(0,len);
+        else
+            contentTypeValue = cimContentType;
 
-        if (!HTTPMessage::parseContentTypeHeader(
-                cimContentType, type, charset) ||
-            (((!String::equalNoCase(type, "application/xml") &&
-              !String::equalNoCase(type, "text/xml")) ||
-             !String::equalNoCase(charset, "utf-8"))
-            && !(binaryResponse=String::equalNoCase(
-                type, "application/x-openpegasus"))
-        ))
+        if (!HTTPMessage::isSupportedContentType(contentTypeValue))
         {
             CIMClientMalformedHTTPException* malformedHTTPException = new
-                CIMClientMalformedHTTPException(
-                    "Bad Content-Type HTTP header; " + String(cimContentType));
+                CIMClientMalformedHTTPException
+                    ("Bad Content-Type HTTP header; " + contentTypeValue);
             ClientExceptionMessage * response =
                 new ClientExceptionMessage(malformedHTTPException);
 
@@ -356,19 +354,19 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     // look for any cim status codes. The HTTPConnection level would have
     // added them here.
 
-    const char* cimStatusCodeValue;
+    String cimStatusCodeValue;
     Boolean found = HTTPMessage::lookupHeader(headers, "CIMStatusCode",
         cimStatusCodeValue, true);
     CIMStatusCode cimStatusCodeNumber = CIM_ERR_SUCCESS;
 
-    if (found &&
-        (cimStatusCodeNumber = (CIMStatusCode) atoi(cimStatusCodeValue)) !=
-             CIM_ERR_SUCCESS)
+    if (found == true &&
+        (cimStatusCodeNumber = (CIMStatusCode)
+         atoi(cimStatusCodeValue.getCString())) != CIM_ERR_SUCCESS)
     {
         String cimStatusCodeDescription;
         found = HTTPMessage::lookupHeader(headers, "CIMStatusCodeDescription",
             cimStatusCodeDescription, true);
-        if (found && cimStatusCodeDescription.size() > 0)
+        if (found == true && cimStatusCodeDescription.size() > 0)
         {
             try
             {
@@ -391,40 +389,26 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         _outputQueue->enqueue(response);
         return;
     }
-
-    const char* serverTime;
+    String serverTime;
     if (HTTPMessage::lookupHeader(
             headers, "WBEMServerResponseTime", serverTime, true))
     {
-        Uint32 sTime = (Uint32) atol(serverTime);
+        Uint32 sTime = (Uint32) atol(serverTime.getCString());
         dataStore->setServerTime(sTime);
     }
 
 
     // Calculate the beginning of the content from the message size and
     // the content length.
-    if (binaryResponse)
-    {
-        // binary the "Content" also contains a few padding '\0' to align
-        // data structures to 8byte boundary
-        // the padding '\0' are also part of the counted contentLength
-        Uint32 headerEnd = httpMessage->message.size() - contentLength;
-        Uint32 binContentStart = CIMBuffer::round(headerEnd);
 
-        contentLength = contentLength - (binContentStart - headerEnd);
-        content = httpMessage->message.getData() + binContentStart;
-    }
-    else
-    {
-        content = httpMessage->message.getData() +
-            httpMessage->message.size() - contentLength;
-    }
+    content = (char *) httpMessage->message.getData() +
+        httpMessage->message.size() - contentLength;
 
     //
     // If it is a method response, then dispatch it to be handled:
     //
 
-    if (System::strcasecmp(cimOperation, "MethodResponse") != 0)
+    if (!String::equalNoCase(cimOperation, "MethodResponse"))
     {
         MessageLoaderParms mlParms(
             "Client.CIMOperationResponseDecoder.EXPECTED_METHODRESPONSE",
@@ -447,39 +431,15 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
     dataStore->setResponseSize(contentLength);
     dataStore->setEndNetworkTime(networkEndTime);
-    _handleMethodResponse(content, contentLength,
-        httpMessage->contentLanguages, cimReconnect, binaryResponse);
+    _handleMethodResponse(content, httpMessage->contentLanguages,cimReconnect);
 }
 
 void CIMOperationResponseDecoder::_handleMethodResponse(
-    const char* content,
-    Uint32 contentLength,
+    char* content,
     const ContentLanguageList& contentLanguages,
-    Boolean cimReconnect,
-    Boolean binaryResponse)
+    Boolean cimReconnect)
 {
     Message* response = 0;
-
-    //
-    // Decode binary messages up-front and skip remainder:
-    //
-
-    if (binaryResponse)
-    {
-        // Note: this may throw an exception which will be caught by caller.
-
-        CIMBuffer in((char*)content, contentLength);
-        CIMBufferReleaser buf_(in);
-
-        CIMResponseMessage* msg = BinaryCodec::decodeResponse(in);
-
-        msg->operationContext.set(
-            ContentLanguageListContainer(contentLanguages));
-        msg->setCloseConnect(cimReconnect);
-        _outputQueue->enqueue(msg);
-
-        return;
-    }
 
     //
     // Create and initialize XML parser:
@@ -538,12 +498,12 @@ void CIMOperationResponseDecoder::_handleMethodResponse(
             CIMClientResponseException* responseException =
                 new CIMClientResponseException(mlString);
 
-            ClientExceptionMessage * clientExceptionMessage =
+            ClientExceptionMessage * response =
                 new ClientExceptionMessage(responseException);
 
-            clientExceptionMessage->setCloseConnect(cimReconnect);
+            response->setCloseConnect(cimReconnect);
 
-            _outputQueue->enqueue(clientExceptionMessage);
+            _outputQueue->enqueue(response);
             return;
         }
 
@@ -708,8 +668,17 @@ void CIMOperationResponseDecoder::_handleMethodResponse(
     }
     catch (XmlException& x)
     {
+        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
+            "CIMOperationResponseDecoder::_handleMethodResponse - "
+                "XmlException has occurred. Message: $0",
+            x.getMessage());
+
         if (response)
         {
+//#ifdef PEGASUS_SNIA_INTEROP_TEST
+//         httpMessage->printAll(cout);
+//#endif
+
             delete response;
         }
 
@@ -1058,7 +1027,8 @@ CIMGetInstanceResponseMessage*
         return new CIMGetInstanceResponseMessage(
             messageId,
             cimException,
-            QueueIdStack());
+            QueueIdStack(),
+            CIMInstance());
     }
     else if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
     {
@@ -1075,12 +1045,11 @@ CIMGetInstanceResponseMessage*
 
         XmlReader::expectEndTag(parser, "IRETURNVALUE");
 
-        CIMGetInstanceResponseMessage* msg = new CIMGetInstanceResponseMessage(
+        return new CIMGetInstanceResponseMessage(
             messageId,
             cimException,
-            QueueIdStack());
-        msg->getResponseData().setInstance(cimInstance);
-        return msg;
+            QueueIdStack(),
+            cimInstance);
     }
     else
     {
@@ -1143,7 +1112,8 @@ CIMEnumerateInstanceNamesResponseMessage*
             return new CIMEnumerateInstanceNamesResponseMessage(
                 messageId,
                 cimException,
-                QueueIdStack());
+                QueueIdStack(),
+                Array<CIMObjectPath>());
         }
 
         if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
@@ -1169,15 +1139,11 @@ CIMEnumerateInstanceNamesResponseMessage*
         }
     }
 
-    CIMEnumerateInstanceNamesResponseMessage* msg;
-
-    msg = new CIMEnumerateInstanceNamesResponseMessage(
+    return new CIMEnumerateInstanceNamesResponseMessage(
         messageId,
         cimException,
-        QueueIdStack());
-
-    msg->getResponseData().setInstanceNames(instanceNames);
-    return msg;
+        QueueIdStack(),
+        instanceNames);
 }
 
 CIMEnumerateInstancesResponseMessage*
@@ -1197,7 +1163,8 @@ CIMEnumerateInstancesResponseMessage*
             return new CIMEnumerateInstancesResponseMessage(
                 messageId,
                 cimException,
-                QueueIdStack());
+                QueueIdStack(),
+                Array<CIMInstance>());
         }
 
         if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
@@ -1217,15 +1184,11 @@ CIMEnumerateInstancesResponseMessage*
         }
     }
 
-    CIMEnumerateInstancesResponseMessage* msg;
-
-    msg = new CIMEnumerateInstancesResponseMessage(
+    return new CIMEnumerateInstancesResponseMessage(
         messageId,
         cimException,
-        QueueIdStack());
-
-    msg->getResponseData().setInstances(namedInstances);
-    return msg;
+        QueueIdStack(),
+        namedInstances);
 }
 
 CIMDeleteInstanceResponseMessage*
@@ -1518,7 +1481,8 @@ CIMReferenceNamesResponseMessage*
             return new CIMReferenceNamesResponseMessage(
                 messageId,
                 cimException,
-                QueueIdStack());
+                QueueIdStack(),
+                Array<CIMObjectPath>());
         }
 
         if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
@@ -1535,16 +1499,11 @@ CIMReferenceNamesResponseMessage*
         }
     }
 
-    CIMReferenceNamesResponseMessage* msg;
-
-    msg = new CIMReferenceNamesResponseMessage(
+    return new CIMReferenceNamesResponseMessage(
         messageId,
         cimException,
-        QueueIdStack());
-
-    msg->getResponseData().setInstanceNames(objectPaths);
-
-    return msg;
+        QueueIdStack(),
+        objectPaths);
 }
 
 CIMReferencesResponseMessage*
@@ -1564,7 +1523,8 @@ CIMReferencesResponseMessage*
             return new CIMReferencesResponseMessage(
                 messageId,
                 cimException,
-                QueueIdStack());
+                QueueIdStack(),
+                Array<CIMObject>());
         }
 
         if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
@@ -1584,16 +1544,11 @@ CIMReferencesResponseMessage*
         }
     }
 
-    CIMReferencesResponseMessage *msg;
-
-    msg = new CIMReferencesResponseMessage(
+    return new CIMReferencesResponseMessage(
         messageId,
         cimException,
-        QueueIdStack());
-
-    msg->getResponseData().setObjects(objectWithPathArray);
-
-    return msg;
+        QueueIdStack(),
+        objectWithPathArray);
 }
 
 CIMAssociatorNamesResponseMessage*
@@ -1613,7 +1568,8 @@ CIMAssociatorNamesResponseMessage*
             return new CIMAssociatorNamesResponseMessage(
                 messageId,
                 cimException,
-                QueueIdStack());
+                QueueIdStack(),
+                Array<CIMObjectPath>());
         }
 
         if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
@@ -1630,16 +1586,11 @@ CIMAssociatorNamesResponseMessage*
         }
     }
 
-    CIMAssociatorNamesResponseMessage* msg;
-
-    msg = new CIMAssociatorNamesResponseMessage(
+    return new CIMAssociatorNamesResponseMessage(
         messageId,
         cimException,
-        QueueIdStack());
-
-    msg->getResponseData().setInstanceNames(objectPaths);
-
-    return msg;
+        QueueIdStack(),
+        objectPaths);
 }
 
 CIMAssociatorsResponseMessage*
@@ -1659,7 +1610,8 @@ CIMAssociatorsResponseMessage*
             return new CIMAssociatorsResponseMessage(
                 messageId,
                 cimException,
-                QueueIdStack());
+                QueueIdStack(),
+                Array<CIMObject>());
         }
 
         if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
@@ -1679,16 +1631,11 @@ CIMAssociatorsResponseMessage*
         }
     }
 
-    CIMAssociatorsResponseMessage* msg;
-
-    msg = new CIMAssociatorsResponseMessage(
+    return new CIMAssociatorsResponseMessage(
         messageId,
         cimException,
-        QueueIdStack());
-
-    msg->getResponseData().setObjects(objectWithPathArray);
-
-    return msg;
+        QueueIdStack(),
+        objectWithPathArray);
 }
 
 CIMExecQueryResponseMessage*
@@ -1708,7 +1655,8 @@ CIMExecQueryResponseMessage*
             return new CIMExecQueryResponseMessage(
                 messageId,
                 cimException,
-                QueueIdStack());
+                QueueIdStack(),
+                Array<CIMObject>());
         }
 
         if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
@@ -1722,16 +1670,11 @@ CIMExecQueryResponseMessage*
         }
     }
 
-    CIMExecQueryResponseMessage* msg;
-
-    msg = new CIMExecQueryResponseMessage(
+    return new CIMExecQueryResponseMessage(
         messageId,
         cimException,
-        QueueIdStack());
-
-    msg->getResponseData().setObjects(objectWithPathArray);
-
-    return msg;
+        QueueIdStack(),
+        objectWithPathArray);
 }
 
 CIMInvokeMethodResponseMessage*

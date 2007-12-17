@@ -330,7 +330,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleGetInstanceRequest(
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
 
-    AutoPThreadSecurity threadLevelSecurity(providerContext);
+    AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
     CIMInstanceProvider* provider =
         getProviderInterface<CIMInstanceProvider>(_provider);
@@ -387,7 +387,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleEnumerateInstancesRequest(
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
 
-    AutoPThreadSecurity threadLevelSecurity(providerContext);
+    AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
     CIMInstanceProvider* provider =
         getProviderInterface<CIMInstanceProvider>(_provider);
@@ -445,7 +445,7 @@ CIMResponseMessage*
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
 
-    AutoPThreadSecurity threadLevelSecurity(providerContext);
+    AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
     CIMInstanceProvider* provider =
         getProviderInterface<CIMInstanceProvider>(_provider);
@@ -500,7 +500,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleCreateInstanceRequest(
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
 
-    AutoPThreadSecurity threadLevelSecurity(providerContext);
+    AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
     CIMInstanceProvider* provider =
         getProviderInterface<CIMInstanceProvider>(_provider);
@@ -556,7 +556,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleModifyInstanceRequest(
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
 
-    AutoPThreadSecurity threadLevelSecurity(providerContext);
+    AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
     CIMInstanceProvider* provider =
         getProviderInterface<CIMInstanceProvider>(_provider);
@@ -614,7 +614,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleDeleteInstanceRequest(
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
 
-    AutoPThreadSecurity threadLevelSecurity(providerContext);
+    AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
     CIMInstanceProvider* provider =
         getProviderInterface<CIMInstanceProvider>(_provider);
@@ -670,7 +670,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleExecQueryRequest(
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
 
-    AutoPThreadSecurity threadLevelSecurity(providerContext);
+    AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
     CIMInstanceQueryProvider* provider =
         getProviderInterface<CIMInstanceQueryProvider>(_provider);
@@ -732,7 +732,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleAssociatorsRequest(
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
 
-    AutoPThreadSecurity threadLevelSecurity(providerContext);
+    AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
     CIMAssociationProvider* provider =
         getProviderInterface<CIMAssociationProvider>(_provider);
@@ -800,7 +800,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleAssociatorNamesRequest(
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
 
-    AutoPThreadSecurity threadLevelSecurity(providerContext);
+    AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
     CIMAssociationProvider* provider =
         getProviderInterface<CIMAssociationProvider>(_provider);
@@ -865,7 +865,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleReferencesRequest(
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
 
-    AutoPThreadSecurity threadLevelSecurity(providerContext);
+    AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
     CIMAssociationProvider* provider =
         getProviderInterface<CIMAssociationProvider>(_provider);
@@ -931,7 +931,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleReferenceNamesRequest(
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
 
-    AutoPThreadSecurity threadLevelSecurity(providerContext);
+    AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
     CIMAssociationProvider* provider =
         getProviderInterface<CIMAssociationProvider>(_provider);
@@ -1016,7 +1016,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleGetPropertyRequest(
     OperationContext providerContext(
         _createProviderOperationContext(getInstanceRequest.operationContext));
 
-    AutoPThreadSecurity threadLevelSecurity(providerContext);
+    AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
     CIMInstanceProvider* provider =
         getProviderInterface<CIMInstanceProvider>(_provider);
@@ -1131,7 +1131,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleSetPropertyRequest(
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
 
-    AutoPThreadSecurity threadLevelSecurity(providerContext);
+    AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
     CIMInstanceProvider* provider =
         getProviderInterface<CIMInstanceProvider>(_provider);
@@ -1196,7 +1196,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleInvokeMethodRequest(
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
 
-    AutoPThreadSecurity threadLevelSecurity(providerContext);
+    AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
     CIMMethodProvider* provider =
         getProviderInterface<CIMMethodProvider>(_provider);
@@ -1287,7 +1287,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleCreateSubscriptionRequest(
     providerContext.insert(request->operationContext.get(
         SubscriptionFilterQueryContainer::NAME));
 
-    AutoPThreadSecurity threadLevelSecurity(providerContext);
+    AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
     CIMIndicationProvider* provider =
         getProviderInterface<CIMIndicationProvider>(_provider);
@@ -1390,7 +1390,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleModifySubscriptionRequest(
     providerContext.insert(request->operationContext.get(
         SubscriptionFilterQueryContainer::NAME));
 
-    AutoPThreadSecurity threadLevelSecurity(providerContext);
+    AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
     CIMIndicationProvider* provider =
         getProviderInterface<CIMIndicationProvider>(_provider);
@@ -1468,7 +1468,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleDeleteSubscriptionRequest(
     providerContext.insert(request->operationContext.get(
         SubscriptionInstanceContainer::NAME));
 
-    AutoPThreadSecurity threadLevelSecurity(providerContext);
+    AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
     CIMIndicationProvider* provider =
         getProviderInterface<CIMIndicationProvider>(_provider);

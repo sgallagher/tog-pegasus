@@ -30,6 +30,7 @@
 //==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
+// NOCHKSRC
 
 #include "CMPI_Version.h"
 
@@ -450,7 +451,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         if (pr.miVector.instMI==0)
         {
@@ -620,7 +621,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         if (pr.miVector.instMI==0)
         {
@@ -755,7 +756,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
         
         if (pr.miVector.instMI==0)
         {
@@ -893,7 +894,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         if (pr.miVector.instMI==0)
         {
@@ -1033,7 +1034,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         if (pr.miVector.instMI==0)
         {
@@ -1168,7 +1169,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         if (pr.miVector.instMI==0)
         {
@@ -1314,7 +1315,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         if (pr.miVector.instMI==0)
         {
@@ -1496,7 +1497,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         if (pr.miVector.assocMI==0)
         {
@@ -1646,7 +1647,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         if (pr.miVector.assocMI==0)
         {
@@ -1823,7 +1824,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         if (pr.miVector.assocMI==0)
         {
@@ -1968,7 +1969,7 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         if (pr.miVector.assocMI==0)
         {
@@ -2142,7 +2143,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
         
         if (pr.miVector.methMI==0)
         {
@@ -2440,7 +2441,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
         
         if (pr.miVector.indMI==0)
         {
@@ -2642,7 +2643,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
         
         if (pr.miVector.indMI==0)
         {
@@ -3111,7 +3112,7 @@ Message * CMPIProviderManager::handleGetPropertyRequest(const Message * message)
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         if (pr.miVector.instMI==0)
         {
@@ -3310,7 +3311,7 @@ Message * CMPIProviderManager::handleSetPropertyRequest(const Message * message)
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(context);
+        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
         if (pr.miVector.instMI==0)
         {

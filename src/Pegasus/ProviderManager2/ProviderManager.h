@@ -41,8 +41,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define IDLE_LIMIT 300
-
 typedef void (*PEGASUS_INDICATION_CALLBACK_T)(
     CIMProcessIndicationRequestMessage*);
 

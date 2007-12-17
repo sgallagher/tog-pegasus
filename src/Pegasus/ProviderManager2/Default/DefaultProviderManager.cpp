@@ -695,7 +695,8 @@ void DefaultProviderManager::unloadIdleProviders()
                 CIMValue(provider->status.isIdle()).toString());
 
             if (provider->status.isIdle() &&
-                ((now.tv_sec - providerTime.tv_sec) > ((Sint32)IDLE_LIMIT)))
+                ((now.tv_sec - providerTime.tv_sec) >
+                 ((Sint32)PEGASUS_PROVIDER_IDLE_TIMEOUT_SECONDS)))
             {
                 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                     "Unloading idle provider: " + provider->getName());

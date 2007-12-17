@@ -47,9 +47,6 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-#undef IDLE_LIMIT
-#define IDLE_LIMIT 50
-
 /* Thread deletion specific */
 Semaphore CMPILocalProviderManager::_pollingSem(0);
 AtomicInt CMPILocalProviderManager::_stopPolling(0);
@@ -59,7 +56,7 @@ List<CMPILocalProviderManager::cleanupThreadRecord,Mutex>
 Mutex CMPILocalProviderManager::_reaperMutex;
 
 CMPILocalProviderManager::CMPILocalProviderManager ():
-_idle_timeout (IDLE_LIMIT)
+_idle_timeout (PEGASUS_PROVIDER_IDLE_TIMEOUT_SECONDS)
 {
     PEG_METHOD_ENTER(
         TRC_PROVIDERMANAGER,

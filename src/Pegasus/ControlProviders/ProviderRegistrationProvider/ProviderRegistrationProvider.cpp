@@ -220,6 +220,7 @@ void ProviderRegistrationProvider::modifyInstance(
         userName = String::EMPTY;
     }
 
+#ifndef PEGASUS_OS_ZOS
     if ((userName != String::EMPTY) && !System::isPrivilegedUser(userName))
     {
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,MessageLoaderParms(
@@ -229,6 +230,7 @@ void ProviderRegistrationProvider::modifyInstance(
             "You must have superuser privilege to modify the"
                 " registration."));      
     }
+#endif
 
     if(!instanceReference.getNameSpace().equal (PEGASUS_NAMESPACENAME_INTEROP))
     {
@@ -301,6 +303,7 @@ void ProviderRegistrationProvider::createInstance(
         userName = String::EMPTY;
     }
 
+#ifndef PEGASUS_OS_ZOS
     if ((userName != String::EMPTY) && !System::isPrivilegedUser(userName))
     {
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, MessageLoaderParms(
@@ -309,6 +312,7 @@ void ProviderRegistrationProvider::createInstance(
                 "SUPERUSER_PRIVILEGE_REQUIRED_REGISTER_PROVIDERS",
             "You must have superuser privilege to register providers."));   
     }
+#endif
 
     CIMName className = instanceReference.getClassName();
     CIMNamespaceName nameSpace = instanceReference.getNameSpace();
@@ -797,6 +801,7 @@ void ProviderRegistrationProvider::deleteInstance(
         userName = String::EMPTY;
     }
 
+#ifndef PEGASUS_OS_ZOS
     if ((userName != String::EMPTY) && !System::isPrivilegedUser(userName))
     {
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,MessageLoaderParms(
@@ -805,6 +810,7 @@ void ProviderRegistrationProvider::deleteInstance(
                 "SUPERUSER_PRIVILEGE_REQUIRED_UNREGISTER_PROVIDERS",
             "You must have superuser privilege to unregister providers."));     
     }
+#endif
 
     if(!instanceReference.getNameSpace().equal (PEGASUS_NAMESPACENAME_INTEROP))
     {
@@ -994,6 +1000,7 @@ void ProviderRegistrationProvider::invokeMethod(
         userName = String::EMPTY;
     }
 
+#ifndef PEGASUS_OS_ZOS
     if ((userName != String::EMPTY) && !System::isPrivilegedUser(userName))
     {
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,
@@ -1004,6 +1011,7 @@ void ProviderRegistrationProvider::invokeMethod(
             "You must have superuser privilege to disable or enable"
                 " providers."));      
     }
+#endif
 
     if(!objectReference.getNameSpace().equal (PEGASUS_NAMESPACENAME_INTEROP))
     {

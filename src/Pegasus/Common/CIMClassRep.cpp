@@ -373,6 +373,11 @@ void CIMClassRep::resolve(
             if (index == PEG_NOT_FOUND)
             {
                 Resolver::resolveMethod(method, context, nameSpace);
+                if (method.getClassOrigin().isNull())
+                {
+                    method.setClassOrigin(getClassName());
+                }
+                method.setPropagated(false);
             }
             else
             {
@@ -424,6 +429,7 @@ void CIMClassRep::resolve(
                 method.setPropagated(true);
                 _methods.insert(m++, method);
             }
+
         }
 
         //----------------------------------------------------------------------
@@ -458,6 +464,8 @@ void CIMClassRep::resolve(
         for (Uint32 i = 0, n = _methods.size(); i < n; i++)
         {
             Resolver::resolveMethod (_methods[i], context, nameSpace);
+            _methods[i].setClassOrigin(getClassName());
+            _methods[i].setPropagated(false);
         }
 
         //----------------------------------------------------------------------

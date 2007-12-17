@@ -104,7 +104,7 @@ ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
 ##               
      ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
 	$(LINK_WRAPPER) $(CXX) $(PR_FLAGS) $(EXTRA_LINK_FLAGS) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS) > $(PROGRAM).llst
-	@ $(ZIP) -m $(FULL_PROGRAM).llst.zip $(PROGRAM).llst
+	@ $(ZIP) -a -m $(FULL_PROGRAM).llst.zip $(PROGRAM).llst
      else
       ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
         ifdef PEGASUS_HAS_MESSAGES  

@@ -37,6 +37,7 @@
 #include "Constants.h"
 #include "Socket.h"
 #include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/Network.h>
 #include "Socket.h"
 #include "TLS.h"
 #include "HTTPConnector.h"
@@ -242,6 +243,7 @@ HTTPConnection* HTTPConnector::connect(
     const String& host,
     const Uint32 portNumber,
     SSLContext * sslContext,
+    Uint32 timeoutMilliseconds,
     MessageQueue* outputMessageQueue)
 {
     PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnector::connect()");
@@ -264,12 +266,15 @@ HTTPConnection* HTTPConnector::connect(
             throw CannotCreateSocketException();
         }
             
+        Socket::disableBlocking(socket);
 
         // Connect the socket to the address:
 
-        if (::connect(socket,
+        if (!Socket::timedConnect(
+                socket,
                 reinterpret_cast<sockaddr*>(&address),
-                sizeof(address)) < 0)
+                sizeof(address),
+                timeoutMilliseconds))
         {
             MessageLoaderParms parms(
                 "Common.HTTPConnector.CONNECTION_FAILED_LOCAL_CIM_SERVER",
@@ -280,8 +285,9 @@ HTTPConnection* HTTPConnector::connect(
         }
     }
     else
-    {
 #endif
+    {
+        // Set up the IP socket connection
 
         // Make the internet address:
 #ifdef PEGASUS_ENABLE_IPV6
@@ -320,18 +326,20 @@ HTTPConnection* HTTPConnector::connect(
                 PEG_METHOD_EXIT();
                 throw CannotCreateSocketException();
             }
-            
 
-        // Conect the socket to the address:
+            Socket::disableBlocking(socket);
+
+            // Connect the socket to the address:
+            if (!Socket::timedConnect(
+                    socket,
 #ifdef PEGASUS_ENABLE_IPV6
-            if (::connect(socket,
-                reinterpret_cast<sockaddr*>(addrInfo->ai_addr),
-                addrInfo->ai_addrlen) < 0)
+                    reinterpret_cast<sockaddr*>(addrInfo->ai_addr),
+                    addrInfo->ai_addrlen,
 #else
-            if (::connect(socket,
-                reinterpret_cast<sockaddr*>(&address),
-                sizeof(address)) < 0)
+                    reinterpret_cast<sockaddr*>(&address),
+                    sizeof(address),
 #endif
+                    timeoutMilliseconds))
             {
 #ifdef PEGASUS_ENABLE_IPV6
                 addrInfo = addrInfo->ai_next;
@@ -341,34 +349,32 @@ HTTPConnection* HTTPConnector::connect(
                     continue;
                 }
 #endif
-            char portStr[32];
-            sprintf(portStr, "%u", portNumber);
-            MessageLoaderParms parms(
-                "Common.HTTPConnector.CONNECTION_FAILED_TO",
-                "Cannot connect to $0:$1. Connection failed.",
-                host,
-                portStr);
-            Socket::close(socket);
+                char portStr[32];
+                sprintf(portStr, "%u", portNumber);
+                MessageLoaderParms parms(
+                    "Common.HTTPConnector.CONNECTION_FAILED_TO",
+                    "Cannot connect to $0:$1. Connection failed.",
+                    host,
+                    portStr);
+                Socket::close(socket);
 #ifdef PEGASUS_ENABLE_IPV6
-            freeaddrinfo(addrInfoRoot);
+                freeaddrinfo(addrInfoRoot);
 #endif
-            PEG_METHOD_EXIT();
-            throw CannotConnectException(parms);
-        }
+                PEG_METHOD_EXIT();
+                throw CannotConnectException(parms);
+            }
 #ifdef PEGASUS_ENABLE_IPV6
             break;
         }
         freeaddrinfo(addrInfoRoot);
 #endif
-
-#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
     }
-#endif
 
     // Create HTTPConnection object:
 
     SharedPtr<MP_Socket> mp_socket(new MP_Socket(socket, sslContext, 0));
-    if (mp_socket->connect() < 0)
+
+    if (mp_socket->connect(timeoutMilliseconds) < 0)
     {
         char portStr[32];
         sprintf(portStr, "%u", portNumber);

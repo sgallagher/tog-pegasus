@@ -211,7 +211,6 @@ HTTPConnection::HTTPConnection(
 {
     PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::HTTPConnection");
 
-    _socket->disableBlocking();
     _authInfo.reset(new AuthenticationInfo(true));
 
 #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM

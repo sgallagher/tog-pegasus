@@ -315,11 +315,6 @@ void SSLSocket::close()
     PEG_METHOD_EXIT();
 }
 
-void SSLSocket::enableBlocking()
-{
-    Socket::enableBlocking(_socket);
-}
-
 void SSLSocket::disableBlocking()
 {
     Socket::disableBlocking(_socket);
@@ -471,30 +466,51 @@ Sint32 SSLSocket::accept()
     return 1;
 }
 
-Sint32 SSLSocket::connect()
+Sint32 SSLSocket::connect(Uint32 timeoutMilliseconds)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::connect()");
 
-    SSL* sslConnection = static_cast<SSL*>(_SSLConnection);
-    Sint32 ssl_rc,ssl_rsn;
+    PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
+        "Connection timeout in milliseconds is : %d", timeoutMilliseconds));
 
+    SSL* sslConnection = static_cast<SSL*>(_SSLConnection);
     SSL_set_connect_state(sslConnection);
 
-redo_connect:
-
-    ssl_rc = SSL_connect(sslConnection);
-
-    if (ssl_rc < 0)
+    while (1)
     {
-        ssl_rsn = SSL_get_error(sslConnection, ssl_rc);
+        int ssl_rc = SSL_connect(sslConnection);
 
-        if ((ssl_rsn == SSL_ERROR_WANT_READ) ||
-            (ssl_rsn == SSL_ERROR_WANT_WRITE))
+        if (ssl_rc > 0)
         {
-            goto redo_connect;
+            // Connected!
+            break;
         }
-        else
+
+        if (ssl_rc == 0)
         {
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3,
+                "---> SSL: Shutdown SSL_connect()");
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
+                "Error string: " + String(ERR_error_string(ssl_rc, NULL)));
+            PEG_METHOD_EXIT();
+            return -1;
+        }
+
+        // Error case:  ssl_rc < 0
+
+        int ssl_rsn = SSL_get_error(sslConnection, ssl_rc);
+
+        if ((ssl_rsn == SSL_ERROR_SYSCALL) &&
+            ((errno == EAGAIN) || (errno == EINTR)))
+        {
+            // Temporary error; retry the SSL_connect()
+            continue;
+        }
+
+        if ((ssl_rsn != SSL_ERROR_WANT_READ) &&
+            (ssl_rsn != SSL_ERROR_WANT_WRITE))
+        {
+            // Error, connection failed
             if (Tracer::isTraceOn())
             {
                 unsigned long rc = ERR_get_error ();
@@ -508,16 +524,54 @@ redo_connect:
             PEG_METHOD_EXIT();
             return -1;
         }
+
+        // Wait until the socket is ready for reading or writing (as
+        // appropriate) and then retry the SSL_connect()
+
+        fd_set fd;
+        FD_ZERO(&fd);
+        FD_SET(_socket, &fd);
+        struct timeval timeoutValue =
+            { timeoutMilliseconds/1000, timeoutMilliseconds%1000*1000 };
+        int selectResult = -1;
+
+        if (ssl_rsn == SSL_ERROR_WANT_READ)
+        {
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+                "---> SSL: Retry WANT_READ");
+            PEGASUS_RETRY_SYSTEM_CALL(
+                select(FD_SETSIZE, &fd, NULL, NULL, &timeoutValue),
+                selectResult);
+        }
+        else    // (ssl_rsn == SSL_ERROR_WANT_WRITE)
+        {
+            PEGASUS_ASSERT(ssl_rsn == SSL_ERROR_WANT_WRITE);
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+                "---> SSL: Retry WANT_WRITE");
+            PEGASUS_RETRY_SYSTEM_CALL(
+                select(FD_SETSIZE, NULL, &fd, NULL, &timeoutValue),
+                selectResult);
+        }
+
+        // Check the result of select.
+        if (selectResult == 0)
+        {
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL3,
+                "---> SSL: Failed to connect, connection timed out.");
+            PEG_METHOD_EXIT();
+            return -1;
+        }
+        else if (selectResult == PEGASUS_SOCKET_ERROR)
+        {
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL3,
+                "---> SSL: Failed to connect, select error, return code = %d",
+                selectResult));
+            PEG_METHOD_EXIT();
+            return -1;
+        }
+        // else retry the SSL_connect()
     }
-    else if (ssl_rc == 0)
-    {
-        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3,
-            "---> SSL: Shutdown SSL_connect()");
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
-            "Error string: " + String(ERR_error_string(ssl_rc, NULL)));
-        PEG_METHOD_EXIT();
-        return -1;
-    }
+
     PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Connected");
 
     if (_SSLContext->isPeerVerificationEnabled())
@@ -567,7 +621,7 @@ redo_connect:
     }
 
     PEG_METHOD_EXIT();
-    return ssl_rc;
+    return 1;
 }
 
 Boolean SSLSocket::isPeerVerificationEnabled()
@@ -679,14 +733,6 @@ void MP_Socket::close()
         Socket::close(_socket);
 }
 
-void MP_Socket::enableBlocking()
-{
-    if (_isSecure)
-        _sslsock->enableBlocking();
-    else
-        Socket::enableBlocking(_socket);
-}
-
 void MP_Socket::disableBlocking()
 {
     if (_isSecure)
@@ -704,10 +750,10 @@ Sint32 MP_Socket::accept()
     return 1;
 }
 
-Sint32 MP_Socket::connect()
+Sint32 MP_Socket::connect(Uint32 timeoutMilliseconds)
 {
     if (_isSecure)
-        if (_sslsock->connect() < 0) return -1;
+        if (_sslsock->connect(timeoutMilliseconds) < 0) return -1;
     return 0;
 }
 
@@ -796,11 +842,6 @@ void MP_Socket::close()
     Socket::close(_socket);
 }
 
-void MP_Socket::enableBlocking()
-{
-    Socket::enableBlocking(_socket);
-}
-
 void MP_Socket::disableBlocking()
 {
     Socket::disableBlocking(_socket);
@@ -842,7 +883,7 @@ Sint32 MP_Socket::accept()
 #endif
 }
 
-Sint32 MP_Socket::connect() { return 0; }
+Sint32 MP_Socket::connect(Uint32 timeoutMilliseconds) { return 0; }
 
 Boolean MP_Socket::isPeerVerificationEnabled() { return false; }
 

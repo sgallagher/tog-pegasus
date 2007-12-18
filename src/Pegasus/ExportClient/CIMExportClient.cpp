@@ -96,6 +96,7 @@ void CIMExportClient::_connect()
         _httpConnection = _httpConnector->connect(_connectHost,
             _connectPortNumber,
             _connectSSLContext.get(),
+            _timeoutMilliseconds,
             _responseDecoder);
     }
     catch (...)

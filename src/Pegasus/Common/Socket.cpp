@@ -38,26 +38,84 @@
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/System.h>
-
-//------------------------------------------------------------------------------
-//
-// PEGASUS_RETRY_SYSTEM_CALL()
-//
-//     This macro repeats the given system call until it returns something
-//     other than EINTR.
-//
-//------------------------------------------------------------------------------
-
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-#   define PEGASUS_RETRY_SYSTEM_CALL(EXPR, RESULT) RESULT = EXPR
-#else
-#   define PEGASUS_RETRY_SYSTEM_CALL(EXPR, RESULT) \
-        while (((RESULT = (EXPR)) == -1) && (errno == EINTR))
-#endif
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 static Uint32 _socketInterfaceRefCount = 0;
+
+Boolean Socket::timedConnect(
+    SocketHandle socket,
+    sockaddr* address,
+    int addressLength,
+    Uint32 timeoutMilliseconds)
+{
+    int connectResult;
+    PEGASUS_RETRY_SYSTEM_CALL(
+        ::connect(socket, address, addressLength), connectResult);
+
+    if (connectResult == 0)
+    {
+        return true;
+    }
+
+    if (getSocketError() == PEGASUS_NETWORK_EINPROGRESS)
+    {
+        PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+            "Connection to server in progress.  Waiting up to %u milliseconds "
+                "for the socket to become connected.",
+            timeoutMilliseconds));
+
+        fd_set fdwrite;
+        FD_ZERO(&fdwrite);
+        FD_SET(socket, &fdwrite);
+        struct timeval timeoutValue =
+            { timeoutMilliseconds/1000, timeoutMilliseconds%1000*1000 };
+        int selectResult = -1;
+
+        PEGASUS_RETRY_SYSTEM_CALL(
+            select(FD_SETSIZE, NULL, &fdwrite, NULL, &timeoutValue),
+            selectResult);
+        if (selectResult == 0)
+        {
+            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL2,
+                "select() timed out waiting for the socket connection to be "
+                    "established.");
+            return false;
+        }
+        else if (selectResult > 0)
+        {
+            int optval;
+            SocketLength optlen = sizeof(int);
+            getsockopt(socket, SOL_SOCKET, SO_ERROR, (char*)&optval, &optlen);
+            if (optval == 0)
+            {
+                PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
+                    "Connection with server established.");
+                return true;
+            }
+            else
+            {
+                PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
+                    "Did not connect, getsockopt() returned optval = %d",
+                    optval));
+                return false;
+            }
+        }
+        else
+        {
+            PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
+                "select() returned error code %d",
+                getSocketError()));
+            return false;
+        }
+    }
+
+    PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
+        "connect() returned error code %d",
+        getSocketError()));
+    return false;
+}
 
 Sint32 Socket::read(SocketHandle socket, void* ptr, Uint32 size)
 {
@@ -164,26 +222,14 @@ void Socket::close(SocketHandle socket)
     }
 }
 
-void Socket::enableBlocking(SocketHandle socket)
-{
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    unsigned long flag = 0;
-    ioctlsocket(socket, FIONBIO, &flag);
-#else
-    int flags = fcntl(socket, F_GETFL, 0);
-    flags &= ~O_NONBLOCK;
-    fcntl(socket, F_SETFL, flags);
-#endif
-}
-
 void Socket::disableBlocking(SocketHandle socket)
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-    unsigned long flag = 1;
+    unsigned long flag = 1;    // Use "flag = 0" to enable blocking
     ioctlsocket(socket, FIONBIO, &flag);
 #else
     int flags = fcntl(socket, F_GETFL, 0);
-    flags |= O_NONBLOCK;
+    flags |= O_NONBLOCK;    // Use "flags &= ~O_NONBLOCK" to enable blocking
     fcntl(socket, F_SETFL, flags);
 #endif
 }

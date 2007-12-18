@@ -119,8 +119,7 @@ void _renameLogFile (const String & indicationLogFileName)
 }
 
 Boolean _checkIndicationLog
-    (Uint32 id,
-     const String & methodName,
+    (const String & methodName,
      Boolean allProperties,
      Boolean noIndications,
      const String & qlang)
@@ -177,7 +176,7 @@ Boolean _checkIndicationLog
             }
             else
             {
-                numProperties = 3;
+                numProperties = 2;
             }
 
             if (String::equal (methodName,
@@ -219,15 +218,7 @@ Boolean _checkIndicationLog
                 }
                 if (String::equalNoCase (propertyName, "IndicationIdentifier"))
                 {
-                    if (qlang == "DMTF:CQL")
-                    {
-                      id += 10;
-                    }
-
-                    char idStr[10];
-                    sprintf(idStr, "%d", id);
-
-                    if (!String::equal (propertyValue, idStr))
+                    if (!allProperties)
                     {
                         _renameLogFile (indicationLogFileName);
                         return false;
@@ -562,7 +553,7 @@ void _setup (CIMClient & client, String& qlang)
     try
     {
         _createFilterInstance (client, String ("PIFilter01"), String
-            ("SELECT IndicationIdentifier, MethodName, CorrelatedIndications "
+            ("SELECT MethodName, CorrelatedIndications "
              "FROM Test_IndicationProviderClass"),
             qlang);
         _createFilterInstance (client, String ("PIFilter02"),
@@ -601,13 +592,13 @@ void _setup (CIMClient & client, String& qlang)
             //  properties, and the indication is not forwarded.
             //
             _createFilterInstance (client, String ("PIFilter03"), String
-                ("SELECT IndicationIdentifier, MethodName, "
+                ("SELECT MethodName, "
                  "CorrelatedIndications "
                  "FROM Test_IndicationProviderClass "
                  "WHERE CorrelatedIndications IS NOT NULL"),
                 qlang);
             _createFilterInstance (client, String ("PIFilter04"), String
-                ("SELECT IndicationIdentifier, MethodName, "
+                ("SELECT MethodName, "
                  "CorrelatedIndications "
                  "FROM Test_IndicationProviderClass "
                  "WHERE CorrelatedIndications IS NULL"),
@@ -891,13 +882,12 @@ void _sendUnmatchingClassName (CIMClient & client)
 
 void _check
     (const String & opt,
-     Uint32 id,
      const String & methodName,
      Boolean allProperties,
      Boolean noIndications,
      const String & qlang)
 {
-    Boolean result = _checkIndicationLog (id, methodName, allProperties,
+    Boolean result = _checkIndicationLog (methodName, allProperties,
         noIndications, qlang);
 
     if (!result)
@@ -1068,7 +1058,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  Only the properties included in the SELECT list of the filter
     //  query should be included in the indication instance
     //
-    _check (opt, 1, String ("SendTestIndicationNormal"),
+    _check (opt, String ("SendTestIndicationNormal"),
             false, false, qlang);
   }
   else if (String::equalNoCase (opt, "checkSubclass"))
@@ -1078,7 +1068,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  Only the properties included in the SELECT list of the filter
     //  query should be included in the indication instance
     //
-    _check (opt, 2, String ("SendTestIndicationSubclass"), false, false, qlang);
+    _check (opt, String ("SendTestIndicationSubclass"), false, false, qlang);
   }
   else if (String::equalNoCase (opt, "checkMissing"))
   {
@@ -1087,7 +1077,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  An indication should be received because the missing property is a
     //  project list property, not a property required by the WHERE clause
     //
-    _check (opt, 3,
+    _check (opt,
             String ("SendTestIndicationMissingProperty"), false, false, qlang);
   }
   else if (String::equalNoCase (opt, "checkExtra"))
@@ -1099,7 +1089,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  Only the properties included in the SELECT list of the filter
     //  query should be included in the indication instance
     //
-    _check (opt, 4,
+    _check (opt,
             String ("SendTestIndicationExtraProperty"), false, false, qlang);
   }
   else if (String::equalNoCase (opt, "checkMatching"))
@@ -1109,7 +1099,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  Only the properties included in the SELECT list of the filter
     //  query should be included in the indication instance
     //
-    _check (opt, 5,
+    _check (opt,
             String ("SendTestIndicationMatchingInstance"), false, false, qlang);
   }
   else if (String::equalNoCase (opt, "checkUnmatchingNamespace"))
@@ -1121,7 +1111,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  source namespace of the subscription instance name in the
     //  operation context
     //
-    _check (opt, 6,
+    _check (opt,
             String ("SendTestIndicationUnmatchingNamespace"),
             false, true, qlang);
   }
@@ -1134,7 +1124,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  query indication class of the subscription instance name in the
     //  operation context
     //
-    _check (opt, 7,
+    _check (opt,
             String ("SendTestIndicationUnmatchingClassName"),
             false, true, qlang);
   }
@@ -1145,7 +1135,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  All properties should be included in the indication instance,
     //  since the filter query specifies SELECT *
     //
-    _check (opt, 8,
+    _check (opt,
             String ("SendTestIndicationNormal"), true, false, qlang);
    }
   else if (String::equalNoCase (opt, "checkMissingAll"))
@@ -1155,7 +1145,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  An indication should be received because the missing property is a
     //  project list property, not a property required by the WHERE clause
     //
-    _check (opt, 9,
+    _check (opt,
             String ("SendTestIndicationMissingProperty"), true, false, qlang);
   }
   else if (String::equalNoCase (opt, "checkExtraAll"))
@@ -1167,7 +1157,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  All properties should be included in the indication instance,
     //  since the filter query specifies SELECT *
     //
-    _check (opt, 10,
+    _check (opt,
             String ("SendTestIndicationExtraProperty"), true, false, qlang);
   }
   else if (String::equalNoCase (opt, "checkNormalWhere"))
@@ -1179,7 +1169,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  Only the properties included in the SELECT list of the filter
     //  query should be included in the indication instance
     //
-    _check (opt, 11, String ("SendTestIndicationNormal"),
+    _check (opt, String ("SendTestIndicationNormal"),
             false, false, qlang);
   }
   else if (String::equalNoCase (opt, "checkMissingWhere"))
@@ -1189,7 +1179,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  No indication should be received because the missing property is a
     //  property required by the WHERE clause
     //
-    _check (opt, 12,
+    _check (opt,
             String ("SendTestIndicationMissingProperty"), false, true, qlang);
   }
   else if (String::equalNoCase (opt, "checkNormalWhereNotSatisfied"))
@@ -1199,7 +1189,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  No indication should be received because the generated instance does
     //  not satisfy the WHERE clause condition
     //
-    _check (opt, 13,
+    _check (opt,
             String ("SendTestIndicationNormal"), true, true, qlang);
    }
   else if (String::equalNoCase (opt, "delete1"))

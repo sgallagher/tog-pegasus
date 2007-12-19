@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -445,6 +445,13 @@ PEGASUS_COMMON_LINKAGE
 
 
 //
+// Default timeout values
+//
+
+#define PEGASUS_PROVIDER_IDLE_TIMEOUT_SECONDS 300
+
+
+//
 // Wbem service names
 //
 #define WBEM_HTTP_SERVICE_NAME "wbem-http"
@@ -642,7 +649,7 @@ PEGASUS_COMMON_LINKAGE
 #ifndef PEGASUS_REPOSITORY_DIR
 #define PEGASUS_REPOSITORY_DIR            "repository"
 #endif
-#ifndef PEGASUS_CURRENT_CONFIG_FILE_PATH 
+#ifndef PEGASUS_CURRENT_CONFIG_FILE_PATH
 #define PEGASUS_CURRENT_CONFIG_FILE_PATH  "cimserver_current.conf"
 #endif
 #ifndef PEGASUS_PLANNED_CONFIG_FILE_PATH

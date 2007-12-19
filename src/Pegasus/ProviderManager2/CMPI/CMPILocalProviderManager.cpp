@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,7 +30,7 @@
 //==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
+// NOCHKSRC
 #include "CMPI_Version.h"
 
 #include <Pegasus/Common/Constants.h>
@@ -50,9 +50,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 extern int _cmpi_trace;
 
-#undef IDLE_LIMIT
-#define IDLE_LIMIT 50
-
 /* Thread deletion specific */
 Semaphore CMPILocalProviderManager::_pollingSem(0);
 AtomicInt CMPILocalProviderManager::_stopPolling(0);
@@ -61,7 +58,7 @@ List<CMPILocalProviderManager::cleanupThreadRecord,Mutex> CMPILocalProviderManag
 Mutex CMPILocalProviderManager::_reaperMutex;
 
   CMPILocalProviderManager::CMPILocalProviderManager (void):
-_idle_timeout (IDLE_LIMIT)
+_idle_timeout (PEGASUS_PROVIDER_IDLE_TIMEOUT_SECONDS)
 {
 }
 
@@ -70,7 +67,7 @@ CMPILocalProviderManager::~CMPILocalProviderManager (void)
   Uint32 ccode;
 
   _provider_ctrl (UNLOAD_ALL_PROVIDERS, this, &ccode);
-  // Since all of the providers are deleted we can delete the 
+  // Since all of the providers are deleted we can delete the
   //  modules too.
   for (ModuleTable::Iterator j = _modules.start (); j != 0; j++)
     {
@@ -78,14 +75,14 @@ CMPILocalProviderManager::~CMPILocalProviderManager (void)
       delete module;
     }
 
-  if (_reaperThread) 
+  if (_reaperThread)
     {
 		AutoMutex lock(_reaperMutex);
   		_stopPolling++;
   		_pollingSem.signal();
   		// Wait until it finishes itself.
- 		_reaperThread->join(); 
-  		delete _reaperThread; 
+ 		_reaperThread->join();
+  		delete _reaperThread;
 		_reaperThread = 0;
   	}
  PEGASUS_ASSERT(_finishedThreadList.size() == 0);
@@ -158,7 +155,7 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
                               "Unloading CMPIProvider: " + pr->getName());
 
             AutoMutex lock (_providerTableMutex);
-            // The provider table must be locked before unloading. 
+            // The provider table must be locked before unloading.
             _providers.remove (pr->_name);
             _unloadProvider (pr);
             delete pr;
@@ -433,13 +430,13 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
 
 
 /*
- * The reaper function polls out the threads from the global list (_finishedThreadList), 
+ * The reaper function polls out the threads from the global list (_finishedThreadList),
  * joins them deletes them, and removes them from the CMPIProvider specific list.
  */
 ThreadReturnType PEGASUS_THREAD_CDECL CMPILocalProviderManager::_reaper(void *parm)
 {
   Thread *myself = reinterpret_cast<Thread *>(parm);
-  do { 
+  do {
       	_pollingSem.wait();
 	    // All of the threads are finished working. We just need to reap 'em
 		cleanupThreadRecord *rec = 0;
@@ -475,7 +472,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL CMPILocalProviderManager::_reaper(void *pa
   // @argument t Thread that is not NULL and finished with running the provider function.
   // @argument p CMPIProvider in which the 't' Thread was running.
   */
-void 
+void
 CMPILocalProviderManager::cleanupThread(Thread *t, CMPIProvider *p)
 {
 	PEGASUS_ASSERT( t != 0 && p != 0 );
@@ -616,7 +613,7 @@ CMPILocalProviderManager::unloadProvider (const String & fileName,
   strings.providerName = &lproviderName;
   strings.location = &String::EMPTY;
   _provider_ctrl (UNLOAD_PROVIDER, &strings, (void *) 0);
-   
+
   strings.providerName = &rproviderName;
 
   _provider_ctrl (UNLOAD_PROVIDER, &strings, (void *) 0);
@@ -825,7 +822,7 @@ CMPILocalProviderManager::_initProvider (CMPIProvider * provider,
       	deleteProvider = true;
 	exceptionMsg = e.getMessage();
       }
-      catch (...) 
+      catch (...)
       {
      	PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
 				"Unknown problem initializing " + provider->getName());
@@ -854,7 +851,7 @@ CMPILocalProviderManager::_initProvider (CMPIProvider * provider,
       delete provider->_cimom_handle;
       // set provider status to UNINITIALIZED
       provider->reset ();
-      
+
       AutoMutex lock (_providerTableMutex);
       _providers.remove (provider->_name);
       delete provider;

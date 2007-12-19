@@ -30,7 +30,7 @@
 //==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
+// NOCHKSRC
 #include "JMPILocalProviderManager.h"
 
 #include <Pegasus/Common/Time.h>
@@ -54,7 +54,7 @@ int JMPILocalProviderManager::trace=0;
 #endif
 
 JMPILocalProviderManager::JMPILocalProviderManager(void)
-    : _idle_timeout(IDLE_LIMIT)
+    : _idle_timeout(PEGASUS_PROVIDER_IDLE_TIMEOUT_SECONDS)
 {
 #ifdef PEGASUS_DEBUG
    if (getenv("PEGASUS_JMPI_TRACE"))

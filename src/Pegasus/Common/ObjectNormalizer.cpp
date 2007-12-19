@@ -588,20 +588,20 @@ CIMInstance ObjectNormalizer::processInstance(
 
     // check property names and types. any properties in the class but not
     // in the instance are implicitly dropped.
-    for (Uint32 i = 0, n = _cimClass.getPropertyCount(); i < n; i++)
+    for (Uint32 i = 0, n = cimInstance.getPropertyCount(); i < n; i++)
     {
-        CIMConstProperty referenceProperty = _cimClass.getProperty(i);
+        CIMConstProperty instProperty = cimInstance.getProperty(i);
 
-        Uint32 pos = cimInstance.findProperty(referenceProperty.getName());
+        Uint32 pos = _cimClass.findProperty(instProperty.getName());
 
         if (pos != PEG_NOT_FOUND)
         {
-            CIMConstProperty cimProperty = cimInstance.getProperty(pos);
+            CIMConstProperty cimProperty = _cimClass.getProperty(pos);
 
             CIMProperty normalizedProperty =
                 _processProperty(
-                    referenceProperty,
                     cimProperty,
+                    instProperty,
                     _includeQualifiers,
                     _includeClassOrigin,
                     _context.get(),

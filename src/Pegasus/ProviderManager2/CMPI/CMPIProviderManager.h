@@ -184,20 +184,6 @@ protected:
     void _callDisableIndications(
         CMPIProvider::OpProviderHolder & ph, 
         const char *remoteInfo);
-
-    /*
-        This method gets class definition for CachedClassDefinitionContainer 
-        using dedicated CIMOMHandle. This is required to service concurrent
-        requets that are coming to MI. This avoids "Recursive Use of
-        CIMOMHandle" exception. On ZOS this method uses new CIMOMHandle for
-        each getClass request coming from CMPIProviderManager.
-    */ 
-    CIMClass _getClass(CIMNamespaceName &nameSpace, CIMName &className);
-#ifndef PEGASUS_OS_ZOS
-private:
-    CIMOMHandle _handle;
-    Mutex _classMutex;
-#endif
 };
 
 PEGASUS_NAMESPACE_END

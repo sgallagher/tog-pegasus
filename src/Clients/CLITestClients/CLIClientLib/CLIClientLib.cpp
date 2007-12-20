@@ -63,27 +63,31 @@ String _toString(Boolean x)
 Uint32 _selectStringItem(const Array<String>& selectList, const String& what)
 {
     Uint32 rtn = 0;
-    Uint32 listSize = selectList.size();
+    char str[255];
 
-    for (Uint32 i = 0 ; i < listSize; i++)
-        cout << i + 1 << ": " << selectList[i] << endl;
-
-    while (rtn < 1 || rtn > listSize)
+    for (Uint32 i = 0 ; i < selectList.size() ; i++)
     {
-        cout << "Select " << what 
-             << " (1.." << listSize << ")? " << flush;
-
-        // if input is not a valid integer, cin will be set to fail status.
-        // and rtn will retain its previous value, so the loop could continue.
-        cin >> rtn;
-        
-        if (cin.fail())
+        cout << i + 1 << ": " << selectList[i] << endl;
+    }
+    
+    while (rtn < 1 || rtn > selectList.size())
+    {
+        cout << "Select " << what << " (1.." << selectList.size() << ")? " 
+             << flush;
+        cin.getline (str,sizeof(str),'\n');
+        Uint32 i = 0;
+        while ( str[i] )
         {
-            cin.clear();
-            cin.ignore(INT_MAX, '\n');
+            if (! isdigit (str[i++]) )
+            {
+                break;
+            }
+        }
+        if (! str[i] )
+        {
+            rtn = (int) atoi (str);
         }
     }
-
     return (rtn - 1);
 }
 

@@ -3,6 +3,11 @@ Date: 1 November 2007
 Status: Draft
 Reference: pegasus PEP 309
 
+NOTE: The static provider functionality and registration changed and
+this readme MUST BE redone.  20 Dec 2007.  For the moment, please see
+the new readme  readme.StaticProviderRegistration. KS
+
+
 Overview of the Static Provider Functionality
 
     For embedded system implementations of OpenPegasus, the dynamic shared

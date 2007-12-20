@@ -1,0 +1,53 @@
+                        Static Provider Registration
+                        ============================
+
+
+SYNOPSIS:
+=========
+
+This document explains how to register static providers using the
+EmbeddedServer class. An example of this is included under:
+
+    pegasus/vxworks/cimserver/MyEmbeddedServer.cpp
+
+PREPARING THE STATIC PROVIDER MODULE
+====================================
+
+The only requirement of the provider is that it include the 
+"PegasusCreateProvider" entry point. This is standard for Pegasus C++
+providers and CIMPLE providers include this entry point when module.cpp
+is compiled with the following option:
+
+    -DCIMPLE_PEGASUS_MODULE
+
+Caution: Do not rename this entry point as was required in a previous version
+of the static provider mechanism.
+
+There may be at most one PegasusCreateProvider entry point in the entire
+server.
+
+STATICALLY REGISTERING THE PROVIDER
+===================================
+
+To statically register the provider, first register the PegasusCreateProvider
+entry point by overriding EmbeddedServer::initialize() and adding the following
+code fragment (see pegasus/vxworks/cimserver/MyEmbeddedServer.cpp for an
+example).
+
+    if (!registerPegasusCreateProviderEntryPoint(PegasusCreateProvider))
+    {
+        /* Error */
+    }
+
+Next, register each provider with the following fragment (replacing CLASSNAME
+with the name of that provider's class).
+
+    if (!registerProvider(
+        nameSpaces,
+        CLASSNAME,
+        MyEmbeddedServer::PEGASUS_PROVIDER_INTERFACE,
+        MyEmbeddedServer::INSTANCE_PROVIDER_TYPE))
+    {
+        /* Error */
+    }
+

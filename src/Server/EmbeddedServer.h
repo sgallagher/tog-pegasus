@@ -44,6 +44,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+typedef class CIMProvider* (*PegasusCreateProviderEntryPoint)(const String&);
+
 #ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 
 typedef CMPIInstanceMI* (*CreateInstanceMIEntryPoint)(
@@ -143,37 +145,11 @@ public:
     */
     Boolean addNameSpace(const struct SchemaNameSpace* nameSpace);
 
-    /** Register a provider module, creating the PG_ProviderModule instance. 
-        This function must be called from initialize().
-    */
-    Boolean registerProviderModule(
-        const String& moduleName,
-        const String& location,
-        ProviderInterface providerInterface);
-
-    /** Register a provider, creating the PG_Provider instances. This function 
-        must be called from initialize().
-    */
-    Boolean registerProvider(
-        const String& moduleName,
-        const String& providerName);
-
-    /** Register provider capabilities, creating the PG_ProviderCapabilities
-        instance. This function must be called from initialize().
-    */
-    Boolean registerProviderCapabilities(
-        const String& moduleName,
-        const String& providerName,
-        const String& capabilityId,
-        const CIMName& className,
-        const Array<CIMNamespaceName>& nameSpaces,
-        Uint32 providerTypes);
-
     /** Shortcut for registering a PG_ProviderModule instance, a PG_Provider
         instance, and a PG_ProviderCapabilities instance for the special
         case in which there is one provider per module (a "singleton provider").
     */
-    Boolean registerSingletonProvider(
+    Boolean registerProvider(
         const Array<CIMNamespaceName>& nameSpaces,
         const CIMName& className,
         ProviderInterface providerInterface,
@@ -184,6 +160,11 @@ public:
     Boolean registerPegasusProviderEntryPoint(
         const String& location,
         class CIMProvider* (*entryPoint)(const String&));
+
+    /** Register the PegasusCreateProvider function.
+    */
+    Boolean registerPegasusCreateProviderEntryPoint(
+        PegasusCreateProviderEntryPoint entryPoint);
 
 #ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 
@@ -232,12 +213,37 @@ public:
     Boolean run(int argc, char** argv);
 
 private:
+
     EmbeddedServer(const EmbeddedServer&);
     EmbeddedServer& operator=(const EmbeddedServer&);
+
+    // Create PG_ProviderModule instance.
+    Boolean _create_PG_ProviderModule(
+        const String& moduleName,
+        const String& location,
+        ProviderInterface providerInterface);
+
+    // Create PG_Provider instance.
+    Boolean _create_PG_Provider(
+        const String& moduleName,
+        const String& providerName);
+
+    // Create PG_ProviderCapabilities instance.
+    Boolean _create_PG_ProviderCapabilities(
+        const String& moduleName,
+        const String& providerName,
+        const String& capabilityId,
+        const CIMName& className,
+        const Array<CIMNamespaceName>& nameSpaces,
+        Uint32 providerTypes);
 
     // Opaque implementation state data.
     char _opaque[128];
     friend struct EmbeddedServerRep;
+
+    // Whether the "StaticProviderModule" PG_ProviderModule instances has been
+    // created.
+    bool _createdStaticProviderModule;
 };
 
 PEGASUS_NAMESPACE_END

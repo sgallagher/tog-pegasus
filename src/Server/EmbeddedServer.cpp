@@ -36,6 +36,8 @@
 #include <Pegasus/Server/ProviderTable.h>
 #include <Pegasus/Repository/MemoryResidentRepository.h>
 
+#define STATIC_MODULE "Static_Module"
+
 PEGASUS_NAMESPACE_BEGIN
 
 //==============================================================================
@@ -133,7 +135,7 @@ const Uint32 EmbeddedServer::INDICATION_PROVIDER_TYPE = 4;
 const Uint32 EmbeddedServer::METHOD_PROVIDER_TYPE = 8;
 const Uint32 EmbeddedServer::INSTANCE_QUERY_PROVIDER_TYPE = 16;
 
-EmbeddedServer::EmbeddedServer()
+EmbeddedServer::EmbeddedServer() : _createdStaticProviderModule(false)
 {
     // Initialize representation object:
 
@@ -281,7 +283,7 @@ static Boolean _providerInstanceExists(
     return false;
 }
 
-Boolean EmbeddedServer::registerProviderModule(
+Boolean EmbeddedServer::_create_PG_ProviderModule(
     const String& moduleName,
     const String& location,
     ProviderInterface providerInterface)
@@ -350,7 +352,7 @@ Boolean EmbeddedServer::registerProviderModule(
     return true;
 }
 
-Boolean EmbeddedServer::registerProvider(
+Boolean EmbeddedServer::_create_PG_Provider(
     const String& moduleName,
     const String& providerName)
 {
@@ -397,7 +399,7 @@ Boolean EmbeddedServer::registerProvider(
     return true;
 }
 
-Boolean EmbeddedServer::registerProviderCapabilities(
+Boolean EmbeddedServer::_create_PG_ProviderCapabilities(
     const String& moduleName,
     const String& providerName,
     const String& capabilityId,
@@ -543,7 +545,7 @@ Boolean EmbeddedServer::registerProviderCapabilities(
     return true;
 }
 
-Boolean EmbeddedServer::registerSingletonProvider(
+Boolean EmbeddedServer::registerProvider(
     const Array<CIMNamespaceName>& nameSpaces,
     const CIMName& className,
     ProviderInterface providerInterface,
@@ -551,29 +553,32 @@ Boolean EmbeddedServer::registerSingletonProvider(
 {
     // Register PG_ProviderModule:
 
-    String moduleName = className.getString() + "_Module";
-    String location = moduleName;
-
-    if (!registerProviderModule(moduleName, location, providerInterface))
+    if (!_createdStaticProviderModule)
     {
-        return false;
+        if (!_create_PG_ProviderModule(
+            STATIC_MODULE, STATIC_MODULE, providerInterface))
+        {
+            return false;
+        }
+
+        _createdStaticProviderModule = true;
     }
 
     // Register PG_Provider:
 
     String providerName = className.getString() + "_Provider";
 
-    if (!registerProvider(moduleName, providerName))
+    if (!_create_PG_Provider(STATIC_MODULE, providerName))
     {
         return false;
     }
 
     // Register PG_ProviderCapabilities:
 
-
     String capabilityId = className.getString();
 
-    if (!registerProviderCapabilities(moduleName, providerName, capabilityId,
+    if (!_create_PG_ProviderCapabilities(
+        STATIC_MODULE, providerName, capabilityId,
         className, nameSpaces, providerTypes))
     {
         return false;
@@ -611,6 +616,12 @@ Boolean EmbeddedServer::registerPegasusProviderEntryPoint(
 
     return _addSymbol(
         rep, location, "PegasusCreateProvider", (void*)entryPoint);
+}
+
+Boolean EmbeddedServer::registerPegasusCreateProviderEntryPoint(
+    PegasusCreateProviderEntryPoint entryPoint)
+{
+    return registerPegasusProviderEntryPoint(STATIC_MODULE, entryPoint);
 }
 
 #ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER

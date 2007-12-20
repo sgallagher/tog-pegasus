@@ -9,6 +9,7 @@
 
 #include <cimple/cimple.h>
 #include "Employee.h"
+#include "EmployeeLink.h"
 
 CIMPLE_NAMESPACE_BEGIN
 

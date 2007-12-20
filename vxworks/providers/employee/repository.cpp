@@ -13,14 +13,15 @@ CIMPLE_NAMESPACE_BEGIN
 static const Meta_Class* _meta_classes[] =
 {
     &Employee::static_meta_class,
+    &EmployeeLink::static_meta_class,
 };
 
 static const size_t _num_meta_classes = CIMPLE_ARRAY_SIZE(_meta_classes);
 
-extern const Meta_Repository __meta_repository_3DB84A3A70E61BE1B1270658E1CA1181;
+extern const Meta_Repository __meta_repository_D97995EA8A5D16C18AD886A63A8E112A;
 
 /*[2555]*/
-const Meta_Repository __meta_repository_3DB84A3A70E61BE1B1270658E1CA1181 =
+const Meta_Repository __meta_repository_D97995EA8A5D16C18AD886A63A8E112A =
 {
     _meta_classes,
     _num_meta_classes,

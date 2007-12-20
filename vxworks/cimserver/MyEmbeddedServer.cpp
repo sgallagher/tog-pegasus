@@ -42,9 +42,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 // Define entry points for each static provider. 
-extern "C" class CIMProvider* PegasusCreateProvider_Hello(const String&);
-extern "C" class CIMProvider* PegasusCreateProvider_Goodbye(const String&);
-extern "C" class CIMProvider* PegasusCreateProvider_Employee(const String&);
+extern "C" class CIMProvider* PegasusCreateProvider(const String&);
 
 MyEmbeddedServer::MyEmbeddedServer()
 {
@@ -102,64 +100,41 @@ void MyEmbeddedServer::initialize()
     addNameSpace(&root_cimv2_namespace);
     addNameSpace(&root_PG_Internal_namespace);
 
+    // Build list of registration namespaces.
+
     Array<CIMNamespaceName> nameSpaces;
     nameSpaces.append("root/cimv2");
 
     //
-    // Register "Hello" provider:
+    // Register the PegasusCreateProvider entry point (there can be only
+    // one of these).
     //
 
-    if (!registerSingletonProvider(
-        nameSpaces,
-        "Hello", /* classname */
-        MyEmbeddedServer::PEGASUS_PROVIDER_INTERFACE,
-        MyEmbeddedServer::INSTANCE_PROVIDER_TYPE))
+    if (!registerPegasusCreateProviderEntryPoint(PegasusCreateProvider))
     {
-        printf("***** registerSingletonProvider() failed: Hello\n");
-    }
-
-    if (!registerPegasusProviderEntryPoint(
-        "HelloProviderModule", PegasusCreateProvider_Hello))
-    {
-        printf("***** addSymbol() failed: Hello\n");
-    }
-
-    //
-    // Register "Goodbye" provider:
-    //
-
-    if (!registerSingletonProvider(
-        nameSpaces,
-        "Goodbye", /* classname */
-        MyEmbeddedServer::PEGASUS_PROVIDER_INTERFACE,
-        MyEmbeddedServer::INSTANCE_PROVIDER_TYPE))
-    {
-        printf("***** registerSingletonProvider() failed: Goodbye\n");
-    }
-
-    if (!registerPegasusProviderEntryPoint(
-        "GoodbyeProviderModule", PegasusCreateProvider_Goodbye))
-    {
-        printf("***** addSymbol() failed: Goodbye\n");
+        printf("***** addSymbol() failed: Employee\n");
     }
 
     //
     // Register "Employee" provider:
     //
 
-    if (!registerSingletonProvider(
+    if (!registerProvider(
         nameSpaces,
         "Employee", /* classname */
         MyEmbeddedServer::PEGASUS_PROVIDER_INTERFACE,
         MyEmbeddedServer::INSTANCE_PROVIDER_TYPE))
     {
-        printf("***** registerSingletonProvider() failed: Employee\n");
+        printf("***** registerProvider() failed: Employee\n");
     }
 
-    if (!registerPegasusProviderEntryPoint(
-        "Employee_Module", PegasusCreateProvider_Employee))
+    if (!registerProvider(
+        nameSpaces,
+        "EmployeeLink", /* classname */
+        MyEmbeddedServer::PEGASUS_PROVIDER_INTERFACE,
+        MyEmbeddedServer::INSTANCE_PROVIDER_TYPE))
     {
-        printf("***** addSymbol() failed: Employee\n");
+        printf("***** registerProvider() failed: Employee\n");
     }
 }
 

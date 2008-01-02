@@ -627,10 +627,13 @@ Uint32 HTTPAcceptor::getOutstandingRequestCount() const
     if (_rep)
     {
         AutoMutex autoMut(_rep->_connection_mut);
-        if (_rep->connections.size() > 0)
+        for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
         {
-            HTTPConnection* connection = _rep->connections[0];
-            count = connection->getRequestCount();
+            HTTPConnection* connection = _rep->connections[i];
+            if (connection->isResponsePending())
+            {
+                count++;
+            }
         }
     }
     return count;

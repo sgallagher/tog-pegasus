@@ -120,12 +120,6 @@ void ShutdownService::shutdown(
 {
     PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownService::shutdown");
 
-    //
-    // Initialize variables
-    //
-    Boolean timeoutExpired = false;
-    Boolean noMoreRequests = false;
-
     _shutdownTimeout = timeout;
 
     try
@@ -153,34 +147,17 @@ void ShutdownService::shutdown(
         // Determine if there are any outstanding CIM operation requests
         // (take into account that one of the request is the shutdown request).
         //
-        Uint32 requestCount = _cimserver->getOutstandingRequestCount();
-        if (requestCount > (requestPending ? 1 : 0))
-        {
-
-            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                "ShutdownService::shutdown - Waiting for outstanding CIM "
-                    "operations to complete.  Request count: $0",
-                requestCount);
-            noMoreRequests = waitUntilNoMoreRequests(requestPending);
-        }
-        else
-        {
-            noMoreRequests = true;
-        }
+        Boolean noMoreRequests = waitUntilNoMoreRequests(requestPending);
 
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "ShutdownService::shutdown - All outstanding CIM operations "
-                "complete");
+                "complete = $0",
+            noMoreRequests);
 
         //
         // proceed to shutdown the CIMServer
         //
         _shutdownCIMServer();
-    }
-    catch (CIMException& e)
-    {
-        PEG_TRACE_STRING(TRC_SHUTDOWN, Tracer::LEVEL4,
-            "Error occurred during CIMServer shutdown: " + e.getMessage());
     }
     catch (Exception& e)
     {
@@ -193,9 +170,6 @@ void ShutdownService::shutdown(
             "Unexpected error occurred during CIMServer shutdown. ");
     }
 
-    //
-    // All done
-    //
     PEG_METHOD_EXIT();
 }
 
@@ -423,26 +397,31 @@ void ShutdownService::_shutdownProviders()
 
 Boolean ShutdownService::waitUntilNoMoreRequests(Boolean requestPending)
 {
-    Uint32 maxWaitTime = _shutdownTimeout;  // maximum wait time in seconds
-    Uint32 waitInterval = 1;                // one second wait interval
-
-    Uint32 requestCount = _cimserver->getOutstandingRequestCount();
+    Uint32 waitTime = _shutdownTimeout;    // maximum wait time in seconds
+    const Uint32 waitInterval = 1;         // one second wait interval
+    Uint32 requestCount;
 
     //
     // Loop and wait one second until either there is no more requests
     // or until timeout expires.
     //
-    while (requestCount > (requestPending ? 1 : 0) && maxWaitTime > 0)
+    while (waitTime > 0)
     {
-        Threads::sleep(waitInterval * 1000);
-        maxWaitTime -= waitInterval;
         requestCount = _cimserver->getOutstandingRequestCount();
+        if (requestCount <= (requestPending ? 1 : 0))
+        {
+            return true;
+        }
+
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "ShutdownService waiting for outstanding CIM operations to "
+                "complete.  Request count: $0",
+            requestCount);
+        Threads::sleep(waitInterval * 1000);
+        waitTime -= waitInterval;
     }
 
-    if (requestCount > 1)
-        return false;
-    else
-        return true;
+    return _cimserver->getOutstandingRequestCount() <= (requestPending ? 1 : 0);
 }
 
 PEGASUS_NAMESPACE_END

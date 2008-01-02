@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,15 +39,10 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/Threads.h>
-#include <Pegasus/Common/Mutex.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-#ifdef PEGASUS_OS_TYPE_WINDOWS
 static Uint32 _socketInterfaceRefCount = 0;
-static Mutex _socketInterfaceRefCountLock;
-#endif
 
 Boolean Socket::timedConnect(
     SocketHandle socket,
@@ -54,20 +51,8 @@ Boolean Socket::timedConnect(
     Uint32 timeoutMilliseconds)
 {
     int connectResult;
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    connectResult = ::connect(socket, address, addressLength);
-#else
-    Uint32 maxConnectAttempts = 100;
-    // Retry the connect() until it succeeds or it fails with an error other
-    // than EINTR, EAGAIN (for Linux), or ECONNREFUSED (for HP-UX and z/OS).
-    while (((connectResult = ::connect(socket, address, addressLength)) == -1)
-           && (maxConnectAttempts-- > 0)
-           && ((errno == EINTR) || (errno == EAGAIN) ||
-               (errno == ECONNREFUSED)))
-    {
-        Threads::sleep(1);
-    }
-#endif
+    PEGASUS_RETRY_SYSTEM_CALL(
+        ::connect(socket, address, addressLength), connectResult);
 
     if (connectResult == 0)
     {
@@ -88,18 +73,12 @@ Boolean Socket::timedConnect(
             { timeoutMilliseconds/1000, timeoutMilliseconds%1000*1000 };
         int selectResult = -1;
 
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-        PEGASUS_RETRY_SYSTEM_CALL(
-            select(FD_SETSIZE, NULL, &fdwrite, &fdwrite, &timeoutValue),
-            selectResult);
-#else
         PEGASUS_RETRY_SYSTEM_CALL(
             select(FD_SETSIZE, NULL, &fdwrite, NULL, &timeoutValue),
             selectResult);
-#endif
         if (selectResult == 0)
         {
-            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL1,
+            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL2,
                 "select() timed out waiting for the socket connection to be "
                     "established.");
             return false;
@@ -117,7 +96,7 @@ Boolean Socket::timedConnect(
             }
             else
             {
-                PEG_TRACE((TRC_HTTP, Tracer::LEVEL1,
+                PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
                     "Did not connect, getsockopt() returned optval = %d",
                     optval));
                 return false;
@@ -125,14 +104,14 @@ Boolean Socket::timedConnect(
         }
         else
         {
-            PEG_TRACE((TRC_HTTP, Tracer::LEVEL1,
+            PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
                 "select() returned error code %d",
                 getSocketError()));
             return false;
         }
     }
 
-    PEG_TRACE((TRC_HTTP, Tracer::LEVEL1,
+    PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
         "connect() returned error code %d",
         getSocketError()));
     return false;
@@ -226,23 +205,19 @@ Sint32 Socket::timedWrite(
     }
 }
 
-void Socket::close(SocketHandle& socket)
+void Socket::close(SocketHandle socket)
 {
-    if (socket != PEGASUS_INVALID_SOCKET)
+    if (socket != -1)
     {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
         if (!closesocket(socket))
-        {
-            socket = PEGASUS_INVALID_SOCKET;
-        }
+            socket = -1;
 #else
         int status;
         PEGASUS_RETRY_SYSTEM_CALL(::close(socket), status);
 
         if (status == 0)
-        {
-            socket = PEGASUS_INVALID_SOCKET;
-        }
+            socket = -1;
 #endif
     }
 }
@@ -252,9 +227,6 @@ void Socket::disableBlocking(SocketHandle socket)
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     unsigned long flag = 1;    // Use "flag = 0" to enable blocking
     ioctlsocket(socket, FIONBIO, &flag);
-#elif PEGASUS_OS_VMS
-    int flag=1;                // Use "flag = 0" to enable blocking
-    ioctl(socket, FIONBIO, &flag);
 #else
     int flags = fcntl(socket, F_GETFL, 0);
     flags |= O_NONBLOCK;    // Use "flags &= ~O_NONBLOCK" to enable blocking
@@ -265,19 +237,12 @@ void Socket::disableBlocking(SocketHandle socket)
 void Socket::initializeInterface()
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-    AutoMutex mtx(_socketInterfaceRefCountLock);
     if (_socketInterfaceRefCount == 0)
     {
         WSADATA tmp;
 
-        int err = WSAStartup(0x202, &tmp);
-        if (err != 0)
-        {
-            throw Exception(MessageLoaderParms(
-                "Common.Socket.WSASTARTUP_FAILED.WINDOWS",
-                "WSAStartup failed with error $0.",
-                err));
-        }
+        if (WSAStartup(0x202, &tmp) == SOCKET_ERROR)
+            WSACleanup();
     }
 
     _socketInterfaceRefCount++;
@@ -287,7 +252,6 @@ void Socket::initializeInterface()
 void Socket::uninitializeInterface()
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-    AutoMutex mtx(_socketInterfaceRefCountLock);
     _socketInterfaceRefCount--;
 
     if (_socketInterfaceRefCount == 0)
@@ -314,10 +278,14 @@ inline void _setTCPNoDelay(SocketHandle socket)
    int opt = 1;
    setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, (char*)&opt, sizeof(opt));
 }
-
-#ifdef PEGASUS_OS_ZOS
+//------------------------------------------------------------------------------
+//
+// _setInformIfNewTCPIP()
+//
+//------------------------------------------------------------------------------
 inline void _setInformIfNewTCPIP(SocketHandle socket)
 {
+#ifdef PEGASUS_OS_ZOS
    // This function enables the notification of the CIM Server that a new
    // TCPIP transport layer is active. This is needed to be aware of a
    // restart of the transport layer. When this option is in effect,
@@ -331,12 +299,8 @@ inline void _setInformIfNewTCPIP(SocketHandle socket)
        SO_EioIfNewTP,
        (char*)&NewTcpipOn,
        sizeof(NewTcpipOn));
-}
-#else
-inline void _setInformIfNewTCPIP(SocketHandle)
-{
-}
 #endif
+}
 
 
 SocketHandle Socket::createSocket(int domain, int type, int protocol)
@@ -348,9 +312,7 @@ SocketHandle Socket::createSocket(int domain, int type, int protocol)
         return socket(domain,type,protocol);
     }
 
-#ifdef PEGASUS_OS_ZOS
     bool sendTcpipMsg = true;
-#endif
 
     while (1)
     {
@@ -369,9 +331,8 @@ SocketHandle Socket::createSocket(int domain, int type, int protocol)
         {
             Logger::put_l(
                 Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-                MessageLoaderParms(
-                    "Common.Socket.WAIT_FOR_TCPIP",
-                    "TCP/IP temporary unavailable."));
+                "Common.Socket.WAIT_FOR_TCPIP",
+                "TCP/IP temporary unavailable.");
             sendTcpipMsg = false;
         }
 

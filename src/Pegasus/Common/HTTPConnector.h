@@ -38,6 +38,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+// NOCHKSRC
+
 #ifndef Pegasus_HTTPConnector_h
 #define Pegasus_HTTPConnector_h
 
@@ -89,26 +91,13 @@ class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueue
 
 	  @param host indicates host to connect to
 	  @param portNumber indicates port number to use
-	  @param outputMessageQueue output message queue for the HTTPConnection
-	  that will be created.
-	  @exception InvalidLocatorException
-	  @exception CannotCreateSocketException
-	  @exception CannotConnectException
-      */
-      inline HTTPConnection* connect(
-         const String& host, 
-         const Uint32 portNumber,
-	 MessageQueue* outputMessageQueue)
-      {
-          return connect(host, portNumber, NULL, outputMessageQueue);
-      }
-
-      /** Establishes a new connection and creates an HTTPConnection object
-	  to represent it.
-
-	  @param host indicates host to connect to
-	  @param portNumber indicates port number to use
 	  @param sslContext Specifies the SSL context to use for this connection
+	  @param timeoutMilliseconds Specifies the connection timeout.
+            If a socket is non-blocking and a connection is in progress after
+            the initial attempt, the connection will be attempted until the
+            specified timeout is reached.  If the specified timeout is zero,
+            the connection will not be re-attempted.  The timeout is not
+            applicable for a blocking socket.
 	  @param outputMessageQueue output message queue for the HTTPConnection
 	  that will be created.
 	  @exception InvalidLocatorException
@@ -119,6 +108,7 @@ class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueue
          const String& host, 
          const Uint32 portNumber,
 	 SSLContext * sslContext,
+         Uint32 timeoutMilliseconds,
 	 MessageQueue* outputMessageQueue);
 
       /** Destroys all the connections created by this connector. */

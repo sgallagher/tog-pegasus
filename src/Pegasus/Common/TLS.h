@@ -92,8 +92,6 @@ public:
 
     void close();
 
-    void enableBlocking();
-
     void disableBlocking();
 
     static void initializeInterface();
@@ -110,7 +108,7 @@ public:
      */
     Sint32 accept();
 
-    Sint32 connect();
+    Sint32 connect(Uint32 timeoutMilliseconds);
 
     Boolean isPeerVerificationEnabled();
 
@@ -152,7 +150,7 @@ class PEGASUS_COMMON_LINKAGE SSLSocket {};
 class MP_Socket {
 
 public:
-    MP_Socket(PEGASUS_SOCKET socket);                          // "normal" socket
+    MP_Socket(PEGASUS_SOCKET socket);                  // "normal" socket
 
     MP_Socket(
         PEGASUS_SOCKET socket,
@@ -174,8 +172,6 @@ public:
 
     void close();
 
-    void enableBlocking();
-
     void disableBlocking();
 
     /**
@@ -186,7 +182,7 @@ public:
      */
     Sint32 accept();
 
-    Sint32 connect();
+    Sint32 connect(Uint32 timeoutMilliseconds);
 
     Boolean isPeerVerificationEnabled();
 

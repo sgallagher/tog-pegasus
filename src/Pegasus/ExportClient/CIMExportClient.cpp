@@ -37,12 +37,14 @@
 //                (carolann_graves@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Dan Gorey (djgorey@us.ibm.com)
-//				Seema Gupta (gseema@in.ibm.com) for PEP135
+//              Seema Gupta (gseema@in.ibm.com) for PEP135
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
 //              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
+
+// NOCHKSRC
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
@@ -110,6 +112,7 @@ void CIMExportClient::_connect()
         _httpConnection = _httpConnector->connect(_connectHost, 
             _connectPortNumber, 
             _connectSSLContext.get(),
+            _timeoutMilliseconds,
             _responseDecoder);
     }
     catch (...)

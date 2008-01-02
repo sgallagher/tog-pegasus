@@ -46,6 +46,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+// NOCHKSRC
+
 #include "CIMClientRep.h"
 
 // l10n
@@ -164,6 +166,7 @@ void CIMClientRep::_connect()
                                               _connectHost,
                                               _connectPortNumber,
                                               _connectSSLContext.get(),
+                                              _timeoutMilliseconds,
                                               responseDecoder.get()));
 
     //

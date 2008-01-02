@@ -136,6 +136,7 @@ void WbemExecClient::_connect()
          _connectHost,
          _connectPortNumber,
          _connectSSLContext.get(),
+         _timeoutMilliseconds,
          this);
 
     _connected = true;

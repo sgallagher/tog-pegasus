@@ -80,6 +80,24 @@ class PEGASUS_COMMON_LINKAGE Socket
 {
    public:
 
+    /**
+        Connects the specified socket to the specified address.  If the socket
+        is non-blocking, the connect attempt will time out after the specified
+        interval.
+
+        @param socket The socket to connect.
+        @param address The address to which to connect the socket
+        @param addressLength The length of the sockaddr buffer in which the
+            address is specified.
+        @param timeoutMilliseconds The number of milliseconds after which the
+            connect attempt should time out, if the socket is non-blocking.
+        @return True if the connect attempt is successful, false otherwise.
+    */
+    static Boolean timedConnect(
+        PEGASUS_SOCKET socket,
+        sockaddr* address,
+        int addressLength,
+        Uint32 timeoutMilliseconds);
 
       static Sint32 read(PEGASUS_SOCKET socket, void* ptr, Uint32 size);
 
@@ -91,8 +109,6 @@ class PEGASUS_COMMON_LINKAGE Socket
                              Uint32 socketWriteTimeout);
 
       static void close(PEGASUS_SOCKET socket);
-
-      static void enableBlocking(PEGASUS_SOCKET socket);
 
       static void disableBlocking(PEGASUS_SOCKET socket);
 

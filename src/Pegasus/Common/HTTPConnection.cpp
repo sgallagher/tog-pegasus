@@ -258,7 +258,6 @@ HTTPConnection::HTTPConnection(
 {
     PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::HTTPConnection");
 
-    _socket->disableBlocking();
     _authInfo.reset(new AuthenticationInfo(true));
 
     // Add SSL verification information to the authentication information

@@ -369,6 +369,7 @@ void HTTPAcceptor::_bind()
         throw BindFailedException(parms);
     }
 
+    Socket::disableBlocking(_rep->socket);
 
 // set the close-on-exec bit for this file handle.
 // any unix that forks needs this bit set.
@@ -718,6 +719,16 @@ void HTTPAcceptor::_acceptConnection()
 #endif
     }
 
+    // It is not necessary to handle EINTR errors from this accept() call.
+    // An EINTR error should not occur on a non-blocking socket.  If the
+    // listen socket is blocking and EINTR occurs, the new socket connection
+    // is not accepted here.
+
+    // EAGAIN errors are also not handled here.  An EAGAIN error should not
+    // occur after select() indicates that the listen socket is available for
+    // reading.  If the accept() fails with an EAGAIN error code, a new
+    // connection is not accepted here.
+
     SocketHandle socket = accept(_rep->socket, accept_address, &address_size);
 
     if (socket == PEGASUS_SOCKET_ERROR)
@@ -808,15 +819,12 @@ void HTTPAcceptor::_acceptConnection()
     AutoPtr<MP_Socket> mp_socket(new MP_Socket(
         socket, _sslcontext, _sslContextObjectLock));
 
+    mp_socket->disableBlocking();
     mp_socket->setSocketWriteTimeout(_socketWriteTimeout);
 
-    // Perform the SSL handshake, if applicable.  Make the socket non-blocking
-    // for this operation so we can send it back to the Monitor's select() loop
-    // if it takes a while.
+    // Perform the SSL handshake, if applicable.
 
-    mp_socket->disableBlocking();
     Sint32 socketAcceptStatus = mp_socket->accept();
-    mp_socket->enableBlocking();
 
     if (socketAcceptStatus < 0)
     {

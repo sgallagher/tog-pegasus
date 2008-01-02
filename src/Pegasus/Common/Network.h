@@ -115,6 +115,22 @@
 
 //------------------------------------------------------------------------------
 //
+// PEGASUS_RETRY_SYSTEM_CALL()
+//
+//     This macro repeats the given system call until it returns something
+//     other than EINTR.
+//
+//------------------------------------------------------------------------------
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+#   define PEGASUS_RETRY_SYSTEM_CALL(EXPR, RESULT) RESULT = EXPR
+#else
+#   define PEGASUS_RETRY_SYSTEM_CALL(EXPR, RESULT) \
+        while (((RESULT = (EXPR)) == -1) && (errno == EINTR))
+#endif
+
+//------------------------------------------------------------------------------
+//
 // PEGASUS_SOCKET_ERROR
 //
 //------------------------------------------------------------------------------
@@ -168,6 +184,22 @@
 #   define PEGASUS_NETWORK_TRYAGAIN EAGAIN
 #else
 #   define PEGASUS_NETWORK_TRYAGAIN 0
+#endif
+
+//------------------------------------------------------------------------------
+//
+// PEGASUS_NETWORK_EINPROGRESS
+//
+// This return code indicates that the network function
+// is in progress. The application should try select or poll and
+// check for successful completion.
+//
+//------------------------------------------------------------------------------
+
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
+#   define PEGASUS_NETWORK_EINPROGRESS EINPROGRESS
+#else
+#   define PEGASUS_NETWORK_EINPROGRESS WSAEWOULDBLOCK
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////

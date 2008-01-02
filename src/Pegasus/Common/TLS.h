@@ -82,8 +82,6 @@ public:
 
     void close();
 
-    void enableBlocking();
-
     void disableBlocking();
 
     static void initializeInterface();
@@ -100,7 +98,7 @@ public:
      */
     Sint32 accept();
 
-    Sint32 connect();
+    Sint32 connect(Uint32 timeoutMilliseconds);
 
     Boolean isPeerVerificationEnabled();
 
@@ -162,8 +160,6 @@ public:
 
     void close();
 
-    void enableBlocking();
-
     void disableBlocking();
 
     /**
@@ -174,7 +170,7 @@ public:
      */
     Sint32 accept();
 
-    Sint32 connect();
+    Sint32 connect(Uint32 timeoutMilliseconds);
 
     Boolean isPeerVerificationEnabled();
 

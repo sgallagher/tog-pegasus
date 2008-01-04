@@ -118,11 +118,13 @@ void testTestProcessRunning(void)
 
 int main()
 {
+#ifndef PEGASUS_TEST_VALGRIND
     testGetProcessName();
     testReadPidFile();
     testTestProcessRunning();
 
     printf("+++++ passed all tests\n");
+#endif
 
     return 0;
 }

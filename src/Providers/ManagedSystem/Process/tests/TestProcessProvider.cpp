@@ -787,6 +787,7 @@ int testClass(const String& className)
     return 1;
   }
 
+#ifndef PEGASUS_TEST_VALGRIND
   // For UnixProcess, we should be able to find this test process
   // and the cimserver
   if (String::equalNoCase(className,"CIM_Process") ||
@@ -814,6 +815,7 @@ int testClass(const String& className)
       return 1;
     }
   }
+#endif
 
   // =======================================================================
   // modifyInstance

@@ -97,12 +97,6 @@ int main(int argc, char* argv[])
     {
         int status = PAMAuthenticateInProcess(request.arg1, request.arg2);
 
-        if (status != 0)
-        {
-            syslog(LOG_WARNING, "user \"%s\" failed to authenticate",
-                request.arg1);
-        }
-
         response.status = status;
 
         if (SendBlock(sock, &response, sizeof(response)) != sizeof(response))
@@ -117,11 +111,6 @@ int main(int argc, char* argv[])
     else if (strcmp(request.arg0, "validateUser") == 0)
     {
         int status = PAMValidateUserInProcess(request.arg1);
-
-        if (status != 0)
-        {
-            syslog(LOG_WARNING, "failed to validate user \"%s\"", request.arg1);
-        }
 
         response.status = status;
 

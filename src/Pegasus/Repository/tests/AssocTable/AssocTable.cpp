@@ -93,5 +93,7 @@ int main(int argc, char** argv)
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 
+    // Avoid a memory leak
+    AssocClassCache::cleanupAssocClassCaches();
     return 0;
 }

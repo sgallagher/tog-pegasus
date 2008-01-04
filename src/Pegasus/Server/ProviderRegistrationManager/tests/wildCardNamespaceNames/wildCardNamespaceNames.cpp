@@ -61,7 +61,7 @@ int main(int argc, char** argv)
         repositoryRootPath = tmpDir;
 
     repositoryRootPath.append("/repository");
-    CIMRepository *_repository = new CIMRepository(repositoryRootPath);
+    CIMRepository _repository(repositoryRootPath);
 
     try {
        CIMNamespaceName ok1(WildCardNamespaceNames::add(String("root/ci*")));
@@ -90,7 +90,7 @@ int main(int argc, char** argv)
            if (verbose) cout<<argv[0]<<" --- "<<i<<" "<<ar[i]<<endl;
        }
 
-       Array<CIMNamespaceName> nss=_repository->enumerateNameSpaces();
+       Array<CIMNamespaceName> nss=_repository.enumerateNameSpaces();
        for (int i=0,m=nss.size(); i<m; i++ )
        {
           if (verbose) cout << argv[0]<<" --- "<<i<<" "<<nss[i].getString()

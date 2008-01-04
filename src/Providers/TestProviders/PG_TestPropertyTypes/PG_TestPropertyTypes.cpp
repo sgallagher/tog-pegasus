@@ -244,6 +244,7 @@ void PG_TestPropertyTypes::initialize(CIMOMHandle& cimom)
 
 void PG_TestPropertyTypes::terminate()
 {
+    delete this;
 }
 
 void PG_TestPropertyTypes::getInstance(

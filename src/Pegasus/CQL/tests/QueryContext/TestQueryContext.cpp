@@ -225,8 +225,8 @@ void drive_RepositoryQueryContext()
         repositoryDir.append(repo_name);
 
     CIMNamespaceName _ns("root/SampleProvider");
-    CIMRepository *_rep = new CIMRepository(repositoryDir);
-    RepositoryQueryContext _queryOrig(_ns, _rep);
+    CIMRepository _rep(repositoryDir);
+    RepositoryQueryContext _queryOrig(_ns, &_rep);
 
     RepositoryQueryContext _query = _queryOrig;
 

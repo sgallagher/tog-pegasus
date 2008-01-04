@@ -46,10 +46,10 @@ const String NAMESPACE = "root/cimv2";
 static void TestSendingToNonExistentConsumer()
 {
     CIMException testException;
-    Monitor* monitor = new Monitor;
-    HTTPConnector* httpConnector = new HTTPConnector(monitor);
+    Monitor monitor;
+    HTTPConnector httpConnector(&monitor);
 
-    CIMExportClient client(monitor, httpConnector);
+    CIMExportClient client(&monitor, &httpConnector);
     Uint32 port =
         System::lookupPort(WBEM_HTTP_SERVICE_NAME, WBEM_DEFAULT_HTTP_PORT);
     client.connect("localhost", port);
@@ -72,9 +72,9 @@ static void TestSendingToNonExistentConsumer()
 
 static void TestExceptionHandling()
 {
-    Monitor* monitor = new Monitor;
-    HTTPConnector* httpConnector = new HTTPConnector(monitor);
-    CIMExportClient client(monitor, httpConnector);
+    Monitor monitor;
+    HTTPConnector httpConnector(&monitor);
+    CIMExportClient client(&monitor, &httpConnector);
 
     CIMInstance indication(CIMName("My_IndicationClass"));
     indication.addProperty(CIMProperty(CIMName("DeviceName"), String("Disk")));
@@ -100,9 +100,9 @@ static void TestExceptionHandling()
 
 static void TestTimeout()
 {
-    Monitor* monitor = new Monitor;
-    HTTPConnector* httpConnector = new HTTPConnector(monitor);
-    CIMExportClient client(monitor, httpConnector);
+    Monitor monitor;
+    HTTPConnector httpConnector(&monitor);
+    CIMExportClient client(&monitor, &httpConnector);
     const int TIMEOUT_MILLISECONDS = 
         PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS * 2;
 
@@ -134,9 +134,9 @@ static void testConnect()
     //
     //  Create CIMExportClient
     //
-    Monitor* monitor = new Monitor;
-    HTTPConnector* httpConnector = new HTTPConnector(monitor);
-    CIMExportClient client(monitor, httpConnector);
+    Monitor monitor;
+    HTTPConnector httpConnector(&monitor);
+    CIMExportClient client(&monitor, &httpConnector);
 
     //
     //  Look up port number
@@ -179,9 +179,9 @@ static void testSSLConnect()
     //
     //  Create CIMExportClient
     //
-    Monitor* monitor = new Monitor;
-    HTTPConnector* httpConnector = new HTTPConnector(monitor);
-    CIMExportClient client(monitor, httpConnector);
+    Monitor monitor;
+    HTTPConnector httpConnector(&monitor);
+    CIMExportClient client(&monitor, &httpConnector);
 
     //
     //  Create SSLContext

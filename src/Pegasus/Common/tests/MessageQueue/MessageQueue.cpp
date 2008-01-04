@@ -77,21 +77,25 @@ void TestMessageQueue1()
     PEGASUS_TEST_ASSERT(((const Alarm*)m)->getKey() == 1);
     PEGASUS_TEST_ASSERT(q.getCount() == 3);
     PEGASUS_TEST_ASSERT(!q.isEmpty());
+    delete m;
 
     m = q.dequeue();
     PEGASUS_TEST_ASSERT(((const Alarm*)m)->getKey() == 2);
     PEGASUS_TEST_ASSERT(q.getCount() == 2);
     PEGASUS_TEST_ASSERT(!q.isEmpty());
+    delete m;
 
     m = q.dequeue();
     PEGASUS_TEST_ASSERT(((const Alarm*)m)->getKey() == 3);
     PEGASUS_TEST_ASSERT(q.getCount() == 1);
     PEGASUS_TEST_ASSERT(!q.isEmpty());
+    delete m;
 
     m = q.dequeue();
     PEGASUS_TEST_ASSERT(((const Alarm*)m)->getKey() == 4);
     PEGASUS_TEST_ASSERT(q.getCount() == 0);
     PEGASUS_TEST_ASSERT(q.isEmpty());
+    delete m;
 }
 
 void TestMessageQueue2()
@@ -108,7 +112,7 @@ void TestMessageQueue2()
     PEGASUS_TEST_ASSERT(sum == 15);
 
     while (!q.isEmpty())
-        q.dequeue();
+        delete q.dequeue();
 
     PEGASUS_TEST_ASSERT(q.getCount() == 0);
 }
@@ -127,7 +131,7 @@ void TestMessageQueue3()
     PEGASUS_TEST_ASSERT(sum == 15);
 
     while (!q.isEmpty())
-        q.dequeue();
+        delete q.dequeue();
 
     PEGASUS_TEST_ASSERT(q.getCount() == 0);
 }

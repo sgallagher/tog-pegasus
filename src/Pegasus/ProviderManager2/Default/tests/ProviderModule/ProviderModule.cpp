@@ -81,6 +81,7 @@ void testGoodProvider()
 
     CIMProvider* provider = module.load(GOOD_PROVIDER_NAME);
     PEGASUS_ASSERT(provider != 0);
+    provider->terminate();
     module.unloadModule();
 
     provider = module.load(GOOD_PROVIDER_NAME);
@@ -107,10 +108,13 @@ void testGoodProvider()
     }
 
     // Load the same provider a second time
-    provider = module.load(GOOD_PROVIDER_NAME);
-    PEGASUS_ASSERT(provider != 0);
+    CIMProvider* provider1 = module.load(GOOD_PROVIDER_NAME);
+    PEGASUS_ASSERT(provider1 != 0);
+
+    provider->terminate();
     module.unloadModule();
 
+    provider1->terminate();
     module.unloadModule();
 
     // Load incorrect provider name while no other provider is loaded

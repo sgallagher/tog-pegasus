@@ -63,6 +63,21 @@
 
 //------------------------------------------------------------------------------
 //
+// PEGASUS_SOCKET_ERROR
+//
+//    This macro defines the error return code of network functions.
+//    Should be used instead of comparing with -1.
+//
+//------------------------------------------------------------------------------
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+#   define PEGASUS_SOCKET_ERROR SOCKET_ERROR
+#else
+#   define PEGASUS_SOCKET_ERROR (-1)
+#endif
+
+//------------------------------------------------------------------------------
+//
 // PEGASUS_RETRY_SYSTEM_CALL()
 //
 //     This macro repeats the given system call until it returns something
@@ -465,7 +480,7 @@ Sint32 SSLSocket::connect(Uint32 timeoutMilliseconds)
 
         // Error case:  ssl_rc < 0
 
-        int ssl_rsn = SSL_get_error(sslConnection, ssl_rc);
+        int ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
 
         if ((ssl_rsn == SSL_ERROR_SYSCALL) &&
             ((errno == EAGAIN) || (errno == EINTR)))
@@ -504,7 +519,7 @@ Sint32 SSLSocket::connect(Uint32 timeoutMilliseconds)
 
         if (ssl_rsn == SSL_ERROR_WANT_READ)
         {
-            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
                 "---> SSL: Retry WANT_READ");
             PEGASUS_RETRY_SYSTEM_CALL(
                 select(FD_SETSIZE, &fd, NULL, NULL, &timeoutValue),

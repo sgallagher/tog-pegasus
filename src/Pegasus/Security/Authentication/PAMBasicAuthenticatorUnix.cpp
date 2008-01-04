@@ -38,6 +38,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+// NOCHKSRC
+
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Config/ConfigManager.h>
@@ -387,7 +389,8 @@ Sint32 PAMBasicAuthenticator::PAMCallback(Sint32 num_msg, struct pam_message **m
                 // copy the user password
                 // 
                 resp[i]->resp = (char *)malloc(PAM_MAX_MSG_SIZE);
-                strcpy(resp[i]->resp, mydata->userPassword);
+                strncpy(resp[i]->resp, mydata->userPassword, PAM_MAX_MSG_SIZE);
+                resp[i]->resp[PAM_MAX_MSG_SIZE - 1] = 0;
                 resp[i]->resp_retcode = 0;
                 break;
 
@@ -553,21 +556,24 @@ Boolean PAMBasicAuthenticatorStandAlone::validateUser(
 PAMBasicAuthenticatorStandAlone::_Status 
          PAMBasicAuthenticatorStandAlone::_writeString(const String& text)
 {
-    char    	line[BUFFERLEN];
-    int     	n, ret_code;
-    PAMBasicAuthenticatorStandAlone::_Status  	status = 
-                        PAMBasicAuthenticatorStandAlone::SUCCESS;
+    PAMBasicAuthenticatorStandAlone::_Status status = 
+        PAMBasicAuthenticatorStandAlone::SUCCESS;
 
     CString copy_of_text=text.getCString();
-    n = strlen(copy_of_text);
+    int stringLength = strlen(copy_of_text);
 
-    sprintf(line, "%4u%s", n, (const char*)copy_of_text);
-    n = strlen(line);
+    if (stringLength > BUFFERLEN - 1)
+    { 
+        stringLength = BUFFERLEN - 1;
+    }
+
+    char header[5];
+    sprintf(header, "%04u", stringLength);
 
     continue_PAMauthentication = true;
-    ret_code = write(fd_1[1], line, n);
 
-    if (ret_code != n)
+    if ((write(fd_1[1], header, 4) != 4) ||
+        (write(fd_1[1], copy_of_text, stringLength) != stringLength))
     {
         continue_PAMauthentication = false;
         status = PAMBasicAuthenticatorStandAlone::OTHER_ERROR;

@@ -118,7 +118,8 @@ public:
     */
     void reconnectConnectionSocket();
 
-    /** Returns the number of outstanding requests
+    /** Returns the number of outstanding requests for connections created by
+        this Acceptor.
     */
     Uint32 getOutstandingRequestCount() const;
 

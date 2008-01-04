@@ -58,10 +58,6 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-// initialize the request count
-
-AtomicInt HTTPConnection::_requestCount(0);
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Local routines:
@@ -989,19 +985,17 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
         // decrement request count
         //
 
-        _requestCount--;
         _responsePending = false;
 
         if (httpStatus.size() == 0)
         {
-            static const char msg[] =
-                "A response has been sent (%d of %d bytes have been written).\n"
-                "There are %d requests pending within the CIM Server.\n"
-                "A total of %d requests have been processed on this "
-                    "connection.";
-
-            PEG_TRACE((TRC_HTTP, Tracer::LEVEL4, msg, totalBytesWritten,
-                messageLength, _requestCount.get(), _connectionRequestCount));
+            PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+                "A response has been sent (%d of %u bytes have been written). "
+                    "A total of %u requests have been processed on this "
+                    "connection.",
+                totalBytesWritten,
+                messageLength,
+                _connectionRequestCount));
         }
 
         //
@@ -1878,7 +1872,6 @@ void HTTPConnection::_handleReadEventFailure(
         httpStatus + httpDetailDelimiter + httpDetail +
             httpDetailDelimiter + cimError);
 
-    _requestCount++;
     Buffer message;
     message = XmlWriter::formatHttpErrorRspMessage(httpStatus, cimError,
         httpDetail);
@@ -2066,9 +2059,6 @@ void HTTPConnection::_handleReadEvent()
                 getQueueId()));
             _closeConnection();
 
-            PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
-                "_requestCount = %d", _requestCount.get()));
-
             //
             // If we are executing on the server side, the connection
             // is closed, return. Do not forward an empty HTTP message.
@@ -2116,12 +2106,8 @@ void HTTPConnection::_handleReadEvent()
         //
         // increment request count
         //
-        _requestCount++;
         _connectionRequestCount++;
         _responsePending = true;
-
-        PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
-            "_requestCount = %d", _requestCount.get()));
 
         //
         // Set the entry status to BUSY.
@@ -2150,9 +2136,9 @@ void HTTPConnection::_handleReadEvent()
     PEG_METHOD_EXIT();
 }
 
-Uint32 HTTPConnection::getRequestCount()
+Boolean HTTPConnection::isResponsePending()
 {
-    return _requestCount.get();
+    return _responsePending;
 }
 
 Boolean HTTPConnection::run(Uint32 milliseconds)

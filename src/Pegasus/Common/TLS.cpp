@@ -428,7 +428,7 @@ Sint32 SSLSocket::connect(Uint32 timeoutMilliseconds)
 
         // Error case:  ssl_rc < 0
 
-        int ssl_rsn = SSL_get_error(sslConnection, ssl_rc);
+        int ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
 
         if ((ssl_rsn == SSL_ERROR_SYSCALL) &&
             ((errno == EAGAIN) || (errno == EINTR)))

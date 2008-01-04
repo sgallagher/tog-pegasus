@@ -315,6 +315,8 @@ void HTTPConnection::handleEnqueue(Message *message)
  * handshake to complete if timeout expired or to close idle connections if 
  * idleConnectionTimeout config property value has specified.
  * Returns 'true' if connection is closed (or is closePending).
+ * timeNow will be updated to current time if connection's _idleStartTime
+ * is greater than timeNow.
 */
 
 Boolean HTTPConnection::closeConnectionOnTimeout(struct timeval* timeNow)
@@ -335,7 +337,13 @@ Boolean HTTPConnection::closeConnectionOnTimeout(struct timeval* timeNow)
     // else if connection timeout is active
     else if (_idleConnectionTimeoutSeconds)
     {
-        if ((Uint32)(timeNow->tv_sec - _idleStartTime.tv_sec) >
+        // For performance reasons timeNow is calculated only once in Monitor.
+        // Update timeNow if connection's _idleStartTime has more recent time.
+        if (timeNow->tv_sec < _idleStartTime.tv_sec)
+        {
+            Time::gettimeofday(timeNow);
+        }
+        else if ((Uint32)(timeNow->tv_sec - _idleStartTime.tv_sec) >
             _idleConnectionTimeoutSeconds)
         {
             PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
@@ -1016,16 +1024,15 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             }
             else
             {
-                PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
-                    "Now setting state to %d", MonitorEntry::STATUS_IDLE));
-                _monitor->setState(_entry_index, MonitorEntry::STATUS_IDLE);
-                _monitor->tickle();
-                // MonitorEntry has been set to STATUS_IDLE. Update beginning
-                // of connection idle time.
+                // Update connection idle time.
                 if (_idleConnectionTimeoutSeconds)
                 {
                     Time::gettimeofday(&_idleStartTime);
                 }
+                PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
+                    "Now setting state to %d", MonitorEntry::STATUS_IDLE));
+                _monitor->setState(_entry_index, MonitorEntry::STATUS_IDLE);
+                _monitor->tickle();
             }
             cimException = CIMException();
         }

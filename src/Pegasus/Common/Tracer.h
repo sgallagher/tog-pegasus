@@ -481,10 +481,12 @@ inline void Tracer::setTraceComponents(const String& traceComponents)
 
 # define PEG_METHOD_ENTER(comp, meth) \
     TracerToken __tracerToken; \
+    __tracerToken.method = 0; \
     do \
     { \
         if (Tracer::isTraceOn()) \
-            Tracer::traceEnter(__tracerToken PEGASUS_COMMA_FILE_LINE, comp, meth); \
+            Tracer::traceEnter( \
+                __tracerToken PEGASUS_COMMA_FILE_LINE, comp, meth); \
     } \
     while (0)
 

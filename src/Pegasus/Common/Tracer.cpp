@@ -184,7 +184,8 @@ void Tracer::_traceCIMException(
     const CIMException& cimException)
 {        
        // get the CIMException trace message string
-       CString traceMsg = TraceableCIMException(cimException).getTraceDescription().getCString();
+       CString traceMsg = TraceableCIMException(
+            cimException).getTraceDescription().getCString();
        // trace the string
        _traceCString(traceComponent, "", (const char*) traceMsg);
 }
@@ -704,7 +705,7 @@ void Tracer::traceExit(
     const char* file,
     size_t line)
 {
-    if (_isTraceEnabled(token.component, LEVEL1))
+    if (_isTraceEnabled(token.component, LEVEL1) && token.method)
         _traceMethod(
             file, (Uint32)line, token.component,
             _METHOD_EXIT_MSG, token.method);
@@ -756,7 +757,8 @@ void Tracer::traceString(
     if (_isTraceEnabled(traceComponent, traceLevel))
     {
         _traceCString(
-            fileName, lineNum, traceComponent, (const char*) string.getCString());
+            fileName, lineNum, traceComponent, 
+            (const char*) string.getCString());
     }
 }
 

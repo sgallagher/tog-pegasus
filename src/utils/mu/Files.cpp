@@ -170,257 +170,54 @@ bool MkDirHier(const string& path)
     return true;
 }
 
-//ATTN: KS 22 Apr 2002 - Put in nonlicensed match function but left the
-// old one enabled for the minute until test complete.
-// ATTN: KS 22 Apr 2002 P1 Test new and delete old TCL licensed code.
-//#define newmatchfunct
-#if defined NEWMATCHFUNCT
-typedef char MatchChar;
-
-/*
-inline Boolean _Equal(
-    MatchChar ch1,
-    MatchChar ch2,
-    int nocase)
+static int _Match(const char* pattern, const char* str)
 {
-    return ch1 == ch2;
-}
-*/
+    const char* p;
+    const char* q;
 
-static const MatchChar* _matchrange(
-    const MatchChar *range,
-    MatchChar c,
-    int nocase)
-{
-    const MatchChar *p = range;
-    const MatchChar *rstart = range + 1;
-    const MatchChar *rend = 0;
-    MatchChar compchar;
+    /* Now match expression to str. */
 
-    for (rend = rstart; *rend && *rend != ']'; rend++);
-
-    if (*rend == ']')
-    {  // if there is an end to this thing
-        for (compchar = *rstart; rstart != rend; rstart++)
+    for (p = pattern, q = str; *p && *q; )
+    {
+        if (*p == '*')
         {
-            if (*rstart == c)
-                return ++rend;
-            if (*rstart == '-')
+            const char* r;
+
+            p++;
+
+            /* Recursively call to find the shortest match. */
+
+            for (r = q; *r; r++)
             {
-                rstart++;
-                if (c >= compchar && c <= *rstart)
-                    return ++rend;
+                if (_Match(p, r) == 0)
+                    break;
             }
+
+            q = r;
+
         }
+        else if (*p == *q)
+        {
+            p++;
+            q++;
+        }
+        else
+            return -1;
     }
 
-    return (const MatchChar*) 0;
-}
+    /* If src was exhausted but pattern has a single '*' remaining charcters,
+     * then match the result.
+     */
 
-static int _StringMatch(
-    const MatchChar *testString,
-    const MatchChar *pattern,
-    int nocase)    /* Ignore case if this is true */
-{
-  const MatchChar *pat = pattern;
-  const MatchChar *str = testString;
-  unsigned int done = 0;
-  unsigned int res = 0;  // the result: 1 == match
+    if (p[0] == '*' && p[1] == '\0')
+        return 0;
 
-  while (!done) { // main loop walks through pattern and test string
-    //cerr << "Comparing <" << *pat << "> and <" << *str << ">" << endl;
-    if (!*pat) {                                         //end of pattern
-      done = 1;                                          // we're done
-      if (!*str)                                         //end of test, too?
-        res = 1;                                         // then we matched
-    } else {                                             //Not end of pattern
-      if (!*str) {                                       // but end of test
-        done = 1;                                        // We're done
-        if (*pat == '*')                                 // If pattern openends
-          res = 1;                                       //  then we matched
-      } else {                                           //Not end of test
-        if (*pat == '*') {                               //Ambiguuity found
-          if (!*++pat) {                                 //and it ends pattern
-            done = 1;                                    //  then we're done
-            res = 1;                                     //  and match
-          } else {                                       //if it doesn't end
-            while (!done) {                              //  until we're done
-              if (_StringMatch(str, pat, nocase)) {      //  we recurse
-                done = 1;                                //if it recurses true
-                res = 1;                                 //  we done and match
-              } else {                                   //it recurses false
-                if (!*str)                               // see if test is done
-                  done = 1;                              //  yes: we done
-                else                                     // not done:
-                  str++;                                 //   keep testing
-              } // end test on recursive call
-            } // end looping on recursive calls
-          } // end logic when pattern is ambiguous
-        } else {                                         //pattern not ambiguus
-          if (*pat == '?') {                             //pattern is 'any'
-            pat++, str++;                                //  so move along
-          } else if (*pat == '[') {                      //see if it's a range
-            pat = _matchrange(pat, *str, nocase);         // and is a match
-            if (!pat) {                                  //It is not a match
-              done = 1;                                  //  we're done
-              res = 1;                                   //  no match
-            } else {                                     //Range matches
-              str++, pat++;                              //  keep going
-            }
-          } else {               // only case left is individual characters
-            if (*pat++ !=*str++)                         // if they don't match
-            //if (!_Equal(*pat++, *str++, nocase))       // if they don't match
-              done = 1;                                  //   bail.
-          }
-        }  // end ("pattern is not ambiguous (*)" logic
-      } // end logic when pattern and string still have data
-    } // end logic when pattern still has data
-  } // end main loop
-  return res;
-}
+    /* If anything left over, then they do not match. */
 
-#else
+    if (*p || *q)
+        return -1;
 
-/*
- *----------------------------------------------------------------------
- *
- * Tcl_StringMatch --
- *
- *     See if a particular string MatchStringes a particular pattern.
- *
- * Results:
- *     The return value is 1 if string MatchStringes pattern, and
- *     0 otherwise.  The MatchStringing operation permits the following
- *     special characters in the pattern: *?\[] (see the manual
- *     entry for details on what these mean).
- *
- * Side effects:
- *     None.
- *
- *----------------------------------------------------------------------
- */
-
-static int _StringMatch(
-    char *string,    /* String. */
-    char *pattern,   /* Pattern, which may contain special characters*/
-    int  nocase)     /* nocase - Do nocase test Not used.. */
-{
-    char c2;
-
-    while (1) {
-        /* See if we're at the end of both the pattern and the string.
-         * If so, we succeeded.  If we're at the end of the pattern
-         * but not at the end of the string, we failed.
-         */
-
-        if (*pattern == 0) {
-            if (*string == 0) {
-                return 1;
-            } else {
-                return 0;
-            }
-        }
-        if ((*string == 0) && (*pattern != '*')) {
-            return 0;
-        }
-
-        /* Check for a "*" as the next pattern character.  It MatchStringes
-         * any substring.  We handle this by calling ourselves
-         * recursively for each postfix of string, until either we
-         * MatchString or we reach the end of the string.
-         */
-
-        if (*pattern == '*') {
-            pattern += 1;
-            if (*pattern == 0) {
-                return 1;
-            }
-            while (1) {
-                if (_StringMatch(string, pattern, nocase)) {
-                    return 1;
-                }
-                if (*string == 0) {
-                    return 0;
-                }
-                string += 1;
-            }
-        }
-
-        /* Check for a "?" as the next pattern character.  It MatchStringes
-         * any single character.
-         */
-
-        if (*pattern == '?') {
-            goto thisCharOK;
-        }
-
-        /* Check for a "[" as the next pattern character.  It is followed
-         * by a list of characters that are acceptable, or by a range
-         * (two characters separated by "-").
-         */
-
-        if (*pattern == '[') {
-            pattern += 1;
-            while (1) {
-                if ((*pattern == ']') || (*pattern == 0)) {
-                    return 0;
-                }
-                if (*pattern == *string) {
-                    break;
-                }
-                if (pattern[1] == '-') {
-                    c2 = pattern[2];
-                    if (c2 == 0) {
-                        return 0;
-                    }
-                    if ((*pattern <= *string) && (c2 >= *string)) {
-                        break;
-                    }
-                    if ((*pattern >= *string) && (c2 <= *string)) {
-                        break;
-                    }
-                    pattern += 2;
-                }
-                pattern += 1;
-            }
-            while (*pattern != ']') {
-                if (*pattern == 0) {
-                    pattern--;
-                    break;
-                }
-                pattern += 1;
-            }
-            goto thisCharOK;
-        }
-
-        /* If the next pattern character is '/', just strip off the '/'
-         * so we do exact MatchStringing on the character that follows.
-         */
-
-        if (*pattern == '\\') {
-            pattern += 1;
-            if (*pattern == 0) {
-                return 0;
-            }
-        }
-
-        /* There's no special character.  Just make sure that the next
-         * characters of each string MatchString.
-         */
-
-        if (*pattern != *string) {
-            return 0;
-        }
-
-        thisCharOK: pattern += 1;
-        string += 1;
-    }
-}
-#endif
-
-inline bool MatchString(const string& pattern, const string& str)
-{
-    return _StringMatch((char*)str.c_str(), (char*)pattern.c_str(), 0) != 0;
+    return 0;
 }
 
 static bool _contains_special_chars(const string& str)
@@ -439,11 +236,7 @@ bool Glob(const string& pattern_, vector<string>& fileNames)
 
     while (pattern.size() > 0 && pattern[pattern.size()-1] == '/')
     {
-#ifdef OS_TRU64
-        pattern.remove(pattern.size() - 1);
-#else
         pattern.erase(pattern.end() - 1);
-#endif
     }
 
     // Split the pattern into directory name and base name:
@@ -456,7 +249,7 @@ bool Glob(const string& pattern_, vector<string>& fileNames)
         fileNames.push_back(pattern_);
     else
     {
-        // Find all files in the given directory MatchStringing the pattern:
+        // Find all files in the given directory matching the pattern:
 
         bool found = false;
         vector<string> filenames;
@@ -466,7 +259,9 @@ bool Glob(const string& pattern_, vector<string>& fileNames)
 
         for (size_t i = 0; i < filenames.size(); i++)
         {
-            if (MatchString(basename, filenames[i]))
+            if (_Match(
+                    (const char*)basename.c_str(),
+                    (const char*)filenames[i].c_str()) == 0)
             {
                 found = true;
 

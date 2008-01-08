@@ -58,8 +58,6 @@ bool MkDirHier(const string& path);
 
 bool GetDirEntries(const string& path, vector<string>& filenames);
 
-bool MatchString(const string& pattern, const string& str);
-
 bool Glob(const string& pattern, vector<string>& filenames_out);
 
 bool TouchFile(const string& path);

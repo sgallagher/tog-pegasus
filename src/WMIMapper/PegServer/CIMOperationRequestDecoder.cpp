@@ -1074,8 +1074,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
          catch (Exception&)
          {
             MessageLoaderParms parms(
-                "Server.CIMOperationRequestDecoder.Server."
-                "CIMOperationRequestDecoder.COULD_NOT_PARSE_CIMOBJECT_VALUE",
+                "Server.CIMOperationRequestDecoder."
+                    "COULD_NOT_PARSE_CIMOBJECT_VALUE",
                 "Could not parse CIMObject value \"$0\".",
                 cimObjectInHeader);
             sendHttpError(queueId, HTTP_STATUS_BADREQUEST, 

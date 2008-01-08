@@ -94,7 +94,7 @@ SSLSocket::SSLSocket(
         PEG_METHOD_EXIT();
         MessageLoaderParms parms(
             "Common.TLS.COULD_NOT_GET_SSL_CONNECTION_AREA",
-            "Could not get SSL Connection Area");
+            "Could not get SSL Connection Area.");
         throw SSLException(parms);
     }
 
@@ -145,7 +145,7 @@ SSLSocket::SSLSocket(
             PEG_METHOD_EXIT();
             MessageLoaderParms parms(
                 "Common.TLS.COULD_NOT_LINK_SOCKET",
-                "Could not link socket to SSL Connection");
+                "Could not link socket to SSL Connection.");
             throw SSLException(parms);
         }
     }

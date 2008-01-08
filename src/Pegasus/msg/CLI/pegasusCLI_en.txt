@@ -668,7 +668,7 @@ en:table {
 
         Clients.cimtrust.CIMTrustCommand.REQUIRED_ARGS_MISSING:string {"PGC01100: Required arguments missing."}
 
-        Clients.cimtrust.CIMTrustCommand.CANNOT_CONNECT_CIMSERVER_NOT_RUNNING:string {"PGC01101: Cannot connect to CIM Server, CIM Server may not be running."}
+        Clients.cimtrust.CIMTrustCommand.CANNOT_CONNECT_CIMSERVER_NOT_RUNNING:string {"PGC01101: Cannot connect to CIM Server; CIM Server may not be running."}
 
         Clients.cimtrust.CIMTrustCommand.ADD_CERT_SUCCESS:string {"PGC01102: Certificate added successfully."}
 
@@ -833,7 +833,7 @@ en:table {
         "\n"
         }
 
-        Clients.cimsub.CIMSubCommand.REQUIRED_ARGS_MISSING:string {"PGC01400: Required arguments missing."}
+        Clients.cimsub.CIMSubCommand.REQUIRED_OPTION_MISSING:string {"PGC01400: Required option missing."}
 
         Clients.cimsub.CIMSubCommand.CIMOM_NOT_RUNNING:string {"PGC01401: Cannot connect to CIM Server, CIM Server may not be running."}
 

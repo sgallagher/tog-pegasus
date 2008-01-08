@@ -113,7 +113,7 @@ AlreadyExistsException::AlreadyExistsException(MessageLoaderParms& msgParms)
 InvalidNameException::InvalidNameException(const String& message)
     : Exception(MessageLoaderParms(
           "Common.Exception.INVALID_NAME_EXCEPTION",
-          "invalid CIM name: $0",
+          "The CIM name is not valid: $0",
           message))
 {
 }

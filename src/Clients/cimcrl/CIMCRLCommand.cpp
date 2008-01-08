@@ -189,7 +189,7 @@ static const char CONNECTION_TIMEOUT [] =
                 "Connection timed out.";
 
 static const char CONNECTION_TIMEOUT_KEY [] =
-                "Clients.cimcrl.CIMCRLCommand._CONNECTION_TIMEOUT";
+                "Clients.cimcrl.CIMCRLCommand.CONNECTION_TIMEOUT";
 
 static const char ADD_CRL_SUCCESS [] =
                 "CRL added successfully.";
@@ -209,11 +209,11 @@ static const char CRL_NOT_FOUND [] =
 static const char CRL_NOT_FOUND_KEY [] =
                 "Clients.cimcrl.CIMCRLCommand.CRL_NOT_FOUND";
 
-static const char CERT_SCHEMA_NOT_LOADED []  =
+static const char CRL_SCHEMA_NOT_LOADED []  =
                 "Please restore the internal repository on the CIM Server.";
 
-static const char CERT_SCHEMA_NOT_LOADED_KEY []  =
-                "Clients.cimcrl.CIMCRLCommand.CERT_SCHEMA_NOT_LOADED";
+static const char CRL_SCHEMA_NOT_LOADED_KEY []  =
+                "Clients.cimcrl.CIMCRLCommand.CRL_SCHEMA_NOT_LOADED";
 
 // Return codes
 
@@ -948,8 +948,8 @@ Uint32 CIMCRLCommand::execute (
                 if (code == CIM_ERR_INVALID_CLASS)
                 {
                     errPrintWriter << localizeMessage(MSG_PATH,
-                       CERT_SCHEMA_NOT_LOADED_KEY,
-                       CERT_SCHEMA_NOT_LOADED) << endl;
+                       CRL_SCHEMA_NOT_LOADED_KEY,
+                       CRL_SCHEMA_NOT_LOADED) << endl;
                 }
                 else
                 {
@@ -991,8 +991,8 @@ Uint32 CIMCRLCommand::execute (
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
                     errPrintWriter << localizeMessage(MSG_PATH,
-                        CERT_SCHEMA_NOT_LOADED_KEY,
-                        CERT_SCHEMA_NOT_LOADED) << endl;
+                        CRL_SCHEMA_NOT_LOADED_KEY,
+                        CRL_SCHEMA_NOT_LOADED) << endl;
                 }
                 else
                 {
@@ -1033,8 +1033,8 @@ Uint32 CIMCRLCommand::execute (
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
                     errPrintWriter << localizeMessage(MSG_PATH,
-                        CERT_SCHEMA_NOT_LOADED_KEY,
-                        CERT_SCHEMA_NOT_LOADED) << endl;
+                        CRL_SCHEMA_NOT_LOADED_KEY,
+                        CRL_SCHEMA_NOT_LOADED) << endl;
                 }
                 else
                 {

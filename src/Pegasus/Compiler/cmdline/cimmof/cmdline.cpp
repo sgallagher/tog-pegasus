@@ -492,10 +492,9 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
     if (cmdline.hasErrors())
     {
 
-        //  throw an exception and hande it in the caller
-        //l10n
-        //String msg = "Command line errors:\n";
-        MessageLoaderParms parms("Compiler.cmdline.cimmof.CMDLINE_ERRORS",
+        // Throw an exception and handle it in the caller
+        MessageLoaderParms parms(
+            "Compiler.cmdline.cimmof.cmdline.CMDLINE_ERRORS",
             "Command line errors:\n");
         String msg = MessageLoader::getMessage(parms);
         cmdline.printErrors(msg);
@@ -503,7 +502,7 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
         throw ArgumentErrorsException(msg);
     }
 
-    MessageLoaderParms parms("Compiler.cmdline.cimmof.CMDLINE_ERRORS",
+    MessageLoaderParms parms("Compiler.cmdline.cimmof.cmdline.CMDLINE_ERRORS",
         "Too many options specified.\n");
 
     for (unsigned int i = cmdline.first(); i < cmdline.last(); i++)
@@ -549,12 +548,12 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                             "NOT SUPPORTED FOR THE REPOSITORY MODE."); 
                     }
 #endif
-                   if(String::equalNoCase(arg.optarg(), "XML") ||
-                       String::equalNoCase(arg.optarg(), "BIN")) {}
-                   else
+                   if (!String::equalNoCase(arg.optarg(), "XML") &&
+                       !String::equalNoCase(arg.optarg(), "BIN"))
                    {
                       MessageLoaderParms parms(
-                          "Compiler.cmdline.cimmof.UNKNOWN_VALUE_OPTION_A",
+                          "Compiler.cmdline.cimmof.cmdline."
+                              "UNKNOWN_VALUE_OPTION_M",
                           "Unknown value specified for option -M.");
                       throw ArgumentErrorsException(parms);
                    }
@@ -572,7 +571,7 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                           else
                           {
                               MessageLoaderParms parms(
-                                  "Compiler.cmdline.cimmof."
+                                  "Compiler.cmdline.cimmof.cmdline."
                                         "UNKNOWN_VALUE_OPTION_U",
                                   "Unknown value specified for option -u.");
                               throw ArgumentErrorsException(parms);
@@ -582,7 +581,8 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                   else
                   {
                       MessageLoaderParms parms(
-                          "Compiler.cmdline.cimmof.TOO_MANY_VALUES_OPTION_U",
+                          "Compiler.cmdline.cimmof.cmdline."
+                              "TOO_MANY_VALUES_OPTION_U",
                           "Too many values specified for option -u.");
                       throw ArgumentErrorsException(parms);
                   }
@@ -602,7 +602,7 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                               else
                               {
                                   MessageLoaderParms parms(
-                                      "Compiler.cmdline.cimmof."
+                                      "Compiler.cmdline.cimmof.cmdline."
                                             "UNKNOWN_VALUE_OPTION_A",
                                       "Unknown value specified for option -a.");
                                   throw ArgumentErrorsException(parms);
@@ -612,7 +612,8 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                   else
                   {
                   MessageLoaderParms parms(
-                      "Compiler.cmdline.cimmof.TOO_MANY_VALUES_OPTION_A",
+                      "Compiler.cmdline.cimmof.cmdline."
+                          "TOO_MANY_VALUES_OPTION_A",
                       "Too many values specified for option -a.");
                   throw ArgumentErrorsException(parms);
                   }
@@ -684,8 +685,8 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
     if (String::equal(cmdlinedata.get_repository(), String::EMPTY)) {
 
         MessageLoaderParms parms(
-            "Compiler.cmdline.cimmof.MUST_SPECIFY_R_OR_HOME",
-            "You must specify -R or set PEGASUS_HOME environment variable");
+            "Compiler.cmdline.cimmof.cmdline.MUST_SPECIFY_R_OR_HOME",
+            "Specify -R or set the PEGASUS_HOME environment variable.");
         throw CmdlineNoRepository(parms);
     }
 

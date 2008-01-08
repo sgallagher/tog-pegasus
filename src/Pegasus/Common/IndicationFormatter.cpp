@@ -72,7 +72,7 @@ void IndicationFormatter::validateTextFormat(
                 textFormatSubStr = textFormatStr.subString(
                     0, (rightBrace2 + 1));
                 MessageLoaderParms parms(
-                    "IndicationFormatter.IndicationFormatter."
+                    "Common.IndicationFormatter."
                         "_MSG_INVALID_SYNTAX_OF_FOR_PROPERTY",
                     "Invalid syntax at $0 in property $1",
                     textFormatSubStr,
@@ -105,7 +105,7 @@ void IndicationFormatter::validateTextFormat(
                     textFormatSubStr = textFormatStr.subString(
                         0, (leftBrace2 + 1));
                     MessageLoaderParms parms(
-                        "IndicationFormatter.IndicationFormatter."
+                        "Common.IndicationFormatter."
                             "_MSG_INVALID_SYNTAX_OF_FOR_PROPERTY",
                         "Invalid syntax at $0 in property $1",
                         textFormatSubStr,
@@ -163,7 +163,7 @@ void IndicationFormatter::validateTextFormat(
                         textFormatSubStr = textFormatStr.subString(
                             0, (rightBracket + 1));
                         MessageLoaderParms parms(
-                            "IndicationFormatter.IndicationFormatter."
+                            "Common.IndicationFormatter."
                                 "_MSG_INVALID_SYNTAX_OF_FOR_PROPERTY",
                             "Invalid syntax at $0 in property $1",
                             textFormatSubStr,
@@ -187,7 +187,7 @@ void IndicationFormatter::validateTextFormat(
                     if (rightBracket == PEG_NOT_FOUND)
                     {
                         MessageLoaderParms parms(
-                            "IndicationFormatter.IndicationFormatter."
+                            "Common.IndicationFormatter."
                                 "_MSG_INVALID_SYNTAX_OF_FOR_PROPERTY",
                             "Invalid syntax at $0 in property $1",
                             textFormatSubStr,
@@ -225,11 +225,11 @@ void IndicationFormatter::validateTextFormat(
                 {
                     // property index is out of bounds
                     MessageLoaderParms parms(
-                    "IndicationFormatter.IndicationFormatter."
-                        "_MSG_INDEX_IS_OUT_OF_BOUNDS",
-                    "The value of index $0 in property $1 is out of bounds",
-                    propertyIndex,
-                    _PROPERTY_TEXTFORMATPARAMETERS.getString());
+                        "Common.IndicationFormatter."
+                            "_MSG_INDEX_IS_OUT_OF_BOUNDS",
+                        "The value of index $0 in property $1 is out of bounds",
+                        propertyIndex,
+                        _PROPERTY_TEXTFORMATPARAMETERS.getString());
 
                     exceptionStr.append(MessageLoader::getMessage(parms));
 
@@ -251,7 +251,7 @@ void IndicationFormatter::validateTextFormat(
             else // no right brace
             {
                 MessageLoaderParms parms(
-                    "IndicationFormatter.IndicationFormatter."
+                    "Common.IndicationFormatter."
                         "_MSG_INVALID_SYNTAX_OF_FOR_PROPERTY",
                     "Invalid syntax at $0 in property $1",
                     textFormatSubStr,
@@ -273,7 +273,7 @@ void IndicationFormatter::validateTextFormat(
             {
                 textFormatSubStr = textFormatStr.subString(0, rightBrace + 1);
                 MessageLoaderParms parms(
-                    "IndicationFormatter.IndicationFormatter."
+                    "Common.IndicationFormatter."
                         "_MSG_INVALID_SYNTAX_OF_FOR_PROPERTY",
                     "Invalid syntax at $0 in property $1",
                     textFormatSubStr,
@@ -364,7 +364,7 @@ void IndicationFormatter::_validatePropertyType(
             // the provided property type is not a valid type
             // e.g. {1, string  xxx}
             MessageLoaderParms parms(
-                "IndicationFormatter.IndicationFormatter."
+                "Common.IndicationFormatter."
                     "_MSG_INVALID_TYPE_OF_FOR_PROPERTY",
                 "Invalid property type of $0 in property $1",
                 providedPropertyType,
@@ -379,7 +379,7 @@ void IndicationFormatter::_validatePropertyType(
     {
         // the provided property type is not valid type
         MessageLoaderParms parms(
-            "IndicationFormatter.IndicationFormatter."
+            "Common.IndicationFormatter."
                 "_MSG_INVALID_TYPE_OF_FOR_PROPERTY",
             "Invalid property type of $0 in property $1",
             providedPropertyType,
@@ -406,7 +406,7 @@ void IndicationFormatter::_validatePropertyType(
                 (!isArray && indicationClass.getProperty(i).isArray()))
             {
                 MessageLoaderParms parms(
-                    "IndicationFormatter.IndicationFormatter."
+                    "Common.IndicationFormatter."
                         "_MSG_PROPERTY_IS_NOT_AN_ARRAY_TYPE",
                     "The property $0 is not an array type",
                     propertyName.getString());
@@ -427,7 +427,7 @@ void IndicationFormatter::_validatePropertyType(
             else
             {
                 MessageLoaderParms parms(
-                    "IndicationFormatter.IndicationFormatter."
+                    "Common.IndicationFormatter."
                         "_MSG_MISS_MATCHED_TYPE_OF_FOR_PROPERTY",
                     "The provided property type of $0 in $1 does not match "
                         "the property type $2",
@@ -487,7 +487,7 @@ void IndicationFormatter::validateTextFormatParameters(
             // The property name in TextFormatParameters is not
             // included in the select clause of the associated filter query
             MessageLoaderParms parms(
-                "IndicationFormatter.IndicationFormatter."
+                "Common.IndicationFormatter."
                     "_MSG_MISS_MATCHED_PROPERTY_NAME",
                 "The property name $0 in $1 does not match the properties "
                     "in the select clause",
@@ -537,8 +537,8 @@ void IndicationFormatter::_isValidIndex(
         {
             // invalid index string
             MessageLoaderParms parms(
-                "IndicationFormatter.IndicationFormatter._MSG_INVALID_INDEX",
-                "Invalid index string $0",
+                "Common.IndicationFormatter._MSG_INVALID_INDEX",
+                "Index string $0 is not valid.",
                 indexStr);
 
             exceptionStr.append(MessageLoader::getMessage(parms));
@@ -1823,7 +1823,7 @@ String IndicationFormatter::_localizeBooleanStr(
     if (booleanValue)
     {
         MessageLoaderParms parms(
-            "IndicationFormatter.IndicationFormatter._MSG_BOOLEAN_TRUE",
+            "Common.IndicationFormatter._MSG_BOOLEAN_TRUE",
             "true");
 
         PEG_METHOD_EXIT();
@@ -1832,7 +1832,7 @@ String IndicationFormatter::_localizeBooleanStr(
     else
     {
         MessageLoaderParms parms(
-            "IndicationFormatter.IndicationFormatter._MSG_BOOLEAN_FALSE",
+            "Common.IndicationFormatter._MSG_BOOLEAN_FALSE",
             "false");
 
         PEG_METHOD_EXIT();

@@ -517,9 +517,6 @@ void CIMServer::_init()
     ZOSConsoleManager::startConsoleWatchThread();
 #endif
 
-    // Load and initialize providers registed with AutoStart = true
-    _providerRegistrationManager->initializeProviders();
-
 #ifdef PEGASUS_ENABLE_AUDIT_LOGGER
 
     // Register audit logger initialize callback

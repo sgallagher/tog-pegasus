@@ -401,9 +401,6 @@ setlocale(LC_ALL, "");
                     }
                     else
                     {
-                        //l10n
-                        //cout << "Missing argument for option -" 
-                        //     << option << endl;
                         String opt(option);
                         MessageLoaderParms parms(
                                 "src.Server.cimserver.MISSING_ARGUMENT",
@@ -450,9 +447,6 @@ setlocale(LC_ALL, "");
                     //
                     if (shutdownOption)
                     {
-                        //l10n
-                        //cout << "Duplicate shutdown option specified."
-                        //     << endl;
                         MessageLoaderParms parms(
                            "DynListener.cimlistener.DUPLICATE_SHUTDOWN_OPTION",
                            "Duplicate shutdown option specified.");
@@ -679,12 +673,10 @@ int CIMListenerProcess::cimserver_run(
     configManager->lookupIntegerValue("traceLevel", traceLevel);
     configManager->lookupValue("traceComponents", traceComponents);
 
-    } catch (Exception& ex)
+    }
+    catch (Exception& ex)
     {
-        MessageLoaderParms parms("src.Server.cimserver.INVALID_CONFIG_OPTION",
-                                 "Invalid configuration option: $0",
-                                 ex.getMessage());
-        cout << MessageLoader::getMessage(parms) << endl;
+        cout << ex.getMessage() << endl;
         exit(0);
     }
 
@@ -818,10 +810,10 @@ MessageLoader::_useProcessLocale = false;
         _cimListener->start();
 
         Logger::put_l(Logger::STANDARD_LOG, 
-                System::CIMLISTENER, Logger::INFORMATION,
-                "src.Server.cimserver.LISTENING_ON_PORT",
-                "Listening on port $0.", listenerPort);
-
+            System::CIMLISTENER, Logger::INFORMATION,
+            "DynListener.cimlistener.LISTENING_ON_PORT",
+            "The CIM listener is listening on port $0.",
+            listenerPort);
 
 
 #if defined(PEGASUS_DEBUG)

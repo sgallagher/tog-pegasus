@@ -822,23 +822,8 @@ int CIMServerProcess::cimserver_run(
 #endif
 
         // bind throws an exception if the bind fails
-        try { 
-            _cimServer->bind();
-    }
-        catch (const BindFailedException &e)
-    {
-#ifdef PEGASUS_DEBUG
-        MessageLoaderParms parms("src.Server.cimserver.BIND_FAILED",
-                 "Could not bind: $0.", e.getMessage());
-        cout << MessageLoader::getMessage(parms) << endl;
-#endif
-        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            "src.Server.cimserver.BIND.FAILED",
-            "Could not bind:  $0", e.getMessage());
+        _cimServer->bind();
 
-       deleteCIMServer();
-       return 1;
-    }
         // notify parent process (if there is a parent process) to terminate 
         // so user knows that there is cimserver ready to serve CIM requests.
         if (daemonOption)
@@ -893,14 +878,11 @@ int CIMServerProcess::cimserver_run(
     }
     catch (Exception& e)
     {
-        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            "src.Server.cimserver.ERROR",
-            "Error: $0", e.getMessage());  
-
-        MessageLoaderParms parms("src.Server.cimserver.ERROR",
-                                 "Error: $0", e.getMessage());
-        PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) <<
-            PEGASUS_STD(endl);
+        MessageLoaderParms parms("src.Server.cimserver.SERVER_NOT_STARTED",
+            "cimserver not started: $0", e.getMessage());
+        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+            MessageLoader::getMessage(parms));
+        cerr << MessageLoader::getMessage(parms) << endl;
 
         //
         // notify parent process (if there is a parent process) to terminate

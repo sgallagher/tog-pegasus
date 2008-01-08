@@ -105,7 +105,7 @@ static const char MISSING_ELEMENT_LOCALPATH [] =
     "expected LOCALCLASSPATH or LOCALINSTANCEPATH element";
 
 static const char MISSING_ELEMENT_LOCALPATH_KEY [] =
-    "Common.XmlConstants.MISSING_ELEMENT_LOCALPATH_KEY";
+    "Common.XmlConstants.MISSING_ELEMENT_LOCALPATH";
 
 PEGASUS_NAMESPACE_END
 

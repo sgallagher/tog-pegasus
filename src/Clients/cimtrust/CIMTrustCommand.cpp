@@ -279,17 +279,17 @@ static const char REQUIRED_ARGS_MISSING_KEY [] =
                 "Clients.cimtrust.CIMTrustCommand.REQUIRED_ARGS_MISSING";
 
 static const char CANNOT_CONNECT_CIMSERVER_NOT_RUNNING [] =
-                "Cannot connect to CIM Server, CIM Server may not be running.";
+                "Cannot connect to CIM Server; CIM Server may not be running.";
 
 static const char CANNOT_CONNECT_CIMSERVER_NOT_RUNNING_KEY [] =
                 "Clients.cimtrust."
-                    "CIMTrustCommand._CANNOT_CONNECT_CIMSERVER_NOT_RUNNING";
+                    "CIMTrustCommand.CANNOT_CONNECT_CIMSERVER_NOT_RUNNING";
 
 static const char CONNECTION_TIMEOUT [] =
                 "Connection timed out.";
 
 static const char CONNECTION_TIMEOUT_KEY [] =
-                "Clients.cimtrust.CIMTrustCommand._CONNECTION_TIMEOUT";
+                "Clients.cimtrust.CIMTrustCommand.CONNECTION_TIMEOUT";
 
 static const char ADD_CERT_FAILURE []    =
                 "Failed to add certificate.";
@@ -301,13 +301,13 @@ static const char ADD_CERTIFICATE_SUCCESS [] =
                 "Certificate added successfully.";
 
 static const char ADD_CERTIFICATE_SUCCESS_KEY [] =
-                "Clients.cimtrust.CIMTrustCommand.ADD_CERTIFICATE_SUCCESS";
+                "Clients.cimtrust.CIMTrustCommand.ADD_CERT_SUCCESS";
 
 static const char REMOVE_CERTIFICATE_SUCCESS [] =
                 "Certificate removed successfully.";
 
 static const char REMOVE_CERTIFICATE_SUCCESS_KEY [] =
-                "Clients.cimtrust.CIMTrustCommand.REMOVE_CERTIFICATE_SUCCESS";
+                "Clients.cimtrust.CIMTrustCommand.REMOVE_CERT_SUCCESS";
 
 static const char CERT_ALREADY_EXISTS []        =
                 "Specified certificate already exists.";

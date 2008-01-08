@@ -712,9 +712,11 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
            PEG_METHOD_EXIT();
 
-           throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
-                                          MessageLoaderParms ("ProviderManager.JMPI.METHOD_NOT_FOUND",
-                                                              "Could not find a method for the provider based on InterfaceType."));
+           throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+               MessageLoaderParms(
+                   "ProviderManager.JMPI.JMPIProviderManager.METHOD_NOT_FOUND",
+                   "Could not find a method for the provider based on "
+                       "InterfaceType."));
         }
 
         JMPIjvm::checkException(env);
@@ -1001,9 +1003,11 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         {
             PEG_METHOD_EXIT();
 
-            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
-                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
-                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(
+                    "ProviderManager.JMPI.JMPIProviderManager.INIT_JVM_FAILED",
+                    "Could not initialize the JVM (Java Virtual Machine) "
+                        "runtime environment."));
         }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);

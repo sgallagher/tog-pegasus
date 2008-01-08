@@ -225,7 +225,6 @@ en:table {
         /**
         * @note PGS00205:
         *        Substitution {0} is a class name (a string)
-        *
         */
         Common.InternalException.CLASS_ALREADY_RESOLVED:string {"PGS00205: Attempted to resolve a class that is already resolved: {0}."}
 
@@ -333,7 +332,7 @@ en:table {
         * @note PGS00227:
         *        Substitution {0} is a message string
         */
-        Common.InternalException.ParseError:string { "PGS00227:  Parse error: {0}"}
+        Common.InternalException.PARSE_ERROR:string { "PGS00227:  Parse error: {0}"}
 
         Common.InternalException.MISSING_NULL_TERMINATOR:string { "PGS00228:  The character string end delimiter is missing."}
 
@@ -365,6 +364,11 @@ en:table {
 
         Common.InternalException.UNAUTHORIZED_ACCESS:string {"PGS00233: Unauthorized access."}
 
+        /**
+        *  @version 2.8
+        */
+        Common.InternalException.INSTANCE_ALREADY_RESOLVED:string {"PGS00234: Attempted to resolve an instance that is already resolved."}
+
 
         // ==========================================================
         // Messages for Exception
@@ -383,7 +387,7 @@ en:table {
         * @note PGS00402:
         *        Substitution {0} is a CIM name (a string)
         */
-        Common.Exception.NAME_EXCEPTION:string {"PGS00402: The CIM name is not valid: {0}"}
+        Common.Exception.INVALID_NAME_EXCEPTION:string {"PGS00402: The CIM name is not valid: {0}"}
 
         /**
         * @note PGS00403:
@@ -988,102 +992,102 @@ not be valid."}
         *     Do not translate the word 'Name' since it is the name of a CIM property.
         *     Do not translate the word 'PG_ProviderModule' since it is the name of a CIM class.
         */
-        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_NAME_IN_PG_PROVIDERMODULE:string {"PGS03003: Missing the required Name property in PG_ProviderModule class."} //485
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_NAME_IN_PG_PROVIDERMODULE:string {"PGS03003: Missing the required Name property in PG_ProviderModule class."}
 
         /**
         * @note PGS03004:
         *     Do not translate the word 'Vendor' since it is the name of a CIM property.
         *     Do not translate the word 'PG_ProviderModule' since it is the name of a CIM class.
         */
-        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_VENDOR_IN_PG_PROVIDERMODULE:string {"PGS03004: Missing the required Vendor property in PG_ProviderModule class."} // 485
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_VENDOR_IN_PG_PROVIDERMODULE:string {"PGS03004: Missing the required Vendor property in PG_ProviderModule class."}
 
         /**
         * @note PGS03005:
         *     Do not translate the word 'Version' since it is the name of a CIM property.
         *     Do not translate the word 'PG_ProviderModule' since it is the name of a CIM class.
         */
-        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_VERSION_IN_PG_PROVIDERMODULE:string {"PGS03005: Missing the required Version property in PG_ProviderModule class."} // 485
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_VERSION_IN_PG_PROVIDERMODULE:string {"PGS03005: Missing the required Version property in PG_ProviderModule class."}
 
         /**
         * @note PGS03006:
         *     Do not translate the word 'InterfaceType' since it is the name of a CIM property.
         *     Do not translate the word 'PG_ProviderModule' since it is the name of a CIM class.
         */
-        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_INTERFACETYPE_IN_PG_PROVIDERMODULE:string {"PGS03006: Missing the required InterfaceType property in PG_ProviderModule class."}  // 485
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_INTERFACETYPE_IN_PG_PROVIDERMODULE:string {"PGS03006: Missing the required InterfaceType property in PG_ProviderModule class."}
 
         /**
         * @note PGS03007:
         *     Do not translate the word 'InterfaceVersion' since it is the name of a CIM property.
         *     Do not translate the word 'PG_ProviderModule' since it is the name of a CIM class.
         */
-        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_INTERFACEVERSION_IN_PG_PROVIDERMODULE:string {"PGS03007: Missing the required InterfaceVersion in PG_ProviderModule class."} // 485
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_INTERFACEVERSION_IN_PG_PROVIDERMODULE:string {"PGS03007: Missing the required InterfaceVersion in PG_ProviderModule class."}
 
         /**
         * @note PGS03008:
         *     Do not translate the word 'Location' since it is the name of a CIM property.
         *     Do not translate the word 'PG_ProviderModule' since it is the name of a CIM class.
         */
-        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_LOCATION_IN_PG_PROVIDERMODULE:string {"PGS03008: Missing the required Location property in PG_ProviderModule class."} // 485
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_LOCATION_IN_PG_PROVIDERMODULE:string {"PGS03008: Missing the required Location property in PG_ProviderModule class."}
 
         /**
         * @note PGS03009:
         *     Do not translate the word 'ProviderModuleName' since it is the name of a CIM property.
         *     Do not translate the word 'PG_ProviderCapabilities' since it is the name of a CIM class.
         */
-        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDERMODULENAME_IN_PG_PROVIDERCAPABILITIES:string {"PGS03009: Missing the required ProviderModuleName property in PG_ProviderCapabilities class."}  // 485
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDERMODULENAME_IN_PG_PROVIDERCAPABILITIES:string {"PGS03009: Missing the required ProviderModuleName property in PG_ProviderCapabilities class."}
 
         /**
         * @note PGS03010:
         *     Do not translate the word 'ProviderName' since it is the name of a CIM property.
         *     Do not translate the word 'PG_ProviderCapabilities' since it is the name of a CIM class.
         */
-        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDERNAME_IN_PG_PROVIDERCAPABILITIES:string {"PGS03010: Missing the required ProviderName property in PG_ProviderCapabilities class."} // 485
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDERNAME_IN_PG_PROVIDERCAPABILITIES:string {"PGS03010: Missing the required ProviderName property in PG_ProviderCapabilities class."}
 
         /**
         * @note PGS03011:
         *     Do not translate the word 'CapabilityID' since it is the name of a CIM property.
         *     Do not translate the word 'PG_ProviderCapabilities' since it is the name of a CIM class.
         */
-        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_CAPABILITYID_IN_PG_PROVIDERCAPABILITIES:string {"PGS03011: Missing the required CapabilityID property in PG_ProviderCapabilities class."} // 485
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_CAPABILITYID_IN_PG_PROVIDERCAPABILITIES:string {"PGS03011: Missing the required CapabilityID property in PG_ProviderCapabilities class."}
 
         /**
         * @note PGS03012:
         *     Do not translate the word 'ClassName' since it is the name of a CIM property.
         *     Do not translate the word 'PG_ProviderCapabilities' since it is the name of a CIM class.
         */
-        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_CLASSNAME_IN_PG_PROVIDERCAPABILITIES:string {"PGS03012: Missing the required ClassName property in PG_ProviderCapabilities class."} // 485
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_CLASSNAME_IN_PG_PROVIDERCAPABILITIES:string {"PGS03012: Missing the required ClassName property in PG_ProviderCapabilities class."}
 
         /**
         * @note PGS03013:
         *     Do not translate the word 'NameSpaces' since it is the name of a CIM property.
         *     Do not translate the word 'PG_ProviderCapabilities' since it is the name of a CIM class.
         */      
-        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_NAMESPACES_IN_PG_PROVIDERCAPABILITIES:string {"PGS03013: Missing the required NameSpaces property in PG_ProviderCapabilities class."} // 485
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_NAMESPACES_IN_PG_PROVIDERCAPABILITIES:string {"PGS03013: Missing the required NameSpaces property in PG_ProviderCapabilities class."}
 
         /**
         * @note PGS03014:
         *     Do not translate the word 'ProviderModuleName' since it is the name of a CIM property.
         *     Do not translate the word 'PG_Provider' since it is the name of a CIM class.
         */      
-        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDERMODULENAME_IN_PG_PROVIDER:string {"PGS03014: Missing the required ProviderModuleName property in PG_Provider class."} // 485
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDERMODULENAME_IN_PG_PROVIDER:string {"PGS03014: Missing the required ProviderModuleName property in PG_Provider class."}
 
         /**
         * @note PGS03015:
         *     Do not translate the word 'InterfaceVersion' since it is the name of a CIM property.
         *     Substitution {0} is an InterfaceVersion value (a string)
         */      
-        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.UNSUPPORTED_INTERFACEVERSION_VALUE:string {"PGS03015: InterfaceVersion property value {0} is not supported."} // 485
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.UNSUPPORTED_INTERFACEVERSION_VALUE:string {"PGS03015: InterfaceVersion property value {0} is not supported."}
 
 
-        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_FAILED_PROVIDER_BUSY:string {"PGS03015: Failed to disable the provider.  The provider is busy."} // 485
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_FAILED_PROVIDER_BUSY:string {"PGS03015: Failed to disable the provider.  The provider is busy."}
 
-        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_MODULE_FAILED_PROVIDER_BUSY:string {"PGS03016: Failed to disable the provider module.  The provider is busy."}  //485
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_MODULE_FAILED_PROVIDER_BUSY:string {"PGS03016: Failed to disable the provider module.  The provider is busy."}
 
         /**
         * @note PGS03017:
         *     Do not translate the word 'ProviderModuleName' since it is the name of a CIM property.
           */
-        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.PROVIDERMODULENAME_KEY_NOT_FOUND:string {"PGS03017: The key property ProviderModuleName is not found."} // 485
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.PROVIDERMODULENAME_KEY_NOT_FOUND:string {"PGS03017: The key property ProviderModuleName is not found."}
 
 
         ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.SUPERUSER_PRIVILEGE_REQUIRED_UNREGISTER_PROVIDERS:string {"PGS03018: Superuser authority is required to unregister CIM providers."}
@@ -1092,7 +1096,7 @@ not be valid."}
         * @note PGS03019:
         *     Do not translate the word 'Name' since it is the name of a CIM property.
           */
-        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.NAME_KEY_NOT_FOUND:string {"PGS03019: The key property Name is not found."} // 485
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.NAME_KEY_NOT_FOUND:string {"PGS03019: The key property Name is not found."}
 
 
         ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_FAILED:string {"PGS03020: Failed to disable the CIM provider."}
@@ -1249,7 +1253,7 @@ not be valid."}
     */
     ControlProviders.CertificateProvider.DELETE_FAILED:string {"PGS03304: Could not delete file {0}."}
 
-        /**
+    /**
     * @note PGS03305
     *    Substitution {0} is the name of the file
     */
@@ -1278,6 +1282,11 @@ not be valid."}
     ControlProviders.CertificateProvider.MULTIPLE_CERT_IN_FILE:string {"PGS03316: Specified certificate file contains more than one certificate."}
 
     ControlProviders.CertificateProvider.CERT_WITH_SAME_SUBJECT:string {"PGS03317: Another certificate with the same subject name already exists."}
+
+        /**
+        *  @version 2.8
+        */
+        ControlProviders.CertificateProvider.CERT_DNE:string {"PGS03318: The certificate does not exist."}
 
         // ==========================================================
         // Messages for CIMOMHandle
@@ -2133,6 +2142,12 @@ not be valid."}
         */
         Compiler.cimmofMessages.INVALID_LITERAL_VALUE:string {"PGS04866: Invalid {0} value: {1}"}
 
+        /**
+        *  @version 2.8
+        *  @note PGS04867: Do not translate '-M'
+        */
+        Compiler.cmdline.cimmof.cmdline.UNKNOWN_VALUE_OPTION_M:string {"PGS04867: Unknown value specified for option -M."}
+
         // ==========================================================
         // Messages for CIMOperationResponseEncoder
         //  Please use message prefix "PGS05000"
@@ -2213,7 +2228,7 @@ not be valid."}
         *    ATTN: This is a nonstandard message identifier and prefix, 
         *          but this message is no longer used.
         */
-        Server.CIMOperationRequestDecoder.PGS05406:string{"CIMOP_CIMOPERATION_VALUE_NOT_SUPPORTED: CIMOperation value \"{0}\" not supported."}
+        Server.CIMOperationRequestDecoder.CIMOPERATION_VALUE_NOT_SUPPORTED:string{"PGS05406: CIMOperation value \"{0}\" not supported."}
 
         /**
         * @note  PGS05407:
@@ -2456,13 +2471,6 @@ not be valid."}
         *
         */
         Server.ConsoleManager_zOS.CON_MODIFY_INVALID.PEGASUS_OS_ZOS:string { "PGS06212E: {0} is not a valid configuration property."}
-
-
-        // ==========================================================
-        // Messages for CIMServer
-        //  Please use message prefix "PGS06300"
-        // ==========================================================
-
 
 
         // ==========================================================
@@ -2842,6 +2850,8 @@ not be valid."}
         Common.SSLContext.COULD_NOT_GET_SERVER_CERTIFICATE:string {"PGS09207: Cannot get server certificate."}
 
         Common.SSLContext.COULD_NOT_GET_PRIVATE_KEY:string {"PGS09208: Cannot get private key."}
+
+        Common.SSLContext.COULD_NOT_LOAD_CRLS:string {"PGS09209: Could not load certificate revocation list."}
 
 
         // ==========================================================
@@ -3364,7 +3374,7 @@ CIM server listening on HTTPS port {0}."}
 
         src.Server.cimserver.UNABLE_CONNECT_SERVER_MAY_NOT_BE_RUNNING:string {"PGS10008:  Unable to connect to the CIM server.  CIM server may not be running."}
 
-        src.Server.cimserver.SHUTDOWN_FAILED_REPOSITORY_EMPTY:string {"PGS10009: Error in the CIM server shutdown operation: The repository may be empty."} //485
+        src.Server.cimserver.SHUTDOWN_FAILED_REPOSITORY_EMPTY:string {"PGS10009: Error in the CIM server shutdown operation: The repository may be empty."}
 
         src.Server.cimserver.SERVER_FORCED_SHUTDOWN:string {"PGS10010: A forced shutdown of the CIM server is initiated."}
 
@@ -3372,11 +3382,11 @@ CIM server listening on HTTPS port {0}."}
         * @note PGS10011:
         *     Substitution {0} is a string containing the exception message
           */
-        src.Server.cimserver.SHUTDOWN_FAILED:string {"PGS10011: Error ending the CIM server: {0}"} //485
+        src.Server.cimserver.SHUTDOWN_FAILED:string {"PGS10011: Error ending the CIM server: {0}"}
 
         src.Server.cimserver.REPOSITORY_EMPTY:string {"PGS10012:  The CIM repository may be empty."}
 
-        src.Server.cimserver.TIMEOUT_EXPIRED_SERVER_KILLED:string {"PGS10013:  Shutdown time-out expired.  A forced shutdown of the CIM server is initiated."} //485
+        src.Server.cimserver.TIMEOUT_EXPIRED_SERVER_KILLED:string {"PGS10013:  Shutdown time-out expired.  A forced shutdown of the CIM server is initiated."}
 
         /**
         * @note  PGS10014:
@@ -4699,21 +4709,21 @@ CIM server listening on HTTPS port {0}."}
           * DO NOT TRANSLATE "sslTrustStore" or "sslClientVerificationMode"
          * @version 2.5
          */
-         Pegasus.Server.SSLContextManager.SSL_CLIENT_VERIFICATION_EMPTY_TRUSTSTORE:string {"PGS13300: The \"sslTrustStore\" configuration property must be set if \"sslClientVerificationMode\" is ''required'' or ''optional''."}
+         Pegasus.Common.SSLContextManager.SSL_CLIENT_VERIFICATION_EMPTY_TRUSTSTORE:string {"PGS13300: The \"sslTrustStore\" configuration property must be set if \"sslClientVerificationMode\" is ''required'' or ''optional''."}
 
         /*
          * @note  PGS13301:
           * DO NOT TRANSLATE "sslClientVerificationMode"
          * @version 2.5
          */
-         Pegasus.Server.SSLContextManager.SSL_CLIENT_VERIFICATION_HTTP_NOT_ENABLED_WITH_REQUIRED:string {"PGS13301: The HTTP port must be enabled if \"sslClientVerificationMode\" is ''required'' in order for the cimserver to properly shutdown."}
+         Pegasus.Common.SSLContextManager.SSL_CLIENT_VERIFICATION_HTTP_NOT_ENABLED_WITH_REQUIRED:string {"PGS13301: The HTTP port must be enabled if \"sslClientVerificationMode\" is ''required'' in order for the cimserver to properly shutdown."}
 
         /*
          * @note  PGS13302:
           * DO NOT TRANSLATE "sslTrustStoreUserName" or "sslClientVerificationMode"
          * @version 2.5
          */
-         Pegasus.Server.SSLContextManager.SSL_CLIENT_VERIFICATION_EMPTY_USERNAME:string {"PGS13302: The \"sslTrustStoreUserName\" property must specify a truststore user name to associate with the trusted certificates if \"sslClientVerificationMode\" is ''required'' or ''optional'', and a trust store is specified."}
+         Pegasus.Common.SSLContextManager.SSL_CLIENT_VERIFICATION_EMPTY_USERNAME:string {"PGS13302: The \"sslTrustStoreUserName\" property must specify a truststore user name to associate with the trusted certificates if \"sslClientVerificationMode\" is ''required'' or ''optional'', and a trust store is specified."}
 
         /*
          * @note  PGS13303:
@@ -4722,56 +4732,56 @@ CIM server listening on HTTPS port {0}."}
          *
          * This message is obsolete (PEP 259 export connection port and export truststore related changes).
          */
-         Pegasus.Server.SSLContextManager.EXPORT_TRUST_EMPTY:string {"PGS13303: The \"exportSSLTrustStore\" configuration property must be set when \"enableSSLExportClientVerification\" is true. The CIM server not started."}
+         Pegasus.Common.SSLContextManager.EXPORT_TRUST_EMPTY:string {"PGS13303: The \"exportSSLTrustStore\" configuration property must be set when \"enableSSLExportClientVerification\" is true. The CIM server not started."}
 
         /*
         * @note  PGS13304:
         * @version 2.5
         */
-        Pegasus.Server.SSLContextManager.COULD_NOT_RELOAD_TRUSTSTORE:string {"PGS13304: Could not reload the trust store."}
+        Pegasus.Common.SSLContextManager.COULD_NOT_RELOAD_TRUSTSTORE:string {"PGS13304: Could not reload the trust store."}
 
         /*
         * @note  PGS13305:
         * @version 2.5
         */
-        Pegasus.Server.SSLContextManager.COULD_NOT_RELOAD_TRUSTSTORE_SSL_CONTEXT_NOT_INITIALIZED:string {"PGS13305: Could not reload the trust store. The SSL context is not initialized."}
+        Pegasus.Common.SSLContextManager.COULD_NOT_RELOAD_TRUSTSTORE_SSL_CONTEXT_NOT_INITIALIZED:string {"PGS13305: Could not reload the trust store. The SSL context is not initialized."}
 
         /*
         * @note  PGS13306:
         * @version 2.5
         */
-        Pegasus.Server.SSLContextManager.COULD_NOT_RELOAD_CRL_STORE_SSL_CONTEXT_NOT_INITIALIZED:string {"PGS13306: Could not reload the certificate revocation list store. The SSL context is not initialized."}
+        Pegasus.Common.SSLContextManager.COULD_NOT_RELOAD_CRL_STORE_SSL_CONTEXT_NOT_INITIALIZED:string {"PGS13306: Could not reload the certificate revocation list store. The SSL context is not initialized."}
 
         /*
         * @note  PGS13307:
         * @version 2.5
         */
-        Pegasus.Server.SSLContextManager.TRUST_STORE_NOT_CONFIGURED:string {"PGS13307: Could not reload the trust store, the trust store is not configured."}
+        Pegasus.Common.SSLContextManager.TRUST_STORE_NOT_CONFIGURED:string {"PGS13307: Could not reload the trust store, the trust store is not configured."}
 
         /*
         * @note  PGS13308:
         * @version 2.5
         */
-        Pegasus.Server.SSLContextManager.CRL_STORE_NOT_CONFIGURED:string {"PGS13308: Could not reload the certificate revocation list store. The certificate revocation list store is not configured."}
+        Pegasus.Common.SSLContextManager.CRL_STORE_NOT_CONFIGURED:string {"PGS13308: Could not reload the certificate revocation list store. The certificate revocation list store is not configured."}
 
         /*
         * @note  PGS13309:
         * @version 2.5
         */
-        Pegasus.Server.SSLContextManager.COULD_NOT_RELOAD_TRUST_OR_CRL_STORE:string {"PGS13309: Could not reload the trust or certificate revocation list store."}
+        Pegasus.Common.SSLContextManager.COULD_NOT_RELOAD_TRUST_OR_CRL_STORE:string {"PGS13309: Could not reload the trust or certificate revocation list store."}
 
         /*
         * @note  PGS13310:
         * @version 2.5
         */
-        Pegasus.Server.SSLContextManager.CONFIGURED_TRUST_OR_CRL_STORE_NOT_FOUND:string {"PGS13310: Could not reload the trust or certificate revocation list store. The configured store is not found."}
+        Pegasus.Common.SSLContextManager.CONFIGURED_TRUST_OR_CRL_STORE_NOT_FOUND:string {"PGS13310: Could not reload the trust or certificate revocation list store. The configured store is not found."}
 
         /*
          * @note  PGS13311:
           * DO NOT TRANSLATE "sslClientVerificationMode"
          * @version 2.5
          */
-         Pegasus.Server.SSLContextManager.INVALID_CONF_HTTPS_REQUIRED:string {"PGS13311: Do not set the \"sslClientVerificationMode\" property to \"required\" if HTTP is disabled because the cimserver will be unable to properly shutdown. It is recommended that you change the property value to \"optional\"."}
+         Pegasus.Common.SSLContextManager.INVALID_CONF_HTTPS_REQUIRED:string {"PGS13311: Do not set the \"sslClientVerificationMode\" property to \"required\" if HTTP is disabled because the cimserver will be unable to properly shutdown. It is recommended that you change the property value to \"optional\"."}
 
         // ==========================================================
         // Messages for AnonymousPipe
@@ -5814,7 +5824,7 @@ CIM server listening on HTTPS port {0}."}
         * @note PGS16105:
         *            Substitution {0} is a message string
         */
-        Common.ObjectNormalizer.INVALID_PROPERY_TYPE:string {"PGS16105: Property type {0} is not valid."}
+        Common.ObjectNormalizer.INVALID_PROPERTY_TYPE:string {"PGS16105: Property type {0} is not valid."}
 
         /**
         * @note PGS16106:
@@ -6500,6 +6510,13 @@ CIM server listening on HTTPS port {0}."}
         */
         DynListener.cimlistener.KILL_FAILED:string {"PGS18001: Failed to shutdown cimlistener process. Error: \"{1}\""}
 
+        /**
+        * @version 2.8
+        * @note PGS18002:
+        *    Substitution {0} is the port number (an integer)
+        */
+        DynListener.cimlistener.LISTENING_ON_PORT:string {"PGS10025: The CIM listener is listening on port {0}."}
+
 
         // ==========================================================
         // Messages for SLP
@@ -6518,13 +6535,13 @@ CIM server listening on HTTPS port {0}."}
         *    Substitution {0} is a string containing message from exception
         *     
         */
-        Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION:string{"PGS18201: CIM Server registration with External SLP Failed. Exception: {0}"}
+        Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION:string{"PGS18201: CIM Server registration with External SLP failed. Exception: {0}"}
 
         /**
         * @note PGS18202:
         *     
         */
-        Pegasus.Server.SLP.INTERNAL_SLP_REGISTRATION_FAILED_ERROR:string{"PGS18202: CIM Server registration with Internal SLP Failed."}
+        Pegasus.Server.SLP.INTERNAL_SLP_REGISTRATION_FAILED_ERROR:string{"PGS18202: CIM Server registration with Internal SLP failed."}
 
         /**
         * @note PGS18203:
@@ -6593,11 +6610,11 @@ CIM server listening on HTTPS port {0}."}
 
         /**
           * @note PGS18600
-          *    Substitution {0} is the filename of the provider
-          *    Substitution {1} is the name of the provider
-          *    Substitution {2} is the operatating system message string
+          *    Substitution {0} is the literal string "ProviderLoadFailure"
+          *    Substitution {1} is the filename of the provider
+          *    Substitution {2} is the name of the provider
           */
-        ProviderManager.JMPI.JMPIProviderModule.CANNOT_LOAD_LIBRARY:string {"PGS18600: ({0}:{1}):Cannot load library, error: {2}"}
+        ProviderManager.JMPI.JMPIProviderModule.CANNOT_LOAD_LIBRARY:string {"PGS18600: {0} ({1}:{2}): Cannot load library."}
 
         /**
           * @note PGS18601
@@ -6659,6 +6676,46 @@ CIM server listening on HTTPS port {0}."}
         */
         Common.CIMParameterRep.CONTAINED_PARAMETER_NAMECHANGEDEXCEPTION:string {"PGS19200: Attempted to change the name of a parameter already in a container."}
         
+
+        // ==========================================================
+        // Messages for CIMOperationRequestDispatcher
+        //  Please use message prefix "PGS19400 - PGS19599"
+        // ==========================================================
+
+        /**
+        *  @version 2.8
+        */
+        Server.WQLOperationRequestDispatcher.QUERY_REQ_TOO_BROAD:string {"PGS19400: The query request is too broad."}
+
+
+        // ==========================================================
+        // Messages for CIMQueryCapabilitiesProvider
+        //  Please use message prefix "PGS19600 - PGS19799"
+        // ==========================================================
+
+        /**
+        *  @note PGS19600
+        *     Substitution {0} is a CIM class name (a string)
+        *  @version 2.8
+        */
+        ControlProviders.CIMQueryCapabilitiesProvider.NOT_SUPPORTED:string {"PGS19600: {0} is not supported by the CIM Query Capabilities Provider."}
+
+
+        // ==========================================================
+        // Messages for Common.TLS
+        //  Please use message prefix "PGS19800 - PGS19999"
+        // ==========================================================
+
+        /**
+        *  @version 2.8
+        */
+        Common.TLS.COULD_NOT_GET_SSL_CONNECTION_AREA:string {"PGS19800: Could not get SSL Connection Area."}
+
+        /**
+        *  @version 2.8
+        */
+        Common.TLS.COULD_NOT_LINK_SOCKET:string {"PGS19801: Could not link socket to SSL Connection."}
+
 // ==============================================================================
 // END OF RESOURCE BUNDLE
 // DO NOT ADD MESSAGES AFTER THE FOLLOWING '}'

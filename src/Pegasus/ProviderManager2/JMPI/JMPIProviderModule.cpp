@@ -29,22 +29,14 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
-//     Mark Hamzy (hamzy@us.ibm.com)
-//     Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
-//     Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//     Mike Day, IBM (mdday@us.ibm.com)
-//     Adrian Schuur, IBM (schuur@de.ibm.com)
-//     Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
-//
 //%/////////////////////////////////////////////////////////////////////////////
+
+// NOCHKSRC
 
 #include "JMPIProviderModule.h"
 
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/ProviderManager2/JMPI/JMPIProvider.h>
 #include <Pegasus/ProviderManager2/JMPI/JMPIProviderManager.h>
@@ -105,11 +97,12 @@ ProviderVector JMPIProviderModule::load (const String & providerName)
    {
       String s0 = "ProviderLoadFailure";
 
-      throw Exception (MessageLoaderParms ("ProviderManager.JMPIProviderModule.CANNOT_LOAD_LIBRARY",
-                                           "$0 ($1:$2):Cannot load library",
-                                           s0,
-                                           _fileName,
-                                           providerName));
+      throw Exception(MessageLoaderParms(
+          "ProviderManager.JMPI.JMPIProviderModule.CANNOT_LOAD_LIBRARY",
+          "$0 ($1:$2): Cannot load library.",
+          s0,
+          _fileName,
+          providerName));
    }
 
    return pv;

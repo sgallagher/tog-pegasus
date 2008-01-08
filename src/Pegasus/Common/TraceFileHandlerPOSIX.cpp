@@ -77,7 +77,7 @@ void TraceFileHandler::prepareFileHandle(void)
 
             Logger::put_l(Logger::DEBUG_LOG, System::CIMSERVER,
                           Logger::WARNING,
-                          "Common.TraceFileHandlerVms.FAILED_TO_OPEN_FILE",
+                          "Common.TraceFileHandlerUnix.FAILED_TO_OPEN_FILE",
                           "Failed to open File $0", _fileName);
             return;
         }
@@ -89,7 +89,7 @@ void TraceFileHandler::prepareFileHandle(void)
         {
             Logger::put_l(
                 Logger::DEBUG_LOG, System::CIMSERVER, Logger::WARNING,
-                "Common.TraceFileHandlerVms.FAILED_TO_SET_FILE_PERMISSIONS",
+                "Common.TraceFileHandlerUnix.FAILED_TO_SET_FILE_PERMISSIONS",
                 "Failed to set permissions on file $0", _fileName);
             return;
         }

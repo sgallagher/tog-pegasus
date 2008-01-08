@@ -296,9 +296,9 @@ AcceptLanguageList LanguageParser::getDefaultAcceptLanguages()
     catch (const InvalidAcceptLanguageHeader& e)
     {
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-           "src.Server.cimserver.FAILED_TO_GET_PROCESS_LOCALE",
-           "Could not convert the system locale to a valid accept-language "
-               "format");
+            "src.Server.cimserver.FAILED_TO_SET_PROCESS_LOCALE",
+            "Cannot convert the system process locale into a valid "
+                "Accept-Language format.");
         Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             e.getMessage());
         AcceptLanguageList al;

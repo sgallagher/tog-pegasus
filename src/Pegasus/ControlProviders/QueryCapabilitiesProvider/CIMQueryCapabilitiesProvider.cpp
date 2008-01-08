@@ -97,7 +97,7 @@ void CIMQueryCapabilitiesProvider::getInstance(
        PEG_METHOD_EXIT();
        throw CIMNotSupportedException(MessageLoaderParms(
            "ControlProviders.CIMQueryCapabilitiesProvider.NOT_SUPPORTED",
-           "$0 not supported by CIM Query Capabilities Provider",
+           "$0 is not supported by the CIM Query Capabilities Provider.",
            instanceReference.getClassName().getString()));
     }
 

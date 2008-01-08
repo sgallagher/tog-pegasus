@@ -73,12 +73,12 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
     OperationAggregate* poA)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::handleExecQueryResponse");
+        "WQLOperationRequestDispatcher::handleQueryResponseAggregation");
 
     Uint32 numberResponses = poA->numberResponses();
     Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-        "CIMOperationRequestDispatcher::ExecQuery Response - "
-        "Name Space: $0  Class name: $1 Response Count: $2",
+        "WQLOperationRequestDispatcher::ExecQuery Response - "
+            "Name Space: $0  Class name: $1 Response Count: $2",
         poA->_nameSpace.getString(),
         poA->_className.getString(),
         numberResponses);
@@ -197,7 +197,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
     CIMExecQueryRequestMessage* request)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::handleExecQueryRequest");
+        "WQLOperationRequestDispatcher::handleQueryRequest");
 
     Boolean exception=false;
     AutoPtr<WQLSelectStatement> selectStatement(new WQLSelectStatement());
@@ -303,8 +303,8 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
         CIMResponseMessage* response = request->buildResponse();
         response->cimException =
             PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, MessageLoaderParms(
-                "Server.CIMOperationRequestDispatcher.QUERY_REQ_TOO_BROAD",
-                "Query request too Broad"));
+                "Server.WQLOperationRequestDispatcher.QUERY_REQ_TOO_BROAD",
+                "The query request is too broad."));
 
         _enqueueResponse(request, response);
         PEG_METHOD_EXIT();

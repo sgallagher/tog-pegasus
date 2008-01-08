@@ -372,18 +372,16 @@ Boolean SLPAttrib::fillData(String protocol)
     catch(Exception& e)
     {
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            "Server.CIMServer.EXTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION",
-            "exception raised during CIMServer registration with"
-                " External SLP. $0",
+            "Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION",
+            "CIM Server registration with External SLP failed. Exception: $0.",
             e.getMessage());
     }
 
     catch(...)
     {
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-           "Server.CIMServer.EXTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION",
-           "Exception raised during CIMserver registration with"
-               " External SLP.");
+           "Pegasus.Server.SLP.INTERNAL_SLP_REGISTRATION_FAILED_ERROR",
+           "CIM Server registration with Internal SLP failed.");
     }
 
     client.disconnect();

@@ -187,7 +187,7 @@ static const char OLD_CLASS_RETRIEVAL_ERROR [] =
                 "Error reading old repository class $0 in namespace $1.";
 
 static const char OLD_CLASS_RETRIEVAL_ERROR_KEY [] =
-            "Clients.repupgrade.RepositoryUpgrade.OLDCLASS_RETRIEVAL_ERROR";
+            "Clients.repupgrade.RepositoryUpgrade.OLD_CLASS_RETRIEVAL_ERROR";
 
 static const char OLD_DEPENDENT_CLASS_RETRIEVAL_ERROR [] =
   "Error reading old repository dependent class $0 in namespace $1.";

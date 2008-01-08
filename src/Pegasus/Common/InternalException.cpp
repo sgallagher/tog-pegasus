@@ -91,7 +91,7 @@ const char ClassNotResolved::KEY[] =
     "Common.InternalException.CLASS_NOT_RESOLVED";
 
 const char InstanceAlreadyResolved::MSG[] =
-    "attempted to resolve a instance that is already resolved";
+    "attempted to resolve an instance that is already resolved.";
 const char InstanceAlreadyResolved::KEY[] =
     "Common.InternalException.INSTANCE_ALREADY_RESOLVED";
 

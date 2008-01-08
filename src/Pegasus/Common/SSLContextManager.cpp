@@ -169,7 +169,8 @@ static X509_STORE* _getNewX509Store(const String& storePath)
             MessageLoaderParms parms(
                 "Pegasus.Common.SSLContextManager."
                     "COULD_NOT_RELOAD_TRUST_OR_CRL_STORE",
-                "Could not reload the trust or crl store.");
+                "Could not reload the trust or certificate revocation list "
+                    "store.");
             PEG_METHOD_EXIT();
             throw SSLException(parms);
         }
@@ -190,7 +191,8 @@ static X509_STORE* _getNewX509Store(const String& storePath)
             MessageLoaderParms parms(
                 "Pegasus.Common.SSLContextManager."
                     "COULD_NOT_RELOAD_TRUST_OR_CRL_STORE",
-                "Could not reload the trust or crl store.");
+                "Could not reload the trust or certificate revocation list "
+                    "store.");
             PEG_METHOD_EXIT();
             throw SSLException(parms);
         }
@@ -206,8 +208,8 @@ static X509_STORE* _getNewX509Store(const String& storePath)
         MessageLoaderParms parms(
             "Pegasus.Common.SSLContextManager."
                 "CONFIGURED_TRUST_OR_CRL_STORE_NOT_FOUND",
-            "Could not reload the trust or crl store, configured store "
-                "not found.");
+            "Could not reload the trust or certificate revocation list store. "
+                "The configured store is not found.");
         PEG_METHOD_EXIT();
         throw SSLException(parms);
     }
@@ -236,7 +238,7 @@ void SSLContextManager::reloadTrustStore()
         MessageLoaderParms parms(
             "Pegasus.Common.SSLContextManager."
                 "COULD_NOT_RELOAD_TRUSTSTORE_SSL_CONTEXT_NOT_INITIALIZED",
-            "Could not reload the trust store, SSL Context is not "
+            "Could not reload the trust store. The SSL context is not "
                 "initialized.");
         PEG_METHOD_EXIT();
         throw SSLException(parms);
@@ -280,7 +282,8 @@ void SSLContextManager::reloadCRLStore()
         MessageLoaderParms parms(
             "Pegasus.Common.SSLContextManager."
                 "COULD_NOT_RELOAD_CRL_STORE_SSL_CONTEXT_NOT_INITIALIZED",
-            "Could not reload the crl store, SSL Context is not initialized.");
+            "Could not reload the certificate revocation list store. "
+                "The SSL Context is not initialized.");
 
         PEG_METHOD_EXIT();
         throw SSLException(parms);
@@ -295,7 +298,8 @@ void SSLContextManager::reloadCRLStore()
 
         MessageLoaderParms parms(
             "Pegasus.Common.SSLContextManager.CRL_STORE_NOT_CONFIGURED",
-            "Could not reload the crl store, the crl store is not configured.");
+            "Could not reload the certificate revocation list store. "
+                "The certificate revocation list store is not configured.");
         PEG_METHOD_EXIT();
         throw SSLException(parms);
     }

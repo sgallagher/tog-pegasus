@@ -280,20 +280,6 @@ public:
             const Array<Uint16>& appendStatus,
             Array<Uint16>& outStatus);
 
-    /**
-        Iterate through registration hash table, if AutoStart property
-        is set to true in a PG_Provider instance, send initialize provider
-        request message to Provider Manager Service to load and initialize 
-        the provider
-        */
-        void initializeProviders();
-
-    /**
-        send initialize provider request message to Provider Manager
-        Service to load the module and initialize providers in the module
-        */
-    void initializeProviders(const CIMInstance & providerModule);
-
         /**
             Determines whether specified provider is an indication provider.
 
@@ -348,10 +334,6 @@ protected:
 
     void _sendMessageToSubscription(
         CIMNotifyProviderRegistrationRequestMessage * notify);
-
-    void _sendInitializeProviderMessage(
-        const CIMInstance & provider,
-        const CIMInstance & providerModule);
 
 private:
 

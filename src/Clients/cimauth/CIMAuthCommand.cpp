@@ -463,11 +463,6 @@ CIMAuthCommand::CIMAuthCommand ()
     */
 
     usage.reserveCapacity(200);
-    //l10n
-    //localize usage keyword:
-    //MessageLoaderParms parms("Clients.CLI.USAGE_STRING","usage: ");
-    //String USAGE_L = MessageLoader::getMessage(parms);
-    //usage.append(USAGE_L);
     usage.append(USAGE);
     usage.append(COMMAND_NAME);
 

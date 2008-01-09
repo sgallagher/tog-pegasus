@@ -2136,7 +2136,24 @@ void HTTPConnection::_handleReadEvent()
             String httpStatus =
                 HTTP_STATUS_BADREQUEST + httpDetailDelimiter + e.getMessage();
             _handleReadEventFailure(httpStatus);
-        }   
+        }
+        catch (const exception& e)
+        {
+            String httpStatus =
+                HTTP_STATUS_BADREQUEST + httpDetailDelimiter + e.what();
+            _handleReadEventFailure(httpStatus);
+        }
+        catch (...)
+        {
+            MessageLoaderParms 
+                mlParms("Common.HTTPConnection.UNKNOWN_EXCEPTION", 
+                        "Unknown exception caught while parsing HTTP "
+                        "message.");
+            String mlString(MessageLoader::getMessage(mlParms));
+            String httpStatus =
+                HTTP_STATUS_BADREQUEST + httpDetailDelimiter + mlString;
+            _handleReadEventFailure(httpStatus);
+        }
 
         _clearIncoming();
     }

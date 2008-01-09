@@ -215,9 +215,24 @@ void HTTPAuthenticatorDelegator::handleEnqueue(Message *message)
     // passed as is to another queue.
     Boolean deleteMessage = true;
 
-    if (message->getType() == HTTP_MESSAGE)
+    try 
     {
-        handleHTTPMessage((HTTPMessage*)message, deleteMessage);
+        if (message->getType() == HTTP_MESSAGE)
+        {
+            handleHTTPMessage((HTTPMessage*)message, deleteMessage);
+        }
+    }
+    catch (...)
+    {
+        if (deleteMessage)
+        {
+            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL3,
+                    "Exception caught, deleting Message in "
+                    "HTTPAuthenticator::handleEnqueue");
+            
+            delete message;
+        }
+        throw;
     }
 
     if (deleteMessage)

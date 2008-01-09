@@ -2706,6 +2706,14 @@ not be valid."}
 
 
         // ==========================================================
+        // Messages for HTTPConnection
+        //  Please use message prefix "PGS08100"
+        // ==========================================================
+
+        Common.HTTPConnection.UNKNOWN_EXCEPTION:string {"PGS08100: Unknown exception caught while parsing HTTP message."}
+
+
+        // ==========================================================
         // Messages for LanguageParser
         //  Please use message prefix "PGS08200"
         // ==========================================================

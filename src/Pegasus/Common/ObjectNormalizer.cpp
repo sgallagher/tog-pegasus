@@ -1,51 +1,40 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/ObjectNormalizer.h>
 #include <Pegasus/Common/ArrayInternal.h>
-#include <Pegasus/Common/Constants.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-Boolean ObjectNormalizer::_enableNormalization = false;
-
-void ObjectNormalizer::setEnableNormalization(Boolean value)
-{
-    _enableNormalization = value;
-}
-
-Boolean ObjectNormalizer::getEnableNormalization()
-{
-    return _enableNormalization;
-}
 
 CIMQualifier _processQualifier(
     CIMConstQualifier& referenceQualifier,
@@ -90,7 +79,7 @@ CIMQualifier _processQualifier(
     return normalizedQualifier;
 }
 
-CIMProperty ObjectNormalizer::processProperty(
+CIMProperty ObjectNormalizer::_processProperty(
     CIMConstProperty& referenceProperty,
     CIMConstProperty& instProperty,
     Boolean includeQualifiers,
@@ -114,12 +103,22 @@ CIMProperty ObjectNormalizer::processProperty(
     CIMType instPropType = instProperty.getType();
     if (referencePropType != instPropType)
     {
-        MessageLoaderParms message(
-            "Common.ObjectNormalizer.INVALID_PROPERTY_TYPE",
-            "Invalid property type: $0",
-            instProperty.getName().getString());
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        // CMPI Providers cannot return a CIMTYPE_INSTANCE, so if the
+        // referenceProperty type is CIMTYPE_INSTANCE and the instProperty
+        // type is CIMTYPE_OBJECT, ignore the mismatch. The Normalizer
+        // will correct it.
+        if (referencePropType != CIMTYPE_INSTANCE ||
+            instPropType != CIMTYPE_OBJECT)
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        {
+            MessageLoaderParms message(
+                "Common.ObjectNormalizer.INVALID_PROPERTY_TYPE",
+                "Invalid property type: $0",
+                instProperty.getName().getString());
 
-        throw CIMException(CIM_ERR_FAILED, message);
+            throw CIMException(CIM_ERR_FAILED, message);
+        }
     }
 
     // TODO: check array size?
@@ -137,7 +136,21 @@ CIMProperty ObjectNormalizer::processProperty(
     // update value
     if (!instProperty.getValue().isNull())
     {
-        normalizedProperty.setValue(instProperty.getValue());
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        // This happens ONLY when the referencePropType is CIMTYPE_INSTANCE
+        // and the cimPropType is CIMTYPE_OBJECT, otherwise an exception
+        // would have been thrown. Correct the mismatch here.
+        if (referencePropType != instPropType)
+        {
+            CIMObject tmpObject;
+            instProperty.getValue().get(tmpObject);
+            normalizedProperty.setValue(CIMInstance(tmpObject));
+        }
+        else
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        {
+            normalizedProperty.setValue(instProperty.getValue());
+        }
     }
 
     // update class origin
@@ -176,13 +189,12 @@ CIMProperty ObjectNormalizer::processProperty(
             }
         }
     }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 #ifdef PEGASUS_SNIA_INTEROP_COMPATIBILITY
     else if (referenceProperty.getType() == CIMTYPE_INSTANCE)
     {
-        Uin32 refPos = referenceProperty.findQualifier(
-                           PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE);
-        Uin32 cimPos = instProperty.findQualifier(
-                           PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE);
+        Uin32 refPos = referenceProperty.findQualifier("EmbeddedInstance");
+        Uin32 cimPos = instProperty.findQualifier("EmbeddedInstance");
         if (refPos != PEG_NOT_FOUND && cimPos == PEG_NOT_FOUND)
         {
             instProperty.addQualifier(refProperty.getQualifier(pos));
@@ -197,8 +209,7 @@ CIMProperty ObjectNormalizer::processProperty(
     {
         if (referenceProperty.getType() == CIMTYPE_INSTANCE)
         {
-            Uint32 pos = referenceProperty.findQualifier(
-                             PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE);
+            Uint32 pos = referenceProperty.findQualifier("EmbeddedInstance");
 
             PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
 
@@ -287,6 +298,8 @@ CIMProperty ObjectNormalizer::processProperty(
             }
         }
     }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+
     return normalizedProperty;
 }
 
@@ -361,7 +374,7 @@ CIMObjectPath ObjectNormalizer::processClassObjectPath(
     const CIMObjectPath& cimObjectPath) const
 {
     // pre-check
-    if (!_enableNormalization || _cimClass.isUninitialized())
+    if (_cimClass.isUninitialized())
     {
         // do nothing
         return cimObjectPath;
@@ -418,7 +431,7 @@ CIMObjectPath ObjectNormalizer::processInstanceObjectPath(
     const CIMObjectPath& cimObjectPath) const
 {
     // pre-check
-    if (!_enableNormalization || _cimClass.isUninitialized())
+    if (_cimClass.isUninitialized())
     {
         // do nothing
         return cimObjectPath;
@@ -462,9 +475,9 @@ CIMObjectPath ObjectNormalizer::processInstanceObjectPath(
     }
 
     CIMObjectPath normalizedObjectPath(
-        cimObjectPath.getHost(),
-        cimObjectPath.getNameSpace(),
-        cimObjectPath.getClassName());
+        _cimClass.getPath().getHost(),
+        _cimClass.getPath().getNameSpace(),
+        _cimClass.getClassName());
 
     Array<CIMKeyBinding> normalizedKeys;
 
@@ -521,7 +534,7 @@ CIMInstance ObjectNormalizer::processInstance(
     const CIMInstance& cimInstance) const
 {
     // pre-checks
-    if (!_enableNormalization || _cimClass.isUninitialized())
+    if (_cimClass.isUninitialized())
     {
         // do nothing
         return cimInstance;
@@ -586,7 +599,7 @@ CIMInstance ObjectNormalizer::processInstance(
             CIMConstProperty cimProperty = _cimClass.getProperty(pos);
 
             CIMProperty normalizedProperty =
-                processProperty(
+                _processProperty(
                     cimProperty,
                     instProperty,
                     _includeQualifiers,

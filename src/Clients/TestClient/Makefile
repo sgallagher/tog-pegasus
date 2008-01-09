@@ -61,7 +61,7 @@ poststarttests:
 
 # IPv6 Tests.
 
-ifeq ($(PEGASUS_ENABLE_IPV6), true)
+ifeq ($(PEGASUS_TEST_IPV6), true)
 	@$(ECHO) "Testing with IPv6 loop-back address."
 	$(PROGRAM) [::1]:5988
 endif
@@ -74,7 +74,7 @@ endif
 #
 
 ifeq ($(OS_TYPE), unix)
-ifeq ($(PEGASUS_ENABLE_IPV6), true)
+ifeq ($(PEGASUS_TEST_IPV6), true)
 	@$(ECHO) "Testing with IPv4 Mapped IPv6 Addresses."
 	$(PROGRAM) [::ffff:127.0.0.1]:5988
 endif

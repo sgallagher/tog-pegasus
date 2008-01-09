@@ -290,6 +290,28 @@ Boolean System::getHostIP(const String &hostName, int *af, String &hostIP)
 #endif
 }
 
+
+#ifdef PEGASUS_ENABLE_IPV6
+Boolean System::isIPv6StackActive()
+{
+    SocketHandle ip6Socket;
+    if ((ip6Socket = Socket::createSocket(AF_INET6, SOCK_STREAM, IPPROTO_TCP))
+        == PEGASUS_INVALID_SOCKET)
+    {
+        if (getSocketError() == PEGASUS_INVALID_ADDRESS_FAMILY)
+        {
+            return false;
+        }
+    }
+    else
+    {
+        Socket::close(ip6Socket);
+    }
+
+    return true;
+}
+#endif
+
 // ------------------------------------------------------------------------
 // Convert a hostname into a a single host unique integer representation
 // ------------------------------------------------------------------------

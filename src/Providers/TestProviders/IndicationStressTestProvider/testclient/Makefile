@@ -73,7 +73,7 @@ poststarttests2:
 
 poststarttests:
 	$(MAKE) poststarttests2
-ifeq ($(PEGASUS_ENABLE_IPV6), true)
+ifeq ($(PEGASUS_TEST_IPV6), true)
 	$(MAKE) poststarttests2 PROGRAM2=$(PROGRAM) \
 			PROGRAM2+=IPv6TestClass \
 			PROGRAM2+=test/TestProvider

@@ -135,6 +135,20 @@ public:
     // address (ipv4 or ipv6) returned. Address will be copied to dst.
     static Boolean _acquireIP(const char* hostname, int *af, void *dst);
 
+    /**
+        Returns true if IPv6 stack is active by checking return code from
+        Socket::createSocket() and getSocketError() calls.
+
+        ATTN: We return true if some error other than 
+        PEGASUS_INVALID_ADDRESS_FAMILY is returned while creating the socket
+        because we will not be sure whether the IPv6 stack is active or not
+        from the returned error code. Return value of "true" from this method
+        should not be trusted absolutely.
+    */
+#ifdef PEGASUS_ENABLE_IPV6
+    static Boolean isIPv6StackActive();
+#endif
+
     static Uint32 lookupPort(
         const char * serviceName,
         Uint32 defaultPort);

@@ -65,7 +65,8 @@ public:
 
     ListenerService(const ListenerService& x);
 
-    Boolean initializeListener(Uint32 portNumber, Boolean useSSL, SSLContext* sslContext);
+    Boolean initializeListener(Uint32 portNumber, 
+        Boolean useSSL, SSLContext* sslContext);
 
     Boolean runListener();
 
@@ -89,7 +90,8 @@ private:
     Boolean _useSSL;
     SSLContext* _sslContext;
 
-    //ATTN: do we need to mutex the status?  The consumer mgr takes care of synchronization ... but,
+    //ATTN: do we need to mutex the status?  The consumer mgr takes care 
+    //of synchronization ... but,
     //maybe we should just in case someone uses it differently
     Boolean _initialized;
     Boolean _running;
@@ -98,12 +100,8 @@ private:
 
     Monitor*        _monitor;
 
-#ifdef PEGASUS_ENABLE_IPV6
     HTTPAcceptor *_ip6Acceptor;
-#endif
-#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
     HTTPAcceptor *_ip4Acceptor;
-#endif
 
     CIMExportResponseEncoder* _responseEncoder;
     CIMExportRequestDecoder*  _requestDecoder;

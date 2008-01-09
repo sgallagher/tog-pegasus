@@ -31,6 +31,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+// NOCHKSRC
+
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Time.h>
@@ -53,12 +55,8 @@ _running(0),
 _dieNow(0),
 _shutdownSem(0),
 _monitor(0),
-#ifdef PEGASUS_ENABLE_IPV6
-    _ip6Acceptor(NULL),
-#endif
-#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
-    _ip4Acceptor(NULL),
-#endif
+_ip6Acceptor(NULL),
+_ip4Acceptor(NULL),
 _responseEncoder(0),
 _requestDecoder(0),
 _listening_thread(0),
@@ -163,35 +161,42 @@ Boolean ListenerService::runListener()
     _monitor = new Monitor();
 
 #ifdef PEGASUS_ENABLE_IPV6
-    _ip6Acceptor = new HTTPAcceptor(
+    if (System::isIPv6StackActive())
+    {
+        _ip6Acceptor = new HTTPAcceptor(
                                 _monitor, 
                                 _requestDecoder, 
                                 HTTPAcceptor::IPV6_CONNECTION,
                                 _portNumber, 
                                 _sslContext,
                                 false);
+    }
+#ifndef PEGASUS_OS_TYPE_WINDOWS
+    else
 #endif
-
-#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
-    _ip4Acceptor = new HTTPAcceptor(
+#endif
+    {
+        _ip4Acceptor = new HTTPAcceptor(
                                 _monitor, 
                                 _requestDecoder, 
                                 HTTPAcceptor::IPV4_CONNECTION, 
                                 _portNumber, 
                                 _sslContext,
                                 false);
-#endif
+    }
 
     //create listening thread
     _listening_thread = new Thread(_listener_routine, this, 0);
 
     //bind listener socket
-#ifdef PEGASUS_ENABLE_IPV6
-    _ip6Acceptor->bind();
-#endif
-#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
-    _ip4Acceptor->bind();
-#endif
+    if (_ip6Acceptor)
+    {
+        _ip6Acceptor->bind();
+    }
+    if (_ip4Acceptor)
+    {    
+        _ip4Acceptor->bind();
+    }
 
     //start listening thread
     ThreadStatus rtn = PEGASUS_THREAD_OK;
@@ -322,12 +327,14 @@ Boolean ListenerService::shutdownListener()
     //stop the monitor from accepting connections
     _monitor->stopListeningForConnections(true);
 
-#ifdef PEGASUS_ENABLE_IPV6
-    _ip6Acceptor->closeConnectionSocket();
-#endif
-#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
-    _ip4Acceptor->closeConnectionSocket();
-#endif
+    if (_ip6Acceptor)
+    {
+        _ip6Acceptor->closeConnectionSocket();
+    }
+    if (_ip4Acceptor)
+    {
+        _ip4Acceptor->closeConnectionSocket();
+    }
 
     //allow client threads to complete, wait 10 sec max
     PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "ListenerService::Waiting for outstanding requests...");
@@ -336,12 +343,14 @@ Boolean ListenerService::shutdownListener()
     for (; countDown > 0; countDown--)
     {
         reqCount = 0;
-#ifdef PEGASUS_ENABLE_IPV6
-        reqCount = _ip6Acceptor->getOutstandingRequestCount();
-#endif
-#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
-        reqCount += _ip4Acceptor->getOutstandingRequestCount();
-#endif
+        if (_ip6Acceptor)
+        {
+            reqCount = _ip6Acceptor->getOutstandingRequestCount();
+        }
+        if (_ip4Acceptor)
+        {
+            reqCount += _ip4Acceptor->getOutstandingRequestCount();
+        }
         if (reqCount > 0)
         {
             Threads::sleep(1000);
@@ -399,14 +408,10 @@ Boolean ListenerService::shutdownListener()
         }
     }
     //delete acceptor
-#ifdef PEGASUS_ENABLE_IPV6
     delete _ip6Acceptor;
     _ip6Acceptor = 0;
-#endif
-#if !defined (PEGASUS_ENABLE_IPV6) || defined (PEGASUS_OS_TYPE_WINDOWS)
     delete _ip4Acceptor;
     _ip4Acceptor = 0;
-#endif
 
     //delete monitor
     delete _monitor;

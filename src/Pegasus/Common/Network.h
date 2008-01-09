@@ -231,6 +231,21 @@ static inline int getSocketError()
 
 //------------------------------------------------------------------------------
 //
+//
+// PEGASUS_INVALID_ADDRESS_FAMILY
+//
+//------------------------------------------------------------------------------
+
+#ifdef PEGASUS_ENABLE_IPV6
+#   ifdef PEGASUS_OS_TYPE_WINDOWS
+#      define PEGASUS_INVALID_ADDRESS_FAMILY WSAEAFNOSUPPORT
+#   else
+#      define PEGASUS_INVALID_ADDRESS_FAMILY EAFNOSUPPORT
+#   endif
+#endif
+
+//------------------------------------------------------------------------------
+//
 // SocketHandle
 //
 //------------------------------------------------------------------------------

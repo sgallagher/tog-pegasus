@@ -590,6 +590,10 @@ endif
 # Enable IPv6 support
 #
 
+ifndef PEGASUS_ENABLE_IPV6
+    PEGASUS_ENABLE_IPV6 = false
+endif
+
 # Check for Enable IPv6 support
 ifdef PEGASUS_ENABLE_IPV6
   ifeq ($(PEGASUS_ENABLE_IPV6),true)
@@ -601,6 +605,25 @@ ifdef PEGASUS_ENABLE_IPV6
     endif
   endif
 endif
+
+# Verify Test IPv6 support
+# If PEGASUS_ENABLE_IPV6 is defined and PEGASUS_TEST_IPV6 is not defined, we set
+# PEGASUS_TEST_IPV6 to the same value as PEGASUS_ENABLE_IPV6.
+# You can explicitly set PEGASUS_TEST_IPV6 to false if you don't want to run the
+# IPv6 tests (for example, on an IPv4 system that is running an IPv6-enabled
+# version of Pegasus).
+#
+ifdef PEGASUS_TEST_IPV6
+  ifneq ($(PEGASUS_TEST_IPV6),true)
+    ifneq ($(PEGASUS_TEST_IPV6),false)
+      $(error PEGASUS_TEST_IPV6 ($(PEGASUS_TEST_IPV6)) \
+       invalid, must be true or false)
+    endif
+  endif
+else 
+  PEGASUS_TEST_IPV6 = $(PEGASUS_ENABLE_IPV6)
+endif
+
 
 #
 # PEGASUS_ENABLE_SLP and PEGASUS_DISABLE_SLP

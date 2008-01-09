@@ -364,9 +364,11 @@ void HTTPConnection::handleEnqueue(Message *message)
  * handshake to complete if timeout expired or to close idle connections if 
  * idleConnectionTimeout config property value has specified.
  * Returns 'true' if connection is closed (or is closePending).
+ * timeNow will be updated to current time if connection's _idleStartTime
+ * is greater than timeNow
 */
 
-Boolean HTTPConnection::closeConnectionOnTimeout(const TimeValue& timeNow)
+Boolean HTTPConnection::closeConnectionOnTimeout(TimeValue &timeNow)
 {
     // if SSL Handshake is not complete.
     if (_acceptPending)
@@ -384,7 +386,13 @@ Boolean HTTPConnection::closeConnectionOnTimeout(const TimeValue& timeNow)
     // else if connection timeout is active
     else if (_idleConnectionTimeoutSeconds)
     {
-        if ((Uint32)(timeNow.getSeconds() - _idleStartTime.getSeconds()) >
+        // For performance reasons timeNow is calculated only once in Monitor.
+        // Update timeNow if connection's _idleStartTime has more recent time.
+        if (timeNow.getSeconds() < _idleStartTime.getSeconds())
+        {
+            timeNow = TimeValue::getCurrentTime();
+        }
+        else if ((Uint32)(timeNow.getSeconds() - _idleStartTime.getSeconds()) >
             _idleConnectionTimeoutSeconds)
         {
             PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
@@ -973,16 +981,15 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                     "HTTPConnection::_handleWriteEvent - Connection: Close in client message.");
                 _closeConnection();
             }else {
-                Tracer::trace (TRC_HTTP, Tracer::LEVEL2,
-                    "Now setting state to %d", _MonitorEntry::IDLE);
-                _monitor->setState (_entry_index, _MonitorEntry::IDLE);
-                _monitor->tickle();
-                // MonitorEntry has been set to IDLE. Update beginning of
-                // connection idle time.
+                // Update the connection idle time.
                 if (_idleConnectionTimeoutSeconds)
                 {
                     _idleStartTime = TimeValue::getCurrentTime();
                 }
+                Tracer::trace (TRC_HTTP, Tracer::LEVEL2,
+                    "Now setting state to %d", _MonitorEntry::IDLE);
+                _monitor->setState (_entry_index, _MonitorEntry::IDLE);
+                _monitor->tickle();
             }
             cimException = CIMException();
         }

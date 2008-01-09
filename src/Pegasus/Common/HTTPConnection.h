@@ -134,7 +134,7 @@ public:
 
     void setSocketWriteTimeout(Uint32 socketWriteTimeout);
 
-    Boolean closeConnectionOnTimeout(const TimeValue& timeNow);
+    Boolean closeConnectionOnTimeout(TimeValue &timeNow);
 
     // ATTN-RK-P1-20020521: This is a major hack, required to get the CIM
     // server and tests to run successfully.  The problem is that the

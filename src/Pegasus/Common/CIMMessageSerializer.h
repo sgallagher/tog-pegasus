@@ -276,11 +276,6 @@ private:
         CIMStopAllProvidersRequestMessage* message);
 
     PEGASUS_HIDDEN_LINKAGE
-    static void _serializeCIMInitializeProviderRequestMessage(
-        Buffer& out,
-        CIMInitializeProviderRequestMessage* message);
-
-    PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMInitializeProviderAgentRequestMessage(
         Buffer& out,
         CIMInitializeProviderAgentRequestMessage* message);
@@ -423,11 +418,6 @@ private:
     static void _serializeCIMStopAllProvidersResponseMessage(
         Buffer& out,
         CIMStopAllProvidersResponseMessage* message);
-
-    PEGASUS_HIDDEN_LINKAGE
-    static void _serializeCIMInitializeProviderResponseMessage(
-        Buffer& out,
-        CIMInitializeProviderResponseMessage* message);
 
     PEGASUS_HIDDEN_LINKAGE
     static void _serializeCIMInitializeProviderAgentResponseMessage(

@@ -282,10 +282,6 @@ void CIMMessageSerializer::_serializeCIMRequestMessage(
             _serializeCIMStopAllProvidersRequestMessage(
                 out, (CIMStopAllProvidersRequestMessage*)cimMessage);
             break;
-        case CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE:
-            _serializeCIMInitializeProviderRequestMessage(
-                out, (CIMInitializeProviderRequestMessage*)cimMessage);
-            break;
         case CIM_INITIALIZE_PROVIDER_AGENT_REQUEST_MESSAGE:
             _serializeCIMInitializeProviderAgentRequestMessage(
                 out, (CIMInitializeProviderAgentRequestMessage*)cimMessage);
@@ -477,10 +473,6 @@ void CIMMessageSerializer::_serializeCIMResponseMessage(
         case CIM_STOP_ALL_PROVIDERS_RESPONSE_MESSAGE:
             _serializeCIMStopAllProvidersResponseMessage(
                 out, (CIMStopAllProvidersResponseMessage*)cimMessage);
-            break;
-        case CIM_INITIALIZE_PROVIDER_RESPONSE_MESSAGE:
-            _serializeCIMInitializeProviderResponseMessage(
-                out, (CIMInitializeProviderResponseMessage*)cimMessage);
             break;
         case CIM_INITIALIZE_PROVIDER_AGENT_RESPONSE_MESSAGE:
             _serializeCIMInitializeProviderAgentResponseMessage(
@@ -1239,16 +1231,6 @@ void CIMMessageSerializer::_serializeCIMStopAllProvidersRequestMessage(
 }
 
 //
-// _serializeCIMInitializeProviderRequestMessage
-//
-void CIMMessageSerializer::_serializeCIMInitializeProviderRequestMessage(
-    Buffer& out,
-    CIMInitializeProviderRequestMessage* message)
-{
-    // No additional attributes to serialize!
-}
-
-//
 // _serializeCIMInitializeProviderAgentRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMInitializeProviderAgentRequestMessage(
@@ -1607,16 +1589,6 @@ void CIMMessageSerializer::_serializeCIMEnableModuleResponseMessage(
 void CIMMessageSerializer::_serializeCIMStopAllProvidersResponseMessage(
     Buffer& out,
     CIMStopAllProvidersResponseMessage* message)
-{
-    // No additional attributes to serialize!
-}
-
-//
-// _serializeCIMInitializeProviderResponseMessage
-//
-void CIMMessageSerializer::_serializeCIMInitializeProviderResponseMessage(
-    Buffer& out,
-    CIMInitializeProviderResponseMessage* message)
 {
     // No additional attributes to serialize!
 }

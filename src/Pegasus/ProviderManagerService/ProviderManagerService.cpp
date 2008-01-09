@@ -364,11 +364,10 @@ void ProviderManagerService::handleCimRequest(
     }
     else if ((dynamic_cast<CIMOperationRequestMessage*>(request) != 0) ||
         (dynamic_cast<CIMIndicationRequestMessage*>(request) != 0) ||
-        (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE) ||
-        (request->getType() == CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE))
+        (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE))
     {
         // Handle CIMOperationRequestMessage, CIMExportIndicationRequestMessage,
-        // CIMIndicationRequestMessage, and CIMInitializeProviderRequestMessage.
+        // and CIMIndicationRequestMessage.
         // (These should be blocked when the provider module is disabled.)
 
         //
@@ -379,8 +378,6 @@ void ProviderManagerService::handleCimRequest(
         // The provider ID container is added to the OperationContext
         // by the CIMOperationRequestDispatcher for all CIM operation
         // requests to providers, so it does not need to be added again.
-        // CIMInitializeProviderRequestMessage also has a provider ID
-        // container.
         ProviderIdContainer pidc =
             request->operationContext.get(ProviderIdContainer::NAME);
         providerModule = pidc.getModule();
@@ -759,8 +756,7 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
         // requests. (ie through _basicProviderManagerRouter). -V 3913
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
         if ((dynamic_cast<CIMOperationRequestMessage*>(request) != 0) ||
-                (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE) ||
-                (request->getType() == CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE))
+            (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE))
         {
             ProviderIdContainer pidc1 =
             request->operationContext.get(ProviderIdContainer::NAME);

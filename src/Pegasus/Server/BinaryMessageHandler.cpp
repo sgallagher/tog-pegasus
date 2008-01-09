@@ -409,8 +409,6 @@ BinaryMessageHandler::handle_binary_message(void* parm)
             case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
             case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
 
-            case CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE:
-
             case CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE:
 
             case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
@@ -437,7 +435,6 @@ BinaryMessageHandler::handle_binary_message(void* parm)
             case CIM_ENABLE_MODULE_RESPONSE_MESSAGE:
             case CIM_STOP_ALL_PROVIDERS_RESPONSE_MESSAGE:
             case CIM_NOTIFY_PROVIDER_ENABLE_RESPONSE_MESSAGE:
-            case CIM_INITIALIZE_PROVIDER_RESPONSE_MESSAGE:
             case CIM_NOTIFY_CONFIG_CHANGE_RESPONSE_MESSAGE:
                 break;
             case CIM_EXPORT_INDICATION_RESPONSE_MESSAGE:

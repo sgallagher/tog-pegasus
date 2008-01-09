@@ -260,13 +260,6 @@ Message * CMPIProviderManager::processMessage(Message * request)
             response = handleStopAllProvidersRequest(request);
 
             break;
-// Note: The PG_Provider AutoStart property is not yet supported
-#if 0
-        case CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE:
-            response = handleInitializeProviderRequest(request);
-
-            break;
-#endif
         case CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE:
             response = handleSubscriptionInitCompleteRequest (request);
 
@@ -3087,36 +3080,6 @@ Message * CMPIProviderManager::handleStopAllProvidersRequest(
 
     return(response);
 }
-
-// Note: The PG_Provider AutoStart property is not yet supported
-#if 0
-    Message * CMPIProviderManager::handleInitializeProviderRequest(
-        const Message * message)
-    {
-        PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, 
-            "CMPIProviderManager::handleInitializeProviderRequest");
-
-        HandlerIntroInit(InitializeProvider,message,request,response,handler);
-
-        try
-        {
-            // resolve provider name
-            ProviderName name = _resolveProviderName(
-                 request->operationContext.get(ProviderIdContainer::NAME));
-
-            // get cached or load new provider module
-            CMPIProvider::OpProviderHolder ph =
-                providerManager.getProvider(
-                    name.getPhysicalName(), name.getLogicalName());
-
-        }
-        HandlerCatch(handler);
-
-        PEG_METHOD_EXIT();
-
-        return(response);
-    }
-#endif
 
 Message * CMPIProviderManager::handleSubscriptionInitCompleteRequest(
     const Message * message)

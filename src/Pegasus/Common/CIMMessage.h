@@ -1316,23 +1316,6 @@ public:
     virtual CIMResponseMessage* buildResponse() const;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMInitializeProviderRequestMessage
-    : public CIMRequestMessage
-{
-public:
-    CIMInitializeProviderRequestMessage(
-        const String & messageId_,
-        const QueueIdStack& queueIds_)
-    : CIMRequestMessage(
-        CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE,
-        messageId_,
-        queueIds_)
-    {
-    }
-
-    virtual CIMResponseMessage* buildResponse() const;
-};
-
 // Used to pass initialization data to an Out-of-Process Provider Agent process
 class PEGASUS_COMMON_LINKAGE CIMInitializeProviderAgentRequestMessage
     : public CIMRequestMessage
@@ -2018,20 +2001,6 @@ public:
         const CIMException& cimException_,
         const QueueIdStack& queueIds_)
     : CIMResponseMessage(CIM_STOP_ALL_PROVIDERS_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_)
-    {
-    }
-};
-
-class PEGASUS_COMMON_LINKAGE CIMInitializeProviderResponseMessage
-    : public CIMResponseMessage
-{
-public:
-    CIMInitializeProviderResponseMessage(
-        const String& messageId_,
-        const CIMException& cimException_,
-        const QueueIdStack& queueIds_)
-    : CIMResponseMessage(CIM_INITIALIZE_PROVIDER_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_)
     {
     }

@@ -225,8 +225,7 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
     CIMInstance providerModule;
 
     if ((dynamic_cast<CIMOperationRequestMessage*>(request) != 0) ||
-        (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE) ||
-        (request->getType() == CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE))
+        (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE))
     {
         // Provider information is in OperationContext
         ProviderIdContainer pidc = (ProviderIdContainer)

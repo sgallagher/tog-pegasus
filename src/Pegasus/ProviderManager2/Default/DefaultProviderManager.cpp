@@ -150,27 +150,6 @@ Message* DefaultProviderManager::processMessage(Message* message)
             response = _handleSubscriptionInitCompleteRequest(request);
             break;
 
-// Note: The PG_Provider AutoStart property is not yet supported
-#if 0
-        case CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE:
-        {
-            ProviderIdContainer providerId = 
-                request->operationContext.get(ProviderIdContainer::NAME);
-
-            // resolve provider name
-            ProviderName name = _resolveProviderName(providerId);
-
-            // get cached or load new provider module
-            ProviderOperationCounter poc(
-                _getProvider(
-                    name.getPhysicalName(), 
-                    name.getModuleName(), 
-                    name.getLogicalName()));
-
-            break;
-        }
-#endif
-
         default:
             PEGASUS_ASSERT(0);
             break;

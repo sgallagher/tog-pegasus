@@ -492,17 +492,6 @@ CIMResponseMessage* CIMStopAllProvidersRequestMessage::buildResponse() const
     return response.release();
 }
 
-CIMResponseMessage* CIMInitializeProviderRequestMessage::buildResponse() const
-{
-    AutoPtr<CIMInitializeProviderResponseMessage> response(
-        new CIMInitializeProviderResponseMessage(
-            messageId,
-            CIMException(),
-            queueIds.copyAndPop()));
-    response->syncAttributes(this);
-    return response.release();
-}
-
 CIMResponseMessage*
     CIMInitializeProviderAgentRequestMessage::buildResponse() const
 {

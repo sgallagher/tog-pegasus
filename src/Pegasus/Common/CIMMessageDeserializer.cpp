@@ -317,9 +317,6 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
         case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
             message = _deserializeCIMStopAllProvidersRequestMessage(parser);
             break;
-        case CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE:
-            message = _deserializeCIMInitializeProviderRequestMessage(parser);
-            break;
         case CIM_INITIALIZE_PROVIDER_AGENT_REQUEST_MESSAGE:
             message =
                 _deserializeCIMInitializeProviderAgentRequestMessage(parser);
@@ -488,9 +485,6 @@ CIMResponseMessage* CIMMessageDeserializer::_deserializeCIMResponseMessage(
             //break;
         case CIM_STOP_ALL_PROVIDERS_RESPONSE_MESSAGE:
             message = _deserializeCIMStopAllProvidersResponseMessage(parser);
-            break;
-        case CIM_INITIALIZE_PROVIDER_RESPONSE_MESSAGE:
-            message = _deserializeCIMInitializeProviderResponseMessage(parser);
             break;
         case CIM_INITIALIZE_PROVIDER_AGENT_RESPONSE_MESSAGE:
             message =
@@ -1830,21 +1824,6 @@ CIMMessageDeserializer::_deserializeCIMStopAllProvidersRequestMessage(
 }
 
 //
-// _deserializeCIMInitializeProviderRequestMessage
-//
-CIMInitializeProviderRequestMessage*
-CIMMessageDeserializer::_deserializeCIMInitializeProviderRequestMessage(
-    XmlParser& parser)
-{
-    CIMInitializeProviderRequestMessage* message =
-        new CIMInitializeProviderRequestMessage(
-            String::EMPTY,         // messageId
-            QueueIdStack());       // queueIds
-
-    return message;
-}
-
-//
 // _deserializeCIMInitializeProviderAgentRequestMessage
 //
 CIMInitializeProviderAgentRequestMessage*
@@ -2471,22 +2450,6 @@ CIMMessageDeserializer::_deserializeCIMStopAllProvidersResponseMessage(
 {
     CIMStopAllProvidersResponseMessage* message =
         new CIMStopAllProvidersResponseMessage(
-            String::EMPTY,         // messageId
-            CIMException(),        // cimException
-            QueueIdStack());       // queueIds
-
-    return message;
-}
-
-//
-// _deserializeCIMInitializeProviderResponseMessage
-//
-CIMInitializeProviderResponseMessage*
-CIMMessageDeserializer::_deserializeCIMInitializeProviderResponseMessage(
-    XmlParser& parser)
-{
-    CIMInitializeProviderResponseMessage* message =
-        new CIMInitializeProviderResponseMessage(
             String::EMPTY,         // messageId
             CIMException(),        // cimException
             QueueIdStack());       // queueIds

@@ -1224,24 +1224,6 @@ void testCIMStopAllProvidersRequestMessage(
 }
 
 //
-// testCIMInitializeProviderRequestMessage
-//
-void testCIMInitializeProviderRequestMessage(
-    const OperationContext& oc,
-    const String& mid,
-    const QueueIdStack& qids)
-{
-    CIMInitializeProviderRequestMessage inMessage(mid, qids);
-    inMessage.operationContext = oc;
-    AutoPtr<CIMInitializeProviderRequestMessage> outMessage(
-        dynamic_cast<CIMInitializeProviderRequestMessage*>(
-            serializeDeserializeMessage(&inMessage)));
-    PEGASUS_TEST_ASSERT(outMessage.get() != 0);
-
-    validateCIMRequestMessageAttributes(&inMessage, outMessage.get());
-}
-
-//
 // testCIMInitializeProviderAgentRequestMessage
 //
 void testCIMInitializeProviderAgentRequestMessage(
@@ -1781,25 +1763,6 @@ void testCIMStopAllProvidersResponseMessage(
     inMessage.operationContext = oc;
     AutoPtr<CIMStopAllProvidersResponseMessage> outMessage(
         dynamic_cast<CIMStopAllProvidersResponseMessage*>(
-            serializeDeserializeMessage(&inMessage)));
-    PEGASUS_TEST_ASSERT(outMessage.get() != 0);
-
-    validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-}
-
-//
-// testCIMInitializeProviderResponseMessage
-//
-void testCIMInitializeProviderResponseMessage(
-    const OperationContext& oc,
-    const String& mid,
-    const CIMException& ex,
-    const QueueIdStack& qids)
-{
-    CIMInitializeProviderResponseMessage inMessage(mid, ex, qids);
-    inMessage.operationContext = oc;
-    AutoPtr<CIMInitializeProviderResponseMessage> outMessage(
-        dynamic_cast<CIMInitializeProviderResponseMessage*>(
             serializeDeserializeMessage(&inMessage)));
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
@@ -2357,11 +2320,6 @@ void testMessageSerialization()
     testCIMStopAllProvidersRequestMessage(oc4, mid3, qids1);
     testCIMStopAllProvidersRequestMessage(oc1, mid4, qids2);
 
-    testCIMInitializeProviderRequestMessage(oc1, mid1, qids2);
-    testCIMInitializeProviderRequestMessage(oc2, mid2, qids3);
-    testCIMInitializeProviderRequestMessage(oc3, mid3, qids4);
-    testCIMInitializeProviderRequestMessage(oc4, mid4, qids1);
-
     testCIMInitializeProviderAgentRequestMessage(
         oc2, mid1, mid4, spa3, false,  true, qids2);
     testCIMInitializeProviderAgentRequestMessage(
@@ -2522,11 +2480,6 @@ void testMessageSerialization()
     testCIMStopAllProvidersResponseMessage(oc2, mid3, ex3, qids2);
     testCIMStopAllProvidersResponseMessage(oc3, mid4, ex4, qids3);
     testCIMStopAllProvidersResponseMessage(oc4, mid1, ex1, qids4);
-
-    testCIMInitializeProviderResponseMessage(oc1, mid1, ex4, qids3);
-    testCIMInitializeProviderResponseMessage(oc2, mid2, ex1, qids4);
-    testCIMInitializeProviderResponseMessage(oc3, mid3, ex2, qids1);
-    testCIMInitializeProviderResponseMessage(oc4, mid4, ex3, qids2);
 
     testCIMInitializeProviderAgentResponseMessage(oc1, mid4, ex3, qids1);
     testCIMInitializeProviderAgentResponseMessage(oc2, mid1, ex4, qids2);

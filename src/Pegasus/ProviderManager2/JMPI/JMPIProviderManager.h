@@ -31,6 +31,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+// NOCHKSRC
+
 #ifndef Pegasus_JMPIProviderManager_h
 #define Pegasus_JMPIProviderManager_h
 
@@ -93,7 +95,7 @@ public:
             qContext = NULL;
         }
 
-	     CIMOMHandleQueryContext *qContext;
+        CIMOMHandleQueryContext *qContext;
         String                   query;
         String                   queryLanguage;
         CIMPropertyList          propertyList;
@@ -144,7 +146,6 @@ protected:
     Message * handleDisableModuleRequest(const Message * message) throw();
     Message * handleEnableModuleRequest(const Message * message) throw();
     Message * handleStopAllProvidersRequest(const Message * message) throw();
-    Message * handleInitializeProviderRequest(const Message * message);
     Message * handleSubscriptionInitCompleteRequest (const Message * message);
 
     ProviderName _resolveProviderName(const ProviderIdContainer & providerId);

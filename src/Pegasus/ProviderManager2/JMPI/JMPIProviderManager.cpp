@@ -477,10 +477,6 @@ Message * JMPIProviderManager::processMessage(Message * request) throw()
         response = handleStopAllProvidersRequest(request);
         break;
 
-    case CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE:
-        response = handleInitializeProviderRequest(request);
-        break;
-
     case CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE:
         response = handleSubscriptionInitCompleteRequest (request);
         break;
@@ -6854,31 +6850,6 @@ Message * JMPIProviderManager::handleStopAllProvidersRequest(const Message * mes
 
     // tell the provider manager to shutdown all the providers
     providerManager.shutdownAllProviders();
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-Message * JMPIProviderManager::handleInitializeProviderRequest(const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "JMPIProviderManager::handleInitializeProviderRequest");
-
-    HandlerIntroInit(InitializeProvider,message,request,response,handler);
-
-    try
-    {
-        // resolve provider name
-        ProviderName name = _resolveProviderName(
-           request->operationContext.get(ProviderIdContainer::NAME));
-
-        // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph = providerManager.getProvider (name.getPhysicalName(),
-                                                                         name.getLogicalName(),
-                                                                         String::EMPTY);
-
-    }
-    HandlerCatch(handler);
 
     PEG_METHOD_EXIT();
 

@@ -201,10 +201,6 @@ private:
         _deserializeCIMInvokeMethodRequestMessage(XmlParser& parser);
 
     PEGASUS_HIDDEN_LINKAGE
-    static CIMInitializeProviderRequestMessage*
-        _deserializeCIMInitializeProviderRequestMessage(XmlParser& parser);
-
-    PEGASUS_HIDDEN_LINKAGE
     static CIMInitializeProviderAgentRequestMessage*
         _deserializeCIMInitializeProviderAgentRequestMessage(XmlParser& parser);
 
@@ -321,10 +317,6 @@ private:
     PEGASUS_HIDDEN_LINKAGE
     static CIMInvokeMethodResponseMessage*
         _deserializeCIMInvokeMethodResponseMessage(XmlParser& parser);
-
-    PEGASUS_HIDDEN_LINKAGE
-    static CIMInitializeProviderResponseMessage*
-        _deserializeCIMInitializeProviderResponseMessage(XmlParser& parser);
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMInitializeProviderAgentResponseMessage*

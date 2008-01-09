@@ -399,33 +399,11 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
         CMPIProvider & pr=ph.GetProvider();
 
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-        // If normalization is enabled, then the normalizer will take care of
-        // any EmbeddedInstance / EmbeddedObject mismatches, and we don't need
-        // to add a NormalizerContextContainer. The presence of an
-        // ObjectNormalizer is determined by the presence of the
-        // CachedClassDefinitionContainer
-        if (request->operationContext.contains(
-            CachedClassDefinitionContainer::NAME))
-        {
-            request->operationContext.get(CachedClassDefinitionContainer::NAME);
-        }
-        else
-#endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
-        {
-            // If a mechanism is needed to correct mismatches between the
-            // EmbeddedInstance and EmbeddedObject types, then insert
-            // containers for the class definition and a NormalizerContext.
-            AutoPtr<NormalizerContext> tmpNormalizerContext(
-                new CIMOMHandleContext(*pr._cimom_handle));
-            CIMClass classDef(_getClass(
-                request->nameSpace, request->className));
-            request->operationContext.insert(
-                CachedClassDefinitionContainer(classDef));
-            request->operationContext.insert(
-                NormalizerContextContainer(tmpNormalizerContext));
-        }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        AutoPtr<NormalizerContext> tmpNormalizerContext(
+            new CIMOMHandleContext(*pr._cimom_handle));
+        request->operationContext.insert(
+            NormalizerContextContainer(tmpNormalizerContext));
+#endif
 
         PEG_TRACE_STRING(
             TRC_PROVIDERMANAGER,
@@ -589,34 +567,11 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
         CMPIProvider & pr=ph.GetProvider();
 
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-        // If normalization is enabled, then the normalizer will take care of
-        // any EmbeddedInstance / EmbeddedObject mismatches, and we don't need
-        // to add a NormalizerContextContainer. The presence of an
-        // ObjectNormalizer is determined by the presence of the
-        // CachedClassDefinitionContainer
-        if (request->operationContext.contains(
-            CachedClassDefinitionContainer::NAME))
-        {
-            request->operationContext.get(
-                CachedClassDefinitionContainer::NAME);
-        }
-        else
-#endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
-        {
-            // If a mechanism is needed to correct mismatches between the
-            // EmbeddedInstance and EmbeddedObject types, then insert
-            // containers for the class definition and a NormalizerContext.
-            AutoPtr<NormalizerContext> tmpNormalizerContext(
-                new CIMOMHandleContext(*pr._cimom_handle));
-            CIMClass classDef(_getClass(
-                request->nameSpace, request->className));
-            request->operationContext.insert(
-                CachedClassDefinitionContainer(classDef));
-            request->operationContext.insert(
-                NormalizerContextContainer(tmpNormalizerContext));
-        }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        AutoPtr<NormalizerContext> tmpNormalizerContext(
+            new CIMOMHandleContext(*pr._cimom_handle));
+        request->operationContext.insert(
+            NormalizerContextContainer(tmpNormalizerContext));
+#endif
 
         PEG_TRACE_STRING(
             TRC_PROVIDERMANAGER,
@@ -1574,34 +1529,11 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         CMPIProvider & pr=ph.GetProvider();
 
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-        // If normalization is enabled, then the normalizer will take care of
-        // any EmbeddedInstance / EmbeddedObject mismatches, and we don't need
-        // to add a NormalizerContextContainer. The presence of an
-        // ObjectNormalizer is determined by the presence of the
-        // CachedClassDefinitionContainer
-        if (request->operationContext.contains(
-            CachedClassDefinitionContainer::NAME))
-        {
-            request->operationContext.get(
-                CachedClassDefinitionContainer::NAME);
-        }
-        else
-#endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
-        {
-            // If a mechanism is needed to correct mismatches between the
-            // EmbeddedInstance and EmbeddedObject types, then insert
-            // containers for the class definition and a NormalizerContext.
-            AutoPtr<NormalizerContext> tmpNormalizerContext(
-                new CIMOMHandleContext(*pr._cimom_handle));
-            CIMClass classDef(_getClass(
-                request->nameSpace, request->className));
-            request->operationContext.insert(
-                CachedClassDefinitionContainer(classDef));
-            request->operationContext.insert(
-                NormalizerContextContainer(tmpNormalizerContext));
-        }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        AutoPtr<NormalizerContext> tmpNormalizerContext(
+            new CIMOMHandleContext(*pr._cimom_handle));
+        request->operationContext.insert(
+            NormalizerContextContainer(tmpNormalizerContext));
+#endif
 
         PEG_TRACE_STRING(
             TRC_PROVIDERMANAGER,
@@ -1952,34 +1884,11 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
         CMPIProvider & pr=ph.GetProvider();
 
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-        // If normalization is enabled, then the normalizer will take care of
-        // any EmbeddedInstance / EmbeddedObject mismatches, and we don't need
-        // to add a NormalizerContextContainer. The presence of an
-        // ObjectNormalizer is determined by the presence of the
-        // CachedClassDefinitionContainer
-        if (request->operationContext.contains(
-            CachedClassDefinitionContainer::NAME))
-        {
-            request->operationContext.get(
-                CachedClassDefinitionContainer::NAME);
-        }
-        else
-#endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
-        {
-            // If a mechanism is needed to correct mismatches between the
-            // EmbeddedInstance and EmbeddedObject types, then insert
-            // containers for the class definition and a NormalizerContext.
-            AutoPtr<NormalizerContext> tmpNormalizerContext(
-                new CIMOMHandleContext(*pr._cimom_handle));
-            CIMClass classDef(_getClass(
-                request->nameSpace, request->className));
-            request->operationContext.insert(
-                CachedClassDefinitionContainer(classDef));
-            request->operationContext.insert(
-                NormalizerContextContainer(tmpNormalizerContext));
-        }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        AutoPtr<NormalizerContext> tmpNormalizerContext(
+            new CIMOMHandleContext(*pr._cimom_handle));
+        request->operationContext.insert(
+            NormalizerContextContainer(tmpNormalizerContext));
+#endif
 
         PEG_TRACE_STRING(
             TRC_PROVIDERMANAGER,
@@ -2320,36 +2229,11 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
         CMPIProvider & pr=ph.GetProvider();
 
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-        bool externalNormalizationEnabled = false;
-#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-        // If normalization is enabled, then the normalizer will take care of
-        // any EmbeddedInstance / EmbeddedObject mismatches, and we don't need
-        // to add a NormalizerContextContainer. The presence of an
-        // ObjectNormalizer is determined by the presence of the
-        // CachedClassDefinitionContainer
-        if (request->operationContext.contains(
-            CachedClassDefinitionContainer::NAME))
-        {
-            request->operationContext.get(
-                CachedClassDefinitionContainer::NAME);
-            externalNormalizationEnabled = true;
-        }
-        else
-#endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
-        {
-            // If a mechanism is needed to correct mismatches between the
-            // EmbeddedInstance and EmbeddedObject types, then insert
-            // containers for the class definition and a NormalizerContext.
-            AutoPtr<NormalizerContext> tmpNormalizerContext(
-                new CIMOMHandleContext(*pr._cimom_handle));
-            CIMClass classDef(_getClass(
-                request->nameSpace, request->className));
-            request->operationContext.insert(
-                CachedClassDefinitionContainer(classDef));
-            request->operationContext.insert(
-                NormalizerContextContainer(tmpNormalizerContext));
-        }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        AutoPtr<NormalizerContext> tmpNormalizerContext(
+            new CIMOMHandleContext(*pr._cimom_handle));
+        request->operationContext.insert(
+            NormalizerContextContainer(tmpNormalizerContext));
+#endif
 
         PEG_TRACE_STRING(
             TRC_PROVIDERMANAGER,
@@ -2448,7 +2332,8 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
         }
 
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-        if (!externalNormalizationEnabled)
+        // Even if external normalization is enabled we don't normalize the 
+        // Embedded instances present in output args. Normalize them here.
         {
             // There is no try catch here because if there is no external
             // normalization, then these containers were added by this method.
@@ -3426,34 +3311,11 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
         CMPIProvider & pr=ph.GetProvider();
 
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-        // If normalization is enabled, then the normalizer will take care of
-        // any EmbeddedInstance / EmbeddedObject mismatches, and we don't need
-        // to add a NormalizerContextContainer. The presence of an
-        // ObjectNormalizer is determined by the presence of the
-        // CachedClassDefinitionContainer
-        if (request->operationContext.contains(
-            CachedClassDefinitionContainer::NAME))
-        {
-            request->operationContext.get(
-                CachedClassDefinitionContainer::NAME);
-        }
-        else
-#endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
-        {
-            // If a mechanism is needed to correct mismatches between the
-            // EmbeddedInstance and EmbeddedObject types, then insert
-            // containers for the class definition and a NormalizerContext.
-            AutoPtr<NormalizerContext> tmpNormalizerContext(
-                new CIMOMHandleContext(*pr._cimom_handle));
-            CIMClass classDef(_getClass(
-                request->nameSpace, request->className));
-            request->operationContext.insert(
-                CachedClassDefinitionContainer(classDef));
-            request->operationContext.insert(
-                NormalizerContextContainer(tmpNormalizerContext));
-        }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        AutoPtr<NormalizerContext> tmpNormalizerContext(
+            new CIMOMHandleContext(*pr._cimom_handle));
+        request->operationContext.insert(
+            NormalizerContextContainer(tmpNormalizerContext));
+#endif
 
         PEG_TRACE_STRING(
             TRC_PROVIDERMANAGER,
@@ -4065,26 +3927,6 @@ void CMPIProviderManager::_callDisableIndications
     }
 
     PEG_METHOD_EXIT ();
-}
-
-CIMClass CMPIProviderManager::_getClass(CIMNamespaceName &nameSpace,
-    CIMName &className)
-{
-    PEG_METHOD_ENTER(
-        TRC_PROVIDERMANAGER,
-        "CMPIProviderManager::_getClass()");
-
-#ifdef PEGASUS_OS_ZOS
-    CIMOMHandle _handle;
-#else
-    AutoMutex mtx(_classMutex);
-#endif
-   
-    CIMClass clsDef = _handle.getClass (OperationContext(), nameSpace, 
-        className, false, true, true, CIMPropertyList());
-
-    PEG_METHOD_EXIT ();
-    return clsDef;
 }
 
 PEGASUS_NAMESPACE_END

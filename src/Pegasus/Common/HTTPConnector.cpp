@@ -390,7 +390,7 @@ HTTPConnection* HTTPConnector::connect(
                 socket,
 #ifdef PEGASUS_ENABLE_IPV6
                 reinterpret_cast<sockaddr*>(addrInfo->ai_addr),
-                addrInfo->ai_addrlen) < 0)
+                addrInfo->ai_addrlen,
 #else
                 reinterpret_cast<sockaddr*>(&address),
                 sizeof(address),

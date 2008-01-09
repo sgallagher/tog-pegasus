@@ -857,6 +857,7 @@ void IndicationService::_terminate()
 void IndicationService::_checkNonprivilegedAuthorization(
     const String& userName)
 {
+#ifndef PEGASUS_OS_ZOS
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
         "IndicationService::_checkNonprivilegedAuthorization");
 
@@ -892,6 +893,7 @@ void IndicationService::_checkNonprivilegedAuthorization(
        PEG_METHOD_EXIT();
        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, parms);
     }
+#endif
 }
 
 void IndicationService::_handleCreateInstanceRequest(const Message * message)
@@ -4678,7 +4680,9 @@ Boolean IndicationService::_canModify (
     String currentUser = ((IdentityContainer)request->operationContext.get
         (IdentityContainer :: NAME)).getUserName();
     if ((creator != String::EMPTY) &&
+#ifndef PEGASUS_OS_ZOS
         (!System::isPrivilegedUser (currentUser)) &&
+#endif
         (currentUser != creator))
     {
         PEG_METHOD_EXIT ();
@@ -4719,12 +4723,14 @@ Boolean IndicationService::_canDelete (
         //      (or authentication turned off),
         //  Otherwise disallow as access denied
         //
+#ifndef PEGASUS_OS_ZOS
         if ((!System::isPrivilegedUser (currentUser)) &&
             (currentUser != String::EMPTY))
         {
             PEG_METHOD_EXIT ();
             throw PEGASUS_CIM_EXCEPTION (CIM_ERR_ACCESS_DENIED, String::EMPTY);
         }
+#endif
     }
 
     //
@@ -4735,7 +4741,9 @@ Boolean IndicationService::_canDelete (
     //  instance
     //
     if ((creator != String::EMPTY) &&
+#ifndef PEGASUS_OS_ZOS
         (!System::isPrivilegedUser (currentUser)) &&
+#endif
         (currentUser != creator))
     {
         PEG_METHOD_EXIT ();

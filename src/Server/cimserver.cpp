@@ -1108,11 +1108,7 @@ int CIMServerProcess::cimserver_run(
         // so user knows that there is cimserver ready to serve CIM requests.
         if (daemonOption)
         {
-#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-            Executor::daemonizeExecutor();
-#else
             _cimServerProcess->notify_parent(0);
-#endif
         }
 
 #if defined(PEGASUS_DEBUG)

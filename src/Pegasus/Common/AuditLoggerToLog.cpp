@@ -389,7 +389,7 @@ void AuditLogger::logBasicAuthentication(
     MessageLoaderParms msgParms(
         "Common.AuditLogger.BASIC_AUTHENTICATION",
         "Basic authentication attempt: "
-        "successful = $0, user = $1, IP address = $2.",
+        "successful = $0, from IP address = $2, user = $1.",
         CIMValue(successful).toString(),
         userName,
         ipAddr);
@@ -411,8 +411,8 @@ void AuditLogger::logCertificateBasedAuthentication(
     MessageLoaderParms msgParms(
         "Common.AuditLogger.CERTIFICATE_BASED_AUTHENTICATION",
         "Certificate based authentication attempt: "
-            "successful = $0, issuer = $1, subject = $2, serialNumber = $3, "
-            "IP address = $4.",
+            "successful = $0, from IP address = $4, issuer = $1, "
+            "subject = $2, serialNumber = $3.",
         CIMValue(successful).toString(),
         issuerName,
         subjectName,
@@ -437,8 +437,8 @@ void AuditLogger::logCertificateBasedUserValidation(
     MessageLoaderParms msgParms(
         "Common.AuditLogger.CERTIFICATE_BASED_USER_VALIDATION",
         "Certificate based user validation attempt: "
-            "successful = $0, userName = $1, issuer = $2, subject = $3, "
-            "serialNumber = $4, IP address = $5.",
+            "successful = $0, from IP address = $5, userName = $1, "
+            "issuer = $2,  subject = $3, serialNumber = $4.",
         CIMValue(successful).toString(),
         userName,
         issuerName,

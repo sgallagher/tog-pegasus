@@ -6478,7 +6478,7 @@ CIM server listening on HTTPS port {0}."}
         *    Substitution {1} is a string containing a user name
         *    Substitution {2} is a string containing a ip address
         */
-        Common.AuditLogger.BASIC_AUTHENTICATION:string {"PGS17815: Basic authentication attempt: successful = {0}, user name = {1}, IP address = {2}."}
+        Common.AuditLogger.BASIC_AUTHENTICATION:string {"PGS17815: Basic authentication attempt: successful = {0}, from IP address = {2}, user name = {1}."}
 
         /**
         * @note PGS17816:
@@ -6488,7 +6488,7 @@ CIM server listening on HTTPS port {0}."}
         *    Substitution {3} is a string containing a serial number
         *    Substitution {4} is a string containing a ip address
         */
-        Common.AuditLogger.CERTIFICATE_BASED_AUTHENTICATION:string {"PGS17816: Certificate based authentication attempt: successful = {0}, issuer name = {1}, subject name = {2}, serial number = {3}, IP address = {4}."}
+        Common.AuditLogger.CERTIFICATE_BASED_AUTHENTICATION:string {"PGS17816: Certificate based authentication attempt: successful = {0}, from IP address = {4}, issuer name = {1}, subject name = {2}, serial number = {3}."}
 
         /**
         * @note PGS17817:
@@ -6499,7 +6499,7 @@ CIM server listening on HTTPS port {0}."}
         *    Substitution {4} is a string containing a serial number
         *    Substitution {5} is a string containing a ip address
         */
-        Common.AuditLogger.CERTIFICATE_BASED_USER_VALIDATION:string {"PGS17817: Certificate based user validation attempt: successful = {0}, user name = {1}, issuer name = {2}, subject name = {3}, serial number = {4}, IP address = {5}."}
+        Common.AuditLogger.CERTIFICATE_BASED_USER_VALIDATION:string {"PGS17817: Certificate based user validation attempt: successful = {0}, from IP address = {5}, user name = {1}, issuer name = {2}, subject name = {3}, serial number = {4}."}
 
         // ==========================================================
         // Messages for DynListener.cimlistener 

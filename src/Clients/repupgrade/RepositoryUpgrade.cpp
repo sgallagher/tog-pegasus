@@ -351,8 +351,10 @@ RepositoryUpgrade::RepositoryUpgrade ()
     _usage.append (" -").append (_OPTION_OLD_REPOSITORY_PATH);
     _usage.append (" old_repository_path");
     _usage.append (" -").append (_OPTION_NEW_REPOSITORY_PATH);
-    _usage.append (" new_repository_path\n");
+    _usage.append (" new_repository_path");
 #endif
+
+    _usage.append("\n");
 
     //
     // Version options
@@ -378,10 +380,10 @@ RepositoryUpgrade::RepositoryUpgrade ()
     _usage.append("Options : \n");
 #if !(defined(REPUPGRADE_USE_RELEASE_DIRS))
     _usage.append("    -o              ");
-    _usage.append("- Specifies the old repository path\n");
+    _usage.append("- Specify the fully qualified path of the old Repository\n");
 
     _usage.append("    -n              ");
-    _usage.append("- Specifies the new repository path\n");
+    _usage.append("- Specify the fully qualified path of the new Repository\n");
 #endif
 
     _usage.append("    -h, --help      - Display this help message\n");
@@ -680,6 +682,19 @@ Uint32 RepositoryUpgrade::execute (
     ostream& outPrintWriter,
     ostream& errPrintWriter)
 {
+    //
+    // Options HELP and VERSION
+    //
+    if (_optionType == _OPTION_TYPE_HELP)
+    {
+        outPrintWriter << _usage << endl;
+        return (RC_SUCCESS);
+    }
+    else if (_optionType == _OPTION_TYPE_VERSION)
+    {
+        outPrintWriter << "Version " << PEGASUS_PRODUCT_VERSION << endl;
+        return (RC_SUCCESS);
+    }
 
     //
     // Check if the old and new repository paths exist.
@@ -700,20 +715,6 @@ Uint32 RepositoryUpgrade::execute (
                                  REPOSITORY_DOES_NOT_EXIST,
                                  _newRepositoryPath ) << endl;
         return 1;
-    }
-
-    //
-    // Options HELP and VERSION
-    //
-    if (_optionType == _OPTION_TYPE_HELP)
-    {
-        outPrintWriter << _usage << endl;
-        return (RC_SUCCESS);
-    }
-    else if(_optionType == _OPTION_TYPE_VERSION)
-    {
-        outPrintWriter << "Version " << PEGASUS_PRODUCT_VERSION << endl;
-        return (RC_SUCCESS);
     }
 
     try

@@ -562,9 +562,8 @@ en:table {
         */
         Clients.repupgrade.RepositoryUpgrade.MENU.STANDARD:string {
          "Usage: repupgrade -o oldrepository -n newrepository\n"
-         "repupgrade -o oldrepository -n newrepository\n"
-         "repupgrade -v | --version\n"
-         "repupgrade -h | --help\n"
+         "       repupgrade -v | --version\n"
+         "       repupgrade -h | --help\n"
          "Options :\n"
          "    -o              - Specify the fully qualified path of the old Repository\n"
          "    -n              - Specify the fully qualified path of the new Repository\n"
@@ -583,8 +582,8 @@ en:table {
         */
         Clients.repupgrade.RepositoryUpgradeRelease.MENU.STANDARD:string {
         "Usage: repupgrade\n"
-        "repupgrade -v | --version\n"
-        "repupgrade -h | --help\n"
+        "       repupgrade -v | --version\n"
+        "       repupgrade -h | --help\n"
         "Options :\n"
         "    -h, --help      - Display this help message\n"
         "    -v, --version   - Display CIM Server version number\n"

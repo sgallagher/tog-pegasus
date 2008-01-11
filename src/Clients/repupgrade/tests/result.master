@@ -16,8 +16,8 @@ Usage: repupgrade -o old_repository_path -n new_repository_path
        repupgrade -v | --version
        repupgrade -h | --help
 Options : 
-    -o              - Specifies the old repository path
-    -n              - Specifies the new repository path
+    -o              - Specify the fully qualified path of the old Repository
+    -n              - Specify the fully qualified path of the new Repository
     -h, --help      - Display this help message
     -v, --version   - Display CIM Server version number
 
@@ -27,8 +27,8 @@ Usage: repupgrade -o old_repository_path -n new_repository_path
        repupgrade -v | --version
        repupgrade -h | --help
 Options : 
-    -o              - Specifies the old repository path
-    -n              - Specifies the new repository path
+    -o              - Specify the fully qualified path of the old Repository
+    -n              - Specify the fully qualified path of the new Repository
     -h, --help      - Display this help message
     -v, --version   - Display CIM Server version number
 

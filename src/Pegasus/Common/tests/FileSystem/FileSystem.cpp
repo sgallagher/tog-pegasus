@@ -55,6 +55,18 @@ void _printArray(const String& name, const Array<String>& globList)
         }
     }
 
+void _filterArray(Array<String>& ra)
+{
+    for (Uint32 i = 0; i < ra.size(); i++)
+    {
+        if (String::equal(ra[i], "CVS") || ra[i][0] == '.')
+        {
+            ra.remove(i--);
+        }
+    }
+}
+
+
 static void _cleanup(const String& tmpDir)
 {
     FileSystem::removeFile(tmpDir + "/TestFile.txt");
@@ -122,20 +134,13 @@ int main(int argc, char** argv)
     PEGASUS_TEST_ASSERT(globList[0] == "Makefile");
 
     PEGASUS_TEST_ASSERT(FileSystem::glob( "testdir",  "*", globList));
-    _printArray("glob . Makefil*" , globList);
-    PEGASUS_TEST_ASSERT(globList.size() == 4);
+    _filterArray(globList); 
+    PEGASUS_TEST_ASSERT(globList.size() == 3);
 
     Array<String> paths;
     PEGASUS_TEST_ASSERT( FileSystem::getDirectoryContents("./testdir", paths) );
 
-    for (Uint32 i = 0; i < paths.size(); i++)
-    {
-        if (String::equal(paths[i], "CVS"))
-        {
-            paths.remove(i);
-            break;
-        }
-    }
+    _filterArray(paths); 
 
     String realName;
     PEGASUS_TEST_ASSERT(FileSystem::existsNoCase("filesystem.cpp", realName));

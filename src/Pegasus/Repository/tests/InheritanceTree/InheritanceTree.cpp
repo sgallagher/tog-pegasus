@@ -29,6 +29,7 @@
 //
 //==============================================================================
 #include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Repository/InheritanceTree.h>
 
 PEGASUS_USING_PEGASUS;
@@ -136,16 +137,45 @@ int main(int argc, char** argv)
     exit(1);
     }
 
+    String path;
     try
     {
+    const char* tmpDir = getenv("PEGASUS_TMP"); 
+    if (tmpDir == NULL)
+    {
+        tmpDir = ".";
+    }
+
+    path = tmpDir + String("/tmp_classes"); 
+
+    FileSystem::makeDirectory(path); 
+    Array<String> files;  
+    files.append("H.#"); 
+    files.append("I.H"); 
+    files.append("J.H"); 
+    files.append("K.I"); 
+    files.append("L.I"); 
+    files.append("M.J"); 
+    files.append("N.J"); 
+    files.append("O.J"); 
+    files.append("P.J"); 
+    for (size_t i = 0; i < files.size(); ++i)
+    {
+        String file = path + "/" + files[i]; 
+        ofstream os; 
+        Open(os, file); 
+        os.close();
+    }
     InheritanceTree it;
-    it.insertFromPath("./classes");
+    it.insertFromPath(path); 
     it.check();
         if (verbose)
         it.print(cout);
+    FileSystem::removeDirectoryHier(path); 
     }
     catch (Exception& e)
     {
+    FileSystem::removeDirectoryHier(path); 
     cerr << e.getMessage() << endl;
     exit(1);
     }

@@ -48,7 +48,7 @@ void test01()
     String name = dir.getName();
 
     if (String::equal(name, ".") || String::equal(name, "..") 
-        || String::equal(name, "CVS"))
+        || String::equal(name, "CVS") || String::equal(name, ".svn"))
     {
         continue;
     }

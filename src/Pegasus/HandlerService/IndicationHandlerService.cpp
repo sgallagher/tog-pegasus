@@ -98,25 +98,13 @@ void IndicationHandlerService::handleEnqueue(Message* message)
 {
     PEGASUS_ASSERT(message != 0);
 
+    AutoPtr<CIMMessage> cimMessage(dynamic_cast<CIMMessage *>(message));
+    PEGASUS_ASSERT(cimMessage.get() != 0);
+
     // Set the client's requested language into this service thread.
     // This will allow functions in this service to return messages
     // in the correct language.
-    AutoPtr<CIMMessage>   msg(dynamic_cast<CIMMessage *>(message));
-    if (msg.get() != NULL)
-    {
-        if (msg->thread_changed())
-        {
-            AutoPtr<AcceptLanguageList> langs(new AcceptLanguageList((
-                (AcceptLanguageListContainer)msg->operationContext.get(
-                    AcceptLanguageListContainer::NAME)).getLanguages()));
-            Thread::setLanguages(langs.get());
-            langs.release();
-        }
-    }
-    else
-    {
-        Thread::clearLanguages();
-    }
+    cimMessage->updateThreadLanguages();
 
     switch (message->getType())
     {
@@ -134,7 +122,6 @@ void IndicationHandlerService::handleEnqueue(Message* message)
             PEGASUS_ASSERT(0);
             break;
     }
-
 }
 
 void IndicationHandlerService::handleEnqueue()

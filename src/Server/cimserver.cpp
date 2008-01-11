@@ -858,11 +858,9 @@ int CIMServerProcess::cimserver_run(
     // The run function for the dummy Thread should never be called,
     dummyInitialThread = new Thread(dummyThreadFunc, NULL, false);
     Thread::setCurrent(dummyInitialThread);
-    AcceptLanguageList default_al;
     try
     {
-        default_al = LanguageParser::getDefaultAcceptLanguages();
-        Thread::setLanguages(new AcceptLanguageList(default_al));
+        Thread::setLanguages(LanguageParser::getDefaultAcceptLanguages());
     }
     catch (InvalidAcceptLanguageHeader& e)
     {

@@ -1317,9 +1317,7 @@ void LocalizedProvider::_testCIMOMHandle()
     //------------------------------------------------------------
 
     // Set the requested AcceptLanguageList into our thread.
-    // Note: not a memory leak because the old AcceptLanguageList in the
-    // Thread will be deleted for us.
-    Thread::setLanguages(new AcceptLanguageList(requestAL));
+    Thread::setLanguages(requestAL);
 
     {
         AutoMutex automut(cimomHandleMutex);
@@ -1334,7 +1332,7 @@ void LocalizedProvider::_testCIMOMHandle()
             CIMPropertyList());
 
         // Restore the original AcceptLanguageList into our thread
-        Thread::setLanguages(new AcceptLanguageList(saveAL));
+        Thread::setLanguages(saveAL);
 
         _validateCIMOMHandleResponse(String("es")); // uses _cimom
     }  // cimomHandleMutex unlocks here

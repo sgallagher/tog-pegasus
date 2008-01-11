@@ -40,7 +40,6 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/CIMOperationType.h>
-#include <Pegasus/Common/Threads.h>
 #include <Pegasus/Common/Linkable.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -219,15 +218,14 @@ public:
         Uint32 destination = 0,
         Uint32 mask = 0)
         :
+        dest(destination),
         _type(type),
         _mask(mask),
-        _httpMethod (HTTP_METHOD__POST),
-        _close_connect(false),
-        _last_thread_id(Threads::self()),
-        _async(0),
-        dest(destination),
+        _httpMethod(HTTP_METHOD__POST),
+        _httpCloseConnect(false),
         _isComplete(true),
-        _index(0)
+        _index(0),
+        _async(0)
     {
     }
 
@@ -236,15 +234,13 @@ public:
     // NOTE: The compiler default implementation of the copy constructor
     // is used for this class.
 
-    Boolean getCloseConnect() const { return _close_connect; }
-    void setCloseConnect(Boolean close_connect)
+    Boolean getCloseConnect() const { return _httpCloseConnect; }
+    void setCloseConnect(Boolean httpCloseConnect)
     {
-        _close_connect = close_connect;
+        _httpCloseConnect = httpCloseConnect;
     }
 
     MessageType getType() const { return _type; }
-
-    void setType(MessageType type) { _type = type; }
 
     Uint32 getMask() const { return _mask; }
 
@@ -274,61 +270,41 @@ public:
         _async = msg;
     }
 
-    // << Tue Jul  1 11:02:49 2003 mdd >> pep_88 and helper for i18n and l10n
-    Boolean thread_changed()
-    {
-        if (!Threads::equal(_last_thread_id, Threads::self()))
-        {
-            _last_thread_id = Threads::self();
-            return true;
-        }
-
-        return false;
-    }
-
     // set the message index indicating what piece (or sequence) this is
     // message indexes start at zero
     void setIndex(Uint32 index) { _index = index; }
-
-    // increment the message index
-    void incrementIndex() { _index++; }
-
-    // set the complete flag indicating if this message piece is the
-    // last or not
-    void setComplete(Boolean isComplete)
-    {
-        _isComplete = isComplete ? true:false;
-    }
 
     // get the message index (or sequence number)
     Uint32 getIndex() const { return _index; }
 
     // is this the first piece of the message ?
-    Boolean isFirst() const { return _index == 0 ? true : false; }
+    Boolean isFirst() const { return _index == 0; }
+
+    // set the complete flag indicating whether this message piece is the last
+    void setComplete(Boolean isComplete)
+    {
+        _isComplete = isComplete;
+    }
 
     // is this message complete? (i.e the last in a one or more sequence)
     Boolean isComplete() const { return _isComplete; }
 
-private:
-    MessageType _type;
-    Uint32 _mask;
-    HttpMethod _httpMethod;
-
-    Boolean _close_connect;
-
-    // << Tue Jul  1 11:02:35 2003 mdd >> pep_88 and helper for i18n and l10n
-    ThreadType _last_thread_id;
-
-    Message* _async;
-
-public:
     Uint32 dest;
 
 private:
+
     Message& operator=(const Message& msg);
+
+    MessageType _type;
+    Uint32 _mask;
+
+    HttpMethod _httpMethod;
+    Boolean _httpCloseConnect;
 
     Boolean _isComplete;
     Uint32 _index;
+
+    Message* _async;
 };
 
 

@@ -495,17 +495,23 @@ AcceptLanguageList *Thread::getLanguages()
     return acceptLangs;
 }
 
-void Thread::setLanguages(AcceptLanguageList * langs)
+void Thread::setLanguages(const AcceptLanguageList& langs)
 {
     PEG_METHOD_ENTER(TRC_THREAD, "Thread::setLanguages");
 
     Thread *currentThrd = Thread::getCurrent();
     if (currentThrd != NULL)
     {
+        AutoPtr<AcceptLanguageList> langsCopy(new AcceptLanguageList(langs));
+
         // deletes the old tsd and creates a new one
-        currentThrd->put_tsd("acceptLanguages",
-                             language_delete,
-                             sizeof (AcceptLanguageList *), langs);
+        currentThrd->put_tsd(
+            "acceptLanguages",
+            language_delete,
+            sizeof (AcceptLanguageList *),
+            langsCopy.get());
+
+        langsCopy.release();
     }
 
     PEG_METHOD_EXIT();

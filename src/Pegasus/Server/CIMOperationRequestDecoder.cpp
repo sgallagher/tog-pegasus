@@ -190,7 +190,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     // Set the Accept-Language into the thread for this service.
     // This will allow all code in this thread to get
     // the languages for the messages returned to the client.
-    Thread::setLanguages(new AcceptLanguageList(httpMessage->acceptLanguages));
+    Thread::setLanguages(httpMessage->acceptLanguages);
 
     // Save queueId:
 

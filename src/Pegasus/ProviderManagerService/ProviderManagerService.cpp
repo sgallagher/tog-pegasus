@@ -285,10 +285,9 @@ ProviderManagerService::handleCimOperation(void* arg)
 
             if (msg != 0)
             {
-                AcceptLanguageList* langs = new AcceptLanguageList(
+                Thread::setLanguages(
                     ((AcceptLanguageListContainer)msg->operationContext.get(
                         AcceptLanguageListContainer::NAME)).getLanguages());
-                Thread::setLanguages(langs);
             }
             else
             {

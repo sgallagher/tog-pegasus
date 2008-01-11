@@ -141,10 +141,9 @@ static Message* controlProviderReceiveMessageCallback(
     CIMRequestMessage* request = dynamic_cast<CIMRequestMessage*>(message);
     PEGASUS_ASSERT(request != 0);
 
-    AcceptLanguageList* langs = new AcceptLanguageList(
+    Thread::setLanguages(
         ((AcceptLanguageListContainer) request->operationContext.get(
             AcceptLanguageListContainer::NAME)).getLanguages());
-    Thread::setLanguages(langs);
 
     ProviderMessageHandler* pmh =
         reinterpret_cast<ProviderMessageHandler*>(instance);

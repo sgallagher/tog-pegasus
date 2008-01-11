@@ -519,7 +519,8 @@ CIMMessage::CIMMessage(
     MessageType type,
     const String& messageId_)
     : Message(type),
-      messageId(messageId_)
+      messageId(messageId_),
+      _languageContextThreadId(Threads::self())
 #ifndef PEGASUS_DISABLE_PERFINST
       ,_serverStartTimeMicroseconds(0),
       _providerTimeMicroseconds(0),

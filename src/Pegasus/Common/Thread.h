@@ -424,9 +424,8 @@ public:
     // Thread.
     // Note: a Thread object must have been previously associated with
     // the caller's thread.
-    // Note: the AcceptLanguageList object must be placed on the heap.
     //
-    static void setLanguages(AcceptLanguageList* langs);
+    static void setLanguages(const AcceptLanguageList& langs);
 
     //
     // Removes the AcceptLanguageList object associated with the caller's

@@ -170,13 +170,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
     // Set the client's requested language into this service thread.
     // This will allow functions in this service to return messages
     // in the correct language.
-    if (req->thread_changed())
-    {
-        AutoPtr<AcceptLanguageList> langs(new AcceptLanguageList(
-            ((AcceptLanguageListContainer)req->operationContext.get(
-                AcceptLanguageListContainer::NAME)).getLanguages()));
-        Thread::setLanguages(langs.release());
-    }
+    req->updateThreadLanguages();
 
     //
     // If CIMOM is shutting down, return "Service Unavailable" response

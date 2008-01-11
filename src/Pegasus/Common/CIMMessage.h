@@ -50,6 +50,8 @@
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/ArrayInternal.h>
+#include <Pegasus/Common/Threads.h>
+#include <Pegasus/Common/Thread.h>
 
 /*   ProviderType should become part of Pegasus/Common     PEP# 99
    #include <Pegasus/ProviderManager2/ProviderType.h>
@@ -74,6 +76,21 @@ class PEGASUS_COMMON_LINKAGE CIMMessage : public Message
 public:
 
     CIMMessage(MessageType type, const String& messageId_);
+
+    /**
+        Updates the language context for the thread to the contents of the
+        AcceptLanguageContainer in the OperationContext.
+    */
+    void updateThreadLanguages()
+    {
+        if (!Threads::equal(_languageContextThreadId, Threads::self()))
+        {
+            Thread::setLanguages(
+                ((AcceptLanguageListContainer)operationContext.get(
+                    AcceptLanguageListContainer::NAME)).getLanguages());
+            _languageContextThreadId = Threads::self();
+        }
+    }
 
 #ifndef PEGASUS_DISABLE_PERFINST
     //
@@ -117,6 +134,9 @@ public:
     OperationContext operationContext;
 
 private:
+
+    ThreadType _languageContextThreadId;
+
 #ifndef PEGASUS_DISABLE_PERFINST
     Uint64 _serverStartTimeMicroseconds;
     Uint64 _providerTimeMicroseconds;

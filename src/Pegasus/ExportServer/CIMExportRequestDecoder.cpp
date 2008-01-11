@@ -498,7 +498,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
     // Set the Accept-Language into the thread for this service.
     // This will allow all code in this thread to get
     // the languages for the messages returned to the client.
-    Thread::setLanguages(new AcceptLanguageList(httpAcceptLanguages));
+    Thread::setLanguages(httpAcceptLanguages);
 
     //
     // If CIM Listener is shutting down, return error response

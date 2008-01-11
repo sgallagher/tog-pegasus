@@ -302,14 +302,10 @@ void CIMOperationResponseEncoder::handleEnqueue(Message* message)
         return;
     }
 
-    CIMResponseMessage* response = (CIMResponseMessage*)message;
-    if (response->thread_changed())
-    {
-        AutoPtr<AcceptLanguageList> langs(new AcceptLanguageList((
-            (AcceptLanguageListContainer)response->operationContext.get(
-                AcceptLanguageListContainer::NAME)).getLanguages()));
-        Thread::setLanguages(langs.release());
-    }
+    CIMResponseMessage* response = dynamic_cast<CIMResponseMessage*>(message);
+    PEGASUS_ASSERT(response);
+
+    response->updateThreadLanguages();
 
     PEG_TRACE((
         TRC_HTTP,

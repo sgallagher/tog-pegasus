@@ -2455,12 +2455,7 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message* request)
         // Set the client's requested language into this service thread.
         // This will allow functions in this service to return messages
         // in the correct language.
-        if (opRequest->thread_changed())
-        {
-            Thread::setLanguages(new AcceptLanguageList(
-                ((AcceptLanguageListContainer)opRequest->operationContext.get(
-                    AcceptLanguageListContainer::NAME)).getLanguages()));
-        }
+        opRequest->updateThreadLanguages();
 
         switch (opRequest->getType())
         {

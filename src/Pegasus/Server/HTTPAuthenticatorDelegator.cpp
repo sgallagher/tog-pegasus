@@ -362,7 +362,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         return;
     }
 
-    Thread::setLanguages(new AcceptLanguageList(acceptLanguages));
+    Thread::setLanguages(acceptLanguages);
     httpMessage->acceptLanguages = acceptLanguages;
     httpMessage->contentLanguages = contentLanguages;
 

@@ -215,24 +215,13 @@ void IndicationService::handleEnqueue(Message* message)
     stopWatch.start();
 #endif
 
+    CIMMessage* cimMessage = dynamic_cast<CIMMessage *>(message);
+    PEGASUS_ASSERT(cimMessage);
+
     // Set the client's requested language into this service thread.
     // This will allow functions in this service to return messages
     // in the correct language.
-    CIMMessage * msg = dynamic_cast<CIMMessage *>(message);
-    if (msg != NULL)
-    {
-        if (msg->thread_changed())
-        {
-            AcceptLanguageList *langs =  new AcceptLanguageList(
-                ((AcceptLanguageListContainer)msg->operationContext.get(
-                    AcceptLanguageListContainer::NAME)).getLanguages());
-            Thread::setLanguages(langs);
-        }
-    }
-    else
-    {
-        Thread::clearLanguages();
-    }
+    cimMessage->updateThreadLanguages();
 
     try
     {

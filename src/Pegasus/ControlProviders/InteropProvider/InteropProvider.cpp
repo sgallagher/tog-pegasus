@@ -125,8 +125,16 @@ CIMInstance InteropProvider::localGetInstance(
         opClass != PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE)
     {
         AutoMutex mut(interopMut);
-        return cimomHandle.getInstance(context, opNamespace,
-            instanceName, false, false, false, propertyList);
+        CIMInstance gotInstance = cimomHandle.getInstance(
+                                         context,
+                                         opNamespace,
+                                         instanceName, 
+                                         false, 
+                                         false, 
+                                         false, 
+                                         propertyList);
+        PEG_METHOD_EXIT();
+        return gotInstance;
     }
 
     // Create reference from host, namespace, class components of
@@ -351,7 +359,10 @@ bool InteropProvider::validAssocClassForObject(
             }
 
             if(!found)
+            {
+                PEG_METHOD_EXIT();
                 return false;
+            }
         }
     }
     else
@@ -826,5 +837,4 @@ void InteropProvider::initProvider()
 }
 
 PEGASUS_NAMESPACE_END
-
 // END OF FILE

@@ -403,7 +403,7 @@
    implementation. Specific classes have their own hash table size to
    accomodate for amounts of probable members
 */
-#define PEGASUS_PROPERTY_ORDEREDSET_HASHSIZE 128
+#define PEGASUS_PROPERTY_ORDEREDSET_HASHSIZE 32
 #define PEGASUS_QUALIFIER_ORDEREDSET_HASHSIZE 16
 #define PEGASUS_PARAMETER_ORDEREDSET_HASHSIZE 16
 #define PEGASUS_METHOD_ORDEREDSET_HASHSIZE 16

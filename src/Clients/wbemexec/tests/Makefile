@@ -674,7 +674,13 @@ poststarttests_ignoreerror:
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "Invalid input: input starts with neither xml declaration, nor valid HTTP" >> $(RESULTFILE)
 	@$(ECHO) "M-POST or POST method request (missing HTTP URI and version) -- times out" >> $(RESULTFILE)
-
+	@$(ECHO) "wbemexec ./cimreqerr11.xml" >> $(RESULTFILE)
+	@$(ECHO) " " >> $(RESULTFILE)
+	@wbemexec ./cimreqerr11.xml >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) " " >> $(RESULTFILE)
+	@$(ECHO) " " >> $(RESULTFILE)
+	@$(ECHO) "Invalid input: input starts with neither xml declaration, nor valid HTTP" >> $(RESULTFILE)
+	@$(ECHO) "M-POST or POST method request. Returns: HTTP/1.1 501 Not Implemented" >> $(RESULTFILE)
 
 defect:
 	@$(ECHO) "wbemexec -t 1 ./cimreqerr03.http" >> $(RESULTFILE)

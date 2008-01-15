@@ -159,16 +159,10 @@ void DynamicListenerIndicationDispatcher::handleEnqueue(Message* message)
                  */
                 // ATTN: Why isn't the CIM exception getting appended 
                 // to the response?  Go look in Message.h
-                CIMExportIndicationResponseMessage* response = 
-                    new CIMExportIndicationResponseMessage(
-                        request->messageId,
-                        cimException,
-                        request->queueIds.copyAndPop());
-
+                CIMResponseMessage* response = request->buildResponse();
+                response->cimException = cimException;
                 response->dest = request->queueIds.top();
                 _enqueueResponse(request, response);
-
-
             }
             break;
         default:

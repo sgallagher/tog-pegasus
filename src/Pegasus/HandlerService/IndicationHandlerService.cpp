@@ -315,11 +315,10 @@ IndicationHandlerService::_handleIndication(
     }
 
     CIMHandleIndicationResponseMessage* response =
-        new CIMHandleIndicationResponseMessage(
-            request->messageId,
-            cimException,
-            request->queueIds.copyAndPop());
-        
+        dynamic_cast<CIMHandleIndicationResponseMessage*>(
+            request->buildResponse());
+    response->cimException = cimException;
+
     delete request;
     PEG_METHOD_EXIT();
     return response;

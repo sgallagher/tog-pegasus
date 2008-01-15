@@ -345,11 +345,6 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
         }
     }
 
-    // preserve message key
-    // set HTTP method in response from request
-    // set closeConnect
-   ((CIMResponseMessage *)response)->syncAttributes(request);
-
     PEG_METHOD_EXIT();
     return response;
 }

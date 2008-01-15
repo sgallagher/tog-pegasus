@@ -6780,19 +6780,11 @@ Message * JMPIProviderManager::handleDisableModuleRequest(const Message * messag
     //
     Array<CIMInstance> _pInstances = request->providers;
 
-    CIMDisableModuleResponseMessage * response =
-        new CIMDisableModuleResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop(),
-        operationalStatus);
-
+    CIMDisableModuleResponseMessage* response =
+        dynamic_cast<CIMDisableModuleResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
+    response->operationalStatus = operationalStatus;
 
     PEG_METHOD_EXIT();
 
@@ -6809,19 +6801,13 @@ Message * JMPIProviderManager::handleEnableModuleRequest(const Message * message
     PEGASUS_ASSERT(request != 0);
 
     Array<Uint16> operationalStatus;
-    operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_OK);
+    operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_STOPPED);
 
-    CIMEnableModuleResponseMessage * response =
-        new CIMEnableModuleResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop(),
-        operationalStatus);
-
+    CIMEnableModuleResponseMessage* response =
+        dynamic_cast<CIMEnableModuleResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod (request->getHttpMethod ());
+    response->operationalStatus = operationalStatus;
 
     PEG_METHOD_EXIT();
 
@@ -6837,16 +6823,10 @@ Message * JMPIProviderManager::handleStopAllProvidersRequest(const Message * mes
 
     PEGASUS_ASSERT(request != 0);
 
-    CIMStopAllProvidersResponseMessage * response =
-        new CIMStopAllProvidersResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop());
-
+    CIMStopAllProvidersResponseMessage* response =
+        dynamic_cast<CIMStopAllProvidersResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod (request->getHttpMethod ());
 
     // tell the provider manager to shutdown all the providers
     providerManager.shutdownAllProviders();

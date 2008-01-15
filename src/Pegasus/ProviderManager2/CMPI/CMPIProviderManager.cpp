@@ -2997,19 +2997,11 @@ Message * CMPIProviderManager::handleDisableModuleRequest(
             ).getValue ().toString ());
     }
 
-    CIMDisableModuleResponseMessage * response =
-        new CIMDisableModuleResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop(),
-        operationalStatus);
-
+    CIMDisableModuleResponseMessage* response =
+        dynamic_cast<CIMDisableModuleResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
+    response->operationalStatus = operationalStatus;
 
     PEG_METHOD_EXIT();
 
@@ -3032,17 +3024,11 @@ Message * CMPIProviderManager::handleEnableModuleRequest(
     Array<Uint16> operationalStatus;
     operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_OK);
 
-    CIMEnableModuleResponseMessage * response =
-        new CIMEnableModuleResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop(),
-        operationalStatus);
-
+    CIMEnableModuleResponseMessage* response =
+        dynamic_cast<CIMEnableModuleResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod (request->getHttpMethod ());
+    response->operationalStatus = operationalStatus;
 
     PEG_METHOD_EXIT();
 
@@ -3062,16 +3048,10 @@ Message * CMPIProviderManager::handleStopAllProvidersRequest(
 
     PEGASUS_ASSERT(request != 0);
 
-    CIMStopAllProvidersResponseMessage * response =
-        new CIMStopAllProvidersResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop());
-
+    CIMStopAllProvidersResponseMessage* response =
+        dynamic_cast<CIMStopAllProvidersResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod (request->getHttpMethod ());
 
     // tell the provider manager to shutdown all the providers
     providerManager.shutdownAllProviders();

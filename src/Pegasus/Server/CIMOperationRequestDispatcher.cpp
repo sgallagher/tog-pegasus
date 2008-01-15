@@ -2390,8 +2390,12 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
         "CIMOperationRequestDispatcher::_enqueueResponse");
 
     response->dest = request->queueIds.top();
-    // Use the same key,setHTTPMethod and closeConnect as used in the request:
-    response->syncAttributes(request);
+
+    // Ensure the response message attributes are synchonized with the request
+    PEGASUS_ASSERT(request->getMask() == response->getMask());
+    PEGASUS_ASSERT(request->getHttpMethod() == response->getHttpMethod());
+    PEGASUS_ASSERT(request->getCloseConnect() == response->getCloseConnect());
+
     PEG_TRACE((
         TRC_HTTP,
         Tracer::LEVEL3,

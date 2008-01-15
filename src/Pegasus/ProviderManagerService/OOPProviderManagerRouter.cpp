@@ -1005,6 +1005,7 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
     }
 
     response->messageId = originalMessageId;
+    response->syncAttributes(request);
 
     PEG_METHOD_EXIT();
     return response;
@@ -1438,8 +1439,6 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
         //
         response.reset(pa->processMessage(request));
     }
-
-    response->syncAttributes(request);
 
     PEG_METHOD_EXIT();
     return response.release();

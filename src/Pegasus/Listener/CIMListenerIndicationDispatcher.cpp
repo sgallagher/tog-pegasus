@@ -173,10 +173,9 @@ CIMListenerIndicationDispatcherRep::handleIndicationRequest(
     CIMException cimException;
 
     CIMExportIndicationResponseMessage* response =
-        new CIMExportIndicationResponseMessage(request->messageId,
-                                               cimException,
-                                               request->queueIds.copyAndPop());
-
+        dynamic_cast<CIMExportIndicationResponseMessage*>(
+            request->buildResponse());
+    response->cimException = cimException;
     response->dest = request->queueIds.top();
 
     PEG_METHOD_EXIT();

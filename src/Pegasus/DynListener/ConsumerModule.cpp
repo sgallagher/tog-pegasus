@@ -27,9 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include "ConsumerModule.h"
 
@@ -53,37 +53,52 @@ ConsumerModule::~ConsumerModule(void)
 {
 }
 
-// The caller assumes the repsonsibility of making sure the libraryPath is correctly formatted
-CIMIndicationConsumerProvider* ConsumerModule::load(const String & consumerName, const String & libraryPath)
+// The caller assumes the repsonsibility of making sure 
+// the libraryPath is correctly formatted
+CIMIndicationConsumerProvider* ConsumerModule::load(
+    const String & consumerName,
+    const String & libraryPath)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerModule::load");
 
-    //check whether the module is cached; if it's not already in memory, load it
+    // check whether the module is cached;
+    // if it's not already in memory, load it
     if (!_library.isLoaded())
     {
-        if (!FileSystem::exists(libraryPath) || !FileSystem::canRead(libraryPath))
+        if (!FileSystem::exists(libraryPath) ||
+            !FileSystem::canRead(libraryPath))
         {
-            throw Exception(MessageLoaderParms("DynListener.ConsumerModule.INVALID_LIBRARY_PATH",
-               "The library ($0:$1) does not exist or cannot be read.",
-               libraryPath,
-               consumerName));
+            throw Exception(
+                MessageLoaderParms(
+                    "DynListener.ConsumerModule.INVALID_LIBRARY_PATH",
+                    "The library ($0:$1) does not exist or cannot be read.",
+                    libraryPath,
+                    consumerName));
         }
 
         _library = DynamicLibrary(libraryPath);
     }
 
-    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Loading library: " + consumerName);
+    PEG_TRACE_STRING(
+        TRC_LISTENER,
+        Tracer::LEVEL2,
+        "Loading library: " + consumerName);
 
     if (!_library.load())
     {
-        throw Exception(MessageLoaderParms("DynListener.ConsumerModule.CANNOT_LOAD_LIBRARY",
-                                   "Cannot load consumer library ($0:$1), load error $2",
-                                   _library.getFileName(),
-                                   consumerName,
-                                   _library.getLoadErrorMessage()));
+        throw Exception(
+            MessageLoaderParms(
+                "DynListener.ConsumerModule.CANNOT_LOAD_LIBRARY",
+                "Cannot load consumer library ($0:$1), load error $2",
+                _library.getFileName(),
+                consumerName,
+                _library.getLoadErrorMessage()));
     }
 
-    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Successfully loaded library " + consumerName);
+    PEG_TRACE_STRING(
+        TRC_LISTENER,
+        Tracer::LEVEL2, 
+        "Successfully loaded library " + consumerName);
 
     // locate the entry point
     CIMProvider* (*createProvider)(const String&) =
@@ -93,10 +108,12 @@ CIMIndicationConsumerProvider* ConsumerModule::load(const String & consumerName,
     if (!createProvider)
     {
         _library.unload();
-        throw Exception(MessageLoaderParms("DynListener.ConsumerModule.ENTRY_POINT_NOT_FOUND",
-               "The entry point for consumer library ($0:$1) cannot be found.",
-               libraryPath,
-               consumerName));
+        throw Exception(
+            MessageLoaderParms(
+                "DynListener.ConsumerModule.ENTRY_POINT_NOT_FOUND",
+                "The entry point for consumer library ($0:$1) cannot be found.",
+                libraryPath,
+                consumerName));
     }
 
     // create the consumer provider
@@ -105,21 +122,26 @@ CIMIndicationConsumerProvider* ConsumerModule::load(const String & consumerName,
     if(!providerRef)
     {
         _library.unload();
-        throw Exception(MessageLoaderParms("DynListener.ConsumerModule.CREATE_PROVIDER_FAILED",
+        throw Exception(
+            MessageLoaderParms(
+               "DynListener.ConsumerModule.CREATE_PROVIDER_FAILED",
                "createProvider failed for consumer library ($0:$1)",
                libraryPath,
                consumerName));
     }
 
     // test for the appropriate interface
-    CIMIndicationConsumerProvider* consumerRef = dynamic_cast<CIMIndicationConsumerProvider *>(providerRef);
+    CIMIndicationConsumerProvider* consumerRef = 
+        dynamic_cast<CIMIndicationConsumerProvider *>(providerRef);
     if(!consumerRef)
     {
         _library.unload();
-        throw Exception(MessageLoaderParms("DynListener.ConsumerModule.CONSUMER_IS_NOT_A",
-            "Consumer ($0:$1) is not a CIMIndicationConsumerProvider.",
-            libraryPath,
-            consumerName));
+        throw Exception(
+            MessageLoaderParms(
+                "DynListener.ConsumerModule.CONSUMER_IS_NOT_A",
+                "Consumer ($0:$1) is not a CIMIndicationConsumerProvider.",
+                libraryPath,
+                consumerName));
     }
 
     PEG_METHOD_EXIT();

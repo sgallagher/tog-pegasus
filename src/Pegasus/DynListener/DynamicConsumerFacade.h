@@ -54,7 +54,8 @@ PEGASUS_NAMESPACE_BEGIN
 // method supported by a "real" provider, it can be placed inside a reliable
 // facade with a known interface.
 
-class PEGASUS_DYNLISTENER_LINKAGE DynamicConsumerFacade : public CIMIndicationConsumerProvider
+class PEGASUS_DYNLISTENER_LINKAGE DynamicConsumerFacade : 
+    public CIMIndicationConsumerProvider
 {
 public:
     DynamicConsumerFacade(CIMIndicationConsumerProvider* consumer);

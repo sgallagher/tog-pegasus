@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Heather Sterling (hsterl@us.ibm.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -54,12 +50,15 @@
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
-//ATTN: Can we just use a properties file instead??  If we only have one property, we may want to just parse it ourselves.
-// We may need to add more properties, however.  Potential per consumer properties: unloadOk, idleTimout, retryCount, etc
+//ATTN: Can we just use a properties file instead??  If we only have one 
+// property, we may want to just parse it ourselves.
+// We may need to add more properties, however.  Potential per consumer
+// properties: unloadOk, idleTimout, retryCount, etc
 static struct OptionRow optionsTable[] =
 //optionname defaultvalue rqd  type domain domainsize clname hlpmsg
 {
-{"location", "", false, Option::STRING, 0, 0, "location", "library name for the consumer"},
+{"location", "", false, Option::STRING, 0, 0,
+ "location", "library name for the consumer"},
 };
 
 const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
@@ -68,21 +67,32 @@ const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
 static const Uint32 DEFAULT_MAX_RETRY_COUNT = 5;
 static const Uint32 DEFAULT_RETRY_LAPSE = 300000;  //ms = 5 minutes
 
-//constant for fake property that is added to instances when serializing to track the full URL
+//constant for fake property that is added to instances when 
+// serializing to track the full URL
 static const String URL_PROPERTY = "URLString";
 
 
-ConsumerManager::ConsumerManager(const String& consumerDir, const String& consumerConfigDir, Boolean enableConsumerUnload, Uint32 idleTimeout) : 
-_consumerDir(consumerDir),
-_consumerConfigDir(consumerConfigDir),
-_enableConsumerUnload(enableConsumerUnload),
-_idleTimeout(idleTimeout),
-_forceShutdown(true)
+ConsumerManager::ConsumerManager(
+    const String& consumerDir,
+    const String& consumerConfigDir,
+    Boolean enableConsumerUnload,
+    Uint32 idleTimeout) : 
+        _consumerDir(consumerDir),
+        _consumerConfigDir(consumerConfigDir),
+        _enableConsumerUnload(enableConsumerUnload),
+        _idleTimeout(idleTimeout),
+        _forceShutdown(true)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerManager::ConsumerManager");
 
-    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Consumer library directory: " + consumerDir);
-    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Consumer configuration directory: " + consumerConfigDir);
+    PEG_TRACE_STRING(
+        TRC_LISTENER, 
+        Tracer::LEVEL4,
+        "Consumer library directory: " + consumerDir);
+    PEG_TRACE_STRING(
+        TRC_LISTENER,
+        Tracer::LEVEL4,
+        "Consumer configuration directory: " + consumerConfigDir);
 
     PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
                   "Consumer unload enabled %d: idle timeout %d",
@@ -150,12 +160,19 @@ void ConsumerManager::_init()
 
                 try
                 {
-                    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Attempting to load indication for!" + consumerName + "!");
+                    PEG_TRACE_STRING(
+                        TRC_LISTENER,
+                        Tracer::LEVEL4,
+                        "Attempting to load indication for!" + 
+                            consumerName + "!");
                     getConsumer(consumerName);
 
                 } catch (...)
                 {
-                    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Cannot load consumer from file " + files[i]);
+                    PEG_TRACE_STRING(
+                        TRC_LISTENER,
+                        Tracer::LEVEL4,
+                        "Cannot load consumer from file " + files[i]);
                 }
             }
         }
@@ -184,16 +201,18 @@ Uint32 ConsumerManager::getIdleTimeout()
     return _idleTimeout;
 }
 
-/** Retrieves the library name associated with the consumer name.  By default, the library name
-  * is the same as the consumer name.  However, you may specify a different library name in a consumer
-  * configuration file.  This file must be named "MyConsumer.txt" and contain the following:
-  *     location="libraryName"
-  *
-  * The config file is optional and is generally only needed in cases where there are strict requirements
-  * on library naming.
-  *
-  * It is the responsibility of the caller to catch any exceptions thrown by this method.
-  */
+/** Retrieves the library name associated with the consumer name.
+ *  By default, the library name
+ * is the same as the consumer name.  However, you may specify a different 
+ * library name in a consumer configuration file.  This file must be named 
+ *  "MyConsumer.txt" and contain the following: location="libraryName"
+ *
+ * The config file is optional and is generally only needed in cases where 
+ * there are strict requirements on library naming.
+ *
+ * It is the responsibility of the caller to catch any exceptions 
+ * thrown by this method.
+ */
 String ConsumerManager::_getConsumerLibraryName(const String & consumerName)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerManager::getConsumerLibraryName");
@@ -201,49 +220,75 @@ String ConsumerManager::_getConsumerLibraryName(const String & consumerName)
     //default library name is consumer name
     String libraryName = consumerName;
 
-    //check whether an alternative library name was specified in an optional consumer config file
-    String configFile = FileSystem::getAbsolutePath((const char*)_consumerConfigDir.getCString(), String(consumerName + ".conf"));
-    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Looking for config file " + configFile);
+    // check whether an alternative library name was specified in an optional
+    // consumer config file
+    String configFile = FileSystem::getAbsolutePath(
+                            (const char*)_consumerConfigDir.getCString(),
+                            String(consumerName + ".conf"));
+    PEG_TRACE_STRING(
+        TRC_LISTENER, 
+        Tracer::LEVEL4,
+        "Looking for config file " + configFile);
 
     if (FileSystem::exists(configFile) && FileSystem::canRead(configFile))
     {
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Found config file for consumer " + consumerName);
+        PEG_TRACE_STRING(
+            TRC_LISTENER,
+            Tracer::LEVEL4,
+            "Found config file for consumer " + consumerName);
 
         try
         {
-            //Bugzilla 3765 - Change this to use a member var when OptionManager has a reset option
+            //Bugzilla 3765 - Change this to use a member var 
+            // when OptionManager has a reset option
             OptionManager _optionMgr;
-            _optionMgr.registerOptions(optionsTable, NUM_OPTIONS); //comment this line out later
+            //comment the following line out later
+            _optionMgr.registerOptions(optionsTable, NUM_OPTIONS);
             _optionMgr.mergeFile(configFile);
             _optionMgr.checkRequiredOptions();
 
-            if (!_optionMgr.lookupValue("location", libraryName) || (libraryName == String::EMPTY))
+            if (!_optionMgr.lookupValue("location", libraryName) || 
+                (libraryName == String::EMPTY))
             {
-                PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Warning: Using default library name since none was specified in " + configFile); 
+                PEG_TRACE_STRING(
+                    TRC_LISTENER,
+                    Tracer::LEVEL2,
+                    "Warning: Using default library name since none was "
+                        "specified in " + configFile); 
                 libraryName = consumerName;
             }
 
         } catch (Exception & ex)
         {
-            throw Exception(MessageLoaderParms("DynListener.ConsumerManager.INVALID_CONFIG_FILE",
-                                               "Error reading $0: $1.",
-                                               configFile,
-                                               ex.getMessage()));
+            throw Exception(
+                      MessageLoaderParms(
+                          "DynListener.ConsumerManager.INVALID_CONFIG_FILE",
+                          "Error reading $0: $1.",
+                          configFile,
+                          ex.getMessage()));
         }
     } else
     {
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "No config file exists for " + consumerName);
+        PEG_TRACE_STRING(
+            TRC_LISTENER,
+            Tracer::LEVEL4,
+            "No config file exists for " + consumerName);
     }
 
-    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "The library name for " + consumerName + " is " + libraryName);
+    PEG_TRACE_STRING(
+        TRC_LISTENER,
+        Tracer::LEVEL4,
+        "The library name for " + consumerName + " is " + libraryName);
 
     PEG_METHOD_EXIT();
     return libraryName;
 }
 
-/** Returns the DynamicConsumer for the consumerName.  If it already exists, we return the one in the cache.  If it
+/** Returns the DynamicConsumer for the consumerName.  If it already exists,
+ *  we return the one in the cache.  If it
  *  DNE, we create it and initialize it, and add it to the table.
- * @throws Exception if we cannot successfully create and initialize the consumer
+ * @throws Exception if we cannot successfully create and
+ *  initialize the consumer
  */ 
 DynamicConsumer* ConsumerManager::getConsumer(const String& consumerName)
 {
@@ -263,12 +308,19 @@ DynamicConsumer* ConsumerManager::getConsumer(const String& consumerName)
 
         if (consumer && consumer->isLoaded())
         {
-            PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL3, "Consumer exists in the cache and is already loaded: " + consumerName);
+            PEG_TRACE_STRING(
+                TRC_LISTENER,
+                Tracer::LEVEL3,
+                "Consumer exists in the cache and"
+                    " is already loaded: " + consumerName);
             cached = true;
         }
     } else
     {
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL3, "Consumer not found in cache, creating " + consumerName);
+        PEG_TRACE_STRING(
+            TRC_LISTENER,
+            Tracer::LEVEL3,
+            "Consumer not found in cache, creating " + consumerName);
         consumer = new DynamicConsumer(consumerName);
         //ATTN: The above is a memory leak if _initConsumer throws an exception
         //need to delete it in that case
@@ -291,23 +343,32 @@ DynamicConsumer* ConsumerManager::getConsumer(const String& consumerName)
 }
 
 /** Initializes a DynamicConsumer.
- * Caller assumes responsibility for mutexing the operation as well as ensuring the consumer does not already exist.
+ * Caller assumes responsibility for mutexing the operation as well as 
+ * ensuring the consumer does not already exist.
  * @throws Exception if the consumer cannot be initialized
  */
-void ConsumerManager::_initConsumer(const String& consumerName, DynamicConsumer* consumer)
+void ConsumerManager::_initConsumer(
+         const String& consumerName,
+         DynamicConsumer* consumer)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerManager::_initConsumer");
 
     CIMIndicationConsumerProvider* base = 0;
     ConsumerModule* module = 0;
 
-    //lookup provider module in cache (if it exists, it returns the cached module, otherwise it creates and returns a new one)
+    // lookup provider module in cache (if it exists, it returns 
+    // the cached module, otherwise it creates and returns a new one)
     String libraryName = _getConsumerLibraryName(consumerName);
     module = _lookupModule(libraryName);
 
     //build library path
-    String libraryPath = FileSystem::getAbsolutePath((const char*)_consumerDir.getCString(), FileSystem::buildLibraryFileName(libraryName));
-    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Loading library: " + libraryPath);
+    String libraryPath = FileSystem::getAbsolutePath(
+                             (const char*)_consumerDir.getCString(),
+                             FileSystem::buildLibraryFileName(libraryName));
+    PEG_TRACE_STRING(
+        TRC_LISTENER,
+        Tracer::LEVEL4,
+        "Loading library: " + libraryPath);
 
     //load module
     try
@@ -317,26 +378,39 @@ void ConsumerManager::_initConsumer(const String& consumerName, DynamicConsumer*
 
     } catch (Exception& ex)
     {
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Error loading consumer module: " + ex.getMessage());
+        PEG_TRACE_STRING(
+            TRC_LISTENER,
+            Tracer::LEVEL2, 
+            "Error loading consumer module: " + ex.getMessage());
 
-        throw Exception(MessageLoaderParms("DynListener.ConsumerManager.CANNOT_LOAD_MODULE",
-                                           "Cannot load module ($0:$1): Unknown exception.",
-                                           consumerName,
-                                           libraryName));
+        throw Exception(
+                  MessageLoaderParms(
+                      "DynListener.ConsumerManager.CANNOT_LOAD_MODULE",
+                      "Cannot load module ($0:$1): Unknown exception.",
+                      consumerName,
+                      libraryName));
     } catch (...)
     {
-        throw Exception(MessageLoaderParms("DynListener.ConsumerManager.CANNOT_LOAD_MODULE",
-                                           "Cannot load module ($0:$1): Unknown exception.",
-                                           consumerName,
-                                           libraryName));
+        throw Exception(
+                  MessageLoaderParms(
+                      "DynListener.ConsumerManager.CANNOT_LOAD_MODULE",
+                      "Cannot load module ($0:$1): Unknown exception.",
+                      consumerName,
+                      libraryName));
     }
 
-    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Successfully loaded consumer module " + libraryName);
+    PEG_TRACE_STRING(
+        TRC_LISTENER,
+        Tracer::LEVEL4,
+        "Successfully loaded consumer module " + libraryName);
 
     //initialize consumer
     try
     {
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Initializing Consumer " +  consumerName);
+        PEG_TRACE_STRING(
+            TRC_LISTENER,
+            Tracer::LEVEL4,
+            "Initializing Consumer " +  consumerName);
 
         consumer->initialize();
 
@@ -349,51 +423,68 @@ void ConsumerManager::_initConsumer(const String& consumerName, DynamicConsumer*
         if (_thread_pool->allocate_and_awaken(consumer,
                                           _worker_routine,
                                           semaphore) != PEGASUS_THREAD_OK)
-    {
-        Logger::put(Logger::STANDARD_LOG, System::CIMLISTENER, Logger::TRACE,
-        "Not enough threads for consumer.");
+        {
+            Logger::put(
+                Logger::STANDARD_LOG,
+                System::CIMLISTENER,
+                Logger::TRACE,
+                "Not enough threads for consumer.");
  
-        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2,
-        "Could not allocate thread for consumer.");
+            PEG_TRACE_CSTRING(
+                TRC_LISTENER,
+                Tracer::LEVEL2,
+                "Could not allocate thread for consumer.");
 
-       consumer->setShutdownSemaphore(0);
-       delete semaphore;
-           throw Exception(MessageLoaderParms("DynListener.ConsumerManager.CANNOT_ALLOCATE_THREAD",
-                        "Not enough threads for consumer worker routine."));
+            consumer->setShutdownSemaphore(0);
+            delete semaphore;
+            throw Exception(
+                MessageLoaderParms(
+                    "DynListener.ConsumerManager.CANNOT_ALLOCATE_THREAD",
+                    "Not enough threads for consumer worker routine."));
         }
 
-        //wait until the listening thread has started.  Otherwise, there is a miniscule chance that the first event will be enqueued
-        //before the consumer is waiting for it and the first indication after loading the consumer will be lost
+        //wait until the listening thread has started.
+        // Otherwise, there is a miniscule chance that the first event will
+        // be enqueued before the consumer is waiting for it and the first
+        // indication after loading the consumer will be lost
         consumer->waitForEventThread();
 
         //load any outstanding requests
-        Array<IndicationDispatchEvent> outstandingIndications = _deserializeOutstandingIndications(consumerName);
+        Array<IndicationDispatchEvent> outstandingIndications = 
+            _deserializeOutstandingIndications(consumerName);
         if (outstandingIndications.size())
         {
             //the consumer will signal itself in _loadOustandingIndications
             consumer->_loadOutstandingIndications(outstandingIndications);
         }
 
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Successfully initialized consumer " + consumerName);
+        PEG_TRACE_STRING(
+            TRC_LISTENER,
+            Tracer::LEVEL4,
+            "Successfully initialized consumer " + consumerName);
 
     } catch (...)
     {
         module->unloadModule();
         consumer->reset();
-        throw Exception(MessageLoaderParms("DynListener.ConsumerManager.CANNOT_INITIALIZE_CONSUMER",
-                                           "Cannot initialize consumer ($0).",
-                                           consumerName));        
+        throw Exception(
+            MessageLoaderParms(
+                "DynListener.ConsumerManager.CANNOT_INITIALIZE_CONSUMER",
+                "Cannot initialize consumer ($0).",
+                consumerName));        
     }
 
     PEG_METHOD_EXIT();    
 }
 
 
-/** Returns the ConsumerModule with the given library name.  If it already exists, we return the one in the cache.  If it
+/** Returns the ConsumerModule with the given library name.
+ *  If it already exists, we return the one in the cache.  If it
  *  DNE, we create it and add it to the table.
- * @throws Exception if we cannot successfully create and initialize the consumer
+ * @throws Exception if we cannot successfully create and 
+ *  initialize the consumer
  */ 
-ConsumerModule* ConsumerManager::_lookupModule(const String & libraryName) 
+ConsumerModule* ConsumerManager::_lookupModule(const String & libraryName)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerManager::_lookupModule");
 
@@ -404,13 +495,18 @@ ConsumerModule* ConsumerManager::_lookupModule(const String & libraryName)
     //see if consumer module is cached
     if (_modules.lookup(libraryName, module))
     {
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4,
-                         "Found Consumer Module" + libraryName + " in Consumer Manager Cache");
+        PEG_TRACE_STRING(
+            TRC_LISTENER,
+            Tracer::LEVEL4,
+            "Found Consumer Module" + 
+                libraryName + " in Consumer Manager Cache");
 
     } else
     {
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4,
-                         "Creating Consumer Provider Module " + libraryName);
+        PEG_TRACE_STRING(
+            TRC_LISTENER,
+            Tracer::LEVEL4,
+            "Creating Consumer Provider Module " + libraryName);
 
         module = new ConsumerModule(); 
         _modules.insert(libraryName, module);
@@ -435,9 +531,14 @@ Boolean ConsumerManager::hasActiveConsumers()
         {
             consumer = i.value();
 
-            if (consumer && consumer->isLoaded() && (consumer->getPendingIndications() > 0))
+            if (consumer && 
+                consumer->isLoaded() && 
+                (consumer->getPendingIndications() > 0))
             {
-                PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Found active consumer: " + consumer->_name);
+                PEG_TRACE_STRING(
+                    TRC_LISTENER,
+                    Tracer::LEVEL4,
+                    "Found active consumer: " + consumer->_name);
                 PEG_METHOD_EXIT();
                 return true;
             }
@@ -445,7 +546,10 @@ Boolean ConsumerManager::hasActiveConsumers()
     } catch (...)
     {
         // Unexpected exception; do not assume that no providers are loaded
-        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2, "Unexpected Exception in hasActiveConsumers.");
+        PEG_TRACE_CSTRING(
+            TRC_LISTENER,
+            Tracer::LEVEL2,
+            "Unexpected Exception in hasActiveConsumers.");
         PEG_METHOD_EXIT();
         return true;
     }
@@ -471,7 +575,10 @@ Boolean ConsumerManager::hasLoadedConsumers()
 
             if (consumer && consumer->isLoaded())
             {
-                PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Found loaded consumer: " + consumer->_name);
+                PEG_TRACE_STRING(
+                    TRC_LISTENER,
+                    Tracer::LEVEL4,
+                    "Found loaded consumer: " + consumer->_name);
                 PEG_METHOD_EXIT();
                 return true;
             }
@@ -479,7 +586,10 @@ Boolean ConsumerManager::hasLoadedConsumers()
     } catch (...)
     {
         // Unexpected exception; do not assume that no providers are loaded
-        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2, "Unexpected Exception in hasLoadedConsumers.");
+        PEG_TRACE_CSTRING(
+            TRC_LISTENER,
+            Tracer::LEVEL2,
+            "Unexpected Exception in hasLoadedConsumers.");
         PEG_METHOD_EXIT();
         return true;
     }
@@ -490,22 +600,28 @@ Boolean ConsumerManager::hasLoadedConsumers()
 
 
 /** Shutting down a consumer consists of four major steps:
- * 1) Send the shutdown signal.  This causes the worker routine to break out of the loop and exit.
- * 2) Wait for the worker thread to end.  This may take a while if it's processing an indication.  This
- *    is optional in a shutdown scenario.  If the listener is shutdown with a -f force, the listener
- *    will not wait for the consumer to finish before shutting down.  Note that a normal shutdown only allows
- *    the current consumer indication to finish.  All other queued indications are serialized to a log and 
+ * 1) Send the shutdown signal.  This causes the worker routine to break out 
+ *    of the loop and exit.
+ * 2) Wait for the worker thread to end.  This may take a while if it's
+ *    processing an indication.  This is optional in a shutdown scenario.
+ *    If the listener is shutdown with a -f force, the listener
+ *    will not wait for the consumer to finish before shutting down.
+ *    Note that a normal shutdown only allows the current consumer indication
+ *    to finish.  All other queued indications are serialized to a log and
  *    are sent when the consumer is reoaded.
  * 3) Terminate the consumer provider interface.
- * 4) Decrement the module refcount (the module will automatically unload when it's refcount == 0)
+ * 4) Decrement the module refcount (the module will automatically unload when
+ *    it's refcount == 0)
  * 
- * In a scenario where more multiple consumers are loaded, the shutdown signal should be sent to all
- * of the consumers so the threads can finish simultaneously.
+ * In a scenario where more multiple consumers are loaded, the shutdown signal
+ * should be sent to all of the consumers so the threads can finish
+ * simultaneously.
  * 
- * ATTN: Should the normal shutdown wait for everything in the queue to be processed?  Just new indications
- * to be processed?  I am not inclined to this solution since it could take a LOT of time.  By serializing 
- * and deserialing indications between shutdown and startup, I feel like we do not need to process ALL
- * queued indications on shutdown.  
+ * ATTN: Should the normal shutdown wait for everything in the queue to be
+ * processed?  Just new indications to be processed?  I am not inclined to this
+ * solution since it could take a LOT of time.  By serializing and deserialing
+ * indications between shutdown and startup, I feel like we do not need to 
+ * process ALL queued indications on shutdown.
  */ 
 
 /** Unloads all consumers.
@@ -518,15 +634,19 @@ void ConsumerManager::unloadAllConsumers()
 
     if (!_consumers.size())
     {
-        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "There are no consumers to unload.");
+        PEG_TRACE_CSTRING(
+            TRC_LISTENER,
+            Tracer::LEVEL4,
+            "There are no consumers to unload.");
         PEG_METHOD_EXIT();
         return;
     }
 
     if (!_forceShutdown)
     {
-        //wait until all the consumers have finished processing the events in their queue
-        //ATTN: Should this have a timeout even though it's a force??
+        // wait until all the consumers have finished processing the events in
+        // their queue
+        // ATTN: Should this have a timeout even though it's a force??
         while (hasActiveConsumers())
         {
             Threads::sleep(500);
@@ -555,11 +675,17 @@ void ConsumerManager::unloadAllConsumers()
 
         } catch (Exception&)
         {
-            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "Error unloading consumers.");
+            PEG_TRACE_CSTRING(
+                TRC_LISTENER,
+                Tracer::LEVEL4,
+                "Error unloading consumers.");
         }
     } else
     {
-        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "There are no consumers to unload.");
+        PEG_TRACE_CSTRING(
+            TRC_LISTENER,
+            Tracer::LEVEL4,
+            "There are no consumers to unload.");
     }
 
     PEG_METHOD_EXIT();
@@ -575,7 +701,10 @@ void ConsumerManager::unloadIdleConsumers()
 
     if (!_consumers.size())
     {
-        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "There are no consumers to unload.");
+        PEG_TRACE_CSTRING(
+            TRC_LISTENER,
+            Tracer::LEVEL4,
+            "There are no consumers to unload.");
         PEG_METHOD_EXIT();
         return;
     }
@@ -602,11 +731,17 @@ void ConsumerManager::unloadIdleConsumers()
 
         } catch (Exception&)
         {
-            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "Error unloading consumers.");
+            PEG_TRACE_CSTRING(
+                TRC_LISTENER,
+                Tracer::LEVEL4,
+                "Error unloading consumers.");
         }
     } else
     {
-        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "There are no consumers to unload.");
+        PEG_TRACE_CSTRING(
+            TRC_LISTENER,
+            Tracer::LEVEL4,
+            "There are no consumers to unload.");
     }
 
     PEG_METHOD_EXIT();
@@ -625,7 +760,10 @@ void ConsumerManager::unloadConsumer(const String& consumerName)
     //check whether the consumer exists
     if (!_consumers.lookup(consumerName, consumer))
     {
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL3, "Error: cannot unload consumer, unknown consumer " + consumerName);
+        PEG_TRACE_STRING(
+            TRC_LISTENER,
+            Tracer::LEVEL3,
+            "Error: cannot unload consumer, unknown consumer " + consumerName);
         return;
     }
 
@@ -642,12 +780,18 @@ void ConsumerManager::unloadConsumer(const String& consumerName)
 
         } catch (Exception&)
         {
-            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "Error unloading consumers.");
+            PEG_TRACE_CSTRING(
+                TRC_LISTENER, 
+                Tracer::LEVEL4, 
+                "Error unloading consumers.");
         }
 
     } else
     {
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL3, "Error: cannot unload consumer " + consumerName);
+        PEG_TRACE_STRING(
+            TRC_LISTENER,
+            Tracer::LEVEL3,
+            "Error: cannot unload consumer " + consumerName);
     }
 
     PEG_METHOD_EXIT();
@@ -656,7 +800,8 @@ void ConsumerManager::unloadConsumer(const String& consumerName)
 /** Unloads the consumers in the given array.
  *  The consumerTable mutex MUST be locked prior to entering this method.
  */ 
-void ConsumerManager::_unloadConsumers(Array<DynamicConsumer*> consumersToUnload)
+void ConsumerManager::_unloadConsumers(
+    Array<DynamicConsumer*> consumersToUnload)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerManager::_unloadConsumers");
 
@@ -666,20 +811,28 @@ void ConsumerManager::_unloadConsumers(Array<DynamicConsumer*> consumersToUnload
         consumersToUnload[i]->sendShutdownSignal();
     }
 
-    PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "Sent shutdown signal to all consumers.");
+    PEG_TRACE_CSTRING(
+        #TRC_LISTENER,
+        Tracer::LEVEL4,
+        "Sent shutdown signal to all consumers.");
 
-    //wait for all the consumer worker threads to complete
-    //since we can only shutdown after they are all complete, it does not matter if the first, fifth, or last
-    //consumer takes the longest; the wait time is equal to the time it takes for the busiest consumer to stop
-    //processing its requests.
+    // wait for all the consumer worker threads to complete
+    // since we can only shutdown after they are all complete, 
+    // it does not matter if the first, fifth, or last
+    // consumer takes the longest; the wait time is equal to the time it takes
+    // for the busiest consumer to stop processing its requests.
     for (Uint32 i = 0; i < consumersToUnload.size(); i++)
     {
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL3, "Unloading consumer " + consumersToUnload[i]->getName());
+        PEG_TRACE_STRING(
+            TRC_LISTENER, 
+            Tracer::LEVEL3, 
+            "Unloading consumer " + consumersToUnload[i]->getName());
 
         //wait for the consumer worker thread to end
         try
         {
-            Semaphore* _shutdownSemaphore = consumersToUnload[i]->getShutdownSemaphore();
+            Semaphore* _shutdownSemaphore = 
+                consumersToUnload[i]->getShutdownSemaphore();
             if (_shutdownSemaphore)
             {
                 _shutdownSemaphore->time_wait(10000); 
@@ -687,10 +840,16 @@ void ConsumerManager::_unloadConsumers(Array<DynamicConsumer*> consumersToUnload
 
         } catch (TimeOut &)
         {
-            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2, "Timed out while attempting to stop consumer thread.");
+            PEG_TRACE_CSTRING(
+                TRC_LISTENER,
+                Tracer::LEVEL2,
+                "Timed out while attempting to stop consumer thread.");
         }
 
-        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2, "Terminating consumer.");
+        PEG_TRACE_CSTRING(
+            TRC_LISTENER,
+            Tracer::LEVEL2, 
+            "Terminating consumer.");
 
         try
         {
@@ -702,16 +861,24 @@ void ConsumerManager::_unloadConsumers(Array<DynamicConsumer*> consumersToUnload
             consumersToUnload[i]->_module->unloadModule();
 
             //serialize outstanding indications
-            _serializeOutstandingIndications(consumersToUnload[i]->getName(), consumersToUnload[i]->_retrieveOutstandingIndications());
+            _serializeOutstandingIndications(
+                consumersToUnload[i]->getName(),
+                consumersToUnload[i]->_retrieveOutstandingIndications());
 
             //reset the consumer
             consumersToUnload[i]->reset();
 
-            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL3, "Consumer library successfully unloaded.");
+            PEG_TRACE_CSTRING(
+                TRC_LISTENER,
+                Tracer::LEVEL3,
+                "Consumer library successfully unloaded.");
 
         } catch (Exception& e)
         {
-            PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Error unloading consumer: " + e.getMessage()); 
+            PEG_TRACE_STRING(
+                TRC_LISTENER, 
+                Tracer::LEVEL2, 
+                "Error unloading consumer: " + e.getMessage()); 
             //ATTN: throw exception? log warning?
         }
     }
@@ -721,9 +888,13 @@ void ConsumerManager::_unloadConsumers(Array<DynamicConsumer*> consumersToUnload
 
 /** Serializes oustanding indications to a <MyConsumer>.dat file
  */
-void ConsumerManager::_serializeOutstandingIndications(const String& consumerName, Array<IndicationDispatchEvent> indications)
+void ConsumerManager::_serializeOutstandingIndications(
+    const String& consumerName, 
+    Array<IndicationDispatchEvent> indications)
 {
-    PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerManager::_serializeOutstandingIndications");
+    PEG_METHOD_ENTER(
+        TRC_LISTENER,
+        "ConsumerManager::_serializeOutstandingIndications");
 
     if (!indications.size())
     {
@@ -731,8 +902,13 @@ void ConsumerManager::_serializeOutstandingIndications(const String& consumerNam
         return;
     }
 
-    String fileName = FileSystem::getAbsolutePath((const char*)_consumerConfigDir.getCString(), String(consumerName + ".dat"));
-    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Consumer dat file: " + fileName);
+    String fileName = FileSystem::getAbsolutePath(
+                          (const char*)_consumerConfigDir.getCString(),
+                          String(consumerName + ".dat"));
+    PEG_TRACE_STRING(
+        TRC_LISTENER,
+        Tracer::LEVEL4,
+        "Consumer dat file: " + fileName);
 
     Buffer buffer;
 
@@ -742,7 +918,10 @@ void ConsumerManager::_serializeOutstandingIndications(const String& consumerNam
 
     if (!fileHandle)
     {
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Unable to open log file for " + consumerName);
+        PEG_TRACE_STRING(
+            TRC_LISTENER,
+            Tracer::LEVEL2,
+            "Unable to open log file for " + consumerName);
 
     } else
     {
@@ -751,21 +930,22 @@ void ConsumerManager::_serializeOutstandingIndications(const String& consumerNam
                       indications.size(),
                       (const char*)consumerName.getCString()));
 
-        //we have to put the array of instances under a valid root element or the parser complains 
+        // we have to put the array of instances under a valid root element
+        // or the parser complains 
         XmlWriter::append(buffer, "<IRETURNVALUE>\n");
 
-		CIMInstance cimInstance;
+        CIMInstance cimInstance;
         for (Uint32 i = 0; i < indications.size(); i++)
         {
-			//set the URL string property on the serializable instance
-			CIMValue cimValue(CIMTYPE_STRING, false);
-			cimValue.set(indications[i].getURL());
-			cimInstance = indications[i].getIndicationInstance();
-			CIMProperty cimProperty(URL_PROPERTY, cimValue);
-			cimInstance.addProperty(cimProperty);
+            //set the URL string property on the serializable instance
+            CIMValue cimValue(CIMTYPE_STRING, false);
+            cimValue.set(indications[i].getURL());
+            cimInstance = indications[i].getIndicationInstance();
+            CIMProperty cimProperty(URL_PROPERTY, cimValue);
+            cimInstance.addProperty(cimProperty);
 
             XmlWriter::appendValueNamedInstanceElement(buffer, cimInstance);
-		}
+        }
 
         XmlWriter::append(buffer, "</IRETURNVALUE>");
 
@@ -779,30 +959,40 @@ void ConsumerManager::_serializeOutstandingIndications(const String& consumerNam
 
 /** Reads outstanding indications from a <MyConsumer>.dat file
  */ 
-Array<IndicationDispatchEvent> ConsumerManager::_deserializeOutstandingIndications(const String& consumerName)
+Array<IndicationDispatchEvent> 
+    ConsumerManager::_deserializeOutstandingIndications(
+        const String& consumerName)
 {
-    PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerManager::_deserializeOutstandingIndications");
+    PEG_METHOD_ENTER(
+        TRC_LISTENER,
+        "ConsumerManager::_deserializeOutstandingIndications");
 
-    String fileName = FileSystem::getAbsolutePath((const char*)_consumerConfigDir.getCString(), String(consumerName + ".dat"));
-    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Consumer dat file: " + fileName);
+    String fileName = FileSystem::getAbsolutePath(
+                          (const char*)_consumerConfigDir.getCString(),
+                          String(consumerName + ".dat"));
+    PEG_TRACE_STRING(
+        TRC_LISTENER,
+        Tracer::LEVEL4,
+        "Consumer dat file: " + fileName);
 
     Array<CIMInstance> cimInstances;
-	Array<String>      urlStrings;
-	Array<IndicationDispatchEvent> indications;
+    Array<String>      urlStrings;
+    Array<IndicationDispatchEvent> indications;
 
     // Open the log file and serialize remaining indications
     if (FileSystem::exists(fileName)  && FileSystem::canRead(fileName))
     {
         Buffer text;
         CIMInstance cimInstance;
-		CIMProperty cimProperty;
-		CIMValue cimValue;
-		String urlString;
+        CIMProperty cimProperty;
+        CIMValue cimValue;
+        String urlString;
         XmlEntry entry;
 
         try
         {
-            FileSystem::loadFileToMemory(text, fileName);  //ATTN: Is this safe to use; what about CRLFs?
+            //ATTN: Is this safe to use; what about CRLFs?
+            FileSystem::loadFileToMemory(text, fileName);
 
             //parse the file
             XmlParser parser((char*)text.getData());
@@ -810,16 +1000,22 @@ Array<IndicationDispatchEvent> ConsumerManager::_deserializeOutstandingIndicatio
 
             while (XmlReader::getNamedInstanceElement(parser, cimInstance))
             {
-				Uint32 index = cimInstance.findProperty(URL_PROPERTY);
-				if (index != PEG_NOT_FOUND)
-				{
-					//get the URL string property from the serialized instance and remove the property
-					cimProperty = cimInstance.getProperty(index);
-					cimValue = cimProperty.getValue();
-					cimValue.get(urlString);
-					cimInstance.removeProperty(index);
-				}
-				IndicationDispatchEvent* indicationEvent = new IndicationDispatchEvent(OperationContext(), urlString, cimInstance);
+                Uint32 index = cimInstance.findProperty(URL_PROPERTY);
+                if (index != PEG_NOT_FOUND)
+                {
+                    // get the URL string property from the serialized instance 
+                    // and remove the property
+                    cimProperty = cimInstance.getProperty(index);
+                    cimValue = cimProperty.getValue();
+                    cimValue.get(urlString);
+                    cimInstance.removeProperty(index);
+                }
+                IndicationDispatchEvent* indicationEvent = 
+                    new IndicationDispatchEvent(
+                        OperationContext(), 
+                        urlString, 
+                        cimInstance);
+
                 indications.append(*indicationEvent);
             }
 
@@ -835,11 +1031,18 @@ Array<IndicationDispatchEvent> ConsumerManager::_deserializeOutstandingIndicatio
 
         } catch (Exception& ex)
         {
-            PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL3, "Error parsing dat file: " + ex.getMessage() + " " + consumerName);
+            PEG_TRACE_STRING(
+                TRC_LISTENER,
+                Tracer::LEVEL3,
+                "Error parsing dat file: " + 
+                    ex.getMessage() + " " + consumerName);
 
         } catch (...)
         {
-            PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Error parsing dat file: Unknown Exception " + consumerName);
+            PEG_TRACE_STRING(
+                TRC_LISTENER,
+                Tracer::LEVEL2,
+                "Error parsing dat file: Unknown Exception " + consumerName);
         }
     }
 
@@ -850,36 +1053,49 @@ Array<IndicationDispatchEvent> ConsumerManager::_deserializeOutstandingIndicatio
 
 
 /** 
- * This is the main worker thread of the consumer.  By having only one thread per consumer, we eliminate a ton
- * of synchronization issues and make it easy to prevent the consumer from performing two mutually exclusive
- * operations at once.  This also prevents one bad consumer from taking the entire listener down.  That being said,
- * it is up to the programmer to write smart consumers, and to ensure that their actions don't deadlock the worker thread. 
+ * This is the main worker thread of the consumer.  By having only one thread
+ * per consumer, we eliminate a ton of synchronization issues and make it easy 
+ * to prevent the consumer from performing two mutually exclusive operations
+ * at once.  This also prevents one bad consumer from taking the entire 
+ * listener down.  That being said, it is up to the programmer to write smart
+ * consumers, and to ensure that their actions don't deadlock 
+ * the worker thread.
  * 
- * If a consumer receives a lot of traffic, or it's consumeIndication() method takes a considerable amount of time to
- * complete, it may make sense to make the consumer multi-threaded.  The individual consumer can immediately spawn off
- * new threads to handle indications, and return immediately to catch the next indication.  In this way, a consumer
- * can attain extremely high performance. 
+ * If a consumer receives a lot of traffic, or it's consumeIndication() method
+ * takes a considerable amount of time to complete, it may make sense to make
+ * the consumer multi-threaded.  The individual consumer can immediately
+ * spawn off* new threads to handle indications, and return immediately to
+ * catch the next indication.  In this way, a consumer can attain 
+ * extremely high performance. 
  * 
  * There are three different events that can signal us:
  * 1) A new indication (signalled by DynamicListenerIndicationDispatcher)
- * 2) A shutdown signal (signalled from ConsumerManager, due to a listener shutdown or an idle consumer state)
+ * 2) A shutdown signal (signalled from ConsumerManager, due to a listener
+ *    shutdown or an idle consumer state)
  * 3) A retry signal (signalled from this routine itself)
  * 
- * The idea is that all new indications are put on the front of the queue and processed first.  All of the retry
- * indications are put on the back of the queue and are only processed AFTER all new indications are sent.
- * Before processing each indication, we check to see whether or not the shutdown signal was given.  If so,
- * we immediately break out of the loop, and another compenent serializes the remaining indications to a file.
+ * The idea is that all new indications are put on the front of the queue and
+ * processed first.  All of the retry indications are put on the back of the 
+ * queue and are only processed AFTER all new indications are sent.
+ * Before processing each indication, we check to see whether or not the
+ * shutdown signal was given.  
+ * If so, we immediately break out of the loop, and another compenent 
+ * serializes the remaining indications to a file.
  * 
- * An indication gets retried if the consumer throws a CIM_ERR_FAILED exception.
+ * An indication gets retried 
+ *     if the consumer throws a CIM_ERR_FAILED exception.
  * 
- * This function makes sure it waits until the default retry lapse has passed to avoid issues with the following scenario:
+ * This function makes sure it waits until the default retry lapse has passed 
+ * to avoid issues with the following scenario:
  * 20 new indications come in, 10 of them are successful, 10 are not.
- * We were signalled 20 times, so we will pass the time_wait 20 times.  Perceivably, the process time on each indication
- * could be minimal.  We could potentially proceed to process the retries after a very small time interval since
- * we would never hit the wait for the retry timeout.  
+ * We were signalled 20 times, so we will pass the time_wait 20 times. 
+ * Perceivably, the process time on each indication could be minimal.
+ * We could potentially proceed to process the retries after a very small time
+ * interval since we would never hit the wait for the retry timeout.
  * 
  */ 
-ThreadReturnType PEGASUS_THREAD_CDECL ConsumerManager::_worker_routine(void *param)
+ThreadReturnType PEGASUS_THREAD_CDECL 
+    ConsumerManager::_worker_routine(void *param)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerManager::_worker_routine");
 
@@ -887,7 +1103,10 @@ ThreadReturnType PEGASUS_THREAD_CDECL ConsumerManager::_worker_routine(void *par
     String name = myself->getName();
     List<IndicationDispatchEvent,Mutex> tmpEventQueue;
 
-    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "_worker_routine::entering loop for " + name);
+    PEG_TRACE_STRING(
+        TRC_LISTENER,
+        Tracer::LEVEL2,
+        "_worker_routine::entering loop for " + name);
 
     myself->_listeningSemaphore->signal();
 
@@ -895,17 +1114,26 @@ ThreadReturnType PEGASUS_THREAD_CDECL ConsumerManager::_worker_routine(void *par
     {
         try
         {
-            PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "_worker_routine::waiting " + name);
+            PEG_TRACE_STRING(
+                TRC_LISTENER,
+                Tracer::LEVEL4,
+                "_worker_routine::waiting " + name);
 
             //wait to be signalled
             myself->_check_queue->time_wait(DEFAULT_RETRY_LAPSE);
 
-            PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "_worker_routine::signalled " + name);
+            PEG_TRACE_STRING(
+                TRC_LISTENER,
+                Tracer::LEVEL4,
+                "_worker_routine::signalled " + name);
 
             //check whether we received the shutdown signal
             if (myself->_dieNow)
             {
-                PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "_worker_routine::shutdown received " + name);
+                PEG_TRACE_STRING(
+                    TRC_LISTENER,
+                    Tracer::LEVEL4,
+                    "_worker_routine::shutdown received " + name);
                 break;
             }
 
@@ -914,25 +1142,36 @@ ThreadReturnType PEGASUS_THREAD_CDECL ConsumerManager::_worker_routine(void *par
 
             //continue processing events until the queue is empty
             //make sure to check for the shutdown signal before every iteration
-            // Note that any time during our processing of events the Listener may be enqueueing NEW events for us to process.
-            // Because we are popping off the front and new events are being thrown on the back if events are failing when we start
-            // But are succeeding by the end of the processing, events may be sent out of chronological order.
-            // However. Once we complete the current queue of events, we will always send old events to be retried before sending any
+            // Note that any time during our processing of events the Listener
+            // may be enqueueing NEW events for us to process.
+            // Because we are popping off the front and new events are being
+            // thrown on the back if events are failing when we start
+            // But are succeeding by the end of the processing, events may be
+            // sent out of chronological order.
+            // However. Once we complete the current queue of events, we will
+            // always send old events to be retried before sending any
             // new events added afterwards.
             while (myself->_eventqueue.size())
             {
                 //check for shutdown signal
-                //this only breaks us out of the queue loop, but we will immediately get through the next wait from
-                //the shutdown signal itself, at which time we break out of the main loop
+                //this only breaks us out of the queue loop, but we will
+                //immediately get through the next wait from
+                //the shutdown signal itself, at which time we break
+                //out of the main loop
                 if (myself->_dieNow)
                 {
-                    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Received signal to shutdown, jumping out of queue loop " + name);
+                    PEG_TRACE_STRING(
+                        TRC_LISTENER,
+                        Tracer::LEVEL4,
+                        "Received signal to shutdown,"
+                            " jumping out of queue loop " + name);
                     break;
                 }
 
                 //pop next indication off the queue
                 IndicationDispatchEvent* event = 0;
-                event = myself->_eventqueue.remove_front();  //what exceptions/errors can this throw?
+                //what exceptions/errors can this throw?
+                event = myself->_eventqueue.remove_front();
 
                 if (!event)
                 {
@@ -940,7 +1179,10 @@ ThreadReturnType PEGASUS_THREAD_CDECL ConsumerManager::_worker_routine(void *par
                     continue;
                 }
 
-                PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "_worker_routine::consumeIndication " + name);
+                PEG_TRACE_STRING(
+                    TRC_LISTENER,
+                    Tracer::LEVEL4,
+                    "_worker_routine::consumeIndication " + name);
 
                 try
                 {
@@ -948,7 +1190,11 @@ ThreadReturnType PEGASUS_THREAD_CDECL ConsumerManager::_worker_routine(void *par
                                               event->getURL(),
                                               event->getIndicationInstance());
 
-                    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "_worker_routine::processed indication successfully. " + name);
+                    PEG_TRACE_STRING(
+                        TRC_LISTENER,
+                        Tracer::LEVEL4,
+                        "_worker_routine::processed indication successfully. "
+                            + name);
 
                     delete event;
                     continue;
@@ -958,57 +1204,96 @@ ThreadReturnType PEGASUS_THREAD_CDECL ConsumerManager::_worker_routine(void *par
                     //check for failure
                     if (ce.getCode() == CIM_ERR_FAILED)
                     {
-                        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "_worker_routine::consumeIndication() temporary failure: " + ce.getMessage() + " " + name);
+                        PEG_TRACE_STRING(
+                            TRC_LISTENER,
+                            Tracer::LEVEL2, 
+                            "_worker_routine::consumeIndication() temporary"
+                                " failure: " + ce.getMessage() + " " + name);
                         
-                        // Here we simply determine if we should increment the retry count or not.
-                        // We don't want to count a forced retry from a new event to count as a retry. We just have to do it for
-                        // order's sake. If the retry Lapse has lapsed on this event then increment the counter.
-                        if (event->getRetries() > 0) {
-                            Sint64 differenceInMicroseconds = CIMDateTime::getDifference(event->getLastAttemptTime(), CIMDateTime::getCurrentDateTime());
-                            if (differenceInMicroseconds >= (DEFAULT_RETRY_LAPSE * 1000))
+                        // Here we simply determine if we should increment
+                        // the retry count or not.
+                        // We don't want to count a forced retry from a new
+                        // event to count as a retry. 
+                        // We just have to do it for order's sake.
+                        // If the retry Lapse has lapsed on this event,
+                        // then increment the counter.
+                        if (event->getRetries() > 0)
+                        {
+                            Sint64 differenceInMicroseconds = 
+                                CIMDateTime::getDifference(
+                                    event->getLastAttemptTime(),
+                                    CIMDateTime::getCurrentDateTime());
+
+                            if (differenceInMicroseconds >= 
+                                    (DEFAULT_RETRY_LAPSE * 1000))
+                            {
                                 event->increaseRetries();
-                        } else {
+                            }
+                        }
+                        else
+                        {
                             event->increaseRetries();
                         }
 
                         //determine if we have hit the max retry count
                         if (event->getRetries() >= DEFAULT_MAX_RETRY_COUNT)
                         {
-                            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2,
-                                             "Error: the maximum retry count has been exceeded.  Removing the event from the queue.");
+                            PEG_TRACE_CSTRING(
+                                TRC_LISTENER,
+                                Tracer::LEVEL2,
+                                "Error: the maximum retry count has been "
+                                    "exceeded.  Removing the event from "
+                                        "the queue.");
 
                             Logger::put(
-                                       Logger::ERROR_LOG,
-                                       System::CIMLISTENER,
-                                       Logger::SEVERE,
-                                       "The following indication did not get processed successfully: $0", 
-                                       event->getIndicationInstance().getPath().toString());
+                                Logger::ERROR_LOG,
+                                System::CIMLISTENER,
+                                Logger::SEVERE,
+                                "The following indication did not get "
+                                    "processed successfully: $0",
+                          event->getIndicationInstance().getPath().toString());
 
                             delete event;
                             continue;
 
                         } else
                         {
-                            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "_worker_routine::placing failed indication back in queue");
+                            PEG_TRACE_CSTRING(
+                                TRC_LISTENER,
+                                Tracer::LEVEL4,
+                                "_worker_routine::placing failed indication "
+                                    "back in queue");
                             tmpEventQueue.insert_back(event);
                         }
 
                     } else
                     {
-                        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Error: consumeIndication() permanent failure: " + ce.getMessage());
+                        PEG_TRACE_STRING(
+                            TRC_LISTENER,
+                            Tracer::LEVEL2,
+                            "Error: consumeIndication() permanent failure: "
+                                + ce.getMessage());
                         delete event;
                         continue;
                     }
 
                 } catch (Exception & ex)
                 {
-                    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Error: consumeIndication() permanent failure: " + ex.getMessage());
+                    PEG_TRACE_STRING(
+                        TRC_LISTENER,
+                        Tracer::LEVEL2,
+                        "Error: consumeIndication() permanent failure: "
+                            + ex.getMessage());
                     delete event;
                     continue;
 
                 } catch (...)
                 {
-                    PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2, "Error: consumeIndication() failed: Unknown exception.");
+                    PEG_TRACE_CSTRING(
+                        TRC_LISTENER,
+                        Tracer::LEVEL2,
+                        "Error: consumeIndication() failed: "
+                            "Unknown exception.");
                     delete event;
                     continue;
                 } //end try
@@ -1016,8 +1301,10 @@ ThreadReturnType PEGASUS_THREAD_CDECL ConsumerManager::_worker_routine(void *par
             } //while eventqueue
 
             // Copy the failed indications back to the main queue
-            // We now lock the queue while adding the retries on to the queue so that new events can't get in in front
-            // Of those events we are retrying. Retried events happened before any new events coming in.
+            // We now lock the queue while adding the retries on to the queue
+            // so that new events can't get in in front
+            // Of those events we are retrying. Retried events happened before
+            // any new events coming in.
             IndicationDispatchEvent* tmpEvent = 0;
             myself->_eventqueue.try_lock();
             while (tmpEventQueue.size())
@@ -1030,10 +1317,14 @@ ThreadReturnType PEGASUS_THREAD_CDECL ConsumerManager::_worker_routine(void *par
 
         } catch (TimeOut&)
         {
-            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "_worker_routine::Time to retry any outstanding indications.");
+            PEG_TRACE_CSTRING(
+                TRC_LISTENER,
+                Tracer::LEVEL4,
+                "_worker_routine::Time to retry any outstanding indications.");
 
-            //signal the queue in the same way we would if we received a new indication
-            //this allows the thread to fall into the queue processing code
+            // signal the queue in the same way we would,
+            // if we received a new indication
+            // this allows the thread to fall into the queue processing code
             myself->_check_queue->signal();
 
         } //time_wait
@@ -1047,6 +1338,3 @@ ThreadReturnType PEGASUS_THREAD_CDECL ConsumerManager::_worker_routine(void *par
 
 
 PEGASUS_NAMESPACE_END
-
-
-

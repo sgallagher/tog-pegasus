@@ -52,15 +52,19 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** The ConsumerManager class is responsible for managing all of the consumers.  It is also responsible for
- *  synchronizing consumer operations.
+/** The ConsumerManager class is responsible for managing all of the consumers.
+ *  It is also responsible for synchronizing consumer operations.
  */
 
 class PEGASUS_DYNLISTENER_LINKAGE ConsumerManager
 {
 public:
 
-    ConsumerManager(const String& consumerDir, const String& consumerConfigDir, Boolean enableConsumerUnload, Uint32 idleTimeout);
+    ConsumerManager(
+        const String& consumerDir,
+        const String& consumerConfigDir,
+        Boolean enableConsumerUnload,
+        Uint32 idleTimeout);
 
     virtual ~ConsumerManager();
 
@@ -86,9 +90,17 @@ public:
 
 private:
 
-    typedef HashTable<String, DynamicConsumer *, EqualFunc<String>,  HashFunc<String> > ConsumerTable;
+    typedef HashTable<
+                String,
+                DynamicConsumer *, 
+                EqualFunc<String>,
+                HashFunc<String> > ConsumerTable;
 
-    typedef HashTable<String, ConsumerModule *, EqualFunc<String>, HashFunc<String> > ModuleTable;
+    typedef HashTable<
+                String,
+                ConsumerModule *,
+                EqualFunc<String>,
+                HashFunc<String> > ModuleTable;
 
     //consumer queue
     ConsumerTable _consumers;
@@ -105,8 +117,8 @@ private:
     Uint32 _idleTimeout; //ms
     Boolean _forceShutdown;
 
-	//ATTN: Bugzilla 3765 - Uncomment when OptionManager has a reset capability
-	//OptionManager _optionMgr;
+    //ATTN: Bugzilla 3765 - Uncomment when OptionManager has a reset capability
+    //OptionManager _optionMgr;
 
     //global thread pool
     ThreadPool* _thread_pool;
@@ -127,9 +139,12 @@ private:
 
     void _init();
 
-    Array<IndicationDispatchEvent> _deserializeOutstandingIndications(const String& consumerName);
+    Array<IndicationDispatchEvent> _deserializeOutstandingIndications(
+                                        const String& consumerName);
 
-    void _serializeOutstandingIndications(const String& consumerName, Array<IndicationDispatchEvent> indications);
+    void _serializeOutstandingIndications(
+             const String& consumerName,
+             Array<IndicationDispatchEvent> indications);
 
 };
 

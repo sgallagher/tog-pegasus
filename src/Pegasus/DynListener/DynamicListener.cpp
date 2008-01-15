@@ -27,13 +27,13 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Heather Sterling (hsterl@us.ibm.com)
 //
 // Modified By: 
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include "DynamicListener.h"
 #include "ListenerService.h"
@@ -89,7 +89,9 @@ public:
 
     Boolean isAlive();
 
-    Boolean addConsumer(const String& consumerName, const String& location = String::EMPTY);
+    Boolean addConsumer(
+                const String& consumerName,
+                const String& location = String::EMPTY);
 
     Boolean removeConsumer(const String& consumerName);
 
@@ -118,19 +120,22 @@ private:
     SSLContext* _sslContext;
 };
 
-DynamicListenerRep::DynamicListenerRep(Uint32 portNumber, 
-                                       const String& consumerDir,           //consumer mgr  
-                                       const String& consumerConfigDir,     //consumer mgr
-                                       SSLContext* sslContext,              //listener svc
-                                       Boolean enableConsumerUnload,        //consumer mgr
-                                       Uint32 consumerIdleTimeout,          //consumer mgr
-                                       Uint32 shutdownTimeout) :            //???
-_port(portNumber),
-_sslContext(sslContext)             
+DynamicListenerRep::DynamicListenerRep(
+    Uint32 portNumber, 
+    const String& consumerDir,             //consumer mgr
+    const String& consumerConfigDir,       //consumer mgr
+    SSLContext* sslContext,                //listener svc
+    Boolean enableConsumerUnload,          //consumer mgr
+    Uint32 consumerIdleTimeout,            //consumer mgr
+    Uint32 shutdownTimeout) : _port(portNumber), _sslContext(sslContext)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "DynamicListenerRep::DynamicListenerRep");
 
-    _consumerManager = new ConsumerManager(consumerDir, consumerConfigDir, enableConsumerUnload, consumerIdleTimeout);
+    _consumerManager = new ConsumerManager(
+                               consumerDir,
+                               consumerConfigDir,
+                               enableConsumerUnload,
+                               consumerIdleTimeout);
 
     _listenerService = new ListenerService(_consumerManager);
 
@@ -181,7 +186,9 @@ Boolean DynamicListenerRep::isAlive()
 }
 
 //TODO: 
-Boolean DynamicListenerRep::addConsumer(const String& consumerName, const String& location)
+Boolean DynamicListenerRep::addConsumer(
+            const String& consumerName,
+            const String& location)
 {
     return true;
     //return _consumerManager->addConsumer(consumerName, location);
@@ -251,20 +258,26 @@ DynamicListener::DynamicListener(Uint32 portNumber,
 }
 
 #ifdef PEGASUS_HAS_SSL
-DynamicListener::DynamicListener(Uint32 portNumber, 
-                                 const String& consumerDir,
-                                 const String& consumerConfigDir,
-                                 Boolean useSSL, 
-                                 const String& keyPath, 
-                                 const String& certPath,
-                                 Boolean enableConsumerUnload, 
-                                 Uint32 consumerIdleTimeout, 
-                                 Uint32 shutdownTimeout)     //ONLY IF PEGASUS_HAS_SSL
+DynamicListener::DynamicListener(
+    Uint32 portNumber, 
+    const String& consumerDir,
+    const String& consumerConfigDir,
+    Boolean useSSL, 
+    const String& keyPath, 
+    const String& certPath,
+    Boolean enableConsumerUnload, 
+    Uint32 consumerIdleTimeout, 
+    Uint32 shutdownTimeout)     //ONLY IF PEGASUS_HAS_SSL
 {
     SSLContext* sslContext = 0;
     if (useSSL)
     {
-        sslContext = new SSLContext(String::EMPTY, certPath, keyPath, 0, String::EMPTY);//randFile);
+        sslContext = new SSLContext(
+                             String::EMPTY,
+                             certPath,
+                             keyPath,
+                             0,
+                             String::EMPTY); //randFile);
     }
 
     _rep = new DynamicListenerRep(portNumber, 
@@ -276,14 +289,15 @@ DynamicListener::DynamicListener(Uint32 portNumber,
                                   shutdownTimeout);
 }
 
-DynamicListener::DynamicListener(Uint32 portNumber, 
-                                 const String& consumerDir,
-                                 const String& consumerConfigDir,
-                                 Boolean useSSL, 
-                                 SSLContext* sslContext,
-                                 Boolean enableConsumerUnload, 
-                                 Uint32 consumerIdleTimeout, 
-                                 Uint32 shutdownTimeout)     //ONLY IF PEGASUS_HAS_SSL
+DynamicListener::DynamicListener(
+    Uint32 portNumber, 
+    const String& consumerDir,
+    const String& consumerConfigDir,
+    Boolean useSSL, 
+    SSLContext* sslContext,
+    Boolean enableConsumerUnload, 
+    Uint32 consumerIdleTimeout, 
+    Uint32 shutdownTimeout)     //ONLY IF PEGASUS_HAS_SSL
 {
     _rep = new DynamicListenerRep(portNumber, 
                                   consumerDir,           
@@ -315,14 +329,19 @@ Boolean DynamicListener::isAlive()
     return static_cast<DynamicListenerRep*>(_rep)->isAlive();
 }
 
-Boolean DynamicListener::addConsumer(const String& consumerName, const String& location)
+Boolean DynamicListener::addConsumer(
+    const String& consumerName,
+    const String& location)
 {
-    return static_cast<DynamicListenerRep*>(_rep)->addConsumer(consumerName, location);
+    return static_cast<DynamicListenerRep*>(_rep)->addConsumer(
+                                                       consumerName,
+                                                       location);
 }
 
 Boolean DynamicListener::removeConsumer(const String& consumerName)
 {
-    return static_cast<DynamicListenerRep*>(_rep)->removeConsumer(consumerName);
+    return static_cast<DynamicListenerRep*>(_rep)->removeConsumer(
+                                                       consumerName);
 }
 
 Uint32 DynamicListener::getPortNumber() 
@@ -342,7 +361,8 @@ String DynamicListener::getConsumerConfigDir()
 
 void DynamicListener::setEnableConsumerUnload(const Boolean consumerUnload)
 {
-    static_cast<DynamicListenerRep*>(_rep)->setEnableConsumerUnload(consumerUnload);
+    static_cast<DynamicListenerRep*>(_rep)->setEnableConsumerUnload(
+                                                consumerUnload);
 }
 
 Boolean DynamicListener::getEnableConsumerUnload()

@@ -45,8 +45,8 @@
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
-/* This is basically a wrapper for the OptionManager that does an additional level of validation specific to the
- * application.  
+/* This is basically a wrapper for the OptionManager that does an additional
+   level of validation specific to the application.  
  */ 
 
 class PEGASUS_DYNLISTENER_LINKAGE DynamicListenerConfig

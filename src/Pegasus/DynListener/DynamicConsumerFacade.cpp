@@ -73,16 +73,21 @@ inline T * getInterface(CIMIndicationConsumerProvider* consumer)
     if(p == 0)
     {
         //l10n
-        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "Invalid provider interface.");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, MessageLoaderParms(
-            "ProviderManager.ProviderFacade.INVALID_PROVIDER_INTERFACE",
-            "Provider interface is not valid."));
+        //throw PEGASUS_CIM_EXCEPTION(
+        //          CIM_ERR_NOT_SUPPORTED,
+        //          "Invalid provider interface.");
+        throw PEGASUS_CIM_EXCEPTION_L(
+            CIM_ERR_NOT_SUPPORTED,
+            MessageLoaderParms(
+                "ProviderManager.ProviderFacade.INVALID_PROVIDER_INTERFACE",
+                "Provider interface is not valid."));
     }
 
     return(p);
 }
 
-DynamicConsumerFacade::DynamicConsumerFacade(CIMIndicationConsumerProvider* consumer) : _consumer(consumer)
+DynamicConsumerFacade::DynamicConsumerFacade(
+    CIMIndicationConsumerProvider* consumer) : _consumer(consumer)
 {
 }
 
@@ -108,7 +113,8 @@ void DynamicConsumerFacade::consumeIndication(
 {
     op_counter ops(&_current_operations);
 
-    CIMIndicationConsumer * consumer = getInterface<CIMIndicationConsumer>(_consumer);
+    CIMIndicationConsumer * consumer = getInterface<CIMIndicationConsumer>
+                                           (_consumer);
 
     consumer->consumeIndication(
         context,

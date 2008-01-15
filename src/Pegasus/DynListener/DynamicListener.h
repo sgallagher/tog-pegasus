@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Heather Sterling (hsterl@us.ibm.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Dynamic_Listener_h
@@ -92,7 +88,9 @@ public:
 
     Boolean isAlive();
 
-    Boolean addConsumer(const String& consumerName, const String& location = String::EMPTY);
+    Boolean addConsumer(
+                const String& consumerName,
+                const String& location = String::EMPTY);
 
     Boolean removeConsumer(const String& consumerName);
 

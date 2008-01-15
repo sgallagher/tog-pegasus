@@ -53,11 +53,15 @@ PEGASUS_USING_STD;
 #define PEGASUS_QUEUE_NAME "DynamicListenerIndicationDispatcher"
 
 
-DynamicListenerIndicationDispatcher::DynamicListenerIndicationDispatcher(ConsumerManager* consumerManager) :
-Base(PEGASUS_QUEUE_NAME),
-_consumerManager(consumerManager)
+DynamicListenerIndicationDispatcher::DynamicListenerIndicationDispatcher(
+    ConsumerManager* consumerManager) :
+        Base(PEGASUS_QUEUE_NAME),
+        _consumerManager(consumerManager)
 {
-    PEG_METHOD_ENTER(TRC_LISTENER, "DynamicListenerIndicationDispatcher::DynamicListenerIndicationDispatcher");
+    PEG_METHOD_ENTER(
+        TRC_LISTENER,
+        "DynamicListenerIndicationDispatcher::"
+            "DynamicListenerIndicationDispatcher");
 
     PEG_METHOD_EXIT();
 }
@@ -65,14 +69,19 @@ _consumerManager(consumerManager)
 
 DynamicListenerIndicationDispatcher::~DynamicListenerIndicationDispatcher()
 {
-    PEG_METHOD_ENTER(TRC_LISTENER, "DynamicListenerIndicationDispatcher::~DynamicListenerIndicationDispatcher");
+    PEG_METHOD_ENTER(
+        TRC_LISTENER,
+        "DynamicListenerIndicationDispatcher::"
+            "~DynamicListenerIndicationDispatcher");
 
     PEG_METHOD_EXIT();
 }
 
 void DynamicListenerIndicationDispatcher::handleEnqueue()
 {
-    PEG_METHOD_ENTER(TRC_LISTENER, "DynamicListenerIndicationDispatcher::handleEnqueue");
+    PEG_METHOD_ENTER(
+        TRC_LISTENER,
+        "DynamicListenerIndicationDispatcher::handleEnqueue");
 
     Message *message = dequeue();
     if (message)
@@ -83,7 +92,9 @@ void DynamicListenerIndicationDispatcher::handleEnqueue()
 
 void DynamicListenerIndicationDispatcher::handleEnqueue(Message* message)
 {
-    PEG_METHOD_ENTER(TRC_LISTENER, "DynamicListenerIndicationDispatcher::handleEnqueue");
+    PEG_METHOD_ENTER(
+        TRC_LISTENER,
+        "DynamicListenerIndicationDispatcher::handleEnqueue");
 
     if (message!=NULL)
     {
@@ -91,7 +102,8 @@ void DynamicListenerIndicationDispatcher::handleEnqueue(Message* message)
         {
         case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
             {
-                CIMExportIndicationRequestMessage* request = (CIMExportIndicationRequestMessage*)message;
+                CIMExportIndicationRequestMessage* request = 
+                    (CIMExportIndicationRequestMessage*)message;
                 CIMException cimException;
 
                 try
@@ -100,8 +112,13 @@ void DynamicListenerIndicationDispatcher::handleEnqueue(Message* message)
 
                 } catch (Exception& ex)
                 {
-                    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Exception getting consumer: " + ex.getMessage());
-                    cimException = CIMException(CIM_ERR_FAILED, ex.getMessage());
+                    PEG_TRACE_STRING(
+                        TRC_LISTENER,
+                        Tracer::LEVEL2,
+                        "Exception getting consumer: " + ex.getMessage());
+                    cimException = CIMException(
+                                       CIM_ERR_FAILED,
+                                       ex.getMessage());
 
                     Logger::put(
                                Logger::ERROR_LOG,
@@ -112,8 +129,13 @@ void DynamicListenerIndicationDispatcher::handleEnqueue(Message* message)
 
                 } catch (...)
                 {
-                    PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2, "Exception getting consumer: Unknown");
-                    cimException = CIMException(CIM_ERR_FAILED, "Unknown exception");
+                    PEG_TRACE_CSTRING(
+                        TRC_LISTENER,
+                        Tracer::LEVEL2,
+                        "Exception getting consumer: Unknown");
+                    cimException = CIMException(
+                                       CIM_ERR_FAILED,
+                                       "Unknown exception");
 
                     Logger::put(
                                Logger::ERROR_LOG,
@@ -122,19 +144,26 @@ void DynamicListenerIndicationDispatcher::handleEnqueue(Message* message)
                                "Unknown Exception getting consumer");
                 }
 
-                //At this point (barring one of the above exceptions), we can be reasonably sure that the 
-                //indication will get delivered and processed. The request was well-formatted and we 
-                //were able to locate and load the consumer.  Send an acknowledgement to the client
-                //that we received the indication. 
-                //We should not wait until the consumer reports ultimate success since that could take a long
-                //time and would require us to store a bunch of status information.  Additionally, the wait
-                //could cause a timeout exception on the client end.
+                /** At this point (barring one of the above exceptions), 
+                 * we can be reasonably sure that the indication will get 
+                 * delivered and processed. The request was well-formatted and
+                 * we were able to locate and load the consumer.
+                 * Send an acknowledgement to the client that we received 
+                 * the indication. 
+                 * We should not wait until the consumer reports ultimate 
+                 * success since that could take a long time and would require 
+                 * us to store a bunch of status information.  
+                 * Additionally, the wait could cause a timeout exception 
+                 * on the client end.
 
-                //ATTN: Why isn't the CIM exception getting appended to the response?  Go look in Message.h
-                CIMExportIndicationResponseMessage* response = new CIMExportIndicationResponseMessage(
-                                                                                                     request->messageId,
-                                                                                                     cimException,
-                                                                                                     request->queueIds.copyAndPop());
+                 */
+                // ATTN: Why isn't the CIM exception getting appended 
+                // to the response?  Go look in Message.h
+                CIMExportIndicationResponseMessage* response = 
+                    new CIMExportIndicationResponseMessage(
+                        request->messageId,
+                        cimException,
+                        request->queueIds.copyAndPop());
 
                 response->dest = request->queueIds.top();
                 _enqueueResponse(request, response);
@@ -144,17 +173,26 @@ void DynamicListenerIndicationDispatcher::handleEnqueue(Message* message)
             break;
         default:
             {
-                //unsupported message type
-                //it should not get here; this error is caught in the request decoder
-                PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, 
-                                 "Unsupported msg type: " + String(MessageTypeToString(message->getType())));
+                // unsupported message type
+                // it should not get here; 
+                // this error is caught in the request decoder
+                PEG_TRACE_STRING(
+                    TRC_LISTENER,
+                    Tracer::LEVEL2, 
+                    "Unsupported msg type: " + 
+                        String(MessageTypeToString(message->getType())));
 
-                CIMRequestMessage* cimRequest = dynamic_cast<CIMRequestMessage*>(message);
+                CIMRequestMessage* cimRequest = 
+                    dynamic_cast<CIMRequestMessage*>(message);
 
                 CIMResponseMessage* response = cimRequest->buildResponse();
-                response->cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, 
-                                                                 MessageLoaderParms("DynListener.DynamicListenerIndicationDispatcher.INVALID_MSG_TYPE", 
-                                                                                    "Invalid message type"));
+                response->cimException = 
+                    PEGASUS_CIM_EXCEPTION_L(
+                        CIM_ERR_FAILED,
+                        MessageLoaderParms(
+                            "DynListener.DynamicListenerIndicationDispatcher"
+                                ".INVALID_MSG_TYPE",
+                            "Invalid message type"));
 
                 _enqueueResponse (cimRequest, response);
             }
@@ -166,9 +204,12 @@ void DynamicListenerIndicationDispatcher::handleEnqueue(Message* message)
     PEG_METHOD_EXIT();
 }
 
-void DynamicListenerIndicationDispatcher::_handleIndicationRequest(CIMExportIndicationRequestMessage* request)
+void DynamicListenerIndicationDispatcher::_handleIndicationRequest(
+    CIMExportIndicationRequestMessage* request)
 {
-    PEG_METHOD_ENTER(TRC_LISTENER, "DynamicListenerIndicationDispatcher::handleIndicationRequest");
+    PEG_METHOD_ENTER(
+        TRC_LISTENER,
+        "DynamicListenerIndicationDispatcher::handleIndicationRequest");
 
     OperationContext context = request->operationContext;
     String url = request->destinationPath;
@@ -187,21 +228,26 @@ void DynamicListenerIndicationDispatcher::_handleIndicationRequest(CIMExportIndi
                    url);
 
         MessageLoaderParms msgLoaderParms(
-                                         "DynListener.DynamicListenerIndicationDispatcher.BAD_URL",
-                                         "Invalid CIMXMLIndicationHandler destination: $0.",
-                                         url);
+            "DynListener.DynamicListenerIndicationDispatcher.BAD_URL",
+            "Invalid CIMXMLIndicationHandler destination: $0.",
+            url);
 
         throw CIMException(CIM_ERR_FAILED, msgLoaderParms);
     }
 
     String consumerName = url.subString(slash+1);
 
-    //check for a trailing slash, in the case that additional information is in the URL, i.e. /CIMListener/MyConsumer/9.44.169.132
+    // check for a trailing slash, 
+    // in the case that additional information is in the URL, 
+    // i.e. /CIMListener/MyConsumer/9.44.169.132
     Uint32 trailingSlash = consumerName.find('/');
     if (trailingSlash != PEG_NOT_FOUND)
     {
         consumerName = consumerName.subString(0, trailingSlash);
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "The consumer name with slash removed is!" + consumerName + "!");
+        PEG_TRACE_STRING(
+            TRC_LISTENER,
+            Tracer::LEVEL2,
+            "The consumer name with slash removed is!" + consumerName + "!");
     }
     
     //get consumer
@@ -211,9 +257,10 @@ void DynamicListenerIndicationDispatcher::_handleIndicationRequest(CIMExportIndi
 
     //deliver indication to consumer
     //gets deleted by the DynamicConsumer
-    IndicationDispatchEvent* event = new IndicationDispatchEvent(request->operationContext,
-                                                                 request->destinationPath,
-                                                                 request->indicationInstance);
+    IndicationDispatchEvent* event = new IndicationDispatchEvent(
+                                             request->operationContext,
+                                             request->destinationPath,
+                                             request->indicationInstance);
 
     //enqueue event
     consumer->enqueueEvent(event);

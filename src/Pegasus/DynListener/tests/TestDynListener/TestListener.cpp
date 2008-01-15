@@ -57,7 +57,8 @@ int main(int argc, char** argv)
     Logger::setlogLevelMask("SEVERE");
     Logger::setlogLevelMask("WARNING");
 
-    String configFile = "cimlistener.conf";  //ATTN: Need to be able to specify a different conf file as cmdline arg
+    //ATTN: Need to be able to specify a different conf file as cmdline arg
+    String configFile = "cimlistener.conf";
 
     try
     {   
@@ -80,7 +81,10 @@ int main(int argc, char** argv)
         Uint32 traceLevel;
         String traceComponents;
 
-        printf("Home dir: %s\n", (const char*)DynamicListenerConfig::getListenerHome().getCString());
+        printf(
+            "Home dir: %s\n",
+            (const char*)
+                DynamicListenerConfig::getListenerHome().getCString());
 
         if (!config.lookupIntegerValue("listenerPort", listenerPort))
         {
@@ -95,7 +99,9 @@ int main(int argc, char** argv)
             printf("Invalid key file path");
         }
 
-        if (!config.lookupValue("sslCertificateFilePath", sslCertificateFilePath))
+        if (!config.lookupValue(
+                 "sslCertificateFilePath",
+                 sslCertificateFilePath))
         {
             //ATTN:confirm path?
             printf("Invalid certificate file path");
@@ -115,7 +121,9 @@ int main(int argc, char** argv)
 
         enableConsumerUnload = config.isTrue("enableConsumerUnload");
 
-        if (!config.lookupIntegerValue("consumerIdleTimeout", consumerIdleTimeout))
+        if (!config.lookupIntegerValue(
+                 "consumerIdleTimeout",
+                 consumerIdleTimeout))
         {
             printf("Invalid consumerIdleTimeout");
         }
@@ -125,12 +133,16 @@ int main(int argc, char** argv)
             printf("Invalid directory");
         }
 
-        if (!config.lookupIntegerValue("consumerIdleTimeout", consumerIdleTimeout))
+        if (!config.lookupIntegerValue(
+                 "consumerIdleTimeout",
+                 consumerIdleTimeout))
         {
             printf("Invalid consumerIdleTimeout");
         }
 
-        if (!config.lookupIntegerValue("shutdownTimeout", shutdownTimeout))
+        if (!config.lookupIntegerValue(
+                 "shutdownTimeout",
+                 shutdownTimeout))
         {
             printf("Invalid consumerIdleTimeout");
         }
@@ -155,16 +167,21 @@ int main(int argc, char** argv)
         printf("Starting CIMListener with the following options\n");
         printf("\tlistenerPort %d\n", listenerPort);
         printf("\thttpsConnection %d\n", httpsConnection);
-        printf("\tsslKeyFilePath %s\n", (const char*)sslKeyFilePath.getCString());
-        printf("\tsslCertificateFilePath %s\n", (const char*)sslCertificateFilePath.getCString());
-        printf("\tconsumerDir %s\n", (const char*)consumerDir.getCString());
-        printf("\tconsumerConfigDir %s\n", (const char*)consumerConfigDir.getCString());
+        printf("\tsslKeyFilePath %s\n",
+               (const char*)sslKeyFilePath.getCString());
+        printf("\tsslCertificateFilePath %s\n",
+               (const char*)sslCertificateFilePath.getCString());
+        printf("\tconsumerDir %s\n",
+               (const char*)consumerDir.getCString());
+        printf("\tconsumerConfigDir %s\n",
+               (const char*)consumerConfigDir.getCString());
         printf("\tenableConsumerUnload %d\n", enableConsumerUnload);
         printf("\tconsumerIdleTimeout %d\n", consumerIdleTimeout);
         printf("\tshutdownTimeout %d\n", shutdownTimeout);
         printf("\ttraceFilePath %s\n", (const char*)traceFile.getCString());
         printf("\ttraceLevel %d\n", traceLevel);
-        printf("\ttraceComponents %s\n", (const char*)traceComponents.getCString());
+        printf("\ttraceComponents %s\n",
+               (const char*)traceComponents.getCString());
         printf("\n\nType \"exit\" to shutdown the listener gracefully.\n");
 
         PEGASUS_STD(cout) << "Testing tracing\n";
@@ -187,9 +204,18 @@ int main(int argc, char** argv)
             Tracer::setTraceComponents(traceComponents);
             Tracer::setTraceLevel(traceLevelArg);
 
-            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2, "Testing trace LEVEL2");
-            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL3, "Testing trace LEVEL3");
-            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "Testing trace LEVEL4");
+            PEG_TRACE_CSTRING(
+                TRC_LISTENER,
+                Tracer::LEVEL2,
+                "Testing trace LEVEL2");
+            PEG_TRACE_CSTRING(
+                TRC_LISTENER,
+                Tracer::LEVEL3,
+                "Testing trace LEVEL3");
+            PEG_TRACE_CSTRING(
+                TRC_LISTENER,
+                Tracer::LEVEL4,
+                "Testing trace LEVEL4");
         }
 
         //ATTN: Need to handle SSL cases
@@ -219,19 +245,25 @@ int main(int argc, char** argv)
 
     } catch (OMConfigFileSyntaxError& cfs)
     {
-        printf("ConfigFileSyntaxError %s\n", (const char*)cfs.getMessage().getCString());
+        printf("ConfigFileSyntaxError %s\n",
+               (const char*)cfs.getMessage().getCString());
     } catch (OMUnrecognizedConfigFileOption& cfs)
     {
-        printf("OMUnrecognizedConfigFileOption %s\n", (const char*)cfs.getMessage().getCString());
+        printf("OMUnrecognizedConfigFileOption %s\n",
+               (const char*)cfs.getMessage().getCString());
     } catch (OMInvalidOptionValue& cfs)
     {
-        printf("OMInvalidOptionValue %s\n", (const char*)cfs.getMessage().getCString());
+        printf("OMInvalidOptionValue %s\n",
+               (const char*)cfs.getMessage().getCString());
     } catch (CIMException& ce)
     {
-        printf("CIMException %s\n", (const char*)ce.getMessage().getCString());}
+        printf("CIMException %s\n",
+               (const char*)ce.getMessage().getCString());
+    }
     catch (Exception e)
     {
-        printf("Exception %s\n", (const char*)e.getMessage().getCString());
+        printf("Exception %s\n",
+               (const char*)e.getMessage().getCString());
     }
 
     return 0;

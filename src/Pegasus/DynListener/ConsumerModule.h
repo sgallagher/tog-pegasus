@@ -51,7 +51,8 @@ PEGASUS_NAMESPACE_BEGIN
 // operation, that contains a provider. This class effectively encapsulates the
 // "physical" portion of a consumer.
 // 
-// There can be multiple "logical" consumers in memory, but there is only one "physical" consumer.
+// There can be multiple "logical" consumers in memory, 
+// but there is only one "physical" consumer.
 // This class keeps track of how many logical consumers are using it.
 
 
@@ -62,7 +63,9 @@ class PEGASUS_DYNLISTENER_LINKAGE ConsumerModule
 public:
     virtual ~ConsumerModule(void);
     const String & getFileName(void) const;
-    CIMIndicationConsumerProvider* load(const String & consumerName, const String & libraryPath);
+    CIMIndicationConsumerProvider* load(
+        const String & consumerName,
+        const String & libraryPath);
     void unloadModule(void);
 
 protected:

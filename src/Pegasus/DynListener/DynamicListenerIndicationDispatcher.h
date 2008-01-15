@@ -48,7 +48,8 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-class PEGASUS_DYNLISTENER_LINKAGE DynamicListenerIndicationDispatcher : public MessageQueueService
+class PEGASUS_DYNLISTENER_LINKAGE DynamicListenerIndicationDispatcher : 
+    public MessageQueueService
 {
 public:
 

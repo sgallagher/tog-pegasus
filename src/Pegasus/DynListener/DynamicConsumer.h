@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Heather Sterling (hsterl@us.ibm.com)
-//
-// Modified By: 
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Dynamic_Consumer_h
@@ -52,16 +48,18 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-/** The IndicationDispatchEvent class encapsulates an event and all of the information associated with the event.
- *  The operation context, URL, and the CIM indication instance are the parameters to the consumeIndication() method
- *  of the CIMIndicationConsumer interface.  Additionally, we need to store the number of retries in order to resend
+/** The IndicationDispatchEvent class encapsulates an event and all of the 
+ *  information associated with the event. The operation context, URL, 
+ *  and the CIM indication instance are the parameters to the 
+ *  consumeIndication() method* of the CIMIndicationConsumer interface.
+ *  Additionally, we need to store the number of retries in order to resend
  *  indications if the consumer fails.
  */ 
 class PEGASUS_DYNLISTENER_LINKAGE IndicationDispatchEvent : public Linkable
 {
 public:
     
-	IndicationDispatchEvent();
+    IndicationDispatchEvent();
 
     IndicationDispatchEvent(OperationContext context,
                             String url,
@@ -83,7 +81,7 @@ public:
 
     CIMDateTime getLastAttemptTime();
 
-	IndicationDispatchEvent& operator=(const IndicationDispatchEvent &event);
+    IndicationDispatchEvent& operator=(const IndicationDispatchEvent &event);
 
     Boolean operator==(const IndicationDispatchEvent &event) const;
 
@@ -103,13 +101,14 @@ private:
  * and is directly tied to a module.
  * 
  * The synchronization of these actions is left up to the caller.  For example,
- * the caller must ensure that terminate is not called while initialize is executing.  
- * The ConsumerManager uses a consumer table mutex to ensure that no mutually exclusive
- * operations occur at the same time. The exception to this is the operation of the worker 
- * thread, which is signalled during a shutdown operation or when a new event occurs.
+ * the caller must ensure that terminate is not called while initialize
+ * is executing.  The ConsumerManager uses a consumer table mutex to ensure
+ * that no mutually exclusive operations occur at the same time. The exception
+ * to this is the operation of the worker thread, which is signalled during 
+ * a shutdown operation or when a new event occurs.
  */
 
-class PEGASUS_DYNLISTENER_LINKAGE DynamicConsumer : public DynamicConsumerFacade
+class PEGASUS_DYNLISTENER_LINKAGE DynamicConsumer:public DynamicConsumerFacade
 {
 public:
 
@@ -166,22 +165,23 @@ protected:
 private:
     friend class ConsumerManager;
 
-    //indication queue
+    // indication queue
     List<IndicationDispatchEvent,Mutex> _eventqueue;
 
-    //this mutex controls the state of the consumer to ensure it is not initializing, terminating, etc at the same time
-    //ATTN: Do we need this?  The ConsumerManager will be controlling the status of the consumers.
-    //Check back here when doing global queue
+    // this mutex controls the state of the consumer to ensure it is
+    // not initializing, terminating, etc at the same time
+    // ATTN: Do we need this?  The ConsumerManager will be controlling 
+    // the status of the consumers. Check back here when doing global queue
     Mutex _statusMutex;
 
-    //physical consumer variables
+    // physical consumer variables
     CIMIndicationConsumerProvider* getConsumer();
     ConsumerModule* getModule(void) const;
 
     String _name;
     String _fileName;
 
-    //state variables
+    // state variables
     Boolean _initialized;
     Boolean _dieNow;        //indicates we are shutting down
 
@@ -197,26 +197,31 @@ private:
     // This allows for a simulated "WaitForMultipleObjects"
     Semaphore* _check_queue;
 
-    //Signals that the event thread is listening and can now be signalled.
-    //This eliminates any synchronization issues that may occur when the first event comes in or if shutdown is called
-    //right as the consumer thread is being started
+    // Signals that the event thread is listening and can now be signalled.
+    // This eliminates any synchronization issues that may occur when the 
+    // first event comes in or if shutdown is called right as the 
+    // consumer thread is being started
     Semaphore* _listeningSemaphore;
 
-    //ATTN: For now, we must store the shutdown semaphore on the consumer, in order to be able to gracefully
-    //unload it during a normal shutdown OR an idle shutdown.  Pegasus's ThreadPool does not provide
-    //a way to access any thread information once it is spawned; the only option is to pass a blocking
-    //semaphore in, which will signal when the thread completes.  Since we are using one dedicated thread
-    //per consumer for now, we can store one shutdown semaphore per consumer.  We'll change the implementation
-    //when we go to a global queue.
+    // ATTN: For now, we must store the shutdown semaphore on the consumer,
+    // in order to be able to gracefully unload it during a normal shutdown
+    // OR an idle shutdown.  Pegasus's ThreadPool does not provide a way to
+    // access any thread information once it is spawned; the only option is
+    // to pass a blocking semaphore in, which will signal when the thread
+    // completes.  Since we are using one dedicated thread per consumer
+    // for now, we can store one shutdown semaphore per consumer.  We'll 
+    // change the implementation when we go to a global queue.
 
-    //This is used to tell the consumer manager that the worker thread has indeed stopped
-    //it's passed in from the manager during initialization and can be checked to determine
-    //whether the consumer can be unloaded.  This setup will change as the global queueing is
-    //set up.
+    // This is used to tell the consumer manager that the worker thread has
+    // indeed stopped it's passed in from the manager during initialization and
+    // can be checked to determine whether the consumer can be unloaded.  This
+    // setup will change as the global queueing is set up.
     Semaphore* _shutdownSemaphore;
 
-    //these functions are used to serialize and deserialize outstanding indications
-    void _loadOutstandingIndications(Array<IndicationDispatchEvent> indications);
+    // these functions are used to serialize and
+    // deserialize outstanding indications
+    void _loadOutstandingIndications(
+             Array<IndicationDispatchEvent> indications);
 
     Array<IndicationDispatchEvent> _retrieveOutstandingIndications();
 

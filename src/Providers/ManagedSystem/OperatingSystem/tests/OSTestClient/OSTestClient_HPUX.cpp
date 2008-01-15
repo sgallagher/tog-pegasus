@@ -45,6 +45,7 @@
 #include <utmpx.h>          // for utxent calls
 #include <sys/pstat.h>      // for pstat
 #include <dl.h>             // for shl_findsym
+#include <time.h>           // for localtime_r
 
 /**
    goodCSCreationClassName method for the OS Provider Test Client

@@ -150,7 +150,7 @@ class PEGASUS_COMMON_LINKAGE _HashTableIteratorBase
 {
 public:
 
-    _HashTableIteratorBase(_BucketBase** first, _BucketBase** last);
+    _HashTableIteratorBase() : _first(0), _last(0), _bucket(0) { }
 
     operator int() const { return _bucket != 0; }
 
@@ -158,10 +158,9 @@ public:
 
     _HashTableIteratorBase& operator++();
 
-protected:
+    _HashTableIteratorBase(_BucketBase** first, _BucketBase** last);
 
-    _HashTableIteratorBase(const _HashTableIteratorBase&);
-    _HashTableIteratorBase& operator=(const _HashTableIteratorBase&);
+protected:
 
     _BucketBase** _first;
     _BucketBase** _last;
@@ -299,6 +298,9 @@ template<class K, class V, class E>
 class _HashTableIterator : public _HashTableIteratorBase
 {
 public:
+
+    _HashTableIterator()
+        : _HashTableIteratorBase() { }
 
     _HashTableIterator(_BucketBase** first, _BucketBase** last)
         : _HashTableIteratorBase(first, last) { }

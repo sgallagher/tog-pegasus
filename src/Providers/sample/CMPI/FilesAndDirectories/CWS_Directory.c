@@ -47,7 +47,7 @@ static const CMPIBroker * _broker;
  * ------------------------------------------------------------------ */
 
 CMPIStatus CWS_DirectoryCleanup( CMPIInstanceMI * mi, 
-				 const CMPIContext * ctx, CMPIBoolean term) 
+                 const CMPIContext * ctx, CMPIBoolean term) 
 {
   CMReturn(CMPI_RC_OK);
 }
@@ -57,9 +57,9 @@ CMPIStatus CWS_DirectoryCleanup( CMPIInstanceMI * mi,
  * ------------------------------------------------------------------ */
 
 CMPIStatus CWS_DirectoryEnumInstanceNames( CMPIInstanceMI * mi, 
-					   const CMPIContext * ctx, 
-					   const CMPIResult * rslt, 
-					   const CMPIObjectPath * ref) 
+                       const CMPIContext * ctx, 
+                       const CMPIResult * rslt, 
+                       const CMPIObjectPath * ref) 
 
 {
    CMPIObjectPath *op;
@@ -73,19 +73,19 @@ CMPIStatus CWS_DirectoryEnumInstanceNames( CMPIInstanceMI * mi,
 
   if (enumhdl == NULL) {
     CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
-			 "Could not begin file enumeration");
+             "Could not begin file enumeration");
     return st;
   } else {
     while (CWS_Next_Enum(enumhdl,&filebuf)) {
       /* build object path from file buffer */
       op = makePath(_broker,
-		    LOCALCLASSNAME,
-		    CMGetCharPtr(CMGetNameSpace(ref,NULL)),
-		    &filebuf);
+            LOCALCLASSNAME,
+            CMGetCharPtr(CMGetNameSpace(ref,NULL)),
+            &filebuf);
       if (CMIsNullObject(op)) {
-	CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
-			     "Could not construct object path");
-	break;
+    CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
+                 "Could not construct object path");
+    break;
       }
       CMReturnObjectPath(rslt,op);
     }
@@ -97,10 +97,10 @@ CMPIStatus CWS_DirectoryEnumInstanceNames( CMPIInstanceMI * mi,
 }
 
 CMPIStatus CWS_DirectoryEnumInstances( CMPIInstanceMI * mi, 
-				       const CMPIContext * ctx, 
-				       const CMPIResult * rslt, 
-				       const CMPIObjectPath * ref, 
-				       const char ** properties) 
+                       const CMPIContext * ctx, 
+                       const CMPIResult * rslt, 
+                       const CMPIObjectPath * ref, 
+                       const char ** properties) 
 {
   CMPIInstance   *in;
   CMPIStatus      st = {CMPI_RC_OK,NULL};
@@ -113,19 +113,19 @@ CMPIStatus CWS_DirectoryEnumInstances( CMPIInstanceMI * mi,
 
   if (enumhdl == NULL) {
     CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
-			 "Could not begin file enumeration");
+             "Could not begin file enumeration");
     return st;
   } else {
     while (CWS_Next_Enum(enumhdl,&filebuf)) {
       /* build instance from file buffer */
       in = makeInstance(_broker,
-			LOCALCLASSNAME,
-			CMGetCharPtr(CMGetNameSpace(ref,NULL)),
-			&filebuf);
+            LOCALCLASSNAME,
+            CMGetCharPtr(CMGetNameSpace(ref,NULL)),
+            &filebuf);
       if (CMIsNullObject(in)) {
-	CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
-			     "Could not construct instance");
-	break;
+    CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
+                 "Could not construct instance");
+    break;
       }
       CMReturnInstance(rslt,in);
     }
@@ -137,10 +137,10 @@ CMPIStatus CWS_DirectoryEnumInstances( CMPIInstanceMI * mi,
 }
 
 CMPIStatus CWS_DirectoryGetInstance( CMPIInstanceMI * mi, 
-				     const CMPIContext * ctx, 
-				     const CMPIResult * rslt, 
-				     const CMPIObjectPath * cop, 
-				     const char ** properties) 
+                     const CMPIContext * ctx, 
+                     const CMPIResult * rslt, 
+                     const CMPIObjectPath * cop, 
+                     const char ** properties) 
 {
   CMPIInstance *in = NULL;
   CMPIStatus    st = {CMPI_RC_OK,NULL};
@@ -153,13 +153,13 @@ CMPIStatus CWS_DirectoryGetInstance( CMPIInstanceMI * mi,
       nd.type == CMPI_string &&
       CWS_Get_File(CMGetCharPtr(nd.value.string),&filebuf))
     in = makeInstance(_broker,
-		      LOCALCLASSNAME,
-		      CMGetCharPtr(CMGetNameSpace(cop,NULL)),
-		      &filebuf);
+              LOCALCLASSNAME,
+              CMGetCharPtr(CMGetNameSpace(cop,NULL)),
+              &filebuf);
 
   if (CMIsNullObject(in)) {
     CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
-			 "Could not find or construct instance");
+             "Could not find or construct instance");
   } else {
     CMReturnInstance(rslt,in);
     CMReturnDone(rslt);
@@ -169,10 +169,10 @@ CMPIStatus CWS_DirectoryGetInstance( CMPIInstanceMI * mi,
 }
 
 CMPIStatus CWS_DirectoryCreateInstance( CMPIInstanceMI * mi, 
-					const CMPIContext * ctx, 
-					const CMPIResult * rslt, 
-					const CMPIObjectPath * cop, 
-					const CMPIInstance * ci) 
+                    const CMPIContext * ctx, 
+                    const CMPIResult * rslt, 
+                    const CMPIObjectPath * cop, 
+                    const CMPIInstance * ci) 
 {
   CMPIStatus st = {CMPI_RC_OK,NULL};
   CWS_FILE   filebuf;
@@ -183,22 +183,22 @@ CMPIStatus CWS_DirectoryCreateInstance( CMPIInstanceMI * mi,
   data = CMGetProperty(ci,"Name",NULL);
   if (!CMGetCharPtr(data.value.string) ||
       strncmp(CMGetCharPtr(data.value.string),CWS_FILEROOT,
-	      strlen(CWS_FILEROOT))) {
+          strlen(CWS_FILEROOT))) {
     CMSetStatusWithChars(_broker,&st,CMPI_RC_ERR_FAILED,
-			 "Invalid path name");
+             "Invalid path name");
   } else if (!makeFileBuf(ci,&filebuf) || !CWS_Create_Directory(&filebuf)) {
     CMSetStatusWithChars(_broker,&st,CMPI_RC_ERR_FAILED,
-			 "Could not create instance");
+             "Could not create instance");
   }
 
   return st;
 }
 CMPIStatus CWS_DirectoryModifyInstance( CMPIInstanceMI * mi, 
-				     const CMPIContext * ctx, 
-				     const CMPIResult * rslt, 
-				     const CMPIObjectPath * cop,
-				     const CMPIInstance * ci, 
-				     const char **properties) 
+                     const CMPIContext * ctx, 
+                     const CMPIResult * rslt, 
+                     const CMPIObjectPath * cop,
+                     const CMPIInstance * ci, 
+                     const char **properties) 
 {
   CMPIStatus st = {CMPI_RC_OK,NULL};
   CWS_FILE   filebuf;
@@ -207,25 +207,25 @@ CMPIStatus CWS_DirectoryModifyInstance( CMPIInstanceMI * mi,
 
   if (!makeFileBuf(ci,&filebuf) || !CWS_Update_File(&filebuf))
     CMSetStatusWithChars(_broker,&st,CMPI_RC_ERR_FAILED,
-			 "Could not update instance");
+             "Could not update instance");
 
   return st;
 }
 
 CMPIStatus CWS_DirectoryDeleteInstance( CMPIInstanceMI * mi, 
-					const CMPIContext * ctx, 
-					const CMPIResult * rslt, 
-					const CMPIObjectPath * cop) 
+                    const CMPIContext * ctx, 
+                    const CMPIResult * rslt, 
+                    const CMPIObjectPath * cop) 
 {
   CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
 }
 
 CMPIStatus CWS_DirectoryExecQuery( CMPIInstanceMI * mi, 
-				   const CMPIContext * ctx, 
-				   const CMPIResult * rslt, 
-				   const CMPIObjectPath * cop, 
-				   const char * lang, 
-				   const char * query) 
+                   const CMPIContext * ctx, 
+                   const CMPIResult * rslt, 
+                   const CMPIObjectPath * cop, 
+                   const char * lang, 
+                   const char * query) 
 {
   CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
 }
@@ -239,6 +239,6 @@ CMPIStatus CWS_DirectoryExecQuery( CMPIInstanceMI * mi,
  * ------------------------------------------------------------------ */
 
 CMInstanceMIStub( CWS_Directory,
-		  CWS_DirectoryProvider,
-		  _broker,
-		  CMNoHook)
+          CWS_DirectoryProvider,
+          _broker,
+          CMNoHook)

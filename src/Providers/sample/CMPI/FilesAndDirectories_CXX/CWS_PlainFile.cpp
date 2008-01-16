@@ -58,7 +58,7 @@ CMMethodMIFactory(CWS_PlainFile,CWS_PlainFileProvider_CXX);
 /* -----------------------------------------------------------------------*/
 
 CWS_PlainFile::CWS_PlainFile (const CmpiBroker &mbp, 
-			      const CmpiContext& ctx) 
+                  const CmpiContext& ctx) 
   : CmpiBaseMI(mbp, ctx), CmpiInstanceMI(mbp,ctx),
     CmpiMethodMI(mbp,ctx), cppBroker(mbp) 
 {  
@@ -85,8 +85,8 @@ int CWS_PlainFile::isUnloadable() const
 
 
 CmpiStatus CWS_PlainFile::enumInstanceNames(const CmpiContext& ctx, 
-					    CmpiResult& rslt,
-					    const CmpiObjectPath& cop)
+                        CmpiResult& rslt,
+                        const CmpiObjectPath& cop)
 {      
   void           *enumhdl;
   CWS_FILE        filebuf;
@@ -101,7 +101,7 @@ CmpiStatus CWS_PlainFile::enumInstanceNames(const CmpiContext& ctx,
   
   if (enumhdl == NULL) {
     throw CmpiStatus(CMPI_RC_ERR_FAILED,
-		     "Could not begin file enumeration");
+             "Could not begin file enumeration");
   } 
   while (CWS_Next_Enum(enumhdl,&filebuf)) {
     /* build object path from file buffer */
@@ -115,9 +115,9 @@ CmpiStatus CWS_PlainFile::enumInstanceNames(const CmpiContext& ctx,
 }
 
 CmpiStatus CWS_PlainFile::enumInstances(const CmpiContext& ctx, 
-					CmpiResult& rslt,
-					const CmpiObjectPath& cop, 
-					const char* *properties)
+                    CmpiResult& rslt,
+                    const CmpiObjectPath& cop, 
+                    const char* *properties)
 {
   void           *enumhdl;
   CWS_FILE        filebuf;
@@ -131,15 +131,15 @@ CmpiStatus CWS_PlainFile::enumInstances(const CmpiContext& ctx,
   
   if (enumhdl == NULL) {
     throw CmpiStatus(CMPI_RC_ERR_FAILED,
-		     "Could not begin file enumeration");
+             "Could not begin file enumeration");
   } 
   while (CWS_Next_Enum(enumhdl,&filebuf)) {
     /* build instance from file buffer */
     CmpiInstance instance = 
       makeInstance(LOCALCLASSNAME,
-		   nameSpace.charPtr(),
-		   &filebuf,
-		   properties);
+           nameSpace.charPtr(),
+           &filebuf,
+           properties);
     rslt.returnData(instance);
   } 
   CWS_End_Enum(enumhdl);
@@ -149,10 +149,10 @@ CmpiStatus CWS_PlainFile::enumInstances(const CmpiContext& ctx,
         
 
 CmpiStatus CWS_PlainFile::getInstance(const CmpiContext& ctx, 
-				      CmpiResult& rslt,
-				      const CmpiObjectPath& cop, 
-				      const char* *properties)
-{   	  
+                      CmpiResult& rslt,
+                      const CmpiObjectPath& cop, 
+                      const char* *properties)
+{         
 #ifndef SIMULATED
   cout<<"CWS_PlainFile getting instance"<<endl;
 #endif
@@ -164,9 +164,9 @@ CmpiStatus CWS_PlainFile::getInstance(const CmpiContext& ctx,
   if (CWS_Get_File(key.charPtr(),&filebuf)) {
     CmpiInstance instance = 
       makeInstance(LOCALCLASSNAME,
-		   nameSpace.charPtr(),
-		   &filebuf,
-		   properties);
+           nameSpace.charPtr(),
+           &filebuf,
+           properties);
     rslt.returnData(instance);
     rslt.returnDone();
     return CmpiStatus(CMPI_RC_OK);
@@ -175,11 +175,11 @@ CmpiStatus CWS_PlainFile::getInstance(const CmpiContext& ctx,
 }
     
 CmpiStatus CWS_PlainFile::setInstance(const CmpiContext& ctx, 
-				      CmpiResult& rslt,
-				      const CmpiObjectPath& cop, 
-				      const CmpiInstance& inst,
-				      const char* *properties)
-{   	
+                      CmpiResult& rslt,
+                      const CmpiObjectPath& cop, 
+                      const CmpiInstance& inst,
+                      const char* *properties)
+{       
 #ifndef SIMULATED
   cout<<"CWS_PlainFile modifying instance"<<endl;
 #endif
@@ -197,21 +197,21 @@ CmpiStatus CWS_PlainFile::setInstance(const CmpiContext& ctx,
 }
 
 CmpiStatus CWS_PlainFile::createInstance(const CmpiContext& ctx, 
-					 CmpiResult& rslt,
-					 const CmpiObjectPath& cop,
-					 const CmpiInstance& inst)
+                     CmpiResult& rslt,
+                     const CmpiObjectPath& cop,
+                     const CmpiInstance& inst)
 {
   return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED,
-		   "CWS_PlainFile cannot create");
+           "CWS_PlainFile cannot create");
 }
 
 CmpiStatus CWS_PlainFile::deleteInstance(const CmpiContext& ctx, 
-					 CmpiResult& rslt,
-					 const CmpiObjectPath& cop)
+                     CmpiResult& rslt,
+                     const CmpiObjectPath& cop)
 {
   // we can return or throw - whatever we like
   return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED,
-		    "CWS_PlainFile cannot delete");
+            "CWS_PlainFile cannot delete");
 }
 
 
@@ -221,11 +221,11 @@ CmpiStatus CWS_PlainFile::deleteInstance(const CmpiContext& ctx,
 
 
 CmpiStatus CWS_PlainFile::invokeMethod(const CmpiContext& ctx, 
-				       CmpiResult& rslt,
-				       const CmpiObjectPath& cop,
-				       const char * method,
-				       const CmpiArgs& in,
-				       CmpiArgs& out)
+                       CmpiResult& rslt,
+                       const CmpiObjectPath& cop,
+                       const char * method,
+                       const CmpiArgs& in,
+                       CmpiArgs& out)
 {
 #ifndef SIMULATED
   cout<<"CWS_PlainFile invoking method "<<method<<endl;
@@ -237,9 +237,9 @@ CmpiStatus CWS_PlainFile::invokeMethod(const CmpiContext& ctx,
     throw CmpiStatus(CMPI_RC_ERR_METHOD_NOT_FOUND,method);
   }
   if (CWS_Get_FileType(key.charPtr(),typebuf,
-		       sizeof(typebuf))) {
+               sizeof(typebuf))) {
     throw CmpiStatus(CMPI_RC_ERR_FAILED,
-		     "Could not get type");
+             "Could not get type");
   }
 
   rslt.returnData(CmpiData (typebuf));

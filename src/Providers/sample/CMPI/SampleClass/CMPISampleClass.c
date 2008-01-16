@@ -60,9 +60,9 @@ addToStore (CMPIString * k, CMPIString * d)
   for (i = 0; i < dataNext; i++)
     if (strcmp (CMGetCharsPtr (k,NULL), CMGetCharsPtr (store[i].key,NULL)) == 0)
       return 0;
-// We must clone the CMPIString, since after the CreateInstance function exits these
-// CMPIString would be automaticly deleted. Thought this puts a responsibility on us
-// to use CMRelease when removing/cleaning up.
+// We must clone the CMPIString, since after the CreateInstance function exits
+// these CMPIString would be automaticly deleted. Thought this puts a 
+// responsibility on us to use CMRelease when removing/cleaning up.
   store[dataNext].key = CMClone (k, NULL);
   store[dataNext++].data = CMClone (d, NULL);
   return 1;
@@ -100,7 +100,9 @@ remFromStore (CMPIString * k)
   int i;
   for (i = 0; i < dataNext; i++)
     {
-      if (strcmp (CMGetCharsPtr (k,NULL), CMGetCharsPtr (store[i].key,NULL)) == 0)
+      if (strcmp(
+              CMGetCharsPtr(k,NULL),
+              CMGetCharsPtr(store[i].key,NULL)) == 0)
         {
           // Release the CMPIStrings
           CMRelease (store[i].key);
@@ -179,8 +181,11 @@ CMPIStatus testProvEnumInstances
 #ifdef PEGASUS_DEBUG
   fprintf (stderr, "+++ testProvEnumInstances()\n");
 #endif
-  cop = CMNewObjectPath (broker, CMGetCharsPtr (CMGetNameSpace (ref, &rc), NULL),
-                         CMGetCharsPtr (CMGetClassName (ref, &rc),NULL), &rc);
+  cop = CMNewObjectPath(
+            broker,
+            CMGetCharsPtr(CMGetNameSpace(ref, &rc), NULL),
+            CMGetCharsPtr(CMGetClassName (ref, &rc),NULL),
+            &rc);
   for (i = 0; i < dataNext; i++)
     {
       CMAddKey (cop, "Identifier", &store[i].key, CMPI_string);
@@ -327,4 +332,5 @@ CMInstanceMIStub (testProv, CMPISample, broker, CMNoHook)
 
 CMMethodMIStub (testProv, CMPISample, broker, CMNoHook)
 
-//----------------------------------------------------------//----------------------------------------------------------
+//----------------------------------------------------------
+//----------------------------------------------------------

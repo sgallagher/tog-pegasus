@@ -81,7 +81,7 @@ char * FSName()
 
 
 CmpiObjectPath makePath(const char * classname, 
-			const char * nameSpace, const CWS_FILE *cwsf)
+            const char * nameSpace, const CWS_FILE *cwsf)
 {
   CmpiObjectPath op(nameSpace,classname);
 #ifdef SIMULATED
@@ -97,8 +97,8 @@ CmpiObjectPath makePath(const char * classname,
 }
 
 CmpiInstance makeInstance(const char * classname, 
-			  const char * nameSpace, const CWS_FILE *cwsf, 
-			  const char ** filter)
+              const char * nameSpace, const CWS_FILE *cwsf, 
+              const char ** filter)
 {
   CmpiObjectPath op(nameSpace,classname);
   CmpiInstance in(op);
@@ -124,8 +124,9 @@ CmpiInstance makeInstance(const char * classname,
   in.setProperty("Name",CmpiData (cwsf->cws_name)); 
   in.setProperty("FileSize",CmpiData ((CMPIUint64)cwsf->cws_size));
 #ifndef SIMULATED
-/* We don't want this code in the simulated env - time is dynamic (diff timezones)
- *    and the testing system might using a diff timezone and report failure */
+/* We don't want this code in the simulated env - time is dynamic 
+   (diff timezones)
+ * and the testing system might using a diff timezone and report failure */
   in.setProperty("CreationDate",CmpiDateTime(cwsf->cws_ctime*1000000LL,0));
   in.setProperty("LastModified",CmpiDateTime(cwsf->cws_mtime*1000000LL,0));
   in.setProperty("LastAccessed",CmpiDateTime(cwsf->cws_atime*1000000LL,0));

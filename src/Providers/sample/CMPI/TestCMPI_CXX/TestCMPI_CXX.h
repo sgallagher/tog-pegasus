@@ -60,10 +60,10 @@ class TestCMPI_CXX : public CmpiInstanceMI
                                         const CmpiContext&    ctx);
 
   virtual           ~TestCMPI_CXX      ();
-	
+    
   virtual CmpiStatus initialize        (const CmpiContext&    ctx);
   virtual int        isUnloadable      () const;
-	
+    
   virtual CmpiStatus enumInstanceNames (const CmpiContext&    ctx,
                                         CmpiResult&           rslt,
                                         const CmpiObjectPath& cop);

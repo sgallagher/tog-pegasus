@@ -195,7 +195,11 @@ CMPIStatus testProvActivateFilter
    prd=CMGetPredicateAt(subc,0,NULL);
 
    CMGetPredicateData(prd,NULL,NULL,&lhs,&rhs);
-   fprintf(stderr,"--- %s %s\n",CMGetCharsPtr(lhs,NULL),CMGetCharsPtr(rhs,NULL));
+   fprintf(
+       stderr,
+       "--- %s %s\n",
+       CMGetCharsPtr(lhs,NULL),
+       CMGetCharsPtr(rhs,NULL));
 */
 
 #ifdef PEGASUS_DEBUG

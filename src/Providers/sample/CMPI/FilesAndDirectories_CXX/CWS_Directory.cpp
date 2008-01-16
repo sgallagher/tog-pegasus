@@ -57,7 +57,7 @@ CMInstanceMIFactory(CWS_Directory,CWS_DirectoryProvider_CXX);
 /* -----------------------------------------------------------------------*/
 
 CWS_Directory::CWS_Directory (const CmpiBroker &mbp, 
-			      const CmpiContext& ctx) 
+                  const CmpiContext& ctx) 
   : CmpiBaseMI(mbp, ctx), CmpiInstanceMI(mbp,ctx),
     cppBroker(mbp) 
 {  
@@ -84,8 +84,8 @@ int CWS_Directory::isUnloadable() const
 
 
 CmpiStatus CWS_Directory::enumInstanceNames(const CmpiContext& ctx, 
-					    CmpiResult& rslt,
-					    const CmpiObjectPath& cop)
+                        CmpiResult& rslt,
+                        const CmpiObjectPath& cop)
 {      
   void           *enumhdl;
   CWS_FILE        filebuf;
@@ -100,7 +100,7 @@ CmpiStatus CWS_Directory::enumInstanceNames(const CmpiContext& ctx,
   
   if (enumhdl == NULL) {
     throw CmpiStatus(CMPI_RC_ERR_FAILED,
-		     "Could not begin file enumeration");
+             "Could not begin file enumeration");
   } 
   while (CWS_Next_Enum(enumhdl,&filebuf)) {
     /* build object path from file buffer */
@@ -114,9 +114,9 @@ CmpiStatus CWS_Directory::enumInstanceNames(const CmpiContext& ctx,
 }
 
 CmpiStatus CWS_Directory::enumInstances(const CmpiContext& ctx, 
-					CmpiResult& rslt,
-					const CmpiObjectPath& cop, 
-					const char* *properties)
+                    CmpiResult& rslt,
+                    const CmpiObjectPath& cop, 
+                    const char* *properties)
 {
   void           *enumhdl;
   CWS_FILE        filebuf;
@@ -130,15 +130,15 @@ CmpiStatus CWS_Directory::enumInstances(const CmpiContext& ctx,
   
   if (enumhdl == NULL) {
     throw CmpiStatus(CMPI_RC_ERR_FAILED,
-		     "Could not begin file enumeration");
+             "Could not begin file enumeration");
   } 
   while (CWS_Next_Enum(enumhdl,&filebuf)) {
     /* build instance from file buffer */
     CmpiInstance instance = 
       makeInstance(LOCALCLASSNAME,
-		   nameSpace.charPtr(),
-		   &filebuf,
-		   properties);
+           nameSpace.charPtr(),
+           &filebuf,
+           properties);
     rslt.returnData(instance);
   } 
   CWS_End_Enum(enumhdl);
@@ -148,10 +148,10 @@ CmpiStatus CWS_Directory::enumInstances(const CmpiContext& ctx,
         
 
 CmpiStatus CWS_Directory::getInstance(const CmpiContext& ctx, 
-					   CmpiResult& rslt,
-					   const CmpiObjectPath& cop, 
-					   const char* *properties)
-{   	  
+                       CmpiResult& rslt,
+                       const CmpiObjectPath& cop, 
+                       const char* *properties)
+{         
 #ifndef SIMULATED
   cout<<"CWS_Directory getting instance"<<endl;
 #endif
@@ -163,9 +163,9 @@ CmpiStatus CWS_Directory::getInstance(const CmpiContext& ctx,
   if (CWS_Get_File(key.charPtr(),&filebuf)) {
     CmpiInstance instance = 
       makeInstance(LOCALCLASSNAME,
-		   nameSpace.charPtr(),
-		   &filebuf,
-		   properties);
+           nameSpace.charPtr(),
+           &filebuf,
+           properties);
     rslt.returnData(instance);
     rslt.returnDone();
     return CmpiStatus(CMPI_RC_OK);
@@ -174,11 +174,11 @@ CmpiStatus CWS_Directory::getInstance(const CmpiContext& ctx,
 }
     
 CmpiStatus CWS_Directory::setInstance(const CmpiContext& ctx, 
-				      CmpiResult& rslt,
-				      const CmpiObjectPath& cop, 
-				      const CmpiInstance& inst,
-				      const char* *properties)
-{   	
+                      CmpiResult& rslt,
+                      const CmpiObjectPath& cop, 
+                      const CmpiInstance& inst,
+                      const char* *properties)
+{       
 #ifndef SIMULATED
   cout<<"CWS_Directory modifying instance"<<endl;
 #endif
@@ -191,15 +191,15 @@ CmpiStatus CWS_Directory::setInstance(const CmpiContext& ctx,
 
   if (!makeFileBuf(inst,&filebuf) || !CWS_Update_File(&filebuf)) {
     throw CmpiStatus(CMPI_RC_ERR_FAILED,
-		     "Could not modify instance");
+             "Could not modify instance");
   }
   return CmpiStatus(CMPI_RC_OK);
 }
 
 CmpiStatus CWS_Directory::createInstance(const CmpiContext& ctx, 
-					 CmpiResult& rslt,
-					 const CmpiObjectPath& cop,
-					 const CmpiInstance& inst)
+                     CmpiResult& rslt,
+                     const CmpiObjectPath& cop,
+                     const CmpiInstance& inst)
 {
   CWS_FILE   filebuf;
   CmpiString key;
@@ -210,25 +210,25 @@ CmpiStatus CWS_Directory::createInstance(const CmpiContext& ctx,
   key = inst.getProperty("Name").getString ();
   if (strncmp(key.charPtr(),CWS_FILEROOT, strlen(CWS_FILEROOT))) {
     throw CmpiStatus(CMPI_RC_ERR_FAILED,
-		     "Invalid path name");
+             "Invalid path name");
   } 
   if (!makeFileBuf(inst,&filebuf) || !CWS_Create_Directory(&filebuf)) {
     throw CmpiStatus(CMPI_RC_ERR_FAILED,
-		     "Could not create instance");
+             "Could not create instance");
   }
   CmpiObjectPath op= makePath(LOCALCLASSNAME,
-			      cop.getNameSpace().charPtr(),
-			      &filebuf);
+                  cop.getNameSpace().charPtr(),
+                  &filebuf);
   rslt.returnData(op);
   rslt.returnDone();
   return CmpiStatus(CMPI_RC_OK);
 }
 
 CmpiStatus CWS_Directory::deleteInstance(const CmpiContext& ctx, 
-					      CmpiResult& rslt,
-					      const CmpiObjectPath& cop)
+                          CmpiResult& rslt,
+                          const CmpiObjectPath& cop)
 {
   // we can return or throw - whatever we like
   return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED,
-		    "CWS_Directory cannot delete");
+            "CWS_Directory cannot delete");
 }

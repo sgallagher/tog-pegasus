@@ -51,13 +51,13 @@ typedef struct {
     defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 char * dirname(char *path) {
-	char drive[_MAX_DRIVE];
-	char *dir = (char *)malloc(_MAX_DIR*sizeof(char));
-	char fname[_MAX_FNAME];
-	char ext[_MAX_EXT];
+    char drive[_MAX_DRIVE];
+    char *dir = (char *)malloc(_MAX_DIR*sizeof(char));
+    char fname[_MAX_FNAME];
+    char ext[_MAX_EXT];
 
-	_splitpath( path, drive, dir, fname, ext);
-	return dir;
+    _splitpath( path, drive, dir, fname, ext);
+    return dir;
 }
 #endif
 
@@ -190,9 +190,9 @@ void* CWS_Begin_Enum(const char *topdir, int filetype)
   CWS_Control *cc = malloc(sizeof(CWS_Control));
   if (cc && tmpnam(cc->name)) {
     sprintf(cmdbuffer,
-	    "find %s -xdev -type %c -printf \"%%p %%s " 
-	    "%%C@ %%A@ %%T@ %%m\n\" > %s",
-	    topdir, filetype, cc->name);
+        "find %s -xdev -type %c -printf \"%%p %%s " 
+        "%%C@ %%A@ %%T@ %%m\n\" > %s",
+        topdir, filetype, cc->name);
     if (system(cmdbuffer)==0)
       cc->fp = fopen(cc->name,"r");
     else {
@@ -215,12 +215,12 @@ int CWS_Next_Enum(void *handle, CWS_FILE* cwsf)
 #else
     state=0<sscanf(result,"%s %lld %ld %ld %ld %o",
 #endif
-		   cwsf->cws_name,
-		   &cwsf->cws_size,
-		   &cwsf->cws_ctime,
-		   &cwsf->cws_mtime,
-		   &cwsf->cws_atime,
-		   &cwsf->cws_mode);
+           cwsf->cws_name,
+           &cwsf->cws_size,
+           &cwsf->cws_ctime,
+           &cwsf->cws_mtime,
+           &cwsf->cws_atime,
+           &cwsf->cws_mode);
   return state;
 }
 
@@ -294,8 +294,8 @@ int CWS_Get_FileType(const char *file, char* typestring, size_t tslen)
   if (file && tmpnam(cmdout)) {
     sprintf(cmdbuffer,"file %s > %s",file,cmdout);
     if (system(cmdbuffer)==0 && 
-	(fcmdout = fopen(cmdout,"r")) &&
-	fgets(typestring,tslen,fcmdout))
+    (fcmdout = fopen(cmdout,"r")) &&
+    fgets(typestring,tslen,fcmdout))
       return 0;
   }
   return 1;

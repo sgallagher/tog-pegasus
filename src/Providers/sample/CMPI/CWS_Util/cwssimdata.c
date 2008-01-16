@@ -31,8 +31,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-//   FILE_ENTRY(/Simulated/CMPI/tests/Providers: directory
-
 #define FILE_ENTRY(n,s,c,m,a,o,t) {'f',#n,s,c,m,a,o,#t} 
 #define DIR_ENTRY(n,s,c,m,a,o,t) {'d',#n,s,c,m,a,o,#t} 
 
@@ -139,7 +137,8 @@ FileData files[]={
 
   FILE_ENTRY(/Simulated/CMPI/tests/Providers/util/cwstest,
    20800,1078590300,1078608953,1078590300,0775,
-   ELF 32-bit LSB executable; Intel 80386; version 1 (SYSV); for GNU/Linux 2.2.5; dynamically linked (uses shared libs); not stripped),
+   ELF 32-bit LSB executable; Intel 80386; version 1 (SYSV);
+   for GNU/Linux 2.2.5; dynamically linked (uses shared libs); not stripped),
   FILE_ENTRY(/Simulated/CMPI/tests/Providers/util/cwstest.c,
    1671,1078582732,1078608953,1044457030,0644,
    ASCII C program text),

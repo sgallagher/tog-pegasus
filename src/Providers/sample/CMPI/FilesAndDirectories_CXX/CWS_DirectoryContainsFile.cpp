@@ -81,14 +81,16 @@ using namespace std;
 
 CMProviderBase(CWS_DirectoryContainsFileProvider_CXX);
 
-CMAssociationMIFactory(CWS_DirectoryContainsFile,CWS_DirectoryContainsFileProvider_CXX);
+CMAssociationMIFactory(
+    CWS_DirectoryContainsFile,
+    CWS_DirectoryContainsFileProvider_CXX);
 
 /* -----------------------------------------------------------------------*/
 /*                          Base Provider Interface                       */
 /* -----------------------------------------------------------------------*/
 
 CWS_DirectoryContainsFile::CWS_DirectoryContainsFile (const CmpiBroker &mbp, 
-						      const CmpiContext& ctx) 
+                              const CmpiContext& ctx) 
   : CmpiBaseMI(mbp, ctx), CmpiAssociationMI(mbp,ctx),
     cppBroker(mbp) 
 {  
@@ -119,8 +121,8 @@ CmpiStatus CWS_DirectoryContainsFile::associators
  const char* role, const char* resultRole, const char** properties)
 {
   return CWS_DirectoryContainsFileAssocHelper(rslt,op,assocClass,
-					      resultClass,role,resultRole,
-					      properties,FUNC_ASSOC);
+                          resultClass,role,resultRole,
+                          properties,FUNC_ASSOC);
 }
 
 CmpiStatus CWS_DirectoryContainsFile::associatorNames
@@ -129,8 +131,8 @@ CmpiStatus CWS_DirectoryContainsFile::associatorNames
  const char* role, const char* resultRole)
 {
   return CWS_DirectoryContainsFileAssocHelper(rslt,op,assocClass,
-					      resultClass,role,resultRole,
-					      0,FUNC_ASSOCNAME);
+                          resultClass,role,resultRole,
+                          0,FUNC_ASSOCNAME);
 }
 
 CmpiStatus CWS_DirectoryContainsFile::references
@@ -139,8 +141,8 @@ CmpiStatus CWS_DirectoryContainsFile::references
  const char** properties)
 {
   return CWS_DirectoryContainsFileAssocHelper(rslt,op,0,
-					      resultClass,role,0,
-					      properties,FUNC_REF);
+                          resultClass,role,0,
+                          properties,FUNC_REF);
 }
 
 CmpiStatus CWS_DirectoryContainsFile::referenceNames
@@ -148,8 +150,8 @@ CmpiStatus CWS_DirectoryContainsFile::referenceNames
  const CmpiObjectPath& op, const char* resultClass, const char* role)
 {
   return CWS_DirectoryContainsFileAssocHelper(rslt,op,0,
-					      resultClass,role,0,
-					      0,FUNC_REFNAME);
+                          resultClass,role,0,
+                          0,FUNC_REFNAME);
 }
 
 /* ------------------------------------------------------------------ *
@@ -166,19 +168,19 @@ static void DirectoryContainsFileReturnHelper
 {
   CmpiObjectPath cop(copP);
   CmpiObjectPath assocop = makePath(filetype,
-				    cop.getNameSpace().charPtr(),
-				    filebuf);
+                    cop.getNameSpace().charPtr(),
+                    filebuf);
 #ifdef SIMULATED
-	// We have to set the hostname to 'localhost' otherwise the automated
-	// test-cases blow up.
+    // We have to set the hostname to 'localhost' otherwise the automated
+    // test-cases blow up.
       cop.setHostname(CSName());
-	  assocop.setHostname(CSName());
+      assocop.setHostname(CSName());
 #endif
   switch (functype) {
   case FUNC_ASSOC:
     rslt.returnData(makeInstance(filetype,
-				 cop.getNameSpace().charPtr(),
-				 filebuf,0));
+                 cop.getNameSpace().charPtr(),
+                 filebuf,0));
     break;
   case FUNC_ASSOCNAME:
     rslt.returnData(assocop);
@@ -186,22 +188,26 @@ static void DirectoryContainsFileReturnHelper
   case FUNC_REF:
     {
       CmpiObjectPath refop(cop.getNameSpace().charPtr(),
-			   LOCALCLASSNAME);
+               LOCALCLASSNAME);
 #ifdef SIMULATED
-	  refop.setHostname(CSName());
+      refop.setHostname(CSName());
 #endif
       CmpiInstance refinst(refop);
-      refinst.setProperty("GroupComponent",isparent?CmpiData (cop):CmpiData (assocop));
-      refinst.setProperty("PartComponent",isparent?CmpiData (assocop):CmpiData (cop));
+      refinst.setProperty(
+          "GroupComponent",
+          isparent?CmpiData (cop):CmpiData (assocop));
+      refinst.setProperty(
+          "PartComponent",
+          isparent?CmpiData (assocop):CmpiData (cop));
       rslt.returnData(refinst);
     }
     break;
   case FUNC_REFNAME:
     {
       CmpiObjectPath refop(cop.getNameSpace().charPtr(),
-			   LOCALCLASSNAME);
+               LOCALCLASSNAME);
 #ifdef SIMULATED
-	  refop.setHostname(CSName());
+      refop.setHostname(CSName());
 #endif
       refop.setKey("GroupComponent",isparent?CmpiData (cop):CmpiData (assocop));
       refop.setKey("PartComponent",isparent?CmpiData (assocop):CmpiData (cop));
@@ -233,11 +239,11 @@ static CmpiStatus CWS_DirectoryContainsFileAssocHelper
     enumhdl = CWS_Begin_Enum(key.charPtr(),CWS_TYPE_PLAIN);      
     if (enumhdl == NULL) {
       throw CmpiStatus( CMPI_RC_ERR_FAILED,
-			"Could not begin file enumeration");
+            "Could not begin file enumeration");
     }
     while (CWS_Next_Enum(enumhdl,&filebuf)) {
       DirectoryContainsFileReturnHelper(rslt,cop,&filebuf,
-					true,FILECLASS,functype);
+                    true,FILECLASS,functype);
     }
     CWS_End_Enum(enumhdl);
    
@@ -245,11 +251,11 @@ static CmpiStatus CWS_DirectoryContainsFileAssocHelper
     enumhdl = CWS_Begin_Enum(key.charPtr(),CWS_TYPE_DIR);      
     if (enumhdl == NULL) {
       throw CmpiStatus( CMPI_RC_ERR_FAILED,
-			"Could not begin directory enumeration");
+            "Could not begin directory enumeration");
     }
     while (CWS_Next_Enum(enumhdl,&filebuf)) {
       DirectoryContainsFileReturnHelper(rslt,cop,&filebuf,
-					true,DIRECTORYCLASS,functype);
+                    true,DIRECTORYCLASS,functype);
     }
     CWS_End_Enum(enumhdl);
 
@@ -262,7 +268,7 @@ static CmpiStatus CWS_DirectoryContainsFileAssocHelper
     
     if (CWS_Get_File(dirname((char*)key.charPtr()),&filebuf)) {
      DirectoryContainsFileReturnHelper(rslt,cop,&filebuf,
-					false,DIRECTORYCLASS,functype);
+                    false,DIRECTORYCLASS,functype);
     }      
   } 
   rslt.returnDone();

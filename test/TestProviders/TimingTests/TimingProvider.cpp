@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Subodh Soni IBM Corporation, (ssubodh@in.ibm.com)
-//
-// Modified By:
-//             
-//             
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
@@ -58,9 +52,9 @@ TimingProvider::~TimingProvider(void)
 
 void TimingProvider::initialize(CIMOMHandle & cimom)
 {
-	cout <<" TimingProvider::initialize" << endl;
+    cout <<" TimingProvider::initialize" << endl;
 
-	// Create Instances for TimeOne Class
+    // Create Instances for TimeOne Class
     CIMInstance instance1("TimeOne");
     CIMObjectPath reference1("TimeOne.Id=1");
 
@@ -80,9 +74,9 @@ void TimingProvider::initialize(CIMOMHandle & cimom)
     _instances.append(instance2);
     _instanceNames.append(reference2);
 
-	// Create Instances for TimeTwo Class
-	 CIMInstance instance_1("TimeTwo");
-	 CIMObjectPath reference_1("TimeTwo.Srno=22");
+    // Create Instances for TimeTwo Class
+     CIMInstance instance_1("TimeTwo");
+     CIMObjectPath reference_1("TimeTwo.Srno=22");
 
     instance_1.addProperty(CIMProperty("Srno", Uint8(1)));   // key
     instance_1.addProperty(CIMProperty("TimeVar", Uint16(1111)));
@@ -101,220 +95,220 @@ void TimingProvider::initialize(CIMOMHandle & cimom)
 
 void TimingProvider::terminate(void)
 {
-	cout <<" TimingProvider::terminate" << endl;
+    cout <<" TimingProvider::terminate" << endl;
 }
 
 void TimingProvider::getInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList,
+    InstanceResponseHandler & handler)
 {
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
+    // convert a potential fully qualified reference into a local reference
+    // (class name and keys only).
+    CIMObjectPath localReference = CIMObjectPath(
+        String(),
+        String(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
 
-	CIMName className = instanceReference.getClassName();
-	
-	// begin processing the request
-	handler.processing();
-	
-	// instance index corresponds to reference index
-	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-	{
-		if(localReference == _instanceNames[i])
-		{
-			// deliver requested instance
-			handler.deliver(_instances[i]);
+    CIMName className = instanceReference.getClassName();
+    
+    // begin processing the request
+    handler.processing();
+    
+    // instance index corresponds to reference index
+    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    {
+        if(localReference == _instanceNames[i])
+        {
+            // deliver requested instance
+            handler.deliver(_instances[i]);
 
-			break;
-		}
-	}
-	// complete processing the request
-	handler.complete();
+            break;
+        }
+    }
+    // complete processing the request
+    handler.complete();
 }
 
 void TimingProvider::enumerateInstances(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & classReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList,
+    InstanceResponseHandler & handler)
 {
-	cout <<"TimingProvider::enumerateInstances" << endl;
-	CIMName cn = classReference.getClassName();
+    cout <<"TimingProvider::enumerateInstances" << endl;
+    CIMName cn = classReference.getClassName();
 
-	String className = cn.getString();
-	sleep(15);
-	// cout << "className = " << className << endl;
-	// Create Instances for TimeOne Class
-	if (String::equalNoCase(className, "TimeOne"))
-	{
-		sleep(5);
-		// announce operation processing.
-		handler.processing();
-		for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-			// deliver instance
-			handler.deliver(_instances[i]);
-	}
-	// Create Instances for SecondClass
-	if (String::equalNoCase(className, "TimeTwo"))
-	{
-		handler.processing();
-		sleep(5);
+    String className = cn.getString();
+    sleep(15);
+    // cout << "className = " << className << endl;
+    // Create Instances for TimeOne Class
+    if (String::equalNoCase(className, "TimeOne"))
+    {
+        sleep(5);
+        // announce operation processing.
+        handler.processing();
+        for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+            // deliver instance
+            handler.deliver(_instances[i]);
+    }
+    // Create Instances for SecondClass
+    if (String::equalNoCase(className, "TimeTwo"))
+    {
+        handler.processing();
+        sleep(5);
 
-		for(Uint32 i = 0, n = _instances_2.size(); i < n; i++)
-			// deliver instance
-			handler.deliver(_instances_2[i]);
-	}
-	// complete processing the request
-	handler.complete();
+        for(Uint32 i = 0, n = _instances_2.size(); i < n; i++)
+            // deliver instance
+            handler.deliver(_instances_2[i]);
+    }
+    // complete processing the request
+    handler.complete();
 }
 
 void TimingProvider::enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	ObjectPathResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & classReference,
+    ObjectPathResponseHandler & handler)
 {
-	// begin processing the request
-	handler.processing();
-	cout <<"TimingProvider::enumerateInstanceNames" << endl;
-	CIMName clName = classReference.getClassName();
-	
-	sleep(10);
-	if (clName == "TimeOne")
-	{
-		for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-			// deliver reference
-			handler.deliver(_instanceNames[i]);
-	}	
-	else if (clName == "TimeTwo")
-	{
-		for(Uint32 i = 0, n = _instances_2.size(); i < n; i++)
-			// deliver reference
-			handler.deliver(_instanceNames_2[i]);
-	}	
-	// complete processing the request
-	cout <<"TimingProvider::enumerateInstanceNames" << endl;
-	handler.complete();
+    // begin processing the request
+    handler.processing();
+    cout <<"TimingProvider::enumerateInstanceNames" << endl;
+    CIMName clName = classReference.getClassName();
+    
+    sleep(10);
+    if (clName == "TimeOne")
+    {
+        for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+            // deliver reference
+            handler.deliver(_instanceNames[i]);
+    }   
+    else if (clName == "TimeTwo")
+    {
+        for(Uint32 i = 0, n = _instances_2.size(); i < n; i++)
+            // deliver reference
+            handler.deliver(_instanceNames_2[i]);
+    }   
+    // complete processing the request
+    cout <<"TimingProvider::enumerateInstanceNames" << endl;
+    handler.complete();
 }
 
 void TimingProvider::modifyInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	const Boolean includeQualifiers,
-	const CIMPropertyList & propertyList,
-	ResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const CIMInstance & instanceObject,
+    const Boolean includeQualifiers,
+    const CIMPropertyList & propertyList,
+    ResponseHandler & handler)
 {
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
-	cout <<"TimingProvider::modifyInstance" << endl;
-	// begin processing the request
-	handler.processing();
+    // convert a potential fully qualified reference into a local reference
+    // (class name and keys only).
+    CIMObjectPath localReference = CIMObjectPath(
+        String(),
+        String(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
+    cout <<"TimingProvider::modifyInstance" << endl;
+    // begin processing the request
+    handler.processing();
 
-	// instance index corresponds to reference index
-	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-	{
-		if(localReference == _instanceNames[i])
-		{
-			// overwrite existing instance
-			_instances[i] = instanceObject;
+    // instance index corresponds to reference index
+    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    {
+        if(localReference == _instanceNames[i])
+        {
+            // overwrite existing instance
+            _instances[i] = instanceObject;
 
-			break;
-		}
-	}
-	// complete processing the request
-	handler.complete();
+            break;
+        }
+    }
+    // complete processing the request
+    handler.complete();
 }
 
 void TimingProvider::createInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	ObjectPathResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const CIMInstance & instanceObject,
+    ObjectPathResponseHandler & handler)
 {
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
+    // convert a potential fully qualified reference into a local reference
+    // (class name and keys only).
+    CIMObjectPath localReference = CIMObjectPath(
+        String(),
+        String(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
 
-	cout <<"TimingProvider::createInstance" << endl;
-	// instance index corresponds to reference index
-	for(Uint32 i = 0, n = _instanceNames.size(); i < n; i++)
-	{
-		if(localReference == _instanceNames[i])
-		{
-			throw CIMObjectAlreadyExistsException(
+    cout <<"TimingProvider::createInstance" << endl;
+    // instance index corresponds to reference index
+    for(Uint32 i = 0, n = _instanceNames.size(); i < n; i++)
+    {
+        if(localReference == _instanceNames[i])
+        {
+            throw CIMObjectAlreadyExistsException(
                                   localReference.toString());
-		}
-	}
-	// begin processing the request
-	handler.processing();
-	// add the new instance to the array
-	_instances.append(instanceObject);
-	_instanceNames.append(instanceReference);
+        }
+    }
+    // begin processing the request
+    handler.processing();
+    // add the new instance to the array
+    _instances.append(instanceObject);
+    _instanceNames.append(instanceReference);
 
-	cout <<"TimingProvider::createInstance" << endl;
-	// deliver the new instance
-	handler.deliver(_instanceNames[_instanceNames.size() - 1]);
+    cout <<"TimingProvider::createInstance" << endl;
+    // deliver the new instance
+    handler.deliver(_instanceNames[_instanceNames.size() - 1]);
 
-	// complete processing the request
-	handler.complete();
+    // complete processing the request
+    handler.complete();
 }
 
 void TimingProvider::deleteInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	ResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    ResponseHandler & handler)
 {
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
+    // convert a potential fully qualified reference into a local reference
+    // (class name and keys only).
+    CIMObjectPath localReference = CIMObjectPath(
+        String(),
+        String(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
 
-	// begin processing the request
-	handler.processing();
+    // begin processing the request
+    handler.processing();
 
-	cout <<"TimingProvider::deleteInstance" << endl;
-	// instance index corresponds to reference index
-	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-	{
-		if(localReference == _instanceNames[i])
-		{
-			// save the instance locally
-			CIMInstance cimInstance(_instances[i]);
+    cout <<"TimingProvider::deleteInstance" << endl;
+    // instance index corresponds to reference index
+    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    {
+        if(localReference == _instanceNames[i])
+        {
+            // save the instance locally
+            CIMInstance cimInstance(_instances[i]);
 
-			// remove instance from the array
-			_instances.remove(i);
-			_instanceNames.remove(i);
+            // remove instance from the array
+            _instances.remove(i);
+            _instanceNames.remove(i);
 
-			// exit loop
-			break;
-		}
-	}
+            // exit loop
+            break;
+        }
+    }
 
-	cout <<"TimingProvider::deleteInstance" << endl;
-	// complete processing the request
-	handler.complete();
+    cout <<"TimingProvider::deleteInstance" << endl;
+    // complete processing the request
+    handler.complete();
 }
 
 PEGASUS_NAMESPACE_END

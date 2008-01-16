@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: <Subodh Soni> (<ssubodh@in.ibm.com>)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
@@ -59,9 +55,9 @@ CIMOMSampleProvider::~CIMOMSampleProvider(void)
 void CIMOMSampleProvider::initialize(CIMOMHandle & cimom)
 {
     cout <<" CIMOMSampleProvider::initialize" << endl;
-	
+    
     // create some instances
-	
+    
     CIMInstance instance1("CIMOMSample");
     CIMObjectPath reference1("CIMOMSample.Id=187");
 
@@ -77,217 +73,220 @@ void CIMOMSampleProvider::terminate(void)
 }
 
 void CIMOMSampleProvider::getInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList,
+    InstanceResponseHandler & handler)
 {
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
+    // convert a potential fully qualified reference into a local reference
+    // (class name and keys only).
+    CIMObjectPath localReference = CIMObjectPath(
+        String(),
+        String(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
 
-	CIMName className = instanceReference.getClassName();
-	//cout << "className(Method: getInstance)" <<className;
-	
-	    // instance index corresponds to reference index
-	    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-	    {
-	        if(localReference == _instanceNames[i])
-	        {
-		    // deliver requested instance
-		    handler.deliver(_instances[i]);
-		    break;
-	        }
-	    }
-	// complete processing the request
-	handler.complete();
+    CIMName className = instanceReference.getClassName();
+    //cout << "className(Method: getInstance)" <<className;
+    
+        // instance index corresponds to reference index
+        for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+        {
+            if(localReference == _instanceNames[i])
+            {
+            // deliver requested instance
+            handler.deliver(_instances[i]);
+            break;
+            }
+        }
+    // complete processing the request
+    handler.complete();
 }
 
 void CIMOMSampleProvider::enumerateInstances(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & classReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList,
+    InstanceResponseHandler & handler)
 {
-	OperationContext localContext;
-	cout << "CIMOMSampleProvider::enumerateInstances" << endl;	
-	// announce operation processing.
-	handler.processing();
+    OperationContext localContext;
+    cout << "CIMOMSampleProvider::enumerateInstances" << endl;  
+    // announce operation processing.
+    handler.processing();
 
-	// OperationContext Identity related statements. What will happen
-	// if we change the User identity at this point ?
-	//
-	// Update from TechCall: This seems to be a problem which is a major
-	// security issue at this point of time in Pegasus and also a bugzilla
-	// record exists for this problem. Not changing as of now.
+    // OperationContext Identity related statements. What will happen
+    // if we change the User identity at this point ?
+    //
+    // Update from TechCall: This seems to be a problem which is a major
+    // security issue at this point of time in Pegasus and also a bugzilla
+    // record exists for this problem. Not changing as of now.
 
-	String user("subodh");
-	cout << " User (Initialized here statically) = " << user;
-	
-	IdentityContainer container = context.get(IdentityContainer::NAME);
-	cout << " User in context passed to the method (container.getUserName) = "<< container.getUserName()<< endl;
-	
-	// Changing the UserIdentity in OperationContext
-	localContext.insert(IdentityContainer(user));
-	container = localContext.get(IdentityContainer::NAME);
+    String user("subodh");
+    cout << " User (Initialized here statically) = " << user;
+    
+    IdentityContainer container = context.get(IdentityContainer::NAME);
+    cout << " User in context passed to the method (container.getUserName) = "
+         << container.getUserName()<< endl;
+    
+    // Changing the UserIdentity in OperationContext
+    localContext.insert(IdentityContainer(user));
+    container = localContext.get(IdentityContainer::NAME);
 
-	cout << " User in localContext (container.getUserName) = "<< container.getUserName()<< endl;
+    cout << " User in localContext (container.getUserName) = "
+         << container.getUserName()<< endl;
 
-	// begin processing the request
-	handler.processing();
-	
-	if (String::equal(user, container.getUserName()))
-	{
-	    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-	    // deliver instance
+    // begin processing the request
+    handler.processing();
+    
+    if (String::equal(user, container.getUserName()))
+    {
+        for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+        // deliver instance
             handler.deliver(_instances[i]);
-    }	    
+    }       
     else
-	{
-	    cout << "User should be " << user << "but its " << container.getUserName() << endl;
-	    throw(CIM_ERR_INVALID_PARAMETER);
+    {
+        cout << "User should be " << user << "but its "
+             << container.getUserName() << endl;
+        throw(CIM_ERR_INVALID_PARAMETER);
         }
-	// complete processing the request
-	handler.complete();
+    // complete processing the request
+    handler.complete();
 }
 
 void CIMOMSampleProvider::enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	ObjectPathResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & classReference,
+    ObjectPathResponseHandler & handler)
 {
-	cout << "CIMOMSampleProvider::enumerateInstanceNames" << endl;	
-	// begin processing the request
+    cout << "CIMOMSampleProvider::enumerateInstanceNames" << endl;  
+    // begin processing the request
 
-	CIMName clName = classReference.getClassName();
-	handler.processing();
+    CIMName clName = classReference.getClassName();
+    handler.processing();
 
-	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-		// deliver reference
-		handler.deliver(_instanceNames[i]);
+    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+        // deliver reference
+        handler.deliver(_instanceNames[i]);
 
-	// complete processing the request
-	handler.complete();
+    // complete processing the request
+    handler.complete();
 }
 
 void CIMOMSampleProvider::modifyInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	const Boolean includeQualifiers,
-	const CIMPropertyList & propertyList,
-	ResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const CIMInstance & instanceObject,
+    const Boolean includeQualifiers,
+    const CIMPropertyList & propertyList,
+    ResponseHandler & handler)
 {
-	cout << "CIMOMSampleProvider::modifyInstance" << endl;	
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
+    cout << "CIMOMSampleProvider::modifyInstance" << endl;  
+    // convert a potential fully qualified reference into a local reference
+    // (class name and keys only).
+    CIMObjectPath localReference = CIMObjectPath(
+        String(),
+        String(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
 
-	// begin processing the request
-	handler.processing();
+    // begin processing the request
+    handler.processing();
 
-	// instance index corresponds to reference index
-	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-	{
-		if(localReference == _instanceNames[i])
-		{
-			// overwrite existing instance
-			_instances[i] = instanceObject;
+    // instance index corresponds to reference index
+    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    {
+        if(localReference == _instanceNames[i])
+        {
+            // overwrite existing instance
+            _instances[i] = instanceObject;
 
-			break;
-		}
-	}
-	// complete processing the request
-	handler.complete();
+            break;
+        }
+    }
+    // complete processing the request
+    handler.complete();
 }
 
 void CIMOMSampleProvider::createInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	ObjectPathResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const CIMInstance & instanceObject,
+    ObjectPathResponseHandler & handler)
 {
-	cout << "CIMOMSampleProvider::createInstance" << endl;	
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
+    cout << "CIMOMSampleProvider::createInstance" << endl;  
+    // convert a potential fully qualified reference into a local reference
+    // (class name and keys only).
+    CIMObjectPath localReference = CIMObjectPath(
+        String(),
+        String(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
 
-	// instance index corresponds to reference index
-	for(Uint32 i = 0, n = _instanceNames.size(); i < n; i++)
-	{
-		if(localReference == _instanceNames[i])
-		{
-			throw CIMObjectAlreadyExistsException(
+    // instance index corresponds to reference index
+    for(Uint32 i = 0, n = _instanceNames.size(); i < n; i++)
+    {
+        if(localReference == _instanceNames[i])
+        {
+            throw CIMObjectAlreadyExistsException(
                                   localReference.toString());
-		}
-	}
+        }
+    }
 
-	// begin processing the request
-	handler.processing();
+    // begin processing the request
+    handler.processing();
 
-	// add the new instance to the array
-	_instances.append(instanceObject);
-	_instanceNames.append(instanceReference);
+    // add the new instance to the array
+    _instances.append(instanceObject);
+    _instanceNames.append(instanceReference);
 
-	// deliver the new instance
-	handler.deliver(_instanceNames[_instanceNames.size() - 1]);
+    // deliver the new instance
+    handler.deliver(_instanceNames[_instanceNames.size() - 1]);
 
-	// complete processing the request
-	handler.complete();
+    // complete processing the request
+    handler.complete();
 }
 
 void CIMOMSampleProvider::deleteInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	ResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    ResponseHandler & handler)
 {
-	cout << "CIMOMSampleProvider::deleteInstance" << endl;	
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
+    cout << "CIMOMSampleProvider::deleteInstance" << endl;  
+    // convert a potential fully qualified reference into a local reference
+    // (class name and keys only).
+    CIMObjectPath localReference = CIMObjectPath(
+        String(),
+        String(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
 
-	// begin processing the request
-	handler.processing();
+    // begin processing the request
+    handler.processing();
 
-	// instance index corresponds to reference index
-	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-	{
-		if(localReference == _instanceNames[i])
-		{
-			// save the instance locally
-			CIMInstance cimInstance(_instances[i]);
+    // instance index corresponds to reference index
+    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    {
+        if(localReference == _instanceNames[i])
+        {
+            // save the instance locally
+            CIMInstance cimInstance(_instances[i]);
 
-			// remove instance from the array
-			_instances.remove(i);
-			_instanceNames.remove(i);
+            // remove instance from the array
+            _instances.remove(i);
+            _instanceNames.remove(i);
 
-			// exit loop
-			break;
-		}
-	}
+            // exit loop
+            break;
+        }
+    }
 
-	// complete processing the request
-	handler.complete();
+    // complete processing the request
+    handler.complete();
 }
 
 PEGASUS_NAMESPACE_END

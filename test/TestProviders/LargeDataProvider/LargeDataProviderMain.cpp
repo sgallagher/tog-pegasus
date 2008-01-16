@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: <Subodh Soni> (<ssubodh@in.ibm.com>)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
@@ -43,15 +39,16 @@
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)
+extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(
+                                            const String & name)
 {
-	if(String::equalNoCase(name, "largedataprovider") ||
-			String::equalNoCase(name, "largedataprovider (PROVIDER)"))
-	{
-		cout << "Entry to LargeDataProvider" << endl;
-		return(new LargeDataProvider());
-	}
-	return(0);
+    if(String::equalNoCase(name, "largedataprovider") ||
+            String::equalNoCase(name, "largedataprovider (PROVIDER)"))
+    {
+        cout << "Entry to LargeDataProvider" << endl;
+        return(new LargeDataProvider());
+    }
+    return(0);
 }
 
 PEGASUS_NAMESPACE_END

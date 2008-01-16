@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: <Subodh Soni> (<ssubodh@in.ibm.com>)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
@@ -44,7 +40,7 @@
 
 PEGASUS_USING_STD;
 #ifndef NO_OF_INSTANCES
-#define NO_OF_INSTANCES	100
+#define NO_OF_INSTANCES 100
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
@@ -59,241 +55,242 @@ LargeDataProvider::~LargeDataProvider(void)
 
 void LargeDataProvider::initialize(CIMOMHandle & cimom)
 {
-	cout << "-----------------------------" << endl;	
+    cout << "-----------------------------" << endl;    
     cout << "LargeDataProvider::initialize" << endl;
-	cout << "-----------------------------" << endl;	
+    cout << "-----------------------------" << endl;    
 }
 
 void LargeDataProvider::terminate(void)
 {
-	// Supporting Large data handling.
+    // Supporting Large data handling.
 }
 
 void LargeDataProvider::getInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList,
+    InstanceResponseHandler & handler)
 {
-	cout << "------------------------------" << endl;	
+    cout << "------------------------------" << endl;   
     cout << "LargeDataProvider::getInstance" << endl;
-	cout << "------------------------------" << endl;	
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
-	
-	// begin processing the request
-	handler.processing();
-	
+    cout << "------------------------------" << endl;   
+    // convert a potential fully qualified reference into a local reference
+    // (class name and keys only).
+    CIMObjectPath localReference = CIMObjectPath(
+        String(),
+        String(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
+    
+    // begin processing the request
+    handler.processing();
+    
     // instance index corresponds to reference index
     for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
         if(localReference == _instanceNames[i])
         {
-	    	// deliver requested instance
-	    	handler.deliver(_instances[i]);
-	    	break;
+            // deliver requested instance
+            handler.deliver(_instances[i]);
+            break;
         }
-	}
-	// complete processing the request
-	handler.complete();
+    }
+    // complete processing the request
+    handler.complete();
 }
 
 void LargeDataProvider::enumerateInstances(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & classReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList,
+    InstanceResponseHandler & handler)
 {
-	char buffer[NO_OF_INSTANCES];
-	CIMInstance Instances[NO_OF_INSTANCES];
-	CIMObjectPath References[NO_OF_INSTANCES];
-	
-	cout << "-------------------------------------" << endl;
-	cout << "LargeDataProvider::enumerateInstances" << endl;
-	cout << "-------------------------------------" << endl;
+    char buffer[NO_OF_INSTANCES];
+    CIMInstance Instances[NO_OF_INSTANCES];
+    CIMObjectPath References[NO_OF_INSTANCES];
+    
+    cout << "-------------------------------------" << endl;
+    cout << "LargeDataProvider::enumerateInstances" << endl;
+    cout << "-------------------------------------" << endl;
 
-	// announce operation processing.
-	handler.processing();
+    // announce operation processing.
+    handler.processing();
 
     // creating some instances in a loop for generating a large amount of data
-	// The number of instances is controlled by the macro var. NO_OF_INSTANCES.
-	// TODO:: Need to fix the way in which the value of this variable is passed
+    // The number of instances is controlled by the macro var. NO_OF_INSTANCES.
+    // TODO:: Need to fix the way in which the value of this variable is passed
 
-	cout << "Number of Instances = " << NO_OF_INSTANCES << endl;
-	for (Uint32 i = 0; i < NO_OF_INSTANCES; i++)
-	{
-		sprintf(buffer, "%d", i);
+    cout << "Number of Instances = " << NO_OF_INSTANCES << endl;
+    for (Uint32 i = 0; i < NO_OF_INSTANCES; i++)
+    {
+        sprintf(buffer, "%d", i);
 
-		Instances[i] = CIMInstance("SampleClass");
-	    References[i] = CIMObjectPath("SampleClass.Id="+String(buffer));
+        Instances[i] = CIMInstance("SampleClass");
+        References[i] = CIMObjectPath("SampleClass.Id="+String(buffer));
 
-		Instances[i].addProperty(CIMProperty("Id", Uint16(i)));
-		Instances[i].addProperty(CIMProperty("Message", String(buffer)));
-		Instances[i].addProperty(CIMProperty("ReqType", String("Local")));
-		Instances[i].addProperty(CIMProperty("RequestNumber", Uint16(i+10)));
-		Instances[i].addProperty(CIMProperty("TimeSpent", Uint16(i+2)));
-		Instances[i].addProperty(CIMProperty("TimeIdeal", Uint16(100)));
-		Instances[i].addProperty(CIMProperty("Performance", String("OK \00><\00")));
-		Instances[i].addProperty(CIMProperty("EndPoint", 
-							String("Instance "+String(buffer)+" Ends")));
+        Instances[i].addProperty(CIMProperty("Id", Uint16(i)));
+        Instances[i].addProperty(CIMProperty("Message", String(buffer)));
+        Instances[i].addProperty(CIMProperty("ReqType", String("Local")));
+        Instances[i].addProperty(CIMProperty("RequestNumber", Uint16(i+10)));
+        Instances[i].addProperty(CIMProperty("TimeSpent", Uint16(i+2)));
+        Instances[i].addProperty(CIMProperty("TimeIdeal", Uint16(100)));
+        Instances[i].addProperty(
+            CIMProperty("Performance", String("OK \00><\00")));
+        Instances[i].addProperty(CIMProperty("EndPoint", 
+                            String("Instance "+String(buffer)+" Ends")));
 
-	    _instances.append(Instances[i]);
-    	_instanceNames.append(References[i]);
-	}
+        _instances.append(Instances[i]);
+        _instanceNames.append(References[i]);
+    }
 
-	for(Uint32 i = 0; i < NO_OF_INSTANCES; i++)
-		// deliver instance
-		handler.deliver(_instances[i]);
+    for(Uint32 i = 0; i < NO_OF_INSTANCES; i++)
+        // deliver instance
+        handler.deliver(_instances[i]);
 
-	// complete processing the request
-	handler.complete();
+    // complete processing the request
+    handler.complete();
 }
 
 void LargeDataProvider::enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	ObjectPathResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & classReference,
+    ObjectPathResponseHandler & handler)
 {
-	cout << "-----------------------------------------" << endl;
-	cout << "LargeDataProvider::enumerateInstanceNames" << endl;	
-	cout << "-----------------------------------------" << endl;
-	// begin processing the request
-	handler.processing();
-	cout << "_instances.size = " << _instances.size() << endl;
-	for(Uint32 i = 0; i < _instances.size(); i++)
-		// deliver references
-		handler.deliver(_instanceNames[i]);
+    cout << "-----------------------------------------" << endl;
+    cout << "LargeDataProvider::enumerateInstanceNames" << endl;    
+    cout << "-----------------------------------------" << endl;
+    // begin processing the request
+    handler.processing();
+    cout << "_instances.size = " << _instances.size() << endl;
+    for(Uint32 i = 0; i < _instances.size(); i++)
+        // deliver references
+        handler.deliver(_instanceNames[i]);
 
-	// complete processing the request
-	handler.complete();
+    // complete processing the request
+    handler.complete();
 }
 
 void LargeDataProvider::modifyInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	const Boolean includeQualifiers,
-	const CIMPropertyList & propertyList,
-	ResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const CIMInstance & instanceObject,
+    const Boolean includeQualifiers,
+    const CIMPropertyList & propertyList,
+    ResponseHandler & handler)
 {
-	cout << "---------------------------------" << endl;
-	cout << "LargeDataProvider::modifyInstance" << endl;	
-	cout << "---------------------------------" << endl;
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
+    cout << "---------------------------------" << endl;
+    cout << "LargeDataProvider::modifyInstance" << endl;    
+    cout << "---------------------------------" << endl;
+    // convert a potential fully qualified reference into a local reference
+    // (class name and keys only).
+    CIMObjectPath localReference = CIMObjectPath(
+        String(),
+        String(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
 
-	// begin processing the request
-	handler.processing();
+    // begin processing the request
+    handler.processing();
 
-	// instance index corresponds to reference index
-	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-	{
-		if(localReference == _instanceNames[i])
-		{
-			// overwrite existing instance
-			_instances[i] = instanceObject;
-			break;
-		}
-	}
+    // instance index corresponds to reference index
+    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    {
+        if(localReference == _instanceNames[i])
+        {
+            // overwrite existing instance
+            _instances[i] = instanceObject;
+            break;
+        }
+    }
 
-	// complete processing the request
-	handler.complete();
+    // complete processing the request
+    handler.complete();
 }
 
 void LargeDataProvider::createInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	ObjectPathResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const CIMInstance & instanceObject,
+    ObjectPathResponseHandler & handler)
 {
-	cout << "---------------------------------" << endl;
-	cout << "LargeDataProvider::createInstance" << endl;	
-	cout << "---------------------------------" << endl;
+    cout << "---------------------------------" << endl;
+    cout << "LargeDataProvider::createInstance" << endl;    
+    cout << "---------------------------------" << endl;
 
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
+    // convert a potential fully qualified reference into a local reference
+    // (class name and keys only).
+    CIMObjectPath localReference = CIMObjectPath(
+        String(),
+        String(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
 
-	// instance index corresponds to reference index
-	for(Uint32 i = 0, n = _instanceNames.size(); i < n; i++)
-	{
-		if(localReference == _instanceNames[i])
-		{
-			throw CIMObjectAlreadyExistsException(
+    // instance index corresponds to reference index
+    for(Uint32 i = 0, n = _instanceNames.size(); i < n; i++)
+    {
+        if(localReference == _instanceNames[i])
+        {
+            throw CIMObjectAlreadyExistsException(
                                   localReference.toString());
-		}
-	}
+        }
+    }
 
-	// begin processing the request
-	handler.processing();
+    // begin processing the request
+    handler.processing();
 
-	// add the new instance to the array
-	_instances.append(instanceObject);
-	_instanceNames.append(instanceReference);
+    // add the new instance to the array
+    _instances.append(instanceObject);
+    _instanceNames.append(instanceReference);
 
-	// deliver the new instance
-	handler.deliver(_instanceNames[_instanceNames.size() - 1]);
+    // deliver the new instance
+    handler.deliver(_instanceNames[_instanceNames.size() - 1]);
 
-	// complete processing the request
-	handler.complete();
+    // complete processing the request
+    handler.complete();
 }
 
 void LargeDataProvider::deleteInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	ResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    ResponseHandler & handler)
 {
-	cout << "---------------------------------" << endl;
-	cout << "LargeDataProvider::deleteInstance" << endl;	
-	cout << "---------------------------------" << endl;
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
+    cout << "---------------------------------" << endl;
+    cout << "LargeDataProvider::deleteInstance" << endl;    
+    cout << "---------------------------------" << endl;
+    // convert a potential fully qualified reference into a local reference
+    // (class name and keys only).
+    CIMObjectPath localReference = CIMObjectPath(
+        String(),
+        String(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
 
-	// begin processing the request
-	handler.processing();
+    // begin processing the request
+    handler.processing();
 
-	// instance index corresponds to reference index
-	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-	{
-		if(localReference == _instanceNames[i])
-		{
-			// save the instance locally
-			CIMInstance cimInstance(_instances[i]);
+    // instance index corresponds to reference index
+    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    {
+        if(localReference == _instanceNames[i])
+        {
+            // save the instance locally
+            CIMInstance cimInstance(_instances[i]);
 
-			// remove instance from the array
-			_instances.remove(i);
-			_instanceNames.remove(i);
+            // remove instance from the array
+            _instances.remove(i);
+            _instanceNames.remove(i);
 
-			// exit loop
-			break;
-		}
-	}
+            // exit loop
+            break;
+        }
+    }
 
-	// complete processing the request
-	handler.complete();
+    // complete processing the request
+    handler.complete();
 }
 
 PEGASUS_NAMESPACE_END

@@ -46,7 +46,7 @@ PEGASUS_USING_STD;
 
 #ifdef TEST_EXCEPTIONS
 #define PEGASUS_EXCEPTION       PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,   \
-		                                "ExceptionsTest Exception")
+                                        "ExceptionsTest Exception")
 #define CIM_EXCEPTION           CIMException(CIM_ERR_FAILED, "Test Provider")
 #else
 #define PEGASUS_EXCEPTION
@@ -55,12 +55,12 @@ PEGASUS_USING_STD;
 
 // Update the value of the following macro for enabling/ disabling exceptions.
 //
-#define EXCEPTION_TYPE		1
-#define CheckExceptionType(X) 	{					\
-				cout <<" Exception Type  " << X << endl;\
-				if (X == 1) throw PEGASUS_EXCEPTION;	\
-				if (X == 2) throw CIM_EXCEPTION; 	\
-				}
+#define EXCEPTION_TYPE      1
+#define CheckExceptionType(X)   {                   \
+                cout <<" Exception Type  " << X << endl;\
+                if (X == 1) throw PEGASUS_EXCEPTION;    \
+                if (X == 2) throw CIM_EXCEPTION;    \
+                }
 
 ExceptionsTest::ExceptionsTest(void)
 {
@@ -73,55 +73,57 @@ ExceptionsTest::~ExceptionsTest(void)
 void ExceptionsTest::initialize(CIMOMHandle & cimom)
 {
 
-	cout <<" ExceptionsTest::initialize" << endl;
+    cout <<" ExceptionsTest::initialize" << endl;
 
-	CheckExceptionType(EXCEPTION_TYPE);
+    CheckExceptionType(EXCEPTION_TYPE);
 
-	// create default instances for FirstClass
-	CIMInstance instance1("FirstClass");
-	CIMObjectPath reference1("FirstClass.Id=1");
+    // create default instances for FirstClass
+    CIMInstance instance1("FirstClass");
+    CIMObjectPath reference1("FirstClass.Id=1");
 
-	instance1.addProperty(CIMProperty("Id", Uint8(1)));   // key
-	instance1.addProperty(CIMProperty("Message", String("Subodh.....")));
+    instance1.addProperty(CIMProperty("Id", Uint8(1)));   // key
+    instance1.addProperty(CIMProperty("Message", String("Subodh.....")));
 
-	_instances.append(instance1);
-	_instanceNames.append(reference1);
+    _instances.append(instance1);
+    _instanceNames.append(reference1);
 
-	CheckExceptionType(EXCEPTION_TYPE);
+    CheckExceptionType(EXCEPTION_TYPE);
 
-	CIMInstance instance2("FirstClass");
-	CIMObjectPath reference2("FirstClass.Id=2");
+    CIMInstance instance2("FirstClass");
+    CIMObjectPath reference2("FirstClass.Id=2");
 
-	instance2.addProperty(CIMProperty("Id", Uint8(2)));   // key
-	instance2.addProperty(CIMProperty("Message", String("Soni....")));
+    instance2.addProperty(CIMProperty("Id", Uint8(2)));   // key
+    instance2.addProperty(CIMProperty("Message", String("Soni....")));
 
-	_instances.append(instance2);
-	_instanceNames.append(reference2);
+    _instances.append(instance2);
+    _instanceNames.append(reference2);
 
-	CheckExceptionType(EXCEPTION_TYPE);
+    CheckExceptionType(EXCEPTION_TYPE);
 
-	// create default instances for SecondClass
-	CIMInstance instance_1("SecondClass");
-	CIMObjectPath reference_1("SecondClass.Srno=11");
+    // create default instances for SecondClass
+    CIMInstance instance_1("SecondClass");
+    CIMObjectPath reference_1("SecondClass.Srno=11");
 
-	instance_1.addProperty(CIMProperty("Srno", Uint8(1)));   // key
-	instance_1.addProperty(CIMProperty("Name", String("Class Two Instance 1.....")));
+    instance_1.addProperty(CIMProperty("Srno", Uint8(1)));   // key
+    instance_1.addProperty(
+        CIMProperty("Name", String("Class Two Instance 1.....")));
 
-	_instances_second.append(instance_1);
-	_instanceNames_second.append(reference_1);
+    _instances_second.append(instance_1);
+    _instanceNames_second.append(reference_1);
 
-	CheckExceptionType(EXCEPTION_TYPE);
+    CheckExceptionType(EXCEPTION_TYPE);
 
-	CIMInstance instance_2("SecondClass");
-	CIMObjectPath reference_2("SecondClass.Srno=2");
+    CIMInstance instance_2("SecondClass");
+    CIMObjectPath reference_2("SecondClass.Srno=2");
 
-	instance_2.addProperty(CIMProperty("Srno", Uint8(2)));   // key
-	instance_2.addProperty(CIMProperty("Name", String("Class Two Instance 2....")));
+    instance_2.addProperty(CIMProperty("Srno", Uint8(2)));   // key
+    instance_2.addProperty(
+        CIMProperty("Name", String("Class Two Instance 2....")));
 
-	_instances_second.append(instance_2);
-	_instanceNames_second.append(reference_2);
+    _instances_second.append(instance_2);
+    _instanceNames_second.append(reference_2);
 
-	CheckExceptionType(EXCEPTION_TYPE);
+    CheckExceptionType(EXCEPTION_TYPE);
 }
 
 void ExceptionsTest::terminate(void)
@@ -129,247 +131,247 @@ void ExceptionsTest::terminate(void)
 }
 
 void ExceptionsTest::getInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList,
+    InstanceResponseHandler & handler)
 {
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
+    // convert a potential fully qualified reference into a local reference
+    // (class name and keys only).
+    CIMObjectPath localReference = CIMObjectPath(
+        String(),
+        String(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
 
-	CIMName className = instanceReference.getClassName();
-	
-	// begin processing the request
-	handler.processing();
-	
-	cout <<"Calling Exception ExceptionsTest::getInstance 1" << endl;
-	CheckExceptionType(EXCEPTION_TYPE);
-	
-	if (className == CIMName("FirstClass"))
-	{
-		// instance index corresponds to reference index
-		for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-		{
-			if(localReference == _instanceNames[i])
-			{
-				// deliver requested instance
-				handler.deliver(_instances[i]);
-				break;
-			}
-		}
-	}
-	// complete processing the request
-	handler.complete();
-	cout <<"Calling Exception ExceptionsTest::getInstance 2" << endl;
-	CheckExceptionType(EXCEPTION_TYPE);
+    CIMName className = instanceReference.getClassName();
+    
+    // begin processing the request
+    handler.processing();
+    
+    cout <<"Calling Exception ExceptionsTest::getInstance 1" << endl;
+    CheckExceptionType(EXCEPTION_TYPE);
+    
+    if (className == CIMName("FirstClass"))
+    {
+        // instance index corresponds to reference index
+        for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+        {
+            if(localReference == _instanceNames[i])
+            {
+                // deliver requested instance
+                handler.deliver(_instances[i]);
+                break;
+            }
+        }
+    }
+    // complete processing the request
+    handler.complete();
+    cout <<"Calling Exception ExceptionsTest::getInstance 2" << endl;
+    CheckExceptionType(EXCEPTION_TYPE);
 }
 
 void ExceptionsTest::enumerateInstances(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & classReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList,
+    InstanceResponseHandler & handler)
 {
-	cout <<"Calling Exception ExceptionsTest::enumerateInstances 1" << endl;
-	CheckExceptionType(EXCEPTION_TYPE);
-	
-	CIMName clName = classReference.getClassName();
-	String className = clName.getString();
+    cout <<"Calling Exception ExceptionsTest::enumerateInstances 1" << endl;
+    CheckExceptionType(EXCEPTION_TYPE);
+    
+    CIMName clName = classReference.getClassName();
+    String className = clName.getString();
 
-	if (String::equalNoCase(className, "FirstClass"))
-	{
-		// announce operation processing.
-		handler.processing();
-		for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-			// deliver instance
-			handler.deliver(_instances[i]);
-	}
-	if (String::equalNoCase(className, "SecondClass"))
-	{
-		handler.processing();
-		for(Uint32 i = 0, n = _instances_second.size(); i < n; i++)
-			// deliver instance
-			handler.deliver(_instances_second[i]);
-	}
-	if (String::equalNoCase(className, "ThirdClass"))
-	{
-		handler.processing();
-		for(Uint32 i = 0, n = _instances_third.size(); i < n; i++)
-			// deliver instance
-			handler.deliver(_instances_third[i]);
-	}
-	cout <<"Calling Exception ExceptionsTest::enumerateInstances 2" << endl;
-	CheckExceptionType(EXCEPTION_TYPE);
+    if (String::equalNoCase(className, "FirstClass"))
+    {
+        // announce operation processing.
+        handler.processing();
+        for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+            // deliver instance
+            handler.deliver(_instances[i]);
+    }
+    if (String::equalNoCase(className, "SecondClass"))
+    {
+        handler.processing();
+        for(Uint32 i = 0, n = _instances_second.size(); i < n; i++)
+            // deliver instance
+            handler.deliver(_instances_second[i]);
+    }
+    if (String::equalNoCase(className, "ThirdClass"))
+    {
+        handler.processing();
+        for(Uint32 i = 0, n = _instances_third.size(); i < n; i++)
+            // deliver instance
+            handler.deliver(_instances_third[i]);
+    }
+    cout <<"Calling Exception ExceptionsTest::enumerateInstances 2" << endl;
+    CheckExceptionType(EXCEPTION_TYPE);
 
-	// complete processing the request
-	handler.complete();
+    // complete processing the request
+    handler.complete();
 }
 
 void ExceptionsTest::enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	ObjectPathResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & classReference,
+    ObjectPathResponseHandler & handler)
 {
-	// begin processing the request
-	handler.processing();
+    // begin processing the request
+    handler.processing();
 
-	cout <<"Calling Exception ExceptionsTest::enumerateInstanceNames 1" << endl;
-	CheckExceptionType(EXCEPTION_TYPE);
-	CIMName clName = classReference.getClassName();
-	String className = clName.getString();
-	
-	if (className == "FirstClass")
-	{
-		for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-			// deliver reference
-			handler.deliver(_instanceNames[i]);
-	}	
-	else if (className == "SecondClass")
-	{
-		for(Uint32 i = 0, n = _instances_second.size(); i < n; i++)
-			// deliver reference
-			handler.deliver(_instanceNames_second[i]);
-	}	
-	else if (className == "ThirdClass")
-	{
-		for(Uint32 i = 0, n = _instances_third.size(); i < n; i++)
-			// deliver reference
-			handler.deliver(_instanceNames_third[i]);
+    cout <<"Calling Exception ExceptionsTest::enumerateInstanceNames 1" << endl;
+    CheckExceptionType(EXCEPTION_TYPE);
+    CIMName clName = classReference.getClassName();
+    String className = clName.getString();
+    
+    if (className == "FirstClass")
+    {
+        for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+            // deliver reference
+            handler.deliver(_instanceNames[i]);
+    }   
+    else if (className == "SecondClass")
+    {
+        for(Uint32 i = 0, n = _instances_second.size(); i < n; i++)
+            // deliver reference
+            handler.deliver(_instanceNames_second[i]);
+    }   
+    else if (className == "ThirdClass")
+    {
+        for(Uint32 i = 0, n = _instances_third.size(); i < n; i++)
+            // deliver reference
+            handler.deliver(_instanceNames_third[i]);
 
-	}
-	// complete processing the request
-	cout <<"Calling Exception ExceptionsTest::enumerateInstanceNames 2" << endl;
-	CheckExceptionType(EXCEPTION_TYPE);
-	handler.complete();
+    }
+    // complete processing the request
+    cout <<"Calling Exception ExceptionsTest::enumerateInstanceNames 2" << endl;
+    CheckExceptionType(EXCEPTION_TYPE);
+    handler.complete();
 }
 
 void ExceptionsTest::modifyInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	const Boolean includeQualifiers,
-	const CIMPropertyList & propertyList,
-	ResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const CIMInstance & instanceObject,
+    const Boolean includeQualifiers,
+    const CIMPropertyList & propertyList,
+    ResponseHandler & handler)
 {
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
+    // convert a potential fully qualified reference into a local reference
+    // (class name and keys only).
+    CIMObjectPath localReference = CIMObjectPath(
+        String(),
+        String(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
 
-	cout <<"Calling Exception ExceptionsTest::modifyInstance 1" << endl;
-	CheckExceptionType(EXCEPTION_TYPE);
-	// begin processing the request
-	handler.processing();
+    cout <<"Calling Exception ExceptionsTest::modifyInstance 1" << endl;
+    CheckExceptionType(EXCEPTION_TYPE);
+    // begin processing the request
+    handler.processing();
 
-	// instance index corresponds to reference index
-	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-	{
-		if(localReference == _instanceNames[i])
-		{
-			// overwrite existing instance
-			_instances[i] = instanceObject;
-			break;
-		}
-	}
-	// complete processing the request
-	handler.complete();
-	cout <<"Calling Exception ExceptionsTest::modifyInstance 2" << endl;
-	CheckExceptionType(EXCEPTION_TYPE);
+    // instance index corresponds to reference index
+    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    {
+        if(localReference == _instanceNames[i])
+        {
+            // overwrite existing instance
+            _instances[i] = instanceObject;
+            break;
+        }
+    }
+    // complete processing the request
+    handler.complete();
+    cout <<"Calling Exception ExceptionsTest::modifyInstance 2" << endl;
+    CheckExceptionType(EXCEPTION_TYPE);
 }
 
 void ExceptionsTest::createInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	ObjectPathResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const CIMInstance & instanceObject,
+    ObjectPathResponseHandler & handler)
 {
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
+    // convert a potential fully qualified reference into a local reference
+    // (class name and keys only).
+    CIMObjectPath localReference = CIMObjectPath(
+        String(),
+        String(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
 
-	cout <<"Calling Exception ExceptionsTest::createInstance 1" << endl;
-	CheckExceptionType(EXCEPTION_TYPE);
-	// instance index corresponds to reference index
-	for(Uint32 i = 0, n = _instanceNames.size(); i < n; i++)
-	{
-		if(localReference == _instanceNames[i])
-		{
-			throw CIMObjectAlreadyExistsException(
+    cout <<"Calling Exception ExceptionsTest::createInstance 1" << endl;
+    CheckExceptionType(EXCEPTION_TYPE);
+    // instance index corresponds to reference index
+    for(Uint32 i = 0, n = _instanceNames.size(); i < n; i++)
+    {
+        if(localReference == _instanceNames[i])
+        {
+            throw CIMObjectAlreadyExistsException(
                                   localReference.toString());
-		}
-	}
+        }
+    }
 
-	// begin processing the request
-	handler.processing();
+    // begin processing the request
+    handler.processing();
 
-	// add the new instance to the array
-	_instances.append(instanceObject);
-	_instanceNames.append(instanceReference);
+    // add the new instance to the array
+    _instances.append(instanceObject);
+    _instanceNames.append(instanceReference);
 
-	cout <<"Calling Exception ExceptionsTest::createInstance 2" << endl;
-	CheckExceptionType(EXCEPTION_TYPE);
-	// deliver the new instance
-	handler.deliver(_instanceNames[_instanceNames.size() - 1]);
+    cout <<"Calling Exception ExceptionsTest::createInstance 2" << endl;
+    CheckExceptionType(EXCEPTION_TYPE);
+    // deliver the new instance
+    handler.deliver(_instanceNames[_instanceNames.size() - 1]);
 
-	// complete processing the request
-	handler.complete();
+    // complete processing the request
+    handler.complete();
 }
 
 void ExceptionsTest::deleteInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	ResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    ResponseHandler & handler)
 {
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference = CIMObjectPath(
-		String(),
-		String(),
-		instanceReference.getClassName(),
-		instanceReference.getKeyBindings());
+    // convert a potential fully qualified reference into a local reference
+    // (class name and keys only).
+    CIMObjectPath localReference = CIMObjectPath(
+        String(),
+        String(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
 
-	// begin processing the request
-	handler.processing();
+    // begin processing the request
+    handler.processing();
 
-	cout <<"Calling Exception ExceptionsTest::deleteInstance 1" << endl;
-	CheckExceptionType(EXCEPTION_TYPE);
-	// instance index corresponds to reference index
-	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-	{
-		if(localReference == _instanceNames[i])
-		{
-			// save the instance locally
-			CIMInstance cimInstance(_instances[i]);
+    cout <<"Calling Exception ExceptionsTest::deleteInstance 1" << endl;
+    CheckExceptionType(EXCEPTION_TYPE);
+    // instance index corresponds to reference index
+    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    {
+        if(localReference == _instanceNames[i])
+        {
+            // save the instance locally
+            CIMInstance cimInstance(_instances[i]);
 
-			// remove instance from the array
-			_instances.remove(i);
-			_instanceNames.remove(i);
+            // remove instance from the array
+            _instances.remove(i);
+            _instanceNames.remove(i);
 
-			// exit loop
-			break;
-		}
-	}
+            // exit loop
+            break;
+        }
+    }
 
-	cout <<"Calling Exception ExceptionsTest::deleteInstance 2" << endl;
-	CheckExceptionType(EXCEPTION_TYPE);
-	// complete processing the request
-	handler.complete();
+    cout <<"Calling Exception ExceptionsTest::deleteInstance 2" << endl;
+    CheckExceptionType(EXCEPTION_TYPE);
+    // complete processing the request
+    handler.complete();
 }
 
 PEGASUS_NAMESPACE_END

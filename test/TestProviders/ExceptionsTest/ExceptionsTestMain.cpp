@@ -43,15 +43,16 @@
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)
+extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(
+                                            const String & name)
 {
-	if(String::equalNoCase(name, "exceptionstest") ||
-			String::equalNoCase(name, "exceptionstest (PROVIDER)"))
-	{
-		cout << "Entry to ExceptionsTest" << endl;
-		return(new ExceptionsTest());
-	}
-	return(0);
+    if(String::equalNoCase(name, "exceptionstest") ||
+            String::equalNoCase(name, "exceptionstest (PROVIDER)"))
+    {
+        cout << "Entry to ExceptionsTest" << endl;
+        return(new ExceptionsTest());
+    }
+    return(0);
 }
 
 PEGASUS_NAMESPACE_END

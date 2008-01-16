@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: <Subodh Soni> (<ssubodh@in.ibm.com>)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
@@ -60,34 +56,34 @@ Boolean ParserTestProvider::tryTerminate(void) {
 
 void ParserTestProvider::initialize(CIMOMHandle & cimom)
 {
-	cout << "ParserTestProvider::initialize" << endl;
+    cout << "ParserTestProvider::initialize" << endl;
 
     CIMInstance instance1("Sample_PClassOne");
-	CIMObjectPath reference1("Sample_PClassOne.CName=ClassOne");
-	// keys
+    CIMObjectPath reference1("Sample_PClassOne.CName=ClassOne");
+    // keys
     instance1.addProperty(CIMProperty("CName", String("Sample_PClassOne")));
     instance1.addProperty(CIMProperty("CNum", Uint16(1)));
     instance1.addProperty(CIMProperty("BadStringName", String(BADSTR_1)));
 
-	//other 
+    //other 
     instance1.addProperty(CIMProperty("BadStringNum", Uint16(1)));
 
     _instances.append(instance1);
-	_instanceNames.append(reference1);
+    _instanceNames.append(reference1);
 
     CIMInstance instance2("Sample_PClassOne");
-	CIMObjectPath reference2("Sample_PClassOne.CName=ClassTwo");
+    CIMObjectPath reference2("Sample_PClassOne.CName=ClassTwo");
 
-	// keys
+    // keys
     instance2.addProperty(CIMProperty("CName", String("Sample_PClassOne")));
     instance2.addProperty(CIMProperty("CNum", Uint16(2)));
     instance2.addProperty(CIMProperty("BadStringName", String(BADSTR_2)));
 
-	// other
+    // other
     instance2.addProperty(CIMProperty("BadStringNum", Uint16(2)));
 
     _instances.append(instance2);
-	_instanceNames.append(reference2);
+    _instanceNames.append(reference2);
 }
 
 void ParserTestProvider::terminate(void)
@@ -103,27 +99,27 @@ void ParserTestProvider::getInstance(
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
-	String Value;
+    String Value;
     char csname[256];
     int cnum;
     char badstrname[256];
 
     cout << "ParserTestProvider::getInstance" << endl;
 
-	CIMName className = instanceReference.getClassName();
+    CIMName className = instanceReference.getClassName();
     CIMNamespaceName nameSpace = instanceReference.getNameSpace();
 
     Array<CIMKeyBinding> keys = instanceReference.getKeyBindings();
 
-	for (int i = 0; i < (int)keys.size(); i++)
-	{
-		CIMName cimName = keys[i].getName();
-		Value = keys[i].getValue();
+    for (int i = 0; i < (int)keys.size(); i++)
+    {
+        CIMName cimName = keys[i].getName();
+        Value = keys[i].getValue();
 
-		if (cimName.equal("BadStringName")) {
-				strncpy(badstrname, Value.getCString(), 256);
-		}
-	}
+        if (cimName.equal("BadStringName")) {
+                strncpy(badstrname, Value.getCString(), 256);
+        }
+    }
     CIMInstance instance(CLASS_NAME);
     instance.setPath(CIMObjectPath(String::EMPTY, // hostname
                                       nameSpace,
@@ -133,7 +129,7 @@ void ParserTestProvider::getInstance(
                          String(CLASS_NAME)));
     instance.addProperty(CIMProperty("BadStringName",
                          String(badstrname)));
-	
+    
     //begin processing the request
     handler.processing();
 
@@ -150,38 +146,38 @@ void ParserTestProvider::enumerateInstances(
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
-	// begin processing the request
-	
-	CIMName className = classReference.getClassName();
+    // begin processing the request
+    
+    CIMName className = classReference.getClassName();
     CIMNamespaceName nameSpace = classReference.getNameSpace();
-	//cout "[className: "<<className<<"], [in namespace: " << nameSpace << "]";
+    //cout "[className: "<<className<<"], [in namespace: " << nameSpace << "]";
 
     handler.processing();
-	Array<CIMKeyBinding> keys;
+    Array<CIMKeyBinding> keys;
 
-	keys.append(CIMKeyBinding("CName", 
-							  String(CLASS_NAME),
-							  CIMKeyBinding::STRING));
-	keys.append(CIMKeyBinding("BadStringName",
-							  String(BADSTR_1),
-							  CIMKeyBinding::STRING));
-	CIMInstance instance(CLASS_NAME);
+    keys.append(CIMKeyBinding("CName", 
+                              String(CLASS_NAME),
+                              CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding("BadStringName",
+                              String(BADSTR_1),
+                              CIMKeyBinding::STRING));
+    CIMInstance instance(CLASS_NAME);
 
-	instance.setPath(CIMObjectPath(String::EMPTY,
-								   nameSpace,
-								   CLASS_NAME,
-								   keys));
-	// keys
-	instance.addProperty(CIMProperty("CName",
-									  String(CLASS_NAME)));
+    instance.setPath(CIMObjectPath(String::EMPTY,
+                                   nameSpace,
+                                   CLASS_NAME,
+                                   keys));
+    // keys
+    instance.addProperty(CIMProperty("CName",
+                                      String(CLASS_NAME)));
     instance.addProperty(CIMProperty("BadStringName",
-							          String(BADSTR_1)));
+                                      String(BADSTR_1)));
 
-	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
         handler.deliver(_instances[i]);
-						//
-	handler.deliver(instance);
-	handler.complete();
+                        //
+    handler.deliver(instance);
+    handler.complete();
 }
 
 void ParserTestProvider::enumerateInstanceNames(
@@ -194,23 +190,23 @@ void ParserTestProvider::enumerateInstanceNames(
     // begin processing the request
     CIMName className = classReference.getClassName();
     CIMNamespaceName nameSpace = classReference.getNameSpace();
-    //DEBUG("[className: "<<className<<"], [in namespace: " << nameSpace << "]");
+    //DEBUG("[className: "<<className<<"], [in namespace: "<<nameSpace<<"]");
 
     handler.processing();
 
-     Array<CIMKeyBinding> keys;
+    Array<CIMKeyBinding> keys;
 
-     keys.append(CIMKeyBinding("CName", 
-				    String(CLASS_NAME),
-				    CIMKeyBinding::STRING));
-     keys.append(CIMKeyBinding("BadStr", 
+    keys.append(CIMKeyBinding("CName", 
+                    String(CLASS_NAME),
+                    CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding("BadStr", 
                     String(BADSTR_1),
-					CIMKeyBinding::STRING));
+                    CIMKeyBinding::STRING));
     
-     CIMObjectPath obj_path = CIMObjectPath(String(), 
-								nameSpace, 
-								className,
-								keys);
+    CIMObjectPath obj_path = CIMObjectPath(String(), 
+                                nameSpace, 
+                                className,
+                                keys);
     handler.deliver(obj_path);
     // complete processing the request
     handler.complete();

@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Subodh Soni IBM Corporation, (ssubodh@in.ibm.com)
-//
-// Modified By:
-//             
-//             
-//
 //%////////////////////////////////////////////////////////////////////////////
 
 #ifndef TimingProvider_H
@@ -46,62 +40,62 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class TimingProvider :
-	public CIMInstanceProvider
+    public CIMInstanceProvider
 {
 public:
-	TimingProvider(void);
-	virtual ~TimingProvider(void);
+    TimingProvider(void);
+    virtual ~TimingProvider(void);
 
-	// CIMProvider interface
-	virtual void initialize(CIMOMHandle & cimom);
-	virtual void terminate(void);
+    // CIMProvider interface
+    virtual void initialize(CIMOMHandle & cimom);
+    virtual void terminate(void);
 
-	// CIMInstanceProvider interface
-	virtual void getInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
+    // CIMInstanceProvider interface
+    virtual void getInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList & propertyList,
+        InstanceResponseHandler & handler);
 
-	virtual void enumerateInstances(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
+    virtual void enumerateInstances(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList & propertyList,
+        InstanceResponseHandler & handler);
 
-	virtual void enumerateInstanceNames(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		ObjectPathResponseHandler & handler);
+    virtual void enumerateInstanceNames(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        ObjectPathResponseHandler & handler);
 
-	virtual void modifyInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const CIMInstance & obj,
-		const Boolean includeQualifiers,
-		const CIMPropertyList & propertyList,
-		ResponseHandler & handler);
+    virtual void modifyInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const CIMInstance & obj,
+        const Boolean includeQualifiers,
+        const CIMPropertyList & propertyList,
+        ResponseHandler & handler);
 
-	virtual void createInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const CIMInstance & obj,
-		ObjectPathResponseHandler & handler);
+    virtual void createInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const CIMInstance & obj,
+        ObjectPathResponseHandler & handler);
 
-	virtual void deleteInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		ResponseHandler & handler);
+    virtual void deleteInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        ResponseHandler & handler);
 
 protected:
-	Array<CIMObjectPath> _instanceNames;
-	Array<CIMObjectPath> _instanceNames_2;
-	Array<CIMInstance> _instances;
-	Array<CIMInstance> _instances_2;
+    Array<CIMObjectPath> _instanceNames;
+    Array<CIMObjectPath> _instanceNames_2;
+    Array<CIMInstance> _instances;
+    Array<CIMInstance> _instances_2;
 };
 
 PEGASUS_NAMESPACE_END

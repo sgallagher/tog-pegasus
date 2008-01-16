@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: <Subodh Soni> (<ssubodh@in.ibm.com>)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ParserTestProvider_h
@@ -51,9 +47,9 @@ using namespace std;
 // Till here
 //
 #define CLASS_NAME "SampleXML_ParserClass"
-#define CLASS_1	"Sample_PClassOne"
-#define CLASS_2	"Sample_PClassTwo"
-#define CLASS_3	"Sample_PClassThree"
+#define CLASS_1 "Sample_PClassOne"
+#define CLASS_2 "Sample_PClassTwo"
+#define CLASS_3 "Sample_PClassThree"
 
 #define BADSTR_1 "\0\0\0\'\'\'\'\'0000<<<<<<<>"
 #define BADSTR_2 "\0\0\0\'\'\'\'\'0000        "
@@ -62,57 +58,57 @@ using namespace std;
 PEGASUS_NAMESPACE_BEGIN
 
 class ParserTestProvider :
-	public CIMInstanceProvider
+    public CIMInstanceProvider
 {
 public:
-	ParserTestProvider(void);
-	virtual ~ParserTestProvider(void);
-    	virtual Boolean tryTerminate(void);
+    ParserTestProvider(void);
+    virtual ~ParserTestProvider(void);
+        virtual Boolean tryTerminate(void);
 
-	// CIMProvider interface
-	virtual void initialize(CIMOMHandle & cimom);
-	virtual void terminate(void);
+    // CIMProvider interface
+    virtual void initialize(CIMOMHandle & cimom);
+    virtual void terminate(void);
 
-	// CIMInstanceProvider interface
-	virtual void getInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
+    // CIMInstanceProvider interface
+    virtual void getInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList & propertyList,
+        InstanceResponseHandler & handler);
 
-	virtual void enumerateInstances(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
+    virtual void enumerateInstances(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList & propertyList,
+        InstanceResponseHandler & handler);
 
-	virtual void enumerateInstanceNames(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		ObjectPathResponseHandler & handler);
+    virtual void enumerateInstanceNames(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        ObjectPathResponseHandler & handler);
 
-	virtual void modifyInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const CIMInstance & obj,
-		const Boolean includeQualifiers,
-		const CIMPropertyList & propertyList,
-		ResponseHandler & handler);
+    virtual void modifyInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const CIMInstance & obj,
+        const Boolean includeQualifiers,
+        const CIMPropertyList & propertyList,
+        ResponseHandler & handler);
 
-	virtual void createInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const CIMInstance & obj,
-		ObjectPathResponseHandler & handler);
+    virtual void createInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const CIMInstance & obj,
+        ObjectPathResponseHandler & handler);
 
-	virtual void deleteInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		ResponseHandler & handler);
+    virtual void deleteInstance(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        ResponseHandler & handler);
 
 protected:
     Array<CIMInstance> _instances;

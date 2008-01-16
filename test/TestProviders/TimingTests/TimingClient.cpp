@@ -62,7 +62,7 @@ static void EnumerateClassesTiming(CIMClient client, String BaseClassName)
     catch(Exception& e)
     {
         cout << "Error Classes Enumeration:" << endl;
-		cout << e.getMessage() << endl;
+        cout << e.getMessage() << endl;
     }
 }
 
@@ -115,10 +115,10 @@ int main(int argc, char** argv)
             EnumerateInstancesTiming(client, CLASSONE);
             _exit(0);
         }
-		// parent
+        // parent
         sleep(10);
         EnumerateInstancesTiming(client, CLASSTWO);
-       	sleep(5); 
+        sleep(5); 
         EnumerateClassesTiming(client, "TimingSampleClass");
     }
     catch(Exception& e)

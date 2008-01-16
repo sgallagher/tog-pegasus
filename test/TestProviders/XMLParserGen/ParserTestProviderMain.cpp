@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: <Subodh Soni> (<ssubodh@in.ibm.com>)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -41,14 +37,15 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)
+extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(
+                                            const String & name)
 {
-	// The name is defiend in the registration mof in PG_Provider as Name
-	if(String::equalNoCase(name, "ParserTestProvider"))
-	{
+    // The name is defiend in the registration mof in PG_Provider as Name
+    if(String::equalNoCase(name, "ParserTestProvider"))
+    {
         DEBUG("main-> started up provider");
-		return(new ParserTestProvider());
-	}
+        return(new ParserTestProvider());
+    }
 
    DEBUG("main-> skipped us , searches for:[" << name << "]");
    return NULL;

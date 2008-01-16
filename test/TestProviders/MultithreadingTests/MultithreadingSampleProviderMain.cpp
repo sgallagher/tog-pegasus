@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Subodh Soni IBM Corporation, (ssubodh@in.ibm.com)
-//
-// Modified By:
-//             
-//             
-//
 //%//////////////////////////////////////////////////////////////////////////// 
 
 #include <iostream>
@@ -45,15 +39,16 @@
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)
+extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(
+                                            const String & name)
 {
-	if(String::equalNoCase(name, "MultithreadingSampleprovider") ||
-		String::equalNoCase(name, "MultithreadingSampleprovider (PROVIDER)"))
-	{
-		cout << "Entry to MultithreadingSampleProvider" << endl;
-		return(new MultithreadingSampleProvider());
-	}
-	return(0);
+    if(String::equalNoCase(name, "MultithreadingSampleprovider") ||
+        String::equalNoCase(name, "MultithreadingSampleprovider (PROVIDER)"))
+    {
+        cout << "Entry to MultithreadingSampleProvider" << endl;
+        return(new MultithreadingSampleProvider());
+    }
+    return(0);
 }
 
 PEGASUS_NAMESPACE_END

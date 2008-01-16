@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: <Subodh Soni> (<ssubodh@in.ibm.com>)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
@@ -43,15 +39,16 @@
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
-extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)
+extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(
+                                            const String & name)
 {
-	if(String::equalNoCase(name, "cimomsampleprovider") ||
-			String::equalNoCase(name, "cimomsampleprovider (PROVIDER)"))
-	{
-		cout << "Entry to CIMOMSampleProvider" << endl;
-		return(new CIMOMSampleProvider());
-	}
-	return(0);
+    if(String::equalNoCase(name, "cimomsampleprovider") ||
+            String::equalNoCase(name, "cimomsampleprovider (PROVIDER)"))
+    {
+        cout << "Entry to CIMOMSampleProvider" << endl;
+        return(new CIMOMSampleProvider());
+    }
+    return(0);
 }
 
 PEGASUS_NAMESPACE_END

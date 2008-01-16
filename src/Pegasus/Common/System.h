@@ -176,7 +176,7 @@ public:
 
     // Gets IP address in binary form. af indicates the type of
     // address (ipv4 or ipv6) returned. Address will be copied to dst.
-    static Boolean _acquireIP(const char* hostname, int *af, void *dst);
+    static Boolean acquireIP(const char* hostname, int *af, void *dst);
 
     /**
         Returns true if IPv6 stack is active by checking return code from

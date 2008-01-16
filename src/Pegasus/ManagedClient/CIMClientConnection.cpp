@@ -56,12 +56,12 @@ CIMClientConnection::CIMClientConnection(
     _connectionHandle.reset(new CIMClientRep());
 
         int af;
-    System::_acquireIP((const char*)host.getCString(), &af, _resolvedIP);
+    System::acquireIP((const char*)host.getCString(), &af, _resolvedIP);
     if (System::isLoopBack(af, _resolvedIP))
     {
         // localhost or ip address of 127.0.0.1
         // still for compare we need the real ip address
-        System::_acquireIP((const char *) 
+        System::acquireIP((const char *) 
                     System::getHostName().getCString(), &af, _resolvedIP);
     }
 }
@@ -82,12 +82,12 @@ CIMClientConnection::CIMClientConnection(
 
     _connectionHandle.reset(new CIMClientRep());
     int af;
-    System::_acquireIP((const char*)host.getCString(), &af, _resolvedIP);
+    System::acquireIP((const char*)host.getCString(), &af, _resolvedIP);
     if (System::isLoopBack(af, _resolvedIP))
     {
         // localhost or ip address of 127.0.0.1
         // still for compare we need the real ip address
-        System::_acquireIP((const char *)
+        System::acquireIP((const char *)
             System::getHostName().getCString(), &af, _resolvedIP);
     }
 }

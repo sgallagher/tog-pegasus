@@ -66,7 +66,7 @@ static void _testIPv6()
     PEGASUS_TEST_ASSERT(System::isLocalHost("::1"));
 
 
-    System::_acquireIP(hostName.getCString(), &af, binAddr);
+    System::acquireIP(hostName.getCString(), &af, binAddr);
     PEGASUS_TEST_ASSERT(HostAddress::convertTextToBinary(af,
         hostIP.getCString(), binAddr2) == 1);
     PEGASUS_TEST_ASSERT(HostAddress::equal(af, binAddr, binAddr2));   

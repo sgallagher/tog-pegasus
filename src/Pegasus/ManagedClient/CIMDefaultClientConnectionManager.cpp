@@ -64,12 +64,12 @@ CIMClientRep* CIMDefaultClientConnectionManager::getConnection(
     Uint32 requestedPort;
 
         int af;
-        System::_acquireIP((const char*)host.getCString(), &af, requestedIP);
+        System::acquireIP((const char*)host.getCString(), &af, requestedIP);
         if (System::isLoopBack(af, requestedIP))
     {
         // localhost or ip address of 127.0.0.1
         // still for compare we need the real ip address
-            System::_acquireIP((const char *)
+            System::acquireIP((const char *)
                 System::getHostName().getCString(), &af, requestedIP);
     }
         

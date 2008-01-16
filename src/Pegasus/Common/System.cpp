@@ -273,7 +273,7 @@ Boolean System::isIPv6StackActive()
 // ------------------------------------------------------------------------
 // Convert a hostname into a a single host unique integer representation
 // ------------------------------------------------------------------------
-Boolean System::_acquireIP(const char* hostname, int *af, void *dst)
+Boolean System::acquireIP(const char* hostname, int *af, void *dst)
 {
 #ifdef PEGASUS_ENABLE_IPV6
     String ipAddress;

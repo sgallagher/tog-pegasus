@@ -29,14 +29,14 @@
 //
 //==============================================================================
 //
-// Author: Marek Szermutzky (MSzermutzky@de.ibm.com) PEP#139 Stage2
-//
 //%/////////////////////////////////////////////////////////////////////////////
 #ifndef Pegasus_CIMClientConnectionManager_h
 #define Pegasus_CIMClientConnectionManager_h
 
-#include <Pegasus/Common/Config.h>		// get platform specific definitions
-#include <Pegasus/Common/String.h>		// for usage of class String out of Pegasus/Common
+// get platform specific definitions
+#include <Pegasus/Common/Config.h>
+// for usage of class String out of Pegasus/Common
+#include <Pegasus/Common/String.h>
 #include <Pegasus/Client/CIMClientRep.h>
 #include <Pegasus/Client/Linkage.h>
 #include <Pegasus/Common/HostLocator.h>
@@ -48,18 +48,22 @@ class PEGASUS_CLIENT_LINKAGE CIMClientConnectionManager
 
 public:
 
-	// class constructor
-	CIMClientConnectionManager() { };
-	
-	// virtual class destructor has to be implemented by specific implementation
-	virtual ~CIMClientConnectionManager() { };
+    // class constructor
+    CIMClientConnectionManager() { };
+    
+    /** virtual class destructor
+        to be implemented by specific implementation
+    */
+    virtual ~CIMClientConnectionManager() { };
 
-	// this function shall return the specified connection (task of specific ClientConnectionManager)
-	// of no connection is found, return NULL
-	virtual CIMClientRep* getConnection(
-								const String& host,
-								const String& port,
-								const CIMNamespaceName& nameSpace) = 0;
+    /** this function shall return the specified connection
+       (task of specific ClientConnectionManager)
+       of no connection is found, return NULL
+    */
+    virtual CIMClientRep* getConnection(
+                                const String& host,
+                                const String& port,
+                                const CIMNamespaceName& nameSpace) = 0;
 
 };
 

@@ -29,9 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Marek Szermutzky (MSzermutzky@de.ibm.com) PEP#139 Stage2
-//         Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) PEP#101
-//
 //%/////////////////////////////////////////////////////////////////////////////
 #ifndef Pegasus_CIMClientConnection_h
 #define Pegasus_CIMClientConnection_h
@@ -49,29 +46,39 @@ class PEGASUS_CLIENT_LINKAGE CIMClientConnection
 
 public:
 
-	// class constructor
-	CIMClientConnection();
-	
-	CIMClientConnection(const String& host, const String& port, const String& userid, const String& passwd);
-	CIMClientConnection(const String& host, const String& port, const String& userid, const String& passwd, const SSLContext& sslcontext);
+    // class constructor
+    CIMClientConnection();
+    
+    CIMClientConnection(
+        const String& host,
+        const String& port,
+        const String& userid,
+        const String& passwd);
 
-	Boolean equals(void *binIPAddress, int af, const String& port);
+    CIMClientConnection(
+        const String& host,
+        const String& port,
+        const String& userid,
+        const String& passwd,
+        const SSLContext& sslcontext);
 
-	CIMClientRep *  getConnectionHandle(void);
+    Boolean equals(void *binIPAddress, int af, const String& port);
 
-	String getUser(void);
-	String getPass(void);
-	SSLContext* getSSLContext(void);
+    CIMClientRep *  getConnectionHandle(void);
+
+    String getUser(void);
+    String getPass(void);
+    SSLContext* getSSLContext(void);
 
 private:
     AutoPtr<CIMClientRep> _connectionHandle;
-	String	_hostname;
-	String	_port;
-	String  _userid;
-	String  _passwd;
+    String  _hostname;
+    String  _port;
+    String  _userid;
+    String  _passwd;
     AutoPtr<SSLContext> _sslcontext;
-	
-	char  _resolvedIP[PEGASUS_INET6_ADDRSTR_LEN];
+    
+    char  _resolvedIP[PEGASUS_INET6_ADDRSTR_LEN];
 };
 
 PEGASUS_NAMESPACE_END

@@ -29,8 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Marek Szermutzky (MSzermutzky@de.ibm.com) PEP#139 Stage2
-//
 //%/////////////////////////////////////////////////////////////////////////////
 #ifndef Pegasus_CIMDefaultClientConnectionManager_h
 #define Pegasus_CIMDefaultClientConnectionManager_h
@@ -38,33 +36,44 @@
 #include "CIMClientConnectionManager.h"
 #include "CIMClientConnection.h"
 #include <Pegasus/Common/Array.h>
-	
+    
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_CLIENT_LINKAGE CIMDefaultClientConnectionManager : public CIMClientConnectionManager
+class PEGASUS_CLIENT_LINKAGE 
+CIMDefaultClientConnectionManager : public CIMClientConnectionManager
 {
 
 public:
 
-	// class constructor
-	CIMDefaultClientConnectionManager();
-	
-	// virtual class destructor has to be implemented by specific implementation
-	~CIMDefaultClientConnectionManager();
+    // class constructor
+    CIMDefaultClientConnectionManager();
+    
+    // virtual class destructor, to be implemented by specific implementation
+    ~CIMDefaultClientConnectionManager();
 
-	// this function returns the specified connection
-	CIMClientRep* getConnection(
-								const String& host,
-								const String& port,
-								const CIMNamespaceName& nameSpace);
+    // this function returns the specified connection
+    CIMClientRep* getConnection(
+                                const String& host,
+                                const String& port,
+                                const CIMNamespaceName& nameSpace);
 
 
-	void addConnection(const String& host, const String& port, const String& userid, const String& passwd);
-	void addConnection(const String& host, const String& port, const String& userid, const String& passwd, const SSLContext& sslcontext);
+    void addConnection(
+             const String& host,
+             const String& port,
+             const String& userid,
+             const String& passwd);
+
+    void addConnection(
+             const String& host,
+             const String& port,
+             const String& userid,
+             const String& passwd,
+             const SSLContext& sslcontext);
 
 private:
-	
-	Array<CIMClientConnection*>	_cccm_container;
+    
+    Array<CIMClientConnection*> _cccm_container;
 
 };
 

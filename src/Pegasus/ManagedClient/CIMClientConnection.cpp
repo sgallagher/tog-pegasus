@@ -42,33 +42,41 @@ CIMClientConnection::CIMClientConnection()
     _resolvedIP[0] = 0;
 }
 
-CIMClientConnection::CIMClientConnection(const String& host, const String& port, const String& userid, const String& passwd)
+CIMClientConnection::CIMClientConnection(
+    const String& host,
+    const String& port,
+    const String& userid,
+    const String& passwd)
 {
-	_hostname = String(host);
-	_port = String(port);
-	_userid = String(userid);
-	_passwd = String(passwd);
-	
+    _hostname = String(host);
+    _port = String(port);
+    _userid = String(userid);
+    _passwd = String(passwd);
+    
     _connectionHandle.reset(new CIMClientRep());
 
         int af;
-	System::_acquireIP((const char*)host.getCString(), &af, _resolvedIP);
-	if (System::isLoopBack(af, _resolvedIP))
-	{
-		// localhost or ip address of 127.0.0.1
-		// still for compare we need the real ip address
-		System::_acquireIP((const char *) 
+    System::_acquireIP((const char*)host.getCString(), &af, _resolvedIP);
+    if (System::isLoopBack(af, _resolvedIP))
+    {
+        // localhost or ip address of 127.0.0.1
+        // still for compare we need the real ip address
+        System::_acquireIP((const char *) 
                     System::getHostName().getCString(), &af, _resolvedIP);
-	}
+    }
 }
 
-CIMClientConnection::CIMClientConnection(const String& host, const String& port,
-     const String& userid, const String& passwd, const SSLContext& sslcontext)
+CIMClientConnection::CIMClientConnection(
+    const String& host,
+    const String& port,
+    const String& userid,
+    const String& passwd,
+    const SSLContext& sslcontext)
 {
-	_hostname = String(host);
-	_port = String(port);
-	_userid = String(userid);
-	_passwd = String(passwd);
+    _hostname = String(host);
+    _port = String(port);
+    _userid = String(userid);
+    _passwd = String(passwd);
 
     _sslcontext.reset(new SSLContext(sslcontext));
 
@@ -76,24 +84,25 @@ CIMClientConnection::CIMClientConnection(const String& host, const String& port,
     int af;
     System::_acquireIP((const char*)host.getCString(), &af, _resolvedIP);
     if (System::isLoopBack(af, _resolvedIP))
-	{
-		// localhost or ip address of 127.0.0.1
-		// still for compare we need the real ip address
+    {
+        // localhost or ip address of 127.0.0.1
+        // still for compare we need the real ip address
         System::_acquireIP((const char *)
             System::getHostName().getCString(), &af, _resolvedIP);
-	}
+    }
 }
-	
+    
 Boolean CIMClientConnection::equals(void *binIPAddress, int af, 
     const String& port)
 {
-	// only if port and resolved ip address are equal we have the same connection/CIMOM
-	if (HostAddress::equal(af, binIPAddress, _resolvedIP)
+    // only if port and resolved ip address are equal,
+    // we have the same connection/CIMOM
+    if (HostAddress::equal(af, binIPAddress, _resolvedIP)
             && (String::equalNoCase(_port,port)))
-	{
-		return true;
-	}
-	return false;
+    {
+        return true;
+    }
+    return false;
 }
 
 CIMClientRep* CIMClientConnection::getConnectionHandle()
@@ -103,12 +112,12 @@ CIMClientRep* CIMClientConnection::getConnectionHandle()
 
 String CIMClientConnection::getUser()
 {
-	return _userid;
+    return _userid;
 }
 
 String CIMClientConnection::getPass()
 {
-	return _passwd;
+    return _passwd;
 }
 
 SSLContext* CIMClientConnection::getSSLContext()

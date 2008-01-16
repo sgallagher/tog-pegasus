@@ -1,33 +1,35 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
-//
-//%////////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Interop Provider - This provider services those classes from the
@@ -57,8 +59,6 @@
 #include "InteropConstants.h"
 
 #include <Pegasus/Common/StatisticalData.h>
-#include <Pegasus/Common/StringConversion.h>
-#include <Pegasus/Common/ArrayIterator.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -76,57 +76,19 @@ PEGASUS_NAMESPACE_BEGIN
 //
 // Constructor for the InteropProvider control provider
 //
-InteropProvider::InteropProvider(
-    CIMRepository * rep,
-    ProviderRegistrationManager *provRegManager):
-        repository(rep),
-        providerRegistrationManager(provRegManager),
-        hostName(System::getHostName()),
-        providerInitialized(false),
-        updateProfileCache(0),
-        profileIds(Array<String>()),
-        conformingElements(Array<CIMNameArray>()),
-        elementNamespaces(Array<CIMNamespaceArray>())
+InteropProvider::InteropProvider(CIMRepository * rep) : repository(rep),
+    hostName(System::getHostName()), providerInitialized(false),
+    profileIds(Array<String>()), conformingElements(Array<CIMNameArray>()),
+    elementNamespaces(Array<CIMNamespaceArray>())
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,"InteropProvider::InteropProvider");
-
-    ConfigManager *configManager = ConfigManager::getInstance();
-#ifdef PEGASUS_ENABLE_SLP
-    enableSLP = ConfigManager::parseBooleanValue(
-        configManager->getCurrentValue("slp"));
-#else
-    enableSLP = false;
-#endif
-
-    httpPort = configManager->getCurrentValue("httpPort");
-    if (httpPort.size() == 0)
-    {
-        Uint32 portNumberHttp = System::lookupPort(
-            WBEM_HTTP_SERVICE_NAME, WBEM_DEFAULT_HTTP_PORT);
-        char buffer[32];
-        Uint32 n;
-        const char *output = Uint32ToString(buffer, portNumberHttp, n);
-        httpPort.assign(output, n);
-    }
-
-    httpsPort = configManager->getCurrentValue("httpsPort");
-    if (httpsPort.size() == 0)
-    {
-        Uint32 portNumberHttps = System::lookupPort(
-            WBEM_HTTPS_SERVICE_NAME, WBEM_DEFAULT_HTTPS_PORT);
-        char buffer[32];
-        Uint32 n;
-        const char *output = Uint32ToString(buffer, portNumberHttps, n);
-        httpsPort.assign(output, n);
-    }
-
 
 #ifndef PEGASUS_DISABLE_PERFINST
     try
     {
         initProvider();
     }
-    catch(const Exception &)
+    catch(const Exception & e)
     {
         // Provider initialization may fail if the repository is not
         // populated
@@ -152,209 +114,69 @@ CIMInstance InteropProvider::localGetInstance(
         "%s getInstance. instanceName= %s , PropertyList= %s",
         thisProvider,
         (const char *)instanceName.toString().getCString(),
-        (const char *)propertyList.toString().getCString()));
+        (const char *)propertyListToString(propertyList).getCString()));
 
     // Test if we're looking for something outside of our namespace. This will
     // happen during associators calls from PG_RegisteredProfile instances
     // through the PG_ElementConformsToProfile association
     CIMNamespaceName opNamespace = instanceName.getNameSpace();
     CIMName opClass = instanceName.getClassName();
-    if((opNamespace != PEGASUS_NAMESPACENAME_INTEROP &&
+    if(opNamespace != PEGASUS_NAMESPACENAME_INTEROP &&
         opClass != PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE)
-        // Get CIM_IndicationService instance from IndicationService.
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-        || opClass == PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE
-#endif
-        )
     {
         AutoMutex mut(interopMut);
         CIMInstance gotInstance = cimomHandle.getInstance(
                                          context,
                                          opNamespace,
-                                         instanceName,
-                                         false,
-                                         false,
-                                         false,
+                                         instanceName, 
+                                         false, 
+                                         false, 
+                                         false, 
                                          propertyList);
         PEG_METHOD_EXIT();
         return gotInstance;
     }
 
-    TARGET_CLASS classEnum  = translateClassInput(opClass);
+    // Create reference from host, namespace, class components of
+    // instance name
+    CIMObjectPath ref;
+    ref.setHost(instanceName.getHost());
+    ref.setClassName(opClass);
+    ref.setNameSpace(opNamespace);
+
+    // Enumerate instances for this class. Returns all instances
+    // Note that this returns paths setup and instances already
+    // filtered per the input criteria.
+    Array<CIMInstance> instances =  localEnumerateInstances(
+        context,
+        ref,
+        propertyList);
+
+    // deliver a single instance if found.
     CIMInstance retInstance;
-    switch(classEnum)
+
+    bool found = false;
+    for(Uint32 i = 0, n = instances.size(); i < n; i++)
     {
-        case PG_SOFTWAREIDENTITY:
+        CIMObjectPath currentInstRef = instances[i].getPath();
+        currentInstRef.setHost(instanceName.getHost());
+        currentInstRef.setNameSpace(instanceName.getNameSpace());
+        if(instanceName == currentInstRef)
         {
-            retInstance = getSoftwareIdentityInstance(instanceName);
-            normalizeInstance(
-                retInstance, instanceName, false, false, propertyList);
-        }
-        break;
-        case PG_NAMESPACE:
-        {
-            retInstance = getNameSpaceInstance(instanceName);
-            normalizeInstance(
-                retInstance, instanceName, false, false, propertyList);
-        }
-        break;
-        // ATTN: Implement getIntstance for all other classes. Currently
-        // this method calls localEnumerateInstances() to select instance
-        // which is too expensive.
-        default:
-        {
-            // Create reference from host, namespace, class components of
-            // instance name
-            CIMObjectPath ref;
-            ref.setHost(instanceName.getHost());
-            ref.setClassName(opClass);
-            ref.setNameSpace(opNamespace);
-
-            // Enumerate instances for this class. Returns all instances
-            // Note that this returns paths setup and instances already
-            // filtered per the input criteria.
-            Array<CIMInstance> instances =  localEnumerateInstances(
-                context,
-                ref,
-                propertyList);
-            ConstArrayIterator<CIMInstance> instancesIter(instances);
-
-            // deliver a single instance if found.
-            bool found = false;
-            for(Uint32 i = 0; i < instancesIter.size(); i++)
-            {
-                CIMObjectPath currentInstRef = instancesIter[i].getPath();
-                currentInstRef.setHost(instanceName.getHost());
-                currentInstRef.setNameSpace(instanceName.getNameSpace());
-                if(instanceName == currentInstRef)
-                {
-                    retInstance = instancesIter[i];
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found)
-            {
-                PEG_METHOD_EXIT();
-                throw CIMObjectNotFoundException(instanceName.toString());
-            }
+            retInstance = instances[i];
+            found = true;
+            break;
         }
     }
 
+    if(!found)
+    {
+      cout << "Coule not find instance: " << instanceName.toString() << endl;
+    }
     PEG_METHOD_EXIT();
     return retInstance;
 }
 
-Array<CIMInstance> InteropProvider::getReferencedInstances(
-    const Array<CIMInstance> &refs,
-    const String &targetRole,
-    const OperationContext & context,
-    const CIMPropertyList & propertyList)
-{
-    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-        "InteropProvider::getReferencedObjects");
-
-    Array<CIMInstance> referencedInstances;
-    Array<CIMInstance> classInstances;
-    CIMName prevClassName;
-
-    ConstArrayIterator<CIMInstance> refsIter(refs);
-    for(Uint32 i = 0; i < refsIter.size(); i++)
-    {
-        CIMInstance thisRef = refsIter[i];
-        CIMObjectPath thisTarget = getRequiredValue<CIMObjectPath>(
-            thisRef,
-            targetRole);
-
-        // Test if we're looking for something outside of our namespace. This
-        // will happen during associators calls from PG_RegisteredProfile
-        // instances through the PG_ElementConformsToProfile association
-        CIMNamespaceName opNamespace = thisTarget.getNameSpace();
-        CIMName opClass = thisTarget.getClassName();
-
-        if((opNamespace != PEGASUS_NAMESPACENAME_INTEROP &&
-            opClass != PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE)
-            // Get CIM_IndicationService instance from IndicationService.
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-            || opClass == PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE
-#endif
-            )
-        {
-            AutoMutex mut(interopMut);
-            CIMInstance gotInstance = cimomHandle.getInstance(
-                context,
-                opNamespace,
-                thisTarget,
-                false,
-                false,
-                false,
-                propertyList);
-            referencedInstances.append(gotInstance);
-            continue;
-        }
-
-        TARGET_CLASS classEnum  = translateClassInput(opClass);
-        CIMInstance retInstance;
-        switch(classEnum)
-        {
-            case PG_SOFTWAREIDENTITY:
-            {
-                CIMInstance retInstance =
-                    getSoftwareIdentityInstance(thisTarget);
-                normalizeInstance(
-                    retInstance, thisTarget, false, false, propertyList);
-                retInstance.setPath(thisTarget);
-                referencedInstances.append(retInstance);
-            }
-            break;
-            case PG_NAMESPACE:
-            {
-                CIMInstance retInstance = getNameSpaceInstance(thisTarget);
-                normalizeInstance(
-                    retInstance, thisTarget, false, false, propertyList);
-                retInstance.setPath(thisTarget);
-                referencedInstances.append(retInstance);
-            }
-            break;
-            default:
-            {
-                if( opClass != prevClassName )
-                {
-                    CIMObjectPath ref;
-                    ref.setHost(thisTarget.getHost());
-                    ref.setClassName(thisTarget.getClassName());
-                    ref.setNameSpace(thisTarget.getNameSpace());
-                    classInstances = localEnumerateInstances(
-                        context,
-                        ref,
-                        propertyList);
-                    ArrayIterator<CIMInstance> instsIter(classInstances);
-                    for(Uint32 n = 0; n < instsIter.size(); n++)
-                    {
-                        CIMObjectPath tmpInst = instsIter[n].getPath();
-                        tmpInst.setHost(thisTarget.getHost());
-                        tmpInst.setNameSpace(thisTarget.getNameSpace());
-                        instsIter[n].setPath(tmpInst);
-                    }
-                    prevClassName = opClass;
-                }
-                ConstArrayIterator<CIMInstance> instsConstIter(classInstances);
-                for(Uint32 j = 0; j < instsConstIter.size(); j++)
-                {
-                    if(thisTarget == instsConstIter[j].getPath())
-                    {
-                        referencedInstances.append(instsConstIter[j]);
-                        break;
-                    }
-                }
-            }
-            break;
-        }
-    }
-    PEG_METHOD_EXIT();
-    return referencedInstances;
-}
 
 //
 // Local version of enumerateInstances to be used by other functions in the
@@ -376,7 +198,7 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
         "%s enumerateInstances. referenc= %s , PropertyList= %s",
         thisProvider,
         (const char *)className.getString().getCString(),
-        (const char *)propertyList.toString().getCString()));
+        (const char *)propertyListToString(propertyList).getCString()));
 
     // Verify that ClassName is correct and get its enum value
     TARGET_CLASS classEnum  = translateClassInput(className);
@@ -430,13 +252,6 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
                 ref.getNameSpace());
             break;
         }
-        case PG_ELEMENTCONFORMSTOPROFILE_RP_RP:
-        {
-            instances = enumElementConformsToProfileRPRPInstances(
-                context,
-                ref.getNameSpace());
-            break;
-        }
         case PG_SUBPROFILEREQUIRESPROFILE:
         {
             instances = enumSubProfileRequiresProfileInstances();
@@ -454,58 +269,24 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
         }
         case PG_INSTALLEDSOFTWAREIDENTITY:
         {
-            instances = enumInstalledSoftwareIdentityInstances(context);
+            instances = enumInstalledSoftwareIdentityInstances();
             break;
         }
         case PG_COMPUTERSYSTEM:
         {
-            instances.append(getComputerSystemInstance(context));
+            instances.append(getComputerSystemInstance());
             break;
         }
         case PG_HOSTEDOBJECTMANAGER:
         {
-            instances.append(getHostedObjectManagerInstance(context));
+            instances.append(getHostedObjectManagerInstance());
             break;
         }
         case PG_HOSTEDACCESSPOINT:
         {
-            instances = enumHostedAccessPointInstances(context);
+            instances = enumHostedAccessPointInstances();
             break;
         }
-        //We don't support enumerate CIM_Namespace instances. PG_Namespace is
-        //supported.
-        case CIM_NAMESPACE:
-        {
-            break;
-        }
-        case PG_PROVIDERPROFILECAPABILITIES:
-        {
-            instances = enumProviderProfileCapabilityInstances(false);
-            break;
-        }
-
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-        case PG_ELEMENTCAPABILITIES:
-        {
-            instances = enumElementCapabilityInstances(context);
-            break;
-        }
-        case PG_HOSTEDINDICATIONSERVICE:
-        {
-            instances = enumHostedIndicationServiceInstances(context);
-            break;
-        }
-        case PG_SERVICEAFFECTSELEMENT:
-        {
-            instances = enumServiceAffectsElementInstances(context);
-            break;
-        }
-        case CIM_INDICATIONSERVICE:
-        {
-            instances = enumIndicationServiceInstances(context);
-            break;
-        }
-#endif
         default:
             PEG_METHOD_EXIT();
             throw CIMNotSupportedException(className.getString() +
@@ -530,18 +311,14 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
 // role and resultRole parameter of an associators/associatorNames operation.
 //
 bool InteropProvider::validAssocClassForObject(
-    const OperationContext & context,
-    const CIMName & assocClass,
-    const CIMObjectPath & objectName,
+    const CIMName & assocClass, const CIMName & originClass,
     const CIMNamespaceName & opNamespace,
-    String & originProperty,
-    String & targetProperty)
+    String & originProperty, String & targetProperty)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "InteropProvider::validAssocClassForObject()");
     TARGET_CLASS assocClassEnum = translateClassInput(assocClass);
-    TARGET_CLASS originClassEnum = NOCLASS;
-    CIMName originClass = objectName.getClassName();
+    TARGET_CLASS originClassEnum;
     // If the association class is PG_ElementConformsToProfile, we'll have to
     // do some special processing in case the origin instance for the operation
     // is managed by another provider.
@@ -551,10 +328,7 @@ bool InteropProvider::validAssocClassForObject(
         // that has implemented a registered profile.
         if(opNamespace != PEGASUS_NAMESPACENAME_INTEROP ||
             (originClass != PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE &&
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-             originClass != PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE &&
-#endif
-             originClass != PEGASUS_CLASSNAME_PG_OBJECTMANAGER ))
+            originClass != PEGASUS_CLASSNAME_PG_OBJECTMANAGER))
         {
             //
             // Search the cached conformingElements list for the originClass,
@@ -600,13 +374,6 @@ bool InteropProvider::validAssocClassForObject(
 
     CIMName expectedTargetRole;
     CIMName expectedOriginRole;
-
-    Array<CIMName> propNames;
-    String profileName;
-    CIMPropertyList propertyList;
-    CIMInstance tmpInstance;
-    Uint32 index;
-    propNames.clear();
 
     //
     // Set the target and origin role values. Note that if these values are
@@ -655,51 +422,6 @@ bool InteropProvider::validAssocClassForObject(
                   ELEMENTCONFORMSTOPROFILE_PROPERTY_MANAGEDELEMENT;
           }
           break;
-      case PG_ELEMENTCONFORMSTOPROFILE_RP_RP:
-          propNames.append(CIMName("RegisteredName"));
-          propertyList = CIMPropertyList(propNames);
-          try
-          {
-              tmpInstance = localGetInstance(
-                  context,
-                  objectName,
-                  propertyList);
-          }
-          catch (CIMException &e)
-          {
-              PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL2,
-                  "CIMException while getting instance of Registered Profile "
-                      ": %s",
-                  (const char*)e.getMessage().getCString()));
-          }
-          if (!tmpInstance.isUninitialized())
-          {
-              index = tmpInstance.findProperty("RegisteredName");
-              if (index != PEG_NOT_FOUND)
-              {
-                  const CIMValue &tmpVal =
-                      tmpInstance.getProperty(index).getValue();
-                  if (!tmpVal.isNull())
-                  {
-                      tmpVal.get(profileName);
-                  }
-              }
-          }
-          if (String::compareNoCase(profileName, String("SMI-S")) == 0)
-          {
-              expectedTargetRole =
-                  ELEMENTCONFORMSTOPROFILE_PROPERTY_MANAGEDELEMENT;
-              expectedOriginRole =
-                  ELEMENTCONFORMSTOPROFILE_PROPERTY_CONFORMANTSTANDARD;
-          }
-          else
-          {
-              expectedTargetRole =
-                  ELEMENTCONFORMSTOPROFILE_PROPERTY_CONFORMANTSTANDARD;
-              expectedOriginRole =
-                  ELEMENTCONFORMSTOPROFILE_PROPERTY_MANAGEDELEMENT;
-          }
-          break;
       case PG_SUBPROFILEREQUIRESPROFILE:
           if(originClassEnum == PG_REGISTEREDPROFILE)
           {
@@ -710,59 +432,6 @@ bool InteropProvider::validAssocClassForObject(
           {
               expectedTargetRole = PROPERTY_ANTECEDENT;
               expectedOriginRole = PROPERTY_DEPENDENT;
-          }
-          break;
-      case PG_REFERENCEDPROFILE:
-          if (originClassEnum == PG_REGISTEREDSUBPROFILE)
-          {
-              expectedTargetRole = PROPERTY_ANTECEDENT;
-              expectedOriginRole = PROPERTY_DEPENDENT;
-          }
-          else if (originClassEnum == PG_REGISTEREDPROFILE)
-          {
-              if ((targetProperty.size() != 0) &&
-                  (originProperty.size() != 0) &&
-                  String::equalNoCase(targetProperty, originProperty))
-              {
-                  return false;
-              }
-              if (targetProperty.size() != 0)
-              {
-                  if (!(String::equalNoCase(targetProperty, "Antecedent") ||
-                      String::equalNoCase(targetProperty, "Dependent") ))
-                  {
-                      return false;
-                  }
-              }
-              if (originProperty.size() != 0)
-              {
-                  if (!(String::equalNoCase(originProperty, "Antecedent") ||
-                      String::equalNoCase(originProperty, "Dependent") ))
-                  {
-                      return false;
-                  }
-              }
-              if (String::equalNoCase(originProperty, "Antecedent") &&
-                  targetProperty.size() == 0)
-              {
-                  targetProperty = String("Dependent");
-              }
-              if (String::equalNoCase(originProperty, "Dependent") &&
-                  targetProperty.size() == 0)
-              {
-                  targetProperty = String("Antecedent");
-              }
-              if (String::equalNoCase(targetProperty, "Antecedent") &&
-                  originProperty.size() == 0)
-              {
-                  originProperty = String("Dependent");
-              }
-              if (String::equalNoCase(targetProperty, "Dependent") &&
-                  originProperty.size() == 0)
-              {
-                  originProperty = String("Antecedent");
-              }
-              return true;
           }
           break;
       case PG_ELEMENTSOFTWAREIDENTITY:
@@ -815,20 +484,6 @@ bool InteropProvider::validAssocClassForObject(
               expectedOriginRole = PROPERTY_DEPENDENT;
           }
           break;
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-      case PG_HOSTEDINDICATIONSERVICE:
-          if(originClassEnum == PG_COMPUTERSYSTEM)
-          {
-              expectedTargetRole = PROPERTY_DEPENDENT;
-              expectedOriginRole = PROPERTY_ANTECEDENT;
-          }
-          else if (originClassEnum == CIM_INDICATIONSERVICE)
-          {
-              expectedTargetRole = PROPERTY_ANTECEDENT;
-              expectedOriginRole = PROPERTY_DEPENDENT;
-          }
-          break;
-#endif
       default:
           break;
     }
@@ -899,13 +554,8 @@ Array<CIMInstance> InteropProvider::localReferences(
     CIMNamespaceName originNamespace(objectName.getNameSpace());
 
     // Check that the association traversal request is valid
-    if (validAssocClassForObject(
-        context,
-        assocClass,
-        objectName,
-        originNamespace,
-        originProperty,
-        targetProperty))
+    if(validAssocClassForObject(assocClass, objectName.getClassName(),
+        originNamespace, originProperty, targetProperty))
     {
         // retrieve all of the association class instances
         Array<CIMInstance> localInstances = localEnumerateInstances(context,
@@ -999,16 +649,15 @@ Array<CIMInstance> InteropProvider::localReferences(
 CIMInstance InteropProvider::buildInstanceSkeleton(
       const CIMNamespaceName & nameSpace,
       const CIMName& className,
-      Boolean includeQualifiers,
       CIMClass& returnedClass)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-        "InteropProvider::buildInstanceSkeleton()");
+        "InteropProvider::_buildInstanceSkeleton()");
     // get class with lo = false, qualifier = true classorig = true
     returnedClass = repository->getClass(nameSpace,
         className, false, true, true);
-    CIMInstance skeleton = returnedClass.buildInstance(
-        includeQualifiers, true, CIMPropertyList());
+    CIMInstance skeleton = returnedClass.buildInstance(true,true,
+        CIMPropertyList());
 
     PEG_METHOD_EXIT();
     return skeleton;
@@ -1088,118 +737,103 @@ void InteropProvider::initProvider()
         profileCapabilitiesClass = repository->getClass(
             PEGASUS_NAMESPACENAME_INTEROP,
             PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES,
-            false,
-            true,
-            false);
+            false, true, false);
 
         providerClassifications.append(Uint16(5)); // "Instrumentation"
 
-        // initialize namespaces.
-        initializeNamespaces();
+        //
+        // Initialize the namespaces so that all namespaces with the
+        // CIM_ElementConformsToProfile class also have the
+        // PG_ElementConformsToProfile class. Needed in order to implement
+        // the cross-namespace ElementConformsToProfile association in both
+        // directions.
+        //
+        Array<CIMNamespaceName> namespaceNames =
+            repository->enumerateNameSpaces();
+        // get the PG_ElementConformstoProfile class without the qualifiers
+        // and then add just the required ASSOCIATION qualifier, so that
+        // resolveclass doesn't fail for the test/EmbeddedInstance/Dynamic
+        // namespace, which uses the CIM25 schema that doesn't include any
+        // of the new qualifiers added to this class in later versions of
+        // the CIMSchema.
+        CIMClass conformsClass = repository->getClass(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE, true, false);
+        conformsClass.addQualifier(CIMQualifier(CIMName("ASSOCIATION"),
+                              CIMValue(true)));
+        CIMClass profileClass = repository->getClass(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE, true, false);
+        for(Uint32 i = 0, n = namespaceNames.size(); i < n; ++i)
+        {
+            // Check if the PG_ElementConformsToProfile class is present
+            CIMNamespaceName & currentNamespace = namespaceNames[i];
+            CIMClass tmpCimClass;
+            CIMClass tmpPgClass;
+            CIMClass tmpPgProfileClass;
+            try
+            {
+                // Look for these classes in the same try-block since the
+                // second depends on the first
+                tmpCimClass = repository->getClass(currentNamespace,
+                    PEGASUS_CLASSNAME_CIM_ELEMENTCONFORMSTOPROFILE);
+                tmpPgClass = repository->getClass(currentNamespace,
+                    PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE);
+            }
+            catch(const Exception &)
+            {
+            }
+            try
+            {
+                tmpPgProfileClass = repository->getClass(currentNamespace,
+                    PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
+            }
+            catch(const Exception &)
+            {
+                // Note: if any of the above three classes aren't found,
+                // an exception will be thrown, which we can ignore since it's
+                // an expected case
+                // TBD: Log trace message?
+            }
+
+            // If the CIM_ElementConformsToProfile class is present, but
+            // the PG_ElementConformsToProfile or PG_RegisteredProfile
+            // class is not, then add it to that namespace.
+            //
+            // Note that we don't have to check for the
+            // CIM_RegisteredProfile class because if the
+            // CIM_ElementConformsToProfile class is present, the
+            // CIM_RegisteredProfile class must also be present.
+            if(!tmpCimClass.isUninitialized())
+            {
+                if(tmpPgClass.isUninitialized())
+                {
+                    CIMClass newclass = conformsClass.clone();
+                    CIMObjectPath newPath = conformsClass.getPath();
+                    newPath.setNameSpace(currentNamespace);
+                    newclass.setPath(newPath);
+                    repository->createClass(currentNamespace,
+                        newclass);
+                }
+                if(tmpPgProfileClass.isUninitialized())
+                {
+                    CIMClass newclass = profileClass.clone();
+                    CIMObjectPath newPath = profileClass.getPath();
+                    newPath.setNameSpace(currentNamespace);
+                    newclass.setPath(newPath);
+                    repository->createClass(currentNamespace,
+                        newclass);
+                }
+            }
+        }
 
         // Now cache the Registration info used for ElementConformsToProfile
         cacheProfileRegistrationInfo();
 
         providerInitialized = true;
     }
+
     PEG_METHOD_EXIT();
-}
-
-//
-// Initialize the namespaces so that all namespaces with the
-// CIM_ElementConformsToProfile class also have the
-// PG_ElementConformsToProfile class. Needed in order to implement
-// the cross-namespace ElementConformsToProfile association in both
-// directions.
-//
-void InteropProvider::initializeNamespaces()
-{
-    Array<CIMNamespaceName> namespaceNames =  repository->enumerateNameSpaces();
-    // get the PG_ElementConformstoProfile class without the qualifiers
-    // and then add just the required ASSOCIATION qualifier, so that
-    // resolveclass doesn't fail for the test/EmbeddedInstance/Dynamic
-    // namespace, which uses the CIM25 schema that doesn't include any
-    // of the new qualifiers added to this class in later versions of
-    // the CIMSchema.
-    CIMClass conformsClass = repository->getClass(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE,
-        true,
-        false);
-    conformsClass.addQualifier(
-        CIMQualifier(CIMName("ASSOCIATION"), CIMValue(true)));
-    CIMClass profileClass = repository->getClass(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
-        true,
-        false);
-    for(Uint32 i = 0, n = namespaceNames.size(); i < n; ++i)
-    {
-        // Check if the PG_ElementConformsToProfile class is present
-        CIMNamespaceName & currentNamespace = namespaceNames[i];
-        CIMClass tmpCimClass;
-        CIMClass tmpPgClass;
-        CIMClass tmpPgProfileClass;
-        try
-        {
-            // Look for these classes in the same try-block since the
-            // second depends on the first
-            tmpCimClass = repository->getClass(
-                currentNamespace,
-                PEGASUS_CLASSNAME_CIM_ELEMENTCONFORMSTOPROFILE);
-            tmpPgClass = repository->getClass(
-                currentNamespace,
-                PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE);
-        }
-        catch(const Exception &)
-        {
-        }
-        try
-        {
-            tmpPgProfileClass = repository->getClass(
-                currentNamespace,
-                PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
-        }
-        catch(const Exception &)
-        {
-            // Note: if any of the above three classes aren't found,
-            // an exception will be thrown, which we can ignore since it's
-            // an expected case
-            // TBD: Log trace message?
-        }
-
-        // If the CIM_ElementConformsToProfile class is present, but
-        // the PG_ElementConformsToProfile or PG_RegisteredProfile
-        // class is not, then add it to that namespace.
-        //
-        // Note that we don't have to check for the
-        // CIM_RegisteredProfile class because if the
-        // CIM_ElementConformsToProfile class is present, the
-        // CIM_RegisteredProfile class must also be present.
-        if(!tmpCimClass.isUninitialized())
-        {
-            if(tmpPgClass.isUninitialized())
-            {
-                CIMClass newclass = conformsClass.clone();
-                CIMObjectPath newPath = conformsClass.getPath();
-                newPath.setNameSpace(currentNamespace);
-                newclass.setPath(newPath);
-                repository->createClass(
-                    currentNamespace,
-                    newclass);
-            }
-            if(tmpPgProfileClass.isUninitialized())
-            {
-                CIMClass newclass = profileClass.clone();
-                CIMObjectPath newPath = profileClass.getPath();
-                newPath.setNameSpace(currentNamespace);
-                newclass.setPath(newPath);
-                repository->createClass(
-                    currentNamespace,
-                    newclass);
-            }
-        }
-    }
 }
 
 PEGASUS_NAMESPACE_END

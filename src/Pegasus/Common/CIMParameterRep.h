@@ -36,12 +36,14 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMQualifierList.h>
+#include <Pegasus/Common/OrderedSet.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -67,6 +69,23 @@ public:
         return _name;
     }
 
+    const Uint32 getNameTag() const
+    {
+        return _nameTag;
+    }
+
+    void increaseOwnerCount()
+    {
+        _ownerCount++;
+        return;
+    }
+
+    void decreaseOwnerCount()
+    {
+        _ownerCount++;
+        return;
+    }
+    
     void setName(const CIMName& name);
 
     Boolean isArray() const
@@ -149,6 +168,8 @@ private:
     Uint32 _arraySize;
     CIMName _referenceClassName;
     CIMQualifierList _qualifiers;
+    Uint32 _nameTag;
+    Uint32 _ownerCount;
 };
 
 PEGASUS_NAMESPACE_END

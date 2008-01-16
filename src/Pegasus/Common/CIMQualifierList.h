@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -111,11 +113,6 @@ public:
     */
     void removeQualifier(Uint32 index);
 
-    /**
-        Removes all the qualifiers from the list.
-    */
-    void clear();
-
     /** find - Searches for a qualifier with the specified `
         input name if it exists in the class
         @param name CIMName of the qualifier
@@ -146,6 +143,9 @@ public:
         @return Boolean True if the qualifier exists,
     */
     Boolean isTrue(const CIMName& name) const;
+
+    /// findReverse - See find
+    Uint32 findReverse(const CIMName& name) const;
 
     /** resolve - Resolves the qualifierList based on the information provided.
         The resolved qualifiers are the result of validating and testing the
@@ -184,6 +184,12 @@ public:
         Boolean propagateQualifiers);
 
     ///
+    void toXml(Buffer& out) const;
+
+    ///
+    void toMof(Buffer& out) const;
+
+    ///
     void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
 
     ///
@@ -192,44 +198,25 @@ public:
     ///
     void cloneTo(CIMQualifierList& x) const;
 
-    Boolean isKey() const;
-
-    /// Add qualifier without checking whether it already exists.
-    CIMQualifierList& addUnchecked(const CIMQualifier& qualifier);
-
-private:
-
-    typedef OrderedSet<CIMQualifier,
-                       CIMQualifierRep,
-                       PEGASUS_QUALIFIER_ORDEREDSET_HASHSIZE> QualifierSet;
-    QualifierSet _qualifiers;
-
-    /** Index of key qualifier or the meaning is as follows:
-           PEGASUS_ORDEREDSET_INDEX_NOTFOUND --
-               there is no key qualifier in the list.
-           PEGASUS_ORDEREDSET_INDEX_UNKNOWN --
-               the index is unresolved.
-    */
-    Uint32 _keyIndex;
-
-    friend class CIMPropertyInternal;
+     Boolean isKey() const;
+ 
+  private:
+ 
+     typedef OrderedSet<CIMQualifier,
+                        CIMQualifierRep,
+                        PEGASUS_QUALIFIER_ORDEREDSET_HASHSIZE> QualifierSet;
+     QualifierSet _qualifiers;
+ 
+     /** Index of key qualifier or the meaning is as follows:
+            PEGASUS_ORDEREDSET_INDEX_NOTFOUND -- 
+                there is no key qualifier in the list.
+            PEGASUS_ORDEREDSET_INDEX_UNKNOWN --
+                the index is unresolved.
+     */
+     Uint32 _keyIndex;
+ 
+     friend class CIMPropertyInternal;
 };
-
-/**
-    Applies a specified qualifier list to a specified object, using an
-    addQualifier method which is expected to exist for the object type.
-    @param qualifierList The CIMQualifierList to apply to the object.
-    @param object The object to which to apply the qualifierList.
-*/
-template <class T>
-void applyQualifierList(CIMQualifierList& qualifierList, T& object)
-{
-    for (Uint32 i = 0; i < qualifierList.getCount(); i++)
-    {
-        object.addQualifier(qualifierList.getQualifier(i));
-    }
-    qualifierList.clear();
-}
 
 PEGASUS_NAMESPACE_END
 

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +42,7 @@
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMQualifierList.h>
+#include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/OrderedSet.h>
 
@@ -50,7 +53,7 @@ class CIMProperty;
 class CIMConstProperty;
 class DeclContext;
 
-class CIMPropertyRep
+class CIMPropertyRep : public Sharable
 {
 public:
 
@@ -62,12 +65,14 @@ public:
         const CIMName& classOrigin,
         Boolean propagated);
 
+    ~CIMPropertyRep();
+
     const CIMName& getName() const
     {
         return _name;
     }
 
-    Uint32 getNameTag() const
+    const Uint32 getNameTag() const
     {
         return _nameTag;
     }
@@ -80,7 +85,7 @@ public:
 
     void decreaseOwnerCount()
     {
-        _ownerCount--;
+        _ownerCount++;
         return;
     }
 
@@ -108,10 +113,7 @@ public:
         return _classOrigin;
     }
 
-    void setClassOrigin(const CIMName& classOrigin)
-    {
-        _classOrigin = classOrigin;
-    }
+    void setClassOrigin(const CIMName& classOrigin);
 
     Boolean getPropagated() const
     {
@@ -166,6 +168,10 @@ public:
         Boolean isInstancePart,
         Boolean propagateQualifiers);
 
+    void toXml(Buffer& out) const;
+
+    void toMof(Boolean isInstance, Buffer& out) const;
+
     Boolean identical(const CIMPropertyRep* x) const;
 
     CIMPropertyRep* clone() const
@@ -173,26 +179,21 @@ public:
         return new CIMPropertyRep(*this, true);
     }
 
-    void Inc()
-    {
-        _refCounter++;
-    }
-
-    void Dec()
-    {
-        if (_refCounter.decAndTestIfZero())
-            delete this;
-    }
-
 private:
+
+    CIMPropertyRep();
 
     // Cloning constructor:
 
     CIMPropertyRep(const CIMPropertyRep& x, Boolean propagateQualifiers);
 
-    CIMPropertyRep();    // Unimplemented
-    CIMPropertyRep(const CIMPropertyRep& x);    // Unimplemented
-    CIMPropertyRep& operator=(const CIMPropertyRep& x);    // Unimplemented
+    // This method is declared and made private so that the compiler does
+    // not implicitly define a default copy constructor.
+    CIMPropertyRep& operator=(const CIMPropertyRep& x)
+    {
+        //PEGASUS_ASSERT(0);
+        return *this;
+    }
 
     CIMName _name;
     CIMValue _value;
@@ -202,10 +203,6 @@ private:
     Boolean _propagated;
     CIMQualifierList _qualifiers;
     Uint32 _nameTag;
-
-    // reference counter as member to avoid
-    // virtual function resolution overhead
-    AtomicInt _refCounter;
 
     // Number of containers in which this property is a member. Adding a
     // property to a container increments this count. Removing a property
@@ -218,9 +215,6 @@ private:
     friend class CIMObjectRep;
     friend class CIMProperty;
     friend class CIMPropertyInternal;
-    friend class CIMBuffer;
-    friend class SCMOClass;
-    friend class SCMOInstance;
 };
 
 PEGASUS_NAMESPACE_END

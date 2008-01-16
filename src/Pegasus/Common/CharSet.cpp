@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -184,19 +186,19 @@ const Uint8 CharSet::_isNotSpaceNorTerm[] =
 // out of the first and last character of a CIMName
 const Uint16 CharSet::_toUpperHash[256] =
 {
-    0x0000,0x0001,0x0004,0x0005,0x0010,0x0011,0x0014,0x0015,
+    0x0000,0x0001,0x0004,0x0005,0x0010,0x0011,0x0014,0x0015, 
     0x0040,0x0041,0x0044,0x0045,0x0050,0x0051,0x0054,0x0055,
-    0x0100,0x0101,0x0104,0x0105,0x0110,0x0111,0x0114,0x0115,
+    0x0100,0x0101,0x0104,0x0105,0x0110,0x0111,0x0114,0x0115, 
     0x0140,0x0141,0x0144,0x0145,0x0150,0x0151,0x0154,0x0155,
-    0x0400,0x0401,0x0404,0x0405,0x0410,0x0411,0x0414,0x0415,
+    0x0400,0x0401,0x0404,0x0405,0x0410,0x0411,0x0414,0x0415, 
     0x0440,0x0441,0x0444,0x0445,0x0450,0x0451,0x0454,0x0455,
-    0x0500,0x0501,0x0504,0x0505,0x0510,0x0511,0x0514,0x0515,
+    0x0500,0x0501,0x0504,0x0505,0x0510,0x0511,0x0514,0x0515, 
     0x0540,0x0541,0x0544,0x0545,0x0550,0x0551,0x0554,0x0555,
-    0x1000,0x1001,0x1004,0x1005,0x1010,0x1011,0x1014,0x1015,
+    0x1000,0x1001,0x1004,0x1005,0x1010,0x1011,0x1014,0x1015, 
     0x1040,0x1041,0x1044,0x1045,0x1050,0x1051,0x1054,0x1055,
-    0x1100,0x1101,0x1104,0x1105,0x1110,0x1111,0x1114,0x1115,
+    0x1100,0x1101,0x1104,0x1105,0x1110,0x1111,0x1114,0x1115, 
     0x1140,0x1141,0x1144,0x1145,0x1150,0x1151,0x1154,0x1155,
-    0x1400,0x1001,0x1004,0x1005,0x1010,0x1011,0x1014,0x1015,
+    0x1400,0x1001,0x1004,0x1005,0x1010,0x1011,0x1014,0x1015, 
     0x1040,0x1041,0x1044,0x1045,0x1050,0x1051,0x1054,0x1055,
     0x1100,0x1101,0x1104,0x1105,0x1110,0x1111,0x1114,0x1115,
     0x1140,0x1141,0x1144,0x1545,0x1550,0x1551,0x1554,0x1555,
@@ -207,13 +209,13 @@ const Uint16 CharSet::_toUpperHash[256] =
     0x4400,0x4401,0x4404,0x4405,0x4410,0x4411,0x4414,0x4415,
     0x4440,0x4441,0x4444,0x4445,0x4450,0x4451,0x4454,0x4455,
     0x4500,0x4501,0x4504,0x4505,0x4510,0x4511,0x4514,0x4515,
-    0x4540,0x4541,0x4544,0x4545,0x4550,0x4551,0x4554,0x4555,
+    0x4540,0x4541,0x4544,0x4545,0x4550,0x4551,0x4554,0x4555, 
     0x5000,0x5001,0x5004,0x5005,0x5010,0x5011,0x5014,0x5015,
-    0x5040,0x5041,0x5044,0x5045,0x5050,0x5051,0x5054,0x5055,
+    0x5040,0x5041,0x5044,0x5045,0x5050,0x5051,0x5054,0x5055, 
     0x5100,0x5101,0x5104,0x5105,0x5110,0x5111,0x5114,0x5115,
-    0x5140,0x5141,0x5144,0x5145,0x5150,0x5151,0x5154,0x5155,
+    0x5140,0x5141,0x5144,0x5145,0x5150,0x5151,0x5154,0x5155, 
     0x5400,0x5401,0x5404,0x5405,0x5410,0x5411,0x5414,0x5415,
-    0x5440,0x5441,0x5444,0x5445,0x5450,0x5451,0x5454,0x5455,
+    0x5440,0x5441,0x5444,0x5445,0x5450,0x5451,0x5454,0x5455, 
     0x5500,0x5501,0x5504,0x5505,0x5510,0x5511,0x5514,0x5515,
     0x5540,0x5541,0x5544,0x5545,0x5550,0x5551,0x5554,0x5555,
 };

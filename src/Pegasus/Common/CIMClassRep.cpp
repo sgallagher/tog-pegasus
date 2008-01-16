@@ -45,6 +45,8 @@
 #include "CIMNameUnchecked.h"
 #include "StrLit.h"
 #include "CIMInstanceRep.h"
+#include "CIMPropertyInternal.h"
+#include "CIMMethodRep.h"
 
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
@@ -153,13 +155,7 @@ void CIMClassRep::addMethod(const CIMMethod& x)
 
 Uint32 CIMClassRep::findMethod(const CIMName& name) const
 {
-    for (Uint32 i = 0, n = _methods.size(); i < n; i++)
-    {
-        if (name.equal(_methods[i].getName()))
-            return i;
-    }
-
-    return PEG_NOT_FOUND;
+    return _methods.find(name, generateCIMNameTag(name));
 }
 
 CIMMethod CIMClassRep::getMethod(Uint32 index)
@@ -670,8 +666,8 @@ Boolean CIMClassRep::identical(const CIMObjectRep* x) const
     //
 
     {
-        const Array<CIMMethod>& tmp1 = _methods;
-        const Array<CIMMethod>& tmp2 = tmprep->_methods;
+        const MethodSet& tmp1 = _methods;
+        const MethodSet& tmp2 = tmprep->_methods;
 
         if (tmp1.size() != tmp2.size())
             return false;
@@ -703,19 +699,9 @@ void CIMClassRep::getKeyNames(Array<CIMName>& keyNames) const
     {
         CIMConstProperty property = getProperty(i);
 
-        Uint32 index;
-        if ((index = property.findQualifier(
-            CIMNameUnchecked("key"))) != PEG_NOT_FOUND)
+        if (CIMPropertyInternal::isKeyProperty(property))
         {
-            CIMValue value;
-            value = property.getQualifier (index).getValue ();
-            if (!value.isNull ())
-            {
-                Boolean isKey;
-                value.get (isKey);
-                if (isKey)
-                    keyNames.append(property.getName());
-            }
+            keyNames.append(property.getName());
         }
     }
 }
@@ -725,23 +711,11 @@ Boolean CIMClassRep::hasKeys() const
     for (Uint32 i = 0, n = getPropertyCount(); i < n; i++)
     {
         CIMConstProperty property = getProperty(i);
-
-        Uint32 index;
-        if ((index = property.findQualifier(
-            CIMNameUnchecked("key"))) != PEG_NOT_FOUND)
+        if (CIMPropertyInternal::isKeyProperty(property))
         {
-            CIMValue value;
-            value = property.getQualifier (index).getValue ();
-            if (!value.isNull ())
-            {
-                Boolean isKey;
-                value.get (isKey);
-                if (isKey)
-                    return true;
-            }
+            return true;
         }
     }
-
     return false;
 }
 

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,15 +36,12 @@
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMPropertyInternal.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/MofWriter.h>
 #include <Pegasus/Common/CIMObjectPath.h>
-
-#include <Pegasus/General/MofWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 static Boolean verbose;         // controls test IO
-
-#define VCOUT if (verbose) cout
 
 void test01()
 {
@@ -60,7 +59,7 @@ void test01()
     // Test clone
     CIMProperty p1clone = p1.clone();
     CIMProperty p2clone = p2.clone();
-
+   
     // Test print
 
     if(verbose)
@@ -159,21 +158,21 @@ void test01()
 
     // Tests for value insertion.
     {
-        CIMProperty px(CIMName ("p1"), String("Hi There"));
-        // test for CIMValue and type
-        CIMProperty py(CIMName ("p2"), Uint32(999));
-        // test for CIMValue and type
+           CIMProperty p1(CIMName ("p1"), String("Hi There"));
+           // test for CIMValue and type
+           CIMProperty p2(CIMName ("p2"), Uint32(999));
+           // test for CIMValue and type
 
-        //Test getName and setName
-        PEGASUS_TEST_ASSERT(px.getName() == CIMName ("p1"));
-        px.setName(CIMName ("px"));
-        PEGASUS_TEST_ASSERT(px.getName() == CIMName ("px"));
+       //Test getName and setName
+       PEGASUS_TEST_ASSERT(p1.getName() == CIMName ("p1"));
+       p1.setName(CIMName ("px"));
+       PEGASUS_TEST_ASSERT(p1.getName() == CIMName ("px"));
 
-        PEGASUS_TEST_ASSERT(py.getName() == CIMName ("p2"));
-        py.setName(CIMName ("py"));
-        PEGASUS_TEST_ASSERT(py.getName() == CIMName ("py"));
+       PEGASUS_TEST_ASSERT(p2.getName() == CIMName ("p2"));
+       p2.setName(CIMName ("py"));
+       PEGASUS_TEST_ASSERT(p2.getName() == CIMName ("py"));
 
-        // ATTN: Test setValue and getValue
+       // Test setValue and getValue
     }
 }
 
@@ -227,15 +226,15 @@ void test02()
     PEGASUS_TEST_ASSERT(cp1.findQualifier(
         CIMName ("stuf")) == PEG_NOT_FOUND);
     PEGASUS_TEST_ASSERT(cp1.getQualifierCount() == 4);
-
-        try
+ 
+        try 
         {
             p1.getQualifier(0);
         }
         catch(IndexOutOfBoundsException& e)
         {
             if(verbose)
-                cout << "Exception: " << e.getMessage() << endl;
+                cout << "Exception: " << e.getMessage() << endl;    
         }
 }
 //
@@ -252,12 +251,6 @@ void test03()
     names.append(CIMName ("property3"));
     list1.set(names);
     list2 = list1;
-
-    VCOUT << list1.toString() << endl;
-    VCOUT << list2.toString() << endl;
-    PEGASUS_TEST_ASSERT(list1.toString() == "property1, property2, property3");
-    PEGASUS_TEST_ASSERT(list2.toString() == "property1, property2, property3");
-
     Array<CIMName> names1a = list1.getPropertyNameArray();
     PEGASUS_TEST_ASSERT(names == names1a);
     PEGASUS_TEST_ASSERT(list2[0] == CIMName("property1"));
@@ -266,11 +259,6 @@ void test03()
 
     list1.clear();
     list2.clear();
-
-    VCOUT << list1.toString() << endl;
-    VCOUT << list2.toString() << endl;
-    PEGASUS_TEST_ASSERT(list1.toString() == "NULL");
-    PEGASUS_TEST_ASSERT(list2.toString() == "NULL");
 
     // Test use of empty list.  Note that the requirement for
     // property lists assumes that we must be able to distinguish
@@ -283,8 +271,6 @@ void test03()
     PEGASUS_TEST_ASSERT(list1.size() == 0);
     Array<CIMName> names3 = list1.getPropertyNameArray();
     PEGASUS_TEST_ASSERT(names3.size() == 0);
-    VCOUT << list1.toString() << endl;
-    PEGASUS_TEST_ASSERT(list1.toString() == "EMPTY");
 
 }
 
@@ -295,7 +281,7 @@ void test04()
     String p =  "//localhost/root/SampleProvider:"
                 "TST_PersonDynamic.Name=\"Father\"";
     CIMObjectPath path = p;
-
+        
     String referenceClassName = "TST_Person";
     CIMProperty p1(CIMName ("message"), path, 0,
                    CIMName(referenceClassName));
@@ -303,7 +289,7 @@ void test04()
     PEGASUS_TEST_ASSERT(p1.getReferenceClassName()==
                         CIMName(referenceClassName));
     PEGASUS_TEST_ASSERT(p1.getType() == CIMTYPE_REFERENCE);
-
+    
     CIMValue v1;
     v1 = p1.getValue();
     PEGASUS_TEST_ASSERT(v1.getType() ==  CIMTYPE_REFERENCE);
@@ -337,7 +323,7 @@ void test04()
     v1.get(pathout2);
     // Now compare the paths
 
-
+    
     if(verbose)
         XmlWriter::printPropertyElement(p2, cout);
 }
@@ -374,7 +360,7 @@ void test05()
     PEGASUS_TEST_ASSERT(gotException);
 }
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
     try

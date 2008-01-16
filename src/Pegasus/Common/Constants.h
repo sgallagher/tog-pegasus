@@ -399,6 +399,24 @@
 */
 #define PEGASUS_INSTANCEID_GLOBAL_PREFIX "PG"
 
+/* Constants defining the size of the hash table used in the OrderedSet
+   implementation. Specific classes have their own hash table size to
+   accomodate for amounts of probable members
+*/
+#define PEGASUS_PROPERTY_ORDEREDSET_HASHSIZE 32
+#define PEGASUS_QUALIFIER_ORDEREDSET_HASHSIZE 16
+#define PEGASUS_PARAMETER_ORDEREDSET_HASHSIZE 16
+#define PEGASUS_METHOD_ORDEREDSET_HASHSIZE 16
+
+/* defines a number value for an OrderedSet when either 
+   the index to a specific member is unknown, meaning not initialized
+   (PEGASUS_ORDEREDSET_INDEX_UNKNOWN)
+   of the specific member is not part of the list
+   (PEGASUS_ORDEREDSET_INDEX_NOTFOUND)   
+*/
+#define PEGASUS_ORDEREDSET_INDEX_NOTFOUND 0xFFFFFFFF
+#define PEGASUS_ORDEREDSET_INDEX_UNKNOWN 0xFFFFFFFE
+
 /*
 **==============================================================================
 **

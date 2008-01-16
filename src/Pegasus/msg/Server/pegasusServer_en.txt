@@ -2618,6 +2618,11 @@ not be valid."}
         */
         Common.CIMMethodRep.PARAMETER:string {"PGS07000: Parameter {0}"}
 
+        /**
+        * @note PGS07001:
+        *     
+        */
+        Common.CIMMethodRep.CONTAINED_METHOD_NAMECHANGEDEXCEPTION:string {"PGS07001: Attempted to change the name of a method already in a container."}
 
         // ==========================================================
         // Messages for CIMObjectRep
@@ -6619,6 +6624,40 @@ CIM server listening on HTTPS port {0}."}
          * @note PGS18605
          */
         ProviderManager2.JMPI.JMPIImpl.JAVA_CAUSED_EXCEPTION.STANDARD:string {"PGS18605: Java code caused an exception: {0}"}
+
+        // ==========================================================
+        // Messages for CIMPropertyRep
+        //  Please use message prefix "PGS18800 - PGS18999"
+        // ==========================================================
+        
+        /**
+        * @note PGS18800:
+        *     
+        */
+        Common.CIMPropertyRep.CONTAINED_PROPERTY_NAMECHANGEDEXCEPTION:string {"PGS18800: Attempted to change the name of a property already in a container."}
+
+        // ==========================================================
+        // Messages for CIMQualifierRep
+        //  Please use message prefix "PGS19000 - PGS19199"
+        // ==========================================================
+        
+        /**
+        * @note PGS19000:
+        *     
+        */
+        Common.CIMQualifierRep.CONTAINED_QUALIFIER_NAMECHANGEDEXCEPTION:string {"PGS19000: Attempted to change the name of a qualifier already in a container."}
+
+        // ==========================================================
+        // Messages for CIMParameterRep
+        //  Please use message prefix "PGS19200 - PGS19399"
+        // ==========================================================
+        
+        /**
+        * @note PGS19200:
+        *     
+        */
+        Common.CIMParameterRep.CONTAINED_PARAMETER_NAMECHANGEDEXCEPTION:string {"PGS19200: Attempted to change the name of a parameter already in a container."}
+        
 
 
 // ==============================================================================

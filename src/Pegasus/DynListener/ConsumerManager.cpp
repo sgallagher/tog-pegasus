@@ -812,7 +812,7 @@ void ConsumerManager::_unloadConsumers(
     }
 
     PEG_TRACE_CSTRING(
-        #TRC_LISTENER,
+        TRC_LISTENER,
         Tracer::LEVEL4,
         "Sent shutdown signal to all consumers.");
 

@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: Alagaraja Ramasubramanian, IBM Corporation 
-//          Seema Gupta, IBM Corporation
-//          Subodh Soni, IBM Corporation
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef SLPProv_H
@@ -51,54 +45,54 @@ Boolean initFlag = false;
 
 class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
 {
-	public:
+    public:
         SLPProvider(void);
-	    ~SLPProvider(void);
-		          
-	    void initialize(CIMOMHandle & cimom);
-	    void terminate(void);
+        ~SLPProvider(void);
+                  
+        void initialize(CIMOMHandle & cimom);
+        void terminate(void);
 
-	    void getInstance(
-	       const OperationContext & context,
-	       const CIMObjectPath & ref,
-	       const Boolean includeQualifiers,
-	       const Boolean includeClassOrigin,
-	       const CIMPropertyList & propertyList,
-	       InstanceResponseHandler & handler);
+        void getInstance(
+           const OperationContext & context,
+           const CIMObjectPath & ref,
+           const Boolean includeQualifiers,
+           const Boolean includeClassOrigin,
+           const CIMPropertyList & propertyList,
+           InstanceResponseHandler & handler);
 
-	    void enumerateInstances(
-	       const OperationContext & context,
+        void enumerateInstances(
+           const OperationContext & context,
                const CIMObjectPath & ref,
                const Boolean includeQualifiers,
-	       const Boolean includeClassOrigin,
-	       const CIMPropertyList & propertyList,
-	       InstanceResponseHandler & handler);
+           const Boolean includeClassOrigin,
+           const CIMPropertyList & propertyList,
+           InstanceResponseHandler & handler);
 
-	    void enumerateInstanceNames(
-	       const OperationContext & context,
-	       const CIMObjectPath & ref,
-	       ObjectPathResponseHandler & handler);
+        void enumerateInstanceNames(
+           const OperationContext & context,
+           const CIMObjectPath & ref,
+           ObjectPathResponseHandler & handler);
 
-	    void modifyInstance(
+        void modifyInstance(
                const OperationContext & context,
-	       const CIMObjectPath & ref,
-	       const CIMInstance & obj,
-	       const Boolean includeQualifiers,
-	       const CIMPropertyList & propertyList,
-	       ResponseHandler & handler);
+           const CIMObjectPath & ref,
+           const CIMInstance & obj,
+           const Boolean includeQualifiers,
+           const CIMPropertyList & propertyList,
+           ResponseHandler & handler);
 
-	    void createInstance(
-	       const OperationContext & context,
-	       const CIMObjectPath & ref,
-	       const CIMInstance & obj,
-	       ObjectPathResponseHandler & handler);
+        void createInstance(
+           const OperationContext & context,
+           const CIMObjectPath & ref,
+           const CIMInstance & obj,
+           ObjectPathResponseHandler & handler);
 
-	    void deleteInstance(
-	       const OperationContext & context,
-	       const CIMObjectPath & ref,
-	       ResponseHandler & handler);
+        void deleteInstance(
+           const OperationContext & context,
+           const CIMObjectPath & ref,
+           ResponseHandler & handler);
 
-	    //Boolean tryterminate(void);
+        //Boolean tryterminate(void);
 
         virtual void invokeMethod(
             const OperationContext & context,
@@ -106,8 +100,8 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
             const CIMName & methodName,
             const Array<CIMParamValue> & inParameters,
             MethodResultResponseHandler & handler);
-	
-	protected:
+    
+    protected:
         CIMInstance _buildInstanceSkeleton(const CIMName& className);
 
         void deregisterSLP();
@@ -120,7 +114,9 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
 
         Boolean issueSLPRegistrations();
 
-        String getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& classInfo );
+        String getNameSpaceInfo(
+                   const CIMNamespaceName& nameSpace,
+                   String& classInfo );
 
         void populateTemplateField(CIMInstance& instance, 
             const String& attributeFieldName,

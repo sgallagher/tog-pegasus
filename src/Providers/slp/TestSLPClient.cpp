@@ -59,7 +59,9 @@ int main(int argc, char** argv)
         Array<CIMInstance> ia;
         try
         {
-          ia = client.enumerateInstances(NAMESPACE,CIMName("PG_WBEMSLPTemplate"));
+          ia = client.enumerateInstances(
+                   NAMESPACE,
+                   CIMName("PG_WBEMSLPTemplate"));
         }
         catch (Exception& e)
         {
@@ -75,8 +77,10 @@ int main(int argc, char** argv)
        }
        else
        {
-	      
-       Array<CIMObjectPath> instanceNames = client.enumerateInstanceNames(NAMESPACE,CIMName("CIM_WBEMSLPTemplate"));
+          
+       Array<CIMObjectPath> instanceNames = client.enumerateInstanceNames(
+                                                NAMESPACE,
+                                                CIMName("CIM_WBEMSLPTemplate"));
 
             
 
@@ -84,7 +88,8 @@ int main(int argc, char** argv)
        {
           CIMInstance i1 = client.getInstance(NAMESPACE,instanceNames[i]);
           Uint32 NumProperties;
-          cout << "Getting all properties for WBEMSLPTemplate instance .....  " << i+1 <<"\n";
+          cout << "Getting all properties for WBEMSLPTemplate instance .....  "
+               << i+1 <<"\n";
 
           NumProperties = i1.getPropertyCount();
           for(Uint32 i=0;i<NumProperties;i++)
@@ -92,7 +97,7 @@ int main(int argc, char** argv)
             CIMProperty p1=i1.getProperty(i);
             CIMValue v1=p1.getValue();
             CIMName n1=p1.getName();
-			cout << n1.getString() << " is "  << v1.toString() << "\n";
+            cout << n1.getString() << " is "  << v1.toString() << "\n";
           }
       }
       }

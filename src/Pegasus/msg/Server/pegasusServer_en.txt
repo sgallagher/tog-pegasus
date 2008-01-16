@@ -1300,15 +1300,15 @@ not be valid."}
         */
         Provider.CIMOMHandle.CAUGHT_EXCEPTION:string {"PGS03402:  Exception caught in CIMOMHandle."}
 
-	/**
-	* @note PGS03403
-	*/
-	Provider.CIMOMHandle.CANNOT_ALLOCATE_THREAD:string {"PGS03403: Could not create a worker for the dispatch request."}
+        /**
+        * @note PGS03403
+        */
+        Provider.CIMOMHandle.CANNOT_ALLOCATE_THREAD:string {"PGS03403: Could not create a worker for the dispatch request."}
 
-	/**
-	* @note PGS03404
-	*/
-	Provider.CIMOMHandle.CIMOMHANDLE_TIMEOUT:string {"PGS03404: Timeout waiting for CIMOMHandle."}
+        /**
+        * @note PGS03404
+        */
+        Provider.CIMOMHandle.CIMOMHANDLE_TIMEOUT:string {"PGS03404: Timeout waiting for CIMOMHandle."}
 
         // ==========================================================
         // Messages for ProviderAdapter
@@ -1618,7 +1618,7 @@ not be valid."}
           "\n\n"
            "Usage: cimmof -h | --help\n"
            "       cimmof --version\n"
-	       "       cimmof [ -w ] [ -uc ][ -aE | -aV | -aEV ] [ -I path ] \n"
+               "       cimmof [ -w ] [ -uc ][ -aE | -aV | -aEV ] [ -I path ] \n"
            "              [ -n namespace | --namespace namespace ] [ mof_file ... ]\n"
            "Options :\n"
            "    -h, --help       - Display this help message.\n"
@@ -2776,8 +2776,8 @@ not be valid."}
         // ==========================================================
 
         /**
-	* @note: PGS08900:
-	*   Please do not translate the word 'Cimom' as that is the name of
+        * @note: PGS08900:
+        *   Please do not translate the word 'Cimom' as that is the name of
         *  technical functional component.
         */
         Common.Cimom.NOT_ENOUGH_THREADS:string {"PGS08900: Cannot allocate thread for Cimom class"}
@@ -5952,47 +5952,47 @@ CIM server listening on HTTPS port {0}."}
         */
         ProviderManager.CMPI.CMPIProviderManager.ENABLE_INDICATIONS_FAILED_UNKNOWN:string {"PGS16501: Failed to enable indications for provider {0}."}
 
-	/**
-	* @note PGS16502
+        /**
+        * @note PGS16502
         *    Substitution {0} is the filename of the provider
-	*/
-	ProviderManager.CMPI.CMPILocalProviderManager.CANNOT_FIND_LIBRARY:string {"PGS16502: For provider {0} the library name was empty. Check provider registered location."}
+        */
+        ProviderManager.CMPI.CMPILocalProviderManager.CANNOT_FIND_LIBRARY:string {"PGS16502: For provider {0} the library name was empty. Check provider registered location."}
 
-	/**
-	* @note PGS16503
+        /**
+        * @note PGS16503
         *    Substitution {0} is the name of the provider
         *    Substitution {1} is another message string
-	*/
-	ProviderManager.CMPI.CMPIProvider.CANNOT_INIT_API:string {"PGS16503: Error initializing CMPI MI {0}, the following MI factory function(s) returned an error: {1}"}
+        */
+        ProviderManager.CMPI.CMPIProvider.CANNOT_INIT_API:string {"PGS16503: Error initializing CMPI MI {0}, the following MI factory function(s) returned an error: {1}"}
 
-	/**
-	* @note PGS16504
+        /**
+        * @note PGS16504
         *    Substitution {0} is the filename of the provider
         *    Substitution {1} is the name of the provider
         *    Substitution {2} is the operatating system message string
-	*/
-	ProviderManager.CMPI.CMPIProviderModule.CANNOT_LOAD_LIBRARY:string {"PGS16504: ({0}:{1}):Cannot load library, error: {2}"}
+        */
+        ProviderManager.CMPI.CMPIProviderModule.CANNOT_LOAD_LIBRARY:string {"PGS16504: ({0}:{1}):Cannot load library, error: {2}"}
 
-	/**
-	* @note PGS16505
+        /**
+        * @note PGS16505
         *    Substitution {0} is the filename of the provider
         *    Substitution {1} is the name of the provider
-	*/
-	ProviderManager.CMPI.CMPIProviderModule.WRONG_LIBRARY:string {"PGS16505: ({0}) Provider is not a CMPI style provider. Cannot find {1}_Create<mi-type>MI symbol."}
+        */
+        ProviderManager.CMPI.CMPIProviderModule.WRONG_LIBRARY:string {"PGS16505: ({0}) Provider is not a CMPI style provider. Cannot find {1}_Create<mi-type>MI symbol."}
 
-	/**
-	* @note PGS16506
+        /**
+        * @note PGS16506
         *    Substitution {0} is the filename of the provider
         *    Substitution {1} is the name of the provider
-	*/
+        */
         ProviderManager.CMPI.CMPIProviderModule.CONFLICTING_CMPI_STYLE:string {"PGS16506: ({0}:{1}) conflicting generic/specfic CMPI style provider"}
 
-	/**
-	* @note PGS16507
+        /**
+        * @note PGS16507
         *    Substitution {0} is the provider name
         *    Substitution {1} is the filename of the provider
-	*/
-	ProviderManager.CMPI.CMPIProviderManager.CANNOT_FIND_LIBRARY:string {"PGS16507: For provider {0} library {1} was not found."}
+        */
+        ProviderManager.CMPI.CMPIProviderManager.CANNOT_FIND_LIBRARY:string {"PGS16507: For provider {0} library {1} was not found."}
 
         /**
         * @note PGS16508
@@ -6034,7 +6034,7 @@ CIM server listening on HTTPS port {0}."}
         *    Also note that this message does not have a message prefix, this
         *    message will be imbedded as part of message PGS16503.
         */
-	ProviderManager.CMPI.CMPIProvider.MESSAGE_WAS:string {"{0}, message was: {1}"}
+        ProviderManager.CMPI.CMPIProvider.MESSAGE_WAS:string {"{0}, message was: {1}"}
 
         // ==========================================================
         // Messages for EmailListenerDestination
@@ -6615,9 +6615,9 @@ CIM server listening on HTTPS port {0}."}
         */
         ProviderManager2.JMPI.JMPIImpl.GET_CLASSPATH_FAILED.PEGASUS_OS_ZOS:string {"PGS18604: Could not get CLASSPATH from environment. Either CLASSPATH is longer than 255 characters or not set at all."}
 
-	/**
-	 * @note PGS18605
-	 */
+        /**
+         * @note PGS18605
+         */
         ProviderManager2.JMPI.JMPIImpl.JAVA_CAUSED_EXCEPTION.STANDARD:string {"PGS18605: Java code caused an exception: {0}"}
 
 

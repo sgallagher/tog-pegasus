@@ -684,16 +684,9 @@ static void HandleAuthenticatePasswordRequest(int sock)
     }
     while (0);
 
-    if (status != 0)
-    {
-        Log(LL_WARNING, "Basic authentication failed for username %s",
-            request.username);
-    }
-    else
-    {
-        Log(LL_TRACE, "Basic authentication succeeded for username %s",
-            request.username);
-    }
+    Log(LL_TRACE, "Basic authentication attempt: username = %s, "
+        "successful = %s", 
+        request.username, status == 0 ? "TRUE" : "FALSE" );
 
     /* Send response message. */
 
@@ -758,9 +751,6 @@ static void HandleValidateUserRequest(int sock)
 
 #endif /* !PEGASUS_PAM_AUTHENTICATION */
 
-    if (status != 0)
-        Log(LL_WARNING, "User validation failed on %s", request.username);
-
     /* Send response message. */
 
     response.status = status;
@@ -796,12 +786,7 @@ static void HandleChallengeLocalRequest(int sock)
 
     /* Send response message. */
 
-    if (response.status != 0)
-    {
-        Log(LL_WARNING, "Local authentication failed for user \"%s\"",
-            request.user);
-    }
-    else
+    if (response.status == 0)
     {
         Strlcpy(response.challenge, challenge, sizeof(response.challenge));
     }
@@ -834,13 +819,6 @@ static void HandleAuthenticateLocalRequest(int sock)
     /* Perform operation. */
 
     status = FinishLocalAuthentication(request.challenge, request.response);
-
-    /* Log result. */
-
-    if (status != 0)
-    {
-        Log(LL_WARNING, "Local authentication failed");
-    }
 
     /* Send response. */
 

@@ -27,8 +27,6 @@
 //
 //==============================================================================
 //
-// Author: Dave Sudlik, IBM (dsudlik@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -44,8 +42,9 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const CIMNamespaceName SOURCE_NAMESPACE = CIMNamespaceName ("root/SampleProvider");
-const CIMName SAMPLE_CLASSNAME  = CIMName ("CWS_PlainFile");
+const CIMNamespaceName SOURCE_NAMESPACE = CIMNamespaceName(
+                                              "root/SampleProvider");
+const CIMName SAMPLE_CLASSNAME  = CIMName("CWS_PlainFile");
 
 Array<CIMObjectPath> objectNames;
 CIMInstance instance;
@@ -57,17 +56,20 @@ void _enumerateInstanceNames(CIMClient & client)
 {
     try
     {
-        objectNames = client.enumerateInstanceNames(SOURCE_NAMESPACE, SAMPLE_CLASSNAME);
+        objectNames = client.enumerateInstanceNames(
+                                 SOURCE_NAMESPACE,
+                                 SAMPLE_CLASSNAME);
         if (verbose)
         {
-            PEGASUS_STD (cout) << "+++++ enumerateInstanceNames completed successfully"
+            PEGASUS_STD (cout) << "+++++ enumerateInstanceNames "
+                                      "completed successfully"
                                << PEGASUS_STD (endl);
         }
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "enumerateInstanceNames failed: " << e.getMessage ()
-                           << PEGASUS_STD (endl);
+        PEGASUS_STD (cerr) << "enumerateInstanceNames failed: "
+                           << e.getMessage() << PEGASUS_STD (endl);
         exit (-1);
     }
 }
@@ -96,7 +98,10 @@ void _getProperty(CIMClient & client)
 {
     try
     {
-        value = client.getProperty(SOURCE_NAMESPACE, objectNames[0], CIMName("FileSize"));
+        value = client.getProperty(
+                    SOURCE_NAMESPACE,
+                    objectNames[0],
+                    CIMName("FileSize"));
         if (verbose)
         {
             PEGASUS_STD (cout) << "+++++ getProperty completed successfully, "
@@ -117,7 +122,11 @@ void _setProperty(CIMClient & client, Uint64 newUint64Value)
     try
     {
         CIMValue newValue(newUint64Value);
-        client.setProperty(SOURCE_NAMESPACE, objectNames[0], CIMName("FileSize"), newValue);
+        client.setProperty(
+            SOURCE_NAMESPACE,
+            objectNames[0],
+            CIMName("FileSize"),
+            newValue);
         if (verbose)
         {
             PEGASUS_STD (cout) << "+++++ setProperty completed successfully, "

@@ -60,13 +60,13 @@ test01( CIMClient & client)
 {  
   try {
    Array<CIMInstance> instances = client.enumerateInstances(
-		   providerNamespace,
-		CIMName("TestCMPI_Thread"));
+           providerNamespace,
+        CIMName("TestCMPI_Thread"));
   } catch (const CIMException &e)
   {
-	// The provided is ONLY suppose to return not supported.
-	if (e.getCode() != CIM_ERR_NOT_SUPPORTED)
-		throw e;
+    // The provided is ONLY suppose to return not supported.
+    if (e.getCode() != CIM_ERR_NOT_SUPPORTED)
+        throw e;
   }
 }
 
@@ -92,7 +92,7 @@ test02 (CIMClient & client)
                                               instanceName));
   } catch (const CIMException &)
   {
-	 exceptions ++;
+     exceptions ++;
   }
 
 
@@ -102,7 +102,7 @@ test02 (CIMClient & client)
 
   } catch (const CIMException & )
   {
-	 exceptions ++;
+     exceptions ++;
   }
   CIMInstance newInstance ("TestCMPI_Thread");
   newInstance.setPath (instanceName);
@@ -115,7 +115,7 @@ test02 (CIMClient & client)
 
   } catch (const CIMException &)
   {
-	 exceptions ++;
+     exceptions ++;
   }
 
   try
@@ -124,7 +124,7 @@ test02 (CIMClient & client)
 
   } catch (const CIMException &)
   {
-	 exceptions ++;
+     exceptions ++;
   }
   try
   {
@@ -134,7 +134,7 @@ test02 (CIMClient & client)
                                  CIMName ("TestCMPI_Thread"));
   } catch (const CIMException &)
   {
-	 exceptions ++;
+     exceptions ++;
   }
 
   try
@@ -144,7 +144,7 @@ test02 (CIMClient & client)
                                      CIMName ("TestCMPI_Thread"));
   } catch (const CIMException &)
   {
-	 exceptions ++;
+     exceptions ++;
   }
 
   PEGASUS_TEST_ASSERT(exceptions ==  6);
@@ -161,17 +161,18 @@ executeMethod (CIMClient & client, String operation)
   Array < CIMParamValue > outParm;
 
   keyBindings.append (CIMKeyBinding ("Name", 
-	"TestCMPIThreadProviderModule", CIMKeyBinding::STRING));
+    "TestCMPIThreadProviderModule", CIMKeyBinding::STRING));
 
   instanceName.setNameSpace (PEGASUS_NAMESPACENAME_INTEROP);
   instanceName.setClassName ("PG_ProviderModule");
   instanceName.setKeyBindings(keyBindings);
 
-  CIMValue retVal  = client.invokeMethod (PEGASUS_NAMESPACENAME_INTEROP.getString(),
-                                              instanceName,
-						operation,
-						inParm,
-						outParm);
+  CIMValue retVal  = client.invokeMethod(
+                        PEGASUS_NAMESPACENAME_INTEROP.getString(),
+                        instanceName,
+                        operation,
+                        inParm,
+                        outParm);
 }
 void
 _test (CIMClient & client)
@@ -217,16 +218,16 @@ main (int argc, char **argv)
       const char *opt = argv[1];
 
       if (String::equalNoCase (opt, "test"))
-	{
+    {
           providerNamespace = CIMNamespaceName (argv[2]);
-	  _test (client);
-	}
+      _test (client);
+    }
       else
-	{
-	  cerr << "Invalid option: " << opt << endl;
-	  _usage ();
-	  return -1;
-	}
+    {
+      cerr << "Invalid option: " << opt << endl;
+      _usage ();
+      return -1;
+    }
     }
 
   cout << argv[0] << " +++++ passed all tests" << endl;

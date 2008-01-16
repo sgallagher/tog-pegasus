@@ -71,14 +71,14 @@ void _checkStringValue
       theValue.get (result);
 
       if (verbose)
-	{
-	  if (result != value)
-	    {
-	      cerr << "Property value comparison failed.  ";
-	      cerr << "Expected " << value << "; ";
-	      cerr << "Actual property value was " << result << "." << endl;
-	    }
-	}
+    {
+      if (result != value)
+        {
+          cerr << "Property value comparison failed.  ";
+          cerr << "Expected " << value << "; ";
+          cerr << "Actual property value was " << result << "." << endl;
+        }
+    }
 
       PEGASUS_TEST_ASSERT (result == value);
     }
@@ -99,11 +99,11 @@ _checkUint32Value (CIMValue & theValue, Uint32 value)
   if (verbose)
     {
       if (result != value)
-	{
-	  cerr << "Property value comparison failed.  ";
-	  cerr << "Expected " << value << "; ";
-	  cerr << "Actual property value was " << result << "." << endl;
-	}
+    {
+      cerr << "Property value comparison failed.  ";
+      cerr << "Expected " << value << "; ";
+      cerr << "Actual property value was " << result << "." << endl;
+    }
     }
 
   PEGASUS_TEST_ASSERT (result == value);
@@ -132,10 +132,10 @@ test01 (CIMClient & client)
   /*     String returnUint32(); */
 
   CIMValue retValue = client.invokeMethod (providerNamespace,
-					   instanceName,
-					   "returnUint32",
-					   inParams,
-					   outParams);
+                       instanceName,
+                       "returnUint32",
+                       inParams,
+                       outParams);
   _checkUint32Value (retValue, 42);
 }
 
@@ -153,10 +153,10 @@ test02 (CIMClient & client)
   /*     String returnString(); */
 
   CIMValue retValue = client.invokeMethod (providerNamespace,
-					   instanceName,
-					   "returnString",
-					   inParams,
-					   outParams);
+                       instanceName,
+                       "returnString",
+                       inParams,
+                       outParams);
 
   _checkStringValue (retValue, "Returning string", false);
 
@@ -175,9 +175,11 @@ test03 (CIMClient & client)
 
   /*     uint32 TestCMPIBroker (
    *          [IN, Description (
-   *          "The requested are to test different CMPI data structure operations."),
+   *          "The requested are to test different 
+   *          CMPI data structure operations."),
    *          ValueMap { "1", "2", "3", "4", "5", "6"},
-   *          Values {"CDGetType", "CDToString", "CDIsOfType", "CMGetMessage",  "CMLogMessage","CDTraceMessage"}]
+   *          Values {"CDGetType", "CDToString", "CDIsOfType",
+   *                  "CMGetMessage",  "CMLogMessage","CDTraceMessage"}]
    *          uint32 Operation,
    *          [OUT, Description (
    *          " The result of what the operation carried out.")]
@@ -188,10 +190,10 @@ test03 (CIMClient & client)
     /* CDGetType */
     inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (1))));
     CIMValue retValue = client.invokeMethod (providerNamespace,
-					     instanceName,
-					     "TestCMPIBroker",
-					     inParams,
-					     outParams);
+                         instanceName,
+                         "TestCMPIBroker",
+                         inParams,
+                         outParams);
     // Check the return value. Make sure it is 0.
     _checkUint32Value (retValue, 0);
 
@@ -205,10 +207,10 @@ test03 (CIMClient & client)
     /* CDToString */
     inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (2))));
     CIMValue retValue = client.invokeMethod (providerNamespace,
-					     instanceName,
-					     "TestCMPIBroker",
-					     inParams,
-					     outParams);
+                         instanceName,
+                         "TestCMPIBroker",
+                         inParams,
+                         outParams);
     // Check the return value. Make sure it is 0.
     _checkUint32Value (retValue, 0);
 
@@ -222,10 +224,10 @@ test03 (CIMClient & client)
     /* CDIsOfType */
     inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (3))));
     CIMValue retValue = client.invokeMethod (providerNamespace,
-					     instanceName,
-					     "TestCMPIBroker",
-					     inParams,
-					     outParams);
+                         instanceName,
+                         "TestCMPIBroker",
+                         inParams,
+                         outParams);
     // Check the return value. Make sure it is 0.
     _checkUint32Value (retValue, 0);
 
@@ -239,10 +241,10 @@ test03 (CIMClient & client)
     /* CMGetMessage */
     inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (4))));
     CIMValue retValue = client.invokeMethod (providerNamespace,
-					     instanceName,
-					     "TestCMPIBroker",
-					     inParams,
-					     outParams);
+                         instanceName,
+                         "TestCMPIBroker",
+                         inParams,
+                         outParams);
     // Check the return value. Make sure it is 0.
     _checkUint32Value (retValue, 0);
 
@@ -261,10 +263,10 @@ test03 (CIMClient & client)
     /* CMLogMessage */
     inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (5))));
     CIMValue retValue = client.invokeMethod (providerNamespace,
-					     instanceName,
-					     "TestCMPIBroker",
-					     inParams,
-					     outParams);
+                         instanceName,
+                         "TestCMPIBroker",
+                         inParams,
+                         outParams);
     // Check the return value. Make sure it is 0.
     _checkUint32Value (retValue, 0);
     // Nothing is returned
@@ -280,10 +282,10 @@ test03 (CIMClient & client)
     /* CMTraceMessage */
     inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (6))));
     CIMValue retValue = client.invokeMethod (providerNamespace,
-					     instanceName,
-					     "TestCMPIBroker",
-					     inParams,
-					     outParams);
+                         instanceName,
+                         "TestCMPIBroker",
+                         inParams,
+                         outParams);
     // Check the return value. Make sure it is 0.
     _checkUint32Value (retValue, 0);
     // Nothing is returned
@@ -297,11 +299,21 @@ test03 (CIMClient & client)
   outParams.clear ();
   {
 //       CMGetMessage2 
-      inParams.append (CIMParamValue ("Operation", CIMValue (Uint32 (7))));
-      inParams.append (CIMParamValue ("msgFile", CIMValue (String ("test/pegasusTest"))));
-      inParams.append (CIMParamValue ("msgId", CIMValue (String ("CIMStatusCode.CIM_ERR_SUCCESS"))));
-      inParams.append (CIMParamValue ("insert1", CIMValue (String ("rab oof is foo bar backwards"))));
-      inParams.append (CIMParamValue ("insert2", CIMValue (Uint32 (64001))));
+      inParams.append(CIMParamValue(
+                          "Operation",
+                          CIMValue(Uint32(7))));
+      inParams.append(CIMParamValue(
+                          "msgFile",
+                          CIMValue(String("test/pegasusTest"))));
+      inParams.append(CIMParamValue(
+                          "msgId",
+                          CIMValue(String("CIMStatusCode.CIM_ERR_SUCCESS"))));
+      inParams.append(CIMParamValue(
+                          "insert1",
+                          CIMValue(String("rab oof is foo bar backwards"))));
+      inParams.append(CIMParamValue(
+                          "insert2",
+                          CIMValue(Uint32(64001))));
 
       AcceptLanguageList accLangs;
       accLangs.insert(LanguageTag("en-US"),1.0);
@@ -333,9 +345,11 @@ test03 (CIMClient & client)
           ContentLanguageList contLangs;
           contLangs = client.getResponseContentLanguages();
           cout << "ContentLanguage size == " << contLangs.size() << endl;
-          PEGASUS_TEST_ASSERT (contLangs.size() == 1);
-          cout << "ContentLanguage == " << contLangs.getLanguageTag(0).toString();
-          PEGASUS_TEST_ASSERT (contLangs.getLanguageTag(0).toString() == "en-US");
+          PEGASUS_TEST_ASSERT(contLangs.size() == 1);
+          cout << "ContentLanguage == "
+               << contLangs.getLanguageTag(0).toString();
+          PEGASUS_TEST_ASSERT(
+              contLangs.getLanguageTag(0).toString() == "en-US");
       }
 #endif
       // Reset client
@@ -555,10 +569,10 @@ test04 (CIMClient & client)
   /*     [EmbeddedObject] String returnInstance(); */
 
   CIMValue retValue = client.invokeMethod (providerNamespace,
-					   instanceName,
-					   "returnInstance",
-					   inParams,
-					   outParams);
+                       instanceName,
+                       "returnInstance",
+                       inParams,
+                       outParams);
 
   PEGASUS_TEST_ASSERT (retValue.getType () == CIMTYPE_OBJECT);
   PEGASUS_TEST_ASSERT (!retValue.isArray ());
@@ -585,10 +599,10 @@ test05 (CIMClient & client)
   /*     String returnDateTime(); */
 
   CIMValue retValue = client.invokeMethod (providerNamespace,
-					   instanceName,
-					   "returnDateTime",
-					   inParams,
-					   outParams);
+                       instanceName,
+                       "returnDateTime",
+                       inParams,
+                       outParams);
   PEGASUS_TEST_ASSERT (retValue.getType () == CIMTYPE_DATETIME);
   PEGASUS_TEST_ASSERT (!retValue.isArray ());
   PEGASUS_TEST_ASSERT (!retValue.isNull ());
@@ -608,14 +622,14 @@ test06 (CIMClient & client)
   /*     String returnDateTime(); */
   try {
   CIMValue retValue = client.invokeMethod (providerNamespace,
-					   instanceName,
-					   "noSuchFunction",
-					   inParams,
-					   outParams);
+                       instanceName,
+                       "noSuchFunction",
+                       inParams,
+                       outParams);
   } catch (const CIMException &e)
   {
-	  exception ++;
-  	PEGASUS_TEST_ASSERT (e.getCode() == CIM_ERR_NOT_FOUND);
+      exception ++;
+    PEGASUS_TEST_ASSERT (e.getCode() == CIM_ERR_NOT_FOUND);
   }
   PEGASUS_TEST_ASSERT (exception == 1);
 }
@@ -632,10 +646,10 @@ test07 (CIMClient & client)
 
     inParams.append (CIMParamValue ("Operation", CIMValue (String ("Boom"))));
   CIMValue retValue = client.invokeMethod (providerNamespace,
-					   instanceName,
-					   "TestCMPIBroker",
-					   inParams,
-					   outParams);
+                       instanceName,
+                       "TestCMPIBroker",
+                       inParams,
+                       outParams);
     _checkUint32Value (retValue, 1);
 }
 void
@@ -651,10 +665,10 @@ test08 (CIMClient & client)
 
   inParams.append (CIMParamValue ("Operation", CIMValue (Uint64 (1))));
   CIMValue retValue = client.invokeMethod (providerNamespace,
-					   instanceName,
-					   "TestCMPIBroker",
-					   inParams,
-					   outParams);
+                       instanceName,
+                       "TestCMPIBroker",
+                       inParams,
+                       outParams);
     _checkUint32Value (retValue, 1);
 }
 
@@ -677,10 +691,10 @@ void test09 (CIMClient & client)
   /*     [EmbeddedObject] String returnInstance(); */
 
   CIMValue retValue = client.invokeMethod (providerNamespace,
-					   instanceName,
-					   "returnInstance",
-					   inParams,
-					   outParams);
+                       instanceName,
+                       "returnInstance",
+                       inParams,
+                       outParams);
 
   PEGASUS_TEST_ASSERT (retValue.getType () == CIMTYPE_OBJECT);
   PEGASUS_TEST_ASSERT (!retValue.isArray ());
@@ -880,16 +894,16 @@ main (int argc, char **argv)
       const char *opt = argv[1];
 
       if (String::equalNoCase (opt, "test"))
-	{
+    {
           providerNamespace = CIMNamespaceName (argv[2]);
-	  _test (client);
-	}
+      _test (client);
+    }
       else
-	{
-	  cerr << "Invalid option: " << opt << endl;
-	  _usage ();
-	  return -1;
-	}
+    {
+      cerr << "Invalid option: " << opt << endl;
+      _usage ();
+      return -1;
+    }
     }
 
   cout << argv[0] << " +++++ completed" << endl;

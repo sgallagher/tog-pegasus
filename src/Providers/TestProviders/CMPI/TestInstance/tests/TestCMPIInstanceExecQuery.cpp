@@ -51,17 +51,29 @@ PEGASUS_USING_STD;
 const CIMNamespaceName PROVIDERNAMESPACE =
 CIMNamespaceName ("test/TestProvider");
 const char *queries[] = {
-  "select n32,s,ElementName,n64,n16,f,d from TestCMPI_Instance where n32=42",   // 0
-  "SELECT * FROM TestCMPI_Instance",    // 1
-  "SELECT not_present_property FROM TestCMPI_Instance", // 2 - won't get anything back
-  "SELECT * FROM TestCMPI_Instance where s=s",  // 3
-  "SELECT * FROM TestCMPI_Instance where s=s AND n64=64",       //4
-  "SELECT s FROM TestCMPI_Instance where n64=40",       // 5
+  // 0
+  "select n32,s,ElementName,n64,n16,f,d "
+      "from TestCMPI_Instance where n32=42",
+  // 1
+  "SELECT * FROM TestCMPI_Instance",
+  // 2 - won't get anything back
+  "SELECT not_present_property FROM TestCMPI_Instance",
+  // 3
+  "SELECT * FROM TestCMPI_Instance where s=s",
+  // 4
+  "SELECT * FROM TestCMPI_Instance where s=s AND n64=64",
+  // 5
+  "SELECT s FROM TestCMPI_Instance where n64=40",
 #if 0
-  "SELECT * FROM TestCMPI_Instance where TestCMPI_Instance ISA TestCMPI_Parent",        // 6
-  "SELECT * FROM TestCMPI_Instance where TestCMPI_Instance ISA TestCMPI_Indication",    //7 - wont'get anything back
+  // 6
+  "SELECT * FROM TestCMPI_Instance where "
+      "TestCMPI_Instance ISA TestCMPI_Parent",
+  //7 - wont'get anything back
+  "SELECT * FROM TestCMPI_Instance where "
+      "TestCMPI_Instance ISA TestCMPI_Indication",
 #endif
-  "SELECT * FROM TestCMPI_Instance  WHERE (s IS NULL) OR (n16=16)",     // 8
+  // 8
+  "SELECT * FROM TestCMPI_Instance  WHERE (s IS NULL) OR (n16=16)",
 };
 
 #define QUERIES  6
@@ -222,8 +234,8 @@ _test (CIMClient & client)
 
         if (objects.size () == 0)
           {
-            // Only the third (second when starting from zero) and eight(7) won't
-            // return instances.
+            // Only the third (second when starting from zero) and 
+            // eight(7) won't return instances.
             PEGASUS_TEST_ASSERT (i == 2 || i == 5 || i == 7);
             if (verbose)
               cerr << "No instance returned.. That is good" << endl;

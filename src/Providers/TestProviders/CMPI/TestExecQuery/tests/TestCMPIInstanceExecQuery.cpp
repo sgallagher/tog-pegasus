@@ -48,39 +48,69 @@ PEGASUS_USING_STD;
 
 CIMNamespaceName providerNamespace;
 const char *queries[] = {
-  "select n32,s,ElementName,n64,n16,r32, r64,d from TestCMPI_ExecQuery where n32=42",  // 0
-  "SELECT * FROM TestCMPI_ExecQuery",   // 1
-  "SELECT not_present_property FROM TestCMPI_ExecQuery",        // 2 - won't get anything back
-  "SELECT * FROM TestCMPI_ExecQuery where s=s", // 3
-  "SELECT * FROM TestCMPI_ExecQuery where s=s AND n64=64",      //4
-  "SELECT s FROM TestCMPI_ExecQuery where n64=40",      // 5
+  // 0
+  "select n32,s,ElementName,n64,n16,r32, r64,d "
+      "from TestCMPI_ExecQuery where n32=42",
+  // 1
+  "SELECT * FROM TestCMPI_ExecQuery",
+  // 2 - won't get anything back
+  "SELECT not_present_property FROM TestCMPI_ExecQuery",
+  // 3
+  "SELECT * FROM TestCMPI_ExecQuery where s=s",
+  // 4
+  "SELECT * FROM TestCMPI_ExecQuery where s=s AND n64=64",
+  // 5
+  "SELECT s FROM TestCMPI_ExecQuery where n64=40",
 #if 0
-  "SELECT * FROM TestCMPI_ExecQuery where TestCMPI_ExecQuery ISA TestCMPI_Parent",      // 6
-  "SELECT * FROM TestCMPI_ExecQuery where TestCMPI_ExecQuery ISA TestCMPI_Indication",  //7 - wont'get anything back
+  // 6
+  "SELECT * FROM TestCMPI_ExecQuery "
+      "where TestCMPI_ExecQuery ISA TestCMPI_Parent",
+  // 7 - wont'get anything back
+  "SELECT * FROM TestCMPI_ExecQuery "
+      "where TestCMPI_ExecQuery ISA TestCMPI_Indication",
 #endif
-  "SELECT * FROM TestCMPI_ExecQuery WHERE (s IS NULL) OR (n16=16)",    // 8
-
-  "select n32,s,ElementName,n64,n16,f,d from TestCMPI_ExecQuery where n32>42",  // 9
-  "SELECT * FROM TestCMPI_ExecQuery where s<s", // 10
-  "SELECT * FROM TestCMPI_ExecQuery where s<=s OR n64>=64",      //11
-  "SELECT * FROM TestCMPI_ExecQuery where s=s OR n64<=64",      //12
-  "SELECT * FROM TestCMPI_ExecQuery where n64!=40",      // 13
-  "SELECT * FROM TestCMPI_ExecQuery where n16 < 4",      // 14
-  "SELECT * FROM TestCMPI_ExecQuery where n16 > 4 AND n64 < 100",      // 15
-  "SELECT * FROM TestCMPI_ExecQuery where s>=s",      // 16
-
-  "SELECT * FROM TestCMPI_ExecQuery where c=c",      // 18
-  "SELECT * FROM TestCMPI_ExecQuery where b=1",      // 19
-  "SELECT * FROM TestCMPI_ExecQuery where n8!=64",      // 20
-  "SELECT * FROM TestCMPI_ExecQuery where n64=64",      // 20
-  "SELECT * FROM TestCMPI_ExecQuery where n32<=32",      // 21
-  "SELECT * FROM TestCMPI_ExecQuery where n16>=16",      // 22
-  "SELECT * FROM TestCMPI_ExecQuery where r32=1.232",      // 23
-  "SELECT * FROM TestCMPI_ExecQuery where r64>=112323",      // 24
-  "SELECT * FROM TestCMPI_ExecQuery where s8<=255",      // 25
-  "SELECT * FROM TestCMPI_ExecQuery where s16<=-11",      // 25
-  "SELECT * FROM TestCMPI_ExecQuery where s32>-11",      // 26
-  "SELECT * FROM TestCMPI_ExecQuery where s64<-11",      // 27
+  // 8
+  "SELECT * FROM TestCMPI_ExecQuery WHERE (s IS NULL) OR (n16=16)",
+  // 9
+  "select n32,s,ElementName,n64,n16,f,d from TestCMPI_ExecQuery where n32>42",
+  // 10
+  "SELECT * FROM TestCMPI_ExecQuery where s<s",
+  // 11
+  "SELECT * FROM TestCMPI_ExecQuery where s<=s OR n64>=64",
+  // 12
+  "SELECT * FROM TestCMPI_ExecQuery where s=s OR n64<=64",
+  // 13
+  "SELECT * FROM TestCMPI_ExecQuery where n64!=40",
+  // 14
+  "SELECT * FROM TestCMPI_ExecQuery where n16 < 4",
+  // 15
+  "SELECT * FROM TestCMPI_ExecQuery where n16 > 4 AND n64 < 100",
+  // 16
+  "SELECT * FROM TestCMPI_ExecQuery where s>=s",
+  // 17
+  "SELECT * FROM TestCMPI_ExecQuery where c=c",
+  // 18
+  "SELECT * FROM TestCMPI_ExecQuery where b=1",
+  // 19
+  "SELECT * FROM TestCMPI_ExecQuery where n8!=64",
+  // 20
+  "SELECT * FROM TestCMPI_ExecQuery where n64=64",
+  // 21
+  "SELECT * FROM TestCMPI_ExecQuery where n32<=32",
+  // 22
+  "SELECT * FROM TestCMPI_ExecQuery where n16>=16",
+  // 23
+  "SELECT * FROM TestCMPI_ExecQuery where r32=1.232",
+  // 24
+  "SELECT * FROM TestCMPI_ExecQuery where r64>=112323",
+  // 25
+  "SELECT * FROM TestCMPI_ExecQuery where s8<=255",
+  // 26
+  "SELECT * FROM TestCMPI_ExecQuery where s16<=-11",
+  // 27
+  "SELECT * FROM TestCMPI_ExecQuery where s32>-11",
+  // 28
+  "SELECT * FROM TestCMPI_ExecQuery where s64<-11",
 };
 
 #define QUERIES 27
@@ -235,9 +265,10 @@ _test1 (CIMClient & client)
 
         if (objects.size () == 0)
           {
-            // Only the third (second when starting from zero) and eight(7) won't
-            // return instances.
-            //PEGASUS_TEST_ASSERT (i == 2 || i == 5 || i == 7 || i == 8 || i == 12);
+            // Only the third (second when starting from zero) 
+            // and eight(7) won't return instances.
+            //PEGASUS_TEST_ASSERT(i == 2 || i == 5 || i == 7 
+            //                    || i == 8 || i == 12);
             if (verbose)
               cerr <<i<< " No instance returned.. That is good" << endl;
           }
@@ -302,7 +333,7 @@ _test2 (CIMClient & client)
                                               instanceName));
   } catch (const CIMException &)
   {
-	 exceptions ++;
+     exceptions ++;
   }
 
 
@@ -312,10 +343,15 @@ _test2 (CIMClient & client)
 
   } catch (const CIMException & )
   {
-	 exceptions ++;
+     exceptions ++;
   }
-  CIMClass thisClass =
-        client.getClass(providerNamespace,"TestCMPI_ExecQuery",false,true,true,CIMPropertyList());
+  CIMClass thisClass = client.getClass(
+                           providerNamespace,
+                           "TestCMPI_ExecQuery",
+                           false,
+                           true,
+                           true,
+                           CIMPropertyList());
   Array<CIMName> propertyNameList;
   propertyNameList.append(CIMName("ElementName"));
   CIMPropertyList myPropertyList(propertyNameList);
@@ -331,7 +367,7 @@ _test2 (CIMClient & client)
 
   } catch (const CIMException &)
   {
-	 exceptions ++;
+     exceptions ++;
   }
 
   try
@@ -340,7 +376,7 @@ _test2 (CIMClient & client)
 
   } catch (const CIMException &)
   {
-	 exceptions ++;
+     exceptions ++;
   }
   try
   {
@@ -350,7 +386,7 @@ _test2 (CIMClient & client)
                                  CIMName ("TestCMPI_ExecQuery"));
   } catch (const CIMException &)
   {
-	 exceptions ++;
+     exceptions ++;
   }
 
   try
@@ -360,7 +396,7 @@ _test2 (CIMClient & client)
                                      CIMName ("TestCMPI_ExecQuery"));
   } catch (const CIMException &)
   {
-	 exceptions ++;
+     exceptions ++;
   }
 
   PEGASUS_TEST_ASSERT(exceptions ==  6);

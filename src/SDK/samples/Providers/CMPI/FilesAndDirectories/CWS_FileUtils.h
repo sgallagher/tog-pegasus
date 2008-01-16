@@ -56,9 +56,9 @@ char * FSName();
 
 
 CMPIObjectPath *makePath(const CMPIBroker *broker, const char *classname,
-			 const char *Namespace, CWS_FILE *cwsf);
+             const char *Namespace, CWS_FILE *cwsf);
 CMPIInstance   *makeInstance(const CMPIBroker *broker, const char *classname,
-			     const char *Namespace, CWS_FILE *cwsf);
+                 const char *Namespace, CWS_FILE *cwsf);
 int             makeFileBuf(const CMPIInstance *instance, CWS_FILE *cwsf);
 int silentMode();
 

@@ -85,13 +85,13 @@ char * FSName()
 
 
 CMPIObjectPath *makePath( const CMPIBroker *broker, const char * classname,
-			 const char * Namespace, CWS_FILE *cwsf)
+             const char * Namespace, CWS_FILE *cwsf)
 {
   CMPIObjectPath *op;
   op = CMNewObjectPath(broker,
-		       (char*)Namespace,
-		       (char*)classname,
-		       NULL);  CMSetHostname(op,CSName());
+               (char*)Namespace,
+               (char*)classname,
+               NULL);  CMSetHostname(op,CSName());
   if (!CMIsNullObject(op)) {
     CMAddKey(op,"CSCreationClassName",CSCreationClassName(),CMPI_chars);
     CMAddKey(op,"CSName",CSName(),CMPI_chars);
@@ -104,14 +104,14 @@ CMPIObjectPath *makePath( const CMPIBroker *broker, const char * classname,
 }
 
 CMPIInstance   *makeInstance(const CMPIBroker *broker, const char * classname,
-			     const char * Namespace, CWS_FILE *cwsf)
+                 const char * Namespace, CWS_FILE *cwsf)
 {
   CMPIInstance   *in = NULL;
   CMPIValue       val;
   CMPIObjectPath *op = CMNewObjectPath(broker,
-				       (char*)Namespace,
-				       (char*)classname,
-				       NULL);  CMSetHostname(op,CSName());
+                       (char*)Namespace,
+                       (char*)classname,
+                       NULL);  CMSetHostname(op,CSName());
 
   if (!CMIsNullObject(op)) {
     in = CMNewInstance(broker,op,NULL);
@@ -124,8 +124,9 @@ CMPIInstance   *makeInstance(const CMPIBroker *broker, const char * classname,
       CMSetProperty(in,"Name",cwsf->cws_name,CMPI_chars);
       CMSetProperty(in,"FileSize",(CMPIValue*)&cwsf->cws_size,CMPI_uint64);
 #ifndef SIMULATED
-/* We don't want this code in the simulated env - time is dynamic (diff timezones)
-   and the testing system might using a diff timezone and report failure */
+/* We don't want this code in the simulated env - time is dynamic (diff
+   timezones) and the testing system might using a diff timezone and
+   report failure */
       val.uint64 = cwsf->cws_ctime;
       val.dateTime = CMNewDateTimeFromBinary(broker,val.uint64*1000000,0,NULL);
       CMSetProperty(in,"CreationDate",&val,CMPI_dateTime);

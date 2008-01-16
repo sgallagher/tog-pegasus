@@ -143,14 +143,12 @@ public:
     _BucketBase* next;
 };
 
-class _HashTableRep;
-
 /* This class implements a simple hash table forward iterator. */
 class PEGASUS_COMMON_LINKAGE _HashTableIteratorBase
 {
 public:
 
-    _HashTableIteratorBase() : _first(0), _last(0), _bucket(0) { }
+    _HashTableIteratorBase(_BucketBase** first, _BucketBase** last);
 
     operator int() const { return _bucket != 0; }
 
@@ -158,14 +156,16 @@ public:
 
     _HashTableIteratorBase& operator++();
 
-    _HashTableIteratorBase(_BucketBase** first, _BucketBase** last);
-
 protected:
+
+    // Note:  The default copy constructor/assignment operator is used by the
+    // postfix increment operator.  The member pointers may be safely copied
+    // because they refer to structures that must not change while the iterator
+    // is in scope.
 
     _BucketBase** _first;
     _BucketBase** _last;
     _BucketBase* _bucket;
-    friend class _HashTableRep;
 };
 
 // ATTN: reorganization not supported yet.
@@ -298,9 +298,6 @@ template<class K, class V, class E>
 class _HashTableIterator : public _HashTableIteratorBase
 {
 public:
-
-    _HashTableIterator()
-        : _HashTableIteratorBase() { }
 
     _HashTableIterator(_BucketBase** first, _BucketBase** last)
         : _HashTableIteratorBase(first, last) { }

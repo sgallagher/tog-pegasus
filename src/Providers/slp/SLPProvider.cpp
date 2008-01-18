@@ -1036,7 +1036,7 @@ Boolean SLPProvider::populateRegistrationData(
             populateTemplateField(
                 templateInstance,
                 serviceHiDescriptionAttribute,
-                v1.toString()
+                v1.toString(),
                 serviceHiDescriptionProperty);
     }
 
@@ -1142,7 +1142,7 @@ Boolean SLPProvider::populateRegistrationData(
             populateTemplateField(
                 templateInstance,
                 multipleOperationsSupportedAttribute,
-                v1.toString())
+                v1.toString());
 
         else if (propertyName.equal(authenticationMechanismsSupportedAttribute))
         {

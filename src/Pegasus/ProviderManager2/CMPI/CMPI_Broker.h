@@ -37,6 +37,7 @@
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
 
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/HashTable.h>
@@ -63,9 +64,26 @@ typedef HashTable<String, CIMClass *,
 
 class CMPIProvider;
 
-struct CMPI_Broker : CMPIBroker
+struct delClassCacheAutoPtr
 {
-    ClassCache *clsCache;
+    void operator()(ClassCache* ptr)
+    {
+        if (ptr)
+        {
+            ClassCache::Iterator i=ptr->start();
+            for (; i; i++)
+            {
+                delete i.value();
+            }
+            delete ptr;
+            ptr=0;
+        }
+    }
+};
+
+struct CMPI_Broker : CMPIBroker
+{    
+    AutoPtr<ClassCache, delClassCacheAutoPtr> clsCache;
     ReadWriteSem rwsemClassCache;
     String name;
     CMPIProvider *provider;

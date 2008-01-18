@@ -162,7 +162,7 @@ void CMPIProvider::initialize(
     broker.xft=CMPI_BrokerExt_Ftab;
     broker.mft=NULL;    // CMPI memory services not supported
 
-    broker.clsCache=new ClassCache();
+    broker.clsCache.reset(new ClassCache());
     broker.name=name;
 
     const OperationContext opc;
@@ -493,22 +493,6 @@ void CMPIProvider::_terminate(Boolean terminating)
 
         // Wait until all of the threads have been cleaned.
         waitUntilThreadsDone();
-
-        // Cleanup the class cache
-        {
-            WriteLock writeLock (broker.rwsemClassCache);
-
-            if (broker.clsCache)
-            {
-                ClassCache::Iterator i=broker.clsCache->start();
-                for (; i; i++)
-                {
-                    delete i.value();
-                }
-                delete broker.clsCache;
-                broker.clsCache=NULL;
-            }
-        }
     }
     PEG_METHOD_EXIT();
 }

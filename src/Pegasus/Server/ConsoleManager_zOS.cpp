@@ -87,7 +87,8 @@ void ZOSConsoleManager::stripTrailingBlanks( char* token )
 
 void ZOSConsoleManager::issueSyntaxError(const char* command)
 {
-    PEG_METHOD_ENTER(TRC_SERVER, "issueSyntaxError");
+    PEG_METHOD_ENTER(TRC_SERVER, 
+        "ZOSConsoleManager::issueSyntaxError");
     Logger::put_l(
         Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
         "Server.ConsoleManager_zOS.CON_SYNTAX_ERR.PEGASUS_OS_ZOS",
@@ -107,7 +108,8 @@ void ZOSConsoleManager::updateConfiguration( const String& configProperty,
                                              Boolean currentValueIsNull,
                                              Boolean planned)
 {
-    PEG_METHOD_ENTER(TRC_SERVER, "updateConfiguration");
+    PEG_METHOD_ENTER(TRC_SERVER, 
+        "ZOSConsoleManager::updateConfiguration");
 
     String preValue;
     String currentValue;
@@ -191,13 +193,13 @@ void ZOSConsoleManager::updateConfiguration( const String& configProperty,
         // send notify config change message to ProviderManager Service
         _sendNotifyConfigChangeMessage(String(configProperty),
                                        currentValue,
-                                       true);
+                                          !planned);
 
         PEG_AUDIT_LOG(logSetConfigProperty("OPERATOR",
                                            configProperty,
                                            preValue,
                                            currentValue,
-                                           false));
+                                           planned));
 
     }
     catch (const NonDynamicConfigProperty& ndcp)
@@ -232,7 +234,8 @@ void ZOSConsoleManager::updateConfiguration( const String& configProperty,
 
 void ZOSConsoleManager::processModifyCommand( char* command )
 {
-    PEG_METHOD_ENTER(TRC_SERVER, "processModifyCommand");
+    PEG_METHOD_ENTER(TRC_SERVER, 
+        "ZOSConsoleManager::processModifyCommand");
 
     char* currentPtr = command;
     char* cmdPtr = NULL;
@@ -368,7 +371,8 @@ void ZOSConsoleManager::processModifyCommand( char* command )
 
 void ZOSConsoleManager::startConsoleWatchThread(void)
 {
-    PEG_METHOD_ENTER(TRC_SERVER, "startConsoleWatchThread");
+    PEG_METHOD_ENTER(TRC_SERVER, 
+        "ZOSConsoleManager::startConsoleWatchThread");
 
     pthread_t thid;
 
@@ -399,7 +403,8 @@ void ZOSConsoleManager::startConsoleWatchThread(void)
 //
 void* ZOSConsoleManager::consoleCommandWatchThread(void*)
 {
-    PEG_METHOD_ENTER(TRC_SERVER, "consoleCommandWatchThread");
+    PEG_METHOD_ENTER(TRC_SERVER, 
+        "ZOSConsoleManager::consoleCommandWatchThread");
 
     struct __cons_msg    cons;
     int                  concmd=0;
@@ -488,7 +493,7 @@ void ZOSConsoleManager::_sendNotifyConfigChangeMessage(
     const String& newPropertyValue,
     Boolean currentValueModified)
 {
-    PEG_METHOD_ENTER(TRC_CONFIG,
+    PEG_METHOD_ENTER(TRC_SERVER,
         "ZOSConsoleManager::_sendNotifyConfigChangeMessage");
 
     ModuleController* controller = ModuleController::getModuleController();

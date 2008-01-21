@@ -641,6 +641,50 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
 {
     Message* response = 0;
 
+    // Add CachedClassDefinitionContainer here needed by CMPIProviderManager
+    // to correct mismatches between Embedded Instances/Objects.
+#ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    switch(request->getType())
+    {
+        case CIM_GET_INSTANCE_REQUEST_MESSAGE:
+        case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
+        case CIM_ASSOCIATORS_REQUEST_MESSAGE:
+        case CIM_REFERENCES_REQUEST_MESSAGE:
+        case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
+        case CIM_GET_PROPERTY_REQUEST_MESSAGE:
+            // RequestDispatcher adds CachedClassDefinitionContainer for some
+            // requests if normalization is enabled.
+#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+            if (!request->operationContext.contains(
+                CachedClassDefinitionContainer::NAME))
+#endif
+            {
+                CIMOperationRequestMessage *reqMsg =
+                    dynamic_cast<CIMOperationRequestMessage*>(request);
+                PEGASUS_ASSERT(reqMsg);
+                ProviderIdContainer pidc = (ProviderIdContainer)
+                   reqMsg->operationContext.get(ProviderIdContainer::NAME);
+                CIMInstance providerModule = pidc.getModule();
+                String interfaceType;
+                CIMValue itValue = providerModule.getProperty(
+                    providerModule.findProperty("InterfaceType")).getValue();
+                itValue.get(interfaceType);
+                if (interfaceType == "CMPI")
+                {
+                    CIMClass cls = _repository->getClass(reqMsg->nameSpace,
+                       reqMsg->className, false, true, true, CIMPropertyList());
+                    reqMsg->operationContext.insert(
+                        CachedClassDefinitionContainer(cls));
+                }
+            }
+            break;
+        default:
+            ; // Do nothing.
+    }
+#endif
+#endif
+
     if ((request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||
         (request->getType() ==
             CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE) ||

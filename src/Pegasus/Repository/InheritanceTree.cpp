@@ -107,6 +107,7 @@ struct InheritanceTreeExt
 struct InheritanceTreeNode
 {
     InheritanceTreeNode(const CIMName& className);
+    ~InheritanceTreeNode();
 
     void addSubClass(InheritanceTreeNode* subClass);
 
@@ -138,6 +139,18 @@ InheritanceTreeNode::InheritanceTreeNode(const CIMName& className)
     : className(className), superClass(0),
     sibling(0), subClasses(0), provisional(true), extension(false)
 {
+}
+
+InheritanceTreeNode::~InheritanceTreeNode()
+{
+    if (extension)
+    {
+        for(Uint32 i = 0, size = extNodes->size(); i < size; i++)
+        {
+            delete (*extNodes)[i];
+        }
+        delete extNodes;
+    }
 }
 
 void InheritanceTreeNode::addSubClass(InheritanceTreeNode* subClass)
@@ -307,16 +320,6 @@ void InheritanceTree::insert(
     extNode->extNodes->append(new InheritanceTreeExt(tag,classNode));
 
     classNode->superClass = superClassNode;
-    /* temp comment out this code from bug 3352.  See bug 3498 for reason
-    if (extNode)
-    {
-       for (int i=0, m=extNode->extNodes->size(); i < m; i++)
-          if ((*extNode->extNodes)[i])
-            delete (*(extNode->extNodes))[i];
-       delete extNode;
-    }
-    extNode = NULL;*/
-
 }
 
 void InheritanceTree::insert(

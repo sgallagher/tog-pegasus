@@ -40,6 +40,7 @@
 #include "CMPI_Value.h"
 #include "CMPIProviderManager.h"
 #include "CMPI_String.h"
+#include <Pegasus/ProviderManager2/CMPI/CMPIClassCache.h>
 
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMPropertyList.h>
@@ -85,53 +86,9 @@ CIMClass* mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop)
 
     mb=CM_BROKER;
     CMPI_Broker *xBroker=(CMPI_Broker*)mb;
-    String clsId =
-        cop.getNameSpace().getString()+":"+cop.getClassName().getString();
-    CIMClass *ccp;
-
-    {
-        ReadLock readLock (xBroker->rwsemClassCache);
-
-        if (xBroker->clsCache->lookup(clsId,ccp))
-        {
-            PEG_METHOD_EXIT();
-            return ccp;
-        }
-    }
-
-    try
-    {
-        WriteLock writeLock (xBroker->rwsemClassCache);
-
-        if (xBroker->clsCache->lookup(clsId,ccp))
-        {
-            PEG_METHOD_EXIT();
-            return ccp;
-        }
-
-        CIMClass cc = CM_CIMOM(mb)->getClass(
-            OperationContext(),
-            cop.getNameSpace(),
-            cop.getClassName(),
-            (bool)0,
-            (bool)1,
-            (bool)0,
-            CIMPropertyList());
-
-        ccp = new CIMClass(cc);
-        xBroker->clsCache->insert(clsId,ccp);
-        PEG_METHOD_EXIT();
-        return ccp;
-    }
-    catch (const CIMException &e)
-    {
-        PEG_TRACE_STRING(
-            TRC_CMPIPROVIDERINTERFACE,
-            Tracer::LEVEL2,
-            "Exception: " + e.getMessage());
-    }
+    CIMClass * ccp = xBroker->classCache.getClass(xBroker, cop);
     PEG_METHOD_EXIT();
-    return NULL;
+    return ccp;
 }
 
 extern "C"

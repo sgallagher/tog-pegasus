@@ -162,7 +162,6 @@ void CMPIProvider::initialize(
     broker.xft=CMPI_BrokerExt_Ftab;
     broker.mft=NULL;    // CMPI memory services not supported
 
-    broker.clsCache.reset(new ClassCache());
     broker.name=name;
 
     const OperationContext opc;
@@ -493,6 +492,7 @@ void CMPIProvider::_terminate(Boolean terminating)
 
         // Wait until all of the threads have been cleaned.
         waitUntilThreadsDone();
+
     }
     PEG_METHOD_EXIT();
 }

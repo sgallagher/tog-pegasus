@@ -37,11 +37,9 @@
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
 
-#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMClass.h>
-#include <Pegasus/Common/HashTable.h>
-#include <Pegasus/Common/ReadWriteSem.h>
+#include <Pegasus/ProviderManager2/CMPI/CMPIClassCache.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -59,32 +57,11 @@ PEGASUS_NAMESPACE_BEGIN
 
 CIMClass *mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop);
 
-typedef HashTable<String, CIMClass *,
-      EqualFunc<String>,  HashFunc<String> > ClassCache;
-
 class CMPIProvider;
-
-struct delClassCacheAutoPtr
-{
-    void operator()(ClassCache* ptr)
-    {
-        if (ptr)
-        {
-            ClassCache::Iterator i=ptr->start();
-            for (; i; i++)
-            {
-                delete i.value();
-            }
-            delete ptr;
-            ptr=0;
-        }
-    }
-};
 
 struct CMPI_Broker : CMPIBroker
 {    
-    AutoPtr<ClassCache, delClassCacheAutoPtr> clsCache;
-    ReadWriteSem rwsemClassCache;
+    CMPIClassCache classCache;
     String name;
     CMPIProvider *provider;
 };

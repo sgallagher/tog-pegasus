@@ -68,6 +68,7 @@ SOURCES = \
 	CMPILocalProviderManager.cpp \
 	CMPIProviderModule.cpp \
 	CMPIProvider.cpp \
+	CMPIClassCache.cpp \
 	CMPI_Broker.cpp \
 	CMPI_ContextArgs.cpp \
 	CMPI_Object.cpp \

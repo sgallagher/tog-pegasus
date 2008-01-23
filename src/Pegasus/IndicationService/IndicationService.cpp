@@ -4897,73 +4897,113 @@ Array<CIMInstance> IndicationService::_getMatchingSubscriptions (
             CIMPropertyList propertyList;
             String filterName;
 
-            //
-            //  Get filter properties
-            //
-            _subscriptionRepository->getFilterProperties
-                (subscriptions[i], filterQuery, sourceNameSpace,
-                 queryLanguage, filterName);
+            try
+            {
+                //
+                //  Get filter properties
+                //
+                _subscriptionRepository->getFilterProperties
+                    (subscriptions[i], filterQuery, sourceNameSpace,
+                     queryLanguage, filterName);
 
-            QueryExpression queryExpr = _getQueryExpression(
-                filterQuery, queryLanguage, sourceNameSpace);
+                QueryExpression queryExpr = _getQueryExpression(
+                    filterQuery, queryLanguage, sourceNameSpace);
 
-            //
-            //  Get indication class name from filter query
-            //
-            indicationClassName = _getIndicationClassName
-                (queryExpr, sourceNameSpace);
+                // Get the class paths in the FROM list
+                // Since neither WQL nor CQL support joins, so we can
+                // assume one class path.
+                indicationClassName = 
+                    queryExpr.getClassPathList()[0].getClassName();
 
-            //
-            //  Get required property list from filter query (WHERE clause)
-            //
-            //  Note that the supportedClass is passed in,
-            //  not the indicationClassName.
-            //  The supportedClass is the class of the indication
-            //  instance, while the indicationClassName is the FROM class.
-            //  This is needed because CQL can have class scoping operators
-            //  on properties that may not be the same class
-            //  as the FROM class.  The required properties
-            //  for an indication are based on its class,
-            //  not the FROM class.
-            //
-            //  Also note that for CQL, this does not return
-            //  required embedded object properties.
-            propertyList = _getPropertyList (queryExpr,
+                if (!_subscriptionRepository->validateIndicationClassName(
+                    indicationClassName, sourceNameSpace))
+                {
+                    // Invalid FROM class, skip the subscription
+                    continue;
+                }
+
+                //
+                //  Get required property list from filter query (WHERE clause)
+                //
+                //  Note that the supportedClass is passed in,
+                //  not the indicationClassName.
+                //  The supportedClass is the class of the indication
+                //  instance, while the indicationClassName is the FROM class.
+                //  This is needed because CQL can have class scoping operators
+                //  on properties that may not be the same class
+                //  as the FROM class.  The required properties
+                //  for an indication are based on its class,
+                //  not the FROM class.
+                //
+                //  Also note that for CQL, this does not return
+                //  required embedded object properties.
+                propertyList = _getPropertyList (queryExpr,
                                              sourceNameSpace,
                                              supportedClass);
 
-            //
-            //  If the subscription requires all properties,
-            //  but supported property list does not include all
-            //  properties, the subscription cannot be supported
-            //
-            if (propertyList.isNull ())
-            {
                 //
-                //  Current subscription does not match
-                //  Continue to next subscription in list
+                //  If the subscription requires all properties,
+                //  but supported property list does not include all
+                //  properties, the subscription cannot be supported
                 //
-                match = false;
-                continue;
-            }
-            else
-            {
-                //
-                //  Compare subscription required property list
-                //  with supported property list
-                //
-                for (Uint32 j = 0;
-                     j < propertyList.size () && match;
-                     j++)
+                if (propertyList.isNull ())
                 {
-                    if (!ContainsCIMName
-                        (supportedProperties.getPropertyNameArray(),
-                        propertyList[j]))
+                    //
+                    //  Current subscription does not match
+                    //  Continue to next subscription in list
+                    //
+                    continue;
+                }
+                else
+                {
+                    //
+                    //  Compare subscription required property list
+                    //  with supported property list
+                    //
+                    for (Uint32 j = 0;
+                         j < propertyList.size () && match;
+                         j++)
                     {
-                        match = false;
-                        break;
+                        if (!ContainsCIMName
+                            (supportedProperties.getPropertyNameArray(),
+                            propertyList[j]))
+                        {
+                            match = false;
+                            break;
+                        }
                     }
                 }
+            }
+            catch(const Exception & e)
+            {
+                // This subscription is invalid
+                // skip it
+               PEG_TRACE ((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    "Exception caught trying to verify required properties"
+                        " in a subscription are all contained in the list of"
+                        " supported indication properties: %s",
+                    (const char *) e.getMessage ().getCString())); 
+                continue;
+            }
+            catch(const exception & e)
+            {
+                // This subscription is invalid
+                // skip it
+               PEG_TRACE ((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    "Exception caught trying to verify required properties"
+                        " in a subscription are all contained in the list of"
+                        " supported indication properties: %s", e.what ())); 
+                continue;
+            }
+            catch(...)
+            {
+                // This subscription is invalid
+                // skip it
+                PEG_TRACE_CSTRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    "Unknown exception caught trying to verify required "
+                        "properties in a subscription are all contained "
+                        "in the list of supported indication properties."); 
+                continue;
             }
         }
 

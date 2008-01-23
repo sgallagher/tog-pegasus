@@ -188,13 +188,17 @@ void CIMPropertyRep::resolve(
 
     // Test the reference class name against the inherited property
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-    Boolean isEmbeddedInst = (_value.getType() == CIMTYPE_INSTANCE);
-    if (_value.getType() == CIMTYPE_REFERENCE || isEmbeddedInst)
+    if (_value.getType() == CIMTYPE_REFERENCE || 
+        _value.getType() == CIMTYPE_INSTANCE)
+#else // !PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    if (_value.getType() == CIMTYPE_REFERENCE)
+#endif // end PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     {
         CIMName inheritedClassName;
         Array<CIMName> classNames;
 
-        if (isEmbeddedInst)
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        if (_value.getType() == CIMTYPE_INSTANCE)
         {
             Uint32 pos = inheritedProperty.findQualifier("EmbeddedInstance");
             if (pos != PEG_NOT_FOUND)
@@ -221,6 +225,7 @@ void CIMPropertyRep::resolve(
             }
         }
         else
+#endif // end PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         {
             CIMName referenceClass;
             if (_referenceClassName.isNull())
@@ -285,7 +290,6 @@ void CIMPropertyRep::resolve(
             successTree.appendArray(traversalHistory);
         }
     }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
     _qualifiers.resolve(
         declContext, nameSpace, scope, isInstancePart,

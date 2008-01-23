@@ -3202,7 +3202,26 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMInstance__1setProperty
          }
          else
          {
-            CIMProperty *cp = new CIMProperty (CIMName (str), *cv);
+            CIMProperty *cp;
+
+            if (cv->getType() != CIMTYPE_REFERENCE)
+            {
+               cp = new CIMProperty (CIMName (str), *cv);
+            }
+            else
+            {
+               if (!cv->isArray ())
+               {
+                  CIMObjectPath cop;
+
+                  cv->get (cop);
+                  cp = new CIMProperty (CIMName (str), *cv, 0, cop.getClassName ());
+               }
+               else
+               {
+                  throwCIMException (jEnv,"+++ unsupported type in CIMProperty.property");
+               }
+            }
 
             ci->addProperty (*cp);
          }

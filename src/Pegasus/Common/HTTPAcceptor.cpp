@@ -754,6 +754,29 @@ void HTTPAcceptor::_acceptConnection()
             "HTTPAcceptor: accept() failed");
         return;
     }
+    // We need to ensure that the socket number is not higher than
+    // what fits into FD_SETSIZE, because we else won't be able to select on it
+    // and won't ever communicate correct on that socket.
+    if (socket >= FD_SETSIZE)
+    {
+        // the remote connection is invalid, destroy client address.
+        delete accept_address;
+        
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "HTTPAcceptor out of available sockets. "
+                "Closing connection to the new client.");
+
+        PEG_TRACE(
+            (TRC_DISCARDED_DATA,
+             Tracer::LEVEL2,
+             "accept() returned too large socket number %d.",
+             socket));
+        
+        // close the connection
+        Socket::close(socket);
+        return;
+    }
+
 
     String ipAddress;
 

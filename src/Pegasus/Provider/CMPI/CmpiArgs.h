@@ -49,7 +49,7 @@
     passed to methodInvocation functions.
 */
 
-class CmpiArgs : public CmpiObject
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiArgs : public CmpiObject
 {
     friend class CmpiBroker;
     friend class CmpiMethodMI;

@@ -1788,6 +1788,7 @@ static int _testCMPIcontext (const CMPIContext* ctx)
     void *cptr;
     PROV_LOG ("++++ _testCMPIContext");
 
+    count = CMGetContextEntryCount(ctx, &rc);
     value.uint32 = 40;
     PROV_LOG ("++++ CMAddContextEntry");
     rc = CMAddContextEntry(ctx, "name1", &value, CMPI_uint32);
@@ -1812,9 +1813,10 @@ static int _testCMPIcontext (const CMPIContext* ctx)
     PROV_LOG ("++++ Data added : %.3f ", data.value.real32 );
     PROV_LOG ("++++ Getting data sucessful : %s", strCMPIStatus (rc));
 
-    count = CMGetContextEntryCount(ctx, &rc);
+    count_for_new_context = CMGetContextEntryCount(ctx, &rc);
     PROV_LOG ("++++  CMGetContextEntryCount : (%s)", strCMPIStatus (rc));
-    PROV_LOG ("++++ Total number of data added : %d", count);
+    PROV_LOG ("++++ Total number of data added : %d", 
+              count_for_new_context - count);
 
     //Error Paths
     new_ctx = CBPrepareAttachThread (_broker, ctx);

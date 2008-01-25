@@ -233,7 +233,7 @@
  ++++ Data added : 40.123 
  ++++ Getting data sucessful : CMPI_RC_OK
  ++++  CMGetContextEntryCount : (CMPI_RC_OK)
- ++++ Total number of data added : 5
+ ++++ Total number of data added : 2
  ++++  CMAddContextEntry Error Path : (CMPI_RC_ERR_INVALID_HANDLE)
  ++++  CMGetContextEntryCount Error Path: (CMPI_RC_ERR_INVALID_HANDLE)
  ++++ CMGetContextEntry Error Path : (CMPI_RC_ERR_NO_SUCH_PROPERTY)

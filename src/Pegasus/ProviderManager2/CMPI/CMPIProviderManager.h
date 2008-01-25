@@ -45,6 +45,7 @@
 
 #include <Pegasus/ProviderManager2/CMPI/CMPILocalProviderManager.h>
 #include <Pegasus/ProviderManager2/CMPI/Linkage.h>
+#include <Pegasus/ProviderManager2/CMPI/CMPI_ContextArgs.h>
 
 #include <Pegasus/Provider/CIMOMHandleQueryContext.h>
 PEGASUS_NAMESPACE_BEGIN
@@ -114,6 +115,16 @@ protected:
     CMPILocalProviderManager providerManager;
 
     Mode mode;
+
+    void _setupCMPIContexts(
+        CMPI_ContextOnStack * eCtx,
+        OperationContext * context,
+        ProviderIdContainer * pidc,
+        const String & nameSpace,
+        Boolean remote,
+        Boolean includeQualifiers = false,
+        Boolean includeClassOrigin = false,
+        Boolean setFlags = false);
 
     Message * handleUnsupportedRequest(const Message * message);
 

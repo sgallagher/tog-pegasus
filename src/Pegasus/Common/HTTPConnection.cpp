@@ -374,8 +374,9 @@ Boolean HTTPConnection::closeConnectionOnTimeout(TimeValue &timeNow)
     if (_acceptPending)
     {
         PEGASUS_ASSERT(!_isClient());
-        if (timeNow.getSeconds() - _acceptPendingStartTime.getSeconds()
-            > PEGASUS_SSL_ACCEPT_TIMEOUT_SECONDS)
+        if ((timeNow.getSeconds() - _acceptPendingStartTime.getSeconds() >
+                 PEGASUS_SSL_ACCEPT_TIMEOUT_SECONDS) &&
+            (timeNow.getSeconds() > _acceptPendingStartTime.getSeconds()))
         {
             PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "HTTPConnection: close acceptPending connection for timeout");

@@ -334,7 +334,7 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
  * Default timeout value for SSL accept pending
  */
 
-#define PEGASUS_SSL_ACCEPT_TIMEOUT_SECONDS 5
+#define PEGASUS_SSL_ACCEPT_TIMEOUT_SECONDS 20
 
 
 //

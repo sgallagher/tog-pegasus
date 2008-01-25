@@ -754,7 +754,6 @@ void HTTPAcceptor::_acceptConnection()
             "HTTPAcceptor: accept() failed");
         return;
     }
-#ifndef(PEGASUS_OS_TYPE_WINDOWS)
     // We need to ensure that the socket number is not higher than
     // what fits into FD_SETSIZE, because we else won't be able to select on it
     // and won't ever communicate correct on that socket.
@@ -777,7 +776,7 @@ void HTTPAcceptor::_acceptConnection()
         Socket::close(socket);
         return;
     }
-#endif
+
 
     String ipAddress;
 

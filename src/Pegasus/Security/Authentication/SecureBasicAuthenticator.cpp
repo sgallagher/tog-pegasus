@@ -120,8 +120,7 @@ SecureBasicAuthenticator::SecureBasicAuthenticator()
         Logger::put_l(Logger::TRACE_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
             "Security.Authentication.SecureBasicAuthenticator"
                  ".APPLID_OMVSAPPL.PEGASUS_OS_ZOS",
-            "CIM Server passticket validation is using "
-                 "application ID OMVSAPPL.");
+            "CIM server authentication is using application ID OMVSAPPL.");
     }
 
     pthread_security_np(0,__USERID_IDENTITY,0,NULL,NULL,0);
@@ -135,8 +134,7 @@ SecureBasicAuthenticator::SecureBasicAuthenticator()
         Logger::put_l(Logger::TRACE_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
             "Security.Authentication.SecureBasicAuthenticator"
                  ".APPLID_OMVSAPPL.PEGASUS_OS_ZOS",
-            "CIM Server passticket validation is using "
-                 "application ID OMVSAPPL.");
+            "CIM server authentication is using application ID OMVSAPPL.");
     }
 #endif // end __TARGET_LIB__
 #endif // end PEGASUS_PLATFORM_ZOS_ZSERIES_IBM

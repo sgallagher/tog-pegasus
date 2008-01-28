@@ -6158,7 +6158,7 @@ CIM server listening on HTTPS port {0}."}
          *    Substitution {0} is a user name (a string)
          *    Do not translate 'passticket' and 'OMVSAPPL' as it is a RACF term
          */
-         Security.Authentication.SecureBasicAuthenticator.APPLID_OMVSAPPL.PEGASUS_OS_ZOS:string {"PGS17204: CIM Server passticket validation is using application ID OMVSAPPL."}
+         Security.Authentication.SecureBasicAuthenticator.APPLID_OMVSAPPL.PEGASUS_OS_ZOS:string {"PGS17204: CIM server authentication is using application ID OMVSAPPL."}
         
         // ==========================================================
         // Messages for Security LocalAuthenticationHandler

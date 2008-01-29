@@ -263,6 +263,34 @@ Boolean System::isIPv6StackActive()
     }
     else
     {
+#if defined(PEGASUS_OS_VMS)
+        // vms has tcpipv6 support in the kernel so socket
+        // will always work so a call to "bind" is needed
+        // to complete this test.
+
+        struct sockaddr_storage listenAddress;
+        memset(&listenAddress, 0, sizeof (listenAddress));
+        SocketLength addressLength;
+
+        HostAddress::convertTextToBinary(
+            HostAddress::AT_IPV6,
+            "::1",
+            &reinterpret_cast<struct sockaddr_in6*>(&listenAddress)->sin6_addr);
+        listenAddress.ss_family = AF_INET6;
+        reinterpret_cast<struct sockaddr_in6*>(&listenAddress)->sin6_port = 0;
+
+        addressLength = sizeof(struct sockaddr_in6);
+
+        if (::bind(
+            ip6Socket,
+            reinterpret_cast<struct sockaddr*>(&listenAddress),
+            addressLength) < 0)
+        {
+            Socket::close(ip6Socket);
+            return false;
+        }
+#endif  // PEGASUS_OS_VMS
+
         Socket::close(ip6Socket);
     }
 

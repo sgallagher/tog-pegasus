@@ -49,4 +49,10 @@
 #define PegasusCreateProviderAdapter PEGASUSCREATEPROVIDERADAPTER
 #define PegasusCreateProviderManager PEGASUSCREATEPROVIDERMANAGER
 #define callme CALLME
+
+// BSD 4.3 is the default. _SOCKADDR_LEN changes to BSD 4.4 for IPV6 support.
+#ifndef _SOCKADDR_LEN
+#define _SOCKADDR_LEN 1
+#endif
+
 #endif  /* Pegasus_Platform_VMS_h */

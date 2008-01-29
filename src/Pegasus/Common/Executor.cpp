@@ -172,13 +172,13 @@ public:
         switch (mode)
         {
             case 'r':
-                return fopen(path, "rt");
+                return fopen(path, "r");
 
             case 'w':
-                return fopen(path, "wt");
+                return fopen(path, "w");
 
             case 'a':
-                return fopen(path, "at+");
+                return fopen(path, "a+");
 
             default:
                 return NULL;

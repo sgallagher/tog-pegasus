@@ -48,6 +48,14 @@ PROGRAM = TestG11n
 
 SOURCES = g11ntest.cpp
 
+ifeq ($(OS_TYPE), unix)
+SUPPORT_IPV4_MAPPED_IPV6 = true
+endif
+
+ifeq ($(OS_TYPE), vms)
+SUPPORT_IPV4_MAPPED_IPV6 = true
+endif
+
 ifeq ($(PEGASUS_ENABLE_SLP),true)
      LIBRARIES += pegslp
 endif
@@ -85,9 +93,7 @@ endif
 # are enabled only on UNIX platforms.
 #
 
-ifeq ($(OS_TYPE), unix)
-ifeq ($(PEGASUS_TEST_IPV6), true)
+ifeq ($(SUPPORT_IPV4_MAPPED_IPV6), true)
 	@$(ECHO) "Testing with IPv4 Mapped IPv6 Addresses."
 	$(PROGRAM) [::ffff:127.0.0.1]:5988 -l [::ffff:127.0.0.1]:2003
-endif
 endif

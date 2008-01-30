@@ -119,7 +119,8 @@ protected:
 
     Message * handleGetInstanceRequest(const Message * message) throw();
     Message * handleEnumerateInstancesRequest(const Message * message) throw();
-    Message * handleEnumerateInstanceNamesRequest(const Message * message) throw();
+    Message * handleEnumerateInstanceNamesRequest(
+                  const Message * message) throw();
     Message * handleCreateInstanceRequest(const Message * message) throw();
     Message * handleModifyInstanceRequest(const Message * message) throw();
     Message * handleDeleteInstanceRequest(const Message * message) throw();

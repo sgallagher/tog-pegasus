@@ -51,8 +51,10 @@ public:
     virtual ~JMPILocalProviderManager(void);
 
 public:
-    JMPIProvider::OpProviderHolder getProvider(const String & fileName, const String & providerName,
-         const String & interfaceName = String::EMPTY);
+    JMPIProvider::OpProviderHolder getProvider(
+        const String & fileName,
+        const String & providerName,
+        const String & interfaceName = String::EMPTY);
 
     void unloadProvider(const String & fileName, const String & providerName);
 
@@ -109,7 +111,9 @@ private:
     ModuleTable _modules;
     Uint32 _idle_timeout;
 
-    JMPIProvider *_getResolver(const String & fileName, const String & interfaceType);
+    JMPIProvider *_getResolver(
+        const String & fileName,
+        const String & interfaceType);
     Sint32 _provider_ctrl(CTRL code, void *parm, void *ret);
 
     Mutex _providerTableMutex;

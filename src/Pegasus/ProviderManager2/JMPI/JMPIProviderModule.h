@@ -47,9 +47,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// The JMPIProviderModule class represents the physical module, as defined by the
-// operation, that contains a provider. This class effectively encapsulates the
-// "physical" portion of a provider.
+// The JMPIProviderModule class represents the physical module, as defined by
+// the operation, that contains a provider. This class effectively encapsulates
+// the "physical" portion of a provider.
 
 
 class PEGASUS_JMPIPM_LINKAGE JMPIProviderModule

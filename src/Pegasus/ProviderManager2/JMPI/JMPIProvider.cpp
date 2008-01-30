@@ -60,7 +60,8 @@ JMPIProvider::JMPIProvider (const String       &name,
                             JMPIProviderModule *module,
                             ProviderVector     *mv)
 {
-   DDD(PEGASUS_STD(cout)<<"--- JMPIProvider::JMPIProvider(name, module, mv)"<<PEGASUS_STD(endl));
+   DDD(PEGASUS_STD(cout)<<"--- JMPIProvider::JMPIProvider(name, module, mv)"
+                        <<PEGASUS_STD(endl));
 
    _module               = module;
    _cimom_handle         = 0;
@@ -78,7 +79,8 @@ JMPIProvider::JMPIProvider (const String       &name,
 
 JMPIProvider::JMPIProvider (JMPIProvider *pr)
 {
-   DDD(PEGASUS_STD(cout)<<"--- JMPIProvider::JMPIProvider(pr)"<<PEGASUS_STD(endl));
+   DDD(PEGASUS_STD(cout)<<"--- JMPIProvider::JMPIProvider(pr)"
+                        <<PEGASUS_STD(endl));
 
    _module               = pr->_module;
    _cimom_handle         = 0;
@@ -94,7 +96,8 @@ JMPIProvider::JMPIProvider (JMPIProvider *pr)
 
 JMPIProvider::~JMPIProvider(void)
 {
-   DDD(PEGASUS_STD(cout)<<"--- JMPIProvider::~JMPIProvider()"<<PEGASUS_STD(endl));
+   DDD(PEGASUS_STD(cout)<<"--- JMPIProvider::~JMPIProvider()"
+                        <<PEGASUS_STD(endl));
 
    delete _java_cimom_handle;
    delete cachedClass;
@@ -128,9 +131,12 @@ void JMPIProvider::initialize(CIMOMHandle& cimom)
 
     if (!env)
     {
-        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
-                                       MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
-                                                          "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
+        throw PEGASUS_CIM_EXCEPTION_L(
+            CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "ProviderManager.JMPI.INIT_JVM_FAILED",
+                "Could not initialize the JVM (Java Virtual Machine)"
+                    " runtime environment."));
     }
 
     // public abstract void initialize (org.pegasus.jmpi.CIMOMHandle ch)
@@ -154,7 +160,10 @@ void JMPIProvider::initialize(CIMOMHandle& cimom)
 
        JMPIjvm::checkException(env);
 
-       jlong    jCimomRef = DEBUG_ConvertCToJava (CIMOMHandle*, jlong, _java_cimom_handle);
+       jlong jCimomRef = DEBUG_ConvertCToJava(
+                             CIMOMHandle*,
+                             jlong,
+                             _java_cimom_handle);
        jobject jch       = env->NewObject(jv->CIMOMHandleClassRef,
                                           JMPIjvm::jv.CIMOMHandleNewJSt,
                                           jCimomRef,

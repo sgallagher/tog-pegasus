@@ -75,14 +75,15 @@ PEGASUS_USING_PEGASUS;
 #define CONVERT_SIGNATURE_END   PEGASUS_UINT64_LITERAL(0xFEDCBA9876543210)
 #define CONVERT_SIZE            (4 * sizeof (Uint64))
 
-#define ConvertEndianSwap(n)    ((((n) & PEGASUS_UINT64_LITERAL(0xff00000000000000)) >> 56) | \
-                                 (((n) & PEGASUS_UINT64_LITERAL(0x00ff000000000000)) >> 40) | \
-                                 (((n) & PEGASUS_UINT64_LITERAL(0x0000ff0000000000)) >> 24) | \
-                                 (((n) & PEGASUS_UINT64_LITERAL(0x000000ff00000000)) >> 8)  | \
-                                 (((n) & PEGASUS_UINT64_LITERAL(0x00000000ff000000)) << 8)  | \
-                                 (((n) & PEGASUS_UINT64_LITERAL(0x0000000000ff0000)) << 24) | \
-                                 (((n) & PEGASUS_UINT64_LITERAL(0x000000000000ff00)) << 40) | \
-                                 (((n) & PEGASUS_UINT64_LITERAL(0x00000000000000ff)) << 56) )
+#define ConvertEndianSwap(n) \
+    ((((n) & PEGASUS_UINT64_LITERAL(0xff00000000000000)) >> 56) | \
+     (((n) & PEGASUS_UINT64_LITERAL(0x00ff000000000000)) >> 40) | \
+     (((n) & PEGASUS_UINT64_LITERAL(0x0000ff0000000000)) >> 24) | \
+     (((n) & PEGASUS_UINT64_LITERAL(0x000000ff00000000)) >> 8)  | \
+     (((n) & PEGASUS_UINT64_LITERAL(0x00000000ff000000)) << 8)  | \
+     (((n) & PEGASUS_UINT64_LITERAL(0x0000000000ff0000)) << 24) | \
+     (((n) & PEGASUS_UINT64_LITERAL(0x000000000000ff00)) << 40) | \
+     (((n) & PEGASUS_UINT64_LITERAL(0x00000000000000ff)) << 56) )
 
 template <typename J, typename C>
 C TemplateConvertJavaToC (J p)
@@ -92,7 +93,8 @@ C TemplateConvertJavaToC (J p)
 
    if (pui64[0] != CONVERT_SIGNATURE_BEGIN)
    {
-      PEGASUS_STD(cout)<<"TemplateConvertJavaToC "<<PEGASUS_STD(hex)<<(void*)p<<PEGASUS_STD(dec)<<PEGASUS_STD(endl);
+      PEGASUS_STD(cout)<<"TemplateConvertJavaToC "<<
+          PEGASUS_STD(hex)<<(void*)p<<PEGASUS_STD(dec)<<PEGASUS_STD(endl);
       *ptrap = 0;
    }
    if (pui64[1] != ConvertEndianSwap (pui64[2]))
@@ -101,11 +103,14 @@ C TemplateConvertJavaToC (J p)
    }
    if (pui64[3] != CONVERT_SIGNATURE_END)
    {
-      PEGASUS_STD(cout)<<"TemplateConvertJavaToC "<<PEGASUS_STD(hex)<<(void*)p<<PEGASUS_STD(dec)<<PEGASUS_STD(endl);
+      PEGASUS_STD(cout)<<"TemplateConvertJavaToC "<<
+          PEGASUS_STD(hex)<<(void*)p<<PEGASUS_STD(dec)<<PEGASUS_STD(endl);
       *ptrap = 0;
    }
 
-   PEGASUS_STD(cout)<<"TemplateConvertJavaToC "<<PEGASUS_STD(hex)<<(void*)p<<" -> "<<(void*)pui64[1]<<PEGASUS_STD(dec)<<PEGASUS_STD(endl);
+   PEGASUS_STD(cout)<<"TemplateConvertJavaToC "<<
+       PEGASUS_STD(hex)<<(void*)p<<" -> "<<(void*)pui64[1]<<
+           PEGASUS_STD(dec)<<PEGASUS_STD(endl);
 
    return (C)pui64[1];
 }
@@ -125,11 +130,14 @@ J TemplateConvertCToJava (C p)
    }
    else
    {
-      PEGASUS_STD(cout)<<"TemplateConvertCToJava"<<PEGASUS_STD(hex)<<(void*)p<<PEGASUS_STD(dec)<<PEGASUS_STD(endl);
+      PEGASUS_STD(cout)<<"TemplateConvertCToJava"<<
+          PEGASUS_STD(hex)<<(void*)p<<PEGASUS_STD(dec)<<PEGASUS_STD(endl);
       *ptrap = 0;
    }
 
-   PEGASUS_STD(cout)<<"TemplateConvertCToJava "<<PEGASUS_STD(hex)<<(void*)p<<" -> "<<(void*)pui64<<PEGASUS_STD(dec)<<PEGASUS_STD(endl);
+   PEGASUS_STD(cout)<<"TemplateConvertCToJava "<<
+       PEGASUS_STD(hex)<<(void*)p<<" -> "<<(void*)pui64<<
+           PEGASUS_STD(dec)<<PEGASUS_STD(endl);
 
    return (J)pui64;
 }
@@ -140,7 +148,8 @@ void TemplateConvertCleanup (J p)
    Uint64 *pui64 = (Uint64 *)p;
    Uint64 *ptrap = 0;
 
-   PEGASUS_STD(cout)<<"TemplateConvertCleanup "<<PEGASUS_STD(hex)<<(void*)p<<PEGASUS_STD(dec)<<PEGASUS_STD(endl);
+   PEGASUS_STD(cout)<<"TemplateConvertCleanup "<<
+       PEGASUS_STD(hex)<<(void*)p<<PEGASUS_STD(dec)<<PEGASUS_STD(endl);
 
    if (pui64[0] != CONVERT_SIGNATURE_BEGIN)
    {
@@ -167,7 +176,9 @@ void TemplateConvertCleanup (J p)
 
 #define CONVERT_SIGNATURE_BEGIN 0xFE
 #define CONVERT_SIGNATURE_END   0x12
-#define CONVERT_SIZE            (sizeof (unsigned char) + sizeof (Uint64) + sizeof (unsigned char))
+#define CONVERT_SIZE (sizeof(unsigned char)+ \
+                      sizeof(Uint64)+ \
+                      sizeof(unsigned char))
 
 template <typename J, typename C>
 C TemplateConvertJavaToC (J p)
@@ -177,16 +188,20 @@ C TemplateConvertJavaToC (J p)
 
    if (puch[0] != CONVERT_SIGNATURE_BEGIN)
    {
-      PEGASUS_STD(cout)<<"TemplateConvertJavaToC "<<PEGASUS_STD(hex)<<(void*)p<<PEGASUS_STD(dec)<<PEGASUS_STD(endl);
+      PEGASUS_STD(cout)<<"TemplateConvertJavaToC "<<
+          PEGASUS_STD(hex)<<(void*)p<<PEGASUS_STD(dec)<<PEGASUS_STD(endl);
       *ptrap = 0;
    }
    if (puch[sizeof (unsigned char) + sizeof (Uint64)] != CONVERT_SIGNATURE_END)
    {
-      PEGASUS_STD(cout)<<"TemplateConvertJavaToC "<<PEGASUS_STD(hex)<<(void*)p<<PEGASUS_STD(dec)<<PEGASUS_STD(endl);
+      PEGASUS_STD(cout)<<"TemplateConvertJavaToC "<<
+          PEGASUS_STD(hex)<<(void*)p<<PEGASUS_STD(dec)<<PEGASUS_STD(endl);
       *ptrap = 0;
    }
 
-   PEGASUS_STD(cout)<<"TemplateConvertJavaToC "<<PEGASUS_STD(hex)<<(void*)p<<" -> "<<(void*)(*((long *)(puch + 1)))<<PEGASUS_STD(dec)<<PEGASUS_STD(endl);
+   PEGASUS_STD(cout)<<"TemplateConvertJavaToC "<<
+       PEGASUS_STD(hex)<<(void*)p<<" -> "<<(void*)(*((long *)(puch + 1)))<<
+           PEGASUS_STD(dec)<<PEGASUS_STD(endl);
 
    return (C)(void *)(*((Uint64 *)(puch + 1)));
 }
@@ -194,7 +209,7 @@ C TemplateConvertJavaToC (J p)
 template <typename C, typename J>
 J TemplateConvertCToJava (C p)
 {
-   unsigned char *puch  = (unsigned char *)::malloc (CONVERT_SIZE);
+   unsigned char *puch  = (unsigned char *)::malloc(CONVERT_SIZE);
    unsigned char *ptrap = 0;
 
    if (puch)
@@ -205,11 +220,14 @@ J TemplateConvertCToJava (C p)
    }
    else
    {
-      PEGASUS_STD(cout)<<"TemplateConvertCToJava"<<PEGASUS_STD(hex)<<(void*)p<<PEGASUS_STD(dec)<<PEGASUS_STD(endl);
+      PEGASUS_STD(cout)<<"TemplateConvertCToJava"<<
+          PEGASUS_STD(hex)<<(void*)p<<PEGASUS_STD(dec)<<PEGASUS_STD(endl);
       *ptrap = 0;
    }
 
-   PEGASUS_STD(cout)<<"TemplateConvertCToJava "<<PEGASUS_STD(hex)<<(void*)p<<" -> "<<(void *)puch<<PEGASUS_STD(dec)<<PEGASUS_STD(endl);
+   PEGASUS_STD(cout)<<"TemplateConvertCToJava "<<
+       PEGASUS_STD(hex)<<(void*)p<<" -> "<<(void *)puch<<
+           PEGASUS_STD(dec)<<PEGASUS_STD(endl);
 
    return (J)puch;
 }
@@ -220,7 +238,8 @@ void TemplateConvertCleanup (J p)
    unsigned char *puch  = (unsigned char *)p;
    unsigned char *ptrap = 0;
 
-   PEGASUS_STD(cout)<<"TemplateConvertCleanup "<<PEGASUS_STD(hex)<<(void*)p<<PEGASUS_STD(dec)<<PEGASUS_STD(endl);
+   PEGASUS_STD(cout)<<"TemplateConvertCleanup "<<
+       PEGASUS_STD(hex)<<(void*)p<<PEGASUS_STD(dec)<<PEGASUS_STD(endl);
 
    if (puch[0] != CONVERT_SIGNATURE_BEGIN)
    {
@@ -231,13 +250,14 @@ void TemplateConvertCleanup (J p)
       *ptrap = 0;
    }
 
-   ::memset (puch, 0, CONVERT_SIZE);
-   ::free ((void *)puch);
+   ::memset(puch, 0, CONVERT_SIZE);
+   ::free((void *)puch);
 }
 
 #else
 
-#error "Unsupported conversion case in src/Pegasus/ProviderManager2/JMPI/Convert.h"
+#error "Unsupported conversion case in \
+           src/Pegasus/ProviderManager2/JMPI/Convert.h"
 
 #endif
 

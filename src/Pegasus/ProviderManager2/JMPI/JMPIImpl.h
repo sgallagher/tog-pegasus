@@ -40,8 +40,9 @@
 
 #ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
 #if defined (__GNUC__) && GCC_VERSION >= 40000
-// If gcc is compiled with -fvisibility=hidden then JMPI is broken.  This is because
-// the JNI h file defines JNIEXPORT as empty since the default is visible.
+// If gcc is compiled with -fvisibility=hidden then JMPI is broken.
+// This is because the JNI h file defines JNIEXPORT as empty since 
+// the default is visible.
 #undef  JNIEXPORT
 #define JNIEXPORT __attribute__ ((visibility("default")))
 #endif
@@ -66,17 +67,29 @@ PEGASUS_NAMESPACE_BEGIN
 #define Catch(jEnv) \
    catch(CIMException & e) { \
       JMPIjvm::cacheIDs(jEnv); \
-      jobject ev=jEnv->NewObject(JMPIjvm::jv.CIMExceptionClassRef,JMPIjvm::jv.CIMExceptionNewISt,(jint)e.getCode(),jEnv->NewStringUTF(e.getMessage().getCString())); \
+      jobject ev=jEnv->NewObject( \
+                     JMPIjvm::jv.CIMExceptionClassRef, \
+                     JMPIjvm::jv.CIMExceptionNewISt, \
+                     (jint)e.getCode(), \
+                     jEnv->NewStringUTF(e.getMessage().getCString())); \
       jEnv->Throw((jthrowable)ev); \
    } \
    catch(Exception & e) { \
       JMPIjvm::cacheIDs(jEnv);\
-      jobject ev=jEnv->NewObject(JMPIjvm::jv.CIMExceptionClassRef,JMPIjvm::jv.CIMExceptionNewISt,(jint)1,jEnv->NewStringUTF(e.getMessage().getCString())); \
+      jobject ev=jEnv->NewObject( \
+                     JMPIjvm::jv.CIMExceptionClassRef, \
+                     JMPIjvm::jv.CIMExceptionNewISt, \
+                     (jint)1, \
+                     jEnv->NewStringUTF(e.getMessage().getCString())); \
       jEnv->Throw((jthrowable)ev); \
    } \
    catch(...)  { \
       JMPIjvm::cacheIDs(jEnv); \
-      jobject ev=jEnv->NewObject(JMPIjvm::jv.CIMExceptionClassRef,JMPIjvm::jv.CIMExceptionNewISt,(jint)1,jEnv->NewStringUTF("Exception: Unknown")); \
+      jobject ev=jEnv->NewObject( \
+                     JMPIjvm::jv.CIMExceptionClassRef, \
+                     JMPIjvm::jv.CIMExceptionNewISt, \
+                     (jint)1, \
+                     jEnv->NewStringUTF("Exception: Unknown")); \
       jEnv->Throw((jthrowable)ev); \
    }
 
@@ -108,10 +121,18 @@ class PEGASUS_JMPIPM_LINKAGE JMPIjvm {
    static JNIEnv* attachThread(JvmVector **jvp);
    static void detachThread();
    static jobject getProvider(JNIEnv *env, const char *cn, jclass *cls) ;
-   static jobject getProvider(JNIEnv *env, String jar, String cln, const char *cn, jclass *cls) ;
+   static jobject getProvider(
+                      JNIEnv *env,
+                      String jar,
+                      String cln,
+                      const char *cn,
+                      jclass *cls) ;
    static void checkException(JNIEnv *env);
    static jstring NewPlatformString(JNIEnv *env,char *s);
-   static jobjectArray NewPlatformStringArray(JNIEnv *env,char **strv, int strc);
+   static jobjectArray NewPlatformStringArray(
+                           JNIEnv *env,
+                           char **strv,
+                           int strc);
    static int cacheIDs(JNIEnv *env);
    static int destroyJVM();
 
@@ -119,8 +140,16 @@ class PEGASUS_JMPIPM_LINKAGE JMPIjvm {
    static jclass getGlobalClassRef(JNIEnv *env, const char* name);
    static int initJVM();
 
-   typedef HashTable<String,jclass,EqualFunc<String>,HashFunc<String> >  ClassTable;
-   typedef HashTable<String,jobject,EqualFunc<String>,HashFunc<String> > ObjectTable;
+   typedef HashTable<
+               String,
+               jclass,
+               EqualFunc<String>,
+               HashFunc<String> >  ClassTable;
+   typedef HashTable<
+               String,
+               jobject,
+               EqualFunc<String>,
+               HashFunc<String> > ObjectTable;
 
    static ClassTable  _classTable;
    static ObjectTable _objectTable;

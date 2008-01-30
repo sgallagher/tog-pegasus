@@ -19,14 +19,14 @@ public:
                             const String&           url,
                             const CIMInstance&      indicationInstance)
     {
-       Uint32 ui32Index  = indicationInstance.findProperty ("InstanceId");
-       Uint64 ui64Number = 0;
+       Uint32 ui32Index = indicationInstance.findProperty ("InstanceId");
+       Uint64 ui64Num = 0;
 
        if (ui32Index != PEG_NOT_FOUND)
        {
           try
           {
-             indicationInstance.getProperty (ui32Index).getValue ().get (ui64Number);
+             indicationInstance.getProperty(ui32Index).getValue().get(ui64Num);
           }
           catch (Exception& e)
           {
@@ -38,7 +38,7 @@ public:
             << " ! "
             << indicationInstance.getClassName ().getString ()
             << " ! "
-            << (int)ui64Number
+            << (int)ui64Num
             << endl;
     }
 

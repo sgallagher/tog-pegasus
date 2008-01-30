@@ -47,7 +47,8 @@ extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
    const String & providerManagerName)
 {
 #ifdef PEGASUS_DEBUG
-    PEGASUS_STD(cerr)<<"--- PegasusCreateProviderManager ("<<providerManagerName<<")"<<PEGASUS_STD(endl);
+    PEGASUS_STD(cerr)<<"--- PegasusCreateProviderManager ("
+                     <<providerManagerName<<")"<<PEGASUS_STD(endl);
 #endif
 
     if (  String::equalNoCase(providerManagerName, "JMPI")
@@ -55,7 +56,8 @@ extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
        )
     {
 #ifdef PEGASUS_DEBUG
-        PEGASUS_STD(cerr)<<"--- JMPI Provider Manager activated"<<PEGASUS_STD(endl);
+        PEGASUS_STD(cerr)<<"--- JMPI Provider Manager activated"
+                         <<PEGASUS_STD(endl);
 #endif
 
         return new JMPIProviderManager ();

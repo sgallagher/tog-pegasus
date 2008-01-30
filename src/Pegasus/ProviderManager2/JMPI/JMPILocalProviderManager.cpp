@@ -30,7 +30,6 @@
 //==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
-// NOCHKSRC
 #include "JMPILocalProviderManager.h"
 
 #include <Pegasus/Common/Time.h>
@@ -73,7 +72,10 @@ JMPILocalProviderManager::~JMPILocalProviderManager(void)
     _provider_ctrl(UNLOAD_ALL_PROVIDERS, this, &ccode);
 }
 
-Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
+Sint32 JMPILocalProviderManager::_provider_ctrl(
+    CTRL code,
+    void *parm,
+    void *ret)
 {
     static Uint32 quantum;
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "_provider_ctrl");
@@ -95,7 +97,8 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
             String interfaceName = *(parms->interfaceName);
 
             DDD(PEGASUS_STD(cout)
-                <<"--- JMPILocalProviderManager::_provider_ctrl: GET_PROVIDER providerName = "
+                <<"--- JMPILocalProviderManager::_provider_ctrl:"
+                      " GET_PROVIDER providerName = "
                 <<providerName
                 <<", moduleFileName = "
                 <<moduleFileName
@@ -385,7 +388,6 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
                                  "Found JMPIProvider in cache: "
                                  + *(parms->providerName));
 
-////////////////(*(reinterpret_cast<JMPIProvider * *>(ret)))->update_idle_timer();
             }
             else
             {
@@ -602,7 +604,9 @@ void JMPILocalProviderManager::unloadProvider(
 
 void JMPILocalProviderManager::shutdownAllProviders(void)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::shutdownAllProviders");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "ProviderManager::shutdownAllProviders");
     _provider_ctrl(UNLOAD_ALL_PROVIDERS, (void *)this, (void *)0);
     PEG_METHOD_EXIT();
 }
@@ -610,7 +614,9 @@ void JMPILocalProviderManager::shutdownAllProviders(void)
 
 Boolean JMPILocalProviderManager::hasActiveProviders()
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::hasActiveProviders");
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "ProviderManager::hasActiveProviders");
 
     AutoMutex lock (_providerTableMutex);
 
@@ -652,8 +658,11 @@ JMPILocalProviderManager::getIndicationProvidersToEnable ()
     {
         AutoMutex lock (_providerTableMutex);
 
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Number of providers in _providers table = %d", _providers.size ()));
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL4,
+            "Number of providers in _providers table = %d",
+            _providers.size ()));
 
         //
         // Iterate through the _providers table

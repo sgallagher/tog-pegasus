@@ -25,12 +25,13 @@ main (int argc, char *argv[])
 
    try
    {
-      instances = client.enumerateInstances (CIMNamespaceName ("root/cimv2"),
-                                             CIMName ("PG_UnixProcess"),
-                                             true,                          // deepInheritance
-                                             false,                         // localOnly
-                                             false,                         // includeQualifiers
-                                             true);                         // includeClassOrigin
+      instances = client.enumerateInstances(
+                      CIMNamespaceName("root/cimv2"),
+                      CIMName ("PG_UnixProcess"),
+                      true,  // deepInheritance
+                      false, // localOnly
+                      false, // includeQualifiers
+                      true); // includeClassOrigin
 
       cout << "instances.size () = " << instances.size () << endl;
    }
@@ -39,9 +40,10 @@ main (int argc, char *argv[])
       cerr << "Caught: " << e.getMessage () << endl;
    }
 
-   String              queryLanguage = "WQL";
-   String              query         = "SELECT CSName, OSName FROM PG_UnixProcess WHERE Handle = \"2037\"";
-   WQLSelectStatement *stmt          = new WQLSelectStatement (queryLanguage, query);
+   String queryLanguage = "WQL";
+   String query=
+       "SELECT CSName, OSName FROM PG_UnixProcess WHERE Handle = \"2037\"";
+   WQLSelectStatement *stmt = new WQLSelectStatement(queryLanguage, query);
 
    try
    {

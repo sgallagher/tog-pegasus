@@ -68,15 +68,15 @@ int main(int argc, char** argv)
     // Create list of persons:
 
     PersonList list;
-    assert(list.size() == 0);
+    PEGASUS_TEST_ASSERT(list.size() == 0);
     list.insert_back(new Person("John"));
-    assert(list.size() == 1);
+    PEGASUS_TEST_ASSERT(list.size() == 1);
     list.insert_back(new Person("Jane"));
-    assert(list.size() == 2);
+    PEGASUS_TEST_ASSERT(list.size() == 2);
     list.insert_back(new Person("Joe"));
-    assert(list.size() == 3);
+    PEGASUS_TEST_ASSERT(list.size() == 3);
     list.insert_back(new Person("Bob"));
-    assert(list.size() == 4);
+    PEGASUS_TEST_ASSERT(list.size() == 4);
 
     // Print all elements of the list:
 
@@ -94,7 +94,7 @@ int main(int argc, char** argv)
     {
     const String JOHN = "John";
     Person* john = list.find(Person::equal, &JOHN);
-    assert(john);
+    PEGASUS_TEST_ASSERT(john);
     // john->print();
     }
 
@@ -102,21 +102,21 @@ int main(int argc, char** argv)
     {
     const String JOHN = "John";
     Person* john = list.remove(Person::equal, &JOHN);
-    assert(john->name() == "John");
+    PEGASUS_TEST_ASSERT(john->name() == "John");
     delete john;
-    assert(list.size() == 3);
+    PEGASUS_TEST_ASSERT(list.size() == 3);
 
     const String JANE = "Jane";
     Person* jane = list.remove(Person::equal, &JANE);
-    assert(jane->name() == "Jane");
+    PEGASUS_TEST_ASSERT(jane->name() == "Jane");
     delete jane;
-    assert(list.size() == 2);
+    PEGASUS_TEST_ASSERT(list.size() == 2);
     }
 
     // Clear the list:
     {
     list.clear();
-    assert(list.size() == 0);
+    PEGASUS_TEST_ASSERT(list.size() == 0);
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;

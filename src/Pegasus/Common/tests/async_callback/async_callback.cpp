@@ -149,10 +149,10 @@ test_async_queue::async_handleEnqueue (AsyncOpNode * op,
   test_async_queue *myself = static_cast < test_async_queue * >(q);
 
   async_start *rq = static_cast < async_start * >(op->removeRequest());
-  assert(rq != 0);
+  PEGASUS_TEST_ASSERT(rq != 0);
 
   async_complete *rp = static_cast < async_complete * >(op->removeResponse());
-  assert(rp != 0);
+  PEGASUS_TEST_ASSERT(rp != 0);
 
   if ((rq->getType () == ASYNC_ASYNC_OP_START) &&
       (rp->getType () == ASYNC_ASYNC_OP_RESULT))

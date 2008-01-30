@@ -45,13 +45,13 @@ int main (int argc, char** argv)
     const size_t COUNT = 100000;
 
     for (Uint32 i = 1; i < COUNT; i++)
-    PEGASUS_ASSERT(i == _idFactory.getID());
+        PEGASUS_TEST_ASSERT(i == _idFactory.getID());
 
     for (Uint32 i = 1; i < COUNT; i++)
     _idFactory.putID(i);
 
     for (Uint32 i = COUNT - 1; i > 0; i--)
-    assert(_idFactory.getID() == i);
+        PEGASUS_TEST_ASSERT(_idFactory.getID() == i);
 
     cout << argv[0] << " +++++ passed all tests" << endl;
     return 0;

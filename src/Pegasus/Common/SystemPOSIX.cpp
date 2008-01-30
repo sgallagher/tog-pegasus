@@ -220,7 +220,7 @@ String System::getHostName()
     static MutexType _mutex = PEGASUS_MUTEX_INITIALIZER;
 
     // Use double-checked locking pattern to avoid overhead of
-    // mutex on subsequenct calls.
+    // mutex on subsequent calls.
 
     if (0 == _hostname.size())
     {
@@ -229,6 +229,8 @@ String System::getHostName()
         if (0 == _hostname.size())
         {
             char hostname[PEGASUS_MAXHOSTNAMELEN + 1];
+            // If gethostname() fails, an empty or truncated value is used.
+            hostname[0] = 0;
             gethostname(hostname, sizeof(hostname));
             hostname[sizeof(hostname)-1] = 0;
             _hostname.assign(hostname);
@@ -240,21 +242,24 @@ String System::getHostName()
     return _hostname;
 }
 
-String System::getFullyQualifiedHostName ()
+String System::getFullyQualifiedHostName()
 {
+    char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
+
+    // Get the short name of the local host.
+    // If gethostname() fails, an empty or truncated value is used.
+    hostName[0] = 0;
+    gethostname(hostName, sizeof(hostName));
+    hostName[sizeof(hostName)-1] = 0;
+
 #if defined(PEGASUS_OS_ZOS)|| \
     defined(PEGASUS_OS_VMS)
 
-    char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
     String fqName;
     struct addrinfo *resolv;
     struct addrinfo hint;
     struct hostent *he;
-    // receive short name of the local host
-    if (gethostname(hostName, PEGASUS_MAXHOSTNAMELEN) != 0)
-    {
-        return String::EMPTY;
-    }
+
     memset (&hint, 0, sizeof(struct addrinfo));
     hint.ai_flags = AI_CANONNAME;
     hint.ai_family = AF_UNSPEC; // any family
@@ -270,7 +275,7 @@ String System::getFullyQualifiedHostName ()
     {
         if ((he = getHostByName(hostName)))
         {
-            strcpy (hostName, he->h_name);
+            strncpy(hostName, he->h_name, sizeof(hostName) - 1);
         }
         // assign hostName
         // if gethostbyname was successful assign that result
@@ -284,19 +289,12 @@ String System::getFullyQualifiedHostName ()
 
     return fqName;
 
-#else /* !PEGASUS_OS_ZOS */
-    struct hostent* hostEntry;
-    char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
-
-    if (gethostname(hostName, sizeof(hostName)) != 0)
-        return String::EMPTY;
-
-    hostName[sizeof(hostName) - 1] = 0;
+#else /* !PEGASUS_OS_ZOS && !PEGASUS_OS_VMS */
 
     char hostEntryBuffer[8192];
     struct hostent hostEntryStruct;
-    hostEntry = getHostByName(hostName, &hostEntryStruct, hostEntryBuffer, 
-        sizeof (hostEntryBuffer));
+    struct hostent* hostEntry = getHostByName(
+        hostName, &hostEntryStruct, hostEntryBuffer, sizeof (hostEntryBuffer));
 
     if (hostEntry)
     {

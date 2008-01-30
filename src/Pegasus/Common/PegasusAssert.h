@@ -33,8 +33,16 @@
 #ifndef Pegasus_Assert_h
 #define Pegasus_Assert_h
 
+#ifdef PEGASUS_OS_ZOS
+  // zOS specific implementation of assert macros.
+# include <Pegasus/Common/PegasusAssertZOS.h>
 
+#else 
 // NOTE:
+//
+//  This is the common implementation for the assert macros.
+//  If platform specific implementation are needed they have to 
+//  be placed in a platform specific include file and included before.
 //
 // All built and tested OK with <assert.h>
 // but <cassert> is more appropriate for c++ files
@@ -97,5 +105,5 @@
         }                                                                 \
     } while (0)
 
-
+# endif /* Common Pegasus Assert implementation */
 #endif  /* Pegasus_Assert_h */

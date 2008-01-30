@@ -40,7 +40,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CMPI_Broker;
+struct CMPI_Broker;
 
 class CMPIClassCache
 {

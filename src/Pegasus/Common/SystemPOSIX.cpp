@@ -570,8 +570,6 @@ String System::getEffectiveUserName()
 
 String System::encryptPassword(const char* password, const char* salt)
 {
-#if defined(PEGASUS_OS_VMS)
-
     const size_t MAX_PASS_LEN = 1024;
     char pbBuffer[MAX_PASS_LEN] = {0};
     int dwByteCount;
@@ -587,12 +585,6 @@ String System::encryptPassword(const char* password, const char* salt)
     }
 
     return String(pcSalt) + String((char *)pbBuffer);
-
-#else
-
-    return String(password);
-
-#endif
 }
 
 Boolean System::isSystemUser(const char* userName)

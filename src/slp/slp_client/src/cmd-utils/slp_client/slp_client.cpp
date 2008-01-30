@@ -3600,10 +3600,12 @@ struct slp_client *create_slp_client(
         {
             target_af = AF_INET;
         }
+#ifdef PEGASUS_ENABLE_IPV6
         else if ((slp_is_valid_ip6_addr(target_addr)))
         {
             target_af = AF_INET6;
         }
+#endif
         else
         {
             DEBUG_PRINT((DEBUG_EXIT, "create_slp_client:err2 "));
@@ -3617,10 +3619,12 @@ struct slp_client *create_slp_client(
         {
             local_af = AF_INET;
         }
+#ifdef PEGASUS_ENABLE_IPV6
         else if ((slp_is_valid_ip6_addr(local_interface)))
         {
             local_af = AF_INET6;
         }
+#endif
         else
         {
             DEBUG_PRINT((DEBUG_EXIT, "create_slp_client:err3 "));

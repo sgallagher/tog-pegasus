@@ -149,13 +149,14 @@ slp_service_agent::slp_service_agent()
     if(_initialized.get() && _library.isLoaded() && _create_client)
     {
         _rep = _create_client(
-            "239.255.255.253",
+            0,
             0,
             427,
             "DSA",
             "DEFAULT",
             TRUE,
-            FALSE);
+            FALSE,
+            "service:wbem");
     }
 }
 
@@ -164,7 +165,8 @@ slp_service_agent::slp_service_agent(
     unsigned short target_port,
     const char *scopes,
     Boolean listen,
-    Boolean use_da)
+    Boolean use_da,
+    const char* srv_type)
     : _listen_thread(service_listener, this, false),
     _initialized(0)
 {
@@ -186,7 +188,8 @@ slp_service_agent::slp_service_agent(
             "DSA",
             "scopes",
             listen,
-            use_da);
+            use_da,
+            srv_type);
     }
 }
 
@@ -229,7 +232,8 @@ void slp_service_agent::_init()
             const char*,
             const char*,
             BOOL,
-            BOOL))
+            BOOL,
+            const char*))
             _library.getSymbol("create_slp_client");
 
         _destroy_client = (void (*)(struct slp_client *))
@@ -487,7 +491,6 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
         Uint32 now, msec;
         System::getCurrentTime(now, msec);
         // now register everything
-
         for (slp_reg_table::Iterator i = agent->_internal_regs.start();
             i ; i++)
         {

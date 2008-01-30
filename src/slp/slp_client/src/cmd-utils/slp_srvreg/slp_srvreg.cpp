@@ -62,6 +62,7 @@
 
 #define SLP_LIB_IMPORT
 #include "../slp_client/slp_client.h"
+#include "../slp_client/slp_utils.h"
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 #include <time.h>
 #endif
@@ -312,10 +313,11 @@ int main(int argc, char **argv)
             "DSA",
             scopes,
             should_listen,
-            dir_agent)))
+            dir_agent,
+            type)))
         {
             now = (last = time(NULL));
-            if (addr != NULL && inet_addr(addr) == inet_addr("127.0.0.1"))
+            if (slp_is_loop_back_addr(addr))
             {
                 count = client->srv_reg_local(
                     client,

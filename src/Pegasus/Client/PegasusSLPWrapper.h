@@ -36,6 +36,7 @@
 
 #include "WBEMSLPTemplate.h"
 #include <slp/slp_client/src/cmd-utils/slp_client/slp_client.h>
+#include <slp/slp_client/src/cmd-utils/slp_client/slp_utils.h>
 
 #endif /* PegasusSLPWrapper_h */
 

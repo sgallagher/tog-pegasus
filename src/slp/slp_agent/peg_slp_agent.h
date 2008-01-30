@@ -89,7 +89,8 @@ public:
         unsigned short target_port,
         const char *scopes,
         Boolean listen,
-        Boolean use_da);
+        Boolean use_da,
+        const char *srv_type);
     ~slp_service_agent();
 
     /* svr_register registers one url.  The parameters must exist.
@@ -153,7 +154,8 @@ private:
         const char *,
         const char *,
         BOOL,
-        BOOL);
+        BOOL,
+        const char *);
     void (*_destroy_client)(struct slp_client *);
 
 

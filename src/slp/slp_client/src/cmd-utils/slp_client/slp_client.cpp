@@ -68,6 +68,8 @@
 /* << Mon Sep 16 14:00:36 2002 mdd >> */
 
 #include "slp_client.h"
+#include "slp_utils.h"
+
 #include <Pegasus/Common/PegasusAssert.h>
 
 /*********************************************************************/
@@ -75,6 +77,7 @@
 
 
 /***************** #define SLP_CLIENT_DEBUG 1 *********************/
+//#define SLP_CLIENT_DEBUG 1
 
 #ifdef SLP_CLIENT_DEBUG
 
@@ -205,7 +208,6 @@ struct da_list *da_node_exists(struct da_list *head, const void *key)
     return NULL;
 }
 
-
 void free_da_list_members(struct da_list *da)
 {
     PEGASUS_ASSERT( ! _LSLP_IS_HEAD(da));
@@ -238,219 +240,55 @@ void free_da_list_node(struct da_list *da)
     free(da);
 }
 
-
-/* DOES NOT free the list head ! */
-void free_da_list(struct da_list *list)
+/*
+    Checks the address type in URL based on addr family.
+*/
+BOOL _slp_check_url_addr(const char *url, int af, void *url_bin_addr)
 {
-    struct da_list *temp;
-    PEGASUS_ASSERT(_LSLP_IS_HEAD(list));
-    temp = list->next;
-    while (! _LSLP_IS_HEAD(temp))
-    {
-        _LSLP_UNLINK(temp);
-        free_da_list_node(temp);
-        temp = list->next;
-    }
-}
+    char *p, *q, *r;
+    BOOL match = FALSE;
 
-struct rply_list *alloc_rply_list(BOOL head)
-{
-    struct rply_list *node =
-        (struct rply_list *)calloc(1, sizeof(struct rply_list));
-
-    if (node != NULL && head == TRUE)
+    if (!url || !(p = strdup(url)))
     {
-        node->isHead = TRUE;
-        node->next = node->prev = node;
+        return FALSE;
     }
-    return node;
-}
-
-
-struct rply_list *rpl_node_exists(struct rply_list *head, const void *key)
-{
-    if (head != NULL && _LSLP_IS_HEAD(head) && key != NULL)
+    r = p;
+    while (*p && *p != '/')
     {
-        struct rply_list *temp = head->next;
-        while (! _LSLP_IS_HEAD(temp))
-        {
-            if (! strcmp(temp->url, (const char *)key))
-            {
-                return temp;
-            }
-            temp = temp->next;
-        }
+        p++;
     }
-    return NULL;
-}
-
-void free_rply_list_members(struct rply_list *rply)
-{
-    PEGASUS_ASSERT(! _LSLP_IS_HEAD(rply));
-    if (rply->url != NULL)
+    if (*p == '/' && *(p + 1) == '/')
     {
-        free(rply->url);
+        p += 2;
+        q = p;
+       while(*p && *p != '/' && *p != ';' && *p != ']')
+       {
+           p++;
+       }
+       if (*q == '[' && *p == ']')
+       {
+           q++;
+       }
+       *p = 0;
+       if (af == AF_INET)
+       {
+           if ((match = slp_is_valid_ip4_addr(q)) && url_bin_addr)
+           {
+               slp_pton(AF_INET, q, &url_bin_addr);
+           }
+       }
+#ifdef PEGASUS_ENABLE_IPV6
+       else if (af == AF_INET6)
+       {
+           if ((match = slp_is_valid_ip6_addr(q)) && url_bin_addr)
+           {
+               slp_pton(AF_INET6, q, &url_bin_addr);
+           }
+       }
+#endif
     }
-    if (rply->auth != NULL)
-    {
-        free(rply->auth);
-    }
-}
-
-void free_rply_list_node(struct rply_list *rply)
-{
-    PEGASUS_ASSERT(! _LSLP_IS_HEAD(rply));
-    free_rply_list_members(rply);
-    free(rply);
-}
-
-/* DOES NOT free the list head ! */
-void free_rply_list(struct rply_list *list)
-{
-    struct rply_list *temp;
-    PEGASUS_ASSERT(_LSLP_IS_HEAD(list));
-    temp = list->next;
-    while (! _LSLP_IS_HEAD(temp))
-    {
-        _LSLP_UNLINK(temp);
-        free_rply_list_node(temp);
-        temp = list->next;
-    }
-}
-
-struct reg_list *alloc_reg_list(BOOL head)
-{
-    struct reg_list *node =
-        (struct reg_list *)calloc(1,sizeof(struct reg_list));
-    if (node != NULL && head == TRUE)
-    {
-        node->isHead = TRUE;
-        node->next = node->prev = node;
-    }
-    return node;
-}
-
-struct reg_list *reg_node_exists(struct reg_list *head, const void *key)
-{
-    if (head != NULL && _LSLP_IS_HEAD(head) && key != NULL)
-    {
-        struct reg_list *temp = head->next;
-        while (! _LSLP_IS_HEAD(temp))
-        {
-            if (! strcmp(temp->url, (const char *)key))
-            {
-                return temp;
-            }
-            temp = temp->next;
-        }
-    }
-    return NULL;
-}
-
-void free_reg_list_members(struct reg_list *reg)
-{
-    PEGASUS_ASSERT(! _LSLP_IS_HEAD(reg));
-    if (reg->url != NULL)
-    {
-        free(reg->url);
-    }
-    if (reg->attributes != NULL)
-    {
-        free(reg->attributes);
-    }
-    if (reg->service_type != NULL)
-    {
-        free(reg->service_type);
-    }
-    if (reg->scopes != NULL)
-    {
-        free(reg->scopes);
-    }
-}
-
-void free_reg_list_node(struct reg_list *reg)
-{
-    PEGASUS_ASSERT(! _LSLP_IS_HEAD(reg));
-    free_reg_list_members(reg);
-    free(reg);
-}
-
-/* DOES NOT free the list head ! */
-void free_reg_list(struct reg_list *list)
-{
-    struct reg_list *temp;
-    PEGASUS_ASSERT( _LSLP_IS_HEAD(list));
-    temp = list->next;
-    while (! _LSLP_IS_HEAD(temp))
-    {
-        _LSLP_UNLINK(temp);
-        free_reg_list_node(temp);
-        temp = list->next;
-    }
-}
-
-struct url_entry *alloc_url_entry(BOOL head)
-{
-    struct url_entry *node =
-        (struct url_entry *)calloc(1, sizeof(struct url_entry));
-
-    if (node != NULL && head == TRUE)
-    {
-        node->isHead = TRUE;
-        node->next = node->prev = node;
-    }
-    return node;
-}
-
-struct url_entry *url_node_exists(struct url_entry *head, const void *key)
-{
-    if (head != NULL && _LSLP_IS_HEAD(head) && key != NULL)
-    {
-        struct url_entry *temp = head->next;
-        while (! _LSLP_IS_HEAD(temp))
-        {
-            if (! strcmp(temp->url, (const char *)key))
-            {
-                return temp;
-            }
-            temp = temp->next;
-        }
-    }
-    return NULL;
-}
-
-void free_url_entry_members(struct url_entry *url)
-{
-    PEGASUS_ASSERT(! _LSLP_IS_HEAD(url));
-    if (url->url != NULL)
-    {
-        free(url->url);
-    }
-    if (url->auth_blocks != NULL)
-    {
-        free(url->auth_blocks);
-    }
-}
-
-void free_url_node(struct url_entry *node)
-{
-    PEGASUS_ASSERT(! _LSLP_IS_HEAD(node));
-    free_url_entry_members(node);
-    free(node);
-}
-
-/* DOES NOT free the list head ! */
-void free_url_list(struct url_entry *list)
-{
-    struct url_entry *temp;
-    PEGASUS_ASSERT( _LSLP_IS_HEAD(list));
-    temp = list->next;
-    while (! _LSLP_IS_HEAD(temp))
-    {
-        _LSLP_UNLINK(temp);
-        free_url_node(temp);
-        temp = list->next;
-    }
+    free(r);
+    return match;
 }
 
 #if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
@@ -512,200 +350,20 @@ int Gethostbyname_r(
 
 #endif
 
-char *slp_get_addr_string_from_url(const char *url, char *addr, int addr_len)
-{
-    char name[255];
-    SOCKADDR_IN  a;
-
-    if (addr == NULL || addr_len < 1)
-    {
-        return NULL;
-    }
-
-    if (get_addr_from_url( url, &a, NULL))
-    {
-#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
-    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
-    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-        _snprintf(
-            name,
-            254,
-            "%s:%d",
-            inet_ntoa(a.sin_addr),
-            ntohs(a.sin_port));
-#else                                                                   //jeb
-#    if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-        sprintf(name, "%s:%d",  inet_ntoa(a.sin_addr), ntohs(a.sin_port));
-#else                                                                   //jeb
-        snprintf(name, 254, "%s:%d", inet_ntoa(a.sin_addr), ntohs(a.sin_port));
-#    endif //end of PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#endif
-
-        memset(addr, 0x00, addr_len);
-        strncpy(addr, name, addr_len - 1 );
-        return addr;
-    }
-    return NULL;
-}
-
-char *slp_get_host_string_from_url(const char *url, char *host, int host_len)
-{
-    char *s;
-    SOCKADDR_IN  addr;
-
-    if (host == NULL || host_len < 1)
-    {
-        return NULL;
-    }
-
-    if (TRUE == get_addr_from_url(url, &addr, &s))
-    {
-        memset(host, 0x00, host_len);
-        strncpy(host, s, host_len - 1);
-        return host;
-    }
-
-    return NULL;
-}
-
-BOOL get_addr_from_url(const char *url, SOCKADDR_IN *addr, char **host)
-{
-    char *bptr, *url_dup;
-    BOOL ccode = FALSE;
-
-    // isolate the host field
-    bptr = (url_dup = strdup(url));
-    if (bptr == NULL)
-    {
-        return( FALSE );
-    }
-
-    while ((*bptr != '/') && (*bptr != 0x00))
-    {
-        bptr++;
-    }
-
-    if (*bptr == '/' && *(bptr + 1) == '/')
-    {
-        char *endptr, *portptr;
-        endptr = bptr + 2;
-        while (*endptr != 0x00 && *endptr != '/' && *endptr != ';')
-        {
-            endptr++;
-        }
-        *endptr = 0x00;
-        portptr = (endptr - 1);
-
-        while ((portptr > ( bptr + 2 )) && (*portptr != ':'))
-        {
-            portptr--;
-        }
-
-        if (*portptr == ':')
-        {
-            *portptr = 0x00;
-            portptr++;
-        }
-        else
-        {
-            portptr = NULL;
-        }
-
-        // bptr points to the host name or address
-        // portptr points to the port or is null
-
-        bptr += 2;
-
-        if (host != NULL)
-        {
-            *host = (char *)malloc(strlen(bptr) + strlen(portptr) + 3);
-            strcpy(*host, bptr);
-            strcat(*host, ":");
-            strcat(*host, portptr);
-        }
-
-        if (portptr != NULL)
-        {
-            addr->sin_port = htons( (int16)strtoul(portptr, NULL, 0) );
-        }
-        else
-        {
-            addr->sin_port = 0x0000;
-        }
-
-        addr->sin_family = AF_INET;
-        addr->sin_addr.s_addr = inet_addr(bptr);
-
-        if (addr->sin_addr.s_addr == INADDR_NONE)
-        {
-            struct hostent *host;
-            struct hostent hostbuf;
-            char *temp ;
-            uint32 result;
-            int err;
-            size_t hostbuflen = 256;
-
-            // hopefully a hostname because dotted decimal notation was invalid
-            // look for the user@hostname production
-            char *userptr;
-            userptr = bptr;
-            while ((*userptr != '\0' ) && (*userptr != '@' ))
-            {
-                userptr++;
-            }
-            if (*userptr == '@')
-            {
-                bptr = userptr + 1;
-            }
-
-            temp = (char *) malloc(hostbuflen);
-
-            if (temp != NULL)
-            {
-                host = NULL;
-                while (temp != NULL && (result = Gethostbyname_r(
-                    bptr,
-                    &hostbuf,
-                    temp,
-                    hostbuflen,
-                    &host, &err)) == ERANGE)
-                {
-                    hostbuflen *= 2;
-                    temp = (char *) realloc(temp, hostbuflen);
-                }
-                if (host != NULL)
-                {
-                    struct in_addr *ptr;
-                    if (((ptr = (struct in_addr *)*(host->h_addr_list)) !=
-                        NULL))
-                    {
-                        addr->sin_addr.s_addr = ptr->s_addr;
-                        ccode = TRUE;
-                    }
-                }
-                free(temp);
-            } /* we allocated the temp buffer for gethostbyname */
-        }
-        else
-        {
-            ccode = TRUE ;
-        } /* host field is not in a valid dotted decimal form */
-    } /* isolated the host field in the url  */
-    return(ccode);
-}
-
-
 /*** effectively reallocates *list -- FREES MEMORY ***/
-int slp_get_local_interfaces(uint32 **list)
+static int _slp_get_local_interface(struct slp_if_addr **list, int af)
 {
-    SOCKETD sock;                         //jeb
-    int interfaces = 0;
+    struct slp_if_addr *ifp;
 #if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
     int errcode;
     int buf_size = 256;
 #endif
+
+    SOCKETD sock;
+    int interfaces = 0;
+
     if (list == NULL)
     {
         return 0;
@@ -715,6 +373,55 @@ int slp_get_local_interfaces(uint32 **list)
     {
         free( *list );
     }
+    *list = (struct slp_if_addr*)malloc(sizeof(struct slp_if_addr));
+    (*list)->af = AF_UNSPEC;
+
+#ifdef PEGASUS_ENABLE_IPV6
+    if (af == AF_INET6)
+    {
+        if (!slp_is_ip6_stack_active())
+        {
+            return 0;
+        }
+#ifdef PEGASUS_OS_TYPE_LINUX
+        {
+            struct ifaddrs *array, *addrs;
+            if (0 > getifaddrs(&array))
+            {
+                return 0;
+            }
+            for( addrs = array; addrs != NULL; addrs = addrs->ifa_next)
+            {
+                if(addrs->ifa_addr->sa_family == AF_INET6)
+                {
+                    interfaces++;
+                }
+            }
+            free(*list);
+            *list  = (struct slp_if_addr *)
+                calloc(interfaces + 2, sizeof(struct slp_if_addr));
+            ifp = *list;
+            for( addrs = array; addrs != NULL; addrs = addrs->ifa_next)
+            {
+                if(addrs->ifa_addr->sa_family == AF_INET6)
+                {
+                    ifp->af = AF_INET6;
+                    ifp->ip6_addr =
+                        ((struct sockaddr_in6 *)addrs->ifa_addr)->sin6_addr;
+                    ifp++;
+                }
+            }
+            ifp->af = AF_UNSPEC;
+        }
+#endif // PEGASUS_OS_TYPE_LINUX
+        return interfaces;
+    }
+#endif // PEGASUS_ENABLE_IPV6
+
+    if (!slp_is_ip4_stack_active())
+    {
+        return 0;
+    }
 
     DEBUG_PRINT((DEBUG_ENTER, "slp_get_local_interfaces "));
 
@@ -722,16 +429,11 @@ int slp_get_local_interfaces(uint32 **list)
     defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 
-    if (INVALID_SOCKET != (sock = WSASocket(AF_INET, SOCK_RAW,
+    if (INVALID_SOCKET != (sock = WSASocket(af, SOCK_RAW,
         0, NULL, 0, 0)))
     {
         int bytes_returned;
-        char *output_buf = (char *)calloc(1, buf_size);
-        if (output_buf == NULL)
-        {
-            DEBUG_PRINT((DEBUG_EXIT, "slp_get_local_interfaces:err "));
-            return 0;
-        }
+        char output_buf[2048];
 
         if (0 == (errcode = WSAIoctl(sock, SIO_ADDRESS_LIST_QUERY, NULL, 0,
             output_buf, buf_size, &bytes_returned, NULL,
@@ -740,31 +442,42 @@ int slp_get_local_interfaces(uint32 **list)
 
             SOCKET_ADDRESS_LIST *addr_list;
             SOCKET_ADDRESS *addr;
-            uint32 *intp;
-            struct sockaddr_in *sin;
+            struct slp_if_addr *ifp;
+            SOCKADDR *sin;
+            void *p;
+
             addr_list = (SOCKET_ADDRESS_LIST *)output_buf;
-            *list = (uint32 *) malloc(
-                sizeof(SOCKET_ADDRESS)* (addr_list->iAddressCount + 1));
+            free(*list);
+            *list = (struct slp_if_addr *) malloc(
+                sizeof(struct slp_if_addr)* (addr_list->iAddressCount + 1));
             addr = addr_list->Address;
 
-            for (interfaces = 0, intp = *list,
+            for (interfaces = 0, ifp = *list,
                 sin = (struct sockaddr_in *) addr->lpSockaddr ;
                 interfaces < addr_list->iAddressCount;
-                interfaces++ , intp++)
+                interfaces++ , ifp++)
             {
-                *intp = sin->sin_addr.s_addr;
+                if (af == AF_INET)
+                {
+                    ifp->ip4_addr = ((struct sockaddr_in*)sin)->sin_addr;
+                }
+#ifdef PEGASUS_ENABLE_IPV6
+                else
+                {
+                    ifp->ip6_addr = ((struct sockaddr_in6*)sin)->sin6_addr;
+                }
+#endif
+                ifp->af = af;
                 addr++;
-                sin = (struct sockaddr_in *)addr->lpSockaddr;
+                sin = (SOCKADDR*)addr->lpSockaddr;
             }
 
-            *intp = INADDR_ANY;
+            ifp->af = AF_UNSPEC; // list terminate
         }
         else
         {
             errcode = WSAGetLastError();
         }
-
-        free(output_buf);
         _LSLP_CLOSESOCKET(sock);
     }
 
@@ -772,7 +485,7 @@ int slp_get_local_interfaces(uint32 **list)
     if (-1 < (sock = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0)))
     {
         struct ifconf conf;
-        uint32 *this_addr;
+        struct slp_if_addr *this_addr;
         int interface_counter;
 
         conf.ifc_buf = (char *)calloc(128, sizeof(struct ifreq));
@@ -792,73 +505,162 @@ int slp_get_local_interfaces(uint32 **list)
 
             // now store the addresses
             interface_counter = interfaces;
-
-            *list  = (uint32 *)calloc(interfaces + 2, sizeof(uint32));
+            free(*list);
+            *list  = (struct slp_if_addr *)
+                calloc(interfaces + 2, sizeof(struct slp_if_addr));
             this_addr = *list;
             r = conf.ifc_req;
             addr = (SOCKADDR_IN *)&r->ifr_addr;
             while (interface_counter-- &&  addr->sin_addr.s_addr != 0)
             {
-                *this_addr = addr->sin_addr.s_addr;
+                this_addr->ip4_addr.s_addr = addr->sin_addr.s_addr;
+                this_addr->af = AF_INET;
                 r++;
                 this_addr++;
                 addr = (SOCKADDR_IN *)&r->ifr_addr;
             }
-            *this_addr = INADDR_ANY;
+            this_addr->af = AF_UNSPEC; // list terminate
         } // did the ioctl
         free(conf.ifc_buf);
         _LSLP_CLOSESOCKET(sock);
     } // opened the socket
 
 #endif
-    // failsafe if the ioctl doesn't work
-    if (interfaces == 0)
-    {
-        *list = (uint32 *)malloc(sizeof(uint32)) ;
-        *list[0] = INADDR_ANY;
-    }
     DEBUG_PRINT((DEBUG_EXIT, "slp_get_local_interfaces:ok "));
     return(interfaces);
 }
 
-BOOL slp_join_multicast(SOCKETD sock, uint32 addr)      //jeb
+void slp_get_local_interfaces(struct slp_client *client)
 {
+    _slp_get_local_interface(&client->_local_addr_list[0], AF_INET);
+#ifdef PEGASUS_ENABLE_IPV6
+    _slp_get_local_interface(&client->_local_addr_list[1], AF_INET6);
+#endif
+}
 
+BOOL slp_join_multicast(SOCKETD sock, struct slp_if_addr addr)
+{
+#ifdef PEGASUS_ENABLE_IPV6
+    struct ipv6_mreq group;
+    unsigned long hash;
+    char buff[PEGASUS_INET6_ADDRSTR_LEN];
+#endif
     struct ip_mreq mreq;
     DEBUG_PRINT((DEBUG_ENTER, "slp_join_multicast "));
+
     // don't join on the loopback interface
-    if (addr == inet_addr("127.0.0.1"))
+    if (addr.af == AF_INET)
     {
-        DEBUG_PRINT((DEBUG_EXIT, "slp_join_multicast:err2 "));
-        return(FALSE);
+        if (!slp_is_ip4_stack_active() ||
+            slp_is_loop_back(AF_INET, &addr.ip4_addr))
+        {
+            DEBUG_PRINT((DEBUG_EXIT, "slp_join_multicast ip4:err2 "));
+            return(FALSE);
+        }
+    }
+    else
+    {
+#ifdef PEGASUS_ENABLE_IPV6
+        PEGASUS_ASSERT(addr.af == AF_INET6);
+        if (!slp_is_ip6_stack_active() ||
+            slp_is_loop_back(AF_INET6, &addr.ip6_addr))
+        {
+            DEBUG_PRINT((DEBUG_EXIT, "slp_join_multicast ip6:err2 "));
+            return(FALSE);
+        }
+#endif
     }
 
-    mreq.imr_multiaddr.s_addr = inet_addr("239.255.255.253");
-    mreq.imr_interface.s_addr = addr;
-
-    if (SOCKET_ERROR == setsockopt(sock,IPPROTO_IP, IP_ADD_MEMBERSHIP,
-        (const char *)&mreq, sizeof(mreq)))
+    if (addr.af == AF_INET)
     {
-        DEBUG_PRINT((DEBUG_EXIT, "slp_join_multicast:err3 "));
-        return(FALSE);
+        // Join ip4 multicast adress for SVRLOC , SVRLOC-DA and Service
+        // location type.
+        mreq.imr_multiaddr.s_addr = inet_addr("239.255.255.253");
+        mreq.imr_interface.s_addr = addr.ip4_addr.s_addr;
+
+        if (SOCKET_ERROR == setsockopt(sock,IPPROTO_IP, IP_ADD_MEMBERSHIP,
+            (const char *)&mreq, sizeof(mreq)))
+        {
+            DEBUG_PRINT((DEBUG_EXIT, "slp_join_multicast ip4:err3 "));
+            return(FALSE);
+        }
     }
+#ifdef PEGASUS_ENABLE_IPV6
+    else
+    {
+        // Join multicast groups SVRLOC and SVRLOC-DA for ip6 interfaces.
+        // Refer RFC 3111.
+        group.ipv6mr_interface = 0; // default interface
+
+        // SVRLOC Link Local
+        slp_pton(AF_INET6, SLP_MC_LINK_SVRLOC, &group.ipv6mr_multiaddr);
+        setsockopt(sock, IPPROTO_IPV6, IPV6_JOIN_GROUP,
+                 (char *)&group, sizeof(group));
+
+        // SVRLOC Site Local
+        slp_pton(AF_INET6, SLP_MC_SITE_SVRLOC, &group.ipv6mr_multiaddr);
+        setsockopt(sock, IPPROTO_IPV6, IPV6_JOIN_GROUP,
+                 (char *)&group, sizeof(group));
+
+        // SVRLOC-DA Link Local
+        slp_pton(AF_INET6, SLP_MC_LINK_SVRLOC_DA, &group.ipv6mr_multiaddr);
+        setsockopt(sock, IPPROTO_IPV6, IPV6_JOIN_GROUP,
+                 (char *)&group, sizeof(group));
+
+        // SVRLOC-DA Site Local
+        slp_pton(AF_INET6, SLP_MC_SITE_SVRLOC_DA, &group.ipv6mr_multiaddr);
+        setsockopt(sock, IPPROTO_IPV6, IPV6_JOIN_GROUP,
+                 (char *)&group, sizeof(group));
+    }
+#endif
 
     DEBUG_PRINT((DEBUG_EXIT, "slp_join_multicast:ok "));
     return(TRUE);    //jeb
 }
 
-int slp_join_multicast_all(SOCKETD sock)
+#ifdef PEGASUS_ENABLE_IPV6
+void slp_join_ip6_service_type_multicast_group(struct slp_client *client,
+    const char *srv_type)
+{
+    struct ipv6_mreq group;
+    unsigned long hash;
+    char buff[PEGASUS_INET6_ADDRSTR_LEN];
+    SOCKETD sock = client->_rcv_sock[1];
+
+    if (!srv_type || sock == INVALID_SOCKET)
+    {
+        return;
+    }
+    // Refer RFC 3111 sec 4.1 for computing the SLP service location hash
+    hash = 1000 + slp_hash(srv_type, (unsigned long)strlen(srv_type));
+
+   // Join on Link local scope
+    sprintf(buff,"FF02::1:%lu",hash);
+    slp_pton(AF_INET6, buff, &group.ipv6mr_multiaddr);
+    setsockopt(sock, IPPROTO_IPV6, IPV6_JOIN_GROUP,
+        (char *)&group, sizeof(group));
+
+    // Join on SITE Local scope
+    sprintf(buff,"FF05::1:%lu",hash);
+    slp_pton(AF_INET6, buff, &group.ipv6mr_multiaddr);
+    setsockopt(sock, IPPROTO_IPV6, IPV6_JOIN_GROUP,
+        (char *)&group, sizeof(group));
+
+}
+#endif
+
+int slp_join_multicast_all(SOCKETD sock, int af)
 {
 
-    uint32 *list = NULL , *lptr = NULL;
+    struct slp_if_addr *list = NULL , *lptr = NULL;
     int interface_counter;
 
-    int num_interfaces = slp_get_local_interfaces(&list);
+    int num_interfaces = _slp_get_local_interface(&list, af);
     DEBUG_PRINT((DEBUG_ENTER, "slp_join_multicast_all "));
     interface_counter = num_interfaces;
 
     lptr = list;
-    while (interface_counter-- && *lptr != INADDR_ANY)
+    while (interface_counter-- && lptr->af != AF_UNSPEC)
     {
         slp_join_multicast(sock, *lptr);
         lptr++;
@@ -868,28 +670,97 @@ int slp_join_multicast_all(SOCKETD sock)
     return(num_interfaces);
 }
 
-
-SOCKETD slp_open_listen_sock()       //jeb
+/*
+    Creates and binds the socket based on address family.
+*/
+static int _slp_create_bind_socket(SOCKETD *sock, int af, int port,
+    void *addr, BOOL reuse)
 {
-    SOCKADDR_IN local;
-    SOCKETD sock  = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0) ;   //jeb
+#ifdef PEGASUS_ENABLE_IPV6
+    SOCKADDR_IN6 ip6;
+#endif
+    SOCKADDR_IN ip4;
     int err = 1;
+    int brc = 0;
+
+    *sock  = _LSLP_SOCKET(af, SOCK_DGRAM, 0);
+    DEBUG_PRINT((DEBUG_ENTER, "_slp_create_bind_socket"));
+
+    if (*sock == INVALID_SOCKET)
+    {
+        DEBUG_PRINT((DEBUG_EXIT, "_slp_create_bind_socket:err1"));
+        return -1;
+    }
+    if (reuse)
+    {
+        _LSLP_SETSOCKOPT(*sock, SOL_SOCKET, LSLP_REUSEADDR,
+            (const char *)&err, sizeof(err));
+    }
+
+    if (af == AF_INET)
+    {
+        ip4.sin_family = af;
+        ip4.sin_port = htons(port);
+        ip4.sin_addr.s_addr  =
+            addr ? ((struct in_addr*)addr)->s_addr : INADDR_ANY;
+        brc =  _LSLP_BIND(*sock, (struct sockaddr *)&ip4, sizeof(ip4));
+    }
+#ifdef PEGASUS_ENABLE_IPV6
+    else
+    {
+        PEGASUS_ASSERT(af == AF_INET6);
+        memset (&ip6, 0, sizeof(ip6));
+        ip6.sin6_family = af;
+        ip6.sin6_port = htons(port);
+        ip6.sin6_addr = addr ? *((struct in6_addr*)addr) : in6addr_any;
+        _LSLP_BIND(*sock, (struct sockaddr *)&ip6, sizeof(ip6));
+    }
+#endif
+
+    DEBUG_PRINT((DEBUG_EXIT, "_slp_create_bind_socket"));
+
+    return brc == SOCKET_ERROR ? -1 : 0;
+}
+
+static SOCKETD _slp_open_listen_sock(int af)
+{
+    SOCKETD sock = INVALID_SOCKET;
 
     DEBUG_PRINT((DEBUG_ENTER, "slp_open_listen_sock "));
 
-    _LSLP_SETSOCKOPT(sock, SOL_SOCKET, LSLP_REUSEADDR,
-        (const char *)&err, sizeof(err));
-    local.sin_family = AF_INET;
-    local.sin_port = htons(427);
-    local.sin_addr.s_addr  = INADDR_ANY;
-    if (0 == _LSLP_BIND(sock, (struct sockaddr *)&local, sizeof(local)))
+    if (_slp_create_bind_socket(&sock, af, 427, 0, TRUE) == 0)
     {
-        slp_join_multicast_all(sock);
+        slp_join_multicast_all(sock, af);
     }
+
     DEBUG_PRINT((DEBUG_EXIT, "slp_open_listen_sock "));
+
     return(sock);
 }
 
+void slp_open_listen_socks(struct slp_client *client)
+{
+    int i;
+    for (i = 0; i < 2; ++i)
+    {
+        if (client->_rcv_sock[i] != INVALID_SOCKET)
+        {
+            _LSLP_CLOSESOCKET(client->_rcv_sock[i]);
+        }
+    }
+
+    if (client->_ip4_stack_active)
+    {
+        client->_rcv_sock[0] = _slp_open_listen_sock(AF_INET);
+    }
+
+#ifdef PEGASUS_ENABLE_IPV6
+    if (client->_ip6_stack_active)
+    {
+        client->_rcv_sock[1] = _slp_open_listen_sock(AF_INET6);
+    }
+#endif
+}
 
 void prepare_pr_buf(struct slp_client *client, const char *address)
 {
@@ -897,7 +768,6 @@ void prepare_pr_buf(struct slp_client *client, const char *address)
     {
         return;;
     }
-
     if (client->_pr_buf_len > LSLP_MTU)
     {
         printf("Memory allocation failed in file %s at Line number %d\n",
@@ -923,12 +793,15 @@ void prepare_pr_buf(struct slp_client *client, const char *address)
 /** attn need to role change to getflags line into nucleus **/
 void make_srv_ack(
     struct slp_client *client,
-    SOCKADDR_IN *remote,
+    SOCKADDR *remote,
     char response,
     int16 code)
 {
     char *bptr;
-    uint32 local_address;
+    struct slp_if_addr local_address;
+    size_t addr_len;
+    int idx;
+
     if (TRUE == ( ((_LSLP_GETFLAGS( client->_rcv_buf )) &
         (LSLP_FLAGS_MCAST) ) ? FALSE : TRUE ))
     {
@@ -946,33 +819,53 @@ void make_srv_ack(
         _LSLP_SETSHORT(bptr, code, 0 );
         bptr += 2;
         _LSLP_SETLENGTH(client->_msg_buf, bptr - client->_msg_buf);
-        local_address = client->_local_addr;
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-        uint32* ptr_addr;
-        ptr_addr = client->_local_addr_list;
 
-        while (*ptr_addr != INADDR_ANY)
+        if (remote->sa_family == AF_INET)
+        {
+            addr_len = sizeof(SOCKADDR_IN);
+            idx = 0;
+        }
+#ifdef PEGASUS_ENABLE_IPV6
+        else
+        {
+            addr_len = sizeof(SOCKADDR_IN6);
+            idx = 1;
+        }
+#endif
+        if (client->_local_addr_any)
+        {
+            local_address.af = remote->sa_family;
+            if (local_address.af == AF_INET)
+            {
+                local_address.ip4_addr.s_addr = INADDR_ANY;
+            }
+#ifdef PEGASUS_ENABLE_IPV6
+            else
+            {
+                local_address.ip6_addr = in6addr_any;
+            }
+#endif
+        }
+        else
+        {
+            local_address = client->_local_addr;
+        }
+
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+        struct slp_if_addr* ptr_addr;
+        ptr_addr = client->_local_addr_list[idx];
+        while (ptr_addr->af != AF_UNSPEC)
         {
             local_address = *ptr_addr;
 #endif
-            if (INVALID_SOCKET !=
-                (sock = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0)))
+            if (-1 != _slp_create_bind_socket(&sock, local_address.af, 427,
+                &local_address.ip4_addr, TRUE))
             {
-                SOCKADDR_IN local;
-                int err = 1;
-                _LSLP_SETSOCKOPT(sock, SOL_SOCKET, LSLP_REUSEADDR,
-                    (const char *)&err, sizeof(err) );
-                local.sin_family = AF_INET;
-                local.sin_port = client->_target_port;
-                local.sin_addr.s_addr = local_address;
-                if (SOCKET_ERROR != _LSLP_BIND(sock, &local, sizeof(local)))
-                {
-                    _LSLP_SENDTO(sock, client->_msg_buf,
-                        _LSLP_GETLENGTH(client->_msg_buf), 0,
-                        remote, sizeof(SOCKADDR_IN ));
-                } // successfully bound this socket
-                _LSLP_CLOSESOCKET(sock);
-            } // successfully opened this socket
+                _LSLP_SENDTO(sock, client->_msg_buf,
+                    _LSLP_GETLENGTH(client->_msg_buf), 0,
+                    remote, addr_len);
+            }
+            _LSLP_CLOSESOCKET(sock);
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
             ptr_addr++;
         } // end of while loop around all local network interfaces
@@ -1293,14 +1186,6 @@ BOOL prepare_attr_query(
 }
 
 
-void set_separators(struct slp_client *client, char fs, char rs)
-{
-    client->_fs = fs;
-    client->_rs = rs;
-    client->_use_separators = TRUE;
-}
-
-
 lslpMsg *get_response( struct slp_client *client, lslpMsg *head)
 {
     PEGASUS_ASSERT(head != NULL && _LSLP_IS_HEAD(head));
@@ -1312,6 +1197,69 @@ lslpMsg *get_response( struct slp_client *client, lslpMsg *head)
     return(head);
 }
 
+/*
+    Sets the local interface address in the client which is used to bind the
+    local socket while sending the UDP datagrams.
+*/
+static void _slp_set_local_addr(struct slp_client *client, int af)
+{
+    if (client->_local_addr_any)
+    {
+        client->_local_addr.af = af;
+        if (af == AF_INET)
+        {
+            client->_local_addr.ip4_addr.s_addr = INADDR_ANY;
+        }
+#ifdef PEGASUS_ENABLE_IPV6
+        else
+        {
+            client->_local_addr.ip6_addr = in6addr_any;
+        }
+#endif
+    }
+}
+
+/*
+    Checks where we can converge/local-try the request by taking the address
+    family and target address.
+*/
+static BOOL _slp_can_make_request(struct slp_client *client, int af,
+    char *addr)
+{
+    // Check if we have direct target_addr
+    if (af == AF_UNSPEC)
+    {
+        if (client->_target_addr_any)
+        {
+            return FALSE;
+        }
+        af = client->_target_addr.af;
+        _slp_set_local_addr(client, af);
+    }
+    else
+    {
+        if (!client->_target_addr_any || (!client->_local_addr_any &&
+            client->_local_addr.af != af))
+        {
+            return FALSE;
+        }
+        _slp_set_local_addr(client, af);
+        client->_target_addr.af = af;
+        slp_pton(af, addr, &client->_target_addr.ip4_addr);
+    }
+
+    // Make sure that stack is active for the address family.
+    if ((af == AF_INET && !client->_ip4_stack_active)
+#ifdef PEGASUS_ENABLE_IPV6
+        || (af == AF_INET6 && !client->_ip6_stack_active)
+#endif
+        )
+    {
+        return FALSE;
+    }
+
+    return TRUE;
+}
 
 int find_das(
     struct slp_client *client,
@@ -1332,78 +1280,35 @@ int find_das(
 }
 
 
-/* smart interface to slp discovery. uses das if they are present,  */
-/* convergence otherwise. */
-/* periodically forces an active da discovery cycle  */
-
-void discovery_cycle (
-    struct slp_client *client,
-    const char *type,
-    const char *predicate,
-    const char *scopes)
-{
-    // see if we have built a cache of directory agents
-    if (_LSLP_IS_EMPTY(&(client->das)))
-    {
-        // we don't know of any directory agents - see if we need to
-        // do active da discovery
-        if (((time(NULL)) - client->_last_da_cycle ) > (60 * 5))
-        {
-            find_das(client, NULL, scopes) ;
-        }
-    }
-
-    // if there are das, unicast a srvreq to each da
-
-    if (! _LSLP_IS_EMPTY(&(client->das)))
-    {
-        struct da_list *da = client->das.next;
-        SOCKADDR_IN addr;
-        while (! _LSLP_IS_HEAD(da))
-        {
-            addr.sin_port = htons(427);
-            addr.sin_family = AF_INET;
-            addr.sin_addr.s_addr = inet_addr(da->remote);
-            unicast_srv_req(client, type, predicate, scopes, &addr);
-            da = da->next;
-        }
-    }
-    else
-    {
-        // do a convergence request because we don't have any das to use
-        converge_srv_req(client, type, predicate, scopes );
-    }
-    return;
-}
-
 /* this request MUST be retried <_convergence> times on EACH interface */
 /* regardless of how many responses we have received  */
 /* it can be VERY time consuming but is the most thorough  */
 /* discovery method  */
-
-void converge_srv_req(
+static void _slp_converge_srv_req(
     struct slp_client *client,
     const char *type,
     const char *predicate,
-    const char *scopes)
+    const char *scopes,
+    int xid)
 {
-    uint32 old_local_addr;
-    uint32 *p_addr ;
+    struct slp_if_addr *p_addr, local_addr_save;
     uint16 convergence;
-    uint32 loopback ;
+    int idx;
+    int af = client->_target_addr.af;
 
     DEBUG_PRINT((DEBUG_ENTER, "converge_srv_req "));
 
-    //  old_target_addr = client->_target_addr;
-    old_local_addr = client->_local_addr;
-    //  client->_target_addr = inet_addr( "239.255.255.253" ) ;
+    local_addr_save = client->_local_addr;
 
-    p_addr = client->_local_addr_list;
-    loopback = inet_addr("127.0.0.1");
+    idx = af == AF_INET ? 0 : 1;
+    p_addr = client->_local_addr_list[idx];
+    PEGASUS_ASSERT(p_addr);
 
     do
     {
-        if (*p_addr == loopback)
+        // Don't converge on loop-back address, we shall try local requaet
+        // later.
+        if (slp_is_loop_back(af, &p_addr->ip4_addr))
         {
             p_addr++;
             continue;
@@ -1416,7 +1321,7 @@ void converge_srv_req(
             convergence = 1;
         }
 
-        if (prepare_query( client, client->_xid + 1, type, scopes, predicate))
+        if (prepare_query( client, client->_xid + xid, type, scopes, predicate))
         {
             _LSLP_SETFLAGS(client->_msg_buf, LSLP_FLAGS_MCAST);
             send_rcv_udp( client , TRUE);
@@ -1431,15 +1336,119 @@ void converge_srv_req(
             }
         }
         p_addr++;
-    }while (*p_addr != INADDR_ANY);
+    }while (p_addr->af != AF_UNSPEC);
+
+
+    client->_local_addr = local_addr_save;
+
+    DEBUG_PRINT((DEBUG_EXIT, "converge_srv_req "));
+    return ;
+}
+
+void converge_srv_req(
+    struct slp_client *client,
+    const char *type,
+    const char *predicate,
+    const char *scopes)
+{
+    int xid = 1;
+#ifdef PEGASUS_ENABLE_IPV6
+    unsigned long hash;
+    char addr[PEGASUS_INET6_ADDRSTR_LEN];
+#endif
+    if (_slp_can_make_request(client, AF_UNSPEC, 0))
+    {
+         _slp_converge_srv_req(client, type, predicate, scopes, xid);
+    }
+    else
+    {
+        // Try with ip4 first
+        if (_slp_can_make_request(client, AF_INET, "239.255.255.253"))
+        {
+            _slp_converge_srv_req(client, type, predicate, scopes, xid);
+            xid = 0;
+        }
+#ifdef PEGASUS_ENABLE_IPV6
+        if (type)
+        {
+            hash = 1000 + slp_hash(type, (unsigned long)strlen(type));
+            // Try on Link local scope
+            sprintf(addr,"FF02::1:%lu",hash);
+            if (_slp_can_make_request(client, AF_INET6, addr))
+            {
+                _slp_converge_srv_req(client, type, predicate, scopes, xid);
+                xid = 0;
+            }
+            // Try on Site local scope
+            sprintf(addr,"FF05::1:%lu",hash);
+            if (_slp_can_make_request(client, AF_INET6, addr))
+            {
+                _slp_converge_srv_req(client, type, predicate, scopes, xid);
+            }
+        }
+        else
+        {
+            if (_slp_can_make_request(client, AF_INET6, SLP_MC_LINK_SVRLOC_DA))
+            {
+                _slp_converge_srv_req(client, type, predicate, scopes, xid);
+                xid = 0;
+            }
+            if (_slp_can_make_request(client, AF_INET6, SLP_MC_SITE_SVRLOC_DA))
+            {
+                _slp_converge_srv_req(client, type, predicate, scopes, xid);
+            }
+        }
+#endif
+    }
 
     // always try a local request
     local_srv_req(client, type, predicate, scopes);
+}
 
-    //  client->_target_addr = old_target_addr;
-    client->_local_addr = old_local_addr;
-    DEBUG_PRINT((DEBUG_EXIT, "converge_srv_req "));
-    return ;
+/*
+    Sets local and target addresses of slp_client from remote address.
+*/
+static void _slp_fill_local_target_addr(
+    struct slp_client *client,
+    SOCKADDR *addr,
+    uint16 port)
+{
+    if (addr->sa_family == AF_INET)
+    {
+        client->_local_addr.ip4_addr.s_addr = INADDR_ANY;
+        client->_local_addr.af = AF_INET;
+        if (addr)
+        {
+            client->_target_addr.ip4_addr = ((SOCKADDR_IN*)addr)->sin_addr;
+        }
+        else
+        {
+          client->_target_addr.ip4_addr.s_addr = inet_addr("127.0.0.1");
+        }
+        client->_target_addr.af = AF_INET;
+        client->_target_port =
+            addr ? ((SOCKADDR_IN*)addr)->sin_port : htons(port);
+    }
+#ifdef PEGASUS_ENABLE_IPV6
+    else
+    {
+        client->_local_addr.ip6_addr = in6addr_any;
+        client->_local_addr.af = AF_INET6;
+        if (addr)
+        {
+            client->_target_addr.ip6_addr =
+                ((SOCKADDR_IN6*)addr)->sin6_addr;
+        }
+        else
+        {
+            slp_pton(AF_INET6, "::1",
+                &client->_target_addr.ip6_addr);
+        }
+        client->_target_addr.af = AF_INET6;
+        client->_target_port =
+            addr ? ((SOCKADDR_IN6*)addr)->sin6_port : htons(port);
+    }
+#endif
 }
 
 // this request will be retried MAX <_retries> times
@@ -1450,10 +1459,9 @@ void unicast_srv_req(
     const char *type,
     const char *predicate,
     const char *scopes,
-    SOCKADDR_IN *addr)
+    SOCKADDR *addr)
 {
-
-    uint32 target_addr_save, local_addr_save;
+    struct slp_if_addr target_addr_save, local_addr_save;
     uint16 target_port_save;
     struct timeval tv_save;
     int retries ;
@@ -1467,10 +1475,7 @@ void unicast_srv_req(
     tv_save.tv_sec = client->_tv.tv_sec;
     client->_tv.tv_sec = 1;
 
-    // let the host decide which interface to use
-    client->_local_addr = INADDR_ANY;
-    client->_target_addr = addr->sin_addr.s_addr;
-    client->_target_port = addr->sin_port;
+    _slp_fill_local_target_addr(client, addr, 0);
 
     retries = client->_retries;
 
@@ -1481,10 +1486,12 @@ void unicast_srv_req(
         srv_req(client, type, predicate, scopes, FALSE);
         retries--;
     }
+
     client->_target_addr = target_addr_save;
     client->_local_addr = local_addr_save;
     client->_target_port = target_port_save;
     client->_tv.tv_sec = tv_save.tv_sec;
+
     DEBUG_PRINT((DEBUG_EXIT, "unicast_srv_req "));
     return;
 }
@@ -1498,33 +1505,45 @@ void local_srv_req(
     const char *predicate,
     const char *scopes)
 {
-
-    uint32 target_addr_save, local_addr_save;
+    struct slp_if_addr target_addr_save, local_addr_save;
     uint16 target_port_save;
-
     struct timeval tv_save;
+    BOOL local_any_save, target_any_save;
 
     DEBUG_PRINT((DEBUG_ENTER, "local_srv_req "));
 
     target_addr_save = client->_target_addr;
     target_port_save = client->_target_port;
     local_addr_save = client->_local_addr;
+    local_any_save = client->_local_addr_any;
+    target_any_save = client->_target_addr_any;
 
     tv_save.tv_sec = client->_tv.tv_sec;
     tv_save.tv_usec = client->_tv.tv_usec;
     client->_tv.tv_sec = 0;
     client->_tv.tv_usec = 10000;
-    // let the host decide which interface to use
-    client->_local_addr = INADDR_ANY;
-    client->_target_addr = inet_addr("127.0.0.1");
-    client->_target_port = htons(427);
 
-    srv_req(client, type, predicate, scopes, FALSE) ;
+    client->_local_addr_any = client->_target_addr_any = TRUE;
+
+    // Try first on ip4 interface. This should get all ip4 URLs.
+    if (_slp_can_make_request(client, AF_INET, "127.0.0.1"))
+    {
+        srv_req(client, type, predicate, scopes, TRUE);
+    }
+
+    // Try on ip6 interface. This should get all ip6 URLs.
+#ifdef PEGASUS_ENABLE_IPV6
+    if (_slp_can_make_request(client, AF_INET6, "::1"))
+    {
+        srv_req(client, type, predicate, scopes, TRUE);
+    }
+#endif
 
     client->_target_addr = target_addr_save;
     client->_target_port = target_port_save;
     client->_local_addr = local_addr_save;
-    client->_tv.tv_sec = tv_save.tv_sec;
+    client->_local_addr_any = local_any_save;
+    client->_target_addr_any = target_any_save;
 
     client->_tv.tv_sec = tv_save.tv_sec;
     client->_tv.tv_usec = tv_save.tv_usec;
@@ -1532,7 +1551,6 @@ void local_srv_req(
     DEBUG_PRINT((DEBUG_EXIT, "local_srv_req "));
     return;
 }
-
 
 // workhorse request function
 void srv_req(
@@ -1549,8 +1567,16 @@ void srv_req(
         scopes,
         predicate)))
     {
-        if (client->_target_addr == _LSLP_MCAST ||
-            client->_target_addr == _LSLP_LOCAL_BCAST)
+        PEGASUS_ASSERT(client->_target_addr.af != AF_UNSPEC);
+
+        if ( (client->_target_addr.af == AF_INET &&
+           (client->_target_addr.ip4_addr.s_addr == _LSLP_MCAST ||
+           client->_target_addr.ip4_addr.s_addr == _LSLP_LOCAL_BCAST))
+#ifdef PEGASUS_ENBALE_IPV6
+            || (client->_target_addr.af == AF_INET6 &&
+               IN6_IS_ADDR_MULTICAST(&client->_target_addr.ip6_addr))
+#endif
+            )
         {
             _LSLP_SETFLAGS(client->_msg_buf, LSLP_FLAGS_MCAST);
         }
@@ -1560,34 +1586,36 @@ void srv_req(
     return ;
 }
 
-
 /* this request MUST be retried <_convergence> times on EACH interface  */
 /* regardless of how many responses we have received  */
 /* it can be VERY time consuming but is the most thorough  */
 /* discovery method  */
-void converge_attr_req(
+static void _slp_converge_attr_req(
     struct slp_client *client,
     const char *url,
     const char *scopes,
-    const char *tags)
+    const char *tags,
+    int xid)
 {
 
-    uint32 old_local_addr;
-    uint32 *p_addr ;
+    struct slp_if_addr  *p_addr;
+    struct slp_if_addr old_target_addr, old_local_addr;
     uint16 convergence;
-    uint32 loopback ;
+    int idx;
+    int af = client->_target_addr.af;
 
     DEBUG_PRINT((DEBUG_ENTER, "converge_attr_req "));
+    PEGASUS_ASSERT(af != AF_UNSPEC);
 
-    //  old_target_addr = client->_target_addr;
+    idx = af == AF_INET ? 0 : 1;
+
+    old_target_addr = client->_target_addr;
     old_local_addr = client->_local_addr;
 
-    p_addr = client->_local_addr_list;
-    loopback = inet_addr("127.0.0.1");
-
+    p_addr = client->_local_addr_list[idx];
     do
     {
-        if (*p_addr == loopback)
+        if (slp_is_loop_back(af, &p_addr->ip4_addr))
         {
             p_addr++;
             continue;
@@ -1600,7 +1628,7 @@ void converge_attr_req(
             convergence = 1;
         }
 
-        if (prepare_attr_query( client, client->_xid + 1, url, scopes, tags))
+        if (prepare_attr_query( client, client->_xid + xid, url, scopes, tags))
         {
             _LSLP_SETFLAGS(client->_msg_buf, LSLP_FLAGS_MCAST) ;
             send_rcv_udp( client, FALSE );
@@ -1615,17 +1643,56 @@ void converge_attr_req(
             }
         }
         p_addr++;
-    }while (*p_addr != INADDR_ANY);
+    }while (p_addr->af != AF_UNSPEC);
 
 
-    // always try a local request
-    local_attr_req(client, url, scopes, tags);
 
-    //  client->_target_addr = old_target_addr;
+    client->_target_addr = old_target_addr;
     client->_local_addr = old_local_addr;
+
     DEBUG_PRINT((DEBUG_EXIT, "converge_attr_req "));
     return ;
 
+}
+
+
+void converge_attr_req(
+    struct slp_client *client,
+    const char *url,
+    const char *scopes,
+    const char *tags)
+{
+    int xid = 1;
+
+    if (_slp_can_make_request(client, AF_UNSPEC, 0))
+    {
+         _slp_converge_attr_req(client, url, scopes, tags, xid);
+    }
+    else
+    {
+        // Try with ip4 first
+        if (_slp_can_make_request(client, AF_INET, "239.255.255.253") &&
+            _slp_check_url_addr(url, AF_INET, 0))
+        {
+             _slp_converge_attr_req(client, url, scopes, tags, xid);
+             xid = 0;
+        }
+#ifdef PEGASUS_ENABLE_IPV6
+        if (_slp_can_make_request(client, AF_INET6, SLP_MC_LINK_SVRLOC) &&
+            _slp_check_url_addr(url, AF_INET6, 0))
+        {
+             _slp_converge_attr_req(client, url, scopes, tags, xid);
+             xid = 0;
+        }
+        if (_slp_can_make_request(client, AF_INET6, SLP_MC_SITE_SVRLOC) &&
+            _slp_check_url_addr(url, AF_INET6, 0))
+        {
+             _slp_converge_attr_req(client, url, scopes, tags, xid);
+        }
+#endif
+    }
+    // always try a local request
+    local_attr_req(client, url, scopes, tags);
 }
 
 // this request will be retried MAX <_retries> times
@@ -1636,10 +1703,10 @@ void unicast_attr_req(
     const char *url,
     const char *scopes,
     const char *tags,
-    SOCKADDR_IN *addr)
+    SOCKADDR *addr)
 {
 
-    uint32 target_addr_save, local_addr_save;
+    struct slp_if_addr target_addr_save, local_addr_save;
     uint16 target_port_save;
     struct timeval tv_save;
     int retries ;
@@ -1653,10 +1720,7 @@ void unicast_attr_req(
     tv_save.tv_sec = client->_tv.tv_sec;
     client->_tv.tv_sec = 1;
 
-    // let the host decide which interface to use
-    client->_local_addr = INADDR_ANY;
-    client->_target_addr = addr->sin_addr.s_addr;
-    client->_target_port = addr->sin_port;
+    _slp_fill_local_target_addr(client, addr, 0);
 
     retries = client->_retries;
 
@@ -1685,8 +1749,9 @@ void local_attr_req(
     const char *scopes,
     const char *tags )
 {
-    uint32 target_addr_save, local_addr_save;
+    struct slp_if_addr target_addr_save, local_addr_save;
     uint16 target_port_save;
+    BOOL local_any_save, target_any_save;
 
     struct timeval tv_save;
 
@@ -1695,23 +1760,35 @@ void local_attr_req(
     target_addr_save = client->_target_addr;
     target_port_save = client->_target_port;
     local_addr_save = client->_local_addr;
+    local_any_save = client->_local_addr_any;
+    target_any_save = client->_target_addr_any;
 
     tv_save.tv_sec = client->_tv.tv_sec;
     tv_save.tv_usec = client->_tv.tv_usec;
     client->_tv.tv_sec = 0;
     client->_tv.tv_usec = 10000;
 
-    // let the host decide which interface to use
-    client->_local_addr = INADDR_ANY;
-    client->_target_addr = inet_addr("127.0.0.1");
-    client->_target_port = htons(427);
+    client->_local_addr_any = client->_target_addr_any = TRUE;
 
-    attr_req(client, url, scopes, tags, FALSE) ;
+    if (_slp_can_make_request(client, AF_INET, "127.0.0.1") &&
+        _slp_check_url_addr(url, AF_INET, 0))
+    {
+        attr_req(client, url, scopes, tags, TRUE) ;
+    }
+#ifdef PEGASUS_ENABLE_IPV6
+    else if (_slp_can_make_request(client, AF_INET6, "::1") &&
+        _slp_check_url_addr(url, AF_INET6, 0))
+    {
+        attr_req(client, url, scopes, tags, TRUE) ;
+    }
+#endif
+
 
     client->_target_addr = target_addr_save;
     client->_target_port = target_port_save;
     client->_local_addr = local_addr_save;
-    client->_tv.tv_sec = tv_save.tv_sec;
+    client->_local_addr_any = local_any_save;
+    client->_target_addr_any = target_any_save;
 
     client->_tv.tv_sec = tv_save.tv_sec;
     client->_tv.tv_usec = tv_save.tv_usec;
@@ -1743,8 +1820,14 @@ void attr_req(
     {
         // check for the multicast address and set the mcast flag if necessary
 
-        if (client->_target_addr == _LSLP_MCAST ||
-            client->_target_addr == _LSLP_LOCAL_BCAST)
+        if ( (client->_target_addr.af == AF_INET &&
+           (client->_target_addr.ip4_addr.s_addr == _LSLP_MCAST ||
+           client->_target_addr.ip4_addr.s_addr == _LSLP_LOCAL_BCAST))
+#ifdef PEGASUS_ENBALE_IPV6
+            || (client->_target_addr.af == AF_INET6 &&
+               IN6_IS_ADDR_MULTICAST(&client->_target_addr.ip6_addr))
+#endif
+            )
         {
             _LSLP_SETFLAGS(client->_msg_buf, LSLP_FLAGS_MCAST) ;
         }
@@ -1770,7 +1853,7 @@ void attr_req(
 /*      |# of AttrAuths |  Attribute Authentication Block (if present)  \ */
 /*      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
 
-void decode_attr_rply(struct slp_client *client, SOCKADDR_IN *remote)
+void decode_attr_rply(struct slp_client *client, SOCKADDR *remote)
 {
 
     char *bptr;
@@ -1869,9 +1952,31 @@ void message_sanity_check(struct slp_client *client)
 
 }
 
+/*
+    Returns ip addr in text form that is present in remote addr.
+*/
+static char *_slp_get_text_ip(SOCKADDR *remote)
+{
+    static char buff[PEGASUS_INET6_ADDRSTR_LEN];
+    int af = remote->sa_family;
+    void *addr;
 
+    if (af == AF_INET)
+    {
+        addr = &((SOCKADDR_IN*)remote)->sin_addr;
+    }
+#ifdef PEGASUS_ENABLE_IPV6
+    else
+    {
+        addr = &((SOCKADDR_IN6*)remote)->sin6_addr;
+    }
+#endif
+    slp_ntop(af, addr, buff, sizeof(buff));
 
-void decode_msg(struct slp_client *client, SOCKADDR_IN *remote)
+    return buff;
+}
+
+void decode_msg(struct slp_client *client, SOCKADDR *remote)
 {
     char function, response;
 
@@ -1885,13 +1990,12 @@ void decode_msg(struct slp_client *client, SOCKADDR_IN *remote)
             function == LSLP_ATTRRPLY ||
             function == LSLP_SRVTYPERPLY)
         {
-            prepare_pr_buf(client, inet_ntoa(remote->sin_addr));
+            prepare_pr_buf(client, _slp_get_text_ip(remote));
         }
     }
 
     // <<< Fri Dec 21 15:47:06 2001 mdd >>>
     // increment the correct function counters
-
     switch (function)
     {
         case LSLP_DAADVERT:
@@ -1948,7 +2052,7 @@ void decode_msg(struct slp_client *client, SOCKADDR_IN *remote)
 
 /* this is a hack. but it will be consistent with the changes I envision */
 /* for auth blocks and authenticated url entries */
-void decode_srvreg(struct slp_client *client, SOCKADDR_IN *remote)
+void decode_srvreg(struct slp_client *client, SOCKADDR *remote)
 {
     char *bptr, *url_string, *attr_string, *type_string, *scopes;
     uint16 lifetime ;
@@ -2063,7 +2167,7 @@ void decode_srvreg(struct slp_client *client, SOCKADDR_IN *remote)
 }
 
 
-void decode_srvrply(struct slp_client *client, SOCKADDR_IN *remote)
+void decode_srvrply(struct slp_client *client, SOCKADDR *remote)
 {
     char *bptr, *xtptr, *xtn_limit;
     lslpMsg *reply;
@@ -2190,7 +2294,7 @@ void decode_srvrply(struct slp_client *client, SOCKADDR_IN *remote)
                         memcpy(url_buf, xtptr + 7, url_len);
                         while (! _LSLP_IS_HEAD(rply_url))
                         {
-                            if (TRUE == lslp_pattern_match(
+                            if (TRUE == lslp_pattern_match2(
                                 url_buf, rply_url->url, FALSE))
                             {
                                 /* this is the correct url to associate with
@@ -2256,7 +2360,7 @@ void decode_srvrply(struct slp_client *client, SOCKADDR_IN *remote)
     return;
 }
 
-void decode_daadvert(struct slp_client *client, SOCKADDR_IN *remote)
+void decode_daadvert(struct slp_client *client, SOCKADDR *remote)
 {
     char *bptr;
     int16 str_len;
@@ -2360,7 +2464,7 @@ void decode_daadvert(struct slp_client *client, SOCKADDR_IN *remote)
                             free_da_list_node(exists);
                         }
                         /* need code here to handle authenticated urls */
-                        strcpy(&(adv->remote[0]), inet_ntoa(remote->sin_addr));
+                        strcpy(&(adv->remote[0]), _slp_get_text_ip(remote));
                         _LSLP_INSERT(adv, &(client->das))
                         DEBUG_PRINT((DEBUG_EXIT, "decode_daadvert:1 "));
                         return;
@@ -2375,16 +2479,18 @@ void decode_daadvert(struct slp_client *client, SOCKADDR_IN *remote)
 }
 
 
-void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote)
+void decode_srvreq(struct slp_client *client, SOCKADDR *remote)
 {
 
     char *bptr, *bptrSave;
     int32 total_len, purported_len;
     BOOL mcast;
-    uint32 local_address;
+    struct slp_if_addr local_address;
     struct lslp_srv_rply_out *rp_out = NULL;
     struct lslp_srv_req *rq = NULL;
     int16 str_len, buf_len, err = LSLP_PARSE_ERROR;
+    size_t addr_len;
+    int idx;
 
     DEBUG_PRINT((DEBUG_ENTER, "decode_srvreq "));
 
@@ -2404,7 +2510,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote)
             if ((str_len + total_len + 2) < purported_len)
             {
                 if (FALSE == slp_previous_responder(
-                    client, (str_len ? bptr + 2 : NULL )))
+                    client, (str_len ? bptr + 2 : NULL ), remote->sa_family))
                 {
                     rq = (struct lslp_srv_req *)calloc(
                         1, sizeof(struct lslp_srv_req));
@@ -2428,7 +2534,6 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote)
                             *(rq->srvcType + str_len) = 0x00;
                             bptr += 2 + str_len;
                             total_len += 2 + str_len;
-
                             bptrSave = bptr;
                             buf_len = LSLP_MTU - total_len;
                             rq->scopeList =
@@ -2494,7 +2599,8 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote)
                                         client->_scratch,
                                         0x00000000,
                                         2);
-                                    rp_out = _lslpProcessSrvReq(client, rq, 0);
+                                    rp_out = _lslpProcessSrvReq(client, rq, 0,
+                                        remote);
                                 } /* sanity check on remaining buffer */
                             } /* my scopes intersect */
                         } /* service type sanity check */
@@ -2621,47 +2727,65 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote)
             _LSLP_SET3BYTES(client->_scratch, 0x00000000, 2);
             // client->_msg_buf is stuffed with the service reply. now we need
             // to allocate a socket and send it back to the requesting node
-            local_address = client->_local_addr;
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-            uint32* ptr_addr;
-            ptr_addr = client->_local_addr_list;
 
-            while (*ptr_addr != INADDR_ANY)
+            if (remote->sa_family == AF_INET)
+            {
+                addr_len = sizeof(SOCKADDR_IN);
+                idx = 0;
+            }
+#ifdef PEGASUS_ENABLE_IPV6
+            else
+            {
+                addr_len = sizeof(SOCKADDR_IN6);
+                idx = 1;
+            }
+#endif
+
+            if (client->_local_addr_any)
+            {
+                local_address.af = remote->sa_family;
+                if (local_address.af == AF_INET)
+                {
+                    local_address.ip4_addr.s_addr = INADDR_ANY;
+                }
+#ifdef PEGASUS_ENABLE_IPV6
+                else
+                {
+                    local_address.ip6_addr = in6addr_any;
+                }
+#endif
+            }
+            else
+            {
+                PEGASUS_ASSERT(remote->sa_family == client->_local_addr.af);
+                local_address = client->_local_addr;
+            }
+
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+            struct slp_if_addr *ptr_addr;
+            ptr_addr = client->_local_addr_list[idx];
+
+            while (ptr_addr->af != AF_UNSPEC)
             {
                 local_address = *ptr_addr;
 #endif
 
-                if (INVALID_SOCKET !=
-                    (sock = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0)))
+                if (-1 != _slp_create_bind_socket (&sock, local_address.af, 427,
+                    &local_address.ip4_addr, TRUE))
                 {
-                    SOCKADDR_IN local;
-                    int err = 1;
-                    _LSLP_SETSOCKOPT(
-                        sock,
-                        SOL_SOCKET,
-                        LSLP_REUSEADDR,
-                        (const char *)&err,
-                        sizeof(err));
-                    local.sin_family = AF_INET;
-                    local.sin_port = client->_target_port ;
-                    local.sin_addr.s_addr = local_address;
-                    if (SOCKET_ERROR !=
-                        _LSLP_BIND(sock, &local, sizeof(local)))
+                    if (mcast == TRUE)
                     {
-                        if (mcast == TRUE)
-                        {
-                            _LSLP_SLEEP(rand() % 30);
-                        }
-                        _LSLP_SENDTO(
-                            sock,
-                            client->_msg_buf,
-                            total_len,
-                            0,
-                            remote,
-                            sizeof(SOCKADDR_IN ));
-                    } // successfully bound this socket
-                    _LSLP_CLOSESOCKET(sock);
-                } // successfully opened this socket
+                        _LSLP_SLEEP(rand() % 30);
+                    }
+                    _LSLP_SENDTO(
+                        sock,
+                        client->_msg_buf,
+                        total_len,
+                        0,
+                        remote,
+                        addr_len);
+                }
+                _LSLP_CLOSESOCKET(sock);
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
                 ptr_addr++;
             } // end of while loop around all local network interfaces
@@ -2851,28 +2975,24 @@ BOOL  srv_reg(
 
 BOOL send_rcv_udp(struct slp_client *client, BOOL retry)
 {
+#ifdef PEGASUS_ENABLE_IPV6
+    SOCKADDR_IN6 ip6;
+#endif
+    SOCKADDR_IN ip4;
     SOCKETD sock;               //jeb
-    SOCKADDR_IN target, local;
+    void * target;
     BOOL ccode = FALSE;
+    int af;
+    size_t addr_len;
+    int err;
 
     DEBUG_PRINT((DEBUG_ENTER, "send_rcv_udp "));
 
-    if (INVALID_SOCKET != (sock = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0)))
-    {
-        int err = 1;
-        _LSLP_SETSOCKOPT(
-            sock,
-            SOL_SOCKET,
-            LSLP_REUSEADDR,
-            (const char *)&err,
-            sizeof(err));
-        local.sin_port = 0;
-        local.sin_family = AF_INET;
+    af = client->_target_addr.af;
 
-//jeb
-        local.sin_addr.s_addr = client->_local_addr;
-        if (SOCKET_ERROR != _LSLP_BIND(sock, &local, sizeof(local)))
-        {
+    if (-1 != _slp_create_bind_socket(&sock, af, 0,
+        &client->_local_addr.ip4_addr, TRUE))
+    {
             int bcast =
                 ((_LSLP_GETFLAGS(client->_msg_buf)) & LSLP_FLAGS_MCAST) ? 1:0;
             if (bcast)
@@ -2882,17 +3002,22 @@ BOOL send_rcv_udp(struct slp_client *client, BOOL retry)
                 int sockopt = 0;
                 unsigned char my_ttl = 128;
                 ttl = _LSLP_SET_TTL(sock, my_ttl);
-                sockopt = _LSLP_SETSOCKOPT(
-                    sock,
-                    SOL_SOCKET,
-                    SO_BROADCAST,
-                    (const char *) &bcast,
-                    sizeof(bcast));
+                // Broadcast messages are not supported by IPv6.
+                if (af == AF_INET)
+                {
+                    sockopt = _LSLP_SETSOCKOPT(
+                        sock,
+                        SOL_SOCKET,
+                        SO_BROADCAST,
+                        (const char *) &bcast,
+                        sizeof(bcast));
+                }
                 if ((SOCKET_ERROR == ttl ) || (SOCKET_ERROR == sockopt))
                 {
 #else
-                if ((SOCKET_ERROR == _LSLP_SET_TTL(sock, client->_ttl)) ||
-                    (SOCKET_ERROR == _LSLP_SETSOCKOPT(
+                if (af == AF_INET && (SOCKET_ERROR ==
+                      _LSLP_SET_TTL(sock, client->_ttl) ||
+                    SOCKET_ERROR == _LSLP_SETSOCKOPT(
                     sock,
                     SOL_SOCKET,
                     SO_BROADCAST,
@@ -2904,12 +3029,13 @@ BOOL send_rcv_udp(struct slp_client *client, BOOL retry)
                     DEBUG_PRINT((DEBUG_EXIT, "send_rcv_udp:err "));
                     return(FALSE);
                 }
-                if (client->_local_addr != INADDR_ANY)
+
+                if (af == AF_INET &&
+                    client->_local_addr.ip4_addr.s_addr != INADDR_ANY)
                 {
-//#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
                     struct in_addr ma;
                     memset(&ma, 0x00, sizeof(ma));
-                    ma.s_addr = client->_local_addr;
+                    ma.s_addr = client->_local_addr.ip4_addr.s_addr;
                     if ((SOCKET_ERROR == _LSLP_SETSOCKOPT(
                         sock,
                         IPPROTO_IP,
@@ -2917,32 +3043,42 @@ BOOL send_rcv_udp(struct slp_client *client, BOOL retry)
                         (const char *)&ma,
                         sizeof(ma))))
                     {
-/*
-#else
-      SOCKADDR_IN ma;
-      memset(&ma, 0x00, sizeof(ma));
-      ma.sin_addr.s_addr = client->_local_addr;
-      if( (SOCKET_ERROR == _LSLP_SETSOCKOPT(sock, IPPROTO_IP, IP_MULTICAST_IF,
-                                (const char *)&ma, sizeof(SOCKADDR_IN))) ) {
-#endif
-*/
                         _LSLP_CLOSESOCKET(sock);
                         DEBUG_PRINT((DEBUG_EXIT, "send_rcv_udp:err2 "));
                         return(FALSE);
                     }
                 }
+                else
+                {
+                  /* ATTN: implement for IPv6 */
+                }
             }
-            target.sin_family = AF_INET;
-            target.sin_port = client->_target_port;
-            target.sin_addr.s_addr = client->_target_addr;
-
+            if (af == AF_INET)
+            {
+                ip4.sin_family = AF_INET;
+                ip4.sin_port = client->_target_port;
+                ip4.sin_addr = client->_target_addr.ip4_addr;
+                addr_len = sizeof(ip4);
+                target = &ip4;
+            }
+#ifdef PEGASUS_ENABLE_IPV6
+            else
+            {
+                addr_len = sizeof(ip6);
+                memset(&ip6, 0, addr_len);
+                ip6.sin6_family = AF_INET6;
+                ip6.sin6_port = client->_target_port;
+                ip6.sin6_addr = client->_target_addr.ip6_addr;
+                target = &ip6;
+            }
+#endif
             if (SOCKET_ERROR == (err = _LSLP_SENDTO(
                 sock,
                 client->_msg_buf,
                 _LSLP_GETLENGTH(client->_msg_buf),
                 0,
-                &target,
-                sizeof(target))))
+                target,
+                addr_len)))
             {
                 _LSLP_CLOSESOCKET(sock);
                 DEBUG_PRINT((DEBUG_EXIT, "send_rcv_udp "));
@@ -2961,73 +3097,15 @@ BOOL send_rcv_udp(struct slp_client *client, BOOL retry)
                 }
 #endif
             }
-        } // bound the socket
-        _LSLP_CLOSESOCKET(sock);
-    } /*  got the socket */
+            _LSLP_CLOSESOCKET(sock);
+    }
 
     DEBUG_PRINT(
         (DEBUG_EXIT, "send_rcv_udp:%s",
         (ccode == FALSE ? "err3" : "ok")));
+
     return(ccode);
 }
-
-
-int32 service_listener_wait(
-    struct slp_client *client,
-    time_t wait,
-    SOCKETD extra_sock,
-    BOOL one_only,
-    lslpMsg *list)
-{
-    int32 ccode = 0;
-
-    DEBUG_PRINT((DEBUG_ENTER, "service_listener_wait "));
-
-    if (list != NULL)
-    {
-        list->isHead = TRUE;
-        list->prev = list->next = list;
-        ccode = __service_listener_wait(client, wait, extra_sock, one_only);
-        get_response(client, list);
-    }
-
-    DEBUG_PRINT((DEBUG_EXIT, "service_listener_wait ccode = %d", ccode));
-    return(ccode);
-}
-
-
-int32 __service_listener_wait(
-    struct slp_client *client,
-    time_t wait,
-    SOCKETD extra_sock,
-    BOOL one_only)       //jeb
-{
-    int32 rcv = 0;
-    time_t now;
-    time_t start = time(NULL);
-
-    DEBUG_PRINT((DEBUG_ENTER, "__service_listener_wait "));
-
-    while (time(&now) && ((now - wait ) <= start))
-    {
-        rcv += __service_listener(client, extra_sock);
-        if (rcv > 0)
-        {
-            if (one_only == TRUE)
-            {
-                DEBUG_PRINT((DEBUG_EXIT, "__service_listener_wait1 rcv = %d",
-                    rcv));
-                return(rcv);
-            }
-        }
-        _LSLP_SLEEP(10);
-    }
-    rcv += __service_listener(client, extra_sock);
-
-    DEBUG_PRINT((DEBUG_EXIT, "__service_listener_wait rcv = %d", rcv));
-    return(rcv);
-}
-
 
 int32 service_listener(
     struct slp_client *client,
@@ -3036,7 +3114,7 @@ int32 service_listener(
 {
     int32 ccode = 0;
 
-    DEBUG_PRINT((DEBUG_ENTER, "service_listener "));
+//    DEBUG_PRINT((DEBUG_ENTER, "service_listener "));
 
     if (list != NULL)
     {
@@ -3047,7 +3125,7 @@ int32 service_listener(
         get_response(client, list);
     }
 
-    DEBUG_PRINT((DEBUG_EXIT, "service_listener ccode = %d", ccode));
+//    DEBUG_PRINT((DEBUG_EXIT, "service_listener ccode = %d", ccode));
     return(ccode);
 }
 
@@ -3056,49 +3134,69 @@ int32 __service_listener(
     struct slp_client *client,
     SOCKETD extra_sock ) //jeb
 {
-
     struct timeval tv;
     int32 err;
+    SOCKETD max_sock = -1;
+
     LSLP_FD_SET fds;
     _LSLP_FD_ZERO(&fds);
 
-    DEBUG_PRINT((DEBUG_ENTER, "__service_listener "));
+//    DEBUG_PRINT((DEBUG_ENTER, "__service_listener "));
 
-    if (client->_rcv_sock != INVALID_SOCKET)
+    if (client->_rcv_sock[0] != INVALID_SOCKET)
     {
-        _LSLP_FD_SET(client->_rcv_sock, &fds);
+        _LSLP_FD_SET(client->_rcv_sock[0], &fds);
+        max_sock = client->_rcv_sock[0];
     }
+    if (client->_rcv_sock[1] != INVALID_SOCKET)
+    {
+        _LSLP_FD_SET(client->_rcv_sock[1], &fds);
+        if (max_sock < client->_rcv_sock[1])
+        {
+            max_sock = client->_rcv_sock[1];
+        }
+    }
+
     if (extra_sock)
     {
         _LSLP_FD_SET( extra_sock, &fds);
+        if (max_sock < extra_sock)
+        {
+            max_sock = extra_sock;
+        }
+
     }
 
     do
     {
         tv.tv_sec = client->_tv.tv_sec;
         tv.tv_usec = client->_tv.tv_usec;
-        err = _LSLP_SELECT(((client->_rcv_sock != INVALID_SOCKET) &&
-            (client->_rcv_sock > extra_sock)) ?
-            client->_rcv_sock + 1 : extra_sock + 1, &fds, NULL, NULL, &tv);
+        err = _LSLP_SELECT(max_sock + 1, &fds, NULL, NULL, &tv);
     }while ((err < 0 ) && (errno == EINTR));
 
 
     if (0 < err)
     {
+#ifdef PEGASUS_ENABLE_IPV6
+        SOCKADDR_STORAGE remote;
+#else
         SOCKADDR_IN remote;
-        int size = sizeof(SOCKADDR_IN);
-        if (client->_rcv_sock != INVALID_SOCKET)
+#endif
+        int size = sizeof(remote);
+        int i;
+        for (i = 0; i < 2 ; ++i)
         {
-            if (_LSLP_FD_ISSET(client->_rcv_sock, &fds))
+            if (client->_rcv_sock[i] != INVALID_SOCKET &&
+                _LSLP_FD_ISSET(client->_rcv_sock[i], &fds))
             {
                 err = _LSLP_RECV_FROM(
-                    client->_rcv_sock,
+                    client->_rcv_sock[i],
                     client->_rcv_buf,
                     LSLP_MTU,
                     0,
                     &remote,
                     &size);
-                decode_msg(client, &remote);
+                decode_msg(client, (SOCKADDR*)&remote);
             }
         }
 
@@ -3111,7 +3209,7 @@ int32 __service_listener(
                 0,
                 &remote,
                 &size);
-            decode_msg(client, &remote);
+            decode_msg(client, (SOCKADDR*)&remote);
         }
     }
 
@@ -3119,17 +3217,14 @@ int32 __service_listener(
     {
         // our interfaces could be disconnected or we could be a laptop that
         // just got pulled from the network, etc.
-        _LSLP_CLOSESOCKET(client->_rcv_sock);
-        if (0 < slp_get_local_interfaces( &(client->_local_addr_list) ))
-        {
-            if (client->_rcv_sock != INVALID_SOCKET)
-            {
-                client->_rcv_sock = slp_open_listen_sock();
-            }
-        }
+        slp_get_local_interfaces(client);
+        slp_open_listen_socks(client);
+#ifdef PEGASUS_ENABLE_IPV6
+        slp_join_ip6_service_type_multicast_group(client, client->_srv_type);
+#endif
     }
 
-    DEBUG_PRINT((DEBUG_EXIT, "__service_listener err = %d", err));
+//    DEBUG_PRINT((DEBUG_EXIT, "__service_listener err = %d", err));
     return(err);
 }
 
@@ -3141,8 +3236,8 @@ int srv_reg_all(
     const char *scopes,
     int16 lifetime)
 {
-    uint32 target_addr_save;
     int convergence_save;
+    int af;
 
     // keep track of how many times we register
     int registrations = 0;
@@ -3157,8 +3252,7 @@ int srv_reg_all(
         return(0);
     }
 
-    // save target and convergence parameters
-    target_addr_save = client->_target_addr;
+    // save convergence parameter
     convergence_save = client->_convergence;
     client->_convergence = 0;
 
@@ -3170,8 +3264,41 @@ int srv_reg_all(
             struct da_list *da = client->das.next;
             while (! _LSLP_IS_HEAD(da))
             {
-                client->_target_addr = inet_addr(da->remote);
-                if (TRUE == srv_reg(
+                if (slp_is_valid_ip4_addr(da->remote))
+                {
+                    af = AF_INET;
+                    client->_target_addr.ip4_addr.s_addr =
+                        inet_addr(da->remote);
+                }
+#ifdef PEGASUS_ENABLE_IPV6
+                else if (slp_is_valid_ip6_addr(da->remote))
+                {
+                    af = AF_INET6;
+                    slp_pton(AF_INET6,da->remote,
+                        &client->_target_addr.ip6_addr);
+                }
+#endif
+                else
+                {
+                    PEGASUS_ASSERT(0);
+                }
+
+                if (client->_local_addr_any)
+                {
+                    client->_local_addr.af = af;
+                    if (af == AF_INET)
+                    {
+                        client->_local_addr.ip4_addr.s_addr = INADDR_ANY;
+                    }
+#ifdef PEGASUS_ENABLE_IPV6
+                    else
+                    {
+                        client->_local_addr.ip6_addr = in6addr_any;
+                    }
+#endif
+                }
+                if (client->_target_addr.af == client->_local_addr.af &&
+                    TRUE == srv_reg(
                     client,
                     url,
                     attributes,
@@ -3187,9 +3314,33 @@ int srv_reg_all(
     }
     // restore parameters
     client->_convergence = convergence_save;
-    client->_target_addr = target_addr_save;
+
+    af = client->_target_addr.af;
+
+    if (client->_local_addr_any)
+    {
+        client->_local_addr.af = af;
+        if (af == AF_INET)
+        {
+            client->_local_addr.ip4_addr.s_addr = INADDR_ANY;
+        }
+#ifdef PEGASUS_ENABLE_IPV6
+        else
+        {
+            client->_local_addr.ip6_addr = in6addr_any;
+        }
+#endif
+    }
+
     /* do a unicast srvreg if we have the target set */
-    if (client->_target_addr != _LSLP_MCAST)
+    if ( client->_target_addr.af == client->_local_addr.af &&
+         !((af == AF_INET &&
+         client->_target_addr.ip4_addr.s_addr == _LSLP_MCAST)
+#ifdef PEGASUS_ENBALE_IPV6
+         || (af == AF_INET6 &&
+               IN6_IS_ADDR_MULTICAST(&client->_target_addr.ip6_addr))
+#endif
+         ))
     {
         if (TRUE == srv_reg(
             client,
@@ -3202,6 +3353,7 @@ int srv_reg_all(
             registrations++;
         }
     }
+
     DEBUG_PRINT((DEBUG_EXIT, "srv_reg_all:ok "));
     return(registrations);
 }
@@ -3216,8 +3368,9 @@ int srv_reg_local(
 {
     int count = 0;
 
-    uint32 target_addr_save;
+    struct slp_if_addr target_addr_save, local_addr_save;
     int convergence_save;
+    BOOL local_any_save, target_any_save;
     DEBUG_PRINT((DEBUG_ENTER, "srv_reg_local "));
     PEGASUS_ASSERT(client != NULL && url != NULL && attributes != NULL &&
         service_type != NULL && scopes != NULL);
@@ -3230,21 +3383,40 @@ int srv_reg_local(
     }
 
     target_addr_save = client->_target_addr;
+    local_addr_save = client->_local_addr;
     convergence_save = client->_convergence;
     client->_convergence = 0;
-    client->_target_addr = inet_addr("127.0.0.1");
-    if (TRUE == srv_reg(
-        client,
-        url,
-        attributes,
-        service_type,
-        scopes,
-        lifetime))
+    local_any_save = client->_local_addr_any;
+    target_any_save = client->_target_addr_any;
+
+    client->_local_addr_any = client->_target_addr_any = TRUE;
+
+    if (_slp_can_make_request(client, AF_INET, "127.0.0.1") &&
+        _slp_check_url_addr(url, AF_INET, 0))
     {
-        count = 1;
+        if (TRUE == srv_reg(client, url, attributes, service_type,
+            scopes, lifetime))
+        {
+           count = 1;
+        }
     }
+#ifdef PEGASUS_ENABLE_IPV6
+    else if (_slp_can_make_request(client, AF_INET6, "::1") &&
+        _slp_check_url_addr(url, AF_INET6, 0))
+    {
+        if (TRUE == srv_reg(client, url, attributes, service_type,
+            scopes, lifetime))
+        {
+           count = 1;
+        }
+    }
+#endif
+
     client->_convergence = convergence_save;
     client->_target_addr = target_addr_save;
+    client->_local_addr = local_addr_save;
+    client->_local_addr_any = local_any_save;
+    client->_target_addr_any = target_any_save;
 
     DEBUG_PRINT((DEBUG_ENTER, "srv_reg_local count=%d", count));
     return count;
@@ -3289,6 +3461,11 @@ void __srv_reg_local (
             __FILE__, __LINE__);
         exit(1);
     }
+
+    // Join ip6 service location multicast group if it is new service here.
+#ifdef PEGASUS_ENABLE_IPV6
+     slp_join_ip6_service_type_multicast_group(client, service_type);
+#endif
 
     /* update the attributes if an existing registration */
     reg   = client->regs.next;
@@ -3343,11 +3520,11 @@ void __srv_reg_local (
     return;
 }
 
-BOOL slp_previous_responder(struct slp_client *client, char *pr_list)
+BOOL slp_previous_responder(struct slp_client *client, char *pr_list, int af)
 {
 
     char *a, *s = NULL;
-    uint32 addr, *list_addr;
+    struct slp_if_addr *list_addr;
     if (pr_list == NULL || 0 == strlen(pr_list))
     {
         return(FALSE);
@@ -3356,17 +3533,38 @@ BOOL slp_previous_responder(struct slp_client *client, char *pr_list)
     a = _LSLP_STRTOK(pr_list, ",", &s);
     while (NULL != a)
     {
-        if (INADDR_NONE != (addr = inet_addr(a)))
+        if (af == AF_INET && slp_is_valid_ip4_addr(a))
         {
-            list_addr = client->_local_addr_list;
-            while (INADDR_ANY != *list_addr)
+            list_addr = client->_local_addr_list[0];
+            while (list_addr->af != AF_UNSPEC)
             {
-                if (*list_addr == addr)
+                if (list_addr->ip4_addr.s_addr == inet_addr(a))
                 {
                     return(TRUE);
                 }
                 list_addr++;
             }
+        }
+#ifdef PEGASUS_ENABLE_IPV6
+        else if(af == AF_INET6 && slp_is_valid_ip6_addr(a))
+        {
+            struct in6_addr t;
+            list_addr = client->_local_addr_list[1];
+            while (list_addr->af != AF_UNSPEC)
+            {
+                slp_pton(AF_INET6, a, &t);
+                if (slp_addr_equal(AF_INET6, &list_addr->ip6_addr, &t))
+                {
+                    return(TRUE);
+                }
+                list_addr++;
+            }
+
+        }
+#endif
+        else
+        {
+            return FALSE;
         }
         a = _LSLP_STRTOK(NULL, ",", &s);
     }
@@ -3380,10 +3578,13 @@ struct slp_client *create_slp_client(
     const char *spi,
     const char *scopes,
     BOOL should_listen,
-    BOOL use_das)
+    BOOL use_das,
+    const char *srv_type)
 {
     int16 len;
     struct slp_client *client;
+    int target_af = AF_UNSPEC;
+    int local_af = AF_UNSPEC;
 
     DEBUG_PRINT((DEBUG_ENTER, "create_slp_client "));
 
@@ -3393,10 +3594,57 @@ struct slp_client *create_slp_client(
         return NULL;
     }
 
+    if (target_addr)
+    {
+        if (slp_is_valid_ip4_addr(target_addr))
+        {
+            target_af = AF_INET;
+        }
+        else if ((slp_is_valid_ip6_addr(target_addr)))
+        {
+            target_af = AF_INET6;
+        }
+        else
+        {
+            DEBUG_PRINT((DEBUG_EXIT, "create_slp_client:err2 "));
+            return NULL;
+        }
+    }
+
+    if (local_interface)
+    {
+        if (slp_is_valid_ip4_addr(local_interface))
+        {
+            local_af = AF_INET;
+        }
+        else if ((slp_is_valid_ip6_addr(local_interface)))
+        {
+            local_af = AF_INET6;
+        }
+        else
+        {
+            DEBUG_PRINT((DEBUG_EXIT, "create_slp_client:err3 "));
+            return NULL;
+        }
+    }
+
+    // Don't allow having local_interface and target_addr of different address
+    // types.
+    if (local_af != AF_UNSPEC && local_af != AF_UNSPEC)
+    {
+        // We can not have ipv4 interface sending datagrams to ip6 interface or
+        // vice-versa.
+        if (local_af != target_af)
+        {
+            DEBUG_PRINT((DEBUG_EXIT, "create_slp_client:err4 "));
+            return NULL;
+        }
+    }
+
     client = (struct slp_client *)calloc(1, sizeof(struct slp_client)); //jeb
     if (client == NULL)
     {
-        DEBUG_PRINT((DEBUG_EXIT, "create_slp_client:err2 "));
+        DEBUG_PRINT((DEBUG_EXIT, "create_slp_client:err5 "));
         return NULL;
     }
 
@@ -3419,27 +3667,56 @@ struct slp_client *create_slp_client(
     client->_scratch = (char* )calloc(LSLP_MTU, sizeof(char));
     client->_err_buf = (char* )calloc(255, sizeof(char));
 
+    client->_target_addr_any = target_af == AF_UNSPEC ? TRUE : FALSE;
+    client->_local_addr_any = local_af == AF_UNSPEC ? TRUE : FALSE;
+
     client->_buf_len = LSLP_MTU;
     client->_version = 1;
     client->_xid = 1;
     client->_target_port = htons(target_port);
 
+    client->_ip4_stack_active = slp_is_ip4_stack_active();
+
+#ifdef PEGASUS_ENABLE_IPV6
+    client->_ip6_stack_active = slp_is_ip6_stack_active();
+#endif
+
     if (target_addr == NULL)
     {
-        client->_target_addr = inet_addr("239.255.255.253");
+        client->_target_addr_any = TRUE;
     }
     else
     {
-        client->_target_addr = inet_addr(target_addr);
+        client->_target_addr.af = target_af;
+        if (target_af == AF_INET)
+        {
+            client->_target_addr.ip4_addr.s_addr = inet_addr(target_addr);
+        }
+#ifdef PEGASUS_ENABLE_IPV6
+        else
+        {
+            slp_pton(target_af, target_addr, &client->_target_addr.ip4_addr);
+        }
+#endif
     }
 
     if (local_interface == NULL)
     {
-        client->_local_addr = INADDR_ANY;
+        client->_local_addr_any = TRUE;
     }
     else
     {
-        client->_local_addr = inet_addr(local_interface);
+        client->_local_addr.af = local_af;
+        if (local_af == AF_INET)
+        {
+            client->_local_addr.ip4_addr.s_addr = inet_addr(local_interface);
+        }
+#ifdef PEGASUS_ENABLE_IPV6
+        else
+        {
+            slp_pton(local_af, local_interface, &client->_local_addr.ip6_addr);
+        }
+#endif
     }
 
     if (spi == NULL)
@@ -3487,14 +3764,25 @@ struct slp_client *create_slp_client(
     client->regs.isHead = TRUE;
     client->regs.next = client->regs.prev = (lslpSrvRegList *)&(client->regs);
 
-    client->_local_addr_list = NULL;
-    slp_get_local_interfaces(&(client->_local_addr_list));
+    client->_local_addr_list[0] = client->_local_addr_list[1] = NULL;
+
+    // Get both ip4 and ip6 interfaces
+    slp_get_local_interfaces(client);
 
     /* see if we can use a local DA. If not, open up the listen socket */
-    client->_rcv_sock = INVALID_SOCKET;
+    client->_rcv_sock[0] = client->_rcv_sock[1] = INVALID_SOCKET;
+
     if (should_listen == TRUE)
     {
-        client->_rcv_sock = slp_open_listen_sock();
+        slp_open_listen_socks(client);
+#ifdef PEGASUS_ENABLE_IPV6
+        if (srv_type)
+        {
+            client->_srv_type = (char*)malloc(strlen(srv_type) + 1);
+            strcpy(client->_srv_type, srv_type);
+            slp_join_ip6_service_type_multicast_group(client, srv_type);
+        }
+#endif
     }
 
     if (client->_use_das == TRUE)
@@ -3502,10 +3790,24 @@ struct slp_client *create_slp_client(
         local_srv_req(client, NULL, NULL, "DEFAULT");
         if (! _LSLP_IS_EMPTY(&(client->das)))
         {
-            client->_rcv_sock = INVALID_SOCKET;
+            _LSLP_CLOSESOCKET(client->_rcv_sock[0]);
+            _LSLP_CLOSESOCKET(client->_rcv_sock[1]);
+            client->_rcv_sock[0] = client->_rcv_sock[1] = INVALID_SOCKET;
             client->_use_das = TRUE;
             client->_da_target_port = htons(427);
-            client->_da_target_addr = inet_addr("127.0.0.1");
+            if (client->_ip4_stack_active)
+            {
+                client->_da_target_addr.ip4_addr.s_addr =
+                    inet_addr("127.0.0.1");
+                client->_da_target_addr.af = AF_INET;
+            }
+#ifdef PEGASUS_ENABLE_IPV6
+            else
+            {
+                slp_pton(AF_INET6, "::1", &client->_da_target_addr.ip6_addr);
+                client->_da_target_addr.af = AF_INET6;
+            }
+#endif
         }
     }
 
@@ -3517,7 +3819,6 @@ struct slp_client *create_slp_client(
 
     client->get_response = get_response;
     client->find_das = find_das;
-    client->discovery_cycle = discovery_cycle;
     client->converge_srv_req = converge_srv_req;
     client->unicast_srv_req = unicast_srv_req;
     client->local_srv_req = local_srv_req;
@@ -3541,7 +3842,6 @@ struct slp_client *create_slp_client(
 
     client->decode_daadvert = decode_daadvert;
     client->send_rcv_udp = send_rcv_udp;
-    client->service_listener_wait = service_listener_wait;
     client->slp_previous_responder = slp_previous_responder;
 
     DEBUG_PRINT((DEBUG_EXIT, "create_slp_client:ok "));
@@ -3557,8 +3857,12 @@ void destroy_slp_client(struct slp_client *client)
         return;
     }
 
-    _LSLP_CLOSESOCKET(client->_rcv_sock);
-    _LSLP_FREE_DEINIT(client->_local_addr_list);
+    _LSLP_CLOSESOCKET(client->_rcv_sock[0]);
+    _LSLP_CLOSESOCKET(client->_rcv_sock[1]);
+
+    _LSLP_FREE_DEINIT(client->_local_addr_list[0]);
+    _LSLP_FREE_DEINIT(client->_local_addr_list[1]);
+
     lslpFreeScopeList((lslpScopeList *)(client->_spi));
     lslpFreeScopeList(client->_scopes);
     _LSLP_FREE_DEINIT(client->_crypto_context);
@@ -3569,6 +3873,7 @@ void destroy_slp_client(struct slp_client *client)
     free(client->_rcv_buf);
     free(client->_scratch);
     free(client->_err_buf);
+    free(client->_srv_type);
 
     //Freeing memory allocated for regs in __srv_reg_local
     lslpFreeSrvRegList(&client->regs);
@@ -3735,17 +4040,18 @@ void *decode_opaque(char *buffer)
 /* right now we don't support the attr request unless
    it specifies a complete url. */
 
-void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
+void decode_attrreq(struct slp_client *client, SOCKADDR *remote)
 {
     char *bptr;
     lslpURL *url;
     lslpScopeList *scopes;
     lslpAttrList *attr_tags, *attr_return;
     lslpSrvRegList *regs;
-
+    size_t addr_len;
+    int idx;
     int16 str_len, buf_len, err = 0, parse_err;
     int32 total_len, purported_len;
-    uint32 local_address;
+    struct slp_if_addr local_address;
 
     DEBUG_PRINT((DEBUG_ENTER, "decode_attrreq "));
 
@@ -3770,7 +4076,7 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
         {
             if (FALSE == slp_previous_responder(
                 client,
-                (str_len ? bptr + 2 : NULL)))
+                (str_len ? bptr + 2 : NULL), remote->sa_family))
             {
                 bptr += str_len + 2;
                 total_len += str_len + 2;
@@ -3907,46 +4213,61 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 
                                 /* only send the response if there is an
                                    attribute or if this is a unicast */
-
-                                local_address = client->_local_addr;
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-                                uint32* ptr_addr;
-                                ptr_addr = client->_local_addr_list;
-                                while (*ptr_addr != INADDR_ANY)
+                                if (remote->sa_family == AF_INET)
                                 {
-                                    local_address = *ptr_addr;
+                                    addr_len = sizeof(SOCKADDR_IN);
+                                    idx = 0;
+                                }
+#ifdef PEGASUS_ENABLE_IPV6
+                                else
+                                {
+                                    addr_len = sizeof(SOCKADDR_IN6);
+                                    idx = 1;
+                                }
 #endif
-                                    if (INVALID_SOCKET != (sock =
-                                        _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0)))
+
+                                if (client->_local_addr_any)
+                                {
+                                    local_address.af = remote->sa_family;
+                                    if (local_address.af == AF_INET)
                                     {
-                                        SOCKADDR_IN local;
-                                        int err = 1;
-                                        _LSLP_SETSOCKOPT(
-                                            sock,
-                                            SOL_SOCKET,
-                                            LSLP_REUSEADDR,
-                                            (const char *)&err,
-                                            sizeof(err) );
-                                        local.sin_family = AF_INET;
-                                        local.sin_port = client->_target_port;
-                                        local.sin_addr.s_addr = local_address;
-                                        if (SOCKET_ERROR !=
-                                            _LSLP_BIND(
-                                            sock,
-                                            &local,
-                                            sizeof(local)))
-                                        {
+                                        local_address.ip4_addr.s_addr =
+                                            INADDR_ANY;
+                                    }
+#ifdef PEGASUS_ENABLE_IPV6
+                                    else
+                                    {
+                                        local_address.ip6_addr = in6addr_any;
+                                    }
+#endif
+                                }
+                                else
+                                {
+                                    PEGASUS_ASSERT(remote->sa_family ==
+                                        client->_local_addr.af);
+                                    local_address = client->_local_addr;
+                                }
+
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+                                struct slp_if_addr* ptr_addr;
+                                ptr_addr = client->_local_addr_list[idx];
+                                while (ptr_addr->af != AF_UNSPEC)
+                                {
+                                        local_address = *ptr_addr;
+#endif
+                                    if (-1 != _slp_create_bind_socket (&sock,
+                                        local_address.af, 427,
+                                        &local_address.ip4_addr, TRUE))
+                                    {
                                             _LSLP_SENDTO(
                                                 sock,
                                                 client->_msg_buf,
                                                 total_len,
                                                 0,
                                                 (remote),
-                                                sizeof(SOCKADDR_IN));
-                                        } /* successfully bound this socket */
-                                        _LSLP_CLOSESOCKET(sock);
-                                    } /* successfully opened this socket */
-                                    //        }
+                                                addr_len);
+                                    }
+                                    _LSLP_CLOSESOCKET(sock);
 
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
                                     ptr_addr++;
@@ -4696,7 +5017,7 @@ BOOL lslpEvaluateFilterTree(lslpLDAPFilter *filter, const lslpAttrList *attrs)
             {
                 /* advance to a matching attribute name if it exists */
                 while ((! _LSLP_IS_HEAD(attrs )) &&
-                    (FALSE  == lslp_pattern_match(filter->attrs.next->name,
+                    (FALSE  == lslp_pattern_match2(filter->attrs.next->name,
                     attrs->name, FALSE)))
                 {
                     attrs = attrs->next ;
@@ -4954,7 +5275,7 @@ int lslp_string_compare(char *s1, char *s2)
     PEGASUS_ASSERT(s2 != NULL);
     lslp_foldString(s1);
     lslp_foldString(s2);
-    if (TRUE == lslp_pattern_match(s1, s2, FALSE))
+    if (TRUE == lslp_pattern_match2(s1, s2, FALSE))
     {
         return 0;
     }
@@ -5796,7 +6117,8 @@ BOOL lslp_predicate_match(lslpAttrList *a, char *b)
 struct lslp_srv_rply_out *_lslpProcessSrvReq(
     struct slp_client *client,
     struct lslp_srv_req *msg,
-    int16 errCode)
+    int16 errCode,
+    SOCKADDR *remote)
 {
     char *buf;
     int16 bufLen, avail;
@@ -5804,6 +6126,7 @@ struct lslp_srv_rply_out *_lslpProcessSrvReq(
     int16 ext_offset;
     char *extptr, *next_extptr;
     BOOL pile_up_attrs = FALSE;
+    char url_addr[PEGASUS_IN6_ADDR_SIZE];
 
     struct lslp_srv_rply_out *temp_rply =
         (struct lslp_srv_rply_out *)calloc(
@@ -5900,7 +6223,63 @@ struct lslp_srv_rply_out *_lslpProcessSrvReq(
                         lslpFreeSrvReg(temp_reg);
                         continue;
                     }
+                    // Match the remote address family. Send ip4 URLs to ip4
+                    // remote addrs and ip6 URLs to ip6 remote addrs.
+                    if (!_slp_check_url_addr(reg->url->url, remote->sa_family,
+                        url_addr))
+                    {
+                        reg = reg->next;
+                        continue;
+                    }
 
+                    // Determine whether we have correct ip6 SCOPES.
+/*
+                               Request Source Address Scope
+                          +------------+------------+---------+
+                          | Link-Local | Site-Local | Global  |
+            +-------------+------------+------------+---------+
+   Service  | Link-Local  |  Respond   |    Drop    |   Drop  |
+   Address  +-------------+------------+------------+---------+
+   Scope    | Site-Local  |  Respond   |   Respond  |   Drop  |
+            +-------------+------------+------------+---------+
+            | Global      |  Respond   |   Respond  | Respond |
+            +-------------+------------+------------+---------+
+
+                       Out-of-Scope Rules
+*/
+
+#ifdef PEGASUS_ENABLE_IPV6
+                    if (remote->sa_family == AF_INET6)
+                    {
+                        struct in6_addr src_addr =
+                            ((SOCKADDR_IN6*)remote)->sin6_addr;
+                        // Site local source address
+                        if (IN6_IS_ADDR_SITELOCAL(&src_addr))
+                        {
+                            // Drop if Link local.
+                            if (IN6_IS_ADDR_LINKLOCAL(
+                                (struct in6_addr*)&url_addr))
+                            {
+                                reg = reg->next;
+                                continue;
+                            }
+                        }
+                        // Global source address
+                        else if (!IN6_IS_ADDR_SITELOCAL(&src_addr) &&
+                            !IN6_IS_ADDR_LINKLOCAL(&src_addr))
+                        {
+                            // Drop if Link or Site local.
+                            if (IN6_IS_ADDR_SITELOCAL(
+                                   (struct in6_addr*)&url_addr) ||
+                                IN6_IS_ADDR_LINKLOCAL(
+                                    (struct in6_addr*)&url_addr))
+                            {
+                                reg = reg->next;
+                                continue;
+                            }
+                        }
+                    }
+#endif
                     if (TRUE == lslp_srvtype_match(
                         reg->srvType,
                         msg->srvcType))
@@ -6057,10 +6436,11 @@ struct lslp_srv_rply_out *_lslpProcessSrvReq(
 #define lslp_to_lower(c)  (((c) > 0x40 && (c) < 0x5b) ? ((c) + 0x20) : (c))
 /* based upon TclStringCaseMatch */
 #define MAX_RECURSION  10
-BOOL lslp_pattern_match(
+static BOOL _lslp_pattern_match(
     const char *string,
     const char *pattern,
-    BOOL case_sensitive)
+    BOOL case_sensitive,
+    BOOL eb)
 {
 
     char s, p;
@@ -6111,7 +6491,7 @@ BOOL lslp_pattern_match(
             }
             while (1)
             {
-                if ((p != '[') && (p != '?') && (p != '\\'))
+                if ((!eb && p != '[') && (p != '?') && (p != '\\'))
                 {
                     /* advance the string until there is a match */
                     while (*string)
@@ -6130,7 +6510,7 @@ BOOL lslp_pattern_match(
                     }
                 }
                 if (TRUE ==
-                    lslp_pattern_match(string, pattern, case_sensitive))
+                    _lslp_pattern_match(string, pattern, case_sensitive, eb))
                 {
                     recursion_level--;
                     return TRUE;
@@ -6150,7 +6530,7 @@ BOOL lslp_pattern_match(
             continue;
         }
 
-        if (p == '[')
+        if (!eb && p == '[')
         {
             char start, end;
             pattern++;
@@ -6161,7 +6541,7 @@ BOOL lslp_pattern_match(
             }
             while (1)
             {
-                if (*pattern == ']' || *pattern == '\0')
+                if ((!eb && *pattern == ']') || *pattern == '\0')
                 {
                     recursion_level--;
                     return FALSE ;
@@ -6195,7 +6575,7 @@ BOOL lslp_pattern_match(
                     break;
                 }
             }
-            while (*pattern != ']')
+            while (!eb && *pattern != ']')
             {
                 if (*pattern == '\0')
                 {
@@ -6234,6 +6614,30 @@ BOOL lslp_pattern_match(
     }
 }
 
+BOOL lslp_pattern_match(
+    const char *string,
+    const char *pattern,
+    BOOL case_sensitive)
+{
+    return _lslp_pattern_match(string, pattern, case_sensitive, FALSE);
+}
+
+/*
+     Matches the pattern by treating brackets([]) as part regualr expression
+     expansion and also not treating them as  part of reaular expressions.
+     Used for IPv6 addrss URLs.
+*/
+BOOL lslp_pattern_match2(
+    const char *string,
+    const char *pattern,
+    BOOL case_sensitive)
+{
+    if ( TRUE == _lslp_pattern_match(string, pattern, case_sensitive, TRUE))
+    {
+        return TRUE;
+    }
+    return _lslp_pattern_match(string, pattern, case_sensitive, FALSE);
+}
 
 char * lslp_get_next_ext(char *hdr_buf)
 {
@@ -6714,7 +7118,8 @@ int main(int argc, char **argv)
         "DSA",
         "DEFAULT, TEST SCOPE",
         TRUE,
-        TRUE);
+        TRUE,
+        0);
 
     if (client != NULL)
     {

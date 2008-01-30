@@ -62,6 +62,7 @@
 /*** define the following token to import labels from the slp_client library */
 #define SLP_LIB_IMPORT
 #include "../slp_client/slp_client.h"
+#include "../slp_client/slp_utils.h"
 
 
 static char *type;
@@ -287,6 +288,10 @@ BOOL get_options(int argc, char *argv[])
 
 int main(int argc, char **argv)
 {
+#ifdef PEGASUS_ENABLE_IPV6
+    struct in6_addr ip6_loop = PEGASUS_IPV6_LOOPBACK_INIT;
+    struct in6_addr ip6_addr;
+#endif
     struct slp_client *client;
     lslpMsg responses, *temp;
 
@@ -311,9 +316,10 @@ int main(int argc, char **argv)
             "DSA",
             scopes,
             FALSE,
-            dir_agent)))
+            dir_agent,
+            type)))
         {
-            if (addr != NULL && inet_addr(addr) == inet_addr("127.0.0.1"))
+            if (slp_is_loop_back_addr(addr))
             {
                 client->local_srv_req(client, type, predicate, scopes);
             }
@@ -324,23 +330,44 @@ int main(int argc, char **argv)
             }
             else
             {
-                SOCKADDR_IN address;
-                address.sin_port = htons(port);
-                address.sin_family = AF_INET;
-                if(addr != NULL)
+                if (!addr)
                 {
-                    address.sin_addr.s_addr = inet_addr(addr);
-                    client->unicast_srv_req(
-                        client,
-                        type,
-                        predicate,
-                        scopes,
-                        &address);
+                    client->converge_srv_req(client, type, predicate, scopes);
                 }
                 else
                 {
-                    address.sin_addr.s_addr = _LSLP_MCAST;
-                    client->converge_srv_req(client, type, predicate, scopes);
+#ifdef PEGASUS_ENABLE_IPV6
+                    SOCKADDR_IN6 ip6;
+#endif
+                    SOCKADDR_IN ip4;
+                    void *target = 0;
+ 
+                    if (slp_is_valid_ip4_addr(addr))
+                    {
+                        ip4.sin_port = htons(port);
+                        ip4.sin_family = AF_INET;
+                        ip4.sin_addr.s_addr = inet_addr(addr);
+                        target = &ip4;
+                    }
+#ifdef PEGASUS_ENABLE_IPV6
+                    else
+                    {
+                        memset(&ip6, 0, sizeof(ip6));
+                        ip6.sin6_port = htons(port);
+                        ip6.sin6_family = AF_INET6;
+                        slp_pton(AF_INET6, addr, &ip6.sin6_addr);
+                        target = &ip6;
+                    }
+#endif
+                    if(target)
+                    {
+                        client->unicast_srv_req(
+                            client,
+                            type,
+                            predicate,
+                            scopes,
+                            (SOCKADDR*)target);
+                    }
                 }
             }
 

@@ -1330,7 +1330,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL registerPegasusWithSLP(void* parm)
                                                  "DSA",
                                                  scopes,
                                                  FALSE,
-                                                 FALSE)))
+                                                 FALSE,
+                                                 0)))
          {
              if (foundHttpProtocol)
              {
@@ -1454,7 +1455,8 @@ void PEGASUS_SERVER_LINKAGE unregisterPegasusFromSLP()
                                             "DSA",
                                             scopes,
                                             FALSE,
-                                            FALSE)))
+                                            FALSE,
+                                            0)))
     {
         if (foundHttpProtocol)
         {

@@ -60,6 +60,7 @@
 
 #define SLP_LIB_IMPORT 1
 #include "../slp_client/slp_client.h"
+#include "../slp_client/slp_utils.h"
 
 static char *url, *scopes, *tags, *addr, *_interface;
 static int16 port = 427, converge ;
@@ -286,10 +287,10 @@ int main(int argc, char **argv)
             "DSA",
             scopes,
             FALSE,
-            dir_agent)))
+            dir_agent,
+            0)))
         {
-
-            if (addr != NULL && inet_addr(addr) == inet_addr("127.0.0.1"))
+            if (slp_is_loop_back_addr(addr))
             {
                 client->local_attr_req(client, url, scopes, tags);
             }
@@ -300,25 +301,46 @@ int main(int argc, char **argv)
             }
             else
             {
-                SOCKADDR_IN address;
-                address.sin_port = htons(port);
-                address.sin_family = AF_INET;
-                if (addr != NULL)
+                if (!addr)
                 {
-                    address.sin_addr.s_addr = inet_addr(addr);
-                    client->unicast_attr_req(
-                        client,
-                        url,
-                        scopes,
-                        tags,
-                        &address);
+                    client->converge_attr_req(client, url, scopes, tags);
                 }
                 else
                 {
-                    address.sin_addr.s_addr = _LSLP_MCAST;
-                    client->converge_attr_req(client, url, scopes, tags);
+#ifdef PEGASUS_ENABLE_IPV6
+                    SOCKADDR_IN6 ip6;
+#endif
+                    SOCKADDR_IN ip4;
+                    void *target = 0;
+
+                    if (slp_is_valid_ip4_addr(addr))
+                    {
+                        ip4.sin_port = htons(port);
+                        ip4.sin_family = AF_INET;
+                        ip4.sin_addr.s_addr = inet_addr(addr);
+                        target = &ip4;
+                    }
+#ifdef PEGASUS_ENABLE_IPV6
+                    else
+                    {
+                        memset(&ip6, 0, sizeof(ip6));
+                        ip6.sin6_port = htons(port);
+                        ip6.sin6_family = AF_INET6;
+                        slp_pton(AF_INET6, addr, &ip6.sin6_addr);
+                        target = &ip6;
+                    }
+#endif
+                    if(target)
+                    {
+                        client->unicast_attr_req(
+                            client,
+                            url,
+                            scopes,
+                            tags,
+                            (SOCKADDR*)target);
+                    }
                 }
-            } /* end of request  */
+            }
 
             responses.isHead = TRUE;
             responses.next = responses.prev = &responses;

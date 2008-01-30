@@ -167,13 +167,16 @@ char* replace (char *s,char *t, char *substitute)
 // Parse the list and check for the required data.
 // Returns 'true' if the required data is found otherwise
 // returns 'false'
-BOOL parseFind(lslpMsg *temp,  const char* httpAttr)
+BOOL parseFind(lslpMsg *responses,  const char* httpAttr)
 {
     BOOL found = false;
     lslpURL *url_list;
-    if (temp != NULL && temp->type == srvRply)
+    lslpMsg *temp;
+
+    temp = responses->next;
+    while (1)
     {
-        if ((NULL != temp->msg.srvRply.urlList)
+        if ( (temp->type == srvRply) && (NULL != temp->msg.srvRply.urlList)
             && (! _LSLP_IS_EMPTY(temp->msg.srvRply.urlList)))
         {/*start of url if*/
             url_list = temp->msg.srvRply.urlList->next;
@@ -195,16 +198,19 @@ BOOL parseFind(lslpMsg *temp,  const char* httpAttr)
                         attrs = attrs->next;
                     }  //while traversing attr list
                 }
-                else  // if no attr list, print the record separator
-                {
-                    printf("%c", rs);
-                }
                 url_list = url_list->next;
                 // if there is another url, print a record separator
             } // while traversing url list
+            if (found)
+            {
+                break;
+            } 
         } // if there are urls to print
-        // print the record separator
-        printf("%c", rs);
+        if (temp->next == responses)
+        {
+            break;
+        }  
+        temp = temp->next;
     }
 
     return found;
@@ -224,7 +230,8 @@ void testSLPReg_fromCIMServer ()
     char *httpAttrs  = (char *)NULL;
 
     //Create slp client
-    client = create_slp_client (addr,iface,SLP_PORT,"DSA",scopes,FALSE,FALSE);
+    client = create_slp_client (addr,iface,SLP_PORT,"DSA",
+        scopes,FALSE,FALSE, 0);
     PEGASUS_TEST_ASSERT(NULL != client);
 
     // discover all responses
@@ -234,7 +241,7 @@ void testSLPReg_fromCIMServer ()
 
     // retrieve the response head.
     PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
-    temp = responses.next;
+    temp = &responses;
 
     // Get all the SLP attributes and data for the Pegasus cimserver.
     SLPHttpAttribObj.fillData("http");
@@ -249,7 +256,6 @@ void testSLPReg_fromCIMServer ()
     // data and data retrieved from the SLP SA.
     PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs));
 
-    free(temp);
     free(httpAttrs);
     destroy_slp_client(client);
     return;
@@ -269,7 +275,8 @@ void test1 ()
     lslpMsg responses,*temp;
 
     //Create slp client
-    client = create_slp_client (addr,iface,SLP_PORT,"DSA",scopes,FALSE,FALSE);
+    client = create_slp_client (addr,iface,SLP_PORT,"DSA",
+        scopes,FALSE,FALSE, 0);
     PEGASUS_TEST_ASSERT(NULL != client);
 
     /* Register with SLP using http. This assert would fail if SLP SA is not
@@ -284,12 +291,11 @@ void test1 ()
 
     // retrieve the response head.
     PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
-    temp = responses.next;
+    temp = &responses;
 
     // parse the response list and check for the required response.
     PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs1));
 
-    free(temp);
     destroy_slp_client(client);
     return;
 }
@@ -308,7 +314,8 @@ void test2 ()
     lslpMsg responses,*temp,*temp1;
 
     // Creates slp client
-    client = create_slp_client (addr,iface,SLP_PORT,"DSA",scopes,FALSE,FALSE);
+    client = create_slp_client (addr,iface,SLP_PORT,"DSA",scopes,
+        FALSE,FALSE, 0);
     PEGASUS_TEST_ASSERT(NULL != client);
 
     //Register http  with SLP. This assert would fail if SLP SA is not running
@@ -318,7 +325,7 @@ void test2 ()
     responses.isHead = TRUE;
     responses.next = responses.prev = &responses;
     PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
-    temp = responses.next;
+    temp = &responses;
 
     //check if the registered data is same ot not.
     PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs1));
@@ -330,7 +337,7 @@ void test2 ()
     responses.isHead = TRUE;
     responses.next = responses.prev = &responses;
     PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
-    temp = responses.next;
+    temp = &responses;
 
     //check if the registered data is same ot not.
     PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs2));
@@ -344,7 +351,7 @@ void test2 ()
     responses.isHead = TRUE;
     responses.next = responses.prev = &responses;
     client->get_response (client, &responses);
-    temp1 = responses.next;
+    temp1 = &responses;
     // Check if unregister service can be found
     PEGASUS_TEST_ASSERT(!parseFind(temp1, httpAttrs1));
 
@@ -358,13 +365,11 @@ void test2 ()
     responses.isHead = TRUE;
     responses.next = responses.prev = &responses;
     client->get_response (client, &responses);
-    temp1 = responses.next;
+    temp1 = &responses;
 
     // Check if unregister service can be found
     PEGASUS_TEST_ASSERT(!parseFind(temp1, httpAttrs2));
 
-    free(temp);
-    free(temp1);
     destroy_slp_client(client);
     return;
 }
@@ -380,7 +385,8 @@ void test3 ()
     lslpMsg responses,*temp;
 
     // Creates slp client
-    client = create_slp_client (addr,iface,SLP_PORT,"DSA",scopes,FALSE,FALSE);
+    client = create_slp_client (addr,iface,SLP_PORT,"DSA",
+        scopes,FALSE,FALSE, 0);
     PEGASUS_TEST_ASSERT(NULL != client);
 
     /* Register with SLP using http. This assert would fail if SLP SA is not
@@ -391,7 +397,7 @@ void test3 ()
     responses.isHead = TRUE;
     responses.next = responses.prev = &responses;
     PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
-    temp = responses.next;
+    temp = &responses;
 
     //check if the registered data is same ot not.
     PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs1));
@@ -406,12 +412,11 @@ void test3 ()
     responses.isHead = TRUE;
     responses.next = responses.prev = &responses;
     client->get_response (client, &responses);
-    temp = responses.next;
+    temp = &responses;
 
     // Check if unregister service can be found
     PEGASUS_TEST_ASSERT(!parseFind(temp, httpAttrs1));
 
-    free(temp);
     destroy_slp_client(client);
     return;
 }
@@ -426,7 +431,8 @@ int test4()
     lslpMsg responses,*temp;
 
     // Creates slp client
-    client = create_slp_client (addr,iface,SLP_PORT,"DSA", scopes,FALSE,FALSE);
+    client = create_slp_client (addr,iface,SLP_PORT,"DSA",
+        scopes,FALSE,FALSE, 0);
     PEGASUS_TEST_ASSERT(NULL != client);
 
     /* Register with SLP using http. This assert would fail if SLP SA is not
@@ -437,15 +443,15 @@ int test4()
     responses.isHead = TRUE;
     responses.next = responses.prev = &responses;
     PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
-    temp = responses.next;
+    temp = &responses;
 
     //check if the registered data is same ot not.
     PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs1));
 
+    temp = &responses;
     //Check if unregistered data can can be found
     PEGASUS_TEST_ASSERT (!parseFind(temp, httpAttrs2));
 
-    free(temp);
     destroy_slp_client(client);
     return( 32 );
 }
@@ -460,7 +466,8 @@ void test5()
     char *changedata = (char *)NULL;
 
     // Creates slp client
-    client = create_slp_client (addr,iface,SLP_PORT,"DSA",scopes,FALSE,FALSE);
+    client = create_slp_client (addr,iface,SLP_PORT,"DSA",
+        scopes,FALSE,FALSE, 0);
     PEGASUS_TEST_ASSERT(NULL != client);
 
     /* Register with SLP using http. This assert would fail if SLP SA is not
@@ -471,7 +478,7 @@ void test5()
     responses.isHead = TRUE;
     responses.next = responses.prev = &responses;
     PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
-    temp = responses.next;
+    temp = &responses;
 
     //check if the registered data is same ot not.
     PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs1));
@@ -484,12 +491,11 @@ void test5()
     responses.isHead = TRUE;
     responses.next = responses.prev = &responses;
     PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
-    temp = responses.next;
+    temp = &responses;
 
     //check if the registered data is same ot not.
     PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs2));
 
-    free(temp);
     destroy_slp_client(client);
     return;
 }
@@ -503,7 +509,8 @@ void  test6()
     lslpMsg responses, *temp;
 
     // Creates slp client
-    client = create_slp_client (addr,iface,SLP_PORT,"DSA",scopes,FALSE,FALSE);
+    client = create_slp_client (addr,iface,SLP_PORT,"DSA",
+        scopes,FALSE,FALSE, 0);
     PEGASUS_TEST_ASSERT(NULL != client);
     PEGASUS_TEST_ASSERT(client->srv_reg_local (client, httpUrl1, httpAttrs1,
         type, scopes, 0));
@@ -514,12 +521,11 @@ void  test6()
     responses.isHead = TRUE;
     responses.next = responses.prev = &responses;
     client->get_response (client, &responses);
-    temp = responses.next;
+    temp = &responses;
 
     // Check if unregister service can be found
     PEGASUS_TEST_ASSERT(!parseFind(temp, httpAttrs1));
 
-    free(temp);
     destroy_slp_client(client);
     return;
 }
@@ -532,7 +538,8 @@ void  test7()
     lslpMsg responses,*temp;
 
     // Creates slp client
-    client = create_slp_client (addr,iface,SLP_PORT,"DSA",scopes,FALSE,FALSE);
+    client = create_slp_client (addr,iface,SLP_PORT,"DSA",
+        scopes,FALSE,FALSE, 0);
     PEGASUS_TEST_ASSERT(NULL != client);
 
     /* Register with SLP using http. This assert would fail if SLP SA is
@@ -543,7 +550,7 @@ void  test7()
     responses.isHead = TRUE;
     responses.next = responses.prev = &responses;
     PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
-    temp = responses.next;
+    temp = &responses;
 
     //check if the registered data is same ot not.
     PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs1));
@@ -555,12 +562,11 @@ void  test7()
     responses.isHead = TRUE;
     responses.next = responses.prev = &responses;
     PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
-    temp = responses.next;
+    temp = &responses;
 
     //check if the registered data is same ot not.
     PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs1));
 
-    free(temp);
     destroy_slp_client(client);
     return;
 }
@@ -575,7 +581,8 @@ void test8()
     char *changedata = (char *)NULL;
 
     // Creates slp client
-    client = create_slp_client (addr,iface,SLP_PORT,"DSA",scopes,FALSE,FALSE);
+    client = create_slp_client (addr,iface,SLP_PORT,"DSA",
+        scopes,FALSE,FALSE, 0);
     PEGASUS_TEST_ASSERT(NULL != client);
 
     /* Register with SLP using http. This assert would fail if SLP SA is
@@ -594,9 +601,9 @@ void test8()
        registration data with "Changed". Register with the modified data and
        check for success case and failure case.
     */
-    if (temp != NULL && temp->type == srvRply)
+    while(1)
     {
-        if ((NULL != temp->msg.srvRply.urlList) &&
+        if ( (temp->type == srvRply) && (NULL != temp->msg.srvRply.urlList) &&
             (! _LSLP_IS_EMPTY(temp->msg.srvRply.urlList)))//start of url if
         {
             url_list = temp->msg.srvRply.urlList->next;
@@ -620,15 +627,15 @@ void test8()
                         attrs = attrs->next;
                     }  //while traversing attr list
                 }
-                else  // if no attr list, print the record separator
-                {
-                    printf("%c", rs);
-                }
                 // if there is another url, print a record separator
                 url_list = url_list->next;
             } // while traversing url list
         } // if there are urls to print
-        printf("%c", rs);
+        if (temp->next == &responses)
+        {
+            break;
+        }
+        temp = temp->next;
     }
 
     // Register with SLP using http with modified data. This assert would fail
@@ -639,15 +646,15 @@ void test8()
     responses.isHead = TRUE;
     responses.next = responses.prev = &responses;
     PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
-    temp = responses.next;
+    temp = &responses;
 
     // Check for the correctness of the modified data
     PEGASUS_TEST_ASSERT (parseFind(temp, changedata));
 
+    temp = &responses;
     //Failure case -- Check for data prior to modification .
     PEGASUS_TEST_ASSERT (!parseFind(temp, httpAttrs1));
 
-    free(temp);
     free(changedata);
     destroy_slp_client(client);
     return;
@@ -667,7 +674,8 @@ void test9 ()
     lslpMsg responses,*temp;
 
     // Create SLP Client
-    client = create_slp_client (addr,iface,SLP_PORT,"DSA",scopes,FALSE,FALSE);
+    client = create_slp_client (addr,iface,SLP_PORT,"DSA",
+        scopes,FALSE,FALSE, 0);
     PEGASUS_TEST_ASSERT(NULL != client);
 
     // Register with SLP using https. This assert would fail if SLP SA is
@@ -678,10 +686,9 @@ void test9 ()
     responses.isHead = TRUE;
     responses.next = responses.prev = &responses;
     PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
-    temp = responses.next;
+    temp = &responses;
     PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs2));
 
-    free(temp);
     destroy_slp_client(client);
     return;
 }

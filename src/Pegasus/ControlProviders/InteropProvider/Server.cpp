@@ -49,6 +49,7 @@
 
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/HostAddress.h>
 #include <Pegasus/Common/PegasusVersion.h>
 
 #include <cctype>
@@ -314,13 +315,39 @@ Array<CIMInstance> InteropProvider::enumCIMXMLCommunicationMechanismInstances()
             sprintf(buffer, "%u", portNumberHttp);
             httpPort.assign(buffer);
         }
-        CIMInstance instance = 
-            buildCIMXMLCommunicationMechanismInstance(
+        CIMInstance instance;
+        Array<String> ips;
+#ifdef PEGASUS_ENABLE_IPV6
+        ips = System::getInterfaceAddrs();
+        for (Uint32 i = 0; i < ips.size() ; ++i)
+        {
+            String addr = ips[i];
+            if (HostAddress::isValidIPV6Address(ips[i]))
+            {
+                addr = "[" + addr + "]";
+            }
+            addr.append(":");
+            addr.append(httpPort);
+            
+            instance  =
+                buildCIMXMLCommunicationMechanismInstance(
+                    namespaceType,
+                    namespaceAccessProtocol,
+                    addr,
+                    commMechClass);
+            instances.append(instance);
+        }
+#endif
+        // If System::getInterfaceAddrs() fails add ip4 addr here.
+        if (!ips.size())
+        {
+            instance  = buildCIMXMLCommunicationMechanismInstance(
                 namespaceType,
                 namespaceAccessProtocol,
                 getHostAddress(hostName, namespaceAccessProtocol, httpPort),
                 commMechClass);
-        instances.append(instance);
+            instances.append(instance);
+        }
     }
 
     if (enableHttpsConnection)
@@ -337,14 +364,38 @@ Array<CIMInstance> InteropProvider::enumCIMXMLCommunicationMechanismInstances()
             sprintf(buffer, "%u", portNumberHttps);
             httpsPort.assign(buffer);
         }
-        CIMInstance instance = 
-            buildCIMXMLCommunicationMechanismInstance(
+        CIMInstance instance;
+        Array<String> ips;
+#ifdef PEGASUS_ENABLE_IPV6
+        ips = System::getInterfaceAddrs();
+        for (Uint32 i = 0; i < ips.size() ; ++i)
+        {
+            String addr = ips[i];
+            if (HostAddress::isValidIPV6Address(ips[i]))
+            {
+                addr = "[" + addr + "]";
+            }
+            addr.append(":");  
+            addr.append(httpsPort);  
+            instance  =
+                buildCIMXMLCommunicationMechanismInstance(
+                    namespaceType,
+                    namespaceAccessProtocol,
+                    addr,
+                    commMechClass);
+            instances.append(instance);
+        }
+#endif
+        // If System::getInterfaceAddrs() fails add ip4 addr here.
+        if (!ips.size())
+        {
+            instance  = buildCIMXMLCommunicationMechanismInstance(
                 namespaceType,
                 namespaceAccessProtocol,
                 getHostAddress(hostName, namespaceAccessProtocol, httpsPort),
                 commMechClass);
-
-        instances.append(instance);
+            instances.append(instance);
+        }
     }
 
     PEG_METHOD_EXIT();

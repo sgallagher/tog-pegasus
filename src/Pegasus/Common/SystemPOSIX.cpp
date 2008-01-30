@@ -1250,4 +1250,69 @@ static SystemInitializer initializer;
 
 #endif /* PEGASUS_OS_AIX */
 
+Array<String> System::getInterfaceAddrs()
+{
+    Array<String> ips;
+
+#ifdef PEGASUS_ENABLE_IPV6
+
+#if defined(PEGASUS_OS_LINUX)
+    struct ifaddrs *array, *addrs;
+    char buff[PEGASUS_INET6_ADDRSTR_LEN];
+
+    if (0 > getifaddrs(&array))
+    {
+        return ips;
+    }
+
+    for( addrs = array; addrs != NULL; addrs = addrs->ifa_next)
+    {
+        switch(addrs->ifa_addr->sa_family)
+        {
+            case AF_INET :
+                // Don't gather loop back addrs.
+                if (System::isLoopBack(AF_INET, 
+                    &((struct sockaddr_in *)addrs->ifa_addr)->sin_addr))
+                {
+                    continue;
+                }
+                HostAddress::convertBinaryToText(AF_INET, 
+                    &((struct sockaddr_in *)addrs->ifa_addr)->sin_addr,
+                    buff, sizeof(buff));
+                ips.append(buff);
+                break;
+            case AF_INET6 :
+                if (System::isLoopBack(AF_INET6,
+                    &((struct sockaddr_in6 *)addrs->ifa_addr)->sin6_addr))
+                {
+                    continue;
+                }
+                HostAddress::convertBinaryToText(AF_INET6,
+                    &((struct sockaddr_in6 *)addrs->ifa_addr)->sin6_addr,
+                    buff, sizeof(buff));
+                ips.append(buff);
+                break;
+        }
+    }
+    if(array)
+    {
+        freeifaddrs(array);
+    }
+#elif defined(PEGASUS_OS_AIX)
+//ATTN: implement for AIX
+#elif defined(PEGASUS_OS_ZOS)
+//ATTN: implement for ZOS
+#elif defined(PEGASUS_OS_HPUX)
+//ATTN: implement for HPUX
+#elif defined(PEGASUS_OS_VMS)
+//ATTN: implement for VMS
+#else
+//ATTN: implement for rest of UNIX flavors.
+#endif
+
+#endif // PEGASUS_ENABLE_IPV6
+
+    return ips;
+}
+
 PEGASUS_NAMESPACE_END

@@ -1,4 +1,4 @@
-/*//%2006////////////////////////////////////////////////////////////////////////
+/*//%2006///////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -28,6 +28,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //============================================================================*/
+//NOCHKSRC
 /*****************************************************************************
  *  Description: encode/decode attribute urls
  *
@@ -35,7 +36,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/url.l,v 1.3 2006/01/31 15:03:55 karl Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/url.l,v 1.4 2008/01/30 05:23:48 venkat.puvvada Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -62,9 +63,7 @@
  *****************************************************************************/
 
 
-
 %{
-
 #undef YYLMAX
 #define YYLMAX 2048
 #define YY_NEVER_INTERACTIVE 1
@@ -104,6 +103,14 @@ unreserved		({alphanum}|{mark})
 reserved		[;/?:@&=+$,]
 uric			({reserved} | {unreserved} | {escaped})
 
+ /* IPv6 definitions */
+hex4			({hex}{1,4})
+hexseq			{hex4}|{hex4}(":"{hex4})*
+hexpart			{hexseq}|{hexseq}"::"({hexseq})*|"::"({hexseq})*
+ip6prefix		{hexpart}"/"{1}{digit}{2}
+ip4addr			({digit}{1,3})"."({digit}{1,3})"."({digit}{1,3})"."({digit}{1,3})
+ip6addr			{hexpart}|{hexpart}":"{ip4addr}
+
 %x IP_SITE
 %x AT_SITE
 %x ATTRIBUTE
@@ -126,7 +133,7 @@ uric			({reserved} | {unreserved} | {escaped})
 
  /* this next rule needs to kick in even if it matches a zero-length string */
  /* i.e., it needs to be guaranteed even if there is no user @ host production */
-<IP_SITE>[-_.!~*'()a-zA-Z0-9;+&=\%]* {
+<IP_SITE>[-_.!~*'()a-zA-Z0-9;+&=\%]*|"["{ip6addr}"]" {
 			BEGIN INITIAL;
 			if (urlleng > 0)
 			{
@@ -195,7 +202,7 @@ uric			({reserved} | {unreserved} | {escaped})
 			}
 
  /* an ipv4 address */
-({hex}{1,3})"."({hex}{1,3})"."({hex}{1,3})"."({hex}{1,3}) {
+({hex}{1,3})"."({hex}{1,3})"."({hex}{1,3})"."({hex}{1,3})|"["{ip6addr}"]" {
  			if(NULL != (urllval._s	= _lslp_strdup(urltext)))
 				return(_IPADDR);
 			else

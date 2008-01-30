@@ -42,6 +42,7 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Config/ConfigManager.h>
+#include <Pegasus/Common/HostLocator.h>
 
 #include <Pegasus/Common/Tracer.h>
 /* This is a test program for the Interop Control Provider.
@@ -2757,23 +2758,9 @@ void InteropTest::testCommunicationClass()
                     // connecting to the cim server and then
                     // disconnecting.
                     CIMClient testClient;
-                    Uint32 ipAddressBreak = IPAddress.find(':');
-                    Uint32 portNumber = 5988;
-                    String ipaddress = IPAddress.subString(0,ipAddressBreak);
-                    String portString = IPAddress.subString(
-                                        (ipAddressBreak + 1),
-                                        (IPAddress.size() - ipAddressBreak));
-
-                    char* end = 0;
-                    CString portCString = portString.getCString();
-                    portNumber = strtol(portCString, &end, 10);
-                    if(!(end != 0 && *end == '\0'))
-                    {
-                        TERMINATE(
-                            "Invalid http port value in CIMXML Comm object " +
-                            portString);
-                    }
-
+                    HostLocator locator(IPAddress);
+                    Uint32 portNumber = locator.getPort();
+                    String ipaddress = locator.getHost();
                     // Try to connect to the server.
                     try{
                         testClient.connect(ipaddress, portNumber,
@@ -2783,14 +2770,24 @@ void InteropTest::testCommunicationClass()
 
                     catch(CIMException& e)
                     {
-                        TERMINATE(
+                        // If node is not in real ip6 network it may fail. 
+                        // Failsafe for ip6 addrs.
+                        if (locator.getAddressType() != HostAddress::AT_IPV6)
+                        {
+                            TERMINATE(
                                 " Cim Exception Error Comm class IP Address: "
                                 << IPAddress << " " << e.getMessage());
+                        }
                     }
                     catch(Exception& e)
                     {
-                        TERMINATE("Exception Error Comm class IP Address: "
+                        // If node is not in real ip6 network it may fail. 
+                        // Failsafe for ip6 addrs.
+                        if (locator.getAddressType() != HostAddress::AT_IPV6)
+                        {
+                            TERMINATE("Exception Error Comm class IP Address: "
                                 << IPAddress << " " << e.getMessage());
+                        }
                     }
                 }
 

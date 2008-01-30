@@ -35,16 +35,17 @@ DIR = slp/slp_client/src/cmd-utils/slp_client
 include $(ROOT)/mak/config.mak
 
 # Treat all the SOURCES as C source only
-ifeq ($(OS_TYPE),windows)
-FLAGS += /TC
-endif
-ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
-FLAGS += -x c 
-endif
+#ifeq ($(OS_TYPE),windows)
+#FLAGS += /TC
+#endif
+#ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
+#FLAGS += -x c 
+#endif
 
 LIBRARY = pegslp_client
 
 SOURCES = \
+    slp_utils.cpp \
     slp_client.cpp \
     lslp.cpp \
     y_attr.cpp \

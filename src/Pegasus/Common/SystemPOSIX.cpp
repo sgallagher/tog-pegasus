@@ -73,6 +73,11 @@
 #include <time.h>
 #include <sys/time.h>
 #include "System.h"
+
+#ifdef PEGASUS_OS_PASE
+#include <ILEWrapper/ILEUtilities.h>
+#endif
+
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/Mutex.h>

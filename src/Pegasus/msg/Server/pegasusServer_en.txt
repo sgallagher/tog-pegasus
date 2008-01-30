@@ -3330,9 +3330,9 @@ not be valid."}
 
         /**
          * @note  PGS09670:
-         *   Do not translate the word 'EMBEDDEDOBJECT' since it is a standard attribute name for CIM in XML
+         *   Do not translate the word 'EmbeddedObject' since it is a standard attribute name for CIM in XML
          */
-         Common.XmlReader.INVALID_EMBEDDEDOBJECT_TYPE:string {"PGS09670:  The EMBEDDEDOBJECT attribute is only valid on string types."}
+         Common.XmlReader.INVALID_EMBEDDEDOBJECT_TYPE:string {"PGS09670:  The EmbeddedObject attribute is only valid on string types."}
 
         // ==========================================================
         // Messages for String

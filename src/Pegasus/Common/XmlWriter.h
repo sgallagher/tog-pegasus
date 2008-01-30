@@ -277,6 +277,9 @@ public:
         Buffer& out,
         const String& content);
 #endif
+    static void appendParamTypeAndEmbeddedObjAttrib(
+        Buffer& out,
+        const CIMType& type);
 
     static void appendReturnValueElement(
         Buffer& out,

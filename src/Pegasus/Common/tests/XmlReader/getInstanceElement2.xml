@@ -5,7 +5,7 @@
     <PROPERTY NAME="IndicationTime"  TYPE="datetime">
         <VALUE>20050227225624.524000-300</VALUE>
     </PROPERTY>
-    <PROPERTY.ARRAY NAME="SourceInstance"  TYPE="string" EMBEDDEDOBJECT="object">
+    <PROPERTY.ARRAY NAME="SourceInstance"  TYPE="string" EmbeddedObject="object">
         <VALUE.ARRAY>
             <VALUE>
                 &lt;INSTANCE  CLASSNAME=&quot;Sample_LifecycleIndicationProviderClass&quot; &gt;

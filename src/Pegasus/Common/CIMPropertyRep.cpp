@@ -335,16 +335,19 @@ void CIMPropertyRep::toXml(Buffer& out) const
         {
             // If the property array type is CIMObject, then
             //     encode the property in CIM-XML as a string array with the
-            //     EMBEDDEDOBJECT attribute (there is not currently a CIM-XML
+            //     EmbeddedObject attribute (there is not currently a CIM-XML
             //     "object" datatype)
 
             Array<CIMObject> a;
             _value.get(a);
             out << STRLIT(" TYPE=\"string\"");
             // If the Embedded Object is an instance, always add the
-            // EMBEDDEDOBJECT attribute.
+            // EmbeddedObject attribute.
             if (a.size() > 0 && a[0].isInstance())
+            {
+                out << STRLIT(" EmbeddedObject=\"object\"");
                 out << STRLIT(" EMBEDDEDOBJECT=\"object\"");
+            }
 #ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
             else
             {
@@ -376,17 +379,18 @@ void CIMPropertyRep::toXml(Buffer& out) const
         {
             // If the property array type is CIMInstance, then
             //   encode the property in CIM-XML as a string array with the
-            //   EMBEDDEDOBJECT attribute (there is not currently a CIM-XML
+            //   EmbeddedObject attribute (there is not currently a CIM-XML
             //   "instance" datatype)
 
             Array<CIMInstance> a;
             _value.get(a);
-            out << " TYPE=\"string\"";
+            out << STRLIT(" TYPE=\"string\"");
 
-            // add the EMBEDDEDOBJECT attribute
+            // add the EmbeddedObject attribute
             if (a.size() > 0)
             {
-                out << " EMBEDDEDOBJECT=\"instance\"";
+                out << STRLIT(" EmbeddedObject=\"instance\"");
+                out << STRLIT(" EMBEDDEDOBJECT=\"instance\"");
 
                 // Note that if the macro PEGASUS_SNIA_INTEROP_COMPATIBILITY is
                 // defined, then the EmbeddedInstance qualifier will be added
@@ -498,7 +502,7 @@ void CIMPropertyRep::toXml(Buffer& out) const
         {
             // If the property type is CIMObject, then
             //   encode the property in CIM-XML as a string with the
-            //   EMBEDDEDOBJECT attribute (there is not currently a CIM-XML
+            //   EmbeddedObject attribute (there is not currently a CIM-XML
             //   "object" datatype)
 
             CIMObject a;
@@ -506,9 +510,12 @@ void CIMPropertyRep::toXml(Buffer& out) const
             out << STRLIT(" TYPE=\"string\"");
 
             // If the Embedded Object is an instance, always add the
-            // EMBEDDEDOBJECT attribute.
+            // EmbeddedObject attribute.
             if (a.isInstance())
+            {
+                out << STRLIT(" EmbeddedObject=\"object\"");
                 out << STRLIT(" EMBEDDEDOBJECT=\"object\"");
+            }
             // Else the Embedded Object is a class, always add the
             // EmbeddedObject qualifier.
 #ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
@@ -541,6 +548,7 @@ void CIMPropertyRep::toXml(Buffer& out) const
             CIMInstance a;
             _value.get(a);
             out << " TYPE=\"string\"";
+            out << " EmbeddedObject=\"instance\"";
             out << " EMBEDDEDOBJECT=\"instance\"";
 
 #ifdef PEGASUS_SNIA_INTEROP_COMPATIBILITY

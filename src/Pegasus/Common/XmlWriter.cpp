@@ -2381,6 +2381,54 @@ void XmlWriter::_appendErrorElement(
         out << STRLIT("/>");
 }
 
+//---------------------------------------------------------------------- 
+// 
+// appendParmType
+// Appends the Param type and EmbeddedObject Info
+// to the buffer
+// %EmbeddedObject; #IMPLIED
+// %ParamType;>
+// 
+//---------------------------------------------------------------------
+void XmlWriter::appendParamTypeAndEmbeddedObjAttrib(
+    Buffer& out,
+    const CIMType& type)
+{
+
+    // If the property type is CIMObject, then
+    //   encode the property in CIM-XML as a string with the EmbeddedObject
+    //   attribute (there is not currently a CIM-XML "object"
+    //   datatype).
+    //   Because of an error in Pegasus we were earlier outputting
+    //   upper case "EMBEDDEDOBJECT" as the attribute name. The
+    //   spec calls for mixed case "EmbeddedObject. Fixed in
+    //   bug 7131 to output EmbeddedObject  attribute in upper
+    //   case and mixed case. Receiver will ignore one or the
+    //   other.
+    //else
+    //      output the real type
+    if (type == CIMTYPE_OBJECT)
+    {
+
+        out << STRLIT(" PARAMTYPE=\"string\"");
+        out << STRLIT(" EmbeddedObject=\"object\"");
+        out << STRLIT(" EMBEDDEDOBJECT=\"object\"");
+    }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    else if (type == CIMTYPE_INSTANCE)
+    {
+        out << STRLIT(" PARAMTYPE=\"string\"");
+        out << STRLIT(" EmbeddedObject=\"instance\"");
+        out << STRLIT(" EMBEDDEDOBJECT=\"instance\"");
+    }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    else
+    {
+        out << STRLIT(" PARAMTYPE=\"") << cimTypeToString (type);
+        out.append('"');
+    }
+}
+
 //------------------------------------------------------------------------------
 //
 // appendReturnValueElement()
@@ -2392,6 +2440,7 @@ void XmlWriter::_appendErrorElement(
 //
 //------------------------------------------------------------------------------
 
+
 void XmlWriter::appendReturnValueElement(
     Buffer& out,
     const CIMValue& value)
@@ -2399,28 +2448,8 @@ void XmlWriter::appendReturnValueElement(
     out << STRLIT("<RETURNVALUE");
 
     CIMType type = value.getType();
-    // If the property type is CIMObject, then
-    //   encode the property in CIM-XML as a string with the EMBEDDEDOBJECT
-    //   attribute (there is not currently a CIM-XML "object" datatype)
-    // else
-    //   output the real type
-    if (type == CIMTYPE_OBJECT)
-    {
-        out << STRLIT(" PARAMTYPE=\"string\"");
-        out << STRLIT(" EMBEDDEDOBJECT=\"object\"");
-    }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-    else if (type == CIMTYPE_INSTANCE)
-    {
-        out << STRLIT(" PARAMTYPE=\"string\"");
-        out << STRLIT(" EMBEDDEDOBJECT=\"instance\"");
-    }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-    else
-    {
-        out << STRLIT(" PARAMTYPE=\"") << cimTypeToString (type);
-        out.append('"');
-    }
+
+    appendParamTypeAndEmbeddedObjAttrib(out, type);
 
     out << STRLIT(">\n");
 

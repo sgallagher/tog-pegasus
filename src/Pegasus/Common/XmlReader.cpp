@@ -490,7 +490,7 @@ CIMName XmlReader::getClassOriginAttribute(
 //
 // getEmbeddedObjectAttribute()
 //
-//     <!ENTITY % EmbeddedObject "EMBEDDEDOBJECT (object | instance) #IMPLIED">
+//     <!ENTITY % EmbeddedObject "EmbeddedObject (object | instance) #IMPLIED">
 //
 //------------------------------------------------------------------------------
 
@@ -501,7 +501,12 @@ String XmlReader::getEmbeddedObjectAttribute(
 {
     String embeddedObject;
 
-    if (!entry.getAttributeValue("EMBEDDEDOBJECT", embeddedObject))
+    // Check for both upper case and mixed case "EmbeddedObject"
+    // because of an error in an earlier pegasus version  where we
+    // used upper case in the generation of the attribute name
+    // whereas the DMTF spec calls for mixed case.
+    if (!entry.getAttributeValue("EmbeddedObject", embeddedObject) &&
+        !entry.getAttributeValue("EMBEDDEDOBJECT", embeddedObject))
         return String();
 
     // The embeddedObject attribute, if present, must have the string
@@ -510,7 +515,7 @@ String XmlReader::getEmbeddedObjectAttribute(
           String::equal(embeddedObject, "instance")))
     {
         char buffer[MESSAGE_SIZE];
-        sprintf(buffer, "%s.EMBEDDEDOBJECT", elementName);
+        sprintf(buffer, "%s.EmbeddedObject", elementName);
 
         MessageLoaderParms mlParms(
             "Common.XmlReader.ILLEGAL_VALUE_FOR_ATTRIBUTE",
@@ -1745,7 +1750,7 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
     Boolean propagated = getCimBooleanAttribute(
         parser.getLine(), entry, "PROPERTY", "PROPAGATED", false, false);
 
-    // Get PROPERTY.EMBEDDEDOBJECT attribute:
+    // Get PROPERTY.EmbeddedObject attribute:
 
     String embeddedObject = getEmbeddedObjectAttribute(
         parser.getLine(), entry, "PROPERTY");
@@ -1783,10 +1788,9 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
             embeddedInstanceQualifierValue);
     }
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-    // If the EMBEDDEDOBJECT attribute is present with value "object"
+    // If the EmbeddedObject attribute is present with value "object"
     // or the EmbeddedObject qualifier exists on this property with value "true"
-    // then
-    //     Convert the EmbeddedObject-encoded string into a CIMObject
+    // then convert the EmbeddedObject-encoded string into a CIMObject
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     Boolean isEmbeddedObject = String::equal(embeddedObject, "object") ||
         embeddedObjectQualifierValue;
@@ -1794,7 +1798,7 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
         embeddedInstanceQualifierValue.size() > 0;
     if (isEmbeddedObject || isEmbeddedInstance)
     {
-        // The EMBEDDEDOBJECT attribute is only valid on Properties of type
+        // The EmbeddedObject attribute is only valid on Properties of type
         // string
         if (type == CIMTYPE_STRING)
         {
@@ -1824,14 +1828,14 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
         {
             MessageLoaderParms mlParms(
                 "Common.XmlReader.INVALID_EMBEDDEDOBJECT_TYPE",
-                "The EMBEDDEDOBJECT attribute is only valid on string types.");
+                "The EmbeddedObject attribute is only valid on string types.");
             throw XmlValidationError(parser.getLine(), mlParms);
         }
     }
 #else
     if (String::equal(embeddedObject, "object") || embeddedObjectQualifierValue)
     {
-        // The EMBEDDEDOBJECT attribute is only valid on Properties of type
+        // The EmbeddedObject attribute is only valid on Properties of type
         // string
         if (type == CIMTYPE_STRING)
         {
@@ -1858,7 +1862,7 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
         {
             MessageLoaderParms mlParms(
                 "Common.XmlReader.INVALID_EMBEDDEDOBJECT_TYPE",
-                "The EMBEDDEDOBJECT attribute is only valid on string types.");
+                "The EmbeddedObject attribute is only valid on string types.");
             throw XmlValidationError(parser.getLine(), mlParms);
         }
     }
@@ -1973,7 +1977,7 @@ Boolean XmlReader::getPropertyArrayElement(
         false,
         false);
 
-    // Get PROPERTY.EMBEDDEDOBJECT attribute:
+    // Get PROPERTY.EmbeddedObject attribute:
 
     String embeddedObject = getEmbeddedObjectAttribute(
         parser.getLine(), entry, "PROPERTY.ARRAY");
@@ -2005,7 +2009,7 @@ Boolean XmlReader::getPropertyArrayElement(
             embeddedInstanceQualifierValue);
     }
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-    // If the EMBEDDEDOBJECT attribute is present with value "object"
+    // If the EmbeddedObject attribute is present with value "object"
     // or the EmbeddedObject qualifier exists on this property with value "true"
     // then
     //     Convert the EmbeddedObject-encoded string into a CIMObject
@@ -2016,7 +2020,7 @@ Boolean XmlReader::getPropertyArrayElement(
         embeddedInstanceQualifierValue.size() > 0;
     if (isEmbeddedObject || isEmbeddedInstance)
     {
-        // The EMBEDDEDOBJECT attribute is only valid on Properties of type
+        // The EmbeddedObject attribute is only valid on Properties of type
         // string
         if (type == CIMTYPE_STRING)
         {
@@ -2046,14 +2050,14 @@ Boolean XmlReader::getPropertyArrayElement(
         {
             MessageLoaderParms mlParms(
                 "Common.XmlReader.INVALID_EMBEDDEDOBJECT_TYPE",
-                "The EMBEDDEDOBJECT attribute is only valid on string types.");
+                "The EmbeddedObject attribute is only valid on string types.");
             throw XmlValidationError(parser.getLine(), mlParms);
         }
     }
 #else
     if (String::equal(embeddedObject, "object") || embeddedObjectQualifierValue)
     {
-        // The EMBEDDEDOBJECT attribute is only valid on Properties of type
+        // The EmbeddedObject attribute is only valid on Properties of type
         // string
         if (type == CIMTYPE_STRING)
         {
@@ -2080,7 +2084,7 @@ Boolean XmlReader::getPropertyArrayElement(
         {
             MessageLoaderParms mlParms(
                 "Common.XmlReader.INVALID_EMBEDDEDOBJECT_TYPE",
-                "The EMBEDDEDOBJECT attribute is only valid on string types.");
+                "The EmbeddedObject attribute is only valid on string types.");
             throw XmlValidationError(parser.getLine(), mlParms);
         }
     }
@@ -4185,7 +4189,7 @@ Boolean XmlReader::getParamValueElement(
         throw XmlValidationError(parser.getLine(), mlParms);
     }
 
-    // Get PROPERTY.EMBEDDEDOBJECT
+    // Get PROPERTY.EmbeddedObject
 
     String embeddedObject = getEmbeddedObjectAttribute(
         parser.getLine(), entry, "PARAMVALUE");
@@ -4236,7 +4240,7 @@ Boolean XmlReader::getParamValueElement(
                 effectiveType = type;
             }
 
-            // If the EMBEDDEDOBJECT attribute is present with value "object"
+            // If the EmbeddedObject attribute is present with value "object"
             // then
             //     Convert the EmbeddedObject-encoded string into a CIMObject
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
@@ -4245,7 +4249,7 @@ Boolean XmlReader::getParamValueElement(
                 String::equal(embeddedObject, "instance");
             if (isEmbeddedObject || isEmbeddedInstance)
             {
-                // The EMBEDDEDOBJECT attribute is only valid on Parameters
+                // The EmbeddedObject attribute is only valid on Parameters
                 // of type string
                 // The type must have been specified.
                 if (gotType && (type == CIMTYPE_STRING))
@@ -4261,7 +4265,7 @@ Boolean XmlReader::getParamValueElement(
                 {
                     MessageLoaderParms mlParms(
                         "Common.XmlReader.INVALID_EMBEDDEDOBJECT_TYPE",
-                        "The EMBEDDEDOBJECT attribute is only valid on "
+                        "The EmbeddedObject attribute is only valid on "
                             "string types.");
                     throw XmlValidationError(parser.getLine(), mlParms);
                 }
@@ -4269,7 +4273,7 @@ Boolean XmlReader::getParamValueElement(
 #else
             if (String::equal(embeddedObject, "object"))
             {
-                // The EMBEDDEDOBJECT attribute is only valid on Parameters
+                // The EmbeddedObject attribute is only valid on Parameters
                 // of type string
                 // The type must have been specified.
                 if (gotType && (type == CIMTYPE_STRING))
@@ -4281,7 +4285,7 @@ Boolean XmlReader::getParamValueElement(
                 {
                     MessageLoaderParms mlParms(
                         "Common.XmlReader.INVALID_EMBEDDEDOBJECT_TYPE",
-                        "The EMBEDDEDOBJECT attribute is only valid on "
+                        "The EmbeddedObject attribute is only valid on "
                             "string types.");
                     throw XmlValidationError(parser.getLine(), mlParms);
                 }
@@ -4326,7 +4330,7 @@ Boolean XmlReader::getReturnValueElement(
     if (!testStartTag(parser, entry, "RETURNVALUE"))
         return false;
 
-    // Get PROPERTY.EMBEDDEDOBJECT
+    // Get PROPERTY.EmbeddedObject
 
     String embeddedObject = getEmbeddedObjectAttribute(
         parser.getLine(), entry, "RETURNVALUE");
@@ -4381,7 +4385,7 @@ Boolean XmlReader::getReturnValueElement(
             {
                 MessageLoaderParms mlParms(
                     "Common.XmlReader.INVALID_EMBEDDEDOBJECT_TYPE",
-                    "The EMBEDDEDOBJECT attribute is only valid on string "
+                    "The EmbeddedObject attribute is only valid on string "
                         "types.");
                 throw XmlValidationError(parser.getLine(), mlParms);
             }
@@ -4397,7 +4401,7 @@ Boolean XmlReader::getReturnValueElement(
             {
                 MessageLoaderParms mlParms(
                     "Common.XmlReader.INVALID_EMBEDDEDOBJECT_TYPE",
-                    "The EMBEDDEDOBJECT attribute is only valid on string "
+                    "The EmbeddedObject attribute is only valid on string "
                         "types.");
                 throw XmlValidationError(parser.getLine(), mlParms);
             }

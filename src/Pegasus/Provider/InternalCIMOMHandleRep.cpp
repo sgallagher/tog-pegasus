@@ -752,7 +752,7 @@ CIMInstance InternalCIMOMHandleRep::getInstance(
             XmlWriter::getNextMessageId(),
             nameSpace,
             instanceName,
-            localOnly,
+            false, // localOnly is deprecated
             includeQualifiers,
             includeClassOrigin,
             propertyList,
@@ -824,7 +824,7 @@ Array<CIMInstance> InternalCIMOMHandleRep::enumerateInstances(
             nameSpace,
             className,
             deepInheritance,
-            localOnly,
+            false, //localOnly is deprecated.
             includeQualifiers,
             includeClassOrigin,
             propertyList,

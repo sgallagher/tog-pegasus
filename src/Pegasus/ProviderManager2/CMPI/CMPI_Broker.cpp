@@ -121,7 +121,7 @@ extern "C"
                 OperationContext(*CM_Context(ctx)),
                 CM_ObjectPath(cop)->getNameSpace(),
                 qop, //*CM_ObjectPath(cop),
-                CM_LocalOnly(flgs),
+                false, // Use of localOnly is deprecated by DMTF.
                 CM_IncludeQualifiers(flgs),
                 CM_ClassOrigin(flgs),
                 props);
@@ -341,7 +341,7 @@ extern "C"
                     CM_ObjectPath(cop)->getNameSpace(),
                     CM_ObjectPath(cop)->getClassName(),
                     CM_DeepInheritance(flgs),
-                    CM_LocalOnly(flgs),
+                    false, //Use of localOnly is deprecated by DMTF.
                     CM_IncludeQualifiers(flgs),
                     CM_ClassOrigin(flgs),
                     props);

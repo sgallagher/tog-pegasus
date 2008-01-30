@@ -50,7 +50,6 @@ PEGASUS_NAMESPACE_BEGIN
 #define CM_Instance(ci) ((CIMInstance*)ci->hdl)
 #define CM_ObjectPath(cop) ((CIMObjectPath*)cop->hdl)
 
-#define CM_LocalOnly(flgs) (((flgs) & CMPI_FLAG_LocalOnly)!=0)
 #define CM_ClassOrigin(flgs) (((flgs) & CMPI_FLAG_IncludeClassOrigin)!=0)
 #define CM_IncludeQualifiers(flgs) (((flgs) & CMPI_FLAG_IncludeQualifiers)!=0)
 #define CM_DeepInheritance(flgs) (((flgs) & CMPI_FLAG_DeepInheritance)!=0)

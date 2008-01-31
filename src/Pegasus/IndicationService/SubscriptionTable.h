@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -73,7 +73,8 @@ struct ActiveSubscriptionsTableEntry
     ProviderClassList structs representing the providers, if any, currently
     serving each subscription and the relevant indication subclasses served by
     each provider.
-    The Key is the object path of the subscription instance.
+    The Key is a string constructed from the elements of a subscriptions
+    object path: <filterInstanceName><handlerInstanceName>/namespace/classname
     Entries are inserted into the table on initialization, when an enabled
     subscription instance is created, or when a subscription instance is
     modified to be enabled.
@@ -97,10 +98,10 @@ struct ActiveSubscriptionsTableEntry
     The terminate() function, when the CIM Server is being shut down, iterates
     through the table to retrieve all active subscriptions.
  */
-typedef HashTable <CIMObjectPath,
+typedef HashTable <String,
                    ActiveSubscriptionsTableEntry,
-                   EqualFunc <CIMObjectPath>,
-                   HashFunc <CIMObjectPath> > ActiveSubscriptionsTable;
+                   EqualFunc <String>,
+                   HashFunc <String> > ActiveSubscriptionsTable;
 
 /**
     Entry for SubscriptionClasses table
@@ -369,14 +370,14 @@ private:
     SubscriptionTable& operator=( const SubscriptionTable& rhs );
 
     /**
-        Generates a unique CIMObjectPath key for the Active Subscriptions table
+        Generates a unique String key for the Active Subscriptions table
         from the subscription object path.
 
         @param   subscription          the subscription object path
 
         @return  the generated key
      */
-    CIMObjectPath _generateActiveSubscriptionsKey (
+    String _generateActiveSubscriptionsKey (
         const CIMObjectPath & subscription) const;
 
     /**
@@ -389,7 +390,7 @@ private:
         @return  true if the key is found in the table; false otherwise
      */
     Boolean _lockedLookupActiveSubscriptionsEntry (
-        const CIMObjectPath & key,
+        const String & key,
         ActiveSubscriptionsTableEntry & tableEntry) const;
 
     /**
@@ -410,7 +411,7 @@ private:
         @param   key                   the key of the entry to remove
      */
     void _removeActiveSubscriptionsEntry (
-        const CIMObjectPath & key);
+        const String & key);
 
     /**
         Generates a unique String key for the Subscription Classes table from
@@ -471,7 +472,7 @@ private:
                                            entry (may be empty)
      */
     void _updateSubscriptionProviders (
-        const CIMObjectPath & activeSubscriptionsKey,
+        const String & activeSubscriptionsKey,
         const CIMInstance & subscription,
         const Array <ProviderClassList> & updatedProviderList);
 

@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -61,7 +61,7 @@ Boolean SubscriptionTable::getSubscriptionEntry (
         "SubscriptionTable::getSubscriptionEntry");
 
     Boolean succeeded = false;
-    CIMObjectPath activeSubscriptionsKey = _generateActiveSubscriptionsKey
+    String activeSubscriptionsKey = _generateActiveSubscriptionsKey
         (subscriptionPath);
     if (_lockedLookupActiveSubscriptionsEntry
         (activeSubscriptionsKey, tableValue))
@@ -74,7 +74,7 @@ Boolean SubscriptionTable::getSubscriptionEntry (
         //  Subscription not found in Active Subscriptions table
         //
         PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
-            "Subscription (" + activeSubscriptionsKey.toString () +
+            "Subscription (" + activeSubscriptionsKey +
             ") not found in ActiveSubscriptionsTable");
     }
 
@@ -117,7 +117,7 @@ Array <CIMInstance> SubscriptionTable::getMatchingSubscriptions (
                     //  Check if the provider who generated this indication
                     //  accepted this subscription
                     //
-                    CIMObjectPath activeSubscriptionsKey =
+                    String activeSubscriptionsKey =
                         _generateActiveSubscriptionsKey
                             (subscriptions [j].getPath ());
                     ActiveSubscriptionsTableEntry tableValue;
@@ -208,7 +208,7 @@ Array <CIMInstance> SubscriptionTable::reflectProviderDisable (
             //
             //  Update the entry in the active subscriptions hash table
             //
-            CIMObjectPath activeSubscriptionsKey =
+            String activeSubscriptionsKey =
                 _generateActiveSubscriptionsKey
                     (providerSubscriptions [k].getPath ());
             ActiveSubscriptionsTableEntry tableValue;
@@ -233,7 +233,7 @@ Array <CIMInstance> SubscriptionTable::reflectProviderDisable (
                         Tracer::LEVEL2,
                         "Provider (" + provider.getPath().toString() +
                         ") not found in list for Subscription (" +
-                        activeSubscriptionsKey.toString () +
+                        activeSubscriptionsKey +
                         ") in ActiveSubscriptionsTable");
                 }
             }
@@ -241,7 +241,7 @@ Array <CIMInstance> SubscriptionTable::reflectProviderDisable (
             {
                 PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
                     Tracer::LEVEL2,
-                    "Subscription (" + activeSubscriptionsKey.toString () +
+                    "Subscription (" + activeSubscriptionsKey +
                     ") not found in ActiveSubscriptionsTable");
                 //
                 //  The subscription may have been deleted in the mean time
@@ -371,7 +371,7 @@ SubscriptionTable::reflectProviderModuleFailure
             //
             //  Update the entry in the active subscriptions hash table
             //
-            CIMObjectPath activeSubscriptionsKey =
+            String activeSubscriptionsKey =
                 _generateActiveSubscriptionsKey
                     (providerModuleSubscriptions [k].subscription.getPath ());
             ActiveSubscriptionsTableEntry tableValue;
@@ -408,7 +408,7 @@ SubscriptionTable::reflectProviderModuleFailure
     return providerModuleSubscriptions;
 }
 
-CIMObjectPath SubscriptionTable::_generateActiveSubscriptionsKey (
+String SubscriptionTable::_generateActiveSubscriptionsKey (
     const CIMObjectPath & subscription) const
 {
     //
@@ -416,8 +416,8 @@ CIMObjectPath SubscriptionTable::_generateActiveSubscriptionsKey (
     //  reference property values
     //
     Array<CIMKeyBinding> subscriptionKB = subscription.getKeyBindings ();
-    CIMObjectPath filterPath;
-    CIMObjectPath handlerPath;
+    String filterPath;
+    String handlerPath;
     for (Uint32 i = 0; i < subscriptionKB.size (); i++)
     {
         if ((subscriptionKB [i].getName () == PEGASUS_PROPERTYNAME_FILTER) &&
@@ -425,6 +425,7 @@ CIMObjectPath SubscriptionTable::_generateActiveSubscriptionsKey (
         {
             filterPath = subscriptionKB [i].getValue ();
         }
+        else
         if ((subscriptionKB [i].getName () == PEGASUS_PROPERTYNAME_HANDLER) &&
             (subscriptionKB [i].getType () == CIMKeyBinding::REFERENCE))
         {
@@ -433,23 +434,41 @@ CIMObjectPath SubscriptionTable::_generateActiveSubscriptionsKey (
     }
 
     //
-    //  Construct subscription object name for key
+    //  Construct subscription key from handler and filter.
+    //  To avoid ambiguity, the hostname part is removed, since the
+    //  hostname can only point to the local machine anyway.
     //
-    filterPath.setHost(String::EMPTY);
-    handlerPath.setHost(String::EMPTY);
-    Array<CIMKeyBinding> kb;
-    kb.append(CIMKeyBinding(
-        PEGASUS_PROPERTYNAME_FILTER, CIMValue(filterPath)));
-    kb.append(CIMKeyBinding(
-        PEGASUS_PROPERTYNAME_HANDLER, CIMValue(handlerPath)));
-    CIMObjectPath activeSubscriptionsKey(
-        "", subscription.getNameSpace(), subscription.getClassName(), kb);
+    const Char16 slash = '/';
+    if ((filterPath[0]==slash) && (filterPath[1]==slash))
+    {
+        Uint32 index = filterPath.find(2,slash);
+        filterPath = filterPath.subString(index+1);
+    }
+
+    if ((handlerPath[0]==slash) && (handlerPath[1]==slash))
+    {
+        Uint32 index = handlerPath.find(2,slash);
+        handlerPath = handlerPath.subString(index+1);
+    }
+
+
+    //
+    //  Assuming that most subscriptions will differ in the filter and handler
+    //  names, the namespace and classname of the subscription are added at the
+    //  end of the key.
+    //
+    String activeSubscriptionsKey(filterPath);
+    activeSubscriptionsKey.append(handlerPath);
+    activeSubscriptionsKey.append(slash);
+    activeSubscriptionsKey.append(subscription.getNameSpace().getString());
+    activeSubscriptionsKey.append(slash);
+    activeSubscriptionsKey.append(subscription.getClassName().getString());
 
     return activeSubscriptionsKey;
 }
 
 Boolean SubscriptionTable::_lockedLookupActiveSubscriptionsEntry (
-    const CIMObjectPath & key,
+    const String & key,
     ActiveSubscriptionsTableEntry & tableEntry) const
 {
     ReadLock lock(_activeSubscriptionsTableLock);
@@ -464,7 +483,7 @@ void SubscriptionTable::_insertActiveSubscriptionsEntry (
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionTable::_insertActiveSubscriptionsEntry");
 
-    CIMObjectPath activeSubscriptionsKey = _generateActiveSubscriptionsKey
+    String activeSubscriptionsKey = _generateActiveSubscriptionsKey
         (subscription.getPath ());
     ActiveSubscriptionsTableEntry entry;
     entry.subscription = subscription;
@@ -503,7 +522,7 @@ void SubscriptionTable::_insertActiveSubscriptionsEntry (
 }
 
 void SubscriptionTable::_removeActiveSubscriptionsEntry (
-    const CIMObjectPath & key)
+    const String & key)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionTable::_removeActiveSubscriptionsEntry");
@@ -612,7 +631,7 @@ void SubscriptionTable::_removeSubscriptionClassesEntry (
 }
 
 void SubscriptionTable::_updateSubscriptionProviders
-    (const CIMObjectPath & activeSubscriptionsKey,
+    (const String & activeSubscriptionsKey,
      const CIMInstance & subscription,
      const Array <ProviderClassList> & updatedProviderList)
 {
@@ -729,7 +748,7 @@ void SubscriptionTable::updateProviders (
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionTable::updateProviders");
 
-    CIMObjectPath activeSubscriptionsKey = _generateActiveSubscriptionsKey
+    String activeSubscriptionsKey = _generateActiveSubscriptionsKey
         (subscriptionPath);
     ActiveSubscriptionsTableEntry tableValue;
     {
@@ -763,7 +782,7 @@ void SubscriptionTable::updateProviders (
                         "Provider " +
                         IndicationService::getProviderLogString (p) +
                         " already in list for Subscription (" +
-                        activeSubscriptionsKey.toString () +
+                        activeSubscriptionsKey +
                         ") in ActiveSubscriptionsTable");
                 }
             }
@@ -784,7 +803,7 @@ void SubscriptionTable::updateProviders (
                         "Provider " +
                         IndicationService::getProviderLogString (p) +
                         " not found in list for Subscription (" +
-                        activeSubscriptionsKey.toString () +
+                        activeSubscriptionsKey +
                         ") in ActiveSubscriptionsTable");
                 }
             }
@@ -792,7 +811,7 @@ void SubscriptionTable::updateProviders (
         else
         {
             PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
-                "Subscription (" + activeSubscriptionsKey.toString () +
+                "Subscription (" + activeSubscriptionsKey +
                 ") not found in ActiveSubscriptionsTable");
 
             //
@@ -813,7 +832,7 @@ void SubscriptionTable::updateClasses (
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionTable::updateClasses");
 
-    CIMObjectPath activeSubscriptionsKey = _generateActiveSubscriptionsKey
+    String activeSubscriptionsKey = _generateActiveSubscriptionsKey
         (subscriptionPath);
     ActiveSubscriptionsTableEntry tableValue;
 
@@ -855,7 +874,7 @@ void SubscriptionTable::updateClasses (
                     Tracer::LEVEL2,
                     "Provider (" + provider.getPath ().toString () +
                     ") not found in list for Subscription (" +
-                    activeSubscriptionsKey.toString () +
+                    activeSubscriptionsKey +
                     ") in ActiveSubscriptionsTable");
             }
         }

@@ -4524,6 +4524,19 @@ CIM server listening on HTTPS port {0}."}
         ProviderManager2.ProviderManagerzOS_inline.MISSING_DESIGNATEDUSER_IN_PG_PROVIDERMODULE:string {"PGS12527E: Missing DesignatedUserContext property in PG_ProviderModule instance."}
 
         /**
+        * @note  PGS12528:
+        * @version 2.7
+        *   Do not translate the word 'OMVS'
+        */
+        ProviderManager2.ProviderManagerzOS_inline.NO_RACFDEFINITON:string {"PGS12528: Cannot switch to DesignatedUser {0}. User is unknown to the security product, or has no OMVS segment."}
+
+        /**
+        * @note  PGS12529:
+        * @version 2.6
+        */
+        ProviderManager2.ProviderManagerzOS_inline.PTHREAD_UKNOWN:string {"PGS12529: An unexpected error occurs switching to user {0} : {1} ( errno {2}, reason code 0x{3} )."}
+
+        /**
         * @note PGS12532:
         *    Substitution {0} is the ARM element name.
         *    Do not translate CIM and ARM since it is the name of a product.
@@ -4569,7 +4582,7 @@ CIM server listening on HTTPS port {0}."}
         * @note PGS12542:
         *    Do not translate ATTLS, CIM and HTTPS.
         */
-        Pegasus.Common.SocketzOS_inline.POLICY_NOT_ENABLED:string {"PGS12542E: ATTLS policy is not aktive for the CIM Server HTTPS port. Communication not secured. Connection closed."}
+        Pegasus.Common.SocketzOS_inline.POLICY_NOT_ENABLED:string {"PGS12542E: ATTLS policy is not active for the CIM Server HTTPS port. Communication not secured. Connection closed."}
 
         /**
         * @note PGS12543:

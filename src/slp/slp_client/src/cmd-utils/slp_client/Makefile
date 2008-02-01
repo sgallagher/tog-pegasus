@@ -34,6 +34,10 @@ DIR = slp/slp_client/src/cmd-utils/slp_client
 
 include $(ROOT)/mak/config.mak
 
+ifeq ($(OS_TYPE),windows)
+EXTRA_INCLUDES += -I./nt_includes
+endif
+
 # Treat all the SOURCES as C source only
 #ifeq ($(OS_TYPE),windows)
 #FLAGS += /TC

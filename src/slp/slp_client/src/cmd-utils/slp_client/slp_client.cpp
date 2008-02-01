@@ -442,7 +442,7 @@ static int _slp_get_local_interface(struct slp_if_addr **list, int af)
         char output_buf[2048];
 
         if (0 == (errcode = WSAIoctl(sock, SIO_ADDRESS_LIST_QUERY, NULL, 0,
-            output_buf, buf_size, &bytes_returned, NULL,
+            output_buf, buf_size, (LPDWORD)&bytes_returned, NULL,
             NULL)))
         {
 
@@ -459,7 +459,7 @@ static int _slp_get_local_interface(struct slp_if_addr **list, int af)
             addr = addr_list->Address;
 
             for (interfaces = 0, ifp = *list,
-                sin = (struct sockaddr_in *) addr->lpSockaddr ;
+                sin = (SOCKADDR*) addr->lpSockaddr ;
                 interfaces < addr_list->iAddressCount;
                 interfaces++ , ifp++)
             {

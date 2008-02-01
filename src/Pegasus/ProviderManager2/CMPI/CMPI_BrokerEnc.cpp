@@ -1322,7 +1322,29 @@ extern "C"
 
         if (strncmp (lang, CALL_SIGN_WQL, CALL_SIGN_WQL_SIZE) == 0)
         {
-            WQLSelectStatement *stmt = new WQLSelectStatement ();
+            // Get the namespace.
+            const CMPIContext *ctx = CMPI_ThreadContext::getContext ();
+
+            CMPIData data = ctx->ft->getEntry (ctx, CMPIInitNameSpace, &rc);
+            if (rc.rc != CMPI_RC_OK)
+            {
+                CMSetStatus (st, CMPI_RC_ERR_FAILED);
+                PEG_METHOD_EXIT();
+                return NULL;
+            }
+
+            // Create the CIMOMHandle wrapper.
+            CIMOMHandle *cm_handle = CM_CIMOM (mb);
+            CIMOMHandleQueryContext qcontext(
+                CIMNamespaceName(CMGetCharPtr(data.value.string)),
+                *cm_handle);
+
+            String sLang (lang);
+            String sQuery (query);
+
+            WQLSelectStatement *stmt = new WQLSelectStatement (sLang,
+                                                               sQuery,
+                                                               qcontext);
             try
             {
                 WQLParser::parse(query, *stmt);

@@ -120,7 +120,7 @@ int main()
     /* Create a file with a token in it. */
     {
         int fd;
-        fd = open("token.dat", O_WRONLY | O_CREAT | O_TRUNC);
+        fd = open("token.dat", O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
         PEGASUS_TEST_ASSERT(fd >= 0);
         PEGASUS_TEST_ASSERT(write(fd, token, sizeof(token)) == sizeof(token));
         close(fd);

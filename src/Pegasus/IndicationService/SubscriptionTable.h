@@ -1,31 +1,38 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//==============================================================================
 //
-//////////////////////////////////////////////////////////////////////////
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
+//             (carolann_graves@hp.com)
+//
+// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3603, 3602
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +46,6 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/General/SubscriptionKey.h>
 
 #include "ProviderClassList.h"
 #include "SubscriptionRepository.h"
@@ -92,10 +98,10 @@ struct ActiveSubscriptionsTableEntry
     The terminate() function, when the CIM Server is being shut down, iterates
     through the table to retrieve all active subscriptions.
  */
-typedef HashTable <SubscriptionKey,
+typedef HashTable <String,
                    ActiveSubscriptionsTableEntry,
-                   SubscriptionKeyEqualFunc,
-                   SubscriptionKeyHashFunc> ActiveSubscriptionsTable;
+                   EqualFunc <String>,
+                   HashFunc <String> > ActiveSubscriptionsTable;
 
 /**
     Entry for SubscriptionClasses table
@@ -166,12 +172,13 @@ public:
         @param   subscription            the subscription instance
         @param   providers               the list of providers
         @param   indicationSubclassNames the list of indication subclass names
-                                         with the source namespace name
+        @param   sourceNamespaceName     the source namespace name
      */
     void insertSubscription (
         const CIMInstance & subscription,
         const Array <ProviderClassList> & providers,
-        const Array <NamespaceClassList> & indicationSubclassNames);
+        const Array <CIMName> & indicationSubclassNames,
+        const CIMNamespaceName & sourceNamespaceName);
 
     /**
         Updates an entry in the Active Subscriptions table to either add a
@@ -195,13 +202,11 @@ public:
 
         @param   subscriptionPath        the subscription object path
         @param   provider                the provider
-        @param   nameSpace               namespace to add or remove
         @param   className               the class to be added or removed
      */
     void updateClasses (
         const CIMObjectPath & subscriptionPath,
         const CIMInstance & provider,
-        const CIMNamespaceName &nameSpace,
         const CIMName & className);
 
     /**
@@ -210,13 +215,14 @@ public:
 
         @param   subscription            the subscription instance
         @param   indicationSubclassNames the list of indication subclass names
-                                         with the source namespace name
+        @param   sourceNamespaceName     the source namespace name
         @param   providers               the list of providers that had been
                                          serving the subscription
      */
     void removeSubscription (
         const CIMInstance & subscription,
-        const Array <NamespaceClassList>& indicationSubclassNames,
+        const Array <CIMName> & indicationSubclassNames,
+        const CIMNamespaceName & sourceNamespaceName,
         const Array <ProviderClassList> & providers);
 
     /**
@@ -248,9 +254,9 @@ public:
                                           checked
         @param   provider             the provider (used if checkProvider True)
 
-        @return   list of subscriptions with the source namespace
+        @return   list of CIMInstance subscriptions
      */
-    Array <SubscriptionWithSrcNamespace> getMatchingSubscriptions (
+    Array <CIMInstance> getMatchingSubscriptions (
         const CIMName & supportedClass,
         const Array <CIMNamespaceName> nameSpaces,
         const Boolean checkProvider = false,
@@ -323,21 +329,19 @@ public:
 
         @param   provider              the provider instance
         @param   tableValue            the Active Subscriptions Table entry
-        @param   nameSpace             namespace of the provider
+
         @return  The index of the provider in the list, if found;
                  PEG_NOT_FOUND otherwise
     */
     Uint32 providerInList
         (const CIMInstance & provider,
-         const ActiveSubscriptionsTableEntry & tableValue,
-         const CIMNamespaceName &nameSpace = CIMNamespaceName()) const;
+         const ActiveSubscriptionsTableEntry & tableValue) const;
 
     /**
         Determines if the specified class is in the list of indication
         subclasses served by the specified provider, serving the subscription.
 
         @param   className             the class name
-        @param   nameSpace             namespace to lookup
         @param   providerClasses       a provider serving the subscription,
                                            with the indication classes served
 
@@ -346,7 +350,6 @@ public:
     */
     Uint32 classInList
         (const CIMName & className,
-         const CIMNamespaceName &nameSpace,
          const ProviderClassList & providerClasses) const;
 
     /**
@@ -355,80 +358,6 @@ public:
      */
     void clear ();
 
-    /**
-        Retrieves list of enabled subscription instances in the specified
-        namespace, where the subscription indication class matches or is a
-        superclass of the supported class. A subscription is only included
-        in the list returned if the specified provider accepted the
-        subscription.
-
-        @param   supportedClass      The supported class
-        @param   nameSpace           The specified namespace
-        @param   provider            The provider instance which accepts
-                                     subscriptions
-        @param   subscriptions       Output Array of subscription instances
-        @param   subscriptionKeys    Output Array of associated subscription
-                                     keys
-     */
-    void getMatchingClassNamespaceSubscriptions(
-        const CIMName & supportedClass,
-        const CIMNamespaceName&  nameSpace,
-        const CIMInstance & provider,
-        Array<CIMInstance>& matchingSubscriptions,
-        Array<SubscriptionKey>& matchingSubscriptionKeys);
-
-    /**
-        Returns all the Active Subscriptions table entries.
-
-        @return An Array containing the complete list of
-            ActiveSubscriptionsTable entries.
-     */
-    Array<ActiveSubscriptionsTableEntry> getAllActiveSubscriptionEntries();
-
-#ifdef PEGASUS_ENABLE_INDICATION_COUNT
-    /**
-        Updates entries in the Active Subscriptions table to increase
-        matched indication counts for a specified provider which serves the
-        subscriptions.
-
-        @param provider A PG_Provider instance representing the provider that
-            serves the subscriptions.
-        @param subscriptionsKeys The keys of matched subscriptions which
-            are served by the provider.
-     */
-    void updateMatchedIndicationCounts(
-        const CIMInstance& providerInstance,
-        const Array<SubscriptionKey>& subscriptionsKeys);
-
-    /**
-        Enumerates PG_SubscriptionIndicationData instances using the data
-        stored in the Active Subscriptions table.
-
-        @return All the PG_SubscriptionIndicationData instances.
-    */
-    Array<CIMInstance> enumerateSubscriptionIndicationDataInstances();
-
-    /**
-        Enumerates PG_SubscriptionIndicationData instance names using the data
-        stored in the Active Subscriptions table.
-
-        @return All the PG_SubscriptionIndicationData instanceName.
-    */
-    Array<CIMObjectPath> enumerateSubscriptionIndicationDataInstanceNames();
-
-    /**
-        Gets the PG_SubscriptionIndicationData instance for the specified CIM
-        object path.
-
-        @param instanceName CIMObjectpath specifies a CIM instance to be
-            returned
-        @return The specified PG_SubscriptionIndicationData instance.
-                If the specified instance does not exist, throw a
-                CIMObjectNotFoundException
-    */
-    CIMInstance getSubscriptionIndicationDataInstance(
-        const CIMObjectPath& instanceName);
-#endif
 
 private:
 
@@ -448,7 +377,7 @@ private:
 
         @return  the generated key
      */
-    SubscriptionKey _generateActiveSubscriptionsKey (
+    String _generateActiveSubscriptionsKey (
         const CIMObjectPath & subscription) const;
 
     /**
@@ -461,7 +390,7 @@ private:
         @return  true if the key is found in the table; false otherwise
      */
     Boolean _lockedLookupActiveSubscriptionsEntry (
-        const SubscriptionKey & key,
+        const String & key,
         ActiveSubscriptionsTableEntry & tableEntry) const;
 
     /**
@@ -482,7 +411,7 @@ private:
         @param   key                   the key of the entry to remove
      */
     void _removeActiveSubscriptionsEntry (
-        const SubscriptionKey & key);
+        const String & key);
 
     /**
         Generates a unique String key for the Subscription Classes table from
@@ -543,176 +472,9 @@ private:
                                            entry (may be empty)
      */
     void _updateSubscriptionProviders (
-        const SubscriptionKey & activeSubscriptionsKey,
+        const String & activeSubscriptionsKey,
         const CIMInstance & subscription,
         const Array <ProviderClassList> & updatedProviderList);
-
-#ifdef PEGASUS_ENABLE_INDICATION_COUNT
-    /**
-        Gets filter name and handler name from the specified subscription.
-        The format of filter name is namespace:filtername where the
-        namespace is the namespace of filter instance created, and
-        the filtername is the value of property Name in the filter instance.
-        The format of handler name is namespace:classname.handlername where
-        namespace is the namespace of handler instance created, the classname
-        is the class of the handler instance, and handlername is the value
-        of property Name in the handler instance.
-
-        @param   subscription   Input subscription instance used to get
-                                filterName and handlerName
-        @param   filterName     Output string containing the colon-separated
-                                the namespace of filter instance created and
-                                the value of property Name in the filter
-                                instance
-        @param   handlerName    Output string containing the colon-separated
-                                the namespace of handler instance created and
-                                the class of the handler instance with the
-                                dot-connected the value of property Name in
-                                the Handler instance
-     */
-    void _getFilterAndHandlerNames(
-        const CIMInstance& subscription,
-        String& filterName,
-        String& handlerName);
-
-    /**
-        Gets handler name, filter name, source namespace, provider module name,
-        and provider name from a specified PG_SubscriptionIndicationData
-        instanceName
-
-        @param instanceName Input subscription indication data instance
-            object path used to get filterName, handlerName, sourceNamespace,
-            providerModuleName, and providerName.
-        @param filterName  Output string containing the colon-separated
-            the namespace of filter instance created and the value of property
-            Name in the filter instance.
-        @param handlerName  Output string containing the colon-separated the
-            the namespace of handler instance created and the class of the
-            handler instance with the dot-connected the value of property Name
-            in the handler instance.
-        @param sourceNS Output string containing source namespace of the
-            subscription.
-        @param providerModuleName Output string containing the provider module
-            name.
-        @param providerName Output string containing the provider name.
-     */
-    void _getSubscriptionIndicationDataKeys(
-        const CIMObjectPath& instanceName,
-        String& filterName,
-        String& handlerName,
-        String& sourceNS,
-        String& providerModuleName,
-        String& providerName);
-
-    /**
-        Builds the filter object path by using the specified filterName.
-
-        @param filterName Input string containing the colon-separated
-            the namespace of filter instance created and the value of property
-            Name in the filter instance.
-        @return The created filter object path.
-     */
-    CIMObjectPath _buildFilterPath(const String& filterName);
-
-    /**
-        Builds the handler object path by using the specified handlerName.
-
-        @param handlerName Input string containing the colon-separated the
-            namespace of handler instance created and the class of the handler
-            instance with the dot-connected the value of property Name in
-            the handler instance
-        @return The created handler object path.
-     */
-    CIMObjectPath _buildHandlerPath(const String& handlerName);
-
-    /**
-        Builds the subscription object path by using the specified filterName,
-            handlerName, and sourceNS.
-
-        @param filterName Input string containing the colon-separated
-            the namespace of filter instance created and the value of property
-            Name in the filter instance.
-        @param handlerName Input string containing the colon-separated the
-            namespace of handler instance created and the class of the handler
-            instance with the dot-connected the value of property Name in
-            the handler instance.
-        @param sourceNS Input string containing source namespace of the
-            subscription.
-        @return The created subscription object path.
-     */
-    CIMObjectPath _buildSubscriptionPath(
-        const String& filterName,
-        const String& handlerName,
-        const String& sourceNS);
-
-    /**
-        Creates the subscription indication data instance by using the
-            specified filterName, handlerName, sourceNS, providerModuleName,
-            providerName, and  matchedIndicationCount.
-
-        @param filterName Input string containing the colon-separated
-            the namespace of filter instance created and the value of property
-            Name in the filter instance.
-        @param handlerName Input string containing the colon-separated the
-            namespace of handler instance created and the class of the handler
-            instance with the dot-connected the value of property Name in
-            the handler instance.
-        @param sourceNS Input string containing source namespace of the
-            subscription.
-        @param providerModuleName The provider module name used to build the
-            instance.
-        @param providerName The provider name used to build the instance.
-        @param matchedIndicationCount The matched indication count used to
-            build the instance.
-        @return The created subscription indication data instance.
-     */
-    CIMInstance _buildSubscriptionIndDataInstance(
-        const String& filterName,
-        const String& handlerName,
-        const String& sourceNS,
-        const String& providerModuleName,
-        const String& providerName,
-        Uint32 matchedIndicationCount);
-
-    /**
-        Builds the subscription indication data instance object path by using
-            specified filterName, handlerName, sourceNS, providerModuleName,
-            and providerName.
-
-        @param filterName Input string containing the colon-separated
-            the namespace of filter instance created and the value of property
-            Name in the filter instance.
-        @param handlerName Input string containing the colon-separated the
-            namespace of handler instance created and the class of the handler
-            instance with the dot-connected the value of property Name in
-            the handler instance.
-        @param sourceNS Input string containing source namespace of the
-            subscription.
-            the specified parameters.
-        @param providerModuleName The provider module name used to build the
-            instance path.
-        @param providerName The provider name used to build the instance path.
-        @return The created subscription indication data instance object path.
-     */
-    CIMObjectPath _buildSubscriptionIndDataInstanceName(
-        const String& filterName,
-        const String& handlerName,
-        const String& sourceNS,
-        const String& providerModuleName,
-        const String& providerName);
-
-    /**
-        Builds the PG_Provider instance object path by using specified
-            providerModuleName and providerName.
-        @param providerModuleName The provider module name used to build the
-            instance path.
-        @param providerName The provider name used to build the instance path.
-        @return The created PG_Provider instance object path.
-     */
-    CIMObjectPath _buildProviderPath(
-        const String& providerModuleName,
-        const String& providerName);
-#endif
 
     /**
         Active Subscriptions information table.  Access to this table is

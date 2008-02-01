@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -34,6 +34,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/LanguageParser.h>
+#include <Pegasus/Repository/ObjectCache.h>
 
 #include "IndicationConstants.h"
 #include "SubscriptionRepository.h"
@@ -43,11 +44,27 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+
+
+/**
+   Handler and Filter cache
+    
+   Note that a single cache can be used for handler and filter instances,
+   since the string representation of the object path is used as the key
+   and this is unique anyway.
+*/
+#define PEGASUS_INDICATION_HANDLER_FILTER_CACHE_SIZE 50
+
+
+static ObjectCache<CIMInstance> 
+    _handlerFilterCache(PEGASUS_INDICATION_HANDLER_FILTER_CACHE_SIZE);
+static Mutex _handlerFilterCacheMutex;
+
 SubscriptionRepository::SubscriptionRepository (
     CIMRepository * repository)
     : _repository (repository)
 {
-    _normalizedSubscriptionTable = 
+    _normalizedSubscriptionTable =
         new NormalizedSubscriptionTable(getAllSubscriptions());
 }
 
@@ -629,6 +646,7 @@ CIMInstance SubscriptionRepository::getHandler (
     CIMObjectPath handlerRef;
     CIMInstance handlerInstance;
     CIMNamespaceName nameSpaceName;
+    String handlerName;
 
     //
     //  Get Handler reference from subscription instance
@@ -648,30 +666,43 @@ CIMInstance SubscriptionRepository::getHandler (
         nameSpaceName = subscription.getPath ().getNameSpace ();
     }
 
-    //
-    //  Get Handler instance from the repository
-    //
-    try
-    {
-        handlerInstance = _repository->getInstance
-            (nameSpaceName, handlerRef, false, false, false,
-            CIMPropertyList ());
-    }
-    catch (const Exception & exception)
-    {
-        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "Exception caught trying to get Handler instance (" +
-            handlerRef.toString () + "): " +
-            exception.getMessage ());
-        PEG_METHOD_EXIT ();
-        throw;
-    }
 
-    //
-    //  Set namespace in path in CIMInstance
-    //
-    handlerRef.setNameSpace (nameSpaceName);
-    handlerInstance.setPath (handlerRef);
+    handlerName = handlerRef.toString();
+
+    if (!_handlerFilterCache.get(handlerName, handlerInstance))
+    {
+        //
+        //  Not in cache so get Handler instance from the repository
+        //
+        AutoMutex mtx(_handlerFilterCacheMutex);
+        try
+        {
+            handlerInstance = _repository->getInstance
+                (nameSpaceName, handlerRef, false, false, false,
+                CIMPropertyList ());
+        }
+        catch (const Exception & exception)
+        {
+            PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "Exception caught trying to get Handler instance (" +
+                handlerRef.toString () + "): " +
+                exception.getMessage ());
+            PEG_METHOD_EXIT ();
+            throw;
+        }
+
+        //
+        //  Set namespace in path in CIMInstance
+        //
+        handlerRef.setNameSpace (nameSpaceName);
+        handlerInstance.setPath (handlerRef);
+
+        //
+        //  Add handler to cache
+        //
+        _handlerFilterCache.put(handlerName, handlerInstance);
+
+    } /* if not in cache */
 
     PEG_METHOD_EXIT ();
     return handlerInstance;
@@ -728,6 +759,7 @@ void SubscriptionRepository::getFilterProperties (
     CIMObjectPath filterReference;
     CIMInstance filterInstance;
     CIMNamespaceName nameSpaceName;
+    String filterNameInCache;
 
     filterValue = subscription.getProperty (subscription.findProperty
         (PEGASUS_PROPERTYNAME_FILTER)).getValue ();
@@ -744,19 +776,32 @@ void SubscriptionRepository::getFilterProperties (
         nameSpaceName = subscription.getPath ().getNameSpace ();
     }
 
-    try
+    filterNameInCache = filterReference.toString();
+
+    if (!_handlerFilterCache.get(filterNameInCache, filterInstance))
     {
-        filterInstance = _repository->getInstance (nameSpaceName,
-            filterReference);
-    }
-    catch (const Exception & exception)
-    {
-        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "Exception caught trying to get Filter instance (" +
-            filterReference.toString () + "): " +
-            exception.getMessage ());
-        PEG_METHOD_EXIT ();
-        throw;
+        //
+        //  Not in cache so get filter instance from the repository
+        //
+        AutoMutex mtx(_handlerFilterCacheMutex);
+        try
+        {
+            filterInstance = _repository->getInstance (nameSpaceName,
+                filterReference);
+        }
+        catch (const Exception & exception)
+        {
+            PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "Exception caught trying to get Filter instance (" +
+                filterReference.toString () + "): " +
+                exception.getMessage ());
+            PEG_METHOD_EXIT ();
+            throw;
+        }
+        //
+        //  Add filter to cache
+        //
+       _handlerFilterCache.put(filterNameInCache, filterInstance);
     }
 
     query = filterInstance.getProperty (filterInstance.findProperty
@@ -1026,25 +1071,83 @@ void SubscriptionRepository::modifyInstance (
     Boolean includeQualifiers,
     const CIMPropertyList & propertyList)
 {
-    _repository->modifyInstance (nameSpace, modifiedInstance,
-        includeQualifiers, propertyList);
+    CIMObjectPath instanceName = modifiedInstance.getPath();
+    if (instanceName.getClassName().equal(
+            PEGASUS_CLASSNAME_INDFILTER) ||
+        instanceName.getClassName().equal(
+            PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
+        instanceName.getClassName().equal(
+            PEGASUS_CLASSNAME_LSTNRDST_CIMXML) ||
+        instanceName.getClassName().equal(
+            PEGASUS_CLASSNAME_INDHANDLER_SNMP) ||
+        instanceName.getClassName().equal(
+            PEGASUS_CLASSNAME_LSTNRDST_EMAIL) ||
+        instanceName.getClassName().equal(
+            PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
+    {
+        AutoMutex mtx(_handlerFilterCacheMutex);
+
+        _repository->modifyInstance (nameSpace, modifiedInstance,
+             includeQualifiers, propertyList);
+
+        // Try to remove the handler/filter from the cache.
+        // It may not have been added there as it was not used for any
+        // indication processing yet, so we don't care when the remove
+        // fails.
+        String objName = instanceName.toString();
+        _handlerFilterCache.evict(objName);
+    }
+    else
+    {
+        _repository->modifyInstance (nameSpace, modifiedInstance,
+             includeQualifiers, propertyList);
+    }
 }
 
 void SubscriptionRepository::deleteInstance (
     const CIMNamespaceName & nameSpace,
     const CIMObjectPath & instanceName)
 {
-    _repository->deleteInstance (nameSpace, instanceName);
     // If deleted instance was SubscriptionInstance, delete from
-    // Normalized subscriptions table. 
+    // Normalized subscriptions table.
     if (instanceName.getClassName().equal(
         PEGASUS_CLASSNAME_INDSUBSCRIPTION) ||
         instanceName.getClassName ().equal(
             PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
     {
+        _repository->deleteInstance (nameSpace, instanceName);
+        
         CIMObjectPath tmpPath = instanceName;
         tmpPath.setNameSpace(nameSpace);
         _normalizedSubscriptionTable->remove(tmpPath);
+    }
+    else if (instanceName.getClassName().equal(
+                 PEGASUS_CLASSNAME_INDFILTER) ||
+             instanceName.getClassName().equal(
+                 PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
+             instanceName.getClassName().equal(
+                 PEGASUS_CLASSNAME_LSTNRDST_CIMXML) ||
+             instanceName.getClassName().equal(
+                 PEGASUS_CLASSNAME_INDHANDLER_SNMP) ||
+             instanceName.getClassName().equal(
+                 PEGASUS_CLASSNAME_LSTNRDST_EMAIL) ||
+             instanceName.getClassName().equal(
+                 PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
+    {
+        AutoMutex mtx(_handlerFilterCacheMutex);
+
+        _repository->deleteInstance (nameSpace, instanceName);
+
+        // Try to remove the handler/filter from the cache.
+        // It may not have been added there as it was not used for any
+        // indication processing yet, so we don't care when the remove
+        // fails.
+        String objName = instanceName.toString();
+        _handlerFilterCache.evict(objName);
+    }
+    else
+    {
+        _repository->deleteInstance (nameSpace, instanceName);
     }
 }
 

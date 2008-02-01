@@ -36,7 +36,6 @@
 #include "CMPIProviderManager.h"
 
 #include "CMPI_Object.h"
-#include "CMPI_ContextArgs.h"
 #include "CMPI_Instance.h"
 #include "CMPI_ObjectPath.h"
 #include "CMPI_Result.h"
@@ -341,6 +340,68 @@ void CMPIProviderManager::unloadIdleProviders()
         handler.setStatus(CIM_ERR_FAILED, "Unknown error."); \
     }
 
+void CMPIProviderManager::_setupCMPIContexts(
+    CMPI_ContextOnStack * eCtx,
+    OperationContext * context,
+    ProviderIdContainer * pidc,
+    const String &nameSpace,
+    Boolean remote,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    Boolean setFlags)
+{
+    if (setFlags)
+    {
+        // set CMPI invocation flags
+        CMPIFlags flgs=0;
+        if (includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
+        if (includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
+        eCtx->ft->addEntry(
+            eCtx,
+            CMPIInvocationFlags,
+            (CMPIValue*)&flgs,
+            CMPI_uint32);
+    }
+
+    // add identity context
+    const IdentityContainer container =
+    context->get(IdentityContainer::NAME);
+    eCtx->ft->addEntry(
+        eCtx,
+        CMPIPrincipal,
+        (CMPIValue*)(const char*)container.getUserName().getCString(),
+        CMPI_chars);
+
+    // add AcceptLanguages to CMPI context
+    const AcceptLanguageListContainer accept_language=            
+    context->get(AcceptLanguageListContainer::NAME); 
+    const AcceptLanguageList acceptLangs = accept_language.getLanguages();
+
+    eCtx->ft->addEntry(
+        eCtx,
+        CMPIAcceptLanguage,
+        (CMPIValue*)(const char*)
+            LanguageParser::buildAcceptLanguageHeader(acceptLangs).getCString(),
+        CMPI_chars);
+
+    // add initial namespace to context
+    eCtx->ft->addEntry(
+    eCtx,
+    CMPIInitNameSpace,
+    (CMPIValue*)(const char*)nameSpace.getCString(),
+    CMPI_chars);
+
+    // add remote info to context
+    if (remote)
+    {
+        CString info=pidc->getRemoteInfo().getCString();
+        eCtx->ft->addEntry(
+            eCtx,
+            "CMPIRRemoteInfo",(CMPIValue*)(const char*)info,
+            CMPI_chars);
+    }
+}
+
 Message * CMPIProviderManager::handleGetInstanceRequest(
     const Message * message)
 {
@@ -417,40 +478,16 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
         CMPIPropertyList props(request->propertyList);
-
-        CMPIFlags flgs=0;
-        if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
-        if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
-        eCtx.ft->addEntry(
-            &eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
-
-        const IdentityContainer container =
-            request->operationContext.get(IdentityContainer::NAME);
-        eCtx.ft->addEntry(
+                
+        _setupCMPIContexts(
             &eCtx,
-            CMPIPrincipal,
-            (CMPIValue*)(const char*)container.getUserName().getCString(),
-            CMPI_chars);
-
-        const AcceptLanguageListContainer accept_language=            
-            request->operationContext.get(AcceptLanguageListContainer::NAME); 
-        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
-
-        eCtx.ft->addEntry(
-            &eCtx,
-            CMPIAcceptLanguage,
-            (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-            acceptLangs).getCString(),
-            CMPI_chars);
-
-        if (remote)
-        {
-            CString info=pidc.getRemoteInfo().getCString();
-            eCtx.ft->addEntry(
-                &eCtx,
-                "CMPIRRemoteInfo",(CMPIValue*)(const char*)info,
-                CMPI_chars);
-        }
+            &context,
+            &pidc,
+            request->nameSpace.getString(),
+            remote,
+            request->includeQualifiers,
+            request->includeClassOrigin,
+            true);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -586,42 +623,15 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
 
         CMPIPropertyList props(propertyList);
 
-        CMPIFlags flgs=0;
-        if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
-        if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
-        eCtx.ft->addEntry(
+        _setupCMPIContexts(
             &eCtx,
-            CMPIInvocationFlags,
-            (CMPIValue*)&flgs,
-            CMPI_uint32);
-
-        const IdentityContainer container =
-            request->operationContext.get(IdentityContainer::NAME);
-        eCtx.ft->addEntry(
-            &eCtx,
-            CMPIPrincipal,
-            (CMPIValue*)(const char*)container.getUserName().getCString(),
-            CMPI_chars);
-
-        const AcceptLanguageListContainer accept_language=            
-            request->operationContext.get(AcceptLanguageListContainer::NAME);
-
-        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
-        eCtx.ft->addEntry(
-            &eCtx,
-            CMPIAcceptLanguage,
-            (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-            acceptLangs).getCString(),
-            CMPI_chars);
-        if (remote)
-        {
-            CString info=pidc.getRemoteInfo().getCString();
-            eCtx.ft->addEntry(
-                &eCtx,
-                "CMPIRRemoteInfo",
-                (CMPIValue*)(const char*)info,
-                CMPI_chars);
-        }
+            &context,
+            &pidc,
+            request->nameSpace.getString(),
+            remote,
+            request->includeQualifiers,
+            request->includeClassOrigin,
+            true);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -745,40 +755,15 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
         CMPI_ResultOnStack eRes(handler,&pr.broker);
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
-        CMPIFlags flgs=0;
-        eCtx.ft->addEntry(
+        _setupCMPIContexts(
             &eCtx,
-            CMPIInvocationFlags,
-            (CMPIValue*)&flgs,
-            CMPI_uint32);
-
-        const IdentityContainer container =
-            request->operationContext.get(IdentityContainer::NAME);
-        eCtx.ft->addEntry(
-            &eCtx,
-            CMPIPrincipal,
-            (CMPIValue*)(const char*)container.getUserName().getCString(),
-            CMPI_chars);
-
-        const AcceptLanguageListContainer accept_language=            
-            request->operationContext.get(AcceptLanguageListContainer::NAME);
-
-        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
-        eCtx.ft->addEntry(
-            &eCtx,
-            CMPIAcceptLanguage,
-            (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-            acceptLangs).getCString(),
-            CMPI_chars);
-        if (remote)
-        {
-            CString info=pidc.getRemoteInfo().getCString();
-            eCtx.ft->addEntry(
-                &eCtx,
-                "CMPIRRemoteInfo",
-                (CMPIValue*)(const char*)info,
-                CMPI_chars);
-        }
+            &context,
+            &pidc,
+            request->nameSpace.getString(),
+            remote,
+            false,
+            false,
+            true);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -902,39 +887,15 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(
         CMPI_InstanceOnStack eInst(request->newInstance);
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
-        CMPIFlags flgs=0;
-        eCtx.ft->addEntry(
+        _setupCMPIContexts(
             &eCtx,
-            CMPIInvocationFlags,
-            (CMPIValue*)&flgs,
-            CMPI_uint32);
-
-        const IdentityContainer container =
-            request->operationContext.get(IdentityContainer::NAME);
-        eCtx.ft->addEntry(
-            &eCtx,
-            CMPIPrincipal,
-            (CMPIValue*)(const char*)container.getUserName().getCString(),
-            CMPI_chars);
-
-        const AcceptLanguageListContainer accept_language=            
-            request->operationContext.get(AcceptLanguageListContainer::NAME); 
-
-        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
-        eCtx.ft->addEntry(
-            &eCtx,
-            CMPIAcceptLanguage,
-            (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-            acceptLangs).getCString(),
-            CMPI_chars);
-        if (remote)
-        {
-            CString info=pidc.getRemoteInfo().getCString();
-            eCtx.ft->addEntry(
-                &eCtx,
-                "CMPIRRemoteInfo",
-                (CMPIValue*)(const char*)info,CMPI_chars);
-        }
+            &context,
+            &pidc,
+            request->nameSpace.getString(),
+            remote,
+            false,
+            false,
+            true);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1058,40 +1019,15 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
 
         CMPIPropertyList props(request->propertyList);
 
-        CMPIFlags flgs=0;
-        if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
-        eCtx.ft->addEntry(
+        _setupCMPIContexts(
             &eCtx,
-            CMPIInvocationFlags,
-            (CMPIValue*)&flgs,
-            CMPI_uint32);
-
-        const IdentityContainer container =
-            request->operationContext.get(IdentityContainer::NAME);
-        eCtx.ft->addEntry(&eCtx,
-            CMPIPrincipal,
-            (CMPIValue*)(const char*)container.getUserName().getCString(),
-            CMPI_chars);
-
-        const AcceptLanguageListContainer accept_language=            
-            request->operationContext.get(AcceptLanguageListContainer::NAME); 
-        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
-        eCtx.ft->addEntry(
-            &eCtx,
-            CMPIAcceptLanguage,
-            (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-            acceptLangs).getCString(),
-            CMPI_chars);
-
-        if (remote)
-        {
-            CString info=pidc.getRemoteInfo().getCString();
-            eCtx.ft->addEntry(
-                &eCtx,
-                "CMPIRRemoteInfo",
-                (CMPIValue*)(const char*)info,
-                CMPI_chars);
-        }
+            &context,
+            &pidc,
+            request->nameSpace.getString(),
+            remote,
+            request->includeQualifiers,
+            false,
+            true);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1213,39 +1149,15 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(
         CMPI_ResultOnStack eRes(handler,&pr.broker);
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
-        CMPIFlags flgs=0;
-        eCtx.ft->addEntry(
+        _setupCMPIContexts(
             &eCtx,
-            CMPIInvocationFlags,
-            (CMPIValue*)&flgs,
-            CMPI_uint32);
-
-        const IdentityContainer container =
-            request->operationContext.get(IdentityContainer::NAME);
-        eCtx.ft->addEntry(&eCtx,
-            CMPIPrincipal,
-            (CMPIValue*)(const char*)container.getUserName().getCString(),
-            CMPI_chars);
-
-        const AcceptLanguageListContainer accept_language=            
-            request->operationContext.get(AcceptLanguageListContainer::NAME); 
-
-        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
-        eCtx.ft->addEntry(
-            &eCtx,
-            CMPIAcceptLanguage,
-            (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-            acceptLangs).getCString(),
-            CMPI_chars);
-        if (remote)
-        {
-            CString info=pidc.getRemoteInfo().getCString();
-            eCtx.ft->addEntry(
-                &eCtx,
-                "CMPIRRemoteInfo",
-                (CMPIValue*)(const char*)info,
-                CMPI_chars);
-        }
+            &context,
+            &pidc,
+            request->nameSpace.getString(),
+            remote,
+            false,
+            false,
+            true);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1372,44 +1284,15 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
         const CString queryLan=request->queryLanguage.getCString();
         const CString query=request->query.getCString();
 
-        CMPIFlags flgs=0;
-        eCtx.ft->addEntry(
+        _setupCMPIContexts(
             &eCtx,
-            CMPIInvocationFlags,
-            (CMPIValue*)&flgs,
-            CMPI_uint32);
-
-        const IdentityContainer container =
-            request->operationContext.get(IdentityContainer::NAME);
-        eCtx.ft->addEntry(&eCtx,
-            CMPIPrincipal,
-            (CMPIValue*)(const char*)container.getUserName().getCString(),
-            CMPI_chars);
-        eCtx.ft->addEntry(
-            &eCtx,
-            CMPIInitNameSpace,
-            (CMPIValue*)(const char*)request->
-            nameSpace.getString().getCString(),
-            CMPI_chars);
-        const AcceptLanguageListContainer accept_language=            
-            request->operationContext.get(AcceptLanguageListContainer::NAME); 
-
-        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
-        eCtx.ft->addEntry(
-            &eCtx,
-            CMPIAcceptLanguage,
-            (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-            acceptLangs).getCString(),
-            CMPI_chars);
-        if (remote)
-        {
-            CString info=pidc.getRemoteInfo().getCString();
-            eCtx.ft->addEntry(
-                &eCtx,
-                "CMPIRRemoteInfo",
-                (CMPIValue*)(const char*)info,
-                CMPI_chars);
-        }
+            &context,
+            &pidc,
+            request->nameSpace.getString(),
+            remote,
+            false,
+            false,
+            true);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1559,41 +1442,15 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
         CMPIPropertyList props(request->propertyList);
 
-        CMPIFlags flgs=0;
-        if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
-        if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
-        eCtx.ft->addEntry(
+        _setupCMPIContexts(
             &eCtx,
-            CMPIInvocationFlags,
-            (CMPIValue*)&flgs,
-            CMPI_uint32);
-
-        const IdentityContainer container =
-            request->operationContext.get(IdentityContainer::NAME);
-        eCtx.ft->addEntry(&eCtx,
-            CMPIPrincipal,
-            (CMPIValue*)(const char*)container.getUserName().getCString(),
-            CMPI_chars);
-
-        const AcceptLanguageListContainer accept_language=            
-            request->operationContext.get(AcceptLanguageListContainer::NAME); 
-        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
-        eCtx.ft->addEntry(
-            &eCtx,
-            CMPIAcceptLanguage,
-            (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-            acceptLangs).getCString(),
-            CMPI_chars);
-
-        if (remote)
-        {
-            CString info=pidc.getRemoteInfo().getCString();
-            eCtx.ft->addEntry(
-                &eCtx,
-                "CMPIRRemoteInfo",
-                (CMPIValue*)(const char*)info,
-                CMPI_chars);
-        }
+            &context,
+            &pidc,
+            request->nameSpace.getString(),
+            remote,
+            request->includeQualifiers,
+            request->includeClassOrigin,
+            true);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1735,39 +1592,15 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
         const CString rRole=request->role.getCString();
         const CString resRole=request->resultRole.getCString();
 
-        CMPIFlags flgs=0;
-        eCtx.ft->addEntry(
+        _setupCMPIContexts(
             &eCtx,
-            CMPIInvocationFlags,
-            (CMPIValue*)&flgs,
-            CMPI_uint32);
-
-        const IdentityContainer container =
-            request->operationContext.get(IdentityContainer::NAME);
-        eCtx.ft->addEntry(&eCtx,
-            CMPIPrincipal,
-            (CMPIValue*)(const char*)container.getUserName().getCString(),
-            CMPI_chars);
-
-        const AcceptLanguageListContainer accept_language=            
-            request->operationContext.get(AcceptLanguageListContainer::NAME); 
-        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
-        eCtx.ft->addEntry(
-            &eCtx,
-            CMPIAcceptLanguage,
-            (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-            acceptLangs).getCString(),
-            CMPI_chars);
-
-        if (remote)
-        {
-            CString info=pidc.getRemoteInfo().getCString();
-            eCtx.ft->addEntry(
-                &eCtx,
-                "CMPIRRemoteInfo",
-                (CMPIValue*)(const char*)info,
-                CMPI_chars);
-        }
+            &context,
+            &pidc,
+            request->nameSpace.getString(),
+            remote,
+            false,
+            false,
+            true);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1910,41 +1743,15 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
 
         CMPIPropertyList props(request->propertyList);
 
-        CMPIFlags flgs=0;
-        if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
-        if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
-        eCtx.ft->addEntry(
+        _setupCMPIContexts(
             &eCtx,
-            CMPIInvocationFlags,
-            (CMPIValue*)&flgs,
-            CMPI_uint32);
-
-        const IdentityContainer container =
-            request->operationContext.get(IdentityContainer::NAME);
-        eCtx.ft->addEntry(&eCtx,
-            CMPIPrincipal,
-            (CMPIValue*)(const char*)container.getUserName().getCString(),
-            CMPI_chars);
-
-        const AcceptLanguageListContainer accept_language=            
-            request->operationContext.get(AcceptLanguageListContainer::NAME); 
-        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
-        eCtx.ft->addEntry(
-            &eCtx,
-            CMPIAcceptLanguage,
-            (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-            acceptLangs).getCString(),
-            CMPI_chars);
-
-        if (remote)
-        {
-            CString info=pidc.getRemoteInfo().getCString();
-            eCtx.ft->addEntry(
-                &eCtx,
-                "CMPIRRemoteInfo",
-                (CMPIValue*)(const char*)info,
-                CMPI_chars);
-        }
+            &context,
+            &pidc,
+            request->nameSpace.getString(),
+            remote,
+            request->includeQualifiers,
+            request->includeClassOrigin,
+            true);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -2079,39 +1886,15 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
         const CString rClass=request->resultClass.getString().getCString();
         const CString rRole=request->role.getCString();
 
-        CMPIFlags flgs=0;
-        eCtx.ft->addEntry(
+        _setupCMPIContexts(
             &eCtx,
-            CMPIInvocationFlags,
-            (CMPIValue*)&flgs,
-            CMPI_uint32);
-
-        const IdentityContainer container =
-            request->operationContext.get(IdentityContainer::NAME);
-        eCtx.ft->addEntry(&eCtx,
-            CMPIPrincipal,
-            (CMPIValue*)(const char*)container.getUserName().getCString(),
-            CMPI_chars);
-
-        const AcceptLanguageListContainer accept_language=            
-            request->operationContext.get(AcceptLanguageListContainer::NAME); 
-
-        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
-        eCtx.ft->addEntry(
-            &eCtx,
-            CMPIAcceptLanguage,
-            (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-            acceptLangs).getCString(),
-            CMPI_chars);
-        if (remote)
-        {
-            CString info=pidc.getRemoteInfo().getCString();
-            eCtx.ft->addEntry(
-                &eCtx,
-                "CMPIRRemoteInfo",
-                (CMPIValue*)(const char*)info,
-                CMPI_chars);
-        }
+            &context,
+            &pidc,
+            request->nameSpace.getString(),
+            remote,
+            false,
+            false,
+            true);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -2250,39 +2033,15 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
         CMPI_ArgsOnStack eArgsOut(outArgs);
         CString mName=request->methodName.getString().getCString();
 
-        CMPIFlags flgs=0;
-        eCtx.ft->addEntry(
+        _setupCMPIContexts(
             &eCtx,
-            CMPIInvocationFlags,
-            (CMPIValue*)&flgs,
-            CMPI_uint32);
-
-        const IdentityContainer container =
-            request->operationContext.get(IdentityContainer::NAME);
-        eCtx.ft->addEntry(&eCtx,
-            CMPIPrincipal,
-            (CMPIValue*)(const char*)container.getUserName().getCString(),
-            CMPI_chars);
-
-        const AcceptLanguageListContainer accept_language=            
-            request->operationContext.get(AcceptLanguageListContainer::NAME); 
-
-        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
-        eCtx.ft->addEntry(
-            &eCtx,
-            CMPIAcceptLanguage,
-            (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-            acceptLangs).getCString(),
-            CMPI_chars);
-        if (remote)
-        {
-            CString info=pidc.getRemoteInfo().getCString();
-            eCtx.ft->addEntry(
-                &eCtx,
-                "CMPIRRemoteInfo",
-                (CMPIValue*)(const char*)info,
-                CMPI_chars);
-        }
+            &context,
+            &pidc,
+            request->nameSpace.getString(),
+            remote,
+            false,
+            false,
+            true);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -2594,39 +2353,14 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
 
         Uint16 repeatNotificationPolicy = request->repeatNotificationPolicy;
 
-        const IdentityContainer container =
-            request->operationContext.get(IdentityContainer::NAME);
-        eCtx.ft->addEntry(&eCtx,
-            CMPIPrincipal,
-            (CMPIValue*)(const char*)container.getUserName().getCString(),
-            CMPI_chars);
-
-        eCtx.ft->addEntry(&eCtx,
-            CMPIInitNameSpace,
-            (CMPIValue*)(const char*)request->
-            nameSpace.getString().getCString(),
-            CMPI_chars);
-
-        const AcceptLanguageListContainer accept_language=            
-            request->operationContext.get(AcceptLanguageListContainer::NAME);
-
-        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
-        eCtx.ft->addEntry(
+        // includeQualifiers and includeClassOrigin not of interest for
+        // this type of request
+        _setupCMPIContexts(
             &eCtx,
-            CMPIAcceptLanguage,
-            (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-            acceptLangs).getCString(),
-            CMPI_chars);
-        CString info;
-        if (remote)
-        {
-            info=pidc.getRemoteInfo().getCString();
-            eCtx.ft->addEntry(
-                &eCtx,
-                "CMPIRRemoteInfo",
-                (CMPIValue*)(const char*)info,
-                CMPI_chars);
-        }
+            &context,
+            &pidc,
+            request->nameSpace.getString(),
+            remote);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -2700,7 +2434,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
                 if (_subscriptionInitComplete)
                 {
                     _callEnableIndications (req_provider, _indicationCallback,
-                        ph, (const char*)info);
+                        ph, (const char*)pidc.getRemoteInfo().getCString());
                 }
             }
         }
@@ -2819,39 +2553,14 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
             Tracer::LEVEL4,
             "Calling provider.deleteSubscriptionRequest: " + pr.getName());
 
-        const IdentityContainer container =
-            request->operationContext.get(IdentityContainer::NAME);
-        eCtx.ft->addEntry(&eCtx,
-            CMPIPrincipal,
-            (CMPIValue*)(const char*)container.getUserName().getCString(),
-            CMPI_chars);
-
-        eCtx.ft->addEntry(
+        // includeQualifiers and includeClassOrigin not of interest for
+        // this type of request
+        _setupCMPIContexts(
             &eCtx,
-            CMPIInitNameSpace,
-            (CMPIValue*)(const char*)request->
-            nameSpace.getString().getCString(),
-            CMPI_chars);
-
-        const AcceptLanguageListContainer accept_language=            
-            request->operationContext.get(AcceptLanguageListContainer::NAME);
-        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
-        eCtx.ft->addEntry(
-            &eCtx,
-            CMPIAcceptLanguage,
-            (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-            acceptLangs).getCString(),
-            CMPI_chars);
-        CString info;
-        if (remote)
-        {
-            info=pidc.getRemoteInfo().getCString();
-            eCtx.ft->addEntry(
-                &eCtx,
-                "CMPIRRemoteInfo",
-                (CMPIValue*)(const char*)info,
-                CMPI_chars);
-        }
+            &context,
+            &pidc,
+            request->nameSpace.getString(),
+            remote);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -2922,7 +2631,9 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
                 //
                 if (_subscriptionInitComplete)
                 {
-                    _callDisableIndications (ph, (const char*)info);
+                    _callDisableIndications(
+                        ph,
+                        (const char*)pidc.getRemoteInfo().getCString());
                 }
             }
         }
@@ -3332,42 +3043,17 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
         // created containing the single property from the getProperty call.
         CMPIPropertyList props(localPropertyList);
 
-        CMPIFlags flgs=0;
         // Leave includeQualifiers and includeClassOrigin as false for this 
         // call to getInstance
-        eCtx.ft->addEntry(
+        _setupCMPIContexts(
             &eCtx,
-            CMPIInvocationFlags,
-            (CMPIValue*)&flgs,
-            CMPI_uint32);
-
-        const IdentityContainer container =
-            request->operationContext.get(IdentityContainer::NAME);
-        eCtx.ft->addEntry(&eCtx,
-            CMPIPrincipal,
-            (CMPIValue*)(const char*)container.getUserName().getCString(),
-            CMPI_chars);
-
-        const AcceptLanguageListContainer accept_language=            
-            request->operationContext.get(AcceptLanguageListContainer::NAME); 
-        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
-
-        eCtx.ft->addEntry(
-            &eCtx,
-            CMPIAcceptLanguage,
-            (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-            acceptLangs).getCString(),
-            CMPI_chars);
-
-        if (remote)
-        {
-            CString info=pidc.getRemoteInfo().getCString();
-            eCtx.ft->addEntry(
-                &eCtx,
-                "CMPIRRemoteInfo",
-                (CMPIValue*)(const char*)info,
-                CMPI_chars);
-        }
+            &context,
+            &pidc,
+            request->nameSpace.getString(),
+            remote,
+            false,
+            false,
+            true);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -3558,40 +3244,16 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
 
         CMPIPropertyList props(localPropertyList);
 
-        CMPIFlags flgs=0;
         // Leave includeQualifiers as false for this call to modifyInstance
-        eCtx.ft->addEntry(
+        _setupCMPIContexts(
             &eCtx,
-            CMPIInvocationFlags,
-            (CMPIValue*)&flgs,
-            CMPI_uint32);
-
-        const IdentityContainer container =
-            request->operationContext.get(IdentityContainer::NAME);
-        eCtx.ft->addEntry(&eCtx,
-            CMPIPrincipal,
-            (CMPIValue*)(const char*)container.getUserName().getCString(),
-            CMPI_chars);
-
-        const AcceptLanguageListContainer accept_language=            
-            request->operationContext.get(AcceptLanguageListContainer::NAME); 
-        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
-        eCtx.ft->addEntry(
-            &eCtx,
-            CMPIAcceptLanguage,
-            (CMPIValue*)(const char*)LanguageParser::buildAcceptLanguageHeader(
-            acceptLangs).getCString(),
-            CMPI_chars);
-
-        if (remote)
-        {
-            CString info=pidc.getRemoteInfo().getCString();
-            eCtx.ft->addEntry(
-                &eCtx,
-                "CMPIRRemoteInfo",
-                (CMPIValue*)(const char*)info,
-                CMPI_chars);
-        }
+            &context,
+            &pidc,
+            request->nameSpace.getString(),
+            remote,
+            false,
+            false,
+            true);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 

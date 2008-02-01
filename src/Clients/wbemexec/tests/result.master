@@ -874,3 +874,11 @@ wbemexec: Invalid input: expected XML request
  
 Invalid input: input starts with neither xml declaration, nor valid HTTP
 M-POST or POST method request (missing HTTP URI and version) -- times out
+wbemexec ./cimreqerr11.xml
+ 
+HTTP/1.1 501 Not Implemented
+
+ 
+ 
+Invalid input: input starts with neither xml declaration, nor valid HTTP
+M-POST or POST method request. Returns: HTTP/1.1 501 Not Implemented

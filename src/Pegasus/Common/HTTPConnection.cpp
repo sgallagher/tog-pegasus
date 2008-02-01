@@ -207,6 +207,7 @@ HTTPConnection::HTTPConnection(
     _contentLength(-1),
     _connectionClosePending(false),
     _acceptPending(false),
+    _firstRead(true),
     _idleConnectionTimeoutSeconds(0)
 {
     PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::HTTPConnection");
@@ -1985,6 +1986,34 @@ void HTTPConnection::_handleReadEvent()
         char buffer[httpTcpBufferSize];
 
         Sint32 n = _socket->read(buffer, sizeof(buffer)-1);
+
+        // Check if this was the first read of a connection to the server.
+        // This has to happen inside the read loop, because there can be
+        // an incomplete SSL read.
+        if (_firstRead && n > 5 && !_isClient())
+        {
+            // The first bytes of a connection to the server have to contain
+            // a valid cim-over-http HTTP Method (M-POST or POST).
+            if ((strncmp(buffer, "POST", 4) != 0) &&
+                (strncmp(buffer, "M-POST", 6) != 0))
+            {
+                _clearIncoming();
+
+                PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+                      "This Request has non-valid CIM-HTTP Method: "
+                      "%02X %02X %02X %02X %02X %02X",
+                      buffer[0],buffer[1],buffer[2],
+                      buffer[3],buffer[4],buffer[5]));
+
+                // Try to send message to client. 
+                // This function also closes the connection.
+                _handleReadEventFailure(HTTP_STATUS_NOTIMPLEMENTED);
+
+                PEG_METHOD_EXIT();
+                return;
+            }
+            _firstRead = false;
+        }
 
         if (n <= 0)
         {

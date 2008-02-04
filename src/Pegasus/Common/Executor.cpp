@@ -172,10 +172,10 @@ public:
         switch (mode)
         {
             case 'r':
-                return fopen(path, "rb");
+                return fopen(path, "r");
 
             case 'w':
-                return fopen(path, "wb");
+                return fopen(path, "w");
 
             case 'a':
                 return fopen(path, "a+");

@@ -27,32 +27,27 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//=============================================================================
+//==============================================================================
 //
-//%////////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 
-#include <iostream>
-#include <Pegasus/Common/IDFactory.h>
-#include <Pegasus/Common/PegasusAssert.h>
+#include <ctest.h>
+#include <signal.h>
+#include <stdio.h>
+#include <unistd.h>
 
-PEGASUS_USING_PEGASUS;
-PEGASUS_USING_STD;
-
-int main (int argc, char** argv)
+void __pegasus_assert_zOS(const char* file, int line, const char* cond)
 {
-    static IDFactory _idFactory(1);
+    // a buffer to compose the messages
+    char msgBuffer[1024];
 
-    const size_t COUNT = 100000;
+    sprintf(msgBuffer,"PEGASUS_ASSERT: Assertation \'%s\' failed",cond);
+    fprintf(stderr,"\n%s in file %s ,line %d\n",msgBuffer,file,line);
 
-    for (Uint32 i = 1; i < COUNT; i++)
-        PEGASUS_TEST_ASSERT(i == _idFactory.getID());
-
-    for (Uint32 i = 1; i < COUNT; i++)
-    _idFactory.putID(i);
-
-    for (Uint32 i = COUNT - 1; i > 0; i--)
-        PEGASUS_TEST_ASSERT(_idFactory.getID() == i);
-
-    cout << argv[0] << " +++++ passed all tests" << endl;
-    return 0;
+    // generate stacktace
+    ctrace(msgBuffer);
+    // If env vars are set, a SYSM dump is generated.
+    kill(getpid(),SIGDUMP);
 }
+
+

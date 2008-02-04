@@ -220,7 +220,8 @@ ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
   ifdef PEGASUS_ZOS_SECURITY
     SOURCES += $(SOURCES_SECURITY_ZOS)
   endif
-  SOURCES2 += Audit_zOS_SMF.cpp
+  SOURCES2 += Audit_zOS_SMF.cpp \
+	PegasusAssertZOS.cpp
 endif
 
 ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)

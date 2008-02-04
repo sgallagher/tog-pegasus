@@ -697,7 +697,10 @@ try
 //            continue;
         Uint32 index_RO=cimInstances[i].findProperty("RegisteredOrganization");
         Uint32 index_RN=cimInstances[i].findProperty("RegisteredName");    
-
+        if (index_RO == PEG_NOT_FOUND || index_RN == PEG_NOT_FOUND)
+        {
+            continue;
+        }
         CIMConstProperty RO_Property = cimInstances[i].getProperty(index_RO);
         String RegOrg = _getValueQualifier(RO_Property, RO_Class);
         CDEBUG("Value of RegOrg =" << RegOrg);

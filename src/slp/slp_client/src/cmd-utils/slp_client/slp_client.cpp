@@ -2660,7 +2660,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR *remote)
                 total_len += 4;
             }
             extptr = client->_scratch;
-            next_extptr = client->_msg_buf + LSLP_NEXT_EX;
+            next_extptr_save = next_extptr = client->_msg_buf + LSLP_NEXT_EX;
             ext_offset = (int32)(bptr - client->_msg_buf);
 
             if (0x0002 == (_LSLP_GETSHORT(extptr, 0)))
@@ -4125,7 +4125,6 @@ void decode_attrreq(struct slp_client *client, SOCKADDR *remote)
                                 /* decode the attribute tags */
                                 //jeb str_len =
                                 char *bptrSave; SOCKETD sock;
-                                _LSLP_GETSHORT(bptr, 0);
                                 attr_tags = lslpUnstuffAttr(
                                     &bptr,
                                     &buf_len,

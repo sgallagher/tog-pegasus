@@ -2110,13 +2110,7 @@ static void TestLocalizedIndications( CIMClient& client,
       }
       catch (const TimeOut&)
       {
-    // Ignore the timeout.  Forced to do this because pegasus_acceptor
-    // (part of monitor_2) does not return an error if the bind fails.
-    // Put out a warning and keep going.
-    cerr << "==>WARNING: Did not receive the indication on port " 
-        << portNumber << endl;
-    cerr << "The listener port may be in use" << endl;
-    cerr << "Skipping the CIMListener tests." << endl;
+          throw Exception("Timed out waiting for indication.");
       }
     }  // endif !skiplistener
 
@@ -2221,7 +2215,7 @@ static void TestLocalizedIndications( CIMClient& client,
   }
   catch (Exception& e)
   {
-    PEGASUS_STD(cerr) << "Error in TestLocalizedIndications " <<
+    PEGASUS_STD(cerr) << "Error in TestLocalizedIndications: " <<
       e.getMessage() << PEGASUS_STD(endl);
     throw;
   }

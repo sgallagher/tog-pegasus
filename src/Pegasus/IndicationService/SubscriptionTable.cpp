@@ -1038,4 +1038,59 @@ void SubscriptionTable::clear ()
     PEG_METHOD_EXIT ();
 }
 
+Array <CIMInstance> SubscriptionTable::getMatchingClassNamespaceSubscriptions (
+    const CIMName & supportedClass,
+    const CIMNamespaceName & nameSpace,
+    const CIMInstance & provider)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+        "SubscriptionTable::getMatchingClassNamespaceSubscriptions");
+
+    Array <CIMInstance> matchingClassNamespaceSubscriptions;
+    Array <CIMInstance> subscriptions;
+
+    //
+    //  Look up the indicationClass-sourceNamespace pair in the
+    //  Subscription Classes table
+    //
+    String subscriptionClassesKey = _generateSubscriptionClassesKey
+        (supportedClass, nameSpace);
+    SubscriptionClassesTableEntry tableValue;
+    if (_lockedLookupSubscriptionClassesEntry (subscriptionClassesKey,
+        tableValue))
+    {
+        subscriptions = tableValue.subscriptions;
+        for (Uint32 j = 0; j < subscriptions.size (); j++)
+        {
+            //
+            //  Check if the provider who generated this indication
+            //  accepted this subscription
+            //
+            String activeSubscriptionsKey =
+                _generateActiveSubscriptionsKey
+                    (subscriptions [j].getPath ());
+            ActiveSubscriptionsTableEntry tableValue;
+            if (_lockedLookupActiveSubscriptionsEntry
+                (activeSubscriptionsKey, tableValue))
+            {
+                //
+                //  If provider is in list, the subscription is acceptted 
+                //
+                if ((providerInList (provider, tableValue)) !=
+                     PEG_NOT_FOUND)
+                {
+                    //
+                    //  Add current subscription to list
+                    //
+                    matchingClassNamespaceSubscriptions.append(
+                        subscriptions [j]);
+                }
+            }
+        }
+    }
+
+    PEG_METHOD_EXIT ();
+    return matchingClassNamespaceSubscriptions;
+}
+
 PEGASUS_NAMESPACE_END

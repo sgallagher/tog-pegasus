@@ -124,7 +124,7 @@ private:
 
     void _handleDeleteInstanceRequest(const Message * message);
 
-    void _handleProcessIndicationRequest(const Message* message);
+    void _handleProcessIndicationRequest(Message* message);
 
     /**
         Asynchronous callback function for _handleProcessIndicationRequest.
@@ -1159,6 +1159,106 @@ private:
                  and Handler Name
      */
     String _getSubscriptionLogString(CIMInstance& subscription);
+
+    /**
+        Retrieves list of enabled subscription instances based on the class 
+        name and namespace of the generated indication. If the subscription
+        matches the class name and namespace of the generated indication 
+        and the provider who generated this indication accepted this 
+        subscription, the subscription is added to the initial subscriptions
+        list. 
+        If the indication provider included subscriptions in the 
+        SubscriptionInstanceNamesContainer, the subset of subscriptions 
+        specified by the indication provider that also appear in the initial
+        subscriptions list is returned.
+        Any subscription included by the provider but not containing in the 
+        initial subscriptions list is ignored.
+ 
+        @param   providedSubscriptionNames   Subscriptions specified by the 
+                                             indication provider
+        @param   className                   The generated indication class 
+                                             name 
+        @param   nameSpace                   The generated indication namespace 
+        @param   indicationProvider          The provider which generated 
+                                             the indication 
+
+        @return   list of CIMInstance subscriptions
+    */
+    Array<CIMInstance> _getRelevantSubscriptions(
+        const Array<CIMObjectPath> & providedSubscriptionNames,
+        const CIMName& className,
+        const CIMNamespaceName& nameSpace, 
+        const CIMInstance& indicationProvider);
+
+    /**
+        Evaluate if the specified subscription matches the indication based on:
+        1) Whether the properties (in WHERE clause) from filter query are
+           supported by the indication provider;
+        2) Whether the subscripton is expired;
+        3) Whether the filter criteria are met by the generated indication
+
+        @param   subscription              The subscription to be evaluated
+        @param   indication                The generated indication
+        @param   supportedPropertyList     The properties are supported by the
+                                           indication provider
+        @param   queryExpr                 The query expression of the evaluated
+                                           subscription which is used for 
+                                           indication evaluation
+        @param   sourceNameSpace           The source namespace of the filter
+                                           instance
+
+        @return  True, if the subscription is met all above conditions;
+                 False otherwise
+    */
+    Boolean _subscriptionMatch(
+        const CIMInstance& subscription,
+        const CIMInstance& indication,
+        const CIMPropertyList& supportedPropertyList,
+        QueryExpression& queryExpr,
+        const CIMNamespaceName sourceNameSpace);
+
+    /**
+        Format the generated indication based on:
+        1) Use QueryExpression::applyProjection to remove properties not
+           listed in the SELECT clause;
+        2) Remove any properties that may be left on the indication 
+           that are not in the indication class. These are properties
+           added by the provider incorrectly.
+        
+        @param   formattedindication          The generated indication to 
+                                              be formatted
+        @param   queryExpr,                   The query expression of the 
+                                              matched subscription needs to be
+                                              used for indication projection  
+        @param   ProviderSupportedProperties  The properties are supported by 
+                                              the indication provider
+        @param   indicationClassProperties    The indication class properties 
+
+        @return  True, if the indication is formatted;
+                 False otherwise
+    */
+    Boolean _formatIndication(
+        CIMInstance& formattedIndication,
+        QueryExpression& queryExpr,
+        const Array<CIMName>& providerSupportedProperties,
+        const Array<CIMName>& indicationClassProperties);
+
+    /**
+        Forward the formatted indication to the handler
+
+        @param   matchedSubscription    The matched subscription 
+        @param   handlerInstance        The handler instance for the matched
+                                        subscription 
+        @param   formattedIndication    The formatted indication 
+        @param   namespaceName          The generated indication namespace 
+        @param   operationContext       The operation context 
+    */
+    void _forwardIndToHandler(
+        const CIMInstance& matchedSubscription,
+        const CIMInstance& handlerInstance,
+        const CIMInstance& formattedIndication,
+        const CIMNamespaceName& namespaceName,
+        const OperationContext& operationContext);
 
     SubscriptionRepository* _subscriptionRepository;
 

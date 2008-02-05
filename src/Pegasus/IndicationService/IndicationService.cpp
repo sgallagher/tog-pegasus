@@ -1957,7 +1957,7 @@ void IndicationService::_handleDeleteInstanceRequest(const Message* message)
 // interface (ie. mdd's) if we can't agree on one export flow and consumer
 // interface (see PEP67)
 
-void IndicationService::_handleProcessIndicationRequest(const Message* message)
+void IndicationService::_handleProcessIndicationRequest(Message* message)
 {
 #ifdef PEGASUS_INDICATION_PERFINST
     Stopwatch stopWatch;
@@ -1966,19 +1966,13 @@ void IndicationService::_handleProcessIndicationRequest(const Message* message)
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
         "IndicationService::_handleProcessIndicationRequest");
 
-    CIMProcessIndicationRequestMessage* request =
-        (CIMProcessIndicationRequestMessage*) message;
-
-    CIMException cimException;
+    CIMProcessIndicationRequestMessage* request = dynamic_cast<
+        CIMProcessIndicationRequestMessage*> (message);
+    PEGASUS_ASSERT(request != 0);
 
     CIMResponseMessage * response = request->buildResponse ();
-    response->cimException = cimException;
-
-    String filterQuery;
-    Boolean match;
 
     Array<CIMInstance> matchedSubscriptions;
-    CIMInstance handlerNamedInstance;
 
     CIMInstance indication = request->indicationInstance;
 
@@ -1990,332 +1984,180 @@ void IndicationService::_handleProcessIndicationRequest(const Message* message)
            (const char*)(request->messageId.getCString()),
            (const char*)(request->nameSpace.getString().getCString()),
            (const char*)(request->provider.getProperty(request->provider.
-           findProperty(PEGASUS_PROPERTYNAME_NAME)).getValue().toString().
-           getCString())));
+               findProperty(PEGASUS_PROPERTYNAME_NAME)).getValue().toString().
+                   getCString())));
+
         //
-        //  Check if property list contains all properties of class
-        //  If so, set to null
+        // Get supported properties by the indication provider 
+        // Get Indication class properties
+        // Check if the provider supports all properties of the indication 
+        // class, if so, set to null 
         //
-        Array<CIMName> propertyNames;
+        Array<CIMName> providerSupportedProperties;
         Array<CIMName> indicationClassProperties;
-        CIMPropertyList propertyList;
+        CIMPropertyList supportedPropertyList;
+
         for (Uint32 i = 0; i < indication.getPropertyCount(); i++)
         {
-            propertyNames.append(indication.getProperty(i).getName());
-        }
-        propertyList = _checkPropertyList (propertyNames,
-            request->nameSpace, indication.getClassName (),
-            indicationClassProperties);
-
-        //
-        //  Retrieve the matching subscriptions based on the class name and
-        //  namespace of the generated indication
-        //  If the provider did not include subscriptions in the
-        //  SubscriptionInstanceNamesContainer, the matchedSubscriptions
-        //  represent the subscriptions to which the indication should be
-        //  forwarded, if the filter criteria are met
-        //
-        Array<CIMNamespaceName> nameSpaces;
-        nameSpaces.append (request->nameSpace);
-
-#ifdef PEGASUS_INDICATION_PERFINST
-        stopWatch.reset();
-        stopWatch.start();
-#endif
-
-        matchedSubscriptions = _getMatchingSubscriptions(
-            indication.getClassName (), nameSpaces, propertyList,
-            true, request->provider);
-
-#ifdef PEGASUS_INDICATION_PERFINST
-        stopWatch.stop();
-
-        PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
-            "%s: %.3f seconds",
-            "Get Matching Subscriptions", stopWatch.getElapsed()));
-#endif
-
-        //
-        //  If the provider included subscriptions in the
-        //  SubscriptionInstanceNamesContainer, verify that each subscription
-        //  specified by the provider matches the class name and namespace of
-        //  the generated indication by looking for the subscription instance
-        //  in the list of matching subscriptions from the Subscription Classes
-        //  table
-        //  The subset of subscriptions included by the provider that also
-        //  appear in the matchedSubscriptions list represent the subscriptions
-        //  to which the indication should be forwarded, if the filter criteria
-        //  are met
-        //  Any subscription included by the provider but not matching the
-        //  the class name and namespace of the generated indication is ignored
-        //
-        if (request->subscriptionInstanceNames.size() > 0)
-        {
-            Array<CIMInstance> providedSubscriptions;
-
-#ifdef PEGASUS_INDICATION_PERFINST
-            stopWatch.reset();
-            stopWatch.start();
-#endif
-
-            for (Uint32 i = 0; i < request->subscriptionInstanceNames.size();
-                 i++)
-            {
-                //
-                //  Look up the subscription in the active subscriptions table
-                //
-                ActiveSubscriptionsTableEntry tableValue;
-                if (_subscriptionTable->getSubscriptionEntry
-                    (request->subscriptionInstanceNames[i], tableValue))
-                {
-                    //
-                    //  Verify that each subscription specified by the provider
-                    //  matches the class name and namespace of the generated
-                    //  indication by looking for the subscription instance in
-                    //  the list of matching subscriptions
-                    //
-                    Boolean found = false;
-                    for (Uint32 i = 0; i < matchedSubscriptions.size(); i++)
-                    {
-                        if (matchedSubscriptions[i].identical
-                            (tableValue.subscription))
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (found)
-                    {
-                        providedSubscriptions.append (tableValue.subscription);
-                    }
-                }
-            }
-
-#ifdef PEGASUS_INDICATION_PERFINST
-            stopWatch.stop();
-
-            PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
-                "%s: %.3f seconds",
-                "Look up Subscriptions", stopWatch.getElapsed()));
-#endif
-            matchedSubscriptions = providedSubscriptions;
+            providerSupportedProperties.append(
+                indication.getProperty(i).getName());
         }
 
+        supportedPropertyList = _checkPropertyList(providerSupportedProperties,
+                                                   request->nameSpace, 
+                                                   indication.getClassName(), 
+                                                   indicationClassProperties);
+
         //
-        //  For each matching subscription, determine whether the filter
-        //  criteria are met by the generated indication, and if so, forward to
-        //  the handler
+        // Get initial subscriptions based on the class name, namespace
+        // of the generated indication, and subscriptions specified by the 
+        // indication provider if the provider included subscriptions 
+        // in the subscriptionInstanceNamesContainer 
         //
-        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
-            "%d subscriptions found for %s Indication %s in namespace %s",
-            matchedSubscriptions.size(),
-            (const char*)(indication.getClassName().getString().getCString()),
-            (const char*)(request->messageId.getCString()),
-            (const char*)(request->nameSpace.getString().getCString())));
-        for (Uint32 i = 0; i < matchedSubscriptions.size(); i++)
+        Array<CIMInstance> subscriptions = _getRelevantSubscriptions(
+            request->subscriptionInstanceNames, indication.getClassName(),
+            request->nameSpace, request->provider);
+ 
+        for (Uint32 i = 0; i < subscriptions.size(); i++)
         {
-            match = true;
-
-            //
-            // copy the indication, format it based on the subscription,
-            // and send the formatted indication to the consumer
-            //
-            CIMInstance formattedIndication = indication.clone();
-
-            //
-            //  Check for expired subscription
-            //
             try
             {
-                if (_isExpired(matchedSubscriptions[i]))
-                {
-                    CIMObjectPath path = matchedSubscriptions[i].getPath ();
-                    _deleteExpiredSubscription (path);
-                    // If the subscription is expired, delete and continue
-                    // to the next one.
+                QueryExpression queryExpr;
+                String filterQuery;
+                String queryLanguage;
+                String filterName;
+                CIMNamespaceName sourceNameSpace;
+
+                //
+                //  Get filter query expression of the subscription
+                //
+                _subscriptionRepository->getFilterProperties
+                    (subscriptions[i], filterQuery, sourceNameSpace,
+                     queryLanguage, filterName);
+
+                queryExpr = _getQueryExpression(
+                    filterQuery, queryLanguage, sourceNameSpace);
+
+                //
+                // Evaluate if the subscription matches the indication by 
+                // checking:
+                // 1) Whether the properties (in WHERE clause) from filter 
+                //    query are supported by the indication provider;
+                // 2) Whether the subscripton is expired;
+                // 3) Whether the filter criteria are met by the generated 
+                //    indication 
+                //
+                if (_subscriptionMatch (subscriptions[i], indication, 
+                    supportedPropertyList, queryExpr, sourceNameSpace))
+                { 
                     PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
-                        "%s Indication Subscription expired",
-                        (const char*)(indication.
-                        getClassName().getString().getCString())));
-                   continue;
-                }
-            }
-            catch (DateTimeOutOfRangeException&)
-            {
-                //
-                //  This instance from the repository is invalid
-                //  Skip it
-                //
-                continue;
-            }
+                        "%s Indication %s satisfies filter %s:%s query "
+                            "expression  \"%s\"",
+                            (const char*)(indication.getClassName().
+                                getString().getCString()),
+                            (const char*)(request->messageId.getCString()),
+                            (const char*)(sourceNameSpace.getString().
+                                getCString()),
+                            (const char*)(filterName.getCString()),
+                            (const char*)(filterQuery.getCString())));
 
-            String queryLanguage;
-            CIMNamespaceName sourceNamespace;
-            String filterName;
-            _subscriptionRepository->getFilterProperties (
-                matchedSubscriptions[i],
-                filterQuery,
-                sourceNamespace,
-                queryLanguage,
-                filterName);
-
-            QueryExpression queryExpr = _getQueryExpression(
-                filterQuery, queryLanguage, request->nameSpace);
-
-#ifdef PEGASUS_INDICATION_PERFINST
-            stopWatch.reset();
-            stopWatch.start();
-#endif
-            if (!queryExpr.evaluate(indication))
-            {
-                match = false;
-            }
-#ifdef PEGASUS_INDICATION_PERFINST
-            stopWatch.stop();
-
-            PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
-                           "%s: %.3f seconds",
-                           "Evaluate WHERE clause", stopWatch.getElapsed()));
-#endif
-
-            if (match)
-            {
-                PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
-                    "%s Indication %s satisfies filter %s:%s query expression"
-                    "  \"%s\"",
-                    (const char*)(indication.getClassName().getString().
-                    getCString()),
-                    (const char*)(request->messageId.getCString()),
-                    (const char*)(sourceNamespace.getString().getCString()),
-                    (const char*)(filterName.getCString()),
-                    (const char*)(filterQuery.getCString())));
-                //
-                // Format the indication
-                //
-                // This is a two part process:
-                //
-                // 1) Call QueryExpression::applyProjection to remove
-                // properties not listed in the SELECT clause.  Note: for CQL,
-                // this will handle properties on embedded objects.
-                //
-                // QueryExpression::applyProjection throws an exception if
-                // the indication is missing a required property in the SELECT
-                // clause.  Although _getMatchingSubscriptions checked for
-                // the indication missing required properties, it would have
-                // not detected missing required embedded object properties for
-                // CQL.  So, we need to catch the missing property exception
-                // here.
-                //
-                // 2) Remove any properties that may be left on the indication
-                // that are not in the indication class.  These are properties
-                // added by the provider incorrectly.  It is possible that
-                // these properties will remain after applyProjection if the
-                // SELECT clause happens to have a property name not on the
-                // indication class, and the indication has that same property.
-                // Note: If SELECT includes all properties ("*"), it's still
-                // necessary to check, in case the provider added properties
-                // not in the indication class.
-                //
-                try
-                {
-                    queryExpr.applyProjection(formattedIndication, true);
-                }
-                catch (QueryRuntimePropertyException& re)
-                {
-                    // The indication was missing a required property.
-                    // The call to _getMatchingSubscriptions above checked for
-                    // missing required properties on the base indication
-                    // object so this can only happen for CQL when an embedded
-                    // object property is missing.
                     //
-                    // Since this is the same as the indication not matching
-                    // the subscription, just swallow the exception,
-                    // and skip this subscription.
-                    PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4,
-                        "Apply Projection error: " + re.getMessage());
-                    continue;
-                }
+                    // Format the indication
+                    // This includes two parts:
+                    // 1) Use QueryExpression::applyProjection to remove 
+                    //    properties not listed in the SELECT clause;
+                    // 2) Remove any properties that may be left on the 
+                    //    indication that are not in the indication class. 
+                    //    These are properties added by the provider 
+                    //    incorrectly.
+                    //
+                    CIMInstance formattedIndication = indication.clone();
 
-                // Remove any remaining properties not in the indication class
-                // from the indication.
-                //
-                for (Uint32 j = 0; j < propertyNames.size(); j++)
-                {
-                    Uint32 rmIndex =
-                        formattedIndication.findProperty(propertyNames[j]);
-                    if (rmIndex != PEG_NOT_FOUND &&
-                        !ContainsCIMName(
-                             indicationClassProperties, propertyNames[j]))
+                    if (_formatIndication(formattedIndication, 
+                                          queryExpr,
+                                          providerSupportedProperties, 
+                                          indicationClassProperties))
                     {
-                        formattedIndication.removeProperty(rmIndex);
+                        //
+                        // get the handler instance and forward the formatted
+                        // indication to the handler
+                        //
+                        CIMInstance handlerInstance = 
+                            _subscriptionRepository->getHandler(
+                                subscriptions[i]);
+
+                        PEG_TRACE((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+                            "Handler %s:%s.%s found for %s Indication %s",
+                            (const char*)(request->nameSpace.getString().
+                                getCString()),
+                            (const char*)(handlerInstance.getClassName().
+                                getString().getCString()),
+                            (const char*)(handlerInstance.getProperty(
+                                handlerInstance.findProperty(
+                                    PEGASUS_PROPERTYNAME_NAME)).getValue().
+                                        toString().getCString()),
+                            (const char*)(indication.getClassName().
+                                getString().getCString()),
+                            (const char*)(request->messageId.getCString())));
+
+                        _forwardIndToHandler(subscriptions[i], 
+                                             handlerInstance, 
+                                             formattedIndication, 
+                                             request->nameSpace,
+                                             request->operationContext);
+
+                        matchedSubscriptions.append(subscriptions[i]);
                     }
                 }
-
-                handlerNamedInstance = _subscriptionRepository->getHandler(
-                    matchedSubscriptions[i]);
-                PEG_TRACE((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
-                    "Handler %s:%s.%s found for %s Indication %s",
-                    (const char*)(request->nameSpace.getString().getCString()),
-                    (const char*)(handlerNamedInstance.getClassName().
-                        getString().getCString()),
-                    (const char*)(handlerNamedInstance.getProperty(
-                        handlerNamedInstance.findProperty(
-                            PEGASUS_PROPERTYNAME_NAME)).getValue().toString().
-                                getCString()),
-                    (const char*)(indication.getClassName().getString().
-                        getCString()),
-                    (const char*)(request->messageId.getCString())));
-
-// l10n
-// Note: not expecting any language in the response
-                CIMRequestMessage * handler_request =
-                    new CIMHandleIndicationRequestMessage (
-                        XmlWriter::getNextMessageId (),
-                        request->nameSpace,
-                        handlerNamedInstance,
-                        formattedIndication,
-                        matchedSubscriptions[i],
-                        QueueIdStack(_handlerService, getQueueId()),
-                        String::EMPTY,
-                        String::EMPTY);
-
-                handler_request->operationContext = request->operationContext;
-
-                AsyncOpNode* op = this->get_op();
-
-                AsyncLegacyOperationStart *async_req =
-                    new AsyncLegacyOperationStart(
-                    op,
-                    _handlerService,
-                    handler_request,
-                    _queueId);
-
-                PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4,
-                    "Sending (SendAsync) Indication to " +
-                    ((MessageQueue::lookup(_handlerService)) ?
-                    String(((MessageQueue::lookup
-                    (_handlerService))->getQueueName())) :
-                    String("BAD queue name")) +
-                    " via CIMHandleIndicationRequestMessage");
-
-                SendAsync (op,
-                           _handlerService,
-                           IndicationService::_handleIndicationCallBack,
-                           this,
-                           (void *) &(matchedSubscriptions[i]));
             }
+            catch (Exception& e)
+            {
+                PEG_TRACE ((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+                    "Exception caught in attempting to process indication "
+                        "for the subscription %s: %s",
+                        (const char *) subscriptions[i].getPath ().toString().
+                            getCString(),
+                        (const char *) e.getMessage ().getCString())); 
+            }
+            catch (exception& e)
+            {
+                PEG_TRACE ((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    "Exception caught in attempting to process indication "
+                        "for the subscription %s: %s",
+                    (const char *) subscriptions[i].getPath ().toString().
+                        getCString(), e.what()));
+           }
+           catch (...)
+           {
+               PEG_TRACE ((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                   "Unknown exception caught in attempting to process "
+                       "indication for the subscription %s",
+                    (const char *) subscriptions[i].getPath ().toString ().
+                        getCString()));
+           }
+
         }
 
         //
-        //  Log a trace message if there were no matching subscriptions
+        //  Log subscriptions info to a trace message
         //
         if (matchedSubscriptions.size() == 0)
         {
            PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL2,
                "No matching subscriptions found for %s Indication %s",
                (const char*)(indication.getClassName().getString().
-               getCString()),
+                   getCString()),
                (const char*)(request->messageId.getCString())));
+        }
+        else
+        {
+            PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+                "%d subscriptions found for %s Indication %s in namespace %s",
+                matchedSubscriptions.size(),
+                (const char*)(indication.getClassName().getString().
+                    getCString()),
+                (const char*)(request->messageId.getCString()),
+                (const char*)(request->nameSpace.getString().getCString())));
         }
     }
     catch (CIMException& exception)
@@ -7532,6 +7374,318 @@ CIMClass IndicationService::_getIndicationClass(
 
     PEG_METHOD_EXIT();
     return indicationClass;
+}
+
+Array<CIMInstance> IndicationService::_getRelevantSubscriptions(
+    const Array<CIMObjectPath> & providedSubscriptionNames,
+    const CIMName& className,
+    const CIMNamespaceName& nameSpace,
+    const CIMInstance& indicationProvider)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "IndicationService::_getRelevantlSubscriptions");
+
+    // 
+    // Retrieves list of enabled subscription instances in the specified
+    // namespace, where the subscription indication class matches or is a
+    // superclass of the supported class. A subscription is only included
+    // in the list if the specified provider accepted the subscription.
+    //
+    Array<CIMInstance> initialSubscriptions = 
+        _subscriptionTable->getMatchingClassNamespaceSubscriptions(
+            className, nameSpace, indicationProvider);
+
+    // 
+    // If the indication provider included subscriptions in the 
+    // SubscriptionInstanceNamesContainer, the subset of subscriptions
+    // specified by the indication provider that also appear in the initial
+    // subscriptions list is returned.
+    //
+
+    if (providedSubscriptionNames.size() > 0)
+    {
+        for (Uint32 i = 0; i < initialSubscriptions.size(); i++)
+        {
+            if (!Contains(providedSubscriptionNames, 
+                          initialSubscriptions[i].getPath()))
+            {
+                initialSubscriptions.remove(i);
+            }
+        }
+    }
+
+    PEG_METHOD_EXIT();
+    return initialSubscriptions;
+}
+
+Boolean IndicationService::_subscriptionMatch(
+    const CIMInstance& subscription,
+    const CIMInstance& indication,
+    const CIMPropertyList& supportedPropertyList,
+    QueryExpression& queryExpr,
+    const CIMNamespaceName sourceNameSpace)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "IndicationService::_subscriptionMatch");
+
+    //
+    // If supported properties is null (all properties)
+    // the subscription can be supported
+    //
+    if (!supportedPropertyList.isNull ())
+    {
+        try
+        {
+            // Get the class paths in the FROM list
+            // Since neither WQL nor CQL support joins, so we can
+            // assume one class path.
+            CIMName indicationClassName = 
+                queryExpr.getClassPathList()[0].getClassName();
+
+            if (!_subscriptionRepository->validateIndicationClassName(
+                indicationClassName, sourceNameSpace))
+            {
+                //
+                // Invalid FROM class, the subscription does not match
+                //
+                PEG_METHOD_EXIT();
+                return false;
+            }
+
+            //
+            //  Get required property list from filter query (WHERE clause)
+            //
+            //  Note: 
+            //  The class should be the class of the indication
+            //  instance, not the FROM class.
+            //  This is needed because CQL can have class scoping operators
+            //  on properties that may not be the same class
+            //  as the FROM class.  The required properties
+            //  for an indication are based on indication instance class,
+            //  not the FROM class.
+            //
+
+            CIMPropertyList requiredPropertyList = _getPropertyList(
+                queryExpr, sourceNameSpace, indication.getClassName());
+
+            //
+            //  If the subscription requires all properties,
+            //  but supported property list does not include all
+            //  properties, the subscription cannot be supported
+            //
+            if (requiredPropertyList.isNull ())
+            {
+                //
+                //  Current subscription does not match
+                //
+                PEG_METHOD_EXIT();
+                return false;
+            }
+            else
+            {
+                //
+                //  Compare subscription required property list
+                //  with supported property list
+                //
+                for (Uint32 j = 0; j < requiredPropertyList.size (); j++)
+                {
+                    if (!ContainsCIMName
+                        (supportedPropertyList.getPropertyNameArray(),
+                         requiredPropertyList[j]))
+                    {
+                        //
+                        //  Current subscription does not match
+                        //
+                        PEG_METHOD_EXIT();
+                        return false;
+                    }
+                }
+            }
+        }
+        catch(const Exception & e)
+        {
+            // This subscription is invalid
+           PEG_TRACE ((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "Exception caught trying to verify required properties "
+                    "in a subscription are all contained in the list of "
+                    "supported indication properties: %s",
+                    (const char *) e.getMessage ().getCString())); 
+            PEG_METHOD_EXIT();
+            return false;
+        }
+        catch(const exception & e)
+        {
+            // This subscription is invalid
+           PEG_TRACE ((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "Exception caught trying to verify required properties "
+                    "in a subscription are all contained in the list of "
+                    "supported indication properties: %s", e.what ())); 
+            PEG_METHOD_EXIT();
+            return false;
+        }
+        catch(...)
+        {
+            // This subscription is invalid
+            // skip it
+            PEG_TRACE_CSTRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "Unknown exception caught trying to verify "
+                    "required properties in a subscription are all contained "
+                    "in the list of supported indication properties."); 
+            PEG_METHOD_EXIT();
+            return false;
+        }
+    }
+
+    //
+    // Check for expired subscription
+    //
+    try
+    {
+        if (_isExpired(subscription))
+        {
+            // Delete expired subscription
+            CIMObjectPath path = subscription.getPath ();
+            _deleteExpiredSubscription (path);
+            PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+                "%s Indication Subscription expired",
+                (const char*)(indication.getClassName().getString().
+                    getCString())));
+            PEG_METHOD_EXIT();
+            return false;
+        }
+    }
+    catch (DateTimeOutOfRangeException&)
+    {
+        PEG_TRACE_CSTRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+            "Caught DateTimeOutOfRangeException in IndicationService while"
+                "checking for expired subscription");
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    //
+    // Evaluate whether the filter criteria are met by the generated 
+    // indication
+    //
+    if (!queryExpr.evaluate(indication))
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    PEG_METHOD_EXIT();
+    return true;
+}
+
+Boolean IndicationService::_formatIndication(
+    CIMInstance& formattedIndication,
+    QueryExpression& queryExpr,
+    const Array<CIMName>& providerSupportedProperties,
+    const Array<CIMName>& indicationClassProperties)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "IndicationService::_formatIndication");
+
+    //
+    // Call QueryExpression::applyProjection to remove properties
+    // not listed in the SELECT clause.  Note: for CQL,
+    // this will handle properties on embedded objects.
+    //
+    // QueryExpression::applyProjection throws an exception if
+    // the indication is missing a required property in the SELECT
+    // clause.  Although we have checked for the indication missing
+    // required properties, it would have not detected missing required
+    // embedded object properties for CQL.  So, we need to catch the
+    // missing property exception here.
+    //
+    try
+    {
+        queryExpr.applyProjection(formattedIndication, true);
+    }
+    catch (QueryRuntimePropertyException& re)
+    {
+        // The indication was missing a required property.
+        PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+            "Apply Projection error: " + re.getMessage());
+        PEG_METHOD_EXIT();
+        return false; 
+    }
+
+    //
+    // Remove any properties that may be left on the indication
+    // that are not in the indication class.  These are properties
+    // added by the provider incorrectly.  It is possible that
+    // these properties will remain after applyProjection if the
+    // SELECT clause happens to have a property name not on the
+    // indication class, and the indication has that same property.
+    // Note: If SELECT includes all properties ("*"), it's still
+    // necessary to check, in case the provider added properties
+    // not in the indication class.
+    //
+    for (Uint32 j = 0; j < providerSupportedProperties.size(); j++)
+    {
+        Uint32 rmIndex =
+            formattedIndication.findProperty(providerSupportedProperties[j]);
+        if (rmIndex != PEG_NOT_FOUND &&
+            !ContainsCIMName(
+                 indicationClassProperties, providerSupportedProperties[j]))
+        {
+            formattedIndication.removeProperty(rmIndex);
+        }
+    }
+
+    PEG_METHOD_EXIT();
+    return true;
+}
+
+void IndicationService::_forwardIndToHandler(
+    const CIMInstance& matchedSubscription,
+    const CIMInstance& handlerInstance,
+    const CIMInstance& formattedIndication,
+    const CIMNamespaceName& namespaceName,
+    const OperationContext& operationContext)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "IndicationService::_forwardIndToHandler");
+
+    CIMRequestMessage * handler_request =
+        new CIMHandleIndicationRequestMessage (
+            XmlWriter::getNextMessageId (),
+            namespaceName,
+            handlerInstance,
+            formattedIndication,
+            matchedSubscription,
+            QueueIdStack(_handlerService, getQueueId()),
+            String::EMPTY,
+            String::EMPTY);
+
+    handler_request->operationContext = operationContext;
+
+    AsyncOpNode* op = this->get_op();
+
+    AsyncLegacyOperationStart *async_req =
+        new AsyncLegacyOperationStart(
+        op,
+        _handlerService,
+        handler_request,
+        _queueId);
+
+    PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+        "Sending (SendAsync) Indication to " +
+        ((MessageQueue::lookup(_handlerService)) ?
+        String(((MessageQueue::lookup
+        (_handlerService))->getQueueName())) :
+        String("BAD queue name")) +
+        " via CIMHandleIndicationRequestMessage");
+
+    SendAsync (op,
+               _handlerService,
+               IndicationService::_handleIndicationCallBack,
+               this,
+               (void *) &(matchedSubscription));
+
+
+    PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END

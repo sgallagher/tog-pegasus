@@ -358,6 +358,24 @@ public:
      */
     void clear ();
 
+    /**
+        Retrieves list of enabled subscription instances in the specified
+        namespace, where the subscription indication class matches or is a
+        superclass of the supported class. A subscription is only included 
+        in the list returned if the specified provider accepted the 
+        subscription.
+
+        @param   supportedClass      The supported class
+        @param   nameSpace           The specified namespace
+        @param   provider            The provider instance which accepts 
+                                     subscriptions 
+
+        @return   list of CIMInstance subscriptions
+     */
+    Array <CIMInstance> getMatchingClassNamespaceSubscriptions (
+        const CIMName & supportedClass,
+        const CIMNamespaceName&  nameSpace,
+        const CIMInstance & provider);
 
 private:
 

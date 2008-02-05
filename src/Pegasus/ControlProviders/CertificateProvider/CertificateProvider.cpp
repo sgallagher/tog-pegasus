@@ -615,7 +615,7 @@ void CertificateProvider::enumerateInstances(
 
                 if ( prop.getValue().isNull())
                 {
-                    PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL3,
+                    PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3,
                       "The instance does not have the certificate type set. "
                       "Setting it to Unknown.");
                     prop.setValue(CERT_TYPE_UNKNOWN);

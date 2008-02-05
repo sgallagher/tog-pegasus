@@ -40,7 +40,6 @@
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include <windows.h>
 #else
-# include <spawn.h>
 # include <unistd.h>
 # include <errno.h>
 # include <sys/types.h>
@@ -74,6 +73,10 @@
 
 #ifdef PEGASUS_OS_PASE
 # include <as400_protos.h> // For fork400()
+#endif
+
+#ifdef PEGASUS_OS_ZOS
+# include <spawn.h>
 #endif
 
 PEGASUS_NAMESPACE_BEGIN

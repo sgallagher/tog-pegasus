@@ -56,6 +56,7 @@ SOURCES = \
     ../../Config.c \
     ../../Exit.c \
     ../../Fatal.c \
+    ../../FileHandle.c \
     ../../Globals.c \
     ../../LocalAuth.c \
     ../../Log.c \

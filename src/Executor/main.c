@@ -35,6 +35,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
+#include <time.h>
 #include "Config.h"
 #include "Child.h"
 #include "Parent.h"
@@ -52,6 +54,8 @@
 #include "Assert.h"
 #include "Options.h"
 #include <Pegasus/Common/PegasusVersion.h>
+
+#define CIMSERVER_COMMAND_TIMEOUT_SECONDS 240
 
 /*
 **==============================================================================
@@ -267,6 +271,8 @@ int main(int argc, char** argv)
 {
     const char* cimservermainPath;
     int pair[2];
+    int initCompletePipe[2];
+    int pid;
     char username[EXECUTOR_BUFFER_SIZE];
     const char* childUserName;
     int childUid;
@@ -339,13 +345,6 @@ int main(int argc, char** argv)
         }
     }
 
-    /* Create a socket pair for communicating with the child process. */
-
-    if (CreateSocketPair(pair) != 0)
-        Fatal(FL, "Failed to create socket pair");
-
-    CloseOnExec(pair[1]);
-
     /* Initialize the log-level from the configuration parameter. */
 
     InitLogLevel();
@@ -381,9 +380,105 @@ int main(int argc, char** argv)
     chdir("/");
 #endif
 
+    /* Create a pipe for communicating with cimserver daemon process. */
+
+    if (pipe(initCompletePipe) != 0)
+        Fatal(FL, "Failed to create pipe");
+
+    CloseOnExec(initCompletePipe[0]);
+    CloseOnExec(initCompletePipe[1]);
+
+    /* Fork to ensure we are not a session leader so setsid() will succeed. */
+
+    pid = fork();
+
+    if (pid < 0)
+    {
+        Fatal(FL, "fork() failed");
+    }
+
+    if (pid > 0)
+    {
+        /* Wait until daemon writes an exit code or closes the pipe. */
+
+        char exitRC;
+        ssize_t result;
+        time_t startTime;
+        time_t now;
+
+        close(initCompletePipe[1]);
+        SetNonBlocking(initCompletePipe[0]);
+        time(&startTime);
+
+        do
+        {
+            time(&now);
+            result = WaitForReadEnable(
+                initCompletePipe[0],
+                (CIMSERVER_COMMAND_TIMEOUT_SECONDS - (now - startTime)) * 1000);
+        } while (result == -1 && errno == EINTR);
+
+        if (result == 0)
+        {
+            fprintf(stderr,
+                "The cimserver command timed out waiting for the CIM server "
+                    "to start.");
+            _exit(0);
+        }
+
+        EXECUTOR_RESTART(read(initCompletePipe[0], &exitRC, 1), result);
+        if (result <= 0)
+        {
+            exitRC = 1;
+        }
+        _exit(exitRC);
+    }
+
+    close(initCompletePipe[0]);
+
+    /* Become session leader (so that our child process will not be one) */
+
+    if (setsid() < 0)
+    {
+        Fatal(FL, "setsid() failed");
+    }
+
+    /* Ignore SIGHUP: */
+
+    signal(SIGHUP, SIG_IGN);
+
+    /* Ignore SIGCHLD: */
+
+    signal(SIGCHLD, SIG_IGN);
+
+    /* Ignore SIGPIPE: */
+
+    signal(SIGPIPE, SIG_IGN);
+
+    /* Fork cimserver daemon process (not a session leader since parent is). */
+
+    pid = fork();
+
+    if (pid < 0)
+    {
+        Fatal(FL, "fork() failed");
+    }
+
+    if (pid > 0)
+    {
+        _exit(0);
+    }
+
     /* Determine user for running CIMSERVERMAIN. */
 
     GetServerUser(&childUserName, &childUid, &childGid);
+
+    /* Create a socket pair for communicating with the child process. */
+
+    if (CreateSocketPair(pair) != 0)
+        Fatal(FL, "Failed to create socket pair");
+
+    CloseOnExec(pair[1]);
 
     /* Fork child process. */
 
@@ -406,7 +501,7 @@ int main(int argc, char** argv)
     {
         /* Parent. */
         close(pair[0]);
-        Parent(pair[1], childPid, options.bindVerbose);
+        Parent(pair[1], initCompletePipe[1], childPid, options.bindVerbose);
     }
     else
     {

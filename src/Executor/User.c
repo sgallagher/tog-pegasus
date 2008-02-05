@@ -30,8 +30,10 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 */
+#include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
+#include <grp.h>
 #include "User.h"
 #include "Log.h"
 #include "Strlcpy.h"
@@ -91,4 +93,41 @@ int GetUserName(int uid, char username[EXECUTOR_BUFFER_SIZE])
 
     Strlcpy(username, ptr->pw_name, EXECUTOR_BUFFER_SIZE);
     return 0;
+}
+
+/*
+**==============================================================================
+**
+** SetUserContext()
+**
+**     Set the process user ID, group ID, and supplemental groups
+**
+**==============================================================================
+*/
+
+void SetUserContext(const char* username, int uid, int gid)
+{
+    if ((int)getgid() != gid)
+    {
+        if (setgid((gid_t)gid) != 0)
+        {
+            Log(LL_SEVERE, "setgid(%d) failed\n", gid);
+            _exit(1);
+        }
+    }
+
+    if (initgroups(username, gid) != 0)
+    {
+        Log(LL_SEVERE, "initgroups(%s, %d) failed\n", username, gid);
+        _exit(1);
+    }
+
+    if ((int)getuid() != uid)
+    {
+        if (setuid((uid_t)uid) != 0)
+        {
+            Log(LL_SEVERE, "setuid(%d) failed\n", uid);
+            _exit(1);
+        }
+    }
 }

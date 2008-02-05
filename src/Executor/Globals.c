@@ -37,9 +37,11 @@ struct Globals globals =
 {
     0, /* argc */
     0, /* argv */
+    -1, /* initCompletePipe */
     0, /* childPid */
     0, /* isChildProcess */
     0, /* signalMask */
     0, /* enableAuthentication */
+    0, /* bindVerbose */
 };
 

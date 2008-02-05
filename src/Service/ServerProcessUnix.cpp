@@ -36,9 +36,6 @@
 
 #include <Pegasus/Common/Signal.h>
 #include <Pegasus/Common/Executor.h>
-#include <Pegasus/Common/AtomicInt.h>
-#include <Pegasus/Common/Thread.h>
-#include <Pegasus/Common/Threads.h>
 
 #define MAX_WAIT_TIME 240
 
@@ -57,57 +54,6 @@ void sigTermHandler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
 {
     graveError= handleSigUsr1=true;
 }
-
-
-#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-/**
-    Indicates whether the Executor has been instructed to daemonize or
-    otherwise exit.
-*/
-static AtomicInt _hasDaemonized(0);
-
-/**
-    A watchdog thread that used to allow the server start-up command to
-    time out and return control even if the server initialization is not
-    complete.
-*/
-static Thread* _waitForDaemonizationThread = 0;
-
-/**
-    Wait for server start-up to complete.  If the MAX_WAIT_TIME elapses
-    before the Executor is instructed to daemonize, then initiate the
-    daemonization.  This is necessary to prevent a server start-up hang
-    from hanging the cimserver command.
-*/
-static ThreadReturnType PEGASUS_THREAD_CDECL _waitForDaemonization(void* parm)
-{
-    Thread *myself = reinterpret_cast<Thread *>(parm);
-    AtomicInt* hasDaemonized = reinterpret_cast<AtomicInt*>(myself->get_parm());
-
-    Uint32 waitTimeMsec = MAX_WAIT_TIME * 1000;
-
-    while (!hasDaemonized->get() && waitTimeMsec > 0)
-    {
-        Threads::sleep(100);
-        waitTimeMsec -= 100;
-    }
-
-    if (!hasDaemonized->get())
-    {
-        MessageLoaderParms parms(
-            "src.Service.ServerProcessUnix.CIMSERVER_START_TIMEOUT",
-            "The cimserver command timed out waiting for the CIM server "
-                "to start.");
-        PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) <<
-            PEGASUS_STD(endl);
-        *hasDaemonized = 1;
-        Executor::daemonizeExecutor();
-    }
-
-    myself->exit_self((ThreadReturnType)1);
-    return 0;
-}
-#endif
 
 
 //constructor
@@ -152,29 +98,16 @@ String ServerProcess::getHome() { return String::EMPTY; }
 
 int ServerProcess::cimserver_fork()
 {
-    getSigHandle()->registerHandler(SIGTERM, sigTermHandler);
-    getSigHandle()->activate(SIGTERM);
     umask(S_IRWXG | S_IRWXO);
 
-#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
     if (Executor::detectExecutor() == 0)
     {
         // We don't need to fork if we're running with Privilege Separation
-        setsid();
-
-        _waitForDaemonizationThread = new Thread(
-            _waitForDaemonization, &_hasDaemonized, false);
-        if (_waitForDaemonizationThread->run() != PEGASUS_THREAD_OK)
-        {
-            // Unable to start watchdog thread.
-            delete _waitForDaemonizationThread;
-            _waitForDaemonizationThread = 0;
-        }
-
         return 0;
     }
-#endif
 
+    getSigHandle()->registerHandler(SIGTERM, sigTermHandler);
+    getSigHandle()->activate(SIGTERM);
     getSigHandle()->registerHandler(PEGASUS_SIGUSR1, sigUsr1Handler);
     getSigHandle()->activate(PEGASUS_SIGUSR1);
 
@@ -234,32 +167,15 @@ void ServerProcess::notify_parent(int id)
     }
     else
     {
-#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
         if (Executor::detectExecutor() == 0)
         {
-            // Note:  This logic contains a race condition which may allow the
-            // Executor to daemonize twice.  However, the Executor is expected
-            // to handle this condition gracefully.
-            if (!_hasDaemonized.get())
-            {
-                Executor::daemonizeExecutor();
-            }
+            Executor::daemonizeExecutor();
         }
         else
-#endif
         {
             kill(ppid, PEGASUS_SIGUSR1);
         }
     }
-
-#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    if (_waitForDaemonizationThread)
-    {
-        _hasDaemonized = 1;
-        delete _waitForDaemonizationThread;
-        _waitForDaemonizationThread = 0;
-    }
-#endif
 }
 
 

@@ -50,6 +50,9 @@ EXECUTOR_LINKAGE
 int SetBlocking(int sock);
 
 EXECUTOR_LINKAGE
+int WaitForReadEnable(int sock, long timeoutMsec);
+
+EXECUTOR_LINKAGE
 ssize_t RecvNonBlock(int sock, void* buffer, size_t size);
 
 EXECUTOR_LINKAGE

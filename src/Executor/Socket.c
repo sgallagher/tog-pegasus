@@ -91,7 +91,7 @@ int SetBlocking(int sock)
 /*
 **==============================================================================
 **
-** _waitForReadEnable()
+** WaitForReadEnable()
 **
 **     Wait until the given socket is read-enabled. Returns 1 if read enabled
 **     and 0 on timed out.
@@ -99,7 +99,7 @@ int SetBlocking(int sock)
 **==============================================================================
 */
 
-static int _waitForReadEnable(int sock, long timeoutMsec)
+int WaitForReadEnable(int sock, long timeoutMsec)
 {
     struct timeval timeout;
 
@@ -162,7 +162,7 @@ ssize_t RecvNonBlock(
 
     while (r)
     {
-        int status = _waitForReadEnable(sock, TIMEOUT_MSEC);
+        int status = WaitForReadEnable(sock, TIMEOUT_MSEC);
         ssize_t n;
 
         if ((globals.signalMask & (1 << SIGTERM)) ||

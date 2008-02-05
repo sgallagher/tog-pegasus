@@ -58,7 +58,8 @@ SOURCES = \
     Match.c \
     Messages.c \
     Assert.c \
-    Options.c
+    Options.c \
+    FileHandle.c
 
 #ifeq ($(findstring _GNU, $(PEGASUS_PLATFORM)), _GNU)
 #  FLAGS += -pedantic -ansi -Werror -Wunused -Wno-unused-function

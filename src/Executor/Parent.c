@@ -40,7 +40,6 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <signal.h>
-#include <grp.h>
 #include "Parent.h"
 #include "Log.h"
 #include "Messages.h"
@@ -56,6 +55,7 @@
 #include "PasswordFile.h"
 #include "Policy.h"
 #include "Macro.h"
+#include "FileHandle.h"
 
 #if defined(PEGASUS_PAM_AUTHENTICATION)
 # include "PAMAuth.h"
@@ -323,7 +323,6 @@ static void HandleStartProviderAgentRequest(int sock)
 
         if (pid == 0)
         {
-            struct rlimit rlim;
             char arg1[32];
             char arg2[32];
 
@@ -332,49 +331,23 @@ static void HandleStartProviderAgentRequest(int sock)
             close(to[1]);
             close(from[0]);
 
+            /* Redirect terminal I/O if required and not yet daemonized. */
+
+            if (globals.initCompletePipe != -1 && !globals.bindVerbose)
+            {
+                RedirectTerminalIO();
+            }
+
             /*
              * Close unused descriptors. Leave stdin, stdout, stderr, and the
              * child's pipe descriptors open.
              */
 
-            if (getrlimit(RLIMIT_NOFILE, &rlim) == 0)
-            {
-                int i;
-
-                for (i = 3; i < (int)rlim.rlim_cur; i++)
-                {
-                    if (i != to[0] && i != from[1])
-                        close(i);
-                }
-            }
+            CloseUnusedDescriptors(to[0], from[1]);
 
 #if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
 
-            if ((int)getgid() != gid)
-            {
-                if (setgid((gid_t)gid) != 0)
-                {
-                    Log(LL_SEVERE, "setgid(%d) failed\n", gid);
-                    _exit(1);
-                }
-            }
-
-            if ((int)getuid() != uid)
-            {
-                if (initgroups(request.userName, gid) != 0)
-                {
-                    Log(LL_SEVERE, "initgroups(%s, %d) failed\n",
-                        request.userName,
-                        gid);
-                    _exit(1);
-                }
-
-                if (setuid((uid_t)uid) != 0)
-                {
-                    Log(LL_SEVERE, "setuid(%d) failed\n", uid);
-                    _exit(1);
-                }
-            }
+            SetUserContext(request.userName, uid, gid);
 
             Log(LL_TRACE, "starting %s on module %s as user %s",
                 path, request.module, request.userName);
@@ -433,7 +406,7 @@ static void HandleStartProviderAgentRequest(int sock)
 **==============================================================================
 */
 
-static void HandleDaemonizeExecutorRequest(int sock, int bindVerbose)
+static void HandleDaemonizeExecutorRequest(int sock)
 {
     struct ExecutorDaemonizeExecutorResponse response;
     int pid;
@@ -442,66 +415,18 @@ static void HandleDaemonizeExecutorRequest(int sock, int bindVerbose)
 
     Log(LL_TRACE, "HandleDaemonizeExecutorRequest()");
 
-    /* Fork (parent exits; child continues) */
-    /* (Ensures we are not a session leader so that setsid() will succeed.) */
-
-    pid = fork();
-
-    if (pid < 0)
+    if (!globals.bindVerbose)
     {
-        response.status = -1;
-        Fatal(FL, "fork() failed");
+        RedirectTerminalIO();
     }
 
-    if (pid > 0)
-        _exit(0);
-
-    /* Become session leader (so that our child process will not be one) */
-
-    if (setsid() < 0)
+    if (globals.initCompletePipe != -1)
     {
-        response.status = -1;
-        Fatal(FL, "setsid() failed");
-    }
+        ssize_t result;
 
-    /* Ignore SIGHUP: */
-
-    signal(SIGHUP, SIG_IGN);
-
-    /* Ignore SIGCHLD: */
-
-    signal(SIGCHLD, SIG_IGN);
-
-    /* Fork again (so we are not a session leader because our parent is): */
-
-    pid = fork();
-
-    if (pid < 0)
-    {
-        response.status = -1;
-        Fatal(FL, "fork() failed");
-    }
-
-    if (pid > 0)
-        _exit(0);
-
-    /* Catch SIGTERM: */
-
-    signal(SIGTERM, _sigHandler);
-
-    if (!bindVerbose)
-    {
-        /* Close these file descriptors (stdin, stdout, stderr). */
-
-        close(0);
-        close(1);
-        close(2);
-
-        /* Direct standard input, output, and error to /dev/null: */
-
-        open("/dev/null", O_RDONLY);
-        open("/dev/null", O_RDWR);
-        open("/dev/null", O_RDWR);
+        EXECUTOR_RESTART(write(globals.initCompletePipe, "\0", 1), result);
+        close(globals.initCompletePipe);
+        globals.initCompletePipe = -1;
     }
 
     response.status = 0;
@@ -876,7 +801,7 @@ static void HandleUpdateLogLevelRequest(int sock)
 **==============================================================================
 */
 
-void Parent(int sock, int childPid, int bindVerbose)
+void Parent(int sock, int initCompletePipe, int childPid, int bindVerbose)
 {
     /* Handle Ctrl-C. */
 
@@ -898,6 +823,14 @@ void Parent(int sock, int childPid, int bindVerbose)
     /* Save child PID globally; it is used by Exit() function. */
 
     globals.childPid = childPid;
+
+    /* Save initCompletePipe; it is used at daemonization. */
+
+    globals.initCompletePipe = initCompletePipe;
+
+    /* Save bindVerbose; it is used at daemonization and cimprovagt start. */
+
+    globals.bindVerbose = bindVerbose;
 
     /* Prepares socket into non-blocking I/O. */
 
@@ -943,7 +876,7 @@ void Parent(int sock, int childPid, int bindVerbose)
                 break;
 
             case EXECUTOR_DAEMONIZE_EXECUTOR_MESSAGE:
-                HandleDaemonizeExecutorRequest(sock, bindVerbose);
+                HandleDaemonizeExecutorRequest(sock);
                 break;
 
             case EXECUTOR_RENAME_FILE_MESSAGE:

@@ -30,10 +30,65 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 */
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#include "FileHandle.h"
 
-#ifndef _Executor_Parent_h
-#define _Executor_Parent_h
+/*
+**==============================================================================
+**
+** RedirectTerminalIO()
+**
+**     Redirect stdin, stdout, and stderr to /dev/null.
+**
+**==============================================================================
+*/
 
-void Parent(int sock, int initCompletePipe, int childPid, int bindVerbose);
+void RedirectTerminalIO(void)
+{
+    /* Close these file descriptors (stdin, stdout, stderr). */
 
-#endif /* _Executor_Parent_h */
+    close(0);
+    close(1);
+    close(2);
+
+    /* Direct standard input, output, and error to /dev/null: */
+
+    open("/dev/null", O_RDONLY);
+    open("/dev/null", O_RDWR);
+    open("/dev/null", O_RDWR);
+}
+
+/*
+**==============================================================================
+**
+** CloseUnusedDescriptors()
+**
+**     Close all file descriptors except stdin, stdout, stderr, and the two
+**     specified file descriptors.
+**
+**==============================================================================
+*/
+
+void CloseUnusedDescriptors(int fd1, int fd2)
+{
+    struct rlimit rlim;
+
+    if (getrlimit(RLIMIT_NOFILE, &rlim) == 0)
+    {
+        int i;
+
+        for (i = 3; i < (int)rlim.rlim_cur; i++)
+        {
+            if (i != fd1 && i != fd2)
+            {
+                close(i);
+            }
+        }
+    }
+}

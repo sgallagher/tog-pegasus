@@ -45,7 +45,8 @@
 //
 // cimserver daemon=false
 //
-// The daemon config property has no effect on windows operation.
+// The daemon config property has no effect on windows operation or when
+// privilege separation is enabled.
 //
 // To shutdown pegasus, use the -s option:
 //
@@ -765,6 +766,16 @@ int CIMServerProcess::cimserver_run(
         //
         daemonOption = ConfigManager::parseBooleanValue(
             configManager->getCurrentValue("daemon"));
+
+        if ((Executor::detectExecutor() == 0) && (daemonOption == false))
+        {
+            MessageLoaderParms parms(
+                "src.Server.cimserver.PRIVSEP_REQUIRES_DAEMON",
+                "Warning: The configuration setting daemon=false is ignored "
+                    "with privilege separation enabled.");
+            cerr << MessageLoader::getMessage(parms) << endl;
+            daemonOption = true;
+        }
 
 #if !defined(PEGASUS_USE_SYSLOGS)
         String logsDirectory = ConfigManager::getHomedPath(

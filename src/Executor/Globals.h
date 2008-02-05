@@ -54,6 +54,9 @@ struct Globals
     /* Same as argv passed to main(). */
     char** argv;
 
+    /* A pipe to alert the cimserver command when the server is initialized. */
+    int initCompletePipe;
+
     /* PID of child process (CIMSERVERMAIN). */
     int childPid;
 
@@ -69,6 +72,9 @@ struct Globals
      * passed to the command line or found in the planned configuration file.
      */
     int enableAuthentication;
+
+    /* Indicates whether terminal I/O streams should be left intact. */
+    int bindVerbose;
 };
 
 EXECUTOR_LINKAGE

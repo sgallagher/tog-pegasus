@@ -55,9 +55,9 @@
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>
 #include <Pegasus/WQL/WQLParser.h>
+#include <Pegasus/Provider/CIMOMHandleQueryContext.h>
 
 #ifndef PEGASUS_DISABLE_CQL
-#include <Pegasus/Provider/CIMOMHandleQueryContext.h>
 #include <Pegasus/CQL/CQLSelectStatement.h>
 #include <Pegasus/CQL/CQLParser.h>
 #include <Pegasus/CQL/CQLChainedIdentifier.h>

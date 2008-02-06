@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,6 +39,7 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Indentor.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
@@ -49,20 +52,58 @@
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMParamValue.h>
-#include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/AcceptLanguageList.h>
 #include <Pegasus/Common/Buffer.h>
 #include <Pegasus/Common/StrLit.h>
-#include <Pegasus/Common/XmlGenerator.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE XmlWriter : public XmlGenerator
+// l10n - added accept language and content language support below
+
+class PEGASUS_COMMON_LINKAGE XmlWriter
 {
 public:
+
+    static void append(Buffer& out, const Char16& x);
+
+    static void append(Buffer& out, char x)
+    {
+      out.append(x);
+    }
+
+    static void append(Buffer& out, Boolean x);
+
+    static void append(Buffer& out, Uint32 x);
+
+    static void append(Buffer& out, Sint32 x);
+
+    static void append(Buffer& out, Uint64 x);
+
+    static void append(Buffer& out, Sint64 x);
+
+    static void append(Buffer& out, Real32 x);
+
+    static void append(Buffer& out, Real64 x);
+
+    static void append(Buffer& out, const char* str);
+
+    static void append(Buffer& out, const String& str);
+
+    static void append(Buffer& out, const Indentor& x);
+
+    static void appendSpecial(Buffer& out, const Char16& x);
+
+    static void appendSpecial(Buffer& out, char x);
+
+    static void appendSpecial(Buffer& out, const char* str);
+
+    static void appendSpecial(Buffer& out, const String& str);
+
+    static String encodeURICharacters(const Buffer& uriString);
+    static String encodeURICharacters(const String& uriString);
 
     static void appendLocalNameSpacePathElement(
         Buffer& out,
@@ -111,30 +152,20 @@ public:
 
     static void appendValueObjectWithPathElement(
         Buffer& out,
-        const CIMObject& objectWithPath,
-        Boolean includeQualifiers = true,
-        Boolean includeClassOrigin = true,
-        Boolean isClassObject = false,
-        const CIMPropertyList& propertyList = CIMPropertyList());
+        const CIMObject& objectWithPath);
 
-    // Appends classPath or instancePath based on isClassPath param
     static void appendValueReferenceElement(
         Buffer& out,
         const CIMObjectPath& reference,
-        Boolean isClassPath,
         Boolean putValueWrapper);
 
     static void printValueReferenceElement(
         const CIMObjectPath& reference,
-        Boolean isClassPath,
         PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
 
     static void appendValueNamedInstanceElement(
         Buffer& out,
-        const CIMInstance& namedInstance,
-        Boolean includeQualifiers = true,
-        Boolean includeClassOrigin = true,
-        const CIMPropertyList& propertyList = CIMPropertyList());
+        const CIMInstance& namedInstance);
 
     static void appendClassElement(
         Buffer& out,
@@ -146,11 +177,7 @@ public:
 
     static void appendInstanceElement(
         Buffer& out,
-        const CIMConstInstance& instance,
-        Boolean includeQualifiers = true,
-        Boolean includeClassOrigin = true,
-        const CIMPropertyList& propertyList = CIMPropertyList());
-
+        const CIMConstInstance& instance);
 
     static void printInstanceElement(
         const CIMConstInstance& instance,
@@ -158,16 +185,11 @@ public:
 
     static void appendObjectElement(
         Buffer& out,
-        const CIMConstObject& object,
-        Boolean includeQualifiers = true,
-        Boolean includeClassOrigin = true,
-        const CIMPropertyList& propertyList = CIMPropertyList());
+        const CIMConstObject& object);
 
     static void appendPropertyElement(
         Buffer& out,
-        const CIMConstProperty& property,
-        Boolean includeQualifiers = true,
-        Boolean includeClassOrigin = true);
+        const CIMConstProperty& property);
 
     static void printPropertyElement(
         const CIMConstProperty& property,
@@ -230,17 +252,15 @@ public:
         HttpMethod httpMethod,
         const AcceptLanguageList& acceptLanguages,
         const ContentLanguageList& contentLanguages,
-        Uint32 contentLength,
-        bool binaryRequest = false,
-        bool binaryResponse = false);
+        Uint32 contentLength);
 
+    // added to accommodate sending WBEMServerResponseTime PEP #128
     static void appendMethodResponseHeader(
         Buffer& out,
         HttpMethod httpMethod,
         const ContentLanguageList& contentLanguages,
         Uint32 contentLength,
-        Uint64 serverResponseTime = 0,
-        bool binaryResponse = false);
+        Uint64 serverResponseTime = 0);
 
     static void appendHttpErrorResponseHeader(
         Buffer& out,
@@ -250,7 +270,6 @@ public:
 
     static void appendUnauthorizedResponseHeader(
         Buffer& out,
-        const String& errorDetail,
         const String& content);
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
@@ -258,7 +277,6 @@ public:
         Buffer& out,
         const String& content);
 #endif
-
     static void appendParamTypeAndEmbeddedObjAttrib(
         Buffer& out,
         const CIMType& type);
@@ -286,6 +304,11 @@ public:
         Buffer& out,
         const char* name,
         const CIMObjectPath& instanceName);
+
+    static void appendObjectNameIParameter(
+        Buffer& out,
+        const char* name,
+        const CIMObjectPath& objectName);
 
     static void appendClassIParameter(
         Buffer& out,
@@ -335,9 +358,10 @@ public:
         HttpMethod httpMethod,
         const String& authenticationHeader,
         const AcceptLanguageList& httpAcceptLanguages,
-        const ContentLanguageList& httpContentLanguages,
-        bool binaryResponse);
+        const ContentLanguageList& httpContentLanguages);
 
+    // PEP 128 - sending serverResponseTime (WBEMServerResponseTime) in
+    // response header
     static Buffer formatSimpleMethodRspMessage(
         const CIMName& methodName,
         const String& messageId,
@@ -363,9 +387,10 @@ public:
         const String& authenticationHeader,
         const AcceptLanguageList& httpAcceptLanguages,
         const ContentLanguageList& httpContentLanguages,
-        const Buffer& body,
-        bool binaryResponse);
+        const Buffer& body);
 
+    // PEP 128 - sending serverResponseTime (WBEMServerResponseTime) in
+    // response header
     static Buffer formatSimpleIMethodRspMessage(
         const CIMName& iMethodName,
         const String& messageId,
@@ -375,7 +400,6 @@ public:
         Uint64 serverResponseTime,
         Boolean isFirst = true,
         Boolean isLast = true);
-
 
     static Buffer formatSimpleIMethodErrorRspMessage(
         const CIMName& iMethodName,
@@ -429,12 +453,17 @@ public:
         HttpMethod httpMethod,
         const CIMException& cimException);
 
+    static void indentedPrint(
+        PEGASUS_STD(ostream)& os,
+        const char* text,
+        Uint32 indentChars = 2);
+
     static String getNextMessageId();
 
     /** Converts the given CIMKeyBinding type to one of the following:
         "boolean", "string", or "numeric"
     */
-    static const StrLit keyBindingTypeToString (CIMKeyBinding::Type type);
+    static const char* keyBindingTypeToString (CIMKeyBinding::Type type);
 
 private:
 
@@ -514,133 +543,58 @@ private:
     static void _appendEMethodResponseElementEnd(
         Buffer& out);
 
-    static void appendValueInstancePathElement(
-        Buffer& out,
-        const CIMObjectPath& reference);
-
-    static void appendValueClassPathElement(
-        Buffer& out,
-        const CIMObjectPath& reference);
-
-    XmlWriter();
+    XmlWriter() { }
 };
 
-//==============================================================================
-//
-// _toString() routines:
-//
-//==============================================================================
+PEGASUS_COMMON_LINKAGE Buffer& operator<<(
+    Buffer& out,
+    const char* x);
 
-inline void _toString(Buffer& out, Boolean x)
+inline Buffer& operator<<(Buffer& out, char x)
 {
-    XmlWriter::append(out, x);
+    out.append(x);
+    return out;
 }
 
-inline void _toString(Buffer& out, Uint8 x)
+inline Buffer& operator<<(Buffer& out, const char* s)
 {
-    XmlWriter::append(out, Uint32(x));
+    out.append(s, (Uint32)strlen(s));
+    return out;
 }
 
-inline void _toString(Buffer& out, Sint8 x)
-{
-    XmlWriter::append(out, Sint32(x));
-}
+PEGASUS_COMMON_LINKAGE Buffer& operator<<(Buffer& out, const Char16& x);
 
-inline void _toString(Buffer& out, Uint16 x)
-{
-    XmlWriter::append(out, Uint32(x));
-}
+PEGASUS_COMMON_LINKAGE Buffer& operator<<(
+    Buffer& out,
+    const String& x);
 
-inline void _toString(Buffer& out, Sint16 x)
-{
-    XmlWriter::append(out, Sint32(x));
-}
+PEGASUS_COMMON_LINKAGE Buffer& operator<<(
+    Buffer& out,
+    const Indentor& x);
 
-inline void _toString(Buffer& out, Uint32 x)
-{
-    XmlWriter::append(out, x);
-}
+PEGASUS_COMMON_LINKAGE Buffer& operator<<(
+    Buffer& out,
+    const Buffer& x);
 
-inline void _toString(Buffer& out, Sint32 x)
-{
-    XmlWriter::append(out, x);
-}
+PEGASUS_COMMON_LINKAGE Buffer& operator<<(
+    Buffer& out,
+    Uint32 x);
 
-inline void _toString(Buffer& out, Uint64 x)
-{
-    XmlWriter::append(out, x);
-}
+PEGASUS_COMMON_LINKAGE Buffer& operator<<(
+    Buffer& out,
+    const CIMName& name);
 
-inline void _toString(Buffer& out, Sint64 x)
-{
-    XmlWriter::append(out, x);
-}
+PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
+    PEGASUS_STD(ostream)& os,
+    const CIMDateTime& x);
 
-inline void _toString(Buffer& out, Real32 x)
-{
-    XmlWriter::append(out, Real64(x));
-}
+PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
+    PEGASUS_STD(ostream)& os,
+    const CIMName& name);
 
-inline void _toString(Buffer& out, Real64 x)
-{
-    XmlWriter::append(out, x);
-}
-
-inline void _toString(Buffer& out, Char16 x)
-{
-    // We need to convert the Char16 to UTF8 then append the UTF8
-    // character into the array.
-    // NOTE: The UTF8 character could be several bytes long.
-    // WARNING: This function will put in replacement character for
-    // all characters that have surogate pairs.
-
-    char str[6];
-    memset(str,0x00,sizeof(str));
-    char* charIN = (char *)&x;
-
-    const Uint16 *strsrc = (Uint16 *)charIN;
-    Uint16 *endsrc = (Uint16 *)&charIN[1];
-
-    Uint8 *strtgt = (Uint8 *)str;
-    Uint8 *endtgt = (Uint8 *)&str[5];
-
-    UTF16toUTF8(&strsrc, endsrc, &strtgt, endtgt);
-    out.append(str, UTF_8_COUNT_TRAIL_BYTES(str[0]) +1);
-}
-
-inline void _toString(Buffer& out, const String& x)
-{
-    out << x;
-}
-
-inline void _toString(Buffer& out, const CIMDateTime& x)
-{
-    out << x.toString();
-}
-
-inline void _toString(Buffer& out, const CIMObjectPath& x)
-{
-    out << x.toString();
-}
-
-inline void _toString(Buffer& out, const CIMObject& x)
-{
-    out << x.toString();
-}
-inline void _toString(Buffer& out, const CIMInstance& x)
-{
-    out << CIMObject(x).toString();
-}
-
-template<class T>
-void _toString(Buffer& out, const T* p, Uint32 size)
-{
-    while (size--)
-    {
-        _toString(out, *p++);
-        out.append(' ');
-    }
-}
+PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
+    PEGASUS_STD(ostream)& os,
+    const CIMNamespaceName& name);
 
 PEGASUS_NAMESPACE_END
 

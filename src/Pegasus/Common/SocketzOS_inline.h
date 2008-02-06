@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -76,7 +78,7 @@ MP_Socket::MP_Socket(
 int MP_Socket::ATTLS_zOS_query()
 {
     // ioctl data structure
-    struct TTLS_IOCTL ioc;
+    struct TTLS_IOCTL ioc;                     
     int rcIoctl;
     int errnoIoctl;
     int errno2Ioctl;
@@ -105,40 +107,20 @@ int MP_Socket::ATTLS_zOS_query()
            case(EINPROGRESS):
            case(EWOULDBLOCK):
            {
-               PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
-                   "Accept pending: %s (error code %d, reason code 0x%08X).",
-                   strerror(errnoIoctl),
-                   errnoIoctl,
-                   errno2Ioctl));
-               PEG_METHOD_EXIT();
+               PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+                   "Accept pending (EWB).");
                // accept pending
-               return 0;
+               return 0; 
            }
            case(ECONNRESET):
            {
                Logger::put_l(
-                   Logger::STANDARD_LOG, System::CIMSERVER,
+                   Logger::STANDARD_LOG, System::CIMSERVER, 
                    Logger::INFORMATION,
-                   MessageLoaderParms(
-                       "Pegasus.Common.SocketzOS_inline.CONNECTION_RESET_ERROR",
-                           "ATTLS reset the connection due to handshake "
-                           "failure. Connection closed."));
+                   "Pegasus.Common.SocketzOS_inline.CONNECTION_RESET_ERROR",
+                       "ATTLS reset the connection due to handshake failure. "
+                       "Connection closed.");
                PEG_METHOD_EXIT();
-               // close socket
-               return -1;
-           }
-           case(ENOTCONN):
-           {
-               int socket_errno;
-               SocketLength optlen = sizeof(int);
-               getsockopt(_socket, SOL_SOCKET, SO_ERROR,
-                   (char*)&socket_errno, &optlen);
-               PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                   "Client not connected to ATTLS. Closing socket %d : "
-                       "%s (error code %d)",
-                   _socket,strerror(socket_errno),socket_errno));
-               PEG_METHOD_EXIT();
-               // close socket
                return -1;
            }
            default:
@@ -147,15 +129,13 @@ int MP_Socket::ATTLS_zOS_query()
                sprintf(str_errno2,"%08X",errno2Ioctl);
                Logger::put_l(
                    Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                   MessageLoaderParms(
-                       "Pegasus.Common.SocketzOS_inline.UNEXPECTED_ERROR",
-                       "An unexpected error occurs: $0 ( errno $1, reason code "
-                          "0x$2 ). Connection closed.",
-                       strerror(errnoIoctl),
-                       errnoIoctl,
-                       str_errno2));
+                   "Pegasus.Common.SocketzOS_inline.UNEXPECTED_ERROR",
+                       "An unexpected error occurs: $0 ( errno $1, reason "
+                       "code 0x$2 ). Connection closed.",
+                   strerror(errnoIoctl),
+                   errnoIoctl,
+                   str_errno2);
                PEG_METHOD_EXIT();
-               // close socket
                return -1;
            }
        } // end switch(errnoIoctl)
@@ -166,41 +146,15 @@ int MP_Socket::ATTLS_zOS_query()
     switch(ioc.TTLSi_Stat_Policy)
     {
         case(TTLS_POL_OFF):
-        {
-            Logger::put_l(
-                Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                MessageLoaderParms(
-                    "Pegasus.Common.SocketzOS_inline.POLICY_OFF",
-                    "ATTLS is not active for TCP-IP stack the CIM server "
-                        "is using for HTTPS connections. "
-                        "Communication not secured. Connection closed."));
-            PEG_METHOD_EXIT();
-            // close socket
-            return -1;
-        }
         case(TTLS_POL_NO_POLICY):
-        {
-            Logger::put_l(
-                Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                MessageLoaderParms(
-                    "Pegasus.Common.SocketzOS_inline.NO_POLICY",
-                    "There is no ATTLS policy found for the CIM server "
-                        "HTTPS connections. "
-                        "Communication not secured. Connection closed."));
-            PEG_METHOD_EXIT();
-            // close socket
-            return -1;
-        }
         case(TTLS_POL_NOT_ENABLED):
         {
             Logger::put_l(
                 Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                MessageLoaderParms(
-                    "Pegasus.Common.SocketzOS_inline.POLICY_NOT_ENABLED",
-                    "ATTLS policy is not active for the CIM Server HTTPS port. "
-                        "Communication not secured. Connection closed."));
+                "Pegasus.Common.SocketzOS_inline.POLICY_NOT_ENABLED",
+                "ATTLS policy is not active for the CIM Server HTTPS port. "
+                    "Communication not secured. Connection closed.");
             PEG_METHOD_EXIT();
-            // close socket
             return -1;
         }
         case(TTLS_POL_ENABLED):
@@ -213,12 +167,10 @@ int MP_Socket::ATTLS_zOS_query()
         {
             Logger::put_l(
                 Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                MessageLoaderParms(
-                    "Pegasus.Common.SocketzOS_inline.APPLCNTRL",
-                    "ATTLS policy not valid for CIM Server. Set "
-                        "ApplicationControlled to OFF. Connection closed."));
+                "Pegasus.Common.SocketzOS_inline.APPLCNTRL",
+                "ATTLS policy not valid for CIM Server. "
+                    "Set ApplicationControlled to OFF. Connection closed.");
             PEG_METHOD_EXIT();
-            // close socket
             return -1;
         }
 
@@ -231,15 +183,13 @@ int MP_Socket::ATTLS_zOS_query()
         case(TTLS_CONN_HS_INPROGRESS):
         {
             // the SSL handshake has not been finished yet, try late again.
-            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
-                 "ATTLS reports SSL handshake pending.");
-            // accept pending
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4, "---> Accept pending.");
             return 0;
         }
         case(TTLS_CONN_SECURE):
         {
             // the connection is secure
-            break;
+            break; 
         }
 
 
@@ -253,13 +203,11 @@ int MP_Socket::ATTLS_zOS_query()
         {
             Logger::put_l(
                 Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                MessageLoaderParms(
-                    "Pegasus.Common.SocketzOS_inline.WRONG_ROLE",
-                    "ATTLS policy specifies the wrong HandshakeRole for the "
-                        "CIM Server HTTPS port. Communication not secured. "
-                        "Connection closed."));
+                "Pegasus.Common.SocketzOS_inline.WRONG_ROLE",
+                "ATTLS policy specifies the wrong HandshakeRole for the "
+                    "CIM Server HTTPS port. Communication not secured. "
+                    "Connection closed.");
             PEG_METHOD_EXIT();
-            // close connection
             return -1;
 
         }
@@ -272,7 +220,6 @@ int MP_Socket::ATTLS_zOS_query()
             PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
                 "ATTLS Security Type is valid but no SAFCHK.");
             PEG_METHOD_EXIT();
-            // successfull return
             return 1;
         }
 
@@ -287,13 +234,12 @@ int MP_Socket::ATTLS_zOS_query()
                 "ATTLS Security Type is SAFCHK. Resolved user ID \'%s\'",
                 _username));
             PEG_METHOD_EXIT();
-            // successfull return
             return 1;
 
         }
     } // end switch(ioc.TTLSi_Sec_Type)
     // This should never be reached
-    PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL1,
+    PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
         "Received unexpected return value of ioctl(SIOCTTLSCTL).");
     PEG_METHOD_EXIT();
     return -1;
@@ -304,7 +250,7 @@ int MP_Socket::LocalSocket_zOS_query()
 // This function is only available in z/OS 1.8 and greater
 #if (__TARGET_LIB__ >= 0x41080000)
 
-    struct __sect_s ioSec;
+    struct __sect_s ioSec;                     
     int rcIoctl;
     int errnoIoctl;
     int errno2Ioctl;
@@ -329,29 +275,29 @@ int MP_Socket::LocalSocket_zOS_query()
         {
         case(EBADF):
         {
-            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL1,
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
                 "Not a valid socket descriptor for "
                     "query local authentication.");
             break;
         }
         case(EINVAL):
         {
-            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL1,
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
                 "The local authentication request is not valid"
                     " or not supported on this socket.");
             break;
         }
         case(ENODEV):
         {
-            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
                 "Not a local socket descriptor.");
             break;
         }
         default:
         {
-            PEG_TRACE((TRC_SSL, Tracer::LEVEL1,
+            PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
                 "An unexpected error occurs: %s ( errno $d, reason code "
-                    "0x%08X ). ",
+                    "0x%08X ). ", 
                 strerror(errnoIoctl),
                 errnoIoctl,
                 errno2Ioctl));
@@ -371,16 +317,16 @@ int MP_Socket::LocalSocket_zOS_query()
         _authType=AuthenticationInfoRep::AUTH_TYPE_ZOS_LOCAL_DOMIAN_SOCKET;
         memcpy(_username,ioSec.__sectt_userid,ioSec.__sectt_useridlen);
         // null terminated string
-        _username[ioSec.__sectt_useridlen]=0;
+        _username[ioSec.__sectt_useridlen]=0;   
         // the user name is in EBCDIC!
-        __e2a_s(_username);
-        PEG_TRACE((TRC_SSL, Tracer::LEVEL3,
+        __e2a_s(_username);                     
+        PEG_TRACE((TRC_SSL, Tracer::LEVEL2,
             "Local Socket authentication. Resolved task level user ID \'%s\'",
             _username));
         PEG_METHOD_EXIT();
         return 1;
 
-    }
+    } 
 
     // Is client process level security information available ?
     if (ioSec.__sectp_useridlen != 0)
@@ -389,20 +335,20 @@ int MP_Socket::LocalSocket_zOS_query()
         _authType=AuthenticationInfoRep::AUTH_TYPE_ZOS_LOCAL_DOMIAN_SOCKET;
         memcpy(_username,ioSec.__sectp_userid,ioSec.__sectp_useridlen);
         // null terminated string
-        _username[ioSec.__sectp_useridlen]=0;
+        _username[ioSec.__sectp_useridlen]=0;   
         // the user name is in EBCDIC!
-        __e2a_s(_username);
-        PEG_TRACE((TRC_SSL, Tracer::LEVEL3,
+        __e2a_s(_username);                     
+        PEG_TRACE((TRC_SSL, Tracer::LEVEL2,
             "Local Socket authentication. "
                 "Resolved process level user ID \'%s\'",
             _username));
         PEG_METHOD_EXIT();
         return 1;
 
-    }
+    } 
 
     // This should never be reached
-    PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL1,
+    PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
         "Received unexpected return value of ioctl(SECIGET_T).");
     PEG_METHOD_EXIT();
     return -1;

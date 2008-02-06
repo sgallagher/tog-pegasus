@@ -46,7 +46,7 @@ PEGASUS_NAMESPACE_BEGIN
 extern PEGASUS_REPOSITORY_LINKAGE Uint32 ObjectCacheHash(const String& str);
 
 template<class OBJECT>
-class PEGASUS_REPOSITORY_LINKAGE ObjectCache
+class ObjectCache
 {
 public:
 

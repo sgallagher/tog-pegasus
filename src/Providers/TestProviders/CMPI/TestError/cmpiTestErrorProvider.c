@@ -71,7 +71,6 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
   CMPIStatus rc = { CMPI_RC_OK, NULL };
   CMPIError *cmpiError;
   CMPIError *cmpiErrorClone;
-  CMPIError *cmpiErrorExcep;
   CMPICount i, arrSize;
   CMPIObjectPath *objPath = NULL;
 

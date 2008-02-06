@@ -854,7 +854,7 @@ CIMRepository::CIMRepository(
     cout << "CIMRepository: compressMode= " << compressMode << endl;
 #endif /* TEST_OUTPUT */
 
-    if (binaryMode>0)
+    if (binaryMode)
     {
         // BUILD BINARY
         streamer = new AutoStreamer(new BinaryStreamer(), BINREP_MARKER);

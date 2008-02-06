@@ -428,20 +428,23 @@ Boolean isCimmoflCommandName(const char *name)
         pos = name;
     else
         pos++;
-    if (*pos != 'c' && *pos != 'C') return -1;
+    // returns true in case of cimmofl
+    // returns false in case first 6 letter are "cimmof" and no "l" follows
+    // returns true in case anything else but "cimmof" or "cimmofl"
+    if (*pos != 'c' && *pos != 'C') return true;
     pos++;
-    if (*pos != 'i' && *pos != 'I') return -1;
+    if (*pos != 'i' && *pos != 'I') return true;
     pos++;
-    if (*pos != 'm' && *pos != 'M') return -1;
+    if (*pos != 'm' && *pos != 'M') return true;
     pos++;
-    if (*pos != 'm' && *pos != 'M') return -1;
+    if (*pos != 'm' && *pos != 'M') return true;
     pos++;
-    if (*pos != 'o' && *pos != 'O') return -1;
+    if (*pos != 'o' && *pos != 'O') return true;
     pos++;
-    if (*pos != 'f' && *pos != 'F') return -1;
+    if (*pos != 'f' && *pos != 'F') return true;
     pos++;
-    if (*pos != 'l' && *pos != 'L') return 0;
-    return 1;
+    if (*pos != 'l' && *pos != 'L') return false;
+    return true;
 }
 
 extern "C++" int processCmdline(int, char **, mofCompilerOptions &, ostream&);

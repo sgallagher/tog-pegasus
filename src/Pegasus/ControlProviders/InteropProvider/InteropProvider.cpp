@@ -88,7 +88,7 @@ InteropProvider::InteropProvider(CIMRepository * rep) : repository(rep),
     {
         initProvider();
     }
-    catch(const Exception & e)
+    catch(const Exception &)
     {
         // Provider initialization may fail if the repository is not
         // populated

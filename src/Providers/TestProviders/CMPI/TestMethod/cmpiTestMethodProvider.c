@@ -1457,8 +1457,6 @@ static int _testErrorPaths()
     CMPIStatus rc = { CMPI_RC_OK, NULL };
     CMPIValue value;
     char* str = NULL;
-    int flag;
-
     value.inst = NULL;
     args_ptr = CMNewArgs(_broker, &rc);
     PROV_LOG("++++ Status of CMNewArgs : (%s)",
@@ -1982,7 +1980,6 @@ static int _testCMPIInstance ()
 
     CMPIData returnedData1;
     CMPIData returnedData2;
-    CMPIData errReturnedData;
     CMPIData clonedData1;
 
     CMPIString* returnedName = NULL;

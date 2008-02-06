@@ -314,7 +314,11 @@ Boolean System::acquireIP(const char* hostname, int *af, void *dst)
 #else
     *af = AF_INET;
     Uint32 ip = 0xFFFFFFFF;
-    if (!hostname) return 0xFFFFFFFF;
+    if (!hostname)
+    { 
+        *af = 0xFFFFFFFF;
+        return false;
+    }
 
 ////////////////////////////////////////////////////////////////////////////////
 // This code used to check if the first character of "hostname" was alphabetic

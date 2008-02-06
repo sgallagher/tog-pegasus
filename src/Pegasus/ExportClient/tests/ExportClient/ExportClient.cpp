@@ -152,7 +152,7 @@ static void testConnect()
     {
         client.connect("", port);
     }
-    catch(const Exception& e)
+    catch(const Exception&)
     {
         exceptionCaught = true;
     }
@@ -216,7 +216,7 @@ static void testSSLConnect()
     {
         client.connect("", port, *sslContext);
     }
-    catch(const Exception& e)
+    catch(const Exception&)
     {
         exceptionCaught = true;
     }
@@ -245,7 +245,7 @@ static void testSSLConnect()
     {
         client.connect("nonexistant-zxcvqw3r", port, *sslContext);
     }
-    catch(const InvalidLocatorException& e)
+    catch(const InvalidLocatorException&)
     {
         invalidLocatorCaught = true;
     }

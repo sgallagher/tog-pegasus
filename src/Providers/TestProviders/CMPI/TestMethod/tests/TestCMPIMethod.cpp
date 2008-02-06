@@ -316,8 +316,8 @@ test03 (CIMClient & client)
                           CIMValue(Uint32(64001))));
 
       AcceptLanguageList accLangs;
-      accLangs.insert(LanguageTag("en-US"),1.0);
-      accLangs.insert(LanguageTag("fr"),0.8);
+      accLangs.insert(LanguageTag("en-US"),Real32(1.0));
+      accLangs.insert(LanguageTag("fr"),Real32(0.8));
       client.setRequestAcceptLanguages(accLangs);
 
       CIMValue retValue = client.invokeMethod (providerNamespace,

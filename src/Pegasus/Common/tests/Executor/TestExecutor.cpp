@@ -134,8 +134,6 @@ void testExecutorSocketImpl()
 
 int main(int argc, char** argv)
 {
-    Boolean testLoopback;
-
     if ((argc != 2) ||
         ((strcmp(argv[1], "loopback") != 0)
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)

@@ -902,7 +902,7 @@ void testSetPropertyNameContainerException()
     try
     {
         testProperty.setName(nameAfter);
-    } catch(Exception & exc)
+    } catch(Exception &)
     {
         VCOUT << " +++++ passed" << endl;
         return;
@@ -926,7 +926,7 @@ void testSetQualifierNameContainerException()
     try
     {
         testQualifier.setName(nameAfter);
-    } catch(Exception & exc)
+    } catch(Exception &)
     {
         VCOUT << " +++++ passed" << endl;
         return;
@@ -950,7 +950,7 @@ void testSetParameterNameContainerException()
     try
     {
         testParameter.setName(nameAfter);
-    } catch(Exception & exc)
+    } catch(Exception &)
     {
         VCOUT << " +++++ passed" << endl;
         return;
@@ -974,7 +974,7 @@ void testSetMethodNameContainerException()
     try
     {
         testMethod.setName(nameAfter);
-    } catch(Exception & exc)
+    } catch(Exception &)
     {
         VCOUT << " +++++ passed" << endl;
         return;

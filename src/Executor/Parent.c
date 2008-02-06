@@ -323,8 +323,10 @@ static void HandleStartProviderAgentRequest(int sock)
 
         if (pid == 0)
         {
-            char arg1[32];
-            char arg2[32];
+            char toPipeArg[32];
+            char fromPipeArg[32];
+            /* The user context is set here; no need to do it in cimprovagt. */
+            const char* setUserContextFlag = "0";
 
             /* Close unused pipe descriptors: */
 
@@ -356,17 +358,37 @@ static void HandleStartProviderAgentRequest(int sock)
 
             /* Exec the CIMPROVAGT program. */
 
-            sprintf(arg1, "%d", to[0]);
-            sprintf(arg2, "%d", from[1]);
+            sprintf(toPipeArg, "%d", to[0]);
+            sprintf(fromPipeArg, "%d", from[1]);
 
-            Log(LL_TRACE, "execl(%s, %s, %s, %s, %s)\n",
-                path, path, arg1, arg2, request.module);
+            Log(LL_TRACE, "execl(%s, %s, %s, %s, %s, %s, %s)\n",
+                path,
+                path,
+                setUserContextFlag,
+                toPipeArg,
+                fromPipeArg,
+                request.userName,
+                request.module);
 
             /* Flawfinder: ignore */
-            execl(path, path, arg1, arg2, request.module, (char*)0);
+            execl(
+                path,
+                path,
+                setUserContextFlag,
+                toPipeArg,
+                fromPipeArg,
+                request.userName,
+                request.module,
+                (char*)0);
 
-            Log(LL_SEVERE, "execl(%s, %s, %s, %s, %s): failed\n",
-                path, path, arg1, arg2, request.module);
+            Log(LL_SEVERE, "execl(%s, %s, %s, %s, %s, %s, %s): failed\n",
+                path,
+                path,
+                setUserContextFlag,
+                toPipeArg,
+                fromPipeArg,
+                request.userName,
+                request.module);
             _exit(1);
         }
     }

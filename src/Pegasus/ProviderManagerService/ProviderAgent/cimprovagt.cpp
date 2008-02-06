@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Signal.h>
@@ -46,17 +41,88 @@
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/ProviderManagerService/ProviderAgent/ProviderAgent.h>
 
+#if defined(PEGASUS_OS_TYPE_UNIX)
+# include <unistd.h>
+# include <sys/types.h>
+# include <errno.h>
+#endif
+
+#ifdef PEGASUS_OS_PASE
+# include <ILEWrapper/ILEUtilities2.h>
+# include <as400_protos.h>
+#endif
+
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-#ifdef PEGASUS_OS_PASE
-#include <ILEWrapper/ILEUtilities2.h>
-#include <as400_protos.h>
-#endif
-
 void usage()
 {
-    cerr << "Usage: cimprovagt <input_pipe> <output_pipe> <id>" << endl;
+    cerr << "cimprovagt is an internal program used by cimserver." << endl;
+    cerr << "cimprovagt should not be invoked directly." << endl;
+}
+
+int setUserContext(int argc, char* argv[])
+{
+#if !defined(PEGASUS_DISABLE_PROV_USERCTXT) && !defined(PEGASUS_OS_ZOS)
+    PEGASUS_UID_T newUid = (PEGASUS_UID_T)-1;
+    PEGASUS_GID_T newGid = (PEGASUS_GID_T)-1;
+
+    if (!System::lookupUserId(argv[4], newUid, newGid))
+    {
+        return -1;
+    }
+
+    if (!System::changeUserContext_SingleThreaded(argv[4], newUid, newGid))
+    {
+        return -1;
+    }
+
+# if defined(PEGASUS_OS_TYPE_UNIX)
+
+    // Execute a new cimprovagt process to reset the saved user id and group id.
+
+#  if defined(PEGASUS_OS_PASE)
+    int pid = (int)fork400("QUMEPRVAGT",0);
+#  else
+    int pid = (int)fork();
+#  endif
+
+    if (pid < 0)
+    {
+        cerr << "fork failed: " << strerror(errno) << endl;
+        return -1;
+    }
+
+    if (pid > 0)
+    {
+        // Parent process
+        _exit(0);
+    }
+
+    setsid();
+
+    if (execl(
+            argv[0],
+            argv[0],
+            "0",
+            argv[2],
+            argv[3],
+            argv[4],
+            argv[5],
+            0) == -1)
+    {
+        cerr << "execl failed: " << strerror(errno) << endl;
+        return -1;
+    }
+# endif
+
+    return 0;
+
+#else
+
+    return -1;
+
+#endif
 }
 
 //
@@ -76,21 +142,40 @@ ThreadReturnType PEGASUS_THREAD_CDECL dummyThreadFunc(void *parm)
 
 int main(int argc, char* argv[])
 {
+    // Usage: cimprovagt ( 0 | 1 ) <input_pipe> <output_pipe> <user_name> <id>
+
     //
     // Get the arguments from the command line
-    // arg1 is the input pipe handle
-    // arg2 is the output pipe handle
-    // arg3 is the Provider Agent ID 
+    // arg1 is a flag indicating whether the user context must be set
+    // arg2 is the input pipe handle
+    // arg3 is the output pipe handle
+    // arg4 is a user name defining the user context for this provider agent
+    // arg5 is the Provider Module Name (used for process identification)
     //
 
-    if (argc < 4)
+    if (argc < 6)
     {
         usage();
         return 1;
     }
 
+    if (strcmp(argv[1], "1") == 0)
+    {
+        if (setUserContext(argc, argv) == -1)
+        {
+            cerr << "Failed to set user context for user " << argv[4] << endl;
+            return 1;
+        }
+    }
+
+    const char* moduleName;
+
     try
     {
+        AnonymousPipe pipeFromServer(argv[2], 0);
+        AnonymousPipe pipeToServer(0, argv[3]);
+        const char* userName = argv[4];
+        moduleName = argv[5];
 
 #ifdef PEGASUS_OS_PASE
         char jobName[11];
@@ -125,12 +210,7 @@ int main(int argc, char* argv[])
         }
 #endif
 
-        AnonymousPipe pipeFromServer(argv[1], 0);
-        AnonymousPipe pipeToServer(0, argv[2]);
-
-        // Provider Agent ID argument is used for process identification
-        String agentId = argv[3];
-        Tracer::setModuleName(agentId + "." + System::getEffectiveUserName());
+        Tracer::setModuleName(String(moduleName) + "." + userName);
 
         // Set message loading not to use process locale
         MessageLoader::_useProcessLocale = false;
@@ -160,21 +240,21 @@ int main(int argc, char* argv[])
         //
         // Instantiate and run the Provider Agent
         //
-        ProviderAgent providerAgent(agentId, &pipeFromServer, &pipeToServer);
+        ProviderAgent providerAgent(moduleName, &pipeFromServer, &pipeToServer);
         providerAgent.run();
     }
     catch (Exception& e)
     {
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             "ProviderManager.ProviderAgent.cimprovagt.CIMPROVAGT_EXCEPTION",
-            "cimprovagt \"$0\" error: $1", argv[3], e.getMessage());
+            "cimprovagt \"$0\" error: $1", moduleName, e.getMessage());
         return 1;
     }
     catch (...)
     {
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             "ProviderManager.ProviderAgent.cimprovagt.CIMPROVAGT_ERROR",
-            "cimprovagt \"$0\" error.  Exiting.", argv[3]);
+            "cimprovagt \"$0\" error.  Exiting.", moduleName);
         return 1;
     }
 

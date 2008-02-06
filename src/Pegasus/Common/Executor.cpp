@@ -214,7 +214,24 @@ public:
         AnonymousPipe*& writePipe)
     {
         PEG_METHOD_ENTER(TRC_SERVER,"ExecutorLoopbackImpl::startProviderAgent");
+
 #if !defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+
+        // Resolve full path of "cimprovagt" program.
+
+        String path = FileSystem::getAbsolutePath(
+            pegasusHome.getCString(), PEGASUS_PROVIDER_AGENT_PROC_NAME);
+
+        // Create CString handles for cimprovagt arguments
+
+        CString agentProgramPath = path.getCString();
+        CString userNameCString = userName.getCString();
+
+# if defined(PEGASUS_DISABLE_PROV_USERCTXT)
+        const char* setUserContextFlag = "0";    // False
+# else
+        const char* setUserContextFlag = "1";    // True
+# endif
 
 # if defined(PEGASUS_OS_TYPE_WINDOWS)
 
@@ -247,19 +264,16 @@ public:
         ZeroMemory(&siStartInfo, sizeof (STARTUPINFO));
         siStartInfo.cb = sizeof (STARTUPINFO);
 
-        // Build full path of "cimprovagt" program.
-
-        String path = FileSystem::getAbsolutePath(
-            pegasusHome.getCString(), PEGASUS_PROVIDER_AGENT_PROC_NAME);
-
         // Format command line.
 
         char cmdLine[2048];
 
-        sprintf(cmdLine, "\"%s\" %s %s \"%s\"",
-            (const char*)path.getCString(),
+        sprintf(cmdLine, "\"%s\" %s %s %s \"%s\" \"%s\"",
+            (const char*)agentProgramPath,
+            setUserContextFlag,
             readHandle,
             writeHandle,
+            (const char*)userNameCString,
             module);
 
         //  Create provider agent proess.
@@ -308,44 +322,11 @@ public:
 
         int to[2];
         int from[2];
-
-#  if defined(PEGASUS_OS_ZOS)
-        // zOS is using __spawn2() instead of frok()
-        struct __inheritance inherit;
-        const char *c_argv[5];
-        char arg1[32];
-        char arg2[32];
-
-#  endif
+        char toPipeArg[32];
+        char fromPipeArg[32];
 
         do
         {
-            // Resolve full path of "cimprovagt".
-
-            String path = FileSystem::getAbsolutePath(
-                pegasusHome.getCString(), PEGASUS_PROVIDER_AGENT_PROC_NAME);
-
-#  if !defined(PEGASUS_DISABLE_PROV_USERCTXT) && !defined(PEGASUS_OS_ZOS)
-
-            PEGASUS_UID_T newUid = (PEGASUS_UID_T)-1;
-            PEGASUS_GID_T newGid = (PEGASUS_GID_T)-1;
-
-            if (userName != System::getEffectiveUserName())
-            {
-                if (!System::lookupUserId(
-                         userName.getCString(), newUid, newGid))
-                {
-                    PEG_TRACE((TRC_SERVER, Tracer::LEVEL2,
-                        "System::lookupUserId(%s) for provider user "
-                            "context failed.",
-                        (const char*)userName.getCString()));
-                    PEG_METHOD_EXIT();
-                    return -1;
-                }
-            }
-
-#  endif /* !defined(PEGASUS_DISABLE_PROV_USERCTXT) */
-
             // Create "to-agent" pipe:
 
             if (pipe(to) != 0)
@@ -354,7 +335,6 @@ public:
                 return -1;
             }
                 
-
             // Create "from-agent" pipe:
 
             if (pipe(from) != 0)
@@ -363,20 +343,26 @@ public:
                 return -1;
             }
 
+            // Initialize the cimprovagt pipe arguments:
+
+            sprintf(toPipeArg, "%d", to[0]);
+            sprintf(fromPipeArg, "%d", from[1]);
+
             // Start provider agent:
 
 #  if defined(PEGASUS_OS_ZOS)
-            // zOS is using __spawn2() to start provider agent
-            sprintf(arg1, "%d", to[0]);
-            sprintf(arg2, "%d", from[1]);
+            // zOS uses __spawn2() instead of fork() to start provider agent
 
-            CString program_name = path.getCString();
+            struct __inheritance inherit;
+            const char *c_argv[7];
 
-            c_argv[0] = program_name;
-            c_argv[1] = arg1;
-            c_argv[2] = arg2;
-            c_argv[3] = module; 
-            c_argv[4] = NULL;
+            c_argv[0] = agentProgramPath;
+            c_argv[1] = setUserContextFlag;
+            c_argv[2] = toPipeArg;
+            c_argv[3] = fromPipeArg;
+            c_argv[4] = userNameCString;
+            c_argv[5] = module; 
+            c_argv[6] = NULL;
 
             // reset the inherit structure
             memset(&inherit,0,sizeof(inherit));
@@ -386,13 +372,17 @@ public:
             memcpy( inherit.jobname,"CFZOOPA ",
                     sizeof(inherit.jobname));
             
-            CString program = path.getCString();
-
             PEG_TRACE((TRC_SERVER, Tracer::LEVEL4,
-                       "Starting provider agent: %s %s %s %s %s",
-                       program,program_name,arg1,arg2,module));
+                "Starting provider agent: %s %s %s %s %s %s %s",
+                (const char*)agentProgramPath,
+                c_argv[0],
+                c_argv[1],
+                c_argv[2],
+                c_argv[3],
+                c_argv[4],
+                c_argv[5]));
 
-            pid = __spawn2(program,0,NULL,&inherit,
+            pid = __spawn2(agentProgramPath,0,NULL,&inherit,
                            c_argv,(const char **)environ);
 
             if (pid < 0)
@@ -405,15 +395,15 @@ public:
                 return -1;
             }
 
-#  elif defined(PEGASUS_OS_VMS)
-            pid = (int)vfork();
-#  elif defined(PEGASUS_OS_PASE)
-            pid = (int)fork400("QUMEPRVAGT",0);
-#  else
-            pid = (int)fork();
-#  endif
+#  else    // !defined(PEGASUS_OS_ZOS)
 
-#  if !defined(PEGASUS_OS_ZOS)
+#   if defined(PEGASUS_OS_VMS)
+            pid = (int)vfork();
+#   elif defined(PEGASUS_OS_PASE)
+            pid = (int)fork400("QUMEPRVAGT",0);
+#   else
+            pid = (int)fork();
+#   endif
 
             if (pid < 0)
             {
@@ -423,15 +413,15 @@ public:
                 return -1;
             }
                 
-            // If child proceses.
             if (pid == 0)
             {
+                // Child process
+
 #   if !defined(PEGASUS_OS_VMS)
                 // Close unused pipe descriptors:
 
                 close(to[1]);
                 close(from[0]);
-
 
                 // Close unused descriptors. Leave stdin, stdout, stderr,
                 // and the child's pipe descriptors open.
@@ -449,31 +439,18 @@ public:
 
 #   endif /* !defined(PEGASUS_OS_VMS) */
 
-#   if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
-
-                // Set uid and gid for the new provider agent process.
-
-                if (newUid != (PEGASUS_UID_T)-1 && newGid != (PEGASUS_GID_T)-1)
-                {
-                    if (!System::changeUserContext_SingleThreaded(
-                             userName.getCString(), newUid, newGid))
-                    {
-                        return -1;
-                    }
-                }
-
-#   endif /* !defined(PEGASUS_DISABLE_PROV_USERCTXT) */
-
                 // Exec the cimprovagt program.
 
-                char arg1[32];
-                char arg2[32];
-                sprintf(arg1, "%d", to[0]);
-                sprintf(arg2, "%d", from[1]);
-
                 {
-                    CString cstr = path.getCString();
-                    if (execl(cstr, cstr, arg1, arg2, module, (char*)0) == -1)
+                    if (execl(
+                            agentProgramPath,
+                            agentProgramPath,
+                            setUserContextFlag,
+                            toPipeArg,
+                            fromPipeArg,
+                            (const char*)userNameCString,
+                            module,
+                            (char*)0) == -1)
                     {
                         PEG_TRACE((TRC_SERVER, Tracer::LEVEL2,
                             "execl() failed.  errno = %d.", errno));
@@ -481,17 +458,12 @@ public:
                     }
                 }
             }
-#  else  /* PEGASUS_OS_ZOS */
-            if (pid > 0)
-            {
-                PEG_TRACE((TRC_SERVER, Tracer::LEVEL4,
-                     "Provider agent started suggessfully: Pid(%d).",pid));
-                break;
-            }
-#endif /* PEGASUS_OS_ZOS */
-
+#  endif /* PEGASUS_OS_ZOS */
         }
         while (0);
+
+        PEG_TRACE((TRC_SERVER, Tracer::LEVEL4,
+            "Provider agent started: pid(%d).", pid));
 
         // Close unused pipe descriptors.
 
@@ -513,6 +485,16 @@ public:
 
         readPipe = new AnonymousPipe(readFdStr, 0);
         writePipe = new AnonymousPipe(0, writeFdStr);
+
+#  if defined(PEGASUS_HAS_SIGNALS)
+#   if !defined(PEGASUS_DISABLE_PROV_USERCTXT) && !defined(PEGASUS_OS_ZOS)
+        // The cimprovagt forks and returns right away.  Clean up the zombie
+        // process now instead of in reapProviderAgent().
+        int status = 0;
+        while ((status = waitpid(pid, 0, 0)) == -1 && errno == EINTR)
+            ;
+#   endif
+#  endif
 
         PEG_METHOD_EXIT();
         return 0;
@@ -541,8 +523,12 @@ public:
         int status = 0;
 
 # if defined(PEGASUS_HAS_SIGNALS)
+#  if defined(PEGASUS_DISABLE_PROV_USERCTXT) || defined(PEGASUS_OS_ZOS)
+        // When provider user context is enabled, this is done in
+        // startProviderAgent().
         while ((status = waitpid(pid, 0, 0)) == -1 && errno == EINTR)
             ;
+#  endif
 # endif
 
         return status;

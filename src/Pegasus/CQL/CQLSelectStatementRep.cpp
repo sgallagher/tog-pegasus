@@ -183,7 +183,8 @@ Boolean CQLSelectStatementRep::evaluate(const CIMInstance& inCI)
     return _predicate.evaluate(inCI, *_ctx);
 }
 
-void CQLSelectStatementRep::applyProjection(CIMInstance& inCI,
+void CQLSelectStatementRep::applyProjection(
+    CIMInstance& inCI,
     Boolean allowMissing)
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::applyProjection(inCI)");
@@ -201,7 +202,7 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI,
     // Apply to class contexts to the identifiers.
     // This will check for a well-formed statement.
     if (!_contextApplied)
-    applyContext();
+        applyContext();
 
     //
     // Build a tree to represent the projected properties from the select list
@@ -433,10 +434,11 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI,
                  allowMissing);
 }
 
-Boolean CQLSelectStatementRep::applyProjection(PropertyNode* node,
-                                               CIMProperty& nodeProp,
-                                               Boolean& preservePropsForParent,
-                                               Boolean allowMissing)
+Boolean CQLSelectStatementRep::applyProjection(
+    PropertyNode* node,
+    CIMProperty& nodeProp,
+    Boolean& preservePropsForParent,
+    Boolean allowMissing) const
 {
     PEG_METHOD_ENTER (TRC_CQL,
       "CQLSelectStatementRep::applyProjection(node, nodeProp)");
@@ -664,8 +666,9 @@ Boolean CQLSelectStatementRep::applyProjection(PropertyNode* node,
     return false;
 }
 
-Boolean CQLSelectStatementRep::isFilterable(const  CIMInstance& inst,
-                                            PropertyNode* node)
+Boolean CQLSelectStatementRep::isFilterable(
+    const CIMInstance& inst,
+    PropertyNode* node) const
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::isFilterable");
     PEG_TRACE_STRING (TRC_CQL,
@@ -735,7 +738,7 @@ void CQLSelectStatementRep::filterInstance(CIMInstance& inst,
                                            const CIMName& allPropsClass,
                                            Array<CIMName>& requiredProps,
                                            Boolean& preserveProps,
-                                           Boolean allowMissing)
+                                           Boolean allowMissing) const
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::filterInstance");
     PEG_TRACE_STRING (TRC_CQL, 
@@ -861,7 +864,8 @@ void CQLSelectStatementRep::validate()
 // Validates that the chained identifier meets all the rules in the CQL
 // spec vs.the class definitions in the repository
 //
-void CQLSelectStatementRep::validateProperty(QueryChainedIdentifier& chainId)
+void CQLSelectStatementRep::validateProperty(
+    const QueryChainedIdentifier& chainId) const
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::validateProperty");
     
@@ -1007,7 +1011,7 @@ void CQLSelectStatementRep::validateProperty(QueryChainedIdentifier& chainId)
   PEG_METHOD_EXIT();
 }
 
-CIMName CQLSelectStatementRep::lookupFromClass(const String&  lookup)
+CIMName CQLSelectStatementRep::lookupFromClass(const String& lookup) const
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::lookupFromClass");
     
@@ -1018,7 +1022,7 @@ CIMName CQLSelectStatementRep::lookupFromClass(const String&  lookup)
     return id.getName();
 }
 
-Array<CIMObjectPath> CQLSelectStatementRep::getClassPathList()
+Array<CIMObjectPath> CQLSelectStatementRep::getClassPathList() const
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::getClassPathList");
     
@@ -1258,11 +1262,12 @@ CIMPropertyList CQLSelectStatementRep::getPropertyListInternal(
     }
 }
 
-Boolean CQLSelectStatementRep::addRequiredProperty(Array<CIMName>& reqProps,
-    CIMName& className,
-    QueryChainedIdentifier& chainId,
+Boolean CQLSelectStatementRep::addRequiredProperty(
+    Array<CIMName>& reqProps,
+    const CIMName& className,
+    const QueryChainedIdentifier& chainId,
     Array<CIMName>& matchedScopes,
-    Array<CIMName>& unmatchedScopes)
+    Array<CIMName>& unmatchedScopes) const
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::addRequiredProperty");
     
@@ -1477,8 +1482,9 @@ Array<CQLChainedIdentifier> CQLSelectStatementRep::getWhereChainedIdentifiers()
     return cqlChainIds;
 }
 
-Boolean CQLSelectStatementRep::containsProperty(const CIMName& name,
-                                                const Array<CIMName>& props)
+Boolean CQLSelectStatementRep::containsProperty(
+    const CIMName& name,
+    const Array<CIMName>& props)
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::containsProperty");
     
@@ -1499,7 +1505,7 @@ Boolean CQLSelectStatementRep::containsProperty(const CIMName& name,
 // Checks if the classname passed in is the FROM class, or
 // a subclass of the FROM class
 //
-Boolean CQLSelectStatementRep::isFromChild(const CIMName& className)
+Boolean CQLSelectStatementRep::isFromChild(const CIMName& className) const
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::isFromChild");
     
@@ -1507,8 +1513,7 @@ Boolean CQLSelectStatementRep::isFromChild(const CIMName& className)
         _ctx->getClassRelation(_ctx->getFromList()[0].getName(), className);
     
     PEG_METHOD_EXIT();
-    return (rel == QueryContext::SAMECLASS ||
-            rel == QueryContext::SUBCLASS) ? true : false;
+    return (rel == QueryContext::SAMECLASS || rel == QueryContext::SUBCLASS);
 }
 
 void CQLSelectStatementRep::appendClassPath(const CQLIdentifier& inIdentifier)
@@ -1574,32 +1579,33 @@ void CQLSelectStatementRep::applyContext()
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::applyContext");
     
-    if(_ctx == NULL)
+    if (_ctx == NULL)
     {
-    PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL4,"null QC");
-    PEG_METHOD_EXIT();
-    MessageLoaderParms parms("CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
-        "Trying to process a query with a NULL Query Context.");
-    // throw syntax error to be consistent
-    throw CQLSyntaxErrorException(parms);
+        PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL4,"null QC");
+        PEG_METHOD_EXIT();
+        MessageLoaderParms parms(
+            "CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
+            "Trying to process a query with a NULL Query Context.");
+        // throw syntax error to be consistent
+        throw CQLSyntaxErrorException(parms);
     }
     
     for (Uint32 i = 0; i < _selectIdentifiers.size(); i++)
     {
-    _selectIdentifiers[i].applyContext(*_ctx);
-    checkWellFormedIdentifier(_selectIdentifiers[i], true);
+        _selectIdentifiers[i].applyContext(*_ctx);
+        checkWellFormedIdentifier(_selectIdentifiers[i], true);
     }
     
     if (hasWhereClause())
     {
-    _predicate.applyContext(*_ctx);
+        _predicate.applyContext(*_ctx);
     
-    // Note: must be after call to predicate's applyContext
-    Array<QueryChainedIdentifier> _whereIdentifiers = _ctx->getWhereList();
-    for (Uint32 i = 0; i < _whereIdentifiers.size(); i++)
-    {
-      checkWellFormedIdentifier(_whereIdentifiers[i], false);
-    }
+        // Note: must be after call to predicate's applyContext
+        Array<QueryChainedIdentifier> _whereIdentifiers = _ctx->getWhereList();
+        for (Uint32 i = 0; i < _whereIdentifiers.size(); i++)
+        {
+            checkWellFormedIdentifier(_whereIdentifiers[i], false);
+        }
     }
     
     _contextApplied = true;
@@ -1745,7 +1751,7 @@ void CQLSelectStatementRep::normalizeToDOC()
     PEG_METHOD_EXIT();
 }
 
-String CQLSelectStatementRep::toString()
+String CQLSelectStatementRep::toString() const
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::toString");
     
@@ -1789,7 +1795,7 @@ void CQLSelectStatementRep::setHasWhereClause()
     PEG_METHOD_EXIT();
 }
 
-Boolean CQLSelectStatementRep::hasWhereClause()
+Boolean CQLSelectStatementRep::hasWhereClause() const
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::hasWhereClause");
     return _hasWhereClause;

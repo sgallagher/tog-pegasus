@@ -120,8 +120,8 @@ public:
         Returns a CIMPropertyList containing the selected properties.
         The list is NULL if the query selects all properties (SELECT * FROM...).
     */
-    const CIMPropertyList getSelectPropertyList
-        (const CIMObjectPath& inClassName) const;
+    const CIMPropertyList getSelectPropertyList(
+        const CIMObjectPath& inClassName) const;
 
     /** Appends a property name to the property name list. The user should
         not call this method; it should only be called by the parser.
@@ -149,8 +149,8 @@ public:
         Returns a CIMPropertyList containing the unique properties used in the
         WHERE clause
     */
-    const CIMPropertyList getWherePropertyList
-        (const CIMObjectPath& inClassName) const;
+    const CIMPropertyList getWherePropertyList(
+        const CIMObjectPath& inClassName) const;
 
     /** Appends a property name to the where property name list. The user
     should not call this method; it should only be called by the parser.
@@ -199,15 +199,13 @@ public:
     */
     void print() const;
 
-    //static const WQLSelectStatement EMPTY;
-
     Boolean evaluate(const CIMInstance& inCI);
 
     void validate();
 
     CIMPropertyList getPropertyList(const CIMObjectPath& inClassName);
 
-    Array<CIMObjectPath> getClassPathList();
+    Array<CIMObjectPath> getClassPathList() const;
 
 private:
 

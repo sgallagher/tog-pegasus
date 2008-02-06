@@ -147,8 +147,6 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
       Pre-condition: QueryContext has been set into this object.
       Post-condition: Chained identifiers have been normalized.
 
-      @param None.
-      @return None
       @throw CQLRuntimeException if the QueryContext had not been set.
       @throw CQLValidationException if a chained identifier is not well formed.
       @throw CQLSyntaxErrorException if a chained identifier is not well
@@ -190,7 +188,6 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
       @param inCI - The instance to be projected.
       @param allowMissing indicates whether missing project properties are
                           allowed
-      @return None
       @throw  CQLRuntimeException if the instance cannot be projected
       @throw CQLValidationException for applyContext error.
       @throw CQLSyntaxErrorException for applyContext error.
@@ -209,8 +206,6 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
       Post-condition: Chained identifiers have been normalized
       ie.applyContext has been called.  See the applyContext function.
 
-      @param None
-      @return None
       @throw CQLValidationException for applyContext error, the select
       statement is invalid against the schema, or the QueryContext has
       not been set.
@@ -251,7 +246,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
       <I><B>Experimental Interface</B></I><BR>
      */
-    Array<CIMObjectPath> getClassPathList();
+    Array<CIMObjectPath> getClassPathList() const;
 
     /**
       Returns the required properties from the combined SELECT and WHERE
@@ -277,7 +272,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
       <I><B>Experimental Interface</B></I><BR>
     */
     CIMPropertyList getPropertyList(
-            const CIMObjectPath& inClassName = CIMObjectPath());
+        const CIMObjectPath& inClassName = CIMObjectPath());
 
     /**
       Returns the required properties from the SELECT clause for the
@@ -303,7 +298,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
       <I><B>Experimental Interface</B></I><BR>
     */
     CIMPropertyList getSelectPropertyList(
-            const CIMObjectPath& inClassName = CIMObjectPath());
+        const CIMObjectPath& inClassName = CIMObjectPath());
 
     /**
       Returns the required properties from the WHERE clause for the
@@ -329,7 +324,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
       <I><B>Experimental Interface</B></I><BR>
     */
     CIMPropertyList getWherePropertyList(
-            const CIMObjectPath& inClassName = CIMObjectPath());
+        const CIMObjectPath& inClassName = CIMObjectPath());
 
     /**
       Returns the chained identifiers from the SELECT clause.  These chained
@@ -391,7 +386,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
       <I><B>Experimental Interface</B></I><BR>
     */
-    Boolean hasWhereClause();
+    Boolean hasWhereClause() const;
 
     /**
       Returns the select statement in string form.
@@ -407,7 +402,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
       <I><B>Experimental Interface</B></I><BR>
     */
-    String toString();
+    String toString() const;
 
     /*
        ATTN - the following methods should only be set by CQLParser.

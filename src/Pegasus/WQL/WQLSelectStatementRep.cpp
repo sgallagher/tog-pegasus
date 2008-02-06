@@ -199,8 +199,8 @@ void WQLSelectStatementRep::setAllProperties(const Boolean allProperties)
     _allProperties = allProperties;
 }
 
-const CIMPropertyList WQLSelectStatementRep::getSelectPropertyList
-    (const CIMObjectPath& inClassName) const
+const CIMPropertyList WQLSelectStatementRep::getSelectPropertyList(
+    const CIMObjectPath& inClassName) const
 {
     //
     //  Check for "*"
@@ -260,8 +260,8 @@ const CIMPropertyList WQLSelectStatementRep::getSelectPropertyList
     return CIMPropertyList (_selectPropertyNames);
 }
 
-const CIMPropertyList WQLSelectStatementRep::getWherePropertyList
-    (const CIMObjectPath& inClassName) const
+const CIMPropertyList WQLSelectStatementRep::getWherePropertyList(
+    const CIMObjectPath& inClassName) const
 {
     CIMName className = inClassName.getClassName();
     if (className.isNull())
@@ -545,7 +545,8 @@ inline void wqlSelectStatementApplyProjection(
     }
 }
 
-void WQLSelectStatementRep::applyProjection(CIMInstance& ci,
+void WQLSelectStatementRep::applyProjection(
+    CIMInstance& ci,
     Boolean allowMissing)
 {
     if (_allProperties)
@@ -556,7 +557,8 @@ void WQLSelectStatementRep::applyProjection(CIMInstance& ci,
     wqlSelectStatementApplyProjection(ci, allowMissing, _selectPropertyNames);
 }
 
-void WQLSelectStatementRep::applyProjection(CIMObject& ci,
+void WQLSelectStatementRep::applyProjection(
+    CIMObject& ci,
     Boolean allowMissing)
 {
     if (_allProperties)
@@ -770,7 +772,7 @@ CIMPropertyList WQLSelectStatementRep::getPropertyList(
     return list;
 }
 
-Array<CIMObjectPath> WQLSelectStatementRep::getClassPathList()
+Array<CIMObjectPath> WQLSelectStatementRep::getClassPathList() const
 {
     if(_ctx == NULL){
         MessageLoaderParms parms(

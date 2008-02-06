@@ -104,7 +104,8 @@ Boolean CQLSelectStatement::evaluate(const CIMInstance& inCI)
     return _rep->evaluate(inCI);
 }
 
-void CQLSelectStatement::applyProjection(CIMInstance& inCI,
+void CQLSelectStatement::applyProjection(
+    CIMInstance& inCI,
     Boolean allowMissing)
 {
     PEGASUS_ASSERT(_rep != NULL);
@@ -119,7 +120,7 @@ void CQLSelectStatement::validate()
     _rep->validate();
 }
 
-Array<CIMObjectPath> CQLSelectStatement::getClassPathList()
+Array<CIMObjectPath> CQLSelectStatement::getClassPathList() const
 {
     PEGASUS_ASSERT(_rep != NULL);
     
@@ -226,21 +227,22 @@ void CQLSelectStatement::setHasWhereClause()
     _rep->setHasWhereClause();
 }
 
-Boolean CQLSelectStatement::hasWhereClause()
+Boolean CQLSelectStatement::hasWhereClause() const
 {
     PEGASUS_ASSERT(_rep != NULL);
     
     return _rep->hasWhereClause();
 }
 
-String CQLSelectStatement::toString()
+String CQLSelectStatement::toString() const
 {
     PEGASUS_ASSERT(_rep != NULL);
     
     return _rep->toString();
 }
 
-void CQLSelectStatement::clear(){
+void CQLSelectStatement::clear()
+{
     PEGASUS_ASSERT(_rep != NULL);
     
     _rep->clear();

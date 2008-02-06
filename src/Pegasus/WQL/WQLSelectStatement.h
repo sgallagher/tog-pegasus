@@ -141,8 +141,8 @@ public:
                  or a null CIMPropertyList if all properties of the specified
                  class are required
     */
-    CIMPropertyList getSelectPropertyList
-        (const CIMObjectPath& inClassName = CIMObjectPath ());
+    CIMPropertyList getSelectPropertyList(
+        const CIMObjectPath& inClassName = CIMObjectPath());
 
     /** Appends a property name to the property name list. The user should
         not call this method; it should only be called by the parser.
@@ -169,8 +169,8 @@ public:
                  or a null CIMPropertyList if all properties of the specified
                  class are required
     */
-    CIMPropertyList getWherePropertyList
-        (const CIMObjectPath& inClassName = CIMObjectPath ());
+    CIMPropertyList getWherePropertyList(
+        const CIMObjectPath& inClassName = CIMObjectPath());
 
     /** Appends a property name to the where property name list. The user
         should not call this method; it should only be called by the parser.
@@ -205,9 +205,11 @@ public:
                               properties are allowed
         @exception Exception
     */
-    void applyProjection(CIMInstance& inst,
+    void applyProjection(
+        CIMInstance& inst,
         Boolean allowMissing);
-    void applyProjection(CIMObject& inst,
+    void applyProjection(
+        CIMObject& inst,
         Boolean allowMissing);
 
     /** Prints out the members of this class.
@@ -223,7 +225,7 @@ public:
     CIMPropertyList getPropertyList(
         const CIMObjectPath& inClassName = CIMObjectPath());
 
-    Array<CIMObjectPath> getClassPathList();
+    Array<CIMObjectPath> getClassPathList() const;
 
 private:
 

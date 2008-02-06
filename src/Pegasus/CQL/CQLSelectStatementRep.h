@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CQLSelectStatementRep_h
@@ -72,12 +64,13 @@ class CQLSelectStatementRep : public SelectStatementRep
 
     Boolean evaluate(const CIMInstance& inCI);
 
-    void applyProjection(CIMInstance& inCI,
+    void applyProjection(
+        CIMInstance& inCI,
         Boolean allowMissing);
 
     void validate();
 
-    Array<CIMObjectPath> getClassPathList();
+    Array<CIMObjectPath> getClassPathList() const;
 
     CIMPropertyList getPropertyList(const CIMObjectPath& inClassName);
 
@@ -104,11 +97,11 @@ class CQLSelectStatementRep : public SelectStatementRep
 
     void normalizeToDOC();
 
-    String toString();
+    String toString() const;
 
     void setHasWhereClause();
 
-    Boolean hasWhereClause();
+    Boolean hasWhereClause() const;
 
     void clear();
 
@@ -120,39 +113,45 @@ class CQLSelectStatementRep : public SelectStatementRep
 
   private:
 
-    Boolean applyProjection(PropertyNode* node,
-                            CIMProperty& nodeProp,
-                            Boolean& preservePropsForParent,
-                            Boolean allowMissing);
+    Boolean applyProjection(
+        PropertyNode* node,
+        CIMProperty& nodeProp,
+        Boolean& preservePropsForParent,
+        Boolean allowMissing) const;
 
-    void validateProperty(QueryChainedIdentifier& chainId);
+    void validateProperty(const QueryChainedIdentifier& chainId) const;
 
-    CIMName lookupFromClass(const String&  lookup);
+    CIMName lookupFromClass(const String& lookup) const;
 
-    CIMPropertyList getPropertyListInternal(const CIMObjectPath& inClassName,
-                                            Boolean includeSelect,
-                                            Boolean includeWhere);
+    CIMPropertyList getPropertyListInternal(
+        const CIMObjectPath& inClassName,
+        Boolean includeSelect,
+        Boolean includeWhere);
 
-    Boolean addRequiredProperty(Array<CIMName>& reqProps,
-                                CIMName& className,
-                                QueryChainedIdentifier& chainId,
-                                Array<CIMName>& matchedScopes,
-                                Array<CIMName>& unmatchedScopes);
+    Boolean addRequiredProperty(
+        Array<CIMName>& reqProps,
+        const CIMName& className,
+        const QueryChainedIdentifier& chainId,
+        Array<CIMName>& matchedScopes,
+        Array<CIMName>& unmatchedScopes) const;
 
-    Boolean isFilterable(const CIMInstance& inst,
-                         PropertyNode* node);
+    Boolean isFilterable(
+        const CIMInstance& inst,
+        PropertyNode* node) const;
 
-    void filterInstance(CIMInstance& inst,
-                        Boolean& allPropsRequired,
-                        const CIMName& allPropsClass,
-                        Array<CIMName>& requiredProps,
-                        Boolean& preserveProps,
-                        Boolean allowMissing);
+    void filterInstance(
+        CIMInstance& inst,
+        Boolean& allPropsRequired,
+        const CIMName& allPropsClass,
+        Array<CIMName>& requiredProps,
+        Boolean& preserveProps,
+        Boolean allowMissing) const;
 
-    Boolean containsProperty(const CIMName& name,
-                             const Array<CIMName>& props);
+    static Boolean containsProperty(
+        const CIMName& name,
+        const Array<CIMName>& props);
 
-    Boolean isFromChild(const CIMName& className);
+    Boolean isFromChild(const CIMName& className) const;
 
     void checkWellFormedIdentifier(const QueryChainedIdentifier& chainId,
                                    Boolean isSelectListId);

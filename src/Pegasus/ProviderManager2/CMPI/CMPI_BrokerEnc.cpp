@@ -1,56 +1,54 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/CIMNameUnchecked.h>
 #include "CMPI_Version.h"
 
 #include "CMPI_Object.h"
-#include "CMPI_ThreadContext.h"
 #include "CMPI_Broker.h"
 #include "CMPI_Ftabs.h"
 #include "CMPI_String.h"
 #include "CMPI_SelectExp.h"
-#include "CMPI_Array.h"
-#include "CMPIMsgHandleManager.h"
-#include "CMPISCMOUtilities.h"
 
 #include <Pegasus/Common/CIMName.h>
-#include <Pegasus/Common/CIMNameCast.h>
 #include <Pegasus/Common/CIMPropertyList.h>
-#include <Pegasus/Common/SCMO.h>
 #if defined (CMPI_VER_85)
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/LanguageParser.h>
 #endif
 #if defined(CMPI_VER_100)
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/TraceComponents.h>
 #include <Pegasus/Common/Tracer.h>
 #endif
 
@@ -59,7 +57,7 @@
 #include <Pegasus/WQL/WQLParser.h>
 #include <Pegasus/Provider/CIMOMHandleQueryContext.h>
 
-#ifdef PEGASUS_ENABLE_CQL
+#ifndef PEGASUS_DISABLE_CQL
 #include <Pegasus/CQL/CQLSelectStatement.h>
 #include <Pegasus/CQL/CQLParser.h>
 #include <Pegasus/CQL/CQLChainedIdentifier.h>
@@ -115,8 +113,10 @@ static String typeToString(CIMType t)
             return "reference";
         case CIMTYPE_OBJECT:
             return "object";
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         case CIMTYPE_INSTANCE:
             return "instance";
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         default:
             return "???";
     }
@@ -246,7 +246,7 @@ static inline CIMName Name(const char *n)
     }
     try
     {
-        name = CIMNameCast(n);
+        name = CIMNameUnchecked(n);
     }
     catch ( ...)
     {
@@ -275,66 +275,55 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_BrokerEnc:mbEncNewInstance()");
-        if (!eCop || !eCop->hdl)
+        if (!eCop)
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Received inv. parameter in CMPI_BrokerEnc:mbEncNewInstance");
+                Tracer::LEVEL2,
+                "Received Invalid Parameter in CMPI_BrokerEnc:mbEncToString");
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
+            return NULL;
+        }
+        CIMObjectPath* cop = (CIMObjectPath*)eCop->hdl;
+        if (!cop)
+        {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL2,
+                "Received Invalid handle in CMPI_BrokerEnc:mbEncToString");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             PEG_METHOD_EXIT();
             return NULL;
         }
 
-        // A CMPIObjectPath is already represented through a SCMOInstance.
-        SCMOInstance* scmoOp = (SCMOInstance*)eCop->hdl;
-        SCMOInstance* newScmoInst;
+        CIMClass *cls = mbGetClass(mb,*cop);
+        CIMInstance *ci = NULL;
 
-        if (scmoOp->isCompromised())
+        if (cls)
         {
-            Uint32 nsL;
-            const char* ns = scmoOp->getNameSpace_l(nsL);
-            Uint32 cnL;
-            const char* cn = scmoOp->getClassName_l(cnL);
-            SCMOClass* scmoClass = mbGetSCMOClass(ns,nsL,cn,cnL);
-            if (0 == scmoClass)
-            {
-                CMSetStatus(rc, CMPI_RC_ERR_NOT_FOUND);
-                PEG_METHOD_EXIT();
-                return NULL;
-            }
-            else
-            {
-                // Create a new clean objectPath ...
-                SCMOInstance scmoNewOp(*scmoClass);
+            const CMPIContext *ctx = CMPI_ThreadContext::getContext();
+            CMPIFlags flgs=ctx->ft->getEntry(
+                ctx,CMPIInvocationFlags,rc).value.uint32;
+            CIMInstance newInst = cls->buildInstance(
+                Boolean(flgs & CMPI_FLAG_IncludeQualifiers),
+                false,
+                CIMPropertyList());
 
-                // ... copy the key properties from the dirty one ...
-                CMPIrc cmpirc = CMPISCMOUtilities::copySCMOKeyProperties(
-                    scmoOp,     // source
-                    &scmoNewOp); // target
-                if (cmpirc != CMPI_RC_OK)
-                {
-                    PEG_TRACE_CSTRING(
-                        TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL1,
-                        "Failed to copy key bindings");
-                    CMSetStatus(rc, CMPI_RC_ERR_FAILED);
-                    PEG_METHOD_EXIT();
-                    return NULL;
-                }
-
-                // ... and finally use the new clean ObjectPath
-                newScmoInst = new SCMOInstance(scmoNewOp);
-            }
+            ci = new CIMInstance(newInst);
         }
         else
         {
-            newScmoInst = new SCMOInstance(scmoOp->clone());
+            CMSetStatus(rc, CMPI_RC_ERR_NOT_FOUND);
+            PEG_METHOD_EXIT();
+            return NULL;
         }
-        CMPIInstance* neInst = reinterpret_cast<CMPIInstance*>(
-            new CMPI_Object(newScmoInst, CMPI_Object::ObjectTypeInstance));
 
+        ci->setPath(*cop);
+        CMPIInstance* neInst =
+            reinterpret_cast<CMPIInstance*>(new CMPI_Object(ci));
         CMSetStatus(rc, CMPI_RC_OK);
+   //   CMPIString *str=mbEncToString(mb,neInst,NULL);
         PEG_METHOD_EXIT();
         return neInst;
     }
@@ -348,46 +337,33 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_BrokerEnc:mbEncNewObjectPath()");
-
-        SCMOInstance* scmoInst;
-
-        SCMOClass* scmoClass =
-            mbGetSCMOClass(
-                ns,
-                ns ? strlen(ns) : 0,
-                cls,
-                cls ? strlen(cls) : 0);
-        if (0 == scmoClass)
+        Array<CIMKeyBinding> keyBindings;
+        String host;
+        CIMName className;
+        if (cls)
         {
-            // Though it is not desirable to let providers create objectPaths
-            // for non-existant classes, this has to be allowed for backwards
-            // compatibility with previous CMPI implementation :-(
-            // So we simply create a 'dirty' SCMOClass object here.
-            if (!ns)
-            {
-                ns="";
-            }
-            if (!cls)
-            {
-                cls="";
-            }
-            SCMOClass localDirtyClass(cls,ns);
-            scmoInst = new SCMOInstance(localDirtyClass);
-            scmoInst->markAsCompromised();
-
-            PEG_TRACE((
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Created invalid ObjectPath for non-existant class %s/%s",
-                ns,cls));
+            className=Name(cls);
         }
         else
         {
-            scmoInst = new SCMOInstance(*scmoClass);
+            className=Name("");
         }
-
+        CIMNamespaceName nameSpace;
+        if (ns)
+        {
+            nameSpace =NameSpaceName(ns);
+        }
+        else
+        {
+            nameSpace=NameSpaceName("");
+        }
+        CIMObjectPath *cop = new CIMObjectPath(
+            host,
+            nameSpace,
+            className,
+            keyBindings);
         CMPIObjectPath *nePath = reinterpret_cast<CMPIObjectPath*>(
-            new CMPI_Object(scmoInst, CMPI_Object::ObjectTypeObjectPath));
+            new CMPI_Object(cop));
         CMSetStatus(rc, CMPI_RC_OK);
         PEG_METHOD_EXIT();
         return nePath;
@@ -418,13 +394,13 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Received Invalid Parameter in CMPI_BrokerEnc:mbEncNewString");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             PEG_METHOD_EXIT();
             return NULL;
         }
-        CMPIString* cmpiString =
+        CMPIString* cmpiString = 
             reinterpret_cast<CMPIString*>(new CMPI_Object(cStr));
         PEG_METHOD_EXIT();
         return cmpiString;
@@ -445,13 +421,12 @@ extern "C"
         dta->value.uint32=count;
         for (unsigned int i=1; i<=count; i++)
         {
-            dta[i].type=(type&~CMPI_ARRAY);
+            dta[i].type=type;
             dta[i].state=CMPI_nullValue;
             dta[i].value.uint64=0;
         }
-        CMPI_Array *arr = new CMPI_Array(dta);
-        CMPIArray* cmpiArray =
-            reinterpret_cast<CMPIArray*>(new CMPI_Object(arr));
+        CMPIArray* cmpiArray = 
+            reinterpret_cast<CMPIArray*>(new CMPI_Object(dta));
         PEG_METHOD_EXIT();
         return cmpiArray;
     }
@@ -493,7 +468,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Received Invalid Parameter in CMPI_BrokerEnc:newDateTimeChar");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
         }
@@ -549,7 +524,7 @@ extern "C"
         if (obj==NULL)
         {
             sprintf(msg,"** Null object ptr (%p) **",o);
-            CMSetStatus(rc,CMPI_RC_ERR_INVALID_PARAMETER);
+            CMSetStatus(rc,CMPI_RC_ERR_FAILED);
             CMPIString* cmpiString =
                 reinterpret_cast<CMPIString*>(new CMPI_Object(msg));
             PEG_METHOD_EXIT();
@@ -559,7 +534,7 @@ extern "C"
         if (obj->getHdl()==NULL)
         {
             sprintf(msg,"** Null object hdl (%p) **",o);
-            CMSetStatus(rc,CMPI_RC_ERR_INVALID_PARAMETER);
+            CMSetStatus(rc,CMPI_RC_ERR_FAILED);
             CMPIString* cmpiString =
                 reinterpret_cast<CMPIString*>(new CMPI_Object(msg));
             PEG_METHOD_EXIT();
@@ -569,33 +544,21 @@ extern "C"
         if (obj->getFtab() == (void*)CMPI_Instance_Ftab ||
             obj->getFtab() == (void*)CMPI_InstanceOnStack_Ftab)
         {
-            SCMOInstance *scmoInst=(SCMOInstance*)obj->getHdl();
-            CIMInstance ci;
-            SCMO_RC src=scmoInst->getCIMInstance(ci);
-            if (SCMO_OK==src)
+            CIMInstance *ci=(CIMInstance*)obj->getHdl();
+            str="Instance of "+ci->getClassName().getString()+" {\n";
+            for (int i=0,m=ci->getPropertyCount(); i<m; i++)
             {
-                str="Instance of "+ci.getClassName().getString()+" {\n";
-                for (int i=0,m=ci.getPropertyCount(); i<m; i++)
-                {
-                    CIMConstProperty p = ci.getProperty(i);
-                    str.append("  "+typeToString(p.getType())+
-                        " "+p.getName().getString()+
-                        " = "+p.getValue().toString()+";\n");
-                }
-                str.append("};\n");
+                CIMConstProperty p = ci->getProperty(i);
+                str.append("  "+typeToString(p.getType())+
+                    " "+p.getName().getString()+
+                    " = "+p.getValue().toString()+";\n");
             }
-            else
-            {
-                str.append("Failed to convert instance to string");
-            }
+            str.append("};\n");
         }
         else if (obj->getFtab() == (void*)CMPI_ObjectPath_Ftab ||
             obj->getFtab() == (void*)CMPI_ObjectPathOnStack_Ftab)
         {
-            SCMOInstance * scmoObj = (SCMOInstance*)obj->getHdl();
-            CIMObjectPath obj;
-            scmoObj->getCIMObjectPath(obj);
-            str = obj.toString();
+            str = ((CIMObjectPath*)obj->getHdl())->toString();
         }
         else if (obj->getFtab()==(void*)CMPI_String_Ftab)
         {
@@ -616,7 +579,7 @@ extern "C"
         else
         {
             sprintf(msg,"** Object not recognized (%p) **",o);
-            CMSetStatus(rc,CMPI_RC_ERR_INVALID_PARAMETER);
+            CMSetStatus(rc,CMPI_RC_ERR_FAILED);
             CMPIString* cmpiString =
                 reinterpret_cast<CMPIString*>(new CMPI_Object(msg));
             PEG_METHOD_EXIT();
@@ -624,7 +587,7 @@ extern "C"
         }
 
         sprintf(msg,"%p: ",o);
-        CMPIString* cmpiString =
+        CMPIString* cmpiString = 
             reinterpret_cast<CMPIString*>(new CMPI_Object(String(msg)+str));
         PEG_METHOD_EXIT();
         return cmpiString;
@@ -645,7 +608,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Received Invalid Parameter - eCp || type in \
                 CMPI_BrokerEnc:mbEncClassPathIsA");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
@@ -656,48 +619,46 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Received Invalid Class in \
                 CMPI_BrokerEnc:mbEncClassPathIsA");
             CMSetStatus(rc,CMPI_RC_ERR_INVALID_CLASS);
             PEG_METHOD_EXIT();
             return 0;
         }
-        SCMOInstance* cop = (SCMOInstance*)eCp->hdl;
-        Uint32 nsL;
-        const char *ns = cop->getNameSpace_l(nsL);
-        Uint32 clsL;
-        const char *cls = cop->getClassName_l(clsL);
-        Uint32 typeL=strlen(type);
+        CIMObjectPath* cop = (CIMObjectPath*)eCp->hdl;
 
-        if (System::strncasecmp(type, typeL, cls, clsL))
+        const CIMName tcn(type);
+
+        if (tcn == cop->getClassName())
         {
             PEG_METHOD_EXIT();
             return 1;
         }
 
-        SCMOClass *cc = mbGetSCMOClass(ns, nsL, cls, clsL);
+        CIMClass *cc = mbGetClass(mb,*cop);
         if (cc == NULL)
         {
             PEG_METHOD_EXIT();
             return 0;
         }
-        cls = cc->getSuperClassName_l(clsL);
+        CIMObjectPath  scp(*cop);
+        scp.setClassName(cc->getSuperClassName());
 
-        while(NULL!=cls)
+        for (; !scp.getClassName().isNull(); )
         {
-            cc = mbGetSCMOClass(ns, nsL, cls, clsL);
+            cc = mbGetClass(mb,scp);
             if (cc == NULL)
             {
                 PEG_METHOD_EXIT();
                 return 0;
             }
-            if (System::strncasecmp(cls,clsL,type,typeL))
+            if (cc->getClassName() == tcn)
             {
                 PEG_METHOD_EXIT();
                 return 1;
             }
-            cls = cc->getSuperClassName_l(clsL);
+            scp.setClassName(cc->getSuperClassName());
         };
         PEG_METHOD_EXIT();
         return 0;
@@ -1074,11 +1035,6 @@ extern "C"
         CMPIStatus rc = { CMPI_RC_OK, NULL };
         AutoPtr<MessageLoaderParms> parms(new MessageLoaderParms());
         parms->msg_src_path = msgFile;
-
-        // Initialize the msgFileHandle to NULL, so it is easier to
-        // detect an uninitialized handle in related functions.
-        *msgFileHandle = NULL;
-
         // Get the AcceptLanguage entry
         const CMPIContext *ctx = CMPI_ThreadContext::getContext();
         CMPIData data = ctx->ft->getEntry(ctx, CMPIAcceptLanguage, &rc);
@@ -1086,25 +1042,16 @@ extern "C"
         {
             if (rc.rc == CMPI_RC_OK)
             {
-                const char* accLangs = CMGetCharsPtr(data.value.string, NULL);
-                if ((accLangs != NULL) && (accLangs[0] != '\0'))
-                {
-                    parms->acceptlanguages =
-                        LanguageParser::parseAcceptLanguageHeader(accLangs);
-                }
+                parms->acceptlanguages =
+                    LanguageParser::parseAcceptLanguageHeader(
+                        CMGetCharPtr(data.value.string));
             }
             else
             {
-                PEG_TRACE(
-                    (TRC_PROVIDERMANAGER,
-                     Tracer::LEVEL1,
-                     "Failed to get CMPIAcceptLanguage from CMPIContext. RC=%d",
-                     rc.rc));
                 PEG_METHOD_EXIT();
                 return rc; // should be CMPI_RC_ERR_INVALID_HANDLE
             }
         }
-
         MessageLoader::openMessageFile(*parms.get());
 
         ContentLanguageList cll = parms->contentlanguages;
@@ -1121,10 +1068,7 @@ extern "C"
                 CMPI_chars);
         }
 
-        CMPIMsgHandleManager* handleMgr =
-            CMPIMsgHandleManager::getCMPIMsgHandleManager();
-        *msgFileHandle = handleMgr->getNewHandle(parms.release());
-
+        *msgFileHandle = (void *)parms.release();
         PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
@@ -1136,25 +1080,10 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_BrokerEnc:mbEncCloseMessageFile()");
-
-        CMPIMsgHandleManager* handleMgr =
-            CMPIMsgHandleManager::getCMPIMsgHandleManager();
         MessageLoaderParms* parms;
-
-        try
-        {
-            parms = handleMgr->releaseHandle(msgFileHandle);
-        }
-        catch( IndexOutOfBoundsException&)
-        {
-            PEG_METHOD_EXIT();
-            CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
-        }
-
+        parms = (MessageLoaderParms*)msgFileHandle;
         MessageLoader::closeMessageFile(*parms);
-
         delete parms;
-
         PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
@@ -1171,36 +1100,10 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_BrokerEnc:mbEncGetMessage2()");
-
-        CMPIMsgHandleManager* handleMgr =
-            CMPIMsgHandleManager::getCMPIMsgHandleManager();
         MessageLoaderParms* parms;
-
-        try
-        {
-            parms = handleMgr->getDataForHandle(msgFileHandle);
-        }
-        catch( IndexOutOfBoundsException&)
-        {
-            if (rc)
-            {
-                rc->rc=CMPI_RC_ERR_INVALID_HANDLE;
-            }
-            PEG_METHOD_EXIT();
-            return NULL;
-        }
-
-
-        if (msgId != NULL)
-        {
-            parms->msg_id = msgId;
-        }
-
-        if ( defMsg != NULL )
-        {
-            parms->default_msg.assign(defMsg);
-        }
-
+        parms = (MessageLoaderParms*)msgFileHandle;
+        parms->msg_id = String(msgId);
+        parms->default_msg = String(defMsg);
         int err = 0;
         if (rc)
         {
@@ -1302,22 +1205,18 @@ extern "C"
 #if defined(CMPI_VER_100)
     CMPIStatus mbEncLogMessage(
         const CMPIBroker*,
-        CMPISeverity severity,
+        int severity,
         const char *id,
         const char *text,
         const CMPIString *string)
     {
-        if (!(text || string))
+        if (!id || !(text || string))
         {
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
-
-        String logString;
-        if (id != NULL)
-        {
-            logString.assign(id);
+        String logString = id;
+        Uint32 logSeverity = Logger::INFORMATION;
         logString.append(":");
-        }
 
         if (string)
         {
@@ -1327,62 +1226,43 @@ extern "C"
         {
             logString.append(text);
         }
-        /*
-            CMPI Severity Codes from Section 4.8
-            CMPI_SEV_ERROR = 1,
-            CMPI_SEV_INFO = 2,
-            CMPI_SEV_WARNING = 3,
-            CMPI_DEV_DEBUG = 4
-            Here we try to match CMPI Severity codes to the Pegauss Log levels.
-        */
-
-        Uint32 logSeverity;
-        Logger::LogFileType logFileType;
-
-        switch (severity)
+        // There are no notion in CMPI spec about what 'severity' means.
+        // So we are going to try to map
+        if (severity <= 1)
         {
-            case CMPI_DEV_DEBUG:
-                logSeverity = Logger::TRACE;
-                logFileType = Logger::STANDARD_LOG;
-                break;
-            case  CMPI_SEV_INFO:
-                logSeverity = Logger::INFORMATION;
-                logFileType = Logger::STANDARD_LOG;
-                break;
-            case CMPI_SEV_WARNING:
-                logSeverity = Logger::WARNING;
-                logFileType = Logger::STANDARD_LOG;
-                break;
-            case CMPI_SEV_ERROR:
-                logSeverity = Logger::SEVERE;
-                logFileType = Logger::ERROR_LOG;
-                break;
-            default:
-                logSeverity = Logger::INFORMATION;
-                logFileType = Logger::STANDARD_LOG;
+            logSeverity = Logger::INFORMATION;
         }
-
-        Logger::put(
-            logFileType,
-            System::CIMSERVER,
-            logSeverity,
-            logString);
+        else if (severity == 2)
+        {
+            logSeverity = Logger::WARNING;
+        }
+        else if (severity == 3)
+        {
+            logSeverity = Logger::SEVERE;
+        }
+        else if (severity == 4)
+        {
+            logSeverity = Logger::FATAL;
+        }
+        Logger::put(Logger::STANDARD_LOG, id, logSeverity, logString);
         CMReturn ( CMPI_RC_OK);
     }
 
-    inline Uint32 mapTraceLevel(CMPILevel level)
+    inline Uint32 mapTraceLevel(int level)
     {
-        // There is no notion in CMPI spec about what 'level' means.
-        // So we are going to try to map.
+        // There are no notion in CMPI spec about what 'level' means.
+        // So we are going to try to map . We don't want to map to LEVEL1
+        // as it requires the PEG_METHOD_ENTER and PEG_METHOD_EXIT macros.
         switch (level)
         {
-            case CMPI_LEV_INFO:
-                return Tracer::LEVEL3;
-                break;
-            case CMPI_LEV_WARNING:
+            case 1:
+            case 2:
                 return Tracer::LEVEL2;
                 break;
-            case CMPI_LEV_VERBOSE:
+            case 3:
+                return Tracer::LEVEL3;
+                break;
+            case 4:
                 return Tracer::LEVEL4;
                 break;
             default:
@@ -1403,7 +1283,7 @@ extern "C"
 
     CMPIStatus mbEncTracer(
         const CMPIBroker*,
-        CMPILevel level,
+        int level,
         const char *component,
         const char *text,
         const CMPIString *string)
@@ -1438,6 +1318,7 @@ extern "C"
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_BrokerEnc:mbEncNewSelectExp()");
         int exception = 1;
+        int useShortNames = 0;
         CMPIStatus rc = { CMPI_RC_OK, NULL };
 
         if (strncmp (lang, CALL_SIGN_WQL, CALL_SIGN_WQL_SIZE) == 0)
@@ -1454,9 +1335,9 @@ extern "C"
             }
 
             // Create the CIMOMHandle wrapper.
-            CIMOMHandle *cm_handle = (CIMOMHandle*)mb->hdl;
+            CIMOMHandle *cm_handle = CM_CIMOM (mb);
             CIMOMHandleQueryContext qcontext(
-                CIMNamespaceName(CMGetCharsPtr(data.value.string,NULL)),
+                CIMNamespaceName(CMGetCharPtr(data.value.string)),
                 *cm_handle);
 
             String sLang (lang);
@@ -1552,12 +1433,11 @@ extern "C"
             PEG_METHOD_EXIT();
             return (cmpiSelectExp);
         }
-#ifdef PEGASUS_ENABLE_CQL
+#ifndef PEGASUS_DISABLE_CQL
         if ((strncmp (lang, CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) == 0) ||
             (strncmp (lang, "CIMxCQL", 7) == 0) ||
             (strncmp (lang, "CIM:CQL", 7) == 0))
         {
-            int useShortNames = 0;
             /* IBMKR: This will have to be removed when the CMPI spec is
                updated with a clear explanation of what properties array
                can have as strings. For right now, if useShortNames is set
@@ -1582,9 +1462,9 @@ extern "C"
             }
 
             // Create the CIMOMHandle wrapper.
-            CIMOMHandle *cm_handle = (CIMOMHandle*)mb->hdl;
+            CIMOMHandle *cm_handle = CM_CIMOM (mb);
             CIMOMHandleQueryContext qcontext(
-                CIMNamespaceName(CMGetCharsPtr(data.value.string, NULL)),
+                CIMNamespaceName(CMGetCharPtr(data.value.string)),
                 *cm_handle);
 
             String sLang (lang);
@@ -1602,13 +1482,13 @@ extern "C"
             {
                 PEG_TRACE_CSTRING(
                     TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL1,
+                    Tracer::LEVEL2,
                     "Exception: Unknown Exception received...");
                 if (st)
                 {
                     PEG_TRACE_CSTRING(
                         TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL1,
+                        Tracer::LEVEL2,
                         "Exception: Invalid Query Exception received...");
                     CMSetStatus (st, CMPI_RC_ERR_INVALID_QUERY);
                 }
@@ -1701,7 +1581,7 @@ extern "C"
                 CMSetStatus (st, CMPI_RC_OK);
             }
             CMPI_SelectExp* cmpiSelectExp = new CMPI_SelectExp(
-                selectStatement, false, (QueryContext*) &qcontext);
+                selectStatement, false, qcontext.clone());
             PEG_METHOD_EXIT();
             return (cmpiSelectExp);
         }
@@ -1710,7 +1590,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Received Query Language is currently NOT SUPPORTED");
             CMSetStatus (st, CMPI_RC_ERR_QUERY_LANGUAGE_NOT_SUPPORTED);
         }
@@ -1732,46 +1612,37 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Invalid Parameter cop || ctx in \
                 CMPI_BrokerEnc:mbEncGetKeyList");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             PEG_METHOD_EXIT();
             return NULL;
         }
-        SCMOInstance *op = (SCMOInstance*)cop->hdl;
+        CIMObjectPath *op = (CIMObjectPath*)cop->hdl;
 
         if (!op)
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Received Invalid Handle cop->handle in \
                 CMPI_BrokerEnc:mbEncGetKeyList");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             PEG_METHOD_EXIT();
             return NULL;
         }
-        Uint32 nsL;
-        const char* ns = op->getNamespace(nsL);
-        Uint32 cnL;
-        const char* cn = op->getClassName_L(cnL);
-        SCMOClass *cls = mbGetSCMOClass(ns,nsL,cn,cnL);
-        if (0==cls)
-        {
-            PEG_TRACE_CSTRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Invalid Parameter cop (class not found) in \
-                CMPI_BrokerEnc:mbEncGetKeyList");
-            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
-            PEG_METHOD_EXIT();
-            return NULL;
-        }
-
-        //TODO: Eventually implement getKeyNamesAsString using native C-strings
+        CIMClass *cls = mbGetClass(mb,*op);
         Array<String> keys;
-        cls->getKeyNamesAsString(keys);
+        for (int i=0,m=cls->getPropertyCount(); i<m; i++)
+        {
+            CIMConstProperty p = cls->getProperty(i);
+            Uint32 k = p.findQualifier("key");
+            if (k != PEG_NOT_FOUND)
+            {
+                keys.append(p.getName().getString());
+            }
+        }
         CMPIArray *ar = mb->eft->newArray(mb, keys.size(), CMPI_string, NULL);
         for (Uint32 i=0,m=keys.size(); i<m; i++)
         {

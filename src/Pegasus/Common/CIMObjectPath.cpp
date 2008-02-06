@@ -717,8 +717,7 @@ void _parseKeyBindingPairs(
 
             p++;
 
-            Array<Uint8> keyValueUTF8;
-            keyValueUTF8.reserveCapacity(128);
+            Buffer keyValueUTF8(128);
 
             while (*p && *p != '"')
             {
@@ -752,18 +751,26 @@ void _parseKeyBindingPairs(
              */
             type = CIMKeyBinding::STRING;
 
-            try
+            /* Performance shortcut will check for
+               equal sign instead of doing the full
+               CIMObjectPath creation and exception handling
+            */
+            if (strchr(keyValueUTF8.getData(), '='))
             {
-                CIMObjectPath testForPath(valueString);
-                if (testForPath.getKeyBindings().size() > 0)
+                // found an equal sign, high probability for a reference
+                try
                 {
-                    // We've found a reference value!
-                    type = CIMKeyBinding::REFERENCE;
+                    CIMObjectPath testForPath(valueString);
+                    if (testForPath.getKeyBindings().size() > 0)
+                    {
+                        // We've found a reference value!
+                        type = CIMKeyBinding::REFERENCE;
+                    }
                 }
-            }
-            catch (const Exception &)
-            {
-                // Not a reference value; leave type as STRING
+                catch (const Exception &)
+                {
+                    // Not a reference value; leave type as STRING
+                }
             }
         }
         else if (toupper(*p) == 'T' || toupper(*p) == 'F')

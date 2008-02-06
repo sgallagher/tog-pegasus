@@ -98,17 +98,16 @@ String ServerProcess::getHome() { return String::EMPTY; }
 
 int ServerProcess::cimserver_fork()
 {
-    getSigHandle()->registerHandler(SIGTERM, sigTermHandler);
-    getSigHandle()->activate(SIGTERM);
     umask(S_IRWXG | S_IRWXO);
 
     if (Executor::detectExecutor() == 0)
     {
         // We don't need to fork if we're running with Privilege Separation
-        setsid();
         return 0;
     }
 
+    getSigHandle()->registerHandler(SIGTERM, sigTermHandler);
+    getSigHandle()->activate(SIGTERM);
     getSigHandle()->registerHandler(PEGASUS_SIGUSR1, sigUsr1Handler);
     getSigHandle()->activate(PEGASUS_SIGUSR1);
 
@@ -163,9 +162,20 @@ void ServerProcess::notify_parent(int id)
 {
     pid_t ppid = getppid();
     if (id)
+    {
         kill(ppid, SIGTERM);
+    }
     else
-        kill(ppid, PEGASUS_SIGUSR1);
+    {
+        if (Executor::detectExecutor() == 0)
+        {
+            Executor::daemonizeExecutor();
+        }
+        else
+        {
+            kill(ppid, PEGASUS_SIGUSR1);
+        }
+    }
 }
 
 

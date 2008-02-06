@@ -3600,6 +3600,12 @@ CIM server listening on HTTPS port {0}."}
         */
         src.Server.cimserver.IPV6_STACK_NOT_ACTIVE:string {"PGS10042: IPv6 stack is not active, using IPv4 socket."}
 
+        /**
+        * @note PGS10043:
+        *    Do not translate 'daemon=false' since it is a configuration setting.
+        */
+        src.Server.cimserver.PRIVSEP_REQUIRES_DAEMON:string {"PGS10043: The configuration setting daemon=false is ignored with privilege separation enabled."}
+
         // ==========================================================
         // Messages for IndicationService
         //  Please use message prefix "PGS10200"

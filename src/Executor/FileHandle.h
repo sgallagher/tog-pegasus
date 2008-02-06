@@ -31,9 +31,15 @@
 //%/////////////////////////////////////////////////////////////////////////////
 */
 
-#ifndef _Executor_Parent_h
-#define _Executor_Parent_h
+#ifndef _Executor_FileHandle_h
+#define _Executor_FileHandle_h
 
-void Parent(int sock, int initCompletePipe, int childPid, int bindVerbose);
+#include "Defines.h"
 
-#endif /* _Executor_Parent_h */
+EXECUTOR_LINKAGE
+void RedirectTerminalIO(void);
+
+EXECUTOR_LINKAGE
+void CloseUnusedDescriptors(int fd1, int fd2);
+
+#endif /* _Executor_FileHandle_h */

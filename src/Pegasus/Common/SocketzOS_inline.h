@@ -145,7 +145,7 @@ int MP_Socket::ATTLS_zOS_query()
            Logger::put_l(
                Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
                "Pegasus.Common.SocketzOS_inline.POLICY_NOT_ENABLED",
-               "ATTLS policy is not aktive for the CIM Server HTTPS port. "
+               "ATTLS policy is not active for the CIM Server HTTPS port. "
                    "Communication not secured. Connection closed.");
            PEG_METHOD_EXIT();
            return -1;

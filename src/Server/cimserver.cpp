@@ -509,14 +509,16 @@ int main(int argc, char** argv)
         for (int i = 1; i < argc; )
         {
             const char* arg = argv[i];
-            if (String::equal(arg,"--help"))
+            if (strcmp(arg, "--help") == 0)
             {
-                    PrintHelp(argv[0]);
-                    exit(0);
+                PrintHelp(argv[0]);
+                Executor::daemonizeExecutor();
+                exit(0);
             }
-            else if (String::equal(arg,"--version"))
+            else if (strcmp(arg, "--version") == 0)
             {
                 cout << _cimServerProcess->getCompleteVersion() << endl;
+                Executor::daemonizeExecutor();
                 exit(0);
             }
             // Check for -option
@@ -532,6 +534,7 @@ int main(int argc, char** argv)
                     strlen(option) == 1)
                 {
                     cout << _cimServerProcess->getCompleteVersion() << endl;
+                    Executor::daemonizeExecutor();
                     exit(0);
                 }
                 //
@@ -541,6 +544,7 @@ int main(int argc, char** argv)
                         (strlen(option) == 1))
                 {
                     PrintHelp(argv[0]);
+                    Executor::daemonizeExecutor();
                     exit(0);
                 }
 #if !defined(PEGASUS_USE_RELEASE_DIRS)
@@ -559,7 +563,7 @@ int main(int argc, char** argv)
                             "Missing argument for option -$0",
                             opt);
                         cout << MessageLoader::getMessage(parms) << endl;
-                        exit(0);
+                        exit(1);
                     }
 
                     memmove(&argv[i], &argv[i + 2], (argc-i-1) * sizeof(char*));
@@ -603,7 +607,7 @@ int main(int argc, char** argv)
                             "Duplicate shutdown option specified.");
 
                         cout << MessageLoader::getMessage(parms) << endl;
-                        exit(0);
+                        exit(1);
                     }
 
                     shutdownOption = true;

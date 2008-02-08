@@ -163,7 +163,8 @@ public:
         AnonymousPipe*& readPipe,
         AnonymousPipe*& writePipe);
 
-    /** Cause the executor to daemonize itself.
+    /** Cause the executor to complete its daemonization and the cimserver
+        command to exit with success status.
         @return 0=success, -1=failure
     */
     static int daemonizeExecutor();

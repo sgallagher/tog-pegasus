@@ -432,10 +432,13 @@ void ProviderAgentContainer::_startAgentProcess()
     pipeToAgent->exportReadHandle(readHandle);
     pipeFromAgent->exportWriteHandle(writeHandle);
 
-    sprintf(cmdLine, "\"%s\" %s %s \"%s\"",
+    sprintf(cmdLine, "\"%s\" %s %s %s \"%s\" \"%s\"",
         (const char*)ConfigManager::getHomedPath(
             PEGASUS_PROVIDER_AGENT_PROC_NAME).getCString(),
-        readHandle, writeHandle, (const char*)_moduleName.getCString());
+        "0",    // Do not set user context in cimprovagt
+        readHandle, writeHandle,
+        (const char*)_userName.getCString(),
+        (const char*)_moduleName.getCString());
 
     //
     //  Create the child process
@@ -490,7 +493,9 @@ void ProviderAgentContainer::_startAgentProcess()
           pipeFromAgent->exportWriteHandle(writeHandle);
 
           if ((status = execl(agentCommandPathCString, agentCommandPathCString,
+              "0",    // Do not set user context in cimprovagt
               readHandle, writeHandle,
+              (const char*)_userName.getCString(),
               (const char*)_moduleName.getCString(), (char*)0)) == -1);
           {
             // If we're still here, there was an error
@@ -542,27 +547,6 @@ void ProviderAgentContainer::_startAgentProcess()
 
 #else
 
-# ifndef PEGASUS_DISABLE_PROV_USERCTXT
-    // Get and save the effective user name and the uid/gid for the user
-    // context of the agent process
-
-    String effectiveUserName = System::getEffectiveUserName();
-    PEGASUS_UID_T newUid = (PEGASUS_UID_T) -1;
-    PEGASUS_GID_T newGid = (PEGASUS_GID_T) -1;
-    if (_userName != effectiveUserName)
-    {
-        if (!System::lookupUserId(_userName.getCString(), newUid, newGid))
-        {
-            throw PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "ProviderManager.OOPProviderManagerRouter."
-                        "USER_CONTEXT_CHANGE_FAILED",
-                    "Unable to change user context to \"$0\".", _userName));
-        }
-    }
-# endif
-
     pid_t pid = fork();
     if (pid < 0)
     {
@@ -598,26 +582,6 @@ void ProviderAgentContainer::_startAgentProcess()
             pipeToAgent->exportReadHandle(readHandle);
             pipeFromAgent->exportWriteHandle(writeHandle);
 
-# ifndef PEGASUS_DISABLE_PROV_USERCTXT
-            // Set the user context of the Provider Agent process
-            if (_userName != effectiveUserName)
-            {
-                if (!System::changeUserContext_SingleThreaded(
-                         _userName.getCString(), newUid, newGid))
-                {
-                    PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                        "System::changeUserContext() failed.  userName = %s.",
-                        (const char*)_userName.getCString()));
-                    Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER,
-                        Logger::WARNING,
-                        "ProviderManager.OOPProviderManagerRouter."
-                            "USER_CONTEXT_CHANGE_FAILED",
-                        "Unable to change user context to \"$0\".", _userName);
-                    _exit(1);
-                }
-            }
-# endif
-
             // Close all file descriptors except stdin/stdout/stderr
             // and the pipe handles needed by the Provider Agent process.
 
@@ -638,7 +602,13 @@ void ProviderAgentContainer::_startAgentProcess()
             }
 
             execl(agentCommandPathCString, agentCommandPathCString,
+# if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
+                "1",    // Set user context in cimprovagt
+# else
+                "0",    // Do not set user context in cimprovagt
+# endif
                 readHandle, writeHandle,
+                (const char*)_userName.getCString(),
                 (const char*)_moduleName.getCString(), (char*)0);
 
             // If we're still here, there was an error
@@ -660,6 +630,16 @@ void ProviderAgentContainer::_startAgentProcess()
     }
 # if defined(PEGASUS_HAS_SIGNALS)
     _pid = pid;
+
+# if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
+
+    // The cimprovagt forks and returns right away.  Clean up the zombie
+    // process now instead of in _initialize() or _uninitialize().
+    int status = 0;
+    while ((status = waitpid(pid, 0, 0)) == -1 && errno == EINTR)
+        ;
+
+#  endif
 # endif
 #endif
 
@@ -842,6 +822,9 @@ void ProviderAgentContainer::_initialize()
         _pipeFromAgent.reset();
 
 #if defined(PEGASUS_HAS_SIGNALS)
+# if defined(PEGASUS_DISABLE_PROV_USERCTXT)
+        // When provider user context is enabled, this is done in
+        // _startAgentProcess().
         if (_isInitialized)
         {
             // Harvest the status of the agent process to prevent a zombie
@@ -858,6 +841,7 @@ void ProviderAgentContainer::_initialize()
                         "waitpid failed; errno = %d.", errno));
             }
         }
+# endif
 #endif
 
         _isInitialized = false;
@@ -958,6 +942,9 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
     }
 
 #if defined(PEGASUS_HAS_SIGNALS)
+# if defined(PEGASUS_DISABLE_PROV_USERCTXT)
+    // When provider user context is enabled, this is done in
+    // _startAgentProcess().
     if (pid != -1)
     {
         // Harvest the status of the agent process to prevent a zombie.  Do not
@@ -975,6 +962,7 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
                     "waitpid failed; errno = %d.", errno));
         }
     }
+# endif
 #endif
 
     PEG_METHOD_EXIT();

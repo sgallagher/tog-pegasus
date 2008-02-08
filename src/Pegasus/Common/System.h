@@ -275,8 +275,8 @@ public:
 
     /**
         Changes the process user context to the specified user and group.
-        IMPORTANT:  This method uses non-reentrant functions and should only
-        be called in a single-threaded program.
+        IMPORTANT:  This method is not reentrant and not async signal safe.
+        It should only be called in a single-threaded program.
         @param userName  User name to set as the process user context.
         @param uid       User ID to set as the process user context.
         @param gid       Group ID to set as the process group context.

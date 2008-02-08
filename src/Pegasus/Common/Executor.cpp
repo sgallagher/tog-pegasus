@@ -250,10 +250,12 @@ public:
 
         char cmdLine[2048];
 
-        sprintf(cmdLine, "\"%s\" %s %s \"%s\"",
+        sprintf(cmdLine, "\"%s\" %s %s %s \"%s\" \"%s\"",
             (const char*)path.getCString(),
+            "0",    // Do not set user context in cimprovagt
             readHandle,
             writeHandle,
+            (const char*)userName.getCString(),
             module);
 
         //  Create provider agent proess.
@@ -308,25 +310,6 @@ public:
             String path = FileSystem::getAbsolutePath(
                 pegasusHome.getCString(), PEGASUS_PROVIDER_AGENT_PROC_NAME);
 
-#  if !defined(PEGASUS_DISABLE_PROV_USERCTXT) && !defined(PEGASUS_OS_ZOS)
-
-            PEGASUS_UID_T newUid = (PEGASUS_UID_T)-1;
-            PEGASUS_GID_T newGid = (PEGASUS_GID_T)-1;
-
-            if (userName != System::getEffectiveUserName())
-            {
-                if (!System::lookupUserId(
-                         userName.getCString(), newUid, newGid))
-                {
-                    PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                        "System::lookupUserId(%s) failed.",
-                        (const char*)userName.getCString()));
-                    return -1;
-                }
-            }
-
-#  endif /* !defined(PEGASUS_DISABLE_PROV_USERCTXT) */
-
             // Create "to-agent" pipe:
 
             if (pipe(to) != 0)
@@ -377,31 +360,28 @@ public:
 
 #  endif /* !defined(PEGASUS_OS_VMS) */
 
-#  if !defined(PEGASUS_DISABLE_PROV_USERCTXT) && !defined(PEGASUS_OS_ZOS)
-
-                // Set uid and gid for the new provider agent process.
-
-                if (newUid != (PEGASUS_UID_T)-1 && newGid != (PEGASUS_GID_T)-1)
-                {
-                    if (!System::changeUserContext_SingleThreaded(
-                             userName.getCString(), newUid, newGid))
-                    {
-                        return -1;
-                    }
-                }
-
-#  endif /* !defined(PEGASUS_DISABLE_PROV_USERCTXT) */
-
                 // Exec the cimprovagt program.
 
-                char arg1[32];
-                char arg2[32];
-                sprintf(arg1, "%d", to[0]);
-                sprintf(arg2, "%d", from[1]);
+                char toPipeArg[32];
+                char fromPipeArg[32];
+                sprintf(toPipeArg, "%d", to[0]);
+                sprintf(fromPipeArg, "%d", from[1]);
 
                 {
                     CString cstr = path.getCString();
-                    if (execl(cstr, cstr, arg1, arg2, module, (char*)0) == -1)
+                    if (execl(
+                            cstr,
+                            cstr,
+#  if !defined(PEGASUS_DISABLE_PROV_USERCTXT) && !defined(PEGASUS_OS_ZOS)
+                            "1",    // Set user context in cimprovagt
+#  else
+                            "0",    // Do not set user context in cimprovagt
+#  endif
+                            toPipeArg,
+                            fromPipeArg,
+                            (const char*)userName.getCString(),
+                            module,
+                            (char*)0) == -1)
                     {
                         PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
                             "execl() failed.  errno = %d.", errno));
@@ -433,6 +413,16 @@ public:
         readPipe = new AnonymousPipe(readFdStr, 0);
         writePipe = new AnonymousPipe(0, writeFdStr);
 
+#  if defined(PEGASUS_HAS_SIGNALS)
+#   if !defined(PEGASUS_DISABLE_PROV_USERCTXT) && !defined(PEGASUS_OS_ZOS)
+        // The cimprovagt forks and returns right away.  Clean up the zombie
+        // process now instead of in reapProviderAgent().
+        int status = 0;
+        while ((status = waitpid(pid, 0, 0)) == -1 && errno == EINTR)
+            ;
+#   endif
+#  endif
+
         return 0;
 
 # endif /* POSIX CASE */
@@ -459,8 +449,12 @@ public:
         int status = 0;
 
 # if defined(PEGASUS_HAS_SIGNALS)
+#  if defined(PEGASUS_DISABLE_PROV_USERCTXT) || defined(PEGASUS_OS_ZOS)
+        // When provider user context is enabled, this is done in
+        // startProviderAgent().
         while ((status = waitpid(pid, 0, 0)) == -1 && errno == EINTR)
             ;
+#  endif
 # endif
 
         return status;

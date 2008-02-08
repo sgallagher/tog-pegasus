@@ -329,13 +329,7 @@ void Monitor::initializeTickler()
 
 void Monitor::tickle()
 {
-    static char _buffer[] =
-    {
-      '0','0'
-    };
-
-    AutoMutex autoMutex(_tickle_mutex);
-    Socket::write(_tickle_client_socket,&_buffer, 2);
+    Socket::write(_tickle_client_socket, "\0", 1);
 }
 
 void Monitor::setState( Uint32 index, _MonitorEntry::entry_status status )
@@ -577,7 +571,7 @@ void Monitor::run(Uint32 milliseconds)
                         entries[indx]._status = _MonitorEntry::BUSY;
                         static char buffer[2];
                         Sint32 amt =
-                            Socket::read(entries[indx].socket,&buffer, 2);
+                            Socket::read(entries[indx].socket, &buffer, 1);
 
                         if (amt == PEGASUS_SOCKET_ERROR &&
                             getSocketError() == PEGASUS_NETWORK_TCPIP_STOPPED)

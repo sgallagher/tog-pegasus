@@ -360,8 +360,7 @@ Monitor::~Monitor()
 
 void Monitor::tickle()
 {
-    AutoMutex autoMutex(_tickleMutex);
-    Socket::write(_tickler.getClientSocket(), "\0\0", 2);
+    Socket::write(_tickler.getClientSocket(), "\0", 1);
 }
 
 void Monitor::setState(
@@ -604,7 +603,7 @@ void Monitor::run(Uint32 milliseconds)
                         entries[indx]._status = _MonitorEntry::BUSY;
                         static char buffer[2];
                         Sint32 amt =
-                            Socket::read(entries[indx].socket,&buffer, 2);
+                            Socket::read(entries[indx].socket, &buffer, 1);
 
                         entries[indx]._status = _MonitorEntry::IDLE;
                     }

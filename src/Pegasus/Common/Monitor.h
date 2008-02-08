@@ -279,7 +279,6 @@ private:
     /** tracks how many times solicitSocketCount() has been called */
     Uint32 _solicitSocketCount;
     Tickler _tickler;
-    Mutex _tickleMutex;
     friend class HTTPConnection;
 };
 

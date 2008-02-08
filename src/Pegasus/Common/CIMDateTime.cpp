@@ -36,6 +36,7 @@
 #include <fstream>
 #include "CIMDateTime.h"
 #include "Exception.h"
+#include "AutoPtr.h"
 #include "PegasusAssert.h"
 #include <time.h>
 
@@ -822,7 +823,9 @@ CIMDateTime::CIMDateTime(const CIMDateTime& x)
 CIMDateTime::CIMDateTime(const String& str)
 {
     _rep = new CIMDateTimeRep;
+    AutoPtr<CIMDateTimeRep> autoRep(_rep);  // Prevent memory leak on exception
     set(str);
+    autoRep.release();
 }
 
 CIMDateTime::CIMDateTime(Uint64 usec, Boolean isInterval)
@@ -863,8 +866,10 @@ CIMDateTime::CIMDateTime(
     Sint32 utcOffset)
 {
     _rep = new CIMDateTimeRep;
+    AutoPtr<CIMDateTimeRep> autoRep(_rep);  // Prevent memory leak on exception
     setTimeStamp(year, month, day, hours, minutes, seconds, microseconds,
         numSignificantMicrosecondDigits, utcOffset);
+    autoRep.release();
 }
 
 CIMDateTime::CIMDateTime(
@@ -876,8 +881,10 @@ CIMDateTime::CIMDateTime(
     Uint32 numSignificantMicrosecondDigits)
 {
     _rep = new CIMDateTimeRep;
+    AutoPtr<CIMDateTimeRep> autoRep(_rep);  // Prevent memory leak on exception
     setInterval(days, hours, minutes, seconds, microseconds,
         numSignificantMicrosecondDigits);
+    autoRep.release();
 }
 
 CIMDateTime::CIMDateTime(CIMDateTimeRep* rep) : _rep(rep)

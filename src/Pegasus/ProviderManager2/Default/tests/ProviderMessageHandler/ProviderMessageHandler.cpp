@@ -352,7 +352,7 @@ void testGetPropertyError()
             "mid1", ns, objectPath, "theProperty", qids);
         request.operationContext = oc;
 
-        CIMResponseMessage* response = pmh.processMessage(&request);
+        AutoPtr<CIMResponseMessage> response(pmh.processMessage(&request));
         CIMException e = response->cimException;
 
         PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NO_SUCH_PROPERTY);

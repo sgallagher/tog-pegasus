@@ -40,6 +40,7 @@
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -166,14 +167,15 @@ int main(int argc, char** argv)
 
     try
     {
-        SSLContext *pCtx = 0;
+        AutoPtr<SSLContext> pCtx;
         if (certpath != String::EMPTY)
         {
-           pCtx = new SSLContext(String::EMPTY, certpath, keypath, 0, randFile);
+            pCtx.reset(
+                new SSLContext(String::EMPTY, certpath, keypath, 0, randFile));
         }
         else
         {
-           pCtx = new SSLContext(String::EMPTY, 0, randFile);
+            pCtx.reset(new SSLContext(String::EMPTY, 0, randFile));
         }
 
         PEGASUS_STD(cout)<< "TestCertClient::Connecting to 127.0.0.1:5989"

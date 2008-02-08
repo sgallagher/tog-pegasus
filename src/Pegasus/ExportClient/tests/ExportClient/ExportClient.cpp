@@ -199,8 +199,8 @@ static void testSSLConnect()
         PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
 
-    SSLContext* sslContext = 0;
-    sslContext = new SSLContext(trustStore, certPath, keyPath, 0, randPath);
+    AutoPtr<SSLContext> sslContext(
+        new SSLContext(trustStore, certPath, keyPath, 0, randPath));
 
     //
     //  Look up port number

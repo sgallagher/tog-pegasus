@@ -68,10 +68,13 @@ void testParseHTTPHeaders(
     PEGASUS_TEST_ASSERT(valid == expectedValid);
     PEGASUS_TEST_ASSERT(cimReconnect == expectedReconnect);
     PEGASUS_TEST_ASSERT(exceptionMessage->getType() == expectedType);
+    PEGASUS_TEST_ASSERT(exceptionMessage);
     CIMClientMalformedHTTPException* malformedHTTPException =
         dynamic_cast<CIMClientMalformedHTTPException*>(
             exceptionMessage->clientException);
     PEGASUS_TEST_ASSERT (malformedHTTPException);
+    delete exceptionMessage->clientException;
+    delete exceptionMessage;
 }
 
 void testValidateHTTPHeaders(
@@ -118,6 +121,9 @@ void testValidateHTTPHeaders(
                 exceptionMessage->clientException);
         PEGASUS_TEST_ASSERT (httpErrorException);
     }
+
+    delete exceptionMessage->clientException;
+    delete exceptionMessage;
 }
 
 void testDecodeExportResponse(
@@ -169,7 +175,11 @@ void testDecodeExportResponse(
                     responseMessage)->clientException);
             PEGASUS_TEST_ASSERT (responseException);
         }
+
+        delete ((ClientExceptionMessage*)responseMessage)->clientException;
     }
+
+    delete responseMessage;
 }
 
 

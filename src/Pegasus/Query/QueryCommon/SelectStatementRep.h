@@ -136,9 +136,14 @@ protected:
 
     SelectStatementRep(const SelectStatementRep& ssr);
 
-    SelectStatementRep(String& inQlang, String& inQuery, QueryContext& ctx);
+    SelectStatementRep(
+        const String& inQlang,
+        const String& inQuery,
+        const QueryContext& ctx);
 
-    SelectStatementRep(String& inQlang, String& inQuery);
+    SelectStatementRep(
+        const String& inQlang,
+        const String& inQuery);
 
     SelectStatementRep& operator=(const SelectStatementRep& rhs);
 

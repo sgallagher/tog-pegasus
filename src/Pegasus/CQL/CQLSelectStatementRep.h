@@ -49,12 +49,14 @@ class CQLSelectStatementRep : public SelectStatementRep
 
     CQLSelectStatementRep();
 
-    CQLSelectStatementRep(String& inQlang,
-                          String& inQuery,
-                          QueryContext& inCtx);
+    CQLSelectStatementRep(
+        const String& inQlang,
+        const String& inQuery,
+        const QueryContext& inCtx);
 
-    CQLSelectStatementRep(String& inQlang,
-                          String& inQuery);
+    CQLSelectStatementRep(
+        const String& inQlang,
+        const String& inQuery);
 
     CQLSelectStatementRep(const CQLSelectStatementRep& rep);
 

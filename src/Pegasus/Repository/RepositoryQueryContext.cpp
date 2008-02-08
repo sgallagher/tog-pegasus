@@ -137,7 +137,7 @@ QueryContext::ClassRelation RepositoryQueryContext::getClassRelation(
     return NOTRELATED;
 }
 
-QueryContext* RepositoryQueryContext::clone()
+QueryContext* RepositoryQueryContext::clone() const
 {
     return new RepositoryQueryContext(*this);
 }

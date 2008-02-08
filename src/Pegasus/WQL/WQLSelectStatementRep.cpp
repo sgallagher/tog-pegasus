@@ -132,7 +132,9 @@ static Boolean _Evaluate(
     return false;
 }
 
-WQLSelectStatementRep::WQLSelectStatementRep(String& queryLang, String& query)
+WQLSelectStatementRep::WQLSelectStatementRep(
+    const String& queryLang,
+    const String& query)
     :SelectStatementRep(queryLang,query)
 {
     _operations.reserveCapacity(16);
@@ -141,9 +143,11 @@ WQLSelectStatementRep::WQLSelectStatementRep(String& queryLang, String& query)
     _allProperties = false;
 }
 
-WQLSelectStatementRep::WQLSelectStatementRep(String& queryLang, String& query,
-        QueryContext& inCtx)
-        :SelectStatementRep(queryLang,query,inCtx)
+WQLSelectStatementRep::WQLSelectStatementRep(
+    const String& queryLang,
+    const String& query,
+    const QueryContext& inCtx)
+    : SelectStatementRep(queryLang, query, inCtx)
 {
     _operations.reserveCapacity(16);
     _operands.reserveCapacity(16);

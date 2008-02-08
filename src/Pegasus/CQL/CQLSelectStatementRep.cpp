@@ -85,9 +85,10 @@ CQLSelectStatementRep::CQLSelectStatementRep()
     PEG_METHOD_EXIT();
 }
 
-CQLSelectStatementRep::CQLSelectStatementRep(String& inQlang,
-                                             String& inQuery,
-                                             QueryContext& inCtx)
+CQLSelectStatementRep::CQLSelectStatementRep(
+    const String& inQlang,
+    const String& inQuery,
+    const QueryContext& inCtx)
     :SelectStatementRep(inQlang, inQuery, inCtx),
     _hasWhereClause(false),
     _contextApplied(false)
@@ -96,9 +97,9 @@ CQLSelectStatementRep::CQLSelectStatementRep(String& inQlang,
     PEG_METHOD_EXIT();
 }
 
-CQLSelectStatementRep::CQLSelectStatementRep(String& inQlang,
-                                             String& inQuery)
-
+CQLSelectStatementRep::CQLSelectStatementRep(
+    const String& inQlang,
+    const String& inQuery)
     :SelectStatementRep(inQlang, inQuery),
     _hasWhereClause(false),
     _contextApplied(false)

@@ -60,10 +60,6 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     /**
       Constructs a CQLSelectStatement default object.
 
-      @param  - None.
-      @return - None.
-      @throw  - None.
-
       <I><B>Experimental Interface</B></I><BR>
     */
     CQLSelectStatement();
@@ -74,33 +70,30 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
       @param  inQlang - String containing the language of the query.
       @param  inQuery - String containing the query.
       @param  inCtx - Context in which the select statement is running.
-      @return - None.
-      @throw  - None.
 
       <I><B>Experimental Interface</B></I><BR>
     */
-    CQLSelectStatement(String& inQlang,
-                       String& inQuery,
-                       QueryContext& inCtx);
+    CQLSelectStatement(
+        const String& inQlang,
+        const String& inQuery,
+        const QueryContext& inCtx);
 
     /**
       Constructs a CQLSelectStatement object.
 
       @param  inQlang - String containing the language of the query.
       @param  inQuery - String containing the query.
-      @return - None.
-      @throw  - None.
 
       <I><B>Experimental Interface</B></I><BR>
     */
-    CQLSelectStatement(String& inQLang, String& inQuery);
+    CQLSelectStatement(
+        const String& inQlang,
+        const String& inQuery);
 
     /**
       Copy constructs a CQLSelectStatement object.
 
       @param  statement - CQLSelectStatement to be copied.
-      @return - None.
-      @throw  - None.
 
       <I><B>Experimental Interface</B></I><BR>
     */
@@ -108,10 +101,6 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
     /**
       Destructs a CQLSelectStatement object.
-
-      @param  - None.
-      @return - None.
-      @throw  - None.
 
       <I><B>Experimental Interface</B></I><BR>
     */

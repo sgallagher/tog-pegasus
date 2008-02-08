@@ -59,7 +59,7 @@ public:
 
     ~RepositoryQueryContext();
 
-    QueryContext* clone();
+    QueryContext* clone() const;
 
     CIMClass getClass(const CIMName& inClassName) const;
 

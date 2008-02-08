@@ -56,7 +56,7 @@ public:
 
     ~CIMOMHandleQueryContext();
 
-    QueryContext* clone();
+    QueryContext* clone() const;
 
     CIMOMHandleQueryContext& operator=(const CIMOMHandleQueryContext& rhs);
 

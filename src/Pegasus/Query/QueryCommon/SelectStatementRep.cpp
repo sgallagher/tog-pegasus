@@ -53,9 +53,9 @@ SelectStatementRep::SelectStatementRep(const SelectStatementRep& ssr)
 }
 
 SelectStatementRep::SelectStatementRep(
-    String& inQlang,
-    String& inQuery,
-    QueryContext& inCtx)
+    const String& inQlang,
+    const String& inQuery,
+    const QueryContext& inCtx)
     : _qlang(inQlang),
       _query(inQuery)
 {
@@ -63,8 +63,8 @@ SelectStatementRep::SelectStatementRep(
 }
 
 SelectStatementRep::SelectStatementRep(
-    String& inQlang,
-    String& inQuery)
+    const String& inQlang,
+    const String& inQuery)
     : _qlang(inQlang),
       _query(inQuery),
       _ctx(NULL)

@@ -47,8 +47,10 @@ CQLSelectStatement::CQLSelectStatement()
     SelectStatement::_rep = _rep;
 }
 
-CQLSelectStatement::CQLSelectStatement(String& inQlang, String& inQuery,
-    QueryContext& inCtx)
+CQLSelectStatement::CQLSelectStatement(
+    const String& inQlang,
+    const String& inQuery,
+    const QueryContext& inCtx)
     :SelectStatement()
 {
     _rep = new CQLSelectStatementRep(inQlang,inQuery,inCtx);
@@ -57,7 +59,9 @@ CQLSelectStatement::CQLSelectStatement(String& inQlang, String& inQuery,
     SelectStatement::_rep = _rep;
 }
 
-CQLSelectStatement::CQLSelectStatement(String& inQlang, String& inQuery)
+CQLSelectStatement::CQLSelectStatement(
+    const String& inQlang,
+    const String& inQuery)
     :SelectStatement()
 {
     _rep = new CQLSelectStatementRep(inQlang,inQuery);

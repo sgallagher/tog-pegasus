@@ -41,18 +41,21 @@ PEGASUS_NAMESPACE_BEGIN
 
 const WQLSelectStatement WQLSelectStatement::EMPTY=WQLSelectStatement();
 
-WQLSelectStatement::WQLSelectStatement(String& queryLang, String& query)
-   :SelectStatement()
+WQLSelectStatement::WQLSelectStatement(
+    const String& queryLang,
+    const String& query)
+    : SelectStatement()
 {
     _rep = new WQLSelectStatementRep(queryLang,query);
     // Set the _rep into the base class also
     SelectStatement::_rep = _rep;
 }
 
-WQLSelectStatement::WQLSelectStatement(String& queryLang,
-                                       String& query,
-                                       QueryContext& inCtx)
-   :SelectStatement()
+WQLSelectStatement::WQLSelectStatement(
+    const String& queryLang,
+    const String& query,
+    const QueryContext& inCtx)
+    : SelectStatement()
 {
     _rep = new WQLSelectStatementRep(queryLang,query,inCtx);
     // Set the _rep into the base class also

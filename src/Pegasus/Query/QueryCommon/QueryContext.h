@@ -66,7 +66,7 @@ public:
 
     virtual ~QueryContext();
 
-    virtual QueryContext* clone() = 0;
+    virtual QueryContext* clone() const = 0;
 
     String getHost(Boolean fullyQualified = true);
 

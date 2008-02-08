@@ -53,11 +53,14 @@ class WQLSelectStatementRep: public SelectStatementRep
 {
 public:
 
+    WQLSelectStatementRep(
+        const String& queryLang,
+        const String& query);
 
-    WQLSelectStatementRep(String& queryLang, String& query);
-
-     WQLSelectStatementRep(String& queryLang, String& query,
-                           QueryContext& inCtx);
+    WQLSelectStatementRep(
+        const String& queryLang,
+        const String& query,
+        const QueryContext& inCtx);
 
     /** Default constructor.
     */

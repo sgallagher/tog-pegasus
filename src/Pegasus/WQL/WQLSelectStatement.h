@@ -77,10 +77,14 @@ class PEGASUS_WQL_LINKAGE WQLSelectStatement: public SelectStatement
 {
 public:
 
+    WQLSelectStatement(
+        const String& queryLang,
+        const String& query);
 
-    WQLSelectStatement(String& queryLang, String& query);
-
-    WQLSelectStatement(String& queryLang, String& query, QueryContext& inCtx);
+    WQLSelectStatement(
+        const String& queryLang,
+        const String& query,
+        const QueryContext& inCtx);
 
     /** Default constructor.
     */

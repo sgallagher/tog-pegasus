@@ -144,7 +144,7 @@ QueryContext::ClassRelation CIMOMHandleQueryContext::getClassRelation(
     return NOTRELATED;
 }
 
-QueryContext* CIMOMHandleQueryContext::clone()
+QueryContext* CIMOMHandleQueryContext::clone() const
 {
     return new CIMOMHandleQueryContext(*this);
 }

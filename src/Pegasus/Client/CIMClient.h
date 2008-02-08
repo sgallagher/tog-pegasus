@@ -1156,7 +1156,9 @@ public:
     mandating that each returned Object MUST be associated to the source Object
     via an Association in which the source Object plays the specified role (i.e.
     the name of the CIMProperty in the Association Class that refers to the
-    source object MUST match the value of this parameter).
+    source object MUST match the value of this parameter).  An empty String
+    value for this parameter is interpreted as a NULL value, which indicates
+    no such filtering is requested.
 
     @param resultRole The <TT>resultRole</TT> input parameter, if not NULL, MUST
     be a valid CIMProperty name. It acts as a filter on the returned set of
@@ -1164,6 +1166,8 @@ public:
     source Object via an Association in which the returned Object plays the
     specified role (i.e. the name of the CIMProperty in the Association Class
     that refers to the returned Object MUST match the value of this parameter).
+    An empty String value for this parameter is interpreted as a NULL value,
+    which indicates no such filtering is requested.
 
     @param includeQualifiers If the <TT>includeQualifiers</TT> input parameter
     is true, this specifies that all Qualifiers for each Object (including
@@ -1262,7 +1266,8 @@ public:
     associated to the source Object via an Association in which the source
     Object plays the specified role (i.e. the name of the CIMProperty in the
     Association Class that refers to the source Object MUST match the value of
-    this parameter).
+    this parameter).  An empty String value for this parameter is interpreted
+    as a NULL value, which indicates no such filtering is requested.
 
     @param resultRole The <TT>resultRole</TT> input parameter, if not
     <TT>NULL</TT>, MUST be a valid CIMProperty name. It acts as a filter on the
@@ -1270,7 +1275,9 @@ public:
     Object that MUST be associated to the source Object via an Association in
     which the named returned Object plays the specified role (i.e. the name of
     the CIMProperty in the Association Class that refers to the returned Object
-    MUST match the value of this parameter).
+    MUST match the value of this parameter).  An empty String value for this
+    parameter is interpreted as a NULL value, which indicates no such filtering
+    is requested.
 
     @return If successful, the method returns zero or more full CIM Class paths
     or Instance paths of Objects meeting the requested criteria. Since it is
@@ -1323,7 +1330,9 @@ public:
     @param role The <TT>role</TT> input parameter, if not NULL, MUST be a valid
     CIMProperty name. It acts as a filter on the returned set of Objects by
     mandating that each returned Objects MUST refer to the target Object via a
-    CIMProperty whose name matches the value of this parameter.
+    CIMProperty whose name matches the value of this parameter.  An empty
+    String value for this parameter is interpreted as a NULL value, which
+    indicates no such filtering is requested.
 
     @param includeQualifiers.  If the <TT>includeQualifiers</TT> input parameter
     is true, this specifies that all Qualifiers for each Object (including
@@ -1413,9 +1422,10 @@ public:
     CIMProperty name. It acts as a filter on the returned set of Object Names by
     mandating that each returned Object CIMName MUST identify an Object that
     refers to the target Instance via a CIMProperty whose name matches the value
-    of this parameter.
+    of this parameter.  An empty String value for this parameter is interpreted
+    as a NULL value, which indicates no such filtering is requested.
 
-    @return If successful,the method returns the names of zero or more full CIM
+    @return If successful, the method returns the names of zero or more full CIM
     Class paths or Instance paths of Objects meeting the requested criteria.
     Since it is possible for CIM Objects from different hosts or namespaces to
     be associated, each returned path is an absolute path that includes host and

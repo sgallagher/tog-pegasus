@@ -100,14 +100,18 @@ public:
         source Object via an Association in which the source Object plays
         the specified role (i.e.  the name of the Property in the
         Association Class that refers to the source Object MUST match the
-        value of this parameter).
+        value of this parameter).  An empty String value for this parameter
+        is interpreted as a NULL value, which indicates no such filtering
+        is requested.
 
         @param resultRole If not NULL, this parameter MUST be a valid Property
         name.  It acts as a filter on the returned set of Objects by mandating
         that each returned Object MUST be associated to the source Object via an
         Association in which the returned Object plays the specified role (i.e.
         the name of the Property in the Association Class that refers to the
-        returned Object MUST match the value of this parameter).
+        returned Object MUST match the value of this parameter).  An empty
+        String value for this parameter is interpreted as a NULL value, which
+        indicates no such filtering is requested.
 
         @param includeQualifiers If true, this specifies that all Qualifiers
         for each Object (including Qualifiers on the Object and on any returned
@@ -177,14 +181,18 @@ public:
         source Object via an Association in which the source Object plays
         the specified role (i.e.  the name of the Property in the
         Association Class that refers to the source Object MUST match the
-        value of this parameter).
+        value of this parameter).  An empty String value for this
+        parameter is interpreted as a NULL value, which indicates no such
+        filtering is requested.
 
         @param resultRole If not NULL, this parameter MUST be a valid Property
         name.  It acts as a filter on the returned set of Objects by mandating
         that each returned Object MUST be associated to the source Object via an
         Association in which the returned Object plays the specified role (i.e.
         the name of the Property in the Association Class that refers to the
-        returned Object MUST match the value of this parameter).
+        returned Object MUST match the value of this parameter).  An empty
+        String value for this parameter is interpreted as a NULL value, which
+        indicates no such filtering is requested.
 
         @param handler Asynchronously processes the results of this operation.
 
@@ -227,14 +235,9 @@ public:
         to the source Object via an Association in which the source Object
         plays the specified role (i.e. the name of the Property in the
         Association Class that refers to the source Object MUST match the
-        value of this parameter.
-
-        @param resultRole If not NULL, MUST be a valid Property name. It
-        acts as a filter on the returned set of Objects by mandating that
-        each returned Object MUST be associated to the source Object via
-        an Association in which the returned Object plays the specified
-        role (i.e. the name of the Property in the Association Class that
-        refers to the returned Object MUST match the value of this parameter).
+        value of this parameter.  An empty String value for this parameter
+        is interpreted as a NULL value, which indicates no such filtering
+        is requested.
 
         @param includeQualifiers If true, this specifies that all Qualifiers
         for each Object (including Qualifiers on the Object and on any
@@ -299,7 +302,9 @@ public:
         to the source Object via an Association in which the source Object
         plays the specified role (i.e. the name of the Property in the
         Association Class that refers to the source Object MUST match the
-        value of this parameter.
+        value of this parameter.  An empty String value for this parameter
+        is interpreted as a NULL value, which indicates no such filtering
+        is requested.
 
         @param handler Asynchronously processes the results of this operation.
 

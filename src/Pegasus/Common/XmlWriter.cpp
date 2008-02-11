@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -51,14 +53,677 @@
 #include "CIMQualifierDeclRep.h"
 #include "CIMValue.h"
 #include "XmlWriter.h"
+#include "XmlParser.h"
 #include "Tracer.h"
 #include <Pegasus/Common/StatisticalData.h>
 #include "CommonUTF.h"
 #include "Buffer.h"
 #include "StrLit.h"
+#include "LanguageParser.h"
 #include "IDFactory.h"
-#include "StringConversion.h"
+
 PEGASUS_NAMESPACE_BEGIN
+
+// This is a shortcut macro for outputing content length. This
+// pads the output number to the max characters representing a Uint32 number
+// so that it can be overwritten easily with a transfer encoding line later
+// on in HTTPConnection if required. This is strictly for performance since
+// messages can be very large. This overwriting shortcut allows us to NOT have
+// to repackage a large message later.
+
+#define OUTPUT_CONTENTLENGTH                                               \
+{                                                                          \
+    char contentLengthP[11];                                               \
+    int n = sprintf(contentLengthP,"%.10u", contentLength);                \
+    out << STRLIT("content-length: ");                                     \
+    out.append(contentLengthP, n);                                         \
+    out << STRLIT("\r\n");                                                 \
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// SpecialChar and table.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+// Note: we cannot use StrLit here since it has a constructur (forbits
+// structure initialization).
+
+struct SpecialChar
+{
+    const char* str;
+    size_t size;
+};
+
+// Defines encodings of special characters. Just use a 7-bit ASCII character
+// as an index into this array to retrieve its string encoding and encoding
+// length in bytes.
+static const SpecialChar _specialChars[] =
+{
+    {STRLIT_ARGS("&#0;")},
+    {STRLIT_ARGS("&#1;")},
+    {STRLIT_ARGS("&#2;")},
+    {STRLIT_ARGS("&#3;")},
+    {STRLIT_ARGS("&#4;")},
+    {STRLIT_ARGS("&#5;")},
+    {STRLIT_ARGS("&#6;")},
+    {STRLIT_ARGS("&#7;")},
+    {STRLIT_ARGS("&#8;")},
+    {STRLIT_ARGS("&#9;")},
+    {STRLIT_ARGS("&#10;")},
+    {STRLIT_ARGS("&#11;")},
+    {STRLIT_ARGS("&#12;")},
+    {STRLIT_ARGS("&#13;")},
+    {STRLIT_ARGS("&#14;")},
+    {STRLIT_ARGS("&#15;")},
+    {STRLIT_ARGS("&#16;")},
+    {STRLIT_ARGS("&#17;")},
+    {STRLIT_ARGS("&#18;")},
+    {STRLIT_ARGS("&#19;")},
+    {STRLIT_ARGS("&#20;")},
+    {STRLIT_ARGS("&#21;")},
+    {STRLIT_ARGS("&#22;")},
+    {STRLIT_ARGS("&#23;")},
+    {STRLIT_ARGS("&#24;")},
+    {STRLIT_ARGS("&#25;")},
+    {STRLIT_ARGS("&#26;")},
+    {STRLIT_ARGS("&#27;")},
+    {STRLIT_ARGS("&#28;")},
+    {STRLIT_ARGS("&#29;")},
+    {STRLIT_ARGS("&#30;")},
+    {STRLIT_ARGS("&#31;")},
+    {STRLIT_ARGS(" ")},
+    {STRLIT_ARGS("!")},
+    {STRLIT_ARGS("&quot;")},
+    {STRLIT_ARGS("#")},
+    {STRLIT_ARGS("$")},
+    {STRLIT_ARGS("%")},
+    {STRLIT_ARGS("&amp;")},
+    {STRLIT_ARGS("&apos;")},
+    {STRLIT_ARGS("(")},
+    {STRLIT_ARGS(")")},
+    {STRLIT_ARGS("*")},
+    {STRLIT_ARGS("+")},
+    {STRLIT_ARGS(",")},
+    {STRLIT_ARGS("-")},
+    {STRLIT_ARGS(".")},
+    {STRLIT_ARGS("/")},
+    {STRLIT_ARGS("0")},
+    {STRLIT_ARGS("1")},
+    {STRLIT_ARGS("2")},
+    {STRLIT_ARGS("3")},
+    {STRLIT_ARGS("4")},
+    {STRLIT_ARGS("5")},
+    {STRLIT_ARGS("6")},
+    {STRLIT_ARGS("7")},
+    {STRLIT_ARGS("8")},
+    {STRLIT_ARGS("9")},
+    {STRLIT_ARGS(":")},
+    {STRLIT_ARGS(";")},
+    {STRLIT_ARGS("&lt;")},
+    {STRLIT_ARGS("=")},
+    {STRLIT_ARGS("&gt;")},
+    {STRLIT_ARGS("?")},
+    {STRLIT_ARGS("@")},
+    {STRLIT_ARGS("A")},
+    {STRLIT_ARGS("B")},
+    {STRLIT_ARGS("C")},
+    {STRLIT_ARGS("D")},
+    {STRLIT_ARGS("E")},
+    {STRLIT_ARGS("F")},
+    {STRLIT_ARGS("G")},
+    {STRLIT_ARGS("H")},
+    {STRLIT_ARGS("I")},
+    {STRLIT_ARGS("J")},
+    {STRLIT_ARGS("K")},
+    {STRLIT_ARGS("L")},
+    {STRLIT_ARGS("M")},
+    {STRLIT_ARGS("N")},
+    {STRLIT_ARGS("O")},
+    {STRLIT_ARGS("P")},
+    {STRLIT_ARGS("Q")},
+    {STRLIT_ARGS("R")},
+    {STRLIT_ARGS("S")},
+    {STRLIT_ARGS("T")},
+    {STRLIT_ARGS("U")},
+    {STRLIT_ARGS("V")},
+    {STRLIT_ARGS("W")},
+    {STRLIT_ARGS("X")},
+    {STRLIT_ARGS("Y")},
+    {STRLIT_ARGS("Z")},
+    {STRLIT_ARGS("[")},
+    {STRLIT_ARGS("\\")},
+    {STRLIT_ARGS("]")},
+    {STRLIT_ARGS("^")},
+    {STRLIT_ARGS("_")},
+    {STRLIT_ARGS("`")},
+    {STRLIT_ARGS("a")},
+    {STRLIT_ARGS("b")},
+    {STRLIT_ARGS("c")},
+    {STRLIT_ARGS("d")},
+    {STRLIT_ARGS("e")},
+    {STRLIT_ARGS("f")},
+    {STRLIT_ARGS("g")},
+    {STRLIT_ARGS("h")},
+    {STRLIT_ARGS("i")},
+    {STRLIT_ARGS("j")},
+    {STRLIT_ARGS("k")},
+    {STRLIT_ARGS("l")},
+    {STRLIT_ARGS("m")},
+    {STRLIT_ARGS("n")},
+    {STRLIT_ARGS("o")},
+    {STRLIT_ARGS("p")},
+    {STRLIT_ARGS("q")},
+    {STRLIT_ARGS("r")},
+    {STRLIT_ARGS("s")},
+    {STRLIT_ARGS("t")},
+    {STRLIT_ARGS("u")},
+    {STRLIT_ARGS("v")},
+    {STRLIT_ARGS("w")},
+    {STRLIT_ARGS("x")},
+    {STRLIT_ARGS("y")},
+    {STRLIT_ARGS("z")},
+    {STRLIT_ARGS("{")},
+    {STRLIT_ARGS("|")},
+    {STRLIT_ARGS("}")},
+    {STRLIT_ARGS("~")},
+    {STRLIT_ARGS("&#127;")},
+};
+
+// If _isSpecialChar7[ch] is true, then ch is a special character, which must
+// have a special encoding in XML. But only use 7-bit ASCII characters to
+// index this array.
+static const int _isSpecialChar7[] =
+{
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,0,0,
+    0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+Buffer& operator<<(Buffer& out, const Char16& x)
+{
+    XmlWriter::append(out, x);
+    return out;
+}
+
+Buffer& operator<<(Buffer& out, const String& x)
+{
+    XmlWriter::append(out, x);
+    return out;
+}
+
+Buffer& operator<<(Buffer& out, const Indentor& x)
+{
+    XmlWriter::append(out, x);
+    return out;
+}
+
+Buffer& operator<<(Buffer& out, const Buffer& x)
+{
+    out.append(x.getData(), x.size());
+    return out;
+}
+
+Buffer& operator<<(Buffer& out, Uint32 x)
+{
+    XmlWriter::append(out, x);
+    return out;
+}
+
+Buffer& operator<<(Buffer& out, const CIMName& name)
+{
+    XmlWriter::append(out, name.getString ());
+    return out;
+}
+
+
+Buffer& operator<<(Buffer& out, const AcceptLanguageList& al)
+{
+    XmlWriter::append(out, LanguageParser::buildAcceptLanguageHeader(al));
+    return out;
+}
+
+Buffer& operator<<(Buffer& out, const ContentLanguageList& cl)
+{
+    XmlWriter::append(out, LanguageParser::buildContentLanguageHeader(cl));
+    return out;
+}
+
+
+PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const CIMDateTime& x)
+{
+    return os << x.toString();
+}
+
+PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const CIMName& name)
+{
+    os << name.getString();
+    return os;
+}
+
+PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os,
+    const CIMNamespaceName& name)
+{
+    os << name.getString();
+    return os;
+}
+
+static void _xmlWritter_appendChar(Buffer& out, const Char16& c)
+{
+    // We need to convert the Char16 to UTF8 then append the UTF8
+    // character into the array.
+    // NOTE: The UTF8 character could be several bytes long.
+    // WARNING: This function will put in replacement character for
+    // all characters that have surogate pairs.
+    char str[6];
+    memset(str,0x00,sizeof(str));
+    Uint8* charIN = (Uint8 *)&c;
+
+    const Uint16 *strsrc = (Uint16 *)charIN;
+    Uint16 *endsrc = (Uint16 *)&charIN[1];
+
+    Uint8 *strtgt = (Uint8 *)str;
+    Uint8 *endtgt = (Uint8 *)&str[5];
+
+    UTF16toUTF8(
+        &strsrc,
+        endsrc,
+        &strtgt,
+        endtgt);
+
+    out.append(str, UTF_8_COUNT_TRAIL_BYTES(str[0]) + 1);
+}
+
+inline void _appendSpecialChar7(Buffer& out, char c)
+{
+    if (_isSpecialChar7[int(c)])
+        out.append(_specialChars[int(c)].str, _specialChars[int(c)].size);
+    else
+        out.append(c);
+}
+
+inline void _xmlWritter_appendSpecialChar(Buffer& out, const Char16& c)
+{
+    if (c < 128)
+        _appendSpecialChar7(out, char(c));
+    else
+        _xmlWritter_appendChar(out, c);
+}
+
+static void _xmlWritter_appendSpecialChar(PEGASUS_STD(ostream)& os, char c)
+{
+    if ( ((c < 0x20) && (c >= 0)) || (c == 0x7f) )
+    {
+        char charref[7];
+        sprintf(charref, "&#%u;", static_cast<Uint8>(c));
+        os << charref;
+    }
+    else
+    {
+        switch (c)
+        {
+            case '&':
+                os << "&amp;";
+                break;
+
+            case '<':
+                os << "&lt;";
+                break;
+
+            case '>':
+                os << "&gt;";
+                break;
+
+            case '"':
+                os << "&quot;";
+                break;
+
+            case '\'':
+                os << "&apos;";
+                break;
+
+            default:
+                os << c;
+        }
+    }
+}
+
+void _xmlWritter_appendSurrogatePair(Buffer& out, Uint16 high, Uint16 low)
+{
+    char str[6];
+    Uint8 charIN[5];
+    memset(str,0x00,sizeof(str));
+    memcpy(&charIN,&high,2);
+    memcpy(&charIN[2],&low,2);
+    const Uint16 *strsrc = (Uint16 *)charIN;
+    Uint16 *endsrc = (Uint16 *)&charIN[3];
+
+    Uint8 *strtgt = (Uint8 *)str;
+    Uint8 *endtgt = (Uint8 *)&str[5];
+
+    UTF16toUTF8(
+        &strsrc,
+        endsrc,
+        &strtgt,
+        endtgt);
+
+    Uint32 number1 = UTF_8_COUNT_TRAIL_BYTES(str[0]) + 1;
+    out.append(str,number1);
+}
+
+inline void _xmlWritter_appendSpecial(PEGASUS_STD(ostream)& os, const char* str)
+{
+    while (*str)
+        _xmlWritter_appendSpecialChar(os, *str++);
+}
+
+void XmlWriter::append(Buffer& out, const Char16& x)
+{
+    _xmlWritter_appendChar(out, x);
+}
+
+void XmlWriter::append(Buffer& out, Boolean x)
+{
+    append(out, (x ? "TRUE" : "FALSE"));
+}
+
+void XmlWriter::append(Buffer& out, Uint32 x)
+{
+    char buffer[32];
+    sprintf(buffer, "%u", x);
+    append(out, buffer);
+}
+
+void XmlWriter::append(Buffer& out, Sint32 x)
+{
+    char buffer[32];
+    sprintf(buffer, "%d", x);
+    append(out, buffer);
+}
+
+void XmlWriter::append(Buffer& out, Uint64 x)
+{
+    char buffer[32];  // Should need 21 chars max
+    sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", x);
+    append(out, buffer);
+}
+
+void XmlWriter::append(Buffer& out, Sint64 x)
+{
+    char buffer[32];  // Should need 21 chars max
+    sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", x);
+    append(out, buffer);
+}
+
+void XmlWriter::append(Buffer& out, Real32 x)
+{
+    char buffer[128];
+    // %.7e gives '[-]m.ddddddde+/-xx', which seems compatible with the format
+    // given in the CIM/XML spec, and the precision required by the CIM 2.2 spec
+    // (4 byte IEEE floating point)
+    sprintf(buffer, "%.7e", x);
+    append(out, buffer);
+}
+
+void XmlWriter::append(Buffer& out, Real64 x)
+{
+    char buffer[128];
+    // %.16e gives '[-]m.dddddddddddddddde+/-xx', which seems compatible
+    // with the format given in the CIM/XML spec, and the precision required
+    // by the CIM 2.2 spec (8 byte IEEE floating point)
+    sprintf(buffer, "%.16e", x);
+    append(out, buffer);
+}
+
+void XmlWriter::append(Buffer& out, const char* str)
+{
+    size_t n = strlen(str);
+    out.append(str, n);
+}
+
+void XmlWriter::append(Buffer& out, const String& str)
+{
+    const Uint16* p = (const Uint16*)str.getChar16Data();
+    size_t n = str.size();
+
+    // Handle leading ASCII 7 characers in these next two loops (use unrolling).
+
+    while (n >= 8 && ((p[0]|p[1]|p[2]|p[3]|p[4]|p[5]|p[6]|p[7]) & 0xFF80) == 0)
+    {
+        out.append(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
+        p += 8;
+        n -= 8;
+    }
+
+    while (n >= 4 && ((p[0]|p[1]|p[2]|p[3]) & 0xFF80) == 0)
+    {
+        out.append(p[0], p[1], p[2], p[3]);
+        p += 4;
+        n -= 4;
+    }
+
+    while (n--)
+    {
+        Uint16 c = *p++;
+
+        // Special processing for UTF8 case:
+
+        if (c < 128)
+        {
+            out.append(c);
+            continue;
+        }
+
+        // Handle UTF8 case (if reached).
+
+        if (((c >= FIRST_HIGH_SURROGATE) && (c <= LAST_HIGH_SURROGATE)) ||
+            ((c >= FIRST_LOW_SURROGATE) && (c <= LAST_LOW_SURROGATE)))
+        {
+            Char16 highSurrogate = p[-1];
+            Char16 lowSurrogate = p[0];
+            p++;
+            n--;
+
+            _xmlWritter_appendSurrogatePair(
+                out, Uint16(highSurrogate),Uint16(lowSurrogate));
+        }
+        else
+        {
+            _xmlWritter_appendChar(out, c);
+        }
+    }
+}
+
+void XmlWriter::append(Buffer& out, const Indentor& x)
+{
+    for (Uint32 i = 0; i < 4 * x.getLevel(); i++)
+        out.append(' ');
+}
+
+void XmlWriter::appendSpecial(Buffer& out, const Char16& x)
+{
+    _xmlWritter_appendSpecialChar(out, x);
+}
+
+void XmlWriter::appendSpecial(Buffer& out, char x)
+{
+    _appendSpecialChar7(out, x);
+}
+
+void XmlWriter::appendSpecial(Buffer& out, const char* str)
+{
+    while (*str)
+        _appendSpecialChar7(out, *str++);
+}
+
+void XmlWriter::appendSpecial(Buffer& out, const String& str)
+{
+    const Uint16* p = (const Uint16*)str.getChar16Data();
+    // prevCharIsSpace is true when the last character written to the Buffer
+    // is a space character (not a character reference).
+    Boolean prevCharIsSpace = false;
+
+    // If the first character is a space, use a character reference to avoid
+    // space compression.
+    if (*p == ' ')
+    {
+        out.append(STRLIT_ARGS("&#32;"));
+        p++;
+    }
+
+    Uint16 c;
+    while ((c = *p++) != 0)
+    {
+        if (c < 128)
+        {
+            if (_isSpecialChar7[c])
+            {
+                // Write the character reference for the special character
+                out.append(
+                    _specialChars[int(c)].str, _specialChars[int(c)].size);
+                prevCharIsSpace = false;
+            }
+            else if (prevCharIsSpace && (c == ' '))
+            {
+                // Write the character reference for the space character, to
+                // avoid compression
+                out.append(STRLIT_ARGS("&#32;"));
+                prevCharIsSpace = false;
+            }
+            else
+            {
+                out.append(c);
+                prevCharIsSpace = (c == ' ');
+            }
+        }
+        else
+        {
+            // Handle UTF8 case
+
+            if ((((c >= FIRST_HIGH_SURROGATE) && (c <= LAST_HIGH_SURROGATE)) ||
+                 ((c >= FIRST_LOW_SURROGATE) && (c <= LAST_LOW_SURROGATE))) &&
+                *p)
+            {
+                _xmlWritter_appendSurrogatePair(out, c, *p++);
+            }
+            else
+            {
+                _xmlWritter_appendChar(out, c);
+            }
+
+            prevCharIsSpace = false;
+        }
+    }
+
+    // If the last character is a space, use a character reference to avoid
+    // space compression.
+    if (prevCharIsSpace)
+    {
+        out.remove(out.size() - 1);
+        out.append(STRLIT_ARGS("&#32;"));
+    }
+}
+
+// See http://www.ietf.org/rfc/rfc2396.txt section 2
+// Reserved characters = ';' '/' '?' ':' '@' '&' '=' '+' '$' ','
+// Excluded characters:
+//   Control characters = 0x00-0x1f, 0x7f
+//   Space character = 0x20
+//   Delimiters = '<' '>' '#' '%' '"'
+//   Unwise = '{' '}' '|' '\\' '^' '[' ']' '`'
+//
+
+static const char _is_uri[128] =
+{
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,
+    1,1,0,0,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,
+};
+
+// Perform the necessary URI encoding of characters in HTTP header values.
+// This is required by the HTTP/1.1 specification and the CIM/HTTP
+// Specification (section 3.3.2).
+static void _xmlWritter_encodeURIChar(String& outString, Sint8 char8)
+{
+    Uint8 c = (Uint8)char8;
+
+#ifndef PEGASUS_DO_NOT_IMPLEMENT_URI_ENCODING
+    if (c > 127 || _is_uri[int(c)])
+    {
+        char hexencoding[4];
+        int n = sprintf(hexencoding, "%%%X%X", c/16, c%16);
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
+        outString.append(hexencoding, n);
+#else /* PEGASUS_USE_STRING_EXTENSIONS */
+        outString.append(hexencoding);
+#endif /* PEGASUS_USE_STRING_EXTENSIONS */
+    }
+    else
+#endif
+    {
+        outString.append((Uint16)c);
+    }
+}
+
+String XmlWriter::encodeURICharacters(const Buffer& uriString)
+{
+    String encodedString;
+
+    for (Uint32 i=0; i<uriString.size(); i++)
+    {
+        _xmlWritter_encodeURIChar(encodedString, uriString[i]);
+    }
+
+    return encodedString;
+}
+
+String XmlWriter::encodeURICharacters(const String& uriString)
+{
+    String encodedString;
+
+/* i18n remove - did not handle surrogate pairs
+    for (Uint32 i=0; i<uriString.size(); i++)
+    {
+        _xmlWritter_encodeURIChar(encodedString, uriString[i]);
+    }
+*/
+
+    // See the "CIM Operations over HTTP" spec, section 3.3.2 and
+    // 3.3.3, for the treatment of non US-ASCII (UTF-8) chars
+
+    // First, convert to UTF-8 (include handling of surrogate pairs)
+    Buffer utf8;
+    for (Uint32 i = 0; i < uriString.size(); i++)
+    {
+        Uint16 c = uriString[i];
+
+        if (((c >= FIRST_HIGH_SURROGATE) && (c <= LAST_HIGH_SURROGATE)) ||
+            ((c >= FIRST_LOW_SURROGATE) && (c <= LAST_LOW_SURROGATE)))
+        {
+            Char16 highSurrogate = uriString[i];
+            Char16 lowSurrogate = uriString[++i];
+
+            _xmlWritter_appendSurrogatePair(
+                utf8, Uint16(highSurrogate),Uint16(lowSurrogate));
+        }
+        else
+        {
+            _xmlWritter_appendChar(utf8, uriString[i]);
+        }
+    }
+
+    // Second, escape the non HTTP-safe chars
+    for (Uint32 i=0; i<utf8.size(); i++)
+    {
+        _xmlWritter_encodeURIChar(encodedString, utf8[i]);
+    }
+
+    return encodedString;
+}
 
 //------------------------------------------------------------------------------
 //
@@ -104,8 +769,8 @@ void XmlWriter::appendNameSpacePathElement(
     const String& host,
     const CIMNamespaceName& nameSpace)
 {
-    out << STRLIT("<NAMESPACEPATH>\n"
-                  "<HOST>") << host << STRLIT("</HOST>\n");
+    out << STRLIT("<NAMESPACEPATH>\n");
+    out << STRLIT("<HOST>") << host << STRLIT("</HOST>\n");
     appendLocalNameSpacePathElement(out, nameSpace);
     out << STRLIT("</NAMESPACEPATH>\n");
 }
@@ -153,8 +818,7 @@ void XmlWriter::appendInstanceNameElement(
         if (keyBindings[i].getType() == CIMKeyBinding::REFERENCE)
         {
             CIMObjectPath ref = keyBindings[i].getValue();
-            // create an instancePath (i.e. isClassPath = false)
-            appendValueReferenceElement(out, ref, false, true);
+            appendValueReferenceElement(out, ref, true);
         }
         else
         {
@@ -162,7 +826,7 @@ void XmlWriter::appendInstanceNameElement(
             out << keyBindingTypeToString(keyBindings[i].getType());
             out << STRLIT("\">");
 
-            // fixed the special characters
+            // fixed the special character problem - Markus
 
             appendSpecial(out, keyBindings[i].getValue());
             out << STRLIT("</KEYVALUE>\n");
@@ -257,8 +921,6 @@ void XmlWriter::appendLocalInstancePathElement(
 //
 //------------------------------------------------------------------------------
 
-// appendValueReferenceElement does this correctly with isClassPath flag
-// Called only but formatSimple
 void XmlWriter::appendLocalObjectPathElement(
     Buffer& out,
     const CIMObjectPath& objectPath)
@@ -268,7 +930,6 @@ void XmlWriter::appendLocalObjectPathElement(
     //  distinguish instanceNames from classNames in every case
     //  The instanceName of a singleton instance of a keyless class has no
     //  key bindings
-    //  See bBUG_3302.
     //
     if (objectPath.getKeyBindings ().size () != 0)
     {
@@ -360,8 +1021,7 @@ inline void _xmlWritter_appendValue(Buffer& out, const CIMDateTime& x)
 
 inline void _xmlWritter_appendValue(Buffer& out, const CIMObjectPath& x)
 {
-    // Emit Instance Path with value wrapper
-    XmlWriter::appendValueReferenceElement(out, x, false, true);
+    XmlWriter::appendValueReferenceElement(out, x, true);
 }
 
 inline void _xmlWritter_appendValue(Buffer& out, const CIMObject& x)
@@ -549,6 +1209,7 @@ void XmlWriter::appendValueElement(
                 _xmlWritter_appendValueArray(out, a.getData(), a.size());
                 break;
             }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CIMTYPE_INSTANCE:
             {
                 Array<CIMInstance> a;
@@ -556,8 +1217,9 @@ void XmlWriter::appendValueElement(
                 _xmlWritter_appendValueArray(out, a.getData(), a.size());
                 break;
             }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             default:
-                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+                PEGASUS_ASSERT(false);
         }
     }
     else if (value.getType() == CIMTYPE_REFERENCE)
@@ -692,6 +1354,7 @@ void XmlWriter::appendValueElement(
                 _xmlWritter_appendValue(out, v);
                 break;
             }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CIMTYPE_INSTANCE:
             {
                 CIMInstance v;
@@ -699,8 +1362,9 @@ void XmlWriter::appendValueElement(
                 _xmlWritter_appendValue(out, v);
                 break;
             }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             default:
-                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+                PEGASUS_ASSERT(false);
         }
 
         out << STRLIT("</VALUE>\n");
@@ -713,6 +1377,7 @@ void XmlWriter::printValueElement(
 {
     Buffer tmp;
     appendValueElement(tmp, value);
+    tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 
@@ -727,23 +1392,12 @@ void XmlWriter::printValueElement(
 
 void XmlWriter::appendValueObjectWithPathElement(
     Buffer& out,
-    const CIMObject& objectWithPath,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    Boolean isClassObject,
-    const CIMPropertyList& propertyList)
+    const CIMObject& objectWithPath)
 {
     out << STRLIT("<VALUE.OBJECTWITHPATH>\n");
 
-    appendValueReferenceElement(out, objectWithPath.getPath (),
-        isClassObject , false);
-
-    appendObjectElement(
-        out,
-        objectWithPath,
-        includeQualifiers,
-        includeClassOrigin,
-        propertyList);
+    appendValueReferenceElement(out, objectWithPath.getPath (), false);
+    appendObjectElement(out, objectWithPath);
 
     out << STRLIT("</VALUE.OBJECTWITHPATH>\n");
 }
@@ -758,79 +1412,67 @@ void XmlWriter::appendValueObjectWithPathElement(
 //
 //------------------------------------------------------------------------------
 
-// appends INSTANCEPATH | LOCALINSTANCEPATH | INSTANCENAME
-void XmlWriter::appendValueInstancePathElement(
-    Buffer& out,
-    const CIMObjectPath& reference)
-{
-    if (reference.getHost().size())
-    {
-        appendInstancePathElement(out, reference);
-    }
-    else if (!reference.getNameSpace().isNull())
-    {
-        appendLocalInstancePathElement(out, reference);
-    }
-    else
-    {
-        appendInstanceNameElement(out, reference);
-    }
-}
-
-// appends CLASSPATH | LOCALCLASSPATH | CLASSNAME
-void XmlWriter::appendValueClassPathElement(
-    Buffer& out,
-    const CIMObjectPath& reference)
-{
-    if (reference.getHost().size())
-    {
-        appendClassPathElement(out, reference);
-    }
-    else if (!reference.getNameSpace().isNull())
-    {
-        appendLocalClassPathElement(out, reference);
-    }
-    else
-    {
-        appendClassNameElement(out, reference.getClassName());
-    }
-}
-
-// Builds either a classPath or InstancePath based on isClassPath
-// parameter which was carried forward from, for example, the
-// request. If wrapper true, wrap output with <VALUE.REFERENCE>
 void XmlWriter::appendValueReferenceElement(
     Buffer& out,
     const CIMObjectPath& reference,
-    Boolean isClassPath,
-    Boolean addValueWrapper)
+    Boolean putValueWrapper)
 {
-    if (addValueWrapper)
+    if (putValueWrapper)
+        out << STRLIT("<VALUE.REFERENCE>\n");
+
+    // See if it is a class or instance reference (instance references have
+    // key-bindings; class references do not).
+    //
+    //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+    //  distinguish instanceNames from classNames in every case
+    //  The instanceName of a singleton instance of a keyless class has no
+    //  key bindings
+    //
+
+    const Array<CIMKeyBinding>& kbs = reference.getKeyBindings();
+
+    if (kbs.size())
     {
-         out << STRLIT("<VALUE.REFERENCE>\n");
-    }
-    if (isClassPath)
-    {
-        appendValueClassPathElement(out,reference);
+        if (reference.getHost().size())
+        {
+            appendInstancePathElement(out, reference);
+        }
+        else if (!reference.getNameSpace().isNull())
+        {
+            appendLocalInstancePathElement(out, reference);
+        }
+        else
+        {
+            appendInstanceNameElement(out, reference);
+        }
     }
     else
     {
-        appendValueInstancePathElement(out,reference);
+        if (reference.getHost().size())
+        {
+            appendClassPathElement(out, reference);
+        }
+        else if (!reference.getNameSpace().isNull())
+        {
+            appendLocalClassPathElement(out, reference);
+        }
+        else
+        {
+            appendClassNameElement(out, reference.getClassName());
+        }
     }
 
-    if (addValueWrapper)
-    {
+    if (putValueWrapper)
         out << STRLIT("</VALUE.REFERENCE>\n");
-    }
 }
 
 void XmlWriter::printValueReferenceElement(
     const CIMObjectPath& reference,
-    Boolean isClassPath,
     PEGASUS_STD(ostream)& os)
 {
     Buffer tmp;
-    appendValueReferenceElement(tmp, reference, isClassPath, true);
+    appendValueReferenceElement(tmp, reference, true);
+    tmp.append('\0');
     indentedPrint(os, tmp.getData());
 }
 
@@ -844,20 +1486,12 @@ void XmlWriter::printValueReferenceElement(
 
 void XmlWriter::appendValueNamedInstanceElement(
     Buffer& out,
-    const CIMInstance& namedInstance,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
+    const CIMInstance& namedInstance)
 {
     out << STRLIT("<VALUE.NAMEDINSTANCE>\n");
 
     appendInstanceNameElement(out, namedInstance.getPath ());
-    appendInstanceElement(
-        out,
-        namedInstance,
-        includeQualifiers,
-        includeClassOrigin,
-        propertyList);
+    appendInstanceElement(out, namedInstance);
 
     out << STRLIT("</VALUE.NAMEDINSTANCE>\n");
 }
@@ -876,44 +1510,10 @@ void XmlWriter::appendValueNamedInstanceElement(
 
 void XmlWriter::appendClassElement(
     Buffer& out,
-    const CIMConstClass& cimClass)
+    const CIMConstClass& cimclass)
 {
-    CheckRep(cimClass._rep);
-    const CIMClassRep* rep = cimClass._rep;
-
-    // Class opening element:
-
-    out << STRLIT("<CLASS NAME=\"")
-        << rep->getClassName()
-        << STRLIT("\" ");
-
-    if (!rep->getSuperClassName().isNull())
-    {
-        out << STRLIT(" SUPERCLASS=\"")
-            << rep->getSuperClassName()
-            << STRLIT("\" ");
-    }
-
-    out << STRLIT(">\n");
-
-    // Append Class Qualifiers:
-
-    for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
-        XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
-
-    // Append Property definitions:
-
-    for (Uint32 i = 0, n = rep->getPropertyCount(); i < n; i++)
-        XmlWriter::appendPropertyElement(out, rep->getProperty(i));
-
-    // Append Method definitions:
-
-    for (Uint32 i = 0, n = rep->getMethodCount(); i < n; i++)
-        XmlWriter::appendMethodElement(out, rep->getMethod(i));
-
-    // Class closing element:
-
-    out << STRLIT("</CLASS>\n");
+    cimclass._checkRep();
+    cimclass._rep->toXml(out);
 }
 
 void XmlWriter::printClassElement(
@@ -922,6 +1522,7 @@ void XmlWriter::printClassElement(
 {
     Buffer tmp;
     appendClassElement(tmp, cimclass);
+    tmp.append('\0');
     indentedPrint(os, tmp.getData(), 4);
 }
 
@@ -938,66 +1539,10 @@ void XmlWriter::printClassElement(
 
 void XmlWriter::appendInstanceElement(
     Buffer& out,
-    const CIMConstInstance& instance,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
+    const CIMConstInstance& instance)
 {
-    CheckRep(instance._rep);
-    const CIMInstanceRep* rep = instance._rep;
-
-    // Class opening element:
-
-    out << STRLIT("<INSTANCE CLASSNAME=\"")
-        << rep->getClassName()
-        << STRLIT("\" >\n");
-
-    // Append Instance Qualifiers:
-    if(includeQualifiers)
-    {
-        for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
-            XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
-    }
-    if(propertyList.isNull())
-    {
-        for (Uint32 i = 0, n = rep->getPropertyCount(); i < n; i++)
-        {
-            XmlWriter::appendPropertyElement(
-                out,
-                rep->getProperty(i),
-                includeQualifiers,includeClassOrigin);
-        }
-    }
-    else
-    {
-        for (Uint32 i = 0, n = propertyList.size(); i < n; i++)
-        {
-            CIMName name = propertyList[i];
-            Uint32 pos = rep->_properties.find(
-                propertyList[i],
-                propertyList.getCIMNameTag(i));
-            if(pos != PEG_NOT_FOUND)
-            {
-                PEG_TRACE((TRC_XML,Tracer::LEVEL4,
-                    "XmlWriter::appendInstanceElement"
-                        " Filtering the property name:%s for the className:%s"
-                    "since it was not filtered by the provider.",
-                    (const char *)name.getString().getCString(),
-                    (const char *)instance.getClassName().
-                        getString().getCString()));
-
-                XmlWriter::appendPropertyElement(
-                    out,
-                    rep->getProperty(pos),
-                    includeQualifiers,includeClassOrigin);
-            }
-        }
-
-    }
-
-    // Instance closing element:
-
-    out << STRLIT("</INSTANCE>\n");
+    instance._checkRep();
+    instance._rep->toXml(out);
 }
 
 void XmlWriter::printInstanceElement(
@@ -1006,6 +1551,7 @@ void XmlWriter::printInstanceElement(
 {
     Buffer tmp;
     appendInstanceElement(tmp, instance);
+    tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 
@@ -1019,10 +1565,7 @@ void XmlWriter::printInstanceElement(
 
 void XmlWriter::appendObjectElement(
     Buffer& out,
-    const CIMConstObject& object,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
+    const CIMConstObject& object)
 {
     if (object.isClass())
     {
@@ -1032,12 +1575,7 @@ void XmlWriter::appendObjectElement(
     else if (object.isInstance())
     {
         CIMConstInstance i(object);
-        appendInstanceElement(
-            out,
-            i,
-            includeQualifiers,
-            includeClassOrigin,
-            propertyList);
+        appendInstanceElement(out, i);
     }
     // else PEGASUS_ASSERT(0);
 }
@@ -1072,260 +1610,10 @@ void XmlWriter::appendObjectElement(
 
 void XmlWriter::appendPropertyElement(
     Buffer& out,
-    const CIMConstProperty& property,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin)
+    const CIMConstProperty& property)
 {
-    CheckRep(property._rep);
-    const CIMPropertyRep* rep = property._rep;
-
-    if (rep->getValue().isArray())
-    {
-        out << STRLIT("<PROPERTY.ARRAY NAME=\"")
-            << rep->getName()
-            << STRLIT("\" ");
-
-        if (rep->getValue().getType() == CIMTYPE_OBJECT)
-        {
-            // If the property array type is CIMObject, then
-            //     encode the property in CIM-XML as a string array with the
-            //     EmbeddedObject attribute (there is not currently a CIM-XML
-            //     "object" datatype)
-
-            Array<CIMObject> a;
-            rep->getValue().get(a);
-            out << STRLIT(" TYPE=\"string\"");
-            // If the Embedded Object is an instance, always add the
-            // EmbeddedObject attribute.
-            if (a.size() > 0 && a[0].isInstance())
-            {
-                out << STRLIT(" EmbeddedObject=\"object\""
-                              " EMBEDDEDOBJECT=\"object\"");
-            }
-#ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
-            else
-#endif
-            {
-                // Else the Embedded Object is a class, always add the
-                // EmbeddedObject qualifier.  Note that if the macro
-                // PEGASUS_SNIA_INTEROP_COMPATIBILITY is defined, then
-                // the EmbeddedObject qualifier will always be added,
-                // whether it's a class or an instance.
-                if (rep->findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT) ==
-                        PEG_NOT_FOUND)
-                {
-                    // Note that addQualifiers() cannot be called on a const
-                    // CIMQualifierRep.  In this case we really do want to add
-                    // the EmbeddedObject qualifier, so we cast away the
-                    // constness.
-                    CIMPropertyRep* tmpRep = const_cast<CIMPropertyRep*>(rep);
-                    tmpRep->addQualifier(
-                        CIMQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT,
-                                     true));
-                }
-            }
-        }
-        else if (rep->getValue().getType() == CIMTYPE_INSTANCE)
-        {
-            // If the property array type is CIMInstance, then
-            //   encode the property in CIM-XML as a string array with the
-            //   EmbeddedObject attribute (there is not currently a CIM-XML
-            //   "instance" datatype)
-
-            Array<CIMInstance> a;
-            rep->getValue().get(a);
-            out << STRLIT(" TYPE=\"string\"");
-
-            // add the EmbeddedObject attribute
-            if (a.size() > 0)
-            {
-                out << STRLIT(" EmbeddedObject=\"instance\""
-                              " EMBEDDEDOBJECT=\"instance\"");
-
-                // Note that if the macro PEGASUS_SNIA_INTEROP_COMPATIBILITY is
-                // defined, then the EmbeddedInstance qualifier will be added
-# ifdef PEGASUS_SNIA_INTEROP_COMPATIBILITY
-                if (rep->findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE)
-                        == PEG_NOT_FOUND)
-                {
-                    // Note that addQualifiers() cannot be called on a const
-                    // CIMQualifierRep.  In this case we really do want to add
-                    // the EmbeddedInstance qualifier, so we cast away the
-                    // constness.
-
-                    // For now, we assume that all the embedded instances in
-                    // the array are of the same type
-                    CIMPropertyRep* tmpRep = const_cast<CIMPropertyRep*>(rep);
-                    tmpRep->addQualifier(CIMQualifier(
-                        PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE,
-                        a[0].getClassName().getString()));
-                }
-# endif
-            }
-        }
-        else
-        {
-            out.append(' ');
-            out << xmlWriterTypeStrings(rep->getValue().getType());
-        }
-
-        if (rep->getArraySize())
-        {
-            char buffer[32];
-            sprintf(buffer, "%u", rep->getArraySize());
-            out << STRLIT(" ARRAYSIZE=\"") << buffer;
-            out.append('"');
-        }
-
-        if(includeClassOrigin && !rep->getClassOrigin().isNull())
-        {
-            out << STRLIT(" CLASSORIGIN=\"") << rep->getClassOrigin();
-            out.append('"');
-        }
-
-        if (rep->getPropagated())
-        {
-            out << STRLIT(" PROPAGATED=\"true\"");
-        }
-
-        out << STRLIT(">\n");
-        if(includeQualifiers)
-        {
-            for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
-                XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
-        }
-
-        XmlWriter::appendValueElement(out, rep->getValue());
-
-        out << STRLIT("</PROPERTY.ARRAY>\n");
-    }
-    else if (rep->getValue().getType() == CIMTYPE_REFERENCE)
-    {
-        out << STRLIT("<PROPERTY.REFERENCE"
-                      " NAME=\"") << rep->getName() << STRLIT("\" ");
-
-        if (!rep->getReferenceClassName().isNull())
-        {
-            out << STRLIT(" REFERENCECLASS=\"") << rep->getReferenceClassName();
-            out.append('"');
-        }
-        if(includeClassOrigin && !rep->getClassOrigin().isNull())
-        {
-            out << STRLIT(" CLASSORIGIN=\"") << rep->getClassOrigin();
-            out.append('"');
-        }
-
-        if (rep->getPropagated())
-        {
-            out << STRLIT(" PROPAGATED=\"true\"");
-        }
-
-        out << STRLIT(">\n");
-        if(includeQualifiers)
-        {
-            for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
-                XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
-        }
-
-        XmlWriter::appendValueElement(out, rep->getValue());
-
-        out << STRLIT("</PROPERTY.REFERENCE>\n");
-    }
-    else
-    {
-        out << STRLIT("<PROPERTY NAME=\"") << rep->getName() << STRLIT("\" ");
-        if(includeClassOrigin && !rep->getClassOrigin().isNull())
-        {
-            out << STRLIT(" CLASSORIGIN=\"") << rep->getClassOrigin();
-            out.append('"');
-        }
-
-        if (rep->getPropagated())
-        {
-            out << STRLIT(" PROPAGATED=\"true\"");
-        }
-
-        if (rep->getValue().getType() == CIMTYPE_OBJECT)
-        {
-            // If the property type is CIMObject, then
-            //   encode the property in CIM-XML as a string with the
-            //   EmbeddedObject attribute (there is not currently a CIM-XML
-            //   "object" datatype)
-
-            CIMObject a;
-            rep->getValue().get(a);
-            out << STRLIT(" TYPE=\"string\"");
-
-            // If the Embedded Object is an instance, always add the
-            // EmbeddedObject attribute.
-            if (a.isInstance())
-            {
-                out << STRLIT(" EmbeddedObject=\"object\""
-                              " EMBEDDEDOBJECT=\"object\"");
-            }
-            // Else the Embedded Object is a class, always add the
-            // EmbeddedObject qualifier.
-#ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
-            else
-#endif
-            {
-                // Note that if the macro PEGASUS_SNIA_INTEROP_COMPATIBILITY
-                // is defined, then the EmbeddedObject qualifier will always
-                // be added, whether it's a class or an instance.
-                if (rep->findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT) ==
-                        PEG_NOT_FOUND)
-                {
-                    // Note that addQualifiers() cannot be called on a const
-                    // CIMQualifierRep.  In this case we really do want to add
-                    // the EmbeddedObject qualifier, so we cast away the
-                    // constness.
-                    CIMPropertyRep* tmpRep = const_cast<CIMPropertyRep*>(rep);
-                    tmpRep->addQualifier(
-                        CIMQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT,
-                                     true));
-                }
-            }
-        }
-        else if (rep->getValue().getType() == CIMTYPE_INSTANCE)
-        {
-            CIMInstance a;
-            rep->getValue().get(a);
-            out << STRLIT(" TYPE=\"string\""
-                          " EmbeddedObject=\"instance\""
-                          " EMBEDDEDOBJECT=\"instance\"");
-
-# ifdef PEGASUS_SNIA_INTEROP_COMPATIBILITY
-            if (rep->findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT)
-                == PEG_NOT_FOUND)
-            {
-                // Note that addQualifiers() cannot be called on a const
-                // CIMQualifierRep.  In this case we really do want to add
-                // the EmbeddedInstance qualifier, so we cast away the
-                // constness.
-                CIMPropertyRep* tmpRep = const_cast<CIMPropertyRep*>(rep);
-                tmpRep->addQualifier(CIMQualifier(
-                    PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE,
-                    a.getClassName().getString()));
-            }
-# endif
-        }
-        else
-        {
-            out.append(' ');
-            out << xmlWriterTypeStrings(rep->getValue().getType());
-        }
-
-        out << STRLIT(">\n");
-        if(includeQualifiers)
-        {
-            for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
-                XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
-        }
-
-        XmlWriter::appendValueElement(out, rep->getValue());
-
-        out << STRLIT("</PROPERTY>\n");
-    }
+    property._checkRep();
+    property._rep->toXml(out);
 }
 
 void XmlWriter::printPropertyElement(
@@ -1334,6 +1622,7 @@ void XmlWriter::printPropertyElement(
 {
     Buffer tmp;
     appendPropertyElement(tmp, property);
+    tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 
@@ -1355,34 +1644,8 @@ void XmlWriter::appendMethodElement(
     Buffer& out,
     const CIMConstMethod& method)
 {
-    CheckRep(method._rep);
-    const CIMMethodRep* rep = method._rep;
-
-    out << STRLIT("<METHOD NAME=\"") << rep->getName();
-    out << STRLIT("\" ");
-
-    out << xmlWriterTypeStrings(rep->getType());
-
-    if (!rep->getClassOrigin().isNull())
-    {
-        out << STRLIT(" CLASSORIGIN=\"") << rep->getClassOrigin();
-        out.append('"');
-    }
-
-    if (rep->getPropagated())
-    {
-        out << STRLIT(" PROPAGATED=\"true\"");
-    }
-
-    out << STRLIT(">\n");
-
-    for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
-        XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
-
-    for (Uint32 i = 0, n = rep->getParameterCount(); i < n; i++)
-        XmlWriter::appendParameterElement(out, rep->getParameter(i));
-
-    out << STRLIT("</METHOD>\n");
+    method._checkRep();
+    method._rep->toXml(out);
 }
 
 void XmlWriter::printMethodElement(
@@ -1391,6 +1654,7 @@ void XmlWriter::printMethodElement(
 {
     Buffer tmp;
     appendMethodElement(tmp, method);
+    tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 
@@ -1426,93 +1690,8 @@ void XmlWriter::appendParameterElement(
     Buffer& out,
     const CIMConstParameter& parameter)
 {
-    CheckRep(parameter._rep);
-    const CIMParameterRep* rep = parameter._rep;
-
-    if (rep->isArray())
-    {
-        if (rep->getType() == CIMTYPE_REFERENCE)
-        {
-            out << STRLIT("<PARAMETER.REFARRAY NAME=\"") << rep->getName();
-            out.append('"');
-
-            if (!rep->getReferenceClassName().isNull())
-            {
-                out << STRLIT(" REFERENCECLASS=\"");
-                out << rep->getReferenceClassName().getString();
-                out.append('"');
-            }
-
-            if (rep->getArraySize())
-            {
-                char buffer[32];
-                int n = sprintf(buffer, "%u", rep->getArraySize());
-                out << STRLIT(" ARRAYSIZE=\"");
-                out.append(buffer, n);
-                out.append('"');
-            }
-
-            out << STRLIT(">\n");
-
-            for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
-                XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
-
-            out << STRLIT("</PARAMETER.REFARRAY>\n");
-        }
-        else
-        {
-            out << STRLIT("<PARAMETER.ARRAY"
-                          " NAME=\"") << rep->getName();
-            out << STRLIT("\" ") << xmlWriterTypeStrings(rep->getType());
-
-            if (rep->getArraySize())
-            {
-                char buffer[32];
-                sprintf(buffer, "%u", rep->getArraySize());
-                out << STRLIT(" ARRAYSIZE=\"") << buffer;
-                out.append('"');
-            }
-
-            out << STRLIT(">\n");
-
-            for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
-                XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
-
-            out << STRLIT("</PARAMETER.ARRAY>\n");
-        }
-    }
-    else if (rep->getType() == CIMTYPE_REFERENCE)
-    {
-        out << STRLIT("<PARAMETER.REFERENCE"
-                      " NAME=\"") << rep->getName();
-        out.append('"');
-
-        if (!rep->getReferenceClassName().isNull())
-        {
-            out << STRLIT(" REFERENCECLASS=\"");
-            out << rep->getReferenceClassName().getString();
-            out.append('"');
-        }
-        out << STRLIT(">\n");
-
-        for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
-            XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
-
-        out << STRLIT("</PARAMETER.REFERENCE>\n");
-    }
-    else
-    {
-        out << STRLIT("<PARAMETER"
-                      " NAME=\"") << rep->getName();
-        out << STRLIT("\" ") << xmlWriterTypeStrings(rep->getType());
-
-        out << STRLIT(">\n");
-
-        for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
-            XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
-
-        out << STRLIT("</PARAMETER>\n");
-    }
+    parameter._checkRep();
+    parameter._rep->toXml(out);
 }
 
 void XmlWriter::printParameterElement(
@@ -1521,6 +1700,7 @@ void XmlWriter::printParameterElement(
 {
     Buffer tmp;
     appendParameterElement(tmp, parameter);
+    tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 
@@ -1530,9 +1710,7 @@ void XmlWriter::printParameterElement(
 //
 //     <!ELEMENT PARAMVALUE (VALUE|VALUE.REFERENCE|VALUE.ARRAY|VALUE.REFARRAY)?>
 //     <!ATTLIST PARAMVALUE
-//         %CIMName;
-//         %EmbeddedObject; #IMPLIED
-//         %ParamType;>
+//              %CIMName;>
 //
 //------------------------------------------------------------------------------
 
@@ -1540,23 +1718,8 @@ void XmlWriter::appendParamValueElement(
     Buffer& out,
     const CIMParamValue& paramValue)
 {
-    CheckRep(paramValue._rep);
-    const CIMParamValueRep* rep = paramValue._rep;
-
-    out << STRLIT("<PARAMVALUE NAME=\"") << rep->getParameterName();
-    out.append('"');
-
-    CIMType type = rep->getValue().getType();
-
-    if (rep->isTyped())
-    {
-        XmlWriter::appendParamTypeAndEmbeddedObjAttrib(out, type);
-    }
-
-    out << STRLIT(">\n");
-    XmlWriter::appendValueElement(out, rep->getValue());
-
-    out << STRLIT("</PARAMVALUE>\n");
+    paramValue._checkRep();
+    paramValue._rep->toXml(out);
 }
 
 void XmlWriter::printParamValueElement(
@@ -1565,6 +1728,7 @@ void XmlWriter::printParamValueElement(
 {
     Buffer tmp;
     appendParamValueElement(tmp, paramValue);
+    tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 
@@ -1585,24 +1749,8 @@ void XmlWriter::appendQualifierElement(
     Buffer& out,
     const CIMConstQualifier& qualifier)
 {
-    CheckRep(qualifier._rep);
-    const CIMQualifierRep* rep = qualifier._rep;
-
-    out << STRLIT("<QUALIFIER NAME=\"") << rep->getName();
-    out << STRLIT("\" ") << xmlWriterTypeStrings(rep->getValue().getType());
-
-    if (rep->getPropagated())
-    {
-        out << STRLIT(" PROPAGATED=\"true\"");
-    }
-
-    XmlWriter::appendQualifierFlavorEntity(out, rep->getFlavor());
-
-    out << STRLIT(">\n");
-
-    XmlWriter::appendValueElement(out, rep->getValue());
-
-    out << STRLIT("</QUALIFIER>\n");
+    qualifier._checkRep();
+    qualifier._rep->toXml(out);
 }
 
 void XmlWriter::printQualifierElement(
@@ -1611,6 +1759,7 @@ void XmlWriter::printQualifierElement(
 {
     Buffer tmp;
     appendQualifierElement(tmp, qualifier);
+    tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 
@@ -1632,32 +1781,8 @@ void XmlWriter::appendQualifierDeclElement(
     Buffer& out,
     const CIMConstQualifierDecl& qualifierDecl)
 {
-    CheckRep(qualifierDecl._rep);
-    const CIMQualifierDeclRep* rep = qualifierDecl._rep;
-
-    out << STRLIT("<QUALIFIER.DECLARATION NAME=\"") << rep->getName();
-    out << STRLIT("\" ") << xmlWriterTypeStrings(rep->getValue().getType());
-
-    if (rep->getValue().isArray())
-    {
-        out << STRLIT(" ISARRAY=\"true\"");
-
-        if (rep->getArraySize())
-        {
-            char buffer[64];
-            int n = sprintf(buffer, " ARRAYSIZE=\"%u\"", rep->getArraySize());
-            out.append(buffer, n);
-        }
-    }
-
-    XmlWriter::appendQualifierFlavorEntity(out, rep->getFlavor());
-
-    out << STRLIT(">\n");
-
-    XmlWriter::appendScopeElement(out, rep->getScope());
-    XmlWriter::appendValueElement(out, rep->getValue());
-
-    out << STRLIT("</QUALIFIER.DECLARATION>\n");
+    qualifierDecl._checkRep();
+    qualifierDecl._rep->toXml(out);
 }
 
 void XmlWriter::printQualifierDeclElement(
@@ -1666,6 +1791,7 @@ void XmlWriter::printQualifierDeclElement(
 {
     Buffer tmp;
     appendQualifierDeclElement(tmp, qualifierDecl);
+    tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 
@@ -1677,10 +1803,6 @@ void XmlWriter::printQualifierDeclElement(
 //                                 TOSUBCLASS   (true|false)   'true'
 //                                 TOINSTANCE   (true|false)   'false'
 //                                 TRANSLATABLE (true|false)   'false'">
-//
-//     DEPRECATION NOTE:  The attribute TOINSTANCE is DEPRECATED and MAY be
-//     removed from the QualifierFlavor entity in a future version of this
-//     document.  Use of this qualifier is discouraged.
 //
 //------------------------------------------------------------------------------
 
@@ -1694,8 +1816,8 @@ void XmlWriter::appendQualifierFlavorEntity(
     if (!(flavor.hasFlavor (CIMFlavor::TOSUBCLASS)))
         out << STRLIT(" TOSUBCLASS=\"false\"");
 
-    //if (flavor.hasFlavor (CIMFlavor::TOINSTANCE))
-    //    out << STRLIT(" TOINSTANCE=\"true\"");
+    if (flavor.hasFlavor (CIMFlavor::TOINSTANCE))
+        out << STRLIT(" TOINSTANCE=\"true\"");
 
     if (flavor.hasFlavor (CIMFlavor::TRANSLATABLE))
         out << STRLIT(" TRANSLATABLE=\"true\"");
@@ -1770,11 +1892,9 @@ void XmlWriter::appendMethodCallHeader(
     HttpMethod httpMethod,
     const AcceptLanguageList& acceptLanguages,
     const ContentLanguageList& contentLanguages,
-    Uint32 contentLength,
-    bool binaryRequest,
-    bool binaryResponse)
+    Uint32 contentLength)
 {
-    char nn[] = { char('0' + (rand() % 10)), char('0' + (rand() % 10)),'\0'};
+    char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
 
     // ATTN: KS 20020926 - Temporary change to issue only POST. This may
     // be changed in the DMTF CIM Operations standard in the future.
@@ -1791,26 +1911,8 @@ void XmlWriter::appendMethodCallHeader(
         out << STRLIT("POST /cimom HTTP/1.1\r\n");
     }
     out << STRLIT("HOST: ") << host << STRLIT("\r\n");
-
-    if (binaryRequest)
-    {
-        // Tell the server that the payload is encoded in the OpenPegasus
-        // binary protocol.
-        out << STRLIT("Content-Type: application/x-openpegasus\r\n");
-    }
-    else
-    {
-        out << STRLIT("Content-Type: application/xml; charset=utf-8\r\n");
-    }
-
-    if (binaryResponse)
-    {
-        // Tell the server that this client accepts the OpenPegasus binary
-        // protocol.
-        out << STRLIT("Accept: application/x-openpegasus\r\n");
-    }
-
-    OUTPUT_CONTENTLENGTH(out, contentLength);
+    out << STRLIT("Content-Type: application/xml; charset=\"utf-8\"\r\n");
+    OUTPUT_CONTENTLENGTH;
     if (acceptLanguages.size() > 0)
     {
         out << STRLIT("Accept-Language: ") << acceptLanguages << STRLIT("\r\n");
@@ -1833,11 +1935,7 @@ void XmlWriter::appendMethodCallHeader(
     if (!clientTransferEncodingOff || *clientTransferEncodingOff != '0')
 #endif
 
-    if (!binaryResponse)
-    {
-        // The binary protocol does not allow chunking.
-        out << STRLIT("TE: chunked, trailers\r\n");
-    }
+    out << STRLIT("TE: chunked, trailers\r\n");
 
     if (httpMethod == HTTP_METHOD_M_POST)
     {
@@ -1846,14 +1944,15 @@ void XmlWriter::appendMethodCallHeader(
         out << nn << STRLIT("-CIMOperation: MethodCall\r\n");
         out << nn << STRLIT("-CIMMethod: ")
             << encodeURICharacters(cimMethod.getString()) << STRLIT("\r\n");
-        out << nn << STRLIT("-CIMObject: ")
-            << encodeURICharacters(cimObject) << STRLIT("\r\n");
+        out << nn << STRLIT("-CIMObject: ") << encodeURICharacters(cimObject)
+            << STRLIT("\r\n");
     }
     else
     {
         out << STRLIT("CIMOperation: MethodCall\r\n");
         out << STRLIT("CIMMethod: ")
-            << encodeURICharacters(cimMethod.getString()) << STRLIT("\r\n");
+            << encodeURICharacters(cimMethod.getString())
+            << STRLIT("\r\n");
         out << STRLIT("CIMObject: ") << encodeURICharacters(cimObject)
             << STRLIT("\r\n");
     }
@@ -1872,30 +1971,9 @@ void XmlWriter::appendMethodResponseHeader(
      HttpMethod httpMethod,
      const ContentLanguageList& contentLanguages,
      Uint32 contentLength,
-     Uint64 serverResponseTime,
-     bool binaryResponse)
+     Uint64 serverResponseTime)
 {
-    // Optimize the typical case for binary messages, circumventing the
-    // more expensive logic below.
-    if (binaryResponse &&
-        contentLength == 0 &&
-        httpMethod != HTTP_METHOD_M_POST &&
-        contentLanguages.size() == 0)
-    {
-        static const char HEADERS[] =
-            "HTTP/1.1 200 OK\r\n"
-            "Content-Type: application/x-openpegasus\r\n"
-            "content-length: 0000000000\r\n"
-            "CIMOperation: MethodResponse\r\n"
-            "\r\n";
-
-        // The HTTP processor fills in the content-length value later.
-        // It searches for a field matching "content-length" (so the first
-        // character must be lower case).
-        out.append(HEADERS, sizeof(HEADERS) - 1);
-        return;
-    }
-
+     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
      out << STRLIT("HTTP/1.1 " HTTP_STATUS_OK "\r\n");
 
 #ifndef PEGASUS_DISABLE_PERFINST
@@ -1906,18 +1984,8 @@ void XmlWriter::appendMethodResponseHeader(
      }
 #endif
 
-     if (binaryResponse)
-     {
-        // According to MIME RFC, the "x-" prefix should be used for all
-        // non-registered values.
-         out << STRLIT("Content-Type: application/x-openpegasus\r\n");
-     }
-     else
-     {
-         out << STRLIT("Content-Type: application/xml; charset=utf-8\r\n");
-     }
-
-     OUTPUT_CONTENTLENGTH(out, contentLength);
+     out << STRLIT("Content-Type: application/xml; charset=\"utf-8\"\r\n");
+     OUTPUT_CONTENTLENGTH;
 
      if (contentLanguages.size() > 0)
      {
@@ -1926,11 +1994,9 @@ void XmlWriter::appendMethodResponseHeader(
      }
      if (httpMethod == HTTP_METHOD_M_POST)
      {
-         char nn[] = {char('0'+(rand() % 10)),char('0' + (rand() % 10)),'\0'};
-
-         out << STRLIT("Ext:\r\n"
-                       "Cache-Control: no-cache\r\n"
-                       "Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=");
+         out << STRLIT("Ext:\r\n");
+         out << STRLIT("Cache-Control: no-cache\r\n");
+         out << STRLIT("Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=");
          out << nn << STRLIT("\r\n");
          out << nn << STRLIT("-CIMOperation: MethodResponse\r\n\r\n");
      }
@@ -1983,8 +2049,7 @@ void XmlWriter::appendHttpErrorResponseHeader(
 //     Returns unauthorized message in the following format:
 //
 //        HTTP/1.1 401 Unauthorized
-//        PGErrorDetail: <error text>    (if specified by caller)
-//        WWW-Authenticate: Basic realm="HostName"
+//        WWW-Authenticate: Basic "hostname:80"
 //        <HTML><HEAD>
 //        <TITLE>401 Unauthorized</TITLE>
 //        </HEAD><BODY BGCOLOR="#99cc99">
@@ -1996,18 +2061,11 @@ void XmlWriter::appendHttpErrorResponseHeader(
 
 void XmlWriter::appendUnauthorizedResponseHeader(
     Buffer& out,
-    const String& errorDetail,
     const String& content)
 {
     out << STRLIT("HTTP/1.1 " HTTP_STATUS_UNAUTHORIZED "\r\n");
-    if (errorDetail.size() > 0)
-    {
-        out << STRLIT(PEGASUS_HTTPHEADERTAG_ERRORDETAIL ": ")
-            << encodeURICharacters(errorDetail) << STRLIT("\r\n");
-    }
-
-    OUTPUT_CONTENTLENGTH(out, 0);
-    out << content << STRLIT("\r\n\r\n");
+    out << content << STRLIT("\r\n");
+    out << STRLIT("\r\n");
 
 //ATTN: We may need to include the following line, so that the browsers
 //      can display the error message.
@@ -2049,8 +2107,10 @@ void XmlWriter::appendOKResponseHeader(
     // is usually intended to have content.  But, for Kerberos this
     // may not always be the case so we need to indicate that there
     // is no content
-    OUTPUT_CONTENTLENGTH(out, 0);
-    out << content << STRLIT("\r\n\r\n");
+    Uint32 contentLength = 0;
+    OUTPUT_CONTENTLENGTH;
+    out << content << STRLIT("\r\n");
+    out << STRLIT("\r\n");
 
 //ATTN: We may need to include the following line, so that the browsers
 //      can display the error message.
@@ -2079,16 +2139,17 @@ void XmlWriter::_appendMessageElementBegin(
     Buffer& out,
     const String& messageId)
 {
-    out << STRLIT("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n"
-                  "<CIM CIMVERSION=\"2.0\" DTDVERSION=\"2.0\">\n"
-                  "<MESSAGE ID=\"") << messageId;
+    out << STRLIT("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
+    out << STRLIT("<CIM CIMVERSION=\"2.0\" DTDVERSION=\"2.0\">\n");
+    out << STRLIT("<MESSAGE ID=\"") << messageId;
     out << STRLIT("\" PROTOCOLVERSION=\"1.0\">\n");
 }
 
 void XmlWriter::_appendMessageElementEnd(
     Buffer& out)
 {
-    out << STRLIT("</MESSAGE>\n</CIM>\n");
+    out << STRLIT("</MESSAGE>\n");
+    out << STRLIT("</CIM>\n");
 }
 
 //------------------------------------------------------------------------------
@@ -2260,9 +2321,10 @@ void XmlWriter::_appendErrorElement(
     Buffer& out,
     const CIMException& cimException)
 {
-    Tracer::traceCIMException(TRC_XML, Tracer::LEVEL2, cimException);
+    Tracer::traceCIMException(TRC_XML_WRITER, Tracer::LEVEL2, cimException);
 
-    out << STRLIT("<ERROR CODE=\"") << Uint32(cimException.getCode());
+    out << STRLIT("<ERROR");
+    out << STRLIT(" CODE=\"") << Uint32(cimException.getCode());
     out.append('"');
 
     String description = TraceableCIMException(cimException).getDescription();
@@ -2287,15 +2349,15 @@ void XmlWriter::_appendErrorElement(
         out << STRLIT("/>");
 }
 
-//----------------------------------------------------------------------
-//
-// appendParamTypeAndEmbeddedObjAttrib
-// Appends the Param type and EmbeddedObject Info to the buffer
-//     %EmbeddedObject; #IMPLIED
-//     %ParamType;>
-//
+//---------------------------------------------------------------------- 
+// 
+// appendParmType
+// Appends the Param type and EmbeddedObject Info
+// to the buffer
+// %EmbeddedObject; #IMPLIED
+// %ParamType;>
+// 
 //---------------------------------------------------------------------
-
 void XmlWriter::appendParamTypeAndEmbeddedObjAttrib(
     Buffer& out,
     const CIMType& type)
@@ -2316,19 +2378,22 @@ void XmlWriter::appendParamTypeAndEmbeddedObjAttrib(
     if (type == CIMTYPE_OBJECT)
     {
 
-        out << STRLIT(" PARAMTYPE=\"string\""
-                      " EmbeddedObject=\"object\""
-                      " EMBEDDEDOBJECT=\"object\"");
+        out << STRLIT(" PARAMTYPE=\"string\"");
+        out << STRLIT(" EmbeddedObject=\"object\"");
+        out << STRLIT(" EMBEDDEDOBJECT=\"object\"");
     }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     else if (type == CIMTYPE_INSTANCE)
     {
-        out << STRLIT(" PARAMTYPE=\"string\""
-                      " EmbeddedObject=\"instance\""
-                      " EMBEDDEDOBJECT=\"instance\"");
+        out << STRLIT(" PARAMTYPE=\"string\"");
+        out << STRLIT(" EmbeddedObject=\"instance\"");
+        out << STRLIT(" EMBEDDEDOBJECT=\"instance\"");
     }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     else
     {
-        out << STRLIT(" PARAM") << xmlWriterTypeStrings(type);
+        out << STRLIT(" PARAMTYPE=\"") << cimTypeToString (type);
+        out.append('"');
     }
 }
 
@@ -2350,7 +2415,6 @@ void XmlWriter::appendReturnValueElement(
     out << STRLIT("<RETURNVALUE");
 
     CIMType type = value.getType();
-
     appendParamTypeAndEmbeddedObjAttrib(out, type);
 
     out << STRLIT(">\n");
@@ -2459,6 +2523,29 @@ void XmlWriter::appendInstanceNameIParameter(
     _appendIParamValueElementBegin(out, name);
     appendInstanceNameElement(out, instanceName);
     _appendIParamValueElementEnd(out);
+}
+
+void XmlWriter::appendObjectNameIParameter(
+    Buffer& out,
+    const char* name,
+    const CIMObjectPath& objectName)
+{
+    //
+    //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+    //  distinguish instanceNames from classNames in every case
+    //  The instanceName of a singleton instance of a keyless class also
+    //  has no key bindings
+    //
+    if (objectName.getKeyBindings ().size () == 0)
+    {
+        XmlWriter::appendClassNameIParameter(
+            out, name, objectName.getClassName());
+    }
+    else
+    {
+        XmlWriter::appendInstanceNameIParameter(
+            out, name, objectName);
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -2625,8 +2712,7 @@ Buffer XmlWriter::formatSimpleMethodReqMessage(
     HttpMethod httpMethod,
     const String& authenticationHeader,
     const AcceptLanguageList& httpAcceptLanguages,
-    const ContentLanguageList& httpContentLanguages,
-    bool binaryResponse)
+    const ContentLanguageList& httpContentLanguages)
 {
     Buffer out;
     Buffer tmp;
@@ -2655,14 +2741,13 @@ Buffer XmlWriter::formatSimpleMethodReqMessage(
         httpMethod,
         httpAcceptLanguages,
         httpContentLanguages,
-        out.size(),
-        false,
-        binaryResponse);
+        out.size());
     tmp << out;
 
     return tmp;
 }
 
+//PEP 128 adding serverRsponseTime to header
 Buffer XmlWriter::formatSimpleMethodRspMessage(
     const CIMName& methodName,
     const String& messageId,
@@ -2729,8 +2814,7 @@ Buffer XmlWriter::formatSimpleMethodErrorRspMessage(
         tmp,
         httpMethod,
         cimException.getContentLanguages(),
-        out.size(),
-        false);
+        out.size());
     tmp << out;
 
     return tmp;
@@ -2751,8 +2835,7 @@ Buffer XmlWriter::formatSimpleIMethodReqMessage(
     const String& authenticationHeader,
     const AcceptLanguageList& httpAcceptLanguages,
     const ContentLanguageList& httpContentLanguages,
-    const Buffer& body,
-    bool binaryResponse)
+    const Buffer& body)
 {
     Buffer out;
     Buffer tmp;
@@ -2775,9 +2858,7 @@ Buffer XmlWriter::formatSimpleIMethodReqMessage(
         httpMethod,
         httpAcceptLanguages,
         httpContentLanguages,
-        out.size(),
-        false,
-        binaryResponse);
+        out.size());
     tmp << out;
 
     return tmp;
@@ -2865,7 +2946,7 @@ Buffer XmlWriter::formatSimpleIMethodErrorRspMessage(
     appendMethodResponseHeader(tmp,
         httpMethod,
         cimException.getContentLanguages(),
-        out.size(), false);
+        out.size());
     tmp << out;
 
     return tmp;
@@ -2896,7 +2977,7 @@ void XmlWriter::appendEMethodRequestHeader(
     const ContentLanguageList& contentLanguages,
     Uint32 contentLength)
 {
-    char nn[] = { char('0' + (rand() % 10)), char('0' + (rand() % 10)), '\0' };
+    char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
 
     if (httpMethod == HTTP_METHOD_M_POST)
     {
@@ -2906,9 +2987,9 @@ void XmlWriter::appendEMethodRequestHeader(
     {
       out << STRLIT("POST ") << requestUri << STRLIT(" HTTP/1.1\r\n");
     }
-    out << STRLIT("HOST: ") << host << STRLIT("\r\n"
-                  "Content-Type: application/xml; charset=utf-8\r\n");
-    OUTPUT_CONTENTLENGTH(out, contentLength);
+    out << STRLIT("HOST: ") << host << STRLIT("\r\n");
+    out << STRLIT("Content-Type: application/xml; charset=\"utf-8\"\r\n");
+    OUTPUT_CONTENTLENGTH;
 
     if (acceptLanguages.size() > 0)
     {
@@ -2942,8 +3023,8 @@ void XmlWriter::appendEMethodRequestHeader(
     }
     else
     {
-        out << STRLIT("CIMExport: MethodRequest\r\n"
-                      "CIMExportMethod: ") << cimMethod << STRLIT("\r\n");
+        out << STRLIT("CIMExport: MethodRequest\r\n");
+        out << STRLIT("CIMExportMethod: ") << cimMethod << STRLIT("\r\n");
     }
 
     if (authenticationHeader.size())
@@ -2968,11 +3049,11 @@ void XmlWriter::appendEMethodResponseHeader(
     const ContentLanguageList& contentLanguages,
     Uint32 contentLength)
 {
-    char nn[] = { char('0' + (rand() % 10)), char('0' + (rand() % 10)), '\0' };
+    char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
 
-    out << STRLIT("HTTP/1.1 " HTTP_STATUS_OK "\r\n"
-                  "Content-Type: application/xml; charset=utf-8\r\n");
-    OUTPUT_CONTENTLENGTH(out, contentLength);
+    out << STRLIT("HTTP/1.1 " HTTP_STATUS_OK "\r\n");
+    out << STRLIT("Content-Type: application/xml; charset=\"utf-8\"\r\n");
+    OUTPUT_CONTENTLENGTH;
 
     if (contentLanguages.size() > 0)
     {
@@ -2981,9 +3062,9 @@ void XmlWriter::appendEMethodResponseHeader(
     }
     if (httpMethod == HTTP_METHOD_M_POST)
     {
-        out << STRLIT("Ext:\r\n"
-                      "Cache-Control: no-cache\r\n"
-                      "Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=");
+        out << STRLIT("Ext:\r\n");
+        out << STRLIT("Cache-Control: no-cache\r\n");
+        out << STRLIT("Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=");
         out << nn << STRLIT("\r\n");
         out << nn << STRLIT("-CIMExport: MethodResponse\r\n\r\n");
     }
@@ -3232,6 +3313,152 @@ Buffer XmlWriter::formatSimpleEMethodErrorRspMessage(
 
 //------------------------------------------------------------------------------
 //
+// _xmlWritter_printAttributes()
+//
+//------------------------------------------------------------------------------
+
+void _xmlWritter_printAttributes(
+    PEGASUS_STD(ostream)& os,
+    const XmlAttribute* attributes,
+    Uint32 attributeCount)
+{
+    for (Uint32 i = 0; i < attributeCount; i++)
+    {
+        os << attributes[i].name << "=";
+
+        os << '"';
+        _xmlWritter_appendSpecial(os, attributes[i].value);
+        os << '"';
+
+        if (i + 1 != attributeCount)
+            os << ' ';
+    }
+}
+
+//------------------------------------------------------------------------------
+//
+// _xmlWritter_indent()
+//
+//------------------------------------------------------------------------------
+
+void _xmlWritter_indent(
+    PEGASUS_STD(ostream)& os,
+    Uint32 level,
+    Uint32 indentChars)
+{
+    Uint32 n = level * indentChars;
+
+    for (Uint32 i = 0; i < n; i++)
+        os << ' ';
+}
+
+//------------------------------------------------------------------------------
+//
+// indentedPrint()
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::indentedPrint(
+    PEGASUS_STD(ostream)& os,
+    const char* text,
+    Uint32 indentChars)
+{
+    AutoArrayPtr<char> tmp(strcpy(new char[strlen(text) + 1], text));
+
+    XmlParser parser(tmp.get());
+    XmlEntry entry;
+    Stack<const char*> stack;
+
+    while (parser.next(entry))
+    {
+        switch (entry.type)
+        {
+            case XmlEntry::XML_DECLARATION:
+            {
+                _xmlWritter_indent(os, stack.size(), indentChars);
+
+                os << "<?" << entry.text << " ";
+                _xmlWritter_printAttributes(
+                    os, entry.attributes, entry.attributeCount);
+                os << "?>";
+                break;
+            }
+
+            case XmlEntry::START_TAG:
+            {
+                _xmlWritter_indent(os, stack.size(), indentChars);
+
+                os << "<" << entry.text;
+
+                if (entry.attributeCount)
+                    os << ' ';
+
+                _xmlWritter_printAttributes(
+                    os, entry.attributes, entry.attributeCount);
+                os << ">";
+                stack.push(entry.text);
+                break;
+            }
+
+            case XmlEntry::EMPTY_TAG:
+            {
+                _xmlWritter_indent(os, stack.size(), indentChars);
+
+                os << "<" << entry.text << " ";
+                _xmlWritter_printAttributes(
+                    os, entry.attributes, entry.attributeCount);
+                os << "/>";
+                break;
+            }
+
+            case XmlEntry::END_TAG:
+            {
+                if (!stack.isEmpty() && strcmp(stack.top(), entry.text) == 0)
+                    stack.pop();
+
+                _xmlWritter_indent(os, stack.size(), indentChars);
+
+                os << "</" << entry.text << ">";
+                break;
+            }
+
+            case XmlEntry::COMMENT:
+            {
+                _xmlWritter_indent(os, stack.size(), indentChars);
+                os << "<!--";
+                _xmlWritter_appendSpecial(os, entry.text);
+                os << "-->";
+                break;
+            }
+
+            case XmlEntry::CONTENT:
+            {
+                _xmlWritter_indent(os, stack.size(), indentChars);
+                _xmlWritter_appendSpecial(os, entry.text);
+                break;
+            }
+
+            case XmlEntry::CDATA:
+            {
+                _xmlWritter_indent(os, stack.size(), indentChars);
+                os << "<![CDATA[" << entry.text << "]]>";
+                break;
+            }
+
+            case XmlEntry::DOCTYPE:
+            {
+                _xmlWritter_indent(os, stack.size(), indentChars);
+                os << "<!DOCTYPE...>";
+                break;
+            }
+        }
+
+        os << PEGASUS_STD(endl);
+    }
+}
+
+//------------------------------------------------------------------------------
+//
 // XmlWriter::getNextMessageId()
 //
 //------------------------------------------------------------------------------
@@ -3240,12 +3467,9 @@ static IDFactory _messageIDFactory(1000);
 
 String XmlWriter::getNextMessageId()
 {
-    char scratchBuffer[22];
-    Uint32 n;
-    const char * startP = Uint32ToString(scratchBuffer,
-                                         _messageIDFactory.getID(),
-                                         n);
-    return String(startP, n);
+    char buffer[16];
+    sprintf(buffer, "%u", _messageIDFactory.getID());
+    return buffer;
 }
 
 //------------------------------------------------------------------------------
@@ -3253,25 +3477,25 @@ String XmlWriter::getNextMessageId()
 // XmlWriter::keyBindingTypeToString
 //
 //------------------------------------------------------------------------------
-const StrLit XmlWriter::keyBindingTypeToString (CIMKeyBinding::Type type)
+const char* XmlWriter::keyBindingTypeToString (CIMKeyBinding::Type type)
 {
     switch (type)
     {
         case CIMKeyBinding::BOOLEAN:
-            return STRLIT("boolean");
+            return "boolean";
 
         case CIMKeyBinding::STRING:
-            return STRLIT("string");
+            return "string";
 
         case CIMKeyBinding::NUMERIC:
-            return STRLIT("numeric");
+            return "numeric";
 
         case CIMKeyBinding::REFERENCE:
         default:
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
     }
 
-    return STRLIT("unknown");
+    return "unknown";
 }
 
 PEGASUS_NAMESPACE_END

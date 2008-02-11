@@ -60,9 +60,11 @@ WSManOperationRequestDecoder::WSManOperationRequestDecoder(
 {
 }
 
+
 WSManOperationRequestDecoder::~WSManOperationRequestDecoder()
 {
 }
+
 
 void WSManOperationRequestDecoder::sendResponse(
     Uint32 queueId,
@@ -79,6 +81,7 @@ void WSManOperationRequestDecoder::sendResponse(
     }
 }
 
+
 void WSManOperationRequestDecoder::sendHttpError(
     Uint32 queueId,
     const String& status,
@@ -92,8 +95,9 @@ void WSManOperationRequestDecoder::sendHttpError(
         cimError,
         pegasusError);
 
-    sendResponse(queueId, message,closeConnect);
+    sendResponse(queueId, message, closeConnect);
 }
+
 
 void WSManOperationRequestDecoder::handleEnqueue(Message* message)
 {
@@ -123,7 +127,8 @@ void WSManOperationRequestDecoder::handleEnqueue()
         handleEnqueue(message);
 }
 
-//------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
 //
 // From the HTTP/1.1 Specification (RFC 2626):
 //
@@ -132,8 +137,7 @@ void WSManOperationRequestDecoder::handleEnqueue()
 // preceding the CRLF) indicating the end of the header fields, and possibly
 // a message-body.
 //
-//------------------------------------------------------------------------------
-
+//-----------------------------------------------------------------------------
 void WSManOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
@@ -255,6 +259,16 @@ void WSManOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     String soapAction = String::EMPTY;
     HTTPMessage::lookupHeader(headers, "SOAPAction", soapAction, true);
 
+    // Remove the quotes around the SOAPAction value
+    if (soapAction[0] == '\"') 
+    {
+        soapAction.remove(0, 1);
+    }
+    if (soapAction[soapAction.size() - 1] == '\"') 
+    {
+        soapAction.remove(soapAction.size() - 1, 1);
+    }
+
     // Validating content falls within UTF8
     // (required to be complaint with section C12 of Unicode 4.0 spec,
     // chapter 3.)
@@ -295,12 +309,13 @@ void WSManOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     PEG_METHOD_EXIT();
 }
 
+
 void WSManOperationRequestDecoder::handleSoapMessage(
     Uint32 queueId,
     HttpMethod httpMethod,
     char* content,
     Uint32 contentLength,
-    const String& soapAction,
+    String& soapAction,
     const String& authType,
     const String& userName,
     const String& ipAddress,
@@ -342,13 +357,37 @@ void WSManOperationRequestDecoder::handleSoapMessage(
 
         soapReader.getXmlDeclaration(xmlVersion, xmlEncoding);
 
-#if 0
-        // Process <SOAP-ENV:Envelope...>
-        request.reset(decodeSoapEnvelope(
-            soapReader, soapAction, queueId));
-#else
-        decodeSoapEnvelope(soapReader, soapAction, queueId);
-#endif
+        // Decode the SOAP envelope
+        String action;
+        SoapReader::NSType nsType;
+        soapReader.processSoapEnvelope(soapAction);
+
+        // Break down soapAction into namespace/action pair
+        soapReader.decodeSoapAction(soapAction, action, nsType);
+
+        switch (nsType)
+        {
+            case SoapReader::NST_WS_TRANSFER:
+            {
+                if (action == "Get")
+                {
+                    request.reset(_decodeWSTransferGet(soapReader, queueId));
+                }
+                else if (action == "Put")
+                {
+                }
+                else
+                {
+                    // TODO: throw an exception
+                }
+                break;
+            }
+            default:
+            {
+                // TODO: throw an exception
+                break;
+            }
+        };
     }
     catch (XmlValidationError& e)
     {
@@ -463,71 +502,12 @@ void WSManOperationRequestDecoder::handleSoapMessage(
     PEG_METHOD_EXIT();
 }
 
-CIMOperationRequestMessage* WSManOperationRequestDecoder::decodeSoapEnvelope(
-    SoapReader& soapReader,
-    const String& soapAction,
+
+CIMGetInstanceRequestMessage* _decodeWSTransferGet(
+    SoapReader& soapReader, 
     Uint32 queueId)
 {
-    // Read SOAP-ENV:Envelope start tag.
-    soapReader.processEnvelopeStartTag();
-
-    // Decode SOAP header
-    CIMOperationRequestMessage* request = 
-        decodeSoapHeader(soapReader, soapAction, queueId);
     
-    // Decode SOAP header
-    decodeSoapBody(soapReader, queueId, request);
-
-    // Read SOAP-ENV:Envelope end tag.
-    soapReader.processEnvelopeEndTag();
-
-    return request;
-}
-
-
-
-CIMOperationRequestMessage* WSManOperationRequestDecoder::decodeSoapHeader(
-    SoapReader& soapReader,
-    const String& soapAction,
-    Uint32 queueId)
-{
-    // Read SOAP-ENV:Header start tag.
-    soapReader.processHeaderStartTag();
-
-    // Process the content of the SOAP header
-    while (!soapReader.isHeaderEndTag())
-    {
-        XmlEntry entry;
-        SoapReader::NSType nsType;
-        soapReader.next(entry, nsType);
-    }
-
-    // Read SOAP-ENV:Header end tag.
-    soapReader.processHeaderEndTag();
-}
-
-void WSManOperationRequestDecoder::decodeSoapBody(
-    SoapReader& soapReader,
-    Uint32 queueId,
-    CIMOperationRequestMessage* request)
-{
-    // Read SOAP-ENV:Body start tag.
-    if (!soapReader.processBodyStartTag())
-    {
-        // Empty SOAP-ENV:Body tag - no need to do anything
-        return;
-    }
-
-    // Process the content of the SOAP body
-    while (!soapReader.isBodyEndTag())
-    {
-        XmlEntry entry;
-        SoapReader::NSType nsType;
-        soapReader.next(entry, nsType);
-    }
-
-    // Read SOAP-ENV:Body end tag.
-    soapReader.processBodyEndTag();
 }
 
 PEGASUS_NAMESPACE_END

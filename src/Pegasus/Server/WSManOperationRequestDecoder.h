@@ -27,9 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_WSManOperationRequestDecoder_h
 #define Pegasus_WSManOperationRequestDecoder_h
@@ -57,9 +57,9 @@ public:
         MessageQueueService* outputQueue,
         Uint32 returnQueueId);
 
-   ~WSManOperationRequestDecoder();
+    ~WSManOperationRequestDecoder();
 
-   void sendResponse(
+    void sendResponse(
         Uint32 queueId,
         Buffer& message,
         Boolean closeConnect = false);
@@ -82,7 +82,7 @@ public:
         HttpMethod httpMethod,
         char* content,
         Uint32 contentLength,
-        const String& soapAction,
+        String& soapAction,
         const String& authType,
         const String& userName,
         const String& ipAddress,
@@ -90,25 +90,14 @@ public:
         const ContentLanguageList& httpContentLanguages,
         Boolean closeConnect);
 
-    CIMOperationRequestMessage* decodeSoapEnvelope(
-        SoapReader& soapReader,
-        const String& soapAction,
-        Uint32 queueId);
-
-    CIMOperationRequestMessage* decodeSoapHeader(
-        SoapReader& soapReader,
-        const String& soapAction,
-        Uint32 queueId);
-
-    void decodeSoapBody(
-        SoapReader& soapReader,
-        Uint32 queueId,
-        CIMOperationRequestMessage* request);
-
     // Sets the flag to indicate whether or not the CIMServer is shutting down.
     void setServerTerminating(Boolean flag) { _serverTerminating = flag; }
 
 private:
+
+    CIMGetInstanceRequestMessage* _decodeWSTransferGet(
+        SoapReader& soapReader, 
+        Uint32 queueId);
 
     // Do not make _outputQueue an AutoPtr.
     MessageQueueService* _outputQueue;

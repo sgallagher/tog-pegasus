@@ -57,10 +57,6 @@ class CIMValue;
 class XmlEntry;
 
 
-class PEGASUS_COMMON_LINKAGE SoapHeader
-{
-};
-
 class PEGASUS_COMMON_LINKAGE SoapReader
 {
 public:
@@ -84,7 +80,7 @@ public:
         
         NST_COUNT,
         NST_LAST = NST_COUNT
-    };   
+    }; 
 
     struct SoapNamespace
     {
@@ -94,44 +90,57 @@ public:
         Uint32 scopeLevel;
     };
 
+    struct SoapEntry
+    {
+        NSType nsType;
+        XmlEntry entry;
+    };
+
     SoapReader(char* text) : _parser(text), _scopeLevel(0) {}
 
     void getXmlDeclaration(
         const char*& xmlVersion,
         const char*& xmlEncoding);
 
-    Boolean next(
+    Boolean testSoapStartTag(
+        SoapEntry& soapEntry, NSType nsType, const char* tagName);
+
+    void processSoapEnvelope(String& soapAction);
+    void decodeSoapAction(String& soapAction, String& action, NSType& nsType);
+
+private:
+
+    Boolean _next(
         XmlEntry& entry, 
         NSType& nsType, 
         Boolean includeComment = false);
 
-    void expectStartOrEmptyTag(XmlEntry& entry, NSType nsType, 
-        const char* tagName);
-    void expectStartTag(XmlEntry& entry, NSType nsType, const char* tagName);
-    void expectEndTag(XmlEntry& entry, NSType nsType, const char* tagName);
-    Boolean testEndTag(NSType nsType, const char* tagName);
+    void _expectContentOrCData(XmlEntry& entry);
+    void _expectStartOrEmptyTag(
+        XmlEntry& entry, NSType nsType, const char* tagName);
+    void _expectStartTag(XmlEntry& entry, NSType nsType, const char* tagName);
+    void _expectEndTag(XmlEntry& entry, NSType nsType, const char* tagName);
+    Boolean _testEndTag(NSType nsType, const char* tagName);
 
-    void processEnvelopeStartTag();
-    void processEnvelopeEndTag();
-
-    void processHeaderStartTag();
-    void processHeaderEndTag();
-    Boolean isHeaderEndTag();
-
-    Boolean processBodyStartTag();
-    void processBodyEndTag();
-    Boolean isBodyEndTag();
-
-private:
 
     Boolean _isSupportedNamespace(SoapNamespace* ns);
     NSType _getNamespaceType(const char* name);
     SoapNamespace* _getNamespace(NSType nsType);
 
+    void _processEnvelopeStartTag();
+    void _processEnvelopeEndTag();
+
+    void _processHeaderStartTag();
+    void _processHeaderEndTag();
+
+    Boolean _processBodyStartTag();
+    void _processBodyEndTag();
+
     XmlParser _parser;
     Uint32 _scopeLevel;
 
-    SoapHeader _soapHeader;
+    Array<SoapEntry> _soapHeader;
+    Array<SoapEntry> _soapBody;
 
     Stack<SoapNamespace> _nameSpaces;
     static SoapNamespace _supportedNamespaces[];

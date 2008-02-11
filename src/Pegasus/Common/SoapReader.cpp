@@ -89,14 +89,39 @@ SoapReader::SoapNamespace SoapReader::_supportedNamespaces[] =
      NST_WS_POLICY,           0},
     {"wsdl",     "http://schemas.xmlsoap.org/wsdl",
      NST_WSDL,                0},
-    {"",         "",
-     NST_LAST, 0}
+    {0, 0, NST_LAST, 0}
 };
+
+
+void SoapReader::decodeSoapAction(
+    String& soapAction, String& action, SoapReader::NSType& nsType)
+{
+    Uint32 pos = soapAction.reverseFind('/');
+
+    if (pos != PEG_NOT_FOUND)
+    {
+        String nameSpace = soapAction.subString(0, pos);
+        action = soapAction.subString(pos + 1);
+
+        for (int i = 0; _supportedNamespaces[i].namespaceType != NST_LAST; i++)
+        {
+            String extName(_supportedNamespaces[i].extendedName);
+            if (nameSpace == extName)
+            {
+                nsType = _supportedNamespaces[i].namespaceType;
+                return;
+            }
+        }
+    }
+
+    action = String::EMPTY;
+    nsType = NST_UNKNOWN;
+}
 
 
 Boolean SoapReader::_isSupportedNamespace(SoapNamespace* ns)
 {
-    for (int i = 0; i < NST_COUNT; i++)
+    for (int i = 0; _supportedNamespaces[i].namespaceType != NST_LAST; i++)
     {
         if (!strcmp(_supportedNamespaces[i].extendedName, ns->extendedName))
         {
@@ -143,7 +168,7 @@ SoapReader::SoapNamespace* SoapReader::_getNamespace(SoapReader::NSType nsType)
 }
 
 
-Boolean SoapReader::next(
+Boolean SoapReader::_next(
     XmlEntry& entry, 
     NSType& nsType, 
     Boolean includeComment)
@@ -237,14 +262,14 @@ Boolean SoapReader::next(
 }
 
 
-void SoapReader::expectStartTag(
+void SoapReader::_expectStartTag(
     XmlEntry& entry, 
     NSType nsType, 
     const char* tagName)
 {
     NSType nst;
     const char* pos;
-    if (!next(entry, nst) ||
+    if (!_next(entry, nst) ||
         entry.type != XmlEntry::START_TAG ||
         nsType != nst ||
         (pos = strchr(entry.text, ':')) == NULL ||
@@ -262,14 +287,14 @@ void SoapReader::expectStartTag(
 }
 
 
-void SoapReader::expectStartOrEmptyTag(
+void SoapReader::_expectStartOrEmptyTag(
     XmlEntry& entry, 
     NSType nsType, 
     const char* tagName)
 {
     NSType nst;
     const char* pos;
-    if (!next(entry, nst) ||
+    if (!_next(entry, nst) ||
         (entry.type != XmlEntry::START_TAG &&
          entry.type != XmlEntry::EMPTY_TAG) ||
         nsType != nst ||
@@ -287,14 +312,14 @@ void SoapReader::expectStartOrEmptyTag(
 }
 
 
-void SoapReader::expectEndTag(
+void SoapReader::_expectEndTag(
     XmlEntry& entry, 
     NSType nsType, 
     const char* tagName)
 {
     NSType nst;
     const char* pos;
-    if (!next(entry, nst) ||
+    if (!_next(entry, nst) ||
         entry.type != XmlEntry::END_TAG ||
         nsType != nst ||
         (pos = strchr(entry.text, ':')) == NULL ||
@@ -311,13 +336,13 @@ void SoapReader::expectEndTag(
 }
 
 
-Boolean SoapReader::testEndTag(NSType nsType, const char* tagName)
+Boolean SoapReader::_testEndTag(NSType nsType, const char* tagName)
 {
     XmlEntry entry;
     NSType nst;
     const char* pos;
 
-    if (!next(entry, nst) ||
+    if (!_next(entry, nst) ||
         entry.type != XmlEntry::END_TAG ||
         nsType != nst ||
         (pos = strchr(entry.text, ':')) == NULL ||
@@ -332,6 +357,97 @@ Boolean SoapReader::testEndTag(NSType nsType, const char* tagName)
 }
 
 
+Boolean SoapReader::testSoapStartTag(
+    SoapEntry& soapEntry, 
+    NSType nsType, 
+    const char* tagName)
+{
+    const char* pos;
+    if (soapEntry.nsType == nsType &&
+        soapEntry.entry.type == XmlEntry::START_TAG &&
+        (pos = strchr(soapEntry.entry.text, ':')) != NULL &&
+        strcmp(pos + 1, tagName) == 0)
+    {
+        return true;
+    }
+    return false;
+}
+
+
+void SoapReader::processSoapEnvelope(String& soapAction)
+{
+    SoapEntry soapEntry;
+    String wsaAction;
+
+    // Read SOAP-ENV:Envelope start tag.
+    _processEnvelopeStartTag();
+
+    // Read SOAP-ENV:Header start tag.
+    _processHeaderStartTag();
+
+    // Read SOAP-ENV:Header content
+    while (!_testEndTag(NST_SOAP_ENVELOPE, "Header"))
+    {
+        _next(soapEntry.entry, soapEntry.nsType);
+
+        // We are looking for <wsa:Action> tag
+        if (testSoapStartTag(soapEntry, NST_WS_ADDRESSING, "Action"))
+        {
+            _expectContentOrCData(soapEntry.entry);
+            wsaAction = soapEntry.entry.text;
+
+            // If SOAPAction HTTP header has not been defined, set the
+            // action to be whatever <wsa:Action> says.
+            if (soapAction.size() == 0)
+            {
+                soapAction = wsaAction;
+            }
+            // If SOAPAction has been set, it must match the value of
+            // the <wsa:Action> tag.
+            else if (wsaAction != soapAction)
+            {
+                // TODO: throw an exception
+            }
+
+            // Next should be the end tag for <wsa:Action>
+            _expectEndTag(soapEntry.entry,  NST_WS_ADDRESSING, "Action");
+
+            // Read the entry following </wsa:Action> so it can be
+            // added tot the array
+            _next(soapEntry.entry, soapEntry.nsType);
+        }
+
+        _soapHeader.append(soapEntry);
+    }
+
+    // Read SOAP-ENV:Header end tag.
+    _processHeaderEndTag();
+
+    // Read SOAP-ENV:Body start tag.
+    if (_processBodyStartTag())
+    {
+        // Read SOAP-ENV:Body content
+        while (!_testEndTag(NST_SOAP_ENVELOPE, "Body"))
+        {
+            _next(soapEntry.entry, soapEntry.nsType);
+            _soapBody.append(soapEntry);
+        }
+
+        // Read SOAP-ENV:Body end tag.
+        _processBodyEndTag();
+    }
+
+    // Read SOAP-ENV:Envelope end tag.
+    _processEnvelopeEndTag();
+
+    
+}
+
+void SoapReader::_expectContentOrCData(XmlEntry& entry)
+{
+    XmlReader::expectContentOrCData(_parser, entry);
+}
+
 //-----------------------------------------------------------------------------
 //
 // getXmlDeclaration()
@@ -339,7 +455,6 @@ Boolean SoapReader::testEndTag(NSType nsType, const char* tagName)
 //     <?xml version="1.0" encoding="utf-8"?>
 //
 //-----------------------------------------------------------------------------
-
 void SoapReader::getXmlDeclaration(
     const char*& xmlVersion,
     const char*& xmlEncoding)
@@ -354,14 +469,13 @@ void SoapReader::getXmlDeclaration(
 //     <SOAP-ENV:Envelope
 //          xmlns:SOAP-ENV="http://www.w3.org/2003/05/soap-envelope"
 //          xmlns:SOAP-ENC="http://www.w3.org/2003/05/soap-encoding"
-//          . . .
-//     >
+//          . . . >
 //
 //-----------------------------------------------------------------------------
-void SoapReader::processEnvelopeStartTag()
+void SoapReader::_processEnvelopeStartTag()
 {
     XmlEntry entry;
-    expectStartTag(entry, NST_SOAP_ENVELOPE, "Envelope");
+    _expectStartTag(entry, NST_SOAP_ENVELOPE, "Envelope");
 }
 
 //-----------------------------------------------------------------------------
@@ -371,10 +485,10 @@ void SoapReader::processEnvelopeStartTag()
 //     </SOAP-ENV:Envelope>
 //
 //-----------------------------------------------------------------------------
-void SoapReader::processEnvelopeEndTag()
+void SoapReader::_processEnvelopeEndTag()
 {
     XmlEntry entry;
-    expectEndTag(entry, NST_SOAP_ENVELOPE, "Envelope");
+    _expectEndTag(entry, NST_SOAP_ENVELOPE, "Envelope");
 }
 
 //-----------------------------------------------------------------------------
@@ -384,10 +498,10 @@ void SoapReader::processEnvelopeEndTag()
 //     <SOAP-ENV:Header>
 //
 //-----------------------------------------------------------------------------
-void SoapReader::processHeaderStartTag()
+void SoapReader::_processHeaderStartTag()
 {
     XmlEntry entry;
-    expectStartTag(entry, NST_SOAP_ENVELOPE, "Header");
+    _expectStartTag(entry, NST_SOAP_ENVELOPE, "Header");
 }
 
 //-----------------------------------------------------------------------------
@@ -397,22 +511,10 @@ void SoapReader::processHeaderStartTag()
 //     </SOAP-ENV:Header>
 //
 //-----------------------------------------------------------------------------
-void SoapReader::processHeaderEndTag()
+void SoapReader::_processHeaderEndTag()
 {
     XmlEntry entry;
-    expectEndTag(entry, NST_SOAP_ENVELOPE, "Header");
-}
-
-//-----------------------------------------------------------------------------
-//
-// isHeaderEndTag()
-//
-//     Test of the next token is </SOAP-ENV:Header>
-//
-//-----------------------------------------------------------------------------
-Boolean SoapReader::isHeaderEndTag()
-{
-    return testEndTag(NST_SOAP_ENVELOPE, "Header");
+    _expectEndTag(entry, NST_SOAP_ENVELOPE, "Header");
 }
 
 //-----------------------------------------------------------------------------
@@ -422,10 +524,10 @@ Boolean SoapReader::isHeaderEndTag()
 //     <SOAP-ENV:Body>
 //
 //-----------------------------------------------------------------------------
-Boolean SoapReader::processBodyStartTag()
+Boolean SoapReader::_processBodyStartTag()
 {
     XmlEntry entry;
-    expectStartOrEmptyTag(entry, NST_SOAP_ENVELOPE, "Body");
+    _expectStartOrEmptyTag(entry, NST_SOAP_ENVELOPE, "Body");
     if (entry.type == XmlEntry::EMPTY_TAG)
     {
         return false;
@@ -440,22 +542,10 @@ Boolean SoapReader::processBodyStartTag()
 //     </SOAP-ENV:Body>
 //
 //-----------------------------------------------------------------------------
-void SoapReader::processBodyEndTag()
+void SoapReader::_processBodyEndTag()
 {
     XmlEntry entry;
-    expectEndTag(entry, NST_SOAP_ENVELOPE, "Body");
-}
-
-//-----------------------------------------------------------------------------
-//
-// isBodyEndTag()
-//
-//     Test of the next token is </SOAP-ENV:Body>
-//
-//-----------------------------------------------------------------------------
-Boolean SoapReader::isBodyEndTag()
-{
-    return testEndTag(NST_SOAP_ENVELOPE, "Body");
+    _expectEndTag(entry, NST_SOAP_ENVELOPE, "Body");
 }
 
 PEGASUS_NAMESPACE_END

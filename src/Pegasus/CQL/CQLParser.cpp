@@ -91,6 +91,7 @@ void CQLParser::parse(
     catch(...)
     {
         CQL_Bison_Cleanup();
+        delete CQL_globalParserState;
         PEG_METHOD_EXIT();
         throw;
     }

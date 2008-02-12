@@ -689,6 +689,7 @@ Z [Zz]
         }
 
 . {
+    delete [] CQL_lval.strValue;
     CQL_lval.strValue = 0;
     CQL_DEBUG_TRACE("LEX::TOK_UNEXPECTED_CHAR\n");
 

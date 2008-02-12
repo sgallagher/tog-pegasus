@@ -109,7 +109,7 @@ int setUserContext(int argc, char* argv[])
             argv[3],
             argv[4],
             argv[5],
-            0) == -1)
+            (char*)0) == -1)
     {
         cerr << "execl failed: " << strerror(errno) << endl;
         return -1;
@@ -168,14 +168,13 @@ int main(int argc, char* argv[])
         }
     }
 
-    const char* moduleName;
+    const char* moduleName = argv[5];
 
     try
     {
         AnonymousPipe pipeFromServer(argv[2], 0);
         AnonymousPipe pipeToServer(0, argv[3]);
         const char* userName = argv[4];
-        moduleName = argv[5];
 
 #ifdef PEGASUS_OS_PASE
         char jobName[11];

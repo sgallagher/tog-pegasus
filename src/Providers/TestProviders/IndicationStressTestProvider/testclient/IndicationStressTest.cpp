@@ -103,7 +103,7 @@ enum indicationHandleProtocol {
 
 class T_Parms{
    public:
-    AutoPtr<CIMClient> client;
+    CIMClient* client;
     Uint32 indicationSendCount;
     Uint32 uniqueID;
 };
@@ -1018,7 +1018,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeTests(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
-    CIMClient *client = parms->client.get();
+    CIMClient *client = parms->client;
     Uint32 indicationSendCount = parms->indicationSendCount;
     Uint32 id = parms->uniqueID;
     char id_[4];
@@ -1043,6 +1043,9 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeTests(void *parm)
     {
         cout << e.getMessage() << endl;
     }
+
+    delete parms;
+
     my_thread->exit_self((ThreadReturnType)5);
     return(0);
 }
@@ -1054,7 +1057,7 @@ Thread * _runTestThreads(
 {
     // package parameters, create thread and run...
     AutoPtr<T_Parms> parms(new T_Parms());
-    parms->client.reset(client);
+    parms->client = client;
     parms->indicationSendCount = indicationSendCount;
     parms->uniqueID = uniqueID;
     AutoPtr<Thread> t(new Thread(_executeTests, (void*)parms.release(), false));
@@ -1265,13 +1268,11 @@ int _beginTest(CIMClient& workClient, const char* opt,
         // clean up
         for(Uint32 i=0; i< clientConnections.size(); i++)
         {
-            if(clientConnections[i])
-                delete clientConnections[i];
+            delete clientConnections[i];
         }
         for(Uint32 i=0; i < clientThreads.size(); i++)
         {
-            if(clientThreads[i])
-                delete clientThreads[i];
+            delete clientThreads[i];
         }
 
         //

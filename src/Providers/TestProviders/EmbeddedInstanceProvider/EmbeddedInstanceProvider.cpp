@@ -61,6 +61,7 @@ void EmbeddedInstanceProvider::initialize(CIMOMHandle& cimomHandle)
 
 void EmbeddedInstanceProvider::terminate()
 {
+    delete this;
 }
 
 void EmbeddedInstanceProvider::enableIndications(

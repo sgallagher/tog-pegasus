@@ -517,7 +517,8 @@ int main(int argc, char** argv)
     CIMListener listener(listenerPort);
     receivedIndications = 0;
     mut = new Mutex();
-    listener.addConsumer(new EmbeddedInstanceIndicationConsumer());
+    EmbeddedInstanceIndicationConsumer consumer1;
+    listener.addConsumer(&consumer1);
     listener.start();
 
     try
@@ -558,6 +559,9 @@ int main(int argc, char** argv)
         removeErrorInstance(client);
         removeSubscription(client);
     }
+
+    listener.removeConsumer(&consumer1);
+    listener.stop();
 
     if (ret == 0)
         printf("+++EmbeddedInstanceTest passed+++\n");

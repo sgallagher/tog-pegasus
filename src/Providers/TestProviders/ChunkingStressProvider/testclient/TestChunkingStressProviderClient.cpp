@@ -75,7 +75,7 @@ static const String ASSOC_CLASSNAME("TST_ChunkingStressAssoc");
 ////////////////////////////////////////////////////////////////////////////////
 class T_Parms{
    public:
-    AutoPtr<CIMClient> client;
+    CIMClient* client;
     Uint32 duration;
     Uint32 uniqueID;
 };
@@ -142,7 +142,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeEI(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
-    CIMClient *client = parms->client.get();
+    CIMClient *client = parms->client;
     Uint32 duration = parms->duration;
     Uint32 uniqueID = parms->uniqueID;
 
@@ -197,11 +197,14 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeEI(void *parm)
         }
         _testEnd("EI", uniqueID, iterations, elapsedSeconds);
     }
-    catch(Exception e)
+    catch (Exception& e)
     {
         cout << "---- EI thread " << uniqueID << " caught exception: " 
             << e.getMessage() << endl;
     }
+
+    delete parms;
+
     my_thread->exit_self((ThreadReturnType)0);
     return(0);
 }
@@ -210,7 +213,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeNI(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
-    CIMClient *client = parms->client.get();
+    CIMClient *client = parms->client;
     Uint32 duration = parms->duration;
     Uint32 uniqueID = parms->uniqueID;
 
@@ -265,11 +268,14 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeNI(void *parm)
         }
         _testEnd("NI", uniqueID, iterations, elapsedSeconds);
     }
-    catch(Exception e)
+    catch (Exception& e)
     {
         cout << "---- NI thread " << uniqueID << " caught exception: " 
             << e.getMessage() << endl;
     }
+
+    delete parms;
+
     my_thread->exit_self((ThreadReturnType)0);
     return(0);
 }
@@ -278,7 +284,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeA(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
-    CIMClient *client = parms->client.get();
+    CIMClient *client = parms->client;
     Uint32 duration = parms->duration;
     Uint32 uniqueID = parms->uniqueID;
 
@@ -333,11 +339,14 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeA(void *parm)
         }
         _testEnd("A ", uniqueID, iterations, elapsedSeconds);
     }
-    catch(Exception e)
+    catch (Exception& e)
     {
         cout << "---- A  thread " << uniqueID << " caught exception: " 
             << e.getMessage() << endl;
     }
+
+    delete parms;
+
     my_thread->exit_self((ThreadReturnType)0);
     return(0);
 }
@@ -346,7 +355,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeAN(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
-    CIMClient *client = parms->client.get();
+    CIMClient *client = parms->client;
     Uint32 duration = parms->duration;
     Uint32 uniqueID = parms->uniqueID;
 
@@ -401,11 +410,14 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeAN(void *parm)
         }
         _testEnd("AN", uniqueID, iterations, elapsedSeconds);
     }
-    catch(Exception e)
+    catch (Exception& e)
     {
         cout << "---- AN thread " << uniqueID << " caught exception: "
             << e.getMessage() << endl;
     }
+
+    delete parms;
+
     my_thread->exit_self((ThreadReturnType)0);
     return(0);
 }
@@ -414,7 +426,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeR(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
-    CIMClient *client = parms->client.get();
+    CIMClient *client = parms->client;
     Uint32 duration = parms->duration;
     Uint32 uniqueID = parms->uniqueID;
 
@@ -469,11 +481,14 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeR(void *parm)
         }
         _testEnd("R ", uniqueID, iterations, elapsedSeconds);
     }
-    catch(Exception e)
+    catch (Exception& e)
     {
         cout << "---- R  thread " << uniqueID << " caught exception: "
             << e.getMessage() << endl;
     }
+
+    delete parms;
+
     my_thread->exit_self((ThreadReturnType)0);
     return(0);
 }
@@ -482,7 +497,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeRN(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
-    CIMClient *client = parms->client.get();
+    CIMClient *client = parms->client;
     Uint32 duration = parms->duration;
     Uint32 uniqueID = parms->uniqueID;
 
@@ -537,11 +552,14 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeRN(void *parm)
         }
         _testEnd("RN", uniqueID, iterations, elapsedSeconds);
     }
-    catch(Exception e)
+    catch (Exception& e)
     {
         cout << "---- RN thread " << uniqueID << " caught exception: "
             << e.getMessage() << endl;
     }
+
+    delete parms;
+
     my_thread->exit_self((ThreadReturnType)0);
     return(0);
 }
@@ -554,7 +572,7 @@ Thread * _runTestThreads(
 {
     // package parameters, create thread and run...
     AutoPtr<T_Parms> parms(new T_Parms());
-    parms->client.reset(client);
+    parms->client = client;
     parms->duration = duration;
     parms->uniqueID = uniqueID;
     AutoPtr<Thread> t(new Thread(_executeFn, (void*)parms.release(), false));
@@ -659,16 +677,13 @@ void _beginTest(const Uint32 duration, const char* thdCountStr)
     // clean up connections
     for(Uint32 i=0; i< clientConnections.size(); i++)
     {
-        if(clientConnections[i])
-            delete clientConnections[i];
+        delete clientConnections[i];
     }
     // clean up threads
     for(Uint32 i=0; i < clientThreads.size(); i++)
     {
-        if(clientThreads[i])
-            delete clientThreads[i];
+        delete clientThreads[i];
     }
-
 }
 
 int main(int argc, char** argv)

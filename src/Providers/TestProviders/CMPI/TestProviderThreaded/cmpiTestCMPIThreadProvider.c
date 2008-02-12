@@ -82,6 +82,7 @@ static CMPI_MUTEX_TYPE threadCntMutex;
 /*                              Threads                                       */
 /* ---------------------------------------------------------------------------*/
 
+#if !defined(PEGASUS_DEBUG)
     static CMPI_THREAD_RETURN CMPI_THREAD_CDECL
 bad_thread (void *args)
 {
@@ -97,6 +98,7 @@ bad_thread (void *args)
   return (CMPI_THREAD_RETURN) 0;
 
 }
+#endif
 
 static CMPI_THREAD_RETURN CMPI_THREAD_CDECL
 good_thread (void *args)

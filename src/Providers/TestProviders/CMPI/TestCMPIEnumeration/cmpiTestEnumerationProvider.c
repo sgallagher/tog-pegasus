@@ -341,7 +341,7 @@ CMPIStatus TestCMPIEnumerationProviderInvokeMethod (CMPIMethodMI * mi,
 
     unsigned int arg_cnt = 0, index = 0;
 
-    CMPIUint32 oper_rc = 1;
+    CMPIValue value;
 
     char *result = NULL;
 
@@ -399,8 +399,8 @@ CMPIStatus TestCMPIEnumerationProviderInvokeMethod (CMPIMethodMI * mi,
             methodName,
             strlen ("testEnumeration"))== 0)
         {
-            oper_rc = _testEnumeration(ctx, rslt);
-            CMReturnData (rslt, (CMPIValue *) &oper_rc, CMPI_uint32);
+            value.uint32 = _testEnumeration(ctx, rslt);
+            CMReturnData (rslt, &value, CMPI_uint32);
             CMReturnDone (rslt);
         }
         else

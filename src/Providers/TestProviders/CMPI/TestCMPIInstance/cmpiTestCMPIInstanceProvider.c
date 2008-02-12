@@ -270,7 +270,7 @@ CMPIStatus TestCMPIInstanceProviderInvokeMethod (CMPIMethodMI * mi,
 
     unsigned int arg_cnt = 0, index = 0;
 
-    CMPIUint32 oper_rc = 1;
+    CMPIValue value;
 
     char *result = NULL;
 
@@ -328,8 +328,8 @@ CMPIStatus TestCMPIInstanceProviderInvokeMethod (CMPIMethodMI * mi,
             methodName,
             strlen ("testInstance"))== 0)
         {
-            oper_rc = _testInstance();
-            CMReturnData (rslt, (CMPIValue *) &oper_rc, CMPI_uint32);
+            value.uint32 = _testInstance();
+            CMReturnData (rslt, &value, CMPI_uint32);
             CMReturnDone (rslt);
         }
         else

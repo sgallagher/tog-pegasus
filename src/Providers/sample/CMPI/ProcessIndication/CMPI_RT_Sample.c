@@ -113,7 +113,7 @@ CMPIStatus testProvInvokeMethod
    const CMPIObjectPath * cop, const char *method, const CMPIArgs * in,
    CMPIArgs * out)
 {
-  CMPIUint32 rc = 0;
+  CMPIValue value;
 #ifdef PEGASUS_DEBUG
   fprintf (stderr, "+++ testProvInvokeMethod()\n");
 #endif
@@ -129,7 +129,8 @@ CMPIStatus testProvInvokeMethod
       generateIndication (method, ctx);
     }
 
-  CMReturnData (rslt, (CMPIValue *) & rc, CMPI_uint32);
+  value.uint32 = 0;
+  CMReturnData (rslt, &value, CMPI_uint32);
   CMReturnDone (rslt);
   CMReturn (CMPI_RC_OK);
 }

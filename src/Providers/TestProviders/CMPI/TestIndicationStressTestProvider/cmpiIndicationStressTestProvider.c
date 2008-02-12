@@ -213,13 +213,14 @@ CMPIStatus TestCMPIIndicationStressTestProviderInvokeMethod(
     CMPIUint32 indicationSendCount = 0;
     CMPIInstance *indicationInstance = 0;
     CMPIData data;
+    CMPIValue value;
     char UIDbuffer[32];
-    int i = 0;
     CMPIUint32 seqNum;
 
     if (!strcmp(methodName, "getSubscriptionCount"))
     {
-        CMReturnData (rslt, (CMPIValue *)&_numSubscriptions, CMPI_uint32);
+        value.uint32 = _numSubscriptions;
+        CMReturnData (rslt, &value, CMPI_uint32);
         CMReturnDone(rslt);
         CMReturn (CMPI_RC_OK);
     }
@@ -242,7 +243,8 @@ CMPIStatus TestCMPIIndicationStressTestProviderInvokeMethod(
     }
     if (_enabled)
     {
-        CMReturnData (rslt, (CMPIValue *)&i, CMPI_sint32);
+        value.uint32 = 0;
+        CMReturnData (rslt, &value, CMPI_sint32);
         CMReturnDone (rslt);
     }
 

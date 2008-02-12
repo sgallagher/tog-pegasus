@@ -45,12 +45,16 @@ PEGASUS_NAMESPACE_BEGIN
 class ExceptionRep
 {
 public:
-    String message;
-    String cimMessage;  // Contains the message for the CIM error code
-    ContentLanguageList contentLanguages;
+
+    // Note:  The default implementations of the default constructor, copy
+    // constructor, and assignment operator are used.
 
     // Allow subclass objects to be destructed properly
     virtual ~ExceptionRep() {}
+
+    String message;
+    String cimMessage;  // Contains the message for the CIM error code
+    ContentLanguageList contentLanguages;
 };
 
 PEGASUS_NAMESPACE_END

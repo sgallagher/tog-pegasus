@@ -72,6 +72,15 @@ Exception::~Exception()
     delete _rep;
 }
 
+Exception& Exception::operator=(const Exception& exception)
+{
+    if (&exception != this)
+    {
+        *this->_rep = *exception._rep;
+    }
+    return *this;
+}
+
 const String& Exception::getMessage() const
 {
     return _rep->message;
@@ -432,37 +441,22 @@ CIMException::CIMException(
     tmp->line = 0;
     _rep = tmp;
 }
+
 CIMException::CIMException(const CIMException & cimException)
     : Exception()
 {
-    CIMExceptionRep* tmp = new CIMExceptionRep();
-    CIMExceptionRep* rep;
-    rep = reinterpret_cast<CIMExceptionRep*>(cimException._rep);
-    tmp->message = rep->message;
-    tmp->contentLanguages = rep->contentLanguages;
-    tmp->cimMessage = rep->cimMessage;
-    tmp->code = rep->code;
-    tmp->file = rep->file;
-    tmp->line = rep->line;
-    tmp->errors = rep->errors;
-    _rep = tmp;
+    _rep = new CIMExceptionRep(
+        *reinterpret_cast<CIMExceptionRep*>(cimException._rep));
 }
 
 CIMException& CIMException::operator=(const CIMException & cimException)
 {
     if (&cimException != this)
     {
-        CIMExceptionRep* left;
-        CIMExceptionRep* right;
-        left = reinterpret_cast<CIMExceptionRep*>(this->_rep);
-        right = reinterpret_cast<CIMExceptionRep*>(cimException._rep);
-        left->message = right->message;
-        left->contentLanguages = right->contentLanguages;
-        left->cimMessage = right->cimMessage;
-        left->code = right->code;
-        left->file = right->file;
-        left->line = right->line;
-        left->errors = right->errors;
+        CIMExceptionRep* left = reinterpret_cast<CIMExceptionRep*>(this->_rep);
+        CIMExceptionRep* right =
+            reinterpret_cast<CIMExceptionRep*>(cimException._rep);
+        *left = *right;
     }
     return *this;
 }

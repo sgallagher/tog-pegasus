@@ -77,6 +77,9 @@ public:
     virtual ~Exception();
 
     ///
+    Exception& operator=(const Exception& exception);
+
+    ///
     virtual const String& getMessage() const;
 
 #ifdef PEGASUS_INTERNALONLY

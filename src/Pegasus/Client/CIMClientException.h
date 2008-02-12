@@ -77,6 +77,10 @@ public:
     virtual ~CIMClientHTTPErrorException();
 
     ///
+    CIMClientHTTPErrorException& operator=(
+        const CIMClientHTTPErrorException& httpError);
+
+    ///
     Uint32 getCode() const;
     ///
     String getCIMError() const;

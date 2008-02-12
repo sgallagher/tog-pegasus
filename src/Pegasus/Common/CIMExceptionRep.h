@@ -45,6 +45,10 @@ PEGASUS_NAMESPACE_BEGIN
 class CIMExceptionRep : public ExceptionRep
 {
 public:
+
+    // Note:  The default implementations of the default constructor, copy
+    // constructor, and assignment operator are used.
+
     CIMStatusCode code;
     String        file;
     Uint32        line;

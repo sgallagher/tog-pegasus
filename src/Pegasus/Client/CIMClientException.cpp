@@ -60,6 +60,10 @@ CIMClientMalformedHTTPException::CIMClientMalformedHTTPException(
 class CIMClientHTTPErrorExceptionRep : public ExceptionRep
 {
 public:
+
+    // Note:  The default implementations of the default constructor, copy
+    // constructor, and assignment operator are used.
+
     Uint32 httpStatusCode;
     String reasonPhrase;
     String cimError;
@@ -107,6 +111,7 @@ CIMClientHTTPErrorException::CIMClientHTTPErrorException(
     Uint32 httpStatusCode,
     const String& cimError,
     const String& cimErrorDetail)
+    : Exception()
 {
     CIMClientHTTPErrorExceptionRep* tmp =
         new CIMClientHTTPErrorExceptionRep ();
@@ -124,6 +129,7 @@ CIMClientHTTPErrorException::CIMClientHTTPErrorException(
     const String& reasonPhrase,
     const String& cimError,
     const String& cimErrorDetail)
+    : Exception()
 {
     CIMClientHTTPErrorExceptionRep* tmp =
         new CIMClientHTTPErrorExceptionRep ();
@@ -138,22 +144,28 @@ CIMClientHTTPErrorException::CIMClientHTTPErrorException(
 
 CIMClientHTTPErrorException::CIMClientHTTPErrorException(
     const CIMClientHTTPErrorException& httpError)
-    : Exception(*this)
+    : Exception()
 {
-    CIMClientHTTPErrorExceptionRep * tmp =
-        new CIMClientHTTPErrorExceptionRep ();
-    tmp->message = httpError._rep->message;
-    CIMClientHTTPErrorExceptionRep * rep;
-    rep = reinterpret_cast<CIMClientHTTPErrorExceptionRep*>(httpError._rep);
-    tmp->httpStatusCode = rep->httpStatusCode;
-    tmp->reasonPhrase = rep->reasonPhrase;
-    tmp->cimError = rep->cimError;
-    tmp->cimErrorDetail = rep->cimErrorDetail;
-    _rep = tmp;
+    _rep = new CIMClientHTTPErrorExceptionRep(
+        *reinterpret_cast<CIMClientHTTPErrorExceptionRep*>(httpError._rep));
 }
 
 CIMClientHTTPErrorException::~CIMClientHTTPErrorException()
 {
+}
+
+CIMClientHTTPErrorException& CIMClientHTTPErrorException::operator=(
+    const CIMClientHTTPErrorException& httpError)
+{
+    if (&httpError != this)
+    {
+        CIMClientHTTPErrorExceptionRep* left =
+            reinterpret_cast<CIMClientHTTPErrorExceptionRep*>(this->_rep);
+        CIMClientHTTPErrorExceptionRep* right =
+            reinterpret_cast<CIMClientHTTPErrorExceptionRep*>(httpError._rep);
+        *left = *right;
+    }
+    return *this;
 }
 
 Uint32 CIMClientHTTPErrorException::getCode() const

@@ -63,7 +63,7 @@ String SelectStatement::getQuery() const
     return _rep->getQuery();
 }
 
-void SelectStatement::setQueryContext(QueryContext& inCtx)
+void SelectStatement::setQueryContext(const QueryContext& inCtx)
 {
     _rep->setQueryContext(inCtx);
 }

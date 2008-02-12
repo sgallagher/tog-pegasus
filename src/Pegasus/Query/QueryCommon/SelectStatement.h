@@ -80,7 +80,7 @@ public:
      */
     String getQuery() const;
 
-    virtual void setQueryContext(QueryContext& inCtx);
+    virtual void setQueryContext(const QueryContext& inCtx);
 
     /** This method operates on a single CIMInstance.
 

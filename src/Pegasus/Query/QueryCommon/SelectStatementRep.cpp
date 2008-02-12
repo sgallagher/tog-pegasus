@@ -108,7 +108,7 @@ String SelectStatementRep::getQuery() const
     return _query;
 }
 
-void SelectStatementRep::setQueryContext(QueryContext& inCtx)
+void SelectStatementRep::setQueryContext(const QueryContext& inCtx)
 {
     if (_ctx == NULL)
     {

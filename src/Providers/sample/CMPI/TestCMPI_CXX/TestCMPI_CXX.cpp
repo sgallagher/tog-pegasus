@@ -48,16 +48,17 @@ PEGASUS_USING_PEGASUS;
 #define L line = __LINE__
 int line = 0;
 
-// Microsoft Visual C++ version 6.0 cannot output 64 bit values
-#if defined(_MSC_VER) && _MSC_VER < 1300
-std::ostream& operator<<(std::ostream& os, CMPIUint64 i)
+// Microsoft Visual C++ version 6.0 and HP-UX PA-RISC cannot write 64 bit values
+#if (defined(_MSC_VER) && _MSC_VER < 1300) || \
+    defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, CMPIUint64 i)
 {
     char buf[65];
     sprintf (buf, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", i);
     os << buf;
     return os;
 }
-std::ostream& operator<<(std::ostream& os, CMPISint64 i)
+PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, CMPISint64 i)
 {
     char buf[65];
     sprintf (buf, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", i);

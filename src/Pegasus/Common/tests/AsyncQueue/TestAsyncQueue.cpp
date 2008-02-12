@@ -59,22 +59,25 @@ static ThreadReturnType PEGASUS_THREAD_CDECL _reader(void* self_)
 
     for (Uint32 i = 0; i < ITERATIONS; i++)
     {
-    Message* message = queue->dequeue_wait();
-    PEGASUS_TEST_ASSERT(message);
+        Message* message = queue->dequeue_wait();
+        PEGASUS_TEST_ASSERT(message);
 
-    if (verbose)
-    {
-        if (((i + 1) % 1000) == 0)
-        printf("iterations: %05u\n", message->x);
-    }
-// special dish of the day for Sun Solaris
-// reports say that running as root causes
-// the thread not being scheduled-out
-// until this is resolved the yield()
-// will stay here just for Solaris
+        if (verbose)
+        {
+            if (((i + 1) % 1000) == 0)
+            printf("iterations: %05u\n", message->x);
+        }
+
 #ifdef PEGASUS_OS_SOLARIS
-    Threads::yield();
+        // special dish of the day for Sun Solaris
+        // reports say that running as root causes
+        // the thread not being scheduled-out
+        // until this is resolved the yield()
+        // will stay here just for Solaris
+        Threads::yield();
 #endif
+
+        delete message;
     }
 
     self->exit_self((ThreadReturnType)1);

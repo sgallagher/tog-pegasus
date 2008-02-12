@@ -54,24 +54,16 @@ PEGASUS_NAMESPACE_BEGIN
 //
 /////////////////////////////////////////////////////////////////////////////
 
-TracePropertyOwner* ConfigManager::traceOwner =
-    new TracePropertyOwner;
-LogPropertyOwner* ConfigManager::logOwner =
-    new LogPropertyOwner;
-DefaultPropertyOwner* ConfigManager::defaultOwner =
-    new DefaultPropertyOwner;
-SecurityPropertyOwner* ConfigManager::securityOwner =
-    new SecurityPropertyOwner;
-RepositoryPropertyOwner* ConfigManager::repositoryOwner =
-    new RepositoryPropertyOwner;
-ShutdownPropertyOwner* ConfigManager::shutdownOwner =
-    new ShutdownPropertyOwner;
-FileSystemPropertyOwner* ConfigManager::fileSystemOwner =
-    new FileSystemPropertyOwner;
-ProviderDirPropertyOwner* ConfigManager::providerDirOwner =
-    new ProviderDirPropertyOwner;
-NormalizationPropertyOwner* ConfigManager::normalizationOwner =
-    new NormalizationPropertyOwner;
+TracePropertyOwner ConfigManager::traceOwner;
+LogPropertyOwner ConfigManager::logOwner;
+DefaultPropertyOwner ConfigManager::defaultOwner;
+SecurityPropertyOwner ConfigManager::securityOwner;
+RepositoryPropertyOwner ConfigManager::repositoryOwner;
+ShutdownPropertyOwner ConfigManager::shutdownOwner;
+FileSystemPropertyOwner ConfigManager::fileSystemOwner;
+ProviderDirPropertyOwner ConfigManager::providerDirOwner;
+NormalizationPropertyOwner ConfigManager::normalizationOwner;
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -89,103 +81,103 @@ struct OwnerEntry
 static struct OwnerEntry _properties[] =
 {
     {"traceLevel",
-         (ConfigPropertyOwner*)ConfigManager::traceOwner},
+         (ConfigPropertyOwner*)&ConfigManager::traceOwner},
     {"traceComponents",
-         (ConfigPropertyOwner*)ConfigManager::traceOwner},
+         (ConfigPropertyOwner*)&ConfigManager::traceOwner},
     {"traceFilePath",
-         (ConfigPropertyOwner*)ConfigManager::traceOwner},
+         (ConfigPropertyOwner*)&ConfigManager::traceOwner},
 #if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir",
-         (ConfigPropertyOwner*)ConfigManager::logOwner},
+         (ConfigPropertyOwner*)&ConfigManager::logOwner},
 #endif
     {"logLevel",
-         (ConfigPropertyOwner*)ConfigManager::logOwner},
+         (ConfigPropertyOwner*)&ConfigManager::logOwner},
     {"enableHttpConnection",
-         (ConfigPropertyOwner*)ConfigManager::defaultOwner},
+         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"enableHttpsConnection",
-         (ConfigPropertyOwner*)ConfigManager::defaultOwner},
+         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"httpPort",
-         (ConfigPropertyOwner*)ConfigManager::defaultOwner},
+         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"httpsPort",
-         (ConfigPropertyOwner*)ConfigManager::defaultOwner},
+         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"home",
-         (ConfigPropertyOwner*)ConfigManager::defaultOwner},
+         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"daemon",
-         (ConfigPropertyOwner*)ConfigManager::defaultOwner},
+         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"slp",
-         (ConfigPropertyOwner*)ConfigManager::defaultOwner},
+         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"enableAssociationTraversal",
-         (ConfigPropertyOwner*)ConfigManager::defaultOwner},
+         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"enableIndicationService",
-         (ConfigPropertyOwner*)ConfigManager::defaultOwner},
+         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"enableAuthentication",
-         (ConfigPropertyOwner*)ConfigManager::securityOwner},
+         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
     {"enableNamespaceAuthorization",
-         (ConfigPropertyOwner*)ConfigManager::securityOwner},
+         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
     {"httpAuthType",
-         (ConfigPropertyOwner*)ConfigManager::securityOwner},
+         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
     {"passwordFilePath",
-         (ConfigPropertyOwner*)ConfigManager::securityOwner},
+         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
     {"sslCertificateFilePath",
-         (ConfigPropertyOwner*)ConfigManager::securityOwner},
+         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
     {"sslKeyFilePath",
-         (ConfigPropertyOwner*)ConfigManager::securityOwner},
+         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
     {"sslTrustStore",
-         (ConfigPropertyOwner*)ConfigManager::securityOwner},
+         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     {"crlStore",
-         (ConfigPropertyOwner*)ConfigManager::securityOwner},
+         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
 #endif
     {"sslClientVerificationMode",
-         (ConfigPropertyOwner*)ConfigManager::securityOwner},
+         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
     {"sslTrustStoreUserName",
-         (ConfigPropertyOwner*)ConfigManager::securityOwner},
+         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     {"kerberosServiceName",
-         (ConfigPropertyOwner*)ConfigManager::securityOwner},
+         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
 #endif
 #ifdef PEGASUS_OS_ZOS
     {"enableCFZAPPLID",
-         (ConfigPropertyOwner*)ConfigManager::securityOwner},
+         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
 #endif
     {"repositoryIsDefaultInstanceProvider",
-         (ConfigPropertyOwner*)ConfigManager::repositoryOwner},
+         (ConfigPropertyOwner*)&ConfigManager::repositoryOwner},
     {"enableBinaryRepository",
-         (ConfigPropertyOwner*)ConfigManager::repositoryOwner},
+         (ConfigPropertyOwner*)&ConfigManager::repositoryOwner},
     {"shutdownTimeout",
-         (ConfigPropertyOwner*)ConfigManager::shutdownOwner},
+         (ConfigPropertyOwner*)&ConfigManager::shutdownOwner},
     {"repositoryDir",
-         (ConfigPropertyOwner*)ConfigManager::fileSystemOwner},
+         (ConfigPropertyOwner*)&ConfigManager::fileSystemOwner},
     {"providerDir",
-         (ConfigPropertyOwner*)ConfigManager::providerDirOwner},
+         (ConfigPropertyOwner*)&ConfigManager::providerDirOwner},
     {"enableRemotePrivilegedUserAccess",
-         (ConfigPropertyOwner*)ConfigManager::securityOwner},
+         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
     {"enableSubscriptionsForNonprivilegedUsers",
-         (ConfigPropertyOwner*)ConfigManager::securityOwner},
+         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
     {"authorizedUserGroups",
-         (ConfigPropertyOwner*)ConfigManager::securityOwner},
+         (ConfigPropertyOwner*)&ConfigManager::securityOwner},
 #endif
     {"messageDir",
-         (ConfigPropertyOwner*)ConfigManager::fileSystemOwner},
+         (ConfigPropertyOwner*)&ConfigManager::fileSystemOwner},
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     {"enableNormalization",
-         (ConfigPropertyOwner*)ConfigManager::normalizationOwner},
+         (ConfigPropertyOwner*)&ConfigManager::normalizationOwner},
     {"excludeModulesFromNormalization",
-         (ConfigPropertyOwner*)ConfigManager::normalizationOwner},
+         (ConfigPropertyOwner*)&ConfigManager::normalizationOwner},
 #endif
     {"forceProviderProcesses",
-         (ConfigPropertyOwner*)ConfigManager::defaultOwner},
+         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"maxProviderProcesses",
-         (ConfigPropertyOwner*)ConfigManager::defaultOwner},
+         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
 #ifdef PEGASUS_ENABLE_AUDIT_LOGGER
     {"enableAuditLog",
-         (ConfigPropertyOwner*)ConfigManager::defaultOwner},
+         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
 #endif
     {"socketWriteTimeout",
-         (ConfigPropertyOwner*)ConfigManager::defaultOwner},
+         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"idleConnectionTimeout",
-         (ConfigPropertyOwner*)ConfigManager::defaultOwner}
+         (ConfigPropertyOwner*)&ConfigManager::defaultOwner}
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(_properties) / sizeof(struct OwnerEntry);
@@ -229,9 +221,9 @@ const String ConfigManager::PEGASUS_HOME_DEFAULT = ".";
 String ConfigManager::_pegasusHome = PEGASUS_HOME_DEFAULT;
 
 //
-// Initialize ConfigManager instance
+// The singleton ConfigManager instance
 //
-ConfigManager* ConfigManager::_instance = 0;
+AutoPtr<ConfigManager> ConfigManager::_instance;
 
 
 /** Constructor. */
@@ -250,38 +242,16 @@ ConfigManager::ConfigManager()
 }
 
 /**
- Terminate the ConfigManager
-*/
-void
-ConfigManager::destroy()
-{
-   if (_instance)
-   {
-       delete _instance->traceOwner;
-       delete _instance->logOwner;
-       delete _instance->defaultOwner;
-       delete _instance->securityOwner;
-       delete _instance->repositoryOwner;
-       delete _instance->shutdownOwner;
-       delete _instance->fileSystemOwner;
-       delete _instance->providerDirOwner;
-       delete _instance->normalizationOwner;
-       delete _instance;
-       _instance = 0;
-   }
-}
-
-/**
     Get a reference to the singleton ConfigManager instance.  If no
     ConfigManager instance exists, construct one.
 */
 ConfigManager* ConfigManager::getInstance()
 {
-    if (!_instance)
+    if (!_instance.get())
     {
-        _instance = new ConfigManager();
+        _instance.reset(new ConfigManager());
     }
-    return _instance;
+    return _instance.get();
 }
 
 

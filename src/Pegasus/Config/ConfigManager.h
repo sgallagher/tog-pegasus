@@ -77,7 +77,7 @@ private:
         Refers to the singleton ConfigManager instance.  If no ConfigManager
         instance has been constructed, this value is null.
      */
-    static ConfigManager* _instance;
+    static AutoPtr<ConfigManager> _instance;
 
     /** Constructor. */
     ConfigManager();
@@ -169,23 +169,23 @@ public:
         When a new property owner is created be sure to add static
         variable pointers for each of the new property owner.
     */
-    static TracePropertyOwner* traceOwner;
+    static TracePropertyOwner traceOwner;
 
-    static LogPropertyOwner* logOwner;
+    static LogPropertyOwner logOwner;
 
-    static DefaultPropertyOwner* defaultOwner;
+    static DefaultPropertyOwner defaultOwner;
 
-    static SecurityPropertyOwner* securityOwner;
+    static SecurityPropertyOwner securityOwner;
 
-    static RepositoryPropertyOwner* repositoryOwner;
+    static RepositoryPropertyOwner repositoryOwner;
 
-    static ShutdownPropertyOwner* shutdownOwner;
+    static ShutdownPropertyOwner shutdownOwner;
 
-    static FileSystemPropertyOwner* fileSystemOwner;
+    static FileSystemPropertyOwner fileSystemOwner;
 
-    static ProviderDirPropertyOwner* providerDirOwner;
+    static ProviderDirPropertyOwner providerDirOwner;
 
-    static NormalizationPropertyOwner* normalizationOwner;
+    static NormalizationPropertyOwner normalizationOwner;
 
     /**
         Boolean indicating whether configuration data should be read from
@@ -204,11 +204,6 @@ public:
         ConfigManager instance exists, construct one.
     */
     static ConfigManager* getInstance();
-
-    /**
-        Terminate the ConfigManager.
-    */
-    static void destroy();
 
     /**
         Initialize the current value of a config property.

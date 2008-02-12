@@ -626,7 +626,6 @@ CIMServer::~CIMServer ()
     delete _repository;
 
     // Destroy the singleton services
-    ConfigManager::destroy();
     UserManager::destroy();
     ShutdownService::destroy();
 

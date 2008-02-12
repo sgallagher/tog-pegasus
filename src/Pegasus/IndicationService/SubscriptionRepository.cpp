@@ -64,8 +64,8 @@ SubscriptionRepository::SubscriptionRepository (
     CIMRepository * repository)
     : _repository (repository)
 {
-    _normalizedSubscriptionTable =
-        new NormalizedSubscriptionTable(getAllSubscriptions());
+    _normalizedSubscriptionTable.reset(
+        new NormalizedSubscriptionTable(getAllSubscriptions()));
 }
 
 SubscriptionRepository::~SubscriptionRepository ()

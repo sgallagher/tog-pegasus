@@ -90,8 +90,9 @@ class CQLSelectStatementRep : public SelectStatementRep
 
     CQLPredicate getPredicate() const;
 
-    void insertClassPathAlias(const CQLIdentifier& inIdentifier,
-                              String inAlias);
+    void insertClassPathAlias(
+        const CQLIdentifier& inIdentifier,
+        const String& inAlias);
 
     void appendSelectIdentifier(const CQLChainedIdentifier& x);
 

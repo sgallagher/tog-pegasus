@@ -1550,7 +1550,7 @@ CQLPredicate CQLSelectStatementRep::getPredicate() const
 
 void CQLSelectStatementRep::insertClassPathAlias(
     const CQLIdentifier& inIdentifier,
-    String inAlias)
+    const String& inAlias)
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::insertClassPathAlias");
     

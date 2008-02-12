@@ -409,8 +409,9 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
       <I><B>Experimental Interface</B></I><BR>
     */
-    void insertClassPathAlias(const CQLIdentifier& inIdentifier,
-                              String inAlias);
+    void insertClassPathAlias(
+        const CQLIdentifier& inIdentifier,
+        const String& inAlias);
 
     /**
       Appends a CQLIdentifier into the FROM list of the statement.

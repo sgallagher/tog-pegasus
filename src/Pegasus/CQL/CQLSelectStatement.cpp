@@ -196,7 +196,8 @@ CQLPredicate CQLSelectStatement::getPredicate() const
 }
 
 void CQLSelectStatement::insertClassPathAlias(
-    const CQLIdentifier& inIdentifier, String inAlias)
+    const CQLIdentifier& inIdentifier,
+    const String& inAlias)
 {
     PEGASUS_ASSERT(_rep != NULL);
     

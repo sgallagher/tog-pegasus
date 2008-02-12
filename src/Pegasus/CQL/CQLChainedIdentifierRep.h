@@ -29,15 +29,6 @@
 //
 //==============================================================================
 //
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3588
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CQLChainedIdentifierRep_h
@@ -87,8 +78,6 @@ class CQLChainedIdentifierRep : public QueryChainedIdentifierRep
 
     ~CQLChainedIdentifierRep();
 
-    CQLChainedIdentifierRep& operator=(const CQLChainedIdentifierRep& rhs);
-
     CQLIdentifier operator[](Uint32 index)const;
 
     Array<CQLIdentifier> getSubIdentifiers()const;
@@ -99,8 +88,10 @@ class CQLChainedIdentifierRep : public QueryChainedIdentifierRep
 
   private:
 
-    void parse(const String& string);
+    CQLChainedIdentifierRep(const CQLChainedIdentifierRep& rhs);
+    CQLChainedIdentifierRep& operator=(const CQLChainedIdentifierRep& rhs);
 
+    void parse(const String& string);
 };
 
 PEGASUS_NAMESPACE_END

@@ -94,16 +94,6 @@ CQLIdentifier CQLChainedIdentifierRep::operator[](Uint32 index)const
     return CQLIdentifier(_subIdentifiers[index]);
 }
 
-CQLChainedIdentifierRep& CQLChainedIdentifierRep::operator=(
-    const CQLChainedIdentifierRep& rhs)
-{
-    if(&rhs != this)
-    {
-        _subIdentifiers = rhs._subIdentifiers;
-    }
-    return *this;
-}
-
 void CQLChainedIdentifierRep::parse(const String & string)
 {
     PEG_METHOD_ENTER(TRC_CQL, "CQLChainedIdentifierRep::parse");    

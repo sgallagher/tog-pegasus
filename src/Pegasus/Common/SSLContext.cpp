@@ -1153,11 +1153,14 @@ Boolean SSLContextRep::_verifyPrivateKey(SSL_CTX *ctx, const String& keyPath)
 
     if (SSL_CTX_use_PrivateKey(ctx, pkey) <= 0)
     {
+        EVP_PKEY_free(pkey);
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
             String("---> SSL: no private key found in " + keyPath));
         PEG_METHOD_EXIT();
         return false;
     }
+
+    EVP_PKEY_free(pkey);
 
     // Check private key for validity.
 

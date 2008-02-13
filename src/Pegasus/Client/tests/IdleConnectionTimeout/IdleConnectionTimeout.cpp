@@ -70,7 +70,7 @@ class T_Parms{
 ThreadReturnType PEGASUS_THREAD_CDECL _runningThd(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
-    T_Parms *parms = (T_Parms *)my_thread->get_parm();
+    AutoPtr<T_Parms> parms((T_Parms *)my_thread->get_parm());
     Uint32 durationSeconds = parms->durationSeconds;
     const char * testUserid = parms->testUserid;
     const char * testPasswd = parms->testPasswd;
@@ -116,7 +116,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _runningThd(void *parm)
 ThreadReturnType PEGASUS_THREAD_CDECL _idleThd(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
-    T_Parms *parms = (T_Parms *)my_thread->get_parm();
+    AutoPtr<T_Parms> parms((T_Parms *)my_thread->get_parm());
     Uint32 durationSeconds = parms->durationSeconds;
     const char * testUserid = parms->testUserid;
     const char * testPasswd = parms->testPasswd;

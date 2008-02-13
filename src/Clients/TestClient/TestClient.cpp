@@ -68,9 +68,10 @@ static AtomicInt errorCount(0);
 /**
   Thread Parameters Class
 */
-class T_Parms{
-   public:
-    AutoPtr<CIMClient> client; //PEP101
+class T_Parms
+{
+public:
+    CIMClient* client;
     int verboseTest;
     int activeTest;
     int testCount;
@@ -1234,11 +1235,11 @@ void GetOptions(
 }
 
 
-ThreadReturnType PEGASUS_THREAD_CDECL executeTests(void *parm){
-
+ThreadReturnType PEGASUS_THREAD_CDECL executeTests(void *parm)
+{
     Thread *my_thread = (Thread *)parm;
-    T_Parms *parms = (T_Parms *)my_thread->get_parm();
-    CIMClient *client = parms->client.get();
+    AutoPtr<T_Parms> parms((T_Parms *)my_thread->get_parm());
+    CIMClient* client = parms->client;
     Uint32 testCount = parms->testCount;
     Boolean verboseTest = parms->verboseTest == 0 ? false : true;
     Boolean activeTest = parms->activeTest == 0 ? false : true;
@@ -1323,20 +1324,24 @@ ThreadReturnType PEGASUS_THREAD_CDECL executeTests(void *parm){
     return ThreadReturnType(0);
 }
 
-Thread * runTests(CIMClient *client, Uint32 testCount, Boolean activeTest, 
-        Boolean verboseTest, int uniqueID){
-        // package parameters, create thread and run...
-        AutoPtr<T_Parms> parms(new T_Parms());
-        parms->client.reset(client);
-        parms->testCount = testCount;
-        parms->activeTest = (activeTest) ? 1 : 0;
-        parms->verboseTest = (verboseTest) ? 1 : 0;
-        parms->uniqueID = uniqueID;
-        AutoPtr<Thread> t(new Thread(executeTests, (void*)parms.release(), 
-                    false));
+Thread* runTests(
+    CIMClient* client,
+    Uint32 testCount,
+    Boolean activeTest, 
+    Boolean verboseTest,
+    int uniqueID)
+{
+    // package parameters, create thread and run...
+    AutoPtr<T_Parms> parms(new T_Parms());
+    parms->client = client;
+    parms->testCount = testCount;
+    parms->activeTest = (activeTest) ? 1 : 0;
+    parms->verboseTest = (verboseTest) ? 1 : 0;
+    parms->uniqueID = uniqueID;
+    AutoPtr<Thread> t(new Thread(executeTests, (void*)parms.release(), false));
 
     // zzzzz... (1 second) zzzzz...
-        Threads::sleep(1000);
+    Threads::sleep(1000);
     t->run();
     return t.release();
 }

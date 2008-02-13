@@ -1198,11 +1198,9 @@ CIMProperty * cimmofParser::PropertyFromInstance(CIMInstance &instance,
     // OK, we got the className.  Use it to find the class object.
     try
     {
-        Array<String> propertyList;
-        propertyList.append(propertyName.getString());
         CIMClass c = _repository.getClass(getNamespacePath(), className);
         Uint32 pos = c.findProperty(propertyName);
-        if (pos != (Uint32)-1)
+        if (pos != PEG_NOT_FOUND)
         {
             return new CIMProperty(c.getProperty(pos));
         }

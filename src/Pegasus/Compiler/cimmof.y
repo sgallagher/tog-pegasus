@@ -84,6 +84,7 @@
 #include "valueFactory.h"
 #include "memobjs.h"
 #include <Pegasus/Common/CIMQualifierList.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 //include any useful debugging stuff here
 
@@ -929,6 +930,7 @@ valueInitializers: valueInitializer
 valueInitializer: qualifierList TOK_SIMPLE_IDENTIFIER TOK_EQUAL
                   typedInitializer TOK_SEMICOLON
 {
+    AutoPtr<String> identifier($2);
     cimmofParser *cp = cimmofParser::Instance();
     // ATTN: P1 InstanceUpdate function 2001 BB  Instance update needs
     // work here and CIMOM
@@ -938,8 +940,8 @@ valueInitializer: qualifierList TOK_SIMPLE_IDENTIFIER TOK_EQUAL
     // to the class whose name is in g_currentInstance->getClassName().
     // The steps are
     //   2. Get  property declaration's value object
-    CIMProperty *oldprop = cp->PropertyFromInstance(*g_currentInstance,
-            *$2);
+    CIMProperty *oldprop =
+        cp->PropertyFromInstance(*g_currentInstance, *identifier);
     CIMValue *oldv = cp->ValueFromProperty(*oldprop);
 
     //   3. create the new Value object of the same type
@@ -964,7 +966,6 @@ valueInitializer: qualifierList TOK_SIMPLE_IDENTIFIER TOK_EQUAL
 
     //   6. and apply the CIMProperty to g_currentInstance.
     cp->applyProperty(*g_currentInstance, *newprop);
-    delete $2;
     delete $4->value;
     delete oldprop;
     delete oldv;

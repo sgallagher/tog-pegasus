@@ -61,6 +61,7 @@ void IndicationProvider::initialize(CIMOMHandle& cimom)
 
 void IndicationProvider::terminate()
 {
+    delete this;
 }
 
 void IndicationProvider::enableIndications(

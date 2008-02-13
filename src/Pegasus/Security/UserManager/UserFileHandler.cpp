@@ -416,11 +416,7 @@ Boolean UserFileHandler::verifyCIMUserPassword(
     encryptedPassword =
         System::encryptPassword(password.getCString(),saltStr.getCString());
 
-    // Allow comparison against clear-text password for compatibility with
-    // previous releases.
-
-    if ((curPassword != encryptedPassword) &&
-        (curPassword != password))
+    if ( curPassword != encryptedPassword )
     {
         PEG_METHOD_EXIT();
         return false;

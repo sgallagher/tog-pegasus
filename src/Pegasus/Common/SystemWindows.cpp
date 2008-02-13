@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -79,16 +81,6 @@ void System::getCurrentTimeUsec(Uint32& seconds, Uint32& microseconds)
     largeInt.QuadPart -= 0x19db1ded53e8000;
     seconds = long(largeInt.QuadPart / (10000 * 1000));
     microseconds = long((largeInt.QuadPart % (10000 * 1000)) / 10);
-}
-
-Uint64 System::getCurrentTimeUsec()
-{
-    FILETIME ft;
-    GetSystemTimeAsFileTime(&ft);
-    ULARGE_INTEGER largeInt = { ft.dwLowDateTime, ft.dwHighDateTime };
-    largeInt.QuadPart -= 0x19db1ded53e8000;
-
-    return Uint64(largeInt.QuadPart / 10);
 }
 
 String System::getCurrentASCIITime()
@@ -170,11 +162,42 @@ Boolean System::removeFile(const char* path)
 
 Boolean System::renameFile(const char* oldPath, const char* newPath)
 {
-    if (exists(oldPath))
-    {
-        removeFile(newPath);
-    }
     return rename(oldPath, newPath) == 0;
+}
+
+String System::getHostName()
+{
+    static String _hostname;
+    if (0 == _hostname.size())
+    {
+        char hostname[PEGASUS_MAXHOSTNAMELEN + 1];
+        //initialize the buffer to handle the case where gethostname fails.
+        hostname[0] = 0;
+        gethostname(hostname, sizeof(hostname));
+        hostname[sizeof(hostname)-1] = 0;
+        _hostname.assign(hostname);
+    }
+    return _hostname;
+}
+
+String System::getFullyQualifiedHostName ()
+{
+    static char FQHostName[PEGASUS_MAXHOSTNAMELEN + 1];
+
+    if (!*FQHostName)
+    {
+        String hostname = getHostName();
+        struct hostent* hostEnt;
+
+        hostEnt = getHostByName((const char *)hostname.getCString());
+        if (hostEnt == NULL)
+        {
+            return String::EMPTY;
+        }
+        strncpy(FQHostName, hostEnt->h_name, sizeof(FQHostName)-1);
+    }
+
+    return FQHostName;
 }
 
 String System::getSystemCreationClassName ()
@@ -682,14 +705,14 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
     wchar_t wcGroupName[UNLEN+1];
 
     //Convert user name to unicode
-    if (!MultiByteToWideChar(CP_ACP,0,userName, -1, wcUserName,
+    if (!MultiByteToWideChar(CP_ACP,0,userName, -1, wcUserName, 
         strlen(userName)+1))
     {
         return false;
     }
-
+    
     //Convert group name to unicode
-    if (!MultiByteToWideChar(CP_ACP, 0, groupName, -1, wcGroupName,
+    if (!MultiByteToWideChar(CP_ACP, 0, groupName, -1, wcGroupName, 
         strlen(groupName)+1))
     {
         return false;
@@ -704,7 +727,7 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
     // groups in which the user is indirectly a member.
     //
     nStatus = NetUserGetLocalGroups(
-        NULL,
+        NULL,   
         (LPCWSTR)wcUserName,
         dwLevel,
         dwFlags,
@@ -775,7 +798,7 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
             (LPBYTE*)&pBuf,
             dwPrefMaxLen,
             &dwEntriesRead,
-            &dwTotalEntries);
+            &dwTotalEntries);        
 
         //
         // If the call succeeds,
@@ -919,7 +942,6 @@ const String System::CIMSERVER = "cimserver";  // Server system ID
 // check if a given IP address is defined on the local network interfaces
 Boolean System::isIpOnNetworkInterface(Uint32 inIP)
 {
-    Socket::initializeInterface();
     SOCKET sock;
     int interfaces = 0;
     int errcode;
@@ -960,7 +982,6 @@ Boolean System::isIpOnNetworkInterface(Uint32 inIP)
                 {
                     free(output_buf);
                     closesocket(sock);
-                    Socket::uninitializeInterface();
                     return true;
                 }
             }
@@ -968,111 +989,12 @@ Boolean System::isIpOnNetworkInterface(Uint32 inIP)
         else
         {
             free(output_buf);
-            Socket::uninitializeInterface();
             return false;
         }
         free(output_buf);
         closesocket(sock);
-        Socket::uninitializeInterface();
     }
     return false;
-}
-
-void _getInterfaceAddrs(Array<String> &ips, int af)
-{
-    SOCKET sock;
-
-    if (INVALID_SOCKET != (sock = WSASocket(af, SOCK_RAW,
-        0, NULL, 0, 0)))
-    {
-        DWORD  bytesReturned;
-        char buf[2048];
-        int interfaces = 0;
-        char str[PEGASUS_INET6_ADDRSTR_LEN];
-        void *p = 0;
-        if (0 == WSAIoctl(sock, SIO_ADDRESS_LIST_QUERY, NULL, 0,
-            buf, 2048, &bytesReturned, NULL,
-            NULL))
-        {
-
-            SOCKET_ADDRESS_LIST *addr_list;
-            SOCKET_ADDRESS *addr;
-            struct sockaddr *sin;
-            addr_list = (SOCKET_ADDRESS_LIST *)buf;
-            addr = addr_list->Address;
-            int rc = 0;
-            for (sin = (struct sockaddr *) addr->lpSockaddr ;
-                interfaces < addr_list->iAddressCount;
-                interfaces++)
-            {
-                if (af == AF_INET)
-                {
-                    p = &((struct sockaddr_in*)sin)->sin_addr;
-                }
-#ifdef PEGASUS_ENABLE_IPV6
-                else
-                {
-                    p = &((struct sockaddr_in6*)sin)->sin6_addr;
-                }
-#endif
-                // Don't gather loopback addrs
-                if (!System::isLoopBack(af, p))
-                {
-                    if (af == AF_INET)
-                    {
-                        if ((rc = ::getnameinfo( 
-                            sin, 
-                            sizeof(struct sockaddr_in),
-                            str,
-                            sizeof(str),
-                            NULL,
-                            0,
-                            NI_NUMERICHOST)) == 0)
-                        {
-                            ips.append(str);
-                        }
-                        //Error detected in getting name info, 
-                        //display the error string
-                        else
-                        {
-                            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
-                                "getnameinfo failed: %s", gai_strerror(rc)));
-                        }
-                    }
-#ifdef PEGASUS_ENABLE_IPV6
-                    else if (af == AF_INET6)
-                    {
-                        if((rc = System::getNameInfo( 
-                            sin,
-                            sizeof(struct sockaddr_in6),
-                            str,
-                            sizeof(str),
-                            NULL,
-                            0,
-                            NI_NUMERICHOST)) == 0)
-                        {
-                            ips.append(str);
-                        }
-                    }
-#endif
-                }
-                ++addr;
-                sin = (struct sockaddr*)addr->lpSockaddr;
-            }
-        }
-    }
-}
-
-Array<String> System::getInterfaceAddrs()
-{
-    Socket::initializeInterface();
-    Array<String> ips;
-    _getInterfaceAddrs(ips, AF_INET);
-#ifdef PEGASUS_ENABLE_IPV6
-    _getInterfaceAddrs(ips, AF_INET6);
-#endif
-    Socket::uninitializeInterface();
-    return ips;
 }
 
 String System::getErrorMSG_NLS(int errorCode,int errorCode2)
@@ -1083,11 +1005,11 @@ String System::getErrorMSG_NLS(int errorCode,int errorCode2)
             FORMAT_MESSAGE_ALLOCATE_BUFFER |
             FORMAT_MESSAGE_FROM_SYSTEM |
             FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL,
+            NULL, 
             errorCode,
             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-            (LPTSTR)&winErrorMsg,
-            0,
+            (LPTSTR)&winErrorMsg, 
+            0, 
             NULL))
     {
         MessageLoaderParms parms(
@@ -1095,7 +1017,7 @@ String System::getErrorMSG_NLS(int errorCode,int errorCode2)
             "$0 (error code $1)",(char*)winErrorMsg,errorCode);
         LocalFree(winErrorMsg);
         return MessageLoader::getMessage(parms);
-    }
+    } 
 
     MessageLoaderParms parms(
         "Common.System.ERROR_MESSAGE.STANDARD",
@@ -1117,11 +1039,11 @@ String System::getErrorMSG(int errorCode,int errorCode2)
             FORMAT_MESSAGE_ALLOCATE_BUFFER |
             FORMAT_MESSAGE_FROM_SYSTEM |
             FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL,
+            NULL, 
             errorCode,
             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-            (LPTSTR)&winErrorMsg,
-            0,
+            (LPTSTR)&winErrorMsg, 
+            0, 
             NULL))
     {
         buffer.append((char*)winErrorMsg);
@@ -1134,7 +1056,6 @@ String System::getErrorMSG(int errorCode,int errorCode2)
 
     return buffer;
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // AutoFileLock class
@@ -1155,7 +1076,7 @@ AutoFileLock::AutoFileLock(const char* fileName)
        && (GetLastError() != ERROR_ALREADY_EXISTS)
        && (GetLastError() != ERROR_SUCCESS))
    {
-       PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+       PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
           "AutoFileLock: Failed to open lock file '%s', error code %d.",
           fileName, GetLastError()));
        return;
@@ -1164,7 +1085,7 @@ AutoFileLock::AutoFileLock(const char* fileName)
    OVERLAPPED l={0,0,0,0,0};
    if(LockFileEx(_hFile,LOCKFILE_EXCLUSIVE_LOCK, 0, 0, 0, &l) == 0)
    {
-       PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+       PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
            "AutoFileLock: Failed to Acquire lock on file %s, error code %d.",
            fileName, GetLastError()));
        CloseHandle(_hFile);
@@ -1186,6 +1107,5 @@ AutoFileLock::~AutoFileLock()
         CloseHandle(_hFile);
     }
 }
-
 
 PEGASUS_NAMESPACE_END

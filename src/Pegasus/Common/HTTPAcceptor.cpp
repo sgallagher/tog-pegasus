@@ -389,7 +389,7 @@ void HTTPAcceptor::_bind()
         MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_CREATE_SOCKET",
             "Failed to create socket");
         PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "HTTPAcceptor::_bind _rep->socket < 0");
+            "HTTPAcceptor::_bind:  createSocket() _rep->socket failed");
         throw BindFailedException(parms);
     }
 
@@ -442,11 +442,14 @@ void HTTPAcceptor::_bind()
     //
     if (::bind(_rep->socket, _rep->address, _rep->address_size) < 0)
     {
+        MessageLoaderParms parms(
+            "Common.HTTPAcceptor.FAILED_BIND_SOCKET_DETAIL",
+            "Failed to bind socket on port $0: $1.",
+            _portNumber, PEGASUS_SYSTEM_NETWORK_ERRORMSG_NLS);
+
         Socket::close(_rep->socket);
         delete _rep;
         _rep = 0;
-        MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_BIND_SOCKET",
-            "Failed to bind socket");
         PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "HTTPAcceptor::_bind: Failed to bind socket.");
         throw BindFailedException(parms);
@@ -482,11 +485,15 @@ void HTTPAcceptor::_bind()
                 S_IRGRP | S_IWGRP | S_IXGRP |
                 S_IROTH | S_IWOTH | S_IXOTH ) < 0 )
         {
+            MessageLoaderParms parms(
+                "Common.HTTPAcceptor.FAILED_SET_LDS_FILE_OPTION",
+                "Failed to set permission on local domain socket {0}: {1}.",
+                PEGASUS_LOCAL_DOMAIN_SOCKET_PATH,
+                PEGASUS_SYSTEM_ERRORMSG_NLS );
+
             Socket::close(_rep->socket);
             delete _rep;
             _rep = 0;
-            MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_BIND_SOCKET",
-                "Failed to bind socket");
             PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "HTTPAcceptor::_bind: Failed to set domain socket "
                     "permissions.");
@@ -499,13 +506,16 @@ void HTTPAcceptor::_bind()
 
     //int const _maxConnectionQueueLength = 15;
 
-    if (listen(_rep->socket, _maxConnectionQueueLength) < 0)
+    if (::listen(_rep->socket, _maxConnectionQueueLength) < 0)
     {
+        MessageLoaderParms parms(
+            "Common.HTTPAcceptor.FAILED_LISTEN_SOCKET",
+            "Failed to listen on socket {0}: {1}.",
+            (int)_rep->socket,PEGASUS_SYSTEM_NETWORK_ERRORMSG_NLS );
+        
         Socket::close(_rep->socket);
         delete _rep;
         _rep = 0;
-        MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_BIND_SOCKET",
-            "Failed to bind socket");
         PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "HTTPAcceptor::_bind: Failed to bind socket(1).");
         throw BindFailedException(parms);

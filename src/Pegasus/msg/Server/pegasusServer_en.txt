@@ -2448,7 +2448,7 @@ not be valid."}
         *    Substitution {0} contains another message
         *
         */
-        Server.ConsoleManager_zOS.CON_MODIFY_ERR.PEGASUS_OS_ZOS:string { "PGS06211E: {0}"}
+        Server.ConsoleManager_zOS.CON_MODIFY_ERR.PEGASUS_OS_ZOS:string { "PGS06211E: MODIFY command failed: \"{0}\""}
 
         /**
         * @note PGS06212:

@@ -207,7 +207,7 @@ void ZOSConsoleManager::updateConfiguration( const String& configProperty,
         Logger::put_l(
             Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             "Server.ConsoleManager_zOS.CON_MODIFY_ERR.PEGASUS_OS_ZOS",
-            "$0",
+            "MODIFY command failed: \"$0\"",
             ndcp.getMessage());
     }
     catch (const InvalidPropertyValue& ipv)
@@ -215,7 +215,7 @@ void ZOSConsoleManager::updateConfiguration( const String& configProperty,
         Logger::put_l(
             Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             "Server.ConsoleManager_zOS.CON_MODIFY_ERR.PEGASUS_OS_ZOS",
-            "$0",
+            "MODIFY command failed: \"$0\"",
             ipv.getMessage());
     }
     catch (const UnrecognizedConfigProperty&)

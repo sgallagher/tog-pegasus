@@ -1155,20 +1155,29 @@ void CertificateProvider::deleteInstance(
 
             try
             {
-                Array<CIMKeyBinding> keys;
+                Array<CIMKeyBinding> keys = cimObjectPath.getKeyBindings();
 
+                // Check for deprecated truststore key 
+                Boolean truststoreKeyFound = false;
+                for (Uint32 i = 0; i < keys.size() ; ++i)
+                {
+                    if (keys[i].getName() == TRUSTSTORE_TYPE_PROPERTY)
+                    {
+                        truststoreKeyFound = true;
+                        break; 
+                    }
+                }
                 //
                 // The truststore type key property is deprecated. To retain
                 // backward compatibility, add the truststore type property
                 // to the key bindings and set it to cimserver truststore.
                 //
-                CIMKeyBinding kb (TRUSTSTORE_TYPE_PROPERTY,
-                    PG_SSLCERTIFICATE_TSTYPE_VALUE_SERVER);
-                keys.append (kb);
-
-                keys = cimObjectPath.getKeyBindings();
-
-                keys.append (kb);
+                if (!truststoreKeyFound)
+                { 
+                    CIMKeyBinding kb (TRUSTSTORE_TYPE_PROPERTY,
+                        PG_SSLCERTIFICATE_TSTYPE_VALUE_SERVER);
+                    keys.append(kb);
+                }
 
                 tmpPath.setKeyBindings(keys);
 

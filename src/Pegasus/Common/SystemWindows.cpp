@@ -992,7 +992,65 @@ Boolean System::isIpOnNetworkInterface(Uint32 inIP)
     return false;
 }
 
+String System::getErrorMSG_NLS(int errorCode,int errorCode2)
+{
+    LPVOID winErrorMsg = NULL;
 
+    if (FormatMessage(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER |
+            FORMAT_MESSAGE_FROM_SYSTEM |
+            FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL, 
+            errorCode,
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+            (LPTSTR)&winErrorMsg, 
+            0, 
+            NULL))
+    {
+        MessageLoaderParms parms(
+            "Common.System.ERROR_MESSAGE.STANDARD",
+            "$0 (error code $1)",(char*)winErrorMsg,errorCode);
+        LocalFree(winErrorMsg);
+        return MessageLoader::getMessage(parms);
+    } 
+
+    MessageLoaderParms parms(
+        "Common.System.ERROR_MESSAGE.STANDARD",
+        "$0 (error code $1)","",errorCode);
+    return MessageLoader::getMessage(parms);
+
+}
+
+String System::getErrorMSG(int errorCode,int errorCode2)
+{
+
+    String buffer;
+    LPVOID winErrorMsg = NULL;
+
+    char strErrorCode[32];
+    sprintf(strErrorCode, "%d", errorCode);
+
+    if (FormatMessage(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER |
+            FORMAT_MESSAGE_FROM_SYSTEM |
+            FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL, 
+            errorCode,
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+            (LPTSTR)&winErrorMsg, 
+            0, 
+            NULL))
+    {
+        buffer.append((char*)winErrorMsg);
+        LocalFree(winErrorMsg);
+    }
+
+    buffer.append(" (error code ");
+    buffer.append(strErrorCode);
+    buffer.append(")");
+
+    return buffer;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // AutoFileLock class

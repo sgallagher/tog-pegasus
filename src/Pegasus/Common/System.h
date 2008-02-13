@@ -60,6 +60,35 @@ typedef unsigned long mode_t;
 # define PEGASUS_GID_T Uint32
 #endif
 
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+#  define PEGASUS_SYSTEM_ERRORMSG_NLS \
+      System::getErrorMSG_NLS(GetLastError(),0)
+#  define PEGASUS_SYSTEM_NETWORK_ERRORMSG_NLS \
+      System::getErrorMSG_NLS(WSAGetLastError(),0)
+#  define PEGASUS_SYSTEM_ERRORMSG \
+      System::getErrorMSG(GetLastError(),0)
+#  define PEGASUS_SYSTEM_NETWORK_ERRORMSG \
+      System::getErrorMSG(WSAGetLastError(),0)
+#elif defined(PEGASUS_OS_ZOS)
+#  define PEGASUS_SYSTEM_ERRORMSG_NLS \
+      System::getErrorMSG_NLS(errno,__errno2())
+#  define PEGASUS_SYSTEM_NETWORK_ERRORMSG_NLS \
+      System::getErrorMSG_NLS(errno,__errno2())
+#  define PEGASUS_SYSTEM_ERRORMSG \
+      System::getErrorMSG(errno,__errno2())
+#  define PEGASUS_SYSTEM_NETWORK_ERRORMSG \
+      System::getErrorMSG(errno,__errno2())
+#else
+#  define PEGASUS_SYSTEM_ERRORMSG_NLS \
+      System::getErrorMSG_NLS(errno,0)
+#  define PEGASUS_SYSTEM_NETWORK_ERRORMSG_NLS \
+      System::getErrorMSG_NLS(errno,0)
+#  define PEGASUS_SYSTEM_ERRORMSG \
+      System::getErrorMSG(errno,0)
+#  define PEGASUS_SYSTEM_NETWORK_ERRORMSG \
+      System::getErrorMSG(errno,0)
+#endif
+
 //
 // Protocal Type
 //
@@ -75,6 +104,17 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE System
 {
 public:
+
+    /* Creates a String object containing the system message 
+       from  the errno and if supported from a second level error 
+       number. The _NLS Method is looking up an internationalized version of 
+       the message.
+        @param errorCode  The system errno.
+        @param errorCode2 The secondary error number like errno2 on z/OS
+    */
+    static String getErrorMSG_NLS(int errorCode,int errorCode2);
+    static String getErrorMSG(int errorCode,int errorCode2);
+
     /** getCurrentTime - Gets the current time as seconds and milliseconds
     into the provided variables using system functions.
     @param seconds Return for the seconds component of the time.

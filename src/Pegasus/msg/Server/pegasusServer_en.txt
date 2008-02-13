@@ -2591,9 +2591,18 @@ not be valid."}
 
         Common.HTTPAcceptor.FAILED_SET_SOCKET_OPTION:string {"PGS07802: CIM HTTP or HTTPS connection failed to set the socket option."}
 
+        /**
+        *   This message is no longer used as of version 2.6
+        */
         Common.HTTPAcceptor.FAILED_BIND_SOCKET:string {"PGS07803: CIM HTTP or HTTPS connection failed to bind the socket."}
 
         Common.HTTPAcceptor.FAILED_SOLICIT_SOCKET_MESSAGES:string {"PGS07804: CIM HTTP or HTTPS connection failed to solicit socket messages."}
+
+        Common.HTTPAcceptor.FAILED_BIND_SOCKET_DETAIL:string {"PGS07805: Failed to bind socket on port {0}: {1}."}
+
+        Common.HTTPAcceptor.FAILED_SET_LDS_FILE_OPTION:string {"PGS07806: Failed to set permission on local domain socket {0}: {1}."}
+
+        Common.HTTPAcceptor.FAILED_LISTEN_SOCKET:string {"PGS07807: Failed to listen on socket {0}: {1}."}
 
 
         // ==========================================================
@@ -2716,6 +2725,10 @@ not be valid."}
         // Messages for System Abstraction
         //  Please use message prefix "PGS09100"
         // ==========================================================
+
+        Common.System.ERROR_MESSAGE.PEGASUS_OS_ZOS:string {"{0} (error code {1}, reason code 0x{2})"}
+
+        Common.System.ERROR_MESSAGE.STANDARD:string {"{0} (error code {1})"}
 
         /**
         * @note  PGS09100:

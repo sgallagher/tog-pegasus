@@ -389,7 +389,7 @@ static int _slp_get_local_interface(struct slp_if_addr **list, int af)
         {
             return 0;
         }
-#ifdef PEGASUS_OS_TYPE_LINUX
+#ifdef PEGASUS_HAS_GETIFADDRS
         {
             struct ifaddrs *array, *addrs;
             if (0 > getifaddrs(&array))
@@ -419,7 +419,7 @@ static int _slp_get_local_interface(struct slp_if_addr **list, int af)
             }
             ifp->af = AF_UNSPEC;
         }
-#endif // PEGASUS_OS_TYPE_LINUX
+#endif // PEGASUS_HAS_GETIFADDRS
         return interfaces;
     }
 #endif // PEGASUS_ENABLE_IPV6

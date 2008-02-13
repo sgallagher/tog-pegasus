@@ -1300,7 +1300,7 @@ Array<String> System::getInterfaceAddrs()
 
 #ifdef PEGASUS_ENABLE_IPV6
 
-#if defined(PEGASUS_OS_LINUX)
+#if defined(PEGASUS_HAS_GETIFADDRS)
     struct ifaddrs *array, *addrs;
     char buff[PEGASUS_INET6_ADDRSTR_LEN];
 

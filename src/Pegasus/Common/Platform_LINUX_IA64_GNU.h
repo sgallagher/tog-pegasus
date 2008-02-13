@@ -83,4 +83,9 @@
 
 #define PEGASUS_HAS_SIGNALS
 
+/* getifaddrs() avilable in gcc version > 3.4 */
+#if ((__GNUC__ * 10 + __GNUC_MINOR__) >= 34)
+# define PEGASUS_HAS_GETIFADDRS
+#endif
+
 #endif /* Pegasus_Platform_LINUX_IA64_GNU_h */

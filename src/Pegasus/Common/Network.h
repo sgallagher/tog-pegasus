@@ -77,7 +77,7 @@
 #endif
 
 #ifdef PEGASUS_ENABLE_IPV6
-#    ifdef PEGASUS_OS_LINUX
+#    ifdef PEGASUS_HAS_GETIFADDRS
 #       include <ifaddrs.h>
 #    endif
 #endif

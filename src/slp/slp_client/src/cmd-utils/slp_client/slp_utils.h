@@ -64,7 +64,7 @@
 #define SOCKADDR_IN6 struct sockaddr_in6
 #define SOCKADDR_STORAGE struct sockaddr_storage
 
-#ifdef PEGASUS_OS_LINUX
+#ifdef PEGASUS_HAS_GETIFADDRS
 #include <net/if.h>
 #include <ifaddrs.h> // for getifaddrs() function
 #endif

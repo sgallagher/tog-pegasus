@@ -251,15 +251,13 @@ ThreadReturnType PEGASUS_THREAD_CDECL test_client(void *parm)
          PEGASUS_STD(cout) << endl <<
              "++++++++ Completed Disconnect +++++++++ " << endl;
 #endif
-        myHandle->exit_self((ThreadReturnType)1);
-        return(0);
     }
     catch(const Exception& e)
     {
         PEGASUS_STD(cout) << "Error: " << e.getMessage() << endl;
-        myHandle->exit_self((ThreadReturnType)1);
-        return(0);
     }
+
+    return ThreadReturnType(0);
 }
 
 /**

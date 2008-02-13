@@ -246,9 +246,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
    {
       my_handle->cleanup_push(exit_one , my_handle );
    }
-   catch(IPCException& e)
+   catch (IPCException&)
    {
-      e = e;
       cout << "Exception while trying to push cleanup handler" << endl;
       abort();
    }
@@ -258,9 +257,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
       my_handle->cleanup_push(exit_two , my_handle );
    }
    
-   catch(IPCException& e)
+   catch (IPCException&)
    {
-      e = e;
       cout << "Exception while trying to push cleanup handler" << endl;
       abort();
    }
@@ -284,22 +282,19 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
                             256, my_storage);              
 #endif
       }
-      catch(IPCException& e)
+      catch (IPCException&)
       {
-          e = e;
-    
           cout << "Exception while trying to put local storage: " 
               << Threads::id(myself).buffer << endl;
-    
           abort();
       }
-      try 
+
+      try
       {
           my_parm->wait_read(myself);
       }
-          catch(IPCException& e)
+      catch (IPCException&)
       {
-         e = e;
          cout << "Exception while trying to get a read lock" << endl;
          abort();
       }
@@ -312,9 +307,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
       {
           my_handle->cleanup_push(deref , my_handle );
       }
-      catch(IPCException& e)
+      catch (IPCException&)
       {
-         e = e;
          cout << "Exception while trying to push cleanup handler" << endl;
          abort();
       }
@@ -324,9 +318,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
          my_handle->reference_tsd(keys[i % 4]);
       }
       
-      catch(IPCException& e)
+      catch (IPCException&)
       {
-         e = e;
          cout << "Exception while trying to reference local storage" << endl;
          abort();
       }
@@ -335,9 +328,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
       {
          my_handle->cleanup_pop(true);
       }
-            catch(IPCException& e)
+      catch (IPCException&)
       {
-         e = e;
          cout << "Exception while trying to pop cleanup handler" << endl;
          abort();
       }
@@ -345,9 +337,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
       {
          my_parm->unlock_read(myself);
       }
-      catch(IPCException& e)
+      catch (IPCException&)
       {
-         e = e;
          cout << "Exception while trying to release a read lock" << endl;
          abort();
       }
@@ -356,17 +347,16 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
       {
           my_handle->delete_tsd(keys[i % 4]);
       }
-      catch(IPCException& e)
+      catch (IPCException&)
       {
-         e = e;
          cout << "Exception while trying to delete local storage: " 
                  << Threads::id(myself).buffer << endl;
          abort();
       }
       i++;
    }
-   my_handle->exit_self((ThreadReturnType)1);
-   return(0);
+
+   return ThreadReturnType(0);
 }
 
 
@@ -386,9 +376,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL writing_thread(void *parm)
       {
          my_parm->wait_write(myself);
       }
-      catch(IPCException& e)
+      catch (IPCException&)
       {
-         e = e;
          cout << "Exception while trying to get a write lock" << endl;
          abort();
       }
@@ -399,22 +388,20 @@ ThreadReturnType PEGASUS_THREAD_CDECL writing_thread(void *parm)
       {
          my_parm->unlock_write(myself);
       }
-      catch(IPCException& e)
+      catch (IPCException&)
       {
-         e = e;
          cout << "Exception while trying to release a write  lock" << endl;
          abort();
       }
    }
 
-   my_handle->exit_self((ThreadReturnType)1);
-   return(0);
+   return ThreadReturnType(0);
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL test1_thread( void* parm )
 {
     Threads::sleep( 1000 );
-    return( (ThreadReturnType)32 );
+    return ThreadReturnType(32);
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL test2_thread( void* parm )
@@ -428,8 +415,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL test2_thread( void* parm )
 
     thread->dereference_tsd();  
 
-    thread->exit_self( (ThreadReturnType)33 );
-    return( (ThreadReturnType)32 );
+    return ThreadReturnType(32);
 }
 
 void test3_thread_cleanup1(void*)
@@ -452,8 +438,7 @@ void test3_thread_cleanup1(void*)
 //      thread->test_cancel();
 //      thread->cleanup_pop( false );
 //  }
-//  thread->exit_self( (ThreadReturnType)42 );
-//  return( (ThreadReturnType)42 );
+//  return ThreadReturnType(42);
 //}
 
 ThreadReturnType PEGASUS_THREAD_CDECL test4_thread( void* parm )
@@ -473,6 +458,5 @@ ThreadReturnType PEGASUS_THREAD_CDECL test4_thread( void* parm )
        Threads::sleep( 2000 );
     }
 
-    thread->exit_self((ThreadReturnType)52);
-    return (ThreadReturnType)52;
+    return ThreadReturnType(52);
 }

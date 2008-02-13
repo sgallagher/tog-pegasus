@@ -1046,8 +1046,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeTests(void *parm)
 
     delete parms;
 
-    my_thread->exit_self((ThreadReturnType)5);
-    return(0);
+    return ThreadReturnType(0);
 }
 
 Thread * _runTestThreads(

@@ -405,8 +405,7 @@ client_func (void *parm)
     client->deregister_service();
 
     delete client;
-    myself->exit_self((ThreadReturnType) 1);
-    return (0);
+    return ThreadReturnType(0);
 }
 
 
@@ -428,6 +427,5 @@ server_func (void *parm)
 
   delete server;
 
-  myself->exit_self ((ThreadReturnType) 1);
-  return (0);
+  return ThreadReturnType(0);
 }

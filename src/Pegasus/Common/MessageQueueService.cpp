@@ -153,8 +153,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
         }
         list->unlock();
     }
-    myself->exit_self( (ThreadReturnType) 1 );
-    return 0;
+    return ThreadReturnType(0);
 }
 
 

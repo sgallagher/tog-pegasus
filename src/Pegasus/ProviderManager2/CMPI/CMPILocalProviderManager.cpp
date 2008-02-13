@@ -538,9 +538,9 @@ ThreadReturnType PEGASUS_THREAD_CDECL CMPILocalProviderManager::_reaper(
         }
     }
     while (_stopPolling.get() == 0);
-    myself->exit_self( (ThreadReturnType) 0);
+
     PEG_METHOD_EXIT();
-    return(0);
+    return ThreadReturnType(0);
 }
 /*
  // Cleanup the thread and upon deletion of it, call the CMPIProvider' 

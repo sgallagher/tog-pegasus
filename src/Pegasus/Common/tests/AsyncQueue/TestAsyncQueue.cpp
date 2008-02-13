@@ -80,8 +80,7 @@ static ThreadReturnType PEGASUS_THREAD_CDECL _reader(void* self_)
         delete message;
     }
 
-    self->exit_self((ThreadReturnType)1);
-    return(0);
+    return ThreadReturnType(0);
 }
 
 static ThreadReturnType PEGASUS_THREAD_CDECL _writer(void* self_)
@@ -102,8 +101,7 @@ static ThreadReturnType PEGASUS_THREAD_CDECL _writer(void* self_)
 #endif
     }
 
-    self->exit_self((ThreadReturnType)1);
-    return(0);
+    return ThreadReturnType(0);
 }
 
 void testAsyncQueue()

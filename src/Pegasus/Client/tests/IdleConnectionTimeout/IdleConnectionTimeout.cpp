@@ -110,8 +110,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _runningThd(void *parm)
         client.disconnect();
     }
 
-    my_thread->exit_self((ThreadReturnType)0);
-    return 0;
+    return ThreadReturnType(0);
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL _idleThd(void *parm)
@@ -164,8 +163,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _idleThd(void *parm)
     }
     client.disconnect();
 
-    my_thread->exit_self((ThreadReturnType)0);
-    return 0;
+    return ThreadReturnType(0);
 }
 
 Thread * _runTestThreads(

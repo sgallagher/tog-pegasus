@@ -1320,8 +1320,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL executeTests(void *parm){
       errorCount++;
     }
     }
-    my_thread->exit_self((ThreadReturnType)5);
-    return(0);
+    return ThreadReturnType(0);
 }
 
 Thread * runTests(CIMClient *client, Uint32 testCount, Boolean activeTest, 

@@ -205,8 +205,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeEI(void *parm)
 
     delete parms;
 
-    my_thread->exit_self((ThreadReturnType)0);
-    return(0);
+    return ThreadReturnType(0);
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL _executeNI(void *parm)
@@ -276,8 +275,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeNI(void *parm)
 
     delete parms;
 
-    my_thread->exit_self((ThreadReturnType)0);
-    return(0);
+    return ThreadReturnType(0);
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL _executeA(void *parm)
@@ -347,8 +345,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeA(void *parm)
 
     delete parms;
 
-    my_thread->exit_self((ThreadReturnType)0);
-    return(0);
+    return ThreadReturnType(0);
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL _executeAN(void *parm)
@@ -418,8 +415,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeAN(void *parm)
 
     delete parms;
 
-    my_thread->exit_self((ThreadReturnType)0);
-    return(0);
+    return ThreadReturnType(0);
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL _executeR(void *parm)
@@ -489,8 +485,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeR(void *parm)
 
     delete parms;
 
-    my_thread->exit_self((ThreadReturnType)0);
-    return(0);
+    return ThreadReturnType(0);
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL _executeRN(void *parm)
@@ -560,8 +555,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeRN(void *parm)
 
     delete parms;
 
-    my_thread->exit_self((ThreadReturnType)0);
-    return(0);
+    return ThreadReturnType(0);
 }
 
 Thread * _runTestThreads(

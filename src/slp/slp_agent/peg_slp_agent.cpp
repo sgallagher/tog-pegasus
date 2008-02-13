@@ -525,9 +525,8 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
         agent->_rep->service_listener(agent->_rep, 0, &msg_list);
         _LSLP_SLEEP(1);
     }
-    myself->exit_self((ThreadReturnType) 0);
 #endif /* PEGASUS_USE_OPENSLP */
-    return(0);
+    return ThreadReturnType(0);
 }
 
 PEGASUS_NAMESPACE_END

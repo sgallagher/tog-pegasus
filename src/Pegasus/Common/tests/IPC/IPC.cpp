@@ -101,8 +101,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL fibonacci(void * parm)
     if (!add_to_type)
         Parm->th->thread_switch();
 
-    my_thread->exit_self(0);
-    return NULL;
+    return ThreadReturnType(0);
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL deq(void * parm)
@@ -138,17 +137,19 @@ ThreadReturnType PEGASUS_THREAD_CDECL deq(void * parm)
     }
 
     if (verbose)
+    {
 #if defined (PEGASUS_OS_VMS)
-      // 
-      // Threads::self returns long-long-unsigned.
-      // 
-      printf("Received Cancel Message, %llu about to end\n", Threads::self());
+        // 
+        // Threads::self returns long-long-unsigned.
+        // 
+        printf("Received Cancel Message, %llu about to end\n", Threads::self());
 #else
         cout << "Received Cancel Message, " << Threads::self() <<
             " about to end\n";
 #endif
-    my_thread->exit_self(0);
-    return NULL;
+    }
+
+    return ThreadReturnType(0);
 }
 
 // Test Thread, MessageQueue, and Condition
@@ -232,8 +233,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL atomicIncrement(void * parm)
     Boolean zero = atom->decAndTestIfZero();
     PEGASUS_TEST_ASSERT(zero == false);
 
-    my_thread->exit_self(0);
-    return 0;
+    return ThreadReturnType(0);
 }
 
 // Test Thread and AtomicInt

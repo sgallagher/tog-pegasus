@@ -550,8 +550,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
         cout << " exiting " << endl;
     }
 
-    my_handle->exit_self((ThreadReturnType) 1);
-    return(0);
+    return ThreadReturnType(0);
 }
 
 
@@ -585,6 +584,5 @@ ThreadReturnType PEGASUS_THREAD_CDECL server_func(void *parm)
         cout << "exiting server " << endl;
     }
 
-    my_handle->exit_self((ThreadReturnType) 1);
-    return(0);
+    return ThreadReturnType(0);
 }

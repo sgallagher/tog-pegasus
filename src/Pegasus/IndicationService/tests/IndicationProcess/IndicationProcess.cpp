@@ -457,8 +457,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL createSubscriptionFunc(void *parm)
         cout << e.getMessage() << endl;
     }
 
-    my_handle->exit_self((ThreadReturnType) 1);
-    return 0;
+    return ThreadReturnType(0);
 }
 
 //

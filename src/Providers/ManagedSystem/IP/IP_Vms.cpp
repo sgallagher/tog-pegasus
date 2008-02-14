@@ -991,6 +991,22 @@ Boolean NextHopIPRoute::getTypeOfRoute(Uint16& s) const
 
 /*
 ================================================================================
+NAME              : getRouteType
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::getRouteType(Uint16& s) const
+{
+    // not supported
+    return false;
+}
+
+/*
+================================================================================
 NAME              : getIsStatic
 DESCRIPTION       :
 ASSUMPTIONS       :
@@ -1018,6 +1034,21 @@ NOTES             :
 Boolean NextHopIPRoute::getAddressType(Uint16& i16) const
 {
     // not supported
+    return false;
+}
+
+/*
+================================================================================
+NAME              : isRouteLocal().
+DESCRIPTION       : Determines if Route is Local.
+ASSUMPTIONS       : None.
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::isRouteLocal() const
+{
     return false;
 }
 
@@ -1098,6 +1129,161 @@ NOTES             :
 ================================================================================
 */
 int NextHopRouteList::size() const
+{
+    return 0;
+}
+
+/////////////////////////////////////////////////////////////////////////
+
+RSAp::RSAp()
+{
+}
+
+RSAp::~RSAp()
+{
+}
+
+/*
+================================================================================
+NAME              : getName.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean RSAp::getName(String& s) const
+{
+    // not supported
+    return false;
+}
+
+/*
+================================================================================
+NAME              : getAccessInfo.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean RSAp::getAccessInfo(String& s) const
+{
+    // not supported
+    return false;
+}
+
+/*
+================================================================================
+NAME              : getInfoFormat.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean RSAp::getInfoFormat(Uint16& ui) const
+{
+    // not supported
+    return false;
+}
+
+/*
+================================================================================
+NAME              : getOtherInfoFmtDesc.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean RSAp::getOtherInfoFormatDescription(String& s) const
+{
+    // not supported
+    return false;
+}
+
+/*
+================================================================================
+NAME              : RSApList Constructor.
+DESCRIPTION       : Build the list of Remote Services Access Point.
+ASSUMPTIONS       : None.
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+RSApList::RSApList()
+{
+}
+
+/*
+================================================================================
+NAME              : RSApList Destructor.
+DESCRIPTION       : None.
+ASSUMPTIONS       : None.
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+RSApList::~RSApList()
+{
+}
+
+/*
+================================================================================
+NAME              : findService.
+DESCRIPTION       : Find the requested Remote Service based on the Name
+                  : property.
+ASSUMPTIONS       : None.
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean RSApList::findService(
+    const String &name,
+    RSAp &rRSAp) const
+{
+    // Allways return Service not found.
+    return false;
+}
+
+
+/*
+================================================================================
+NAME              : getService.
+DESCRIPTION       : Get a Service based on an index.
+ASSUMPTIONS       : None.
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+RSAp RSApList::getService(const Uint16 index) const
+{
+    // give a service (this should never get called since size will
+    // always be zero).
+    RSAp r;
+    return r;
+}
+
+/*
+================================================================================
+NAME              : size.
+DESCRIPTION       : Find the size of the Remote Services Access Point List.
+ASSUMPTIONS       : None.
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+int RSApList::size() const
 {
     return 0;
 }

@@ -543,6 +543,32 @@ class PG_IPRoute : CIM_IPRoute {
 class PG_NextHopIPRoute : CIM_NextHopIPRoute {
 };
 
+// ==================================================================
+//    PG_RemoteServiceAccessPoint
+// ==================================================================
+        [Version ("0.6.0"), Description (
+         "This class is used to make concrete instances of the "
+         "abstract class CIM_RemoteServiceAccessPoint. ") ]
+class PG_RemoteServiceAccessPoint : CIM_RemoteServiceAccessPoint {
+};
+
+// ==================================================================
+//    PG_RouteUsesEndpoint
+// ==================================================================
+        [Version ("0.6.0"), Description (
+         "This class is used to make concrete instances of the "
+         "abstract class CIM_RouteUsesEndpoint. ") ]
+class PG_RouteUsesEndpoint : CIM_RouteUsesEndpoint {
+};
+
+// ==================================================================
+//    PG_AssociatedNextHop
+// ==================================================================
+        [Version ("0.6.0"), Description (
+         "This class is used to make concrete instances of the "
+         "abstract class CIM_AssociatedNextHop. ") ]
+class PG_AssociatedNextHop : CIM_AssociatedNextHop {
+};
 
 // ===================================================================
 // end of file

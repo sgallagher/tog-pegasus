@@ -122,3 +122,63 @@ instance of PG_ProviderCapabilities
   SupportedMethods = NULL; // All methods
 };
 
+// Provider for PG_RemoteServiceAccessPoint
+
+instance of PG_Provider
+{
+  ProviderModuleName = "IPProviderModule";
+  Name = "RSApProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+  ProviderModuleName = "IPProviderModule";
+  ProviderName = "RSApProvider";
+  CapabilityID = "1";
+  ClassName = "PG_RemoteServiceAccessPoint";
+  Namespaces = { "root/cimv2" };
+  ProviderType = { 2 }; // Instance
+  SupportedProperties = NULL; // All properties
+  SupportedMethods = NULL; // All methods
+};
+
+// Provider for PG_RouteUsesEndpoint
+
+instance of PG_Provider
+{
+  ProviderModuleName = "IPProviderModule";
+  Name = "RUEpProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+  ProviderModuleName = "IPProviderModule";
+  ProviderName = "RUEpProvider";
+  CapabilityID = "1";
+  ClassName = "PG_RouteUsesEndpoint";
+  Namespaces = { "root/cimv2" };
+  ProviderType = { 3 }; // Association
+  SupportedProperties = NULL; // All properties
+  SupportedMethods = NULL; // All methods
+};
+
+// Provider for PG_AssociatedNextHop
+
+instance of PG_Provider
+{
+  ProviderModuleName = "IPProviderModule";
+  Name = "ANHProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+  ProviderModuleName = "IPProviderModule";
+  ProviderName = "ANHProvider";
+  CapabilityID = "1";
+  ClassName = "PG_AssociatedNextHop";
+  Namespaces = { "root/cimv2" };
+  ProviderType = { 3 }; // Association
+  SupportedProperties = NULL; // All properties
+  SupportedMethods = NULL; // All methods
+};
+

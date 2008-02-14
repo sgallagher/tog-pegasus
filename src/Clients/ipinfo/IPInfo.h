@@ -394,8 +394,34 @@ private:
     String _ipCaption;
     String _ipDescription;
     String _ipName;
+    String _ipNextHop;
     Uint16 _ipAddrType;
     Uint8 _ipPrefixLength;
+
+    Boolean _enableDebug;
+};
+
+class RSApInfo
+{
+public:
+    RSApInfo(
+        CIMClient &client,
+        Boolean enableDebug,
+        ostream& outPrintWriter,
+        ostream& errPrintWriter);
+    ~RSApInfo(void); 
+
+private:
+    void _gatherProperties(CIMInstance &inst);
+    void _outputHeader(ostream &outPrintWriter);
+    void _outputInstance(ostream &outPrintWriter);
+
+    // Keys.
+    String _accessInfo;
+
+    // Other properties.
+    Uint16 _infoFormat;
+    String _otherInfoFmtDesc;
 
     Boolean _enableDebug;
 };

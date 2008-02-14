@@ -1822,6 +1822,33 @@ Boolean NextHopIPRoute::getAddressType(Uint16& i16) const
 
 /*
 ================================================================================
+NAME              : isRouteLocal().
+DESCRIPTION       : Determines if Route is Local.
+ASSUMPTIONS       : None.
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean NextHopIPRoute::isRouteLocal() const
+{
+
+#ifdef PEGASUS_ENABLE_IPV6
+    if ( _routeType == IPV6ROUTETYPE_LOCAL)
+#else
+    if ( _routeType != NMREMOTE)
+#endif
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+/*
+================================================================================
 NAME              : set_destAddress.
 DESCRIPTION       : Platform-specific routine to set the IP Destination Address.
 ASSUMPTIONS       : None.
@@ -1878,6 +1905,21 @@ NOTES             :
 void NextHopIPRoute::set_nextHop(const String& nh)
 {
     _nextHop = nh;
+}
+
+/*
+================================================================================
+NAME              : set_routeType.
+DESCRIPTION       : Platform-specific routine to set the route type.
+ASSUMPTIONS       : None.
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+void NextHopIPRoute::set_routeType(const Uint16& rt)
+{
+    _routeType = rt;
 }
 
 /*
@@ -2011,6 +2053,9 @@ NextHopRouteList::NextHopRouteList()
             t.s_addr = route_buf[i].NextHop;
             _ipr.set_nextHop(inet_ntoa(t));
 
+            _ipr.set_routeType(
+                (Uint16)route_buf[i].Type);
+
             _nhiprl.push_back(_ipr);   // Add another IP Route to the list.
         }
 
@@ -2077,6 +2122,9 @@ NextHopRouteList::NextHopRouteList()
 
                 _nhipr.set_prefixLength(
                     (Uint8)route6_buf[i].ipv6RoutePfxLength);
+
+                _nhipr.set_routeType(
+                    (Uint16)route6_buf[i].ipv6RouteType);
 
                 t6 = route6_buf[i].ipv6RouteNextHop;
                 _nhipr.set_nextHop(
@@ -2182,5 +2230,280 @@ NOTES             :
 int NextHopRouteList::size() const
 {
     return _nhiprl.size();
+}
+
+
+/////////////////////////////////////////////////////////////////////////
+
+RSAp::RSAp()
+{
+}
+
+RSAp::~RSAp()
+{
+}
+
+/*
+================================================================================
+NAME              : getName.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean RSAp::getName(String& s) const
+{
+    s = _name;
+    return true;
+}
+
+/*
+================================================================================
+NAME              : getAccessInfo.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean RSAp::getAccessInfo(String& s) const
+{
+    s = _accessInfo;
+    return true;
+}
+
+/*
+================================================================================
+NAME              : getInfoFormat.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean RSAp::getInfoFormat(Uint16& ui) const
+{
+    ui = _infoFormat;
+    return true;
+}
+
+/*
+================================================================================
+NAME              : getOtherInfoFmtDesc.
+DESCRIPTION       :
+ASSUMPTIONS       :
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean RSAp::getOtherInfoFormatDescription(String& s) const
+{
+    if (_infoFormat == 1)
+    {
+        s = _otherInfoFmtDesc;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+/*
+================================================================================
+NAME              : set_name
+DESCRIPTION       : Platform-specific routine to set the Name property of the 
+                  : Remote Service Access Point.
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+void RSAp::set_name(const String& n)
+{
+    _name = n;
+}
+
+/*
+================================================================================
+NAME              : set_accessInfo
+DESCRIPTION       : Platform-specific routine to set the AccessInfo property of 
+                  : the Remote Service Access Point.
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+void RSAp::set_accessInfo(const String& aI)
+{
+    _accessInfo = aI;
+}
+
+/*
+================================================================================
+NAME              : set_infoFormat
+DESCRIPTION       : Platform-specific routine to set the InfoFormat property of
+                  : the Remote Service Access Point.
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+void RSAp::set_infoFormat(const Uint16& iF)
+{
+    _infoFormat = iF;
+}
+
+/*
+================================================================================
+NAME              : set_otherInfoFmtDesc
+DESCRIPTION       : Platform-specific routine to set the 
+                  : OtherInfoFormatDescription property of the Remote Service
+                  : Access Point.
+ASSUMPTIONS       : None
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+void RSAp::set_otherInfoFmtDesc(const String& oifd)
+{
+    _otherInfoFmtDesc = oifd;
+}
+
+/*
+================================================================================
+NAME              : RSApList Constructor.
+DESCRIPTION       : Build the list of Remote Services Access Point.
+ASSUMPTIONS       : None.
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+RSApList::RSApList()
+{
+
+    for (Uint16 i=0; i<_nhiprl.size(); i++)
+    {
+        Uint16 _routeType,
+            _addrt;
+
+        if (!_nhiprl[i].isRouteLocal())
+        {
+            RSAp _rsap;
+            String _name,
+                _destAddr;
+
+            if (_nhiprl[i].getNextHop(_name))
+            {
+                if (_nhiprl[i].getDestinationAddress(_destAddr))
+                {
+                    _rsap.set_name(_name);
+                    _rsap.set_accessInfo(_name+"/"+_destAddr);
+                    _rsap.set_infoFormat(1);
+                    _rsap.set_otherInfoFmtDesc(
+                        "IPAddress/IPDestinationAddress");
+                    _rsapl.push_back(_rsap);
+                }
+            }
+        }
+    }
+
+#ifdef DEBUG
+    cout << "RSApList::RSApList() -- done" << endl;
+#endif
+
+}
+
+/*
+================================================================================
+NAME              : RSApList Destructor.
+DESCRIPTION       : None.
+ASSUMPTIONS       : None.
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+RSApList::~RSApList()
+{
+}
+
+/*
+================================================================================
+NAME              : findService.
+DESCRIPTION       : Find the requested Remote Service based on the Name 
+                  : property.
+ASSUMPTIONS       : None.
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+Boolean RSApList::findService(
+    const String &name,
+    RSAp &rRSAp) const
+{
+    int i;
+
+    for (i = 0; i < _rsapl.size(); i++)
+    {
+        String _name;
+
+        if (_rsapl[i].getName(_name) &&
+            String::equal(_name,name))
+        {
+            rRSAp = _rsapl[i];
+            return true;
+        }
+    }
+
+#ifdef DEBUG
+    cout << "RSApList::findService(): NOT FOUND name=" 
+         << name << endl;
+#endif
+
+    // Service not found.
+    return false;
+}
+
+
+/*
+================================================================================
+NAME              : getService.
+DESCRIPTION       : Get a Service based on an index.
+ASSUMPTIONS       : None.
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+RSAp RSApList::getService(const Uint16 index) const
+{
+    return _rsapl[index];
+}
+
+/*
+================================================================================
+NAME              : size.
+DESCRIPTION       : Find the size of the Remote Services Access Point List.
+ASSUMPTIONS       : None.
+PRE-CONDITIONS    :
+POST-CONDITIONS   :
+NOTES             :
+================================================================================
+*/
+int RSApList::size() const
+{
+    return _rsapl.size();
 }
 

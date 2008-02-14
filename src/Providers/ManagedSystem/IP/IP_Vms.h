@@ -209,9 +209,12 @@ public:
     Boolean getNextHop(String&) const;
     Boolean getIsStatic(Boolean&) const;
     Boolean getAddressType(Uint16&) const;
+    Boolean getRouteType(Uint16&) const;
+
+    // Method to check if a given next hop route is local.
+    Boolean isRouteLocal() const;
 
     // Methods to Load Instances
-
     void set_prefixLength(const Uint8 &pl);
     void set_nextHop(const String& nhop);
     void set_destAddr(const String& addr);
@@ -240,6 +243,53 @@ public:
     // Number of Elements in the IP Route
     int size() const;
 
+};
+
+class RSAp : public NextHopIPRoute
+{
+public:
+    RSAp();
+    ~RSAp();
+
+    // Property Accessor Methods
+
+    Boolean getName(String&) const;
+    Boolean getAccessInfo(String&) const;
+    Boolean getInfoFormat(Uint16&) const;
+    Boolean getOtherInfoFormatDescription(String&) const;
+
+    // Methods to Load Instances
+    void set_name(const String&);
+    void set_accessInfo(const String&);
+    void set_infoFormat(const Uint16&);
+    void set_otherInfoFmtDesc(const String&);
+
+private:
+    String _name;
+    String _accessInfo;
+    Uint16 _infoFormat;
+    String _otherInfoFmtDesc;
+};
+
+class RSApList : public NextHopRouteList
+{
+public:
+
+    RSApList();  // Constructor - should load list of remote services
+
+    ~RSApList();
+
+    // Method to find a particular remote service based on Name key property.
+    // Returns false if a match is not found.
+    Boolean findService(
+        const String &name,
+        RSAp &rsap) const;
+
+    // Method to get a particular element based on an index
+    RSAp getService(const Uint16 index) const;
+
+    // Number of Elements in the Remote Services Access Point List.
+    int size() const;
 };
 
 #endif  /* #ifndef PG_IP_VMS_H */

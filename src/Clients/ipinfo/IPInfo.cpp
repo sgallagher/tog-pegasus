@@ -571,6 +571,12 @@ void IPInfoCommand::getIPInfo(ostream& outPrintWriter,
             outPrintWriter, 
             errPrintWriter);
 
+        RSApInfo rsap(
+            client,
+            _enableDebug,
+            outPrintWriter,
+            errPrintWriter);
+
     }  // end try
 
     catch(const Exception& e)

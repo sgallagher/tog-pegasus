@@ -37,9 +37,26 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static const CIMName        CLASS_NAME = CIMName          ("PG_NextHopIPRoute");
+static const CIMName CLASS_PG_NEXT_HOP_IP_ROUTE = CIMName(
+    "PG_NextHopIPRoute");
+static const CIMName CLASS_CIM_NEXT_HOP_ROUTE = CIMName(
+    "CIM_NextHopRoute");
+static const CIMName CLASS_PG_ROUTE_USES_ENDPOINT = CIMName(
+    "PG_RouteUsesEndpoint");
+static const CIMName CLASS_PG_ASSOCIATED_NEXT_HOP = CIMName(
+    "PG_AssociatedNextHop");
+
+static const CIMName PROPERTY_NEXT_HOP = CIMName(
+    "NextHop");
+static const CIMName PROPERTY_IPV4ADDRESS = CIMName(
+    "IPv4Address");
+static const CIMName PROPERTY_IPV6ADDRESS = CIMName(
+    "IPv6Address");
+static const CIMName PROPERTY_ACCESS_INFO = CIMName(
+    "AccessInfo");
+
 static const CIMNamespaceName NAMESPACE  = CIMNamespaceName ("root/cimv2");
-#define HeaderFormat "%-16s %-10s %-16s %-16s"
+#define HeaderFormat "%-16s %-10s %-16s %-16s %-16s"
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -52,6 +69,7 @@ NextHopIPRouteInfo::NextHopIPRouteInfo(
     ostream& errPrintWriter)
 {
     _enableDebug = enableDebug;
+    Array<CIMInstance> retInstances;
 
     try
     {
@@ -62,28 +80,135 @@ NextHopIPRouteInfo::NextHopIPRouteInfo(
           
         Array<CIMInstance> cimInstances = client.enumerateInstances(
             NAMESPACE, 
-            CLASS_NAME,
+            CLASS_PG_NEXT_HOP_IP_ROUTE,
             deepInheritance,
             localOnly,
             includeQualifiers,
             includeClassOrigin);
- 
-        Uint32 numberInstances = cimInstances.size();
+
+        Array<CIMObjectPath> nhiprRefs = client.enumerateInstanceNames(
+            NAMESPACE,
+            CLASS_CIM_NEXT_HOP_ROUTE);
+
+        for (Uint16 i = 0; i<nhiprRefs.size(); i++)
+        {
+            CIMName resultClass;
+            String role;
+            String resultRole;
+            CIMObjectPath _nhrRef = nhiprRefs[i];
+            _nhrRef.setClassName(CLASS_CIM_NEXT_HOP_ROUTE);
+
+            // Get the association instance of CIM_RouteUsesEndpoint 
+            // for each instance of CIM_NextHopRoute class
+            Array<CIMObject> localRefs = client.associators(
+                NAMESPACE,
+                _nhrRef,
+                CLASS_PG_ROUTE_USES_ENDPOINT,
+                resultClass,
+                role,
+                resultRole);
+
+            if (localRefs.size() == 1)
+            {
+                Uint32 index = localRefs[0].findProperty(PROPERTY_IPV4ADDRESS);
+                if (index == PEG_NOT_FOUND)
+                {
+                    index = localRefs[0].findProperty(PROPERTY_IPV6ADDRESS);
+                    if (index == PEG_NOT_FOUND)
+                    {
+                        errPrintWriter << 
+                            "Error getting IPv4Address and IPv6Address " <<
+                            "property: " << "not found!" << endl; 
+                    }
+                    else
+                    {
+                        CIMInstance _cimInstance = cimInstances[i];
+                        String _nextHop;
+                        localRefs[0].getProperty(index).getValue().get(
+                            _nextHop);
+                        CIMProperty _nhProperty(
+                            PROPERTY_NEXT_HOP,
+                             CIMValue(_nextHop));
+                        _cimInstance.addProperty(_nhProperty);
+                        retInstances.append(_cimInstance);
+                    } 
+                }
+                else
+                {
+                    CIMInstance _cimInstance = cimInstances[i];
+                    String _nextHop;
+                    localRefs[0].getProperty(index).getValue().get(_nextHop);
+                    CIMProperty _nhProperty(
+                        PROPERTY_NEXT_HOP,
+                         CIMValue(_nextHop));
+                    _cimInstance.addProperty(_nhProperty);
+                    retInstances.append(_cimInstance);
+                }
+            }
+            else
+            {
+                // Get the association instance of CIM_AssociatedNextHop
+                // for each instance of CIM_RemoteServiceAccessPoint class
+                Array<CIMObject> remoteRefs = client.associators(
+                    NAMESPACE,
+                    _nhrRef,
+                    CLASS_PG_ASSOCIATED_NEXT_HOP,
+                    resultClass,
+                    role,
+                    resultRole);
+
+                if (remoteRefs.size() == 1)
+                {
+                    Uint32 index = remoteRefs[0].findProperty(
+                        PROPERTY_ACCESS_INFO);
+                    if (index != PEG_NOT_FOUND)
+                    {
+                        CIMInstance _cimInstance = cimInstances[i];
+                        String _accessInfo;
+                        remoteRefs[0].getProperty(index).getValue().get(
+                            _accessInfo);
+                        Uint32 _sep = _accessInfo.find('/');
+                        if (_sep != PEG_NOT_FOUND)
+                        {
+                            String _nextHop = _accessInfo.subString(0,_sep);
+                            CIMProperty _nhProperty(
+                                 PROPERTY_NEXT_HOP,
+                                 CIMValue(_nextHop));
+                            _cimInstance.addProperty(_nhProperty);
+                            retInstances.append(_cimInstance);
+                        } 
+                    }
+                    else
+                    {
+                        errPrintWriter << "Error getting AccessInfo property: "
+                            << "not found! " << endl;
+                    }
+                }
+                else
+                {
+                      outPrintWriter << "Unexpected number of references "
+                          << "for this instance of class CIM_NextHopRoute :"
+                          << remoteRefs.size() << endl;
+                }
+            } 
+        }
+
+        Uint32 numberInstances = retInstances.size();
 
         if (_enableDebug)
         {
             outPrintWriter << numberInstances << " instances of " <<
-                CLASS_NAME.getString() << endl;
+                CLASS_PG_NEXT_HOP_IP_ROUTE.getString() << endl;
         }
 
         if (numberInstances > 0)
         {
-            _gatherProperties(cimInstances[0]);
+            _gatherProperties(retInstances[0]);
             _outputHeader(outPrintWriter);
 
             for (Uint32 i = 0; i < numberInstances; i++)
             {
-                _gatherProperties(cimInstances[i]);
+                _gatherProperties(retInstances[i]);
                 _outputInstance(outPrintWriter);
 
             }   // end for looping through instances.
@@ -91,14 +216,15 @@ NextHopIPRouteInfo::NextHopIPRouteInfo(
         else
         {
             outPrintWriter << "No instances of class " 
-                << CLASS_NAME.getString() << endl;
+                << CLASS_PG_NEXT_HOP_IP_ROUTE.getString() << endl;
         }
 
     }  // end try .
-    catch(Exception&)
+    catch(Exception& e)
     {
         errPrintWriter << "Error getting instances of class " <<
-            CLASS_NAME.getString() << endl;
+            CLASS_PG_NEXT_HOP_IP_ROUTE.getString() << 
+            " " << e.getMessage() << endl;
     }
 
 }
@@ -162,6 +288,10 @@ void NextHopIPRouteInfo::_gatherProperties(CIMInstance &inst)
         {
             inst.getProperty(j).getValue().get(_ipPrefixLength); 
         }
+        else if (propertyName.equal(PROPERTY_NEXT_HOP))
+        {
+            inst.getProperty(j).getValue().get(_ipNextHop); 
+        }
    } // end for loop through properties
 
 }
@@ -184,7 +314,7 @@ void NextHopIPRouteInfo::_outputHeader(ostream &outPrintWriter)
     char header[81];
 
     sprintf(header, HeaderFormat, "Route", "AddrType", "IP Dest Addr",
-        "IP Dest Mask/Prefix Length", "Next Hop");
+        "DestMask/PrefLen", "NextHop");
 
     outPrintWriter << endl << header << endl;
     
@@ -205,15 +335,14 @@ void NextHopIPRouteInfo::_outputInstance(ostream &outPrintWriter)
             (const char *)_ipName.getCString(),
             "IPv4",
             (const char *)_ipIPDestAddr.getCString(),
-            (const char *)_ipIPDestMask.getCString());
+            (const char *)_ipIPDestMask.getCString(),
+            (const char *)_ipNextHop.getCString());
     }
     else 
     {
         if (_ipAddrType == 2)
         {
             String _ipt = "IPv6";
-            char _pl[10];
-            sprintf(_pl,"%d",_ipPrefixLength);
 
             if (_ipName.size() > 15)
             {
@@ -221,6 +350,7 @@ void NextHopIPRouteInfo::_outputInstance(ostream &outPrintWriter)
                     row, 
                     HeaderFormat, 
                     (const char *)_ipName.getCString(),
+                    "",
                     "",
                     "",
                     "");
@@ -236,19 +366,24 @@ void NextHopIPRouteInfo::_outputInstance(ostream &outPrintWriter)
                     (const char *)_ipName.getCString(),
                     (const char *)_ipt.getCString(),
                     (const char *)_ipIPDestAddr.getCString(),
+                    "",
                     "");
                 outPrintWriter << row << endl;
                 _ipIPDestAddr.clear();
                 _ipt.clear();
             }
      
+            char _pl[10];
+            sprintf(_pl,"%d",_ipPrefixLength);
+
             sprintf(
                 row, 
                 HeaderFormat, 
                 (const char *)_ipName.getCString(),
                 (const char *)_ipt.getCString(),
                 (const char *)_ipIPDestAddr.getCString(),
-                _pl);
+                _pl,
+                (const char *)_ipNextHop.getCString());
         }
         else
         {
@@ -258,7 +393,8 @@ void NextHopIPRouteInfo::_outputInstance(ostream &outPrintWriter)
                 (const char *)_ipName.getCString(),
                 "Unk",
                 (const char *)_ipIPDestAddr.getCString(),
-                (const char *)_ipIPDestMask.getCString());
+                (const char *)_ipIPDestMask.getCString(),
+                (const char *)_ipNextHop.getCString());
         }
     }
 

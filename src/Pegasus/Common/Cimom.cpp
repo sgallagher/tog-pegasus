@@ -578,6 +578,7 @@ void cimom::deregister_module(Uint32 quid)
         if (temp->_q_id == quid)
         {
             _modules.remove(temp);
+            delete temp;
             break;
         }
         temp = _modules.next_of(temp);

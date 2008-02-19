@@ -119,7 +119,7 @@ endif
 
 #############################################################################
 
-ifdef PEGASUS_TEST_VALGRIND_LOG
+ifdef PEGASUS_TEST_VALGRIND_LOG_DIR
     BIN_DIR = $(HOME_DIR)/bin_exe
     VALGRIND_SCRIPT_BIN_DIR = $(HOME_DIR)/bin
 else
@@ -1041,7 +1041,7 @@ else
 endif
 
 # Disable client timeouts when we're doing a valgrind build
-ifdef PEGASUS_TEST_VALGRIND_LOG
+ifdef PEGASUS_TEST_VALGRIND_LOG_DIR
     DEFINES += -DPEGASUS_DISABLE_CLIENT_TIMEOUT -DPEGASUS_TEST_VALGRIND
 endif
 

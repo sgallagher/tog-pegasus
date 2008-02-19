@@ -148,9 +148,9 @@ else
 	$(LINK_WRAPPER) $(CXX) $(FLAGS) $(EXTRA_LINK_FLAGS) $(EXE_OUTPUT) $(OBJECTS) $(FULL_LIBRARIES) $(SYS_LIBS) $(EXTRA_LIBRARIES)
 endif
 	$(TOUCH) $(FULL_PROGRAM)
-ifdef PEGASUS_TEST_VALGRIND_LOG
+ifdef PEGASUS_TEST_VALGRIND_LOG_DIR
 	echo "#!/bin/bash" > $(VALGRIND_SCRIPT_BIN_DIR)/$(PROGRAM)$(EXE)
-	echo -e "valgrind --log-file=$(PEGASUS_TEST_VALGRIND_LOG) --num-callers=25 --tool=memcheck --leak-check=full --error-limit=no $(FULL_PROGRAM) \x24@" >> $(VALGRIND_SCRIPT_BIN_DIR)/$(PROGRAM)$(EXE)
+	echo -e "valgrind --log-file=$(PEGASUS_TEST_VALGRIND_LOG_DIR)/$(PROGRAM) --num-callers=25 --tool=memcheck --leak-check=full --error-limit=no $(FULL_PROGRAM) \x24@" >> $(VALGRIND_SCRIPT_BIN_DIR)/$(PROGRAM)$(EXE)
 	chmod 755 $(VALGRIND_SCRIPT_BIN_DIR)/$(PROGRAM)$(EXE)
 endif
 	@ $(ECHO)

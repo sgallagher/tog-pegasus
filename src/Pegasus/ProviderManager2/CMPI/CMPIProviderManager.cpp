@@ -353,13 +353,14 @@ void CMPIProviderManager::_setupCMPIContexts(
     if (setFlags)
     {
         // set CMPI invocation flags
-        CMPIFlags flgs=0;
-        if (includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
-        if (includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
+        CMPIValue value;
+        value.uint32 = 0;
+        if (includeQualifiers) value.uint32 |= CMPI_FLAG_IncludeQualifiers;
+        if (includeClassOrigin) value.uint32 |= CMPI_FLAG_IncludeClassOrigin;
         eCtx->ft->addEntry(
             eCtx,
             CMPIInvocationFlags,
-            (CMPIValue*)&flgs,
+            &value,
             CMPI_uint32);
     }
 

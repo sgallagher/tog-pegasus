@@ -3068,15 +3068,15 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
   CMPIInstance *instance = NULL;
   CMPIInstance *paramInst = NULL;
   unsigned int arg_cnt = 0, index = 0;
-  CMPIUint32 oper_rc = 1;
+  CMPIValue value;
   char *result = NULL;
 
    // This dummy method, which tests InvokeMethod UP call.
 
   if (strncmp ("testReturn", methodName, strlen ("testReturn")) == 0)
   {
-      oper_rc = 2;
-      CMReturnData (rslt, (CMPIValue *) & oper_rc, CMPI_uint32);
+      value.uint32 = 2;
+      CMReturnData (rslt, &value, CMPI_uint32);
       CMReturnDone (rslt);
       return rc;
   }
@@ -3142,22 +3142,22 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
               switch (data.value.uint32)
                 {
                 case 1:
-                  oper_rc = _CDGetType (in, &result);
+                  value.uint32 = _CDGetType (in, &result);
                   break;
                 case 2:
-                  oper_rc = _CDToString (in, &result);
+                  value.uint32 = _CDToString (in, &result);
                   break;
                 case 3:
-                  oper_rc = _CDIsOfType (in, &result);
+                  value.uint32 = _CDIsOfType (in, &result);
                   break;
                 case 4:
-                  oper_rc = _CMGetMessage (&result);
+                  value.uint32 = _CMGetMessage (&result);
                   break;
                 case 5:
-                  oper_rc = _CMLogMessage (&result);
+                  value.uint32 = _CMLogMessage (&result);
                   break;
                 case 6:
-                  oper_rc = _CMTraceMessage (&result);
+                  value.uint32 = _CMTraceMessage (&result);
                   break;
                 case 7:
                   {
@@ -3177,7 +3177,7 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
                       PROV_LOG ("++++ Calling CMGetArg for insert2");
                       insert2Data = CMGetArg (in, "insert2", &rc);
                       PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
-                      oper_rc = _CMGetMessage2 (&result,
+                      value.uint32 = _CMGetMessage2 (&result,
                           CMGetCharPtr(msgFileData.value.string),
                           CMGetCharPtr(msgIdData.value.string),
                           CMGetCharPtr(insert1Data.value.string),
@@ -3186,40 +3186,40 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
                       break;
                   }
                 case 8:
-                    oper_rc = _testCMPIEnumeration (ctx);
+                    value.uint32 = _testCMPIEnumeration (ctx);
                     break;
                 case 9:
-                    oper_rc = _testCMPIArray ();
+                    value.uint32 = _testCMPIArray ();
                     break;
                 case 10:
-                    oper_rc = _testCMPIcontext (ctx);
+                    value.uint32 = _testCMPIcontext (ctx);
                     break;
                 case 11:
-                    oper_rc = _testCMPIDateTime ();
+                    value.uint32 = _testCMPIDateTime ();
                     break;
                 case 12:
-                    oper_rc = _testCMPIInstance ();
+                    value.uint32 = _testCMPIInstance ();
                     break;
                 case 13:
-                    oper_rc = _testCMPIObjectPath ();
+                    value.uint32 = _testCMPIObjectPath ();
                     break;
                 case 14:
-                    oper_rc = _testCMPIResult (rslt);
+                    value.uint32 = _testCMPIResult (rslt);
                     break;
                 case 15:
-                    oper_rc = _testCMPIString ();
+                    value.uint32 = _testCMPIString ();
                     break;
                 case 16:
-                    oper_rc = _testCMPIArgs ();
+                    value.uint32 = _testCMPIArgs ();
                     break;
                 case 17:
-                    oper_rc = _testCMPIBroker(ctx);
+                    value.uint32 = _testCMPIBroker(ctx);
                 default:
                   break;
                 }
-              // Return the oper_rc value via Result
+              // Return the value via Result
               PROV_LOG ("++++ Calling CMReturnData+Done");
-              CMReturnData (rslt, (CMPIValue *) & oper_rc, CMPI_uint32);
+              CMReturnData (rslt, &value, CMPI_uint32);
               CMReturnDone (rslt);
 
               // Return the string value value via putting it on the out
@@ -3234,9 +3234,9 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
               PROV_LOG
                 ("Unknown type of data [%X] for the Operation parameter.",
                  data.type);
-              oper_rc = 1;
+              value.uint32 = 1;
               PROV_LOG ("++++ Calling CMReturnData+Done");
-              CMReturnData (rslt, (CMPIValue *) & oper_rc, CMPI_uint32);
+              CMReturnData (rslt, &value, CMPI_uint32);
               CMReturnDone (rslt);
             }
         }
@@ -3254,12 +3254,12 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
       else if (strncmp ("returnUint32", methodName, strlen ("returnUint32"))
                == 0)
         {
-          oper_rc = 42;
+          value.uint32 = 42;
 
           PROV_LOG
             ("++++ Calling CMReturnData+Done on returnUint32 operation");
 
-          CMReturnData (rslt, (CMPIValue *) & oper_rc, CMPI_uint32);
+          CMReturnData (rslt, &value, CMPI_uint32);
           CMReturnDone (rslt);
         }
       else if (strncmp ("returnInstance", methodName, strlen ("returnInstance"))
@@ -3322,29 +3322,29 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
     else if (
         strncmp("testArrayTypes", methodName, strlen ("testArrayTypes"))== 0)
     {
-        oper_rc = _testArrayTypes();
-        CMReturnData (rslt, (CMPIValue *) &oper_rc, CMPI_uint32);
+        value.uint32 = _testArrayTypes();
+        CMReturnData (rslt, &value, CMPI_uint32);
         CMReturnDone (rslt);
     }
     else if (
         strncmp("testErrorPaths", methodName, strlen ("testErrorPaths")) == 0)
     {
-        oper_rc = _testErrorPaths();
-        CMReturnData (rslt, (CMPIValue *) &oper_rc, CMPI_uint32);
+        value.uint32 = _testErrorPaths();
+        CMReturnData (rslt, &value, CMPI_uint32);
         CMReturnDone (rslt);
     }
     else if (
         strncmp("testSimpleTypes", methodName, strlen ("testSimpleTypes")) == 0)
     {
-        oper_rc = _testSimpleTypes();
-        CMReturnData (rslt, (CMPIValue *) &oper_rc, CMPI_uint32);
+        value.uint32 = _testSimpleTypes();
+        CMReturnData (rslt, &value, CMPI_uint32);
         CMReturnDone (rslt);
     }
     else if (
         strncmp("testArrayClone", methodName, strlen ("testArrayClone")) == 0 )
     {
-        oper_rc = _testArrayClone(ctx);
-        CMReturnData (rslt, (CMPIValue *) &oper_rc, CMPI_uint32);
+        value.uint32 = _testArrayClone(ctx);
+        CMReturnData (rslt, &value, CMPI_uint32);
         CMReturnDone (rslt);
     }
 

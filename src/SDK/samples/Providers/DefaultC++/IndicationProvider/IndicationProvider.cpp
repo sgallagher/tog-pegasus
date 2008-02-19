@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,44 +40,44 @@ PEGASUS_USING_STD;
 
 PEGASUS_USING_PEGASUS;
 
-static IndicationResponseHandler* _handler = 0;
+static IndicationResponseHandler * _handler = 0; 
 static Boolean _enabled = false;
 
-void _generateIndication(
-    IndicationResponseHandler* handler,
-    const CIMName& methodName);
+void _generateIndication (
+    IndicationResponseHandler * handler,
+    const CIMName methodName);
 
-IndicationProvider::IndicationProvider() throw ()
+IndicationProvider::IndicationProvider (void) throw ()
 {
 }
 
-IndicationProvider::~IndicationProvider() throw ()
+IndicationProvider::~IndicationProvider (void) throw ()
 {
 }
 
-void IndicationProvider::initialize(CIMOMHandle& cimom)
+void IndicationProvider::initialize (CIMOMHandle & cimom)
 {
 }
 
-void IndicationProvider::terminate()
+void IndicationProvider::terminate (void)
 {
     delete this;
 }
 
-void IndicationProvider::enableIndications(
-    IndicationResponseHandler& handler)
+void IndicationProvider::enableIndications (
+    IndicationResponseHandler & handler)
 {
     _enabled = true;
     _handler = &handler;
 }
 
-void _generateIndication(
-    IndicationResponseHandler* handler,
-    const CIMName& methodName)
+void _generateIndication (
+    IndicationResponseHandler * handler,
+    const CIMName methodName)
 {
     if (_enabled)
     {
-        CIMInstance indicationInstance(CIMName("RT_TestIndication"));
+        CIMInstance indicationInstance (CIMName("RT_TestIndication"));
 
         CIMObjectPath path ;
         path.setNameSpace("SDKExamples/DefaultCXX");
@@ -83,91 +85,89 @@ void _generateIndication(
 
         indicationInstance.setPath(path);
 
-        char buffer[32];  // Should need 21 chars max
-        sprintf(buffer,
-            "%" PEGASUS_64BIT_CONVERSION_WIDTH "u",
-            CIMDateTime::getCurrentDateTime().toMicroSeconds());
-        indicationInstance.addProperty(
-            CIMProperty("IndicationIdentifier", String(buffer)));
+        char buffer [32];  // Should need 21 chars max
+        sprintf (buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u",
+            CIMDateTime::getCurrentDateTime ().toMicroSeconds ());
+        indicationInstance.addProperty
+            (CIMProperty ("IndicationIdentifier",String(buffer)));
 
-        CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime();
-        indicationInstance.addProperty(
-            CIMProperty("IndicationTime", currentDateTime));
+        CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
+        indicationInstance.addProperty
+            (CIMProperty ("IndicationTime", currentDateTime));
 
-        Array<String> correlatedIndications;
-        indicationInstance.addProperty(
-            CIMProperty("CorrelatedIndications", correlatedIndications));
+        Array<String> correlatedIndications; 
+        indicationInstance.addProperty
+            (CIMProperty ("CorrelatedIndications", correlatedIndications));
 
-        indicationInstance.addProperty(
-            CIMProperty("MethodName", CIMValue(methodName.getString())));
+        indicationInstance.addProperty
+            (CIMProperty ("MethodName", CIMValue(methodName.getString())));
+        
+        CIMIndication cimIndication (indicationInstance);
 
-        CIMIndication cimIndication(indicationInstance);
-
-        handler->deliver(indicationInstance);
+        handler->deliver (indicationInstance);
     }
 }
 
-void IndicationProvider::disableIndications()
+void IndicationProvider::disableIndications (void)
 {
     _enabled = false;
-    _handler->complete();
+    _handler->complete ();
 }
 
-void IndicationProvider::createSubscription(
-    const OperationContext& context,
-    const CIMObjectPath& subscriptionName,
-    const Array <CIMObjectPath>& classNames,
-    const CIMPropertyList& propertyList,
+void IndicationProvider::createSubscription (
+    const OperationContext & context,
+    const CIMObjectPath & subscriptionName,
+    const Array <CIMObjectPath> & classNames,
+    const CIMPropertyList & propertyList,
     const Uint16 repeatNotificationPolicy)
 {
 }
 
-void IndicationProvider::modifySubscription(
-    const OperationContext& context,
-    const CIMObjectPath& subscriptionName,
-    const Array <CIMObjectPath>& classNames,
-    const CIMPropertyList& propertyList,
+void IndicationProvider::modifySubscription (
+    const OperationContext & context,
+    const CIMObjectPath & subscriptionName,
+    const Array <CIMObjectPath> & classNames,
+    const CIMPropertyList & propertyList,
     const Uint16 repeatNotificationPolicy)
 {
 }
 
-void IndicationProvider::deleteSubscription(
-    const OperationContext& context,
-    const CIMObjectPath& subscriptionName,
-    const Array <CIMObjectPath>& classNames)
+void IndicationProvider::deleteSubscription (
+    const OperationContext & context,
+    const CIMObjectPath & subscriptionName,
+    const Array <CIMObjectPath> & classNames)
 {
 }
 
 void IndicationProvider::invokeMethod(
-    const OperationContext& context,
-    const CIMObjectPath& objectReference,
-    const CIMName& methodName,
-    const Array<CIMParamValue>& inParameters,
-    MethodResultResponseHandler& handler)
+        const OperationContext & context,
+        const CIMObjectPath & objectReference,
+        const CIMName & methodName,
+        const Array<CIMParamValue> & inParameters,
+        MethodResultResponseHandler & handler)
 {
     Boolean sendIndication = false;
     handler.processing();
 
-    if (objectReference.getClassName().equal("RT_TestIndication") &&
+    if (objectReference.getClassName().equal ("RT_TestIndication") &&
         _enabled)
-    {
-        if (methodName.equal("SendTestIndication"))
+    {                
+        if(methodName.equal("SendTestIndication"))
         {
             sendIndication = true;
-            handler.deliver(CIMValue(0));
+            handler.deliver( CIMValue( 0 ) );
         }
     }
 
     else
     {
-        handler.deliver(CIMValue(1));
+        handler.deliver( CIMValue( 1 ) );
         PEGASUS_STD(cout) << "Provider is not enabled." << PEGASUS_STD(endl);
     }
 
     handler.complete();
 
     if (sendIndication)
-    {
         _generateIndication(_handler,"generateIndication");
-    }
 }
+

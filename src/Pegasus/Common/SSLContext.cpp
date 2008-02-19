@@ -253,6 +253,7 @@ int SSLCallback::verificationCRLCallback(
     if (X509_STORE_get_by_subject(
             &crlStoreCtx, X509_LU_CRL, issuerName, &obj) <= 0)
     {
+        X509_STORE_CTX_cleanup(&crlStoreCtx);
         PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3,
             "---> SSL: No CRL by that issuer");
         PEG_METHOD_EXIT();

@@ -655,7 +655,8 @@ void _parseKeyBindingPairs(
 
             p++;
 
-            Buffer keyValueUTF8(128);
+            Array<Uint8> keyValueUTF8;
+            keyValueUTF8.reserveCapacity(128);
 
             while (*p && *p != '"')
             {
@@ -693,7 +694,8 @@ void _parseKeyBindingPairs(
                equal sign instead of doing the full
                CIMObjectPath creation and exception handling
             */
-            if (strchr(keyValueUTF8.getData(), '='))
+            keyValueUTF8.append('\0');
+            if (strchr((const char*)keyValueUTF8.getData(), '='))
             {
                 // found an equal sign, high probability for a reference
                 try

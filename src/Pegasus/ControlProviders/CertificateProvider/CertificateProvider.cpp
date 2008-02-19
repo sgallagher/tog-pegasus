@@ -104,6 +104,22 @@ static const CIMName PARAMETER_CRL_CONTENTS         = "CRLContents";
 static Mutex _trustStoreMutex;
 static Mutex _crlStoreMutex;
 
+struct FreeX509Ptr
+{
+    void operator()(X509* ptr)
+    {
+        X509_free(ptr);
+    }
+};
+
+struct FreeX509CRLPtr
+{
+    void operator()(X509_CRL* ptr)
+    {
+        X509_CRL_free(ptr);
+    }
+};
+
 typedef struct Timestamp
 {
     char year[4];
@@ -667,7 +683,6 @@ void CertificateProvider::enumerateInstances(
                     //ATTN: Is this a two-way hash?  If so, I don't need to
                     //read in the CRL just to determine the issuer name
                     BIO* inFile = BIO_new(BIO_s_file());
-                    X509_CRL* xCrl = NULL;
                     char fullPathName[1024];
 
                     sprintf(fullPathName, "%s/%s",
@@ -679,23 +694,25 @@ void CertificateProvider::enumerateInstances(
                         PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
                                          "Successfully read filename");
 
-                         if (PEM_read_bio_X509_CRL(inFile, &xCrl, NULL, NULL))
-                         {
-                             // build instance
-                             CIMInstance cimInstance = _getCRLInstance(
-                                 xCrl,
-                                 cimObjectPath.getHost(),
-                                 cimObjectPath.getNameSpace());
+                        AutoPtr<X509_CRL, FreeX509CRLPtr> xCrl(
+                            PEM_read_bio_X509_CRL(inFile, NULL, NULL, NULL));
 
-                             PEG_TRACE_STRING(TRC_CONTROLPROVIDER,
-                                 Tracer::LEVEL4,
-                                 String("Delivering CIMInstance: " +
-                                     cimInstance.getPath().toString()));
+                        if (xCrl.get())
+                        {
+                            // build instance
+                            CIMInstance cimInstance = _getCRLInstance(
+                                xCrl.get(),
+                                cimObjectPath.getHost(),
+                                cimObjectPath.getNameSpace());
 
-                             // deliver instance
-                             handler.deliver(cimInstance);
-                         }
+                            PEG_TRACE_STRING(TRC_CONTROLPROVIDER,
+                                Tracer::LEVEL4,
+                                String("Delivering CIMInstance: " +
+                                    cimInstance.getPath().toString()));
 
+                            // deliver instance
+                            handler.deliver(cimInstance);
+                        }
                     }
                     else
                     {
@@ -861,7 +878,6 @@ void CertificateProvider::enumerateInstanceNames(
                     //ATTN: Is this a two-way hash?  If so, I don't need
                     //to read in the CRL just to determine the issuer name
                     BIO* inFile = BIO_new(BIO_s_file());
-                    X509_CRL* xCrl = NULL;
                     char issuerName[1024];
                     char fullPathName[1024];
 
@@ -874,13 +890,16 @@ void CertificateProvider::enumerateInstanceNames(
                         PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3,
                             "Successfully read filename");
 
-                        if (PEM_read_bio_X509_CRL(inFile, &xCrl, NULL, NULL))
+                        AutoPtr<X509_CRL, FreeX509CRLPtr> xCrl(
+                            PEM_read_bio_X509_CRL(inFile, NULL, NULL, NULL));
+                        if (xCrl.get())
                         {
                             PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER,
                                 Tracer::LEVEL3,
                                 "Successfully read CRL file");
                             sprintf(issuerName, "%s",
-                                X509_NAME_oneline(X509_CRL_get_issuer(xCrl),
+                                X509_NAME_oneline(
+                                    X509_CRL_get_issuer(xCrl.get()),
                                 NULL, 0));
 
                             // build object path
@@ -1760,8 +1779,10 @@ void CertificateProvider::invokeMethod(
             // Read the buffer until no more certificates found.
             //
             Uint32 certCount = 0;
-            while (PEM_read_bio_X509(mem, NULL , 0, NULL))
+            X509* tmpCert;
+            while ((tmpCert = PEM_read_bio_X509(mem, NULL , 0, NULL)))
             {
+                X509_free(tmpCert);
                 certCount++;
             }
 
@@ -1790,8 +1811,9 @@ void CertificateProvider::invokeMethod(
             //
             // Read the certificate from buffer.
             //
-            X509* xCert = PEM_read_bio_X509(memCert, NULL , 0, NULL);
-            if (xCert == NULL)
+            AutoPtr<X509, FreeX509Ptr> xCert(
+                PEM_read_bio_X509(memCert, NULL , 0, NULL));
+            if (xCert.get() == NULL)
             {
                 BIO_free(memCert);
 
@@ -1815,23 +1837,23 @@ void CertificateProvider::invokeMethod(
             CIMDateTime notAfter;
 
             //issuer name
-            X509_NAME_oneline(X509_get_issuer_name(xCert), buf, 256);
+            X509_NAME_oneline(X509_get_issuer_name(xCert.get()), buf, 256);
             issuerName = String(buf);
 
             //serial number
             long rawSerialNumber =
-                ASN1_INTEGER_get(X509_get_serialNumber(xCert));
+                ASN1_INTEGER_get(X509_get_serialNumber(xCert.get()));
             char serial[256];
             sprintf(serial, "%lu", rawSerialNumber);
             serialNumber = String(serial);
 
             //subject name
-            X509_NAME_oneline(X509_get_subject_name(xCert), buf, 256);
+            X509_NAME_oneline(X509_get_subject_name(xCert.get()), buf, 256);
             subjectName = String(buf);
 
             //validity dates
-            notBefore = getDateTime(X509_get_notBefore(xCert));
-            notAfter = getDateTime(X509_get_notAfter(xCert));
+            notBefore = getDateTime(X509_get_notBefore(xCert.get()));
+            notAfter = getDateTime(X509_get_notAfter(xCert.get()));
 
             PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,
                 String("IssuerName:" + issuerName));
@@ -1888,7 +1910,7 @@ void CertificateProvider::invokeMethod(
 
             String certificateFileName = _getNewCertificateFileName(
                 _sslTrustStore,
-                X509_subject_name_hash(xCert));
+                X509_subject_name_hash(xCert.get()));
             if (userName != String::EMPTY)
             {
                 PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,
@@ -1985,7 +2007,7 @@ void CertificateProvider::invokeMethod(
                     throw CIMException(CIM_ERR_FAILED, parms);
                 }
 
-                if (!PEM_write_bio_X509(bio, xCert))
+                if (!PEM_write_bio_X509(bio, xCert.get()))
                 {
                     BIO_free_all(bio);
                     PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2, 
@@ -2056,8 +2078,9 @@ void CertificateProvider::invokeMethod(
             BIO* mem = BIO_new(BIO_s_mem());
             BIO_puts(mem, (const char*)crlContents.getCString());
 
-            X509_CRL* xCrl = NULL;
-            if (!PEM_read_bio_X509_CRL(mem, &xCrl, NULL, NULL))
+            AutoPtr<X509_CRL, FreeX509CRLPtr> xCrl(
+                PEM_read_bio_X509_CRL(mem, NULL, NULL, NULL));
+            if (!xCrl.get())
             {
                 BIO_free(mem);
 
@@ -2081,15 +2104,15 @@ void CertificateProvider::invokeMethod(
             Array<CIMDateTime> revocationDates;
 
             //issuer name
-            X509_NAME_oneline(X509_CRL_get_issuer(xCrl), buf, 256);
+            X509_NAME_oneline(X509_CRL_get_issuer(xCrl.get()), buf, 256);
             issuerName = String(buf);
 
             //check validity of CRL
             //openssl will only issue a warning if the CRL is expired
             //However, we still don't want to let them register an expired
             //or invalid CRL
-            lastUpdate = getDateTime(X509_CRL_get_lastUpdate(xCrl));
-            nextUpdate = getDateTime(X509_CRL_get_nextUpdate(xCrl));
+            lastUpdate = getDateTime(X509_CRL_get_lastUpdate(xCrl.get()));
+            nextUpdate = getDateTime(X509_CRL_get_nextUpdate(xCrl.get()));
             try
             {
                 if (CIMDateTime::getDifference(
@@ -2132,7 +2155,7 @@ void CertificateProvider::invokeMethod(
             X509_REVOKED* revokedCertificate = NULL;
             int revokedCount = -1;
 
-            revokedCertificates = X509_CRL_get_REVOKED(xCrl);
+            revokedCertificates = X509_CRL_get_REVOKED(xCrl.get());
             revokedCount = sk_X509_REVOKED_num(revokedCertificates);
 
             char countStr[3];
@@ -2157,7 +2180,7 @@ void CertificateProvider::invokeMethod(
             AutoMutex lock(_crlStoreMutex);
 
             String crlFileName = _getCRLFileName(
-                _crlStore, X509_NAME_hash(X509_CRL_get_issuer(xCrl)));
+                _crlStore, X509_NAME_hash(X509_CRL_get_issuer(xCrl.get())));
 
             PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,
                 String("IssuerName:" + issuerName));
@@ -2187,7 +2210,7 @@ void CertificateProvider::invokeMethod(
                 throw CIMException(CIM_ERR_FAILED, parms);
             }
 
-            if (!PEM_write_bio_X509_CRL(bio, xCrl))
+            if (!PEM_write_bio_X509_CRL(bio, xCrl.get()))
             {
                 BIO_free_all(bio);
                 PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL2, 

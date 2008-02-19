@@ -35,6 +35,7 @@
 #include <errno.h>
 #include <exception>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include "Time.h"
 
 PEGASUS_USING_STD;
@@ -57,10 +58,9 @@ struct StartWrapperArg
 
 extern "C" void *_start_wrapper(void *arg_)
 {
-    StartWrapperArg *arg = (StartWrapperArg *) arg_;
+    AutoPtr<StartWrapperArg> arg((StartWrapperArg *) arg_);
 
     void *return_value = (*arg->start) (arg->arg);
-    delete arg;
 
     return return_value;
 }

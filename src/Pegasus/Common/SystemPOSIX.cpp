@@ -576,27 +576,22 @@ String System::getEffectiveUserName()
 String System::encryptPassword(const char* password, const char* salt)
 {
 #if defined(PEGASUS_OS_VMS)
-
     const size_t MAX_PASS_LEN = 1024;
     char pbBuffer[MAX_PASS_LEN] = {0};
-    int dwByteCount;
+    Uint32 dwByteCount;
     char pcSalt[3] = {0};
 
     strncpy(pcSalt, salt, 2);
     dwByteCount = strlen(password);
     memcpy(pbBuffer, password, dwByteCount);
 
-    for (int i=0; (i<dwByteCount) || (i>=MAX_PASS_LEN); i++)
+    for (Uint32 i=0; (i<dwByteCount) || (i>=MAX_PASS_LEN); i++)
     {
         (i%2 == 0) ? pbBuffer[i] ^= pcSalt[1] : pbBuffer[i] ^= pcSalt[0];
     }
-
     return String(pcSalt) + String((char *)pbBuffer);
-
 #else
-
-    return String(password);
-
+    return String(crypt(password, salt));
 #endif
 }
 

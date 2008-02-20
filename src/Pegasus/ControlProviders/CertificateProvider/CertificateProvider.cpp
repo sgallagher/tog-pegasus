@@ -498,10 +498,11 @@ inline CIMInstance _getCRLInstance(X509_CRL* xCrl, String host,
     CIMInstance cimInstance(PEGASUS_CLASSNAME_CRL);
 
     // CA issuer name
-    sprintf(issuerName, "%s",
-            X509_NAME_oneline(X509_CRL_get_issuer(xCrl), NULL, 0));
-    cimInstance.addProperty(CIMProperty(ISSUER_NAME_PROPERTY,
-                CIMValue(String(issuerName))));
+    X509_NAME_oneline(
+        X509_CRL_get_issuer(xCrl), issuerName, sizeof(issuerName));
+    issuerName[sizeof(issuerName) - 1] = 0;
+    cimInstance.addProperty(
+        CIMProperty(ISSUER_NAME_PROPERTY, CIMValue(String(issuerName))));
 
     // validity dates
     CIMDateTime lastUpdate = getDateTime(X509_CRL_get_lastUpdate(xCrl));

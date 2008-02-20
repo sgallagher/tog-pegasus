@@ -359,7 +359,7 @@ void CMPIProvider::_terminate(Boolean terminating)
        }
     }
 
-    if (unloadStatus == CMPI_RC_OK)
+    if (unloadStatus == CMPI_RC_OK || terminating)
         {
 
 	  // Check the thread list to make sure the thread has been de-allocated

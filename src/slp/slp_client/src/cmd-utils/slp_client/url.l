@@ -28,7 +28,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //============================================================================*/
-//NOCHKSRC
+/* NOCHKSRC */
 /*****************************************************************************
  *  Description: encode/decode attribute urls
  *
@@ -36,7 +36,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/url.l,v 1.4 2008/01/30 05:23:48 venkat.puvvada Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/url.l,v 1.5 2008/02/20 06:06:25 venkat.puvvada Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    

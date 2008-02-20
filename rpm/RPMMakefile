@@ -44,6 +44,11 @@ IDISTRO:=$(shell lsb_release -i -s)
 PLATFORM:=$(shell /bin/rpm --eval %_target_cpu)
 BRANCH:=$(PEGASUS_BUILD_BRANCH)
 RPM:=rpm
+ifndef PEGASUS_RPM_BUILD_DEBUG
+    RPMBUILD:=rpmbuild
+else
+    RPMBUILD:=rpmbuild -vv
+endif
 RPMBUILD:=rpmbuild
 RM:=rm
 MV:=mv

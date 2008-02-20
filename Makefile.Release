@@ -1104,7 +1104,7 @@ _append_PreambleToSpecFile: FORCE
              "\044RPM_BUILD_DIR/\044RPM_PACKAGE_NAME-\044RPM_PACKAGE_VERSION"\
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) \
-             "%global PEGASUS_RPM_HOME \044RPM_BUILD_ROOT/build/tog-pegasus"\
+             "%global PEGASUS_RPM_HOME %PEGASUS_RPM_ROOT/build"\
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global PEGASUS_INSTALL_LOG $(PEGASUS_LOG_DIR)/install.log"\
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)

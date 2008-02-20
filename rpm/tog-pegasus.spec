@@ -146,7 +146,7 @@ sources.
 %global PEGASUS_DOC_DIR /usr/share/doc/tog-pegasus-2.6
 
 %global PEGASUS_RPM_ROOT  $RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
-%global PEGASUS_RPM_HOME $RPM_BUILD_ROOT/build/tog-pegasus
+%global PEGASUS_RPM_HOME %PEGASUS_RPM_ROOT/build
 %global PEGASUS_INSTALL_LOG /var/lib/Pegasus/log/install.log
 
 # Start of section pegasus/rpm/tog-specfiles/tog-pegasus-packages.spec

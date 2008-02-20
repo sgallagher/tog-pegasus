@@ -228,7 +228,7 @@ void MessageQueueServer::_handle_incoming_operation(AsyncOpNode *operation)
                     cout << " caught a hacked legacy message " << endl;
                 }
             }
-            delete rq;
+            _complete_op_node(operation, ASYNC_OPSTATE_COMPLETE, 0, 0);
         }
     }
 

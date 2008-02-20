@@ -120,6 +120,14 @@ struct FreeX509CRLPtr
     }
 };
 
+struct FreeX509NAMEPtr
+{
+    void operator()(X509_NAME* ptr)
+    {
+        X509_NAME_free(ptr);
+    }
+};
+
 typedef struct Timestamp
 {
     char year[4];
@@ -304,7 +312,7 @@ inline X509_NAME* getIssuerName(char* issuer, long chtype)
     "CertificateProvider::getIssuerName  WHILE EXIT");
 
     //create the issuername object and add each type/value pair
-    X509_NAME* issuerNameNew = X509_NAME_new();
+    AutoPtr<X509_NAME, FreeX509NAMEPtr> issuerNameNew(X509_NAME_new());
     int nid;
 
     for (int i = 0; i < count; i++)
@@ -319,11 +327,10 @@ inline X509_NAME* getIssuerName(char* issuer, long chtype)
         }
 
         if (!X509_NAME_add_entry_by_NID(
-                issuerNameNew, nid, chtype,
+                issuerNameNew.get(), nid, chtype,
                 (unsigned char*)values.get()[i], -1, -1, 0))
         {
-            X509_NAME_free(issuerNameNew);
-            issuerNameNew = NULL;
+            issuerNameNew.reset();
             break;
         }
     }
@@ -332,7 +339,7 @@ inline X509_NAME* getIssuerName(char* issuer, long chtype)
         "Got issuerName successfully");
     PEG_METHOD_EXIT();
 
-    return issuerNameNew;
+    return issuerNameNew.release();
 }
 
 /** Determines whether the user has sufficient access to perform a
@@ -1264,11 +1271,13 @@ void CertificateProvider::deleteInstance(
         char issuerChar[1024];
         sprintf(issuerChar, "%s", (const char*) issuerName.getCString());
 
-        X509_NAME* name = getIssuerName(issuerChar, MBSTRING_ASC);
+        AutoPtr<X509_NAME, FreeX509NAMEPtr> name(
+            getIssuerName(issuerChar, MBSTRING_ASC));
 
         AutoMutex lock(_crlStoreMutex);
 
-        String crlFileName = _getCRLFileName(_crlStore, X509_NAME_hash(name));
+        String crlFileName =
+            _getCRLFileName(_crlStore, X509_NAME_hash(name.get()));
         if (FileSystem::exists(crlFileName))
         {
             if (Executor::removeFile(crlFileName.getCString()) == 0)
@@ -1310,8 +1319,6 @@ void CertificateProvider::deleteInstance(
                  FileSystem::extractFileName(crlFileName));
              throw CIMException(CIM_ERR_NOT_FOUND, parms);
         }
-
-        X509_NAME_free(name);
     }
 #endif
     else

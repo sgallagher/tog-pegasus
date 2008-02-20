@@ -93,6 +93,7 @@
 #include <iostream>
 
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/HostLocator.h>
 
 #include <set>
 #include <sys/types.h>
@@ -1282,6 +1283,21 @@ Boolean SLPProvider::populateRegistrationData(
             "SLP Registration Failed: srv_registration.");
         return(false);
     }
+
+    // register for service-agent on each ip interface
+    HostLocator locator(IPAddress);
+    String agentURL = "service:service-agent://";
+    agentURL.append(locator.getHost());
+    slp_agent.srv_register((const char *)agentURL.getCString(),
+        (const char *)"(service-type=*)",
+        (const char *)"service:service-agent",
+        "DEFAULT",
+#if defined( PEGASUS_USE_OPENSLP ) && defined ( PEGASUS_SLP_REG_TIMEOUT )
+        PEGASUS_SLP_REG_TIMEOUT  * 60);
+#else
+        0xffff);
+#endif
+
 
     // Add the registered instance to the current active list.
 

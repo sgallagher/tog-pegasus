@@ -27,9 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include "Constants.h"
@@ -201,7 +201,7 @@ const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_TARGETHOST =
         CIMName ("Filter");
 
 /**
-    The name of the Handler reference property for indication subscription class
+   The name of the Handler reference property for indication subscription class
  */
     const CIMName PEGASUS_PROPERTYNAME_HANDLER =
         CIMName ("Handler");
@@ -309,6 +309,8 @@ const CIMName PEGASUS_CLASSNAME_CIM_ELEMENTCONFORMSTOPROFILE =
     CIMName ("CIM_ElementConformsToProfile");
 const CIMName PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE =
     CIMName ("PG_ElementConformsToProfile");
+const CIMName PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE_RP_RP =
+    CIMName ("PG_ElementConformsToProfile_RP_RP");
 const CIMName PEGASUS_CLASSNAME_PG_SUBPROFILEREQUIRESPROFILE =
     CIMName ("PG_SubProfileRequiresProfile");
 const CIMName PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY =

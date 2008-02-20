@@ -27,7 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 
 
 #ifndef InteropProvider_h
@@ -248,8 +248,14 @@ private:
     Array<CIMInstance> enumRegisteredProfileInstances();
     Array<CIMInstance> enumRegisteredSubProfileInstances();
     Array<CIMInstance> enumReferencedProfileInstances();
+    Array<CIMInstance> getProfilesForVersion(
+        Array<CIMInstance>& subprofs, 
+        const String version);
     Array<CIMInstance> enumElementConformsToProfileInstances(
         const OperationContext & opContext,
+        const CIMNamespaceName & opNamespace);
+    Array<CIMInstance> enumElementConformsToProfileRPRPInstances(
+        const OperationContext & opContext, 
         const CIMNamespaceName & opNamespace);
     Array<CIMInstance> enumSubProfileRequiresProfileInstances();
     Array<CIMInstance> enumSoftwareIdentityInstances();
@@ -315,7 +321,8 @@ private:
     void verifyCachedInfo();
 
     bool validAssocClassForObject(
-        const CIMName & assocClass, const CIMName & originClass,
+        const OperationContext & context,
+        const CIMName & assocClass, const CIMObjectPath & objectName,
         const CIMNamespaceName & opNamespace,
         String & originProperty, String & targetProperty);
 

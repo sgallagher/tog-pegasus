@@ -27,7 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 
 #ifndef InteropConstants_h
 #define InteropConstants_h
@@ -120,6 +120,9 @@ const CIMName INSTALLEDSOFTWAREIDENTITY_PROPERTY_INSTALLEDSOFTWARE(
 // Implementation-specific constant strings
 const String SNIA_NAME("SNIA");
 const String SNIA_VER_110("1.1.0");
+const String SNIA_VER_100("1.0.0");
+const String SNIA_VER_120("1.2.0");
+
 const String INTEROP_PROVIDER_NAME("Interoperability Provider");
 const String PEGASUS_MODULE_NAME = String(PEGASUS_CIMOM_GENERIC_NAME) +
     String(" ") + String(PEGASUS_PRODUCT_NAME);

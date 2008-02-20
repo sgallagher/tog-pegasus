@@ -27,9 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include "CIMOperationRequestDispatcher.h"
 
@@ -1071,6 +1071,16 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
                 PEGASUS_QUEUENAME_CONTROLSERVICE);
 
             _routing_table.insert_record(
+                 PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE_RP_RP,
+                _wild,
+                DynamicRoutingTable::INTERNAL,
+                0,
+                static_cast<MessageQueueService*>(
+                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                PEGASUS_MODULENAME_INTEROPPROVIDER,
+                PEGASUS_QUEUENAME_CONTROLSERVICE);
+
+            _routing_table.insert_record(
                  PEGASUS_CLASSNAME_PG_SUBPROFILEREQUIRESPROFILE,
                 PEGASUS_NAMESPACENAME_INTEROP,
                 DynamicRoutingTable::INTERNAL,
@@ -1700,9 +1710,11 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
         String remoteInformation;
         Boolean isRemote = false;
-        isRemote = _repository->isRemoteNameSpace(nameSpace, remoteInformation);
+        isRemote = _repository->isRemoteNameSpace(
+            nameSpace, 
+            remoteInformation);
         if (isRemote)
-             providercontainer = new ProviderIdContainer(
+            providercontainer = new ProviderIdContainer(
                 pmInstance, pInstance, isRemote, remoteInformation);
         else
             providercontainer = new ProviderIdContainer(pmInstance, pInstance);
@@ -1946,7 +1958,7 @@ Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
     Array<String> providerNames;
     String providerName;
 
-    // Isolate the provider names from the response and return list of providers
+    //Isolate the provider names from the response and return list of providers
     Boolean returnValue =
         _providerRegistrationManager->lookupAssociationProvider(
             nameSpace, assocClass, pInstances, pmInstances);
@@ -2004,9 +2016,13 @@ Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
 
     if (providerNames.size() == 0)
     {
-        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-            "Association Provider NOT found for Class " + assocClass.getString()
-             + " in nameSpace " + nameSpace.getString());
+        PEG_TRACE_STRING(
+            TRC_DISPATCHER, 
+            Tracer::LEVEL4,
+            "Association Provider NOT found for Class " + 
+                assocClass.getString() +
+                " in nameSpace " + 
+                nameSpace.getString());
     }
     PEG_METHOD_EXIT();
     return providerNames;
@@ -3830,7 +3846,8 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
     //  distinguish instanceNames from classNames in every case
     //  The instanceName of a singleton instance of a keyless class also
     //  has no key bindings
-    Boolean isClassRequest = (request->objectName.getKeyBindings().size() == 0);
+    Boolean isClassRequest = 
+        (request->objectName.getKeyBindings().size() == 0);
 
     if (isClassRequest)
     {
@@ -3930,8 +3947,9 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
                 response.reset(dynamic_cast<CIMAssociatorsResponseMessage*>(
                     request->buildResponse()));
-                response->cimException =
-                    PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
+                response->cimException = PEGASUS_CIM_EXCEPTION(
+                    CIM_ERR_NOT_SUPPORTED,
+                    String::EMPTY);
             }
 
             _enqueueResponse(request, response.release());
@@ -4064,7 +4082,8 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
     //  distinguish instanceNames from classNames in every case
     //  The instanceName of a singleton instance of a keyless class also
     //  has no key bindings
-    Boolean isClassRequest = (request->objectName.getKeyBindings().size() == 0);
+    Boolean isClassRequest = 
+        (request->objectName.getKeyBindings().size() == 0);
 
     if (isClassRequest)
     {
@@ -4156,10 +4175,12 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
                     "CIM_ERR_NOT_SUPPORTED for " +
                         request->className.getString());
 
-                response.reset(dynamic_cast<CIMAssociatorNamesResponseMessage*>(
-                    request->buildResponse()));
-                response->cimException =
-                    PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
+                response.reset(
+                    dynamic_cast<CIMAssociatorNamesResponseMessage*>(
+                        request->buildResponse()));
+                response->cimException = PEGASUS_CIM_EXCEPTION(
+                    CIM_ERR_NOT_SUPPORTED, 
+                    String::EMPTY);
             }
 
             _enqueueResponse(request, response.release());
@@ -4278,7 +4299,8 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
     //  distinguish instanceNames from classNames in every case
     //  The instanceName of a singleton instance of a keyless class also
     //  has no key bindings
-    Boolean isClassRequest = (request->objectName.getKeyBindings().size() == 0);
+    Boolean isClassRequest = 
+        (request->objectName.getKeyBindings().size() == 0);
 
     if (isClassRequest)
     {
@@ -4374,8 +4396,9 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
                 response.reset(dynamic_cast<CIMReferencesResponseMessage*>(
                     request->buildResponse()));
-                response->cimException =
-                    PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
+                response->cimException = PEGASUS_CIM_EXCEPTION(
+                    CIM_ERR_NOT_SUPPORTED, 
+                    String::EMPTY);
             }
 
             _enqueueResponse(request, response.release());
@@ -4502,7 +4525,8 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
     //  distinguish instanceNames from classNames in every case
     //  The instanceName of a singleton instance of a keyless class also
     //  has no key bindings
-    Boolean isClassRequest = (request->objectName.getKeyBindings().size() == 0);
+    Boolean isClassRequest = 
+        (request->objectName.getKeyBindings().size() == 0);
 
     if (isClassRequest)
     {
@@ -4592,8 +4616,9 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
                 response.reset(dynamic_cast<CIMReferenceNamesResponseMessage*>(
                     request->buildResponse()));
-                response->cimException =
-                    PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
+                response->cimException = PEGASUS_CIM_EXCEPTION(
+                    CIM_ERR_NOT_SUPPORTED, 
+                    String::EMPTY);
             }
 
             _enqueueResponse(request, response.release());
@@ -5369,8 +5394,9 @@ void CIMOperationRequestDispatcher::
    2. prune the properties if localOnly or deepInheritance are set.
    This function does not send any responses.
 */
-void CIMOperationRequestDispatcher::handleEnumerateInstancesResponseAggregation(
-    OperationAggregate* poA)
+void CIMOperationRequestDispatcher::
+    handleEnumerateInstancesResponseAggregation(
+        OperationAggregate* poA)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::handleEnumerateInstancesResponse");
@@ -5610,7 +5636,9 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
 
                     if (inParameters[i].getValue().isNull())
                     {
-                        newValue.setNullValue(param.getType(), param.isArray());
+                        newValue.setNullValue(
+                            param.getType(),
+                            param.isArray());
                     }
                     else if (inParameters[i].getValue().isArray() !=
                                  param.isArray())
@@ -5622,7 +5650,8 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                     }
                     else
                     {
-                        newValue = _convertValueType(inParameters[i].getValue(),
+                        newValue = _convertValueType(
+                            inParameters[i].getValue(),
                             paramType);
                     }
 

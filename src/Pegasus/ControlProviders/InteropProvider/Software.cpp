@@ -27,9 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Interop Provider - This provider services those classes from the
@@ -144,7 +144,8 @@ CIMInstance InteropProvider::buildSoftwareIdentity(
             SOFTWAREIDENTITY_PROPERTY_CAPTION, caption);
     }
 
-    softwareIdentity.setPath(softwareIdentity.buildPath(softwareIdentityClass));
+    softwareIdentity.setPath(
+        softwareIdentity.buildPath(softwareIdentityClass));
 
     return softwareIdentity;
 }
@@ -369,7 +370,7 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
         String version;
         String organizationName;
         Array<String> subprofiles;
-        String dummyStr;
+        String profileName;
         Uint16 dummyInt = 0;
         Array<Uint16> dummyIntArray;
         Array<String> subprofileVersions;
@@ -378,7 +379,7 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
         String profileId = extractProfileInfo(currentCapabilities,
             profileCapabilitiesClass,
             registeredProfileClass,
-            dummyStr, // Throw away profile name
+            profileName,
             version,
             dummyInt, // Throw away organization enum
             organizationName,
@@ -387,42 +388,45 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
             dummyIntArray, // Throw away subprofile organization enums
             subprofileOrgs,
             false); // Get subprofile information
-        String moduleName = getRequiredValue<String>(currentCapabilities,
-            CAPABILITIES_PROPERTY_PROVIDERMODULENAME);
-        String providerName = getRequiredValue<String>(currentCapabilities,
-            CAPABILITIES_PROPERTY_PROVIDERNAME);
-
-        String softwareInstanceId = moduleName + "+" + providerName;
-        // Create an association between the Provider's SoftwareIdentity and
-        // this Registered Profile.
-        instances.append(buildDependencyInstance(
-            softwareInstanceId,
-            PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY,
-            profileId,
-            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
-            elementSoftwareIdentityClass));
-
-        // Loop through the subprofile info and create associations between
-        // the Provider's SoftwareIdentity and the Registered Subprofiles.
-        for (Uint32 j = 0, m = subprofiles.size(); j < m; ++j)
+        if (!(String::equalNoCase(profileName,"SMI-S")))
         {
-            String subprofileVersion;
-            if (subprofileVersions.size() == 0)
-            {
-                subprofileVersion = version;
-            }
-            else
-            {
-                subprofileVersion = subprofileVersions[j];
-            }
+            String moduleName = getRequiredValue<String>(currentCapabilities,
+                CAPABILITIES_PROPERTY_PROVIDERMODULENAME);
+            String providerName = getRequiredValue<String>(currentCapabilities,
+                CAPABILITIES_PROPERTY_PROVIDERNAME);
 
+            String softwareInstanceId = moduleName + "+" + providerName;
+            // Create an association between the Provider's SoftwareIdentity and
+            // this Registered Profile.
             instances.append(buildDependencyInstance(
                 softwareInstanceId,
                 PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY,
-                buildProfileInstanceId(subprofileOrgs[j], subprofiles[j],
-                    subprofileVersion),
-                PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
+                profileId,
+                PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
                 elementSoftwareIdentityClass));
+
+            // Loop through the subprofile info and create associations between
+            // the Provider's SoftwareIdentity and the Registered Subprofiles.
+            for (Uint32 j = 0, m = subprofiles.size(); j < m; ++j)
+            {
+                String subprofileVersion;
+                if (subprofileVersions.size() == 0)
+                {
+                    subprofileVersion = version;
+                }
+                else
+                {
+                    subprofileVersion = subprofileVersions[j];
+                }
+
+                instances.append(buildDependencyInstance(
+                    softwareInstanceId,
+                    PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY,
+                    buildProfileInstanceId(subprofileOrgs[j], subprofiles[j],
+                        subprofileVersion),
+                    PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
+                    elementSoftwareIdentityClass));
+            }
         }
     }
 
@@ -430,25 +434,88 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
     // subprofile, and the Pegasus Interoperability provider software identity
     String interopSoftwareIdentity = PEGASUS_MODULE_NAME + "+" +
         INTEROP_PROVIDER_NAME;
-    String serverProfileId = buildProfileInstanceId(SNIA_NAME, "Server",
-        SNIA_VER_110);
-    String indicationProfileId = buildProfileInstanceId(SNIA_NAME,
-        "Indication", SNIA_VER_110);
-    String softwareProfileId = buildProfileInstanceId(SNIA_NAME,
-        "Software", SNIA_VER_110);
+    String serverProfileId, indicationProfileId, softwareProfileId;  
 
-    instances.append(buildDependencyInstance(interopSoftwareIdentity,
-        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY, serverProfileId,
+    //add instances for smi-s version 1.1.0
+    serverProfileId = buildProfileInstanceId(
+        SNIA_NAME, 
+        "Server",
+        SNIA_VER_110);
+    indicationProfileId = buildProfileInstanceId(
+        SNIA_NAME,
+        "Indication", 
+        SNIA_VER_110);
+    softwareProfileId = buildProfileInstanceId(
+        SNIA_NAME,
+        "Software", 
+        SNIA_VER_110);
+
+    instances.append(buildDependencyInstance(
+        interopSoftwareIdentity,
+        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY, 
+        serverProfileId,
         PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
         elementSoftwareIdentityClass));
 
-    instances.append(buildDependencyInstance(interopSoftwareIdentity,
-        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY, indicationProfileId,
+    instances.append(buildDependencyInstance(
+        interopSoftwareIdentity,
+        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY,
+        indicationProfileId,
         PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
         elementSoftwareIdentityClass));
 
-    instances.append(buildDependencyInstance(interopSoftwareIdentity,
-        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY, softwareProfileId,
+    instances.append(buildDependencyInstance(
+        interopSoftwareIdentity,
+        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY, 
+        softwareProfileId,
+        PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
+        elementSoftwareIdentityClass));
+
+    //Add instances for smi-s version 1.2.0
+
+    String profileRegistrationProfileId;
+    serverProfileId = buildProfileInstanceId(
+        SNIA_NAME, 
+        "Server",
+        SNIA_VER_120);
+    profileRegistrationProfileId = buildProfileInstanceId(
+        SNIA_NAME, 
+        "Profile Registration",
+        SNIA_VER_100);
+    indicationProfileId = buildProfileInstanceId(
+        SNIA_NAME,
+        "Indication", 
+        SNIA_VER_120);
+    softwareProfileId = buildProfileInstanceId(
+        SNIA_NAME,
+        "Software", 
+        SNIA_VER_120);
+
+    instances.append(buildDependencyInstance(
+        interopSoftwareIdentity,
+        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY, 
+        serverProfileId,
+        PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
+        elementSoftwareIdentityClass));
+
+    instances.append(buildDependencyInstance(
+        interopSoftwareIdentity,
+        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY, 
+        profileRegistrationProfileId,
+        PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
+        elementSoftwareIdentityClass));
+
+    instances.append(buildDependencyInstance(
+        interopSoftwareIdentity,
+        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY,
+        indicationProfileId,
+        PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
+        elementSoftwareIdentityClass));
+
+    instances.append(buildDependencyInstance(
+        interopSoftwareIdentity,
+        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY,
+        softwareProfileId,
         PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
         elementSoftwareIdentityClass));
 
@@ -469,7 +536,8 @@ Array<CIMInstance> InteropProvider::enumInstalledSoftwareIdentityInstances()
     CIMClass installedSoftwareClass;
     CIMInstance skeletonInst =  buildInstanceSkeleton(
         PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_INSTALLEDSOFTWAREIDENTITY, installedSoftwareClass);
+        PEGASUS_CLASSNAME_PG_INSTALLEDSOFTWAREIDENTITY, 
+        installedSoftwareClass);
     for (Uint32 i = 0, n = softwareInstances.size(); i < n; ++i)
     {
         CIMInstance installedSoftwareInstance = skeletonInst.clone();

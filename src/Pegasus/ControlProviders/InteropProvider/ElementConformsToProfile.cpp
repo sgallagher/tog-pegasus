@@ -27,9 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -84,6 +84,62 @@ CIMInstance buildElementConformsToProfile(
     tmpInstance.setPath(tmpInstance.buildPath(
         elementConformsClass));
     return tmpInstance;
+}
+
+Array<CIMInstance> InteropProvider::enumElementConformsToProfileRPRPInstances(
+    const OperationContext & opContext, 
+    const CIMNamespaceName & opNamespace)
+{
+    CIMClass elementConformsClass = repository->getClass(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE_RP_RP,
+        false, true, false);
+
+    Array<CIMInstance> instances;
+    CIMObjectPath smisVersionProfile, profRegProfile;
+
+    if (opNamespace == PEGASUS_NAMESPACENAME_INTEROP)
+    {
+        //Add associations between the 1.2 SMIS-Version profile and all 
+        //the version 1.2.0 profiles and subprofiles. 
+        smisVersionProfile = buildDependencyReference(
+            hostName,
+            buildProfileInstanceId(SNIA_NAME, "SMI-S", SNIA_VER_120),
+            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
+
+        Array<CIMInstance> profileInstances = 
+            enumRegisteredProfileInstances();
+        Array<CIMInstance> subprofileInstances = 
+            enumRegisteredSubProfileInstances();
+        profileInstances.appendArray(subprofileInstances);
+        Array<CIMInstance> profilesForVersion = getProfilesForVersion(
+            profileInstances, 
+            SNIA_VER_120); 
+        for (Uint32 i = 0, n = profilesForVersion.size(); i < n; ++i)
+        {
+            instances.append(buildElementConformsToProfile(
+                smisVersionProfile,
+                profilesForVersion[i].getPath(), 
+                elementConformsClass));
+        }
+
+        //Add association between the 1.2 SMI-S registeredprofile and 
+        //profileregistration registeredprofile with registeredversion 1.0.0
+        profRegProfile = buildDependencyReference(
+            hostName,
+            buildProfileInstanceId(
+                SNIA_NAME, 
+                "Profile Registration",
+                SNIA_VER_100),
+            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
+        instances.append(buildElementConformsToProfile(
+            smisVersionProfile,
+            profRegProfile, 
+            elementConformsClass));
+
+
+    }
+    return instances;
 }
 
 //
@@ -203,17 +259,72 @@ Array<CIMInstance> InteropProvider::enumElementConformsToProfileInstances(
     // and the ObjectManager (if we're in the Interop namespace)
     if (opNamespace == PEGASUS_NAMESPACENAME_INTEROP)
     {
-        // Build up the Object Path for the server profile
-        CIMObjectPath serverProfile = buildDependencyReference(hostName,
+        // Build up the Object Path for the server profile version 1.1.0
+        CIMObjectPath serverProfile = buildDependencyReference(
+            hostName,
             buildProfileInstanceId(SNIA_NAME, "Server", SNIA_VER_110),
             PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
         // Retrieve the Object Manager instance
         CIMInstance objManager = getObjectManagerInstance();
 
-        instances.append(buildElementConformsToProfile(serverProfile,
-            objManager.getPath(), elementConformsClass));
-    }
+        instances.append(
+            buildElementConformsToProfile(
+                serverProfile,
+                objManager.getPath(), 
+                elementConformsClass));
 
+        // Build up the Object Path for the server profile ver 1.2.0
+        // and add the elementconformstoprofile association instance
+        serverProfile = buildDependencyReference(
+            hostName,
+            buildProfileInstanceId(SNIA_NAME, "Server", SNIA_VER_120),
+            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
+        instances.append(
+            buildElementConformsToProfile(
+                serverProfile,
+                objManager.getPath(), 
+                elementConformsClass));
+        
+    }
+    return instances;
+}
+
+//Method that filters the registered profile or registered subprofile instances
+//for the SMI-S version.
+Array<CIMInstance> InteropProvider::getProfilesForVersion(
+    Array<CIMInstance>& profiles,
+    const String version)
+{
+    Array<CIMInstance> instances;
+    instances.clear();
+    for (Uint32 i = 0, n = profiles.size(); i < n; ++i)
+    {
+        String versionNumber;
+        String profileName;
+        Uint32 index = profiles[i].findProperty("RegisteredVersion");
+        if (index != PEG_NOT_FOUND)
+        {
+            const CIMValue &tmpVal = profiles[i].getProperty(index).getValue();
+            if (!tmpVal.isNull())
+            {
+              tmpVal.get(versionNumber);
+            }
+        }
+        index = profiles[i].findProperty("RegisteredName");
+        if (index != PEG_NOT_FOUND)
+        {
+            const CIMValue &tmpVal = profiles[i].getProperty(index).getValue();
+            if (!tmpVal.isNull())
+            {
+                tmpVal.get(profileName);
+            }
+        }
+
+        if ((versionNumber == version) && (profileName != String("SMI-S")))
+        {
+            instances.append(profiles[i]);
+        }
+    }
     return instances;
 }
 

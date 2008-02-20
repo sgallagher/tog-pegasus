@@ -27,7 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -103,6 +103,8 @@ const CIMName CIMXMLCOMMMECH_PROPERTY_AUTHENTICATIONMECHANISMDESCRIPTIONS(
 const CIMName CIMXMLCOMMMECH_PROPERTY_MULTIPLEOPERATIONSSUPPORTED(
         "MultipleOperationsSupported");
 const CIMName CIMXMLCOMMMECH_PROPERTY_VERSION("Version");
+const CIMName 
+   CIMXMLCOMMMECH_PROPERTY_CIMXMLPROTOVERSION("CIMXMLProtocolVersion");
 const CIMName CIMXMLCOMMMECH_PROPERTY_NAMESPACETYPE("namespaceType");
 const CIMName CIMXMLCOMMMECH_PROPERTY_NAMESPACEACCESSPROTOCOL(
     "namespaceAccessProtocol");
@@ -227,6 +229,11 @@ CIMInstance InteropProvider::buildCIMXMLCommunicationMechanismInstance(
     // Version Property
     setPropertyValue(instance, CIMXMLCOMMMECH_PROPERTY_VERSION,
         CIMXMLProtocolVersion);
+
+    //Populate "required" property that's not populated.
+    // CIMXMLProtocolVersion Property
+    setPropertyValue(instance, CIMXMLCOMMMECH_PROPERTY_CIMXMLPROTOVERSION,
+        Uint16(1));
 
     // NamespaceType Property
     setPropertyValue(instance, CIMXMLCOMMMECH_PROPERTY_NAMESPACETYPE,

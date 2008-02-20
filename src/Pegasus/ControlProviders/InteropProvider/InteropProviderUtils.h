@@ -27,7 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 
 #ifndef InteropProviderUtils_h
 #define InteropProviderUtils_h
@@ -58,7 +58,8 @@ enum TARGET_CLASS {
         PG_INSTALLEDSOFTWAREIDENTITY,
         PG_COMPUTERSYSTEM,
         PG_HOSTEDOBJECTMANAGER,
-        PG_HOSTEDACCESSPOINT
+        PG_HOSTEDACCESSPOINT,
+        PG_ELEMENTCONFORMSTOPROFILE_RP_RP
 };
 
 /***************************************************************

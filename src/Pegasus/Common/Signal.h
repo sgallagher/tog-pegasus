@@ -53,22 +53,24 @@
 
 # include <signal.h>
 typedef siginfo_t PEGASUS_SIGINFO_T;
-# define PEGASUS_SIGHUP   SIGHUP
-# define PEGASUS_SIGABRT  SIGABRT
-# define PEGASUS_SIGPIPE  SIGPIPE
-# define PEGASUS_SIGTERM  SIGTERM
-# define PEGASUS_SIGUSR1  SIGUSR1
-# define PEGASUS_SIGCHLD  SIGCHLD
+# define PEGASUS_SIGHUP    SIGHUP
+# define PEGASUS_SIGABRT   SIGABRT
+# define PEGASUS_SIGPIPE   SIGPIPE
+# define PEGASUS_SIGTERM   SIGTERM
+# define PEGASUS_SIGUSR1   SIGUSR1
+# define PEGASUS_SIGCHLD   SIGCHLD
+# define PEGASUS_SIGDANGER SIGDANGER
 
 #else // PEGASUS_HAS_SIGNALS
 
 typedef void PEGASUS_SIGINFO_T;
-# define PEGASUS_SIGHUP   1
-# define PEGASUS_SIGABRT  11
-# define PEGASUS_SIGPIPE  13
-# define PEGASUS_SIGTERM  15
-# define PEGASUS_SIGUSR1  16
-# define PEGASUS_SIGCHLD  18
+# define PEGASUS_SIGHUP    1
+# define PEGASUS_SIGABRT   11
+# define PEGASUS_SIGPIPE   13
+# define PEGASUS_SIGTERM   15
+# define PEGASUS_SIGUSR1   16
+# define PEGASUS_SIGCHLD   18
+# define PEGASUS_SIGDANGER 33
 
 #endif // PEGASUS_HAS_SIGNALS
 
@@ -116,7 +118,7 @@ private:
 #ifdef PEGASUS_HAS_SIGNALS
     enum
     {
-        PEGASUS_NSIG = 32
+        PEGASUS_NSIG = 33
     };
 
     static void verifySignum(unsigned signum);

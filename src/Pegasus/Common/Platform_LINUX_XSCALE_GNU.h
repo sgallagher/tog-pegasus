@@ -84,8 +84,8 @@
 
 #define PEGASUS_HAS_SIGNALS
 
-/* getifaddrs() avilable in gcc version > 3.4 */
-#if ((__GNUC__ * 10 + __GNUC_MINOR__) >= 34)
+/* getifaddrs() avilable in gcc version >= 3.4 */
+#if (__GNUC__ > 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 4))
 # define PEGASUS_HAS_GETIFADDRS
 #endif
 

@@ -347,6 +347,10 @@ inline void _skipWhitespace(Uint32& line, char*& p)
     }
 }
 
+#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC)
+#pragma optimize( "", off )
+#endif
 static int _getEntityRef(char*& p)
 {
     if ((p[0] == 'g') && (p[1] == 't') && (p[2] == ';'))
@@ -383,6 +387,10 @@ static int _getEntityRef(char*& p)
 
     return -1;
 }
+#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
+    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC)
+#pragma optimize( "", on ) 
+#endif
 
 static inline int _getCharRef(char*& p, bool hex)
 {

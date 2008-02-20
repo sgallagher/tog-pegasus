@@ -52,6 +52,12 @@ const CIMNamespaceName NAMESPACE3 = CIMNamespaceName ("root/SampleProvider");
 const CIMNamespaceName SOURCENAMESPACE =
     CIMNamespaceName ("root/SampleProvider");
 
+#ifdef PEGASUS_SNIA_EXTENSIONS
+const Boolean ERROR_ON_INVALID_KEY = false;
+#else
+const Boolean ERROR_ON_INVALID_KEY = true;
+#endif
+
 Boolean verbose;
 
 void _createModuleInstance
@@ -2258,10 +2264,12 @@ void _error (CIMClient & client)
             SOURCENAMESPACE.getString());
         CIMObjectPath path =
             client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, filter);
-        PEGASUS_TEST_ASSERT (false);
+        PEGASUS_TEST_ASSERT(!ERROR_ON_INVALID_KEY);
+        client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, path);
     }
     catch (CIMException & e)
     {
+        PEGASUS_TEST_ASSERT(ERROR_ON_INVALID_KEY);
         _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
     }
 
@@ -2326,10 +2334,12 @@ void _error (CIMClient & client)
             SOURCENAMESPACE.getString());
         CIMObjectPath path =
             client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, filter);
-        PEGASUS_TEST_ASSERT (false);
+        PEGASUS_TEST_ASSERT(!ERROR_ON_INVALID_KEY);
+        client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, path);
     }
     catch (CIMException & e)
     {
+        PEGASUS_TEST_ASSERT(ERROR_ON_INVALID_KEY);
         _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
     }
 
@@ -2693,10 +2703,12 @@ void _error (CIMClient & client)
             "localhost/CIMListener/test1");
         CIMObjectPath path =
             client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, handler);
-        PEGASUS_TEST_ASSERT (false);
+        PEGASUS_TEST_ASSERT(!ERROR_ON_INVALID_KEY);
+        client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, path);
     }
     catch (CIMException & e)
     {
+        PEGASUS_TEST_ASSERT(ERROR_ON_INVALID_KEY);
         _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
     }
 
@@ -2731,10 +2743,12 @@ void _error (CIMClient & client)
             "localhost/CIMListener/test1");
         CIMObjectPath path =
             client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, handler);
-        PEGASUS_TEST_ASSERT (false);
+        PEGASUS_TEST_ASSERT(!ERROR_ON_INVALID_KEY);
+        client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, path);
     }
     catch (CIMException & e)
     {
+        PEGASUS_TEST_ASSERT(ERROR_ON_INVALID_KEY);
         _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
     }
 

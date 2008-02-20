@@ -4187,8 +4187,24 @@ String IndicationService::_initOrValidateStringProperty (
 
     String propertyValue = _checkPropertyWithDefault (instance, propertyName,
         defaultValue);
+
     if (propertyValue != defaultValue)
     {
+#ifdef PEGASUS_SNIA_EXTENSIONS
+        // SNIA requires SystemName and SystemCreationClassName to be
+        // overridden with the correct values.
+        if ((propertyName == _PROPERTY_SYSTEMNAME) ||
+            (propertyName == _PROPERTY_SYSTEMCREATIONCLASSNAME))
+        {
+            // The property must exist after _checkPropertyWithDefault is called
+            CIMProperty p =
+                instance.getProperty(instance.findProperty(propertyName));
+            p.setValue(CIMValue(defaultValue));
+            PEG_METHOD_EXIT();
+            return result;
+        }
+#endif
+
         //
         //  Property value specified is invalid
         //

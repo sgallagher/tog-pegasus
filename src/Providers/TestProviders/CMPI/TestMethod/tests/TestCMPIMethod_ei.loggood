@@ -1031,3 +1031,69 @@
  ++++ Calling CMReturnData on processEmbeddedInstance operation
  ++++ Calling CMReturnDone on processEmbeddedInstance operation
  --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 0 arguments for operation [returnInstance]: 
+ Calling CMNewObjectPath for TestCMPI_Method
+ ---- (rc:CMPI_RC_OK)
+ Calling CMNewInstance 
+ ---- (rc:CMPI_RC_OK)
+ Calling CMGetObjectPath
+ ---- (rc:CMPI_RC_OK)
+ ---- Object path is test/TestProvider:TestCMPI_Instance.ElementName="ObjPath" (rc:CMPI_RC_OK)
+ Calling CMNewObjectPath for TestCMPI_Instance
+ ---- (CMPI_RC_OK)
+ ---- Object path: root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath" (rc:CMPI_RC_OK)
+ Calling CMSetObjectPath with object path: root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath"
+ ---- (CMPI_RC_OK)
+ Calling CMGetObjectPath
+ ---- (rc:CMPI_RC_OK)
+ ---- Object path is root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath" (rc:CMPI_RC_OK)
+ ++++ Calling CMReturnData+Done on returnInstance operation
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 1 arguments for operation [processArrayEmbeddedInstance]: 
+ Calling CMGetArgAt
+ #0: inputInstances (type: 3000)
+ ++++ Creating instance for processArryEmbeddedInstance
+ Calling CMNewObjectPath for TestCMPI_Method
+ ---- (rc:CMPI_RC_OK)
+ Calling CMNewInstance 
+ ---- (rc:CMPI_RC_OK)
+ Calling CMGetObjectPath
+ ---- (rc:CMPI_RC_OK)
+ ---- Object path is test/TestProvider:TestCMPI_Instance.ElementName="ObjPath" (rc:CMPI_RC_OK)
+ Calling CMNewObjectPath for TestCMPI_Instance
+ ---- (CMPI_RC_OK)
+ ---- Object path: root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath" (rc:CMPI_RC_OK)
+ Calling CMSetObjectPath with object path: root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath"
+ ---- (CMPI_RC_OK)
+ Calling CMGetObjectPath
+ ---- (rc:CMPI_RC_OK)
+ ---- Object path is root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath" (rc:CMPI_RC_OK)
+ ++++ Getting inputInstance arg
+ ++++ (CMPI_RC_OK)
+ ++++ Getting Array elements.
+ ++++ 1 (CMPI_RC_OK)
+ ++++ 2 (CMPI_RC_OK)
+ ++++ 3 (CMPI_RC_OK)
+ ++++ Cloning input arg array elements
+ ++++ 1 (CMPI_RC_OK)
+ ++++ 2 (CMPI_RC_OK)
+ ++++ 3 (CMPI_RC_OK)
+ ++++ Creating output  arg array elements
+ ++++ 1 (CMPI_RC_OK)
+ ++++ 2 (CMPI_RC_OK)
+ ++++ 3 (CMPI_RC_OK)
+ ++++ Setting outputInstance arg
+ ++++ (CMPI_RC_OK)
+ ++++ Setting outputObject arg
+ ++++ (CMPI_RC_OK)
+ ++++ Calling CMReturnData on processArrayEmbeddedInstance operation
+ ++++ Calling CMReturnDone on processArrayEmbeddedInstance operation
+ --- TestCMPI_Method CMPI InvokeMethod() exited

@@ -113,6 +113,15 @@ class TestCMPI_Method : TestCMPI_Parent
     Uint32 testSimpleTypes();
     Uint32 testArrayClone();
     Uint32 testReturn();
+
+        [EmbeddedInstance("TestCMPI_Parent")]
+    string processArrayEmbeddedInstance(
+        [IN, EmbeddedInstance("TestCMPI_Parent")]
+        string inputInstances[],
+        [OUT, EmbeddedInstance("TestCMPI_Parent")]
+        string outputInstances[],
+        [OUT, EmbeddedObject("TestCMPI_Parent")]
+        string outputObjects[]);
 };
 
 class TestCMPI_Enumeration : TestCMPI_Parent

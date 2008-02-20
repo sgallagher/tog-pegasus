@@ -834,6 +834,115 @@ void test13 (CIMClient &client)
     _checkUint32Value (retValue, 1);
 }
 
+void test14 (CIMClient & client)
+{
+    CIMObjectPath instanceName;
+
+    instanceName.setNameSpace (providerNamespace);
+    instanceName.setClassName (CLASSNAME);
+
+    Array < CIMParamValue > inParams;
+    Array < CIMInstance> eObjs;
+    Array < CIMParamValue > outParams;
+
+    CIMValue retValue = client.invokeMethod (providerNamespace,
+        instanceName,
+        "returnInstance",
+        inParams,
+        outParams);
+
+    PEGASUS_TEST_ASSERT (retValue.getType () == CIMTYPE_OBJECT);
+    PEGASUS_TEST_ASSERT (!retValue.isArray ());
+    PEGASUS_TEST_ASSERT (!retValue.isNull ());
+
+    CIMObject result;
+    retValue.get (result);
+    CIMObjectPath objPath  = result.getPath();
+    CIMInstance inputInstance(result);
+    CIMInstance outputInstance;
+    eObjs.append(inputInstance);
+    eObjs.append(inputInstance);
+    eObjs.append(inputInstance);
+
+    inParams.append (
+        CIMParamValue(String("inputInstances"), CIMValue(eObjs)));
+
+    retValue = client.invokeMethod (providerNamespace,
+        instanceName,
+        "processArrayEmbeddedInstance",
+        inParams,
+        outParams);
+
+    // First test the return value
+    PEGASUS_TEST_ASSERT(retValue.getType() == CIMTYPE_INSTANCE);
+    PEGASUS_TEST_ASSERT(!retValue.isArray());
+    PEGASUS_TEST_ASSERT(!retValue.isNull());
+    retValue.get(outputInstance);
+    PEGASUS_TEST_ASSERT(objPath.toString() ==
+        outputInstance.getPath().toString());
+    PEGASUS_TEST_ASSERT(outputInstance.getPropertyCount() ==
+        inputInstance.getPropertyCount());
+
+    for(unsigned int i = 0, n = outputInstance.getPropertyCount(); i < n; ++i)
+    {
+        CIMProperty outputProp(outputInstance.getProperty(i));
+        CIMProperty inputProp(inputInstance.getProperty(i));
+
+        PEGASUS_TEST_ASSERT(outputProp.getName() == inputProp.getName());
+        PEGASUS_TEST_ASSERT(outputProp.getValue() == inputProp.getValue());
+    }
+
+    // Now test the output parameters
+    PEGASUS_TEST_ASSERT(outParams.size() == 2);
+    CIMValue outParamValue = outParams[0].getValue();
+    PEGASUS_TEST_ASSERT(outParamValue.isArray());
+    PEGASUS_TEST_ASSERT(!outParamValue.isNull());
+
+    Array<CIMInstance> instances;
+    outParamValue.get(instances);
+
+    for (unsigned int j = 0; j < instances.size () ; ++j)
+    {
+        outputInstance = instances[j];
+        PEGASUS_TEST_ASSERT(objPath.toString() ==
+            outputInstance.getPath().toString());
+        PEGASUS_TEST_ASSERT(outputInstance.getPropertyCount() ==
+            eObjs[j].getPropertyCount());
+        for(unsigned int i = 0, n = outputInstance.getPropertyCount();
+            i < n; ++i)
+        {
+            CIMProperty outputProp(outputInstance.getProperty(i));
+            CIMProperty inputProp(eObjs[j].getProperty(i));
+            PEGASUS_TEST_ASSERT(outputProp.getName() == inputProp.getName());
+            PEGASUS_TEST_ASSERT(outputProp.getValue() == inputProp.getValue());
+        }
+    }
+
+    outParamValue = outParams[1].getValue();
+    PEGASUS_TEST_ASSERT(outParamValue.isArray());
+    PEGASUS_TEST_ASSERT(!outParamValue.isNull());
+
+    Array<CIMObject> objs;
+    outParamValue.get(objs);
+
+    for (unsigned int j = 0; j < objs.size () ; ++j)
+    {
+        outputInstance = CIMInstance(objs[j]);
+        PEGASUS_TEST_ASSERT(objPath.toString() ==
+            outputInstance.getPath().toString());
+        PEGASUS_TEST_ASSERT(outputInstance.getPropertyCount() ==
+            eObjs[j].getPropertyCount());
+        for(unsigned int i = 0, n = outputInstance.getPropertyCount();
+            i < n; ++i)
+        {
+            CIMProperty outputProp(outputInstance.getProperty(i));
+            CIMProperty inputProp(eObjs[j].getProperty(i));
+            PEGASUS_TEST_ASSERT(outputProp.getName() == inputProp.getName());
+            PEGASUS_TEST_ASSERT(outputProp.getValue() == inputProp.getValue());
+        }
+    }
+}
+
 void _test (CIMClient & client)
 {
   try
@@ -855,6 +964,7 @@ void _test (CIMClient & client)
     if (providerNamespace == "test/TestProvider")
     {
         test09 (client); // Embedded Instance Test
+        test14(client); // Embedded Instance Array Test
     }
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     

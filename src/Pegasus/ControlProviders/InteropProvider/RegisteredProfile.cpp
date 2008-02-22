@@ -27,7 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -165,9 +165,11 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
     Array<CIMInstance> instances;
     bool isRequiresProfileOperation = profileType.equal(
         PEGASUS_CLASSNAME_PG_SUBPROFILEREQUIRESPROFILE);
-    Array<CIMInstance> profileCapabilities = repository->enumerateInstancesForClass(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES, false);
+    Array<CIMInstance> profileCapabilities =
+        repository->enumerateInstancesForClass(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES,
+            false);
     Array<String> instanceIDs;
 
     CIMClass registeredProfileClass;
@@ -235,7 +237,7 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
 
         for(Uint32 j = 0, m = tmpInstanceIds.size(); j < m; ++j)
         {
-            // See if we've already retrieved an equivalent RegisteredSubProfile
+            //See if we've already retrieved an equivalent RegisteredSubProfile
             bool unique = true;
             String tmpId;
             if(isRequiresProfileOperation)
@@ -311,30 +313,133 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
                     PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
                     subprofileReqProfileClass));
             }
+
+            //Add instances for SMI-S version 1.2.0
+            static String serverProfileId1(buildProfileInstanceId(
+                SNIA_NAME, 
+                "Server", 
+                SNIA_VER_120));
+            subprofileId = buildProfileInstanceId(
+                SNIA_NAME, 
+                defaultSniaProfiles[i],
+                SNIA_VER_120);
+            compoundId = serverProfileId1 + ":" + subprofileId;
+            unique = true;
+            for (Uint32 k = 0, x = instanceIDs.size(); k < x; ++k)
+            {
+                if (instanceIDs[k] == compoundId)
+                {
+                    unique = false;
+                    break;
+                }
+            }
+
+            if (unique)
+            {
+                instances.append(buildDependencyInstance(
+                    serverProfileId1, 
+                    PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
+                    subprofileId,
+                    PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
+                    subprofileReqProfileClass));
+            }
         }
         else
         {
-                // We always have the Indication Subprofile
-                const String & currentProfile = defaultSniaProfiles[i];
-                String instanceId = buildProfileInstanceId(SNIA_NAME,
-                    defaultSniaProfiles[i], SNIA_VER_110);
-                bool defaultProfileUnique = true;
-                for(Uint32 j = 0, m = instanceIDs.size(); j < m; ++j)
+            const String & currentProfile = defaultSniaProfiles[i];
+            String instanceId;
+            bool defaultProfileUnique = true;
+
+            //Add profile registration profile instance.
+            if (String::equal(
+              defaultSniaProfiles[i], 
+              String("Profile Registration")))
+            {
+                instanceId = buildProfileInstanceId(
+                    SNIA_NAME,
+                    defaultSniaProfiles[i], 
+                    SNIA_VER_100);
+                for (Uint32 j = 0, m = instanceIDs.size(); j < m; ++j)
                 {
-                    if(instanceIDs[j] == instanceId)
+                    if (instanceIDs[j] == instanceId)
                     {
                         defaultProfileUnique = false;
                         break;
                     }
                 }
 
-                if(defaultProfileUnique)
+                if (defaultProfileUnique)
                 {
-                    instances.append(buildRegisteredProfile(instanceId,
-                        currentProfile, SNIA_VER_110, 11 /*"SNIA"*/, String::EMPTY,
-                        registeredProfileClass));
+                    instances.append(
+                        buildRegisteredProfile(
+                            instanceId,
+                            currentProfile, 
+                            SNIA_VER_100, 11 /*"SNIA"*/, 
+                            String::EMPTY,
+                            registeredProfileClass));
                     instanceIDs.append(instanceId);
                 }
+                continue;
+            }
+
+            //Add instances for SMI-S version 1.1.0.
+            defaultProfileUnique = true;
+            if (String::equal(defaultSniaProfiles[i], String("Server")) ||
+                String::equal(defaultSniaProfiles[i], String("Indication")) ||
+                String::equal(defaultSniaProfiles[i], String("Software")))
+            {
+                instanceId = buildProfileInstanceId(
+                    SNIA_NAME,
+                    defaultSniaProfiles[i],  
+                    SNIA_VER_110);
+                for (Uint32 j = 0, m = instanceIDs.size(); j < m; ++j)
+                {
+                    if (instanceIDs[j] == instanceId)
+                    {
+                        defaultProfileUnique = false;
+                        break;
+                    }
+                }
+
+                if (defaultProfileUnique)
+                {
+                    instances.append(
+                        buildRegisteredProfile(
+                            instanceId,
+                            currentProfile, 
+                            SNIA_VER_110, 11 /*"SNIA"*/, 
+                            String::EMPTY,
+                            registeredProfileClass));
+                    instanceIDs.append(instanceId);
+                }
+            }
+
+            //Add instances for SMI-S version 1.2.0.
+            defaultProfileUnique = true;
+            instanceId = buildProfileInstanceId(
+                SNIA_NAME,
+                defaultSniaProfiles[i],
+                SNIA_VER_120);
+            defaultProfileUnique = true;
+            for (Uint32 j = 0, m = instanceIDs.size(); j < m; ++j)
+            {
+                if (instanceIDs[j] == instanceId)
+                {
+                    defaultProfileUnique = false;
+                    break;
+                }
+            }
+            if (defaultProfileUnique)
+            {
+                instances.append(
+                    buildRegisteredProfile(
+                        instanceId,
+                        currentProfile, 
+                        SNIA_VER_120, 11 /*"SNIA"*/,
+                        String::EMPTY,
+                        registeredProfileClass));
+                instanceIDs.append(instanceId);
+            }
         }
     }
 
@@ -348,7 +453,11 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
 Array<CIMInstance> InteropProvider::enumRegisteredProfileInstances()
 {
     static String serverProfileName("Server");
+    static String profileRegistrationProfileName("Profile Registration");
+    static String SMISVersionProfileName("SMI-S");
     Array<String> defaultSubprofiles;
+    defaultSubprofiles.append(profileRegistrationProfileName);
+    defaultSubprofiles.append(SMISVersionProfileName);
     defaultSubprofiles.append(serverProfileName);
 
     return getProfileInstances(PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
@@ -393,9 +502,11 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
     // instances. Those instances contain the lists used to create the
     // ReferencedProfiles associations.
     //
-    Array<CIMInstance> referencedProfiles = repository->enumerateInstancesForClass(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_PROVIDERREFERENCEDPROFILES, false);
+    Array<CIMInstance> referencedProfiles =
+        repository->enumerateInstancesForClass(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_PG_PROVIDERREFERENCEDPROFILES,
+            false);
 
     CIMClass providerRefProfileClass = repository->getClass(
             PEGASUS_NAMESPACENAME_INTEROP,
@@ -554,7 +665,7 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
             }
             else
             {
-                dependentName = translateValue(currentProfile,
+                dependentName = translateValue(currentDependent,
                     REFERENCEDPROFILES_PROPERTY_DEPENDENTPROFILES,
                     VALUEMAP_QUALIFIERNAME, VALUES_QUALIFIERNAME,
                     providerRefProfileClass);
@@ -613,6 +724,45 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
                     referencedProfileClass));
             }
         }
+    }
+    //Add a referencedprofile association instance between
+    // the server profile and the profile registration profile.
+    String profileId = buildProfileInstanceId(
+        SNIA_NAME, 
+        "Server", 
+        SNIA_VER_120);
+    String dependentId = buildProfileInstanceId(
+        SNIA_NAME, 
+        "Profile Registration",
+        SNIA_VER_100);
+    String instanceId = profileId + ":" + dependentId;
+    bool unique = true;
+    for (Uint32 k = 0, x = instanceIds.size(); k < x; ++k)
+    {
+        if (instanceIds[k] == instanceId)
+        {
+            unique = false;
+            break;
+        }
+    }
+
+    if (unique)
+    {
+        // This ReferencedProfile association hasn't been created yet.
+        // Adding this to the list of instanceIds ensures that a
+        // duplicate won't be created later.
+        instanceIds.append(instanceId);
+
+        //
+        // Create the actual ReferencedProfile association instance.
+        //
+        instances.append(
+            buildDependencyInstance(
+                profileId, 
+                PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE, 
+                dependentId, 
+                PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
+                referencedProfileClass));
     }
     return instances;
 }
@@ -703,13 +853,14 @@ String extractProfileInfo(const CIMInstance & profileCapabilities,
             PROFILECAPABILITIES_PROPERTY_SUBPROFILEVERSIONS);
         if(subprofileVersionsIndex != PEG_NOT_FOUND)
         {
-            CIMValue val =
-                profileCapabilities.getProperty(subprofileVersionsIndex).getValue();
+            CIMValue val = profileCapabilities.getProperty(
+                subprofileVersionsIndex).getValue();
             if(!val.isNull())
             {
                 val.get(subprofileVersions);
                 Uint32 numVersions = subprofileVersions.size();
-                if(numVersions != 0 && numVersions != registeredSubprofiles.size())
+                if (numVersions != 0 &&
+                    numVersions != registeredSubprofiles.size())
                 {
                     throw CIMOperationFailedException(
                         profileCapabilities.getPath().toString() +
@@ -750,8 +901,8 @@ String extractProfileInfo(const CIMInstance & profileCapabilities,
         Uint32 numOrgs = 0;
         if(otherOrganizationsIndex != PEG_NOT_FOUND)
         {
-            CIMValue val =
-                profileCapabilities.getProperty(otherOrganizationsIndex).getValue();
+            CIMValue val = profileCapabilities.getProperty(
+                otherOrganizationsIndex).getValue();
             if(!val.isNull())
             {
                 val.get(otherSubprofileOrganizations);

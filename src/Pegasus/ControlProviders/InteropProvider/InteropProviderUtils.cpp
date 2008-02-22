@@ -27,7 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -461,6 +461,10 @@ TARGET_CLASS translateClassInput(const CIMName& className)
     else if(className.equal(PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE))
         return PG_ELEMENTCONFORMSTOPROFILE;
 
+    else if(className.equal(
+        PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE_RP_RP))
+            return PG_ELEMENTCONFORMSTOPROFILE_RP_RP;
+
     else if(className.equal(PEGASUS_CLASSNAME_PG_SUBPROFILEREQUIRESPROFILE))
         return PG_SUBPROFILEREQUIRESPROFILE;
 
@@ -512,6 +516,10 @@ TARGET_CLASS translateAssocClassInput(const CIMName & className)
     else if(className.equal(PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE))
         return PG_ELEMENTCONFORMSTOPROFILE;
 
+    else if(className.equal(
+        PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE_RP_RP))
+            return PG_ELEMENTCONFORMSTOPROFILE_RP_RP;
+
     else if(className.equal(PEGASUS_CLASSNAME_PG_ELEMENTSOFTWAREIDENTITY))
         return PG_ELEMENTSOFTWAREIDENTITY;
 
@@ -540,7 +548,7 @@ TARGET_CLASS translateAssocClassInput(const CIMName & className)
 void setPropertyValue(CIMInstance& instance, const CIMName& propertyName,
     const CIMValue & value)
 {
-    // ++EMC: AVD - return bool? would be pos != PEG_NOT_FOUND
+    //return bool? would be pos != PEG_NOT_FOUND
     unsigned int pos = instance.findProperty(propertyName);
     if(pos != PEG_NOT_FOUND)
         instance.getProperty(pos).setValue(value);

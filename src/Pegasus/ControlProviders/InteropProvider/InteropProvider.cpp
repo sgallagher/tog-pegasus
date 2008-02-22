@@ -27,7 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Interop Provider - This provider services those classes from the
@@ -242,6 +242,13 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
                 ref.getNameSpace());
             break;
         }
+        case PG_ELEMENTCONFORMSTOPROFILE_RP_RP:
+        {
+            instances = enumElementConformsToProfileRPRPInstances(
+                context,
+                ref.getNameSpace());
+            break;
+        }
         case PG_SUBPROFILEREQUIRESPROFILE:
         {
             instances = enumSubProfileRequiresProfileInstances();
@@ -301,14 +308,18 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
 // role and resultRole parameter of an associators/associatorNames operation.
 //
 bool InteropProvider::validAssocClassForObject(
-    const CIMName & assocClass, const CIMName & originClass,
+    const OperationContext & context,
+    const CIMName & assocClass, 
+    const CIMObjectPath & objectName,
     const CIMNamespaceName & opNamespace,
-    String & originProperty, String & targetProperty)
+    String & originProperty, 
+    String & targetProperty)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "InteropProvider::validAssocClassForObject()");
     TARGET_CLASS assocClassEnum = translateClassInput(assocClass);
     TARGET_CLASS originClassEnum;
+    CIMName originClass = objectName.getClassName();
     // If the association class is PG_ElementConformsToProfile, we'll have to
     // do some special processing in case the origin instance for the operation
     // is managed by another provider.
@@ -318,7 +329,7 @@ bool InteropProvider::validAssocClassForObject(
         // that has implemented a registered profile.
         if(opNamespace != PEGASUS_NAMESPACENAME_INTEROP ||
             (originClass != PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE &&
-            originClass != PEGASUS_CLASSNAME_PG_OBJECTMANAGER))
+             originClass != PEGASUS_CLASSNAME_PG_OBJECTMANAGER ))
         {
             //
             // Search the cached conformingElements list for the originClass,
@@ -362,6 +373,13 @@ bool InteropProvider::validAssocClassForObject(
     CIMName expectedTargetRole;
     CIMName expectedOriginRole;
 
+    Array<CIMName> propNames;
+    String profileName;
+    CIMPropertyList propertyList;
+    CIMInstance tmpInstance;
+    Uint32 index;
+    propNames.clear();
+    
     //
     // Set the target and origin role values. Note that if these values are
     // not set following the switch block, that implies that the origin class
@@ -409,6 +427,38 @@ bool InteropProvider::validAssocClassForObject(
                   ELEMENTCONFORMSTOPROFILE_PROPERTY_MANAGEDELEMENT;
           }
           break;
+      case PG_ELEMENTCONFORMSTOPROFILE_RP_RP:
+          propNames.append(CIMName("RegisteredName"));
+          propertyList = CIMPropertyList(propNames);
+          tmpInstance = localGetInstance(
+              context, 
+              objectName,
+              propertyList);
+          index = tmpInstance.findProperty("RegisteredName");
+          if (index != PEG_NOT_FOUND)
+          {
+              const CIMValue &tmpVal = 
+                  tmpInstance.getProperty(index).getValue();
+              if (!tmpVal.isNull())
+              {
+                  tmpVal.get(profileName);
+              }
+          }
+          if (String::compareNoCase(profileName, String("SMI-S")) == 0)
+          {
+              expectedTargetRole =
+                  ELEMENTCONFORMSTOPROFILE_PROPERTY_MANAGEDELEMENT;
+              expectedOriginRole =
+                  ELEMENTCONFORMSTOPROFILE_PROPERTY_CONFORMANTSTANDARD;
+          }
+          else
+          {
+              expectedTargetRole =
+                  ELEMENTCONFORMSTOPROFILE_PROPERTY_CONFORMANTSTANDARD;
+              expectedOriginRole =
+                  ELEMENTCONFORMSTOPROFILE_PROPERTY_MANAGEDELEMENT;
+          }
+          break;
       case PG_SUBPROFILEREQUIRESPROFILE:
           if(originClassEnum == PG_REGISTEREDPROFILE)
           {
@@ -419,6 +469,59 @@ bool InteropProvider::validAssocClassForObject(
           {
               expectedTargetRole = PROPERTY_ANTECEDENT;
               expectedOriginRole = PROPERTY_DEPENDENT;
+          }
+          break;
+      case PG_REFERENCEDPROFILE:
+          if (originClassEnum == PG_REGISTEREDSUBPROFILE)
+          {
+              expectedTargetRole = PROPERTY_ANTECEDENT;
+              expectedOriginRole = PROPERTY_DEPENDENT;
+          }
+          else if (originClassEnum == PG_REGISTEREDPROFILE)
+          {
+              if ((targetProperty.size() != 0) &&
+                  (originProperty.size() != 0) &&
+                  String::equalNoCase(targetProperty, originProperty))
+              {
+                  return false;
+              }
+              if (targetProperty.size() != 0)
+              {
+                  if (!(String::equalNoCase(targetProperty, "Antecedent") ||
+                      String::equalNoCase(targetProperty, "Dependent") ))
+                  {
+                      return false;
+                  }
+              }
+              if (originProperty.size() != 0)
+              {
+                  if (!(String::equalNoCase(originProperty, "Antecedent") ||
+                      String::equalNoCase(originProperty, "Dependent") ))
+                  {
+                      return false;
+                  }
+              }
+              if (String::equalNoCase(originProperty, "Antecedent") &&
+                  targetProperty.size() == 0)
+              {
+                  targetProperty = String("Dependent");
+              }
+              if (String::equalNoCase(originProperty, "Dependent") &&
+                  targetProperty.size() == 0)
+              {
+                  targetProperty = String("Antecedent");
+              }
+              if (String::equalNoCase(targetProperty, "Antecedent") &&
+                  originProperty.size() == 0)
+              {
+                  originProperty = String("Dependent");
+              }
+              if (String::equalNoCase(targetProperty, "Dependent") &&
+                  originProperty.size() == 0)
+              {
+                  originProperty = String("Antecedent");
+              }
+              return true;
           }
           break;
       case PG_ELEMENTSOFTWAREIDENTITY:
@@ -541,8 +644,13 @@ Array<CIMInstance> InteropProvider::localReferences(
     CIMNamespaceName originNamespace(objectName.getNameSpace());
 
     // Check that the association traversal request is valid
-    if(validAssocClassForObject(assocClass, objectName.getClassName(),
-        originNamespace, originProperty, targetProperty))
+    if (validAssocClassForObject(
+        context, 
+        assocClass, 
+        objectName,
+        originNamespace, 
+        originProperty, 
+        targetProperty))
     {
         // retrieve all of the association class instances
         Array<CIMInstance> localInstances = localEnumerateInstances(context,

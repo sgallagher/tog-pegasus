@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,9 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #include "CIMOperationRequestDispatcher.h"
 
@@ -1087,6 +1087,16 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
                 PEGASUS_QUEUENAME_CONTROLSERVICE);
 
             _routing_table.insert_record(
+                 PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE_RP_RP,
+                _wild,
+                DynamicRoutingTable::INTERNAL,
+                0,
+                static_cast<MessageQueueService*>(
+                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                PEGASUS_MODULENAME_INTEROPPROVIDER,
+                PEGASUS_QUEUENAME_CONTROLSERVICE);
+
+            _routing_table.insert_record(
                  PEGASUS_CLASSNAME_PG_SUBPROFILEREQUIRESPROFILE,
                 PEGASUS_NAMESPACENAME_INTEROP,
                 DynamicRoutingTable::INTERNAL,
@@ -1747,7 +1757,9 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
         String remoteInformation;
         Boolean isRemote = false;
-        isRemote = _repository->isRemoteNameSpace(nameSpace, remoteInformation);
+        isRemote = _repository->isRemoteNameSpace(
+            nameSpace,
+            remoteInformation);
         if (isRemote)
              providercontainer = new ProviderIdContainer(
                 pmInstance, pInstance, isRemote, remoteInformation);
@@ -1999,7 +2011,8 @@ Boolean CIMOperationRequestDispatcher::_lookupNewAssociationProvider(
         }
         catch (...)
         {
-            cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+            cimException =
+                PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
         }
 
         if (tmp.size() > 0)
@@ -2046,7 +2059,7 @@ Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
 
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_lookupAssociationProvider");
-    // Isolate the provider names from the response and return list of providers
+    //Isolate the provider names from the response and return list of providers
     Boolean returnValue = false;
     CIMException cimException;
     try
@@ -2122,9 +2135,13 @@ Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
 
     if (providerNames.size() == 0)
     {
-        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-            "Association Provider NOT found for Class " + assocClass.getString()
-             + " in nameSpace " + nameSpace.getString());
+        PEG_TRACE_STRING(
+            TRC_DISPATCHER,
+            Tracer::LEVEL4,
+            "Association Provider NOT found for Class " +
+                assocClass.getString() +
+                " in nameSpace " +
+                nameSpace.getString());
     }
     PEG_METHOD_EXIT();
     return providerNames;
@@ -2892,7 +2909,8 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
         }
         catch (...)
         {
-            cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+            cimException =
+                PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
         }
 
         response->cimInstance = cimInstance;
@@ -2954,7 +2972,8 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
     }
     catch (...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+        cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
     }
 
     response->cimException = cimException;
@@ -3075,7 +3094,8 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
         }
         catch (...)
         {
-            cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+            cimException =
+                PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
         }
 
         response->cimException = cimException;
@@ -3141,7 +3161,8 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
     }
     catch (...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+        cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
     }
 
     response->cimException = cimException;
@@ -3268,7 +3289,8 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
         }
         catch (...)
         {
-            cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+            cimException =
+                PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
         }
 
         response->instanceName = instanceName;
@@ -3458,7 +3480,8 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
        }
        catch (...)
        {
-           cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+           cimException =
+               PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
        }
 
        response->cimException = cimException;
@@ -3525,7 +3548,8 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
     }
     catch (...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+        cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
     }
 
     response->cimClasses = cimClasses;
@@ -3564,8 +3588,8 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 
         PEG_LOGGER_TRACE((
             Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest - "
-                "Namespace: $0  Class name: $1",
+            "CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest"
+                " - Namespace: $0  Class name: $1",
             request->nameSpace.getString(),
             request->className.getString()));
     }
@@ -3580,7 +3604,8 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
     }
     catch (...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+        cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
     }
 
     response->classNames = classNames;
@@ -5520,7 +5545,8 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
         }
         catch (...)
         {
-            cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+            cimException =
+                PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
         }
 
         if (cimException.getCode() != CIM_ERR_SUCCESS)
@@ -5798,8 +5824,8 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 
         PEG_LOGGER_TRACE((
             Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest - "
-                "Namespace: $0",
+            "CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest"
+                " - Namespace: $0",
             request->nameSpace.getString()));
     }
     catch (const CIMException& exception)
@@ -5903,7 +5929,8 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
         }
         catch (...)
         {
-            cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+            cimException =
+                PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
         }
 
         if (cimException.getCode() != CIM_ERR_SUCCESS)
@@ -6313,8 +6340,9 @@ void CIMOperationRequestDispatcher::
    2. prune the properties if localOnly or deepInheritance are set.
    This function does not send any responses.
 */
-void CIMOperationRequestDispatcher::handleEnumerateInstancesResponseAggregation(
-    OperationAggregate* poA)
+void CIMOperationRequestDispatcher::
+    handleEnumerateInstancesResponseAggregation(
+        OperationAggregate* poA)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::handleEnumerateInstancesResponse");
@@ -6531,7 +6559,9 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                 catch (Exception& e)
                 {
                     PEG_METHOD_EXIT();
-                    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+                    throw PEGASUS_CIM_EXCEPTION(
+                        CIM_ERR_FAILED,
+                        e.getMessage());
                 }
                 catch (...)
                 {
@@ -6572,7 +6602,9 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
 
                     if (inParameters[i].getValue().isNull())
                     {
-                        newValue.setNullValue(param.getType(), param.isArray());
+                        newValue.setNullValue(
+                            param.getType(),
+                            param.isArray());
                     }
                     else if (inParameters[i].getValue().isArray() !=
                                  param.isArray())
@@ -6584,7 +6616,8 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                     }
                     else
                     {
-                        newValue = _convertValueType(inParameters[i].getValue(),
+                        newValue = _convertValueType(
+                            inParameters[i].getValue(),
                             paramType);
                     }
 

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//=============================================================================
 
 #ifndef InteropProviderUtils_h
 #define InteropProviderUtils_h
@@ -40,35 +42,24 @@
 PEGASUS_NAMESPACE_BEGIN
 
 // Enum for class selection for instance operations.
-enum TARGET_CLASS
-{
-    NOCLASS,
-    PG_NAMESPACE,
-    PG_OBJECTMANAGER,
-    PG_CIMXMLCOMMUNICATIONMECHANISM,
-    PG_NAMESPACEINMANAGER,
-    PG_COMMMECHANISMFORMANAGER,
-    PG_REGISTEREDPROFILE,
-    PG_REGISTEREDSUBPROFILE,
-    PG_REFERENCEDPROFILE,
-    PG_ELEMENTCONFORMSTOPROFILE,
-    PG_SUBPROFILEREQUIRESPROFILE,
-    PG_SOFTWAREIDENTITY,
-    PG_ELEMENTSOFTWAREIDENTITY,
-    PG_INSTALLEDSOFTWAREIDENTITY,
-    PG_COMPUTERSYSTEM,
-    PG_HOSTEDOBJECTMANAGER,
-    PG_HOSTEDACCESSPOINT,
-    PG_ELEMENTCONFORMSTOPROFILE_RP_RP,
-    CIM_NAMESPACE,
-    PG_PROVIDERPROFILECAPABILITIES,
-    PG_PROVIDERREFERENCEDPROFILES
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-    ,PG_ELEMENTCAPABILITIES,
-    PG_HOSTEDINDICATIONSERVICE,
-    PG_SERVICEAFFECTSELEMENT,
-    CIM_INDICATIONSERVICE
-#endif
+enum TARGET_CLASS {
+        PG_NAMESPACE,
+        PG_OBJECTMANAGER,
+        PG_CIMXMLCOMMUNICATIONMECHANISM,
+        PG_NAMESPACEINMANAGER,
+        PG_COMMMECHANISMFORMANAGER,
+        PG_REGISTEREDPROFILE,
+        PG_REGISTEREDSUBPROFILE,
+        PG_REFERENCEDPROFILE,
+        PG_ELEMENTCONFORMSTOPROFILE,
+        PG_SUBPROFILEREQUIRESPROFILE,
+        PG_SOFTWAREIDENTITY,
+        PG_ELEMENTSOFTWAREIDENTITY,
+        PG_INSTALLEDSOFTWAREIDENTITY,
+        PG_COMPUTERSYSTEM,
+        PG_HOSTEDOBJECTMANAGER,
+        PG_HOSTEDACCESSPOINT,
+        PG_ELEMENTCONFORMSTOPROFILE_RP_RP
 };
 
 /***************************************************************
@@ -76,6 +67,13 @@ enum TARGET_CLASS
  *               Provider Utility Functions                    *
  *                                                             *
  ***************************************************************/
+
+const char * boolToString(Boolean x);
+
+//
+// Utility function used to produce trace/logging statements
+//
+String propertyListToString(const CIMPropertyList& pl);
 
 //
 // Helper function that constructs an the InstanceId property out of its
@@ -193,16 +191,17 @@ Boolean getPropertyValue(const CIMInstance & instance,
 //     request.  This is exactly the definition in the
 //     PG_CIMXMLCommunicationMechanism mof for the property
 //     namespaceAccessProtocol.
-// @param port String defining the port to be used.
+// @param port String defining the port to be used.  If String::EMPTY, it is
+//     not valid and the defaultPortNumber is inserted instead.
+// @param defaultPortNumber Uint32 defining a default port number to be used
+//     if port string is not provided.
 //
 // @return String with the IP address to be used. This must be the complete
 //     address sufficient to access the IP address. Therefore, it includes the
 //     port number.
 //
-String getHostAddress(
-    const String& hostName,
-    Uint32 namespaceType,
-    const String& port);
+String getHostAddress(const String & hostName, Uint32 namespaceType,
+    const String & port, Uint32 defaultPortNumber);
 
 //
 // Validate that the property exists, is string type and optionally the value
@@ -336,8 +335,6 @@ String extractProfileInfo(
     Array<String> & subprofileVersions,
     Array<Uint16> & subprofileOrganizations,
     Array<String> & subprofileOrganizationNames,
-    Array<String> & subProfileProviderModuleNames,
-    Array<String> & subProfileProviderNames,
     bool noSubProfileInfo = true);
 
 PEGASUS_NAMESPACE_END

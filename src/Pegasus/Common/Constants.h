@@ -27,9 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Constants_h
 #define Pegasus_Constants_h
@@ -156,7 +156,8 @@ PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_INDHANDLER;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_LSTNRDST;
-PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_INDHANDLER_CIMXML;
+PEGASUS_COMMON_LINKAGE 
+    extern const CIMName PEGASUS_CLASSNAME_INDHANDLER_CIMXML;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_LSTNRDST_CIMXML;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_INDHANDLER_SNMP;
 PEGASUS_COMMON_LINKAGE
@@ -214,6 +215,8 @@ PEGASUS_COMMON_LINKAGE
 PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE;
 PEGASUS_COMMON_LINKAGE
+    extern const CIMName PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE_RP_RP;
+PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_CLASSNAME_PG_SUBPROFILEREQUIRESPROFILE;
 PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY;
@@ -245,7 +248,8 @@ PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_WBEMSLPTEMPLATE;
 // Property Names
 //
 
-PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_INDSUB_CREATOR;
+PEGASUS_COMMON_LINKAGE 
+    extern const CIMName PEGASUS_PROPERTYNAME_INDSUB_CREATOR;
 PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS;
 PEGASUS_COMMON_LINKAGE
@@ -297,7 +301,7 @@ PEGASUS_COMMON_LINKAGE
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_FILTER;
 
 /**
-    The name of the Handler reference property for indication subscription class
+   The name of the Handler reference property for indication subscription class
  */
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_HANDLER;
 
@@ -469,9 +473,9 @@ PEGASUS_COMMON_LINKAGE
 #else
 # if defined(PEGASUS_OS_HPUX)
 #  undef CIMSERVER_LOCK_FILE
-#  define CIMSERVER_LOCK_FILE               "/var/opt/wbem/cimserver_start.lock"
+#  define CIMSERVER_LOCK_FILE              "/var/opt/wbem/cimserver_start.lock"
 #  undef PEGASUS_REPOSITORY_DIR
-#  define PEGASUS_REPOSITORY_DIR            "/var/opt/wbem/repository"
+#  define PEGASUS_REPOSITORY_DIR           "/var/opt/wbem/repository"
 #  undef PEGASUS_CURRENT_CONFIG_FILE_PATH
 #  define PEGASUS_CURRENT_CONFIG_FILE_PATH  \
     "/var/opt/wbem/cimserver_current.conf"
@@ -479,7 +483,7 @@ PEGASUS_COMMON_LINKAGE
 #  define PEGASUS_PLANNED_CONFIG_FILE_PATH  \
     "/var/opt/wbem/cimserver_planned.conf"
 #  undef PEGASUS_CIMSERVER_START_FILE
-#  define PEGASUS_CIMSERVER_START_FILE      "/etc/opt/wbem/cimserver_start.conf"
+#  define PEGASUS_CIMSERVER_START_FILE     "/etc/opt/wbem/cimserver_start.conf"
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
 #  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/etc/opt/hp/sslshare/client.pem"
 #  undef PEGASUS_SSLCLIENT_RANDOMFILE
@@ -489,7 +493,7 @@ PEGASUS_COMMON_LINKAGE
 #  undef PEGASUS_LOCAL_AUTH_DIR
 #  define PEGASUS_LOCAL_AUTH_DIR            "/var/opt/wbem/localauth"
 #  undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH
-#  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/var/opt/wbem/socket/cimxml.socket"
+#  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH "/var/opt/wbem/socket/cimxml.socket"
 #  undef PEGASUS_CORE_DIR
 #  define PEGASUS_CORE_DIR                  "/var/opt/wbem"
 #  undef PEGASUS_PAM_STANDALONE_PROC_NAME
@@ -542,13 +546,13 @@ PEGASUS_COMMON_LINKAGE
 #  define PEGASUS_PLANNED_CONFIG_FILE_PATH  \
     "/var/opt/tog-pegasus/cimserver_planned.conf"
 #  undef PEGASUS_CIMSERVER_START_FILE
-#  define PEGASUS_CIMSERVER_START_FILE      "/var/run/tog-pegasus/cimserver.pid"
+#  define PEGASUS_CIMSERVER_START_FILE     "/var/run/tog-pegasus/cimserver.pid"
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
 #  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/etc/opt/tog-pegasus/client.pem"
 #  undef PEGASUS_SSLCLIENT_RANDOMFILE
 #  define PEGASUS_SSLCLIENT_RANDOMFILE      "/var/opt/tog-pegasus/ssl.rnd"
 #  undef PEGASUS_SSLSERVER_RANDOMFILE
-#  define PEGASUS_SSLSERVER_RANDOMFILE      "/var/opt/tog-pegasus/cimserver.rnd"
+#  define PEGASUS_SSLSERVER_RANDOMFILE     "/var/opt/tog-pegasus/cimserver.rnd"
 #  undef PEGASUS_LOCAL_AUTH_DIR
 #  define PEGASUS_LOCAL_AUTH_DIR            \
     "/var/opt/tog-pegasus/cache/localauth"
@@ -577,7 +581,7 @@ PEGASUS_COMMON_LINKAGE
 #  undef PEGASUS_SSLCLIENT_RANDOMFILE
 #  define PEGASUS_SSLCLIENT_RANDOMFILE      "/var/opt/lsb-pegasus/ssl.rnd"
 #  undef PEGASUS_SSLSERVER_RANDOMFILE
-#  define PEGASUS_SSLSERVER_RANDOMFILE      "/var/opt/lsb-pegasus/cimserver.rnd"
+#  define PEGASUS_SSLSERVER_RANDOMFILE     "/var/opt/lsb-pegasus/cimserver.rnd"
 #  undef PEGASUS_LOCAL_AUTH_DIR
 #  define PEGASUS_LOCAL_AUTH_DIR            "/var/opt/lsb-pegasus/localauth"
 #  undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH

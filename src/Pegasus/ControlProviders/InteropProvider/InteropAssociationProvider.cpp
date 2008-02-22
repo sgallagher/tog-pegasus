@@ -27,7 +27,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@
 //  Server Profile
 //
 //  Please see PG_ServerProfile20.mof in the directory
-//  $(PEGASUS_ROOT)/Schemas/Pegasus/InterOp/VER20 for retails regarding the
+//  $(PEGASUS_ROOT)/Schemas/Pegasus/InterOp/VER20 for details regarding the
 //  classes supported by this control provider.
 //
 //  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP 
@@ -75,7 +75,9 @@ void InteropProvider::associators(
             "InteropProvider::associators()");
     initProvider();
     PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-        "%s associators. objectName= %s , assocClass= %s resultClass= %s role= %s resultRole %includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
+        "%s associators. objectName= %s, assocClass= %s resultClass= %s "
+            "role= %s resultRole %s, includeQualifiers= %s, "
+            "includeClassOrigin= %s, PropertyList= %s",
         thisProvider,
         (const char *)objectName.toString().getCString(),
         (const char *)associationClass.getString().getCString(),
@@ -89,24 +91,50 @@ void InteropProvider::associators(
     handler.processing();
     String originRole = role;
     String targetRole = resultRole;
+    Uint32 numIterations = 1;
     //
     // The localReferences call retrieves instances of the desired association
     // class and sets the originRole and targetRole properties if currently
     // empty.
     //
-    Array<CIMInstance> refs = localReferences(context, objectName,
-        associationClass, originRole, targetRole, CIMPropertyList(),
-        resultClass);
-    for(Uint32 i = 0, n = refs.size(); i < n; ++i)
+    if (associationClass.equal(PEGASUS_CLASSNAME_PG_REFERENCEDPROFILE))
     {
-        CIMInstance & currentRef = refs[i];
-        // Retrieve the "other side" of the association
-        CIMObjectPath currentTarget = getRequiredValue<CIMObjectPath>(
-            currentRef, targetRole);
-        CIMInstance tmpInstance = localGetInstance(context, currentTarget,
-            propertyList);
-        tmpInstance.setPath(currentTarget);
-        handler.deliver(tmpInstance);
+        if (originRole.size() == 0 && targetRole.size() == 0)
+        {
+            originRole = String("Antecedent");
+            targetRole = String("Dependent");
+            numIterations = 2;
+        }
+    }
+    for (Uint32 i = 0; i < numIterations; ++i)
+    {
+        Array<CIMInstance> refs = localReferences(
+            context, 
+            objectName,
+            associationClass,
+            originRole, 
+            targetRole, 
+            CIMPropertyList(),
+            resultClass);
+        for (Uint32 i = 0, n = refs.size(); i < n; ++i)
+        {
+            CIMInstance & currentRef = refs[i];
+            // Retrieve the "other side" of the association
+            CIMObjectPath currentTarget = getRequiredValue<CIMObjectPath>(
+                currentRef, 
+                targetRole);
+            CIMInstance tmpInstance = localGetInstance(
+                context, 
+                currentTarget,
+                propertyList);
+            tmpInstance.setPath(currentTarget);
+            handler.deliver(tmpInstance);
+        }
+        if (numIterations == 2)
+        {
+            originRole = String("Dependent");
+            targetRole = String("Antecedent");
+        }
     }
     handler.complete();
 
@@ -131,7 +159,8 @@ void InteropProvider::associatorNames(
         "InteropProvider::associatorNames()");
     initProvider();
     PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-        "%s associatorNames. objectName= %s , assocClass= %s resultClass= %s role= %s resultRole",
+        "%s associatorNames.objectName= %s, assocClass= %s resultClass= %s "
+            "role= %s resultRole = %s",
         thisProvider,
         (const char *)objectName.toString().getCString(),
         (const char *)associationClass.getString().getCString(),
@@ -140,22 +169,46 @@ void InteropProvider::associatorNames(
         (const char *)resultRole.getCString()));
 
     handler.processing();
-        String originRole = role;
+    String originRole = role;
     String targetRole = resultRole;
+    Uint32 numIterations = 1;
     //
     // The localReferences call retrieves instances of the desired association
     // class and sets the originRole and targetRole properties if currently
     // empty.
     //
-    Array<CIMInstance> refs = localReferences(context, objectName,
-        associationClass, originRole, targetRole, CIMPropertyList(),
-        resultClass);
-    for(Uint32 i = 0, n = refs.size(); i < n; ++i)
+    if (associationClass.equal(PEGASUS_CLASSNAME_PG_REFERENCEDPROFILE))
     {
-        CIMInstance & currentRef = refs[i];
-        CIMObjectPath currentTarget = getRequiredValue<CIMObjectPath>(
-            currentRef, targetRole);
-        handler.deliver(currentTarget);
+        if (originRole.size() == 0 && targetRole.size() == 0)
+        {
+            originRole = String("Antecedent");
+            targetRole = String("Dependent");
+            numIterations = 2;
+        }
+    }
+    for (Uint32 i = 0; i < numIterations; ++i)
+    {
+        Array<CIMInstance> refs = localReferences(
+            context,  
+            objectName,
+            associationClass, 
+            originRole, 
+            targetRole, 
+            CIMPropertyList(),
+            resultClass);
+        for (Uint32 i = 0, n = refs.size(); i < n; ++i)
+        {
+            CIMInstance & currentRef = refs[i];
+            CIMObjectPath currentTarget = getRequiredValue<CIMObjectPath>(
+                currentRef,
+                targetRole);
+            handler.deliver(currentTarget);
+        }
+        if (numIterations == 2)
+        {
+            originRole = String("Dependent");
+            targetRole = String("Antecedent");
+        }
     }
     handler.complete();
     PEG_METHOD_EXIT();
@@ -181,7 +234,8 @@ void InteropProvider::references(
         "InteropProvider::references()");
     initProvider();
     PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-        "%s references. objectName= %s , resultClass= %s role= %s includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
+        "%s references. objectName= %s, resultClass= %s role= %s "
+            "includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
         thisProvider,
         (const char *)objectName.toString().getCString(),
         (const char *)resultClass.getString().getCString(),
@@ -193,14 +247,38 @@ void InteropProvider::references(
     handler.processing();
     String tmpRole = role;
     String tmpTarget;
+    Uint32 numIterations = 1;
     //
     // Makes call to internal references method to get result, supplying the
     // role parameter, but obviously not setting a resultRole/target parameter.
     //
-    Array<CIMInstance> refs =
-        localReferences(context, objectName, resultClass, tmpRole, tmpTarget);
-    for(Uint32 i = 0, n = refs.size(); i < n; ++i)
-      handler.deliver((CIMObject)refs[i]);
+    if (resultClass.equal(PEGASUS_CLASSNAME_PG_REFERENCEDPROFILE))
+    {
+        if (tmpRole.size() == 0)
+        {
+            tmpRole = String("Antecedent");
+            tmpTarget = String("Dependent");
+            numIterations = 2;
+        }
+    }
+    for (Uint32 i = 0; i < numIterations; ++i)
+    {
+        Array<CIMInstance> refs = localReferences(
+            context, 
+            objectName, 
+            resultClass, 
+            tmpRole, 
+            tmpTarget);
+        for (Uint32 i = 0, n = refs.size(); i < n; ++i)
+        {
+            handler.deliver((CIMObject)refs[i]);
+        }
+        if (numIterations == 2)
+        {
+            tmpRole = String("Dependent");
+            tmpTarget = String("Antecedent");
+        }
+    }
     handler.complete();
     PEG_METHOD_EXIT();
 }
@@ -224,15 +302,37 @@ void InteropProvider::referenceNames(
 
     String tmpRole = role;
     String tmpTarget;
+    Uint32 numIterations = 1;
     //
     // Makes call to internal references method to get result, supplying the
     // role parameter, but obviously not setting a resultRole/target parameter.
     //
-    Array<CIMInstance> refs =
-        localReferences(context, objectName, resultClass, tmpRole, tmpTarget);
-    for(Uint32 i = 0, n = refs.size(); i < n; ++i)
+    if (resultClass.equal(PEGASUS_CLASSNAME_PG_REFERENCEDPROFILE))
     {
-        handler.deliver(refs[i].getPath());
+        if (tmpRole.size() == 0)
+        {
+            tmpRole = String("Antecedent");
+            tmpTarget = String("Dependent");
+            numIterations = 2;
+        }
+    }
+    for (Uint32 i = 0; i < numIterations; ++i)
+    {
+        Array<CIMInstance> refs = localReferences(
+            context, 
+            objectName,
+            resultClass,
+            tmpRole, 
+            tmpTarget);
+        for (Uint32 i = 0, n = refs.size(); i < n; ++i)
+        {
+            handler.deliver(refs[i].getPath());
+        }
+        if (numIterations == 2)
+        {
+            tmpRole = String("Dependent");
+            tmpTarget = String("Antecedent");
+        }
     }
 
     handler.complete();

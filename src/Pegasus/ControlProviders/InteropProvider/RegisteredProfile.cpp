@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//=============================================================================
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -46,10 +48,10 @@
 //  use we added a number of traces to help diagnostics.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/CIMNameCast.h>
 #include "InteropProvider.h"
 #include "InteropProviderUtils.h"
 #include "InteropConstants.h"
+
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -131,7 +133,8 @@ CIMInstance InteropProvider::buildRegisteredProfile(
     // Determine if SLP is currently enabled in the server. If so, specify
     // SLP as the advertise type.
     Array<Uint16> advertiseTypes;
-    if (enableSLP)
+    ConfigManager* configManager = ConfigManager::getInstance();
+    if (String::equal(configManager->getCurrentValue("slp"), "true"))
     {
         advertiseTypes.append(3); // Advertised via SLP
     }
@@ -151,431 +154,6 @@ CIMInstance InteropProvider::buildRegisteredProfile(
     return instance;
 }
 
-#ifdef PEGASUS_ENABLE_SLP
-void InteropProvider::sendUpdateRegMessageToSLPProvider(
-    const OperationContext &context)
-{
-    PEG_METHOD_ENTER(
-        TRC_CONTROLPROVIDER,
-        "InteropProvider::sendUpdateRegMessageToSLPProvider()");
-
-    if (!ConfigManager::parseBooleanValue(
-            ConfigManager::getInstance()->getCurrentValue("slp")))
-    {
-        PEG_METHOD_EXIT();
-        return;
-    }
-
-    String referenceStr("//", 2);
-    referenceStr.append(System::getHostName());
-    referenceStr.append("/");
-    referenceStr.append(PEGASUS_NAMESPACENAME_INTERNAL.getString());
-    referenceStr.append(":");
-    referenceStr.append(PEGASUS_CLASSNAME_WBEMSLPTEMPLATE.getString());
-    CIMObjectPath reference(referenceStr);
-
-    Array<CIMParamValue> inParams;
-    Array<CIMParamValue> outParams;
-
-    // Invoke SLP Provider's update method to update registrations.
-    try
-    {
-        cimomHandle.invokeMethod(
-            context,
-            PEGASUS_NAMESPACENAME_INTERNAL,
-            reference,
-            CIMNameCast("update"),
-            inParams,
-            outParams);
-    }
-    catch(const Exception &e)
-    {
-        PEG_TRACE((TRC_CONTROLPROVIDER,Tracer::LEVEL1,
-            "Exception caught while invoking SLPProvider 'update' method: %s",
-            (const char*)e.getMessage().getCString()));
-    }
-    catch(...)
-    {
-        PEG_TRACE_CSTRING(
-            TRC_CONTROLPROVIDER,
-            Tracer::LEVEL1,
-            "Unknown error occurred while"
-                " invoking SLPProvider 'update' method.");
-    }
-    PEG_METHOD_EXIT();
-}
-#endif
-
-CIMObjectPath InteropProvider::createProviderProfileCapabilityInstance(
-    const CIMInstance & profileInstance,
-    const OperationContext & context)
-{
-    // get registered profile class
-    CIMClass registeredProfileClass = repository->getClass(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
-        false,
-        true,
-        false);
-
-    String profileName;
-    Uint16 profileOrganization = 0;
-    String profileVersion;
-    String profileOrganizationName;
-    Array<String> profileNames;
-    Array<String> profileVersions;
-    Array<Uint16> profileOrganizations;
-    Array<String> profileOrganizationNames;
-    Array<String> profileProviderModuleNames;
-    Array<String> profileProviderNames;
-
-    // We don't use the any information we extract here. If profileInstance
-    // is not valid extractProfileInfo() method throws exception. Calling
-    // this method here will check for validity of profileInstance.
-
-    extractProfileInfo(
-        profileInstance,
-        profileCapabilitiesClass,
-        registeredProfileClass,
-        profileName,
-        profileVersion,
-        profileOrganization,
-        profileOrganizationName,
-        profileNames,
-        profileVersions,
-        profileOrganizations,
-        profileOrganizationNames,
-        profileProviderModuleNames,
-        profileProviderNames,
-        false);
-
-    CIMObjectPath path = repository->createInstance(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        profileInstance);
-
-    updateProfileCache++;
-
-#ifdef PEGASUS_ENABLE_SLP
-    sendUpdateRegMessageToSLPProvider(context);
-#endif
-
-    return path;
-}
-
-void InteropProvider::deleteProviderProfileCapabilityInstance(
-    const CIMObjectPath & instanceName,
-    const OperationContext & context)
-{
-    repository->deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, instanceName);
-    updateProfileCache++;
-
-#ifdef PEGASUS_ENABLE_SLP
-    sendUpdateRegMessageToSLPProvider(context);
-#endif
-}
-
-Array<CIMInstance> InteropProvider::enumProviderProfileCapabilityInstances(
-    Boolean checkProviders,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const CIMPropertyList &propertyList)
-{
-    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-        "InteropProvider::enumProviderProfileCapabilityInstances()");
-
-    Array<CIMInstance> profileInstances =
-        repository->enumerateInstancesForClass(
-            PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES,
-            includeQualifiers,
-            includeClassOrigin,
-            propertyList);
-
-    Array<CIMInstance> enabledInstances;
-
-    if (!checkProviders)
-    {
-        PEG_METHOD_EXIT();
-        return profileInstances;
-    }
-
-    for (Uint32 i = 0; i < profileInstances.size() ; ++i)
-    {
-
-        String moduleName = getRequiredValue<String>(
-            profileInstances[i],
-            PROVIDER_PROPERTY_PROVIDERMODULENAME);
-
-        String providerName = getRequiredValue<String>(
-            profileInstances[i],
-            CAPABILITIES_PROPERTY_PROVIDERNAME);
-
-        Boolean moduleOk = false;
-        try
-        {
-            // get operational status.
-            Array<Uint16> status =
-                providerRegistrationManager->getProviderModuleStatus(
-                    moduleName);
-
-            for (Uint32 s = 0, ssize = status.size(); s < ssize; ++s)
-            {
-                if (status[s] == CIM_MSE_OPSTATUS_VALUE_OK)
-                {
-                    moduleOk = true;
-                    break;
-                }
-            }
-        }
-        catch(...)
-        {
-            PEG_TRACE((
-                TRC_CONTROLPROVIDER,
-                Tracer::LEVEL2,
-                "ProviderModule %s can not be found.",
-                (const char*)moduleName.getCString()));
-        }
-
-        if (moduleOk)
-        {
-            CIMKeyBinding pKey(PROVIDER_PROPERTY_NAME, providerName);
-
-            CIMKeyBinding moduleKey(
-                PROVIDER_PROPERTY_PROVIDERMODULENAME,
-                moduleName);
-
-            Array<CIMKeyBinding> pKeyBindings;
-            pKeyBindings.append(moduleKey);
-            pKeyBindings.append(pKey);
-
-            CIMObjectPath providerRef(
-                String::EMPTY,
-                CIMNamespaceName(),
-                PEGASUS_CLASSNAME_PROVIDER,
-                pKeyBindings);
-            Boolean providerFound = false;
-            try
-            {
-                CIMInstance provider = providerRegistrationManager->getInstance(
-                    providerRef);
-                providerFound = true;
-            }
-            catch(...)
-            {
-                PEG_TRACE((
-                    TRC_CONTROLPROVIDER,
-                    Tracer::LEVEL2,
-                    "Provider %s can not be found.",
-                    (const char*)providerName.getCString()));
-            }
-            if (providerFound)
-            {
-                enabledInstances.append(profileInstances[i]);
-            }
-        }
-    }
-    PEG_METHOD_EXIT();
-
-    return enabledInstances;
-}
-
-Array<CIMInstance> InteropProvider::getDMTFProfileInstances(
-    const CIMName & profileType)
-{
-    Array<CIMInstance> instances;
-    Boolean isReferencedProfileOperation = profileType.equal(
-        PEGASUS_CLASSNAME_PG_REFERENCEDPROFILE);
-
-    Array<CIMInstance> profileCapabilities =
-        enumProviderProfileCapabilityInstances(true);
-
-    Array<String> instanceIDs;
-
-    CIMClass registeredProfileClass = repository->getClass(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
-        false,
-        true,
-        false);
-
-    CIMClass referencedProfileClass;
-    if (isReferencedProfileOperation)
-    {
-        referencedProfileClass = repository->getClass(
-            PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_PG_REFERENCEDPROFILE,
-            false,
-            true,
-            false);
-    }
-
-    // Get only DMTF Profiles.
-    for (Uint32 i =0, n = profileCapabilities.size(); i < n; ++i)
-    {
-        // Extract the useful properties
-        String profileName;
-        Uint16 profileOrganization = 0;
-        String profileVersion;
-        String profileOrganizationName;
-        CIMInstance & currentCapabilities = profileCapabilities[i];
-        Array<String> profileNames;
-        Array<String> profileVersions;
-        Array<Uint16> profileOrganizations;
-        Array<String> profileOrganizationNames;
-        Array<String> profileProviderModuleNames;
-        Array<String> profileProviderNames;
-
-        String profileId = extractProfileInfo(
-            currentCapabilities,
-            profileCapabilitiesClass,
-            registeredProfileClass,
-            profileName,
-            profileVersion,
-            profileOrganization,
-            profileOrganizationName,
-            profileNames,
-            profileVersions,
-            profileOrganizations,
-            profileOrganizationNames,
-            profileProviderModuleNames,
-            profileProviderNames,
-            false);
-
-        // Only DMTF profiles.
-        if (profileOrganization != DMTF_NUM)
-        {
-            continue;
-        }
-        Array<String> tmpInstanceIds;
-        for (Uint32 j = 0, m = profileNames.size(); j < m; ++j)
-        {
-            tmpInstanceIds.append(
-                buildProfileInstanceId(
-                    profileOrganizationNames[j],
-                    profileNames[j],
-                    profileVersions[j]));
-        }
-
-        if (!isReferencedProfileOperation)
-        {
-            tmpInstanceIds.append(profileId);
-            profileNames.append(profileName);
-            profileVersions.append(profileVersion);
-            profileOrganizations.append(profileOrganization);
-            profileOrganizationNames.append(profileOrganizationName);
-        }
-
-        for (Uint32 j = 0, m = tmpInstanceIds.size(); j < m ; ++j)
-        {
-            Boolean unique = true;
-            String tmpId;
-            if (isReferencedProfileOperation)
-            {
-                tmpId = profileId + ":" + tmpInstanceIds[j];
-            }
-            else
-            {
-                tmpId = tmpInstanceIds[j];
-            }
-            for (Uint32 k = 0, x = instanceIDs.size(); k < x; ++k)
-            {
-                if (instanceIDs[k] == tmpId)
-                {
-                    unique = false;
-                    break;
-                }
-            }
-
-            if (unique)
-            {
-                if (isReferencedProfileOperation)
-                {
-                    instances.append(
-                        buildDependencyInstance(
-                            tmpInstanceIds[j],
-                            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
-                            profileId,
-                            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
-                            referencedProfileClass));
-                }
-                else
-                {
-                    String tmpProfileVersion = profileVersion;
-                    if (profileVersions.size() >= j)
-                    {
-                        tmpProfileVersion = profileVersions[j];
-                    }
-                    instances.append(
-                        buildRegisteredProfile(
-                            tmpId,
-                            profileNames[j],
-                            tmpProfileVersion,
-                            profileOrganizations[j],
-                            profileOrganizationNames[j],
-                            registeredProfileClass));
-                }
-                instanceIDs.append(tmpId);
-            }
-        }
-    }
-    if (!isReferencedProfileOperation)
-    {
-        // Build DMTF Profile Registration instance
-        String instanceId = buildProfileInstanceId(
-            DMTF_NAME,
-            "Profile Registration",
-            DMTF_VER_100);
-        instances.append(
-            buildRegisteredProfile(
-            instanceId,
-            "Profile Registration",
-            DMTF_VER_100, DMTF_NUM,
-            String::EMPTY,
-            registeredProfileClass));
-
-        // Build  DMTF Indications Profile instance.
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-        String indProfileId = buildProfileInstanceId(
-            DMTF_NAME,
-            "Indications",
-            DMTF_VER_110);
-        instances.append(
-            buildRegisteredProfile(
-            indProfileId,
-            "Indications",
-            DMTF_VER_110,
-            DMTF_NUM,
-            String::EMPTY,
-            registeredProfileClass));
-#endif
-    }
-    // Build Refernced profile association between DMTF Profile Registration
-    // and DMTF Indications Profile.
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-    else
-    {
-        String profileRegId = buildProfileInstanceId(
-            DMTF_NAME,
-            "Profile Registration",
-            DMTF_VER_100);
-
-        String indProfileId = buildProfileInstanceId(
-            DMTF_NAME,
-            "Indications",
-            DMTF_VER_110);
-
-        instances.append(
-            buildDependencyInstance(
-                profileRegId,
-                PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
-                indProfileId,
-                PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
-                referencedProfileClass));
-    }
-#endif
-
-    return instances;
-}
 
 //
 // Generic method for retrieving instances of profile-related classes. This is
@@ -589,8 +167,10 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
     bool isRequiresProfileOperation = profileType.equal(
         PEGASUS_CLASSNAME_PG_SUBPROFILEREQUIRESPROFILE);
     Array<CIMInstance> profileCapabilities =
-        enumProviderProfileCapabilityInstances(true);
-
+        repository->enumerateInstancesForClass(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES,
+            false);
     Array<String> instanceIDs;
 
     CIMClass registeredProfileClass;
@@ -631,32 +211,13 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
         Array<String> profileVersions;
         Array<Uint16> profileOrganizations;
         Array<String> profileOrganizationNames;
-        Array<String> profileProviderModuleNames;
-        Array<String> profileProviderNames;
-
-        String profileId = extractProfileInfo(
-            currentCapabilities,
-            profileCapabilitiesClass,
-            registeredProfileClass,
-            profileName,
-            profileVersion,
-            profileOrganization,
-            profileOrganizationName,
-            profileNames,
-            profileVersions,
-            profileOrganizations,
-            profileOrganizationNames,
-            profileProviderModuleNames,
-            profileProviderNames,
-            getRegisteredProfileInfo);
-
+        String profileId = extractProfileInfo(currentCapabilities,
+            profileCapabilitiesClass, registeredProfileClass, profileName,
+            profileVersion, profileOrganization, profileOrganizationName,
+            profileNames, profileVersions, profileOrganizations,
+            profileOrganizationNames, getRegisteredProfileInfo);
         Array<String> tmpInstanceIds;
 
-        // Skip DMTF profiles.
-        if (profileOrganization == DMTF_NUM)
-        {
-            continue;
-        }
         if (getRegisteredProfileInfo)
         {
             tmpInstanceIds.append(profileId);
@@ -756,11 +317,11 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
 
             //Add instances for SMI-S version 1.2.0
             static String serverProfileId1(buildProfileInstanceId(
-                SNIA_NAME,
-                "Server",
+                SNIA_NAME, 
+                "Server", 
                 SNIA_VER_120));
             subprofileId = buildProfileInstanceId(
-                SNIA_NAME,
+                SNIA_NAME, 
                 defaultSniaProfiles[i],
                 SNIA_VER_120);
             compoundId = serverProfileId1 + ":" + subprofileId;
@@ -777,7 +338,7 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
             if (unique)
             {
                 instances.append(buildDependencyInstance(
-                    serverProfileId1,
+                    serverProfileId1, 
                     PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
                     subprofileId,
                     PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
@@ -792,12 +353,12 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
 
             //Add profile registration profile instance.
             if (String::equal(
-              defaultSniaProfiles[i],
+              defaultSniaProfiles[i], 
               String("Profile Registration")))
             {
                 instanceId = buildProfileInstanceId(
                     SNIA_NAME,
-                    defaultSniaProfiles[i],
+                    defaultSniaProfiles[i], 
                     SNIA_VER_100);
                 for (Uint32 j = 0, m = instanceIDs.size(); j < m; ++j)
                 {
@@ -813,8 +374,8 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
                     instances.append(
                         buildRegisteredProfile(
                             instanceId,
-                            currentProfile,
-                            SNIA_VER_100, 11 /*"SNIA"*/,
+                            currentProfile, 
+                            SNIA_VER_100, 11 /*"SNIA"*/, 
                             String::EMPTY,
                             registeredProfileClass));
                     instanceIDs.append(instanceId);
@@ -830,7 +391,7 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
             {
                 instanceId = buildProfileInstanceId(
                     SNIA_NAME,
-                    defaultSniaProfiles[i],
+                    defaultSniaProfiles[i],  
                     SNIA_VER_110);
                 for (Uint32 j = 0, m = instanceIDs.size(); j < m; ++j)
                 {
@@ -846,8 +407,8 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
                     instances.append(
                         buildRegisteredProfile(
                             instanceId,
-                            currentProfile,
-                            SNIA_VER_110, 11 /*"SNIA"*/,
+                            currentProfile, 
+                            SNIA_VER_110, 11 /*"SNIA"*/, 
                             String::EMPTY,
                             registeredProfileClass));
                     instanceIDs.append(instanceId);
@@ -875,7 +436,7 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
                 instances.append(
                     buildRegisteredProfile(
                         instanceId,
-                        currentProfile,
+                        currentProfile, 
                         SNIA_VER_120, 11 /*"SNIA"*/,
                         String::EMPTY,
                         registeredProfileClass));
@@ -901,14 +462,8 @@ Array<CIMInstance> InteropProvider::enumRegisteredProfileInstances()
     defaultSubprofiles.append(SMISVersionProfileName);
     defaultSubprofiles.append(serverProfileName);
 
-    // Get all SNIA and other profiles except DMTF.
-    Array<CIMInstance> instances = getProfileInstances(
-        PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE, defaultSubprofiles);
-    // Get DMTF profiles.
-    instances.appendArray(getDMTFProfileInstances(
-        PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE));
-
-    return instances;
+    return getProfileInstances(PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
+        defaultSubprofiles);
 }
 
 const String indicationProfileName("Indication");
@@ -1086,10 +641,10 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
                     REFERENCEDPROFILES_PROPERTY_REGISTEREDPROFILES,
                     VALUEMAP_QUALIFIERNAME, VALUES_QUALIFIERNAME,
                     providerRefProfileClass);
-                Uint32 colonIndex = profileName.find(Char16(':'));
-                PEGASUS_ASSERT(colonIndex != PEG_NOT_FOUND);
-                profileOrgName = profileName.subString(0, colonIndex);
-                profileName = profileName.subString(colonIndex+1);
+                Uint32 index = profileName.find(Char16(':'));
+                PEGASUS_ASSERT(index != PEG_NOT_FOUND);
+                profileOrgName = profileName.subString(0, index);
+                profileName = profileName.subString(index+1);
             }
 
             //
@@ -1116,10 +671,10 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
                     REFERENCEDPROFILES_PROPERTY_DEPENDENTPROFILES,
                     VALUEMAP_QUALIFIERNAME, VALUES_QUALIFIERNAME,
                     providerRefProfileClass);
-                Uint32 colonIndex = dependentName.find(Char16(':'));
-                PEGASUS_ASSERT(colonIndex != PEG_NOT_FOUND);
-                dependentOrgName = dependentName.subString(0, colonIndex);
-                dependentName = dependentName.subString(colonIndex+1);
+                Uint32 index = dependentName.find(Char16(':'));
+                PEGASUS_ASSERT(index != PEG_NOT_FOUND);
+                dependentOrgName = dependentName.subString(0, index);
+                dependentName = dependentName.subString(index+1);
             }
 
             //
@@ -1172,20 +727,14 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
             }
         }
     }
-
-    // Get DMTF Referenced profiles.
-    instances.appendArray(
-        getDMTFProfileInstances(
-            PEGASUS_CLASSNAME_PG_REFERENCEDPROFILE));
-
     //Add a referencedprofile association instance between
     // the server profile and the profile registration profile.
     String profileId = buildProfileInstanceId(
-        SNIA_NAME,
-        "Server",
+        SNIA_NAME, 
+        "Server", 
         SNIA_VER_120);
     String dependentId = buildProfileInstanceId(
-        SNIA_NAME,
+        SNIA_NAME, 
         "Profile Registration",
         SNIA_VER_100);
     String instanceId = profileId + ":" + dependentId;
@@ -1211,9 +760,9 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
         //
         instances.append(
             buildDependencyInstance(
-                profileId,
-                PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
-                dependentId,
+                profileId, 
+                PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE, 
+                dependentId, 
                 PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
                 referencedProfileClass));
     }
@@ -1236,8 +785,6 @@ String extractProfileInfo(const CIMInstance & profileCapabilities,
                           Array<String> & subprofileVersions,
                           Array<Uint16> & subprofileOrganizations,
                           Array<String> & subprofileOrganizationNames,
-                          Array<String> & subProfileProviderModuleNames,
-                          Array<String> & subProfileProviderNames,
                           bool noSubProfileInfo)
 {
     Uint16 registeredProfile = getRequiredValue<Uint16>(profileCapabilities,
@@ -1265,10 +812,10 @@ String extractProfileInfo(const CIMInstance & profileCapabilities,
                 PROFILECAPABILITIES_PROPERTY_REGISTEREDPROFILE.getString());
         }
 
-        Uint32 colonIndex = mappedProfileName.find(Char16(':'));
-        PEGASUS_ASSERT(colonIndex != PEG_NOT_FOUND);
-        organizationName = mappedProfileName.subString(0, colonIndex);
-        name = mappedProfileName.subString(colonIndex+1);
+        Uint32 index = mappedProfileName.find(Char16(':'));
+        PEGASUS_ASSERT(index != PEG_NOT_FOUND);
+        organizationName = mappedProfileName.subString(0, index);
+        name = mappedProfileName.subString(index+1);
     }
 
     version = getRequiredValue<String>(profileCapabilities,
@@ -1448,66 +995,6 @@ String extractProfileInfo(const CIMInstance & profileCapabilities,
                 subprofileOrganizations.append(
                     atoi((const char *)organizationMapping.getCString()));
             }
-        }
-
-        // Get sub profiles ProviderModule names and Provider names if present
-        Array<String> providerModuleNames;
-        Array<String> providerNames;
-
-        Uint32 providerModuleNamesIndex = profileCapabilities.findProperty(
-            PROFILECAPABILITIES_PROPERTY_SUBPROFILEPROVIDERMODULENAMES);
-        Uint32 providerNamesIndex = profileCapabilities.findProperty(
-            PROFILECAPABILITIES_PROPERTY_SUBPROFILEPROVIDERNAMES);
-        Uint32 numProviderModuleNames = 0;
-        Uint32 numProviderNames = 0;
-
-        if (providerModuleNamesIndex != PEG_NOT_FOUND)
-        {
-            CIMValue val = profileCapabilities.getProperty(
-                providerModuleNamesIndex).getValue();
-            if (!val.isNull())
-            {
-                val.get(providerModuleNames);
-                numProviderModuleNames = providerModuleNames.size();
-            }
-        }
-
-        if (providerNamesIndex != PEG_NOT_FOUND)
-        {
-            CIMValue val = profileCapabilities.getProperty(
-                providerNamesIndex).getValue();
-            if (!val.isNull())
-            {
-                val.get(providerNames);
-                numProviderNames = providerNames.size();
-            }
-        }
-        if (numProviderModuleNames || numProviderNames)
-        {
-            Uint32 numRegSubProfiles = registeredSubprofiles.size();
-            String propName;
-            if (numProviderModuleNames != numRegSubProfiles)
-            {
-                propName =
-                    PROFILECAPABILITIES_PROPERTY_SUBPROFILEPROVIDERMODULENAMES.
-                        getString();
-            }
-            else if (numProviderNames != numRegSubProfiles)
-            {
-                propName = PROFILECAPABILITIES_PROPERTY_SUBPROFILEPROVIDERNAMES.
-                    getString();
-            }
-            if (propName != String::EMPTY)
-            {
-                MessageLoaderParms mparms(
-                    "ControlProviders.InteropProvider.INVALID_PROPERTY_ENTRIES",
-                    "$0 has invalid number of entries in property $1.",
-                    profileCapabilities.getPath().toString(),
-                    propName);
-                throw CIMOperationFailedException(mparms);
-            }
-            subProfileProviderModuleNames = providerModuleNames;
-            subProfileProviderNames = providerNames;
         }
     }
 

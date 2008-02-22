@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//=============================================================================
 
 #ifndef InteropConstants_h
 #define InteropConstants_h
@@ -38,7 +40,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 // Some Commonly shared property names
 //
-#define COMMON_PROPERTY_NAME PEGASUS_PROPERTYNAME_NAME
+const CIMName COMMON_PROPERTY_NAME("Name");
 const CIMName COMMON_PROPERTY_CREATIONCLASSNAME("CreationClassName");
 const CIMName COMMON_PROPERTY_SYSTEMNAME("SystemName");
 const CIMName COMMON_PROPERTY_SYSTEMCREATIONCLASSNAME(
@@ -50,13 +52,6 @@ const CIMName COMMON_PROPERTY_INSTANCEID("InstanceId");
 // Generic property names for Dependency and its subclasses
 const CIMName PROPERTY_ANTECEDENT("Antecedent");
 const CIMName PROPERTY_DEPENDENT("Dependent");
-
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-const CIMName PROPERTY_AFFECTEDELEMENT = CIMName("AffectedElement");
-const CIMName PROPERTY_AFFECTINGELEMENT = CIMName("AffectingElement");
-const CIMName PROPERTY_CAPABILITIES = CIMName("Capabilities");
-const CIMName PROPERTY_MANAGEDELEMENT = CIMName("ManagedElement");
-#endif
 
 // Property names for ProviderProfileCapabilities
 const CIMName PROFILECAPABILITIES_PROPERTY_REGISTEREDPROFILE(
@@ -77,12 +72,6 @@ const CIMName PROFILECAPABILITIES_PROPERTY_OTHERSUBPROFILEORGANIZATIONS(
 const CIMName PROFILECAPABILITIES_PROPERTY_CONFORMINGELEMENTS(
         "ConformingElements");
 
-const CIMName PROFILECAPABILITIES_PROPERTY_SUBPROFILEPROVIDERMODULENAMES(
-        "SubProfileProviderModuleNames");
-
-const CIMName PROFILECAPABILITIES_PROPERTY_SUBPROFILEPROVIDERNAMES(
-        "SubProfileProviderNames");
-
 // Property names for ProviderModule class
 #define PROVIDERMODULE_PROPERTY_NAME  COMMON_PROPERTY_NAME
 const CIMName PROVIDERMODULE_PROPERTY_VENDOR("Vendor");
@@ -92,7 +81,6 @@ const CIMName PROVIDERMODULE_PROPERTY_MAJORVERSION("MajorVersion");
 const CIMName PROVIDERMODULE_PROPERTY_MINORVERSION("MinorVersion");
 const CIMName PROVIDERMODULE_PROPERTY_REVISIONNUMBER("RevisionNumber");
 const CIMName PROVIDERMODULE_PROPERTY_BUILDNUMBER("BuildNumber");
-const CIMName PROPERTY_OPERATIONAL_STATUS("OperationalStatus");
 
 // Property names for Provider class
 #define PROVIDER_PROPERTY_NAME  COMMON_PROPERTY_NAME
@@ -131,24 +119,15 @@ const CIMName INSTALLEDSOFTWAREIDENTITY_PROPERTY_INSTALLEDSOFTWARE(
 
 // Implementation-specific constant strings
 const String SNIA_NAME("SNIA");
-const Uint16 SNIA_NUM = 11;
 const String SNIA_VER_110("1.1.0");
 const String SNIA_VER_100("1.0.0");
 const String SNIA_VER_120("1.2.0");
 
-const String DMTF_NAME("DMTF");
-const Uint16 DMTF_NUM = 2;
-const String DMTF_VER_100("1.0.0");
-const String DMTF_VER_110("1.1.0");
-
 const String INTEROP_PROVIDER_NAME("Interoperability Provider");
-const String INDICATION_SERVICE_NAME("Indication Service");
 const String PEGASUS_MODULE_NAME = String(PEGASUS_CIMOM_GENERIC_NAME) +
     String(" ") + String(PEGASUS_PRODUCT_NAME);
 const String PEGASUS_INTERNAL_PROVIDER_TYPE(
     "Internal Control Provider");
-const String PEGASUS_INTERNAL_SERVICE_TYPE(
-    "Internal Service");
 const String PEGASUS_DYNAMIC("__DYNAMIC_");
 const Uint32 PEGASUS_DYNAMIC_LEN(PEGASUS_DYNAMIC.size());
 const CIMNamespaceName PEGASUS_NAMESPACENAME_ROOT("root");

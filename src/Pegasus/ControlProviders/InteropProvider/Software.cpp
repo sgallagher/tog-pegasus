@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//=============================================================================
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -142,9 +144,8 @@ CIMInstance InteropProvider::buildSoftwareIdentity(
             SOFTWAREIDENTITY_PROPERTY_CAPTION, caption);
     }
 
-    CIMObjectPath path = softwareIdentity.buildPath(softwareIdentityClass);
-    path.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
-    softwareIdentity.setPath(path);
+    softwareIdentity.setPath(
+        softwareIdentity.buildPath(softwareIdentityClass));
 
     return softwareIdentity;
 }
@@ -186,7 +187,7 @@ void InteropProvider::extractSoftwareIdentityInfo(
         pmKeyBindings);
     CIMInstance providerModule = repository->getInstance(
         PEGASUS_NAMESPACENAME_INTEROP, providerModuleName,
-        false, false, CIMPropertyList());
+        false, false, false, CIMPropertyList());
 
     version = getRequiredValue<String>(providerModule,
         PROVIDERMODULE_PROPERTY_VERSION);
@@ -292,162 +293,6 @@ void InteropProvider::extractSoftwareIdentityInfo(
     }
 }
 
-CIMInstance InteropProvider::getSoftwareIdentityInstance(
-    const CIMObjectPath &ref)
-{
-    Array<CIMKeyBinding> keyBindings = ref.getKeyBindings();
-    String id;
-
-    for (Uint32 j = 0, n = keyBindings.size(); j < n ; j++)
-    {
-        if (keyBindings[j].getName().equal(
-            SOFTWAREIDENTITY_PROPERTY_INSTANCEID))
-        {
-            id = keyBindings[j].getValue();
-            break;
-        }
-    }
-
-    Uint32 index;
-    String provModuleName;
-    String provName;
-
-    if ((index = id.find('+')) != PEG_NOT_FOUND)
-    {
-        provModuleName = id.subString(0, index);
-        provName = id.subString(index +1);
-    }
-    else
-    {
-        throw CIMObjectNotFoundException(ref.toString());
-    }
-
-    Array<CIMKeyBinding> provKeys;
-    
-    provKeys.append(
-        CIMKeyBinding(
-            PROVIDER_PROPERTY_PROVIDERMODULENAME,
-            provModuleName,
-            CIMKeyBinding::STRING));
-
-    provKeys.append(
-        CIMKeyBinding(
-            PROVIDER_PROPERTY_NAME,
-            provName,
-            CIMKeyBinding::STRING));
-
-    CIMInstance provider;
-    Boolean providerFound = true;
-    try
-    {
-        provider =  providerRegistrationManager->getInstance(
-            CIMObjectPath( 
-                String(),
-                PEGASUS_NAMESPACENAME_INTEROP,
-                PEGASUS_CLASSNAME_PROVIDER,
-                provKeys)
-            );
-    }
-    catch(const CIMException&)
-    {
-        providerFound = false;
-    }
-
-    if (!providerFound)
-    {
-        Array<CIMInstance> instances = 
-            enumDefaultSoftwareIdentityInstances();
-      
-        for(Uint32 i = 0, n = instances.size(); i < n; i++)
-        {
-            CIMObjectPath currentInstRef = instances[i].getPath();
-            currentInstRef.setHost(ref.getHost());
-            currentInstRef.setNameSpace(ref.getNameSpace());
-            if(ref == currentInstRef)
-            {
-                return instances[i];
-            }
-        }
-        throw CIMObjectNotFoundException(ref.toString());
-     }
-
-    String moduleName;
-    String providerName;
-    String version;
-    String vendor;
-    String interfaceType;
-    Uint16 majorVersion;
-    Uint16 minorVersion;
-    Uint16 revisionNumber;
-    Uint16 buildNumber;
-    String elementName;
-    String caption;
-    bool extendedVersionInfo;
-
-    extractSoftwareIdentityInfo(
-        provider,
-        moduleName,
-        providerName,
-        vendor,
-        version,
-        majorVersion,
-        minorVersion,
-        revisionNumber,
-        buildNumber,
-        extendedVersionInfo,
-        interfaceType,
-        elementName,
-        caption);
-
-    return buildSoftwareIdentity(
-        moduleName,
-        providerName,
-        vendor,
-        version,
-        majorVersion,
-        minorVersion,
-        revisionNumber,
-        buildNumber,
-        extendedVersionInfo,
-        interfaceType,
-        elementName,
-        caption);
-}
-
-//Gets default software identity instances served by CIMOM
-Array<CIMInstance> InteropProvider::enumDefaultSoftwareIdentityInstances()
-{
-    Array<CIMInstance> instances;
-
-    // Interop provider
-    instances.append(buildSoftwareIdentity(PEGASUS_MODULE_NAME,
-        INTEROP_PROVIDER_NAME, PEGASUS_CIMOM_GENERIC_NAME,
-        PEGASUS_PRODUCT_VERSION,
-        0, 0, 0, 0, false, // no extended revision info
-        PEGASUS_INTERNAL_PROVIDER_TYPE, String::EMPTY, String::EMPTY));
-
-    // Pegasus Indication Service acts as Provider for CIM Event classes.
-    // If DMTF Indications Profile support is enabled create SoftwareIdentity
-    // instance with Pegasus Indication Service.
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-    instances.append(
-        buildSoftwareIdentity(
-            PEGASUS_MODULE_NAME,
-            INDICATION_SERVICE_NAME,
-            PEGASUS_CIMOM_GENERIC_NAME,
-            PEGASUS_PRODUCT_VERSION,
-            0,
-            0,
-            0,
-            0,
-            false, // no extended revision info
-            PEGASUS_INTERNAL_SERVICE_TYPE,
-            String::EMPTY,
-            String::EMPTY));
-#endif
-    return instances;
-}
-
 //
 // Method that enumerates instances of the PG_SoftwareIdentity class. There
 // should be one instance for every provider registered with the CIMOM, i.e.
@@ -488,8 +333,12 @@ Array<CIMInstance> InteropProvider::enumSoftwareIdentityInstances()
             caption));
     }
 
-    instances.appendArray(enumDefaultSoftwareIdentityInstances());
-
+    // Always have the Interop provider
+    instances.append(buildSoftwareIdentity(PEGASUS_MODULE_NAME,
+        INTEROP_PROVIDER_NAME, PEGASUS_CIMOM_GENERIC_NAME,
+        PEGASUS_PRODUCT_VERSION,
+        0, 0, 0, 0, false, // no extended revision info
+        PEGASUS_INTERNAL_PROVIDER_TYPE, String::EMPTY, String::EMPTY));
     return instances;
 }
 
@@ -503,7 +352,10 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
     Array<CIMInstance> instances;
 
     Array<CIMInstance> profileCapabilities =
-        enumProviderProfileCapabilityInstances(true);
+        repository->enumerateInstancesForClass(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES,
+            false);
 
     CIMClass elementSoftwareIdentityClass = repository->getClass(
         PEGASUS_NAMESPACENAME_INTEROP,
@@ -519,28 +371,23 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
         String organizationName;
         Array<String> subprofiles;
         String profileName;
-        Uint16 profileOrg = 0;
+        Uint16 dummyInt = 0;
         Array<Uint16> dummyIntArray;
         Array<String> subprofileVersions;
         Array<String> subprofileOrgs;
-        Array<String> subprofileProviderModuleNames;
-        Array<String> subprofileProviderNames;
 
         String profileId = extractProfileInfo(currentCapabilities,
             profileCapabilitiesClass,
             registeredProfileClass,
             profileName,
             version,
-            profileOrg,
+            dummyInt, // Throw away organization enum
             organizationName,
             subprofiles,
             subprofileVersions,
             dummyIntArray, // Throw away subprofile organization enums
             subprofileOrgs,
-            subprofileProviderModuleNames,
-            subprofileProviderNames,
             false); // Get subprofile information
-
         if (!(String::equalNoCase(profileName,"SMI-S")))
         {
             String moduleName = getRequiredValue<String>(currentCapabilities,
@@ -571,23 +418,13 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
                 {
                     subprofileVersion = subprofileVersions[j];
                 }
-                // Check if subprofile is implemented in a different provider
-                // module or provider.
-                if (subprofileProviderModuleNames.size())
-                {
-                    softwareInstanceId = subprofileProviderModuleNames[j];
-                    softwareInstanceId.append("+");
-                    softwareInstanceId.append(subprofileProviderNames[j]);
-                }
 
                 instances.append(buildDependencyInstance(
                     softwareInstanceId,
                     PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY,
                     buildProfileInstanceId(subprofileOrgs[j], subprofiles[j],
                         subprofileVersion),
-                    profileOrg == DMTF_NUM ?
-                        PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE :
-                        PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
+                    PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
                     elementSoftwareIdentityClass));
             }
         }
@@ -597,25 +434,25 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
     // subprofile, and the Pegasus Interoperability provider software identity
     String interopSoftwareIdentity = PEGASUS_MODULE_NAME + "+" +
         INTEROP_PROVIDER_NAME;
-    String serverProfileId, indicationProfileId, softwareProfileId;
+    String serverProfileId, indicationProfileId, softwareProfileId;  
 
     //add instances for smi-s version 1.1.0
     serverProfileId = buildProfileInstanceId(
-        SNIA_NAME,
+        SNIA_NAME, 
         "Server",
         SNIA_VER_110);
     indicationProfileId = buildProfileInstanceId(
         SNIA_NAME,
-        "Indication",
+        "Indication", 
         SNIA_VER_110);
     softwareProfileId = buildProfileInstanceId(
         SNIA_NAME,
-        "Software",
+        "Software", 
         SNIA_VER_110);
 
     instances.append(buildDependencyInstance(
         interopSoftwareIdentity,
-        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY,
+        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY, 
         serverProfileId,
         PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
         elementSoftwareIdentityClass));
@@ -629,7 +466,7 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
 
     instances.append(buildDependencyInstance(
         interopSoftwareIdentity,
-        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY,
+        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY, 
         softwareProfileId,
         PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
         elementSoftwareIdentityClass));
@@ -638,32 +475,32 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
 
     String profileRegistrationProfileId;
     serverProfileId = buildProfileInstanceId(
-        SNIA_NAME,
+        SNIA_NAME, 
         "Server",
         SNIA_VER_120);
     profileRegistrationProfileId = buildProfileInstanceId(
-        SNIA_NAME,
+        SNIA_NAME, 
         "Profile Registration",
         SNIA_VER_100);
     indicationProfileId = buildProfileInstanceId(
         SNIA_NAME,
-        "Indication",
+        "Indication", 
         SNIA_VER_120);
     softwareProfileId = buildProfileInstanceId(
         SNIA_NAME,
-        "Software",
+        "Software", 
         SNIA_VER_120);
 
     instances.append(buildDependencyInstance(
         interopSoftwareIdentity,
-        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY,
+        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY, 
         serverProfileId,
         PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
         elementSoftwareIdentityClass));
 
     instances.append(buildDependencyInstance(
         interopSoftwareIdentity,
-        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY,
+        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY, 
         profileRegistrationProfileId,
         PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
         elementSoftwareIdentityClass));
@@ -682,45 +519,24 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
         PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
         elementSoftwareIdentityClass));
 
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-    String indProfileId = buildProfileInstanceId(
-        DMTF_NAME,
-        "Indications",
-        DMTF_VER_110);
-
-    String indicationServiceSoftwareIdentity(PEGASUS_MODULE_NAME);
-    indicationServiceSoftwareIdentity.append("+");
-    indicationServiceSoftwareIdentity.append(INDICATION_SERVICE_NAME);
-
-    instances.append(
-        buildDependencyInstance(
-            indicationServiceSoftwareIdentity,
-            PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY,
-            indProfileId,
-            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
-            elementSoftwareIdentityClass));
-#endif
-
     return instances;
 }
 
 //
 // Enumerates instances of the InstalledSoftwareIdentity association class.
 //
-Array<CIMInstance> InteropProvider::enumInstalledSoftwareIdentityInstances(
-    const OperationContext &opContext)
+Array<CIMInstance> InteropProvider::enumInstalledSoftwareIdentityInstances()
 {
     // All of the software identity instances are associated to the
     // ComputerSystem on which the object manager resides. Simply loop through
     // all the instances and build the association.
     Array<CIMInstance> instances;
-    CIMObjectPath csPath = getComputerSystemInstance(opContext).getPath();
+    CIMObjectPath csPath = getComputerSystemInstance().getPath();
     Array<CIMInstance> softwareInstances = enumSoftwareIdentityInstances();
     CIMClass installedSoftwareClass;
     CIMInstance skeletonInst =  buildInstanceSkeleton(
         PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_INSTALLEDSOFTWAREIDENTITY,
-        true,
+        PEGASUS_CLASSNAME_PG_INSTALLEDSOFTWAREIDENTITY, 
         installedSoftwareClass);
     for (Uint32 i = 0, n = softwareInstances.size(); i < n; ++i)
     {

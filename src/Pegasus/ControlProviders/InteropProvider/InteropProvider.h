@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//=============================================================================
 
 
 #ifndef InteropProvider_h
@@ -52,11 +54,6 @@
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>
-#include <Pegasus/Provider/CIMMethodProvider.h>
-#include <Pegasus/General/VersionUtil.h>
-
-#include \
-    <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -94,16 +91,11 @@ typedef Array<CIMName> CIMNameArray;
 typedef Array<CIMNamespaceName> CIMNamespaceArray;
 
 class PEGASUS_INTEROPPROVIDER_LINKAGE InteropProvider :
-        public CIMInstanceProvider,
-        public CIMAssociationProvider,
-        public CIMMethodProvider
+        public CIMInstanceProvider, public CIMAssociationProvider
 {
 public:
 
-    InteropProvider(
-        CIMRepository* repository,
-        ProviderRegistrationManager* provRegManager);
-
+    InteropProvider(CIMRepository* repository);
     virtual ~InteropProvider()
     {
         PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
@@ -196,14 +188,6 @@ public:
         const String & role,
         ObjectPathResponseHandler & handler);
 
-    // CIMMethodProvider interface
-    virtual void invokeMethod(
-        const OperationContext & context,
-        const CIMObjectPath & objectReference,
-        const CIMName & methodName,
-        const Array<CIMParamValue> & inParameters,
-        MethodResultResponseHandler & handler);
-
 private:
 
     void initProvider();
@@ -211,17 +195,7 @@ private:
     CIMInstance buildInstanceSkeleton(
         const CIMNamespaceName & nameSpace,
         const CIMName& className,
-        Boolean includeQualifiers,
         CIMClass& returnedClass);
-    /*
-     * CIM communication mechanism instance building starts with this function
-     * and completed by buildCIMXMLCommunicationMechanismInstance
-     */
-    void _buildCommInstSkeleton(
-        const Boolean isHttpsEnabled,
-        const Array<String> &ips,
-        const CIMClass &commMechClass,
-        Array<CIMInstance> &instances );
 
     CIMInstance buildCIMXMLCommunicationMechanismInstance(
         const String& namespaceType,
@@ -231,32 +205,20 @@ private:
 
     Array<CIMInstance> enumCIMXMLCommunicationMechanismInstances();
 
-    Array<CIMInstance> enumHostedAccessPointInstances(
-        const OperationContext &opContext);
+    Array<CIMInstance> enumHostedAccessPointInstances();
 
     CIMInstance getObjectManagerInstance();
 
-    CIMInstance getComputerSystemInstance(const OperationContext &opContext);
+    CIMInstance getComputerSystemInstance();
 
-    CIMInstance getHostedObjectManagerInstance(
-        const OperationContext &opContext);
+    CIMInstance getHostedObjectManagerInstance();
 
     Array<CIMInstance> enumNamespaceInstances();
 
     CIMInstance buildNamespaceInstance(const String & nameSpace);
 
-    CIMInstance getNameSpaceInstance(const CIMObjectPath & ref);
-
     CIMObjectPath createNamespace(const CIMInstance & namespaceInstance);
     void deleteNamespace(const CIMObjectPath & instanceName);
-
-    CIMObjectPath createProviderProfileCapabilityInstance(
-        const CIMInstance & profileInstance,
-        const OperationContext & context);
-
-    void deleteProviderProfileCapabilityInstance(
-        const CIMObjectPath & instanceName,
-        const OperationContext & context);
 
     Array<CIMInstance> enumNamespaceInManagerInstances();
 
@@ -287,49 +249,18 @@ private:
     Array<CIMInstance> enumRegisteredSubProfileInstances();
     Array<CIMInstance> enumReferencedProfileInstances();
     Array<CIMInstance> getProfilesForVersion(
-        Array<CIMInstance>& subprofs,
-        Uint16 regOrg,
-        Uint32 majorVer,
-        Uint32 minorVer,
-        Uint32 updateVer);
+        Array<CIMInstance>& subprofs, 
+        const String version);
     Array<CIMInstance> enumElementConformsToProfileInstances(
         const OperationContext & opContext,
         const CIMNamespaceName & opNamespace);
     Array<CIMInstance> enumElementConformsToProfileRPRPInstances(
-        const OperationContext & opContext,
+        const OperationContext & opContext, 
         const CIMNamespaceName & opNamespace);
     Array<CIMInstance> enumSubProfileRequiresProfileInstances();
     Array<CIMInstance> enumSoftwareIdentityInstances();
     Array<CIMInstance> enumElementSoftwareIdentityInstances();
-    Array<CIMInstance> enumInstalledSoftwareIdentityInstances(
-        const OperationContext &opContext);
-    Array<CIMInstance> enumDefaultSoftwareIdentityInstances();
-
-    CIMInstance getSoftwareIdentityInstance(
-        const CIMObjectPath &ref);
-
-    Array<CIMInstance> enumProviderProfileCapabilityInstances(
-        Boolean checkProviders = true,
-        Boolean includeQualifiers = false,
-        Boolean includeClassOrigin = false,
-        const CIMPropertyList &propertyList = CIMPropertyList());
-
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-    Array<CIMInstance> enumIndicationServiceInstances(
-        const OperationContext &opContext);
-    Array<CIMInstance> enumElementCapabilityInstances(
-        const OperationContext & opContext);
-    Array<CIMInstance> enumHostedIndicationServiceInstances(
-        const OperationContext & opContext);
-    Array<CIMInstance> enumServiceAffectsElementInstances(
-        const OperationContext & opContext);
-    CIMInstance buildAssociationInstance(
-        const CIMName &className,
-        const CIMName &propName1,
-        const CIMObjectPath &objPath1,
-        const CIMName &propName2,
-        const CIMObjectPath &objPath2);
-#endif
+    Array<CIMInstance> enumInstalledSoftwareIdentityInstances();
 
     CIMInstance buildRegisteredProfile(
         const String & instanceId,
@@ -364,9 +295,6 @@ private:
         const CIMName & profileType,
         const Array<String> & defaultSniaProfiles);
 
-    Array<CIMInstance> getDMTFProfileInstances(
-        const CIMName & profileType);
-
     // The following are internal equivalents of the operations
     // allowing the operations to call one another internally within
     // the provider.
@@ -389,16 +317,8 @@ private:
         const CIMObjectPath & instanceName,
         const CIMPropertyList & propertyList);
 
-    // This function fetches the other side of the reference.
-    Array<CIMInstance> getReferencedInstances(
-        const Array<CIMInstance> &refs,
-        const String &targetRole,
-        const OperationContext & context,
-        const CIMPropertyList & propertyList);
-
     void cacheProfileRegistrationInfo();
     void verifyCachedInfo();
-    void initializeNamespaces();
 
     bool validAssocClassForObject(
         const OperationContext & context,
@@ -406,16 +326,9 @@ private:
         const CIMNamespaceName & opNamespace,
         String & originProperty, String & targetProperty);
 
-#ifdef PEGASUS_ENABLE_SLP
-    void sendUpdateRegMessageToSLPProvider(
-        const OperationContext & context);
-#endif
-
-
     // Repository Instance variable
     CIMOMHandle cimomHandle;
     CIMRepository * repository;
-    ProviderRegistrationManager *providerRegistrationManager;
     String objectManagerName;
     String hostName;
     CIMClass profileCapabilitiesClass;
@@ -423,19 +336,11 @@ private:
     Array<Uint16> providerClassifications;
     Mutex interopMut;
     bool providerInitialized;
-    AtomicInt updateProfileCache;
 
     // Registration info to cache
     Array<String> profileIds;
     Array<CIMNameArray> conformingElements;
     Array<CIMNamespaceArray> elementNamespaces;
-
-    Boolean enableSLP;
-    String httpPort;
-    String httpsPort;
-
-    // Cached CIM_ObjectManager instance.
-    CIMInstance _CIMObjectManagerInst;
 };
 
 PEGASUS_NAMESPACE_END

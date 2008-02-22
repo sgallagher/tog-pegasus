@@ -130,7 +130,7 @@ Uint32 test1()
     PEG_TRACE((TRC_CONFIG,Tracer::LEVEL2,"%s %d",
         "This message should not appear value=",123));
     PEG_METHOD_EXIT();
-    return(compare(FILE1,""));
+    return System::exists(FILE1) ? 1 : 0;
 }
 
 //
@@ -151,7 +151,9 @@ Uint32 test2()
     PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
     PEG_TRACE((TRC_CONFIG,Tracer::LEVEL2,"%s %d",
         "This message should not appear value=",123));
-    return(compare(FILE1,"This message should not appear value=123"));
+    Uint32 fileSize;
+    System::getFileSize(FILE1, fileSize);
+    return (fileSize == 0) ? 0 : 1;
 }
 
 //
@@ -172,7 +174,9 @@ Uint32 test3()
     PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
     PEG_TRACE((TRC_CONFIG,Tracer::LEVEL2,"%s",
         "This message should not appear"));
-    return(compare(FILE1,"This message should not appear"));
+    Uint32 fileSize;
+    System::getFileSize(FILE1, fileSize);
+    return (fileSize == 0) ? 0 : 1;
 }
 
 //
@@ -737,17 +741,17 @@ int main(int argc, char** argv)
     System::removeFile(FILE2);
     System::removeFile(FILE3);
     System::removeFile(FILE4);
-    if (test1() == 0)
+    if (test1() != 0)
     {
        cout << "Tracer test (test1) failed" << endl;
        exit(1);
     }
-    if (test2() == 0)
+    if (test2() != 0)
     {
        cout << "Tracer test (test2) failed" << endl;
        exit(1);
     }
-    if (test3() == 0)
+    if (test3() != 0)
     {
        cout << "Tracer test (test3) failed" << endl;
        exit(1);

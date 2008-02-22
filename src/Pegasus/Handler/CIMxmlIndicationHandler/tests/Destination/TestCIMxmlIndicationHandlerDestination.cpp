@@ -35,6 +35,7 @@
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/HandlerService/HandlerTable.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Config/ConfigManager.h>
@@ -174,17 +175,29 @@ bool enableTrace=false;
    {
       enableTrace=true;
    }
-   const char* pegasusHome = getenv("PEGASUS_HOME");
-   if (!pegasusHome)
-   {
+
+    const char* pegasusHome = getenv("PEGASUS_HOME");
+    if (!pegasusHome)
+    {
         cerr << "PEGASUS_HOME environment variable not set" << endl;
         exit(1);
     }
-    String repositoryRoot = pegasusHome;
-    repositoryRoot.append("/repository");
-    CIMRepository* repository = new CIMRepository(repositoryRoot);
 
     ConfigManager::setPegasusHome(pegasusHome);
+
+    String repositoryRoot;
+    const char* tmpDir = getenv ("PEGASUS_TMP");
+    if (tmpDir == NULL)
+    {
+        repositoryRoot = ".";
+    }
+    else
+    {
+        repositoryRoot = tmpDir;
+    }
+    repositoryRoot.append("/repository");
+    FileSystem::removeDirectoryHier(repositoryRoot);
+    CIMRepository repository(repositoryRoot);
 
     if (enableTrace)
     {
@@ -205,18 +218,18 @@ bool enableTrace=false;
     {
         HandlerTable handlerTable;
         String handlerId = "CIMxmlIndicationHandler";
-        CIMHandler* handler = handlerTable.getHandler(handlerId, repository);
+        CIMHandler* handler = handlerTable.getHandler(handlerId, &repository);
         PEGASUS_TEST_ASSERT(handler != 0);
 
         TestDestinationExceptionHandling(handler);
-
-        delete repository;
     }
     catch(Exception& e)
     {
         PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
         exit(1);
     }
+
+    FileSystem::removeDirectoryHier(repositoryRoot);
 
     cout << "+++++ passed all tests" << endl;
     return 0;

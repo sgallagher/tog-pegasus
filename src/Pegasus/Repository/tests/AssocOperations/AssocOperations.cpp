@@ -250,6 +250,12 @@ int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
+    if (argc != 2)
+    {
+        cout << "Usage: " << argv[0] << " XML | BIN" << endl;
+        return 1;
+    }
+
     String repositoryRoot;
     const char* tmpDir = getenv ("PEGASUS_TMP");
     if (tmpDir == NULL)
@@ -280,7 +286,7 @@ int main(int argc, char** argv)
         else
         {
             cout << argv[0] << ": invalid argument: " << argv[1] << endl;
-            return 0;
+            return 1;
         }
         CIMRepository r (repositoryRoot, mode);
 

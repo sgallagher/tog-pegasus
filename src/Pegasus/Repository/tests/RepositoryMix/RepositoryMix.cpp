@@ -378,6 +378,12 @@ int main(int argc, char** argv)
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
     ProgName = argv[0];
 
+    if (argc != 2)
+    {
+        cout << "Usage: " << ProgName << " XML | BIN | XMLMIX | BINMIX" << endl;
+        return 1;
+    }
+
     const char* tmpDir = getenv ("PEGASUS_TMP");
     if (tmpDir == NULL)
     {
@@ -432,7 +438,7 @@ int main(int argc, char** argv)
       else
     {
       cout << ProgName<< ": invalid argument: " << argv[1] << endl;
-      return 0;
+      return 1;
     }
 
       TestOpenRepo(mode);

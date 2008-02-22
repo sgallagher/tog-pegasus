@@ -131,6 +131,13 @@ void Test01(Uint32 mode)
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
+
+    if (argc != 2)
+    {
+        cout << "Usage: " << argv[0] << " XML | BIN" << endl;
+        return 1;
+    }
+
     try
     {
       Uint32 mode;
@@ -147,7 +154,7 @@ int main(int argc, char** argv)
       else
     {
       cout << argv[0] << ": invalid argument: " << argv[1] << endl;
-      return 0;
+      return 1;
     }
 
     Test01(mode);

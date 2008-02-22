@@ -106,9 +106,15 @@ int MP_Socket::ATTLS_zOS_query()
        {
            case(EINPROGRESS):
            case(EWOULDBLOCK):
+           // Due to a race condition the native accept is not finished.
+           // ioctl() retuns with ENotConn.
+           case(ENOTCONN):
            {
-               PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
-                   "Accept pending (EWB).");
+               PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
+                   "Accept pending: %s ( errno $d, reason code 0x%08X ). ", 
+                   strerror(errnoIoctl),
+                   errnoIoctl,
+                   errno2Ioctl));
                // accept pending
                return 0; 
            }

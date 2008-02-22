@@ -42,6 +42,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <errno.h>
 
 void testSuccessfulAuthentication(void)
 {
@@ -75,9 +76,10 @@ void testCreateLocalAuthFile(void)
 
     /* Test with file path that already exists */
     {
+        ssize_t result;
         const char* path = "testlocalauthfile";
         int fd = open(path, O_WRONLY | O_EXCL | O_CREAT | O_TRUNC, S_IRUSR);
-        write(fd, "test", 4);
+        EXECUTOR_RESTART(write(fd, "test", 4), result);
         close(fd);
         PEGASUS_TEST_ASSERT(CreateLocalAuthFile(path, testUid, testGid) == 0);
         unlink(path);
@@ -101,9 +103,10 @@ void testCheckLocalAuthToken(void)
 
     /* Test with secret token that is too short */
     {
+        ssize_t result;
         const char* path = "testlocalauthfile";
         int fd = open(path, O_WRONLY | O_EXCL | O_CREAT | O_TRUNC, S_IRUSR);
-        write(fd, "secret", 6);
+        EXECUTOR_RESTART(write(fd, "secret", 6), result);
         close(fd);
         PEGASUS_TEST_ASSERT(CheckLocalAuthToken(path, "secret") != 0);
         unlink(path);
@@ -111,9 +114,11 @@ void testCheckLocalAuthToken(void)
 
     /* Test with incorrect secret token */
     {
+        ssize_t result;
         const char* path = "testlocalauthfile";
         int fd = open(path, O_WRONLY | O_EXCL | O_CREAT | O_TRUNC, S_IRUSR);
-        write(fd, "1234567890123456789012345678901234567890", 40);
+        EXECUTOR_RESTART(
+            write(fd, "1234567890123456789012345678901234567890", 40), result);
         close(fd);
         PEGASUS_TEST_ASSERT(CheckLocalAuthToken(
             path, "123456789012345678901234567890123456789X") != 0);

@@ -130,9 +130,11 @@ int ReadPidFile(const char* pidFilePath, int* pid)
     if (!is)
         return -1;
 
-    *pid = 0;
+    if (fscanf(is, "%d\n", pid) != 1)
+    {
+        *pid = 0;
+    }
 
-    fscanf(is, "%d\n", pid);
     fclose(is);
 
     if (*pid == 0)

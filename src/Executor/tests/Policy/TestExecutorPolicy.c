@@ -156,6 +156,7 @@ void testDumpPolicy(void)
 {
     FILE* dumpFile;
     char dumpFileBuffer[MAX_DUMP_SIZE];
+    size_t numBytesRead;
 
     unlink(TEST_DUMP_FILE);
 
@@ -192,7 +193,9 @@ void testDumpPolicy(void)
 
         dumpFile = fopen(TEST_DUMP_FILE, "rb");
         memset(dumpFileBuffer, 0, MAX_DUMP_SIZE);
-        fread(dumpFileBuffer, sizeof(char), MAX_DUMP_SIZE - 1, dumpFile);
+        numBytesRead =
+            fread(dumpFileBuffer, sizeof(char), MAX_DUMP_SIZE - 1, dumpFile);
+        PEGASUS_TEST_ASSERT(numBytesRead != 0);
         fclose(dumpFile);
 
         PEGASUS_TEST_ASSERT(strcmp(dumpFileBuffer, expectedDumpResult) == 0);
@@ -215,7 +218,9 @@ void testDumpPolicy(void)
 
         dumpFile = fopen(TEST_DUMP_FILE, "rb");
         memset(dumpFileBuffer, 0, MAX_DUMP_SIZE);
-        fread(dumpFileBuffer, sizeof(char), MAX_DUMP_SIZE - 1, dumpFile);
+        numBytesRead =
+            fread(dumpFileBuffer, sizeof(char), MAX_DUMP_SIZE - 1, dumpFile);
+        PEGASUS_TEST_ASSERT(numBytesRead != 0);
         fclose(dumpFile);
 
         PEGASUS_TEST_ASSERT(strcmp(dumpFileBuffer, expectedDumpResult) == 0);
@@ -244,7 +249,9 @@ void testDumpPolicy(void)
 
         dumpFile = fopen(TEST_DUMP_FILE, "rb");
         memset(dumpFileBuffer, 0, MAX_DUMP_SIZE);
-        fread(dumpFileBuffer, sizeof(char), MAX_DUMP_SIZE - 1, dumpFile);
+        numBytesRead =
+            fread(dumpFileBuffer, sizeof(char), MAX_DUMP_SIZE - 1, dumpFile);
+        PEGASUS_TEST_ASSERT(numBytesRead != 0);
         fclose(dumpFile);
 
         PEGASUS_TEST_ASSERT(strcmp(dumpFileBuffer, expectedDumpResult) == 0);

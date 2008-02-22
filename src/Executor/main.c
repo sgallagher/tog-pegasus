@@ -270,6 +270,7 @@ void DefineExecutorMacros(void)
 int main(int argc, char** argv)
 {
     const char* cimservermainPath;
+    const char* workingDirectory;
     int pair[2];
     int initCompletePipe[2];
     int pid;
@@ -373,12 +374,17 @@ int main(int argc, char** argv)
 
     /* Change the current directory */
 
-#if (defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX)) \
-    && defined(PEGASUS_USE_RELEASE_DIRS)
-    chdir(PEGASUS_CORE_DIR);
+#if defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_CORE_DIR)
+    workingDirectory = PEGASUS_CORE_DIR;
 #else
-    chdir("/");
+    workingDirectory = "/";
 #endif
+
+    if (chdir(workingDirectory) != 0)
+    {
+        Log(LL_WARNING, "Failed to change working directory to %s",
+            workingDirectory);
+    }
 
     /* Create a pipe for communicating with cimserver daemon process. */
 

@@ -137,9 +137,9 @@ void MyTraceSettings::setTraceComponents(String traceComponents)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-        //
+//
 // main()
-        //
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 int main()
@@ -180,9 +180,9 @@ int main()
     }
     catch (Exception& e)
     {
-    cerr << e.getMessage() << endl;
+        cerr << e.getMessage() << endl;
+        return 1;
     }
-
 
     return 0;
 }

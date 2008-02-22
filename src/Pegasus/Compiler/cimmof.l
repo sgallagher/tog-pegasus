@@ -46,6 +46,9 @@
 /*                                                                       */
 /*                                                                       */
 
+/* Avoid warn_unused_result warnings in Linux RPM build */
+#define ECHO do { size_t ignored = fwrite(yytext, yyleng, 1, yyout); } while (0)
+
 /*---------------------------------------------------------------*/
 /* These routines wrap certain flex functions, keeping down the  */
 /* number of external dependencies                               */

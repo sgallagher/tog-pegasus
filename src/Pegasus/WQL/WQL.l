@@ -1,4 +1,4 @@
-/*//%2006////////////////////////////////////////////////////////////////////////
+/*//%2006///////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -29,6 +29,8 @@
 //
 //============================================================================*/
 
+/* NOCHKSRC */
+
 %option never-interactive
 %{
 
@@ -48,6 +50,9 @@ extern int WQL_error(const char*);
 #else
 # define WQL_TRACE(X)
 #endif
+
+/* Avoid warn_unused_result warnings in Linux RPM build */
+#define ECHO do { size_t ignored = fwrite(yytext, yyleng, 1, yyout); } while (0)
 
 PEGASUS_NAMESPACE_BEGIN
 

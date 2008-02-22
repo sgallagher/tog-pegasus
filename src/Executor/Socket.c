@@ -282,6 +282,7 @@ ssize_t SendDescriptorArray(int sock, int descriptors[], size_t count)
 
     size = CMSG_SPACE(sizeof(int) * count);
     data = (char*)malloc(size);
+    memset(data, 0, size);
 
     /* Initialize msghdr struct to refer to control data. */
 

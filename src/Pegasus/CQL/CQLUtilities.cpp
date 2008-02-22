@@ -693,7 +693,7 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
                 p++;
         }
     } // end-if optional decimal point
-    if (*p && p - pStart <= (Sint32) stringNum.size())
+    if (p - pStart < (Sint32) stringNum.size())
     {
         //  printf("This is char # %d\n", p - pStart);
         MessageLoaderParms mload("CQL.CQLUtilities.INVALID_DECIMAL_CHAR",

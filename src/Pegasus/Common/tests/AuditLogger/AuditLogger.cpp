@@ -61,6 +61,8 @@ const String MASTER_FILE("/src/Pegasus/Common"
 const String MASTER_FILE("/src/Pegasus/Common/tests/AuditLogger/masterOutput");
 #endif
 
+String auditTestLogFile;
+
 CIMInstance _createModuleInstance(
     const String & name,
     const String & location,
@@ -100,6 +102,7 @@ void testLogCurrentConf()
 }
 
 #ifdef PEGASUS_OS_ZOS
+
 static void printSMFRecord (int subtype, char* record )
 {
     char printLine[3][80];
@@ -107,16 +110,6 @@ static void printSMFRecord (int subtype, char* record )
     int len;
     char item;
     int total = ((_smf86_header *)record)->SMF86LEN;
-
-    const char* pegasusHomeDir = getenv ("PEGASUS_HOME");
-
-    if (pegasusHomeDir == NULL)
-    {
-        pegasusHomeDir = "./";
-    }
-
-    String auditTestLogFile (pegasusHomeDir);
-    auditTestLogFile.append("/AuditTest.log");
 
     FILE * _auditTestLogFileHandle =
         fopen(auditTestLogFile.getCString(), "a+");
@@ -190,26 +183,17 @@ static void writeAuditLogToFile(
     AuditLogger::AuditEvent auditEvent,
     Uint32 logLevel, MessageLoaderParms & msgParms)
 {
-    const char* pegasusHomeDir = getenv ("PEGASUS_HOME");
-
-    if (pegasusHomeDir == NULL)
-    {
-        pegasusHomeDir = "./";
-    }
-
-    String auditTestLogFile (pegasusHomeDir);
-    auditTestLogFile.append("/AuditTest.log");
-
     FILE * _auditTestLogFileHandle =
         fopen(auditTestLogFile.getCString(), "a+");
 
     fprintf(_auditTestLogFileHandle, "%s\n",
         (const char *)MessageLoader::getMessage(msgParms).getCString());
 
-   fclose(_auditTestLogFileHandle);
+    fclose(_auditTestLogFileHandle);
 }
 
 #endif
+
 void testLogCurrentRegProvider()
 {
     Array<CIMInstance> instances;
@@ -263,7 +247,6 @@ void testLogCurrentRegProvider()
         "AuditLogProvider13", status13));
 
     AuditLogger::logCurrentRegProvider(instances);
-
 }
 
 void testLogSetConfigProperty()
@@ -490,9 +473,14 @@ int main(int argc, char** argv)
     AuditLogger::setAuditLogWriterCallback(writeAuditLogToFile);
 #endif
 
-    const char* pegasusHomeDir = getenv ("PEGASUS_HOME");
+    const char* pegasusHomeDir = getenv("PEGASUS_HOME");
 
-    String auditTestLogFile (pegasusHomeDir);
+    if (pegasusHomeDir == NULL)
+    {
+        pegasusHomeDir = ".";
+    }
+
+    auditTestLogFile = pegasusHomeDir;
     auditTestLogFile.append("/AuditTest.log");
 
     System::removeFile(auditTestLogFile.getCString());
@@ -543,6 +531,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    System::removeFile(auditTestLogFile.getCString());
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

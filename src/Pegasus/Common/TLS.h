@@ -39,6 +39,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/SSLContext.h>
+#include <Pegasus/Common/SSLContextRep.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/ReadWriteSem.h>
@@ -109,6 +110,11 @@ private:
 
     SocketHandle _socket;
     SSLContext * _SSLContext;
+    /**
+        Keeps a copy of the CRL store from the _SSLContext to prevent using a
+        dangling pointer when the CRL store is reloaded in the _SSLContext.
+    */
+    SharedPtr<X509_STORE, FreeX509STOREPtr> _crlStore;
     ReadWriteSem * _sslContextObjectLock;
     Uint32 _sslReadErrno;
 

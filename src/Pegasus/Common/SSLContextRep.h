@@ -31,23 +31,35 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifdef PEGASUS_HAS_SSL
-#define OPENSSL_NO_KRB5 1
-#include <openssl/err.h>
-#include <openssl/ssl.h>
-#include <openssl/rand.h>
-#else
-#define SSL_CTX void
-#endif
-#include <Pegasus/Common/SSLContext.h>
-#include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/Mutex.h>
-
 #ifndef Pegasus_SSLContextRep_h
 #define Pegasus_SSLContextRep_h
 
+#ifdef PEGASUS_HAS_SSL
+# define OPENSSL_NO_KRB5 1
+# include <openssl/err.h>
+# include <openssl/ssl.h>
+# include <openssl/rand.h>
+#else
+# define SSL_CTX void
+#endif
+
+#include <Pegasus/Common/SSLContext.h>
+#include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/Mutex.h>
+#include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/SharedPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+struct FreeX509STOREPtr
+{
+    void operator()(X509_STORE* ptr)
+    {
+#ifdef PEGASUS_HAS_SSL
+        X509_STORE_free(ptr);
+#endif
+    }
+};
 
 class SSLCallbackInfoRep
 {
@@ -122,7 +134,7 @@ public:
 
     String getCRLPath() const;
 
-    X509_STORE* getCRLStore() const;
+    SharedPtr<X509_STORE, FreeX509STOREPtr> getCRLStore() const;
 
     void setCRLStore(X509_STORE* store);
 
@@ -159,7 +171,7 @@ private:
 
     SSLCertificateVerifyFunction* _certificateVerifyFunction;
 
-    X509_STORE* _crlStore;
+    SharedPtr<X509_STORE, FreeX509STOREPtr> _crlStore;
 
     /*
        Mutex containing the SSL locks.

@@ -43,7 +43,7 @@
 #ifdef PEGASUS_HAS_SSL
 typedef struct x509_store_st X509_STORE;
 #else
-#define X509_STORE void
+# define X509_STORE int
 #endif
 
 PEGASUS_NAMESPACE_BEGIN

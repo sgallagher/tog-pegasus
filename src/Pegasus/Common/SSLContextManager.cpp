@@ -43,7 +43,6 @@
 # include <openssl/rand.h>
 #else
 # define SSL_CTX void
-# define X509_STORE void
 #endif // end of PEGASUS_HAS_SSL
 
 #include <Pegasus/Common/Tracer.h>
@@ -201,6 +200,8 @@ static X509_STORE* _getNewX509Store(const String& storePath)
     }
     else
     {
+        X509_STORE_free(newStore);
+
         PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
             "Could not reload the trust or crl store, configured store "
                 "not found.");
@@ -306,8 +307,7 @@ void SSLContextManager::reloadCRLStore()
 
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "CRL store path is " + crlPath);
 
-    // update the CRL store for both the server and the export server since
-    // they share the same CRL store
+    // update the CRL store
 
     {
         WriteLock contextLock(_sslContextObjectLock);

@@ -295,10 +295,13 @@ int SSLCallback::verificationCRLCallback(
             PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL2,
                 "---> SSL: Certificate is revoked");
             X509_STORE_CTX_set_error(ctx, X509_V_ERR_CERT_REVOKED);
+            X509_CRL_free(crl);
             PEG_METHOD_EXIT();
             return 1;
         }
     }
+
+    X509_CRL_free(crl);
 
     PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
         "---> SSL: Certificate is not revoked at this level");
@@ -576,8 +579,6 @@ SSLContextRep::SSLContextRep(
 
     _crlPath = crlPath;
 
-    _crlStore = NULL;
-
     _certificateVerifyFunction = verifyCert;
 
     //
@@ -643,7 +644,6 @@ SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep)
     _certPath = sslContextRep._certPath;
     _keyPath = sslContextRep._keyPath;
     _crlPath = sslContextRep._crlPath;
-    _crlStore = sslContextRep._crlStore;
     _verifyPeer = sslContextRep._verifyPeer;
     _certificateVerifyFunction = sslContextRep._certificateVerifyFunction;
     _randomFile = sslContextRep._randomFile;
@@ -986,7 +986,7 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
         // one CRL for cimserver?
         X509_LOOKUP* pLookup;
 
-        _crlStore = X509_STORE_new();
+        _crlStore.reset(X509_STORE_new());
 
         // the validity of the crlstore was checked in ConfigManager
         // during server startup
@@ -997,12 +997,12 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                 (const char*)_crlPath.getCString()));
 
             if ((pLookup = X509_STORE_add_lookup(
-                     _crlStore, X509_LOOKUP_hash_dir())) == NULL)
+                     _crlStore.get(), X509_LOOKUP_hash_dir())) == NULL)
             {
                 MessageLoaderParms parms(
                     "Common.SSLContext.COULD_NOT_LOAD_CRLS",
                     "Could not load certificate revocation list.");
-                X509_STORE_free(_crlStore);
+                _crlStore.reset();
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
             }
@@ -1020,12 +1020,12 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                 (const char*)_crlPath.getCString()));
 
             if ((pLookup = X509_STORE_add_lookup(
-                   _crlStore, X509_LOOKUP_file())) == NULL)
+                   _crlStore.get(), X509_LOOKUP_file())) == NULL)
             {
                 MessageLoaderParms parms(
                     "Common.SSLContext.COULD_NOT_LOAD_CRLS",
                     "Could not load certificate revocation list.");
-                X509_STORE_free(_crlStore);
+                _crlStore.reset();
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
             }
@@ -1209,14 +1209,14 @@ String SSLContextRep::getCRLPath() const
     return _crlPath;
 }
 
-X509_STORE* SSLContextRep::getCRLStore() const
+SharedPtr<X509_STORE, FreeX509STOREPtr> SSLContextRep::getCRLStore() const
 {
     return _crlStore;
 }
 
 void SSLContextRep::setCRLStore(X509_STORE* store)
 {
-    _crlStore = store;
+    _crlStore.reset(store);
 }
 
 Boolean SSLContextRep::isPeerVerificationEnabled() const
@@ -1273,7 +1273,10 @@ String SSLContextRep::getTrustStoreUserName() const { return String::EMPTY; }
 
 String SSLContextRep::getCRLPath() const { return String::EMPTY; }
 
-X509_STORE* SSLContextRep::getCRLStore() const { return NULL; }
+SharedPtr<X509_STORE, FreeX509STOREPtr> SSLContextRep::getCRLStore() const
+{
+    return SharedPtr<X509_STORE, FreeX509STOREPtr>();
+}
 
 void SSLContextRep::setCRLStore(X509_STORE* store) { }
 
@@ -1405,7 +1408,7 @@ String SSLContext::getCRLPath() const
 X509_STORE* SSLContext::getCRLStore() const
 {
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
-    return _rep->getCRLStore();
+    return _rep->getCRLStore().get();
 #else
     MessageLoaderParms parms(
         "Common.Exception.SSL_CRL_NOT_ENABLED_EXCEPTION",

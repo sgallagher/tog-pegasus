@@ -95,7 +95,7 @@ int main (int argc, char* argv [])
     char strTime[256];
     struct tm tmTime;
     int rc;
-    String fileName = String::EMPTY;
+    String fileName;
     ofstream log_file;
 
 
@@ -112,7 +112,7 @@ int main (int argc, char* argv [])
         cout<<StressTestControllerCommand::COMMAND_NAME\
             <<"::Failed to generate required files for tests. "<<endl;
         command.removeUnusedFiles();
-        exit (Command::RC_ERROR);
+        return Command::RC_ERROR;
     }
 
     //
@@ -125,7 +125,7 @@ int main (int argc, char* argv [])
        log_file.close();
        cout<<"Cannot get file "<<command.getStressTestLogFile()<<endl;
        command.removeUnusedFiles();
-       exit (Command::RC_ERROR);
+       return Command::RC_ERROR;
     }
     strftime(strTime,256,"%d/%m/%Y at %H:%M:%S\n",&tmTime);
     log_file<<StressTestControllerCommand::COMMAND_NAME\
@@ -174,7 +174,7 @@ int main (int argc, char* argv [])
 
         log_file.close();
         command.removeUnusedFiles();
-        exit (Command::RC_ERROR);
+        return Command::RC_ERROR;
     }
     catch (...)
     {
@@ -184,7 +184,7 @@ int main (int argc, char* argv [])
             "::Unknown exception caught when setting commands."<<endl;
         log_file.close();
         command.removeUnusedFiles();
-        exit (Command::RC_ERROR);
+        return Command::RC_ERROR;
     }
 
     //
@@ -200,7 +200,7 @@ int main (int argc, char* argv [])
         // Log file not required when help or verbose is opted.
         //
         FileSystem::removeFile(command.getStressTestLogFile());
-        exit (rc);
+        return rc;
     }
 
     String filename;
@@ -222,8 +222,7 @@ int main (int argc, char* argv [])
             //
             // Check for file in default directory as well
             //
-            fileName = String::EMPTY;
-            fileName.append(StressTestControllerCommand::DEFAULT_CFGDIR);
+            fileName = StressTestControllerCommand::DEFAULT_CFGDIR;
             fileName.append(filename);
 
             if (!FileSystem::exists(fileName))
@@ -233,13 +232,13 @@ int main (int argc, char* argv [])
                 cerr << "\" does not exist."<<endl;
                 log_file.close();
                 command.removeUnusedFiles();
-                exit (Command::RC_ERROR);
+                return Command::RC_ERROR;
             }
             log_file<<StressTestControllerCommand::COMMAND_NAME<<
                 "::Using config file: "<<fileName<<endl;
         } 
         else
-        { 
+        {
             fileName = filename;
         }
 
@@ -253,8 +252,7 @@ int main (int argc, char* argv [])
         //
         // Use default file in default dir.
         //
-        fileName = String::EMPTY;
-        fileName.append(StressTestControllerCommand::DEFAULT_CFGDIR);
+        fileName = StressTestControllerCommand::DEFAULT_CFGDIR;
         fileName.append(StressTestControllerCommand::FILENAME);
         //
         // Use hard coded default configuration values if default conf. file 
@@ -313,8 +311,7 @@ int main (int argc, char* argv [])
             ": " << msg <<  endl;
         log_file.close();
         command.removeUnusedFiles();
-        exit (Command::RC_ERROR);
-
+        return Command::RC_ERROR;
     }
     catch (Exception& e )
     {
@@ -327,7 +324,7 @@ int main (int argc, char* argv [])
         cerr << msg <<  endl;
         log_file.close();
         command.removeUnusedFiles();
-        exit (Command::RC_ERROR);
+        return Command::RC_ERROR;
     }
     catch (...)
     {
@@ -337,7 +334,7 @@ int main (int argc, char* argv [])
             "::Unknown exception caught when acquiring configuration."<<endl;
         log_file.close();
         command.removeUnusedFiles();
-        exit (Command::RC_ERROR);
+        return Command::RC_ERROR;
     }
 
     log_file << StressTestControllerCommand::COMMAND_NAME << 
@@ -368,7 +365,7 @@ int main (int argc, char* argv [])
             "::Failed to Generate Client Commands."<<  endl;
         log_file.close();
         command.removeUnusedFiles();
-        exit (Command::RC_ERROR);
+        return Command::RC_ERROR;
     }
     
     //
@@ -420,6 +417,5 @@ int main (int argc, char* argv [])
     cout <<" Client log:     "<<
         FileSystem::extractFileName(command.getStressClientLogFile())<<endl;
     log_file.close();
-    exit (rc);
     return rc;
 } /* main */

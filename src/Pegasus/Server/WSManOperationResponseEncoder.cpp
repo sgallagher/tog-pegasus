@@ -31,15 +31,14 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Constants.h>
 #include <cctype>
 #include <cstdio>
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/HTTPConnection.h>
-#include <Pegasus/Common/XmlParser.h>
-#include <Pegasus/Common/XmlReader.h>
-#include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/HTTPMessage.h>
+#include <Pegasus/Common/SoapReader.h>
+#include <Pegasus/Common/SoapWriter.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/StatisticalData.h>
@@ -56,7 +55,7 @@ const String WSManOperationResponseEncoder::OUT_OF_MEMORY_MESSAGE =
         "later time.";
 
 WSManOperationResponseEncoder::WSManOperationResponseEncoder()
-    : Base(PEGASUS_QUEUENAME_WSOPRESPENCODER)
+    : MessageQueueService(PEGASUS_QUEUENAME_WSOPRESPENCODER)
 {
 }
 
@@ -67,7 +66,6 @@ WSManOperationResponseEncoder::~WSManOperationResponseEncoder()
 void WSManOperationResponseEncoder::sendResponse(
     CIMResponseMessage* response,
     const String& name,
-    Boolean isImplicit,
     Buffer* bodygiven)
 {
     static String funcname = "WSManOperationResponseEncoder::sendResponse: ";
@@ -104,7 +102,7 @@ void WSManOperationResponseEncoder::sendResponse(
 
     HTTPConnection* httpQueue = dynamic_cast<HTTPConnection*>(queue);
 
-    if (! httpQueue)
+    if (!httpQueue)
     {
         PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "ERROR: Unknown queue type. queueId = %u, response not sent.",
@@ -113,7 +111,13 @@ void WSManOperationResponseEncoder::sendResponse(
         return;
     }
 
-    Boolean isChunkRequest = httpQueue->isChunkRequested();
+    if (httpQueue->isChunkRequested())
+    {
+        // We don't handle chunked WS-Man requests. Bail here.
+        // TODO: throw an exception.
+        return;
+    }
+
     HttpMethod httpMethod = response->getHttpMethod();
     String& messageId = response->messageId;
     CIMException& cimException = response->cimException;
@@ -124,10 +128,7 @@ void WSManOperationResponseEncoder::sendResponse(
     // the languages to the HTTP message.
     ContentLanguageList contentLanguage;
 
-    CIMName cimName(name);
     Uint32 messageIndex = response->getIndex();
-    Boolean isFirst = messageIndex == 0 ? true : false;
-    Boolean isLast = response->isComplete();
     Buffer bodylocal;
     Buffer& body = bodygiven ? *bodygiven : bodylocal;
 
@@ -140,77 +141,23 @@ void WSManOperationResponseEncoder::sendResponse(
     Uint64 serverTime = 0;
 #endif
 
-    Buffer (*formatResponse)(
-        const CIMName& iMethodName,
-        const String& messageId,
-        HttpMethod httpMethod,
-        const ContentLanguageList& httpContentLanguages,
-        const Buffer& body,
-        Uint64 serverResponseTime,
-        Boolean isFirst,
-        Boolean isLast);
-
-    Buffer (*formatError)(
-        const CIMName& methodName,
-        const String& messageId,
-        HttpMethod httpMethod,
-        const CIMException& cimException);
-
-    if (isImplicit == false)
-    {
-        formatResponse = XmlWriter::formatSimpleMethodRspMessage;
-        formatError = XmlWriter::formatSimpleMethodErrorRspMessage;
-    }
-    else
-    {
-        formatResponse = XmlWriter::formatSimpleIMethodRspMessage;
-        formatError = XmlWriter::formatSimpleIMethodErrorRspMessage;
-    }
-
     if (cimException.getCode() != CIM_ERR_SUCCESS)
     {
         STAT_SERVEREND_ERROR
 
-        // only process the FIRST error
         if (httpQueue->cimException.getCode() == CIM_ERR_SUCCESS)
         {
-            // NOTE: even if this error occurs in the middle, HTTPConnection
-            // will flush the entire queued message and reformat.
-            if (isChunkRequest == false)
-                message =
-                    formatError(name, messageId, httpMethod, cimException);
+            message = SoapWriter::formatWSManErrorRspMessage(
+                name, messageId, httpMethod, cimException);
 
-            // uri encode the error (for the http header) only when it is
-            // non-chunking or the first error with chunking
-            if (isChunkRequest == false ||
-                (isChunkRequest == true && isFirst == true))
-            {
-                String msg =
-                    TraceableCIMException(cimException).getDescription();
-                String uriEncodedMsg = XmlWriter::encodeURICharacters(msg);
-                CIMException cimExceptionUri(
-                    cimException.getCode(), uriEncodedMsg);
-                cimExceptionUri.setContentLanguages(
-                    cimException.getContentLanguages());
-                cimException = cimExceptionUri;
-            }
-        } // if first error in response stream
-
-        // never put the error in chunked response (because it will end up in
-        // the trailer), so just use the non-error response formatter to send
-        // more data
-
-        if (isChunkRequest == true)
-        {
-            message = formatResponse(
-                cimName,
-                messageId,
-                httpMethod,
-                contentLanguage,
-                body,
-                serverTime,
-                isFirst,
-                isLast);
+            // uri encode the error (for the http header)
+            String msg = TraceableCIMException(cimException).getDescription();
+            String uriEncodedMsg = XmlWriter::encodeURICharacters(msg);
+            CIMException cimExceptionUri(
+                cimException.getCode(), uriEncodedMsg);
+            cimExceptionUri.setContentLanguages(
+                cimException.getContentLanguages());
+            cimException = cimExceptionUri;
         }
     }
     else
@@ -218,15 +165,13 @@ void WSManOperationResponseEncoder::sendResponse(
         // else non-error condition
         try
         {
-            message = formatResponse(
-                cimName,
+            message = SoapWriter::formatWSManRspMessage(
+                name,
                 messageId,
                 httpMethod,
                 contentLanguage,
                 body,
-                serverTime,
-                isFirst,
-                isLast);
+                serverTime);
         }
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
         catch (std::bad_alloc&)
@@ -244,7 +189,7 @@ void WSManOperationResponseEncoder::sendResponse(
 
             // try again with new error and no body
             body.clear();
-            sendResponse(response, name, isImplicit);
+            sendResponse(response, name);
             PEG_METHOD_EXIT();
             return;
         }
@@ -254,7 +199,6 @@ void WSManOperationResponseEncoder::sendResponse(
 
     AutoPtr<HTTPMessage> httpMessage(
         new HTTPMessage(message, 0, &cimException));
-    httpMessage->setComplete(isLast);
     httpMessage->setIndex(messageIndex);
 
     if (cimException.getCode() != CIM_ERR_SUCCESS)
@@ -270,7 +214,6 @@ void WSManOperationResponseEncoder::sendResponse(
         contentLanguage = listContainer.getLanguages();
         httpMessage->contentLanguages = contentLanguage;
     }
-
 
     PEG_LOGGER_TRACE((
         Logger::STANDARD_LOG,
@@ -316,76 +259,44 @@ void WSManOperationResponseEncoder::handleEnqueue(Message* message)
 
     switch (message->getType())
     {
-        case CIM_GET_CLASS_RESPONSE_MESSAGE:
-            break;
-
         case CIM_GET_INSTANCE_RESPONSE_MESSAGE:
-            break;
-
-        case CIM_DELETE_CLASS_RESPONSE_MESSAGE:
+            _encodeGetInstanceResponse(
+                (CIMGetInstanceResponseMessage*)message);
             break;
 
         case CIM_DELETE_INSTANCE_RESPONSE_MESSAGE:
-            break;
-
-        case CIM_CREATE_CLASS_RESPONSE_MESSAGE:
+            _encodeDeleteInstanceResponse(
+                (CIMDeleteInstanceResponseMessage*)message);
             break;
 
         case CIM_CREATE_INSTANCE_RESPONSE_MESSAGE:
-            break;
-
-        case CIM_MODIFY_CLASS_RESPONSE_MESSAGE:
+            _encodeCreateInstanceResponse(
+                (CIMCreateInstanceResponseMessage*)message);
             break;
 
         case CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE:
-            break;
-
-        case CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE:
-            break;
-
-        case CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE:
+            _encodeModifyInstanceResponse(
+                (CIMModifyInstanceResponseMessage*)message);
             break;
 
         case CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE:
+            _encodeEnumerateInstancesResponse(
+                (CIMEnumerateInstancesResponseMessage*)message);
             break;
 
         case CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE:
-            break;
-
-        case CIM_EXEC_QUERY_RESPONSE_MESSAGE:
-            break;
-
-        case CIM_ASSOCIATORS_RESPONSE_MESSAGE:
-            break;
-
-        case CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE:
-            break;
-
-        case CIM_REFERENCES_RESPONSE_MESSAGE:
-            break;
-
-        case CIM_REFERENCE_NAMES_RESPONSE_MESSAGE:
+            _encodeEnumerateInstanceNamesResponse(
+                (CIMEnumerateInstanceNamesResponseMessage*)message);
             break;
 
         case CIM_GET_PROPERTY_RESPONSE_MESSAGE:
+            _encodeGetPropertyResponse(
+                (CIMGetPropertyResponseMessage*)message);
             break;
 
         case CIM_SET_PROPERTY_RESPONSE_MESSAGE:
-            break;
-
-        case CIM_GET_QUALIFIER_RESPONSE_MESSAGE:
-            break;
-
-        case CIM_SET_QUALIFIER_RESPONSE_MESSAGE:
-            break;
-
-        case CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE:
-            break;
-
-        case CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE:
-            break;
-
-        case CIM_INVOKE_METHOD_RESPONSE_MESSAGE:
+            _encodeSetPropertyResponse(
+                (CIMSetPropertyResponseMessage*)message);
             break;
 
         default:
@@ -407,5 +318,80 @@ void WSManOperationResponseEncoder::handleEnqueue()
         handleEnqueue(message);
 }
 
+void WSManOperationResponseEncoder::_encodeGetInstanceResponse(
+    CIMGetInstanceResponseMessage* response)
+{
+    Buffer body;
+    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+        SoapWriter::appendInstanceElement(body, response->cimInstance);
+    sendResponse(
+        response, 
+        SoapReader::getSoapActionName(SOAP_NST_WS_TRANSFER, "GetResponse"), 
+        &body);
+}
+
+/************************************************/
+/************************************************/
+/************************************************/
+/************************************************/
+#if 0
+void WSManOperationResponseEncoder::_encodeCreateInstanceResponse(
+    CIMCreateInstanceResponseMessage* response)
+{
+    Buffer body;
+    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+        XmlWriter::appendInstanceNameElement(body, response->instanceName);
+    sendResponse(response, "CreateResponse", &body);
+}
+
+void WSManOperationResponseEncoder::_encodeModifyInstanceResponse(
+    CIMModifyInstanceResponseMessage* response)
+{
+    sendResponse(response, "ModifyInstance");
+}
+
+void WSManOperationResponseEncoder::_encodeEnumerateInstancesResponse(
+    CIMEnumerateInstancesResponseMessage* response)
+{
+    Buffer body;
+    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+        for (Uint32 i = 0, n = response->cimNamedInstances.size(); i < n; i++)
+            XmlWriter::appendValueNamedInstanceElement(
+                body, response->cimNamedInstances[i]);
+    sendResponse(response, "EnumerateInstances", &body);
+}
+
+void WSManOperationResponseEncoder::_encodeEnumerateInstanceNamesResponse(
+    CIMEnumerateInstanceNamesResponseMessage* response)
+{
+    Buffer body;
+    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+        for (Uint32 i = 0, n = response->instanceNames.size(); i < n; i++)
+            XmlWriter::appendInstanceNameElement(
+                body, response->instanceNames[i]);
+    sendResponse(response, "EnumerateInstanceNames", &body);
+}
+
+void WSManOperationResponseEncoder::_encodeDeleteInstanceResponse(
+    CIMDeleteInstanceResponseMessage* response)
+{
+    sendResponse(response, "DeleteInstance");
+}
+
+void WSManOperationResponseEncoder::_encodeGetPropertyResponse(
+    CIMGetPropertyResponseMessage* response)
+{
+    Buffer body;
+    if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+        XmlWriter::appendValueElement(body, response->value);
+    sendResponse(response, "GetProperty", &body);
+}
+
+void WSManOperationResponseEncoder::_encodeSetPropertyResponse(
+    CIMSetPropertyResponseMessage* response)
+{
+    sendResponse(response, "SetProperty");
+}
+#endif
 
 PEGASUS_NAMESPACE_END

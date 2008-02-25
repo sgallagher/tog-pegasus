@@ -44,27 +44,47 @@ PEGASUS_NAMESPACE_BEGIN
  */
 class WSManOperationResponseEncoder : public MessageQueueService
 {
-private:
-     static const String OUT_OF_MEMORY_MESSAGE;
-
 public:
-    typedef MessageQueueService Base;
 
     WSManOperationResponseEncoder();
-
     ~WSManOperationResponseEncoder();
 
     void sendResponse(
         CIMResponseMessage* response,
         const String& name,
-        Boolean isImplicit,
         Buffer* bodygiven = 0);
 
     virtual void enqueue(Message*);
-
     virtual void handleEnqueue(Message*);
-
     virtual void handleEnqueue();
+
+private:
+
+    static const String OUT_OF_MEMORY_MESSAGE;
+
+    void _encodeCreateInstanceResponse(
+        CIMCreateInstanceResponseMessage* response);
+
+    void _encodeGetInstanceResponse(
+        CIMGetInstanceResponseMessage* response);
+
+    void _encodeModifyInstanceResponse(
+        CIMModifyInstanceResponseMessage* response);
+
+    void _encodeEnumerateInstanceNamesResponse(
+        CIMEnumerateInstanceNamesResponseMessage* response);
+
+    void _encodeEnumerateInstancesResponse(
+        CIMEnumerateInstancesResponseMessage* response);
+
+    void _encodeDeleteInstanceResponse(
+        CIMDeleteInstanceResponseMessage* response);
+
+    void _encodeGetPropertyResponse(
+        CIMGetPropertyResponseMessage* response);
+
+    void _encodeSetPropertyResponse(
+        CIMSetPropertyResponseMessage* response);
 };
 
 PEGASUS_NAMESPACE_END

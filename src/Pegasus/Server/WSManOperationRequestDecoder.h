@@ -51,7 +51,6 @@ class SoapReader;
 class WSManOperationRequestDecoder : public MessageQueueService
 {
 public:
-    typedef MessageQueueService Base;
 
     WSManOperationRequestDecoder(
         MessageQueueService* outputQueue,

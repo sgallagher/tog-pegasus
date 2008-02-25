@@ -70,10 +70,44 @@ public:
         const String& cimError = String::EMPTY,
         const String& errorDetail = String::EMPTY);
     
+    static Buffer formatWSManRspMessage(
+        const String& rspName,
+        const String& messageId,
+        HttpMethod httpMethod,
+        const ContentLanguageList& httpContentLanguages,
+        const Buffer& body,
+        Uint64 serverResponseTime);
+
+    static Buffer formatWSManErrorRspMessage(
+        const String& rspName,
+        const String& messageId,
+        HttpMethod httpMethod,
+        const CIMException& cimException);
+
+    static void appendInstanceElement(
+        Buffer& out,
+        const CIMConstInstance& instance);
 
 private:
 
     SoapWriter() { }
+
+    static void _appendHTTPResponseHeader(
+        Buffer& out, 
+        const String& rspName,
+        HttpMethod httpMethod, 
+        const ContentLanguageList& contentLanguages,
+        Uint32 contentLength);
+
+    static void _appendSoapEnvelopeStart(Buffer& out);
+    static void _appendSoapEnvelopeEnd(Buffer& out);
+    static void _appendSoapBodyStart(Buffer& out);
+    static void _appendSoapBodyEnd(Buffer& out);
+
+    static void _appendSoapHeader(
+        Buffer& out, 
+        const String& rspName, 
+        const String& messageId);
 };
 
 PEGASUS_NAMESPACE_END

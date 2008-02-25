@@ -44,6 +44,8 @@
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/ArrayIterator.h>
+
 #include "WSManOperationRequestDecoder.h"
 
 PEGASUS_USING_STD;
@@ -53,7 +55,7 @@ PEGASUS_NAMESPACE_BEGIN
 WSManOperationRequestDecoder::WSManOperationRequestDecoder(
     MessageQueueService* outputQueue,
     Uint32 returnQueueId)
-    : Base(PEGASUS_QUEUENAME_WSOPREQDECODER),
+    : MessageQueueService(PEGASUS_QUEUENAME_WSOPREQDECODER),
       _outputQueue(outputQueue),
       _returnQueueId(returnQueueId),
       _serverTerminating(false)
@@ -359,7 +361,7 @@ void WSManOperationRequestDecoder::handleSoapMessage(
 
         // Decode the SOAP envelope
         String action;
-        SoapReader::NSType nsType;
+        SoapNamespaceType nsType;
         soapReader.processSoapEnvelope(soapAction);
 
         // Break down soapAction into namespace/action pair
@@ -367,7 +369,7 @@ void WSManOperationRequestDecoder::handleSoapMessage(
 
         switch (nsType)
         {
-            case SoapReader::NST_WS_TRANSFER:
+            case SOAP_NST_WS_TRANSFER:
             {
                 if (action == "Get")
                 {
@@ -466,7 +468,6 @@ void WSManOperationRequestDecoder::handleSoapMessage(
         return;
     }
 
-#if 0
     STAT_BYTESREAD
 
     request->authType = authType;
@@ -497,17 +498,73 @@ void WSManOperationRequestDecoder::handleSoapMessage(
 
     request->setCloseConnect(closeConnect);
     _outputQueue->enqueue(request.release());
-#endif
 
     PEG_METHOD_EXIT();
 }
 
 
-CIMGetInstanceRequestMessage* _decodeWSTransferGet(
-    SoapReader& soapReader, 
-    Uint32 queueId)
+CIMGetInstanceRequestMessage* 
+    WSManOperationRequestDecoder::_decodeWSTransferGet(
+        SoapReader& soapReader, 
+        Uint32 queueId)
 {
-    
+    STAT_GETSTARTTIME
+
+    String className;
+    String nameSpace;
+    String messageId;
+    Array<CIMKeyBinding> keyBindings;
+    CIMObjectPath instanceName;
+    CIMPropertyList propertyList;
+
+    // <wsman:ResourceURI> contains the class name.
+    // <wsman:SelectorSet> contains key bindings, with one exception below.
+    // <wsman:Selector Name="__cimnamespace"> has the namespace.
+    soapReader.initSoapHeaderItr();
+    SoapReader::SoapEntry* soapEntry;
+    while ((soapEntry = soapReader.nextSoapHeaderEntry()) != 0)
+    {
+        if (soapReader.testSoapStartTag(
+                soapEntry, SOAP_NST_WS_MAN, "ResourceURI"))
+        {
+            soapReader.decodeClassName(soapEntry, className);
+        }
+        else if (soapReader.testSoapStartTag(
+                     soapEntry, SOAP_NST_WS_MAN, "SelectorSet"))
+        {
+            soapReader.decodeKeyBindings(soapEntry, keyBindings, nameSpace);
+        }
+        else if (soapReader.testSoapStartTag(
+                     soapEntry, SOAP_NST_WS_ADDRESSING, "MessageID"))
+        {
+            soapReader.decodeMessageId(soapEntry, messageId);
+        }
+        else
+        {
+            // TODO:
+            // For the tags we don't understand, we need to return an error
+            // if they have mustUnderstand attribute set.
+        }
+    }
+
+    // Now the instance name can be constructed from the class name 
+    // in ResourceURI and key bindings in the SelectorSet.
+    instanceName.set(String(), CIMNamespaceName(), className, keyBindings);
+
+    AutoPtr<CIMGetInstanceRequestMessage> request(
+        new CIMGetInstanceRequestMessage(
+            messageId,
+            nameSpace,
+            instanceName,
+            false,
+            false,
+            false,
+            propertyList,
+            QueueIdStack(queueId, _returnQueueId)));
+
+    STAT_SERVERSTART
+
+    return request.release();
 }
 
 PEGASUS_NAMESPACE_END

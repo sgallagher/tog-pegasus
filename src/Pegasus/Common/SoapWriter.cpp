@@ -55,6 +55,7 @@
 #include "CIMQualifierDecl.h"
 #include "CIMQualifierDeclRep.h"
 #include "CIMValue.h"
+#include "SoapReader.h"
 #include "SoapWriter.h"
 #include "XmlParser.h"
 #include "Tracer.h"
@@ -66,7 +67,7 @@
 #include "StringConversion.h"
 
 PEGASUS_NAMESPACE_BEGIN
-
+extern SoapNamespace supportedSoapNamespaces[];
 
 //-----------------------------------------------------------------------------
 //
@@ -85,6 +86,141 @@ Buffer SoapWriter::formatHttpErrorRspMessage(
     return out;
 }
 
+Buffer SoapWriter::formatWSManRspMessage(
+        const String& rspName,
+        const String& messageId,
+        HttpMethod httpMethod,
+        const ContentLanguageList& httpContentLanguages,
+        const Buffer& body,
+        Uint64 serverResponseTime)
+{
+    Buffer out;
 
+    _appendHTTPResponseHeader(
+        out, rspName, httpMethod, httpContentLanguages, 0);
+    _appendSoapEnvelopeStart(out);
+
+    _appendSoapHeader(out, rspName, messageId);
+
+    _appendSoapBodyStart(out);
+    if (body.size() != 0)
+    {
+        out << body;
+    }
+    _appendSoapBodyEnd(out);
+
+    _appendSoapEnvelopeEnd(out);
+
+    return out;
+}
+
+Buffer SoapWriter::formatWSManErrorRspMessage(
+        const String& rspName,
+        const String& messageId,
+        HttpMethod httpMethod,
+        const CIMException& cimException)
+{
+    Buffer out;
+
+
+    return out;
+}
+
+void SoapWriter::appendInstanceElement(
+    Buffer& out,
+    const CIMConstInstance& instance)
+{
+}
+
+void SoapWriter::_appendHTTPResponseHeader(
+     Buffer& out,
+     const String& rspName,
+     HttpMethod httpMethod,
+     const ContentLanguageList& contentLanguages,
+     Uint32 contentLength)
+{
+     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
+     out << STRLIT("HTTP/1.1 " HTTP_STATUS_OK "\r\n");
+
+     out << STRLIT("Content-Type: application/xml+soap; charset=\"utf-8\"\r\n");
+     OUTPUT_CONTENTLENGTH;
+
+     if (contentLanguages.size() > 0)
+     {
+         out << STRLIT("Content-Language: ") << contentLanguages <<
+             STRLIT("\r\n");
+     }
+     if (httpMethod == HTTP_METHOD_M_POST)
+     {
+         // TODO: not sure about this!!!
+         out << STRLIT("Ext:\r\n");
+         out << STRLIT("Cache-Control: no-cache\r\n");
+         out << nn << STRLIT("\r\n");
+         out << nn << STRLIT("-SOAPAction: ");
+         out << nn << rspName;
+         out << nn << ("\r\n\r\n");
+     }
+     else
+     {
+         out << STRLIT("SOAPAction: ");
+         out << rspName;
+         out << ("\r\n\r\n");
+     }
+}
+
+void SoapWriter::_appendSoapEnvelopeStart(Buffer& out)
+{
+    out << STRLIT("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<");
+    out << supportedSoapNamespaces[SOAP_NST_SOAP_ENVELOPE].localName;
+    out << STRLIT(":Envelope");
+    for (unsigned int i = 0; i < SOAP_NST_LAST; i++)
+    {
+        out << STRLIT("\nxmlns:");
+        out << supportedSoapNamespaces[i].localName;
+        out << STRLIT("=\"");
+        out << supportedSoapNamespaces[i].extendedName;
+        out << STRLIT("\"");
+    }
+    out << STRLIT(">\n");
+}
+
+void SoapWriter::_appendSoapEnvelopeEnd(Buffer& out)
+{
+    out << STRLIT("</");
+    out << supportedSoapNamespaces[SOAP_NST_SOAP_ENVELOPE].localName;
+    out << STRLIT(":Envelope>\n");
+}
+
+void SoapWriter::_appendSoapBodyStart(Buffer& out)
+{
+    out << STRLIT("<");
+    out << supportedSoapNamespaces[SOAP_NST_SOAP_ENVELOPE].localName;
+    out << STRLIT(":Body>\n");
+}
+
+void SoapWriter::_appendSoapBodyEnd(Buffer& out)
+{
+    out << STRLIT("</");
+    out << supportedSoapNamespaces[SOAP_NST_SOAP_ENVELOPE].localName;
+    out << STRLIT(":Body>\n");
+}
+
+void SoapWriter::_appendSoapHeader(
+    Buffer& out, 
+    const String& rspName, 
+    const String& messageId)
+{
+    // Header start tag
+    out << STRLIT("<");
+    out << supportedSoapNamespaces[SOAP_NST_SOAP_ENVELOPE].localName;
+    out << STRLIT(":Header>\n");
+
+    
+
+    // Header end tag
+    out << STRLIT("</");
+    out << supportedSoapNamespaces[SOAP_NST_SOAP_ENVELOPE].localName;
+    out << STRLIT(":Header>\n");
+}
 
 PEGASUS_NAMESPACE_END

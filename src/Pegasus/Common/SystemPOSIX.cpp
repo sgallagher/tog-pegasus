@@ -519,46 +519,27 @@ String System::getPassword(const char* prompt)
 
 String System::getEffectiveUserName()
 {
-    String userName;
-    struct passwd* pwd = NULL;
-
-#if defined(PEGASUS_OS_SOLARIS) || \
-    defined(PEGASUS_OS_HPUX) || \
-    defined(PEGASUS_OS_LINUX) || \
-    defined(PEGASUS_OS_VMS)
-
-    const unsigned int PWD_BUFF_SIZE = 1024;
-    struct passwd       local_pwd;
-    char                buf[PWD_BUFF_SIZE];
-
-    if (getpwuid_r(geteuid(), &local_pwd, buf, PWD_BUFF_SIZE, &pwd) != 0)
-    {
-        String errorMsg = String("getpwuid_r failure : ") +
-                            String(strerror(errno));
-        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2, errorMsg);
-        // L10N TODO - This message needs to be added.
-        //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
-        //                          errorMsg);
-    }
-#elif defined(PEGASUS_OS_ZOS)
+#if defined(PEGASUS_OS_ZOS)
     char effective_username[9];
     __getuserid(effective_username, 9);
     __etoa_l(effective_username,9);
-    userName.assign(effective_username);
-    return userName;
+    return String(effective_username);
 #else
-    //
-    //  get the currently logged in user's UID.
-    //
-    pwd = getpwuid(geteuid());
-#endif
-    if (pwd == NULL)
+    String userName;
+    struct passwd* pwd = NULL;
+    const unsigned int PWD_BUFF_SIZE = 1024;
+    struct passwd local_pwd;
+    char buf[PWD_BUFF_SIZE];
+
+    if (getpwuid_r(geteuid(), &local_pwd, buf, PWD_BUFF_SIZE, &pwd) != 0)
     {
-         // L10N TODO - This message needs to be added.
-         //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-         //  "getpwuid_r failure, user may have been removed just after login");
-         PEG_TRACE_CSTRING(TRC_OS_ABSTRACTION, Tracer::LEVEL4,
-             "getpwuid_r failure, user may have been removed just after login");
+        PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            "getpwuid_r failure: %s", strerror(errno)));
+    }
+    else if (pwd == NULL)
+    {
+        PEG_TRACE_CSTRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            "getpwuid_r failure; user may have been removed");
     }
     else
     {
@@ -569,6 +550,7 @@ String System::getEffectiveUserName()
     }
 
     return userName;
+#endif
 }
 
 String System::encryptPassword(const char* password, const char* salt)
@@ -596,11 +578,6 @@ String System::encryptPassword(const char* password, const char* salt)
 
 Boolean System::isSystemUser(const char* userName)
 {
-#if defined(PEGASUS_OS_SOLARIS) || \
-    defined(PEGASUS_OS_HPUX) || \
-    defined(PEGASUS_OS_LINUX) || \
-    defined(PEGASUS_OS_VMS)
-
     const unsigned int PWD_BUFF_SIZE = 1024;
     struct passwd pwd;
     struct passwd *result;
@@ -608,24 +585,11 @@ Boolean System::isSystemUser(const char* userName)
 
     if (getpwnam_r(userName, &pwd, pwdBuffer, PWD_BUFF_SIZE, &result) != 0)
     {
-        String errorMsg = String("getpwnam_r failure : ") +
-                            String(strerror(errno));
-        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2, errorMsg);
-        // L10N TODO - This message needs to be added.
-        //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
-        //                          errorMsg);
+        PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            "getpwnam_r failure: %s", strerror(errno)));
     }
 
-    if (result == NULL)
-        return false;
-
-    return true;
-
-#else /* default */
-
-    return getpwnam(userName) != NULL;
-
-#endif /* default */
+    return (result != NULL);
 }
 
 Boolean System::isPrivilegedUser(const String& userName)
@@ -688,18 +652,12 @@ Boolean System::isPrivilegedUser(const String& userName)
 #endif
 }
 
-static String _priviledgedUserName;
-static Once _priviledgedUserNameOnce = PEGASUS_ONCE_INITIALIZER;
+static String _privilegedUserName;
+static Once _privilegedUserNameOnce = PEGASUS_ONCE_INITIALIZER;
 
 static void _initPrivilegedUserName()
 {
     struct passwd* pwd = NULL;
-
-#if defined(PEGASUS_OS_SOLARIS) || \
-    defined(PEGASUS_OS_HPUX) || \
-    defined(PEGASUS_OS_LINUX) || \
-    defined(PEGASUS_OS_VMS)
-
     const unsigned int PWD_BUFF_SIZE = 1024;
     struct passwd local_pwd;
     char buf[PWD_BUFF_SIZE];
@@ -711,38 +669,29 @@ static void _initPrivilegedUserName()
 #else
     uid = 0;
 #endif
+
     if (getpwuid_r(uid, &local_pwd, buf, PWD_BUFF_SIZE, &pwd) != 0)
     {
-        String errorMsg = String("getpwuid_r failure : ") +
-                String(strerror(errno));
-        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2, errorMsg);
-        // L10N TODO - This message needs to be added.
-        // Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
-        //     errorMsg);
+        PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            "getpwuid_r failure: %s", strerror(errno)));
     }
-
-#else /* default */
-
-    pwd = getpwuid(0);
-
-#endif /* default */
-
-    if ( pwd != NULL )
+    else if (pwd == NULL)
     {
-        _priviledgedUserName.assign(pwd->pw_name);
+        PEG_TRACE_CSTRING(
+            TRC_OS_ABSTRACTION, Tracer::LEVEL4,
+            "getpwuid_r: Could not find entry.");
+        PEGASUS_ASSERT(0);
     }
     else
     {
-        PEG_TRACE_CSTRING(
-            TRC_OS_ABSTRACTION, Tracer::LEVEL4, "Could not find entry.");
-        PEGASUS_ASSERT(0);
+        _privilegedUserName.assign(pwd->pw_name);
     }
 }
 
 String System::getPrivilegedUserName()
 {
-    once(&_priviledgedUserNameOnce, _initPrivilegedUserName);
-    return _priviledgedUserName;
+    once(&_privilegedUserNameOnce, _initPrivilegedUserName);
+    return _privilegedUserName;
 }
 
 #if !defined(PEGASUS_OS_VMS) || defined(PEGASUS_ENABLE_USERGROUP_AUTHORIZATION)

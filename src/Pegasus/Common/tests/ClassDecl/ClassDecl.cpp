@@ -52,16 +52,12 @@ void test01()
     // }
     try
     {
-        String a = "A_class1";
-        String b = "A_class2";
-        CIMClass c0(CIMName(a), CIMName(b));
-        //Bugzilla 217, The following line generates a compile error on
-        //Some Linux platforms.
-        // ATTN: KS P3 20030305 - Reinclude the following line when bug fixed.
-        //CIMClass c1(CIMName(a), CIMName("A_class2"));
-        CIMClass c2(CIMName("A_class1"), CIMName(b));
-        CIMClass c3(CIMName(b), CIMName(a));
-
+        CIMName a = "A_class1";
+        CIMName b = "A_class2";
+        CIMClass c0(a, b);
+        CIMClass c1(a, CIMName("A_class2"));
+        CIMClass c2(CIMName("A_class1"), b);
+        CIMClass c3(b, a);
     }
     catch (InvalidNameException & ine)
     {

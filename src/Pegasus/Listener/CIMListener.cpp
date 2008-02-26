@@ -437,18 +437,7 @@ CIMListenerRep::CIMListenerRep(
 
 CIMListenerRep::~CIMListenerRep()
 {
-    // if port is alive, clean up the port
-    if (_thread_pool != 0)
-    {
-        // Block incoming export requests and unbind the port
-        _svc->stopClientConnection();
-
-        // Wait until pending export requests in the server are done.
-        waitForPendingRequests(10);
-
-        // Shutdown the CIMListenerService
-        _svc->shutdown();
-    }
+    stop();
 
     delete _sslContext;
     delete _dispatcher;

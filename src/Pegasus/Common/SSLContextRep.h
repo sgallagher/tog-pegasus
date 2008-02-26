@@ -46,8 +46,19 @@
 #include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/Mutex.h>
+#include <Pegasus/Common/Threads.h>
+#include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/SharedPtr.h>
+
+//
+// Typedef's for OpenSSL callback functions.
+//
+extern "C"
+{
+    typedef void (* CRYPTO_SET_LOCKING_CALLBACK)(int, int, const char *, int);
+    typedef unsigned long (* CRYPTO_SET_ID_CALLBACK)(void);
+};
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -60,6 +71,123 @@ struct FreeX509STOREPtr
 #endif
     }
 };
+
+#ifdef PEGASUS_HAS_SSL
+
+class SSLEnvironmentInitializer
+{
+public:
+
+    SSLEnvironmentInitializer()
+    {
+        AutoMutex autoMut(_instanceCountMutex);
+
+        PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
+            "In SSLEnvironmentInitializer(), _instanceCount is %d",
+            _instanceCount));
+
+        if (_instanceCount == 0)
+        {
+            _initializeCallbacks();
+            SSL_load_error_strings();
+            SSL_library_init();
+        }
+
+        _instanceCount++;
+    }
+
+    ~SSLEnvironmentInitializer()
+    {
+        AutoMutex autoMut(_instanceCountMutex);
+        _instanceCount--;
+
+        PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
+            "In ~SSLEnvironmentInitializer(), _instanceCount is %d",
+            _instanceCount));
+
+        if (_instanceCount == 0)
+        {
+            ERR_free_strings();
+            _uninitializeCallbacks();
+        }
+    }
+
+private:
+
+    SSLEnvironmentInitializer(const SSLEnvironmentInitializer&);
+    SSLEnvironmentInitializer& operator=(const SSLEnvironmentInitializer&);
+
+    /*
+        Initialize the SSL locking and ID callbacks.
+    */
+    static void _initializeCallbacks()
+    {
+        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+            "Initializing SSL callbacks.");
+
+        // Allocate Memory for _sslLocks. SSL locks needs to be able to handle
+        // up to CRYPTO_num_locks() different mutex locks.
+
+        _sslLocks.reset(new Mutex[CRYPTO_num_locks()]);
+
+# if defined(PEGASUS_HAVE_PTHREADS) && !defined(PEGASUS_OS_VMS)
+        // Set the ID callback. The ID callback returns a thread ID.
+        CRYPTO_set_id_callback((CRYPTO_SET_ID_CALLBACK) pthread_self);
+# endif
+
+        // Set the locking callback.
+
+        CRYPTO_set_locking_callback(
+            (CRYPTO_SET_LOCKING_CALLBACK) _lockingCallback);
+    }
+
+    /*
+        Reset the SSL locking and ID callbacks.
+    */
+    static void _uninitializeCallbacks()
+    {
+        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4, "Resetting SSL callbacks.");
+        CRYPTO_set_locking_callback(NULL);
+        CRYPTO_set_id_callback(NULL);
+        _sslLocks.reset();
+    }
+
+    static void _lockingCallback(
+        int mode,
+        int type,
+        const char* file,
+        int line)
+    {
+        if (mode & CRYPTO_LOCK)
+        {
+            _sslLocks.get()[type].lock();
+        }
+        else
+        {
+            _sslLocks.get()[type].unlock();
+        }
+    }
+
+    /**
+        Locks to be used by SSL.
+    */
+    static AutoArrayPtr<Mutex> _sslLocks;
+
+    /**
+        Count of the instances of this class.  The SSL environment must be
+        initialized when the first SSLEnvironmentInitializer is constructed.
+        It must be uninitialized when the last SSLEnvironmentInitializer is
+        destructed.
+    */
+    static int _instanceCount;
+
+    /**
+        Mutex for controlling access to _instanceCount.
+    */
+    static Mutex _instanceCountMutex;
+};
+
+#endif
 
 class SSLCallbackInfoRep
 {
@@ -77,24 +205,6 @@ public:
 
 class SSLContextRep
 {
-    /*
-    SSL locking callback function. It is needed to perform locking on
-    shared data structures.
-
-    This function needs access to variable ssl_locks.
-    Declare it as a friend of class SSLContextRep.
-
-    @param mode     Specifies whether to lock/unlock.
-    @param type Type of lock.
-    @param file      File name of the function setting the lock.
-    @param line      Line number of the function setting the lock.
-    */
-    friend void pegasus_locking_callback(
-                      int       mode,
-                      int       type,
-                      const     char* file,
-                      int       line);
-
 public:
 
     /** Constructor for a SSLContextRep object.
@@ -144,21 +254,17 @@ public:
 
 private:
 
+#ifdef PEGASUS_HAS_SSL
+    /**
+        Ensures that the SSL environment remains initialized for the lifetime
+        of the SSLContextRep object.
+    */
+    SSLEnvironmentInitializer _env;
+#endif
+
     SSL_CTX * _makeSSLContext();
     void _randomInit(const String& randomFile);
     Boolean _verifyPrivateKey(SSL_CTX *ctx, const String& keyPath);
-
-    /*
-    Initialize the SSL locking environment.
-
-    This function sets the locking callback functions.
-    */
-    static void init_ssl();
-
-    /*
-    Cleanup the SSL locking environment.
-    */
-    static void free_ssl();
 
     String _trustStore;
     String _certPath;
@@ -172,25 +278,8 @@ private:
     SSLCertificateVerifyFunction* _certificateVerifyFunction;
 
     SharedPtr<X509_STORE, FreeX509STOREPtr> _crlStore;
-
-    /*
-       Mutex containing the SSL locks.
-    */
-    static AutoArrayPtr<Mutex> _sslLocks;
-
-    /*
-       Count for instances of this class. This is used to initialize and free
-       SSL locking objects.
-    */
-    static int _countRep;
-
-    /*
-       Mutex for countRep.
-    */
-    static Mutex _countRepMutex;
 };
 
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_SSLContextRep_h */
-

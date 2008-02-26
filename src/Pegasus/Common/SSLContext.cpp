@@ -55,14 +55,6 @@
 #ifdef PEGASUS_OS_PASE
 # include <ILEWrapper/ILEUtilities.h>
 #endif
-//
-// Typedef's for OpenSSL callback functions.
-//
-extern "C"
-{
-    typedef void (* CRYPTO_SET_LOCKING_CALLBACK)(int, int, const char *, int);
-    typedef unsigned long (* CRYPTO_SET_ID_CALLBACK)(void);
-};
 
 typedef struct x509_store_ctx_st X509_STORE_CTX;
 
@@ -92,14 +84,9 @@ const int SSLCallbackInfo::SSL_CALLBACK_INDEX = 0;
 //
 #ifdef PEGASUS_HAS_SSL
 
-// Mutex for SSL locks which will get initialized by AutoArrayPtr constructor.
-AutoArrayPtr<Mutex> SSLContextRep::_sslLocks;
-
-// Mutex for _countRep.
-Mutex SSLContextRep::_countRepMutex;
-
-// Initialise _count for SSLContextRep objects.
-int SSLContextRep::_countRep = 0;
+AutoArrayPtr<Mutex> SSLEnvironmentInitializer::_sslLocks;
+int SSLEnvironmentInitializer::_instanceCount = 0;
+Mutex SSLEnvironmentInitializer::_instanceCountMutex;
 
 
 //
@@ -494,68 +481,6 @@ extern "C" int prepareForCallback(int preVerifyOk, X509_STORE_CTX *ctx)
 }
 
 //
-// Implement OpenSSL locking callback.
-//
-void pegasus_locking_callback(
-    int mode,
-    int type,
-    const char* file,
-    int line)
-{
-    // Check whether the mode is lock or unlock.
-
-    if ( mode & CRYPTO_LOCK )
-    {
-        /*PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
-                "Now locking for type %d", type));*/
-        SSLContextRep::_sslLocks.get()[type].lock( );
-    }
-    else
-    {
-        /*PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
-                "Now unlocking for type %d", type));*/
-        SSLContextRep::_sslLocks.get()[type].unlock( );
-    }
-}
-
-//
-// Initialize OpenSSL Locking and id callbacks.
-//
-void SSLContextRep::init_ssl()
-{
-     // Allocate Memory for _sslLocks. SSL locks needs to be able to handle
-     // up to CRYPTO_num_locks() different mutex locks.
-     PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
-           "Initialized SSL callback.");
-
-     _sslLocks.reset(new Mutex[CRYPTO_num_locks()]);
-
-#if defined(PEGASUS_HAVE_PTHREADS) && !defined(PEGASUS_OS_VMS)
-     // Set the ID callback. The ID callback returns a thread ID.
-     CRYPTO_set_id_callback((CRYPTO_SET_ID_CALLBACK) pthread_self);
-#endif
-
-     // Set the locking callback to pegasus_locking_callback.
-
-     CRYPTO_set_locking_callback(
-         (CRYPTO_SET_LOCKING_CALLBACK) pegasus_locking_callback);
-
-}
-
-// Free OpenSSL Locking and id callbacks.
-void SSLContextRep::free_ssl()
-{
-    // Cleanup _sslLocks and set locking & id callback to NULL.
-
-    CRYPTO_set_locking_callback(NULL);
-    CRYPTO_set_id_callback     (NULL);
-    PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
-             "Freed SSL callback.");
-    _sslLocks.reset();
-}
-
-
-//
 // SSL context area
 //
 // For the OSs that don't have /dev/random device file,
@@ -572,62 +497,16 @@ SSLContextRep::SSLContextRep(
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::SSLContextRep()");
 
     _trustStore = trustStore;
-
     _certPath = certPath;
-
     _keyPath = keyPath;
-
     _crlPath = crlPath;
-
     _certificateVerifyFunction = verifyCert;
 
     //
     // If a truststore and/or peer verification function is specified,
     // enable peer verification
     //
-    if (trustStore != String::EMPTY || verifyCert != NULL)
-    {
-        _verifyPeer = true;
-    }
-    else
-    {
-        _verifyPeer = false;
-    }
-
-    //
-    // Initialize SSL callbacks and increment the SSLContextRep object _counter.
-    //
-    {
-       AutoMutex autoMut(_countRepMutex);
-
-       PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
-                "Value of Countrep in constructor %d", _countRep));
-        if ( _countRep == 0 )
-        {
-            init_ssl();
-
-            //
-            // load SSL library
-            //
-            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
-                "Before calling SSL_load_error_strings");
-
-            SSL_load_error_strings();
-
-            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
-                "After calling SSL_load_error_strings");
-
-            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
-                "Before calling SSL_library_init");
-
-            SSL_library_init();
-
-            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
-                "After calling SSL_library_init");
-        }
-
-        _countRep++;
-    }  // mutex unlocks here
+    _verifyPeer = (trustStore != String::EMPTY || verifyCert != NULL);
 
     _randomInit(randomFile);
 
@@ -648,20 +527,8 @@ SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep)
     _certificateVerifyFunction = sslContextRep._certificateVerifyFunction;
     _randomFile = sslContextRep._randomFile;
 
-    // Initialize SSL callbacks and increment the SSLContextRep object _counter.
-    {
-        AutoMutex autoMut(_countRepMutex);
-        PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
-            "Value of Countrep in copy constructor %d", _countRep));
-        if ( _countRep == 0 )
-        {
-            init_ssl();
-        }
-
-        _countRep++;
-    }  // mutex unlocks here
-
     _sslContext = _makeSSLContext();
+
     PEG_METHOD_EXIT();
 }
 
@@ -675,21 +542,6 @@ SSLContextRep::~SSLContextRep()
 
     SSL_CTX_free(_sslContext);
 
-    // Decrement the SSLContextRep object _counter.
-    {
-        AutoMutex autoMut(_countRepMutex);
-        _countRep--;
-        // Free SSL locks if no instances of SSLContextRep exist.
-
-        PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
-            "Value of Countrep in destructor %d", _countRep));
-        if ( _countRep == 0 )
-        {
-            free_ssl();
-            ERR_free_strings();
-        }
-
-    }
     PEG_METHOD_EXIT();
 }
 
@@ -1287,10 +1139,6 @@ SSLCertificateVerifyFunction*
 {
     return NULL;
 }
-
-void SSLContextRep::init_ssl() {}
-
-void SSLContextRep::free_ssl() {}
 
 #endif // end of PEGASUS_HAS_SSL
 

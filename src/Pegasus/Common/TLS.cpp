@@ -83,6 +83,7 @@ SSLSocket::SSLSocket(
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::SSLSocket()");
 
     SSL* sslConnection;
+    SharedPtr<X509_STORE, FreeX509STOREPtr> tmpCrlStore;
 
     _sslReadErrno = 0;
 
@@ -115,11 +116,11 @@ SSLSocket::SSLSocket(
         // Create a new callback info for each new connection
         //
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
-        _crlStore = _SSLContext->_rep->getCRLStore();
+        tmpCrlStore = _SSLContext->_rep->getCRLStore();
 #endif
         _SSLCallbackInfo.reset(new SSLCallbackInfo(
             _SSLContext->getSSLCertificateVerifyFunction(),
-            _crlStore.get(),
+            tmpCrlStore.get(),
             _ipAddress ));
 
         if (SSL_set_ex_data(
@@ -155,6 +156,7 @@ SSLSocket::SSLSocket(
     }
 
     _SSLConnection = sslConnection;
+    _crlStore = new SharedPtr<X509_STORE, FreeX509STOREPtr>(tmpCrlStore);
 
     PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: Created SSL socket");
 
@@ -165,6 +167,7 @@ SSLSocket::~SSLSocket()
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::~SSLSocket()");
 
+    delete static_cast<SharedPtr<X509_STORE, FreeX509STOREPtr>*>(_crlStore);
     SSL_free(static_cast<SSL*>(_SSLConnection));
 
     PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Deleted SSL socket");

@@ -167,6 +167,7 @@ SSLSocket::~SSLSocket()
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::~SSLSocket()");
 
+    close();
     delete static_cast<SharedPtr<X509_STORE, FreeX509STOREPtr>*>(_crlStore);
     SSL_free(static_cast<SSL*>(_SSLConnection));
 
@@ -815,7 +816,10 @@ MP_Socket::MP_Socket(
 
 #endif
 
-MP_Socket::~MP_Socket() {}
+MP_Socket::~MP_Socket()
+{
+    close();
+}
 
 Boolean MP_Socket::isSecure() {return _isSecure;}
 

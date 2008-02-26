@@ -77,7 +77,12 @@ public:
                              Uint32 size,
                              Uint32 socketWriteTimeout);
 
-    static void close(SocketHandle socket);
+    /**
+        Closes a specified socket.  If successful, the socket handle is set to
+        PEGASUS_INVALID_SOCKET.
+        @param socket The SocketHandle to close.
+    */
+    static void close(SocketHandle& socket);
 
     static void disableBlocking(SocketHandle socket);
 
@@ -89,6 +94,18 @@ public:
 
 private:
     Socket();
+};
+
+// Use with AutoPtr to automatically close a socket on error
+struct CloseSocketHandle
+{
+    void operator()(SocketHandle* ptr)
+    {
+        if (ptr)
+        {
+            Socket::close(*ptr);
+        }
+    }
 };
 
 PEGASUS_NAMESPACE_END

@@ -205,19 +205,23 @@ Sint32 Socket::timedWrite(
     }
 }
 
-void Socket::close(SocketHandle socket)
+void Socket::close(SocketHandle& socket)
 {
-    if (socket != -1)
+    if (socket != PEGASUS_INVALID_SOCKET)
     {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
         if (!closesocket(socket))
-            socket = -1;
+        {
+            socket = PEGASUS_INVALID_SOCKET;
+        }
 #else
         int status;
         PEGASUS_RETRY_SYSTEM_CALL(::close(socket), status);
 
         if (status == 0)
-            socket = -1;
+        {
+            socket = PEGASUS_INVALID_SOCKET;
+        }
 #endif
     }
 }

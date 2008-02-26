@@ -248,7 +248,9 @@ HTTPConnection* HTTPConnector::connect(
 {
     PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnector::connect()");
 
-    SocketHandle socket = -1;
+    SocketHandle socket = PEGASUS_INVALID_SOCKET;
+    // Use an AutoPtr to ensure the socket handle is closed on exception
+    AutoPtr<SocketHandle, CloseSocketHandle> socketPtr(&socket);
 
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
     if (host == String::EMPTY)
@@ -279,7 +281,6 @@ HTTPConnection* HTTPConnector::connect(
             MessageLoaderParms parms(
                 "Common.HTTPConnector.CONNECTION_FAILED_LOCAL_CIM_SERVER",
                 "Cannot connect to local CIM server. Connection failed.");
-            Socket::close(socket);
             PEG_METHOD_EXIT();
             throw CannotConnectException(parms);
         }
@@ -356,7 +357,6 @@ HTTPConnection* HTTPConnector::connect(
                     "Cannot connect to $0:$1. Connection failed.",
                     host,
                     portStr);
-                Socket::close(socket);
 #ifdef PEGASUS_ENABLE_IPV6
                 freeaddrinfo(addrInfoRoot);
 #endif
@@ -373,6 +373,8 @@ HTTPConnection* HTTPConnector::connect(
     // Create HTTPConnection object:
 
     SharedPtr<MP_Socket> mp_socket(new MP_Socket(socket, sslContext, 0));
+    // mp_socket now has responsibility for closing the socket handle
+    socketPtr.release();
 
     if (mp_socket->connect(timeoutMilliseconds) < 0)
     {
@@ -383,14 +385,16 @@ HTTPConnection* HTTPConnector::connect(
             "Cannot connect to $0:$1. Connection failed.",
             host,
             portStr);
-        mp_socket->close();
         PEG_METHOD_EXIT();
         throw CannotConnectException(parms);
     }
 
-    HTTPConnection* connection = new HTTPConnection(
-        _monitor, mp_socket, String::EMPTY, this,
-        static_cast<MessageQueueService *>(outputMessageQueue));
+    AutoPtr<HTTPConnection> connection(new HTTPConnection(
+        _monitor,
+        mp_socket,
+        String::EMPTY,
+        this,
+        static_cast<MessageQueueService *>(outputMessageQueue)));
 
     // Solicit events on this new connection's socket:
 
@@ -399,14 +403,15 @@ HTTPConnection* HTTPConnector::connect(
             SocketMessage::READ | SocketMessage::EXCEPTION,
             connection->getQueueId(), MonitorEntry::TYPE_CONNECTOR)))
     {
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "HTTPConnector::connect: Attempt to allocate entry in "
+                "_entries table failed.");
         (connection->getMPSocket()).close();
     }
 
-    // Save the socket for cleanup later:
-
-    _rep->connections.append(connection);
+    _rep->connections.append(connection.get());
     PEG_METHOD_EXIT();
-    return connection;
+    return connection.release();
 }
 
 void HTTPConnector::destroyConnections()

@@ -99,8 +99,15 @@ public:
 
     ~HTTPAcceptorRep()
     {
+        closeSocket();
         delete address;
     }
+
+    void closeSocket()
+    {
+        Socket::close(socket);
+    }
+
     struct sockaddr* address;
 
     SocketLength address_size;
@@ -426,7 +433,6 @@ void HTTPAcceptor::_bind()
     if (setsockopt(_rep->socket, SOL_SOCKET, SO_REUSEADDR,
             (char *)&opt, sizeof(opt)) < 0)
     {
-        Socket::close(_rep->socket);
         delete _rep;
         _rep = 0;
         MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_SET_SOCKET_OPTION",
@@ -447,7 +453,6 @@ void HTTPAcceptor::_bind()
             "Failed to bind socket on port $0: $1.",
             _portNumber, PEGASUS_SYSTEM_NETWORK_ERRORMSG_NLS);
 
-        Socket::close(_rep->socket);
         delete _rep;
         _rep = 0;
         PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
@@ -491,7 +496,6 @@ void HTTPAcceptor::_bind()
                 PEGASUS_LOCAL_DOMAIN_SOCKET_PATH,
                 PEGASUS_SYSTEM_ERRORMSG_NLS );
 
-            Socket::close(_rep->socket);
             delete _rep;
             _rep = 0;
             PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
@@ -513,7 +517,6 @@ void HTTPAcceptor::_bind()
             "Failed to listen on socket {0}: {1}.",
             (int)_rep->socket,PEGASUS_SYSTEM_NETWORK_ERRORMSG_NLS );
         
-        Socket::close(_rep->socket);
         delete _rep;
         _rep = 0;
         PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
@@ -529,7 +532,6 @@ void HTTPAcceptor::_bind()
             getQueueId(),
             MonitorEntry::TYPE_ACCEPTOR)))
     {
-        Socket::close(_rep->socket);
         delete _rep;
         _rep = 0;
         MessageLoaderParms parms(
@@ -555,7 +557,7 @@ void HTTPAcceptor::closeConnectionSocket()
         //_monitor->unsolicitSocketMessages(_rep->socket);
 
         // close the socket
-        Socket::close(_rep->socket);
+        _rep->closeSocket();
         // Unlink Local Domain Socket Bug# 3312
         if (_connectionType == LOCAL_CONNECTION)
         {
@@ -604,8 +606,8 @@ void HTTPAcceptor::reconnectConnectionSocket()
         // unregister the socket
         _monitor->unsolicitSocketMessages(_rep->socket);
         // close the socket
-        Socket::close(_rep->socket);
-        // Unlink Local Domain Socket Bug# 3312
+        _rep->closeSocket();
+        // Unlink Local Domain Socket
         if (_connectionType == LOCAL_CONNECTION)
         {
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
@@ -673,7 +675,7 @@ void HTTPAcceptor::unbind()
     if (_rep)
     {
         _portNumber = 0;
-        Socket::close(_rep->socket);
+        _rep->closeSocket();
 
         if (_connectionType == LOCAL_CONNECTION)
         {
@@ -791,6 +793,10 @@ void HTTPAcceptor::_acceptConnection()
             "HTTPAcceptor: accept() failed");
         return;
     }
+
+    // Use an AutoPtr to ensure the socket handle is closed on exception
+    AutoPtr<SocketHandle, CloseSocketHandle> socketPtr(&socket);
+
 #ifndef PEGASUS_OS_TYPE_WINDOWS
     // We need to ensure that the socket number is not higher than
     // what fits into FD_SETSIZE, because we else won't be able to select on it
@@ -810,8 +816,6 @@ void HTTPAcceptor::_acceptConnection()
              "accept() returned too large socket number %d.",
              socket));
         
-        // close the connection
-        Socket::close(socket);
         return;
     }
 #endif
@@ -841,7 +845,6 @@ void HTTPAcceptor::_acceptConnection()
             PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "HTTPAcceptor: getnameinfo() failed");
             delete accept_address;
-            Socket::close(socket);
             return;
         }
         ipAddress = ipBuffer;
@@ -882,6 +885,8 @@ void HTTPAcceptor::_acceptConnection()
 
     SharedPtr<MP_Socket> mp_socket(new MP_Socket(
         socket, _sslcontext, _sslContextObjectLock, ipAddress));
+    // mp_socket now has responsibility for closing the socket handle
+    socketPtr.release();
 
     mp_socket->disableBlocking();
     mp_socket->setSocketWriteTimeout(_socketWriteTimeout);
@@ -894,14 +899,17 @@ void HTTPAcceptor::_acceptConnection()
     {
         PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "HTTPAcceptor: SSL_accept() failed");
-        mp_socket->close();
         return;
     }
 
     // Create a new connection and add it to the connection list:
 
-    HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket,
-        ipAddress, this, static_cast<MessageQueue *>(_outputMessageQueue));
+    AutoPtr<HTTPConnection> connection(new HTTPConnection(
+        _monitor,
+        mp_socket,
+        ipAddress,
+        this,
+        static_cast<MessageQueue *>(_outputMessageQueue)));
 
     if (_idleConnectionTimeoutSeconds)
     {
@@ -926,20 +934,16 @@ void HTTPAcceptor::_acceptConnection()
             SocketMessage::READ | SocketMessage::EXCEPTION,
             connection->getQueueId(), MonitorEntry::TYPE_CONNECTION)) )
     {
-        // ATTN-DE-P2-2003100503::TODO::Need to enhance code to return
-        // an error message to Client application.
         PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "HTTPAcceptor::_acceptConnection: Attempt to allocate entry in "
                 "_entries table failed.");
-        delete connection;
-        Socket::close(socket);
         return;
     }
 
-    // Save the socket for cleanup later:
     connection->_entry_index = index;
     AutoMutex autoMut(_rep->_connection_mut);
-    _rep->connections.append(connection);
+    _rep->connections.append(connection.get());
+    connection.release();
 }
 
 PEGASUS_NAMESPACE_END

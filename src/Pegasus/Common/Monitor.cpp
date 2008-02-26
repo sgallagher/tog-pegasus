@@ -284,8 +284,6 @@ void Tickler::_initialize()
     //
 
     Socket::close(_listenSocket);
-    _listenSocket = PEGASUS_INVALID_SOCKET;
-
     Socket::disableBlocking(_serverSocket);
     Socket::disableBlocking(_clientSocket);
 }
@@ -298,21 +296,9 @@ void Tickler::_uninitialize()
 
     try
     {
-        if (_serverSocket != PEGASUS_INVALID_SOCKET)
-        {
-            Socket::close(_serverSocket);
-            _serverSocket = PEGASUS_INVALID_SOCKET;
-        }
-        if (_clientSocket != PEGASUS_INVALID_SOCKET)
-        {
-            Socket::close(_clientSocket);
-            _clientSocket = PEGASUS_INVALID_SOCKET;
-        }
-        if (_listenSocket != PEGASUS_INVALID_SOCKET)
-        {
-            Socket::close(_listenSocket);
-            _listenSocket = PEGASUS_INVALID_SOCKET;
-        }
+        Socket::close(_serverSocket);
+        Socket::close(_clientSocket);
+        Socket::close(_listenSocket);
     }
     catch (...)
     {

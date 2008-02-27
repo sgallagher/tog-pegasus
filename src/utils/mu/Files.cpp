@@ -380,11 +380,11 @@ bool CompareFiles(
     if (!is2)
         return false;
 
-    char c1;
-    char c2;
+    char c1 = 0;
+    char c2 = 0;
     offset = 0;
 
-    for (;;)
+    while (c1 == c2)
     {
         bool more1 = is1.get(c1) ? true : false;
         bool more2 = is2.get(c2) ? true : false;
@@ -393,14 +393,9 @@ bool CompareFiles(
             return more1 == more2;
 
         offset++;
-
-        if (c1 != c2)
-            return false;
     }
 
-#if !defined (OS_VMS)
-    return true;
-#endif
+    return false;
 }
 
 /** test if the file path is relative to parent dir. 

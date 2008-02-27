@@ -245,8 +245,14 @@ void Socket::initializeInterface()
     {
         WSADATA tmp;
 
-        if (WSAStartup(0x202, &tmp) == SOCKET_ERROR)
-            WSACleanup();
+        int err = WSAStartup(0x202, &tmp);
+        if (err != 0)
+        {
+            throw Exception(MessageLoaderParms(
+                "Common.Socket.WSASTARTUP_FAILED.WINDOWS",
+                "WSAStartup failed with error $0.",
+                err));
+        }
     }
 
     _socketInterfaceRefCount++;

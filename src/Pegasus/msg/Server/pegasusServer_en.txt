@@ -2836,9 +2836,14 @@ not be valid."}
         * @note  PGS09100:
         *   Do not translate the word 'TCP/IP'
         */
-
         Common.Socket.WAIT_FOR_TCPIP:string {"PGS09100: TCP/IP temporary unavailable."}
-        
+
+        /**
+        * @note  PGS09101:
+        * @version 2.8
+        *    Substitution {0} is an integer error number
+        */
+        Common.Socket.WSASTARTUP_FAILED.WINDOWS:string {"PGS09101: WSAStartup failed with error {0}."}
 
 
         // ==========================================================

@@ -37,18 +37,6 @@
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/Mutex.h>
 
-// // Ensure Unix 98
-// #ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
-//    #ifndef _GNU_SOURCE
-//       #define _GNU_SOURCE
-//    #endif
-// #else
-//    #ifdef _XOPEN_SOURCE
-//       #undef _XOPEN_SOURCE
-//    #endif
-//    #define _XOPEN_SOURCE 600
-// #endif
-
 #ifdef PEGASUS_HAS_SIGNALS
 
 # include <signal.h>
@@ -75,18 +63,9 @@ typedef void PEGASUS_SIGINFO_T;
 #endif // PEGASUS_HAS_SIGNALS
 
 
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || (PEGASUS_OS_SOLARIS)
 extern "C" {
-#endif
-
-typedef void (* signal_handler)(int, PEGASUS_SIGINFO_T *, void *);
-
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || (PEGASUS_OS_SOLARIS)
+    typedef void (* signal_handler)(int, PEGASUS_SIGINFO_T *, void *);
 }
-#endif
-
-// Sample signal handler for SIGABRT that stops the failing thread normally
-void sig_act(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig);
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -99,18 +78,47 @@ public:
 
     // these functions should throw exceptions
 
-    void registerHandler(unsigned signum, signal_handler _sighandler);
+    /**
+        Registers a signal handler.
+        @param signum The signal number for which to register the handler.
+        @sighandler The signal handler to register
+        @exception IndexOutOfBoundsException if signum is outside the range
+            of signals supported by the SignalHandler (see PEGASUS_NSIG).
+    */
+    void registerHandler(unsigned signum, signal_handler sighandler);
 
+    /**
+        Activates a signal handler.
+        @param signum The signal number for which to activate the handler.
+        @exception IndexOutOfBoundsException if signum is outside the range
+            of signals supported by the SignalHandler (see PEGASUS_NSIG).
+    */
     void activate(unsigned signum);
 
-    //void activateAll();
-
+    /**
+        Deactivates a signal handler.
+        @param signum The signal number for which to deactivate the handler.
+        @exception IndexOutOfBoundsException if signum is outside the range
+            of signals supported by the SignalHandler (see PEGASUS_NSIG).
+    */
     void deactivate(unsigned signum);
 
     void deactivateAll();
 
+    /**
+        Sets a signal action to "ignore".
+        @param signum The signal number to ignore.
+        @exception IndexOutOfBoundsException if signum is outside the range
+            of signals supported by the SignalHandler (see PEGASUS_NSIG).
+    */
     static void ignore(unsigned signum);
 
+    /**
+        Resets a signal action to its default.
+        @param signum The signal number for which to reset the signal action.
+        @exception IndexOutOfBoundsException if signum is outside the range
+            of signals supported by the SignalHandler (see PEGASUS_NSIG).
+    */
     static void defaultAction(unsigned signum);
 
 private:

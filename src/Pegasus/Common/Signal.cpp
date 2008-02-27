@@ -33,33 +33,10 @@
 
 #include <cstdio>
 #include <cstring>
-#ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
-#include <iostream.h>
-#endif
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Signal.h>
 #include <Pegasus/Common/Exception.h>
-
-PEGASUS_USING_PEGASUS;
-
-void sig_act(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
-{
-    ThreadReturnType retval = 0;
-
-    if (s_n == PEGASUS_SIGABRT)
-    {
-        printf("Received an abort signal\n");
-#if defined(PEGASUS_HAS_SIGNALS)
-        printf(" in address %p\n", s_info->si_addr);
-#endif
-
-        // In general it is dangerous to call pthread from within a
-        // signal handler, because they are not signal safe
-        Threads::exit(retval);
-    }
-}
-
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -97,12 +74,12 @@ SignalHandler::getHandler(unsigned signum)
     return reg_handler[signum];
 }
 
-void SignalHandler::registerHandler(unsigned signum, signal_handler _sighandler)
+void SignalHandler::registerHandler(unsigned signum, signal_handler sighandler)
 {
     register_handler &rh = getHandler(signum);
     AutoMutex autoMut(reg_mutex);
     deactivate_i(rh);
-    rh.sh = _sighandler;
+    rh.sh = sighandler;
 }
 
 void SignalHandler::activate(unsigned signum)
@@ -156,7 +133,6 @@ void SignalHandler::deactivateAll()
 
 void SignalHandler::ignore(unsigned signum)
 {
-
     verifySignum(signum);
 
 #if !defined(PEGASUS_OS_DARWIN)
@@ -174,7 +150,6 @@ void SignalHandler::ignore(unsigned signum)
 
 void SignalHandler::defaultAction(unsigned signum)
 {
-
     verifySignum(signum);
 
     struct sigaction sig_acts;

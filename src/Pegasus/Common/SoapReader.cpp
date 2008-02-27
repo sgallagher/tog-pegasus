@@ -63,36 +63,6 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-SoapNamespace supportedSoapNamespaces[] = 
-{
-    {"SOAP-ENV", "http://www.w3.org/2003/05/soap-envelope",
-     SOAP_NST_SOAP_ENVELOPE,       0},
-    {"SOAP-ENC", "http://www.w3.org/2003/05/soap-encoding",
-     SOAP_NST_SOAP_ENCODING,       0}, 
-    {"xsi",      "http://www.w3.org/2001/XMLSchema-instance",
-     SOAP_NST_XML_SCHEMA_INSTANCE, 0},
-    {"xsd",      "http://www.w3.org/2001/XMLSchema",
-     SOAP_NST_XML_SCHEMA,          0}, 
-    {"wsman",    "http://schemas.dmtf.org/wbem/wsman/1/wsman.xsd",
-     SOAP_NST_WS_MAN,              0},
-    {"wsmb",     "http://schemas.dmtf.org/wbem/wsman/1/cimbinding.xsd", 
-     SOAP_NST_WS_CIM_BINDING,      0},
-    {"wsa",      "http://schemas.xmlsoap.org/ws/2004/08/addressing",
-     SOAP_NST_WS_ADDRESSING,       0},
-    {"wxf",      "http://schemas.xmlsoap.org/ws/2004/09/transfer",
-     SOAP_NST_WS_TRANSFER,         0},
-    {"wsen",     "http://schemas.xmlsoap.org/ws/2004/09/enumeration",
-     SOAP_NST_WS_ENUMERATION,      0}, 
-    {"wse",      "http://schemas.xmlsoap.org/ws/2004/08/eventing",
-     SOAP_NST_WS_EVENTING,         0},
-    {"wsp",      "http://schemas.xmlsoap.org/ws/2004/09/policy",
-     SOAP_NST_WS_POLICY,           0},
-    {"wsdl",     "http://schemas.xmlsoap.org/wsdl",
-     SOAP_NST_WSDL,                0},
-    {0, 0, SOAP_NST_LAST, 0}
-};
-
-
 SoapReader::SoapReader(char* text) : 
     _parser(text), 
     _scopeLevel(0),
@@ -133,7 +103,7 @@ CIMName SoapReader::getNameAttribute(
 void SoapReader::decodeClassName(SoapEntry* soapEntry, String& className)
 {
     PEGASUS_ASSERT(_currentSoapHeader < _soapHeader.size() &&
-        testSoapStartTag(soapEntry, SOAP_NST_WS_MAN, "ResourceURI"));
+        testSoapStartTag(soapEntry, SoapNamespaces::WS_MAN, "ResourceURI"));
 
     soapEntry = nextSoapHeaderEntry();
     if (!soapEntry || soapEntry->entry.type != XmlEntry::CONTENT)
@@ -144,7 +114,7 @@ void SoapReader::decodeClassName(SoapEntry* soapEntry, String& className)
     const char* slash = strrchr(soapEntry->entry.text, '/');
     className = slash ? slash + 1 : soapEntry->entry.text;
 
-    if (!testSoapEndTag(nextSoapHeaderEntry(), SOAP_NST_WS_MAN, 
+    if (!testSoapEndTag(nextSoapHeaderEntry(), SoapNamespaces::WS_MAN, 
                         "ResourceURI"))
     {
         // TODO: throw an exception
@@ -156,7 +126,7 @@ void SoapReader::decodeKeyBindingElement(SoapEntry* soapEntry, CIMName& name,
     String& value, CIMKeyBinding::Type& type)
 {
     PEGASUS_ASSERT(_currentSoapHeader < _soapHeader.size() &&
-        testSoapStartTag(soapEntry, SOAP_NST_WS_MAN, "Selector"));
+        testSoapStartTag(soapEntry, SoapNamespaces::WS_MAN, "Selector"));
 
     name = getNameAttribute(soapEntry, "Selector");
 
@@ -170,7 +140,7 @@ void SoapReader::decodeKeyBindingElement(SoapEntry* soapEntry, CIMName& name,
     // Set the type to UNKNOWN; it will be fixed up by the dipatcher.
     type = CIMKeyBinding::UNKNOWN;
 
-    if (!testSoapEndTag(nextSoapHeaderEntry(), SOAP_NST_WS_MAN, 
+    if (!testSoapEndTag(nextSoapHeaderEntry(), SoapNamespaces::WS_MAN, 
                         "Selector"))
     {
         // TODO: throw an exception
@@ -184,17 +154,17 @@ void SoapReader::decodeKeyBindings(
     String& nameSpace)
 {
     PEGASUS_ASSERT(_currentSoapHeader < _soapHeader.size() &&
-        testSoapStartTag(soapEntry, SOAP_NST_WS_MAN, "SelectorSet"));
+        testSoapStartTag(soapEntry, SoapNamespaces::WS_MAN, "SelectorSet"));
 
     keyBindings.clear();
     nameSpace.clear();
     while ((soapEntry = nextSoapHeaderEntry()) != 0 &&
-           !testSoapEndTag(soapEntry, SOAP_NST_WS_MAN, "SelectorSet"))
+           !testSoapEndTag(soapEntry, SoapNamespaces::WS_MAN, "SelectorSet"))
     {
         CIMName name;
         String value;
         CIMKeyBinding::Type type;
-        if (testSoapStartTag(soapEntry, SOAP_NST_WS_MAN, "Selector"))
+        if (testSoapStartTag(soapEntry, SoapNamespaces::WS_MAN, "Selector"))
         {
             decodeKeyBindingElement(soapEntry, name, value, type);
 
@@ -227,7 +197,7 @@ void SoapReader::decodeKeyBindings(
 void SoapReader::decodeMessageId(SoapEntry* soapEntry, String& messageId)
 {
     PEGASUS_ASSERT(_currentSoapHeader < _soapHeader.size() &&
-        testSoapStartTag(soapEntry, SOAP_NST_WS_ADDRESSING, 
+        testSoapStartTag(soapEntry, SoapNamespaces::WS_ADDRESSING, 
             "MessageID"));
 
     soapEntry = nextSoapHeaderEntry();
@@ -238,8 +208,8 @@ void SoapReader::decodeMessageId(SoapEntry* soapEntry, String& messageId)
 
     messageId = soapEntry->entry.text;
 
-    if (!testSoapEndTag(nextSoapHeaderEntry(), SOAP_NST_WS_ADDRESSING,
-                        "MessageID"))
+    if (!testSoapEndTag(nextSoapHeaderEntry(), SoapNamespaces::WS_ADDRESSING,
+            "MessageID"))
     {
         // TODO: throw an exception
     }
@@ -247,7 +217,7 @@ void SoapReader::decodeMessageId(SoapEntry* soapEntry, String& messageId)
 
 
 void SoapReader::decodeSoapAction(
-    String& soapAction, String& action, SoapNamespaceType& nsType)
+    String& soapAction, String& action, SoapNamespaces::Type& nsType)
 {
     Uint32 pos = soapAction.reverseFind('/');
 
@@ -257,55 +227,33 @@ void SoapReader::decodeSoapAction(
         action = soapAction.subString(pos + 1);
 
         for (int i = 0; 
-             supportedSoapNamespaces[i].namespaceType != SOAP_NST_LAST; 
+             SoapNamespaces::supportedNamespaces[i].type != 
+                 SoapNamespaces::LAST; 
              i++)
         {
-            String extName(supportedSoapNamespaces[i].extendedName);
+            String extName(
+                SoapNamespaces::supportedNamespaces[i].extendedName);
             if (nameSpace == extName)
             {
-                nsType = supportedSoapNamespaces[i].namespaceType;
+                nsType = SoapNamespaces::supportedNamespaces[i].type;
                 return;
             }
         }
     }
 
     action = String::EMPTY;
-    nsType = SOAP_NST_UNKNOWN;
+    nsType = SoapNamespaces::UNKNOWN;
 }
 
 
-Boolean SoapReader::isSupportedNamespace(SoapNamespace* ns)
-{
-    for (int i = 0; 
-         supportedSoapNamespaces[i].namespaceType != SOAP_NST_LAST; 
-         i++)
-    {
-        if (!strcmp(supportedSoapNamespaces[i].extendedName, ns->extendedName))
-        {
-            ns->namespaceType = supportedSoapNamespaces[i].namespaceType;
-            return true;
-        }
-    }
-    return false;
-}
-
-
-String SoapReader::getSoapActionName(
-    const SoapNamespaceType nsType, const String& name)
-{
-    return (String) supportedSoapNamespaces[nsType].extendedName + 
-        (String) "/" + name;
-}
-
-
-SoapNamespaceType SoapReader::_getNamespaceType(const char* name)
+SoapNamespaces::Type SoapReader::_getNamespaceType(const char* name)
 {
     const char* pos = strchr(name, ':');
 
     // If ":" is not found, the name is not namespace qualified
     if (pos == NULL)
     {
-        return SOAP_NST_UNKNOWN;
+        return SoapNamespaces::UNKNOWN;
     }
 
     // Search the namespace stack from the top
@@ -313,18 +261,19 @@ SoapNamespaceType SoapReader::_getNamespaceType(const char* name)
     {
         if (!strncmp(_nameSpaces[i].localName, name, pos - name))
         {
-            return _nameSpaces[i].namespaceType;
+            return _nameSpaces[i].type;
         }
     }
-    return SOAP_NST_UNKNOWN;
+    return SoapNamespaces::UNKNOWN;
 }
 
 
-SoapNamespace* SoapReader::_getNamespace(SoapNamespaceType nsType)
+SoapNamespaces::Namespace* SoapReader::_getNamespace(
+    SoapNamespaces::Type nsType)
 {
     for (int i = _nameSpaces.size() - 1; i >=0; i--)
     {
-        if (_nameSpaces[i].namespaceType == nsType)
+        if (_nameSpaces[i].type == nsType)
         {
             return &_nameSpaces[i];
         }
@@ -335,11 +284,11 @@ SoapNamespace* SoapReader::_getNamespace(SoapNamespaceType nsType)
 
 Boolean SoapReader::_next(
     XmlEntry& entry, 
-    SoapNamespaceType& nsType, 
+    SoapNamespaces::Type& nsType, 
     Boolean includeComment)
 {
     Boolean firstTime;
-    nsType = SOAP_NST_UNKNOWN;
+    nsType = SoapNamespaces::UNKNOWN;
 
     // Get the next entry from the parser
     if (!_parser.next(entry, includeComment, &firstTime))
@@ -357,7 +306,8 @@ Boolean SoapReader::_next(
             entry.type == XmlEntry::EMPTY_TAG)
         {
             // The tag must be namespace qualified with a known namespace
-            if ((nsType = _getNamespaceType(entry.text)) == SOAP_NST_UNKNOWN)
+            if ((nsType = _getNamespaceType(entry.text)) == 
+                    SoapNamespaces::UNKNOWN)
             {
                 // TODO: trow an exception
             }
@@ -375,14 +325,14 @@ Boolean SoapReader::_next(
             XmlAttribute attr = entry.attributes[i];
             if (strncmp(attr.name, "xmlns:", 6) == 0)
             {
-                SoapNamespace ns;
+                SoapNamespaces::Namespace ns;
                 ns.localName = attr.name + 6;
                 ns.extendedName = attr.value;
                 ns.scopeLevel = _scopeLevel;
                 
                 // Make sure we know how to deal with entries from
                 // this namespace
-                if (isSupportedNamespace(&ns))
+                if (SoapNamespaces::isSupportedNamespace(&ns))
                 {
                     _nameSpaces.push(ns);
                 }
@@ -394,7 +344,8 @@ Boolean SoapReader::_next(
         }
         
         // The tag must be namespace qualified with a known namespace
-        if ((nsType = _getNamespaceType(entry.text)) == SOAP_NST_UNKNOWN)
+        if ((nsType = _getNamespaceType(entry.text)) == 
+            SoapNamespaces::UNKNOWN)
         {
             // TODO: trow an exception
         }
@@ -402,7 +353,8 @@ Boolean SoapReader::_next(
     else if (entry.type == XmlEntry::END_TAG)
     {
         // The tag must be namespace qualified with a known namespace
-        if ((nsType = _getNamespaceType(entry.text)) == SOAP_NST_UNKNOWN)
+        if ((nsType = _getNamespaceType(entry.text)) == 
+            SoapNamespaces::UNKNOWN)
         {
             // TODO: trow an exception
         }
@@ -420,7 +372,7 @@ Boolean SoapReader::_next(
     }
     else
     {
-        nsType = SOAP_NST_UNKNOWN;
+        nsType = SoapNamespaces::UNKNOWN;
     }
 
     return true;
@@ -429,10 +381,10 @@ Boolean SoapReader::_next(
 
 void SoapReader::_expectStartTag(
     XmlEntry& entry, 
-    SoapNamespaceType nsType, 
+    SoapNamespaces::Type nsType, 
     const char* tagName)
 {
-    SoapNamespaceType nst;
+    SoapNamespaces::Type nst;
     const char* pos;
     if (!_next(entry, nst) ||
         entry.type != XmlEntry::START_TAG ||
@@ -441,7 +393,7 @@ void SoapReader::_expectStartTag(
         strcmp(pos + 1, tagName) != 0)
     {
 
-        SoapNamespace* ns = _getNamespace(nsType);
+        SoapNamespaces::Namespace* ns = _getNamespace(nsType);
         PEGASUS_ASSERT(ns);
         MessageLoaderParms mlParms(
             "Common.SoapReader.EXPECTED_OPEN",
@@ -454,10 +406,10 @@ void SoapReader::_expectStartTag(
 
 void SoapReader::_expectStartOrEmptyTag(
     XmlEntry& entry, 
-    SoapNamespaceType nsType, 
+    SoapNamespaces::Type nsType, 
     const char* tagName)
 {
-    SoapNamespaceType nst;
+    SoapNamespaces::Type nst;
     const char* pos;
     if (!_next(entry, nst) ||
         (entry.type != XmlEntry::START_TAG &&
@@ -466,7 +418,7 @@ void SoapReader::_expectStartOrEmptyTag(
         (pos = strchr(entry.text, ':')) == NULL ||
         strcmp(pos + 1, tagName) != 0)
     {
-        SoapNamespace* ns = _getNamespace(nsType);
+        SoapNamespaces::Namespace* ns = _getNamespace(nsType);
         PEGASUS_ASSERT(ns);
         MessageLoaderParms mlParms(
             "Common.SoapReader.EXPECTED_OPENCLOSE",
@@ -479,10 +431,10 @@ void SoapReader::_expectStartOrEmptyTag(
 
 void SoapReader::_expectEndTag(
     XmlEntry& entry, 
-    SoapNamespaceType nsType, 
+    SoapNamespaces::Type nsType, 
     const char* tagName)
 {
-    SoapNamespaceType nst;
+    SoapNamespaces::Type nst;
     const char* pos;
     if (!_next(entry, nst) ||
         entry.type != XmlEntry::END_TAG ||
@@ -490,7 +442,7 @@ void SoapReader::_expectEndTag(
         (pos = strchr(entry.text, ':')) == NULL ||
         strcmp(pos + 1, tagName) != 0)
     {
-        SoapNamespace* ns = _getNamespace(nsType);
+        SoapNamespaces::Namespace* ns = _getNamespace(nsType);
         PEGASUS_ASSERT(ns);
         MessageLoaderParms mlParms(
             "Common.SoapReader.EXPECTED_CLOSE",
@@ -501,10 +453,12 @@ void SoapReader::_expectEndTag(
 }
 
 
-Boolean SoapReader::_testEndTag(SoapNamespaceType nsType, const char* tagName)
+Boolean SoapReader::_testEndTag(
+    SoapNamespaces::Type nsType, 
+    const char* tagName)
 {
     XmlEntry entry;
-    SoapNamespaceType nst;
+    SoapNamespaces::Type nst;
     const char* pos;
 
     if (!_next(entry, nst) ||
@@ -524,7 +478,7 @@ Boolean SoapReader::_testEndTag(SoapNamespaceType nsType, const char* tagName)
 
 Boolean SoapReader::testSoapStartTag(
     SoapEntry* soapEntry, 
-    SoapNamespaceType nsType, 
+    SoapNamespaces::Type nsType, 
     const char* tagName)
 {
     const char* pos;
@@ -541,7 +495,7 @@ Boolean SoapReader::testSoapStartTag(
 
 Boolean SoapReader::testSoapEndTag(
     SoapEntry* soapEntry, 
-    SoapNamespaceType nsType, 
+    SoapNamespaces::Type nsType, 
     const char* tagName)
 {
     const char* pos;
@@ -568,12 +522,13 @@ void SoapReader::processSoapEnvelope(String& soapAction)
     _processHeaderStartTag();
 
     // Read SOAP-ENV:Header content
-    while (!_testEndTag(SOAP_NST_SOAP_ENVELOPE, "Header"))
+    while (!_testEndTag(SoapNamespaces::SOAP_ENVELOPE, "Header"))
     {
         _next(soapEntry.entry, soapEntry.nsType);
 
         // We are looking for <wsa:Action> tag
-        if (testSoapStartTag(&soapEntry, SOAP_NST_WS_ADDRESSING, "Action"))
+        if (testSoapStartTag(&soapEntry, 
+               SoapNamespaces::WS_ADDRESSING, "Action"))
         {
             _expectContentOrCData(soapEntry.entry);
             wsaAction = soapEntry.entry.text;
@@ -592,7 +547,8 @@ void SoapReader::processSoapEnvelope(String& soapAction)
             }
 
             // Next should be the end tag for <wsa:Action>
-            _expectEndTag(soapEntry.entry,  SOAP_NST_WS_ADDRESSING, "Action");
+            _expectEndTag(soapEntry.entry,  SoapNamespaces::WS_ADDRESSING, 
+                "Action");
 
             // Read the entry following </wsa:Action> so it can be
             // added tot the array
@@ -609,7 +565,7 @@ void SoapReader::processSoapEnvelope(String& soapAction)
     if (_processBodyStartTag())
     {
         // Read SOAP-ENV:Body content
-        while (!_testEndTag(SOAP_NST_SOAP_ENVELOPE, "Body"))
+        while (!_testEndTag(SoapNamespaces::SOAP_ENVELOPE, "Body"))
         {
             _next(soapEntry.entry, soapEntry.nsType);
             _soapBody.append(soapEntry);
@@ -657,7 +613,7 @@ void SoapReader::getXmlDeclaration(
 void SoapReader::_processEnvelopeStartTag()
 {
     XmlEntry entry;
-    _expectStartTag(entry, SOAP_NST_SOAP_ENVELOPE, "Envelope");
+    _expectStartTag(entry, SoapNamespaces::SOAP_ENVELOPE, "Envelope");
 }
 
 //-----------------------------------------------------------------------------
@@ -670,7 +626,7 @@ void SoapReader::_processEnvelopeStartTag()
 void SoapReader::_processEnvelopeEndTag()
 {
     XmlEntry entry;
-    _expectEndTag(entry, SOAP_NST_SOAP_ENVELOPE, "Envelope");
+    _expectEndTag(entry, SoapNamespaces::SOAP_ENVELOPE, "Envelope");
 }
 
 //-----------------------------------------------------------------------------
@@ -683,7 +639,7 @@ void SoapReader::_processEnvelopeEndTag()
 void SoapReader::_processHeaderStartTag()
 {
     XmlEntry entry;
-    _expectStartTag(entry, SOAP_NST_SOAP_ENVELOPE, "Header");
+    _expectStartTag(entry, SoapNamespaces::SOAP_ENVELOPE, "Header");
 }
 
 //-----------------------------------------------------------------------------
@@ -696,7 +652,7 @@ void SoapReader::_processHeaderStartTag()
 void SoapReader::_processHeaderEndTag()
 {
     XmlEntry entry;
-    _expectEndTag(entry, SOAP_NST_SOAP_ENVELOPE, "Header");
+    _expectEndTag(entry, SoapNamespaces::SOAP_ENVELOPE, "Header");
 }
 
 //-----------------------------------------------------------------------------
@@ -709,7 +665,7 @@ void SoapReader::_processHeaderEndTag()
 Boolean SoapReader::_processBodyStartTag()
 {
     XmlEntry entry;
-    _expectStartOrEmptyTag(entry, SOAP_NST_SOAP_ENVELOPE, "Body");
+    _expectStartOrEmptyTag(entry, SoapNamespaces::SOAP_ENVELOPE, "Body");
     if (entry.type == XmlEntry::EMPTY_TAG)
     {
         return false;
@@ -727,7 +683,7 @@ Boolean SoapReader::_processBodyStartTag()
 void SoapReader::_processBodyEndTag()
 {
     XmlEntry entry;
-    _expectEndTag(entry, SOAP_NST_SOAP_ENVELOPE, "Body");
+    _expectEndTag(entry, SoapNamespaces::SOAP_ENVELOPE, "Body");
 }
 
 PEGASUS_NAMESPACE_END

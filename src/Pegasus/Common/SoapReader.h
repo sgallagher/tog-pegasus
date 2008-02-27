@@ -36,6 +36,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/XmlParser.h>
+#include <Pegasus/Common/SoapUtils.h>
 #include <Pegasus/Common/CIMFlavor.h>
 #include <Pegasus/Common/CIMScope.h>
 #include <Pegasus/Common/CIMType.h>
@@ -56,35 +57,6 @@ class CIMParamValue;
 class CIMValue;
 class XmlEntry;
 
-enum SoapNamespaceType
-{
-    SOAP_NST_UNKNOWN = -1,
-    
-    SOAP_NST_SOAP_ENVELOPE = 0,
-    SOAP_NST_SOAP_ENCODING,
-    SOAP_NST_XML_SCHEMA_INSTANCE,
-    SOAP_NST_XML_SCHEMA,
-    SOAP_NST_WS_MAN,
-    SOAP_NST_WS_CIM_BINDING,
-    SOAP_NST_WS_ADDRESSING,
-    SOAP_NST_WS_TRANSFER,
-    SOAP_NST_WS_ENUMERATION,
-    SOAP_NST_WS_EVENTING,
-    SOAP_NST_WS_POLICY,
-    SOAP_NST_WSDL,
-    
-    SOAP_NST_COUNT,
-    SOAP_NST_LAST = SOAP_NST_COUNT
-}; 
-
-struct SoapNamespace
-{
-    const char* localName;
-    const char* extendedName;
-    SoapNamespaceType namespaceType;
-    Uint32 scopeLevel;
-};
-
 
 class PEGASUS_COMMON_LINKAGE SoapReader
 {
@@ -92,28 +64,28 @@ public:
 
     struct SoapEntry
     {
-        SoapNamespaceType nsType;
+        SoapNamespaces::Type nsType;
         XmlEntry entry;
     };
 
     SoapReader(char* text);
     ~SoapReader();
 
-    static Boolean isSupportedNamespace(SoapNamespace* ns);
-    static String getSoapActionName(
-        const SoapNamespaceType nsType, const String& name);
-
     void getXmlDeclaration(
         const char*& xmlVersion, const char*& xmlEncoding);
 
     Boolean testSoapStartTag(
-        SoapEntry* soapEntry, SoapNamespaceType nsType, const char* tagName);
+        SoapEntry* soapEntry, 
+        SoapNamespaces::Type nsType, 
+        const char* tagName);
     Boolean testSoapEndTag(
-        SoapEntry* soapEntry, SoapNamespaceType nsType, const char* tagName);
+        SoapEntry* soapEntry, 
+        SoapNamespaces::Type nsType, 
+        const char* tagName);
 
     void processSoapEnvelope(String& soapAction);
     void decodeSoapAction(
-        String& soapAction, String& action, SoapNamespaceType& nsType);
+        String& soapAction, String& action, SoapNamespaces::Type& nsType);
 
     void decodeClassName(SoapEntry* soapEntry, String& className);
     void decodeKeyBindings(SoapEntry* soapEntry, Array<CIMKeyBinding>&, 
@@ -153,20 +125,20 @@ private:
 
     Boolean _next(
         XmlEntry& entry, 
-        SoapNamespaceType& nsType, 
+        SoapNamespaces::Type& nsType, 
         Boolean includeComment = false);
 
     void _expectContentOrCData(XmlEntry& entry);
     void _expectStartOrEmptyTag(
-        XmlEntry& entry, SoapNamespaceType nsType, const char* tagName);
+        XmlEntry& entry, SoapNamespaces::Type nsType, const char* tagName);
     void _expectStartTag(
-        XmlEntry& entry, SoapNamespaceType nsType, const char* tagName);
+        XmlEntry& entry, SoapNamespaces::Type nsType, const char* tagName);
     void _expectEndTag(
-        XmlEntry& entry, SoapNamespaceType nsType, const char* tagName);
-    Boolean _testEndTag(SoapNamespaceType nsType, const char* tagName);
+        XmlEntry& entry, SoapNamespaces::Type nsType, const char* tagName);
+    Boolean _testEndTag(SoapNamespaces::Type nsType, const char* tagName);
 
-    SoapNamespaceType _getNamespaceType(const char* name);
-    SoapNamespace* _getNamespace(SoapNamespaceType nsType);
+    SoapNamespaces::Type _getNamespaceType(const char* name);
+    SoapNamespaces::Namespace* _getNamespace(SoapNamespaces::Type nsType);
 
     void _processEnvelopeStartTag();
     void _processEnvelopeEndTag();
@@ -186,7 +158,7 @@ private:
     Array<SoapEntry> _soapBody;
     Uint32 _currentSoapBody;
 
-    Stack<SoapNamespace> _nameSpaces;
+    Stack<SoapNamespaces::Namespace> _nameSpaces;
 };
 
 PEGASUS_NAMESPACE_END

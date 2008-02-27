@@ -361,7 +361,7 @@ void WSManOperationRequestDecoder::handleSoapMessage(
 
         // Decode the SOAP envelope
         String action;
-        SoapNamespaceType nsType;
+        SoapNamespaces::Type nsType;
         soapReader.processSoapEnvelope(soapAction);
 
         // Break down soapAction into namespace/action pair
@@ -369,7 +369,7 @@ void WSManOperationRequestDecoder::handleSoapMessage(
 
         switch (nsType)
         {
-            case SOAP_NST_WS_TRANSFER:
+            case SoapNamespaces::WS_TRANSFER:
             {
                 if (action == "Get")
                 {
@@ -525,17 +525,17 @@ CIMGetInstanceRequestMessage*
     while ((soapEntry = soapReader.nextSoapHeaderEntry()) != 0)
     {
         if (soapReader.testSoapStartTag(
-                soapEntry, SOAP_NST_WS_MAN, "ResourceURI"))
+                soapEntry, SoapNamespaces::WS_MAN, "ResourceURI"))
         {
             soapReader.decodeClassName(soapEntry, className);
         }
         else if (soapReader.testSoapStartTag(
-                     soapEntry, SOAP_NST_WS_MAN, "SelectorSet"))
+                     soapEntry, SoapNamespaces::WS_MAN, "SelectorSet"))
         {
             soapReader.decodeKeyBindings(soapEntry, keyBindings, nameSpace);
         }
         else if (soapReader.testSoapStartTag(
-                     soapEntry, SOAP_NST_WS_ADDRESSING, "MessageID"))
+                     soapEntry, SoapNamespaces::WS_ADDRESSING, "MessageID"))
         {
             soapReader.decodeMessageId(soapEntry, messageId);
         }

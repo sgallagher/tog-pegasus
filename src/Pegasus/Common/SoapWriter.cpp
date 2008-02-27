@@ -55,7 +55,7 @@
 #include "CIMQualifierDecl.h"
 #include "CIMQualifierDeclRep.h"
 #include "CIMValue.h"
-#include "SoapReader.h"
+#include "SoapUtils.h"
 #include "SoapWriter.h"
 #include "XmlParser.h"
 #include "Tracer.h"
@@ -67,7 +67,6 @@
 #include "StringConversion.h"
 
 PEGASUS_NAMESPACE_BEGIN
-extern SoapNamespace supportedSoapNamespaces[];
 
 //-----------------------------------------------------------------------------
 //
@@ -130,55 +129,88 @@ void SoapWriter::appendInstanceElement(
     Buffer& out,
     const CIMConstInstance& instance)
 {
+    CheckRep(instance._rep);
+    instance._rep->toSoap(out);
+}
+
+void SoapWriter::appendPropertyElement(
+    Buffer& out,
+    const CIMConstProperty& property)
+{
+    CheckRep(property._rep);
+    property._rep->toSoap(out);
+}
+
+void SoapWriter::appendQualifierElement(
+    Buffer& out,
+    const CIMConstQualifier& qualifier)
+{
+    CheckRep(qualifier._rep);
+    qualifier._rep->toSoap(out);
 }
 
 void SoapWriter::_appendHTTPResponseHeader(
-     Buffer& out,
-     const String& rspName,
-     HttpMethod httpMethod,
-     const ContentLanguageList& contentLanguages,
-     Uint32 contentLength)
+    Buffer& out,
+    const String& rspName,
+    HttpMethod httpMethod,
+    const ContentLanguageList& contentLanguages,
+    Uint32 contentLength)
 {
-     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
-     out << STRLIT("HTTP/1.1 " HTTP_STATUS_OK "\r\n");
+    char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
+    out << STRLIT("HTTP/1.1 " HTTP_STATUS_OK "\r\n");
 
-     out << STRLIT("Content-Type: application/xml+soap; charset=\"utf-8\"\r\n");
-     OUTPUT_CONTENTLENGTH;
+    out << STRLIT("Content-Type: application/xml+soap; "
+        "charset=\"utf-8\"\r\n");
+    OUTPUT_CONTENTLENGTH;
 
-     if (contentLanguages.size() > 0)
-     {
-         out << STRLIT("Content-Language: ") << contentLanguages <<
-             STRLIT("\r\n");
-     }
-     if (httpMethod == HTTP_METHOD_M_POST)
-     {
-         // TODO: not sure about this!!!
-         out << STRLIT("Ext:\r\n");
-         out << STRLIT("Cache-Control: no-cache\r\n");
-         out << nn << STRLIT("\r\n");
-         out << nn << STRLIT("-SOAPAction: ");
-         out << nn << rspName;
-         out << nn << ("\r\n\r\n");
-     }
-     else
-     {
-         out << STRLIT("SOAPAction: ");
-         out << rspName;
-         out << ("\r\n\r\n");
-     }
+    if (contentLanguages.size() > 0)
+    {
+        out << STRLIT("Content-Language: ") << contentLanguages <<
+            STRLIT("\r\n");
+    }
+    if (httpMethod == HTTP_METHOD_M_POST)
+    {
+        // TODO: not sure about this!!!
+        out << STRLIT("Ext:\r\n");
+        out << STRLIT("Cache-Control: no-cache\r\n");
+        out << nn << STRLIT("\r\n");
+        out << nn << STRLIT("-SOAPAction: ");
+        out << nn << rspName;
+        out << nn << ("\r\n\r\n");
+    }
+    else
+    {
+        out << STRLIT("SOAPAction: ");
+        out << rspName;
+        out << ("\r\n\r\n");
+    }
+}
+
+void SoapWriter::_appendStartTag(
+    Buffer& out, SoapNamespaces::Type nsType, StrLit tag)
+{
+}
+
+void SoapWriter::_appendEndTag(
+    Buffer& out, SoapNamespaces::Type nsType, StrLit tag)
+{
+    out << ("</");
+    out << SoapNamespaces::supportedNamespaces[nsType].localName;
+    out << (":") << tag << (">\n");
 }
 
 void SoapWriter::_appendSoapEnvelopeStart(Buffer& out)
 {
     out << STRLIT("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<");
-    out << supportedSoapNamespaces[SOAP_NST_SOAP_ENVELOPE].localName;
+    out << SoapNamespaces::supportedNamespaces[
+        SoapNamespaces::SOAP_ENVELOPE].localName;
     out << STRLIT(":Envelope");
-    for (unsigned int i = 0; i < SOAP_NST_LAST; i++)
+    for (unsigned int i = 0; i < SoapNamespaces::LAST; i++)
     {
         out << STRLIT("\nxmlns:");
-        out << supportedSoapNamespaces[i].localName;
+        out << SoapNamespaces::supportedNamespaces[i].localName;
         out << STRLIT("=\"");
-        out << supportedSoapNamespaces[i].extendedName;
+        out << SoapNamespaces::supportedNamespaces[i].extendedName;
         out << STRLIT("\"");
     }
     out << STRLIT(">\n");
@@ -187,21 +219,24 @@ void SoapWriter::_appendSoapEnvelopeStart(Buffer& out)
 void SoapWriter::_appendSoapEnvelopeEnd(Buffer& out)
 {
     out << STRLIT("</");
-    out << supportedSoapNamespaces[SOAP_NST_SOAP_ENVELOPE].localName;
+    out << SoapNamespaces::supportedNamespaces[
+        SoapNamespaces::SOAP_ENVELOPE].localName;
     out << STRLIT(":Envelope>\n");
 }
 
 void SoapWriter::_appendSoapBodyStart(Buffer& out)
 {
     out << STRLIT("<");
-    out << supportedSoapNamespaces[SOAP_NST_SOAP_ENVELOPE].localName;
+    out << SoapNamespaces::supportedNamespaces[
+        SoapNamespaces::SOAP_ENVELOPE].localName;
     out << STRLIT(":Body>\n");
 }
 
 void SoapWriter::_appendSoapBodyEnd(Buffer& out)
 {
     out << STRLIT("</");
-    out << supportedSoapNamespaces[SOAP_NST_SOAP_ENVELOPE].localName;
+    out << SoapNamespaces::supportedNamespaces[
+        SoapNamespaces::SOAP_ENVELOPE].localName;
     out << STRLIT(":Body>\n");
 }
 
@@ -212,14 +247,61 @@ void SoapWriter::_appendSoapHeader(
 {
     // Header start tag
     out << STRLIT("<");
-    out << supportedSoapNamespaces[SOAP_NST_SOAP_ENVELOPE].localName;
+    out << SoapNamespaces::supportedNamespaces[
+        SoapNamespaces::SOAP_ENVELOPE].localName;
     out << STRLIT(":Header>\n");
 
-    
+    // TODO: this assumes we reply on the requestor's connection
+    // Add <wsa:To> entry
+    out << STRLIT("<");
+    out << SoapNamespaces::supportedNamespaces[
+        SoapNamespaces::WS_ADDRESSING].localName;
+    out << STRLIT(":To>\n");
+    out << SoapNamespaces::supportedNamespaces[
+        SoapNamespaces::WS_ADDRESSING].extendedName;
+    out << STRLIT("/role/anonymous");
+    out << STRLIT("</");
+    out << SoapNamespaces::supportedNamespaces[
+        SoapNamespaces::WS_ADDRESSING].localName;
+    out << STRLIT(":To>\n");
+
+    // Add <wsa:Action> entry
+    out << STRLIT("<");
+    out << SoapNamespaces::supportedNamespaces[
+        SoapNamespaces::WS_ADDRESSING].localName;
+    out << STRLIT(":Action>\n");
+    out << rspName;
+    out << STRLIT("</");
+    out << SoapNamespaces::supportedNamespaces[
+        SoapNamespaces::WS_ADDRESSING].localName;
+    out << STRLIT(":Action>\n");
+
+    // Add <wsa:MessageID> entry
+    out << STRLIT("<");
+    out << SoapNamespaces::supportedNamespaces[
+        SoapNamespaces::WS_ADDRESSING].localName;
+    out << STRLIT(":MessageID>\n");
+    out << SoapUtils::getMessageId();
+    out << STRLIT("</");
+    out << SoapNamespaces::supportedNamespaces[
+        SoapNamespaces::WS_ADDRESSING].localName;
+    out << STRLIT(":MessageID>\n");
+
+    // Add <wsa:RelatesTo> entry
+    out << STRLIT("<");
+    out << SoapNamespaces::supportedNamespaces[
+        SoapNamespaces::WS_ADDRESSING].localName;
+    out << STRLIT(":RelatesTo>\n");
+    out << messageId;
+    out << STRLIT("</");
+    out << SoapNamespaces::supportedNamespaces[
+        SoapNamespaces::WS_ADDRESSING].localName;
+    out << STRLIT(":RelatesTo>\n");
 
     // Header end tag
     out << STRLIT("</");
-    out << supportedSoapNamespaces[SOAP_NST_SOAP_ENVELOPE].localName;
+    out << SoapNamespaces::supportedNamespaces[
+        SoapNamespaces::SOAP_ENVELOPE].localName;
     out << STRLIT(":Header>\n");
 }
 

@@ -326,7 +326,8 @@ void WSManOperationResponseEncoder::_encodeGetInstanceResponse(
         SoapWriter::appendInstanceElement(body, response->cimInstance);
     sendResponse(
         response, 
-        SoapReader::getSoapActionName(SOAP_NST_WS_TRANSFER, "GetResponse"), 
+        SoapUtils::getSoapActionName(
+            SoapNamespaces::WS_TRANSFER, "GetResponse"), 
         &body);
 }
 
@@ -334,7 +335,7 @@ void WSManOperationResponseEncoder::_encodeGetInstanceResponse(
 /************************************************/
 /************************************************/
 /************************************************/
-#if 0
+#if 1
 void WSManOperationResponseEncoder::_encodeCreateInstanceResponse(
     CIMCreateInstanceResponseMessage* response)
 {

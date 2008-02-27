@@ -58,6 +58,7 @@
 #include <Pegasus/Common/AcceptLanguageList.h>
 #include <Pegasus/Common/Buffer.h>
 #include <Pegasus/Common/StrLit.h>
+#include <Pegasus/Common/SoapUtils.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -88,6 +89,14 @@ public:
         Buffer& out,
         const CIMConstInstance& instance);
 
+    static void appendPropertyElement(
+        Buffer& out,
+        const CIMConstProperty& property);
+
+    static void appendQualifierElement(
+        Buffer& out,
+        const CIMConstQualifier& qualifier);
+
 private:
 
     SoapWriter() { }
@@ -98,6 +107,11 @@ private:
         HttpMethod httpMethod, 
         const ContentLanguageList& contentLanguages,
         Uint32 contentLength);
+
+    static void _appendStartTag(
+        Buffer& out, SoapNamespaces::Type nsType, StrLit tag);
+    static void _appendEndTag(
+        Buffer& out, SoapNamespaces::Type nsType, StrLit tag);
 
     static void _appendSoapEnvelopeStart(Buffer& out);
     static void _appendSoapEnvelopeEnd(Buffer& out);

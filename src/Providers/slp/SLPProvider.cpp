@@ -524,7 +524,9 @@ Uint16 _getPropertyValueUint16(
         output = defaultValue;
     return(output);
 }
-/** Set the value of a property defined by property name in 
+
+/**
+    Set the value of a property defined by property name in 
     the instance provided.
     Sets a String into the value field unless the property name cannot be found.
     If the property cannot be found, it simply returns.
@@ -532,11 +534,10 @@ Uint16 _getPropertyValueUint16(
     @param instance CIMInstance in which to set property value
     @param propertyName CIMName of property in which value will be set.
     @param value String value to set into property
-
 */
 void _setPropertyValue(
     CIMInstance& instance, 
-    const CIMName propertyName, 
+    const CIMName& propertyName, 
     const String& value)
 {
     Uint32 pos;

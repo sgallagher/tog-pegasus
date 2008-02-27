@@ -80,16 +80,15 @@ public:
         _microseconds = microseconds;
     }
 
-    void fromMilliseconds(Uint64 milliseconds)
+    void fromMilliseconds(Uint32 milliseconds)
     {
-        _seconds = Uint32(milliseconds / 1000);
-        _microseconds = Uint32(milliseconds % 1000) * 1000;
+        _seconds = milliseconds / 1000;
+        _microseconds = (milliseconds % 1000) * 1000;
     }
 
-    Uint64 toMilliseconds() const
+    Uint32 toMilliseconds() const
     {
-        return Uint64(_seconds) * Uint64(1000) +
-            Uint64(_microseconds) / Uint64(1000);
+        return _seconds * 1000 + _microseconds / 1000;
     }
 
     static TimeValue getCurrentTime()

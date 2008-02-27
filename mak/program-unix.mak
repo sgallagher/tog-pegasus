@@ -141,9 +141,6 @@ ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
        endif
       endif
      endif
-
-	$(TOUCH) $(FULL_PROGRAM)
-	@ $(ECHO)
 else
 	$(LINK_WRAPPER) $(CXX) $(FLAGS) $(EXTRA_LINK_FLAGS) $(EXE_OUTPUT) $(OBJECTS) $(FULL_LIBRARIES) $(SYS_LIBS) $(EXTRA_LIBRARIES)
 endif

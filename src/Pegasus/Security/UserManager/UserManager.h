@@ -121,7 +121,7 @@ public:
     */
     void addUser(
         const String& userName,
-        const String& passWord);
+        const String& password);
 
     /**
         Modify user's password.

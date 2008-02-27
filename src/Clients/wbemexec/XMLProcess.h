@@ -42,22 +42,17 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-  
     XMLProcess provides static methods for processing an XML request tree or 
     subtree structure, in accordance with Specifications for CIM Operations 
     over HTTP, Version 1.0.  These methods are used by the WbemExecCommand 
     class to encapsulate the XML request in an HTTP M-POST or POST request
     message.
-  
-    @author  Hewlett-Packard Company
-  
  */
 class XMLProcess 
 {
 public:
 
     /**
-      
         Encapsulates the XML request in an HTTP M-POST or POST request message.
         Generates the appropriate HTTP extension headers corresponding to the 
         XML request, in accordance with Specifications for CIM Operations over 
@@ -82,10 +77,6 @@ public:
                                      generated for an M-POST request 
         @param   useHTTP11           Boolean indicating that headers should be 
                                      generated for an HTTP/1.1 request 
-        @param   clientAuthenticator Authenticator object used to generate
-                                     authentication headers
-        @param   useAuthentication   Boolean indicating that an authentication
-                                     header should be added to the request
         @param   content             Buffer containing XML request
         @param   httpHeaders         Buffer returning the HTTP headers
       
@@ -100,15 +91,15 @@ public:
                                         method request
         @exception  XmlException        if the XML input is invalid
         @exception  Exception           internal error 
-      
     */
-    static Buffer encapsulate (XmlParser& parser, 
-                                      const String& hostName,
-                                      Boolean useMPost,
-                                      Boolean useHTTP11,
-                                      Buffer& content,
-                                      Buffer& httpHeaders) 
-    throw (XmlValidationError, XmlSemanticError, WbemExecException,
+    static Buffer encapsulate(
+        XmlParser& parser, 
+        const String& hostName,
+        Boolean useMPost,
+        Boolean useHTTP11,
+        Buffer& content,
+        Buffer& httpHeaders) 
+        throw (XmlValidationError, XmlSemanticError, WbemExecException,
                XmlException, Exception);
 };
 

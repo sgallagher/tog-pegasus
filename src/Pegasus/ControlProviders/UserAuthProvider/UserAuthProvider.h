@@ -130,26 +130,26 @@ public:
 
     @param  context
     @param  instanceReference
-    @param  CIMInstance
+    @param  myInstance
     @param  handler
     */
     virtual void createInstance(
-    const OperationContext & context,
-    const CIMObjectPath & instanceReference,
+        const OperationContext& context,
+        const CIMObjectPath& instanceReference,
         const CIMInstance& myInstance,
-    ObjectPathResponseHandler & handler);
+        ObjectPathResponseHandler & handler);
 
     /**
     Deletes the specified instance.
 
     @param  context
-    @param  InstanceName
+    @param  myInstance
     @param  handler
     */
     virtual void deleteInstance(
-    const OperationContext & context,
+        const OperationContext& context,
         const CIMObjectPath& myInstance,
-    ResponseHandler & handler);
+        ResponseHandler& handler);
 
 
     /**
@@ -158,7 +158,11 @@ public:
     @param context specifies security and locale information relevant for
                    the lifetime of this operation.
     @param instanceReference the fully qualified object path of the instance.
-    @param modifiedInstance  the modified instance.
+    @param includeQualifiers Indicates whether the qualifiers should be
+        modified as specified in modifiedIns.
+    @param propertyList If not null, only the properties in this list should
+        be modified in the instance.
+    @param modifiedIns the modified instance.
     @param handler enables providers to asynchronously return the results.
     */
     virtual void modifyInstance(
@@ -175,7 +179,10 @@ public:
     @param context specifies security and locale information relevant for
                    the lifetime of this operation.
     @param ref the fully qualified object path of the instance.
-    @param flag specifies additional details regarding the operation.
+    @param includeQualifiers specifies whether qualifiers should be included
+        inthe instances.
+    @param includeClassOrigin specifies whether class origin information
+        should be included inthe instances.
     @param propertyList list containing the properties.
     @param handler enables providers to asynchronously return the results.
     */

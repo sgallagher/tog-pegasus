@@ -92,7 +92,7 @@ public:
         line number of the CIMException originator.
         @param traceComponent  component being traced
         @param level           trace level of the trace message
-        @param CIMException    the CIMException to be traced.
+        @param cimException    the CIMException to be traced.
      */
     static void traceCIMException(
         const Uint32 traceComponent,

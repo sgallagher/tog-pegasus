@@ -79,7 +79,6 @@ public:
     virtual ~SchemaSpecialProcessModule(){};
 
     /**
-
         Perform special processing on a CIMQualifier. This includes verifying 
         whether the qualifier is impacted. If yes, it must be appropriately 
         updated.
@@ -90,14 +89,12 @@ public:
          @param       outputQual      updated qualifier. 
 
          @return      true            if the qualifier should be created.
-
                       false           if the framework should  
                                       ignore the qualifier. 
-
-
     */
-    virtual Boolean processQualifier (CIMQualifierDecl& inputQual, 
-                                      CIMQualifierDecl& outQual) = 0;
+    virtual Boolean processQualifier(
+        CIMQualifierDecl& inputQual, 
+        CIMQualifierDecl& outputQual) = 0;
 
     /**
 

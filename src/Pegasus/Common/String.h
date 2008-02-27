@@ -150,13 +150,14 @@ public:
     */
     String(const char* str);
 
-    /** Initialize from the first <TT>n</TT> characters of a plain C-String:
-    @param str Specifies the name of the String instance.
-    @param u Specifies the Uint32 size.
-    API supports UTF8
-    @exception NullPointer Thrown if str is NULL.
-    @exception bad_alloc Thrown if there is insufficient memory.
-    @exception Exception Thrown if str is invalid UTF8
+    /** Initialize from the first <TT>n</TT> characters of a plain C-String in
+        UTF-8 format.
+        @param str Specifies the name of the String instance.
+        @param n A Uint32 specifying the length of the str parameter.
+        @exception NullPointer If str is NULL.
+        @exception bad_alloc If there is insufficient memory to construct the
+            String object.
+        @exception Exception If str contains an invalid UTF-8 encoding.
     */
     String(const char* str, Uint32 n);
 
@@ -391,12 +392,13 @@ public:
     */
     Uint32 find(Char16 c) const;
 
-    /** Find the index of the first occurence of the character c.
-    If the character is not found, PEG_NOT_FOUND is returned.
-    Searching begins from the specified index.
-    @param c Char to be found in the String.
-    @return Position of the character in the string or PEG_NOT_FOUND if the
-    character is not found.
+    /**
+        Find the index of the first occurrence of the character c beginning
+        with the specified index.
+        @param index An integer index at which to start the search.
+        @param c Char to be found in the String.
+        @return Position of the character in the string or PEG_NOT_FOUND if the
+            character is not found.
     */
     Uint32 find(Uint32 index, Char16 c) const;
 
@@ -460,28 +462,30 @@ public:
     */
     static int compareNoCase(const String& s1, const String& s2);
 
-    /** Compare two String objects for equality.
-    @param s1 First <TT>String</TT> for comparison.
-    @param s2 Second <TT>String</TT> for comparison.
+    /**
+        Compare two String objects for equality.
+        @param s1 First <TT>String</TT> for comparison.
+        @param s2 Second <TT>String</TT> for comparison.
 
-    @return true If the two strings are equal; otherwise, false. For example,
-    <pre>
-        String s1 = "Hello World";
-        String s2 = s1;
-        String s3(s2);
-        assert(String::equal(s1, s3));
-    </pre>
+        @return true if the two strings are equal, false otherwise. For example,
+        <pre>
+            String s1 = "Hello World";
+            String s2 = s1;
+            String s3(s2);
+            assert(String::equal(s1, s3));
+        </pre>
     */
-    static Boolean equal(const String& str1, const String& str2);
+    static Boolean equal(const String& s1, const String& s2);
 
-    /** Compares two strings and returns true if they
-    are equal indepedent of case of the characters.
-    @param str1 First String parameter.
-    @param str2 Second String parameter.
-    @return true If strings are equal independent of case, flase
-        otherwise.
+    /**
+        Compares two strings and returns true if they are equal independent of
+        the case of the characters.
+        @param s1 First String parameter.
+        @param s2 Second String parameter.
+        @return true if the strings are equal independent of case, false
+            otherwise.
     */
-    static Boolean equalNoCase(const String& str1, const String& str2);
+    static Boolean equalNoCase(const String& s1, const String& s2);
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 

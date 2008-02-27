@@ -234,6 +234,8 @@ public:
         set the current qualifier to that definition.  The function changes
         the current flavor based on the characteristics of the inheritance.
 
+        @param theQualifier      The CIMQualifier object for which to resolve
+                                 the flavor.
         @param inheritedFlavor   The flavor inherited from higher level
         @param inherited         True if inherited from definition
                                  False if this is definition that inherits from

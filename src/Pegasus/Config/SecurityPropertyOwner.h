@@ -73,7 +73,7 @@ public:
     /**
         Get information about the specified property.
 
-        @param propertyName   The name of the property.
+        @param name   The name of the property.
         @param propertyInfo   List to store the property info.
         @exception UnrecognizedConfigProperty  if the property is not defined.
     */

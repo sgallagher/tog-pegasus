@@ -42,15 +42,6 @@ PEGASUS_NAMESPACE_BEGIN
 /**
     This class extends then CIMInstanceProvider class enabling query support.
 
-    <p>In addition to
-    functions inherited from the
-    {@link CIMInstanceProvider CIMInstanceProvider} interface,
-    the functions in the Instance Query Provider interface are:</p>
-
-    <p><ul>
-    <li>{@link execQuery execQuery}</li>
-    </ul></p>
-
     <p>The Instance Query Provider receives operation requests from
     clients through calls to these functions by the CIM Server. Its
     purpose is to convert these to calls to system services,
@@ -77,7 +68,6 @@ public:
     virtual ~CIMInstanceQueryProvider();
 
     /**
-        \Label{execQuery}
         Return all instances of the specified class filtered by the query.
 
         @param context contains security and locale information relevant

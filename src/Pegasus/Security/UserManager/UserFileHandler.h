@@ -156,7 +156,7 @@ public:
     */
     void addUserEntry(
         const String& userName,
-        const String& passWord);
+        const String& password);
 
     /**
         Modify user entry in file

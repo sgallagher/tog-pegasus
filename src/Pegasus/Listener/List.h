@@ -89,36 +89,30 @@ class PtrList
 {
 public:
     /**
-     * Constructs a PtrList object.
-     *
-     * @param portNumber  the specified socket port the listener will listen to
-   * @param sslContext  the specifed SSL context
+        Constructs a PtrList object.
      */
     PtrList();
     /**
-     * Destructor of a PtrList object.
+        Destructor of a PtrList object.
      */
   ~PtrList();
 
     /**
-     * Adds an element into the list
-     *
-     * @param the element to add.
+        Adds an element into the list.
+        @param element The element pointer to add.
      */
     void add(void* element);
 
     /**
-     * Removes an element from the list
-     *
-     * @param the element to remove.
+        Removes an element from the list
+        @param element The element pointer to remove.
      */
     void remove(void* element);
 
     /**
-   * Returns an iterator over the elements in this list in proper sequence.
-   *
-   * @return an iterator over the elements in this list in proper sequence.
-   */
+        Returns an iterator over the elements in this list in proper sequence.
+        @return an iterator over the elements in this list in proper sequence.
+     */
     Iterator* iterator();
 
 private:

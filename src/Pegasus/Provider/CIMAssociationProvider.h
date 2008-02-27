@@ -115,8 +115,8 @@ public:
 
         @param includeQualifiers If true, this specifies that all Qualifiers
         for each Object (including Qualifiers on the Object and on any returned
-        Properties) MUST be included as <QUALIFIER> elements in the response.
-        If false no <QUALIFIER> elements are present in each returned Object.
+        Properties) MUST be included as QUALIFIER elements in the response.
+        If false no QUALIFIER elements are present in each returned Object.
 
         @param includeClassOrigin If true, this specifies that the CLASSORIGIN
         attribute MUST be present on all appropriate elements in each returned
@@ -241,8 +241,8 @@ public:
 
         @param includeQualifiers If true, this specifies that all Qualifiers
         for each Object (including Qualifiers on the Object and on any
-        returned Properties) MUST be included as <QUALIFIER> elements in
-        the response. If false no <QUALIFIER> elements are present in each
+        returned Properties) MUST be included as QUALIFIER elements in
+        the response. If false no QUALIFIER elements are present in each
         returned Object.
 
         @param includeClassOrigin If true, this specifies that the

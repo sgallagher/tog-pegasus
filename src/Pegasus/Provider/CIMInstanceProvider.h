@@ -50,24 +50,7 @@ properties.
 
 <p>The Instance Provider is the most common provider, and
 is the provider interface used by the CIM Server to perform instance
-and property
-manipulation requests from CIM clients. Instance providers
-may be implemented for any CIM class, including <i>Association</i>
-classes.</p>
-
-<p>In addition to
-functions inherited from the
-{@link CIMProvider CIMProvider} interface,
-the functions in the Instance Provider interface are:</p>
-
-<p><ul>
-<li>{@link getInstance getInstance}</li>
-<li>{@link enumerateInstances enumerateInstances}</li>
-<li>{@link enumerateInstanceNames enumerateInstanceNames}</li>
-<li>{@link modifyInstance modifyInstance}</li>
-<li>{@link createInstance createInstance}</li>
-<li>{@link deleteInstance deleteInstance}</li>
-</ul></p>
+and property manipulation operations.</p>
 
 <p>The Instance Provider receives operation requests from
 clients through calls to these functions by the CIM Server. Its
@@ -93,24 +76,19 @@ public:
     virtual ~CIMInstanceProvider();
 
     /**
-        \Label{getInstance}
         Return a single instance.
 
-        <p><tt>getInstance</tt> is called with an
-        {@link CIMObjectPath instanceReference} specifying a CIM
-        instance to be returned. The provider should determine whether
-        the specification corresponds to a valid instance. If so, it will
-        construct a <tt>{@link CIMInstance CIMInstance}</tt>
-        and deliver this to the CIM Server via the
-        <tt>{@link ResponseHandler ResponseHandler}</tt>
+        <p><tt>getInstance</tt> is called with a CIMObjectPath
+        <tt>instanceReference</tt> specifying a CIM instance to be returned.
+        The provider should determine whether the specification corresponds to
+        a valid instance. If so, it will construct a <tt>CIMInstance</tt>
+        and deliver this to the CIM Server via the <tt>ResponseHandler</tt>
         callback. If the specified instance does not exist, this
-        function should throw an
-        <tt>{@link CIMObjectNotFoundException CIMObjectNotFoundException}.</tt>
+        function should throw a CIMObjectNotFoundException.
         </p>
 
         <p>A provider can be implemented and registered to perform
-        operations for
-        several levels of the same line of descent (e.g.,
+        operations for several levels of the same line of descent (e.g.,
         CIM_ComputerSystem and CIM_UnitaryComputerSystem). When this
         is done, care must be taken to return the same set of key
         values regardless of which class was specified in the
@@ -141,8 +119,7 @@ public:
         If the propertyList is NULL all properties are returned.  If it is
         nonNULL but empty, no properites are to be returned.
 
-        @param handler a {@link ResponseHandler ResponseHandler} object used
-        to deliver results to the CIM Server.
+        @param handler ResponseHandler object for delivery of results.
 
         @exception CIMNotSupportedException
         @exception CIMInvalidParameterException
@@ -159,18 +136,17 @@ public:
         InstanceResponseHandler& handler) = 0;
 
     /**
-        \Label{enumerateInstances}
         Return all instances of the specified class.
 
         <p>A typical implementation of this function will call the
-        <tt>{@link processing processing}</tt> function in the
-        <tt>{@link ResponseHandler handler}</tt> object, then
-        iterate over the system resources representing instances of
-        the CIM object, calling <tt>{@link deliver deliver}</tt> on
-        each iteration. It must call <tt>deliver</tt> with an
-        argument of type <tt>{@link CIMInstance CIMInstance}</tt>.
-        Finally, it will call <tt>{@link complete complete}</tt> to
-        inform the CIM Server that it has delivered all known instances.</p>
+        <tt>processing</tt> function in the <tt>ResponseHandler</tt> object,
+        then iterate over the system resources representing instances of
+        the CIM object, calling <tt>deliver</tt> on each iteration. It must
+        call <tt>deliver</tt> with an argument of type <tt>CIMInstance</tt>.
+        Finally, it will call <tt>complete</tt> to inform the CIM Server that
+        it has delivered all known instances. It is correct to call
+        <tt>complete</tt> without calling <tt>deliver</tt> if no instances
+        exist.</p>
 
         <p>A provider can be implemented and registered to perform
         operations for several levels of the same line of descent (e.g.,
@@ -178,8 +154,7 @@ public:
         is done, the provider must return instances <i>only</i>
         for the deepest class for which it is registered, since
         the CIM Server will invoke <tt>enumerateInstances</tt> for all
-        classes at and beneath that specified in the
-        {@link CIMObjectPath classReference}.</p>
+        classes at and beneath that specified in the classReference.</p>
 
         @param context specifies the client user's context for this operation,
         including the User ID.
@@ -202,19 +177,10 @@ public:
         or deepInheritance.  These are resolved in the CIM Server into the
         propertyList.
 
-        @param handler {@link ResponseHandler ResponseHandler} object for
-        delivery of results.
+        @param handler ResponseHandler object for delivery of results.
 
         @exception CIMNotSupportedException
         @exception CIMInvalidParameterException
-        @exception CIMObjectNotFoundException
-        <br>should never be thrown by this function; if
-        there are no instances to return, this function should deliver an empty
-        set of instances by calling the
-        handler's <tt>{@link processing processing} </tt> and
-        <tt>{@link complete complete}</tt> functions without calling
-        <tt>{@link deliver deliver}</tt>.
-
         @exception CIMAccessDeniedException
         @exception CIMOperationFailedException
     */
@@ -227,21 +193,19 @@ public:
         InstanceResponseHandler& handler) = 0;
 
     /**
-        \Label{enumerateInstanceNames}
         Return all instance names of a single class.
 
         <p>Like <tt>enumerateInstances</tt>, a typical implementation
-        of <tt>enumerateInstanceNames</tt> will call the
-        <tt>{@link processing processing}</tt> function in the
-        <tt>{@link ResponseHandler handler}</tt> object, then
+        of <tt>enumerateInstanceNames</tt> will call the <tt>processing</tt>
+        function in the <tt>ResponseHandler</tt> object, then
         iterate over the system resources representing instances of
-        the CIM object, calling <tt>{@link deliver deliver}</tt> on
-        each iteration. It must call {@link deliver deliver} with an
-        argument of type <tt>{@link CIMObjectPath CIMObjectPath}</tt>
-        containing the information that uniquely identifies each
-        instance.
-        Finally, it will call <tt>{@link complete complete}</tt> to
-        inform the CIM Server that it has delivered all known instances.</p>
+        the CIM object, calling <tt>deliver</tt> on each iteration. It must
+        call <tt>deliver</tt> with an argument of type <tt>CIMObjectPath</tt>
+        containing the information that uniquely identifies each instance.
+        Finally, it will call <tt>complete</tt> to inform the CIM Server that
+        it has delivered the names of all known instances. It is correct to
+        call <tt>complete</tt> without calling <tt>deliver</tt> if no instances
+        exist.</p>
 
         <p>A provider can be implemented and registered to perform
         operations for several levels of the same line of descent (e.g.,
@@ -250,7 +214,7 @@ public:
         for the deepest class for which it is registered, since
         the CIM Server will invoke <tt>enumerateInstanceNames</tt> for all
         classes at and beneath that specified in the
-        {@link CIMObjectPath classReference}.</p>
+        classReference.</p>
 
         @param context specifies the client user's context for this operation,
         including the User ID.
@@ -258,12 +222,10 @@ public:
         @param classReference specifies the fully qualified object path to
         the class of interest.
 
-        @param handler {@link ResponseHandler ResponseHandler} object for
-        delivery of results.
+        @param handler ResponseHandler object for delivery of results.
 
         @exception CIMNotSupportedException
         @exception CIMInvalidParameterException
-        @exception CIMObjectNotFoundException
         @exception CIMAccessDeniedException
         @exception CIMOperationFailedException
     */
@@ -273,7 +235,6 @@ public:
         ObjectPathResponseHandler& handler) = 0;
 
     /**
-        \Label{modifyInstance}
         Replace the current instance specified in the
         instanceReference parameter.
 
@@ -298,8 +259,7 @@ public:
         possibly inconsistent, results.</p>
 
         <p>If the specified instance does not exist, the provider
-        should throw an {@link CIMObjectNotFoundException ObjectNotFound}
-        exception.
+        should throw an CIMObjectNotFoundException.
 
         @param context specifies the client user's context for this operation,
         including the User ID.
@@ -317,14 +277,12 @@ public:
         @param propertyList If not null, this parameter specifies the set
         of properties required to be updated in the instance. Support for
         this parameter is NOT optional.  Providers that do not support this
-        feature must throw a
-        {@link CIMNotSupportedException CIMNotSupportedException} exception.
+        feature must throw a CIMNotSupportedException.
         NOTE: The provider does NOT receive the client filtering parameters
         localOnly or deepInheritance.  These are resolved in the CIMOM into
         the propertyList.
 
-        @param handler {@link ResponseHandler ResponseHandler} object for
-        delivery of results.
+        @param handler ResponseHandler} object for delivery of results.
 
         @exception CIMNotSupportedException
         @exception CIMInvalidParameterException
@@ -341,7 +299,6 @@ public:
         ResponseHandler& handler) = 0;
 
     /**
-        \Label{createInstance}
         Create a new instance.
 
         <p>Create a new instance of the specified class as specified
@@ -358,14 +315,13 @@ public:
 
         @param instanceObject contains the partial or complete instance to
         create.  If a key property is null, the provider <em>must</em> supply
-        a valid value for the property or throw a
-        {@link CIMInvalidParameterException CIMInvalidParameterException}.
+        a valid value for the property or throw a CIMInvalidParameterException.
         If any property value is invalid, the provider should throw a
-        {@link CIMInvalidParameterException CIMInvalidParameterException}.
+        CIMInvalidParameterException.
 
-        @param handler {@link ResponseHandler ResponseHandler} object for
-        delivery of results.  If the operation is successful, the provider must
-        deliver the complete instance name of the created instance.
+        @param handler ResponseHandler object for delivery of results.  If the
+        operation is successful, the provider must deliver the complete
+        instance name of the created instance.
 
         @exception CIMNotSupportedException
         @exception CIMInvalidParameterException
@@ -380,7 +336,6 @@ public:
         ObjectPathResponseHandler& handler) = 0;
 
     /**
-        \Label{deleteInstance}
         Delete the instance specified by the instanceReference parameter.
 
         @param context specifies the client user's context for this operation,
@@ -388,11 +343,9 @@ public:
 
         @param instanceReference specifies the fully qualified object
         path of the instance to delete. If the specified object does
-        not exist, the provider should throw an
-        {@link CIMObjectNotFoundException ObjectNotFound} exception.
+        not exist, the provider should throw a CIMObjectNotFoundException.
 
-        @param handler {@link ResponseHandler ResponseHandler} object for
-        delivery of results.
+        @param handler ResponseHandler object for delivery of results.
 
         @exception CIMNotSupportedException
         @exception CIMInvalidParameterException

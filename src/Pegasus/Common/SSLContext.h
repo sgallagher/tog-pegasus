@@ -385,7 +385,7 @@ public:
         to be used by the CIMServer or CIMClient.
         @param trustStore file path of the trust store.
         @param certPath  file path of the server certificate.
-        @param KeyPath  file path of the private key.
+        @param keyPath  file path of the private key.
         @param verifyCert  function pointer to a certificate verification
         call back function.  A null pointer indicates that no callback is
         requested for certificate verification.

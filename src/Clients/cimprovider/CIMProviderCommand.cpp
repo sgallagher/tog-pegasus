@@ -564,7 +564,7 @@ CIMProviderCommand::CIMProviderCommand()
     usage.append("                   --").append(LONG_HELP).append("\n");
     usage.append("                   --").append(LONG_VERSION).append("\n");
 
-    usage.append("Options : \n");
+    usage.append("Options:\n");
     usage.append("    -d         - "
         "Disable the specified CIM provider module\n");
     usage.append("    -e         - "
@@ -577,7 +577,10 @@ CIMProviderCommand::CIMProviderCommand()
     usage.append("    -p         - Specify the provider for the operation\n");
 
     usage.append("    -r         - "
-        "Remove specified provider module and its contained providers\n");
+        "Remove the registration for a provider (if specified)\n"
+        "                 or for the specified provider module and all the "
+            "providers\n"
+        "                 it contains\n");
     usage.append("    -s         - "
         "Display the status of registered provider modules\n");
     usage.append("    --version  - Display CIM Server version number\n");

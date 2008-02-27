@@ -43,7 +43,6 @@
 #include <Pegasus/Common/Exception.h>
 #include "ArrayIterator.h"
 #include "HostAddress.h"
-#include <errno.h>
 
 PEGASUS_USING_STD;
 
@@ -495,6 +494,8 @@ void Monitor::run(Uint32 milliseconds)
 #else
     int events = select(maxSocketCurrentPass, &fdread, NULL, NULL, &tv);
 #endif
+    int selectErrno = getSocketError();
+
     _entriesMutex.lock();
 
     struct timeval timeNow;
@@ -508,13 +509,13 @@ void Monitor::run(Uint32 milliseconds)
     if (events == PEGASUS_SOCKET_ERROR)
     {
         PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
-            "Monitor::run - errorno = %d has occurred on select.", errno));
+            "Monitor::run - select() returned error %d.", selectErrno));
         // The EBADF error indicates that one or more or the file
         // descriptions was not valid. This could indicate that
         // the entries structure has been corrupted or that
         // we have a synchronization error.
 
-        PEGASUS_ASSERT(errno != EBADF);
+        PEGASUS_ASSERT(selectErrno != EBADF);
     }
     else if (events)
     {

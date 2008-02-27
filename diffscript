@@ -1,3 +1,21 @@
+#
+# diffscript
+#
+# This script is used to compare the contents of repository directory trees.
+# It is used by the Testcimmof Makefile which builds one copy of the repository
+# with cimmofl and another with cimmof.  The two repositories are expected to
+# have the same contents.
+#
+# Usage:  diffscript repository-dir repository-subdir
+#
+# The repository-dir argument is the directory containing the two repositories
+# to compare.  They are expected to be named "repository" and "repository.old".
+# the repository-subdir is a specific subdirectory to compare within the
+# repositories.  The net effect is a comparison of these two directories:
+#
+#     <repository-dir>/repository/<repository-subdir>
+#     <repository-dir>/repository.old/<repository-subdir>
+
 echo "Comparing Repository files..."
 cd $1/repository/$2
 rm -f repository.log

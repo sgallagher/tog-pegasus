@@ -3291,6 +3291,7 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
           CMReturnData (rslt, (CMPIValue *) & dateTime, CMPI_dateTime);
           CMReturnDone (rslt);
         }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     else if(strncmp("processEmbeddedInstance", methodName,
       strlen ("processEmbeddedInstance"))== 0)
     {
@@ -3319,6 +3320,67 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
         CMReturnDone (rslt);
         paramInst->ft->release(paramInst);
     }
+    else if(strncmp("processArrayEmbeddedInstance", methodName,
+        strlen ("processArrayEmbeddedInstance"))== 0)
+    {
+        CMPIData data1, data2, data3;
+        CMPIInstance *inst1, *inst2, *inst3;
+        CMPIArray *outArray = CMNewArray (_broker, 3, CMPI_instance, NULL);
+        PROV_LOG("++++ Creating instance for processArryEmbeddedInstance");
+        instance = _createInstance();
+        PROV_LOG("++++ Getting inputInstance arg");
+        data = CMGetArg(in, "inputInstances", &rc);
+        PROV_LOG("++++ (%s)", strCMPIStatus (rc));
+
+        PROV_LOG("++++ Getting Array elements.");
+        data1 = CMGetArrayElementAt(data.value.array,0,&rc);
+        PROV_LOG("++++ 1 (%s)", strCMPIStatus (rc));
+        data2 = CMGetArrayElementAt(data.value.array,1,&rc);
+        PROV_LOG("++++ 2 (%s)", strCMPIStatus (rc));
+        data3 = CMGetArrayElementAt(data.value.array,2,&rc);
+        PROV_LOG("++++ 3 (%s)", strCMPIStatus (rc));
+        PROV_LOG("++++ Cloning input arg array elements");
+        inst1 = data1.value.inst->ft->clone(
+          data1.value.inst, &rc);
+        PROV_LOG("++++ 1 (%s)", strCMPIStatus (rc));
+        inst2 = data2.value.inst->ft->clone(
+          data2.value.inst, &rc);
+        PROV_LOG("++++ 2 (%s)", strCMPIStatus (rc));
+        inst3 = data3.value.inst->ft->clone(
+          data3.value.inst, &rc);
+        PROV_LOG("++++ 3 (%s)", strCMPIStatus (rc));
+        PROV_LOG("++++ Creating output  arg array elements");
+        rc = CMSetArrayElementAt(outArray, 0,&inst1, CMPI_instance);
+        PROV_LOG("++++ 1 (%s)", strCMPIStatus (rc));
+        rc = CMSetArrayElementAt(outArray, 1, &inst2, CMPI_instance);
+        PROV_LOG("++++ 2 (%s)", strCMPIStatus (rc));
+        rc = CMSetArrayElementAt(outArray, 2, &inst3, CMPI_instance);
+        PROV_LOG("++++ 3 (%s)", strCMPIStatus (rc));
+
+        PROV_LOG("++++ Setting outputInstance arg");
+        rc = CMAddArg (out, "outputInstances",
+          (CMPIValue *) &outArray, CMPI_instanceA);
+        PROV_LOG("++++ (%s)", strCMPIStatus (rc));
+
+        PROV_LOG("++++ Setting outputObject arg");
+        rc = CMAddArg (out, "outputObjects",
+          (CMPIValue *) &outArray, CMPI_instanceA);
+        PROV_LOG("++++ (%s)", strCMPIStatus (rc));
+
+        PROV_LOG(
+            "++++ Calling CMReturnData on processArrayEmbeddedInstance"
+            " operation");
+        CMReturnData (rslt, (CMPIValue *) &instance, CMPI_instance);
+
+        PROV_LOG(
+            "++++ Calling CMReturnDone on processArrayEmbeddedInstance"
+            " operation");
+        CMReturnDone (rslt);
+        inst1->ft->release(inst1);
+        inst2->ft->release(inst2);
+        inst3->ft->release(inst3);
+    }
+#endif
     else if (
         strncmp("testArrayTypes", methodName, strlen ("testArrayTypes"))== 0)
     {

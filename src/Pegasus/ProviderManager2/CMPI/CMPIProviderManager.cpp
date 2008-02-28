@@ -2124,10 +2124,6 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
                 // be changed.
                 if (paramValue.getType() == CIMTYPE_OBJECT)
                 {
-                    CIMObject paramObject;
-                    paramValue.get(paramObject);
-                    CIMInstance paramInst(paramObject);
-                    resolveEmbeddedInstanceTypes(&handler, paramInst);
                     String currentParamName(currentParam.getParameterName());
                     Uint32 paramIndex = methodDef.findParameter(
                         CIMName(currentParamName));
@@ -2150,13 +2146,38 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
                         if (paramDef.findQualifier(CIMName("EmbeddedInstance"))
                             != PEG_NOT_FOUND)
                         {
-                            currentParam = CIMParamValue(currentParamName,
-                                CIMValue(paramInst));
+                            if (paramValue.isArray())
+                            {  
+                                Array<CIMInstance> paramInstArr;
+                                Array<CIMObject> paramObjectArr;
+                                paramValue.get(paramObjectArr);
+                                for (Uint32 i = 0 ; 
+                                    i < paramObjectArr.size() ; ++i)
+                                {
+                                    paramInstArr.append(
+                                        CIMInstance(paramObjectArr[i]));
+                                    // resolve each embedded instance.
+                                    resolveEmbeddedInstanceTypes(
+                                        &handler, paramInstArr[i]);
+                                }
+                                currentParam = CIMParamValue(currentParamName,
+                                    CIMValue(paramInstArr));
+                            }
+                            else
+                            {
+                                CIMObject paramObject;
+                                paramValue.get(paramObject);
+                                CIMInstance paramInst(paramObject);
+                                resolveEmbeddedInstanceTypes(&handler,
+                                    paramInst);
+                                currentParam = CIMParamValue(currentParamName,
+                                    CIMValue(paramInst));
+                            }
                         }
                         else
                         {
                             currentParam = CIMParamValue(currentParamName,
-                                CIMValue(paramObject));
+                                paramValue);
                         }
 
                         handler.deliverParamValue(currentParam);

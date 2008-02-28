@@ -152,7 +152,7 @@ void WSManOperationResponseEncoder::sendResponse(
 
             // uri encode the error (for the http header)
             String msg = TraceableCIMException(cimException).getDescription();
-            String uriEncodedMsg = XmlWriter::encodeURICharacters(msg);
+            String uriEncodedMsg = XmlUtils::encodeURICharacters(msg);
             CIMException cimExceptionUri(
                 cimException.getCode(), uriEncodedMsg);
             cimExceptionUri.setContentLanguages(

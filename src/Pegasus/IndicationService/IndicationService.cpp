@@ -2112,7 +2112,7 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
             }
             catch (Exception& e)
             {
-                PEG_TRACE ((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+                PEG_TRACE ((TRC_DISCARDED_DATA, Tracer::LEVEL2,
                     "Exception caught in attempting to process indication "
                         "for the subscription %s: %s",
                         (const char *) subscriptions[i].getPath ().toString().

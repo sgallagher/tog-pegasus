@@ -2125,195 +2125,227 @@ void IndicationService::_handleProcessIndicationRequest(const Message* message)
             (const char*)(request->nameSpace.getString().getCString())));
         for (Uint32 i = 0; i < matchedSubscriptions.size(); i++)
         {
-            match = true;
-
-            //
-            // copy the indication, format it based on the subscription,
-            // and send the formatted indication to the consumer
-            //
-            CIMInstance formattedIndication = indication.clone();
-
-            //
-            //  Check for expired subscription
-            //
             try
             {
-                if (_isExpired(matchedSubscriptions[i]))
+                match = true;
+
+                //
+                // copy the indication, format it based on the subscription,
+                // and send the formatted indication to the consumer
+                //
+                CIMInstance formattedIndication = indication.clone();
+
+                //
+                //  Check for expired subscription
+                //
+                try
                 {
-                    CIMObjectPath path = matchedSubscriptions[i].getPath ();
-                    _deleteExpiredSubscription (path);
-                    // If the subscription is expired, delete and continue
-                    // to the next one.
-                    PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
-                        "%s Indication Subscription expired",
-                        (const char*)(indication.
-                        getClassName().getString().getCString())));
-                   continue;
+                    if (_isExpired(matchedSubscriptions[i]))
+                    {
+                        CIMObjectPath path = matchedSubscriptions[i].getPath ();
+                        _deleteExpiredSubscription (path);
+                        // If the subscription is expired, delete and continue
+                        // to the next one.
+                        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+                            "%s Indication Subscription expired",
+                            (const char*)(indication.
+                            getClassName().getString().getCString())));
+                       continue;
+                    }
                 }
-            }
-            catch (DateTimeOutOfRangeException&)
-            {
-                //
-                //  This instance from the repository is invalid
-                //  Skip it
-                //
-                continue;
-            }
+                catch (DateTimeOutOfRangeException&)
+                {
+                    //
+                    //  This instance from the repository is invalid
+                    //  Skip it
+                    //
+                    continue;
+                }
 
-            String queryLanguage;
-            CIMNamespaceName sourceNamespace;
-            String filterName;
-            _subscriptionRepository->getFilterProperties (
-                matchedSubscriptions[i],
-                filterQuery,
-                sourceNamespace,
-                queryLanguage,
-                filterName);
+                String queryLanguage;
+                CIMNamespaceName sourceNamespace;
+                String filterName;
+                _subscriptionRepository->getFilterProperties (
+                    matchedSubscriptions[i],
+                    filterQuery,
+                    sourceNamespace,
+                    queryLanguage,
+                    filterName);
 
-            QueryExpression queryExpr = _getQueryExpression(
-                filterQuery, queryLanguage, request->nameSpace);
+                QueryExpression queryExpr = _getQueryExpression(
+                    filterQuery, queryLanguage, request->nameSpace);
 
 #ifdef PEGASUS_INDICATION_PERFINST
             stopWatch.reset();
             stopWatch.start();
 #endif
-            if (!queryExpr.evaluate(indication))
-            {
-                match = false;
-            }
+                if (!queryExpr.evaluate(indication))
+                {
+                    match = false;
+                }
 #ifdef PEGASUS_INDICATION_PERFINST
             stopWatch.stop();
 
-            PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
-                           "%s: %.3f seconds",
-                           "Evaluate WHERE clause", stopWatch.getElapsed()));
+                PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+                               "%s: %.3f seconds",
+                               "Evaluate WHERE clause", 
+                               stopWatch.getElapsed()));
 #endif
 
-            if (match)
-            {
-                PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
-                    "%s Indication %s satisfies filter %s:%s query expression"
-                    "  \"%s\"",
-                    (const char*)(indication.getClassName().getString().
-                    getCString()),
-                    (const char*)(request->messageId.getCString()),
-                    (const char*)(sourceNamespace.getString().getCString()),
-                    (const char*)(filterName.getCString()),
-                    (const char*)(filterQuery.getCString())));
-                //
-                // Format the indication
-                //
-                // This is a two part process:
-                //
-                // 1) Call QueryExpression::applyProjection to remove
-                // properties not listed in the SELECT clause.  Note: for CQL,
-                // this will handle properties on embedded objects.
-                //
-                // QueryExpression::applyProjection throws an exception if
-                // the indication is missing a required property in the SELECT
-                // clause.  Although _getMatchingSubscriptions checked for
-                // the indication missing required properties, it would have
-                // not detected missing required embedded object properties for
-                // CQL.  So, we need to catch the missing property exception
-                // here.
-                //
-                // 2) Remove any properties that may be left on the indication
-                // that are not in the indication class.  These are properties
-                // added by the provider incorrectly.  It is possible that
-                // these properties will remain after applyProjection if the
-                // SELECT clause happens to have a property name not on the
-                // indication class, and the indication has that same property.
-                // Note: If SELECT includes all properties ("*"), it's still
-                // necessary to check, in case the provider added properties
-                // not in the indication class.
-                //
-                try
+                if (match)
                 {
-                    queryExpr.applyProjection(formattedIndication, true);
-                }
-                catch (QueryRuntimePropertyException& re)
-                {
-                    // The indication was missing a required property.
-                    // The call to _getMatchingSubscriptions above checked for
-                    // missing required properties on the base indication
-                    // object so this can only happen for CQL when an embedded
-                    // object property is missing.
+                    PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+                        "%s Indication %s satisfies filter %s:%s query "
+                            "expression \"%s\"",
+                        (const char*)(indication.getClassName().getString().
+                            getCString()),
+                        (const char*)(request->messageId.getCString()),
+                        (const char*)(sourceNamespace.getString().getCString()),
+                        (const char*)(filterName.getCString()),
+                        (const char*)(filterQuery.getCString())));
                     //
-                    // Since this is the same as the indication not matching
-                    // the subscription, just swallow the exception,
-                    // and skip this subscription.
-                    PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4,
-                        "Apply Projection error: " + re.getMessage());
-                    continue;
-                }
-
-                // Remove any remaining properties not in the indication class
-                // from the indication.
-                //
-                for (Uint32 j = 0; j < propertyNames.size(); j++)
-                {
-                    Uint32 rmIndex =
-                        formattedIndication.findProperty(propertyNames[j]);
-                    if (rmIndex != PEG_NOT_FOUND &&
-                        !ContainsCIMName(
-                             indicationClassProperties, propertyNames[j]))
+                    // Format the indication
+                    //
+                    // This is a two part process:
+                    //
+                    // 1) Call QueryExpression::applyProjection to remove
+                    // properties not listed in the SELECT clause.  Note: for
+                    // CQL, this will handle properties on embedded objects.
+                    //
+                    // QueryExpression::applyProjection throws an exception if
+                    // the indication is missing a required property in the 
+                    // SELECT clause. Although _getMatchingSubscriptions 
+                    // checked for the indication missing required properties, 
+                    // it would have not detected missing required embedded 
+                    // object properties for CQL. So, we need to catch the 
+                    // missing property exception here.
+                    //
+                    // 2) Remove any properties that may be left on the 
+                    // indication that are not in the indication class.  These 
+                    // are properties added by the provider incorrectly.  It is
+                    // possible that these properties will remain after 
+                    // applyProjection if the SELECT clause happens to have a 
+                    // property name not on the indication class, and the 
+                    // indication has that same property.
+                    // Note: If SELECT includes all properties ("*"), it's still
+                    // necessary to check, in case the provider added properties
+                    // not in the indication class.
+                    //
+                    try
                     {
-                        formattedIndication.removeProperty(rmIndex);
+                        queryExpr.applyProjection(formattedIndication, true);
                     }
-                }
+                    catch (QueryRuntimePropertyException& re)
+                    {
+                        // The indication was missing a required property.
+                        // The call to _getMatchingSubscriptions above checked 
+                        // for missing required properties on the base 
+                        // indication object so this can only happen for CQL 
+                        // when an embedded object property is missing.
+                        //
+                        // Since this is the same as the indication not matching
+                        // the subscription, just swallow the exception,
+                        // and skip this subscription.
+                        PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+                            "Apply Projection error: " + re.getMessage());
+                        continue;
+                    }
 
-                handlerNamedInstance = _subscriptionRepository->getHandler(
-                    matchedSubscriptions[i]);
-                PEG_TRACE((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
-                    "Handler %s:%s.%s found for %s Indication %s",
-                    (const char*)(request->nameSpace.getString().getCString()),
-                    (const char*)(handlerNamedInstance.getClassName().
-                        getString().getCString()),
-                    (const char*)(handlerNamedInstance.getProperty(
-                        handlerNamedInstance.findProperty(
-                            PEGASUS_PROPERTYNAME_NAME)).getValue().toString().
-                                getCString()),
-                    (const char*)(indication.getClassName().getString().
-                        getCString()),
-                    (const char*)(request->messageId.getCString())));
+                    // Remove any remaining properties not in the indication 
+                    // class from the indication.
+                    //
+                    for (Uint32 j = 0; j < propertyNames.size(); j++)
+                    {
+                        Uint32 rmIndex =
+                            formattedIndication.findProperty(propertyNames[j]);
+                        if (rmIndex != PEG_NOT_FOUND &&
+                            !ContainsCIMName(
+                                 indicationClassProperties, propertyNames[j]))
+                        {
+                            formattedIndication.removeProperty(rmIndex);
+                        }
+                    }
+
+                    handlerNamedInstance = _subscriptionRepository->getHandler(
+                        matchedSubscriptions[i]);
+                    PEG_TRACE((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+                        "Handler %s:%s.%s found for %s Indication %s",
+                        (const char*)(request->nameSpace.getString().
+                            getCString()),
+                        (const char*)(handlerNamedInstance.getClassName().
+                            getString().getCString()),
+                        (const char*)(handlerNamedInstance.getProperty(
+                            handlerNamedInstance.findProperty(
+                                PEGASUS_PROPERTYNAME_NAME)).getValue().
+                                    toString().getCString()),
+                        (const char*)(indication.getClassName().getString().
+                            getCString()),
+                        (const char*)(request->messageId.getCString())));
 
 // l10n
 // Note: not expecting any language in the response
-                CIMRequestMessage * handler_request =
-                    new CIMHandleIndicationRequestMessage (
-                        XmlWriter::getNextMessageId (),
-                        request->nameSpace,
-                        handlerNamedInstance,
-                        formattedIndication,
-                        matchedSubscriptions[i],
-                        QueueIdStack(_handlerService, getQueueId()),
-                        String::EMPTY,
-                        String::EMPTY);
+                    CIMRequestMessage * handler_request =
+                        new CIMHandleIndicationRequestMessage (
+                            XmlWriter::getNextMessageId (),
+                            request->nameSpace,
+                            handlerNamedInstance,
+                            formattedIndication,
+                            matchedSubscriptions[i],
+                            QueueIdStack(_handlerService, getQueueId()),
+                            String::EMPTY,
+                            String::EMPTY);
 
-                handler_request->operationContext = request->operationContext;
+                    handler_request->operationContext = 
+                        request->operationContext;
 
-                AsyncOpNode* op = this->get_op();
+                    AsyncOpNode* op = this->get_op();
 
-                AsyncLegacyOperationStart *async_req =
-                    new AsyncLegacyOperationStart(
-                    op,
-                    _handlerService,
-                    handler_request,
-                    _queueId);
+                    AsyncLegacyOperationStart *async_req =
+                        new AsyncLegacyOperationStart(
+                        op,
+                        _handlerService,
+                        handler_request,
+                        _queueId);
 
-                PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4,
-                    "Sending (SendAsync) Indication to " +
-                    ((MessageQueue::lookup(_handlerService)) ?
-                    String(((MessageQueue::lookup
-                    (_handlerService))->getQueueName())) :
-                    String("BAD queue name")) +
-                    " via CIMHandleIndicationRequestMessage");
+                    PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+                        "Sending (SendAsync) Indication to " +
+                        ((MessageQueue::lookup(_handlerService)) ?
+                        String(((MessageQueue::lookup
+                        (_handlerService))->getQueueName())) :
+                        String("BAD queue name")) +
+                        " via CIMHandleIndicationRequestMessage");
 
-                SendAsync (op,
-                           _handlerService,
-                           IndicationService::_handleIndicationCallBack,
-                           this,
-                           (void *) &(matchedSubscriptions[i]));
+                    SendAsync (op,
+                               _handlerService,
+                               IndicationService::_handleIndicationCallBack,
+                               this,
+                               (void *) &(matchedSubscriptions[i]));
+                }
+            }
+            catch (Exception& e)
+            {
+                PEG_TRACE ((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    "Exception caught in attempting to process indication "
+                        "for the subscription %s: %s",
+                        (const char *) matchedSubscriptions[i].getPath ().
+                            toString().getCString(),
+                        (const char *) e.getMessage ().getCString())); 
+            }
+            catch (exception& e)
+            {
+                PEG_TRACE ((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    "Exception caught in attempting to process indication "
+                        "for the subscription %s: %s",
+                    (const char *) matchedSubscriptions[i].getPath ().
+                        toString().getCString(), e.what()));
+            }
+            catch (...)
+            {
+                PEG_TRACE ((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    "Unknown exception caught in attempting to process "
+                        "indication for the subscription %s",
+                    (const char *) matchedSubscriptions[i].getPath ().
+                        toString ().getCString()));
             }
         }
 

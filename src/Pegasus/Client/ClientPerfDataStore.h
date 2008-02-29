@@ -81,11 +81,11 @@ public:
 
     /** Sets the responsSize data member
     */
-    void setResponseSize(Uint64 size);
+    void setResponseSize(Uint32 size);
 
     /** Sets the _requestSize data member
     */
-    void setRequestSize(Uint64 size);
+    void setRequestSize(Uint32 size);
 
     /** Sets startNetworkTime data member
     */
@@ -127,9 +127,9 @@ protected:
     Boolean _serverTimeKnown;
     Boolean _errorCondition;
     Boolean _classRegistered;
-    Uint64 _serverTime;
-    Uint64 _requestSize;
-    Uint64 _responseSize;
+    Uint32 _serverTime;
+    Uint32 _requestSize;
+    Uint32 _responseSize;
     String _messID;
     TimeValue _networkEndTime;
     TimeValue _networkStartTime;

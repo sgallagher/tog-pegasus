@@ -80,12 +80,12 @@ void ClientPerfDataStore::setServerTime(Uint32 time)
     _serverTimeKnown = true;
 }
 
-void ClientPerfDataStore::setResponseSize(Uint64 size)
+void ClientPerfDataStore::setResponseSize(Uint32 size)
 {
     _responseSize = size;
 }
 
-void ClientPerfDataStore::setRequestSize(Uint64 size)
+void ClientPerfDataStore::setRequestSize(Uint32 size)
 {
     _requestSize = size;
 }
@@ -138,16 +138,16 @@ Boolean ClientPerfDataStore::checkMessageIDandType(
 String ClientPerfDataStore::toString() const
 {
     Buffer out;
-    /*XMLWriter::append(out, String(" serverTime = ");
-    XMLWriter::append(out, _serverTime);
-     << "\r\n";  */
-    out << " operation type  = " << (Uint32)_operationType << "\r\n";
-    out << " network start time is = " << _networkStartTime.toMilliseconds()
+    out << " operation type = " << (Uint32)_operationType << "\r\n";
+    out << " network start time = "
+        << CIMValue(_networkStartTime.toMilliseconds()).toString()
         << "\r\n";
-    out << " network end time = " << _networkEndTime.toMilliseconds() << "\r\n";
-    out << " numberofRequestBytes = " << (Uint32)_requestSize << "\r\n";
-    out << " number foRespoonse Bytes = " << (Uint32)_responseSize << "\r\n";
-    out << "the message ID is " << _messID << "\r\n";
+    out << " network end time = "
+        << CIMValue(_networkEndTime.toMilliseconds()).toString()
+        << "\r\n";
+    out << " number of request bytes = " << _requestSize << "\r\n";
+    out << " number of response bytes = " << _responseSize << "\r\n";
+    out << "message ID = " << _messID << "\r\n";
 
     if (_errorCondition)
     {
@@ -170,6 +170,7 @@ String ClientPerfDataStore::toString() const
     if (_serverTimeKnown)
     {
         out << "_serverTimeKnown is true" << "\r\n";
+        out << "_serverTime = " << _serverTime << "\r\n";
     }
     else
     {

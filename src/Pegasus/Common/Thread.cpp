@@ -58,9 +58,13 @@ struct StartWrapperArg
 
 extern "C" void *_start_wrapper(void *arg_)
 {
-    AutoPtr<StartWrapperArg> arg((StartWrapperArg *) arg_);
+    // Clean up dynamic memory now to prevent a leak if the thread is canceled.
+    StartWrapperArg arg;
+    arg.start = ((StartWrapperArg *) arg_)->start;
+    arg.arg = ((StartWrapperArg *) arg_)->arg;
+    delete (StartWrapperArg *) arg_;
 
-    void *return_value = (*arg->start) (arg->arg);
+    void *return_value = (*arg.start) (arg.arg);
 
     return return_value;
 }

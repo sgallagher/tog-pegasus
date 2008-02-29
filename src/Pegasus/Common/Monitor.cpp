@@ -43,6 +43,7 @@
 #include <Pegasus/Common/Exception.h>
 #include "ArrayIterator.h"
 #include "HostAddress.h"
+#include <errno.h>
 
 PEGASUS_USING_STD;
 

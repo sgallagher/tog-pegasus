@@ -211,22 +211,14 @@ void HTTPAcceptor::handleEnqueue(Message *message)
             SocketMessage* socketMessage = (SocketMessage*)message;
 
             // If this is a connection request:
+            PEGASUS_ASSERT(socketMessage->socket == _rep->socket);
 
-            if (socketMessage->socket == _rep->socket &&
-                socketMessage->events & SocketMessage::READ)
-            {
-                _acceptConnection();
-            }
-            else
-            {
-                // ATTN! this can't happen!
-                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                    "HTTPAcceptor::handleEnqueue: Invalid SOCKET_MESSAGE "
-                        "received.");
-           }
+            PEGASUS_ASSERT(socketMessage->events & SocketMessage::READ);
 
-           break;
-       }
+            _acceptConnection();
+
+            break;
+        }
 
        case CLOSE_CONNECTION_MESSAGE:
        {
@@ -253,9 +245,7 @@ void HTTPAcceptor::handleEnqueue(Message *message)
        }
 
        default:
-           // ATTN: need unexpected message error!
-           PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-               "HTTPAcceptor::handleEnqueue: Invalid MESSAGE received.");
+           PEGASUS_ASSERT(false);
            break;
     }
 
@@ -266,14 +256,6 @@ void HTTPAcceptor::handleEnqueue(Message *message)
 void HTTPAcceptor::handleEnqueue()
 {
     Message* message = dequeue();
-
-    if (!message)
-    {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "HTTPAcceptor::handleEnqueue(): No message on queue.");
-        return;
-    }
-
     handleEnqueue(message);
 }
 
@@ -283,9 +265,6 @@ void HTTPAcceptor::bind()
     {
         MessageLoaderParms parms("Common.HTTPAcceptor.ALREADY_BOUND",
             "HTTPAcceptor already bound");
-
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "HTTPAcceptor::bind: HTTPAcceptor already bound.");
         throw BindFailedException(parms);
     }
 
@@ -395,8 +374,6 @@ void HTTPAcceptor::_bind()
         _rep = 0;
         MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_CREATE_SOCKET",
             "Failed to create socket");
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "HTTPAcceptor::_bind:  createSocket() _rep->socket failed");
         throw BindFailedException(parms);
     }
 
@@ -437,8 +414,6 @@ void HTTPAcceptor::_bind()
         _rep = 0;
         MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_SET_SOCKET_OPTION",
             "Failed to set socket option");
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "HTTPAcceptor::_bind: Failed to set socket option.");
         throw BindFailedException(parms);
     }
 
@@ -455,8 +430,6 @@ void HTTPAcceptor::_bind()
 
         delete _rep;
         _rep = 0;
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "HTTPAcceptor::_bind: Failed to bind socket.");
         throw BindFailedException(parms);
     }
 
@@ -498,9 +471,6 @@ void HTTPAcceptor::_bind()
 
             delete _rep;
             _rep = 0;
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "HTTPAcceptor::_bind: Failed to set domain socket "
-                    "permissions.");
             throw BindFailedException(parms);
         }
     }
@@ -519,8 +489,6 @@ void HTTPAcceptor::_bind()
         
         delete _rep;
         _rep = 0;
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "HTTPAcceptor::_bind: Failed to bind socket(1).");
         throw BindFailedException(parms);
     }
 
@@ -537,8 +505,6 @@ void HTTPAcceptor::_bind()
         MessageLoaderParms parms(
             "Common.HTTPAcceptor.FAILED_SOLICIT_SOCKET_MESSAGES",
             "Failed to solicit socket messaeges");
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "HTTPAcceptor::_bind: Failed to solicit socket messages(2).");
         throw BindFailedException(parms);
     }
 }
@@ -574,7 +540,7 @@ void HTTPAcceptor::closeConnectionSocket()
     }
     else
     {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL2,
             "HTTPAcceptor::closeConnectionSocket failure _rep is null.");
     }
 }
@@ -692,7 +658,7 @@ void HTTPAcceptor::unbind()
     }
     else
     {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL2,
             "HTTPAcceptor::unbind failure _rep is null." );
     }
 }

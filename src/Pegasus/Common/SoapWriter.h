@@ -59,6 +59,7 @@
 #include <Pegasus/Common/Buffer.h>
 #include <Pegasus/Common/StrLit.h>
 #include <Pegasus/Common/SoapUtils.h>
+#include <Pegasus/Common/XmlUtils.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -97,6 +98,11 @@ public:
         Buffer& out,
         const CIMConstQualifier& qualifier);
 
+    static void appendValueElement(
+        Buffer& out,
+        const CIMValue& value,
+        const CIMName& name);
+
 private:
 
     SoapWriter() { }
@@ -122,6 +128,68 @@ private:
         Buffer& out, 
         const String& rspName, 
         const String& messageId);
+
+    // Helper functions for appendValueElement()
+    static void _appendValueArray(
+        Buffer& out, const CIMObjectPath* p, Uint32 size, const CIMName& name);
+    template<class T> static void _appendValueArray(
+        Buffer& out, const T* p, Uint32 size, const CIMName& name);
+    static void _appendValueReferenceElement(
+        Buffer& out,
+        const CIMObjectPath& reference,
+        Boolean putValueWrapper);
+
+    static void _appendValue(Buffer& out, Boolean x)
+    { XmlUtils::append(out, x); }
+
+    static void _appendValue(Buffer& out, Uint8 x)
+    { XmlUtils::append(out, Uint32(x)); }
+
+    static void _appendValue(Buffer& out, Sint8 x)
+    { XmlUtils::append(out, Sint32(x)); }
+
+    static void _appendValue(Buffer& out, Uint16 x)
+    { XmlUtils::append(out, Uint32(x)); }
+
+    static void _appendValue(Buffer& out, Sint16 x)
+    { XmlUtils::append(out, Sint32(x)); }
+
+    static void _appendValue(Buffer& out, Uint32 x)
+    { XmlUtils::append(out, x); }
+
+    static void _appendValue(Buffer& out, Sint32 x)
+    { XmlUtils::append(out, x); }
+
+    static void _appendValue(Buffer& out, Uint64 x)
+    { XmlUtils::append(out, x); }
+
+    static void _appendValue(Buffer& out, Sint64 x)
+    { XmlUtils::append(out, x); }
+
+    static void _appendValue(Buffer& out, Real32 x)
+    { XmlUtils::append(out, x); }
+
+    static void _appendValue(Buffer& out, Real64 x)
+    { XmlUtils::append(out, x); }
+
+    static void _appendValue(Buffer& out, const Char16& x)
+    { XmlUtils::appendSpecial(out, x); }
+
+    static void _appendValue(Buffer& out, const String& x)
+    { XmlUtils::appendSpecial(out, x); }
+
+    static void _appendValue(Buffer& out, const CIMDateTime& x)
+    { out << x.toString(); }
+
+    static void _appendValue(Buffer& out, const CIMObjectPath& x)
+    { _appendValueReferenceElement(out, x, true); }
+
+    static void _appendValue(Buffer& out, const CIMObject& x)
+    {
+        String myStr = x.toString();
+        _appendValue(out, myStr);
+    }
+    
 };
 
 PEGASUS_NAMESPACE_END

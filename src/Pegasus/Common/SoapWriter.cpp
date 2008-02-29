@@ -305,4 +305,337 @@ void SoapWriter::_appendSoapHeader(
     out << STRLIT(":Header>\n");
 }
 
+// Helper functions for appendValueElement()
+void SoapWriter::_appendValueArray(
+    Buffer& out, const CIMObjectPath* p, Uint32 size, const CIMName& name)
+{
+    // TODO: need to implement
+    while (size--)
+    {
+        _appendValue(out, *p++);
+    }
+}
+
+template<class T>
+void SoapWriter::_appendValueArray(
+    Buffer& out, const T* p, Uint32 size, const CIMName& name)
+{
+    while (size--)
+    {
+        out << STRLIT("<class:") << name << STRLIT(">");
+        _appendValue(out, *p++);
+        out << STRLIT("</class:") << name << STRLIT(">\n");
+    }
+}
+
+void SoapWriter::_appendValueReferenceElement(
+    Buffer& out,
+    const CIMObjectPath& reference,
+    Boolean putValueWrapper)
+{
+}
+
+void SoapWriter::appendValueElement(
+    Buffer& out,
+    const CIMValue& value,
+    const CIMName& name)
+{
+    if (value.isNull())
+    {
+        return;
+    }
+    if (value.isArray())
+    {
+        switch (value.getType())
+        {
+            case CIMTYPE_BOOLEAN:
+            {
+                Array<Boolean> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size(), name);
+                break;
+            }
+
+            case CIMTYPE_UINT8:
+            {
+                Array<Uint8> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size(), name);
+                break;
+            }
+
+            case CIMTYPE_SINT8:
+            {
+                Array<Sint8> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size(), name);
+                break;
+            }
+
+            case CIMTYPE_UINT16:
+            {
+                Array<Uint16> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size(), name);
+                break;
+            }
+
+            case CIMTYPE_SINT16:
+            {
+                Array<Sint16> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size(), name);
+                break;
+            }
+
+            case CIMTYPE_UINT32:
+            {
+                Array<Uint32> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size(), name);
+                break;
+            }
+
+            case CIMTYPE_SINT32:
+            {
+                Array<Sint32> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size(), name);
+                break;
+            }
+
+            case CIMTYPE_UINT64:
+            {
+                Array<Uint64> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size(), name);
+                break;
+            }
+
+            case CIMTYPE_SINT64:
+            {
+                Array<Sint64> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size(), name);
+                break;
+            }
+
+            case CIMTYPE_REAL32:
+            {
+                Array<Real32> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size(), name);
+                break;
+            }
+
+            case CIMTYPE_REAL64:
+            {
+                Array<Real64> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size(), name);
+                break;
+            }
+
+            case CIMTYPE_CHAR16:
+            {
+                Array<Char16> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size(), name);
+                break;
+            }
+
+            case CIMTYPE_STRING:
+            {
+                const String* data;
+                Uint32 size;
+                value._get(data, size);
+                _appendValueArray(out, data, size, name);
+                break;
+            }
+
+            case CIMTYPE_DATETIME:
+            {
+                Array<CIMDateTime> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size(), name);
+                break;
+            }
+
+            case CIMTYPE_REFERENCE:
+            {
+                Array<CIMObjectPath> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size(), name);
+                break;
+            }
+
+            case CIMTYPE_OBJECT:
+            {
+                Array<CIMObject> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size(), name);
+                break;
+            }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+            case CIMTYPE_INSTANCE:
+            {
+                Array<CIMInstance> a;
+                value.get(a);
+                _appendValueArray(out, a.getData(), a.size(), name);
+                break;
+            }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+            default:
+                PEGASUS_ASSERT(false);
+        }
+    }
+    else if (value.getType() == CIMTYPE_REFERENCE)
+    {
+        // Has to be separate because it uses VALUE.REFERENCE tag
+        CIMObjectPath v;
+        value.get(v);
+        _appendValue(out, v);
+    }
+    else
+    {
+        out << STRLIT("<class:") << name << STRLIT(">");
+
+        switch (value.getType())
+        {
+            case CIMTYPE_BOOLEAN:
+            {
+                Boolean v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMTYPE_UINT8:
+            {
+                Uint8 v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMTYPE_SINT8:
+            {
+                Sint8 v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMTYPE_UINT16:
+            {
+                Uint16 v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMTYPE_SINT16:
+            {
+                Sint16 v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMTYPE_UINT32:
+            {
+                Uint32 v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMTYPE_SINT32:
+            {
+                Sint32 v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMTYPE_UINT64:
+            {
+                Uint64 v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMTYPE_SINT64:
+            {
+                Sint64 v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMTYPE_REAL32:
+            {
+                Real32 v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMTYPE_REAL64:
+            {
+                Real64 v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMTYPE_CHAR16:
+            {
+                Char16 v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMTYPE_STRING:
+            {
+                String v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMTYPE_DATETIME:
+            {
+                CIMDateTime v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+
+            case CIMTYPE_OBJECT:
+            {
+                CIMObject v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+            case CIMTYPE_INSTANCE:
+            {
+                CIMInstance v;
+                value.get(v);
+                _appendValue(out, v);
+                break;
+            }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+            default:
+                PEGASUS_ASSERT(false);
+        }
+
+        out << STRLIT("</class:") << name << STRLIT(">");
+    }
+}
+
 PEGASUS_NAMESPACE_END

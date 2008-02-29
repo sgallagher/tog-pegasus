@@ -36,7 +36,6 @@
 #include "Resolver.h"
 #include "CIMQualifierDecl.h"
 #include "CIMName.h"
-#include "Indentor.h"
 #include "XmlWriter.h"
 #include "MofWriter.h"
 #include <Pegasus/Common/Tracer.h>

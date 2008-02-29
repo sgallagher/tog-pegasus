@@ -33,7 +33,6 @@
 
 #include "CIMQualifier.h"
 #include "CIMQualifierRep.h"
-#include "Indentor.h"
 #include "CIMName.h"
 #include "InternalException.h"
 #include "XmlWriter.h"

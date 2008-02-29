@@ -39,7 +39,6 @@
 #include "CIMInstance.h"
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 #include "Union.h"
-#include "Indentor.h"
 #include "XmlWriter.h"
 #include "CommonUTF.h"
 #include "CIMValueRep.h"

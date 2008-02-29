@@ -137,7 +137,6 @@ SOURCES2 = \
     HTTPConnection.cpp \
     HTTPConnector.cpp  \
     HTTPMessage.cpp \
-    Indentor.cpp \
     IndicationFormatter.cpp \
     Logger.cpp \
     Memory.cpp \

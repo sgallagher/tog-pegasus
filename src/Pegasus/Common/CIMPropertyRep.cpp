@@ -33,7 +33,6 @@
 
 #include <cstdio>
 #include "CIMPropertyRep.h"
-#include "Indentor.h"
 #include "CIMName.h"
 #include "CIMScope.h"
 #include "XmlWriter.h"

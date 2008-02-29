@@ -39,7 +39,6 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Indentor.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
@@ -91,8 +90,6 @@ public:
     static void append(Buffer& out, const char* str);
 
     static void append(Buffer& out, const String& str);
-
-    static void append(Buffer& out, const Indentor& x);
 
     static void appendSpecial(Buffer& out, const Char16& x);
 
@@ -567,10 +564,6 @@ PEGASUS_COMMON_LINKAGE Buffer& operator<<(Buffer& out, const Char16& x);
 PEGASUS_COMMON_LINKAGE Buffer& operator<<(
     Buffer& out,
     const String& x);
-
-PEGASUS_COMMON_LINKAGE Buffer& operator<<(
-    Buffer& out,
-    const Indentor& x);
 
 PEGASUS_COMMON_LINKAGE Buffer& operator<<(
     Buffer& out,

@@ -37,7 +37,6 @@
 #include "CIMScope.h"
 #include "DeclContext.h"
 #include "Resolver.h"
-#include "Indentor.h"
 #include "CIMName.h"
 #include "Constants.h"
 #include "XmlWriter.h"

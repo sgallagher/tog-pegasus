@@ -34,7 +34,6 @@
 #include <cstdio>
 #include "CIMQualifierDecl.h"
 #include "CIMQualifierDeclRep.h"
-#include "Indentor.h"
 #include "CIMName.h"
 #include "InternalException.h"
 #include "XmlWriter.h"

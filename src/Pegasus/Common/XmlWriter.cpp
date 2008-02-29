@@ -256,12 +256,6 @@ Buffer& operator<<(Buffer& out, const String& x)
     return out;
 }
 
-Buffer& operator<<(Buffer& out, const Indentor& x)
-{
-    XmlWriter::append(out, x);
-    return out;
-}
-
 Buffer& operator<<(Buffer& out, const Buffer& x)
 {
     out.append(x.getData(), x.size());
@@ -575,12 +569,6 @@ void XmlWriter::append(Buffer& out, const String& str)
             _xmlWritter_appendChar(out, c);
         }
     }
-}
-
-void XmlWriter::append(Buffer& out, const Indentor& x)
-{
-    for (Uint32 i = 0; i < 4 * x.getLevel(); i++)
-        out.append(' ');
 }
 
 void XmlWriter::appendSpecial(Buffer& out, const Char16& x)

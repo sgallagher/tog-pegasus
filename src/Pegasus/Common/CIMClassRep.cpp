@@ -34,7 +34,6 @@
 #include "CIMClassRep.h"
 #include "DeclContext.h"
 #include "Resolver.h"
-#include "Indentor.h"
 #include "CIMName.h"
 #include "CIMQualifierNames.h"
 #include "CIMScope.h"

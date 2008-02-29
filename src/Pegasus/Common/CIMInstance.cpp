@@ -34,7 +34,6 @@
 #include "CIMInstanceRep.h"
 #include "CIMInstance.h"
 #include "DeclContext.h"
-#include "Indentor.h"
 #include "CIMName.h"
 #include "XmlWriter.h"
 

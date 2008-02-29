@@ -36,7 +36,6 @@
 #include <iostream>
 #include "HashTable.h"
 #include "CIMObjectPath.h"
-#include "Indentor.h"
 #include "CIMName.h"
 #include "XmlWriter.h"
 #include "XmlReader.h"

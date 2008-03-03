@@ -4620,7 +4620,7 @@ CIM server listening on HTTPS port {0}."}
         */
         Pegasus.Common.SocketzOS_inline.WRONG_ROLE:string {"PGS12544E: ATTLS policy specifies the wrong HandshakeRole for the CIM Server HTTPS port. Communication not secured. Connection closed."}
 
-        
+
         /**
         * @note  PGS12567:
         *    Substitution {0} is a user name (a string)
@@ -4631,6 +4631,17 @@ CIM server listening on HTTPS port {0}."}
         */
         Pegasus.Common.SocketzOS_inline.NOREAD_CIMSERV_ACCESS:string {"PGS12567W: Request UserID {0} doesn't have READ permission to profile CIMSERV CL(WBEM)."}
 
+        /**
+        * @note PGS12568:
+        *    Do not translate ATTLS , CIM, TCP-IP and HTTPS.
+        */
+        Pegasus.Common.SocketzOS_inline.POLICY_OFF:string {"PGS12568E: ATTLS is not active for TCP-IP stack the CIM server is using for HTTPS connections. Communication not secured. Connection closed."}
+
+        /**
+        * @note PGS12569:
+        *    Do not translate "ATTLS policy" , CIM, TCP-IP and HTTPS.
+        */
+        Pegasus.Common.SocketzOS_inline.NO_POLICY:string {"PGS12569E: There is no ATTLS policy found for the CIM server HTTPS connections. Communication not secured. Connection closed."}
         
         // End z/OS messages
 

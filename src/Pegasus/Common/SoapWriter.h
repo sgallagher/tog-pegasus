@@ -39,7 +39,6 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Indentor.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
@@ -47,15 +46,12 @@
 #include <Pegasus/Common/CIMMethod.h>
 #include <Pegasus/Common/CIMParameter.h>
 #include <Pegasus/Common/CIMQualifier.h>
-#include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMObjectPath.h>
-#include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMParamValue.h>
+#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/ContentLanguageList.h>
-#include <Pegasus/Common/AcceptLanguageList.h>
 #include <Pegasus/Common/Buffer.h>
 #include <Pegasus/Common/StrLit.h>
 #include <Pegasus/Common/SoapUtils.h>
@@ -105,7 +101,7 @@ public:
 
 private:
 
-    SoapWriter() { }
+    SoapWriter();
 
     static void _appendHTTPResponseHeader(
         Buffer& out, 

@@ -35,8 +35,6 @@
 #include <cstdio>
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/StatisticalData.h>
-
 #include "Constants.h"
 #include "CIMClass.h"
 #include "CIMClassRep.h"
@@ -52,18 +50,11 @@
 #include "CIMParamValueRep.h"
 #include "CIMQualifier.h"
 #include "CIMQualifierRep.h"
-#include "CIMQualifierDecl.h"
-#include "CIMQualifierDeclRep.h"
 #include "CIMValue.h"
 #include "SoapUtils.h"
 #include "SoapWriter.h"
-#include "XmlParser.h"
-#include "Tracer.h"
-#include "CommonUTF.h"
 #include "Buffer.h"
 #include "StrLit.h"
-#include "LanguageParser.h"
-#include "IDFactory.h"
 #include "StringConversion.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -81,6 +72,7 @@ Buffer SoapWriter::formatHttpErrorRspMessage(
 {
     Buffer out;
 
+    // ATTN: Format an HTTP error response
 
     return out;
 }
@@ -121,6 +113,7 @@ Buffer SoapWriter::formatWSManErrorRspMessage(
 {
     Buffer out;
 
+    // ATTN: Format a WS-Man error response
 
     return out;
 }
@@ -130,7 +123,26 @@ void SoapWriter::appendInstanceElement(
     const CIMConstInstance& instance)
 {
     CheckRep(instance._rep);
-    instance._rep->toSoap(out);
+    const CIMInstanceRep* rep = instance._rep;
+
+    // Class opening element:
+    out << STRLIT("<class:") << rep->getClassName();
+    out << STRLIT(" xmlns:class=\"");
+    out << SoapNamespaces::supportedNamespaces[SoapNamespaces::WS_CIM_SCHEMA].
+        extendedName;
+    out << STRLIT("/") << rep->getClassName();
+    out << STRLIT("\">\n");
+
+    // Qualifiers:
+    for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
+        SoapWriter::appendQualifierElement(out, rep->getQualifier(i));
+
+    // Properties:
+    for (Uint32 i = 0, n = rep->getPropertyCount(); i < n; i++)
+        SoapWriter::appendPropertyElement(out, rep->getProperty(i));
+
+    // Class closing element:
+    out << STRLIT("</class:") << rep->getClassName() << STRLIT(">\n");
 }
 
 void SoapWriter::appendPropertyElement(
@@ -138,7 +150,20 @@ void SoapWriter::appendPropertyElement(
     const CIMConstProperty& property)
 {
     CheckRep(property._rep);
-    property._rep->toSoap(out);
+    const CIMPropertyRep* rep = property._rep;
+
+    if (rep->getValue().isArray())
+    {
+        // ATTN: Need to complete
+    }
+    else if (rep->getValue().getType() == CIMTYPE_REFERENCE)
+    {
+        // ATTN: Need to complete
+    }
+    else
+    {
+        SoapWriter::appendValueElement(out, rep->getValue(), rep->getName());
+    }
 }
 
 void SoapWriter::appendQualifierElement(
@@ -146,7 +171,7 @@ void SoapWriter::appendQualifierElement(
     const CIMConstQualifier& qualifier)
 {
     CheckRep(qualifier._rep);
-    qualifier._rep->toSoap(out);
+    // ATTN: Anything to do here?
 }
 
 void SoapWriter::_appendHTTPResponseHeader(
@@ -189,6 +214,7 @@ void SoapWriter::_appendHTTPResponseHeader(
 void SoapWriter::_appendStartTag(
     Buffer& out, SoapNamespaces::Type nsType, StrLit tag)
 {
+    // ATTN: Is this needed?
 }
 
 void SoapWriter::_appendEndTag(
@@ -309,7 +335,7 @@ void SoapWriter::_appendSoapHeader(
 void SoapWriter::_appendValueArray(
     Buffer& out, const CIMObjectPath* p, Uint32 size, const CIMName& name)
 {
-    // TODO: need to implement
+    // ATTN: need to implement
     while (size--)
     {
         _appendValue(out, *p++);

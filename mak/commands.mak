@@ -205,7 +205,7 @@ ifeq ($(OS),linux)
     INSTALL_USR = root
     INSTALL_GRP = pegasus
     CIMSERVER_USR = root
-    CIMSERVER_GRP = pegasus
+    CIMSERVER_GRP = root
     CHMOD = chmod
     CHOWN = chown
     CHGRP = chgrp

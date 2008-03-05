@@ -370,7 +370,7 @@ stage_PegasusVarDataDirectoryFiles: FORCE
 	$(COPY) $(ROOT)/src/Server/cimserver_planned.conf $(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)
 
 setpermissions_PegasusVarDataDirectoryFiles: FORCE
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prw_r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prw_r__r__)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)
 
 stage_genOpenPegasusSSLCertsFile: FORCE
 	@$(RM) $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/genOpenPegasusSSLCerts
@@ -1019,8 +1019,8 @@ _append_filesSectionToSpecFile: FORCE
 	@$(ECHO-E) "%dir $(PEGASUS_PROVIDER_LIB_DIR_2) " \
               >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr($(Prwxr_xr_x), $(CIMSERVER_USR)," \
-             "$(CIMSERVER_GRP)) $(PEGASUS_CONFIG_DIR)" \
+	@$(ECHO-E) "%dir %attr($(Prwxr_xr_x), $(INSTALL_USR)," \
+             "$(INSTALL_GRP)) $(PEGASUS_CONFIG_DIR)" \
               >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%dir %attr($(Prwxr_xr_x), $(CIMSERVERMAIN_USR)," \
              "$(CIMSERVERMAIN_GRP)) $(PEGASUS_VARRUN_DIR)" \
@@ -1036,8 +1036,8 @@ _append_filesSectionToSpecFile: FORCE
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%config %attr($(Prwxr_x___),$(INSTALL_USR),$(INSTALL_GRP))"\
             "/etc/init.d/tog-pegasus" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%config(noreplace) %attr($(Prw_r__r__), " \
-            "$(CIMSERVER_USR), $(CIMSERVER_GRP))" \
+	@$(ECHO-E) "%config(noreplace)" \
+            "%attr($(Prw_r__r__),$(CIMSERVER_USR),$(CIMSERVER_GRP))" \
             "$(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%config(noreplace) $(PEGASUS_CONFIG_DIR)/access.conf" \

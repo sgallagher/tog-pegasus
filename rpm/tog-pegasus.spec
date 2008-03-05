@@ -465,7 +465,7 @@ fi
 /usr/share/Pegasus/mof/Pegasus/*
 
 %config %attr(750,root,pegasus) /etc/init.d/tog-pegasus
-%config(noreplace) %attr(644,  root, pegasus) /var/lib/Pegasus/cimserver_planned.conf
+%config(noreplace) %attr(644,root,root) /var/lib/Pegasus/cimserver_planned.conf
 %config(noreplace) /etc/Pegasus/access.conf
 %config(noreplace) /etc/pam.d/wbem
 

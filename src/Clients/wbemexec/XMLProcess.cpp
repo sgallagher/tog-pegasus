@@ -271,7 +271,7 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
     //
     //  Generate header prefix
     //
-    srand (TimeValue::getCurrentTime ().toMilliseconds ());
+    srand(TimeValue::getCurrentTime().toMilliseconds() & 0xFFFFFFFF);
     char nn[3];
     nn[0] = '0' + (rand() % 10);
     nn[1] = '0' + (rand() % 10);

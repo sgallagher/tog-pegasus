@@ -390,7 +390,7 @@ void PrintRow(
     const String& value)
 {
     cout << "<tr>\n";
-    cout << "<td>" << name << "</td>\n";
+    cout << "<td>" << name.getString() << "</td>\n";
     cout << "<td>" << type << "</td>\n";
 
     if (value.size())
@@ -476,7 +476,7 @@ void PrintObjectProperties(
             cout << "<td>null</td>\n";
         // Output the ClassOrigin
         // KSREVIEW: Make this optional
-        cout << "<td>" << property.getClassOrigin() << "</td>\n";
+        cout << "<td>" << property.getClassOrigin().getString() << "</td>\n";
         // Output the Propagated field
         cout << "<td>" << (property.getPropagated() ? "true" : "false");
         cout << "</td>\n";
@@ -580,7 +580,7 @@ void PrintClassMethods(CIMClass& cimClass)
         CIMType type = method.getType();
     
         cout << "<tr>\n";
-        cout << "<td>" << method.getName() << "</td>\n";
+        cout << "<td>" << method.getName().getString() << "</td>\n";
         cout << "<td>" << cimTypeToString (type) << "</td>\n";
         cout << "<tr>\n";
     }
@@ -653,7 +653,8 @@ void PrintClass(
     PrintClassMethods(cimClass);
     if (showMof)
     {
-        cout << "<h2>Display MOF for Class " << cimClass.getClassName() 
+        cout << "<h2>Display MOF for Class "
+            << cimClass.getClassName().getString()
             << "</h2>";
         cout << "<pre>";
         Buffer x;
@@ -1499,7 +1500,7 @@ void PrintInstanceTableRow(const CIMNamespaceName & nameSpace,
 
         // Output the ClassOrigin
         // KSREVIEW: Make this optional
-        cout << "<td>" << property.getClassOrigin() << "</td>\n";
+        cout << "<td>" << property.getClassOrigin().getString() << "</td>\n";
         // Output the Propagated field
         cout << "<td>" << (property.getPropagated() ? "true" : "false");
         cout << "</td>\n";
@@ -1901,13 +1902,14 @@ static void CreateNameSpace(const CGIQueryString& qs)
         client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
         // Call create Instances CIM Method for class __Namespace
-        cout << "Creating " << nameSpaceName;
+        cout << "Creating " << nameSpaceName.getString();
         client.createInstance(nameSpace, newInstance);
     
         elapsedTime.stop();
     
         PrintHTMLHead("CreateNameSpace", "Create a NameSpace Result");
-        cout << "<h1>Namespace " << nameSpaceName << " Created</H1>";
+        cout << "<h1>Namespace " << nameSpaceName.getString()
+             << " Created</H1>";
         cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
         cout << "</body>\n" << "</html>\n";
     }
@@ -1972,7 +1974,8 @@ static void DeleteNameSpace(const CGIQueryString& qs)
         elapsedTime.stop();
     
         PrintHTMLHead("DeleteNameSpace", "Delete a NameSpace Result");
-        cout << "<h1>Namespace " << nameSpaceToDelete << " Deleted</H1>";
+        cout << "<h1>Namespace " << nameSpaceToDelete.getString()
+             << " Deleted</H1>";
     
         cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
         cout << "</body>\n" << "</html>\n";
@@ -2271,9 +2274,9 @@ static void ClassInheritance(const CGIQueryString& qs)
             cout << "<tr><td>\n";
     
             if (classArray[i].getSuperClassName().isNull ())
-            cout << "No Superclass";
+                cout << "No Superclass";
             else
-            cout << classArray[i].getSuperClassName();
+                cout << classArray[i].getSuperClassName().getString();
     
             cout << "<td>\n";
     
@@ -2439,7 +2442,7 @@ static void AllInstances(const  CGIQueryString& qs)
                                                               classNames[i]);
                 if (instanceNames.size() > 0)
                 {
-                    cout << "Class " << classNames[i] << " "
+                    cout << "Class " << classNames[i].getString() << " "
                         << instanceNames.size() << " Instances" << endl;
                     //KSREVIEWKS: Link to the instances  Expand for keyword
                     //in Href.

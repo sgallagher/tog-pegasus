@@ -70,7 +70,7 @@ Boolean ProcessValueObjectElement(CIMRepository& repository, XmlParser& parser)
         if (verbose) 
         {
             cout << "Creating: class ";
-            cout << cimClass.getClassName() << endl;
+            cout << cimClass.getClassName().getString() << endl;
         }
 
         try
@@ -91,7 +91,7 @@ Boolean ProcessValueObjectElement(CIMRepository& repository, XmlParser& parser)
         if (verbose) 
         {
             cout << "Creating: qualifier ";
-            cout << qualifierDecl.getName() << endl;
+            cout << qualifierDecl.getName().getString() << endl;
         }
 
         try

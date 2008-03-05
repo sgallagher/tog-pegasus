@@ -107,8 +107,8 @@ void test01()
             {
                 if (verbose)
                 {
-                    cout << "keyName= " <<  kbArray[i].getName() << " Value= "
-                         << kbArray[i].getValue() << endl;
+                    cout << "keyName= " <<  kbArray[i].getName().getString()
+                         << " Value= " << kbArray[i].getValue() << endl;
                 }
                 if ( kbArray[i].getName() == CIMName ("B") )
                 {

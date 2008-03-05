@@ -29,20 +29,11 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Sushma Fernandes, Hewlett-Packard Company
-//              (sushma_fernandes@hp.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//              Willis White (PEP 192)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/CIMDateTime.h>
-#include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/Exception.h>
 
 PEGASUS_USING_PEGASUS;
@@ -101,7 +92,7 @@ int main(int argc, char **argv)
             PEGASUS_TEST_ASSERT(bad);
         }
         if (verbose)
-            cout << dt << endl;
+            cout << dt.toString() << endl;
 
         CIMDateTime dt1;
         dt1 = dt;

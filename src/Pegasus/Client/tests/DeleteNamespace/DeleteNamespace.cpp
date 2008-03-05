@@ -42,7 +42,6 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/HostLocator.h>
 
 PEGASUS_USING_PEGASUS;
@@ -129,7 +128,7 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
         {
             CIMObjectPath myReference(instanceName);
             if (verboseTest)
-                cout << "Deleting " << testNamespaceName << endl;
+                cout << "Deleting " << testNamespaceName.getString() << endl;
             client.deleteInstance(__NAMESPACE_NAMESPACE, myReference);
         } 
         catch (...)
@@ -152,7 +151,7 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
         instanceName.append("\"");
         if (verboseTest)
         {
-            cout << "Creating " << testNamespaceName << endl;
+            cout << "Creating " << testNamespaceName.getString() << endl;
         }
         try
         {
@@ -185,7 +184,7 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
         {
             CIMObjectPath myReference(instanceName);
             if (verboseTest)
-                cout << "getInstance " << testNamespaceName << endl;
+                cout << "getInstance " << testNamespaceName.getString() << endl;
             CIMInstance namespaceInstance = 
                 client.getInstance(__NAMESPACE_NAMESPACE, myReference);
         } 
@@ -215,7 +214,7 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
         {
             CIMObjectPath myReference(instanceName);
             if (verboseTest)
-                cout << "Deleting " << testNamespaceName << endl;
+                cout << "Deleting " << testNamespaceName.getString() << endl;
             client.deleteInstance(__NAMESPACE_NAMESPACE, myReference);
         } 
         catch (Exception& e)
@@ -266,7 +265,7 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
         {
             CIMObjectPath myReference(instanceName);
             if (verboseTest)
-                cout << "Deleting " << namespaces[i] << endl;
+                cout << "Deleting " << namespaces[i].getString() << endl;
             client.deleteInstance(namespaces[i], myReference);
         } 
         catch (...)
@@ -289,15 +288,15 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
                                                 String::EMPTY));
             if (verboseTest)
             {
-                cout << "Creating " << namespaces[i] << endl;
+                cout << "Creating " << namespaces[i].getString() << endl;
             }
             client.createInstance(namespaces[i], newInstance);
         } 
         catch (Exception& e)
         {
             PEGASUS_STD(cerr) << "Exception NameSpace Creation: "
-            << e.getMessage() << " Creating " << namespaces[i]
-            << PEGASUS_STD(endl);
+                << e.getMessage() << " Creating " << namespaces[i].getString()
+                << PEGASUS_STD(endl);
             exit(1);
         }
     }
@@ -317,7 +316,7 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
         {
             CIMObjectPath myReference(instanceName);
             if (verboseTest)
-                cout << "Deleting " << testNamespaceName << endl;
+                cout << "Deleting " << testNamespaceName.getString() << endl;
             client.deleteInstance(namespaces[i], myReference);
         } 
         catch (Exception& e)

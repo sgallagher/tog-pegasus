@@ -621,7 +621,8 @@ int main(int argc, char** argv)
             if(showOnlyNames)
             {
                 for(Uint32 i = 0; i < qualifierDecls.size(); i++)
-                    cout << "Qualifier " << qualifierDecls[i].getName() << endl;
+                    cout << "Qualifier "
+                         << qualifierDecls[i].getName().getString() << endl;
             }
             if(showQualifiers || showAll)
             {
@@ -693,7 +694,7 @@ int main(int argc, char** argv)
                 {
                     // ErrorExit(e.getMessage());
                     cout << "Class get error " << e.getMessage() 
-                         << " Class " << nextClass << endl;
+                         << " Class " << nextClass.getString() << endl;
                 }
                 // Note we get and print ourselves rather than use the generic
                 // printMof
@@ -716,7 +717,7 @@ int main(int argc, char** argv)
         for(Uint32 j = 0; j < list.size(); j++)
         {
             CIMName className = list.next();
-            //cout << "Instances for " << className << endl;
+            //cout << "Instances for " << className.getString() << endl;
             try
             {
                 Boolean deepInheritance = true;

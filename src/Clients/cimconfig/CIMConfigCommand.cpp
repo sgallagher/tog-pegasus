@@ -41,7 +41,6 @@
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/getoopt/getoopt.h>
 
 #include <Pegasus/Client/CIMClient.h>
@@ -1592,7 +1591,7 @@ Uint32 CIMConfigCommand::execute(
 
                 for ( Uint32 i = 0; i < namesSize; i++ )
                 {
-                    outPrintWriter << propertyNames[i];
+                    outPrintWriter << propertyNames[i].getString();
                     if ( ( _currentValueSet || _plannedValueSet ) &&
                          ( valuesSize == namesSize) )
                     {

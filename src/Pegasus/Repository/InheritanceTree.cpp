@@ -34,7 +34,6 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Dir.h>
-#include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/Common/CIMNameUnchecked.h>
 #include "InheritanceTree.h"
@@ -249,13 +248,13 @@ void InheritanceTreeNode::getSuperClassNames(Array<CIMName>& superClassNames)
 
 void InheritanceTreeNode::print(PEGASUS_STD(ostream)& os) const
 {
-    os << className << " : " ;
-    os << (superClass ? superClass->className : CIMName ());
+    os << className.getString() << " : " ;
+    os << (superClass ? superClass->className : CIMName()).getString();
 
     os << " { ";
 
     for (InheritanceTreeNode* p = subClasses; p; p = p->sibling)
-        os << p->className << ' ';
+        os << p->className.getString() << ' ';
 
     os << "}" << endl;
 }

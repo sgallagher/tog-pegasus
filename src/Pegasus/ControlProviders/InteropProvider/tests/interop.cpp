@@ -832,8 +832,8 @@ Boolean InteropTest::_deleteOneLevelOfNamespace(
     catch(Exception& e)
     {
         PEGASUS_STD(cerr) << "Exception NameSpace Deletion: "
-           << e.getMessage() << " Deleting " << child << " from " << parent
-               << PEGASUS_STD(endl);
+            << e.getMessage() << " Deleting " << child << " from "
+            << parent.getString() << PEGASUS_STD(endl);
         return false;
    }
    return true;
@@ -889,7 +889,7 @@ Boolean InteropTest::_validateNamespaces(
              << endl;
         for (Uint32 cnt = 0 ; cnt < returnNamespaces.size(); cnt++ )
         {
-            cout << returnNamespaces[cnt] << endl;;
+            cout << returnNamespaces[cnt].getString() << endl;;
         }
     }
 
@@ -1259,15 +1259,15 @@ Boolean InteropTest::_namespaceCreate__Namespace(const CIMNamespaceName& parent,
          if (e.getCode() == CIM_ERR_ALREADY_EXISTS)
          {
                PEGASUS_STD(cerr) << "CIMException: NameSpace Creation: "
-                   << e.getMessage() << ". " << parent << "/" << child <<
-                   " Already Exists. Cannot create."
+                   << e.getMessage() << ". " << parent.getString() << "/"
+                   << child << " Already Exists. Cannot create."
                    << PEGASUS_STD(endl);
          }
          else
          {
               PEGASUS_STD(cerr) << "CIMException: NameSpace Creation: "
-                  << e.getMessage() << " Creating " << parent << "/" << child
-                  << PEGASUS_STD(endl);
+                  << e.getMessage() << " Creating " << parent.getString()
+                  << "/" << child << PEGASUS_STD(endl);
          }
          return(false);
     }
@@ -1317,7 +1317,7 @@ Boolean InteropTest::_namespaceCreatePG_Namespace(const CIMNamespaceName& name)
     if (pos == PEG_NOT_FOUND)
     {
             cerr << "Error in property on create. No "
-                <<  NAMESPACE_PROPERTYNAME << " property" << endl;
+                <<  NAMESPACE_PROPERTYNAME.getString() << " property" << endl;
             return(false);
     }
 
@@ -1344,7 +1344,7 @@ Boolean InteropTest::_namespaceCreatePG_Namespace(const CIMNamespaceName& name)
     catch(Exception& e)
     {
         cerr << "Error during Creation of " << name.getString()
-            << " in Namespace " << PEGASUS_NAMESPACENAME_INTEROP
+            << " in Namespace " << PEGASUS_NAMESPACENAME_INTEROP.getString()
             << ": " << e.getMessage()
             << " Instance Creation error" << endl;
         return(false);
@@ -1416,7 +1416,7 @@ Boolean InteropTest::_namespaceCreateCIM_Namespace(const CIMNamespaceName& name,
     if (pos == PEG_NOT_FOUND)
     {
             cerr << "Error in property on create. No "
-                <<  NAMESPACE_PROPERTYNAME << " property" << endl;
+                <<  NAMESPACE_PROPERTYNAME.getString() << " property" << endl;
             return(false);
     }
 
@@ -1445,7 +1445,7 @@ Boolean InteropTest::_namespaceCreateCIM_Namespace(const CIMNamespaceName& name,
                     CIM_ERR_NOT_SUPPORTED))
         {
             cerr << "CIMException during Creation of " << name.getString()
-                << " in namespace " << targetNamespace
+                << " in namespace " << targetNamespace.getString()
                 << ": " << e.getMessage()
                 << " CIM_Namespace Instance Creation error" << endl;
         }
@@ -1580,9 +1580,9 @@ Boolean InteropTest::_namespaceCreatePG_Namespace(const CIMNamespaceName& name,
     Uint32 pos = instance.findProperty(NAMESPACE_PROPERTYNAME);
     if (pos == PEG_NOT_FOUND)
     {
-            cerr << "Error in property on create. No "
-                <<  NAMESPACE_PROPERTYNAME << " property" << endl;
-            return(false);
+        cerr << "Error in property on create. No "
+            <<  NAMESPACE_PROPERTYNAME.getString() << " property" << endl;
+        return false;
     }
 
     // Modify the name field in the instance

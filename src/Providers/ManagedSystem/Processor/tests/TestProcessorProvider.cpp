@@ -58,7 +58,6 @@
 // ==========================================================================
 
 #include <Pegasus/Client/CIMClient.h>
-#include <Pegasus/Common/XmlWriter.h>
 #include "TestProcessorProvider.h"
 #include "../ProcessorPlatform.h"
 
@@ -230,8 +229,8 @@ int testClass(const String& className)
     Array<CIMKeyBinding> keys = ref.getKeyBindings();
     cout << "  Keys:" << endl;
     for (i=0; i<keys.size(); i++)
-      cout << "    " << keys[i].getName() << " = " << keys[i].getValue() <<
-        endl;
+        cout << "    " << keys[i].getName().getString() << " = "
+             << keys[i].getValue() << endl;
   }
 
   // check returned property values

@@ -57,50 +57,13 @@
 #include <Pegasus/Common/AcceptLanguageList.h>
 #include <Pegasus/Common/Buffer.h>
 #include <Pegasus/Common/StrLit.h>
+#include <Pegasus/Common/XmlGenerator.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-// l10n - added accept language and content language support below
-
-class PEGASUS_COMMON_LINKAGE XmlWriter
+class PEGASUS_COMMON_LINKAGE XmlWriter : public XmlGenerator
 {
 public:
-
-    static void append(Buffer& out, const Char16& x);
-
-    static void append(Buffer& out, char x)
-    {
-      out.append(x);
-    }
-
-    static void append(Buffer& out, Boolean x);
-
-    static void append(Buffer& out, Uint32 x);
-
-    static void append(Buffer& out, Sint32 x);
-
-    static void append(Buffer& out, Uint64 x);
-
-    static void append(Buffer& out, Sint64 x);
-
-    static void append(Buffer& out, Real32 x);
-
-    static void append(Buffer& out, Real64 x);
-
-    static void append(Buffer& out, const char* str);
-
-    static void append(Buffer& out, const String& str);
-
-    static void appendSpecial(Buffer& out, const Char16& x);
-
-    static void appendSpecial(Buffer& out, char x);
-
-    static void appendSpecial(Buffer& out, const char* str);
-
-    static void appendSpecial(Buffer& out, const String& str);
-
-    static String encodeURICharacters(const Buffer& uriString);
-    static String encodeURICharacters(const String& uriString);
 
     static void appendLocalNameSpacePathElement(
         Buffer& out,
@@ -251,7 +214,6 @@ public:
         const ContentLanguageList& contentLanguages,
         Uint32 contentLength);
 
-    // added to accommodate sending WBEMServerResponseTime PEP #128
     static void appendMethodResponseHeader(
         Buffer& out,
         HttpMethod httpMethod,
@@ -274,6 +236,7 @@ public:
         Buffer& out,
         const String& content);
 #endif
+
     static void appendParamTypeAndEmbeddedObjAttrib(
         Buffer& out,
         const CIMType& type);
@@ -357,8 +320,6 @@ public:
         const AcceptLanguageList& httpAcceptLanguages,
         const ContentLanguageList& httpContentLanguages);
 
-    // PEP 128 - sending serverResponseTime (WBEMServerResponseTime) in
-    // response header
     static Buffer formatSimpleMethodRspMessage(
         const CIMName& methodName,
         const String& messageId,
@@ -386,8 +347,6 @@ public:
         const ContentLanguageList& httpContentLanguages,
         const Buffer& body);
 
-    // PEP 128 - sending serverResponseTime (WBEMServerResponseTime) in
-    // response header
     static Buffer formatSimpleIMethodRspMessage(
         const CIMName& iMethodName,
         const String& messageId,
@@ -449,11 +408,6 @@ public:
         const String& messageId,
         HttpMethod httpMethod,
         const CIMException& cimException);
-
-    static void indentedPrint(
-        PEGASUS_STD(ostream)& os,
-        const char* text,
-        Uint32 indentChars = 2);
 
     static String getNextMessageId();
 
@@ -543,51 +497,6 @@ private:
     XmlWriter();
 };
 
-PEGASUS_COMMON_LINKAGE Buffer& operator<<(
-    Buffer& out,
-    const char* x);
-
-inline Buffer& operator<<(Buffer& out, char x)
-{
-    out.append(x);
-    return out;
-}
-
-inline Buffer& operator<<(Buffer& out, const char* s)
-{
-    out.append(s, (Uint32)strlen(s));
-    return out;
-}
-
-PEGASUS_COMMON_LINKAGE Buffer& operator<<(Buffer& out, const Char16& x);
-
-PEGASUS_COMMON_LINKAGE Buffer& operator<<(
-    Buffer& out,
-    const String& x);
-
-PEGASUS_COMMON_LINKAGE Buffer& operator<<(
-    Buffer& out,
-    const Buffer& x);
-
-PEGASUS_COMMON_LINKAGE Buffer& operator<<(
-    Buffer& out,
-    Uint32 x);
-
-PEGASUS_COMMON_LINKAGE Buffer& operator<<(
-    Buffer& out,
-    const CIMName& name);
-
-PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
-    PEGASUS_STD(ostream)& os,
-    const CIMDateTime& x);
-
-PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
-    PEGASUS_STD(ostream)& os,
-    const CIMName& name);
-
-PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
-    PEGASUS_STD(ostream)& os,
-    const CIMNamespaceName& name);
 
 PEGASUS_NAMESPACE_END
 

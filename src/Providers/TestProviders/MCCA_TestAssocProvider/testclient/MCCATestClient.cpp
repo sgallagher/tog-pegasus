@@ -146,7 +146,7 @@ void MCCATestClient::createInstance(
         CLDEBUG("createInstanceTest with fullHost=" 
                 << fullHost 
                 << " and NameSpace=" 
-                << nameSpace);
+                << nameSpace.getString());
         instanceName.setHost(fullHost);
         instanceName.setNameSpace(nameSpace);
         // set the now complete object path
@@ -195,7 +195,7 @@ CIMInstance MCCATestClient::associatorsTest(const String& _host,
 
     // CLDEBUG("Preparation of object path for associators() call ready.");
     CLDEBUG("Association call for host=" << fullHost 
-            << ",Namespace=" << fromNS 
+            << ",Namespace=" << fromNS.getString()
             << ",key=" << key);
     
     // Time to do the call
@@ -285,7 +285,8 @@ CIMInstance MCCATestClient::getInstance(const String& _host,
     targetObjectPath.setKeyBindings(keyBindings);
     // CLDEBUG("Preparation of object path for getInstance() call ready.");
     CLDEBUG("getInstance call for host="
-            << fullHost << ",Namespace=" << nameSpace << ",key=" << key);
+            << fullHost << ",Namespace=" << nameSpace.getString()
+            << ",key=" << key);
     // Time to do the call
     try
     {
@@ -307,7 +308,7 @@ void MCCATestClient::deleteInstance(const CIMInstance& toDelete)
     try
     {
         CLDEBUG("Host=" << toDelete.getPath().getHost());
-        CLDEBUG("NS=" << toDelete.getPath().getNameSpace());
+        CLDEBUG("NS=" << toDelete.getPath().getNameSpace().getString());
         CLDEBUG("Key=" << toDelete.getPath().getKeyBindings()[0].getValue() );
         client.deleteInstance(toDelete.getPath());
         CLDEBUG("deleteInstance call successful.");
@@ -371,10 +372,10 @@ int main (int argc, char* argv [])
         usedPort, testNameSpaceB, instanceKEY);
 
     CLDEBUG("assocInstance="  << assocInstance.getPath().getHost()
-            << "," << assocInstance.getPath().getNameSpace());
+            << "," << assocInstance.getPath().getNameSpace().getString());
 
     CLDEBUG("gotInstance="  << gotInstance.getPath().getHost()
-            << "," << gotInstance.getPath().getNameSpace());
+            << "," << gotInstance.getPath().getNameSpace().getString());
 
     String host1 = String(assocInstance.getPath().getHost());
     String host2 = String(gotInstance.getPath().getHost());

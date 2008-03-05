@@ -176,6 +176,7 @@ SOURCES2 = \
     Thread.cpp \
     ThreadPool.cpp \
     Union.cpp \
+    XmlGenerator.cpp \
     XmlParser.cpp \
     XmlReader.cpp \
     XmlStreamer.cpp \

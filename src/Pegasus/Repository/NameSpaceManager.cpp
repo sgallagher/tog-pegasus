@@ -37,7 +37,6 @@
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Dir.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/CommonUTF.h>
 #include "InstanceIndexFile.h"
 #include "NameSpaceManager.h"
@@ -632,7 +631,7 @@ const String NameSpace::getInstanceDataFileBase(const CIMName& className) const
 
 void NameSpace::print(PEGASUS_STD(ostream)& os) const
 {
-    os << "=== NameSpace: " << _nameSpaceName << PEGASUS_STD(endl);
+    os << "=== NameSpace: " << _nameSpaceName.getString() << PEGASUS_STD(endl);
     os << "_nameSpacePath: " << _nameSpacePath << PEGASUS_STD(endl);
     _inheritanceTree.print(os);
 }

@@ -38,7 +38,6 @@
 // testing EnumerateInstanceNames, EnumerateInstances
 // and GetInstance.  InvokeMethod is not currently tested.
 
-#include <Pegasus/Common/XmlWriter.h>
 #include "OSTestClient.h"
 
 // include the appropriate OS-specific file for checking results
@@ -116,7 +115,7 @@ void OSTestClient::_validateKeys(
    {
       CIMName keyName = keyBindings[j].getName();
       if (verboseTest)
-         cout << "checking key " << keyName << endl;
+         cout << "checking key " << keyName.getString() << endl;
       if (((keyName.equal ("CSCreationClassName")) &&
           (goodCSCreationClassName(
                keyBindings[j].getValue(),
@@ -563,7 +562,7 @@ void OSTestClient::testEnumerateInstances(
             //    cimNInstances[i].getInstanceName().toString();
             if (verboseTest)
                 cout << "Instance ClassName is " <<
-                    instanceRef.getClassName() << endl;
+                    instanceRef.getClassName().getString() << endl;
             if (!instanceRef.getClassName().equal (CLASSNAME))
             {
                 errorExit("EnumInstances failed");

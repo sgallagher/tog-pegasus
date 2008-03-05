@@ -191,7 +191,7 @@ static void TestNameSpaceOperations(CIMClient* client, Boolean activeTest,
     cout << returnNamespaces.size() << " namespaces " << " returned." << endl;
     for( Uint32 cnt = 0 ; cnt < returnNamespaces.size(); cnt++ )
     {
-        cout << returnNamespaces[cnt] << endl;;
+        cout << returnNamespaces[cnt].getString() << endl;;
     }
 
     // ATTN: The following code is probably no good. KS April 2003
@@ -301,7 +301,7 @@ static void TestEnumerateClassNames (CIMClient* client, Boolean activeTest,
          if (verboseTest)
          {
              for (Uint32 i = 0, n = classNames.size(); i < n; i++)
-                 cout << classNames[i] << endl;
+                 cout << classNames[i].getString() << endl;
          }
 
          cout << classNames.size() << " ClassNames" << endl;
@@ -335,7 +335,7 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
         if (verboseTest)
         {
             cout << "Test to create, modify and delete test class " 
-                << testClass << endl;
+                << testClass.getString() << endl;
         }
         for (Uint32 i = 0; i < classNames.size(); i++)
         {
@@ -346,7 +346,8 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
                  }
                 catch (CIMException& e)
                 {
-                        cout << "TestClass " << testClass << " delete failed " 
+                        cout << "TestClass " << testClass.getString()
+                            << " delete failed " 
                             << e.getMessage() << endl;
                         errorCount++;
                         return;
@@ -367,11 +368,12 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
         {
             CIMStatusCode code = e.getCode();
             if (code == CIM_ERR_ALREADY_EXISTS)
-                cout << "TestClass " << testClass 
+                cout << "TestClass " << testClass.getString()
                     << " already exists during create " << endl;
             else
             {
-                cout << "TestClass " << testClass << " create failed " 
+                cout << "TestClass " << testClass.getString()
+                    << " create failed "
                     <<  e.getMessage() << endl;
                 errorCount++;
                 return;
@@ -426,7 +428,8 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
         }
         if (!found)
         {
-            cout << "Test Class " << testClass << " Not found in enumeration " 
+            cout << "Test Class " << testClass.getString()
+                << " Not found in enumeration "
                 << endl;
             errorCount++;
             return;
@@ -479,7 +482,7 @@ static void TestQualifierOperations(CIMClient* client, Boolean activeTest,
     {
          for (Uint32 i = 0; i < qualifierDecls.size(); i++)
          {
-           cout << qualifierDecls[i].getName() << endl;
+             cout << qualifierDecls[i].getName().getString() << endl;
          }
 
     }
@@ -569,7 +572,7 @@ static void TestInstanceGetOperations(CIMClient* client, Boolean activeTest,
                instanceNames = 
                   client->enumerateInstanceNames(globalNamespace,classNames[i]);
                if (instanceNames.size() > 0)
-           cout << "Class " << classNames[i] << " "
+           cout << "Class " << classNames[i].getString() << " "
                 << instanceNames.size() << " Instances" << endl;
            }
            catch(CIMException& e)
@@ -580,7 +583,8 @@ static void TestInstanceGetOperations(CIMClient* client, Boolean activeTest,
                  }
                  else
                  {
-                    cerr << "CIMException : " << classNames[i] << endl;
+                    cerr << "CIMException : " << classNames[i].getString()
+                         << endl;
                     cerr << e.getMessage() << endl;
                     errorCount++;
                     return;
@@ -659,7 +663,7 @@ static void TestInstanceModifyOperations(CIMClient* client, Boolean
     client->createClass(globalNamespace, cimClass);
 
     // Create an instance of that class:
-    cout << "Create one Instance of class " << className << endl;
+    cout << "Create one Instance of class " << className.getString() << endl;
 
     CIMInstance cimInstance(className);
     cimInstance.addProperty(CIMProperty(CIMName ("last"), String("Smith")));
@@ -772,7 +776,7 @@ static void testRefandAssoc(CIMClient* client, CIMNamespaceName& nameSpace,
     if (verboseTest)
     {
         cout << "Test references results for class: " 
-            << objectName.getClassName()
+            << objectName.getClassName().getString()
             << " returned " << result.size() << "reference names" << endl;
     }
     if (result.size() != resultObjects.size())
@@ -836,7 +840,7 @@ static void testRefandAssoc(CIMClient* client, CIMNamespaceName& nameSpace,
     if (verboseTest)
     {
         cout << "Test associations results for class: " 
-            << objectName.getClassName()
+            << objectName.getClassName().getString()
             << " returned " << result.size() << "associator names" << endl;
     }
     if (assocResult.size() != assocResultObjects.size())
@@ -952,7 +956,7 @@ static void TestAssociationOperations(CIMClient* client, Boolean
               }
               else
               {
-                 cerr << "CIMException : " << className << endl;
+                 cerr << "CIMException : " << className.getString() << endl;
                  cerr << e.getMessage() << endl;
                  errorCount++;
                  return;
@@ -1109,7 +1113,7 @@ static void TestEnumerateInstances( CIMClient * client,
                       includeClassOrigin );
 
       cout << "Found " << cimNInstances.size() << " Instances of " 
-          << className << endl;
+          << className.getString() << endl;
       //ASSERTTEMP(cimNInstances.size() == 3);
       numberInstances =  cimNInstances.size();
 
@@ -1487,7 +1491,7 @@ int main(int argc, char** argv)
     om.lookupValue("namespace", tmp);
     CIMNamespaceName localNameSpace = CIMNamespaceName (tmp);
     globalNamespace = localNameSpace;
-    cout << "Namespace = " << localNameSpace << endl;
+    cout << "Namespace = " << localNameSpace.getString() << endl;
 
     Boolean verboseTest = om.isTrue("verbose");
 

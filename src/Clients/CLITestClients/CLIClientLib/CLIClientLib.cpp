@@ -686,7 +686,7 @@ int enumerateAllInstanceNames(CIMClient& client, Options& opts)
     {
         cout << "EnumerateClasseNames "
             << "Namespace = " << opts.nameSpace
-            << ", Class = " << opts.className
+            << ", Class = " << opts.className.getString()
             << ", deepInheritance = " << _toString(opts.deepInheritance)
             << endl;
     }
@@ -715,7 +715,7 @@ int enumerateAllInstanceNames(CIMClient& client, Options& opts)
         {
             cout << "EnumerateInstanceNames "
                 << "Namespace = " << opts.nameSpace
-                << ", Class = " << classNames[iClass]
+                << ", Class = " << classNames[iClass].getString()
                 << endl;
         }
         Array<CIMObjectPath> instanceNames =
@@ -749,7 +749,7 @@ int enumerateInstanceNames(CIMClient& client, Options& opts)
     {
         cout << "EnumerateInstanceNames "
             << "Namespace= " << opts.nameSpace
-            << ", Class= " << opts.className
+            << ", Class= " << opts.className.getString()
             << endl;
     }
 
@@ -791,7 +791,7 @@ int enumerateInstances(CIMClient& client, Options& opts)
     {
         cout << "EnumerateInstances "
             << "Namespace = " << opts.nameSpace
-            << ", Class = " << opts.className
+            << ", Class = " << opts.className.getString()
             << ", deepInheritance = " << _toString(opts.deepInheritance)
             << ", localOnly = " << _toString(opts.localOnly)
             << ", includeQualifiers = " << _toString(opts.includeQualifiers)
@@ -1016,7 +1016,7 @@ int createInstance(CIMClient& client, Options& opts)
     {
         cout << "createInstance "
             << "Namespace = " << opts.nameSpace
-            << ", ClassName = " << opts.className
+            << ", ClassName = " << opts.className.getString()
             << endl;
     }
     // get the class. Exceptions including class_not_found are automatic
@@ -1054,7 +1054,7 @@ int createInstance(CIMClient& client, Options& opts)
             // of the instance
             for (Uint32 i=0; i < propertyNameList.size(); i++)
             {
-                cout << "Property: " << propertyNameList[i]
+                cout << "Property: " << propertyNameList[i].getString()
                      << " value: " << propertyValueList[i]
                      << endl;
             }
@@ -1118,7 +1118,7 @@ int enumerateClassNames(CIMClient& client, Options& opts)
     {
         cout << "EnumerateClasseNames "
             << "Namespace= " << opts.nameSpace
-            << ", Class= " << opts.className
+            << ", Class= " << opts.className.getString()
             << ", deepInheritance= " << (opts.deepInheritance? "true" : "false")
             << endl;
     }
@@ -1151,7 +1151,7 @@ int enumerateClassNames(CIMClient& client, Options& opts)
     {
         //simply output the list one per line for the moment.
         for (Uint32 i = 0; i < classNames.size(); i++)
-                cout << classNames[i] << endl;
+                cout << classNames[i].getString() << endl;
     }
 
     return(0);
@@ -1163,7 +1163,7 @@ int enumerateClasses(CIMClient& client, Options& opts)
     {
         cout << "EnumerateClasses "
             << "Namespace= " << opts.nameSpace
-            << ", Class= " << opts.className
+            << ", Class= " << opts.className.getString()
             << ", deepInheritance= " << _toString(opts.deepInheritance)
             << ", localOnly= " << _toString(opts.localOnly)
             << ", includeQualifiers= " << _toString(opts.includeQualifiers)
@@ -1224,7 +1224,7 @@ int deleteClass(CIMClient& client, Options& opts)
     {
         cout << "deleteClasses "
             << "Namespace = " << opts.nameSpace
-            << ", Class = " << opts.className
+            << ", Class = " << opts.className.getString()
             << endl;
     }
 
@@ -1252,7 +1252,7 @@ int getClass(CIMClient& client, Options& opts)
     {
         cout << "getClass "
             << "Namespace= " << opts.nameSpace
-            << ", Class= " << opts.className
+            << ", Class= " << opts.className.getString()
             << ", deepInheritance= " << _toString(opts.deepInheritance)
             << ", localOnly= " << _toString(opts.localOnly)
             << ", includeQualifiers= " << _toString(opts.includeQualifiers)
@@ -1519,7 +1519,7 @@ int referenceNames(CIMClient& client, Options& opts)
         cout << "ReferenceNames "
             << "Namespace= " << opts.nameSpace
             << ", ObjectPath= " << opts.objectName
-            << ", resultClass= " << opts.resultClass
+            << ", resultClass= " << opts.resultClass.getString()
             << ", role= " << opts.role
             << endl;
     }
@@ -1588,7 +1588,7 @@ int references(CIMClient& client, Options& opts)
         cout << "References "
             << "Namespace= " << opts.nameSpace
             << ", Object= " << opts.objectName
-            << ", resultClass= " << opts.resultClass
+            << ", resultClass= " << opts.resultClass.getString()
             << ", role= " << opts.role
             << ", includeQualifiers= " << _toString(opts.includeQualifiers)
             << ", includeClassOrigin= " << _toString(opts.includeClassOrigin)
@@ -1658,8 +1658,8 @@ int associatorNames(CIMClient& client, Options& opts)
         cout << "associatorNames "
             << "Namespace= " << opts.nameSpace
             << ", Object= " << opts.objectName
-            << ", assocClass= " << opts.assocClass
-            << ", resultClass= " << opts.resultClass
+            << ", assocClass= " << opts.assocClass.getString()
+            << ", resultClass= " << opts.resultClass.getString()
             << ", role= " << opts.role
             << ", resultRole= " << opts.resultRole
             << endl;
@@ -1734,8 +1734,8 @@ int associators(CIMClient& client, Options& opts)
         cout << "Associators "
             << "Namespace= " << opts.nameSpace
             << ", Object= " << opts.objectName
-            << ", assocClass= " << opts.assocClass
-            << ", resultClass= " << opts.resultClass
+            << ", assocClass= " << opts.assocClass.getString()
+            << ", resultClass= " << opts.resultClass.getString()
             << ", role= " << opts.role
             << ", resultRole= " << opts.resultRole
             << ", includeQualifiers= " << _toString(opts.includeQualifiers)
@@ -1806,7 +1806,7 @@ int associators(CIMClient& client, Options& opts)
              cout << "invokeMethod"
                  << " Namespace= " << opts.nameSpace
                  << ", ObjectName= " << opts.objectName
-                 << ", methodName= " << opts.methodName
+                 << ", methodName= " << opts.methodName.getString()
                  << ", inParams Count= " << opts.inParams.size()
                  << endl;
              for (Uint32 i=0; i< opts.inParams.size(); i++)
@@ -1861,7 +1861,7 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
     {
         cout << "EnumerateNamespaces "
             << "Namespace= " << opts.nameSpace
-            << ", Class= " << opts.className
+            << ", Class= " << opts.className.getString()
             << endl;
     }
 
@@ -2008,7 +2008,7 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
         {
             for( Uint32 cnt = 0 ; cnt < returnNamespaces.size(); cnt++ )
             {
-                cout << returnNamespaces[cnt] << endl;;
+                cout << returnNamespaces[cnt].getString() << endl;;
             }
         }
     }

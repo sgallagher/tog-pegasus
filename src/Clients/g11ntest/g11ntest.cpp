@@ -44,7 +44,6 @@
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Consumer/CIMIndicationConsumer.h>
 #include <Pegasus/Listener/CIMListener.h>
 
@@ -737,7 +736,7 @@ static Array<CIMInstance> EnumerateTestInstances(CIMClient &client,
 
     if (verboseTest)
         cout << "Found " << cimNInstances.size() << " Instances of " 
-             << CLASSNAME << endl;
+             << CLASSNAME.getString() << endl;
     
     MYASSERT(cimNInstances.size() == 3);
     
@@ -832,7 +831,7 @@ static void TestLocalizedInstances( CIMClient& client,
         Uint32 testRepeat = 1;
 
         if (verboseTest)
-            cout << "Getting class: " << CLASSNAME << endl;
+            cout << "Getting class: " << CLASSNAME.getString() << endl;
 
         CIMClass sampleClass = client.getClass(
             NAMESPACE,
@@ -928,7 +927,7 @@ static void TestLocalizedInstances( CIMClient& client,
             
             if (verboseTest)
                 cout << "Found " << cimNInstances2.size() << " Instances of " 
-                    << className << endl;
+                    << className.getString() << endl;
             
             MYASSERT(cimNInstances2.size() == 3);
             
@@ -1019,7 +1018,7 @@ static void TestLocalizedInstances( CIMClient& client,
             
             if (verboseTest)
                cout << "Found " << cimNInstances3.size() << " Instances of "
-                    << className << endl;
+                    << className.getString() << endl;
             
             MYASSERT(cimNInstances3.size() == 3);
             

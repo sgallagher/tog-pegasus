@@ -1185,6 +1185,19 @@ int CIMServerProcess::cimserver_run(
 
 #endif
 
+        // In case we don't want to reregister to SLP
+        // (i.e. PEGASUS_SLP_REG_TIMEOUT not set) after CIM Server startup, 
+        // the SLP Provider is started only once,
+        // right short before entering the runForever loop which then can handle
+        // the invokeMethod call against the SLP provider
+        // function startSLPProvider() does create a separate thread to process
+        // so code continues to go into the forever loop before executing any
+        // requests against the CIM Server
+#ifdef PEGASUS_ENABLE_SLP
+# ifndef PEGASUS_SLP_REG_TIMEOUT
+        _cimServer->startSLPProvider();
+# endif
+#endif        
         //
         // Loop to call CIMServer's runForever() method until CIMServer
         // has been shutdown

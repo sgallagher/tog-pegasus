@@ -713,9 +713,7 @@ void CIMServer::runForever()
             (PEGASUS_SLP_REG_TIMEOUT * 60))
         {
             lastReregistrationTime.tv_sec = now.tv_sec;
-# endif
             startSLPProvider();
-# ifdef PEGASUS_SLP_REG_TIMEOUT
         }
 # endif // PEGASUS_SLP_REG_TIMEOUT
 #endif // PEGASUS_ENABLE_SLP
@@ -1140,23 +1138,10 @@ ThreadReturnType PEGASUS_THREAD_CDECL _callSLPProvider(void* parm);
 // will still be set from the "slp" configuration variable, and tested,
 // but it will retain this setting for the life of this process.
 //
-// Note that the SLP registration needs to be performed from within the
-// runForever "loop" because it will actually call connectLocal() and
-// client.invokeMethod() to perform the SLP registration, so the CIM
-// Server needs to be able to accept connectLocal requests
 
 void CIMServer::startSLPProvider()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::startSLPProvider");
-
-#ifndef PEGASUS_SLP_REG_TIMEOUT
-    // This is a onetime function.  If already issued, or config is not to
-    // use simply return
-    if (!_runSLP)
-    {
-        return;
-    }
-#endif
 
     // Get Config parameter to determine if we should start SLP.
     ConfigManager* configManager = ConfigManager::getInstance();
@@ -1166,13 +1151,9 @@ void CIMServer::startSLPProvider()
     // If false, do not start slp provider
     if (!_runSLP)
     {
+        PEG_METHOD_EXIT();
         return;
     }
-#ifndef PEGASUS_SLP_REG_TIMEOUT
-    //SLP startup is onetime function; reset the switch so this
-    // function does not get called a second time.
-    _runSLP = false;
-#endif
     // Start SLPProvider for Built-in SA and Open SLP SA. If the
     // PEGASUS_SLP_REG_TIMEOUT is defined and if Open SLP is not used, start a
     // thread which advertises CIMOM with a external SLP SA( i.e . IBM SA).

@@ -338,8 +338,8 @@ Array<CIMObjectPath> _filterAssocInstanceToTargetPaths(
             {
                 if (resultClass.isNull() || resultClass == path.getClassName())
                 {
-                    if (resultRole == String::EMPTY ||
-                        p.getName().getString() == resultRole)
+                    if ((resultRole.size() == 0) ||
+                        (CIMName(resultRole) == p.getName()))
                     {
                         returnPaths.append(path);
                     }
@@ -357,7 +357,8 @@ Array<CIMObjectPath> _filterAssocInstanceToTargetPaths(
     @param target - The target path for the association. Localization assumed.
     @param instance - The association class instance we are searching for
     references
-    @param role - The role we require. I there is no role, this is String::EMPTY
+    @param role The role we require. If there is no role filter, the value is
+        an empty string.
     @return - returns Boolean true if target is found in a reference that is
     the same role
  */
@@ -368,7 +369,7 @@ Boolean _isInstanceValidReference(
 {
     // Test if role parameter is valid property.
     Uint32 pos;
-    if (role != String::EMPTY)
+    if (role.size() != 0)
     {
         // Test if property with this role exists.
         if ((pos = instance.findProperty(role)) == PEG_NOT_FOUND)
@@ -392,7 +393,7 @@ Boolean _isInstanceValidReference(
             v.get(path);
 
             // if no role or role == this role and target = this path, rtn true.
-            if ((role == String::EMPTY) || (role == p.getName().getString()))
+            if ((role.size() == 0) || (CIMName(role) == p.getName()))
             {
                 if (target.identical(path))
                     return(true);

@@ -34,10 +34,13 @@
 #include <iostream>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/TraceFileHandler.h>
+#include <Pegasus/Common/Mutex.h>
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
+static Mutex writeMutex;
 
 ////////////////////////////////////////////////////////////////////////////////
 //   On other platforms prepares the file handle (open file etc.).
@@ -68,6 +71,8 @@ void TraceFileHandler::handleMessage(
 
     if (_fileHandle)
     {
+        AutoMutex writeLock(writeMutex);
+
         //Move to the End of File
         fseek(_fileHandle,0,SEEK_SET);
 
@@ -113,6 +118,8 @@ void TraceFileHandler::handleMessage(const char* message)
 
     if (_fileHandle)
     {
+        AutoMutex writeLock(writeMutex);
+
         //Move to the End of File
         fseek(_fileHandle,0,SEEK_SET);
 

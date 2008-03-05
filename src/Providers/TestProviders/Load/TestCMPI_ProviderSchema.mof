@@ -58,6 +58,7 @@ class TestCMPI_Indication
 class TestCMPI_Parent
 {
     string parentProperty;
+    uint32 Property1;
 };
 
 class TestCMPI_Instance : TestCMPI_Parent
@@ -83,6 +84,8 @@ class TestCMPI_Instance : TestCMPI_Parent
 
 class TestCMPI_ExecQuery : TestCMPI_Instance
 {
+    uint8  n8;
+    sint8  s8;
 };
 
 class TestCMPI_Method : TestCMPI_Parent
@@ -122,6 +125,9 @@ class TestCMPI_Method : TestCMPI_Parent
         string outputInstances[],
         [OUT, EmbeddedObject("TestCMPI_Parent")]
         string outputObjects[]);
+        
+    uint64 firstPropertyName;
+    uint64 secondPropertyName;
 };
 
 class TestCMPI_Enumeration : TestCMPI_Parent

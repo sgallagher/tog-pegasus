@@ -149,14 +149,12 @@ void LanguageParser::parseLanguageTag(
     {
         // Except for "i" and "x", primary tags must be 2 or 3 characters,
         // according to RFC 3066.
-        MessageLoaderParms parms(
-            "Common.LanguageParser.INVALID_LANGUAGE_TAG",
-            "Invalid language tag \"$0\".", languageTagString);
+
+        // Do not localize this message; it could cause recursion.
         PEG_METHOD_EXIT();
-        // throw Exception(MessageLoader::getMessage(parms));
-        // do not localize message, requires a language tag for this
-        // localization can cause recursion here
-        throw Exception(parms.toString());
+        throw Exception(Formatter::format(
+            "Invalid language tag \"$0\".",
+            languageTagString));
     }
 
     if (subtags.size() == 1)
@@ -173,14 +171,12 @@ void LanguageParser::parseLanguageTag(
     {
         // The second subtag may not be a single character according to
         // RFC 3066.
-        MessageLoaderParms parms(
-            "Common.LanguageParser.INVALID_LANGUAGE_TAG",
-            "Invalid language tag \"$0\".", languageTagString);
+
+        // Do not localize this message; it could cause recursion.
         PEG_METHOD_EXIT();
-        // throw Exception(MessageLoader::getMessage(parms));
-        // do not localize message, requires a language tag for this
-        // localization can cause recursion here
-        throw Exception(parms.toString());
+        throw Exception(Formatter::format(
+            "Invalid language tag \"$0\".",
+            languageTagString));
     }
 
     if (isStandardFormat)

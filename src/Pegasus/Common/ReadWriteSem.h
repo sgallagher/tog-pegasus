@@ -134,42 +134,6 @@ public:
         wait(PEG_SEM_WRITE, caller);
     }
 
-    // @exception Deadlock
-    // @exception Permission
-    // @exception AlreadyLocked
-    // @exception WaitFailed
-    inline void try_wait_read(ThreadType caller)
-    {
-        try_wait(PEG_SEM_READ, caller);
-    }
-
-    // @exception Deadlock
-    // @exception Permission
-    // @exception AlreadyLocked
-    // @exception WaitFailed
-    inline void try_wait_write(ThreadType caller)
-    {
-        try_wait(PEG_SEM_WRITE, caller);
-    }
-
-    // @exception Deadlock
-    // @exception Permission
-    // @exception TimeOut
-    // @exception WaitFailed
-    inline void timed_wait_read(ThreadType caller, int milliseconds)
-    {
-        timed_wait(PEG_SEM_READ, caller, milliseconds);
-    }
-
-    // @exception Deadlock
-    // @exception Permission
-    // @exception TimeOut
-    // @exception WaitFailed
-    inline void timed_wait_write(ThreadType caller, int milliseconds)
-    {
-        timed_wait(PEG_SEM_WRITE, caller, milliseconds);
-    }
-
     // @exception Permission
     inline void unlock_read(ThreadType caller)
     {
@@ -190,19 +154,6 @@ public:
     // @exception WaitFailed
     // @exception TooManyReaders
     void wait(Uint32 mode, ThreadType caller);
-
-    // @exception Deadlock
-    // @exception Permission
-    // @exception WaitFailed
-    // @exception TooManyReaders
-    void try_wait(Uint32 mode, ThreadType caller);
-
-    // @exception Timeout
-    // @exception Deadlock
-    // @exception Permission
-    // @exception WaitFailed
-    // @exception TooManyReaders
-    void timed_wait(Uint32 mode, ThreadType caller, int milliseconds);
 
     // @exception Permission
     void unlock(Uint32 mode, ThreadType caller);

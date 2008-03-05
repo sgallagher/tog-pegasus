@@ -91,101 +91,6 @@ void ReadWriteSem::wait(Uint32 mode, ThreadType caller)
         throw(WaitFailed(Threads::self()));
 }
 
-void ReadWriteSem::try_wait(Uint32 mode, ThreadType caller)
-{
-    int errorcode = 0;
-    if (mode == PEG_SEM_READ)
-    {
-        if (0 == (errorcode = pthread_rwlock_tryrdlock(&_rwlock.rwlock)))
-        {
-            _readers++;
-            return;
-        }
-    }
-    else if (mode == PEG_SEM_WRITE)
-    {
-        if (0 == (errorcode = pthread_rwlock_trywrlock(&_rwlock.rwlock)))
-        {
-            _writers++;
-            _rwlock.owner = caller;
-            return;
-        }
-    }
-    else
-        throw(Permission(Threads::self()));
-    if (errorcode == -1)
-        errorcode = errno;
-    if (errorcode == EBUSY)
-        throw(AlreadyLocked(_rwlock.owner));
-    else if (errorcode == EDEADLK)
-        throw(Deadlock(_rwlock.owner));
-    else
-        throw(WaitFailed(Threads::self()));
-}
-
-
-// timedrdlock and timedwrlock are not supported on HPUX
-// mdday Sun Aug  5 14:21:00 2001
-void ReadWriteSem::timed_wait(Uint32 mode,
-                              ThreadType caller, int milliseconds)
-{
-    int errorcode = 0, timeout = 0;
-    struct timeval now, finish, remaining;
-    Uint32 usec;
-
-    gettimeofday(&finish, NULL);
-    finish.tv_sec += (milliseconds / 1000);
-    milliseconds %= 1000;
-    usec = finish.tv_usec + (milliseconds * 1000);
-    finish.tv_sec += (usec / 1000000);
-    finish.tv_usec = usec % 1000000;
-
-    if (mode == PEG_SEM_READ)
-    {
-        do
-        {
-            errorcode = pthread_rwlock_tryrdlock(&_rwlock.rwlock);
-            if (errorcode == -1)
-                errorcode = errno;
-            gettimeofday(&now, NULL);
-        }
-        while (errorcode == EBUSY &&
-               (0 == (timeout = Time::subtract(&remaining, &finish, &now))));
-        if (0 == errorcode)
-        {
-            _readers++;
-            return;
-        }
-    }
-    else if (mode == PEG_SEM_WRITE)
-    {
-        do
-        {
-            errorcode = pthread_rwlock_trywrlock(&_rwlock.rwlock);
-            if (errorcode == -1)
-                errorcode = errno;
-            gettimeofday(&now, NULL);
-        }
-        while (errorcode == EBUSY &&
-               (0 == (timeout = Time::subtract(&remaining, &finish, &now))));
-
-        if (0 == errorcode)
-        {
-            _writers++;
-            _rwlock.owner = caller;
-            return;
-        }
-    }
-    else
-        throw(Permission(Threads::self()));
-    if (timeout != 0)
-        throw(TimeOut(_rwlock.owner));
-    else if (errorcode == EDEADLK)
-        throw(Deadlock(_rwlock.owner));
-    else
-        throw(WaitFailed(Threads::self()));
-}
-
 void ReadWriteSem::unlock(Uint32 mode, ThreadType caller)
 {
     ThreadType owner;
@@ -231,23 +136,6 @@ int ReadWriteSem::write_count() const
 // 2) I do not hold the write lock
 // 3) I am not using a reader slot
 
-#if 0
-void extricate_read_write(void *parm)
-{
-    ReadWriteSem *rws = (ReadWriteSem *) parm;
-    ThreadType myself = Threads::self();
-
-    if (Threads::equal(rws->_rwlock._wlock.get_owner(), myself))
-        rws->_rwlock._wlock.unlock();
-    else if (rws->_readers.get() > 0)
-        rws->_rwlock._rlock.signal();
-
-    if (Threads::equal(rws->_rwlock._internal_lock.get_owner(), myself))
-        rws->_rwlock._internal_lock.unlock();
-}
-#endif
-
-
 ReadWriteSem::ReadWriteSem():_readers(0), _writers(0), _rwlock()
 {
 }
@@ -274,17 +162,8 @@ ReadWriteSem::~ReadWriteSem()
     _rwlock._internal_lock.unlock();
 }
 
-
-
-
-
-
-//-----------------------------------------------------------------
-// if milliseconds == -1, wait indefinately
-// if milliseconds == 0, fast wait
-//-----------------------------------------------------------------
-void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
-                              int milliseconds)
+//---------------------------------------------------------------------
+void ReadWriteSem::wait(Uint32 mode, ThreadType caller)
 {
 //-----------------------------------------------------------------
 // Lock this object to maintain integrity while we decide
@@ -308,12 +187,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
 
         try
         {
-            if (milliseconds == 0)
-                _rwlock._internal_lock.try_lock();
-            else if (milliseconds == -1)
                 _rwlock._internal_lock.lock();
-            else
-                _rwlock._internal_lock.timed_lock(milliseconds);
         }
         catch (const IPCException & e)
         {
@@ -326,86 +200,22 @@ void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
 //-----------------------------------------------------------------
 // Write Lock Step 1: lock the object and allow all the readers to exit
 //-----------------------------------------------------------------
-
-
-            if (milliseconds == 0)      // fast wait
-            {
-                if (_readers.get() > 0)
-                {
-                    _rwlock._internal_lock.unlock();
-                    // caught.reset(new WaitFailed(Threads::self()));
-                    caughtWaitFailed = WaitFailed(Threads::self());
-                    goto throw_from_here;
-                }
-            }
-            else if (milliseconds == -1)        // infinite wait
-            {
-                while (_readers.get() > 0)
-                    Threads::yield();
-            }
-            else                // timed wait
-            {
-                struct timeval start, now;
-                Time::gettimeofday(&start);
-                start.tv_usec += (1000 * milliseconds);
-                while (_readers.get() > 0)
-                {
-                    Time::gettimeofday(&now);
-                    if ((now.tv_usec > start.tv_usec) ||
-                        now.tv_sec > start.tv_sec)
-                    {
-                        _rwlock._internal_lock.unlock();
-                        // caught.reset(new TimeOut(Threads::self()));
-                        caughtTimeOut = TimeOut(Threads::self());
-                        goto throw_from_here;
-                    }
-                    Threads::yield();
-                }
-            }
+            while (_readers.get() > 0)
+                Threads::yield();
 //-----------------------------------------------------------------
 // Write Lock Step 2: Obtain the Write Mutex
 //  Although there are no readers, there may be a writer
 //-----------------------------------------------------------------
-            if (milliseconds == 0)      // fast wait
+            try
             {
-                try
-                {
-                    _rwlock._wlock.try_lock();
-                }
-                catch (IPCException & e)
-                {
-                    _rwlock._internal_lock.unlock();
-                    caught = e;
-                    goto throw_from_here;
-                }
+                _rwlock._wlock.lock();
             }
-            else if (milliseconds == -1)        // infinite wait
+            catch (const IPCException & e)
             {
-                try
-                {
-                    _rwlock._wlock.lock();
-                }
-                catch (const IPCException & e)
-                {
-                    _rwlock._internal_lock.unlock();
-                    caught = e;
-                    goto throw_from_here;
-                }
+                _rwlock._internal_lock.unlock();
+                caught = e;
+                goto throw_from_here;
             }
-            else                // timed wait
-            {
-                try
-                {
-                    _rwlock._wlock.timed_lock(milliseconds);
-                }
-                catch (const IPCException & e)
-                {
-                    _rwlock._internal_lock.unlock();
-                    caught = e;
-                    goto throw_from_here;
-                }
-            }
-
 //-----------------------------------------------------------------
 // Write Lock Step 3: set the writer count to one, unlock the object
 //   There are no readers and we are the only writer !
@@ -421,91 +231,23 @@ void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
 //-----------------------------------------------------------------
 // Read Lock Step 1: Wait for the existing writer (if any) to clear
 //-----------------------------------------------------------------
-            if (milliseconds == 0)      // fast wait
-            {
-                if (_writers.get() > 0)
-                {
-                    _rwlock._internal_lock.unlock();
-                    // caught.reset(new WaitFailed(Threads::self()));
-                    caughtWaitFailed = WaitFailed(Threads::self());
-                    goto throw_from_here;
-                }
-            }
-            else if (milliseconds == -1)        // infinite wait
-            {
-                while (_writers.get() > 0)
-                    Threads::yield();
-            }
-            else                // timed wait
-            {
-                struct timeval start, now;
-                Time::gettimeofday(&start);
-                start.tv_usec += (milliseconds * 1000);
-
-                while (_writers.get() > 0)
-                {
-                    Time::gettimeofday(&now);
-                    if ((now.tv_usec > start.tv_usec) ||
-                        (now.tv_sec > start.tv_sec))
-                    {
-                        _rwlock._internal_lock.unlock();
-                        // caught.reset(new TimeOut(Threads::self()));
-                        caughtTimeOut = TimeOut(Threads::self());
-                        goto throw_from_here;
-                    }
-                    Threads::yield();
-                    Time::gettimeofday(&now);
-                }
-            }
-
+            while (_writers.get() > 0)
+                Threads::yield();
 //-----------------------------------------------------------------
 // Read Lock Step 2: wait for a reader slot to open up, then return
 //  At this point there are no writers, but there may be too many
 //  readers.
 //-----------------------------------------------------------------
-            if (milliseconds == 0)      // fast wait
+            try
             {
-                try
-                {
-                    _rwlock._rlock.try_wait();
-                }
-                catch (const IPCException &)
-                {
-                    // the wait failed, there must be too many readers
-                    // already.
-                    // unlock the object
-                    caughtTooManyReaders = TooManyReaders(Threads::self());
-                    _rwlock._internal_lock.unlock();
-                    // caught.reset(new TooManyReaders(Threads::self()));
-                }
+                _rwlock._rlock.wait();
             }
-            else if (milliseconds == -1)        // infinite wait
+            catch (const IPCException & e)
             {
-                try
-                {
-                    _rwlock._rlock.wait();
-                }
-                catch (const IPCException & e)
-                {
-                    _rwlock._internal_lock.unlock();
-                    caught = e;
-                    goto throw_from_here;
-                }
+                _rwlock._internal_lock.unlock();
+                caught = e;
+                goto throw_from_here;
             }
-            else                // timed wait
-            {
-                try
-                {
-                    _rwlock._rlock.time_wait(milliseconds);
-                }
-                catch (const IPCException & e)
-                {
-                    _rwlock._internal_lock.unlock();
-                    caught = e;
-                    goto throw_from_here;
-                }
-            }
-
 //-----------------------------------------------------------------
 // Read Lock Step 3: increment the number of readers, unlock the object,
 // return
@@ -517,7 +259,6 @@ void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
         // ATTN:
         Threads::cleanup_pop(0);
     }
-
     if (!Threads::null(caught.get_owner()))
         throw caught;
     if (!Threads::null(caughtWaitFailed.get_owner()))
@@ -529,18 +270,6 @@ void ReadWriteSem::timed_wait(Uint32 mode, ThreadType caller,
         throw caughtTooManyReaders;
     return;
 }
-
-//---------------------------------------------------------------------
-void ReadWriteSem::wait(Uint32 mode, ThreadType caller)
-{
-    timed_wait(mode, caller, -1);
-}
-
-void ReadWriteSem::try_wait(Uint32 mode, ThreadType caller)
-{
-    timed_wait(mode, caller, 0);
-}
-
 
 void ReadWriteSem::unlock(Uint32 mode, ThreadType caller)
 {

@@ -149,12 +149,6 @@ void Semaphore::wait(Boolean ignoreInterrupt)
     pthread_mutex_unlock(&_rep.mutex);
 }
 
-void Semaphore::try_wait()
-{
-// not implemented
-    throw(WaitFailed(_rep.owner));
-}
-
 void Semaphore::time_wait(Uint32 milliseconds)
 {
     // Acquire mutex to enter critical section.
@@ -289,23 +283,6 @@ void Semaphore::wait(Boolean ignoreInterrupt)
 
 }
 
-// wait succeeds immediately if semaphore has a non-zero count,
-// return immediately and throw and exception if the
-// count is zero.
-void Semaphore::try_wait()
-{
-    if (sem_trywait(&_rep.sem))
-        throw(WaitFailed(_rep.owner));
-}
-
-
-
-
-// Note: I could not get sem_timed_wait to work reliably.
-// See my comments above on mut timed_wait.
-// I reimplemented using try_wait, which works reliably.
-// mdd Sun Aug  5 13:25:31 2001
-
 // wait for milliseconds and throw an exception
 // if wait times out without gaining the semaphore
 void Semaphore::time_wait(Uint32 milliseconds)
@@ -389,18 +366,6 @@ void Semaphore::wait(Boolean ignoreInterrupt)
     else
         throw(WaitFailed(Threads::self()));
 }
-
-// wait succeeds immediately if semaphore has a non-zero count,
-// return immediately and throw and exception if the
-// count is zero.
-void Semaphore::try_wait()
-{
-    DWORD errorcode = WaitForSingleObject(_rep.sem, 0);
-    if (errorcode == WAIT_TIMEOUT || errorcode == WAIT_FAILED)
-        throw(WaitFailed(Threads::self()));
-    _count--;
-}
-
 
 // wait for milliseconds and throw an exception
 // if wait times out without gaining the semaphore

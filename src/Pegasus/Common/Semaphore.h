@@ -128,13 +128,6 @@ public:
     */
     void wait(Boolean ignoreInterrupt = true);
 
-    /** Checks whether the Semaphore is signalled without waiting.  This method
-        returns normally if the Semaphore has a non-zero count.
-        @exception WaitFailed If the wait operation does not immediately
-        succeed.
-    */
-    void try_wait();
-
     /** Waits for the Semaphore to be signalled for a specified time interval.
         This method returns normally if the Semaphore has a non-zero count or
         it is signalled during the specified time interval.

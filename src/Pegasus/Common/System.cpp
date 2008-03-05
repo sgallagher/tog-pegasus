@@ -183,6 +183,128 @@ char *System::extract_file_path(const char *fullpath, char *dirname)
     return dirname;
 }
 
+String System::getHostName()
+{
+    static String _hostname;
+    static MutexType _mutex = PEGASUS_MUTEX_INITIALIZER;
+
+    // Use double-checked locking pattern to avoid overhead of
+    // mutex on subsequent calls.
+
+    if (0 == _hostname.size())
+    {
+        mutex_lock(&_mutex);
+
+        if (0 == _hostname.size())
+        {
+            char hostname[PEGASUS_MAXHOSTNAMELEN + 1];
+            // If gethostname() fails, an empty or truncated value is used.
+            hostname[0] = 0;
+            gethostname(hostname, sizeof(hostname));
+            hostname[sizeof(hostname)-1] = 0;
+            _hostname.assign(hostname);
+        }
+
+        mutex_unlock(&_mutex);
+    }
+
+    return _hostname;
+}
+
+static String _getFullyQualifiedHostName()
+{
+    char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
+
+    // Get the short name of the local host.
+    // If gethostname() fails, an empty or truncated value is used.
+    hostName[0] = 0;
+    gethostname(hostName, sizeof(hostName));
+    hostName[sizeof(hostName)-1] = 0;
+
+#if defined(PEGASUS_OS_ZOS)|| \
+    defined(PEGASUS_OS_VMS)
+
+    String fqName;
+    struct addrinfo *resolv;
+    struct addrinfo hint;
+    struct hostent *he;
+
+    memset (&hint, 0, sizeof(struct addrinfo));
+    hint.ai_flags = AI_CANONNAME;
+    hint.ai_family = AF_UNSPEC; // any family
+    hint.ai_socktype = 0;       // any socket type
+    hint.ai_protocol = 0;       // any protocol
+    int success = getAddrInfo(hostName, NULL, &hint, &resolv);
+    if (success==0)
+    {
+        // assign fully qualified hostname
+        fqName.assign(resolv->ai_canonname);
+    }
+    else
+    {
+        if ((he = getHostByName(hostName)))
+        {
+            strncpy(hostName, he->h_name, sizeof(hostName) - 1);
+        }
+        // assign hostName
+        // if gethostbyname was successful assign that result
+        // else assign unqualified hostname
+        fqName.assign(hostName);
+    }
+    if (resolv)
+    {
+        freeaddrinfo(resolv);
+    }
+
+    return fqName;
+
+#else /* !PEGASUS_OS_ZOS && !PEGASUS_OS_VMS */
+
+    char hostEntryBuffer[8192];
+    struct hostent hostEntryStruct;
+    struct hostent* hostEntry = System::getHostByName(
+        hostName, &hostEntryStruct, hostEntryBuffer, sizeof (hostEntryBuffer));
+
+    if (hostEntry)
+    {
+        strncpy(hostName, hostEntry->h_name, sizeof(hostName) - 1);
+    }
+    return String(hostName);
+
+#endif
+}
+
+String System::getFullyQualifiedHostName()
+{
+    static String _hostname;
+    static MutexType _mutex = PEGASUS_MUTEX_INITIALIZER;
+
+    // Use double-checked locking pattern to avoid overhead of
+    // mutex on subsequent calls.
+
+    if (0 == _hostname.size())
+    {
+        mutex_lock(&_mutex);
+
+        if (0 == _hostname.size())
+        {
+            try
+            {
+                _hostname = _getFullyQualifiedHostName();
+            }
+            catch (...)
+            {
+                mutex_unlock(&_mutex);
+                throw;
+            }
+        }
+
+        mutex_unlock(&_mutex);
+    }
+
+    return _hostname;
+}
+
 Boolean System::getHostIP(const String &hostName, int *af, String &hostIP)
 {
 #ifdef PEGASUS_ENABLE_IPV6

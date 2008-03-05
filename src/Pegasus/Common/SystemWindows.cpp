@@ -165,41 +165,6 @@ Boolean System::renameFile(const char* oldPath, const char* newPath)
     return rename(oldPath, newPath) == 0;
 }
 
-String System::getHostName()
-{
-    static String _hostname;
-    if (0 == _hostname.size())
-    {
-        char hostname[PEGASUS_MAXHOSTNAMELEN + 1];
-        //initialize the buffer to handle the case where gethostname fails.
-        hostname[0] = 0;
-        gethostname(hostname, sizeof(hostname));
-        hostname[sizeof(hostname)-1] = 0;
-        _hostname.assign(hostname);
-    }
-    return _hostname;
-}
-
-String System::getFullyQualifiedHostName ()
-{
-    static char FQHostName[PEGASUS_MAXHOSTNAMELEN + 1];
-
-    if (!*FQHostName)
-    {
-        String hostname = getHostName();
-        struct hostent* hostEnt;
-
-        hostEnt = getHostByName((const char *)hostname.getCString());
-        if (hostEnt == NULL)
-        {
-            return String::EMPTY;
-        }
-        strncpy(FQHostName, hostEnt->h_name, sizeof(FQHostName)-1);
-    }
-
-    return FQHostName;
-}
-
 String System::getSystemCreationClassName ()
 {
     return "CIM_ComputerSystem";

@@ -35,8 +35,6 @@
 #include "CIMQualifierRep.h"
 #include "CIMName.h"
 #include "InternalException.h"
-#include "XmlWriter.h"
-#include "MofWriter.h"
 #include "StrLit.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -128,89 +126,6 @@ void CIMQualifierRep::resolveFlavor (
 
     _flavor.addFlavor (inheritedFlavor);
 }
-
-static const char* _toString(Boolean x)
-{
-    return x ? "true" : "false";
-}
-
-void CIMQualifierRep::toXml(Buffer& out) const
-{
-    out << STRLIT("<QUALIFIER NAME=\"") << _name;
-    out.append('"');
-    out << STRLIT(" TYPE=\"") << cimTypeToString(_value.getType ());
-    out.append('"');
-
-    if (_propagated != false)
-    {
-        out << STRLIT(" PROPAGATED=\"") << _toString(_propagated);
-        out.append('"');
-    }
-
-    XmlWriter::appendQualifierFlavorEntity(out, _flavor);
-
-    out << STRLIT(">\n");
-
-    XmlWriter::appendValueElement(out, _value);
-
-    out << STRLIT("</QUALIFIER>\n");
-}
-
-/** toMof Generates MOF output for a qualifier.
-    The BNF for this is:
-    <pre>
-    qualifier          = qualifierName [ qualifierParameter ] [ ":" 1*flavor]
-
-    qualifierParameter = "(" constantValue ")" | arrayInitializer
-
-    arrayInitializer   = "{" constantValue*( "," constantValue)"}"
-    </pre>
-*/
-void CIMQualifierRep::toMof(Buffer& out) const
-{
-    // Output Qualifier name
-    out << _name;
-
-    /* If the qualifier is Boolean, we do not put out a value. This is
-       the way MOF is shown.  Note that we should really be checking
-       the qualifierdecl to compare with the default.
-       Also if the value is Null, we do not put out a value because
-       no value has been set.  Assumes that qualifiers are built
-       with NULL set if no value has been placed in the qualifier.
-    */
-    Boolean hasValueField = false;
-    if (!_value.isNull())
-    {
-        if (_value.getType() == CIMTYPE_BOOLEAN)
-        {
-            Boolean b;
-            _value.get(b);
-            if (!b)
-                out << STRLIT(" (false)");
-        }
-        else
-        {
-            if( !_value.isArray() )
-                out << STRLIT(" (");
-            else
-                out << STRLIT(" ");
-            hasValueField = true;
-            MofWriter::appendValueElement(out, _value);
-            if( !_value.isArray() )
-                out.append(')');
-        }
-    }
-
-    // output the flavors
-    String flavorString;
-    flavorString = MofWriter::getQualifierFlavor(_flavor);
-    if (flavorString.size())
-    {
-        out << STRLIT(" : ");
-        out << flavorString;
-    }
-}
-
 
 Boolean CIMQualifierRep::identical(const CIMQualifierRep* x) const
 {

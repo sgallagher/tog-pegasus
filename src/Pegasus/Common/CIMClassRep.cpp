@@ -37,8 +37,6 @@
 #include "CIMName.h"
 #include "CIMQualifierNames.h"
 #include "CIMScope.h"
-#include "XmlWriter.h"
-#include "MofWriter.h"
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include "CIMNameUnchecked.h"
@@ -544,93 +542,6 @@ CIMInstance CIMClassRep::buildInstance(Boolean includeQualifiers,
     CIMInstance newInstance(newInstanceRep);
 
     return newInstance;
-}
-
-void CIMClassRep::toXml(Buffer& out) const
-{
-    // Class opening element:
-
-    out << STRLIT("<CLASS ");
-    out << STRLIT(" NAME=\"") << _reference.getClassName() << STRLIT("\" ");
-
-    if (!_superClassName.isNull())
-        out << STRLIT(" SUPERCLASS=\"") << _superClassName << STRLIT("\" ");
-
-    out << STRLIT(">\n");
-
-    // Append Class Qualifiers:
-
-    _qualifiers.toXml(out);
-
-    // Append Property definitions:
-
-    for (Uint32 i = 0, n = _properties.size(); i < n; i++)
-        XmlWriter::appendPropertyElement(out, _properties[i]);
-
-    // Append Method definitions:
-
-    for (Uint32 i = 0, n = _methods.size(); i < n; i++)
-        XmlWriter::appendMethodElement(out, _methods[i]);
-
-    // Class closing element:
-
-    out << STRLIT("</CLASS>\n");
-}
-
-/** toMof prepares an 8-bit string with the MOF for the class.
-    The BNF for this is:
-    <pre>
-    classDeclaration    =    [ qualifierList ]
-                             CLASS className [ alias ] [ superClass ]
-                             "{" *classFeature "}" ";"
-
-    superClass          =    :" className
-
-    classFeature        =    propertyDeclaration | methodDeclaration
-
-*/
-
-void CIMClassRep::toMof(Buffer& out) const
-{
-    // Get and format the class qualifiers
-    out << STRLIT("\n//    Class ") << _reference.getClassName();
-    if (_qualifiers.getCount())
-        out.append('\n');
-    out.append('\n');
-    _qualifiers.toMof(out);
-
-    // Separate qualifiers from Class Name
-    out.append('\n');
-
-    // output class statement
-    out << STRLIT("class ") << _reference.getClassName();
-
-    if (!_superClassName.isNull())
-        out << STRLIT(" : ") << _superClassName;
-
-    out << STRLIT("\n{");
-
-    // format the Properties:
-    for (Uint32 i = 0, n = _properties.size(); i < n; i++)
-    {
-        // Generate MOF if this property not propagated
-        // Note that the test is required only because
-        // there is an error in getclass that does not
-        // test the localOnly flag
-        // The inital "false" indicates to format as property declaration.
-        if (!_properties[i].getPropagated())
-            MofWriter::appendPropertyElement(true, out, _properties[i]);
-    }
-
-    // Format the Methods:  for non-propagated methods
-    for (Uint32 i = 0, n = _methods.size(); i < n; i++)
-    {
-        if (!_methods[i].getPropagated())
-            MofWriter::appendMethodElement(out, _methods[i]);
-    }
-
-    // Class closing element:
-    out << STRLIT("\n};\n");
 }
 
 CIMClassRep::CIMClassRep(const CIMClassRep& x) :

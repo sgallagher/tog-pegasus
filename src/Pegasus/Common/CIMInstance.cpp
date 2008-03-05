@@ -35,7 +35,6 @@
 #include "CIMInstance.h"
 #include "DeclContext.h"
 #include "CIMName.h"
-#include "XmlWriter.h"
 
 PEGASUS_USING_STD;
 

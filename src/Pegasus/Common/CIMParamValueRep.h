@@ -76,8 +76,6 @@ public:
 
     void setIsTyped(Boolean isTyped);
 
-    void toXml(Buffer& out) const;
-
     CIMParamValueRep* clone() const
     {
         return new CIMParamValueRep(*this);

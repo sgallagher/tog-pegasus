@@ -37,7 +37,7 @@
 #include "HashTable.h"
 #include "CIMObjectPath.h"
 #include "CIMName.h"
-#include "XmlWriter.h"
+#include "CIMValue.h"
 #include "XmlReader.h"
 #include "ArrayInternal.h"
 #include "HostLocator.h"

@@ -33,7 +33,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <cstdio>
-#include "XmlWriter.h"
 #include "CIMParamValueRep.h"
 #include "StrLit.h"
 
@@ -54,33 +53,6 @@ CIMParamValueRep::CIMParamValueRep(
 
 CIMParamValueRep::~CIMParamValueRep()
 {
-}
-
-//------------------------------------------------------------------------------
-//
-//     <!ELEMENT PARAMVALUE (VALUE|VALUE.REFERENCE|VALUE.ARRAY|VALUE.REFARRAY)?>
-//     <!ATTLIST PARAMVALUE
-//         %CIMName;
-//         %EmbeddedObject; #IMPLIED
-//         %ParamType;>
-//
-//------------------------------------------------------------------------------
-void CIMParamValueRep::toXml(Buffer& out) const
-{
-    out << STRLIT("<PARAMVALUE NAME=\"") << _parameterName;
-    out.append('"');
-
-    CIMType type = _value.getType();
-
-    if (_isTyped)
-    {
-        XmlWriter::appendParamTypeAndEmbeddedObjAttrib(out, type); 
-    }
-
-    out << STRLIT(">\n");
-    XmlWriter::appendValueElement(out, _value);
-
-    out << STRLIT("</PARAMVALUE>\n");
 }
 
 CIMParamValueRep::CIMParamValueRep(const CIMParamValueRep& x) :

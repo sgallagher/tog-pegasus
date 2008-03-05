@@ -191,8 +191,6 @@ PEGASUS_COMMON_LINKAGE Boolean operator==(
 # include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
-class XmlWriter;
-
 /**
     The CIMObjectPath class represents the DMTF standard CIM object name or
     reference.  A reference is a property type that is used in an association.

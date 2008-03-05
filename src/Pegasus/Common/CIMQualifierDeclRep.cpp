@@ -36,8 +36,6 @@
 #include "CIMQualifierDeclRep.h"
 #include "CIMName.h"
 #include "InternalException.h"
-#include "XmlWriter.h"
-#include "MofWriter.h"
 #include "StrLit.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -102,103 +100,6 @@ void CIMQualifierDeclRep::setName(const CIMName& name)
     }
 
     _name = name;
-}
-
-void CIMQualifierDeclRep::toXml(Buffer& out) const
-{
-    out << STRLIT("<QUALIFIER.DECLARATION NAME=\"") << _name;
-    out.append('"');
-    out << STRLIT(" TYPE=\"") << cimTypeToString(_value.getType ());
-    out.append('"');
-
-    if (_value.isArray())
-    {
-        out << STRLIT(" ISARRAY=\"true\"");
-
-        if (_arraySize)
-        {
-            char buffer[64];
-            int n = sprintf(buffer, " ARRAYSIZE=\"%d\"", _arraySize);
-            out.append(buffer, n);
-        }
-    }
-
-    XmlWriter::appendQualifierFlavorEntity(out, _flavor);
-
-    out << STRLIT(">\n");
-
-    XmlWriter::appendScopeElement(out, _scope);
-    XmlWriter::appendValueElement(out, _value);
-
-    out << STRLIT("</QUALIFIER.DECLARATION>\n");
-}
-
-/** toMof - Generate the MOF output for the Qualifier Declaration object.
-
-    The BNF for this output is:
-    <pre>
-    qualifierDeclaration   =    QUALIFIER qualifierName qualifierType scope
-                                [ defaultFlavor ] ";"
-
-    qualifierName          =    IDENTIFIER
-
-    qualifierType          =    ":" dataType [ array ] [ defaultValue ]
-
-    scope                  =    "," SCOPE "(" metaElement *( "," metaElement )
-    ")"
-    </pre>
-*/
-void CIMQualifierDeclRep::toMof(Buffer& out) const
-{
-    out.append('\n');
-
-    // output the "Qualifier" keyword and name
-    out << STRLIT("Qualifier ") << _name;
-
-    // output the qualifiertype
-    out << STRLIT(" : ") << cimTypeToString(_value.getType());
-
-    // If array put the Array indicator "[]" and possible size after name.
-    if (_value.isArray())
-    {
-        if (_arraySize)
-        {
-            char buffer[32];
-            int n = sprintf(buffer, "[%d]", _arraySize);
-            out.append(buffer, n);
-        }
-        else
-            out << STRLIT("[]");
-    }
-
-    Boolean hasValueField = false;
-    // KS think through the following test
-    //if (!_value.isNull() || !(_value.getType() == CIMTYPE_BOOLEAN) )
-    //{
-        // KS With CIM Qualifier, this should be =
-        out << STRLIT(" = ");
-        hasValueField = true;
-        MofWriter::appendValueElement(out, _value);
-    //}
-
-    // Output Scope Information
-    String scopeString;
-    scopeString = MofWriter::getQualifierScope(_scope);
-    //if (scopeString.size())
-    //{
-        out << STRLIT(", Scope(") << scopeString;
-        out.append(')');
-    //}
-    // Output Flavor Information
-    String flavorString;
-    flavorString = MofWriter::getQualifierFlavor(_flavor);
-    if (flavorString.size())
-    {
-        out << STRLIT(", Flavor(") << flavorString;
-        out.append(')');
-    }
-    // End each qualifier declaration with newline
-    out << STRLIT(";\n");
 }
 
 CIMQualifierDeclRep::CIMQualifierDeclRep(const CIMQualifierDeclRep& x) :

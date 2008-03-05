@@ -102,10 +102,6 @@ public:
         return _arraySize;
     }
 
-    void toXml(Buffer& out) const;
-
-    void toMof(Buffer& out) const;
-
     Boolean identical(const CIMQualifierDeclRep* x) const;
 
     CIMQualifierDeclRep* clone() const

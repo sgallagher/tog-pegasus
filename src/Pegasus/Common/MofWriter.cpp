@@ -553,14 +553,71 @@ void MofWriter::appendValueReferenceElement(
 //
 // appendClassElement()
 //
+//    classDeclaration    =    [ qualifierList ]
+//                             CLASS className [ alias ] [ superClass ]
+//                             "{" *classFeature "}" ";"
+//
+//    superClass          =    ":" className
+//
+//    classFeature        =    propertyDeclaration | methodDeclaration
+//
 //------------------------------------------------------------------------------
 
 void MofWriter::appendClassElement(
     Buffer& out,
-    const CIMConstClass& cimclass)
+    const CIMConstClass& cimClass)
 {
-    CheckRep(cimclass._rep);
-    cimclass._rep->toMof(out);
+    CheckRep(cimClass._rep);
+    const CIMClassRep* rep = cimClass._rep;
+
+    // Get and format the class qualifiers
+    out << STRLIT("\n//    Class ") << rep->getClassName();
+    out.append('\n');
+    if (rep->getQualifierCount())
+    {
+        out.append('\n');
+        out.append('[');
+        for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
+        {
+            if (i > 0)
+                out << STRLIT(", \n");
+            MofWriter::appendQualifierElement(out, rep->getQualifier(i));
+        }
+        out.append(']');
+    }
+
+    // Separate qualifiers from Class Name
+    out.append('\n');
+
+    // output class statement
+    out << STRLIT("class ") << rep->getClassName();
+
+    if (!rep->getSuperClassName().isNull())
+        out << STRLIT(" : ") << rep->getSuperClassName();
+
+    out << STRLIT("\n{");
+
+    // format the Properties:
+    for (Uint32 i = 0, n = rep->getPropertyCount(); i < n; i++)
+    {
+        // Generate MOF if this property not propagated
+        // Note that the test is required only because
+        // there is an error in getclass that does not
+        // test the localOnly flag
+        // The initial "false" indicates to format as property declaration.
+        if (!rep->getProperty(i).getPropagated())
+            MofWriter::appendPropertyElement(true, out, rep->getProperty(i));
+    }
+
+    // Format the Methods:  for non-propagated methods
+    for (Uint32 i = 0, n = rep->getMethodCount(); i < n; i++)
+    {
+        if (!rep->getMethod(i).getPropagated())
+            MofWriter::appendMethodElement(out, rep->getMethod(i));
+    }
+
+    // Class closing element:
+    out << STRLIT("\n};\n");
 }
 
 void MofWriter::printClassElement(
@@ -583,12 +640,72 @@ void MofWriter::appendInstanceElement(
     const CIMConstInstance& instance)
 {
     CheckRep(instance._rep);
-    instance._rep->toMof(out);
+    const CIMInstanceRep* rep = instance._rep;
+
+    // Get and format the class qualifiers
+    out << STRLIT("\n//Instance of ") << rep->getClassName();
+    if (rep->getQualifierCount())
+    {
+        out.append('\n');
+        out.append('[');
+        for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
+        {
+            if (i > 0)
+                out << STRLIT(", \n");
+            MofWriter::appendQualifierElement(out, rep->getQualifier(i));
+        }
+        out.append(']');
+    }
+
+    // Separate qualifiers from Class Name
+    out.append('\n');
+
+    // output class statement
+    out << STRLIT("instance of ") << rep->getClassName();
+
+    out << STRLIT("\n{");
+
+    // format the Properties:
+    for (Uint32 i = 0, n = rep->getPropertyCount(); i < n; i++)
+    {
+        // Generate MOF if this property not propagated
+        // Note that the test is required only because
+        // there is an error in getclass that does not
+        // test the localOnly flag.
+        // The false identifies this as value initializer, not
+        // property definition.
+        if (!rep->getProperty(i).getPropagated())
+            MofWriter::appendPropertyElement(false, out, rep->getProperty(i));
+    }
+
+    // Class closing element:
+    out << STRLIT("\n};\n");
 }
 
 //------------------------------------------------------------------------------
 //
 // appendPropertyElement()
+//
+//    The MOF for property declaration in a class and value presentation in
+//    an instance are different.
+//
+//    The BNF for the property Declaration MOF is:
+//
+//        propertyDeclaration     =   [ qualifierList ] dataType propertyName
+//                                    [ array ] [ defaultValue ] ";"
+//
+//        array                   =   "[" [positiveDecimalValue] "]"
+//
+//        defaultValue            =   "=" initializer
+//
+//    Format with qualifiers on one line and declaration on another. Start
+//    with newline but none at the end.
+//
+//    Note that instances have a different format that propertyDeclarations:
+//    instanceDeclaration = [ qualifiersList ] INSTANCE OF className | alias
+//         "["valueInitializer "]" ";"
+//    valueInitializer = [ qualifierList ] [ propertyName | referenceName ] "="
+//                       initializer ";"
 //
 //------------------------------------------------------------------------------
 
@@ -598,12 +715,82 @@ void MofWriter::appendPropertyElement(
     const CIMConstProperty& property)
 {
     CheckRep(property._rep);
-    property._rep->toMof(isDeclaration, out);
+    const CIMPropertyRep* rep = property._rep;
+
+    //Output the qualifier list
+    if (rep->getQualifierCount())
+    {
+        out.append('\n');
+        out.append('[');
+        for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
+        {
+            if (i > 0)
+                out << STRLIT(", \n");
+            MofWriter::appendQualifierElement(out, rep->getQualifier(i));
+        }
+        out.append(']');
+    }
+
+    // Output the Type and name on a new line
+    out << '\n';
+    if (isDeclaration)
+    {
+        out << cimTypeToString(rep->getValue().getType());
+        out.append(' ');
+    }
+    out << rep->getName();
+
+    // If array put the Array indicator "[]" and possible size after name.
+    if (isDeclaration)
+    {
+        if (rep->getValue().isArray())
+        {
+            if (rep->getArraySize())
+            {
+                char buffer[32];
+                int n = sprintf(buffer, "[%d]", rep->getArraySize());
+                out.append(buffer, n);
+            }
+            else
+                out << STRLIT("[]");
+        }
+    }
+
+    // If the property value is not Null, add value after "="
+    if (!rep->getValue().isNull())
+    {
+        out << STRLIT(" = ");
+        if (rep->getValue().isArray())
+        {
+            // Insert any property values
+            MofWriter::appendValueElement(out, rep->getValue());
+        }
+        else if (rep->getValue().getType() == CIMTYPE_REFERENCE)
+        {
+            MofWriter::appendValueElement(out, rep->getValue());
+        }
+        else
+        {
+            MofWriter::appendValueElement(out, rep->getValue());
+        }
+    }
+    else if (!isDeclaration)
+        out << STRLIT(" = NULL");
+
+    // Close the property MOF
+    out.append(';');
 }
 
 //------------------------------------------------------------------------------
 //
 // appendMethodElement()
+//
+//    methodDeclaration   =  [ qualifierList ] dataType methodName
+//                           "(" [ parameterList ] ")" ";"
+//
+//    parameterList       =  parameter *( "," parameter )
+//    Format with qualifiers on one line and declaration on another. Start
+//    with newline but none at the end.
 //
 //------------------------------------------------------------------------------
 
@@ -612,12 +799,58 @@ void MofWriter::appendMethodElement(
     const CIMConstMethod& method)
 {
     CheckRep(method._rep);
-    method._rep->toMof(out);
+    const CIMMethodRep* rep = method._rep;
+
+    // Output the qualifier list starting on new line
+    if (rep->getQualifierCount())
+    {
+        out.append('\n');
+        out.append('[');
+        for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
+        {
+            if (i > 0)
+                out << STRLIT(", \n");
+            MofWriter::appendQualifierElement(out, rep->getQualifier(i));
+        }
+        out.append(']');
+    }
+
+    // output the type, MethodName and ParmeterList left enclosure
+    out.append('\n');
+    out << cimTypeToString(rep->getType());
+    out.append(' ');
+    out << rep->getName();
+    out.append('(');
+
+    // output the param list separated by commas.
+
+    for (Uint32 i = 0, n = rep->getParameterCount(); i < n; i++)
+    {
+        // If not first, output comma separator
+        if (i)
+            out << STRLIT(", ");
+
+        MofWriter::appendParameterElement(out, rep->getParameter(i));
+    }
+
+    // output the parameterlist and method terminator
+    out << STRLIT(");");
 }
 
 //------------------------------------------------------------------------------
 //
 // appendParameterElement()
+//
+//    parameterList    =  parameter *( "," parameter )
+//
+//        parameter    =  [ qualifierList ] (dataType|objectRef) parameterName
+//                        [ array ]
+//
+//        parameterName=  IDENTIFIER
+//
+//        array        =  "[" [positiveDecimalValue] "]"
+//
+//    Format on a single line.
 //
 //------------------------------------------------------------------------------
 
@@ -626,12 +859,52 @@ void MofWriter::appendParameterElement(
     const CIMConstParameter& parameter)
 {
     CheckRep(parameter._rep);
-    parameter._rep->toMof(out);
+    const CIMParameterRep* rep = parameter._rep;
+
+    // Output the qualifiers for the parameter
+    if (rep->getQualifierCount())
+    {
+        out.append('[');
+        for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
+        {
+            if (i > 0)
+                out << STRLIT(", \n");
+            MofWriter::appendQualifierElement(out, rep->getQualifier(i));
+        }
+        out.append(']');
+    }
+
+    if (rep->getQualifierCount())
+        out.append(' ');
+
+    // Output the data type and name
+    out << cimTypeToString(rep->getType());
+    out.append(' ');
+    out << rep->getName();
+
+    if (rep->isArray())
+    {
+        //Output the array indicator "[ [arraysize] ]"
+        if (rep->getArraySize())
+        {
+            char buffer[32];
+            int n = sprintf(buffer, "[%d]", rep->getArraySize());
+            out.append(buffer, n);
+        }
+        else
+            out << STRLIT("[]");
+    }
 }
 
 //------------------------------------------------------------------------------
 //
 // appendQualifierElement()
+//
+//    qualifier          = qualifierName [ qualifierParameter ] [ ":" 1*flavor]
+//
+//    qualifierParameter = "(" constantValue ")" | arrayInitializer
+//
+//    arrayInitializer   = "{" constantValue*( "," constantValue)"}"
 //
 //------------------------------------------------------------------------------
 
@@ -640,12 +913,64 @@ void MofWriter::appendQualifierElement(
     const CIMConstQualifier& qualifier)
 {
     CheckRep(qualifier._rep);
-    qualifier._rep->toMof(out);
+    const CIMQualifierRep* rep = qualifier._rep;
+
+    // Output Qualifier name
+    out << rep->getName();
+
+    /* If the qualifier is Boolean, we do not put out a value. This is
+       the way MOF is shown.  Note that we should really be checking
+       the qualifierdecl to compare with the default.
+       Also if the value is Null, we do not put out a value because
+       no value has been set.  Assumes that qualifiers are built
+       with NULL set if no value has been placed in the qualifier.
+    */
+    Boolean hasValueField = false;
+    if (!rep->getValue().isNull())
+    {
+        if (rep->getValue().getType() == CIMTYPE_BOOLEAN)
+        {
+            Boolean b;
+            rep->getValue().get(b);
+            if (!b)
+                out << STRLIT(" (false)");
+        }
+        else
+        {
+            if (!rep->getValue().isArray())
+                out << STRLIT(" (");
+            else
+                out << STRLIT(" ");
+            hasValueField = true;
+            MofWriter::appendValueElement(out, rep->getValue());
+            if (!rep->getValue().isArray())
+                out.append(')');
+        }
+    }
+
+    // output the flavors
+    String flavorString;
+    flavorString = MofWriter::getQualifierFlavor(rep->getFlavor());
+    if (flavorString.size())
+    {
+        out << STRLIT(" : ");
+        out << flavorString;
+    }
 }
 
 //------------------------------------------------------------------------------
 //
 // appendQualifierDeclElement()
+//
+//    qualifierDeclaration   =    QUALIFIER qualifierName qualifierType scope
+//                                [ defaultFlavor ] ";"
+//
+//    qualifierName          =    IDENTIFIER
+//
+//    qualifierType          =    ":" dataType [ array ] [ defaultValue ]
+//
+//    scope                  =    "," SCOPE
+//                                "(" metaElement *( "," metaElement ) ")"
 //
 //------------------------------------------------------------------------------
 
@@ -654,7 +979,58 @@ void MofWriter::appendQualifierDeclElement(
     const CIMConstQualifierDecl& qualifierDecl)
 {
     CheckRep(qualifierDecl._rep);
-    qualifierDecl._rep->toMof(out);
+    const CIMQualifierDeclRep* rep = qualifierDecl._rep;
+
+    out.append('\n');
+
+    // output the "Qualifier" keyword and name
+    out << STRLIT("Qualifier ") << rep->getName();
+
+    // output the qualifiertype
+    out << STRLIT(" : ") << cimTypeToString(rep->getValue().getType());
+
+    // If array put the Array indicator "[]" and possible size after name.
+    if (rep->getValue().isArray())
+    {
+        if (rep->getArraySize())
+        {
+            char buffer[32];
+            int n = sprintf(buffer, "[%d]", rep->getArraySize());
+            out.append(buffer, n);
+        }
+        else
+            out << STRLIT("[]");
+    }
+
+    Boolean hasValueField = false;
+    // KS think through the following test
+    //if (!rep->getValue().isNull() ||
+    //    !(rep->getValue().getType() == CIMTYPE_BOOLEAN))
+    //{
+        // KS With CIM Qualifier, this should be =
+        out << STRLIT(" = ");
+        hasValueField = true;
+        MofWriter::appendValueElement(out, rep->getValue());
+    //}
+
+    // Output Scope Information
+    String scopeString;
+    scopeString = MofWriter::getQualifierScope(rep->getScope());
+    //if (scopeString.size())
+    //{
+        out << STRLIT(", Scope(") << scopeString;
+        out.append(')');
+    //}
+    // Output Flavor Information
+    String flavorString;
+    flavorString = MofWriter::getQualifierFlavor(rep->getFlavor());
+    if (flavorString.size())
+    {
+        out << STRLIT(", Flavor(") << flavorString;
+        out.append(')');
+    }
+    // End each qualifier declaration with newline
+    out << STRLIT(";\n");
 }
 
 //------------------------------------------------------------------------------

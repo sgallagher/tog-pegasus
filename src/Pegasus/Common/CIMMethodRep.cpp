@@ -37,8 +37,6 @@
 #include "Resolver.h"
 #include "CIMName.h"
 #include "CIMScope.h"
-#include "XmlWriter.h"
-#include "MofWriter.h"
 #include <Pegasus/Common/MessageLoader.h>
 #include "StrLit.h"
 
@@ -207,81 +205,6 @@ void CIMMethodRep::resolve(
     for (Uint32 i = 0; i < _parameters.size(); i++)
         Resolver::resolveParameter (_parameters[i], declContext, nameSpace);
 }
-
-static const char* _toString(Boolean x)
-{
-    return x ? "true" : "false";
-}
-
-void CIMMethodRep::toXml(Buffer& out) const
-{
-    out << STRLIT("<METHOD NAME=\"") << _name;
-    out.append('"');
-
-    out << STRLIT(" TYPE=\"") << cimTypeToString(_type);
-    out.append('"');
-
-    if (!_classOrigin.isNull())
-    {
-        out << STRLIT(" CLASSORIGIN=\"") << _classOrigin;
-        out.append('"');
-    }
-
-    if (_propagated != false)
-    {
-        out << STRLIT(" PROPAGATED=\"") << _toString(_propagated);
-        out.append('"');
-    }
-
-    out << STRLIT(">\n");
-
-    _qualifiers.toXml(out);
-
-    for (Uint32 i = 0, n = _parameters.size(); i < n; i++)
-        XmlWriter::appendParameterElement(out, _parameters[i]);
-
-    out << STRLIT("</METHOD>\n");
-}
-
-/**
-    The BNF for this is;
-    methodDeclaration   =  [ qualifierList ] dataType methodName
-                           "(" [ parameterList ] ")" ";"
-
-    parameterList       =  parameter *( "," parameter )
-    Format with qualifiers on one line and declaration on another. Start
-    with newline but none at the end.
-*/
-void CIMMethodRep::toMof(Buffer& out) const   //ATTNKS:
-{
-    // Output the qualifier list starting on new line
-    if (_qualifiers.getCount())
-        out.append('\n');
-
-    _qualifiers.toMof(out);
-
-    // output the type, MethodName and ParmeterList left enclosure
-    out.append('\n');
-    out << cimTypeToString(_type);
-    out.append(' ');
-    out << _name;
-    out.append('(');
-
-    // output the param list separated by commas.
-
-    for (Uint32 i = 0, n = _parameters.size(); i < n; i++)
-    {
-        // If not first, output comma separator
-        if (i)
-            out << STRLIT(", ");
-
-        MofWriter::appendParameterElement(out, _parameters[i]);
-    }
-
-    // output the parameterlist and method terminator
-    out << STRLIT(");");
-}
-
 
 Boolean CIMMethodRep::identical(const CIMMethodRep* x) const
 {

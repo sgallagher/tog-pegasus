@@ -93,10 +93,6 @@ public:
 
     virtual Boolean identical(const CIMObjectRep* x) const;
 
-    void toXml(Buffer& out) const;
-
-    void toMof(Buffer& out) const;
-
     virtual CIMObjectRep* clone() const
     {
         return new CIMClassRep(*this);

@@ -137,10 +137,6 @@ public:
 
     void resolve(DeclContext* declContext, const CIMNamespaceName& nameSpace);
 
-    void toXml(Buffer& out) const;
-
-    void toMof(Buffer& out) const;
-
     Boolean identical(const CIMParameterRep* x) const;
 
     CIMParameterRep* clone() const

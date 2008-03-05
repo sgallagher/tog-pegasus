@@ -190,10 +190,10 @@ Boolean CIMObject::isUninitialized() const
 
 String CIMObject::toString() const
 {
+    CheckRep(_rep);
     Buffer out;
 
-    CheckRep(_rep);
-    _rep->toXml(out);
+    XmlWriter::appendObjectElement(out, *this);
 
     return out.getData();
 }
@@ -349,10 +349,10 @@ Boolean CIMConstObject::isUninitialized() const
 
 String CIMConstObject::toString() const
 {
+    CheckRep(_rep);
     Buffer out;
 
-    CheckRep(_rep);
-    _rep->toXml(out);
+    XmlWriter::appendObjectElement(out, *this);
 
     return out.getData();
 }

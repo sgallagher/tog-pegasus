@@ -132,10 +132,6 @@ public:
         _propagated = propagated;
     }
 
-    void toXml(Buffer& out) const;
-
-    void toMof(Buffer& out) const;
-
     Boolean identical(const CIMQualifierRep* x) const;
 
     CIMQualifierRep* clone() const

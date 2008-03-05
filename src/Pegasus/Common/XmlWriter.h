@@ -540,7 +540,7 @@ private:
     static void _appendEMethodResponseElementEnd(
         Buffer& out);
 
-    XmlWriter() { }
+    XmlWriter();
 };
 
 PEGASUS_COMMON_LINKAGE Buffer& operator<<(

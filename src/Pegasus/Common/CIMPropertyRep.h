@@ -168,10 +168,6 @@ public:
         Boolean isInstancePart,
         Boolean propagateQualifiers);
 
-    void toXml(Buffer& out) const;
-
-    void toMof(Boolean isInstance, Buffer& out) const;
-
     Boolean identical(const CIMPropertyRep* x) const;
 
     CIMPropertyRep* clone() const

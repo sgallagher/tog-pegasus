@@ -169,10 +169,6 @@ public:
         DeclContext* declContext,
         const CIMNamespaceName& nameSpace);
 
-    void toXml(Buffer& out) const;
-
-    void toMof(Buffer& out) const;
-
     Boolean identical(const CIMMethodRep* x) const;
 
     CIMMethodRep* clone() const

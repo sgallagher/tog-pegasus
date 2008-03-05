@@ -1536,10 +1536,44 @@ void XmlWriter::appendValueNamedInstanceElement(
 
 void XmlWriter::appendClassElement(
     Buffer& out,
-    const CIMConstClass& cimclass)
+    const CIMConstClass& cimClass)
 {
-    CheckRep(cimclass._rep);
-    cimclass._rep->toXml(out);
+    CheckRep(cimClass._rep);
+    const CIMClassRep* rep = cimClass._rep;
+
+    // Class opening element:
+
+    out << STRLIT("<CLASS NAME=\"")
+        << rep->getClassName()
+        << STRLIT("\" ");
+
+    if (!rep->getSuperClassName().isNull())
+    {
+        out << STRLIT(" SUPERCLASS=\"")
+            << rep->getSuperClassName()
+            << STRLIT("\" ");
+    }
+
+    out << STRLIT(">\n");
+
+    // Append Class Qualifiers:
+
+    for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
+        XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
+
+    // Append Property definitions:
+
+    for (Uint32 i = 0, n = rep->getPropertyCount(); i < n; i++)
+        XmlWriter::appendPropertyElement(out, rep->getProperty(i));
+
+    // Append Method definitions:
+
+    for (Uint32 i = 0, n = rep->getMethodCount(); i < n; i++)
+        XmlWriter::appendMethodElement(out, rep->getMethod(i));
+
+    // Class closing element:
+
+    out << STRLIT("</CLASS>\n");
 }
 
 void XmlWriter::printClassElement(
@@ -1567,7 +1601,27 @@ void XmlWriter::appendInstanceElement(
     const CIMConstInstance& instance)
 {
     CheckRep(instance._rep);
-    instance._rep->toXml(out);
+    const CIMInstanceRep* rep = instance._rep;
+
+    // Class opening element:
+
+    out << STRLIT("<INSTANCE CLASSNAME=\"")
+        << rep->getClassName()
+        << STRLIT("\" >\n");
+
+    // Append Instance Qualifiers:
+
+    for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
+        XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
+
+    // Append Properties:
+
+    for (Uint32 i = 0, n = rep->getPropertyCount(); i < n; i++)
+        XmlWriter::appendPropertyElement(out, rep->getProperty(i));
+
+    // Instance closing element:
+
+    out << STRLIT("</INSTANCE>\n");
 }
 
 void XmlWriter::printInstanceElement(
@@ -1637,7 +1691,255 @@ void XmlWriter::appendPropertyElement(
     const CIMConstProperty& property)
 {
     CheckRep(property._rep);
-    property._rep->toXml(out);
+    const CIMPropertyRep* rep = property._rep;
+
+    if (rep->getValue().isArray())
+    {
+        out << STRLIT("<PROPERTY.ARRAY NAME=\"")
+            << rep->getName()
+            << STRLIT("\" ");
+
+        if (rep->getValue().getType() == CIMTYPE_OBJECT)
+        {
+            // If the property array type is CIMObject, then
+            //     encode the property in CIM-XML as a string array with the
+            //     EmbeddedObject attribute (there is not currently a CIM-XML
+            //     "object" datatype)
+
+            Array<CIMObject> a;
+            rep->getValue().get(a);
+            out << STRLIT(" TYPE=\"string\"");
+            // If the Embedded Object is an instance, always add the
+            // EmbeddedObject attribute.
+            if (a.size() > 0 && a[0].isInstance())
+            {
+                out << STRLIT(" EmbeddedObject=\"object\"");
+                out << STRLIT(" EMBEDDEDOBJECT=\"object\"");
+            }
+#ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
+            else
+#endif
+            {
+                // Else the Embedded Object is a class, always add the
+                // EmbeddedObject qualifier.  Note that if the macro
+                // PEGASUS_SNIA_INTEROP_COMPATIBILITY is defined, then
+                // the EmbeddedObject qualifier will always be added,
+                // whether it's a class or an instance.
+                if (rep->findQualifier(CIMName("EmbeddedObject")) ==
+                        PEG_NOT_FOUND)
+                {
+                    // Note that addQualifiers() cannot be called on a const
+                    // CIMQualifierRep.  In this case we really do want to add
+                    // the EmbeddedObject qualifier, so we cast away the
+                    // constness.
+                    CIMPropertyRep* tmpRep = const_cast<CIMPropertyRep*>(rep);
+                    tmpRep->addQualifier(
+                        CIMQualifier(CIMName("EmbeddedObject"), true));
+                }
+            }
+        }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        else if (rep->getValue().getType() == CIMTYPE_INSTANCE)
+        {
+            // If the property array type is CIMInstance, then
+            //   encode the property in CIM-XML as a string array with the
+            //   EmbeddedObject attribute (there is not currently a CIM-XML
+            //   "instance" datatype)
+
+            Array<CIMInstance> a;
+            rep->getValue().get(a);
+            out << STRLIT(" TYPE=\"string\"");
+
+            // add the EmbeddedObject attribute
+            if (a.size() > 0)
+            {
+                out << STRLIT(" EmbeddedObject=\"instance\"");
+                out << STRLIT(" EMBEDDEDOBJECT=\"instance\"");
+
+                // Note that if the macro PEGASUS_SNIA_INTEROP_COMPATIBILITY is
+                // defined, then the EmbeddedInstance qualifier will be added
+# ifdef PEGASUS_SNIA_INTEROP_COMPATIBILITY
+                if (rep->findQualifier(CIMName("EmbeddedInstance")) ==
+                        PEG_NOT_FOUND)
+                {
+                    // Note that addQualifiers() cannot be called on a const
+                    // CIMQualifierRep.  In this case we really do want to add
+                    // the EmbeddedInstance qualifier, so we cast away the
+                    // constness.
+
+                    // For now, we assume that all the embedded instances in
+                    // the array are of the same type
+                    CIMPropertyRep* tmpRep = const_cast<CIMPropertyRep*>(rep);
+                    tmpRep->addQualifier(CIMQualifier(
+                        CIMName("EmbeddedInstance"),
+                        a[0].getClassName().getString()));
+                }
+# endif
+            }
+        }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        else
+        {
+            out << STRLIT(" TYPE=\"")
+                << cimTypeToString(rep->getValue().getType());
+            out.append('"');
+        }
+
+        if (rep->getArraySize())
+        {
+            char buffer[32];
+            sprintf(buffer, "%d", rep->getArraySize());
+            out << STRLIT(" ARRAYSIZE=\"") << buffer;
+            out.append('"');
+        }
+
+        if (!rep->getClassOrigin().isNull())
+        {
+            out << STRLIT(" CLASSORIGIN=\"") << rep->getClassOrigin();
+            out.append('"');
+        }
+
+        if (rep->getPropagated())
+        {
+            out << STRLIT(" PROPAGATED=\"true\"");
+        }
+
+        out << STRLIT(">\n");
+
+        for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
+            XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
+
+        XmlWriter::appendValueElement(out, rep->getValue());
+
+        out << STRLIT("</PROPERTY.ARRAY>\n");
+    }
+    else if (rep->getValue().getType() == CIMTYPE_REFERENCE)
+    {
+        out << STRLIT("<PROPERTY.REFERENCE");
+
+        out << STRLIT(" NAME=\"") << rep->getName() << STRLIT("\" ");
+
+        if (!rep->getReferenceClassName().isNull())
+        {
+            out << STRLIT(" REFERENCECLASS=\"") << rep->getReferenceClassName();
+            out.append('"');
+        }
+
+        if (!rep->getClassOrigin().isNull())
+        {
+            out << STRLIT(" CLASSORIGIN=\"") << rep->getClassOrigin();
+            out.append('"');
+        }
+
+        if (rep->getPropagated())
+        {
+            out << STRLIT(" PROPAGATED=\"true\"");
+        }
+
+        out << STRLIT(">\n");
+
+        for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
+            XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
+
+        XmlWriter::appendValueElement(out, rep->getValue());
+
+        out << STRLIT("</PROPERTY.REFERENCE>\n");
+    }
+    else
+    {
+        out << STRLIT("<PROPERTY NAME=\"") << rep->getName() << STRLIT("\" ");
+
+        if (!rep->getClassOrigin().isNull())
+        {
+            out << STRLIT(" CLASSORIGIN=\"") << rep->getClassOrigin();
+            out.append('"');
+        }
+
+        if (rep->getPropagated())
+        {
+            out << STRLIT(" PROPAGATED=\"true\"");
+        }
+
+        if (rep->getValue().getType() == CIMTYPE_OBJECT)
+        {
+            // If the property type is CIMObject, then
+            //   encode the property in CIM-XML as a string with the
+            //   EmbeddedObject attribute (there is not currently a CIM-XML
+            //   "object" datatype)
+
+            CIMObject a;
+            rep->getValue().get(a);
+            out << STRLIT(" TYPE=\"string\"");
+
+            // If the Embedded Object is an instance, always add the
+            // EmbeddedObject attribute.
+            if (a.isInstance())
+            {
+                out << STRLIT(" EmbeddedObject=\"object\"");
+                out << STRLIT(" EMBEDDEDOBJECT=\"object\"");
+            }
+            // Else the Embedded Object is a class, always add the
+            // EmbeddedObject qualifier.
+#ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
+            else
+#endif
+            {
+                // Note that if the macro PEGASUS_SNIA_INTEROP_COMPATIBILITY
+                // is defined, then the EmbeddedObject qualifier will always
+                // be added, whether it's a class or an instance.
+                if (rep->findQualifier(CIMName("EmbeddedObject")) ==
+                        PEG_NOT_FOUND)
+                {
+                    // Note that addQualifiers() cannot be called on a const
+                    // CIMQualifierRep.  In this case we really do want to add
+                    // the EmbeddedObject qualifier, so we cast away the
+                    // constness.
+                    CIMPropertyRep* tmpRep = const_cast<CIMPropertyRep*>(rep);
+                    tmpRep->addQualifier(
+                        CIMQualifier(CIMName("EmbeddedObject"), true));
+                }
+            }
+        }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        else if (rep->getValue().getType() == CIMTYPE_INSTANCE)
+        {
+            CIMInstance a;
+            rep->getValue().get(a);
+            out << " TYPE=\"string\"";
+            out << " EmbeddedObject=\"instance\"";
+            out << " EMBEDDEDOBJECT=\"instance\"";
+
+# ifdef PEGASUS_SNIA_INTEROP_COMPATIBILITY
+            if (rep->findQualifier(CIMName("EmbeddedObject")) == PEG_NOT_FOUND)
+            {
+                // Note that addQualifiers() cannot be called on a const
+                // CIMQualifierRep.  In this case we really do want to add
+                // the EmbeddedInstance qualifier, so we cast away the
+                // constness.
+                CIMPropertyRep* tmpRep = const_cast<CIMPropertyRep*>(rep);
+                tmpRep->addQualifier(CIMQualifier(
+                    CIMName("EmbeddedInstance"),
+                    a.getClassName().getString()));
+            }
+# endif
+        }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        else
+        {
+            out << STRLIT(" TYPE=\"")
+                << cimTypeToString(rep->getValue().getType());
+            out.append('"');
+        }
+
+        out << STRLIT(">\n");
+
+        for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
+            XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
+
+        XmlWriter::appendValueElement(out, rep->getValue());
+
+        out << STRLIT("</PROPERTY>\n");
+    }
 }
 
 void XmlWriter::printPropertyElement(
@@ -1668,7 +1970,34 @@ void XmlWriter::appendMethodElement(
     const CIMConstMethod& method)
 {
     CheckRep(method._rep);
-    method._rep->toXml(out);
+    const CIMMethodRep* rep = method._rep;
+
+    out << STRLIT("<METHOD NAME=\"") << rep->getName();
+    out.append('"');
+
+    out << STRLIT(" TYPE=\"") << cimTypeToString(rep->getType());
+    out.append('"');
+
+    if (!rep->getClassOrigin().isNull())
+    {
+        out << STRLIT(" CLASSORIGIN=\"") << rep->getClassOrigin();
+        out.append('"');
+    }
+
+    if (rep->getPropagated())
+    {
+        out << STRLIT(" PROPAGATED=\"true\"");
+    }
+
+    out << STRLIT(">\n");
+
+    for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
+        XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
+
+    for (Uint32 i = 0, n = rep->getParameterCount(); i < n; i++)
+        XmlWriter::appendParameterElement(out, rep->getParameter(i));
+
+    out << STRLIT("</METHOD>\n");
 }
 
 void XmlWriter::printMethodElement(
@@ -1713,7 +2042,94 @@ void XmlWriter::appendParameterElement(
     const CIMConstParameter& parameter)
 {
     CheckRep(parameter._rep);
-    parameter._rep->toXml(out);
+    const CIMParameterRep* rep = parameter._rep;
+
+    if (rep->isArray())
+    {
+        if (rep->getType() == CIMTYPE_REFERENCE)
+        {
+            out << STRLIT("<PARAMETER.REFARRAY NAME=\"") << rep->getName();
+            out.append('"');
+
+            if (!rep->getReferenceClassName().isNull())
+            {
+                out << STRLIT(" REFERENCECLASS=\"");
+                out << rep->getReferenceClassName().getString();
+                out.append('"');
+            }
+
+            if (rep->getArraySize())
+            {
+                char buffer[32];
+                int n = sprintf(buffer, "%d", rep->getArraySize());
+                out << STRLIT(" ARRAYSIZE=\"");
+                out.append(buffer, n);
+                out.append('"');
+            }
+
+            out << STRLIT(">\n");
+
+            for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
+                XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
+
+            out << STRLIT("</PARAMETER.REFARRAY>\n");
+        }
+        else
+        {
+            out << STRLIT("<PARAMETER.ARRAY");
+            out << STRLIT(" NAME=\"") << rep->getName();
+            out << STRLIT("\" ");
+            out << STRLIT(" TYPE=\"") << cimTypeToString(rep->getType());
+            out.append('"');
+
+            if (rep->getArraySize())
+            {
+                char buffer[32];
+                sprintf(buffer, "%d", rep->getArraySize());
+                out << STRLIT(" ARRAYSIZE=\"") << buffer;
+                out.append('"');
+            }
+
+            out << STRLIT(">\n");
+
+            for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
+                XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
+
+            out << STRLIT("</PARAMETER.ARRAY>\n");
+        }
+    }
+    else if (rep->getType() == CIMTYPE_REFERENCE)
+    {
+        out << STRLIT("<PARAMETER.REFERENCE");
+        out << STRLIT(" NAME=\"") << rep->getName();
+        out.append('"');
+
+        if (!rep->getReferenceClassName().isNull())
+        {
+            out << STRLIT(" REFERENCECLASS=\"");
+            out << rep->getReferenceClassName().getString();
+            out.append('"');
+        }
+        out << STRLIT(">\n");
+
+        for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
+            XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
+
+        out << STRLIT("</PARAMETER.REFERENCE>\n");
+    }
+    else
+    {
+        out << STRLIT("<PARAMETER");
+        out << STRLIT(" NAME=\"") << rep->getName();
+        out << STRLIT("\" ");
+        out << STRLIT(" TYPE=\"") << cimTypeToString(rep->getType());
+        out << STRLIT("\">\n");
+
+        for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
+            XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
+
+        out << STRLIT("</PARAMETER>\n");
+    }
 }
 
 void XmlWriter::printParameterElement(
@@ -1731,7 +2147,9 @@ void XmlWriter::printParameterElement(
 //
 //     <!ELEMENT PARAMVALUE (VALUE|VALUE.REFERENCE|VALUE.ARRAY|VALUE.REFARRAY)?>
 //     <!ATTLIST PARAMVALUE
-//              %CIMName;>
+//         %CIMName;
+//         %EmbeddedObject; #IMPLIED
+//         %ParamType;>
 //
 //------------------------------------------------------------------------------
 
@@ -1740,7 +2158,22 @@ void XmlWriter::appendParamValueElement(
     const CIMParamValue& paramValue)
 {
     CheckRep(paramValue._rep);
-    paramValue._rep->toXml(out);
+    const CIMParamValueRep* rep = paramValue._rep;
+
+    out << STRLIT("<PARAMVALUE NAME=\"") << rep->getParameterName();
+    out.append('"');
+
+    CIMType type = rep->getValue().getType();
+
+    if (rep->isTyped())
+    {
+        XmlWriter::appendParamTypeAndEmbeddedObjAttrib(out, type);
+    }
+
+    out << STRLIT(">\n");
+    XmlWriter::appendValueElement(out, rep->getValue());
+
+    out << STRLIT("</PARAMVALUE>\n");
 }
 
 void XmlWriter::printParamValueElement(
@@ -1770,7 +2203,25 @@ void XmlWriter::appendQualifierElement(
     const CIMConstQualifier& qualifier)
 {
     CheckRep(qualifier._rep);
-    qualifier._rep->toXml(out);
+    const CIMQualifierRep* rep = qualifier._rep;
+
+    out << STRLIT("<QUALIFIER NAME=\"") << rep->getName();
+    out.append('"');
+    out << STRLIT(" TYPE=\"") << cimTypeToString(rep->getValue().getType());
+    out.append('"');
+
+    if (rep->getPropagated())
+    {
+        out << STRLIT(" PROPAGATED=\"true\"");
+    }
+
+    XmlWriter::appendQualifierFlavorEntity(out, rep->getFlavor());
+
+    out << STRLIT(">\n");
+
+    XmlWriter::appendValueElement(out, rep->getValue());
+
+    out << STRLIT("</QUALIFIER>\n");
 }
 
 void XmlWriter::printQualifierElement(
@@ -1801,7 +2252,33 @@ void XmlWriter::appendQualifierDeclElement(
     const CIMConstQualifierDecl& qualifierDecl)
 {
     CheckRep(qualifierDecl._rep);
-    qualifierDecl._rep->toXml(out);
+    const CIMQualifierDeclRep* rep = qualifierDecl._rep;
+
+    out << STRLIT("<QUALIFIER.DECLARATION NAME=\"") << rep->getName();
+    out.append('"');
+    out << STRLIT(" TYPE=\"") << cimTypeToString(rep->getValue().getType());
+    out.append('"');
+
+    if (rep->getValue().isArray())
+    {
+        out << STRLIT(" ISARRAY=\"true\"");
+
+        if (rep->getArraySize())
+        {
+            char buffer[64];
+            int n = sprintf(buffer, " ARRAYSIZE=\"%d\"", rep->getArraySize());
+            out.append(buffer, n);
+        }
+    }
+
+    XmlWriter::appendQualifierFlavorEntity(out, rep->getFlavor());
+
+    out << STRLIT(">\n");
+
+    XmlWriter::appendScopeElement(out, rep->getScope());
+    XmlWriter::appendValueElement(out, rep->getValue());
+
+    out << STRLIT("</QUALIFIER.DECLARATION>\n");
 }
 
 void XmlWriter::printQualifierDeclElement(

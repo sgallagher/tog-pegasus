@@ -37,7 +37,6 @@
 #include "CIMQualifierDecl.h"
 #include "CIMName.h"
 #include "XmlWriter.h"
-#include "MofWriter.h"
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include "StrLit.h"
@@ -331,47 +330,11 @@ void CIMQualifierList::resolve(
     PEG_METHOD_EXIT();
 }
 
-void CIMQualifierList::toXml(Buffer& out) const
-{
-    for (Uint32 i = 0, n = _qualifiers.size(); i < n; i++)
-        XmlWriter::appendQualifierElement(out, _qualifiers[i]);
-}
-
-/** toMof - Generates MOF output for a list of CIM Qualifiers.
-    The qualifiers may be class, property, parameter, etc.
-    The BNF for this is:
-    <pre>
-    qualifierList       = "[" qualifier *( "," qualifier ) "]"
-    </pre>
-    Produces qualifiers as a string on without nl.
-    */
-void CIMQualifierList::toMof(Buffer& out) const
-{
-    // if no qualifiers, return
-    if (_qualifiers.size() == 0)
-        return;
-
-    // Qualifier leading bracket.
-    out.append('[');
-
-    // Loop to list qualifiers
-    for (Uint32 i = 0, n = _qualifiers.size(); i < n; i++)
-    {
-        // if second or greater, add comma separator
-        if (i > 0)
-            out << STRLIT(", \n");
-        MofWriter::appendQualifierElement(out, _qualifiers[i]);
-    }
-
-    // Terminating bracket
-    out.append(']');
-}
-
-
 void CIMQualifierList::print(PEGASUS_STD(ostream) &os) const
 {
     Buffer tmp;
-    toXml(tmp);
+    for (Uint32 i = 0, n = getCount(); i < n; i++)
+        XmlWriter::appendQualifierElement(tmp, _qualifiers[i]);
     os << tmp.getData() << PEGASUS_STD(endl);
 }
 

@@ -39,8 +39,6 @@
 #include "Resolver.h"
 #include "CIMName.h"
 #include "Constants.h"
-#include "XmlWriter.h"
-#include "MofWriter.h"
 #include "StrLit.h"
 
 PEGASUS_USING_STD;
@@ -208,62 +206,6 @@ void CIMInstanceRep::resolve(
 
 CIMInstanceRep::CIMInstanceRep(const CIMInstanceRep& x) : CIMObjectRep(x)
 {
-}
-
-void CIMInstanceRep::toXml(Buffer& out) const
-{
-    // Class opening element:
-
-    out << STRLIT("<INSTANCE ");
-    out << STRLIT(" CLASSNAME=\"") << _reference.getClassName();
-    out << STRLIT("\" ");
-    out << STRLIT(">\n");
-
-    // Qualifiers:
-
-    _qualifiers.toXml(out);
-
-    // Parameters:
-
-    for (Uint32 i = 0, n = _properties.size(); i < n; i++)
-        XmlWriter::appendPropertyElement(out, _properties[i]);
-
-    // Class closing element:
-
-    out << STRLIT("</INSTANCE>\n");
-}
-
-void CIMInstanceRep::toMof(Buffer& out) const
-{
-    // Get and format the class qualifiers
-    out << STRLIT("\n//Instance of ") << _reference.getClassName();
-    if (_qualifiers.getCount())
-        out.append('\n');
-    _qualifiers.toMof(out);
-
-    // Separate qualifiers from Class Name
-    out.append('\n');
-
-    // output class statement
-    out << STRLIT("instance of ") << _reference.getClassName();
-
-    out << STRLIT("\n{");
-
-    // format the Properties:
-    for (Uint32 i = 0, n = _properties.size(); i < n; i++)
-    {
-        // Generate MOF if this property not propagated
-        // Note that the test is required only because
-        // there is an error in getclass that does not
-        // test the localOnly flag.
-        // The false identifies this as value initializer, not
-        // property definition.
-        if (!_properties[i].getPropagated())
-            MofWriter::appendPropertyElement(false,out, _properties[i]);
-    }
-
-    // Class closing element:
-    out << STRLIT("\n};\n");
 }
 
 CIMObjectPath CIMInstanceRep::buildPath(

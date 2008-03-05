@@ -186,12 +186,6 @@ public:
         Boolean propagateQualifiers);
 
     ///
-    void toXml(Buffer& out) const;
-
-    ///
-    void toMof(Buffer& out) const;
-
-    ///
     void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
 
     ///

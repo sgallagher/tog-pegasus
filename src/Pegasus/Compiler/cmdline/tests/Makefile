@@ -1,3 +1,5 @@
+? 7464.diff
+? d
 #//%2006////////////////////////////////////////////////////////////////////////
 #//
 #// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -38,11 +40,7 @@ include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/test.mak
 
 RESULTFILE =  $(TMP_DIR)/cmdline_result
-ifneq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
-  MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
-else
-  MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master.pase
-endif
+MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
 TMPFILE = $(TMP_DIR)/cmdline_tmp
 REPOSITORYDIR = $(TMP_DIR)
 

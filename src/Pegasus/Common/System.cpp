@@ -898,6 +898,15 @@ int System::getAddrInfo(
     int rc = 0;
     unsigned int maxTries = 5; 
 
+#ifdef PEGASUS_OS_PASE
+    CString hostNameCString;
+    if (String::equalNoCase(hostname, "localhost"))
+    {
+        hostNameCString = getHostName().getCString();
+        hostname = (const char*)hostNameCString;
+    }
+#endif
+
     while ((rc = getaddrinfo(hostname, 
                      servname, 
                      hints, 

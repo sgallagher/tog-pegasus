@@ -448,10 +448,11 @@ ThreadReturnType PEGASUS_THREAD_CDECL test4_thread( void* parm )
     // Simulate a deadlocked thread
     while (alwaysTrue)
     {
-#if defined(PEGASUS_OS_DARWIN) || defined(PEGASUS_OS_VMS)
+#if defined(PEGASUS_OS_DARWIN) || defined(PEGASUS_OS_VMS) || \
+    defined(PEGASUS_OS_PASE)
        // 
        // sleep is NOT a thread cancellation point
-       //  for VMS.
+       //  for DARWIN, VMS and i5/PASE.
        // 
        pthread_testcancel();
 #endif

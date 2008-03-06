@@ -58,7 +58,6 @@ public:
     static CMPIStatus driveAuthorizeFilter(
         CMPIIndicationMI* mi,
         const CMPIContext* eCtx,
-        const CMPIResult* eRslt,
         const CMPISelectExp* se,
         const char* ns,
         const CMPIObjectPath* op, 
@@ -66,14 +65,12 @@ public:
     static CMPIStatus driveMustPoll(
         CMPIIndicationMI* mi,
         const CMPIContext* eCtx,
-        const CMPIResult* eRrslt,
         const CMPISelectExp* se,
         const char* ns,
         const CMPIObjectPath* op);
     static CMPIStatus driveActivateFilter(
         CMPIIndicationMI* mi,
         const CMPIContext* eCtx,
-        const CMPIResult* eRslt,
         const CMPISelectExp* se,
         const char* ns,
         const CMPIObjectPath* op, 
@@ -81,45 +78,44 @@ public:
     static CMPIStatus driveDeActivateFilter(
         CMPIIndicationMI* mi,
         const CMPIContext* eCtx,
-        const CMPIResult* eRslt,
         const CMPISelectExp* se,
         const char* ns, 
         const CMPIObjectPath* op,
         CMPIBoolean last);
-    static void driveEnableIndications(
-        CMPIIndicationMI* mi);
-    static void driveDisableIndications(
-        CMPIIndicationMI* mi);
+    static CMPIStatus driveEnableIndications(
+        CMPIIndicationMI* mi,
+         const CMPIContext* eCtx);
+    static CMPIStatus  driveDisableIndications(
+        CMPIIndicationMI* mi,
+        const CMPIContext* eCtx);
 
     virtual CmpiStatus authorizeFilter(
         const CmpiContext& ctx,
-        CmpiResult& rslt,
         const CmpiSelectExp& se,
         const char* ns,
         const CmpiObjectPath& op,
         const char* user);
     virtual CmpiStatus mustPoll(
         const CmpiContext& ctx,
-        CmpiResult& rslt,
         const CmpiSelectExp& se,
         const char* ns,
         const CmpiObjectPath& op);
     virtual CmpiStatus activateFilter(
         const CmpiContext& ctx,
-        CmpiResult& rslt,
         const CmpiSelectExp& se,
         const char* ns,
         const CmpiObjectPath& op,
         CmpiBoolean first);
     virtual CmpiStatus deActivateFilter(
         const CmpiContext& ctx,
-        CmpiResult& rslt,
         const CmpiSelectExp& se,
         const char* ns,
         const CmpiObjectPath& op,
         CmpiBoolean last);
-    virtual void enableIndications();
-    virtual void disableIndications();
+    virtual CmpiStatus enableIndications(
+        const CmpiContext& ctx);
+   virtual CmpiStatus disableIndications(
+        const CmpiContext& ctx); 
 };
 
 #endif

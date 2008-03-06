@@ -781,7 +781,6 @@ CmpiIndicationMI::CmpiIndicationMI(
 CMPIStatus CmpiIndicationMI::driveAuthorizeFilter(
     CMPIIndicationMI* mi,
     const CMPIContext* eCtx,
-    const CMPIResult* eRslt,
     const CMPISelectExp* eSe,
     const char* ns,
     const CMPIObjectPath* eCop, 
@@ -790,14 +789,12 @@ CMPIStatus CmpiIndicationMI::driveAuthorizeFilter(
     try
     {
         const CmpiContext ctx((CMPIContext*)eCtx);
-        CmpiResult rslt((CMPIResult*)eRslt);
         const CmpiObjectPath cop((CMPIObjectPath*)eCop);
         const CmpiSelectExp se(eSe);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
         return nmi->authorizeFilter(
             ctx,
-            rslt,
             se,
             ns,
             cop,
@@ -815,7 +812,6 @@ CMPIStatus CmpiIndicationMI::driveAuthorizeFilter(
 CMPIStatus CmpiIndicationMI::driveMustPoll(
     CMPIIndicationMI* mi,
     const CMPIContext* eCtx,
-    const CMPIResult* eRslt,
     const CMPISelectExp* eSe,
     const char* ns,
     const CMPIObjectPath* eCop)
@@ -823,14 +819,12 @@ CMPIStatus CmpiIndicationMI::driveMustPoll(
     try
     {
         const CmpiContext ctx((CMPIContext*)eCtx);
-        CmpiResult rslt((CMPIResult*)eRslt);
         const CmpiObjectPath cop((CMPIObjectPath*)eCop);
         const CmpiSelectExp se(eSe);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
         return nmi->mustPoll(
             ctx,
-            rslt,
             se,
             ns,
             cop).status();
@@ -847,7 +841,6 @@ CMPIStatus CmpiIndicationMI::driveMustPoll(
 CMPIStatus CmpiIndicationMI::driveActivateFilter(
     CMPIIndicationMI* mi,
     const CMPIContext* eCtx,
-    const CMPIResult* eRslt,
     const CMPISelectExp* eSe,
     const char* ns,
     const CMPIObjectPath* eCop, 
@@ -856,14 +849,12 @@ CMPIStatus CmpiIndicationMI::driveActivateFilter(
     try
     {
         const CmpiContext ctx((CMPIContext*)eCtx);
-        CmpiResult rslt((CMPIResult*)eRslt);
         const CmpiObjectPath cop((CMPIObjectPath*)eCop);
         const CmpiSelectExp se(eSe);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
         return nmi->activateFilter(
             ctx,
-            rslt,
             se,
             ns,
             cop,
@@ -881,7 +872,6 @@ CMPIStatus CmpiIndicationMI::driveActivateFilter(
 CMPIStatus CmpiIndicationMI::driveDeActivateFilter(
     CMPIIndicationMI* mi,
     const CMPIContext* eCtx,
-    const CMPIResult* eRslt,
     const CMPISelectExp* eSe,
     const char* ns,
     const CMPIObjectPath* eCop, 
@@ -890,14 +880,12 @@ CMPIStatus CmpiIndicationMI::driveDeActivateFilter(
     try
     {
         const CmpiContext ctx((CMPIContext*)eCtx);
-        CmpiResult rslt((CMPIResult*)eRslt);
         const CmpiObjectPath cop((CMPIObjectPath*)eCop);
         const CmpiSelectExp se(eSe);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
         return nmi->deActivateFilter(
             ctx,
-            rslt,
             se,
             ns,
             cop,
@@ -912,14 +900,16 @@ CMPIStatus CmpiIndicationMI::driveDeActivateFilter(
     }
 }
 
-void CmpiIndicationMI::driveEnableIndications(
-    CMPIIndicationMI* mi)
+CMPIStatus CmpiIndicationMI::driveEnableIndications(
+    CMPIIndicationMI* mi,
+    const CMPIContext* eCtx)
 {
     try
     {
+        const CmpiContext ctx((CMPIContext*)eCtx);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
-        nmi->enableIndications();
+        return nmi->enableIndications(ctx).status();
     }
     catch (const CmpiStatus& stat)
     {
@@ -929,14 +919,16 @@ void CmpiIndicationMI::driveEnableIndications(
     }
 }
 
-void CmpiIndicationMI::driveDisableIndications(
-    CMPIIndicationMI* mi)
+CMPIStatus CmpiIndicationMI::driveDisableIndications(
+    CMPIIndicationMI* mi,
+    const CMPIContext* eCtx)
 {
     try
     {
+        const CmpiContext ctx((CMPIContext*)eCtx);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
-        nmi->disableIndications();
+        return nmi->disableIndications(ctx).status();
     }
     catch (const CmpiStatus& stat)
     {
@@ -955,7 +947,6 @@ void CmpiIndicationMI::driveDisableIndications(
 
 CmpiStatus CmpiIndicationMI::authorizeFilter(
     const CmpiContext& ctx,
-    CmpiResult& rslt,
     const CmpiSelectExp& se,
     const char* ns,
     const CmpiObjectPath& op,
@@ -966,7 +957,6 @@ CmpiStatus CmpiIndicationMI::authorizeFilter(
 
 CmpiStatus CmpiIndicationMI::mustPoll(
     const CmpiContext& ctx,
-    CmpiResult& rslt,
     const CmpiSelectExp& se,
     const char* ns,
     const CmpiObjectPath& op)
@@ -976,7 +966,6 @@ CmpiStatus CmpiIndicationMI::mustPoll(
 
 CmpiStatus CmpiIndicationMI::activateFilter(
     const CmpiContext& ctx,
-    CmpiResult& rslt,
     const CmpiSelectExp& se,
     const char* ns,
     const CmpiObjectPath& op,
@@ -987,7 +976,6 @@ CmpiStatus CmpiIndicationMI::activateFilter(
 
 CmpiStatus CmpiIndicationMI::deActivateFilter(
     const CmpiContext& ctx,
-    CmpiResult& rslt,
     const CmpiSelectExp& se,
     const char* ns,
     const CmpiObjectPath& op,
@@ -996,14 +984,17 @@ CmpiStatus CmpiIndicationMI::deActivateFilter(
     return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
-void CmpiIndicationMI::enableIndications()
+CmpiStatus CmpiIndicationMI::enableIndications                             
+      (const CmpiContext& ctx)                                             
 {
+  return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);                            
 }
 
-void CmpiIndicationMI::disableIndications()
+CmpiStatus CmpiIndicationMI::disableIndications                            
+      (const CmpiContext& ctx)                                            
 {
+  return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);                           
 }
-
 
 //---------------------------------------------------
 //--

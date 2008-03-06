@@ -78,8 +78,7 @@ void Threads::sleep(int msec)
     }
     while (end.millitm > now.millitm && end.time >= now.time);
 
-#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-    int seconds;
+#else
     if (msec < 1000)
     {
         usleep(msec*1000);
@@ -91,6 +90,7 @@ void Threads::sleep(int msec)
         // Usleep the remaining micro seconds
         usleep( (msec*1000) % 1000000 );
     }
+
 #endif
 }
 

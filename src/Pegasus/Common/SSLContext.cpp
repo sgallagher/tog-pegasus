@@ -645,7 +645,7 @@ void SSLContextRep::_randomInit(const String& randomFile)
     {
         // generate random number for pase must use specify function
         unsigned char prn[1024];
-        umeGenerateRandomNumber(prn);
+        umeGenerateRandomNumber(prn, sizeof(prn));
         RAND_seed(prn, 1024);
     }
 #endif

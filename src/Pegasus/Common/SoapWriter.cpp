@@ -186,7 +186,7 @@ void SoapWriter::_appendHTTPResponseHeader(
 
     out << STRLIT("Content-Type: application/xml+soap; "
         "charset=\"utf-8\"\r\n");
-    OUTPUT_CONTENTLENGTH;
+    OUTPUT_CONTENTLENGTH(out, contentLength);
 
     if (contentLanguages.size() > 0)
     {

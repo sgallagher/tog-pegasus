@@ -542,15 +542,6 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
             case REPOSITORYMODE:
                 {
                     cmdlinedata.set_repository_mode(arg.optarg());
-                    // prevent using binary repository since we do not support
-                    // that in 2.5
-#ifdef PEGASUS_OS_PASE
-                    if (String::equalNoCase(arg.optarg(), "BIN"))
-                    {
-                        throw ArgumentErrorsException("ERROR: THE VALUE BIN IS"
-                            "NOT SUPPORTED FOR THE REPOSITORY MODE."); 
-                    }
-#endif
                    if (!String::equalNoCase(arg.optarg(), "XML") &&
                        !String::equalNoCase(arg.optarg(), "BIN"))
                    {

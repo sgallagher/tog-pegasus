@@ -38,7 +38,11 @@ include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/test.mak
 
 RESULTFILE =  $(TMP_DIR)/cmdline_result
-MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
+ifneq($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
+  MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
+else
+  MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master.pase
+endif
 TMPFILE = $(TMP_DIR)/cmdline_tmp
 REPOSITORYDIR = $(TMP_DIR)
 

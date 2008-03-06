@@ -710,6 +710,15 @@ Boolean System::lookupUserId(
     PEGASUS_UID_T& uid,
     PEGASUS_GID_T& gid)
 {
+#if defined(PEGASUS_OS_PASE)
+    if (!umeLookupUserProfile(userName))
+    {
+        PEG_TRACE_CSTRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+                "umeLookupUserProfile failed.");
+        return false;
+    }
+    return true;
+#else
     const unsigned int PWD_BUFF_SIZE = 1024;
     struct passwd pwd;
     struct passwd *result;
@@ -735,6 +744,7 @@ Boolean System::lookupUserId(
     gid = pwd.pw_gid;
 
     return true;
+#endif
 }
 
 Boolean System::changeUserContext_SingleThreaded(
@@ -742,6 +752,21 @@ Boolean System::changeUserContext_SingleThreaded(
     const PEGASUS_UID_T& uid,
     const PEGASUS_GID_T& gid)
 {
+#if defined(PEGASUS_OS_PASE)
+    char required_ph[12];
+
+    PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL4,
+        "Changing user context to: username = %s", userName));
+
+    if (!umeGetUserProfile(userName, required_ph))
+        return false;
+
+    if (!umeSwapUserProfile(required_ph))
+        return false;
+
+    umeReleaseUserProfile(required_ph);
+    return true;
+#else
     PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL4,
         "Changing user context to: username = %s, uid = %d, gid = %d",
         userName, (int)uid, (int)gid));
@@ -753,7 +778,7 @@ Boolean System::changeUserContext_SingleThreaded(
         return false;
     }
 
-#if !defined(PEGASUS_OS_VMS)
+# if !defined(PEGASUS_OS_VMS)
     // NOTE: initgroups() uses non-reentrant functions and should only be
     // called from a single-threaded process.
     if (initgroups(userName, gid) != 0)
@@ -762,7 +787,7 @@ Boolean System::changeUserContext_SingleThreaded(
             String("initgroups failed: ") + String(strerror(errno)));
         return false;
     }
-#endif
+# endif
 
     if (setuid(uid) != 0)
     {
@@ -772,6 +797,7 @@ Boolean System::changeUserContext_SingleThreaded(
     }
 
     return true;
+#endif
 }
 
 Uint32 System::getPID()

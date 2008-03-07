@@ -234,7 +234,7 @@ static String _getFullyQualifiedHostName()
     hint.ai_family = AF_UNSPEC; // any family
     hint.ai_socktype = 0;       // any socket type
     hint.ai_protocol = 0;       // any protocol
-    int success = getAddrInfo(hostName, NULL, &hint, &resolv);
+    int success = System::getAddrInfo(hostName, NULL, &hint, &resolv);
     if (success==0)
     {
         // assign fully qualified hostname
@@ -242,7 +242,7 @@ static String _getFullyQualifiedHostName()
     }
     else
     {
-        if ((he = getHostByName(hostName)))
+        if ((he = System::getHostByName(hostName)))
         {
             strncpy(hostName, he->h_name, sizeof(hostName) - 1);
         }

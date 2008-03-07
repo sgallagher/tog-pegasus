@@ -335,17 +335,6 @@ public:
     virtual ~StackOverflow();
 };
 
-class PEGASUS_COMMON_LINKAGE BadlyFormedCGIQueryString : public Exception
-{
-public:
-
-    static const char MSG[];
-    static const char KEY[];
-
-    BadlyFormedCGIQueryString();
-    virtual ~BadlyFormedCGIQueryString();
-};
-
 class PEGASUS_COMMON_LINKAGE DynamicLoadFailed : public Exception
 {
 public:

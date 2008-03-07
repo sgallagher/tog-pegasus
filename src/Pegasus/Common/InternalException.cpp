@@ -142,10 +142,6 @@ const char StackUnderflow::KEY[] = "Common.InternalException.STACK_UNDERFLOW";
 const char StackOverflow::MSG[] = "stack overflow";
 const char StackOverflow::KEY[] = "Common.InternalException.STACK_OVERFLOW";
 
-const char BadlyFormedCGIQueryString::MSG[] = "badly formed CGI query string";
-const char BadlyFormedCGIQueryString::KEY[] =
-    "Common.InternalException.BADLY_FORMED_CGI_QUERY_STRING";
-
 const char DynamicLoadFailed::MSG[] = "load of dynamic library failed: $0";
 const char DynamicLoadFailed::KEY[] =
     "Common.InternalException.DYNAMIC_LOAD_FAILED";
@@ -769,23 +765,6 @@ StackOverflow::StackOverflow()
 }
 
 StackOverflow::~StackOverflow()
-{
-}
-
-//==============================================================================
-//
-// BadlyFormedCGIQueryString
-//
-//==============================================================================
-
-BadlyFormedCGIQueryString::BadlyFormedCGIQueryString()
-    : Exception(MessageLoaderParms(
-          BadlyFormedCGIQueryString::KEY,
-          BadlyFormedCGIQueryString::MSG))
-{
-}
-
-BadlyFormedCGIQueryString::~BadlyFormedCGIQueryString()
 {
 }
 

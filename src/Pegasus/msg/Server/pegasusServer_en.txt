@@ -308,6 +308,10 @@ en:table {
         */
         Common.InternalException.BAD_FORMAT:string { "PGS00222: Incorrect format is passed to Formatter::format()."}
 
+        /**
+        * @note PGS00223:
+        *    This message is no longer used as of Pegasus 2.8.
+        */
         Common.InternalException.BADLY_FORMED_CGI_QUERY_STRING:string { "PGS00223:  The CGI query string is not valid."}
 
         /**

@@ -916,6 +916,7 @@ CMPIStatus CmpiIndicationMI::driveEnableIndications(
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
+        return stat.status();
     }
 }
 
@@ -935,6 +936,7 @@ CMPIStatus CmpiIndicationMI::driveDisableIndications(
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
+        return stat.status();
     }
 }
 

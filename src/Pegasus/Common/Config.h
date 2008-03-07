@@ -255,7 +255,7 @@
 #ifdef __cplusplus
 PEGASUS_NAMESPACE_BEGIN
 
-typedef bool Boolean;  // If platform w/o bool, add flag and include Boolean.h
+typedef bool Boolean;
 typedef unsigned char Uint8;
 typedef signed char Sint8;
 typedef unsigned short Uint16;

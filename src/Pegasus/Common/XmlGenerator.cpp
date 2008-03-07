@@ -365,7 +365,7 @@ void XmlGenerator::_appendSpecial(PEGASUS_STD(ostream)& os, const char* str)
 // On windows sprintf outputs 3 digit precision exponent prepending
 // zeros. Make it 2 digit precision if first digit is zero in the exponent.
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-inline void _normalizeRealValueString(char *str)
+void XmlGenerator::_normalizeRealValueString(char* str)
 {
     // skip initial sign value...
     if (*str == '-' || *str == '+')

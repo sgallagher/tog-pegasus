@@ -442,14 +442,16 @@ if [ $1 -eq 0 ]; then
 fi
 
 %files
-%defattr(600, cimsrvr, cimsrvr, 700)
+%defattr(600,cimsrvr,cimsrvr,700)
 /var/lib/Pegasus/repository
-%defattr(600, root, pegasus, 755)
+
+%defattr(644,root,pegasus,755)
+/usr/share/Pegasus/mof
+
+%defattr(600,root,pegasus,755)
 %dir /usr/share/doc/tog-pegasus-2.8
 %dir /usr/share/Pegasus
 %dir /usr/share/Pegasus/scripts
-%dir /usr/share/Pegasus/mof
-%dir /usr/share/Pegasus/mof/Pegasus
 %dir /var/lib/Pegasus
 %dir /var/lib/Pegasus/cache
 %dir /var/lib/Pegasus/log
@@ -457,12 +459,10 @@ fi
 %dir /usr/%PEGASUS_ARCH_LIB/Pegasus 
 %dir /usr/%PEGASUS_ARCH_LIB/Pegasus/providers 
 
-%dir %attr(755, root, pegasus) /etc/Pegasus
-%dir %attr(755, cimsrvr, cimsrvr) /var/run/tog-pegasus
+%dir %attr(755,root,pegasus) /etc/Pegasus
+%dir %attr(755,cimsrvr,cimsrvr) /var/run/tog-pegasus
 %dir %attr(1755,cimsrvr,cimsrvr) /var/run/tog-pegasus/socket
 %dir %attr(1777,root,pegasus) /var/lib/Pegasus/cache/trace
-
-/usr/share/Pegasus/mof/Pegasus/*
 
 %config %attr(750,root,pegasus) /etc/init.d/tog-pegasus
 %config(noreplace) %attr(644,root,root) /var/lib/Pegasus/cimserver_planned.conf

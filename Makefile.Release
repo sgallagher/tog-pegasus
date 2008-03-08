@@ -999,12 +999,15 @@ endif
 
 _append_filesSectionToSpecFile: FORCE
 	@$(ECHO-E) "%files" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%defattr($(Prw_______), $(CIMSERVERMAIN_USR),"\
-             "$(CIMSERVERMAIN_GRP), $(Prwx______))" \
+	@$(ECHO-E) "%defattr($(Prw_______),$(CIMSERVERMAIN_USR),$(CIMSERVERMAIN_GRP),$(Prwx______))" \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "$(PEGASUS_REPOSITORY_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%defattr($(Prw_______), $(INSTALL_USR),"\
-             "$(INSTALL_GRP), $(Prwxr_xr_x))" \
+	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%defattr($(Prw_r__r__),$(INSTALL_USR),$(INSTALL_GRP),$(Prwxr_xr_x))"\
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "$(PEGASUS_MOF_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%defattr($(Prw_______),$(INSTALL_USR),$(INSTALL_GRP),$(Prwxr_xr_x))" \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(PEGASUS_SPECIFIC_DIRECTORIES), \
              if [ $(i) != $(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR) ]; then \
@@ -1012,27 +1015,24 @@ _append_filesSectionToSpecFile: FORCE
              if [ $(i) != $(PEGASUS_TRACE_DIR) ]; then \
              if [ $(i) != $(PEGASUS_CONFIG_DIR) ]; then \
              if [ $(i) != $(PEGASUS_VARRUN_DIR) ]; then \
+             if [ $(i) != $(PEGASUS_MOF_DIR) ]; then \
                    $(ECHO-E) "%dir $(i)" >> \
-             $(PEGASUS_RPM_SPEC_FILE_PATH); fi; fi; fi; fi; fi;) 
+             $(PEGASUS_RPM_SPEC_FILE_PATH); fi; fi; fi; fi; fi;fi;) 
 	@$(ECHO-E) "%dir $(PEGASUS_PROVIDER_DIR_2) " \
               >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%dir $(PEGASUS_PROVIDER_LIB_DIR_2) " \
               >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr($(Prwxr_xr_x), $(INSTALL_USR)," \
-             "$(INSTALL_GRP)) $(PEGASUS_CONFIG_DIR)" \
-              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr($(Prwxr_xr_x), $(CIMSERVERMAIN_USR)," \
-             "$(CIMSERVERMAIN_GRP)) $(PEGASUS_VARRUN_DIR)" \
-              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr(1755,$(CIMSERVERMAIN_USR),$(CIMSERVERMAIN_GRP))" \
+	@$(ECHO-E) "%dir %attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))"\
+              "$(PEGASUS_CONFIG_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir" \
+              "%attr($(Prwxr_xr_x),$(CIMSERVERMAIN_USR),$(CIMSERVERMAIN_GRP))"\
+              "$(PEGASUS_VARRUN_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir %attr(1755,$(CIMSERVERMAIN_USR),$(CIMSERVERMAIN_GRP))"\
              "$(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)" \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%dir %attr($(Prwxrwxrwt),$(INSTALL_USR),$(INSTALL_GRP))" \
              "$(PEGASUS_TRACE_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "$(PEGASUS_MOF_DIR)/Pegasus/*" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%config %attr($(Prwxr_x___),$(INSTALL_USR),$(INSTALL_GRP))"\
             "/etc/init.d/tog-pegasus" >> $(PEGASUS_RPM_SPEC_FILE_PATH)

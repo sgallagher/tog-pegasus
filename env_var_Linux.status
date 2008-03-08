@@ -129,7 +129,6 @@ PEGASUS_SPECIFIC_DIRECTORIES = \
    /usr/share/Pegasus \
    /usr/share/Pegasus/scripts \
    /usr/share/Pegasus/mof \
-   /usr/share/Pegasus/mof/Pegasus \
    /var/lib/Pegasus \
    /var/lib/Pegasus/cache \
    /var/lib/Pegasus/log \

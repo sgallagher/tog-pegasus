@@ -86,6 +86,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/LanguageParser.h>
@@ -1042,9 +1043,13 @@ int CIMServerProcess::cimserver_run(
                     portNumberHttp, false);
             }
 
+            char scratchBuffer[22];
+            Uint32 n;
+            const char * portNumberHttpStr = Uint32ToString(
+                scratchBuffer, portNumberHttp, n); 
             MessageLoaderParms parms(
                 "src.Server.cimserver.LISTENING_ON_HTTP_PORT",
-                "Listening on HTTP port $0.", portNumberHttp);
+                "Listening on HTTP port $0.", portNumberHttpStr);
             Logger::put(
                 Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                 MessageLoader::getMessage(parms));
@@ -1088,9 +1093,13 @@ int CIMServerProcess::cimserver_run(
                 _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
                     portNumberHttps, true);
             }
+            char scratchBuffer[22];
+            Uint32 n;
+            const char * portNumberHttpsStr = Uint32ToString(
+                scratchBuffer, portNumberHttps, n); 
             MessageLoaderParms parms(
                 "src.Server.cimserver.LISTENING_ON_HTTPS_PORT",
-                "Listening on HTTPS port $0.", portNumberHttps);
+                "Listening on HTTPS port $0.", portNumberHttpsStr);
             Logger::put(
                 Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                 MessageLoader::getMessage(parms));

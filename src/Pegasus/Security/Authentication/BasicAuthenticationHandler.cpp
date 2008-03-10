@@ -36,6 +36,7 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Base64.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Config/ConfigManager.h>
 
 #include "SecureBasicAuthenticator.h"
@@ -118,34 +119,21 @@ Boolean BasicAuthenticationHandler::authenticate(
 
     String password = decodedStr.subString(pos + 1);
 
-#ifdef PEGASUS_OS_PASE 
-    // PASE APIs require user profile to be uppercase
-    int userNameLen;
-
-    userNameLen = userName.size();
-    if (userNameLen > 10)
+    Uint32 userNameLen = userName.size();
+    if (userNameLen > PEGASUS_MAX_USER_NAME_LEN)
     {
-        String badUser;
-        
-        if (userNameLen < 20)
-        {
-            badUser = userName;
-        }
-        else
-        {
-            badUser = userName.subString(0, 15);
-            badUser = badUser + "...";
-        }
+        String badUserName = userName.subString(0, PEGASUS_MAX_USER_NAME_LEN);
 
         Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
                 Logger::INFORMATION,  BASIC_AUTHENTICATION_FAILED_KEY, 
-                BASIC_AUTHENTICATION_FAILED, badUser );
-
+                BASIC_AUTHENTICATION_FAILED, badUserName );
         PEG_METHOD_EXIT();
-
         return false;
     }
-    for (int i=0; i < userNameLen; i++)
+
+    // PASE APIs require user profile to be uppercase
+#ifdef PEGASUS_OS_PASE 
+    for (Uint32 i = 0; i < userNameLen; i++)
     {
         userName[i] = toupper(userName[i]);
     }

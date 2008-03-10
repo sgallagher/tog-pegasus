@@ -418,6 +418,15 @@
 #define PEGASUS_ORDEREDSET_INDEX_UNKNOWN 0xFFFFFFFE
 
 /*
+   Defines the maximum authenticated username length.
+*/
+#ifdef PEGASUS_OS_PASE
+#define PEGASUS_MAX_USER_NAME_LEN 10
+#else
+#define PEGASUS_MAX_USER_NAME_LEN 256
+#endif
+
+/*
 **==============================================================================
 **
 **  C++ Section

@@ -698,7 +698,7 @@ extern "C"
 #endif
         struct da_list das;
         lslpMsg replies;
-        lslpSrvRegHead regs;
+        lslpSrvRegHead *regs;
 
         void (*slp_open_listen_socks)(struct slp_client *client);
         lslpMsg *(*get_response) (struct slp_client *, lslpMsg *);

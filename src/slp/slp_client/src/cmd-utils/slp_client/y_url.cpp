@@ -135,7 +135,7 @@
 
 
 /* Copy the first part of user declarations.  */
-#line 66 "url.y"
+#line 67 "url.y"
 
 
 #include "slp_client.h"
@@ -150,15 +150,16 @@ int32 urlparse(void);
 void url_close_lexer(uint32 handle);
 size_t url_init_lexer(const char *s);
 
-lslpAtomizedURL urlHead = 
-{
-	&urlHead, &urlHead, TRUE, NULL, 0
-};
 
 static lslpAtomList srvcHead = {&srvcHead, &srvcHead, TRUE, NULL, 0};
 static lslpAtomList siteHead = {&siteHead, &siteHead, TRUE, NULL, 0};
 static lslpAtomList pathHead = {&pathHead, &pathHead, TRUE, NULL, 0};
 static lslpAtomList attrHead = {&attrHead, &attrHead, TRUE, NULL, 0};
+
+lslpAtomizedURL urlHead = 
+{
+    &urlHead, &urlHead, TRUE, NULL, 0, srvcHead, siteHead, pathHead, attrHead
+};
 
 
 
@@ -182,7 +183,7 @@ static lslpAtomList attrHead = {&attrHead, &attrHead, TRUE, NULL, 0};
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 95 "url.y"
+#line 97 "url.y"
 {
 	int32 _i;
 	char *_s;
@@ -190,7 +191,7 @@ typedef union YYSTYPE
 	lslpAtomizedURL *_aturl;
 }
 /* Line 193 of yacc.c.  */
-#line 161 "y_url.c"
+#line 162 "y_url.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -203,7 +204,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 174 "y_url.c"
+#line 175 "y_url.c"
 
 #ifdef short
 # undef short
@@ -498,10 +499,10 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   115,   115,   209,   217,   226,   244,   266,   273,   282,
-     295,   308,   322,   340,   343,   352,   363,   368,   373,   386,
-     392,   407,   410,   415,   418,   421,   426,   433,   443,   447,
-     465,   482,   500,   507,   516,   533
+       0,   117,   117,   211,   219,   228,   246,   268,   275,   284,
+     297,   310,   324,   342,   345,   354,   365,   370,   375,   388,
+     394,   409,   412,   417,   420,   423,   428,   435,   445,   449,
+     467,   484,   502,   509,   518,   535
 };
 #endif
 
@@ -1434,7 +1435,7 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 115 "url.y"
+#line 117 "url.y"
     {
 			if (NULL != ((yyval._aturl) = (lslpAtomizedURL *)calloc(1, sizeof(lslpAtomizedURL))))
 			{
@@ -1531,7 +1532,7 @@ yyreduce:
     break;
 
   case 3:
-#line 209 "url.y"
+#line 211 "url.y"
     {
 			(yyval._atl) = &srvcHead;
 			if ((yyvsp[(1) - (1)]._atl) != NULL)
@@ -1542,7 +1543,7 @@ yyreduce:
     break;
 
   case 4:
-#line 217 "url.y"
+#line 219 "url.y"
     {
 			(yyval._atl) = &srvcHead;
 			if ((yyvsp[(2) - (2)]._atl) != NULL)
@@ -1553,7 +1554,7 @@ yyreduce:
     break;
 
   case 5:
-#line 226 "url.y"
+#line 228 "url.y"
     {
 			if (NULL != ((yyval._atl) = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
@@ -1575,7 +1576,7 @@ yyreduce:
     break;
 
   case 6:
-#line 244 "url.y"
+#line 246 "url.y"
     {
 			if (NULL != ((yyval._atl) = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
@@ -1599,7 +1600,7 @@ yyreduce:
     break;
 
   case 7:
-#line 266 "url.y"
+#line 268 "url.y"
     {
 			(yyval._atl) = &siteHead;
 			if ((yyvsp[(1) - (1)]._atl) != NULL)
@@ -1610,7 +1611,7 @@ yyreduce:
     break;
 
   case 8:
-#line 273 "url.y"
+#line 275 "url.y"
     {
 			(yyval._atl) = &siteHead;
 			if ((yyvsp[(1) - (2)]._atl) != NULL)
@@ -1621,7 +1622,7 @@ yyreduce:
     break;
 
   case 9:
-#line 282 "url.y"
+#line 284 "url.y"
     {
 			if ((yyvsp[(1) - (1)]._s) != NULL)
 			{
@@ -1638,7 +1639,7 @@ yyreduce:
     break;
 
   case 10:
-#line 295 "url.y"
+#line 297 "url.y"
     {
 			if ((yyvsp[(1) - (1)]._s) != NULL)
 			{
@@ -1655,7 +1656,7 @@ yyreduce:
     break;
 
   case 11:
-#line 308 "url.y"
+#line 310 "url.y"
     {
 			if ((yyvsp[(1) - (1)]._s) != NULL)
 			{
@@ -1672,7 +1673,7 @@ yyreduce:
     break;
 
   case 12:
-#line 322 "url.y"
+#line 324 "url.y"
     {
   
 			if ((yyvsp[(1) - (1)]._s) != NULL)
@@ -1691,14 +1692,14 @@ yyreduce:
     break;
 
   case 13:
-#line 340 "url.y"
+#line 342 "url.y"
     {
 			(yyval._s) = strdup("//");
 		;}
     break;
 
   case 14:
-#line 343 "url.y"
+#line 345 "url.y"
     {
 			if(NULL != (yyvsp[(3) - (3)]._s) && (NULL !=((yyval._s) = (char *)calloc(3 + strlen((yyvsp[(3) - (3)]._s)), sizeof(char)))))
 			{
@@ -1711,7 +1712,7 @@ yyreduce:
     break;
 
   case 15:
-#line 352 "url.y"
+#line 354 "url.y"
     {
 			if(NULL != (yyvsp[(5) - (5)]._s) && (NULL !=((yyval._s) = (char *)calloc(4 + strlen((yyvsp[(3) - (5)]._s)) + strlen((yyvsp[(5) - (5)]._s)), sizeof(char)))))
 			{
@@ -1724,21 +1725,21 @@ yyreduce:
     break;
 
   case 16:
-#line 363 "url.y"
+#line 365 "url.y"
     {
 	  (yyval._s) = strdup((yyvsp[(1) - (1)]._s));
 	;}
     break;
 
   case 17:
-#line 368 "url.y"
+#line 370 "url.y"
     {
 			(yyval._s) = (yyvsp[(1) - (1)]._s);
 		;}
     break;
 
   case 18:
-#line 373 "url.y"
+#line 375 "url.y"
     {
 			if(NULL != ((yyval._s) = (char *)calloc(strlen((yyvsp[(1) - (6)]._s)) + strlen((yyvsp[(2) - (6)]._s)) + strlen((yyvsp[(4) - (6)]._s)) + strlen((yyvsp[(6) - (6)]._s)) + 3, sizeof(char))))
 			{
@@ -1753,7 +1754,7 @@ yyreduce:
     break;
 
   case 19:
-#line 386 "url.y"
+#line 388 "url.y"
     {
                         if (NULL != ((yyval._s) = (char *)calloc(strlen((yyvsp[(1) - (1)]._s)) + 2, sizeof(char))))
                         {
@@ -1763,7 +1764,7 @@ yyreduce:
     break;
 
   case 20:
-#line 392 "url.y"
+#line 394 "url.y"
     {
 			if ((yyvsp[(1) - (3)]._s) != NULL)
 			{
@@ -1780,42 +1781,42 @@ yyreduce:
     break;
 
   case 21:
-#line 407 "url.y"
+#line 409 "url.y"
     {
 			(yyval._s) = (yyvsp[(1) - (1)]._s);
 		;}
     break;
 
   case 22:
-#line 410 "url.y"
+#line 412 "url.y"
     {
 			(yyval._s) = (yyvsp[(1) - (1)]._s);
 		;}
     break;
 
   case 23:
-#line 415 "url.y"
+#line 417 "url.y"
     {
 			;	
 		;}
     break;
 
   case 24:
-#line 418 "url.y"
+#line 420 "url.y"
     {
 			;		
 		;}
     break;
 
   case 25:
-#line 421 "url.y"
+#line 423 "url.y"
     {
 			;
 		;}
     break;
 
   case 26:
-#line 426 "url.y"
+#line 428 "url.y"
     {
 			(yyval._atl) = &pathHead;
 			if ((yyvsp[(1) - (1)]._atl) != NULL)
@@ -1826,7 +1827,7 @@ yyreduce:
     break;
 
   case 27:
-#line 433 "url.y"
+#line 435 "url.y"
     {
 			(yyval._atl) = &pathHead;
 			if ((yyvsp[(2) - (2)]._atl) != NULL)
@@ -1837,7 +1838,7 @@ yyreduce:
     break;
 
   case 28:
-#line 443 "url.y"
+#line 445 "url.y"
     {
 			 /* dangling path slash - do nothing */
 			 (yyval._atl) = NULL;
@@ -1845,7 +1846,7 @@ yyreduce:
     break;
 
   case 29:
-#line 447 "url.y"
+#line 449 "url.y"
     {
 			if(NULL != ((yyval._atl) = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
@@ -1867,7 +1868,7 @@ yyreduce:
     break;
 
   case 30:
-#line 465 "url.y"
+#line 467 "url.y"
     {
 			if(NULL != ((yyval._atl) = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
@@ -1888,7 +1889,7 @@ yyreduce:
     break;
 
   case 31:
-#line 482 "url.y"
+#line 484 "url.y"
     {
 			if(NULL != ((yyval._atl) = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
@@ -1908,7 +1909,7 @@ yyreduce:
     break;
 
   case 32:
-#line 500 "url.y"
+#line 502 "url.y"
     {
 			(yyval._atl) = &attrHead;
 			if ((yyvsp[(1) - (1)]._atl) != NULL)
@@ -1919,7 +1920,7 @@ yyreduce:
     break;
 
   case 33:
-#line 507 "url.y"
+#line 509 "url.y"
     {
 			(yyval._atl) = &attrHead;
 			if ((yyvsp[(2) - (2)]._atl) != NULL)
@@ -1930,7 +1931,7 @@ yyreduce:
     break;
 
   case 34:
-#line 516 "url.y"
+#line 518 "url.y"
     {
 			if(NULL != ((yyval._atl) = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
@@ -1950,7 +1951,7 @@ yyreduce:
     break;
 
   case 35:
-#line 533 "url.y"
+#line 535 "url.y"
     {
 			if(NULL != ((yyval._atl) = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
@@ -1973,7 +1974,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 1944 "y_url.c"
+#line 1945 "y_url.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2187,7 +2188,7 @@ yyreturn:
 }
 
 
-#line 553 "url.y"
+#line 555 "url.y"
  
 
 

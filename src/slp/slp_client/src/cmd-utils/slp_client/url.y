@@ -36,7 +36,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/url.y,v 1.5 2008/02/20 06:06:25 venkat.puvvada Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/url.y,v 1.6 2008/03/10 06:16:39 venkat.puvvada Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -78,15 +78,16 @@ int32 urlparse(void);
 void url_close_lexer(uint32 handle);
 size_t url_init_lexer(const char *s);
 
-lslpAtomizedURL urlHead = 
-{
-	&urlHead, &urlHead, TRUE, NULL, 0
-};
 
 static lslpAtomList srvcHead = {&srvcHead, &srvcHead, TRUE, NULL, 0};
 static lslpAtomList siteHead = {&siteHead, &siteHead, TRUE, NULL, 0};
 static lslpAtomList pathHead = {&pathHead, &pathHead, TRUE, NULL, 0};
 static lslpAtomList attrHead = {&attrHead, &attrHead, TRUE, NULL, 0};
+
+lslpAtomizedURL urlHead = 
+{
+    &urlHead, &urlHead, TRUE, NULL, 0, srvcHead, siteHead, pathHead, attrHead
+};
 
 %}
 

@@ -2183,6 +2183,7 @@ void decode_srvrply(struct slp_client *client, SOCKADDR *remote)
 
     DEBUG_PRINT((DEBUG_ENTER, "decode_srvrply "));
 
+    xtn_limit = 0;
     bptr = client->_rcv_buf;
     purported_len = _LSLP_GETLENGTH(bptr);
 
@@ -2508,7 +2509,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR *remote)
     bptr += (total_len = _LSLP_HDRLEN(bptr));
     if (purported_len < LSLP_MTU && (total_len < purported_len))
     {
-        if (! _LSLP_IS_EMPTY((lslpSrvRegList *)&(client->regs)))
+        if (! _LSLP_IS_EMPTY((lslpSrvRegList *)client->regs))
         {
             // advance past the slp v2 header
             // get the previous responder list
@@ -3474,7 +3475,7 @@ void __srv_reg_local (
 #endif
 
     /* update the attributes if an existing registration */
-    reg   = client->regs.next;
+    reg   = client->regs->next;
     while (! _LSLP_IS_HEAD(reg))
     {
         if (0 == lslp_string_compare(url_copy, reg->url->url))
@@ -3520,7 +3521,7 @@ void __srv_reg_local (
         reg->scopeList  = lslpScopeStringToList(scopes, len);
         len = (int16)strlen(attributes);
         reg->attrList  = _lslpDecodeAttrString((char *)attributes);
-        _LSLP_INSERT(reg, (lslpSrvRegList *)&(client->regs));
+        _LSLP_INSERT(reg, (lslpSrvRegList *)client->regs);
     }
     DEBUG_PRINT((DEBUG_ENTER, "srv_reg_local %s", "3 "));
     return;
@@ -3771,8 +3772,9 @@ struct slp_client *create_slp_client(
     client->replies.isHead = TRUE;
     client->replies.next = client->replies.prev = &(client->replies);
 
-    client->regs.isHead = TRUE;
-    client->regs.next = client->regs.prev = (lslpSrvRegList *)&(client->regs);
+    client->regs = (lslpSrvRegHead*)malloc(sizeof(lslpSrvRegHead));
+    client->regs->isHead = TRUE;
+    client->regs->next = client->regs->prev = (lslpSrvRegList *)client->regs;
 
     client->_local_addr_list[0] = client->_local_addr_list[1] = NULL;
 
@@ -3886,8 +3888,8 @@ void destroy_slp_client(struct slp_client *client)
     free(client->_srv_type);
 
     //Freeing memory allocated for regs in __srv_reg_local
-    lslpFreeSrvRegList(&client->regs);
-
+    lslpFreeSrvRegList(client->regs);
+    free(client->regs);
     free(client);
     DEBUG_PRINT((DEBUG_EXIT, "destroy_slp_client:ok "));
     return;
@@ -4131,7 +4133,7 @@ void decode_attrreq(struct slp_client *client, SOCKADDR *remote)
                                     &parse_err);
                                 /* see if we have url match */
                                 total_len += str_len + 2;
-                                regs = client->regs.next;
+                                regs = client->regs->next;
                                 attr_return = NULL;
 
                                 while (! _LSLP_IS_HEAD(regs))
@@ -6216,7 +6218,7 @@ struct lslp_srv_rply_out *_lslpProcessSrvReq(
                 } /* if there is an extension */
 
 
-                reg = client->regs.next;
+                reg = client->regs->next;
                 extptr = client->_scratch;
                 next_extptr = extptr + 2;
                 ext_offset = 0;

@@ -97,7 +97,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 97 "attr.y"
+#line 99 "attr.y"
 {
 	int32 _i;
 	char *_s;

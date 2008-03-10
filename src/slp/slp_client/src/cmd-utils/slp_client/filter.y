@@ -28,6 +28,9 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
+
+//NOCHKSRC
+
 /*****************************************************************************
  *  Description: encode/decode/eval LDAP Filters
  *
@@ -80,7 +83,7 @@ size_t filter_init_lexer(const char *s);
 /* need to free is available from the list heads below.  */
 
 /* listhead for reduced filters until the parser is finished */
- filterHead reducedFilters = { &reducedFilters, &reducedFilters, TRUE } ;
+ filterHead reducedFilters = { &reducedFilters, &reducedFilters, TRUE, FALSE};
  int nesting_level;
 
 %}

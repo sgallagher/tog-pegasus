@@ -28,6 +28,9 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
+
+//NOCHKSRC
+
 /*****************************************************************************
  *  Description:   encode/decode attribute lists
  *
@@ -35,7 +38,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/attr.y,v 1.4 2006/01/31 15:03:55 karl Exp $
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/attr.y,v 1.5 2008/03/10 06:16:39 venkat.puvvada Exp $
  *
  *  Copyright (c) 2001 - 2003  IBM
  *  Copyright (c) 2000 - 2003 Michael Day
@@ -62,7 +65,6 @@
  *****************************************************************************/
 
 
-
 %{
 #include "slp_client.h"
 void attrerror(const char *, ...);
@@ -75,17 +77,17 @@ size_t attr_init_lexer(const char *s);
 
 lslpAttrList attrHead =
 {
-	&attrHead, &attrHead, TRUE
+	&attrHead, &attrHead, TRUE, 0, 0, 0, 0, 0, 0
 };
 
 lslpAttrList inProcessAttr =
 {
-	&inProcessAttr, &inProcessAttr, TRUE
+	&inProcessAttr, &inProcessAttr, TRUE, 0, 0, 0, 0, 0, 0
 };
 
 lslpAttrList inProcessTag =
 {
-	&inProcessTag, &inProcessTag, TRUE
+	&inProcessTag, &inProcessTag, TRUE, 0, 0, 0, 0, 0, 0
 };
 
 

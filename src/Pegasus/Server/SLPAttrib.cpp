@@ -97,43 +97,46 @@ String SLPAttrib::getServiceUrl(void) const
 
 // fill all data required for SLP.
 // Returns true if specifie
-Boolean SLPAttrib::fillData(String protocol)
+String SLPAttrib::fillData( const CIMInstance &commInst,
+                            const Array<CIMInstance> &objInstances,
+                            const Array<CIMInstance> &nameSpaceInstances,
+                            const Array<CIMInstance> &commMechInstances,
+                            const Array<CIMInstance> &regProfileInstances,
+                            const CIMClass & nameSpaceClass,
+                            const CIMClass &commMechClass)
+
 {
-    CIMClient client;
     CIMClass cimClass;
-    //
-    // open connection to CIMOM
-    //
     String hostStr = System::getHostName();
+    String protocol;
 
     try
     {
-        //
-        client.connectLocal();
-
-        //
         Array <CIMInstance> instances;
         CIMInstance saveInstance;
         CIMValue val;
         Uint32 pos;
-        Boolean foundProtocol=false;
-        Boolean localOnly=true;
-        Boolean includeQualifiers=true;
-        Boolean includeClassOrigin=false;
-        Boolean deepInheritance=true;
         Uint32 len = 0;
+
+        pos = commInst.findProperty (PROP_NAMESPACETYPE);
+        PEGASUS_ASSERT (pos != PEG_NOT_FOUND);
+        protocol = commInst.getProperty(pos).getValue ().toString();
+        pos = commInst.findProperty (PROP_IPADDRESS);
+        PEGASUS_ASSERT (pos != PEG_NOT_FOUND);
+        val = commInst.getProperty(pos).getValue ();
+
+        saveInstance = commInst;
+        serviceUrl= PEGASUS_SLP_SERVICE_TYPE;
+        serviceUrl.append(":");
+        serviceUrl.append(protocol);
+        serviceUrl.append("://");
+        serviceUrl.append(val.toString());
 
         // set to true if there is "Other" property value in
         // FunctionsProfilesSupported value.
         Boolean functionaProfileDescriptions = false;
 
-        instances = client.enumerateInstances (
-            PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_OBJECTMANAGER,
-            deepInheritance,
-            localOnly,
-            includeQualifiers,
-            includeClassOrigin);
+        instances = objInstances;
 
         PEGASUS_ASSERT (instances.size () == 1);
 
@@ -152,50 +155,8 @@ Boolean SLPAttrib::fillData(String protocol)
         val = instances[0].getProperty(pos).getValue ();
         serviceId = val.toString();
 
-        instances = client.enumerateInstances (
-            PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM,
-            deepInheritance,
-            localOnly,
-            includeQualifiers,
-            includeClassOrigin);
-
-        for (Uint32 n=instances.size(),i=0 ; i<n; i++)
-        {
-            pos = instances[i].findProperty (PROP_NAMESPACETYPE);
-            PEGASUS_ASSERT (pos != PEG_NOT_FOUND);
-            val = instances[i].getProperty(pos).getValue ();
-            if (val.toString() == protocol)
-            {
-                pos = instances[i].findProperty (PROP_IPADDRESS);
-                PEGASUS_ASSERT (pos != PEG_NOT_FOUND);
-                val = instances[i].getProperty(pos).getValue ();
-                // Save copy of instance of PG_CIMXMLCommunicationMechanism
-                // matching protocol for later reference.
-                saveInstance = instances[i];
-                serviceUrl= PEGASUS_SLP_SERVICE_TYPE;
-                serviceUrl.append(":");
-                serviceUrl.append(protocol);
-                serviceUrl.append("://");
-                serviceUrl.append(val.toString());
-                foundProtocol=true;
-                break;
-            }
-        }
-        if (!foundProtocol)
-        {
-            // reset information that was already set
-            serviceHiName.clear();
-            serviceHiDescription.clear();
-            serviceId.clear();
-            return false;
-        }
-
-        cimClass = client.getClass(PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_CIMNAMESPACE);
-        instances = client.enumerateInstances
-            (PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_CIMNAMESPACE,
-             deepInheritance, localOnly,includeQualifiers,includeClassOrigin);
+        cimClass = nameSpaceClass;
+        instances = nameSpaceInstances;
 
         for (Uint32 n=instances.size(),i=0 ; i<n; i++)
         {
@@ -221,11 +182,8 @@ Boolean SLPAttrib::fillData(String protocol)
         if (len > 0)
             classes.remove( len-1,1);
 
-        cimClass = client.getClass (PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_OBJECTMANAGERCOMMUNICATIONMECHANISM);
-        instances = client.enumerateInstances (PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_OBJECTMANAGERCOMMUNICATIONMECHANISM,
-            deepInheritance,localOnly,includeQualifiers,includeClassOrigin);
+        cimClass = commMechClass;
+        instances = commMechInstances;
 
         pos = saveInstance.findProperty (PROP_COMMUNICATIONMECHANISM);
         PEGASUS_ASSERT (pos != PEG_NOT_FOUND);
@@ -329,9 +287,8 @@ Boolean SLPAttrib::fillData(String protocol)
         len = authenticationMechanismDescriptions.size();
         if (len > 0)
             authenticationMechanismDescriptions.remove( len-1,1);
-        instances = client.enumerateInstances (PEGASUS_NAMESPACENAME_INTEROP,
-            CIM_CLASSNAME_REGISTEREDPROFILE,
-            deepInheritance,localOnly,includeQualifiers,includeClassOrigin);
+
+        instances = regProfileInstances;
 
         for (Uint32 n=instances.size(),i=0 ; i<n; i++)
         {
@@ -376,7 +333,6 @@ Boolean SLPAttrib::fillData(String protocol)
             "CIM Server registration with External SLP failed. Exception: $0.",
             e.getMessage());
     }
-
     catch(...)
     {
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
@@ -384,8 +340,7 @@ Boolean SLPAttrib::fillData(String protocol)
            "CIM Server registration with Internal SLP failed.");
     }
 
-    client.disconnect();
-    return true;
+    return protocol;
 }
 
 // Map Values to ValueMap
@@ -452,6 +407,109 @@ String SLPAttrib::getMappedValue(const CIMProperty& cimProperty, CIMValue value)
         return retValue;
 }
 
+void SLPAttrib::getAllRegs(Array<SLPAttrib> &httpAttribs,
+    Array<SLPAttrib> &httpsAttribs)
+{
+    Boolean localOnly=true;
+    Boolean includeQualifiers=true;
+    Boolean includeClassOrigin=false;
+    Boolean deepInheritance=true;
+
+    try
+    {
+        CIMClient client;
+        client.connectLocal();
+
+        Array<CIMInstance> commInstances = client.enumerateInstances (
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM,
+            deepInheritance,
+            localOnly,
+            includeQualifiers,
+            includeClassOrigin);
+
+        Array<CIMInstance> objInstances = client.enumerateInstances (
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_OBJECTMANAGER,
+            deepInheritance,
+            localOnly,
+            includeQualifiers,
+            includeClassOrigin);
+
+        Array<CIMInstance> nameSpaceInstances = client.enumerateInstances (
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_CIMNAMESPACE,
+            deepInheritance,
+            localOnly,
+            includeQualifiers,
+            includeClassOrigin);
+
+        Array<CIMInstance> commMechInstances = client.enumerateInstances (
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_OBJECTMANAGERCOMMUNICATIONMECHANISM,
+            deepInheritance,
+            localOnly,
+            includeQualifiers,
+            includeClassOrigin);
+
+        Array<CIMInstance> regProfileInstances  = client.enumerateInstances (
+            PEGASUS_NAMESPACENAME_INTEROP,
+            CIM_CLASSNAME_REGISTEREDPROFILE,
+            deepInheritance,
+            localOnly,
+            includeQualifiers,
+            includeClassOrigin);
+
+        CIMClass nameSpaceClass = client.getClass(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_CIMNAMESPACE);
+
+        CIMClass commMechClass = client.getClass(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            PEGASUS_CLASSNAME_OBJECTMANAGERCOMMUNICATIONMECHANISM);
+
+        String protocol;
+
+        for (Uint32 i = 0, n = commInstances.size(); i < n ; ++i)
+        {
+            SLPAttrib attr;
+            protocol = attr.fillData(commInstances[i],
+                                     objInstances,
+                                     nameSpaceInstances,
+                                     commMechInstances,
+                                     regProfileInstances,
+                                     nameSpaceClass,
+                                     commMechClass);    
+                                                  
+            if (protocol == "http")
+            {
+                httpAttribs.append(attr);
+            }
+            else if (protocol == "https")
+            {
+                httpsAttribs.append(attr);
+            }
+            else
+            {
+                PEGASUS_ASSERT(0);
+            } 
+        }
+    }
+    catch(Exception& e)
+    {
+        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+            "Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION",
+            "CIM Server registration with External SLP failed. Exception: $0.",
+            e.getMessage());
+    }
+    catch(...)
+    {
+        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+           "Pegasus.Server.SLP.INTERNAL_SLP_REGISTRATION_FAILED_ERROR",
+           "CIM Server registration with Internal SLP failed.");
+    }
+}
+
 // Form the attributes String.
 void SLPAttrib::formAttributes()
 {
@@ -492,4 +550,9 @@ void SLPAttrib::formAttributes()
     }
     return;
 }
+
+#define PEGASUS_ARRAY_T SLPAttrib
+#include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+
 PEGASUS_NAMESPACE_END

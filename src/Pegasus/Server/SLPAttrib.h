@@ -57,11 +57,22 @@ public:
      *
      *  Fills all the data required for the pegasus cimserver SLP
      *  advertisement.
-     *  @param protocol Name of protocol to be registered with SLP
-     *  @return True if the specified protocol and associated data was found,
-     *      false otherwise
      */
-    Boolean fillData(String protocol);
+      String fillData(const CIMInstance &commInst,
+                      const Array<CIMInstance> &objInstances,
+                      const Array<CIMInstance> &nameSpaceInstances,
+                      const Array<CIMInstance> &commMechInstances,
+                      const Array<CIMInstance> &regProfileInstances,
+                      const CIMClass & nameSpaceClass,
+                      const CIMClass &commMechClass);
+
+    /**
+     * Gets all registrations necessary  for cimserver SLP advertisement.
+     * @param SLP http attribs.
+     * @param SLP https attribs. 
+     */
+    static void getAllRegs(Array<SLPAttrib> &httpAttribs, 
+        Array<SLPAttrib> &httpsAttribs);
 
     /** formAttributes.
      *
@@ -108,6 +119,10 @@ private:
     String registeredProfiles;
 
 };
+
+#define PEGASUS_ARRAY_T SLPAttrib
+#include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
 
 PEGASUS_NAMESPACE_END
 #endif

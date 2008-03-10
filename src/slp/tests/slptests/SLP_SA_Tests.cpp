@@ -226,7 +226,8 @@ void testSLPReg_fromCIMServer ()
 {
     struct slp_client *client;
     lslpMsg responses,*temp;
-    SLPAttrib SLPHttpAttribObj;
+    Array<SLPAttrib> SLPHttpAttribObjs;
+    Array<SLPAttrib> SLPHttpsAttribObjs;
     char *httpAttrs  = (char *)NULL;
 
     //Create slp client
@@ -244,12 +245,13 @@ void testSLPReg_fromCIMServer ()
     temp = &responses;
 
     // Get all the SLP attributes and data for the Pegasus cimserver.
-    SLPHttpAttribObj.fillData("http");
-    SLPHttpAttribObj.formAttributes();
+    SLPAttrib::getAllRegs(SLPHttpAttribObjs, SLPHttpsAttribObjs);
+    // Take any one attribute.
+    SLPHttpAttribObjs[0].formAttributes();
 
     // Populate datastructures required for registering  a service with
     // External SLP SA (i.e IBM SLP SA)
-    httpAttrs = strdup(SLPHttpAttribObj.getAttributes().getCString());
+    httpAttrs = strdup(SLPHttpAttribObjs[0].getAttributes().getCString());
 
     // parse the response list and check for the required response.
     // This test case would fail if there a difference between the registered

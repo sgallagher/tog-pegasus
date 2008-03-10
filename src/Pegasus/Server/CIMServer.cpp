@@ -1257,19 +1257,16 @@ ThreadReturnType PEGASUS_THREAD_CDECL _callSLPProvider(void* parm)
 }
 
 #ifdef PEGASUS_SLP_REG_TIMEOUT
-// This thread advertises pegasus to a listening SA. The attributes for
-// the Pegasus advertisement is obtained from CIM classes with the help
-// of SLPAttrib class methods.
-ThreadReturnType PEGASUS_THREAD_CDECL registerPegasusWithSLP(void* parm)
-{
 
-     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::registerPegasusWithSLP()");
+// Utility function for registering and unregistering with external SLP.
+static void _register(Uint16 life)
+{
      Boolean foundHttpProtocol=false, foundHttpsProtocol=false;
-     SLPAttrib SLPHttpAttribObj;
-     SLPAttrib SLPHttpsAttribObj;
+     Array<SLPAttrib> SLPHttpAttribObjs;
+     Array<SLPAttrib> SLPHttpsAttribObjs;
      struct slp_client *client;
      const char *scopes = "DEFAULT";
-     Uint16 life = PEGASUS_SLP_REG_TIMEOUT * 60, port=SLP_DEFAULT_PORT;
+     Uint16 port=SLP_DEFAULT_PORT;
      const char *addr = LOCALHOST_IP;
      const char *iface = NULL;
      CString type, httpUrl, httpsUrl, httpAttrs, httpsAttrs;
@@ -1277,8 +1274,11 @@ ThreadReturnType PEGASUS_THREAD_CDECL registerPegasusWithSLP(void* parm)
      try
      {
          // Get all the SLP attributes and data for the Pegasus cimserver.
-         foundHttpProtocol = SLPHttpAttribObj.fillData("http");
-         foundHttpsProtocol = SLPHttpsAttribObj.fillData("https");
+         SLPAttrib::getAllRegs(SLPHttpAttribObjs, SLPHttpsAttribObjs);
+          
+         foundHttpProtocol = SLPHttpAttribObjs.size() ? true : false;
+         foundHttpsProtocol = SLPHttpsAttribObjs.size() ? true : false;
+
          if (!foundHttpProtocol && !foundHttpsProtocol)
          {
              Logger::put_l(
@@ -1288,27 +1288,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL registerPegasusWithSLP(void* parm)
                  "Pegasus.Server.SLP.PROTOCOLS_NOT_ENABLED",
                  "Both Http and Https protocols are disabled, "
                      "SLP registration skipped.");
-             PEG_METHOD_EXIT();
-             return( (ThreadReturnType)32 );
-         }
-
-         // Populate datastructures required for registering a service with SLP
-         if (foundHttpProtocol)
-         {
-             SLPHttpAttribObj.formAttributes();
-             type = SLPHttpAttribObj.getServiceType().getCString();
-             httpUrl = SLPHttpAttribObj.getServiceUrl().getCString();
-             httpAttrs = SLPHttpAttribObj.getAttributes().getCString();
-         }
-         if (foundHttpsProtocol)
-         {
-             SLPHttpsAttribObj.formAttributes();
-             if (!foundHttpProtocol)
-             {
-                 type = SLPHttpsAttribObj.getServiceType().getCString();
-             }
-             httpsUrl = SLPHttpsAttribObj.getServiceUrl().getCString();
-             httpsAttrs = SLPHttpsAttribObj.getAttributes().getCString();
+             return;
          }
 
          if (NULL != (client = create_slp_client(addr,
@@ -1322,49 +1302,70 @@ ThreadReturnType PEGASUS_THREAD_CDECL registerPegasusWithSLP(void* parm)
          {
              if (foundHttpProtocol)
              {
-                 if (!client->srv_reg_local(client, 
+                 for (Uint32 i = 0; i < SLPHttpAttribObjs.size() ; ++i)
+                 {
+                     SLPHttpAttribObjs[i].formAttributes();
+                     type = SLPHttpAttribObjs[i].getServiceType().getCString();
+                     httpUrl = 
+                         SLPHttpAttribObjs[i].getServiceUrl().getCString();
+                     httpAttrs = 
+                         SLPHttpAttribObjs[i].getAttributes().getCString();
+
+                     if (!client->srv_reg_local(client, 
                                             (const char*)httpUrl,
                                             (const char*)httpAttrs, 
                                             (const char*)type, 
                                             scopes, 
                                             life))
-                 {
-                     Logger::put_l(
-                         Logger::STANDARD_LOG, System::CIMSERVER,
-                         Logger::WARNING,
-                         "Pegasus.Server.SLP."
-                             "EXTERNAL_SLP_REGISTRATION_FAILED_ERROR",
-                         "CIM Server registration with External SLP Failed.");
-                 }
-                 else
-                 {
-                     _slpRegistrationComplete = true;
+                     {
+                         Logger::put_l(
+                             Logger::STANDARD_LOG, System::CIMSERVER,
+                             Logger::WARNING,
+                             "Pegasus.Server.SLP."
+                                 "EXTERNAL_SLP_REGISTRATION_FAILED_ERROR",
+                             "CIM Server registration"
+                                 " with External SLP Failed.");
+                     }
+                     else
+                     {
+                         _slpRegistrationComplete = true;
+                     }
                  }
              }
              if (foundHttpsProtocol)
              {
-                 if (!client->srv_reg_local(client, 
+                 for (Uint32 i = 0; i < SLPHttpsAttribObjs.size() ; ++i)
+                 {
+                     SLPHttpsAttribObjs[i].formAttributes();
+                     type = SLPHttpsAttribObjs[i].getServiceType().getCString();
+                     httpsUrl =
+                         SLPHttpsAttribObjs[i].getServiceUrl().getCString();
+                     httpsAttrs =
+                         SLPHttpsAttribObjs[i].getAttributes().getCString();
+
+                     if (!client->srv_reg_local(client, 
                                             (const char*)httpsUrl,
                                             (const char*)httpsAttrs, 
                                             (const char*)type, 
                                             scopes, 
                                             life))
-                 {
-                     Logger::put_l(
-                         Logger::STANDARD_LOG, System::CIMSERVER,
-                         Logger::WARNING,
-                         "Pegasus.Server.SLP."
-                             "EXTERNAL_SLP_REGISTRATION_FAILED_ERROR",
-                         "CIM Server registration with External SLP Failed.");
-                 }
-                 else
-                 {
-                     _slpRegistrationComplete = true;
+                     {
+                         Logger::put_l(
+                             Logger::STANDARD_LOG, System::CIMSERVER,
+                             Logger::WARNING,
+                             "Pegasus.Server.SLP."
+                                 "EXTERNAL_SLP_REGISTRATION_FAILED_ERROR",
+                             "CIM Server registration with External"
+                                 " SLP Failed.");
+                     }
+                     else
+                     {
+                         _slpRegistrationComplete = true;
+                     }
                  }
              }
          }
      }
-
      catch(Exception& e)
      {
          Logger::put_l(
@@ -1381,9 +1382,16 @@ ThreadReturnType PEGASUS_THREAD_CDECL registerPegasusWithSLP(void* parm)
              "Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_ERROR",
              "CIM Server registration with External SLP Failed.");
      }
-
      destroy_slp_client(client);
+}
 
+// This thread advertises pegasus to a listening SA. The attributes for
+// the Pegasus advertisement is obtained from CIM classes with the help
+// of SLPAttrib class methods.
+ThreadReturnType PEGASUS_THREAD_CDECL registerPegasusWithSLP(void* parm)
+{
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::registerPegasusWithSLP()");
+    _register(PEGASUS_SLP_REG_TIMEOUT * 60);
     PEG_METHOD_EXIT();
     return (ThreadReturnType)32;
 }
@@ -1393,86 +1401,12 @@ ThreadReturnType PEGASUS_THREAD_CDECL registerPegasusWithSLP(void* parm)
 void PEGASUS_SERVER_LINKAGE unregisterPegasusFromSLP()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "unregisterPegasusFromSLP()");
-    Boolean foundHttpProtocol=false, foundHttpsProtocol=false;
-    SLPAttrib SLPHttpAttribObj;
-    SLPAttrib SLPHttpsAttribObj;
-    struct slp_client *client;
-    const char *scopes = "DEFAULT";
-    Uint16 port=SLP_DEFAULT_PORT;
-    const char *addr = LOCALHOST_IP;
-    const char *iface = NULL;
-    CString type, httpUrl, httpsUrl, httpAttrs, httpsAttrs;
-
-    // If Pegasus did not successfully register with SLP, just return
-    if (!_slpRegistrationComplete)
-    {
-        PEG_METHOD_EXIT();
-        return;
-    }
-
-    // Get all the SLP attributes and data for the Pegasus cimserver.
-    foundHttpProtocol = SLPHttpAttribObj.fillData("http");
-    foundHttpsProtocol = SLPHttpsAttribObj.fillData("https");
-    if (!foundHttpProtocol && !foundHttpsProtocol)
-    {
-        PEG_METHOD_EXIT();
-        return;
-    }
-    if (foundHttpProtocol)
-    {
-        SLPHttpAttribObj.formAttributes();
-        type = SLPHttpAttribObj.getServiceType().getCString();
-        httpUrl = SLPHttpAttribObj.getServiceUrl().getCString();
-        httpAttrs = SLPHttpAttribObj.getAttributes().getCString();
-    }
-    if (foundHttpsProtocol)
-    {
-        SLPHttpsAttribObj.formAttributes();
-        if (!foundHttpProtocol)
-        {
-            type = SLPHttpsAttribObj.getServiceType().getCString();
-        }
-        httpsUrl = SLPHttpsAttribObj.getServiceUrl().getCString();
-        httpsAttrs = SLPHttpsAttribObj.getAttributes().getCString();
-    }
-
-    if (NULL != (client = create_slp_client(addr,
-                                            iface,
-                                            SLP_DEFAULT_PORT,
-                                            "DSA",
-                                            scopes,
-                                            FALSE,
-                                            FALSE,
-                                            0)))
-    {
-        if (foundHttpProtocol)
-        {
-            client->srv_reg_local(
-                client,
-                (const char*)httpUrl,
-                (const char*)httpAttrs,
-                (const char*)type,
-                scopes,
-                0);
-        }
-
-        if (foundHttpsProtocol)
-        {
-            client->srv_reg_local(
-                client,
-                (const char*)httpsUrl,
-                (const char*)httpsAttrs,
-                (const char*)type,
-                scopes,
-                0);
-        }
-
-        destroy_slp_client(client);
-    }
-
+    // Register with 0 life time. This will unregister  our registrations
+    //  with external SLP.
+    _register(0);
     PEG_METHOD_EXIT();
-    return;
  }
+
 #endif // PEGASUS_SLP_REG_TIMEOUT
 #endif
 

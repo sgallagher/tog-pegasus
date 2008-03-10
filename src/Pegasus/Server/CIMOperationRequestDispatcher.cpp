@@ -1051,16 +1051,6 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
                 PEGASUS_QUEUENAME_CONTROLSERVICE);
 
             _routing_table.insert_record(
-                PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
-                PEGASUS_NAMESPACENAME_INTEROP,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
-                PEGASUS_MODULENAME_INTEROPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
-
-            _routing_table.insert_record(
                  PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE,
                 _wild,
                 DynamicRoutingTable::INTERNAL,

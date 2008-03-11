@@ -389,7 +389,9 @@ void WSManOperationRequestDecoder::handleSoapMessage(
                 // TODO: throw an exception
                 break;
             }
-        };
+
+            request->protocol = PROTOCOLTYPE_WSMAN;
+        }
     }
     catch (XmlValidationError& e)
     {

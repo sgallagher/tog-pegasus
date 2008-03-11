@@ -137,11 +137,11 @@ void SoapReader::decodeKeyBindingElement(SoapEntry* soapEntry, CIMName& name,
     }
     value = soapEntry->entry.text;
 
-    // Set the type to UNKNOWN; it will be fixed up by the dipatcher.
-    type = CIMKeyBinding::UNKNOWN;
+    // Set the key type to STRING; it will be fixed up by the dipatcher.
+    type = CIMKeyBinding::STRING;
 
-    if (!testSoapEndTag(nextSoapHeaderEntry(), SoapNamespaces::WS_MAN, 
-                        "Selector"))
+    if (!testSoapEndTag(
+            nextSoapHeaderEntry(), SoapNamespaces::WS_MAN, "Selector"))
     {
         // TODO: throw an exception
     }

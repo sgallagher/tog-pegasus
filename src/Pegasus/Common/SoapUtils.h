@@ -84,7 +84,7 @@ public:
 
 private:
 
-    SoapNamespaces() { }
+    SoapNamespaces();
 };
 
 
@@ -98,7 +98,7 @@ public:
 
 private:
 
-    SoapUtils() { }
+    SoapUtils();
 };
 
 

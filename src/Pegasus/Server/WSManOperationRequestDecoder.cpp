@@ -380,19 +380,20 @@ void WSManOperationRequestDecoder::handleSoapMessage(
                 }
                 else
                 {
-                    // TODO: throw an exception
+                    // ATTN WSMAN: throw an exception
                 }
                 break;
             }
             default:
             {
-                // TODO: throw an exception
+                // ATTN WSMAN: throw an exception
                 break;
             }
-
-            request->protocol = PROTOCOLTYPE_WSMAN;
         }
+
+        request->protocol = PROTOCOLTYPE_WSMAN;
     }
+
     catch (XmlValidationError& e)
     {
         Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
@@ -523,27 +524,27 @@ CIMGetInstanceRequestMessage*
     // <wsman:SelectorSet> contains key bindings, with one exception below.
     // <wsman:Selector Name="__cimnamespace"> has the namespace.
     soapReader.initSoapHeaderItr();
-    SoapReader::SoapEntry* soapEntry;
-    while ((soapEntry = soapReader.nextSoapHeaderEntry()) != 0)
+    XmlEntry* entry;
+    while ((entry = soapReader.nextSoapHeaderEntry()) != 0)
     {
         if (soapReader.testSoapStartTag(
-                soapEntry, SoapNamespaces::WS_MAN, "ResourceURI"))
+                entry, SoapNamespaces::WS_MAN, "ResourceURI"))
         {
-            soapReader.decodeClassName(soapEntry, className);
+            soapReader.decodeClassName(entry, className);
         }
         else if (soapReader.testSoapStartTag(
-                     soapEntry, SoapNamespaces::WS_MAN, "SelectorSet"))
+                     entry, SoapNamespaces::WS_MAN, "SelectorSet"))
         {
-            soapReader.decodeKeyBindings(soapEntry, keyBindings, nameSpace);
+            soapReader.decodeKeyBindings(entry, keyBindings, nameSpace);
         }
         else if (soapReader.testSoapStartTag(
-                     soapEntry, SoapNamespaces::WS_ADDRESSING, "MessageID"))
+                     entry, SoapNamespaces::WS_ADDRESSING, "MessageID"))
         {
-            soapReader.decodeMessageId(soapEntry, messageId);
+            soapReader.decodeMessageId(entry, messageId);
         }
         else
         {
-            // TODO:
+            // ATTN WSMAN:
             // For the tags we don't understand, we need to return an error
             // if they have mustUnderstand attribute set.
         }

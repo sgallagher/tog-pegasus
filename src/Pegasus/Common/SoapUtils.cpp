@@ -38,7 +38,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-SoapNamespaces::Namespace SoapNamespaces::supportedNamespaces[] = 
+XmlNamespace SoapNamespaces::supportedNamespaces[] = 
 {
     {"SOAP-ENV", "http://www.w3.org/2003/05/soap-envelope",
      SOAP_ENVELOPE,       0},
@@ -71,31 +71,6 @@ SoapNamespaces::Namespace SoapNamespaces::supportedNamespaces[] =
 
 
 
-Boolean SoapNamespaces::isSupportedNamespace(Namespace* ns)
-{
-    for (int i = 0; 
-         supportedNamespaces[i].type != LAST; 
-         i++)
-    {
-        PEGASUS_ASSERT(supportedNamespaces[i].type == i);
-        if (!strcmp(supportedNamespaces[i].extendedName, ns->extendedName))
-        {
-            ns->type = supportedNamespaces[i].type;
-            return true;
-        }
-    }
-    return false;
-}
-
-
-SoapNamespaces::Namespace& SoapNamespaces::getSupportedNamespace(Type nsType)
-{
-    PEGASUS_ASSERT(nsType < LAST);
-    PEGASUS_ASSERT(supportedNamespaces[nsType].type == nsType);
-    return supportedNamespaces[nsType];
-}
-
-
 String SoapUtils::getSoapActionName(
     const SoapNamespaces::Type nsType, const String& name)
 {
@@ -106,6 +81,7 @@ String SoapUtils::getSoapActionName(
 
 String SoapUtils::getMessageId()
 {
+    // ATTN WSMAN: Is this really unique?
     char uuid[50];
     sprintf(uuid, "uuid:%08X-%04X-%04X-%04X-%08X%04X",
         rand(),

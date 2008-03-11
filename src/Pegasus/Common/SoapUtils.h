@@ -36,11 +36,11 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/XmlParser.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class String;
-
 
 class PEGASUS_COMMON_LINKAGE SoapNamespaces
 {
@@ -68,19 +68,7 @@ public:
         LAST = COUNT
     }; 
 
-    struct Namespace
-    {
-        const char* localName;
-        const char* extendedName;
-        Type type;
-        Uint32 scopeLevel;
-    };
-
-    static Boolean isSupportedNamespace(SoapNamespaces::Namespace* ns);
-    static Namespace& getSupportedNamespace(Type nsType);
-
-
-    static Namespace supportedNamespaces[];
+    static XmlNamespace supportedNamespaces[];
 
 private:
 

@@ -114,7 +114,7 @@ void WSManOperationResponseEncoder::sendResponse(
     if (httpQueue->isChunkRequested())
     {
         // We don't handle chunked WS-Man requests. Bail here.
-        // TODO: throw an exception.
+        // ATTN WSMAN: throw an exception.
         return;
     }
 

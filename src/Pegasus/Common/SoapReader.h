@@ -62,12 +62,6 @@ class PEGASUS_COMMON_LINKAGE SoapReader
 {
 public:
 
-    struct SoapEntry
-    {
-        SoapNamespaces::Type nsType;
-        XmlEntry entry;
-    };
-
     SoapReader(char* text);
     ~SoapReader();
 
@@ -75,11 +69,11 @@ public:
         const char*& xmlVersion, const char*& xmlEncoding);
 
     Boolean testSoapStartTag(
-        SoapEntry* soapEntry, 
+        XmlEntry* entry, 
         SoapNamespaces::Type nsType, 
         const char* tagName);
     Boolean testSoapEndTag(
-        SoapEntry* soapEntry, 
+        XmlEntry* entry, 
         SoapNamespaces::Type nsType, 
         const char* tagName);
 
@@ -87,21 +81,21 @@ public:
     void decodeSoapAction(
         String& soapAction, String& action, SoapNamespaces::Type& nsType);
 
-    void decodeClassName(SoapEntry* soapEntry, String& className);
-    void decodeKeyBindings(SoapEntry* soapEntry, Array<CIMKeyBinding>&, 
+    void decodeClassName(XmlEntry* entry, String& className);
+    void decodeKeyBindings(XmlEntry* entry, Array<CIMKeyBinding>&, 
         String& nameSpace);
-    void decodeMessageId(SoapEntry* soapEntry, String& messageId);
-    void decodeKeyBindingElement(SoapEntry* soapEntry, CIMName& name,
+    void decodeMessageId(XmlEntry* entry, String& messageId);
+    void decodeKeyBindingElement(XmlEntry* entry, CIMName& name,
         String& value, CIMKeyBinding::Type& type);
 
-    CIMName getNameAttribute(SoapEntry* soapEntry, const char* elementName,
+    CIMName getNameAttribute(XmlEntry* entry, const char* elementName,
         Boolean acceptNull = false);
 
     void initSoapHeaderItr() 
     { 
         _currentSoapHeader = 0; 
     }
-    SoapEntry* nextSoapHeaderEntry()
+    XmlEntry* nextSoapHeaderEntry()
     {
         if (_currentSoapHeader < _soapHeader.size())
             return &_soapHeader[_currentSoapHeader++];
@@ -113,7 +107,7 @@ public:
     {
         _currentSoapBody = 0; 
     }
-    SoapEntry* nextSoapBodyEntry() 
+    XmlEntry* nextSoapBodyEntry() 
     { 
         if (_currentSoapBody < _soapBody.size())
             return &_soapBody[_currentSoapBody++];
@@ -123,11 +117,6 @@ public:
 
 private:
 
-    Boolean _next(
-        XmlEntry& entry, 
-        SoapNamespaces::Type& nsType, 
-        Boolean includeComment = false);
-
     void _expectContentOrCData(XmlEntry& entry);
     void _expectStartOrEmptyTag(
         XmlEntry& entry, SoapNamespaces::Type nsType, const char* tagName);
@@ -136,9 +125,6 @@ private:
     void _expectEndTag(
         XmlEntry& entry, SoapNamespaces::Type nsType, const char* tagName);
     Boolean _testEndTag(SoapNamespaces::Type nsType, const char* tagName);
-
-    SoapNamespaces::Type _getNamespaceType(const char* name);
-    SoapNamespaces::Namespace* _getNamespace(SoapNamespaces::Type nsType);
 
     void _processEnvelopeStartTag();
     void _processEnvelopeEndTag();
@@ -150,15 +136,12 @@ private:
     void _processBodyEndTag();
 
     XmlParser _parser;
-    Uint32 _scopeLevel;
 
-    Array<SoapEntry> _soapHeader;
+    Array<XmlEntry> _soapHeader;
     Uint32 _currentSoapHeader;
 
-    Array<SoapEntry> _soapBody;
+    Array<XmlEntry> _soapBody;
     Uint32 _currentSoapBody;
-
-    Stack<SoapNamespaces::Namespace> _nameSpaces;
 };
 
 PEGASUS_NAMESPACE_END

@@ -72,7 +72,7 @@ Buffer SoapWriter::formatHttpErrorRspMessage(
 {
     Buffer out;
 
-    // ATTN: Format an HTTP error response
+    // ATTN WSMAN: Format an HTTP error response
 
     return out;
 }
@@ -113,7 +113,7 @@ Buffer SoapWriter::formatWSManErrorRspMessage(
 {
     Buffer out;
 
-    // ATTN: Format a WS-Man error response
+    // ATTN WSMAN: Format a WS-Man error response
 
     return out;
 }
@@ -154,11 +154,11 @@ void SoapWriter::appendPropertyElement(
 
     if (rep->getValue().isArray())
     {
-        // ATTN: Need to complete
+        // ATTN WSMAN: Need to complete
     }
     else if (rep->getValue().getType() == CIMTYPE_REFERENCE)
     {
-        // ATTN: Need to complete
+        // ATTN WSMAN: Need to complete
     }
     else
     {
@@ -171,7 +171,7 @@ void SoapWriter::appendQualifierElement(
     const CIMConstQualifier& qualifier)
 {
     CheckRep(qualifier._rep);
-    // ATTN: Anything to do here?
+    // ATTN WSMAN: Anything to do here?
 }
 
 void SoapWriter::_appendHTTPResponseHeader(
@@ -195,7 +195,7 @@ void SoapWriter::_appendHTTPResponseHeader(
     }
     if (httpMethod == HTTP_METHOD_M_POST)
     {
-        // TODO: not sure about this!!!
+        // ATTN WSMAN: not sure about this!!!
         out << STRLIT("Ext:\r\n");
         out << STRLIT("Cache-Control: no-cache\r\n");
         out << nn << STRLIT("\r\n");
@@ -214,7 +214,7 @@ void SoapWriter::_appendHTTPResponseHeader(
 void SoapWriter::_appendStartTag(
     Buffer& out, SoapNamespaces::Type nsType, StrLit tag)
 {
-    // ATTN: Is this needed?
+    // ATTN WSMAN: Is this needed?
 }
 
 void SoapWriter::_appendEndTag(
@@ -277,7 +277,7 @@ void SoapWriter::_appendSoapHeader(
         SoapNamespaces::SOAP_ENVELOPE].localName;
     out << STRLIT(":Header>\n");
 
-    // TODO: this assumes we reply on the requestor's connection
+    // ATTN WSMAN: this assumes we reply on the requestor's connection
     // Add <wsa:To> entry
     out << STRLIT("<");
     out << SoapNamespaces::supportedNamespaces[
@@ -335,7 +335,7 @@ void SoapWriter::_appendSoapHeader(
 void SoapWriter::_appendValueArray(
     Buffer& out, const CIMObjectPath* p, Uint32 size, const CIMName& name)
 {
-    // ATTN: need to implement
+    // ATTN WSMAN: need to implement
     while (size--)
     {
         _appendValue(out, *p++);

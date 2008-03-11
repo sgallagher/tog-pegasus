@@ -3065,7 +3065,6 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
 
 /**$*******************************************************
     handleModifyInstanceRequest
-    ATTN: FIX LOOKUP
 **********************************************************/
 
 void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
@@ -3074,9 +3073,6 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::handleModifyInstanceRequest");
 
-    // ATTN: Who makes sure the instance name and the instance match?
-    // ATTN: KS May 28. Change following to reflect new instancelookup
-    // get the class name
     CIMName className = request->modifiedInstance.getClassName();
 
     if (!_checkExistenceOfClass(request->nameSpace, className))
@@ -4675,7 +4671,6 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
 /**$*******************************************************
     handleGetPropertyRequest
-    ATTN: FIX LOOKUP
 **********************************************************/
 
 void CIMOperationRequestDispatcher::handleGetPropertyRequest(
@@ -4686,12 +4681,8 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 
     CIMName className = request->instanceName.getClassName();
 
-    // check the class name for an "external provider"
-    // Assumption here is that there are no "internal" property requests.
-    // teATTN: KS 20030402 - This needs cleanup along with the setproperty.
-
     ProviderInfo providerInfo =
-        _lookupInstanceProvider(
+        _lookupNewInstanceProvider(
             request->nameSpace,
             className);
 
@@ -4709,8 +4700,10 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
         CIMGetPropertyRequestMessage* requestCallbackCopy =
             new CIMGetPropertyRequestMessage(*requestCopy);
 
-        _forwardRequestToService(
-            PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP,
+        _forwardRequestToProviderManager(
+            providerInfo.className,
+            providerInfo.serviceName,
+            providerInfo.controlProviderName,
             requestCopy,
             requestCallbackCopy);
     }
@@ -4742,7 +4735,6 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 
 /**$*******************************************************
     handleSetPropertyRequest
-    ATTN: FIX LOOKUP
 **********************************************************/
 
 void CIMOperationRequestDispatcher::handleSetPropertyRequest(
@@ -4755,10 +4747,10 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 
     CIMName className = request->instanceName.getClassName();
 
-    // check the class name for an "external provider"
-    ProviderInfo providerInfo = _lookupInstanceProvider(
-        request->nameSpace,
-        className);
+    ProviderInfo providerInfo =
+        _lookupNewInstanceProvider(
+            request->nameSpace,
+            className);
 
     if (providerInfo.hasProvider)
     {
@@ -4774,8 +4766,10 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
         CIMSetPropertyRequestMessage* requestCallbackCopy =
             new CIMSetPropertyRequestMessage(*requestCopy);
 
-        _forwardRequestToService(
-            PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP,
+        _forwardRequestToProviderManager(
+            providerInfo.className,
+            providerInfo.serviceName,
+            providerInfo.controlProviderName,
             requestCopy,
             requestCallbackCopy);
     }

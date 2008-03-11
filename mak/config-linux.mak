@@ -149,12 +149,12 @@ endif
 # l10n
 ifdef PEGASUS_HAS_MESSAGES
   DEFINES += -DPEGASUS_HAS_MESSAGES
-  ifdef ICU_ROOT
+  ifeq ($(PEGASUS_HAS_ICU), true)
         MSG_COMPILE = genrb
         MSG_FLAGS =
         MSG_SOURCE_EXT = .txt
         MSG_COMPILE_EXT = .res
-        CNV_ROOT_CMD = cnv2rootbundle
+        CNV_ROOT_CMD = $(BIN_DIR)/cnv2rootbundle
 
 ##################################
 ##
@@ -182,9 +182,14 @@ else
   MSG_ROOT_SOURCE = _en
 endif
 
-    SYS_INCLUDES += -I${ICU_ROOT}/source/common -I${ICU_ROOT}/source/i18n
+    ifdef ICU_ROOT
+      SYS_INCLUDES += -I${ICU_ROOT}/source/common -I${ICU_ROOT}/source/i18n
+    endif
     DEFINES += -DPEGASUS_HAS_ICU
-    EXTRA_LIBRARIES += -L$(ICU_INSTALL)/lib -licuuc -licui18n -licudata
+    ifdef ICU_INSTALL
+      EXTRA_LIBRARIES += -L$(ICU_INSTALL)/lib
+    endif
+    EXTRA_LIBRARIES += -licuuc -licui18n -licudata
   endif
 endif
 

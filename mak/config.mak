@@ -57,6 +57,50 @@ else
     $(error PEGASUS_ROOT environment variable undefined)
 endif
 
+############################################################################
+# OpenPegasus relies on the existence of an external set of libraries to  
+# support localized messages.  Today, the only supported package is
+# the International Components for Unicode (ICU) OSS project,
+# http://oss.software.ibm.com/icu.  If PEGASUS_HAS_ICU is true,
+# OpenPegasus will use the ICU library.
+#
+# ICU_ROOT points to the root directory of the ICU source tree.  If set,
+# the OpenPegasus build will use this variable to locate the ICU include 
+# files. If not set, the ICU include files are expected to be installed
+# in directories that are searched by default.
+#
+# ICU_INSTALL points to the directory containing the ICU libraries.
+# If set, the OpenPegasus will use this variable to locate the ICU
+# libraries.  If not set, the ICU libraries are expected to be installed
+# in a directory that is searched by default.
+#
+# If PEGASUS_HAS_ICU is not set and either ICU_ROOT or ICU_INSTALL is
+# set, the value of PEGASUS_HAS_ICU will be set to true. 
+############################################################################
+ifdef PEGASUS_HAS_ICU
+    ifneq ($(PEGASUS_HAS_ICU),true)
+        ifneq ($(PEGASUS_HAS_ICU),false)
+            $(error PEGASUS_HAS_ICU ($(PEGASUS_HAS_ICU)) \
+                invalid, must be true or false)
+        endif
+    endif
+else
+    ifdef ICU_ROOT 
+        PEGASUS_HAS_ICU = true
+    else
+        ifdef ICU_INSTALL
+            PEGASUS_HAS_ICU = true
+        endif 
+    endif
+endif
+
+ifdef PEGASUS_HAS_MESSAGES
+    ifneq ($(PEGASUS_HAS_ICU),true)
+        $(error Support for localized messages in OpenPegasus \
+            requires PEGASUS_HAS_ICU to be true)
+    endif
+endif
+
 # l10n
 ifdef ICU_ROOT
     ICUROOT =  $(subst \,/,$(ICU_ROOT))

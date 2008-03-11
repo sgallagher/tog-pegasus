@@ -38,8 +38,6 @@ LINK_DEST_LIB = -Xlinker $(PEGASUS_DEST_LIB_DIR)
 
 LINK_LIB_DIR = -Xlinker $(LIB_DIR)
 
-LINK_ICU = -Xlinker ${ICU_INSTALL}/lib
-
 ifndef LINK_RPATH_LINK
     LINK_RPATH_LINK = -Xlinker -rpath-link
 endif
@@ -75,6 +73,18 @@ ifdef PEGASUS_HAS_MESSAGES
 endif
 endif
 
+ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
+    ifdef PEGASUS_USE_RELEASE_DIRS
+        EXTRA_LINK_FLAGS += $(LINK_RPATH) $(LINK_DEST_LIB) $(LINK_RPATH_LINK) $(LINK_LIB_DIR)
+    else
+        EXTRA_LINK_FLAGS += $(LINK_RPATH) $(LINK_LIB_DIR)
+    endif
+
+    ifdef ICU_INSTALL
+        EXTRA_LINK_FLAGS += $(LINK_RPATH) -Xlinker ${ICU_INSTALL}/lib
+    endif
+endif
+
 ifdef PEGASUS_PURIFY
     PUREOPTIONS = -follow-child-processes=yes -locking=no \
         -always-use-cache-dir -cache-dir=$(PURIFY_TMP)/cache \
@@ -104,23 +114,7 @@ ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
 	@ $(ZIP) -a -m $(FULL_PROGRAM).llst.zip $(PROGRAM).llst
      else
       ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-        ifdef PEGASUS_HAS_MESSAGES  
-          ifdef ICU_ROOT
-            ifdef ICU_INSTALL
-              ifdef  PEGASUS_USE_RELEASE_DIRS
-	        $(LINK_WRAPPER) $(CXX) $(FLAGS) $(EXTRA_LINK_FLAGS) $(LINK_RPATH) $(LINK_DEST_LIB) $(LINK_RPATH_LINK) $(LINK_LIB_DIR) $(LINK_RPATH) $(LINK_ICU) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS) $(EXTRA_LIBRARIES)
-              else
-	        $(LINK_WRAPPER) $(CXX) $(FLAGS) $(EXTRA_LINK_FLAGS) $(LINK_RPATH) $(LINK_LIB_DIR) $(LINK_RPATH) $(LINK_ICU) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS) $(EXTRA_LIBRARIES)
-              endif
-            endif
-          endif
-        else
-          ifdef  PEGASUS_USE_RELEASE_DIRS
-	    $(LINK_WRAPPER) $(CXX) $(FLAGS) $(EXTRA_LINK_FLAGS) $(LINK_RPATH) $(LINK_DEST_LIB) $(LINK_RPATH_LINK) $(LINK_LIB_DIR) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS) $(EXTRA_LIBRARIES)
-          else
-	    $(LINK_WRAPPER) $(CXX) $(FLAGS) $(EXTRA_LINK_FLAGS) $(LINK_RPATH) $(LINK_LIB_DIR) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS) $(EXTRA_LIBRARIES)
-          endif
-        endif      
+	$(LINK_WRAPPER) $(CXX) $(FLAGS) $(EXTRA_LINK_FLAGS) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS) $(EXTRA_LIBRARIES)
       else
        ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
          ifdef  PEGASUS_USE_RELEASE_DIRS

@@ -37,7 +37,7 @@
 
 # If we are using ICU resource bundles, then the compiled bundles are .res files
 # since the individual makefiles do not specify a root package file, one is appended to the target list
-ifdef ICU_ROOT
+ifeq ($(PEGASUS_HAS_ICU), true)
 	TMP_MSG_BUNDLES = $(foreach i,$(MSG_SOURCES),$(MSG_DIR)/$i)
 	MSG_BUNDLES = $(TMP_MSG_BUNDLES:.txt=.res)
 	MSG_BUNDLES += $(MSG_DIR)/$(MSG_PACKAGE)_root.res
@@ -56,7 +56,7 @@ endif
 ################################################################################
 
 # Rule for ICU resource bundles
-ifdef ICU_ROOT
+ifeq ($(PEGASUS_HAS_ICU), true)
 messages: $(MSG_BUNDLES)
 
 $(MSG_DIR)/$(MSG_PACKAGE)_root.res: $(MSG_PACKAGE)_root.rb $(ERROR)
@@ -86,7 +86,7 @@ endif
 FILES_TO_CLEAN = $(MSG_BUNDLES)
 FILES_TO_CLEAN += $(ROOT)/src/$(DIR)/*.rb
 
-ifdef ICU_ROOT
+ifeq ($(PEGASUS_HAS_ICU), true)
 include $(ROOT)/mak/clean.mak
 else
 clean:

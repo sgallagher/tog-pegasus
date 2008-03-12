@@ -190,16 +190,16 @@ PEGASUS_USER_CMDS = \
 PEGASUS_GENERATED_SCRIPTS = \
    genOpenPegasusSSLCerts
 
-ifeq ($(OS),linux)
-   PEGASUS_CVS_SCRIPTS += \
-      settogpath
-endif
+#############################################################################
+## If needed, you can use the PEGASUS_CVS_SCRIPTS variable to include 
+## one or more script files in an OpenPegasus release.  Scripts should be
+## placed in the CVS directory pegasus/installs/scripts. 
+#############################################################################
 
 PEGASUS_SCRIPT_FILES = \
    $(PEGASUS_GENERATED_SCRIPTS) \
    $(PEGASUS_CVS_SCRIPTS)
  
-
 PEGASUS_REPOSITORY_DIRS = \
    root\
    root\#PG_Internal \

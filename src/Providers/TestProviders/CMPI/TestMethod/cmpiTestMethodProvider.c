@@ -351,7 +351,7 @@ _CMLogMessage (char **result)
   rc = CMLogMessage (_broker, 2, NULL, NULL, NULL);
   PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
 
-  // This should return CMPI_RC_ERR_INVALID_PARAMETER too
+  // This should return CMPI_RC_OK
   rc.rc = CMPI_RC_OK;
   rc = CMLogMessage (_broker, 1, NULL, "LogMessage with NULL", NULL);
   PROV_LOG ("++++ (%s)", strCMPIStatus (rc));

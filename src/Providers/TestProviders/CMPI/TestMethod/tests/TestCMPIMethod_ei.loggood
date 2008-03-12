@@ -86,7 +86,7 @@
  ++++ #B CMLogMessage
  ++++ (CMPI_RC_OK)
  ++++ (CMPI_RC_ERR_INVALID_PARAMETER)
- ++++ (CMPI_RC_ERR_INVALID_PARAMETER)
+ ++++ (CMPI_RC_OK)
  ++++ (CMPI_RC_OK)
  ++++ Calling CMReturnData+Done
  ++++ Calling CMAddArg

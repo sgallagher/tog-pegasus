@@ -931,7 +931,8 @@ void System::syslog(const String& ident, Uint32 severity, const char* message)
 
     // reserve memory for the message string, also prepend
     // z/OS message id CFZ* if necessary
-    if (strncmp(message, "CFZ", 3) != 0)
+    if ((strncmp(message, "CFZ", 3) != 0) &&
+        (strncmp(message, "CEZ", 3) != 0) )
     {
         // reserve message + 11 char message prepend + 1 byte for \0 char
         zosMessageString = (char*) malloc(messageLength+ZOS_MSGID_LENGTH+1);

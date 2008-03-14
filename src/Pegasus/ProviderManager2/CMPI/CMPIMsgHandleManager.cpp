@@ -142,9 +142,15 @@ CMPIMsgHandleManager::getDataForHandle(CMPIMsgFileHandle handle)
 MessageLoaderParms*
 CMPIMsgHandleManager::releaseHandle(CMPIMsgFileHandle handle)
 {
-    Uint32 index = (Uint32)handle;
+    Uint32 index;
     MessageLoaderParms* data;
 
+
+#ifdef PEGASUS_POINTER_64BIT
+    index = (Uint64)handle;
+#else
+    index = (Uint32)handle;
+#endif
 
     WriteLock writeLock(_rwsemHandleTable);
 

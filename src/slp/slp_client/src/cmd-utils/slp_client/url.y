@@ -36,7 +36,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/url.y,v 1.6 2008/03/10 06:16:39 venkat.puvvada Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/url.y,v 1.7 2008/03/17 05:52:47 venkat.puvvada Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -86,7 +86,15 @@ static lslpAtomList attrHead = {&attrHead, &attrHead, TRUE, NULL, 0};
 
 lslpAtomizedURL urlHead = 
 {
-    &urlHead, &urlHead, TRUE, NULL, 0, srvcHead, siteHead, pathHead, attrHead
+    &urlHead,
+    &urlHead,
+    TRUE,
+    NULL,
+    0,
+    {&srvcHead, &srvcHead, TRUE, NULL, 0},
+    {&siteHead, &siteHead, TRUE, NULL, 0},
+    {&pathHead, &pathHead, TRUE, NULL, 0},
+    {&attrHead, &attrHead, TRUE, NULL, 0}
 };
 
 %}

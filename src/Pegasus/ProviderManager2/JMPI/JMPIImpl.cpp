@@ -48,6 +48,7 @@
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/OperationContext.h>
+#include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/ProviderManager2/JMPI/JMPIProviderManager.h>
@@ -60,13 +61,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 JavaVM *JMPIjvm::jvm=NULL;
 JvmVector JMPIjvm::jv;
-int JMPIjvm::trace=0;
-
-#ifdef PEGASUS_DEBUG
-#define DDD(x) if (JMPIjvm::trace) x;
-#else
-#define DDD(x)
-#endif
 
 #include "Convert.h"
 
@@ -421,10 +415,18 @@ jmethodID staticMethodIDs[sizeof(staticMethodNames) /
 
 jclass JMPIjvm::getGlobalClassRef(JNIEnv *env, const char* name)
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIjvm::getGlobalClassRef");
+
   jclass localRefCls = env->FindClass(name);
 
   if (localRefCls == NULL)
+  {
+     PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+         "No local Class reference found. (localRefCls==NULL)");
+     PEG_METHOD_EXIT();
      return JNI_FALSE;
+  }
+
 
   jclass globalRefCls = (jclass) env->NewGlobalRef(localRefCls);
 
@@ -436,22 +438,21 @@ jclass JMPIjvm::getGlobalClassRef(JNIEnv *env, const char* name)
                                                               jmidToString);
   const char *pszResult      = env->GetStringUTFChars(jstringResult, 0);
 
-  DDD(cout <<"--- JMPIjvm::getGlobalClassRef: globalRefCls = "
-                        <<hex<<(long)globalRefCls
-                        <<dec<<", name = "<<name
-                        <<", pszResult = "<<pszResult
-                        <<endl);
+  PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+      "globalRefCls = %X, name = %s, pszResult = %s",
+      (long)globalRefCls,name,pszResult));
 
   env->ReleaseStringUTFChars (jstringResult, pszResult);
 #else
-  DDD(cout<<"--- JMPIjvm::getGlobalClassRef: globalRefCls = "
-                       <<hex<<(long)globalRefCls
-                       <<dec<<", name = "<<name
-                       <<endl);
+
+  PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+      "globalRefCls = %X, name = %s",(long)globalRefCls,name));
+
 #endif
 
   env->DeleteLocalRef(localRefCls);
 
+  PEG_METHOD_EXIT();
   return globalRefCls;
 }
 
@@ -466,24 +467,30 @@ JMPIjvm::~JMPIjvm()
 
 int JMPIjvm::cacheIDs(JNIEnv *env)
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIjvm::cacheIDs");
+
    if (methodInitDone == 1)
+   {
+      PEG_METHOD_EXIT();
       return JNI_TRUE;
+   }
+    
    if (methodInitDone == -1)
+   {
+      PEG_METHOD_EXIT();
       return JNI_FALSE;
-
-   DDD(cout<<"--- JMPIjvm::cacheIDs(): enter"<<endl);
-
+   }
+   
    methodInitDone = -1;
 
    for (unsigned i = 0; i<(sizeof(classNames)/sizeof(classNames[0])); i++)
    {
       if ((classRefs[i] = getGlobalClassRef(env,classNames[i])) == NULL)
       {
-         DDD(cout<<"--- JMPIjvm::cacheIDs(): Error: "
-                                    "Count not find global class ref for "
-                              <<classNames[i]
-                              <<endl);
-
+         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+             "Error: Count not find global class ref for %s",classNames[i]));
+                              
+         PEG_METHOD_EXIT();
          return JNI_FALSE;
       }
    }
@@ -499,11 +506,12 @@ int JMPIjvm::cacheIDs(JNIEnv *env)
                                   instanceMethodNames[j].signature);
        if (instanceMethodIDs[j] == NULL)
        {
-           DDD(cout<<"--- JMPIjvm::cacheIDs(): "
-                                      "Error could not get method id for "
-                                <<classNames[instanceMethodNames[j].clsIndex]
-                                <<": "<<instanceMethodNames[j].methodName
-                                <<endl);
+           PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+               "Error: Could not get instance method id for %s:%s",
+               classNames[instanceMethodNames[j].clsIndex],
+               instanceMethodNames[j].methodName));
+
+           PEG_METHOD_EXIT();
          return 0;
       }
    }
@@ -518,16 +526,15 @@ int JMPIjvm::cacheIDs(JNIEnv *env)
 
        if (staticMethodIDs[k] == NULL)
        {
-           DDD(cout<<"--- JMPIjvm::cacheIDs(): "
-                                      "Error could not get method id for "
-                                <<classNames[staticMethodNames[k].clsIndex]
-                                <<": "<<staticMethodNames[k].methodName
-                                <<endl);
+           PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+               "Error: Could not get static method id for %s:%s",
+               classNames[staticMethodNames[k].clsIndex],
+               staticMethodNames[k].methodName));
+
+           PEG_METHOD_EXIT();
            return 0;
        }
    }
-
-   DDD(cout<<"--- JMPIjvm::cacheIDs(): exit"<<endl);
 
    jv.env = env;
    jv.classRefs = classRefs;
@@ -537,6 +544,7 @@ int JMPIjvm::cacheIDs(JNIEnv *env)
 
    methodInitDone = 1;
 
+   PEG_METHOD_EXIT();
    return JNI_TRUE;
 }
 
@@ -549,7 +557,7 @@ static void throwCIMException (JNIEnv *env, char *e)
 
 int JMPIjvm::destroyJVM ()
 {
-   DDD(cerr<<"--- JPIjvm::destroyJVM()"<<endl);
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JPIjvm::destroyJVM");
 
 #ifdef JAVA_DESTROY_VM_WORKS
    if (jvm!= NULL)
@@ -562,10 +570,12 @@ int JMPIjvm::destroyJVM ()
 
       jvm = NULL;
 
+      PEG_METHOD_EXIT();
       return 0;
    }
 #endif
 
+   PEG_METHOD_EXIT();
    return -1;
 }
 
@@ -573,6 +583,8 @@ Mutex JMPIjvm::_initMutex;
 
 int JMPIjvm::initJVM ()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JPIjvm::initJVM");
+
    AutoMutex lock (_initMutex);
 
    if (jvm != NULL)
@@ -601,17 +613,9 @@ int JMPIjvm::initJVM ()
    };
    std::ostringstream oss;
 
-#ifdef PEGASUS_DEBUG
-   if (getenv("PEGASUS_JMPI_TRACE"))
-      JMPIjvm::trace = 1;
-   else
-      JMPIjvm::trace = 0;
-#else
-   JMPIjvm::trace = 0;
-#endif
-
-   DDD(cout << "--- JMPIjvm::initJVM()" << endl);
-
+   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+       "Start to initialize the JVM.");
+   
    jv.initRc = 0;
 
    envstring = getenv("CLASSPATH");
@@ -619,9 +623,10 @@ int JMPIjvm::initJVM ()
    {
       jv.initRc = 1;
 
-      DDD(cerr << "--- JMPIjvm::initJVM(): "
-                                   "No CLASSPATH environment variable found"
-                            << endl);
+      PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+          "No CLASSPATH environment variable found.");
+
+      PEG_METHOD_EXIT();
 
       throw PEGASUS_CIM_EXCEPTION_L(
           CIM_ERR_FAILED,
@@ -669,11 +674,10 @@ int JMPIjvm::initJVM ()
                   stringValue=stringValues.substr(posStart,posEnd-posStart+1);
                }
 
-               DDD(cout<<"--- JMPIjvm::initJVM(): fCommaFound = "
-                                    <<fCommaFound << ", posStart = "
-                                    <<posStart << ", posComma = "<< posComma
-                                    << ", posEnd = " << posEnd
-                                    << "" << endl);
+               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+                   "fCommaFound = %d, posStart = %d, "
+                       "posComma =  %d, posEnd = %d",
+                   fCommaFound,posStart,posComma,posEnd));
 
                maxoption++;
 
@@ -682,11 +686,9 @@ int JMPIjvm::initJVM ()
 
                JNIoptions.append (oss.str ());
 
-               DDD(cout << "--- JMPIjvm::initJVM(): "
-                                     << pEnvOption->pszEnvName
-                                     << " found!  Specifying \""
-                                     << oss.str () << "\""
-                                     << endl);
+               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+                   "%s found! Specifying \"%s\"",
+                   pEnvOption->pszEnvName, (const char*)oss.str().c_str()));
             }
          }
          else
@@ -698,11 +700,10 @@ int JMPIjvm::initJVM ()
 
             JNIoptions.append (oss.str ());
 
-            DDD(cout << "--- JMPIjvm::initJVM(): "
-                                  << pEnvOption->pszEnvName
-                                  << " found!  Specifying \""
-                                  << oss.str() << "\""
-                                  << endl);
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                "%s found! Specifying \"%s\"",
+                pEnvOption->pszEnvName, (const char*)oss.str().c_str()));
+
          }
       }
    }
@@ -712,10 +713,11 @@ int JMPIjvm::initJVM ()
    {
       jv.initRc = 1;
 
-      DDD(cerr << "--- JMPIjvm::initJVM(): Could not allocate "
-                            << maxoption << " structures of size "
-                            << sizeof (JavaVMOption) << endl);
+      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+          "Could not allocate %d structures of size %d.",
+          maxoption,sizeof (JavaVMOption)));
 
+      PEG_METHOD_EXIT();
       return -1;
    }
 
@@ -723,9 +725,9 @@ int JMPIjvm::initJVM ()
    {
       poptions[i].optionString = (char *)JNIoptions[i].c_str ();
 
-      DDD(cout << "--- JMPIjvm::initJVM(): Setting option "
-                            << i << " to \"" << poptions[i].optionString
-                            << "\"" << endl);
+      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+          "Setting option %d to \"%s\".",
+          i ,poptions[i].optionString));
    }
 
    vm_args.version = JNI_VERSION_1_2;
@@ -744,9 +746,10 @@ int JMPIjvm::initJVM ()
    {
       jv.initRc = 1;
 
-      DDD(cerr << "--- JMPIjvm::initJVM(): Can not create Java VM"
-                            <<endl);
+      PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+          "Can not create Java VM !");
 
+      PEG_METHOD_EXIT();
       return -1;
    }
 
@@ -769,12 +772,14 @@ int JMPIjvm::initJVM ()
       jvm = NULL;
 #endif
 
+      PEG_METHOD_EXIT();
       return -1;
    }
 
    jv.initRc = 1;
    jv.jvm = jvm;
 
+   PEG_METHOD_EXIT();
    return res;
 }
 
@@ -809,17 +814,17 @@ jobject JMPIjvm::getProvider (JNIEnv     *env,
                               const char *pszProviderName,
                               jclass     *pjClass)
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIjvm::getProvider");
+
    jobject   jProviderInstance      = 0;
    jclass    jClassLoaded           = 0;
    jmethodID jId                    = 0;
    jobject   jProviderInstanceLocal = 0;
 
-   DDD(cout<<"--- JMPIjvm::getProvider: jarName = "<<jarName
-                        <<", className = "<<className
-                        <<", pszProviderName = "<<pszProviderName
-                        <<", pjClass = "
-                        <<hex<<(long)pjClass
-                        <<dec<<endl);
+   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+       "jarName = %s, className = %s, pszProviderName = %s, pjClass = %X",
+       jarName.getCString(),className.getCString(),
+       pszProviderName,(long)pjClass));
 
    // CASE #1
    //    className has been loaded previously.
@@ -827,11 +832,9 @@ jobject JMPIjvm::getProvider (JNIEnv     *env,
    _objectTable.lookup (className, jProviderInstance);
    _classTable.lookup (className, jClassLoaded);
 
-   DDD(cout<<"--- JMPIjvm::getProvider: jProviderInstance = "
-                        <<hex<<(long)jProviderInstance
-                        <<", jClassLoaded = "
-                        <<(long)jClassLoaded<<dec
-                        <<endl);
+   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+       "jProviderInstance = %X, jClassLoaded = %X",
+       (long)jProviderInstance,(long)jClassLoaded));
 
    if (  jProviderInstance
       && jClassLoaded
@@ -841,7 +844,7 @@ jobject JMPIjvm::getProvider (JNIEnv     *env,
       {
          *pjClass = jClassLoaded;
       }
-
+      PEG_METHOD_EXIT();
       return jProviderInstance;
    }
 
@@ -856,9 +859,8 @@ jobject JMPIjvm::getProvider (JNIEnv     *env,
    jClassLoaded = getGlobalClassRef (env,
                                      (const char*)className.getCString ());
 
-   DDD(cout<<"--- JMPIjvm::getProvider: jClassLoaded = "
-                        <<hex<<(long)jClassLoaded
-                        <<dec<<endl);
+   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+       "jClassLoaded = %X",(long)jClassLoaded));
 
    if (env->ExceptionCheck ())
    {
@@ -887,19 +889,15 @@ jobject JMPIjvm::getProvider (JNIEnv     *env,
          fixedClassName = className;
       }
 
-      DDD(cerr<<"--- JMPIjvm::getProvider: fixedClassName = "
-                           <<fixedClassName<<endl);
+      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+          "fixedClassName = %s",fixedClassName.getCString()));
 
       jJarName = env->NewStringUTF((const char*)jarName.getCString());
       jClassName = env->NewStringUTF((const char*)fixedClassName.getCString());
 
-      DDD(cout<<"--- JMPIjvm::getProvider: jJarName = "
-                           <<hex<<(long)jJarName<<dec
-                           <<endl);
-      DDD(cout<<"--- JMPIjvm::getProvider: jClassName = "
-                           <<hex<<(long)jClassName
-                           <<dec
-                           <<endl);
+      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+          "jJarName = %X, jClassName = %X",
+          (long)jJarName,(long)jClassName));
 
       jClassLoadedLocal = (jclass)env->CallStaticObjectMethod(
                               JMPIjvm::jv.JarClassLoaderClassRef,
@@ -907,26 +905,28 @@ jobject JMPIjvm::getProvider (JNIEnv     *env,
                               jJarName,
                               jClassName);
 
-      DDD(cout<<"--- JMPIjvm::getProvider: jClassLoadedLocal = "
-                           <<hex<<(long)jClassLoadedLocal
-                           <<dec
-                           <<endl);
+      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+          "jClassLoadedLocal = %X",(long)jClassLoadedLocal));
 
       if (env->ExceptionCheck ())
       {
-         DDD (env->ExceptionDescribe ());
+         env->ExceptionDescribe();
 
-         DDD(cerr<<"--- Unable to instantiate provider "
-                 <<pszProviderName<<endl);
+         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+              "Unable to instantiate provider %s: "
+              "Can not load Java class %s from jar %s.",
+              pszProviderName,
+              (const char*)fixedClassName.getCString(),
+              (const char*)jarName.getCString()));
 
+         PEG_METHOD_EXIT();
          return 0;
       }
 
       jClassLoaded = (jclass)env->NewGlobalRef (jClassLoadedLocal);
 
-      DDD(cout<<"--- JMPIjvm::getProvider: jClassLoaded = "
-              <<hex<<(long)jClassLoaded<<dec
-              <<endl);
+      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+          "jClassLoaded = %X",(long)jClassLoaded));
 
       env->DeleteLocalRef (jClassLoadedLocal);
    }
@@ -938,51 +938,53 @@ jobject JMPIjvm::getProvider (JNIEnv     *env,
 
    if (!jClassLoaded)
    {
-      DDD(cerr<<"--- Unable to instantiate provider "
-              <<pszProviderName<<endl);
-
+      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+           "Unable to instantiate provider %s: "
+           "Can not load Java class.",pszProviderName));
+      PEG_METHOD_EXIT();
       return 0;
    }
 
-   jId = env->GetMethodID (jClassLoaded,
-                           "<init>",
-                           "()V");
+   jId = env->GetMethodID (jClassLoaded,"<init>","()V");
 
-   DDD(cout<<"--- JMPIjvm::getProvider: jId = "
-           <<hex<<(long)jId<<dec
-           <<endl);
+   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "GetMethodID() jID = %X ",(long)jId));
 
    jProviderInstanceLocal = env->NewObject (jClassLoaded,
                                             jId);
 
-   DDD(cout<<"--- JMPIjvm::getProvider: jProviderInstanceLocal = "
-           <<hex<<(long)jProviderInstanceLocal<<dec
-           <<endl);
+   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "NewObject() jProviderInstanceLocal = %X ",
+        (long)jProviderInstanceLocal));
 
    if (!jProviderInstanceLocal)
    {
-      DDD(cerr<<"--- Unable to instantiate provider "
-              <<pszProviderName<<endl);
-
+      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+           "Unable to instantiate provider %s: "
+           "No new Java object of provider.",pszProviderName));
+      PEG_METHOD_EXIT();
       return 0;
    }
 
    jProviderInstance = (jobject)env->NewGlobalRef (jProviderInstanceLocal);
 
-   DDD(cout<<"--- JMPIjvm::getProvider: jProviderInstance = "
-           <<hex<<(long)jProviderInstance<<dec<<endl);
+   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "NewGlobalRef() jProviderInstance = %X ",
+        (long)jProviderInstance));
 
    if (!jProviderInstance)
    {
-      DDD(cerr<<"--- Unable to instantiate provider "
-              <<pszProviderName<<endl);
-
+       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Unable to instantiate provider %s: "
+            "No global reference to provider object.",pszProviderName));
+      PEG_METHOD_EXIT();
       return 0;
    }
 
    _classTable.insert (className, jClassLoaded);
    _objectTable.insert (className, jProviderInstance);
 
+   PEG_METHOD_EXIT();
    return jProviderInstance;
 }
 
@@ -992,14 +994,16 @@ jobject JMPIjvm::getProvider (JNIEnv *env, const char *cn, jclass *cls)
    jobject gProv = NULL;
    jclass scls = NULL;
 
-   DDD(cout<<"--- JMPIjvm::getProvider: cn = "<<cn<<", cls = "
-           <<cls<<endl);
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIjvm::getProvider");
+
+   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "cn = %s, cls = %X",cn,(long)cls));
 
    _objectTable.lookup(cln,gProv);
    _classTable.lookup(cln,scls);
-   DDD(cout<<"--- JMPIjvm::getProvider: gProv = "
-           <<hex<<(long)gProv<<", scls = "<<(long)scls
-           <<dec<<endl);
+
+   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "gProv = %X, scls = %X",(long)gProv,(long)scls));
 
    if (gProv)
    {
@@ -1010,19 +1014,17 @@ jobject JMPIjvm::getProvider (JNIEnv *env, const char *cn, jclass *cls)
    scls = getGlobalClassRef(env,cn);
    if (env->ExceptionCheck())
    {
-      DDD(cerr<<"--- JMPIjvm::getProvider: Provider "
-              <<cn<<" not found"<<endl);
-      DDD(env->ExceptionDescribe());
-
+      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+           "Provider %s not found: No global reference.",cn));
+      PEG_METHOD_EXIT();
       return NULL;
    }
    *cls = scls;
 
    if (scls)
    {
-      DDD(cout<<"--- JMPIjvm::getProvider: scls = "
-              <<hex<<(long)scls
-              <<dec<<endl);
+       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Inserting global reference %X into class table.",scls));
       _classTable.insert(cln,scls);
    }
 
@@ -1031,19 +1033,20 @@ jobject JMPIjvm::getProvider (JNIEnv *env, const char *cn, jclass *cls)
    gProv = (jobject)env->NewGlobalRef(lProv);
    if (env->ExceptionCheck())
    {
-      DDD(cerr<<"--- Unable to instantiate provider "<<cn
-              <<endl);
+      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+           "Unable to instantiate provider %s.",cn));
+      PEG_METHOD_EXIT();
       return NULL;
    }
 
    if (gProv)
    {
-      DDD(cout<<"--- JMPIjvm::getProvider: gProv = "
-              <<hex<<(long)gProv
-              <<dec<<endl);
+      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+           "Inserting provider reference %X into object table.",gProv));
       _objectTable.insert(cln,gProv);
    }
 
+   PEG_METHOD_EXIT();
    return gProv;
 }
 
@@ -1073,31 +1076,33 @@ String getExceptionInfo (JNIEnv *env)
    jobjectArray stackTrace = 0;
    String       rc;
 
-   DDD (cerr << "getExceptionInfo: err = "
-                           << hex
-                           << (jlong)err
-                           << dec
-                           << endl);
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"getExceptionInfo");
+
+   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "err =  %X ",(jlong)err));
 
    if (!err)
+   {
+       PEG_METHOD_EXIT();
       return rc;
+   }
+      
 
    stackTrace = (jobjectArray)env->CallObjectMethod(
                     err,
                     JMPIjvm::jv.ThrowableGetStackTrace);
 
-   DDD (cerr << "getExceptionInfo: stackTrace = "
-                           << hex
-                           << (jlong)stackTrace
-                           << dec
-                           << endl);
+   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "stackTrace =  %X ",(jlong)stackTrace));
 
    if (!stackTrace)
+   {
+       PEG_METHOD_EXIT();
       return rc;
+   }
 
-   DDD (cerr << "getExceptionInfo: stackTrace length = "
-                           << env->GetArrayLength (stackTrace)
-                           << endl);
+   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "stackTrace length =  %d",(jlong)env->GetArrayLength(stackTrace)));
 
    jobject jFirstST = 0;
    jstring jClass   = 0;
@@ -1107,14 +1112,14 @@ String getExceptionInfo (JNIEnv *env)
 
    jFirstST = env->GetObjectArrayElement (stackTrace, 0);
 
-   DDD (cerr << "getExceptionInfo: jFirstST = "
-                           << hex
-                           << (jlong)jFirstST
-                           << dec
-                           << endl);
+   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "jFirstST = %X",(jlong)jFirstST));
 
    if (!jFirstST)
+   {
+       PEG_METHOD_EXIT();
       return rc;
+   }
 
    jClass  = (jstring)env->CallObjectMethod(
                  jFirstST,
@@ -1129,17 +1134,9 @@ String getExceptionInfo (JNIEnv *env)
                  jFirstST,
                  JMPIjvm::jv.StackTraceElementGetLineNumber);
 
-   DDD (cerr << "getExceptionInfo: jClass = "
-                           << hex
-                           << (jlong)jClass
-                           << ", jFile = "
-                           << (jlong)jFile
-                           << ", jMethod = "
-                           << (jlong)jMethod
-                           << ", jLine = "
-                           << jLine
-                           << dec
-                           << endl);
+   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+       "jClass = %X, jFile = %X, jMethod = %X, jLine = %X",
+       (jlong)jClass,(jlong)jFile,(jlong)jMethod,jLine));
 
    const char *pszClass  = 0;
    const char *pszFile   = 0;
@@ -1175,9 +1172,8 @@ String getExceptionInfo (JNIEnv *env)
       env->ReleaseStringUTFChars (jMethod, pszMethod);
    }
 
-   DDD (cerr << "getExceptionInfo: oss = "
-                           << oss.str ()
-                           << endl);
+   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "oss = %s",(const char*)oss.str().c_str()));
 
    rc = oss.str ().c_str ();
 
@@ -1191,14 +1187,17 @@ String getExceptionInfo (JNIEnv *env)
    jthrowable err = env->ExceptionOccurred ();
    String     rc;
 
-   DDD (cerr << "getExceptionInfo: err = "
-                           << hex
-                           << (jlong)err
-                           << dec
-                           << endl);
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"getExceptionInfo");
+
+   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "err =  %X ",(jlong)err));
 
    if (!err)
+   {
+       PEG_METHOD_EXIT();
       return rc;
+   }
+
 
    // ByteArrayOutputStream baos = new ByteArrayOutputStream ();
    // PrintStream           ps   = new PrintStream (baos);
@@ -1211,16 +1210,14 @@ String getExceptionInfo (JNIEnv *env)
    jBAOS = env->NewObject (JMPIjvm::jv.ByteArrayOutputStreamClassRef,
                            JMPIjvm::jv.ByteArrayOutputStreamNew);
 
-   DDD (cerr << "getExceptionInfo: jBAOS = "
-                           << hex
-                           << (jlong)jBAOS
-                           << dec
-                           << endl);
+   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "jBAOS = %X ",(jlong)jBAOS));
 
    if (!jBAOS)
    {
-      DDD(env->ExceptionDescribe ());
+      env->ExceptionDescribe ();
 
+      PEG_METHOD_EXIT();
       return rc;
    }
 
@@ -1228,14 +1225,14 @@ String getExceptionInfo (JNIEnv *env)
                          JMPIjvm::jv.PrintStreamNewOb,
                          jBAOS);
 
-   DDD (cerr << "getExceptionInfo: jPS = "
-                           << hex
-                           << (jlong)jPS
-                           << dec
-                           << endl);
+   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "jPS = %X ",(jlong)jPS));
 
    if (!jPS)
+   {
+       PEG_METHOD_EXIT();
       return rc;
+   }
 
    env->CallVoidMethod (err,
                         JMPIjvm::jv.ThrowablePrintStackTrace,
@@ -1247,11 +1244,8 @@ String getExceptionInfo (JNIEnv *env)
              jBAOS,
              JMPIjvm::jv.ByteArrayOutputStreamToString);
 
-   DDD (cerr << "getExceptionInfo: jST = "
-                           << hex
-                           << (jlong)jST
-                           << dec
-                           << endl);
+   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "jST = %X ",(jlong)jST));
 
    const char *pszST = 0;
 
@@ -1259,15 +1253,15 @@ String getExceptionInfo (JNIEnv *env)
 
    if (pszST)
    {
-      DDD (cerr << "getExceptionInfo: pszST = "
-                              << pszST
-                              << endl);
+      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+           "pszST = %s ",pszST));
 
       rc = pszST;
 
       env->ReleaseStringUTFChars (jST, pszST);
    }
 
+   PEG_METHOD_EXIT();
    return rc;
 }
 
@@ -1275,8 +1269,13 @@ String getExceptionInfo (JNIEnv *env)
 
 void JMPIjvm::checkException (JNIEnv *env)
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIjvm::checkException");
+
    if (!env->ExceptionCheck ())
+   {
+       PEG_METHOD_EXIT();
       return;
+   }
 
    jstring     jMsg = NULL,
                jId  = NULL;
@@ -1286,19 +1285,19 @@ void JMPIjvm::checkException (JNIEnv *env)
    String      id;
    jthrowable  err  = env->ExceptionOccurred ();
 
-///DDD (cerr << "JMPIjvm::checkException: err = "
-///                        << hex
-///                        << (jlong)err
-///                        << dec
-///                        << endl);
+//   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+//        "err =  %X ",(jlong)err));
 
    if (!err)
+   {
+       PEG_METHOD_EXIT();
       return;
+   }
 
-   DDD(cerr<<"--- Provider caused an exception!"
-                        <<endl);
+   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        "Provider caused an exception!");
 
-   DDD(env->ExceptionDescribe ());
+   env->ExceptionDescribe ();
 
    if (env->IsInstanceOf (err, JMPIjvm::jv.CIMExceptionClassRef))
    {
@@ -1328,10 +1327,11 @@ void JMPIjvm::checkException (JNIEnv *env)
          env->ReleaseStringUTFChars (jMsg, cp);
       }
 
-      DDD(cerr<<"--- throwing Pegasus exception: "
-                           <<code<<" "<<id<<" ("<<msg<<")"
-                           <<endl);
+      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+           "throwing Pegasus exception: %d %s (%s)",
+           code,(const char*)id.getCString(),(const char*)msg.getCString()));
 
+      PEG_METHOD_EXIT();
       throw CIMException ((CIMStatusCode)code, id+" ("+msg+")");
    }
    else
@@ -1339,6 +1339,11 @@ void JMPIjvm::checkException (JNIEnv *env)
       String info = getExceptionInfo (env);
 
       env->ExceptionClear ();
+
+      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+           "Java caused an exception: %s",(const char*)info.getCString()));
+
+      PEG_METHOD_EXIT();
 
       throw PEGASUS_CIM_EXCEPTION_L(
           CIM_ERR_FAILED,
@@ -3815,7 +3820,9 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMInstance__1getKeyValuePairs
 
       for (Uint32 i = 0; i < keyNames.size (); i++)
       {
-         DDD(cout << "finding key " << keyNames[i].getString () << endl);
+         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+              "finding key %s ",
+              (const char*)keyNames[i].getString().getCString()));
 
          for (Uint32 j = 0; j < ci->getPropertyCount (); j++)
          {
@@ -3823,8 +3830,9 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMInstance__1getKeyValuePairs
 
             if (cp.getName () == keyNames[i])
             {
-               DDD(cout << "adding key (" << j << ") "
-                        << keyNames[i].getString () << endl);
+               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                    "adding key (%d) %s ",
+                    (const char*)keyNames[i].getString().getCString()));
 
                CIMProperty *cpRef  = new CIMProperty (cp);
                jlong jCpRef = DEBUG_ConvertCToJava (CIMProperty*, jlong, cpRef);
@@ -5604,15 +5612,19 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent(
    CIMObjectPath ref (ind->getPath ());
 
    ref.setNameSpace (ns);
-   DDD(cerr<<"--- Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent () ref = "
-           <<ref.toString ()<<endl);
-   DDD(cerr<<"--- Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent () ind = "
-           <<ind->getPath ().toString ()<<endl);
+
+   PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
+       "Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent(): ref = %s",
+       (const char*)ref.toString().getCString()));
+   PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
+       "Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent(): ind = %s",
+       (const char*)ind->getPath().toString().getCString()));
 
    ind->setPath (ref);
    
-   DDD(cerr<<"--- Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent () ind = "
-           <<ind->getPath ().toString ()<<endl);
+   PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
+       "Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent(): ind = %s",
+       (const char*)ind->getPath().toString().getCString()));
 
    JMPIProviderManager::indProvRecord *prec = NULL;
    String sPathString = ind->getPath ().toString ();
@@ -5623,10 +5635,10 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent(
       AutoMutex lock (JMPIProviderManager::mutexProvTab);
 
       fResult = JMPIProviderManager::provTab.lookup (name, prec);
-
-      DDD(cerr<<"--- Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent"
-                    " () fResult = "
-              <<fResult<<", name = "<<name<<endl);
+      PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
+          "Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent(): "
+          "fResult = %d, name = %s",
+          fResult,(const char*)name.getCString()));
    }
 
    if (fResult)
@@ -5642,9 +5654,10 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent(
    }
    else
    {
-      DDD (cerr<<"--- Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent"
-                     " () provider name \""
-               <<name<<"\" not found"<<endl);
+      PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL2,
+          "Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent(): "
+          "provider name \"%s\" not found",
+          (const char*)name.getCString()));
    }
 }
 
@@ -7920,8 +7933,10 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_SelectExp__1newSelectExp
    String              query (pszQuery);
 
    wql_stmt = new WQLSelectStatement (queryLanguage, query);
-   DDD (cout<<"--- Java_org_pegasus_jmpi_SelectExp__1newSelectExp: wql_stmt = "
-            <<hex<< (long)wql_stmt<<dec<<endl);
+
+   PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
+       "Java_org_pegasus_jmpi_SelectExp__1newSelectExp: wql_stmt = %X",
+       (long)wql_stmt));
 
    try
    {
@@ -7929,8 +7944,9 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_SelectExp__1newSelectExp
    }
    catch (const Exception &e)
    {
-      cerr << "Java_org_pegasus_jmpi_SelectExp__1newSelectExp: Caught: "
-           << e.getMessage () << endl;
+      PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
+          "Java_org_pegasus_jmpi_SelectExp__1newSelectExp: Caught: %s",
+          (const char*)e.getMessage().getCString()));
    }
 
    jEnv->ReleaseStringUTFChars (jQuery, pszQuery);

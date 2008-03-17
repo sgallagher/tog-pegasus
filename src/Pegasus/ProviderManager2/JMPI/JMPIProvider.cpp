@@ -29,12 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
-//              Mike Day, IBM (mdday@us.ibm.com)
-//              Adrian Schuur, schuur@de.ibm.com
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "JMPIProvider.h"
@@ -46,12 +40,6 @@
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
-#ifdef PEGASUS_DEBUG
-#define DDD(x) if (JMPIjvm::trace) x;
-#else
-#define DDD(x)
-#endif
-
 #include "Convert.h"
 
 // set current operations to 1 to prevent an unload
@@ -60,8 +48,8 @@ JMPIProvider::JMPIProvider (const String       &name,
                             JMPIProviderModule *module,
                             ProviderVector     *mv)
 {
-   DDD(PEGASUS_STD(cout)<<"--- JMPIProvider::JMPIProvider(name, module, mv)"
-                        <<PEGASUS_STD(endl));
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+       "JMPIProvider::JMPIProvider(name, module, mv)");
 
    _module               = module;
    _cimom_handle         = 0;
@@ -75,12 +63,14 @@ JMPIProvider::JMPIProvider (const String       &name,
    jProviderClass        = mv->jProviderClass;
    noUnload              = false;
    cachedClass           = NULL;
+
+   PEG_METHOD_EXIT();
 }
 
 JMPIProvider::JMPIProvider (JMPIProvider *pr)
 {
-   DDD(PEGASUS_STD(cout)<<"--- JMPIProvider::JMPIProvider(pr)"
-                        <<PEGASUS_STD(endl));
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+       "JMPIProvider::JMPIProvider(pr)");
 
    _module               = pr->_module;
    _cimom_handle         = 0;
@@ -92,15 +82,19 @@ JMPIProvider::JMPIProvider (JMPIProvider *pr)
    miVector              = pr->miVector;
    noUnload              = pr->noUnload;
    cachedClass           = NULL;
+
+   PEG_METHOD_EXIT();
 }
 
 JMPIProvider::~JMPIProvider(void)
 {
-   DDD(PEGASUS_STD(cout)<<"--- JMPIProvider::~JMPIProvider()"
-                        <<PEGASUS_STD(endl));
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+       "JMPIProvider::~JMPIProvider");
 
    delete _java_cimom_handle;
    delete cachedClass;
+
+   PEG_METHOD_EXIT();
 }
 
 JMPIProvider::Status JMPIProvider::getStatus(void) const
@@ -124,17 +118,24 @@ void JMPIProvider::initialize(CIMOMHandle& cimom)
     _status       = INITIALIZING;
     _cimom_handle = &cimom;
 
-    DDD(PEGASUS_STD(cout)<<"--- JMPIProvider::Initialize()"<<PEGASUS_STD(endl));
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "JMPIProvider::Initialize");
 
     JvmVector *jv  = 0;
     JNIEnv    *env = JMPIjvm::attachThread(&jv);
 
     if (!env)
     {
+       PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+           "JMPIProvider:"
+               "Could not initialize the JVM (Java Virtual Machine) "
+               "runtime environment.");
+
+        PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(
             CIM_ERR_FAILED,
             MessageLoaderParms(
-                "ProviderManager.JMPI.INIT_JVM_FAILED",
+                "ProviderManager.JMPI.JMPIProvider.INIT_JVM_FAILED",
                 "Could not initialize the JVM (Java Virtual Machine)"
                     " runtime environment."));
     }
@@ -145,12 +146,8 @@ void JMPIProvider::initialize(CIMOMHandle& cimom)
                                     "initialize",
                                     "(Lorg/pegasus/jmpi/CIMOMHandle;)V");
 
-    DDD(PEGASUS_STD(cout)
-        <<"--- JMPIProvider::Initialize:id = "
-        <<PEGASUS_STD(hex)
-        <<(long)id
-        <<PEGASUS_STD(dec)
-        <<PEGASUS_STD(endl));
+    PEG_TRACE(( TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "JVM id = %X",(long)id));
 
     JMPIjvm::checkException(env);
 
@@ -181,6 +178,9 @@ void JMPIProvider::initialize(CIMOMHandle& cimom)
 
     _status             = INITIALIZED;
     _current_operations = 0;
+
+    PEG_METHOD_EXIT();
+    return;
 }
 
 Boolean JMPIProvider::tryTerminate(void)

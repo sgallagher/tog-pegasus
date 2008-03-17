@@ -6703,6 +6703,12 @@ CIM server listening on HTTPS port {0}."}
          */
         ProviderManager2.JMPI.JMPIImpl.JAVA_CAUSED_EXCEPTION.STANDARD:string {"PGS18605: Java code caused an exception: {0}"}
 
+        /**
+          * @note PGS18606
+          * DO NOT TRANSLATE "JVM"
+          */
+        ProviderManager.JMPI.JMPIProvider.INIT_JVM_FAILED:string {"PGS18606: Could not initialize the JVM (Java Virtual Machine) runtime environment."}
+
         // ==========================================================
         // Messages for CIMPropertyRep
         //  Please use message prefix "PGS18800 - PGS18999"

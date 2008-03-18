@@ -135,7 +135,13 @@ void ProviderAgent::run()
     getSigHandle()->activate(PEGASUS_SIGTERM);
     // Restore the SIGCHLD signal behavior to its default action
     getSigHandle()->defaultAction(PEGASUS_SIGCHLD);
-
+#ifdef PEGASUS_OS_ZOS
+    // Establish handling signal send to us on USS shutdown
+    getSigHandle()->registerHandler(PEGASUS_SIGDANGER, _terminateSignalHandler);
+    getSigHandle()->activate(PEGASUS_SIGDANGER);
+    // enable process to receive SIGDANGER on USS shutdown
+    __shutdown_registration(_SDR_NOTIFY, _SDR_REGPROCESS, _SDR_SENDSIGDANGER);
+#endif
 #ifdef PEGASUS_OS_PASE
     // PASE environment need more signal handler
     getSigHandle()->registerHandler(SIGFPE, _synchronousSignalHandler);

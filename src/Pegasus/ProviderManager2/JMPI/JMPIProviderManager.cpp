@@ -238,8 +238,8 @@ void JMPIProviderManager::debugPrintMethodPointers (JNIEnv *env, jclass jc)
    {
       jmethodID id = env->GetMethodID(jc,methodNames[i][1], methodNames[i][2]);
       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-          "Method: %s, %s, id = %X",
-          methodNames[i][0],methodNames[i][1],(long)id));
+          "Method: %s, %s, id = %p",
+          methodNames[i][0],methodNames[i][1],id));
 
       env->ExceptionClear();
    }
@@ -354,10 +354,10 @@ void debugDumpJavaObject (JNIEnv *env, jobject jInst)
                              JMPIjvm::jv.instanceMethodNames[22].signature);
 
    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-       "Dumping class %s:\n "
-           "    jInstSuperClass = %s\n"
-           "    jClassShouldBe = %s\n"
-           "    jmidCInst = %s\n"
+       "Dumping class %p:\n "
+           "    jInstSuperClass = %p\n"
+           "    jClassShouldBe = %p\n"
+           "    jmidCInst = %p\n"
            "    pszResult1 = %s\n"
            "    pszResult2 = %s\n"
            "    pszResult3 = %s",
@@ -2921,8 +2921,8 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(
 
             PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                  "handleCreateInstanceRequest: "
-                     "id = %X, jcop = %X, jci = %X",
-                       (long)id,(long)jcop,(long)jci));
+                     "id = %p, jcop = %p, jci = %p",
+                       id,jcop,jci));
 
             StatProviderTimeMeasurement providerTime(response);
 
@@ -2983,8 +2983,8 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(
 
             PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                  "handleCreateInstanceRequest: "
-                     "id = %X, jcop = %X, jci = %X",
-                       (long)id,(long)jcop,(long)jci));
+                     "id = %p, jcop = %p, jci = %p",
+                       id,jcop,jci));
 
             StatProviderTimeMeasurement providerTime(response);
 
@@ -4101,7 +4101,7 @@ Message * JMPIProviderManager::handleExecQueryRequest(
                                          JMPIjvm::jv.VectorElementAt,
                                          i);
                     PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                        "handleExecQueryRequest: jciRet = %X",jciRet));
+                        "handleExecQueryRequest: jciRet = %p",jciRet));
 
                     JMPIjvm::checkException(env);
 
@@ -8332,8 +8332,9 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
              "handleCreateSubscriptionRequest: "
                  "name space = %s provider name = %s provider filename = %s",
-             request->nameSpace.getString().getCString(),
-             providerName, fileName
+             (const char*)request->nameSpace.getString().getCString(),
+             (const char*)providerName.getCString(), 
+             (const char*)fileName.getCString()
              ));
 
         // get cached or load new provider module
@@ -8454,9 +8455,9 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(
 
            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                  "handleCreateSubscriptionRequest: "
-                     "For selxTab %s , srec = %X, qContext = %X",
+                     "For selxTab %s , srec = %p, qContext = %p",
                  (const char*)sPath.toString().getCString(),
-                 (long)srec,(long)qContext));
+                 srec,qContext));
         }
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
@@ -8711,7 +8712,8 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(
              "handleDeleteSubscriptionRequest: "
                  "name space = %s provider name = %s provider filename = %s",
              (const char*)request->nameSpace.getString().getCString(),
-             providerName, fileName
+             (const char*)providerName.getCString(), 
+             (const char*)fileName.getCString()
              ));
 
         // get cached or load new provider module
@@ -8774,9 +8776,9 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(
 
            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                  "handleDeleteSubscriptionRequest: "
-                     "For selxTab %s , srec = %X, qContext = %X",
+                     "For selxTab %s , srec = %p, qContext = %p",
                  (const char*)sPathString.getCString(),
-                 (long)srec,(long)srec->qContext));
+                 srec,srec->qContext));
 
            selxTab.remove (sPathString);
         }

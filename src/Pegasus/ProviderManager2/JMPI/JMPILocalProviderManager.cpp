@@ -108,8 +108,7 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(
                         "Found JMPIProvider %s in JMPIProvider Manager Cache",
                         (const char*)providerName.getCString()));
                    PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
-                        "SetProvider(%X) at provider holder.",
-                        (long)provider));
+                        "SetProvider(%p) at provider holder.",provider));
 
                    ph->SetProvider(provider);
 
@@ -248,8 +247,7 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(
             }
 
             PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
-                 "SetProvider(%X) at provider holder.",
-                 (long)provider));
+                 "SetProvider(%p) at provider holder.",provider));
 
             ph->SetProvider( provider );
             break;

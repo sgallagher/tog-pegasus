@@ -31,16 +31,16 @@
 //
 //%////////////////////////////////////////////////////////////////////////////
 //
+//  PTR 73-51-112
+//                 Added proc_table_mutex and proc_table_count variables.
+//                 changed logic inside buildProcessTable(), loadProcessInfo(),
+//                 getProcessInfo() and findProcess().
+//                 This was done to make the process provider thread safe.
 //  PTR 73-51-95
 //                 Checking for NULL return from "exe_std$cvt_epid_to_pcb()"
 //                 A process might have terminated, before calling
 //                 exe_std$cvt_epid_to_pcb(). This would return a NULL value
 //                 and results in a system crash.
-//
-//  PTR 73-51-1
-//                 Taking an abs() on timezone in convertToCIMDateString()
-//                 as any timezone less than zero, would corrupt the Date string
-//                 by placing two minus signs.
 //
 //  PTR 73-51-26
 //                 Changes made to incorporate review suggestions in
@@ -56,7 +56,7 @@
 //                 Changes made to incorporate review comments in PTR 73-51-15.
 //                 Changed the getKernelModeTime(), getUserModeTime() and
 //                 getCPUTime() functions such that the pid of the current
-//                 process is obtained from the pInfo->pid field and not by
+//                 process is obtained from the pInfo.pid field and not by
 //                 passing the PID as a argument to the fucntions.
 //                 Removed the #include <pcbdef.h> and used local PCB structure
 //                 definition
@@ -84,6 +84,9 @@
 
 #include "ProcessPlatform.h"
 #include <pcbdef.h>
+#include <Pegasus/Common/pthread.h>
+#include <Pegasus/Common/Mutex.h>
+#include <Pegasus/Common/System.h>
 
 #define MAXITMLST 16
 #define MAXHOSTNAMELEN 256
@@ -93,10 +96,6 @@ PEGASUS_USING_PEGASUS;
 
 // Initialize static class data
 
-struct proc_info *Process::pInfo = NULL;
-struct proc_info *Process::pData = NULL;
-
-struct proc_info *pInfo = NULL;
 
 #ifdef __cplusplus
 extern "C" {
@@ -106,46 +105,12 @@ PCB *exe_std$cvt_epid_to_pcb(unsigned int epid);
 }
 #endif
 
-typedef struct
-{
-  unsigned short wlength;
-  unsigned short wcode;
-  void *pbuffer;
-  void *pretlen;
-} item_list;
-
-item_list itmlst3[MAXITMLST];
-item_list *itml3 = itmlst3;
-
-char procimgnambuf[256],
-     proctermbuf[8],
-     usernamebuf[13];
-
-int procimgnamlen,
-    proctermlen,
-    usernamlen;
-
-unsigned __int64 proclgntim;
-
-long procpid,
-  proccputim,
-  procgrp,
-  procppid,
-  procuic,
-  procpgflquo,
-  procpri,
-  procbasepri,
-  procstate;
-long procwssize,
-  proclgnflgs;
-
-unsigned long int jpictx1;
-unsigned long int jpictx2;
-
-static int ii;
-static int procCount;
-
-proc_info_t proc_table = (proc_info_t) 0;
+/* Array of process information table. */
+static proc_info_t proc_table = (proc_info_t) 0;
+/* Number of process loaded in proc_table array */
+static int proc_table_count = 0;
+/* Lock on proc_table */
+static pthread_mutex_t  proc_table_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 Process::Process()
@@ -168,11 +133,11 @@ Process::~Process()
 //
 
 Boolean Process::getCaption (String & s)
-  const
-  {
-    s = String (pInfo->command);
+const
+{
+    s = String (pInfo.command);
     return true;
-  }
+}
 
 //
 // =============================================================================
@@ -186,14 +151,14 @@ Boolean Process::getCaption (String & s)
 //
 
 Boolean Process::getDescription (String & s)
-  const
-  {
-    //  s = String(pInfo->args);
+const
+{
+    //  s = String(pInfo.args);
     //  return true;
     // not supported
 
     return false;
-  }
+}
 
 //
 // =============================================================================
@@ -207,12 +172,12 @@ Boolean Process::getDescription (String & s)
 //
 
 Boolean Process::getInstallDate (CIMDateTime & d)
-  const
-  {
+const
+{
     // not supported
 
     return false;
-  }
+}
 
 //
 // =============================================================================
@@ -226,12 +191,12 @@ Boolean Process::getInstallDate (CIMDateTime & d)
 //
 
 Boolean Process::getStatus (String & s)
-  const
-  {
+const
+{
     // not supported
 
     return false;
-  }
+}
 
 //
 // =============================================================================
@@ -245,11 +210,11 @@ Boolean Process::getStatus (String & s)
 //
 
 Boolean Process::getName (String & s)
-  const
-  {
-    s = String (pInfo->command);
+const
+{
+    s = String (pInfo.command);
     return true;
-  }
+}
 
 //
 // =============================================================================
@@ -263,11 +228,11 @@ Boolean Process::getName (String & s)
 //
 
 Boolean Process::getPriority (Uint32 & i32)
-  const
-  {
-    i32 = pInfo->pri;
+const
+{
+    i32 = pInfo.pri;
     return true;
-  }
+}
 
 //
 // =============================================================================
@@ -281,8 +246,8 @@ Boolean Process::getPriority (Uint32 & i32)
 //
 
 Boolean Process::getExecutionState (Uint16 & i16)
-  const
-  {
+const
+{
     //
     // From the MOF for this class:
     // [Description (
@@ -296,61 +261,61 @@ Boolean Process::getExecutionState (Uint16 & i16)
 
     enum
     {
-      Unknown,
-      Other,
-      Ready,
-      Running,
-      Blocked,
-      Suspended_Blocked,
-      Suspended_Ready,
-      Terminated,
-      Stopped,
-      Growing
+        Unknown,
+        Other,
+        Ready,
+        Running,
+        Blocked,
+        Suspended_Blocked,
+        Suspended_Ready,
+        Terminated,
+        Stopped,
+        Growing
     };
 
-    switch (pInfo->state)
+    switch (pInfo.state)
     {
-      case 1:
-        i16 = Other;
-        break;
-      case 2:
-      case 3:
-      case 4:
-      case 5:
-        i16 = Blocked;
-        break;
-      case 6:
-        i16 = Suspended_Blocked;
-        break;
-      case 7:
-        i16 = Blocked;
-        break;
-      case 8:
-        i16 = Suspended_Blocked;
-        break;
-      case 9:
-        i16 = Suspended_Ready;
-        break;
-      case 10:
-        i16 = Suspended_Blocked;
-        break;
-      case 11:
-        i16 = Blocked;
-        break;
-      case 12:
-        i16 = Running;
-        break;
-      case 13:
-        i16 = Suspended_Ready;
-        break;
-      case 14:
-        i16 = Ready;
-        break;
-      default:
-        i16 = Unknown;
+        case 1:
+            i16 = Other;
+            break;
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+            i16 = Blocked;
+            break;
+        case 6:
+            i16 = Suspended_Blocked;
+            break;
+        case 7:
+            i16 = Blocked;
+            break;
+        case 8:
+            i16 = Suspended_Blocked;
+            break;
+        case 9:
+            i16 = Suspended_Ready;
+            break;
+        case 10:
+            i16 = Suspended_Blocked;
+            break;
+        case 11:
+            i16 = Blocked;
+            break;
+        case 12:
+            i16 = Running;
+            break;
+        case 13:
+            i16 = Suspended_Ready;
+            break;
+        case 14:
+            i16 = Ready;
+            break;
+        default:
+            i16 = Unknown;
     }
     return true;
-  }
+}
 
 //
 // =============================================================================
@@ -364,12 +329,12 @@ Boolean Process::getExecutionState (Uint16 & i16)
 //
 
 Boolean Process::getOtherExecutionDescription (String & s)
-  const
-  {
+const
+{
     // not supported
 
     return false;
-  }
+}
 
 //
 // =============================================================================
@@ -384,19 +349,19 @@ Boolean Process::getOtherExecutionDescription (String & s)
 
 int convertToCIMDateString (struct tm *t, char *time)
 {
-  // Format the date.
+    // Format the date.
 
-  sprintf (time, "%04d%02d%02d%02d%02d%02d.000000%c%03d",
-           t->tm_year + 1900,
-           t->tm_mon + 1,
-           t->tm_mday,
-           t->tm_hour,
-           t->tm_min,
-           t->tm_sec,
-           (timezone > 0) ? '-' : '+',
-           abs(timezone / 60 - (t->tm_isdst ? 60 : 0)));
+    sprintf (time, "%04d%02d%02d%02d%02d%02d.000000%c%03d",
+        t->tm_year + 1900,
+        t->tm_mon + 1,
+        t->tm_mday,
+        t->tm_hour,
+        t->tm_min,
+        t->tm_sec,
+        (timezone > 0) ? '-' : '+',
+        abs(timezone / 60 - (t->tm_isdst ? 60 : 0)));
 
-  return 1;
+    return 1;
 }
 
 //
@@ -411,18 +376,18 @@ int convertToCIMDateString (struct tm *t, char *time)
 //
 
 Boolean Process::getCreationDate (CIMDateTime & d)
-  const
-  {
-    long status,
-      dst_desc[2];
+const
+{
+    long status;
+    long dst_desc[2];
     char cimtime[80] = "";
     char log_string[] = "SYS$TIMEZONE_DAYLIGHT_SAVING";
     char libdst;
     unsigned __int64 bintime = 0;
     unsigned short int timbuf[7];
-    unsigned long libop,
-      libdayweek,
-      libdayear;
+    unsigned long libop;
+    unsigned long libdayweek;
+    unsigned long libdayear;
     unsigned int retlen;
     struct tm timetm;
     struct tm *ptimetm = &timetm;
@@ -441,55 +406,54 @@ Boolean Process::getCreationDate (CIMDateTime & d)
     static $DESCRIPTOR (lnm_tbl, "LNM$SYSTEM");
     struct
     {
-      unsigned short wLength;
-      unsigned short wCode;
-      void *pBuffer;
-      unsigned int *pRetLen;
-      int term;
-    }
-    item_list;
+        unsigned short wLength;
+        unsigned short wCode;
+        void *pBuffer;
+        unsigned int *pRetLen;
+        int term;
+    } dst_item_list;
 
-      bintime = pInfo->p_stime;
+    bintime = pInfo.p_stime;
 
-      libop = LIB$K_DAY_OF_WEEK;
-      status = lib$cvt_from_internal_time (&libop, &libdayweek, &bintime);
+    libop = LIB$K_DAY_OF_WEEK;
+    status = lib$cvt_from_internal_time (&libop, &libdayweek, &bintime);
     if (!$VMS_STATUS_SUCCESS (status))
     {
-      return false;
+        return false;
     }
 
     libop = LIB$K_DAY_OF_YEAR;
     status = lib$cvt_from_internal_time (&libop, &libdayear, &bintime);
     if (!$VMS_STATUS_SUCCESS (status))
     {
-      return false;
+        return false;
     }
 
     dst_desc[0] = strlen (log_string);
     dst_desc[1] = (long) log_string;
-    item_list.wLength = 1;
-    item_list.wCode = LNM$_STRING;
-    item_list.pBuffer = &libdst;
-    item_list.pRetLen = &retlen;
-    item_list.term = 0;
+    dst_item_list.wLength = 1;
+    dst_item_list.wCode = LNM$_STRING;
+    dst_item_list.pBuffer = &libdst;
+    dst_item_list.pRetLen = &retlen;
+    dst_item_list.term = 0;
 
-    status = sys$trnlnm (0, &lnm_tbl, &dst_desc, 0, &item_list);
+    status = sys$trnlnm (0, &lnm_tbl, &dst_desc, 0, &dst_item_list);
     if (!$VMS_STATUS_SUCCESS (status))
     {
-      return false;
+        return false;
     }
 
     //  Added to get sysuptime for SWAPPER process --- PTR 73-51-29
-    if( bintime == 0 )
+    if (bintime == 0)
     {
-      status = lib$getsyi(&item, 0, &sysinfo, &val, 0, 0);
-      status = sys$bintim(&sysinfo, &bintime);
+        status = lib$getsyi(&item, 0, &sysinfo, &val, 0, 0);
+        status = sys$bintim(&sysinfo, &bintime);
     }
 
     status = sys$numtim (timbuf, &bintime);
     if (!$VMS_STATUS_SUCCESS (status))
     {
-      return false;
+        return false;
     }
 
     timetm.tm_sec = timbuf[5];
@@ -503,19 +467,18 @@ Boolean Process::getCreationDate (CIMDateTime & d)
     timetm.tm_isdst = 0;
     if (libdst != 48)
     {
-      timetm.tm_isdst = 1;
+        timetm.tm_isdst = 1;
     }
     timetm.tm_gmtoff = -18000;
     timetm.tm_zone = "EST";
 
     if (convertToCIMDateString (ptimetm, cimtime) != -1)
     {
-
-      d = CIMDateTime (cimtime);
-      return true;
+        d = CIMDateTime (cimtime);
+        return true;
     }
     return false;
-  }
+}
 
 //
 // =============================================================================
@@ -529,12 +492,12 @@ Boolean Process::getCreationDate (CIMDateTime & d)
 //
 
 Boolean Process::getTerminationDate (CIMDateTime & d)
-  const
-  {
+const
+{
     // not supported
 
     return false;
-  }
+}
 
 //
 // =============================================================================
@@ -557,26 +520,26 @@ int GetCPUTicks(
     long *pSuperTicks,
     long *pUserTicks)
 {
-  PCB *other;                           // Pointer to PCB structure
-  int  status = 0;
+    PCB *other;                           // Pointer to PCB structure
+    int  status = 0;
 
 
-  // call to get the PCB address of each process from the process extended pid
-  other = exe_std$cvt_epid_to_pcb(epid);
+    // call to get the PCB address of each process from the process extended pid
+    other = exe_std$cvt_epid_to_pcb(epid);
 
-  // PTR 73-51-95. Checking for NULL PCB returned. in case
-  // the process has terminated.
-  if ((other) &&
-      (other->pcb$l_kt_high <= 1))
-  {
-    *pKernelTicks = other->pcb$l_kernel_counter;
-    *pExecTicks = other->pcb$l_exec_counter;
-    *pSuperTicks = other->pcb$l_super_counter;
-    *pUserTicks = other->pcb$l_user_counter;
-    status = SS$_NORMAL;        // single thread only
-  }
+    // PTR 73-51-95. Checking for NULL PCB returned. in case
+    // the process has terminated.
+    if ((other) &&
+        (other->pcb$l_kt_high <= 1))
+    {
+        *pKernelTicks = other->pcb$l_kernel_counter;
+        *pExecTicks = other->pcb$l_exec_counter;
+        *pSuperTicks = other->pcb$l_super_counter;
+        *pUserTicks = other->pcb$l_user_counter;
+        status = SS$_NORMAL;        // single thread only
+    }
 
-  return status;              // multithread not supported
+    return status;              // multithread not supported
 }
 
 //
@@ -591,25 +554,25 @@ int GetCPUTicks(
 //
 
 Boolean Process::getKernelModeTime (Uint64& i64)
-  const
-  {
+const
+{
     int status = SS$_NORMAL;
-    long lKernelTicks = 0,
-      lExecTicks = 0,
-      lSuperTicks = 0,
-      lUserTicks = 0;
+    long lKernelTicks = 0;
+    long lExecTicks = 0;
+    long lSuperTicks = 0;
+    long lUserTicks = 0;
 
     struct k1_arglist
     {    // kernel call arguments
-      long lCount;           // number of arguments
-      long epid;
-      long *pKernelTicks;
-      long *pExecTicks;
-      long *pSuperTicks;
-      long *pUserTicks;
+        long lCount;           // number of arguments
+        long epid;
+        long *pKernelTicks;
+        long *pExecTicks;
+        long *pSuperTicks;
+        long *pUserTicks;
     } getcputickskargs = {5};  // init to 5 arguments
 
-    getcputickskargs.epid        = pInfo->pid;
+    getcputickskargs.epid        = pInfo.pid;
     getcputickskargs.pKernelTicks = &lKernelTicks;
     getcputickskargs.pExecTicks = &lExecTicks;
     getcputickskargs.pSuperTicks = &lSuperTicks;
@@ -618,12 +581,12 @@ Boolean Process::getKernelModeTime (Uint64& i64)
     status = sys$cmkrnl (GetCPUTicks, &getcputickskargs);
     if (!$VMS_STATUS_SUCCESS (status))
     {
-      return false;
+        return false;
     }
 
     i64 = lKernelTicks / 10;  // milliseconds
     return true;
-  }
+}
 
 //
 // =============================================================================
@@ -637,25 +600,25 @@ Boolean Process::getKernelModeTime (Uint64& i64)
 //
 
 Boolean Process::getUserModeTime (Uint64& i64)
-  const
-  {
+const
+{
     int status = SS$_NORMAL;
-    long lKernelTicks = 0,
-      lExecTicks = 0,
-      lSuperTicks = 0,
-      lUserTicks = 0;
+    long lKernelTicks = 0;
+    long lExecTicks = 0;
+    long lSuperTicks = 0;
+    long lUserTicks = 0;
 
     struct k1_arglist
-    {                           // kernel call arguments
-      long lCount;              // number of arguments
-      long epid;
-      long *pKernelTicks;
-      long *pExecTicks;
-      long *pSuperTicks;
-      long *pUserTicks;
+    {                             // kernel call arguments
+        long lCount;              // number of arguments
+        long epid;
+        long *pKernelTicks;
+        long *pExecTicks;
+        long *pSuperTicks;
+        long *pUserTicks;
     } getcputickskargs = {5};     // init to 5 arguments
 
-    getcputickskargs.epid         = pInfo->pid;
+    getcputickskargs.epid = pInfo.pid;
     getcputickskargs.pKernelTicks = &lKernelTicks;
     getcputickskargs.pExecTicks = &lExecTicks;
     getcputickskargs.pSuperTicks = &lSuperTicks;
@@ -664,12 +627,12 @@ Boolean Process::getUserModeTime (Uint64& i64)
     status = sys$cmkrnl (GetCPUTicks, &getcputickskargs);
     if (!$VMS_STATUS_SUCCESS (status))
     {
-      return false;
+        return false;
     }
 
     i64 = lUserTicks / 10;      // milliseconds
     return true;
-  }
+}
 
 //
 // =============================================================================
@@ -683,11 +646,11 @@ Boolean Process::getUserModeTime (Uint64& i64)
 //
 
 Boolean Process::getWorkingSetSize (Uint64 & i64)
-  const
-  {
-    i64 = pInfo->pset;
+const
+{
+    i64 = pInfo.pset;
     return true;
-  }
+}
 
 //
 // =============================================================================
@@ -701,11 +664,11 @@ Boolean Process::getWorkingSetSize (Uint64 & i64)
 //
 
 Boolean Process::getRealUserID (Uint64 & i64)
-  const
-  {
-    i64 = pInfo->uid;
+const
+{
+    i64 = pInfo.uid;
     return true;
-  }
+}
 
 //
 // =============================================================================
@@ -719,11 +682,11 @@ Boolean Process::getRealUserID (Uint64 & i64)
 //
 
 Boolean Process::getProcessGroupID (Uint64 & i64)
-  const
-  {
-    i64 = pInfo->pgrp;
+const
+{
+    i64 = pInfo.pgrp;
     return true;
-  }
+}
 
 //
 // =============================================================================
@@ -755,11 +718,11 @@ Boolean Process::getProcessSessionID (Uint64 & i64) const
 //
 
 Boolean Process::getProcessTTY (String & s)
-  const
-  {
-    s = String (pInfo->tty);
+const
+{
+    s = String (pInfo.tty);
     return true;
-  }
+}
 
 //
 // =============================================================================
@@ -773,12 +736,11 @@ Boolean Process::getProcessTTY (String & s)
 //
 
 Boolean Process::getModulePath (String & s)
-  const
-  {
+const
+{
     // not supported
-
     return false;
-  }
+}
 
 //
 // =============================================================================
@@ -792,12 +754,11 @@ Boolean Process::getModulePath (String & s)
 //
 
 Boolean Process::getParameters (Array < String > &as)
-  const
-  {
+const
+{
     // not supported
-
     return false;
-  }
+}
 
 //
 // =============================================================================
@@ -811,24 +772,24 @@ Boolean Process::getParameters (Array < String > &as)
 //
 
 Boolean Process::getProcessNiceValue (Uint32 & i32)
-  const
-  {
+const
+{
     int nice_value;
 
-    nice_value = pInfo->base_pri - NZERO;
+    nice_value = pInfo.base_pri - NZERO;
 
     // Sanitize nice value to set below zero values equal to zero
 
     if (nice_value < 0)
     {
-      i32 = 0;
+        i32 = 0;
     }
     else
     {
-      i32 = nice_value;
+        i32 = nice_value;
     }
     return true;
-  }
+}
 
 //
 // =============================================================================
@@ -842,62 +803,62 @@ Boolean Process::getProcessNiceValue (Uint32 & i32)
 //
 
 Boolean Process::getProcessWaitingForEvent (String & s)
-  const
-  {
+const
+{
     char buf[100];
 
-    switch (pInfo->state)
+    switch (pInfo.state)
     {
-      case 1:
-        sprintf (buf, "Collided Page WAIT");
-        s = buf;
-        break;
+        case 1:
+            sprintf (buf, "Collided Page WAIT");
+            s = buf;
+            break;
       case 2:
-        sprintf (buf, "Miscellaneous WAIT");
-        s = buf;
-        break;
+          sprintf (buf, "Miscellaneous WAIT");
+          s = buf;
+          break;
       case 3:
-        sprintf (buf, "Common Event Flag WAIT");
-        s = buf;
-        break;
+          sprintf (buf, "Common Event Flag WAIT");
+          s = buf;
+          break;
       case 4:
-        sprintf (buf, "Page Fault WAIT");
-        s = buf;
-        break;
+          sprintf (buf, "Page Fault WAIT");
+          s = buf;
+          break;
       case 5:
-        sprintf (buf, "Local Event Flag WAIT (resident)");
-        s = buf;
-        break;
+          sprintf (buf, "Local Event Flag WAIT (resident)");
+          s = buf;
+          break;
       case 6:
-        sprintf (buf, "Local Event Flag WAIT (outswapped)");
-        s = buf;
-        break;
+          sprintf (buf, "Local Event Flag WAIT (outswapped)");
+          s = buf;
+          break;
       case 7:
-        sprintf (buf, "Hibernate WAIT (resident)");
-        s = buf;
-        break;
+          sprintf (buf, "Hibernate WAIT (resident)");
+          s = buf;
+          break;
       case 8:
-        sprintf (buf, "Hibernate WAIT (outswapped)");
-        s = buf;
-        break;
+          sprintf (buf, "Hibernate WAIT (outswapped)");
+          s = buf;
+          break;
       case 9:
-        sprintf (buf, "Suspend WAIT (resident)");
-        s = buf;
-        break;
+          sprintf (buf, "Suspend WAIT (resident)");
+          s = buf;
+          break;
       case 10:
-        sprintf (buf, "Suspend WAIT (outswapped)");
-        s = buf;
-        break;
+          sprintf (buf, "Suspend WAIT (outswapped)");
+          s = buf;
+          break;
       case 11:
-        sprintf (buf, "Free Page WAIT");
-        s = buf;
-        break;
+          sprintf (buf, "Free Page WAIT");
+          s = buf;
+          break;
       default:
-        sprintf (buf, "Not Waiting!");
-        s = buf;
+          sprintf (buf, "Not Waiting!");
+          s = buf;
     }
     return true;
-  }
+}
 
 //
 // =============================================================================
@@ -911,41 +872,33 @@ Boolean Process::getProcessWaitingForEvent (String & s)
 //
 
 Boolean Process::getCPUTime (Uint32& i32)
-  const
-  {
+const
+{
     int status = SS$_NORMAL;
-    long lKernelTicks = 0,
-      lExecTicks = 0,
-      lSuperTicks = 0,
-      lUserTicks = 0,
-      lTotalTicks = 0;
+    long lKernelTicks = 0;
+    long lExecTicks = 0;
+    long lSuperTicks = 0;
+    long lUserTicks = 0;
+    long lTotalTicks = 0;
     long avcpucnt;
-    __int64 pstartime,
-      qcurtime;
-    float fTotalTicks,
-      fpercntime;
+    __int64 pstartime;
+    __int64 qcurtime;
+    float fTotalTicks;
+    float fpercntime;
 
     struct k1_arglist
-    {                           // kernel call arguments
-      long lCount;              // number of arguments
-      long epid;
-      long *pKernelTicks;
-      long *pExecTicks;
-      long *pSuperTicks;
-      long *pUserTicks;
+    {                             // kernel call arguments
+        long lCount;              // number of arguments
+        long epid;
+        long *pKernelTicks;
+        long *pExecTicks;
+        long *pSuperTicks;
+        long *pUserTicks;
     } getcputickskargs = {5};     // init to 5 arguments
-
-    typedef struct
-    {
-      unsigned short wlength;
-      unsigned short wcode;
-      void *pbuffer;
-      void *pretlen;
-    } item_list;
 
     item_list itmlst3[2];
 
-    getcputickskargs.epid = pInfo->pid;
+    getcputickskargs.epid = pInfo.pid;
     getcputickskargs.pKernelTicks = &lKernelTicks;
     getcputickskargs.pExecTicks = &lExecTicks;
     getcputickskargs.pSuperTicks = &lSuperTicks;
@@ -954,7 +907,7 @@ Boolean Process::getCPUTime (Uint32& i32)
     status = sys$cmkrnl (GetCPUTicks, &getcputickskargs);
     if (!$VMS_STATUS_SUCCESS (status))
     {
-      return false;
+        return false;
     }
 
     lTotalTicks = lKernelTicks + lExecTicks + lSuperTicks + lUserTicks;
@@ -962,7 +915,7 @@ Boolean Process::getCPUTime (Uint32& i32)
     fTotalTicks = lTotalTicks;  // 10 millisec ticks
     fTotalTicks = fTotalTicks * 10000000;  // 100 nanosec ticks
 
-    pstartime = pInfo->p_stime;  // 100 nanosec ticks
+    pstartime = pInfo.p_stime;  // 100 nanosec ticks
 
     itmlst3[0].wlength = 4;
     itmlst3[0].wcode = SYI$_AVAILCPU_CNT;
@@ -976,13 +929,13 @@ Boolean Process::getCPUTime (Uint32& i32)
     status = sys$getsyiw (0, 0, 0, itmlst3, 0, 0, 0);
     if (!$VMS_STATUS_SUCCESS (status))
     {
-      return false;
+        return false;
     }
 
     status = sys$gettim (&qcurtime);
     if (!$VMS_STATUS_SUCCESS (status))
     {
-      return false;
+        return false;
     }
 
     fpercntime = avcpucnt;
@@ -990,7 +943,7 @@ Boolean Process::getCPUTime (Uint32& i32)
     fpercntime = (fTotalTicks / fpercntime) * 100;
     i32 = fpercntime;
     return true;
-  }
+}
 
 //
 // =============================================================================
@@ -1004,12 +957,12 @@ Boolean Process::getCPUTime (Uint32& i32)
 //
 
 Boolean Process::getRealText (Uint64 & i64)
-  const
-  {
+const
+{
     // not supported
 
     return false;
-  }
+}
 
 //
 // =============================================================================
@@ -1023,12 +976,11 @@ Boolean Process::getRealText (Uint64 & i64)
 //
 
 Boolean Process::getRealData (Uint64 & i64)
-  const
-  {
+const
+{
     // not supported
-
     return false;
-  }
+}
 
 //
 // =============================================================================
@@ -1042,12 +994,11 @@ Boolean Process::getRealData (Uint64 & i64)
 //
 
 Boolean Process::getRealStack (Uint64 & i64)
-  const
-  {
+const
+{
     // not supported
-
     return false;
-  }
+}
 
 //
 // =============================================================================
@@ -1061,12 +1012,11 @@ Boolean Process::getRealStack (Uint64 & i64)
 //
 
 Boolean Process::getVirtualText (Uint64 & i64)
-  const
-  {
+const
+{
     // not supported
-
     return false;
-  }
+}
 
 //
 // =============================================================================
@@ -1080,12 +1030,11 @@ Boolean Process::getVirtualText (Uint64 & i64)
 //
 
 Boolean Process::getVirtualData (Uint64 & i64)
-  const
-  {
+const
+{
     // not supported
-
     return false;
-  }
+}
 
 //
 // =============================================================================
@@ -1099,12 +1048,11 @@ Boolean Process::getVirtualData (Uint64 & i64)
 //
 
 Boolean Process::getVirtualStack (Uint64 & i64)
-  const
-  {
+const
+{
     // not supported
-
     return false;
-  }
+}
 
 //
 // =============================================================================
@@ -1118,12 +1066,11 @@ Boolean Process::getVirtualStack (Uint64 & i64)
 //
 
 Boolean Process::getVirtualMemoryMappedFileSize (Uint64 & i64)
-  const
-  {
+const
+{
     // not supported
-
     return false;
-  }
+}
 
 //
 // =============================================================================
@@ -1137,12 +1084,11 @@ Boolean Process::getVirtualMemoryMappedFileSize (Uint64 & i64)
 //
 
 Boolean Process::getVirtualSharedMemory (Uint64 & i64)
-  const
-  {
+const
+{
     // not supported
-
     return false;
-  }
+}
 
 //
 // =============================================================================
@@ -1156,12 +1102,11 @@ Boolean Process::getVirtualSharedMemory (Uint64 & i64)
 //
 
 Boolean Process::getCpuTimeDeadChildren (Uint64 & i64)
-  const
-  {
+const
+{
     // not supported
-
     return false;
-  }
+}
 
 //
 // =============================================================================
@@ -1175,12 +1120,11 @@ Boolean Process::getCpuTimeDeadChildren (Uint64 & i64)
 //
 
 Boolean Process::getSystemTimeDeadChildren (Uint64 & i64)
-  const
-  {
+const
+{
     // not supported
-
     return false;
-  }
+}
 
 //
 // =============================================================================
@@ -1194,15 +1138,15 @@ Boolean Process::getSystemTimeDeadChildren (Uint64 & i64)
 //
 
 Boolean Process::getParentProcessID (String & s)
-  const
-  {
+const
+{
     char buf[100];
 
-//    sprintf (buf, "%d", pInfo->ppid);
-    sprintf (buf, "%x", pInfo->ppid);
+    sprintf (buf, "%x", pInfo.ppid);
     s = String (buf);
+
     return true;
-  }
+}
 
 //
 // =============================================================================
@@ -1217,12 +1161,11 @@ Boolean Process::getParentProcessID (String & s)
 //
 
 Boolean Process::getRealSpace (Uint64 & i64)
-  const
-  {
+const
+{
     // not supported
-
     return false;
-  }
+}
 
 //
 // =============================================================================
@@ -1236,14 +1179,14 @@ Boolean Process::getRealSpace (Uint64 & i64)
 //
 
 String Process::getHandle()
-  const
-  {
+const
+{
     char buf[100];
 
-//    sprintf (buf, "%d", pInfo->pid);
-    sprintf (buf, "%x", pInfo->pid);
+    sprintf (buf, "%x", pInfo.pid);
+
     return String (buf);
-  }
+}
 
 //
 // =============================================================================
@@ -1257,26 +1200,43 @@ String Process::getHandle()
 //
 
 String Process::getCSName()
-  const
-  {
-    struct hostent *he;
+const
+{
     char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
+    struct addrinfo *info, hints;
+    int rc;
 
-    gethostname(hostName, sizeof(hostName));
+
+    if (gethostname(hostName, sizeof(hostName)) != 0) 
+    {
+        return String("unknown");
+    }
     hostName[sizeof(hostName)-1] = 0;
 
     // Now get the official hostname.  If this call fails then return
     // the value from gethostname().
+    // Note: gethostbyname() is not reentrant and VMS does not
+    // have gethostbyname_r() so use getaddrinfo().
 
-    if (he = gethostbyname (hostName))
+    info = 0;
+    memset (&hints, 0, sizeof(struct addrinfo));
+    hints.ai_flags = AI_CANONNAME;
+    hints.ai_family = AF_INET;
+    hints.ai_protocol = IPPROTO_TCP;
+    hints.ai_socktype = SOCK_STREAM;
+
+    rc = System::getAddrInfo(hostName, 0, &hints, &info);
+    if (info)
     {
-      return String(he->h_name);
+        if ((!rc) && (info->ai_canonname))
+        {
+            strcpy(hostName, info->ai_canonname);
+        }
+        freeaddrinfo(info);
     }
-    else
-    {
-      return String ("unknown");
-    }
-  }
+
+    return String(hostName);
+}
 
 //
 // =============================================================================
@@ -1290,21 +1250,21 @@ String Process::getCSName()
 //
 
 String Process::getOSName()
-  const
-  {
+const
+{
     struct utsname unameInfo;
 
     // Call uname and check for any errors.
 
     if (uname (&unameInfo) < 0)
     {
-      return String ("unknown");
+        return String ("unknown");
     }
     else
     {
-      return String (unameInfo.sysname);
+        return String (unameInfo.sysname);
     }
-  }
+}
 
 //
 // =============================================================================
@@ -1339,37 +1299,29 @@ String Process::getCurrentTime() const
 
 int getmaxprocount()
 {
-  int status;
-  unsigned long maxprocount;
-  typedef struct
-  {
-    unsigned short wlength;
-    unsigned short wcode;
-    void *pbuffer;
-    void *pretlen;
-  } item_list;
+    int status;
+    unsigned long maxprocount;
+    item_list itmlst3[2];
+    item_list *itml3 = itmlst3;
 
-  item_list itmlst3[2];
-  item_list *itml3 = itmlst3;
+    itmlst3[0].wlength = sizeof (maxprocount);
+    itmlst3[0].wcode = SYI$_MAXPROCESSCNT;
+    itmlst3[0].pbuffer = &maxprocount;
+    itmlst3[0].pretlen = NULL;
+    itmlst3[1].wlength = 0;
+    itmlst3[1].wcode = 0;
+    itmlst3[1].pbuffer = NULL;
+    itmlst3[1].pretlen = NULL;
 
-  itmlst3[0].wlength = sizeof (maxprocount);
-  itmlst3[0].wcode = SYI$_MAXPROCESSCNT;
-  itmlst3[0].pbuffer = &maxprocount;
-  itmlst3[0].pretlen = NULL;
-  itmlst3[1].wlength = 0;
-  itmlst3[1].wcode = 0;
-  itmlst3[1].pbuffer = NULL;
-  itmlst3[1].pretlen = NULL;
-
-  status = sys$getsyiw (0, 0, 0, itmlst3, 0, 0, 0);
-  if ($VMS_STATUS_SUCCESS (status))
-  {
-    return maxprocount;
-  }
-  else
-  {
-    return 0;
-  }
+    status = sys$getsyiw (0, 0, 0, itmlst3, 0, 0, 0);
+    if ($VMS_STATUS_SUCCESS (status))
+    {
+        return maxprocount;
+    }
+    else
+    {
+      return 0;
+    }
 }
 
 //
@@ -1385,126 +1337,173 @@ int getmaxprocount()
 
 Boolean Process::loadProcessInfo (int &pIndex)
 {
-  int status;
-  unsigned long maxprocount;
-  __int64 qpid;
-  char handle[100];
+    int status;
+    unsigned long maxprocount;
+    __int64 qpid;
+    char handle[100];
+    unsigned long jpictx2; /* The context for JPI calls */
+    item_list itmlst3[MAXITMLST];
+    int procCount;
+    Boolean stat;
 
-  Boolean stat;
-
-  if ((maxprocount = getmaxprocount ()) == 0)
-  {
-    return false;
-  }
-
-  if (pIndex == 0)
-  {
-    if (proc_table != NULL)
+    /* If this is the first process request. Rebuild proc_table */
+    if (pIndex == 0)
     {
-      free(proc_table);
-    }
-    proc_table =
-      (proc_info_t) calloc (maxprocount + 1, sizeof (struct proc_info));
-    pInfo = pData = proc_table;
+        /* Lock the mutex on proc_table */
+        pthread_mutex_lock(&proc_table_mutex);
 
-    jpictx2 = 0;
-    procCount = 0;
-    ii = 1;
+        /* Free the old proc_table */
+        if (proc_table != NULL)
+        {
+            free(proc_table);
+            proc_table = NULL;
+            proc_table_count = 0;
+        }
 
-    itmlst3[0].wlength = 0;
-    itmlst3[0].wcode = PSCAN$_MODE;
-    itmlst3[0].pbuffer = (void *) JPI$K_OTHER;
-    itmlst3[0].pretlen = NULL;
-    itmlst3[1].wlength = 0;
-    itmlst3[1].wcode = 0;
-    itmlst3[1].pbuffer = NULL;
-    itmlst3[1].pretlen = NULL;
+        /* Find the maximum process that could run on the system */
+        if ((maxprocount = getmaxprocount ()) == 0)
+        {
+            /* Un lock the mutex on proc_table */
+            pthread_mutex_unlock(&proc_table_mutex);
+            /* Return false */
+            return false;
+        }
 
-    status = sys$process_scan (&jpictx2, itmlst3);
-    if (!$VMS_STATUS_SUCCESS (status))
-    {
-      return status;
-    }
+        /* Allocate memory to proc_table */
+        proc_table =
+            (proc_info_t) calloc (maxprocount + 1, sizeof (struct proc_info));
 
-    stat = buildProcessTable();
+        /* Error in allocating Memory. return false */
+        if (NULL == proc_table)
+        {
+            /* Un lock the mutex on proc_table */
+            pthread_mutex_unlock(&proc_table_mutex);
+            return false;
+        }
 
-    jpictx2 = 0;
-    itmlst3[0].wlength = 0;
-    itmlst3[0].wcode = PSCAN$_MODE;
-    itmlst3[0].pbuffer = (void *) JPI$K_BATCH;
-    itmlst3[0].pretlen = NULL;
-    itmlst3[1].wlength = 0;
-    itmlst3[1].wcode = 0;
-    itmlst3[1].pbuffer = NULL;
-    itmlst3[1].pretlen = NULL;
+        jpictx2 = 0;
+        procCount = 0;
+        itmlst3[0].wlength = 0;
+        itmlst3[0].wcode = PSCAN$_MODE;
+        itmlst3[0].pbuffer = (void *) JPI$K_OTHER;
+        itmlst3[0].pretlen = NULL;
+        itmlst3[1].wlength = 0;
+        itmlst3[1].wcode = 0;
+        itmlst3[1].pbuffer = NULL;
+        itmlst3[1].pretlen = NULL;
 
-    status = sys$process_scan (&jpictx2, itmlst3);
-    if (!$VMS_STATUS_SUCCESS (status))
-    {
-      return status;
-    }
+        status = sys$process_scan (&jpictx2, itmlst3);
+        if (!$VMS_STATUS_SUCCESS (status))
+        {
+            /* Free the proc_table */
+            free (proc_table);
+            proc_table = NULL;
+            proc_table_count = 0;
 
-    stat = buildProcessTable();
+            /* Un lock the mutex on proc_table */
+            pthread_mutex_unlock(&proc_table_mutex);
 
-    jpictx2 = 0;
-    itmlst3[0].wlength = 0;
-    itmlst3[0].wcode = PSCAN$_MODE;
-    itmlst3[0].pbuffer = (void *) JPI$K_NETWORK;
-    itmlst3[0].pretlen = NULL;
-    itmlst3[1].wlength = 0;
-    itmlst3[1].wcode = 0;
-    itmlst3[1].pbuffer = NULL;
-    itmlst3[1].pretlen = NULL;
+            /* Return failure */
+            return false;
+        }
 
-    status = sys$process_scan (&jpictx2, itmlst3);
-    if (!$VMS_STATUS_SUCCESS (status))
-    {
-      return status;
-    }
+        stat = buildProcessTable(jpictx2, procCount, itmlst3, proc_table);
+        proc_table_count += procCount;
 
-    stat = buildProcessTable();
+        jpictx2 = 0;
+        procCount = 0;
+        itmlst3[0].wlength = 0;
+        itmlst3[0].wcode = PSCAN$_MODE;
+        itmlst3[0].pbuffer = (void *) JPI$K_BATCH;
+        itmlst3[0].pretlen = NULL;
+        itmlst3[1].wlength = 0;
+        itmlst3[1].wcode = 0;
+        itmlst3[1].pbuffer = NULL;
+        itmlst3[1].pretlen = NULL;
 
-    jpictx2 = 0;
-    itmlst3[0].wlength = 0;
-    itmlst3[0].wcode = PSCAN$_MODE;
-    itmlst3[0].pbuffer = (void *) JPI$K_INTERACTIVE;
-    itmlst3[0].pretlen = NULL;
-    itmlst3[1].wlength = 0;
-    itmlst3[1].wcode = 0;
-    itmlst3[1].pbuffer = NULL;
-    itmlst3[1].pretlen = NULL;
+        status = sys$process_scan (&jpictx2, itmlst3);
+        if (!$VMS_STATUS_SUCCESS (status))
+        {
+            /* Free the proc_table */
+            free (proc_table);
+            proc_table = NULL;
+            proc_table_count = 0;
 
-    status = sys$process_scan (&jpictx2, itmlst3);
-    if (!$VMS_STATUS_SUCCESS (status))
-    {
-      return status;
-    }
+            /* Un lock the mutex on proc_table */
+            pthread_mutex_unlock(&proc_table_mutex);
 
-    stat = buildProcessTable();
+            /* Return failure */
+            return false;
+        }
 
-    pInfo = pData;
-  }
-  else
-  {
-    if (ii < procCount)
-    {
-      pInfo++;
-      ii++;
-    }
-    else
-    {
-      return false;
-    }
-  }
+        stat = buildProcessTable(jpictx2, procCount, itmlst3,
+                                 &proc_table[proc_table_count]);
+        proc_table_count += procCount;
 
-  if (procCount > 0)
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+        jpictx2 = 0;
+        procCount = 0;
+        itmlst3[0].wlength = 0;
+        itmlst3[0].wcode = PSCAN$_MODE;
+        itmlst3[0].pbuffer = (void *) JPI$K_NETWORK;
+        itmlst3[0].pretlen = NULL;
+        itmlst3[1].wlength = 0;
+        itmlst3[1].wcode = 0;
+        itmlst3[1].pbuffer = NULL;
+        itmlst3[1].pretlen = NULL;
+
+        status = sys$process_scan (&jpictx2, itmlst3);
+        if (!$VMS_STATUS_SUCCESS (status))
+        {
+            /* Free the proc_table */
+            free (proc_table);
+            proc_table = NULL;
+            proc_table_count = 0;
+
+            /* Un lock the mutex on proc_table */
+            pthread_mutex_unlock(&proc_table_mutex);
+
+            /* Return failure */
+            return false;
+        }
+
+        stat = buildProcessTable(jpictx2, procCount, itmlst3,
+                                 &proc_table[proc_table_count]);
+        proc_table_count += procCount;
+
+        jpictx2 = 0;
+        itmlst3[0].wlength = 0;
+        itmlst3[0].wcode = PSCAN$_MODE;
+        itmlst3[0].pbuffer = (void *) JPI$K_INTERACTIVE;
+        itmlst3[0].pretlen = NULL;
+        itmlst3[1].wlength = 0;
+        itmlst3[1].wcode = 0;
+        itmlst3[1].pbuffer = NULL;
+        itmlst3[1].pretlen = NULL;
+
+        status = sys$process_scan (&jpictx2, itmlst3);
+        if (!$VMS_STATUS_SUCCESS (status))
+        {
+            /* Free the proc_table */
+            free (proc_table);
+            proc_table = NULL;
+            proc_table_count = 0;
+
+            /* Un lock the mutex on proc_table */
+            pthread_mutex_unlock(&proc_table_mutex);
+
+            /* Return failure */
+            return false;
+        }
+
+        stat = buildProcessTable(jpictx2, procCount, itmlst3,
+                                 &proc_table[proc_table_count]);
+        proc_table_count += procCount;
+
+        /* Un lock the mutex on proc_table */
+        pthread_mutex_unlock(&proc_table_mutex);
+    } /* End if (pIndex == 0), rebuild of proc_table */
+
+    return getProcessInfo(pIndex);
 }
 
 //
@@ -1518,107 +1517,131 @@ Boolean Process::loadProcessInfo (int &pIndex)
 // =============================================================================
 //
 
-Boolean Process::buildProcessTable ()
+Boolean Process::buildProcessTable (unsigned long& jpictx2, 
+                                    int& procCount,
+                                    item_list* itmlst3,
+                                    struct proc_info* procInfoArray)
 {
-  int status;
+    int status;
+    char procimgnambuf[256];
+    char proctermbuf[8];
+    char usernamebuf[13];
+    int procimgnamlen;
+    int proctermlen;
+    int usernamlen;
+    unsigned __int64 proclgntim;
+    long procpid;
+    long proccputim;
+    long procgrp;
+    long procppid;
+    long procuic;
+    long procpgflquo;
+    long procpri;
+    long procbasepri;
+    long procstate;
+    long procwssize;
+    long proclgnflgs;
 
-  itmlst3[0].wlength = sizeof (usernamebuf);
-  itmlst3[0].wcode = JPI$_USERNAME;
-  itmlst3[0].pbuffer = usernamebuf;
-  itmlst3[0].pretlen = &usernamlen;
-  itmlst3[1].wlength = 4;
-  itmlst3[1].wcode = JPI$_PID;
-  itmlst3[1].pbuffer = &procpid;
-  itmlst3[1].pretlen = NULL;
-  itmlst3[2].wlength = 4;
-  itmlst3[2].wcode = JPI$_CPUTIM;
-  itmlst3[2].pbuffer = &proccputim;
-  itmlst3[2].pretlen = NULL;
-  itmlst3[3].wlength = 4;
-  itmlst3[3].wcode = JPI$_GRP;
-  itmlst3[3].pbuffer = &procgrp;
-  itmlst3[3].pretlen = NULL;
-  itmlst3[4].wlength = 4;
-  itmlst3[4].wcode = JPI$_MASTER_PID;
-  itmlst3[4].pbuffer = &procppid;
-  itmlst3[4].pretlen = NULL;
-  itmlst3[5].wlength = 4;
-  itmlst3[5].wcode = JPI$_UIC;
-  itmlst3[5].pbuffer = &procuic;
-  itmlst3[5].pretlen = NULL;
-  itmlst3[6].wlength = sizeof (procimgnambuf);
-  itmlst3[6].wcode = JPI$_IMAGNAME;
-  itmlst3[6].pbuffer = procimgnambuf;
-  itmlst3[6].pretlen = &procimgnamlen;
-  itmlst3[7].wlength = 4;
-  itmlst3[7].wcode = JPI$_PGFLQUOTA;
-  itmlst3[7].pbuffer = &procpgflquo;
-  itmlst3[7].pretlen = NULL;
-  itmlst3[8].wlength = 4;
-  itmlst3[8].wcode = JPI$_PRI;
-  itmlst3[8].pbuffer = &procpri;
-  itmlst3[8].pretlen = NULL;
-  itmlst3[9].wlength = 4;
-  itmlst3[9].wcode = JPI$_PRIB;
-  itmlst3[9].pbuffer = &procbasepri;
-  itmlst3[9].pretlen = NULL;
-  itmlst3[10].wlength = 4;
-  itmlst3[10].wcode = JPI$_STATE;
-  itmlst3[10].pbuffer = &procstate;
-  itmlst3[10].pretlen = NULL;
-  itmlst3[11].wlength = 4;
-  itmlst3[11].wcode = JPI$_WSSIZE;
-  itmlst3[11].pbuffer = &procwssize;
-  itmlst3[11].pretlen = NULL;
-  itmlst3[12].wlength = 4;
-  itmlst3[12].wcode = JPI$_LOGIN_FLAGS;
-  itmlst3[12].pbuffer = &proclgnflgs;
-  itmlst3[12].pretlen = NULL;
-  itmlst3[13].wlength = 8;
-  itmlst3[13].wcode = JPI$_LOGINTIM;
-  itmlst3[13].pbuffer = &proclgntim;
-  itmlst3[13].pretlen = NULL;
-  itmlst3[14].wlength = sizeof (proctermbuf);
-  itmlst3[14].wcode = JPI$_TERMINAL;
-  itmlst3[14].pbuffer = proctermbuf;
-  itmlst3[14].pretlen = &proctermlen;
-  itmlst3[MAXITMLST - 1].wlength = 0;
-  itmlst3[MAXITMLST - 1].wcode = 0;
-  itmlst3[MAXITMLST - 1].pbuffer = NULL;
-  itmlst3[MAXITMLST - 1].pretlen = NULL;
 
-  while (1)
-  {
-    status = sys$getjpiw (0, &jpictx2, NULL, itmlst3, 0, NULL, 0);
-    if (status == SS$_NOMOREPROC)
+    itmlst3[0].wlength = sizeof (usernamebuf);
+    itmlst3[0].wcode = JPI$_USERNAME;
+    itmlst3[0].pbuffer = usernamebuf;
+    itmlst3[0].pretlen = &usernamlen;
+    itmlst3[1].wlength = 4;
+    itmlst3[1].wcode = JPI$_PID;
+    itmlst3[1].pbuffer = &procpid;
+    itmlst3[1].pretlen = NULL;
+    itmlst3[2].wlength = 4;
+    itmlst3[2].wcode = JPI$_CPUTIM;
+    itmlst3[2].pbuffer = &proccputim;
+    itmlst3[2].pretlen = NULL;
+    itmlst3[3].wlength = 4;
+    itmlst3[3].wcode = JPI$_GRP;
+    itmlst3[3].pbuffer = &procgrp;
+    itmlst3[3].pretlen = NULL;
+    itmlst3[4].wlength = 4;
+    itmlst3[4].wcode = JPI$_MASTER_PID;
+    itmlst3[4].pbuffer = &procppid;
+    itmlst3[4].pretlen = NULL;
+    itmlst3[5].wlength = 4;
+    itmlst3[5].wcode = JPI$_UIC;
+    itmlst3[5].pbuffer = &procuic;
+    itmlst3[5].pretlen = NULL;
+    itmlst3[6].wlength = sizeof (procimgnambuf);
+    itmlst3[6].wcode = JPI$_IMAGNAME;
+    itmlst3[6].pbuffer = procimgnambuf;
+    itmlst3[6].pretlen = &procimgnamlen;
+    itmlst3[7].wlength = 4;
+    itmlst3[7].wcode = JPI$_PGFLQUOTA;
+    itmlst3[7].pbuffer = &procpgflquo;
+    itmlst3[7].pretlen = NULL;
+    itmlst3[8].wlength = 4;
+    itmlst3[8].wcode = JPI$_PRI;
+    itmlst3[8].pbuffer = &procpri;
+    itmlst3[8].pretlen = NULL;
+    itmlst3[9].wlength = 4;
+    itmlst3[9].wcode = JPI$_PRIB;
+    itmlst3[9].pbuffer = &procbasepri;
+    itmlst3[9].pretlen = NULL;
+    itmlst3[10].wlength = 4;
+    itmlst3[10].wcode = JPI$_STATE;
+    itmlst3[10].pbuffer = &procstate;
+    itmlst3[10].pretlen = NULL;
+    itmlst3[11].wlength = 4;
+    itmlst3[11].wcode = JPI$_WSSIZE;
+    itmlst3[11].pbuffer = &procwssize;
+    itmlst3[11].pretlen = NULL;
+    itmlst3[12].wlength = 4;
+    itmlst3[12].wcode = JPI$_LOGIN_FLAGS;
+    itmlst3[12].pbuffer = &proclgnflgs;
+    itmlst3[12].pretlen = NULL;
+    itmlst3[13].wlength = 8;
+    itmlst3[13].wcode = JPI$_LOGINTIM;
+    itmlst3[13].pbuffer = &proclgntim;
+    itmlst3[13].pretlen = NULL;
+    itmlst3[14].wlength = sizeof (proctermbuf);
+    itmlst3[14].wcode = JPI$_TERMINAL;
+    itmlst3[14].pbuffer = proctermbuf;
+    itmlst3[14].pretlen = &proctermlen;
+    itmlst3[MAXITMLST - 1].wlength = 0;
+    itmlst3[MAXITMLST - 1].wcode = 0;
+    itmlst3[MAXITMLST - 1].pbuffer = NULL;
+    itmlst3[MAXITMLST - 1].pretlen = NULL;
+
+    procCount = 0;
+    while (1)
     {
-      break;
-    }
-    if (!$VMS_STATUS_SUCCESS (status))
-    {
-      return status;
-    }
-    procCount++;
-    usernamebuf[12] = '\0';
+        status = sys$getjpiw (0, &jpictx2, NULL, itmlst3, 0, NULL, 0);
+        if (status == SS$_NOMOREPROC)
+        {
+            break;
+        }
+        if (!$VMS_STATUS_SUCCESS (status))
+        {
+            return status;
+        }
 
-    pInfo->ppid = procppid;
-    pInfo->pid = procpid;
-    pInfo->uid = procuic & 0xFFFF;
-    pInfo->pgrp = (procuic >> 16) & 0xFFFF;
-    pInfo->rgid = procgrp;
-    pInfo->cpu = proccputim;
-    pInfo->virtual_size = procpgflquo;
-    pInfo->pri = procpri;
-    pInfo->base_pri = procbasepri;
-    pInfo->state = procstate;
-    pInfo->pset = procwssize;
-    pInfo->p_stime = proclgntim;
-    strncpy (pInfo->uname, usernamebuf, 12);
-    strncpy (pInfo->command, procimgnambuf, 256);
-    strncpy (pInfo->tty, proctermbuf, 8);
-    pInfo++;
-  }
-  return true;
+        usernamebuf[12] = '\0';
+
+        procInfoArray[procCount].ppid = procppid;
+        procInfoArray[procCount].pid = procpid;
+        procInfoArray[procCount].uid = procuic & 0xFFFF;
+        procInfoArray[procCount].pgrp = (procuic >> 16) & 0xFFFF;
+        procInfoArray[procCount].rgid = procgrp;
+        procInfoArray[procCount].cpu = proccputim;
+        procInfoArray[procCount].virtual_size = procpgflquo;
+        procInfoArray[procCount].pri = procpri;
+        procInfoArray[procCount].base_pri = procbasepri;
+        procInfoArray[procCount].state = procstate;
+        procInfoArray[procCount].pset = procwssize;
+        procInfoArray[procCount].p_stime = proclgntim;
+        strncpy (procInfoArray[procCount].uname, usernamebuf, 12);
+        strncpy (procInfoArray[procCount].command, procimgnambuf, 256);
+        strncpy (procInfoArray[procCount].tty, proctermbuf, 8);
+        procCount++;
+    }
+
+    return true;
 }
 //
 // =============================================================================
@@ -1633,14 +1656,25 @@ Boolean Process::buildProcessTable ()
 
 Boolean Process::getProcessInfo (int Index)
 {
-  int i;
+    Boolean retVal;
 
-  pInfo = proc_table;
-  for (i=0; i < Index; i++)
-  {
-    pInfo++;
-  }
-  return true;
+    /* Lock the mutex on proc_table */
+    pthread_mutex_lock(&proc_table_mutex);
+
+    if (Index < proc_table_count)
+    {
+        memcpy(&pInfo, &proc_table[Index], sizeof (struct proc_info));
+        retVal = true;
+    }
+    else
+    {
+        retVal = false;
+    }
+
+    /* Un lock the mutex on proc_table */
+    pthread_mutex_unlock(&proc_table_mutex);
+
+    return retVal;
 }
 
 //
@@ -1656,31 +1690,27 @@ Boolean Process::getProcessInfo (int Index)
 
 Boolean Process::findProcess (const String & handle)
 {
-  long i;
-  unsigned __int64 pid;
-  unsigned int maxprocount;
+    long i;
+    Boolean retVal = false;
+    unsigned __int64 pid;
 
-// Convert handle to an integer
+    /* Convert handle to an integer */
+    pid = strtol(handle.getCString (), (char **)NULL, 16);
 
-//  pid = atoq (handle.getCString ());
-  pid = strtol(handle.getCString (), (char **)NULL, 16);
-  if ((maxprocount = getmaxprocount ()) == 0)
-  {
-    return false;
-  }
+    /* Lock the mutex on proc_table */
+    pthread_mutex_lock(&proc_table_mutex);
 
-  pInfo = proc_table;
-  for (i = 0; i < maxprocount; i++)
-  {
-    if (pInfo->pid == pid)
+    for (i = 0; i < proc_table_count; i++)
     {
-      return true;
+        if (proc_table[i].pid == pid)
+        {
+            memcpy(&pInfo, &proc_table[i], sizeof (struct proc_info));
+            retVal = true;
+        }
     }
-    if (pInfo->pid == 0)
-    {
-      break;
-    }
-    pInfo++;
-  }
-  return false;
+
+    /* Un lock the mutex on proc_table */
+    pthread_mutex_unlock(&proc_table_mutex);
+
+    return retVal;
 }

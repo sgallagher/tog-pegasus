@@ -59,6 +59,17 @@
 #include <lnmdef.h>
 
 /*
+ * Item List
+ */
+typedef struct
+{
+  unsigned short wlength;
+  unsigned short wcode;
+  void *pbuffer;
+  void *pretlen;
+} item_list;
+
+/*
  * collected proc info
  */
 typedef struct proc_info *proc_info_t;
@@ -124,102 +135,101 @@ PEGASUS_USING_PEGASUS;
 
 class Process
 {
-
 public:
 
-  Process();
-  ~Process();
+    Process();
+    ~Process();
 
-  Boolean getCaption(String&) const;
+    Boolean getCaption(String&) const;
 
-  Boolean getDescription(String&) const;
+    Boolean getDescription(String&) const;
 
-  Boolean getInstallDate(CIMDateTime&) const;
+    Boolean getInstallDate(CIMDateTime&) const;
 
-  Boolean getStatus(String&) const;
+    Boolean getStatus(String&) const;
 
-  Boolean getName(String&) const;
+    Boolean getName(String&) const;
 
-  Boolean getPriority(Uint32&) const;
+    Boolean getPriority(Uint32&) const;
 
-  Boolean getExecutionState(Uint16&) const;
+    Boolean getExecutionState(Uint16&) const;
 
-  Boolean getOtherExecutionDescription(String&) const;
+    Boolean getOtherExecutionDescription(String&) const;
 
-  Boolean getCreationDate(CIMDateTime&) const;
+    Boolean getCreationDate(CIMDateTime&) const;
 
-  Boolean getTerminationDate(CIMDateTime&) const;
+    Boolean getTerminationDate(CIMDateTime&) const;
 
-  Boolean getKernelModeTime(Uint64&) const;
+    Boolean getKernelModeTime(Uint64&) const;
 
-  Boolean getUserModeTime(Uint64&) const;
+    Boolean getUserModeTime(Uint64&) const;
 
-  Boolean getWorkingSetSize(Uint64&) const;
+    Boolean getWorkingSetSize(Uint64&) const;
 
-  Boolean getRealUserID(Uint64&) const;
+    Boolean getRealUserID(Uint64&) const;
 
-  Boolean getProcessGroupID(Uint64&) const;
+    Boolean getProcessGroupID(Uint64&) const;
 
-  Boolean getProcessSessionID(Uint64&) const;
+    Boolean getProcessSessionID(Uint64&) const;
 
-  Boolean getProcessTTY(String&) const;
+    Boolean getProcessTTY(String&) const;
 
-  Boolean getModulePath(String&) const;
+    Boolean getModulePath(String&) const;
 
-  Boolean getParameters(Array<String>&) const;
+    Boolean getParameters(Array<String>&) const;
 
-  Boolean getProcessNiceValue(Uint32&) const;
+    Boolean getProcessNiceValue(Uint32&) const;
 
-  Boolean getProcessWaitingForEvent(String&) const;
+    Boolean getProcessWaitingForEvent(String&) const;
 
-  Boolean getCPUTime(Uint32&) const;
+    Boolean getCPUTime(Uint32&) const;
 
-  Boolean getRealText(Uint64&) const;
+    Boolean getRealText(Uint64&) const;
 
-  Boolean getRealData(Uint64&) const;
+    Boolean getRealData(Uint64&) const;
 
-  Boolean getRealStack(Uint64&) const;
+    Boolean getRealStack(Uint64&) const;
 
-  Boolean getVirtualText(Uint64&) const;
+    Boolean getVirtualText(Uint64&) const;
 
-  Boolean getVirtualData(Uint64&) const;
+    Boolean getVirtualData(Uint64&) const;
 
-  Boolean getVirtualStack(Uint64&) const;
+    Boolean getVirtualStack(Uint64&) const;
 
-  Boolean getVirtualMemoryMappedFileSize(Uint64&) const;
+    Boolean getVirtualMemoryMappedFileSize(Uint64&) const;
 
-  Boolean getVirtualSharedMemory(Uint64&) const;
+    Boolean getVirtualSharedMemory(Uint64&) const;
 
-  Boolean getCpuTimeDeadChildren(Uint64&) const;
+    Boolean getCpuTimeDeadChildren(Uint64&) const;
 
-  Boolean getSystemTimeDeadChildren(Uint64&) const;
+    Boolean getSystemTimeDeadChildren(Uint64&) const;
 
-  Boolean getParentProcessID(String&) const;
+    Boolean getParentProcessID(String&) const;
 
-  Boolean getRealSpace(Uint64&) const;
+    Boolean getRealSpace(Uint64&) const;
 
-  Boolean loadProcessInfo(int &pIndex);
+    Boolean loadProcessInfo(int &pIndex);
 
-  Boolean getProcessInfo(int pIndex);
+    Boolean getProcessInfo(int pIndex);
 
-  Boolean buildProcessTable();
+    Boolean buildProcessTable (unsigned long& jpictx2, int& procCount,
+       item_list* itmlst3, struct proc_info* procInfoArray);
 
-  Boolean findProcess(const String& handle);
+    Boolean findProcess(const String& handle);
 
-  String getHandle(void) const;
+    String getHandle(void) const;
 
-  String getCurrentTime(void) const;
+    String getCurrentTime(void) const;
 
-  String getOSName(void) const;
+    String getOSName(void) const;
 
-  String getCSName(void) const;
+    String getCSName(void) const;
 
 protected:
 
 private:
 
-    static struct proc_info *pInfo;
-    static struct proc_info *pData;
+    struct proc_info pInfo;
 
 };
 

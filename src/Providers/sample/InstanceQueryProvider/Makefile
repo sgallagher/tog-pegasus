@@ -43,8 +43,8 @@ LIBRARIES = \
     pegprovider \
     pegqueryexpression \
     pegcql \
-    pegquerycommon \
     pegwql \
+    pegquerycommon \
     pegclient \
     pegcommon
 	

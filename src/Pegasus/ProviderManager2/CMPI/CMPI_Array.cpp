@@ -225,7 +225,14 @@ extern "C"
             if ((dta->type&~CMPI_ARRAY)==type)
             {
                 dta[pos+1].state=CMPI_goodValue;
-                dta[pos+1].value=*val;
+                if (type == CMPI_chars)
+                {
+                    dta[pos+1].value.chars = (char*) val;
+                }
+                else
+                {
+                    dta[pos+1].value = *val;
+                }
                 PEG_METHOD_EXIT();
                 CMReturn(CMPI_RC_OK);
             }

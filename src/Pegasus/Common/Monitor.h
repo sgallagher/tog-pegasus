@@ -63,7 +63,7 @@ public:
         TYPE_ACCEPTOR,
         TYPE_CONNECTION,
         TYPE_CONNECTOR,
-        TYPE_INTERNAL
+        TYPE_TICKLER
     };
 
     MonitorEntry()
@@ -132,12 +132,17 @@ public:
 
     ~Tickler();
 
-    SocketHandle getClientSocket()
-    {
-        return _clientSocket;
-    }
+    /**
+        Causes a read event on the tickle socket.
+    */
+    void notify();
 
-    SocketHandle getServerSocket()
+    /**
+        Consumes all read events on the tickle socket.
+    */
+    void reset();
+
+    SocketHandle getReadHandle()
     {
         return _serverSocket;
     }

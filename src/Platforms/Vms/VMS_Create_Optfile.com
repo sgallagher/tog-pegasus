@@ -11,7 +11,7 @@ $ !
 $ ! Create an option file for the executable or sharable image
 $ ! 
 $ ! P1 = Makefile Directory
-$ ! P2 = Default directory
+$ ! P2 = Default directory   ! [Not used?]
 $ ! P3 = Options filename
 $ ! P4 = Value of LIBRARIES
 $ ! P5 = Value of SHARE_COPY
@@ -20,11 +20,28 @@ $ ! P7 = Objects directory
 $ ! P8 = Value of SOURCES when OBJECTS_IN_OPTIONFILE set
 $ ! 
 $Run_Begin:
+$ !
+$!  sho sym pegasus*
+$!  sho log pegasus*
+$!  sho sym/local *
+$  Prev_lib = ""
 $  First_lib = "yes"
 $  First_obj = "yes"
+$!  want_dllexport = "''f$trnlnm("PEGASUS_USE_STATIC_LIBRARIES")"
+$  if (f$trnlnm("PEGASUS_USE_STATIC_LIBRARIES") .eqs. "")
+$  then
+$    want_dllexport = "yes"
+$  else
+$    want_dllexport = ""
+$  endif
 $ ! 
-$  MyOut :== "!"
-$ ! MyOut :== "Write Sys$output"
+$ sav_ver = f$environment("VERIFY_PROCEDURE")
+$ if sav_ver
+$ then
+$   MyOut :== "Write Sys$output"
+$ else
+$   MyOut :== "!"
+$ endif
 $ ! 
 $  'MyOut "%VMSCROPT - P1 = ''P1'"
 $  'MyOut "%VMSCROPT - P2 = ''P2'"
@@ -105,7 +122,9 @@ $ ! Write it to the option file
 $ ! 
 $  write/error=optfile_writeerror optfile "''libnam'"
 $ ! 
+$ !
 $  Libnum = 0
+$  prev_libtype = ""
 $ !
 $makefile_loop3:
 $ ! 
@@ -118,15 +137,40 @@ $  then
 $    Goto makefile_loop3_exit
 $  endif
 $ ! 
+$ ! If .exe exists, use the shareable instead of the .olb.
+$  is_dll = ""
+$  if "''want_dllexport'" .nes. "" 
+$  then 
+$    dllname = -
+        f$trnlnm("PEGASUS_VMSHOMEA") + "bin]" + "lib" + "''PegLib'" + ".exe"
+$    foundit = f$search(dllname)
+$    if "''foundit'" .nes. ""
+$    then
+$      is_dll = "yes"
+$    endif
+$  endif
+$ !
 $ ! Create the library file entry
 $ ! 
-$  if (first_lib .eqs. "yes")
+$  if "''is_dll'" .nes. ""
+$  then
+$    subdir = "bin"
+$    libtype = "share"
+$!    define/log/job lib'PegLib' 'dllname'
+$  else
+$    subdir = "lib"
+$    libtype = "lib"
+$  endif
+$  !
+$  if (prev_libtype .nes. libtype)
 $   then
-$    libnam = f$trnlnm("PEGASUS_VMSHOMEA") + "lib]" + "lib" + "''PegLib'" + "/lib"
+$    libnam = f$trnlnm("PEGASUS_VMSHOMEA") + "''subdir']" + -
+                       "lib" + "''PegLib'" + "/''libtype'"
 $    first_lib = "no"
 $  else
-$    libnam = "lib" + "''PegLib'" + "/lib"
+$    libnam = "lib" + "''PegLib'" + "/''libtype'"
 $  endif
+$  prev_libtype = libtype
 $ ! 
 $  Libnum = Libnum + 1
 $ ! 
@@ -139,16 +183,37 @@ $ !
 $  Goto makefile_loop3
 $ !
 $makefile_loop3_exit:
+$ !
+$ ! example: define PEGASUS_VMS_LINKER_GSMATCH "LEQUAL,2,5400"
+$  gsmatch = f$trnlnm("PEGASUS_VMS_LINKER_GSMATCH")
+$  if "''gsmatch'" .nes. ""
+$  then
+$    write/error=optfile_writeerror optfile "GSMATCH=''gsmatch'"
+$  endif
+$ !
+$No_gsmatch:
+$ !
+$ ! example: define PEGASUS_VMS_LINKER_IDENT "2.5400"
+$  ident = f$trnlnm("PEGASUS_VMS_LINKER_IDENT")
+$  if "''ident'" .nes. ""
+$  then
+$    write/error=optfile_writeerror optfile "IDENTIFICATION=''ident'"
+$  endif
+$ !
+$No_ident:
 $ ! 
 $ ! Add the SSL libraries
 $ ! 
 $  ssllibdir = f$trnlnm("PEGASUS_OPENSSLLIB")
 $  if (ssllibdir .EQS. "") then goto No_ssl
 $ ! 
+$!  ssllib1 = "pegasus_openssllib:libssl32/lib"
+$!  ssllib2 = "libcrypto32/lib"
 $  ssllib1 = "pegasus_openssllib:ssl$libssl_shr32/share"
 $  ssllib2 = "ssl$libcrypto_shr32/share"
 $  write/error=optfile_writeerror optfile "''ssllib1'"
 $  write/error=optfile_writeerror optfile "''ssllib2'"
+$ !
 $No_ssl:
 $ !
 $  zlibdir = f$trnlnm("libz")
@@ -156,6 +221,7 @@ $  if (zlibdir .EQS. "") then goto No_zlib
 $ !
 $  zlib1 = "libz:libz/lib"
 $  write/error=optfile_writeerror optfile "''zlib1'"
+$ !
 $No_zlib:
 $ ! 
 $ ! Looking for "SHARE_COPY"
@@ -171,32 +237,36 @@ $ !
 $VmsVec:
 $ ! 
 $ ! Looking for "VMS_VECTOR"
+$ ! of compiler generated .opt file for the dll_export case.
 $ ! 
-$  if P6 .eqs. ""
+$  if "''want_dllexport'" .eqs. "" 
 $  Then
-$    vecsym = "SYMBOL_VECTOR=(" + "''tmp_vecsym'" + "=PROCEDURE)"
-$    Goto Write_vmsvec
+$    if P6 .eqs. ""
+$    Then
+$      vecsym = "SYMBOL_VECTOR=(" + "''tmp_vecsym'" + "=PROCEDURE)"
+$    Else
+$      'MyOut "%VMSCROPT - VMS_VECTOR defined"
+$      vecsym = "SYMBOL_VECTOR=(" + "''P6'" + "=PROCEDURE)"
+$    Endif
 $  Endif
-$ ! 
-$  'MyOut "%VMSCROPT - VMS_VECTOR defined"
-$ !
-$  vecsym = "SYMBOL_VECTOR=(" + "''P6'" + "=PROCEDURE)"
 $ ! 
 $Write_vmsvec:
 $ ! 
 $  'MyOut "%VMSCROPT -  vecsym = ''vecsym'"
 $ ! 
-$ ! Write it too the option file
+$ ! Write it to the option file
 $ ! 
 $  write/error=optfile_writeerror optfile "''vecsym'"
+$ !
+$Done_vmsvec:
 $ ! 
 $ ! Close the options file.
 $ ! 
 $  Close optfile
+$ !
 $makefile_loop9_exit3:
 $ ! 
 $  Goto run_exit
-
 $ !
 $optfile_eof:
 $ Goto run_exit

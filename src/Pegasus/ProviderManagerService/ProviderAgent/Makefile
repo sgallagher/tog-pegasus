@@ -43,8 +43,7 @@ LIBRARIES = \
     pegprovider \
     pegconfig \
     pegclient \
-    pegqueryexpression \
-    pegquerycommon
+    pegqueryexpression 
 
 #Large Program Support
 #make program able to use maximum of 2GB memory
@@ -55,12 +54,12 @@ endif
 
 ifndef PEGASUS_DISABLE_CQL
     LIBRARIES += \
-        pegcql \
-        pegquerycommon
+        pegcql 
 endif
 
 LIBRARIES += \
     pegwql \
+    pegquerycommon \
     pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)

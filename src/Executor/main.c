@@ -376,10 +376,13 @@ int main(int argc, char** argv)
 
 #if defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_CORE_DIR)
     workingDirectory = PEGASUS_CORE_DIR;
-#else
-    workingDirectory = "/";
+#elif defined(PEGASUS_DEBUG)
+    workingDirectory = getenv("PEGASUS_TMP");
 #endif
-
+    if (workingDirectory == NULL)
+    {
+        workingDirectory = "/";
+    }
     if (chdir(workingDirectory) != 0)
     {
         Log(LL_WARNING, "Failed to change working directory to %s",

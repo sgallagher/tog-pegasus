@@ -39,6 +39,7 @@
 #include "CMPI_Ftabs.h"
 #include "CMPI_String.h"
 #include "CMPI_SelectExp.h"
+#include "CMPIMsgHandleManager.h"
 
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMPropertyList.h>
@@ -400,7 +401,7 @@ extern "C"
             PEG_METHOD_EXIT();
             return NULL;
         }
-        CMPIString* cmpiString = 
+        CMPIString* cmpiString =
             reinterpret_cast<CMPIString*>(new CMPI_Object(cStr));
         PEG_METHOD_EXIT();
         return cmpiString;
@@ -425,7 +426,7 @@ extern "C"
             dta[i].state=CMPI_nullValue;
             dta[i].value.uint64=0;
         }
-        CMPIArray* cmpiArray = 
+        CMPIArray* cmpiArray =
             reinterpret_cast<CMPIArray*>(new CMPI_Object(dta));
         PEG_METHOD_EXIT();
         return cmpiArray;
@@ -587,7 +588,7 @@ extern "C"
         }
 
         sprintf(msg,"%p: ",o);
-        CMPIString* cmpiString = 
+        CMPIString* cmpiString =
             reinterpret_cast<CMPIString*>(new CMPI_Object(String(msg)+str));
         PEG_METHOD_EXIT();
         return cmpiString;
@@ -1035,6 +1036,11 @@ extern "C"
         CMPIStatus rc = { CMPI_RC_OK, NULL };
         AutoPtr<MessageLoaderParms> parms(new MessageLoaderParms());
         parms->msg_src_path = msgFile;
+
+        // Initialize the msgFileHandle to NULL, so it is easier to
+        // detect an uninitialized handle in related functions.
+        *msgFileHandle = NULL;
+
         // Get the AcceptLanguage entry
         const CMPIContext *ctx = CMPI_ThreadContext::getContext();
         CMPIData data = ctx->ft->getEntry(ctx, CMPIAcceptLanguage, &rc);
@@ -1042,16 +1048,25 @@ extern "C"
         {
             if (rc.rc == CMPI_RC_OK)
             {
-                parms->acceptlanguages =
-                    LanguageParser::parseAcceptLanguageHeader(
-                        CMGetCharPtr(data.value.string));
+                const char* accLangs = CMGetCharPtr(data.value.string);
+                if ((accLangs != NULL) && (accLangs[0] != '\0'))
+                {
+                    parms->acceptlanguages =
+                        LanguageParser::parseAcceptLanguageHeader(accLangs);
+                }
             }
             else
             {
+                PEG_TRACE(
+                    (TRC_PROVIDERMANAGER,
+                     Tracer::LEVEL2,
+                     "Failed to get CMPIAcceptLanguage from CMPIContext. RC=%d",
+                     rc.rc));
                 PEG_METHOD_EXIT();
                 return rc; // should be CMPI_RC_ERR_INVALID_HANDLE
             }
         }
+
         MessageLoader::openMessageFile(*parms.get());
 
         ContentLanguageList cll = parms->contentlanguages;
@@ -1068,7 +1083,10 @@ extern "C"
                 CMPI_chars);
         }
 
-        *msgFileHandle = (void *)parms.release();
+        CMPIMsgHandleManager* handleMgr =
+            CMPIMsgHandleManager::getCMPIMsgHandleManager();
+        *msgFileHandle = handleMgr->getNewHandle(parms.release());
+
         PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
@@ -1080,10 +1098,25 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_BrokerEnc:mbEncCloseMessageFile()");
+
+        CMPIMsgHandleManager* handleMgr =
+            CMPIMsgHandleManager::getCMPIMsgHandleManager();
         MessageLoaderParms* parms;
-        parms = (MessageLoaderParms*)msgFileHandle;
+
+        try
+        {
+            parms = handleMgr->releaseHandle(msgFileHandle);
+        }
+        catch( IndexOutOfBoundsException& e )
+        {
+            PEG_METHOD_EXIT();
+            CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
+        }
+
         MessageLoader::closeMessageFile(*parms);
+
         delete parms;
+
         PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
@@ -1100,10 +1133,36 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_BrokerEnc:mbEncGetMessage2()");
+
+        CMPIMsgHandleManager* handleMgr =
+            CMPIMsgHandleManager::getCMPIMsgHandleManager();
         MessageLoaderParms* parms;
-        parms = (MessageLoaderParms*)msgFileHandle;
-        parms->msg_id = String(msgId);
-        parms->default_msg = String(defMsg);
+
+        try
+        {
+            parms = handleMgr->getDataForHandle(msgFileHandle);
+        }
+        catch( IndexOutOfBoundsException& e )
+        {
+            if (rc)
+            {
+                rc->rc=CMPI_RC_ERR_INVALID_HANDLE;
+            }
+            PEG_METHOD_EXIT();
+            return NULL;
+        }
+
+
+        if (msgId != NULL)
+        {
+            parms->msg_id.assign(msgId);
+        }
+
+        if ( defMsg != NULL )
+        {
+            parms->default_msg.assign(defMsg);
+        }
+
         int err = 0;
         if (rc)
         {
@@ -1210,13 +1269,18 @@ extern "C"
         const char *text,
         const CMPIString *string)
     {
-        if (!id || !(text || string))
+        if (!(text || string))
         {
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
-        String logString = id;
+
         Uint32 logSeverity = Logger::INFORMATION;
-        logString.append(":");
+        String logString;
+        if (id != NULL)
+        {
+            logString.assign(id);
+            logString.append(":");
+        }
 
         if (string)
         {
@@ -1244,7 +1308,11 @@ extern "C"
         {
             logSeverity = Logger::FATAL;
         }
-        Logger::put(Logger::STANDARD_LOG, id, logSeverity, logString);
+        Logger::put(
+            Logger::STANDARD_LOG,
+            System::CIMSERVER,
+            logSeverity,
+            logString);
         CMReturn ( CMPI_RC_OK);
     }
 

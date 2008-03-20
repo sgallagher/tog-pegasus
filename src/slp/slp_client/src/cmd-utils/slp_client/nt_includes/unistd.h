@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,62 +28,8 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
-//%/////////////////////////////////////////////////////////////////////////////
+/*
+** This file was added since flex on windows expects to find a file called
+** <unistd.h>. It doesn't seem to care what is in it though.
+*/
 
-#ifndef Pegasus_Platform_LINUX_ZSERIES_GNU_h
-#define Pegasus_Platform_LINUX_ZSERIES_GNU_h
-
-#ifdef __cplusplus
-#include <cstddef>
-#endif
-
-#define PEGASUS_OS_TYPE_UNIX
-
-#define PEGASUS_OS_LINUX
-
-#define PEGASUS_ARCHITECTURE_ZSERIES
-
-#define PEGASUS_COMPILER_GNU
-
-#define PEGASUS_UINT64 unsigned long long
-
-#define PEGASUS_SINT64 long long
-
-#define PEGASUS_HAVE_NAMESPACES
-
-#define PEGASUS_HAVE_FOR_SCOPE
-
-#define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
-
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-#ifndef _REENTRANT
-#define _REENTRANT
-#endif
-#define _THREAD_SAFE
-#include <features.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/param.h> // For MAXHOSTNAMELEN
-#include <limits.h>    // _POSIX_HOST_NAME_MAX 
-
-#if (__GNUC__ >= 4)
-# define PEGASUS_EXPORT __attribute__ ((visibility("default")))
-# define PEGASUS_IMPORT __attribute__ ((visibility("default")))
-# define PEGASUS_HIDDEN_LINKAGE __attribute__((visibility("hidden")))
-#endif
-
-#define PEGASUS_HAVE_PTHREADS
-
-#define PEGASUS_HAVE_NANOSLEEP
-
-#define PEGASUS_HAS_SIGNALS
-
-/* getifaddrs() avilable in gcc version >= 3.4 */
-#if (__GNUC__ > 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 4))
-# define PEGASUS_HAS_GETIFADDRS
-#endif
-
-#endif /* Pegasus_Platform_LINUX_ZSERIES_GNU_h */

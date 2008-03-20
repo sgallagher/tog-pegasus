@@ -1,31 +1,34 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
+
 //NOCHKSRC
 
 /*****************************************************************************
@@ -34,6 +37,8 @@
  *  Originated: March 06, 2000
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
+ *
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/attr.y,v 1.4.46.1 2008/03/20 06:16:44 s.kodali Exp $
  *
  *  Copyright (c) 2001 - 2003  IBM
  *  Copyright (c) 2000 - 2003 Michael Day
@@ -67,22 +72,22 @@ int32 attrwrap(void);
 int32 attrlex(void);
 int32 attrparse(void);
 BOOL bt = TRUE, bf = FALSE;
-void attr_close_lexer(size_t handle);
+void attr_close_lexer(uint32 handle);
 size_t attr_init_lexer(const char *s);
 
 lslpAttrList attrHead =
 {
-	&attrHead, &attrHead, TRUE, 0, 0, 0, 0, 0, {0}
+	&attrHead, &attrHead, TRUE, 0, 0, 0, 0, 0, 0
 };
 
 lslpAttrList inProcessAttr =
 {
-	&inProcessAttr, &inProcessAttr, TRUE, 0, 0, 0, 0, 0, {0}
+	&inProcessAttr, &inProcessAttr, TRUE, 0, 0, 0, 0, 0, 0
 };
 
 lslpAttrList inProcessTag =
 {
-	&inProcessTag, &inProcessTag, TRUE, 0, 0, 0, 0, 0, {0}
+	&inProcessTag, &inProcessTag, TRUE, 0, 0, 0, 0, 0, 0
 };
 
 
@@ -220,9 +225,9 @@ void _lslpInitInternalAttrList(void)
 
 lslpAttrList *_lslpDecodeAttrString(char *s)
 {
-  size_t lexer = 0;
+  uint32 lexer = 0;
   lslpAttrList *temp = NULL;
-  PEGASUS_ASSERT(s != NULL);
+  assert(s != NULL);
   _lslpInitInternalAttrList();
   if (s != NULL) {
     if(NULL != (temp = lslpAllocAttrList()))  {
@@ -286,11 +291,8 @@ lslpAttrList *lslpAllocAttr(const char *name, char type, const void *val, int16 
 	  attr->attr_len = len;
 	  switch (type)	    {
 	    case string:
-	      if ( NULL == (attr->val.stringVal = strdup((const char *)val)))
-              {
-                  lslpFreeAttr(attr);
-                  return NULL;
-              }
+	      if ( NULL != (attr->val.stringVal = strdup((const char *)val)))
+		return(attr);
 	      break;
 	    case integer:
 	      attr->val.intVal = *(const uint32 *)val;
@@ -299,15 +301,11 @@ lslpAttrList *lslpAllocAttr(const char *name, char type, const void *val, int16 
 	      attr->val.boolVal = *(const BOOL *)val;
 	      break;
 	    case opaque:
-	      if ( NULL == (attr->val.opaqueVal = strdup((const char *)val)))
-              {
-                  lslpFreeAttr(attr);
-                  return NULL;
-              }
+	      if ( NULL != (attr->val.opaqueVal = strdup((const char *)val)))
+		return(attr);
 	      break;
 	    default:
-                  lslpFreeAttr(attr);
-                  return NULL;
+	      break;
 	    }
 	}
     }
@@ -328,7 +326,7 @@ lslpAttrList *lslpAllocAttrList(void)
 /* attr MUST be unlinked from its list ! */
 void lslpFreeAttr(lslpAttrList *attr)
 {
-  PEGASUS_ASSERT(attr != NULL);
+  assert(attr != NULL);
   if (attr->name != NULL)
     free(attr->name);
   if(attr->attr_string != NULL)
@@ -344,8 +342,8 @@ void lslpFreeAttrList(lslpAttrList *list, BOOL staticFlag)
 {
   lslpAttrList *temp;
 
-  PEGASUS_ASSERT(list != NULL);
-  PEGASUS_ASSERT(_LSLP_IS_HEAD(list));
+  assert(list != NULL);
+  assert(_LSLP_IS_HEAD(list));
   while(! (_LSLP_IS_EMPTY(list)))
     {
       temp = list->next;

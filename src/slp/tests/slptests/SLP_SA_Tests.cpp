@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,10 +38,13 @@
 #include <Pegasus/Client/CIMClient.h>
 #define SLP_PORT 427
 #define LOCALHOST_IP "127.0.0.1"
+#include <Pegasus/Server/SLPAttrib.h>
 
 PEGASUS_USING_PEGASUS;
 //Global variables used for SLP registrations and registration tests.
 static char *predicate;
+static BOOL parsable= TRUE;
+static char fs='\t', rs='\n';
 const char *scopes = "DEFAULT";
 #ifndef PEGASUS_SLP_REG_TIMEOUT
 int life = 0XFFFF;
@@ -55,15 +60,14 @@ static Boolean verbose;
 const char *httpAttrs1 = "(template-url-syntax=service:wbemtest:http://127.0.0"
     ".1:5988),(service-hi-name=Pegasus),(service-hi-description=Pegasus "
     "CIM Server Version 2.6.0 Development),"
-    "(service-id=PG:1161621217468-127-0-0-1),(Namespace=interop,root/"
+    "(service-id=PG:1161621217468-127-0-0-1),(Namespace=root/PG_InterOp,root/"
     "benchmark,root/SampleProvider,root/PG_Internal,root/test/A,root/test/B,"
     "test/EmbeddedInstance/Static,test/TestProvider,test/EmbeddedInstance/"
     "Dynamic,root/cimv2,root,test/cimv2,test/static),(Classinfo=Unknown,"
     "Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,"
     "Unknown,Unknown,Unknown),(CommunicationMechanism=CIM-XML),"
-    "(OtherCommunicationMechanismDescription=),"
-    "(InteropSchemaNamespace=interop),"
-    "(ProtocolVersion=1.0),(FunctionalProfilesSupported=Basic "
+    "(OtherCommunicationMechanismDescription=),(InteropSchemaNamespace=root/"
+    "PG_InterOp),(ProtocolVersion=1.0),(FunctionalProfilesSupported=Basic "
     "Read,Basic Write,Schema Manipulation,Instance Manipulation,Association "
     "Traversal, Qualifier Declaration,Indications),"
     " (FunctionalProfileDescriptions=), (MultipleOperationsSupported=FALSE),"
@@ -78,15 +82,14 @@ const char *httpUrl1 = "service:wbemtest:http://127.0.0.1:5988";
 const char *httpAttrs2 ="(template-url-syntax=service:wbemtest:https://127.0.0"
     ".1:5989),(service-hi-name=Pegasus),(service-hi-description=Pegasus CIM "
     "Server Version 2.6.0 Development),"
-    "(service-id=PG:1161621217468-127-0-0-1),(Namespace=interop,root/"
+    "(service-id=PG:1161621217468-127-0-0-1),(Namespace=root/PG_InterOp,root/"
     "benchmark,root/SampleProvider,root/PG_Internal,root/test/A,root/test/B,"
     "test/EmbeddedInstance/Static,test/TestProvider,test/EmbeddedInstance/"
     "Dynamic,root/cimv2,root,test/cimv2,test/static),(Classinfo=Unknown,"
     "Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,"
     "Unknown,Unknown,Unknown),(CommunicationMechanism=CIM-XML),"
-    "(OtherCommunicationMechanismDescription=),"
-    "(InteropSchemaNamespace=interop),"
-    "(ProtocolVersion=1.0), (FunctionalProfilesSupported=Basic "
+    "(OtherCommunicationMechanismDescription=),(InteropSchemaNamespace=root/"
+    "PG_InterOp),(ProtocolVersion=1.0), (FunctionalProfilesSupported=Basic "
     "Read,Basic Write,Schema Manipulation,Instance Manipulation,Association "
     "Traversal,Qualifier Declaration,Indications),"
     "(FunctionalProfileDescriptions=),(MultipleOperationsSupported=FALSE),"
@@ -95,7 +98,7 @@ const char *httpAttrs2 ="(template-url-syntax=service:wbemtest:https://127.0.0"
 
 const char *httpUrl2 = "service:wbemtest:https://127.0.0.1:5989";
 
-int find (char *str, const char *t)
+int find (char *str,char *t)
 {
 
     int len = strlen(str);
@@ -140,7 +143,7 @@ int find (char *str, const char *t)
     return(-1);
 }
 
-char* replace (char *s, const char *t, const char *substitute)
+char* replace (char *s,char *t, char *substitute)
 {
     if (s == NULL)
     {
@@ -185,7 +188,7 @@ BOOL parseFind(lslpMsg *responses,  const char* httpAttr)
                     lslpAtomList *attrs = url_list->attrs->next;
                     //while traversing attr list
                     while (! _LSLP_IS_HEAD (attrs) && attrs->str
-                        && strlen (attrs->str) && !found)
+                        && strlen (attrs->str) && !found) 
                     {
                         if (!String::compare (attrs->str,httpAttr))
                         {
@@ -201,18 +204,63 @@ BOOL parseFind(lslpMsg *responses,  const char* httpAttr)
             if (found)
             {
                 break;
-            }
+            } 
         } // if there are urls to print
         if (temp->next == responses)
         {
             break;
-        }
+        }  
         temp = temp->next;
     }
 
     return found;
 }
 
+// To execute the below test, CIMServer should be running.
+// All other test in this file are independent of CIMServer running status.
+// Testcase for testing registration made in the CIMServer.cpp
+// This testcase would fail if not executed prior to expiration of
+// registration time ( i.e. 60 * PEGASUS_SLP_REG_TIME_OUT seconds)
+#ifdef PEGASUS_SLP_REG_TIMEOUT
+void testSLPReg_fromCIMServer ()
+{
+    struct slp_client *client;
+    lslpMsg responses,*temp;
+    SLPAttrib SLPHttpAttribObj;
+    char *httpAttrs  = (char *)NULL;
+
+    //Create slp client
+    client = create_slp_client (addr,iface,SLP_PORT,"DSA",
+        scopes,FALSE,FALSE, 0);
+    PEGASUS_TEST_ASSERT(NULL != client);
+
+    // discover all responses
+    client->converge_srv_req(client, type1, predicate, scopes);
+    responses.isHead = TRUE;
+    responses.next = responses.prev = &responses;
+
+    // retrieve the response head.
+    PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
+    temp = &responses;
+
+    // Get all the SLP attributes and data for the Pegasus cimserver.
+    SLPHttpAttribObj.fillData("http");
+    SLPHttpAttribObj.formAttributes();
+
+    // Populate datastructures required for registering  a service with
+    // External SLP SA (i.e IBM SLP SA)
+    httpAttrs = strdup(SLPHttpAttribObj.getAttributes().getCString());
+
+    // parse the response list and check for the required response.
+    // This test case would fail if there a difference between the registered
+    // data and data retrieved from the SLP SA.
+    PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs));
+
+    free(httpAttrs);
+    destroy_slp_client(client);
+    return;
+}
+#endif
 /* Registration and verification for http
    This testcase register cimserver with http port and  checks if the
    registration is succesful or not. If the registration fails tests are
@@ -415,6 +463,7 @@ void test5()
 {
     struct slp_client *client;
     lslpMsg responses,*temp;
+    char *changedata = (char *)NULL;
 
     // Creates slp client
     client = create_slp_client (addr,iface,SLP_PORT,"DSA",
@@ -648,6 +697,20 @@ void test9 ()
 int main()
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
+#ifdef PEGASUS_SLP_REG_TIMEOUT
+    if (verbose)
+    {
+        PEGASUS_STD(cout)<<"+++++ start of SLP tests +++"<<PEGASUS_STD(endl);
+    }
+
+    testSLPReg_fromCIMServer ();
+
+    if (verbose)
+    {
+        PEGASUS_STD(cout)<<"+++++ Testcase for testing SLP Reg from "
+            <<"CIMServer is passed. +++" <<PEGASUS_STD(endl);
+    }
+#endif
     test1();
     test2();
     test3();

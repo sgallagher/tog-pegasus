@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,16 +36,14 @@
 #define Pegasus_slp_agent_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/General/DynamicLibrary.h>
+#include <Pegasus/Common/DynamicLibrary.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Logger.h>
-#include <Pegasus/Common/Semaphore.h>
 #include "Linkage.h"
 #include "../slp_client/src/cmd-utils/slp_client/slp_client.h"
-#include "../slp_client/src/cmd-utils/slp_client/slp_utils.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -138,15 +138,7 @@ public:
     static ThreadReturnType PEGASUS_THREAD_CDECL service_listener(void *);
 
     void start_listener();
-    void unregister(Boolean stopListener = true);
-
-    void set_registration_callback(void (*ptr)());
-
-#ifdef PEGASUS_SLP_REG_TIMEOUT
-    Semaphore& get_update_reg_semaphore();
-#else
-    void update_reg_count();
-#endif
+    void unregister();
 
 private:
 
@@ -178,10 +170,6 @@ private:
         char *,
         char *);
 
-    void (*update_registrations)();
-
-    uint16 _getSLPPort();
-
     DynamicLibrary _library;
 
     void _init();
@@ -191,16 +179,9 @@ private:
     AtomicInt _initialized;
     AtomicInt _using_das;
     slp_reg_table _internal_regs;
-
-#ifdef PEGASUS_SLP_REG_TIMEOUT
-    Semaphore _update_reg_semaphore;
-#else
-    AtomicInt _update_reg_count;
-#endif
-   static const char* slp_lang;
 };
 
 PEGASUS_NAMESPACE_END
 
 #endif // Pegasus_slp_agent_h
-
+    

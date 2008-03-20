@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//=============================================================================
 /*****************************************************************************
  *  Description:
  *
@@ -754,7 +756,7 @@ extern "C"
             const char *,
             BOOL);
 
-        void (*decode_attr_rply)( struct slp_client * );
+        void (*decode_attr_rply)( struct slp_client *, SOCKADDR * );
         /** <<< Sat Jul 24 15:10:07 2004 mdd >>>  end **/
 
         BOOL (*srv_reg)(
@@ -799,13 +801,13 @@ extern "C"
 
         void (*decode_srvreq)(struct slp_client *, SOCKADDR *);
 
-        void (*decode_srvrply)(struct slp_client *);
+        void (*decode_srvrply)(struct slp_client *, SOCKADDR *);
 
         void (*decode_daadvert)( struct slp_client *, SOCKADDR *);
 
         void (*decode_attrreq)(struct slp_client *, SOCKADDR *);
 
-        BOOL (*send_rcv_udp)(struct slp_client *) ;
+        BOOL (*send_rcv_udp)(struct slp_client *, BOOL) ;
 
         int32 (*service_listener_wait)(
             struct slp_client *,
@@ -827,6 +829,17 @@ extern "C"
     void free_da_list_members(struct da_list *da);
     void free_da_list_node(struct da_list *da);
 
+#if defined(PEGASUS_OS_TYPE_WINDOWS) || \
+    defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(_NUCLEUS)
+    int gethostbyname_r(
+        const char *name,
+        struct hostent *resultbuf,
+        char *buf,
+        size_t bufsize,
+        struct hostent **result,
+        int *errnop);
+#endif
+
     void slp_get_local_interfaces(struct slp_client *client);
     BOOL slp_join_multicast(SOCKETD sock, struct slp_if_addr addr) ;
     int slp_join_multicast_all(SOCKETD sock, int af);
@@ -843,12 +856,6 @@ extern "C"
         const char *service_type,
         const char *scopes,
         const char *predicate);
-    /*
-     * Get the responses hold by the client. This also changes the head of
-     * list to head from the client->replies
-     * @param client slp_client for which we will get the responses
-     * @param head store/exchange the head of the list for the replies to head
-     */
     lslpMsg *get_response(struct slp_client *client , lslpMsg *head);
 
     void converge_srv_req(
@@ -911,7 +918,7 @@ extern "C"
     void decode_srvreg(struct slp_client *client, SOCKADDR *remote);
 
     void decode_msg(struct slp_client *client, SOCKADDR *remote);
-    void decode_srvrply( struct slp_client *client);
+    void decode_srvrply( struct slp_client *client, SOCKADDR *remote);
     void decode_attrreq(struct slp_client *client, SOCKADDR *remote);
     void decode_daadvert(struct slp_client *client, SOCKADDR *remote);
     void decode_srvreq(struct slp_client *client, SOCKADDR *remote);
@@ -924,7 +931,7 @@ extern "C"
         const char *scopes,
         int16 lifetime) ;
 
-    BOOL send_rcv_udp(struct slp_client *client);
+    BOOL send_rcv_udp(struct slp_client *client , BOOL retry);
 
     int32 __service_listener(
         struct slp_client *client,
@@ -1129,7 +1136,7 @@ extern "C"
     SLP_STORAGE_DECL char *encode_opaque(void *buffer, int16 length);
     SLP_STORAGE_DECL void *decode_opaque(char *buffer);
     SLP_STORAGE_DECL lslpMsg *alloc_slp_msg(BOOL head);
-    SLP_STORAGE_DECL void lslpDestroySLPMsg(lslpMsg *msg);
+    SLP_STORAGE_DECL void lslpDestroySLPMsg(lslpMsg *msg, char flag);
     SLP_STORAGE_DECL void lslp_print_srv_rply(lslpMsg *srvrply);
     SLP_STORAGE_DECL void lslp_print_srv_rply_parse(
         lslpMsg *srvrply,

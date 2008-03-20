@@ -1,33 +1,35 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//=============================================================================
 
-// NOCHKSRC 
+//NOCHKSRC
 
 /* A Bison parser, made by GNU Bison 2.3.  */
 
@@ -129,7 +131,7 @@
 
 
 /* Copy the first part of user declarations.  */
-#line 63 "attr.y"
+#line 68 "attr.y"
 
 #include "slp_client.h"
 void attrerror(const char *, ...);
@@ -137,22 +139,22 @@ int32 attrwrap(void);
 int32 attrlex(void);
 int32 attrparse(void);
 BOOL bt = TRUE, bf = FALSE;
-void attr_close_lexer(size_t handle);
+void attr_close_lexer(uint32 handle);
 size_t attr_init_lexer(const char *s);
 
 lslpAttrList attrHead =
 {
-	&attrHead, &attrHead, TRUE, 0, 0, 0, 0, 0, {0}
+	&attrHead, &attrHead, TRUE, 0, 0, 0, 0, 0, 0
 };
 
 lslpAttrList inProcessAttr =
 {
-	&inProcessAttr, &inProcessAttr, TRUE, 0, 0, 0, 0, 0, {0}
+	&inProcessAttr, &inProcessAttr, TRUE, 0, 0, 0, 0, 0, 0
 };
 
 lslpAttrList inProcessTag =
 {
-	&inProcessTag, &inProcessTag, TRUE, 0, 0, 0, 0, 0, {0}
+	&inProcessTag, &inProcessTag, TRUE, 0, 0, 0, 0, 0, 0
 };
 
 
@@ -178,13 +180,13 @@ lslpAttrList inProcessTag =
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 94 "attr.y"
+#line 99 "attr.y"
 {
 	int32 _i;
 	char *_s;
 	lslpAttrList *_atl;
 }
-/* Line 187 of yacc.c.  */
+/* Line 193 of yacc.c.  */
 #line 158 "y_attr.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -485,8 +487,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   110,   110,   120,   132,   139,   146,   154,   166,   173,
-     180,   183,   186,   189,   203
+       0,   115,   115,   125,   137,   144,   151,   159,   171,   178,
+     185,   188,   191,   194,   208
 };
 #endif
 
@@ -1397,7 +1399,7 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 110 "attr.y"
+#line 115 "attr.y"
     {
 			while (! _LSLP_IS_HEAD(inProcessAttr.next))
 			{
@@ -1411,7 +1413,7 @@ yyreduce:
     break;
 
   case 3:
-#line 120 "attr.y"
+#line 125 "attr.y"
     {
 		/* both of these non-terminals are really lists */
 		/* ignore the first non-terminal */
@@ -1425,7 +1427,7 @@ yyreduce:
     break;
 
   case 4:
-#line 132 "attr.y"
+#line 137 "attr.y"
     {
 			(yyval._atl) =  lslpAllocAttr((yyvsp[(1) - (1)]._s), tag, NULL, 0);
 			if (NULL != (yyval._atl))
@@ -1436,7 +1438,7 @@ yyreduce:
     break;
 
   case 5:
-#line 139 "attr.y"
+#line 144 "attr.y"
     {
 			(yyval._atl) =  lslpAllocAttr((yyvsp[(2) - (3)]._s), tag, NULL, 0);
 			if (NULL != (yyval._atl))
@@ -1447,7 +1449,7 @@ yyreduce:
     break;
 
   case 6:
-#line 146 "attr.y"
+#line 151 "attr.y"
     {
   			(yyval._atl) =  lslpAllocAttr((yyvsp[(2) - (4)]._s), tag, NULL, 0);
 			if (NULL != (yyval._atl))
@@ -1458,7 +1460,7 @@ yyreduce:
     break;
 
   case 7:
-#line 154 "attr.y"
+#line 159 "attr.y"
     {
 			(yyval._atl) = inProcessTag.next;
 			while (! _LSLP_IS_HEAD((yyval._atl)))
@@ -1472,7 +1474,7 @@ yyreduce:
     break;
 
   case 8:
-#line 166 "attr.y"
+#line 171 "attr.y"
     {
 
 			if(NULL != (yyvsp[(1) - (1)]._atl))
@@ -1483,7 +1485,7 @@ yyreduce:
     break;
 
   case 9:
-#line 173 "attr.y"
+#line 178 "attr.y"
     {
 			if (NULL != (yyvsp[(3) - (3)]._atl))
 			{
@@ -1493,28 +1495,28 @@ yyreduce:
     break;
 
   case 10:
-#line 180 "attr.y"
+#line 185 "attr.y"
     {
 			(yyval._atl) = lslpAllocAttr(NULL, bool_type,  &bt, sizeof(BOOL));
 		;}
     break;
 
   case 11:
-#line 183 "attr.y"
+#line 188 "attr.y"
     {
 			(yyval._atl) = lslpAllocAttr(NULL, bool_type,  &bf, sizeof(BOOL));
 		;}
     break;
 
   case 12:
-#line 186 "attr.y"
+#line 191 "attr.y"
     {
 			(yyval._atl) = lslpAllocAttr(NULL, opaque, (yyvsp[(1) - (1)]._s), (int16)(strlen((yyvsp[(1) - (1)]._s)) + 1));
 		;}
     break;
 
   case 13:
-#line 189 "attr.y"
+#line 194 "attr.y"
     {
 	                     if(strlen((yyvsp[(1) - (1)]._s)) > 5 ) {
 				if( *((yyvsp[(1) - (1)]._s)) == '\\' && ((*((yyvsp[(1) - (1)]._s) + 1) == 'f') || (*((yyvsp[(1) - (1)]._s) + 1) == 'F')) &&  ((*((yyvsp[(1) - (1)]._s) + 2) == 'f') || (*((yyvsp[(1) - (1)]._s) + 2) == 'F'))) {
@@ -1531,7 +1533,7 @@ yyreduce:
     break;
 
   case 14:
-#line 203 "attr.y"
+#line 208 "attr.y"
     {
 			(yyval._atl) = lslpAllocAttr(NULL, integer, &((yyvsp[(1) - (1)]._i)), sizeof(int32));
 		;}
@@ -1753,7 +1755,7 @@ yyreturn:
 }
 
 
-#line 208 "attr.y"
+#line 213 "attr.y"
 
 
 void _lslpInitInternalAttrList(void)
@@ -1769,9 +1771,9 @@ void _lslpInitInternalAttrList(void)
 
 lslpAttrList *_lslpDecodeAttrString(char *s)
 {
-  size_t lexer = 0;
+  uint32 lexer = 0;
   lslpAttrList *temp = NULL;
-  PEGASUS_ASSERT(s != NULL);
+  assert(s != NULL);
   _lslpInitInternalAttrList();
   if (s != NULL) {
     if(NULL != (temp = lslpAllocAttrList()))  {
@@ -1835,11 +1837,8 @@ lslpAttrList *lslpAllocAttr(const char *name, char type, const void *val, int16 
 	  attr->attr_len = len;
 	  switch (type)	    {
 	    case string:
-	      if ( NULL == (attr->val.stringVal = strdup((const char *)val)))
-              {
-                  lslpFreeAttr(attr);
-                  return NULL;
-              }
+	      if ( NULL != (attr->val.stringVal = strdup((const char *)val)))
+		return(attr);
 	      break;
 	    case integer:
 	      attr->val.intVal = *(const uint32 *)val;
@@ -1848,15 +1847,11 @@ lslpAttrList *lslpAllocAttr(const char *name, char type, const void *val, int16 
 	      attr->val.boolVal = *(const BOOL *)val;
 	      break;
 	    case opaque:
-	      if ( NULL == (attr->val.opaqueVal = strdup((const char *)val)))
-              {
-                  lslpFreeAttr(attr);
-                  return NULL;
-              }
+	      if ( NULL != (attr->val.opaqueVal = strdup((const char *)val)))
+		return(attr);
 	      break;
 	    default:
-                  lslpFreeAttr(attr);
-                  return NULL;
+	      break;
 	    }
 	}
     }
@@ -1877,7 +1872,7 @@ lslpAttrList *lslpAllocAttrList(void)
 /* attr MUST be unlinked from its list ! */
 void lslpFreeAttr(lslpAttrList *attr)
 {
-  PEGASUS_ASSERT(attr != NULL);
+  assert(attr != NULL);
   if (attr->name != NULL)
     free(attr->name);
   if(attr->attr_string != NULL)
@@ -1893,8 +1888,8 @@ void lslpFreeAttrList(lslpAttrList *list, BOOL staticFlag)
 {
   lslpAttrList *temp;
 
-  PEGASUS_ASSERT(list != NULL);
-  PEGASUS_ASSERT(_LSLP_IS_HEAD(list));
+  assert(list != NULL);
+  assert(_LSLP_IS_HEAD(list));
   while(! (_LSLP_IS_EMPTY(list)))
     {
       temp = list->next;

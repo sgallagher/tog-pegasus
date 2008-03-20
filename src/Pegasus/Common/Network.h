@@ -76,6 +76,12 @@
 #   endif   
 #endif
 
+#ifdef PEGASUS_ENABLE_IPV6
+#    ifdef PEGASUS_HAS_GETIFADDRS
+#       include <ifaddrs.h>
+#    endif
+#endif
+
 //------------------------------------------------------------------------------
 //
 // PEGASUS_OS_TYPE_UNIX or PEGASUS_OS_VMS network system header files.
@@ -83,6 +89,7 @@
 //------------------------------------------------------------------------------
 
 #if defined(PEGASUS_OS_TYPE_UNIX) || defined (PEGASUS_OS_VMS)
+
 #   include <errno.h>
 #   include <sys/types.h>
 #   include <fcntl.h>
@@ -217,13 +224,11 @@ static inline int getSocketError()
 //
 //------------------------------------------------------------------------------
 
-#ifdef PEGASUS_ENABLE_IPV6
 #   ifdef PEGASUS_OS_TYPE_WINDOWS
 #      define PEGASUS_INVALID_ADDRESS_FAMILY WSAEAFNOSUPPORT
 #   else
 #      define PEGASUS_INVALID_ADDRESS_FAMILY EAFNOSUPPORT
 #   endif
-#endif
 
 //------------------------------------------------------------------------------
 //

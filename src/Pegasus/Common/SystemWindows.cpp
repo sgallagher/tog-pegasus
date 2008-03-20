@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -705,14 +705,14 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
     wchar_t wcGroupName[UNLEN+1];
 
     //Convert user name to unicode
-    if (!MultiByteToWideChar(CP_ACP,0,userName, -1, wcUserName, 
+    if (!MultiByteToWideChar(CP_ACP,0,userName, -1, wcUserName,
         strlen(userName)+1))
     {
         return false;
     }
-    
+
     //Convert group name to unicode
-    if (!MultiByteToWideChar(CP_ACP, 0, groupName, -1, wcGroupName, 
+    if (!MultiByteToWideChar(CP_ACP, 0, groupName, -1, wcGroupName,
         strlen(groupName)+1))
     {
         return false;
@@ -727,7 +727,7 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
     // groups in which the user is indirectly a member.
     //
     nStatus = NetUserGetLocalGroups(
-        NULL,   
+        NULL,
         (LPCWSTR)wcUserName,
         dwLevel,
         dwFlags,
@@ -798,7 +798,7 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
             (LPBYTE*)&pBuf,
             dwPrefMaxLen,
             &dwEntriesRead,
-            &dwTotalEntries);        
+            &dwTotalEntries);
 
         //
         // If the call succeeds,
@@ -934,6 +934,66 @@ void System::closelog()
     // Not implemented
 }
 
+#ifdef PEGASUS_ENABLE_IPV6
+void _getInterfaceAddrs(Array<String> &ips, int af)
+{
+    SOCKET sock;
+
+    if (INVALID_SOCKET != (sock = WSASocket(af, SOCK_RAW,
+        0, NULL, 0, 0)))
+    {
+        DWORD  bytesReturned;
+        char buf[2048];
+        int interfaces = 0;
+        char str[PEGASUS_INET6_ADDRSTR_LEN];
+        void *p;
+        if (0 == WSAIoctl(sock, SIO_ADDRESS_LIST_QUERY, NULL, 0,
+            buf, 2048, &bytesReturned, NULL,
+            NULL))
+        {
+
+            SOCKET_ADDRESS_LIST *addr_list;
+            SOCKET_ADDRESS *addr;
+            struct sockaddr *sin;
+            addr_list = (SOCKET_ADDRESS_LIST *)buf;
+            addr = addr_list->Address;
+            for (sin = (struct sockaddr *) addr->lpSockaddr ;
+                interfaces < addr_list->iAddressCount;
+                interfaces++)
+            {
+                if (af == AF_INET)
+                {
+                    p = &((struct sockaddr_in*)sin)->sin_addr;
+                }
+                else
+                {
+                    p = &((struct sockaddr_in6*)sin)->sin6_addr;
+                }
+                // Don't gather loopback addrs
+                if (!System::isLoopBack(af, p))
+                {
+                    HostAddress::convertBinaryToText(af, p, str, sizeof(str));
+                    ips.append(str);
+                }
+                addr++;
+                sin = (struct sockaddr*)addr->lpSockaddr;
+            }
+        }
+    }
+}
+#endif
+
+Array<String> System::getInterfaceAddrs()
+{
+    Array<String> ips;
+
+#ifdef PEGASUS_ENABLE_IPV6
+    _getInterfaceAddrs(ips, AF_INET);
+    _getInterfaceAddrs(ips, AF_INET6);
+#endif
+
+    return ips;
+}
 
 
 // System ID constants for Logger::put and Logger::trace

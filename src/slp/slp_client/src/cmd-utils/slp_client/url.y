@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 /* NOCHKSRC */
 /*****************************************************************************
  *  Description: encode/decode attribute urls
@@ -34,20 +36,22 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  Copyright (c) 2001 - 2003  IBM
- *  Copyright (c) 2000 - 2003 Michael Day
- *
- *  Permission is hereby granted, free of charge, to any person obtaining a
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/url.y,v 1.4.12.1 2008/03/20 06:16:44 s.kodali Exp $ 	                                                            
+ *               					                    
+ *  Copyright (c) 2001 - 2003  IBM                                          
+ *  Copyright (c) 2000 - 2003 Michael Day                                    
+ *                                                                           
+ *  Permission is hereby granted, free of charge, to any person obtaining a  
  *  copy of this software and associated documentation files (the "Software"),
- *  to deal in the Software without restriction, including without limitation
- *  the rights to use, copy, modify, merge, publish, distribute, sublicense,
- *  and/or sell copies of the Software, and to permit persons to whom the
- *  Software is furnished to do so, subject to the following conditions:
- *
- *  The above copyright notice and this permission notice shall be included in
+ *  to deal in the Software without restriction, including without limitation 
+ *  the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+ *  and/or sell copies of the Software, and to permit persons to whom the     
+ *  Software is furnished to do so, subject to the following conditions:       
+ * 
+ *  The above copyright notice and this permission notice shall be included in 
  *  all copies or substantial portions of the Software.
- *
- *
+ * 
+ * 
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -67,11 +71,11 @@
 
 
 /* prototypes and globals go here */
-void urlerror(const char *, ...);
+void urlerror(char *, ...);
 int32 urlwrap(void);
-int32 urllex(void);
+int32 urllex(void);   
 int32 urlparse(void);
-void url_close_lexer(size_t handle);
+void url_close_lexer(uint32 handle);
 size_t url_init_lexer(const char *s);
 
 
@@ -80,7 +84,7 @@ static lslpAtomList siteHead = {&siteHead, &siteHead, TRUE, NULL, 0};
 static lslpAtomList pathHead = {&pathHead, &pathHead, TRUE, NULL, 0};
 static lslpAtomList attrHead = {&attrHead, &attrHead, TRUE, NULL, 0};
 
-lslpAtomizedURL urlHead =
+lslpAtomizedURL urlHead = 
 {
     &urlHead,
     &urlHead,
@@ -96,7 +100,7 @@ lslpAtomizedURL urlHead =
 %}
 
 /* definitions for ytab.h */
-%name-prefix="url"
+%name-prefix="url"  
 
 %union {
 	int32 _i;
@@ -326,7 +330,7 @@ site:  ip_site {
 		}
 
 |       service_id {
-
+  
 			if ($1 != NULL)
 			{
 				if(NULL != ($$ = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
@@ -338,7 +342,7 @@ site:  ip_site {
 			}
 			else
 				$$ = NULL;
-
+  
 }
 
 	;
@@ -556,7 +560,7 @@ attr_el: ';' _ELEMENT  {
 		}
 	;
 
-%%
+%% 
 
 
 lslpAtomList *lslpAllocAtom(void)
@@ -571,7 +575,7 @@ lslpAtomList *lslpAllocAtom(void)
 
 lslpAtomList *lslpAllocAtomList(void)
 {
-	lslpAtomList *temp =lslpAllocAtom();
+	lslpAtomList *temp =lslpAllocAtom(); 
 	if (temp != NULL)
 		temp->isHead = TRUE;
 	return(temp);
@@ -579,7 +583,7 @@ lslpAtomList *lslpAllocAtomList(void)
 
 void lslpFreeAtom(lslpAtomList *a )
 {
-	PEGASUS_ASSERT(a != NULL);
+	assert(a != NULL);
 	if (a->str != NULL)
 		free(a->str);
 	free(a);
@@ -589,13 +593,13 @@ void lslpFreeAtom(lslpAtomList *a )
 void lslpFreeAtomList(lslpAtomList *l, int32 flag)
 {
 	lslpAtomList *temp;
-	PEGASUS_ASSERT(l != NULL);
-	PEGASUS_ASSERT(_LSLP_IS_HEAD(l));
+	assert(l != NULL);
+	assert(_LSLP_IS_HEAD(l));
 	while (! _LSLP_IS_EMPTY(l))
 	{
 		temp = l->next;
 		temp->prev->next = temp->next;
-		temp->next->prev = temp->prev;
+		temp->next->prev = temp->prev; 
 		lslpFreeAtom(temp);
 	}
 	if (flag)
@@ -625,7 +629,7 @@ lslpAtomizedURL *lslpAllocAtomizedURLList(void)
 
 void lslpFreeAtomizedURL(lslpAtomizedURL *u)
 {
-	PEGASUS_ASSERT(u != NULL);
+	assert(u != NULL);
 	if (u->url != NULL)
 		free(u->url);
 	if (! _LSLP_IS_EMPTY(&(u->srvcs)))
@@ -643,8 +647,8 @@ void lslpFreeAtomizedURL(lslpAtomizedURL *u)
 void lslpFreeAtomizedURLList(lslpAtomizedURL *l, int32 flag)
 {
 	lslpAtomizedURL *temp;
-	PEGASUS_ASSERT(l != NULL);
-	PEGASUS_ASSERT(_LSLP_IS_HEAD(l));
+	assert(l != NULL);
+	assert(_LSLP_IS_HEAD(l));
 	while (! (_LSLP_IS_HEAD(l->next)))
 	{
 		temp = l->next;
@@ -676,7 +680,7 @@ void lslpInitURLList(void)
 
 void lslpCleanUpURLLists(void)
 {
-
+  
   lslpFreeAtomList(&srvcHead, 0);
   lslpFreeAtomList(&siteHead, 0);
   lslpFreeAtomList(&pathHead, 0);
@@ -687,13 +691,13 @@ void lslpCleanUpURLLists(void)
 lslpAtomizedURL *_lslpDecodeURLs(char *u[], int32 count)
 {
   int32 i;
-
-  size_t lexer = 0;
+  
+  uint32 lexer = 0;
   lslpAtomizedURL *temp = NULL;
-  PEGASUS_ASSERT(u != NULL && u[count - 1] != NULL);
+  assert(u != NULL && u[count - 1] != NULL);
   lslpInitURLList();
   lslpInitAtomLists();
-
+  
   for (i = 0; i < count; i++) {
     if (NULL == u[i])
       break;
@@ -708,7 +712,7 @@ lslpAtomizedURL *_lslpDecodeURLs(char *u[], int32 count)
       _LSLP_LINK_HEAD(temp, &urlHead);
     }
   }
-
+  
   return(temp);	
-}	
+}	 
 

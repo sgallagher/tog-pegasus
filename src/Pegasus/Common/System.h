@@ -36,6 +36,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Network.h>
@@ -231,6 +232,12 @@ public:
 #ifdef PEGASUS_ENABLE_IPV6
     static Boolean isIPv6StackActive();
 #endif
+
+    /**
+        Returns all interface addresses. Both ip4 and ip6 interface addresses
+        will be returned.
+    */
+    static Array<String> getInterfaceAddrs();
 
     static Uint32 lookupPort(
         const char * serviceName,

@@ -33,6 +33,7 @@
 
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/ReadWriteSem.h>
+#include <Pegasus/Common/Condition.h>
 #include <sys/types.h>
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 #else
@@ -59,7 +60,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL writing_thread(void *parm);
 ThreadReturnType PEGASUS_THREAD_CDECL test1_thread( void* parm );
 ThreadReturnType PEGASUS_THREAD_CDECL test2_thread( void* parm );
 //ThreadReturnType PEGASUS_THREAD_CDECL test3_thread( void* parm );
-ThreadReturnType PEGASUS_THREAD_CDECL test4_thread( void* parm );
+ThreadReturnType PEGASUS_THREAD_CDECL testdeadlock_thread( void* parm );
 
 #define  THREAD_NR 500
 AtomicInt read_count ;
@@ -71,6 +72,37 @@ struct TestThreadData
 {
     char chars[2];
 };
+
+static Mutex deadLockSemaphore(Mutex::NON_RECURSIVE);
+static Condition deadLockCondition;
+
+void testCancelDeadLockedThread(const char * commandName)
+{
+    // Test deadlocked thread handling
+    Thread t(testdeadlock_thread, 0, false);
+    t.run();
+    // give the deadlock thread time to actually lock and wait for condition
+    // signal
+    Threads::sleep(1000);
+    // cancel the deadlocked thread
+    t.cancel();
+    if (verbose)
+    {
+        cout << commandName
+             << " - If this hangs here, there is a thread deadlock"
+                   " handling bug..."
+             << endl;
+    }
+    // Wait for deadlocked thread to end
+    t.join();
+    deadLockSemaphore.unlock();
+    // Shouldn't hang forever
+    if (verbose)
+    {
+        cout << commandName << " - Deadlock test finished." << endl;
+    }
+}
+
 
 int main(int argc, char **argv)
 {
@@ -127,73 +159,48 @@ int main(int argc, char **argv)
     //Threads::sleep( 10000 );
     }
 
-    // NOTE: see test3_thread() comments
-    //{
-    //// Test proper canceling/thread exit
-    //testval1 = 0;
-    //Thread t( test3_thread, 0, false );
-    //t.run();
-    //t.cancel();
-    //t.join();
-    //if( testval1.get() != 42 )
-    //{
-    //  cerr << "Thread probably incorrectly terminated!" << endl;
-    //  return 1;
-    //}
-    //}
+    // Check for a thread deadlock handling Bug
+    testCancelDeadLockedThread(argv[0]);
 
-// Note: A glibc problem on some versions of Linux makes Thread::cancel unsafe
-#if !defined(PEGASUS_OS_LINUX)
+    ReadWriteSem *rw = new ReadWriteSem();
+    Thread *readers[40];
+    Thread *writers[10];
+    
+    for(i = 0; i < 40; i++)
     {
-        // Test deadlocked thread handling
-        Thread t( test4_thread, 0, false );
-        t.run();
-        t.cancel();
-        if (verbose) cout << argv[0] << 
-            " - If this hangs here, there is a thread deadlock handling bug..."
-            << endl;
-        t.join();
-        // Shouldn't hang forever
-        if (verbose) cout << argv[0] << " - Deadlock test finished." << endl;
+       readers[i] = new Thread(reading_thread, rw, false);
+       readers[i]->run();
     }
-#endif
-
-   ReadWriteSem *rw = new ReadWriteSem();
-   Thread *readers[40];
-   Thread *writers[10];
+    
+    for( i = 0; i < 10; i++)
+    {
+       writers[i] = new Thread(writing_thread, rw, false);
+       writers[i]->run();
+    }
+    Threads::sleep(20000); 
+    die = true;
    
-   for(i = 0; i < 40; i++)
-   {
-      readers[i] = new Thread(reading_thread, rw, false);
-      readers[i]->run();
-   }
-   
-   for( i = 0; i < 10; i++)
-   {
-      writers[i] = new Thread(writing_thread, rw, false);
-      writers[i]->run();
-   }
-   Threads::sleep(20000); 
-   die = true;
-  
-   for(i = 0; i < 40; i++)
-   {
-     readers[i]->join();
-      delete readers[i];
-   }
-
-   for(i = 0; i < 10; i++)
-   {
-      writers[i]->join();
-      delete writers[i];
-   }
-
-   delete rw;
-   if (verbose) cout << endl << "read operations: " << read_count.get() << endl;
-   if (verbose) cout << "write operations: " << write_count.get() << endl;
-   
-   cout << argv[0] << " +++++ passed all tests" << endl;
-   return(0);
+    for(i = 0; i < 40; i++)
+    {
+      readers[i]->join();
+       delete readers[i];
+    }
+ 
+    for(i = 0; i < 10; i++)
+    {
+       writers[i]->join();
+       delete writers[i];
+    }
+ 
+    delete rw;
+    if (verbose)
+    {
+        cout << endl << "read operations: " << read_count.get() << endl;
+        cout << "write operations: " << write_count.get() << endl;
+    }
+    
+    cout << argv[0] << " +++++ passed all tests" << endl;
+    return(0);
 }
 
 
@@ -423,41 +430,18 @@ void test3_thread_cleanup1(void*)
     testval1 = 42;
 }
 
-// NOTE: I don't think Thread::cleanup_push (and pop) will work
-// with pthreads because the implicit cancelation point or the 
-// test_cancel() call (which calls pthread_cancel()) will exit the
-// thread without performing the Thread cleanup routines.
-//ThreadReturnType PEGASUS_THREAD_CDECL test3_thread( void* parm )
-//{
-//  Thread* thread = (Thread*)parm;
-//  while( true )
-//  {
-//      testval1 = 0;
-//      thread->cleanup_push( test3_thread_cleanup1, 0 );
-//      Threads::sleep( 2000 );
-//      thread->test_cancel();
-//      thread->cleanup_pop( false );
-//  }
-//  return ThreadReturnType(42);
-//}
 
-ThreadReturnType PEGASUS_THREAD_CDECL test4_thread( void* parm )
-{
-    Thread* thread = (Thread*)parm;
-
-    // Simulate a deadlocked thread
-    while (alwaysTrue)
-    {
-#if defined(PEGASUS_OS_DARWIN) || defined(PEGASUS_OS_VMS) || \
-    defined(PEGASUS_OS_PASE)
-       // 
-       // sleep is NOT a thread cancellation point
-       //  for DARWIN, VMS and i5/PASE.
-       // 
-       pthread_testcancel();
-#endif
-       Threads::sleep( 2000 );
-    }
-
+// The following thread try to get the lock on an already reserved semaphore
+// means the thread will just deadlock and wait
+ThreadReturnType PEGASUS_THREAD_CDECL testdeadlock_thread( void* parm )
+{   
+    // Lock the semaphore the deadlocked thread will wait for
+    if (verbose) cout << "DeadLock Thread going to lock Semaphore" << endl;
+    deadLockSemaphore.lock();
+    if (verbose) cout << "DeadLock Thread waiting for Condition" << endl;
+    deadLockCondition.wait(deadLockSemaphore);
+    if (verbose) cout << "DeadLock Thread got Semaphore free signal" << endl;
+    if (verbose) cout << "This should not ever happen..." << endl;
+    abort();
     return ThreadReturnType(52);
 }

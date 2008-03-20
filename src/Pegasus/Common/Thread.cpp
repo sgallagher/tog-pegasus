@@ -64,6 +64,10 @@ extern "C" void *_start_wrapper(void *arg_)
     arg.arg = ((StartWrapperArg *) arg_)->arg;
     delete (StartWrapperArg *) arg_;
 
+    // establish cancelability of the thread
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
+
     void *return_value = (*arg.start) (arg.arg);
 
     return return_value;
@@ -71,22 +75,7 @@ extern "C" void *_start_wrapper(void *arg_)
 
 void Thread::cancel()
 {
-    _cancelled = true;
     pthread_cancel(_handle.thid.thread);
-}
-
-void Thread::test_cancel()
-{
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-    pthread_testintr();
-#else
-    pthread_testcancel();
-#endif
-}
-
-Boolean Thread::is_cancelled()
-{
-    return _cancelled;
 }
 
 void Thread::thread_switch()
@@ -97,21 +86,6 @@ void Thread::thread_switch()
     sched_yield();
 #endif
 }
-
-/*
-ATTN: why are these missing on other platforms?
-*/
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-void Thread::suspend()
-{
-    pthread_kill(_handle.thid.thread, SIGSTOP);
-}
-
-void Thread::resume()
-{
-    pthread_kill(_handle.thid.thread, SIGCONT);
-}
-#endif
 
 void Thread::sleep(Uint32 msec)
 {
@@ -124,18 +98,6 @@ void Thread::join()
         pthread_join(_handle.thid.thread, &_exit_code);
 
     Threads::clear(_handle.thid);
-}
-
-void Thread::thread_init()
-{
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-    pthread_setintr(PTHREAD_INTR_ENABLE);
-    pthread_setintrtype(PTHREAD_INTR_ASYNCHRONOUS);
-#else
-    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
-#endif
-    _cancel_enabled = true;
 }
 
 void Thread::detach()
@@ -186,8 +148,6 @@ Thread::Thread(
     void* parameter,
     Boolean detached)
     : _is_detached(detached),
-      _cancel_enabled(true),
-      _cancelled(false),
       _start(start),
       _cleanup(),
       _tsd(),
@@ -252,19 +212,6 @@ void Thread::cancel()
     _cancelled = true;
 }
 
-void Thread::test_cancel()
-{
-    if (_cancel_enabled && _cancelled)
-    {
-        exit_self(0);
-    }
-}
-
-Boolean Thread::is_cancelled()
-{
-    return _cancelled;
-}
-
 void Thread::thread_switch()
 {
     Sleep(0);
@@ -309,11 +256,6 @@ void Thread::join()
     }
 }
 
-void Thread::thread_init()
-{
-    _cancel_enabled = true;
-}
-
 void Thread::detach()
 {
     _is_detached = true;
@@ -322,7 +264,6 @@ void Thread::detach()
 Thread::Thread(ThreadReturnType(PEGASUS_THREAD_CDECL * start) (void *),
                void *parameter,
                Boolean detached):_is_detached(detached),
-_cancel_enabled(true),
 _cancelled(false),
 _start(start), _cleanup(), _tsd(), _thread_parm(parameter), _exit_code(0)
 {

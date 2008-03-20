@@ -265,11 +265,6 @@ public:
     // when it should die.
     void cancel();
 
-    // cancel if there is a pending cancellation request
-    void test_cancel();
-
-    Boolean is_cancelled();
-
     // for user-level threads - put the calling thread
     // to sleep and jump to the thread scheduler.
     // platforms with preemptive scheduling and native threads
@@ -280,19 +275,10 @@ public:
 
     void thread_switch();
 
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-    // suspend this thread
-    void suspend();
-
-    // resume this thread
-    void resume();
-#endif
-
     static void sleep(Uint32 msec);
 
     // block the calling thread until this thread terminates
     void join();
-    void thread_init();
 
     // thread routine needs to call this function when
     // it is ready to exit
@@ -448,7 +434,6 @@ private:
 
     ThreadHandle _handle;
     Boolean _is_detached;
-    Boolean _cancel_enabled;
     Boolean _cancelled;
 
     // always pass this * as the void * parameter to the thread

@@ -29,7 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Dave Sudlik, IBM (dsudlik@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 //
@@ -58,8 +57,10 @@ PEGASUS_USING_STD;
 
 
 // Interop namespace used with PEGASUS_NAMESPACENAME_INTEROP in Constants.h
-const CIMNamespaceName SOURCE_NAMESPACE = CIMNamespaceName ("root/SampleProvider");
-const CIMName SAMPLE_CLASSNAME  = CIMName ("Sample_LifecycleIndicationProviderClass");
+const CIMNamespaceName SOURCE_NAMESPACE = 
+    CIMNamespaceName ("root/SampleProvider");
+const CIMName SAMPLE_CLASSNAME  = 
+    CIMName ("Sample_LifecycleIndicationProviderClass");
 
 void _renameLogFile()
 {
@@ -92,14 +93,18 @@ void _createInstance(CIMClient & client)
     Uint32 _uniqueId;
     try
     {
-        objectNames = client.enumerateInstanceNames(SOURCE_NAMESPACE, SAMPLE_CLASSNAME);
+        objectNames = client.enumerateInstanceNames(
+                        SOURCE_NAMESPACE, SAMPLE_CLASSNAME);
 
         _uniqueId = objectNames.size() + 1;
 
         CIMInstance cimInstance(SAMPLE_CLASSNAME);
-        cimInstance.addProperty(CIMProperty(CIMName ("uniqueId"), Uint32(_uniqueId)));
-        cimInstance.addProperty(CIMProperty(CIMName ("lastOp"), String("createInstance")));
-        CIMObjectPath createdinstanceName = client.createInstance(SOURCE_NAMESPACE, cimInstance);
+        cimInstance.addProperty(
+            CIMProperty(CIMName ("uniqueId"), Uint32(_uniqueId)));
+        cimInstance.addProperty(
+                CIMProperty(CIMName ("lastOp"), String("createInstance")));
+        CIMObjectPath createdinstanceName = 
+            client.createInstance(SOURCE_NAMESPACE, cimInstance);
     }
     catch (Exception & e)
     {
@@ -118,13 +123,15 @@ void _deleteInstance(CIMClient & client)
     Uint32 _uniqueId;
     try
     {
-        objectNames = client.enumerateInstanceNames(SOURCE_NAMESPACE, SAMPLE_CLASSNAME);
+        objectNames = client.enumerateInstanceNames(
+                        SOURCE_NAMESPACE, SAMPLE_CLASSNAME);
 
         _uniqueId = objectNames.size();
 
         if (_uniqueId == 0)
         {
-            PEGASUS_STD (cerr) << "No instances to delete." << PEGASUS_STD (endl);
+            PEGASUS_STD (cerr) << "No instances to delete." 
+                << PEGASUS_STD (endl);
             exit (-1);
         }
 
@@ -157,7 +164,8 @@ void _createHandlerInstance
     handlerInstance.addProperty (CIMProperty (CIMName ("Destination"),
         destination));
 
-    CIMObjectPath path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, handlerInstance);
+    CIMObjectPath path = client.createInstance (
+                            PEGASUS_NAMESPACENAME_INTEROP, handlerInstance);
 }
 
 void _createFilterInstance
@@ -180,7 +188,8 @@ void _createFilterInstance
     filterInstance.addProperty (CIMProperty (CIMName ("SourceNamespace"),
         SOURCE_NAMESPACE.getString ()));
 
-    CIMObjectPath path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, filterInstance);
+    CIMObjectPath path = client.createInstance (
+                            PEGASUS_NAMESPACENAME_INTEROP, filterInstance);
 }
 
 void _createSubscriptionInstance
@@ -281,7 +290,8 @@ void _usage ()
 {
     PEGASUS_STD (cerr)
         << "Usage:" << PEGASUS_STD (endl)
-        << "\tTestLifecycleIndication setup [ WQL | CIM:CQL ]" << PEGASUS_STD (endl)
+        << "\tTestLifecycleIndication setup [ WQL | CIM:CQL ]" 
+        << PEGASUS_STD (endl)
         << "\tTestLifecycleIndication createInstance" << PEGASUS_STD (endl)
         << "\tTestLifecycleIndication deleteInstance" << PEGASUS_STD (endl)
         << "\tTestLifecycleIndication cleanup" << PEGASUS_STD (endl);
@@ -292,56 +302,71 @@ void _setup (CIMClient & client, String& qlang)
     try
     {
         // The first filter is a subscription for the class
-        // InstCreation_for_Sample_LifecycleIndicationProviderClass, which is a subclass
+        // InstCreation_for_Sample_LifecycleIndicationProviderClass, 
+        // which is a subclass
         // of CIM_InstCreation. This filter also selects the properties:
         //    IndicationIdentifier, IndicationTime, SourceInstance
         _createFilterInstance (client,
                                String ("LIFilter01"),
-                               String ("SELECT IndicationIdentifier, IndicationTime, SourceInstance FROM InstCreation_for_Sample_LifecycleIndicationProviderClass"),
+                               String ("SELECT IndicationIdentifier, "
+                                   "IndicationTime, SourceInstance FROM "
+                                   "InstCreation_for_Sample_Lifecycle"
+                                   "IndicationProviderClass"),
                                qlang);
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "setup 1 failed: " << e.getMessage () << PEGASUS_STD (endl);
+        PEGASUS_STD (cerr) << "setup 1 failed: " << e.getMessage () 
+            << PEGASUS_STD (endl);
     }
 
     try
     {
         // The second filter is a subscription for the class
-        // InstDeletion_for_Sample_LifecycleIndicationProviderClass, which is a subclass
+        // InstDeletion_for_Sample_LifecycleIndicationProviderClass, 
+        // which is a subclass
         // of CIM_InstDeletion. This filter also selects the properties:
         //    IndicationIdentifier, SourceInstance
         _createFilterInstance (client,
                                String ("LIFilter02"),
-                               String ("SELECT IndicationIdentifier, SourceInstance FROM InstDeletion_for_Sample_LifecycleIndicationProviderClass"),
+                               String ("SELECT IndicationIdentifier, "
+                                   "SourceInstance FROM InstDeletion_for_"
+                                   "Sample_LifecycleIndicationProviderClass"),
                                qlang);
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "setup 2 failed: " << e.getMessage () << PEGASUS_STD (endl);
+        PEGASUS_STD (cerr) << "setup 2 failed: " << e.getMessage () 
+            << PEGASUS_STD (endl);
     }
 
     try
     {
         _createHandlerInstance (client,
                                 String ("LIHandler01"),
-                                String ("localhost/CIMListener/Pegasus_SimpleDisplayConsumer"));
+                                String ("localhost/CIMListener/"
+                                    "Pegasus_SimpleDisplayConsumer"));
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "setup 3 failed: " << e.getMessage () << PEGASUS_STD (endl);
+        PEGASUS_STD (cerr) << "setup 3 failed: " << e.getMessage () 
+            << PEGASUS_STD (endl);
     }
 
     try
     {
         String filterPathString;
-        filterPathString.append ("CIM_IndicationFilter.CreationClassName=\"CIM_IndicationFilter\",Name=\"LIFilter01\",SystemCreationClassName=\"");
+        filterPathString.append ("CIM_IndicationFilter.CreationClassName="
+                "\"CIM_IndicationFilter\",Name=\"LIFilter01\","
+                "SystemCreationClassName=\"");
         filterPathString.append (System::getSystemCreationClassName ());
         filterPathString.append ("\",SystemName=\"");
         filterPathString.append (System::getFullyQualifiedHostName ());
         filterPathString.append ("\"");
         String handlerPathString;
-        handlerPathString.append ("CIM_IndicationHandlerCIMXML.CreationClassName=\"CIM_IndicationHandlerCIMXML\",Name=\"LIHandler01\",SystemCreationClassName=\"");
+        handlerPathString.append ("CIM_IndicationHandlerCIMXML."
+            "CreationClassName=\"CIM_IndicationHandlerCIMXML\","
+            "Name=\"LIHandler01\",SystemCreationClassName=\"");
         handlerPathString.append (System::getSystemCreationClassName ());
         handlerPathString.append ("\",SystemName=\"");
         handlerPathString.append (System::getFullyQualifiedHostName ());
@@ -351,19 +376,24 @@ void _setup (CIMClient & client, String& qlang)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "setup 4 failed: " << e.getMessage () << PEGASUS_STD (endl);
+        PEGASUS_STD (cerr) << "setup 4 failed: " << e.getMessage () 
+            << PEGASUS_STD (endl);
     }
 
     try
     {
         String filterPathString;
-        filterPathString.append ("CIM_IndicationFilter.CreationClassName=\"CIM_IndicationFilter\",Name=\"LIFilter02\",SystemCreationClassName=\"");
+        filterPathString.append ("CIM_IndicationFilter.CreationClassName"
+                "=\"CIM_IndicationFilter\",Name=\"LIFilter02\","
+                "SystemCreationClassName=\"");
         filterPathString.append (System::getSystemCreationClassName ());
         filterPathString.append ("\",SystemName=\"");
         filterPathString.append (System::getFullyQualifiedHostName ());
         filterPathString.append ("\"");
         String handlerPathString;
-        handlerPathString.append ("CIM_IndicationHandlerCIMXML.CreationClassName=\"CIM_IndicationHandlerCIMXML\",Name=\"LIHandler01\",SystemCreationClassName=\"");
+        handlerPathString.append ("CIM_IndicationHandlerCIMXML."
+                "CreationClassName=\"CIM_IndicationHandlerCIMXML\","
+                "Name=\"LIHandler01\",SystemCreationClassName=\"");
         handlerPathString.append (System::getSystemCreationClassName ());
         handlerPathString.append ("\",SystemName=\"");
         handlerPathString.append (System::getFullyQualifiedHostName ());
@@ -373,10 +403,12 @@ void _setup (CIMClient & client, String& qlang)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "setup 5 failed: " << e.getMessage () << PEGASUS_STD (endl);
+        PEGASUS_STD (cerr) << "setup 5 failed: " << e.getMessage () 
+            << PEGASUS_STD (endl);
     }
 
-    PEGASUS_STD (cout) << "+++++ setup completed successfully" << PEGASUS_STD (endl);
+    PEGASUS_STD (cout) << "+++++ setup completed successfully" 
+        << PEGASUS_STD (endl);
 }
 
 void _cleanup (CIMClient & client)
@@ -388,7 +420,8 @@ void _cleanup (CIMClient & client)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "cleanup 1 failed: " << e.getMessage () << PEGASUS_STD (endl);
+        PEGASUS_STD (cerr) << "cleanup 1 failed: " << e.getMessage () 
+            << PEGASUS_STD (endl);
     }
 
     try
@@ -398,7 +431,8 @@ void _cleanup (CIMClient & client)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "cleanup 2 failed: " << e.getMessage () << PEGASUS_STD (endl);
+        PEGASUS_STD (cerr) << "cleanup 2 failed: " << e.getMessage () 
+            << PEGASUS_STD (endl);
     }
 
     try
@@ -407,7 +441,8 @@ void _cleanup (CIMClient & client)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "cleanup 3 failed: " << e.getMessage () << PEGASUS_STD (endl);
+        PEGASUS_STD (cerr) << "cleanup 3 failed: " << e.getMessage () 
+            << PEGASUS_STD (endl);
     }
 
     try
@@ -416,7 +451,8 @@ void _cleanup (CIMClient & client)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "cleanup 4 failed: " << e.getMessage () << PEGASUS_STD (endl);
+        PEGASUS_STD (cerr) << "cleanup 4 failed: " << e.getMessage () 
+            << PEGASUS_STD (endl);
     }
 
     try
@@ -425,10 +461,12 @@ void _cleanup (CIMClient & client)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "cleanup 5 failed: " << e.getMessage () << PEGASUS_STD (endl);
+        PEGASUS_STD (cerr) << "cleanup 5 failed: " << e.getMessage () 
+            << PEGASUS_STD (endl);
     }
 
-    PEGASUS_STD (cout) << "+++++ cleanup completed successfully" << PEGASUS_STD (endl);
+    PEGASUS_STD (cout) << "+++++ cleanup completed successfully" 
+        << PEGASUS_STD (endl);
 }
 
 int _test(CIMClient& client, const char* opt, const char* optLang)
@@ -437,7 +475,8 @@ int _test(CIMClient& client, const char* opt, const char* optLang)
     {
         if (optLang == NULL)
         {
-            cerr << "Error, query language not specified, must be 'WQL' or 'CIM:CQL'" << endl;
+            cerr << "Error, query language not specified, must be 'WQL' "
+                "or 'CIM:CQL'" << endl;
             _usage ();
             return -1;
         }
@@ -499,10 +538,11 @@ int main (int argc, char** argv)
             optLang = NULL;
         }
 
-#ifdef PEGASUS_DISABLE_CQL
+#ifndef PEGASUS_ENABLE_CQL
         if (qlang == "CIM:CQL")
         {
-            PEGASUS_STD (cout) << "+++++ cql test disabled" << PEGASUS_STD (endl);
+            PEGASUS_STD (cout) << "+++++ cql test disabled" 
+                << PEGASUS_STD (endl);
             return 0;
         }
 #endif

@@ -555,7 +555,7 @@ int main(int argc, char** argv)
     _testConcurrent(client);
     PEGASUS_STD (cout) << "+++++ concurrent subscription test completed"
                        << PEGASUS_STD (endl);
-#ifndef PEGASUS_DISABLE_CQL
+#ifdef PEGASUS_ENABLE_CQL
     PEGASUS_STD (cout) << "+++++ start cql test" << PEGASUS_STD (endl);
     return _test(client, cql, query1, query2cql);
 #else

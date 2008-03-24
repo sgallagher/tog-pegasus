@@ -469,16 +469,39 @@ ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
     DEFINES += -DPEGASUS_ENABLE_USERGROUP_AUTHORIZATION
 endif
 
+############################################################################
 #
-# PEP 193
-# The following flag need to be set to disable
-# CQL in indication subscriptions
+# PEGASUS_ENABLE_CQL and PEGASUS_DISABLE_CQL
+# Set to enable CQL processor in indication subscriptions and query execution
+# PEGASUS_DISABLE_CQL (PEP 193) has been depracated. New use model is:
 #
+# Use PEGASUS_ENABLE_CQL=true  to enable  compilation of CQL functions.
+#
+# Use PEGASUS_ENABLE_CQL=false to disable compilation of CQL functions.
+#
+# Default is PEGASUS_ENABLE_CQL=true if not defined external to config.mak
+#
+
 ifdef PEGASUS_DISABLE_CQL
-    DEFINES += -DPEGASUS_DISABLE_CQL
+    $(error PEGASUS_DISABLE_CQL has been deprecated. Please use PEGASUS_ENABLE_CQL=[true/false]
 endif
 
+ifndef PEGASUS_ENABLE_CQL
+    # Default is true. CQL is enabled normally on all platforms unless specifically defined 
+    PEGASUS_ENABLE_CQL=true
+endif
+
+ifeq ($(PEGASUS_ENABLE_CQL),true)
+    DEFINES += -DPEGASUS_ENABLE_CQL
+else
+    ifneq ($(PEGASUS_ENABLE_CQL),false)
+        $(error PEGASUS_ENABLE_CQL ($(PEGASUS_ENABLE_CQL)) invalid, must be true or false)
+    endif
+endif
+
+############################################################################
 #
+# PEGASUS_OVERRIDE_PRODUCT_ID 
 # PEP 186
 # Allow override of product name/version/status.  A file
 # pegasus/src/Pegasus/Common/ProductVersion.h must exist when this

@@ -60,7 +60,7 @@ QueryExpression::QueryExpression(
     String dmtfCQL("DMTF:CQL");
     String wql("WQL");
 
-#ifndef PEGASUS_DISABLE_CQL
+#ifdef PEGASUS_ENABLE_CQL
     if (queryLang == cimCQL ||
         queryLang == dmtfCQL)
     {
@@ -106,7 +106,7 @@ QueryExpression::QueryExpression(
     String dmtfCQL("DMTF:CQL");
     String wql("WQL");
 
-#ifndef PEGASUS_DISABLE_CQL
+#ifdef PEGASUS_ENABLE_CQL
     if (queryLang == cimCQL ||
         queryLang == dmtfCQL)
     {
@@ -153,7 +153,7 @@ QueryExpression::QueryExpression(const QueryExpression& expr)
         String dmtfCQL("DMTF:CQL");
         String wql("WQL");
 
-#ifndef PEGASUS_DISABLE_CQL
+#ifdef PEGASUS_ENABLE_CQL
         if (expr._queryLang == cimCQL ||
             expr._queryLang == dmtfCQL)
         {
@@ -193,7 +193,7 @@ QueryExpression QueryExpression::operator=(const QueryExpression& rhs)
         String dmtfCQL("DMTF:CQL");
         String wql("WQL");
 
-#ifndef PEGASUS_DISABLE_CQL
+#ifdef PEGASUS_ENABLE_CQL
         if (rhs._queryLang == cimCQL ||
             rhs._queryLang == dmtfCQL)
         {
@@ -432,7 +432,7 @@ void QueryExpression::setQueryContext(QueryContext& inCtx)
     // SelectStatement only allows this to be called once.
     _ss->setQueryContext(inCtx);
 
-#ifndef PEGASUS_DISABLE_CQL
+#ifdef PEGASUS_ENABLE_CQL
     String cimCQL("CIM:CQL");
     String dmtfCQL("DMTF:CQL");
 

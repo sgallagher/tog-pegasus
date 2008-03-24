@@ -908,7 +908,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
                 PEGASUS_QUEUENAME_CONTROLSERVICE);
 #endif
 
-#ifndef PEGASUS_DISABLE_CQL
+#ifdef PEGASUS_ENABLE_CQL
             _routing_table.insert_record(
                 PEGASUS_CLASSNAME_CIMQUERYCAPABILITIES,
                 //PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES,

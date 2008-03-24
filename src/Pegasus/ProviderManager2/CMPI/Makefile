@@ -52,7 +52,7 @@ LIBRARIES = \
     pegquerycommon \
     pegwql \
 
-ifndef PEGASUS_DISABLE_CQL
+ifeq ($(PEGASUS_ENABLE_CQL),true)
     LIBRARIES += \
        pegcql
 endif
@@ -93,7 +93,7 @@ SOURCES = \
         CMPI_Predicate.cpp \
         CMPI_SelectExpAccessor_WQL.cpp
 
-ifndef PEGASUS_DISABLE_CQL
+ifeq ($(PEGASUS_ENABLE_CQL),true)
 SOURCES += \
 	CMPI_Cql2Dnf.cpp \
     CMPI_SelectExpAccessor_CQL.cpp

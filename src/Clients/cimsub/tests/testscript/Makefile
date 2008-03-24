@@ -49,10 +49,10 @@ DIR = Clients/cimsub/tests/testscript
 RESULTFILE =  $(TMP_DIR)/result
 RESULTFILE_EMAIL =  $(TMP_DIR)/result.email
 RESULTFILE_SYSLOG =  $(TMP_DIR)/result.syslog
-ifdef PEGASUS_DISABLE_CQL
-    MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master.nocql
-else
+ifeq ($(PEGASUS_ENABLE_CQL),true)
     MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
+else
+    MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master.nocql
 endif
 MASTERRESULTFILE_EMAIL = $(ROOT)/src/$(DIR)/result.master.email
 MASTERRESULTFILE_SYSLOG = $(ROOT)/src/$(DIR)/result.master.syslog

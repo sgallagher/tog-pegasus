@@ -50,7 +50,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 #define CALL_SIGN_WQL "WQL"
 #define CALL_SIGN_WQL_SIZE 3
-#ifndef  PEGASUS_DISABLE_CQL
+
+#ifdef PEGASUS_ENABLE_CQL
 #define CALL_SIGN_CQL "DMTF:CQL"
 #define CALL_SIGN_CQL_SIZE 8
 #endif
@@ -63,7 +64,7 @@ struct PEGASUS_CMPIPM_LINKAGE CMPI_SelectExp : CMPISelectExp
         String cond_,
         String lang_);
     CMPI_SelectExp(WQLSelectStatement*, Boolean persistent_ = false);
-#ifndef PEGASUS_DISABLE_CQL
+#ifdef PEGASUS_ENABLE_CQL
     CMPI_SelectExp(CQLSelectStatement*, Boolean persistent_ = false,
         QueryContext *context = 0);
 #endif
@@ -78,7 +79,8 @@ struct PEGASUS_CMPIPM_LINKAGE CMPI_SelectExp : CMPISelectExp
     CMPI_Cql2Dnf *cql_dnf;
     CMPI_Tableau *tableau;
     WQLSelectStatement *wql_stmt;
-#ifndef PEGASUS_DISABLE_CQL
+
+#ifdef PEGASUS_ENABLE_CQL
     CQLSelectStatement *cql_stmt;
 #endif
     QueryContext *_context;

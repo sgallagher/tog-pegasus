@@ -52,7 +52,7 @@ ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
   EXTRA_LINK_FLAGS += -bmaxdata:0x80000000
 endif
 
-ifndef PEGASUS_DISABLE_CQL
+ifeq ($(PEGASUS_ENABLE_CQL),true)
     LIBRARIES += \
         pegcql 
 endif

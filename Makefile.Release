@@ -111,7 +111,7 @@ PEGASUS_LIBRARIES = \
    libpegquerycommon \
    libpegservice 
 
-ifndef PEGASUS_DISABLE_CQL
+ifeq ($(PEGASUS_ENABLE_CQL),true)
    PEGASUS_LIBRARIES += \
       libpegcql \
       libCIMQueryCapabilitiesProvider

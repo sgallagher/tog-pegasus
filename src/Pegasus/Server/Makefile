@@ -78,7 +78,7 @@ LIBRARIES += \
 	InteropProvider
 endif
 
-ifndef PEGASUS_DISABLE_CQL
+ifeq ($(PEGASUS_ENABLE_CQL),true)
 LIBRARIES += \
 	CIMQueryCapabilitiesProvider
 endif

@@ -171,11 +171,11 @@ PEGASUS_HAS_MESSAGES {
 	Enable localization support,
 	If the PEGASUS_HAS_MESSAGES is not set, OpenPegasus is built without localization support. This means that all messages sent by the CIM Server and the CLIs are in English. ICU is an open source project at http://oss.software.ibm.com/icu. Only English tran/slations are included with the OpenPegasus distribution. The OpenPegasus distribution does not provide translated messages. But, enabling for ICU would allow vendor to provide the translations. Refer to the OpenPegasus Release README for additional information regarding the use of ICU.  }
 
-PEGASUS_DISABLE_CQL {
+PEGASUS_ENABLE_CQL {
 	Boolean,
-	--disable-cql,
-	Disables CQL support,
-	When this variable is set, support for Indication Subscription filters that have CQL as the language is disabled. It does not remove CQL from the build.}
+	--enable-cql,
+	Enables CQL support,
+	When this variable is set = true, support for Indication Subscription filters that have CQL as the language is compiled and enabled}
 
 PEGASUS_DISABLE_DEPRECATED_INTERFACES {
 	Boolean,

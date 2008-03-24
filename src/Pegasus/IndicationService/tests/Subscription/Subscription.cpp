@@ -938,7 +938,7 @@ void _valid (CIMClient & client, String& qlang)
     _checkStringProperty (retrievedInstance, "QueryLanguage", qlang);
 
 
-#ifndef PEGASUS_DISABLE_CQL
+#ifdef PEGASUS_ENABLE_CQL
     //
     //  Create filter that selects properties from CIM_ProcessIndication
     //  and has a where clause condition that includes an array property.
@@ -1468,7 +1468,7 @@ void _valid (CIMClient & client, String& qlang)
     //
     instances = client.enumerateInstances (PEGASUS_NAMESPACENAME_INTEROP,
         PEGASUS_CLASSNAME_INDFILTER);
-#ifndef PEGASUS_DISABLE_CQL
+#ifdef PEGASUS_ENABLE_CQL
     PEGASUS_TEST_ASSERT (instances.size() == 7);
 #else
     PEGASUS_TEST_ASSERT (instances.size() == 6);
@@ -1477,7 +1477,7 @@ void _valid (CIMClient & client, String& qlang)
 
     paths = client.enumerateInstanceNames (PEGASUS_NAMESPACENAME_INTEROP,
         PEGASUS_CLASSNAME_INDFILTER);
-#ifndef PEGASUS_DISABLE_CQL
+#ifdef PEGASUS_ENABLE_CQL
     PEGASUS_TEST_ASSERT (paths.size() == 7);
 #else
     PEGASUS_TEST_ASSERT (paths.size() == 6);
@@ -2130,7 +2130,7 @@ void _errorQueries (CIMClient & client, String& qlang)
     }
     catch (CIMException & e)
     {
-#ifdef PEGASUS_DISABLE_CQL
+#ifndef PEGASUS_ENABLE_CQL
         if (qlang == "DMTF:CQL")
         {
           // If CQL is disabled, then a non-supported error
@@ -4417,7 +4417,7 @@ void _delete (CIMClient & client)
     _deleteFilterInstance (client, "Filter02");
     _deleteFilterInstance (client, "Filter03");
     _deleteFilterInstance (client, "Filter04");
-#ifndef PEGASUS_DISABLE_CQL
+#ifdef PEGASUS_ENABLE_CQL
     _deleteFilterInstance (client, "Filter04a");
 #endif
     _deleteFilterInstance (client, "Filter05");
@@ -4437,11 +4437,11 @@ void _test (CIMClient & client)
         _error (client);
         _delete (client);
 
-#ifndef PEGASUS_DISABLE_CQL
+#ifdef PEGASUS_ENABLE_CQL
         _valid (client, cql);
 #endif
         _errorQueries(client, cql);
-#ifndef PEGASUS_DISABLE_CQL
+#ifdef PEGASUS_ENABLE_CQL
         _delete (client);
 #endif
     }

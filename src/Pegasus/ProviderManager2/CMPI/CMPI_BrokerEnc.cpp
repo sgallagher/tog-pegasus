@@ -58,7 +58,7 @@
 #include <Pegasus/WQL/WQLParser.h>
 #include <Pegasus/Provider/CIMOMHandleQueryContext.h>
 
-#ifndef PEGASUS_DISABLE_CQL
+#ifdef PEGASUS_ENABLE_CQL
 #include <Pegasus/CQL/CQLSelectStatement.h>
 #include <Pegasus/CQL/CQLParser.h>
 #include <Pegasus/CQL/CQLChainedIdentifier.h>
@@ -1500,7 +1500,7 @@ extern "C"
             PEG_METHOD_EXIT();
             return (cmpiSelectExp);
         }
-#ifndef PEGASUS_DISABLE_CQL
+#ifdef PEGASUS_ENABLE_CQL
         if ((strncmp (lang, CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) == 0) ||
             (strncmp (lang, "CIMxCQL", 7) == 0) ||
             (strncmp (lang, "CIM:CQL", 7) == 0))

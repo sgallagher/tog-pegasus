@@ -3455,7 +3455,7 @@ Boolean IndicationService::_canCreate (
                 instance.findProperty(PEGASUS_PROPERTYNAME_QUERYLANGUAGE)).
                     getValue().get(queryLanguage);
 
-#ifdef PEGASUS_DISABLE_CQL
+#ifndef PEGASUS_ENABLE_CQL
             // Special code to block CQL, if CQL is disabled
             if (queryLanguage == "CIM:CQL")
             {

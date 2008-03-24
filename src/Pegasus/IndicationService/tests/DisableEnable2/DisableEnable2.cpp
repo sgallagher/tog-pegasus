@@ -599,7 +599,7 @@ int main (int argc, char** argv)
     const char* optLang = argv[2];
     String qlang(optLang);
 
-#ifdef PEGASUS_DISABLE_CQL
+#ifndef PEGASUS_ENABLE_CQL
     if (qlang == "DMTF:CQL")
     {
         PEGASUS_STD(cout) << "+++++ cql test disabled" << PEGASUS_STD(endl);

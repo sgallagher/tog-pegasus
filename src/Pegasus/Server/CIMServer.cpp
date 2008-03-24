@@ -111,7 +111,7 @@ ProviderRegistrationProvider.h>
 # include <Pegasus/ControlProviders/CertificateProvider/CertificateProvider.h>
 #endif
 
-#ifndef PEGASUS_DISABLE_CQL
+#ifdef PEGASUS_ENABLE_CQL
 # include <Pegasus/ControlProviders/QueryCapabilitiesProvider/\
 CIMQueryCapabilitiesProvider.h>
 #endif
@@ -405,7 +405,7 @@ void CIMServer::_init()
         0);
 #endif
 
-#ifndef PEGASUS_DISABLE_CQL
+#ifdef PEGASUS_ENABLE_CQL
 
     // Create the Query Capabilities control provider
     ProviderMessageHandler* cimquerycapprovider = new ProviderMessageHandler(

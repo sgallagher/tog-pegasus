@@ -147,7 +147,7 @@ ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
         ControlProviders/InteropProvider/ServerProfileTests
 endif
 
-ifndef PEGASUS_DISABLE_CQL
+ifeq ($(PEGASUS_ENABLE_CQL),true)
     DIRS += \
         ControlProviders/QueryCapabilitiesProvider \
         ControlProviders/QueryCapabilitiesProvider/tests

@@ -80,7 +80,7 @@ poststarttests:
 	@$(PROGRAM) sendFail "WQL"
 	@$(ECHO) "TestDisableEnable2 cleanup WQL"
 	@$(PROGRAM) cleanup "WQL"
-ifndef PEGASUS_DISABLE_CQL
+ifeq ($(PEGASUS_ENABLE_CQL),true)
 	@$(ECHO) "TestDisableEnable2 setup DMTF:CQL"
 	@$(PROGRAM) setup "DMTF:CQL"
 	@$(ECHO) "TestDisableEnable2 sendFail DMTF:CQL"
@@ -150,7 +150,7 @@ endif
 	@$(PROGRAM) sendFail "WQL"
 	@$(ECHO) "TestDisableEnable2 cleanup2 WQL"
 	@$(PROGRAM) cleanup2 "WQL"
-ifndef PEGASUS_DISABLE_CQL
+ifeq ($(PEGASUS_ENABLE_CQL),true)
 	@$(ECHO) "TestDisableEnable2 setup2 DMTF:CQL"
 	@$(PROGRAM) setup2 "DMTF:CQL"
 	@$(ECHO) "TestDisableEnable2 sendFail DMTF:CQL"

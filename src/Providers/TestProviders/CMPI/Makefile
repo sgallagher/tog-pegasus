@@ -61,7 +61,7 @@ DIRS = \
     TestCMPIInstance \
     TestCMPIInstance/tests 
 
-ifndef PEGASUS_DISABLE_CQL
+ifeq ($(PEGASUS_ENABLE_CQL),true)
 DIRS += \
     TestIndications \
     TestIndications/tests

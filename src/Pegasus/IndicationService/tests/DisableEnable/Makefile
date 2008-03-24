@@ -78,7 +78,7 @@ poststarttests:
 	@$(PROGRAM) delete "WQL"
 	@$(ECHO) "TestDisableEnable cleanup WQL"
 	@$(PROGRAM) cleanup "WQL"
-ifndef PEGASUS_DISABLE_CQL
+ifeq ($(PEGASUS_ENABLE_CQL),true)
 	@$(ECHO) "TestDisableEnable setup DMTF:CQL"
 	@$(PROGRAM) setup "DMTF:CQL"
 	@$(ECHO) "TestDisableEnable create DMTF:CQL"

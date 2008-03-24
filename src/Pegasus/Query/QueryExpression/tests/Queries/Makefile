@@ -44,7 +44,7 @@ QueryExpression.query.res: QueryExpression.query
 
 tests:
 
-ifndef PEGASUS_DISABLE_CQL
+ifeq ($(PEGASUS_ENABLE_CQL),true)
 poststarttests: QueryExpression.query.res
 else
 poststarttests: 

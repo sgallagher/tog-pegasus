@@ -592,7 +592,7 @@ void _createCimsubTests(CIMClient & client, String& qlang)
     path = client.createInstance(NAMESPACE, filter04);
 
 
-#ifndef PEGASUS_DISABLE_CQL
+#ifdef PEGASUS_ENABLE_CQL
     //
     //  Create filter that selects properties from CIM_ProcessIndication
     //  and has a where clause condition that includes an array property.
@@ -1256,7 +1256,7 @@ void _delete (CIMClient & client)
     _deleteFilterInstance(client, "Filter02");
     _deleteFilterInstance(client, "Filter03");
     _deleteFilterInstance(client, "Filter04");
-#ifndef PEGASUS_DISABLE_CQL
+#ifdef PEGASUS_ENABLE_CQL
     _deleteFilterInstance(client, "Filter04a");
 #endif
     _deleteFilterInstance(client, "Filter05");
@@ -1273,7 +1273,7 @@ void _test(CIMClient & client)
         _createCimsubTests(client, wql);
         //        _delete(client);
 
-#ifndef PEGASUS_DISABLE_CQL
+#ifdef PEGASUS_ENABLE_CQL
         //        _createCimsubTests(client, cql);
         //        _delete(client);
 #endif
@@ -1358,7 +1358,7 @@ void _testSyslog(CIMClient & client)
         _createCimsubSyslogTests(client, wql);
         //        _delete(client);
 
-#ifndef PEGASUS_DISABLE_CQL
+#ifdef PEGASUS_ENABLE_CQL
         //        _createCimsubSyslogTests(client, cql);
         //        _delete (client);
 #endif
@@ -1492,7 +1492,7 @@ void _testEmail(CIMClient & client)
         _createCimsubEmailTests(client, wql);
         //        _delete(client);
 
-#ifndef PEGASUS_DISABLE_CQL
+#ifdef PEGASUS_ENABLE_CQL
         //        _createCimsubEmailTests(client, cql);
         //        _delete(client);
 #endif

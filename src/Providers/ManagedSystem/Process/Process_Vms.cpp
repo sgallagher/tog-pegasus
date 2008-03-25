@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%////////////////////////////////////////////////////////////////////////////
 //
@@ -39,6 +41,14 @@
 //                 A process might have terminated, before calling
 //                 exe_std$cvt_epid_to_pcb(). This would return a NULL value
 //                 and results in a system crash.
+//
+//  PTR 73-51-1
+//                 Raised an opcom message when timezone is not defined,
+//                 during the provider start up.
+//
+//                 Also taking an abs() on timezone in convertToCIMDateString()
+//                 as any timezone less than zero, would corrupt the Date string
+//                 by placing two minus signs.
 //
 //  PTR 73-51-26
 //                 Changes made to incorporate review suggestions in
@@ -82,6 +92,7 @@
 
 #include "ProcessPlatform.h"
 #include <pcbdef.h>
+#include <platforms/vms/vms_utility_routines.h>
 #include <Pegasus/Common/pthread.h>
 #include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Common/System.h>
@@ -110,9 +121,37 @@ static int proc_table_count = 0;
 /* Lock on proc_table */
 static pthread_mutex_t  proc_table_mutex = PTHREAD_MUTEX_INITIALIZER;
 
+//
+// ============================================================================ 
+// NAME              : logTimezoneError
+// DESCRIPTION       : Logs an opcom error if timezone is not set.
+// ASSUMPTIONS       :
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
+// ============================================================================ 
+//
+static void logTimezoneError()
+{
+}
 
 Process::Process()
 {
+    // Log an error if time zone is not defined.
+    static bool checkedTimezone = false;
+    char *tzErrorMsg =  "WBEMCIM: The logical name SYS$TIMEZONE_RULE"
+                        " has not been set."
+                        " Process provider requires the UTC settings."
+                        " Please run sys$startup:utc$time_setup.com to"
+                        " configure this system to your time zone and"
+                        " restart the CIM Server.";
+
+    if (false == checkedTimezone && 0 == isTimezoneSet())
+    {
+        /* Time zone is not defined. log a error in operator log */
+        SendOpcom (tzErrorMsg, strlen(tzErrorMsg));
+    }
+    checkedTimezone = true;
 }
 
 Process::~Process()
@@ -1205,7 +1244,7 @@ const
     int rc;
 
 
-    if (gethostname(hostName, sizeof(hostName)) != 0)
+    if (gethostname(hostName, sizeof(hostName)) != 0) 
     {
         return String("unknown");
     }
@@ -1515,7 +1554,7 @@ Boolean Process::loadProcessInfo (int &pIndex)
 // =============================================================================
 //
 
-Boolean Process::buildProcessTable (unsigned long& jpictx2,
+Boolean Process::buildProcessTable (unsigned long& jpictx2, 
                                     int& procCount,
                                     item_list* itmlst3,
                                     struct proc_info* procInfoArray)

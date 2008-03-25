@@ -64,6 +64,7 @@
 #include "ComputerSystemProvider.h"
 #include "ComputerSystem.h"
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -80,11 +81,13 @@
 #include <libdtdef.h>
 #include <lnmdef.h>
 #include <netdb.h>
+#include <opcdef.h>
+#include <psldef.h>
+#include <stddef.h>
 #include <time.h>
 #include <tis.h>
 #include <pthread.h>
 #include <Pegasus/Client/CIMClient.h>
-#include <platforms/vms/vms_utility_routines.h>
 #include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Common/System.h>
 
@@ -120,6 +123,88 @@ PEGASUS_USING_PEGASUS;
     "One or more components that make up this computer system have an " \
     "OperationalStatus value of OK or Completed."
 
+typedef struct {
+    uint32_t  time_low;
+    uint16_t  time_mid;
+    uint16_t  time_hi_and_version;
+    uint8_t   clock_seq_hi_and_reserved;
+    uint8_t   clock_seq_low;
+    uint8_t   node[6];
+}uuid_t;
+
+void translateLogical(char *logical, 
+                      char *translatedName, 
+                      int translatedNameSize)
+{
+    typedef struct descrip
+    {
+        unsigned short dsc$w_length;   // specific to descriptor class
+        unsigned char  dsc$b_dtype;    // data type code
+        unsigned char  dsc$b_class;    // descriptor class code
+        const char    *dsc$a_pointer; // address of first byte of data element
+    } DESCRIP;
+
+    typedef struct itmlst
+    {
+        unsigned short wItmLen;
+        unsigned short wItmCod;
+        const void *pItmBuf;
+        unsigned short *pItmRetLen;
+    } ITMLST;
+
+    DESCRIP dsName = {0, DSC$K_DTYPE_T, DSC$K_CLASS_S, 0};
+    DESCRIP dsTable = {0, DSC$K_DTYPE_T, DSC$K_CLASS_S, 0};
+
+    char szResponse[LNM$C_NAMLENGTH+1];
+    unsigned short int wRespLen = 0;
+
+    ITMLST itmGetLnm [2] = {sizeof(szResponse) -1,
+        LNM$_STRING, &szResponse, &wRespLen, 0, 0, NULL, NULL};
+
+    if (NULL == logical || NULL == translatedName || 0 == translatedNameSize)
+    {
+        return;
+    }
+
+    // point the local descriptor to the logical name and translate it
+    dsName.dsc$w_length  = strlen(logical);
+    dsName.dsc$a_pointer = logical;
+    dsTable.dsc$a_pointer = "LNM$SYSTEM_TABLE";
+    dsTable.dsc$w_length  = strlen(dsTable.dsc$a_pointer);
+
+    unsigned char byAcMode = PSL$C_EXEC;
+    unsigned long ulStatus = sys$trnlnm (0,
+                                 &dsTable,
+                                 &dsName,
+                                 &byAcMode,
+                                 itmGetLnm);
+
+    if( ulStatus != SS$_NORMAL )
+    {
+       if( ulStatus == SS$_NOLOGNAM )
+       {
+          translatedName[0]='\0';
+          return;
+       }
+       else if( ulStatus == SS$_NOPRIV )
+       {
+          translatedName[0]='\0';
+          return;
+       }
+       else
+       {
+          translatedName[0]='\0';
+          return;
+       }
+    }
+
+
+    // "If an equivalence name does not exist... $TRNLNM returns the value 0
+    // in the return length address field of the item descriptor."
+
+    szResponse[wRespLen] = '\0';    // append null terminator
+    strncpy(translatedName, szResponse, translatedNameSize);
+}
 
 static void updateStatusAndDescription();
 
@@ -132,20 +217,6 @@ static Array<String> _statusDescriptions;
 
 ComputerSystem::ComputerSystem()
 {
-    // Log an error if time zone is not defined.
-    static bool checkedTimezone = false;
-    char *tzErrorMsg =  "WBEMCIM: The logical name SYS$TIMEZONE_RULE has "
-                        "not been set. The Computer System provider requires "
-                        "the UTC settings. Please run "
-                        "sys$startup:utc$time_setup.com to configure this"
-                        " system to your time zone and restart the CIM Server";
-
-    if (false == checkedTimezone && 0 == isTimezoneSet()) 
-    {
-        /* Time zone is not defined. log a error in operator log */
-        SendOpcom (tzErrorMsg, strlen(tzErrorMsg));
-    }
-    checkedTimezone = true;
 }
 
 ComputerSystem::~ComputerSystem()
@@ -772,11 +843,64 @@ Boolean ComputerSystem::getSerialNumber(CIMProperty& p)
     return false;
 }
 
+/*
+* Function:
+*      system_uuid- for getting the system UUID
+* Inputs:
+*       structure uuid_t for filling the system UUID
+* Outputs:
+*       system UUID in uuid_t structure format .
+*
+* Returns:
+*       Success 1 or failure 0
+* Notes:
+*       none
+*/
+
+int system_uuid(uuid_t *uuid_system)
+{
+    int status;
+    int i;
+
+    typedef struct {
+        unsigned short wlength;
+        unsigned short wcode;
+        void *pbuffer;
+        void *pretlen; } item_list;
+
+    item_list itmlst3[2];
+
+    itmlst3[0].wlength = sizeof(uuid_t);
+    itmlst3[0].wcode = SYI$_SYSTEM_UUID;
+    itmlst3[0].pbuffer = (char*) uuid_system;
+    itmlst3[0].pretlen = NULL;
+    itmlst3[1].wlength = 0;
+    itmlst3[1].wcode = 0;
+    itmlst3[1].pbuffer = NULL;
+    itmlst3[1].pretlen = NULL;
+
+    status = sys$getsyiw (0, 0, 0, itmlst3, 0, 0, 0);
+
+    if ($VMS_STATUS_SUCCESS(status)) 
+    {
+         //Putting the required bytes only
+        uuid_system->time_low=uuid_system->time_low & 0XFFFFFFFF;
+        uuid_system->time_mid =uuid_system->time_mid& 0XFFFF;
+        uuid_system->time_hi_and_version = 
+            uuid_system->time_hi_and_version & 0XFFFF;
+        uuid_system->clock_seq_hi_and_reserved =
+            uuid_system->clock_seq_hi_and_reserved & 0XFF;
+        uuid_system->clock_seq_low= uuid_system->clock_seq_low & 0XFF;
+        for(i=0; i < 6; i++)uuid_system->node[i]=uuid_system->node[i] & 0XFF;
+        return 1;
+    }
+
+    return 0;
+}
+
 Boolean ComputerSystem::getIdentificationNumber(CIMProperty& p)
 {
    
-    // implemented the getting system UUID function"system_uuid" in 
-    // "platforms/vms/VMS_UTILITY_ROUTINES.CPP" file
     int status;
     String uidStr;
     char uidBuffer[36];

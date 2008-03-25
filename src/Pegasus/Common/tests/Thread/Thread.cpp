@@ -95,7 +95,6 @@ void testCancelDeadLockedThread(const char * commandName)
     }
     // Wait for deadlocked thread to end
     t.join();
-    deadLockSemaphore.unlock();
     // Shouldn't hang forever
     if (verbose)
     {

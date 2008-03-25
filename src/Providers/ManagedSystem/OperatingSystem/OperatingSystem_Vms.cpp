@@ -189,10 +189,10 @@ static Boolean getUtilGetHostName(String & csName)
         rc = System::getAddrInfo(hostName, 0, &hints, &info);
         if ((!rc) && (info) && (info->ai_canonname))
         {
-            csName.assign(info->ai_canonname);
+            _csName.assign(info->ai_canonname);
         }
         else {
-            csName.assign(hostName);
+            _csName.assign(hostName);
         }
 
         if (info)

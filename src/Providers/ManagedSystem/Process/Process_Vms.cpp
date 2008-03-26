@@ -42,14 +42,6 @@
 //                 exe_std$cvt_epid_to_pcb(). This would return a NULL value
 //                 and results in a system crash.
 //
-//  PTR 73-51-1
-//                 Raised an opcom message when timezone is not defined,
-//                 during the provider start up.
-//
-//                 Also taking an abs() on timezone in convertToCIMDateString()
-//                 as any timezone less than zero, would corrupt the Date string
-//                 by placing two minus signs.
-//
 //  PTR 73-51-26
 //                 Changes made to incorporate review suggestions in
 //                 PTR 73-51-26. Removed local definition of PCB structure
@@ -92,7 +84,6 @@
 
 #include "ProcessPlatform.h"
 #include <pcbdef.h>
-#include <platforms/vms/vms_utility_routines.h>
 #include <Pegasus/Common/pthread.h>
 #include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Common/System.h>
@@ -121,37 +112,9 @@ static int proc_table_count = 0;
 /* Lock on proc_table */
 static pthread_mutex_t  proc_table_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-//
-// ============================================================================ 
-// NAME              : logTimezoneError
-// DESCRIPTION       : Logs an opcom error if timezone is not set.
-// ASSUMPTIONS       :
-// PRE-CONDITIONS    :
-// POST-CONDITIONS   :
-// NOTES             :
-// ============================================================================ 
-//
-static void logTimezoneError()
-{
-}
 
 Process::Process()
 {
-    // Log an error if time zone is not defined.
-    static bool checkedTimezone = false;
-    char *tzErrorMsg =  "WBEMCIM: The logical name SYS$TIMEZONE_RULE"
-                        " has not been set."
-                        " Process provider requires the UTC settings."
-                        " Please run sys$startup:utc$time_setup.com to"
-                        " configure this system to your time zone and"
-                        " restart the CIM Server.";
-
-    if (false == checkedTimezone && 0 == isTimezoneSet())
-    {
-        /* Time zone is not defined. log a error in operator log */
-        SendOpcom (tzErrorMsg, strlen(tzErrorMsg));
-    }
-    checkedTimezone = true;
 }
 
 Process::~Process()

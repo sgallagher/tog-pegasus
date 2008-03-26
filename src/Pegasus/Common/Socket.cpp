@@ -227,6 +227,9 @@ void Socket::disableBlocking(SocketHandle socket)
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     unsigned long flag = 1;    // Use "flag = 0" to enable blocking
     ioctlsocket(socket, FIONBIO, &flag);
+#elif PEGASUS_OS_VMS
+    int flag=1;                // Use "flag = 0" to enable blocking
+    ioctl(socket, FIONBIO, &flag);
 #else
     int flags = fcntl(socket, F_GETFL, 0);
     flags |= O_NONBLOCK;    // Use "flags &= ~O_NONBLOCK" to enable blocking

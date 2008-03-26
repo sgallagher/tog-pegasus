@@ -76,6 +76,20 @@ Tickler::~Tickler()
     _uninitialize();
 }
 
+void Tickler::notify()
+{
+    Socket::write(_clientSocket, "\0", 1);
+}
+
+void Tickler::reset()
+{
+    // Clear all bytes from the tickle socket
+    char buffer[32];
+    while (Socket::read(_serverSocket, buffer, 32) > 0)
+    {
+    }
+}
+
 #if defined(PEGASUS_OS_TYPE_UNIX)
 
 // Use an anonymous pipe for the tickle connection.
@@ -95,6 +109,8 @@ void Tickler::_initialize()
 
     _serverSocket = fds[0];
     _clientSocket = fds[1];
+
+    Socket::disableBlocking(_serverSocket);
 }
 
 #else
@@ -340,7 +356,7 @@ Monitor::Monitor()
 
     // Create a MonitorEntry for the Tickler and set its state to IDLE so the
     // Monitor will watch for its events.
-    _MonitorEntry entry(_tickler.getServerSocket(), 1, INTERNAL);
+    _MonitorEntry entry(_tickler.getReadHandle(), 1, INTERNAL);
     entry._status = _MonitorEntry::IDLE;
     _entries.append(entry);
 
@@ -360,7 +376,7 @@ Monitor::~Monitor()
 
 void Monitor::tickle()
 {
-    Socket::write(_tickler.getClientSocket(), "\0", 1);
+    _tickler.notify();
 }
 
 void Monitor::setState(
@@ -596,16 +612,7 @@ void Monitor::run(Uint32 milliseconds)
                     }
                     else if (entries[indx]._type == Monitor::INTERNAL)
                     {
-                        // set ourself to BUSY,
-                        // read the data
-                        // and set ourself back to IDLE
-
-                        entries[indx]._status = _MonitorEntry::BUSY;
-                        static char buffer[2];
-                        Sint32 amt =
-                            Socket::read(entries[indx].socket, &buffer, 1);
-
-                        entries[indx]._status = _MonitorEntry::IDLE;
+                        _tickler.reset();
                     }
                     else
                     {

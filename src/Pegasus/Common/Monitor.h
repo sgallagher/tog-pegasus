@@ -127,12 +127,17 @@ public:
 
     ~Tickler();
 
-    SocketHandle getClientSocket()
-    {
-        return _clientSocket;
-    }
+    /**
+        Causes a read event on the tickle socket.
+    */
+    void notify();
 
-    SocketHandle getServerSocket()
+    /**
+        Consumes all the read events on the tickle socket.
+    */
+    void reset();
+
+    SocketHandle getReadHandle()
     {
         return _serverSocket;
     }

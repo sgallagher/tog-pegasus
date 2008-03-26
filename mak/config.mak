@@ -483,7 +483,7 @@ endif
 #
 
 ifdef PEGASUS_DISABLE_CQL
-    $(error PEGASUS_DISABLE_CQL has been deprecated. Please use PEGASUS_ENABLE_CQL=[true/false]
+    $(error PEGASUS_DISABLE_CQL has been deprecated. Please use PEGASUS_ENABLE_CQL=[true/false])
 endif
 
 ifndef PEGASUS_ENABLE_CQL

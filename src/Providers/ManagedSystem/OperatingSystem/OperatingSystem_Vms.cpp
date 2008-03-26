@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006/////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -111,7 +113,6 @@
 #include <lnmdef.h>
 #include <pthread.h>
 #include <tis.h>
-#include <platforms/vms/vms_utility_routines.h>
 #include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Common/system.h>
 
@@ -162,7 +163,7 @@ static Boolean getUtilGetHostName(String & csName)
     struct addrinfo *info, hints;
     int rc;
 
-    if (0 == _csName.size())
+    if (0 == _csName.size()) 
     {
         strcpy(hostName, System::getHostName().getCString());
         if (!strlen(hostName))
@@ -491,10 +492,10 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime & installDate)
                 time(&tme);
                 tme1 = mktime(ptimetm);        /* get timezone */
                 strcpy(t_string, rptr1 - 2);
-                if (t_string[11] == 10)
+                if (t_string[11] == 10) 
                 {
                     // a <cr>.
-                    // When the date; but not the time is provided,
+                    // When the date; but not the time is provided, 
                     // fill in zeros.
                     t_string[11] = ' ';
                     t_string[12] = '0';
@@ -518,7 +519,7 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime & installDate)
                 }
 
                 libop = LIB$K_DAY_OF_WEEK;
-                status = lib$cvt_from_internal_time(&libop, &libdayweek,
+                status = lib$cvt_from_internal_time(&libop, &libdayweek, 
                                                     &bintime);
                 if (!$VMS_STATUS_SUCCESS(status))
                 {
@@ -527,7 +528,7 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime & installDate)
                 }
 
                 libop = LIB$K_DAY_OF_YEAR;
-                status = lib$cvt_from_internal_time(&libop, &libdayear,
+                status = lib$cvt_from_internal_time(&libop, &libdayear, 
                                                     &bintime);
                 if (!$VMS_STATUS_SUCCESS(status))
                 {
@@ -595,7 +596,7 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime & installDate)
 
 done:
 
-    if (fptr1)
+    if (fptr1) 
     {
         fclose(fptr1);
         fptr1 = 0;
@@ -1041,14 +1042,14 @@ Boolean OperatingSystem::getNumberOfLicensedUsers(
                     {
                         while (fgets(record2, sizeof (record2), fptr2))
                         {
-                            if (rptr1 =
+                            if (rptr1 = 
                                 strstr(record2, "Type: A, Units Required:"))
                             {
                                 rptr3 = strtok(rptr1 + 25, " ");
                                 req_units = strtol(rptr3, NULL, 10);
                                 if (req_units != 0)
                                 {
-                                    numberOfLicensedUsers =
+                                    numberOfLicensedUsers = 
                                         loaded_units / req_units;
                                     bStatus = true;
                                     goto done;
@@ -1186,7 +1187,7 @@ Boolean OperatingSystem::getNumberOfUsers(Uint32 & numberOfUsers)
             {
                 break;
             }
-            else
+            else 
             {
                 if (!strcmp(ptr1, ""))
                 {

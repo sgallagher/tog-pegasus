@@ -123,13 +123,6 @@ $ !
 $  write/error=optfile_writeerror optfile "''libnam'"
 $ ! 
 $ !
-$  libnam = f$trnlnm("PEGASUS_VMSHOMEA") + -
-            "obj.platforms.vms]vms_utility_routines.obj"
-$ !
-$ ! Write it to the option file
-$ !
-$  write/error=optfile_writeerror optfile "''libnam'"
-$ !
 $  Libnum = 0
 $  prev_libtype = ""
 $ !

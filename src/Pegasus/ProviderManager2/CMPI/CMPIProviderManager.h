@@ -55,18 +55,7 @@ struct CMPI_SelectExp;
 class PEGASUS_CMPIPM_LINKAGE CMPIProviderManager : public ProviderManager
 {
 public:
-    enum Mode
-    {
-        CMPI_MODE,
-        CMPI_R_MODE,
-        CMPI_O_MODE
-    };
-
-    Mode getMode()
-    {
-        return mode;
-    }
-    CMPIProviderManager(Mode=CMPI_MODE);
+    CMPIProviderManager();
     virtual ~CMPIProviderManager();
 
     virtual Message * processMessage(Message * request);
@@ -113,8 +102,6 @@ public:
     static ReadWriteSem  rwSemSelxTab;
 protected:
     CMPILocalProviderManager providerManager;
-
-    Mode mode;
 
     void _setupCMPIContexts(
         CMPI_ContextOnStack * eCtx,

@@ -114,13 +114,12 @@ public:
     }
 };
 
-CMPIProviderManager::CMPIProviderManager(Mode m)
+CMPIProviderManager::CMPIProviderManager()
 {
     PEG_METHOD_ENTER(
         TRC_PROVIDERMANAGER,
         "CMPIProviderManager::CMPIProviderManager()");
 
-    mode=m;
     _subscriptionInitComplete = false;
     PEG_TRACE_CSTRING (
         TRC_PROVIDERMANAGER,

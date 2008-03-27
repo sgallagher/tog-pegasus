@@ -46,7 +46,7 @@ extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
 {
     if (String::equalNoCase(providerManagerName, "CMPI"))
     {
-        return(new CMPIProviderManager(CMPIProviderManager::CMPI_MODE));
+        return(new CMPIProviderManager());
     }
     return(0);
 }

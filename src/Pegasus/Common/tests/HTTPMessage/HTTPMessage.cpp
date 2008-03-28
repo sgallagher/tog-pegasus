@@ -41,68 +41,132 @@ PEGASUS_USING_PEGASUS;
 
 static void _testContentType()
 {
-
     String contentType;
+    String type;
+    String charset;
+
     contentType = "application/xml    ;  charset =     utf-8  ";
-    PEGASUS_TEST_ASSERT (HTTPMessage::isSupportedContentType (contentType));
+    PEGASUS_TEST_ASSERT(HTTPMessage::parseContentTypeHeader(
+        contentType, type, charset));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(type, "application/xml"));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(charset, "utf-8"));
 
     contentType = "text/xml    ;  CHARSET = utf-8";
-    PEGASUS_TEST_ASSERT (HTTPMessage::isSupportedContentType (contentType));
+    PEGASUS_TEST_ASSERT(HTTPMessage::parseContentTypeHeader(
+        contentType, type, charset));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(type, "text/xml"));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(charset, "utf-8"));
 
     contentType = "   application/xml;charset=UTF-8   ";
-    PEGASUS_TEST_ASSERT (HTTPMessage::isSupportedContentType (contentType));
+    PEGASUS_TEST_ASSERT(HTTPMessage::parseContentTypeHeader(
+        contentType, type, charset));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(type, "application/xml"));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(charset, "utf-8"));
 
     contentType = "application/xml    ;  charset =     \"utf-8\"  ";
-    PEGASUS_TEST_ASSERT (HTTPMessage::isSupportedContentType (contentType));
+    PEGASUS_TEST_ASSERT(HTTPMessage::parseContentTypeHeader(
+        contentType, type, charset));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(type, "application/xml"));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(charset, "utf-8"));
 
     contentType = "text/xml    ;  CHARSET = \"utf-8\"";
-    PEGASUS_TEST_ASSERT (HTTPMessage::isSupportedContentType (contentType));
+    PEGASUS_TEST_ASSERT(HTTPMessage::parseContentTypeHeader(
+        contentType, type, charset));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(type, "text/xml"));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(charset, "utf-8"));
 
     contentType = "   application/xml;charset=\"UTF-8\"   ";
-    PEGASUS_TEST_ASSERT (HTTPMessage::isSupportedContentType (contentType));
+    PEGASUS_TEST_ASSERT(HTTPMessage::parseContentTypeHeader(
+        contentType, type, charset));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(type, "application/xml"));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(charset, "utf-8"));
 
     contentType = "application/xml";
-    PEGASUS_TEST_ASSERT (HTTPMessage::isSupportedContentType (contentType));
+    PEGASUS_TEST_ASSERT(HTTPMessage::parseContentTypeHeader(
+        contentType, type, charset));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(type, "application/xml"));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(charset, "utf-8"));
 
     contentType = "TexT/XmL";
-    PEGASUS_TEST_ASSERT (HTTPMessage::isSupportedContentType (contentType));
+    PEGASUS_TEST_ASSERT(HTTPMessage::parseContentTypeHeader(
+        contentType, type, charset));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(type, "text/xml"));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(charset, "utf-8"));
 
     contentType = "APPLICATION/XML;charset=utf-8";
-    PEGASUS_TEST_ASSERT (HTTPMessage::isSupportedContentType (contentType));
+    PEGASUS_TEST_ASSERT(HTTPMessage::parseContentTypeHeader(
+        contentType, type, charset));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(type, "application/xml"));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(charset, "utf-8"));
 
     contentType = "TEXT/XML;CHARSET=UTF-8";
-    PEGASUS_TEST_ASSERT (HTTPMessage::isSupportedContentType (contentType));
+    PEGASUS_TEST_ASSERT(HTTPMessage::parseContentTypeHeader(
+        contentType, type, charset));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(type, "text/xml"));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(charset, "utf-8"));
 
     contentType = "APPLICATION/XML;charset=\"utf-8\"";
-    PEGASUS_TEST_ASSERT (HTTPMessage::isSupportedContentType (contentType));
+    PEGASUS_TEST_ASSERT(HTTPMessage::parseContentTypeHeader(
+        contentType, type, charset));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(type, "application/xml"));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(charset, "utf-8"));
 
     contentType = "TEXT/XML;CHARSET=\"UTF-8\"";
-    PEGASUS_TEST_ASSERT (HTTPMessage::isSupportedContentType (contentType));
+    PEGASUS_TEST_ASSERT(HTTPMessage::parseContentTypeHeader(
+        contentType, type, charset));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(type, "text/xml"));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(charset, "utf-8"));
+
+    contentType = "\ttext/xml\t    \t;\t  \tCHARSET\t = \tutf-8\t";
+    PEGASUS_TEST_ASSERT(HTTPMessage::parseContentTypeHeader(
+        contentType, type, charset));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(type, "text/xml"));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(charset, "utf-8"));
 
     // Test failure cases
     contentType = "application/xml   ;";
-    PEGASUS_TEST_ASSERT (!HTTPMessage::isSupportedContentType (contentType));
+    PEGASUS_TEST_ASSERT(!HTTPMessage::parseContentTypeHeader(
+        contentType, type, charset));
+
+    contentType = "application/xml; charset=\"utf-8 \"";
+    PEGASUS_TEST_ASSERT(HTTPMessage::parseContentTypeHeader(
+        contentType, type, charset));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(type, "application/xml"));
+    PEGASUS_TEST_ASSERT(!String::equalNoCase(charset, "utf-8"));
 
     contentType = "application/xml;  charset = \"utf-88\"";
-    PEGASUS_TEST_ASSERT (!HTTPMessage::isSupportedContentType (contentType));
+    PEGASUS_TEST_ASSERT(HTTPMessage::parseContentTypeHeader(
+        contentType, type, charset));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(type, "application/xml"));
+    PEGASUS_TEST_ASSERT(!String::equalNoCase(charset, "utf-8"));
 
     contentType = "application/xml ;  charset = \"utf-8\" ;";
-    PEGASUS_TEST_ASSERT (!HTTPMessage::isSupportedContentType (contentType));
+    PEGASUS_TEST_ASSERT(!HTTPMessage::parseContentTypeHeader(
+        contentType, type, charset));
 
     contentType = "application/xml ;  charset  =";
-    PEGASUS_TEST_ASSERT (!HTTPMessage::isSupportedContentType (contentType));
+    PEGASUS_TEST_ASSERT(HTTPMessage::parseContentTypeHeader(
+        contentType, type, charset));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(type, "application/xml"));
+    PEGASUS_TEST_ASSERT(charset == String::EMPTY);
 
     contentType = "application/xml ;  charset";
-    PEGASUS_TEST_ASSERT (!HTTPMessage::isSupportedContentType (contentType));
+    PEGASUS_TEST_ASSERT(!HTTPMessage::parseContentTypeHeader(
+        contentType, type, charset));
 
     contentType = "application/xml    ;   = \"utf-8\"";
-    PEGASUS_TEST_ASSERT (!HTTPMessage::isSupportedContentType (contentType));
+    PEGASUS_TEST_ASSERT(!HTTPMessage::parseContentTypeHeader(
+        contentType, type, charset));
 
     contentType = "text/xml; charset  = ututf-8 ";
-    PEGASUS_TEST_ASSERT (!HTTPMessage::isSupportedContentType (contentType));
+    PEGASUS_TEST_ASSERT(HTTPMessage::parseContentTypeHeader(
+        contentType, type, charset));
+    PEGASUS_TEST_ASSERT(String::equalNoCase(type, "text/xml"));
+    PEGASUS_TEST_ASSERT(!String::equalNoCase(charset, "utf-8"));
 
-    contentType = "text/xml;  charset = \"ututf-8";
-    PEGASUS_TEST_ASSERT (!HTTPMessage::isSupportedContentType (contentType));
+    contentType = "text/xml;  charset = \"utf-8";
+    PEGASUS_TEST_ASSERT(!HTTPMessage::parseContentTypeHeader(
+        contentType, type, charset));
 }
 
 int main(int argc, char** argv)

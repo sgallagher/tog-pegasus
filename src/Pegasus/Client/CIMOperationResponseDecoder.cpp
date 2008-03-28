@@ -312,18 +312,18 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     if (HTTPMessage::lookupHeader(
             headers, "Content-Type", cimContentType, true))
     {
-        Uint32 len;
-        String contentTypeValue;
-        if ((len = cimContentType.find(';')) != PEG_NOT_FOUND)
-            contentTypeValue = cimContentType.subString(0,len);
-        else
-            contentTypeValue = cimContentType;
+        String type;
+        String charset;
 
-        if (!HTTPMessage::isSupportedContentType(contentTypeValue))
+        if (!HTTPMessage::parseContentTypeHeader(
+                cimContentType, type, charset) ||
+            (!String::equalNoCase(type, "application/xml") &&
+             !String::equalNoCase(type, "text/xml")) ||
+            !String::equalNoCase(charset, "utf-8"))
         {
             CIMClientMalformedHTTPException* malformedHTTPException = new
                 CIMClientMalformedHTTPException
-                    ("Bad Content-Type HTTP header; " + contentTypeValue);
+                    ("Bad Content-Type HTTP header; " + cimContentType);
             ClientExceptionMessage * response =
                 new ClientExceptionMessage(malformedHTTPException);
 

@@ -475,48 +475,71 @@ Boolean HTTPMessage::parseStatusLine(
     return true;
 }
 
-Boolean HTTPMessage::isSupportedContentType(const String& cimContentType)
+Boolean HTTPMessage::parseContentTypeHeader(
+    const String& contentTypeHeader,
+    String& type,
+    String& charset)
 {
-    CString cstr = cimContentType.getCString();
-    const char *str = (const char*) cstr;
+    CString cstr = contentTypeHeader.getCString();
+    const char* str = (const char*) cstr;
+    skipHeaderWhitespace(str);
 
-    if (!expectHeaderToken(str, "application/xml"))
+    // Get the type string
+
+    const char* end = str;
+    while (*end && (*end != ' ') && (*end != '\t') && (*end != ';'))
     {
-        str = (const char*) cstr;
-        if (!expectHeaderToken(str, "text/xml"))
+        end++;
+    }
+
+    type.assign(str, end-str);
+    str = end;
+    skipHeaderWhitespace(str);
+
+    // Get the charset
+
+    if (*str == ';')
+    {
+        str++;
+        if (!expectHeaderToken(str, "charset") ||
+            !expectHeaderToken(str, "="))
         {
             return false;
         }
-    }
+        skipHeaderWhitespace(str);
 
-    // Check for missing charset.
-    skipHeaderWhitespace(str);
-    if (!*str)
-    {
-        return true; //We assume "utf-8".
-    }
-
-    if (!expectHeaderToken(str, ";") || !expectHeaderToken(str, "charset") ||
-        !expectHeaderToken (str, "="))
-    {
-        return false;
-    }
-
-    
-    // charset is present, should be "utf-8" or utf-8, case insensitive.
-    const char* strReset = str;
-    if (!expectHeaderToken(str, "\"utf-8\""))//check for string "utf-8"
-    {
-        str = strReset;
-        if(!expectHeaderToken(str, "utf-8"))//check for string utf-8
+        // The value may optionally be enclosed in quotes
+        if (*str == '"')
         {
-            return false;  //If charset is neither "utf-8" nor utf-8
+            str++;
+            end = strchr(str, '"');
+            if (!end)
+            {
+                return false;
+            }
+            charset.assign(str, end-str);
+            str = end + 1;
+        }
+        else
+        {
+            end = str;
+            while (*end && (*end != ' ') && (*end != '\t'))
+            {
+                end++;
+            }
+            charset.assign(str, end-str);
+            str = end;
         }
     }
+    else
+    {
+        // No charset specified; assume UTF-8.
+        charset = "utf-8";
+    }
 
-    // Check for any extra characters
     skipHeaderWhitespace(str);
 
+    // Check for unexpected characters at the end of the value
     return !*str;
 }
 

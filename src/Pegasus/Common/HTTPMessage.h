@@ -109,6 +109,11 @@ public:
         Uint32& statusCode,
         String& reasonPhrase);
 
+    static Boolean parseContentTypeHeader(
+        const String& contentTypeHeader,
+        String& type,
+        String& charset);
+
     static Boolean parseLocalAuthHeader(
         const String& authHeader,
         String& authType,
@@ -152,9 +157,6 @@ public:
     static char* findSeparator(
         const char* data,
         Uint32 size);
-
-    static Boolean isSupportedContentType(
-        const String& cimContentType);
 };
 
 PEGASUS_NAMESPACE_END

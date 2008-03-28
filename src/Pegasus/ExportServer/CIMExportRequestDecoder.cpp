@@ -433,9 +433,14 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     Boolean contentTypeHeaderFound = HTTPMessage::lookupHeader(
         headers, "Content-Type", cimContentType, true);
+    String type;
+    String charset;
 
     if (!contentTypeHeaderFound ||
-        !HTTPMessage::isSupportedContentType (cimContentType))
+        !HTTPMessage::parseContentTypeHeader(cimContentType, type, charset) ||
+        (!String::equalNoCase(type, "application/xml") &&
+         !String::equalNoCase(type, "text/xml")) ||
+        !String::equalNoCase(charset, "utf-8"))
     {
         sendHttpError(
             queueId,

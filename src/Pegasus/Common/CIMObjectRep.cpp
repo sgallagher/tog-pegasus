@@ -97,21 +97,11 @@ void CIMObjectRep::addProperty(const CIMProperty& x)
 
 CIMProperty CIMObjectRep::getProperty(Uint32 index)
 {
-    if (index >= _properties.size())
-    {
-        throw IndexOutOfBoundsException();
-    }
-
     return _properties[index];
 }
 
 void CIMObjectRep::removeProperty(Uint32 index)
 {
-    if (index >= _properties.size())
-    {
-        throw IndexOutOfBoundsException();
-    }
-
     _properties.remove(index);
 }
 

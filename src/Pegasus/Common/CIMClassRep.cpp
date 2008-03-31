@@ -157,9 +157,6 @@ Uint32 CIMClassRep::findMethod(const CIMName& name) const
 
 CIMMethod CIMClassRep::getMethod(Uint32 index)
 {
-    if (index >= _methods.size())
-        throw IndexOutOfBoundsException();
-
     return _methods[index];
 }
 
@@ -170,9 +167,6 @@ Uint32 CIMClassRep::getMethodCount() const
 
 void CIMClassRep::removeMethod(Uint32 index)
 {
-    if (index >= _methods.size())
-        throw IndexOutOfBoundsException();
-
     _methods.remove(index);
 }
 

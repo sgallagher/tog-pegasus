@@ -133,17 +133,11 @@ Uint32 CIMMethodRep::findParameter(const CIMName& name) const
 
 CIMParameter CIMMethodRep::getParameter(Uint32 index)
 {
-    if (index >= _parameters.size())
-        throw IndexOutOfBoundsException();
-
     return _parameters[index];
 }
 
 void CIMMethodRep::removeParameter(Uint32 index)
 {
-    if (index >= _parameters.size())
-        throw IndexOutOfBoundsException();
-
     _parameters.remove (index);
 }
 

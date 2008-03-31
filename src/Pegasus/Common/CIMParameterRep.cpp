@@ -121,9 +121,6 @@ void CIMParameterRep::setName(const CIMName& name)
 
 void CIMParameterRep::removeQualifier(Uint32 index)
 {
-    if (index >= _qualifiers.getCount())
-        throw IndexOutOfBoundsException();
-
     _qualifiers.removeQualifier (index);
 }
 

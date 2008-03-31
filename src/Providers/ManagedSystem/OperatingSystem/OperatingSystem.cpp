@@ -58,7 +58,9 @@ PEGASUS_USING_PEGASUS;
 #elif defined (PEGASUS_OS_SOLARIS)
 # include "OperatingSystem_Solaris.cpp"
 #elif defined (PEGASUS_OS_ZOS)
-#include "OperatingSystem_zOS.cpp"
+# include "OperatingSystem_zOS.cpp"
+#elif defined (PEGASUS_OS_PASE)
+# include "OperatingSystem_PASE.cpp"
 #else
 # include "OperatingSystem_Stub.cpp"
 #endif

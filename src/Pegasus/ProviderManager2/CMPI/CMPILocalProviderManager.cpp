@@ -542,6 +542,27 @@ ThreadReturnType PEGASUS_THREAD_CDECL CMPILocalProviderManager::_reaper(
     PEG_METHOD_EXIT();
     return ThreadReturnType(0);
 }
+
+Boolean CMPILocalProviderManager::isProviderActive(const String &providerName)
+{
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPILocalProviderManager::isProviderActive()");
+
+    AutoMutex mtx(_providerTableMutex);
+    String lProviderName("L");
+    lProviderName.append(providerName);
+    String rProviderName("R");
+    rProviderName.append(providerName);
+
+    Boolean active = _providers.contains(lProviderName) ||
+        _providers.contains(rProviderName);
+
+    PEG_METHOD_EXIT();
+
+    return active;
+}
+
 /*
  // Cleanup the thread and upon deletion of it, call the CMPIProvider' 
  // "threadDeleted". to not, all the CMPIProvider '

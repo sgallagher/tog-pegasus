@@ -198,15 +198,15 @@ int main(int argc, char** argv)
            throw Exception("Failure: Connection unexpectedly succeeded");
         }
 
-        String userName;
-        retValue.get(userName);
+        String retUserName;
+        retValue.get(retUserName);
 
         if (expectedUserName != String::EMPTY)
         {
-           if (expectedUserName != userName)
+           if (expectedUserName != retUserName)
            {
               throw Exception("Provider returned unexpected Identity: "
-                  + userName);
+                  + retUserName);
            }
         }
         CIMClass c = client.getClass("root/cimv2",

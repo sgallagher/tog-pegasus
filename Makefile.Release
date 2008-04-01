@@ -875,7 +875,7 @@ _append_postSectionToSpecFile: FORCE
 	@$(ECHO-E) "%post" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "if [ \044\061 -eq 1 ]; then" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(MAKE) --directory=$(ROOT) Makefile.Release \
+	@$(MAKE) --directory=$(ROOT) -f Makefile.Release \
             _append_postSectionToSpecFile_createLog
 	@$(MAKE) --directory=$(ROOT) -f Makefile.Release \
             _append_postSectionToSpecFile_createSymbolicLinks

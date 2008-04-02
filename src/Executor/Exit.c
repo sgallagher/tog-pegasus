@@ -50,7 +50,7 @@
 void Exit(int status)
 {
     if (status == 0)
-        Log(LL_INFORMATION, "exited normally", status);
+        Log(LL_TRACE, "exited normally", status);
     else
         Log(LL_WARNING, "exited with status of %d", status);
 

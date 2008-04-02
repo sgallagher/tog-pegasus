@@ -350,7 +350,7 @@ int main(int argc, char** argv)
 
     InitLogLevel();
 
-    Log(LL_INFORMATION, "starting");
+    Log(LL_TRACE, "starting");
 
     /* Be sure this process is running as root (otherwise fail). */
 

@@ -102,8 +102,12 @@ int MP_Socket::ATTLS_zOS_query()
           case(EINPROGRESS):
           case(EWOULDBLOCK):
           {
-              PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
-                  "---> Accept pending (EWB).");
+              PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
+                   "Accept pending: %s (error code %d, reason code 0x%08X).", 
+                  strerror(errnoIoctl),
+                  errnoIoctl,
+                  errno2Ioctl));
+               PEG_METHOD_EXIT();
               return 0; // accept pending
           }
           case(ECONNRESET):
@@ -114,6 +118,21 @@ int MP_Socket::ATTLS_zOS_query()
                   "ATTLS reset the connection due to handshake failure. "
                       "Connection closed.");
               PEG_METHOD_EXIT();
+               // close socket
+              return -1;
+          }
+          case(ENOTCONN):
+          {
+              int socket_errno;
+              SocketLength optlen = sizeof(int);
+              getsockopt(_socket, SOL_SOCKET, SO_ERROR,
+                  (char*)&socket_errno, &optlen);
+              PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                   "Client not connected to ATTLS. Closing socket %d : "
+                       "%s (error code %d)",
+                   _socket,strerror(socket_errno),socket_errno));
+               PEG_METHOD_EXIT();
+               // close socket
               return -1;
           }
           default:
@@ -129,6 +148,7 @@ int MP_Socket::ATTLS_zOS_query()
                   errnoIoctl,
                   str_errno2);
               PEG_METHOD_EXIT();
+               // close socket
               return -1;
           }
       } // end switch(errnoIoctl)
@@ -139,7 +159,29 @@ int MP_Socket::ATTLS_zOS_query()
    switch(ioc.TTLSi_Stat_Policy)
    {
        case(TTLS_POL_OFF):
+        {
+            Logger::put_l(
+                Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                "Pegasus.Common.SocketzOS_inline.POLICY_OFF",
+                "ATTLS is not active for TCP-IP stack the CIM server "
+                    "is using for HTTPS connections. "
+                    "Communication not secured. Connection closed.");
+            PEG_METHOD_EXIT();
+            // close socket
+            return -1;
+        }
        case(TTLS_POL_NO_POLICY):
+        {
+            Logger::put_l(
+                Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                "Pegasus.Common.SocketzOS_inline.NO_POLICY",
+                "There is no ATTLS policy found for the CIM server "
+                    "HTTPS connections. "
+                    "Communication not secured. Connection closed.");
+            PEG_METHOD_EXIT();
+            // close socket
+            return -1;
+        }
        case(TTLS_POL_NOT_ENABLED):
        {
            Logger::put_l(
@@ -148,6 +190,7 @@ int MP_Socket::ATTLS_zOS_query()
                "ATTLS policy is not active for the CIM Server HTTPS port. "
                    "Communication not secured. Connection closed.");
            PEG_METHOD_EXIT();
+            // close socket
            return -1;
        }
        case(TTLS_POL_ENABLED):
@@ -164,6 +207,7 @@ int MP_Socket::ATTLS_zOS_query()
                "ATTLS policy not valid for CIM Server. "
                    "Set ApplicationControlled to OFF. Connection closed.");
            PEG_METHOD_EXIT();
+            // close socket
            return -1;
        }
 
@@ -176,7 +220,9 @@ int MP_Socket::ATTLS_zOS_query()
        case(TTLS_CONN_HS_INPROGRESS):
        {
            // the SSL handshake has not been finished yet, try late again.
-           PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4, "---> Accept pending.");
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4, 
+                 "ATTLS reports SSL handshake pending.");
+            // accept pending
            return 0;
        }
        case(TTLS_CONN_SECURE):
@@ -200,6 +246,7 @@ int MP_Socket::ATTLS_zOS_query()
                    "CIM Server HTTPS port. Communication not secured. "
                    "Connection closed.");
            PEG_METHOD_EXIT();
+            // close connection
            return -1;
 
        }
@@ -212,6 +259,7 @@ int MP_Socket::ATTLS_zOS_query()
            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
                "---> ATTLS Security Type is valid but no SAFCHK.");
            PEG_METHOD_EXIT();
+            // successfull return
            return 1;
        }
 
@@ -239,6 +287,7 @@ int MP_Socket::ATTLS_zOS_query()
            }
 #endif
            PEG_METHOD_EXIT();
+            // successfull return
            return 1;
 
        }

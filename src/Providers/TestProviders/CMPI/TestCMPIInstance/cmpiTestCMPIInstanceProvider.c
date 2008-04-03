@@ -154,17 +154,6 @@ static int _testInstance ()
         PROV_LOG("++++  SetPropertyWithOrigin status : (%s)",strCMPIStatus(rc));
     }
 
-    retData = CMGetProperty(instance, "objPath", &rc);
-
-    name = CMGetClassName(retData.value.ref, NULL);
-    if (retData.type == CMPI_ref )
-    {
-         PROV_LOG("++++  CMGetProperty for property objPath status : (%s)"
-             ", Class name(%s)",
-             strCMPIStatus(rc),
-             CMGetCharsPtr(name,NULL));
-    }
-
     /* Setting non-memeber property of type other than CMPI_ref*/
     value.uint32 = 32;
     type = CMPI_uint32;
@@ -172,15 +161,6 @@ static int _testInstance ()
     if ( rc.rc == CMPI_RC_OK )
     {
         PROV_LOG("++++  SetPropertyWithOrigin status : (%s)",strCMPIStatus(rc));
-    }
-
-    retData = CMGetProperty(instance, "n32", &rc);
-
-    if (retData.type == CMPI_uint32 && retData.value.uint32 == 32)
-    {
-         PROV_LOG("++++  CMGetProperty for n32 property status : (%s), (%d)",
-             strCMPIStatus(rc),
-             retData.value.uint32);
     }
 
     /* Testing error path for instGetProperty with NULL property name*/

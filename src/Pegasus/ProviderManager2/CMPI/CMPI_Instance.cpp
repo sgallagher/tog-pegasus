@@ -195,21 +195,7 @@ extern "C"
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
-        char **list=(char**)(reinterpret_cast<const CMPI_Object*>(eInst))->priv;
         CMPIrc rc;
-
-        if (list)
-        {
-            while (*list)
-            {
-                if (System::strcasecmp(name,*list)==0) goto ok;
-                list++;
-            }
-            PEG_METHOD_EXIT();
-            CMReturn(CMPI_RC_OK);
-        }
-
-        ok:
         CIMValue v=value2CIMValue(data,type,&rc);
         CIMNameUnchecked sName(name);
         Uint32 pos;
@@ -324,34 +310,11 @@ extern "C"
         }
         else
         {
-            if (type==CMPI_ref)
-            {
-                CIMObjectPath *ref=(CIMObjectPath*)(data->ref->hdl);
-                if (origin)
-                {
-                    CIMName oName(origin);
-                    inst->addProperty(CIMProperty(sName,v,count,
-                        ref->getClassName(),oName));
-                }
-                else
-                {
-                    inst->addProperty(CIMProperty(sName,v,count,
-                        ref->getClassName()));
-                }
-            }
-            else
-            {
-                if (origin)
-                {
-                    CIMName oName(origin);
-                    inst->addProperty(
-                        CIMProperty(sName,v,count,CIMName(),oName));
-                }
-                else
-                {
-                    inst->addProperty(CIMProperty(sName,v,count));
-                }
-            }
+            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL3,
+                       "Property %s not set on created instance."
+                           "Either the property is not part of the class or"
+                               "not part of the property list.",
+                       name));
         }
         PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
@@ -465,6 +428,135 @@ extern "C"
         CMReturn ( CMPI_RC_OK);
     }
 
+    /* The function removes all properties not part of the given
+       array of property names(property lists).
+       Function can handle second list being set or not set.
+       This is an internal function used by instSetPropertyFilter()
+    */
+    static void filterCIMInstance(
+        const char** listroot1,
+        const char** listroot2,
+        CIMInstance & inst)
+    {
+        /* listroot1 never can be 0, this function is only called by 
+           instSetPropertyFilter() and the check is done there already */
+        
+        /* determine number of properties on the instance */
+        int propertyCount = inst.getPropertyCount();
+
+        /* number of properties in each property list */
+        int numProperties1 = 0;
+        int numProperties2 = 0;            
+        /* Masks for property lists
+           0 = list element not yet found
+           1 = list element already found)
+        */            
+        char * plMask1=0;
+        char * plMask2=0;            
+        /* end of array of property list names */
+        const char **listend1 = listroot1;
+        /* place end pointer at end of array and count number of properties
+           named in the first list */
+        while (*listend1) 
+        {
+            listend1++;
+        }
+        /* former while loop steps one field to far, step one back */
+        listend1--;
+        /* calculate last valid index of a property */
+        numProperties1 = listend1 - listroot1;
+        /* reserver memory for index + 1 property mask fields */
+        plMask1 = (char*) calloc(1, numProperties1+1);
+
+        /* special dish for two lists, need to check those at same time */
+        /* variable to hold end of array of property list names */
+        const char **listend2 = listroot2;
+        /* place end pointer at end of array and count number of properties
+           named in the first list */
+        if (listroot2)
+        {
+            while (*listend2) 
+            {
+                listend2++;
+            }
+            /* former while loop steps one field to far, step one back */
+            listend2--;
+            /* calculate last valid index of a property */
+            numProperties2 = listend2 - listroot2;
+            /* reserver memory for index + 1 property mask fields */
+            plMask2 = (char*) calloc(1, numProperties2+1);
+        }
+
+        /* for each property on the instance */
+        /* use reverse order, so we don't change index of properties not yet
+           checked when removing a property */
+        for (int idx=propertyCount-1; idx >= 0; idx--)
+        {
+            CIMConstProperty prop = inst.getProperty(idx);
+            CString cName = prop.getName().getString().getCString();
+            const char* pName = (const char*)cName;
+            
+            /* work the property list backward too, as often times
+               properties on the instance and in the list are ordered in the
+               same way, this helps reduce number of required strcasecmp */
+            int found = false;
+            /* use temporary list1 to step through the list */
+            const char **list1 = listend1;
+
+            /* steps through the entire property list and does compare
+               the name in the property list with the currently investigated
+               name of the property, except one of the following conditions
+               is true:
+                 1.) the property list element has already been found as
+                     indicated by the property list mask
+                 2.) the property is found, mark it as found in the mask and
+                     leave the for-loop
+            */
+            for (int pos1=numProperties1; pos1 >= 0; pos1--,list1--)
+            {
+                if (!plMask1[pos1])
+                {
+                    if (System::strcasecmp(pName, *list1)==0)
+                    {
+                        found = true;
+                        plMask1[pos1] = 1;
+                        break;
+                    }
+                }
+            }
+            /* Do the same algorithm for the second list too,
+               except if we found the property already */
+            if (listroot2 && !found)
+            {
+                /* use temporary list2 to step through the list */
+                const char **list2 = listend2;
+                for (int pos2=numProperties2; pos2 >= 0; pos2--,list2--)
+                {
+                    if (!plMask2[pos2])
+                    {
+                        if (System::strcasecmp(pName, *list2)==0)
+                        {
+                            found = true;
+                            plMask2[pos2] = 1;
+                            break;
+                        }
+                    }
+                }
+            }
+            /* If the property could not be found in either property list,
+               remove the property from the instance */
+            if (!found)
+            {
+                inst.removeProperty(idx);
+            }
+        }
+        free(plMask1);
+        if (listroot2)
+        {
+            free(plMask2);
+        }
+    }
+
     static CMPIStatus instSetPropertyFilter(CMPIInstance* eInst,
         const char** propertyList, const char **keys)
     {
@@ -476,33 +568,25 @@ extern "C"
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
+        /* The property list is to be applied on the given instance.
+           Currently CMPI provider have to call instSetPropertyFilter to honor
+           property filters or have to filter for themselves.
+           Removing properties from the CIMInstance here helps to effectively
+           avoid the need to carry a property list around in the CMPI layer.
+        */
 
-        CMPI_Object *inst=reinterpret_cast<CMPI_Object*>(eInst);
-        char **list=(char**)inst->priv;    // Thank you Warren !
-        int i,s;
-
-        if (inst->priv)
+        CIMInstance& inst=*(CIMInstance*)(eInst->hdl);
+        if (propertyList && *propertyList)
         {
-            while (*list)
+            if (!(keys && *keys))
             {
-                free (*list);
-                list++;
+                filterCIMInstance(propertyList, 0, inst);
             }
-            free(inst->priv);
-        }
-        inst->priv=NULL;
-
-        if (propertyList==NULL) CMReturn(CMPI_RC_OK);
-        if (keys==NULL) CMReturn(CMPI_RC_ERR_FAILED);
-
-        for (s=0,i=0; propertyList[i]; i++,s++);
-        for (i=0; keys[i]; i++,s++);
-        list = (char**) calloc(s+1, sizeof(char*));
-        for (s=0,i=0; propertyList[i]; 
-              i++,s++) list[s]=strdup(propertyList[i]);
-        for (i=0; keys[i]; i++,s++) list[s]=strdup(keys[i]);
-        inst->priv=(void*)list;
-
+            else
+            {
+                filterCIMInstance(propertyList, keys, inst);
+            }
+        };
         PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }

@@ -46,7 +46,6 @@ CMPI_Object::CMPI_Object(CMPI_Object *obj)
 {
     hdl = obj->hdl;
     ftab = obj->ftab;
-    priv = obj->priv;
 }
 // Add a flag here?
 CMPI_Object::CMPI_Object(CIMInstance* ci)
@@ -54,7 +53,6 @@ CMPI_Object::CMPI_Object(CIMInstance* ci)
     CMPI_ThreadContext::addObject(this);
     hdl = (void*)ci;
     ftab = CMPI_Instance_Ftab;
-    priv = NULL;
 }
 
 CMPI_Object::CMPI_Object(CIMObjectPath* cop)
@@ -151,20 +149,6 @@ CMPI_Object::CMPI_Object(CMPI_OpEnumeration *dta)
 
 CMPI_Object::~CMPI_Object()
 {
-    if (ftab == CMPI_Instance_Ftab)
-    {
-        char **list = (char**)priv;
-        if (priv)
-        {
-            while (*list)
-            {
-                free (*list);
-                list++;
-            }
-            free(priv);
-        }
-        priv=NULL;
-    }
 }
 
 void CMPI_Object::unlinkAndDelete()

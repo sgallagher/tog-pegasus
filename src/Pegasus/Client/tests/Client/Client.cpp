@@ -387,6 +387,33 @@ static void TestReferenceClassNames(CIMClient& client)
     cout << endl;
 }
 
+static void TestDomainSocketConnection()
+{
+    CIMClient client;
+
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+
+    client.connect("", 0, "", "");
+    TestGetClass(client);
+
+#else
+
+    Boolean caughtException = false;
+
+    try
+    {
+        client.connect("", 0, "", "");
+    }
+    catch (CannotConnectException& e)
+    {
+        caughtException = true;
+    }
+
+    PEGASUS_ASSERT(caughtException);
+
+#endif
+}
+
 int main(int argc, char** argv)
 {
     try
@@ -414,6 +441,8 @@ int main(int argc, char** argv)
         TestReferences(client);
         TestAssociatorClassNames(client);
         TestReferenceClassNames(client);
+
+        TestDomainSocketConnection();
     }
     catch(Exception& e)
     {

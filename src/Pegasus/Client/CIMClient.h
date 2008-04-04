@@ -114,7 +114,9 @@ public:
                     ". Trying to connect to " << host << endl;
             }
         </PRE>
-        @param host A String host name to connect to.
+        @param host A String host name to connect to.  If host is an empty
+        string and portNumber is 0, the client will attempt to connect
+        to the server's unix domain socket (on supporting platforms).
         @param portNumber A Uint32 port number to connect to.
         @param userName A String specifying the user name for the connection.
         @param password A String containing the password of the specified user.

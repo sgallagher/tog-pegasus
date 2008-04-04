@@ -1083,11 +1083,22 @@ CmpiArrayIdx& CmpiArrayIdx::operator=(const CmpiData& v)
             throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
         }
     }
+    if (arType == CMPI_chars)
+    {
+        rc=ar.getEnc()->ft->setElementAt(
+            ar.getEnc(),
+            idx,
+            (CMPIValue*)v._data.value.chars,
+            arType);
+    }
+    else
+    {
     rc=ar.getEnc()->ft->setElementAt(
         ar.getEnc(),
         idx,
         (CMPIValue*)&v._data.value,
         arType);
+    }
     if (rc.rc != CMPI_RC_OK)
     {
         throw CmpiStatus(rc);

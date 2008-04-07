@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,16 +29,14 @@
 //
 //==============================================================================
 //
-// Author: Dave Sudlik (dsudlik@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 //
 // This sample provider is both an Instance and Lifecycle Indication provider.
 //
 // BE SURE YOU CAREFULLY READ THE FILE README.LIFECYCLEINDICATIONS.HTM IN THIS
-// DIRECTORY TO MAKE SURE YOU UNDERSTAND THE CURRENT USE OF LIFECYCLE INDICATIONS!!
+// DIRECTORY TO MAKE SURE YOU UNDERSTAND CURRENT USE OF LIFECYCLE INDICATIONS!!
 //
-// Note that if this provider were expanded to also be a MethodProvider, then you
+// Note: If this provider were expanded to also be a MethodProvider, then you
 // may want to consider also generating a lifecycle indication for
 // InstMethodCall_for_Sample_LifecycleIndicationProviderClass (a subclass of
 // CIM_InstMethodCall). See LifecycleIndicationProviderR.mof.
@@ -54,6 +52,7 @@
 #include <iostream>
 
 PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 LifecycleIndicationProvider::LifecycleIndicationProvider(void)
 {
@@ -65,10 +64,10 @@ LifecycleIndicationProvider::~LifecycleIndicationProvider(void)
 
 void LifecycleIndicationProvider::initialize(CIMOMHandle & cimom)
 {
-//  PEGASUS_STD(cout) << "LifecycleIndicationProvider::initialize()" << PEGASUS_STD(endl);
+//  cout << "LifecycleIndicationProvider::initialize()" << endl;
 
     // save cimom handle
-	_cimom = cimom;
+    _cimom = cimom;
     _indication_handler = 0;
     _lifecycle_indications_enabled = false;
     _numSubscriptions = 0;
@@ -77,34 +76,34 @@ void LifecycleIndicationProvider::initialize(CIMOMHandle & cimom)
 
 void LifecycleIndicationProvider::terminate(void)
 {
-//  PEGASUS_STD(cout) << "LifecycleIndicationProvider::terminate()" << PEGASUS_STD(endl);
+//  cout << "LifecycleIndicationProvider::terminate()" << endl;
     delete this;
 }
 
 void LifecycleIndicationProvider::getInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList,
+    InstanceResponseHandler & handler)
 {
-//  PEGASUS_STD(cout) << "LifecycleIndicationProvider::getInstance()" << PEGASUS_STD(endl);
+//  cout << "LifecycleIndicationProvider::getInstance()" << endl;
     handler.processing();
 
     for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
         if(instanceReference == _instances[i].getPath())
         {
-//          PEGASUS_STD(cout) << "delivering " << _instances[i].getPath().toString() << PEGASUS_STD(endl);
+//          cout << "delivering " << _instances[i].getPath().toString() << endl;
 
             handler.deliver(_instances[i]);
 
             break;
         }
     }
-    // It's not shown here, but your implementation of getInstance() might want to
-    // generate a lifecycle indication for
+    // It's not shown here, but your implementation of getInstance() might want
+    // to generate a lifecycle indication for
     // InstRead_for_Sample_LifecycleIndicationProviderClass, for the instance
     // that is returned. See LifecycleIndicationProviderR.mof.
 
@@ -112,19 +111,19 @@ void LifecycleIndicationProvider::getInstance(
 }
 
 void LifecycleIndicationProvider::enumerateInstances(
-	const OperationContext & context,
-	const CIMObjectPath & ref,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
-	const CIMPropertyList & propertyList,
-	InstanceResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & ref,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList,
+    InstanceResponseHandler & handler)
 {
-//  PEGASUS_STD(cout) << "LifecycleIndicationProvider::enumerateInstances()" << PEGASUS_STD(endl);
+//  cout << "LifecycleIndicationProvider::enumerateInstances()" << endl;
     handler.processing();
 
     for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
-//      PEGASUS_STD(cout) << "delivering " << _instances[i].getPath().toString() << PEGASUS_STD(endl);
+//      cout << "delivering " << _instances[i].getPath().toString() << endl;
 
         handler.deliver(_instances[i]);
     }
@@ -137,16 +136,16 @@ void LifecycleIndicationProvider::enumerateInstances(
 }
 
 void LifecycleIndicationProvider::enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	ObjectPathResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & classReference,
+    ObjectPathResponseHandler & handler)
 {
-//  PEGASUS_STD(cout) << "LifecycleIndicationProvider::enumerateInstanceNames()" << PEGASUS_STD(endl);
+//  cout << "LifecycleIndicationProvider::enumerateInstanceNames()" << endl;
     handler.processing();
 
     for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
-//      PEGASUS_STD(cout) << "delivering " << _instances[i].getPath().toString() << PEGASUS_STD(endl);
+//      cout << "delivering " << _instances[i].getPath().toString() << endl;
 
         handler.deliver(_instances[i].getPath());
     }
@@ -159,31 +158,32 @@ void LifecycleIndicationProvider::enumerateInstanceNames(
 }
 
 void LifecycleIndicationProvider::modifyInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	const Boolean includeQualifiers,
-	const CIMPropertyList & propertyList,
-	ResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const CIMInstance & instanceObject,
+    const Boolean includeQualifiers,
+    const CIMPropertyList & propertyList,
+    ResponseHandler & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
     // When this is supported, it should generate a lifecycle indication of
     // InstModification_for_Sample_LifecycleIndicationProviderClass for the
-    // instance that is modified. Remember that this indication has *two* embedded
-    // objects, both "before" (PreviousInstance) and "after" (SourceInstance)
-    // snapshots of the instance that is modified.
+    // instance that is modified. Remember that this indication has *two*
+    // embedded objects, both "before" (PreviousInstance) and
+    // "after" (SourceInstance) snapshots of the instance that is modified.
     // See LifecycleIndicationProviderR.mof.
 }
 
 void LifecycleIndicationProvider::createInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	ObjectPathResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const CIMInstance & instanceObject,
+    ObjectPathResponseHandler & handler)
 {
-//  PEGASUS_STD(cout) << "LifecycleIndicationProvider::createInstance()" << PEGASUS_STD(endl);
+//  cout << "LifecycleIndicationProvider::createInstance()" << endl;
     // Validate the class name
-    if(!instanceObject.getClassName().equal("Sample_LifecycleIndicationProviderClass"))
+    if(!instanceObject.getClassName().equal(
+           "Sample_LifecycleIndicationProviderClass"))
     {
         throw CIMNotSupportedException(
             instanceObject.getClassName().getString());
@@ -235,15 +235,18 @@ void LifecycleIndicationProvider::createInstance(
     handler.complete();
 
     // If there is at least one subscription active for the lifecycle indication
-    // InstCreation_for_Sample_LifecycleIndicationProviderClass, then generate that
-    // indication here, embedding the newly-created instance as the SourceInstance
-    // property. See LifecycleIndicationProviderR.mof.
+    // InstCreation_for_Sample_LifecycleIndicationProviderClass, then generate
+    // that indication here, embedding the newly-created instance as
+    // the SourceInstance property. See LifecycleIndicationProviderR.mof.
     if (_lifecycle_indications_enabled)
     {
-        CIMInstance indicationInstance (CIMName ("InstCreation_for_Sample_LifecycleIndicationProviderClass"));
+        CIMInstance indicationInstance(
+            CIMName(
+                "InstCreation_for_Sample_LifecycleIndicationProviderClass"));
         CIMObjectPath path;
-        path.setNameSpace ("root/SampleProvider");
-        path.setClassName ("InstCreation_for_Sample_LifecycleIndicationProviderClass");
+        path.setNameSpace("root/SampleProvider");
+        path.setClassName(
+            "InstCreation_for_Sample_LifecycleIndicationProviderClass");
         indicationInstance.setPath(path);
 
         char buffer[32];
@@ -251,8 +254,8 @@ void LifecycleIndicationProvider::createInstance(
         indicationInstance.addProperty
             (CIMProperty ("IndicationIdentifier",String(buffer)));
 
-	    CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
-	    indicationInstance.addProperty
+        CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
+        indicationInstance.addProperty
             (CIMProperty ("IndicationTime", currentDateTime));
 
         indicationInstance.addProperty
@@ -260,55 +263,60 @@ void LifecycleIndicationProvider::createInstance(
 
         _indication_handler->deliver (indicationInstance);
 
-//      PEGASUS_STD(cout) << "LifecycleIndicationProvider::createInstance() sent InstCreation_for_Sample_LifecycleIndicationProviderClass" << PEGASUS_STD(endl);
+//      cout << "LifecycleIndicationProvider::createInstance() sent "
+//                  "InstCreation_for_Sample_LifecycleIndicationProviderClass"
+//           << endl;
     }
 }
 
 void LifecycleIndicationProvider::deleteInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	ResponseHandler & handler)
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    ResponseHandler & handler)
 {
-//  PEGASUS_STD(cout) << "LifecycleIndicationProvider::deleteInstance()" << PEGASUS_STD(endl);
+//  cout << "LifecycleIndicationProvider::deleteInstance()" << endl;
     CIMInstance localInstance;
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference =
+    // convert a potential fully qualified reference into a local reference
+    // (class name and keys only).
+    CIMObjectPath localReference =
         CIMObjectPath(
             String(),
             CIMNamespaceName(),
             instanceReference.getClassName(),
             instanceReference.getKeyBindings());
 
-	// begin processing the request
-	handler.processing();
+    // begin processing the request
+    handler.processing();
 
-	// instance index corresponds to reference index
-	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-	{
-		if(localReference == _instances[i].getPath())
-		{
+    // instance index corresponds to reference index
+    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    {
+        if(localReference == _instances[i].getPath())
+        {
             localInstance = _instances[i];
-			// remove instance from the array
-			_instances.remove(i);
+            // remove instance from the array
+            _instances.remove(i);
 
             break;
-		}
-	}
+        }
+    }
 
-	// complete processing the request
-	handler.complete();
+    // complete processing the request
+    handler.complete();
 
     // If there is at least one subscription active for the lifecycle indication
-    // InstDeletion_for_Sample_LifecycleIndicationProviderClass, then generate that
-    // indication here, embedding the just-deleted instance as the SourceInstance
-    // property. See LifecycleIndicationProviderR.mof.
+    // InstDeletion_for_Sample_LifecycleIndicationProviderClass, then generate
+    // that indication here, embedding the just-deleted instance as the
+    // SourceInstance property. See LifecycleIndicationProviderR.mof.
     if (_lifecycle_indications_enabled)
     {
-        CIMInstance indicationInstance (CIMName ("InstDeletion_for_Sample_LifecycleIndicationProviderClass"));
+        CIMInstance indicationInstance(
+            CIMName(
+                "InstDeletion_for_Sample_LifecycleIndicationProviderClass"));
         CIMObjectPath path;
-        path.setNameSpace ("root/SampleProvider");
-        path.setClassName ("InstDeletion_for_Sample_LifecycleIndicationProviderClass");
+        path.setNameSpace("root/SampleProvider");
+        path.setClassName(
+            "InstDeletion_for_Sample_LifecycleIndicationProviderClass");
         indicationInstance.setPath(path);
 
         char buffer[32];
@@ -316,17 +324,20 @@ void LifecycleIndicationProvider::deleteInstance(
         indicationInstance.addProperty
             (CIMProperty ("IndicationIdentifier",String(buffer)));
 
-	    CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
-	    indicationInstance.addProperty
+        CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
+        indicationInstance.addProperty
             (CIMProperty ("IndicationTime", currentDateTime));
 
-        // Before we send the Lifecycle Indication for the delete of this instance,
-        // change the "lastOp" property value to "deleteInstance".
+        // Before we send the Lifecycle Indication for the delete of this
+        // instance, change the "lastOp" property value to "deleteInstance".
         Uint32 ix = localInstance.findProperty(CIMName("lastOp"));
         if (ix != PEG_NOT_FOUND)
         {
             localInstance.removeProperty(ix);
-            localInstance.addProperty(CIMProperty(CIMName ("lastOp"), String("deleteInstance")));
+            localInstance.addProperty(
+                CIMProperty(
+                    CIMName("lastOp"),
+                    String("deleteInstance")));
         }
 
         indicationInstance.addProperty
@@ -334,32 +345,35 @@ void LifecycleIndicationProvider::deleteInstance(
 
         _indication_handler->deliver (indicationInstance);
 
-//      PEGASUS_STD(cout) << "LifecycleIndicationProvider::deleteInstance() sent InstDeletion_for_Sample_LifecycleIndicationProviderClass" << PEGASUS_STD(endl);
+//      cout << "LifecycleIndicationProvider::deleteInstance() sent "
+//                  "InstDeletion_for_Sample_LifecycleIndicationProviderClass"
+//           << endl;
     }
 }
 
 void LifecycleIndicationProvider::enableIndications (
     IndicationResponseHandler & handler)
 {
-    ////////////////////////////////////////////////////////////////////////////////////
-    // This method is called when the first subscription is received for one of
-    // the lifecycle indications that is supported by this provider. Note that is
-    // the reason we subclass the CIM Lifecycle Indications (eg. CIM_InstCreation),
-    // so that this provider is only enabled for the specific indications associated
-    // with the resource it handles, not for *any* Lifecycle Indication subscription.
-    // You may wish to use this technique, or if the proliferation of subclasses is
-    // a concern, then this provider could interrogate the subscription in one
-    // of the methods below, to see if the resource handled by this provider is
-    // included in the subscription.
-    ////////////////////////////////////////////////////////////////////////////////////
-//  PEGASUS_STD(cout) << "LifecycleIndicationProvider::enableIndications()" << PEGASUS_STD(endl);
+    /*
+       This method is called when the first subscription is received for one of
+       the lifecycle indications that is supported by this provider.
+       Note that is the reason we subclass the CIM Lifecycle Indications
+       (eg. CIM_InstCreation), so that this provider is only enabled for the
+       specific indications associated with the resource it handles,
+       not for *any* Lifecycle Indication subscription.
+       You may wish to use this technique, or if the proliferation of subclasses
+       is a concern, then this provider could interrogate the subscription
+       in one of the methods below, to see if the resource handled by this
+       provider is included in the subscription.
+    **/
+//  cout << "LifecycleIndicationProvider::enableIndications()" << endl;
     _lifecycle_indications_enabled = true;
     _indication_handler = &handler;
 }
 
 void LifecycleIndicationProvider::disableIndications (void)
 {
-//  PEGASUS_STD(cout) << "LifecycleIndicationProvider::disableIndications()" << PEGASUS_STD(endl);
+//  cout << "LifecycleIndicationProvider::disableIndications()" << endl;
     _lifecycle_indications_enabled = false;
     _indication_handler->complete();
     _indication_handler = 0;
@@ -372,7 +386,7 @@ void LifecycleIndicationProvider::createSubscription (
     const CIMPropertyList & propertyList,
     const Uint16 repeatNotificationPolicy)
 {
-//  PEGASUS_STD(cout) << "LifecycleIndicationProvider::createSubscription()" << PEGASUS_STD(endl);
+//  cout << "LifecycleIndicationProvider::createSubscription()" << endl;
     _numSubscriptions++;
 }
 
@@ -383,7 +397,7 @@ void LifecycleIndicationProvider::modifySubscription (
     const CIMPropertyList & propertyList,
     const Uint16 repeatNotificationPolicy)
 {
-//  PEGASUS_STD(cout) << "LifecycleIndicationProvider::modifySubscription()" << PEGASUS_STD(endl);
+//  cout << "LifecycleIndicationProvider::modifySubscription()" << endl;
 }
 
 void LifecycleIndicationProvider::deleteSubscription (
@@ -391,7 +405,7 @@ void LifecycleIndicationProvider::deleteSubscription (
     const CIMObjectPath & subscriptionName,
     const Array <CIMObjectPath> & classNames)
 {
-//  PEGASUS_STD(cout) << "LifecycleIndicationProvider::deleteSubscription()" << PEGASUS_STD(endl);
+//  cout << "LifecycleIndicationProvider::deleteSubscription()" << endl;
     _numSubscriptions--;
 }
 

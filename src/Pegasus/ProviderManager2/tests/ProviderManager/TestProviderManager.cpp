@@ -29,27 +29,47 @@
 //
 //==============================================================================
 //
-// Author:
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "TestProviderManager.h"
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/ProviderManager2/ProviderManager.h>
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
-TestProviderManager::TestProviderManager(void)
+class TestProviderManager : public ProviderManager
 {
-}
+public:
+    TestProviderManager(void) {}
+    virtual ~TestProviderManager(void) {}
+    virtual Boolean hasActiveProviders() { return true; }
+    virtual void unloadIdleProviders() {}
+    virtual Message * processMessage(Message * request) throw()
+    {
+        return(0);
+    }
 
-TestProviderManager::~TestProviderManager(void)
+};
+
+int main(int argc, char** argv)
 {
-}
+    try
+    {
+        TestProviderManager myPM;
+        myPM.unloadIdleProviders();
+        PEGASUS_TEST_ASSERT(myPM.supportsRemoteNameSpaces() == false);
+        PEGASUS_TEST_ASSERT(myPM.hasActiveProviders() == true);
+        PEGASUS_TEST_ASSERT(myPM.processMessage(0) == 0);
+    }
+    catch (Exception& e)
+    {
+        PEGASUS_STD(cout) << "Exception: " << e.getMessage() <<
+            PEGASUS_STD(endl);
+        exit(1);
+    }
 
-Message * TestProviderManager::processMessage(Message * request) throw()
-{
-    return(0);
+    PEGASUS_STD(cout) << argv[0] << " +++++ passed all tests" <<
+        PEGASUS_STD(endl);
+    return 0;
 }
-
-PEGASUS_NAMESPACE_END

@@ -31,8 +31,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-// NOCHKSRC
-
 #include "JMPIProviderModule.h"
 
 #include <Pegasus/Common/FileSystem.h>
@@ -88,9 +86,12 @@ ProviderVector JMPIProviderModule::load (const String & providerName)
    }
    else
    {
-      throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
-                                     MessageLoaderParms ("ProviderManager.JMPI.INIT_JVM_FAILED",
-                                                         "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
+      throw PEGASUS_CIM_EXCEPTION_L(
+          CIM_ERR_FAILED,
+          MessageLoaderParms(
+              "ProviderManager.JMPI.INIT_JVM_FAILED",
+              "Could not initialize the JVM (Java Virtual Machine) "
+                  "runtime environment."));
    }
 
    if (pv.jProvider == 0)

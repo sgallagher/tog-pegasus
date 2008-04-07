@@ -31,8 +31,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-// NOCHKSRC
-
 #ifndef Pegasus_JMPIProviderManager_h
 #define Pegasus_JMPIProviderManager_h
 
@@ -101,9 +99,12 @@ public:
         CIMPropertyList          propertyList;
     };
 
-    typedef HashTable<String, indProvRecord*,   EqualFunc<String>, HashFunc<String> > IndProvTab;
-    typedef HashTable<String, indSelectRecord*, EqualFunc<String>, HashFunc<String> > IndSelectTab;
-    typedef HashTable<String, ProviderName,     EqualFunc<String>, HashFunc<String> > ProvRegistrar;
+    typedef HashTable<String,indProvRecord*,EqualFunc<String>,
+                      HashFunc<String> > IndProvTab;
+    typedef HashTable<String,indSelectRecord*,EqualFunc<String>,
+                      HashFunc<String> > IndSelectTab;
+    typedef HashTable<String,ProviderName,EqualFunc<String>,
+                      HashFunc<String> > ProvRegistrar;
 
     static Mutex         mutexProvTab;
     static IndProvTab    provTab;

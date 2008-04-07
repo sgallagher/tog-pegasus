@@ -38,8 +38,8 @@
 #include <Pegasus/Common/CIMName.h>
 //NOCHKSRC
 #include <Pegasus/ControlProviders/QueryCapabilitiesProvider/CIMQueryCapabilitiesProvider.h>
+// DOCHKSRC
 #include <iostream>
-
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

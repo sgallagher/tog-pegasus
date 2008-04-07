@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Marek Szermutzky (mszermutzky@de.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef MCCA_TestAssocProvider_h
@@ -43,7 +39,8 @@
 #include <Pegasus/Provider/ProviderException.h>
 
 // Debugging enabling/disabling point
-//#define CDEBUG(X) PEGASUS_STD(cout) << "MCCA_AssocTestProvider " << X << PEGASUS_STD(endl)
+//#define CDEBUG(X) PEGASUS_STD(cout) << "MCCA_AssocTestProvider " 
+//                                    << X << PEGASUS_STD(endl)
 #define CDEBUG(X);
 
 PEGASUS_NAMESPACE_BEGIN

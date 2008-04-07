@@ -46,7 +46,8 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /** The ProviderModule class represents the physical module, as defined by the
-    operating system, that contains one or more providers. Also this class in not reentrant.
+    operating system, that contains one or more providers.
+    Also this class in not reentrant.
  */
 class PEGASUS_DEFPM_LINKAGE ProviderModule
 {

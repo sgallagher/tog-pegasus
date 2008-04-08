@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//=============================================================================
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -72,7 +74,7 @@ CmpiBaseMI::~CmpiBaseMI()
 CMPIStatus CmpiBaseMI::driveBaseCleanup(
     void* vi,
     const CMPIContext* eCtx,
-    CMPIBoolean terminating)
+    CMPIBoolean b)
 {
     try
     {
@@ -80,63 +82,20 @@ CMPIStatus CmpiBaseMI::driveBaseCleanup(
         CmpiContext ctx((CMPIContext*)eCtx);
         CmpiStatus rc(CMPI_RC_OK);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*>(mi->hdl);
-        if (!terminating)
+        if (cmi->isUnloadable())
         {
-            if (cmi->isUnloadable())
+            if (cmi->getProviderBase() && 
+                cmi->getProviderBase()->decUseCount()==0)
             {
-                if (cmi->getProviderBase() &&
-                    cmi->getProviderBase()->decUseCount()==0)
-                {
-                    rc=cmi->cleanup(ctx);
-                    if (rc.rc() == CMPI_RC_OK)
-                    {
-                        cmi->getProviderBase()->setBaseMI(0);
-                        cmi->setProviderBase(0);
-                        delete cmi;
-                    }
-                    else
-                    {
-                        /* some error occured, do NOT delete the MI 
-                           increase MI count again
-                        */
-                        cmi->getProviderBase()->incUseCount();
-                    }
-                }
-            }
-            else
-            {
-                rc = CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
+                cmi->getProviderBase()->setBaseMI(0);
+                cmi->setProviderBase(0);
+                rc=cmi->cleanup(ctx);
+                delete cmi;
             }
         }
         else
         {
-            if (cmi->getProviderBase() &&
-                cmi->getProviderBase()->decUseCount()==0)
-            {
-                rc=cmi->cleanup(ctx);
-                /* the CMPI 2.0 spec says that cleanup function can return 
-                   the following errors:
-                   CMPI_RC_OK - Operation successful.
-                   CMPI_RC_ERR_FAILED - Unspecific error occurred.
-                   CMPI_RC_DO_NOT_UNLOAD and CMPI_RC_NEVER_UNLOAD - need to be
-                   ignored in the terminating case, CIM server is going down
-                   anyway
-                */                   
-                if (rc.rc() != CMPI_RC_ERR_FAILED)
-                {
-                    cmi->getProviderBase()->setBaseMI(0);
-                    cmi->setProviderBase(0);
-                    delete cmi;
-                    rc = CmpiStatus(CMPI_RC_OK);
-                }
-                else
-                {
-                    /* give the provider some grace on shutdown,
-                    the MI will not be cleaned up in this case, but as the CIM
-                    Server is shutting down anyway, that does not hurt */
-                    cmi->getProviderBase()->incUseCount();
-                }
-            }
+            rc = CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
         }
         return rc.status();
     }
@@ -292,7 +251,7 @@ CMPIStatus CmpiInstanceMI::driveSetInstance(
     const CMPIContext* eCtx,
     const CMPIResult* eRslt,
     const CMPIObjectPath* eCop,
-    const CMPIInstance* eInst,
+    const CMPIInstance* eInst, 
     const char* *properties)
 {
     try
@@ -822,20 +781,23 @@ CmpiIndicationMI::CmpiIndicationMI(
 CMPIStatus CmpiIndicationMI::driveAuthorizeFilter(
     CMPIIndicationMI* mi,
     const CMPIContext* eCtx,
+    const CMPIResult* eRslt,
     const CMPISelectExp* eSe,
     const char* ns,
-    const CMPIObjectPath* eCop,
+    const CMPIObjectPath* eCop, 
     const char* user)
 {
     try
     {
         const CmpiContext ctx((CMPIContext*)eCtx);
+        CmpiResult rslt((CMPIResult*)eRslt);
         const CmpiObjectPath cop((CMPIObjectPath*)eCop);
         const CmpiSelectExp se(eSe);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
         return nmi->authorizeFilter(
             ctx,
+            rslt,
             se,
             ns,
             cop,
@@ -853,6 +815,7 @@ CMPIStatus CmpiIndicationMI::driveAuthorizeFilter(
 CMPIStatus CmpiIndicationMI::driveMustPoll(
     CMPIIndicationMI* mi,
     const CMPIContext* eCtx,
+    const CMPIResult* eRslt,
     const CMPISelectExp* eSe,
     const char* ns,
     const CMPIObjectPath* eCop)
@@ -860,12 +823,14 @@ CMPIStatus CmpiIndicationMI::driveMustPoll(
     try
     {
         const CmpiContext ctx((CMPIContext*)eCtx);
+        CmpiResult rslt((CMPIResult*)eRslt);
         const CmpiObjectPath cop((CMPIObjectPath*)eCop);
         const CmpiSelectExp se(eSe);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
         return nmi->mustPoll(
             ctx,
+            rslt,
             se,
             ns,
             cop).status();
@@ -882,22 +847,25 @@ CMPIStatus CmpiIndicationMI::driveMustPoll(
 CMPIStatus CmpiIndicationMI::driveActivateFilter(
     CMPIIndicationMI* mi,
     const CMPIContext* eCtx,
+    const CMPIResult* eRslt,
     const CMPISelectExp* eSe,
-    const char* clsName,
-    const CMPIObjectPath* eCop,
+    const char* ns,
+    const CMPIObjectPath* eCop, 
     CMPIBoolean first)
 {
     try
     {
         const CmpiContext ctx((CMPIContext*)eCtx);
+        CmpiResult rslt((CMPIResult*)eRslt);
         const CmpiObjectPath cop((CMPIObjectPath*)eCop);
         const CmpiSelectExp se(eSe);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
         return nmi->activateFilter(
             ctx,
+            rslt,
             se,
-            clsName,
+            ns,
             cop,
             first).status();
     }
@@ -913,22 +881,25 @@ CMPIStatus CmpiIndicationMI::driveActivateFilter(
 CMPIStatus CmpiIndicationMI::driveDeActivateFilter(
     CMPIIndicationMI* mi,
     const CMPIContext* eCtx,
+    const CMPIResult* eRslt,
     const CMPISelectExp* eSe,
-    const char* clsName,
-    const CMPIObjectPath* eCop,
+    const char* ns,
+    const CMPIObjectPath* eCop, 
     CMPIBoolean last)
 {
     try
     {
         const CmpiContext ctx((CMPIContext*)eCtx);
+        CmpiResult rslt((CMPIResult*)eRslt);
         const CmpiObjectPath cop((CMPIObjectPath*)eCop);
         const CmpiSelectExp se(eSe);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
         return nmi->deActivateFilter(
             ctx,
+            rslt,
             se,
-            clsName,
+            ns,
             cop,
             last).status();
     }
@@ -941,43 +912,37 @@ CMPIStatus CmpiIndicationMI::driveDeActivateFilter(
     }
 }
 
-CMPIStatus CmpiIndicationMI::driveEnableIndications(
-    CMPIIndicationMI* mi,
-    const CMPIContext* eCtx)
+void CmpiIndicationMI::driveEnableIndications(
+    CMPIIndicationMI* mi)
 {
     try
     {
-        const CmpiContext ctx((CMPIContext*)eCtx);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
-        return nmi->enableIndications(ctx).status();
+        nmi->enableIndications();
     }
     catch (const CmpiStatus& stat)
     {
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
-        return stat.status();
     }
 }
 
-CMPIStatus CmpiIndicationMI::driveDisableIndications(
-    CMPIIndicationMI* mi,
-    const CMPIContext* eCtx)
+void CmpiIndicationMI::driveDisableIndications(
+    CMPIIndicationMI* mi)
 {
     try
     {
-        const CmpiContext ctx((CMPIContext*)eCtx);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
         CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
-        return nmi->disableIndications(ctx).status();
+        nmi->disableIndications();
     }
     catch (const CmpiStatus& stat)
     {
 #ifdef PEGASUS_DEBUG
         cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
 #endif
-        return stat.status();
     }
 }
 
@@ -990,6 +955,7 @@ CMPIStatus CmpiIndicationMI::driveDisableIndications(
 
 CmpiStatus CmpiIndicationMI::authorizeFilter(
     const CmpiContext& ctx,
+    CmpiResult& rslt,
     const CmpiSelectExp& se,
     const char* ns,
     const CmpiObjectPath& op,
@@ -1000,6 +966,7 @@ CmpiStatus CmpiIndicationMI::authorizeFilter(
 
 CmpiStatus CmpiIndicationMI::mustPoll(
     const CmpiContext& ctx,
+    CmpiResult& rslt,
     const CmpiSelectExp& se,
     const char* ns,
     const CmpiObjectPath& op)
@@ -1009,6 +976,7 @@ CmpiStatus CmpiIndicationMI::mustPoll(
 
 CmpiStatus CmpiIndicationMI::activateFilter(
     const CmpiContext& ctx,
+    CmpiResult& rslt,
     const CmpiSelectExp& se,
     const char* ns,
     const CmpiObjectPath& op,
@@ -1019,6 +987,7 @@ CmpiStatus CmpiIndicationMI::activateFilter(
 
 CmpiStatus CmpiIndicationMI::deActivateFilter(
     const CmpiContext& ctx,
+    CmpiResult& rslt,
     const CmpiSelectExp& se,
     const char* ns,
     const CmpiObjectPath& op,
@@ -1027,17 +996,14 @@ CmpiStatus CmpiIndicationMI::deActivateFilter(
     return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
-CmpiStatus CmpiIndicationMI::enableIndications
-      (const CmpiContext& ctx)
+void CmpiIndicationMI::enableIndications()
 {
-  return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
-CmpiStatus CmpiIndicationMI::disableIndications
-      (const CmpiContext& ctx)
+void CmpiIndicationMI::disableIndications()
 {
-  return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
+
 
 //---------------------------------------------------
 //--
@@ -1517,7 +1483,7 @@ CmpiData::operator CmpiDateTime() const
     {
         return CmpiDateTime(_data.value.dateTime);
     }
-
+        
 }
 
 CmpiData::operator CMPISint8() const
@@ -1530,7 +1496,7 @@ CmpiData::operator CMPISint8() const
     {
         return _data.value.sint8;
     }
-
+        
 }
 CmpiData::operator CMPISint16() const
 {
@@ -2142,7 +2108,7 @@ CmpiData CmpiInstance::getProperty(const char* name) const
     CmpiData d;
     CMPIStatus rc={CMPI_RC_OK,NULL};
     d._data=getEnc()->ft->getProperty(getEnc(),name,&rc);
-    if ((rc.rc != CMPI_RC_OK) && (rc.rc != CMPI_RC_ERR_NO_SUCH_PROPERTY))
+    if ((rc.rc != CMPI_RC_OK) && (rc.rc != CMPI_RC_ERR_NOT_FOUND))
     {
         if (rc.msg)
         {
@@ -2264,7 +2230,7 @@ CMPIrc CmpiStatus::rc() const
 
 const char*  CmpiStatus::msg() const
 {
-    return st.msg ? CMGetCharsPtr(st.msg,NULL) : 0;
+    return st.msg ? CMGetCharPtr(st.msg) : 0;
 }
 
 CmpiStatus::CmpiStatus()
@@ -2350,7 +2316,7 @@ void *CmpiObjectPath::makeObjectPath(
     const char *cls)
 {
     CMPIStatus rc={CMPI_RC_OK,NULL};
-    void *op=mb->eft->newObjectPath(mb,CMGetCharsPtr(ns.getEnc(),NULL),cls,&rc);
+    void *op=mb->eft->newObjectPath(mb,CMGetCharPtr(ns.getEnc()),cls,&rc);
     if (rc.rc != CMPI_RC_OK)
     {
         throw CmpiStatus(rc);
@@ -2464,7 +2430,7 @@ CmpiData CmpiObjectPath::getKey(const int pos, CmpiString *name) const
     {
         throw CmpiStatus(rc);
     }
-    if (name)
+    if (name) 
     {
         *name=CmpiString(s);
     }
@@ -2613,7 +2579,7 @@ CmpiEnumeration CmpiBroker::enumInstanceNames(
     const CmpiObjectPath& cop)
 {
     CMPIStatus rc={CMPI_RC_OK,NULL};
-    CMPIEnumeration* en=getEnc()->bft->enumerateInstanceNames(
+    CMPIEnumeration* en=getEnc()->bft->enumInstanceNames(
         getEnc(),
         ctx.getEnc(),
         cop.getEnc(),
@@ -2723,7 +2689,7 @@ CmpiEnumeration CmpiBroker::enumInstances(
     const char** properties)
 {
     CMPIStatus rc={CMPI_RC_OK,NULL};
-    CMPIEnumeration* en=getEnc()->bft->enumerateInstances(
+    CMPIEnumeration* en=getEnc()->bft->enumInstances(
         getEnc(),
         ctx.getEnc(),
         cop.getEnc(),
@@ -3164,7 +3130,7 @@ CmpiSelectExp::CmpiSelectExp()
 //--
 //---------------------------------------------------
 
-/**
+/** 
    Constructor from CMPI type.
 */
 CmpiDateTime::CmpiDateTime(const CMPIDateTime* newEnc)
@@ -3281,7 +3247,7 @@ CmpiBooleanData CmpiFalse(false);
 
 #ifdef CMPI_VER_200
  static  CMPIBroker __providerBaseBroker = {0,0,0,0,0};
-#elif defined(CMPI_VER_100)
+#elif CMPI_VER_100
  static  CMPIBroker __providerBaseBroker = {0,0,0,0};
 #else
  static CMPIBroker __providerBaseBroker = {0,0,0};

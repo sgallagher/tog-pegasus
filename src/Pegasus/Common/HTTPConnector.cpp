@@ -35,7 +35,6 @@
 #include "Config.h"
 #include <iostream>
 #include "Constants.h"
-#include "Socket.h"
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/Network.h>
 #include "Socket.h"
@@ -43,10 +42,7 @@
 #include "HTTPConnector.h"
 #include "HTTPConnection.h"
 #include "HostAddress.h"
-
-#ifdef PEGASUS_OS_ZOS
-# include <resolv.h>  // MAXHOSTNAMELEN
-#endif
+#include <Pegasus/Common/StringConversion.h>
 
 #ifdef PEGASUS_OS_PASE
 # include <as400_protos.h>
@@ -56,8 +52,6 @@
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
-
-class bsd_socket_rep;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -100,8 +94,9 @@ static Boolean _MakeAddress(
         hints.ai_flags |= AI_NUMERICHOST;
     }
 
-    char portStr[20];
-    sprintf(portStr,"%d",port);
+    char scratch[22];
+    Uint32 n;    
+    const char * portStr = Uint32ToString(scratch, port, n);
     if (System::getAddrInfo(hostname, portStr, &hints, &result))
     {
         return false;
@@ -271,7 +266,7 @@ HTTPConnection* HTTPConnector::connect(
     AutoPtr<SocketHandle, CloseSocketHandle> socketPtr(&socket);
 
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-    if (host == String::EMPTY)
+    if (0 == host.size())
     {
         // Set up the domain socket for a local connection
 
@@ -321,10 +316,11 @@ HTTPConnection* HTTPConnector::connect(
 #endif
              ))        
         {
-            char portStr [32];
-            sprintf (portStr, "%u", portNumber);
+            char scratch[22];
+            Uint32 n;    
+            const char * portStr = Uint32ToString(scratch, portNumber, n);
             PEG_METHOD_EXIT();
-            throw InvalidLocatorException(host + ":" + portStr);
+            throw InvalidLocatorException(host+":"+String(portStr,n));
         }
 
 #ifdef PEGASUS_ENABLE_IPV6
@@ -345,6 +341,32 @@ HTTPConnection* HTTPConnector::connect(
                 PEG_METHOD_EXIT();
                 throw CannotCreateSocketException();
             }
+
+#ifndef PEGASUS_OS_TYPE_WINDOWS
+            // We need to ensure that the socket number is not higher than
+            // what fits into FD_SETSIZE,because we else won't be able to select
+            // on it and won't ever communicate correct on that socket.
+            if (socket >= FD_SETSIZE)
+            {
+# ifdef PEGASUS_ENABLE_IPV6
+                freeaddrinfo(addrInfoRoot);
+# endif
+                // the socket is useless to us, close it
+                Socket::close(socket);
+        
+                PEG_TRACE(
+                    (TRC_DISCARDED_DATA,
+                     Tracer::LEVEL2,
+                     "createSocket() returned too large socket number %d."
+                         "Cannot connect to %s:%d. Connection failed.",
+                     socket,
+                     (const char*) host.getCString(),
+                     portNumber));
+
+                PEG_METHOD_EXIT();
+                throw CannotCreateSocketException();
+    }
+#endif
 
             Socket::disableBlocking(socket);
 
@@ -368,8 +390,9 @@ HTTPConnection* HTTPConnector::connect(
                     continue;
                 }
 #endif
-                char portStr[32];
-                sprintf(portStr, "%u", portNumber);
+                char scratch[22];
+                Uint32 n;    
+                const char * portStr = Uint32ToString(scratch, portNumber, n);
                 MessageLoaderParms parms(
                     "Common.HTTPConnector.CONNECTION_FAILED_TO",
                     "Cannot connect to $0:$1. Connection failed.",
@@ -396,8 +419,9 @@ HTTPConnection* HTTPConnector::connect(
 
     if (mp_socket->connect(timeoutMilliseconds) < 0)
     {
-        char portStr[32];
-        sprintf(portStr, "%u", portNumber);
+        char scratch[22];
+        Uint32 n;    
+        const char * portStr = Uint32ToString(scratch, portNumber, n);
         MessageLoaderParms parms(
             "Common.HTTPConnector.CONNECTION_FAILED_TO",
             "Cannot connect to $0:$1. Connection failed.",

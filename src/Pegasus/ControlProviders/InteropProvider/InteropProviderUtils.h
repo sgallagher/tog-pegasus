@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -59,7 +59,8 @@ enum TARGET_CLASS {
         PG_COMPUTERSYSTEM,
         PG_HOSTEDOBJECTMANAGER,
         PG_HOSTEDACCESSPOINT,
-        PG_ELEMENTCONFORMSTOPROFILE_RP_RP
+        PG_ELEMENTCONFORMSTOPROFILE_RP_RP,
+        CIM_NAMESPACE
 };
 
 /***************************************************************

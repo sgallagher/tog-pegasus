@@ -203,7 +203,7 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
     // Verify that ClassName is correct and get its enum value
     TARGET_CLASS classEnum  = translateClassInput(className);
 
-    Array<CIMInstance> instances;
+    Array<CIMInstance> instances;    
     switch(classEnum)
     {
         case PG_OBJECTMANAGER:
@@ -292,6 +292,12 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
         case PG_HOSTEDACCESSPOINT:
         {
             instances = enumHostedAccessPointInstances();
+            break;
+        }
+        //We don't support enumerate CIM_Namespace instances. PG_Namespace is
+        //supported.
+        case CIM_NAMESPACE:
+        {
             break;
         }
         default:

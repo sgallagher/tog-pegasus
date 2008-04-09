@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -39,8 +39,8 @@
 //  $(PEGASUS_ROOT)/Schemas/Pegasus/InterOp/VER20 for retails regarding the
 //  classes supported by this control provider.
 //
-//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP 
-//  namespace. There is a test on each operation that returns 
+//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP
+//  namespace. There is a test on each operation that returns
 //  the Invalid Class CIMDError
 //  This is a control provider and as such uses the Tracer functions
 //  for data and function traces.  Since we do not expect high volume
@@ -157,7 +157,7 @@ bool namespaceSupported(const CIMObjectPath & path)
 
     throw CIMNotSupportedException(path.getClassName().getString() +
       " in namespace " + path.getNameSpace().getString());
-    
+
     return false;
 }
 */
@@ -291,7 +291,7 @@ String getHostAddress(
   {
       ipAddress = "[" + ipAddress + "]";
   }
-#endif     
+#endif
   ipAddress.append(":");
   ipAddress.append(port);
 
@@ -471,6 +471,9 @@ TARGET_CLASS translateClassInput(const CIMName& className)
 
     else if(className.equal(PEGASUS_CLASSNAME_PG_HOSTEDACCESSPOINT))
         return PG_HOSTEDACCESSPOINT;
+
+    else if(className.equal(PEGASUS_CLASSNAME_CIMNAMESPACE))
+        return CIM_NAMESPACE;
 
     // Last entry, reverse test and throw exception if not PG_Namespace
     // Note: Changed to PG_Namespace for CIM 2.4

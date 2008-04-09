@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,9 +27,9 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -65,10 +65,10 @@ PEGASUS_NAMESPACE_BEGIN
 
 // This Mutex serializes access to the instance change CIM requests. Keeps from
 // mixing instance creates, modifications, and deletes. This keeps the provider
-// from simultaneously execute creates, modifications, and deletes of instances.
-// While these operations are largely protected by the locking mechanisms of the
-// repository this mutex guarantees that the provider will not simultaneously
-// execute the instance change operations.
+// from simultaneously execute creates, modifications, and deletes of instances
+// While these operations are largely protected by the locking mechanisms of 
+// the repository this mutex guarantees that the provider will not 
+// simultaneously execute the instance change operations.
 Mutex changeControlMutex;
 
 /*****************************************************************************
@@ -99,7 +99,12 @@ void InteropProvider::createInstance(
     handler.processing();
 
     const CIMName & instClassName = instanceReference.getClassName();
-    TARGET_CLASS classEnum = PG_NAMESPACE;
+    TARGET_CLASS classEnum;
+
+    classEnum = translateClassInput(instClassName);
+
+    // The object path returned to the client invoking the operation
+    CIMObjectPath newInstanceReference;
 
     //
     // The InteropProvider accepts CreateInstance requests for the
@@ -107,15 +112,7 @@ void InteropProvider::createInstance(
     // instance and this operation will return an object path referencing
     // the resulting PG_Namespace object.
     //
-    if(!instClassName.equal(PEGASUS_CLASSNAME_CIMNAMESPACE))
-    {
-        classEnum = translateClassInput(instanceReference.getClassName());
-    }
-
-    // The object path returned to the client invoking the operation
-    CIMObjectPath newInstanceReference;
-
-    if (classEnum == PG_NAMESPACE)
+    if (classEnum == PG_NAMESPACE || classEnum == CIM_NAMESPACE)
     {
 
         newInstanceReference = createNamespace(clientInstance);

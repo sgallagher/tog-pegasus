@@ -48,6 +48,14 @@ ProviderManager::~ProviderManager()
 
 String ProviderManager::_resolvePhysicalName(String physicalName)
 {
+
+#ifdef PEGASUS_ALLOW_ABSOLUTEPATH_IN_PROVIDERMODULE
+    if ( System::is_absolute_path(physicalName.getCString()) )
+    {
+         return physicalName;
+    }
+#endif
+
     String fileName = FileSystem::buildLibraryFileName(physicalName);
     fileName = FileSystem::getAbsoluteFileName(
         ConfigManager::getHomedPath(

@@ -1112,3 +1112,30 @@ ifdef PEGASUS_TEST_VALGRIND_LOG_DIR
     DEFINES += -DPEGASUS_DISABLE_CLIENT_TIMEOUT -DPEGASUS_TEST_VALGRIND
 endif
 
+## ======================================================================
+##
+## PEGASUS_ALLOW_ABSOLUTEPATH_IN_PROVIDERMODULE
+## This controls allowing the path specified in the Location property of 
+## PG_ProviderModule class.
+##
+##   Set to "true", It allows the absolute path specified in the Location property
+##   of PG_ProviderModule class. Otherwise it does not allow the absolute path.
+##   see bug 7289 for background information concerning this config variable.
+##
+
+ifndef PEGASUS_ALLOW_ABSOLUTEPATH_IN_PROVIDERMODULE
+    PEGASUS_ALLOW_ABSOLUTEPATH_IN_PROVIDERMODULE=false
+endif
+
+ifdef PEGASUS_ALLOW_ABSOLUTEPATH_IN_PROVIDERMODULE
+  ifeq ($(PEGASUS_ALLOW_ABSOLUTEPATH_IN_PROVIDERMODULE),true)
+    DEFINES += -DPEGASUS_ALLOW_ABSOLUTEPATH_IN_PROVIDERMODULE
+  else
+    ifneq ($(PEGASUS_ALLOW_ABSOLUTEPATH_IN_PROVIDERMODULE),false)
+      $(error PEGASUS_ALLOW_ABSOLUTEPATH_IN_PROVIDERMODULE \
+            ($(PEGASUS_ALLOW_ABSOLUTEPATH_IN_PROVIDERMODULE)) \
+            invalid, must be true or false)
+    endif
+  endif
+endif
+

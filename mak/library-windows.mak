@@ -33,6 +33,8 @@ FULL_DLL = $(BIN_DIR)/$(LIBRARY)$(DLL)
 FULL_EXP = $(BIN_DIR)/$(LIBRARY)$(EXP)
 FULL_ILK = $(BIN_DIR)/$(LIBRARY)$(ILK)
 FULL_PDB = $(BIN_DIR)/$(LIBRARY)$(PDB)
+VERSION_RC = $(ROOT)/mak/version-windows.RC
+VERSION_RES = $(ROOT)/mak/version-windows.RES
 
 ##
 ## ws2_32.lib is needed to get the WINSOCK routines!
@@ -53,18 +55,21 @@ endef
 ## 
 LINKFILE=$(LIB_DIR)/linkfile
 
-$(FULL_LIB): $(BIN_DIR)/target $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) $(ERROR)
+$(FULL_LIB): $(BIN_DIR)/target $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(VERSION_RES) $(FULL_LIBRARIES) $(ERROR)
 ifdef SOURCES1
 	@ $(ECHO) "Creating $(LINKFILE)"
 	@ $(RM) $(LINKFILE)
 	@ $(foreach i, $(OBJECTS), echo $(i) >> $(LINKFILE) $(NL) )
-	link -nologo -dll $(LINK_FLAGS) $(EXTRA_LINK_FLAGS) -out:$(FULL_DLL) -implib:$(FULL_LIB) @$(LINKFILE) $(FULL_LIBRARIES) $(SYS_LIBS) $(EXTRA_LIBRARIES)
+	link -nologo -dll $(LINK_FLAGS) $(EXTRA_LINK_FLAGS) -out:$(FULL_DLL) -implib:$(FULL_LIB) @$(LINKFILE) $(VERSION_RES) $(FULL_LIBRARIES) $(SYS_LIBS) $(EXTRA_LIBRARIES)
 else
-	link -nologo -dll $(LINK_FLAGS) $(EXTRA_LINK_FLAGS) -out:$(FULL_DLL) -implib:$(FULL_LIB) $(OBJECTS) $(FULL_LIBRARIES) $(SYS_LIBS) $(EXTRA_LIBRARIES)
+	link -nologo -dll $(LINK_FLAGS) $(EXTRA_LINK_FLAGS) -out:$(FULL_DLL) -implib:$(FULL_LIB) $(OBJECTS) $(VERSION_RES) $(FULL_LIBRARIES) $(SYS_LIBS) $(EXTRA_LIBRARIES)
 endif
 
 FILES_TO_CLEAN = \
     $(OBJECTS) $(FULL_LIB) $(FULL_DLL) $(FULL_EXP) $(FULL_ILK) $(FULL_PDB) $(OBJ_DIR)/vc60$(PDB) $(OBJ_DIR)/vc70$(PDB) depend.mak depend.mak.bak
+
+$(VERSION_RES): $(VERSION_RC)
+	@ $(RC) /fo $(VERSION_RES) $(VERSION_RC)
 
 clean-lib: $(ERROR)
 	mu rm $(FULL_LIB) $(FULL_DLL) $(FULL_EXP)

@@ -101,7 +101,7 @@ ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS
     LINK_FLAGS += -debug
 else
     FLAGS = $(CXX_VERSION_FLAGS) $(CXX_VERSION_RELEASE_FLAGS) -GR -W3 -O2 -MD
-    LINK_FLAGS += $(LINK_VERSION_RELEASE_FLAGS)
+    LINK_FLAGS += $(LINK_VERSION_RELEASE_FLAGS) -map
 endif
 
 
@@ -173,6 +173,8 @@ YACC = bison
 SH = bash
 
 YACC = bison
+
+RC = rc
 
 # Windows DLLs are installed in the $(PEGASUS_HOME)/bin directory
 PEGASUS_DEST_LIB_DIR = bin

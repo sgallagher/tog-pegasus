@@ -200,28 +200,12 @@ String CIMObject::toString() const
 
 Boolean CIMObject::isClass() const
 {
-    try
-    {
-        const CIMClass c(*this);
-        return true;
-    }
-    catch (DynamicCastFailedException&)
-    {
-        return false;
-    }
+    return Boolean(dynamic_cast<CIMClassRep*>(this->_rep));
 }
 
 Boolean CIMObject::isInstance() const
 {
-    try
-    {
-        const CIMInstance i(*this);
-        return true;
-    }
-    catch (DynamicCastFailedException&)
-    {
-        return false;
-    }
+    return Boolean(dynamic_cast<CIMInstanceRep*>(this->_rep));
 }
 
 Boolean CIMObject::identical(const CIMConstObject& x) const
@@ -359,28 +343,12 @@ String CIMConstObject::toString() const
 
 Boolean CIMConstObject::isClass() const
 {
-    try
-    {
-        const CIMConstClass c(*this);
-        return true;
-    }
-    catch (DynamicCastFailedException&)
-    {
-        return false;
-    }
+    return Boolean(dynamic_cast<CIMClassRep*>(this->_rep));
 }
 
 Boolean CIMConstObject::isInstance() const
 {
-    try
-    {
-        const CIMConstInstance i(*this);
-        return true;
-    }
-    catch (DynamicCastFailedException&)
-    {
-        return false;
-    }
+    return Boolean(dynamic_cast<CIMInstanceRep*>(this->_rep));
 }
 
 Boolean CIMConstObject::identical(const CIMConstObject& x) const

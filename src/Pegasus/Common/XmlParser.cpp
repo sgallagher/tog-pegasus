@@ -487,16 +487,17 @@ static void _normalize(Uint32& line, char*& p, char end_char, char*& start)
         }
     }
 
-    // We encountered a the end_char or a zero-terminator.
-
-    *q = *p;
-
     // Remove single trailing whitespace (consecutive whitespaces already
     // compressed above).  Since p >= q, we can tell if we need to strip a
     // trailing space from q by looking at the end of p.  We must not look at
     // the last character of p, though, if p is an empty string.
+    Boolean adjust_q = (p != start) && _isspace(p[-1]);
 
-    if ((p != start) && _isspace(p[-1]))
+    // We encountered a the end_char or a zero-terminator.
+
+    *q = *p;
+
+    if (adjust_q)
     {
         q--;
     }

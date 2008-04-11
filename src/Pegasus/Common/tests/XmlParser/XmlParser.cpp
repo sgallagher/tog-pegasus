@@ -77,6 +77,28 @@ static void _parseFile(const char* fileName)
     PEGASUS_ASSERT (parser.next (entry, true) == false);
 }
 
+// Test case for 7581: XML parser leaves trailing spaces in entry content.
+static void _tralingSpace(void)
+{
+    char* text = "<tag>\r\nvalue  </tag>";
+    char* p = (char*)malloc(sizeof(text));
+    strcpy(p, text);
+    XmlParser parser(p);
+    XmlEntry entry;
+
+    while (parser.next(entry))
+    {
+        // Make sure content entries have no trailing staces
+        int len = strlen(entry.text);
+        if (entry.type == XmlEntry::CONTENT &&
+            entry.text[len - 1] == ' ')
+        {
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+                "Unexpected trailing space in XmlEntry::CONTENT.");
+        }
+    }
+}
+
 int main(int argc, char** argv)
 {
 
@@ -92,7 +114,9 @@ int main(int argc, char** argv)
     {
     try 
     { 
-        _parseFile(argv[i]); 
+        _parseFile(argv[i]);
+
+        _tralingSpace();
     }
     catch(Exception& e)
     {

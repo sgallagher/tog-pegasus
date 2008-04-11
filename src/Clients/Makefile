@@ -27,8 +27,8 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
- ROOT = $(PEGASUS_ROOT)
+#//=============================================================================
+ROOT = $(PEGASUS_ROOT)
 
 include $(ROOT)/mak/config.mak
 
@@ -58,35 +58,35 @@ DIRS = \
 
 
 ifeq ($(OS),HPUX)
-  DIRS += \
-    ntpinfo \
-    dnsinfo \
-    nisinfo
+    DIRS += \
+        ntpinfo \
+        dnsinfo \
+        nisinfo
 endif
 
 ifeq ($(OS),VMS)
-  DIRS += \
-    ntpinfo \
-    dnsinfo \
-    nisinfo
+    DIRS += \
+        ntpinfo \
+        dnsinfo \
+        nisinfo
 endif
 
 ifdef PEGASUS_HAS_SSL
-  DIRS += \
-    TestCertClient \
-    cimtrust \
-    cimtrust/tests
-ifeq ($(PEGASUS_ENABLE_SSL_CRL_VERIFICATION),true)
-  DIRS += \
-    cimcrl \
-    cimcrl/tests
-endif
+    DIRS += \
+        TestCertClient \
+        cimtrust \
+        cimtrust/tests
+    ifeq ($(PEGASUS_ENABLE_SSL_CRL_VERIFICATION),true)
+        DIRS += \
+            cimcrl \
+            cimcrl/tests
+    endif
 endif
 
-ifeq ($(OS_TYPE),unix)
-  DIRS += \
-    cimreparchive \
-    cimreparchive/tests
+ifneq ($(OS_TYPE),windows)
+    DIRS += \
+        cimreparchive \
+        cimreparchive/tests
 endif
 
 #The following tests are NOT included as part of the standard

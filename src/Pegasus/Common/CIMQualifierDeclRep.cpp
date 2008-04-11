@@ -86,11 +86,6 @@ CIMQualifierDeclRep::CIMQualifierDeclRep(
 
 }
 
-CIMQualifierDeclRep::~CIMQualifierDeclRep()
-{
-
-}
-
 void CIMQualifierDeclRep::setName(const CIMName& name)
 {
     // ensure name is not null
@@ -122,11 +117,6 @@ Boolean CIMQualifierDeclRep::identical(const CIMQualifierDeclRep* x) const
         (_scope.equal (x->_scope)) &&
         (_flavor.equal (x->_flavor)) &&
         _arraySize == x->_arraySize;
-}
-
-void CIMQualifierDeclRep::setValue(const CIMValue& value)
-{
-    _value = value;
 }
 
 PEGASUS_NAMESPACE_END

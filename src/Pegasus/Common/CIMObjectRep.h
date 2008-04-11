@@ -126,14 +126,20 @@ public:
         return _properties.find(name, generateCIMNameTag(name));
     }
 
-    CIMProperty getProperty(Uint32 index);
+    CIMProperty getProperty(Uint32 index)
+    {
+        return _properties[index];
+    }
 
     CIMConstProperty getProperty(Uint32 index) const
     {
         return ((CIMObjectRep*)this)->getProperty(index);
     }
 
-    void removeProperty(Uint32 index);
+    void removeProperty(Uint32 index)
+    {
+        _properties.remove(index);
+    }
 
     Uint32 getPropertyCount() const
     {

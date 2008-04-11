@@ -39,6 +39,7 @@
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMObjectRep.h>
 #include <Pegasus/Common/CIMMethod.h>
+#include <Pegasus/Common/CIMMethodRep.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/Linkage.h>
@@ -68,24 +69,39 @@ public:
 
     const CIMName& getSuperClassName() const { return _superClassName; }
 
-    void setSuperClassName(const CIMName& superClassName);
+    void setSuperClassName(const CIMName& superClassName)
+    {
+        _superClassName = superClassName;
+    }
 
     virtual void addProperty(const CIMProperty& x);
 
     void addMethod(const CIMMethod& x);
 
-    Uint32 findMethod(const CIMName& name) const;
+    Uint32 findMethod(const CIMName& name) const
+    {
+        return _methods.find(name, generateCIMNameTag(name));
+    }
 
-    CIMMethod getMethod(Uint32 index);
+    CIMMethod getMethod(Uint32 index)
+    {
+        return _methods[index];
+    }
 
     CIMConstMethod getMethod(Uint32 index) const
     {
         return ((CIMClassRep*)this)->getMethod(index);
     }
 
-    void removeMethod(Uint32 index);
+    void removeMethod(Uint32 index)
+    {
+        _methods.remove(index);
+    }
 
-    Uint32 getMethodCount() const;
+    Uint32 getMethodCount() const
+    {
+        return _methods.size();
+    }
 
     void resolve(
         DeclContext* context,

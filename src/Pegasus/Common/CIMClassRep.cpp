@@ -95,10 +95,6 @@ Boolean CIMClassRep::isAbstract() const
     value.get(flag);
     return flag;
 }
-void CIMClassRep::setSuperClassName(const CIMName& superClassName)
-{
-    _superClassName = superClassName;
-}
 
 void CIMClassRep::addProperty(const CIMProperty& x)
 {
@@ -150,26 +146,6 @@ void CIMClassRep::addMethod(const CIMMethod& x)
     _methods.append(x);
 }
 
-Uint32 CIMClassRep::findMethod(const CIMName& name) const
-{
-    return _methods.find(name, generateCIMNameTag(name));
-}
-
-CIMMethod CIMClassRep::getMethod(Uint32 index)
-{
-    return _methods[index];
-}
-
-Uint32 CIMClassRep::getMethodCount() const
-{
-    return _methods.size();
-}
-
-void CIMClassRep::removeMethod(Uint32 index)
-{
-    _methods.remove(index);
-}
-
 void CIMClassRep::resolve(
     DeclContext* context,
     const CIMNamespaceName& nameSpace)
@@ -200,10 +176,6 @@ void CIMClassRep::resolve(
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_SUPERCLASS,
                 _superClassName.getString());
 
-#if 0
-        if (!superClass._rep->_resolved)
-            throw ClassNotResolved(_superClassName);
-#endif
         // If subclass is abstract but superclass not, throw CIM Exception
 
         /* ATTN:KS-24 Mar 2002 P1 - Test this and confirm that rule is correct

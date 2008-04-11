@@ -52,10 +52,9 @@ CIMQualifierRep::CIMQualifierRep(const CIMQualifierRep& x) :
     _value(x._value),
     _flavor(x._flavor),
     _propagated(x._propagated),
+    _nameTag(x._nameTag),
     _ownerCount(0)
 {
-    // Set the CIM name tag.
-    _nameTag = generateCIMNameTag(_name);
 }
 
 CIMQualifierRep::CIMQualifierRep(
@@ -77,10 +76,6 @@ CIMQualifierRep::CIMQualifierRep(
     }
     // Set the CIM name tag.
     _nameTag = generateCIMNameTag(_name);
-}
-
-CIMQualifierRep::~CIMQualifierRep()
-{
 }
 
 void CIMQualifierRep::setName(const CIMName& name)
@@ -135,11 +130,6 @@ Boolean CIMQualifierRep::identical(const CIMQualifierRep* x) const
         _value == x->_value &&
         (_flavor.equal (x->_flavor)) &&
         _propagated == x->_propagated;
-}
-
-void CIMQualifierRep::setValue(const CIMValue& value)
-{
-    _value = value;
 }
 
 PEGASUS_NAMESPACE_END

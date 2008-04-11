@@ -65,7 +65,9 @@ public:
         const CIMName& classOrigin,
         Boolean propagated);
 
-    ~CIMPropertyRep();
+    ~CIMPropertyRep()
+    {
+    }
 
     const CIMName& getName() const
     {
@@ -113,7 +115,10 @@ public:
         return _classOrigin;
     }
 
-    void setClassOrigin(const CIMName& classOrigin);
+    void setClassOrigin(const CIMName& classOrigin)
+    {
+        _classOrigin = classOrigin;
+    }
 
     Boolean getPropagated() const
     {

@@ -95,16 +95,6 @@ void CIMObjectRep::addProperty(const CIMProperty& x)
     _properties.append(x);
 }
 
-CIMProperty CIMObjectRep::getProperty(Uint32 index)
-{
-    return _properties[index];
-}
-
-void CIMObjectRep::removeProperty(Uint32 index)
-{
-    _properties.remove(index);
-}
-
 Boolean CIMObjectRep::identical(const CIMObjectRep* x) const
 {
     // If the pointers are the same, the objects must be identical

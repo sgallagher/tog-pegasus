@@ -81,10 +81,6 @@ CIMMethodRep::CIMMethodRep(
     _nameTag = generateCIMNameTag(_name);
 }
 
-CIMMethodRep::~CIMMethodRep()
-{
-}
-
 void CIMMethodRep::setName(const CIMName& name)
 {
     // ensure name is not null
@@ -105,11 +101,6 @@ void CIMMethodRep::setName(const CIMName& name)
     _nameTag = generateCIMNameTag(_name);
 }
 
-void CIMMethodRep::setClassOrigin(const CIMName& classOrigin)
-{
-    _classOrigin = classOrigin;
-}
-
 void CIMMethodRep::addParameter(const CIMParameter& x)
 {
     if (x.isUninitialized())
@@ -124,26 +115,6 @@ void CIMMethodRep::addParameter(const CIMParameter& x)
     }
 
     _parameters.append(x);
-}
-
-Uint32 CIMMethodRep::findParameter(const CIMName& name) const
-{
-    return _parameters.find(name, generateCIMNameTag(name));
-}
-
-CIMParameter CIMMethodRep::getParameter(Uint32 index)
-{
-    return _parameters[index];
-}
-
-void CIMMethodRep::removeParameter(Uint32 index)
-{
-    _parameters.remove (index);
-}
-
-Uint32 CIMMethodRep::getParameterCount() const
-{
-    return _parameters.size();
 }
 
 void CIMMethodRep::resolve(
@@ -227,11 +198,6 @@ Boolean CIMMethodRep::identical(const CIMMethodRep* x) const
     }
 
     return true;
-}
-
-void CIMMethodRep::setType(CIMType type)
-{
-    _type = type;
 }
 
 PEGASUS_NAMESPACE_END

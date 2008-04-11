@@ -62,7 +62,9 @@ public:
         Uint32 arraySize,
         const CIMName& referenceClassName);
 
-    ~CIMParameterRep();
+    ~CIMParameterRep()
+    {
+    }
 
     const CIMName& getName() const
     {
@@ -128,7 +130,11 @@ public:
         return _qualifiers.getQualifier(index);
     }
 
-    void removeQualifier (Uint32 index);
+    void removeQualifier (Uint32 index)
+    {
+        _qualifiers.removeQualifier (index);
+    }
+
 
     Uint32 getQualifierCount() const
     {

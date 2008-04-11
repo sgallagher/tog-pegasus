@@ -95,10 +95,6 @@ CIMParameterRep::CIMParameterRep(
     }
 }
 
-CIMParameterRep::~CIMParameterRep()
-{
-}
-
 void CIMParameterRep::setName(const CIMName& name)
 {
     // ensure name is not null
@@ -117,11 +113,6 @@ void CIMParameterRep::setName(const CIMName& name)
     _name = name;    
     // Set the CIM name tag.
     _nameTag = generateCIMNameTag(_name);
-}
-
-void CIMParameterRep::removeQualifier(Uint32 index)
-{
-    _qualifiers.removeQualifier (index);
 }
 
 void CIMParameterRep::resolve(

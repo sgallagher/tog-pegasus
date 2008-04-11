@@ -63,7 +63,9 @@ public:
         const CIMName& classOrigin,
         Boolean propagated);
 
-    ~CIMMethodRep();
+    ~CIMMethodRep()
+    {
+    }
 
     virtual const CIMName& getName() const
     {
@@ -94,14 +96,20 @@ public:
         return _type;
     }
 
-    void setType(CIMType type);
+    void setType(CIMType type)
+    {
+        _type = type;
+    }
 
     const CIMName& getClassOrigin() const
     {
         return _classOrigin;
     }
 
-    void setClassOrigin(const CIMName& classOrigin);
+    void setClassOrigin(const CIMName& classOrigin)
+    {
+        _classOrigin = classOrigin;
+    }
 
     Boolean getPropagated() const
     {
@@ -147,18 +155,30 @@ public:
 
     void addParameter(const CIMParameter& x);
 
-    Uint32 findParameter(const CIMName& name) const;
+    Uint32 findParameter(const CIMName& name) const
+    {
+        return _parameters.find(name, generateCIMNameTag(name));
+    }
 
-    CIMParameter getParameter(Uint32 index);
+    CIMParameter getParameter(Uint32 index)
+    {
+        return _parameters[index];
+    }
 
     CIMConstParameter getParameter(Uint32 index) const
     {
         return ((CIMMethodRep*)this)->getParameter(index);
     }
 
-    void removeParameter (Uint32 index);
+    void removeParameter (Uint32 index)
+    {
+        _parameters.remove (index);
+    }
 
-    Uint32 getParameterCount() const;
+    Uint32 getParameterCount() const
+    {
+        return _parameters.size();
+    }
 
     void resolve(
         DeclContext* declContext,

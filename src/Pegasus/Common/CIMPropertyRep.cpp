@@ -110,10 +110,6 @@ CIMPropertyRep::CIMPropertyRep(
     // addProperty() method.
 }
 
-CIMPropertyRep::~CIMPropertyRep()
-{
-}
-
 void CIMPropertyRep::setName(const CIMName& name)
 {
     // ensure name is not null
@@ -135,11 +131,6 @@ void CIMPropertyRep::setName(const CIMName& name)
 
     // Set the CIM name tag.
     _nameTag = generateCIMNameTag(_name);
-}
-
-void CIMPropertyRep::setClassOrigin(const CIMName& classOrigin)
-{
-    _classOrigin = classOrigin;
 }
 
 void CIMPropertyRep::resolve(

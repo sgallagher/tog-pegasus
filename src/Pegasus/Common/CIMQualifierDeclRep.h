@@ -61,7 +61,9 @@ public:
         const CIMFlavor & flavor,
         Uint32 arraySize);
 
-    virtual ~CIMQualifierDeclRep();
+    virtual ~CIMQualifierDeclRep()
+    {
+    }
 
     const CIMName& getName() const
     {
@@ -85,7 +87,11 @@ public:
         return _value;
     }
 
-    void setValue(const CIMValue& value);
+    void setValue(const CIMValue& value)
+    {
+        _value = value;
+    }
+
 
     const CIMScope & getScope () const
     {

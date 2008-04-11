@@ -62,7 +62,9 @@ public:
         const CIMFlavor& flavor,
         Boolean propagated);
 
-    virtual ~CIMQualifierRep();
+    virtual ~CIMQualifierRep()
+    {
+    }
 
     const CIMName& getName() const
     {
@@ -103,7 +105,10 @@ public:
         return _value;
     }
 
-    void setValue(const CIMValue& value);
+    void setValue(const CIMValue& value)
+    {
+        _value = value;
+    }
 
     const CIMFlavor & getFlavor() const
     {

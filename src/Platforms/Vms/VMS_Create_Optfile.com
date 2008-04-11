@@ -27,14 +27,14 @@ $!  sho sym/local *
 $  Prev_lib = ""
 $  First_lib = "yes"
 $  First_obj = "yes"
-$!  want_dllexport = "''f$trnlnm("PEGASUS_USE_STATIC_LIBRARIES")"
-$  if (f$trnlnm("PEGASUS_USE_STATIC_LIBRARIES") .eqs. "")
+$  use_static = "''f$trnlnm("PEGASUS_USE_STATIC_LIBRARIES")'"
+$  if f$edit("''use_static'", "LOWERCASE") .eqs. "false"
 $  then
 $    want_dllexport = "yes"
 $  else
 $    want_dllexport = ""
 $  endif
-$ ! 
+$ !
 $ sav_ver = f$environment("VERIFY_PROCEDURE")
 $ if sav_ver
 $ then
@@ -122,7 +122,6 @@ $ ! Write it to the option file
 $ ! 
 $  write/error=optfile_writeerror optfile "''libnam'"
 $ ! 
-$ !
 $  Libnum = 0
 $  prev_libtype = ""
 $ !

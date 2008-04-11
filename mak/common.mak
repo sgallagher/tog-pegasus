@@ -27,29 +27,30 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
+#//=============================================================================
 ################################################################################
 ##
 ## Common definitions used by both program.mak and libraries.mak
 ##
 ################################################################################
 
-ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
-    _P1 = $(addprefix $(LIB_DIR)/$(LIB_PREFIX), $(LIBRARIES))
-    _P2 = $(addsuffix ".*[1a]", $(_P1))
-    FULL_LIBRARIES=$(shell echo $(_P2))
-else
+ifeq ($(OS_TYPE),vms)
     FULL_LIBRARIES = $(addprefix $(LIB_DIR)/$(LIB_PREFIX), \
         $(addsuffix $(LIB_SUFFIX), $(LIBRARIES)))
+else
+    ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
+        _P1 = $(addprefix $(LIB_DIR)/$(LIB_PREFIX), $(LIBRARIES))
+        _P2 = $(addsuffix ".*[1a]", $(_P1))
+        FULL_LIBRARIES=$(shell echo $(_P2))
+    else
+        FULL_LIBRARIES = $(addprefix $(LIB_DIR)/$(LIB_PREFIX), \
+            $(addsuffix $(LIB_SUFFIX), $(LIBRARIES)))
+    endif
 endif
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-
     DYNAMIC_LIBRARIES = $(addprefix $(LIB_DIR)/$(LIB_PREFIX), \
 	$(addsuffix .x, $(LIBRARIES)))
-
 else
-
     DYNAMIC_LIBRARIES = $(addprefix -l, $(LIBRARIES))
-
 endif

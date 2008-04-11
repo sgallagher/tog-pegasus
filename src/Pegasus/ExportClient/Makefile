@@ -27,7 +27,7 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
+#//=============================================================================
 ROOT = ../../..
 DIR = Pegasus/ExportClient
 include $(ROOT)/mak/config.mak
@@ -35,6 +35,10 @@ include $(ROOT)/mak/config.mak
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LOCAL_DEFINES = -DPEGASUS_EXPORT_CLIENT_INTERNAL -DPEGASUS_INTERNALONLY
+
+ifeq ($(OS_TYPE),vms)
+    STATIC=1
+endif
 
 LIBRARY = pegexportclient
 
@@ -50,4 +54,4 @@ SOURCES = \
     CIMExportResponseDecoder.cpp \
     HTTPExportResponseDecoder.cpp
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak

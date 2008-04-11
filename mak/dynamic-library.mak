@@ -27,18 +27,33 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
+#//=============================================================================
 ifeq ($(OS_TYPE),vms)
-#
-# Make this a program instead of a library.
-# VMS can only share executables!
-#
+    ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
+        ifeq ($(STATIC),1)
+            BUILD_STATIC=1
+        endif
+    endif
 
-PROGRAM = $(addprefix lib,$(LIBRARY))
-VMSSHARE =/share/sysexe
-SHARE_COPY = YES
+    ifdef BUILD_STATIC
+        include $(ROOT)/mak/library.mak
+    else
+        #
+        # Make this a program instead of a library.
+        # VMS can only share executables!
+        #
 
-include $(ROOT)/mak/program.mak
+        PROGRAM = $(addprefix lib,$(LIBRARY))
+        VMSSHARE =/share/sysexe
+        SHARE_COPY = YES
+
+        ifdef PEGASUS_VMS_GENERATE_EXPORT_SYMBOLS
+        CFLAGS += /export_symbols=(options_file=$(BIN_VMSDIRA)]$(PROGRAM),EXPLICIT) 
+        CFLAGS += /warn=disable=(inaspefun)
+        DLLOPT = , $(BIN_VMSDIRA)]$(PROGRAM)/opt
+    endif
+
+    include $(ROOT)/mak/program.mak
 
 tests: $(ERROR)
 
@@ -47,8 +62,8 @@ messages: $(ERROR)
 
 poststarttests: $(ERROR)
 
+endif 
 else
-
-include $(ROOT)/mak/library.mak
-
+    include $(ROOT)/mak/library.mak
 endif
+

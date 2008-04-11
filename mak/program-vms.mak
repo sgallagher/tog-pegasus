@@ -27,19 +27,19 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
+#//=============================================================================
 ifdef VMS_HAS_CC
- CPPVMSOBJECTS = $(SOURCES:.cpp=.obj,)
- TMPVMSOBJECTS += $(CPPVMSOBJECTS:.c=.obj,)
+    CPPVMSOBJECTS = $(SOURCES:.cpp=.obj,)
+    TMPVMSOBJECTS += $(CPPVMSOBJECTS:.c=.obj,)
 
- TMP_OBJECTS = $(foreach i,$(SOURCES),$(OBJ_DIR)/$i)
- CPP_OBJECTS = $(TMP_OBJECTS:.cpp=.obj)
- OBJECTS = $(CPP_OBJECTS:.c=.obj)
+    TMP_OBJECTS = $(foreach i,$(SOURCES),$(OBJ_DIR)/$i)
+    CPP_OBJECTS = $(TMP_OBJECTS:.cpp=.obj)
+    OBJECTS = $(CPP_OBJECTS:.c=.obj)
 else
- TMPVMSOBJECTS = $(SOURCES:.cpp=.obj,)
+    TMPVMSOBJECTS = $(SOURCES:.cpp=.obj,)
 
- TMP_OBJECTS = $(foreach i,$(SOURCES),$(OBJ_DIR)/$i)
- OBJECTS = $(TMP_OBJECTS:.cpp=.obj)
+    TMP_OBJECTS = $(foreach i,$(SOURCES),$(OBJ_DIR)/$i)
+    OBJECTS = $(TMP_OBJECTS:.cpp=.obj)
 endif
 
 VMSOBJECTS = $(OBJ_VMSDIRA)]$(TMPVMSOBJECTS)
@@ -51,28 +51,44 @@ FULL_PROGRAM=$(BIN_DIR)/$(PROGRAM)$(EXE)
 FULL_VMSPROGRAM=$(BIN_VMSDIRA)]$(PROGRAM)$(EXE)
 
 EXE_OUTPUT =$(FULL_PROGRAM)
-EXE_VMSOUTPUT =/exe=$(FULL_VMSPROGRAM)
+
+ifdef VMSSHARE
+    EXE_VMSOUTPUT =/sysexe/share=$(FULL_VMSPROGRAM)
+else
+    EXE_VMSOUTPUT =/exe=$(FULL_VMSPROGRAM)
+endif
 
 #OPT = $(VMSROOT)[src$(VMSDIRA)]$(PROGRAM)/opt
 OPT = $(OPT_VMSDIRA)]$(PROGRAM)/opt
 VMSPROGRAM = YES
 
 
-$(FULL_PROGRAM): $(OBJ_DIR)/target $(BIN_DIR)/target $(OPT_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) $(ERROR)
+$(FULL_PROGRAM): $(OBJ_DIR)/target $(BIN_DIR)/target $(OPT_DIR)/target \
+    $(OBJECTS) $(FULL_LIBRARIES) $(ERROR)
 
 ifdef OBJECTS_IN_OPTIONFILE
-	@ take $(PLATFORM_VMSDIRA)]vms_create_optfile.com "$(OPT_VMSDIRA)]" "$(VMSROOT)[src$(VMSDIR)]" "$(PROGRAM)" "$(strip $(LIBRARIES))" "$(SHARE_COPY)" "$(VMS_VECTOR)" "$(SOURCES)" "$(OBJ_VMSDIRA)]" 
-	cxxlink$(LFLAGS)$(VMSSHARE)$(EXE_VMSOUTPUT)/reposit=$(CXXREPOSITORY_VMSROOT) $(OPT)
+	@ take $(PLATFORM_VMSDIRA)]vms_create_optfile.com "$(OPT_VMSDIRA)]" \
+            "$(VMSROOT)[src$(VMSDIR)]" "$(PROGRAM)" "$(strip $(LIBRARIES))" \
+            "$(SHARE_COPY)" "$(VMS_VECTOR)" "$(SOURCES)" "$(OBJ_VMSDIRA)]" 
+	cxxlink$(LFLAGS)$(EXE_VMSOUTPUT)/reposit=$(CXXREPOSITORY_VMSROOT) \
+            $(OPT) $(DLLOPT)
 else
-	@ take $(PLATFORM_VMSDIRA)]vms_create_optfile.com "$(OPT_VMSDIRA)]" "$(VMSROOT)[src$(VMSDIR)]" "$(PROGRAM)" "$(strip $(LIBRARIES))" "$(SHARE_COPY)" "$(VMS_VECTOR)" "$(OBJ_VMSDIRA)]"
-	cxxlink$(LFLAGS)$(VMSSHARE)$(EXE_VMSOUTPUT)/reposit=$(CXXREPOSITORY_VMSROOT) $(VMSOBJECTS)$(OPT)
+	@ take $(PLATFORM_VMSDIRA)]vms_create_optfile.com "$(OPT_VMSDIRA)]" \
+            "$(VMSROOT)[src$(VMSDIR)]" "$(PROGRAM)" "$(strip $(LIBRARIES))" \
+            "$(SHARE_COPY)" "$(VMS_VECTOR)" "$(OBJ_VMSDIRA)]"
+	cxxlink$(LFLAGS)$(EXE_VMSOUTPUT)/reposit=$(CXXREPOSITORY_VMSROOT) \
+            $(VMSOBJECTS) $(OPT) $(DLLOPT)
 endif
 	@ $(TOUCH) $(FULL_VMSPROGRAM)
 ifdef SHARE_COPY
- ifdef PEGASUS_RELEASE_BUILD
+    ifdef PEGASUS_RELEASE_BUILD
 #	$(COPY) $(FULL_VMSPROGRAM) sys$$share:$(PROGRAM)$(EXE)
 	$(COPY) "$(FULL_VMSPROGRAM)" "$(PEGASUS_SYSSHARE)$(PROGRAM)$(EXE)"
- endif
+    endif
+endif
+ifdef VMSSHARE
+	library/create/share $(FULL_VMSLIB) $(FULL_VMSPROGRAM)
+	define/job/log $(PROGRAM) $(FULL_VMSPROGRAM)
 endif
 	@ $(ECHO)
 

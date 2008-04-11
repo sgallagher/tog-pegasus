@@ -27,7 +27,7 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
+#//=============================================================================
 #
 #  NOTE:  The grammar and parser are no longer built in this makefile,
 #  and in fact flex and bison are assumed to already have been run 
@@ -46,18 +46,21 @@ include $(ROOT)/mak/config.mak
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 ifeq ($(OS_TYPE),windows)
-EXTRA_INCLUDES += -I./nt_includes
+    EXTRA_INCLUDES += -I./nt_includes
 endif
 
 LOCAL_CLEAN_TARGET = local_clean_target
 
 LOCAL_DEFINES = -DPEGASUS_COMPILER_INTERNAL -DPEGASUS_INTERNALONLY
 
+ifeq ($(OS_TYPE),vms)
+    STATIC=1
+endif
+
 LIBRARY = pegcompiler
 
 LIBRARIES = \
-    pegclient \
-    pegconfig \
+    pegclient  \
     pegrepository \
     pegconfig \
     pegcommon
@@ -76,8 +79,7 @@ SOURCES = \
     valueFactory.cpp \
     compilerDeclContext.cpp
 
-include $(ROOT)/mak/library.mak
-
+include $(ROOT)/mak/dynamic-library.mak
 
 $(OBJ_DIR)/cimmof_tab_wrapper$(OBJ) : cimmof_tab.cpp
 

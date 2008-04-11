@@ -86,6 +86,8 @@ PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET=1
 # The Provider User Context feature (PEP 197) is not yet supported on OpenVMS
 PEGASUS_DISABLE_PROV_USERCTXT=1
 
+PEGASUS_USE_STATIC_LIBRARIES = true
+
 CXX = cxx
 
 SH = sh

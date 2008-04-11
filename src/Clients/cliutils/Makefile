@@ -27,7 +27,7 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
+#//=============================================================================
 ROOT = ../../..
 
 DIR = Clients/cliutils
@@ -37,6 +37,10 @@ include $(ROOT)/mak/config.mak
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LOCAL_DEFINES = -DPEGASUS_CLIUTILS_INTERNAL -DPEGASUS_INTERNALONLY
+
+ifeq ($(OS_TYPE),vms)
+    STATIC=1
+endif
 
 LIBRARY = pegcliutils
 
@@ -49,4 +53,4 @@ SOURCES = \
     Command.cpp \
     CommandException.cpp
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak

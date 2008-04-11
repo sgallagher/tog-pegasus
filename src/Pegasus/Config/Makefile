@@ -27,7 +27,7 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
+#//=============================================================================
 ROOT = ../../..
 
 DIR = Pegasus/Config
@@ -36,30 +36,35 @@ include $(ROOT)/mak/config.mak
 
 LOCAL_DEFINES = -DPEGASUS_CONFIG_INTERNAL -DPEGASUS_INTERNALONLY
 
-STATIC=0
+ifeq ($(OS_TYPE),vms)
+    STATIC=1
+else
+    STATIC=0
+endif
+
 LIBRARY = pegconfig
 
 LIBRARIES = \
-	pegcommon
+    pegcommon
 
 ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
-EXTRA_LIBRARIES += -lCstd
+    EXTRA_LIBRARIES += -lCstd
 endif
 
 SOURCES = \
-	ConfigExceptions.cpp \
-	ConfigFile.cpp \
-	ConfigFileHandler.cpp \
-	ConfigManager.cpp \
-	ConfigPropertyOwner.cpp \
-	DefaultPropertyOwner.cpp \
-	FileSystemPropertyOwner.cpp \
-	LogPropertyOwner.cpp \
-	NormalizationPropertyOwner.cpp \
-	TracePropertyOwner.cpp \
-	SecurityPropertyOwner.cpp \
-	RepositoryPropertyOwner.cpp \
-	ProviderDirPropertyOwner.cpp \
-	ShutdownPropertyOwner.cpp
+    ConfigExceptions.cpp \
+    ConfigFile.cpp \
+    ConfigFileHandler.cpp \
+    ConfigManager.cpp \
+    ConfigPropertyOwner.cpp \
+    DefaultPropertyOwner.cpp \
+    FileSystemPropertyOwner.cpp \
+    LogPropertyOwner.cpp \
+    NormalizationPropertyOwner.cpp \
+    TracePropertyOwner.cpp \
+    SecurityPropertyOwner.cpp \
+    RepositoryPropertyOwner.cpp \
+    ProviderDirPropertyOwner.cpp \
+    ShutdownPropertyOwner.cpp
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak

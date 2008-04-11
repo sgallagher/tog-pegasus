@@ -27,7 +27,7 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
+#//=============================================================================
 ROOT = ../../..
 
 DIR = Pegasus/getoopt
@@ -37,10 +37,14 @@ include $(ROOT)/mak/config.mak
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 ifeq ($(OS_TYPE),windows)
-EXTRA_INCLUDES += -I./nt_includes
+    EXTRA_INCLUDES += -I./nt_includes
 endif
 
 LOCAL_DEFINES = -DPEGASUS_GETOOPT_INTERNAL -DPEGASUS_INTERNALONLY
+
+ifeq ($(OS_TYPE),vms)
+    STATIC=1
+endif
 
 LIBRARY = peggetoopt
 
@@ -50,5 +54,5 @@ PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = getoopt.cpp
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 

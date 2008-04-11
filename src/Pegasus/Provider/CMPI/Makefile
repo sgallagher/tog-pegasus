@@ -27,7 +27,7 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
+#//=============================================================================
 ROOT = ../../../..
 
 DIR = Pegasus/Provider/CMPI
@@ -35,7 +35,11 @@ DIR = Pegasus/Provider/CMPI
 include $(ROOT)/mak/config.mak
 
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
-LOCAL_DEFINES = -DPEGASUS_CMPI_PROVIDER_INTERNAL -DPEGASUS_INTERNALONLY
+    LOCAL_DEFINES = -DPEGASUS_CMPI_PROVIDER_INTERNAL -DPEGASUS_INTERNALONLY
+endif
+
+ifeq ($(OS_TYPE),vms)
+    STATIC=1
 endif
 
 LIBRARY = cmpiCppImpl
@@ -43,4 +47,4 @@ LIBRARY = cmpiCppImpl
 SOURCES = \
     CmpiImpl.cpp
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak

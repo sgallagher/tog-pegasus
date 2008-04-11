@@ -27,7 +27,7 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
+#//=============================================================================
 ROOT = ../../..
 
 DIR = Pegasus/Listener
@@ -38,6 +38,10 @@ EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LOCAL_DEFINES = -DPEGASUS_LISTENER_INTERNAL -DPEGASUS_INTERNALONLY
 
+ifeq ($(OS_TYPE),vms)
+    STATIC=1
+endif
+
 LIBRARY = peglistener
 
 LIBRARIES = \
@@ -47,13 +51,13 @@ LIBRARIES = \
 PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = \
-	List.cpp \
+    List.cpp \
     CIMListener.cpp \
-	CIMListenerIndicationDispatcher.cpp
+    CIMListenerIndicationDispatcher.cpp
 
 ifeq ($(OS_TYPE),windows)
-SYS_LIBS = ws2_32.lib advapi32.lib
+    SYS_LIBS = ws2_32.lib advapi32.lib
 endif
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 

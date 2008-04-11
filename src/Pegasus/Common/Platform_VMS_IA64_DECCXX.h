@@ -47,6 +47,16 @@
 #define PEGASUS_POINTER_64BIT
 #endif
 
+#ifdef PEGASUS_VMS_GENERATE_EXPORT_SYMBOLS
+#if  (__DECCXX_VER >= 70330075)
+#define PEGASUS_EXPORT __declspec(dllexport)
+#define PEGASUS_IMPORT
+#else
+#error "<Platform_VMS_IA64_DECCXX.h>: " \
+    "PEGASUS_VMS_GENERATE_EXPORT_SYMBOLS is not supported with this compiler."
+#endif  // __DECCXX_VER
+#endif  // PEGASUS_VMS_GENERATE_EXPORT_SYMBOLS
+
 #define PEGASUS_COMPILER_DECCXX
 
 #define PLATFORM_VERSION_SUPPORTED

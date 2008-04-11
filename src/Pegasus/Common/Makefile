@@ -37,14 +37,19 @@ include $(ROOT)/mak/config.mak
 ifdef PEGASUS_HAS_SSL
     ifdef OPENSSL_HOME
         SYS_INCLUDES += -I$(OPENSSL_HOME)/include
-     endif
+    endif
 endif
+
 LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL -DPEGASUS_INTERNALONLY
+
+ifeq ($(OS_TYPE),vms)
+    STATIC=1
+endif
 
 LIBRARY = pegcommon
 
 ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
-  LIBRARIES = ILEWrapperUtils
+    LIBRARIES = ILEWrapperUtils
 endif
 
 ##
@@ -188,7 +193,7 @@ SOURCES2 = \
     HostLocator.cpp
 
 ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
-  SOURCES2 += PaseCcsid.cpp
+    SOURCES2 += PaseCcsid.cpp
 endif
 
 SOURCES_SLP = Attribute.cpp \
@@ -196,54 +201,54 @@ SOURCES_SLP = Attribute.cpp \
 
 SOURCES_SECURITY_ZOS = MustStayCleanzOS.c
 ifeq ($(PEGASUS_ENABLE_SLP),true)
-  SOURCES2 += $(SOURCES_SLP)
+    SOURCES2 += $(SOURCES_SLP)
 endif
 
 ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
-  SOURCES2 += LoadAndClearWord_HPUX_PARISC_ACC.s
+    SOURCES2 += LoadAndClearWord_HPUX_PARISC_ACC.s
 endif
 
 SOURCES = $(SOURCES1) $(SOURCES2)
 
 ifdef PEGASUS_HAS_SSL
-  ifeq ($(OS_TYPE),windows)
-    SYS_LIBS += /libpath:$(OPENSSL_HOME)/lib libeay32.lib ssleay32.lib
-  else
-    ifdef OPENSSL_HOME
-      EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib
+    ifeq ($(OS_TYPE),windows)
+        SYS_LIBS += /libpath:$(OPENSSL_HOME)/lib libeay32.lib ssleay32.lib
+    else
+        ifdef OPENSSL_HOME
+            EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib
+        endif
+        EXTRA_LIBRARIES += -lssl -lcrypto
     endif
-    EXTRA_LIBRARIES += -lssl -lcrypto
-  endif
 endif
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-  ifdef PEGASUS_ZOS_SECURITY
-    SOURCES += $(SOURCES_SECURITY_ZOS)
-  endif
-  SOURCES2 += Audit_zOS_SMF.cpp \
-	PegasusAssertZOS.cpp
+    ifdef PEGASUS_ZOS_SECURITY
+        SOURCES += $(SOURCES_SECURITY_ZOS)
+    endif
+    SOURCES2 += Audit_zOS_SMF.cpp \
+        PegasusAssertZOS.cpp
 endif
 
 ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
-  AIX_LIB_PRIORITY=-20
+    AIX_LIB_PRIORITY=-20
 endif
 
 ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
-  AIX_LIB_PRIORITY=-20
+    AIX_LIB_PRIORITY=-20
 endif
 
 # Note that PEGASUS_WINDOWS_SDK_HOME only needs to be specified if using VC6.
 ifeq ($(OS_TYPE),windows)
-  SYS_LIBS += ws2_32.lib advapi32.lib netapi32.lib
-  ifdef PEGASUS_WINDOWS_SDK_HOME
-    FLAGS += -DPEGASUS_WINDOWS_SDK_HOME
-    SYS_LIBS += /libpath:$(PEGASUS_WINDOWS_SDK_HOME)/lib secur32.lib
-  else
-     ifneq ($(CL_MAJOR_VERSION), 12)
-    SYS_LIBS += secur32.lib
-     endif
-  endif
+    SYS_LIBS += ws2_32.lib advapi32.lib netapi32.lib
+    ifdef PEGASUS_WINDOWS_SDK_HOME
+        FLAGS += -DPEGASUS_WINDOWS_SDK_HOME
+        SYS_LIBS += /libpath:$(PEGASUS_WINDOWS_SDK_HOME)/lib secur32.lib
+    else
+        ifneq ($(CL_MAJOR_VERSION), 12)
+            SYS_LIBS += secur32.lib
+        endif
+    endif
 endif
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 # DO NOT DELETE

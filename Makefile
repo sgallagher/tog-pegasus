@@ -227,7 +227,6 @@ stresstests:
 # buildmu target: build mu the make utility that among other things
 #                 includes depend
 buildmu: FORCE
-	$(MKDIRHIER) $(BIN_DIR)
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/mu -f Makefile
 
 #----------------------

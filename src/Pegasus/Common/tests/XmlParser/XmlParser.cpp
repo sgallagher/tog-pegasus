@@ -78,17 +78,15 @@ static void _parseFile(const char* fileName)
 }
 
 // Test case for 7581: XML parser leaves trailing spaces in entry content.
-static void _tralingSpace(void)
+static void _trailingSpace()
 {
-    char* text = "<tag>\r\nvalue  </tag>";
-    char* p = (char*)malloc(sizeof(text));
-    strcpy(p, text);
-    XmlParser parser(p);
+    char text[] = "<tag>\r\nvalue  </tag>";
+    XmlParser parser(text);
     XmlEntry entry;
 
     while (parser.next(entry))
     {
-        // Make sure content entries have no trailing staces
+        // Make sure content entries have no trailing spaces
         int len = strlen(entry.text);
         if (entry.type == XmlEntry::CONTENT &&
             entry.text[len - 1] == ' ')
@@ -116,7 +114,7 @@ int main(int argc, char** argv)
     { 
         _parseFile(argv[i]);
 
-        _tralingSpace();
+        _trailingSpace();
     }
     catch(Exception& e)
     {

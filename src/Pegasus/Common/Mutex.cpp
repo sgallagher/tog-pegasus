@@ -187,7 +187,8 @@ void Mutex::unlock()
         throw Permission(Threads::self());
 }
 
-#if defined(PEGASUS_OS_LINUX)
+#if defined(PEGASUS_OS_LINUX) || \
+    (defined(PEGASUS_OS_ZOS) && !(__TARGET_LIB__ < 0x41090000))
 void Mutex::reinitialize()
 {
     pthread_mutex_init(&_rep.mutex, &_attr);

@@ -244,11 +244,7 @@ CIMObjectPath CIMInstanceRep::buildPath(
         }
 
         CIMConstProperty tmp = getProperty(index);
-
-        if (keyName.equal(tmp.getName()))
-        {
-            keyBindings.append(CIMKeyBinding(keyName, tmp.getValue()));
-        }
+        keyBindings.append(CIMKeyBinding(keyName, tmp.getValue()));
     }
 
     return CIMObjectPath(String(), CIMNamespaceName(), className, keyBindings);

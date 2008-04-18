@@ -75,6 +75,7 @@ class T_Parms{
     int activeTest;
     int testCount;
     int uniqueID;
+    String ignoreErrors;
 };
 
 /** ErrorExit - Print out the error message as an
@@ -537,8 +538,36 @@ static void TestQualifierOperations(CIMClient* client, Boolean activeTest,
 
 }
 
+static Boolean lookupError(const String& ignoreErrors, CIMStatusCode lookupCode)
+{
+    static const char ERROR_DELIMETER = ',';
+
+    Uint32 startPos = 0;
+    Uint32 strSize = ignoreErrors.size();
+
+    while (startPos < strSize)
+    {
+        Uint32 pos = ignoreErrors.find(startPos, ERROR_DELIMETER);
+        if (pos == PEG_NOT_FOUND)
+        {
+            pos = strSize; 
+        }
+
+        String errorStr = ignoreErrors.subString(startPos, pos - startPos);
+        if (errorStr == cimStatusCodeToString(lookupCode))
+        {
+            return true;
+        }
+
+        startPos = pos + 1;
+    }
+
+    return false;
+}
+
 static void TestInstanceGetOperations(CIMClient* client, Boolean activeTest,
-                                    Boolean verboseTest, String uniqueID)
+                                    Boolean verboseTest, String uniqueID,
+                                    String ignoreErrors)
 {
     // Get all instances
     // Get all classes
@@ -568,14 +597,22 @@ static void TestInstanceGetOperations(CIMClient* client, Boolean activeTest,
                instanceNames = 
                   client->enumerateInstanceNames(globalNamespace,classNames[i]);
                if (instanceNames.size() > 0)
-           cout << "Class " << classNames[i] << " "
-                << instanceNames.size() << " Instances" << endl;
+               {
+                   cout << "Class " << classNames[i] << " "
+                        << instanceNames.size() << " Instances" << endl;
+               }
            }
            catch(CIMException& e)
            {
                  if (e.getCode() == CIM_ERR_NOT_SUPPORTED)
                  {
                     numberOfNotSupportedClassesFound++;
+                 }
+                 else if (lookupError(ignoreErrors, e.getCode()))
+                 {
+                     cerr << "CIMException : " << classNames[i].getString()
+                          << endl;
+                     cerr << e.getMessage() << endl;
                  }
                  else
                  {
@@ -1214,7 +1251,11 @@ void GetOptions(
                          "Number of simultaneous client threads" },
 
         {"timeout","30000", false, Option::WHOLE_NUMBER, 0, 0, "to",
-                        "Client connection timeout value" }
+                        "Client connection timeout value" },
+
+        {"ignoreErrors", "", false, Option::STRING, 0, 0, "ignoreErrors",
+                         "Specifies a comma separated list of CIMError status"
+                         " code strings that should be ignored." }
 
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
@@ -1242,6 +1283,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL executeTests(void *parm){
     Uint32 testCount = parms->testCount;
     Boolean verboseTest = parms->verboseTest == 0 ? false : true;
     Boolean activeTest = parms->activeTest == 0 ? false : true;
+    String ignoreErrors = parms->ignoreErrors;
     int id = parms->uniqueID;
     char id_[4];
     memset(id_,0x00,sizeof(id_));
@@ -1284,7 +1326,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL executeTests(void *parm){
         testStart("Test Instance Get Operations");
         elapsedTime.reset();
         elapsedTime.start();
-        TestInstanceGetOperations(client,activeTest,verboseTest, uniqueID);
+        TestInstanceGetOperations(client,activeTest,verboseTest, uniqueID, 
+            ignoreErrors);
         elapsedTime.stop();
         testEnd(elapsedTime.getElapsed());
 
@@ -1325,7 +1368,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL executeTests(void *parm){
 }
 
 Thread * runTests(CIMClient *client, Uint32 testCount, Boolean activeTest, 
-        Boolean verboseTest, int uniqueID){
+        Boolean verboseTest, int uniqueID, String ignoreErrors){
         // package parameters, create thread and run...
         AutoPtr<T_Parms> parms(new T_Parms());
         parms->client.reset(client);
@@ -1333,6 +1376,7 @@ Thread * runTests(CIMClient *client, Uint32 testCount, Boolean activeTest,
         parms->activeTest = (activeTest) ? 1 : 0;
         parms->verboseTest = (verboseTest) ? 1 : 0;
         parms->uniqueID = uniqueID;
+        parms->ignoreErrors = ignoreErrors;
         AutoPtr<Thread> t(new Thread(executeTests, (void*)parms.release(), 
                     false));
 
@@ -1520,6 +1564,13 @@ int main(int argc, char** argv)
        cout << "password = " << password << endl;
     }
 
+    String ignoreErrors;
+    om.lookupValue("ignoreErrors", ignoreErrors);
+    if (ignoreErrors != String::EMPTY)
+    {
+       cout << "ignoreErrors = " << ignoreErrors << endl;
+    }
+
     Boolean useSLP =  false;
     Boolean localConnection = (om.valueEquals("local", "true"))? true: false;
     Boolean useSSL =  om.isTrue("ssl");
@@ -1590,7 +1641,8 @@ int main(int argc, char** argv)
         for(Uint32 i=0; i< clientConnections.size(); i++)
         {
             clientThreads.append(runTests(clientConnections[i], 
-                        repeatTestCount, activeTest, verboseTest, i));
+                        repeatTestCount, activeTest, verboseTest, i,
+                        ignoreErrors));
         }
 
         for(Uint32 i=0; i< clientThreads.size(); i++)

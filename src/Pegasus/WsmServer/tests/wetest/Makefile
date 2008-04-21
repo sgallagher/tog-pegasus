@@ -27,7 +27,7 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
+#//=============================================================================
 
 ROOT = ../../../../..
 include $(ROOT)/mak/config.mak
@@ -35,24 +35,27 @@ include $(ROOT)/test/config.mak
 
 ifdef PEGASUS_DEBUG
     ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
-        XMLSCRIPTS = wsmCreate002err \
-                     wsmCreate003err \
-                     wsmCreate004err \
-                     wsmCreate005err \
-                     wsmCreate006err \
-                     wsmGet001 \
-                     wsmGet002header \
-                     wsmGet003err \
-                     wsmGet004err \
-                     wsmGet005err \
-                     wsmPut001 \
-                     wsmPut002err \
-                     wsmPut003err \
-                     wsmDelete001 \
-                     wsmDelete002err \
-                     # ATTN-WSMAN: This test is temporarily commented out as the response output contains the hostname and cannot be statically compared. 
-                     # wsmCreate001 \
-                     wsmDelete003err 
+        XMLSCRIPTS = \
+            wsmCreate002err \
+            wsmCreate003err \
+            wsmCreate004err \
+            wsmCreate005err \
+            wsmCreate006err \
+            wsmGet001 \
+            wsmGet002header \
+            wsmGet003err \
+            wsmGet004err \
+            wsmGet005err \
+            wsmPut001 \
+            wsmPut002err \
+            wsmPut003err \
+            wsmDelete001 \
+            wsmDelete002err \
+            wsmDelete003err 
+
+        # Note: This test is disabled because the response contains a hostname
+        # that cannot be statically compared. 
+        # XMLSCRIPTS += wsmCreate001
     endif
 endif
 

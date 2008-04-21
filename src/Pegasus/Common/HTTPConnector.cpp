@@ -382,6 +382,31 @@ HTTPConnection* HTTPConnector::connect(
             PEG_METHOD_EXIT();
             throw CannotCreateSocketException();
         }
+#ifndef PEGASUS_OS_TYPE_WINDOWS
+        // We need to ensure that the socket number is not higher than
+        // what fits into FD_SETSIZE,because we else won't be able to select
+        // on it and won't ever communicate correct on that socket.
+        if (socket >= FD_SETSIZE)
+        {
+# ifdef PEGASUS_ENABLE_IPV6
+            freeaddrinfo(addrInfoRoot);
+# endif
+            // the socket is useless to us, close it
+            Socket::close(socket);
+        
+            PEG_TRACE(
+                (TRC_DISCARDED_DATA,
+                 Tracer::LEVEL2,
+                 "createSocket() returned too large socket number %d."
+                     "Cannot connect to %s:%d. Connection failed.",
+                 socket,
+                 (const char*) host.getCString(),
+                 portNumber));
+
+            PEG_METHOD_EXIT();
+            throw CannotCreateSocketException();
+        }
+#endif
 
         Socket::disableBlocking(socket);
 

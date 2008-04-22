@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,6 +36,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/IPCExceptions.h>
 #include <Pegasus/Common/Magic.h>
 #include <Pegasus/Common/Threads.h>
 
@@ -98,23 +101,14 @@ public:
 
     void lock();
 
-    /**
-        Attempts to lock the mutex without blocking.
-        @return A Boolean indicating whether the lock was acquired.
-    */
-    Boolean try_lock();
+    void try_lock();
 
-    /**
-        Attempts to lock the mutex within the specified time.
-        @param milliseconds The maximum time to block while attempting to
-            acquire the lock.
-        @return A Boolean indicating whether the lock was acquired.
-    */
-    Boolean timed_lock(Uint32 milliseconds);
+    void timed_lock(Uint32 milliseconds);
 
     void unlock();
 
-#if defined(PEGASUS_OS_LINUX)
+#if defined(PEGASUS_OS_LINUX) ||  \
+    (defined(PEGASUS_OS_ZOS) && !(__TARGET_LIB__ < 0x41090000)) 
     /**
         This method must only be called after a fork() to reset the mutex
         lock status in the new process.  Any other use of this method is
@@ -170,12 +164,13 @@ private:
 // Use of this macro ensures that a static Mutex is not locked across a fork().
 
 #if !defined(PEGASUS_HAVE_PTHREADS) || \
-    defined(PEGASUS_OS_ZOS) || \
+    (defined(PEGASUS_OS_ZOS) && (__TARGET_LIB__ < 0x41090000)) || \
     defined(PEGASUS_OS_VMS)
 
 # define PEGASUS_FORK_SAFE_MUTEX(mutex)
 
-#elif defined(PEGASUS_OS_LINUX)
+#elif defined(PEGASUS_OS_LINUX) || \
+      (defined(PEGASUS_OS_ZOS) && !(__TARGET_LIB__ < 0x41090000))
 
 # define PEGASUS_FORK_SAFE_MUTEX(mutex)  \
     class ForkSafeMutex ## mutex         \

@@ -60,8 +60,6 @@ LIBRARIES = \
     cimplepegadap \
     cimplepegutils \
     cimple \
-    GoodbyeProvider \
-    HelloProvider \
     EmployeeProvider \
     pegcimserver \
     pegserver \

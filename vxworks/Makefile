@@ -1,6 +1,6 @@
 ROOT = ..
 include $(ROOT)/mak/config.mak
 
-DIRS = providers/hello providers/goodbye cimserver
+DIRS = providers cimserver
 
 include $(PEGASUS_ROOT)/mak/recurse.mak

@@ -30,6 +30,8 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "MyEmbeddedServer.h"
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Provider/CIMProvider.h>
 
 // Header files for each of the namespaces that are to be created for this
 // server. Each include statement below should define a c++ header file created
@@ -43,6 +45,29 @@ PEGASUS_NAMESPACE_BEGIN
 
 // Define entry points for each static provider. 
 extern "C" class CIMProvider* PegasusCreateProvider(const String&);
+
+extern "C" class CIMProvider* PegasusCreateProviderWrapper(const String& arg)
+{
+    fprintf(stderr, "Called PegasusCreateProviderWrapper(%s)\n",
+        (const char*)arg.getCString());
+
+    class CIMProvider* prov = PegasusCreateProvider(arg);
+
+    if (!prov)
+    {
+        fprintf(stderr, "PegasusCreateProviderWrapper(): null pointer\n");
+    }
+    else if (!dynamic_cast<CIMProvider*>(prov))
+    {
+        fprintf(stderr, "PegasusCreateProviderWrapper() dynamic cast failed\n");
+    }
+    else 
+    {
+        fprintf(stderr, "PegasusCreateProviderWrapper(): okay\n");
+    }
+
+    return prov;
+}
 
 MyEmbeddedServer::MyEmbeddedServer()
 {
@@ -110,7 +135,7 @@ void MyEmbeddedServer::initialize()
     // one of these).
     //
 
-    if (!registerPegasusCreateProviderEntryPoint(PegasusCreateProvider))
+    if (!registerPegasusCreateProviderEntryPoint(PegasusCreateProviderWrapper))
     {
         printf("***** addSymbol() failed: Employee\n");
     }

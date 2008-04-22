@@ -60,8 +60,6 @@ CIMOMHandle::CIMOMHandle()
     {
 #if !defined(PEGASUS_REMOVE_SERVER_CLIENT_USAGE)
 
-        PEGASUS_ASSERT(0);
-
         // No BinaryMessageHandler exists.  We must use ClientCIMOMHandleRep
         _rep = new ClientCIMOMHandleRep();
 

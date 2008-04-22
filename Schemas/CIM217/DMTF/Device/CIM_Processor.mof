@@ -1,4 +1,4 @@
-// Copyright (c) 2007 DMTF.  All rights reserved.
+// Copyright (c) 2008 DMTF.  All rights reserved.
 // <change cr="CIMCoreCR00752.000" type ="change">Update of
 // descriptions based on Tech Edit review.</
 // <change cr="CIMCoreCR00783.002" type ="add"> Add enumerations to
@@ -32,7 +32,7 @@
 // ==================================================================
 //  CIM_Processor
 // ==================================================================
-   [Version ( "2.16.0" ), 
+   [Version ( "2.17.1" ), 
     UMLPackagePath ( "CIM::Device::Processor" ), 
     Description ( 
        "Capabilities and management of the Processor LogicalDevice." )]

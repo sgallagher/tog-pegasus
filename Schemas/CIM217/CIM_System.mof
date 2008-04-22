@@ -32,9 +32,9 @@
 // Title      : CIM_System MOF
 // Filename   : CIM_System.mof
 // Version    :
-// Date       : 01/18/2008
+// Date       : 03/26/2008
 // Description: This file was created by The OpenPegasus Group to
-//              create DMTF CIM Schema Version 217 
+//              create DMTF CIM Schema Version 2171 
 //              interface filesfiles compatible with OpenPegasus 
 //              build enviroment.
 //
@@ -54,6 +54,7 @@
 #pragma include ("DMTF/System/CIM_DiagnosticSettingRecord.mof")
 #pragma include ("DMTF/System/CIM_FileSystemCapabilities.mof")
 #pragma include ("DMTF/System/CIM_FileSystemSettingData.mof")
+#pragma include ("DMTF/System/CIM_LogEntry.mof")
 #pragma include ("DMTF/System/CIM_LogicalFile.mof")
 #pragma include ("DMTF/System/CIM_LogRecord.mof")
 #pragma include ("DMTF/System/CIM_RecordAppliesToElement.mof")

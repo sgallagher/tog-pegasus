@@ -419,6 +419,7 @@
 #pragma include ("System/CIM_DiagnosticSettingRecord.mof")
 #pragma include ("System/CIM_FileSystemCapabilities.mof")
 #pragma include ("System/CIM_FileSystemSettingData.mof")
+#pragma include ("System/CIM_LogEntry.mof")
 #pragma include ("System/CIM_LogicalFile.mof")
 #pragma include ("System/CIM_LogRecord.mof")
 #pragma include ("System/CIM_RecordAppliesToElement.mof")

@@ -1,10 +1,5 @@
-// Copyright (c) 2005 DMTF.  All rights reserved.
-// <change cr="ArchCR00066.004" type="add">Add UmlPackagePath
-// qualifier values to CIM Schema.</change>
-// ==================================================================
-//  CIM_Action 
-// ==================================================================
-   [Abstract, Version ( "2.7.0" ), 
+// Copyright (c) 2007 DMTF.  All Rights Reserved.
+   [Abstract, Version ( "2.17.1" ), 
     UMLPackagePath ( "CIM::Application::CheckAction" ), 
     Description ( 
        "A CIM_Action is an operation that is part of a process to "

@@ -1,4 +1,4 @@
-// Copyright (c) 2005 DMTF.  All rights reserved.
+// Copyright (c) 2008 DMTF.  All rights reserved.
 // <change cr="DMTFCR01452.001" type ="add">Clarifications and 
 // addition to PhysicalMemory.MemoryType</change>
 // <change cr="ArchCR00066.004" type="add">Add UmlPackagePath
@@ -8,7 +8,7 @@
 // ==================================================================
 //  CIM_PhysicalMemory 
 // ==================================================================
-   [Version ( "2.14.0" ), 
+   [Version ( "2.17.1" ), 
     UMLPackagePath ( "CIM::Physical::Component" ), 
     Description ( 
        "PhysicalMemory is a subclass of CIM_Chip, representing low "

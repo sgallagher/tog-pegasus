@@ -1,1 +1,2 @@
-Source /home/kschopmeyer/Desktop/cimv217Final-MOFs.zip
+Source = ../../cimv2171Final-MOFs.zip
+CIM Schema Version = 2171

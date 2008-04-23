@@ -29,21 +29,19 @@
 #//
 #//=============================================================================
 
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../../../../..
+include $(ROOT)/mak/config.mak
+include $(ROOT)/test/config.mak
 
-DIRS =
+XMLSCRIPTS = \
+    Create_InvalidClass01 \
+    Create_InvalidKeyName01 \
+    Create_InvalidNamespace01 \
+    Create_InvalidPropertyName01 \
+    Create_InvalidPropertyValue01
 
-# Note: These tests require wbemexec to be built with PEGASUS_DEBUG set, so it
-# replaces the response MessageID with a fixed value for static comparison.
+# Note: This test is disabled because the response contains a hostname
+# that cannot be statically compared. 
+# XMLSCRIPTS += Create_Success01.xml
 
-ifdef PEGASUS_DEBUG
-    DIRS += \
-        HttpHeader \
-        SoapHeader \
-        Create \
-        Get \
-        Put \
-        Delete
-endif
-
-include $(PEGASUS_ROOT)/mak/recurse.mak
+include $(ROOT)/test/configend.mak

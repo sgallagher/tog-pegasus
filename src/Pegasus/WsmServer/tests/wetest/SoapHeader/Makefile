@@ -29,21 +29,16 @@
 #//
 #//=============================================================================
 
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../../../../..
+include $(ROOT)/mak/config.mak
+include $(ROOT)/test/config.mak
 
-DIRS =
+XMLSCRIPTS += \
+    ActionMissing01 \
+    ActionUnsupported01 \
+    FaultToUnsupported01 \
+    HeaderNotUnderstood01 \
+    ReplyToUnsupported01 \
+    XmlSyntaxInvalid01
 
-# Note: These tests require wbemexec to be built with PEGASUS_DEBUG set, so it
-# replaces the response MessageID with a fixed value for static comparison.
-
-ifdef PEGASUS_DEBUG
-    DIRS += \
-        HttpHeader \
-        SoapHeader \
-        Create \
-        Get \
-        Put \
-        Delete
-endif
-
-include $(PEGASUS_ROOT)/mak/recurse.mak
+include $(ROOT)/test/configend.mak

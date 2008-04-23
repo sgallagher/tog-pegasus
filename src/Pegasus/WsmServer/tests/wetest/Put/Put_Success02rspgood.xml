@@ -16,7 +16,7 @@ uuid:00000000-0000-0000-0005-000000000004
 <wsman:RequestedEPR>
 <wsa:EndpointReference>
 <wsa:Address>
-localhost/wsman
+http://localhost/wsman
 </wsa:Address>
 <wsa:ReferenceParameters>
 <wsman:ResourceURI>

@@ -38,10 +38,7 @@ XMLSCRIPTS = \
     Create_InvalidKeyName01 \
     Create_InvalidNamespace01 \
     Create_InvalidPropertyName01 \
-    Create_InvalidPropertyValue01
-
-# Note: This test is disabled because the response contains a hostname
-# that cannot be statically compared. 
-# XMLSCRIPTS += Create_Success01.xml
+    Create_InvalidPropertyValue01 \
+    Create_Success01
 
 include $(ROOT)/test/configend.mak

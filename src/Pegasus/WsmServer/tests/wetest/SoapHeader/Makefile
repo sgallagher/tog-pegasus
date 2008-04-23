@@ -37,6 +37,7 @@ XMLSCRIPTS += \
     ActionMissing01 \
     ActionUnsupported01 \
     FaultToUnsupported01 \
+    FragmentLevelAccess01 \
     HeaderNotUnderstood01 \
     ReplyToUnsupported01 \
     XmlSyntaxInvalid01

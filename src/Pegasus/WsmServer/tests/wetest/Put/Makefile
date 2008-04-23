@@ -36,6 +36,7 @@ include $(ROOT)/test/config.mak
 XMLSCRIPTS = \
     Put_InvalidParameter01 \
     Put_NotFound01 \
-    Put_Success01
+    Put_Success01 \
+    Put_Success02
 
 include $(ROOT)/test/configend.mak

@@ -52,6 +52,7 @@ CIMRepository::CIMRepository(
 
 CIMRepository::~CIMRepository()
 {
+    delete _rep;
 }
 
 CIMClass CIMRepository::getClass(

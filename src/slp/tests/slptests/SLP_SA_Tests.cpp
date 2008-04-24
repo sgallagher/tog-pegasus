@@ -38,7 +38,6 @@
 #include <Pegasus/Client/CIMClient.h>
 #define SLP_PORT 427
 #define LOCALHOST_IP "127.0.0.1"
-#include <Pegasus/Server/SLPAttrib.h>
 
 PEGASUS_USING_PEGASUS;
 //Global variables used for SLP registrations and registration tests.
@@ -216,53 +215,6 @@ BOOL parseFind(lslpMsg *responses,  const char* httpAttr)
     return found;
 }
 
-// To execute the below test, CIMServer should be running.
-// All other test in this file are independent of CIMServer running status.
-// Testcase for testing registration made in the CIMServer.cpp
-// This testcase would fail if not executed prior to expiration of
-// registration time ( i.e. 60 * PEGASUS_SLP_REG_TIME_OUT seconds)
-#ifdef PEGASUS_SLP_REG_TIMEOUT
-void testSLPReg_fromCIMServer ()
-{
-    struct slp_client *client;
-    lslpMsg responses,*temp;
-    Array<SLPAttrib> SLPHttpAttribObjs;
-    Array<SLPAttrib> SLPHttpsAttribObjs;
-    char *httpAttrs  = (char *)NULL;
-
-    //Create slp client
-    client = create_slp_client (addr,iface,SLP_PORT,"DSA",
-        scopes,FALSE,FALSE, 0);
-    PEGASUS_TEST_ASSERT(NULL != client);
-
-    // discover all responses
-    client->converge_srv_req(client, type1, predicate, scopes);
-    responses.isHead = TRUE;
-    responses.next = responses.prev = &responses;
-
-    // retrieve the response head.
-    PEGASUS_TEST_ASSERT(client->get_response (client, &responses));
-    temp = &responses;
-
-    // Get all the SLP attributes and data for the Pegasus cimserver.
-    SLPAttrib::getAllRegs(SLPHttpAttribObjs, SLPHttpsAttribObjs);
-    // Take any one attribute.
-    SLPHttpAttribObjs[0].formAttributes();
-
-    // Populate datastructures required for registering  a service with
-    // External SLP SA (i.e IBM SLP SA)
-    httpAttrs = strdup(SLPHttpAttribObjs[0].getAttributes().getCString());
-
-    // parse the response list and check for the required response.
-    // This test case would fail if there a difference between the registered
-    // data and data retrieved from the SLP SA.
-    PEGASUS_TEST_ASSERT (parseFind(temp, httpAttrs));
-
-    free(httpAttrs);
-    destroy_slp_client(client);
-    return;
-}
-#endif
 /* Registration and verification for http
    This testcase register cimserver with http port and  checks if the
    registration is succesful or not. If the registration fails tests are
@@ -699,20 +651,6 @@ void test9 ()
 int main()
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
-#ifdef PEGASUS_SLP_REG_TIMEOUT
-    if (verbose)
-    {
-        PEGASUS_STD(cout)<<"+++++ start of SLP tests +++"<<PEGASUS_STD(endl);
-    }
-
-    testSLPReg_fromCIMServer ();
-
-    if (verbose)
-    {
-        PEGASUS_STD(cout)<<"+++++ Testcase for testing SLP Reg from "
-            <<"CIMServer is passed. +++" <<PEGASUS_STD(endl);
-    }
-#endif
     test1();
     test2();
     test3();

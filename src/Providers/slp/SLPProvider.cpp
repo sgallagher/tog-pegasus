@@ -59,18 +59,17 @@
    once started.
 */
 
-/* TODO
-    1.We can make this more flexible by allowing the following:
-        a. method to force reregistration.  Today, once you register it is
-           finished.
-        b. createInstance, deleteInstance to allow adding and deleting other
-        registrations.
-    2. Today this module assumes that we will populate the registration once at
-    startup and then it will remain fixed.  It does not provide for dynamic
-    re-registration when something changes in the system. KS Fix this. We need 
-    the following changes (1) dynamic reregistration within this module (2)
-    dynamic call from other functions to get initiate the registration when
-    something changes within the system (right now, interop changes).
+/* 
+    1. Currently SLP readvertisement happens in the following condtions.
+        (a) When PG_ProviderProfileCapabilities instance is created or deleted.
+        (b) When PG_Provider and PG_ProviderCapabilities instances are
+            created.
+        (c) When PG_Provider, PG_ProviderModule and PG_ProviderCapabilities
+            instances are deleted.
+        (d) When PG_ProviderModule is disabled or enabled.
+    2. SLP advertisements for both EmbeddedSLP and External SLP will happen
+       from this provider using slp_agent.
+    TODO:
     3. Consider seriously the concept of instance creation where the instance
     is provided and that instance is registered as a profile.
     Not sure today what the level of validation, etc. would be required.
@@ -1284,8 +1283,9 @@ Boolean SLPProvider::populateRegistrationData(
             "SLP Registration Failed: srv_registration.");
         return(false);
     }
-
-    // register for service-agent on each ip interface
+    
+    // register for service-agent on each ip interface with Embedded SA
+#ifndef PEGASUS_SLP_REG_TIMEOUT
     HostLocator locator(IPAddress);
     String agentURL = "service:service-agent://";
     agentURL.append(locator.getHost());
@@ -1293,9 +1293,6 @@ Boolean SLPProvider::populateRegistrationData(
         (const char *)"(service-type=*)",
         (const char *)"service:service-agent",
         "DEFAULT",
-#if defined( PEGASUS_USE_OPENSLP ) && defined ( PEGASUS_SLP_REG_TIMEOUT )
-        PEGASUS_SLP_REG_TIMEOUT  * 60);
-#else
         0xffff);
 #endif
 
@@ -1313,12 +1310,12 @@ Boolean SLPProvider::populateRegistrationData(
     provide information for registration and calls populate function to create
     a registration for each communication adapter represented by a communication
     object.
-    return: Boolean.  Indicates if there was an error in the registration.
 */
-Boolean SLPProvider::issueSLPRegistrations()
+Uint32  SLPProvider::populateSLPRegistrations()
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-        "SLPProvider::issueSLPREgistrations()");
+        "SLPProvider::populateSLPREgistrations()");
+
     Boolean getByAssociator = false;
 
     // get the PG communication mechanism class.  Used as part of the populate
@@ -1377,7 +1374,23 @@ Boolean SLPProvider::issueSLPRegistrations()
             itemsRegistered++;
         }
     }
+    return itemsRegistered;
+}
 
+/** issue all necessary SLP registrations. Gets the objects that are required to
+    provide information for registration and calls populate function to create
+    a registration for each communication adapter represented by a communication
+    object using populateSLPRegistrations() method and starts service listener.
+    return: Boolean.  Indicates if there was an error in the registration.
+*/
+
+Boolean SLPProvider::issueSLPRegistrations()
+{
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+        "SLPProvider::issueSLPREgistrations()");
+
+    // populate all SLP registrations.
+    Uint32 itemsRegistered = populateSLPRegistrations();
     // Start the Service Agent.  Note that the actual registrations are part of 
     // the populatetemplate function so that the various templates 
     // are already created.
@@ -1440,8 +1453,17 @@ void SLPProvider::initialize(CIMOMHandle & handle)
 //
 //***************************************************************************
 
+SLPProvider* SLPProvider::_this;
+
 SLPProvider::SLPProvider()    
 {
+    _this = this;
+    slp_agent.set_registration_callback((&updateProfileRegistration));
+}
+
+void SLPProvider::updateProfileRegistration()
+{
+    _this->populateSLPRegistrations();
 }
 
 SLPProvider::~SLPProvider()    
@@ -1612,7 +1634,6 @@ void SLPProvider::invokeMethod(
         objectReference.getKeyBindings());
 
     handler.processing();
-
     Uint32 response = 0;
     if (objectReference.getClassName().equal(SlpTemplateClassName))
     {
@@ -1637,7 +1658,7 @@ void SLPProvider::invokeMethod(
             else
              {
                 response = 1;
-        }
+             }
         }
         else if (methodName.equal("unregister"))
         {
@@ -1648,10 +1669,14 @@ void SLPProvider::invokeMethod(
         }
         else if (methodName.equal("update"))
         {
-            // ATTN: delete current instances
-            issueSLPRegistrations();
+#ifdef PEGASUS_SLP_REG_TIMEOUT
+            // Signal agents semaphore
+            slp_agent.get_update_reg_semaphore().signal();
+#else
+            // increment update registrations count.
+            slp_agent.update_reg_count();
+#endif
         }
-
         else
         {
             // ATTN: Not sure that this is correct exception

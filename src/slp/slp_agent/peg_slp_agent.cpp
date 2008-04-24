@@ -138,6 +138,9 @@ void SLPRegCallback(SLPHandle slp_handle, SLPError errcode, void* cookie)
 slp_service_agent::slp_service_agent()
    : _listen_thread(service_listener, this, false),
    _initialized(0)
+#ifdef PEGASUS_SLP_REG_TIMEOUT
+   ,_update_reg_semaphore(0)
+#endif
 {
     try
     {
@@ -154,7 +157,11 @@ slp_service_agent::slp_service_agent()
             427,
             "DSA",
             "DEFAULT",
+#ifdef PEGASUS_SLP_REG_TIMEOUT
+            FALSE,
+#else
             TRUE,
+#endif
             FALSE,
             "service:wbem");
     }
@@ -169,6 +176,10 @@ slp_service_agent::slp_service_agent(
     const char* srv_type)
     : _listen_thread(service_listener, this, false),
     _initialized(0)
+#ifdef PEGASUS_SLP_REG_TIMEOUT
+   ,_update_reg_semaphore(0)
+#endif
+
 {
 
     try
@@ -331,7 +342,7 @@ Boolean slp_service_agent::srv_register(
 
     _internal_regs.insert(url, rp);
 
-#ifdef PEGASUS_USE_OPENSLP
+#if defined(PEGASUS_USE_OPENSLP) && !defined(PEGASUS_SLP_REG_TIMEOUT)
     SLPHandle slp_handle = 0;
     SLPError  slpErr = SLP_OK;
     SLPError  callbackErr = SLP_OK;
@@ -362,6 +373,18 @@ Boolean slp_service_agent::srv_register(
     return true;
 }
 
+#ifdef PEGASUS_SLP_REG_TIMEOUT
+Semaphore& slp_service_agent::get_update_reg_semaphore()
+{
+    return _update_reg_semaphore;
+}
+#else
+void slp_service_agent::update_reg_count()
+{
+    _update_reg_count++;
+}
+#endif
+
 void slp_service_agent::unregister()
 {
     if (_initialized.get() == 0 )
@@ -371,6 +394,9 @@ void slp_service_agent::unregister()
 
 #ifndef PEGASUS_USE_OPENSLP
     _should_listen = 0;
+#ifdef PEGASUS_SLP_REG_TIMEOUT
+    _update_reg_semaphore.signal();
+#endif
     _listen_thread.join();
 #endif  /* PEGASUS_USE_OPENSLP */
 
@@ -405,7 +431,18 @@ void slp_service_agent::unregister()
             */
             continue;
         }
-#endif  /* PEGASUS_USE_OPENSLP */
+#elif PEGASUS_SLP_REG_TIMEOUT
+        // Unregister with external SLP SA.
+        sa_reg_params *p;
+
+        _internal_regs.lookup(rp->url, p); 
+        _rep->srv_reg_local(_rep,
+                            (const char*)p->url,
+                            (const char*)p->attrs,
+                            (const char*)p->type,
+                            p->scopes,
+                            0);
+#endif
 
         _internal_regs.remove(rp->url);
         delete rp;
@@ -473,10 +510,17 @@ void slp_service_agent::start_listener()
 
 }
 
+
+void slp_service_agent::set_registration_callback(void (*ptr)())
+{
+    update_registrations = ptr;
+}
+
 ThreadReturnType
 PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
 {
-#ifndef PEGASUS_USE_OPENSLP
+#if !defined(PEGASUS_USE_OPENSLP) ||  \
+    (defined(PEGASUS_USE_OPENSLP) && defined(PEGASUS_SLP_REG_TIMEOUT))
     Thread *myself = (Thread *)parm;
     if (myself == 0)
     {
@@ -486,16 +530,47 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
 
     lslpMsg msg_list;
 
+#ifdef PEGASUS_SLP_REG_TIMEOUT
+    Uint16 life = PEGASUS_SLP_REG_TIMEOUT * 60;
+#endif
     while (agent->_should_listen.get())
     {
         Uint32 now, msec;
         System::getCurrentTime(now, msec);
+
         // now register everything
         for (slp_reg_table::Iterator i = agent->_internal_regs.start();
             i ; i++)
         {
             sa_reg_params *rp = i.value();
 
+#ifdef PEGASUS_USE_OPENSLP
+            if ((slpErr = SLPOpen(NULL, SLP_FALSE, &slp_handle)) == SLP_OK)
+            {
+                slpErr = SLPReg(
+                    slp_handle,
+                    rp->url,
+                    lifetime,
+                    rp->type,
+                    rp->attributes,
+                    SLP_TRUE,
+                    SLPRegCallback,
+                    &callbackErr);
+                SLPClose(slp_handle);
+            }
+            else
+            {
+                // ATTN: Could not get SLP handle, 
+                // we try again when lifetime expires.
+            }             
+#elif PEGASUS_SLP_REG_TIMEOUT
+            agent->_rep->srv_reg_local(agent->_rep,
+                                       rp->url,
+                                       rp->attrs,
+                                       rp->type,
+                                       rp->scopes,
+                                       life);
+#else
             if(rp->expire == 0 || rp->expire < now - 1)
             {
                 rp->expire = now + rp->lifetime;
@@ -521,9 +596,37 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
                         rp->lifetime);
                 }
             }
+#endif
         }
+
+#ifdef PEGASUS_SLP_REG_TIMEOUT
+        Uint32 waitTime = life * 1000;
+        try
+        {
+            agent->_update_reg_semaphore.time_wait(waitTime);
+            // semaphore is signalled means we have to update registrations.
+            if (agent->_should_listen.get())
+            {
+                agent->update_registrations();
+            }
+        }
+        catch (const TimeOut&)
+        {
+            // PEGASUS_SLP_REG_TIMEOUT expired , re-register with
+            // external SLP SA.
+        }
+        catch(...)
+        {
+        }
+#else
         agent->_rep->service_listener(agent->_rep, 0, &msg_list);
         _LSLP_SLEEP(1);
+        if (agent->_update_reg_count.get() && agent->_should_listen.get())
+        {
+            agent->update_registrations();
+            agent->_update_reg_count--; 
+        }
+#endif
     }
 #endif /* PEGASUS_USE_OPENSLP */
     return ThreadReturnType(0);

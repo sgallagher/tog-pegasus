@@ -52,6 +52,7 @@ SOURCES = \
     Guid.cpp \
     InteropAssociationProvider.cpp \
     InteropInstanceProvider.cpp \
+    InteropMethodProvider.cpp \
     InteropProvider.cpp \
     InteropProviderUtils.cpp \
     Namespace.cpp \

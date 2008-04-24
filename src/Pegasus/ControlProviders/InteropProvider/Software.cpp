@@ -352,10 +352,7 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
     Array<CIMInstance> instances;
 
     Array<CIMInstance> profileCapabilities =
-        repository->enumerateInstancesForClass(
-            PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES,
-            false);
+        enumProviderProfileCapabilityInstances(true, false);
 
     CIMClass elementSoftwareIdentityClass = repository->getClass(
         PEGASUS_NAMESPACENAME_INTEROP,
@@ -371,23 +368,28 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
         String organizationName;
         Array<String> subprofiles;
         String profileName;
-        Uint16 dummyInt = 0;
+        Uint16 profileOrg = 0;
         Array<Uint16> dummyIntArray;
         Array<String> subprofileVersions;
         Array<String> subprofileOrgs;
+        Array<String> subprofileProviderModuleNames;
+        Array<String> subprofileProviderNames;
 
         String profileId = extractProfileInfo(currentCapabilities,
             profileCapabilitiesClass,
             registeredProfileClass,
             profileName,
             version,
-            dummyInt, // Throw away organization enum
+            profileOrg,
             organizationName,
             subprofiles,
             subprofileVersions,
             dummyIntArray, // Throw away subprofile organization enums
             subprofileOrgs,
+            subprofileProviderModuleNames,
+            subprofileProviderNames,
             false); // Get subprofile information
+
         if (!(String::equalNoCase(profileName,"SMI-S")))
         {
             String moduleName = getRequiredValue<String>(currentCapabilities,
@@ -418,13 +420,23 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
                 {
                     subprofileVersion = subprofileVersions[j];
                 }
+                // Check if subprofile is implemented in a different provider 
+                // module or provider. 
+                if (subprofileProviderModuleNames.size())
+                {
+                    softwareInstanceId = subprofileProviderModuleNames[j];
+                    softwareInstanceId.append("+");
+                    softwareInstanceId.append(subprofileProviderNames[j]);
+                }
 
                 instances.append(buildDependencyInstance(
                     softwareInstanceId,
                     PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY,
                     buildProfileInstanceId(subprofileOrgs[j], subprofiles[j],
                         subprofileVersion),
-                    PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
+                    profileOrg == DMTF_NUM ? 
+                        PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE :
+                        PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
                     elementSoftwareIdentityClass));
             }
         }

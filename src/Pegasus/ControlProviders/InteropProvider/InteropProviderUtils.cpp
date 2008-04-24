@@ -475,6 +475,12 @@ TARGET_CLASS translateClassInput(const CIMName& className)
     else if(className.equal(PEGASUS_CLASSNAME_CIMNAMESPACE))
         return CIM_NAMESPACE;
 
+    else if(className.equal(PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES))
+        return PG_PROVIDERPROFILECAPABILITIES;
+
+    else if(className.equal(PEGASUS_CLASSNAME_PG_PROVIDERREFERENCEDPROFILES))
+        return PG_PROVIDERREFERENCEDPROFILES;
+
     // Last entry, reverse test and throw exception if not PG_Namespace
     // Note: Changed to PG_Namespace for CIM 2.4
     else if(!className.equal(PEGASUS_CLASSNAME_PGNAMESPACE))

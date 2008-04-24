@@ -333,13 +333,24 @@ typedef Array<String> StringArray;
 
 void InteropProvider::verifyCachedInfo()
 {
-    // TBD: May need an algorithm to determine whether or not the information
-    // cached by the Interop Provider is out of date in some way. Until that
-    // can be created, then providers that are dynamically registered after
-    // the Server profile has already been traversed may not be properly
-    // reflected. Although this is a shortcoming, the current users of this
-    // functionality do not generally use dynamic registration as part of their
-    // installation procedures.
+    if (!updateProfileCache.get())
+    {
+        return;
+    }
+    // At present cache will be rebuilt in the following conditions.
+    // (1) When instances of PG_ProviderProfileCapabilities is created
+    //     or deleted.
+    // (2) When Provider and ProviderCapabilities instances
+    //     are created or Provider, ProviderModule and ProviderCapabilities
+    //     instance are deleted.
+    // (3) When Provider or ProviderModule is disabled or enabled.
+    AutoMutex mtx(interopMut);
+    if (updateProfileCache.get())
+    {
+        initializeNamespaces();
+        cacheProfileRegistrationInfo();
+        updateProfileCache--;
+    }
 }
 
 //
@@ -421,6 +432,12 @@ void InteropProvider::cacheProfileRegistrationInfo()
 {
     Array<CIMInstance> instances;
     Array<CIMInstance> providerCapabilitiesInstances;
+
+    // Clear existing cache
+    profileIds.clear();
+    conformingElements.clear();
+    elementNamespaces.clear();
+
     // Retrieve all of the provider profile registration info
     Array<CIMName> propList;
     propList.append(CAPABILITIES_PROPERTY_PROVIDERMODULENAME);
@@ -430,10 +447,15 @@ void InteropProvider::cacheProfileRegistrationInfo()
     propList.append(PROFILECAPABILITIES_PROPERTY_OTHERREGISTEREDPROFILE);
     propList.append(PROFILECAPABILITIES_PROPERTY_OTHERPROFILEORGANIZATION);
     propList.append(PROFILECAPABILITIES_PROPERTY_CONFORMINGELEMENTS);
-    Array<CIMInstance> providerProfileInstances =
-        repository->enumerateInstancesForClass(PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES, false,
-            false, false, CIMPropertyList(propList));
+
+    Array<CIMInstance> providerProfileInstances = 
+        enumProviderProfileCapabilityInstances(
+            true,
+            false,
+            false,
+            false,
+            CIMPropertyList(propList));
+
     CIMClass elementConformsClass = repository->getClass(
         PEGASUS_NAMESPACENAME_INTEROP,
         PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE,
@@ -462,6 +484,9 @@ void InteropProvider::cacheProfileRegistrationInfo()
         Array<String> profileVersions; // Not going to use this info
         Array<Uint16> profileOrganizations; // Not going to use this info
         Array<String> profileOrganizationNames; // Not going to use this info
+        Array<String> providerModuleNames; // Not going to use this info
+        Array<String> providerNames; // Not going to use this info
+
         String profileId = extractProfileInfo(currentProfileInstance,
             profileCapabilitiesClass,
             registeredProfileClass,
@@ -473,7 +498,10 @@ void InteropProvider::cacheProfileRegistrationInfo()
             profileVersions,
             profileOrganizations,
             profileOrganizationNames,
+            providerModuleNames,
+            providerNames,
             true);
+
         Uint32 propIndex = currentProfileInstance.findProperty(
               PROFILECAPABILITIES_PROPERTY_CONFORMINGELEMENTS);
 

@@ -191,6 +191,14 @@ protected:
         const String & moduleName,
         const CIMInstance & instance,
         const CIMObjectPath & providerRef);
+private:
+
+#ifdef PEGASUS_ENABLE_INTEROP_PROVIDER
+    CIMOMHandle _cimomHandle;
+    Mutex _updateMtx;
+    void _sendUpdateCacheMessagetoInteropProvider(
+        const OperationContext & context);
+#endif
 
 };
 

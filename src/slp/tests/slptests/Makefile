@@ -36,8 +36,7 @@ include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
     pegslp_client \
-    pegcommon \
-    pegserver
+    pegcommon
 
 PROGRAM = TestSLP_SA
 

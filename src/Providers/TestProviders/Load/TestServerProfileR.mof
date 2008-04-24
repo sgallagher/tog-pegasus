@@ -77,6 +77,50 @@ instance of PG_ProviderProfileCapabilities
     ConformingElements = { "Test_StorageSystem" };
 };
 
+// DMTF Profiles
+
+instance of PG_Provider
+{
+    ProviderModuleName = "TestServerProfileProvidersModule";
+    Name = "StorageSystemTestFANProvider";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "TestServerProfileProvidersModule";
+    Name = "StorageSystemTestEPProvider";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "TestServerProfileProvidersModule";
+    Name = "StorageSystemTestCPUProvider";
+};
+
+instance of PG_ProviderProfileCapabilities
+{
+    ProviderModuleName = "TestServerProfileProvidersModule";
+    ProviderName = "StorageSystemTestProvider";
+    CapabilityID = "ComputerSystemProfile";
+    RegisteredProfile = 507; // Computer System profile
+    RegisteredSubProfiles = {
+        3008, // DMTF Fan
+        3009, // DMTF Ethernet Port 
+        3016}; // DMTF CPU
+
+    SubProfileProviderModuleNames = {
+        "TestServerProfileProvidersModule",
+        "TestServerProfileProvidersModule",
+        "TestServerProfileProvidersModule"};
+
+    SubProfileProviderNames = {
+        "StorageSystemTestFANProvider",
+        "StorageSystemTestEPProvider",
+        "StorageSystemTestCPUProvider"};
+
+    ProfileVersion = "1.0.0";
+    ConformingElements = { "Test_StorageSystem" };
+};
 
 //
 // Provider that serves a managed element for the array profile.

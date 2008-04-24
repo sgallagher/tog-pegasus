@@ -40,6 +40,8 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/CIMNameUnchecked.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -279,6 +281,10 @@ void ProviderRegistrationProvider::modifyInstance(
 
     _providerRegistrationManager->modifyInstance(
         instanceReference, instanceObject, includeQualifiers, propertyArray);
+
+#ifdef PEGASUS_ENABLE_INTEROP_PROVIDER
+    _sendUpdateCacheMessagetoInteropProvider(context);
+#endif
 
     // complete processing the request
     handler.complete();
@@ -777,6 +783,14 @@ void ProviderRegistrationProvider::createInstance(
     returnReference = _providerRegistrationManager->createInstance(
         instanceReference, instance);
 
+#ifdef PEGASUS_ENABLE_INTEROP_PROVIDER
+    if(className.equal (PEGASUS_CLASSNAME_PROVIDER) ||
+       className.equal (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES))
+    {
+        _sendUpdateCacheMessagetoInteropProvider(context);
+    }
+#endif
+
     handler.deliver(returnReference);
 
     // complete processing request
@@ -976,6 +990,14 @@ void ProviderRegistrationProvider::deleteInstance(
 
     _providerRegistrationManager->deleteInstance(instanceReference);
 
+#ifdef PEGASUS_ENABLE_INTEROP_PROVIDER
+    if(className.equal (PEGASUS_CLASSNAME_PROVIDER) ||
+       className.equal (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) ||
+       className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE))
+    {
+        _sendUpdateCacheMessagetoInteropProvider(context);
+    }
+#endif
     // complete processing the request
     handler.complete();
 }
@@ -1078,6 +1100,9 @@ void ProviderRegistrationProvider::invokeMethod(
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_METHOD_NOT_AVAILABLE,
             String::EMPTY);
     }
+#ifdef PEGASUS_ENABLE_INTEROP_PROVIDER
+    _sendUpdateCacheMessagetoInteropProvider(context);
+#endif
 
     CIMValue retValue(ret_value);
     handler.deliver(retValue);
@@ -1791,5 +1816,51 @@ Array<CIMInstance> ProviderRegistrationProvider::_getIndicationCapInstances(
 
     return (indCapInstances);
 }
+
+#ifdef PEGASUS_ENABLE_INTEROP_PROVIDER
+void ProviderRegistrationProvider::_sendUpdateCacheMessagetoInteropProvider(
+    const OperationContext & context)
+{
+    String referenceStr("//", 2);
+    referenceStr.append(System::getHostName());
+    referenceStr.append("/");
+    referenceStr.append(PEGASUS_NAMESPACENAME_INTEROP.getString());
+    referenceStr.append(":");
+    referenceStr.append(
+        PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES.getString());
+    CIMObjectPath reference(referenceStr);
+
+    Array<CIMParamValue> inParams;
+    Array<CIMParamValue> outParams;
+
+    try
+    {
+        AutoMutex mtx(_updateMtx);
+        _cimomHandle.invokeMethod(
+            context,
+            PEGASUS_NAMESPACENAME_INTEROP,
+            reference,
+            CIMNameUnchecked("updateCache"),
+            inParams,
+            outParams);
+    }
+    catch(const Exception &e)
+    {
+        PEG_TRACE_STRING(
+            TRC_CONTROLPROVIDER,
+            Tracer::LEVEL2,
+            "Exception caught while invoking InteropProvider 'updateCache'"
+                " method: " + e.getMessage());
+    }
+    catch(...)
+    {
+        PEG_TRACE_CSTRING(
+            TRC_CONTROLPROVIDER,
+            Tracer::LEVEL2,
+            "Unknown error occurred while"
+                " invoking InteropProvider 'updateCache' method.");
+    }
+}
+#endif
 
 PEGASUS_NAMESPACE_END

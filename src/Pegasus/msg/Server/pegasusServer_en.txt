@@ -6255,6 +6255,13 @@ CIM server listening on HTTPS port {0}."}
           */
          ControlProviders.InteropProvider.DELETE_INSTANCE_NOT_ALLOWED:string {"PGS16702: Interop provider for class {0} does not allow delete instance operations."}
 
+        /**
+          * @note PGS16703
+          * Substitution {0} is a instance reference (a string).
+          * Substitution {1} is a name of property (a string).
+          */
+         ControlProviders.InteropProvider.INVALID_PROPERTY_ENTRIES:string {"PGS16703: {0} has invalid number of entries in property {1}."}
+
         // ==========================================================
         // Messages for ProviderManager.BasicProviderManagerRouter
         //  Please use message prefix "PGS16800"

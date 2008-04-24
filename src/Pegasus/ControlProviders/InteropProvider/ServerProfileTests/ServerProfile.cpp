@@ -418,6 +418,55 @@ void testAssociationClass(CIMClient & client, const CIMName & className)
     cout << "Test Complete" << endl;
 }
 
+void testDMTFProfileInstances(CIMClient &client)
+{
+    cout << "Testing DMTF Profiles instances...";
+
+    // Get All Registered profile names
+    Array<CIMObjectPath> regInstanceNames = client.enumerateInstanceNames(
+        interopNamespace,
+        CIMName("CIM_RegisteredProfile"));
+
+    // Find out DMTF autonomous and component profiles.
+    for(Uint32 i = 0, n = regInstanceNames.size() ; i < n ; ++i)
+    {
+        // Filter SNIA sub profile names.
+        if (regInstanceNames[i].getClassName().equal("PG_RegisteredSubProfile"))
+        {
+            continue;
+        }
+
+        Array<CIMObjectPath> result = client.associatorNames(
+            interopNamespace,
+            regInstanceNames[i],
+            CIMName("CIM_ReferencedProfile"));
+
+        Uint32 dmtfProfiles = 0; 
+        for (Uint32 j = 0, k = result.size(); j < k ; ++j)
+        {
+            // Get only DMTF component profiles.
+            if (result[j].getClassName().equal("PG_RegisteredProfile"))
+            {
+                Array<CIMKeyBinding> keys = result[j].getKeyBindings();
+                String value = keys[0].getValue();
+                Uint32 index = value.find("DMTF");
+                if (index != PEG_NOT_FOUND)
+                {
+                    dmtfProfiles++;
+                }
+            }
+        }
+        if (dmtfProfiles && dmtfProfiles != result.size())
+        {
+            exitFailure(
+                String("Invalid component profiles for ")
+                    + regInstanceNames[i].toString());
+        }
+    }
+
+    cout << "Test Complete" << endl;
+}
+
 ///////////////////////////////////////////////////////////////
 //    MAIN
 ///////////////////////////////////////////////////////////////
@@ -480,6 +529,7 @@ int main(int argc, char** argv)
             currentClass.getString());
     }
 
+    testDMTFProfileInstances(client);
     //testAssociationTraversal(client);
 
     cout << endl << "Server Profile Tests complete" << endl;

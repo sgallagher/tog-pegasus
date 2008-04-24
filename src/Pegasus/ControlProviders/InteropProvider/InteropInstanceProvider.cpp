@@ -114,8 +114,13 @@ void InteropProvider::createInstance(
     //
     if (classEnum == PG_NAMESPACE || classEnum == CIM_NAMESPACE)
     {
-
         newInstanceReference = createNamespace(clientInstance);
+    }
+    else if(classEnum == PG_PROVIDERPROFILECAPABILITIES)
+    {
+        newInstanceReference = createProviderProfileCapabilityInstance(
+            clientInstance,
+            context);
     }
     else   // Invalid class for the create functions.
     {
@@ -166,6 +171,14 @@ void InteropProvider::deleteInstance(
         deleteNamespace(instanceName);
         handler.complete();
 
+        PEG_METHOD_EXIT();
+        return;
+    }
+    else if(instClassName == PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES)
+    {
+        handler.processing();
+        deleteProviderProfileCapabilityInstance(instanceName, context);
+        handler.complete();
         PEG_METHOD_EXIT();
         return;
     }

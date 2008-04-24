@@ -42,6 +42,7 @@
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/Semaphore.h>
 #include "Linkage.h"
 #include "../slp_client/src/cmd-utils/slp_client/slp_client.h"
 
@@ -140,6 +141,14 @@ public:
     void start_listener();
     void unregister();
 
+    void set_registration_callback(void (*ptr)());
+
+#ifdef PEGASUS_SLP_REG_TIMEOUT
+    Semaphore& get_update_reg_semaphore();
+#else
+    void update_reg_count();
+#endif
+
 private:
 
     slp_service_agent(const slp_service_agent &);
@@ -170,6 +179,8 @@ private:
         char *,
         char *);
 
+    void (*update_registrations)();
+
     DynamicLibrary _library;
 
     void _init();
@@ -179,6 +190,12 @@ private:
     AtomicInt _initialized;
     AtomicInt _using_das;
     slp_reg_table _internal_regs;
+
+#ifdef PEGASUS_SLP_REG_TIMEOUT
+    Semaphore _update_reg_semaphore;
+#else
+    AtomicInt _update_reg_count;
+#endif
 };
 
 PEGASUS_NAMESPACE_END

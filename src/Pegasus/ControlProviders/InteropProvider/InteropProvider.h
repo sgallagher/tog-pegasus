@@ -54,6 +54,7 @@
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>
+#include <Pegasus/Provider/CIMMethodProvider.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -91,7 +92,9 @@ typedef Array<CIMName> CIMNameArray;
 typedef Array<CIMNamespaceName> CIMNamespaceArray;
 
 class PEGASUS_INTEROPPROVIDER_LINKAGE InteropProvider :
-        public CIMInstanceProvider, public CIMAssociationProvider
+        public CIMInstanceProvider, 
+        public CIMAssociationProvider,
+        public CIMMethodProvider
 {
 public:
 
@@ -188,6 +191,14 @@ public:
         const String & role,
         ObjectPathResponseHandler & handler);
 
+    // CIMMethodProvider interface
+    virtual void invokeMethod(
+        const OperationContext & context,
+        const CIMObjectPath & objectReference,
+        const CIMName & methodName,
+        const Array<CIMParamValue> & inParameters,
+        MethodResultResponseHandler & handler);
+
 private:
 
     void initProvider();
@@ -219,6 +230,14 @@ private:
 
     CIMObjectPath createNamespace(const CIMInstance & namespaceInstance);
     void deleteNamespace(const CIMObjectPath & instanceName);
+
+    CIMObjectPath createProviderProfileCapabilityInstance(
+        const CIMInstance & profileInstance,
+        const OperationContext & context);
+
+    void deleteProviderProfileCapabilityInstance(
+        const CIMObjectPath & instanceName,
+        const OperationContext & context);
 
     Array<CIMInstance> enumNamespaceInManagerInstances();
 
@@ -262,6 +281,14 @@ private:
     Array<CIMInstance> enumElementSoftwareIdentityInstances();
     Array<CIMInstance> enumInstalledSoftwareIdentityInstances();
 
+    Array<CIMInstance> enumProviderProfileCapabilityInstances(
+        Boolean checkProviders = true,
+        Boolean localOnly = true,
+        Boolean includeQualifiers = false,
+        Boolean includeClassOrigin = false,
+        const CIMPropertyList &propertyList = CIMPropertyList());
+
+
     CIMInstance buildRegisteredProfile(
         const String & instanceId,
         const String & profileName,
@@ -295,6 +322,9 @@ private:
         const CIMName & profileType,
         const Array<String> & defaultSniaProfiles);
 
+    Array<CIMInstance> getDMTFProfileInstances(
+        const CIMName & profileType);
+
     // The following are internal equivalents of the operations
     // allowing the operations to call one another internally within
     // the provider.
@@ -319,12 +349,18 @@ private:
 
     void cacheProfileRegistrationInfo();
     void verifyCachedInfo();
+    void initializeNamespaces();
 
     bool validAssocClassForObject(
         const OperationContext & context,
         const CIMName & assocClass, const CIMObjectPath & objectName,
         const CIMNamespaceName & opNamespace,
         String & originProperty, String & targetProperty);
+
+#ifdef PEGASUS_ENABLE_SLP
+    void sendUpdateRegMessageToSLPProvider(
+        const OperationContext & context);
+#endif
 
     // Repository Instance variable
     CIMOMHandle cimomHandle;
@@ -336,6 +372,7 @@ private:
     Array<Uint16> providerClassifications;
     Mutex interopMut;
     bool providerInitialized;
+    AtomicInt updateProfileCache;
 
     // Registration info to cache
     Array<String> profileIds;

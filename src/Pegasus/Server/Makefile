@@ -110,11 +110,6 @@ SOURCES += \
 	ConsoleManager_zOS.cpp
 endif
 
-ifdef PEGASUS_SLP_REG_TIMEOUT
-SOURCES += \
-        SLPAttrib.cpp
-endif
-
 ifeq ($(OS_TYPE),windows)
 SYS_LIBS = ws2_32.lib advapi32.lib
 endif

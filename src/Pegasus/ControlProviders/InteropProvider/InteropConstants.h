@@ -72,6 +72,12 @@ const CIMName PROFILECAPABILITIES_PROPERTY_OTHERSUBPROFILEORGANIZATIONS(
 const CIMName PROFILECAPABILITIES_PROPERTY_CONFORMINGELEMENTS(
         "ConformingElements");
 
+const CIMName PROFILECAPABILITIES_PROPERTY_SUBPROFILEPROVIDERMODULENAMES(
+        "SubProfileProviderModuleNames");
+
+const CIMName PROFILECAPABILITIES_PROPERTY_SUBPROFILEPROVIDERNAMES(
+        "SubProfileProviderNames");
+
 // Property names for ProviderModule class
 #define PROVIDERMODULE_PROPERTY_NAME  COMMON_PROPERTY_NAME
 const CIMName PROVIDERMODULE_PROPERTY_VENDOR("Vendor");
@@ -81,6 +87,7 @@ const CIMName PROVIDERMODULE_PROPERTY_MAJORVERSION("MajorVersion");
 const CIMName PROVIDERMODULE_PROPERTY_MINORVERSION("MinorVersion");
 const CIMName PROVIDERMODULE_PROPERTY_REVISIONNUMBER("RevisionNumber");
 const CIMName PROVIDERMODULE_PROPERTY_BUILDNUMBER("BuildNumber");
+const CIMName PROPERTY_OPERATIONAL_STATUS("OperationalStatus");
 
 // Property names for Provider class
 #define PROVIDER_PROPERTY_NAME  COMMON_PROPERTY_NAME
@@ -119,9 +126,14 @@ const CIMName INSTALLEDSOFTWAREIDENTITY_PROPERTY_INSTALLEDSOFTWARE(
 
 // Implementation-specific constant strings
 const String SNIA_NAME("SNIA");
+const Uint16 SNIA_NUM = 11;
 const String SNIA_VER_110("1.1.0");
 const String SNIA_VER_100("1.0.0");
 const String SNIA_VER_120("1.2.0");
+
+const String DMTF_NAME("DMTF");
+const Uint16 DMTF_NUM = 2;
+const String DMTF_VER_100("1.0.0");
 
 const String INTEROP_PROVIDER_NAME("Interoperability Provider");
 const String PEGASUS_MODULE_NAME = String(PEGASUS_CIMOM_GENERIC_NAME) +

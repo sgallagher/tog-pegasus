@@ -45,10 +45,6 @@
 #include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
-// Routine to unregister Pegasus with external slp
-#ifdef PEGASUS_SLP_REG_TIMEOUT
- void PEGASUS_SERVER_LINKAGE unregisterPegasusFromSLP();
-#endif
 
 struct ServerRep;
 
@@ -158,10 +154,6 @@ public:
 private:
     Boolean _dieNow;
     Uint32 _idleConnectionTimeoutSeconds;
-
-#ifdef PEGASUS_ENABLE_SLP
-    Boolean _runSLP;
-#endif
 
     AutoPtr<Monitor> _monitor;
     CIMRepository* _repository;

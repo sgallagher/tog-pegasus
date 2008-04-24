@@ -101,6 +101,7 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
             const Array<CIMParamValue> & inParameters,
             MethodResultResponseHandler & handler);
     
+        static void updateProfileRegistration();
     protected:
         CIMInstance _buildInstanceSkeleton(const CIMName& className);
 
@@ -113,7 +114,7 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
             const CIMClass& commMechClass);
 
         Boolean issueSLPRegistrations();
-
+        Uint32 populateSLPRegistrations();
         String getNameSpaceInfo(
                    const CIMNamespaceName& nameSpace,
                    String& classInfo );
@@ -138,6 +139,8 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
        CIMNamespaceName _nameSpace;
 
        slp_service_agent slp_agent;
+
+       static SLPProvider* _this;
 
        // Save CIMOMHandle from initialization
        CIMOMHandle _cimomHandle;

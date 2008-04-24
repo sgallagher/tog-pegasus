@@ -60,7 +60,9 @@ enum TARGET_CLASS {
         PG_HOSTEDOBJECTMANAGER,
         PG_HOSTEDACCESSPOINT,
         PG_ELEMENTCONFORMSTOPROFILE_RP_RP,
-        CIM_NAMESPACE
+        CIM_NAMESPACE,
+        PG_PROVIDERPROFILECAPABILITIES,
+        PG_PROVIDERREFERENCEDPROFILES
 };
 
 /***************************************************************
@@ -335,6 +337,8 @@ String extractProfileInfo(
     Array<String> & subprofileVersions,
     Array<Uint16> & subprofileOrganizations,
     Array<String> & subprofileOrganizationNames,
+    Array<String> & subProfileProviderModuleNames,
+    Array<String> & subProfileProviderNames,
     bool noSubProfileInfo = true);
 
 PEGASUS_NAMESPACE_END

@@ -17,7 +17,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#//
+#// 
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,60 +28,36 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
+# Test the new CMPI performance test providers for functionality
 
-ROOT = ../../..
-
+ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
+SHH = @
 
-DIRS = \
-	AlertIndicationProvider \
-	ClientProvider \
-	CLITestProvider \
-	CLITestProvider/tests \
-	DefaultInstanceProvider \
-	DynamicIndicationProvider \
-	FamilyProvider \
-	FamilyProvider/tests \
-	IndicationStressTestProvider \
-	IndicationStressTestProvider/testclient \
-	IndicationStressTestProvider/testconsumer \
-	IndicationTestProvider \
-	InstanceProvider \
-	InstanceProvider/testclient \
-	ChunkingStressProvider \
-	ChunkingStressProvider/testclient \
-	MethodTestProvider \
-	MethodTestProvider/testclient \
-	MCCA_TestAssocProvider \
-	MCCA_TestAssocProvider/testclient \
-	OOPModuleFailureProvider \
-	OOPModuleFailureProvider/testclient \
-	PG_TestPropertyTypes \
-	ProcessIndicationProvider \
-	UserContextTestProvider \
-	UserContextTestProvider/testclient \
-	CIMOMHandleTestProvider \
-	CIMOMHandleTestProvider/testclient \
-	TestAggregationOutputProvider \
-	TestAggregationOutputProvider/testclient \
-	LocalizedProvider \
-	LocalizedProvider/msg \
-	PerformanceTests
+DIR = Providers/TestProviders/PerformanceTests/CMPI/tests
 
-ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
-DIRS += \
-	TestServerProfileProviders
-endif
+PROVIDERNS=test/TestProvider
 
-ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
-DIRS += \
-	EmbeddedInstanceProvider \
-	EmbeddedInstanceProvider/testClient
-endif
+clean:
 
-ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
-DIRS += \
-	CMPI
-endif
+poststarttests:
+	@$(ECHO) 1. +++++ Test all enumerate operations on the classes
 
-include $(ROOT)/mak/recurse.mak
+	$(SHH)cimcli ei "cmpiPerf_TestClassA" -n "$(PROVIDERNS)" --sum -count 1
+	$(SHH)cimcli ni "cmpiPerf_TestClassA" -n "$(PROVIDERNS)" --sum -count 1
+	$(SHH)cimcli ei "cmpiPerf_TestClassB" -n "$(PROVIDERNS)" --sum -count 1
+	$(SHH)cimcli ni "cmpiPerf_TestClassB" -n "$(PROVIDERNS)" --sum -count 1
+	$(SHH)cimcli ei "cmpiPerf_TestAssocClass" -n "$(PROVIDERNS)" --sum -count 1
+	$(SHH)cimcli ni "cmpiPerf_TestAssocClass" -n "$(PROVIDERNS)" --sum -count 1
+
+	@$(ECHO) 2. +++++ Testing getInstance CMPI Perftest providers in $(PROVIDERNS)
+
+	$(SHH)cimcli gi "cmpiPerf_TestClassA.theKey=2" -n "$(PROVIDERNS)" --sum -count 1
+	$(SHH)cimcli gi "cmpiPerf_TestClassB.theKey=0" -n "$(PROVIDERNS)" --sum -count 1
+
+	@$(ECHO) 3. +++++ Testing associate operations CMPI Perftest in $(PROVIDERNS)
+
+	$(SHH)cimcli an "cmpiPerf_TestClassA.theKey=2" -n "$(PROVIDERNS)" --sum -count 1
+	$(SHH)cimcli a  "cmpiPerf_TestClassA.theKey=2" -n "$(PROVIDERNS)" --sum -count 1
+
+# END_OF_FILE

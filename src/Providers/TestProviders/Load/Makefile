@@ -155,6 +155,12 @@ ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" TestCMPI_AssociationProvider.mof
 	@ $(ECHO) +++++ Registering TestCMPI_AssociationProviderRegistration ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" TestCMPI_AssociationProviderR.mof
+
+	@ $(ECHO) +++++ Loading CMPIPerf_TestProvider class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" CMPIPerf_TestProviderSchema.mof
+	@ $(ECHO) +++++ Registering CMPIPerf_TestProviderRegistration ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" CMPIPerf_TestProviderRegistration.mof
+	
 ifdef PEGASUS_ENABLE_EXECQUERY
 	@ $(ECHO) +++++ Registering TestCMPI_ProviderExecQueryRegistration ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" TestCMPI_ProviderExecQueryRegistration.mof
@@ -265,6 +271,10 @@ ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	@ cimmof   "-n$(TESTPROVIDERNS)" TestCMPI_ProviderSchema.mof
 	@ $(ECHO) +++++ Registering TestCMPI_ProviderRegistration ...
 	@ cimmof   "-n$(INTEROPNS)" TestCMPI_ProviderRegistration.mof
+	@ $(ECHO) +++++ Loading CMPIPerf_TestProviderSchema class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmof   "-n$(TESTPROVIDERNS)" CMPIPerf_TestProviderSchema.mof
+	@ $(ECHO) +++++ Registering CMPIPerf_TestProviderRegistration ...
+	@ cimmof   "-n$(INTEROPNS)" CMPIPerf_TestProviderRegistration.mof	
 ifdef PEGASUS_ENABLE_EXECQUERY
 	@ $(ECHO) +++++ Registering TestCMPI_ProviderExecQueryRegistration ...
 	@ cimmof   "-n$(INTEROPNS)" TestCMPI_ProviderExecQueryRegistration.mof
@@ -346,6 +356,10 @@ ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	cimprovider -r -m TestCMPIFail_2ProviderModule
 	cimprovider -r -m TestCMPIFail_3ProviderModule 
 	cimprovider -r -m TestCMPIFail_4ProviderModule 
+	cimprovider -r -m cmpiPerf_TestClassProviderModule
+	cimprovider -r -m cmpiPerf_TestClassAProviderModule
+	cimprovider -r -m cmpiPerf_TestAssocClassProviderModule
+	
 ifdef PEGASUS_ENABLE_EXECQUERY
 	cimprovider -r -m TestCMPIInstanceProviderModule
 endif

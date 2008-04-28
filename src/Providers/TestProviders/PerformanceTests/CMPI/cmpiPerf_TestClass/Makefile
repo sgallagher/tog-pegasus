@@ -17,7 +17,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#//
+#// 
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,60 +28,22 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
+ROOT = ../../../../../..
 
-ROOT = ../../..
+DIR = Providers/TestProviders/PerformanceTests/CMPI/cmpiPerf_TestClass
 
 include $(ROOT)/mak/config.mak
 
-DIRS = \
-	AlertIndicationProvider \
-	ClientProvider \
-	CLITestProvider \
-	CLITestProvider/tests \
-	DefaultInstanceProvider \
-	DynamicIndicationProvider \
-	FamilyProvider \
-	FamilyProvider/tests \
-	IndicationStressTestProvider \
-	IndicationStressTestProvider/testclient \
-	IndicationStressTestProvider/testconsumer \
-	IndicationTestProvider \
-	InstanceProvider \
-	InstanceProvider/testclient \
-	ChunkingStressProvider \
-	ChunkingStressProvider/testclient \
-	MethodTestProvider \
-	MethodTestProvider/testclient \
-	MCCA_TestAssocProvider \
-	MCCA_TestAssocProvider/testclient \
-	OOPModuleFailureProvider \
-	OOPModuleFailureProvider/testclient \
-	PG_TestPropertyTypes \
-	ProcessIndicationProvider \
-	UserContextTestProvider \
-	UserContextTestProvider/testclient \
-	CIMOMHandleTestProvider \
-	CIMOMHandleTestProvider/testclient \
-	TestAggregationOutputProvider \
-	TestAggregationOutputProvider/testclient \
-	LocalizedProvider \
-	LocalizedProvider/msg \
-	PerformanceTests
+LOCAL_DEFINES = -DPEGASUS_ROOT=\"$(PEGASUS_ROOT)\"
 
-ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
-DIRS += \
-	TestServerProfileProviders
-endif
+VMS_HAS_CC = yes
 
-ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
-DIRS += \
-	EmbeddedInstanceProvider \
-	EmbeddedInstanceProvider/testClient
-endif
+LIBRARY = cmpiPerf_TestClassProvider
 
-ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
-DIRS += \
-	CMPI
-endif
+SOURCES = \
+	cmpiPerf_TestClass.c \
+	cmpiPerf_TestClassProvider.c
 
-include $(ROOT)/mak/recurse.mak
+include $(ROOT)/mak/library.mak
+
+tests:

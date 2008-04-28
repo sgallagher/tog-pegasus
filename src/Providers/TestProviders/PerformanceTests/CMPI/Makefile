@@ -29,59 +29,14 @@
 #//
 #//==============================================================================
 
-ROOT = ../../..
+ROOT = ../../../../..
 
 include $(ROOT)/mak/config.mak
 
 DIRS = \
-	AlertIndicationProvider \
-	ClientProvider \
-	CLITestProvider \
-	CLITestProvider/tests \
-	DefaultInstanceProvider \
-	DynamicIndicationProvider \
-	FamilyProvider \
-	FamilyProvider/tests \
-	IndicationStressTestProvider \
-	IndicationStressTestProvider/testclient \
-	IndicationStressTestProvider/testconsumer \
-	IndicationTestProvider \
-	InstanceProvider \
-	InstanceProvider/testclient \
-	ChunkingStressProvider \
-	ChunkingStressProvider/testclient \
-	MethodTestProvider \
-	MethodTestProvider/testclient \
-	MCCA_TestAssocProvider \
-	MCCA_TestAssocProvider/testclient \
-	OOPModuleFailureProvider \
-	OOPModuleFailureProvider/testclient \
-	PG_TestPropertyTypes \
-	ProcessIndicationProvider \
-	UserContextTestProvider \
-	UserContextTestProvider/testclient \
-	CIMOMHandleTestProvider \
-	CIMOMHandleTestProvider/testclient \
-	TestAggregationOutputProvider \
-	TestAggregationOutputProvider/testclient \
-	LocalizedProvider \
-	LocalizedProvider/msg \
-	PerformanceTests
-
-ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
-DIRS += \
-	TestServerProfileProviders
-endif
-
-ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
-DIRS += \
-	EmbeddedInstanceProvider \
-	EmbeddedInstanceProvider/testClient
-endif
-
-ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
-DIRS += \
-	CMPI
-endif
+	cmpiPerf_TestClass \
+	cmpiPerf_TestClassA \
+	cmpiPerf_TestAssocClass \
+	tests
 
 include $(ROOT)/mak/recurse.mak

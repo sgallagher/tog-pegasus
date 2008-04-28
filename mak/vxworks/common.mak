@@ -143,6 +143,8 @@ PEGASUS_ENABLE_IPV6=false
 
 PEGASUS_USE_STATIC_LIBRARIES=true
 
+PEGASUS_BUILD_CIMSERVER_LIBRARY=true
+
 ifdef PEGASUS_PAM_AUTHENTICATION
     $(error "vxworks does not support PAM authenticaiton")
 endif

@@ -113,8 +113,8 @@ endif
 
 SOURCES = cimserver.cpp
 
-ifeq ($(OS_TYPE),vxworks)
-    SOURCES += EmbeddedServer.cpp
+ifeq ($(PEGASUS_BUILD_CIMSERVER_LIBRARY),true)
+#    SOURCES += EmbeddedServer.cpp
 endif
 
 #Large Program Support
@@ -128,7 +128,7 @@ endif
 ## called cimserver.
 ##
 
-ifeq ($(OS_TYPE),vxworks)
+ifeq ($(PEGASUS_BUILD_CIMSERVER_LIBRARY),true)
   LOCAL_DEFINES += -DPEGASUS_BUILDING_CIMSERVER_LIBRARY
   LIBRARY = pegcimserver
   include $(ROOT)/mak/library.mak

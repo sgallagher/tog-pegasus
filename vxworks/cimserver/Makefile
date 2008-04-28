@@ -46,6 +46,7 @@ PROGRAM = cimserver
 #
 SOURCES = \
     cimserver.cpp \
+    EmbeddedServer.cpp \
     MyEmbeddedServer.cpp \
     root_cimv2_namespace.cpp \
     root_PG_Internal_namespace.cpp \

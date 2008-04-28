@@ -1,0 +1,8 @@
+#pragma include("CIM2131/CIM_Core.mof")
+#pragma include("CIM2131/CIM_Event.mof")
+#pragma include("CIM2131/CIM_Interop.mof")
+#pragma include("Pegasus/InterOp/VER20/PG_InterOpSchema20.mof")
+#pragma include("Pegasus/InterOp/VER20/PG_CIMXMLCommunicationMechanism20.mof")
+#pragma include("Pegasus/InterOp/VER20/PG_Namespace20.mof")
+#pragma include("Pegasus/ManagedSystem/VER20/PG_ComputerSystem20.mof")
+#pragma include("Pegasus/InterOp/VER20/PG_ServerProfile20.mof")

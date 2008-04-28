@@ -69,11 +69,11 @@ unsigned int getNumberOfInstances()
 
 void setNumberOfInstances(unsigned int numInst)
 {
-    char *           env = NULL;
-    env = calloc(1,20);
-    sprintf(env,"%d",numInst);
+    char * env = NULL;
+    env = calloc(1,30);
+    sprintf(env, "PERF_TEST=%d", numInst);
 
-    setenv("PERF_TEST",env,1);
+    putenv(env);
     free(env);
     return;
 }

@@ -40,6 +40,10 @@ PROVIDERNS=test/TestProvider
 
 clean:
 
+general:
+
+tests:
+
 poststarttests:
 	@$(ECHO) 1. +++++ Test all enumerate operations on the classes
 
@@ -59,5 +63,11 @@ poststarttests:
 
 	$(SHH)cimcli an "cmpiPerf_TestClassA.theKey=2" -n "$(PROVIDERNS)" --sum -count 1
 	$(SHH)cimcli a  "cmpiPerf_TestClassA.theKey=2" -n "$(PROVIDERNS)" --sum -count 1
+
+depend:
+
+strip-license:
+
+prepend-license:
 
 # END_OF_FILE

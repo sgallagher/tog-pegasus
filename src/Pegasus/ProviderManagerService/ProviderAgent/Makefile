@@ -43,17 +43,16 @@ LIBRARIES = \
     pegprovider \
     pegconfig \
     pegclient \
-    pegqueryexpression \
-    pegquerycommon
+    pegqueryexpression 
 
 ifndef PEGASUS_DISABLE_CQL
     LIBRARIES += \
-        pegcql \
-        pegquerycommon
+        pegcql 
 endif
 
 LIBRARIES += \
     pegwql \
+    pegquerycommon \
     pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)

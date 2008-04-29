@@ -241,12 +241,12 @@ CMPIStatus cmpiPerf_TestClassAProviderInvokeMethod(
 CMInstanceMIStub(cmpiPerf_TestClassAProvider,
                  cmpiPerf_TestClassAProvider,
                  _broker,
-                 CMNoHook);
+                 CMNoHook)
 
 CMMethodMIStub(cmpiPerf_TestClassAProvider,
                cmpiPerf_TestClassAProvider,
                _broker,
-               CMNoHook);
+               CMNoHook)
 
 /* ---------------------------------------------------------------------------*/
 /*                end of cmpiPerf_TestClassAProvider                         */

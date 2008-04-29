@@ -311,7 +311,7 @@ CMPIStatus cmpiPerf_TestClassProviderExecQuery(
 CMInstanceMIStub(cmpiPerf_TestClassProvider,
                  cmpiPerf_TestClassProvider,
                  _broker,
-                 CMNoHook);
+                 CMNoHook)
 
 /* ---------------------------------------------------------------------------*/
 /*                end of cmpiPerf_TestClassProvider                         */

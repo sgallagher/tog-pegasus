@@ -522,12 +522,12 @@ CMPIStatus cmpiPerf_TestAssocClassProviderReferenceNames(
 CMInstanceMIStub(cmpiPerf_TestAssocClassProvider,
                  cmpiPerf_TestAssocClassProvider,
                  _broker,
-                 CMNoHook);
+                 CMNoHook)
 
 CMAssociationMIStub(cmpiPerf_TestAssocClassProvider,
                     cmpiPerf_TestAssocClassProvider,
                     _broker,
-                    CMNoHook);
+                    CMNoHook)
 /* ---------------------------------------------------------------------------*/
 /*                 end of cmpiPerf_TestAssocClassProvider                   */
 /* ---------------------------------------------------------------------------*/

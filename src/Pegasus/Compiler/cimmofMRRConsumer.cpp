@@ -1699,7 +1699,7 @@ void cimmofMRRConsumer::_writeMethod(
     // SchemaMethod.name:
 
     _outn("    /* name */");
-    _outn("    \"%s\",", *Str(cn));
+    _outn("    \"%s\",", *Str(mn));
 
     // SchemaMethod.qualifiers:
 

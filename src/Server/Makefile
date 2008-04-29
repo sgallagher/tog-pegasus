@@ -53,8 +53,8 @@ ifndef PEGASUS_DISABLE_CQL
 endif
 
 LIBRARIES += \
-    pegquerycommon \
-    pegwql
+    pegwql \
+    pegquerycommon 
 
 ifndef PEGASUS_DISABLE_CQL
     LIBRARIES += \

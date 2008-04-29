@@ -38,6 +38,10 @@ include $(ROOT)/test/config.mak
 DIRS = cimv2 \
        static
 
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
+    DIRS += wsman
+endif
+
 LOADDIRS = \
    cimv2/Load \
    static/Load 

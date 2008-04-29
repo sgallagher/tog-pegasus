@@ -388,6 +388,43 @@ void WbemExecCommand::_printContent(
         //  Print XML response to the ostream
         //
         const char* content = responseMessage.getData () + contentOffset;
+
+#if defined(PEGASUS_DEBUG) && defined(PEGASUS_ENABLE_PROTOCOL_WSMAN)
+        //
+        // The response contains a unique Message ID. To allow
+        // predictable message IDs for static comparison tests, replace the
+        // response message Id with 0.
+        //
+        AutoArrayPtr<char> contentCopy;
+
+        if (const char* uuidStart = strstr(content, "<wsa:MessageID>"))
+        {
+            if (const char* uuidEnd = strstr(uuidStart, "</wsa:MessageID>"))
+            {
+                contentCopy.reset((
+                    strcpy(new char [strlen(content)+1],content)));
+
+                // The message ID starts after the last ':' char. (See,
+                // DSP0226 R5.4.4-1.). Position to the last ':' char.
+                const char* colonPos = uuidEnd;
+                for ( ; colonPos >= uuidStart && *colonPos != ':'; colonPos--);
+
+                char* beginPtr = contentCopy.get() + (colonPos+1 - content);
+                char* endPtr   = contentCopy.get() + (uuidEnd - content); 
+
+                // Replace the response messageID with 0. 
+                for (; beginPtr < endPtr; beginPtr++)
+                {
+                    if (*beginPtr != '-') 
+                    {
+                        *beginPtr = '0'; 
+                    }
+                }
+
+                content = contentCopy.get();
+            }
+        }
+#endif
         XmlWriter::indentedPrint (oStream, content, 0);
     }
 }

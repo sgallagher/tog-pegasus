@@ -105,11 +105,12 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
     Boolean                      multireq              = false;
     Uint32                       i                     = 0;
     static Uint32                BUFFERSIZE            = 1024;
+    Boolean hasXmlDeclaration = false;
 
     //
     //  xml declaration
     //
-    if (!(XmlReader::testXmlDeclaration (parser, entry)))
+    if (!(hasXmlDeclaration = XmlReader::testXmlDeclaration (parser, entry))) 
     {
         //
         //  No xml declaration
@@ -119,6 +120,7 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
         char tmp [8];
         char* tmpp = & (tmp [0]);
         strncpy (tmpp, entry.text, 8);
+        tmpp[7] = 0;
 #if !defined(PEGASUS_COMPILER_MSVC) && !defined(PEGASUS_OS_ZOS)
         char *last;
         char* p = strtok_r (tmpp, HTTP_SP, &last);
@@ -136,15 +138,49 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
             {
                 return content;
             }
-            else
-            {
-                //
-                //  Input contains neither XML declaration nor HTTP M-POST or
-                //  POST method request
-                //
-                throw WbemExecException(WbemExecException::INVALID_INPUT);
-            }
-        }  /* if p not NULL */
+        }
+     }
+
+#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
+
+     // Check if the next tag is a SOAP envelope.
+     if (parser.next(entry) && 
+             entry.type == XmlEntry::START_TAG && 
+             strcmp(entry.localName, "Envelope") == 0)
+     {
+          //
+          //  Set WSMAN headers and content.
+          //
+          message << HTTP_METHOD_POST << HTTP_SP 
+                  << "/wsman" << HTTP_SP 
+                  << HTTP_PROTOCOL << HTTP_VERSION_11 << HTTP_CRLF;
+          message << HEADER_NAME_HOST << HEADER_SEPARATOR 
+                  << HTTP_SP << hostName << HTTP_CRLF;
+          message << HEADER_NAME_CONTENTTYPE << HEADER_SEPARATOR 
+                  << HTTP_SP << WSMAN_HEADER_VALUE_CONTENTTYPE 
+                  << HTTP_CRLF;
+          message << HEADER_NAME_CONTENTLENGTH << HEADER_SEPARATOR 
+                  << HTTP_SP << (Uint32)content.size () << HTTP_CRLF;
+
+          httpHeaders << message;
+          message << HTTP_CRLF;
+          message << content;
+          return message;
+     }
+     else
+     {
+         parser.putBack(entry);
+     }
+    
+#endif
+
+    if (!hasXmlDeclaration)
+    {
+        //
+        //  Input contains neither XML declaration nor HTTP M-POST or
+        //  POST method request
+        //
+        throw WbemExecException(WbemExecException::INVALID_INPUT);
     }
 
     //

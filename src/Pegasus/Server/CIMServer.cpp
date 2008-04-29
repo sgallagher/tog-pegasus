@@ -113,6 +113,10 @@ CIMQueryCapabilitiesProvider.h>
 # include <Pegasus/ControlProviders/InteropProvider/InteropProvider.h>
 #endif
 
+#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
+# include <Pegasus/WsmServer/WsmProcessor.h>
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 #ifdef PEGASUS_SLP_REG_TIMEOUT
 ThreadReturnType PEGASUS_THREAD_CDECL registerPegasusWithSLP(void *parm);
@@ -432,6 +436,8 @@ void CIMServer::_init()
     Boolean enableAuthentication = ConfigManager::parseBooleanValue(
         configManager->getCurrentValue("enableAuthentication"));
 
+    MessageQueueService* cimOperationProcessorQueue = 0;
+
     //
     // Create Authorization queue only if authentication is enabled
     //
@@ -439,19 +445,17 @@ void CIMServer::_init()
     {
         _cimOperationRequestAuthorizer = new CIMOperationRequestAuthorizer(
             _cimOperationRequestDispatcher);
-
-        _cimOperationRequestDecoder = new CIMOperationRequestDecoder(
-            _cimOperationRequestAuthorizer,
-            _cimOperationResponseEncoder->getQueueId());
+        cimOperationProcessorQueue = _cimOperationRequestAuthorizer;
     }
     else
     {
         _cimOperationRequestAuthorizer = 0;
-
-        _cimOperationRequestDecoder = new CIMOperationRequestDecoder(
-            _cimOperationRequestDispatcher,
-            _cimOperationResponseEncoder->getQueueId());
+        cimOperationProcessorQueue = _cimOperationRequestDispatcher;
     }
+
+    _cimOperationRequestDecoder = new CIMOperationRequestDecoder(
+        cimOperationProcessorQueue,
+        _cimOperationResponseEncoder->getQueueId());
 
     _cimExportRequestDispatcher = new CIMExportRequestDispatcher();
 
@@ -465,6 +469,14 @@ void CIMServer::_init()
         _cimOperationRequestDecoder->getQueueId(),
         _cimExportRequestDecoder->getQueueId(),
         _repository);
+
+#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
+    _wsmProcessor = new WsmProcessor(
+        cimOperationProcessorQueue,
+        _repository);
+    _httpAuthenticatorDelegator->setWsmQueueId(
+        _wsmProcessor->getWsmRequestDecoderQueueId());
+#endif
 
     // IMPORTANT-NU-20020513: Indication service must start after ExportService
     // otherwise HandlerService started by indicationService will never
@@ -566,8 +578,13 @@ CIMServer::~CIMServer ()
     // CIMOperationRequestDecoder depends on CIMOperationRequestAuthorizer
     // and CIMOperationResponseEncoder
     delete _cimOperationRequestDecoder;
-
     delete _cimOperationResponseEncoder;
+
+#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
+    // WsmProcessor depends on CIMOperationRequestAuthorizer/Dispatcher and
+    // CIMRepository
+    delete _wsmProcessor;
+#endif
 
     // BinaryMessageHandler depends on CIMOperationRequestDispatcher
     delete _binaryMessageHandler;
@@ -799,6 +816,9 @@ void CIMServer::setState(Uint32 state)
         // tell decoder that CIMServer is terminating
         _cimOperationRequestDecoder->setServerTerminating(true);
         _cimExportRequestDecoder->setServerTerminating(true);
+#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
+        _wsmProcessor->setServerTerminating(true);
+#endif
 
         // tell authorizer that CIMServer is terminating ONLY if
         // authentication and authorization are enabled
@@ -813,6 +833,9 @@ void CIMServer::setState(Uint32 state)
         // tell decoder that CIMServer is not terminating
         _cimOperationRequestDecoder->setServerTerminating(false);
         _cimExportRequestDecoder->setServerTerminating(false);
+#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
+        _wsmProcessor->setServerTerminating(false);
+#endif
 
         // tell authorizer that CIMServer is terminating ONLY if
         // authentication and authorization are enabled

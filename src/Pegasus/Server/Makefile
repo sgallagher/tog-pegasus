@@ -88,6 +88,10 @@ LIBRARIES += \
 	CertificateProvider
 endif
 
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
+    LIBRARIES += pegwsmserver
+endif
+
 PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = \
@@ -115,6 +119,3 @@ SYS_LIBS = ws2_32.lib advapi32.lib
 endif
 
 include $(ROOT)/mak/library.mak
-
-run:
-	Server $(REPOSITORY_ROOT)

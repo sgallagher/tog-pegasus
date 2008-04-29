@@ -179,6 +179,15 @@ static const char HEADER_NAME_CIMBATCH [] = "CIMBatch";
 static const char HEADER_VALUE_CONTENTTYPE [] = 
                            "application/xml; charset=\"utf-8\"";
 
+#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
+/**
+ *  The value of the WS-Management HTTP Content-type header specifying that the
+ *  media type of the underlying data is application data in soap+xml format.
+ */
+static const char WSMAN_HEADER_VALUE_CONTENTTYPE[] =
+    "application/soap+xml; charset=utf-8";
+#endif
+
 /**
  *  The value of the HTTP Man header specifying the CIM mapping onto HTTP
  *  extension header name space URI.

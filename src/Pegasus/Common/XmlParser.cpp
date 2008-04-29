@@ -172,14 +172,14 @@ static const char* _xmlMessages[] =
     "Unterminated comment",
     "Unterminated CDATA block",
     "Unterminated DOCTYPE",
-    "Too many attributes: parser only handles 10",
     "Malformed reference",
     "Expected a comment or CDATA following \"<!\" sequence",
     "Closing element does not match opening element",
     "One or more tags are still open",
     "More than one root element was encountered",
     "Validation error",
-    "Semantic error"
+    "Semantic error",
+    "Namespace not declared"
 };
 
 static const char* _xmlKeys[] =
@@ -193,36 +193,16 @@ static const char* _xmlKeys[] =
     "Common.XmlParser.UNTERMINATED_COMMENT",
     "Common.XmlParser.UNTERMINATED_CDATA",
     "Common.XmlParser.UNTERMINATED_DOCTYPE",
-    "Common.XmlParser.TOO_MANY_ATTRIBUTES",
     "Common.XmlParser.MALFORMED_REFERENCE",
     "Common.XmlParser.EXPECTED_COMMENT_OR_CDATA",
     "Common.XmlParser.START_END_MISMATCH",
     "Common.XmlParser.UNCLOSED_TAGS",
     "Common.XmlParser.MULTIPLE_ROOTS",
     "Common.XmlParser.VALIDATION_ERROR",
-    "Common.XmlParser.SEMANTIC_ERROR"
+    "Common.XmlParser.SEMANTIC_ERROR",
+    "Common.XmlParser.UNDECLARED_NAMESPACE"
 };
 
-// l10n replace _formMessage (comment out the old one)
-/*
-static String _formMessage(Uint32 code, Uint32 line, const String& message)
-{
-    String result = _xmlMessages[Uint32(code) - 1];
-
-    char buffer[32];
-    sprintf(buffer, "%d", line);
-    result.append(": on line ");
-    result.append(buffer);
-
-    if (message.size())
-    {
-        result.append(": ");
-        result.append(message);
-    }
-
-    return result;
-}
-*/
 
 static MessageLoaderParms _formMessage(
     Uint32 code,
@@ -231,7 +211,7 @@ static MessageLoaderParms _formMessage(
 {
     String dftMsg = _xmlMessages[Uint32(code) - 1];
     String key = _xmlKeys[Uint32(code) - 1];
-        String msg = message;
+    String msg = message;
 
     dftMsg.append(": on line $0");
     if (message.size())
@@ -328,11 +308,14 @@ XmlSemanticError::XmlSemanticError(
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-XmlParser::XmlParser(char* text)
+XmlParser::XmlParser(char* text, XmlNamespace* ns)
     : _line(1),
       _current(text),
       _restoreChar('\0'),
-      _foundRoot(false)
+      _foundRoot(false),
+      _supportedNamespaces(ns),
+      // Start valid indexes with -2. -1 is reserved for not found.
+      _currentUnsupportedNSType(-2)
 {
 }
 
@@ -389,7 +372,7 @@ static int _getEntityRef(char*& p)
 }
 #if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC)
-#pragma optimize( "", on ) 
+#pragma optimize( "", on )
 #endif
 
 static inline int _getCharRef(char*& p, bool hex)
@@ -510,7 +493,9 @@ static void _normalize(Uint32& line, char*& p, char end_char, char*& start)
     }
 }
 
-Boolean XmlParser::next(XmlEntry& entry, Boolean includeComment)
+Boolean XmlParser::next(
+    XmlEntry& entry,
+    Boolean includeComment)
 {
     if (!_putBackStack.isEmpty())
     {
@@ -530,6 +515,18 @@ Boolean XmlParser::next(XmlEntry& entry, Boolean includeComment)
         nullTerminator = _current;
         *_current = _restoreChar;
         _restoreChar = '\0';
+    }
+
+    entry.attributes.clear();
+
+    if (_supportedNamespaces)
+    {
+        // Remove namespaces of a deeper scope level from the stack.
+        while (!_nameSpaces.isEmpty() &&
+               _nameSpaces.top().scopeLevel > _stack.size())
+        {
+            _nameSpaces.pop();
+        }
     }
 
     // Loop until we are done with comments if includeComment is false.
@@ -598,9 +595,139 @@ Boolean XmlParser::next(XmlEntry& entry, Boolean includeComment)
             if (nullTerminator)
                 *nullTerminator = '\0';
         }
-    }while (!includeComment && entry.type == XmlEntry::COMMENT);
+    } while (!includeComment && entry.type == XmlEntry::COMMENT);
+
+    if (_supportedNamespaces &&
+        (entry.type == XmlEntry::START_TAG ||
+         entry.type == XmlEntry::EMPTY_TAG ||
+         entry.type == XmlEntry::END_TAG))
+    {
+        // Determine the namespace type for this entry
+
+        if (entry.type == XmlEntry::START_TAG ||
+            entry.type == XmlEntry::EMPTY_TAG)
+        {
+            // Process namespace declarations and determine the namespace type
+            // for the attributes.
+
+            Uint32 scopeLevel = _stack.size();
+            if (entry.type == XmlEntry::EMPTY_TAG)
+            {
+                // Empty tags are deeper scope, but not pushed onto the stack
+                scopeLevel++;
+            }
+
+            for (Uint32 i = 0, n = entry.attributes.size(); i < n; i++)
+            {
+                XmlAttribute& attr = entry.attributes[i];
+                if ((strncmp(attr.name, "xmlns:", 6) == 0) ||
+                    (strcmp(attr.name, "xmlns") == 0))
+                {
+                    // Process a namespace declaration
+                    XmlNamespace ns;
+                    if (attr.name[5] == ':')
+                    {
+                        ns.localName = attr.localName;
+                    }
+                    else
+                    {
+                        // Default name space has no local name
+                        ns.localName = 0;
+                    }
+                    ns.extendedName = attr.value;
+                    ns.scopeLevel = scopeLevel;
+                    ns.type = _getSupportedNamespaceType(ns.extendedName);
+
+                    // If the namespace is not supported, assign it a unique
+                    // negative identifier.
+                    if (ns.type == -1)
+                    {
+                        ns.type = _currentUnsupportedNSType--;
+                    }
+
+                    _nameSpaces.push(ns);
+                }
+                else
+                {
+                    // Get the namespace type for this attribute.
+                    attr.nsType = _getNamespaceType(attr.name);
+                }
+            }
+        }
+
+        entry.nsType = _getNamespaceType(entry.text);
+    }
+    else
+    {
+        entry.nsType = -1;
+    }
 
     return true;
+}
+
+// Get the namespace type of the given tag
+int XmlParser::_getNamespaceType(const char* tag)
+{
+    const char* pos = strchr(tag, ':');
+
+    // If ':' is not found, the tag is not namespace qualified and we
+    // need to look for the default name space.
+
+    // Search the namespace stack from the top
+    for (Sint32 i = _nameSpaces.size() - 1; i >=0; i--)
+    {
+        // If ':' is found, look for the name space with the matching
+        // local name...
+        if ((pos && _nameSpaces[i].localName &&
+             !strncmp(_nameSpaces[i].localName, tag, pos - tag)) ||
+            // ... otherwise look for the default name space. It's the
+            // one with localName set to NULL
+            (!pos && !_nameSpaces[i].localName))
+        {
+            return _nameSpaces[i].type;
+        }
+    }
+
+    // If the tag is namespace qualified, but the name space has not been
+    // declared, it's malformed XML and we must throw an exception.
+    // Note:  The "xml" namespace is specifically defined by the W3C as a
+    // reserved prefix ("http://www.w3.org/XML/1998/namespace").
+    if (pos && (strncmp(tag, "xml:", 4) != 0))
+    {
+        throw XmlException(XmlException::UNDECLARED_NAMESPACE, _line);
+    }
+
+    // Otherwise it's OK not to have a name space.
+    return -1;
+}
+
+// Given the extended namespace name, find it in the table of supported
+// namespaces and return its type.
+int XmlParser::_getSupportedNamespaceType(const char* extendedName)
+{
+    for (Sint32 i = 0;
+         _supportedNamespaces[i].localName != 0;
+         i++)
+    {
+        PEGASUS_ASSERT(_supportedNamespaces[i].type == i);
+        if (!strcmp(_supportedNamespaces[i].extendedName, extendedName))
+        {
+            return _supportedNamespaces[i].type;
+        }
+    }
+    return -1;
+}
+
+XmlNamespace* XmlParser::getNamespace(int nsType)
+{
+    for (Sint32 i = _nameSpaces.size() - 1; i >=0; i--)
+    {
+        if (_nameSpaces[i].type == nsType)
+        {
+            return &_nameSpaces[i];
+        }
+    }
+    return 0;
 }
 
 void XmlParser::putBack(XmlEntry& entry)
@@ -613,11 +740,11 @@ XmlParser::~XmlParser()
     // Nothing to do!
 }
 
-// A-Za-z0-9_-:.
+// A-Za-z0-9_-.  (Note that ':' is not included and must be checked separately)
 static unsigned char _isInnerElementChar[] =
 {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,
+    0,0,0,0,0,0,0,0,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
     1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -625,15 +752,39 @@ static unsigned char _isInnerElementChar[] =
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 };
 
-Boolean XmlParser::_getElementName(char*& p)
+inline Boolean _getQName(char*& p, const char*& localName)
 {
+    localName = p;
+
     if (!CharSet::isAlNumUnder(Uint8(*p)))
-        throw XmlException(XmlException::BAD_START_TAG, _line);
+        return false;
 
     p++;
 
     while (*p && _isInnerElementChar[Uint8(*p)])
         p++;
+
+    // We've validated the prefix, now validate the local name
+    if (*p == ':')
+    {
+        localName = ++p;
+
+        if (!CharSet::isAlNumUnder(Uint8(*p)))
+            return false;
+
+        p++;
+
+        while (*p && _isInnerElementChar[Uint8(*p)])
+            p++;
+    }
+
+    return true;
+}
+
+Boolean XmlParser::_getElementName(char*& p, const char*& localName)
+{
+    if (!_getQName(p, localName))
+        throw XmlException(XmlException::BAD_START_TAG, _line);
 
     // The next character must be a space:
 
@@ -652,17 +803,15 @@ Boolean XmlParser::_getElementName(char*& p)
     return false;
 }
 
-Boolean XmlParser::_getOpenElementName(char*& p, Boolean& openCloseElement)
+Boolean XmlParser::_getOpenElementName(
+    char*& p,
+    const char*& localName,
+    Boolean& openCloseElement)
 {
     openCloseElement = false;
 
-    if (!CharSet::isAlNumUnder(Uint8(*p)))
+    if (!_getQName(p, localName))
         throw XmlException(XmlException::BAD_START_TAG, _line);
-
-    p++;
-
-    while (*p && _isInnerElementChar[Uint8(*p)])
-        p++;
 
     // The next character must be a space:
 
@@ -689,15 +838,10 @@ Boolean XmlParser::_getOpenElementName(char*& p, Boolean& openCloseElement)
     return false;
 }
 
-void XmlParser::_getAttributeNameAndEqual(char*& p)
+void XmlParser::_getAttributeNameAndEqual(char*& p, const char*& localName)
 {
-    if (!CharSet::isAlNumUnder((Uint8)*p))
+    if (!_getQName(p, localName))
         throw XmlException(XmlException::BAD_ATTRIBUTE_NAME, _line);
-
-    p++;
-
-    while (*p && _isInnerElementChar[Uint8(*p)])
-        p++;
 
     char* term = p;
 
@@ -779,8 +923,6 @@ void XmlParser::_getDocType(char*& p)
 
 void XmlParser::_getElement(char*& p, XmlEntry& entry)
 {
-    entry.attributeCount = 0;
-
     //--------------------------------------------------------------------------
     // Get the element name (expect one of these: '?', '!', [A-Za-z_])
     //--------------------------------------------------------------------------
@@ -792,7 +934,7 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
 
         Boolean openCloseElement = false;
 
-        if (_getElementName(p))
+        if (_getElementName(p, entry.localName))
             return;
     }
     else if (*p == '!')
@@ -831,7 +973,7 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
         entry.type = XmlEntry::END_TAG;
         entry.text = ++p;
 
-        if (!_getElementName(p))
+        if (!_getElementName(p, entry.localName))
             throw(XmlException(XmlException::BAD_END_TAG, _line));
 
         return;
@@ -845,7 +987,7 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
 
         Boolean openCloseElement = false;
 
-        if (_getOpenElementName(p, openCloseElement))
+        if (_getOpenElementName(p, entry.localName, openCloseElement))
         {
             if (openCloseElement)
                 entry.type = XmlEntry::EMPTY_TAG;
@@ -882,8 +1024,9 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
         }
 
         XmlAttribute attr;
+        attr.nsType = -1;
         attr.name = p;
-        _getAttributeNameAndEqual(p);
+        _getAttributeNameAndEqual(p, attr.localName);
 
         // Get the attribute value (e.g., "some value")
         {
@@ -927,10 +1070,7 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
 
         _skipWhitespace(_line, p);
 
-        if (entry.attributeCount == XmlEntry::MAX_ATTRIBUTES)
-            throw XmlException(XmlException::TOO_MANY_ATTRIBUTES, _line);
-
-        entry.attributes[entry.attributeCount++] = attr;
+        entry.attributes.append(attr);
     }
 }
 
@@ -962,7 +1102,7 @@ void XmlEntry::print() const
 
     PEGASUS_STD(cout) << '\n';
 
-    for (Uint32 i = 0; i < attributeCount; i++)
+    for (Uint32 i = 0, n = attributes.size(); i < n; i++)
     {
         PEGASUS_STD(cout) << "    " << attributes[i].name << "=\"";
         _printValue(attributes[i].value);
@@ -973,10 +1113,26 @@ void XmlEntry::print() const
 const XmlAttribute* XmlEntry::findAttribute(
     const char* name) const
 {
-    for (Uint32 i = 0; i < attributeCount; i++)
+    for (Uint32 i = 0, n = attributes.size(); i < n; i++)
     {
         if (strcmp(attributes[i].name, name) == 0)
             return &attributes[i];
+    }
+
+    return 0;
+}
+
+const XmlAttribute* XmlEntry::findAttribute(
+    int nsType,
+    const char* name) const
+{
+    for (Uint32 i = 0, n = attributes.size(); i < n; i++)
+    {
+        if ((attributes[i].nsType == nsType) &&
+            (strcmp(attributes[i].localName, name) == 0))
+        {
+            return &attributes[i];
+        }
     }
 
     return 0;

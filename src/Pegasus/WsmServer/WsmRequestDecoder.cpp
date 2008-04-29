@@ -1,0 +1,670 @@
+//%2006////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//=============================================================================
+//
+//%////////////////////////////////////////////////////////////////////////////
+
+#include <cctype>
+#include <cstdio>
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/XmlParser.h>
+#include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/CommonUTF.h>
+#include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/AutoPtr.h>
+
+#include "WsmConstants.h"
+#include "WsmReader.h"
+#include "WsmWriter.h"
+#include "WsmProcessor.h"
+#include "WsmRequestDecoder.h"
+
+PEGASUS_NAMESPACE_BEGIN
+
+WsmRequestDecoder::WsmRequestDecoder(WsmProcessor* wsmProcessor)
+    : MessageQueueService(PEGASUS_QUEUENAME_WSMREQDECODER),
+      _wsmProcessor(wsmProcessor),
+      _serverTerminating(false)
+{
+}
+
+WsmRequestDecoder::~WsmRequestDecoder()
+{
+}
+
+void WsmRequestDecoder::sendResponse(
+    Uint32 queueId,
+    Buffer& message,
+    Boolean httpCloseConnect)
+{
+    MessageQueue* queue = MessageQueue::lookup(queueId);
+
+    if (queue)
+    {
+        AutoPtr<HTTPMessage> httpMessage(new HTTPMessage(message));
+        httpMessage->setCloseConnect(httpCloseConnect);
+        queue->enqueue(httpMessage.release());
+    }
+}
+
+void WsmRequestDecoder::sendHttpError(
+    Uint32 queueId,
+    const String& status,
+    const String& cimError,
+    const String& pegasusError,
+    Boolean httpCloseConnect)
+{
+    Buffer message;
+    message = WsmWriter::formatHttpErrorRspMessage(
+        status,
+        cimError,
+        pegasusError);
+
+    sendResponse(queueId, message, httpCloseConnect);
+}
+
+void WsmRequestDecoder::handleEnqueue(Message* message)
+{
+    PEGASUS_ASSERT(message);
+    PEGASUS_ASSERT(message->getType() == HTTP_MESSAGE);
+
+    handleHTTPMessage((HTTPMessage*)message);
+
+    delete message;
+}
+
+void WsmRequestDecoder::handleEnqueue()
+{
+    Message* message = dequeue();
+    if (message)
+        handleEnqueue(message);
+}
+
+//-----------------------------------------------------------------------------
+//
+// From the HTTP/1.1 Specification (RFC 2626):
+//
+// Both types of message consist of a start-line, zero or more header fields
+// (also known as "headers"), an empty line (i.e., a line with nothing
+// preceding the CRLF) indicating the end of the header fields, and possibly
+// a message-body.
+//
+//-----------------------------------------------------------------------------
+void WsmRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
+{
+    PEG_METHOD_ENTER(TRC_WSMSERVER, "WsmRequestDecoder::handleHTTPMessage()");
+
+    // Set the Accept-Language into the thread for this service.
+    // This will allow all code in this thread to get
+    // the languages for the messages returned to the client.
+    Thread::setLanguages(httpMessage->acceptLanguages);
+
+    // Save queueId:
+    Uint32 queueId = httpMessage->queueId;
+
+    // Save userName and authType:
+    String userName;
+    String authType;
+    Boolean httpCloseConnect = httpMessage->getCloseConnect();
+
+    PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL3,
+        "WsmRequestDecoder::handleHTTPMessage()- "
+            "httpMessage->getCloseConnect() returned %d",
+        httpCloseConnect));
+
+    userName = httpMessage->authInfo->getAuthenticatedUser();
+    authType = httpMessage->authInfo->getAuthType();
+
+    // Parse the HTTP message:
+    String startLine;
+    Array<HTTPHeader> headers;
+    char* content;
+    Uint32 contentLength;
+    String contentType;
+
+    httpMessage->parse(startLine, headers, contentLength);
+
+    // Parse the request line:
+    String methodName;
+    String requestUri;
+    String httpVersion;
+    HttpMethod httpMethod = HTTP_METHOD__POST;
+
+    HTTPMessage::parseRequestLine(
+        startLine, methodName, requestUri, httpVersion);
+
+    //  Set HTTP method for the request
+    if (methodName == "M-POST")
+    {
+        httpMethod = HTTP_METHOD_M_POST;
+    }
+
+    // Unsupported methods are caught in the HTTPAuthenticatorDelegator
+    PEGASUS_ASSERT(methodName == "M-POST" || methodName == "POST");
+
+    //  Mismatch of method and version is caught in HTTPAuthenticatorDelegator
+    PEGASUS_ASSERT(!((httpMethod == HTTP_METHOD_M_POST) &&
+                     (httpVersion == "HTTP/1.0")));
+
+    // Process M-POST and POST messages:
+    if (httpVersion == "HTTP/1.1")
+    {
+        // Validate the presence of a "Host" header.  The HTTP/1.1
+        // specification says this in section 14.23 regarding the Host
+        // header field:
+        //
+        //     All Internet-based HTTP/1.1 servers MUST respond with a 400 (Bad
+        //     Request) status code to any HTTP/1.1 request message which lacks
+        //     a Host header field.
+        //
+        // Note:  The Host header value is not validated.
+
+        String hostHeader;
+        Boolean hostHeaderFound = HTTPMessage::lookupHeader(
+            headers, "Host", hostHeader, false);
+
+        if (!hostHeaderFound)
+        {
+            MessageLoaderParms parms(
+                "Server.WsmRequestDecoder.MISSING_HOST_HEADER",
+                "HTTP request message lacks a Host header field.");
+            sendHttpError(
+                queueId,
+                HTTP_STATUS_BADREQUEST,
+                "",
+                MessageLoader::getMessage(parms),
+                httpCloseConnect);
+            PEG_METHOD_EXIT();
+            return;
+        }
+    }
+
+    // Calculate the beginning of the content from the message size and
+    // the content length.
+    content = (char*) httpMessage->message.getData() +
+        httpMessage->message.size() - contentLength;
+
+    // Validate the "Content-Type" header:
+    Boolean contentTypeHeaderFound = HTTPMessage::lookupHeader(
+        headers, "Content-Type", contentType, true);
+    String type;
+    String charset;
+
+    if (!contentTypeHeaderFound ||
+        !HTTPMessage::parseContentTypeHeader(contentType, type, charset) ||
+        (!String::equalNoCase(type, "application/soap+xml") &&
+         !String::equalNoCase(type, "text/xml")))
+    {
+        MessageLoaderParms parms(
+            "Server.WsmRequestDecoder.CONTENTTYPE_SYNTAX_ERROR",
+            "HTTP Content-Type header error.");
+        sendHttpError(
+            queueId,
+            HTTP_STATUS_BADREQUEST,
+            "",
+            MessageLoader::getMessage(parms),
+            httpCloseConnect);
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    if (!String::equalNoCase(charset, "utf-8"))
+    {
+        // DSP0226 R13.1-5:  A service shall emit Responses using the same
+        // encoding as the original request. If the service does not support
+        // the requested encoding or cannot determine the encoding, it should
+        // use UTF-8 encoding to return a wsman:EncodingLimit fault with the
+        // following detail code:
+        // http://schemas.dmtf.org/wbem/wsman/1/wsman/faultDetail/CharacterSet
+
+        WsmFault fault(
+            WsmFault::wsman_EncodingLimit,
+            String::EMPTY,
+            ContentLanguageList(),
+            WSMAN_FAULTDETAIL_CHARACTERSET);
+         _wsmProcessor->sendResponse(new WsmFaultResponse(
+             String::EMPTY, queueId, httpMethod, httpCloseConnect, fault));
+         PEG_METHOD_EXIT();
+         return;
+    }
+
+    // SoapAction header is optional, but if present, it must match
+    // the content of <wsa:Action>
+    String soapAction;
+    HTTPMessage::lookupHeader(headers, "SOAPAction", soapAction, true);
+
+    // Remove the quotes around the SOAPAction value
+    if ((soapAction.size() > 1) &&
+        (soapAction[0] == '\"') &&
+        (soapAction[soapAction.size()-1] == '\"'))
+    {
+        soapAction = soapAction.subString(1, soapAction.size() - 2);
+    }
+
+    // Validating content falls within UTF8
+    // (required to be compliant with section C12 of Unicode 4.0 spec,
+    // chapter 3.)
+    Uint32 count = 0;
+    while (count < contentLength)
+    {
+        if (!(isUTF8((char*) &content[count])))
+        {
+            MessageLoaderParms parms(
+                "Server.WsmRequestDecoder.INVALID_UTF8_CHARACTER",
+                "Invalid UTF-8 character detected.");
+            sendHttpError(
+                queueId,
+                HTTP_STATUS_BADREQUEST,
+                "request-not-valid",
+                MessageLoader::getMessage(parms),
+                httpCloseConnect);
+
+            PEG_METHOD_EXIT();
+            return;
+        }
+        UTF8_NEXT(content, count);
+    }
+
+    handleWsmMessage(
+        queueId,
+        httpMethod,
+        content,
+        contentLength,
+        soapAction,
+        authType,
+        userName,
+        httpMessage->ipAddress,
+        httpMessage->acceptLanguages,
+        httpMessage->contentLanguages,
+        httpCloseConnect);
+
+    PEG_METHOD_EXIT();
+}
+
+void WsmRequestDecoder::handleWsmMessage(
+    Uint32 queueId,
+    HttpMethod httpMethod,
+    char* content,
+    Uint32 contentLength,
+    String& soapAction,
+    const String& authType,
+    const String& userName,
+    const String& ipAddress,
+    const AcceptLanguageList& httpAcceptLanguages,
+    const ContentLanguageList& httpContentLanguages,
+    Boolean httpCloseConnect)
+{
+    PEG_METHOD_ENTER(TRC_WSMSERVER, "WsmRequestDecoder::handleWsmMessage()");
+
+    // If CIMOM is shutting down, return "Service Unavailable" response
+    if (_serverTerminating)
+    {
+        MessageLoaderParms parms(
+            "Server.WsmRequestDecoder.CIMSERVER_SHUTTING_DOWN",
+            "CIM Server is shutting down.");
+        sendHttpError(
+            queueId,
+            HTTP_STATUS_SERVICEUNAVAILABLE,
+            String::EMPTY,
+            MessageLoader::getMessage(parms),
+            httpCloseConnect);
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    WsmReader wsmReader(content);
+    XmlEntry entry;
+    AutoPtr<WsmRequest> request;
+    String wsaMessageId;
+
+    // Process <?xml ... >
+    try
+    {
+        // These values are currently unused
+        const char* xmlVersion = 0;
+        const char* xmlEncoding = 0;
+
+        // Note: WinRM does not send an XML declaration in its requests.
+        // This return value is ignored.
+        wsmReader.getXmlDeclaration(xmlVersion, xmlEncoding);
+
+        // Decode the SOAP envelope
+
+        wsmReader.expectStartTag(
+            entry, WsmNamespaces::SOAP_ENVELOPE, "Envelope");
+
+        String wsaAction;
+        String wsaFrom;
+        String wsaReplyTo;
+        String wsaFaultTo;
+        WsmEndpointReference epr;
+        Uint32 wsmMaxEnvelopeSize = 0;
+        AcceptLanguageList wsmLocale;
+        Boolean wsmRequestEpr = false;
+
+        try
+        {
+            wsmReader.decodeRequestSoapHeaders(
+                wsaMessageId,
+                epr.address,
+                wsaAction,
+                wsaFrom,
+                wsaReplyTo,
+                wsaFaultTo,
+                epr.resourceUri,
+                *epr.selectorSet,
+                wsmMaxEnvelopeSize,
+                wsmLocale,
+                wsmRequestEpr);
+        }
+        catch (XmlException&)
+        {
+            // Do not treat this as an InvalidMessageInformationHeader fault.
+            throw;
+        }
+        catch (Exception& e)
+        {
+            throw WsmFault(
+                WsmFault::wsa_InvalidMessageInformationHeader,
+                e.getMessage(),
+                e.getContentLanguages());
+        }
+
+        // Set the Locale language into the thread for processing this request.
+        Thread::setLanguages(wsmLocale);
+
+        _checkRequiredHeader("wsa:To", epr.address.size());
+        _checkRequiredHeader("wsa:MessageID", wsaMessageId.size());
+        _checkRequiredHeader("wsa:Action", wsaAction.size());
+
+        if (soapAction.size() && (soapAction != wsaAction))
+        {
+            throw WsmFault(
+                WsmFault::wsa_MessageInformationHeaderRequired,
+                MessageLoaderParms(
+                    "WsmServer.WsmRequestDecoder.SOAPACTION_HEADER_MISMATCH",
+                    "The HTTP SOAPAction header value \"$0\" does not match "
+                        "the wsa:Action value \"$1\".",
+                    soapAction,
+                    wsaAction));
+        }
+
+        // Note: The wsa:To header is not validated.  DSP0226 section 5.3
+        // indicates that this header is primarily useful for routing through
+        // intermediaries.  The HTTPAuthenticatorDelegator examines the path
+        // specified in the HTTP start line.
+
+        // DSP0226 R5.3-1: The wsa:To header shall be present in all messages,
+        // whether requests, responses, or events. In the absence of other
+        // requirements, it is recommended that the network address for
+        // resources that require authentication be suffixed by the token
+        // sequence /wsman. If /wsman is used, unauthenticated access should
+        // not be allowed.
+        //     (1) <wsa:To> http://123.15.166.67/wsman </wsa:To>
+
+        // DSP0226 R5.3-2: In the absence of other requirements, it is
+        // recommended that the network address for resources that do not
+        // require authentication be suffixed by the token sequence
+        // /wsman-anon. If /wsman-anon is used, authenticated access shall
+        // not be required.
+        //     (1) <wsa:To> http://123.15.166.67/wsman-anon </wsa:To>
+
+        if (wsaReplyTo != WSM_ADDRESS_ANONYMOUS)
+        {
+            // DSP0226 R5.4.2-2: A conformant service may require that all
+            // responses be delivered over the same connection on which the
+            // request arrives.
+            throw WsmFault(
+                WsmFault::wsman_UnsupportedFeature,
+                MessageLoaderParms(
+                    "WsmServer.WsmRequestDecoder.REPLYTO_ADDRESS_NOT_ANONYMOUS",
+                    "Responses may only be delivered over the same connection "
+                        "on which the request arrives."),
+                WSMAN_FAULTDETAIL_ADDRESSINGMODE);
+        }
+
+        if (wsaFaultTo.size() && (wsaFaultTo != WSM_ADDRESS_ANONYMOUS))
+        {
+            // DSP0226 R5.4.3-3: A conformant service may require that all
+            // faults be delivered to the client over the same transport or
+            // connection on which the request arrives.
+            throw WsmFault(
+                WsmFault::wsman_UnsupportedFeature,
+                MessageLoaderParms(
+                    "WsmServer.WsmRequestDecoder.FAULTTO_ADDRESS_NOT_ANONYMOUS",
+                    "Responses may only be delivered over the same connection "
+                        "on which the request arrives."),
+                WSMAN_FAULTDETAIL_ADDRESSINGMODE);
+        }
+
+        //
+        // Parse the SOAP Body while decoding each action
+        //
+
+        if (wsaAction == WSM_ACTION_GET)
+        {
+            request.reset(_decodeWSTransferGet(
+                wsmReader,
+                wsaMessageId,
+                epr));
+        }
+        else if (wsaAction == WSM_ACTION_PUT)
+        {
+            request.reset(_decodeWSTransferPut(
+                wsmReader,
+                wsaMessageId,
+                epr));
+        }
+        else if (wsaAction == WSM_ACTION_CREATE)
+        {
+            request.reset(_decodeWSTransferCreate(
+                wsmReader,
+                wsaMessageId,
+                epr));
+        }
+        else if (wsaAction == WSM_ACTION_DELETE)
+        {
+            request.reset(_decodeWSTransferDelete(
+                wsmReader,
+                wsaMessageId,
+                epr));
+        }
+        else
+        {
+            throw WsmFault(
+                WsmFault::wsa_ActionNotSupported,
+                MessageLoaderParms(
+                    "WsmServer.WsmRequestDecoder.ACTION_NOT_SUPPORTED",
+                    "The wsa:Action value \"$0\" is not supported.",
+                    wsaAction));
+        }
+
+        wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Envelope");
+
+        request->authType = authType;
+        request->userName = userName;
+        request->ipAddress = ipAddress;
+        request->httpMethod = httpMethod;
+        // Note:  The HTTP Accept-Languages header is ignored
+        request->acceptLanguages = wsmLocale;
+        request->contentLanguages = httpContentLanguages;
+        request->httpCloseConnect = httpCloseConnect;
+        request->queueId = queueId;
+        request->requestEpr = wsmRequestEpr;
+        request->maxEnvelopeSize = wsmMaxEnvelopeSize;
+    }
+    catch (WsmFault& fault)
+    {
+        _wsmProcessor->sendResponse(new WsmFaultResponse(
+            wsaMessageId, queueId, httpMethod, httpCloseConnect, fault));
+        PEG_METHOD_EXIT();
+        return;
+    }
+    catch (SoapNotUnderstoodFault& fault)
+    {
+        _wsmProcessor->sendResponse(new SoapFaultResponse(
+            wsaMessageId, queueId, httpMethod, httpCloseConnect, fault));
+        PEG_METHOD_EXIT();
+        return;
+    }
+    catch (XmlException& e)
+    {
+        WsmFault fault(
+            WsmFault::wsman_SchemaValidationError,
+            e.getMessage(),
+            e.getContentLanguages());
+        _wsmProcessor->sendResponse(new WsmFaultResponse(
+            wsaMessageId, queueId, httpMethod, httpCloseConnect, fault));
+        PEG_METHOD_EXIT();
+        return;
+    }
+    catch (Exception& e)
+    {
+        WsmFault fault(
+            WsmFault::wsman_InternalError,
+            e.getMessage(),
+            e.getContentLanguages());
+        _wsmProcessor->sendResponse(new WsmFaultResponse(
+            wsaMessageId, queueId, httpMethod, httpCloseConnect, fault));
+        PEG_METHOD_EXIT();
+        return;
+    }
+    catch (const PEGASUS_STD(exception)& e)
+    {
+        WsmFault fault(WsmFault::wsman_InternalError, e.what());
+        _wsmProcessor->sendResponse(new WsmFaultResponse(
+            wsaMessageId, queueId, httpMethod, httpCloseConnect, fault));
+        PEG_METHOD_EXIT();
+        return;
+    }
+    catch (...)
+    {
+        WsmFault fault(WsmFault::wsman_InternalError);
+        _wsmProcessor->sendResponse(new WsmFaultResponse(
+            wsaMessageId, queueId, httpMethod, httpCloseConnect, fault));
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    _wsmProcessor->handleRequest(request.release());
+
+    PEG_METHOD_EXIT();
+}
+
+void WsmRequestDecoder::_checkRequiredHeader(
+    const char* headerName,
+    Boolean headerSpecified)
+{
+    if (!headerSpecified)
+    {
+        throw WsmFault(
+            WsmFault::wsa_MessageInformationHeaderRequired,
+            MessageLoaderParms(
+                "WsmServer.WsmRequestDecoder.MISSING_HEADER",
+                "Required SOAP header \"$0\" was not specified.",
+                headerName));
+    }
+}
+
+WsmGetRequest* WsmRequestDecoder::_decodeWSTransferGet(
+    WsmReader& wsmReader,
+    const String& messageId,
+    const WsmEndpointReference& epr)
+{
+    _checkRequiredHeader("wsman:ResourceURI", epr.resourceUri.size());
+
+    XmlEntry entry;
+    wsmReader.expectStartOrEmptyTag(
+        entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
+    if (entry.type != XmlEntry::EMPTY_TAG)
+    {
+        wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
+    }
+
+    return new WsmGetRequest(messageId, epr);
+}
+
+WsmPutRequest* WsmRequestDecoder::_decodeWSTransferPut(
+    WsmReader& wsmReader,
+    const String& messageId,
+    const WsmEndpointReference& epr)
+{
+    _checkRequiredHeader("wsman:ResourceURI", epr.resourceUri.size());
+
+    XmlEntry entry;
+    wsmReader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
+
+    // The soap body must contain an XML representation of the updated instance
+    WsmInstance instance;
+    wsmReader.getInstanceElement(instance);
+
+    wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
+
+    return new WsmPutRequest(messageId, epr, instance);
+}
+
+WsmCreateRequest* WsmRequestDecoder::_decodeWSTransferCreate(
+    WsmReader& wsmReader,
+    const String& messageId,
+    const WsmEndpointReference& epr)
+{
+    _checkRequiredHeader("wsman:ResourceURI", epr.resourceUri.size());
+
+    XmlEntry entry;
+    wsmReader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
+
+    // The soap body must contain an XML representation of the new instance
+    WsmInstance instance;
+    wsmReader.getInstanceElement(instance);
+
+    wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
+
+    return new WsmCreateRequest(messageId, epr, instance);
+}
+
+WsmDeleteRequest* WsmRequestDecoder::_decodeWSTransferDelete(
+    WsmReader& wsmReader,
+    const String& messageId,
+    const WsmEndpointReference& epr)
+{
+    _checkRequiredHeader("wsman:ResourceURI", epr.resourceUri.size());
+
+    XmlEntry entry;
+    wsmReader.expectStartOrEmptyTag(
+        entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
+    if (entry.type != XmlEntry::EMPTY_TAG)
+    {
+        wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
+    }
+
+    return new WsmDeleteRequest(messageId, epr);
+}
+
+PEGASUS_NAMESPACE_END

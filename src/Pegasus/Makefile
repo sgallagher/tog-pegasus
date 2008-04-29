@@ -158,6 +158,12 @@ ifdef PEGASUS_HAS_SSL
         ControlProviders/CertificateProvider
 endif
 
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
+    DIRS += \
+        WsmServer \
+        WsmServer/tests
+endif
+
 DIRS += \
     Server \
     Server/tests \

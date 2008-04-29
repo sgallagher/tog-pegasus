@@ -86,6 +86,10 @@ ifeq ($(PEGASUS_ENABLE_SLP),true)
     LIBRARIES += pegslp
 endif
 
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
+    LIBRARIES += pegwsmserver
+endif
+
 LIBRARIES += \
     pegprovidermanager \
     pegpmservice \

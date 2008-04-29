@@ -58,14 +58,14 @@ public:
         UNTERMINATED_COMMENT,
         UNTERMINATED_CDATA,
         UNTERMINATED_DOCTYPE,
-        TOO_MANY_ATTRIBUTES,
         MALFORMED_REFERENCE,
         EXPECTED_COMMENT_OR_CDATA,
         START_END_MISMATCH,
         UNCLOSED_TAGS,
         MULTIPLE_ROOTS,
         VALIDATION_ERROR,
-        SEMANTIC_ERROR
+        SEMANTIC_ERROR,
+        UNDECLARED_NAMESPACE
     };
 
 
@@ -104,15 +104,25 @@ public:
     XmlSemanticError(Uint32 lineNumber, MessageLoaderParms& msgParms);
 };
 
+struct XmlNamespace
+{
+    const char* localName;
+    const char* extendedName;
+    int type;
+    Uint32 scopeLevel;
+};
+
 struct XmlAttribute
 {
+    int nsType;
     const char* name;
+    const char* localName;
     const char* value;
 };
 
 struct PEGASUS_COMMON_LINKAGE XmlEntry
 {
-    enum CIMType
+    enum XmlEntryType
     {
         XML_DECLARATION,
         START_TAG,
@@ -124,16 +134,17 @@ struct PEGASUS_COMMON_LINKAGE XmlEntry
         CONTENT
     };
 
-    enum { MAX_ATTRIBUTES = 10 };
-
-    CIMType type;
+    XmlEntryType type;
     const char* text;
-    XmlAttribute attributes[MAX_ATTRIBUTES];
-    Uint32 attributeCount;
+    int nsType;            // Only applies to START_TAG, EMPTY_TAG, and END_TAG
+    const char* localName; // Only applies to START_TAG, EMPTY_TAG, and END_TAG
+    Array<XmlAttribute> attributes;
 
     void print() const;
 
     const XmlAttribute* findAttribute(const char* name) const;
+
+    const XmlAttribute* findAttribute(int nsType, const char* name) const;
 
     Boolean getAttributeValue(const char* name, Uint32& value) const;
 
@@ -155,7 +166,7 @@ public:
 
     // Warning: this constructor modifies the text.
 
-    XmlParser(char* text);
+    XmlParser(char* text, XmlNamespace* ns = 0);
 
     /** Comments are returned with entry if includeComment is true else 
         XmlParser ignores comments. Default is false.
@@ -170,13 +181,18 @@ public:
 
     Uint32 getLine() const { return _line; }
 
+    XmlNamespace* getNamespace(int nsType);
+
 private:
 
-    Boolean _getElementName(char*& p);
+    Boolean _getElementName(char*& p, const char*& localName);
 
-    Boolean _getOpenElementName(char*& p, Boolean& openCloseElement);
+    Boolean _getOpenElementName(
+        char*& p,
+        const char*& localName,
+        Boolean& openCloseElement);
 
-    void _getAttributeNameAndEqual(char*& p);
+    void _getAttributeNameAndEqual(char*& p, const char*& localName);
 
     void _getComment(char*& p);
 
@@ -186,12 +202,20 @@ private:
 
     void _getElement(char*& p, XmlEntry& entry);
 
+    int _getNamespaceType(const char* tag);
+
+    int _getSupportedNamespaceType(const char* extendedName);
+
     Uint32 _line;
     char* _current;
     char _restoreChar;
     Stack<char*> _stack;
     Boolean _foundRoot;
     Stack<XmlEntry> _putBackStack;
+
+    XmlNamespace* _supportedNamespaces;
+    Stack<XmlNamespace> _nameSpaces;
+    int _currentUnsupportedNSType;
 };
 
 PEGASUS_COMMON_LINKAGE void XmlAppendCString(

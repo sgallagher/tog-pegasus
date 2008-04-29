@@ -526,6 +526,7 @@ en:table {
         * @note  PGS00609:
         *    Substitution {0} is a line number (Uint32)
         *    Substitution {1} is a message
+        *    This message is no longer used as of version 2.8.0
         */
         Common.XmlParser.TOO_MANY_ATTRIBUTES:string {"PGS00609: Too many attributes on line {0}.  The XML parser handles a maximum of 10. {1}"}
 
@@ -578,6 +579,13 @@ en:table {
         *    Substitution {1} is a message
         */
         Common.XmlParser.SEMANTIC_ERROR:string {"PGS00616: Semantic error on line {0}. {1}"}
+
+        /**
+        * @note  PGS00617:
+        *    Substitution {0} is a line number (Uint32)
+        *    Substitution {1} is a message
+        */
+        Common.XmlParser.UNDECLARED_NAMESPACE:string {"PGS00617: Undeclared namespace on line {0}. {1}"}
 
 
         // ==========================================================
@@ -6788,6 +6796,229 @@ CIM server listening on HTTPS port {0}."}
         *  @version 2.8
         */
         Common.TLS.COULD_NOT_LINK_SOCKET:string {"PGS19801: Could not link socket to SSL Connection."}
+
+
+        // ==========================================================
+        // Messages for WsmReader
+        //  Please use message prefix "PGS20000 - PGS20199"
+        // ==========================================================
+
+        /**
+        * @note PGS20000:
+        *    Substitution {0} is the name of the expected element (string)
+        *    Substitution {1} is the namespace URI of the expected element (string)
+        *    This error is for a missing XML Start-Tag
+        */
+        WsmServer.WsmReader.EXPECTED_OPEN:string {"PGS20000: Expecting a start tag for ''{0}'' element in namespace ''{1}''."}
+
+        /**
+        * @note PGS20001:
+        *    Substitution {0} is the name of the expected element (string)
+        *    Substitution {1} is the namespace URI of the expected element (string)
+        *    This error is for a missing XML End-Tag
+        */
+        WsmServer.WsmReader.EXPECTED_CLOSE:string {"PGS20001: Expecting an end tag for ''{0}'' element in namespace ''{1}''."}
+
+        /**
+        * @note PGS20002:
+        *    Substitution {0} is the name of the expected element (string)
+        *    Substitution {1} is the namespace URI of the expected element (string)
+        *    This error is for a missing XML Start-Tag or Empty-Tag
+        */
+        WsmServer.WsmReader.EXPECTED_OPENCLOSE:string {"PGS20002: Expecting a start tag or an empty tag for ''{0}'' element in namespace ''{1}''."}
+
+        WsmServer.WsmReader.LOCALE_NOT_ENSURED:string {"PGS20003: Translation of responses to a specified locale cannot be ensured."}
+
+        /**
+        * @note PGS20004:
+        *    Substitution {0} is an XML element name (string)
+        */
+        WsmServer.WsmReader.DUPLICATE_SOAP_HEADER:string {"PGS20004: Request contains multiple {0} SOAP Header elements."}
+
+        /**
+        * @note PGS20005:
+        *    Substitution {0} is a string value that could not be converted to a positive integer
+        */
+        WsmServer.WsmReader.INVALID_MAXENVELOPESIZE_VALUE:string {"PGS20005: The MaxEnvelopeSize value ''{0}'' is not a valid positive integer."}
+
+        /**
+        * @note PGS20006:
+        *    Substitution {0} is the name of an XML element (a string)
+        *    Substitution {1} is the name of an XML attribute (a string)
+        */
+        WsmServer.WsmReader.MISSING_ATTRIBUTE:string {"PGS20006: The attribute {0}.{1} is missing."}
+
+        /**
+        * @note PGS20007:
+        */
+        WsmServer.WsmReader.EXPECTED_INSTANCE_ELEMENT:string {"PGS20007: Expecting an instance element."}
+
+        /**
+        * @note PGS20008:
+        */
+        WsmServer.WsmReader.NULL_ARRAY_ELEMENTS:string {"PGS20008: Setting array elements to null is not supported."}
+
+        /**
+        * @note PGS20009:
+        *    Substitution {0} is the name of a CIM property (a string)
+        */
+        WsmServer.WsmReader.MISSING_PROPERTY_VALUE:string {"PGS20009: No value specified for non-null property {0}."}
+
+        /**
+        * @note PGS20010:
+        *    Substitution {0} is the value of MaxEnvelopeSize (integer)
+        *    Substitution {1} is the minimum allowable value of MaxEnvelopeSize (integer)
+        */
+        WsmServer.WsmReader.MAXENVELOPESIZE_TOO_SMALL:string {"PGS20010: The MaxEnvelopeSize {0} is less than minimum allowable value of {1}."}
+
+
+        // ==========================================================
+        // Messages for WsmRequestDecoder
+        //  Please use message prefix "PGS20200 - PGS20399"
+        // ==========================================================
+
+        /**
+        * @note PGS20200:
+        *    Do not translate the word 'Host' since it is an HTTP header
+        */
+        WsmServer.WsmRequestDecoder.MISSING_HOST_HEADER:string {"PGS20200: HTTP request message lacks a Host header field."}
+
+        /**
+        * @note PGS20201:
+        *    Do not translate the word 'Content-Type' since it is an HTTP tag
+        */
+        WsmServer.WsmRequestDecoder.CONTENTTYPE_SYNTAX_ERROR:string {"PGS20201: HTTP Content-Type header error."}
+
+        WsmServer.WsmRequestDecoder.INVALID_UTF8_CHARACTER:string {"PGS20202: A UTF-8 character in the WS-Management request is not valid."}
+
+        /**
+        * @note PGS20203:
+        *    Substitution {0} is the name of a SOAP header element (string)
+        */
+        WsmServer.WsmRequestDecoder.MISSING_HEADER:string {"PGS20203: Required SOAP header ''{0}'' was not specified."}
+
+        /**
+        * @note PGS20204:
+        *    Substitution {0} is the value of an HTTP header (string)
+        *    Substitution {1} is the value of a SOAP header element (string)
+        *    Do not translate the word 'SOAPAction' since it is an HTTP tag
+        *    Do not translate the word 'wsa:Action' since it is a SOAP header element name
+        */
+        WsmServer.WsmRequestDecoder.SOAPACTION_HEADER_MISMATCH:string {"PGS20204: The HTTP SOAPAction header value ''{0}'' does not match the wsa:Action value ''{1}''."}
+
+        WsmServer.WsmRequestDecoder.REPLYTO_ADDRESS_NOT_ANONYMOUS:string {"PGS20205: Responses may only be delivered over the same connection on which the request arrives."}
+
+        WsmServer.WsmRequestDecoder.FAULTTO_ADDRESS_NOT_ANONYMOUS:string {"PGS20206: Faults may only be delivered over the same connection on which the request arrives."}
+
+        /**
+        * @note PGS20207:
+        *    Substitution {0} is the value of a SOAP header element (string)
+        *    Do not translate the word 'wsa:Action' since it is a SOAP header element name
+        */
+        WsmServer.WsmRequestDecoder.ACTION_NOT_SUPPORTED:string {"PGS20207: The wsa:Action value ''{0}'' is not supported."}
+
+
+        // ==========================================================
+        // Messages for WsmResponseEncoder
+        //  Please use message prefix "PGS20400 - PGS20599"
+        // ==========================================================
+
+        WsmServer.WsmResponseEncoder.OUT_OF_MEMORY:string {"PGS20400: A system error occurred. Retry the WS-Management operation at a later time."}
+
+        WsmServer.WsmResponseEncoder.FAULT_MAX_ENV_SIZE_EXCEEDED:string {"PGS20401: Fault response could not be encoded within requested envelope size limits."}
+
+        WsmServer.WsmResponseEncoder.UNREPORTABLE_SUCCESS:string {"PGS20402: Success response could not be encoded within requested envelope size limits."}
+
+
+        // ==========================================================
+        // Messages for WsmToCimRequestMapper
+        //  Please use message prefix "PGS20600 - PGS20799"
+        // ==========================================================
+
+        /**
+        * @note PGS20600:
+        *    Substitution {0} is a selector name (string)
+        */
+        WsmServer.WsmToCimRequestMapper.SELECTOR_TYPE_MISMATCH:string {"PGS20600: Selector ''{0}'' is not of the correct type."}
+
+        /**
+        * @note PGS20601:
+        *    Substitution {0} is a selector value (string)
+        *    Substitution {1} is a selector name (string)
+        */
+        WsmServer.WsmToCimRequestMapper.INVALID_SELECTOR_VALUE:string {"PGS20601: The value ''{0}'' is not valid for selector ''{1}''."}
+
+        /**
+        * @note PGS20602:
+        *    Substitution {0} is a selector name (string)
+        *    Substitution {1} is a CIM class name (string)
+        *    Substitution {2} is a CIM namespace name (string)
+        */
+        WsmServer.WsmToCimRequestMapper.UNEXPECTED_SELECTOR:string {"PGS20602: Selector ''{0}'' is not expected for a resource of class {1} in namespace {2}."}
+
+        /**
+        * @note PGS20603:
+        *    Do not translate the word 'ResourceURI' since it is a SOAP header element name
+        */
+        WsmServer.WsmToCimRequestMapper.ALLCLASSES_URI_NOT_ALLOWED:string {"PGS20603: The ''all classes'' ResourceURI cannot be used with this operation."}
+
+        /**
+        * @note PGS20604:
+        *    Substitution {0} is a ResourceURI value (string)
+        *    Do not translate the word 'ResourceURI' since it is a SOAP header element name
+        */
+        WsmServer.WsmToCimRequestMapper.UNRECOGNIZED_RESOURCEURI:string {"PGS20604: Unrecognized ResourceURI value: {0}."}
+
+        /**
+        * @note PGS20605:
+        *        Substitution {0} is a property name (a string)
+        */
+        WsmServer.WsmToCimRequestMapper.NO_SUCH_PROPERTY:string { "PGS20604: The {0} property does not exist."}
+
+        /**
+        * @note  PGS20606:
+        *        Substitution {0} is a value (a string)
+        */
+        WsmServer.WsmToCimRequestMapper.INVALID_BOOLEAN_VALUE:string {"PGS20606: The boolean value ''{0}'' is not valid."}
+
+        WsmServer.WsmToCimRequestMapper.INVALID_UI_VALUE:string {"PGS20607: The unsigned integer value ''{0}'' is not valid."}
+
+        WsmServer.WsmToCimRequestMapper.INVALID_SI_VALUE:string {"PGS20608: The signed integer value ''{0}'' is not valid."}
+
+        WsmServer.WsmToCimRequestMapper.INVALID_RN_VALUE:string {"PGS20609: The real number value ''{0}'' is not valid."}
+
+        WsmServer.WsmToCimRequestMapper.INVALID_CHAR16_VALUE:string {"PGS20610: The char16 value ''{0}'' is not valid."}
+
+        WsmServer.WsmToCimRequestMapper.INVALID_DT_VALUE:string {"PGS20611: The datetime value ''{0}'' is not valid."}
+
+        /**
+        * @note  PGS20612:
+        *        Substitution {0} is a type
+        *        Substitution {1} is a value (a string)
+        */
+        WsmServer.WsmToCimRequestMapper.VALUE_OUT_OF_RANGE:string {"PGS20612: The {0} value ''{1}'' is out of range."}
+
+        /**
+        * @note  PGS20613:
+        *        Substitution {0} is an EPR address
+        */
+        WsmServer.WsmToCimRequestMapper.INVALID_EPR_ADDRESS:string {"PGS20613: The EPR address ''{0}'' is not valid."}
+
+        // ==========================================================
+        // Messages for WsmFault
+        //  Please use message prefix "PGS20800 - PGS20999"
+        // ==========================================================
+
+        WsmServer.WsmFault.SOAP_HEADER_NOT_UNDERSTOOD:string {"PGS20800: Header not understood."}
+
+
+        // ==========================================================
+        // Messages for CimToWsmResponseMapper
+        //  Please use message prefix "PGS21000 - PGS21199"
+        // ==========================================================
+
+        WsmServer.CimToWsmResponseMapper.EMBEDDED_CLASS_NOT_SUPPORTED:string {"PGS21000: Embedded class objects in WS-Management responses are not supported."}
+
 
 // ==============================================================================
 // END OF RESOURCE BUNDLE

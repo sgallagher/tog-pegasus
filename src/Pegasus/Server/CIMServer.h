@@ -46,8 +46,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct ServerRep;
-
 class CIMOperationRequestDispatcher;
 class CIMOperationResponseEncoder;
 class CIMOperationRequestDecoder;
@@ -55,6 +53,7 @@ class CIMOperationRequestAuthorizer;
 class CIMExportRequestDispatcher;
 class CIMExportResponseEncoder;
 class CIMExportRequestDecoder;
+class WsmProcessor;
 class HTTPAcceptor;
 class CIMRepository;
 
@@ -157,6 +156,7 @@ private:
 
     AutoPtr<Monitor> _monitor;
     CIMRepository* _repository;
+
     CIMOperationRequestDispatcher* _cimOperationRequestDispatcher;
     CIMOperationResponseEncoder* _cimOperationResponseEncoder;
     CIMOperationRequestDecoder* _cimOperationRequestDecoder;
@@ -166,6 +166,10 @@ private:
     CIMExportResponseEncoder* _cimExportResponseEncoder;
     CIMExportRequestDecoder* _cimExportRequestDecoder;
     HTTPAuthenticatorDelegator* _httpAuthenticatorDelegator;
+
+#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
+    WsmProcessor* _wsmProcessor;
+#endif
 
     Array<HTTPAcceptor*> _acceptors;
     Array<ProviderMessageHandler*> _controlProviders;

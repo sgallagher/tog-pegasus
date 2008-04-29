@@ -78,12 +78,13 @@ static const String _HTTP_HEADER_PEGASUSAUTHORIZATION = "PegasusAuthorization";
 static const String _CONFIG_PARAM_ENABLEAUTHENTICATION = "enableAuthentication";
 
 HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator(
-    Uint32 operationMessageQueueId,
-    Uint32 exportMessageQueueId,
+    Uint32 cimOperationMessageQueueId,
+    Uint32 cimExportMessageQueueId,
     CIMRepository* repository)
     : Base(PEGASUS_QUEUENAME_HTTPAUTHDELEGATOR, MessageQueue::getNextQueueId()),
-      _operationMessageQueueId(operationMessageQueueId),
-      _exportMessageQueueId(exportMessageQueueId),
+      _cimOperationMessageQueueId(cimOperationMessageQueueId),
+      _cimExportMessageQueueId(cimExportMessageQueueId),
+      _wsmanOperationMessageQueueId(PEG_NOT_FOUND),
       _repository(repository)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
@@ -1190,8 +1191,13 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         }
 
         //
-        // Search for "CIMOperation" header:
+        // Determine the type of this request:
         //
+        //   - A "CIMOperation" header indicates a CIM operation request
+        //   - A "CIMExport" header indicates a CIM export request
+        //   - A "/wsman" path in the start message indicates a WS-Man request
+        //
+
         String cimOperation;
 
         if (HTTPMessage::lookupHeader(
@@ -1203,7 +1209,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                  cimOperation));
 
             MessageQueue* queue =
-                MessageQueue::lookup(_operationMessageQueueId);
+                MessageQueue::lookup(_cimOperationMessageQueueId);
 
             if (queue)
             {
@@ -1237,13 +1243,56 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 "HTTPAuthenticatorDelegator - CIMExport: $0 ",cimOperation);
 
             MessageQueue* queue =
-                MessageQueue::lookup(_exportMessageQueueId);
+                MessageQueue::lookup(_cimExportMessageQueueId);
 
             if (queue)
             {
                 httpMessage->dest = queue->getQueueId();
 
                 queue->enqueue(httpMessage);
+                deleteMessage = false;
+            }
+        }
+        else if ((_wsmanOperationMessageQueueId != PEG_NOT_FOUND) &&
+                 ((requestUri == "/wsman") ||
+                  ((requestUri == "/wsman-anon") && !enableAuthentication)))
+        {
+            // Note: DSP0226 R5.3-1 specifies if /wsman is used,
+            // unauthenticated access should not be allowed.  This "should"
+            // requirement is not implemented here, because it is difficult
+            // for a client to determine whether enableAuthentication=true.
+
+            // DSP0226 R5.3-2 specifies if /wsman-anon is used, authenticated
+            // access shall not be required.  Unauthenticated access is
+            // currently not allowed if enableAuthentication=true.  When
+            // support for wsmid:Identify is added, it will be necessary to
+            // respond to that request without requiring authentication,
+            // regardless of the CIM Server configuration.
+
+            MessageQueue* queue =
+                MessageQueue::lookup(_wsmanOperationMessageQueueId);
+
+            if (queue)
+            {
+                httpMessage->dest = queue->getQueueId();
+
+                try
+                {
+                    queue->enqueue(httpMessage);
+                }
+                catch (const bad_alloc&)
+                {
+                    delete httpMessage;
+                    _sendHttpError(
+                       queueId,
+                       HTTP_STATUS_REQUEST_TOO_LARGE,
+                       String::EMPTY,
+                       String::EMPTY,
+                       closeConnect);
+                    PEG_METHOD_EXIT();
+                    deleteMessage = false;
+                    return;
+                }
                 deleteMessage = false;
             }
         }

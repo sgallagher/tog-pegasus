@@ -484,19 +484,20 @@ void PG_TestPropertyTypes::createInstance(
 //    }
 
     // create the CIMObjectPath to return
-    CIMKeyBinding kb1(
+    Array<CIMKeyBinding> keys;
+    keys.append(CIMKeyBinding(
         instanceObject.getProperty(propIndex).getName(),
         instanceObject.getProperty(propIndex).getValue().toString(),
-        CIMKeyBinding::NUMERIC);
-    CIMKeyBinding kb2(
+        CIMKeyBinding::NUMERIC));
+    keys.append(CIMKeyBinding(
         "CreationClassName",
         "PG_TestPropertyTypes",
-        CIMKeyBinding::STRING);
-    CIMObjectPath returnReference(instanceReference);
-    Array<CIMKeyBinding> keys;
-        keys.append(kb1);
-        keys.append(kb2);
-        returnReference.setKeyBindings(keys);
+        CIMKeyBinding::STRING));
+    CIMObjectPath returnReference(
+        String::EMPTY,
+        CIMNamespaceName(),
+        instanceReference.getClassName(),
+        keys);
 
     // ensure the property values are valid
     _testPropertyTypesValue(instanceObject);

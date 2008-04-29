@@ -758,7 +758,7 @@ void XmlGenerator::indentedPrint(
 
                 os << "<?" << entry.text << " ";
                 _printAttributes(
-                    os, entry.attributes, entry.attributeCount);
+                    os, entry.attributes.getData(), entry.attributes.size());
                 os << "?>";
                 break;
             }
@@ -769,11 +769,11 @@ void XmlGenerator::indentedPrint(
 
                 os << "<" << entry.text;
 
-                if (entry.attributeCount)
+                if (entry.attributes.size())
                     os << ' ';
 
                 _printAttributes(
-                    os, entry.attributes, entry.attributeCount);
+                    os, entry.attributes.getData(), entry.attributes.size());
                 os << ">";
                 stack.push(entry.text);
                 break;
@@ -785,7 +785,7 @@ void XmlGenerator::indentedPrint(
 
                 os << "<" << entry.text << " ";
                 _printAttributes(
-                    os, entry.attributes, entry.attributeCount);
+                    os, entry.attributes.getData(), entry.attributes.size());
                 os << "/>";
                 break;
             }

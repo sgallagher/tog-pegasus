@@ -62,8 +62,8 @@ public:
 
     /** Constructor. */
     HTTPAuthenticatorDelegator(
-        Uint32 operationMessageQueueId,
-        Uint32 exportMessageQueueId,
+        Uint32 cimOperationMessageQueueId,
+        Uint32 cimExportMessageQueueId,
         CIMRepository* repository);
 
     /** Destructor. */
@@ -79,6 +79,11 @@ public:
     virtual void handleEnqueue();
 
     void handleHTTPMessage(HTTPMessage* httpMessage, Boolean& deleteMessage);
+
+    void setWsmQueueId(Uint32 wsmanOperationMessageQueueId)
+    {
+        _wsmanOperationMessageQueueId = wsmanOperationMessageQueueId;
+    }
 
 private:
 
@@ -106,9 +111,9 @@ private:
         const String& pegasusError = String::EMPTY,
         Boolean closeConnect = false);
 
-    Uint32 _operationMessageQueueId;
-
-    Uint32 _exportMessageQueueId;
+    Uint32 _cimOperationMessageQueueId;
+    Uint32 _cimExportMessageQueueId;
+    Uint32 _wsmanOperationMessageQueueId;
 
     AutoPtr<AuthenticationManager> _authenticationManager;
 

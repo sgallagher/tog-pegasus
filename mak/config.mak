@@ -1078,6 +1078,28 @@ ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
   DEFINES += -DPEGASUS_CIMSERVERMAIN_USER=\"$(PEGASUS_CIMSERVERMAIN_USER)\"
 endif
 
+
+##==============================================================================
+##
+## PEGASUS_ENABLE_PROTOCOL_WSMAN
+##
+##     Enables the WS-Management protocol in the CIM Server.
+##
+##==============================================================================
+
+ifndef PEGASUS_ENABLE_PROTOCOL_WSMAN
+    PEGASUS_ENABLE_PROTOCOL_WSMAN = false
+endif
+
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
+    DEFINES += -DPEGASUS_ENABLE_PROTOCOL_WSMAN
+else
+    ifneq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),false)
+        $(error PEGASUS_ENABLE_PROTOCOL_WSMAN ($(PEGASUS_ENABLE_PROTOCOL_WSMAN)) invalid, must be true or false)
+    endif
+endif
+
+
 ##==============================================================================
 ##
 ## PEGASUS_USE_PAM_STANDALONE_PROC

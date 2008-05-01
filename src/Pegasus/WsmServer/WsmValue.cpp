@@ -168,23 +168,25 @@ WsmValue& WsmValue::operator=(const WsmValue& val)
 
 Uint32 WsmValue::getArraySize()
 {
-    if (!_isArray)
-        return 0;
-
-    switch (_type)
+    if (_isArray)
     {
-        case WSMTYPE_REFERENCE:
-            return _rep.refa->size();
+        switch (_type)
+        {
+            case WSMTYPE_REFERENCE:
+                return _rep.refa->size();
 
-        case WSMTYPE_INSTANCE:
-            return _rep.insta->size();
+            case WSMTYPE_INSTANCE:
+                return _rep.insta->size();
 
-        case WSMTYPE_OTHER:
-            return _rep.stra->size();
+            case WSMTYPE_OTHER:
+                return _rep.stra->size();
 
-        default:
-            PEGASUS_ASSERT(0);
+            default:
+                PEGASUS_ASSERT(0);
+        }
     }
+
+    return 0;
 }
 
 void WsmValue::_release()

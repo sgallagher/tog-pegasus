@@ -723,6 +723,27 @@ else
   PEGASUS_TEST_IPV6 = $(PEGASUS_ENABLE_IPV6)
 endif
 
+#
+# PEP 322
+# Allow tracking generated indications data to be disabled.  It is enabled
+# by default.
+#
+
+ifndef PEGASUS_ENABLE_INDICATION_COUNT
+    PEGASUS_ENABLE_INDICATION_COUNT = true
+endif
+
+ifdef PEGASUS_ENABLE_INDICATION_COUNT
+    ifeq ($(PEGASUS_ENABLE_INDICATION_COUNT),true)
+        DEFINES += -DPEGASUS_ENABLE_INDICATION_COUNT
+    else
+        ifneq ($(PEGASUS_ENABLE_INDICATION_COUNT),false)
+            $(error PEGASUS_ENABLE_INDICATION_COUNT \
+              ($(PEGASUS_ENABLE_INDICATION_COUNT)) invalid, must be true or false)
+        endif
+    endif
+endif
+
 ############################################################################
 #
 # PEGASUS_ENABLE_SLP and PEGASUS_DISABLE_SLP

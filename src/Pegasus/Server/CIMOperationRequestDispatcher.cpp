@@ -1252,6 +1252,28 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
                         PEGASUS_QUEUENAME_INDICATIONSERVICE)),
                     String::EMPTY,
                     PEGASUS_QUEUENAME_INDICATIONSERVICE);
+
+#ifdef PEGASUS_ENABLE_INDICATION_COUNT
+                _routing_table.insert_record(
+                    PEGASUS_CLASSNAME_PROVIDERINDDATA,
+                    PEGASUS_NAMESPACENAME_INTERNAL,
+                    DynamicRoutingTable::INTERNAL,
+                    0,
+                    static_cast<MessageQueueService*>(MessageQueue::lookup(
+                        PEGASUS_QUEUENAME_INDICATIONSERVICE)),
+                    String::EMPTY,
+                    PEGASUS_QUEUENAME_INDICATIONSERVICE);
+
+                _routing_table.insert_record(
+                    PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA,
+                    PEGASUS_NAMESPACENAME_INTERNAL,
+                    DynamicRoutingTable::INTERNAL,
+                    0,
+                    static_cast<MessageQueueService*>(MessageQueue::lookup(
+                        PEGASUS_QUEUENAME_INDICATIONSERVICE)),
+                    String::EMPTY,
+                    PEGASUS_QUEUENAME_INDICATIONSERVICE);
+#endif
             }
             _initialized = 1;
         }

@@ -369,13 +369,40 @@ public:
         @param   nameSpace           The specified namespace
         @param   provider            The provider instance which accepts 
                                      subscriptions 
-
-        @return   list of CIMInstance subscriptions
+        @param   subscriptions       Output Array of subscription instances
+        @param   subscriptionKeys    Output Array of associated subscription
+                                     keys
      */
-    Array <CIMInstance> getMatchingClassNamespaceSubscriptions (
+    void getMatchingClassNamespaceSubscriptions(
         const CIMName & supportedClass,
         const CIMNamespaceName&  nameSpace,
-        const CIMInstance & provider);
+        const CIMInstance & provider,
+        Array<CIMInstance>& matchingSubscriptions,
+        Array<String>& matchingSubscriptionKeys);
+
+#ifdef PEGASUS_ENABLE_INDICATION_COUNT
+    /**
+        Updates entries in the Active Subscriptions table to increase
+        matched indication counts for a specified provider which serves the
+        subscriptions.
+
+        @param provider A PG_Provider instance representing the provider that
+            serves the subscriptions.
+        @param subscriptionsKeys The keys of matched subscriptions which
+            are served by the provider.
+     */
+    void updateMatchedIndicationCounts(
+        const CIMInstance& providerInstance,
+        const Array<String>& subscriptionsKeys);
+
+    /**
+        Enumerates PG_SubscriptionIndicationData instances using the data
+        stored in the Active Subscriptions table.
+
+        @return All the PG_SubscriptionIndicationData instances.
+    */
+    Array<CIMInstance> enumerateSubscriptionIndicationDataInstances();
+#endif
 
 private:
 
@@ -493,6 +520,43 @@ private:
         const String & activeSubscriptionsKey,
         const CIMInstance & subscription,
         const Array <ProviderClassList> & updatedProviderList);
+
+#ifdef PEGASUS_ENABLE_INDICATION_COUNT
+    /**
+        Returns all the Active Subscriptions table entries.
+
+        @return An Array containing the complete list of
+            ActiveSubscriptionsTable entries.
+     */
+    Array<ActiveSubscriptionsTableEntry> _getAllActiveSubscriptionEntries();
+
+    /**
+        Gets filter name and handler name from the specified subscription.
+        The format of filter name is namespace:filtername where the
+        namespace is the namespace of filter instance created, and
+        the filtername is the value of property Name in the filter instance.
+        The format of handler name is namespace:classname.handlername where
+        namespace is the namespace of handler instance created, the classname
+        is the class of the handler instance, and handlername is the value
+        of property Name in the handler instance.
+
+        @param   subscription   Input subscription instance used to get
+                                filterName and handlerName
+        @param   filterName     Output string containing the colon-separated
+                                the namespace of filter instance created and
+                                the value of property Name in the filter
+                                instance
+        @param   handlerName    Output string containing the colon-separated
+                                the namespace of handler instance created and
+                                the class of the handler instance with the
+                                dot-connected the value of property Name in
+                                the filter instance
+     */
+    void _getFilterAndHandlerNames(
+        const CIMInstance& subscription,
+        String& filterName,
+        String& handlerName);
+#endif
 
     /**
         Active Subscriptions information table.  Access to this table is

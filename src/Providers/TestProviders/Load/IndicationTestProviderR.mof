@@ -62,6 +62,7 @@ instance of PG_ProviderCapabilities
     SupportedMethods = {"SendTestIndication", 
                         "SendTestIndicationNormal", 
 			"SendTestIndicationTrap",
+                        "SendTestIndicationsCount",
                         "SendTestIndicationMissingProperty", 
                         "SendTestIndicationExtraProperty",
                         "SendTestIndicationMatchingInstance",

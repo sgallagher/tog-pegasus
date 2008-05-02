@@ -1188,132 +1188,148 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
     CIMEnumerateInstancesRequestMessage* request =
         (CIMEnumerateInstancesRequestMessage*) message;
 
-    Array<CIMInstance> enumInstances;
     Array<CIMInstance> returnedInstances;
 
     CIMException cimException;
-    CIMInstance cimInstance;
     String aggregatedLangs;
-
 
     try
     {
-        String userName = ((IdentityContainer)request->operationContext.get(
-            IdentityContainer::NAME)).getUserName();
-        _checkNonprivilegedAuthorization(userName);
-
-        //
-        //  Add Creator to property list, if not null
-        //  Also, if a Subscription and Time Remaining is requested,
-        //  Ensure Subscription Duration and Start Time are in property list
-        //
-        Boolean setTimeRemaining;
-        Boolean startTimeAdded;
-        Boolean durationAdded;
-        CIMPropertyList propertyList = request->propertyList;
-        _updatePropertyList(request->className,
-            propertyList, setTimeRemaining, startTimeAdded, durationAdded);
-
-        enumInstances = _subscriptionRepository->enumerateInstancesForClass(
-            request->nameSpace, request->className, request->localOnly,
-            request->includeQualifiers, request->includeClassOrigin,
-            propertyList);
-
-        // Vars used to aggregate the content languages of the subscription
-        // instances.
-        Boolean langMismatch = false;
-        Uint32 propIndex;
-
-        //
-        //  Remove Creator and language properties from instances before
-        //  returning
-        //
-        for (Uint32 i = 0; i < enumInstances.size(); i++)
+#ifdef PEGASUS_ENABLE_INDICATION_COUNT
+        if (request->className.equal(PEGASUS_CLASSNAME_PROVIDERINDDATA))
         {
-            String creator;
-            if (!_getCreator(enumInstances[i], creator))
-            {
-                //
-                //  This instance from the repository is corrupted
-                //  Skip it
-                //
-                continue;
-            }
-            enumInstances[i].removeProperty(
-                enumInstances[i].findProperty(
-                    PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
-
-            propIndex = enumInstances[i].findProperty(
-                PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
-            String contentLangs;
-            if (propIndex != PEG_NOT_FOUND)
-            {
-                enumInstances[i].getProperty(propIndex).getValue().get(
-                    contentLangs);
-                enumInstances[i].removeProperty(propIndex);
-            }
-
-            propIndex = enumInstances[i].findProperty(
-                PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
-            if (propIndex != PEG_NOT_FOUND)
-            {
-                enumInstances[i].removeProperty(propIndex);
-            }
-
-            // Determine what to set into the Content-Language header back to
-            // the client
-            if (!langMismatch)
-            {
-                if (contentLangs == String::EMPTY)
-                {
-                    langMismatch = true;
-                    aggregatedLangs = String::EMPTY;
-                }
-                else
-                {
-                    if (aggregatedLangs == String::EMPTY)
-                    {
-                        aggregatedLangs = contentLangs;
-                    }
-                    else if (aggregatedLangs != contentLangs)
-                    {
-                        langMismatch = true;
-                        aggregatedLangs = String::EMPTY;
-                    }
-                }
-            }
+            returnedInstances = _providerIndicationCountTable.
+                enumerateProviderIndicationDataInstances();
+        }
+        else if (request->className.equal(
+                 PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA))
+        {
+            returnedInstances = _subscriptionTable->
+                enumerateSubscriptionIndicationDataInstances();
+        }
+        else
+#endif
+        {
+            Array<CIMInstance> enumInstances;
+            String userName = ((IdentityContainer)request->operationContext.
+                get(IdentityContainer::NAME)).getUserName();
+            _checkNonprivilegedAuthorization(userName);
 
             //
-            //  If a subscription with a duration, calculate subscription time
-            //  remaining, and add property to the instance
+            //  Add Creator to property list, if not null
+            //  Also, if a Subscription and Time Remaining is requested,
+            //  Ensure Subscription Duration and Start Time are in property
+            //  list
             //
-            if (setTimeRemaining)
+            Boolean setTimeRemaining;
+            Boolean startTimeAdded;
+            Boolean durationAdded;
+            CIMPropertyList propertyList = request->propertyList;
+            _updatePropertyList(request->className,
+                propertyList, setTimeRemaining, startTimeAdded, durationAdded);
+
+            enumInstances =
+                _subscriptionRepository->enumerateInstancesForClass(
+                    request->nameSpace, request->className, request->localOnly,
+                    request->includeQualifiers, request->includeClassOrigin,
+                    propertyList);
+
+            // Vars used to aggregate the content languages of the subscription
+            // instances.
+            Boolean langMismatch = false;
+            Uint32 propIndex;
+
+            //
+            //  Remove Creator and language properties from instances before
+            //  returning
+            //
+            for (Uint32 i = 0; i < enumInstances.size(); i++)
             {
-                try
-                {
-                    _setTimeRemaining(enumInstances[i]);
-                }
-                catch (DateTimeOutOfRangeException&)
+                String creator;
+                if (!_getCreator(enumInstances[i], creator))
                 {
                     //
-                    //  This instance from the repository is invalid
+                    //  This instance from the repository is corrupted
                     //  Skip it
                     //
                     continue;
                 }
-                if (startTimeAdded)
-                {
-                    enumInstances[i].removeProperty(
-                        enumInstances[i].findProperty(_PROPERTY_STARTTIME));
-                }
-                if (durationAdded)
-                {
-                    enumInstances[i].removeProperty(
-                        enumInstances[i].findProperty(_PROPERTY_DURATION));
-                }
-            }
+                enumInstances[i].removeProperty(
+                    enumInstances[i].findProperty(
+                        PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
 
-            returnedInstances.append(enumInstances[i]);
+                propIndex = enumInstances[i].findProperty(
+                    PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
+                String contentLangs;
+                if (propIndex != PEG_NOT_FOUND)
+                {
+                    enumInstances[i].getProperty(propIndex).getValue().get(
+                        contentLangs);
+                    enumInstances[i].removeProperty(propIndex);
+                }
+
+                propIndex = enumInstances[i].findProperty(
+                    PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
+                if (propIndex != PEG_NOT_FOUND)
+                {
+                    enumInstances[i].removeProperty(propIndex);
+                }
+
+                // Determine what to set into the Content-Language header back
+                // to the client
+                if (!langMismatch)
+                {
+                    if (contentLangs == String::EMPTY)
+                    {
+                        langMismatch = true;
+                        aggregatedLangs = String::EMPTY;
+                    }
+                    else
+                    {
+                        if (aggregatedLangs == String::EMPTY)
+                        {
+                            aggregatedLangs = contentLangs;
+                        }
+                        else if (aggregatedLangs != contentLangs)
+                        {
+                            langMismatch = true;
+                            aggregatedLangs = String::EMPTY;
+                        }
+                    }
+                }
+
+                //
+                //  If a subscription with a duration, calculate subscription
+                //  time remaining, and add property to the instance
+                //
+                if (setTimeRemaining)
+                {
+                    try
+                    {
+                        _setTimeRemaining(enumInstances[i]);
+                    }
+                    catch (DateTimeOutOfRangeException&)
+                    {
+                        //
+                        //  This instance from the repository is invalid
+                        //  Skip it
+                        //
+                        continue;
+                    }
+                    if (startTimeAdded)
+                    {
+                        enumInstances[i].removeProperty(enumInstances[i].
+                            findProperty(_PROPERTY_STARTTIME));
+                    }
+                    if (durationAdded)
+                    {
+                        enumInstances[i].removeProperty(
+                            enumInstances[i].findProperty(_PROPERTY_DURATION));
+                    }
+                }
+
+                returnedInstances.append(enumInstances[i]);
+            }
         }
     }
     catch (CIMException& exception)
@@ -1966,6 +1982,11 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
         "IndicationService::_handleProcessIndicationRequest");
 
+#ifdef PEGASUS_INDICATION_PERFINST
+        stopWatch.reset();
+        stopWatch.start();
+#endif
+
     CIMProcessIndicationRequestMessage* request = dynamic_cast<
         CIMProcessIndicationRequestMessage*> (message);
     PEGASUS_ASSERT(request != 0);
@@ -1973,6 +1994,7 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
     CIMResponseMessage * response = request->buildResponse ();
 
     Array<CIMInstance> matchedSubscriptions;
+    Array<String> matchedSubscriptionsKeys;
 
     CIMInstance indication = request->indicationInstance;
 
@@ -2014,10 +2036,16 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
         // indication provider if the provider included subscriptions 
         // in the subscriptionInstanceNamesContainer 
         //
-        Array<CIMInstance> subscriptions = _getRelevantSubscriptions(
-            request->subscriptionInstanceNames, indication.getClassName(),
-            request->nameSpace, request->provider);
- 
+        Array<CIMInstance> subscriptions;
+        Array<String> subscriptionKeys;
+        _getRelevantSubscriptions(
+            request->subscriptionInstanceNames,
+            indication.getClassName(),
+            request->nameSpace,
+            request->provider,
+            subscriptions,
+            subscriptionKeys);
+
         for (Uint32 i = 0; i < subscriptions.size(); i++)
         {
             try
@@ -2107,6 +2135,7 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
                                              request->operationContext);
 
                         matchedSubscriptions.append(subscriptions[i]);
+                        matchedSubscriptionsKeys.append(subscriptionKeys[i]);
                     }
                 }
             }
@@ -2137,6 +2166,13 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
            }
 
         }
+
+#ifdef PEGASUS_ENABLE_INDICATION_COUNT
+        _providerIndicationCountTable.incrementEntry(
+            request->provider, matchedSubscriptions.size() == 0);
+        _subscriptionTable->updateMatchedIndicationCounts(
+            request->provider, matchedSubscriptionsKeys);
+#endif
 
         //
         //  Log subscriptions info to a trace message
@@ -2190,6 +2226,13 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
     }
 
     _enqueueResponse (request, response);
+
+#ifdef PEGASUS_INDICATION_PERFINST
+    stopWatch.stop();
+
+    PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+        "%s: %.3f seconds", "Process Indication", stopWatch.getElapsed()));
+#endif
 
     PEG_METHOD_EXIT ();
     return;
@@ -2288,6 +2331,10 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             //
             formerSubscriptions = _getMatchingSubscriptions (className,
                 oldNameSpaces, oldPropertyNames);
+
+#ifdef PEGASUS_ENABLE_INDICATION_COUNT
+            _providerIndicationCountTable.removeEntry(provider);
+#endif
 
             break;
         }
@@ -2697,6 +2744,10 @@ void IndicationService::_handleNotifyProviderTerminationRequest
 
     for (Uint32 i = 0; i < providers.size (); i++)
     {
+#ifdef PEGASUS_ENABLE_INDICATION_COUNT
+        _providerIndicationCountTable.removeEntry(providers[i]);
+#endif
+
         //
         //  Get list of affected subscriptions
         //
@@ -3091,6 +3142,10 @@ void IndicationService::_handleNotifyProviderFailRequest
     Array<ActiveSubscriptionsTableEntry> providerModuleSubscriptions =
         _subscriptionTable->reflectProviderModuleFailure
             (moduleName, userName, _authenticationEnabled);
+
+#ifdef PEGASUS_ENABLE_INDICATION_COUNT
+    _providerIndicationCountTable.removeModuleEntries(moduleName);
+#endif
 
     //
     //  FUTURE: Attempt to recreate the subscription state
@@ -6217,6 +6272,10 @@ Array<ProviderClassList> IndicationService::_sendWaitCreateRequests(
         if (response->cimException.getCode() == CIM_ERR_SUCCESS)
         {
             acceptedProviders.append(indicationProviders[i]);
+#ifdef PEGASUS_ENABLE_INDICATION_COUNT
+            _providerIndicationCountTable.insertEntry(
+                indicationProviders[i].provider);
+#endif
         }
         else
         {
@@ -6704,6 +6763,9 @@ void IndicationService::_handleCreateResponseAggregation(
             //  Add provider to list of providers that accepted subscription
             //
             acceptedProviders.append(provider);
+#ifdef PEGASUS_ENABLE_INDICATION_COUNT
+            _providerIndicationCountTable.insertEntry(provider.provider);
+#endif
         }
         else
         {
@@ -7392,11 +7454,13 @@ CIMClass IndicationService::_getIndicationClass(
     return indicationClass;
 }
 
-Array<CIMInstance> IndicationService::_getRelevantSubscriptions(
+void IndicationService::_getRelevantSubscriptions(
     const Array<CIMObjectPath> & providedSubscriptionNames,
     const CIMName& className,
     const CIMNamespaceName& nameSpace,
-    const CIMInstance& indicationProvider)
+    const CIMInstance& indicationProvider,
+    Array<CIMInstance>& subscriptions,
+    Array<String>& subscriptionKeys)
 {
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
         "IndicationService::_getRelevantlSubscriptions");
@@ -7407,9 +7471,12 @@ Array<CIMInstance> IndicationService::_getRelevantSubscriptions(
     // superclass of the supported class. A subscription is only included
     // in the list if the specified provider accepted the subscription.
     //
-    Array<CIMInstance> initialSubscriptions = 
-        _subscriptionTable->getMatchingClassNamespaceSubscriptions(
-            className, nameSpace, indicationProvider);
+    _subscriptionTable->getMatchingClassNamespaceSubscriptions(
+        className,
+        nameSpace,
+        indicationProvider,
+        subscriptions,
+        subscriptionKeys);
 
     // 
     // If the indication provider included subscriptions in the 
@@ -7420,18 +7487,20 @@ Array<CIMInstance> IndicationService::_getRelevantSubscriptions(
 
     if (providedSubscriptionNames.size() > 0)
     {
-        for (Uint32 i = 0; i < initialSubscriptions.size(); i++)
+        for (Uint32 i = 0; i < subscriptions.size(); i++)
         {
             if (!Contains(providedSubscriptionNames, 
-                          initialSubscriptions[i].getPath()))
+                          subscriptions[i].getPath()))
             {
-                initialSubscriptions.remove(i);
+                subscriptions.remove(i);
+                subscriptionKeys.remove(i);
+                i--;
             }
         }
     }
 
+    PEGASUS_ASSERT(subscriptions.size() == subscriptionKeys.size());
     PEG_METHOD_EXIT();
-    return initialSubscriptions;
 }
 
 Boolean IndicationService::_subscriptionMatch(

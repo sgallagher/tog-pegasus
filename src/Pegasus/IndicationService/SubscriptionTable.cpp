@@ -39,6 +39,10 @@
 #include "IndicationService.h"
 #include "SubscriptionTable.h"
 
+#ifdef PEGASUS_ENABLE_INDICATION_COUNT
+# include "ProviderIndicationCountTable.h"
+#endif
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -690,7 +694,7 @@ void SubscriptionTable::insertSubscription (
     {
         WriteLock lock(_activeSubscriptionsTableLock);
 
-        _insertActiveSubscriptionsEntry (subscription, providers);
+        _insertActiveSubscriptionsEntry(subscription, providers);
     }
 
     //
@@ -1038,16 +1042,19 @@ void SubscriptionTable::clear ()
     PEG_METHOD_EXIT ();
 }
 
-Array <CIMInstance> SubscriptionTable::getMatchingClassNamespaceSubscriptions (
+void SubscriptionTable::getMatchingClassNamespaceSubscriptions(
     const CIMName & supportedClass,
     const CIMNamespaceName & nameSpace,
-    const CIMInstance & provider)
+    const CIMInstance& provider,
+    Array<CIMInstance>& matchingSubscriptions,
+    Array<String>& matchingSubscriptionKeys)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionTable::getMatchingClassNamespaceSubscriptions");
 
-    Array <CIMInstance> matchingClassNamespaceSubscriptions;
     Array <CIMInstance> subscriptions;
+    matchingSubscriptions.clear();
+    matchingSubscriptionKeys.clear();
 
     //
     //  Look up the indicationClass-sourceNamespace pair in the
@@ -1082,15 +1089,218 @@ Array <CIMInstance> SubscriptionTable::getMatchingClassNamespaceSubscriptions (
                     //
                     //  Add current subscription to list
                     //
-                    matchingClassNamespaceSubscriptions.append(
-                        subscriptions [j]);
+                    matchingSubscriptions.append(subscriptions[j]);
+                    matchingSubscriptionKeys.append(activeSubscriptionsKey);
                 }
             }
         }
     }
 
+    PEGASUS_ASSERT(
+        matchingSubscriptions.size() == matchingSubscriptionKeys.size());
     PEG_METHOD_EXIT ();
-    return matchingClassNamespaceSubscriptions;
 }
+
+#ifdef PEGASUS_ENABLE_INDICATION_COUNT
+
+void SubscriptionTable::updateMatchedIndicationCounts(
+    const CIMInstance & providerInstance,
+    const Array<String>& activeSubscriptionsKeys)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "SubscriptionTable::updateMatchedIndicationCounts");
+
+    WriteLock lock(_activeSubscriptionsTableLock);
+
+    for (Uint32 i = 0; i < activeSubscriptionsKeys.size(); i++)
+    {
+        ActiveSubscriptionsTableEntry* entry = 0;
+        if (_activeSubscriptionsTable.lookupReference(
+                activeSubscriptionsKeys[i], entry))
+        {
+            Uint32 providerIndex = providerInList(providerInstance, *entry);
+            if (providerIndex != PEG_NOT_FOUND)
+            {
+                entry->providers[providerIndex].
+                    matchedIndCountPerSubscription++;
+            }
+        }
+        else
+        {
+            // The subscription may have been deleted in the mean time.
+            // If so, no further update is required.
+            PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+                "Subscription %s not found in ActiveSubscriptionsTable",
+                (const char *) activeSubscriptionsKeys[i].getCString()));
+        }
+    }
+    PEG_METHOD_EXIT();
+}
+
+Array<ActiveSubscriptionsTableEntry>
+    SubscriptionTable::_getAllActiveSubscriptionEntries()
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "SubscriptionTable::_getAllActiveSubscriptionEntries");
+
+    Array <ActiveSubscriptionsTableEntry> subscriptionsEntries;
+
+    //
+    // Iterate through the ActiveSubscriptions table to get all active
+    // subscriptions table entries
+    //
+
+    ReadLock lock(_activeSubscriptionsTableLock);
+
+    for (ActiveSubscriptionsTable::Iterator i =
+        _activeSubscriptionsTable.start(); i; i++)
+    {
+        subscriptionsEntries.append(i.value());
+    }
+
+    PEG_METHOD_EXIT();
+    return subscriptionsEntries;
+}
+
+Array<CIMInstance>
+    SubscriptionTable::enumerateSubscriptionIndicationDataInstances()
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "SubscriptionTable::enumerateSubscriptionIndicationDataInstances");
+
+    Array<CIMInstance> instances;
+
+    //
+    // Get all active subscriptions table entries
+    //
+    Array<ActiveSubscriptionsTableEntry> activeSubscriptionEntries =
+        _getAllActiveSubscriptionEntries();
+
+    for (Uint32 i = 0; i < activeSubscriptionEntries.size(); i++)
+    {
+        //
+        // Gets filter name and handler name of the subscription
+        //
+        CIMInstance subscription = activeSubscriptionEntries[i].subscription;
+        String sourceNS = subscription.getPath().getNameSpace().getString();
+
+        String filterName;
+        String handlerName;
+        _getFilterAndHandlerNames(subscription, filterName, handlerName);
+
+        Array<ProviderClassList> providers =
+            activeSubscriptionEntries[i].providers;
+
+        for (Uint32 j = 0; j < providers.size(); j++)
+        {
+            CIMInstance subscriptionIndDataInstance(
+                PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA);
+
+            CIMInstance providerInstance = providers[j].provider;
+
+            //
+            // Gets provider name and provider module name from the
+            // specified provider instance
+            //
+            String providerName, providerModuleName;
+            ProviderIndicationCountTable::getProviderKeys(
+                providerInstance,
+                providerModuleName,
+                providerName);
+
+            subscriptionIndDataInstance.addProperty(CIMProperty(
+                CIMName("FilterName"), filterName));
+            subscriptionIndDataInstance.addProperty(CIMProperty(
+                CIMName("HandlerName"), handlerName));
+            subscriptionIndDataInstance.addProperty(CIMProperty(
+                CIMName("SourceNamespace"), sourceNS));
+            subscriptionIndDataInstance.addProperty(CIMProperty(
+                CIMName("ProviderModuleName"), providerModuleName));
+            subscriptionIndDataInstance.addProperty(CIMProperty(
+                CIMName("ProviderName"), providerName));
+            subscriptionIndDataInstance.addProperty(CIMProperty(
+                CIMName("MatchedIndicationCount"),
+                providers[j].matchedIndCountPerSubscription));
+
+            instances.append(subscriptionIndDataInstance);
+        }
+    }
+
+    PEG_METHOD_EXIT();
+    return instances;
+}
+
+void SubscriptionTable::_getFilterAndHandlerNames(
+    const CIMInstance& subscription,
+    String& filterName,
+    String& handlerName)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "SubscriptionTable::_getFilterAndHandlerNames");
+
+    CIMObjectPath filterPath;
+    CIMObjectPath handlerPath;
+
+    subscription.getProperty(subscription.findProperty(
+        PEGASUS_PROPERTYNAME_FILTER)).getValue().get(filterPath);
+    subscription.getProperty(subscription.findProperty(
+        PEGASUS_PROPERTYNAME_HANDLER)).getValue().get(handlerPath);
+
+    //
+    //  Get Filter namespace - if not set in Filter reference property
+    //  value, namespace is the namespace of the subscription
+    //
+    CIMNamespaceName filterNS = filterPath.getNameSpace();
+    if (filterNS.isNull())
+    {
+        filterNS = subscription.getPath().getNameSpace();
+    }
+
+    //
+    // Get filter name
+    //
+    Array<CIMKeyBinding> filterKeyBindings = filterPath.getKeyBindings();
+    for (Uint32 i = 0; i < filterKeyBindings.size(); i++)
+    {
+        if (filterKeyBindings[i].getName().equal(PEGASUS_PROPERTYNAME_NAME))
+        {
+            filterName.append(filterNS.getString());
+            filterName.append(":");
+            filterName.append(filterKeyBindings[i].getValue());
+            break;
+        }
+    }
+
+    //
+    //  Get handler namespace - if not set in handler reference property
+    //  value, namespace is the namespace of the subscription
+    //
+    CIMNamespaceName handlerNS = handlerPath.getNameSpace();
+    if (handlerNS.isNull())
+    {
+        handlerNS = subscription.getPath().getNameSpace();
+    }
+
+    //
+    // Get handler name
+    //
+    Array<CIMKeyBinding> handlerKeyBindings = handlerPath.getKeyBindings();
+    for (Uint32 i = 0; i < handlerKeyBindings.size(); i++)
+    {
+        if (handlerKeyBindings[i].getName().equal(PEGASUS_PROPERTYNAME_NAME))
+        {
+            handlerName.append(handlerNS.getString());
+            handlerName.append(":");
+            handlerName.append(handlerPath.getClassName().getString());
+            handlerName.append(".");
+            handlerName.append(handlerKeyBindings[i].getValue());
+            break;
+        }
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+#endif
 
 PEGASUS_NAMESPACE_END

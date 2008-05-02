@@ -91,6 +91,10 @@ const CIMName PEGASUS_CLASSNAME_CIMQUERYCAPABILITIES   =
     CIMName ("CIM_QueryCapabilities");
 #endif
 
+const CIMName PEGASUS_CLASSNAME_PROVIDERINDDATA            =
+    CIMName ("PG_ProviderIndicationData");
+const CIMName PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA            =
+    CIMName ("PG_SubscriptionIndicationData");
 
 // Interop Classes Accessed through Interop Control Provider
 

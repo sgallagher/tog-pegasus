@@ -525,6 +525,15 @@ public:
     */
     Boolean lookup(const K& key, V& value) const;
 
+    /** Looks up the entry with the given key and returns a pointer to the
+        value.  Note that this pointer may become invalid when the HashTable
+        is updated.
+        @param key key of entry to be located.
+        @param value Output pointer to the value.
+        @return true if found; false otherwise.
+    */
+    Boolean lookupReference(const K& key, V*& value);
+
     /** Removes the entry with the given key.
         @param key key of entry to be removed.
         @return true on success; false otherwise.
@@ -555,6 +564,21 @@ inline Boolean HashTable<K, V, E, H>::lookup(const K& key, V& value) const
     if (bucket)
     {
         value = bucket->getValue();
+        return true;
+    }
+
+    return false;
+}
+
+template<class K, class V, class E, class H>
+inline Boolean HashTable<K, V, E, H>::lookupReference(const K& key, V*& value)
+{
+    _Bucket<K, V, E>* bucket =
+        (_Bucket<K, V, E>*)_rep.lookup(H::hash(key), &key);
+
+    if (bucket)
+    {
+        value = &bucket->getValue();
         return true;
     }
 

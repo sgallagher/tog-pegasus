@@ -48,6 +48,9 @@ struct providerClassList
 {
     CIMInstance provider;
     CIMInstance providerModule;
+#ifdef PEGASUS_ENABLE_INDICATION_COUNT
+    Uint32 matchedIndCountPerSubscription;
+#endif
     Array <CIMName> classList;
    // Enabling Indications on Remote CMPI -V 5245
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
@@ -57,11 +60,17 @@ struct providerClassList
 
     providerClassList()
     {
+#ifdef PEGASUS_ENABLE_INDICATION_COUNT
+        matchedIndCountPerSubscription = 0;
+#endif
     }
 
     providerClassList (const providerClassList & rh)
     :   provider (rh.provider),
         providerModule (rh.providerModule),
+#ifdef PEGASUS_ENABLE_INDICATION_COUNT
+        matchedIndCountPerSubscription(rh.matchedIndCountPerSubscription),
+#endif
         classList (rh.classList)
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
         ,
@@ -77,6 +86,9 @@ struct providerClassList
         {
             provider = rh.provider;
             providerModule = rh.providerModule;
+#ifdef PEGASUS_ENABLE_INDICATION_COUNT
+            matchedIndCountPerSubscription = rh.matchedIndCountPerSubscription;
+#endif
             classList = rh.classList;
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
             isRemoteNameSpace = rh.isRemoteNameSpace;

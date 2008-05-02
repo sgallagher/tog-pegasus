@@ -39,4 +39,9 @@ DIRS = \
     ProcessIndication \
     Subscription
 
+ifeq ($(PEGASUS_ENABLE_INDICATION_COUNT),true)
+    DIRS += \
+        IndicationsCount
+endif
+
 include $(ROOT)/mak/recurse.mak

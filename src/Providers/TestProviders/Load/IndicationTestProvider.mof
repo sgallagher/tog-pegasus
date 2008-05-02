@@ -51,6 +51,7 @@ class Test_IndicationProviderClass : CIM_Indication
     [Static] uint32 SendTestIndicationUnmatchingNamespace();
     [Static] uint32 SendTestIndicationUnmatchingClassName();
     [Static] uint32 GetSubscriptionCount();
+    [Static] uint32 SendTestIndicationsCount();
 };
 
 class Test_IndicationProviderSubclass : Test_IndicationProviderClass

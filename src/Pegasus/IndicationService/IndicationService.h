@@ -29,14 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
-//                   (carolann_graves@hp.com)
-//               Ben Heilbronn, Hewlett-Packard Company (ben_heilbronn@hp.com)
-//               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//               Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_IndicationService_h
@@ -47,14 +39,17 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/AcceptLanguageList.h>
 #include <Pegasus/Common/ContentLanguageList.h>
-// NOCHKSRC
-#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
-// DOCHKSRC
+#include <Pegasus/Server/ProviderRegistrationManager/\
+ProviderRegistrationManager.h>
 #include <Pegasus/Server/Linkage.h>
 #include <Pegasus/Query/QueryExpression/QueryExpression.h>
 
-#include "ProviderClassList.h"
-#include "IndicationOperationAggregate.h"
+#include <Pegasus/IndicationService/ProviderClassList.h>
+#include <Pegasus/IndicationService/IndicationOperationAggregate.h>
+
+#ifdef PEGASUS_ENABLE_INDICATION_COUNT
+# include <Pegasus/IndicationService/ProviderIndicationCountTable.h>
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -1181,14 +1176,18 @@ private:
         @param   nameSpace                   The generated indication namespace 
         @param   indicationProvider          The provider which generated 
                                              the indication 
-
-        @return   list of CIMInstance subscriptions
+        @param   subscriptions               Output Array of subscription
+                                             instances
+        @param   subscriptionKeys            Output Array of keys associated
+                                             with the subscriptions
     */
-    Array<CIMInstance> _getRelevantSubscriptions(
+    void _getRelevantSubscriptions(
         const Array<CIMObjectPath> & providedSubscriptionNames,
         const CIMName& className,
         const CIMNamespaceName& nameSpace, 
-        const CIMInstance& indicationProvider);
+        const CIMInstance& indicationProvider,
+        Array<CIMInstance>& subscriptions,
+        Array<String>& subscriptionKeys);
 
     /**
         Evaluate if the specified subscription matches the indication based on:
@@ -1263,6 +1262,10 @@ private:
     SubscriptionRepository* _subscriptionRepository;
 
     SubscriptionTable * _subscriptionTable;
+
+#ifdef PEGASUS_ENABLE_INDICATION_COUNT
+    ProviderIndicationCountTable _providerIndicationCountTable;
+#endif
 
     /**
         Handle to Provider Registration Manager

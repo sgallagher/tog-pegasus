@@ -178,6 +178,7 @@ void _generateIndication(
         }
 
         if ((methodName.equal("SendTestIndicationNormal")) ||
+            (methodName.equal("SendTestIndicationsCount")) ||
             (methodName.equal("SendTestIndicationSubclass")) ||
             (methodName.equal("SendTestIndicationMissingProperty")) ||
             (methodName.equal("SendTestIndicationExtraProperty")) ||
@@ -290,6 +291,7 @@ void _generateIndication(
         //  Only deliver extra indication with trapOid for SendTestIndication
         //
         if ((!methodName.equal("SendTestIndicationNormal")) &&
+            (!methodName.equal("SendTestIndicationsCount")) &&
             (!methodName.equal("SendTestIndicationTrap")) &&
             (!methodName.equal("SendTestIndicationSubclass")) &&
             (!methodName.equal("SendTestIndicationMissingProperty")) &&
@@ -378,7 +380,8 @@ void IndicationTestProvider::invokeMethod(
             sendIndication = true;
             handler.deliver(CIMValue(0));
         }
-        else if (methodName.equal("SendTestIndicationTrap"))
+        else if ((methodName.equal("SendTestIndicationTrap")) ||
+                 (methodName.equal("SendTestIndicationsCount")))
         {
             inParameters[0].getValue().get(indicationSendCount);
             sendIndication = true;

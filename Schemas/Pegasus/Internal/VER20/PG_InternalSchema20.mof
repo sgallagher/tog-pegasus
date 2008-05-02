@@ -35,4 +35,5 @@
 #pragma include ("PG_ShutdownService20.mof")
 #pragma include ("PG_SSLCertificate20.mof")
 #pragma include ("PG_SSLCertificateRevocationList20.mof")
+#pragma include ("PG_GeneratedIndicationData20.mof")
 

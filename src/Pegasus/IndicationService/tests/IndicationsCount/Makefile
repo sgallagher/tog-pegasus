@@ -28,44 +28,27 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = ../../..
-
-DIR = Pegasus/IndicationService
-
+ROOT = ../../../../..
+DIR = Pegasus/IndicationService/tests/IndicationsCount
 include $(ROOT)/mak/config.mak
+include ../libraries.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LOCAL_DEFINES = -DPEGASUS_SERVER_INTERNAL -DPEGASUS_INTERNALONLY
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-STATIC=1
-LIBRARY = pegindicationservice
+PROGRAM = TestIndicationsCount
 
-LIBRARIES = \
-    pegcommon \
-    pegprovider \
-    pegrepository \
-    pegprm \
-    pegwql \
-    pegquerycommon \
-    pegqueryexpression \
-    pegconfig
+SOURCES = IndicationsCount.cpp
 
-SOURCES = \
-    IndicationOperationAggregate.cpp \
-    SubscriptionRepository.cpp \
-    SubscriptionTable.cpp \
-    IndicationService.cpp \
-    IndicationConstants.cpp \
-    NormalizedSubscriptionTable.cpp
+include $(ROOT)/mak/program.mak
 
-ifeq ($(PEGASUS_ENABLE_INDICATION_COUNT),true)
-    SOURCES += \
-        ProviderIndicationCountTable.cpp
-endif
+tests:
 
-ifeq ($(OS_TYPE),windows)
-SYS_LIBS = ws2_32.lib advapi32.lib
-endif
+poststarttests:
+	@cimprovider -d -m IndicationTestProviderModule
+	@cimprovider -e -m IndicationTestProviderModule
+	@$(PROGRAM)
 
-include $(ROOT)/mak/library.mak
+cleanup:
+	@$(PROGRAM) cleanup

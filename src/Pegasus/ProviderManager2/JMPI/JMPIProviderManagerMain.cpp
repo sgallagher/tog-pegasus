@@ -83,7 +83,7 @@ extern "C" PEGASUS_EXPORT const char ** getProviderManagerInterfaceNames()
 extern "C" PEGASUS_EXPORT const char ** getProviderManagerInterfaceVersions(
     const char *providerManagerName)
 {
-    if (Pegasus::String::equalNoCase(String(providerManagerName), "JMPI"))
+    if (String::equalNoCase(String(providerManagerName), "JMPI"))
     {
         return ifcVersionsJMPI;
     }

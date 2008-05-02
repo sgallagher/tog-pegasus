@@ -65,3 +65,38 @@ extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
 
     return 0;
 }
+
+
+const char *ifcNames[] = {"JMPI", "JMPIExperimental", NULL};
+const char *ifcVersionsJMPI[] = {"1.0.0", "2.0.0", "2.2.0", NULL};
+const char *ifcVersionsJMPIExp[] = {"0.0.1", NULL};
+const char *ifcVersionsNone[] = {NULL};
+
+///////////////////////////////////////////////////////////////////////////////
+extern "C" PEGASUS_EXPORT const char ** getProviderManagerInterfaceNames()
+{
+    return ifcNames;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+extern "C" PEGASUS_EXPORT const char ** getProviderManagerInterfaceVersions(
+    const char *providerManagerName)
+{
+    if (Pegasus::String::equalNoCase(String(providerManagerName), "JMPI"))
+    {
+        return ifcVersionsJMPI;
+    }
+    else if (Pegasus::String::equalNoCase(String(providerManagerName), 
+        "JMPIExperimental"))
+    {
+        return ifcVersionsJMPIExp;
+    }
+    return ifcVersionsNone;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+PEGASUS_GET_VERSION_FUNC; 
+
+

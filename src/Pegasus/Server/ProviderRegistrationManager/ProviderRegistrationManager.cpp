@@ -50,6 +50,8 @@
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/MessageLoader.h>
 
+#include <Pegasus/Server/ProviderRegistrationManager/ProviderManagerMap.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 /**
@@ -1772,25 +1774,8 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                 posVersion == PEG_NOT_FOUND || version.size() == 0 ||
                 posInterfaceType == PEG_NOT_FOUND ||
                 posInterfaceVersion == PEG_NOT_FOUND ||
-                !(((interfaceType == "C++Default") &&
-                   ((interfaceVersion == "2.1.0") ||
-                    (interfaceVersion == "2.2.0") ||
-                    (interfaceVersion == "2.3.0") ||
-                    (interfaceVersion == "2.5.0") ||
-                    (interfaceVersion == "2.6.0")))
-#ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-                  || ((interfaceType == "CMPI") &&
-                      (interfaceVersion == "2.0.0"))
-#endif
-#ifdef PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
-                  || ((interfaceType == "JMPI") &&
-                      (interfaceVersion == "1.0.0") ||
-                      (interfaceVersion == "2.0.0") ||
-                      (interfaceVersion == "2.2.0"))
-                  || ((interfaceType == "JMPIExperimental") &&
-                      (interfaceVersion == "0.0.1"))
-#endif
-                 ) ||
+                !ProviderManagerMap::instance().isValidProvMgrIfc(
+                    interfaceType, interfaceVersion) ||
                 posLocation == PEG_NOT_FOUND || location.size() == 0
 #ifdef PEGASUS_DISABLE_PROV_USERCTXT
                 || (userContextSpecified &&

@@ -43,6 +43,8 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/CIMNameUnchecked.h>
 
+#include <Pegasus/Server/ProviderRegistrationManager/ProviderManagerMap.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 /**
@@ -399,15 +401,9 @@ void ProviderRegistrationProvider::createInstance(
         instanceObject.getProperty(ifcTypeIndex).getValue().
             get(ifcTypeString);
 
-        if (ifcTypeString != "C++Default"
-#ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-            && ifcTypeString != "CMPI"
-#endif
-#ifdef PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
-            && (ifcTypeString != "JMPI")
-            && (ifcTypeString != "JMPIExperimental")
-#endif
-                )
+        String ifcEmptyVersion;
+        if (!ProviderManagerMap::instance().
+                isValidProvMgrIfc(ifcTypeString, ifcEmptyVersion))
         {
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
                 MessageLoaderParms(
@@ -431,32 +427,18 @@ void ProviderRegistrationProvider::createInstance(
         String ifcVersionString;
         instanceObject.getProperty(ifcVersionIndex).getValue().
             get(ifcVersionString);
-        if (
-#ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-           (ifcTypeString == "CMPI" &&
-            ifcVersionString != "2.0.0") ||
-#endif
-#ifdef PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
-           (ifcTypeString == "JMPI" &&
-            ifcVersionString != "1.0.0" &&
-            ifcVersionString != "2.0.0" &&
-            ifcVersionString != "2.2.0") ||
-           (ifcTypeString == "JMPIExperimental" &&
-            ifcVersionString != "0.0.1") ||
-#endif
-           (ifcTypeString == "C++Default" &&
-            ifcVersionString != "2.1.0" &&
-            ifcVersionString != "2.2.0" &&
-            ifcVersionString != "2.3.0" &&
-            ifcVersionString != "2.5.0" &&
-            ifcVersionString != "2.6.0"))
+        
+        if (!ProviderManagerMap::instance().isValidProvMgrIfc(
+                    ifcTypeString, ifcVersionString))
         {
-        String unsupported = "InterfaceVersion";
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,MessageLoaderParms(
-                "ControlProviders.ProviderRegistrationProvider."
+            String unsupported = "InterfaceVersion";
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
+                MessageLoaderParms(
+                    "ControlProviders.ProviderRegistrationProvider."
                     "ProviderRegistrationProvider."
                     "UNSUPPORTED_INTERFACEVERSION_VALUE",
-                "Unsupported InterfaceVersion value: \"$0\"",ifcVersionString));
+                    "Unsupported InterfaceVersion value: \"$0\"",
+                ifcVersionString));
         }
 
         if (instanceObject.findProperty(_PROPERTY_LOCATION) == PEG_NOT_FOUND)

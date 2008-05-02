@@ -457,19 +457,26 @@ String FileSystem::buildLibraryFileName(const String &libraryName)
     //
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
     fileName = libraryName + String(".dll");
-#elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
-    fileName = String("lib") + libraryName + String(".sl");
-#elif defined(PEGASUS_OS_DARWIN)
-    fileName = String("lib") + libraryName + String(".dylib");
-#elif defined(PEGASUS_OS_VMS)
-    fileName = String("lib") + libraryName + String(".exe");
 #else
-    fileName = String("lib") + libraryName + String(".so");
+    fileName = String("lib") + libraryName + getDynamicLibraryExtension();
 #endif
-
     return fileName;
 }
 
+String FileSystem::getDynamicLibraryExtension()
+{
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+    return String(".dll");
+#elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+    return String(".sl");
+#elif defined(PEGASUS_OS_DARWIN)
+    return String(".dylib");
+#elif defined(PEGASUS_OS_VMS)
+    return String(".exe");
+#else
+    return String(".so");
+#endif
+}
 
 Boolean GetLine(PEGASUS_STD(istream)& is, String& line)
 {

@@ -78,7 +78,9 @@ preinstall: FORCE
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release prestage_verifyInstallEnabled
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusDirectories 
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusFiles 
-	
+
+PEGASUS_PROVIDER_MANAGERS =
+
 PEGASUS_LIBRARIES = \
    libCIMxmlIndicationHandler \
    libConfigSettingProvider \
@@ -119,9 +121,11 @@ endif
 
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 PEGASUS_LIBRARIES += \
-   libCMPIProviderManager \
    libcmpiCppImpl
+PEGASUS_PROVIDER_MANAGERS += \
+ 	libCMPIProviderManager
 endif
+
 
 ifdef PEGASUS_USE_NET_SNMP
    PEGASUS_LIBRARIES += \
@@ -141,9 +145,12 @@ PEGASUS_LIBRARY_LINKS = \
    libCIMxmlIndicationHandler
 
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-PEGASUS_LIBRARY_LINKS += \
+PEGASUS_PROVIDER_MANAGER_LINKS += \
    libCMPIProviderManager
 endif
+
+
+
 
 ifdef PEGASUS_USE_NET_SNMP
 PEGASUS_LIBRARY_LINKS += \
@@ -266,11 +273,13 @@ stage_PegasusProductDirectories: FORCE
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_DIR)
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)
+	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_MANAGER_LIB_DIR)
 
 setpermissions_PegasusProductDirectories: FORCE
 	$(foreach i, $(PEGASUS_SPECIFIC_DIRECTORIES), $(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(i);)
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_DIR)
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)
+	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_MANAGER_LIB_DIR)
 
 stage_PegasusSocketDirectory: FORCE
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)
@@ -302,6 +311,13 @@ stage_PegasusProviderLibraryDirectoryFiles: FORCE
 
 setpermissions_PegasusProviderLibraryDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_PROVIDERS), $(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_SUFFIX);)
+
+stage_PegasusProviderManagerLibraryDirectoryFiles: FORCE
+	$(foreach i, $(PEGASUS_PROVIDER_MANAGERS), $(COPY) $(PEGASUS_HOME)/lib/$(i)$(LIB_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_MANAGER_LIB_DIR)/$(i)$(LIB_SUFFIX);)
+	$(foreach i, $(PEGASUS_PROVIDER_MANAGER_LINKS), $(MAKE) --directory=${ROOT} -f Makefile.Release createlink OBJECT=$(i)$(LIB_SUFFIX) LINKNAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_MANAGER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX);)
+
+setpermissions_PegasusProviderManagerLibraryDirectoryFiles: FORCE
+	$(foreach i, $(PEGASUS_PROVIDER_MANAGERS), $(MAKE) --directory=${ROOT} -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_MANAGER_LIB_DIR)/$(i)$(LIB_SUFFIX);)
 
 stage_PegasusAdminCmdsDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_ADMIN_CMDS), $(COPY) $(PEGASUS_HOME)/bin/$(i)$(EXE) $(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i)$(EXE);)
@@ -406,6 +422,7 @@ setpermissions_PegasusDirectories: FORCE
 stage_PegasusFiles: FORCE
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusLibraryDirectoryFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusProviderLibraryDirectoryFiles
+	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusProviderManagerLibraryDirectoryFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusAdminCmdsDirectoryFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusUserCmdsDirectoryFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusVarDataDirectoryFiles
@@ -418,6 +435,7 @@ stage_PegasusFiles: FORCE
 setpermissions_PegasusFiles: FORCE
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusLibraryDirectoryFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusProviderLibraryDirectoryFiles
+	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusProviderManagerLibraryDirectoryFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusAdminCmdsDirectoryFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusUserCmdsDirectoryFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusVarDataDirectoryFiles
@@ -570,6 +588,9 @@ ifdef PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS
 	@$(ECHO-E) "# define PEGASUS_PROVIDER_LIB_DIR"  \
              "\""$(PEGASUS_PROVIDER_LIB_DIR)"\"" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
+	@$(ECHO-E) "# define PEGASUS_PROVIDER_MANAGER_LIB_DIR"  \
+             "\""$(PEGASUS_PROVIDER_MANAGER_LIB_DIR)"\"" \
+             >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "" \
              >> $(ROOT)/src/Pegasus/Config/ProductDirectoryStructure.h
 	@$(ECHO-E) "#endif /* Config_Product_Directory_Structure_h */ " \
@@ -592,6 +613,8 @@ create_ProductInstallationVerificationScript: FORCE
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(ECHO-E) "ls -ld $(PEGASUS_PROVIDER_LIB_DIR)" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
+	@$(ECHO-E) "ls -ld $(PEGASUS_PROVIDER_MANAGER_LIB_DIR)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(ECHO-E) "ls -ld $(PEGASUS_REPOSITORY_DIR)" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(ECHO-E) "ls -ld $(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)" \
@@ -608,6 +631,12 @@ create_ProductInstallationVerificationScript: FORCE
              >> $(PEGASUS_HOME)/PegasusVerifyInstall;)
 	@$(foreach i, $(PEGASUS_LIBRARY_LINKS), $(ECHO-E) \
              "ls -l $(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyInstall;)
+	@$(foreach i, $(PEGASUS_PROVIDER_MANAGERS), $(ECHO-E) \
+             "ls -l $(PEGASUS_PROVIDER_MANAGER_LIB_DIR)/$(i)$(LIB_SUFFIX)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyInstall;)
+	@$(foreach i, $(PEGASUS_PROVIDER_MANAGER_LINKS), $(ECHO-E) \
+             "ls -l $(PEGASUS_PROVIDER_MANAGER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall;)
 	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS PACKAGED PROVIDER FILES\"" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall

@@ -148,6 +148,8 @@ static struct OwnerEntry _properties[] =
          (ConfigPropertyOwner*)&ConfigManager::shutdownOwner},
     {"repositoryDir",
          (ConfigPropertyOwner*)&ConfigManager::fileSystemOwner},
+    {"providerManagerDir",
+         (ConfigPropertyOwner*)&ConfigManager::fileSystemOwner},
     {"providerDir",
          (ConfigPropertyOwner*)&ConfigManager::providerDirOwner},
     {"enableRemotePrivilegedUserAccess",

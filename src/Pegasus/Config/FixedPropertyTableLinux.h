@@ -64,6 +64,7 @@
 #  endif
     {"repositoryDir",        PEGASUS_REPOSITORY_DIR},
     {"providerDir", PEGASUS_PROVIDER_LIB_DIR ":/usr/" PEGASUS_ARCH_LIB "/cmpi"},
+    {"providerManagerDir",   PEGASUS_PROVIDER_MANAGER_LIB_DIR},
 # else /* PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS */
     {"traceFilePath",       "/var/opt/tog-pegasus/cache/trace/cimserver.trc"},
 #  if !defined(PEGASUS_USE_SYSLOGS)
@@ -81,6 +82,7 @@
 #  else
     {"providerDir",         "/opt/tog-pegasus/providers/lib"},
 #  endif
+    {"providerManagerDir",  "/opt/tog-pegasus/providermanagers"},
     {"messageDir",          "/opt/tog-pegasus/share/locale/ICU_Messages"},
 # endif /* PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS */
 #endif /* defined(PEGASUS_USE_RELEASE_DIRS) */

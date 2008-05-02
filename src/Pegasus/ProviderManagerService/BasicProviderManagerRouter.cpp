@@ -43,9 +43,6 @@
 #include <Pegasus/ProviderManagerService/ProviderManagerModule.h>
 #include <Pegasus/ProviderManager2/ProviderManager.h>
 
-// ProviderManager library names.  Should these be defined elsewhere?
-#define LIBRARY_NAME_CMPIPM    "CMPIProviderManager"
-#define LIBRARY_NAME_JMPIPM    "JMPIProviderManager"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -73,8 +70,9 @@ public:
     _physicalName = ConfigManager::getHomedPath(provDir) + "/" +
                        FileSystem::buildLibraryFileName(physicalName);
 #else
-        _physicalName = ConfigManager::getHomedPath(PEGASUS_DEST_LIB_DIR) +
-            String("/") + FileSystem::buildLibraryFileName(physicalName);
+        _physicalName = physicalName;  // providerMgrPath comes with full path
+        //_physicalName = ConfigManager::getHomedPath(PEGASUS_DEST_LIB_DIR) +
+        //    String("/") + FileSystem::buildLibraryFileName(physicalName);
 #endif
 
         _logicalName = logicalName;
@@ -313,12 +311,23 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
         CIMValue nameValue = providerModule.getProperty(
             providerModule.findProperty("Name")).getValue();
         nameValue.get(providerModuleName); 
+        // Get providerManager path
+        String provMgrPath;
+        if (request->operationContext.contains(ProviderIdContainer::NAME))
+        {
+            ProviderIdContainer pidc = (ProviderIdContainer)
+            request->operationContext.get(ProviderIdContainer::NAME);
+            provMgrPath = pidc.getProvMgrPath();
+        }
+
         ProviderManager* pm = 0;
         Boolean gotError = false;
         try
         {
             // Look up the appropriate ProviderManager by InterfaceType
-            pm = _getProviderManager(interfaceType, providerModuleName);
+
+            pm = _getProviderManager(interfaceType, providerModuleName, 
+                provMgrPath);
         }
         catch (const CIMException& e)
         {
@@ -351,7 +360,9 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
 
 // ATTN: May need to add interfaceVersion parameter to further constrain lookup
 ProviderManager* BasicProviderManagerRouter::_getProviderManager(
-    const String& interfaceType, const String& providerModuleName)
+    const String& interfaceType, 
+    const String& providerModuleName,
+    const String& providerManagerPath)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "BasicProviderManagerRouter::_getProviderManager");
@@ -408,37 +419,22 @@ ProviderManager* BasicProviderManagerRouter::_getProviderManager(
         }
 #endif
 
-#if defined(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER)
-        if (interfaceType == "CMPI")
-        {
-            ProviderManagerContainer* pmc = new ProviderManagerContainer(
-                LIBRARY_NAME_CMPIPM,
-                "CMPI",
-                "CMPI",
-                _indicationCallback,
-                _responseChunkCallback,
-                _subscriptionInitComplete);
-            _providerManagerTable.append(pmc);
-            return pmc->getProviderManager();
-        }
-#endif
+        // re ATTN note above:  This has been refactored to now read in all
+        // provider managers from known directory.
+        // This allows a new provider manager type to be dropped in 
+        // (plugin-style)
+        // into this directory to start handling a new provider manager 
+        // interface
+        ProviderManagerContainer* pmc = new ProviderManagerContainer(
+            providerManagerPath,
+            interfaceType,
+            interfaceType,
+            _indicationCallback,
+            _responseChunkCallback,
+            _subscriptionInitComplete);
+        _providerManagerTable.append(pmc);
+        return pmc->getProviderManager();
 
-#if defined(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER)
-        if (  interfaceType == "JMPI"
-           || interfaceType == "JMPIExperimental"
-           )
-        {
-            ProviderManagerContainer* pmc = new ProviderManagerContainer(
-                LIBRARY_NAME_JMPIPM,
-                interfaceType,
-                interfaceType,
-                _indicationCallback,
-                _responseChunkCallback,
-                _subscriptionInitComplete);
-            _providerManagerTable.append(pmc);
-            return pmc->getProviderManager();
-        }
-#endif
         // END TEMP SECTION
     }
 

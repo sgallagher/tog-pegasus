@@ -61,6 +61,7 @@
     {"logdir",              "/wbem_var/opt/wbem/logs"},
     {"repositoryDir",       "/wbem_var/opt/wbem/repository"},
     {"providerDir",         "/wbem_lib"},
+    {"providerManagerDir",  "/wbem_lib"},
 #else
     {"traceFilePath",       "trace/cimserver.trc"},
     {"logdir",              "logs"},

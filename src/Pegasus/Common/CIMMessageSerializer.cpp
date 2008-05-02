@@ -664,6 +664,7 @@ void CIMMessageSerializer::_serializeOperationContext(
         _serializeCIMInstance(out, container.getProvider());
         XmlWriter::appendValueElement(out, container.isRemoteNameSpace());
         XmlWriter::appendValueElement(out, container.getRemoteInfo());
+        XmlWriter::appendValueElement(out, container.getProvMgrPath());
         XmlWriter::append(out, "</PGOCPI>\n");
     }
 

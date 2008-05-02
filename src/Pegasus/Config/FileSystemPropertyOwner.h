@@ -189,6 +189,8 @@ private:
     AutoPtr<struct ConfigProperty> _repositoryDir;
 
     AutoPtr<struct ConfigProperty> _messageDir;
+
+    AutoPtr<struct ConfigProperty> _providerManagerDir;
 };
 
 PEGASUS_NAMESPACE_END

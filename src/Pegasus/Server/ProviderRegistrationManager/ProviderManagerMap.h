@@ -1,4 +1,4 @@
-//%2006////////////////////////////////////////////////////////////////////////
+//%2008////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -10,6 +10,8 @@
 // EMC Corporation; VERITAS Software Corporation; The Open Group.
 // Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
 // EMC Corporation; Symantec Corporation; The Open Group.
+// Copyright (c) 2008 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; Novell, Inc.; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -31,49 +33,49 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "CMPI_Version.h"
+#ifndef Pegasus_ProviderManagerMap_h
+#define Pegasus_ProviderManagerMap_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/Mutex.h>
+#include <Pegasus/Server/ProviderRegistrationManager/Linkage.h>
 
-#include "CMPIProviderManager.h"
+PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_USING_STD;
-PEGASUS_USING_PEGASUS;
-
-extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
-    const String & providerManagerName)
+class PEGASUS_PRM_LINKAGE ProviderManagerMap
 {
-    if (String::equalNoCase(providerManagerName, "CMPI"))
-    {
-        return(new CMPIProviderManager());
-    }
-    return(0);
-}
+    public:
+        static ProviderManagerMap& instance();
+        bool isValidProvMgrIfc(String &ifcType, String &ifcVersion);
+        bool getProvMgrPathForIfcType(String &ifcType,
+            String &ifcVersion,
+            String &path);
+        
+    private:
+        typedef struct __PROV_MGR_IFC_INFO_S
+        {
+            String path;
+            String ifcName;
+            Array<String> ifcVersions;
+        } ProvMgrIfcInfo;
+        Array<ProvMgrIfcInfo> _pmArray;
 
 
-const char *ifcNames[] = {"CMPI", NULL};
-const char *ifcVersionsCMPI[] = {"2.0.0", NULL};
-const char *ifcVersionsNone[] = {NULL};
+        ProviderManagerMap();
+        ~ProviderManagerMap();
+        ProviderManagerMap(const ProviderManagerMap&);
+        ProviderManagerMap& operator=(const ProviderManagerMap&);
 
-///////////////////////////////////////////////////////////////////////////////
-extern "C" PEGASUS_EXPORT const char ** getProviderManagerInterfaceNames()
-{
-    return ifcNames;
-}
+        void initialize();
+
+        bool _bInitialized;
+};
+
+PEGASUS_NAMESPACE_END
 
 
-///////////////////////////////////////////////////////////////////////////////
-extern "C" PEGASUS_EXPORT const char ** getProviderManagerInterfaceVersions(
-    const char *providerManagerName)
-{
-    if (Pegasus::String::equalNoCase(String(providerManagerName), "CMPI"))
-    {
-        return ifcVersionsCMPI;
-    }
-    return ifcVersionsNone;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-PEGASUS_GET_VERSION_FUNC; 
-
+#endif

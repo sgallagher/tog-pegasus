@@ -66,6 +66,7 @@
     {"repositoryDir",       PEGASUS_REPOSITORY_DIR},
     {"providerDir",         "/opt/wbem/providers/lib"},
     {"messageDir",         "/opt/wbem/share/locale/ICU_Messages"},
+    {"providerManagerDir",   "/opt/wbem/lib"},
 #endif
 
 #if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && \

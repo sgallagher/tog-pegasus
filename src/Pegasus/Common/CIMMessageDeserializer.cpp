@@ -698,6 +698,7 @@ void CIMMessageDeserializer::_deserializeOperationContext(
         CIMInstance provider;
         Boolean isRemoteNameSpace;
         String remoteInfo;
+        String provMgrPath;
 
         _deserializeCIMInstance(parser, module);
         _deserializeCIMInstance(parser, provider);
@@ -708,8 +709,15 @@ void CIMMessageDeserializer::_deserializeOperationContext(
         XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
         genericValue.get(remoteInfo);
 
-        operationContext.insert(ProviderIdContainer(
-            module, provider, isRemoteNameSpace, remoteInfo));
+        XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+        genericValue.get(provMgrPath);
+
+        ProviderIdContainer pidc = ProviderIdContainer(module, 
+                                                      provider, 
+                                                      isRemoteNameSpace, 
+                                                      remoteInfo);
+        pidc.setProvMgrPath(provMgrPath);
+        operationContext.insert(pidc);
         XmlReader::expectEndTag(parser, "PGOCPI");
     }
 

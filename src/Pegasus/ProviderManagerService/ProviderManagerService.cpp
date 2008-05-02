@@ -49,11 +49,14 @@
 #include <Pegasus/ProviderManagerService/BasicProviderManagerRouter.h>
 #include <Pegasus/ProviderManagerService/OOPProviderManagerRouter.h>
 
+#include <Pegasus/Server/ProviderRegistrationManager/ProviderManagerMap.h>
+
 #ifdef PEGASUS_ZOS_SECURITY
 // This include file will not be provided in the OpenGroup CVS for now.
 // Do NOT try to include it in your compile
 #include <Pegasus/ProviderManager2/ProviderManagerzOS_inline.h>
 #endif
+
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -725,6 +728,24 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
             ProviderIdContainer pidc =
                 request->operationContext.get(ProviderIdContainer::NAME);
             providerModule = pidc.getModule();
+
+            String interfaceType;
+            String interfaceVersion;
+            CIMValue itValue = providerModule.getProperty(
+                providerModule.findProperty("InterfaceType")).getValue();
+            CIMValue ivValue = providerModule.getProperty(
+                providerModule.findProperty("InterfaceVersion")).getValue();
+            itValue.get(interfaceType);
+            ivValue.get(interfaceVersion);
+
+            String provMgrPath;
+            ProviderManagerMap::instance().getProvMgrPathForIfcType(
+                interfaceType, interfaceVersion, provMgrPath);
+
+            pidc.setProvMgrPath(provMgrPath);
+
+            request->operationContext.set(pidc);
+
 #ifdef PEGASUS_ZOS_SECURITY
             if (request->getType() != CIM_EXPORT_INDICATION_REQUEST_MESSAGE)
             {

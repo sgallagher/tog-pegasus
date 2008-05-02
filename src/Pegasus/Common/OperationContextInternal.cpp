@@ -148,6 +148,7 @@ ProviderIdContainer& ProviderIdContainer::operator=(
     _provider = container._provider;
     _isRemoteNameSpace = container._isRemoteNameSpace;
     _remoteInfo = container._remoteInfo;
+    _provMgrPath = container._provMgrPath;
 
     return *this;
 }
@@ -185,6 +186,16 @@ Boolean ProviderIdContainer::isRemoteNameSpace() const
 String ProviderIdContainer::getRemoteInfo() const
 {
     return _remoteInfo;
+}
+
+String ProviderIdContainer::getProvMgrPath() const
+{
+    return _provMgrPath;
+}
+
+void ProviderIdContainer::setProvMgrPath(String &path)
+{
+    _provMgrPath = path;
 }
 
 //

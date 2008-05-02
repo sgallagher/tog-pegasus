@@ -99,12 +99,15 @@ public:
     CIMInstance getProvider() const;
     Boolean isRemoteNameSpace() const;
     String getRemoteInfo() const;
+    String getProvMgrPath() const;
+    void setProvMgrPath(String &path);
 
 protected:
     CIMInstance _module;
     CIMInstance _provider;
     Boolean _isRemoteNameSpace;
     String _remoteInfo;
+    String _provMgrPath;
 
 };
 

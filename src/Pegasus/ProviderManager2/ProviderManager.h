@@ -35,6 +35,7 @@
 #define Pegasus_ProviderManager_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/CIMMessage.h>
 
 #include <Pegasus/ProviderManager2/Linkage.h>
@@ -97,5 +98,11 @@ protected:
 };
 
 PEGASUS_NAMESPACE_END
+
+#define PEGASUS_GET_VERSION_FUNC \
+extern "C" PEGASUS_EXPORT Uint32 getPegasusVersion() \
+{ \
+    return PEGASUS_VERSION_NUMBER;  \
+}
 
 #endif

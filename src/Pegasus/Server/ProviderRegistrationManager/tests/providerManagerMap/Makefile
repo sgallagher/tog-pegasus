@@ -1,4 +1,4 @@
-#//%2006////////////////////////////////////////////////////////////////////////
+#//%2008////////////////////////////////////////////////////////////////////////
 #//
 #// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 #// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -10,6 +10,8 @@
 #// EMC Corporation; VERITAS Software Corporation; The Open Group.
 #// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
 #// EMC Corporation; Symantec Corporation; The Open Group.
+#// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; Symantec Corporation; Novell, Inc.; The Open Group.
 #//
 #// Permission is hereby granted, free of charge, to any person obtaining a copy
 #// of this software and associated documentation files (the "Software"), to
@@ -28,19 +30,22 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = ../../../../..
+ROOT = ../../../../../..
+DIR = Pegasus/Server/ProviderRegistrationManager/tests/providerManagerMap
+include $(ROOT)/mak/config.mak
+include ../libraries.mak
 
-#inlcude $(ROOT)/mak/config.mak
+EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-DIRS = \
-   createInstances \
-   deleteInstances \
-   modifyInstances \
-   lookupInstanceProvider \
-   lookupMethodProvider \
-   wildCardNamespaceNames \
-   providerManagerMap
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-#   lookupIndicationProvider \
+PROGRAM = TestProvidMgrPluginMap
 
-include $(ROOT)/mak/recurse.mak
+SOURCES = providerManagerMap.cpp
+
+include $(ROOT)/mak/program.mak
+
+tests:
+	@$(PROGRAM)
+
+poststarttests:

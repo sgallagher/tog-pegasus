@@ -56,5 +56,6 @@
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
     {"authorizedUserGroups",                          ""},
 #endif
+    {"providerManagerDir",                         "lib"},
     {"sslTrustStore",                  "cimserver_trust"}
 

@@ -65,6 +65,19 @@ static struct ConfigPropertyRow properties[] =
 #else
     {"messageDir", "msg", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+    {"providerManagerDir", "lib;bin", IS_STATIC, 0, 0, IS_VISIBLE},
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+    {"providerManagerDir", "lib:providermanager", IS_STATIC, 0, 0, IS_VISIBLE},
+#elif defined(PEGASUS_OS_PASE) && defined(PEGASUS_USE_RELEASE_DIRS)
+    {"providerManagerDir", 
+        "/QOpenSys/QIBM/ProdData/UME/Pegasus/providermanager", 
+        IS_STATIC, 0, 0, IS_VISIBLE}
+#elif defined(PEGASUS_OS_VMS)
+    {"providerManagerDir", "/wbem_lib", IS_STATIC, 0, 0, IS_VISIBLE},
+#else
+    {"providerManagerDir", "lib", IS_STATIC, 0, 0, IS_VISIBLE},
+#endif
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -75,6 +88,7 @@ FileSystemPropertyOwner::FileSystemPropertyOwner()
 {
     _repositoryDir.reset(new ConfigProperty);
     _messageDir.reset(new ConfigProperty);
+    _providerManagerDir.reset(new ConfigProperty);
 }
 
 
@@ -124,6 +138,19 @@ void FileSystemPropertyOwner::initialize()
             _messageDir->domainSize = properties[i].domainSize;
             _messageDir->externallyVisible = properties[i].externallyVisible;
         }
+        else if (String::equalNoCase(properties[i].propertyName, 
+                 "providerManagerDir"))
+        {
+            _providerManagerDir->propertyName = properties[i].propertyName;
+            _providerManagerDir->defaultValue = properties[i].defaultValue;
+            _providerManagerDir->currentValue = properties[i].defaultValue;
+            _providerManagerDir->plannedValue = properties[i].defaultValue;
+            _providerManagerDir->dynamic = properties[i].dynamic;
+            _providerManagerDir->domain = properties[i].domain;
+            _providerManagerDir->domainSize = properties[i].domainSize;
+            _providerManagerDir->externallyVisible = 
+                                           properties[i].externallyVisible;
+        }
     }
 }
 
@@ -138,10 +165,11 @@ struct ConfigProperty* FileSystemPropertyOwner::_lookupConfigProperty(
     {
         return _messageDir.get();
     }
-    else
+    if (String::equalNoCase(_providerManagerDir->propertyName, name))
     {
-        throw UnrecognizedConfigProperty(name);
+        return _providerManagerDir.get();
     }
+    throw UnrecognizedConfigProperty(name);
 }
 
 /**

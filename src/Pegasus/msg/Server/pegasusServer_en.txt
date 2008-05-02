@@ -7020,6 +7020,53 @@ CIM server listening on HTTPS port {0}."}
         WsmServer.CimToWsmResponseMapper.EMBEDDED_CLASS_NOT_SUPPORTED:string {"PGS21000: Embedded class objects in WS-Management responses are not supported."}
 
 
+        // ==========================================================
+        // Messages for ProviderManagerMap
+        //  Please use message prefix "PGS21200 - PGS21399"
+        // ==========================================================
+
+        /**
+        *  @note PGS21200
+        *     Substitution {0} is a file name (a string)
+        *     Substitution {1} is a system error message
+        *  @version 2.8
+        */
+        Server.ProviderRegistrationManager.ProviderManagerMap.LOAD_ERROR:string {"PGS21200: Error loading library {0}: {1}."}
+
+        /**
+        *  @note PGS21201
+        *     Substitution {0} is a file name (a string)
+        *     Substitution {1} is a version number (a number)
+        *     Substitution {2} is a version number (a number)
+        *  @version 2.8
+        */
+        Server.ProviderRegistrationManager.ProviderManagerMap.WRONG_VERSION:string {"PGS21201: Provider Manager {0} returned Pegasus version {1}.  Expected {2}."}
+
+        /**
+        *  @note PGS21202
+        *     Substitution {0} is a file name (a string)
+        *     DO NOT TRANSLATE "getProviderManagerInterfaceNames"
+        *  @version 2.8
+        */
+        Server.ProviderRegistrationManager.ProviderManagerMap.MISSING_GET_IFC_NAMES:string {"PGS21202: Provider Manager {0} does not contain expected function 'getProviderManagerInterfaceNames'."}
+
+        /**
+        *  @note PGS21203
+        *     Substitution {0} is a file name (a string)
+        *     DO NOT TRANSLATE "getProviderManagerInterfaceVersions"
+        *  @version 2.8
+        */
+        Server.ProviderRegistrationManager.ProviderManagerMap.MISSING_GET_IFC_VERSIONS:string {"PGS21203: Provider Manager {0} does not contain expected function 'getProviderManagerInterfaceVersions'."}
+
+
+        /**
+        *  @note PGS21204
+        *     Substitution {0} is a file name (a string)
+        *     DO NOT TRANSLATE "getPegasusVersion"
+        *  @version 2.8
+        */
+        Server.ProviderRegistrationManager.ProviderManagerMap.MISSING_GET_PG_VERSION:string {"PGS21204: Library {0} does not contain expected function 'getPegasusVersion'."}
+
 // ==============================================================================
 // END OF RESOURCE BUNDLE
 // DO NOT ADD MESSAGES AFTER THE FOLLOWING '}'

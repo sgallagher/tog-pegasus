@@ -34,7 +34,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
 #include "cmpiPerf_TestClass.h"
 

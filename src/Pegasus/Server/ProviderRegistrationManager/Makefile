@@ -43,6 +43,7 @@ LIBRARY = pegprm
 
 LIBRARIES = \
     pegcommon \
+    pegconfig \
     pegprovider \
     pegrepository
 

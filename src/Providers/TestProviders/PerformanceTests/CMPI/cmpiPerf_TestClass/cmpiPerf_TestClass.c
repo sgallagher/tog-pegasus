@@ -84,14 +84,16 @@ CMPIInstance * _makeInst_TestClass(
     CMPIStatus * rc,
     unsigned int theKey)
 {
+    CMPIValue opstatus;
+    CMPIValue status;
     CMPIObjectPath * op     = NULL;
     CMPIInstance   * ci     = NULL;
     char * theName          = NULL;
     CMPIArray       *array  = NULL;
-    unsigned short   opstatus  = 0; /* Unknown */
     char     **keys      = NULL;
     int              keyCount  = 0;
-    unsigned short   status    = 2; /* Enabled */
+    opstatus.uint16 = 0; /* Unknown */
+    status.uint16 = 2;  /* Enabled */
 
 //
 // Initialize Name
@@ -159,15 +161,15 @@ CMPIInstance * _makeInst_TestClass(
 //
 // TBD: InstallDate
     array = CMNewArray(_broker,1,CMPI_uint16,rc);
-    CMSetArrayElementAt(array,0,(CMPIValue*)&(opstatus),CMPI_uint16);
+    CMSetArrayElementAt(array,0,&opstatus,CMPI_uint16);
     CMSetProperty(ci,"OperationalStatus",(CMPIValue*)&(array),CMPI_uint16A);
 
 //
 // Properties of CIM_EnabledLogicalElement
 //
-    CMSetProperty( ci, "EnabledState", (CMPIValue*)&(status), CMPI_uint16);
-    CMSetProperty( ci, "RequestedState", (CMPIValue*)&(status), CMPI_uint16);
-    CMSetProperty( ci, "EnabledDefault", (CMPIValue*)&(status), CMPI_uint16);
+    CMSetProperty( ci, "EnabledState", &status, CMPI_uint16);
+    CMSetProperty( ci, "RequestedState", &status, CMPI_uint16);
+    CMSetProperty( ci, "EnabledDefault", &status, CMPI_uint16);
 
 //
 // Properties of CIM_TestClass

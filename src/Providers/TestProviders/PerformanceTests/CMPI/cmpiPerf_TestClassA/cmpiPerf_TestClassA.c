@@ -51,7 +51,8 @@ CMPIObjectPath * _makePath_TestClassA(
     CMPIStatus * rc )
 {
    CMPIObjectPath * op = NULL;
-   int theKey=2;
+   CMPIValue theKey;
+   theKey.uint32 = 2;
 
    op=CMNewObjectPath(
        _broker,
@@ -86,9 +87,12 @@ CMPIInstance * _makeInst_TestClassA(
    CMPIObjectPath * op     = NULL;
    CMPIInstance   * ci     = NULL;
    CMPIArray       *array  = NULL;
-   unsigned short   opstatus  = 0; /* Unknown */
-   unsigned short   status    = 2; /* Enabled */
-   int theKey=2;
+   CMPIValue opstatus;
+   CMPIValue status;
+   opstatus.uint16 = 0; /* Unknown */
+   status.uint16 = 2;  /* Enabled */
+   CMPIValue theKey;
+   theKey.uint32 = 2;
 
    //
    // Construct ObjectPath
@@ -137,16 +141,16 @@ CMPIInstance * _makeInst_TestClassA(
    // Properties of CIM_ManagedSystemElement
    //
    array = CMNewArray(_broker,1,CMPI_uint16,rc);
-   CMSetArrayElementAt(array,0,(CMPIValue*)&(opstatus),CMPI_uint16);
+   CMSetArrayElementAt(array,0,&opstatus,CMPI_uint16);
    CMSetProperty(ci,"OperationalStatus",(CMPIValue*)&(array),CMPI_uint16A);
 
    //
    // Properties of CIM_EnabledLogicalElement
    //
-   CMSetProperty(ci,"EnabledState",(CMPIValue*)&(status),CMPI_uint16);
+   CMSetProperty(ci,"EnabledState",&status,CMPI_uint16);
    CMSetProperty(ci,"OtherEnabledState","NULL",CMPI_chars);
-   CMSetProperty(ci,"RequestedState",(CMPIValue*)&(status),CMPI_uint16);
-   CMSetProperty(ci,"EnabledDefault",(CMPIValue*)&(status),CMPI_uint16);
+   CMSetProperty(ci,"RequestedState",&status,CMPI_uint16);
+   CMSetProperty(ci,"EnabledDefault",&status,CMPI_uint16);
 
    //
    // Properties of CIM_TestClass

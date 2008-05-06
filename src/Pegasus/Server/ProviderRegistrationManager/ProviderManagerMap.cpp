@@ -148,8 +148,12 @@ void ProviderManagerMap::initialize()
         String filename = dir.getName();
         String lowerFilename = filename;
         lowerFilename.toLower();
-        if (lowerFilename.subString(lowerFilename.size()-testname.size())
-                == testname)
+        if ((lowerFilename.subString(lowerFilename.size()-testname.size()) ==
+                 testname) &&
+            (lowerFilename !=
+                 FileSystem::buildLibraryFileName("defaultprovidermanager")) &&
+            (lowerFilename !=
+                 FileSystem::buildLibraryFileName("pegprovidermanager")))
         {
             String fullPath = dirName + "/" + filename;
             // found a file... assume it's a ProviderManager library

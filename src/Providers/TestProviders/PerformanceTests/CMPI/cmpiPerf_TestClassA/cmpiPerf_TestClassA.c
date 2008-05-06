@@ -89,9 +89,9 @@ CMPIInstance * _makeInst_TestClassA(
    CMPIArray       *array  = NULL;
    CMPIValue opstatus;
    CMPIValue status;
+   CMPIValue theKey;
    opstatus.uint16 = 0; /* Unknown */
    status.uint16 = 2;  /* Enabled */
-   CMPIValue theKey;
    theKey.uint32 = 2;
 
    //

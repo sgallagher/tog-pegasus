@@ -62,14 +62,6 @@ ProviderManagerMap::ProviderManagerMap()
     initialize();
 }
 
-
-ProviderManagerMap::~ProviderManagerMap()
-{
-    // this should call destructor on all elements
-    _pmArray.clear();
-}
-
-
 bool ProviderManagerMap::isValidProvMgrIfc(String &ifcType, String &ifcVersion)
 {
     for (Uint32 ifc=0; ifc<_pmArray.size(); ifc++)

@@ -66,7 +66,6 @@ class PEGASUS_PRM_LINKAGE ProviderManagerMap
 
 
         ProviderManagerMap();
-        ~ProviderManagerMap();
         ProviderManagerMap(const ProviderManagerMap&);
         ProviderManagerMap& operator=(const ProviderManagerMap&);
 

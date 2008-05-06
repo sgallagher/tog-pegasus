@@ -40,13 +40,21 @@
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/LanguageParser.h>
 #include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/ThreadPool.h>
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/InternalException.h>
 
+#include <Pegasus/Common/Tracer.h>
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
+
+static bool verbose = true;
+static const char* defaultResourceBundle = "de";
+static bool testRootBundle = false;
+static Semaphore threadSync(0);
 
 void testLanguageParser()
 {
@@ -537,6 +545,61 @@ void testLanguageTag()
         exit(1);
     }
 }
+
+#ifdef PEGASUS_HAS_ICU
+
+void testSUCCESSMessage(MessageLoaderParms &mlp, const char * expectedLanguage,
+    const char * expectedText, const char * expectedNum,
+        char * testSeq, Uint32 testNum)
+{
+    const Uint32 MESSAGE_SIZE = 100;
+    char messageText[MESSAGE_SIZE];
+    
+    sprintf(messageText,
+        ((expectedLanguage == "ROOT") ?
+            "CIM_ERR_SUCCESS: SUCCESSFUL %s %s, NUMBER = %s" : 
+            "CIM_ERR_SUCCESS: SUCCESSFUL %s %s, number = %s"),
+            expectedLanguage,
+            ((expectedText == NULL) ? "testMessageLoaderCL" : expectedText),
+            ((expectedNum == NULL) ? "1" : expectedNum));
+    if (verbose)
+    {
+        cout << "TestID: " << testSeq <<  testNum << endl;
+        cout << "Expected: " << messageText << endl;
+        cout << "Message:  " << MessageLoader::getMessage(mlp) << endl;
+        cout << "CL: " 
+             << LanguageParser::buildContentLanguageHeader(
+                 mlp.contentlanguages) << endl;
+    }
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp) == messageText);
+    PEGASUS_TEST_ASSERT(LanguageParser::buildContentLanguageHeader(
+        mlp.contentlanguages) ==
+            ((expectedLanguage == "ROOT") ? "" : expectedLanguage));
+}
+
+void testFAILEDMessage(MessageLoaderParms &mlp, const char * expectedLanguage,
+    char * testSeq, Uint32 testNum)
+{
+    const char *messageText = "CIM_ERR_FAILED: A general error occurred that "
+       "is not covered by a more specific error code";
+    
+    if (verbose)
+    {
+        cout << "TestID: " << testSeq <<  testNum << endl;
+        cout << "Expected: " << messageText << endl;
+        cout << "Message:  " << MessageLoader::getMessage(mlp) << endl;
+        cout << "CL: " 
+             << LanguageParser::buildContentLanguageHeader(
+                 mlp.contentlanguages) << endl;
+    }
+    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp) == messageText);
+    PEGASUS_TEST_ASSERT(LanguageParser::buildContentLanguageHeader(
+        mlp.contentlanguages) ==
+            ((expectedLanguage == "ROOT") ? "" : expectedLanguage));
+}
+
+
+#endif
 
 
 void testAcceptLanguageList()
@@ -1061,7 +1124,7 @@ void testMessageLoader()
 #endif
 
     //
-    // should load en-US resource because of single element fallback logic
+    // Should load default resource bundle. 
     //
 
     mlp.acceptlanguages.clear();
@@ -1069,10 +1132,9 @@ void testMessageLoader()
 
 #ifdef PEGASUS_HAS_ICU
 
-    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp) ==
-        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, "
-            "number = 64,000");
-
+    testSUCCESSMessage(mlp, defaultResourceBundle,
+        "rab oof is foo bar backwards",
+        ((defaultResourceBundle == "de") ? "64.000" : "64,000"), "testML", 1);
 #else
 
     PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp) ==
@@ -1081,7 +1143,7 @@ void testMessageLoader()
 #endif
 
     //
-    // testing first element fallback after acceptlanguages has been exhausted
+    // No exact matches found, return default resource bundle 
     //
 
     MessageLoaderParms mlp1("CIMStatusCode.CIM_ERR_SUCCESS",
@@ -1095,9 +1157,9 @@ void testMessageLoader()
 
 #ifdef PEGASUS_HAS_ICU
 
-    PEGASUS_TEST_ASSERT(MessageLoader::getMessage(mlp1) ==
-        "CIM_ERR_SUCCESS: SUCCESSFUL fr rab oof is foo bar backwards, "
-            "number = fr");
+    testSUCCESSMessage(mlp, defaultResourceBundle,
+        "rab oof is foo bar backwards",
+        ((defaultResourceBundle == "de") ? "64.000" : "64,000"), "testML", 2);
 
 #else
 
@@ -1143,6 +1205,184 @@ void testMessageLoader()
 
 #endif
 }
+
+#ifdef PEGASUS_HAS_ICU
+
+ThreadReturnType PEGASUS_THREAD_CDECL alTestThread(void* parm)
+{
+    AcceptLanguageList alThread;
+    alThread.clear();
+    alThread.insert(LanguageTag("el"), 1.0);
+    Thread::setLanguages(alThread);
+
+    MessageLoaderParms mlp(
+        "CIMStatusCode.CIM_ERR_SUCCESS",
+            "Default CIM_ERR_SUCCESS Message $0 $1",
+            "testMessageLoaderCL", 1);
+
+    mlp.msg_src_path = "test/pegasusTest";
+    mlp.useThreadLocale = true;
+
+    // Test threadTest1 - Use Thread Locale
+    mlp.acceptlanguages.clear();
+    testSUCCESSMessage(mlp, "el", NULL, NULL, "threadTest", 1);
+
+    // Test threadTest2 - Passed accept language list has precedence.
+    mlp.acceptlanguages.clear();
+    mlp.acceptlanguages.insert(LanguageTag("en-us"), 1.0);
+    mlp.acceptlanguages.insert(LanguageTag("fr"), 0.7);
+    testSUCCESSMessage(mlp, "en-us", NULL, NULL, "threadTest", 2);
+
+    // Test threadTest3 - Process locale has precedence.
+    mlp.useProcessLocale = true;
+    mlp.acceptlanguages.clear();
+    testSUCCESSMessage(mlp, defaultResourceBundle, NULL, NULL, "threadTest", 3);
+
+
+    threadSync.signal();
+    return ThreadReturnType(0);
+}
+ 
+void testICUMessageLoaderOrdering()
+{
+    UErrorCode status = U_ZERO_ERROR;
+    String localeStr;
+
+    MessageLoaderParms mlp(
+        "CIMStatusCode.CIM_ERR_SUCCESS",
+            "Default CIM_ERR_SUCCESS Message $0 $1",
+            "testMessageLoaderCL", 1);
+    mlp.msg_src_path = "test/pegasusTest";
+
+    // Note: The following message bundles are available:
+    //       pegasusTest_de.res
+    //       pegasusTest_en.res
+    //       pegasusTest_en_US.res
+    //       pegasusTest_fr.res
+    //       pegasusTest_fu_nk.res
+    //       pegasusTest_st_AT_IC.res
+    //       pegasusTest_root.res
+
+    // Test A: Test basic functionality.
+
+    // Test A1 - Exact Match - First Tag
+    mlp.acceptlanguages.clear();
+    mlp.acceptlanguages.insert(LanguageTag("en-us"), 1.0);
+    mlp.acceptlanguages.insert(LanguageTag("fr"), 0.7);
+    testSUCCESSMessage(mlp, "en-us", NULL, NULL, "A" , 1);
+ 
+    // Test A2 - Exact Match - Second Tag
+    mlp.acceptlanguages.clear();
+    mlp.acceptlanguages.insert(LanguageTag("en-gb"), 1.0);
+    mlp.acceptlanguages.insert(LanguageTag("fr"), 0.7);
+    testSUCCESSMessage(mlp, "fr", NULL, NULL, "A", 2);
+
+    // Test A3 - Exact Match - Fourth Tag
+    mlp.acceptlanguages.clear();
+    mlp.acceptlanguages.insert(LanguageTag("da"), 1.0);
+    mlp.acceptlanguages.insert(LanguageTag("fr-ca"), 0.9);
+    mlp.acceptlanguages.insert(LanguageTag("en-gb"), 0.8);
+    mlp.acceptlanguages.insert(LanguageTag("en"), 0.7);
+    testSUCCESSMessage(mlp, "en", NULL, NULL, "A", 3);
+
+    // Test A4 - No Exact Match - Fallback Match - First Tag
+    mlp.acceptlanguages.clear();
+    mlp.acceptlanguages.insert(LanguageTag("en-gb"), 1.0);
+    mlp.acceptlanguages.insert(LanguageTag("fr-ca"), 0.7);
+    testSUCCESSMessage(mlp, defaultResourceBundle, NULL, NULL, "A", 4);
+
+    // Test A5 - No Exact Match - Fallback Match - Second Tag
+    mlp.acceptlanguages.clear();
+    mlp.acceptlanguages.insert(LanguageTag("pt-br"), 1.0);
+    mlp.acceptlanguages.insert(LanguageTag("fr-ca"), 0.7);
+    testSUCCESSMessage(mlp, defaultResourceBundle, NULL, NULL, "A", 5);
+
+    // Test A6 - No Exact Match - No Fallback Match 
+    mlp.acceptlanguages.clear();
+    mlp.acceptlanguages.insert(LanguageTag("pt-br"), 1.0);
+    mlp.acceptlanguages.insert(LanguageTag("zh-cn"), 0.7);
+    testSUCCESSMessage(mlp, defaultResourceBundle, NULL, NULL, "A", 6);
+
+    // Test A7 - Invalid Language Tag 
+    mlp.acceptlanguages.clear();
+    mlp.acceptlanguages.insert(LanguageTag("*"), 1.0);
+    testSUCCESSMessage(mlp, defaultResourceBundle, NULL, NULL, "A", 7);
+
+    // Test A8 - Single Accept Language - Exact Match 
+    mlp.acceptlanguages.clear();
+    mlp.acceptlanguages.insert(LanguageTag("en-us"), 1.0);
+    testSUCCESSMessage(mlp, "en-us", NULL, NULL, "A", 8);
+
+    // Test A9 - Single Accept Language - Fallback Match 
+    mlp.acceptlanguages.clear();
+    mlp.acceptlanguages.insert(LanguageTag("en-gb"), 1.0);
+    testSUCCESSMessage(mlp, defaultResourceBundle, NULL, NULL, "A", 9);
+
+    // Test A10 - Single Accept Language - No Match 
+    mlp.acceptlanguages.clear();
+    mlp.acceptlanguages.insert(LanguageTag("pt-br"), 1.0);
+    testSUCCESSMessage(mlp, defaultResourceBundle, NULL, NULL, "A", 10);
+
+    // Test B: Verify that the accept languages
+    // defined in MessageLoader::_acceptlanguages
+    // take precedence over the languages passed
+    // to getMessage.
+    MessageLoader::_acceptlanguages.clear();
+    MessageLoader::_acceptlanguages.insert(LanguageTag("es-mx"), 1.0);
+
+    mlp.acceptlanguages.clear();
+    mlp.acceptlanguages.insert(LanguageTag("en-us"), 1.0);
+    mlp.acceptlanguages.insert(LanguageTag("fr"), 0.7);
+    testSUCCESSMessage(mlp, "es-mx", NULL, NULL, "B", 1);
+
+    MessageLoader::_acceptlanguages.clear();
+
+    // Test C: Verify that setting
+    // MessageLoader::_useProcessLocale to true
+    // overrides the options passed to getMessage.
+    MessageLoader::_useProcessLocale = true;
+
+    mlp.acceptlanguages.clear();
+    mlp.acceptlanguages.insert(LanguageTag("en-us"), 1.0);
+    mlp.acceptlanguages.insert(LanguageTag("fr"), 0.7);
+    testSUCCESSMessage(mlp, defaultResourceBundle, NULL, NULL, "C", 1);
+
+    MessageLoader::_useProcessLocale = false;
+
+    // Test D: If no accept languages are defined and
+    // useProtocolLocale is true, then the default
+    // locale should be used. 
+    mlp.acceptlanguages.clear();
+    mlp.useProcessLocale = true;
+    testSUCCESSMessage(mlp, defaultResourceBundle, NULL, NULL, "D", 1);
+
+    mlp.acceptlanguages.clear();
+    mlp.useProcessLocale = false;
+    testSUCCESSMessage(mlp, defaultResourceBundle, NULL, NULL, "D", 2);
+
+    // This value is ignored if accept languages
+    // are defined.
+    mlp.acceptlanguages.clear();
+    mlp.acceptlanguages.insert(LanguageTag("en-us"), 1.0);
+    mlp.acceptlanguages.insert(LanguageTag("fr"), 0.7);
+    mlp.useProcessLocale = true;
+    testSUCCESSMessage(mlp, "en-us", NULL, NULL, "D", 3);
+
+    // By default, useProcessLocale is false.
+    mlp.useProcessLocale = false;
+
+
+    // Test threadTest: If no accept languages are defined and
+    // useThreadLocale is true, then the thread accept
+    // languages should be used. 
+
+    struct timeval deallocateWait = { 0, 1 };
+    ThreadPool threadPool(0, "AcceptLanguageTestPool", 0, 1, deallocateWait);
+    threadPool.allocate_and_awaken(NULL, alTestThread);
+    threadSync.wait();
+}
+
+#endif
 
 //
 // Tests the substitutions into the message
@@ -1284,9 +1524,35 @@ void testMessageLoaderSubs()
 #endif
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
+    verbose = getenv ("PEGASUS_TEST_VERBOSE") ? true : false;
+    for (Sint32 index = 1; index < argc; index++)
+    {
+        if (!strcmp(argv[index], "testRootBundle"))
+        {
+            testRootBundle = true;
+            defaultResourceBundle = "ROOT"; 
+        
+        }
+        else if (!strcmp(argv[index], "enableTrace"))
+        {
+            Tracer::setTraceLevel(Tracer::LEVEL4);
+            Tracer::setTraceComponents("L10N");
+            Tracer::setTraceFile("l10n.trc");
+        }
+        else
+        {
+            cerr << "Usage: " << argv[0]
+                << " [testRootBundle] | [enableTrace]" << endl;
+            return(1);
+        }
+    }
+
 #ifdef PEGASUS_HAS_ICU
+
+    UErrorCode status = U_ZERO_ERROR;
+    uloc_setDefault(testRootBundle ? "zz" : "de", &status);
 
     // If PEGASUS_MSG_HOME is set then use that as the message
     // home for this test.
@@ -1330,6 +1596,9 @@ int main(int argc, char *argv[])
     testContentLanguageList();
     testMessageLoader();
     testMessageLoaderSubs();
+#ifdef PEGASUS_HAS_ICU
+    testICUMessageLoaderOrdering();
+#endif
 
     cout << argv[0] << " +++++ passed all tests" << endl;
     return 0;

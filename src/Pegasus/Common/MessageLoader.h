@@ -132,18 +132,6 @@ public:
     Boolean useThreadLocale;
 
     /**
-        Boolean useICUfallback: Default is false.  Only relevant if
-        PEGASUS_HAS_ICU is defined.  MessageLoader::getMessage() default
-        behaviour is to extract messages for the langauge exactly
-        matching an available message resource.  If this is set to true,
-        the MessageLoader is free to extract a message from a less
-        specific message resource according to its search algorithm.
-     */
-#ifdef PEGASUS_HAS_ICU
-    Boolean useICUfallback;
-#endif
-
-    /**
         const Formatter::Arg&0-9: These are assigned the various
         substitutions necessary to properly format the message being
         extracted.  MessageLoader substitutes these in the correct
@@ -316,6 +304,11 @@ private:
     static String pegasus_MSG_HOME;
 
 #ifdef PEGASUS_HAS_ICU
+
+    static void openICUDefaultLocaleMessageFile(
+       const char* resbundl_path_ICU,
+       MessageLoaderParms &parms);
+
     static void openICUMessageFile(MessageLoaderParms& parms);
 
     static String extractICUMessage(

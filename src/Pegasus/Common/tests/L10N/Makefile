@@ -44,6 +44,7 @@ SOURCES = l10n.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-	$(PROGRAM)
+	$(PROGRAM) 
+	$(PROGRAM) testRootBundle
 
 poststarttests:

@@ -83,7 +83,7 @@ endif
 
 ifeq ($(PEGASUS_TEST_IPV6), true)
 	@$(ECHO) "Testing with IPv6 loop-back address."        
-	$(PROGRAM) [::1]:5988 -l [::1]:2003
+	$(PROGRAM) -reqlang en -rsplang en [::1]:5988 -l [::1]:2003
 endif
 
 #
@@ -96,6 +96,6 @@ endif
 ifeq ($(PEGASUS_TEST_IPV6), true)
 ifeq ($(SUPPORT_IPV4_MAPPED_IPV6), true)
 	@$(ECHO) "Testing with IPv4 Mapped IPv6 Addresses."
-	$(PROGRAM) [::ffff:127.0.0.1]:5988 -l [::ffff:127.0.0.1]:2003
+	$(PROGRAM) -reqlang en -rsplang en [::ffff:127.0.0.1]:5988 -l [::ffff:127.0.0.1]:2003
 endif
 endif

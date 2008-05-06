@@ -485,18 +485,6 @@ Pegasus into the caller's Thread.&nbsp;&nbsp; See the Note below for
 details.&nbsp;</td>
     </tr>
     <tr>
-      <td>Boolean useICUfallback</td>
-      <td>Input <br>
-Optional <br>
-Default = false</td>
-      <td>If true, use ICU's fallback mechnism to search more general
-resource bundles if the msg_id cannot be found.&nbsp; Note: the
-recommended setting is false if you are using an AcceptLanguageList from a
-CIM client.&nbsp; The Accept-Languages HTTP header from the client
-contains the fallback specifications. &nbsp;Using ICU's fallback in this
-case may lead to returning a language that the client didn't ask for.</td>
-    </tr>
-    <tr>
       <td>Formatter::Arg arg0; <br>
 &nbsp;Formatter::Arg arg1; <br>
 &nbsp;Formatter::Arg arg2; <br>
@@ -552,22 +540,13 @@ AcceptLanguageList, useThreadLocale, and useProcessLocale settings in
 MessageLoaderParms that it gets.&nbsp; The MessageLoader will use the
 default process locale, as determined by ICU, in this case. <br>
 &nbsp; </p>
-<p><i>Important Note:</i>&nbsp; The MessageLoader defaults to <i>not </i>use
+<p><i>Important Note:</i>&nbsp; The MessageLoader does <i>not</i> use
 the "fallback" mechanism described in the ICU Resource Management
 section.&nbsp; This is because the Accept-Language header itself
-describes the fallback that the client wants.&nbsp; However, the
-MessageLoader does "fallback" to the root resource bundle if none of the
-languages in AcceptLanguageList can be found.&nbsp; If the root resource
-bundle cannot be found, then the default_msg is returned.&nbsp; The
-"useICUFallback" flag can be set to have MessageLoader use ICU fallback
-on all message load attempts.&nbsp; However, usage of this flag for
-client requests may lead to incorrect results.&nbsp; For example, a
-client sets Accept-Language to french, german, and spanish, in that
-order, but there is no french resource bundle.&nbsp; A call to
-MessageLoader with useICUfallback == true would cause the root resource
-bundle string to be returned on the attempt to load from the french
-bundle.&nbsp; But the client requested german to be the fallback after
-french. <br>
+describes the fallback that the client wants.&nbsp; If the 
+MessageLoader cannot find a message file for any of the languages
+in the AcceptLanguageList, it will try the default process locale. 
+If this fails, the ICU root resource bundle will be tried.<br>
 &nbsp; </p>
 <p>Please refer to the following files for details on the new Pegasus
 classes. <br>

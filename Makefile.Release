@@ -123,7 +123,7 @@ ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 PEGASUS_LIBRARIES += \
    libcmpiCppImpl
 PEGASUS_PROVIDER_MANAGERS += \
- 	libCMPIProviderManager
+   libCMPIProviderManager
 endif
 
 
@@ -143,14 +143,6 @@ PEGASUS_LIBRARY_LINKS = \
    libpegprovider \
    libDefaultProviderManager \
    libCIMxmlIndicationHandler
-
-ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-PEGASUS_PROVIDER_MANAGER_LINKS += \
-   libCMPIProviderManager
-endif
-
-
-
 
 ifdef PEGASUS_USE_NET_SNMP
 PEGASUS_LIBRARY_LINKS += \
@@ -314,7 +306,7 @@ setpermissions_PegasusProviderLibraryDirectoryFiles: FORCE
 
 stage_PegasusProviderManagerLibraryDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_PROVIDER_MANAGERS), $(COPY) $(PEGASUS_HOME)/lib/$(i)$(LIB_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_MANAGER_LIB_DIR)/$(i)$(LIB_SUFFIX);)
-	$(foreach i, $(PEGASUS_PROVIDER_MANAGER_LINKS), $(MAKE) --directory=${ROOT} -f Makefile.Release createlink OBJECT=$(i)$(LIB_SUFFIX) LINKNAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_MANAGER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX);)
+	$(foreach i, $(PEGASUS_PROVIDER_MANAGERS), $(MAKE) --directory=${ROOT} -f Makefile.Release createlink OBJECT=$(i)$(LIB_SUFFIX) LINKNAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_MANAGER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX);)
 
 setpermissions_PegasusProviderManagerLibraryDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_PROVIDER_MANAGERS), $(MAKE) --directory=${ROOT} -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_MANAGER_LIB_DIR)/$(i)$(LIB_SUFFIX);)
@@ -632,10 +624,12 @@ create_ProductInstallationVerificationScript: FORCE
 	@$(foreach i, $(PEGASUS_LIBRARY_LINKS), $(ECHO-E) \
              "ls -l $(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall;)
+	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS PACKAGED PROVIDER MANAGER FILES\"" \
+             >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(foreach i, $(PEGASUS_PROVIDER_MANAGERS), $(ECHO-E) \
              "ls -l $(PEGASUS_PROVIDER_MANAGER_LIB_DIR)/$(i)$(LIB_SUFFIX)" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall;)
-	@$(foreach i, $(PEGASUS_PROVIDER_MANAGER_LINKS), $(ECHO-E) \
+	@$(foreach i, $(PEGASUS_PROVIDER_MANAGERS), $(ECHO-E) \
              "ls -l $(PEGASUS_PROVIDER_MANAGER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall;)
 	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS PACKAGED PROVIDER FILES\"" \
@@ -972,6 +966,14 @@ _append_postSectionToSpecFile_createSymbolicLinks: FORCE
             $(PEGASUS_PROVIDER_LIB_DIR_2)/$(i)$(LIB_LINK_SUFFIX)" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   # Create Symbolic Links for Packaged Provider Managers"\
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   #" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(foreach i, $(PEGASUS_PROVIDER_MANAGERS), $(ECHO-E) \
+            "   ln -sf $(i)$(LIB_SUFFIX)\
+            $(PEGASUS_PROVIDER_MANAGER_LIB_DIR_2)/$(i)$(LIB_LINK_SUFFIX)" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 _append_postSectionToSpecFile_createLog: FORCE
 	@$(ECHO-E) "   echo \`date\` > %PEGASUS_INSTALL_LOG 2>&1" \
@@ -1051,6 +1053,8 @@ _append_filesSectionToSpecFile: FORCE
               >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%dir $(PEGASUS_PROVIDER_LIB_DIR_2) " \
               >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir $(PEGASUS_PROVIDER_MANAGER_LIB_DIR_2) " \
+              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%dir %attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))"\
               "$(PEGASUS_CONFIG_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
@@ -1099,6 +1103,9 @@ _append_filesSectionToSpecFile: FORCE
 	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
            "$(PEGASUS_PROVIDER_LIB_DIR_2)/*$(LIB_SUFFIX)" \
            >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
+	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
+           "$(PEGASUS_PROVIDER_MANAGER_LIB_DIR_2)/*$(LIB_SUFFIX)" \
+           >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
 	@$(ECHO-E) "%attr($(Prwxr_x___),$(INSTALL_USR),$(INSTALL_GRP))" \
            "$(PEGASUS_SCRIPT_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
 	@$(ECHO-E) "%attr($(Prw_r__r__),$(INSTALL_USR),$(INSTALL_GRP))" \
@@ -1114,6 +1121,9 @@ _append_filesSectionToSpecFile: FORCE
             >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(foreach i, $(PEGASUS_PROVIDERS), \
             $(ECHO-E) "$(PEGASUS_PROVIDER_LIB_DIR_2)/$(i)$(LIB_LINK_SUFFIX)" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
+	@$(foreach i, $(PEGASUS_PROVIDER_MANAGERS), \
+            $(ECHO-E) "$(PEGASUS_PROVIDER_MANAGER_LIB_DIR_2)/$(i)$(LIB_LINK_SUFFIX)" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 

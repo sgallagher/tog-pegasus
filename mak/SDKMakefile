@@ -455,7 +455,6 @@ _append_filesSectionToSpecFile:
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "$(PEGASUS_DOC_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "$(PEGASUS_HTML_DIR)"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_PROVIDER_LIB_DIR_2)/*$(LIB_LINK_SUFFIX)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 removeSampleProviderNamespace:

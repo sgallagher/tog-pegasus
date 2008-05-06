@@ -325,7 +325,6 @@ if [ $1 -eq 1 ]; then
    ln -sf libpegprovider.so.1 /usr/%PEGASUS_ARCH_LIB/libpegprovider.so
    ln -sf libDefaultProviderManager.so.1 /usr/%PEGASUS_ARCH_LIB/libDefaultProviderManager.so
    ln -sf libCIMxmlIndicationHandler.so.1 /usr/%PEGASUS_ARCH_LIB/libCIMxmlIndicationHandler.so
-   ln -sf libCMPIProviderManager.so.1 /usr/%PEGASUS_ARCH_LIB/libCMPIProviderManager.so
    ln -sf libsnmpIndicationHandler.so.1 /usr/%PEGASUS_ARCH_LIB/libsnmpIndicationHandler.so
 
    # Create Symbolic Links for Packaged Provider Libraries
@@ -333,6 +332,10 @@ if [ $1 -eq 1 ]; then
    ln -sf libComputerSystemProvider.so.1 /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libComputerSystemProvider.so
    ln -sf libOSProvider.so.1 /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libOSProvider.so
    ln -sf libProcessProvider.so.1 /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libProcessProvider.so
+
+   # Create Symbolic Links for Packaged Provider Managers
+   #
+   ln -sf libCMPIProviderManager.so.1 /usr/%PEGASUS_ARCH_LIB/Pegasus/providerManagers/libCMPIProviderManager.so
 
 
 # Start of section pegasus/rpm/tog-specfiles/tog-pegasus-post.spec
@@ -458,6 +461,7 @@ fi
 %dir /var/lib/Pegasus/cache/localauth
 %dir /usr/%PEGASUS_ARCH_LIB/Pegasus 
 %dir /usr/%PEGASUS_ARCH_LIB/Pegasus/providers 
+%dir /usr/%PEGASUS_ARCH_LIB/Pegasus/providerManagers 
 
 %dir %attr(755,root,pegasus) /etc/Pegasus
 %dir %attr(755,cimsrvr,cimsrvr) /var/run/tog-pegasus
@@ -479,6 +483,7 @@ fi
 %attr(755,root,pegasus) /usr/bin/*
 %attr(755,root,pegasus) /usr/%PEGASUS_ARCH_LIB/*.so.1
 %attr(755,root,pegasus) /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/*.so.1
+%attr(755,root,pegasus) /usr/%PEGASUS_ARCH_LIB/Pegasus/providerManagers/*.so.1
 %attr(750,root,pegasus) /usr/share/Pegasus/scripts/*
 %attr(644,root,pegasus) /usr/share/man/man1/*
 %attr(644,root,pegasus) /usr/share/man/man8/*
@@ -491,11 +496,11 @@ fi
 /usr/%PEGASUS_ARCH_LIB/libpegprovider.so
 /usr/%PEGASUS_ARCH_LIB/libDefaultProviderManager.so
 /usr/%PEGASUS_ARCH_LIB/libCIMxmlIndicationHandler.so
-/usr/%PEGASUS_ARCH_LIB/libCMPIProviderManager.so
 /usr/%PEGASUS_ARCH_LIB/libsnmpIndicationHandler.so
 /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libComputerSystemProvider.so
 /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libOSProvider.so
 /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libProcessProvider.so
+/usr/%PEGASUS_ARCH_LIB/Pegasus/providerManagers/libCMPIProviderManager.so
 
 %files devel
 %defattr(644,root,pegasus,755)
@@ -503,7 +508,6 @@ fi
 /usr/include/Pegasus
 /usr/share/doc/tog-pegasus-2.8/*
 /usr/share/Pegasus/html
-%attr(755,root,pegasus) /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/*.so
 
 %if %{PEGASUS_BUILD_TEST_RPM}
 %files test

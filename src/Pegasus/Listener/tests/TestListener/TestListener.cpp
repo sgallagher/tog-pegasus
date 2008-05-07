@@ -123,10 +123,12 @@ void MyTraceSettings::setTraceComponents(String traceComponents)
       {
             cout << "Unable to write to trace file: " << fileName << endl;
 
-            Logger::put(Logger::DEBUG_LOG,System::CIMLISTENER,
-                    Logger::WARNING,
-                    "Unable to write to trace file $0",
-                    (const char*)fileName);
+            Logger::put(
+                Logger::ERROR_LOG,
+                System::CIMLISTENER,
+                Logger::WARNING,
+                "Unable to write to trace file $0",
+                (const char*)fileName);
     }
     }
     // set trace level

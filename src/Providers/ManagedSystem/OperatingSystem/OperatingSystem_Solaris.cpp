@@ -55,14 +55,6 @@
 
 PEGASUS_USING_STD;
 
-#if 0
-#define OSP_DEBUG(X) \
-    Logger::put(Logger::DEBUG_LOG, "Solaris OSProvider",Logger::INFORMATION, \
-        $0", X)
-#else
-# define OSP_DEBUG(X)
-#endif
-
 OperatingSystem::OperatingSystem()
 {
 }

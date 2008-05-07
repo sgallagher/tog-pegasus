@@ -200,9 +200,6 @@ public:
 
         _logFileNames[Logger::ERROR_LOG] = _constructFileName(homeDirectory,
                                                fileNames[Logger::ERROR_LOG]);
-
-        _logFileNames[Logger::DEBUG_LOG] = _constructFileName(homeDirectory,
-                                               fileNames[Logger::DEBUG_LOG]);
     }
 
     ~LoggerRep()

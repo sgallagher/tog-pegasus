@@ -74,11 +74,10 @@ public:
         TRACE_LOG,
         STANDARD_LOG,
         AUDIT_LOG, // Use only if PEGASUS_ENABLE_AUDIT_LOGGER is defined
-        ERROR_LOG,
-        DEBUG_LOG
+        ERROR_LOG
     };
 
-    enum { NUM_LOGS = 5 };
+    enum { NUM_LOGS = 4 };
 
     /** Log file Level - Defines the loglevel of the log entry irrespective of
         which log file it goes into. This is actually a bit mask as defined in

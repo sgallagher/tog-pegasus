@@ -74,7 +74,7 @@ public:
         return _name;
     }
 
-    const Uint32 getNameTag() const
+    Uint32 getNameTag() const
     {
         return _nameTag;
     }

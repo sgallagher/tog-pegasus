@@ -72,18 +72,18 @@ tests:
 poststarttests:
 	@$(ECHO) "Skipping g11ntest.  Use 'make g11ntest' to run this test."
 
-g11ntest:
 ifdef PEGASUS_HAS_MESSAGES
-	$(PROGRAM) -reqlang en -rsplang en
-else
-	$(PROGRAM)
+    LANGUAGE_OPTIONS = -reqlang en -rsplang en
 endif
+
+g11ntest:
+	$(PROGRAM) $(LANGUAGE_OPTIONS) 
 
 # IPv6 Tests.
 
 ifeq ($(PEGASUS_TEST_IPV6), true)
 	@$(ECHO) "Testing with IPv6 loop-back address."        
-	$(PROGRAM) -reqlang en -rsplang en [::1]:5988 -l [::1]:2003
+	$(PROGRAM) $(LANGUAGE_OPTIONS) [::1]:5988 -l [::1]:2003
 endif
 
 #
@@ -96,6 +96,6 @@ endif
 ifeq ($(PEGASUS_TEST_IPV6), true)
 ifeq ($(SUPPORT_IPV4_MAPPED_IPV6), true)
 	@$(ECHO) "Testing with IPv4 Mapped IPv6 Addresses."
-	$(PROGRAM) -reqlang en -rsplang en [::ffff:127.0.0.1]:5988 -l [::ffff:127.0.0.1]:2003
+	$(PROGRAM) $(LANGUAGE_OPTIONS) [::ffff:127.0.0.1]:5988 -l [::ffff:127.0.0.1]:2003
 endif
 endif

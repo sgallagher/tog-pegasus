@@ -1104,7 +1104,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
     }
     else
     {
-        if (_timeout <= 0)
+        if (_timeout == 0)
         {
             //
             //  Timeout out of valid range

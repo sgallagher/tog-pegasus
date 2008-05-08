@@ -331,6 +331,10 @@ void MessageLoader::openICUMessageFile(MessageLoaderParms &parms)
                  ures_close(parms._resbundl);
                  parms._resbundl = NO_ICU_MAGIC;
              }
+         }
+         else
+         {
+             parms._resbundl = NO_ICU_MAGIC;
          }   
     }
 

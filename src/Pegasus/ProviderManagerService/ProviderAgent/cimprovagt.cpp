@@ -77,15 +77,9 @@ int setUserContext(int argc, char* argv[])
         return -1;
     }
 
-# if defined(PEGASUS_OS_TYPE_UNIX)
-
+# if defined(PEGASUS_OS_TYPE_UNIX) && !defined(PEGASUS_OS_PASE)
     // Execute a new cimprovagt process to reset the saved user id and group id.
-
-#  if defined(PEGASUS_OS_PASE)
-    int pid = (int)fork400("QUMEPRVAGT",0);
-#  else
     int pid = (int)fork();
-#  endif
 
     if (pid < 0)
     {

@@ -271,6 +271,8 @@ HTTPConnection* HTTPConnector::connect(
         // Set up the domain socket for a local connection
 
         sockaddr_un address;
+
+        memset(&address, 0, sizeof(address));
         address.sun_family = AF_UNIX;
         strcpy(address.sun_path, PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
 

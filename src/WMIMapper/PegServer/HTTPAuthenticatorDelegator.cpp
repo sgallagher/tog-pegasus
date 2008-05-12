@@ -596,10 +596,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             {
                 // The final buffer should not have any data at this point.
                 // If it does end the server because something bad happened.
-                // TBD-7646
                 PEG_TRACE_CSTRING(
                     TRC_HTTP,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL1,
                     "HTTPAuthenticatorDelegator - the final buffer should "
                         "not have data");
                 PEGASUS_ASSERT(0);

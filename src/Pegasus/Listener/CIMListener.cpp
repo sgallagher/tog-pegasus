@@ -490,10 +490,9 @@ void CIMListenerRep::start()
             svc.get(), CIMListenerService::_listener_routine, sem.get())
             != PEGASUS_THREAD_OK)
         {
-            // TBD-7646
             PEG_TRACE_CSTRING(
                 TRC_SERVER,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Could not allocate thread for "
                 "CIMListenerService::_listener_routine.");
             throw

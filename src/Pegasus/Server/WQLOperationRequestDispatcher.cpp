@@ -290,8 +290,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
     // of instances returned.
     if (providerCount > _maximumEnumerateBreadth)
     {
-        // TBD-7646
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL2,
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
             "ERROR: Enumerate operation too broad for class %s.  "
                 "Limit = %u, providerCount = %u",
             (const char*)request->className.getString().getCString(),

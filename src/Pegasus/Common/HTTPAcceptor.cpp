@@ -752,10 +752,9 @@ void HTTPAcceptor::_acceptConnection()
 
             return;
         }
-        // TBD-7646
         PEG_TRACE((
             TRC_DISCARDED_DATA,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "HTTPAcceptor: accept() failed.  errno: %u",
             errno));
         return;
@@ -773,10 +772,9 @@ void HTTPAcceptor::_acceptConnection()
         // the remote connection is invalid, destroy client address.
         delete accept_address;
 
-        // TBD-7646
         PEG_TRACE(
             (TRC_DISCARDED_DATA,
-             Tracer::LEVEL2,
+             Tracer::LEVEL1,
              "HTTPAcceptor out of available sockets." 
                  "accept() returned too large socket number %u."
                  "Closing connection to the new client.",
@@ -805,10 +803,9 @@ void HTTPAcceptor::_acceptConnection()
                 0, 
                 NI_NUMERICHOST)))
         {
-            // TBD-7646
             PEG_TRACE((
                 TRC_DISCARDED_DATA,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "HTTPAcceptor: getnameinfo() failed.  rc: %d",
                 rc));
             delete accept_address;

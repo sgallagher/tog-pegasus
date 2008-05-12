@@ -181,10 +181,9 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
             _totalReceivedNotSupported++;
         }
         _totalReceivedErrors++;
-        // TBD-7646
         PEG_TRACE((
             TRC_DISPATCHER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "%s: Response has error.  Namespace: %s, Class name: %s, "
                 "Response Sequence: %s",
             func,
@@ -231,9 +230,8 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
         }
         else
         {
-            // TBD-7646
             PEG_TRACE((
-                TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                TRC_DISCARDED_DATA, Tracer::LEVEL1,
                 "All completed responses (%u) for current request "
                     "have been accounted for but expected count (%u) does "
                     "not match the received count (%u). error count (%u).",
@@ -680,10 +678,9 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
             default:
                 static const char failMsg[] =
                     "Invalid response type to aggregate: ";
-                // TBD-7646
                 PEG_TRACE((
                     TRC_DISCARDED_DATA,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL1,
                     "%s%s%u",
                     func,
                     failMsg,
@@ -762,10 +759,9 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
     {
         static const char failMsg[] =
             "Failed to resequence/aggregate/forward response";
-        // TBD-7646
         PEG_TRACE((
             TRC_DISCARDED_DATA,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "%s%s",
             func,
             failMsg));
@@ -2472,9 +2468,8 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message* request)
 
     if (!opRequest)
     {
-        // TBD-7646
         PEG_TRACE((
-            TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "Ignored unexpected message of type %u in "
                 "CIMOperationRequestDispatcher::handleEnqueue",
             (unsigned int) request->getType()));
@@ -2719,10 +2714,9 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
     if (checkClassException.getCode() != CIM_ERR_SUCCESS)
     {
-        // TBD-7646
         PEG_TRACE((
             TRC_DISPATCHER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "CIMOperationRequestDispatcher::handleGetInstanceRequest - "
                 "CIM exist exception has occurred.  Namespace: %s  "
                 "Class Name: %s  Exception message: \"%s\"",
@@ -2855,10 +2849,9 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 
     if (!_checkExistenceOfClass(request->nameSpace, className))
     {
-        // TBD-7646
         PEG_TRACE((
             TRC_DISPATCHER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "CIMOperationRequestDispatcher::handleDeleteInstanceRequest - "
                 "CIM class does not exist exception has occurred.  "
                 "Namespace: %s  Class Name: %s",
@@ -2984,10 +2977,9 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
     if (!_checkExistenceOfClass(request->nameSpace, className))
     {
-        // TBD-7646
         PEG_TRACE((
             TRC_DISPATCHER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "CIMOperationRequestDispatcher::handleCreateInstanceRequest - "
                 "CIM class does not exist exception has occurred.  "
                 "Namespace: %s  Class Name: %s",
@@ -3110,10 +3102,9 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
     if (!_checkExistenceOfClass(request->nameSpace, className))
     {
-        // TBD-7646
         PEG_TRACE((
             TRC_DISPATCHER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "CIMOperationRequestDispatcher::handleModifyInstanceRequest - "
                 "CIM class does not exist exception has occurred.  "
                 "Namespace: %s  Class Name: %s",
@@ -5051,10 +5042,9 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 
     if (!_checkExistenceOfClass(request->nameSpace, className))
     {
-        // TBD-7646
         PEG_TRACE((
             TRC_DISPATCHER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "CIMOperationRequestDispatcher::handleInvokeMethodRequest - "
                 "CIM class does not exist exception has occurred.  "
                 "Namespace: %s  Class Name: %s",
@@ -5929,10 +5919,9 @@ void CIMOperationRequestDispatcher::_checkEnumerateTooBroad(
 {
     if (providerCount > _maximumEnumerateBreadth)
     {       
-        // TBD-7646
         PEG_TRACE((
             TRC_DISPATCHER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "ERROR: Enumerate operation too broad for class %s.  "
                 "  Namespace: %s  Limit = %u, providerCount = %u",
             CSTRING(className.getString()),

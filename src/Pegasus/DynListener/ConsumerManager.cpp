@@ -424,10 +424,9 @@ void ConsumerManager::_initConsumer(
                                           _worker_routine,
                                           semaphore) != PEGASUS_THREAD_OK)
         {
-            // TBD-7646
             PEG_TRACE_CSTRING(
                 TRC_LISTENER,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Could not allocate thread for consumer.");
 
             consumer->setShutdownSemaphore(0);

@@ -205,10 +205,9 @@ void CIMListenerIndicationDispatcherRep::deliverIndication(String url,
 
             if (rtn != PEGASUS_THREAD_OK)
             {
-                // TBD-7646
                 PEG_TRACE_CSTRING(
                     TRC_SERVER,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL1,
                     "Could not allocate thread to deliver event."
                         " Instead using current thread.");
             delete event;

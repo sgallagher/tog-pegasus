@@ -210,10 +210,9 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
                 Threads::yield();
             else
             {
-                // TBD-7646
                 PEG_TRACE((
                     TRC_PROVIDERMANAGER,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL1,
                     "Could not allocate thread for %s.",
                     getQueueName()));
                 break;
@@ -833,8 +832,7 @@ void ProviderManagerService::unloadIdleProviders()
             ProviderManagerService::_unloadIdleProvidersHandler) !=
                 PEGASUS_THREAD_OK)
     {
-        // TBD-7646
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
             "Could not allocate thread for %s to unload idle providers.",
             getQueueName()));
 

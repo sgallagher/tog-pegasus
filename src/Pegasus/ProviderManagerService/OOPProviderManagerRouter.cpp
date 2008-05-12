@@ -566,8 +566,7 @@ void ProviderAgentContainer::_initialize()
             }
             else
             {
-                // TBD-7646
-                PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                     "Could not allocate thread to process responses from the "
                         "provider agent.");
 

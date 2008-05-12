@@ -124,10 +124,9 @@ void BinaryMessageHandler::_handle_async_request(AsyncRequest* request)
                 (void*)this, BinaryMessageHandler::handle_binary_message) !=
             PEGASUS_THREAD_OK)
         {
-            // TBD-7646
             PEG_TRACE((
                 TRC_BINARY_MSG_HANDLER,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Not enough threads to handle binary message."
                     "Could not allocate thread for %s. "
                     "Queue has %d messages waiting. ",

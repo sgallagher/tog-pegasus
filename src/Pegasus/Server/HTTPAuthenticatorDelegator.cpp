@@ -629,10 +629,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                             }
                             else
                             {
-                                // TBD-7646
                                 PEG_TRACE_CSTRING(
                                     TRC_HTTP,
-                                    Tracer::LEVEL2,
+                                    Tracer::LEVEL1,
                                     "HTTPAuthenticatorDelegator - Bailing, "
                                         "the certificate used for "
                                         "authentication is not valid.");
@@ -661,10 +660,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                             // up the deletion but we would pick it up here
                             // when we went to look it up in the repository
 
-                            // TBD-7646
                             PEG_TRACE_CSTRING(
                                 TRC_HTTP,
-                                Tracer::LEVEL2,
+                                Tracer::LEVEL1,
                                 "HTTPAuthenticatorDelegator - Bailing, the "
                                     "certificate used for authentication is "
                                     "not valid.");

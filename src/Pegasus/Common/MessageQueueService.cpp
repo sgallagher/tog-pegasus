@@ -129,8 +129,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
                 if (rtn != PEGASUS_THREAD_OK )
                 {
                     service->_threads--;
-                    // TBD-7646
-                    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL2,
+                    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL1,
                         "Could not allocate thread for %s.  Queue has %d "
                             "messages waiting and %d threads servicing."
                             "Skipping the service for right now. ",

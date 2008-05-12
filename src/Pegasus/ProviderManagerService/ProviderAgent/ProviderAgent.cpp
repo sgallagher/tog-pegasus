@@ -511,8 +511,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
             }
             else
             {
-                // TBD-7646
-                PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+                PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
                     "Could not allocate thread to process agent request.");
 
                 AutoPtr<CIMResponseMessage> response(request->buildResponse());
@@ -707,8 +706,7 @@ void ProviderAgent::_unloadIdleProviders()
     }
     if (rtn != PEGASUS_THREAD_OK)
     {
-         // TBD-7646
-         PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+         PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
              "Could not allocate thread to unload idle providers.");
     }
     PEG_METHOD_EXIT();

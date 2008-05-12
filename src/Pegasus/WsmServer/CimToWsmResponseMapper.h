@@ -64,6 +64,7 @@ public:
     void convertObjPathToEPR(
         const CIMObjectPath& objPath,
         WsmEndpointReference& epr);
+    void convertCimToWsmDatetime(const CIMDateTime& cimDT, String& wsmDT);
 
 private:
 

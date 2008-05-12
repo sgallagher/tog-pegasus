@@ -31,6 +31,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <stdlib.h>
 #include "WsmInstance.h"
 
 
@@ -62,5 +63,17 @@ Uint32 WsmInstance::getPropertyCount() const
     return _properties.size();
 }
 
+static int _compare(const void* p1, const void* p2)
+{
+    const WsmProperty* prop1 = (WsmProperty*) p1;
+    const WsmProperty* prop2 = (WsmProperty*) p2;
+    return String::compare(prop1->getName(), prop2->getName());
+}
+
+void WsmInstance::sortProperties()
+{
+    qsort((void*) _properties.getData(), _properties.size(), 
+        sizeof(WsmProperty), _compare);
+}
 
 PEGASUS_NAMESPACE_END

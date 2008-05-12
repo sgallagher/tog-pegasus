@@ -220,7 +220,8 @@ Buffer WsmWriter::formatWsmRspMessage(
 
 void WsmWriter::appendInstanceElement(
     Buffer& out,
-    WsmInstance& instance)
+    WsmInstance& instance,
+    Boolean isEmbedded)
 {
     // Class opening element:
     out << STRLIT("<class:") << instance.getClassName();
@@ -228,8 +229,25 @@ void WsmWriter::appendInstanceElement(
     out << WsmNamespaces::supportedNamespaces[WsmNamespaces::WS_CIM_SCHEMA].
         extendedName;
     out << STRLIT("/") << instance.getClassName();
-    out << STRLIT("\">");
+    out << STRLIT("\"");
+
+    // DSP0230, section 7.2.5.2. The property element MUST contain an 
+    // xsi:type attribute with the XSD type of the class of the instance 
+    // (see section 7.3.1).
+    if (isEmbedded)
+    {
+        out << STRLIT(" ");
+        out << WsmNamespaces::supportedNamespaces[
+            WsmNamespaces::XML_SCHEMA_INSTANCE].localName;
+        out << STRLIT(":type=\"");
+        out << instance.getClassName();
+        out << STRLIT("_Type\"");
+    }
+    out << STRLIT(">");
     _writeNewlineForReadability(out);
+
+    // Sort properties before writing them out
+    instance.sortProperties();
 
     // Properties:
     for (Uint32 i = 0, n = instance.getPropertyCount(); i < n; i++)
@@ -282,7 +300,7 @@ void WsmWriter::appendPropertyElement(
                 {
                     out << STRLIT("<class:") << propName << STRLIT(">");
                     _writeNewlineForReadability(out);
-                    appendInstanceElement(out, instances[i]);
+                    appendInstanceElement(out, instances[i], true);
                     out << STRLIT("</class:") << propName << STRLIT(">");
                     _writeNewlineForReadability(out);
                 }
@@ -329,7 +347,7 @@ void WsmWriter::appendPropertyElement(
                 val.get(instance);
                 out << STRLIT("<class:") << propName << STRLIT(">");
                 _writeNewlineForReadability(out);
-                appendInstanceElement(out, instance);
+                appendInstanceElement(out, instance, true);
                 out << STRLIT("</class:") << propName << STRLIT(">");
                 _writeNewlineForReadability(out);
                 break;

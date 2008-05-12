@@ -794,7 +794,7 @@ void WsmToCimRequestMapper::convertStringToCimValue(
         case CIMTYPE_REAL32:
         {
             Real64 val;
-            if (!StringConversion::stringToReal64(
+            if (!stringToReal64(
                 (const char*) str.getCString(), val))
             {
                 throw WsmFault(
@@ -811,7 +811,7 @@ void WsmToCimRequestMapper::convertStringToCimValue(
         case CIMTYPE_REAL64:
         {
             Real64 val;
-            if (!StringConversion::stringToReal64(
+            if (!stringToReal64(
                 (const char*) str.getCString(), val))
             {
                 throw WsmFault(
@@ -848,21 +848,9 @@ void WsmToCimRequestMapper::convertStringToCimValue(
 
         case CIMTYPE_DATETIME:
         {
-            CIMDateTime tmp;
-            try
-            {
-                tmp.set(str);
-            }
-            catch (InvalidDateTimeFormatException&)
-            {
-                throw WsmFault(
-                    WsmFault::wxf_InvalidRepresentation,
-                    MessageLoaderParms(
-                        "WsmServer.WsmToCimRequestMapper.INVALID_DT_VALUE",
-                        "The datetime value \"$0\" is not valid", str),
-                    WSMAN_FAULTDETAIL_INVALIDVALUE);
-            }
-            cimValue.set(tmp);
+            CIMDateTime cimDT;
+            convertWsmToCimDatetime(str, cimDT);
+            cimValue.set(cimDT);
             break;
         }
 
@@ -951,12 +939,355 @@ void WsmToCimRequestMapper::convertStringArrayToCimValue(
                     strs, cimType, cimValue);
                 break;
             case CIMTYPE_DATETIME:
-                _convertStringArrayToCimValueAux<CIMDateTime>(
-                    strs, cimType, cimValue);
+            {
+                Array<CIMDateTime> cimDTs;
+                for (Uint32 i = 0, n = strs.size(); i < n; i++)
+                {
+                    CIMDateTime cimDT;
+                    convertWsmToCimDatetime(strs[i], cimDT);
+                    cimDTs.append(cimDT);
+                }
+                cimValue.set(cimDTs);
+
                 break;
+            }
             default:
                 PEGASUS_ASSERT(0);
         }
+}
+
+#define illegalNumChar(c) (c == '+' || c == '-' || c == ' ' || c == '\t')
+
+void WsmToCimRequestMapper::convertWsmToCimDatetime(
+    const String& wsmDT, CIMDateTime& cimDT)
+{
+    Uint32 strSize = wsmDT.size();
+    CString wsmCStr = wsmDT.getCString();
+    const char* wsmStr = (const char*) wsmCStr;
+
+    try
+    {
+        // The shortest valid representation is an interval, e.g. P1Y 
+        // Negative datetime/intervals not supported
+        if (strSize < 3 || wsmStr[0] == '-')
+            throw InvalidDateTimeFormatException();
+
+        Uint32 pos;
+        if (wsmStr[0] == 'P')
+        {
+            // Interval
+            // The format is PnYnMnDTnHnMnS, where
+            // nY represents the number of years, 
+            // nM the number of months, nD the number of days, 
+            // 'T' is the date/time separator, 
+            // nH the number of hours, 
+            // nM the number of minutes and 
+            // nS the number of seconds. 
+            // The number of seconds can include decimal digits to 
+            // arbitrary precision.
+            struct 
+            { 
+                Uint32 num; 
+                char id; 
+            } values[7] = {{0, 'Y'}, {0, 'M'}, {0, 'D'}, 
+                {0, 'H'}, {0, 'M'}, {0, 'S'}, {0, 0}};
+
+            const char* ptr = wsmStr + 1;
+            Uint32 i = 0;
+            Boolean seenT = false;
+            while (ptr < wsmStr + strSize && i < 6)
+            {
+                if (*ptr == 'T')
+                {
+                    ptr++;
+                    seenT = true;
+
+                    // The 'T' separator cannot appear after 'H' and must
+                    // be followed by hours, minutes or seconds
+                    if (i > 3 || *ptr == '\0')
+                        throw InvalidDateTimeFormatException();
+
+                    i = 3;
+                    continue;
+                }
+
+                // If we're processing hours, minutes or seconds but have not
+                // seen the 'T' separator, it's an error.
+                if (i >= 3 && !seenT)
+                    throw InvalidDateTimeFormatException();
+                
+                int bytes = 0;
+                Uint32 num = 0;
+                int conversions = sscanf(ptr, "%u%n", &num, &bytes);
+                
+                // Here we expect a valid unsigned int
+                if (conversions == 0 || bytes == 0 || illegalNumChar(*ptr))
+                    throw InvalidDateTimeFormatException();
+
+                char c = *(ptr + bytes);
+                if (c == values[i].id)
+                {
+                    values[i].num = num;
+                    ptr = ptr + bytes + 1;
+                }
+                else if (c == '.')
+                {
+                    // Special case: handle fractional seconds when the number
+                    // of seconds is followed by '.' rather than 'S'
+                    if (!seenT)
+                        throw InvalidDateTimeFormatException();
+
+                    values[5].num = num;
+                    ptr = ptr + bytes; // ptr points to '.'
+                    float tmpMsecs;
+                    conversions = sscanf(ptr, "%f%n", &tmpMsecs, &bytes);
+
+                    // If there is a '.', there must be valid fractional
+                    // seconds number. It must be followed by 'S'
+                    if (conversions == 0 || bytes == 0 || 
+                        *(ptr + bytes) != 'S' || illegalNumChar(*ptr))
+                        throw InvalidDateTimeFormatException();
+
+                    values[6].num = (Uint32) (tmpMsecs * 1000000);
+                    ptr = ptr + bytes + 1;
+                    i = 5;
+                }
+                else if (c != 'Y' && c != 'M' && c != 'D' &&
+                         c != 'H' && c != 'S')
+                {
+                    throw InvalidDateTimeFormatException();
+                }
+
+                i++;
+            }
+
+            // If at the end of the loop we still have unconsumed charachters, 
+            // it's an error.
+            if (ptr < wsmStr + strSize)
+                throw InvalidDateTimeFormatException();
+
+            Uint32 msecs = values[6].num;
+            Uint32 secs = values[5].num % 60;
+            values[4].num += values[5].num / 60;
+            Uint32 mins = values[4].num % 60;
+            values[3].num += values[4].num / 60;
+            Uint32 hrs = values[3].num % 24;
+            values[2].num += values[3].num / 24;
+
+            // It's impossible to calculate the exact number of days. 
+            // Here are the assumptions:
+            // - a year has 365 days
+            // - every 4th year adds an extra day
+            // - a month has 30 days
+            // - every other month adds an extra day
+            Uint32 days = (values[0].num * 365) + (values[0].num / 4) +
+                (values[1].num * 30) + (values[1].num / 2) + values[2].num;
+
+            cimDT.setInterval(days, hrs, mins, secs, msecs, 6);
+        }
+        else if (wsmDT.find('T') != PEG_NOT_FOUND)
+        {
+            // datetime
+            // YYYY-MM-DDThh:mm:ss[.ssss...][Z][+/-hh:mm]
+            Uint32 year = 0, month = 0, day = 0, hrs = 0, mins = 0, secs = 0,
+                msecs = 0, utch = 0, utcm = 0, utcoff = 0;
+            char sign = 0;
+            float tmpMsecs;
+            const char* ptr = wsmStr;
+            int bytes = 0;
+
+            // Read all fields up to but excluding potential fractional seconds
+            int conversions = sscanf(ptr, "%4d-%2d-%2dT%2d:%2d:%2d%c%n",
+                 &year, &month, &day, &hrs, &mins, &secs, &sign, &bytes);
+
+            // Year, month, day, hours, minutes and seconds must be present
+            if ((conversions < 6) ||
+                // If only 6 fields read, the string must be 19 chareacters
+                (conversions == 6 && strSize != 19) ||
+                // If sign is present, it must be either 'Z', '+' or '-' UTC
+                // seperators, or '.' if there are fractional seconds
+                (conversions == 7 && 
+                 sign != 'Z' && sign != '+' && sign != '-' && sign != '.') ||
+                // If 'Z' is the sign, it must be the last char in the string
+                (sign == 'Z' && strSize != 20) ||
+                // Make sure that separators are in the proper positions
+                ptr[4] != '-' || ptr[7] != '-' || ptr[10] != 'T' || 
+                ptr[13] != ':' || ptr[16] != ':' ||
+                // Make sure that numeric fields do not start with white
+                // space, '+' or '-' signs
+                illegalNumChar(ptr[0]) || illegalNumChar(ptr[5]) ||
+                illegalNumChar(ptr[8]) || illegalNumChar(ptr[11]) ||
+                illegalNumChar(ptr[14]) || illegalNumChar(ptr[17]))
+                throw InvalidDateTimeFormatException();
+
+            ptr += bytes;
+            if (sign == '.')
+            {
+                // Read the fractional second part as a float and convert it
+                // into the number of microseconds.
+                conversions = 
+                    sscanf(ptr - 1, "%f%c%n", &tmpMsecs, &sign, &bytes);
+                if ((conversions == 0) || 
+                    (conversions == 2 && 
+                     sign != 'Z' && sign != '+' && sign != '-'))
+                    throw InvalidDateTimeFormatException();
+
+                msecs = (Uint32) (tmpMsecs * 1000000);
+
+                // We started reading at ptr-1, so account for that here
+                ptr += (bytes - 1);
+            }
+
+            // Read UTC offset
+            if (sign == '+' || sign == '-')
+            {
+                conversions = sscanf(ptr, "%2d:%2d", &utch, &utcm);
+                if (conversions != 2 || strlen(ptr) != 5 ||
+                    // Make sure that numeric fields do not start with white
+                    // space, '+' or '-' signs
+                    illegalNumChar(ptr[0]) || illegalNumChar(ptr[2]) ||
+                    // Hours and minutes must be within range
+                    utch >= 24 || utcm >= 60)
+                    throw InvalidDateTimeFormatException();
+                    
+                utcoff = utch * 60 + utcm;
+                if (sign == '-')
+                    utcoff *= -1;
+            }
+            else if (sign == 'Z')
+            {
+                // No need to do anything here: the offset is already 
+                // initialized to 0.
+                // Just make sure that 'Z' is the last char in the string.
+                if (*ptr != 0)
+                    throw InvalidDateTimeFormatException();
+            }
+
+            cimDT.setTimeStamp(year, month, day, hrs, mins, secs,
+                msecs, 6, utcoff);
+        }
+        else if (((pos = wsmDT.find('-')) != PEG_NOT_FOUND) &&
+                 (wsmDT.find(pos + 1, '-') != PEG_NOT_FOUND))
+        {
+            // date
+            // The format is YYYY-MM-DD[Z][+/-hh:mm]
+            Uint32 year = 0, month = 0, day = 0, 
+                utch = 0, utcm = 0, utcoff = 0;
+            char sign = 0;
+
+            int conversions = sscanf(wsmStr, "%4u-%2u-%2u%c%2u:%2u", 
+                &year, &month, &day, &sign, &utch, &utcm);
+
+            // Year, month and day must be present
+            if ((conversions < 3) ||
+                // The string with no UTC offset must be 10 chars
+                (conversions == 3 && strSize != 10) ||
+                // Make sure that seperators are in the proper positions
+                wsmStr[4] != '-' || wsmStr[7] != '-' || 
+                // Make sure that numeric fields do not start with white
+                // space, '+' or '-' signs
+                illegalNumChar(wsmStr[0]) || illegalNumChar(wsmStr[5]) ||
+                illegalNumChar(wsmStr[8]) ||
+                // Hours and minutes must be within range
+                utch >= 24 || utcm >= 60)
+                throw InvalidDateTimeFormatException();
+
+            // Decode UTC offset
+            if (conversions > 3)
+            {
+                if ((sign != 'Z' && sign != '+' && sign != '-') ||
+                    ((conversions == 4 || sign == 'Z') && strSize != 11))
+                    throw InvalidDateTimeFormatException();
+
+                if (sign == '+' || sign == '-')
+                {
+                    if (conversions < 6 || strSize != 16 || 
+                        wsmStr[13] != ':' ||
+                        // Make sure that numeric fields do not start with 
+                        // white space, '+' or '-' signs
+                        illegalNumChar(wsmStr[11]) || 
+                        illegalNumChar(wsmStr[14]))
+                        throw InvalidDateTimeFormatException();
+                    
+                    utcoff = utch * 60 + utcm;
+                    if (sign == '-')
+                        utcoff *= -1;
+                }
+            }
+
+            cimDT.setTimeStamp(year, month, day, CIMDateTime::WILDCARD, 
+                CIMDateTime::WILDCARD, CIMDateTime::WILDCARD, 0, 0, utcoff);
+        }
+        else
+        {
+            cimDT.set(wsmDT);
+        }
+    }
+    catch (InvalidDateTimeFormatException&)
+    {
+        throw WsmFault(
+            WsmFault::wxf_InvalidRepresentation,
+            MessageLoaderParms(
+                "WsmServer.WsmToCimRequestMapper.INVALID_DT_VALUE",
+                "The datetime value \"$0\" is not valid", wsmDT),
+            WSMAN_FAULTDETAIL_INVALIDVALUE);
+    }
+    catch (DateTimeOutOfRangeException&)
+    {
+        throw WsmFault(
+            WsmFault::wxf_InvalidRepresentation,
+            MessageLoaderParms(
+                "WsmServer.WsmToCimRequestMapper.INVALID_DT_VALUE",
+                "The datetime value \"$0\" is not valid", wsmDT),
+            WSMAN_FAULTDETAIL_INVALIDVALUE);
+    }
+}
+
+// Values have a lexical representation consisting of a mantissa followed, 
+// optionally, by the character "E" or "e", followed by an exponent. 
+// The exponent must be an integer. The mantissa must be a decimal number. 
+// The representations for exponent and mantissa must follow the lexical 
+// rules for integer and decimal. If the "E" or "e" and the following 
+// exponent are omitted, an exponent value of 0 is assumed.
+// The special values positive and negative zero, positive and negative 
+// infinity and not-a-number have lexical representations 0, -0, INF, -INF 
+// and NaN, respectively. 
+Boolean WsmToCimRequestMapper::stringToReal64(
+    const char* stringValue,
+    Real64& x)
+{
+    char* end;
+    const char* p = stringValue;
+
+    if (!p || !*p)
+        return false;
+
+    errno = 0;
+    if (!isdigit(*p))
+    {
+        // If it doesn't start with a digit, it can only be NaN, INF or -INF
+        if (strlen(p) < 3 ||
+            ((*p != 'N' || *(p + 1) != 'a' || *(p + 2) != 'N' || *(p + 3)) &&
+            (*p != 'I' || *(p + 1) != 'N' || *(p + 2) != 'F' || *(p + 3)) &&
+            (*p != '-' || *(p + 1) != 'I' || *(p + 2) != 'N' || 
+             *(p + 3) != 'F' || *(p + 4))))
+            return false;
+
+        // Do the conversion
+        x = strtod(stringValue, &end);
+        // HP-UX strtod sets errno to ERANGE for NaN and INF
+        return (!*end);
+    }
+    else
+    {
+        // It can't be a hex number
+        if (*p == '0' && (*(p + 1) == 'x' || *(p + 1) == 'X'))
+            return false;
+
+        // Do the conversion
+        x = strtod(stringValue, &end);
+        return (!*end && (errno != ERANGE));
+    }
 }
 
 PEGASUS_NAMESPACE_END

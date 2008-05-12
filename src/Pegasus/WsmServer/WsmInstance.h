@@ -60,6 +60,7 @@ public:
         _className = name;
     }
 
+    void sortProperties();
     WsmProperty& getProperty(Uint32 index);
     void addProperty(const WsmProperty& prop);
     Uint32 getPropertyCount() const;

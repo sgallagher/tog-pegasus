@@ -65,6 +65,8 @@ public:
     CIMName convertResourceUriToClassName(const String& resourceUri);
     String convertEPRAddressToHostname(const String& addr);
 
+    static Boolean stringToReal64(const char* stringValue, Real64& x);
+
     void convertWsmToCimValue(
         WsmValue& wsmValue,
         const CIMNamespaceName& nameSpace,
@@ -88,6 +90,9 @@ public:
     void convertEPRToObjectPath(
         const WsmEndpointReference& epr,
         CIMObjectPath& objectPath);
+
+    static void convertWsmToCimDatetime(
+        const String& wsmDT, CIMDateTime& cimDT);
 
 private:
 

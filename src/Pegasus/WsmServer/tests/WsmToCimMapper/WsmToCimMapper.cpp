@@ -99,6 +99,8 @@ void testArrayType(const Array<T>& x)
 
 static void _testValues(void)
 {
+    WsmToCimRequestMapper mapper((CIMRepository*) 0);
+
     // Test simple data types
     testSimpleType(Boolean(true));
     testSimpleType(Boolean(false));
@@ -116,7 +118,94 @@ static void _testValues(void)
     testSimpleType(Uint64(123456789));
     testSimpleType(Sint64(-123456789));
     testSimpleType(String("Hello world"));
-    testSimpleType(CIMDateTime("19991224120000.000000+360"));
+
+    // Test special floating point values: NaN, INF, -INF
+    Real32 f1 = strtod("nan", 0);
+    WsmValue wsmf1("NaN");
+    CIMValue cimf1((Real32)0.0);
+    mapper.convertWsmToCimValue(wsmf1, CIMNamespaceName(), cimf1);
+    PEGASUS_TEST_ASSERT(cimf1.toString() == "nan");
+
+    Real32 f2 = strtod("inf", 0);
+    WsmValue wsmf2("INF");
+    CIMValue cimf2((Real32)0.0);
+    mapper.convertWsmToCimValue(wsmf2, CIMNamespaceName(), cimf2);
+    PEGASUS_TEST_ASSERT(cimf2.toString() == "inf");
+
+    Real32 f3 = strtod("-inf", 0);
+    WsmValue wsmf3("-INF");
+    CIMValue cimf3((Real32)0.0);
+    mapper.convertWsmToCimValue(wsmf3, CIMNamespaceName(), cimf3);
+    PEGASUS_TEST_ASSERT(cimf3.toString() == "-inf");
+
+    Real64 d1 = strtod("nan", 0);
+    WsmValue wsmd1("NaN");
+    CIMValue cimd1((Real64)0.0);
+    mapper.convertWsmToCimValue(wsmd1, CIMNamespaceName(), cimd1);
+    PEGASUS_TEST_ASSERT(cimd1.toString() == "nan");
+
+    Real64 d2 = strtod("inf", 0);
+    WsmValue wsmd2("INF");
+    CIMValue cimd2((Real64)0.0);
+    mapper.convertWsmToCimValue(wsmd2, CIMNamespaceName(), cimd2);
+    PEGASUS_TEST_ASSERT(cimd2.toString() == "inf");
+
+    Real64 d3 = strtod("-inf", 0);
+    WsmValue wsmd3("-INF");
+    CIMValue cimd3((Real64)0.0);
+    mapper.convertWsmToCimValue(wsmd3, CIMNamespaceName(), cimd3);
+    PEGASUS_TEST_ASSERT(cimd3.toString() == "-inf");
+
+    // Test datetime
+    CIMDateTime cimDT;
+    mapper.convertWsmToCimDatetime("P1Y1M1DT10H5M44S", cimDT);
+    PEGASUS_TEST_ASSERT(cimDT == CIMDateTime("00000396100544.000000:000"));
+    mapper.convertWsmToCimDatetime("P1Y1M1DT10H5M44.0055S", cimDT);
+    PEGASUS_TEST_ASSERT(cimDT == CIMDateTime("00000396100544.005500:000"));
+    mapper.convertWsmToCimDatetime("PT10H5M44.0055S", cimDT);
+    PEGASUS_TEST_ASSERT(cimDT == CIMDateTime("00000000100544.005500:000"));
+    mapper.convertWsmToCimDatetime("P10Y", cimDT);
+    PEGASUS_TEST_ASSERT(cimDT == CIMDateTime("00003652000000.000000:000"));
+    mapper.convertWsmToCimDatetime("P10Y18M", cimDT);
+    PEGASUS_TEST_ASSERT(cimDT == CIMDateTime("00004201000000.000000:000"));
+    mapper.convertWsmToCimDatetime("P10Y18M40D", cimDT);
+    PEGASUS_TEST_ASSERT(cimDT == CIMDateTime("00004241000000.000000:000"));
+    mapper.convertWsmToCimDatetime("P10Y18M40DT34H", cimDT);
+    PEGASUS_TEST_ASSERT(cimDT == CIMDateTime("00004242100000.000000:000"));
+    mapper.convertWsmToCimDatetime("P10Y18M40DT34H70M", cimDT);
+    PEGASUS_TEST_ASSERT(cimDT == CIMDateTime("00004242111000.000000:000"));
+    mapper.convertWsmToCimDatetime("P10Y18M40DT34H70M140S", cimDT);
+    PEGASUS_TEST_ASSERT(cimDT == CIMDateTime("00004242111220.000000:000"));
+    mapper.convertWsmToCimDatetime("PT70M140S", cimDT);
+    PEGASUS_TEST_ASSERT(cimDT == CIMDateTime("00000000011220.000000:000"));
+    mapper.convertWsmToCimDatetime("PT140S", cimDT);
+    PEGASUS_TEST_ASSERT(cimDT == CIMDateTime("00000000000220.000000:000"));
+    mapper.convertWsmToCimDatetime("PT5M44.0055S", cimDT);
+    PEGASUS_TEST_ASSERT(cimDT == CIMDateTime("00000000000544.005500:000"));
+
+    mapper.convertWsmToCimDatetime("2004-12-01", cimDT);
+    PEGASUS_TEST_ASSERT(cimDT == CIMDateTime("20041201******.******+000"));
+    mapper.convertWsmToCimDatetime("2004-12-01Z", cimDT);
+    PEGASUS_TEST_ASSERT(cimDT == CIMDateTime("20041201******.******+000"));
+    mapper.convertWsmToCimDatetime("2004-12-01+02:00", cimDT);
+    PEGASUS_TEST_ASSERT(cimDT == CIMDateTime("20041201******.******+120"));
+    mapper.convertWsmToCimDatetime("2004-12-01-11:30", cimDT);
+    PEGASUS_TEST_ASSERT(cimDT == CIMDateTime("20041201******.******-690"));
+
+    mapper.convertWsmToCimDatetime("2004-12-01T12:23:34+02:00", cimDT);
+    PEGASUS_TEST_ASSERT(cimDT == CIMDateTime("20041201122334.000000+120"));
+    mapper.convertWsmToCimDatetime("2004-12-01T12:23:34.0012+02:00", cimDT);
+    PEGASUS_TEST_ASSERT(cimDT == CIMDateTime("20041201122334.001200+120"));
+    mapper.convertWsmToCimDatetime("2004-12-01T12:23:34.0012-04:15", cimDT);
+    PEGASUS_TEST_ASSERT(cimDT == CIMDateTime("20041201122334.001200-255"));
+    mapper.convertWsmToCimDatetime("2004-12-01T12:23:34Z", cimDT);
+    PEGASUS_TEST_ASSERT(cimDT == CIMDateTime("20041201122334.000000+000"));
+    mapper.convertWsmToCimDatetime("2004-12-01T12:23:34.0012Z", cimDT);
+    PEGASUS_TEST_ASSERT(cimDT == CIMDateTime("20041201122334.001200+000"));
+
+    mapper.convertWsmToCimDatetime("20041201122334.001200+360", cimDT);
+    PEGASUS_TEST_ASSERT(cimDT == CIMDateTime("20041201122334.001200+360"));
+
 
     // Test arrays of simple types
     Array<Sint8> s8_arr;
@@ -190,7 +279,6 @@ static void _testValues(void)
     testArrayType(str_arr);
 
     // Test class URI to class name conversion
-    WsmToCimRequestMapper mapper((CIMRepository*) 0);
     String classURI = String(WSM_RESOURCEURI_CIMSCHEMAV2) + "/MyClass";
     CIMName cimName = mapper.convertResourceUriToClassName(classURI);
     PEGASUS_TEST_ASSERT(cimName.getString() == "MyClass");
@@ -307,18 +395,51 @@ static void _testConversionErrors(void)
             "wxf:InvalidRepresentation");
     }
 
-    // Invalid char16
+    // Test special floating point values. The only special values allowed
+    // are INF, -INF and NaN
     {
-        CIMValue cimValue(CIMTYPE_CHAR16, false);
-        WsmValue wsmValue("35.54.32");
+        CIMValue cimValue(CIMTYPE_REAL32, false);
+        WsmValue wsmValue("+INF");
         ASSERT_FAULT(
             mapper.convertWsmToCimValue(wsmValue, CIMNamespaceName(), cimValue),
             "wxf:InvalidRepresentation");
     }
 
-    // Invalid date/time
     {
-        CIMValue cimValue(CIMTYPE_DATETIME, false);
+        CIMValue cimValue(CIMTYPE_REAL32, false);
+        WsmValue wsmValue("0x2");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimValue(wsmValue, CIMNamespaceName(), cimValue),
+            "wxf:InvalidRepresentation");
+    }
+
+    {
+        CIMValue cimValue(CIMTYPE_REAL32, false);
+        WsmValue wsmValue("nan");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimValue(wsmValue, CIMNamespaceName(), cimValue),
+            "wxf:InvalidRepresentation");
+    }
+
+    {
+        CIMValue cimValue(CIMTYPE_REAL32, false);
+        WsmValue wsmValue("inf");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimValue(wsmValue, CIMNamespaceName(), cimValue),
+            "wxf:InvalidRepresentation");
+    }
+
+    {
+        CIMValue cimValue(CIMTYPE_REAL32, false);
+        WsmValue wsmValue("i");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimValue(wsmValue, CIMNamespaceName(), cimValue),
+            "wxf:InvalidRepresentation");
+    }
+
+    // Invalid char16
+    {
+        CIMValue cimValue(CIMTYPE_CHAR16, false);
         WsmValue wsmValue("35.54.32");
         ASSERT_FAULT(
             mapper.convertWsmToCimValue(wsmValue, CIMNamespaceName(), cimValue),
@@ -337,6 +458,231 @@ static void _testConversionErrors(void)
         ASSERT_FAULT(
             CIMName cimName = mapper.convertResourceUriToClassName(classURI),
             "wsa:DestinationUnreachable");
+    }
+
+    // Invalid date/time
+    {
+        CIMDateTime cimDT;
+
+        // Invalid dates
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("-2004-12-01", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("+2004-12-01", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-+2-01", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12- 1", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("322004-12-01", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-112-01", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-00", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12:01", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-01ZX", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-01Z+01:30", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-01+001:30", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-01+01:030", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-0101:30", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-01+25:30", cimDT),
+            "wxf:InvalidRepresentation");
+         ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-01+22:66", cimDT),
+            "wxf:InvalidRepresentation");
+       ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-01+++1:3", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-01-01:-6", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-01-01:66", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-01Z+:.", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("4324g432", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("a-e-3Z", cimDT),
+            "wxf:InvalidRepresentation");
+
+        // Invalid Datetimes
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-01T", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-01T11:22:33X", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-01T11:22:33.Z", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-01T11:22:33.44Z0", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-01T11:22:33.44Z+0", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("004-12-01T11:22:33.44Z", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-01T11Z22:33.44Z", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-01T11:22:133.44Z", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-01T11:22.133Z", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("--T::", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("1-1-1T1:1:1", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime(" 004-12-01T11:22:33Z", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-+2-01T11:22:33Z", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12- 1T11:22:33Z", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-1T11:22:33Z", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-11T-1:22:33Z", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-11T11:+2:33Z", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-11T11:22: 3Z", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-11T11:22:33.X", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-11T11:22:33.+1", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-11T11:22:33.+1S", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-11T11:22:33+25:00", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("2004-12-11T11:22:33+22:66", cimDT),
+            "wxf:InvalidRepresentation");
+
+
+        // Invalid intervals
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("P", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("PT", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("P1YT", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("P100", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("PT100", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("PT100K", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("PT100Y", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("PT100D", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("P1M1Y", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("P1D1M", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("P1DT1M1H", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("P1DTM", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("P1YT1Y", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("P1YT1M1.S", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("P1YT1M1S.0", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("P1YT1H1.2M", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("P1YT1HT1M", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("P-1Y", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("P-1M", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("P-1D", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("PT-1H", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("PT-1M", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("PT-1S", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("P 1Y", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("P~Y", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("P22.33S", cimDT),
+            "wxf:InvalidRepresentation");
+        ASSERT_FAULT(
+            mapper.convertWsmToCimDatetime("PT22.33S1Y", cimDT),
+            "wxf:InvalidRepresentation");
     }
 }
 

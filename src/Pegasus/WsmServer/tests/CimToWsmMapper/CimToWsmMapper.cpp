@@ -90,9 +90,97 @@ static void _testValues(void)
     testSimpleType(Uint64(123456789));
     testSimpleType(Sint64(-123456789));
     testSimpleType(String("Hello world"));
-    testSimpleType(CIMDateTime("19991224120000.000000+360"));
 
     CimToWsmResponseMapper mapper;
+    String str;
+
+    // Test special floating point values: NaN, INF, -INF
+    Real32 f1 = strtod("nan", 0);
+    CIMValue cimf1(f1);
+    WsmValue wsmf1;
+    mapper.convertCimToWsmValue(cimf1, wsmf1);
+    wsmf1.get(str);
+    PEGASUS_TEST_ASSERT(str == "NaN");
+
+    Real32 f2 = strtod("inf", 0);
+    CIMValue cimf2(f2);
+    WsmValue wsmf2;
+    mapper.convertCimToWsmValue(cimf2, wsmf2);
+    wsmf2.get(str);
+    PEGASUS_TEST_ASSERT(str == "INF");
+
+    Real32 f3 = strtod("-inf", 0);
+    CIMValue cimf3(f3);
+    WsmValue wsmf3;
+    mapper.convertCimToWsmValue(cimf3, wsmf3);
+    wsmf3.get(str);
+    PEGASUS_TEST_ASSERT(str == "-INF");
+
+    Real64 d1 = strtod("nan", 0);
+    CIMValue cimd1(d1);
+    WsmValue wsmd1;
+    mapper.convertCimToWsmValue(cimd1, wsmd1);
+    wsmd1.get(str);
+    PEGASUS_TEST_ASSERT(str == "NaN");
+
+    Real64 d2 = strtod("inf", 0);
+    CIMValue cimd2(d2);
+    WsmValue wsmd2;
+    mapper.convertCimToWsmValue(cimd2, wsmd2);
+    wsmd2.get(str);
+    PEGASUS_TEST_ASSERT(str == "INF");
+
+    Real64 d3 = strtod("-inf", 0);
+    CIMValue cimd3(d3);
+    WsmValue wsmd3;
+    mapper.convertCimToWsmValue(cimd3, wsmd3);
+    wsmd3.get(str);
+    PEGASUS_TEST_ASSERT(str == "-INF");
+
+    // Test datetime conversions
+    String wsmDT;
+    mapper.convertCimToWsmDatetime(
+        CIMDateTime("19991224120000.000000+060"), wsmDT);
+    PEGASUS_TEST_ASSERT(wsmDT == "1999-12-24T12:00:00+01:00");
+    mapper.convertCimToWsmDatetime(
+        CIMDateTime("09990204020105.000000+060"), wsmDT);
+    PEGASUS_TEST_ASSERT(wsmDT == "0999-02-04T02:01:05+01:00");
+    mapper.convertCimToWsmDatetime(
+        CIMDateTime("19991224120000.000123+360"), wsmDT);
+    PEGASUS_TEST_ASSERT(wsmDT == "1999-12-24T12:00:00.000123+06:00");
+    mapper.convertCimToWsmDatetime(
+        CIMDateTime("19991224120000.000000-090"), wsmDT);
+    PEGASUS_TEST_ASSERT(wsmDT == "1999-12-24T12:00:00-01:30");
+    mapper.convertCimToWsmDatetime(
+        CIMDateTime("19991224120000.000000-665"), wsmDT);
+    PEGASUS_TEST_ASSERT(wsmDT == "1999-12-24T12:00:00-11:05");
+    mapper.convertCimToWsmDatetime(
+        CIMDateTime("19991224120000.123000+000"), wsmDT);
+    PEGASUS_TEST_ASSERT(wsmDT == "1999-12-24T12:00:00.123000Z");
+    mapper.convertCimToWsmDatetime(
+        CIMDateTime("19991224120000.123000-000"), wsmDT);
+    PEGASUS_TEST_ASSERT(wsmDT == "1999-12-24T12:00:00.123000Z");
+    mapper.convertCimToWsmDatetime(
+        CIMDateTime("19991224******.******+000"), wsmDT);
+    PEGASUS_TEST_ASSERT(wsmDT == "1999-12-24Z");
+    mapper.convertCimToWsmDatetime(
+        CIMDateTime("19991224******.******+360"), wsmDT);
+    PEGASUS_TEST_ASSERT(wsmDT == "1999-12-24+06:00");
+    mapper.convertCimToWsmDatetime(
+        CIMDateTime("199912********.******+000"), wsmDT);
+    PEGASUS_TEST_ASSERT(wsmDT == "199912********.******+000");
+    mapper.convertCimToWsmDatetime(
+        CIMDateTime("11111111223344.555***:000"), wsmDT);
+    PEGASUS_TEST_ASSERT(wsmDT == "P11111111DT22H33M44.555S");
+    mapper.convertCimToWsmDatetime(
+        CIMDateTime("111111112233**.******:000"), wsmDT);
+    PEGASUS_TEST_ASSERT(wsmDT == "P11111111DT22H33M");
+    mapper.convertCimToWsmDatetime(
+        CIMDateTime("11111111******.******:000"), wsmDT);
+    PEGASUS_TEST_ASSERT(wsmDT == "P11111111D");
+    mapper.convertCimToWsmDatetime(
+        CIMDateTime("0000000011****.******:000"), wsmDT);
+    PEGASUS_TEST_ASSERT(wsmDT == "PT11H");
 
     // Test embedded instances
     {
@@ -267,17 +355,27 @@ static void _testArrayValues(void)
     c16_arr.append(Char16('X'));
     testArrayType(c16_arr);
 
-    Array<CIMDateTime> dt_arr;
-    dt_arr.append(CIMDateTime("19991224120000.000000+360"));
-    dt_arr.append(CIMDateTime("20001224120000.000000+360"));
-    testArrayType(dt_arr);
-
     Array<String> str_arr;
     str_arr.append("Test string 1");
     str_arr.append("Test string 2");
     testArrayType(str_arr);
 
     CimToWsmResponseMapper mapper;
+
+    // Test arrays of datetimes
+    {
+        Array<String> wsmDTs;
+        Array<CIMDateTime> cimDTs;
+        cimDTs.append(CIMDateTime("19991224120000.000000+360"));
+        cimDTs.append(CIMDateTime("20001224120000.000000+360"));
+        CIMValue cimValue(cimDTs);
+        WsmValue wsmValue;
+        mapper.convertCimToWsmValue(cimValue, wsmValue);
+        wsmValue.get(wsmDTs);
+        PEGASUS_TEST_ASSERT(wsmDTs.size() == 2 &&
+            wsmDTs[0] == "1999-12-24T12:00:00+06:00" && 
+            wsmDTs[1] == "2000-12-24T12:00:00+06:00");
+    }
 
     // Test arrays of instances
     {

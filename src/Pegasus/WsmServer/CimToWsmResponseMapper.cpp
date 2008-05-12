@@ -35,10 +35,13 @@
 #include <cstdio>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/WsmServer/WsmConstants.h>
 #include "CimToWsmResponseMapper.h"
 
+PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 CimToWsmResponseMapper::CimToWsmResponseMapper()
@@ -391,7 +394,9 @@ void CimToWsmResponseMapper::convertCimToWsmValue(
                 cimValue.get(dates);
                 for (Uint32 i = 0, n = dates.size(); i < n; i++)
                 {
-                    strs.append(dates[i].toString());
+                    String wsmDT;
+                    convertCimToWsmDatetime(dates[i], wsmDT);
+                    strs.append(wsmDT);
                 }
                 wsmValue.set(strs);
                 break;
@@ -483,13 +488,33 @@ void CimToWsmResponseMapper::convertCimToWsmValue(
             case CIMTYPE_SINT32:
             case CIMTYPE_UINT64:
             case CIMTYPE_SINT64:
-            case CIMTYPE_REAL32:
-            case CIMTYPE_REAL64:
             case CIMTYPE_CHAR16:
             case CIMTYPE_STRING:
-            case CIMTYPE_DATETIME:
             {
                 wsmValue.set(cimValue.toString());
+                break;
+            }
+            case CIMTYPE_REAL32:
+            case CIMTYPE_REAL64:
+            {
+                String str(cimValue.toString());
+                if (String::compareNoCase(str, "nan") == 0)
+                    wsmValue.set("NaN");
+                else if (String::compareNoCase(str, "inf") == 0)
+                    wsmValue.set("INF");
+                else if (String::compareNoCase(str, "-inf") == 0)
+                    wsmValue.set("-INF");
+                else
+                    wsmValue.set(str);
+                break;
+            }
+            case CIMTYPE_DATETIME:
+            {
+                String wsmDT;
+                CIMDateTime cimDT;
+                cimValue.get(cimDT);
+                convertCimToWsmDatetime(cimDT, wsmDT);
+                wsmValue.set(wsmDT);
                 break;
             }
             case CIMTYPE_REFERENCE:
@@ -585,4 +610,144 @@ void CimToWsmResponseMapper::convertObjPathToEPR(
     }
 }
 
+void CimToWsmResponseMapper::convertCimToWsmDatetime(
+    const CIMDateTime& cimDT, String& wsmDT)
+{
+    char buffer[50];
+    Uint32 size;
+
+    String cimStrDT = cimDT.toString();
+    CString cimCStrDT = cimStrDT.getCString();
+    const char* cimStr = (const char*) cimCStrDT;
+    Uint32 firstAsteriskPos = cimStrDT.find('*');
+
+    // DSP0230. 
+    // 1. If CIM datetime string contains ":", use Interval cim:cimDateTime
+    // element.
+    // 2. If CIM datetime string contains "+" or "-" and does not contain any
+    // asterisks, use Datetime cim:cimDateTime element.
+    // 3. If CIM datetime string contains "+" or "-" and no asterisks in 
+    // the hhmmss.mmmmmm portion, and only asterisks in the yyyymmdd portion,
+    // ATTN: this makes no sense. yyyymmdd cannot be wildcarded unless
+    // previous sections are wildcarded. 
+    // use Time cim:cimDateTime element.
+    // 4. If CIM datetime string contains "+" or "-" and no asterisks in the 
+    // yyyymmdd portion, and only asterisks in the hhmmss.mmmmmm portion,
+    // use Date cim:cimDateTime element.
+    // 5. In all other cases use CIM_DateTime element.
+
+    if (cimStr[21] == ':')
+    {
+        // Interval
+        Uint32 days = 0, hrs = 0, mins = 0, secs = 0, msecs = 0;
+        int conversions = sscanf(cimStr, "%8u%2u%2u%2u.%u:000", 
+            &days, &hrs, &mins, &secs, &msecs);
+        if (conversions == 0 && cimStr[0] == '*') 
+            days = 1;
+
+        wsmDT = "P";
+        if (conversions >= 1 && days)
+        {
+            wsmDT.append(Uint32ToString(buffer, days, size));
+            wsmDT.append(Char16('D'));
+        }
+        if (conversions >= 2 ) 
+        {
+            wsmDT.append(Char16('T'));
+            if (hrs)
+            {
+                wsmDT.append(Uint32ToString(buffer, hrs, size));
+                wsmDT.append(Char16('H'));
+            }
+        }
+        if (conversions >= 3 && mins)
+        {
+            wsmDT.append(Uint32ToString(buffer, mins, size));
+            wsmDT.append(Char16('M'));
+        }
+        if (conversions >= 4 && secs) 
+        {
+            wsmDT.append(Uint32ToString(buffer, secs, size));
+            if (conversions >= 5 && msecs)
+            {
+                wsmDT.append(Char16('.'));
+                wsmDT.append(Uint32ToString(buffer, msecs, size));
+            }
+            wsmDT.append(Char16('S'));
+        }
+    }
+    else if ((cimStr[21] == '+' || cimStr[21] == '-') && 
+             firstAsteriskPos == PEG_NOT_FOUND)
+    {
+        // Datetime
+        Uint32 year = 0, month = 0, day = 0, utcoff = 0,
+            hrs = 0, mins = 0, secs = 0, msecs = 0;
+        char sign;
+        int conversions = sscanf(cimStr, 
+            "%4u%2u%2u%2u%2u%2u.%6u%c%3u", 
+            &year, &month, &day, &hrs, &mins, &secs, &msecs, &sign, &utcoff);
+
+        PEGASUS_ASSERT(conversions == 9);
+
+        if (utcoff == 0)
+        {
+            if (msecs)
+            {
+                sprintf(buffer, "%.4u-%.2u-%.2uT%.2u:%.2u:%.2u.%.6uZ", 
+                    year, month, day, hrs, mins, secs, msecs);
+            }
+            else
+            {
+                sprintf(buffer, "%.4u-%.2u-%.2uT%.2u:%.2u:%.2uZ", 
+                    year, month, day, hrs, mins, secs);
+            }
+        }
+        else
+        {
+            Uint32 utch = utcoff / 60;
+            Uint32 utcm = utcoff % 60;
+            if (msecs)
+            {
+                sprintf(buffer, "%.4u-%.2u-%.2uT%.2u:%.2u:%.2u.%.6u%c%.2u:%.2u",
+                    year, month, day, hrs, mins, secs, msecs, 
+                    sign, utch, utcm);
+            }
+            else
+            {
+                sprintf(buffer, "%.4u-%.2u-%.2uT%.2u:%.2u:%.2u%c%.2u:%.2u", 
+                    year, month, day, hrs, mins, secs, sign, utch, utcm);
+            }
+        }
+        wsmDT = buffer;
+    }
+    else if ((cimStr[21] == '+' || cimStr[21] == '-') && 
+             firstAsteriskPos == 8)
+    {
+        // Date
+        Uint32 year = 0, month = 0, day = 0, utcoff = 0;
+        char sign;
+        int conversions = sscanf(cimStr, "%4u%2u%2u******.******%c%3u", 
+            &year, &month, &day, &sign, &utcoff);
+
+        PEGASUS_ASSERT(conversions == 5);
+
+        if (utcoff == 0)
+        {
+            sprintf(buffer, "%.4u-%.2u-%.2uZ", year, month, day);
+        }
+        else
+        {
+            Uint32 utch = utcoff / 60;
+            Uint32 utcm = utcoff % 60;
+            sprintf(buffer, "%.4u-%.2u-%.2u%c%.2u:%.2u", 
+                year, month, day, sign, utch, utcm);
+        }
+        wsmDT = buffer;
+    }
+    else
+    {
+        // CIM_DateTime
+        wsmDT = cimStr;
+    }
+}
 PEGASUS_NAMESPACE_END

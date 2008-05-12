@@ -87,7 +87,7 @@ public:
         Uint32& httpHeaderSize);
 
     static void appendInstanceElement(
-        Buffer& out, WsmInstance& instance);
+        Buffer& out, WsmInstance& instance, Boolean isEmbedded = false);
     static void appendPropertyElement(
         Buffer& out, WsmProperty& property);
     static void appendEPRElement(

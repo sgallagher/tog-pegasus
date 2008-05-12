@@ -42,6 +42,8 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Client/CIMClient.h>
 
+#include <Providers/TestProviders/TestProviderRegistration.h>
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
@@ -59,79 +61,6 @@ const Boolean ERROR_ON_INVALID_KEY = true;
 #endif
 
 Boolean verbose;
-
-void _createModuleInstance
-    (CIMClient & client,
-     const String & name,
-     const String & location)
-{
-    CIMInstance moduleInstance (PEGASUS_CLASSNAME_PROVIDERMODULE);
-    moduleInstance.addProperty (CIMProperty (CIMName ("Name"), name));
-    moduleInstance.addProperty (CIMProperty (CIMName ("Vendor"),
-        String ("Hewlett-Packard Company")));
-    moduleInstance.addProperty (CIMProperty (CIMName ("Version"),
-        String ("2.0")));
-    moduleInstance.addProperty (CIMProperty (CIMName ("InterfaceType"),
-        String ("C++Default")));
-    moduleInstance.addProperty (CIMProperty (CIMName ("InterfaceVersion"),
-        String ("2.2.0")));
-    moduleInstance.addProperty (CIMProperty (CIMName ("Location"), location));
-
-    CIMObjectPath path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP,
-                                                moduleInstance);
-}
-
-void _createProviderInstance
-    (CIMClient & client,
-     const String & name,
-     const String & providerModuleName)
-{
-    CIMInstance providerInstance (PEGASUS_CLASSNAME_PROVIDER);
-    providerInstance.addProperty (CIMProperty (CIMName ("Name"), name));
-    providerInstance.addProperty (CIMProperty (CIMName ("ProviderModuleName"),
-        providerModuleName));
-
-    CIMObjectPath path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP,
-        providerInstance);
-}
-
-void _createCapabilityInstance
-    (CIMClient & client,
-     const String & providerModuleName,
-     const String & providerName,
-     const String & capabilityID,
-     const String & className,
-     const Array <String> & namespaces,
-     const Array <Uint16> & providerTypes,
-     const CIMPropertyList & supportedProperties)
-{
-    CIMInstance capabilityInstance (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES);
-    capabilityInstance.addProperty (CIMProperty (CIMName ("ProviderModuleName"),
-        providerModuleName));
-    capabilityInstance.addProperty (CIMProperty (CIMName ("ProviderName"),
-        providerName));
-    capabilityInstance.addProperty (CIMProperty (CIMName ("CapabilityID"),
-        capabilityID));
-    capabilityInstance.addProperty (CIMProperty (CIMName ("ClassName"),
-        className));
-    capabilityInstance.addProperty (CIMProperty (CIMName ("Namespaces"),
-        namespaces));
-    capabilityInstance.addProperty (CIMProperty (CIMName ("ProviderType"),
-        providerTypes));
-    if (!supportedProperties.isNull())
-    {
-        Array <String> propertyNameStrings;
-        for (Uint32 i = 0; i < supportedProperties.size(); i++)
-        {
-            propertyNameStrings.append (supportedProperties [i].getString());
-        }
-        capabilityInstance.addProperty (CIMProperty
-            (CIMName ("supportedProperties"), propertyNameStrings));
-    }
-
-    CIMObjectPath path = client.createInstance (PEGASUS_NAMESPACENAME_INTEROP,
-        capabilityInstance);
-}
 
 void _modifyCapabilityInstance
     (CIMClient & client,
@@ -675,51 +604,6 @@ void _deleteFilterInstance
         PEGASUS_NAMESPACENAME_INTEROP);
 }
 
-void _deleteCapabilityInstance
-    (CIMClient & client,
-     const String & providerModuleName,
-     const String & providerName,
-     const String & capabilityID)
-{
-    Array<CIMKeyBinding> keyBindings;
-    keyBindings.append (CIMKeyBinding ("ProviderModuleName",
-        providerModuleName, CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("ProviderName",
-        providerName, CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("CapabilityID",
-        capabilityID, CIMKeyBinding::STRING));
-    CIMObjectPath path ("", CIMNamespaceName(),
-        CIMName ("PG_ProviderCapabilities"), keyBindings);
-    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
-}
-
-void _deleteProviderInstance
-    (CIMClient & client,
-     const String & name,
-     const String & providerModuleName)
-{
-    Array<CIMKeyBinding> keyBindings;
-    keyBindings.append (CIMKeyBinding ("Name",
-        name, CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("ProviderModuleName",
-        providerModuleName, CIMKeyBinding::STRING));
-    CIMObjectPath path ("", CIMNamespaceName(),
-        CIMName ("PG_Provider"), keyBindings);
-    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
-}
-
-void _deleteModuleInstance
-    (CIMClient & client,
-     const String & name)
-{
-    Array<CIMKeyBinding> keyBindings;
-    keyBindings.append (CIMKeyBinding ("Name",
-        name, CIMKeyBinding::STRING));
-    CIMObjectPath path ("", CIMNamespaceName(),
-        CIMName ("PG_ProviderModule"), keyBindings);
-    client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
-}
-
 void _usage()
 {
     cerr
@@ -740,13 +624,18 @@ void _register (CIMClient & client)
         //
         //  Register the ProcessIndicationProvider
         //
-        _createModuleInstance (client,
-            String ("ProcessIndicationProviderModule"),
-            String ("ProcessIndicationProvider"));
-        _createProviderInstance (client,
-            String ("ProcessIndicationProvider"),
-            String ("ProcessIndicationProviderModule"));
-        _createCapabilityInstance (client,
+        TestProviderRegistration::createModuleInstance(
+            client,
+            String("ProcessIndicationProviderModule"),
+            String("ProcessIndicationProvider"));
+
+        TestProviderRegistration::createProviderInstance(
+            client,
+            String("ProcessIndicationProvider"),
+            String("ProcessIndicationProviderModule"));
+
+        TestProviderRegistration::createCapabilityInstance(
+            client,
             String ("ProcessIndicationProviderModule"),
             String ("ProcessIndicationProvider"),
             String ("ProcessIndicationProviderCapability"),
@@ -758,17 +647,22 @@ void _register (CIMClient & client)
         //
         //  Register the AlertIndicationProvider
         //
-        _createModuleInstance (client,
-            String ("AlertIndicationProviderModule"),
-            String ("AlertIndicationProvider"));
-        _createProviderInstance (client,
-            String ("AlertIndicationProvider"),
-            String ("AlertIndicationProviderModule"));
-        _createCapabilityInstance (client,
-            String ("AlertIndicationProviderModule"),
-            String ("AlertIndicationProvider"),
-            String ("AlertIndicationProviderCapability"),
-            String ("CIM_AlertIndication"),
+        TestProviderRegistration::createModuleInstance(
+            client,
+            String("AlertIndicationProviderModule"),
+            String("AlertIndicationProvider"));
+
+        TestProviderRegistration::createProviderInstance(
+            client,
+            String("AlertIndicationProvider"),
+            String("AlertIndicationProviderModule"));
+
+        TestProviderRegistration::createCapabilityInstance(
+            client,
+            String("AlertIndicationProviderModule"),
+            String("AlertIndicationProvider"),
+            String("AlertIndicationProviderCapability"),
+            String("CIM_AlertIndication"),
             namespaces,
             providerTypes,
             CIMPropertyList());
@@ -1579,14 +1473,16 @@ void _valid (CIMClient & client, String& qlang)
     providerTypes.append (4);
     propertyNames.append (CIMName ("IndicationTime"));
     CIMPropertyList properties (propertyNames);
-    _createProviderInstance (client,
-        String ("ProcessIndicationProvider2"),
-        String ("ProcessIndicationProviderModule"));
-    _createCapabilityInstance (client,
-        String ("ProcessIndicationProviderModule"),
-        String ("ProcessIndicationProvider2"),
-        String ("ProcessIndicationProviderCapability2"),
-        String ("CIM_ProcessIndication"),
+    TestProviderRegistration::createProviderInstance(
+        client,
+        String("ProcessIndicationProvider2"),
+        String("ProcessIndicationProviderModule"));
+    TestProviderRegistration::createCapabilityInstance(
+        client,
+        String("ProcessIndicationProviderModule"),
+        String("ProcessIndicationProvider2"),
+        String("ProcessIndicationProviderCapability2"),
+        String("CIM_ProcessIndication"),
         namespaces,
         providerTypes,
         properties);
@@ -1624,11 +1520,13 @@ void _valid (CIMClient & client, String& qlang)
     //
     //  Delete the provider
     //
-    _deleteCapabilityInstance (client,
+    TestProviderRegistration::deleteCapabilityInstance(
+        client,
         "ProcessIndicationProviderModule",
         "ProcessIndicationProvider2",
         "ProcessIndicationProviderCapability2");
-    _deleteProviderInstance (client,
+    TestProviderRegistration::deleteProviderInstance(
+        client,
         "ProcessIndicationProvider2",
         "ProcessIndicationProviderModule");
 
@@ -4907,7 +4805,8 @@ void _cleanup (CIMClient & client)
     //
     try
     {
-        _deleteCapabilityInstance (client,
+        TestProviderRegistration::deleteCapabilityInstance(
+            client,
             "AlertIndicationProviderModule",
             "AlertIndicationProvider",
             "AlertIndicationProviderCapability");
@@ -4918,7 +4817,8 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteProviderInstance (client,
+        TestProviderRegistration::deleteProviderInstance(
+            client,
             "AlertIndicationProvider",
             "AlertIndicationProviderModule");
     }
@@ -4928,7 +4828,8 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteModuleInstance (client,
+        TestProviderRegistration::deleteModuleInstance(
+            client,
             "AlertIndicationProviderModule");
     }
     catch (...)
@@ -4937,7 +4838,8 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteCapabilityInstance (client,
+        TestProviderRegistration::deleteCapabilityInstance(
+            client,
             "ProcessIndicationProviderModule",
             "ProcessIndicationProvider",
             "ProcessIndicationProviderCapability");
@@ -4948,7 +4850,8 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteProviderInstance (client,
+        TestProviderRegistration::deleteProviderInstance(
+            client,
             "ProcessIndicationProvider",
             "ProcessIndicationProviderModule");
     }
@@ -4958,7 +4861,8 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteModuleInstance (client,
+        TestProviderRegistration::deleteModuleInstance(
+            client,
             "ProcessIndicationProviderModule");
     }
     catch (...)
@@ -4972,24 +4876,30 @@ void _unregister (CIMClient & client)
 {
     try
     {
-        _deleteCapabilityInstance (client,
+        TestProviderRegistration::deleteCapabilityInstance(
+            client,
             "AlertIndicationProviderModule",
             "AlertIndicationProvider",
             "AlertIndicationProviderCapability");
-        _deleteProviderInstance (client,
+        TestProviderRegistration::deleteProviderInstance(
+            client,
             "AlertIndicationProvider",
             "AlertIndicationProviderModule");
-        _deleteModuleInstance (client,
+        TestProviderRegistration::deleteModuleInstance(
+            client,
             "AlertIndicationProviderModule");
 
-        _deleteCapabilityInstance (client,
+        TestProviderRegistration::deleteCapabilityInstance(
+            client,
             "ProcessIndicationProviderModule",
             "ProcessIndicationProvider",
             "ProcessIndicationProviderCapability");
-        _deleteProviderInstance (client,
+        TestProviderRegistration::deleteProviderInstance(
+            client,
             "ProcessIndicationProvider",
             "ProcessIndicationProviderModule");
-        _deleteModuleInstance (client,
+        TestProviderRegistration::deleteModuleInstance(
+            client,
             "ProcessIndicationProviderModule");
     }
     catch (Exception & e)

@@ -46,8 +46,6 @@ include $(ROOT)/mak/program.mak
 tests:
 
 poststarttests:
-	@cimprovider -d -m IndicationTestProviderModule
-	@cimprovider -e -m IndicationTestProviderModule
 	@$(PROGRAM)
 
 cleanup:

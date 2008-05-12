@@ -511,10 +511,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
             }
             else
             {
-                Logger::put(
-                    Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                    "Not enough threads to process agent request.");
-
+                // TBD-7646
                 PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
                     "Could not allocate thread to process agent request.");
 
@@ -710,10 +707,7 @@ void ProviderAgent::_unloadIdleProviders()
     }
     if (rtn != PEGASUS_THREAD_OK)
     {
-
-         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-             "Not enough threads to unload idle providers.");
-
+         // TBD-7646
          PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
              "Could not allocate thread to unload idle providers.");
     }

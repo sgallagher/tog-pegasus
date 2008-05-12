@@ -815,13 +815,15 @@ void DefaultProviderManager::_unloadProvider(ProviderMessageHandler* provider)
 
         // unload provider module
         PEGASUS_ASSERT(provider->status.getModule() != 0);
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
             "Unloading provider module: " + provider->getName());
         provider->status.getModule()->unloadModule();
 
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager:  Unloaded provider $0",
-            provider->getName());
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL3,
+            "DefaultProviderManager:  Unloaded provider %s",
+            (const char*) provider->getName().getCString()));
 
         // NOTE: The "delete provider->status.getCIMOMHandle()" operation
         //   was moved to be called after the unloadModule() call above

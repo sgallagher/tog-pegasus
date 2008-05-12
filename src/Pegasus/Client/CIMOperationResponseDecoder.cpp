@@ -184,7 +184,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     {
         Logger::put(Logger::STANDARD_LOG,
             System::CIMSERVER,
-            Logger::TRACE,
+            Logger::INFORMATION,
             "CIMOperationRequestDecoder::Response, XML content: $1",
             httpMessage->message.getData());
     }
@@ -668,11 +668,6 @@ void CIMOperationResponseDecoder::_handleMethodResponse(
     }
     catch (XmlException& x)
     {
-        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
-            "CIMOperationResponseDecoder::_handleMethodResponse - "
-                "XmlException has occurred. Message: $0",
-            x.getMessage());
-
         if (response)
         {
 //#ifdef PEGASUS_SNIA_INTEROP_TEST

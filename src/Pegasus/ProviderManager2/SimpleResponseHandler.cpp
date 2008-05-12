@@ -35,7 +35,7 @@
 
 #include <Pegasus/ProviderManager2/OperationResponseHandler.h>
 
-#include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -53,21 +53,18 @@ SimpleResponseHandler::~SimpleResponseHandler()
 
 void SimpleResponseHandler::processing()
 {
-    Logger::put(
-        Logger::STANDARD_LOG,
-        System::CIMSERVER,
-        Logger::TRACE,
+    PEG_TRACE_CSTRING(
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL3,
         "SimpleResponseHandler::processing()");
-
     // do nothing
 }
 
 void SimpleResponseHandler::complete()
 {
-    Logger::put(
-        Logger::STANDARD_LOG,
-        System::CIMSERVER,
-        Logger::TRACE,
+    PEG_TRACE_CSTRING(
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL3,
         "SimpleResponseHandler::complete()");
 
     send(true);
@@ -86,10 +83,9 @@ void SimpleResponseHandler::clear()
 
 ContentLanguageList SimpleResponseHandler::getLanguages()
 {
-    Logger::put(
-        Logger::STANDARD_LOG,
-        System::CIMSERVER,
-        Logger::TRACE,
+    PEG_TRACE_CSTRING(
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL3,
         "SimpleResponseHandler: getLanguages()");
 
     ContentLanguageList langs;
@@ -154,11 +150,10 @@ void SimpleInstanceResponseHandler::clear()
 
 void SimpleInstanceResponseHandler::deliver(const CIMInstance& instance)
 {
-    PEG_LOGGER_TRACE((
-        Logger::STANDARD_LOG,
-        System::CIMSERVER,
-        Logger::TRACE,
-        "SimpleInstanceResponseHandler::deliver()"));
+    PEG_TRACE_CSTRING(
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL4,
+        "SimpleInstanceResponseHandler::deliver()");
 
     _objects.append(instance);
 
@@ -209,10 +204,9 @@ void SimpleObjectPathResponseHandler::clear()
 
 void SimpleObjectPathResponseHandler::deliver(const CIMObjectPath& objectPath)
 {
-    Logger::put(
-        Logger::STANDARD_LOG,
-        System::CIMSERVER,
-        Logger::TRACE,
+    PEG_TRACE_CSTRING(
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL4,
         "SimpleObjectPathResponseHandler::deliver()");
 
     _objects.append(objectPath);
@@ -286,10 +280,9 @@ void SimpleMethodResultResponseHandler::deliverParamValue(
 
 void SimpleMethodResultResponseHandler::deliver(const CIMValue& returnValue)
 {
-    Logger::put(
-        Logger::STANDARD_LOG,
-        System::CIMSERVER,
-        Logger::TRACE,
+    PEG_TRACE_CSTRING(
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL4,
         "SimpleMethodResultResponseHandler::deliver()");
 
     _returnValue = returnValue;
@@ -338,10 +331,9 @@ void SimpleIndicationResponseHandler::clear()
 
 void SimpleIndicationResponseHandler::deliver(const CIMIndication& indication)
 {
-    Logger::put(
-        Logger::STANDARD_LOG,
-        System::CIMSERVER,
-        Logger::TRACE,
+    PEG_TRACE_CSTRING(
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL4,
         "SimpleIndicationResponseHandler::deliver()");
 
     _objects.append(indication);
@@ -363,10 +355,9 @@ void SimpleIndicationResponseHandler::deliver(
     const OperationContext& context,
     const CIMIndication& indication)
 {
-    Logger::put(
-        Logger::STANDARD_LOG,
-        System::CIMSERVER,
-        Logger::TRACE,
+    PEG_TRACE_CSTRING(
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL4,
         "SimpleIndicationResponseHandler::deliver()");
 
     _objects.append(indication);
@@ -419,10 +410,9 @@ void SimpleObjectResponseHandler::clear()
 
 void SimpleObjectResponseHandler::deliver(const CIMObject& object)
 {
-    Logger::put(
-        Logger::STANDARD_LOG,
-        System::CIMSERVER,
-        Logger::TRACE,
+    PEG_TRACE_CSTRING(
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL4,
         "SimpleObjectResponseHandler::deliver()");
 
     _objects.append(object);
@@ -474,10 +464,9 @@ void SimpleInstance2ObjectResponseHandler::clear()
 
 void SimpleInstance2ObjectResponseHandler::deliver(const CIMInstance& object)
 {
-    Logger::put(
-        Logger::STANDARD_LOG,
-        System::CIMSERVER,
-        Logger::TRACE,
+    PEG_TRACE_CSTRING(
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL4,
         "SimpleInstance2ObjectResponseHandler::deliver()");
 
     _objects.append(CIMObject(object));
@@ -531,10 +520,9 @@ void SimpleValueResponseHandler::clear()
 
 void SimpleValueResponseHandler::deliver(const CIMValue& value)
 {
-    Logger::put(
-        Logger::STANDARD_LOG,
-        System::CIMSERVER,
-        Logger::TRACE,
+    PEG_TRACE_CSTRING(
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL4,
         "SimpleValueResponseHandler::deliver()");
 
     _objects.append(value);

@@ -454,9 +454,6 @@ void InteropProvider::deleteNamespace(
         "Namespace = " + deleteNamespaceName.getString() +
             " successfully deleted.");
 
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-        "Interop Provider Delete Namespace: $0",
-        deleteNamespaceName.getString());
     PEG_METHOD_EXIT();
 }
 
@@ -517,16 +514,15 @@ CIMObjectPath InteropProvider::createNamespace(
     //
     repository->createNameSpace(newNamespaceName, attributes);
 
-    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-        "Namespace = " + newNamespaceName.getString() +
-            " successfully created.");
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-        "Create Namespace $0: Shareable = $1, Updates allowed: $2, "
-            "Parent: $3",
-        newNamespaceName.getString(),
+    PEG_TRACE((
+        TRC_CONTROLPROVIDER,
+        Tracer::LEVEL4,
+        "Namespace %s: Shareable = %s, Updates allowed: %s, Parent: %s"
+            "  successfully created.",
+        (const char*) newNamespaceName.getString().getCString(),
         shareable? "true" : "false",
         updatesAllowed? "true" : "false",
-        parent);
+        (const char*) parent.getCString()));
 
     return newInstanceReference;
 }

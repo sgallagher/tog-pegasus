@@ -904,11 +904,15 @@ void CIMOperationRequestEncoder::_sendRequest(Buffer& buffer)
     }
     if (_showOutput & 2)
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        Logger::put(
+            Logger::STANDARD_LOG,
+            System::CIMSERVER,
+            Logger::INFORMATION,
             "CIMOperationRequestEncoder::SendRequest, XML content: $1",
             buffer.getData());
     }
 #endif
+
 
     HTTPMessage * http_request = new HTTPMessage(buffer);
 

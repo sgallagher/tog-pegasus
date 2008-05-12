@@ -1342,10 +1342,12 @@ CIMObjectPath ProviderRegistrationManager::createInstance(
 
     CIMObjectPath cimRef = _createInstance(ref, instance, OP_CREATE);
 
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    PEG_TRACE((
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL3,
         "ProviderRegistrationManager::createInstance"
-            " - Create instance object path: $0",
-        cimRef.toString());
+            " - Create instance object path: %s",
+        (const char*) cimRef.toString().getCString()));
 
     return cimRef;
 }
@@ -1358,10 +1360,12 @@ void ProviderRegistrationManager::deleteInstance(
 
     _deleteInstance(instanceReference, OP_DELETE);
 
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    PEG_TRACE((
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL3,
         "ProviderRegistrationManager::deleteInstance"
-            " - delete instance object path: $0",
-        instanceReference.toString());
+            " - delete instance object path: %s",
+        (const char*) instanceReference.toString().getCString()));
 }
 
 // modify a registered provider

@@ -371,10 +371,12 @@ CIMResponseMessage* ProviderMessageHandler::_handleGetInstanceRequest(
         request->instanceName.getClassName(),
         request->instanceName.getKeyBindings());
 
-    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    PEG_TRACE((
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL3,
         "ProviderMessageHandler::_handleGetInstanceRequest - "
-            "Object path: $0",
-        objectPath.toString()));
+            "Object path: %s",
+        (const char*) objectPath.toString().getCString()));
 
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
@@ -426,10 +428,12 @@ CIMResponseMessage* ProviderMessageHandler::_handleEnumerateInstancesRequest(
         request->nameSpace,
         request->className);
 
-    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    PEG_TRACE((
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL3,
         "ProviderMessageHandler::_handleEnumerateInstancesRequest - "
-            "Object path: $0",
-        objectPath.toString()));
+            "Object path: %s",
+        (const char*) objectPath.toString().getCString()));
 
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
@@ -482,10 +486,12 @@ CIMResponseMessage*
         request->nameSpace,
         request->className);
 
-    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    PEG_TRACE((
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL3,
         "ProviderMessageHandler::_handleEnumerateInstanceNamesRequest - "
-            "Object path: $0",
-        objectPath.toString()));
+            "Object path: %s",
+        (const char*) objectPath.toString().getCString()));
 
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
@@ -535,10 +541,12 @@ CIMResponseMessage* ProviderMessageHandler::_handleCreateInstanceRequest(
         request->newInstance.getPath().getClassName(),
         request->newInstance.getPath().getKeyBindings());
 
-    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    PEG_TRACE((
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL3,
         "ProviderMessageHandler::_handleCreateInstanceRequest - "
-            "Object path: $0",
-        objectPath.toString()));
+            "Object path: %s",
+        (const char*) objectPath.toString().getCString()));
 
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
@@ -589,10 +597,12 @@ CIMResponseMessage* ProviderMessageHandler::_handleModifyInstanceRequest(
         request->modifiedInstance.getPath().getClassName(),
         request->modifiedInstance.getPath().getKeyBindings());
 
-    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    PEG_TRACE((
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL3,
         "ProviderMessageHandler::_handleModifyInstanceRequest - "
-            "Object path: $0",
-        objectPath.toString()));
+            "Object path: %s",
+        (const char*) objectPath.toString().getCString()));
 
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
@@ -645,10 +655,12 @@ CIMResponseMessage* ProviderMessageHandler::_handleDeleteInstanceRequest(
         request->instanceName.getClassName(),
         request->instanceName.getKeyBindings());
 
-    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    PEG_TRACE((
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL3,
         "ProviderMessageHandler::_handleDeleteInstanceRequest - "
-            "Object path: $0",
-        objectPath.toString()));
+            "Object path: %s",
+        (const char*) objectPath.toString().getCString()));
 
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
@@ -697,10 +709,12 @@ CIMResponseMessage* ProviderMessageHandler::_handleExecQueryRequest(
         request->nameSpace,
         request->className);
 
-    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    PEG_TRACE((
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL3,
         "ProviderMessageHandler::_handleExecQueryRequest - "
-            "Object path: $0",
-        objectPath.toString()));
+            "Object path: %s",
+        (const char*) objectPath.toString().getCString()));
 
     QueryExpression qx(request->queryLanguage,request->query);
 
@@ -754,10 +768,12 @@ CIMResponseMessage* ProviderMessageHandler::_handleAssociatorsRequest(
 
     objectPath.setKeyBindings(request->objectName.getKeyBindings());
 
-    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    PEG_TRACE((
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL3,
         "ProviderMessageHandler::_handleAssociatorsRequest - "
-            "Object path: $0",
-        objectPath.toString()));
+            "Object path: %s",
+        (const char*) objectPath.toString().getCString()));
 
     CIMObjectPath assocPath(
         System::getHostName(),
@@ -820,10 +836,12 @@ CIMResponseMessage* ProviderMessageHandler::_handleAssociatorNamesRequest(
 
     objectPath.setKeyBindings(request->objectName.getKeyBindings());
 
-    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    PEG_TRACE((
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL3,
         "ProviderMessageHandler::_handleAssociationNamesRequest - "
-            "Object path: $0",
-        objectPath.toString()));
+            "Object path: %s",
+        (const char*) objectPath.toString().getCString()));
 
     CIMObjectPath assocPath(
         System::getHostName(),
@@ -883,10 +901,12 @@ CIMResponseMessage* ProviderMessageHandler::_handleReferencesRequest(
 
     objectPath.setKeyBindings(request->objectName.getKeyBindings());
 
-    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    PEG_TRACE((
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL3,
         "ProviderMessageHandler::_handleReferencesRequest - "
-            "Object path: $0",
-        objectPath.toString()));
+            "Object path: %s",
+        (const char*) objectPath.toString().getCString()));
 
     CIMObjectPath resultPath(
         System::getHostName(),
@@ -947,10 +967,12 @@ CIMResponseMessage* ProviderMessageHandler::_handleReferenceNamesRequest(
 
     objectPath.setKeyBindings(request->objectName.getKeyBindings());
 
-    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    PEG_TRACE((
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL3,
         "ProviderMessageHandler::_handleReferenceNamesRequest - "
-            "Object path: $0",
-        objectPath.toString()));
+            "Object path: %s",
+        (const char*) objectPath.toString().getCString()));
 
     CIMObjectPath resultPath(
         System::getHostName(),
@@ -1035,10 +1057,13 @@ CIMResponseMessage* ProviderMessageHandler::_handleGetPropertyRequest(
         getInstanceRequest.instanceName.getClassName(),
         getInstanceRequest.instanceName.getKeyBindings());
 
-    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    PEG_TRACE((
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL3,
         "ProviderMessageHandler::_handleGetPropertyRequest - "
-            "Object path: $0, Property: $1",
-        objectPath.toString(), request->propertyName.getString()));
+            "Object path: %s, Property: %s",
+        (const char*) objectPath.toString().getCString(),
+        (const char*) request->propertyName.getString().getCString()));
 
     OperationContext providerContext(
         _createProviderOperationContext(getInstanceRequest.operationContext));
@@ -1148,10 +1173,13 @@ CIMResponseMessage* ProviderMessageHandler::_handleSetPropertyRequest(
     ModifyInstanceResponseHandler handler(
         &modifyInstanceRequest, modifyInstanceResponse.get(), 0);
 
-    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    PEG_TRACE((
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL3,
         "ProviderMessageHandler::_handleSetPropertyRequest - "
-            "Object path: $0, Property: $1",
-        objectPath.toString(), request->propertyName.getString()));
+            "Object path: %s, Property: %s",
+        (const char*) objectPath.toString().getCString(),
+        (const char*) request->propertyName.getString().getCString()));
 
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
@@ -1211,11 +1239,14 @@ CIMResponseMessage* ProviderMessageHandler::_handleInvokeMethodRequest(
         request->instanceName.getClassName(),
         request->instanceName.getKeyBindings());
 
-    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    PEG_TRACE((
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL3,
         "ProviderMessageHandler::_handleInvokeMethodRequest - "
-            "Object path: $0, Method: $1",
-        objectPath.toString(), request->methodName.getString()));
-
+            "Object path: %s, Method: %s",
+        (const char*) objectPath.toString().getCString(),
+        (const char*) request->methodName.getString().getCString()));
+    
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
 
@@ -1270,13 +1301,14 @@ CIMResponseMessage* ProviderMessageHandler::_handleCreateSubscriptionRequest(
         }
     }
 
-    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
-        Logger::TRACE,
+    PEG_TRACE((
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL3,
         "ProviderMessageHandler::_handleCreateSubscriptionRequest - "
-            "Host name: $0  Name space: $1  Class name(s): $2",
-        System::getHostName(),
-        request->nameSpace.getString(),
-        temp));
+            "Host name: %s  Name space: %s  Class name(s): %s",
+        (const char*) System::getHostName().getCString(),
+        (const char*) request->nameSpace.getString().getCString(),
+        (const char*) temp.getCString()));
 
     //
     //  Save the provider instance from the request
@@ -1378,14 +1410,15 @@ CIMResponseMessage* ProviderMessageHandler::_handleModifySubscriptionRequest(
         }
     }
 
-    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
-        Logger::TRACE,
-        "ProviderMessageHandler::_handleCreateSubscriptionRequest - "
-            "Host name: $0  Name space: $1  Class name(s): $2",
-        System::getHostName(),
-        request->nameSpace.getString(),
-        temp));
-
+    PEG_TRACE((
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL3,
+        "ProviderMessageHandler::_handleModifySubscriptionRequest - "
+            "Host name: %s  Name space: %s  Class name(s): %s",
+        (const char*) System::getHostName().getCString(),
+        (const char*) request->nameSpace.getString().getCString(),
+        (const char*) temp.getCString()));
+    
     // convert arguments
 
     Array<CIMObjectPath> classNames;
@@ -1460,14 +1493,15 @@ CIMResponseMessage* ProviderMessageHandler::_handleDeleteSubscriptionRequest(
         }
     }
 
-    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
-        Logger::TRACE,
+    PEG_TRACE((
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL3,
         "ProviderMessageHandler::_handleDeleteSubscriptionRequest - "
-            "Host name: $0  Name space: $1  Class name(s): $2",
-        System::getHostName(),
-        request->nameSpace.getString(),
-        temp));
-
+            "Host name: %s  Name space: %s  Class name(s): %s",
+        (const char*) System::getHostName().getCString(),
+        (const char*) request->nameSpace.getString().getCString(),
+        (const char*) temp.getCString()));
+    
     Array<CIMObjectPath> classNames;
 
     for (Uint32 i = 0, n = request->classNames.size(); i < n; i++)

@@ -117,7 +117,7 @@ SecureBasicAuthenticator::SecureBasicAuthenticator()
     } 
     else
     {
-        Logger::put_l(Logger::TRACE_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
+        Logger::put_l(Logger::STANDARD_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
             "Security.Authentication.SecureBasicAuthenticator"
                  ".APPLID_OMVSAPPL.PEGASUS_OS_ZOS",
             "CIM server authentication is using application ID OMVSAPPL.");
@@ -131,7 +131,7 @@ SecureBasicAuthenticator::SecureBasicAuthenticator()
     else
     {
         _zosAPPLID = "OMVSAPPL";
-        Logger::put_l(Logger::TRACE_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
+        Logger::put_l(Logger::STANDARD_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
             "Security.Authentication.SecureBasicAuthenticator"
                  ".APPLID_OMVSAPPL.PEGASUS_OS_ZOS",
             "CIM server authentication is using application ID OMVSAPPL.");
@@ -164,7 +164,7 @@ Boolean SecureBasicAuthenticator::authenticate(
 #ifdef PEGASUS_OS_ZOS
     if ( password.size() == 0 )
     {               
-         Logger::put_l(Logger::TRACE_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
+         Logger::put_l(Logger::STANDARD_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
              "Security.Authentication.SecureBasicAuthenticator"
                   ".EMPTY_PASSWD.PEGASUS_OS_ZOS",
              "Request UserID $0 misses password.",userName);
@@ -190,11 +190,15 @@ Boolean SecureBasicAuthenticator::authenticate(
         {
             authenticated = false;
             // no READ access to security resource profile CIMSERV CL(WBEM)
-            Logger::put_l(Logger::TRACE_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
+            Logger::put_l(
+                Logger::STANDARD_LOG,
+                ZOS_SECURITY_NAME,
+                Logger::WARNING,
                 "Security.Authentication.SecureBasicAuthenticator"
                     ".NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS",
                 "Request UserID $0 misses READ permission "
-                    "to profile CIMSERV CL(WBEM).",userName);
+                    "to profile CIMSERV CL(WBEM).",
+                userName);
         }
 #else
         authenticated = true;

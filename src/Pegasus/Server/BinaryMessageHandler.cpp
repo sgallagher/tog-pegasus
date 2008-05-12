@@ -124,12 +124,13 @@ void BinaryMessageHandler::_handle_async_request(AsyncRequest* request)
                 (void*)this, BinaryMessageHandler::handle_binary_message) !=
             PEGASUS_THREAD_OK)
         {
-            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                "Not enough threads to handle binary message.");
-
-            PEG_TRACE((TRC_BINARY_MSG_HANDLER, Tracer::LEVEL2,
-                "Could not allocate thread for %s. " \
-                "Queue has %d messages waiting. ",
+            // TBD-7646
+            PEG_TRACE((
+                TRC_BINARY_MSG_HANDLER,
+                Tracer::LEVEL2,
+                "Not enough threads to handle binary message."
+                    "Could not allocate thread for %s. "
+                    "Queue has %d messages waiting. ",
                 getQueueName(),
                 _msg_q.count()));
         }

@@ -34,7 +34,7 @@
 #include "OperationResponseHandler.h"
 #include "CIMOMHandleContext.h"
 
-#include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/SharedPtr.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 
@@ -222,12 +222,11 @@ void OperationResponseHandler::send(Boolean isComplete)
         simple.clear();
     }
 
-    String function = getClass() + "::" + "transfer";
-    Logger::put(
-        Logger::STANDARD_LOG,
-        System::CIMSERVER,
-        Logger::TRACE,
-        function);
+    PEG_TRACE((
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL4,
+        "%s::transfer",
+        (const char*) getClass().getCString()));
 
     transfer();
     simple.clear();

@@ -234,7 +234,10 @@ void CIMOperationResponseEncoder::sendResponse(
         catch (bad_alloc&)
 #endif
         {
-            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            Logger::put(
+                Logger::ERROR_LOG,
+                System::CIMSERVER,
+                Logger::WARNING,
                 funcname + OUT_OF_MEMORY_MESSAGE);
 
             cimException = PEGASUS_CIM_EXCEPTION_L(
@@ -270,15 +273,6 @@ void CIMOperationResponseEncoder::sendResponse(
         contentLanguage = listContainer.getLanguages();
         httpMessage->contentLanguages = contentLanguage;
     }
-
-
-    PEG_LOGGER_TRACE((
-        Logger::STANDARD_LOG,
-        System::CIMSERVER,
-        Logger::TRACE,
-        "CIMOperationResponseEncoder::sendResponse - QueueId: $0  "
-            "XML content: $1",queueId,
-        String(message.getData(), message.size())));
 
     httpMessage->setCloseConnect(closeConnect);
     queue->enqueue(httpMessage.release());

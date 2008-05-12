@@ -76,12 +76,15 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
         "WQLOperationRequestDispatcher::handleQueryResponseAggregation");
 
     Uint32 numberResponses = poA->numberResponses();
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    
+    PEG_TRACE((
+        TRC_DISPATCHER,
+        Tracer::LEVEL3,
         "WQLOperationRequestDispatcher::ExecQuery Response - "
-            "Name Space: $0  Class name: $1 Response Count: $2",
-        poA->_nameSpace.getString(),
-        poA->_className.getString(),
-        numberResponses);
+            "Name Space: %s  Class name: %s Response Count: %u",
+        (const char*) poA->_nameSpace.getString().getCString(),
+        (const char*) poA->_className.getString().getCString(),
+        numberResponses));
 
     if (numberResponses == 0)
         return;
@@ -287,13 +290,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
     // of instances returned.
     if (providerCount > _maximumEnumerateBreadth)
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "Request-too-broad exception.  Namespace: $0  "
-                "Class Name: $1 Limit: $2  ProviderCount: $3",
-            request->nameSpace.getString(),
-            request->className.getString(),
-            _maximumEnumerateBreadth, providerCount);
-
+        // TBD-7646
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL2,
             "ERROR: Enumerate operation too broad for class %s.  "
                 "Limit = %u, providerCount = %u",

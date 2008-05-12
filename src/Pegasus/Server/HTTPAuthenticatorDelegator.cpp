@@ -290,9 +290,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     // Process M-POST and POST messages:
     //
 
-    PEG_LOGGER_TRACE((
-        Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-        "HTTPAuthenticatorDelegator - HTTP processing start"));
+    PEG_TRACE_CSTRING(
+        TRC_HTTP,
+        Tracer::LEVEL3,
+        "HTTPAuthenticatorDelegator - HTTP processing start");
 
 
     httpMessage->parse(startLine, headers, contentLength);
@@ -417,9 +418,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         return;
     }
 
-    PEG_LOGGER_TRACE((
-        Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-        "HTTPAuthenticatorDelegator - Authentication processing start"));
+    PEG_TRACE_CSTRING(
+        TRC_AUTHENTICATION,
+        Tracer::LEVEL2,
+        "HTTPAuthenticatorDelegator - Authentication processing start");
 
     //
     // Handle authentication:
@@ -606,10 +608,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                             }
                             else
                             {
-                                Logger::put(
-                                    Logger::ERROR_LOG,
-                                    System::CIMSERVER,
-                                    Logger::TRACE,
+                                PEG_TRACE_CSTRING(
+                                    TRC_HTTP,
+                                    Tracer::LEVEL3,
                                     "HTTPAuthenticatorDelegator - Bailing, no "
                                         "username is registered to this "
                                         "certificate.");
@@ -628,13 +629,14 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                             }
                             else
                             {
-                                Logger::put(
-                                    Logger::ERROR_LOG,
-                                    System::CIMSERVER,
-                                    Logger::TRACE,
+                                // TBD-7646
+                                PEG_TRACE_CSTRING(
+                                    TRC_HTTP,
+                                    Tracer::LEVEL2,
                                     "HTTPAuthenticatorDelegator - Bailing, "
                                         "the certificate used for "
                                         "authentication is not valid.");
+
                                 MessageLoaderParms msgParms(
                                     "Pegasus.Server.HTTPAuthenticatorDelegator."
                                         "BAD_CERTIFICATE",
@@ -658,10 +660,11 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                             // on the server was deleted openssl would not pick
                             // up the deletion but we would pick it up here
                             // when we went to look it up in the repository
-                            Logger::put(
-                                Logger::ERROR_LOG,
-                                System::CIMSERVER,
-                                Logger::TRACE,
+
+                            // TBD-7646
+                            PEG_TRACE_CSTRING(
+                                TRC_HTTP,
+                                Tracer::LEVEL2,
                                 "HTTPAuthenticatorDelegator - Bailing, the "
                                     "certificate used for authentication is "
                                     "not valid.");
@@ -748,17 +751,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
                 httpMessage->authInfo->setAuthenticatedUser(certUserName);
 
-                PEG_TRACE_STRING(
+                PEG_TRACE((
                     TRC_HTTP,
-                    Tracer::LEVEL3,
-                    "User name for certificate is " + certUserName);
-                Logger::put(
-                    Logger::STANDARD_LOG,
-                    System::CIMSERVER,
-                    Logger::TRACE,
+                    Tracer::LEVEL2,
                     "HTTPAuthenticatorDelegator - The trusted client "
-                        "certificate is registered to $0.",
-                    certUserName);
+                        "certificate is registered to %s.",
+                    (const char*) certUserName.getCString()));
             } // end AuthenticationInfoRep::AUTH_TYPE_SSL
 
 #ifdef PEGASUS_OS_ZOS
@@ -1091,9 +1089,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
     } //end enableAuthentication
 
-    PEG_LOGGER_TRACE((
-        Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-        "HTTPAuthenticatorDelegator - Authentication processing ended"));
+    PEG_TRACE_CSTRING(
+        TRC_AUTHENTICATION,
+        Tracer::LEVEL2,
+        "HTTPAuthenticatorDelegator - Authentication processing ended");
 
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
@@ -1203,10 +1202,11 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         if (HTTPMessage::lookupHeader(
             headers, _HTTP_HEADER_CIMOPERATION, cimOperation, true))
         {
-            PEG_LOGGER_TRACE(
-                (Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                 "HTTPAuthenticatorDelegator - CIMOperation: $0 ",
-                 cimOperation));
+            PEG_TRACE((
+                TRC_HTTP,
+                Tracer::LEVEL3,
+                "HTTPAuthenticatorDelegator - CIMOperation: %s ",
+                 (const char*) cimOperation.getCString()));
 
             MessageQueue* queue =
                 MessageQueue::lookup(_cimOperationMessageQueueId);
@@ -1238,9 +1238,11 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         else if (HTTPMessage::lookupHeader(
             headers, _HTTP_HEADER_CIMEXPORT, cimOperation, true))
         {
-            Logger::put(
-                Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                "HTTPAuthenticatorDelegator - CIMExport: $0 ",cimOperation);
+            PEG_TRACE((
+                TRC_AUTHENTICATION,
+                Tracer::LEVEL3,
+                "HTTPAuthenticatorDelegator - CIMExport: %s ",
+                (const char*) cimOperation.getCString()));
 
             MessageQueue* queue =
                 MessageQueue::lookup(_cimExportMessageQueueId);

@@ -1673,12 +1673,16 @@ void IndicationService::_handleModifyInstanceRequest(const Message* message)
                         request->nameSpace, modifiedInstance,
                         request->includeQualifiers, propertyList);
 
-                    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
-                        Logger::TRACE,
+                    PEG_TRACE((
+                        TRC_INDICATION_SERVICE,
+                        Tracer::LEVEL2,
                         "IndicationService::_handleModifyInstanceRequest - "
-                            "Name Space: $0  Instance name: $1",
-                        request->nameSpace.getString(),
-                        modifiedInstance.getClassName().getString());
+                            "Name Space: %s  Instance name: %s",
+                        (const char*)
+                        request->nameSpace.getString().getCString(),
+                        (const char*)
+                        modifiedInstance.getClassName().getString().getCString()
+                    ));
                 }
                 catch (CIMException& exception)
                 {
@@ -1843,12 +1847,15 @@ void IndicationService::_handleDeleteInstanceRequest(const Message* message)
                 _subscriptionRepository->deleteInstance(
                     request->nameSpace, request->instanceName);
 
-                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
-                    Logger::TRACE,
+                PEG_TRACE((
+                    TRC_INDICATION_SERVICE,
+                    Tracer::LEVEL2,
                     "IndicationService::_handleDeleteInstanceRequest - "
-                        "Name Space: $0  Instance name: $1",
-                    request->nameSpace.getString(),
-                    request->instanceName.getClassName().getString());
+                        "Name Space: %s  Instance name: %s",
+                    (const char*) request->nameSpace.getString().getCString(),
+                    (const char*)
+                   request->instanceName.getClassName().getString().getCString()
+                ));
             }
             catch (CIMException& exception)
             {

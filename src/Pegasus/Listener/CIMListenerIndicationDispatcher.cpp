@@ -205,12 +205,10 @@ void CIMListenerIndicationDispatcherRep::deliverIndication(String url,
 
             if (rtn != PEGASUS_THREAD_OK)
             {
-                Logger::put(Logger::STANDARD_LOG, System::CIMLISTENER,
-                    Logger::TRACE,
-                    "Not enough threads to allocate a worker to deliver"
-                        " the event. ");
-
-                    PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL2,
+                // TBD-7646
+                PEG_TRACE_CSTRING(
+                    TRC_SERVER,
+                    Tracer::LEVEL2,
                     "Could not allocate thread to deliver event."
                         " Instead using current thread.");
             delete event;

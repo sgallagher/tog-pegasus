@@ -752,12 +752,12 @@ void HTTPAcceptor::_acceptConnection()
 
             return;
         }
-
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "HTTPAcceptor - accept() failure.  errno: $0", errno);
-
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "HTTPAcceptor: accept() failed");
+        // TBD-7646
+        PEG_TRACE((
+            TRC_DISCARDED_DATA,
+            Tracer::LEVEL2,
+            "HTTPAcceptor: accept() failed.  errno: %u",
+            errno));
         return;
     }
 
@@ -772,15 +772,14 @@ void HTTPAcceptor::_acceptConnection()
     {
         // the remote connection is invalid, destroy client address.
         delete accept_address;
-        
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "HTTPAcceptor out of available sockets. "
-                "Closing connection to the new client.");
 
+        // TBD-7646
         PEG_TRACE(
             (TRC_DISCARDED_DATA,
              Tracer::LEVEL2,
-             "accept() returned too large socket number %d.",
+             "HTTPAcceptor out of available sockets." 
+                 "accept() returned too large socket number %u."
+                 "Closing connection to the new client.",
              socket));
         
         return;
@@ -806,11 +805,12 @@ void HTTPAcceptor::_acceptConnection()
                 0, 
                 NI_NUMERICHOST)))
         {
-            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                "HTTPAcceptor - getnameinfo() failure.  rc: $0", rc);
-
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "HTTPAcceptor: getnameinfo() failed");
+            // TBD-7646
+            PEG_TRACE((
+                TRC_DISCARDED_DATA,
+                Tracer::LEVEL2,
+                "HTTPAcceptor: getnameinfo() failed.  rc: %d",
+                rc));
             delete accept_address;
             return;
         }

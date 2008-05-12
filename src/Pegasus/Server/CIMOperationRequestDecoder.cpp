@@ -546,8 +546,11 @@ void CIMOperationRequestDecoder::handleMethodCall(
         return;
     }
 
-    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-        "CIMOperationRequestdecoder - XML content: $0", content));
+    PEG_TRACE((
+        TRC_XML_PARSER,
+        Tracer::LEVEL3,
+        "CIMOperationRequestdecoder - XML content: %s",
+        content));
 
     // Create a parser:
 
@@ -1234,10 +1237,13 @@ void CIMOperationRequestDecoder::handleMethodCall(
     }
     catch (XmlValidationError& e)
     {
-        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
+        // TBD-7646
+        PEG_TRACE((
+            TRC_XML_PARSER,
+            Tracer::LEVEL2,
             "CIMOperationRequestDecoder::handleMethodCall - "
-                "XmlValidationError exception has occurred. Message: $0",
-            e.getMessage());
+                "XmlValidationError exception has occurred. Message: %s",
+            (const char*) e.getMessage().getCString()));
 
         sendHttpError(
             queueId,
@@ -1250,10 +1256,13 @@ void CIMOperationRequestDecoder::handleMethodCall(
     }
     catch (XmlSemanticError& e)
     {
-        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
+        // TBD-7646
+        PEG_TRACE((
+            TRC_XML_PARSER,
+            Tracer::LEVEL2,
             "CIMOperationRequestDecoder::handleMethodCall - "
-                "XmlSemanticError exception has occurred. Message: $0",
-            e.getMessage());
+                "XmlSemanticError exception has occurred. Message: %s",
+            (const char*) e.getMessage().getCString()));
 
         // ATTN-RK-P2-20020404: Is this the correct response for these errors?
         sendHttpError(
@@ -1267,10 +1276,13 @@ void CIMOperationRequestDecoder::handleMethodCall(
     }
     catch (XmlException& e)
     {
-        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
+        // TBD-7646
+        PEG_TRACE((
+            TRC_XML_PARSER,
+            Tracer::LEVEL2,
             "CIMOperationRequestDecoder::handleMethodCall - "
-                "XmlException has occurred. Message: $0",
-            e.getMessage());
+                "XmlException has occurred. Message: %s",
+            (const char*) e.getMessage().getCString()));
 
         sendHttpError(
             queueId,

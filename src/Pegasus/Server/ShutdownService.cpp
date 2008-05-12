@@ -129,7 +129,9 @@ void ShutdownService::shutdown(
         //
         _cimserver->setState(CIMServerState::TERMINATING);
 
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        PEG_TRACE_CSTRING(
+            TRC_SHUTDOWN,
+            Tracer::LEVEL3,
             "ShutdownService::shutdown - CIM server state set to "
                 "CIMServerState::TERMINATING");
 
@@ -138,8 +140,9 @@ void ShutdownService::shutdown(
         //
         _cimserver->stopClientConnection();
 
-
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        PEG_TRACE_CSTRING(
+            TRC_SHUTDOWN,
+            Tracer::LEVEL3,
             "ShutdownService::shutdown - No longer accepting new client "
                 "connection requests.");
 
@@ -149,10 +152,12 @@ void ShutdownService::shutdown(
         //
         Boolean noMoreRequests = waitUntilNoMoreRequests(requestPending);
 
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        PEG_TRACE((
+            TRC_SHUTDOWN,
+            Tracer::LEVEL3,
             "ShutdownService::shutdown - All outstanding CIM operations "
-                "complete = $0",
-            noMoreRequests);
+                "complete = %s",
+            (noMoreRequests) ? "true" : "false"));
 
         //
         // proceed to shutdown the CIMServer
@@ -187,7 +192,9 @@ void ShutdownService::_shutdownCIMServer()
 
     _shutdownProviders();
 
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    PEG_TRACE_CSTRING(
+        TRC_SHUTDOWN,
+        Tracer::LEVEL3,
         "ShutdownService::_shutdownCIMServer - CIM server provider shutdown "
             "complete");
 
@@ -198,7 +205,9 @@ void ShutdownService::_shutdownCIMServer()
     //
     _cimserver->shutdown();
 
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    PEG_TRACE_CSTRING(
+        TRC_SHUTDOWN,
+        Tracer::LEVEL3,
         "ShutdownService::_shutdownCIMServer - Cimom services shutdown "
             "complete");
 
@@ -413,10 +422,12 @@ Boolean ShutdownService::waitUntilNoMoreRequests(Boolean requestPending)
             return true;
         }
 
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        PEG_TRACE((
+            TRC_SHUTDOWN,
+            Tracer::LEVEL4,
             "ShutdownService waiting for outstanding CIM operations to "
-                "complete.  Request count: $0",
-            requestCount);
+                "complete.  Request count: %d",
+            requestCount));
         Threads::sleep(waitInterval * 1000);
         waitTime -= waitInterval;
     }

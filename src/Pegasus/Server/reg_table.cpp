@@ -36,6 +36,7 @@
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/Tracer.h>
 #include "reg_table.h"
 
 PEGASUS_USING_STD;
@@ -351,10 +352,12 @@ Boolean reg_table_rep::_insert(const reg_table_record& rec)
             return false;
     }
 
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-        "reg_table_rep::_insert - Inserting provider $0 into the provider "
+    PEG_TRACE((
+        TRC_REGISTRATION,
+        Tracer::LEVEL4,    
+        "reg_table_rep::_insert - Inserting provider %s into the provider "
             "reqistration table,",
-        rec.class_name.getString());
+        (const char*) rec.class_name.getString().getCString()));
 
     // Insert the new record into the routing table
     return rt->insert(rec.class_name.getString(), new reg_table_record(rec));

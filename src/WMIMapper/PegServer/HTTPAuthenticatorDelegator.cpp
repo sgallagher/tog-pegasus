@@ -296,7 +296,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         //
         // Process M-POST and POST messages:
         //
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        PEG_TRACE_CSTRING(
+            TRC_HTTP,
+            Tracer::LEVEL2,
             "HTTPAuthenticatorDelegator - M-POST/POST processing start");
 
         //
@@ -594,8 +596,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             {
                 // The final buffer should not have any data at this point.
                 // If it does end the server because something bad happened.
-                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
-                    Logger::TRACE,
+                // TBD-7646
+                PEG_TRACE_CSTRING(
+                    TRC_HTTP,
+                    Tracer::LEVEL2,
                     "HTTPAuthenticatorDelegator - the final buffer should "
                         "not have data");
                 PEGASUS_ASSERT(0);
@@ -623,10 +627,11 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             if (HTTPMessage::lookupHeader(
                 headers, "CIMOperation", cimOperation, true))
             {
-                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
-                    Logger::TRACE,
-                    "HTTPAuthenticatorDelegator - CIMOperation: $0 ",
-                    cimOperation);
+                PEG_TRACE((
+                    TRC_HTTP,
+                    Tracer::LEVEL3,
+                    "HTTPAuthenticatorDelegator - CIMOperation: %s ",
+                    (const char*) cimOperation.getCString());
 
                 MessageQueue* queue =
                     MessageQueue::lookup(_operationMessageQueueId);
@@ -654,10 +659,11 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             else if (HTTPMessage::lookupHeader(
                 headers, "CIMExport", cimOperation, true))
             {
-                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
-                    Logger::TRACE,
+                PEG_TRACE((
+                    TRC_HTTP,
+                    Tracer::LEVEL3,
                     "HTTPAuthenticatorDelegator - CIMExport: $0 ",
-                    cimOperation);
+                    (const char*) cimOperation.getCString());
 
                 MessageQueue* queue =
                     MessageQueue::lookup(_exportMessageQueueId);

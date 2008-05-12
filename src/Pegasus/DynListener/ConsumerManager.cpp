@@ -424,12 +424,7 @@ void ConsumerManager::_initConsumer(
                                           _worker_routine,
                                           semaphore) != PEGASUS_THREAD_OK)
         {
-            Logger::put(
-                Logger::STANDARD_LOG,
-                System::CIMLISTENER,
-                Logger::TRACE,
-                "Not enough threads for consumer.");
- 
+            // TBD-7646
             PEG_TRACE_CSTRING(
                 TRC_LISTENER,
                 Tracer::LEVEL2,

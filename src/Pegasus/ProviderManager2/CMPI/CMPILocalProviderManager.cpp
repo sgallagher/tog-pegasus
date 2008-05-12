@@ -452,12 +452,13 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
 
                                 // unload provider module
                                 provider->_module->unloadModule ();
-                                Logger::put (Logger::STANDARD_LOG, 
-                                    System::CIMSERVER,
-                                    Logger::TRACE,
+                                PEG_TRACE((
+                                    TRC_PROVIDERMANAGER,
+                                    Tracer::LEVEL3,
                                     "CMPILocalProviderManager::_provider_crtl"
-                                    " -  Unload provider $0",
-                                    provider->getName ());
+                                        " -  Unload provider %s",
+                                    (const char*)
+                                        provider->getName().getCString()));
 
                                 // Note: The deleting of the cimom handle is 
                                 // being moved after the call to 
@@ -1078,9 +1079,11 @@ void CMPILocalProviderManager::_unloadProvider (CMPIProvider * provider)
 
         // unload provider module
         provider->_module->unloadModule ();
-        Logger::put (Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPILocalProviderManager::_provider_crtl -  Unload provider $0",
-            provider->getName ());
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL3,
+            "CMPILocalProviderManager::_provider_crtl -  Unload provider %s",
+            (const char*) provider->getName().getCString()));
 
         // set provider status to UNINITIALIZED
         provider->reset ();

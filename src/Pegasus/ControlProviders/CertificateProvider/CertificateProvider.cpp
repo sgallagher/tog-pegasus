@@ -1293,10 +1293,11 @@ void CertificateProvider::deleteInstance(
                     _sslContextMgr->reloadCRLStore();
                 }
 
-                Logger::put(Logger::STANDARD_LOG,
-                    System::CIMSERVER, Logger::TRACE,
-                    "The CRL from issuer $0 has been deleted.",
-                    issuerName);
+                PEG_TRACE((
+                    TRC_CONTROLPROVIDER,
+                    Tracer::LEVEL3,
+                    "The CRL from issuer %s has been deleted.",
+                    (const char*) issuerName.getCString()));
             }
             else
             {
@@ -1456,19 +1457,22 @@ void CertificateProvider::_removeCert (Array<CIMInstance> cimInstances)
 
         if (userName == String::EMPTY)
         {
-            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
-                Logger::TRACE,
+            PEG_TRACE((
+                TRC_CONTROLPROVIDER,
+                Tracer::LEVEL2,
                 "The certificate without an associated user name from "
-                    "issuer $0 has been deleted from the truststore.",
-                issuerName);
+                    "issuer %s has been deleted from the truststore.",
+                (const char*) issuerName.getCString()));
         }
         else
         {
-            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                "The certificate registered to $0 from issuer $1 "
+            PEG_TRACE((
+                TRC_CONTROLPROVIDER,
+                Tracer::LEVEL2,
+                "The certificate registered to %s from issuer %s "
                     "has been deleted from the truststore.",
-                userName,
-                issuerName);
+                (const char*) userName.getCString(),
+                (const char*) issuerName.getCString()));
         }
     }
 
@@ -2034,21 +2038,23 @@ void CertificateProvider::invokeMethod(
 
                 if (userName == String::EMPTY)
                 {
-                    Logger::put(Logger::STANDARD_LOG,
-                        System::CIMSERVER, Logger::TRACE,
+                    PEG_TRACE((
+                        TRC_CONTROLPROVIDER,
+                        Tracer::LEVEL2,
                         "The certificate without an associated user name "
-                            "from issuer $0 has been added to the server "
+                            "from issuer %s has been added to the server "
                             "truststore.",
-                        issuerName);
+                        (const char*) issuerName.getCString()));
                 }
                 else
                 {
-                    Logger::put(Logger::STANDARD_LOG,
-                        System::CIMSERVER, Logger::TRACE,
-                        "The certificate registered to $0 from issuer "
-                            "$1 has been added to the server truststore.",
-                        userName,
-                        issuerName);
+                    PEG_TRACE((
+                        TRC_CONTROLPROVIDER,
+                        Tracer::LEVEL2,
+                        "The certificate registered to %s from issuer "
+                            "%s has been added to the server truststore.",
+                        (const char*) userName.getCString(),
+                        (const char*) issuerName.getCString()));
                 }
             }
 
@@ -2234,9 +2240,11 @@ void CertificateProvider::invokeMethod(
 
             BIO_free_all(bio);
 
-            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                "The CRL for issuer $1 has been updated.",
-                issuerName);
+            PEG_TRACE((
+                TRC_CONTROLPROVIDER,
+                Tracer::LEVEL2,
+                "The CRL for issuer %s has been updated.",
+                (const char*) issuerName.getCString()));
 
             if (_sslClientVerificationNotDisabled)
             {

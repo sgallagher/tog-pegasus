@@ -571,9 +571,11 @@ void InteropProvider::modifyObjectManagerInstance(
     // Modify the instance on disk
     repository->modifyInstance(instanceReference.getNameSpace(),
         omInstance, false,  propertyList);
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-        "Interop Provider Set Statistics gathering in CIM_ObjectManager: $0",
-        (statisticsFlag? "true" : "false"));
+    PEG_TRACE((
+        TRC_CONTROLPROVIDER,
+        Tracer::LEVEL3,
+        "Interop Provider Set Statistics gathering in CIM_ObjectManager: %s",
+        (statisticsFlag? "true" : "false")));
     StatisticalData* sd = StatisticalData::current();
     sd->setCopyGSD(statisticsFlag);
     PEG_METHOD_EXIT();

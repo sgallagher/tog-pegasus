@@ -49,7 +49,7 @@ int main(int argc, char** argv)
 #endif
 
     Logger::put(
-    Logger::TRACE_LOG,
+    Logger::STANDARD_LOG,
     "LoggerTest",
     Logger::WARNING,
     "X=$0, Y=$1, Z=$2", 

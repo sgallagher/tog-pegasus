@@ -129,16 +129,17 @@ Boolean AuthenticationManager::performHttpAuthentication(
     String authType;
     String cookie;
 
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-        "AuthenticationManager:: performHttpAuthentication - "
-            "Authority Header: $0",
-        authHeader);
-
     //
     // Parse the HTTP authentication header for authentication information
     //
     if ( !HTTPMessage::parseHttpAuthHeader(authHeader, authType, cookie) )
     {
+        PEG_TRACE((
+            TRC_DISCARDED_DATA,
+            Tracer::LEVEL2,
+            "HTTPAuthentication failed. "
+                "Malformed HTTP authentication header: %s",
+            (const char*)authHeader.getCString()));
         PEG_METHOD_EXIT();
         return false;
     }
@@ -189,17 +190,18 @@ Boolean AuthenticationManager::performPegasusAuthentication(
     String userName;
     String cookie;
 
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-        "AuthenticationManager:: performPegasusAuthentication - "
-            "Authority Header: $0",
-        authHeader);
-
     //
     // Parse the pegasus authentication header authentication information
     //
     if ( !HTTPMessage::parseLocalAuthHeader(authHeader,
               authType, userName, cookie) )
     {
+        PEG_TRACE((
+            TRC_DISCARDED_DATA,
+            Tracer::LEVEL2,
+            "PegasusAuthentication failed. "
+                "Malformed Pegasus authentication header: %s",
+            (const char*)authHeader.getCString()));
         PEG_METHOD_EXIT();
         return false;
     }

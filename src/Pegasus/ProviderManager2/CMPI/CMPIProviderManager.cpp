@@ -406,13 +406,16 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
 
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CmpiProviderManager::handleGetInstanceRequest - Host name: $0 "
-            "hi sure man Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->instanceName.getClassName().getString());
-
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL3,
+            "CMPIProviderManager::handleGetInstanceRequest - Host name:"
+            " %s  Name space: %s  Class name: %s",
+            (const char*) System::getHostName().getCString(),
+            (const char*) request->nameSpace.getString().getCString(),
+            (const char*)
+                request->instanceName.getClassName().getString().getCString()));
+        
         // make target object path
         CIMObjectPath objectPath(
             System::getHostName(),
@@ -549,12 +552,14 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
     HandlerIntro(EnumerateInstances,message,request,response,handler);
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL3,
             "CMPIProviderManager::handleEnumerateInstancesRequest - Host name:"
-            " $0  Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->className.getString());
+            " %s  Name space: %s  Class name: %s",
+            (const char*) System::getHostName().getCString(),
+            (const char*) request->nameSpace.getString().getCString(),
+            (const char*) request->className.getString().getCString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -694,12 +699,14 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
     HandlerIntro(EnumerateInstanceNames,message,request,response,handler);
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleEnumerateInstanceNamesRequest - Host "
-            "name: $0  Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->className.getString());
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL3,
+            "CMPIProviderManager::handleEnumerateInstanceNamesRequest"
+            " - Host name: %s  Name space: %s  Class name: %s",
+            (const char*) System::getHostName().getCString(),
+            (const char*) request->nameSpace.getString().getCString(),
+            (const char*) request->className.getString().getCString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -821,12 +828,16 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(
     HandlerIntro(CreateInstance,message,request,response,handler);
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleCreateInstanceRequest - Host name: "
-            "$0  Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->newInstance.getPath().getClassName().getString());
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL3,
+            "CMPIProviderManager::handleCreateInstanceRequest"
+            " - Host name: %s  Name space: %s  Class name: %s",
+            (const char*) System::getHostName().getCString(),
+            (const char*) request->nameSpace.getString().getCString(),
+            (const char*)
+          request->newInstance.getPath().getClassName().getString().getCString()
+        ));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -953,12 +964,15 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
     HandlerIntro(ModifyInstance,message,request,response,handler);
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleModifyInstanceRequest - Host name: $0"
-            "  Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->modifiedInstance.getPath().getClassName().getString());
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL3,
+            "CMPIProviderManager::handleModifyInstanceRequest"
+            " - Host name: %s  Name space: %s  Class name: %s",
+            (const char*) System::getHostName().getCString(),
+            (const char*) request->nameSpace.getString().getCString(),
+            (const char*) request->modifiedInstance.\
+                getPath().getClassName().getString().getCString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -1086,13 +1100,16 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(
     HandlerIntro(DeleteInstance,message,request,response,handler);
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleDeleteInstanceRequest - Host name: $0"
-            "  Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->instanceName.getClassName().getString());
-
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL3,
+            "CMPIProviderManager::handleDeleteInstanceRequest"
+            " - Host name: %s  Name space: %s  Class name: %s",
+            (const char*) System::getHostName().getCString(),
+            (const char*) request->nameSpace.getString().getCString(),
+            (const char*)
+                request->instanceName.getClassName().getString().getCString()));
+        
         // make target object path
         CIMObjectPath objectPath(
             System::getHostName(),
@@ -1215,12 +1232,14 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
 
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::ExecQueryRequest - Host name: $0  Name "
-            "space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->className.getString());
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL3,
+            "CMPIProviderManager::ExecQueryRequest"
+            " - Host name: %s  Name space: %s  Class name: %s",
+            (const char*) System::getHostName().getCString(),
+            (const char*) request->nameSpace.getString().getCString(),
+            (const char*) request->className.getString().getCString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -1351,12 +1370,15 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
     HandlerIntro(Associators,message,request,response,handler);
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleAssociatorsRequest - Host name: $0  "
-            "Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->objectName.getClassName().getString());
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL3,
+            "CMPIProviderManager::handleAssociatorsRequest"
+            " - Host name: %s  Name space: %s  Class name: %s",
+            (const char*) System::getHostName().getCString(),
+            (const char*) request->nameSpace.getString().getCString(),
+            (const char*)
+                request->objectName.getClassName().getString().getCString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -1512,12 +1534,15 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
     HandlerIntro(AssociatorNames,message,request,response,handler);
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleAssociatorNamesRequest - Host name: $0"
-            "  Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->objectName.getClassName().getString());
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL3,
+            "CMPIProviderManager::handleAssociatorNamesRequest"
+            " - Host name: %s  Name space: %s  Class name: %s",
+            (const char*) System::getHostName().getCString(),
+            (const char*) request->nameSpace.getString().getCString(),
+            (const char*)
+                request->objectName.getClassName().getString().getCString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -1658,12 +1683,15 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
     HandlerIntro(References,message,request,response,handler);
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleReferencesRequest - Host name: $0  "
-            "Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->objectName.getClassName().getString());
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL3,
+            "CMPIProviderManager::handleReferencesRequest"
+            " - Host name: %s  Name space: %s  Class name: %s",
+            (const char*) System::getHostName().getCString(),
+            (const char*) request->nameSpace.getString().getCString(),
+            (const char*)
+                request->objectName.getClassName().getString().getCString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -1810,13 +1838,16 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
     HandlerIntro(ReferenceNames,message,request,response,handler);
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleReferenceNamesRequest - Host name: $0"
-            "  Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->objectName.getClassName().getString());
-
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL3,
+            "CMPIProviderManager::handleReferenceNamesRequest"
+            " - Host name: %s  Name space: %s  Class name: %s",
+            (const char*) System::getHostName().getCString(),
+            (const char*) request->nameSpace.getString().getCString(),
+            (const char*)
+                request->objectName.getClassName().getString().getCString()));
+        
         // make target object path
         CIMObjectPath objectPath(
             System::getHostName(),
@@ -1953,12 +1984,15 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
     HandlerIntro(InvokeMethod,message,request,response,handler);
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleInvokeMethodRequest - Host name: $0  "
-            "Name space: $1  Class name: $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->instanceName.getClassName().getString());
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL3,
+            "CMPIProviderManager::handleInvokeMethodRequest"
+            " - Host name: %s  Name space: %s  Class name: %s",
+            (const char*) System::getHostName().getCString(),
+            (const char*) request->nameSpace.getString().getCString(),
+            (const char*)
+                request->instanceName.getClassName().getString().getCString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -2236,12 +2270,14 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
         LocateIndicationProviderNames(req_provider, req_providerModule,
             providerName,providerLocation);
 
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleCreateSubscriptionRequest - Host name:"
-            " $0  Name space: $1  Provider name(s): $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            providerName);
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL3,
+            "CMPIProviderManager::handleCreateSubscriptionRequest"
+            " - Host name: %s  Name space: %s  Provider name(s): %s",
+            (const char*) System::getHostName().getCString(),
+            (const char*) request->nameSpace.getString().getCString(),
+            (const char*) providerName.getCString()));
 
         Boolean remote=false;
         CMPIProvider::OpProviderHolder ph;
@@ -2483,12 +2519,14 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
         LocateIndicationProviderNames(req_provider, req_providerModule,
             providerName,providerLocation);
 
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CMPIProviderManager::handleDeleteSubscriptionRequest - Host name:"
-            " $0  Name space: $1  Provider name(s): $2",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            providerName);
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL3,
+            "CMPIProviderManager::handleDeleteSubscriptionRequest"
+            " - Host name: %s  Name space: %s  Provider name(s): %s",
+            (const char*) System::getHostName().getCString(),
+            (const char*) request->nameSpace.getString().getCString(),
+            (const char*) providerName.getCString()));
 
         Boolean remote=false;
         CMPIProvider::OpProviderHolder ph;
@@ -2943,14 +2981,18 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
 
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CmpiProviderManager::handleGetPropertyRequest - Host name: $0  "
-            "Name space: $1  Class name: $2  Property name: $3",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->instanceName.getClassName().getString(),
-            request->propertyName.getString());
-
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL3,
+            "CMPIProviderManager::handleGetPropertyRequest"
+            " - Host name: %s  Name space: %s  "
+                "Class name: %s  Property name: %s",
+            (const char*) System::getHostName().getCString(),
+            (const char*) request->nameSpace.getString().getCString(),
+            (const char*)
+                request->instanceName.getClassName().getString().getCString(),
+            (const char*) request->propertyName.getString().getCString()));
+        
         // make target object path
         CIMObjectPath objectPath(
             System::getHostName(),
@@ -3152,14 +3194,18 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
 
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CmpiProviderManager::handleSetPropertyRequest - Host name: $0  "
-            "Name space: $1  Class name: $2  Property name: $3",
-            System::getHostName(),
-            request->nameSpace.getString(),
-            request->instanceName.getClassName().getString(),
-            request->propertyName.getString());
-
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL3,
+            "CMPIProviderManager::handleSetPropertyRequest"
+            " - Host name: %s  Name space: %s  "
+                "Class name: %s  Property name: %s",
+            (const char*) System::getHostName().getCString(),
+            (const char*) request->nameSpace.getString().getCString(),
+            (const char*)
+                request->instanceName.getClassName().getString().getCString(),
+            (const char*) request->propertyName.getString().getCString()));
+        
         // make target object path
         CIMObjectPath objectPath(
             System::getHostName(),

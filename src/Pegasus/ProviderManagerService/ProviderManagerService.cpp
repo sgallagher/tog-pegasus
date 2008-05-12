@@ -210,11 +210,10 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
                 Threads::yield();
             else
             {
-                Logger::put(
-                    Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                    "Not enough threads to service provider manager.");
-
-                PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                // TBD-7646
+                PEG_TRACE((
+                    TRC_PROVIDERMANAGER,
+                    Tracer::LEVEL2,
                     "Could not allocate thread for %s.",
                     getQueueName()));
                 break;
@@ -834,9 +833,7 @@ void ProviderManagerService::unloadIdleProviders()
             ProviderManagerService::_unloadIdleProvidersHandler) !=
                 PEGASUS_THREAD_OK)
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "Not enough threads to unload idle providers.");
-
+        // TBD-7646
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Could not allocate thread for %s to unload idle providers.",
             getQueueName()));

@@ -566,11 +566,7 @@ void ProviderAgentContainer::_initialize()
             }
             else
             {
-                Logger::put(
-                    Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                    "Not enough threads to process responses from the "
-                        "provider agent.");
-
+                // TBD-7646
                 PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                     "Could not allocate thread to process responses from the "
                         "provider agent.");

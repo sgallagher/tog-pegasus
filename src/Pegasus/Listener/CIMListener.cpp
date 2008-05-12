@@ -490,11 +490,7 @@ void CIMListenerRep::start()
             svc.get(), CIMListenerService::_listener_routine, sem.get())
             != PEGASUS_THREAD_OK)
         {
-            Logger::put(
-                Logger::STANDARD_LOG, System::CIMLISTENER,
-                Logger::TRACE,
-                "Not enough threads to start CIMListernerService.");
-
+            // TBD-7646
             PEG_TRACE_CSTRING(
                 TRC_SERVER,
                 Tracer::LEVEL2,

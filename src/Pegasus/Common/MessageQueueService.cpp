@@ -129,11 +129,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
                 if (rtn != PEGASUS_THREAD_OK )
                 {
                     service->_threads--;
-                    Logger::put(
-                        Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                        "Not enough threads to process this request. "
-                            "Skipping.");
-
+                    // TBD-7646
                     PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL2,
                         "Could not allocate thread for %s.  Queue has %d "
                             "messages waiting and %d threads servicing."

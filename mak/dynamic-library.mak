@@ -31,23 +31,26 @@
 ifeq ($(OS_TYPE),vms)
     ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
         ifeq ($(STATIC),1)
-            BUILD_STATIC=1
+            BUILD_LIBRARY=1
         endif
     endif
+else 
+    BUILD_LIBRARY=1
+endif
 
-    ifdef BUILD_STATIC
-        include $(ROOT)/mak/library.mak
-    else
-        #
-        # Make this a program instead of a library.
-        # VMS can only share executables!
-        #
+ifdef BUILD_LIBRARY
+    include $(ROOT)/mak/library.mak
+else
+    #
+    # Make this a program instead of a library.
+    # VMS can only share executables!
+    #
 
-        PROGRAM = $(addprefix lib,$(LIBRARY))
-        VMSSHARE =/share/sysexe
-        SHARE_COPY = YES
+    PROGRAM = $(addprefix lib,$(LIBRARY))
+    VMSSHARE =/share/sysexe
+    SHARE_COPY = YES
 
-        ifdef PEGASUS_VMS_GENERATE_EXPORT_SYMBOLS
+    ifdef PEGASUS_VMS_GENERATE_EXPORT_SYMBOLS
         CFLAGS += /export_symbols=(options_file=$(BIN_VMSDIRA)]$(PROGRAM),EXPLICIT) 
         CFLAGS += /warn=disable=(inaspefun)
         DLLOPT = , $(BIN_VMSDIRA)]$(PROGRAM)/opt
@@ -63,7 +66,4 @@ messages: $(ERROR)
 poststarttests: $(ERROR)
 
 endif 
-else
-    include $(ROOT)/mak/library.mak
-endif
 

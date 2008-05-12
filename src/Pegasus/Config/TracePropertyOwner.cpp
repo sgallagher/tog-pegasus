@@ -92,28 +92,26 @@ const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 //
 // Checks if the trace level is valid
 //
-Boolean isLevelValid(const String& traceLevel)
+Boolean TracePropertyOwner::isLevelValid(const String& traceLevel) const
 {
     //
     // Check if the level is valid
     //
-    if (traceLevel == "1" || traceLevel == "2" ||
-        traceLevel == "3" || traceLevel == "4")
-    {
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
+    return (traceLevel == "0" || traceLevel == "1" ||
+            traceLevel == "2" || traceLevel == "3" ||
+            traceLevel == "4" || traceLevel == "5");
 }
 
 //
 // Get the appropriate trace level
 //
-Uint32 getTraceLevel(const String& traceLevel)
+Uint32 TracePropertyOwner::getTraceLevel(const String& traceLevel)
 {
-    if ( traceLevel == "1" )
+    if ( traceLevel == "0" )
+    {
+        return Tracer::LEVEL0;
+    }
+    else if ( traceLevel == "1" )
     {
         return Tracer::LEVEL1;
     }
@@ -125,9 +123,13 @@ Uint32 getTraceLevel(const String& traceLevel)
     {
         return Tracer::LEVEL3;
     }
-    else
+    else if ( traceLevel == "4" )
     {
         return Tracer::LEVEL4;
+    }
+    else
+    {
+        return Tracer::LEVEL5;
     }
 }
 
@@ -190,7 +192,11 @@ void TracePropertyOwner::initialize()
 
     if (_traceLevel->defaultValue != String::EMPTY)
     {
-        if (_traceLevel->defaultValue == "1")
+        if (_traceLevel->defaultValue == "0")
+        {
+            Tracer::setTraceLevel(Tracer::LEVEL0);
+        }
+        else if (_traceLevel->defaultValue == "1")
         {
             Tracer::setTraceLevel(Tracer::LEVEL1);
         }
@@ -205,6 +211,10 @@ void TracePropertyOwner::initialize()
         else if (_traceLevel->defaultValue == "4")
         {
             Tracer::setTraceLevel(Tracer::LEVEL4);
+        }
+        else if (_traceLevel->defaultValue == "5")
+        {
+            Tracer::setTraceLevel(Tracer::LEVEL5);
         }
     }
 }

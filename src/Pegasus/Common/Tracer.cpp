@@ -45,23 +45,16 @@ PEGASUS_NAMESPACE_BEGIN
 // These levels will be compared against a trace level mask to determine
 // if a specific trace level is enabled
 
+const Uint32 Tracer::LEVEL0 =  0;
 const Uint32 Tracer::LEVEL1 = (1 << 0);
 const Uint32 Tracer::LEVEL2 = (1 << 1);
 const Uint32 Tracer::LEVEL3 = (1 << 2);
 const Uint32 Tracer::LEVEL4 = (1 << 3);
-
-// Set the return codes
-const Boolean Tracer::_SUCCESS = 1;
-const Boolean Tracer::_FAILURE = 0;
+const Uint32 Tracer::LEVEL5 = (1 << 4);
 
 // Set the Enter and Exit messages
 const char Tracer::_METHOD_ENTER_MSG[] = "Entering method";
 const char Tracer::_METHOD_EXIT_MSG[]  = "Exiting method";
-
-// Set Log messages
-const char Tracer::_LOG_MSG[] =
-    "LEVEL1 may only be used with trace macros "
-        "PEG_METHOD_ENTER/PEG_METHOD_EXIT.";
 
 // Initialize singleton instance of Tracer
 Tracer* Tracer::_tracerInstance = 0;
@@ -95,6 +88,8 @@ Tracer::Tracer()
     // Initialize ComponentMask array to false
     for (Uint32 index=0;index < _NUM_COMPONENTS;
         (_traceComponentMask.get())[index++]=false);
+    // NO componets are set
+    _componentsAreSet=false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -422,7 +417,7 @@ Boolean Tracer::isValidComponents(
         // Check if ALL is specified
         if (String::equalNoCase(componentStr,"ALL"))
         {
-            return _SUCCESS;
+            return true;
         }
 
         // Append _COMPONENT_SEPARATOR to the end of the traceComponents
@@ -469,7 +464,7 @@ Boolean Tracer::isValidComponents(
     else
     {
         // trace components is empty, it is a valid value so return true
-        return _SUCCESS;
+        return true;
     }
 
     if (invalidComponents != String::EMPTY)
@@ -543,6 +538,10 @@ Uint32 Tracer::setTraceLevel(const Uint32 traceLevel)
 
     switch (traceLevel)
     {
+        case LEVEL0:
+            _getInstance()->_traceLevelMask = 0x00;
+            break;
+
         case LEVEL1:
             _getInstance()->_traceLevelMask = 0x01;
             break;
@@ -559,10 +558,25 @@ Uint32 Tracer::setTraceLevel(const Uint32 traceLevel)
             _getInstance()->_traceLevelMask = 0x0F;
             break;
 
+        case LEVEL5:
+            _getInstance()->_traceLevelMask = 0x1F;
+            break;
+
         default:
-            _getInstance()->_traceLevelMask = 0;
+            _getInstance()->_traceLevelMask = 0x00;
             retCode = 1;
     }
+
+    if (_getInstance()->_componentsAreSet && 
+        _getInstance()->_traceLevelMask )
+    {
+        _traceOn = true;
+    } 
+    else
+    {
+        _traceOn = false;
+    }
+
     return retCode;
 }
 
@@ -571,32 +585,41 @@ Uint32 Tracer::setTraceLevel(const Uint32 traceLevel)
 ////////////////////////////////////////////////////////////////////////////////
 void Tracer::setTraceComponents(const String& traceComponents)
 {
-    Uint32 position          = 0;
-    Uint32 index             = 0;
-    String componentName;
-    String componentStr      = traceComponents;
-    String invalidComponents;
+    Tracer* instance = _getInstance();
 
-    if (componentStr != String::EMPTY)
+    // Check if ALL is specified
+    if (String::equalNoCase(traceComponents,"ALL"))
     {
-        // Check if ALL is specified
-        if (String::equalNoCase(componentStr,"ALL"))
+        for (Uint32 index = 0; index < _NUM_COMPONENTS; index++)
         {
-            for (index = 0; index < _NUM_COMPONENTS; index++)
-            {
-                (_getInstance()->_traceComponentMask.get())[index] = true;
-            }
-            _traceOn = true;
-            return;
+            (instance->_traceComponentMask.get())[index] = true;
         }
 
-        // initialize ComponentMask array to False
-        for (index = 0; index < _NUM_COMPONENTS; index++)
-        {
-            (_getInstance()->_traceComponentMask.get())[index] = false;
-        }
-        _traceOn = false;
+        instance->_componentsAreSet=true;
 
+        // If tracing isn't turned off by a traceLevel of zero, let's
+        // turn on the flag that activates tracing.
+        _traceOn = (instance->_traceLevelMask != LEVEL0);
+
+        return;
+    }
+
+    // initialize ComponentMask array to False
+    for (Uint32 index = 0; index < _NUM_COMPONENTS; index++)
+    {
+        (instance->_traceComponentMask.get())[index] = false;
+    }
+    _traceOn = false;
+    instance->_componentsAreSet=false;
+
+    if (traceComponents != String::EMPTY)
+    {
+        Uint32 index = 0;
+        Uint32 position = 0;
+        String componentName;
+        String componentStr = traceComponents;
+
+   
         // Append _COMPONENT_SEPARATOR to the end of the traceComponents
         componentStr.append(_COMPONENT_SEPARATOR);
 
@@ -614,8 +637,9 @@ void Tracer::setTraceComponents(const String& traceComponents)
                 if (String::equalNoCase(
                     componentName,TRACE_COMPONENT_LIST[index]))
                 {
-                    (_getInstance()->_traceComponentMask.get())[index] = true;
-                    _traceOn = true;
+                    (instance->_traceComponentMask.get())[index] = true;
+
+                    instance->_componentsAreSet=true;
 
                     // Found component, break from the loop
                     break;
@@ -629,16 +653,13 @@ void Tracer::setTraceComponents(const String& traceComponents)
             // Remove the searched componentname from the traceComponents
             componentStr.remove(0,position+1);
         }
+
+        // If one of the components was set for tracing and the traceLevel
+        // is not zero, then turn on tracing.
+        _traceOn = (instance->_componentsAreSet &&
+                   (instance->_traceLevelMask != LEVEL0));
     }
-    else
-    {
-        // initialise ComponentMask array to False
-        for (Uint32 index = 0;index < _NUM_COMPONENTS; index++)
-        {
-            (_getInstance()->_traceComponentMask.get())[index] = false;
-        }
-        _traceOn = 0;
-    }
+
     return ;
 }
 
@@ -652,7 +673,7 @@ void Tracer::traceEnter(
     token.component = traceComponent;
     token.method = method;
     
-    if (isTraceEnabled(traceComponent, LEVEL1))
+    if (isTraceEnabled(traceComponent, LEVEL5))
     {
         _traceMethod(
             file, (Uint32)line, traceComponent, 
@@ -665,7 +686,7 @@ void Tracer::traceExit(
     const char* file,
     size_t line)
 {
-    if (isTraceEnabled(token.component, LEVEL1) && token.method)
+    if (isTraceEnabled(token.component, LEVEL5) && token.method)
         _traceMethod(
             file, (Uint32)line, token.component,
             _METHOD_EXIT_MSG, token.method);
@@ -706,7 +727,6 @@ void Tracer::traceCIMException(
     const Uint32 traceLevel,
     const CIMException& cimException)
 {
-    PEGASUS_ASSERT(traceLevel != LEVEL1);
     if (isTraceEnabled(traceComponent, traceLevel))
     {
         _traceCIMException(traceComponent, cimException);

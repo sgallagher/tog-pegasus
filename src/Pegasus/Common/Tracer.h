@@ -63,7 +63,7 @@ public:
     /** Levels of trace
         Trace messages are written to the trace file only if they are at or
         above a given trace level
-        LEVEL1 - Function Entry/Exit
+        LEVEL1 - Severe and log messages
         LEVEL2 - Basic flow trace messages, low data detail
         LEVEL3 - Inter-function logic flow, medium data detail
         LEVEL4 - High data detail
@@ -214,14 +214,24 @@ private:
      */
     static Boolean _traceOn;
 
+    /** Internal only Levels of trace
+        These cannot be used in any of the trace calls directly, but are set
+        by methods of the Tracer class for specific purposes, such as trace
+        Enter and traceExit.
+        LEVEL0 - Trace is switched off
+        LEVEL5 - used for method enter & exit
+     */
+    static const Uint32 LEVEL0;
+    static const Uint32 LEVEL5;
+
     static const char   _COMPONENT_SEPARATOR;
     static const Uint32 _NUM_COMPONENTS;
     static const Uint32 _STRLEN_MAX_UNSIGNED_INT;
     static const Uint32 _STRLEN_MAX_PID_TID;
-    static const Boolean _SUCCESS;
-    static const Boolean _FAILURE;
     AutoArrayPtr<Boolean> _traceComponentMask;
-    Uint32              _traceLevelMask;
+    //Is true if any components are set at the component mask
+    Boolean               _componentsAreSet;
+    Uint32                _traceLevelMask;
     AutoPtr<TraceFileHandler> _traceHandler;
     String              _moduleName;
     static Tracer*      _tracerInstance;
@@ -229,9 +239,6 @@ private:
     // Message Strings for function Entry and Exit
     static const char _METHOD_ENTER_MSG[];
     static const char _METHOD_EXIT_MSG[];
-
-    // Message Strings for Logger
-    static const char _LOG_MSG[];
 
     // Traces the given message. Overloaded to include the file name and the
     // line number as one of the parameters.
@@ -301,6 +308,7 @@ private:
     static Tracer* _getInstance();
 
     friend class TraceCallFrame;
+    friend class TracePropertyOwner;
 };
 
 //==============================================================================
@@ -407,7 +415,6 @@ inline void Tracer::setTraceComponents(const String& traceComponents)
     { \
         if (Tracer::isTraceOn()) \
         { \
-            PEGASUS_ASSERT(level != Tracer::LEVEL1); \
             if (Tracer::isTraceEnabled(comp, level)) \
             { \
                 Tracer::traceCString(PEGASUS_FILE_LINE_COMMA \
@@ -425,7 +432,6 @@ inline void Tracer::setTraceComponents(const String& traceComponents)
     { \
         if (Tracer::isTraceOn()) \
         { \
-            PEGASUS_ASSERT(level != Tracer::LEVEL1); \
             if (Tracer::isTraceEnabled(comp, level)) \
             { \
                 Tracer::traceCString(PEGASUS_FILE_LINE_COMMA comp, chars); \

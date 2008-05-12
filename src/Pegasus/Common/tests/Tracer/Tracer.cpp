@@ -46,6 +46,16 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
+
+// Trace Levels 0 and 5 are defined as private constants of the tracer
+// class to avoid inappropriate use in the trace calls and macros.
+// Therefore these tracel levels need to be set in the tests using the
+// constant values directly.
+const Uint32 PEGASUS_TRACER_LEVEL0 =  0;
+const Uint32 PEGASUS_TRACER_LEVEL5 = (1 << 4);
+
+
+
 // Trace files for test purposes
 // Will be created in the $(PEGASUS_TMP) directory, or if not set,
 // in the current directory
@@ -193,6 +203,7 @@ Uint32 test3()
 Uint32 test4()
 {
     const char* METHOD_NAME = "test4";
+    Tracer::setTraceLevel(PEGASUS_TRACER_LEVEL5);
     Tracer::setTraceComponents("Config");
     PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
     return(compare(FILE1,"Entering method test4"));
@@ -298,7 +309,7 @@ Uint32 test9()
 // return 0 if the test passed
 // return 1 if the test failed
 //
-// This test not required with change t0
+// This test not required with change to
 // use and test macros only.
 
 Uint32 test10()
@@ -312,11 +323,11 @@ Uint32 test10()
 
 //
 // Description:
-// Implements trace call for Tracer::Level1
-// should log a trace message
+// Trace is set to level 0
+// should not log a trace message
 //
 // Type:
-// Positive 
+// Negative
 //
 // return 0 if the test passed
 // return 1 if the test failed
@@ -326,9 +337,10 @@ Uint32 test11()
 {
     const char* METHOD_NAME = "test11";
     Tracer::setTraceComponents("ALL");
-    Tracer::setTraceLevel(Tracer::LEVEL4);
-    PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
-    return(compare(FILE2,"Entering method test11"));
+    Tracer::setTraceLevel(PEGASUS_TRACER_LEVEL0);
+    PEG_TRACE((TRC_CONFIG,Tracer::LEVEL1,"%s %s",
+        "Test Message for Level0 in",METHOD_NAME));
+    return(compare(FILE2,"Test Message for Level3 in test9"));
 }
 
 //
@@ -348,9 +360,9 @@ Uint32 test12()
     const char* METHOD_NAME = "test12";
     Tracer::setTraceComponents("ALL");
     Tracer::setTraceLevel(Tracer::LEVEL4);
-    PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
-    PEG_METHOD_EXIT();
-    return(compare(FILE2,"Exiting method test12"));
+    PEG_TRACE((TRC_CONFIG,Tracer::LEVEL1,"%s %s",
+        "Test Message for Level1 in",METHOD_NAME));
+    return(compare(FILE2,"Test Message for Level1 in test12"));
 }
 
 //
@@ -422,8 +434,51 @@ Uint32 test15()
 
 //
 // Description:
-// calls the setTraceComponents with null string
+// Implements trace call for Tracer::Level5 (trace enter/exit)
 // should log a trace message
+//
+// Type:
+// Positive 
+//
+// return 0 if the test passed
+// return 1 if the test failed
+//
+
+Uint32 test15a()
+{
+    const char* METHOD_NAME = "test15a";
+    Tracer::setTraceComponents("ALL");
+    Tracer::setTraceLevel(PEGASUS_TRACER_LEVEL5);
+    PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
+    return(compare(FILE3,"Entering method test15a"));
+}
+
+//
+// Description:
+// Implements trace call for Tracer::Level5 (trace enter/exit)
+// should log a trace message
+//
+// Type:
+// Positive 
+//
+// return 0 if the test passed
+// return 1 if the test failed
+//
+
+Uint32 test15b()
+{
+    const char* METHOD_NAME = "test15b";
+    Tracer::setTraceComponents("ALL");
+    Tracer::setTraceLevel(PEGASUS_TRACER_LEVEL5);
+    PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
+    PEG_METHOD_EXIT();
+    return(compare(FILE3,"Exiting method test15b"));
+}
+
+//
+// Description:
+// calls the setTraceComponents with null string
+// should not log a trace message
 //
 // Type:
 // Negative 
@@ -439,7 +494,7 @@ Uint32 test16()
     Tracer::setTraceLevel(Tracer::LEVEL4);
     PEG_TRACE((TRC_CONFIG,Tracer::LEVEL4,"%s %s",
     "This Message should not appear in",METHOD_NAME));
-    return(compare(FILE3,"Test Message for Level4 in test15"));
+    return(compare(FILE3,"Exiting method test15b"));
 }
 
 //
@@ -461,7 +516,7 @@ Uint32 test17()
     Tracer::setTraceLevel(Tracer::LEVEL4);
     PEG_TRACE((TRC_CONFIG,Tracer::LEVEL4,"%s %s",
     "This Message should not appear in",METHOD_NAME));
-    return(compare(FILE3,"Test Message for Level4 in test15"));
+    return(compare(FILE3,"Exiting method test15b"));
 }
 //
 // Description:
@@ -815,6 +870,16 @@ int main(int argc, char** argv)
     if (test15() != 0)
     {
        cout << "Tracer test (test15) failed" << endl;
+       exit(1);
+    }
+    if (test15a() != 0)
+    {
+       cout << "Tracer test (test15a) failed" << endl;
+       exit(1);
+    }
+    if (test15b() != 0)
+    {
+       cout << "Tracer test (test15b) failed" << endl;
        exit(1);
     }
     if (test16() != 0)

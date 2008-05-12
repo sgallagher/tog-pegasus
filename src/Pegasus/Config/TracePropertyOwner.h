@@ -180,6 +180,25 @@ public:
 private:
     struct ConfigProperty* _lookupConfigProperty(const String& name) const;
 
+
+    /**
+    Converts the string representation of a trace level into a tracer
+    constant.
+
+    @param  traceLevel   The trace level as string
+    @return Uint32       The matching trace level constant value.
+    */
+    Uint32 getTraceLevel(const String& traceLevel);
+
+    /**
+    Checks if a given string representation of a trace level matches a
+    valid value.
+
+    @param  traceLevel   The trace level as string
+    @return Boolean      True if specified level is valid.
+    */
+    Boolean isLevelValid(const String& traceLevel) const;
+
     /**
     The trace properties owned by this class
     */

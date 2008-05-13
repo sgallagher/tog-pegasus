@@ -116,6 +116,7 @@ public:
 private:
     Uint32 _portNumber;
     SSLContext *_sslContext;
+    ReadWriteSem _sslContextObjectLock;
     Monitor *_monitor;
     Mutex _monitorMutex;
     HTTPAcceptor *_ip6Acceptor;
@@ -186,9 +187,20 @@ void CIMListenerService::init()
     {
         if (NULL == _ip6Acceptor)
         {
-            _ip6Acceptor = new HTTPAcceptor(
-                _monitor, _requestDecoder, HTTPAcceptor::IPV6_CONNECTION,
-                _portNumber, _sslContext, false);
+            if (NULL == _sslContext)
+            {
+                _ip6Acceptor = new HTTPAcceptor(
+                        _monitor, _requestDecoder,
+                        HTTPAcceptor::IPV6_CONNECTION,
+                        _portNumber, 0, 0);
+            }
+            else
+            {
+                _ip6Acceptor = new HTTPAcceptor(
+                        _monitor, _requestDecoder,
+                        HTTPAcceptor::IPV6_CONNECTION,
+                        _portNumber, _sslContext, &_sslContextObjectLock);
+            }
         }
     }
 #ifndef PEGASUS_OS_TYPE_WINDOWS
@@ -197,9 +209,20 @@ void CIMListenerService::init()
 #endif
     if (NULL == _ip4Acceptor)
     {
-        _ip4Acceptor = new HTTPAcceptor(
-            _monitor, _requestDecoder, HTTPAcceptor::IPV4_CONNECTION,
-            _portNumber, _sslContext, false);
+        if (NULL == _sslContext)
+        {
+            _ip4Acceptor = new HTTPAcceptor(
+                    _monitor, _requestDecoder,
+                    HTTPAcceptor::IPV4_CONNECTION,
+                    _portNumber, 0, 0);
+        }
+        else
+        {
+            _ip4Acceptor = new HTTPAcceptor(
+                    _monitor, _requestDecoder,
+                    HTTPAcceptor::IPV4_CONNECTION,
+                    _portNumber, _sslContext, &_sslContextObjectLock);
+        }
     }
     bind();
 

@@ -141,6 +141,7 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
      _sslContextObjectLock(sslContextObjectLock),
      _idleConnectionTimeoutSeconds(0)
 {
+   PEGASUS_ASSERT(!_sslcontext == !_sslContextObjectLock);
    Socket::initializeInterface();
 
    /*

@@ -608,6 +608,11 @@ void CertificateProvider::enumerateInstances(
             // other than cimserver, those instances will be ignored.
             // Also, if there are instances that do not specify a certificate
             // type, the type for such instances is set to unknown (1).
+            // And if there are instances that do not have certificate type 
+            // property, CERTIFICATE_TYPE_PROPERTY is added and is set to
+            // unknown. Last case is introduced to retain backward 
+            // compatibility, if there were instances of an earlier version 
+            // in the repository that do not have certificate type property.
             //
 
             //
@@ -633,16 +638,34 @@ void CertificateProvider::enumerateInstances(
                 Uint32 pos = cimInstances[i].findProperty(
                                CERTIFICATE_TYPE_PROPERTY);
 
-                PEGASUS_ASSERT( pos != PEG_NOT_FOUND );
-
-                CIMProperty prop = cimInstances[i].getProperty(pos);
-
-                if ( prop.getValue().isNull())
+                //
+                // If certificate type property is not there then add the 
+                // property and set its type to "Unknown"                
+                //
+                if (pos != PEG_NOT_FOUND)
                 {
-                    PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3,
-                      "The instance does not have the certificate type set. "
-                      "Setting it to Unknown.");
-                    prop.setValue(CERT_TYPE_UNKNOWN);
+                    CIMProperty prop = cimInstances[i].getProperty(pos);
+
+                    if ( prop.getValue().isNull())
+                    {
+                        PEG_TRACE_CSTRING(
+                            TRC_CONTROLPROVIDER,
+                            Tracer::LEVEL4,
+                            "The instance does not have the certificate"
+                                " type set. Setting it to Unknown.");
+                        prop.setValue(CERT_TYPE_UNKNOWN);
+                    }
+                }
+                else
+                {
+                    PEG_TRACE_CSTRING(
+                        TRC_CONTROLPROVIDER,
+                        Tracer::LEVEL4,
+                        "The instance does not have the certificate "
+                            "type property. Adding it and setting to Unknown.");
+                    cimInstances[i].addProperty(
+                        CIMProperty(CERTIFICATE_TYPE_PROPERTY,
+                        CIMValue(CERT_TYPE_UNKNOWN)));                   
                 }
 
                 // deliver instance

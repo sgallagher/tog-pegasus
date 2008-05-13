@@ -36,8 +36,6 @@
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include "DynamicLibraryWindows.cpp"
-#elif defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_HPUX_USE_DLOPEN)
-# include "DynamicLibraryHPUX.cpp"
 #elif defined(PEGASUS_OS_TYPE_UNIX) || defined(PEGASUS_OS_VMS)
 # include "DynamicLibraryPOSIX.cpp"
 #else

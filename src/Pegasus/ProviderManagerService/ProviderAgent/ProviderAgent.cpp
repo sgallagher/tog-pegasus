@@ -304,6 +304,10 @@ Boolean ProviderAgent::_readAndProcessRequest()
     // cache.  (See the _providerModuleCache member description.)
     try
     {
+        const AcceptLanguageListContainer acceptLang = 
+            request->operationContext.get(AcceptLanguageListContainer::NAME);
+        Thread::setLanguages(acceptLang.getLanguages());
+
         ProviderIdContainer pidc = request->operationContext.get(
             ProviderIdContainer::NAME);
         if (pidc.getModule().isUninitialized())
@@ -634,6 +638,10 @@ ProviderAgent::_processRequestAndWriteResponse(void* arg)
         // Get the ProviderAgent and request message from the argument
         ProviderAgent* agent = agentRequest->agent;
         AutoPtr<CIMRequestMessage> request(agentRequest->request);
+
+        const AcceptLanguageListContainer acceptLang = 
+            request->operationContext.get(AcceptLanguageListContainer::NAME);
+        Thread::setLanguages(acceptLang.getLanguages());
 
         // Process the request
         AutoPtr<Message> response(agent->_processRequest(request.get()));

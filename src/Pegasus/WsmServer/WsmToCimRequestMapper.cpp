@@ -296,9 +296,13 @@ String WsmToCimRequestMapper::convertEPRAddressToHostname(const String& addr)
     {
         Uint32 pos1 = 0;
         if (String::compare(addr, "http://", 7) == 0)
+        {
             pos1 = 7;
+        }
         else if (String::compare(addr, "https://", 8) == 0)
+        {
             pos1 = 8;
+        }
 
         Uint32 pos2 = addr.reverseFind('/');
         if (pos1 != 0 && pos2 != PEG_NOT_FOUND && pos2 > pos1)
@@ -970,7 +974,9 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
         // The shortest valid representation is an interval, e.g. P1Y 
         // Negative datetime/intervals not supported
         if (strSize < 3 || wsmStr[0] == '-')
+        {
             throw InvalidDateTimeFormatException();
+        }
 
         Uint32 pos;
         if (wsmStr[0] == 'P')
@@ -1005,7 +1011,9 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
                     // The 'T' separator cannot appear after 'H' and must
                     // be followed by hours, minutes or seconds
                     if (i > 3 || *ptr == '\0')
+                    {
                         throw InvalidDateTimeFormatException();
+                    }
 
                     i = 3;
                     continue;
@@ -1014,15 +1022,19 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
                 // If we're processing hours, minutes or seconds but have not
                 // seen the 'T' separator, it's an error.
                 if (i >= 3 && !seenT)
+                {
                     throw InvalidDateTimeFormatException();
-                
+                }
+
                 int bytes = 0;
                 Uint32 num = 0;
                 int conversions = sscanf(ptr, "%u%n", &num, &bytes);
                 
                 // Here we expect a valid unsigned int
                 if (conversions == 0 || bytes == 0 || illegalNumChar(*ptr))
+                {
                     throw InvalidDateTimeFormatException();
+                }
 
                 char c = *(ptr + bytes);
                 if (c == values[i].id)
@@ -1035,7 +1047,9 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
                     // Special case: handle fractional seconds when the number
                     // of seconds is followed by '.' rather than 'S'
                     if (!seenT)
+                    {
                         throw InvalidDateTimeFormatException();
+                    }
 
                     values[5].num = num;
                     ptr = ptr + bytes; // ptr points to '.'
@@ -1046,7 +1060,9 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
                     // seconds number. It must be followed by 'S'
                     if (conversions == 0 || bytes == 0 || 
                         *(ptr + bytes) != 'S' || illegalNumChar(*ptr))
+                    {
                         throw InvalidDateTimeFormatException();
+                    }
 
                     values[6].num = (Uint32) (tmpMsecs * 1000000);
                     ptr = ptr + bytes + 1;
@@ -1064,7 +1080,9 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
             // If at the end of the loop we still have unconsumed charachters, 
             // it's an error.
             if (ptr < wsmStr + strSize)
+            {
                 throw InvalidDateTimeFormatException();
+            }
 
             Uint32 msecs = values[6].num;
             Uint32 secs = values[5].num % 60;
@@ -1090,7 +1108,8 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
             // datetime
             // YYYY-MM-DDThh:mm:ss[.ssss...][Z][+/-hh:mm]
             Uint32 year = 0, month = 0, day = 0, hrs = 0, mins = 0, secs = 0,
-                msecs = 0, utch = 0, utcm = 0, utcoff = 0;
+                msecs = 0, utch = 0, utcm = 0;
+            Sint32 utcoff = 0;
             char sign = 0;
             float tmpMsecs;
             const char* ptr = wsmStr;
@@ -1118,7 +1137,9 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
                 illegalNumChar(ptr[0]) || illegalNumChar(ptr[5]) ||
                 illegalNumChar(ptr[8]) || illegalNumChar(ptr[11]) ||
                 illegalNumChar(ptr[14]) || illegalNumChar(ptr[17]))
+            {
                 throw InvalidDateTimeFormatException();
+            }
 
             ptr += bytes;
             if (sign == '.')
@@ -1130,7 +1151,9 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
                 if ((conversions == 0) || 
                     (conversions == 2 && 
                      sign != 'Z' && sign != '+' && sign != '-'))
+                {
                     throw InvalidDateTimeFormatException();
+                }
 
                 msecs = (Uint32) (tmpMsecs * 1000000);
 
@@ -1148,11 +1171,15 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
                     illegalNumChar(ptr[0]) || illegalNumChar(ptr[2]) ||
                     // Hours and minutes must be within range
                     utch >= 24 || utcm >= 60)
+                {
                     throw InvalidDateTimeFormatException();
-                    
+                }
+   
                 utcoff = utch * 60 + utcm;
                 if (sign == '-')
+                {
                     utcoff *= -1;
+                }
             }
             else if (sign == 'Z')
             {
@@ -1160,7 +1187,9 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
                 // initialized to 0.
                 // Just make sure that 'Z' is the last char in the string.
                 if (*ptr != 0)
+                {
                     throw InvalidDateTimeFormatException();
+                }
             }
 
             cimDT.setTimeStamp(year, month, day, hrs, mins, secs,
@@ -1171,8 +1200,8 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
         {
             // date
             // The format is YYYY-MM-DD[Z][+/-hh:mm]
-            Uint32 year = 0, month = 0, day = 0, 
-                utch = 0, utcm = 0, utcoff = 0;
+            Uint32 year = 0, month = 0, day = 0, utch = 0, utcm = 0; 
+            Sint32 utcoff = 0;
             char sign = 0;
 
             int conversions = sscanf(wsmStr, "%4u-%2u-%2u%c%2u:%2u", 
@@ -1190,14 +1219,18 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
                 illegalNumChar(wsmStr[8]) ||
                 // Hours and minutes must be within range
                 utch >= 24 || utcm >= 60)
+            {
                 throw InvalidDateTimeFormatException();
+            }
 
             // Decode UTC offset
             if (conversions > 3)
             {
                 if ((sign != 'Z' && sign != '+' && sign != '-') ||
                     ((conversions == 4 || sign == 'Z') && strSize != 11))
+                {
                     throw InvalidDateTimeFormatException();
+                }
 
                 if (sign == '+' || sign == '-')
                 {
@@ -1207,11 +1240,15 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
                         // white space, '+' or '-' signs
                         illegalNumChar(wsmStr[11]) || 
                         illegalNumChar(wsmStr[14]))
+                    {
                         throw InvalidDateTimeFormatException();
-                    
+                    }
+
                     utcoff = utch * 60 + utcm;
                     if (sign == '-')
+                    {
                         utcoff *= -1;
+                    }
                 }
             }
 
@@ -1260,7 +1297,9 @@ Boolean WsmToCimRequestMapper::stringToReal64(
     const char* p = stringValue;
 
     if (!p || !*p)
+    {
         return false;
+    }
 
     errno = 0;
     if (!isdigit(*p))
@@ -1271,7 +1310,9 @@ Boolean WsmToCimRequestMapper::stringToReal64(
             (*p != 'I' || *(p + 1) != 'N' || *(p + 2) != 'F' || *(p + 3)) &&
             (*p != '-' || *(p + 1) != 'I' || *(p + 2) != 'N' || 
              *(p + 3) != 'F' || *(p + 4))))
+        {
             return false;
+        }
 
         // Do the conversion
         x = strtod(stringValue, &end);
@@ -1282,7 +1323,9 @@ Boolean WsmToCimRequestMapper::stringToReal64(
     {
         // It can't be a hex number
         if (*p == '0' && (*(p + 1) == 'x' || *(p + 1) == 'X'))
+        {
             return false;
+        }
 
         // Do the conversion
         x = strtod(stringValue, &end);

@@ -962,6 +962,37 @@ void WsmToCimRequestMapper::convertStringArrayToCimValue(
 
 #define illegalNumChar(c) (c == '+' || c == '-' || c == ' ' || c == '\t')
 
+static Uint32 _getMicroseconds(const char* ptr, int* bytes)
+{
+    // Here we expect an unsigned integer with no white space or sign. 
+    // Essentially we expect to see a sequence of decimal digits.
+    Uint32 ms;
+    int conversions = sscanf(ptr, "%u%n", &ms, bytes);
+
+    if (conversions == 0 || *bytes == 0 || illegalNumChar(*ptr))
+    {
+        throw InvalidDateTimeFormatException();
+    }
+
+    // Convert the fractional number of seconds we've just read into the
+    // number of microseconds. Since we can only represent 6 decimal
+    // positions, discard any additional digits or pad the number with
+    // trailing 0's if we've read less than 6.
+    if (*bytes > 6)
+    {
+        sscanf(ptr, "%6u", &ms);
+    }
+    else
+    {
+        for (Sint32 i = 0; i < 6 - *bytes; i++)
+        {
+            ms *= 10;
+        }
+    }
+
+    return ms;
+}
+
 void WsmToCimRequestMapper::convertWsmToCimDatetime(
     const String& wsmDT, CIMDateTime& cimDT)
 {
@@ -1030,8 +1061,10 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
                 Uint32 num = 0;
                 int conversions = sscanf(ptr, "%u%n", &num, &bytes);
                 
-                // Here we expect a valid unsigned int
-                if (conversions == 0 || bytes == 0 || illegalNumChar(*ptr))
+                // Here we expect a valid unsigned int with the maximum
+                // value of 999,999,999
+                if (conversions == 0 || bytes == 0 || bytes > 9 ||
+                    illegalNumChar(*ptr))
                 {
                     throw InvalidDateTimeFormatException();
                 }
@@ -1052,19 +1085,12 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
                     }
 
                     values[5].num = num;
-                    ptr = ptr + bytes; // ptr points to '.'
-                    float tmpMsecs;
-                    conversions = sscanf(ptr, "%f%n", &tmpMsecs, &bytes);
-
-                    // If there is a '.', there must be valid fractional
-                    // seconds number. It must be followed by 'S'
-                    if (conversions == 0 || bytes == 0 || 
-                        *(ptr + bytes) != 'S' || illegalNumChar(*ptr))
+                    ptr = ptr + bytes + 1; // ptr points to byte after '.'
+                    values[6].num = _getMicroseconds(ptr, &bytes);
+                    if (*(ptr + bytes) != 'S')
                     {
                         throw InvalidDateTimeFormatException();
                     }
-
-                    values[6].num = (Uint32) (tmpMsecs * 1000000);
                     ptr = ptr + bytes + 1;
                     i = 5;
                 }
@@ -1098,10 +1124,16 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
             // - every 4th year adds an extra day
             // - a month has 30 days
             // - every other month adds an extra day
-            Uint32 days = (values[0].num * 365) + (values[0].num / 4) +
+            Uint64 days = (values[0].num * 365) + (values[0].num / 4) +
                 (values[1].num * 30) + (values[1].num / 2) + values[2].num;
 
-            cimDT.setInterval(days, hrs, mins, secs, msecs, 6);
+            // Make sure that the value is within Uint32 bounds
+            if (days & PEGASUS_UINT64_LITERAL(0xFFFFFFFF00000000))
+            {
+                throw InvalidDateTimeFormatException();
+            }
+
+            cimDT.setInterval((Uint32) days, hrs, mins, secs, msecs, 6);
         }
         else if (wsmDT.find('T') != PEG_NOT_FOUND)
         {
@@ -1111,7 +1143,6 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
                 msecs = 0, utch = 0, utcm = 0;
             Sint32 utcoff = 0;
             char sign = 0;
-            float tmpMsecs;
             const char* ptr = wsmStr;
             int bytes = 0;
 
@@ -1144,21 +1175,18 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
             ptr += bytes;
             if (sign == '.')
             {
-                // Read the fractional second part as a float and convert it
-                // into the number of microseconds.
-                conversions = 
-                    sscanf(ptr - 1, "%f%c%n", &tmpMsecs, &sign, &bytes);
+                msecs = _getMicroseconds(ptr, &bytes);
+                ptr += bytes;
+
+                conversions = sscanf(ptr, "%c", &sign);
                 if ((conversions == 0) || 
-                    (conversions == 2 && 
+                    (conversions == 1 && 
                      sign != 'Z' && sign != '+' && sign != '-'))
                 {
                     throw InvalidDateTimeFormatException();
                 }
-
-                msecs = (Uint32) (tmpMsecs * 1000000);
-
-                // We started reading at ptr-1, so account for that here
-                ptr += (bytes - 1);
+                
+                ptr++; // account for sign
             }
 
             // Read UTC offset

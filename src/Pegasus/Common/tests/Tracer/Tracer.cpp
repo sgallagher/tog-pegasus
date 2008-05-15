@@ -655,6 +655,56 @@ Uint32 test23()
     return(compare(FILE4,"Test message for Level4 in test23."));
 }
 
+//
+// Description:
+// Change traceFacility to Logger
+// No more trace messages should be written
+//
+// Type:
+// Negative
+//
+// return 0 if the test passed
+// return 1 if the test failed
+//
+Uint32 test24()
+{
+    const char* METHOD_NAME = "test24";
+    Tracer::setTraceFacility("Log");
+    Tracer::setTraceFile(FILE4);
+    Tracer::setTraceComponents("ALL");
+    Tracer::setTraceLevel(Tracer::LEVEL4);
+
+    PEG_TRACE_CSTRING(TRC_CONFIG,Tracer::LEVEL4,
+                      "Test message for traceFacility=Log in test24.");
+
+    return(compare(FILE4,"Test message for Level4 in test23."));
+}
+
+//
+// Description:
+// Change traceFacility back to File
+// Trace messages should be written again
+//
+// Type:
+// Positive
+//
+// return 0 if the test passed
+// return 1 if the test failed
+//
+Uint32 test25()
+{
+    const char* METHOD_NAME = "test25";
+    Tracer::setTraceFacility("File");
+    Tracer::setTraceFile(FILE4);
+    Tracer::setTraceComponents("ALL");
+    Tracer::setTraceLevel(Tracer::LEVEL4);
+
+    PEG_TRACE_CSTRING(TRC_CONFIG,Tracer::LEVEL4,
+                      "Test message for traceFacility=File in test25.");
+
+    return(compare(FILE4,"Test message for traceFacility=File in test25."));
+}
+
 // 
 // Description:
 // Test the getHTTPRequestMessage method.
@@ -667,7 +717,7 @@ Uint32 test23()
 // return 0 if the test passed
 // return 1 if the test failed
 //
-Uint32 test24()
+Uint32 test26()
 {
     Tracer::setTraceFile(FILE4);
     Tracer::setTraceComponents("xmlio");
@@ -718,7 +768,7 @@ Uint32 test24()
 // return 0 if the test passed
 // return 1 if the test failed
 //
-Uint32 test25()
+Uint32 test27()
 {   
     Tracer::setTraceFile(FILE4);
     Tracer::setTraceComponents("xmlio");
@@ -926,6 +976,17 @@ int main(int argc, char** argv)
     if (test25() != 0)
     {
        cout << "Tracer test (test25) failed" << endl;
+       exit(1);
+    }
+    if (test26() != 0)
+    {
+       cout << "Tracer test (test26) failed" << endl;
+       exit(1);
+    }
+
+    if (test27() != 0)
+    {
+       cout << "Tracer test (test27) failed" << endl;
        exit(1);
     }
 

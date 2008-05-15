@@ -40,7 +40,7 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/TraceComponents.h>
-#include <Pegasus/Common/TraceFileHandler.h>
+#include <Pegasus/Common/TraceHandler.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/SharedPtr.h>
 
@@ -59,6 +59,22 @@ struct TracerToken
 class PEGASUS_COMMON_LINKAGE Tracer
 {
 public:
+
+
+    /** Trace facilities
+        File - tracing occurs to the trace file
+        Log  - tracing occurs through the Pegasus Logger class
+        Keep the TRACE_FACILITY_LIST in sync with the TRACE_FACILITY_INDEX,
+        so that the index matches the according string in the list.
+     */
+    static char const* TRACE_FACILITY_LIST[];
+
+    enum TRACE_FACILITY_INDEX
+    {
+        TRACE_FACILITY_FILE = 0,
+        TRACE_FACILITY_LOG  = 1
+    };
+
 
     /** Levels of trace
         Trace messages are written to the trace file only if they are at or
@@ -138,6 +154,14 @@ public:
     static void setTraceComponents(
        const String& traceComponents);
 
+    /** Set trace facility to be used
+        @param traceFacility facility to be used for tracing,
+               for example Log or File.    
+        @return 0      if trace facility is valid
+                1      if trace facility is invalid
+    */
+    static Uint32 setTraceFacility(const String& traceFacility);
+
     /** Traces method entry.
         @param token           TracerToken
         @param fileName        filename of the trace originator
@@ -186,6 +210,13 @@ public:
         const String& traceComponents,
         String& invalidComponents);
 
+    /** Validates the trace facility string value
+        @param  traceFacility   The trace facility as string
+        @return 1        if the trace facility is valid
+                0        if the trace facility is invalid
+     */
+    static Boolean isValidTraceFacility( const String& traceFacility );
+    
     /** Specify the name of the module being traced.  If non-empty, this
         value is used as an extension to the name of the trace file.
         @param  moduleName Name of the module being traced.
@@ -229,16 +260,24 @@ private:
     static const Uint32 _STRLEN_MAX_UNSIGNED_INT;
     static const Uint32 _STRLEN_MAX_PID_TID;
     AutoArrayPtr<Boolean> _traceComponentMask;
+    Uint32                _traceFacility;
     //Is true if any components are set at the component mask
     Boolean               _componentsAreSet;
     Uint32                _traceLevelMask;
-    AutoPtr<TraceFileHandler> _traceHandler;
+    AutoPtr<TraceHandler> _traceHandler;
     String              _moduleName;
     static Tracer*      _tracerInstance;
 
     // Message Strings for function Entry and Exit
     static const char _METHOD_ENTER_MSG[];
     static const char _METHOD_EXIT_MSG[];
+
+    // Factory function to create an instance of the matching trace handler
+    // for the given type of traceFacility.
+    // @param    traceFacility  type of trace handler to create
+    // @return   an instance of a trace handler class. For invalid trace 
+    //           facilities always creates a traceFileHandler.
+    TraceHandler* getTraceHandler( Uint32 traceFacility );
 
     // Traces the given message. Overloaded to include the file name and the
     // line number as one of the parameters.
@@ -357,6 +396,11 @@ inline Uint32 Tracer::setTraceLevel(const Uint32 level)
 }
 
 inline void Tracer::setTraceComponents(const String& traceComponents)
+{
+    // empty function
+}
+
+inline Uint32 Tracer::setTraceFacility(const String& traceComponents)
 {
     // empty function
 }

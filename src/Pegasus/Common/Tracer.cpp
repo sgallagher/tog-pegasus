@@ -33,13 +33,28 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/TraceFileHandler.h>
+#include <Pegasus/Common/TraceLogHandler.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/HTTPMessage.h>
 
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
+
+// Defines the value values for trace facilities
+// Keep the TRACE_FACILITY_LIST in sync with the TRACE_FACILITY_INDEX,
+// so that the index matches the according string in the list.
+char const* Tracer::TRACE_FACILITY_LIST[] =
+{
+    "File",
+    "Log",
+    0
+};
+    
 
 // Set the trace levels
 // These levels will be compared against a trace level mask to determine
@@ -82,12 +97,17 @@ Boolean Tracer::_traceOn = false;
 ////////////////////////////////////////////////////////////////////////////////
 Tracer::Tracer()
     : _traceComponentMask(new Boolean[_NUM_COMPONENTS]),
+      _traceFacility(TRACE_FACILITY_FILE),
       _traceLevelMask(0),
-      _traceHandler(new TraceFileHandler())
+      _traceHandler(0)
 {
+    // Instantiate trace handler according to configured facility
+    _traceHandler.reset( getTraceHandler(_traceFacility) );
+
     // Initialize ComponentMask array to false
     for (Uint32 index=0;index < _NUM_COMPONENTS;
         (_traceComponentMask.get())[index++]=false);
+
     // NO componets are set
     _componentsAreSet=false;
 }
@@ -100,6 +120,26 @@ Tracer::~Tracer()
     delete _tracerInstance;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+//Factory function for the trace handler instances.
+////////////////////////////////////////////////////////////////////////////////
+TraceHandler* Tracer::getTraceHandler( Uint32 traceFacility )
+{
+    TraceHandler * trcHandler;
+    switch(traceFacility)
+    {
+        case TRACE_FACILITY_LOG:
+            trcHandler = new TraceLogHandler();
+            break;
+
+        case TRACE_FACILITY_FILE:
+        default:
+            trcHandler = new TraceFileHandler();
+    }
+
+    return trcHandler;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //Traces the given message - Overloaded for including FileName and Line number
@@ -376,12 +416,13 @@ Boolean Tracer::isValidFileName(const char* filePath)
     String moduleName = _getInstance()->_moduleName;
     if (moduleName == String::EMPTY)
     {
-        return _getInstance()->_traceHandler->isValidFilePath(filePath);
+        return 
+           _getInstance()->_traceHandler->isValidMessageDestination(filePath);
     }
     else
     {
         String extendedFilePath = String(filePath) + "." + moduleName;
-        return _getInstance()->_traceHandler->isValidFilePath(
+        return _getInstance()->_traceHandler->isValidMessageDestination(
             extendedFilePath.getCString());
     }
 }
@@ -480,6 +521,30 @@ Boolean Tracer::isValidComponents(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+//Validate the trace facility
+////////////////////////////////////////////////////////////////////////////////
+Boolean Tracer::isValidTraceFacility(const String& traceFacility)
+{
+    Boolean retCode = false;
+
+    if (traceFacility.size() != 0)
+    {
+        Uint32 index = 0;
+        while (TRACE_FACILITY_LIST[index] != 0 )
+        {
+            if (String::equalNoCase( traceFacility,TRACE_FACILITY_LIST[index]))
+            {
+                retCode = true;
+                break;
+            }
+            index++;
+        }
+    }
+
+    return retCode;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 //Set the name of the module being traced
 ////////////////////////////////////////////////////////////////////////////////
 void Tracer::setModuleName(const String& moduleName)
@@ -519,12 +584,12 @@ Uint32 Tracer::setTraceFile(const char* traceFile)
     String moduleName = _getInstance()->_moduleName;
     if (moduleName == String::EMPTY)
     {
-        return _getInstance()->_traceHandler->setFileName(traceFile);
+        return _getInstance()->_traceHandler->setMessageDestination(traceFile);
     }
     else
     {
         String extendedTraceFile = String(traceFile) + "." + moduleName;
-        return _getInstance()->_traceHandler->setFileName(
+        return _getInstance()->_traceHandler->setMessageDestination(
             extendedTraceFile.getCString());
     }
 }
@@ -663,6 +728,38 @@ void Tracer::setTraceComponents(const String& traceComponents)
     return ;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Set the trace facility to be used
+////////////////////////////////////////////////////////////////////////////////
+Uint32 Tracer::setTraceFacility(const String& traceFacility)
+{
+    Uint32 retCode = 0;
+    Tracer* instance = _getInstance();
+    
+    if (traceFacility.size() != 0)
+    {
+        Uint32 index = 0;
+        while (TRACE_FACILITY_LIST[index] != 0 )
+        {
+            if (String::equalNoCase( traceFacility,TRACE_FACILITY_LIST[index]))
+            {
+                if (index != instance->_traceFacility)
+                {
+                    instance->_traceFacility = index;
+                    instance->_traceHandler.reset( 
+                        instance->getTraceHandler(instance->_traceFacility));
+                }
+                retCode = 1;
+                break;
+            }
+            index++;
+        }
+    }
+
+    return retCode;
+}
+
+
 void Tracer::traceEnter(
     TracerToken& token,
     const char* file,
@@ -711,12 +808,12 @@ void Tracer::traceCString(
     message = new char[strlen(fileName) +
         _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8];
     sprintf(
-       message,
-       "[%d:%s:%s:%u]: ",
-       System::getPID(),
-       Threads::id().buffer,
-       fileName,
-       lineNum);
+        message,
+        "[%d:%s:%s:%u]: ",
+        System::getPID(),
+        Threads::id().buffer,
+        fileName,
+        lineNum);
 
     _traceCString(traceComponent, message, cstring);
     delete [] message;

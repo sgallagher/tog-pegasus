@@ -61,16 +61,20 @@ static struct ConfigPropertyRow properties[] =
 #ifdef PEGASUS_OS_HPUX
     {"traceLevel", "1", IS_DYNAMIC, 0, 0, IS_HIDDEN},
     {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_HIDDEN},
+    {"traceFacility", "File", IS_DYNAMIC, 0, 0, IS_HIDDEN},
 #elif defined(PEGASUS_OS_PASE)
     {"traceLevel", "1", IS_DYNAMIC, 0, 0, IS_VISIBLE},
     {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"traceFacility", "File", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 #else
 #if defined (PEGASUS_USE_RELEASE_CONFIG_OPTIONS)
     {"traceLevel", "1", IS_DYNAMIC, 0, 0, IS_HIDDEN},
     {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_HIDDEN},
+    {"traceFacility", "File", IS_DYNAMIC, 0, 0, IS_HIDDEN},
 #else
     {"traceLevel", "1", IS_DYNAMIC, 0, 0, IS_VISIBLE},
     {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"traceFacility", "File", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 #endif
 #endif
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
@@ -100,6 +104,36 @@ Boolean TracePropertyOwner::isLevelValid(const String& traceLevel) const
     return (traceLevel == "0" || traceLevel == "1" ||
             traceLevel == "2" || traceLevel == "3" ||
             traceLevel == "4" || traceLevel == "5");
+}
+
+Boolean TracePropertyOwner::applyTraceFileConfigSetting() const
+{
+    //
+    // Make sure the tracer has the trace file set with the current
+    // value from the config manager and issue a warning, if the
+    // traceFile cannot be used for tracing.
+    //
+    CString fileName = ConfigManager::getHomedPath(
+        _traceFilePath->currentValue).getCString();
+    if (Tracer::isValidFileName(fileName))
+    {
+        Uint32 retCode = Tracer::setTraceFile(fileName);
+        // Check whether the filepath was set
+        if ( retCode == 1 )
+        {
+            Logger::put_l(
+                Logger::ERROR_LOG,
+                System::CIMSERVER,
+                Logger::WARNING,
+                "Config.TracePropertyOwner.UNABLE_TO_WRITE_TRACE_FILE",
+                "Unable to write to trace file $0",
+                (const char*)fileName);
+            _traceFilePath->currentValue.clear();
+
+            return false;
+        }
+    }
+    return true;
 }
 
 //
@@ -139,6 +173,7 @@ TracePropertyOwner::TracePropertyOwner()
     _traceLevel.reset(new ConfigProperty);
     _traceFilePath.reset(new ConfigProperty);
     _traceComponents.reset(new ConfigProperty);
+    _traceFacility.reset(new ConfigProperty);
 }
 
 /**
@@ -188,7 +223,22 @@ void TracePropertyOwner::initialize()
             _traceFilePath->externallyVisible =
                 properties[i].externallyVisible;
         }
+        else if (String::equalNoCase(
+                     properties[i].propertyName, "traceFacility"))
+        {
+            _traceFacility->propertyName = properties[i].propertyName;
+            _traceFacility->defaultValue = properties[i].defaultValue;
+            _traceFacility->currentValue = properties[i].defaultValue;
+            _traceFacility->plannedValue = properties[i].defaultValue;
+            _traceFacility->dynamic = properties[i].dynamic;
+            _traceFacility->domain = properties[i].domain;
+            _traceFacility->domainSize = properties[i].domainSize;
+            _traceFacility->externallyVisible =
+                properties[i].externallyVisible;
+        }
     }
+
+    Tracer::setTraceFacility(_traceFacility->defaultValue);
 
     if (_traceLevel->defaultValue != String::EMPTY)
     {
@@ -233,6 +283,10 @@ struct ConfigProperty* TracePropertyOwner::_lookupConfigProperty(
     else if (String::equalNoCase(_traceFilePath->propertyName, name))
     {
         return _traceFilePath.get();
+    }
+    else if (String::equalNoCase(_traceFacility->propertyName, name))
+    {
+        return _traceFacility.get();
     }
     else
     {
@@ -309,27 +363,10 @@ void TracePropertyOwner::initCurrentValue(
 {
     if (String::equalNoCase(_traceComponents->propertyName, name))
     {
-        if (_traceFilePath->currentValue != String::EMPTY &&
+        if (_traceFilePath->currentValue.size() != 0 &&
             value != String::EMPTY)
         {
-            CString fileName = ConfigManager::getHomedPath(
-                _traceFilePath->currentValue).getCString();
-            if (Tracer::isValidFileName(fileName))
-            {
-                Uint32 retCode = Tracer::setTraceFile(fileName);
-                // Check whether the filepath was set
-                if ( retCode == 1 )
-                {
-                    Logger::put_l(
-                        Logger::ERROR_LOG,
-                        System::CIMSERVER,
-                        Logger::WARNING,
-                        "Config.TracePropertyOwner.UNABLE_TO_WRITE_TRACE_FILE",
-                        "Unable to write to trace file $0",
-                        (const char*)fileName);
-                    _traceFilePath->currentValue = "";
-                }
-            }
+            applyTraceFileConfigSetting();
         }
         _traceComponents->currentValue = value;
         Tracer::setTraceComponents(_traceComponents->currentValue);
@@ -338,33 +375,29 @@ void TracePropertyOwner::initCurrentValue(
     {
         _traceLevel->currentValue = value;
         Uint32 traceLevel = getTraceLevel(_traceLevel->currentValue);
+        if ( traceLevel > 0 )
+        {
+            applyTraceFileConfigSetting();
+        }
         Tracer::setTraceLevel(traceLevel);
     }
     else if (String::equalNoCase(_traceFilePath->propertyName, name))
     {
         _traceFilePath->currentValue = value;
-        if (_traceFilePath->currentValue != String::EMPTY &&
-            _traceComponents->currentValue != String::EMPTY)
+        if (_traceFilePath->currentValue.size() != 0 &&
+            _traceComponents->currentValue.size() != 0)
         {
-            CString fileName = ConfigManager::getHomedPath(
-                _traceFilePath->currentValue).getCString();
-            if (Tracer::isValidFileName(fileName))
-            {
-                Uint32 retCode = Tracer::setTraceFile(fileName);
-
-                // Check whether the filepath was set
-                if ( retCode == 1 )
-                {
-                     Logger::put_l(
-                         Logger::ERROR_LOG,
-                         System::CIMSERVER,
-                         Logger::WARNING,
-                         "Config.TracePropertyOwner.UNABLE_TO_WRITE_TRACE_FILE",
-                         "Unable to write to trace file $0",
-                         (const char*)fileName);
-                    _traceFilePath->currentValue = "";
-                }
-            }
+            applyTraceFileConfigSetting();
+        }
+    }
+    else if (String::equalNoCase(_traceFacility->propertyName, name))
+    {
+        _traceFacility->currentValue = value;
+        Tracer::setTraceFacility(value); 
+        if (String::equalNoCase( value,
+                Tracer::TRACE_FACILITY_LIST[Tracer::TRACE_FACILITY_FILE]))
+        {
+            applyTraceFileConfigSetting();
         }
     }
     else
@@ -463,6 +496,17 @@ Boolean TracePropertyOwner::isValid(
         //
         if ((value != String::EMPTY) &&
             !Tracer::isValidFileName(value.getCString()))
+        {
+            throw InvalidPropertyValue(name, value);
+        }
+        return true;
+    }
+    else if (String::equalNoCase(_traceFacility->propertyName, name))
+    {
+        //
+        // Check if the trace facility is valid
+        //
+        if (!Tracer::isValidTraceFacility(value))
         {
             throw InvalidPropertyValue(name, value);
         }

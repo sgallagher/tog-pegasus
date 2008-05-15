@@ -845,8 +845,11 @@ void HTTPAcceptor::_acceptConnection()
 #endif
 
 
-    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 0,
-        "HTTPAcceptor - accept() success.  Socket: $1" ,socket));
+    PEG_TRACE((
+        TRC_HTTP,
+        Tracer::LEVEL3,
+        "HTTPAcceptor - accept() success.  Socket: %u",
+        socket));
 
     SharedPtr<MP_Socket> mp_socket(new MP_Socket(
         socket, _sslcontext, _sslContextObjectLock, ipAddress));

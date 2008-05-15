@@ -84,7 +84,7 @@ TraceFileHandler::~TraceFileHandler()
 //  mode
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint32 TraceFileHandler::setFileName(const char* fileName)
+Uint32 TraceFileHandler::setMessageDestination(const char* fileName)
 {
     // If a file is already open, close it
     if (_fileHandle)
@@ -100,7 +100,7 @@ Uint32 TraceFileHandler::setFileName(const char* fileName)
     _baseFileName = 0;
 #endif
 
-    if (!isValidFilePath(fileName))
+    if (!isValidMessageDestination(fileName))
     {
         return 1;
     }
@@ -179,7 +179,7 @@ FILE* TraceFileHandler::_openFile(const char* fileName)
     return fileHandle;
 }
 
-Boolean TraceFileHandler::isValidFilePath(const char* filePath)
+Boolean TraceFileHandler::isValidMessageDestination(const char* filePath)
 {
     String fileName = String(filePath);
 

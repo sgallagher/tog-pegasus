@@ -39,13 +39,14 @@
 #include <cstdio>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/TraceHandler.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 /** TraceFileHandler implements logging of messages to file
  */
 
-class PEGASUS_COMMON_LINKAGE TraceFileHandler
+class PEGASUS_COMMON_LINKAGE TraceFileHandler: public TraceHandler
 {
 private:
 
@@ -80,39 +81,39 @@ private:
 
 public:
 
-    /** Writes message to file.
-        Implementation of this function is platform specific
+    /** Writes message with format string to the tracing facility
         @param    message  message to be written
         @param    fmt      printf style format string
         @param    argList  variable argument list
      */
-    void handleMessage(const char* message,const char* fmt,va_list argList);
+    virtual void handleMessage(const char* message,
+                               const char* fmt,
+                               va_list argList);
 
-    /** Writes message to file.
-        Implementation of this function is platform specific
+    /** Writes simple message to the tracing facility.
         @param    message  message to be written
      */
-    void handleMessage(const char* message);
+    virtual void handleMessage(const char* message);
 
 
-    /** Sets the filename to the given filename and opens the file in append
-        mode
-        @param    fileName full path of the file
-        @return   0        if the function is successful in opening the file
-                  1        if an error occurs while opening the file
+    /** Sets and prepares the destination (e.g. traceFileName) for the
+        trace handler.
+        @param    destination tracer destination, e.g. file
+        @return   0           if the function is successful
+                  1           if an error occurs
      */
-    Uint32 setFileName(const char* fileName);
+    virtual Uint32 setMessageDestination(const char* traceFileName);
 
     /** Validates the File Path for the trace File
         @param    filePath full path of the file
         @return   1        if the file path is valid
                   0        if the file path is invalid
      */
-    Boolean isValidFilePath(const char* filePath);
+    virtual Boolean isValidMessageDestination(const char* traceFileName);
 
     TraceFileHandler();
 
-    ~TraceFileHandler();
+    virtual ~TraceFileHandler();
 
 private:
 

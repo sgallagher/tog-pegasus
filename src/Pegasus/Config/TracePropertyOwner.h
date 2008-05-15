@@ -198,6 +198,16 @@ private:
     @return Boolean      True if specified level is valid.
     */
     Boolean isLevelValid(const String& traceLevel) const;
+    
+    /**
+    Makes sure the tracer has the trace file set with the current
+    value from the config manager and issue a warning, if the
+    traceFile cannot be used for tracing.
+
+    @return Boolean      True if tracefile is valid
+    */
+    Boolean applyTraceFileConfigSetting(void) const;
+
 
     /**
     The trace properties owned by this class
@@ -207,6 +217,8 @@ private:
     AutoPtr<struct ConfigProperty>      _traceComponents; //PEP101
 
     AutoPtr<struct ConfigProperty>      _traceFilePath; //PEP101
+
+    AutoPtr<struct ConfigProperty>      _traceFacility; //PEP315
 
 };
 

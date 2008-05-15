@@ -177,6 +177,7 @@ SOURCES2 = \
     SSLContextManager.cpp \
     TLS.cpp \
     TraceFileHandler.cpp \
+    TraceLogHandler.cpp \
     Tracer.cpp \
     Thread.cpp \
     ThreadPool.cpp \

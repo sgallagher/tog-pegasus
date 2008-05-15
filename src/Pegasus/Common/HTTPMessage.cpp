@@ -248,18 +248,22 @@ void HTTPMessage::parse(
                 if (headerIndex == headers.size())
                 {
                     headers.append(HTTPHeader(name, value));
-                    PEG_LOGGER_TRACE((
-                        Logger::STANDARD_LOG, System::CIMSERVER, 0,
-                        "HTTP header name: $0,  HTTP header value: $1",
-                        name, value));
+                    PEG_TRACE((
+                        TRC_HTTP,
+                        Tracer::LEVEL4,
+                        "HTTP header name: %s,  HTTP header value: %s",
+                        (const char*)name.getCString(),
+                        (const char*)value.getCString()));
                 }
                 else
                 {
                     headers[headerIndex].second.append(", ").append(value);
-                    PEG_LOGGER_TRACE((
-                        Logger::STANDARD_LOG, System::CIMSERVER, 0,
-                        "HTTP header name: $0,  Updated HTTP header value: $1",
-                        name, headers[headerIndex].second));
+                    PEG_TRACE((
+                        TRC_HTTP,
+                        Tracer::LEVEL4,
+                        "HTTP header name: %s,  Updated HTTP header value: %s",
+                        (const char*)name.getCString(),
+                        (const char*)headers[headerIndex].second.getCString()));
                 }
             }
         }

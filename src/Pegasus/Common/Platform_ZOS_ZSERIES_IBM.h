@@ -92,6 +92,8 @@
 #ifndef _CMPIR_PROXY_PROVIDER_H_
 // use my own snprintf implementation using sprintf mapping
 // until the Java SDK is fixed to work with _ISOC99_SOURCE
+// ATTN: a local definition of _ISOC99_SOURCE resides in
+//       TraceLogHandler.cpp
 inline int snprintf(char *sptr, size_t len, const char* form, ...)
 {
     int returnvalue;

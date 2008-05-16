@@ -31,6 +31,12 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#define _ISOC99_SOURCE
+#include <stdio.h>
+#include <stdarg.h>
+#endif
+
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/TraceLogHandler.h>
 

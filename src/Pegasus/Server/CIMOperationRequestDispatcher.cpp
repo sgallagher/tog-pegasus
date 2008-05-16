@@ -1119,6 +1119,38 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
                 PEGASUS_QUEUENAME_CONTROLSERVICE);
 #endif // PEGASUS_ENABLE_SLP
 
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+            _routing_table.insert_record(
+                PEGASUS_CLASSNAME_PG_ELEMENTCAPABILITIES,
+                PEGASUS_NAMESPACENAME_INTEROP,
+                DynamicRoutingTable::INTERNAL,
+                0,
+                static_cast<MessageQueueService*>(
+                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                PEGASUS_MODULENAME_INTEROPPROVIDER,
+                PEGASUS_QUEUENAME_CONTROLSERVICE);
+
+            _routing_table.insert_record(
+                PEGASUS_CLASSNAME_PG_HOSTEDINDICATIONSERVICE,
+                PEGASUS_NAMESPACENAME_INTEROP,
+                DynamicRoutingTable::INTERNAL,
+                0,
+                static_cast<MessageQueueService*>(
+                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                PEGASUS_MODULENAME_INTEROPPROVIDER,
+                PEGASUS_QUEUENAME_CONTROLSERVICE);
+
+            _routing_table.insert_record(
+                PEGASUS_CLASSNAME_PG_SERVICEAFFECTSELEMENT,
+                PEGASUS_NAMESPACENAME_INTEROP,
+                DynamicRoutingTable::INTERNAL,
+                0,
+                static_cast<MessageQueueService*>(
+                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                PEGASUS_MODULENAME_INTEROPPROVIDER,
+                PEGASUS_QUEUENAME_CONTROLSERVICE);
+#endif
+
             _routing_table.insert_record(
                 PEGASUS_CLASSNAME_PROVIDERMODULE,
                 PEGASUS_NAMESPACENAME_PROVIDERREG,
@@ -1161,6 +1193,27 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 
             if (_enableIndicationService)
             {
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+                _routing_table.insert_record(
+                    PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE,
+                    PEGASUS_NAMESPACENAME_INTEROP,
+                    DynamicRoutingTable::INTERNAL,
+                    0,
+                    static_cast<MessageQueueService*>(MessageQueue::lookup(
+                        PEGASUS_QUEUENAME_INDICATIONSERVICE)),
+                    String::EMPTY,
+                    PEGASUS_QUEUENAME_INDICATIONSERVICE);
+
+                _routing_table.insert_record(
+                    PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES,
+                    PEGASUS_NAMESPACENAME_INTEROP,
+                    DynamicRoutingTable::INTERNAL,
+                    0,
+                    static_cast<MessageQueueService*>(MessageQueue::lookup(
+                        PEGASUS_QUEUENAME_INDICATIONSERVICE)),
+                    String::EMPTY,
+                    PEGASUS_QUEUENAME_INDICATIONSERVICE);
+#endif
                 _routing_table.insert_record(
                     PEGASUS_CLASSNAME_INDSUBSCRIPTION,
                     _wild,

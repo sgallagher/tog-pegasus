@@ -28,49 +28,26 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = ../../..
-
-DIR = Pegasus/IndicationService
-
+ROOT = ../../../../..
+DIR = Pegasus/IndicationService/tests/Configuration
 include $(ROOT)/mak/config.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LOCAL_DEFINES = -DPEGASUS_SERVER_INTERNAL -DPEGASUS_INTERNALONLY
-
-STATIC=1
-LIBRARY = pegindicationservice
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 LIBRARIES = \
-    pegcommon \
-    pegprovider \
-    pegrepository \
-    pegprm \
-    pegwql \
-    pegquerycommon \
-    pegqueryexpression \
-    pegconfig
+    pegindicationservice \
+    pegclient \
+    pegcommon
 
-SOURCES = \
-    IndicationOperationAggregate.cpp \
-    SubscriptionRepository.cpp \
-    SubscriptionTable.cpp \
-    IndicationService.cpp \
-    IndicationConstants.cpp \
-    NormalizedSubscriptionTable.cpp
+PROGRAM = TestConfiguration
 
-ifeq ($(PEGASUS_ENABLE_INDICATION_COUNT),true)
-    SOURCES += \
-        ProviderIndicationCountTable.cpp
-endif
+SOURCES = Configuration.cpp
 
-ifeq ($(PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT),true)
-    SOURCES += \
-        IndicationServiceConfiguration.cpp
-endif
+include $(ROOT)/mak/program.mak
 
-ifeq ($(OS_TYPE),windows)
-SYS_LIBS = ws2_32.lib advapi32.lib
-endif
+tests:
 
-include $(ROOT)/mak/library.mak
+poststarttests:
+	@$(PROGRAM)

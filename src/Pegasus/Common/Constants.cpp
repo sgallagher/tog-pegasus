@@ -126,6 +126,24 @@ const CIMName PEGASUS_CLASSNAME_WBEMSLPTEMPLATE =
 
 #endif
 
+// DMTF Indications profile classes
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+const CIMName PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE =
+    CIMName("CIM_IndicationService");
+
+const CIMName PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES =
+    CIMName("CIM_IndicationServiceCapabilities");
+
+const CIMName PEGASUS_CLASSNAME_PG_ELEMENTCAPABILITIES =
+    CIMName("PG_ElementCapabilities");
+
+const CIMName PEGASUS_CLASSNAME_PG_HOSTEDINDICATIONSERVICE =
+    CIMName("PG_HostedIndicationService");
+
+const CIMName PEGASUS_CLASSNAME_PG_SERVICEAFFECTSELEMENT = 
+    CIMName("PG_ServiceAffectsElement");
+#endif
+
 //
 // Property Names
 //

@@ -704,4 +704,26 @@ class PG_HostedObjectManager : CIM_HostedService {
 class PG_HostedAccessPoint : CIM_HostedAccessPoint {
 };
 
+// ==================================================================
+// PG_HostedIndicationService
+// ==================================================================
+[Association, Version ("2.8.0"), Description(
+    "Subclass supported by the Pegasus Server Profile Implementation.")]
+class PG_HostedIndicationService : CIM_HostedService {
+};
 
+// ==================================================================
+// PG_ElementCapabilities
+// ==================================================================
+[Association, Version ("2.8.0"), Description(
+    "Subclass supported by the Pegasus Server Profile Implementation.")]
+class PG_ElementCapabilities : CIM_ElementCapabilities {
+};
+
+// ==================================================================
+// PG_ServiceAffectsElement
+// ==================================================================
+[Association, Version ("2.8.0"), Description(
+    "Subclass supported by the Pegasus Server Profile Implementation.")]
+class PG_ServiceAffectsElement : CIM_ServiceAffectsElement {
+};

@@ -141,6 +141,14 @@ IndicationService::IndicationService(
         //
         _subscriptionRepository = new SubscriptionRepository(repository);
 
+       //
+       // Create IndicationsProfileInstance Repository
+       //
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+        _indicationServiceConfiguration = 
+            new IndicationServiceConfiguration(repository);
+#endif
+
         //
         //  Create Subscription Table
         //
@@ -161,6 +169,10 @@ IndicationService::~IndicationService()
 {
     delete _subscriptionTable;
     delete _subscriptionRepository;
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    delete _indicationServiceConfiguration;
+#endif
 }
 
 void IndicationService::_handle_async_request(AsyncRequest *req)
@@ -1065,92 +1077,109 @@ void IndicationService::_handleGetInstanceRequest(const Message* message)
             IdentityContainer::NAME)).getUserName();
         _checkNonprivilegedAuthorization(userName);
 
-        //
-        //  Add Creator to property list, if not null
-        //  Also, if a Subscription and Time Remaining is requested,
-        //  Ensure Subscription Duration and Start Time are in property list
-        //
-        Boolean setTimeRemaining;
-        Boolean startTimeAdded;
-        Boolean durationAdded;
-        CIMPropertyList propertyList = request->propertyList;
-        CIMName className = request->instanceName.getClassName();
-        _updatePropertyList(className, propertyList, setTimeRemaining,
-            startTimeAdded, durationAdded);
-
-        //
-        //  Get instance from repository
-        //
-        instance = _subscriptionRepository->getInstance(
-            request->nameSpace, request->instanceName, request->localOnly,
-            request->includeQualifiers, request->includeClassOrigin,
-            propertyList);
-
-        //
-        //  Remove Creator property from instance before returning
-        //
-        String creator;
-        if (!_getCreator(instance, creator))
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+        if (request->className.equal(PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE)||
+            request->className.equal(
+                PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES))
+        {
+            instance = _indicationServiceConfiguration->getInstance(
+                request->nameSpace,
+                request->instanceName,
+                request->localOnly,
+                request->includeQualifiers,
+                request->includeClassOrigin,
+                request->propertyList);
+        }
+        else
+#endif
         {
             //
-            //  This instance from the repository is corrupted
-            //  L10N TODO DONE -- new throw of exception
+            //  Add Creator to property list, if not null
+            //  Also, if a Subscription and Time Remaining is requested,
+            //  Ensure Subscription Duration and Start Time are in property list
             //
-            PEG_METHOD_EXIT();
-            MessageLoaderParms parms(_MSG_INVALID_INSTANCES_KEY,
-                _MSG_INVALID_INSTANCES);
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
-        }
-        instance.removeProperty(instance.findProperty(
-            PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
+            Boolean setTimeRemaining;
+            Boolean startTimeAdded;
+            Boolean durationAdded;
+            CIMPropertyList propertyList = request->propertyList;
+            CIMName className = request->instanceName.getClassName();
+            _updatePropertyList(
+                className,
+                propertyList,
+                setTimeRemaining,
+                startTimeAdded,
+                durationAdded);
 
-        //
-        //  Remove the language properties from instance before returning
-        //
-        Uint32 propIndex = instance.findProperty(
-            PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
-        if (propIndex != PEG_NOT_FOUND)
-        {
-             instance.removeProperty(propIndex);
-        }
+            //
+            //  Get instance from repository
+            //
+            instance = _subscriptionRepository->getInstance(
+                request->nameSpace,
+                request->instanceName,
+                request->localOnly,
+                request->includeQualifiers,
+                request->includeClassOrigin,
+                propertyList);
 
-        propIndex = instance.findProperty(
-            PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
-        if (propIndex != PEG_NOT_FOUND)
-        {
-             // Get the content languages to be sent in the Content-Language
-             // header
-             instance.getProperty(propIndex).getValue().get(contentLangsString);
-             instance.removeProperty(propIndex);
-        }
+            //
+            //  Remove Creator property from instance before returning
+            //
+            String creator;
+            if (!_getCreator(instance, creator))
+            {
+                //
+                //  This instance from the repository is corrupted
+                //  L10N TODO DONE -- new throw of exception
+                //
+                MessageLoaderParms parms(
+                    _MSG_INVALID_INSTANCES_KEY,
+                    _MSG_INVALID_INSTANCES);
+                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
+            }
+            instance.removeProperty(
+                instance.findProperty(
+                    PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
 
-        //
-        //  If a subscription with a duration, calculate subscription time
-        //  remaining, and add property to the instance
-        //
-        if (setTimeRemaining)
-        {
-            try
+            //
+            //  Remove the language properties from instance before returning
+            //
+            Uint32 propIndex = instance.findProperty(
+                PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
+            if (propIndex != PEG_NOT_FOUND)
+            {
+                instance.removeProperty(propIndex);
+            }
+
+            propIndex = instance.findProperty(
+                PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
+            if (propIndex != PEG_NOT_FOUND)
+            {
+                 // Get the content languages to be sent in the Content-Language
+                 // header
+                 instance.getProperty(propIndex).getValue().
+                     get(contentLangsString);
+                 instance.removeProperty(propIndex);
+            }
+
+            //
+            //  If a subscription with a duration, calculate subscription time
+            //  remaining, and add property to the instance
+            //
+            if (setTimeRemaining)
             {
                 _setTimeRemaining(instance);
-            }
-            catch (DateTimeOutOfRangeException&)
-            {
-                //
-                //  This instance from the repository is invalid
-                //
-                PEG_METHOD_EXIT();
-                throw;
-            }
-            if (startTimeAdded)
-            {
-                instance.removeProperty(instance.findProperty(
-                    _PROPERTY_STARTTIME));
-            }
-            if (durationAdded)
-            {
-                instance.removeProperty(instance.findProperty(
-                    _PROPERTY_DURATION));
+                if (startTimeAdded)
+                {
+                    instance.removeProperty(
+                        instance.findProperty(
+                            _PROPERTY_STARTTIME));
+                }
+                if (durationAdded)
+                {
+                    instance.removeProperty(
+                        instance.findProperty(
+                            _PROPERTY_DURATION));
+                }
             }
         }
     }
@@ -1163,7 +1192,11 @@ void IndicationService::_handleGetInstanceRequest(const Message* message)
         cimException =
             PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
     }
-
+    catch(...)
+    {
+        PEG_METHOD_EXIT();
+        throw;
+    }
     CIMGetInstanceResponseMessage * response =
         dynamic_cast<CIMGetInstanceResponseMessage *>(request->buildResponse());
     response->cimException = cimException;
@@ -1195,6 +1228,23 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
 
     try
     {
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+        if (request->className.equal(PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE) ||
+            request->className.equal(
+                PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES))
+        {
+            returnedInstances = _indicationServiceConfiguration->
+                enumerateInstancesForClass(
+                    request->nameSpace,
+                    request->className,
+                    request->localOnly,
+                    request->includeQualifiers,
+                    request->includeClassOrigin,
+                    request->propertyList);
+        }
+        else
+#endif
+
 #ifdef PEGASUS_ENABLE_INDICATION_COUNT
         if (request->className.equal(PEGASUS_CLASSNAME_PROVIDERINDDATA))
         {
@@ -1373,23 +1423,39 @@ void IndicationService::_handleEnumerateInstanceNamesRequest(
 
     CIMException cimException;
 
-    try
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    if (request->className.equal(PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE) ||
+        request->className.equal(
+            PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES))
     {
-        String userName = ((IdentityContainer)request->operationContext.get(
-            IdentityContainer::NAME)).getUserName();
-        _checkNonprivilegedAuthorization(userName);
-        enumInstanceNames =
-            _subscriptionRepository->enumerateInstanceNamesForClass(
-                request->nameSpace, request->className);
+        enumInstanceNames = _indicationServiceConfiguration->
+            enumerateInstanceNamesForClass(
+                request->nameSpace,
+                request->className);
     }
-    catch (CIMException& exception)
+    else
+#endif
     {
-        cimException = exception;
-    }
-    catch (Exception& exception)
-    {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                             exception.getMessage());
+        try
+        {
+            String userName = ((IdentityContainer)request->operationContext.get(
+                IdentityContainer::NAME)).getUserName();
+            _checkNonprivilegedAuthorization(userName);
+            enumInstanceNames =
+                _subscriptionRepository->enumerateInstanceNamesForClass(
+                    request->nameSpace,
+                    request->className);
+        }
+        catch (CIMException& exception)
+        {
+            cimException = exception;
+        }
+        catch (Exception& exception)
+        {
+            cimException = PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_FAILED,
+                exception.getMessage());
+        }
     }
 
     // Note: not setting Content-Language in the response

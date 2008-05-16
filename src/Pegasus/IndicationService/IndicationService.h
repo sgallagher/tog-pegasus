@@ -51,6 +51,10 @@ ProviderRegistrationManager.h>
 # include <Pegasus/IndicationService/ProviderIndicationCountTable.h>
 #endif
 
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+# include <Pegasus/IndicationService/IndicationServiceConfiguration.h>
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 class SubscriptionRepository;
@@ -1265,6 +1269,10 @@ private:
 
 #ifdef PEGASUS_ENABLE_INDICATION_COUNT
     ProviderIndicationCountTable _providerIndicationCountTable;
+#endif
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    IndicationServiceConfiguration *_indicationServiceConfiguration;
 #endif
 
     /**

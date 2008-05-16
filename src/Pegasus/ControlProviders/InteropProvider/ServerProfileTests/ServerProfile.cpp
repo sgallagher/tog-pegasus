@@ -34,6 +34,8 @@
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/PegasusAssert.h>
 
 #include <Pegasus/Client/CIMClient.h>
 
@@ -467,6 +469,151 @@ void testDMTFProfileInstances(CIMClient &client)
     cout << "Test Complete" << endl;
 }
 
+//
+// ATTN: The following indications profile tests will be removed once the
+// association opertaions are implemented for these classes. At present these
+// tests are pegasus specific.
+//
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+void _testHostedIndicationServiceInstance(CIMClient &client)
+{
+    cout << "Testing Association Class "
+        << (const char *)PEGASUS_CLASSNAME_PG_HOSTEDINDICATIONSERVICE.
+             getString().getCString()
+        << "...";
+    // Get PG_HostedIndicationService Instances
+    Array<CIMInstance> hostedInstances = client.enumerateInstances(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        PEGASUS_CLASSNAME_PG_HOSTEDINDICATIONSERVICE);
+    PEGASUS_TEST_ASSERT(hostedInstances.size() == 1);
+
+    // Get PG_HostedIndicationService Instance names
+    Array<CIMObjectPath> hostedPaths = client.enumerateInstanceNames(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        PEGASUS_CLASSNAME_PG_HOSTEDINDICATIONSERVICE);
+    PEGASUS_TEST_ASSERT(hostedPaths.size() == 1);
+
+    // Get CIM_IndicationService instance names
+    Array<CIMObjectPath> servicePaths = client.enumerateInstanceNames(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE);
+    PEGASUS_TEST_ASSERT(servicePaths.size() == 1);
+
+    // Test the CIM_IndicationService value.
+    CIMValue capValue = hostedInstances[0].getProperty(
+        hostedInstances[0].findProperty("Dependent")).getValue();
+    CIMObjectPath testPath;
+    capValue.get(testPath);
+    testPath.setNameSpace(CIMNamespaceName());
+    PEGASUS_TEST_ASSERT(testPath.identical(servicePaths[0]));
+
+    cout << "Test Complete" << endl;
+}
+
+void _testElementCapabilityInstance(CIMClient &client)
+{
+    cout << "Testing Association Class "
+        << (const char *)PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES.
+             getString().getCString()
+        << "...";
+
+    // Get CIM_IndicationServiceCapabilities instance names
+    Array<CIMObjectPath> capPaths = client.enumerateInstanceNames(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES);
+    PEGASUS_TEST_ASSERT(capPaths.size() == 1);
+
+    // Get CIM_IndicationService instance names
+    Array<CIMObjectPath> servicePaths = client.enumerateInstanceNames(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE);
+    PEGASUS_TEST_ASSERT(servicePaths.size() == 1);
+
+
+    // Get PG_ElementCapabilities instances
+    Array<CIMInstance> eleInstances = client.enumerateInstances(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        PEGASUS_CLASSNAME_PG_ELEMENTCAPABILITIES);
+    PEGASUS_TEST_ASSERT(eleInstances.size() == 1);
+
+    // Test PG_ElementCapabilities instance.
+    CIMValue capValue = eleInstances[0].getProperty(
+        eleInstances[0].findProperty("Capabilities")).getValue();
+
+    CIMValue meValue = eleInstances[0].getProperty(
+        eleInstances[0].findProperty("ManagedElement")).getValue();
+
+    // Now test the instance names of CIM_IndicationService instance and
+    // CIM_IndicationServiceCapabilities instance.
+    CIMObjectPath testPath;
+    capValue.get(testPath);
+    testPath.setNameSpace(CIMNamespaceName());
+    PEGASUS_TEST_ASSERT(testPath.identical(capPaths[0]));
+
+    meValue.get(testPath);
+    testPath.setNameSpace(CIMNamespaceName());
+    PEGASUS_TEST_ASSERT(testPath.identical(servicePaths[0]));
+
+    cout << "Test Complete" << endl;
+}
+
+void _testServiceAffectsElementInstances(CIMClient &client)
+{
+    cout << "Testing Association Class "
+        << (const char *)PEGASUS_CLASSNAME_PG_SERVICEAFFECTSELEMENT.
+             getString().getCString()
+        << "...";
+
+    // Get PG_ServiceAffectsElement instances.
+    Array<CIMInstance> sfInstances = client.enumerateInstances(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        PEGASUS_CLASSNAME_PG_SERVICEAFFECTSELEMENT);
+
+    // Get PG_ServiceAffectsElement instance names
+    Array<CIMObjectPath> sfPaths = client.enumerateInstanceNames(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        PEGASUS_CLASSNAME_PG_SERVICEAFFECTSELEMENT);
+
+    PEGASUS_TEST_ASSERT(sfInstances.size() == sfPaths.size());
+
+    // Get CIM_IndicationFilter instance names
+    Array<CIMObjectPath> filterPaths = client.enumerateInstanceNames(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        PEGASUS_CLASSNAME_INDFILTER);
+
+    // Get CIM_ListenerDestination instance names
+    Array<CIMObjectPath> handlerPaths = client.enumerateInstanceNames(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        PEGASUS_CLASSNAME_LSTNRDST);
+
+    // Count only handlers and filters from interop namespace
+    Uint32 elements = 0;
+    for (Uint32 i = 0; i < sfInstances.size() ; ++i)
+    {
+        CIMValue value = sfInstances[i].getProperty(
+            sfInstances[i].findProperty("AffectedElement")).getValue();
+        CIMObjectPath path;
+        value.get(path);
+        PEGASUS_TEST_ASSERT(path.getNameSpace() != CIMNamespaceName());
+        if (path.getNameSpace() == PEGASUS_NAMESPACENAME_INTEROP)
+        {
+             elements++;
+        }
+    }
+    PEGASUS_TEST_ASSERT(
+        elements == (filterPaths.size() + handlerPaths.size()));
+
+    cout << "Test Complete" << endl;
+}
+
+void testIndicationProfileInstances(CIMClient &client)
+{
+    _testHostedIndicationServiceInstance(client);
+    _testElementCapabilityInstance(client);
+    _testServiceAffectsElementInstances(client);
+}
+#endif
+
 ///////////////////////////////////////////////////////////////
 //    MAIN
 ///////////////////////////////////////////////////////////////
@@ -530,6 +677,9 @@ int main(int argc, char** argv)
     }
 
     testDMTFProfileInstances(client);
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    testIndicationProfileInstances(client);
+#endif
     //testAssociationTraversal(client);
 
     cout << endl << "Server Profile Tests complete" << endl;

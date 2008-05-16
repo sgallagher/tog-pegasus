@@ -53,6 +53,13 @@ const CIMName COMMON_PROPERTY_INSTANCEID("InstanceId");
 const CIMName PROPERTY_ANTECEDENT("Antecedent");
 const CIMName PROPERTY_DEPENDENT("Dependent");
 
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+const CIMName PROPERTY_AFFECTEDELEMENT = CIMName("AffectedElement");
+const CIMName PROPERTY_AFFECTINGELEMENT = CIMName("AffectingElement");
+const CIMName PROPERTY_CAPABILITIES = CIMName("Capabilities");
+const CIMName PROPERTY_MANAGEDELEMENT = CIMName("ManagedElement");
+#endif
+
 // Property names for ProviderProfileCapabilities
 const CIMName PROFILECAPABILITIES_PROPERTY_REGISTEREDPROFILE(
         "RegisteredProfile");
@@ -136,10 +143,13 @@ const Uint16 DMTF_NUM = 2;
 const String DMTF_VER_100("1.0.0");
 
 const String INTEROP_PROVIDER_NAME("Interoperability Provider");
+const String INDICATION_SERVICE_NAME("Indication Service");
 const String PEGASUS_MODULE_NAME = String(PEGASUS_CIMOM_GENERIC_NAME) +
     String(" ") + String(PEGASUS_PRODUCT_NAME);
 const String PEGASUS_INTERNAL_PROVIDER_TYPE(
     "Internal Control Provider");
+const String PEGASUS_INTERNAL_SERVICE_TYPE(
+    "Internal Service");
 const String PEGASUS_DYNAMIC("__DYNAMIC_");
 const Uint32 PEGASUS_DYNAMIC_LEN(PEGASUS_DYNAMIC.size());
 const CIMNamespaceName PEGASUS_NAMESPACENAME_ROOT("root");

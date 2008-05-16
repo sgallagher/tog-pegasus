@@ -44,4 +44,9 @@ ifeq ($(PEGASUS_ENABLE_INDICATION_COUNT),true)
         IndicationsCount
 endif
 
+ifeq ($(PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT),true)
+    DIRS += \
+        Configuration
+endif
+
 include $(ROOT)/mak/recurse.mak

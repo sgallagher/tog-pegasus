@@ -263,6 +263,120 @@ const CIMName _PROPERTY_PERCEIVEDSEVERITY =
  */
 const CIMName _PROPERTY_PROBABLECAUSE = CIMName("ProbableCause");
 
+/**
+    The name of the CreationClassName property of CIM_Service class.
+*/
+const CIMName _PROPERTY_CREATIONCLASSNAME =
+    CIMName("CreationClassName");
+
+/**
+    The name of the Name property of CIM_Service class.
+*/
+const CIMName _PROPERTY_NAME = CIMName("Name");
+
+/**
+    The name of the Started property of CIM_Service class.
+*/
+const CIMName _PROPERTY_STARTED = CIMName("Started");
+
+/**
+    The name of the  InstanceID property of CIM_Capabilities
+    class.
+*/
+const CIMName _PROPERTY_INSTANCEID = CIMName("InstanceID");
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+/**
+    The name of the FilterCreationEnabled property of IndicationService class.
+*/
+const CIMName _PROPERTY_FILTERCREATIONENABLED =
+    CIMName("FilterCreationEnabled");
+
+/**
+    The name of the SubscriptionRemovalAction property of IndicationService
+    class.
+*/
+const CIMName _PROPERTY_SUBSCRIPTIONREMOVALACTION =
+    CIMName("SubscriptionRemovalAction");
+
+/**
+    The name of the SubscriptionRemovalTimeInterval property of
+    IndicationService class.
+*/
+const CIMName _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL =
+    CIMName("SubscriptionRemovalTimeInterval");
+
+/**
+    The name of the DeliveryRetryAttempts property of
+    IndicationService class.
+*/
+const CIMName _PROPERTY_DELIVERYRETRYATTEMPTS =
+    CIMName("DeliveryRetryAttempts");
+
+/**
+    The name of the DeliveryRetryInterval property of
+    IndicationService class.
+*/
+const CIMName _PROPERTY_DELIVERYRETRYINTERVAL =
+    CIMName("DeliveryRetryInterval");
+/**
+    The name of the FilterCreationEnabledIsSettable property of
+    IndicationServiceCapabilities class.
+*/
+const CIMName _PROPERTY_FILTERCREATIONENABLEDISSETTABLE =
+    CIMName("FilterCreationEnabledIsSettable");
+
+/**
+    The name of the DeliveryRetryAttemptsIsSettable property of
+    IndicationServiceCapabilities class.
+*/
+const CIMName _PROPERTY_DELIVERYRETRYATTEMPTSISSETTABLE =
+    CIMName("DeliveryRetryAttemptsIsSettable");
+
+/**
+    The name of the DeliveryRetryIntervalIsSettable property of
+    IndicationServiceCapabilities class.
+*/
+const CIMName _PROPERTY_DELIVERYRETRYINTERVALISSETTABLE =
+    CIMName("DeliveryRetryIntervalIsSettable");
+
+/**
+    The name of the SubscriptionRemovalActionIsSettable property of
+    IndicationServiceCapabilities class.
+*/
+const CIMName _PROPERTY_SUBSCRIPTIONREMOVALACTIONISSETTABLE =
+    CIMName("SubscriptionRemovalActionIsSettable");
+
+/**
+    The name of the SubscriptionRemovalTimeIntervalIsSettable property of
+    IndicationServiceCapabilities class.
+*/
+const CIMName _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVALISSETTABLE =
+    CIMName("SubscriptionRemovalTimeIntervalIsSettable");
+
+/**
+    The name of the MaxListenerDestinations property of
+    IndicationServiceCapabilities class.
+*/
+const CIMName _PROPERTY_MAXLISTENERDESTINATIONS =
+    CIMName("MaxListenerDestinations");
+
+/**
+    The name of the MaxActiveSubscriptions property of
+    IndicationServiceCapabilities class.
+*/
+const CIMName _PROPERTY_MAXACTIVESUBSCRIPTIONS =
+    CIMName("MaxActiveSubscriptions");
+
+/**
+    The name of the SubscriptionsPersisted property of
+    IndicationServiceCapabilities class.
+*/
+const CIMName _PROPERTY_SUBSCRIPTIONSPERSISTED =
+    CIMName("SubscriptionsPersisted");
+
+#endif
+
 //
 //  Qualifier names
 //

@@ -339,6 +339,27 @@ Array<CIMInstance> InteropProvider::enumSoftwareIdentityInstances()
         PEGASUS_PRODUCT_VERSION,
         0, 0, 0, 0, false, // no extended revision info
         PEGASUS_INTERNAL_PROVIDER_TYPE, String::EMPTY, String::EMPTY));
+
+    // Pegasus Indication Service acts as Provider for CIM Event classes.
+    // If DMTF Indications Profile support is enabled create SoftwareIdentity
+    // instance with Pegasus Indication Service.
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    instances.append(
+        buildSoftwareIdentity(
+            PEGASUS_MODULE_NAME,
+            INDICATION_SERVICE_NAME,
+            PEGASUS_CIMOM_GENERIC_NAME,
+            PEGASUS_PRODUCT_VERSION,
+            0,
+            0,
+            0,
+            0,
+            false, // no extended revision info
+            PEGASUS_INTERNAL_SERVICE_TYPE,
+            String::EMPTY,
+            String::EMPTY));
+#endif
+
     return instances;
 }
 
@@ -530,6 +551,25 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
         softwareProfileId,
         PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
         elementSoftwareIdentityClass));
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    String indProfileId = buildProfileInstanceId(
+        DMTF_NAME,
+        "Indication",
+        DMTF_VER_100);
+
+    String indicationServiceSoftwareIdentity(PEGASUS_MODULE_NAME);
+    indicationServiceSoftwareIdentity.append("+");
+    indicationServiceSoftwareIdentity.append(INDICATION_SERVICE_NAME);
+
+    instances.append(
+        buildDependencyInstance(
+            indicationServiceSoftwareIdentity,
+            PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY,
+            indProfileId,
+            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
+            elementSoftwareIdentityClass));
+#endif
 
     return instances;
 }

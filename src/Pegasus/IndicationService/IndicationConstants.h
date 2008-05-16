@@ -37,6 +37,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -285,6 +286,129 @@ extern const CIMName _PROPERTY_PERCEIVEDSEVERITY;
     The name of the Probable Cause property for Alert Indication class
  */
 extern const CIMName _PROPERTY_PROBABLECAUSE;
+
+/**
+    The name of the CreationClassName property of CIM_Service class.
+*/
+extern const CIMName _PROPERTY_CREATIONCLASSNAME;
+
+/**
+    The name of the Name property of CIM_Service class.
+*/
+extern const CIMName _PROPERTY_NAME;
+
+/**
+    The name of the ElementName property of CIM_MangedElement class.
+*/
+extern const CIMName _PROPERTY_ELEMENTNAME;
+
+/**
+    The name of the Started property of CIM_Service class.
+*/
+extern const CIMName _PROPERTY_STARTED;
+
+/**
+    The name of the InstanceID property of CIM_Capabilities
+    class.
+*/
+extern const CIMName _PROPERTY_INSTANCEID;
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+/**
+    The name of the FilterCreationEnabled property of IndicationService class.
+*/
+PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_FILTERCREATIONENABLED;
+
+/**
+    The name of the SubscriptionRemovalAction property of IndicationService
+    class.
+*/
+PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_SUBSCRIPTIONREMOVALACTION;
+
+/**
+    The name of the SubscriptionRemovalTimeInterval property of
+    IndicationService class.
+*/
+PEGASUS_SERVER_LINKAGE extern const 
+    CIMName _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL;
+
+/**
+    The name of the DeliveryRetryAttempts property of
+    IndicationService class.
+*/
+PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_DELIVERYRETRYATTEMPTS;
+
+/**
+    The name of the DeliveryRetryInterval property of
+    IndicationService class.
+*/
+PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_DELIVERYRETRYINTERVAL;
+
+/**
+    The name of the FilterCreationEnabledIsSettable property of
+    IndicationServiceCapabilities class.
+*/
+PEGASUS_SERVER_LINKAGE extern const CIMName 
+    _PROPERTY_FILTERCREATIONENABLEDISSETTABLE;
+
+/**
+    The name of the DeliveryRetryAttemptsIsSettable property of
+    IndicationServiceCapabilities class.
+*/
+PEGASUS_SERVER_LINKAGE extern const CIMName 
+    _PROPERTY_DELIVERYRETRYATTEMPTSISSETTABLE;
+
+/**
+    The name of the DeliveryRetryIntervalIsSettable property of
+    IndicationServiceCapabilities class.
+*/
+PEGASUS_SERVER_LINKAGE extern const CIMName 
+    _PROPERTY_DELIVERYRETRYINTERVALISSETTABLE;
+
+/**
+    The name of the SubscriptionRemovalActionIsSettable property of
+    IndicationServiceCapabilities class.
+*/
+PEGASUS_SERVER_LINKAGE extern const CIMName 
+    _PROPERTY_SUBSCRIPTIONREMOVALACTIONISSETTABLE;
+
+/**
+    The name of the SubscriptionRemovalTimeIntervalIsSettable property of
+    IndicationServiceCapabilities class.
+*/
+PEGASUS_SERVER_LINKAGE extern const CIMName 
+    _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVALISSETTABLE;
+
+/**
+    The name of the MaxListenerDestinations property of
+    IndicationServiceCapabilities class.
+*/
+PEGASUS_SERVER_LINKAGE extern const CIMName 
+    _PROPERTY_MAXLISTENERDESTINATIONS;
+
+/**
+    The name of the MaxActiveSubscriptions property of
+    IndicationServiceCapabilities class.
+*/
+PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_MAXACTIVESUBSCRIPTIONS;
+
+/**
+    The name of the SubscriptionsPersisted property of
+    IndicationServiceCapabilities class.
+*/
+PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_SUBSCRIPTIONSPERSISTED;
+
+/**
+    CIM_IndicationService instance default values.
+*/
+
+const Boolean _PROPERTY_FILTERCREATIONENABLED_VALUE = true;
+const Uint16 _PROPERTY_SUBSCRIPTIONREMOVALACTION_VALUE = 4;
+const Uint64 _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL_VALUE = 2592000;
+const Uint16 _PROPERTY_DELIVERYRETRYATTEMPTS_VALUE = 3;
+const Uint64 _PROPERTY_DELIVERYRETRYINTERVAL_VALUE = 30;
+
+#endif
 
 //
 //  Qualifier names

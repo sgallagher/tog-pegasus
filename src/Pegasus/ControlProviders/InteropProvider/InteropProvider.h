@@ -288,6 +288,20 @@ private:
         Boolean includeClassOrigin = false,
         const CIMPropertyList &propertyList = CIMPropertyList());
 
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    Array<CIMInstance> enumElementCapabilityInstances(
+        const OperationContext & opContext);
+    Array<CIMInstance> enumHostedIndicationServiceInstances(
+        const OperationContext & opContext);
+    Array<CIMInstance> enumServiceAffectsElementInstances(
+        const OperationContext & opContext);
+    CIMInstance buildAssociationInstance(
+        const CIMName &className,
+        const CIMName &propName1,
+        const CIMObjectPath &objPath1,
+        const CIMName &propName2,
+        const CIMObjectPath &objPath2);
+#endif
 
     CIMInstance buildRegisteredProfile(
         const String & instanceId,

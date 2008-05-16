@@ -744,6 +744,227 @@ Array<CIMInstance> InteropProvider::enumCommMechanismForManagerInstances()
     return assocInstances;
 }
 
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+
+CIMInstance InteropProvider::buildAssociationInstance(
+    const CIMName &className,
+    const CIMName &propName1,
+    const CIMObjectPath &objPath1,
+    const CIMName &propName2,
+    const CIMObjectPath &objPath2)
+{
+    CIMClass cimClass = repository->getClass(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        className,
+        false,
+        true,
+        true);
+
+    CIMInstance instance = cimClass.buildInstance(
+        true,
+        true,
+        CIMPropertyList());
+
+    instance.getProperty(instance.findProperty(propName1)).setValue(objPath1);
+    instance.getProperty(instance.findProperty(propName2)).setValue(objPath2);
+    instance.setPath(instance.buildPath(cimClass));
+
+    return instance;
+}
+
+Array<CIMInstance> InteropProvider::enumElementCapabilityInstances(
+    const OperationContext &opContext)
+{
+    // Get CIM_IndicationServiceCapabilities instance
+    Array<CIMObjectPath> capPaths = cimomHandle.enumerateInstanceNames(
+        opContext,
+        PEGASUS_NAMESPACENAME_INTEROP,
+        PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES);
+    PEGASUS_ASSERT(capPaths.size() == 1);
+
+    // Get CIM_IndicationService instance
+    Array<CIMObjectPath> servicePaths = cimomHandle.enumerateInstanceNames(
+        opContext,
+        PEGASUS_NAMESPACENAME_INTEROP,
+        PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE);
+    PEGASUS_ASSERT(servicePaths.size() == 1);
+
+    Array<CIMInstance> instances;
+
+    instances.append(
+        buildAssociationInstance(
+            PEGASUS_CLASSNAME_PG_ELEMENTCAPABILITIES,
+            PROPERTY_CAPABILITIES,
+            capPaths[0],
+            PROPERTY_MANAGEDELEMENT,
+            servicePaths[0]));
+
+    return instances;
+}
+
+Array<CIMInstance> InteropProvider::enumHostedIndicationServiceInstances(
+    const OperationContext &opContext)
+{
+    Array<CIMInstance> instances;
+    CIMInstance cInst = getComputerSystemInstance();
+
+    // Get CIM_IndicationService instance
+    Array<CIMObjectPath> servicePaths = cimomHandle.enumerateInstanceNames(
+        opContext,
+        PEGASUS_NAMESPACENAME_INTEROP,
+        PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE);
+
+    PEGASUS_ASSERT(servicePaths.size() == 1);
+
+    instances.append(
+        buildAssociationInstance(
+            PEGASUS_CLASSNAME_PG_HOSTEDINDICATIONSERVICE,
+            PROPERTY_ANTECEDENT,
+            cInst.getPath(),
+            PROPERTY_DEPENDENT,
+            servicePaths[0]));
+
+    return instances;
+}
+
+Array<CIMInstance> InteropProvider::enumServiceAffectsElementInstances(
+    const OperationContext &opContext)
+{
+    Array<CIMInstance> instances;
+
+    // Get CIM_IndicationService instance
+    Array<CIMObjectPath> servicePaths = cimomHandle.enumerateInstanceNames(
+        opContext,
+        PEGASUS_NAMESPACENAME_INTEROP,
+        PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE);
+    PEGASUS_ASSERT(servicePaths.size() == 1);
+
+    Array<CIMNamespaceName> namespaceNames = repository->enumerateNameSpaces();
+    // Get CIM_IndicationFilter and CIM_ListenerDestination instances in all
+    // namespaces and associate them with CIM_IndicationService instance using
+    // PG_ServiceAffectsElement instance.
+    for (Uint32 i = 0, n = namespaceNames.size() ; i < n ; ++i)
+    { 
+        Array<CIMObjectPath> filterPaths;
+        try
+        { 
+            // Get CIM_IndicationFilter instance names
+            filterPaths = cimomHandle.enumerateInstanceNames(
+                opContext,
+                namespaceNames[i],
+                PEGASUS_CLASSNAME_INDFILTER);
+        }
+        catch(CIMException &e)
+        {
+            // Ignore exception with CIM_ERR_INVALID_CLASS code. This will
+            // happen when the class CIM_IndicationFilter can not be found
+            // in this namespace.
+            if (e.getCode() != CIM_ERR_INVALID_CLASS)
+            {
+                PEG_TRACE((
+                    TRC_CONTROLPROVIDER,
+                    Tracer::LEVEL1,
+                    "CIMException while enumerating the "
+                        "CIM_IndicationFilter instances"
+                            " in the namespace %s: %s.",
+                     (const char*)namespaceNames[i].getString().getCString(),
+                     (const char*)e.getMessage().getCString()));
+            }
+        }
+        catch(Exception &e)
+        {
+            PEG_TRACE((
+                TRC_CONTROLPROVIDER,
+                Tracer::LEVEL1,
+                "Exception while enumerating the "
+                    "CIM_IndicationFilter instances"
+                        " in the namespace %s: %s.",
+                (const char*)namespaceNames[i].getString().getCString(),
+                (const char*)e.getMessage().getCString()));
+        }
+        catch(...)
+        {
+            PEG_TRACE((
+                TRC_CONTROLPROVIDER,
+                Tracer::LEVEL3,
+                "Unknown error occurred while enumerating the "
+                    "CIM_IndicationFilter instances in the namespace %s.",
+                (const char*)namespaceNames[i].getString().getCString()));
+        }
+        for (Uint32 f = 0, fn = filterPaths.size(); f < fn ; ++f)
+        {
+            filterPaths[f].setNameSpace(namespaceNames[i]);
+            instances.append(
+                buildAssociationInstance(
+                    PEGASUS_CLASSNAME_PG_SERVICEAFFECTSELEMENT,
+                    PROPERTY_AFFECTEDELEMENT,
+                    filterPaths[f],
+                    PROPERTY_AFFECTINGELEMENT,
+                    servicePaths[0]));
+        }
+
+        Array<CIMObjectPath> handlerPaths;
+        try
+        {
+            // Get CIM_ListenerDestination instance names
+            handlerPaths = cimomHandle.enumerateInstanceNames(
+                opContext,
+                namespaceNames[i],
+                PEGASUS_CLASSNAME_LSTNRDST);
+        }
+        catch(CIMException &e)
+        {
+            // Ignore exception with CIM_ERR_INVALID_CLASS code. This will
+            // happen when the class CIM_ListenerDestination can not be found
+            // in this namespace.
+            if (e.getCode() != CIM_ERR_INVALID_CLASS)
+            {
+                PEG_TRACE((
+                    TRC_CONTROLPROVIDER,
+                    Tracer::LEVEL1,
+                    "CIMException while enumerating the "
+                        "CIM_ListenerDestination instances"
+                            " in the namespace %s: %s.",
+                     (const char*)namespaceNames[i].getString().getCString(),
+                     (const char*)e.getMessage().getCString()));
+            }
+        }
+        catch(Exception &e)
+        {
+            PEG_TRACE((
+                TRC_CONTROLPROVIDER,
+                Tracer::LEVEL1,
+                "Exception while enumerating the "
+                    "CIM_ListenerDestination instances"
+                        " in the namespace %s: %s.",
+                (const char*)namespaceNames[i].getString().getCString(),
+                (const char*)e.getMessage().getCString()));
+        }
+        catch(...)
+        {
+            PEG_TRACE((
+                TRC_CONTROLPROVIDER,
+                Tracer::LEVEL3,
+                "Unknown error occurred while enumerating the "
+                    "CIM_ListenerDestination instances in the namespace %s.",
+                (const char*)namespaceNames[i].getString().getCString()));
+        }
+        for (Uint32 h = 0, hn = handlerPaths.size(); h < hn ; ++h)
+        {
+            handlerPaths[h].setNameSpace(namespaceNames[i]);
+            instances.append(
+                buildAssociationInstance(
+                    PEGASUS_CLASSNAME_PG_SERVICEAFFECTSELEMENT,
+                    PROPERTY_AFFECTEDELEMENT,
+                    handlerPaths[h],
+                    PROPERTY_AFFECTINGELEMENT,
+                    servicePaths[0]));
+        }
+    }
+    return instances;
+}
+#endif
+
 PEGASUS_NAMESPACE_END
 
 // END OF FILE

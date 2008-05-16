@@ -481,6 +481,17 @@ TARGET_CLASS translateClassInput(const CIMName& className)
     else if(className.equal(PEGASUS_CLASSNAME_PG_PROVIDERREFERENCEDPROFILES))
         return PG_PROVIDERREFERENCEDPROFILES;
 
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    else if(className.equal(PEGASUS_CLASSNAME_PG_ELEMENTCAPABILITIES))
+        return PG_ELEMENTCAPABILITIES;
+
+    else if(className.equal(PEGASUS_CLASSNAME_PG_HOSTEDINDICATIONSERVICE))
+        return PG_HOSTEDINDICATIONSERVICE;
+
+    else if(className.equal(PEGASUS_CLASSNAME_PG_SERVICEAFFECTSELEMENT))
+        return PG_SERVICEAFFECTSELEMENT;
+#endif
+
     // Last entry, reverse test and throw exception if not PG_Namespace
     // Note: Changed to PG_Namespace for CIM 2.4
     else if(!className.equal(PEGASUS_CLASSNAME_PGNAMESPACE))

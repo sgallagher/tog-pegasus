@@ -559,7 +559,46 @@ Array<CIMInstance> InteropProvider::getDMTFProfileInstances(
             DMTF_VER_100, DMTF_NUM,
             String::EMPTY,
             registeredProfileClass));
+
+        // Build  DMTF Indications Profile instance.
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+        String indProfileId = buildProfileInstanceId(
+            DMTF_NAME,
+            "Indication",
+            DMTF_VER_100);
+        instances.append(
+            buildRegisteredProfile(
+            indProfileId,
+            "Indication",
+            DMTF_VER_100,
+            DMTF_NUM,
+            String::EMPTY,
+            registeredProfileClass));
+#endif
     }
+    // Build Refernced profile association between DMTF Profile Registration
+    // and DMTF Indications Profile.
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    else
+    {
+        String profileRegId = buildProfileInstanceId(
+            DMTF_NAME,
+            "Profile Registration",
+            DMTF_VER_100);
+
+        String indProfileId = buildProfileInstanceId(
+            DMTF_NAME,
+            "Indication",
+            DMTF_VER_100);
+
+        buildDependencyInstance(
+            profileRegId,
+            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
+            indProfileId,
+            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
+            referencedProfileClass);
+    }
+#endif
 
     return instances; 
 }

@@ -123,7 +123,12 @@ CIMInstance InteropProvider::localGetInstance(
     CIMNamespaceName opNamespace = instanceName.getNameSpace();
     CIMName opClass = instanceName.getClassName();
     if(opNamespace != PEGASUS_NAMESPACENAME_INTEROP &&
-        opClass != PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE)
+        opClass != PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE
+        // Get CIM_IndicationService instance from IndicationService.
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+        || opClass == PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE
+#endif
+        )
     {
         AutoMutex mut(interopMut);
         CIMInstance gotInstance = cimomHandle.getInstance(
@@ -306,6 +311,24 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
             instances = enumProviderProfileCapabilityInstances(false, false);
             break;
         }
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+        case PG_ELEMENTCAPABILITIES:
+        {
+            instances = enumElementCapabilityInstances(context);
+            break;
+        }
+        case PG_HOSTEDINDICATIONSERVICE:
+        {
+            instances = enumHostedIndicationServiceInstances(context);
+            break;
+        }
+        case PG_SERVICEAFFECTSELEMENT:
+        {
+            instances = enumServiceAffectsElementInstances(context);
+            break;
+        }
+#endif
         default:
             PEG_METHOD_EXIT();
             throw CIMNotSupportedException(className.getString() +
@@ -602,6 +625,15 @@ bool InteropProvider::validAssocClassForObject(
               expectedOriginRole = PROPERTY_DEPENDENT;
           }
           break;
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+      case PG_HOSTEDINDICATIONSERVICE:
+          if(originClassEnum == PG_COMPUTERSYSTEM)
+          {
+              expectedTargetRole = PROPERTY_DEPENDENT;
+              expectedOriginRole = PROPERTY_ANTECEDENT;
+          }
+          break;
+#endif
       default:
           break;
     }

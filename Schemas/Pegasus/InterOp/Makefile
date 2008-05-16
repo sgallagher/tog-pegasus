@@ -78,6 +78,16 @@ ifdef PEGASUS_ENABLE_INTEROP_PROVIDER
 
 endif
 
+#
+# PEP 323
+#
+ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+ ifeq ($(PEGASUS_CIM_SCHEMA), CIM217)
+	@$(ECHO) +++++ Loading CIM_EventExperimental into $(INTEROPNS) namespace ...
+	@$(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(INTEROPNS)" "-aE" "$(CIM_SCHEMA_DIR)/CIM_EventExperimental.mof"
+ endif
+endif
+
 repositoryServer:
 	@$(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(INTEROPNS) namespace ...
 	@cimmof "-I$(CIM_SCHEMA_DIR)" "-n$(INTEROPNS)" $(ALLOW_EXPERIMENTAL) "$(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof"
@@ -105,6 +115,17 @@ ifdef PEGASUS_ENABLE_INTEROP_PROVIDER
 	@$(ECHO) +++++ Loading PG_ServerProfile schema into $(INTEROPNS) namespace ...
 	@cimmof "-I$(PG_INTEROP_MOF_PATH)" "-n$(INTEROPNS)" $(ALLOW_EXPERIMENTAL) "$(PG_INTEROP_MOF_PATH)/PG_ServerProfile$(PG_INTEROP_SCHEMA_VER).mof"
 endif
+
+#
+# PEP 323
+#
+ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+ ifeq ($(PEGASUS_CIM_SCHEMA), CIM217)
+	@$(ECHO) +++++ Loading CIM_EventExperimental into $(INTEROPNS) namespace ...
+	@cimmof "-I$(CIM_SCHEMA_DIR)" "-n$(INTEROPNS)" "-aE" "$(CIM_SCHEMA_DIR)/CIM_EventExperimental.mof"
+ endif
+endif
+
 
 clean:
 	@$(ECHO) +++++ Removing existing CIM Repository named $(INTEROPNS)

@@ -41,6 +41,11 @@ ifdef PEGASUS_HAS_SSL
 endif
 LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL -DPEGASUS_INTERNALONLY
 
+ifeq ($(OS_TYPE),vms)
+  ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
+    STATIC=1
+  endif
+endif
 LIBRARY = pegcommon
 
 ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
@@ -245,5 +250,5 @@ ifeq ($(OS_TYPE),windows)
   endif
 endif
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 # DO NOT DELETE

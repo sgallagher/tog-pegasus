@@ -53,26 +53,6 @@ FULL_PROGRAM=$(BIN_DIR)/$(PROGRAM)$(EXE)
 
 EXE_OUTPUT = $(EXE_OUT) $(FULL_PROGRAM)
 
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-    ifdef PEGASUS_HAS_MESSAGES
-        ifdef ICU_ROOT
-            ifdef ICU_INSTALL
-              FLAGS += -L${ICU_INSTALL}/lib
-	      PRFLAGS += -L${ICU_INSTALL}/lib
-	      SYS_LIBS += ${ICU_INSTALL}/lib/libicui18n.x ${ICU_INSTALL}/lib/libicuuc.x
-            endif
-        endif
-    endif
-else
-ifdef PEGASUS_HAS_MESSAGES
-    ifdef ICU_ROOT
-        ifdef ICU_INSTALL
-          SYS_LIBS += -L${ICU_INSTALL}/lib -licui18n -licuuc
-        endif
-    endif
-endif
-endif
-
 ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
     ifdef PEGASUS_USE_RELEASE_DIRS
         EXTRA_LINK_FLAGS += $(LINK_RPATH) $(LINK_DEST_LIB) $(LINK_RPATH_LINK) $(LINK_LIB_DIR)
@@ -110,7 +90,7 @@ ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
 ##               This will set runtime library search path for ICU libraries to ${ICU_INSTALL}/lib
 ##               
      ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-	$(LINK_WRAPPER) $(CXX) $(PR_FLAGS) $(EXTRA_LINK_FLAGS) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS) > $(PROGRAM).llst
+	$(LINK_WRAPPER) $(CXX) $(PR_FLAGS) $(EXTRA_LINK_FLAGS) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS) $(EXTRA_LIBRARIES) > $(PROGRAM).llst
 	@ $(ZIP) -a -m $(FULL_PROGRAM).llst.zip $(PROGRAM).llst
      else
       ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU

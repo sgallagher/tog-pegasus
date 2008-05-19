@@ -151,7 +151,6 @@ ifdef PEGASUS_HAS_MESSAGES
         DEFINES += -DPEGASUS_HAS_ICU
         ifdef ICU_INSTALL
           EXTRA_LIBRARIES += -L${ICU_INSTALL}/lib -licui18n -licuuc
-          #SYS_LIBS += -L${ICU_INSTALL}/lib -licui18n -licuuc
         endif
   endif
 endif

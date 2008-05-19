@@ -246,7 +246,23 @@ ostream & help(ostream &os, int progtype)
         "                          under very controlled situations. cimmof\n"
         "                          is the recommended OpenPegasus MOF\n"
         "                          compiler.)\n");
-}
+    }
+
+#ifdef PEGASUS_ENABLE_MRR_GENERATION
+    if (progtype == 1)
+    {
+        help.append(
+        "    -m                  - Create an MRR (memory-resident repository)\n"
+        "                          rather than a disk-resident repository.\n"
+        "                          Classes and qualifier declarations are\n"
+        "                          placed into source files and instances are\n"
+        "                          placed into a flat binary file.\n");
+        help.append(
+        "    -d                  - Discard description qualifiers when\n"
+        "                          creating an MRR (memory-resident\n"
+        "                          repository).\n");
+    }
+#endif
 
     if(progtype == 1)
     {
@@ -308,6 +324,10 @@ static struct optspec optspecs[] =
 #ifdef PEGASUS_OS_PASE
     //PASE env ship q option
     {(char*)"q", QUIETFLAG, false, getoopt::NOARG},
+#endif
+#ifdef PEGASUS_ENABLE_MRR_GENERATION
+    {(char*)"m", MRRFLAG, false, getoopt::NOARG},
+    {(char*)"d", DISCARDFLAG, false, getoopt::NOARG},
 #endif
     {(char*)"", OPTEND_CIMMOF, false, getoopt::NOARG},
     {(char*)"R", REPOSITORYDIR, false, getoopt::MUSTHAVEARG},
@@ -477,6 +497,7 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                         &ptr) == 0)
                 &&
                     (ptr != 0))
+
         {
             setgid(ptr->pw_gid);
             setuid(ptr->pw_uid);
@@ -661,6 +682,14 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 
             case NO_USAGE_WARNING:
                cmdlinedata.set_no_usage_warning();
+#ifdef PEGASUS_ENABLE_MRR_GENERATION
+            case MRRFLAG:
+                cmdlinedata.set_mrr();
+                break;
+            case DISCARDFLAG:
+                cmdlinedata.set_discard();
+                break;
+#endif
         }
         type = c;
     }

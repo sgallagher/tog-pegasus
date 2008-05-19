@@ -27,40 +27,41 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
+#//=============================================================================
 ROOT = ../../../../..
-DIR = Pegasus/Compiler/cmdline/cimmof
+DIR = Pegasus/MemoryResidentRepository/tests/MemoryResidentRepository
 include $(ROOT)/mak/config.mak
+include ../libraries.mak
 
-LOCAL_DEFINES = -DPEGASUS_CMDLINE_INTERNAL -DPEGASUS_INTERNALONLY
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-LIBRARIES = \
-    pegcompiler \
-    pegclient \
-    peggetoopt \
-    pegrepository \
-    pegconfig \
-    pegcommon
+PROGRAM = TestMemoryResidentRepository
 
-ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
-  LIBRARIES += ILEWrapperUtils
-endif
-
-ifdef PEGASUS_ENABLE_MRR_GENERATION
-  LOCAL_DEFINES += -DPEGASUS_ENABLE_MRR_GENERATION
-endif
-
-EXTRA_INCLUDES = $(SYS_INCLUDES)
-
-PROGRAM = cimmof
-
-SOURCES = main.cpp cmdline.cpp cmdlineExceptions.cpp $(EXTRA_SOURCES)
+SOURCES = MemoryResidentRepository.cpp root_cimv2_namespace.cpp
 
 include $(ROOT)/mak/program.mak
 
-messages:
-
 tests:
+	$(PROGRAM)
 
-poststarttests: 
+poststarttests:
 
+##==============================================================================
+##
+## Generates memory-resident repository sources.
+##
+##==============================================================================
+
+SCHEMAS=$(PEGASUS_ROOT)/Schemas
+
+# set the following parameters for the compiler
+#  -d - TBD 
+#  -W - suppress the cimmofl usage warning message
+#  -m - Compile classes to source files for memory-resident repository
+
+CIMMOFL=cimmofl -d -W -m
+
+# build the root/PG_Internal namespace into the file root_PG_Internal namespace
+# The input is all of the mof to be included in this namespace.
+repository:
+	@ $(CIMMOFL) -n root/cimv2 -I $(SCHEMAS) root_cimv2_namespace.mof

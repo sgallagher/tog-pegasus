@@ -97,7 +97,6 @@ LIBRARY = pegrepository
 SOURCES = \
     InstanceIndexFile.cpp \
     InstanceDataFile.cpp \
-    CIMRepository.cpp \
     AssocClassTable.cpp \
     AssocClassCache.cpp \
     AssocInstTable.cpp \
@@ -106,6 +105,14 @@ SOURCES = \
     InheritanceTree.cpp \
     RepositoryDeclContext.cpp \
     RepositoryQueryContext.cpp
+
+ifdef PEGASUS_ENABLE_MRR
+  SOURCES += MRRSerialization.cpp
+  SOURCES += MRRTypes.cpp
+  SOURCES += CIMRepositoryMRR.cpp
+else
+  SOURCES += CIMRepository.cpp
+endif
 
 include $(ROOT)/mak/library.mak
 

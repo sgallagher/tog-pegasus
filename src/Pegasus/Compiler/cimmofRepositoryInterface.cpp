@@ -41,11 +41,16 @@
 #include "cimmofMessages.h"
 #include "cimmofRepositoryInterface.h"
 
+#ifdef PEGASUS_ENABLE_MRR_GENERATION
+# include "cimmofMRR.h"
+#endif
+
 PEGASUS_USING_PEGASUS;
 
 cimmofRepositoryInterface::cimmofRepositoryInterface() :
   _repository(0),
   _client(0),
+  _mrr(0),
   _ot(compilerCommonDefs::USE_REPOSITORY)
 {
 }
@@ -54,11 +59,15 @@ cimmofRepositoryInterface::~cimmofRepositoryInterface()
 {
     delete _repository;
     delete _client;
+#ifdef PEGASUS_ENABLE_MRR_GENERATION
+    delete _mrr;
+#endif
 }
 
 void cimmofRepositoryInterface::init(_repositoryType type, String location,
                 Uint32 mode,
-                compilerCommonDefs::operationType ot)
+                compilerCommonDefs::operationType ot,
+                bool descriptions)
 {
     String message;
     cimmofMessages::arglist arglist;
@@ -108,6 +117,13 @@ void cimmofRepositoryInterface::init(_repositoryType type, String location,
             _client = 0;
         }
     }
+#ifdef PEGASUS_ENABLE_MRR_GENERATION
+    else if (type == REPOSITORY_INTERFACE_MRR)
+    {
+        // create memory-resident repository handler.
+        _mrr = new cimmofMRR(descriptions);
+    }
+#endif
     else
     {
         // throw an exception
@@ -121,6 +137,10 @@ void cimmofRepositoryInterface::addClass(const CIMNamespaceName &nameSpace,
         _repository->addClass(nameSpace, &Class);
     if (_client)
         _client->addClass(nameSpace, Class);
+#ifdef PEGASUS_ENABLE_MRR_GENERATION
+    if (_mrr)
+        _mrr->addClass(nameSpace, Class);
+#endif
 }
 
 void cimmofRepositoryInterface::addQualifier(const CIMNamespaceName &nameSpace,
@@ -130,6 +150,10 @@ void cimmofRepositoryInterface::addQualifier(const CIMNamespaceName &nameSpace,
         _repository->addQualifier(nameSpace, &qualifier);
     if (_client)
         _client->addQualifier(nameSpace, qualifier);
+#ifdef PEGASUS_ENABLE_MRR_GENERATION
+    if (_mrr)
+        _mrr->addQualifier(nameSpace, qualifier);
+#endif
 }
 
 void cimmofRepositoryInterface::addInstance(const CIMNamespaceName &nameSpace,
@@ -139,6 +163,10 @@ void cimmofRepositoryInterface::addInstance(const CIMNamespaceName &nameSpace,
         _repository->addInstance(nameSpace, &instance);
     if (_client)
         _client->addInstance(nameSpace, instance);
+#ifdef PEGASUS_ENABLE_MRR_GENERATION
+    if (_mrr)
+        _mrr->addInstance(nameSpace, instance);
+#endif
 }
 
 CIMQualifierDecl cimmofRepositoryInterface::getQualifierDecl(
@@ -149,6 +177,10 @@ CIMQualifierDecl cimmofRepositoryInterface::getQualifierDecl(
         return (_repository->getQualifierDecl(nameSpace, qualifierName));
     else if (_client)
         return (_client->getQualifierDecl(nameSpace, qualifierName));
+#ifdef PEGASUS_ENABLE_MRR_GENERATION
+    else if (_mrr)
+        return (_mrr->getQualifierDecl(nameSpace, qualifierName));
+#endif
     else
         return CIMQualifierDecl();
 }
@@ -160,6 +192,10 @@ CIMClass cimmofRepositoryInterface::getClass(const CIMNamespaceName &nameSpace,
         return (_repository->getClass(nameSpace, className));
     else if (_client)
         return (_client->getClass(nameSpace, className));
+#ifdef PEGASUS_ENABLE_MRR_GENERATION
+    else if (_mrr)
+        return (_mrr->getClass(nameSpace, className));
+#endif
     else
         return CIMClass();
 }
@@ -175,6 +211,12 @@ void cimmofRepositoryInterface::modifyClass(const CIMNamespaceName &nameSpace,
     {
         _client->modifyClass(nameSpace, Class);
     }
+#ifdef PEGASUS_ENABLE_MRR_GENERATION
+    if (_mrr)
+    {
+        _mrr->modifyClass(nameSpace, Class);
+    }
+#endif
 }
 
 void cimmofRepositoryInterface::createNameSpace(
@@ -186,4 +228,26 @@ void cimmofRepositoryInterface::createNameSpace(
     {
         _client->createNameSpace(nameSpace);
     }
+#ifdef PEGASUS_ENABLE_MRR_GENERATION
+    else if (_mrr)
+    {
+        _mrr->createNameSpace(nameSpace);
+    }
+#endif
+}
+
+void cimmofRepositoryInterface::start()
+{
+#ifdef PEGASUS_ENABLE_MRR_GENERATION
+    if (_mrr)
+        _mrr->start();
+#endif
+}
+
+void cimmofRepositoryInterface::finish()
+{
+#ifdef PEGASUS_ENABLE_MRR_GENERATION
+    if (_mrr)
+        _mrr->finish();
+#endif
 }

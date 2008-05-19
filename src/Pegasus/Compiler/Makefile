@@ -79,6 +79,12 @@ SOURCES = \
     valueFactory.cpp \
     compilerDeclContext.cpp
 
+ifdef PEGASUS_ENABLE_MRR_GENERATION
+  SOURCES += cimmofMRR.cpp
+  SOURCES += Closure.cpp
+  LOCAL_DEFINES += -DPEGASUS_ENABLE_MRR_GENERATION
+endif
+
 include $(ROOT)/mak/dynamic-library.mak
 
 $(OBJ_DIR)/cimmof_tab_wrapper$(OBJ) : cimmof_tab.cpp

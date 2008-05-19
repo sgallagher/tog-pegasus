@@ -75,10 +75,10 @@ public:
         RepositoryDeclContext* declContext = 0);
 
     /// Descructor
-    virtual ~CIMRepository();
+    ~CIMRepository();
 
     /// getClass
-    virtual CIMClass getClass(
+    CIMClass getClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         Boolean localOnly = true,
@@ -87,7 +87,7 @@ public:
         const CIMPropertyList& propertyList = CIMPropertyList());
 
     /// getInstance
-    virtual CIMInstance getInstance(
+    CIMInstance getInstance(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
         Boolean localOnly = true,
@@ -96,35 +96,35 @@ public:
         const CIMPropertyList& propertyList = CIMPropertyList());
 
     /// deleteClass
-    virtual void deleteClass(
+    void deleteClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
 
     /// deleteInstance
-    virtual void deleteInstance(
+    void deleteInstance(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName);
 
     /// createClass
-    virtual void createClass(
+    void createClass(
         const CIMNamespaceName& nameSpace,
         const CIMClass& newClass,
         const ContentLanguageList& contentLangs = ContentLanguageList());
 
     /// createInstance
-    virtual CIMObjectPath createInstance(
+    CIMObjectPath createInstance(
         const CIMNamespaceName& nameSpace,
         const CIMInstance& newInstance,
         const ContentLanguageList& contentLangs = ContentLanguageList());
 
     /// modifyClass
-    virtual void modifyClass(
+    void modifyClass(
         const CIMNamespaceName& nameSpace,
         const CIMClass& modifiedClass,
         const ContentLanguageList& contentLangs = ContentLanguageList());
 
     /// modifyInstance
-    virtual void modifyInstance(
+    void modifyInstance(
         const CIMNamespaceName& nameSpace,
         const CIMInstance& modifiedInstance,
         Boolean includeQualifiers = true,
@@ -132,7 +132,7 @@ public:
         const ContentLanguageList& contentLangs = ContentLanguageList());
 
     /// enumerateClasses
-    virtual Array<CIMClass> enumerateClasses(
+    Array<CIMClass> enumerateClasses(
         const CIMNamespaceName& nameSpace,
         const CIMName& className = CIMName(),
         Boolean deepInheritance = false,
@@ -141,7 +141,7 @@ public:
         Boolean includeClassOrigin = false);
 
     /// enumerateClassNames
-    virtual Array<CIMName> enumerateClassNames(
+    Array<CIMName> enumerateClassNames(
         const CIMNamespaceName& nameSpace,
         const CIMName& className = CIMName(),
         Boolean deepInheritance = false);
@@ -156,7 +156,7 @@ public:
         This method is useful mainly for testing purposes, and should not be
         relied upon for complete results in a CIM Server environment.
     */
-    virtual Array<CIMInstance> enumerateInstancesForSubtree(
+    Array<CIMInstance> enumerateInstancesForSubtree(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         Boolean deepInheritance = true,
@@ -170,7 +170,7 @@ public:
         This method mimics the provider behavior for the EnumerateInstances
         operation.
     */
-    virtual Array<CIMInstance> enumerateInstancesForClass(
+    Array<CIMInstance> enumerateInstancesForClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         Boolean localOnly = true,
@@ -194,7 +194,7 @@ public:
         @return An Array of CIMObjectPath objects containing the names of the
             instances of the specified class in the specified namespace.
     */
-    virtual Array<CIMObjectPath> enumerateInstanceNamesForSubtree(
+    Array<CIMObjectPath> enumerateInstanceNamesForSubtree(
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
 
@@ -209,13 +209,13 @@ public:
         @return An Array of CIMObjectPath objects containing the names of the
             instances of the specified class in the specified namespace.
     */
-    virtual Array<CIMObjectPath> enumerateInstanceNamesForClass(
+    Array<CIMObjectPath> enumerateInstanceNamesForClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
 
 
     /// associators
-    virtual Array<CIMObject> associators(
+    Array<CIMObject> associators(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& assocClass = CIMName(),
@@ -227,7 +227,7 @@ public:
         const CIMPropertyList& propertyList = CIMPropertyList());
 
     /// associatorNames
-    virtual Array<CIMObjectPath> associatorNames(
+    Array<CIMObjectPath> associatorNames(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& assocClass = CIMName(),
@@ -236,7 +236,7 @@ public:
         const String& resultRole = String::EMPTY);
 
     /// references
-    virtual Array<CIMObject> references(
+    Array<CIMObject> references(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& resultClass = CIMName(),
@@ -246,20 +246,20 @@ public:
         const CIMPropertyList& propertyList = CIMPropertyList());
 
     /// referenceNames
-    virtual Array<CIMObjectPath> referenceNames(
+    Array<CIMObjectPath> referenceNames(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& resultClass = CIMName(),
         const String& role = String::EMPTY);
 
     /// getProperty
-    virtual CIMValue getProperty(
+    CIMValue getProperty(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
         const CIMName& propertyName);
 
     /// setProperty
-    virtual void setProperty(
+    void setProperty(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
         const CIMName& propertyName,
@@ -267,23 +267,23 @@ public:
         const ContentLanguageList& contentLangs = ContentLanguageList());
 
     /// getQualifier
-    virtual CIMQualifierDecl getQualifier(
+    CIMQualifierDecl getQualifier(
         const CIMNamespaceName& nameSpace,
         const CIMName& qualifierName);
 
     /// setQualifier
-    virtual void setQualifier(
+    void setQualifier(
         const CIMNamespaceName& nameSpace,
         const CIMQualifierDecl& qualifierDecl,
         const ContentLanguageList& contentLangs = ContentLanguageList());
 
     /// deleteQualifier
-    virtual void deleteQualifier(
+    void deleteQualifier(
         const CIMNamespaceName& nameSpace,
         const CIMName& qualifierName);
 
     /// enumerateQualifiers
-    virtual Array<CIMQualifierDecl> enumerateQualifiers(
+    Array<CIMQualifierDecl> enumerateQualifiers(
         const CIMNamespaceName& nameSpace);
 
     typedef HashTable <String, String, EqualNoCaseFunc, HashLowerCaseFunc>
@@ -296,17 +296,17 @@ public:
         creation.
     */
 
-    virtual void createNameSpace(const CIMNamespaceName& nameSpace,
+    void createNameSpace(const CIMNamespaceName& nameSpace,
         const NameSpaceAttributes& attributes = NameSpaceAttributes());
 
-    virtual void modifyNameSpace(const CIMNamespaceName& nameSpace,
+    void modifyNameSpace(const CIMNamespaceName& nameSpace,
         const NameSpaceAttributes& attributes = NameSpaceAttributes());
 
     /** CIMMethod enumerateNameSpaces - Get all of the namespaces in the
         repository. \Ref{NAMESPACE}
         @return Array of strings with the namespaces
     */
-    virtual Array<CIMNamespaceName> enumerateNameSpaces() const;
+    Array<CIMNamespaceName> enumerateNameSpaces() const;
 
     /** CIMMethod deleteNameSpace - Deletes a namespace in the repository.
         The deleteNameSpace method will only delete a namespace if there are
@@ -315,9 +315,9 @@ public:
         @param String with the name of the namespace
         @exception - Throws NoSuchDirectory if the Namespace does not exist.
     */
-    virtual void deleteNameSpace(const CIMNamespaceName& nameSpace);
+    void deleteNameSpace(const CIMNamespaceName& nameSpace);
 
-    virtual Boolean getNameSpaceAttributes(
+    Boolean getNameSpaceAttributes(
         const CIMNamespaceName& nameSpace,
         NameSpaceAttributes& attributes);
 
@@ -326,10 +326,7 @@ public:
     /** Indicates whether instance operations that do not have a provider
         registered should be served by this repository.
     */
-    Boolean isDefaultInstanceProvider()
-    {
-        return _isDefaultInstanceProvider;
-    }
+    Boolean isDefaultInstanceProvider();
 
     /** Get subclass names of the given class in the given namespace.
         @param nameSpaceName
@@ -340,33 +337,21 @@ public:
         @param subClassNames - output argument to hold subclass names.
         @exception CIMException(CIM_ERR_INVALID_CLASS)
     */
-    virtual void getSubClassNames(
+    void getSubClassNames(
         const CIMNamespaceName& nameSpaceName,
         const CIMName& className,
         Boolean deepInheritance,
-        Array<CIMName>& subClassNames) const
-    {
-        ReadLock lock(const_cast<ReadWriteSem&>(_lock));
-        _nameSpaceManager.getSubClassNames(nameSpaceName,
-                                           className,
-                                           deepInheritance,
-                                           subClassNames);
-    }
+        Array<CIMName>& subClassNames) const;
 
     /** Get the names of all superclasses (direct and indirect) of this
         class.
     */
-    virtual void getSuperClassNames(
+    void getSuperClassNames(
         const CIMNamespaceName& nameSpaceName,
         const CIMName& className,
-        Array<CIMName>& subClassNames) const
-    {
-        ReadLock lock(const_cast<ReadWriteSem&>(_lock));
-        _nameSpaceManager.getSuperClassNames(
-            nameSpaceName, className, subClassNames);
-    }
+        Array<CIMName>& subClassNames) const;
 
-    virtual Boolean isRemoteNameSpace(
+    Boolean isRemoteNameSpace(
         const CIMNamespaceName& nameSpaceName,
         String& remoteInfo);
 
@@ -437,157 +422,9 @@ protected:
 
 private:
 
-    /**
-        Searches for incomplete instance transactions for all classes in all
-        namespaces.  Restores instance index and data files to void an
-        incomplete operation.  If no incomplete instance transactions are
-        outstanding, this method has no effect.
-     */
-    void _rollbackIncompleteTransactions();
-
-    void _createAssocInstEntries(
-        const CIMNamespaceName& nameSpace,
-        const CIMConstClass& cimClass,
-        const CIMInstance& cimInstance,
-        const CIMObjectPath& instanceName);
-
-    void _createAssocClassEntries(
-        const CIMNamespaceName& nameSpace,
-        const CIMConstClass& assocClass);
-
-    /**
-        Checks whether an instance with the specified key values exists in the
-        class hierarchy of the specified class.
-
-        @param   nameSpace      the namespace of the instance
-        @param   instanceName   the name of the instance
-
-        @return  true           if the instance is found
-                 false          if the instance cannot be found
-     */
-    Boolean _checkInstanceAlreadyExists(
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& instanceName) const;
-
-    /** Returns the file path of the instance index file.
-
-        @param   nameSpace      the namespace of the instance
-        @param   className      the name of the class
-
-        @return  a string containing the index file path
-     */
-    String _getInstanceIndexFilePath(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className) const;
-
-    /** Returns the file path of the instance file.
-
-        @param   nameSpace      the namespace of the instance
-        @param   className      the name of the class
-
-        @return  a string containing the instance file path
-     */
-    String _getInstanceDataFilePath(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className) const;
-
-    /** Saves an instance object from memory to disk file.  The byte
-        position and the size of the newly inserted instance record are
-        returned.  Returns true on success.
-
-        @param   path      the file path of the instance file
-        @param   object    the CIMInstance object to be saved
-        @param   index     the byte positon of the saved instance record
-        @param   size      the size of the saved instance record
-
-        @return  true      if successful
-                 false     if an error occurs in saving the instance to file
-     */
-    Boolean _saveInstance(
-        const String& path,
-        const CIMInstance& object,
-        Uint32& index,
-        Uint32& size);
-
-    /** loads an instance object from disk to memory.  The caller passes
-        the byte position and the size of the instance record to be loaded.
-        Returns true on success.
-
-        @param   path      the file path of the instance file
-        @param   object    the CIMInstance object to be returned
-        @param   index     the byte positon of the instance record
-        @param   size      the size of the instance record
-        @param   data      the buffer to hold the instance data
-
-        @return  true      if successful
-                 false     if an error occurs in loading the instance from file
-     */
-    Boolean _loadInstance(
-        const String& path,
-        CIMInstance& object,
-        Uint32 index,
-        Uint32 size);
-
-    /** loads all the instance objects from disk to memeory.  Returns true
-        on success.
-
-        @param   nameSpace      the namespace of the instances to be loaded
-        @param   className      the class of the instances to be loaded
-        @param   namedInstances an array of CIMInstance objects to which
-                                the loaded instances are appended
-
-        @return  true      if successful
-                 false     if an error occurs in loading the instances
-     */
-    Boolean _loadAllInstances(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        Array<CIMInstance>& namedInstances);
-
-    /** Modifies an instance object saved in the disk file.  The byte position
-        and the size of the newly added instance record are returned.  Returns
-        true on success.
-
-        @param   path      the file path of the instance file
-        @param   object    the modified CIMInstance object
-        @param   oldIndex  the byte positon of the old instance record
-        @param   oldSize   the size of the old instance record
-        @param   newIndex  the byte positon of the new instance record
-        @param   newSize   the size of the new instance record
-
-        @return  true      if successful
-                 false     if an error occurs in modifying the instance
-     */
-    Boolean _modifyInstance(
-        const String& path,
-        const CIMInstance& object,
-        Uint32 oldIndex,
-        Uint32 oldSize,
-        Uint32& newIndex,
-        Uint32& newSize);
-
-    String _repositoryRoot;
-    NameSpaceManager _nameSpaceManager;
-
-    // This must be initialized in the constructor using values from the
-    // ConfigManager.
-    Boolean _isDefaultInstanceProvider;
-
-protected:
-
-    ObjectStreamer *streamer;
-    ReadWriteSem _lock;
-
+    class CIMRepositoryRep* _rep;
     friend class compilerDeclContext;
     friend class RepositoryDeclContext;
-    RepositoryDeclContext* _context;
-
-    /** Used by getInstance(); indicates whether instance should be resolved
-        after it is retrieved from the file.
-     */
-    Boolean _resolveInstance;
-
-    CString _lockFile;
 };
 
 PEGASUS_NAMESPACE_END

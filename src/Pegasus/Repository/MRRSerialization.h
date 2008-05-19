@@ -31,66 +31,36 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-//
-// Constants for use by cmdline.cpp
-//
+#ifndef _Pegasus_Repository_MRRSerialization_h
+#define _Pegasus_Repository_MRRSerialization_h
 
-#ifndef _CMDLINE_CMDLINE_H_
-#define _CMDLINE_CMDLINE_H_
-
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Common/Buffer.h>
+#include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
+#include "Linkage.h"
 
-enum opttypes {FILESPEC,
-           HELPFLAG,
-           INCLUDEPATH,
-           SUPPRESSFLAG,
-           NAMESPACE,
-           REPOSITORYDIR,
+PEGASUS_NAMESPACE_BEGIN
 
-           UPDATEFLAG,
-           ALLOWFLAG,
-#ifndef PEGASUS_OS_HPUX
-           SYNTAXFLAG,
-//PEP167     FILELIST,
-           TRACEFLAG,
-           XMLFLAG,
-#endif
-#ifdef PEGASUS_OS_PASE
-           QUIETFLAG, //PASE env ship q option
-#endif
-#ifdef PEGASUS_ENABLE_MRR_GENERATION
-           MRRFLAG,
-#endif
-           DISCARDFLAG,
-           VERSIONFLAG,
-           OPTEND_CIMMOF,    //PEP167
-           REPOSITORYNAME,
-           REPOSITORYMODE,
-           NO_USAGE_WARNING,
-           OPTEND_CIMMOFL};  //PEP167
+PEGASUS_REPOSITORY_LINKAGE void MRRSerializeNameSpace(
+    Buffer& out, 
+    const CIMNamespaceName& nameSpace);
 
-struct optspec
-{
-    char *flag;
-    opttypes catagory;
-    int islong;
-    int needsvalue;
-};
+PEGASUS_REPOSITORY_LINKAGE int MRRDeserializeNameSpace(
+    const Buffer& in, 
+    size_t& pos,
+    CIMNamespaceName& nameSpace);
 
-// Wrap this around the PEGASUS_HOME define for OS/400
+PEGASUS_REPOSITORY_LINKAGE void MRRSerializeInstance(
+    Buffer& out, 
+    const CIMInstance& cimInstance);
 
-#define PEGASUS_HOME "PEGASUS_HOME"
+PEGASUS_REPOSITORY_LINKAGE int MRRDeserializeInstance(
+    const Buffer& in, 
+    size_t& pos,
+    CIMInstance& cimInstance);
 
-#define PEGASUS_CIMMOF_NO_DEFAULTNAMESPACEPATH    -9
-#define PEGASUS_CIMMOF_COMPILER_GENERAL_EXCEPTION -8
-#define PEGASUS_CIMMOF_BAD_FILENAME               -7
-#define PEGASUS_CIMMOF_PARSING_ERROR              -6
-#define PEGASUS_CIMMOF_PARSER_LEXER_ERROR         -5
-#define PEGASUS_CIMMOF_UNEXPECTED_CONDITION       -4
-#define PEGASUS_CIMMOF_CMDLINE_NOREPOSITORY       -3
-#define PEGASUS_CIMMOF_CIM_EXCEPTION              -2
+PEGASUS_NAMESPACE_END
 
-#define ROOTCIMV2 "root/cimv2"
-#define REPOSITORY_NAME_DEFAULT "repository"
-#define REPOSITORY_MODE_DEFAULT "XML"
-#endif
+#endif /* _Pegasus_Repository_MRRSerialization_h */

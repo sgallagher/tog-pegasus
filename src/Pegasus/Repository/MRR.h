@@ -31,66 +31,41 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-//
-// Constants for use by cmdline.cpp
-//
+#ifndef _Pegasus_Repository_MRR_h
+#define _Pegasus_Repository_MRR_h
 
-#ifndef _CMDLINE_CMDLINE_H_
-#define _CMDLINE_CMDLINE_H_
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Buffer.h>
+#include "MRRTypes.h"
+#include "Linkage.h"
 
-#include <Pegasus/Common/String.h>
+PEGASUS_NAMESPACE_BEGIN
 
-enum opttypes {FILESPEC,
-           HELPFLAG,
-           INCLUDEPATH,
-           SUPPRESSFLAG,
-           NAMESPACE,
-           REPOSITORYDIR,
+// Installs the initialize callback that is called when the repository is 
+// initially created (from the MemoryResidentRepository constructor).
+PEGASUS_REPOSITORY_LINKAGE void MRRInstallInitializeCallback(
+    void (*callback)(class CIMRepository* repository, void * data),
+    void *data);
 
-           UPDATEFLAG,
-           ALLOWFLAG,
-#ifndef PEGASUS_OS_HPUX
-           SYNTAXFLAG,
-//PEP167     FILELIST,
-           TRACEFLAG,
-           XMLFLAG,
-#endif
-#ifdef PEGASUS_OS_PASE
-           QUIETFLAG, //PASE env ship q option
-#endif
-#ifdef PEGASUS_ENABLE_MRR_GENERATION
-           MRRFLAG,
-#endif
-           DISCARDFLAG,
-           VERSIONFLAG,
-           OPTEND_CIMMOF,    //PEP167
-           REPOSITORYNAME,
-           REPOSITORYMODE,
-           NO_USAGE_WARNING,
-           OPTEND_CIMMOFL};  //PEP167
+// Installs the global save callback that is called when the memory-resident
+// instance repository is modified. The buffer argument is a serialized
+// copy of the memory-resident instance repository. The callback can do
+// things such as save the buffer on disk for later use.
+PEGASUS_REPOSITORY_LINKAGE void MRRInstallSaveCallback(
+    void (*callback)(const Buffer& buffer, void* data),
+    void* data);
 
-struct optspec
-{
-    char *flag;
-    opttypes catagory;
-    int islong;
-    int needsvalue;
-};
+// Installs the global load callback that is called when an instance of
+// MemoryResidentRepository is created in order to load the initial set
+// of instances (if any).
+PEGASUS_REPOSITORY_LINKAGE void MRRInstallLoadCallback(
+    void (*callback)(Buffer& buffer, void* data),
+    void* data);
 
-// Wrap this around the PEGASUS_HOME define for OS/400
+// Add the given namespace of qualifier declarations and classes.
+PEGASUS_REPOSITORY_LINKAGE Boolean MRRAddNameSpace(
+    const MRRNameSpace* nameSpace);
 
-#define PEGASUS_HOME "PEGASUS_HOME"
+PEGASUS_NAMESPACE_END
 
-#define PEGASUS_CIMMOF_NO_DEFAULTNAMESPACEPATH    -9
-#define PEGASUS_CIMMOF_COMPILER_GENERAL_EXCEPTION -8
-#define PEGASUS_CIMMOF_BAD_FILENAME               -7
-#define PEGASUS_CIMMOF_PARSING_ERROR              -6
-#define PEGASUS_CIMMOF_PARSER_LEXER_ERROR         -5
-#define PEGASUS_CIMMOF_UNEXPECTED_CONDITION       -4
-#define PEGASUS_CIMMOF_CMDLINE_NOREPOSITORY       -3
-#define PEGASUS_CIMMOF_CIM_EXCEPTION              -2
-
-#define ROOTCIMV2 "root/cimv2"
-#define REPOSITORY_NAME_DEFAULT "repository"
-#define REPOSITORY_MODE_DEFAULT "XML"
-#endif
+#endif /* _Pegasus_Repository_MRR_h */

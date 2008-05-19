@@ -31,66 +31,30 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-//
-// Constants for use by cmdline.cpp
-//
+#ifndef _Pegasus_Repository_Closure_h
+#define _Pegasus_Repository_Closure_h
 
-#ifndef _CMDLINE_CMDLINE_H_
-#define _CMDLINE_CMDLINE_H_
+#include <Pegasus/Common/CIMClass.h>
 
-#include <Pegasus/Common/String.h>
+PEGASUS_NAMESPACE_BEGIN
 
-enum opttypes {FILESPEC,
-           HELPFLAG,
-           INCLUDEPATH,
-           SUPPRESSFLAG,
-           NAMESPACE,
-           REPOSITORYDIR,
+/** This function computes the closure of the given class. The closure of a 
+    class includes all classes related in any of the following ways:
 
-           UPDATEFLAG,
-           ALLOWFLAG,
-#ifndef PEGASUS_OS_HPUX
-           SYNTAXFLAG,
-//PEP167     FILELIST,
-           TRACEFLAG,
-           XMLFLAG,
-#endif
-#ifdef PEGASUS_OS_PASE
-           QUIETFLAG, //PASE env ship q option
-#endif
-#ifdef PEGASUS_ENABLE_MRR_GENERATION
-           MRRFLAG,
-#endif
-           DISCARDFLAG,
-           VERSIONFLAG,
-           OPTEND_CIMMOF,    //PEP167
-           REPOSITORYNAME,
-           REPOSITORYMODE,
-           NO_USAGE_WARNING,
-           OPTEND_CIMMOFL};  //PEP167
+        1. Through reflexivity (the class itself).
+        2. Through superclass.
+        3. Through references.
+        4. Through reference parameters.
+        5. Through EmbeddedInstance qualifiers.
+        6. Through recusive application to classes discovered in 1 to 5.
 
-struct optspec
-{
-    char *flag;
-    opttypes catagory;
-    int islong;
-    int needsvalue;
-};
+    The closure is contained in the #closure# parameter upon return.
+*/
+int Closure(
+    const CIMName& className,
+    const Array<CIMClass>& classes,
+    Array<CIMName>& closure);
 
-// Wrap this around the PEGASUS_HOME define for OS/400
+PEGASUS_NAMESPACE_END
 
-#define PEGASUS_HOME "PEGASUS_HOME"
-
-#define PEGASUS_CIMMOF_NO_DEFAULTNAMESPACEPATH    -9
-#define PEGASUS_CIMMOF_COMPILER_GENERAL_EXCEPTION -8
-#define PEGASUS_CIMMOF_BAD_FILENAME               -7
-#define PEGASUS_CIMMOF_PARSING_ERROR              -6
-#define PEGASUS_CIMMOF_PARSER_LEXER_ERROR         -5
-#define PEGASUS_CIMMOF_UNEXPECTED_CONDITION       -4
-#define PEGASUS_CIMMOF_CMDLINE_NOREPOSITORY       -3
-#define PEGASUS_CIMMOF_CIM_EXCEPTION              -2
-
-#define ROOTCIMV2 "root/cimv2"
-#define REPOSITORY_NAME_DEFAULT "repository"
-#define REPOSITORY_MODE_DEFAULT "XML"
-#endif
+#endif /*_Pegasus_Repository_Closure_h */

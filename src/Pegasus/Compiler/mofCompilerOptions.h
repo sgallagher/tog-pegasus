@@ -87,6 +87,8 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   Boolean         _quiet;
 #endif
   Boolean         _no_usage_warning;
+  Boolean         _mrr;
+  Boolean         _discard;
 
   PEGASUS_STD(ostream)      *_traceos;
   PEGASUS_STD(ostream)      *_erroros;
@@ -104,6 +106,8 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
     _ot(compilerCommonDefs::USE_REPOSITORY),
     _trace(false),
     _no_usage_warning(false),
+    _mrr(false),
+    _discard(false),
     _traceos(0),
     _erroros(0),
     _warningos(0)
@@ -185,6 +189,12 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   const String &get_namespacePath() const  { return _namespacePath; }
   void set_no_usage_warning() { _no_usage_warning = true; }
   Boolean get_no_usage_warning() const { return _no_usage_warning; }
+  void set_mrr() { _mrr = true; }
+  void reset_mrr() { _mrr = false; }
+  Boolean mrr() const { return _mrr; }
+  void set_discard() { _discard = true; }
+  void reset_discard() { _discard = false; }
+  Boolean discard() const { return _discard; }
 };
 
 #endif

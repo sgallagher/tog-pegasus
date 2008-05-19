@@ -66,6 +66,7 @@ PEGASUS_NAMESPACE_BEGIN
 // Forward declarations
 class cimmofRepository;
 class cimmofClient;
+class cimmofMRR;
 class CIMClass;
 class CIMQualifierDecl;
 class CIMInstance;
@@ -75,20 +76,22 @@ class PEGASUS_COMPILER_LINKAGE cimmofRepositoryInterface
     private:
         cimmofRepository *_repository;
         cimmofClient        *_client;
+        cimmofMRR* _mrr;
         compilerCommonDefs::operationType _ot;
     public:
         enum _repositoryType
         {
             REPOSITORY_INTERFACE_LOCAL = 0,
-            REPOSITORY_INTERFACE_CLIENT
+            REPOSITORY_INTERFACE_CLIENT = 1,
+            REPOSITORY_INTERFACE_MRR = 2,
         };
         cimmofRepositoryInterface();
         virtual ~cimmofRepositoryInterface();
         void init(_repositoryType type, String location, Uint32 mode,
-                compilerCommonDefs::operationType ot);
+                compilerCommonDefs::operationType ot, bool descriptions);
         Boolean ok() const
         {
-            return _repository || _client;
+            return _repository || _client || _mrr;
         }
         virtual void addClass(
                 const CIMNamespaceName &nameSpace,
@@ -109,6 +112,8 @@ class PEGASUS_COMPILER_LINKAGE cimmofRepositoryInterface
                 const CIMNamespaceName &nameSpace,
                 CIMClass &Class) const;
         virtual void createNameSpace(const CIMNamespaceName &nameSpace) const;
+        virtual void start();
+        virtual void finish();
 };
 
 PEGASUS_NAMESPACE_END

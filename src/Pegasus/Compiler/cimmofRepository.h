@@ -81,6 +81,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofRepository
                 CIMClass *classdecl);
 
         virtual void createNameSpace(const CIMNamespaceName &nameSpaceName);
+
     private:
         CIMRepository *_cimrepository;
         compilerDeclContext *_context;

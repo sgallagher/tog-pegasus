@@ -154,6 +154,11 @@ Boolean cimmofParser::setRepository(void)
         if (rep != "")
         {
             cimmofRepositoryInterface::_repositoryType rt;
+#ifdef PEGASUS_ENABLE_MRR_GENERATION
+            if (_cmdline->mrr())
+                rt = cimmofRepositoryInterface::REPOSITORY_INTERFACE_MRR;
+            else 
+#endif
             if (_cmdline->is_local())
                 rt = cimmofRepositoryInterface::REPOSITORY_INTERFACE_LOCAL;
             else
@@ -170,7 +175,9 @@ Boolean cimmofParser::setRepository(void)
                 {
                     mode = CIMRepository::MODE_BIN;
                 }
-                _repository.init(rt, combined, mode, _ot);
+                _repository.init(rt, combined, mode, _ot, !_cmdline->discard());
+
+                _repository.start();
             }
             catch(Exception &e)
             {
@@ -437,6 +444,9 @@ int cimmofParser::parse()
         }
     }
     ret =  cimmof_parse();
+
+    _repository.finish();
+
     if (_cmdline)
     {
 

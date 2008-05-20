@@ -37,15 +37,12 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/Common/Constants.h>
-
-#if defined(PEGASUS_HAS_ICU) && defined(PEGASUS_INDFORMATTER_USE_ICU)
-#include <unicode/locid.h>
-#include <unicode/datefmt.h>
-#include <unicode/unistr.h>
-#endif
-
+#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Common/CIMClass.h>
+#include <Pegasus/Common/CIMValue.h>
+#include <Pegasus/Common/CIMPropertyList.h>
+#include <Pegasus/Common/ContentLanguageList.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -121,48 +118,50 @@ public:
 private:
 
     /**
-        gets specified indication property value from the received
-        indication instance.
+        Gets a specified indication property value from an indication instance.
 
-        @param  propertyName  the specified property name
-        @param  arrayIndexStr the specified index string of the array
-        @param  indication    the received indication instance
-        @param  contentLangs  the Content Languages
+        @param propertyName The name of the property for which to get the value.
+        @param arrayIndex The array index of the value to get, if the property
+            has an array value.  A value of PEG_NOT_FOUND indicates that all
+            array values are requested.
+        @param indication The indication from which to get the property value.
+        @param contentLangs The language in which to encode the value.
         @return String containing property value
     */
-
     static String _getIndPropertyValue(
         const String& propertyName,
-        const String& arrayIndexStr,
+        Uint32 arrayIndex,
         const CIMInstance& indication,
         const ContentLanguageList& contentLangs);
 
     /**
-        Retrieves the array values referenced by the specified
-        CIMValue.
+        Retrieves the array values contained by the specified CIMValue.
 
-        @param  propertyValue the CIMValue
-        @param  indexStr the array index
-        @param  contentLangs  the Content Languages
-        @return String containing array values referenced by the specified
-                CIMValue
+        @param value The CIMValue from which to get the array values.
+        @param arrayIndex The array index for which to get the value.  A value
+            of PEG_NOT_FOUND indicates that all values are requested.
+        @param contentLangs The language in which to encode the value.
+        @return String containing array values contained by the CIMValue.
     */
     static String _getArrayValues(
-        const CIMValue& propertyValue,
-        const String& indexStr,
+        const CIMValue& value,
+        Uint32 arrayIndex,
         const ContentLanguageList& contentLangs);
 
     /**
-        Validates the index string
+        Parses an index value from a string.  The string must represent an
+        unsigned integer.  Leading and trailing whitespace is ignored.
 
-        Index string only can be an integer. Otherwise,
-        an exception is thrown.
-
-        @param   indexStr          index string to be validated
-
-        @throw   CIM_ERR_INVALID_PARAMETER  if the index is invalid
+        @param indexStr The string from which to parse the index.
+        @throw CIM_ERR_INVALID_PARAMETER If the string is improperly formatted.
      */
-    static void _isValidIndex(const char* indexStr);
+    static Uint32 _parseIndex(const String& indexStr);
+
+    /**
+        Trims leading and trailing whitespace from a String.
+        @param s The string from which to trim whitespace.
+    */
+    static void _trim(String& s);
 
     /**
         Validates the provided property type string.
@@ -187,26 +186,6 @@ private:
         const String& propertyParam,
         const String& propertyTypeStr,
         const Boolean& isArray);
-
-    /**
-        Converts the CIMValue of the boolean to be string "true" or "false"
-
-        @param   booleanCIMValue   Boolean CIMValue to be converted
-
-        @return  the string representing the boolean CIMValue
-     */
-    static String _getBooleanStr(
-        const CIMValue& booleanCIMValue);
-
-    /**
-        Converts the boolean value to be string "true" or "false"
-
-        @param   booleanValue   Boolean value to be converted
-
-        @return  the string representing the boolean value
-     */
-    static String _getBooleanStr(
-        const Boolean& booleanValue);
 
     /**
         Constructs a default indication text message from the received
@@ -243,51 +222,6 @@ private:
         const Array<String>& textFormatParams,
         const CIMInstance& indication,
         const ContentLanguageList& contentLangs);
-
-#if defined(PEGASUS_HAS_ICU) && defined(PEGASUS_INDFORMATTER_USE_ICU)
-    /**
-        Determines if a property value can be localized.
-        A property value can only be localized if the subscription
-        ContentLanguageList includes no more than one language tag.
-
-        @param   contentLangs    the Content-Languages in the
-                                 subscription instance
-        @param   locale          locale to be set on return if return
-                                 value is true
-
-        @return  True, if valid locale returned
-                 False, Otherwise
-     */
-    static Boolean _canLocalize(
-        const ContentLanguageList& contentLangs,
-        Locale& locale);
-
-    /**
-        Localizes the CIMTYPE_DATETIME property value
-
-        @param   dateTimeValue  the value of datetime to be localized
-        @param   locale         locale to be used in the localization
-
-        @return  the string representation of the datetime value
-     */
-    static String _localizeDateTime(
-        const CIMDateTime& dateTimeValue,
-        const Locale& locale);
-
-    /**
-        Localizes the CIMTYPE_BOOLEAN property value
-
-        @param   booleanValue   the value of the boolean to be localized
-        @param   locale         locale to be used in the localization
-
-        @return  the string representation of the boolean value
-     */
-    static String _localizeBooleanStr(
-        const Boolean& booleanValue,
-        const Locale& locale);
-
-#endif
-
 };
 
 PEGASUS_NAMESPACE_END

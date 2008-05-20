@@ -476,9 +476,7 @@ void _testDefaultFormat()
     IndicationFormatter::getFormattedIndText(subscriptionInstance,
     indicationInstance, contentLangs);
 
-    PEGASUS_TEST_ASSERT(String::compare(formattedIndText, 
-    expectedIndicationText) == 0);
-
+    PEGASUS_TEST_ASSERT(formattedIndText == expectedIndicationText);
 }
 
 // Tests a formatted indication text message.
@@ -517,9 +515,7 @@ void _testFormat()
     formattedIndText = IndicationFormatter::getFormattedIndText(
     subscriptionInstance, indicationInstance, contentLangs);
 
-    PEGASUS_TEST_ASSERT(String::compare(formattedIndText, 
-    expectedIndicationText) == 0);
-
+    PEGASUS_TEST_ASSERT(formattedIndText == expectedIndicationText);
 }
 
 // checks whether the formatted indication text is same as expected
@@ -538,9 +534,7 @@ void _checkIndicationText(
     String formattedIndText = IndicationFormatter::getFormattedIndText(
         subscriptionInstance, indicationInstance, contentLangs);
 
-    PEGASUS_TEST_ASSERT(String::compare(formattedIndText, 
-        expectedIndicationText) == 0);
-
+    PEGASUS_TEST_ASSERT(formattedIndText == expectedIndicationText);
 }
 
 // Tests a formatted indication text message and one of the indication 
@@ -867,6 +861,17 @@ void _testArrayFormat()
     _checkIndicationText(textFormat, textFormatParams, expectedIndicationText, 
                          CIMTYPE_STRING, contentLangs);
 
+    // test case 23: array index with whitespace {1[ \t \n 0 \r   \n], string} 
+    textFormat.clear();
+    expectedIndicationText.clear();
+    textFormat =
+        "A UPS Alert occurred at {0, datetime}. The Following actions are"
+        " recommended to resolve the alert: {1[ \t \n 0 \r   \n], string}";
+    expectedIndicationText.append(expectedText);
+    expectedIndicationText.append("string_action1");
+
+    _checkIndicationText(textFormat, textFormatParams, expectedIndicationText, 
+                         CIMTYPE_STRING, contentLangs);
 }
 
 int main(int argc, char** argv)

@@ -39,8 +39,9 @@
 #include "StringRep.h"
 
 #ifdef PEGASUS_HAS_ICU
-#include <unicode/ustring.h>
-#include <unicode/uchar.h>
+# include <unicode/ures.h>
+# include <unicode/ustring.h>
+# include <unicode/uchar.h>
 #endif
 
 PEGASUS_NAMESPACE_BEGIN

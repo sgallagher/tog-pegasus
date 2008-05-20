@@ -43,22 +43,6 @@
 #include <Pegasus/Common/AcceptLanguageList.h>
 #include <Pegasus/Common/ContentLanguageList.h>
 
-//ICU specific
-#ifdef PEGASUS_HAS_ICU
-# include <unicode/uloc.h>
-# include <unicode/ures.h>
-# include <unicode/umsg.h>
-# include <unicode/ucnv.h>
-# include <unicode/fmtable.h>
-# include <unicode/msgfmt.h>
-#endif
-
-#ifdef PEGASUS_HAS_ICU
-# define NO_ICU_MAGIC (UResourceBundle*)0xDEADBEEF
-#else
-# define NO_ICU_MAGIC (void*)0xDEADBEEF
-#endif
-
 PEGASUS_NAMESPACE_BEGIN
 
 /**
@@ -223,15 +207,13 @@ public:
     ~MessageLoaderParms();
 
 private:
-#ifdef PEGASUS_HAS_ICU
-    UResourceBundle* _resbundl;
-#else
+
     void* _resbundl;
-#endif
 
     void _init();
 
     friend class MessageLoader;
+    friend class MessageLoaderICU;
 };
 
 
@@ -253,9 +235,8 @@ public:
     static String getMessage(MessageLoaderParms& parms);
 
     /**
-        Opens a message resource bundle.
-        If this method fails for some reason, it will set parms.resbundl
-        to NO_ICU_MAGIC, and a subsequent call to getMessage2() will
+        Opens a message resource bundle.  If unsuccessful, a subsequent call
+        to getMessage2() with the specified MessageLoaderParms object will
         result in the default message being formatted.
         ATTN: Do we want *real* error codes for this?
         @param parms MessageLoaderParms - controls the behaviour of how a
@@ -285,6 +266,8 @@ public:
 
     static void setPegasusMsgHomeRelative(const String& argv0);
 
+    static String getQualifiedMsgPath(const String& path);
+
     static Boolean _useProcessLocale;
 
     static Boolean _useDefaultMsg;
@@ -295,39 +278,11 @@ private:
 
     static String formatDefaultMessage(MessageLoaderParms& parms);
 
-    static String getQualifiedMsgPath(String path);
-
     static void initPegasusMsgHome(const String& startDir);
 
     static void checkDefaultMsgLoading();
 
     static String pegasus_MSG_HOME;
-
-#ifdef PEGASUS_HAS_ICU
-
-    static void openICUDefaultLocaleMessageFile(
-       const char* resbundl_path_ICU,
-       MessageLoaderParms &parms);
-
-    static void openICUMessageFile(MessageLoaderParms& parms);
-
-    static String extractICUMessage(
-        UResourceBundle* resbundl,
-        MessageLoaderParms& parms);
-
-    static String formatICUMessage(
-        UResourceBundle* resbundl,
-        const UChar* msg,
-        int msg_len,
-        MessageLoaderParms& parms);
-
-    static String uChar2String(UChar* uchar_str);
-
-    static String uChar2String(UChar* uchar_str, int len);
-
-    static void xferFormattable(Formatter::Arg& arg, Formattable& formattable);
-#endif
-
 };
 
 PEGASUS_NAMESPACE_END

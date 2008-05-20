@@ -130,7 +130,7 @@ public:
 
         void appendToString(String& out) const;
 
-        friend class MessageLoader;
+        friend class MessageLoaderICU;
 
     private:
 

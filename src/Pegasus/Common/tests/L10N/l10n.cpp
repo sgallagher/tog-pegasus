@@ -35,18 +35,19 @@
 #include <iostream>
 
 #include <Pegasus/Common/PegasusAssert.h>
-
 #include <Pegasus/Common/AcceptLanguageList.h>
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/LanguageParser.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/ThreadPool.h>
-
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/InternalException.h>
-
 #include <Pegasus/Common/Tracer.h>
+
+#ifdef PEGASUS_HAS_ICU
+# include <unicode/uloc.h>
+#endif
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -548,9 +549,13 @@ void testLanguageTag()
 
 #ifdef PEGASUS_HAS_ICU
 
-void testSUCCESSMessage(MessageLoaderParms &mlp, const char * expectedLanguage,
-    const char * expectedText, const char * expectedNum,
-        char * testSeq, Uint32 testNum)
+void testSUCCESSMessage(
+    MessageLoaderParms& mlp,
+    const char* expectedLanguage,
+    const char* expectedText,
+    const char* expectedNum,
+    const char* testSeq,
+    Uint32 testNum)
 {
     const Uint32 MESSAGE_SIZE = 100;
     char messageText[MESSAGE_SIZE];

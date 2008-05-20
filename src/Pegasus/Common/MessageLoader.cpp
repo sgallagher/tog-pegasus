@@ -40,206 +40,78 @@
 #include <Pegasus/Common/LanguageParser.h>
 #include <iostream>
 
+#ifdef PEGASUS_HAS_ICU
+# include <unicode/uloc.h>
+# include <unicode/ures.h>
+# include <unicode/umsg.h>
+# include <unicode/ucnv.h>
+# include <unicode/fmtable.h>
+# include <unicode/msgfmt.h>
+#endif
+
+#define NO_ICU_MAGIC (void*)0xDEADBEEF
+
 PEGASUS_NAMESPACE_BEGIN
-PEGASUS_USING_STD;
-
-static const int ID_INVALID = -1;
-static const String server_resbundl_name = "pegasus/pegasusServer";
-String MessageLoader::pegasus_MSG_HOME;
-Boolean MessageLoader::_useProcessLocale = false;
-Boolean MessageLoader::_useDefaultMsg = false;
-AcceptLanguageList MessageLoader::_acceptlanguages;
-
-String MessageLoader::getMessage(MessageLoaderParms& parms)
-{
-    PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::getMessage");
-    PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL2, "Message ID = " + parms.msg_id);
-
-    String msg;
-
-    try
-    {
-        openMessageFile(parms);
-        msg = getMessage2(parms);
-        closeMessageFile(parms);
-    }
-    catch (Exception&)
-    {
-        msg = String("AN INTERNAL ERROR OCCURED IN MESSAGELOADER: ").append(
-            parms.default_msg);
-    }
-    PEG_METHOD_EXIT();
-    return msg;
-}
-
-String MessageLoader::getMessage2(MessageLoaderParms& parms)
-{
-    PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::getMessage2");
-    String msg;
-
-    try
-    {
-#if defined (PEGASUS_HAS_MESSAGES) && defined (PEGASUS_HAS_ICU)
-        if (!_useDefaultMsg && (parms._resbundl != NO_ICU_MAGIC))
-        {
-            msg = extractICUMessage(parms._resbundl,parms);
-            if (msg.size() > 0)
-            {
-                PEG_METHOD_EXIT();
-                return msg;
-            }
-        }
-#endif
-        // NOTE: the default message is returned if:
-        // 1) The previous call to openMessageFile() set _useDefaultMsg
-        // 2) parms._resbundl is set to NO_ICU_MAGIC from a previous
-        //    call to openMessageFile() indicating an error
-        //    (including InitializeICU::initICUSuccessful() failed)
-        // 3) Message loading is DISABLED
-        // 4) Did not get a message from ICU
-
-        msg = formatDefaultMessage(parms);
-    }
-    catch (Exception&)
-    {
-        msg = String("AN INTERNAL ERROR OCCURED IN MESSAGELOADER: ").append(
-            parms.default_msg);
-    }
-
-    PEG_METHOD_EXIT();
-    return msg;
-}
-
-void MessageLoader::openMessageFile(MessageLoaderParms& parms)
-{
-    PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::openMessageFile");
-
-    try
-    {
-        parms.contentlanguages.clear();
-
-#if defined (PEGASUS_HAS_MESSAGES) && defined (PEGASUS_HAS_ICU)
-        if (InitializeICU::initICUSuccessful())
-        {
-            openICUMessageFile(parms);
-        }
-        // If initICUSuccessful() has returned false, then
-        // _resbundl is still set to NO_ICU_MAGIC and
-        // subsequent calls to getMessage2 will call
-        // formatDefaultMessage() instead of using ICU.
-#else
-        // Set _resbundl to the "magic number" indicating there is no ICU
-        // resource bundle to use
-        parms._resbundl = NO_ICU_MAGIC;
-#endif
-    }
-    catch (Exception&)
-    {
-        // Set _resbundl to the "magic number" indicating there was trouble
-        // during openICUMessageFile(), so there is no ICU resource bundle
-        // to use.
-        parms._resbundl = NO_ICU_MAGIC;
-    }
-
-    PEG_METHOD_EXIT();
-    return;
-}
-
-void MessageLoader::closeMessageFile(MessageLoaderParms& parms)
-{
-    PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::closeMessageFile");
-
-#if defined (PEGASUS_HAS_MESSAGES) && defined (PEGASUS_HAS_ICU)
-    if (parms._resbundl != NO_ICU_MAGIC)
-    {
-        ures_close(parms._resbundl);
-        parms._resbundl = NO_ICU_MAGIC;
-    }
-#endif
-
-    PEG_METHOD_EXIT();
-    return;
-}
 
 #ifdef PEGASUS_HAS_ICU
 
-void MessageLoader::openICUDefaultLocaleMessageFile(
-    const char* resbundl_path_ICU,
-    MessageLoaderParms &parms)
+///////////////////////////////////////////////////////////////////////////////
+//
+// MessageLoaderICU
+//
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+    Contains ICU-specific message loading logic.
+*/
+class MessageLoaderICU
 {
-    PEGASUS_ASSERT(parms._resbundl == NO_ICU_MAGIC);
+public:
 
-    // UResourceBundle* ures_open(const char* packageName,
-    //     const char* locale, UErrorCode* status)
-    // If locale is NULL, the default locale will be used.  If 
-    // strlen(locale) == 0, the root locale will be used.
+    static void openICUMessageFile(MessageLoaderParms& parms);
 
-    // Open the resource bundle for default locale.
-    UErrorCode status = U_ZERO_ERROR;
-    parms._resbundl = ures_open((const char*)resbundl_path_ICU, NULL, &status);
+    static String extractICUMessage(
+        UResourceBundle* resbundl,
+        MessageLoaderParms& parms);
 
-    if (status == U_USING_FALLBACK_WARNING)
-    {
-        const char * rbLocale = ures_getLocale(parms._resbundl,&status);
-        PEG_TRACE((TRC_L10N, Tracer::LEVEL4,
-            "Requested default locale, fallback locale \"%s\" returned. "
-                "Reverting back to root bundle.", rbLocale));
+private:
 
-        ures_close(parms._resbundl);
-        parms._resbundl = NO_ICU_MAGIC;
+    static void _openICUDefaultLocaleMessageFile(
+        const char* resbundl_path_ICU,
+        MessageLoaderParms& parms);
 
-        UErrorCode status = U_ZERO_ERROR;
-        parms._resbundl = ures_open((const char*)resbundl_path_ICU, "",
-            &status);
-    }
+    static String _formatICUMessage(
+        UResourceBundle* resbundl,
+        const UChar* msg,
+        int msg_len,
+        MessageLoaderParms& parms);
 
-    if (U_SUCCESS(status))
-    {
-        const char * rbLocale = ures_getLocale(parms._resbundl,&status);
-        PEG_TRACE((TRC_L10N, Tracer::LEVEL4,
-            "Requested default locale, using locale \"%s\"", rbLocale));
+    static void _xferFormattable(
+        Formatter::Arg& arg,
+        Formattable& formattable);
+};
 
-        // The "root" locale indicates that an ICU message bundle is not
-        // present for the current locale setting.
-
-        String localeStr(rbLocale);
-        if (localeStr != "root")
-        {
-            parms.contentlanguages.append(LanguageTag(
-                LanguageParser::convertLocaleIdToLanguageTag(localeStr)));
-        }
-    }
-    else
-    {
-        PEG_TRACE((TRC_L10N, Tracer::LEVEL4,
-            "Failed to open resource bundle for default locale or root bundle, "
-                "ICU error = %d", status));
-        parms._resbundl = NO_ICU_MAGIC;
-    }
-    return;
-}
-
-void MessageLoader::openICUMessageFile(MessageLoaderParms &parms)
+void MessageLoaderICU::openICUMessageFile(MessageLoaderParms& parms)
 {
-    PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::openICUMessageFile");
+    PEG_METHOD_ENTER(TRC_L10N, "MessageLoaderICU::openICUMessageFile");
 
     PEGASUS_ASSERT(parms._resbundl == NO_ICU_MAGIC);
 
     // Get the correct path to the resource bundles
-    CString resbundl_path_ICU;
-    resbundl_path_ICU = getQualifiedMsgPath(parms.msg_src_path).getCString();
+    CString resbundl_path_ICU =
+        MessageLoader::getQualifiedMsgPath(parms.msg_src_path).getCString();
     PEG_TRACE((TRC_L10N, Tracer::LEVEL4, "Using resource bundle path: %s",
         (const char *)resbundl_path_ICU));
 
     // The MessageLoader accept language list, _acceptlanguages, takes
     // precedence over the accept language list passed in parms.
     AcceptLanguageList acceptlanguages;
-    acceptlanguages = (_acceptlanguages.size() > 0) ?
-        _acceptlanguages : parms.acceptlanguages;
+    acceptlanguages = (MessageLoader::_acceptlanguages.size() > 0) ?
+        MessageLoader::_acceptlanguages : parms.acceptlanguages;
 
-    if (_useProcessLocale)
+    if (MessageLoader::_useProcessLocale)
     {
-        openICUDefaultLocaleMessageFile(resbundl_path_ICU, parms);
+        _openICUDefaultLocaleMessageFile(resbundl_path_ICU, parms);
         PEG_METHOD_EXIT();
         return;
     }
@@ -251,7 +123,7 @@ void MessageLoader::openICUMessageFile(MessageLoaderParms &parms)
     {
         if (parms.useProcessLocale)
         {
-            openICUDefaultLocaleMessageFile(resbundl_path_ICU, parms);
+            _openICUDefaultLocaleMessageFile(resbundl_path_ICU, parms);
             PEG_METHOD_EXIT();
             return;
         }
@@ -271,14 +143,14 @@ void MessageLoader::openICUMessageFile(MessageLoaderParms &parms)
                  PEG_TRACE_CSTRING(TRC_L10N, Tracer::LEVEL4,
                     "Thread accept language list requested, but empty. "
                         "Attempting to load default message file.");
-                 openICUDefaultLocaleMessageFile(resbundl_path_ICU, parms);
+                 _openICUDefaultLocaleMessageFile(resbundl_path_ICU, parms);
                  PEG_METHOD_EXIT();
                  return;
              }
          }
          else
          {
-             openICUDefaultLocaleMessageFile(resbundl_path_ICU, parms);
+             _openICUDefaultLocaleMessageFile(resbundl_path_ICU, parms);
              PEG_METHOD_EXIT();
              return;
          }
@@ -328,7 +200,8 @@ void MessageLoader::openICUMessageFile(MessageLoaderParms &parms)
                  // Need to close this message file and continue the search
                  // for exact match. 
  
-                 ures_close(parms._resbundl);
+                 ures_close(
+                     reinterpret_cast<UResourceBundle*>(parms._resbundl));
                  parms._resbundl = NO_ICU_MAGIC;
              }
          }
@@ -341,12 +214,12 @@ void MessageLoader::openICUMessageFile(MessageLoaderParms &parms)
     PEG_TRACE_CSTRING(TRC_L10N, Tracer::LEVEL4,
         "Exact match message file NOT FOUND. "
              "Attempting to open default message file bundle."); 
-    openICUDefaultLocaleMessageFile(resbundl_path_ICU, parms);
+    _openICUDefaultLocaleMessageFile(resbundl_path_ICU, parms);
     PEG_METHOD_EXIT();
     return;
 }
 
-String MessageLoader::extractICUMessage(
+String MessageLoaderICU::extractICUMessage(
     UResourceBundle* resbundl,
     MessageLoaderParms& parms)
 {
@@ -361,20 +234,68 @@ String MessageLoader::extractICUMessage(
         return String::EMPTY;
     }
 
-    return formatICUMessage(resbundl, msg, msgLen, parms);
+    return _formatICUMessage(resbundl, msg, msgLen, parms);
 }
 
-String MessageLoader::uChar2String(UChar* uchar_str)
+void MessageLoaderICU::_openICUDefaultLocaleMessageFile(
+    const char* resbundl_path_ICU,
+    MessageLoaderParms& parms)
 {
-    return String((const Char16 *)uchar_str);
+    PEGASUS_ASSERT(parms._resbundl == NO_ICU_MAGIC);
+
+    // UResourceBundle* ures_open(const char* packageName,
+    //     const char* locale, UErrorCode* status)
+    // If locale is NULL, the default locale will be used.  If 
+    // strlen(locale) == 0, the root locale will be used.
+
+    // Open the resource bundle for default locale.
+    UErrorCode status = U_ZERO_ERROR;
+    parms._resbundl = ures_open((const char*)resbundl_path_ICU, NULL, &status);
+
+    if (status == U_USING_FALLBACK_WARNING)
+    {
+        const char* rbLocale = ures_getLocale(
+            reinterpret_cast<UResourceBundle*>(parms._resbundl), &status);
+        PEG_TRACE((TRC_L10N, Tracer::LEVEL4,
+            "Requested default locale, fallback locale \"%s\" returned. "
+                "Reverting back to root bundle.", rbLocale));
+
+        ures_close(reinterpret_cast<UResourceBundle*>(parms._resbundl));
+        parms._resbundl = NO_ICU_MAGIC;
+
+        UErrorCode status = U_ZERO_ERROR;
+        parms._resbundl =
+            ures_open((const char*)resbundl_path_ICU, "", &status);
+    }
+
+    if (U_SUCCESS(status))
+    {
+        const char* rbLocale = ures_getLocale(
+            reinterpret_cast<UResourceBundle*>(parms._resbundl), &status);
+        PEG_TRACE((TRC_L10N, Tracer::LEVEL4,
+            "Requested default locale, using locale \"%s\"", rbLocale));
+
+        // The "root" locale indicates that an ICU message bundle is not
+        // present for the current locale setting.
+
+        String localeStr(rbLocale);
+        if (localeStr != "root")
+        {
+            parms.contentlanguages.append(LanguageTag(
+                LanguageParser::convertLocaleIdToLanguageTag(localeStr)));
+        }
+    }
+    else
+    {
+        PEG_TRACE((TRC_L10N, Tracer::LEVEL4,
+            "Failed to open resource bundle for default locale or root bundle, "
+                "ICU error = %d", status));
+        parms._resbundl = NO_ICU_MAGIC;
+    }
+    return;
 }
 
-String MessageLoader::uChar2String(UChar* uchar_str, int len)
-{
-    return String((const Char16 *)uchar_str, len);
-}
-
-String MessageLoader::formatICUMessage(
+String MessageLoaderICU::_formatICUMessage(
     UResourceBundle* resbundl,
     const UChar* msg,
     int msg_len,
@@ -385,11 +306,11 @@ String MessageLoader::formatICUMessage(
     UnicodeString msg_formatted;
     UErrorCode status = U_ZERO_ERROR;
     const int arg_count = 10;
-    const char *locale;
+    const char* locale;
     if (resbundl == NULL)
-         locale = ULOC_US;
+        locale = ULOC_US;
     else
-         locale = ures_getLocale(resbundl, &status);
+        locale = ures_getLocale(resbundl, &status);
 
     char lang[4];
     char cc[4];
@@ -405,39 +326,38 @@ String MessageLoader::formatICUMessage(
     Formattable args[arg_count];
 
     if (parms.arg0._type != Formatter::Arg::VOIDT)
-        xferFormattable(parms.arg0, args[0]);
+        _xferFormattable(parms.arg0, args[0]);
     if (parms.arg1._type != Formatter::Arg::VOIDT)
-        xferFormattable(parms.arg1, args[1]);
+        _xferFormattable(parms.arg1, args[1]);
     if (parms.arg2._type != Formatter::Arg::VOIDT)
-        xferFormattable(parms.arg2, args[2]);
+        _xferFormattable(parms.arg2, args[2]);
     if (parms.arg3._type != Formatter::Arg::VOIDT)
-        xferFormattable(parms.arg3, args[3]);
+        _xferFormattable(parms.arg3, args[3]);
     if (parms.arg4._type != Formatter::Arg::VOIDT)
-        xferFormattable(parms.arg4, args[4]);
+        _xferFormattable(parms.arg4, args[4]);
     if (parms.arg5._type != Formatter::Arg::VOIDT)
-        xferFormattable(parms.arg5, args[5]);
+        _xferFormattable(parms.arg5, args[5]);
     if (parms.arg6._type != Formatter::Arg::VOIDT)
-        xferFormattable(parms.arg6, args[6]);
+        _xferFormattable(parms.arg6, args[6]);
     if (parms.arg7._type != Formatter::Arg::VOIDT)
-        xferFormattable(parms.arg7, args[7]);
+        _xferFormattable(parms.arg7, args[7]);
     if (parms.arg8._type != Formatter::Arg::VOIDT)
-        xferFormattable(parms.arg8, args[8]);
+        _xferFormattable(parms.arg8, args[8]);
     if (parms.arg9._type != Formatter::Arg::VOIDT)
-        xferFormattable(parms.arg9, args[9]);
+        _xferFormattable(parms.arg9, args[9]);
 
-    Formattable args_obj(args,arg_count);
+    Formattable args_obj(args, arg_count);
     status = U_ZERO_ERROR;
     msg_formatted = formatter.format(args_obj, msg_formatted, status);
 
-    return uChar2String(
-        const_cast<UChar*>(msg_formatted.getBuffer()), msg_formatted.length());
+    return String(
+        (const Char16*)msg_formatted.getBuffer(),  msg_formatted.length());
 }
 
-void MessageLoader::xferFormattable(
+void MessageLoaderICU::_xferFormattable(
     Formatter::Arg &arg,
     Formattable& formattable)
 {
-    //cout << "arg" << " = " << arg.toString() << endl;
     switch (arg._type)
     {
         case Formatter::Arg::INTEGER:
@@ -495,6 +415,131 @@ void MessageLoader::xferFormattable(
 
 #endif
 
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// MessageLoader
+//
+///////////////////////////////////////////////////////////////////////////////
+
+static const String server_resbundl_name = "pegasus/pegasusServer";
+String MessageLoader::pegasus_MSG_HOME;
+Boolean MessageLoader::_useProcessLocale = false;
+Boolean MessageLoader::_useDefaultMsg = false;
+AcceptLanguageList MessageLoader::_acceptlanguages;
+
+String MessageLoader::getMessage(MessageLoaderParms& parms)
+{
+    PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::getMessage");
+    PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL2, "Message ID = " + parms.msg_id);
+
+    String msg;
+
+    try
+    {
+        openMessageFile(parms);
+        msg = getMessage2(parms);
+        closeMessageFile(parms);
+    }
+    catch (Exception&)
+    {
+        msg = String("AN INTERNAL ERROR OCCURED IN MESSAGELOADER: ").append(
+            parms.default_msg);
+    }
+    PEG_METHOD_EXIT();
+    return msg;
+}
+
+String MessageLoader::getMessage2(MessageLoaderParms& parms)
+{
+    PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::getMessage2");
+    String msg;
+
+    try
+    {
+#if defined (PEGASUS_HAS_MESSAGES) && defined (PEGASUS_HAS_ICU)
+        if (!_useDefaultMsg && (parms._resbundl != NO_ICU_MAGIC))
+        {
+            msg = MessageLoaderICU::extractICUMessage(
+                reinterpret_cast<UResourceBundle*>(parms._resbundl), parms);
+            if (msg.size() > 0)
+            {
+                PEG_METHOD_EXIT();
+                return msg;
+            }
+        }
+#endif
+        // NOTE: the default message is returned if:
+        // 1) The previous call to openMessageFile() set _useDefaultMsg
+        // 2) parms._resbundl is set to NO_ICU_MAGIC from a previous
+        //    call to openMessageFile() indicating an error
+        //    (including InitializeICU::initICUSuccessful() failed)
+        // 3) Message loading is DISABLED
+        // 4) Did not get a message from ICU
+
+        msg = formatDefaultMessage(parms);
+    }
+    catch (Exception&)
+    {
+        msg = String("AN INTERNAL ERROR OCCURED IN MESSAGELOADER: ").append(
+            parms.default_msg);
+    }
+
+    PEG_METHOD_EXIT();
+    return msg;
+}
+
+void MessageLoader::openMessageFile(MessageLoaderParms& parms)
+{
+    PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::openMessageFile");
+
+    try
+    {
+        parms.contentlanguages.clear();
+
+#if defined (PEGASUS_HAS_MESSAGES) && defined (PEGASUS_HAS_ICU)
+        if (InitializeICU::initICUSuccessful())
+        {
+            MessageLoaderICU::openICUMessageFile(parms);
+        }
+        // If initICUSuccessful() has returned false, then
+        // _resbundl is still set to NO_ICU_MAGIC and
+        // subsequent calls to getMessage2 will call
+        // formatDefaultMessage() instead of using ICU.
+#else
+        // Set _resbundl to the "magic number" indicating there is no ICU
+        // resource bundle to use
+        parms._resbundl = NO_ICU_MAGIC;
+#endif
+    }
+    catch (Exception&)
+    {
+        // Set _resbundl to the "magic number" indicating there was trouble
+        // during openICUMessageFile(), so there is no ICU resource bundle
+        // to use.
+        parms._resbundl = NO_ICU_MAGIC;
+    }
+
+    PEG_METHOD_EXIT();
+    return;
+}
+
+void MessageLoader::closeMessageFile(MessageLoaderParms& parms)
+{
+    PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::closeMessageFile");
+
+#if defined (PEGASUS_HAS_MESSAGES) && defined (PEGASUS_HAS_ICU)
+    if (parms._resbundl != NO_ICU_MAGIC)
+    {
+        ures_close(reinterpret_cast<UResourceBundle*>(parms._resbundl));
+        parms._resbundl = NO_ICU_MAGIC;
+    }
+#endif
+
+    PEG_METHOD_EXIT();
+    return;
+}
+
 String MessageLoader::formatDefaultMessage(MessageLoaderParms& parms)
 {
     PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::formatDefaultMessage");
@@ -523,7 +568,7 @@ String MessageLoader::formatDefaultMessage(MessageLoaderParms& parms)
         parms.arg9);
 }
 
-String MessageLoader::getQualifiedMsgPath(String path)
+String MessageLoader::getQualifiedMsgPath(const String& path)
 {
     PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::getQualifiedMsgPath");
 
@@ -536,13 +581,8 @@ String MessageLoader::getQualifiedMsgPath(String path)
         return pegasus_MSG_HOME + server_resbundl_name;
     }
 
-    // NOTE TO PROGRAMMERS: WINDOWS and non-UNIX platforms should
-    // redefine delim here
-    Char16 delim = '/';
-    Uint32 i;
-    if ((i = path.find(delim)) != PEG_NOT_FOUND && i == 0)
+    if (System::is_absolute_path(path.getCString()))
     {
-        // fully qualified package name
         PEG_METHOD_EXIT();
         return path;
     }

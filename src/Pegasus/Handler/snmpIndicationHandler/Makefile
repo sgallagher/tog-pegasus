@@ -41,10 +41,11 @@ endif
 LOCAL_DEFINES = -DPEGASUS_HANDLER_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARIES = \
-    pegcommon \
-    pegconfig \
     peggetoopt \
-    pegclient
+    pegrepository \
+    pegclient \
+    pegconfig \
+    pegcommon
 
 SOURCES = snmpIndicationHandler.cpp
 

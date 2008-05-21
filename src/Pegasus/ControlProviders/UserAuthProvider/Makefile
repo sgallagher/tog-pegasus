@@ -41,14 +41,15 @@ STATIC=1
 LIBRARY = UserAuthProvider
 
 LIBRARIES = \
-    pegcommon \
+    pegprovider \
     peguser \
-    pegprovider
+    pegrepository \
+    pegcommon
 
 SOURCES = UserAuthProvider.cpp
 
 ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
-NEEDS_LIBRARIES = -L$(LIB_DIR) -lpegcommon -lpeguser -lpegprovider
+NEEDS_LIBRARIES = -L$(LIB_DIR) -lpegcommon -lpeguser -lpegprovider -lpegrepository
 endif
 
 include $(ROOT)/mak/library.mak

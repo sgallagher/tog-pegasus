@@ -43,9 +43,11 @@ STATIC=1
 LIBRARY = NamespaceProvider
 
 LIBRARIES = \
-    pegcommon \
+    pegprovider \
+    pegrepository \
     pegconfig \
-    pegprovider
+    pegcommon \
+    pegconfig
 
 SOURCES = $(MODULE_NAME).cpp
 

@@ -43,9 +43,10 @@ STATIC=1
 LIBRARY = $(MODULE_NAME)
 
 LIBRARIES = \
-    pegcommon \
+    pegrepository \
+    pegprovider \
     pegconfig \
-    pegprovider
+    pegcommon
 
 SOURCES = \
     ElementConformsToProfile.cpp \
@@ -62,7 +63,7 @@ SOURCES = \
     
 
 ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
-NEEDS_LIBRARIES = -L$(LIB_DIR) -lpegcommon -lpegconfig -lpegprovider
+NEEDS_LIBRARIES = -L$(LIB_DIR) -lpegcommon -lpegconfig -lpegprovider -lpegrepository
 endif
 
 ifeq ($(OS_TYPE),windows)

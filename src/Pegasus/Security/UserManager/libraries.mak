@@ -31,5 +31,6 @@
 ROOT = ../../../..
 
 LIBRARIES = \
-    pegcommon \
-    pegconfig 
+    pegrepository \
+    pegconfig \
+    pegcommon

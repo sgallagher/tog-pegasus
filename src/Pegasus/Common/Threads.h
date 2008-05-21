@@ -42,6 +42,9 @@
 
 // ATTN: can we consolidate these someplace?
 
+#ifdef PEGASUS_OS_ZOS
+# include <sched.h>
+#endif
 #if defined(PEGASUS_HAVE_PTHREADS)
 # include <pthread.h>
 # include <errno.h>

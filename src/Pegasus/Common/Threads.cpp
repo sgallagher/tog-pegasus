@@ -40,6 +40,9 @@
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include <sys/timeb.h>
 #endif
+#if defined(PEGASUS_OS_ZOS)
+# include <unistd.h>
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 

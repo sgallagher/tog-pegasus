@@ -37,19 +37,6 @@
 // added for Native ASCII Support
 #pragma runopts("FILETAG(AUTOCVT,AUTOTAG)")
 
-#include <sched.h>
-// include here to avoid redefinition from below
-#include <pthread.h>
-
-#ifdef __cplusplus
-#include <cstddef>
-#endif
-
-#include <stdarg.h>
-#include <stdio.h>
-// usleep() function in Threads.h
-#include <unistd.h>
-
 #define PEGASUS_OS_TYPE_UNIX
 
 #define PEGASUS_OS_ZOS
@@ -74,7 +61,6 @@
 
 #define PEGASUS_NO_PASSWORDFILE
 
-
 //#define snprintf(sptr,len,form,data) sprintf(sptr,form,data)
 
 #define ZOS_SECURITY_NAME "CIMServer Security"
@@ -84,25 +70,5 @@
 #define PEGASUS_HAVE_BROKEN_GLOBAL_CONSTRUCTION
 
 #define PEGASUS_HAVE_PTHREADS
-
-// use the NON-POSIX conform interface version if required
-// to avoid lots of ifdefs for z/OS
-#define pthread_getspecific(x) pthread_getspecific_d8_np(x);
-
-#ifndef _CMPIR_PROXY_PROVIDER_H_
-// use my own snprintf implementation using sprintf mapping
-// until the Java SDK is fixed to work with _ISOC99_SOURCE
-// ATTN: a local definition of _ISOC99_SOURCE resides in
-//       TraceLogHandler.cpp
-inline int snprintf(char *sptr, size_t len, const char* form, ...)
-{
-    int returnvalue;
-    va_list arguments;
-    va_start(arguments, form);
-    returnvalue = vsprintf(sptr, form, arguments);
-    va_end(arguments);
-    return returnvalue;
-}
-#endif
 
 #endif /* Pegasus_Platform_ZOS_ZSERIES_IBM_h */

@@ -93,7 +93,11 @@ inline Uint32 TSDKey::destroy(TSDKeyType key)
 
 inline void * TSDKey::get_thread_specific(TSDKeyType key)
 {
+#ifdef PEGASUS_OS_ZOS
+    return pthread_getspecific_d8_np(key);
+#else
     return pthread_getspecific(key);
+#endif
 } 
 
 inline Uint32 TSDKey::set_thread_specific(TSDKeyType key, void* value)

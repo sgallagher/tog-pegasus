@@ -35,6 +35,8 @@
 
 #include <ctest.h>
 #include <signal.h>
+#include <unistd.h>
+#include <stdio.h>
 
 /* 
    This function is executing a number of assertaion task. 

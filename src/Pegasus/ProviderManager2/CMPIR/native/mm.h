@@ -43,6 +43,10 @@
 
 # include "cmpir_common.h"
 
+#ifdef PEGASUS_OS_ZOS
+# include <stddef.h>
+#endif
+
 //! States cloned objects, i.e. memory that is not being tracked.
 # define TOOL_MM_NO_ADD 0
 

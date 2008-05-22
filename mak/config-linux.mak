@@ -146,51 +146,20 @@ ifndef PEGASUS_USE_MU_DEPEND
 PEGASUS_HAS_MAKEDEPEND = yes
 endif
 
-# l10n
 ifdef PEGASUS_HAS_MESSAGES
-  DEFINES += -DPEGASUS_HAS_MESSAGES
-  ifeq ($(PEGASUS_HAS_ICU), true)
+    ifeq ($(PEGASUS_HAS_ICU), true)
         MSG_COMPILE = genrb
         MSG_FLAGS =
         MSG_SOURCE_EXT = .txt
         MSG_COMPILE_EXT = .res
         CNV_ROOT_CMD = $(BIN_DIR)/cnv2rootbundle
 
-##################################
-##
-## ICU_NO_UPPERCASE_ROOT if set, specifies NOT to uppercase the root resource bundle,
-## default is to uppercase the root resource bundle##
-##################################
-
-ifdef ICU_NO_UPPERCASE_ROOT
-  CNV_ROOT_FLAGS = 
-else
-  CNV_ROOT_FLAGS = -u
-endif
-
-####################################
-##
-##   ICU_ROOT_BUNDLE_LANG if set, specifies the language that the root resource bundle will be generated from
-##   defaults to _en if not set.  if set, for any directory containing resource bundles,
-##   there must exist a file name: package(the value of ICU_ROOT_BUNDLE_LANG).txt or the make messages target will fail
-##
-####################################
-
-ifdef ICU_ROOT_BUNDLE_LANG
-  MSG_ROOT_SOURCE = $(ICU_ROOT_BUNDLE_LANG)
-else
-  MSG_ROOT_SOURCE = _en
-endif
-
-    ifdef ICU_ROOT
-      SYS_INCLUDES += -I${ICU_ROOT}/source/common -I${ICU_ROOT}/source/i18n
+        ifdef ICU_INSTALL
+            SYS_INCLUDES += -I${ICU_INSTALL}/include
+            EXTRA_LIBRARIES += -L$(ICU_INSTALL)/lib
+        endif
+        EXTRA_LIBRARIES += -licuuc -licui18n -licudata
     endif
-    DEFINES += -DPEGASUS_HAS_ICU
-    ifdef ICU_INSTALL
-      EXTRA_LIBRARIES += -L$(ICU_INSTALL)/lib
-    endif
-    EXTRA_LIBRARIES += -licuuc -licui18n -licudata
-  endif
 endif
 
 ##==============================================================================

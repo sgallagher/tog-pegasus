@@ -57,55 +57,6 @@ else
     $(error PEGASUS_ROOT environment variable undefined)
 endif
 
-############################################################################
-# OpenPegasus relies on the existence of an external set of libraries to  
-# support localized messages.  Today, the only supported package is
-# the International Components for Unicode (ICU) OSS project,
-# http://oss.software.ibm.com/icu.  If PEGASUS_HAS_ICU is true,
-# OpenPegasus will use the ICU library.
-#
-# ICU_ROOT points to the root directory of the ICU source tree.  If set,
-# the OpenPegasus build will use this variable to locate the ICU include 
-# files. If not set, the ICU include files are expected to be installed
-# in directories that are searched by default.
-#
-# ICU_INSTALL points to the directory containing the ICU libraries.
-# If set, the OpenPegasus will use this variable to locate the ICU
-# libraries.  If not set, the ICU libraries are expected to be installed
-# in a directory that is searched by default.
-#
-# If PEGASUS_HAS_ICU is not set and either ICU_ROOT or ICU_INSTALL is
-# set, the value of PEGASUS_HAS_ICU will be set to true. 
-############################################################################
-ifdef PEGASUS_HAS_ICU
-    ifneq ($(PEGASUS_HAS_ICU),true)
-        ifneq ($(PEGASUS_HAS_ICU),false)
-            $(error PEGASUS_HAS_ICU ($(PEGASUS_HAS_ICU)) \
-                invalid, must be true or false)
-        endif
-    endif
-else
-    ifdef ICU_ROOT 
-        PEGASUS_HAS_ICU = true
-    else
-        ifdef ICU_INSTALL
-            PEGASUS_HAS_ICU = true
-        endif 
-    endif
-endif
-
-ifdef PEGASUS_HAS_MESSAGES
-    ifneq ($(PEGASUS_HAS_ICU),true)
-        $(error Support for localized messages in OpenPegasus \
-            requires PEGASUS_HAS_ICU to be true)
-    endif
-endif
-
-# l10n
-ifdef ICU_ROOT
-    ICUROOT =  $(subst \,/,$(ICU_ROOT))
-endif
-
 ifdef PEGASUS_TMP
     TMP_DIR = $(subst \,/,$(PEGASUS_TMP))
 else
@@ -378,6 +329,76 @@ endif
 ##
 ################################################################################
 
+############################################################################
+# OpenPegasus relies on the existence of an external set of libraries to  
+# support localized messages.  Today, the only supported package is
+# the International Components for Unicode (ICU) OSS project,
+# http://oss.software.ibm.com/icu.  If PEGASUS_HAS_ICU is true,
+# OpenPegasus will use the ICU library.
+#
+# ICU_INSTALL points to the directory containing the ICU installation.
+# If set, the OpenPegasus will use this variable to locate the ICU
+# include files and libraries.  If not set, the ICU libraries are expected
+# to be installed in a directory that is searched by default.
+#
+# If PEGASUS_HAS_ICU is not set and ICU_INSTALL is set, the value of
+# PEGASUS_HAS_ICU will be set to true.
+############################################################################
+
+ifdef PEGASUS_HAS_ICU
+    ifneq ($(PEGASUS_HAS_ICU),true)
+        ifneq ($(PEGASUS_HAS_ICU),false)
+            $(error PEGASUS_HAS_ICU ($(PEGASUS_HAS_ICU)) \
+                invalid, must be true or false)
+        endif
+    endif
+else
+    ifdef ICU_INSTALL
+        PEGASUS_HAS_ICU = true
+    endif
+endif
+
+ifdef PEGASUS_HAS_MESSAGES
+    DEFINES += -DPEGASUS_HAS_MESSAGES
+
+    ifneq ($(PEGASUS_HAS_ICU),true)
+        $(error Support for localized messages in OpenPegasus \
+            requires PEGASUS_HAS_ICU to be true)
+    endif
+endif
+
+ifeq ($(PEGASUS_HAS_ICU),true)
+    DEFINES += -DPEGASUS_HAS_ICU
+
+    ##################################
+    ##
+    ## ICU_NO_UPPERCASE_ROOT if set, specifies NOT to uppercase the root
+    ## resource bundle, default is to uppercase the root resource bundle
+    ##
+    ##################################
+
+    ifdef ICU_NO_UPPERCASE_ROOT
+        CNV_ROOT_FLAGS =
+    else
+        CNV_ROOT_FLAGS = -u
+    endif
+
+    ####################################
+    ##
+    ## ICU_ROOT_BUNDLE_LANG if set, specifies the language that the root
+    ## resource bundle will be generated from.  Defaults to _en if not set.
+    ## If set, for any directory containing resource bundles, there must
+    ## exist a file name:  package($ICU_ROOT_BUNDLE_LANG).txt or the make
+    ## messages target will fail.
+    ##
+    ####################################
+
+    ifdef ICU_ROOT_BUNDLE_LANG
+        MSG_ROOT_SOURCE = $(ICU_ROOT_BUNDLE_LANG)
+    else
+        MSG_ROOT_SOURCE = _en
+    endif
+endif
 
 ################################################################################
 ##

@@ -79,7 +79,7 @@ ifdef PEGASUS_ZOS_TARGET_LEVEL
        FLAGS += -W "c,TARGET($(PEGASUS_ZOS_TARGET_LEVEL))"
     PR_FLAGS += -W "c,TARGET($(PEGASUS_ZOS_TARGET_LEVEL))"
 endif
-							     
+
 ifdef PEGASUS_ZOS_SECURITY
   DEFINES += -DPEGASUS_ZOS_SECURITY
 endif
@@ -128,54 +128,18 @@ LIB_SUFFIX = .so
 PEGASUS_SUPPORTS_DYNLIB = yes
 
 PEGASUS_HAS_MAKEDEPEND = yes
-# l10n
+
 ifdef PEGASUS_HAS_MESSAGES
-  DEFINES += -DPEGASUS_HAS_MESSAGES
-  ifdef ICU_ROOT
-        ifdef ICU_INSTALL
-          MSG_COMPILE = ${ICU_INSTALL}/bin/genrb
-        else
-          MSG_COMPILE = ${ICU_ROOT}/bin/genrb
-        endif
+    ifeq ($(PEGASUS_HAS_ICU),true)
+        MSG_COMPILE = ${ICU_INSTALL}/bin/genrb
         MSG_FLAGS =
         MSG_SOURCE_EXT = .txt
         MSG_COMPILE_EXT = .res
         CNV_ROOT_CMD = cnv2rootbundle
 
-##################################
-##
-## ICU_NO_UPPERCASE_ROOT if set, specifies NOT to uppercase the root
-## resource bundle, default is to uppercase the root resource bundle
-##
-##################################
-
-        ifdef ICU_NO_UPPERCASE_ROOT
-          CNV_ROOT_FLAGS =
-        else
-          CNV_ROOT_FLAGS = -u
-        endif
-
-####################################
-##
-## ICU_ROOT_BUNDLE_LANG if set, specifies the language that the root resource
-## bundle will be generated from defaults to _en if not set.  if set, for
-## any directory containing resource bundles, there must exist a file name:
-## package(the value of ICU_ROOT_BUNDLE_LANG).txt or the make messages
-## target will fail
-##
-####################################
-
-        ifdef ICU_ROOT_BUNDLE_LANG
-          MSG_ROOT_SOURCE = $(ICU_ROOT_BUNDLE_LANG)
-        else
-          MSG_ROOT_SOURCE = _en
-        endif
         SYS_INCLUDES += -I${ICU_INSTALL}/include
-        DEFINES += -DPEGASUS_HAS_ICU
-        ifdef ICU_INSTALL
-	  FLAGS+ = -L${ICU_INSTALL}/lib
-	  PR_FLAGS += -L${ICU_INSTALL}/lib
-          EXTRA_LIBRARIES += ${ICU_INSTALL}/lib/libicui18n.x ${ICU_INSTALL}/lib/libicuuc.x
-        endif
-  endif
+        FLAGS += -L${ICU_INSTALL}/lib
+        PR_FLAGS += -L${ICU_INSTALL}/lib
+        EXTRA_LIBRARIES += ${ICU_INSTALL}/lib/libicui18n.x ${ICU_INSTALL}/lib/libicuuc.x
+    endif
 endif

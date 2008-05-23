@@ -46,10 +46,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-static const char UNSUPPORTED_INTERFACE_TYPE_KEY [] =
-    "ProviderManager.BasicProviderManagerRouter.UNSUPPORTED_INTERFACE_TYPE";
-static const char UNSUPPORTED_INTERFACE_TYPE [] =
-    "Unsupported InterfaceType \"$0\" in ProviderModule \"$1\".";
 
 class ProviderManagerContainer
 {
@@ -394,11 +390,6 @@ ProviderManager* BasicProviderManagerRouter::_getProviderManager(
             return pm;
         }
 
-        // ATTN: this section is a temporary solution to populate the list of
-        // enabled provider managers for a given distribution.  It includes
-        // another temporary solution for converting a generic file name into
-        // a file name useable by each platform.
-
         // The DefaultProviderManager is now statically linked rather than
         // dynamically loaded. This code is no longer used but remains for
         // reference purposes.
@@ -415,16 +406,11 @@ ProviderManager* BasicProviderManagerRouter::_getProviderManager(
                 _subscriptionInitComplete,
                 pm);
             _providerManagerTable.append(pmc);
+            PEG_METHOD_EXIT();
             return pmc->getProviderManager();
         }
 #endif
 
-        // re ATTN note above:  This has been refactored to now read in all
-        // provider managers from known directory.
-        // This allows a new provider manager type to be dropped in 
-        // (plugin-style)
-        // into this directory to start handling a new provider manager 
-        // interface
         ProviderManagerContainer* pmc = new ProviderManagerContainer(
             providerManagerPath,
             interfaceType,
@@ -433,26 +419,10 @@ ProviderManager* BasicProviderManagerRouter::_getProviderManager(
             _responseChunkCallback,
             _subscriptionInitComplete);
         _providerManagerTable.append(pmc);
+        PEG_METHOD_EXIT();
         return pmc->getProviderManager();
-
-        // END TEMP SECTION
     }
 
-    // Error: ProviderManager not found for the specified interface type
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-      "Failed to get ProviderManager for interface type\"" 
-                   + interfaceType + "\".");
-
-    Logger::put_l(
-        Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-        UNSUPPORTED_INTERFACE_TYPE_KEY,
-        UNSUPPORTED_INTERFACE_TYPE, interfaceType, providerModuleName);
-
-    PEG_METHOD_EXIT();
-
-    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
-          UNSUPPORTED_INTERFACE_TYPE_KEY,
-          UNSUPPORTED_INTERFACE_TYPE, interfaceType, providerModuleName));
 }
 
 // NOTE: The caller must lock _providerManagerTableLock before calling this

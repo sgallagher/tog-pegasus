@@ -6283,11 +6283,10 @@ CIM server listening on HTTPS port {0}."}
         ProviderManager.BasicProviderManagerRouter.PROVIDERMANAGER_LOAD_FAILED:string {"PGS16800: Failed to load the Provider Manager for interface type \"{0}\" from library \"{1}\"."}
 
         /**
-        * @note  PGS16801
-        *    Substitution {0} is a string ID for a provider interface type.
-        *    Substitution {1} is a string name of ProviderModule.
+        *   This message is no longer used as of version 2.8.0
         */
         ProviderManager.BasicProviderManagerRouter.UNSUPPORTED_INTERFACE_TYPE:string {"PGS16801: Unsupported InterfaceType \"{0}\" in ProviderModule \"{1}\"."}
+
         // ==========================================================
         // Messages for src.Service.ServerProcessUnix
         //  Please use message prefix "PGS17000"

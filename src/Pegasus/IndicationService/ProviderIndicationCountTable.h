@@ -109,8 +109,8 @@ public:
         Gets the provider module name and provider name from a PG_Provider
         instance.
 
-        @param providerInstance A PG_Provider instance for which to retrieve
-            the name.
+        @param providerInstance A PG_Provider instance for which to retrieve 
+            the provider module name and the provider name.
         @param providerModuleName Output String containing the provider module
             name.
         @param providerName Output String containing the provider name.
@@ -121,6 +121,27 @@ public:
         String& providerName);
 
     Array<CIMInstance> enumerateProviderIndicationDataInstances();
+
+    /** 
+        Enumerates PG_ProviderIndicationData instance names using the data
+        stored in the Provider Indication Count table. 
+
+        @return All the PG_ProviderIndicationData instanceName.
+    */
+    Array<CIMObjectPath> enumerateProviderIndicationDataInstanceNames();
+
+    /**
+        Gets the Provider Indication Data instance for the specified CIM 
+        object path.
+
+        @param instanceName CIMObjectPath specifies a CIM instance to be 
+            returned 
+        @return The specified PG_ProviderIndicationData instance.
+        @exception CIMObjectNotFoundException If the specified instance does 
+            not exist
+    */
+    CIMInstance getProviderIndicationDataInstance(
+        const CIMObjectPath& instanceName);
 
 private:
 
@@ -155,6 +176,28 @@ private:
         @return A complete list of ProviderIndicationCountTableEntry objects.
     */
     Array<_ProviderIndicationCountTableEntry> _getAllEntries();
+
+    /**
+        Builds the provider indication data instance object path by using the 
+            specified provider indication count table entry.
+
+        @param providerIndCountTableEntry The provider indication count table
+            entry used to build the provider indication data instance name.
+        @return The created provider indication data instance object path.
+    */
+    CIMObjectPath _buildProviderIndDataInstanceName(
+        const _ProviderIndicationCountTableEntry& providerIndCountTableEntry);
+
+    /**
+        Builds the provider indication data instance by using the 
+            specified provider indication count table entry.
+
+        @param providerIndCountTableEntry The provider indication count table
+            entry used to build the provider indication data instance.
+        @return The created provider indication data instance
+    */
+    CIMInstance _buildProviderIndDataInstance(
+        const _ProviderIndicationCountTableEntry& providerIndCountTableEntry);
 
     /**
         Hash function used in _ProviderIndicationCountTable.  The algorithm is

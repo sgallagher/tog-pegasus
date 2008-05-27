@@ -257,25 +257,137 @@ Array<CIMInstance>
 
     for (Uint32 i = 0; i < indicationCountEntries.size(); i++)
     {
-        CIMInstance providerIndDataInstance(PEGASUS_CLASSNAME_PROVIDERINDDATA);
-        providerIndDataInstance.addProperty(CIMProperty(
-            CIMName("ProviderModuleName"),
-            indicationCountEntries[i].providerModuleName));
-        providerIndDataInstance.addProperty(CIMProperty(
-            CIMName("ProviderName"),
-            indicationCountEntries[i].providerName));
-        providerIndDataInstance.addProperty(CIMProperty(
-            CIMName("IndicationCount"),
-            indicationCountEntries[i].indicationCount));
-        providerIndDataInstance.addProperty(CIMProperty(
-            CIMName("OrphanIndicationCount"),
-            indicationCountEntries[i].orphanIndicationCount));
-
+        CIMInstance providerIndDataInstance = _buildProviderIndDataInstance(
+            indicationCountEntries[i]);
         instances.append(providerIndDataInstance);
     }
 
     PEG_METHOD_EXIT();
     return instances;
+}
+
+Array<CIMObjectPath>
+    ProviderIndicationCountTable::enumerateProviderIndicationDataInstanceNames()
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "ProviderIndicationCountTable::"
+            "enumerateProviderIndicationDataInstanceNames");
+
+    Array<CIMObjectPath> instanceNames;
+
+    //
+    // get entire provider indication count table entries
+    //
+    Array<_ProviderIndicationCountTableEntry> indicationCountEntries =
+        _getAllEntries();
+
+    for (Uint32 i = 0; i < indicationCountEntries.size(); i++)
+    {
+        CIMObjectPath path = _buildProviderIndDataInstanceName(
+            indicationCountEntries[i]);
+
+        instanceNames.append(path);
+    }
+
+    PEG_METHOD_EXIT();
+    return instanceNames;
+}
+
+CIMInstance ProviderIndicationCountTable::getProviderIndicationDataInstance(
+    const CIMObjectPath& instanceName)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "ProviderIndicationCountTable::getProviderIndicationDataInstance");
+
+    //
+    // Gets provider module name and provider name from the provider indication
+    // data instance object path
+    //
+    String providerModuleName;
+    String providerName;
+    Array<CIMKeyBinding> keys = instanceName.getKeyBindings();
+
+    for (Uint32 i = 0; i < keys.size(); i++)
+    {
+        if (keys[i].getName() == _PROPERTY_PROVIDERNAME)
+        {
+            providerName = keys[i].getValue();
+        }
+        else if (keys[i].getName() == _PROPERTY_PROVIDERMODULENAME)
+        {
+            providerModuleName = keys[i].getValue();
+        }
+    }
+
+    String providerKey = _generateKey(providerModuleName, providerName); 
+
+    _ProviderIndicationCountTableEntry entry;
+
+    WriteLock lock(_tableLock);
+
+    if (_table.lookup(providerKey, entry))
+    {
+        CIMInstance providerIndDataInstance = 
+            _buildProviderIndDataInstance(entry);
+
+        PEG_METHOD_EXIT();
+        return providerIndDataInstance;
+    }
+
+    PEG_METHOD_EXIT();
+    throw CIMObjectNotFoundException(instanceName.toString());
+}
+
+CIMObjectPath ProviderIndicationCountTable::_buildProviderIndDataInstanceName(
+    const _ProviderIndicationCountTableEntry& indicationCountEntry)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "ProviderIndicationCountTable::_buildProviderIndDataInstanceName");
+
+    CIMObjectPath instanceName;
+    Array<CIMKeyBinding> keyBindings;
+    keyBindings.append(CIMKeyBinding(
+        "ProviderModuleName",
+        indicationCountEntry.providerModuleName,
+        CIMKeyBinding::STRING));
+    keyBindings.append(CIMKeyBinding(
+        "ProviderName",
+        indicationCountEntry.providerName,
+        CIMKeyBinding::STRING));
+
+    instanceName.setClassName(PEGASUS_CLASSNAME_PROVIDERINDDATA);
+    instanceName.setKeyBindings(keyBindings);
+
+    PEG_METHOD_EXIT();
+    return instanceName;
+}
+
+CIMInstance ProviderIndicationCountTable::_buildProviderIndDataInstance(
+    const _ProviderIndicationCountTableEntry& indicationCountEntry)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "ProviderIndicationCountTable::_buildProviderIndDataInstance");
+
+    CIMInstance providerIndDataInstance(PEGASUS_CLASSNAME_PROVIDERINDDATA);
+    providerIndDataInstance.addProperty(CIMProperty(
+        CIMName("ProviderModuleName"),
+        indicationCountEntry.providerModuleName));
+    providerIndDataInstance.addProperty(CIMProperty(
+        CIMName("ProviderName"),
+        indicationCountEntry.providerName));
+    providerIndDataInstance.addProperty(CIMProperty(
+        CIMName("IndicationCount"),
+        indicationCountEntry.indicationCount));
+    providerIndDataInstance.addProperty(CIMProperty(
+        CIMName("OrphanIndicationCount"),
+        indicationCountEntry.orphanIndicationCount));
+
+    CIMObjectPath path = _buildProviderIndDataInstanceName(
+        indicationCountEntry);
+    providerIndDataInstance.setPath(path);
+
+    PEG_METHOD_EXIT();
+    return providerIndDataInstance;
 }
 
 PEGASUS_NAMESPACE_END

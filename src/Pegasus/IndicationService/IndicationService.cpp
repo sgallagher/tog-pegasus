@@ -1073,15 +1073,15 @@ void IndicationService::_handleGetInstanceRequest(const Message* message)
 
     try
     {
-        String userName = ((IdentityContainer)request->operationContext.get(
-            IdentityContainer::NAME)).getUserName();
-        _checkNonprivilegedAuthorization(userName);
-
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
         if (request->className.equal(PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE)||
             request->className.equal(
                 PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES))
         {
+            String userName = ((IdentityContainer)request->operationContext.
+                get(IdentityContainer::NAME)).getUserName();
+            _checkNonprivilegedAuthorization(userName);
+
             instance = _indicationServiceConfiguration->getInstance(
                 request->nameSpace,
                 request->instanceName,
@@ -1092,7 +1092,26 @@ void IndicationService::_handleGetInstanceRequest(const Message* message)
         }
         else
 #endif
+
+#ifdef PEGASUS_ENABLE_INDICATION_COUNT
+        if (request->className.equal(PEGASUS_CLASSNAME_PROVIDERINDDATA))
         {
+            instance = _providerIndicationCountTable.
+                getProviderIndicationDataInstance(request->instanceName);
+        }
+        else if (request->className.equal(
+                 PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA))
+        {
+            instance = _subscriptionTable->
+                getSubscriptionIndicationDataInstance(request->instanceName);
+        }
+        else
+#endif
+        {
+            String userName = ((IdentityContainer)request->operationContext.
+                get(IdentityContainer::NAME)).getUserName();
+            _checkNonprivilegedAuthorization(userName);
+
             //
             //  Add Creator to property list, if not null
             //  Also, if a Subscription and Time Remaining is requested,
@@ -1423,20 +1442,36 @@ void IndicationService::_handleEnumerateInstanceNamesRequest(
 
     CIMException cimException;
 
+    try
+    {
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-    if (request->className.equal(PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE) ||
-        request->className.equal(
-            PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES))
-    {
-        enumInstanceNames = _indicationServiceConfiguration->
-            enumerateInstanceNamesForClass(
-                request->nameSpace,
-                request->className);
-    }
-    else
+        if (request->className.equal(
+                PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE) ||
+            request->className.equal(
+                PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES))
+        {
+            enumInstanceNames = _indicationServiceConfiguration->
+                enumerateInstanceNamesForClass(
+                    request->nameSpace,
+                    request->className);
+        }
+        else
 #endif
-    {
-        try
+
+#ifdef PEGASUS_ENABLE_INDICATION_COUNT
+        if (request->className.equal(PEGASUS_CLASSNAME_PROVIDERINDDATA))
+        {
+            enumInstanceNames = _providerIndicationCountTable.
+                enumerateProviderIndicationDataInstanceNames();
+        }
+        else if (request->className.equal(
+                 PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA))
+        {
+            enumInstanceNames = _subscriptionTable->
+                enumerateSubscriptionIndicationDataInstanceNames();
+        }
+        else
+#endif
         {
             String userName = ((IdentityContainer)request->operationContext.get(
                 IdentityContainer::NAME)).getUserName();
@@ -1446,16 +1481,16 @@ void IndicationService::_handleEnumerateInstanceNamesRequest(
                     request->nameSpace,
                     request->className);
         }
-        catch (CIMException& exception)
-        {
-            cimException = exception;
-        }
-        catch (Exception& exception)
-        {
-            cimException = PEGASUS_CIM_EXCEPTION(
-                CIM_ERR_FAILED,
-                exception.getMessage());
-        }
+    }
+    catch (CIMException& exception)
+    {
+        cimException = exception;
+    }
+    catch (Exception& exception)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_FAILED,
+            exception.getMessage());
     }
 
     // Note: not setting Content-Language in the response

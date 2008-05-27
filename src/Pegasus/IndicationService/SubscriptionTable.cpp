@@ -455,10 +455,9 @@ String SubscriptionTable::_generateActiveSubscriptionsKey (
         handlerPath = handlerPath.subString(index+1);
     }
 
-
     //
     //  Assuming that most subscriptions will differ in the filter and handler
-    //  names, the namespace and classname of the subscription are added at the
+    //  names, the namespace and classname of the subscription are added at the 
     //  end of the key.
     //
     String activeSubscriptionsKey(filterPath);
@@ -1193,34 +1192,23 @@ Array<CIMInstance>
 
         for (Uint32 j = 0; j < providers.size(); j++)
         {
-            CIMInstance subscriptionIndDataInstance(
-                PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA);
-
-            CIMInstance providerInstance = providers[j].provider;
-
             //
-            // Gets provider name and provider module name from the
-            // specified provider instance
+            // Gets provider name and provider module name
             //
             String providerName, providerModuleName;
             ProviderIndicationCountTable::getProviderKeys(
-                providerInstance,
+                providers[j].provider,
                 providerModuleName,
                 providerName);
 
-            subscriptionIndDataInstance.addProperty(CIMProperty(
-                CIMName("FilterName"), filterName));
-            subscriptionIndDataInstance.addProperty(CIMProperty(
-                CIMName("HandlerName"), handlerName));
-            subscriptionIndDataInstance.addProperty(CIMProperty(
-                CIMName("SourceNamespace"), sourceNS));
-            subscriptionIndDataInstance.addProperty(CIMProperty(
-                CIMName("ProviderModuleName"), providerModuleName));
-            subscriptionIndDataInstance.addProperty(CIMProperty(
-                CIMName("ProviderName"), providerName));
-            subscriptionIndDataInstance.addProperty(CIMProperty(
-                CIMName("MatchedIndicationCount"),
-                providers[j].matchedIndCountPerSubscription));
+            CIMInstance subscriptionIndDataInstance = 
+                _buildSubscriptionIndDataInstance(
+                    filterName,
+                    handlerName,
+                    sourceNS,
+                    providerModuleName,
+                    providerName,
+                    providers[j].matchedIndCountPerSubscription);
 
             instances.append(subscriptionIndDataInstance);
         }
@@ -1228,6 +1216,125 @@ Array<CIMInstance>
 
     PEG_METHOD_EXIT();
     return instances;
+}
+
+Array<CIMObjectPath>
+    SubscriptionTable::enumerateSubscriptionIndicationDataInstanceNames()
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "SubscriptionTable::enumerateSubscriptionIndicationDataInstanceNames");
+
+    Array<CIMObjectPath> instanceNames;
+
+    //
+    // Get all active subscriptions table entries
+    //
+    Array<ActiveSubscriptionsTableEntry> activeSubscriptionEntries =
+        _getAllActiveSubscriptionEntries();
+
+    for (Uint32 i = 0; i < activeSubscriptionEntries.size(); i++)
+    {
+        //
+        // Gets filter name and handler name of the subscription
+        //
+        CIMInstance subscription = activeSubscriptionEntries[i].subscription;
+        String sourceNS = subscription.getPath().getNameSpace().getString();
+
+        String filterName;
+        String handlerName;
+        _getFilterAndHandlerNames(subscription, filterName, handlerName);
+
+        Array<ProviderClassList> providers =
+            activeSubscriptionEntries[i].providers;
+
+        for (Uint32 j = 0; j < providers.size(); j++)
+        {
+            //
+            // Gets provider name and provider module name
+            //
+            String providerName, providerModuleName;
+            ProviderIndicationCountTable::getProviderKeys(
+                providers[j].provider,
+                providerModuleName,
+                providerName);
+
+            CIMObjectPath path = _buildSubscriptionIndDataInstanceName(
+                filterName,
+                handlerName,
+                sourceNS,
+                providerModuleName,
+                providerName);
+
+            instanceNames.append(path);
+        }
+    }
+
+    PEG_METHOD_EXIT();
+    return instanceNames;
+}
+
+CIMInstance SubscriptionTable::getSubscriptionIndicationDataInstance(
+    const CIMObjectPath& instanceName)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "SubscriptionTable::getSubscriptionIndicationDataInstance");
+
+    String filterName;
+    String handlerName;
+    String sourceNS;
+    String specifiedProviderModuleName;
+    String specifiedProviderName;
+
+    //
+    // Gets handler name, filter name, source namespace, provider module name,
+    // and provider name from a PG_SubscriptionIndicationData instanceName
+    //
+    _getSubscriptionIndicationDataKeys(
+        instanceName,
+        filterName,
+        handlerName,
+        sourceNS,
+        specifiedProviderModuleName,
+        specifiedProviderName);
+
+    // Builds the PG_Provider object path
+    CIMObjectPath providerName = _buildProviderPath(
+        specifiedProviderModuleName, specifiedProviderName);
+
+    //
+    // Builds subscription path by using the specified parameters
+    //
+    CIMObjectPath subscriptionPath = _buildSubscriptionPath(
+        filterName, handlerName, sourceNS);
+
+    //
+    // Look up the subscription in the active subscriptions table
+    //
+    ActiveSubscriptionsTableEntry tableValue;
+    if (getSubscriptionEntry(subscriptionPath, tableValue))
+    {
+        Array<ProviderClassList> providers = tableValue.providers;
+        for (Uint32 i = 0; i < providers.size(); i++)
+        {
+            if (providerName.identical(providers[i].provider.getPath()))
+            {
+                CIMInstance subIndDataInstance = 
+                    _buildSubscriptionIndDataInstance(
+                        filterName,
+                        handlerName,
+                        sourceNS,
+                        specifiedProviderModuleName,
+                        specifiedProviderName,
+                        providers[i].matchedIndCountPerSubscription);
+
+                PEG_METHOD_EXIT();
+                return subIndDataInstance;
+            }
+        }
+    }
+
+    PEG_METHOD_EXIT();
+    throw CIMObjectNotFoundException(instanceName.toString());
 }
 
 void SubscriptionTable::_getFilterAndHandlerNames(
@@ -1299,6 +1406,261 @@ void SubscriptionTable::_getFilterAndHandlerNames(
     }
 
     PEG_METHOD_EXIT();
+}
+
+void SubscriptionTable::_getSubscriptionIndicationDataKeys(
+    const CIMObjectPath& instanceName,
+    String& filterName,
+    String& handlerName,
+    String& sourceNS,
+    String& providerModuleName,
+    String& providerName)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "SubscriptionTable::_getSubscriptionIndicationDataKeys");
+
+    Array<CIMKeyBinding> keys = instanceName.getKeyBindings();
+    for (Uint32 i = 0; i < keys.size(); i++)
+    {
+        if (keys[i].getName() == "FilterName")
+        {
+            filterName = keys[i].getValue();
+        }
+        else if (keys[i].getName() == "HandlerName")
+        {
+            handlerName = keys[i].getValue();
+        }
+        else if (keys[i].getName() == "SourceNamespace")
+        {
+            sourceNS = keys[i].getValue();
+        }
+        else if (keys[i].getName() == "ProviderModuleName")
+        {
+            providerModuleName = keys[i].getValue();
+        }
+        else if (keys[i].getName() == "ProviderName")
+        {
+            providerName = keys[i].getValue();
+        }
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+
+CIMObjectPath SubscriptionTable::_buildFilterPath(const String& filterName)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "SubscriptionTable::_buildFilterPath");
+
+    //
+    // creates filter object path from input string filterName
+    // (namespace:filtername)
+    //
+    String name;
+    Uint32 colonIndex = filterName.find(':');
+
+    if (colonIndex != PEG_NOT_FOUND)
+    {
+        name = filterName.subString(colonIndex + 1);
+    }
+
+    Array<CIMKeyBinding> filterKeys;
+    filterKeys.append(CIMKeyBinding(
+        "SystemCreationClassName",
+        System::getSystemCreationClassName(),
+        CIMKeyBinding::STRING));
+    filterKeys.append(CIMKeyBinding(
+        "SystemName",
+        System::getFullyQualifiedHostName(),
+        CIMKeyBinding::STRING));
+    filterKeys.append(CIMKeyBinding(
+        "CreationClassName",
+        PEGASUS_CLASSNAME_INDFILTER.getString(),
+        CIMKeyBinding::STRING));
+    filterKeys.append(CIMKeyBinding(
+        "Name",
+        name,
+        CIMKeyBinding::STRING));
+
+    CIMObjectPath filterPath = CIMObjectPath(
+        String::EMPTY,
+        CIMNamespaceName(),
+        PEGASUS_CLASSNAME_INDFILTER,
+        filterKeys);
+
+    PEG_METHOD_EXIT();
+    return filterPath;
+}
+
+CIMObjectPath SubscriptionTable::_buildHandlerPath(const String& handlerName)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "SubscriptionTable::_buildHandlerPath");
+
+    //
+    // creates handler object path from input string handlerName
+    // (namespace:classname.handlername)
+    //
+    String name;
+    String classname;
+    Uint32 colonIndex = handlerName.find(':');
+    Uint32 dotIndex = handlerName.find('.');
+  
+    if (colonIndex != PEG_NOT_FOUND)
+    {
+        if ((dotIndex != PEG_NOT_FOUND) && (dotIndex > colonIndex))
+        { 
+            classname = handlerName.subString(
+                colonIndex + 1, dotIndex - 1 - colonIndex);
+            name = handlerName.subString(dotIndex + 1);
+        }
+    }
+
+    Array<CIMKeyBinding> handlerKeys;
+    handlerKeys.append(CIMKeyBinding(
+        "SystemCreationClassName",
+        System::getSystemCreationClassName(),
+        CIMKeyBinding::STRING));
+    handlerKeys.append(CIMKeyBinding(
+        "SystemName",
+        System::getFullyQualifiedHostName(),
+        CIMKeyBinding::STRING));
+    handlerKeys.append(CIMKeyBinding(
+        "CreationClassName",
+        classname,
+        CIMKeyBinding::STRING));
+    handlerKeys.append(CIMKeyBinding(
+        "Name",
+        name,
+        CIMKeyBinding::STRING));
+
+    CIMObjectPath handlerPath = CIMObjectPath(
+        String::EMPTY,
+        CIMNamespaceName(),
+        classname,
+        handlerKeys);
+
+    PEG_METHOD_EXIT();
+    return handlerPath;
+}
+
+CIMObjectPath SubscriptionTable::_buildSubscriptionPath(
+    const String& filterName,
+    const String& handlerName,
+    const String& sourceNS)
+{
+    CIMObjectPath filterPath = _buildFilterPath(filterName);
+    CIMObjectPath handlerPath = _buildHandlerPath(handlerName);
+
+    CIMObjectPath subscriptionPath;
+    Array<CIMKeyBinding> keyBindings;
+    keyBindings.append(CIMKeyBinding(
+        PEGASUS_PROPERTYNAME_FILTER,
+        filterPath.toString(),
+        CIMKeyBinding::REFERENCE));
+    keyBindings.append(CIMKeyBinding(
+        PEGASUS_PROPERTYNAME_HANDLER,
+        handlerPath.toString(),
+        CIMKeyBinding::REFERENCE));
+    
+    subscriptionPath.setClassName(PEGASUS_CLASSNAME_INDSUBSCRIPTION);
+    subscriptionPath.setNameSpace(sourceNS);
+    subscriptionPath.setKeyBindings(keyBindings);
+
+    return subscriptionPath;
+}
+
+CIMInstance SubscriptionTable::_buildSubscriptionIndDataInstance(
+    const String& filterName,
+    const String& handlerName,
+    const String& sourceNS,
+    const String& providerModuleName,
+    const String& providerName,
+    Uint32 matchedIndicationCount)
+{
+    CIMInstance subscriptionIndDataInstance(
+        PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA);
+    subscriptionIndDataInstance.addProperty(CIMProperty(
+        CIMName("FilterName"), filterName));
+    subscriptionIndDataInstance.addProperty(CIMProperty(
+        CIMName("HandlerName"), handlerName));
+    subscriptionIndDataInstance.addProperty(CIMProperty(
+        CIMName("SourceNamespace"), sourceNS));
+    subscriptionIndDataInstance.addProperty(CIMProperty(
+        CIMName("ProviderModuleName"), providerModuleName));
+    subscriptionIndDataInstance.addProperty(CIMProperty(
+        CIMName("ProviderName"), providerName));
+    subscriptionIndDataInstance.addProperty(CIMProperty(
+        CIMName("MatchedIndicationCount"),
+        matchedIndicationCount));
+
+    CIMObjectPath path = _buildSubscriptionIndDataInstanceName(
+        filterName,
+        handlerName,
+        sourceNS,
+        providerModuleName,
+        providerName);
+    subscriptionIndDataInstance.setPath(path);
+
+    return subscriptionIndDataInstance;
+}
+
+CIMObjectPath SubscriptionTable::_buildSubscriptionIndDataInstanceName(
+    const String& filterName,
+    const String& handlerName,
+    const String& sourceNS,
+    const String& providerModuleName,
+    const String& providerName)
+{
+    CIMObjectPath path;
+    Array<CIMKeyBinding> keyBindings;
+    keyBindings.append(CIMKeyBinding(
+        "FilterName",
+        filterName,
+        CIMKeyBinding::STRING));
+    keyBindings.append(CIMKeyBinding(
+        "HandlerName",
+        handlerName,
+        CIMKeyBinding::STRING));
+    keyBindings.append(CIMKeyBinding(
+        "SourceNamespace",
+        sourceNS,
+        CIMKeyBinding::STRING));
+    keyBindings.append(CIMKeyBinding(
+        "ProviderModuleName",
+        providerModuleName,
+        CIMKeyBinding::STRING));
+    keyBindings.append(CIMKeyBinding(
+        "ProviderName",
+        providerName,
+        CIMKeyBinding::STRING));
+
+    path.setClassName(PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA);
+    path.setKeyBindings(keyBindings);
+
+    return path;
+}
+
+CIMObjectPath SubscriptionTable::_buildProviderPath(
+    const String& providerModuleName,
+    const String& providerName)
+{
+    CIMObjectPath path;
+    Array<CIMKeyBinding> keyBindings;
+    keyBindings.append(CIMKeyBinding(
+        _PROPERTY_PROVIDERMODULENAME,
+        providerModuleName,
+        CIMKeyBinding::STRING));
+    keyBindings.append(CIMKeyBinding(
+        PEGASUS_PROPERTYNAME_NAME,
+        providerName,
+        CIMKeyBinding::STRING));
+
+    path.setClassName(PEGASUS_CLASSNAME_PROVIDER);
+    path.setKeyBindings(keyBindings);
+
+    return path;
 }
 
 #endif

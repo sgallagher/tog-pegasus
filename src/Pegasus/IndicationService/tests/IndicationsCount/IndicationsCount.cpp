@@ -475,14 +475,33 @@ void _generateTestIndications(CIMClient& client)
     cout << "+++++ generate indications completed successfully" << endl;
 }
 
-Array<CIMInstance> _getExpectedProviderIndicationDataInstances(
+CIMObjectPath _buildProviderIndicationDataInstanceName(
+    const String& providerModuleName,
+    const String& providerName)
+{
+    CIMObjectPath instanceName;
+    Array<CIMKeyBinding> keyBindings;
+    keyBindings.append(CIMKeyBinding(
+        "ProviderModuleName",
+        providerModuleName,
+        CIMKeyBinding::STRING));
+    keyBindings.append(CIMKeyBinding(
+        "ProviderName",
+        providerName,
+        CIMKeyBinding::STRING));
+
+    instanceName.setClassName(PEGASUS_CLASSNAME_PROVIDERINDDATA);
+    instanceName.setKeyBindings(keyBindings);
+    return instanceName;
+}
+
+CIMInstance _buildProviderIndicationDataInstance(
     const String& providerModuleName,
     const String& providerName,
     Uint32 indicationsCount,
-    Uint32 orphanIndicationCount)
+    Uint32 orphanIndicationCount,
+    Boolean includeObjectPath = true)
 {
-    Array<CIMInstance> providerIndDataInstances;
-
     CIMInstance providerIndDataInstance(PEGASUS_CLASSNAME_PROVIDERINDDATA);
     providerIndDataInstance.addProperty(CIMProperty(
         CIMName("ProviderModuleName"),
@@ -497,16 +516,60 @@ Array<CIMInstance> _getExpectedProviderIndicationDataInstances(
         CIMName("OrphanIndicationCount"),
         Uint32(orphanIndicationCount)));
 
-    providerIndDataInstances.append(providerIndDataInstance);
-    return providerIndDataInstances;
+    if (includeObjectPath)
+    {
+        CIMObjectPath instanceName = _buildProviderIndicationDataInstanceName(
+            providerModuleName, providerName);
+        providerIndDataInstance.setPath(instanceName);
+    }
+
+    return providerIndDataInstance;
 }
 
-Array<CIMInstance> _getExpectedSubscriptionIndicationDataInstances(
+CIMObjectPath _buildSubscriptionIndicationDataInstanceName(
     const String& filterName,
     const String& handlerName,
+    const String& sourceNamespace,
+    const String& providerModuleName,
+    const String& providerName)
+{
+    CIMObjectPath path;
+    Array<CIMKeyBinding> keyBindings;
+    keyBindings.append(CIMKeyBinding(
+        "FilterName",
+        filterName,
+        CIMKeyBinding::STRING));
+    keyBindings.append(CIMKeyBinding(
+        "HandlerName",
+        handlerName,
+        CIMKeyBinding::STRING));
+    keyBindings.append(CIMKeyBinding(
+        "SourceNamespace",
+        sourceNamespace,
+        CIMKeyBinding::STRING));
+    keyBindings.append(CIMKeyBinding(
+        "ProviderModuleName",
+        providerModuleName,
+        CIMKeyBinding::STRING));
+    keyBindings.append(CIMKeyBinding(
+        "ProviderName",
+        providerName,
+        CIMKeyBinding::STRING));
+
+    path.setClassName(PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA);
+    path.setKeyBindings(keyBindings);
+
+    return path;
+}
+
+CIMInstance _buildSubscriptionIndicationDataInstance(
+    const String& filterName,
+    const String& handlerName,
+    const String& sourceNS,
     const String& providerModuleName,
     const String& providerName,
-    Uint32 matchedIndicationsCount)
+    Uint32 matchedIndicationsCount,
+    Boolean includeObjectPath = true)
 {
     Array<CIMInstance> subIndDataInstances;
 
@@ -519,7 +582,7 @@ Array<CIMInstance> _getExpectedSubscriptionIndicationDataInstances(
         String(handlerName)));
     subIndDataInstance.addProperty(CIMProperty(
         CIMName("SourceNamespace"),
-        String("root/PG_InterOp")));
+        String(sourceNS)));
     subIndDataInstance.addProperty(CIMProperty(
         CIMName("ProviderModuleName"),
         String(providerModuleName)));
@@ -530,22 +593,21 @@ Array<CIMInstance> _getExpectedSubscriptionIndicationDataInstances(
         CIMName("MatchedIndicationCount"),
         Uint32(matchedIndicationsCount)));
 
-    subIndDataInstances.append(subIndDataInstance);
-
-    return subIndDataInstances;
+    if (includeObjectPath)
+    {
+        CIMObjectPath instanceName = 
+            _buildSubscriptionIndicationDataInstanceName(
+                filterName,
+                handlerName,
+                sourceNS,
+                providerModuleName,
+                providerName);
+        subIndDataInstance.setPath(instanceName);
+    }
+        
+    return subIndDataInstance;
 }
 
-Array<CIMInstance> _getIndicationDataInstances(
-    CIMClient& client,
-    const CIMName& className)
-{
-    Array<CIMInstance> indicationDataInstances =
-        client.enumerateInstances(
-            PEGASUS_NAMESPACENAME_INTERNAL,
-            className);
-
-    return indicationDataInstances;
-}
 
 void _unregister(CIMClient& client)
 {
@@ -645,6 +707,51 @@ void _checkResult(
         expectedSubIndDataInstances.size());
 }
 
+void _checkEnumInstanceNames(
+    const Array<CIMObjectPath> returnedProvIndDataInstanceNames,
+    const Array<CIMObjectPath> returnedSubIndDataInstanceNames,
+    const Array<CIMObjectPath> expectedProvIndDataInstanceNames,
+    const Array<CIMObjectPath> expectedSubIndDataInstanceNames)
+{
+    Array<CIMObjectPath> matchedProvIndDataInstanceNames;
+    for (Uint32 i = 0; i < returnedProvIndDataInstanceNames.size(); i++)
+    {
+        for (Uint32 j = 0; j < expectedProvIndDataInstanceNames.size(); j++)
+        {
+            if (returnedProvIndDataInstanceNames[i].identical(
+                expectedProvIndDataInstanceNames[j]))
+            {
+                matchedProvIndDataInstanceNames.append(
+                    returnedProvIndDataInstanceNames[i]);
+                break;
+            }
+        }
+    }
+
+    PEGASUS_TEST_ASSERT(
+        matchedProvIndDataInstanceNames.size() ==
+        expectedProvIndDataInstanceNames.size());
+
+    Array<CIMObjectPath> matchedSubIndDataInstanceNames;
+    for (Uint32 i = 0; i < returnedSubIndDataInstanceNames.size(); i++)
+    {
+        for (Uint32 j = 0; j < expectedSubIndDataInstanceNames.size(); j++)
+        {
+            if (returnedSubIndDataInstanceNames[i].identical(
+                expectedSubIndDataInstanceNames[j]))
+            {
+                matchedSubIndDataInstanceNames.append(
+                    returnedSubIndDataInstanceNames[i]);
+                break;
+            }
+        }
+    }
+
+    PEGASUS_TEST_ASSERT(
+        matchedSubIndDataInstanceNames.size() ==
+        expectedSubIndDataInstanceNames.size());
+}
+
 void _cleanup(CIMClient& client)
 {
     try
@@ -708,29 +815,38 @@ void _test(CIMClient& client)
     Uint32 indicationsCount =
         _matchedIndicationsCount + _orphanIndicationCount;
 
-    Array<CIMInstance> expectedProvIndDataInstances =
-        _getExpectedProviderIndicationDataInstances(
+    //
+    // test enumerate instances
+    //
+
+    Array<CIMInstance> expectedProvIndDataInstances;
+    CIMInstance expectedProvIndDataInstance =
+        _buildProviderIndicationDataInstance(
             "IndicationTestProviderModule",
             "IndicationTestProvider",
             indicationsCount,
             _orphanIndicationCount);
+    expectedProvIndDataInstances.append(expectedProvIndDataInstance);
 
-    Array<CIMInstance> expectedSubIndDataInstances =
-        _getExpectedSubscriptionIndicationDataInstances(
+    Array<CIMInstance> expectedSubIndDataInstances;
+    CIMInstance expectedSubIndDataInstance =
+        _buildSubscriptionIndicationDataInstance(
             "root/PG_InterOp:ICFilter01",
             "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler01",
+            "root/PG_InterOp",
             "IndicationTestProviderModule",
             "IndicationTestProvider",
             _matchedIndicationsCount);
+    expectedSubIndDataInstances.append(expectedSubIndDataInstance);
 
     Array<CIMInstance> returnedProvIndDataInstances = 
-        _getIndicationDataInstances(
-            client,
+        client.enumerateInstances(
+            PEGASUS_NAMESPACENAME_INTERNAL,
             PEGASUS_CLASSNAME_PROVIDERINDDATA);
 
     Array<CIMInstance> returnedSubIndDataInstances = 
-        _getIndicationDataInstances(
-            client,
+        client.enumerateInstances(
+            PEGASUS_NAMESPACENAME_INTERNAL,
             PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA);
 
     _checkResult(
@@ -738,6 +854,87 @@ void _test(CIMClient& client)
         returnedSubIndDataInstances,
         expectedProvIndDataInstances,
         expectedSubIndDataInstances);
+
+    //
+    // test enumerate instance names
+    //
+    CIMObjectPath instanceName =
+        _buildProviderIndicationDataInstanceName(
+            "IndicationTestProviderModule",
+            "IndicationTestProvider");
+
+    Array<CIMObjectPath> expectedProvIndDataInstanceNames;
+    expectedProvIndDataInstanceNames.append(instanceName);
+
+    CIMObjectPath subscriptionIndDataInstanceName =
+        _buildSubscriptionIndicationDataInstanceName(
+            "root/PG_InterOp:ICFilter01",
+            "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler01",
+            "root/PG_InterOp",
+            "IndicationTestProviderModule",
+            "IndicationTestProvider");
+
+    Array<CIMObjectPath> expectedSubIndDataInstanceNames;
+    expectedSubIndDataInstanceNames.append(subscriptionIndDataInstanceName);
+
+    Array<CIMObjectPath> returnedProvIndDataInstanceNames = 
+        client.enumerateInstanceNames(
+            PEGASUS_NAMESPACENAME_INTERNAL,
+            PEGASUS_CLASSNAME_PROVIDERINDDATA);
+
+    Array<CIMObjectPath> returnedSubIndDataInstanceNames = 
+        client.enumerateInstanceNames(
+            PEGASUS_NAMESPACENAME_INTERNAL,
+            PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA);
+
+    _checkEnumInstanceNames(
+        returnedProvIndDataInstanceNames,
+        returnedSubIndDataInstanceNames,
+        expectedProvIndDataInstanceNames,
+        expectedSubIndDataInstanceNames);
+
+    //
+    // test get instance
+    //
+    expectedProvIndDataInstance =
+        _buildProviderIndicationDataInstance(
+            "IndicationTestProviderModule",
+            "IndicationTestProvider",
+            indicationsCount,
+            _orphanIndicationCount,
+            false);
+
+    CIMObjectPath providerObjPath = _buildProviderIndicationDataInstanceName(
+        "IndicationTestProviderModule", "IndicationTestProvider");
+
+    CIMInstance returnedProvIndDataInstance = client.getInstance(
+        PEGASUS_NAMESPACENAME_INTERNAL, providerObjPath);
+
+    PEGASUS_TEST_ASSERT(returnedProvIndDataInstance.identical(
+        expectedProvIndDataInstance));
+
+    expectedSubIndDataInstance =
+        _buildSubscriptionIndicationDataInstance(
+            "root/PG_InterOp:ICFilter01",
+            "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler01",
+            "root/PG_InterOp",
+            "IndicationTestProviderModule",
+            "IndicationTestProvider",
+            _matchedIndicationsCount,
+            false);
+
+    CIMObjectPath subObjPath = _buildSubscriptionIndicationDataInstanceName(
+        "root/PG_InterOp:ICFilter01",
+        "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler01",
+        "root/PG_InterOp",
+        "IndicationTestProviderModule",
+        "IndicationTestProvider");
+
+    CIMInstance returnedSubIndDataInstance = client.getInstance(
+    PEGASUS_NAMESPACENAME_INTERNAL, subObjPath);
+
+    PEGASUS_TEST_ASSERT(returnedSubIndDataInstance.identical(
+        expectedSubIndDataInstance));
 
     cout << "+++++ test completed successfully" << endl;
 }
@@ -756,13 +953,13 @@ void _testReset(CIMClient& client)
     // The entry of the tables gets removed if the provider is disabled
     //
     Array<CIMInstance> returnedProvIndDataInstances = 
-        _getIndicationDataInstances(
-            client,
+        client.enumerateInstances(
+            PEGASUS_NAMESPACENAME_INTERNAL,
             PEGASUS_CLASSNAME_PROVIDERINDDATA);
 
     Array<CIMInstance> returnedSubIndDataInstances = 
-        _getIndicationDataInstances(
-            client,
+        client.enumerateInstances(
+            PEGASUS_NAMESPACENAME_INTERNAL,
             PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA);
 
     _checkResult(
@@ -777,25 +974,31 @@ void _testReset(CIMClient& client)
     // 
     _register(client);
 
-    expectedProvIndDataInstances = _getExpectedProviderIndicationDataInstances(
-        "ProcessIndicationProviderModule",
-        "ProcessIndicationProvider",
-        0, 
-        0);
+    CIMInstance expectedProvIndDataInstance = 
+        _buildProviderIndicationDataInstance(
+            "ProcessIndicationProviderModule",
+            "ProcessIndicationProvider",
+            0, 
+            0);
+    expectedProvIndDataInstances.append(expectedProvIndDataInstance); 
 
-    expectedSubIndDataInstances = 
-        _getExpectedSubscriptionIndicationDataInstances(
+    CIMInstance expectedSubIndDataInstance = 
+        _buildSubscriptionIndicationDataInstance(
             "root/PG_InterOp:ICFilter02",
             "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler02",
+            "root/PG_InterOp",
             "ProcessIndicationProviderModule",
             "ProcessIndicationProvider",
             0);
+    expectedSubIndDataInstances.append(expectedSubIndDataInstance); 
 
-    returnedProvIndDataInstances = _getIndicationDataInstances(
-        client, PEGASUS_CLASSNAME_PROVIDERINDDATA);
+    returnedProvIndDataInstances = client.enumerateInstances(
+         PEGASUS_NAMESPACENAME_INTERNAL,
+         PEGASUS_CLASSNAME_PROVIDERINDDATA);
 
-    returnedSubIndDataInstances = _getIndicationDataInstances(
-        client, PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA);
+    returnedSubIndDataInstances = client.enumerateInstances(
+         PEGASUS_NAMESPACENAME_INTERNAL,
+         PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA);
 
     _checkResult(
         returnedProvIndDataInstances,
@@ -812,11 +1015,13 @@ void _testReset(CIMClient& client)
     Array<CIMInstance> provIndDataInstances;
     Array<CIMInstance> subIndDataInstances;
 
-    returnedProvIndDataInstances = _getIndicationDataInstances(
-        client, PEGASUS_CLASSNAME_PROVIDERINDDATA);
+    returnedProvIndDataInstances = client.enumerateInstances(
+        PEGASUS_NAMESPACENAME_INTERNAL,
+        PEGASUS_CLASSNAME_PROVIDERINDDATA);
 
-    returnedSubIndDataInstances = _getIndicationDataInstances(
-        client, PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA);
+    returnedSubIndDataInstances = client.enumerateInstances(
+        PEGASUS_NAMESPACENAME_INTERNAL,
+        PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA);
 
     _checkResult(
         returnedProvIndDataInstances,
@@ -830,25 +1035,32 @@ void _testReset(CIMClient& client)
     //
     _enableModule(client, "IndicationTestProviderModule");
 
-    expectedProvIndDataInstances = _getExpectedProviderIndicationDataInstances(
+    expectedProvIndDataInstance = _buildProviderIndicationDataInstance(
         "IndicationTestProviderModule",
         "IndicationTestProvider",
         0, 
         0);
+    expectedProvIndDataInstances.clear();
+    expectedProvIndDataInstances.append(expectedProvIndDataInstance);
 
-    expectedSubIndDataInstances = 
-        _getExpectedSubscriptionIndicationDataInstances(
+    CIMInstance instance = 
+        _buildSubscriptionIndicationDataInstance(
             "root/PG_InterOp:ICFilter01",
             "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler01",
+            "root/PG_InterOp",
             "IndicationTestProviderModule",
             "IndicationTestProvider",
             0);
+    expectedSubIndDataInstances.clear();
+    expectedSubIndDataInstances.append(instance); 
 
-    returnedProvIndDataInstances = _getIndicationDataInstances(
-        client, PEGASUS_CLASSNAME_PROVIDERINDDATA);
+    returnedProvIndDataInstances = client.enumerateInstances(
+        PEGASUS_NAMESPACENAME_INTERNAL,
+        PEGASUS_CLASSNAME_PROVIDERINDDATA);
 
-    returnedSubIndDataInstances = _getIndicationDataInstances(
-        client, PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA);
+    returnedSubIndDataInstances = client.enumerateInstances(
+        PEGASUS_NAMESPACENAME_INTERNAL,
+        PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA);
 
     _checkResult(
         returnedProvIndDataInstances,
@@ -858,25 +1070,33 @@ void _testReset(CIMClient& client)
 
     _generateTestIndications(client);
 
-    expectedProvIndDataInstances = _getExpectedProviderIndicationDataInstances(
+    expectedProvIndDataInstance = _buildProviderIndicationDataInstance(
         "IndicationTestProviderModule",
         "IndicationTestProvider",
         indicationsCount,
         _orphanIndicationCount);
+    expectedProvIndDataInstances.clear();
+    expectedProvIndDataInstances.append(expectedProvIndDataInstance);
 
-    expectedSubIndDataInstances = 
-        _getExpectedSubscriptionIndicationDataInstances(
+    expectedSubIndDataInstance = 
+        _buildSubscriptionIndicationDataInstance(
             "root/PG_InterOp:ICFilter01",
             "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler01",
+            "root/PG_InterOp",
             "IndicationTestProviderModule",
             "IndicationTestProvider",
             _matchedIndicationsCount);
 
-    returnedProvIndDataInstances = _getIndicationDataInstances(
-        client, PEGASUS_CLASSNAME_PROVIDERINDDATA);
+    expectedSubIndDataInstances.clear();
+    expectedSubIndDataInstances.append(expectedSubIndDataInstance);
 
-    returnedSubIndDataInstances = _getIndicationDataInstances(
-        client, PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA);
+    returnedProvIndDataInstances = client.enumerateInstances(
+        PEGASUS_NAMESPACENAME_INTERNAL,
+        PEGASUS_CLASSNAME_PROVIDERINDDATA);
+
+    returnedSubIndDataInstances = client.enumerateInstances(
+        PEGASUS_NAMESPACENAME_INTERNAL,
+        PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA);
 
     _checkResult(
         returnedProvIndDataInstances,

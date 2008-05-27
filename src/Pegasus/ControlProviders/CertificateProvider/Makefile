@@ -52,9 +52,10 @@ endif
 LIBRARY = CertificateProvider
 
 LIBRARIES = \
-    pegcommon \
+    pegrepository \
+    pegprovider \
     pegconfig \
-    pegprovider
+    pegcommon
 
 ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
     LIBRARIES += ILEWrapperUtils

@@ -433,7 +433,12 @@ inline Uint32 Tracer::setTraceFacility(const String& traceComponents)
 
 #else /* PEGASUS_REMOVE_TRACE */
 
-# define PEG_METHOD_ENTER(comp, meth) \
+// remover trace code for method enter/exit
+# ifdef  PEGASUS_REMOVE_METHODTRACE
+#  define PEG_METHOD_ENTER(comp,meth)
+#  define PEG_METHOD_EXIT()
+# else 
+#  define PEG_METHOD_ENTER(comp, meth) \
     TracerToken __tracerToken; \
     __tracerToken.method = 0; \
     do \
@@ -451,6 +456,7 @@ inline Uint32 Tracer::setTraceFacility(const String& traceComponents)
             Tracer::traceExit(__tracerToken PEGASUS_COMMA_FILE_LINE); \
     } \
     while (0)
+# endif 
 
 // Macro for Trace String.  the do construct allows this to appear
 // as a single statement.

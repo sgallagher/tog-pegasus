@@ -203,10 +203,10 @@ Uint32 test3()
 Uint32 test4()
 {
     const char* METHOD_NAME = "test4";
-    Tracer::setTraceLevel(PEGASUS_TRACER_LEVEL5);
+    Tracer::setTraceLevel(Tracer::LEVEL1);
     Tracer::setTraceComponents("Config");
-    PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
-    return(compare(FILE1,"Entering method test4"));
+    PEG_TRACE_CSTRING(TRC_CONFIG,Tracer::LEVEL1,METHOD_NAME);
+    return(compare(FILE1,METHOD_NAME));
 }
 
 //
@@ -226,8 +226,9 @@ Uint32 test5()
     Tracer::setTraceComponents("Wrong Component Name");
 
     PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
+    PEG_TRACE_CSTRING(TRC_CONFIG,Tracer::LEVEL1,METHOD_NAME);
     PEG_METHOD_EXIT();
-    return(compare(FILE1,"Entering method test4"));
+    return(compare(FILE1,"test4"));
 }
 
 //
@@ -490,11 +491,14 @@ Uint32 test15b()
 Uint32 test16()
 {
     const char* METHOD_NAME = "test16";
+    Tracer::setTraceComponents("ALL");
+    Tracer::setTraceLevel(PEGASUS_TRACER_LEVEL5);
+    PEG_TRACE_CSTRING(TRC_CONFIG,Tracer::LEVEL4,"test16 - check value");    
     Tracer::setTraceComponents("");
     Tracer::setTraceLevel(Tracer::LEVEL4);
     PEG_TRACE((TRC_CONFIG,Tracer::LEVEL4,"%s %s",
     "This Message should not appear in",METHOD_NAME));
-    return(compare(FILE3,"Exiting method test15b"));
+    return(compare(FILE3,"test16 - check value"));
 }
 
 //
@@ -512,11 +516,14 @@ Uint32 test16()
 Uint32 test17()
 {
     const char* METHOD_NAME = "test17";
+    Tracer::setTraceComponents("ALL");
+    Tracer::setTraceLevel(PEGASUS_TRACER_LEVEL5);
+    PEG_TRACE_CSTRING(TRC_CONFIG,Tracer::LEVEL4,"test17 - check value");    
     Tracer::setTraceComponents("InvalidComp");
     Tracer::setTraceLevel(Tracer::LEVEL4);
     PEG_TRACE((TRC_CONFIG,Tracer::LEVEL4,"%s %s",
     "This Message should not appear in",METHOD_NAME));
-    return(compare(FILE3,"Exiting method test15b"));
+    return(compare(FILE3,"test17 - check value"));
 }
 //
 // Description:
@@ -922,6 +929,7 @@ int main(int argc, char** argv)
        cout << "Tracer test (test15) failed" << endl;
        exit(1);
     }
+# ifndef PEGASUS_REMOVE_METHODTRACE
     if (test15a() != 0)
     {
        cout << "Tracer test (test15a) failed" << endl;
@@ -932,6 +940,7 @@ int main(int argc, char** argv)
        cout << "Tracer test (test15b) failed" << endl;
        exit(1);
     }
+# endif
     if (test16() != 0)
     {
        cout << "Tracer test (test16) failed" << endl;

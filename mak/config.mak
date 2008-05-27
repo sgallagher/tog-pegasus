@@ -470,6 +470,19 @@ ifdef PEGASUS_REMOVE_TRACE
     DEFINES += -DPEGASUS_REMOVE_TRACE
 endif
 
+# PEP 315
+# Control whether compile with or without method entertexit trace code.
+# A value other than 'true' or 'false' will cause a make error.
+ifdef PEGASUS_REMOVE_METHODTRACE
+  ifeq ($(PEGASUS_REMOVE_METHODTRACE),true)
+    DEFINES += -DPEGASUS_REMOVE_METHODTRACE
+  else
+    ifneq ($(PEGASUS_REMOVE_METHODTRACE),false)
+      $(error PEGASUS_REMOVE_METHODTRACE ($(PEGASUS_REMOVE_METHODTRACE)) invalid, must be true or false)
+    endif
+  endif
+endif
+
 # PEP 161
 # Control whether utf-8 filenames are supported by the repository
 ifdef PEGASUS_SUPPORT_UTF8_FILENAME

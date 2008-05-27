@@ -60,8 +60,8 @@ enum opttypes {FILESPEC,
 #endif
 #ifdef PEGASUS_ENABLE_MRR_GENERATION
            MRRFLAG,
-#endif
            DISCARDFLAG,
+#endif
            VERSIONFLAG,
            OPTEND_CIMMOF,    //PEP167
            REPOSITORYNAME,

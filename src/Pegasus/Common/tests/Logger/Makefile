@@ -42,7 +42,9 @@ include $(ROOT)/mak/program.mak
 
 tests:
 	$(RM) logs/*.log
+	$(RM) $(TMP_DIR)/*.trace
 	$(PROGRAM)
 	$(RM) logs/*.log
+	$(RM) $(TMP_DIR)/*.trace
 
 poststarttests:

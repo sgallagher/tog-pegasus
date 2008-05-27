@@ -35,6 +35,7 @@
 #include <fstream>
 #include <cstring>
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/MessageLoader.h>
@@ -360,9 +361,22 @@ void Logger::_putInternal(
         }
 // l10n end
 
-
        // Call the actual logging routine is in LoggerRep.
        _rep->log(logFileType, systemId, logLevel, localizedMsg);
+       
+       // route log message to trace too -> component LogMessages
+       if (Logger::TRACE_LOG != logFileType)
+       {
+           // do not write log message to trace when trace facility is
+           // the log to avoid double messages
+           if (Tracer::TRACE_FACILITY_LOG != Tracer::getTraceFacility())
+           {
+               PEG_TRACE_CSTRING(
+                   TRC_LOGMSG,
+                   Tracer::LEVEL1,
+                   (const char*) localizedMsg.getCString());
+           }
+       }
     }
 }
 

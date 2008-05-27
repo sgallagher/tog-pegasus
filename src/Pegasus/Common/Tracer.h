@@ -162,6 +162,12 @@ public:
     */
     static Uint32 setTraceFacility(const String& traceFacility);
 
+    /** Get trace facility currently in use
+        @return TRACE_FACILITY_FILE - if trace facility is file
+                TRACE_FACILITY_LOG - if trace facility is the log
+    */
+    static Uint32 getTraceFacility();
+
     /** Traces method entry.
         @param token           TracerToken
         @param fileName        filename of the trace originator
@@ -403,6 +409,13 @@ inline void Tracer::setTraceComponents(const String& traceComponents)
 inline Uint32 Tracer::setTraceFacility(const String& traceComponents)
 {
     // empty function
+    return 0;
+}
+
+inline Uint32 Tracer::getTraceFacility()
+{
+    // empty function
+    return 0;
 }
 
 #endif /* PEGASUS_REMOVE_TRACE */

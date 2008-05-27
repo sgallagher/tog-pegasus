@@ -759,6 +759,13 @@ Uint32 Tracer::setTraceFacility(const String& traceFacility)
     return retCode;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Get the trace facility in use
+////////////////////////////////////////////////////////////////////////////////
+Uint32 Tracer::getTraceFacility()
+{
+    return _getInstance()->_traceFacility;
+}
 
 void Tracer::traceEnter(
     TracerToken& token,

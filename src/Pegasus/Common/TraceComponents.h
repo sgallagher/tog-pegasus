@@ -126,7 +126,8 @@ static char const* TRACE_COMPONENT_LIST[] =
     "IndicationGeneration",
     "IndicationReceipt",
     "CMPIProviderInterface",
-    "WsmServer"
+    "WsmServer",
+    "LogMessages"
 };
 /** Constants identifying the Trace components. These constants are used by
     the component to identify its Trace messages. The component ID needs to
@@ -187,7 +188,8 @@ enum TRACE_COMPONENT_ID
     TRC_INDICATION_GENERATION,
     TRC_INDICATION_RECEIPT,
     TRC_CMPIPROVIDERINTERFACE,
-    TRC_WSMSERVER
+    TRC_WSMSERVER,
+    TRC_LOGMSG
 };
 
 PEGASUS_NAMESPACE_END

@@ -56,6 +56,7 @@
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/SSLContextManager.h>
+#include <Pegasus/Common/SSLContextRep.h>
 #include <Pegasus/Common/Time.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/AuditLogger.h>
@@ -1066,6 +1067,17 @@ SSLContext* CIMServer::_getSSLContext()
             String::EMPTY, certPath, keyPath, crlStore, false, randFile);
     }
     sslContext = _sslContextMgr->getSSLContext();
+
+    try
+    {
+        sslContext->_rep->validateCertificate();
+    }
+    catch (SSLException& e)
+    {
+        Logger::put(
+            Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+            e.getMessage());
+    }
 
     PEG_METHOD_EXIT();
     return sslContext;

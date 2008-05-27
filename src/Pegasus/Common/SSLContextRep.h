@@ -203,7 +203,7 @@ public:
     friend class SSLCallbackInfo;
 };
 
-class SSLContextRep
+class PEGASUS_COMMON_LINKAGE SSLContextRep
 {
 public:
 
@@ -251,6 +251,13 @@ public:
     Boolean isPeerVerificationEnabled() const;
 
     SSLCertificateVerifyFunction* getSSLCertificateVerifyFunction() const;
+
+    /**
+        Checks if the certificate associated with this SSL context has expired
+        or is not yet valid.
+        @exception SSLException if the certificate is determined to be invalid.
+    */
+    void validateCertificate();
 
 private:
 

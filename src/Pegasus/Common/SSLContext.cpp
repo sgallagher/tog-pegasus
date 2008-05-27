@@ -1082,6 +1082,37 @@ SSLCertificateVerifyFunction*
     return _certificateVerifyFunction;
 }
 
+void SSLContextRep::validateCertificate()
+{
+    BIO* in = BIO_new_file(_certPath.getCString(), "r");
+    PEGASUS_ASSERT(in != NULL);
+    X509* cert = PEM_read_bio_X509(in, NULL, 0, NULL);
+    BIO_free(in);
+    PEGASUS_ASSERT(cert != NULL);
+
+    if (X509_cmp_current_time(X509_get_notBefore(cert)) > 0)
+    {
+        X509_free(cert);
+        MessageLoaderParms parms(
+           "Common.SSLContext.CERTIFICATE_NOT_YET_VALID",
+           "Certificate $0 is not yet valid.",
+           _certPath);
+        throw SSLException(parms);
+    }
+
+    if (X509_cmp_current_time(X509_get_notAfter(cert)) < 0)
+    {
+        X509_free(cert);
+        MessageLoaderParms parms(
+           "Common.SSLContext.CERTIFICATE_EXPIRED",
+           "Certificate $0 has expired.",
+           _certPath);
+        throw SSLException(parms);
+    }
+
+    X509_free(cert);
+}
+
 #else
 
 //
@@ -1139,6 +1170,8 @@ SSLCertificateVerifyFunction*
 {
     return NULL;
 }
+
+void SSLContextRep::validateCertificate() { }
 
 #endif // end of PEGASUS_HAS_SSL
 

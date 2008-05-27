@@ -2892,6 +2892,18 @@ not be valid."}
         Common.SSLContext.COULD_NOT_LOAD_CRLS:string {"PGS09209: Could not load certificate revocation list."}
 
 
+        /**
+        * @note  PGS09210:
+        *    Substitution {0} is the name of a certificate file (a string)
+        */
+        Common.SSLContext.CERTIFICATE_NOT_YET_VALID:string {"PGS09210: Certificate {0} is not yet valid."}
+
+        /**
+        * @note  PGS09211:
+        *    Substitution {0} is the name of a certificate file (a string)
+        */
+        Common.SSLContext.CERTIFICATE_EXPIRED:string {"PGS09211: Certificate {0} has expired."}
+
         // ==========================================================
         // Messages for TraceFileHandler
         //  Please use message prefix "PGS09400"

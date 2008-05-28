@@ -3517,7 +3517,7 @@ void ProviderRegistrationManager::_addInitialInstancesToTable(
     {
         PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Exception:: Attempt to add duplicate entry to"
-            " provider reistration hash table.");
+            " provider registration hash table.");
 
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
             "Server.ProviderRegistrationManager."

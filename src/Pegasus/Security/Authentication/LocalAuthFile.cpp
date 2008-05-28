@@ -181,9 +181,6 @@ String LocalAuthFile::create()
     if (!outfs)
     {
         // unable to create file
-        PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4,
-            "Failed to create local auth file: " +
-             filePath + ", " + strerror(errno));
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             "Security.Authentication.LocalAuthFile.NO_CREATE",
             "Creation of the local authentication security file"
@@ -207,12 +204,6 @@ String LocalAuthFile::create()
 
     if (!success)
     {
-        String errorMsg = strerror(errno);
-        PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4,
-            "Failed to change mode on file: " + filePath
-            + ", err is: " + errorMsg);
-        PEG_METHOD_EXIT();
-
         // Unable to change the local auth file permissions, remove the file
         // and throw CannotOpenFile error.
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
@@ -241,10 +232,6 @@ String LocalAuthFile::create()
     // test if the write was successful
     if (outfs.fail())
     {
-        PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4,
-            "Failed to write security token to file: "
-            + filePath );
-
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             "Security.Authentication.LocalAuthFile.NO_WRITE",
             "Cannot write security token to the local authentication"
@@ -276,12 +263,6 @@ String LocalAuthFile::create()
 
     if (!success)
     {
-        String errorMsg = strerror(errno);
-        PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4,
-            "Failed to change mode on file: " + filePath +
-                ", err is: " + errorMsg);
-        PEG_METHOD_EXIT();
-
         // Unable to change the local auth file permissions, remove the file
         // and throw CannotOpenFile error.
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
@@ -307,12 +288,6 @@ String LocalAuthFile::create()
 
     if (!FileSystem::changeFileOwner(filePath,_userName))
     {
-        String errorMsg = strerror(errno);
-        PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4,
-            "Failed to change owner of file '" + filePath + "' to '" +
-            _userName + "', err is: " + errorMsg);
-        PEG_METHOD_EXIT();
-
         // Unable to change owner on local auth file, remove the file
         // and throw CannotOpenFile error.
 

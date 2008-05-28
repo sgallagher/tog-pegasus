@@ -1647,9 +1647,6 @@ void ProviderMessageHandler::_enableIndications()
     }
     catch (Exception& e)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            "Exception: " + e.getMessage());
-
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
             "ProviderManager.Default.DefaultProviderManager."
                 "ENABLE_INDICATIONS_FAILED",
@@ -1658,9 +1655,6 @@ void ProviderMessageHandler::_enableIndications()
     }
     catch(...)
     {
-        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            "Unexpected error in _enableIndications");
-
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
             "ProviderManager.Default.DefaultProviderManager."
                 "ENABLE_INDICATIONS_FAILED_UNKNOWN",

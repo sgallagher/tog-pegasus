@@ -89,9 +89,6 @@ public:
 
         if (_manager == 0)
         {
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "Failed to load ProviderManager \"" + _physicalName + "\".");
-
             Logger::put_l(
                 Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
                 "ProviderManager.BasicProviderManagerRouter."

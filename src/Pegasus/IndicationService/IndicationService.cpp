@@ -325,7 +325,7 @@ void IndicationService::handleEnqueue(Message* message)
 #ifdef PEGASUS_INDICATION_PERFINST
     stopWatch.stop();
 
-    PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+    PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL4,
         "%s: %.3f seconds",
         MessageTypeToString(message->getType()),
         stopWatch.getElapsed()));
@@ -798,7 +798,7 @@ void IndicationService::_initialize()
 #ifdef PEGASUS_INDICATION_PERFINST
     stopWatch.stop();
 
-    PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+    PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL4,
         "%s: %.3f seconds", "Initialize", stopWatch.getElapsed()));
 #endif
 
@@ -2338,7 +2338,7 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
 #ifdef PEGASUS_INDICATION_PERFINST
     stopWatch.stop();
 
-    PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+    PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL4,
         "%s: %.3f seconds", "Process Indication", stopWatch.getElapsed()));
 #endif
 

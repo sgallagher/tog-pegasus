@@ -100,10 +100,6 @@ Boolean AuthenticationManager::isRemotePrivilegedUserAccessAllowed(
             getCurrentValue("enableRemotePrivilegedUserAccess"))
         && System::isPrivilegedUser(userName))
     {
-        PEG_TRACE((TRC_AUTHENTICATION, Tracer::LEVEL2,
-            "Authentication failed for user '%s' because "
-            "enableRemotePrivilegedUserAccess is not set to 'true'.",
-            (const char*) userName.getCString()));
         Logger::put_l(
             Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
             "Security.Authentication.BasicAuthenticationHandler."

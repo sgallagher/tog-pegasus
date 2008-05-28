@@ -69,7 +69,7 @@ void SystemLogListenerDestination::handleIndication(
 
     try
     {
-        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
             "SystemLogListenerDestination %s:%s.%s processing %s Indication",
            (const char*)(nameSpace.getCString()),
            (const char*)(handler.getClassName().getString().getCString()),

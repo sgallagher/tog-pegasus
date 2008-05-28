@@ -626,7 +626,6 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
     {
         String errorMsg = String("getpwnam_r failure : ") +
                             String(strerror(errno));
-        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2, errorMsg);
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
                                   errorMsg);
         throw InternalSystemError();
@@ -644,7 +643,6 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
         {
             String errorMsg = String("getgrgid_r failure : ") +
                                  String(strerror(errno));
-            PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2, errorMsg);
             Logger::put(
                 Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
                 errorMsg);
@@ -668,7 +666,6 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
     {
         String errorMsg = String("getgrnam_r failure : ") +
             String(strerror(errno));
-        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2, errorMsg);
         Logger::put(
             Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING, errorMsg);
         throw InternalSystemError();

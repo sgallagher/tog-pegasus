@@ -3478,11 +3478,6 @@ void CMPIProviderManager::_callEnableIndications
     }
     catch (const Exception & e)
     {
-        PEG_TRACE_STRING(
-            TRC_PROVIDERMANAGER,
-            Tracer::LEVEL2,
-            "Exception in _callEnableIndications: " + e.getMessage ());
-
         Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
             "ProviderManager.CMPI.CMPIProviderManager."
             "ENABLE_INDICATIONS_FAILED",
@@ -3491,11 +3486,6 @@ void CMPIProviderManager::_callEnableIndications
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(
-            TRC_PROVIDERMANAGER,
-            Tracer::LEVEL2,
-            "Unexpected error in _callEnableIndications");
-
         Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
             "ProviderManager.CMPI.CMPIProviderManager."
             "ENABLE_INDICATIONS_FAILED_UNKNOWN",
@@ -3577,11 +3567,6 @@ void CMPIProviderManager::_callDisableIndications
     }
     catch (const Exception & e)
     {
-        PEG_TRACE_STRING(
-            TRC_PROVIDERMANAGER,
-            Tracer::LEVEL2,
-            "Exception in _callDisableIndications: " + e.getMessage ());
-
         Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
             "ProviderManager.CMPI.CMPIProviderManager."
             "DISABLE_INDICATIONS_FAILED",
@@ -3590,11 +3575,6 @@ void CMPIProviderManager::_callDisableIndications
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(
-            TRC_PROVIDERMANAGER,
-            Tracer::LEVEL2,
-            "Unexpected error in _callDisableIndications");
-
         Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
             "ProviderManager.CMPI.CMPIProviderManager."
             "DISABLE_INDICATIONS_FAILED_UNKNOWN",

@@ -300,12 +300,12 @@ ProviderManagerService::handleCimOperation(void* arg)
     }
     catch (const Exception& e)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "Unexpected exception in handleCimOperation: " + e.getMessage());
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "Unexpected exception in handleCimOperation.");
     }
 
@@ -622,13 +622,13 @@ void ProviderManagerService::responseChunkCallback(
     }
     catch (Exception &e)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "Exception in ProviderManagerService::responseChunkCallback: " +
                 e.getMessage() + ".  Chunk not delivered.");
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "Exception in ProviderManagerService::responseChunkCallback.  "
                 "Chunk not delivered.");
     }
@@ -1175,7 +1175,7 @@ void ProviderManagerService::providerModuleFailureCallback
             }
             catch (const Exception & e)
             {
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
                     "Failed to update provider module status: " +
                     e.getMessage());
             }

@@ -173,7 +173,7 @@ void ProviderAgent::run()
         }
         catch (...)
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
                 "Unexpected exception from _readAndProcessRequest().");
             _terminating = true;
         }
@@ -208,7 +208,7 @@ void ProviderAgent::run()
             catch (...)
             {
                 // Do not terminate the agent on this exception
-                PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+                PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
                     "Unexpected exception from hasActiveProviders()");
             }
         }
@@ -238,7 +238,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
     // Read operation was interrupted
     if (readStatus == AnonymousPipe::STATUS_INTERRUPT)
     {
-        PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
             "Read operation was interrupted.");
         PEG_METHOD_EXIT();
         return false;
@@ -256,7 +256,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
 
     if (readStatus == AnonymousPipe::STATUS_ERROR)
     {
-        PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
             "Error reading from pipe. Exiting.");
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
             "ProviderManager.ProviderAgent.ProviderAgent."
@@ -337,9 +337,6 @@ Boolean ProviderAgent::_readAndProcessRequest()
     if (!_isInitialised &&
         (request->getType() != CIM_INITIALIZE_PROVIDER_AGENT_REQUEST_MESSAGE))
     {
-        PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
-            "Provider Agent was not yet initialised,"
-            " prior to receiving a request message.");
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
             "ProviderManager.ProviderAgent.ProviderAgent."
             "PROVIDERAGENT_NOT_INITIALIZED",
@@ -565,7 +562,7 @@ Message* ProviderAgent::_processRequest(CIMRequestMessage* request)
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
             "Caught exception while processing request.");
         CIMResponseMessage* cimResponse = request->buildResponse();
         cimResponse->cimException = PEGASUS_CIM_EXCEPTION(
@@ -597,7 +594,7 @@ void ProviderAgent::_writeResponse(Message* message)
 
         if (writeStatus != AnonymousPipe::STATUS_SUCCESS)
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
                 "Error writing response to pipe.");
             Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
                 "ProviderManager.ProviderAgent.ProviderAgent."
@@ -610,7 +607,7 @@ void ProviderAgent::_writeResponse(Message* message)
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
             "Caught exception while writing response.");
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
             "ProviderManager.ProviderAgent.ProviderAgent."

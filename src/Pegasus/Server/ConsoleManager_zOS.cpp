@@ -424,9 +424,6 @@ void* ZOSConsoleManager::consoleCommandWatchThread(void*)
             char str_errno2[10];
             sprintf(str_errno2,"%08X",__errno2());
 
-            PEG_TRACE((TRC_SERVER, Tracer::LEVEL2,
-                "Failed to issue __console() command: %s",
-                       strerror(errornumber)));
             Logger::put_l(
                 Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
                 "Server.ConsoleManager_zOS.CONSOLE_ERROR.PEGASUS_OS_ZOS",

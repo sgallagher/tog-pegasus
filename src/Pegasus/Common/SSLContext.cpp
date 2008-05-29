@@ -1317,6 +1317,11 @@ SSLCertificateVerifyFunction*
     return _rep->getSSLCertificateVerifyFunction();
 }
 
+void SSLContext::_validateCertificate()
+{
+    _rep->validateCertificate();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // SSLCertificateInfo

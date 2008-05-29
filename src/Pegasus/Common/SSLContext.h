@@ -53,7 +53,6 @@ class SSLContextRep;
 class SSLContext;
 class SSLSocket;
 class CIMServer;
-class CIMxmlIndicationHandler;
 class SSLCertificateInfo;
 class SSLCallback;
 class SSLContextManager;
@@ -479,14 +478,12 @@ private:
     SSLContext();
     SSLContext& operator=(const SSLContext& sslContext);
 
+    void _validateCertificate();
+
     SSLContextRep* _rep;
 
     friend class SSLSocket;
-
     friend class CIMServer;
-
-    friend class CIMxmlIndicationHandler;
-
     friend class SSLContextManager;
 };
 

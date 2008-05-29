@@ -44,7 +44,6 @@
 #endif
 
 #include <Pegasus/Common/SSLContext.h>
-#include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Common/Threads.h>
 #include <Pegasus/Common/Tracer.h>
@@ -203,7 +202,7 @@ public:
     friend class SSLCallbackInfo;
 };
 
-class PEGASUS_COMMON_LINKAGE SSLContextRep
+class SSLContextRep
 {
 public:
 

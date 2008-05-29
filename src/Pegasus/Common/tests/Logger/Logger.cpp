@@ -111,6 +111,7 @@ Uint32 compare(const char* fileName, const char* expectedMessage)
 
 void testLogToTraceDuplication()
 {   
+#ifndef PEGASUS_REMOVE_TRACE
     // Setting log level to trace to check that there is no recursion
     // between Logger and Tracer happening
     Logger::setlogLevelMask("TRACE");
@@ -194,6 +195,7 @@ void testLogToTraceDuplication()
     8138, 
     "Hello World");
     PEGASUS_TEST_ASSERT(!compare(FILE1,"X=8138, Y=Hello World"));
+#endif
 }
 
 

@@ -1071,6 +1071,9 @@ void IndicationService::_handleGetInstanceRequest(const Message* message)
     CIMInstance instance;
     String contentLangsString;
 
+    String userName = ((IdentityContainer)request->operationContext.
+        get(IdentityContainer::NAME)).getUserName();
+
     try
     {
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
@@ -1078,10 +1081,7 @@ void IndicationService::_handleGetInstanceRequest(const Message* message)
             request->className.equal(
                 PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES))
         {
-            String userName = ((IdentityContainer)request->operationContext.
-                get(IdentityContainer::NAME)).getUserName();
             _checkNonprivilegedAuthorization(userName);
-
             instance = _indicationServiceConfiguration->getInstance(
                 request->nameSpace,
                 request->instanceName,
@@ -1108,8 +1108,6 @@ void IndicationService::_handleGetInstanceRequest(const Message* message)
         else
 #endif
         {
-            String userName = ((IdentityContainer)request->operationContext.
-                get(IdentityContainer::NAME)).getUserName();
             _checkNonprivilegedAuthorization(userName);
 
             //
@@ -1245,6 +1243,9 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
     CIMException cimException;
     String aggregatedLangs;
 
+    String userName = ((IdentityContainer)request->operationContext.
+        get(IdentityContainer::NAME)).getUserName();
+
     try
     {
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
@@ -1252,6 +1253,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
             request->className.equal(
                 PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES))
         {
+            _checkNonprivilegedAuthorization(userName);
             returnedInstances = _indicationServiceConfiguration->
                 enumerateInstancesForClass(
                     request->nameSpace,
@@ -1279,10 +1281,8 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
         else
 #endif
         {
-            Array<CIMInstance> enumInstances;
-            String userName = ((IdentityContainer)request->operationContext.
-                get(IdentityContainer::NAME)).getUserName();
             _checkNonprivilegedAuthorization(userName);
+            Array<CIMInstance> enumInstances;
 
             //
             //  Add Creator to property list, if not null
@@ -1442,6 +1442,9 @@ void IndicationService::_handleEnumerateInstanceNamesRequest(
 
     CIMException cimException;
 
+    String userName = ((IdentityContainer)request->operationContext.get(
+        IdentityContainer::NAME)).getUserName();
+
     try
     {
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
@@ -1450,6 +1453,7 @@ void IndicationService::_handleEnumerateInstanceNamesRequest(
             request->className.equal(
                 PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES))
         {
+            _checkNonprivilegedAuthorization(userName);
             enumInstanceNames = _indicationServiceConfiguration->
                 enumerateInstanceNamesForClass(
                     request->nameSpace,
@@ -1473,8 +1477,6 @@ void IndicationService::_handleEnumerateInstanceNamesRequest(
         else
 #endif
         {
-            String userName = ((IdentityContainer)request->operationContext.get(
-                IdentityContainer::NAME)).getUserName();
             _checkNonprivilegedAuthorization(userName);
             enumInstanceNames =
                 _subscriptionRepository->enumerateInstanceNamesForClass(

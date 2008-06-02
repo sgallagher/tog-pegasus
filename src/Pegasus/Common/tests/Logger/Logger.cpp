@@ -227,11 +227,17 @@ int main(int argc, char** argv)
     String f1 (tmpDir);
     f1.append("/log.trace");
     FILE1 = f1.getCString();
+    
+    // To ensure we start clean, just trying to remove the file
+    // in case it already exists
+    System::removeFile(FILE1);
 
     // 
     testLogToTraceDuplication();
 
     cout << argv[0] << " +++++ passed all tests" << endl;
+
+    System::removeFile(FILE1);
 
     return 0;
 }

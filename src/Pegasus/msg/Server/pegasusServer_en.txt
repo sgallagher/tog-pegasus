@@ -1437,6 +1437,13 @@ not be valid."}
         */
         ProviderManager.ProviderManagerService.PROVIDER_FILE_NOT_FOUND:string {"PGS04010: File \"{0}\" was not found for provider module \"{1}\"."}
 
+        /**
+        * @note  PGS04011
+        *    Substitution {0} is a provider interface type (a string)
+        *    Substitution {1} is a provider interface version (a string)
+        */
+        ProviderManager.ProviderManagerService.PROVIDERMANAGER_LOOKUP_FAILED:string {"PGS04011: Provider interface type ''{0}'' version ''{1}'' is not recognized."}
+
 
         // ==========================================================
         // Messages for ProviderModule

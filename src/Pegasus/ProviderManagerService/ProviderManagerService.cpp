@@ -737,8 +737,26 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
             ivValue.get(interfaceVersion);
 
             String provMgrPath;
-            ProviderManagerMap::instance().getProvMgrPathForIfcType(
-                interfaceType, interfaceVersion, provMgrPath);
+
+            if (!ProviderManagerMap::instance().getProvMgrPathForIfcType(
+                    interfaceType, interfaceVersion, provMgrPath))
+            {
+                MessageLoaderParms parms(
+                    "ProviderManager.ProviderManagerService."
+                        "PROVIDERMANAGER_LOOKUP_FAILED",
+                    "Provider interface type \"$0\" version \"$1\" is not "
+                        "recognized.",
+                    interfaceType,
+                    interfaceVersion);
+                Logger::put(
+                    Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                    MessageLoader::getMessage(parms));
+
+                CIMResponseMessage* cimResponse = request->buildResponse();
+                cimResponse->cimException = PEGASUS_CIM_EXCEPTION_L(
+                    CIM_ERR_FAILED, parms);
+                return cimResponse;
+            }
 
             pidc.setProvMgrPath(provMgrPath);
 

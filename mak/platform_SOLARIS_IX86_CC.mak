@@ -161,3 +161,20 @@ SYS_LIBS = $(COMMON_SYS_LIBS) $(EXTRA_LIBRARIES)
 ##==============================================================================
 LIBRARY_SYS_LIBS = $(COMMON_SYS_LIBS)
 
+##==============================================================================
+##
+## OpenSSL Settings
+##
+##     To build for SSL, add PEGASUS_HAS_SSL=1 to environment
+##
+##==============================================================================
+
+OPENSSL_HOME=/usr/sfw
+OPENSSL_BIN=/usr/sfw/bin
+OPENSSL_COMMAND=/usr/sfw/bin/openssl
+PEGASUS_ENABLE_SSL_CRL_VERIFICATION=true
+PEGASUS_USE_SSL_RANDOMFILE=true
+
+ifdef PEGASUS_HAS_SSL
+  FLAGS += -L$(OPENSSL_HOME)/lib
+endif

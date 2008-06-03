@@ -1004,6 +1004,110 @@ void test07()
 
 }
 
+// Test non-existent reference parameter type
+void test08()
+{
+    if (verbose)
+    {
+        cout << "Test08 - Detecting non-existent reference parameter type" 
+             << endl;    
+    }
+
+    const CIMNamespaceName NAMESPACE = CIMNamespaceName("/ttt");
+    SimpleDeclContext* context = new SimpleDeclContext;
+
+    // Define the qualifiers
+
+    CIMQualifierDecl key(CIMName("key"), Boolean(true),
+        (CIMScope::PROPERTY + CIMScope::REFERENCE), CIMFlavor::TOSUBCLASS);
+    CIMQualifierDecl association(CIMName("association"), Boolean(true),
+        (CIMScope::CLASS + CIMScope::ASSOCIATION), CIMFlavor::TOSUBCLASS);
+    CIMQualifierDecl override(CIMName("override"), Boolean(true),
+        (CIMScope::PROPERTY + CIMScope::REFERENCE), CIMFlavor::RESTRICTED);
+
+    if (verbose)
+    {
+        XmlWriter::printQualifierDeclElement(key);
+        XmlWriter::printQualifierDeclElement(association);
+        XmlWriter::printQualifierDeclElement(override);
+    }
+    context->addQualifierDecl(NAMESPACE, key);
+    context->addQualifierDecl(NAMESPACE, association);
+    context->addQualifierDecl(NAMESPACE, override);
+
+    // Define a valid endpoint class
+
+    CIMClass ep(CIMName("MyEndpoint"));
+    ep.addProperty(CIMProperty(CIMName("index"), Uint32(1)));
+    context->addClass(NAMESPACE, ep);
+
+    // Define a valid superclass
+
+    CIMProperty ref1(
+        CIMName("reference1"),
+        CIMValue(CIMTYPE_REFERENCE, false, 0),
+        0,
+        "MyEndpoint");
+    ref1.addQualifier(CIMQualifier(CIMName("key"), Boolean(true)));
+    CIMProperty ref2(
+        CIMName("reference2"),
+        CIMValue(CIMTYPE_REFERENCE, false, 0),
+        0,
+        "MyEndpoint");
+    ref2.addQualifier(CIMQualifier(CIMName("key"), Boolean(true)));
+
+    CIMClass super(CIMName("MySuperClass"));
+    super.addProperty(CIMProperty(ref1));
+    super.addProperty(CIMProperty(ref2));
+    context->addClass(NAMESPACE, super);
+
+    // Define a subclass that overrides the reference type with a non-existent
+    // class
+
+    CIMProperty ref1override(
+        CIMName("reference1"),
+        CIMValue(CIMTYPE_REFERENCE, false, 0),
+        0,
+        "NonexistentClass");
+    ref1override.addQualifier(CIMQualifier(CIMName("key"), Boolean(true)));
+    ref1override.addQualifier(CIMQualifier(CIMName("override"), Boolean(true)));
+    CIMProperty ref2override(
+        CIMName("reference2"),
+        CIMValue(CIMTYPE_REFERENCE, false, 0),
+        0,
+        "NonexistentClass");
+    ref2override.addQualifier(CIMQualifier(CIMName("key"), Boolean(true)));
+    ref2override.addQualifier(CIMQualifier(CIMName("override"), Boolean(true)));
+
+    CIMClass c(CIMName("MyClass"), CIMName("MySuperclass"));
+    c.addQualifier(CIMQualifier(CIMName("Association"), Boolean(true)));
+    c.addProperty(CIMProperty(ref1override));
+    c.addProperty(CIMProperty(ref2override));
+
+    if (verbose)
+    {
+        XmlWriter::printClassElement(c);
+    }
+
+    try
+    {
+        // Attempt to resolve the class with references to non-existent classes
+        Resolver::resolveClass(c, context, NAMESPACE);
+        // An exception should have been thrown
+        PEGASUS_ASSERT(false);
+    }
+    catch (CIMException& e)
+    {
+        PEGASUS_ASSERT(e.getCode() == CIM_ERR_INVALID_PARAMETER);
+    }
+
+    delete context;
+    if (verbose)
+    {
+        cout << "End Test08" << endl;
+    }
+}
+
 //ATTN: KS P1 Mar 7 2002.  Add tests propagation qual, method, propertys
 //as follows:
 //  Confirm that qualifiers are propagated correctly based on flavors
@@ -1024,6 +1128,7 @@ int main(int argc, char** argv)
         test05();
         test06(); // Test for no superclass
         test07();   // Confirm noverridable qualifier cannot be in subclass
+        test08();
     }
     catch (Exception& e)
     {

@@ -264,7 +264,7 @@ void CIMPropertyRep::resolve(
                     if (currentClass.isUninitialized())
                     {
                         throw PEGASUS_CIM_EXCEPTION(
-                                CIM_ERR_NOT_FOUND, currentName.getString());
+                            CIM_ERR_INVALID_PARAMETER, currentName.getString());
                     }
                     currentName = currentClass.getSuperClassName();
                 }

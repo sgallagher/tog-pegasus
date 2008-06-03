@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +44,11 @@
 # include <unistd.h>
 #endif
 
-#if defined(PEGASUS_OS_SOLARIS)
+#if defined(PEGASUS_OS_ZOS)
+# include <unistd.h>
+#endif
+
+#if defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC)
 # include <unistd.h>
 #endif
 
@@ -101,6 +107,60 @@ void Threads::sleep(int msec)
 
 //==============================================================================
 //
+// _get_stack_multiplier()
+//
+//==============================================================================
+
+static inline int _get_stack_multiplier()
+{
+#if defined(PEGASUS_OS_VMS)
+
+    static int _multiplier = 0;
+    static MutexType _multiplier_mutex = PEGASUS_MUTEX_INITIALIZER;
+
+    //
+    // This code uses a, 'hidden' (non-documented), VMS only, logical
+    //  name (environment variable), PEGASUS_VMS_THREAD_STACK_MULTIPLIER,
+    //  to allow in the field adjustment of the thread stack size.
+    //
+    // We only check for the logical name once to not have an
+    //  impact on performance.
+    //
+    // Note:  This code may have problems in a multithreaded environment
+    //  with the setting of doneOnce to true.
+    //
+    // Current code in Cimserver and the clients do some serial thread
+    //  creations first so this is not a problem now.
+    //
+
+    if (_multiplier == 0)
+    {
+        mutex_lock(&_multiplier_mutex);
+
+        if (_multiplier == 0)
+        {
+            const char *env = getenv("PEGASUS_VMS_THREAD_STACK_MULTIPLIER");
+
+            if (env)
+                _multiplier = atoi(env);
+
+            if (_multiplier == 0)
+                _multiplier = 2;
+        }
+
+        mutex_unlock(&_multiplier_mutex);
+    }
+
+    return _multiplier;
+#elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+    return 2;
+#else
+    return 1;
+#endif
+}
+
+//==============================================================================
+//
 // PEGASUS_HAVE_PTHREADS
 //
 //==============================================================================
@@ -116,17 +176,13 @@ int Threads::create(
     // Initialize thread attributes:
 
     pthread_attr_t attr;
-    int rc = pthread_attr_init(&attr);
-    if(rc != 0)
-    {
-        return rc;
-    }
+    pthread_attr_init(&attr);
 
     // Detached:
 
     if (type == DETACHED)
     {
-#if defined(PEGASUS_OS_ZOS)
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
         int ds = 1;
         pthread_attr_setdetachstate(&attr, &ds);
 #else
@@ -135,24 +191,39 @@ int Threads::create(
     }
 
     // Stack size:
-    rc = pthread_attr_setstacksize(&attr, PEGASUS_INITIAL_THREADSTACK_SIZE);
-    PEGASUS_ASSERT(rc == 0);
+
+    int multiplier = _get_stack_multiplier();
+
+    if (multiplier != 1)
+    {
+        size_t stacksize;
+
+        if (pthread_attr_getstacksize(&attr, &stacksize) == 0)
+        {
+            int rc = pthread_attr_setstacksize(&attr, stacksize * multiplier);
+            PEGASUS_ASSERT(rc == 0);
+        }
+    }
 
     // Scheduling policy:
 
-#if defined(PEGASUS_OS_SOLARIS)
-
+#if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU) || \
+    defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
+# if (defined SUNOS_5_7)
+    pthread_attr_setschedpolicy(&attr, SCHED_RR);
+# else
     pthread_attr_setschedpolicy(&attr, SCHED_OTHER);
-
-#endif /* defined(PEGASUS_OS_SOLARIS) */
+# endif
+#endif // PEGASUS_PLATFORM_SOLARIS_SPARC_GNU
 
     // Create thread:
 
-    rc = pthread_create(&thread.thread, &attr, start, arg);
+    int rc = pthread_create(&thread.thread, &attr, start, arg);
 
     if (rc != 0)
     {
         thread = ThreadType();
+        return rc;
     }
 
     // Destroy attributes now.
@@ -161,7 +232,7 @@ int Threads::create(
 
     // Return:
 
-    return rc;
+    return 0;
 }
 
 ThreadType Threads::self()

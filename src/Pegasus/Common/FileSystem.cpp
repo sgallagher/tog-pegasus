@@ -1,35 +1,38 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
+//#include <cstdio>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/AutoPtr.h>
@@ -40,7 +43,6 @@
 #include <pwd.h>
 #endif
 #include <Pegasus/Common/Tracer.h>
-
 PEGASUS_NAMESPACE_BEGIN
 
 // Clone the path as a C String but discard trailing slash if any:
@@ -74,9 +76,7 @@ Boolean FileSystem::getCurrentDirectory(String& path)
 
 Boolean FileSystem::existsNoCase(const String& path, String& realPath)
 {
-#if !defined(PEGASUS_OS_VMS) && \
-    !defined(PEGASUS_OS_TYPE_WINDOWS) && \
-    !defined(PEGASUS_OS_DARWIN)
+#if !defined(PEGASUS_OS_VMS) && !defined(PEGASUS_OS_TYPE_WINDOWS)
 
     // If a file exists that has the same case as the path parmater,
     // then we can bypass the expensive directory scanning below.
@@ -447,7 +447,6 @@ String FileSystem::getAbsoluteFileName(
     return root;
 }
 
-
 String FileSystem::buildLibraryFileName(const String &libraryName)
 {
     String fileName;
@@ -468,57 +467,43 @@ String FileSystem::getDynamicLibraryExtension()
 {
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
     return String(".dll");
-#elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || \
-    defined (PEGASUS_PLATFORM_HPUX_PARISC_GNU)
+#elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
     return String(".sl");
 #elif defined(PEGASUS_OS_DARWIN)
     return String(".dylib");
 #elif defined(PEGASUS_OS_VMS)
     return String(".exe");
-#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES64_IBM)
-    return String("64.so");
 #else
     return String(".so");
 #endif
 }
 
-Boolean GetLine(PEGASUS_STD(istream)& is, Buffer& line)
+Boolean GetLine(PEGASUS_STD(istream)& is, String& line)
 {
-    const Uint32 buffersize = 1024;
-    Uint32 gcount = 0;
-
     line.clear();
 
-    // Read the input line in chunks.  A non-full buffer indicates the end of
-    // the line has been reached.
-    do
+    Boolean gotChar = false;
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+    char input[1000];
+    is.getline(input,1000);
+    line.assign(input);
+
+    gotChar = !(is.rdstate() & PEGASUS_STD(istream)::failbit);
+#else
+    char c;
+
+    while (is.get(c))
     {
-        char input[buffersize];
+        gotChar = true;
 
-        // This reads up to buffersize-1 char, but stops before consuming
-        // a newline character ('\n').
-        is.get(input, buffersize);
-
-        gcount = (Uint32)is.gcount();
-        line.append(input, gcount);
-
-        if (is.rdstate() & PEGASUS_STD(istream)::failbit)
-        {
-            // It is okay if we encounter the newline character without reading
-            // data.
-            is.clear();
+        if (c == '\n')
             break;
-        }
-    } while (gcount == buffersize-1);
 
-    if (!is.eof())
-    {
-        // we need to consume the '\n', because get() doesn't
-        char c = 0;
-        is.get(c);
+        line.append(c);
     }
+#endif
 
-    return !!is;
+    return gotChar;
 }
 
 //
@@ -537,14 +522,15 @@ Boolean FileSystem::changeFileOwner(
     PEG_METHOD_ENTER(TRC_AUTHENTICATION, "FileSystem::changeFileOwner()");
 
     struct passwd* userPasswd;
-#if defined(PEGASUS_OS_SOLARIS) || \
+#if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) || \
+    defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC) || \
     defined(PEGASUS_OS_HPUX) || \
     defined(PEGASUS_OS_LINUX) || \
-    defined (PEGASUS_OS_VMS) || \
-    defined (PEGASUS_OS_AIX)
+    defined (PEGASUS_OS_VMS)
 
     const unsigned int PWD_BUFF_SIZE = 1024;
     struct passwd pwd;
+    struct passwd *result;
     char pwdBuffer[PWD_BUFF_SIZE];
 
     if (getpwnam_r(userName.getCString(), &pwd, pwdBuffer, PWD_BUFF_SIZE,
@@ -566,7 +552,7 @@ Boolean FileSystem::changeFileOwner(
 
     Sint32 ret = chown(
         fileName.getCString(), userPasswd->pw_uid, userPasswd->pw_gid);
-
+        
     if (ret == -1)
     {
         PEG_METHOD_EXIT();
@@ -579,31 +565,18 @@ Boolean FileSystem::changeFileOwner(
 #endif
 }
 
-#if defined(PEGASUS_OS_HPUX)
 void FileSystem::syncWithDirectoryUpdates(PEGASUS_STD(fstream)& fs)
 {
-  #if defined (PEGASUS_PLATFORM_HPUX_IA64_GNU) || \
-    defined (PEGASUS_PLATFORM_HPUX_PARISC_GNU)
-    // Writes the data from the iostream buffers to the OS buffers
-    fs.flush();
-    // Writes the data from the OS buffers to the disk
-    fs.rdbuf()->pubsync();
-    #else
+#if defined(PEGASUS_OS_HPUX)
     // Writes the data from the iostream buffers to the OS buffers
     fs.flush();
     // Writes the data from the OS buffers to the disk
     fsync(fs.rdbuf()->fd());
-    #endif
-}
-#else
-void FileSystem::syncWithDirectoryUpdates(PEGASUS_STD(fstream)&)
-{
-    //Not HP-UX, do nothing (compiler will remove this fct on optimization)
-}
 #endif
+}
 
 Boolean FileSystem::glob(
-    const String& path,
+    const String& path, 
     const String& pattern_,
     Array<String>& filenames)
 {

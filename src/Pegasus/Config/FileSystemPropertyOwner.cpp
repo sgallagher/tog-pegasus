@@ -66,9 +66,9 @@ static struct ConfigPropertyRow properties[] =
     {"messageDir", "msg", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
-    {"providerManagerDir", "lib;bin", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"providerManagerDir", "bin", IS_STATIC, 0, 0, IS_VISIBLE},
 #elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-    {"providerManagerDir", "lib:providermanager", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"providerManagerDir", "lib", IS_STATIC, 0, 0, IS_VISIBLE},
 #elif defined(PEGASUS_OS_PASE) && defined(PEGASUS_USE_RELEASE_DIRS)
     {"providerManagerDir", 
         "/QOpenSys/QIBM/ProdData/UME/Pegasus/providermanager", 

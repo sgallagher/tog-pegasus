@@ -146,22 +146,6 @@ ifndef PEGASUS_USE_MU_DEPEND
 PEGASUS_HAS_MAKEDEPEND = yes
 endif
 
-ifdef PEGASUS_HAS_MESSAGES
-    ifeq ($(PEGASUS_HAS_ICU), true)
-        MSG_COMPILE = genrb
-        MSG_FLAGS =
-        MSG_SOURCE_EXT = .txt
-        MSG_COMPILE_EXT = .res
-        CNV_ROOT_CMD = $(BIN_DIR)/cnv2rootbundle
-
-        ifdef ICU_INSTALL
-            SYS_INCLUDES += -I${ICU_INSTALL}/include
-            EXTRA_LIBRARIES += -L$(ICU_INSTALL)/lib
-        endif
-        EXTRA_LIBRARIES += -licuuc -licui18n -licudata
-    endif
-endif
-
 ##==============================================================================
 ##
 ## Set the default visibility symbol to hidden for shared libraries. This 

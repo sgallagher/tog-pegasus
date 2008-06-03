@@ -185,19 +185,6 @@ PEGASUS_DISABLE_PROV_USERCTXT=1
 # Windows does not support local domain sockets or the equivalent Bug 2147
 PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET=1
 
-ifdef PEGASUS_HAS_MESSAGES
-    ifeq ($(PEGASUS_HAS_ICU),true)
-        MSG_COMPILE = genrb
-        MSG_FLAGS =
-        MSG_SOURCE_EXT = .txt
-        MSG_COMPILE_EXT = .res
-        CNV_ROOT_CMD = cnv2rootbundle
-
-        EXTRA_LIBRARIES += $(ICU_INSTALL)/lib/icuuc.lib $(ICU_INSTALL)/lib/icuin.lib $(ICU_INSTALL)/lib/icudt.lib
-        SYS_INCLUDES += -I$(ICU_INSTALL)/include
-    endif
-endif
-
 PEGASUS_JAVA_CLASSPATH_DELIMITER = ;
 
 

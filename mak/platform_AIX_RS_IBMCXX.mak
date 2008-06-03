@@ -103,19 +103,6 @@ ifdef PEGASUS_PAM_AUTHENTICATION
  DEFINES += -DPEGASUS_PAM_AUTHENTICATION -DPEGASUS_NO_PASSWORDFILE
 endif
 
-ifdef PEGASUS_HAS_MESSAGES
-    ifeq ($(PEGASUS_HAS_ICU),true)
-        MSG_COMPILE = ${ICU_INSTALL}/bin/genrb
-        MSG_FLAGS =
-        MSG_SOURCE_EXT = .txt
-        MSG_COMPILE_EXT = .res
-        CNV_ROOT_CMD = cnv2rootbundle
-
-        SYS_INCLUDES += -I${ICU_INSTALL}/include
-        EXTRA_LIBRARIES += -L${ICU_INSTALL}/lib -licui18n -licuuc
-    endif
-endif
-
 ifdef PEGASUS_USE_RELEASE_DIRS
   PEGASUS_DEST_LIB_DIR =/usr/lib
 endif

@@ -128,18 +128,3 @@ LIB_SUFFIX = .so
 PEGASUS_SUPPORTS_DYNLIB = yes
 
 PEGASUS_HAS_MAKEDEPEND = yes
-
-ifdef PEGASUS_HAS_MESSAGES
-    ifeq ($(PEGASUS_HAS_ICU),true)
-        MSG_COMPILE = ${ICU_INSTALL}/bin/genrb
-        MSG_FLAGS =
-        MSG_SOURCE_EXT = .txt
-        MSG_COMPILE_EXT = .res
-        CNV_ROOT_CMD = cnv2rootbundle
-
-        SYS_INCLUDES += -I${ICU_INSTALL}/include
-        FLAGS += -L${ICU_INSTALL}/lib
-        PR_FLAGS += -L${ICU_INSTALL}/lib
-        EXTRA_LIBRARIES += ${ICU_INSTALL}/lib/libicui18n.x ${ICU_INSTALL}/lib/libicuuc.x
-    endif
-endif

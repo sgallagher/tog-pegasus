@@ -69,8 +69,13 @@ void TraceLogHandler::handleMessage(
     {
         char buffer[4096];
         
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+        // Windows until VC 8 does not support vsnprintf
+        // need to use Windows equivalent function with the underscore
+        _vsnprintf(buffer, 4095, fmt, argList);
+#else
         vsnprintf(buffer, 4095, fmt, argList);
-        
+#endif        
         String completeMsg(buffer);
         completeMsg.append(message);
         

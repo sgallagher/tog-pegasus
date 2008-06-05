@@ -604,12 +604,7 @@ Thread * _runTestThreads(
     return t.release();
 }
 
-String _getLogFile()
-{
-    return("trapLogFile");
-}
-
-Uint32 _getReceivedTrapCount(Uint16 snmpVersion)
+Uint32 _getReceivedTrapCount(Uint16 snmpVersion, const String& logFile)
 {
     String trap1 = "Trap Info: TRAP, SNMP v1, community public";
     String trap2 = "Trap Info: TRAP2, SNMP v2c, community public";
@@ -617,7 +612,7 @@ Uint32 _getReceivedTrapCount(Uint16 snmpVersion)
     Uint32 receivedTrap1Count = 0;
     Uint32 receivedTrap2Count = 0;
 
-    ifstream ifs(_getLogFile().getCString());
+    ifstream ifs(logFile.getCString());
     if (!ifs)
     {
         return (0);
@@ -660,13 +655,11 @@ Uint32 _getReceivedTrapCount(Uint16 snmpVersion)
 // Stop snmptrapd process if it is running and remove
 // procIdFile file if it exists
 //
-void _stopSnmptrapd()
+void _stopSnmptrapd(const String& processIdFile)
 {
-    String procIdFileName = "procIdFile";
-
     Uint32 receiverPid;
     FILE *fd;
-    if ((fd = fopen(procIdFileName.getCString(), "r")) != NULL)
+    if ((fd = fopen(processIdFile.getCString(), "r")) != NULL)
     {
         if (fscanf(fd, "%d\n", &receiverPid) != 1)
         {
@@ -678,14 +671,16 @@ void _stopSnmptrapd()
         fclose(fd);
     }
 
-    if (FileSystem::exists(procIdFileName))
+    if (FileSystem::exists(processIdFile))
     {
-        FileSystem::removeFile(procIdFileName);
+        FileSystem::removeFile(processIdFile);
     }
 }
 
 static Boolean _startSnmptrapd(
-    FILE **trapInfo)
+    FILE **trapInfo,
+    const String& processIdFile,
+    const String& logFile)
 {
     String snmptrapdCmd;
 
@@ -700,7 +695,10 @@ static Boolean _startSnmptrapd(
     // Specify logging incoming traps to trapLogFile
     // Save the process ID of the snmptrapd in procIdFile
     snmptrapdCmd.append(
-        "/usr/sbin/snmptrapd -f -Lf trapLogFile -p procIdFile");
+        "/usr/sbin/snmptrapd -f -Lf ");
+    snmptrapdCmd.append(logFile);
+    snmptrapdCmd.append(" -p ");
+    snmptrapdCmd.append(processIdFile);
 
     // Specify incoming trap format
     snmptrapdCmd.append( " -F \"\nTrap Info: %P\nVariable: %v\n\"");
@@ -732,7 +730,7 @@ static Boolean _startSnmptrapd(
     while (iterations < MAX_ITERATIONS)
     {
         iterations++;
-        if (FileSystem::exists("procIdFile"))
+        if (FileSystem::exists(processIdFile))
         {
             return (true);
         }
@@ -747,10 +745,8 @@ static Boolean _startSnmptrapd(
 }
 #endif
 
-void _removeTrapLogFile ()
+void _removeTrapLogFile(const String& logFile)
 {
-    String logFile = _getLogFile();
-
     // if trapLogFile exists, remove it
     if (FileSystem::exists(logFile))
     {
@@ -761,7 +757,8 @@ void _removeTrapLogFile ()
 void _receiveExpectedTraps(
     CIMClient& workClient,
     Uint32 indicationSendCount,
-    Uint32 runClientThreadCount)
+    Uint32 runClientThreadCount,
+    const String& logFile)
 {
     Uint32 indicationTrapV1SendCount = 0;
     Uint32 indicationTrapV2SendCount = 0;
@@ -854,8 +851,10 @@ void _receiveExpectedTraps(
     {
         totalIterations++;
 
-        currentReceivedTrap1Count = _getReceivedTrapCount(_SNMPV1_TRAP);
-        currentReceivedTrap2Count = _getReceivedTrapCount(_SNMPV2C_TRAP);
+        currentReceivedTrap1Count = 
+            _getReceivedTrapCount(_SNMPV1_TRAP, logFile);
+        currentReceivedTrap2Count = 
+            _getReceivedTrapCount(_SNMPV2C_TRAP, logFile);
 
         if (totalIterations % COUT_TIME_INTERVAL == 1 &&
             !(receivedTrapCountComplete))
@@ -927,22 +926,24 @@ void _receiveExpectedTraps(
 
 int _beginTest(CIMClient& workClient,
     Uint32 indicationSendCount,
-    Uint32 runClientThreadCount)
+    Uint32 runClientThreadCount,
+    const String& processIdFile,
+    const String& logFile)
 {
 
 #ifdef PEGASUS_USE_NET_SNMP
 
     // Stop snmptrapd process if it is running
-    _stopSnmptrapd();
+    _stopSnmptrapd(processIdFile);
 
     // if trapLogFile exists, remove it
-    _removeTrapLogFile();
+    _removeTrapLogFile(logFile);
 
     FILE * trapInfo;
 
     try
     {
-        _startSnmptrapd(&trapInfo);
+        _startSnmptrapd(&trapInfo, processIdFile, logFile);
     }
     catch (Exception & e)
     {
@@ -952,10 +953,10 @@ int _beginTest(CIMClient& workClient,
 
     // Extended for all snmp implementation
     _receiveExpectedTraps(workClient, indicationSendCount,
-        runClientThreadCount);
+        runClientThreadCount, logFile);
 
     // Stop snmptrapd process if it is running and remove procIdFile
-    _stopSnmptrapd();
+    _stopSnmptrapd(processIdFile);
 
     pclose(trapInfo);
 
@@ -985,6 +986,12 @@ int main (int argc, char** argv)
     try
     {
         workClient.connectLocal();
+
+        String processIdFile = TRAP_DIR;
+        processIdFile.append("/procIdFile");
+
+        String logFile = TRAP_DIR;
+        logFile.append("/trapLogFile");
 
         if (argc <= 1 || argc > 4)
         {
@@ -1033,7 +1040,7 @@ int main (int argc, char** argv)
             }
 
             int rc = _beginTest(workClient, indicationSendCount,
-                runClientThreadCount);
+                runClientThreadCount, processIdFile, logFile);
             return rc;
         }
         else if (String::equalNoCase(argv[1], "cleanup"))
@@ -1059,7 +1066,7 @@ int main (int argc, char** argv)
                 return -1;
             }
 
-            _removeTrapLogFile ();
+            _removeTrapLogFile(logFile);
             cout << "+++++ removelog completed successfully" << endl;
             return 0;
         }

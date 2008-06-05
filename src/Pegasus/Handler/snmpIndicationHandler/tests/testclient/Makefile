@@ -39,7 +39,14 @@ LIBRARIES = \
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY -DTRAP_DIR=\"$(TMP_DIR)\"
+
+ifeq ($(OS),VMS)
+#
+# VMS uses different escape characters for including double quotes.
+#
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY -DTRAP_DIR="""$(TMP_DIR)"""
+endif
 
 PROGRAM = TestSnmpHandler
 

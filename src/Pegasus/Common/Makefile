@@ -32,6 +32,8 @@ ROOT = ../../..
 
 DIR = Pegasus/Common
 
+HAS_ICU_DEPENDENCY=true
+
 include $(ROOT)/mak/config.mak
 
 ifdef PEGASUS_HAS_SSL

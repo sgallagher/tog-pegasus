@@ -415,31 +415,42 @@ ifeq ($(PEGASUS_HAS_ICU),true)
         CNV_ROOT_CMD = cnv2rootbundle
     endif
 
+    # The library path option is needed on all link commands with some ICU
+    # builds, because internal ICU library dependencies are resolved
+    # dynamically.
     ifdef ICU_INSTALL
-        SYS_INCLUDES += -I$(ICU_INSTALL)/include
-    endif
-
-    ifeq ($(OS),windows)
-        EXTRA_LIBRARIES += \
-            $(ICU_INSTALL)/lib/icuuc.lib \
-            $(ICU_INSTALL)/lib/icuin.lib \
-            $(ICU_INSTALL)/lib/icudt.lib
-    else
         ifeq ($(OS),zos)
             # On z/OS, the -L option must appear before the -o option and
             # the object (.o) and sidedeck (.x) files in the link command.
             FLAGS += -L$(ICU_INSTALL)/lib
             PR_FLAGS += -L$(ICU_INSTALL)/lib
-            EXTRA_LIBRARIES += \
-                $(ICU_INSTALL)/lib/libicui18n.x \
-                $(ICU_INSTALL)/lib/libicuuc.x
         else
-            ifdef ICU_INSTALL
-                EXTRA_LIBRARIES += -L$(ICU_INSTALL)/lib
-            endif
-            EXTRA_LIBRARIES += -licuuc -licui18n
-            ifeq ($(OS),linux)
-                EXTRA_LIBRARIES += -licudata
+            EXTRA_LIBRARIES += -L$(ICU_INSTALL)/lib
+        endif
+    endif
+
+    # The ICU include path and library dependencies are restricted to
+    # where they are specifically needed.
+    ifeq ($(HAS_ICU_DEPENDENCY),true)
+        ifdef ICU_INSTALL
+            SYS_INCLUDES += -I$(ICU_INSTALL)/include
+        endif
+
+        ifeq ($(OS),windows)
+            EXTRA_LIBRARIES += \
+                $(ICU_INSTALL)/lib/icuuc.lib \
+                $(ICU_INSTALL)/lib/icuin.lib \
+                $(ICU_INSTALL)/lib/icudt.lib
+        else
+            ifeq ($(OS),zos)
+                EXTRA_LIBRARIES += \
+                    $(ICU_INSTALL)/lib/libicui18n.x \
+                    $(ICU_INSTALL)/lib/libicuuc.x
+            else
+                EXTRA_LIBRARIES += -licuuc -licui18n
+                ifeq ($(OS),linux)
+                    EXTRA_LIBRARIES += -licudata
+                endif
             endif
         endif
     endif

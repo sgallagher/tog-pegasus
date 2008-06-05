@@ -33,6 +33,8 @@ DIR = Pegasus/Common/tests/L10N
 
 DIRS = msg 
 
+HAS_ICU_DEPENDENCY=true
+
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 

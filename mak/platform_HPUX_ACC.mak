@@ -87,17 +87,6 @@ ifdef PEGASUS_PURIFY
  DEFINES += -DPEGASUS_PURIFY
 endif
 
-##
-## The following flags need to be set or unset 
-## to compile-in the code required for PAM authentication
-## and compile-out the code that uses the password file.
-##
-
-ifdef PEGASUS_PAM_AUTHENTICATION
- DEFINES += -DPEGASUS_PAM_AUTHENTICATION -DPEGASUS_NO_PASSWORDFILE
-endif
-
-
 DEPEND_INCLUDES =
 
 

@@ -32,6 +32,7 @@ ROOT = ../../..
 
 DIR = Pegasus/Common
 
+HAS_PAM_DEPENDENCY=true
 HAS_ICU_DEPENDENCY=true
 
 include $(ROOT)/mak/config.mak

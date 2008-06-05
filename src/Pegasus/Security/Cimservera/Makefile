@@ -32,19 +32,14 @@
 ROOT = ../../../..
 
 DIR = Pegasus/Security/Cimservera
+
+HAS_PAM_DEPENDENCY=true
+
 include $(ROOT)/mak/config.mak
 
 PROGRAM = cimservera
 
 SOURCES = cimservera.c
-
-ifeq ($(OS),HPUX)
-    EXTRA_LIBRARIES += -lsec 
-endif
-
-ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
-    SYS_LIBS += -lpam
-endif
 
 #ifeq ($(findstring _GNU, $(PEGASUS_PLATFORM)), _GNU)
 #    FLAGS += -pedantic -ansi -Werror -Wunused -Wno-unused-function

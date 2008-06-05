@@ -32,6 +32,8 @@
 ROOT = $(PEGASUS_ROOT)
 DIR = Executor/tests/PAMAuth
 
+HAS_PAM_DEPENDENCY=true
+
 include $(ROOT)/mak/config.mak
 
 PROGRAM = TestExecutorPAMAuth

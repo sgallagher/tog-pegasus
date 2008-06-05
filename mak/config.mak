@@ -1229,6 +1229,22 @@ else
     endif
 endif
 
+##==============================================================================
+##
+## PEGASUS_PAM_AUTHENTICATION
+##
+##==============================================================================
+
+ifdef PEGASUS_PAM_AUTHENTICATION
+    # Compile in the code required for PAM authentication
+    # and compile out the code that uses the password file.
+    DEFINES += -DPEGASUS_PAM_AUTHENTICATION -DPEGASUS_NO_PASSWORDFILE
+
+    # Link with libpam only where it is needed.
+    ifeq ($(HAS_PAM_DEPENDENCY),true)
+        SYS_LIBS += -lpam
+    endif
+endif
 
 ##==============================================================================
 ##

@@ -33,6 +33,8 @@ ROOT = ../..
 DIR = Executor
 .PHONY: tests
 
+HAS_PAM_DEPENDENCY=true
+
 include $(ROOT)/mak/config.mak
 
 PROGRAM = cimserver

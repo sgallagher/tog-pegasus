@@ -90,19 +90,6 @@ endif
 
 PEGASUS_SUPPORTS_DYNLIB = yes
 
-# PAM support
-ifdef PEGASUS_PAM_AUTHENTICATION
-  EXTRA_LIBRARIES += -lpam
-endif
-##
-## The following flags need to be set or unset
-## to compile-in the code required for PAM authentication
-## and compile-out the code that uses the password file.
-##
-ifdef PEGASUS_PAM_AUTHENTICATION
- DEFINES += -DPEGASUS_PAM_AUTHENTICATION -DPEGASUS_NO_PASSWORDFILE
-endif
-
 ifdef PEGASUS_USE_RELEASE_DIRS
   PEGASUS_DEST_LIB_DIR =/usr/lib
 endif

@@ -45,7 +45,3 @@ endif
 
 FLAGS += +Z +DD64 -mt -Wl,+rpathfirst
 EXTRA_CXX_FLAGS += -AA
-
-ifdef PEGASUS_PAM_AUTHENTICATION
-    SYS_LIBS += -lpam
-endif

@@ -36,7 +36,3 @@ ARCHITECTURE = PARISC
 SYS_INCLUDES += -I$(ROOT)/src/stdcxx/stream
 
 FLAGS += +Z +DAportable -mt -D_PSTAT64
-
-ifdef PEGASUS_PAM_AUTHENTICATION
-   SYS_LIBS += -lpam
-endif

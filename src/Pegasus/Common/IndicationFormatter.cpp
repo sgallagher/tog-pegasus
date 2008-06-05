@@ -764,9 +764,9 @@ void IndicationFormatter::validateTextFormatParameters(
 Uint32 IndicationFormatter::_parseIndex(const String& indexStr)
 {
     Uint32 index = PEG_NOT_FOUND;
-    char dummy = 0;
+    char dummy[2];
     int numConversions =
-        sscanf(indexStr.getCString(), "%u%1s", &index, &dummy);
+        sscanf(indexStr.getCString(), "%u%1s", &index, dummy);
 
     if ((numConversions != 1) || (index == PEG_NOT_FOUND))
     {

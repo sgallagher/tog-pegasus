@@ -33,6 +33,8 @@ ROOT = ../../../..
 
 DIR = Executor/tests/lib
 
+HAS_PAM_DEPENDENCY=true
+
 # The source files in the Executor directory are built twice, once
 # as part of the Executor executable (cimserver) and once as part
 # of the a test library (pegexecutor). The object files for the

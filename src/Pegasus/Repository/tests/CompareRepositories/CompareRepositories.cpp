@@ -1,43 +1,45 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Repository/XmlStreamer.h>
+#include <Pegasus/Common/XmlStreamer.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-Boolean verbose;
+Boolean verbose = 0;
 
 String repositoryRoot;
 bool trace = false;
@@ -133,31 +135,21 @@ void CompareInstances(
     // BubbleSort(objectPaths2);
     PEGASUS_TEST_ASSERT(objectPaths1 == objectPaths2);
 
-    for (Uint32 j = 0; j < objectPaths2.size(); j++)
+    for (Uint32 i = 0; i < objectPaths2.size(); i++)
     {
-        CIMInstance inst1 = r1.getInstance(namespaceName, objectPaths1[j]);
-        CIMInstance inst2 = r2.getInstance(namespaceName, objectPaths2[j]);
+        CIMInstance inst1 = r1.getInstance(namespaceName, objectPaths1[i]);
+        CIMInstance inst2 = r2.getInstance(namespaceName, objectPaths2[i]);
 
         if (verbose)
         {
         cout << "testing instance " << namespaceName.getString() << "/";
-        cout << objectPaths1[j].toString() << "..." << endl;
+        cout << objectPaths1[i].toString() << "..." << endl;
         }
 
         PEGASUS_TEST_ASSERT(inst1.identical(inst2));
     }
     }
 }
-
-PEGASUS_NAMESPACE_BEGIN
-
-// This operator is needed to allow BubbleSort to operate on CIMQualifierDecls.
-Boolean operator>(const CIMQualifierDecl& q1, const CIMQualifierDecl& q2)
-{
-    return q1.getName().getString() > q2.getName().getString();
-}
-
-PEGASUS_NAMESPACE_END
 
 void CompareQualifiers(
     CIMRepository& r1,
@@ -168,19 +160,29 @@ void CompareQualifiers(
     Array<CIMQualifierDecl> quals2 = r2.enumerateQualifiers(namespaceName);
     PEGASUS_TEST_ASSERT(quals1.size() == quals2.size());
 
-    BubbleSort(quals1);
-    BubbleSort(quals2);
-
     for (Uint32 i = 0; i < quals2.size(); i++)
     {
         if (verbose)
         {
             cout << "testing qualifier " << namespaceName.getString() << "/";
-            cout << quals1[i].getName().getString() << "/ against /";
-            cout << quals2[i].getName().getString() << "/" << endl;
+            cout << quals2[i].getName().getString() << "..." << endl;
         }
 
-        PEGASUS_TEST_ASSERT(quals1[i].identical(quals2[i]));
+        // Note: the arrays may not be in the same order so we have to lookup
+        // quals1[i] within quals2.
+
+        bool found = false;
+
+        for (Uint32 j = 0; j < quals2.size(); j++)
+        {
+            if (quals1[i].getName() == quals2[j].getName())
+            {
+                PEGASUS_TEST_ASSERT(quals1[i].identical(quals2[j]));
+                found = true;
+            }
+        }
+
+        PEGASUS_TEST_ASSERT(found);
     }
 }
 
@@ -223,6 +225,8 @@ int main(int argc, char** argv)
     verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
     if (verbose) cout << argv[0] << ":" << endl;
 
+verbose =1;
+
     //
     // Usage:
     //
@@ -231,7 +235,7 @@ int main(int argc, char** argv)
     if (argc != 3)
     {
     fprintf(stderr,
-        "Usage: %s repository-root-1 repository-root-2\n", argv[0]);
+        "Usage: %s repository-root-1 repository-root-2\n", __FILE__);
     exit(1);
     }
 

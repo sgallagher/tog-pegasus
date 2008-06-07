@@ -42,11 +42,12 @@ else
 TMP_MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master.nossl
 endif
 
-ifeq ($(PEGASUS_PLATFORM),SOLARIS_IX86_CC)
-  MASTERRESULTFILE = $(TMP_MASTERRESULTFILE).solaris-ix86
-else
-  MASTERRESULTFILE = $(TMP_MASTERRESULTFILE)
-endif
+#ATTN: remove this!
+#ifeq ($(PEGASUS_PLATFORM),SOLARIS_IX86_CC)
+#  MASTERRESULTFILE = $(TMP_MASTERRESULTFILE).solaris-ix86
+#else
+#  MASTERRESULTFILE = $(TMP_MASTERRESULTFILE)
+#endif
 
 ##
 ## If ordering defects, use DIFFSORT rules

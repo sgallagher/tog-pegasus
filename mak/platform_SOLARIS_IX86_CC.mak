@@ -115,13 +115,17 @@ DEFINES += -DSUNOS_5_8
 endif
 
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
-FLAGS = -pto -g -KPIC -mt -xs -xildoff
+ FLAGS = -g -xs
 else
-FLAGS = -pto -O4 -KPIC -mt -xildoff -s -xipo=1
+ FLAGS = -O4 -s -xipo=1
 endif
 
-# Need warnings:
-FLAGS += +w
+#FLAGS += +w -pto -KPIC -mt -xildoff
+FLAGS += +w -KPIC -mt -xildoff
+
+ifndef PEGASUS_SUN_STUDIO_EXPRESS
+ FLAGS += -pto
+endif
 
 ##==============================================================================
 ##

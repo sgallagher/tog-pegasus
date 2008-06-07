@@ -245,11 +245,7 @@ static void testSSLConnect()
     {
         client.connect("nonexistant-zxcvqw3r", port, *sslContext);
     }
-#if defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC)
-    catch(...)
-#else
     catch(const InvalidLocatorException&)
-#endif
     {
         invalidLocatorCaught = true;
     }

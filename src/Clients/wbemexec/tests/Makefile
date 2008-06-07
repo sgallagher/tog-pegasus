@@ -37,17 +37,11 @@ include $(ROOT)/mak/test.mak
 
 RESULTFILE =  $(TMP_DIR)/result
 ifdef PEGASUS_HAS_SSL
-TMP_MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
+MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
 else
-TMP_MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master.nossl
+MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master.nossl
 endif
 
-#ATTN: remove this!
-#ifeq ($(PEGASUS_PLATFORM),SOLARIS_IX86_CC)
-#  MASTERRESULTFILE = $(TMP_MASTERRESULTFILE).solaris-ix86
-#else
-#  MASTERRESULTFILE = $(TMP_MASTERRESULTFILE)
-#endif
 
 ##
 ## If ordering defects, use DIFFSORT rules

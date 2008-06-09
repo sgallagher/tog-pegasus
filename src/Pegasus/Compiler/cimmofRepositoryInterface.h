@@ -83,7 +83,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofRepositoryInterface
         {
             REPOSITORY_INTERFACE_LOCAL = 0,
             REPOSITORY_INTERFACE_CLIENT = 1,
-            REPOSITORY_INTERFACE_MRR = 2,
+            REPOSITORY_INTERFACE_MRR = 2
         };
         cimmofRepositoryInterface();
         virtual ~cimmofRepositoryInterface();

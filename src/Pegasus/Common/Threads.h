@@ -217,16 +217,10 @@ inline void Threads::cancel(ThreadType th, ThreadReturnType rc)
 
 inline void Threads::yield()
 {
-#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || \
-    defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX) || \
-    defined(PEGASUS_PLATFORM_HPUX_ACC) || \
-    defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX) || \
-    defined(PEGASUS_OS_VMS) || \
-    defined(PEGASUS_OS_ZOS) || \
-    defined(PEGASUS_OS_DARWIN)
-    sched_yield();
-#else
+#ifdef PEGASUS_OS_LINUX
     pthread_yield();
+#else
+    sched_yield();
 #endif
 }
 

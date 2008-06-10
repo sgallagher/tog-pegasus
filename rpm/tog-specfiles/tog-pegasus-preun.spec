@@ -9,7 +9,6 @@ if [ $1 -eq 0 ]; then
    fi 
    /sbin/chkconfig --del tog-pegasus;
    rm -f %PEGASUS_VARDATA_DIR/cimserver_current.conf;
-   rm -f %PEGASUS_INSTALL_LOG;
    [ -d %PEGASUS_REPOSITORY_DIR ]  && rm -rf %PEGASUS_REPOSITORY_DIR;
    [ -d %PEGASUS_VARDATA_CACHE_DIR ]  && rm -rf %PEGASUS_VARDATA_CACHE_DIR;
    rm -f %PEGASUS_LOCAL_DOMAIN_SOCKET_PATH;

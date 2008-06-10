@@ -92,7 +92,8 @@ int main(int argc, char** argv)
     if (verbose)
         cout << "milliseconds=" << milliseconds << endl;
 
-#if defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC)
+#if defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC) || \
+    defined(PEGASUS_PLATFORM_SOLARIS_X86_64_CC)
     PEGASUS_TEST_ASSERT(milliseconds >= 4500 && milliseconds <= 10000);
 #else
     PEGASUS_TEST_ASSERT(milliseconds >= 4500 && milliseconds <= 5500);

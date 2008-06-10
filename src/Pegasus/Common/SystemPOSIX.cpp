@@ -78,7 +78,8 @@
 #include <ILEWrapper/ILEUtilities.h>
 #endif
 
-#if defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC)
+#if defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC) || \
+    defined(PEGASUS_PLATFORM_SOLARIS_X86_64_CC)
 # include <sys/sockio.h>
 #endif
 

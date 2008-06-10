@@ -62,6 +62,8 @@
 # include <Pegasus/Common/Platform_SOLARIS_SPARC_CC.h>
 #elif defined (PEGASUS_PLATFORM_SOLARIS_IX86_CC)
 # include <Pegasus/Common/Platform_SOLARIS_IX86_CC.h>
+#elif defined (PEGASUS_PLATFORM_SOLARIS_X86_64_CC)
+# include <Pegasus/Common/Platform_SOLARIS_X86_64_CC.h>
 #elif defined (PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 # include <Pegasus/Common/Platform_ZOS_ZSERIES_IBM.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_IA64_GNU)

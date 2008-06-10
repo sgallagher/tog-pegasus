@@ -467,7 +467,8 @@ Boolean ThreadPool::_timeIntervalExpired(
     Uint32 usec;
     Time::gettimeofday(&now);
 
-#if defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC)
+#if defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC) || \
+    defined(PEGASUS_PLATFORM_SOLARIS_X86_64_CC)
     memset(&remaining, 0, sizeof(remaining));
 #else
     Time::gettimeofday(&remaining);     // Avoid valgrind error

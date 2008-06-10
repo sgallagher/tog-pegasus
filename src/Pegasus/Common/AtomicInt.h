@@ -843,10 +843,12 @@ PEGASUS_NAMESPACE_END
 //==============================================================================
 //
 // PEGASUS_PLATFORM_SOLARIS_IX86_CC
+// PEGASUS_PLATFORM_SOLARIS_X86_64_CC
 //
 //==============================================================================
 
-#if defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC)
+#if defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC) || \
+    defined(PEGASUS_PLATFORM_SOLARIS_X86_64_CC)
 # define PEGASUS_ATOMIC_INT_DEFINED
 
 #include <atomic.h>
@@ -903,7 +905,7 @@ typedef AtomicIntTemplate<AtomicType> AtomicInt;
 
 PEGASUS_NAMESPACE_END
 
-#endif /* PEGASUS_PLATFORM_SOLARIS_IX86_CC */
+#endif
 
 //==============================================================================
 //

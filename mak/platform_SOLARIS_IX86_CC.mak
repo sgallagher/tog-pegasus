@@ -68,16 +68,6 @@ DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -D_POSIX_PTHREAD_SEMANTICS
 
 DEFINES += -DPEGASUS_OS_SOLARIS
 
-# PEGASUS_SNIA_INTEROP_TEST is currently (1/27/06) tested  and set in these 
-# platform files:
-#
-#    platform_SOLARIS_SPARC_CC.mak
-#    platform_WIN32_IX86_MSVC.mak
-#
-ifdef PEGASUS_SNIA_INTEROP_TEST
-DEFINES += -DPEGASUS_SNIA_INTEROP_TEST
-endif
-
 #
 # This is needed for SPARC.  It shouldn't be needed for x86
 # or x86-64 if a port is ever done for Solaris on those
@@ -163,7 +153,14 @@ SYS_LIBS = $(COMMON_SYS_LIBS) $(EXTRA_LIBRARIES)
 ## LIBRARY_SYS_LIBS (system libraries needed to build other libraries)
 ##
 ##==============================================================================
+
 LIBRARY_SYS_LIBS = $(COMMON_SYS_LIBS)
+
+##==============================================================================
+##
+## LINK_MACHINE_OPTIONS
+##
+##==============================================================================
 
 ##==============================================================================
 ##

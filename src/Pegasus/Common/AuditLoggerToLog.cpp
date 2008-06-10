@@ -52,7 +52,8 @@
 
 #ifdef PEGASUS_ENABLE_AUDIT_LOGGER
 
-#if defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC)
+#if defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC) || \
+    defined(PEGASUS_PLATFORM_SOLARIS_X86_64_CC)
 extern char** environ;
 #endif
 

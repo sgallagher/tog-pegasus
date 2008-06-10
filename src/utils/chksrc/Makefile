@@ -38,6 +38,10 @@ ifeq ($(PEGASUS_PLATFORM), SOLARIS_IX86_CC)
   CC=CC
 endif
 
+ifeq ($(PEGASUS_PLATFORM), SOLARIS_X86_64_CC)
+  CC=CC
+endif
+
 PROGRAM = chksrc
 SOURCES = chksrc.c
 

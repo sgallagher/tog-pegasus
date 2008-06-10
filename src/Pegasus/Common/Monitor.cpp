@@ -39,6 +39,7 @@
 #include "Socket.h"
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/HTTPConnection.h>
+#include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/Exception.h>
 #include "ArrayIterator.h"
@@ -444,7 +445,7 @@ void Monitor::run(Uint32 milliseconds)
                 continue;
             }
             h._connectionClosePending = false;
-            MessageQueue &o = h.get_owner();
+            HTTPAcceptor &o = h.getOwningAcceptor();
             Message* message= new CloseConnectionMessage(entry.socket);
             message->dest = o.getQueueId();
 
@@ -594,9 +595,7 @@ void Monitor::run(Uint32 milliseconds)
                             }
                             PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
                                 "Exited HTTPConnection::run()");
-                            }
-
-
+                        }
                     }
                     else if (entries[indx].type == MonitorEntry::TYPE_TICKLER)
                     {

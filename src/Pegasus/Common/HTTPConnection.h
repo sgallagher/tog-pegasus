@@ -38,43 +38,21 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/MessageQueue.h>
-#include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/ArrayInternal.h>
-#include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/AuthenticationInfo.h>
 #include <Pegasus/Common/TLS.h>
-#include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/SharedPtr.h>
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/Buffer.h>
+#include <Pegasus/Common/PegasusAssert.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class HTTPConnector;
-
-class MessageQueueService;
-
-struct HTTPConnectionRep;
-
-/** This message is sent from a connection to its owner (so that the
-    owner can do any necessary cleanup).
-*/
-class CloseConnectionMessage : public Message
-{
-public:
-
-    CloseConnectionMessage(SocketHandle socket_)
-        : Message(CLOSE_CONNECTION_MESSAGE), socket(socket_) { }
-
-    SocketHandle socket;
-};
-
-/** This class represents an HTTP listener.
-*/
 class Monitor;
+class HTTPAcceptor;
 
 class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 {
@@ -86,7 +64,7 @@ public:
         Monitor* monitor,
         SharedPtr<MP_Socket>& socket,
         const String& ipAddress,
-        MessageQueue * ownerMessageQueue,
+        HTTPAcceptor * owningAcceptor,
         MessageQueue * outputMessageQueue);
 
     /** Destructor. */
@@ -112,9 +90,10 @@ public:
 
     Boolean run(Uint32 milliseconds);
 
-    MessageQueue& get_owner()
+    HTTPAcceptor& getOwningAcceptor()
     {
-        return *_ownerMessageQueue;
+        PEGASUS_ASSERT(_owningAcceptor);
+        return *_owningAcceptor;
     }
 
     // was the request for chunking ?
@@ -166,7 +145,7 @@ private:
 
     SharedPtr<MP_Socket> _socket;
     String _ipAddress;
-    MessageQueue* _ownerMessageQueue;
+    HTTPAcceptor* _owningAcceptor;
     MessageQueue* _outputMessageQueue;
 
     Sint32 _contentOffset;

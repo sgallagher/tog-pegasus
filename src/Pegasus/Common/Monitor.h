@@ -59,10 +59,8 @@ public:
 
     enum Type
     {
-        TYPE_UNTYPED,
         TYPE_ACCEPTOR,
         TYPE_CONNECTION,
-        TYPE_CONNECTOR,
         TYPE_TICKLER
     };
 
@@ -91,7 +89,7 @@ public:
         socket = PEGASUS_INVALID_SOCKET;
         queueId = 0;
         status = STATUS_EMPTY;
-        type = TYPE_UNTYPED;
+        type = TYPE_TICKLER;
     }
 
     SocketHandle socket;
@@ -114,6 +112,22 @@ public:
 
     SocketHandle socket;
     Uint32 events;
+};
+
+/**
+    This message is sent to a connection owner (HTTPAcceptor) so it can do
+    any necessary cleanup of the connection.
+*/
+class CloseConnectionMessage : public Message
+{
+public:
+
+    CloseConnectionMessage(SocketHandle socket_)
+        : Message(CLOSE_CONNECTION_MESSAGE), socket(socket_)
+    {
+    }
+
+    SocketHandle socket;
 };
 
 /**

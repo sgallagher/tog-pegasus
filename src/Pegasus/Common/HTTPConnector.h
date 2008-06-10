@@ -35,7 +35,6 @@
 #define Pegasus_HTTPConnector_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/TLS.h>
@@ -51,17 +50,13 @@ class HTTPConnection;
     server. For each established connection, a HTTPConnection object
     is created.
 */
-class PEGASUS_COMMON_LINKAGE HTTPConnector : public MessageQueue
+class PEGASUS_COMMON_LINKAGE HTTPConnector
 {
 public:
-
-    typedef MessageQueue Base;
 
     /** Constructor.
         @param monitor pointer to monitor object which this class uses to
         solicit SocketMessages on the server port (socket).
-        @param outputMessageQueue ouptut message queue for connections
-        created by this connector.
     */
     HTTPConnector(Monitor* monitor);
 
@@ -69,13 +64,6 @@ public:
 
     /** Destructor. */
     ~HTTPConnector();
-
-    /** This method is called whenever a SocketMessage is enqueued
-        on the input queue of the HTTPConnector object.
-    */
-
-    virtual void handleEnqueue(Message *);
-    virtual void handleEnqueue();
 
     /** Establishes a new connection and creates an HTTPConnection object
         to represent it.
@@ -102,22 +90,15 @@ public:
         Uint32 timeoutMilliseconds,
         MessageQueue* outputMessageQueue);
 
-    /** Destroys all the connections created by this connector. */
-    void destroyConnections();
-
     /** Close the specified connection. */
     void disconnect(HTTPConnection* connection);
 
 private:
 
-    /** Delete the specified connection. */
-    void _deleteConnection(HTTPConnection* httpConnection);
-
     Monitor* _monitor;
     HTTPConnectorRep* _rep;
 
     SSLContext* _sslcontext;
-    int _entry_index;
 };
 
 PEGASUS_NAMESPACE_END

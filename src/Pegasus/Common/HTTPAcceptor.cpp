@@ -877,7 +877,7 @@ void HTTPAcceptor::_acceptConnection()
         mp_socket,
         ipAddress,
         this,
-        static_cast<MessageQueue *>(_outputMessageQueue)));
+        _outputMessageQueue));
 
     if (_idleConnectionTimeoutSeconds)
     {

@@ -172,8 +172,7 @@ struct HTTPConnectorRep
 ////////////////////////////////////////////////////////////////////////////////
 
 HTTPConnector::HTTPConnector(Monitor* monitor)
-    : Base(PEGASUS_QUEUENAME_HTTPCONNECTOR),
-      _monitor(monitor), _entry_index(-1)
+    : _monitor(monitor)
 {
     _rep = new HTTPConnectorRep;
     Socket::initializeInterface();
@@ -185,58 +184,6 @@ HTTPConnector::~HTTPConnector()
     delete _rep;
     Socket::uninitializeInterface();
     PEG_METHOD_EXIT();
-}
-
-void HTTPConnector::handleEnqueue(Message *message)
-{
-    if (!message)
-        return;
-
-    switch (message->getType())
-    {
-        // It might be useful to catch socket messages later to implement
-        // asynchronous establishment of connections.
-
-        case SOCKET_MESSAGE:
-            break;
-
-        case CLOSE_CONNECTION_MESSAGE:
-        {
-            CloseConnectionMessage* closeConnectionMessage =
-                (CloseConnectionMessage*)message;
-
-            for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
-            {
-                HTTPConnection* connection = _rep->connections[i];
-                SocketHandle socket = connection->getSocket();
-
-                if (socket == closeConnectionMessage->socket)
-                {
-                    _monitor->unsolicitSocketMessages(socket);
-                    _rep->connections.remove(i);
-                    delete connection;
-                    break;
-                }
-            }
-        }
-
-        default:
-            // ATTN: need unexpected message error!
-            break;
-    }
-
-    delete message;
-}
-
-
-void HTTPConnector::handleEnqueue()
-{
-    Message* message = dequeue();
-
-    if (!message)
-        return;
-
-    handleEnqueue(message);
 }
 
 HTTPConnection* HTTPConnector::connect(
@@ -437,15 +384,16 @@ HTTPConnection* HTTPConnector::connect(
         _monitor,
         mp_socket,
         String::EMPTY,
-        this,
-        static_cast<MessageQueueService *>(outputMessageQueue)));
+        0,
+        outputMessageQueue));
 
     // Solicit events on this new connection's socket:
+    int index;
 
-    if (-1 == (_entry_index = _monitor->solicitSocketMessages(
+    if (-1 == (index = _monitor->solicitSocketMessages(
             connection->getSocket(),
             SocketMessage::READ | SocketMessage::EXCEPTION,
-            connection->getQueueId(), MonitorEntry::TYPE_CONNECTOR)))
+            connection->getQueueId(), MonitorEntry::TYPE_CONNECTION)))
     {
         PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "HTTPConnector::connect: Attempt to allocate entry in "
@@ -453,23 +401,11 @@ HTTPConnection* HTTPConnector::connect(
         (connection->getMPSocket()).close();
     }
 
+    connection->_entry_index = index;
     _rep->connections.append(connection.get());
     PEG_METHOD_EXIT();
     return connection.release();
 }
-
-void HTTPConnector::destroyConnections()
-{
-    // For each connection created by this object:
-
-    for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
-    {
-        _deleteConnection(_rep->connections[i]);
-    }
-
-    _rep->connections.clear();
-}
-
 
 void HTTPConnector::disconnect(HTTPConnection* currentConnection)
 {
@@ -493,19 +429,6 @@ void HTTPConnector::disconnect(HTTPConnection* currentConnection)
     _monitor->unsolicitSocketMessages(socket);
     _rep->connections.remove(index);
     delete currentConnection;
-}
-
-void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
-{
-    SocketHandle socket = httpConnection->getSocket();
-
-    // Unsolicit SocketMessages:
-
-    _monitor->unsolicitSocketMessages(socket);
-
-    // Destroy the connection (causing it to close):
-
-    delete httpConnection;
 }
 
 PEGASUS_NAMESPACE_END

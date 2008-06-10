@@ -42,7 +42,7 @@
 #include "Socket.h"
 #include "TLS.h"
 #include "HTTPConnection.h"
-#include "MessageQueue.h"
+#include "HTTPAcceptor.h"
 #include "Monitor.h"
 #include "HTTPMessage.h"
 #include "Tracer.h"
@@ -190,14 +190,14 @@ HTTPConnection::HTTPConnection(
     Monitor* monitor,
     SharedPtr<MP_Socket>& socket,
     const String& ipAddress,
-    MessageQueue* ownerMessageQueue,
+    HTTPAcceptor* owningAcceptor,
     MessageQueue* outputMessageQueue)
     :
     Base(PEGASUS_QUEUENAME_HTTPCONNECTION),
     _monitor(monitor),
     _socket(socket),
     _ipAddress(ipAddress),
-    _ownerMessageQueue(ownerMessageQueue),
+    _owningAcceptor(owningAcceptor),
     _outputMessageQueue(outputMessageQueue),
     _contentOffset(-1),
     _contentLength(-1),
@@ -776,12 +776,6 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 "HTTPConnection::_handleWriteEvent: Server write event.");
 
         SignalHandler::ignore(PEGASUS_SIGPIPE);
-
-        // use the next four lines to test the SIGABRT handler
-        //getSigHandle()->registerHandler(PEGASUS_SIGABRT, sig_act);
-        //getSigHandle()->activate(PEGASUS_SIGABRT);
-        //Thread t(sigabrt_generator, NULL, false);
-        //t.run();
 
         char *sendStart = messageStart;
         Sint32 bytesWritten = 0;
@@ -1440,11 +1434,6 @@ void HTTPConnection::_closeConnection()
     }
 
     PEG_METHOD_EXIT();
-
-//    Message* message= new CloseConnectionMessage(_socket->getSocket));
-//    message->dest = _ownerMessageQueue->getQueueId();
-//    SendForget(message);
-//    _ownerMessageQueue->enqueue(message);
 }
 
 Boolean HTTPConnection::isChunkRequested()
@@ -1477,8 +1466,7 @@ void HTTPConnection::setSocketWriteTimeout(Uint32 socketWriteTimeout)
 
 Boolean HTTPConnection::_isClient()
 {
-    return strcmp(get_owner().getQueueName(),
-        PEGASUS_QUEUENAME_HTTPCONNECTOR) == 0 ? true : false;
+    return (_owningAcceptor == 0);
 }
 
 /*

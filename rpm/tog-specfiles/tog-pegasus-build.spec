@@ -17,7 +17,8 @@ export PEGASUS_EXTRA_LINK_FLAGS="$RPM_OPT_FLAGS"
 #export PEGASUS_EXTRA_LINK_FLAGS="$RPM_OPT_FLAGS -g -pie -Wl,-z,relro,-z,now,-z,nodlopen,-z,noexecstack"
 
 %if %{PEGASUS_BUILD_TEST_RPM}
-export PEGASUS_DISPLAYCONSUMER_DIR=%PEGASUS_VARDATA_DIR/log
+export PEGASUS_TMP=/usr/share/Pegasus/test/tmp
+export PEGASUS_DISPLAYCONSUMER_DIR="$PEGASUS_TMP"
 %endif
 
 make -f $PEGASUS_ROOT/Makefile.Release create_ProductVersionFile

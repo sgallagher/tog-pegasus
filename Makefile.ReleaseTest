@@ -149,8 +149,10 @@ stageTEST:
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/bin
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/$(PEGASUS_ARCH_LIB)
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/mak
+	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/tmp
 	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest -s stage_makfiles
 	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest -s stage_testproviderfiles
+	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest -s stage_testemptyfiles
 	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest -s stage_prestarttests
 	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest -s stage_poststarttests
 	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest -s create_Makefile
@@ -167,6 +169,11 @@ stage_prestarttests:
 
 stage_poststarttests:
 	@$(foreach i, $(POSTSTARTTEST_FILES), $(COPY) $(TEST_BIN_FILES_SRCPATH)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/bin/$(i);)
+
+stage_testemptyfiles:
+	$(TOUCH) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/tmp/procIdFile
+	$(TOUCH) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/tmp/trapLogFile
+	$(TOUCH) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/tmp/IndicationStressTestLog
 
 create_Makefile:
 	@$(RM) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
@@ -328,6 +335,12 @@ _append_filesSectionToSpecFile:
 	@$(ECHO-E) "%files test"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%defattr(-,$(INSTALL_USR),$(INSTALL_GRP),-)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "$(PEGASUS_TEST_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%ghost $(PEGASUS_TEST_DIR)/tmp/procIdFile" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%ghost $(PEGASUS_TEST_DIR)/tmp/trapLogFile" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%ghost $(PEGASUS_TEST_DIR)/tmp/IndicationStressTestLog" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%defattr($(Prw_______),$(CIMSERVERMAIN_USR)," \
             "$(CIMSERVERMAIN_GRP),$(Prwx______))" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)

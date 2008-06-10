@@ -113,7 +113,7 @@ PEGASUS_USING_PEGASUS;
 
 IPPEpProvider::IPPEpProvider()
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "IPPEpProvider::IPPEpProvider()" << endl;
 #endif
 }
@@ -185,7 +185,7 @@ void IPPEpProvider::enumerateInstances(
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "IPPEpProvider::enumerateInstances()" << endl;
 #endif
 
@@ -231,7 +231,7 @@ void IPPEpProvider::enumerateInstanceNames(
     const CIMObjectPath &ref,
     ObjectPathResponseHandler &handler)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "IPPEpProvider::enumerateInstanceNames()" << endl;
 #endif
 
@@ -247,7 +247,7 @@ void IPPEpProvider::enumerateInstanceNames(
     int i;
     InterfaceList _ifList;
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "IPPEpProvider::enumerateInstanceNames() _ifList Initialized"
          << endl;
 #endif
@@ -288,7 +288,7 @@ void IPPEpProvider::getInstance(
     const CIMPropertyList &propertyList,
     InstanceResponseHandler &handler)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "IPPEpProvider::getInstance(" << instanceName.toString() << ")"
          << endl;
 #endif
@@ -457,7 +457,7 @@ PARAMETERS        :
 */
 void IPPEpProvider::initialize(CIMOMHandle &ch)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "IPPEpProvider::initialize()" << endl;
 #endif
 
@@ -486,7 +486,7 @@ PARAMETERS        :
 */
 void IPPEpProvider::terminate()
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "IPPEpProvider::terminate()" << endl;
 #endif
 
@@ -507,7 +507,7 @@ PARAMETERS        : IP Interface
 Array<CIMKeyBinding> IPPEpProvider::_constructKeyBindings(
     const IPInterface& _ipif)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "IPPEpProvider::_constructKeyBindings()" << endl;
 #endif
 
@@ -546,7 +546,7 @@ Array<CIMKeyBinding> IPPEpProvider::_constructKeyBindings(
             String("Host-specific module doesn't support Key `") +
                 PROPERTY_NAME.getString() + String("'"));
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "IPPEpProvider::_constructKeyBindings() -- done" << endl;
 #endif
 
@@ -571,7 +571,7 @@ CIMInstance IPPEpProvider::_constructInstance(
     const CIMNamespaceName &nameSpace,
     const IPInterface &_ipif)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
   cout << "IPPEpProvider::_constructInstance()" << endl;
 #endif
 
@@ -707,7 +707,7 @@ CIMInstance IPPEpProvider::_constructInstance(
         inst.addProperty(CIMProperty(PROPERTY_PROTOCOL_IF_TYPE,i16));
     }
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
   cout << "IPPEpProvider::_constructInstance() -- done" << endl;
 #endif
 

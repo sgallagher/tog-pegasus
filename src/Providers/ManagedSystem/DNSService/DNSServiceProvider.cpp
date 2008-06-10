@@ -164,7 +164,7 @@ void DNSServiceProvider::enumerateInstances(
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
-#ifdef DEBUG
+#ifdef DNSPROVIDER_DEBUG
     cout << "DNSServiceProvider::enumerateInstances()" << endl;
 #endif
 
@@ -285,7 +285,7 @@ CIMInstance DNSServiceProvider::_build_instance(
     const Array<CIMKeyBinding> keys,
     DNSService dns)
 {
-#ifdef DEBUG
+#ifdef DNSPROVIDER_DEBUG
     cout << "DNSServiceProvider::_build_instance()" << endl;
 #endif
 
@@ -302,7 +302,7 @@ CIMInstance DNSServiceProvider::_build_instance(
         throw CIMOperationFailedException(
             "DNSProvider can't determine System Name property");
 
-#ifdef DEBUG
+#ifdef DNSPROVIDER_DEBUG
     cout << "DNSServiceProvider::_build_instance() SystemName = `" <<
         strValue << "'" << endl;
 #endif
@@ -313,7 +313,7 @@ CIMInstance DNSServiceProvider::_build_instance(
         throw CIMOperationFailedException("DNSProvider "
                   "can't determine Name property");
 
-#ifdef DEBUG
+#ifdef DNSPROVIDER_DEBUG
     cout << "DNSServiceProvider::_build_instance() Name = `" <<
         strValue << "'" << endl;
 #endif
@@ -336,7 +336,7 @@ CIMInstance DNSServiceProvider::_build_instance(
     if (dns.getAddresses(strArr))
         instance.addProperty(CIMProperty(PROPERTY_ADDRESSES, strArr));
 
-#ifdef DEBUG
+#ifdef DNSPROVIDER_DEBUG
     cout << "DNSServiceProvider::_build_instance() - done" << endl;
 #endif
 
@@ -352,7 +352,7 @@ CIMObjectPath DNSServiceProvider::_fill_reference(
     const CIMName &className,
     DNSService dns)
 {
-#ifdef DEBUG
+#ifdef DNSPROVIDER_DEBUG
     cout << "DNSServiceProvider::_fill_reference()" << endl;
 #endif
 

@@ -151,7 +151,7 @@ Boolean DNSFileOk()
 //------------------------------------------------------------------------------
 DNSService::DNSService(void)
 {
-#ifdef DEBUG
+#ifdef DNSPROVIDER_DEBUG
     cout << "DNSService::DNSService()" << endl;
 #endif
 
@@ -249,13 +249,13 @@ Boolean DNSService::FindInArray(Array<String> src, String text)
 //------------------------------------------------------------------------------
 Boolean DNSService::getDNSName(String & name)
 {
-#ifdef DEBUG
+#ifdef DNSPROVIDER_DEBUG
     cout << "DNSService::getDNSName()" << endl;
 #endif
 
     if (dnsName.size() != 0)
     {
-#ifdef DEBUG
+#ifdef DNSPROVIDER_DEBUG
         cout << "DNSService::getDNSName() - dnsName = '" << dnsName <<
              "'" << endl;
 #endif
@@ -306,7 +306,7 @@ Boolean DNSService::getAddresses(Array<String> & addrlst)
 Boolean
 DNSService::getDNSInfo()
 {
-#ifdef DEBUG
+#ifdef DNSPROVIDER_DEBUG
     cout << "DNSService::getDNSInfo()" << endl;
 #endif
 
@@ -343,7 +343,7 @@ DNSService::getDNSInfo()
         if(String::equalNoCase(strBuffer, DNS_ROLE_DOMAIN)) {
             fscanf(fp, "%s", buffer);
             dnsName.assign(buffer);
-#ifdef DEBUG
+#ifdef DNSPROVIDER_DEBUG
     cout << "DNSService::getDNSInfo() - buffer = `" << buffer << "'" << endl;
     cout << "DNSService::getDNSInfo() - dnsName = `" <<
          dnsName.getCString() << endl;

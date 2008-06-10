@@ -99,7 +99,7 @@ PEGASUS_USING_PEGASUS;
 
 NextHopIPRouteProvider::NextHopIPRouteProvider()
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "NextHopIPRouteProvider::NextHopIPRouteProvider()" << endl;
 #endif
 }
@@ -171,7 +171,7 @@ void NextHopIPRouteProvider::enumerateInstances(
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "NextHopIPRouteProvider::enumerateInstances()" << endl;
 #endif
 
@@ -218,7 +218,7 @@ void NextHopIPRouteProvider::enumerateInstanceNames(
     const CIMObjectPath &ref,
     ObjectPathResponseHandler &handler)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "NextHopIPRouteProvider::enumerateInstanceNames()" << endl;
 #endif
 
@@ -233,7 +233,7 @@ void NextHopIPRouteProvider::enumerateInstanceNames(
 
     NextHopRouteList _rList;
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "NextHopIPRouteProvider::enumerateInstanceNames() "
          << "_rList Initialized"
          << endl;
@@ -277,7 +277,7 @@ void NextHopIPRouteProvider::getInstance(
     const CIMPropertyList &propertyList,
     InstanceResponseHandler &handler)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "NextHopIPRouteProvider::getInstance(" << instanceName.toString()
          << ")" << endl;
 #endif
@@ -403,7 +403,7 @@ PARAMETERS        :
 */
 void NextHopIPRouteProvider::initialize(CIMOMHandle &ch)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "NextHopIPRouteProvider::initialize()" << endl;
 #endif
 
@@ -431,7 +431,7 @@ PARAMETERS        :
 */
 void NextHopIPRouteProvider::terminate()
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "NextHopIPRouteProvider::terminate()" << endl;
 #endif
     delete this;
@@ -451,7 +451,7 @@ PARAMETERS        : Next Hop IP Route.
 Array<CIMKeyBinding> NextHopIPRouteProvider::_constructKeyBindings(
     const NextHopIPRoute& _nhipr)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "NextHopIPRouteProvider::_constructKeyBindings()" << endl;
 #endif
 
@@ -476,7 +476,7 @@ Array<CIMKeyBinding> NextHopIPRouteProvider::_constructKeyBindings(
                 String("'"));
     }
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "NextHopIPRouteProvide::_constructKeyBindings() -- done" << endl;
 #endif
 
@@ -501,7 +501,7 @@ CIMInstance NextHopIPRouteProvider::_constructInstance(
     const CIMNamespaceName &nameSpace,
     const NextHopIPRoute &_nhipr)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "NextHopIPRouteProvider::_constructInstance()" << endl;
 #endif
 
@@ -590,7 +590,7 @@ CIMInstance NextHopIPRouteProvider::_constructInstance(
         inst.addProperty(CIMProperty(PROPERTY_ADDRESS_TYPE,ui));
     }
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "NextHopIPRouteProvider::_constructInstance() -- done" << endl;
 #endif
 

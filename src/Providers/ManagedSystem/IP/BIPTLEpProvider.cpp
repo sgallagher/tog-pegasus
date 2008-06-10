@@ -95,7 +95,7 @@ PEGASUS_USING_PEGASUS;
 
 BIPTLEpProvider::BIPTLEpProvider()
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
   cout << "BIPTLEpProvider::BIPTLEpProvider()" << endl;
 #endif
 }
@@ -165,7 +165,7 @@ void BIPTLEpProvider::enumerateInstances(
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "BIPTLEpProvider::enumerateInstances()" << endl;
 #endif
 
@@ -215,7 +215,7 @@ void BIPTLEpProvider::enumerateInstanceNames(const OperationContext &ctx,
                             const CIMObjectPath &ref,
                             ObjectPathResponseHandler &handler)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "BIPTLEpProvider::enumerateInstanceNames()" << endl;
 #endif
 
@@ -231,7 +231,7 @@ void BIPTLEpProvider::enumerateInstanceNames(const OperationContext &ctx,
     int i;
     InterfaceList _ifList;
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "BIPTLEpProvider::enumerateInstanceNames() _ifList Initialized"
         << endl;
 #endif
@@ -276,7 +276,7 @@ void BIPTLEpProvider::getInstance(const OperationContext &ctx,
                  const CIMPropertyList        &propertyList,
                  InstanceResponseHandler &handler)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
   cout << "BIPTLEpProvider::getInstance(" << instanceName.toString() << ")"
        << endl;
 #endif
@@ -423,7 +423,7 @@ PARAMETERS        :
 */
 void BIPTLEpProvider::initialize(CIMOMHandle &ch)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
   cout << "BIPTLEpProvider::initialize()" << endl;
 #endif
 
@@ -452,7 +452,7 @@ PARAMETERS        :
 */
 void BIPTLEpProvider::terminate()
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
   cout << "BIPTLEpProvider::terminate()" << endl;
 #endif
 
@@ -474,7 +474,7 @@ Array<CIMKeyBinding> BIPTLEpProvider::_constructKeyBindings(
     const CIMNamespaceName &nameSpace,
     const IPInterface &_ipif)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "BIPTLEpProvider::_constructKeyBindings()" << endl;
 #endif
 
@@ -526,7 +526,7 @@ Array<CIMKeyBinding> BIPTLEpProvider::_constructKeyBindings(
                 PROPERTY_NAME.getString() + String("'"));
     }
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "BIPTLEpProvider::_constructKeyBindings() -- done" << endl;
 #endif
 
@@ -550,7 +550,7 @@ Array<CIMKeyBinding> BIPTLEpProvider::_constructReference(
     const String& sysName,
     const String& instName)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "BIPTLEpProvider::_constructReference()" << endl;
 #endif
 
@@ -577,7 +577,7 @@ Array<CIMKeyBinding> BIPTLEpProvider::_constructReference(
         instName,
         CIMKeyBinding::STRING));
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "BIPTLEpProvider::_constructReference() -- done" << endl;
 #endif
 
@@ -602,7 +602,7 @@ CIMInstance BIPTLEpProvider::_constructInstance(
     const CIMNamespaceName &nameSpace,
     const IPInterface &_ipif)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
   cout << "BIPTLEpProvider::_constructInstance()" << endl;
 #endif
 
@@ -648,7 +648,7 @@ CIMInstance BIPTLEpProvider::_constructInstance(
   if (_ipif.getFrameType(i16))
     inst.addProperty(CIMProperty(PROPERTY_FRAME_TYPE,i16));
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
   cout << "BIPTLEpProvider::_constructInstance() -- done" << endl;
 #endif
 
@@ -673,7 +673,7 @@ Boolean BIPTLEpProvider::_goodPERefKeys(
     String &rccn,    // CreationClassName
     String &rname)   // Name
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
    cout << "BIPTLEpProvider::_goodPERefKeys(" << instName.toString() << ")"
         << endl;
 #endif
@@ -745,7 +745,7 @@ Boolean BIPTLEpProvider::_goodPERefKeys(
    if (keysFound != (1<<NUMKEYS_CIM_PROTOCOL_ENDPOINT)-1)
        return false;
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
    cout << "BIPTLEpProvider::_goodPERefKeys() - success!" << endl;
 #endif
 

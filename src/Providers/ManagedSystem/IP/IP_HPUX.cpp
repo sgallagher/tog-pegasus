@@ -667,7 +667,7 @@ InterfaceList::InterfaceList()
     Boolean _ipv6Present=false;   // Flag to check if ipv6 is available.
 #endif
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "InterfaceList::InterfaceList()" << endl;
 #endif
 
@@ -964,7 +964,7 @@ InterfaceList::InterfaceList()
 
     close_mib(fd);
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "InterfaceList::InterfaceList() -- done" << endl;
 #endif
 }
@@ -1321,7 +1321,7 @@ RouteList::RouteList()
     struct in_addr t;            // temporary variable for extracting
                                //   IP route buffer contents
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "RouteList::RouteList()" << endl;
 #endif
 
@@ -1397,7 +1397,7 @@ RouteList::RouteList()
     close_mib(fd);
     free(route_buf);
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "RouteList::RouteList() -- done" << endl;
 #endif
 
@@ -1454,7 +1454,7 @@ Boolean RouteList::findRoute(
         }
     }
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "RouteList::findRoute(): NOT FOUND destAddr=" << destAddr <<
         ", destMask=" << destMask <<
         ", addrType=" << addrType << endl;
@@ -1965,7 +1965,7 @@ NextHopRouteList::NextHopRouteList()
     Boolean _ipv6Present = false;    // Flag to check if ipv6 is available.
 #endif
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "NextHopRouteList::NextHopRouteList()" << endl;
 #endif
 
@@ -2142,7 +2142,7 @@ NextHopRouteList::NextHopRouteList()
 
     close_mib(fd);
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "NextHopRouteList::NextHopRouteList() -- done" << endl;
 #endif
 
@@ -2192,7 +2192,7 @@ Boolean NextHopRouteList::findRoute(
         }
     }
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "NextHopRouteList::findRoute(): NOT FOUND instanceID=" 
          << instanceID << endl;
 #endif
@@ -2418,7 +2418,7 @@ RSApList::RSApList()
         }
     }
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "RSApList::RSApList() -- done" << endl;
 #endif
 
@@ -2467,7 +2467,7 @@ Boolean RSApList::findService(
         }
     }
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "RSApList::findService(): NOT FOUND name=" 
          << name << endl;
 #endif

@@ -79,7 +79,7 @@ PEGASUS_USING_PEGASUS;
 
 RSApProvider::RSApProvider()
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "RSApProvider::RSApProvider()" << endl;
 #endif
 }
@@ -155,7 +155,7 @@ void RSApProvider::enumerateInstances(
     //throw CIMNotSupportedException(String::EMPTY);
 
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "RSApProvider::enumerateInstances()" << endl;
 #endif
 
@@ -203,7 +203,7 @@ void RSApProvider::enumerateInstanceNames(
     ObjectPathResponseHandler &handler)
 {
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "RSApProvider::enumerateInstanceNames()" << endl;
 #endif
 
@@ -218,7 +218,7 @@ void RSApProvider::enumerateInstanceNames(
 
     RSApList _rList;
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "RSApProvider::enumerateInstanceNames() "
          << "_rList Initialized"
          << endl;
@@ -262,7 +262,7 @@ void RSApProvider::getInstance(
     InstanceResponseHandler &handler)
 {
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "RSApProvider::getInstance(" << instanceName.toString()
          << ")" << endl;
 #endif
@@ -388,7 +388,7 @@ PARAMETERS        :
 */
 void RSApProvider::initialize(CIMOMHandle &ch)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "RSApProvider::initialize()" << endl;
 #endif
 
@@ -410,7 +410,7 @@ PARAMETERS        :
 */
 void RSApProvider::terminate()
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "RSApProvider::terminate()" << endl;
 #endif
 
@@ -432,7 +432,7 @@ PARAMETERS        : Remote Service Access Point.
 Array<CIMKeyBinding> RSApProvider::_constructKeyBindings(
     const RSAp& _rsap)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "RSApProvider::_constructKeyBindings()" << endl;
 #endif
 
@@ -457,7 +457,7 @@ Array<CIMKeyBinding> RSApProvider::_constructKeyBindings(
                 String("'"));
     }
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "RSApProvider::_constructKeyBindings() -- done" << endl;
 #endif
 
@@ -480,7 +480,7 @@ CIMInstance RSApProvider::_constructInstance(
     const CIMNamespaceName &nameSpace,
     const RSAp &_rsap)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "RSApProvider::_constructInstance()" << endl;
 #endif
 
@@ -516,7 +516,7 @@ CIMInstance RSApProvider::_constructInstance(
         inst.addProperty(CIMProperty(PROPERTY_OTHER_INFO_FORMAT_DESCRIPTION,s));
     }
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "RSApProvider::_constructInstance() -- done" << endl;
 #endif
 

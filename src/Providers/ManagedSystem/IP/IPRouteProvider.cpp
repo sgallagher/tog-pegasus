@@ -120,7 +120,7 @@ PEGASUS_USING_PEGASUS;
 
 IPRouteProvider::IPRouteProvider()
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "IPRouteProvider::IPRouteProvider()" << endl;
 #endif
 }
@@ -192,7 +192,7 @@ void IPRouteProvider::enumerateInstances(
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "IPRouteProvider::enumerateInstances()" << endl;
 #endif
 
@@ -237,7 +237,7 @@ void IPRouteProvider::enumerateInstanceNames(
     const CIMObjectPath &ref,
     ObjectPathResponseHandler &handler)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "IPRouteProvider::enumerateInstanceNames()" << endl;
 #endif
 
@@ -253,7 +253,7 @@ void IPRouteProvider::enumerateInstanceNames(
     int i;
     RouteList _rList;
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "IPRouteProvider::enumerateInstanceNames() _rList Initialized"
          << endl;
 #endif
@@ -295,7 +295,7 @@ void IPRouteProvider::getInstance(
     const CIMPropertyList &propertyList,
     InstanceResponseHandler &handler)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
   cout << "IPRouteProvider::getInstance(" << instanceName.toString() << ")"
        << endl;
 #endif
@@ -490,7 +490,7 @@ PARAMETERS        :
 */
 void IPRouteProvider::initialize(CIMOMHandle &ch)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "IPRouteProvider::initialize()" << endl;
 #endif
 
@@ -518,7 +518,7 @@ PARAMETERS        :
 */
 void IPRouteProvider::terminate()
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "IPRouteProvider::terminate()" << endl;
 #endif
 
@@ -539,7 +539,7 @@ PARAMETERS        : IP Route
 Array<CIMKeyBinding> IPRouteProvider::_constructKeyBindings(
     const IPRoute& _ipr)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "IPRouteProvider::_constructKeyBindings()" << endl;
 #endif
 
@@ -613,7 +613,7 @@ Array<CIMKeyBinding> IPRouteProvider::_constructKeyBindings(
             String("Host-specific module doesn't support Key `") +
                 PROPERTY_ADDRESS_TYPE.getString() + String("'"));
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
     cout << "IPRouteProvider::_constructKeyBindings() -- done" << endl;
 #endif
 
@@ -638,7 +638,7 @@ CIMInstance IPRouteProvider::_constructInstance(
     const CIMNamespaceName &nameSpace,
     const IPRoute &_ipr)
 {
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
   cout << "IPRouteProvider::_constructInstance()" << endl;
 #endif
 
@@ -736,7 +736,7 @@ CIMInstance IPRouteProvider::_constructInstance(
   if (_ipr.getAddressType(ui))
     inst.addProperty(CIMProperty(PROPERTY_ADDRESS_TYPE,ui));
 
-#ifdef DEBUG
+#ifdef IPPROVIDER_DEBUG
   cout << "IPRouteProvider::_constructInstance() -- done" << endl;
 #endif
 

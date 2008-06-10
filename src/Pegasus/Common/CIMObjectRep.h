@@ -160,7 +160,6 @@ protected:
                        CIMPropertyRep,
                        PEGASUS_PROPERTY_ORDEREDSET_HASHSIZE> PropertySet;
     PropertySet _properties;
-    Boolean _resolved;
 
 private:
 

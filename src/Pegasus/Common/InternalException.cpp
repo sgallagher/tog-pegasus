@@ -81,20 +81,6 @@ const char BadQualifierType::MSG[] =
 const char BadQualifierType::KEY[] =
     "Common.InternalException.BAD_QUALIFIER_TYPE";
 
-const char ClassAlreadyResolved::MSG[] =
-    "attempt to resolve a class that is already resolved: $0";
-const char ClassAlreadyResolved::KEY[] =
-    "Common.InternalException.CLASS_ALREADY_RESOLVED";
-
-const char ClassNotResolved::MSG[] = "class is not yet resolved: $0";
-const char ClassNotResolved::KEY[] =
-    "Common.InternalException.CLASS_NOT_RESOLVED";
-
-const char InstanceAlreadyResolved::MSG[] =
-    "attempted to resolve an instance that is already resolved.";
-const char InstanceAlreadyResolved::KEY[] =
-    "Common.InternalException.INSTANCE_ALREADY_RESOLVED";
-
 const char InstantiatedAbstractClass::MSG[] =
     "attempted to instantiate an abstract class $0";
 const char InstantiatedAbstractClass::KEY[] =
@@ -484,59 +470,6 @@ BadQualifierType::BadQualifierType(const String& qualifierName)
 }
 
 BadQualifierType::~BadQualifierType()
-{
-}
-
-//==============================================================================
-//
-// ClassAlreadyResolved
-//
-//==============================================================================
-
-ClassAlreadyResolved::ClassAlreadyResolved(const String& className)
-    : Exception(MessageLoaderParms(
-          ClassAlreadyResolved::KEY,
-          ClassAlreadyResolved::MSG,
-          className))
-{
-}
-
-ClassAlreadyResolved::~ClassAlreadyResolved()
-{
-}
-
-//==============================================================================
-//
-// ClassNotResolved
-//
-//==============================================================================
-
-ClassNotResolved::ClassNotResolved(const String& className)
-    : Exception(MessageLoaderParms(
-          ClassNotResolved::KEY,
-          ClassNotResolved::MSG,
-          className))
-{
-}
-
-ClassNotResolved::~ClassNotResolved()
-{
-}
-
-//==============================================================================
-//
-// InstanceAlreadyResolved
-//
-//==============================================================================
-
-InstanceAlreadyResolved::InstanceAlreadyResolved()
-    : Exception(MessageLoaderParms(
-          InstanceAlreadyResolved::KEY,
-          InstanceAlreadyResolved::MSG))
-{
-}
-
-InstanceAlreadyResolved::~InstanceAlreadyResolved()
 {
 }
 

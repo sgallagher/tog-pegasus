@@ -224,16 +224,22 @@ en:table {
 
         /**
         * @note PGS00205:
-        *        Substitution {0} is a class name (a string)
+        *    Substitution {0} is a class name (a string)
+        *    This message is no longer used as of Pegasus 2.8.
         */
         Common.InternalException.CLASS_ALREADY_RESOLVED:string {"PGS00205: Attempted to resolve a class that is already resolved: {0}."}
 
         /**
         * @note PGS00206:
-        *        Substitution {0} is a class name (a string)
+        *    Substitution {0} is a class name (a string)
+        *    This message is no longer used as of Pegasus 2.8.
         */
         Common.InternalException.CLASS_NOT_RESOLVED:string {"PGS00206: Class {0} is not yet resolved."}
 
+        /**
+        * @note PGS00207:
+        *    This message is no longer used as of Pegasus 2.8.
+        */
         Common.InternalException.InstanceAlreadyResolved:string {"PGS00207: Attempted to resolve an instance that is already resolved."}
 
         /**
@@ -367,11 +373,6 @@ en:table {
         Common.InternalException.INVALID_AUTH_HEADER:string {"PGS00232: The Authorization header is not valid."}
 
         Common.InternalException.UNAUTHORIZED_ACCESS:string {"PGS00233: Unauthorized access."}
-
-        /**
-        *  @version 2.8
-        */
-        Common.InternalException.INSTANCE_ALREADY_RESOLVED:string {"PGS00234: Attempted to resolve an instance that is already resolved."}
 
 
         // ==========================================================

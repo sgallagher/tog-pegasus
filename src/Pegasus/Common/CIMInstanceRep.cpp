@@ -64,11 +64,6 @@ void CIMInstanceRep::resolve(
 {
     // ATTN: Verify that references are initialized.
 
-#if 0
-    if (_resolved)
-        throw InstanceAlreadyResolved();
-#endif
-
     if (!context)
         throw NullPointer();
 
@@ -84,11 +79,6 @@ void CIMInstanceRep::resolve(
             _reference.getClassName().getString ());
 
     cimClassOut = cimClass;
-
-#if 0
-    if (!cimClass._rep->_resolved)
-        throw ClassNotResolved(_reference.getClassName());
-#endif
 
     //----------------------------------------------------------------------
     // Disallow instantiation of abstract classes.
@@ -198,10 +188,6 @@ void CIMInstanceRep::resolve(
             _properties.insert(m++, p);
         }
     }
-
-#if 0
-    _resolved = true;
-#endif
 }
 
 CIMInstanceRep::CIMInstanceRep(const CIMInstanceRep& x) : CIMObjectRep(x)

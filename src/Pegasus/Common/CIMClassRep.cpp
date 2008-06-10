@@ -151,10 +151,7 @@ void CIMClassRep::resolve(
     const CIMNamespaceName& nameSpace)
 {
     PEG_METHOD_ENTER(TRC_OBJECTRESOLUTION, "CIMClassRep::resolve()");
-#if 0
-    if (_resolved)
-        throw ClassAlreadyResolved(_reference.getClassName());
-#endif
+
     if (!context)
         throw NullPointer();
 
@@ -445,8 +442,6 @@ void CIMClassRep::resolve(
             dummy,
             true);
     }
-
-    // _resolved = true;
 }
 
 CIMInstance CIMClassRep::buildInstance(Boolean includeQualifiers,
@@ -561,9 +556,6 @@ Boolean CIMClassRep::identical(const CIMObjectRep* x) const
                 return false;
         }
     }
-
-    if (_resolved != tmprep->_resolved)
-        return false;
 
     return true;
 }

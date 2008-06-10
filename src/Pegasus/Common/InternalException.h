@@ -145,43 +145,6 @@ public:
 };
 
 // ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE ClassAlreadyResolved : public Exception
-{
-public:
-
-    static const char MSG[];
-    static const char KEY[];
-
-    ClassAlreadyResolved(const String& className);
-
-    virtual ~ClassAlreadyResolved();
-};
-
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE ClassNotResolved : public Exception
-{
-public:
-
-    static const char MSG[];
-    static const char KEY[];
-
-    ClassNotResolved(const String& className);
-    virtual ~ClassNotResolved();
-};
-
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE InstanceAlreadyResolved : public Exception
-{
-public:
-
-    static const char MSG[];
-    static const char KEY[];
-
-    InstanceAlreadyResolved();
-    virtual ~InstanceAlreadyResolved();
-};
-
-// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE InstantiatedAbstractClass : public Exception
 {
 public:

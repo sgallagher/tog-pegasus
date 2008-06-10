@@ -992,7 +992,6 @@ void BinaryStreamer::encode(
     PackQualifiers<CIMClassRep>::func(out, rep);
     _packProperties(out, rep);
     _packMethods(out, rep);
-    Packer::packBoolean(out, rep->_resolved);
 }
 
 void BinaryStreamer::decode(
@@ -1015,9 +1014,6 @@ void BinaryStreamer::decode(
     UnpackProperties<CIMClass>::func(in, pos, cimClass);
     UnpackMethods<CIMClass>::func(in, pos, cimClass);
 
-    Boolean resolved;
-    Packer::unpackBoolean(in, pos, resolved);
-    cimClass._rep->_resolved = resolved;
     x = cimClass;
 }
 
@@ -1031,7 +1027,6 @@ void BinaryStreamer::encode(
     _packObjectPath(out, x.getPath());
     PackQualifiers<CIMInstanceRep>::func(out, rep);
     _packProperties(out, rep);
-    Packer::packBoolean(out, rep->_resolved);
 }
 
 void BinaryStreamer::decode(
@@ -1050,9 +1045,6 @@ void BinaryStreamer::decode(
     UnpackQualifiers<CIMInstance>::func(in, pos, cimInstance);
     UnpackProperties<CIMInstance>::func(in, pos, cimInstance);
 
-    Boolean resolved;
-    Packer::unpackBoolean(in, pos, resolved);
-    cimInstance._rep->_resolved = resolved;
     x = cimInstance;
 }
 

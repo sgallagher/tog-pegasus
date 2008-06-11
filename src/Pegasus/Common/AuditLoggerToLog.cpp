@@ -48,6 +48,10 @@
 # include <unixlib.h>
 #endif
 
+#ifdef PEGASUS_OS_SOLARIS
+extern char** environ;
+#endif
+
 #include <stdlib.h>
 
 #ifdef PEGASUS_ENABLE_AUDIT_LOGGER

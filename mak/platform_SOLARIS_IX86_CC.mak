@@ -179,3 +179,19 @@ PEGASUS_USE_SSL_RANDOMFILE=true
 ifdef PEGASUS_HAS_SSL
   FLAGS += -L$(OPENSSL_HOME)/lib
 endif
+
+##==============================================================================
+##
+## OpenSPL Settings
+##
+##     To build for SSL, add PEGASUS_HAS_SSL=1 to environment
+##
+##==============================================================================
+
+ifndef PEGASUS_OPENSLP_HOME
+  PEGASUS_OPENSLP_HOME=/usr
+endif
+
+ifeq ($(PEGASUS_USE_OPENSLP),true)
+  FLAGS += -L$(PEGASUS_OPENSLP_HOME)/lib
+endif

@@ -158,11 +158,13 @@ LIBRARY_SYS_LIBS = $(COMMON_SYS_LIBS)
 
 ##==============================================================================
 ##
-## LINK_MACHINE_OPTIONS
+## 64-bit Options
 ##
 ##==============================================================================
 
 LINK_MACHINE_OPTIONS += -m64
+
+FLAGS += -m64
 
 ##==============================================================================
 ##
@@ -182,4 +184,18 @@ ifdef PEGASUS_HAS_SSL
   FLAGS += -L$(OPENSSL_HOME)/lib
 endif
 
-FLAGS += -m64
+##==============================================================================
+##
+## OpenSPL Settings
+##
+##     To build for SSL, add PEGASUS_HAS_SSL=1 to environment
+##
+##==============================================================================
+
+ifndef PEGASUS_OPENSLP_HOME
+  PEGASUS_OPENSLP_HOME=/usr
+endif
+
+ifeq ($(PEGASUS_USE_OPENSLP),true)
+  FLAGS += -L$(PEGASUS_OPENSLP_HOME)/lib
+endif

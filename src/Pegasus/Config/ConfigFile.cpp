@@ -338,7 +338,7 @@ void ConfigFile::replace (const String& fileName)
     // Open the given config file for reading
     //
 
-    FILE* ifs = fopen(fileName.getCString(), "rb");
+    FILE* ifs = fopen(fileName.getCString(), "r");
 
     if (!ifs)
     {

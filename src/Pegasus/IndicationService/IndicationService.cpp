@@ -1968,8 +1968,6 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
         CIMProcessIndicationRequestMessage*> (message);
     PEGASUS_ASSERT(request != 0);
 
-    CIMResponseMessage * response = request->buildResponse ();
-
     Array<CIMInstance> matchedSubscriptions;
     Array<String> matchedSubscriptionsKeys;
 
@@ -2173,6 +2171,15 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
                 (const char*)(request->nameSpace.getString().getCString())));
         }
     }
+    catch (Exception& e)
+    {
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Exception caught while processing indication: %s.  "
+                "Indication may be lost.",
+            (const char*)e.getMessage().getCString()));
+        PEG_METHOD_EXIT();
+        throw;
+    }
     catch (...)
     {
         PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
@@ -2182,7 +2189,7 @@ void IndicationService::_handleProcessIndicationRequest(Message* message)
         throw;
     }
 
-    _enqueueResponse (request, response);
+    _enqueueResponse(request, request->buildResponse());
 
 #ifdef PEGASUS_INDICATION_PERFINST
     stopWatch.stop();

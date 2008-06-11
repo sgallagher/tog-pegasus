@@ -1003,7 +1003,7 @@ Boolean SubscriptionRepository::reconcileFatalError (
         (_PROPERTY_ONFATALERRORPOLICY)).getValue ();
     errorPolicyValue.get (onFatalErrorPolicy);
 
-    if (errorPolicyValue == _ERRORPOLICY_DISABLE)
+    if (onFatalErrorPolicy == _ERRORPOLICY_DISABLE)
     {
         //
         //  FUTURE: Failure Trigger Time Interval should be allowed to pass
@@ -1014,7 +1014,7 @@ Boolean SubscriptionRepository::reconcileFatalError (
         _disableSubscription (subscription);
         removeOrDisable = true;
     }
-    else if (errorPolicyValue == _ERRORPOLICY_REMOVE)
+    else if (onFatalErrorPolicy == _ERRORPOLICY_REMOVE)
     {
         //
         //  FUTURE: Failure Trigger Time Interval should be allowed to pass
@@ -1206,7 +1206,7 @@ void SubscriptionRepository::_disableSubscription (
     //
     CIMProperty state = instance.getProperty (instance.findProperty
         (PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE));
-    state.setValue (CIMValue (STATE_DISABLED));
+    state.setValue(CIMValue(Uint16(STATE_DISABLED)));
 
     //
     //  Modify the instance in the repository

@@ -258,7 +258,8 @@ CIMObjectPath _buildFilterOrHandlerPath(
 void _createSubscriptionInstance(
     CIMClient& client,
     const CIMObjectPath& filterPath,
-    const CIMObjectPath& handlerPath)
+    const CIMObjectPath& handlerPath,
+    Uint16 onFatalErrorPolicy)
 {
     CIMInstance subscriptionInstance(PEGASUS_CLASSNAME_INDSUBSCRIPTION);
     subscriptionInstance.addProperty(CIMProperty(CIMName("Filter"),
@@ -267,14 +268,18 @@ void _createSubscriptionInstance(
         handlerPath, 0, PEGASUS_CLASSNAME_LSTNRDST_CIMXML));
     subscriptionInstance.addProperty(CIMProperty(
         CIMName("SubscriptionState"), CIMValue((Uint16) 2)));
-
+    subscriptionInstance.addProperty(
+        CIMProperty(
+            CIMName("OnFatalErrorPolicy"),
+            CIMValue((Uint16) onFatalErrorPolicy)));
     CIMObjectPath path = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP,
         subscriptionInstance);
 }
 
 void _createSubscription(
     CIMClient& client,
-    const String& filterName)
+    const String& filterName,
+    Uint16 onFatalErrorPolicy = 2)
 {
     CIMObjectPath filterPath;
     CIMObjectPath handlerPath;
@@ -284,11 +289,14 @@ void _createSubscription(
     handlerPath = _buildFilterOrHandlerPath(
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "OOPHandler01", String::EMPTY,
         CIMNamespaceName());
-    _createSubscriptionInstance(client, filterPath, handlerPath);
+    _createSubscriptionInstance(
+        client,
+        filterPath,
+        handlerPath,
+        onFatalErrorPolicy);
 }
 
-void _deleteSubscriptionInstance(
-    CIMClient& client,
+CIMObjectPath _getSubscriptionPath(
     const String& filterName,
     const String& handlerName)
 {
@@ -322,9 +330,22 @@ void _deleteSubscriptionInstance(
         filterPath.toString(), CIMKeyBinding::REFERENCE));
     subscriptionKeyBindings.append(CIMKeyBinding("Handler",
         handlerPath.toString(), CIMKeyBinding::REFERENCE));
-    CIMObjectPath subscriptionPath("", CIMNamespaceName(),
-        PEGASUS_CLASSNAME_INDSUBSCRIPTION, subscriptionKeyBindings);
-    client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, subscriptionPath);
+    
+    return CIMObjectPath(
+               "",
+               CIMNamespaceName(),
+               PEGASUS_CLASSNAME_INDSUBSCRIPTION,
+               subscriptionKeyBindings);   
+}
+
+void _deleteSubscriptionInstance(
+    CIMClient& client,
+    const String& filterName,
+    const String& handlerName)
+{
+    client.deleteInstance(
+        PEGASUS_NAMESPACENAME_INTEROP, 
+        _getSubscriptionPath(filterName, handlerName));
 }
 
 void _deleteHandlerInstance(
@@ -1778,6 +1799,156 @@ void _testScenario8(
         String("OOPCapability012"));
 }
 
+//
+//  Scenario 9: Testing Subscription's OnFatalErrorPolicy implementation.
+//
+//  Register the provider
+//  Create a subscription with OnFatalErrorPolicy 'Remove'.
+//  Cause provider failure (invokeMethod "Fail")
+//  Verify module status is Degraded
+//  Disable provider and verify module status is Stopped
+//  Re-enable provider and verify module status is OK
+//  Verify the Subscription is deleted.
+//  Create a Subscription with OnFatalErrorPolicy 'Disable'.
+//  Cause provider failure (invokeMethod "Fail")
+//  Verify module status is Degraded
+//  Verify Subscription is disabled.
+//  Delete the Subscription
+//  De-register the provider
+//
+
+void _testScenario9(
+    CIMClient& client,
+    Uint16 userContext,
+    const String& providerModuleName,
+    const String& providerName,
+    const String& capabilityID,
+    const String& className,
+    const Array<String>& namespaces,
+    const Array<Uint16>& providerType)
+{
+    //
+    //  Register the provider
+    //
+    _register(
+        client,
+        userContext,
+        providerModuleName,
+        providerName,
+        capabilityID,
+        className,
+        namespaces,
+        providerType,
+        CIMPropertyList(),
+        CIMPropertyList());
+
+    //
+    //  Create a subscription with OnFatalErrorPolicy 'Remove'.
+    //
+    _createSubscription(client, String("OOPFilter01"), 4);
+
+    //
+    //  Invoke method to cause provider failure
+    //
+    try
+    {
+        String identifier = "Scenario 9a: " + providerName;
+        _invokeMethod(client, String("Fail"), identifier);
+        PEGASUS_TEST_ASSERT(false);
+    }
+    catch (const CIMException& e)
+    {
+        _checkExceptionCode(e, CIM_ERR_FAILED);
+    }
+
+    //
+    //  Verify module status is Degraded
+    //
+    _checkStatus(client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_DEGRADED);
+
+    //
+    //  Disable provider and verify module status is Stopped
+    //
+    _disableModule(client, providerModuleName);
+    _checkStatus(client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_STOPPED);
+
+    //
+    //  Re-enable provider and verify module status is OK
+    //
+    _enableModule(client, providerModuleName);
+    _checkStatus(client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_OK);
+
+    //
+    //  Try to get the subscription, subscription should not exist.
+    //
+    try
+    {
+        client.getInstance(
+            PEGASUS_NAMESPACENAME_INTEROP, 
+            _getSubscriptionPath(
+                String("OOPFilter01"),
+                String("OOPHandler01")));
+        PEGASUS_TEST_ASSERT(false);
+    }
+    catch(CIMException &e)
+    {
+        _checkExceptionCode(e, CIM_ERR_NOT_FOUND);
+    }
+
+    //
+    //  Create a subscription with OnFatalErrorPolicy 'Disable'.
+    //
+    _createSubscription(client, String("OOPFilter01"), 3);
+
+    //
+    //  Invoke method to cause provider failure
+    //
+    try
+    {
+        String identifier = "Scenario 9b: " + providerName;
+        _invokeMethod(client, String("Fail"), identifier);
+        PEGASUS_TEST_ASSERT(false);
+    }
+    catch (const CIMException& e)
+    {
+        _checkExceptionCode(e, CIM_ERR_FAILED);
+    }
+
+    //
+    //  Verify module status is Degraded
+    //
+    _checkStatus(client, providerModuleName, CIM_MSE_OPSTATUS_VALUE_DEGRADED);
+
+    //
+    //  Get the subscription.
+    //
+    CIMInstance inst = client.getInstance(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        _getSubscriptionPath(String("OOPFilter01"), String("OOPHandler01")));
+
+    // Check Subscription state.
+    CIMValue value = inst.getProperty(
+        inst.findProperty(CIMName("SubscriptionState"))).getValue();
+    Uint16 subscriptionState;
+    value.get(subscriptionState);
+    PEGASUS_TEST_ASSERT(subscriptionState == 4); // Should be disabled.
+ 
+    //
+    //  Delete the subscription
+    //
+    _deleteSubscriptionInstance(client, String("OOPFilter01"),
+        String("OOPHandler01"));
+
+    //
+    //  De-register the provider
+    //
+    _deregister(
+        client,
+        providerModuleName,
+        providerName,
+        capabilityID);
+}
+
 void _testScenarios(
     CIMClient& client,
     Uint16 userContext)
@@ -2066,6 +2237,27 @@ void _testScenarios(
         cout <<
         "+++++ Test of failure of provider with provider in another module "
         "continuing to serve the subscription completed successfully" <<
+        endl;
+    }
+
+    //
+    //  Check Subscription's OnFatalErrorPolicy implementation.
+    //
+    _testScenario9(
+        client,
+        userContext,
+        String("OOPModuleFailureTestProviderModule"),
+        String("OOPModuleInvokeFailureTestProvider"),
+        String("OOPCapability012"),
+        String("FailureTestIndication"),
+        namespaces,
+        providerType);
+
+    if (verbose)
+    {
+        cout <<
+        "+++++ Test of Subscription's OnFatalErrorPolicy implementation "
+            "completed successfully" <<
         endl;
     }
 }

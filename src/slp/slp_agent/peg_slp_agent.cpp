@@ -545,14 +545,17 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
             sa_reg_params *rp = i.value();
 
 #ifdef PEGASUS_USE_OPENSLP
+            SLPHandle slp_handle = 0;
+            SLPError slpErr = SLP_OK;
+            SLPError callbackErr=SLP_OK;
             if ((slpErr = SLPOpen(NULL, SLP_FALSE, &slp_handle)) == SLP_OK)
             {
                 slpErr = SLPReg(
                     slp_handle,
                     rp->url,
-                    lifetime,
+                    life,
                     rp->type,
-                    rp->attributes,
+                    rp->attrs,
                     SLP_TRUE,
                     SLPRegCallback,
                     &callbackErr);

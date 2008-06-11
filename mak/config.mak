@@ -900,11 +900,19 @@ endif
 #
 
 ifdef PEGASUS_USE_OPENSLP
-   ifeq ($(PEGASUS_ENABLE_SLP),true)
+  ifeq ($(PEGASUS_USE_OPENSLP),true)
+    ifeq ($(PEGASUS_ENABLE_SLP),true)
       DEFINES += -DPEGASUS_USE_OPENSLP
     else
       $(error PEGASUS_USE_OPENSLP defined but PEGASUS_ENABLE_SLP is not true. Please correct this inconsistency)
     endif
+  else
+    ifneq ($(PEGASUS_USE_OPENSLP), false)
+      $(error PEGASUS_USE_OPENSLP \
+            ($(PEGASUS_USE_OPENSLP)) \
+            invalid, must be true or false)
+    endif
+  endif
 endif
 
 # PEP 267

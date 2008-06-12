@@ -2094,6 +2094,8 @@ void XmlWriter::appendUnauthorizedResponseHeader(
     const String& content)
 {
     out << STRLIT("HTTP/1.1 " HTTP_STATUS_UNAUTHORIZED "\r\n");
+    Uint32 contentLength = 0;
+    OUTPUT_CONTENTLENGTH;
     out << content << STRLIT("\r\n");
     out << STRLIT("\r\n");
 

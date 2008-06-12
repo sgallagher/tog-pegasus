@@ -53,6 +53,7 @@
 
 #if defined(PEGASUS_OS_SOLARIS)
 # include <string.h>
+# include <sys/sockio.h>
 #endif
 
 #if !defined(PEGASUS_OS_VMS) && \

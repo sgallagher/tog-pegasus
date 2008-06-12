@@ -93,6 +93,13 @@ void test02(STR*)
     PEGASUS_TEST_ASSERT(arr[1] == "one");
     PEGASUS_TEST_ASSERT(arr[2] == "three");
     PEGASUS_TEST_ASSERT(arr[3] == "four");
+
+    // test removing multiple items.
+    arr.remove(1, 2);
+    PEGASUS_TEST_ASSERT(arr[0] == "zero");
+    PEGASUS_TEST_ASSERT(arr[1] == "four");
+    PEGASUS_TEST_ASSERT(arr.size() == 2);
+
 }
 
 template<class T>
@@ -150,6 +157,10 @@ void test04()
     PEGASUS_TEST_ASSERT(arr[0] == "Hello");
     PEGASUS_TEST_ASSERT(arr[1] == "Hello");
     PEGASUS_TEST_ASSERT(arr[2] == "Hello");
+
+    arr.remove(1, 2);
+    PEGASUS_TEST_ASSERT(arr.size() == 1);
+
 }
 
 void test05()
@@ -176,6 +187,69 @@ void test05()
     PEGASUS_TEST_ASSERT(arr[1] == "one");
     PEGASUS_TEST_ASSERT(arr[2] == "three");
     PEGASUS_TEST_ASSERT(arr[3] == "four");
+
+    arr.remove(0,3);
+    PEGASUS_TEST_ASSERT(arr.size() == 1);
+    PEGASUS_TEST_ASSERT(arr[0] == "four");
+
+
+}
+
+void test15()
+{
+    {
+        Array<Uint32> arr;
+        PEGASUS_TEST_ASSERT(arr.size() == 0);
+        Array<Uint32> arr2;
+        PEGASUS_TEST_ASSERT(arr.size() == 0);
+        arr.append(1);
+        arr.append(2);
+        arr.append(3);
+        arr.append(4);
+        PEGASUS_TEST_ASSERT(arr.size() == 4);
+        arr2.append(5);
+        arr2.append(6);
+        arr2.append(7);
+        arr2.append(8);
+        PEGASUS_TEST_ASSERT(arr2.size() == 4);
+        arr.appendArray(arr2);
+        PEGASUS_TEST_ASSERT(arr.size() == 8);
+        PEGASUS_TEST_ASSERT(arr2.size() == 4);
+        for (Uint32 i = 0 ; i < 8 ; i++)
+        {
+            PEGASUS_TEST_ASSERT(arr[i] == i+1);
+        }
+    }
+    {
+        Array<String> arr;
+        PEGASUS_TEST_ASSERT(arr.size() == 0);
+        Array<String> arr2;
+        PEGASUS_TEST_ASSERT(arr.size() == 0);
+        arr.append("zero");
+        arr.append("one");
+        arr.append("two");
+        arr.append("three");
+        arr.append("four");
+        PEGASUS_TEST_ASSERT(arr.size() == 5);
+        arr2.append("five");
+        arr2.append("six");
+        arr2.append("seven");
+        arr2.append("eight");
+        PEGASUS_TEST_ASSERT(arr2.size() == 4);
+        arr.appendArray(arr2);
+        PEGASUS_TEST_ASSERT(arr.size() == 9);
+        PEGASUS_TEST_ASSERT(arr2.size() == 4);
+        PEGASUS_TEST_ASSERT(arr[0] == "zero");
+        PEGASUS_TEST_ASSERT(arr[1] == "one");
+        PEGASUS_TEST_ASSERT(arr[2] == "two");
+        PEGASUS_TEST_ASSERT(arr[3] == "three");
+        PEGASUS_TEST_ASSERT(arr[4] == "four");
+        PEGASUS_TEST_ASSERT(arr[5] == "five");
+        PEGASUS_TEST_ASSERT(arr[6] == "six");
+        PEGASUS_TEST_ASSERT(arr[7] == "seven");
+        PEGASUS_TEST_ASSERT(arr[8] == "eight");
+    }
+
 }
 
 void test06()
@@ -249,6 +323,7 @@ int main(int argc, char** argv)
         test03((int*)0);
         test04();
         test05();
+        test15();
         test06();
         PEGASUS_TEST_ASSERT(Int::_count == 0);
         PEGASUS_TEST_ASSERT(Str::_constructions == Str::_destructions);

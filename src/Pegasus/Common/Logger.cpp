@@ -128,8 +128,7 @@ static const char* fileNames[] =
     "PegasusTrace.log",
     "PegasusStandard.log",
     "PegasusAudit.log",
-    "PegasusError.log",
-    "PegasusDebug.log"
+    "PegasusError.log"
 };
 static const char* lockFileName = "PegasusLog.lock";
 

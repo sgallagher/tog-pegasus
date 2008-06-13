@@ -673,6 +673,49 @@ void SubscriptionTable::_updateSubscriptionProviders
             _insertActiveSubscriptionsEntry (subscription,
                 updatedProviderList);
         }
+        else
+        {
+            // Delete subscription entries from SubscriptionClassesTable.
+            WriteLock lock(_subscriptionClassesTableLock);
+            Array<SubscriptionClassesTableEntry> tableValues;
+            for (SubscriptionClassesTable::Iterator i =
+                _subscriptionClassesTable.start(); i; i++)
+            {
+                SubscriptionClassesTableEntry value = i.value();
+                for (Uint32 j = 0, n = value.subscriptions.size(); j < n; ++j)
+                {
+                    if (value.subscriptions[j].getPath().identical(
+                        subscription.getPath()))
+                    {
+                        value.subscriptions.remove(j);
+                        tableValues.append(value);
+                        break;
+                    }
+                }
+            }
+            for (Uint32 i = 0, n = tableValues.size(); i < n; ++i)
+            {
+                String subscriptionClassesKey = _generateSubscriptionClassesKey(
+                    tableValues[i].indicationClassName,
+                    tableValues[i].sourceNamespaceName);
+                // If this is the only subscription for this class-namespace
+                // pair delete the entry else update the subscription list
+                // for this class-namespace pair.              
+                if (tableValues[i].subscriptions.size())
+                { 
+                    SubscriptionClassesTableEntry *entry = 0;
+                    _subscriptionClassesTable.lookupReference(
+                        subscriptionClassesKey,
+                        entry);
+                    PEGASUS_ASSERT(entry);
+                    entry->subscriptions = tableValues[i].subscriptions;
+                }
+                else
+                {
+                    _removeSubscriptionClassesEntry(subscriptionClassesKey);
+                }
+            }
+        }
     }
 
     PEG_METHOD_EXIT ();

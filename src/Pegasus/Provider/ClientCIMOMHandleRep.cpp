@@ -137,7 +137,21 @@ public:
             PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
                 "Creating CIMClient connection");
             client = new CIMClient();
-            client->connectLocal();
+
+            //
+            // If connection fails, we need to make sure that subsequent
+            // calls will try to connect again. 
+            //
+            try
+            {
+                client->connectLocal();
+            }
+            catch(...)
+            {
+                delete client;
+                client = 0;
+                throw;
+            }
         }
         _client = client;
 

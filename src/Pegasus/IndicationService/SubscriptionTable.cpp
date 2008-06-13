@@ -540,7 +540,7 @@ void SubscriptionTable::_removeActiveSubscriptionsEntry (
     PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
                       Tracer::LEVEL3,
                       "REMOVED _activeSubscriptionsTable entry: " +
-                      key.toString ());
+                      key);
 #endif
 
     PEG_METHOD_EXIT ();

@@ -77,7 +77,7 @@ NOTES             :
 Boolean Processor::getCaption(String& s) const
 {
   char t[32];
-  sprintf(t,"Processor %ld",pInfo.psp_idx);
+  sprintf(t, "Processor %llu", Uint64(pInfo.psp_idx));
   s = String(t);
   return true;
 }
@@ -168,9 +168,9 @@ NOTES             :
 */
 String Processor::getDeviceID(void) const
 {
-  char buf[100];
+  char buf[22];
 // ATTN for now, we are returning the index
-  sprintf(buf,"%ld",pInfo.psp_idx);
+  sprintf(buf, "%llu", Uint64(pInfo.psp_idx));
   return String(buf);
 }
 

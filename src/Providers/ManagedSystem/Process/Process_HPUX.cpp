@@ -790,8 +790,8 @@ NOTES             :
 */
 Boolean Process::getParentProcessID(String& s) const
 {
-  char buf[100];
-  sprintf(buf,"%ld",pInfo.pst_ppid);
+  char buf[22];
+  sprintf(buf, "%lld", Sint64(pInfo.pst_ppid));
   s = buf;
   return true;
 }
@@ -829,8 +829,8 @@ NOTES             :
 */
 String Process::getHandle(void) const
 {
-  char buf[100];
-  sprintf(buf,"%ld",pInfo.pst_pid);
+  char buf[22];
+  sprintf(buf, "%lld", Sint64(pInfo.pst_pid));
   return String(buf);
 }
 

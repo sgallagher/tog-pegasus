@@ -38,6 +38,7 @@
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/TimeValue.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/StringConversion.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -77,13 +78,16 @@ int main(int argc, char** argv)
 
     if (verbose)
     {
+        char buffer[22];
+        Uint32 size;
+
         cout << "tv1 " << tv1.getSeconds() << " Seconds " 
-             << tv1.getMicroseconds()
-             << " microseconds " << tv1.toMilliseconds() 
+             << tv1.getMicroseconds() << " microseconds "
+             << Uint64ToString(buffer, tv1.toMilliseconds(), size)
              << " total milliseconds" << endl;
         cout << "tv2 " << tv2.getSeconds() << " Seconds " 
-             << tv2.getMicroseconds()
-             << " microseconds " << tv2.toMilliseconds() 
+             << tv2.getMicroseconds() << " microseconds "
+             << Uint64ToString(buffer, tv2.toMilliseconds(), size)
              << " total milliseconds" <<  endl;
     }
 

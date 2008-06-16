@@ -1,38 +1,39 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/ProviderManager2/AutoPThreadSecurity.h>
 
 #include "ClientCIMOMHandleRep.h"
 
@@ -56,19 +57,23 @@ public:
     {
         try
         {
-            // assume default client timeout
-            if (!_lock.timed_lock(PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS))
-            {
-                throw CIMException(CIM_ERR_ACCESS_DENIED, MessageLoaderParms(
-                    "Provider.CIMOMHandle.CIMOMHANDLE_TIMEOUT",
-                    "Timeout waiting for CIMOMHandle"));
-            }
+             // assume default client timeout
+             _lock.timed_lock(PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
+        }
+        catch (WaitFailed &)
+        {
+            PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
+                "WaitFailed Exception waiting for CIMOMHandle,"
+                    " throwing CIMException");
+ 
+            throw CIMException(CIM_ERR_ACCESS_DENIED, MessageLoaderParms(
+                "Provider.CIMOMHandle.CIMOMHANDLE_TIMEOUT",
+                "Timeout waiting for CIMOMHandle"));
         }
         catch (Exception& e)
         {
-            PEG_TRACE((TRC_CIMOM_HANDLE, Tracer::LEVEL2,
-                "Unexpected Exception: %s",
-                (const char*)e.getMessage().getCString()));
+            PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
+                String("Unexpected Exception: ") + e.getMessage());
             throw;
         }
         catch (...)
@@ -88,9 +93,8 @@ public:
         }
         catch (Exception& e)
         {
-            PEG_TRACE((TRC_CIMOM_HANDLE, Tracer::LEVEL2,
-                "Ignoring Exception: %s",
-                (const char*)e.getMessage().getCString()));
+            PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
+                String("Ignoring Exception: ") + e.getMessage());
         }
         catch (...)
         {
@@ -122,7 +126,7 @@ class ClientCIMOMHandleSetup
 {
 public:
     ClientCIMOMHandleSetup(
-        CIMClientRep*& client,
+        CIMClient*& client,
         const OperationContext& context)
     {
         //
@@ -130,17 +134,17 @@ public:
         //
         if (client == 0)
         {
-            PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL3,
+            PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
                 "Creating CIMClient connection");
-            client = new CIMClientRep();
+            client = new CIMClient();
 
             //
             // If connection fails, we need to make sure that subsequent
-            // calls will try to connect again.
+            // calls will try to connect again. 
             //
             try
             {
-                client->connectLocalBinary();
+                client->connectLocal();
             }
             catch(...)
             {
@@ -214,7 +218,7 @@ public:
                  if (curThrd != NULL)
                  {
                      // deletes the old tsd and creates a new one
-                     curThrd->put_tsd(TSD_CIMOM_HANDLE_CONTENT_LANGUAGES,
+                     curThrd->put_tsd("cimomHandleContentLanguages",
                          deleteContentLanguage,
                          sizeof(ContentLanguageList*),
                          new ContentLanguageList(
@@ -231,13 +235,12 @@ public:
         }
         catch (Exception& e)
         {
-            PEG_TRACE((TRC_CIMOM_HANDLE, Tracer::LEVEL1,
-                "Ignoring Exception: %s",
-                (const char*)e.getMessage().getCString()));
+            PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
+                String("Ignoring Exception: ") + e.getMessage());
         }
         catch (...)
         {
-            PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL1,
+            PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
                 "Ignoring unknown exception");
         }
     }
@@ -248,7 +251,7 @@ private:
     ClientCIMOMHandleSetup(const ClientCIMOMHandleSetup&);
     ClientCIMOMHandleSetup& operator=(const ClientCIMOMHandleSetup&);
 
-    CIMClientRep* _client;
+    CIMClient* _client;
     Uint32 _origTimeout;
     AcceptLanguageList _origAcceptLanguages;
     ContentLanguageList _origContentLanguages;
@@ -298,7 +301,6 @@ CIMClass ClientCIMOMHandleRep::getClass(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::getClass");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -324,7 +326,6 @@ Array<CIMClass> ClientCIMOMHandleRep::enumerateClasses(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::enumerateClasses");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -347,7 +348,6 @@ Array<CIMName> ClientCIMOMHandleRep::enumerateClassNames(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::enumerateClassNames");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -365,7 +365,6 @@ void ClientCIMOMHandleRep::createClass(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::createClass");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -383,7 +382,6 @@ void ClientCIMOMHandleRep::modifyClass(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::modifyClass");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -402,7 +400,6 @@ void ClientCIMOMHandleRep::deleteClass(
 
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::deleteClass");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -413,17 +410,17 @@ void ClientCIMOMHandleRep::deleteClass(
     PEG_METHOD_EXIT();
 }
 
-CIMResponseData ClientCIMOMHandleRep::getInstance(
+CIMInstance ClientCIMOMHandleRep::getInstance(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& instanceName,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::getInstance");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -431,17 +428,18 @@ CIMResponseData ClientCIMOMHandleRep::getInstance(
     return _client->getInstance(
         nameSpace,
         instanceName,
-        false,    // localOnly
+        localOnly,
         includeQualifiers,
         includeClassOrigin,
         propertyList);
 }
 
-CIMResponseData ClientCIMOMHandleRep::enumerateInstances(
+Array<CIMInstance> ClientCIMOMHandleRep::enumerateInstances(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMName& className,
     Boolean deepInheritance,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
@@ -449,7 +447,6 @@ CIMResponseData ClientCIMOMHandleRep::enumerateInstances(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::enumerateInstances");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -458,13 +455,13 @@ CIMResponseData ClientCIMOMHandleRep::enumerateInstances(
         nameSpace,
         className,
         deepInheritance,
-        false,    // localOnly
+        localOnly,
         includeQualifiers,
         includeClassOrigin,
         propertyList);
 }
 
-CIMResponseData ClientCIMOMHandleRep::enumerateInstanceNames(
+Array<CIMObjectPath> ClientCIMOMHandleRep::enumerateInstanceNames(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMName& className)
@@ -472,7 +469,6 @@ CIMResponseData ClientCIMOMHandleRep::enumerateInstanceNames(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::enumerateInstanceNames");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -490,7 +486,6 @@ CIMObjectPath ClientCIMOMHandleRep::createInstance(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::createInstance");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -510,7 +505,6 @@ void ClientCIMOMHandleRep::modifyInstance(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::modifyInstance");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -531,7 +525,6 @@ void ClientCIMOMHandleRep::deleteInstance(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::deleteInstance");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -542,7 +535,7 @@ void ClientCIMOMHandleRep::deleteInstance(
     PEG_METHOD_EXIT();
 }
 
-CIMResponseData ClientCIMOMHandleRep::execQuery(
+Array<CIMObject> ClientCIMOMHandleRep::execQuery(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const String& queryLanguage,
@@ -550,7 +543,6 @@ CIMResponseData ClientCIMOMHandleRep::execQuery(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::execQuery");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -561,7 +553,7 @@ CIMResponseData ClientCIMOMHandleRep::execQuery(
         query);
 }
 
-CIMResponseData ClientCIMOMHandleRep::associators(
+Array<CIMObject> ClientCIMOMHandleRep::associators(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& objectName,
@@ -575,7 +567,6 @@ CIMResponseData ClientCIMOMHandleRep::associators(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::associators");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -592,7 +583,7 @@ CIMResponseData ClientCIMOMHandleRep::associators(
         propertyList);
 }
 
-CIMResponseData ClientCIMOMHandleRep::associatorNames(
+Array<CIMObjectPath> ClientCIMOMHandleRep::associatorNames(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& objectName,
@@ -604,7 +595,6 @@ CIMResponseData ClientCIMOMHandleRep::associatorNames(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::associatorNames");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -618,7 +608,7 @@ CIMResponseData ClientCIMOMHandleRep::associatorNames(
         resultRole);
 }
 
-CIMResponseData ClientCIMOMHandleRep::references(
+Array<CIMObject> ClientCIMOMHandleRep::references(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& objectName,
@@ -630,7 +620,6 @@ CIMResponseData ClientCIMOMHandleRep::references(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::references");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -645,7 +634,7 @@ CIMResponseData ClientCIMOMHandleRep::references(
         propertyList);
 }
 
-CIMResponseData ClientCIMOMHandleRep::referenceNames(
+Array<CIMObjectPath> ClientCIMOMHandleRep::referenceNames(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& objectName,
@@ -655,7 +644,6 @@ CIMResponseData ClientCIMOMHandleRep::referenceNames(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::referenceNames");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -675,7 +663,6 @@ CIMValue ClientCIMOMHandleRep::getProperty(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::getProperty");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -695,7 +682,6 @@ void ClientCIMOMHandleRep::setProperty(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::setProperty");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -718,7 +704,6 @@ CIMValue ClientCIMOMHandleRep::invokeMethod(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::invokeMethod");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -749,9 +734,9 @@ OperationContext ClientCIMOMHandleRep::getResponseContext()
     else
     {
         ContentLanguageList* contentLangs = (ContentLanguageList*)
-            curThrd->reference_tsd(TSD_CIMOM_HANDLE_CONTENT_LANGUAGES);
+            curThrd->reference_tsd("cimomHandleContentLanguages");
         curThrd->dereference_tsd();
-
+ 
         if (contentLangs == NULL)
         {
             ctx.insert(ContentLanguageListContainer(ContentLanguageList()));
@@ -760,7 +745,7 @@ OperationContext ClientCIMOMHandleRep::getResponseContext()
         {
             ctx.insert(ContentLanguageListContainer(*contentLangs));
             // delete the old tsd to free the memory
-            curThrd->delete_tsd(TSD_CIMOM_HANDLE_CONTENT_LANGUAGES);
+            curThrd->delete_tsd("cimomHandleContentLanguages");
         }
     }
 

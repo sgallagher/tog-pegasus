@@ -41,6 +41,16 @@
 #include <Pegasus/WsmServer/WsmConstants.h>
 #include "CimToWsmResponseMapper.h"
 
+#ifdef PEGASUS_OS_VMS
+# define PEGASUS_NAN "NaNQ"
+# define PEGASUS_INF "Infinity"
+# define PEGASUS_NEG_INF "-Infinity"
+#else
+# define PEGASUS_NAN "nan"
+# define PEGASUS_INF "inf"
+# define PEGASUS_NEG_INF "-inf"
+#endif
+
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
@@ -498,11 +508,11 @@ void CimToWsmResponseMapper::convertCimToWsmValue(
             case CIMTYPE_REAL64:
             {
                 String str(cimValue.toString());
-                if (String::compareNoCase(str, "nan") == 0)
+                if (String::compareNoCase(str, PEGASUS_NAN) == 0)
                     wsmValue.set("NaN");
-                else if (String::compareNoCase(str, "inf") == 0)
+                else if (String::compareNoCase(str, PEGASUS_INF) == 0)
                     wsmValue.set("INF");
-                else if (String::compareNoCase(str, "-inf") == 0)
+                else if (String::compareNoCase(str, PEGASUS_NEG_INF) == 0)
                     wsmValue.set("-INF");
                 else
                     wsmValue.set(str);

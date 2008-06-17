@@ -377,7 +377,7 @@ public:
 
         The behavior of get is undefined when the value is null.
 
-        @param Variable in which to return the value.
+        @param x Variable in which to return the value.
         @exception TypeMismatchException If the CIMValue type is not compatible
                    with the type of the output parameter.
         <pre>

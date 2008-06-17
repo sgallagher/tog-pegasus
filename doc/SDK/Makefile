@@ -38,12 +38,95 @@ ifndef PEGASUS_HTML_DIR
    PEGASUS_HTML_DIR = $(PEGASUS_HOME)/html
 endif
 
+PEGASUS_DEFAULTCXX_COMMON_FILES = \
+    ../../src/Pegasus/Common/AcceptLanguageList.h \
+    ../../src/Pegasus/Common/Array.h \
+    ../../src/Pegasus/Common/ArrayInter.h \
+    ../../src/Pegasus/Common/Char16.h \
+    ../../src/Pegasus/Common/CIMClass.h \
+    ../../src/Pegasus/Common/CIMDateTime.h \
+    ../../src/Pegasus/Common/CIMFlavor.h \
+    ../../src/Pegasus/Common/CIMIndication.h \
+    ../../src/Pegasus/Common/CIMInstance.h \
+    ../../src/Pegasus/Common/CIMMethod.h \
+    ../../src/Pegasus/Common/CIMName.h \
+    ../../src/Pegasus/Common/CIMObject.h \
+    ../../src/Pegasus/Common/CIMObjectPath.h \
+    ../../src/Pegasus/Common/CIMOperationType.h \
+    ../../src/Pegasus/Common/CIMParameter.h \
+    ../../src/Pegasus/Common/CIMParamValue.h \
+    ../../src/Pegasus/Common/CIMProperty.h \
+    ../../src/Pegasus/Common/CIMPropertyList.h \
+    ../../src/Pegasus/Common/CIMQualifierDecl.h \
+    ../../src/Pegasus/Common/CIMQualifier.h \
+    ../../src/Pegasus/Common/CIMScope.h \
+    ../../src/Pegasus/Common/CIMStatusCode.h \
+    ../../src/Pegasus/Common/CIMType.h \
+    ../../src/Pegasus/Common/CIMValue.h \
+    ../../src/Pegasus/Common/Config.h \
+    ../../src/Pegasus/Common/ContentLanguageList.h \
+    ../../src/Pegasus/Common/Exception.h \
+    ../../src/Pegasus/Common/Formatter.h \
+    ../../src/Pegasus/Common/LanguageTag.h \
+    ../../src/Pegasus/Common/OperationContext.h \
+    ../../src/Pegasus/Common/ResponseHandler.h \
+    ../../src/Pegasus/Common/SSLContext.h \
+    ../../src/Pegasus/Common/String.h
+
+PEGASUS_DEFAULTCXX_CLIENT_FILES = \
+    ../../src/Pegasus/Client/CIMClient.h \
+    ../../src/Pegasus/Client/CIMClientException.h \
+    ../../src/Pegasus/Client/ClientOpPerformanceDataHandler.h
+
+PEGASUS_DEFAULTCXX_CONSUMER_FILES = \
+    ../../src/Pegasus/Consumer/CIMIndicationConsumer.h
+
+PEGASUS_DEFAULTCXX_PROVIDER_FILES = \
+    ../../src/Pegasus/Provider/CIMAssociationProvider.h \
+    ../../src/Pegasus/Provider/CIMIndicationConsumerProvider.h \
+    ../../src/Pegasus/Provider/CIMIndicationProvider.h \
+    ../../src/Pegasus/Provider/CIMInstanceProvider.h \
+    ../../src/Pegasus/Provider/CIMMethodProvider.h \
+    ../../src/Pegasus/Provider/CIMOMHandle.h \
+    ../../src/Pegasus/Provider/CIMProvider.h \
+    ../../src/Pegasus/Provider/ProviderException.h
+
+PEGASUS_CMPI_PROVIDER_FILES = \
+    ../../src/Pegasus/Provider/CMPI/cmpidt.h \
+    ../../src/Pegasus/Provider/CMPI/cmpift.h \
+    ../../src/Pegasus/Provider/CMPI/docs/cmpimacs.h
+
+PEGASUS_CMPICXX_PROVIDER_FILES = \
+    ../../src/Pegasus/Provider/CMPI/CmpiArgs.h \
+    ../../src/Pegasus/Provider/CMPI/CmpiArray.h \
+    ../../src/Pegasus/Provider/CMPI/CmpiAssociationMI.h \
+    ../../src/Pegasus/Provider/CMPI/CmpiBaseMI.h \
+    ../../src/Pegasus/Provider/CMPI/CmpiBooleanData.h \
+    ../../src/Pegasus/Provider/CMPI/CmpiBroker.h \
+    ../../src/Pegasus/Provider/CMPI/CmpiCharData.h \
+    ../../src/Pegasus/Provider/CMPI/CmpiContext.h \
+    ../../src/Pegasus/Provider/CMPI/CmpiData.h \
+    ../../src/Pegasus/Provider/CMPI/CmpiDateTime.h \
+    ../../src/Pegasus/Provider/CMPI/CmpiEnumeration.h \
+    ../../src/Pegasus/Provider/CMPI/CmpiIndicationMI.h \
+    ../../src/Pegasus/Provider/CMPI/CmpiInstance.h \
+    ../../src/Pegasus/Provider/CMPI/CmpiInstanceMI.h \
+    ../../src/Pegasus/Provider/CMPI/CmpiMethodMI.h \
+    ../../src/Pegasus/Provider/CMPI/CmpiObject.h \
+    ../../src/Pegasus/Provider/CMPI/CmpiObjectPath.h \
+    ../../src/Pegasus/Provider/CMPI/CmpiPropertyMI.h \
+    ../../src/Pegasus/Provider/CMPI/CmpiProviderBase.h \
+    ../../src/Pegasus/Provider/CMPI/CmpiResult.h \
+    ../../src/Pegasus/Provider/CMPI/CmpiSelectExp.h \
+    ../../src/Pegasus/Provider/CMPI/CmpiStatus.h \
+    ../../src/Pegasus/Provider/CMPI/CmpiString.h
+
 FORCE:
 
 buildDoc_ContinueOnError:
-	@if $(DOCXX) --version > /dev/null 2>&1; \
+	@if $(DOXYGEN) --version > /dev/null 2>&1; \
 then $(MAKE) --directory=$(ROOT)/doc/SDK -f Makefile PEGASUS_HTML_DIR=$(PEGASUS_HTML_DIR) buildDoc;\
-else $(ECHO) "Warning: API documentation not generated.  $(DOCXX) command not found."; fi
+else $(ECHO) "Warning: API documentation not generated.  $(DOXYGEN) command not found."; fi
 
 buildDoc:
 	@$(RMDIRHIER) $(PEGASUS_HTML_DIR)
@@ -58,35 +141,24 @@ buildDoc:
 buildDefaultC++Doc:
 	@$(RMDIRHIER) $(PEGASUS_HTML_DIR)/DefaultC++
 	@$(MKDIRHIER) $(PEGASUS_HTML_DIR)/DefaultC++
-	@$(DOCXX) --config doc++.conf --dir $(PEGASUS_HTML_DIR)/DefaultC++ --verbose -H DefaultC++/ClientInterface.dxx
-	@sed -e "s/Hierarchy of Classes/Hierarchy of CIM Client Classes/" $(PEGASUS_HTML_DIR)/DefaultC++/HIER.html >  $(PEGASUS_HTML_DIR)/DefaultC++/ClientClassHier.html
-	@$(DOCXX) --config doc++.conf --dir $(PEGASUS_HTML_DIR)/DefaultC++ --verbose -H DefaultC++/ProviderInterface.dxx
-	@sed -e "s/Hierarchy of Classes/Hierarchy of CIM Provider Classes/" $(PEGASUS_HTML_DIR)/DefaultC++/HIER.html >  $(PEGASUS_HTML_DIR)/DefaultC++/ProviderClassHier.html
-	@$(DOCXX) --config doc++.conf --dir $(PEGASUS_HTML_DIR)/DefaultC++ --verbose -H DefaultC++/IndicationConsumerInterface.dxx
-	@sed -e "s/Hierarchy of Classes/Hierarchy of CIM Indication Consumer Classes/" $(PEGASUS_HTML_DIR)/DefaultC++/HIER.html >  $(PEGASUS_HTML_DIR)/DefaultC++/IndicationConsumerClassHier.html
-	@$(DOCXX) --config doc++.conf --dir $(PEGASUS_HTML_DIR)/DefaultC++ --verbose -H DefaultC++/CommonInterface.dxx
-	@sed -e "s/Hierarchy of Classes/Hierarchy of CIM Common Classes/" $(PEGASUS_HTML_DIR)/DefaultC++/HIER.html >  $(PEGASUS_HTML_DIR)/DefaultC++/CommonClassHier.html
-	@$(COPY) DefaultC++/ClassHier.html $(PEGASUS_HTML_DIR)/DefaultC++/ClassHier.html
-
+	@PEGASUS_PROJECT_NAME="OpenPegasus Default C++ Interface" PEGASUS_HTML_DIR="$(PEGASUS_HTML_DIR)/DefaultC++" PEGASUS_DOXYGEN_FILES="$(PEGASUS_DEFAULTCXX_CLIENT_FILES) $(PEGASUS_DEFAULTCXX_PROVIDER_FILES) $(PEGASUS_DEFAULTCXX_CONSUMER_FILES) $(PEGASUS_DEFAULTCXX_COMMON_FILES)" $(DOXYGEN) Doxyfile
 
 buildCMPIDoc:
 	@$(RMDIRHIER) $(PEGASUS_HTML_DIR)/CMPI
 	@$(MKDIRHIER) $(PEGASUS_HTML_DIR)/CMPI
-	@$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Provider/CMPI/docs -f Makefile clean   
-	@$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Provider/CMPI/docs -f Makefile doc
-	$(DOCXX) --config doc++.conf --dir $(PEGASUS_HTML_DIR)/CMPI -H -v CMPI/Interface.dxx
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Provider/CMPI/docs -f Makefile clean doc
+	@PEGASUS_PROJECT_NAME="OpenPegasus CMPI" PEGASUS_HTML_DIR="$(PEGASUS_HTML_DIR)/CMPI" PEGASUS_DOXYGEN_FILES="$(PEGASUS_CMPI_PROVIDER_FILES)" $(DOXYGEN) Doxyfile
 
 buildCMPIC++Doc:
 	@$(RMDIRHIER) $(PEGASUS_HTML_DIR)/CMPIC++
 	@$(MKDIRHIER) $(PEGASUS_HTML_DIR)/CMPIC++
-	@$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Provider/CMPI/docs -f Makefile doc
-	$(DOCXX) --config doc++.conf --dir $(PEGASUS_HTML_DIR)/CMPIC++ -H -v CMPIC++/Interface.dxx
-	@sed -e "s/Hierarchy of Classes/Hierarchy of CMPI Classes/" $(PEGASUS_HTML_DIR)/CMPIC++/HIER.html >  $(PEGASUS_HTML_DIR)/CMPIC++/Interface.html
-	@$(COPY) CMPIC++/ClassHier.html $(PEGASUS_HTML_DIR)/CMPIC++/ClassHier.html
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Provider/CMPI/docs -f Makefile clean doc
+	@PEGASUS_PROJECT_NAME="OpenPegasus CMPI C++" PEGASUS_HTML_DIR="$(PEGASUS_HTML_DIR)/CMPIC++" PEGASUS_DOXYGEN_FILES="$(PEGASUS_CMPICXX_PROVIDER_FILES)" $(DOXYGEN) Doxyfile
 
 clean:
 	@$(RMDIRHIER) $(PEGASUS_HTML_DIR)
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Provider/CMPI/docs -f Makefile clean
+
 depend:
 
 tests:

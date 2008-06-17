@@ -71,7 +71,7 @@ public:
 
     /**
         Assigns the value of the specified CIMFlavor object to this object.
-        @param scope The CIMFlavor object from which to assign this
+        @param flavor The CIMFlavor object from which to assign this
             CIMFlavor object.
         @return A reference to this CIMFlavor object.
     */

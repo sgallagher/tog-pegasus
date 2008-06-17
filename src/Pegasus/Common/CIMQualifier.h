@@ -164,7 +164,7 @@ public:
 
     /**
         Sets the qualifier value.
-        @param name A CIMValue containing the new value of the qualifier.
+        @param value A CIMValue containing the new value of the qualifier.
         @exception UninitializedObjectException If the object is not
             initialized.
     */

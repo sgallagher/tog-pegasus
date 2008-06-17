@@ -121,6 +121,7 @@ public:
         initialized with x.
         @param size Defines the number of elements by which the array is to
         grow.
+        @param x The element value with which to initialize the new elements.
     */
     void grow(Uint32 size, const PEGASUS_ARRAY_T& x);
 
@@ -174,7 +175,8 @@ public:
 
     /**
         Appends size elements at x to the end of this array.
-        @param size Uint32 value to append to the size of the array.
+        @param x Pointer to a buffer containing the elements to append.
+        @param size A Uint32 value specifying the number of elements to append.
     */
     void append(const PEGASUS_ARRAY_T* x, Uint32 size);
 
@@ -188,31 +190,32 @@ public:
     /**
         Appends one element to the beginning of the array. This increases
         the size by one.
-        @param x The element to pre pend.
+        @param x The element to prepend.
     */
     void prepend(const PEGASUS_ARRAY_T& x);
 
     /**
-        Appends size elements to the array starting at the memory address
-        given by x. The array grows by size elements.
-        @param size Uint32 size to add to the array at address x.
-        @param x Specifies where to begin increasing size elements of the array.
+        Prepends a specified number of elements from a buffer to the array.
+        @param x Pointer to a buffer containing the elements to prepend.
+        @param size A Uint32 value specifying the number of elements to prepend.
     */
     void prepend(const PEGASUS_ARRAY_T* x, Uint32 size);
 
     /**
         Inserts the element at the given index in the array. Subsequent
         elements are moved down. The size of the array grows by one.
+        @param index The index at which to insert the element into the array.
         @param x Specifies the element to add to the array.
     */
     void insert(Uint32 index, const PEGASUS_ARRAY_T& x);
 
     /**
-        Inserts size elements at x into the array at the given index.
-        Subsequent elements are moved down. The size of the array grows
-        by size elements.
-        @param x Specifies where to begin adding elements in the array.
-        @param size Uint32 size to add to the array starting at element x.
+        Inserts a specified number of elements from a buffer into the array at
+        a given index.  Subsequent elements are moved down.  The size of the
+        array grows by the specified number of elements.
+        @param index The index at which to insert the elements into the array.
+        @param x Pointer to a buffer containing the elements to insert.
+        @param size A Uint32 value specifying the number of elements to insert.
     */
     void insert(Uint32 index, const PEGASUS_ARRAY_T* x, Uint32 size);
 

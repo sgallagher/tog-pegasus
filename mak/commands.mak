@@ -90,6 +90,7 @@ ifeq ($(OS),HPUX)
     TOUCH = touch
     CAT = cat
     DOCXX = doc++
+    DOXYGEN = doxygen
 
     GENERATE_RANDSEED = randseed
     GET_HOSTNAME = `nslookup \`hostname\` | grep "Name:" | sed 's/Name:[ ]*//'`
@@ -182,6 +183,7 @@ ifeq ($(OS),linux)
     TOUCH = touch
     CAT = cat
     DOCXX = doc++
+    DOXYGEN = doxygen
 
     GET_HOSTNAME = `host \`hostname\`|cut -d" " -f1`
 

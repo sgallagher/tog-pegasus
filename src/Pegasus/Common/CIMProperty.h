@@ -209,7 +209,7 @@ public:
 
     /**
         Sets the property value.
-        @param name A CIMValue containing the new value of the property.
+        @param value A CIMValue containing the new value of the property.
         @exception UninitializedObjectException If the object is not
             initialized.
     */

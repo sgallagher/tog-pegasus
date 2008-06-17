@@ -307,7 +307,7 @@ extern "C"
             @param msgID A string which uniquely identifies, within the scope
                of the 'owner' argument, the format of the message.
             @param msg A string which represenst the formatted message.
-            @parem sev The percieved severity of the error.
+            @param sev The perceived severity of the error.
             @param pc The probably cause of this error
             @param status Service return status.
             @return The newly created Error.
@@ -1102,7 +1102,7 @@ extern "C"
             called when an instance is no longer being used by the MI. This
             function will free all contained objects (e.g. properties).
             @param mb the broker.
-            @parma inst The instance to free.
+            @param inst The instance to free.
             @return None.
         */
         void (*freeInstance) (const CMPIBroker * mb, CMPIInstance * inst);
@@ -1859,7 +1859,7 @@ extern "C"
             Set/replace the ObjectPath component in an instance.
             @param inst  The CMPIInstance structure containing a
              complete instance.
-            @parmm op The CMPIObjectPath structure. This objectpath
+            @param op The CMPIObjectPath structure. This objectpath
              shall contain the namespace,classname, as well as all
              keys for the specified instance.
             @return Service return status.

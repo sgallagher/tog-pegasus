@@ -750,16 +750,6 @@ public:
     /** The <TT>modifyInstance</TT> method modifies an existing CIM
     Instance in the target Namespace.
 
-    @param nameSpace The nameSpace parameter is a string that defines the target
-    namespace. See defintion of
-    \URL[Namespace]{DefinitionofTerms.html#NAMESPACE}.
-
-    @param modifiedInstance The <TT>modifiedInstance</TT> input parameter
-    identifies the name of the Instance to be modified, and defines the set of
-    changes (which MUST be correct amendments to the Instance as
-    defined by the CIM Specification) to be made to the current Instance
-    definition.
-
     In processing the modifcation of the Instance, the following rules MUST
     be conformed to by the CIM Server:
 
@@ -811,6 +801,24 @@ public:
         element, and the value of the CIMQualifier).</LI>
         </UL>
       </LI></UL>
+
+        @param nameSpace The nameSpace parameter is a string that defines the
+        target namespace. See defintion of
+        \URL[Namespace]{DefinitionofTerms.html#NAMESPACE}.
+
+        @param modifiedInstance The <TT>modifiedInstance</TT> input parameter
+        identifies the name of the Instance to be modified, and defines the set
+        of changes (which MUST be correct amendments to the Instance as
+        defined by the CIM Specification) to be made to the current Instance
+        definition.
+
+        @param includeQualifiers If true, the Qualifiers of the instance are
+        updated as specified in the modifiedInstance.  Otherwise, the
+        Qualifiers are not modified.
+
+        @param propertyList If the PropertyList input parameter is not NULL,
+        the members of the array define one or more Property names. Only the
+        specified properties are modified to the modifiedInstance values.
 
     @return If successful, the specified Instance MUST have been updated by the
     CIM Server.
@@ -989,7 +997,7 @@ public:
     DeepInheritance flag is only used to determine whether or not the subclass
     property values should be returned.
 
-    @param includeQualifiersIf the <TT>includeQualifiers</TT> input
+    @param includeQualifiers If the <TT>includeQualifiers</TT> input
     parameter is <TT>true</TT>, this specifies that all Qualifiers
     for each Instance (including Qualifiers on the Instance
     and on any returned Properties) MUST be included as
@@ -1313,9 +1321,6 @@ public:
     /** The <TT>references</TT> operation enumerates the association
     objects that refer to a particular target CIM Object (Class or Instance).
 
-    @param The NameSpace parameter is a string that defines the target
-    namespace \Ref{NAMESPACE}
-
     @param nameSpace The nameSpace parameter is a string that defines the target
     namespace. See defintion of
     \URL[Namespace]{DefinitionofTerms.html#NAMESPACE}.
@@ -1336,7 +1341,7 @@ public:
     String value for this parameter is interpreted as a NULL value, which
     indicates no such filtering is requested.
 
-    @param includeQualifiers.  If the <TT>includeQualifiers</TT> input parameter
+    @param includeQualifiers If the <TT>includeQualifiers</TT> input parameter
     is true, this specifies that all Qualifiers for each Object (including
     Qualifiers on the Object and on any returned Properties) MUST be included as
     <QUALIFIER> elements in the response.  If false no <QUALIFIER> elements are
@@ -1402,9 +1407,6 @@ public:
 
     /** The <TT>referenceNames</TT> operation enumerates the association
     objects that refer to a particular target CIM Object (Class or Instance).
-
-    @param The NameSpace parameter is a string that defines the target
-    namespace \Ref{NAMESPACE}
 
     @param nameSpace The nameSpace parameter is a string that defines the target
     namespace. See defintion of
@@ -1588,9 +1590,8 @@ public:
     target namespace. See defintion of
     \URL[Namespace]{DefinitionofTerms.html#NAMESPACE}.
 
-    @param CIMQualifierDecl The <TT>CIMQualifierDecl</TT> input parameter is a
-    CIMQualifier object that defines the CIMQualifier Declaration to be added to
-    the Namespace.
+    @param qualifierDeclaration A CIMQualifierDecl object that defines the
+    CIM Qualifier Declaration to be added to the Namespace.
 
     @return If successful, the CIMQualifier declaration MUST have been added to
     the target Namespace. If a CIMQualifier declaration with the same

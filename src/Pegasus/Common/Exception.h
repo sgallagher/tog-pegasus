@@ -294,8 +294,6 @@ public:
          message.
          @param code CIMStatus code defining the error
          @param message String defining the message text
-         @param instance CIMInstance containing the CIM_Error
-         instance
     */
     CIMException(
         CIMStatusCode code = CIM_ERR_SUCCESS,

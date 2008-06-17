@@ -169,7 +169,7 @@ public:
 
     /**
         Sets the qualifier default value.
-        @param name A CIMValue containing the new default value of the
+        @param value A CIMValue containing the new default value of the
             qualifier.
         @exception UninitializedObjectException If the object is not
             initialized.

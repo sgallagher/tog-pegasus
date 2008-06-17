@@ -64,8 +64,8 @@ public:
         Constructs a LanguageTag object from a language tag String.
         The syntax of the language tag String is validated, but the subtags
         are not verified to be values registered with ISO or IANA.
-        @param languageTag A String containing a language tag (for example,
-        "en-US").
+        @param languageTagString A String containing a language tag (for
+        example, "en-US").
         @exception Exception if the syntax of the language tag String is not
         valid.
      */

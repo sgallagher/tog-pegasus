@@ -150,10 +150,10 @@ public:
     CIMDateTime(const String& str);
 
     /** Creates a CIMDateTime object from an integer.
-        @param microSec For a time stamp, the number of microseconds since
+        @param usec For a time stamp, the number of microseconds since
         the epoch 0/0/0000 (12 am Jan 1, 1BCE); For an interval, the number
         of microseconds in the interval.
-        @param interval Specifies whether the CIMDateTime object is to be
+        @param isInterval Specifies whether the CIMDateTime object is to be
         created as an interval value (true) or a time stamp (false).
         @exception DateTimeOutOfRangeException If the microSec value is too
         large (greater than 317,455,200,000,000,000 for a time stamps or
@@ -327,6 +327,11 @@ public:
         @return True if the datetime is an interval value, false otherwise.
     */
     Boolean isInterval() const;
+
+    /** Checks whether the datetime is an interval.  (This non-const form is
+        maintained for compatibility.)
+        @return True if the datetime is an interval value, false otherwise.
+    */
     Boolean isInterval();
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
@@ -407,7 +412,7 @@ public:
 
     /** Multiplies a CIMDateTime object by an integer and returns a CIMDateTime
         object that represents the product.
-        @param num integer operand on the RHS of the operator
+        @param x integer operand on the RHS of the operator
         @return A CIMDateTime object that is the result of multiplying the
         calling object by the RHS operand.
         @exception DateTimeOutOfRangeException If the operation causes an
@@ -420,7 +425,7 @@ public:
     /** Multiplies a CIMDateTime object by an integer, returns the product
         and changes the value of the calling object to match the returned
         product.
-        @param num integer operand on the RHS of the operator
+        @param x integer operand on the RHS of the operator
         @return A CIMDateTime object that is the result of multiplying the
         calling object by the RHS operand.
         @exception DateTimeOutOfRangeException If the operation causes an

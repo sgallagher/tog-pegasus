@@ -410,7 +410,7 @@ public:
         @param nameSpace A CIMNamespaceName specifying the namespace name.
             A null name indicates that the object path does not contain
             a namespace attribute.
-        @param nameSpace A CIMName specifying the class name.
+        @param className A CIMName specifying the class name.
         @param keyBindings An Array of CIMKeyBinding objects specifying the
             key bindings.
         @exception MalformedObjectNameException If the host name String
@@ -449,7 +449,7 @@ public:
         @param nameSpace A CIMNamespaceName specifying the namespace name.
             A null name indicates that the object path does not contain
             a namespace attribute.
-        @param nameSpace A CIMName specifying the class name.
+        @param className A CIMName specifying the class name.
         @param keyBindings An Array of CIMKeyBinding objects specifying the
             key bindings.
         @exception MalformedObjectNameException If the host name String

@@ -43,6 +43,16 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+#ifdef PEGASUS_OS_VMS
+# define PEGASUS_NAN "NaNQ"
+# define PEGASUS_INF "Infinity"
+# define PEGASUS_NEG_INF "-Infinity"
+#else
+# define PEGASUS_NAN "nan"
+# define PEGASUS_INF "inf"
+# define PEGASUS_NEG_INF "-inf"
+#endif
+
 static Boolean verbose;
 static String repositoryRoot;
 
@@ -123,32 +133,32 @@ static void _testValues(void)
     WsmValue wsmf1("NaN");
     CIMValue cimf1((Real32)0.0);
     mapper.convertWsmToCimValue(wsmf1, CIMNamespaceName(), cimf1);
-    PEGASUS_TEST_ASSERT(cimf1.toString() == "nan");
+    PEGASUS_TEST_ASSERT(cimf1.toString() == PEGASUS_NAN);
 
     WsmValue wsmf2("INF");
     CIMValue cimf2((Real32)0.0);
     mapper.convertWsmToCimValue(wsmf2, CIMNamespaceName(), cimf2);
-    PEGASUS_TEST_ASSERT(cimf2.toString() == "inf");
+    PEGASUS_TEST_ASSERT(cimf2.toString() == PEGASUS_INF);
 
     WsmValue wsmf3("-INF");
     CIMValue cimf3((Real32)0.0);
     mapper.convertWsmToCimValue(wsmf3, CIMNamespaceName(), cimf3);
-    PEGASUS_TEST_ASSERT(cimf3.toString() == "-inf");
+    PEGASUS_TEST_ASSERT(cimf3.toString() == PEGASUS_NEG_INF);
 
     WsmValue wsmd1("NaN");
     CIMValue cimd1((Real64)0.0);
     mapper.convertWsmToCimValue(wsmd1, CIMNamespaceName(), cimd1);
-    PEGASUS_TEST_ASSERT(cimd1.toString() == "nan");
+    PEGASUS_TEST_ASSERT(cimd1.toString() == PEGASUS_NAN);
 
     WsmValue wsmd2("INF");
     CIMValue cimd2((Real64)0.0);
     mapper.convertWsmToCimValue(wsmd2, CIMNamespaceName(), cimd2);
-    PEGASUS_TEST_ASSERT(cimd2.toString() == "inf");
+    PEGASUS_TEST_ASSERT(cimd2.toString() == PEGASUS_INF);
 
     WsmValue wsmd3("-INF");
     CIMValue cimd3((Real64)0.0);
     mapper.convertWsmToCimValue(wsmd3, CIMNamespaceName(), cimd3);
-    PEGASUS_TEST_ASSERT(cimd3.toString() == "-inf");
+    PEGASUS_TEST_ASSERT(cimd3.toString() == PEGASUS_NEG_INF);
 
     // Test datetime
     CIMDateTime cimDT;

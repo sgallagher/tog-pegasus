@@ -214,10 +214,6 @@ void GetOptions(
     char** argv,
     const String& testHome)
 {
-    static const char* outputFormats[] = { "xml", "mof", "txt"};
-    static const Uint32 NUM_OUTPUTFORMATS = sizeof(outputFormats) /
-        sizeof(outputFormats[0]);
-
     static struct OptionRow optionsTable[] =
     //The values in the OptionRows below are:
     //optionname, defaultvalue, is required, type, domain, domainsize, flag, 

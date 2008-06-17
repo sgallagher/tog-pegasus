@@ -917,18 +917,17 @@ Uint32 CIMCRLCommand::execute (
     {
         client.connectLocal();
     }
-    catch(const CannotConnectException& cce)
+    catch (const CannotConnectException&)
     {
-        errPrintWriter << localizeMessage( MSG_PATH,
-                                 CANNOT_CONNECT_CIMSERVER_NOT_RUNNING_KEY,
-                                 CANNOT_CONNECT_CIMSERVER_NOT_RUNNING) << endl;
-        return ( RC_CONNECTION_FAILED );
+        errPrintWriter << localizeMessage(MSG_PATH,
+            CANNOT_CONNECT_CIMSERVER_NOT_RUNNING_KEY,
+            CANNOT_CONNECT_CIMSERVER_NOT_RUNNING) << endl;
+        return RC_CONNECTION_FAILED;
     }
-    catch(const Exception& e)
+    catch (const Exception& e)
     {
-        //l10n
         errPrintWriter << e.getMessage() << endl;
-        return (RC_ERROR);
+        return RC_ERROR;
     }
 
     //
@@ -956,19 +955,19 @@ Uint32 CIMCRLCommand::execute (
                     errPrintWriter << e.getMessage() << endl;
                 }
 
-                return ( RC_ERROR );
+                return RC_ERROR;
             }
-            catch (const ConnectionTimeoutException& cte)
-            {                       
+            catch (const ConnectionTimeoutException&)
+            {
                 errPrintWriter << localizeMessage(MSG_PATH,
-                                           CONNECTION_TIMEOUT_KEY,
-                                           CONNECTION_TIMEOUT);
-                return ( RC_CONNECTION_TIMEOUT );
+                    CONNECTION_TIMEOUT_KEY,
+                    CONNECTION_TIMEOUT);
+                return RC_CONNECTION_TIMEOUT;
             }
             catch (const Exception& e)
             {
                 errPrintWriter << e.getMessage() << endl;
-                return ( RC_ERROR );
+                return RC_ERROR;
             }
             break;
 
@@ -998,19 +997,19 @@ Uint32 CIMCRLCommand::execute (
                 {
                     errPrintWriter << e.getMessage() << endl;
                 }
-                return ( RC_ERROR );
+                return RC_ERROR;
             }
-            catch (const ConnectionTimeoutException& cte)
+            catch (const ConnectionTimeoutException&)
             {
                 errPrintWriter << localizeMessage(MSG_PATH,
-                                           CONNECTION_TIMEOUT_KEY,
-                                           CONNECTION_TIMEOUT);
-                return ( RC_CONNECTION_TIMEOUT );
+                    CONNECTION_TIMEOUT_KEY,
+                    CONNECTION_TIMEOUT);
+                return RC_CONNECTION_TIMEOUT;
             }
             catch (const Exception& e)
             {
                 errPrintWriter << e.getMessage() << endl;
-                return ( RC_ERROR );
+                return RC_ERROR;
             }
             break;
 
@@ -1040,19 +1039,19 @@ Uint32 CIMCRLCommand::execute (
                 {
                     errPrintWriter << e.getMessage() << endl;
                 }
-                return ( RC_ERROR );
+                return RC_ERROR;
             }
-            catch (const ConnectionTimeoutException& cte)
+            catch (const ConnectionTimeoutException&)
             {
                 errPrintWriter << localizeMessage(MSG_PATH,
-                                           CONNECTION_TIMEOUT_KEY,
-                                           CONNECTION_TIMEOUT);
-                return ( RC_CONNECTION_TIMEOUT );
+                    CONNECTION_TIMEOUT_KEY,
+                    CONNECTION_TIMEOUT);
+                return RC_CONNECTION_TIMEOUT;
             }
             catch (const Exception& e)
             {
                 errPrintWriter << e.getMessage() << endl;
-                return ( RC_ERROR );
+                return RC_ERROR;
             }
             break;
     }

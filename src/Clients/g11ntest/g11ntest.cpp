@@ -202,11 +202,6 @@ static void TestUTFRepository( CIMClient& client,
     const CIMNamespaceName NAMESPACE = CIMNamespaceName ("test/TestProvider");
     const CIMNamespaceName ROOT_NAMESPACE = CIMNamespaceName ("root");
     
-    Boolean deepInheritance = true;
-    Boolean localOnly = true;
-    Boolean includeQualifiers = true;
-    Boolean includeClassOrigin = true;
-    
     try
     {
         // The repository does not support these headers and will throw errors
@@ -824,7 +819,6 @@ static void TestLocalizedInstances( CIMClient& client,
     try
     {
         const CIMName className = CLASSNAME;
-        Boolean deepInheritance = false;
         Boolean localOnly = false;
         Boolean includeQualifiers = true;
         Boolean includeClassOrigin = false;
@@ -2364,12 +2358,6 @@ void GetOptions(
 
 int main(int argc, char** argv)
 {
-
-    // char connection[50] = "localhost:5988";
-    char *address_string = NULL;
-
-    Uint32 repetitions = 1;
-
     // Get environment variables:
 
     String pegasusHome;

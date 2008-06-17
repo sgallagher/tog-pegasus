@@ -88,8 +88,6 @@ void NISInfo::displayProperties()
 
    // expect to have values for the properties (even if Unknown) (do not remove)
 
-   int i;
-
    cout << " SystemCreationClassName: " << nisSystemCreationClassName << endl;
    cout << " SystemName             : " << nisSystemName << endl;
    cout << " CreationClassName      : " << nisCreationClassName << endl;

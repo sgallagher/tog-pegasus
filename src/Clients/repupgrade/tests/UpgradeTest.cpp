@@ -65,7 +65,6 @@ int main(int argc, char** argv)
 {
     String  oldRepositoryPath = argv[1];
     String  newRepositoryPath = argv[2];
-    Boolean     fileFound     = false;
     Boolean     fileNotFound      = false;
     Uint32      i         = 0;
     Uint32  count             = 0;

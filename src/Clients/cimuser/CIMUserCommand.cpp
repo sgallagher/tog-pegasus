@@ -78,11 +78,6 @@ static const CIMName PROPERTY_NAME_PASSWORD             = CIMName ("Password");
 */
 static const char USAGE []                     = "Usage: ";
 
-/**
-    This constant represents the getoopt argument designator
-*/
-static const char GETOPT_ARGUMENT_DESIGNATOR   = ':';
-
 /*
     These constants represent the operation modes supported by the CLI.
     Any new operation should be added here.
@@ -207,12 +202,6 @@ static const char REQUIRED_ARGS_MISSING [] =
 static const char REQUIRED_ARGS_MISSING_KEY [] =
     "Clients.cimuser.CIMUserCommand.REQUIRED_ARGS_MISSING";
 
-static const char INVALID_ARGS [] =
-    "Invalid arguments.";
-
-static const char INVALID_ARGS_KEY [] =
-    "Clients.cimuser.CIMUserCommand.INVALID_ARGS";
-
 static const char USER_ALREADY_EXISTS [] =
     "Specified user name already exist.";
 
@@ -224,12 +213,6 @@ static const char USER_NOT_FOUND [] =
 
 static const char USER_NOT_FOUND_KEY [] =
     "Clients.cimuser.CIMUserCommand.USER_NOT_FOUND";
-
-static const char USERNAME_REQUIRED [] =
-    "User name is required.";
-
-static const char USERNAME_REQUIRED_KEY [] =
-    "Clients.cimuser.CIMUserCommand.USERNAME_REQUIRED";
 
 /**
     The option character used to specify add user.
@@ -1390,7 +1373,7 @@ void CIMUserCommand::_ModifyUser
     // throw exceptions and will be handled by the catch block. If new
     // return codes are added in future, they need to be handled here.
     //
-    CIMValue retValue = _client->invokeMethod(
+    _client->invokeMethod(
         PEGASUS_NAMESPACENAME_USER,
         reference,
         MODIFY_METHOD,

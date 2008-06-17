@@ -1053,7 +1053,6 @@ void RepositoryUpgrade::_processClasses(
     //
 
     Uint32 oldCount = oldClasses.size();
-    Uint32 newCount = newClasses.size();
 
     for ( Uint32 oldclasses = 0; oldclasses < oldCount ; oldclasses++)
     {
@@ -1164,6 +1163,7 @@ void RepositoryUpgrade::_processExistingClasses(
                                OLD_CLASS_RETRIEVAL_ERROR,
                                existingClasses[i].getString(),
                                namespaceName.getString());
+            throw RepositoryUpgradeException(message);
         }
         catch (...)
         {
@@ -1198,6 +1198,7 @@ void RepositoryUpgrade::_processExistingClasses(
                                NEW_CLASS_RETRIEVAL_ERROR,
                                existingClasses[i].getString(),
                                namespaceName.getString());
+            throw RepositoryUpgradeException(message);
         }
         catch (...)
         {
@@ -1536,6 +1537,7 @@ Uint32 RepositoryUpgrade::_addClassToRepository (
                            OLD_CLASS_RETRIEVAL_ERROR,
                            className.getString(),
                            namespaceName.getString());
+        throw RepositoryUpgradeException(message);
     }
     catch (...)
     {
@@ -1709,7 +1711,6 @@ void RepositoryUpgrade::_addInstances(void)
                  << "class name : " <<  oldClassNames[ctr] << endl;
 #endif
                     Array<CIMInstance>         instances;
-                    Uint32                     n = 0;
                     Uint32                     ictr = 0;
 
                         instances = _oldRepository->enumerateInstancesForClass(

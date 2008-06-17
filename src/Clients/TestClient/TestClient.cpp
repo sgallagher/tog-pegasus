@@ -1477,26 +1477,11 @@ void connectClient(
 
 int main(int argc, char** argv)
 {
-
-  // char connection[50] = "localhost:5988";
-  char *address_string = NULL;
-
-    Uint32 repetitions = 1;
-
-    // Get environment variables:
-
-    String pegasusHome;
-    pegasusHome = "/";
-    // GetEnvironmentVariables(argv[0], pegasusHome);
-
     // Get options (from command line and from configuration file); this
     // removes corresponding options and their arguments fromt he command
     // line.
 
-    // Get options (from command line and from configuration file); this
-    // removes corresponding options and their arguments fromt he command
-    // line.
-
+    String pegasusHome = "/";
     OptionManager om;
 
     try
@@ -1512,16 +1497,16 @@ int main(int argc, char** argv)
     // Check to see if user asked for help (-h otpion):
     if (om.valueEquals("help", "true"))
     {
-                String header = "Usage ";
-                header.append(argv[0]);
-                header.append(" -parameters host [host]");
+        String header = "Usage ";
+        header.append(argv[0]);
+        header.append(" -parameters host [host]");
 
-                String trailer = "Assumes localhost:5988 if host not specified";
-                trailer.append("\nHost may be of the form name or name:port");
-                trailer.append("\nPort 5988 assumed if port number missing.");
-                om.printOptionsHelpTxt(header, trailer);
+        String trailer = "Assumes localhost:5988 if host not specified";
+        trailer.append("\nHost may be of the form name or name:port");
+        trailer.append("\nPort 5988 assumed if port number missing.");
+        om.printOptionsHelpTxt(header, trailer);
 
-         exit(0);
+        exit(0);
     }
     if (om.valueEquals("version","true"))
     {

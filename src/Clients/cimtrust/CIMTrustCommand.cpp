@@ -266,12 +266,6 @@ static const char   LONG_HELP []  = "help";
 
 static const char   LONG_VERSION []  = "version";
 
-static const char PASSWORD_PROMPT []  =
-                "Please enter your password: ";
-
-static const char PASSWORD_BLANK []  =
-                "Password cannot be blank. Please re-enter your password.";
-
 static const char REQUIRED_ARGS_MISSING [] =
                 "Required arguments missing.";
 
@@ -351,11 +345,6 @@ static const char INVALID_SYSTEM_USER [] =
 
 static const char INVALID_SYSTEM_USER_KEY [] =
                 "Clients.cimtrust.CIMTrustCommand.INVALID_SYSTEM_USER";
-
-/**
-    The constant representing the trust manager provider class name
-*/
-static const char PG_SSLTRUST_MGR_PROV_CLASS []    = "PG_SSLTrustManager";
 
 // Return codes
 
@@ -1395,21 +1384,20 @@ Uint32 CIMTrustCommand::execute (
 
     try
     {
-        _connectToServer( client, outPrintWriter);
+        _connectToServer(client, outPrintWriter);
     }
-    catch(CannotConnectException& cce)
+    catch (CannotConnectException&)
     {
-        outPrintWriter << localizeMessage( MSG_PATH,
-                              CANNOT_CONNECT_CIMSERVER_NOT_RUNNING_KEY,
-                              CANNOT_CONNECT_CIMSERVER_NOT_RUNNING) 
-                       << endl;
-        return ( RC_CONNECTION_FAILED );
+        outPrintWriter << localizeMessage(MSG_PATH,
+            CANNOT_CONNECT_CIMSERVER_NOT_RUNNING_KEY,
+            CANNOT_CONNECT_CIMSERVER_NOT_RUNNING) 
+            << endl;
+        return RC_CONNECTION_FAILED;
     }
-    catch(Exception& e)
+    catch (Exception& e)
     {
-        //l10n
         outPrintWriter << e.getMessage() << endl;
-        return (RC_ERROR);
+        return RC_ERROR;
     }
 
     //
@@ -1422,12 +1410,12 @@ Uint32 CIMTrustCommand::execute (
             {
                 _addCertificate( client, outPrintWriter );
             }
-            catch (ConnectionTimeoutException& cte)
+            catch (ConnectionTimeoutException&)
             {
                 outPrintWriter << localizeMessage(MSG_PATH,
-                                           CONNECTION_TIMEOUT_KEY,
-                                           CONNECTION_TIMEOUT);
-                return ( RC_CONNECTION_TIMEOUT );
+                    CONNECTION_TIMEOUT_KEY,
+                    CONNECTION_TIMEOUT) << endl;
+                return RC_CONNECTION_TIMEOUT;
             }
             catch (CIMException& e)
             {
@@ -1441,36 +1429,36 @@ Uint32 CIMTrustCommand::execute (
                 }
                 else if (code == CIM_ERR_ALREADY_EXISTS)
                 {
-                     outPrintWriter << localizeMessage(MSG_PATH,
-                            ADD_CERT_FAILURE_KEY, ADD_CERT_FAILURE) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                        ADD_CERT_FAILURE_KEY, ADD_CERT_FAILURE) << endl;
 
-                     outPrintWriter << localizeMessage(MSG_PATH,
-                            CERT_ALREADY_EXISTS_KEY,
-                            CERT_ALREADY_EXISTS) << endl;
-                     errPrintWriter << e.getMessage()  << endl;
-                     return ( RC_CERTIFICATE_ALREADY_EXISTS );
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                        CERT_ALREADY_EXISTS_KEY,
+                        CERT_ALREADY_EXISTS) << endl;
+                    errPrintWriter << e.getMessage()  << endl;
+                    return RC_CERTIFICATE_ALREADY_EXISTS;
                 }
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
-                     outPrintWriter << localizeMessage(MSG_PATH,
-                            ADD_CERT_FAILURE_KEY, ADD_CERT_FAILURE) << endl;
-                     outPrintWriter << localizeMessage(MSG_PATH,
-                       CERT_SCHEMA_NOT_LOADED_KEY,
-                       CERT_SCHEMA_NOT_LOADED) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                        ADD_CERT_FAILURE_KEY, ADD_CERT_FAILURE) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                        CERT_SCHEMA_NOT_LOADED_KEY,
+                        CERT_SCHEMA_NOT_LOADED) << endl;
                 }
                 else
                 {
-                        errPrintWriter << e.getMessage() << endl;
+                    errPrintWriter << e.getMessage() << endl;
                 }
 
-                return ( RC_ERROR );
+                return RC_ERROR;
             }
             catch (Exception& e)
             {
                 outPrintWriter << localizeMessage(MSG_PATH,
-                        ADD_CERT_FAILURE_KEY,
-                        ADD_CERT_FAILURE) << endl << e.getMessage() << endl;
-                return ( RC_ERROR );
+                    ADD_CERT_FAILURE_KEY,
+                    ADD_CERT_FAILURE) << endl << e.getMessage() << endl;
+                return RC_ERROR;
             }
             break;
 
@@ -1479,12 +1467,12 @@ Uint32 CIMTrustCommand::execute (
             {
                 _removeCertificate ( client, outPrintWriter );
             }
-            catch (ConnectionTimeoutException& cte)
+            catch (ConnectionTimeoutException&)
             {
                 outPrintWriter << localizeMessage(MSG_PATH,
-                                           CONNECTION_TIMEOUT_KEY,
-                                           CONNECTION_TIMEOUT);
-                return ( RC_CONNECTION_TIMEOUT );
+                    CONNECTION_TIMEOUT_KEY,
+                    CONNECTION_TIMEOUT);
+                return RC_CONNECTION_TIMEOUT;
             }
             catch (CIMException& e)
             {
@@ -1507,7 +1495,7 @@ Uint32 CIMTrustCommand::execute (
                             CERT_NOT_FOUND_KEY, CERT_NOT_FOUND) << endl;
 
                     errPrintWriter << e.getMessage()  << endl;
-                    return ( RC_CERTIFICATE_DOES_NOT_EXIST );
+                    return RC_CERTIFICATE_DOES_NOT_EXIST;
                 }
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
@@ -1523,7 +1511,7 @@ Uint32 CIMTrustCommand::execute (
                 {
                     errPrintWriter << e.getMessage() << endl;
                 }
-                return ( RC_ERROR );
+                return RC_ERROR;
             }
             catch (Exception& e)
             {
@@ -1532,7 +1520,7 @@ Uint32 CIMTrustCommand::execute (
                         REMOVE_CERT_FAILURE) << endl
                         << e.getMessage() << endl;
 
-                return ( RC_ERROR );
+                return RC_ERROR;
             }
             break;
 
@@ -1541,12 +1529,12 @@ Uint32 CIMTrustCommand::execute (
             {
                 _listCertificates ( client, outPrintWriter );
             }
-            catch (ConnectionTimeoutException& cte)
+            catch (ConnectionTimeoutException&)
             {
                 outPrintWriter << localizeMessage(MSG_PATH,
-                                           CONNECTION_TIMEOUT_KEY,
-                                           CONNECTION_TIMEOUT);
-                return ( RC_CONNECTION_TIMEOUT );
+                    CONNECTION_TIMEOUT_KEY,
+                    CONNECTION_TIMEOUT);
+                return RC_CONNECTION_TIMEOUT;
             }
             catch (CIMException& e)
             {
@@ -1554,18 +1542,18 @@ Uint32 CIMTrustCommand::execute (
 
                 if (code == CIM_ERR_NOT_FOUND)
                 {
-                     return ( RC_CERTIFICATE_DOES_NOT_EXIST );
+                     return RC_CERTIFICATE_DOES_NOT_EXIST;
                 }
                 if (code == CIM_ERR_FAILED || code == CIM_ERR_NOT_SUPPORTED)
                 {
-                        outPrintWriter << localizeMessage(MSG_PATH,
-                            LIST_CERT_FAILURE_KEY, LIST_CERT_FAILURE) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                         LIST_CERT_FAILURE_KEY, LIST_CERT_FAILURE) << endl;
                     errPrintWriter << e.getMessage() << endl;
                 }
                 else if (code == CIM_ERR_INVALID_CLASS)
                 {
-                        outPrintWriter << localizeMessage(MSG_PATH,
-                            LIST_CERT_FAILURE_KEY, LIST_CERT_FAILURE) << endl;
+                    outPrintWriter << localizeMessage(MSG_PATH,
+                        LIST_CERT_FAILURE_KEY, LIST_CERT_FAILURE) << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                         CERT_SCHEMA_NOT_LOADED_KEY,
                         CERT_SCHEMA_NOT_LOADED) << endl;
@@ -1575,14 +1563,14 @@ Uint32 CIMTrustCommand::execute (
                     errPrintWriter << e.getMessage() << endl;
                 }
 
-                return ( RC_ERROR );
+                return RC_ERROR;
             }
             catch (Exception& e)
             {
-                    outPrintWriter << localizeMessage(MSG_PATH,
-                        LIST_CERT_FAILURE_KEY,
-                        LIST_CERT_FAILURE) << endl << e.getMessage() << endl;
-                return ( RC_ERROR );
+                outPrintWriter << localizeMessage(MSG_PATH,
+                    LIST_CERT_FAILURE_KEY,
+                    LIST_CERT_FAILURE) << endl << e.getMessage() << endl;
+                return RC_ERROR;
             }
             break;
 
@@ -1593,7 +1581,7 @@ Uint32 CIMTrustCommand::execute (
             break;
     }
 
-    return (RC_SUCCESS);
+    return RC_SUCCESS;
 }
 
 PEGASUS_NAMESPACE_END

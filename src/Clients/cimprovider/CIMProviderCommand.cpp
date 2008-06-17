@@ -89,11 +89,6 @@ static const CIMName _PROPERTY_PROVIDER_NAME = CIMName("Name");
 */
 static const char USAGE[] = "Usage: ";
 
-/**
-    This constant represents the getoopt argument designator
-*/
-static const char GETOPT_ARGUMENT_DESIGNATOR = ':';
-
 /*
     These constants represent the operation modes supported by the CLI.
     Any new operation should be added here.
@@ -138,12 +133,6 @@ static const Uint32 OPERATION_TYPE_VERSION = 6;
 /**
     The constants representing the messages.
 */
-
-static const char NOT_PRIVILEGED_USER[] =
-    "Error, you must have superuser privilege to run cimprovider.";
-
-static const char NOT_PRIVILEGED_USER_KEY[] =
-    "Clients.cimprovider.CIMProviderCommand.NOT_PRIVILEGED_USER";
 
 static const char CIMOM_NOT_RUNNING[] =
     "The CIM server may not be running.";
@@ -225,12 +214,6 @@ static const char CANNOT_START_PROVIDER[] =
 static const char CANNOT_START_PROVIDER_KEY[] =
     "Clients.cimprovider.CIMProviderCommand.CANNOT_START_PROVIDER";
 
-static const char PROVIDER_NOT_REGISTERED[] =
-    "Specified provider was not registered.";
-
-static const char PROVIDER_NOT_REGISTERED_KEY[] =
-    "Clients.cimprovider.CIMProviderCommand.PROVIDER_NOT_REGISTERED";
-
 static const char DELETEING_PROVIDER_MODULE[] =
     "Deleting provider module...";
 
@@ -255,12 +238,6 @@ static const char STOPING_PROVIDER_MODULE[] =
 static const char STOPING_PROVIDER_MODULE_KEY[] =
     "Clients.cimprovider.CIMProviderCommand.STOPING_PROVIDER_MODULE";
 
-static const char NO_MODULE_REGISTERED[] =
-    "No modules registered for listing.";
-
-static const char NO_MODULE_REGISTERED_KEY[] =
-    "Clients.cimprovider.CIMProviderCommand.NO_MODULE_REGISTERED";
-
 static const char ERR_MODULE_NOT_REGISTERED[] =
     "Specified provider module was not registered.";
 
@@ -284,12 +261,6 @@ static const char REQUIRED_ARGS_MISSING[] =
 
 static const char REQUIRED_ARGS_MISSING_KEY[] =
     "Clients.cimprovider.CIMProviderCommand.REQUIRED_ARGS_MISSING";
-
-static const char INVALID_ARGS[] =
-    "Invalid arguments.";
-
-static const char INVALID_ARGS_KEY[] =
-    "Clients.cimprovider.CIMProviderCommand.INVALID_ARGS";
 
 static const char UNEXPECTED_OPTION[] = "Unexpected Option.";
 

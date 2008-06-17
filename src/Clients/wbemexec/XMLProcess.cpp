@@ -103,7 +103,6 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
     Buffer                    objPath;
     Array<CIMKeyBinding>         keyBindings;
     Boolean                      multireq              = false;
-    Uint32                       i                     = 0;
     static Uint32                BUFFERSIZE            = 1024;
     Boolean hasXmlDeclaration = false;
 

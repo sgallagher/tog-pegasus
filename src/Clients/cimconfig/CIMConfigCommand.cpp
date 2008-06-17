@@ -138,12 +138,6 @@ static const CIMName DYNAMIC_PROPERTY           = CIMName ("DynamicProperty");
 /**
     The constants representing the messages.
 */
-static const char CIMOM_NOT_RUNNING []         = 
-                        "CIM server may not be running.";
-
-static const char FILE_NOT_EXIST []            = 
-                        "Configuration files does not exist.";
-
 static const char FILE_NOT_READABLE []         = 
                         "Configuration file not readable.";
 
@@ -158,30 +152,6 @@ static const char FAILED_TO_UNSET_PROPERTY []  =
 
 static const char FAILED_TO_LIST_PROPERTIES [] = 
                         "Failed to list the config properties. ";
-
-// no longer used
-// static const char CURRENT_VALUE_OF_PROPERTY [] =
-                        // "Current value for the property '";
-
-// static const char PLANNED_VALUE_OF_PROPERTY [] =
-                        // "Planned value for the property '";
-
-// static const char DEFAULT_VALUE_OF_PROPERTY [] =
-                        // "Default value for the property '";
-
-static const char IS_SET_TO []                 = "' is set to ";
-
-static const char IS_NOT_SET []                = "' is not set." ;
-
-static const char IN_CIMSERVER []              = " in CIMServer.";
-
-static const char IN_CONFIG_FILE []            = " in configuration file.";
-
-static const char IS_UNSET_IN_FILE []          =
-                        "' is unset in the configuration file.";
-
-static const char UPDATED_IN_FILE []           =
-                        "' updated in configuration file.";
 
 static const char CONFIG_SCHEMA_NOT_LOADED []  =
     "Please restore the internal repository on the CIM Server.";
@@ -202,12 +172,6 @@ static const char OPTION_INVALID_CIM_RUNNING [] =
 
 static const char OPTION_INVALID_CIM_RUNNING_KEY [] = 
     "Clients.CIMConfig.CIMConfigCommand.OPTION_INVALID_CIM_RUNNING";
-
-static const char CIMOM_NOT_RUNNING_KEY [] = 
-    "Clients.CIMConfig.CIMConfigCommand.CIMOM_NOT_RUNNING";
-
-static const char FILE_NOT_EXIST_KEY [] = 
-    "Clients.CIMConfig.CIMConfigCommand.FILE_NOT_EXIST";
 
 static const char FILE_NOT_READABLE_KEY [] = 
     "Clients.CIMConfig.CIMConfigCommand.FILE_NOT_READABLE";
@@ -236,12 +200,6 @@ static const char INVALID_PROPERTY_VALUE_KEY [] =
 static const char PROPERTY_NOT_MODIFIED_KEY [] = 
     "Clients.CIMConfig.CIMConfigCommand.PROPERTY_NOT_MODIFIED";
                         
-//static const char VALUE_OF_PROPERTY_IS [] = 
-    //"$0 value for the property $1 is set to \"$2\" in CIMServer.";
-
-//static const char VALUE_OF_PROPERTY_IS_KEY [] = 
-    //"Clients.CIMConfig.CIMConfigCommand.VALUE_OF_PROPERTY_IS";
-
 static const char PLANNED_VALUE_OF_PROPERTY_IS [] = 
     "Planned value for the property $0 is set to \"$1\" in CIMServer.";
 static const char PLANNED_VALUE_OF_PROPERTY_IS_KEY [] = 
@@ -252,26 +210,6 @@ static const char CURRENT_VALUE_OF_PROPERTY_IS [] =
 static const char CURRENT_VALUE_OF_PROPERTY_IS_KEY [] = 
     "Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUE_OF_PROPERTY_IS";
 
-static const char DEFAULT_VALUE_OF_PROPERTY_IS [] = 
-    "Default value for the property $0 is set to \"$1\" in CIMServer.";
-static const char DEFAULT_VALUE_OF_PROPERTY_IS_KEY [] = 
-    "Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUE_OF_PROPERTY_IS";
-
-
-//static const char VALUE_OF_PROPERTY_CANNOT_BE_SET [] = 
-    //"$0 value for the property '$1' can not be set because the CIM server"
-    //" is not running.";
-
-//static const char VALUE_OF_PROPERTY_CANNOT_BE_SET_KEY [] = 
-    //"Clients.CIMConfig.CIMConfigCommand.VALUE_OF_PROPERTY_CANNOT_BE_SET";
-
-static const char PLANNED_VALUE_OF_PROPERTY_CANNOT_BE_SET [] = 
-    "Planned value for the property '$0' can not be set because the"
-        " CIM server is not running.";
-static const char PLANNED_VALUE_OF_PROPERTY_CANNOT_BE_SET_KEY [] = 
-    "Clients.CIMConfig.CIMConfigCommand."
-        "PLANNED_VALUE_OF_PROPERTY_CANNOT_BE_SET";
-
 static const char CURRENT_VALUE_OF_PROPERTY_CANNOT_BE_SET [] = 
     "Current value for the property '$0' can not be set because the"
         " CIM server is not running.";
@@ -279,20 +217,6 @@ static const char CURRENT_VALUE_OF_PROPERTY_CANNOT_BE_SET_KEY [] =
     "Clients.CIMConfig.CIMConfigCommand."
         "CURRENT_VALUE_OF_PROPERTY_CANNOT_BE_SET";
 
-static const char DEFAULT_VALUE_OF_PROPERTY_CANNOT_BE_SET [] = 
-    "Default value for the property '$0' can not be set because the"
-        " CIM server is not running.";
-static const char DEFAULT_VALUE_OF_PROPERTY_CANNOT_BE_SET_KEY [] = 
-    "Clients.CIMConfig.CIMConfigCommand."
-    "DEFAULT_VALUE_OF_PROPERTY_CANNOT_BE_SET";
-
-//static const char FAILED_UPDATE_OF_VALUE_IN_FILE [] = 
-    //"Failed to update the $0 value of the Property '$1' in"
-    //" configuration file.";
-
-//static const char FAILED_UPDATE_OF_VALUE_IN_FILE_KEY [] = 
-    //"Clients.CIMConfig.CIMConfigCommand.FAILED_UPDATE_OF_VALUE_IN_FILE";
-    
 static const char FAILED_UPDATE_OF_PLANNED_VALUE_IN_FILE [] = 
     "Failed to update the planned value of the Property '$0' in"
         " configuration file.";
@@ -300,30 +224,12 @@ static const char FAILED_UPDATE_OF_PLANNED_VALUE_IN_FILE_KEY [] =
     "Clients.CIMConfig.CIMConfigCommand."
         "FAILED_UPDATE_OF_PLANNED_VALUE_IN_FILE";
 
-static const char FAILED_UPDATE_OF_CURRENT_VALUE_IN_FILE [] = 
-    "Failed to update the current value of the Property '$0' in"
-        " configuration file.";
-static const char FAILED_UPDATE_OF_CURRENT_VALUE_IN_FILE_KEY [] = 
-    "Clients.CIMConfig.CIMConfigCommand."
-        "FAILED_UPDATE_OF_CURRENT_VALUE_IN_FILE";
-
-static const char FAILED_UPDATE_OF_DEFAULT_VALUE_IN_FILE [] = 
-    "Failed to update the default value of the Property '$0' in"
-        " configuration file.";
-static const char FAILED_UPDATE_OF_DEFAULT_VALUE_IN_FILE_KEY [] = 
-    "Clients.CIMConfig.CIMConfigCommand.FAILED_UPDATE_OF_DEFAULT_VALUE_IN_FILE";
-
-
-// 485
 static const char PROPERTY_UPDATED_IN_FILE [] = 
     "Property '$0' updated in configuration file.";
 
 static const char PROPERTY_UPDATED_IN_FILE_KEY [] = 
     "Clients.CIMConfig.CIMConfigCommand.PROPERTY_UPDATED_IN_FILE";
 
-//static const char VALUE_IS [] = 
-    //"$0 value: $1";
-    
 static const char PLANNED_VALUE_IS [] = "Planned value: $0";
 static const char PLANNED_VALUE_IS_KEY [] = 
     "Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUE_IS";
@@ -337,17 +243,6 @@ static const char DEFAULT_VALUE_IS [] = "Default value: $0";
 static const char DEFAULT_VALUE_IS_KEY [] = 
     "Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUE_IS";
 
-
-//static const char VALUE_IS_KEY [] = 
-    //"Clients.CIMConfig.CIMConfigCommand.VALUE_IS";
-
-
-//static const char CANNOT_DETERMINE_VALUE_CIM_RUNNING [] = 
-    //"$0 value can not be determined because the CIM server is not running.";
-
-//static const char CANNOT_DETERMINE_VALUE_CIM_RUNNING_KEY [] = 
-    //"Clients.CIMConfig.CIMConfigCommand.CANNOT_DETERMINE_VALUE_CIM_RUNNING";
-  
 static const char CANNOT_DETERMINE_PLANNED_VALUE_CIM_RUNNING [] = 
     "Planned value can not be determined because the CIM server is not"
         " running.";
@@ -362,30 +257,11 @@ static const char CANNOT_DETERMINE_CURRENT_VALUE_CIM_RUNNING_KEY [] =
     "Clients.CIMConfig.CIMConfigCommand."
         "CANNOT_DETERMINE_CURRENT_VALUE_CIM_RUNNING";
 
-static const char CANNOT_DETERMINE_DEFAULT_VALUE_CIM_RUNNING [] = 
-    "Default value can not be determined because the CIM server is not"
-        " running.";
-static const char CANNOT_DETERMINE_DEFAULT_VALUE_CIM_RUNNING_KEY [] = 
-    "Clients.CIMConfig.CIMConfigCommand."
-        "CANNOT_DETERMINE_DEFAULT_VALUE_CIM_RUNNING";
-
-                                                      
 static const char PROPERTY_VALUE_ALREADY_SET_TO [] = 
     "The property '$0' value is already set to '$1'.";
 
 static const char PROPERTY_VALUE_ALREADY_SET_TO_KEY [] = 
     "Clients.CIMConfig.CIMConfigCommand.PROPERTY_VALUE_ALREADY_SET_TO";
-
-//static const char PROPERTY_SET_TO_DEFAULT [] = 
-    //"$0 value for the property '$1' is set to default value in CIMServer.";
-                            
-//static const char PROPERTY_SET_TO_DEFAULT_KEY [] = 
-    //"Clients.CIMConfig.CIMConfigCommand.PROPERTY_SET_TO_DEFAULT";
-
-static const char PLANNED_PROPERTY_SET_TO_DEFAULT [] = 
-    "Planned value for the property '$0' is set to default value in CIMServer.";
-static const char PLANNED_PROPERTY_SET_TO_DEFAULT_KEY [] = 
-    "Clients.CIMConfig.CIMConfigCommand.PLANNED_PROPERTY_SET_TO_DEFAULT";
 
 static const char CURRENT_PROPERTY_SET_TO_DEFAULT [] = 
     "Current value for the property '$0' is set to default value in CIMServer.";
@@ -398,21 +274,6 @@ static const char PROPERTY_UNSET_IN_FILE [] =
 static const char PROPERTY_UNSET_IN_FILE_KEY [] = 
     "Clients.CIMConfig.CIMConfigCommand.PROPERTY_UNSET_IN_FILE";
 
-//static const char PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING [] = 
-    //"$0 value for the property '$1' can not be unset because the CIM"
-    //" server is not running.";
-
-//static const char PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING_KEY [] = 
-    //"Clients.CIMConfig.CIMConfigCommand."
-    //"PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING";
-
-static const char PLANNED_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING [] = 
-    "Planned value for the property '$0' can not be unset because the"
-        " CIM server is not running.";
-static const char PLANNED_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING_KEY [] = 
-    "Clients.CIMConfig.CIMConfigCommand."
-        "PLANNED_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING";
-
 static const char CURRENT_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING [] = 
     "Current value for the property '$0' can not be unset because the"
         " CIM server is not running.";
@@ -420,33 +281,11 @@ static const char CURRENT_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING_KEY [] =
     "Clients.CIMConfig.CIMConfigCommand."
         "CURRENT_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING";
 
-static const char DEFAULT_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING [] = 
-    "Default value for the property '$0' can not be unset because the"
-        " CIM server is not running.";
-static const char DEFAULT_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING_KEY [] = 
-    "Clients.CIMConfig.CIMConfigCommand."
-        "DEFAULT_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING";
-
 static const char PROPERTY_VALUE_ALREADY_UNSET [] = 
     "The property '$0' value is already unset.";
 
 static const char PROPERTY_VALUE_ALREADY_UNSET_KEY [] = 
     "Clients.CIMConfig.CIMConfigCommand.PROPERTY_VALUE_ALREADY_UNSET";
-
-//static const char VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING [] = 
-    //"$0 value of properties can not be listed because the CIM server is"
-    //" not running.";
-
-//static const char VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING_KEY [] = 
-    //"Clients.CIMConfig.CIMConfigCommand."
-    //"VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING";
-
-static const char PLANNED_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING [] = 
-    "Planned value of properties can not be listed because the CIM server"
-        " is not running.";
-static const char PLANNED_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING_KEY [] = 
-    "Clients.CIMConfig.CIMConfigCommand."
-        "PLANNED_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING";
 
 static const char CURRENT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING [] = 
     "Current value of properties can not be listed because the CIM server"
@@ -454,13 +293,6 @@ static const char CURRENT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING [] =
 static const char CURRENT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING_KEY [] = 
     "Clients.CIMConfig.CIMConfigCommand."
         "CURRENT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING";
-
-static const char DEFAULT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING [] = 
-    "Default value of properties can not be listed because the CIM server"
-        " is not running.";
-static const char DEFAULT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING_KEY [] = 
-    "Clients.CIMConfig.CIMConfigCommand."
-        "DEFAULT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING";
 
 static const char NO_PROPERTIES_FOUND_IN_FILE [] = 
     "No configuration properties found in the configuration file.";

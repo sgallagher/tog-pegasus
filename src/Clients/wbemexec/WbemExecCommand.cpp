@@ -142,12 +142,6 @@ const char   WbemExecCommand::_DEBUG_OPTION1       = '1';
 */
 const char   WbemExecCommand::_DEBUG_OPTION2       = '2';
 
-static const char PASSWORD_PROMPT []  =
-                     "Please enter your password: ";
-
-static const char PASSWORD_BLANK []  =
-                     "Password cannot be blank. Please re-enter your password.";
-
 static const char   LONG_HELP []  = "help";
 
 static const char   LONG_VERSION []  = "version";
@@ -157,12 +151,6 @@ static const char REQUIRED_ARGS_MISSING [] = "Required arguments missing.";
 
 static const char REQUIRED_ARGS_MISSING_KEY [] = 
     "Clients.cimuser.CIMUserCommand.REQUIRED_ARGS_MISSING";
-
-static const char ERR_OPTION_NOT_SUPPORTED [] =
-    "Invalid option. Use '--help' to obtain command syntax.";
-
-static const char ERR_OPTION_NOT_SUPPORTED_KEY [] = 
-    "Clients.CIMConfig.CIMConfigCommand.ERR_OPTION_NOT_SUPPORTED";
 
 static const char ERR_USAGE [] =
     "Use '--help' to obtain command syntax.";
@@ -453,7 +441,6 @@ void WbemExecCommand::_handleResponse( Buffer           responseMessage,
     Uint32                       contentLength;
     Uint32                       contentOffset       = 0;
     HTTPMessage                  httpMessage(responseMessage, 0);
-    Boolean                      needsAuthentication = false;
 
     httpMessage.parse(startLine, headers, contentLength);
     if( contentLength > 0 )

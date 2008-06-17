@@ -74,11 +74,6 @@ static const CIMNamespaceName _DEFAULT_SUBSCRIPTION_NAMESPACE  =
  */
 static const char USAGE[] = "Usage: ";
 
-/**
-    This constant represents the getoopt argument designator
- */
-static const char GETOPT_ARGUMENT_DESIGNATOR = ':';
-
 /*
     These constants represent the operation modes supported by the CLI.
     Any new operation should be added here.
@@ -134,18 +129,6 @@ static const char CIMOM_NOT_RUNNING[] =
 static const char CIMOM_NOT_RUNNING_KEY[] =
     "Clients.cimsub.CIMSubCommand.CIMOM_NOT_RUNNING";
 
-static const char ENABLE_SUBSCRIPTION_FAILURE[] =
-    "Failed to enable subscription.";
-
-static const char ENABLE_SUBSCRIPTION_FAILURE_KEY[] =
-    "Clients.cimsub.CIMSubCommand.ENABLE_SUBSCRIPTION_FAILURE";
-
-static const char DISABLE_SUBSCRIPTION_FAILURE[] =
-    "Failed to disable subscription.";
-
-static const char DISABLE_SUBSCRIPTION_FAILURE_KEY[] =
-    "Clients.cimsub.CIMSubCommand.DISABLE_SUBSCRIPTION_FAILURE";
-
 static const char SUBSCRIPTION_NOT_FOUND_FAILURE[] =
     "The requested subscription could not be found.";
 
@@ -184,17 +167,6 @@ static const char REQUIRED_OPTION_MISSING[] =
 
 static const char REQUIRED_OPTION_MISSING_KEY[] =
     "Clients.cimsub.CIMSubCommand.REQUIRED_OPTION_MISSING";
-
-static const char INVALID_ARGS[] =
-    "Invalid arguments.";
-
-static const char INVALID_ARGS_KEY[] =
-    "Clients.cimsub.CIMSubCommand.INVALID_ARGS";
-
-static const char UNEXPECTED_OPTION[] = "Unexpected Option.";
-
-static const char UNEXPECTED_OPTION_KEY[] =
-    "Clients.cimsub.CIMSubCommand.UNEXPECTED_OPTION";
 
 static const char ERR_USAGE_KEY[] =
     "Clients.cimsub.CIMSubCommand.ERR_USAGE";
@@ -1185,14 +1157,10 @@ void CIMSubCommand::_parseHandlerName(
 
             // Parse the handler class and name
 
-            String nameSubstring = handlerString.subString(
-                nsDelimiterIndex+1);
-            Uint32 slen = classDelimiterIndex -
-                nsDelimiterIndex - 1;
+            Uint32 slen = classDelimiterIndex - nsDelimiterIndex - 1;
             handlerCreationClass =
                 handlerString.subString(nsDelimiterIndex+1, slen);
-            handlerName = handlerString.subString(
-                classDelimiterIndex+1);
+            handlerName = handlerString.subString(classDelimiterIndex+1);
         }
     }
 }

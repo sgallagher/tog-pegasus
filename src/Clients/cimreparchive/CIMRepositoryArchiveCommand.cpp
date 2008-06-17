@@ -77,11 +77,6 @@ static const char COMMAND_NAME[] = "cimreparchive";
 */
 static const char USAGE[] = "Usage: ";
 
-/**
-    This constant represents the getoopt argument designator
-*/
-static const char GETOPT_ARGUMENT_DESIGNATOR = ':';
-
 /*
     These constants represent the operation modes supported by the CLI.
     Any new operation should be added here.

@@ -93,11 +93,6 @@ static const CIMName PROPERTY_NAME_AUTHORIZATION   = CIMName ("Authorization");
 */
 static const char USAGE []                        = "Usage: ";
 
-/**
-    This constant represents the getoopt argument designator
-*/
-static const char GETOPT_ARGUMENT_DESIGNATOR      = ':';
-
 /*
     These constants represent the operation modes supported by the CLI.
     Any new operation should be added here.
@@ -158,12 +153,6 @@ static const char CIMOM_NOT_RUNNING [] =
 static const char CIMOM_NOT_RUNNING_KEY [] =
     "Clients.cimauth.CIMAuthCommand.CIMOM_NOT_RUNNING";
 
-static const char FILE_NOT_READABLE [] =
-    "Unable to read the config file.";
-
-static const char FILE_NOT_READABLE_KEY [] =
-    "Clients.cimauth.CIMAuthCommand.FILE_NOT_READABLE";
-
 static const char ADD_AUTH_FAILURE [] =
     "Failed to add authorizations.";
 
@@ -206,12 +195,6 @@ static const char REMOVE_AUTH_SUCCESS [] =
 static const char REMOVE_AUTH_SUCCESS_KEY [] =
     "Clients.cimauth.CIMAuthCommand.REMOVE_AUTH_SUCCESS";
 
-static const char NO_AUTHS_FOUND [] =
-    "No user authorizations found for listing.";
-
-static const char NO_AUTHS_FOUND_KEY [] =
-    "Clients.cimauth.CIMAuthCommand.NO_AUTHS_FOUND";
-
 static const char AUTH_SCHEMA_NOT_LOADED [] =
     "Please restore the internal repository on the CIM Server.";
 
@@ -242,11 +225,6 @@ static const char ERR_USAGE_KEY [] =
 static const char ERR_USAGE [] =
     "Use '--help' to obtain command syntax.";
 //l10n end default messages and resource keys
-
-/**
-    The constant representing the user provider class name
-*/
-static const char PG_USER_MGR_PROV_CLASS []    = "PG_UserManager";
 
 
 static const char   LONG_HELP []  = "help";

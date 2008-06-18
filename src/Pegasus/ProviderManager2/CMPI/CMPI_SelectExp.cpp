@@ -571,7 +571,7 @@ extern "C"
         }
 #ifdef PEGASUS_ENABLE_CQL
         if( (strncmp (sx->lang.getCString(),
-             CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) == 0) |
+             CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) == 0) ||
              (strncmp (sx->lang.getCString(),
              "CIM:CQL", 7) == 0) )
         {

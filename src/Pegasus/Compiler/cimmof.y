@@ -952,8 +952,8 @@ valueInitializer: qualifierList TOK_SIMPLE_IDENTIFIER TOK_EQUAL
     // validation.
 
     CIMValue *v = valueFactory::createValue(oldv->getType(),
-            (($4->type == CIMMOF_ARRAY_VALUE) |
-             (($4->type == CIMMOF_NULL_VALUE) & oldprop->isArray()))?0:-1,
+            (($4->type == CIMMOF_ARRAY_VALUE) ||
+             (($4->type == CIMMOF_NULL_VALUE) && oldprop->isArray()))?0:-1,
             ($4->type == CIMMOF_NULL_VALUE),
             $4->value);
 

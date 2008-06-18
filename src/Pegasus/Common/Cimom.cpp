@@ -728,7 +728,7 @@ void cimom::find_service_q(FindServiceQueue* msg)
 
         if (msg->capabilities != 0)
         {
-            if (! msg->capabilities & ret->_capabilities)
+            if (!(msg->capabilities & ret->_capabilities))
             {
                 ret = _modules.next_of(ret);
                 continue;
@@ -736,7 +736,7 @@ void cimom::find_service_q(FindServiceQueue* msg)
         }
         if (msg->mask != 0)
         {
-            if (! msg->mask & ret->_mask)
+            if (!(msg->mask & ret->_mask))
             {
                 ret = _modules.next_of(ret);
                 continue;

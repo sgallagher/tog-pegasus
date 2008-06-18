@@ -2563,8 +2563,8 @@ yyreduce:
     // validation.
 
     CIMValue *v = valueFactory::createValue(oldv->getType(),
-            (((yyvsp[(4) - (5)].typedinitializer)->type == CIMMOF_ARRAY_VALUE) |
-             (((yyvsp[(4) - (5)].typedinitializer)->type == CIMMOF_NULL_VALUE) & oldprop->isArray()))?0:-1,
+            (((yyvsp[(4) - (5)].typedinitializer)->type == CIMMOF_ARRAY_VALUE) ||
+             (((yyvsp[(4) - (5)].typedinitializer)->type == CIMMOF_NULL_VALUE) && oldprop->isArray()))?0:-1,
             ((yyvsp[(4) - (5)].typedinitializer)->type == CIMMOF_NULL_VALUE),
             (yyvsp[(4) - (5)].typedinitializer)->value);
 

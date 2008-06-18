@@ -711,7 +711,7 @@ int main(int argc, char** argv)
     // Note that we can do this so we get all instances or just the given class
     }
     list.start();
-    if(showInstances | showAll)
+    if (showInstances || showAll)
     {
         // try Block around basic instance processing
         for(Uint32 j = 0; j < list.size(); j++)

@@ -65,6 +65,82 @@ static const CMPIUint32 MB_CAPABILITIES =
 #   endif
     ;
 
+#define HandlerCatchSetStatus(rc, returnvalue) \
+    catch (const CIMException &e) \
+    { \
+        PEG_TRACE_STRING( \
+            TRC_CMPIPROVIDERINTERFACE, \
+            Tracer::LEVEL2, \
+            "CIMException: " + e.getMessage()); \
+        CMSetStatusWithString( \
+            rc, \
+            (CMPIrc)e.getCode(), \
+            (CMPIString*)string2CMPIString(e.getMessage())); \
+        PEG_METHOD_EXIT(); \
+        return returnvalue; \
+    } \
+    catch (const Exception &e) \
+    { \
+        PEG_TRACE(( \
+            TRC_CMPIPROVIDERINTERFACE, \
+            Tracer::LEVEL2, \
+            "Exception: %s", (const char *)e.getMessage().getCString())); \
+        CMSetStatusWithString( \
+            rc, \
+            (CMPIrc)CMPI_RC_ERROR_SYSTEM, \
+            (CMPIString*)string2CMPIString(e.getMessage())); \
+        PEG_METHOD_EXIT(); \
+        return returnvalue; \
+    } \
+    catch (...) \
+    { \
+        PEG_TRACE(( \
+            TRC_CMPIPROVIDERINTERFACE, \
+            Tracer::LEVEL2, \
+            "Unknown exception")); \
+        CMSetStatusWithString( \
+            rc, \
+            (CMPIrc)CMPI_RC_ERROR_SYSTEM, \
+            (CMPIString*)string2CMPIString("Unknown exception")); \
+        PEG_METHOD_EXIT(); \
+        return returnvalue; \
+    }
+
+#define HandlerCatchReturnStatus() \
+    catch (const CIMException &e) \
+    { \
+        PEG_TRACE_STRING( \
+            TRC_CMPIPROVIDERINTERFACE, \
+            Tracer::LEVEL2, \
+            "CIMException: " + e.getMessage()); \
+        PEG_METHOD_EXIT(); \
+        CMReturnWithString( \
+            (CMPIrc)e.getCode(), \
+            (CMPIString*)string2CMPIString(e.getMessage())); \
+    } \
+    catch (const Exception &e) \
+    { \
+        PEG_TRACE(( \
+            TRC_CMPIPROVIDERINTERFACE, \
+            Tracer::LEVEL2, \
+            "Exception: %s", (const char *)e.getMessage().getCString())); \
+        PEG_METHOD_EXIT(); \
+        CMReturnWithString( \
+            (CMPIrc)CMPI_RC_ERROR_SYSTEM, \
+            (CMPIString*)string2CMPIString(e.getMessage())); \
+    } \
+    catch (...) \
+    { \
+        PEG_TRACE(( \
+            TRC_CMPIPROVIDERINTERFACE, \
+            Tracer::LEVEL2, \
+            "Unknown exception")); \
+        PEG_METHOD_EXIT(); \
+        CMReturnWithString( \
+            (CMPIrc)CMPI_RC_ERROR_SYSTEM, \
+            (CMPIString*)string2CMPIString("Unknown exception")); \
+    }
+
 static CIMPropertyList getList(const char** l)
 {
     CIMPropertyList pl;
@@ -133,22 +209,8 @@ extern "C"
             PEG_METHOD_EXIT();
             return cmpiInst;
         }
-        catch (const CIMException &e)
-        {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
-                "Exception: " + e.getMessage());
-            if (rc)
-            {
-                CMSetStatusWithString(
-                    rc,
-                    (CMPIrc)e.getCode(),
-                    (CMPIString*)string2CMPIString(e.getMessage()));
-            }
-            PEG_METHOD_EXIT();
-            return NULL;
-        }
+        HandlerCatchSetStatus(rc, NULL);
+
         // Code flow should never get here.
     }
 
@@ -177,21 +239,8 @@ extern "C"
             PEG_METHOD_EXIT();
             return cmpiObjPath;
         }
-        catch (const CIMException &e)
-        {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
-                "Exception: " + e.getMessage());
-            if (rc)
-            {
-                CMSetStatusWithString(
-                    rc,(CMPIrc)e.getCode(),
-                    (CMPIString*)string2CMPIString(e.getMessage()));
-            }
-            PEG_METHOD_EXIT();
-            return NULL;
-        }
+        HandlerCatchSetStatus(rc, NULL);
+
         // Code flow should never get here.
     }
 
@@ -221,17 +270,8 @@ extern "C"
                 CM_IncludeQualifiers(flgs),
                 props);
         }
-        catch (const CIMException &e)
-        {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
-                "Exception: " + e.getMessage());
-            PEG_METHOD_EXIT();
-            CMReturnWithString(
-                (CMPIrc)e.getCode(),
-                (CMPIString*)string2CMPIString(e.getMessage()));
-        }
+        HandlerCatchReturnStatus();
+
         PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
@@ -257,17 +297,8 @@ extern "C"
                 CM_ObjectPath(cop)->getNameSpace(),
                 qop); //*CM_ObjectPath(cop));
         }
-        catch (const CIMException &e)
-        {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
-                "Exception: " + e.getMessage());
-            PEG_METHOD_EXIT();
-            CMReturnWithString(
-                (CMPIrc)e.getCode(),
-                (CMPIString*)string2CMPIString(e.getMessage()));
-        }
+        HandlerCatchReturnStatus();
+
         PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
@@ -298,22 +329,8 @@ extern "C"
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
-        catch (const CIMException &e)
-        {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
-                "Exception: " + e.getMessage());
-            if (rc)
-            {
-                CMSetStatusWithString(
-                    rc,
-                    (CMPIrc)e.getCode(),
-                    (CMPIString*)string2CMPIString(e.getMessage()));
-            }
-            PEG_METHOD_EXIT();
-            return NULL;
-        }
+        HandlerCatchSetStatus(rc, NULL);
+
         // Code flow should never get here.
     }
 
@@ -367,22 +384,8 @@ extern "C"
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
-        catch (const CIMException &e)
-        {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
-                "Exception: " + e.getMessage());
-            if (rc)
-            {
-                CMSetStatusWithString(
-                    rc,
-                    (CMPIrc)e.getCode(),
-                    (CMPIString*)string2CMPIString(e.getMessage()));
-            }
-            PEG_METHOD_EXIT();
-            return NULL;
-        }
+        HandlerCatchSetStatus(rc, NULL);
+
         // Code flow should never get here.
     }
 
@@ -420,22 +423,8 @@ extern "C"
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
-        catch (const CIMException &e)
-        {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
-                "Exception: " + e.getMessage());
-            if (rc)
-            {
-                CMSetStatusWithString(
-                    rc,
-                    (CMPIrc)e.getCode(),
-                    (CMPIString*)string2CMPIString(e.getMessage()));
-            }
-            PEG_METHOD_EXIT();
-            return NULL;
-        }
+        HandlerCatchSetStatus(rc, NULL);
+
         // Code flow should never get here.
     }
 
@@ -506,22 +495,8 @@ extern "C"
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
-        catch (const CIMException &e)
-        {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
-                "Exception: " + e.getMessage());
-            if (rc)
-            {
-                CMSetStatusWithString(
-                    rc,
-                    (CMPIrc)e.getCode(),
-                    (CMPIString*)string2CMPIString(e.getMessage()));
-            }
-            PEG_METHOD_EXIT();
-            return NULL;
-        }
+        HandlerCatchSetStatus(rc, NULL);
+
         // Code flow should never get here.
     }
 
@@ -581,22 +556,8 @@ extern "C"
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
-        catch (const CIMException &e)
-        {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
-                "Exception: " + e.getMessage());
-            if (rc)
-            {
-                CMSetStatusWithString(
-                    rc,
-                    (CMPIrc)e.getCode(),
-                    (CMPIString*)string2CMPIString(e.getMessage()));
-            }
-            PEG_METHOD_EXIT();
-            return NULL;
-        }
+        HandlerCatchSetStatus(rc, NULL);
+
         // Code flow should never get here.
     }
 
@@ -663,22 +624,8 @@ extern "C"
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
-        catch (const CIMException &e)
-        {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
-                "Exception: " + e.getMessage());
-            if (rc)
-            {
-                CMSetStatusWithString(
-                    rc,
-                    (CMPIrc)e.getCode(),
-                    (CMPIString*)string2CMPIString(e.getMessage()));
-            }
-            PEG_METHOD_EXIT();
-            return NULL;
-        }
+        HandlerCatchSetStatus(rc, NULL);
+
         // Code flow should never get here.
     }
 
@@ -735,22 +682,8 @@ extern "C"
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
-        catch (const CIMException &e)
-        {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
-                "Exception: " + e.getMessage());
-            if (rc)
-            {
-                CMSetStatusWithString(
-                    rc,
-                    (CMPIrc)e.getCode(),
-                    (CMPIString*)string2CMPIString(e.getMessage()));
-            }
-            PEG_METHOD_EXIT();
-            return NULL;
-        }
+        HandlerCatchSetStatus(rc, NULL);
+
         // Code flow should never get here.
     }
 
@@ -792,20 +725,8 @@ extern "C"
                 CMSetStatus(rc,CMPI_RC_OK);
             }
         }
-        catch (const CIMException &e)
-        {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
-                "Exception: " + e.getMessage());
-            if (rc)
-            {
-                CMSetStatusWithString(
-                    rc,
-                    (CMPIrc)e.getCode(),
-                    (CMPIString*)string2CMPIString(e.getMessage()));
-            }
-        }
+        HandlerCatchSetStatus(rc, data);
+
         PEG_METHOD_EXIT();
         return data; // "data" will be valid data or nullValue (in error case)
     }
@@ -834,17 +755,8 @@ extern "C"
                 String(name),
                 v);
         }
-        catch (const CIMException &e)
-        {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
-                "Exception: " + e.getMessage());
-            PEG_METHOD_EXIT();
-            CMReturnWithString(
-                (CMPIrc)e.getCode(),
-                (CMPIString*)string2CMPIString(e.getMessage()));
-        }
+        HandlerCatchReturnStatus();
+
         PEG_METHOD_EXIT();
         CMReturn(CMPI_RC_OK);
     }
@@ -874,14 +786,8 @@ extern "C"
             value2CMPIData(v,t,&data);
             CMSetStatus(rc,CMPI_RC_OK);
         }
-        catch (const CIMException &e)
-        {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
-                "Exception: " + e.getMessage());
-            CMSetStatus(rc,(CMPIrc)e.getCode());
-        }
+        HandlerCatchSetStatus(rc, data);
+
         PEG_METHOD_EXIT();
         return data; // "data" will be valid data or nullValue (in error case)
     }
@@ -989,15 +895,7 @@ extern "C"
                     PEG_METHOD_EXIT();
                     CMReturn(CMPI_RC_OK);
                 }
-                catch (const CIMException &e)
-                {
-                    PEG_TRACE_STRING(
-                        TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL2,
-                        "Exception: " + e.getMessage());
-                    PEG_METHOD_EXIT();
-                    CMReturn((CMPIrc)e.getCode());
-                }
+                HandlerCatchReturnStatus();
             }
         }
         PEG_METHOD_EXIT();
@@ -1033,5 +931,3 @@ static CMPIBrokerFT broker_FT =
 CMPIBrokerFT *CMPI_Broker_Ftab = & broker_FT;
 
 PEGASUS_NAMESPACE_END
-
-

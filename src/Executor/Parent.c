@@ -73,7 +73,7 @@
 
 static void _sigHandler(int signum)
 {
-    globals.signalMask |= (1 << signum);
+    globals.signalMask |= (1UL << signum);
 }
 
 /*

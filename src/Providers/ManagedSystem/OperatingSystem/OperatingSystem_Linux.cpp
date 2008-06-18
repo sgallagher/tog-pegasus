@@ -346,39 +346,38 @@ static CIMDateTime time_t_to_CIMDateTime(time_t *time_to_represent)
 /**
    getLastBootUpTime method for Linux implementation of OS Provider
 
-   gets information from /proc/uptime file
+   gets information from /proc/stat file's btime entry.
   */
 
 Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
 {
-   const CIMDateTime NULLTIME;
-   const char *UPTIME_FILE = "/proc/uptime";
+   FILE* statFile;
+   char buffer[MAXPATHLEN];
+   unsigned long btimeValue = 0;
+   time_t bootTime;
 
-   CIMDateTime dt;
-   FILE *procfile;
-   unsigned long seconds_since_boot;
-   char read_buffer[MAXPATHLEN];
-   time_t t_now, t_then;
-   struct tm tm_now;
-
-   dt = NULLTIME;
-   procfile = fopen(UPTIME_FILE, "r");
-   if (procfile)
+   if ((statFile = fopen("/proc/stat", "r")) == 0)
    {
-      if (fgets(read_buffer, MAXPATHLEN, procfile))
-         if (sscanf(read_buffer, " %lu.", &seconds_since_boot))
-         {
-            //-- convert displacement in seconds to a date and time
-            t_now = time(NULL);
-            localtime_r(&t_now, &tm_now);
-            tm_now.tm_sec -= seconds_since_boot;
-            t_then = mktime(&tm_now);
-            dt = time_t_to_CIMDateTime(&t_then);
-         }
-      fclose(procfile);
+       return false;
    }
-   lastBootUpTime = dt;
-   return true;
+
+   while (fgets(buffer, MAXPATHLEN, statFile))
+   {
+       // Look for the btime entry
+       if (strncmp(buffer, "btime ", 6) == 0)
+       {
+           if (sscanf(&buffer[6], "%lu", &btimeValue))
+           {
+               fclose(statFile);
+               bootTime = (time_t) btimeValue;
+               lastBootUpTime = time_t_to_CIMDateTime(&bootTime);
+               return true;
+           }
+       }
+   }
+
+   fclose(statFile);
+   return false;
 }
 
 /**

@@ -225,7 +225,7 @@ class NextHopIPRoute
 public:
 
     NextHopIPRoute();
-    ~NextHopIPRoute();
+    virtual ~NextHopIPRoute();
 
 
     // Property Accessor Methods
@@ -278,7 +278,7 @@ public:
 
     NextHopRouteList();  // Constructor - should load list of interfaces
 
-    ~NextHopRouteList();
+    virtual ~NextHopRouteList();
 
     // Method to find a particular IP Route based on a Instance ID
     // Returns false if a match is not found.

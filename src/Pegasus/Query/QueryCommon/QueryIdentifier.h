@@ -55,7 +55,7 @@ public:
 
     QueryIdentifier(const QueryIdentifier& id);
 
-    ~QueryIdentifier();
+    virtual ~QueryIdentifier();
 
     QueryIdentifier& operator=(const QueryIdentifier& rhs);
 

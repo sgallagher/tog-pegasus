@@ -57,7 +57,7 @@ public:
 
     QueryChainedIdentifier(const QueryChainedIdentifier& cid);
 
-    ~QueryChainedIdentifier();
+    virtual ~QueryChainedIdentifier();
 
     const Array<QueryIdentifier>& getSubIdentifiers() const;
 

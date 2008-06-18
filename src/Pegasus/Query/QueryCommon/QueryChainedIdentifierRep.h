@@ -53,7 +53,7 @@ public:
 
     QueryChainedIdentifierRep(const QueryChainedIdentifierRep* rep);
 
-    ~QueryChainedIdentifierRep();
+    virtual ~QueryChainedIdentifierRep();
 
     const Array<QueryIdentifier>& getSubIdentifiers()const;
 

@@ -59,7 +59,7 @@ class PEGASUS_QUERYCOMMON_LINKAGE QueryIdentifierRep
 
     QueryIdentifierRep& operator=(const QueryIdentifierRep& rhs);
 
-    ~QueryIdentifierRep();
+    virtual ~QueryIdentifierRep();
 
     const CIMName& getName()const;
 

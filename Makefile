@@ -40,7 +40,9 @@ include $(ROOT)/mak/config.mak
 # Defines subdirectorys to go to recursively
 
 # DIRS = src cgi
-DIRS = src test Schemas
+DIRS = src  Schemas
+
+TEST_DIRS = test
 
 # Define the inclusion of the recurse.mak file to execute the next
 # level of makefiles defined by the DIRS variable

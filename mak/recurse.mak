@@ -36,6 +36,22 @@ define NL
 
 endef
 
+##
+## PEGASUS_SKIP_MOST_TEST_DIRS -- disables building of tests if "true".
+##
+
+ifdef PEGASUS_SKIP_MOST_TEST_DIRS
+  ifeq ($(PEGASUS_SKIP_MOST_TEST_DIRS),false)
+    DIRS += $(TEST_DIRS)
+  else
+    ifneq ($(PEGASUS_SKIP_MOST_TEST_DIRS),true)
+      $(error PEGASUS_SKIP_MOST_TEST_DIRS ($(PEGASUS_SKIP_MOST_TEST_DIRS)) invalid, must be true or false)
+    endif
+  endif
+else
+  DIRS += $(TEST_DIRS)
+endif
+
 #
 # In VMS, arguments that must be in uppercase,
 #  need to be surrounded by double quotes.

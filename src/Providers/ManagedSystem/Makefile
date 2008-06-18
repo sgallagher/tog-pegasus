@@ -43,41 +43,46 @@ ROOT = ../../..
 include $(ROOT)/mak/config.mak
 
 DIRS =  \
-        OperatingSystem \
+    OperatingSystem \
+    ComputerSystem \
+    Process \
+    Processor \
+    IP
+
+TEST_DIRS = \
         OperatingSystem/tests \
         OperatingSystem/tests/OSTestClient \
-        ComputerSystem \
         ComputerSystem/tests \
-        Process \
         Process/tests \
-        Processor \
         Processor/tests \
-	IP \
 	IP/tests \
 	IP/testclient
 
 ifeq ($(OS),HPUX)
-  DIRS += NTPProviderSecurity \
+  DIRS += \
+    NTPProviderSecurity \
 	  NTPService \
+    DNSService \
+    NISServerService
+  TEST_DIRS += \
+    DNSService/tests/testclient \
 	  NTPService/tests \
 	  NTPService/testclient \
-	  DNSService \
 	  DNSService/tests \
 	  DNSService/tests/testclient \
-	  NISServerService \
-	  NISServerService/tests \
-	  NISServerService/testclient
+    NISServerService/tests
 endif
 
 ifeq ($(OS_TYPE),vms)
-  DIRS += NTPProviderSecurity \
+  DIRS += \
+    NTPProviderSecurity \
           NTPService \
+    DNSService
+  TEST_DIRS += \
+    DNSService/tests/testclient \
           NTPService/tests \
           NTPService/testclient \
-          DNSService \
-          DNSService/tests \
-          DNSService/tests/testclient
+    DNSService/tests
 endif
 
 include $(ROOT)/mak/recurse.mak
-

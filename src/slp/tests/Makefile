@@ -32,7 +32,7 @@ ROOT=../../..
 
 include $(ROOT)/mak/config.mak
 
-DIRS = \
+TEST_DIRS = \
 	srv_reg \
 	slptests 
 

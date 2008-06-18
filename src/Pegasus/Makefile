@@ -34,58 +34,63 @@ include $(ROOT)/mak/config.mak
 
 DIRS = \
     Common \
-    Common/tests \
     Query/QueryCommon \
     Client \
-    Client/tests \
     Config \
-    Config/tests \
     Repository \
-    Repository/tests \
     getoopt \
     WQL \
-    WQL/tests \
     CQL \
-    CQL/CQLCLI \
     Query/QueryExpression \
-    Query/QueryExpression/tests \
-    Query/QueryExpression/tests/Queries \
     Provider \
-    CQL/tests \
     Compiler \
-    Compiler/tests \
     Compiler/cmdline
 
+TEST_DIRS = \
+    Common/tests \
+    Client/tests \
+    Config/tests \
+    Repository/tests \
+    WQL/tests \
+    CQL/tests \
+    Compiler/tests \
+    Query/QueryExpression/tests \
+    Query/QueryExpression/tests/Queries \
+    CQL/CQLCLI
+
 ifneq ($(OS),HPUX)
-    DIRS += \
+    TEST_DIRS += \
         Compiler/cmdline/tests
 endif
 
 DIRS += \
     ExportClient \
-    ExportClient/tests \
     Server/ProviderRegistrationManager \
-    Server/ProviderRegistrationManager/tests \
     ExportServer \
-    ExportServer/tests \
     Listener \
-    Listener/tests \
     Security/UserManager \
-    Security/UserManager/tests \
     Security/Authentication \
-    Security/Authentication/tests \
     ControlProviders/ConfigSettingProvider \
     ControlProviders/UserAuthProvider \
     ControlProviders/ProviderRegistrationProvider \
-    ControlProviders/ProviderRegistrationProvider/tests \
     ControlProviders/NamespaceProvider \
     HandlerService \
-    HandlerService/tests \
     IndicationService \
-    IndicationService/tests \
     ManagedClient \
     DynListener \
+
+TEST_DIRS += \
+    ExportClient/tests \
+    Server/ProviderRegistrationManager/tests \
+    ExportServer/tests \
+    Listener/tests \
+    Security/UserManager/tests \
+    Security/Authentication/tests \
+    ControlProviders/ProviderRegistrationProvider/tests \
+    HandlerService/tests \
+    IndicationService/tests \
     DynListener/tests
+
 
 ifdef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
     DIRS += \
@@ -99,7 +104,9 @@ endif
 
 DIRS += \
     ProviderManager2 \
-    ProviderManager2/Default \
+    ProviderManager2/Default
+
+TEST_DIRS += \
     ProviderManager2/tests \
     ProviderManager2/Default/tests
 
@@ -136,20 +143,23 @@ endif
 
 ifndef PEGASUS_DISABLE_PERFINST
     DIRS += \
-        ControlProviders/Statistic \
+        ControlProviders/Statistic
+    TEST_DIRS += \
         ControlProviders/Statistic/test
 endif
 
 ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
     DIRS += \
-        ControlProviders/InteropProvider \
+        ControlProviders/InteropProvider
+    TEST_DIRS += \
         ControlProviders/InteropProvider/tests \
         ControlProviders/InteropProvider/ServerProfileTests
 endif
 
 ifeq ($(PEGASUS_ENABLE_CQL),true)
     DIRS += \
-        ControlProviders/QueryCapabilitiesProvider \
+        ControlProviders/QueryCapabilitiesProvider
+    TEST_DIRS += \
         ControlProviders/QueryCapabilitiesProvider/tests
 endif
 
@@ -160,20 +170,23 @@ endif
 
 ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
     DIRS += \
-        WsmServer \
+        WsmServer
+    TEST_DIRS += \
         WsmServer/tests
 endif
 
 DIRS += \
     Server \
-    Server/tests \
     Handler/CIMxmlIndicationHandler \
-    Handler/CIMxmlIndicationHandler/tests/Destination \
     Handler/snmpIndicationHandler \
-    Handler/snmpIndicationHandler/tests/testclient \
-    Handler/snmpIndicationHandler/tests/SnmpHandlerException \
     msg/Server \
     msg/CLI \
     msg/Listener
+
+TEST_DIRS += \
+    Server/tests \
+    Handler/CIMxmlIndicationHandler/tests/Destination \
+    Handler/snmpIndicationHandler/tests/testclient \
+    Handler/snmpIndicationHandler/tests/SnmpHandlerException
 
 include $(ROOT)/mak/recurse.mak

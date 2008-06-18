@@ -33,18 +33,19 @@ include $(PEGASUS_ROOT)/mak/config.mak
 DIRS= \
     CWS_Util \
     FilesAndDirectories \
-    FilesAndDirectories/tests \
     FilesAndDirectories_CXX \
-    FilesAndDirectories_CXX/tests \
     ProcessIndication \
-    ProcessIndication/tests \
     SampleClass \
-    SampleClass/tests \
     TestCMPI_CXX \
     InstanceProvider \
+    MethodProvider
+
+TEST_DIRS = \
+    FilesAndDirectories/tests \
+    FilesAndDirectories_CXX/tests \
+    ProcessIndication/tests \
+    SampleClass/tests \
     InstanceProvider/tests \
-    MethodProvider \
     MethodProvider/tests
 
 include $(PEGASUS_ROOT)/mak/recurse.mak
-

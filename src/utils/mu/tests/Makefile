@@ -34,7 +34,7 @@ include $(ROOT)/mak/config.mak
 
 #   Inst \
 
-DIRS = \
+TEST_DIRS = \
     SortCmd
 
 include ../../../../mak/recurse.mak

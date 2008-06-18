@@ -34,28 +34,29 @@ include $(ROOT)/mak/config.mak
 
 DIRS = \
     CLITestClients \
-    TestClient \
     cliutils \
     cimconfig \
     cimuser \
     cimauth \
     cimprovider \
-    cimprovider/tests \
     osinfo \
     wbemexec \
     tomof \
     ipinfo \
-    g11ntest \
-    benchmarkTest \
     cimperf \
     repupgrade  \
     cimsub \
-    cimsub/tests \
     repupgrade/SSPModules/SampleSSPModule \
-    repupgrade/tests \
-    wbemexec/tests \
     loadxml
 
+TEST_DIRS = \
+    TestClient \
+    cimprovider/tests \
+    g11ntest \
+    benchmarkTest \
+    cimsub/tests \
+    repupgrade/tests \
+    wbemexec/tests
 
 ifeq ($(OS),HPUX)
     DIRS += \
@@ -74,19 +75,17 @@ endif
 ifdef PEGASUS_HAS_SSL
     DIRS += \
         TestCertClient \
-        cimtrust \
-        cimtrust/tests
+        cimtrust
+    TEST_DIRS += cimtrust/tests
     ifeq ($(PEGASUS_ENABLE_SSL_CRL_VERIFICATION),true)
-        DIRS += \
-            cimcrl \
-            cimcrl/tests
+        DIRS += cimcrl
+        TEST_DIRS += cimcrl/tests
     endif
 endif
 
 ifneq ($(OS_TYPE),windows)
-    DIRS += \
-        cimreparchive \
-        cimreparchive/tests
+    DIRS += cimreparchive
+    TEST_DIRS += cimreparchive/tests
 endif
 
 #The following tests are NOT included as part of the standard

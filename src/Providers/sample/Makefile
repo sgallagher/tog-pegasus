@@ -30,7 +30,7 @@
 #//==============================================================================
 include $(PEGASUS_ROOT)/mak/config.mak
 
-DIRS = \
+TEST_DIRS = \
 	InstanceProvider \
 	InstanceQueryProvider \
 	MethodProvider \
@@ -40,7 +40,7 @@ DIRS = \
 	AssociationProvider/testclient
 
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
-DIRS += \
+    TEST_DIRS += \
 	CMPI
 endif
 

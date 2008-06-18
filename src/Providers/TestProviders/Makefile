@@ -33,7 +33,7 @@ ROOT = ../../..
 
 include $(ROOT)/mak/config.mak
 
-DIRS = \
+TEST_DIRS = \
 	AlertIndicationProvider \
 	ClientProvider \
 	CLITestProvider \
@@ -69,18 +69,18 @@ DIRS = \
 	PerformanceTests
 
 ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
-DIRS += \
+TEST_DIRS += \
 	TestServerProfileProviders
 endif
 
 ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
-DIRS += \
+TEST_DIRS += \
 	EmbeddedInstanceProvider \
 	EmbeddedInstanceProvider/testClient
 endif
 
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
-DIRS += \
+TEST_DIRS += \
 	CMPI
 endif
 

@@ -35,9 +35,8 @@ include $(ROOT)/mak/config.mak
 DIRS =
 
 ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
-    DIRS += \
-        Executor \
-        Executor/tests
+    DIRS += Executor
+    TEST_DIRS  +=  Executor/tests
 endif
 
 DIRS += \

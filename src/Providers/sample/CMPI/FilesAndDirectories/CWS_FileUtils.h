@@ -49,10 +49,10 @@
 # define SILENT 1
 #endif
 
-char * CSCreationClassName();
-char * CSName();
-char * FSCreationClassName();
-char * FSName();
+char * CSCreationClassName(void);
+char * CSName(void);
+char * FSCreationClassName(void);
+char * FSName(void);
 
 
 CMPIObjectPath *makePath(const CMPIBroker *broker, const char *classname,
@@ -60,6 +60,6 @@ CMPIObjectPath *makePath(const CMPIBroker *broker, const char *classname,
 CMPIInstance   *makeInstance(const CMPIBroker *broker, const char *classname,
                              const char *Namespace, CWS_FILE *cwsf);
 int             makeFileBuf(const CMPIInstance *instance, CWS_FILE *cwsf);
-int silentMode();
+int silentMode(void);
 
 #endif

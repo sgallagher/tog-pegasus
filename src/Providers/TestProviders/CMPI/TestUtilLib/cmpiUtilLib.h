@@ -51,7 +51,7 @@ CMPI_EXTERN_C void
 PROV_LOG (const char *fmt, ...);
 
 CMPI_EXTERN_C void
-PROV_LOG_CLOSE ();
+PROV_LOG_CLOSE (void);
 
 CMPI_EXTERN_C void
 PROV_LOG_OPEN (const char *file, const char *location);

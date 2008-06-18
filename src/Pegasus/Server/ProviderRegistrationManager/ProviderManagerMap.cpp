@@ -137,7 +137,7 @@ void ProviderManagerMap::initialize()
             "providerManagerDir");
     dirName = ConfigManager::getHomedPath(dirName); 
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
         "Looking for ProviderManagers in " + dirName + "."); 
 
     // check to make sure that this ifc type is handled by one of the
@@ -244,7 +244,7 @@ void ProviderManagerMap::initialize()
                     for (int j=0; ifcVersions[j]!=NULL; j++)
                     {
                         entry.ifcVersions.append(String(ifcVersions[j]));
-                        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
                             String("Adding Provider type " + String(ifcName) + 
                                 " version " + String(ifcVersions[j]) + 
                                 " handled by ProviderManager " + fullPath)); 

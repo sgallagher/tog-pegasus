@@ -289,7 +289,7 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         capabilityKey = _generateKey(nameSpaceKey, className, ASSO_PROVIDER);
     }
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                     "\nnameSpace = " + nameSpace.getString() +
+                     "nameSpace = " + nameSpace.getString() +
                      "; className = " + className.getString() +
                      "; capabilityKey = " + capabilityKey);
 
@@ -892,7 +892,7 @@ Boolean ProviderRegistrationManager::lookupIndicationConsumer(
     //
     String consumerKey = _generateKey(destinationPath, CON_PROVIDER);
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "\ndestinationPath = " + destinationPath +
+        "destinationPath = " + destinationPath +
         "; consumerKey = " + consumerKey);
 
     try
@@ -1639,7 +1639,7 @@ Boolean ProviderRegistrationManager::updateProviderModuleStatus(
     }
     catch (const Exception & e)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "Failed to update provider module status: " + e.getMessage());
         return false;
     }
@@ -3471,9 +3471,9 @@ void ProviderRegistrationManager::_addInstancesToTable(
 
     if (!_registrationTable->table.insert(key,elementInfo))
     {
-        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
             "Exception:: Attempt to add duplicate entry"
-            " to provider reistration hash table.");
+            " to provider registration hash table.");
         //ATTN-YZ-P3-20020301:Is this proper exception
         PEG_METHOD_EXIT();
 
@@ -3515,7 +3515,7 @@ void ProviderRegistrationManager::_addInitialInstancesToTable(
 
     if (!_registrationTable->table.insert(key,elementInfo))
     {
-        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
             "Exception:: Attempt to add duplicate entry to"
             " provider registration hash table.");
 

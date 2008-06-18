@@ -79,7 +79,7 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
     
     PEG_TRACE((
         TRC_DISPATCHER,
-        Tracer::LEVEL3,
+        Tracer::LEVEL4,
         "WQLOperationRequestDispatcher::ExecQuery Response - "
             "Name Space: %s  Class name: %s Response Count: %u",
         (const char*) poA->_nameSpace.getString().getCString(),
@@ -312,7 +312,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
     // return CIM_ERR_NOT_SUPPORTED
     if ((providerCount == 0) && !(_repository->isDefaultInstanceProvider()))
     {
-        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL2,
             "CIM_ERROR_NOT_SUPPORTED for " + request->className.getString());
 
         CIMResponseMessage* response = request->buildResponse();

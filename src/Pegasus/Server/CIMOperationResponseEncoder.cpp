@@ -87,7 +87,7 @@ void CIMOperationResponseEncoder::sendResponse(
     Boolean closeConnect = response->getCloseConnect();
     PEG_TRACE((
         TRC_HTTP,
-        Tracer::LEVEL3,
+        Tracer::LEVEL4,
         "CIMOperationResponseEncoder::sendResponse()- "
             "response->getCloseConnect() returned %d",
         closeConnect));
@@ -96,7 +96,7 @@ void CIMOperationResponseEncoder::sendResponse(
 
     if (!queue)
     {
-        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "ERROR: non-existent queueId = %u, response not sent.", queueId));
         PEG_METHOD_EXIT();
         return;
@@ -106,7 +106,7 @@ void CIMOperationResponseEncoder::sendResponse(
 
     if (! httpQueue)
     {
-        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "ERROR: Unknown queue type. queueId = %u, response not sent.",
             queueId));
         PEG_METHOD_EXIT();
@@ -303,7 +303,7 @@ void CIMOperationResponseEncoder::handleEnqueue(Message* message)
 
     PEG_TRACE((
         TRC_HTTP,
-        Tracer::LEVEL3,
+        Tracer::LEVEL4,
         "CIMOperationResponseEncoder::handleEnque()- "
             "message->getCloseConnect() returned %d",
         message->getCloseConnect()));

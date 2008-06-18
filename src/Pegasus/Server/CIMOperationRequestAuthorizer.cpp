@@ -377,7 +377,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message* request)
                 //
                 if (!authorized)
                 {
-                    PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL2,
+                    PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL1,
                         "Authorization Failed: User '" + userName +
                             "' is not a member of the authorized groups");
 

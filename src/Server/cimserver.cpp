@@ -448,7 +448,7 @@ int main(int argc, char** argv)
     if ( setEBCDICEncoding(STDOUT_FILENO)==-1 ||
          setEBCDICEncoding(STDERR_FILENO)==-1 )
     {
-       PEG_TRACE_CSTRING(TRC_SERVER,Tracer::LEVEL4,
+       PEG_TRACE_CSTRING(TRC_SERVER,Tracer::LEVEL1,
            "Coud not set stdout or stderr to EBCDIC encoding.");
     }
     // Need to initialize timezone information in the

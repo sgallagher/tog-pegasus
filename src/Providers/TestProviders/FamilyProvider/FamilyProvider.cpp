@@ -578,7 +578,7 @@ CIMClass FamilyProvider::_getClass(const CIMName& className)
     }
     catch (CIMException& e)
     {
-        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "FamilyProvider GetClass operation failed: Class %s. Msg %s",
             (const char*) className.getString().getCString(),
             (const char*) e.getMessage().getCString()));

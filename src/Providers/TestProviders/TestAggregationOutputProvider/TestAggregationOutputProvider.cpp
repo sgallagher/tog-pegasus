@@ -364,7 +364,7 @@ CIMClass TestAggregationOutputProvider::_getClass(const CIMName& className)
     }
     catch (CIMException& e)
     {
-        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "TestAggregationOutputProvider GetClass operation failed: "
                 "Class %s. Msg %s",
             (const char*) className.getString().getCString(),

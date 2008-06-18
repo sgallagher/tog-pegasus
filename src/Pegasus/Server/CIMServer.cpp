@@ -152,7 +152,7 @@ Boolean handleShutdownSignal = false;
 void shutdownSignalHandler(int s_n, PEGASUS_SIGINFO_T* s_info, void* sig)
 {
     PEG_METHOD_ENTER(TRC_SERVER, "shutdownSignalHandler");
-    PEG_TRACE((TRC_SERVER, Tracer::LEVEL2, "Signal %d received.", s_n));
+    PEG_TRACE((TRC_SERVER, Tracer::LEVEL3, "Signal %d received.", s_n));
 
     CIMServer::shutdownSignal();
 
@@ -1042,7 +1042,7 @@ SSLContext* CIMServer::_getSSLContext()
     //
     if (String::equal(verifyClient, "required"))
     {
-        PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL3,
             "SSL Client verification REQUIRED.");
 
         _sslContextMgr->createSSLContext(
@@ -1050,7 +1050,7 @@ SSLContext* CIMServer::_getSSLContext()
     }
     else if (String::equal(verifyClient, "optional"))
     {
-        PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL3,
             "SSL Client verification OPTIONAL.");
 
         _sslContextMgr->createSSLContext(
@@ -1059,7 +1059,7 @@ SSLContext* CIMServer::_getSSLContext()
     else if (String::equal(verifyClient, "disabled") ||
              verifyClient == String::EMPTY)
     {
-        PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL3,
             "SSL Client verification DISABLED.");
 
         _sslContextMgr->createSSLContext(

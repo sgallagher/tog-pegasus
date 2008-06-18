@@ -227,7 +227,7 @@ void HTTPAuthenticatorDelegator::handleEnqueue(Message *message)
     {
         if (deleteMessage)
         {
-            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL3,
+            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
                     "Exception caught, deleting Message in "
                     "HTTPAuthenticator::handleEnqueue");
             
@@ -238,7 +238,7 @@ void HTTPAuthenticatorDelegator::handleEnqueue(Message *message)
 
     if (deleteMessage)
     {
-        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL3,
+        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
                     "Deleting Message in HTTPAuthenticator::handleEnqueue");
 
         delete message;
@@ -292,7 +292,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
     PEG_TRACE_CSTRING(
         TRC_HTTP,
-        Tracer::LEVEL3,
+        Tracer::LEVEL2,
         "HTTPAuthenticatorDelegator - HTTP processing start");
 
 
@@ -420,7 +420,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
     PEG_TRACE_CSTRING(
         TRC_AUTHENTICATION,
-        Tracer::LEVEL2,
+        Tracer::LEVEL3,
         "HTTPAuthenticatorDelegator - Authentication processing start");
 
     //
@@ -642,7 +642,6 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                                     "The certificate used for authentication "
                                         "is not valid.");
                                 String msg(MessageLoader::getMessage(msgParms));
-                                PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3, msg);
                                 _sendHttpError(
                                     queueId,
                                     HTTP_STATUS_UNAUTHORIZED,
@@ -672,7 +671,6 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                                 "The certificate used for authentication is "
                                     "not valid.");
                             String msg(MessageLoader::getMessage(msgParms));
-                            PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3, msg);
                             _sendHttpError(
                                 queueId,
                                 HTTP_STATUS_UNAUTHORIZED,
@@ -751,7 +749,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
                 PEG_TRACE((
                     TRC_HTTP,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL4,
                     "HTTPAuthenticatorDelegator - The trusted client "
                         "certificate is registered to %s.",
                     (const char*) certUserName.getCString()));
@@ -1089,7 +1087,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
     PEG_TRACE_CSTRING(
         TRC_AUTHENTICATION,
-        Tracer::LEVEL2,
+        Tracer::LEVEL3,
         "HTTPAuthenticatorDelegator - Authentication processing ended");
 
 

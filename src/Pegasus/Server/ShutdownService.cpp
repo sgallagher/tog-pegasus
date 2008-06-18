@@ -131,7 +131,7 @@ void ShutdownService::shutdown(
 
         PEG_TRACE_CSTRING(
             TRC_SHUTDOWN,
-            Tracer::LEVEL3,
+            Tracer::LEVEL4,
             "ShutdownService::shutdown - CIM server state set to "
                 "CIMServerState::TERMINATING");
 
@@ -154,7 +154,7 @@ void ShutdownService::shutdown(
 
         PEG_TRACE((
             TRC_SHUTDOWN,
-            Tracer::LEVEL3,
+            Tracer::LEVEL4,
             "ShutdownService::shutdown - All outstanding CIM operations "
                 "complete = %s",
             (noMoreRequests) ? "true" : "false"));
@@ -166,12 +166,12 @@ void ShutdownService::shutdown(
     }
     catch (Exception& e)
     {
-        PEG_TRACE_STRING(TRC_SHUTDOWN, Tracer::LEVEL4,
+        PEG_TRACE_STRING(TRC_SHUTDOWN, Tracer::LEVEL2,
             "Error occurred during CIMServer shutdown: " + e.getMessage());
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(TRC_SHUTDOWN, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_SHUTDOWN, Tracer::LEVEL2,
             "Unexpected error occurred during CIMServer shutdown. ");
     }
 

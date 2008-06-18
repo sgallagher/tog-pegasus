@@ -173,7 +173,7 @@ BinaryMessageHandler::handle_binary_message(void* parm)
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL1,
             "Internal DQueue Error.");
         PEG_METHOD_EXIT();
         return 0;
@@ -212,254 +212,248 @@ BinaryMessageHandler::handle_binary_message(void* parm)
             legacy =
                 static_cast<AsyncLegacyOperationStart*>(msg)->get_action();
         }
-        if (msg && legacy)
+        // Never should have damaged or uninitialized AsyncOpNode received
+        PEGASUS_ASSERT(msg && legacy);
+        legacy->put_async(0);
+
+        switch(legacy->getType())
         {
-            legacy->put_async(0);
-
-            switch(legacy->getType())
-            {
-                case CIM_CREATE_CLASS_REQUEST_MESSAGE:
-                    myself->handleCreateClassRequest(
-                        op, (CIMCreateClassRequestMessage*)legacy);
-                    break;
-                case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-                    myself->handleCreateInstanceRequest(
-                        op, (CIMCreateInstanceRequestMessage*)legacy);
-                    break;
-                case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
-                    myself->handleModifyClassRequest(
-                        op, (CIMModifyClassRequestMessage*)legacy);
-                    break;
-            case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-                    myself->handleModifyInstanceRequest(
-                        op, (CIMModifyInstanceRequestMessage*)legacy);
-                    break;
-            case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
-                    myself->handleEnumerateClassesRequest(
-                        op, (CIMEnumerateClassesRequestMessage*)legacy);
-                    break;
-            case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
-                    myself->handleEnumerateClassNamesRequest(
-                        op, (CIMEnumerateClassNamesRequestMessage*)legacy);
-                    break;
-            case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-                    myself->handleEnumerateInstancesRequest(
-                        op, (CIMEnumerateInstancesRequestMessage*)legacy);
-                    break;
-            case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-                    myself->handleEnumerateInstanceNamesRequest(
-                        op, (CIMEnumerateInstanceNamesRequestMessage*)legacy);
-                    break;
-            case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-                    myself->handleExecQueryRequest(
-                        op, (CIMExecQueryRequestMessage*)legacy);
-                    break;
-            case CIM_ASSOCIATORS_REQUEST_MESSAGE:
-                    myself->handleAssociatorsRequest(
-                        op, (CIMAssociatorsRequestMessage*)legacy);
-                    break;
-            case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-                    myself->handleAssociatorNamesRequest(
-                        op, (CIMAssociatorNamesRequestMessage*)legacy);
-                    break;
-            case CIM_REFERENCES_REQUEST_MESSAGE:
-                    myself->handleReferencesRequest(
-                        op, (CIMReferencesRequestMessage*)legacy);
-                    break;
-            case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-                    myself->handleReferenceNamesRequest(
-                        op, (CIMReferenceNamesRequestMessage*)legacy);
-                    break;
-            case CIM_GET_PROPERTY_REQUEST_MESSAGE:
-                    myself->handleGetPropertyRequest(
-                        op, (CIMGetPropertyRequestMessage*)legacy);
-                    break;
-            case CIM_SET_PROPERTY_REQUEST_MESSAGE:
-                    myself->handleSetPropertyRequest(
-                        op, (CIMSetPropertyRequestMessage*)legacy);
-                    break;
-            case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
-                    myself->handleGetQualifierRequest(
-                        op, (CIMGetQualifierRequestMessage*)legacy);
-                    break;
-            case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
-                    myself->handleSetQualifierRequest(
-                        op, (CIMSetQualifierRequestMessage*)legacy);
-                    break;
-            case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
-                    myself->handleDeleteQualifiersRequest(
-                        op, (CIMDeleteQualifierRequestMessage*)legacy);
-                    break;
-            case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
-                    myself->handleEnumerateQualifiersRequest(
-                        op, (CIMEnumerateQualifiersRequestMessage*)legacy);
-                    break;
-            case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-                    myself->handleInvokeMethodRequest(
-                        op, (CIMInvokeMethodRequestMessage*)legacy);
-                    break;
-            //**** response messages ****//
-            case CIM_GET_CLASS_RESPONSE_MESSAGE:
-                    myself->handleGetClassResponse(
-                        op, (CIMGetClassResponseMessage*)legacy);
-                    break;
-            case CIM_GET_INSTANCE_RESPONSE_MESSAGE:
-                    myself->handleGetInstanceResponse(
-                        op, (CIMGetInstanceResponseMessage*)legacy);
-                    break;
-            case CIM_DELETE_CLASS_RESPONSE_MESSAGE:
-                    myself->handleDeleteClassResponse(
-                        op, (CIMDeleteClassResponseMessage*)legacy);
-                    break;
-            case CIM_DELETE_INSTANCE_RESPONSE_MESSAGE:
-                    myself->handleDeleteInstanceResponse(
-                        op, (CIMDeleteInstanceResponseMessage*)legacy);
-                    break;
-            case CIM_CREATE_CLASS_RESPONSE_MESSAGE:
-                    myself->handleCreateClassResponse(
-                        op, (CIMCreateClassResponseMessage*)legacy);
-                    break;
-            case CIM_CREATE_INSTANCE_RESPONSE_MESSAGE:
-                    myself->handleCreateInstanceResponse(
-                        op, (CIMCreateInstanceResponseMessage*)legacy);
-                    break;
-            case CIM_MODIFY_CLASS_RESPONSE_MESSAGE:
-                    myself->handleModifyClassResponse(
-                        op, (CIMModifyClassResponseMessage*)legacy);
-                    break;
-            case CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE:
-                    myself->handleModifyInstanceResponse(
-                        op, (CIMModifyInstanceResponseMessage*)legacy);
-                    break;
-            case CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE:
-                    myself->handleEnumerateClassesResponse(
-                        op, (CIMEnumerateClassesResponseMessage*)legacy);
-                    break;
-            case CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE:
-                    myself->handleEnumerateClassNamesResponse(
-                        op, (CIMEnumerateClassNamesResponseMessage*)legacy);
-                    break;
-            case CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE:
-                    myself->handleEnumerateInstancesResponse(
-                        op, (CIMEnumerateInstancesResponseMessage*)legacy);
-                    break;
-            case CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE:
-                    myself->handleEnumerateInstanceNamesResponse(
-                        op, (CIMEnumerateInstanceNamesResponseMessage*)legacy);
-                    break;
-            case CIM_EXEC_QUERY_RESPONSE_MESSAGE:
-                    myself->handleExecQueryResponse(
-                        op, (CIMExecQueryResponseMessage*)legacy);
-                    break;
-            case CIM_ASSOCIATORS_RESPONSE_MESSAGE:
-                    myself->handleAssociatorsResponse(
-                        op, (CIMAssociatorsResponseMessage*)legacy);
-                    break;
-            case CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE:
-                    myself->handleAssociatorNamesResponse(
-                        op, (CIMAssociatorNamesResponseMessage*)legacy);
-                    break;
-            case CIM_REFERENCES_RESPONSE_MESSAGE:
-                    myself->handleReferencesResponse(
-                        op, (CIMReferencesResponseMessage*)legacy);
-                    break;
-            case CIM_REFERENCE_NAMES_RESPONSE_MESSAGE:
-                    myself->handleReferenceNamesResponse(
-                        op, (CIMReferenceNamesResponseMessage*)legacy);
-                    break;
-            case CIM_GET_PROPERTY_RESPONSE_MESSAGE:
-                    myself->handleGetPropertyResponse(
-                        op, (CIMGetPropertyResponseMessage*)legacy);
-                    break;
-            case CIM_SET_PROPERTY_RESPONSE_MESSAGE:
-                    myself->handleSetPropertyResponse(
-                        op, (CIMSetPropertyResponseMessage*)legacy);
-                    break;
-            case CIM_GET_QUALIFIER_RESPONSE_MESSAGE:
-                    myself->handleGetQualifierResponse(
-                        op, (CIMGetQualifierResponseMessage*)legacy);
-                    break;
-            case CIM_SET_QUALIFIER_RESPONSE_MESSAGE:
-                    myself->handleSetQualifierResponse(
-                        op, (CIMSetQualifierResponseMessage*)legacy);
-                    break;
-            case CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE:
-                    myself->handleDeleteQualifierResponse(
-                        op, (CIMDeleteQualifierResponseMessage*)legacy);
-                    break;
-            case CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE:
-                    myself->handleEnumerateQualifiersResponse(
-                        op, (CIMEnumerateQualifiersResponseMessage*)legacy);
-                    break;
-            case CIM_INVOKE_METHOD_RESPONSE_MESSAGE:
-                    myself->handleInvokeMethodResponse(
-                        op, (CIMInvokeMethodResponseMessage*)legacy);
-                    break;
-
-            // unexpected requests
-            case CIM_PROCESS_INDICATION_REQUEST_MESSAGE:
-            case CIM_HANDLE_INDICATION_REQUEST_MESSAGE:
-            case CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE:
-            case CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE:
-            case CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE:
-            case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
-            case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
-            case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
-            case CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE:
-            case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
-            case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
-
-            case CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE:
-
-            case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
-            case CIM_GET_CLASS_REQUEST_MESSAGE:
-            case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-            case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
-            case CIM_DELETE_CLASS_REQUEST_MESSAGE:
-            case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-                PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
-                    "Received Unexpected legacy request message.");
-                myself->_handleRequest(op, legacy);
+            case CIM_CREATE_CLASS_REQUEST_MESSAGE:
+                myself->handleCreateClassRequest(
+                    op, (CIMCreateClassRequestMessage*)legacy);
+                break;
+            case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
+                myself->handleCreateInstanceRequest(
+                    op, (CIMCreateInstanceRequestMessage*)legacy);
+                break;
+            case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
+                myself->handleModifyClassRequest(
+                    op, (CIMModifyClassRequestMessage*)legacy);
+                break;
+        case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
+                myself->handleModifyInstanceRequest(
+                    op, (CIMModifyInstanceRequestMessage*)legacy);
+                break;
+        case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
+                myself->handleEnumerateClassesRequest(
+                    op, (CIMEnumerateClassesRequestMessage*)legacy);
+                break;
+        case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
+                myself->handleEnumerateClassNamesRequest(
+                    op, (CIMEnumerateClassNamesRequestMessage*)legacy);
+                break;
+        case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
+                myself->handleEnumerateInstancesRequest(
+                    op, (CIMEnumerateInstancesRequestMessage*)legacy);
+                break;
+        case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
+                myself->handleEnumerateInstanceNamesRequest(
+                    op, (CIMEnumerateInstanceNamesRequestMessage*)legacy);
+                break;
+        case CIM_EXEC_QUERY_REQUEST_MESSAGE:
+                myself->handleExecQueryRequest(
+                    op, (CIMExecQueryRequestMessage*)legacy);
+                break;
+        case CIM_ASSOCIATORS_REQUEST_MESSAGE:
+                myself->handleAssociatorsRequest(
+                    op, (CIMAssociatorsRequestMessage*)legacy);
+                break;
+        case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
+                myself->handleAssociatorNamesRequest(
+                    op, (CIMAssociatorNamesRequestMessage*)legacy);
+                break;
+        case CIM_REFERENCES_REQUEST_MESSAGE:
+                myself->handleReferencesRequest(
+                    op, (CIMReferencesRequestMessage*)legacy);
+                break;
+        case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
+                myself->handleReferenceNamesRequest(
+                    op, (CIMReferenceNamesRequestMessage*)legacy);
+                break;
+        case CIM_GET_PROPERTY_REQUEST_MESSAGE:
+                myself->handleGetPropertyRequest(
+                    op, (CIMGetPropertyRequestMessage*)legacy);
+                break;
+        case CIM_SET_PROPERTY_REQUEST_MESSAGE:
+                myself->handleSetPropertyRequest(
+                    op, (CIMSetPropertyRequestMessage*)legacy);
+                break;
+        case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
+                myself->handleGetQualifierRequest(
+                    op, (CIMGetQualifierRequestMessage*)legacy);
+                break;
+        case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
+                myself->handleSetQualifierRequest(
+                    op, (CIMSetQualifierRequestMessage*)legacy);
+                break;
+        case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
+                myself->handleDeleteQualifiersRequest(
+                    op, (CIMDeleteQualifierRequestMessage*)legacy);
+                break;
+        case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
+                myself->handleEnumerateQualifiersRequest(
+                    op, (CIMEnumerateQualifiersRequestMessage*)legacy);
+                break;
+        case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
+                myself->handleInvokeMethodRequest(
+                    op, (CIMInvokeMethodRequestMessage*)legacy);
+                break;
+        //**** response messages ****//
+        case CIM_GET_CLASS_RESPONSE_MESSAGE:
+                myself->handleGetClassResponse(
+                    op, (CIMGetClassResponseMessage*)legacy);
+                break;
+        case CIM_GET_INSTANCE_RESPONSE_MESSAGE:
+                myself->handleGetInstanceResponse(
+                    op, (CIMGetInstanceResponseMessage*)legacy);
+                break;
+        case CIM_DELETE_CLASS_RESPONSE_MESSAGE:
+                myself->handleDeleteClassResponse(
+                    op, (CIMDeleteClassResponseMessage*)legacy);
+                break;
+        case CIM_DELETE_INSTANCE_RESPONSE_MESSAGE:
+                myself->handleDeleteInstanceResponse(
+                    op, (CIMDeleteInstanceResponseMessage*)legacy);
+                break;
+        case CIM_CREATE_CLASS_RESPONSE_MESSAGE:
+                myself->handleCreateClassResponse(
+                    op, (CIMCreateClassResponseMessage*)legacy);
+                break;
+        case CIM_CREATE_INSTANCE_RESPONSE_MESSAGE:
+                myself->handleCreateInstanceResponse(
+                    op, (CIMCreateInstanceResponseMessage*)legacy);
+                break;
+        case CIM_MODIFY_CLASS_RESPONSE_MESSAGE:
+                myself->handleModifyClassResponse(
+                    op, (CIMModifyClassResponseMessage*)legacy);
+                break;
+        case CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE:
+                myself->handleModifyInstanceResponse(
+                    op, (CIMModifyInstanceResponseMessage*)legacy);
+                break;
+        case CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE:
+                myself->handleEnumerateClassesResponse(
+                    op, (CIMEnumerateClassesResponseMessage*)legacy);
+                break;
+        case CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE:
+                myself->handleEnumerateClassNamesResponse(
+                    op, (CIMEnumerateClassNamesResponseMessage*)legacy);
+                break;
+        case CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE:
+                myself->handleEnumerateInstancesResponse(
+                    op, (CIMEnumerateInstancesResponseMessage*)legacy);
+                break;
+        case CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE:
+                myself->handleEnumerateInstanceNamesResponse(
+                    op, (CIMEnumerateInstanceNamesResponseMessage*)legacy);
+                break;
+        case CIM_EXEC_QUERY_RESPONSE_MESSAGE:
+                myself->handleExecQueryResponse(
+                    op, (CIMExecQueryResponseMessage*)legacy);
+                break;
+        case CIM_ASSOCIATORS_RESPONSE_MESSAGE:
+                myself->handleAssociatorsResponse(
+                    op, (CIMAssociatorsResponseMessage*)legacy);
+                break;
+        case CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE:
+                myself->handleAssociatorNamesResponse(
+                    op, (CIMAssociatorNamesResponseMessage*)legacy);
+                break;
+        case CIM_REFERENCES_RESPONSE_MESSAGE:
+                myself->handleReferencesResponse(
+                    op, (CIMReferencesResponseMessage*)legacy);
+                break;
+        case CIM_REFERENCE_NAMES_RESPONSE_MESSAGE:
+                myself->handleReferenceNamesResponse(
+                    op, (CIMReferenceNamesResponseMessage*)legacy);
+                break;
+        case CIM_GET_PROPERTY_RESPONSE_MESSAGE:
+                myself->handleGetPropertyResponse(
+                    op, (CIMGetPropertyResponseMessage*)legacy);
+                break;
+        case CIM_SET_PROPERTY_RESPONSE_MESSAGE:
+                myself->handleSetPropertyResponse(
+                    op, (CIMSetPropertyResponseMessage*)legacy);
+                break;
+        case CIM_GET_QUALIFIER_RESPONSE_MESSAGE:
+                myself->handleGetQualifierResponse(
+                    op, (CIMGetQualifierResponseMessage*)legacy);
+                break;
+        case CIM_SET_QUALIFIER_RESPONSE_MESSAGE:
+                myself->handleSetQualifierResponse(
+                    op, (CIMSetQualifierResponseMessage*)legacy);
+                break;
+        case CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE:
+                myself->handleDeleteQualifierResponse(
+                    op, (CIMDeleteQualifierResponseMessage*)legacy);
+                break;
+        case CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE:
+                myself->handleEnumerateQualifiersResponse(
+                    op, (CIMEnumerateQualifiersResponseMessage*)legacy);
+                break;
+        case CIM_INVOKE_METHOD_RESPONSE_MESSAGE:
+                myself->handleInvokeMethodResponse(
+                    op, (CIMInvokeMethodResponseMessage*)legacy);
                 break;
 
-            // unexpected replies
-            case CIM_PROCESS_INDICATION_RESPONSE_MESSAGE:
-            case CIM_NOTIFY_PROVIDER_REGISTRATION_RESPONSE_MESSAGE:
-            case CIM_NOTIFY_PROVIDER_TERMINATION_RESPONSE_MESSAGE:
-            case CIM_HANDLE_INDICATION_RESPONSE_MESSAGE:
-            case CIM_CREATE_SUBSCRIPTION_RESPONSE_MESSAGE:
-            case CIM_MODIFY_SUBSCRIPTION_RESPONSE_MESSAGE:
-            case CIM_DELETE_SUBSCRIPTION_RESPONSE_MESSAGE:
-            case CIM_SUBSCRIPTION_INIT_COMPLETE_RESPONSE_MESSAGE:
-            case CIM_DISABLE_MODULE_RESPONSE_MESSAGE:
-            case CIM_ENABLE_MODULE_RESPONSE_MESSAGE:
-            case CIM_STOP_ALL_PROVIDERS_RESPONSE_MESSAGE:
-            case CIM_NOTIFY_PROVIDER_ENABLE_RESPONSE_MESSAGE:
-            case CIM_NOTIFY_CONFIG_CHANGE_RESPONSE_MESSAGE:
-                break;
-            case CIM_EXPORT_INDICATION_RESPONSE_MESSAGE:
-            default:
-                PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
-                    "Received Unexpected legacy response message.");
-                myself->_handleResponse(op, legacy);
-                break;
-            }
-        }
-        else
-        {
+        // unexpected requests
+        case CIM_PROCESS_INDICATION_REQUEST_MESSAGE:
+        case CIM_HANDLE_INDICATION_REQUEST_MESSAGE:
+        case CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE:
+        case CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE:
+        case CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE:
+        case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
+        case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
+        case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
+        case CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE:
+        case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
+        case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
+
+        case CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE:
+
+        case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
+        case CIM_GET_CLASS_REQUEST_MESSAGE:
+        case CIM_GET_INSTANCE_REQUEST_MESSAGE:
+        case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
+        case CIM_DELETE_CLASS_REQUEST_MESSAGE:
+        case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
             PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
-                "Damaged or uninitialized AsyncOpNode received.");
+                "Received Unexpected legacy request message.");
+            myself->_handleRequest(op, legacy);
+            break;
+
+        // unexpected replies
+        case CIM_PROCESS_INDICATION_RESPONSE_MESSAGE:
+        case CIM_NOTIFY_PROVIDER_REGISTRATION_RESPONSE_MESSAGE:
+        case CIM_NOTIFY_PROVIDER_TERMINATION_RESPONSE_MESSAGE:
+        case CIM_HANDLE_INDICATION_RESPONSE_MESSAGE:
+        case CIM_CREATE_SUBSCRIPTION_RESPONSE_MESSAGE:
+        case CIM_MODIFY_SUBSCRIPTION_RESPONSE_MESSAGE:
+        case CIM_DELETE_SUBSCRIPTION_RESPONSE_MESSAGE:
+        case CIM_SUBSCRIPTION_INIT_COMPLETE_RESPONSE_MESSAGE:
+        case CIM_DISABLE_MODULE_RESPONSE_MESSAGE:
+        case CIM_ENABLE_MODULE_RESPONSE_MESSAGE:
+        case CIM_STOP_ALL_PROVIDERS_RESPONSE_MESSAGE:
+        case CIM_NOTIFY_PROVIDER_ENABLE_RESPONSE_MESSAGE:
+        case CIM_NOTIFY_CONFIG_CHANGE_RESPONSE_MESSAGE:
+            break;
+        case CIM_EXPORT_INDICATION_RESPONSE_MESSAGE:
+        default:
+            PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
+                "Received Unexpected legacy response message.");
+            myself->_handleResponse(op, legacy);
+            break;
         }
     }
     catch (const Exception& e)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "Caught exception: \"" + e.getMessage() +
                 "\".  Exiting handle_binary_message.");
     }
     catch (...)
     {
-       PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+       PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
            "Caught unrecognized exception.  Exiting handle_binary_message.");
     }
 
@@ -487,7 +481,7 @@ void BinaryMessageHandler::_handleRequest(
     {
         // Should this exception really just be ignored?
         // It seems like binary_message_handler should catch it.
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "Unrecognized exception caught and ignored by _handleRequest().");
     }
 
@@ -515,30 +509,23 @@ void BinaryMessageHandler::_handleResponse(
 
     MessageQueue* dest =
         MessageQueue::lookup(((CIMRequestMessage*)msg)->queueIds.top());
-    if (dest == 0)
+    
+    // Bad or non-existent Queue ID for destination in legacy message ?
+    PEGASUS_ASSERT(dest != 0);
+    try
     {
-        PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
-            "Bad or non-existent Queue ID for desination in legacy message.");
-        delete msg;
+        dest->enqueue(msg);
     }
-    else
+    catch (...)
     {
-        try
-        {
-            dest->enqueue(msg);
-        }
-        catch (...)
-        {
-            // Should this exception really just be ignored?
-            // It seems like binary_message_handler should catch it.
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "Unrecognized exception caught and ignored by "
-                    "_handleResponse().");
-        }
+        // Should this exception really just be ignored?
+        // It seems like binary_message_handler should catch it.
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Unrecognized exception caught and ignored by "
+                "_handleResponse().");
     }
-
-   _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
-   PEG_METHOD_EXIT();
+    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void BinaryMessageHandler::handleCreateClassRequest(

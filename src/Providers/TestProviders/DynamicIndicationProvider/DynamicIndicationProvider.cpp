@@ -241,25 +241,29 @@ void DynamicIndicationProvider::invokeMethod(
                 ((inParameters[1]).getValue()).get(classname);
                 ((inParameters[2]).getValue()).get(description);
 
-                sprintf(buf,
+                PEG_TRACE((
+                    TRC_CONTROLPROVIDER,
+                    Tracer::LEVEL4,
                     "severity:!%d!, classname!%s! description!%s!\n",
                     severity,
                     (const char*)classname.getCString(),
-                    (const char*)description.getCString());
-                PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, buf);
+                    (const char*)description.getCString()));
             }
             catch (...)
             {
+                PEG_METHOD_EXIT();
                 throw CIMException(CIM_ERR_INVALID_PARAMETER);
             }
         }
         else
         {
+            PEG_METHOD_EXIT();
             throw CIMException(CIM_ERR_METHOD_NOT_FOUND);
         }
     }
     else
     {
+        PEG_METHOD_EXIT();
         throw CIMException(CIM_ERR_INVALID_CLASS);
     }
 

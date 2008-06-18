@@ -204,7 +204,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     PEG_TRACE((
         TRC_HTTP,
-        Tracer::LEVEL3,
+        Tracer::LEVEL4,
         "CIMOperationRequestDecoder::handleHTTPMessage()- "
         "httpMessage->getCloseConnect() returned %d",
         closeConnect));
@@ -548,7 +548,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
     PEG_TRACE((
         TRC_XML_PARSER,
-        Tracer::LEVEL3,
+        Tracer::LEVEL4,
         "CIMOperationRequestdecoder - XML content: %s",
         content));
 

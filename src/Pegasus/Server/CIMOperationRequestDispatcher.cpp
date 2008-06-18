@@ -1671,7 +1671,7 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
 
     PEG_TRACE_STRING(
         TRC_DISPATCHER,
-        Tracer::LEVEL4,
+        Tracer::LEVEL2,
         "Provider for " + className.getString() + " not found.");
 
     PEG_METHOD_EXIT();
@@ -1919,15 +1919,6 @@ Array<ProviderInfo>
             pi.hasProvider = true;
             pi.providerIdContainer.reset(container);
             providerCount++;
-
-            // ATTN: Do not need this trace.  The _LookupNewAssoc Function
-            // should handle it.
-            PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-                "Provider found for Class = " + classNames[i].getString() +
-                    " servicename = " + serviceName +
-                    " controlProviderName = " +
-                    ((controlProviderName.size()) ? controlProviderName
-                                                  : String("None")));
         }
         else
         {
@@ -1962,15 +1953,15 @@ Boolean CIMOperationRequestDispatcher::_lookupNewAssociationProvider(
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_lookupNewAssociationProvider");
-    PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-        "assocClass = " + assocClass.getString());
 
     Boolean hasProvider = false;
     String providerName;
     // Check for class provided by an internal provider
     if (_lookupInternalProvider(
             nameSpace, assocClass, serviceName, controlProviderName))
+    {
         hasProvider = true;
+    }
     else
     {
         // get provider for class. Note that we reduce it from
@@ -1986,14 +1977,24 @@ Boolean CIMOperationRequestDispatcher::_lookupNewAssociationProvider(
         }
     }
 
-    if (providerName != String::EMPTY)
+    if (0 != providerName.size())
     {
         serviceName = PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP;
         hasProvider = true;
     }
-    PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-        "Lookup Provider = " + serviceName + " provider " + providerName +
-            " found." + " return = " + (hasProvider? "true" : "false"));
+
+    PEG_TRACE((
+        TRC_DISPATCHER,
+        Tracer::LEVEL4,
+        "Provider %s for class=\"%s\"  in namespace \"%s\"."
+            " servicename=\"%s\" provider = \"%s\" controlProvider = \"%s\"",
+        (hasProvider? "found" : "NOT found"),
+        CSTRING(assocClass.getString()),
+        CSTRING(nameSpace.getString()),
+        CSTRING(serviceName),
+        (providerName.size() ? CSTRING(providerName) : "none"),
+        (controlProviderName.size() ? CSTRING(controlProviderName) : "none")));
+
 
     PEG_METHOD_EXIT();
     return hasProvider;
@@ -2085,7 +2086,7 @@ Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
     {
         PEG_TRACE_STRING(
             TRC_DISPATCHER, 
-            Tracer::LEVEL4,
+            Tracer::LEVEL2,
             "Association Provider NOT found for Class " + 
                 assocClass.getString() +
                 " in nameSpace " + 
@@ -2481,7 +2482,7 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
 
     PEG_TRACE((
         TRC_HTTP,
-        Tracer::LEVEL3,
+        Tracer::LEVEL4,
         "_CIMOperationRequestDispatcher::_enqueueResponse - "
             "request->getCloseConnect() returned %d",
         request->getCloseConnect()));
@@ -2522,7 +2523,7 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message* request)
     if (!opRequest)
     {
         PEG_TRACE((
-            TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "Ignored unexpected message of type %u in "
                 "CIMOperationRequestDispatcher::handleEnqueue",
             (unsigned int) request->getType()));
@@ -2727,7 +2728,7 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
 
     PEG_TRACE((
         TRC_DISPATCHER,
-        Tracer::LEVEL2,
+        Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleGetClassRequest - "
             "Namespace: %s  Class name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -2872,7 +2873,7 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
 
     PEG_TRACE((
         TRC_DISPATCHER,
-        Tracer::LEVEL2,
+        Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleDeleteClassRequest - "
             "Namespace: %s  Class Name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -2956,7 +2957,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
         
         PEG_TRACE((
             TRC_DISPATCHER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL3,
             "CIMOperationRequestDispatcher::handleDeleteInstanceRequest - "
                 "Namespace: %s  Instance Name: %s",
             CSTRING(request->nameSpace.getString()),
@@ -3000,7 +3001,7 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
 
     PEG_TRACE((
         TRC_DISPATCHER,
-        Tracer::LEVEL2,
+        Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleCreateClassRequest - "
             "Namespace: %s  Class Name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -3088,7 +3089,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
         
         PEG_TRACE((
             TRC_DISPATCHER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL3,
             "CIMOperationRequestDispatcher::handleCreateInstanceRequest - "
                 "Namespace: %s  Instance Name: %s",
             CSTRING(request->nameSpace.getString()),
@@ -3211,7 +3212,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
         PEG_TRACE((
             TRC_DISPATCHER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL3,
             "CIMOperationRequestDispatcher::handleModifyInstanceRequest - "
                 "Namespace: %s  Instance Name: %s",
             CSTRING(request->nameSpace.getString()),
@@ -3256,7 +3257,7 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
 
     PEG_TRACE((
         TRC_DISPATCHER,
-        Tracer::LEVEL2,
+        Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleEnumerateClassesRequest - "
             "Namespace: %s  Class name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -3289,7 +3290,7 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 
     PEG_TRACE((
         TRC_DISPATCHER,
-        Tracer::LEVEL2,
+        Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest - "
             "Namespace: %s  Class name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -3401,7 +3402,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     {
         PEG_TRACE_STRING(
             TRC_DISPATCHER,
-            Tracer::LEVEL4,
+            Tracer::LEVEL1,
             "CIM_ERROR_NOT_SUPPORTED for " + request->className.getString());
 
         CIMResponseMessage* response = request->buildResponse();
@@ -3670,7 +3671,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
     {
         PEG_TRACE_STRING(
             TRC_DISPATCHER,
-            Tracer::LEVEL4,
+            Tracer::LEVEL1,
             "CIM_ERROR_NOT_SUPPORTED for " + request->className.getString());
 
         CIMResponseMessage* response = request->buildResponse();
@@ -3902,7 +3903,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
     PEG_TRACE((
         TRC_DISPATCHER,
-        Tracer::LEVEL2,
+        Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleAssociators - "
             "Namespace: %s  Class name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -3921,7 +3922,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         // For Class requests, get the results from the repository
         //
 
-        PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL3,
             "Associators executing Class request");
 
         Array<CIMObject> cimObjects =
@@ -3963,7 +3964,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
                 String::EMPTY,
                 providerCount);
 
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
             "providerCount = %u.", providerCount));
 
         //
@@ -4007,7 +4008,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
                 // No provider is registered and the repository isn't the
                 // default.  Return CIM_ERR_NOT_SUPPORTED.
 
-                PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+                PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL1,
                     "CIM_ERR_NOT_SUPPORTED for " +
                         request->className.getString());
 
@@ -4140,7 +4141,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
     PEG_TRACE((
         TRC_DISPATCHER,
-        Tracer::LEVEL2,
+        Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleAssociatorNames - "
             "Namespace: %s  Class name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -4159,7 +4160,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
         // For Class requests, get the results from the repository
         //
 
-        PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_DISPATCHER, Tracer::LEVEL3,
             "AssociatorNames executing Class request");
 
         Array<CIMObjectPath> objectNames =
@@ -4239,7 +4240,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
                 // No provider is registered and the repository isn't the
                 // default.  Return CIM_ERR_NOT_SUPPORTED.
 
-                PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+                PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL1,
                     "CIM_ERR_NOT_SUPPORTED for " +
                         request->className.getString());
 
@@ -4359,7 +4360,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
     PEG_TRACE((
         TRC_DISPATCHER,
-        Tracer::LEVEL2,
+        Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleReferences - "
             "Namespace: %s  Class name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -4460,7 +4461,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
                 // No provider is registered and the repository isn't the
                 // default.  Return CIM_ERR_NOT_SUPPORTED.
 
-                PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+                PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL1,
                     "CIM_ERR_NOT_SUPPORTED for " +
                         request->className.getString());
 
@@ -4587,7 +4588,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
     PEG_TRACE((
         TRC_DISPATCHER,
-        Tracer::LEVEL2,
+        Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleReferenceNames - "
             "Namespace: %s  Class name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -4682,7 +4683,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
                 // No provider is registered and the repository isn't the
                 // default.  Return CIM_ERR_NOT_SUPPORTED.
 
-                PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+                PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL1,
                     "CIM_ERR_NOT_SUPPORTED for " +
                         request->className.getString());
 
@@ -4871,7 +4872,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 
         PEG_TRACE((
             TRC_DISPATCHER,
-            Tracer::LEVEL4,
+            Tracer::LEVEL3,
             "CIMOperationRequestDispatcher::handleSetPropertyRequest - "
                 "Namespace: %s  Instance Name: %s  Property Name: %s  New "
                 "Value: %s",
@@ -4915,7 +4916,7 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
 
     PEG_TRACE((
         TRC_DISPATCHER,
-        Tracer::LEVEL2,
+        Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleGetQualifierRequest - "
             "Namespace: %s  Qualifier Name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -4949,7 +4950,7 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
 
     PEG_TRACE((
         TRC_DISPATCHER,
-        Tracer::LEVEL2,
+        Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleSetQualifierRequest - "
             "Namespace: %s  Qualifier Name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -4980,7 +4981,7 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
 
     PEG_TRACE((
         TRC_DISPATCHER,
-        Tracer::LEVEL2,
+        Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleDeleteQualifierRequest - "
             "Namespace: %s  Qualifier Name: %s",
         CSTRING(request->nameSpace.getString()),
@@ -5010,7 +5011,7 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 
     PEG_TRACE((
         TRC_DISPATCHER,
-        Tracer::LEVEL2,
+        Tracer::LEVEL3,
         "CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest - "
             "Namespace: %s",
         CSTRING(request->nameSpace.getString())));
@@ -5933,7 +5934,7 @@ CIMClass CIMOperationRequestDispatcher::_getClass(
 
         PEG_TRACE((
             TRC_DISPATCHER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL3,
             "CIMOperationRequestDispatcher::_getClass - "
                 "Namespace: %s  Class Name: %s",
             CSTRING(nameSpace.getString()),

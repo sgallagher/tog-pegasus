@@ -36,6 +36,7 @@
 #include <syslog.h>
 #include <string.h>
 #include <stdarg.h>
+#include <stdio.h>
 
 static enum LogLevel _level = LL_INFORMATION;
 

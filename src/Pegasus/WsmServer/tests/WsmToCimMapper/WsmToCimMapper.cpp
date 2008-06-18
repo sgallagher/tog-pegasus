@@ -474,14 +474,14 @@ static void _testConversionErrors(void)
     // Invalid class URI
     {
         ASSERT_FAULT(
-            CIMName cimName = mapper.convertResourceUriToClassName("garbage"),
+            mapper.convertResourceUriToClassName("garbage"),
             "wsa:DestinationUnreachable");
     }
 
     {
         String classURI = String(WSM_RESOURCEURI_CIMSCHEMAV2) + "/My{}Class";
         ASSERT_FAULT(
-            CIMName cimName = mapper.convertResourceUriToClassName(classURI),
+            mapper.convertResourceUriToClassName(classURI),
             "wsa:DestinationUnreachable");
     }
 

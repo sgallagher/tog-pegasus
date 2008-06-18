@@ -529,7 +529,6 @@ Boolean FileSystem::changeFileOwner(
 
     const unsigned int PWD_BUFF_SIZE = 1024;
     struct passwd pwd;
-    struct passwd *result;
     char pwdBuffer[PWD_BUFF_SIZE];
 
     if (getpwnam_r(userName.getCString(), &pwd, pwdBuffer, PWD_BUFF_SIZE,

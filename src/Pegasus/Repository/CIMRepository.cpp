@@ -2511,7 +2511,6 @@ Boolean CIMRepositoryRep::_loadAllInstances(
 
         CIMInstance tmpInstance;
 
-        Uint32 bufferSize = data.size();
         char* buffer = (char*)data.getData();
 
         for (Uint32 i = 0; i < instanceNames.size(); i++)

@@ -124,48 +124,58 @@ static void _testSelectorErrors(WsmReader& reader)
     //
 
     // Test no Name attrubute in a selector
-    try {
+    try
+    {
         if (reader.getSelectorElement(sel))
             throw Exception("Expected no Name attrubute exception.");
     }
-    catch (XmlException& e) {
+    catch (XmlException&)
+    {
         reader.expectContentOrCData(entry);
         reader.expectEndTag(WsmNamespaces::WS_MAN, "Selector");
     }
 
     // Test unexpected content in a selector
-    try {
+    try
+    {
         if (reader.getSelectorElement(sel))
             throw Exception("Expected bad content exception.");
     }
-    catch (XmlException& e) {
+    catch (XmlException&)
+    {
         reader.expectEndTag(WsmNamespaces::WS_MAN, "Selector");
     }
 
     // Test empty selector set
     WsmSelectorSet selSet;
-    try {
+    try
+    {
         if (reader.getSelectorSetElement(selSet))
             throw Exception("Expected empty selector set exception.");
     }
-    catch (XmlException& e) {
+    catch (XmlException&)
+    {
     }
     
     // Test garbage in a selector set
-    try {
+    try
+    {
         if (reader.getSelectorSetElement(selSet))
             throw Exception("Expected garbage in selector set exception.");
     }
-    catch (XmlException& e) {
+    catch (XmlException&)
+    {
         reader.expectEndTag(WsmNamespaces::WS_MAN, "SelectorSet");
     }
     
     // Test more garbage in a selector set
-    try {
+    try
+    {
         if (reader.getSelectorSetElement(selSet))
             throw Exception("Expected garbage in selector set exception.");
     }
-    catch (XmlException& e) {
+    catch (XmlException&)
+    {
         reader.expectEndTag(WsmNamespaces::WS_MAN, "SelectorSet");
     }
 
@@ -176,22 +186,26 @@ static void _testSelectorErrors(WsmReader& reader)
     WsmEndpointReference epr;
 
     // wsa:Address1 element is incorrect
-    try {
+    try
+    {
         if (reader.getSelectorEPRElement(epr))
             throw Exception("Expected garbage in selector EPR exception.");
     }
-    catch (XmlException& e) {
+    catch (XmlException&)
+    {
         while (reader.next(entry) && (entry.type != XmlEntry::END_TAG ||
                entry.nsType != WsmNamespaces::WS_ADDRESSING ||
                strcmp(entry.localName, "EndpointReference") != 0));
     }
 
     // missing wsa:ReferenceParameters element
-    try {
+    try
+    {
         if (reader.getSelectorEPRElement(epr))
             throw Exception("Expected garbage in selector EPR exception.");
     }
-    catch (XmlException& e) {
+    catch (XmlException&)
+    {
         while (reader.next(entry) && (entry.type != XmlEntry::END_TAG ||
                entry.nsType != WsmNamespaces::WS_ADDRESSING ||
                strcmp(entry.localName, "EndpointReference") != 0));
@@ -442,24 +456,28 @@ static void _testPropertyErrors(WsmReader& reader)
     //
 
     // Test garbage in property value
-    try {
+    try
+    {
         WsmInstance inst;
         reader.getInstanceElement(inst);
         throw Exception("Expected garbage in property value exception.");
     }
-    catch (XmlException& e) {
+    catch (XmlException&)
+    {
         XmlEntry entry;
         reader.next(entry);
         reader.next(entry);
     }
 
     // Test null elements in an array property value
-    try {
+    try
+    {
         WsmInstance inst;
         reader.getInstanceElement(inst);
         throw Exception("Expected null element in array value exception.");
     }
-    catch (XmlException& e) {
+    catch (XmlException&)
+    {
         XmlEntry entry;
         reader.next(entry);
         reader.next(entry);
@@ -469,12 +487,14 @@ static void _testPropertyErrors(WsmReader& reader)
         reader.next(entry);
     }
 
-    try {
+    try
+    {
         WsmInstance inst;
         reader.getInstanceElement(inst);
         throw Exception("Expected null element in array value exception.");
     }
-    catch (XmlException& e) {
+    catch (XmlException&)
+    {
         XmlEntry entry;
         reader.next(entry);
         reader.next(entry);
@@ -482,49 +502,57 @@ static void _testPropertyErrors(WsmReader& reader)
         reader.next(entry);
     }
 
-    try {
+    try
+    {
         WsmInstance inst;
         reader.getInstanceElement(inst);
         throw Exception("Expected null element in array value exception.");
     }
-    catch (XmlException& e) {
+    catch (XmlException&)
+    {
         XmlEntry entry;
         reader.next(entry);
     }
 
     // Test empty property tag with no xsi:nil="true"
-    try {
+    try
+    {
         WsmInstance inst;
         reader.getInstanceElement(inst);
         throw Exception(
             "Expected empty property tag with no xsi:nil exception.");
     }
-    catch (XmlException& e) {
+    catch (XmlException&)
+    {
         XmlEntry entry;
         reader.next(entry);
     }
 
     // Test error in EPR property
-    try {
+    try
+    {
         WsmInstance inst;
         reader.getInstanceElement(inst);
         throw Exception(
             "Expected error in EPR property value exception.");
     }
-    catch (XmlException& e) {
+    catch (XmlException&)
+    {
         XmlEntry entry;
         while (reader.next(entry) && (entry.type != XmlEntry::END_TAG ||
                strcmp(entry.localName, "Class") != 0));
     }
 
     // Test error in instance property
-    try {
+    try
+    {
         WsmInstance inst;
         reader.getInstanceElement(inst);
         throw Exception(
             "Expected error in instance property value exception.");
     }
-    catch (XmlException& e) {
+    catch (XmlException&)
+    {
         XmlEntry entry;
         while (reader.next(entry) && (entry.type != XmlEntry::END_TAG ||
                strcmp(entry.localName, "Class") != 0));
@@ -716,7 +744,8 @@ static void _testHeaders(WsmReader& reader)
 static void _testHeaderErrors(WsmReader& reader)
 {
     // Test duplicate headers
-    try {
+    try
+    {
         String wsaMessageId, wsaAction, wsaFrom, wsaReplyTo, wsaFaultTo;
         WsmEndpointReference epr;
         Uint32 wsmMaxEnvelopeSize = 0;
@@ -728,7 +757,8 @@ static void _testHeaderErrors(WsmReader& reader)
             wsmLocale, wsmRequestEpr);
         throw Exception("Expected duplicate headers fault");
     }
-    catch (WsmFault& fault) {
+    catch (WsmFault& fault)
+    {
         if (fault.getSubcode() != "wsa:InvalidMessageInformationHeader")
             throw Exception("Invalid duplicate header fault");
         XmlEntry entry;
@@ -737,7 +767,8 @@ static void _testHeaderErrors(WsmReader& reader)
     }
 
     // Test MustUnderstand
-    try {
+    try
+    {
         String wsaMessageId, wsaAction, wsaFrom, wsaReplyTo, wsaFaultTo;
         WsmEndpointReference epr;
         Uint32 wsmMaxEnvelopeSize = 0;
@@ -749,14 +780,16 @@ static void _testHeaderErrors(WsmReader& reader)
             wsmLocale, wsmRequestEpr);
         throw Exception("Expected Soap NotUnderstood fault");
     }
-    catch (SoapNotUnderstoodFault& fault) {
+    catch (SoapNotUnderstoodFault&)
+    {
         XmlEntry entry;
         while (reader.next(entry) && (entry.type != XmlEntry::END_TAG ||
                strcmp(entry.localName, "Header") != 0));
     }
 
     // Test OperationTimeout unsupported feature
-    try {
+    try
+    {
         String wsaMessageId, wsaAction, wsaFrom, wsaReplyTo, wsaFaultTo;
         WsmEndpointReference epr;
         Uint32 wsmMaxEnvelopeSize = 0;
@@ -768,7 +801,8 @@ static void _testHeaderErrors(WsmReader& reader)
             wsmLocale, wsmRequestEpr);
         throw Exception("Expected OperationTimeout unsupported feature fault");
     }
-    catch (WsmFault& fault) {
+    catch (WsmFault& fault)
+    {
         if (fault.getSubcode() != "wsman:UnsupportedFeature")
             throw Exception("Invalid OperationTimeout unsupported fault");
         XmlEntry entry;
@@ -777,7 +811,8 @@ static void _testHeaderErrors(WsmReader& reader)
     }
 
     // Test invalid MaxEnvelopeSize value
-    try {
+    try
+    {
         String wsaMessageId, wsaAction, wsaFrom, wsaReplyTo, wsaFaultTo;
         WsmEndpointReference epr;
         Uint32 wsmMaxEnvelopeSize = 0;
@@ -789,7 +824,8 @@ static void _testHeaderErrors(WsmReader& reader)
             wsmLocale, wsmRequestEpr);
         throw Exception("Expected invalid MaxEnvelopeSize fault");
     }
-    catch (WsmFault& fault) {
+    catch (WsmFault& fault)
+    {
         if (fault.getSubcode() != "wsa:InvalidMessageInformationHeader")
             throw Exception("Invalid duplicate header fault");
         XmlEntry entry;
@@ -798,7 +834,8 @@ static void _testHeaderErrors(WsmReader& reader)
     }
 
     // Test OptionSet mustUnderstand
-    try {
+    try
+    {
         String wsaMessageId, wsaAction, wsaFrom, wsaReplyTo, wsaFaultTo;
         WsmEndpointReference epr;
         Uint32 wsmMaxEnvelopeSize = 0;
@@ -810,14 +847,16 @@ static void _testHeaderErrors(WsmReader& reader)
             wsmLocale, wsmRequestEpr);
         throw Exception("Expected Soap NotUnderstood fault");
     }
-    catch (SoapNotUnderstoodFault& fault) {
+    catch (SoapNotUnderstoodFault&)
+    {
         XmlEntry entry;
         while (reader.next(entry) && (entry.type != XmlEntry::END_TAG ||
                strcmp(entry.localName, "Header") != 0));
     }
  
     // Test Locale mustUnderstand unsupported feature
-    try {
+    try
+    {
         String wsaMessageId, wsaAction, wsaFrom, wsaReplyTo, wsaFaultTo;
         WsmEndpointReference epr;
         Uint32 wsmMaxEnvelopeSize = 0;
@@ -829,7 +868,8 @@ static void _testHeaderErrors(WsmReader& reader)
             wsmLocale, wsmRequestEpr);
         throw Exception("Expected Locale unsupported feature fault");
     }
-    catch (WsmFault& fault) {
+    catch (WsmFault& fault)
+    {
         if (fault.getSubcode() != "wsman:UnsupportedFeature")
             throw Exception("Invalid OperationTimeout unsupported fault");
         XmlEntry entry;
@@ -837,7 +877,7 @@ static void _testHeaderErrors(WsmReader& reader)
                strcmp(entry.localName, "Header") != 0));
     }
 
-   reader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Envelope");
+    reader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Envelope");
 }
 
 int main(int argc, char** argv)
@@ -890,7 +930,6 @@ int main(int argc, char** argv)
             _testHeaderErrors(reader);
         }
     }
-
     catch(Exception& e)
     {
         cerr << "Error: " << e.getMessage() << endl;

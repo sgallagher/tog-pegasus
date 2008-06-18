@@ -97,7 +97,6 @@ static const char headerNameContentLanguage[] = "Content-Language";
 static const char headerNameTerminator[] = ": ";
 static const char headerValueSeparator[] = ", ";
 static const char headerLineTerminator[] = CRLF;
-static const char headerTerminator[] = CRLF CRLF;
 static const char chunkLineTerminator[] = CRLF;
 static const char chunkTerminator[] = CRLF;
 static const char chunkBodyTerminator[] = CRLF;

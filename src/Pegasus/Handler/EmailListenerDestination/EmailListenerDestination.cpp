@@ -173,7 +173,6 @@ void EmailListenerDestination::_sendViaEmail(
     defined(PEGASUS_OS_VMS)
 
     String exceptionStr;
-    FILE* mailFilePtr;
     FILE* filePtr;
     char mailFile[TEMP_NAME_LEN];
 
@@ -214,7 +213,7 @@ void EmailListenerDestination::_sendViaEmail(
 
         fclose(filePtr);
     }
-    catch (CIMException& c)
+    catch (CIMException&)
     {
         fclose(filePtr);
         unlink(mailFile);
@@ -245,7 +244,7 @@ void EmailListenerDestination::_sendViaEmail(
         // send the message
         _sendMsg(mailFile);
     }
-    catch (CIMException& c)
+    catch (CIMException&)
     {
         unlink(mailFile);
 

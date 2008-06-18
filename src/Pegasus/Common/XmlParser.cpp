@@ -932,8 +932,6 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
         entry.type = XmlEntry::XML_DECLARATION;
         entry.text = ++p;
 
-        Boolean openCloseElement = false;
-
         if (_getElementName(p, entry.localName))
             return;
     }

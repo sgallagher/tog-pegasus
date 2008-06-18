@@ -152,7 +152,6 @@ Boolean NTPService::getSystemName(String& systemName)
 Boolean NTPService::getHostName(String serverAddress, String & hostName)
 {
     Boolean ok = false;
-    int ps, value = 0;
     String strValue;
     struct hostent *host;
     struct in_addr ia;
@@ -185,7 +184,6 @@ Boolean NTPService::getHostName(String serverAddress, String & hostName)
 Boolean NTPService::getHostAddress(String serverName, String & serverAddress)
 {
     Boolean ok = false;
-    int ps, value = 0;
     String strValue;
     struct hostent *host;
     struct in_addr ia;

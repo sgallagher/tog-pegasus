@@ -198,7 +198,7 @@ void CQLIdentifierRep::parse(String identifier)
             if(hasCIMName)
                 _name = CIMName(identifier);
         }
-        catch(Exception e)
+        catch (Exception&)
         {
             MessageLoaderParms parms(
                 String("CQL.CQLIdentifier.INVALID_CIMNAME"),
@@ -208,7 +208,7 @@ void CQLIdentifierRep::parse(String identifier)
         }
     }
     
-PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END

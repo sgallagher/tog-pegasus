@@ -72,9 +72,7 @@ Boolean verbose = false;
 // exepected results - number of returned objects expected for each test
 
 static const Uint32 resultArray_asso_P1[] = { 3, 3 };
-static const Uint32 resultArray_asso_P2[] = { 3, 3 };
 static const Uint32 resultArray_asso_V1[] = { 3, 3 };
-static const Uint32 resultArray_asso_V2[] = { 3, 3 };
 static const Uint32 resultArray_ref_P[] =   { 3, 3, 3, 3 };
 static const Uint32 resultArray_ref_V[] =   { 3, 3, 3, 3 };
 

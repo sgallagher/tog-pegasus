@@ -431,7 +431,6 @@ static void HandleStartProviderAgentRequest(int sock)
 static void HandleDaemonizeExecutorRequest(int sock)
 {
     struct ExecutorDaemonizeExecutorResponse response;
-    int pid;
 
     memset(&response, 0, sizeof(response));
 

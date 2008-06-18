@@ -38,7 +38,6 @@
 
 PEGASUS_USING_PEGASUS;
 
-static const char __NAMESPACE_NAMESPACE [] = "root";
 static const char NAMESPACE_CLASS [] = "__NameSpace";
 static const char NAMESPACE_PROPERTY_NAME [] = "Name";
 

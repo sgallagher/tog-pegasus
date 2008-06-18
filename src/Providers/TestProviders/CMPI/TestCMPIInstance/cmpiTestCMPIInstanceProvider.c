@@ -102,8 +102,6 @@ static int _testInstance ()
     CMPIData retData;
     CMPIData returnedData1;
 
-    CMPIString *name;
-
     const char* property_name = "s";
     const char* origin = "origin";
 
@@ -245,15 +243,9 @@ CMPIStatus TestCMPIInstanceProviderInvokeMethod (CMPIMethodMI * mi,
 
     CMPIString *argName = NULL;
 
-    CMPIInstance *instance = NULL;
-    CMPIInstance *paramInst = NULL;
-
     unsigned int arg_cnt = 0, index = 0;
 
     CMPIValue value;
-
-    char *result = NULL;
-
 
     PROV_LOG_OPEN ("TestCMPI_Instance", _ProviderLocation);
 

@@ -413,12 +413,6 @@ void GetOptions(
 
 int main(int argc, char** argv)
 {
-
-    // char connection[50] = "localhost:5988";
-    char *address_string = NULL;
-
-    Uint32 repetitions = 1;
-
     // Get environment variables:
 
     String pegasusHome;

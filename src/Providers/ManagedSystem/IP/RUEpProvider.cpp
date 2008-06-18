@@ -712,9 +712,6 @@ Array<CIMInstance> RUEpProvider::_NextHopRouteInstances()
     Array<CIMInstance> _retInstances;
     NextHopRouteList _nhrl;
     InterfaceList _ifl;
-    Uint16 
-        _typeOfRoute,
-        _addrType;
 
     for (Uint16 i = 0; i<_nhrl.size(); i++)
     {
@@ -819,7 +816,6 @@ Array<CIMInstance> RUEpProvider::_IPInterfaceInstances()
 
     Array<CIMInstance> _retInstances;
     InterfaceList _ifl;
-    Uint16 _typeOfRoute, _addrType;
 
     for (Uint16 i = 0; i<_ifl.size(); i++)
     {

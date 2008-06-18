@@ -80,18 +80,13 @@ Boolean NTPProviderSecurity::checkAccess(
     const String filename,
     const String chkoper)
 {
-    FILE *fp;
     struct passwd *pwd;
     struct group *grp;
     struct stat st;
-    int ps, opt, i, j,
-        ct = 0, ngr = 0;
-    ushort rt, gr, ot,
-           trt, tgr;
+    int ps, opt, i;
     Boolean ok = false,
             isRoot = false,
             okUser = (secUsername.size() > 0);
-    char buffer[500];
     char *member;
     // Groups array
     Array<gid_t> grps;

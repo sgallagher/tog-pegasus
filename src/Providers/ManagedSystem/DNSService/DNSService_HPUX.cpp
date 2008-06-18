@@ -283,8 +283,7 @@ DNSService::getDNSInfo()
 #endif
 
     FILE *fp;
-    int i, count = 0, ind = 0;
-    char *ptr;
+    int count = 0, ind = 0;
     char buffer[512];
     Boolean ok = false;
     String strBuffer;

@@ -70,7 +70,6 @@ static CMPIObjectPath *objPath;
 static CMPIBoolean _enabled = CMPI_false;
 static CMPIUint32 _nextUID = 1;
 static CMPIUint32 _numSubscriptions = 0;
-static CMPIIndicationMI *_indMI = NULL;
 static CMPIArray *correlatedIndications = NULL;
 static char *namespaceName;
 
@@ -209,7 +208,6 @@ CMPIStatus TestCMPIIndicationStressTestProviderInvokeMethod(
                                     const char *methodName,
                                     const CMPIArgs * in, CMPIArgs * out)
 {
-    CMPIBoolean sendIndication = CMPI_false;
     CMPIUint32 indicationSendCount = 0;
     CMPIInstance *indicationInstance = 0;
     CMPIData data;

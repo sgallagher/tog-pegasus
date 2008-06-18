@@ -44,7 +44,6 @@ PEGASUS_USING_PEGASUS;
 
 static IndicationResponseHandler * _handler = 0;
 static Boolean _enabled = false;
-static Uint32 _nextUID = 0;
 static Uint32 _numSubscriptions = 0;
 static String _providerName;
 

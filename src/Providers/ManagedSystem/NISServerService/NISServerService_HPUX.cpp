@@ -211,10 +211,8 @@ NISServerService::AccessOk(const OperationContext & context)
 Boolean NISServerService::getNISInfo()
 {
     FILE *fp;
-    Boolean ok = false,
-            okWait = false,
-            okPlus = false;
-    int ps, ind = 0, i,
+    Boolean ok = false;
+    int ps, ind = 0,
         count = 0;
     char buffer[1000];
     String strValue;

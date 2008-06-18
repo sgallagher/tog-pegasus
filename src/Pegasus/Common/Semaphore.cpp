@@ -313,7 +313,7 @@ void Semaphore::wait(Boolean ignoreInterrupt)
 // if wait times out without gaining the semaphore
 void Semaphore::time_wait(Uint32 milliseconds)
 {
-    int retcode, i = 0;
+    int retcode;
 
     struct timeval now, finish, remaining;
     Uint32 usec;

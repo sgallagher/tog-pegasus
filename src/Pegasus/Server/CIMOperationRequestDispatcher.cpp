@@ -1578,8 +1578,6 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
             new ProviderIdContainer(pmInstance, pInstance));
 #endif
 
-        Uint32 pos = PEG_NOT_FOUND;
-
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
         if (_enableNormalization)
         {
@@ -1591,6 +1589,7 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
 
             String interfaceType;
             String interfaceVersion;
+            Uint32 pos = PEG_NOT_FOUND;
 
             // get the provder interface type
             if ((pos = pmInstance.findProperty("InterfaceType")) !=

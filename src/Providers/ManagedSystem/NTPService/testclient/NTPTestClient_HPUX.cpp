@@ -66,7 +66,6 @@ Boolean NTPTestClient::getHostName(
     String & hostName)
 {
     Boolean ok = false;
-    int ps, value = 0;
     String strValue;
     struct hostent *host;
     struct in_addr ia;
@@ -101,7 +100,6 @@ Boolean NTPTestClient::getHostAddress(
     String & serverAddress)
 {
     Boolean ok = false;
-    int ps, value = 0;
     String strValue;
     struct hostent *host;
     struct in_addr ia;
@@ -253,7 +251,7 @@ Boolean NTPTestClient::piece(
 {
     String strAux;
     int count = 1;
-    int ps1 = 0, ps2 = 0;
+    int ps1 = 0;
 
     if (strText.size() == 0 || numPos < 1)
         return false;
@@ -360,8 +358,6 @@ Boolean NTPTestClient::goodServerAddress(
     FILE *fp;
     int i, j, ps,
         count = 0;
-    char key[50];
-    char host[50];
     char buffer[5000];
     long lstPos = 0;
     Boolean ok = false,

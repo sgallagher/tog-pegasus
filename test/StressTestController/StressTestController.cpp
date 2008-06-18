@@ -122,7 +122,6 @@ String DEFAULT_BINDIR = String::EMPTY;
 
 static Uint32 DEFAULT_CLIENTS = 2;
 static Uint32 Total_Clients = DEFAULT_CLIENTS;
-static Uint32 Total_vClients = DEFAULT_CLIENTS;
 static Uint32 NEW_CLIENTS = 5;
 
 static char MODELWALK_CLIENT[] = "TestModelWalkStressClient";
@@ -321,10 +320,6 @@ static const char CLIENTWAIT[] = "CLIENTWAIT";
 /**
  * Message resource name
  */
-static const char PASSWORD_PROMPT [] =
-                    "Please enter your password: ";
-static const char PASSWORD_BLANK []                          =
-                    "Password cannot be blank. Please re-enter your password.";
 static const char LONG_HELP[] = "help";
 static const char LONG_VERSION[] = "version";
 static const char LONG_VERBOSE[] = "verbose";

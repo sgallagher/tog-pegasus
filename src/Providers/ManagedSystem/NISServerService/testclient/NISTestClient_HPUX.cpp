@@ -271,13 +271,9 @@ Boolean NISTestClient::goodServerType(
     Boolean verbose)
 {
     FILE *fp;
-    int ps, i, ind = 0,
-        count = 0;
+    int ps, ind = 0;
     char buffer[1000];
-    Boolean okMaster = false,
-            okSlave = false,
-            okPlus = false,
-            ok = false;
+    Boolean ok = false;
     String strValue;
     String strBuffer;
     Uint16 serverType = 2;  // Set default to "None";

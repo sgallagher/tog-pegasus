@@ -2394,9 +2394,6 @@ RSApList::RSApList()
 
     for (Uint16 i=0; i<_nhiprl.size(); i++)
     {
-        Uint16 _routeType,
-            _addrt;
-
         if (!_nhiprl[i].isRouteLocal())
         {
             RSAp _rsap;

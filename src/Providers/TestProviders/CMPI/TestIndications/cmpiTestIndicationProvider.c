@@ -459,10 +459,8 @@ thread (void *args)
     CMPIString *str = NULL;
     CMPIString *str_clone = NULL;
     CMPIStatus rc = { CMPI_RC_OK, NULL };
-    CMPIStatus rc_Inst = { CMPI_RC_OK, NULL };
     CMPIStatus rc_String = { CMPI_RC_OK, NULL };
     CMPISelectExp *new_se = NULL;
-    CMPIString *type = NULL;
     CMPIInstance *inst = NULL;
     CMPIObjectPath *objPath = NULL;
     /* General purpose counters */
@@ -658,9 +656,6 @@ TestCMPIIndicationProviderAuthorizeFilter (CMPIIndicationMI * mi,
         const char *user)
 #endif
 {
-    CMPIString *str = NULL;
-    CMPIStatus rc = { CMPI_RC_OK, NULL };
-
     PROV_LOG ("--- %s CMPI AuthorizeFilter() called", _IndClassName);
     /* we don't object */
     if (strcmp (ns, _IndClassName) == 0)
@@ -692,10 +687,6 @@ TestCMPIIndicationProviderMustPoll (CMPIIndicationMI * mi,
         const char *ns, CMPIObjectPath * op)
 #endif
 {
-    CMPIString *str = NULL;
-    CMPIStatus rc = { CMPI_RC_OK, NULL };
-
-
     PROV_LOG ("--- %s CMPI MustPoll() called", _IndClassName);
 
     PROV_LOG ("--- %s CMPI MustPoll() exited", _IndClassName);
@@ -728,7 +719,6 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
     //void  **arguments[4];
 
     const void **arguments = (const void **) malloc (4 * sizeof (char *));
-    CMPIStatus rc_Clone = { CMPI_RC_OK, NULL };
 
     PROV_LOG_OPEN (_IndClassName, _ProviderLocation);
     PROV_LOG ("--- %s CMPI ActivateFilter() called", _IndClassName);
@@ -770,9 +760,6 @@ TestCMPIIndicationProviderDeActivateFilter (CMPIIndicationMI * mi,
         CMPIBoolean lastActivation)
 #endif
 {
-    CMPIStatus rc = { CMPI_RC_OK, NULL };
-    CMPIString *str = NULL;
-
     waitUntilThreadIsDone ();
     PROV_LOG ("--- %s CMPI DeActivateFilter() entered", _IndClassName);
     PROV_LOG ("--- %s CMPI DeActivateFilter() exited", _IndClassName);

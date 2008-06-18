@@ -109,7 +109,6 @@ static int _testEnumeration (const CMPIContext * ctx,
     CMPIString* type;
 
     CMPIArray* array = NULL;
-    CMPIArray* arrayErr = NULL;
 
     const char* getInstanceStringAssociators = NULL;
     const char* getInstanceStringAssociatorNames = NULL;
@@ -336,15 +335,9 @@ CMPIStatus TestCMPIEnumerationProviderInvokeMethod (CMPIMethodMI * mi,
 
     CMPIString *argName = NULL;
 
-    CMPIInstance *instance = NULL;
-    CMPIInstance *paramInst = NULL;
-
     unsigned int arg_cnt = 0, index = 0;
 
     CMPIValue value;
-
-    char *result = NULL;
-
 
     PROV_LOG_OPEN (_ClassName, _ProviderLocation);
 

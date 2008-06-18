@@ -599,7 +599,6 @@ void CertificateProvider::enumerateInstances(
         for (Uint32 i = 0, n = cimInstances.size(); i < n; i++)
         {
             Uint16 truststoreType = 0;
-            Uint16 certType = 0;
 
             //
             // The truststore type key property is deprecated. To retain
@@ -827,7 +826,6 @@ void CertificateProvider::enumerateInstanceNames(
         {
             String truststoreType;
             Array<CIMKeyBinding> kb;
-            Uint16 certType = 0;
 
             //
             // The truststore type key property is deprecated. To retain
@@ -1235,7 +1233,7 @@ void CertificateProvider::deleteInstance(
                    cimObjectPath.getNameSpace(), tmpPath));
 
             }
-            catch (Exception& ex)
+            catch (Exception&)
             {
                 PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3,
                     String("The certificate does not exist: " +
@@ -1532,8 +1530,6 @@ String CertificateProvider::_getCRLFileName(
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "CertificateProvider::_getCRLFileName");
-
-    Uint32 index = 0;
 
     //The files are looked up by the CA issuer name hash value.
     //Since only one CRL should exist for a given CA, the extension .r0
@@ -1931,7 +1927,7 @@ void CertificateProvider::invokeMethod(
                     throw CIMException(CIM_ERR_FAILED, parms);
                 }
             }
-            catch (DateTimeOutOfRangeException& ex)
+            catch (DateTimeOutOfRangeException&)
             {
                 PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3,
                     "Certificate or CRL dates are out of range.");
@@ -2189,7 +2185,6 @@ void CertificateProvider::invokeMethod(
             }
 
             STACK_OF(X509_REVOKED)* revokedCertificates = NULL;
-            X509_REVOKED* revokedCertificate = NULL;
             int revokedCount = -1;
 
             revokedCertificates = X509_CRL_get_REVOKED(xCrl.get());

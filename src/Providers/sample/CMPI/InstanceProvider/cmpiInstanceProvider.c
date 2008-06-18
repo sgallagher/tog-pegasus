@@ -462,8 +462,6 @@ CMPIStatus InstProvExecQuery (
     CMPIStatus rc_Clone = { CMPI_RC_OK, NULL };
     CMPIStatus rc_Array = { CMPI_RC_OK, NULL };
     CMPISelectExp *se_def = NULL;
-    CMPISelectExp *se_CQL = NULL;
-    CMPIInstance *inst = NULL;
     CMPICount cnt = 0;
     CMPIArray *projection = NULL;
     unsigned int j = 0;

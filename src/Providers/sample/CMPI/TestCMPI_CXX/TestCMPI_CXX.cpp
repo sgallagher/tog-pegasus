@@ -299,7 +299,7 @@ printData (const CmpiData& d)
          L;CMPIUint64 dt = v.getDateTime();
          cout << dt;
       }
-      catch (const CmpiStatus& e)
+      catch (const CmpiStatus&)
       {
          cout << "(null)";
       }

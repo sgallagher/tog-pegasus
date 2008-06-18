@@ -598,7 +598,7 @@ Array<CIMObjectPath> CIMManagedClient::associatorNames(
             // check if all object paths are fully qualified
             hasHostandNameSpace(retAssocNames[i]);
         }
-        catch(TypeMismatchException tme)
+        catch (TypeMismatchException&)
         {
             // should throw nasty exception about missing namespace ....
             // TODO: prepare exception for this
@@ -642,7 +642,7 @@ Array<CIMObject> CIMManagedClient::associators(
         {
             hasHostandNameSpace(retAssoc[i].getPath());
         }
-        catch(TypeMismatchException tme)
+        catch (TypeMismatchException&)
         {
             // should throw nasty exception about missing namespace ....
             // TODO: prepare exception for this
@@ -683,7 +683,7 @@ Array<CIMObject> CIMManagedClient::references(
         {
             hasHostandNameSpace(retRefer[i].getPath());
         }
-        catch(TypeMismatchException tme)
+        catch (TypeMismatchException&)
         {
             // should throw nasty exception about missing namespace ....
             // TODO: prepare exception for this
@@ -717,7 +717,7 @@ Array<CIMObjectPath> CIMManagedClient::referenceNames(
             // check if all object paths are fully qualified
             hasHostandNameSpace(retReferNames[i]);
         }
-        catch(TypeMismatchException tme)
+        catch (TypeMismatchException&)
         {
             // should throw nasty exception about missing namespace ....
             // TODO: prepare exception for this
@@ -825,12 +825,11 @@ CIMClientRep* CIMManagedClient::getTargetCIMOM(
     // test if a host is given at all not necessary here
     // if there is no we failed to detect that before anyway
     // wonder how that should possibly happen???
-        HostLocator addr(inHost);
-        Uint32 portNumber = 0;
-        if (addr.isPortSpecified())
+    HostLocator addr(inHost);
+    if (addr.isPortSpecified())
     {
-            inHost = addr.getHost();
-            inPort = addr.getPortString();
+        inHost = addr.getHost();
+        inPort = addr.getPortString();
     }
 
     return getTargetCIMOM(inHost, inPort, inNameSpace);

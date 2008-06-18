@@ -125,7 +125,7 @@ public:
         {
             prop.getValue().get(dest);
         }
-        catch (TypeMismatchException& e)
+        catch (TypeMismatchException&)
         {
             MessageLoaderParms param(
                 "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler."

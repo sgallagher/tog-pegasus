@@ -1011,8 +1011,6 @@ void FamilyProvider::modifyInstance(
 
     CIMObjectPath localReference =_makeRefLocal(instanceReference);
 
-    Boolean instanceFound = false;
-
     // begin processing the request
     handler.processing();
     targetClass myClassEnum =

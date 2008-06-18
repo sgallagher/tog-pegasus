@@ -65,22 +65,11 @@ static Boolean useDefaults = false;
    Message resource name
  */
 
-static const char REQUIRED_ARGS_MISSING [] =
-                     "Required arguments missing.";
-static const char REQUIRED_ARGS_MISSING_KEY [] =
-                     "Clients.cimuser.CIMUserCommand.REQUIRED_ARGS_MISSING";
-
 static const char ERR_OPTION_NOT_SUPPORTED [] =
-                     "Invalid option. Use '--help' to obtain command syntax.";
-
-static const char ERR_OPTION_NOT_SUPPORTED_KEY[] =
-                     "Clients.cimuser.CIMUserCommand..ERR_OPTION_NOT_SUPPORTED";
+    "Invalid option. Use '--help' to obtain command syntax.";
 
 static const char ERR_USAGE [] =
-                     "Incorrect usage. Use '--help' to obtain command syntax.";
-
-static const char ERR_USAGE_KEY [] =
-                     "Clients.cimuser.CIMUserCommand..ERR_USAGE";
+    "Incorrect usage. Use '--help' to obtain command syntax.";
 
 
 //

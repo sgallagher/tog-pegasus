@@ -295,7 +295,6 @@ reg_table_rep::~reg_table_rep()
 {
     type_table* tt;
     routing_table* rt;
-    reg_table_record* record  = 0;
 
     try
     {

@@ -301,7 +301,6 @@ void NTPTestClient::testGetInstance(
         // first do an EnumerateInstanceNames - select one to play with
         // doesn't hurt to keep testing enumerate :-)
 
-        Boolean deepInheritance = true;
         Boolean localOnly = true;
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;

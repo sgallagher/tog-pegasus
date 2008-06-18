@@ -305,7 +305,6 @@ NISServerServiceProvider::_build_instance(const CIMName & className,
 
     String strValue;
     String hostName;
-    Boolean boolValue;
     Array<String> lst;
     Uint16 Uint16Value;
 

@@ -39,7 +39,6 @@ PEGASUS_USING_STD;
 
 void test01()
 {
-    Boolean bad = false;
     try
     {
         Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;

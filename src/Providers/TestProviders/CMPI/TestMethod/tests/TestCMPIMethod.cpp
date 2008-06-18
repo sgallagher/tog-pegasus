@@ -637,7 +637,6 @@ void
 test07 (CIMClient & client)
 {
   CIMObjectPath instanceName;
-  Uint32 exception  =0;
   instanceName.setNameSpace (providerNamespace);
   instanceName.setClassName (CLASSNAME);
 
@@ -656,7 +655,6 @@ void
 test08 (CIMClient & client)
 {
   CIMObjectPath instanceName;
-  Uint32 exception  =0;
   instanceName.setNameSpace (providerNamespace);
   instanceName.setClassName (CLASSNAME);
 

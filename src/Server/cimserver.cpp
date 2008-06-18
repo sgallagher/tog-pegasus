@@ -739,33 +739,30 @@ int CIMServerProcess::cimserver_run(
             "CIM Server's Job Name is: $0", fullJobName);
 #endif
 
-    Boolean enableHttpConnection = ConfigManager::parseBooleanValue(
-        configManager->getCurrentValue("enableHttpConnection"));
-    Boolean enableHttpsConnection = ConfigManager::parseBooleanValue(
-        configManager->getCurrentValue("enableHttpsConnection"));
-
-    // Make sure at least one connection is enabled
 #ifdef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-    if (!enableHttpConnection && !enableHttpsConnection)
-    {
-        //l10n
-        //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            //"Neither HTTP nor HTTPS connection is enabled.  "
-            //"CIMServer will not be started.");
-        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            "src.Server.cimserver.HTTP_NOT_ENABLED_SERVER_NOT_STARTING",
-            "Neither HTTP nor HTTPS connection is enabled."
-            "  CIMServer will not be started.");
-        //cerr << "Neither HTTP nor HTTPS connection is enabled.  "
-            //"CIMServer will not be started." << endl;
-        MessageLoaderParms parms(
+        // Make sure at least one connection is enabled
+
+        Boolean enableHttpConnection = ConfigManager::parseBooleanValue(
+            configManager->getCurrentValue("enableHttpConnection"));
+        Boolean enableHttpsConnection = ConfigManager::parseBooleanValue(
+            configManager->getCurrentValue("enableHttpsConnection"));
+
+        if (!enableHttpConnection && !enableHttpsConnection)
+        {
+            Logger::put_l(
+                Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
                 "src.Server.cimserver.HTTP_NOT_ENABLED_SERVER_NOT_STARTING",
                 "Neither HTTP nor HTTPS connection is enabled."
-                "  CIMServer will not be started.");
-        cerr << MessageLoader::getMessage(parms) << endl;
-        return(1);
-    }
+                    "  CIMServer will not be started.");
+            MessageLoaderParms parms(
+                "src.Server.cimserver.HTTP_NOT_ENABLED_SERVER_NOT_STARTING",
+                "Neither HTTP nor HTTPS connection is enabled."
+                    "  CIMServer will not be started.");
+            cerr << MessageLoader::getMessage(parms) << endl;
+            return 1;
+        }
 #endif
+
         //
         // Check to see if we should start Pegasus as a daemon
         //

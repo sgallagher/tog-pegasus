@@ -330,8 +330,6 @@ inline void OrderedSet<T, R, N>::insert(Uint32 index, const T& x)
     };
     const Layout* layout = reinterpret_cast<const Layout*> (&x);
 
-    Uint32 code = layout->rep->getNameTag() % N;
-
     // Insert into the ordered list.
     {
         Node node;

@@ -45,8 +45,6 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-static const Uint32 _MAX_FREE_COUNT = 16;
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Local routines:

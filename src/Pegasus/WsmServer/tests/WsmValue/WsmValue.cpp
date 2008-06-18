@@ -458,125 +458,164 @@ static void _testInstances(void)
 static void _testValueErrors()
 {
     // Get 'get' type mismatches of EPR values
-    try {
+    try
+    {
         String str;
         WsmEndpointReference epr;
         WsmValue val(epr);
         val.get(str);
         throw Exception("Expected type mismatch");
     }
-    catch (TypeMismatchException& e) {}
+    catch (TypeMismatchException&)
+    {
+    }
 
-    try {
+    try
+    {
         Array<WsmEndpointReference> epra;
         WsmEndpointReference epr;
         WsmValue val(epr);
         val.get(epra);
         throw Exception("Expected type mismatch");
     }
-    catch (TypeMismatchException& e) {}
+    catch (TypeMismatchException&)
+    {
+    }
 
-    try {
+    try
+    {
         String str;
         Array<WsmEndpointReference> epr;
         WsmValue val(epr);
         val.get(str);
         throw Exception("Expected type mismatch");
     }
-    catch (TypeMismatchException& e) {}
+    catch (TypeMismatchException&)
+    {
+    }
 
-    try {
+    try
+    {
         Array<WsmEndpointReference> epra;
         WsmEndpointReference epr;
         WsmValue val(epra);
         val.get(epr);
         throw Exception("Expected type mismatch");
     }
-    catch (TypeMismatchException& e) {}
+    catch (TypeMismatchException&)
+    {
+    }
 
     // Test 'get' type mismatches of instance values
-    try {
+    try
+    {
         String str;
         WsmInstance inst;
         WsmValue val(inst);
         val.get(str);
         throw Exception("Expected type mismatch");
     }
-    catch (TypeMismatchException& e) {}
+    catch (TypeMismatchException&)
+    {
+    }
 
-    try {
+    try
+    {
         Array<WsmInstance> insta;
         WsmInstance inst;
         WsmValue val(inst);
         val.get(insta);
         throw Exception("Expected type mismatch");
     }
-    catch (TypeMismatchException& e) {}
+    catch (TypeMismatchException&)
+    {
+    }
 
-    try {
+    try
+    {
         String str;
         Array<WsmInstance> inst;
         WsmValue val(inst);
         val.get(str);
         throw Exception("Expected type mismatch");
     }
-    catch (TypeMismatchException& e) {}
+    catch (TypeMismatchException&)
+    {
+    }
 
-    try {
+    try
+    {
         Array<WsmInstance> insta;
         WsmInstance inst;
         WsmValue val(insta);
         val.get(inst);
         throw Exception("Expected type mismatch");
     }
-    catch (TypeMismatchException& e) {}
+    catch (TypeMismatchException&)
+    {
+    }
 
     //  Test 'get' type mismatches of string values
-    try {
+    try
+    {
         WsmInstance inst;
         String str;
         WsmValue val(str);
         val.get(inst);
         throw Exception("Expected type mismatch");
     }
-    catch (TypeMismatchException& e) {}
+    catch (TypeMismatchException&)
+    {
+    }
 
-    try {
+    try
+    {
         Array<String> stra;
         String str;
         WsmValue val(str);
         val.get(stra);
         throw Exception("Expected type mismatch");
     }
-    catch (TypeMismatchException& e) {}
+    catch (TypeMismatchException&)
+    {
+    }
 
-    try {
+    try
+    {
         WsmInstance inst;
         Array<String> str;
         WsmValue val(str);
         val.get(inst);
         throw Exception("Expected type mismatch");
     }
-    catch (TypeMismatchException& e) {}
+    catch (TypeMismatchException&)
+    {
+    }
 
-    try {
+    try
+    {
         Array<String> stra;
         String str;
         WsmValue val(stra);
         val.get(str);
         throw Exception("Expected type mismatch");
     }
-    catch (TypeMismatchException& e) {}
+    catch (TypeMismatchException&)
+    {
+    }
 
     // Test adding a type mismatched value to an array value
-    try {
+    try
+    {
         String str;
         WsmInstance inst;
         WsmValue ival(inst);
         WsmValue sval(str);
         ival.add(sval);
     }
-    catch (TypeMismatchException& e) {}
+    catch (TypeMismatchException&)
+    {
+    }
 }
 
 static void _testMisc(void)
@@ -612,7 +651,6 @@ int main(int argc, char** argv)
         _testMisc();
         _testValueErrors();
     }
-
     catch (Exception& e)
     {
         cerr << "Error: " << e.getMessage() << endl;    

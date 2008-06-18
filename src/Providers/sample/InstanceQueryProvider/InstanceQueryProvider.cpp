@@ -286,7 +286,6 @@ void InstanceQueryProvider::execQuery(
     String lcQuery = query.getQuery();
     lcQuery.toLower();
     String id;
-    Boolean tooComplex = false;
 
     handler.processing();
 

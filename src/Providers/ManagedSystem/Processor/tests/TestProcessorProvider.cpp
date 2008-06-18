@@ -66,7 +66,6 @@
 // ==========================================================================
 
 const String NAMESPACE("root/cimv2");
-const int TIMEOUT=10000;                    // timeout value in milliseconds
 
 // ==========================================================================
 // Class names.  These values are the names of the classes that
@@ -81,12 +80,6 @@ static const String CLASS_CIM_PROCESSOR("CIM_Processor");
 static const String CLASS_PROCESSOR("PG_Processor");
 static const String CLASS_CIM_UNITARY_COMPUTER_SYSTEM(
     "CIM_UnitaryComputerSystem");
-
-// ==========================================================================
-// The number of keys for the classes.
-// ==========================================================================
-
-static const int NUMKEYS_CIM_PROCESSOR=4;
 
 // ==========================================================================
 // Property names.  These values are returned by the provider as

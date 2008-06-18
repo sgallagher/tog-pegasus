@@ -591,9 +591,6 @@ void OSTestClient::testGetInstance(
 
     try
     {
-        Boolean deepInheritance = true;
-        Boolean localOnly = true;
-
         testLog("OS Provider Test GetInstance");
 
         // first do an EnumerateInstanceNames - select one to play with

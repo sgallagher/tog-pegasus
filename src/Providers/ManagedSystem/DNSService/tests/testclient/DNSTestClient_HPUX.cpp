@@ -128,7 +128,6 @@ Boolean DNSTestClient::goodName(
     Boolean verbose)
 {
     FILE *arq;
-    char *ptr;
     char buffer[150];
     String domain;
 
@@ -234,7 +233,6 @@ Boolean DNSTestClient::goodSearchList(
     Boolean ok = false;
     FILE *arq;
     int i, j, ind = 0, count = 0;
-    char *ptr;
     char buffer[150];
     Array<String> srclist;
 
@@ -336,7 +334,6 @@ Boolean DNSTestClient::goodAddresses(
 {
     FILE *arq;
     int i, j, ind = 0, count = 0;
-    char *ptr;
     char buffer[150];
     Boolean ok = false;
     Array<String> addrlist;

@@ -188,11 +188,6 @@ static const char CONSUMER_NOT_REGISTERED [] =
 static const char CONSUMER_NOT_REGISTERED_KEY [] =
     "Server.ProviderRegistrationManager.ProviderRegistrationManager."
         "CONSUMER_CAPABILITY_NOT_YET_REGISTERED";
-static const char PROVIDER_CANNOT_BE_LOAD [] =
-    " Can not initialize and load the provider.";
-static const char PROVIDER_CANNOT_BE_LOAD_KEY [] =
-                    "Server.ProviderRegistrationManager."
-                    "ProviderRegistrationManager.PROVIDER_CANNOT_BE_LOAD";
 static const char MODULE_NAME_NOT_FOUND_KEY[] =
     "Server.ProviderRegistrationManager."
         "ProviderRegistrationManager.MISSING_MODULENAME";
@@ -2490,11 +2485,6 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
         // create the key by using _providerModule and _providerName
         //
         String _providerKey = _generateKey(_providerModule, _providerName);
-
-        //
-        // create the key by using _providerModule and MODULE_KEY
-        //
-        String _moduleKey = _generateKey(_providerModule, MODULE_KEY);
 
         //
         // check if the PG_Provider class was registered

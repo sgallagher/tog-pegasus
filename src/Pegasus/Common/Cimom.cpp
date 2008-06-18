@@ -146,8 +146,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
         }
         else
         {
-            Uint32 capabilities = 0;
-
 //          ATTN: optimization
 //          <<< Sun Feb 17 18:26:39 2002 mdd >>>
 //          once the opnode is enqueued on the cimom's list, the cimom owns it

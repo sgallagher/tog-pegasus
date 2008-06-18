@@ -491,7 +491,6 @@ static int _testArrayClone(const CMPIContext* ctx)
     CMPIArray *arrClone = NULL;
     CMPIArray *arr_ptr = NULL;
     CMPIArray *arrClone_ptr = NULL;
-    CMPIArray *projection = NULL;
     CMPIString* retNamespace = NULL;
     CMPIString* retClassname = NULL;
     CMPIValue value, value1;
@@ -1855,7 +1854,6 @@ static int _testCMPIDateTime ()
     CMPIBoolean interval = 0;
     CMPIBoolean cloneSuccessful = 0;
     CMPIBoolean binaryDateTimeEqual = 0;
-    CMPIBoolean charDateTimeEqual = 0;
 
     CMPIDateTime *dateTime = NULL;
     CMPIDateTime *new_dateTime = NULL;
@@ -1989,7 +1987,6 @@ static int _testCMPIInstance ()
     const char* name2 = "secondPropertyName";
     CMPIValue value2;
     CMPIType type = CMPI_uint64;
-    CMPIType typeError = CMPI_instance;
     CMPIBoolean dataEqual = 0;
     CMPIBoolean objectPathEqual = 0;
     CMPIBoolean cloneSuccessful = 0;
@@ -2503,8 +2500,6 @@ static int _testCMPIResult (const CMPIResult *rslt)
 
     CMPIValue value;
     CMPIType type;
-    CMPIType type_error = CMPI_instance;
-    CMPIInstance* instance = NULL;
     const CMPIObjectPath* objPath = NULL;
     CMPIBoolean returnDataSuccessful = 0;
 
@@ -2548,7 +2543,6 @@ static int _testCMPIString()
     CMPIString* clonedString = NULL;
     const char* actual_string = NULL;
     const char* cloned_string = NULL;
-    const char* error_c_string = NULL;
     const char *data = "dataString";
     CMPIBoolean cloneSuccessful = 0;
     void *string_ptr;
@@ -2613,11 +2607,9 @@ static int _testCMPIArgs()
     CMPIStatus rc = { CMPI_RC_OK, NULL };
 
     CMPIArgs* args = NULL;
-    CMPIArgs* nullArgs = NULL;
     CMPIArgs* clonedArgs = NULL;
     CMPIUint32 count = 0;
     CMPIType type = CMPI_uint32;
-    CMPIType type_error = CMPI_instance;
     char *arg1 = "arg1";
     char *arg2 = "arg2";
     CMPIValue value;
@@ -2715,9 +2707,7 @@ static int _testCMPIBroker (const CMPIContext* ctx)
 
     const char *properties_for_assoc[] = {"name", NULL};
     CMPIInstance* instOfAssocClass = NULL;
-    unsigned int i = 0;
     unsigned int count = 0;
-    int brokerVersion = 0;
     const char* brokerName = NULL;
 
     //Boolean Variables used to Cross-Check the Functions' Success

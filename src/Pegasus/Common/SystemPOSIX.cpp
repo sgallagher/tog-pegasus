@@ -823,10 +823,7 @@ Boolean System::is_absolute_path(const char *path)
 
 Boolean System::changeFilePermissions(const char* path, mode_t mode)
 {
-    Sint32 ret = 0;
-    const char * tmp = path;
-
-    return chmod(tmp, mode) == 0 ? true : false;
+    return chmod(path, mode) == 0;
 }
 
 Boolean System::verifyFileOwnership(const char* path)

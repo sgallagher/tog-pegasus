@@ -443,7 +443,6 @@ void TestAggregationOutputProvider::initialize(CIMOMHandle & cimom)
         }
 
         // Make the instances for the associations
-        Uint32 temp  = _instancesTeaches.size();
 
         CIMInstance ciminstance;
         ciminstance = _buildInstanceTeaches(
@@ -848,7 +847,6 @@ void TestAggregationOutputProvider::associatorNames(
     ObjectPathResponseHandler & handler)
 {
     // Get the namespace and host names to create the CIMObjectPath
-    String host = System::getHostName();
     CIMObjectPath localobjectName = _makeRefLocal (objectName);
     handler.processing();
     targetClass myClassEnum  = _verifyValidAssocClassInput(associationClass);
@@ -1141,7 +1139,6 @@ void TestAggregationOutputProvider::modifyInstance(
     const CIMPropertyList & propertyList,
     ResponseHandler & handler)
 {
-    Boolean instanceFound = false;
     // begin processing the request
     handler.processing();
     targetClass myClassEnum =

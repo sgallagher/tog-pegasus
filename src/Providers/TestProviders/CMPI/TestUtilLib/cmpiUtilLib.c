@@ -706,9 +706,6 @@ CMPIBoolean evaluate(const CMPISelectExp *se,
                      void *parm )
 {
     CMPIStatus rc_Eval = { CMPI_RC_OK, NULL};
-    CMPIStatus rc_String = { CMPI_RC_OK, NULL};
-    CMPIStatus rc_Clone = { CMPI_RC_OK, NULL};
-    CMPIStatus rc_Pred = { CMPI_RC_OK, NULL};
     CMPIStatus rc = { CMPI_RC_OK, NULL};
     /* Select Condition and sub conditions */
     CMPISelectCond *doc_cond = NULL;

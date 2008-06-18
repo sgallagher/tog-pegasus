@@ -310,7 +310,6 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX* ctx)
     char   buf[256];
     X509   *currentCert;
     SSL    *ssl;
-    int    verifyError = X509_V_OK;
     int    revoked = -1;
 
     PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
@@ -439,7 +438,7 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX* ctx)
     // This is because OpenSSL retains the original default error in case
     // we want to use it later.
     // To set the error, we could use X509_STORE_CTX_set_error(ctx,
-    // verifyError); but there is no real benefit to doing that here.
+    // X509_V_OK); but there is no real benefit to doing that here.
     //
     if (exData->_rep->verifyCertificateCallback == NULL)
     {

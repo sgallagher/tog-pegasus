@@ -174,13 +174,6 @@ void drive_operation()
    CQLValue d4(String("AHELLO"));
    CQLValue d5(String("ZHELLO"));
 
-   String tmp1 =  d1.getString();
-   CQLValue tmp3 = d2+d3;
-   String tmp2 = tmp3.getString();
-
-   // cout  << tmp1 << endl;
-   //cout << tmp2 << endl;
-
    PEGASUS_TEST_ASSERT(d1 == d2 + d3);
    PEGASUS_TEST_ASSERT(d1 != d2 + d4);
 

@@ -145,7 +145,6 @@ void IndicationStressTestProvider::invokeMethod(
     const Array<CIMParamValue>& inParameters,
     MethodResultResponseHandler& handler)
 {
-    Boolean sendIndication = false;
     Uint32 indicationSendCount;
     CIMIndication indicationInstance;
     char UIDbuffer[32];

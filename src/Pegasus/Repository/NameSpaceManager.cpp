@@ -1458,7 +1458,7 @@ void NameSpaceManager::deleteClass(
 
     // -- Lookup NameSpace object:
 
-    NameSpace* nameSpace = 0, *ns = 0;
+    NameSpace* nameSpace = 0;
 
     if (!_rep->table.lookup(nameSpaceName.getString(), nameSpace))
     {
@@ -1538,7 +1538,7 @@ void NameSpaceManager::createClass(
 
     // -- Lookup namespace:
 
-    NameSpace *nameSpace=0,*ens=0;
+    NameSpace *nameSpace=0;
 
     if (!_rep->table.lookup(nameSpaceName.getString (), nameSpace))
     {

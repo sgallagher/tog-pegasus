@@ -330,7 +330,6 @@ void NISTestClient::testGetInstance(
 
     try
     {
-        Boolean deepInheritance = true;
         Boolean localOnly = true;
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;

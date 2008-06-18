@@ -626,9 +626,6 @@ Array<CIMInstance> ANHProvider::_NextHopRouteInstances()
 
     Array<CIMInstance> _retInstances;
     NextHopRouteList _nhrl;
-    Uint16 
-        _routeType,
-        _addrType;
 
     for (Uint16 i = 0; i<_nhrl.size(); i++)
     {

@@ -265,7 +265,6 @@ CMPIStatus TestCMPIAssociationProviderReferences(
     CMPIInstance * ci = NULL;
     CMPIObjectPath * op = NULL;
     CMPIObjectPath * rop = NULL;
-    CMPIObjectPath * cop = NULL;
     CMPIEnumeration * en = NULL;
     CMPIData data ;
 
@@ -273,11 +272,8 @@ CMPIStatus TestCMPIAssociationProviderReferences(
     char * _thisClassName;
     char * _RefLeftClass = NULL;    
     char * _RefRightClass = NULL; 
-    char * _RefLeft = NULL;       
-    char * _RefRight = NULL;      
     
     CMPIStatus rc = {CMPI_RC_OK, NULL};
-    CMPIString *sourceClass = NULL;
 
     _thisClassName=_ClassName;
 
@@ -375,8 +371,6 @@ CMPIStatus TestCMPIAssociationProviderReferenceNames(
     const char * _thisClassName;
     const char * _RefLeftClass = NULL;    
     const char * _RefRightClass = NULL;   
-    const char * _RefLeft = NULL;   
-    const char * _RefRight = NULL;   
 
     CMPIStatus rc = {CMPI_RC_OK, NULL};
     _thisClassName=_ClassName;

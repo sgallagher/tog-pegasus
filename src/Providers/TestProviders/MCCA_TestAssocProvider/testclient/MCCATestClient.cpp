@@ -82,7 +82,8 @@ Uint32 MCCATestClient::enumerateInstancesNames(const String& _host,
                                                         CIMName(className));
         Uint32 numberInstances = cimInstanceNames.size();
         return numberInstances;
-    } catch (Exception e)
+    }
+    catch (Exception&)
     {
         exit(1);
     }
@@ -100,7 +101,8 @@ Uint32 MCCATestClient::enumerateInstances(const String& _host,
             _host, _port, nameSpace, CIMName(className));
         Uint32 numberInstances = cimInstance.size();
         return numberInstances;
-    } catch (Exception e)
+    }
+    catch (Exception&)
     {
         exit(2);
     }
@@ -156,7 +158,8 @@ void MCCATestClient::createInstance(
         returnRef = client.createInstance(cimInstance);
 
         CLDEBUG("Successfully created Instance.");
-    } catch (Exception e)
+    }
+    catch (Exception& e)
     {
         CLDEBUG("Create Instance " << i << " failed.");
         CLDEBUG("Exception=" << e.getMessage());
@@ -248,7 +251,8 @@ CIMInstance MCCATestClient::associatorsTest(const String& _host,
         }
         CLDEBUG("Association call successful.");
         return (CIMInstance) cimInstance[0];
-    } catch (Exception e)
+    }
+    catch (Exception& e)
     {
         CLDEBUG("Association call failed with exception.");
         CLDEBUG("Exception=" << e.getMessage());
@@ -293,7 +297,8 @@ CIMInstance MCCATestClient::getInstance(const String& _host,
         CIMInstance cimInstance = client.getInstance(targetObjectPath);
         CLDEBUG("getInstance call successful.");
         return cimInstance;
-    } catch (Exception e)
+    }
+    catch (Exception&)
     {
         CLDEBUG("Exception on getInstance.");
         exit(8);
@@ -312,7 +317,8 @@ void MCCATestClient::deleteInstance(const CIMInstance& toDelete)
         CLDEBUG("Key=" << toDelete.getPath().getKeyBindings()[0].getValue() );
         client.deleteInstance(toDelete.getPath());
         CLDEBUG("deleteInstance call successful.");
-    } catch (Exception e)
+    }
+    catch (Exception& e)
     {
         CLDEBUG("Exception" << e.getMessage());
         CLDEBUG("Failed to delete Instance.");

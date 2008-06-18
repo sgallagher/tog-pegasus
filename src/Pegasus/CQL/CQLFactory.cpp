@@ -162,7 +162,6 @@ void* CQLFactory::makeObject(CQLChainedIdentifier* obj, FactoryType target)
         
     void *cqlChainedIdentifier = NULL;
     _CQLObjectPtr._ptr = new CQLValue(*obj);
-    CQLValue* _val = (CQLValue*)_CQLObjectPtr._ptr;
     _makeObjectValues.append(_CQLObjectPtr);
     switch(target)
     {

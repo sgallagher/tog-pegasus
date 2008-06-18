@@ -107,8 +107,6 @@ void test03(const T*)
 {
     Array<T> arr;
 
-    Uint32 tmp1[] = { 1, 2, 3 };
-
     arr.insert(0, 2);
     arr.insert(0, 1);
     arr.insert(0, 0);

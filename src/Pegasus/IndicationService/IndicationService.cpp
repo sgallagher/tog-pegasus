@@ -1592,8 +1592,7 @@ void IndicationService::_handleModifyInstanceRequest(const Message* message)
                 CIMDateTime startTime;
                 CIMProperty startTimeProperty = instance.getProperty(
                     instance.findProperty(_PROPERTY_STARTTIME));
-                CIMValue startTimeValue = instance.getProperty(
-                    instance.findProperty(_PROPERTY_STARTTIME)).getValue();
+                CIMValue startTimeValue = startTimeProperty.getValue();
                 Boolean setStart = false;
                 if (startTimeValue.isNull())
                 {

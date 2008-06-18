@@ -53,9 +53,13 @@ Semaphore::Semaphore(Uint32 initial)
     pthread_cond_init(&_rep.cond, NULL);
 
     if (initial > PEGASUS_SEM_VALUE_MAX)
+    {
         _count = PEGASUS_SEM_VALUE_MAX - 1;
+    }
     else
+    {
         _count = initial;
+    }
 
     _rep.owner = Threads::self();
     _rep.waiters = 0;
@@ -81,18 +85,26 @@ Semaphore::~Semaphore()
     val = pthread_mutex_destroy(&_rep.mutex);
 
     if (val != 0)
+    {
         pthread_cond_destroy(&_rep.cond);
+    }
     else
+    {
         val = pthread_cond_destroy(&_rep.cond);
+    }
 
     while (EBUSY == val)
     {
         Threads::yield();
         val = pthread_mutex_destroy(&_rep.mutex);
         if (val != 0)
+        {
             pthread_cond_destroy(&_rep.cond);
+        }
         else
+        {
             val = pthread_cond_destroy(&_rep.cond);
+        }
     }
 #endif
 }
@@ -128,7 +140,9 @@ void Semaphore::wait(Boolean ignoreInterrupt)
     // Wait until the semaphore count is > 0, then atomically release
     // <lock_> and wait for <count_nonzero_> to be signaled.
     while (_count == 0)
+    {
         pthread_cond_wait(&_rep.cond, &_rep.mutex);
+    }
 
     // <_rep.mutex> is now held.
 
@@ -218,7 +232,9 @@ void Semaphore::signal()
 
     // Always allow one thread to continue if it is waiting.
     if (_rep.waiters > 0)
+    {
         pthread_cond_signal(&_rep.cond);
+    }
 
     // Increment the semaphore's count.
     _count++;
@@ -245,14 +261,20 @@ int Semaphore::count() const
 Semaphore::Semaphore(Uint32 initial)
 {
     if (initial > PEGASUS_SEM_VALUE_MAX)
+    {
         initial = PEGASUS_SEM_VALUE_MAX - 1;
-    sem_init(&_rep.sem, 0, initial);
+    }
+
     _rep.owner = Threads::self();
+    if (sem_init(&_rep.sem, 0, initial) == -1)
+    {
+        throw(IPCException(_rep.owner));
+    }
 }
 
 Semaphore::~Semaphore()
 {
-    while (EBUSY == sem_destroy(&_rep.sem))
+    while (sem_destroy(&_rep.sem) == -1 && errno == EBUSY)
     {
         Threads::yield();
     }
@@ -272,10 +294,14 @@ void Semaphore::wait(Boolean ignoreInterrupt)
         if (e == EINTR)
         {
             if (ignoreInterrupt == false)
+            {
                 throw(WaitInterrupted(_rep.owner));
+            }
         }
         else
+        {
             throw(WaitFailed(_rep.owner));
+        }
 
         // keep going if above conditions fail
     }
@@ -308,13 +334,20 @@ void Semaphore::time_wait(Uint32 milliseconds)
         while (retcode == -1 && errno == EINTR);
 
         if (retcode == 0)
+        {
             return;
+        }
 
         if (retcode == -1 && errno != EAGAIN)
+        {
             throw IPCException(Threads::self());
+        }
+
         gettimeofday(&now, NULL);
         if (Time::subtract(&remaining, &finish, &now))
+        {
             throw TimeOut(Threads::self());
+        }
         Threads::yield();
     }
 }
@@ -322,13 +355,19 @@ void Semaphore::time_wait(Uint32 milliseconds)
 // increment the count of the semaphore
 void Semaphore::signal()
 {
-    sem_post(&_rep.sem);
+    if (sem_post(&_rep.sem) == -1)
+    {
+        throw(IPCException(_rep.owner));
+    }
 }
 
 // return the count of the semaphore
 int Semaphore::count() const
 {
-    sem_getvalue(&_rep.sem, &_count);
+    if (sem_getvalue(&_rep.sem, &_count) == -1)
+    {
+        throw(IPCException(_rep.owner));
+    }
     return _count;
 }
 
@@ -345,7 +384,9 @@ int Semaphore::count() const
 Semaphore::Semaphore(Uint32 initial)
 {
     if (initial > PEGASUS_SEM_VALUE_MAX)
+    {
         initial = PEGASUS_SEM_VALUE_MAX - 1;
+    }
     _count = initial;
     _rep.owner = Threads::self();
     _rep.sem = CreateSemaphore(NULL, initial, PEGASUS_SEM_VALUE_MAX, NULL);
@@ -362,9 +403,13 @@ void Semaphore::wait(Boolean ignoreInterrupt)
 {
     DWORD errorcode = WaitForSingleObject(_rep.sem, INFINITE);
     if (errorcode != WAIT_FAILED)
+    {
         _count--;
+    }
     else
+    {
         throw(WaitFailed(Threads::self()));
+    }
 }
 
 // wait for milliseconds and throw an exception
@@ -373,7 +418,9 @@ void Semaphore::time_wait(Uint32 milliseconds)
 {
     DWORD errorcode = WaitForSingleObject(_rep.sem, milliseconds);
     if (errorcode == WAIT_TIMEOUT || errorcode == WAIT_FAILED)
+    {
         throw(TimeOut(Threads::self()));
+    }
     _count--;
 }
 

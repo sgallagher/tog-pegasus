@@ -1,4 +1,4 @@
-.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man8.Z/cimconfig.8,v 1.7 2007/11/27 20:03:01 dave.sudlik Exp $
+.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man8.Z/cimconfig.8,v 1.8 2008/06/19 18:28:46 kumpf Exp $
 .\" .TA c \" lowercase initial leter of .TH name
 .TH "cimconfig" "8" "" "" ""
 .SH "NAME"
@@ -214,6 +214,23 @@ Minimum value is 2 seconds.
 .BR Dynamic: \0Yes
 .PD
 .PP 
+.B socketWriteTimeout
+.IP
+.BR Description: " Specifies the number of seconds the CIM Server will wait
+for a client connection to be ready to receive data.  If the CIM Server is
+unable to write to a connection in this time, the connection is closed.
+.BR A client connection can become unable to receive data if the client fails
+to read the data that has already been sent.  This timeout allows the CIM
+Server to reclaim resources that are allocated to a malfunctioning client.
+.BR One might consider increasing this timeout value if the CIM Server
+prematurely closes connections with well-behaved clients.
+.PD 0
+.IP 
+.BR "Default Value: " 20
+.IP 
+.BR Dynamic: \0Yes
+.PD
+.PP
 .B sslClientVerificationMode 
 .IP 
 .BR Description: " Defines the desired level of support for

@@ -57,7 +57,6 @@
     {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
 # ifdef PEGASUS_DEFAULT_ENABLE_OOP
     {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 # else

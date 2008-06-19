@@ -42,8 +42,6 @@
     {"httpPort",            "5988"},
     {"httpsPort",           "5989"},
     {"home",                ""},
-    {"install",             "false"},
-    {"remove",              "false"},
     {"slp",                 "false"},
     {"enableAuthentication", "true"},
     {"httpAuthType",        "Basic"},

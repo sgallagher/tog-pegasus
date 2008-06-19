@@ -39,7 +39,6 @@
     {"enableHttpConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableHttpsConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"daemon", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableBinaryRepository", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},

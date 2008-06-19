@@ -54,10 +54,8 @@
     {"sslKeyFilePath",      "/wbem_etc/opt/hp/sslshare/file.pem"},
 //
     {"sslTrustStore",       "/wbem_etc/opt/hp/sslshare/cimserver_trust"},
-    {"exportSSLTrustStore", "/wbem_etc/opt/hp/sslshare/indication_trust"},
     {"crlStore",            "/wbem_etc/opt/hp/sslshare/crl"},
 //
-    {"tempLocalAuthDir",    PEGASUS_LOCAL_AUTH_DIR},
     {"logdir",              "/wbem_var/opt/wbem/logs"},
     {"repositoryDir",       "/wbem_var/opt/wbem/repository"},
     {"providerDir",         "/wbem_lib"},

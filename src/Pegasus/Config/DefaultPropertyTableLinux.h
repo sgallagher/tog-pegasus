@@ -36,24 +36,15 @@
 
 
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    {"logLevel", "SEVERE", IS_STATIC, 0, 0, IS_VISIBLE},
     {"httpPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
     {"httpsPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableHttpConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableHttpsConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"home", "", IS_STATIC, 0, 0, IS_VISIBLE},
     {"daemon", "true", IS_STATIC, 0, 0, IS_HIDDEN},
-    {"install", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"remove", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableAuthentication", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableNamespaceAuthorization", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableSubscriptionsForNonprivilegedUsers",
-         "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableRemotePrivilegedUserAccess", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
 # ifdef PEGASUS_DEFAULT_ENABLE_OOP
     {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 # else
@@ -64,25 +55,15 @@
 # endif
     {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
 #else
-    {"logLevel", "INFORMATION", IS_STATIC, 0, 0, IS_VISIBLE},
     {"httpPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
     {"httpsPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableHttpConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableHttpsConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"home", "./", IS_STATIC, 0, 0, IS_VISIBLE},
     {"daemon", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"install", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"remove", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableAuthentication", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableNamespaceAuthorization", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableSubscriptionsForNonprivilegedUsers",
-         "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableRemotePrivilegedUserAccess", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
 # ifdef PEGASUS_DEFAULT_ENABLE_OOP
     {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 # else

@@ -151,7 +151,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid handle in CMPI_Result:resultReturnData");
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
@@ -160,7 +160,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received Invalid Parameter in CMPI_Result:resultReturnData");
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
@@ -250,7 +250,7 @@ extern "C"
         {
             PEG_TRACE_STRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Exception: resultReturnData - msg: " + e.getMessage());
             PEG_METHOD_EXIT();
             CMReturnWithString(
@@ -273,7 +273,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid parameter res || eInst in \
                 CMPI_Result:resultReturnInstance");
             PEG_METHOD_EXIT();
@@ -284,7 +284,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid parameter eInst->hdl in \
                 CMPI_Result:resultReturnInstance");
             PEG_METHOD_EXIT();
@@ -341,7 +341,7 @@ extern "C"
         {
             PEG_TRACE_STRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Exception: resultReturnInstance - msg: " + e.getMessage());
             PEG_METHOD_EXIT();
             CMReturnWithString(
@@ -365,7 +365,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid parameter res || eInst in \
                 CMPI_Result:resultReturnObject");
             PEG_METHOD_EXIT();
@@ -376,7 +376,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid parameter eInst->hdl in \
                 CMPI_Result:resultReturnObject");
             PEG_METHOD_EXIT();
@@ -472,7 +472,7 @@ extern "C"
         {
             PEG_TRACE_STRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Exception: resultReturnObject - msg: " + e.getMessage());
             PEG_METHOD_EXIT();
             CMReturnWithString(
@@ -495,7 +495,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid parameter res || eInst in \
                 CMPI_Result:resultReturnExecQuery");
             PEG_METHOD_EXIT();
@@ -506,7 +506,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid parameter eInst->hdl in \
                 CMPI_Result:resultReturnExecQuery");
             PEG_METHOD_EXIT();
@@ -528,7 +528,7 @@ extern "C"
         {
             PEG_TRACE_STRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Exception: resultReturnExecQuery - msg: " + e.getMessage());
             PEG_METHOD_EXIT();
             CMReturnWithString(
@@ -551,7 +551,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid parameter res || eRef in \
                 CMPI_Result:resultReturnObjectPath");
             PEG_METHOD_EXIT();
@@ -561,7 +561,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid parameter eRef->hdl in \
                 CMPI_Result:resultReturnObjectPath");
             PEG_METHOD_EXIT();
@@ -582,7 +582,7 @@ extern "C"
         {
             PEG_TRACE_STRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Exception: resultReturnObjectPath - msg: " + e.getMessage());
             PEG_METHOD_EXIT();
             CMReturnWithString(
@@ -603,7 +603,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid parameter in \
                 CMPI_Result:resultReturnInstDone");
             PEG_METHOD_EXIT();
@@ -621,7 +621,7 @@ extern "C"
         {
             PEG_TRACE_STRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Exception: resultReturnInstDone - msg: " + e.getMessage());
             PEG_METHOD_EXIT();
             CMReturnWithString(
@@ -642,7 +642,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid parameter in \
                 CMPI_Result:resultReturnRefDone");
             PEG_METHOD_EXIT();
@@ -660,7 +660,7 @@ extern "C"
         {
             PEG_TRACE_STRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Exception: resultReturnRefDone - msg: " + e.getMessage());
             PEG_METHOD_EXIT();
             CMReturnWithString(
@@ -681,7 +681,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid parameter in \
                 CMPI_Result:resultReturnDataDone");
             PEG_METHOD_EXIT();
@@ -699,7 +699,7 @@ extern "C"
         {
             PEG_TRACE_STRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Exception: resultReturnDataDone - msg: " + e.getMessage());
             PEG_METHOD_EXIT();
             CMReturnWithString(
@@ -721,7 +721,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid parameter in \
                 CMPI_Result:resultReturnMethDone");
             PEG_METHOD_EXIT();
@@ -739,7 +739,7 @@ extern "C"
         {
             PEG_TRACE_STRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Exception: resultReturnMethDone - msg: " + e.getMessage());
             PEG_METHOD_EXIT();
             CMReturnWithString(
@@ -760,7 +760,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid parameter in \
                 CMPI_Result:resultReturnObjDone");
             PEG_METHOD_EXIT();
@@ -778,7 +778,7 @@ extern "C"
         {
             PEG_TRACE_STRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Exception: resultReturnObjDone - msg: " + e.getMessage());
             PEG_METHOD_EXIT();
             CMReturnWithString(
@@ -799,7 +799,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid parameter in \
                 CMPI_Result:resultReturnExecQueryDone");
             PEG_METHOD_EXIT();
@@ -817,7 +817,7 @@ extern "C"
         {
             PEG_TRACE_STRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Exception: resultReturnExecQueryDone - msg: "
                 + e.getMessage());
             PEG_METHOD_EXIT();
@@ -842,7 +842,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid parameter eRes->hdl in \
                 CMPI_Result:resultReturnError");
             PEG_METHOD_EXIT();
@@ -853,7 +853,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid handle in \
                 CMPI_Result:resultReturnError");
             PEG_METHOD_EXIT();

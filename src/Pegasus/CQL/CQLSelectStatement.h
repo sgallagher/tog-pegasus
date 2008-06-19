@@ -195,6 +195,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
       Post-condition: Chained identifiers have been normalized
       ie.applyContext has been called.  See the applyContext function.
 
+      @throw CQLRuntimeException if the QueryContext had not been set.
       @throw CQLValidationException for applyContext error, the select
       statement is invalid against the schema, or the QueryContext has
       not been set.
@@ -405,6 +406,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
       @param inIdentifier - CQLIdentifier to append.
       @param inAlias - Alias of the identifier.
       @return None
+      @throw CQLRuntimeException if the QueryContext had not been set.
       @throw QueryException if the identifier/alias cannot be appended.
 
       <I><B>Experimental Interface</B></I><BR>
@@ -419,6 +421,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
       @param inIdentifier - CQLIdentifier to append.
       @return None
+      @throw CQLRuntimeException if the QueryContext had not been set.
       @throw QueryException if the identifier cannot be appended.
 
       <I><B>Experimental Interface</B></I><BR>

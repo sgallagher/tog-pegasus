@@ -132,7 +132,7 @@ Boolean AuthenticationManager::performHttpAuthentication(
     {
         PEG_TRACE((
             TRC_DISCARDED_DATA,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "HTTPAuthentication failed. "
                 "Malformed HTTP authentication header: %s",
             (const char*)authHeader.getCString()));
@@ -194,7 +194,7 @@ Boolean AuthenticationManager::performPegasusAuthentication(
     {
         PEG_TRACE((
             TRC_DISCARDED_DATA,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "PegasusAuthentication failed. "
                 "Malformed Pegasus authentication header: %s",
             (const char*)authHeader.getCString()));

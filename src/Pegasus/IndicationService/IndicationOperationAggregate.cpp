@@ -200,7 +200,7 @@ ProviderClassList IndicationOperationAggregate::findProvider(
 
                 default:
                 {
-                    PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL2,
+                    PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL1,
                         "Unexpected request type " + String
                         (MessageTypeToString(getRequest(i)->getType())) +
                         " in findProvider");

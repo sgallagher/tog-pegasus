@@ -77,7 +77,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid handle in CMPI_Predicate:prdGetData");
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
@@ -112,7 +112,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Operation not Supported in CMPI_Predicate:prdGetData");
             CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
         }
@@ -127,7 +127,7 @@ extern "C"
     {
         PEG_TRACE_CSTRING(
             TRC_CMPIPROVIDERINTERFACE,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Operation not Supported in CMPI_Predicate:prdEvaluate");
         CMSetStatus(rc, CMPI_RC_ERR_NOT_SUPPORTED);
         return 0;
@@ -142,7 +142,7 @@ extern "C"
     {
         PEG_TRACE_CSTRING(
             TRC_CMPIPROVIDERINTERFACE,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Operation not Supported in \
             CMPI_Predicate:prdEvaluateUsingAccessor");
         CMSetStatus(rc, CMPI_RC_ERR_NOT_SUPPORTED);

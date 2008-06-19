@@ -392,7 +392,7 @@ CIMClass InternalCIMOMHandleRep::getClass(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -407,7 +407,7 @@ CIMClass InternalCIMOMHandleRep::getClass(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -460,7 +460,7 @@ Array<CIMClass> InternalCIMOMHandleRep::enumerateClasses(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -475,7 +475,7 @@ Array<CIMClass> InternalCIMOMHandleRep::enumerateClasses(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -524,7 +524,7 @@ Array<CIMName> InternalCIMOMHandleRep::enumerateClassNames(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -539,7 +539,7 @@ Array<CIMName> InternalCIMOMHandleRep::enumerateClassNames(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -585,7 +585,7 @@ void InternalCIMOMHandleRep::createClass(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -600,7 +600,7 @@ void InternalCIMOMHandleRep::createClass(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -644,7 +644,7 @@ void InternalCIMOMHandleRep::modifyClass(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -659,7 +659,7 @@ void InternalCIMOMHandleRep::modifyClass(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -704,7 +704,7 @@ void InternalCIMOMHandleRep::deleteClass(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -719,7 +719,7 @@ void InternalCIMOMHandleRep::deleteClass(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -772,7 +772,7 @@ CIMInstance InternalCIMOMHandleRep::getInstance(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -787,7 +787,7 @@ CIMInstance InternalCIMOMHandleRep::getInstance(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -844,7 +844,7 @@ Array<CIMInstance> InternalCIMOMHandleRep::enumerateInstances(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -859,7 +859,7 @@ Array<CIMInstance> InternalCIMOMHandleRep::enumerateInstances(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -907,7 +907,7 @@ Array<CIMObjectPath> InternalCIMOMHandleRep::enumerateInstanceNames(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -922,7 +922,7 @@ Array<CIMObjectPath> InternalCIMOMHandleRep::enumerateInstanceNames(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -968,7 +968,7 @@ CIMObjectPath InternalCIMOMHandleRep::createInstance(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -983,7 +983,7 @@ CIMObjectPath InternalCIMOMHandleRep::createInstance(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -1034,7 +1034,7 @@ void InternalCIMOMHandleRep::modifyInstance(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -1049,7 +1049,7 @@ void InternalCIMOMHandleRep::modifyInstance(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -1094,7 +1094,7 @@ void InternalCIMOMHandleRep::deleteInstance(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -1109,7 +1109,7 @@ void InternalCIMOMHandleRep::deleteInstance(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -1155,7 +1155,7 @@ Array<CIMObject> InternalCIMOMHandleRep::execQuery(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -1170,7 +1170,7 @@ Array<CIMObject> InternalCIMOMHandleRep::execQuery(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -1230,7 +1230,7 @@ Array<CIMObject> InternalCIMOMHandleRep::associators(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -1245,7 +1245,7 @@ Array<CIMObject> InternalCIMOMHandleRep::associators(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -1300,7 +1300,7 @@ Array<CIMObjectPath> InternalCIMOMHandleRep::associatorNames(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -1315,7 +1315,7 @@ Array<CIMObjectPath> InternalCIMOMHandleRep::associatorNames(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -1371,7 +1371,7 @@ Array<CIMObject> InternalCIMOMHandleRep::references(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -1386,7 +1386,7 @@ Array<CIMObject> InternalCIMOMHandleRep::references(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -1437,7 +1437,7 @@ Array<CIMObjectPath> InternalCIMOMHandleRep::referenceNames(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -1452,7 +1452,7 @@ Array<CIMObjectPath> InternalCIMOMHandleRep::referenceNames(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -1500,7 +1500,7 @@ CIMValue InternalCIMOMHandleRep::getProperty(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -1515,7 +1515,7 @@ CIMValue InternalCIMOMHandleRep::getProperty(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -1575,7 +1575,7 @@ void InternalCIMOMHandleRep::setProperty(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -1590,7 +1590,7 @@ void InternalCIMOMHandleRep::setProperty(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();
@@ -1639,7 +1639,7 @@ CIMValue InternalCIMOMHandleRep::invokeMethod(
         {
             PEG_TRACE_CSTRING(
                 TRC_CIMOM_HANDLE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Incorrect response type in CIMOMHandle");
 
             throw CIMException(CIM_ERR_FAILED);
@@ -1654,7 +1654,7 @@ CIMValue InternalCIMOMHandleRep::invokeMethod(
     {
         PEG_TRACE_CSTRING(
             TRC_CIMOM_HANDLE,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception caught in CIMOMHandle");
 
         PEG_METHOD_EXIT();

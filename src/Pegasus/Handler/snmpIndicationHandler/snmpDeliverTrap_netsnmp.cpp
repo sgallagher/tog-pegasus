@@ -122,8 +122,6 @@ void snmpDeliverTrap_netsnmp::deliverTrap(
     }
     catch (Exception& e)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2, e.getMessage());
-
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
                       Logger::WARNING,
                       _MSG_PACK_CIM_PROPERTY_TO_PDU_FAILED_KEY,
@@ -341,8 +339,6 @@ void snmpDeliverTrap_netsnmp::_createPdu(
             }
             catch (CIMException& e)
             {
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                    e.getMessage());
                 Logger::put_l(
                     Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
                     _MSG_PACK_TRAP_INFO_INTO_PDU_FAILED_KEY,
@@ -387,8 +383,6 @@ void snmpDeliverTrap_netsnmp::_createPdu(
             {
                 String errMsg = snmp_api_errstring(retCode);
 
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                    "Failed to add sysUpTime to pdu: " + errMsg);
                 Logger::put_l(
                     Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
                     _MSG_ADD_SYSUPTIME_TO_PDU_FAILED_KEY,
@@ -409,8 +403,6 @@ void snmpDeliverTrap_netsnmp::_createPdu(
             {
                 String errMsg = snmp_api_errstring(retCode);
 
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                    "Failed to add snmp trap to pdu: " + errMsg);
                 Logger::put_l(
                     Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
                     _MSG_ADD_SNMP_TRAP_TO_PDU_FAILED_KEY,

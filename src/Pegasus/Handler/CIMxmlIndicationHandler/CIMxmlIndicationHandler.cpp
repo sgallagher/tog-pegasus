@@ -108,11 +108,7 @@ public:
 
             String msg = String(MessageLoader::getMessage(param));
 
-            PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg);
-
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "CIMxmlIndicationHandler::handleIndication failed to deliver "
-                "indication: Destination property missing");
+            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1, msg);
 
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, msg);
@@ -135,17 +131,13 @@ public:
 
             String msg = MessageLoader::getMessage(param);
 
-            PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg);
-
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "CIMxmlIndicationHandler::handleIndication failed to deliver "
-                "indication: Destination property type mismatch");
+            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1, msg);
 
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, msg);
         }
 
-        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
             "CIM_ListenerDestinationCIMXML %s:%s.%s processing %s Indication "
             "for destination %s",
            (const char*)(nameSpace.getCString()),
@@ -219,12 +211,10 @@ public:
                 {
                     String msg = _getMalformedExceptionMsg(dest);
 
-                    PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg+dest);
-                    PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                        "CIMxmlIndicationHandler::handleIndication failed to "
-                        "deliver indication: "
-                        "missing http or https "
-                        "in Destination " + dest);
+                    PEG_TRACE_STRING(
+                        TRC_DISCARDED_DATA,
+                        Tracer::LEVEL1,
+                        msg+dest);
 
                     PEG_METHOD_EXIT();
                     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
@@ -235,13 +225,7 @@ public:
             {
                 String msg = _getMalformedExceptionMsg(dest);
 
-                PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg + dest);
-
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                    "CIMxmlIndicationHandler::handleIndication failed to "
-                    "deliver indication: "
-                    "missing colon "
-                    "in Destination " + dest);
+                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,msg + dest);
 
                 PEG_METHOD_EXIT();
                 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg);
@@ -257,13 +241,7 @@ public:
             {
                 String msg = _getMalformedExceptionMsg(dest);
 
-                PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg + dest);
-
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                    "CIMxmlIndicationHandler::handleIndication failed to "
-                    "deliver indication: "
-                    "missing double slash "
-                    "in Destination " + dest);
+                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,msg + dest);
 
                 PEG_METHOD_EXIT();
                 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg);
@@ -293,13 +271,7 @@ public:
             {
                 String msg = _getMalformedExceptionMsg(dest);
 
-                PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, msg + dest);
-
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                    "CIMxmlIndicationHandler::handleIndication failed to "
-                    "deliver indication: "
-                    "invalid host name or port number "
-                    "in Destination " + dest);
+                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,msg + dest);
 
                 PEG_METHOD_EXIT();
                 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg);
@@ -317,25 +289,24 @@ public:
                     certPath, keyPath, verifyListenerCertificate, randFile);
                 exportclient.connect (hostName, portNumber, sslcontext);
 #else
+                PEG_TRACE((
+                    TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                    "CIMxmlIndicationHandler::handleIndication failed to "
+                    "deliver indication: "
+                    "https not supported "
+                    "in Destination %s",
+                    (const char*) dest.getCString());
+                
                 MessageLoaderParms param(
                     "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler."
                         "CANNOT_DO_HTTPS_CONNECTION",
                     "SSL is not available. "
                         "Cannot support an HTTPS connection.");
 
-                PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL3,
-                    MessageLoader::getMessage(param));
-
-                String msg = MessageLoader::getMessage(param);
-
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                    "CIMxmlIndicationHandler::handleIndication failed to "
-                    "deliver indication: "
-                    "https not supported "
-                    "in Destination " + dest);
-
                 PEG_METHOD_EXIT();
-                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, msg);
+                throw PEGASUS_CIM_EXCEPTION(
+                    CIM_ERR_FAILED,
+                    MessageLoader::getMessage(param));
 #endif
             }
             else
@@ -371,7 +342,7 @@ public:
             // as Indication delivery failed.
             String msg = e.getMessage();
 
-            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
                 "CIMxmlIndicationHandler::handleIndication failed to deliver "
                 "indication due to Exception: " + e.getMessage ());
 

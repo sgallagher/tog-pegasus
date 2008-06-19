@@ -271,7 +271,7 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
             }
             catch(...)
             {
-                PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
+                PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL2,
                     "WMIValue::WMIValue - Constructor failed; "
                     "setting NULL string");
                     val.setNullValue(CIMTYPE_STRING, false, 0);
@@ -423,7 +423,7 @@ CIMValue WMIValue::getCIMValueFromVariant(
 
                 str = value;
                 
-                PEG_TRACE((TRC_WMIPROVIDER,Tracer::LEVEL3,
+                PEG_TRACE((TRC_WMIPROVIDER,Tracer::LEVEL4,
                     "WMIValue::getValue() - Date is %s", 
                     (LPCSTR)str.getCString()));
             }
@@ -637,7 +637,7 @@ CIMValue getArrayValueAux(LPSAFEARRAY psa, VARTYPE vt, const CIMTYPE Type, T*)
     }
     else
     {
-        PEG_TRACE((TRC_WMIPROVIDER,Tracer::LEVEL3,
+        PEG_TRACE((TRC_WMIPROVIDER,Tracer::LEVEL1,
             "WMIValue::getArrayValueAux() - SafeArray result is %x",  hr));
         throw CIMException(CIM_ERR_FAILED, "getArrayValueAux()");
     }

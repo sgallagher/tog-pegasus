@@ -77,7 +77,7 @@ void WsmResponseEncoder::sendResponse(
     Uint32 queueId = response->getQueueId();
     Boolean httpCloseConnect = response->getHttpCloseConnect();
 
-    PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL3,
+    PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL4,
         "WsmResponseEncoder::sendResponse()- "
             "response->getHttpCloseConnect() returned %d",
         httpCloseConnect));
@@ -85,7 +85,7 @@ void WsmResponseEncoder::sendResponse(
     MessageQueue* queue = MessageQueue::lookup(queueId);
     if (!queue)
     {
-        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "ERROR: non-existent queueId = %u, response not sent.", queueId));
         PEG_METHOD_EXIT();
         return;
@@ -243,7 +243,7 @@ void WsmResponseEncoder::enqueue(WsmResponse* response)
     PEG_METHOD_ENTER(TRC_WSMSERVER, "WsmResponseEncoder::enqueue()");
     PEGASUS_ASSERT(response);
 
-    PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL3,
+    PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL4,
         "WsmResponseEncoder::enqueue()- "
             "response->getHttpCloseConnect() returned %d",
         response->getHttpCloseConnect()));

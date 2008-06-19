@@ -155,7 +155,7 @@ void CIMClassRep::resolve(
     if (!context)
         throw NullPointer();
 
-    PEG_TRACE_STRING(TRC_OBJECTRESOLUTION, Tracer::LEVEL3,
+    PEG_TRACE_STRING(TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
         String("CIMClassRep::resolve  class = ") +
         _reference.getClassName().getString() + ", superclass = " +
         _superClassName.getString());

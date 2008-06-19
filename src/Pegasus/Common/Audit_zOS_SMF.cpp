@@ -125,8 +125,8 @@ void Audit_zOS_SMF::writeRecord(int subtype, char* record )
     // of the record.
     if (__smf_record(86,subtype,((_smf86_header *)record)->SMF86LEN,record) < 0)
     {
-        PEG_TRACE((TRC_SERVER,Tracer::LEVEL4,
-                   "Can not write SMF records: \'%s\' "
+        PEG_TRACE((TRC_SERVER,Tracer::LEVEL2,
+                   "Cannot write SMF records: \'%s\' "
                        "(errno(%d) reason code(0x%08X))",
                    strerror(errno),errno,__errno2()));
     }
@@ -231,8 +231,8 @@ void Audit_zOS_SMF::_preInitRecordProductSection (
                              sizeof(recordProductSec->SMF86SYN),false);
      } else
      {
-         PEG_TRACE((TRC_SERVER,Tracer::LEVEL4,
-             "Can not get OS version and system name: \'%s\' (errno(%d) "
+         PEG_TRACE((TRC_SERVER,Tracer::LEVEL1,
+             "Cannot get OS version and system name: \'%s\' (errno(%d) "
              "reason code(%08X))",
               strerror(errno),errno,__errno2()));
      }

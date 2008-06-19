@@ -134,7 +134,7 @@ void WsmRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     String authType;
     Boolean httpCloseConnect = httpMessage->getCloseConnect();
 
-    PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL3,
+    PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL4,
         "WsmRequestDecoder::handleHTTPMessage()- "
             "httpMessage->getCloseConnect() returned %d",
         httpCloseConnect));

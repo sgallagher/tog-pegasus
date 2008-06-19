@@ -1830,7 +1830,7 @@ void ProviderRegistrationProvider::_sendUpdateCacheMessagetoInteropProvider(
     {
         PEG_TRACE_STRING(
             TRC_CONTROLPROVIDER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception caught while invoking InteropProvider 'updateCache'"
                 " method: " + e.getMessage());
     }
@@ -1838,7 +1838,7 @@ void ProviderRegistrationProvider::_sendUpdateCacheMessagetoInteropProvider(
     {
         PEG_TRACE_CSTRING(
             TRC_CONTROLPROVIDER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Unknown error occurred while"
                 " invoking InteropProvider 'updateCache' method.");
     }

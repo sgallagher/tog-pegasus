@@ -173,7 +173,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     Boolean closeConnect = httpMessage->getCloseConnect();
     PEG_TRACE((
         TRC_HTTP,
-        Tracer::LEVEL3,
+        Tracer::LEVEL4,
         "CIMOperationRequestDecoder::handleHTTPMessage() -"
              " httpMessage->getCloseConnect() returned %d",
         httpMessage->getCloseConnect()));

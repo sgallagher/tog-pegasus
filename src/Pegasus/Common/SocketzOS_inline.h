@@ -134,7 +134,7 @@ int MP_Socket::ATTLS_zOS_query()
                SocketLength optlen = sizeof(int);
                getsockopt(_socket, SOL_SOCKET, SO_ERROR,
                    (char*)&socket_errno, &optlen);
-               PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+               PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
                    "Client not connected to ATTLS. Closing socket %d : "
                        "%s (error code %d)",
                    _socket,strerror(socket_errno),socket_errno));
@@ -288,7 +288,7 @@ int MP_Socket::ATTLS_zOS_query()
         }
     } // end switch(ioc.TTLSi_Sec_Type)
     // This should never be reached
-    PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+    PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL1,
         "Received unexpected return value of ioctl(SIOCTTLSCTL).");
     PEG_METHOD_EXIT();
     return -1;
@@ -324,27 +324,27 @@ int MP_Socket::LocalSocket_zOS_query()
         {
         case(EBADF):
         {
-            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL1,
                 "Not a valid socket descriptor for "
                     "query local authentication.");
             break;
         }
         case(EINVAL):
         {
-            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL1,
                 "The local authentication request is not valid"
                     " or not supported on this socket.");
             break;
         }
         case(ENODEV):
         {
-            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL2,
                 "Not a local socket descriptor.");
             break;
         }
         default:
         {
-            PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
+            PEG_TRACE((TRC_SSL, Tracer::LEVEL1,
                 "An unexpected error occurs: %s ( errno $d, reason code "
                     "0x%08X ). ", 
                 strerror(errnoIoctl),
@@ -369,7 +369,7 @@ int MP_Socket::LocalSocket_zOS_query()
         _username[ioSec.__sectt_useridlen]=0;   
         // the user name is in EBCDIC!
         __e2a_s(_username);                     
-        PEG_TRACE((TRC_SSL, Tracer::LEVEL2,
+        PEG_TRACE((TRC_SSL, Tracer::LEVEL3,
             "Local Socket authentication. Resolved task level user ID \'%s\'",
             _username));
         PEG_METHOD_EXIT();
@@ -387,7 +387,7 @@ int MP_Socket::LocalSocket_zOS_query()
         _username[ioSec.__sectp_useridlen]=0;   
         // the user name is in EBCDIC!
         __e2a_s(_username);                     
-        PEG_TRACE((TRC_SSL, Tracer::LEVEL2,
+        PEG_TRACE((TRC_SSL, Tracer::LEVEL3,
             "Local Socket authentication. "
                 "Resolved process level user ID \'%s\'",
             _username));
@@ -397,7 +397,7 @@ int MP_Socket::LocalSocket_zOS_query()
     } 
 
     // This should never be reached
-    PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+    PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL1,
         "Received unexpected return value of ioctl(SECIGET_T).");
     PEG_METHOD_EXIT();
     return -1;

@@ -122,7 +122,7 @@ void StatisticalData::addToValue(Sint64 value, Uint16 type, Uint32 t)
             case PEGASUS_STATDATA_SERVER:
                 numCalls[type] += 1;
                 cimomTime[type] += value;
-                PEG_TRACE((TRC_STATISTICAL_DATA, Tracer::LEVEL2,
+                PEG_TRACE((TRC_STATISTICAL_DATA, Tracer::LEVEL4,
                     "StatData: SERVER: %s(%d): count = %"
                         PEGASUS_64BIT_CONVERSION_WIDTH "d; value = %"
                         PEGASUS_64BIT_CONVERSION_WIDTH "d; total = %"
@@ -132,7 +132,7 @@ void StatisticalData::addToValue(Sint64 value, Uint16 type, Uint32 t)
                 break;
             case PEGASUS_STATDATA_PROVIDER:
                 providerTime[type] += value;
-                PEG_TRACE((TRC_STATISTICAL_DATA, Tracer::LEVEL2,
+                PEG_TRACE((TRC_STATISTICAL_DATA, Tracer::LEVEL4,
                     "StatData: PROVIDER: %s(%d): count = %"
                         PEGASUS_64BIT_CONVERSION_WIDTH "d; value = %"
                         PEGASUS_64BIT_CONVERSION_WIDTH "d; total = %"
@@ -142,7 +142,7 @@ void StatisticalData::addToValue(Sint64 value, Uint16 type, Uint32 t)
                 break;
         case PEGASUS_STATDATA_BYTES_SENT:
                 responseSize[type] += value;
-                PEG_TRACE((TRC_STATISTICAL_DATA, Tracer::LEVEL2,
+                PEG_TRACE((TRC_STATISTICAL_DATA, Tracer::LEVEL4,
                     "StatData: BYTES_SENT: %s(%d): count = %"
                         PEGASUS_64BIT_CONVERSION_WIDTH "d; value = %"
                         PEGASUS_64BIT_CONVERSION_WIDTH "d; total = %"
@@ -152,7 +152,7 @@ void StatisticalData::addToValue(Sint64 value, Uint16 type, Uint32 t)
                 break;
         case PEGASUS_STATDATA_BYTES_READ:
                 requestSize[type] += value;
-                PEG_TRACE((TRC_STATISTICAL_DATA, Tracer::LEVEL2,
+                PEG_TRACE((TRC_STATISTICAL_DATA, Tracer::LEVEL4,
                     "StatData: BYTES_READ: %s(%d): count = %"
                         PEGASUS_64BIT_CONVERSION_WIDTH "d; value = %"
                         PEGASUS_64BIT_CONVERSION_WIDTH "d; total = %"

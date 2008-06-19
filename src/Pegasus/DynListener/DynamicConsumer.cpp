@@ -152,7 +152,7 @@ void DynamicConsumer::initialize()
         {
             PEG_TRACE_STRING(
                 TRC_LISTENER,
-                Tracer::LEVEL4,
+                Tracer::LEVEL1,
                 "Exception caught in DynamicConsumerFacade::initialize"
                     " for " + _name);
             throw;
@@ -201,7 +201,7 @@ void DynamicConsumer::terminate(void)
         {
             PEG_TRACE_STRING(
                 TRC_LISTENER,
-                Tracer::LEVEL4,
+                Tracer::LEVEL2,
                 "Exception caught in "
                     "DynamicConsumerFacade::Terminate for " + _name);
             throw;
@@ -288,7 +288,7 @@ void DynamicConsumer::enqueueEvent(IndicationDispatchEvent* event)
     {
         PEG_TRACE_CSTRING(
             TRC_LISTENER,
-            Tracer::LEVEL3,
+            Tracer::LEVEL1,
             "Error: The consumer is not loaded and "
                 "therefore cannot handle events.");
         return;
@@ -384,7 +384,7 @@ Boolean DynamicConsumer::isIdle()
     {
         PEG_TRACE_CSTRING(
             TRC_LISTENER,
-            Tracer::LEVEL4,
+            Tracer::LEVEL2,
             "Consumer is not loaded.");
         return false;
     }

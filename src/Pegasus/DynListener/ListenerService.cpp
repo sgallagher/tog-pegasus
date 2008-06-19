@@ -330,7 +330,7 @@ Boolean ListenerService::shutdownListener()
 
     if (!_running)
     {
-        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2,
             "Warning: The listener is not currently running.");
 
         return true;
@@ -447,7 +447,7 @@ Boolean ListenerService::shutdownListener()
 
     if (gracefulShutdown)
     {
-        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL3,
             "Listener shutdown gracefully");
     } 
 

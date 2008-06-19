@@ -166,7 +166,7 @@ void ProviderAgent::run()
         }
         catch (Exception& e)
         {
-            PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+            PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
                 String("Unexpected exception from _readAndProcessRequest(): ") +
                     e.getMessage());
             _terminating = true;
@@ -552,7 +552,7 @@ Message* ProviderAgent::_processRequest(CIMRequestMessage* request)
     }
     catch (Exception& e)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+        PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
             String("Caught exception while processing request: ") +
                 e.getMessage());
         CIMResponseMessage* cimResponse = request->buildResponse();
@@ -648,13 +648,13 @@ ProviderAgent::_processRequestAndWriteResponse(void* arg)
     }
     catch (const Exception& e)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "Caught exception: \"" + e.getMessage() +
                 "\".  Exiting _processRequestAndWriteResponse.");
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "Caught unrecognized exception.  "
                 "Exiting _processRequestAndWriteResponse.");
     }

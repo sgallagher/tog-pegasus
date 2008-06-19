@@ -134,7 +134,7 @@ public:
         //
         if (client == 0)
         {
-            PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL3,
                 "Creating CIMClient connection");
             client = new CIMClient();
 
@@ -235,12 +235,12 @@ public:
         }
         catch (Exception& e)
         {
-            PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
+            PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL1,
                 String("Ignoring Exception: ") + e.getMessage());
         }
         catch (...)
         {
-            PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL1,
                 "Ignoring unknown exception");
         }
     }

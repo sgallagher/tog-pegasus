@@ -67,14 +67,14 @@
         }                                                              \
         catch (CIMException& e)                                        \
         {                                                              \
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,            \
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,            \
                 "Provider CIMException: %s",                           \
                 (const char*)e.getMessage().getCString()));            \
             handler.setCIMException(e);                                \
         }                                                              \
         catch (Exception& e)                                           \
         {                                                              \
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,            \
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,            \
                 "Provider Exception: %s",                              \
                 (const char*)e.getMessage().getCString()));            \
             handler.setStatus(                                         \
@@ -84,13 +84,13 @@
         }                                                              \
         catch (const PEGASUS_STD(exception)& e)                        \
         {                                                              \
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,            \
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,            \
                 "Provider exception: %s", e.what()));                  \
             handler.setStatus(CIM_ERR_FAILED, e.what());               \
         }                                                              \
         catch (...)                                                    \
         {                                                              \
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,     \
+            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,     \
                 "Provider unknown exception");                         \
             handler.setStatus(CIM_ERR_FAILED, "Unknown error.");       \
         }                                                              \
@@ -167,7 +167,7 @@ void ProviderMessageHandler::initialize(CIMOMHandle& cimom)
     }
     catch (...)
     {
-        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "Caught exception from provider %s initialize() method.",
             (const char*)_fullyQualifiedProviderName.getCString()));
         throw;
@@ -192,7 +192,7 @@ void ProviderMessageHandler::terminate()
     }
     catch (...)
     {
-        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "Caught exception from provider %s terminate() method.",
             (const char*)_fullyQualifiedProviderName.getCString()));
         throw;
@@ -305,7 +305,7 @@ CIMResponseMessage* ProviderMessageHandler::processMessage(
     }
     catch (CIMException& e)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
             "CIMException: " + e.getMessage());
         response = request->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION_LANG(
@@ -313,7 +313,7 @@ CIMResponseMessage* ProviderMessageHandler::processMessage(
     }
     catch (Exception& e)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
             "Exception: " + e.getMessage());
         response = request->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION_LANG(
@@ -321,7 +321,7 @@ CIMResponseMessage* ProviderMessageHandler::processMessage(
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
             "Exception: Unknown");
         response = request->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION(
@@ -1634,7 +1634,7 @@ void ProviderMessageHandler::_enableIndications()
         }
         catch (...)
         {
-            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
                 "Caught exception from provider %s "
                     "enableIndications() method.",
                 (const char*)_fullyQualifiedProviderName.getCString()));
@@ -1687,7 +1687,7 @@ void ProviderMessageHandler::_disableIndications()
             }
             catch (...)
             {
-                PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
                     "Caught exception from provider %s "
                         "disableIndications() method.",
                     (const char*)_fullyQualifiedProviderName.getCString()));

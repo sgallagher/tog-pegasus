@@ -184,7 +184,7 @@ MessageQueueService::MessageQueueService(
         max_threads_per_svc_queue = MAX_THREADS_PER_SVC_QUEUE_LIMIT;
     }
 
-    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL2,
+    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
        "max_threads_per_svc_queue set to %u.", max_threads_per_svc_queue));
 
     AutoMutex autoMut(_meta_dispatcher_mutex);
@@ -380,13 +380,13 @@ ThreadReturnType PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(
     }
     catch (const Exception& e)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             String("Caught exception: \"") + e.getMessage() +
                 "\".  Exiting _req_proc.");
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "Caught unrecognized exception.  Exiting _req_proc.");
     }
     service->_threads--;

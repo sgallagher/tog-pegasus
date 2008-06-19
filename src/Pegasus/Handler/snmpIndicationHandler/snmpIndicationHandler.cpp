@@ -123,7 +123,7 @@ void snmpIndicationHandler::handleIndication(
 
     try
     {
-        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
             "snmpIndicationHandler %s:%s.%s processing %s Indication",
            (const char*)(nameSpace.getCString()),
            (const char*)(handler.getClassName().getString().getCString()),
@@ -227,7 +227,7 @@ void snmpIndicationHandler::handleIndication(
 
         if (targetHostPos == PEG_NOT_FOUND)
         {
-            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL3,
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
                 "Target host is not set for IndicationHandlerSNMPMapper %s"
                 " Indication.",
                 (const char*)(indication.getClassName().getString().
@@ -240,7 +240,7 @@ void snmpIndicationHandler::handleIndication(
         }
         if (targetHostFormatPos == PEG_NOT_FOUND)
         {
-            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL3,
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
                 "Target host format is not set for IndicationHandlerSNMPMapper"
                 " %s Indication.",
                 (const char*)(indication.getClassName().getString().
@@ -253,7 +253,7 @@ void snmpIndicationHandler::handleIndication(
         }
         if (snmpVersionPos == PEG_NOT_FOUND)
         {
-            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL3,
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
                 "SNMP Version is not set for IndicationHandlerSNMPMapper %s"
                 " Indication.",
                 (const char*)(indication.getClassName().getString().
@@ -277,7 +277,6 @@ void snmpIndicationHandler::handleIndication(
 
             String trapOid;
             Boolean trapOidAvailable = false;
-            String exceptionStr;
             //
             //  Get snmpTrapOid from context
             //
@@ -328,26 +327,30 @@ void snmpIndicationHandler::handleIndication(
 
                     if (!trapOidAvailable)
                     {
-                        exceptionStr = "No MappingStrings for snmp trap"
-                            "is specified for class: ";
-                      
-                        exceptionStr.append(
-                            indication.getClassName().getString());
+                        PEG_TRACE((
+                            TRC_IND_HANDLER,
+                            Tracer::LEVEL1,
+                            "No MappingStrings for snmp trap is specified "
+                                "for class: %s",
+                            (const char*)
+                              indication.getClassName().getString().getCString()
+                            ));
 
-                        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4,
-                            exceptionStr);
                         PEG_METHOD_EXIT();
 
-                        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                        throw PEGASUS_CIM_EXCEPTION_L(
+                            CIM_ERR_FAILED,
                             MessageLoaderParms(
                                 "Handler.snmpIndicationHandler."
                                 "snmpIndicationHandler.NO_MS_FOR_SNMP_TRAP",
-                                exceptionStr));
+                                "No MappingStrings for snmp trap is specified "
+                                    "for class: $0",
+                                indication.getClassName().getString()));
                     }
                 }
                 else
                 {
-                    PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+                    PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL1,
                         "Qualifier MappingStrings can not be found.");
                     PEG_METHOD_EXIT();
                     MessageLoaderParms parms(
@@ -387,7 +390,7 @@ void snmpIndicationHandler::handleIndication(
                 handler.getProperty(engineIDPos).getValue().get(engineID);
             }
 
-            PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+            PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
                "snmpIndicationHandler sending %s Indication trap %s to target"
                " host %s target port %d",
                (const char*)(indication.getClassName().getString().
@@ -407,7 +410,7 @@ void snmpIndicationHandler::handleIndication(
                 propTYPEs,
                 propVALUEs);
 
-        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
            "%s Indication trap %s sent to target host %s target port %d "
            "successfully",
            (const char*)(indication.getClassName().getString().getCString()),
@@ -417,20 +420,20 @@ void snmpIndicationHandler::handleIndication(
     }
     catch (CIMException& c)
     {
-        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, c.getMessage());
+        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL1, c.getMessage());
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, c.getMessage());
     }
     catch (Exception& e)
     {
-        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, e.getMessage());
+        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL1, e.getMessage());
         PEG_METHOD_EXIT();
 
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL1,
             "Failed to deliver trap.");
         PEG_METHOD_EXIT();
 

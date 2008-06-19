@@ -305,7 +305,7 @@ HTTPConnection* HTTPConnector::connect(
         
                 PEG_TRACE(
                     (TRC_DISCARDED_DATA,
-                     Tracer::LEVEL2,
+                     Tracer::LEVEL1,
                      "createSocket() returned too large socket number %d."
                          "Cannot connect to %s:%d. Connection failed.",
                      socket,
@@ -395,7 +395,7 @@ HTTPConnection* HTTPConnector::connect(
             SocketMessage::READ | SocketMessage::EXCEPTION,
             connection->getQueueId(), MonitorEntry::TYPE_CONNECTION)))
     {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "HTTPConnector::connect: Attempt to allocate entry in "
                 "_entries table failed.");
         (connection->getMPSocket()).close();

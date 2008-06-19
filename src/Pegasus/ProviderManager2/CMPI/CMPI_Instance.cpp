@@ -225,7 +225,7 @@ extern "C"
                     {
                         PEG_TRACE((
                             TRC_CMPIPROVIDERINTERFACE,
-                            Tracer::LEVEL2,
+                            Tracer::LEVEL1,
                             "TypeMisMatch, Expected Type: %s, Actual Type: %s",
                             cimTypeToString(cp.getType()),
                             cimTypeToString(v.getType())));
@@ -263,14 +263,14 @@ extern "C"
             {
                 PEG_TRACE((
                     TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL1,
                     " TypeMisMatch exception for: %s",
                     name));
                 if (getenv("PEGASUS_CMPI_CHECKTYPES")!=NULL)
                 {
                     PEG_TRACE_CSTRING(
                         TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL2,
+                        Tracer::LEVEL1,
                         " Aborting because of CMPI_CHECKTYPES..");
                         abort();
                 }
@@ -281,7 +281,7 @@ extern "C"
             {
                 PEG_TRACE((
                     TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL1,
                     " InvalidName exception for: %s",
                     origin));
 
@@ -292,13 +292,13 @@ extern "C"
             {
                 PEG_TRACE_STRING(
                     TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL1,
                     "  " + e.getMessage() + " exception for " + name);
                 if (getenv("PEGASUS_CMPI_CHECKTYPES")!=NULL)
                 {
                     PEG_TRACE_CSTRING(
                         TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL2,
+                        Tracer::LEVEL1,
                         " Aborting because of CMPI_CHECKTYPES..");
                         abort();
                 }

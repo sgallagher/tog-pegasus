@@ -134,7 +134,7 @@ void SystemLogListenerDestination::handleIndication(
 
                     default:
                     {
-                        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
+                        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL2,
                             "PerceivedSeverity = %d is not a valid value."
                             " Using default severity.", perceivedSeverity));
                         break;
@@ -143,32 +143,32 @@ void SystemLogListenerDestination::handleIndication(
             }
         }
 
-       PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+       PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
            "SystemLogListenerDestination writing %s Indication to system log",
            (const char*)(indication.getClassName().getString().getCString())));
        // writes the formatted indication to a system log file
         _writeToSystemLog(ident_name, severity, indicationText);
-       PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+       PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
            "%s Indication written to system log successfully",
            (const char*)(indication.getClassName().getString().getCString())));
     }
     catch (CIMException& c)
     {
-        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, c.getMessage());
+        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL1, c.getMessage());
         PEG_METHOD_EXIT();
 
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, c.getMessage());
     }
     catch (Exception&e)
     {
-        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL4, e.getMessage());
+        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL1, e.getMessage());
         PEG_METHOD_EXIT();
 
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_IND_HANDLER, Tracer::LEVEL1,
             "Failed to deliver indication to system log file.");
         PEG_METHOD_EXIT();
 
@@ -195,7 +195,7 @@ void SystemLogListenerDestination::_writeToSystemLog(
 
 #else
 
-    PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+    PEG_TRACE_CSTRING((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
        "SystemLogListenerDestination writing to PegasusStandard.log"));
     // PEGASUS_USE_SYSLOGS is not defined, writes the formatted
     // indications into PegasusStandard.log file

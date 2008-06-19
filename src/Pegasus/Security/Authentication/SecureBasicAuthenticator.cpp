@@ -207,7 +207,7 @@ Boolean SecureBasicAuthenticator::authenticate(
     else
     {
         authenticated = false;
-        PEG_TRACE((TRC_AUTHENTICATION, Tracer::LEVEL2,
+        PEG_TRACE((TRC_AUTHENTICATION, Tracer::LEVEL1,
             "UserID %s not authenticated: %s (errno %d, reason code 0x%08X)",
              (const char*) userName.getCString(),
               strerror(errno),errno,__errno2()));
@@ -341,7 +341,7 @@ Boolean SecureBasicAuthenticator::set_ZOS_ApplicationID( void )
     if ( memcmp(ZOS_PEGASUS_THLI_EYE_CATCHER,thli,4) != 0 )
     {
 
-        PEG_TRACE_CSTRING(TRC_AUTHENTICATION, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_AUTHENTICATION, Tracer::LEVEL1,
             "Could not set application ID CFZAPPL. "
             " BPXYTHLI control block not found.");
 

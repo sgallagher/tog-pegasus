@@ -77,7 +77,7 @@ Boolean SubscriptionTable::getSubscriptionEntry (
         //
         //  Subscription not found in Active Subscriptions table
         //
-        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL1,
             "Subscription (" + activeSubscriptionsKey +
             ") not found in ActiveSubscriptionsTable");
     }
@@ -517,7 +517,7 @@ void SubscriptionTable::_insertActiveSubscriptionsEntry (
         }
     }
 
-    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL3,
+    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL4,
         "INSERTED _activeSubscriptionsTable entry: " + traceString);
 #endif
 
@@ -538,7 +538,7 @@ void SubscriptionTable::_removeActiveSubscriptionsEntry (
 
 #ifdef PEGASUS_INDICATION_HASHTRACE
     PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
-                      Tracer::LEVEL3,
+                      Tracer::LEVEL4,
                       "REMOVED _activeSubscriptionsTable entry: " +
                       key);
 #endif
@@ -606,7 +606,7 @@ void SubscriptionTable::_insertSubscriptionClassesEntry (
         traceString.append ("  ");
     }
 
-    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL3,
+    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL4,
         "INSERTED _subscriptionClassesTable entry: " + traceString);
 #endif
 
@@ -626,7 +626,7 @@ void SubscriptionTable::_removeSubscriptionClassesEntry (
     PEGASUS_ASSERT (succeeded);
 
 #ifdef PEGASUS_INDICATION_HASHTRACE
-    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL3,
+    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL4,
         "REMOVED _subscriptionClassesTable entry: " + key);
 #endif
 

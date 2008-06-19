@@ -89,7 +89,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid hanle in \
                 CMPI_SelectCond:scndGetCountAndType");
             CMSetStatus (rc, CMPI_RC_ERR_INVALID_HANDLE);
@@ -122,7 +122,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid hanle in \
                 CMPI_SelectCond:scndGetSubCondAt");
             CMSetStatus (rc, CMPI_RC_ERR_INVALID_HANDLE);
@@ -148,7 +148,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Property Not Found in \
                 CMPI_SelectCond:scndGetSubCondAt");
             CMSetStatus(rc,CMPI_RC_ERR_NO_SUCH_PROPERTY);

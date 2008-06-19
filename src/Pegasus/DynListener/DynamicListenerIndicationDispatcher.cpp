@@ -232,7 +232,7 @@ void DynamicListenerIndicationDispatcher::_handleIndicationRequest(
         consumerName = consumerName.subString(0, trailingSlash);
         PEG_TRACE_STRING(
             TRC_LISTENER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL4,
             "The consumer name with slash removed is!" + consumerName + "!");
     }
     

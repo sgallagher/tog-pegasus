@@ -148,7 +148,7 @@ HandlerTable::~HandlerTable()
         catch (...)
         {
             PEGASUS_ASSERT(0);
-            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL3,
+            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "Unknown error caught from " +
                     _handlers[i].handlerId +
                     " terminate() method");

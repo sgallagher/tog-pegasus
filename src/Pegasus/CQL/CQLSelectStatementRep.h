@@ -159,6 +159,16 @@ class CQLSelectStatementRep : public SelectStatementRep
     void checkWellFormedIdentifier(const QueryChainedIdentifier& chainId,
                                    Boolean isSelectListId);
 
+    void reportNullContext() const;
+
+    void CheckQueryContext() const
+    {
+        if (0 == _ctx)
+        {
+            reportNullContext();
+        }
+    }
+
     CQLPredicate _predicate;
 
     Boolean _contextApplied;

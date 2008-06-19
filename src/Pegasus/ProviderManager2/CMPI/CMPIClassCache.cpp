@@ -93,7 +93,7 @@ CIMClass* CMPIClassCache::getClass(
     {
         PEG_TRACE_STRING(
             TRC_CMPIPROVIDERINTERFACE,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception: " + e.getMessage());
     }
     return 0;

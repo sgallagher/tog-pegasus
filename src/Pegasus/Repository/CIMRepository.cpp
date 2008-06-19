@@ -613,7 +613,7 @@ void _LoadObject(
 
     if (!FileSystem::existsNoCase(path, realPath))
     {
-        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL1,
             path + " does not exist.");
         PEG_METHOD_EXIT();
         throw CannotOpenFile(path);

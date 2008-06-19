@@ -316,18 +316,18 @@ void CMPIProviderManager::unloadIdleProviders()
 
 #define HandlerCatch(handler) \
     catch(const CIMException & e)  \
-    { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, \
+    { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1, \
                 "Exception: " + e.getMessage()); \
         handler.setCIMException(e); \
     } \
     catch(const Exception & e) \
-    { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, \
+    { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1, \
                 "Exception: " + e.getMessage()); \
         handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), \
         e.getMessage()); \
     } \
     catch(...) \
-    { PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, \
+    { PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1, \
                 "Exception: Unknown"); \
         handler.setStatus(CIM_ERR_FAILED, "Unknown error."); \
     }
@@ -2160,7 +2160,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
                             "Parameter $0 not found in definition for "
                             "method $1.", currentParamName,
                             request->methodName.getString());
-                        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                             MessageLoader::getMessage(msg));
                         handler.setStatus(CIM_ERR_FAILED,
                             MessageLoader::getMessage(msg));
@@ -2759,7 +2759,7 @@ Message * CMPIProviderManager::handleDisableModuleRequest(
                 }
                 catch (const Exception &e)
                 {
-                    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                         e.getMessage());
                 }
             }
@@ -2911,21 +2911,21 @@ Message * CMPIProviderManager::handleSubscriptionInitCompleteRequest(
         {
             PEG_TRACE_STRING(
                 TRC_PROVIDERMANAGER,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "CIMException: " + e.getMessage ());
         }
         catch (const Exception & e)
         {
             PEG_TRACE_STRING(
                 TRC_PROVIDERMANAGER,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Exception: " + e.getMessage ());
         }
         catch (...)
         {
             PEG_TRACE_CSTRING(
                 TRC_PROVIDERMANAGER,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Unknown error in handleSubscriptionInitCompleteRequest");
         }
     }

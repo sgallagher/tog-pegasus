@@ -152,7 +152,7 @@ extern "C"
             {
                 PEG_TRACE_STRING(
                     TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL1,
                     "Exception: _check_WQL - msg: " + e.getMessage());
                 if( rc ) 
                 {
@@ -170,7 +170,7 @@ extern "C"
             {
                 PEG_TRACE_CSTRING(
                     TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL1,
                     "Exception: Unknown Exception in _check_WQL");
                 delete stmt;
                 CMSetStatus (rc, CMPI_RC_ERR_INVALID_QUERY);
@@ -219,7 +219,7 @@ extern "C"
             {
                 PEG_TRACE_STRING(
                     TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL1,
                     "Exception: _check_CQL - msg: " + e.getMessage());
                 if( rc )
                 {
@@ -235,7 +235,7 @@ extern "C"
             {
                 PEG_TRACE_CSTRING(
                     TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL1,
                     "Exception: Unknown Exception in _check_CQL");
                 CMSetStatus (rc, CMPI_RC_ERR_INVALID_QUERY);
                 fail = true;
@@ -265,7 +265,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid Parameter in \
                 CMPI_SelectExp:selxEvaluate");
             CMSetStatus (rc, CMPI_RC_ERR_INVALID_PARAMETER);
@@ -276,7 +276,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid parameter inst->hdl in \
                 CMPI_SelectExp:selxEvaluate");
             CMSetStatus (rc, CMPI_RC_ERR_INVALID_PARAMETER);
@@ -302,7 +302,7 @@ extern "C"
                 {
                     PEG_TRACE_STRING(
                         TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL2,
+                        Tracer::LEVEL1,
                         "Exception: selxEvaluate - msg: " + e.getMessage());
                     if( rc )
                     {
@@ -316,7 +316,7 @@ extern "C"
                 {
                     PEG_TRACE_CSTRING(
                         TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL2,
+                        Tracer::LEVEL1,
                         "Exception: Unknown Exception in selxEvaluate");
                     CMSetStatus (rc, CMPI_RC_ERR_FAILED);
                     PEG_METHOD_EXIT();
@@ -349,7 +349,7 @@ extern "C"
                 {
                     PEG_TRACE_STRING(
                         TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL2,
+                        Tracer::LEVEL1,
                         "Exception: selxEvaluate - msg: " + e.getMessage());
                     if( rc )
                     {
@@ -365,7 +365,7 @@ extern "C"
                 {
                     PEG_TRACE_CSTRING(
                         TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL2,
+                        Tracer::LEVEL1,
                         "Exception: Unknown Exception in selxEvaluate");
                     CMSetStatus (rc, CMPI_RC_ERR_FAILED);
                     PEG_METHOD_EXIT();
@@ -400,7 +400,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid Parameter in \
                 CMPI_SelectExp:selxEvaluateUsingAccessor");
             CMSetStatus (rc, CMPI_RC_ERR_INVALID_PARAMETER);
@@ -424,7 +424,7 @@ extern "C"
                 {
                     PEG_TRACE_STRING(
                         TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL2,
+                        Tracer::LEVEL1,
                         "Exception: selxEvaluateUsingAccessor - msg: " +
                         e.getMessage());
                     if( rc )
@@ -441,7 +441,7 @@ extern "C"
                 {
                     PEG_TRACE_CSTRING(
                         TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL2,
+                        Tracer::LEVEL1,
                         "Exception: Unknown Exception in \
                         selxEvaluateUsingAccessor");
                     CMSetStatus (rc, CMPI_RC_ERR_FAILED);
@@ -474,7 +474,7 @@ extern "C"
                 {
                     PEG_TRACE_STRING(
                         TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL2,
+                        Tracer::LEVEL1,
                         "Exception: selxEvaluateUsingAccessor - msg: " +
                         e.getMessage());
                     if( rc )
@@ -489,7 +489,7 @@ extern "C"
                 {
                     PEG_TRACE_CSTRING(
                         TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL2,
+                        Tracer::LEVEL1,
                         "Exception: Unknown Exception in \
                         selxEvaluateUsingAccessor");
                     CMSetStatus (rc, CMPI_RC_ERR_FAILED);
@@ -546,7 +546,7 @@ extern "C"
                 {
                     PEG_TRACE_STRING(
                         TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL2,
+                        Tracer::LEVEL1,
                         "Exception: selxGetDOC - msg: " +
                         e.getMessage());
                     if( rc )
@@ -598,7 +598,7 @@ extern "C"
                 {
                     PEG_TRACE_STRING(
                         TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL2,
+                        Tracer::LEVEL1,
                         "Exception: selxGetDOC - msg: " +
                         e.getMessage());
                     if( rc ) CMSetStatusWithString(rc,CMPI_RC_ERR_FAILED,

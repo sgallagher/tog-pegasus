@@ -211,7 +211,7 @@ void MessageLoaderICU::openICUMessageFile(MessageLoaderParms& parms)
          }   
     }
 
-    PEG_TRACE_CSTRING(TRC_L10N, Tracer::LEVEL4,
+    PEG_TRACE_CSTRING(TRC_L10N, Tracer::LEVEL2,
         "Exact match message file NOT FOUND. "
              "Attempting to open default message file bundle."); 
     _openICUDefaultLocaleMessageFile(resbundl_path_ICU, parms);
@@ -287,7 +287,7 @@ void MessageLoaderICU::_openICUDefaultLocaleMessageFile(
     }
     else
     {
-        PEG_TRACE((TRC_L10N, Tracer::LEVEL4,
+        PEG_TRACE((TRC_L10N, Tracer::LEVEL2,
             "Failed to open resource bundle for default locale or root bundle, "
                 "ICU error = %d", status));
         parms._resbundl = NO_ICU_MAGIC;
@@ -431,7 +431,7 @@ AcceptLanguageList MessageLoader::_acceptlanguages;
 String MessageLoader::getMessage(MessageLoaderParms& parms)
 {
     PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::getMessage");
-    PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL2, "Message ID = " + parms.msg_id);
+    PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Message ID = " + parms.msg_id);
 
     String msg;
 

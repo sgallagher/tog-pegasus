@@ -53,7 +53,7 @@ AssertionFailureException::AssertionFailureException(
     _rep->message.append("): ");
     _rep->message.append(message);
 
-    PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2, _rep->message);
+    PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1, _rep->message);
 }
 
 AssertionFailureException::~AssertionFailureException()

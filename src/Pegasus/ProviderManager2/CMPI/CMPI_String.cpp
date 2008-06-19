@@ -67,7 +67,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid handle eStr->hdl in \
                 CMPI_String:stringRelease");
             CMReturn (CMPI_RC_ERR_INVALID_HANDLE);
@@ -82,7 +82,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid handle eStr->hdl in \
                 CMPI_String:stringClone");
             CMSetStatus (rc, CMPI_RC_ERR_INVALID_HANDLE); 
@@ -102,7 +102,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid handle eStr->hdl in \
                 CMPI_String:stringGetCharPtr");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);

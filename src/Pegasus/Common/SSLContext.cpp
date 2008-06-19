@@ -393,7 +393,7 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX* ctx)
     //
     if (!preVerifyOk)
     {
-        PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
+        PEG_TRACE((TRC_SSL, Tracer::LEVEL2,
             "---> SSL: certificate default verification error: %s",
             (const char*)errorStr.getCString()));
     }
@@ -424,7 +424,7 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX* ctx)
         (CIMDateTime::getDifference(
              CIMDateTime::getCurrentDateTime(), notBefore) > 0))
     {
-        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL2,
             "Certificate was not yet valid.");
 
         X509_STORE_CTX_set_error(ctx, X509_V_ERR_CERT_NOT_YET_VALID);
@@ -458,7 +458,7 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX* ctx)
         }
         else // verification failed, handshake will be immediately terminated
         {
-            PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
+            PEG_TRACE((TRC_SSL, Tracer::LEVEL1,
                 "--> SSL: _rep->verifyCertificateCallback() returned error %d",
                 exData->_rep->peerCertificate[0]->getErrorCode()));
 
@@ -562,7 +562,7 @@ void SSLContextRep::_randomInit(const String& randomFile)
         //
         if ( randomFile == String::EMPTY )
         {
-            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL1,
                 "Random seed file is required.");
             PEG_METHOD_EXIT();
             MessageLoaderParms parms(
@@ -580,7 +580,7 @@ void SSLContextRep::_randomInit(const String& randomFile)
             retVal = RAND_load_file(randomFile.getCString(), -1);
             if ( retVal < 0 )
             {
-                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL1,
                     String("Not enough seed data in seed file: ") + randomFile);
                 PEG_METHOD_EXIT();
                 // do not put in $0 in default message, but pass in filename
@@ -594,7 +594,7 @@ void SSLContextRep::_randomInit(const String& randomFile)
         }
         else
         {
-            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL1,
                 String("seed file - " + randomFile + " does not exist."));
             PEG_METHOD_EXIT();
             MessageLoaderParms parms(
@@ -622,7 +622,7 @@ void SSLContextRep::_randomInit(const String& randomFile)
             int  seedRet = RAND_status();
             if ( seedRet == 0 )
             {
-                PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
+                PEG_TRACE((TRC_SSL, Tracer::LEVEL1,
                     "Not enough seed data in random seed file, "
                         "RAND_status = %d",
                     seedRet));
@@ -652,7 +652,7 @@ void SSLContextRep::_randomInit(const String& randomFile)
     int seedRet = RAND_status();
     if (seedRet == 0)
     {
-        PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
+        PEG_TRACE((TRC_SSL, Tracer::LEVEL1,
             "Not enough seed data, RAND_status = %d",
             seedRet));
         PEG_METHOD_EXIT();
@@ -766,7 +766,7 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
             //
             // load certificates from the trust store
             //
-            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
                 String("---> SSL: Loading certificates from the trust store: " +
                     _trustStore));
 
@@ -774,7 +774,7 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                      sslContext, NULL, _trustStore.getCString())) ||
                 (!SSL_CTX_set_default_verify_paths(sslContext)))
             {
-                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL1,
                     String("---> SSL: Could not load certificates from the "
                         "trust store: " + _trustStore));
                 MessageLoaderParms parms(
@@ -801,7 +801,7 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                 //
                 // load certificates from the trust store
                 //
-                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
                     String("---> SSL: Loading certificates from the trust "
                         "store: " + _trustStore));
 
@@ -809,7 +809,7 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                          sslContext, _trustStore.getCString(), NULL)) ||
                     (!SSL_CTX_set_default_verify_paths(sslContext)))
                 {
-                    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+                    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL1,
                         String("---> SSL: Could not load certificates from the "
                             "trust store: " + _trustStore));
                     MessageLoaderParms parms(
@@ -901,13 +901,13 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
         //
         // load the specified server certificates
         //
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
             String("---> SSL: Loading server certificate from: " + _certPath));
 
         if (SSL_CTX_use_certificate_file(sslContext,
             _certPath.getCString(), SSL_FILETYPE_PEM) <=0)
         {
-            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL1,
                 String("---> SSL: No server certificate found in " +
                     _certPath));
             MessageLoaderParms parms(
@@ -926,7 +926,7 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
         //
         if (_keyPath == String::EMPTY)
         {
-            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
                 String("---> SSL: loading private key from: " + _certPath));
             //
             // load the private key and check for validity
@@ -950,7 +950,7 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
     //
     if (_keyPath != String::EMPTY && !keyLoaded)
     {
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
             String("---> SSL: loading private key from: " + _keyPath));
         //
         // load given private key and check for validity
@@ -980,7 +980,7 @@ Boolean SSLContextRep::_verifyPrivateKey(SSL_CTX *ctx, const String& keyPath)
 
     if (!is)
     {
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL1,
             String("failed to open private key file: " + keyPath));
         return false;
     }
@@ -993,7 +993,7 @@ Boolean SSLContextRep::_verifyPrivateKey(SSL_CTX *ctx, const String& keyPath)
     if (!pkey)
     {
         PEG_TRACE_CSTRING(
-            TRC_SSL, Tracer::LEVEL2, "failed to create private key");
+            TRC_SSL, Tracer::LEVEL1, "failed to create private key");
         return false;
     }
 
@@ -1006,7 +1006,7 @@ Boolean SSLContextRep::_verifyPrivateKey(SSL_CTX *ctx, const String& keyPath)
     if (SSL_CTX_use_PrivateKey(ctx, pkey) <= 0)
     {
         EVP_PKEY_free(pkey);
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
             String("---> SSL: no private key found in " + keyPath));
         PEG_METHOD_EXIT();
         return false;
@@ -1018,7 +1018,7 @@ Boolean SSLContextRep::_verifyPrivateKey(SSL_CTX *ctx, const String& keyPath)
 
     if (!SSL_CTX_check_private_key(ctx))
     {
-        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL1,
             "---> SSL: Private and public key do not match");
         PEG_METHOD_EXIT();
         return false;

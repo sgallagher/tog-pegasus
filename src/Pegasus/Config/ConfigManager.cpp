@@ -751,12 +751,12 @@ void ConfigManager::_loadConfigProperties()
         }
         catch (UnrecognizedConfigProperty& ucp)
         {
-            PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL2, ucp.getMessage());
+            PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL1, ucp.getMessage());
             throw;
         }
         catch (InvalidPropertyValue& ipv)
         {
-            PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL2, ipv.getMessage());
+            PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL1, ipv.getMessage());
             throw;
         }
     }

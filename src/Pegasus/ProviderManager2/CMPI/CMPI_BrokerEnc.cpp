@@ -280,7 +280,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received Invalid Parameter in CMPI_BrokerEnc:mbEncToString");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             PEG_METHOD_EXIT();
@@ -291,7 +291,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received Invalid handle in CMPI_BrokerEnc:mbEncToString");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             PEG_METHOD_EXIT();
@@ -395,7 +395,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received Invalid Parameter in CMPI_BrokerEnc:mbEncNewString");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             PEG_METHOD_EXIT();
@@ -469,7 +469,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received Invalid Parameter in CMPI_BrokerEnc:newDateTimeChar");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
         }
@@ -609,7 +609,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received Invalid Parameter - eCp || type in \
                 CMPI_BrokerEnc:mbEncClassPathIsA");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
@@ -620,7 +620,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received Invalid Class in \
                 CMPI_BrokerEnc:mbEncClassPathIsA");
             CMSetStatus(rc,CMPI_RC_ERR_INVALID_CLASS);
@@ -1059,7 +1059,7 @@ extern "C"
             {
                 PEG_TRACE(
                     (TRC_PROVIDERMANAGER,
-                     Tracer::LEVEL2,
+                     Tracer::LEVEL1,
                      "Failed to get CMPIAcceptLanguage from CMPIContext. RC=%d",
                      rc.rc));
                 PEG_METHOD_EXIT();
@@ -1549,13 +1549,13 @@ extern "C"
             {
                 PEG_TRACE_CSTRING(
                     TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL1,
                     "Exception: Unknown Exception received...");
                 if (st)
                 {
                     PEG_TRACE_CSTRING(
                         TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL2,
+                        Tracer::LEVEL1,
                         "Exception: Invalid Query Exception received...");
                     CMSetStatus (st, CMPI_RC_ERR_INVALID_QUERY);
                 }
@@ -1657,7 +1657,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received Query Language is currently NOT SUPPORTED");
             CMSetStatus (st, CMPI_RC_ERR_QUERY_LANGUAGE_NOT_SUPPORTED);
         }
@@ -1679,7 +1679,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid Parameter cop || ctx in \
                 CMPI_BrokerEnc:mbEncGetKeyList");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
@@ -1692,7 +1692,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received Invalid Handle cop->handle in \
                 CMPI_BrokerEnc:mbEncGetKeyList");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);

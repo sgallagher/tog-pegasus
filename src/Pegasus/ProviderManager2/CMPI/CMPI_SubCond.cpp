@@ -62,7 +62,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid handle in CMPI_SubCond:sbcRelease");
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
@@ -85,7 +85,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid handle in CMPI_SubCond:sbcGetCount");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             PEG_METHOD_EXIT();
@@ -113,7 +113,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid handle in CMPI_SubCond:sbcGetPredicateAt");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             PEG_METHOD_EXIT();

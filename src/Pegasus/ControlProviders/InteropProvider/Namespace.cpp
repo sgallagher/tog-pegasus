@@ -320,7 +320,7 @@ String buildNamespacePath(
 
     if(propIndex == PEG_NOT_FOUND)
     {
-        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL1,
             "Invalid CIM_Namespace Key Property " +  propertyName.getString());
         PEG_METHOD_EXIT();
         throw CIMInvalidParameterException(

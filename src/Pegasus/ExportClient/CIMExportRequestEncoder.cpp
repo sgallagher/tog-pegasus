@@ -122,7 +122,7 @@ void CIMExportRequestEncoder::_encodeExportIndicationRequest(
         params);
 
     HTTPMessage* httpMessage = new HTTPMessage(buffer);
-    PEG_TRACE_CSTRING(TRC_XML_IO, Tracer::LEVEL2,
+    PEG_TRACE_CSTRING(TRC_XML_IO, Tracer::LEVEL4,
         httpMessage->message.getData());
 
     _outputQueue->enqueue(httpMessage);

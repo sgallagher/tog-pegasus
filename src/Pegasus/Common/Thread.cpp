@@ -370,7 +370,7 @@ Sint8 Thread::initializeKey()
     {
         if (Thread::_key_error)
         {
-            PEG_TRACE_CSTRING(TRC_THREAD, Tracer::LEVEL4,
+            PEG_TRACE_CSTRING(TRC_THREAD, Tracer::LEVEL1,
                           "Thread: ERROR - thread key error");
             return -1;
         }
@@ -383,7 +383,7 @@ Sint8 Thread::initializeKey()
         }
         else
         {
-            PEG_TRACE_CSTRING(TRC_THREAD, Tracer::LEVEL4,
+            PEG_TRACE_CSTRING(TRC_THREAD, Tracer::LEVEL1,
                           "Thread: ERROR - unable to create a thread key");
             Thread::_key_error = true;
             return -1;
@@ -419,7 +419,7 @@ void Thread::setCurrent(Thread * thrd)
         }
         else
         {
-            PEG_TRACE_CSTRING(TRC_THREAD, Tracer::LEVEL4,
+            PEG_TRACE_CSTRING(TRC_THREAD, Tracer::LEVEL1,
                 "ERROR: error setting Thread * into thread specific storage");
         }
     }

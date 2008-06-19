@@ -793,7 +793,7 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
                     }
                     else
                     {
-                        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+                        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL2,
                             "Namespace " + dirName +
                             " ignored - using incorrect parent namespace "
                                 "specification: " +
@@ -869,7 +869,7 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
 
                 continue;
             }
-            PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+            PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL2,
                 "Namespace: " + dirName +
                 " ignored - using incorrect parent namespace specification: " +
                 specialName);
@@ -891,7 +891,7 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
         {
             (*nameSpaceNames)[i] = String::EMPTY;
             i = -1;   //restart
-            PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+            PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL2,
                 "Namespace: " + dirName +
                     " ignored - no sub directories found");
             continue;
@@ -909,7 +909,7 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
                             break;
                     if (j >= m)
                     {
-                        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+                        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL2,
                             "Namespace: " + (*nameSpaceNames)[i] +
                             " ignored - parent namespace not found: " +
                             pns->parent);
@@ -1542,7 +1542,7 @@ void NameSpaceManager::createClass(
 
     if (!_rep->table.lookup(nameSpaceName.getString (), nameSpace))
     {
-        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4, "Invalid NameSpace.");
+        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL1, "Invalid NameSpace.");
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION
             (CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
@@ -1561,7 +1561,7 @@ void NameSpaceManager::createClass(
 
     if (it.containsClass(className))
     {
-        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL1,
             "Class already exists.");
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(
@@ -1573,7 +1573,7 @@ void NameSpaceManager::createClass(
         InheritanceTree& it = nameSpace->parent->getInheritanceTree();
         if (it.containsClass(className))
         {
-            PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
+            PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL1,
                 "Class already exists.");
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(
@@ -1590,7 +1590,7 @@ void NameSpaceManager::createClass(
                 InheritanceTree& it = ns->getInheritanceTree();
                 if (it.containsClass(className))
                 {
-                    PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
+                    PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL1,
                         "Class already exists.");
                     PEG_METHOD_EXIT();
                     throw PEGASUS_CIM_EXCEPTION(
@@ -1626,7 +1626,7 @@ void NameSpaceManager::createClass(
 
     if (missing)
     {
-        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL1,
             "SuperClass does not exist.");
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(
@@ -1982,7 +1982,7 @@ Boolean NameSpaceManager::classExists(
 
         if (it.containsClass(className))
         {
-            PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
+            PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL1,
                 "Class already exists.");
             PEG_METHOD_EXIT();
             if (throwExcp)

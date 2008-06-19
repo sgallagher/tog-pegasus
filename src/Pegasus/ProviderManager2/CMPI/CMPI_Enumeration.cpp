@@ -139,7 +139,7 @@ extern "C"
         }
         PEG_TRACE_CSTRING(
             TRC_CMPIPROVIDERINTERFACE,
-            Tracer::LEVEL4,
+            Tracer::LEVEL1,
             "Received invalid Handle - eEnum->hdl...");
         CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
         PEG_METHOD_EXIT();
@@ -219,7 +219,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL4,
+                Tracer::LEVEL1,
                 "Received invalid Handle - eEnum || eEnum->hdl...");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return false;
@@ -280,7 +280,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL4,
+                Tracer::LEVEL1,
                 "Received invalid Handle - eEnum || eEnum->hdl...");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             PEG_METHOD_EXIT();

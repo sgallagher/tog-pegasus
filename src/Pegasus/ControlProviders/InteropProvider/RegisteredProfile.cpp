@@ -195,7 +195,7 @@ void InteropProvider::sendUpdateRegMessageToSLPProvider(
     {
         PEG_TRACE_STRING(
             TRC_CONTROLPROVIDER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception caught while invoking SLPProvider 'update' method: " +
                 e.getMessage());
     }
@@ -203,7 +203,7 @@ void InteropProvider::sendUpdateRegMessageToSLPProvider(
     {
         PEG_TRACE_CSTRING(
             TRC_CONTROLPROVIDER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Unknown error occurred while"
                 " invoking SLPProvider 'update' method.");
     }

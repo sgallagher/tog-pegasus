@@ -233,12 +233,12 @@ Array<CIMObject> WMIQueryProvider::execQuery(
     if (pObjEnum)
         pObjEnum.Release();
 
-    PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+    PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL4,
         "WMIQueryProvider::execQuery() - Result count is %d", lCount)); 
 
     if (lCount == 0)
     {
-        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL2,
             "WMIQueryProvider::execQuery() - hResult value is %x", hr)); 
     }
 

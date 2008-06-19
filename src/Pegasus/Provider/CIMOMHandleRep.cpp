@@ -61,7 +61,7 @@ void CIMOMHandleRep::disallowProviderUnload()
     {
         // There's not much a provider could do with this exception.  Since
         // this is just a hint, our best bet is to just ignore it.
-        PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL3,
+        PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
             "Caught unexpected exception");
     }
 
@@ -85,7 +85,7 @@ void CIMOMHandleRep::allowProviderUnload()
     {
         // There's not much a provider could do with this exception.  Since
         // this is just a hint, our best bet is to just ignore it.
-        PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL3,
+        PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
             "Caught unexpected exception");
     }
 

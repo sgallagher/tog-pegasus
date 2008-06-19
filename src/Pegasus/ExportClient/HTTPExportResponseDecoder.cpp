@@ -106,7 +106,7 @@ void HTTPExportResponseDecoder::parseHTTPHeaders(
         }
     }
 
-    PEG_TRACE_CSTRING(TRC_XML_IO, Tracer::LEVEL2,
+    PEG_TRACE_CSTRING(TRC_XML_IO, Tracer::LEVEL4,
                       httpMessage->message.getData());
 
     //

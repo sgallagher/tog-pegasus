@@ -319,7 +319,7 @@ void Tickler::_uninitialize()
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL2,
             "Failed to close tickle sockets");
     }
     Socket::uninitializeInterface();
@@ -526,7 +526,7 @@ void Monitor::run(Uint32 milliseconds)
 
     if (events == PEGASUS_SOCKET_ERROR)
     {
-        PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+        PEG_TRACE((TRC_HTTP, Tracer::LEVEL1,
             "Monitor::run - select() returned error %d.", selectErrno));
         // The EBADF error indicates that one or more or the file
         // descriptions was not valid. This could indicate that
@@ -589,7 +589,7 @@ void Monitor::run(Uint32 milliseconds)
                             }
                             catch (...)
                             {
-                                PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL2,
+                                PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL1,
                                     "Caught exception from "
                                     "HTTPConnection::run()");
                             }

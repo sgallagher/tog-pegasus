@@ -153,7 +153,7 @@ IndicationHandlerService::_handleIndication(
     CIMInstance indication = request->indicationInstance;
     CIMInstance handler = request->handlerInstance;
 
-    PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+    PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
         "Handler service received %s Indication %s for %s:%s.%s Handler",
         (const char*)(indication.getClassName().getString().getCString()),
         (const char*)(request->messageId.getCString()),
@@ -231,7 +231,7 @@ IndicationHandlerService::_handleIndication(
                             String(((MessageQueue::lookup(exportServer[0]))->
                                 getQueueName())) :
                             String("BAD queue name")));
-                PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+                PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
                     "Sending %s Indication %s to destination %s",
                     (const char*) (indication.getClassName().getString().
                     getCString()),

@@ -95,7 +95,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid handle in CMPIObjectPath:refSetNameSpace");
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
@@ -103,7 +103,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid Parameter in \
                 CMPIObjectPath:refSetNameSpace");
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
@@ -121,7 +121,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid handle in CMPIObjectPath:refGetNameSpace");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return NULL;
@@ -139,7 +139,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid handle in CMPIObjectPath:refSetHostName");
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
@@ -147,7 +147,7 @@ extern "C"
         {
             PEG_TRACE((
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid parameter %s in \
                 CMPIObjectPath:refSetHostName", hn));
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
@@ -165,7 +165,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid handle in CMPIObjectPath:refGetHostName");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return NULL;
@@ -183,7 +183,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid handle in CMPIObjectPath:refSetClassName");
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
@@ -191,7 +191,7 @@ extern "C"
         {
             PEG_TRACE((
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid parameter %s in \
                 CMPIObjectPath:refSetClassName", cn));
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
@@ -209,7 +209,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid handle in CMPIObjectPath:refGetClassName");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return NULL;
@@ -245,7 +245,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid handle in CMPIObjectPath:refAddKey");
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
@@ -253,7 +253,7 @@ extern "C"
         {
             PEG_TRACE((
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid parameter %s in \
                 CMPIObjectPath:refAddKey", name));
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
@@ -286,7 +286,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid handle in CMPIObjectPath:refGetKey");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return data;
@@ -295,7 +295,7 @@ extern "C"
         {
             PEG_TRACE((
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid parameter %s in \
                 CMPIObjectPath:refGetKey", name));
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
@@ -328,7 +328,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid handle in CMPIObjectPath:refGetKeyAt");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return data;
@@ -341,7 +341,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Property Not Found - CMPIObjectPath:refGetKeyAt");
             CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
             return data;
@@ -364,7 +364,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid handle in CMPIObjectPath:refGetKeyCount");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return 0;
@@ -384,7 +384,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid handle in \
                 CMPIObjectPath:refSetNameSpaceFromObjectPath");
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
@@ -403,7 +403,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid handle in \
                 CMPIObjectPath:refSetHostAndNameSpaceFromObjectPath");
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
@@ -420,7 +420,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid handle in CMPIObjectPath:refToString");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return NULL;

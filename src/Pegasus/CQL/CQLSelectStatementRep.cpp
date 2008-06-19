@@ -151,15 +151,7 @@ Boolean CQLSelectStatementRep::evaluate(const CIMInstance& inCI)
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::evaluate");
     
-    if(_ctx == NULL)
-    {
-        PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL4,"QC not set");
-        PEG_METHOD_EXIT();
-        MessageLoaderParms parms(
-            "CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
-            "Trying to process a query with a NULL Query Context.");
-        throw CQLRuntimeException(parms);
-    }
+    CheckQueryContext();
     
     // Apply to class contexts to the identifiers.
     // This will check for a well-formed statement.
@@ -190,15 +182,7 @@ void CQLSelectStatementRep::applyProjection(
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::applyProjection(inCI)");
     
-    if(_ctx == NULL)
-    {
-        PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL4,"QC not set");
-        PEG_METHOD_EXIT();
-        MessageLoaderParms parms(
-            "CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
-            "Trying to process a query with a NULL Query Context.");
-        throw CQLRuntimeException(parms);
-    }
+    CheckQueryContext();
     
     // Apply to class contexts to the identifiers.
     // This will check for a well-formed statement.
@@ -461,7 +445,7 @@ Boolean CQLSelectStatementRep::applyProjection(
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         )
     {
-        PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL4,"not emb");
+        PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL1,"not emb");
         PEG_METHOD_EXIT();
         MessageLoaderParms parms(
             "CQL.CQLSelectStatementRep.PROP_NOT_EMB",
@@ -474,7 +458,7 @@ Boolean CQLSelectStatementRep::applyProjection(
     {
         // Since we will be projecting on the embedded object, it
         //  cannot be null
-        PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL4,"value is null");
+        PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL1,"value is null");
         PEG_METHOD_EXIT();
         MessageLoaderParms parms(
             "CQL.CQLSelectStatementRep.NULL_EMB_OBJ",
@@ -493,7 +477,7 @@ Boolean CQLSelectStatementRep::applyProjection(
         // Examples not allowed:  
         //   SELECT fromClass.someArrayProp.scope::notAllowedProp FROM fromClass
         //   SELECT fromClass.someArrayProp.* FROM fromClass
-        PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL4,"array index needed");
+        PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL1,"array index needed");
         PEG_METHOD_EXIT();
         MessageLoaderParms parms("CQL.CQLSelectStatementRep.PROJ_WHOLE_ARRAY",
                       "CQL requires that array indexing is used on embedded"
@@ -512,7 +496,7 @@ Boolean CQLSelectStatementRep::applyProjection(
     if (nodeObj.isUninitialized())
     {
         // Not allowed to project on an uninitialized object
-        PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL4,"is uninitialized");
+        PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL1,"is uninitialized");
         PEG_METHOD_EXIT();
         MessageLoaderParms parms("CQL.CQLSelectStatementRep.PROJ_UNINIT",
             "The embedded object property $0 is uninitialized.",
@@ -523,7 +507,7 @@ Boolean CQLSelectStatementRep::applyProjection(
     if (!nodeObj.isInstance())
     {
         // Not allowed to project on a Class
-        PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL4,"is a class");
+        PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL1,"is a class");
         PEG_METHOD_EXIT();
         MessageLoaderParms parms("CQL.CQLSelectStatementRep.PROJ_CLASS",
             "CQL does not allow properties to be projected on class $0.",
@@ -540,7 +524,7 @@ Boolean CQLSelectStatementRep::applyProjection(
         if (nodeInst.isUninitialized())
         {
             // Not allowed to project on an uninitialized object
-            PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL4,"is uninitialized");
+            PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL1,"is uninitialized");
             PEG_METHOD_EXIT();
             MessageLoaderParms parms(
                 "CQL.CQLSelectStatementRep.PROJ_UNINIT",
@@ -719,7 +703,7 @@ Boolean CQLSelectStatementRep::isFilterable(
                 // Just swallow this error because according to the
                 // spec we should be putting NULL in the result column,
                 // which means skipping the property on the instance.
-                PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL4,
+                PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL2,
                     "scope class not in schema");
             }
             else
@@ -794,7 +778,7 @@ void CQLSelectStatementRep::filterInstance(CIMInstance& inst,
         {
             if (!containsProperty(requiredProps[i], supportedProps))
             {
-                PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"missing:" + 
+                PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL1,"missing:" + 
                     requiredProps[i].getString());
                 PEG_METHOD_EXIT();
                 MessageLoaderParms parms(
@@ -834,15 +818,7 @@ void CQLSelectStatementRep::validate()
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::validate");
     
-    if(_ctx == NULL)
-    {
-        PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL4,"null QC");
-        PEG_METHOD_EXIT();
-        MessageLoaderParms parms(
-            "CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
-            "Trying to process a query with a NULL Query Context.");
-        throw QueryValidationException(parms);
-    }
+    CheckQueryContext();
     
     if (!_contextApplied)
         applyContext();
@@ -914,7 +890,7 @@ void CQLSelectStatementRep::validateProperty(
         }
         catch (const CIMException& ce)
         {
-            PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL4,"repository error");
+            PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL1,"repository error");
             PEG_METHOD_EXIT();
             if (ce.getCode() == CIM_ERR_NOT_FOUND ||
               ce.getCode() == CIM_ERR_INVALID_CLASS)
@@ -949,7 +925,7 @@ void CQLSelectStatementRep::validateProperty(
             Uint32 propertyIndex = classDef.findProperty(ids[pos].getName());
             if (propertyIndex == PEG_NOT_FOUND)
             {
-                PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,
+                PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL1,
                     "prop not on context " +
                     ids[pos].getName().getString());
                 PEG_METHOD_EXIT();
@@ -975,7 +951,7 @@ void CQLSelectStatementRep::validateProperty(
                 if (_ctx->getClassRelation(ids[0].getName(), curContext) == 
                         QueryContext::NOTRELATED)
                 {
-                    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,
+                    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL1,
                         "scope violation for:"+
                         ids[0].getName().getString());
                     PEG_METHOD_EXIT();
@@ -996,7 +972,7 @@ void CQLSelectStatementRep::validateProperty(
                 CIMName qual("EmbeddedObject");
                 if (embObj.findQualifier(qual) == PEG_NOT_FOUND)
                 {
-                    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"prop not emb " +
+                    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL1,"prop not emb " +
                                     embObj.getName().getString());
                     PEG_METHOD_EXIT();
                     MessageLoaderParms parms(
@@ -1027,15 +1003,7 @@ Array<CIMObjectPath> CQLSelectStatementRep::getClassPathList() const
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::getClassPathList");
     
-    if(_ctx == NULL)
-    {
-        PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL4,"null QC");
-        PEG_METHOD_EXIT();
-        MessageLoaderParms parms(
-            "CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
-            "Trying to process a query with a NULL Query Context.");
-        throw CQLRuntimeException(parms);
-    }
+    CheckQueryContext();
     
     Array<QueryIdentifier> ids = _ctx->getFromList();
     PEGASUS_ASSERT(ids.size() == 1);  // no joins yet
@@ -1144,15 +1112,7 @@ CIMPropertyList CQLSelectStatementRep::getPropertyListInternal(
     PEG_METHOD_ENTER (TRC_CQL, 
         "CQLSelectStatementRep::getPropertyListInternal");
     
-    if(_ctx == NULL)
-    {
-        PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL4,"null QC");
-        PEG_METHOD_EXIT();
-        MessageLoaderParms parms(
-            "CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
-            "Trying to process a query with a NULL Query Context.");
-        throw CQLRuntimeException(parms);
-    }
+    CheckQueryContext();
     
     if (!_contextApplied)
         applyContext();
@@ -1451,15 +1411,7 @@ Array<CQLChainedIdentifier> CQLSelectStatementRep::getWhereChainedIdentifiers()
     PEG_METHOD_ENTER (TRC_CQL, 
         "CQLSelectStatementRep::getWhereChainedIdentifiers");
     
-    if(_ctx == NULL)
-    {
-        PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL4,"null QC");
-        PEG_METHOD_EXIT();
-        MessageLoaderParms parms(
-            "CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
-            "Trying to process a query with a NULL Query Context.");
-        throw CQLRuntimeException(parms);
-    }
+    CheckQueryContext();
     
     if (!_contextApplied)
         applyContext();
@@ -1521,15 +1473,8 @@ void CQLSelectStatementRep::appendClassPath(const CQLIdentifier& inIdentifier)
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::appendClassPath");
     
-    if(_ctx == NULL)
-    {
-        PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL4,"null QC");
-        PEG_METHOD_EXIT();
-        MessageLoaderParms parms(
-            "CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
-            "Trying to process a query with a NULL Query Context.");
-        throw QueryValidationException(parms);
-    }
+    CheckQueryContext();
+    
     _ctx->insertClassPath(inIdentifier);
     
     PEG_METHOD_EXIT();
@@ -1554,15 +1499,8 @@ void CQLSelectStatementRep::insertClassPathAlias(
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::insertClassPathAlias");
     
-    if(_ctx == NULL)
-    {
-        PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL4,"null QC");
-        PEG_METHOD_EXIT();
-        MessageLoaderParms parms(
-            "CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
-            "Trying to process a query with a NULL Query Context.");
-        throw QueryValidationException(parms);
-    }
+    CheckQueryContext();
+    
     _ctx->insertClassPath(inIdentifier,inAlias);
     
     PEG_METHOD_EXIT();
@@ -1580,16 +1518,7 @@ void CQLSelectStatementRep::applyContext()
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::applyContext");
     
-    if (_ctx == NULL)
-    {
-        PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL4,"null QC");
-        PEG_METHOD_EXIT();
-        MessageLoaderParms parms(
-            "CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
-            "Trying to process a query with a NULL Query Context.");
-        // throw syntax error to be consistent
-        throw CQLSyntaxErrorException(parms);
-    }
+    CheckQueryContext();
     
     for (Uint32 i = 0; i < _selectIdentifiers.size(); i++)
     {
@@ -1756,15 +1685,7 @@ String CQLSelectStatementRep::toString() const
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::toString");
     
-    if(_ctx == NULL)
-    {
-        PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL4,"null QC");
-        PEG_METHOD_EXIT();
-        MessageLoaderParms parms(
-            "CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
-            "Trying to process a query with a NULL Query Context.");
-        throw CQLRuntimeException(parms);
-    }
+    CheckQueryContext();
     
     String s("SELECT ");
     for(Uint32 i = 0; i < _selectIdentifiers.size(); i++)
@@ -1806,15 +1727,7 @@ void  CQLSelectStatementRep::clear()
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::clear");
     
-    if(_ctx == NULL)
-    {
-         PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL4,"null QC");
-         PEG_METHOD_EXIT();
-         MessageLoaderParms parms(
-             "CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
-             "Trying to process a query with a NULL Query Context.");
-         throw CQLRuntimeException(parms);
-    }
+    CheckQueryContext();
     
     _ctx->clear();
     _hasWhereClause = false;
@@ -1823,6 +1736,18 @@ void  CQLSelectStatementRep::clear()
     _selectIdentifiers.clear();
     
     PEG_METHOD_EXIT();
+}
+
+void CQLSelectStatementRep::reportNullContext() const
+{
+    PEG_TRACE_CSTRING(
+        TRC_CQL,
+        Tracer::LEVEL1,
+        "CQL Query Context not set in select statement representation.");
+    MessageLoaderParms parms(
+        "CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
+        "Trying to process a query with a NULL Query Context.");
+    throw CQLRuntimeException(parms);
 }
 
 PEGASUS_NAMESPACE_END

@@ -82,7 +82,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid Handle - eArg->hdl in \
                 CMPI_ContextArgs:argsClone");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
@@ -132,7 +132,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid Handle - eArg->hdl in \
                 CMPI_ContextArgs:argsAddArg");
             PEG_METHOD_EXIT();
@@ -142,7 +142,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid Parameter - name in \
                 CMPI_ContextArgs:argsAddArg");
             PEG_METHOD_EXIT();
@@ -175,7 +175,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid handle eArg->hdl in \
                 CMPI_ContextArgs:argsGetArgAt");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
@@ -186,7 +186,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Property Not Found in CMPI_ContextArgs:argsGetArgAt");
             CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
             return data;
@@ -219,7 +219,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid Handle - eArg->hdl in CMPI_ContextArgs:argsGetArg");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return data;
@@ -228,7 +228,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid Parameter - name in \
                 CMPI_ContextArgs:argsGetArg");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
@@ -253,7 +253,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid Handle - eArg->hdl in \
                 CMPI_ContextArgs:argsGetArgCount");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
@@ -341,7 +341,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Invalid Parameter - name || data in \
                 CMPI_ContextArgs:contextAddEntry");
             PEG_METHOD_EXIT();
@@ -354,7 +354,7 @@ extern "C"
             {
                 PEG_TRACE_CSTRING(
                     TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL1,
                     "Invalid Handle - eCtx->ctx in \
                     CMPI_ContextArgs:contextAddEntry");
                 PEG_METHOD_EXIT();
@@ -376,7 +376,7 @@ extern "C"
             {
                 PEG_TRACE_CSTRING(
                     TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL1,
                     "Received Invalid Data Type in \
                     CMPI_COntextArgs:contextAddEntry");
                 // Only CMPITypes CMPI_chars and CMPI_string are supported

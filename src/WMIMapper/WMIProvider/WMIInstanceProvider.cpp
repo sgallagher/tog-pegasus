@@ -142,7 +142,7 @@ CIMInstance WMIInstanceProvider::getInstance(
 
     if (!m_bInitialized)
     {
-        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
             "WMIInstanceProvider::getInstance - m_bInitilized= %x, "
             "throw CIM_ERR_FAILED exception",  
             m_bInitialized));
@@ -226,7 +226,7 @@ Array<CIMInstance> WMIInstanceProvider::enumerateInstances(
     
     if (!m_bInitialized)
     {
-        PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL3,
+        PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL1,
             "enumerateInstances - m_bInitialized is false; throw exception"); 
 
         throw CIMException(CIM_ERR_FAILED);
@@ -386,13 +386,13 @@ Array<CIMInstance> WMIInstanceProvider::enumerateInstances(
     if (pInstEnum)
         pInstEnum.Release();
 
-    PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+    PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL4,
         "WMIInstanceProvider::enumerateInstances() - "
         "Instance count is %d", lCount)); 
 
     if (lCount == 0)
     {
-        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL2,
             "WMIInstanceProvider::enumerateInstances() - "
             "hResult value is %x", hr));
     }
@@ -428,7 +428,7 @@ Array<CIMObjectPath> WMIInstanceProvider::enumerateInstanceNames(
 
     if (!m_bInitialized)
     {
-        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
             "WMIInstanceProvider::enumerateInstanceNames - m_bInitilized= %x,"
             " throw CIM_ERR_FAILED exception",  
             m_bInitialized));
@@ -578,7 +578,7 @@ Array<CIMObjectPath> WMIInstanceProvider::enumerateInstanceNames(
         pInstEnum.Release();
 
     PEG_TRACE((TRC_WMIPROVIDER, 
-                  Tracer::LEVEL3,
+                  Tracer::LEVEL4,
                   "WMIInstanceProvider::enumerateInstanceNames() -"
                   " Instance count is %d", 
                   lCount));
@@ -586,7 +586,7 @@ Array<CIMObjectPath> WMIInstanceProvider::enumerateInstanceNames(
     if (lCount == 0)
     {
         PEG_TRACE((TRC_WMIPROVIDER, 
-                      Tracer::LEVEL3,
+                      Tracer::LEVEL2,
                       "WMIInstanceProvider::enumerateInstanceNames() -"
                       " hResult value is %x", 
                       hr));
@@ -687,7 +687,7 @@ void WMIInstanceProvider::setProperty(
 
     if (!m_bInitialized)
     {
-        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
             "WMIInstanceProvider::setProperty - m_bInitilized= %x, "
             "throw CIM_ERR_FAILED exception",  
             m_bInitialized));
@@ -757,7 +757,7 @@ void WMIInstanceProvider::setProperty(
                 throw CIMException(CIM_ERR_TYPE_MISMATCH);
             default:
                 PEG_TRACE((TRC_WMIPROVIDER, 
-                              Tracer::LEVEL3,
+                              Tracer::LEVEL1,
                               "setProperty() - Put failed, hr = %x", 
                               hr));
 
@@ -784,7 +784,7 @@ void WMIInstanceProvider::setProperty(
     if (FAILED(hr))
     {
         PEG_TRACE((TRC_WMIPROVIDER, 
-                      Tracer::LEVEL3,
+                      Tracer::LEVEL1,
                       "setProperty() - PutInstance failed, hr = %x", 
                       hr));
 
@@ -825,7 +825,7 @@ void WMIInstanceProvider::modifyInstance(
 
     if (!m_bInitialized)
     {
-        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
             "WMIInstanceProvider::ModifyInstance - m_bInitilized= %x, "
             "throw CIM_ERR_FAILED exception",  
             m_bInitialized));
@@ -941,7 +941,7 @@ void WMIInstanceProvider::modifyInstance(
     if(!bPropertySet)
     {
         PEG_TRACE((TRC_WMIPROVIDER, 
-                      Tracer::LEVEL3,
+                      Tracer::LEVEL1,
                       "modifyInstance() - Put Failed hr=0x%x.", 
                       hr));
 

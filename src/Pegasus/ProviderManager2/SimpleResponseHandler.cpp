@@ -55,7 +55,7 @@ void SimpleResponseHandler::processing()
 {
     PEG_TRACE_CSTRING(
         TRC_PROVIDERMANAGER,
-        Tracer::LEVEL3,
+        Tracer::LEVEL4,
         "SimpleResponseHandler::processing()");
     // do nothing
 }
@@ -64,7 +64,7 @@ void SimpleResponseHandler::complete()
 {
     PEG_TRACE_CSTRING(
         TRC_PROVIDERMANAGER,
-        Tracer::LEVEL3,
+        Tracer::LEVEL4,
         "SimpleResponseHandler::complete()");
 
     send(true);
@@ -85,7 +85,7 @@ ContentLanguageList SimpleResponseHandler::getLanguages()
 {
     PEG_TRACE_CSTRING(
         TRC_PROVIDERMANAGER,
-        Tracer::LEVEL3,
+        Tracer::LEVEL4,
         "SimpleResponseHandler: getLanguages()");
 
     ContentLanguageList langs;

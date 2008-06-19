@@ -116,7 +116,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Exception: Unknown Exception in newDateTimeChar()");
             delete dt;
             PEG_METHOD_EXIT();
@@ -136,7 +136,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid Handle - eDt->hdl...");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             PEG_METHOD_EXIT();
@@ -160,7 +160,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid Handle in CMPI_DateTime:dtIsInterval");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return false;
@@ -182,7 +182,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid Handle eDt->hdl in \
                 CMPI_DateTime:dtGetStringFormat");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
@@ -208,7 +208,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Received invalid Handle eDt->hdl in \
                 CMPI_DateTime:dtGetBinaryFormat");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);

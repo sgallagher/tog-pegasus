@@ -387,7 +387,7 @@ public:
 
             if (pid < 0)
             {
-                PEG_TRACE((TRC_SERVER, Tracer::LEVEL4,
+                PEG_TRACE((TRC_SERVER, Tracer::LEVEL1,
                     "Spawn of provider agent fails:%s "
                         "( errno %d , reason code %08X )", 
                     strerror(errno) ,errno,__errno2()));
@@ -407,7 +407,7 @@ public:
 
             if (pid < 0)
             {
-                PEG_TRACE((TRC_SERVER, Tracer::LEVEL4,
+                PEG_TRACE((TRC_SERVER, Tracer::LEVEL1,
                      "Fork for provider agent fails: errno = %d",errno)); 
                 PEG_METHOD_EXIT();
                 return -1;
@@ -452,7 +452,7 @@ public:
                             module,
                             (char*)0) == -1)
                     {
-                        PEG_TRACE((TRC_SERVER, Tracer::LEVEL2,
+                        PEG_TRACE((TRC_SERVER, Tracer::LEVEL1,
                             "execl() failed.  errno = %d.", errno));
                         _exit(1);
                     }

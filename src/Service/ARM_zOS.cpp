@@ -95,7 +95,7 @@ void ARM_zOS::Register(void)
     rc = __osname(&uts);
     if(rc < 0)
     {
-        PEG_TRACE((TRC_SERVER, Tracer::LEVEL2,
+        PEG_TRACE((TRC_SERVER, Tracer::LEVEL1,
                    "Failed to issue __osname() command:"
                    " rc=%d, errno=%d, reason=%08X",
                    rc,
@@ -119,7 +119,7 @@ void ARM_zOS::Register(void)
     arm_elemname[ARM_ELEMNAME_SIZE-1] = '\0';
 
 
-    PEG_TRACE((TRC_SERVER, Tracer::LEVEL2,
+    PEG_TRACE((TRC_SERVER, Tracer::LEVEL3,
         "About to register the CIM server with element name \'%s\' with ARM.",
         arm_elemname));
 
@@ -228,15 +228,15 @@ void ARM_zOS::DeRegister(void)
         {
             // write out errormessage from de-register with ARM
             PEG_TRACE((TRC_SERVER, Tracer::LEVEL2,
-                "Failed to de-register CIM Server with ARM: "
+                "Failed to deregister CIM Server with ARM: "
                     "ret=%02X reason=%04X.",
                 arm_ret,
                 arm_res));
         }
         else
         {
-            PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL2,
-                "CIM Server sucessfully de-reginster with ARM.");
+            PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL3,
+                "CIM Server sucessfully deregistered with ARM.");
         }
         ARM_zOS_Status = NOT_REGISTERED;
     }// End if

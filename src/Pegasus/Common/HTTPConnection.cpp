@@ -143,7 +143,7 @@ static void _throwEventFailure(const String &status, const String &detail,
     const char *file , Uint32 line)
 {
     String message = status + httpDetailDelimiter + detail;
-    PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2, message);
+    PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL1, message);
     if (status == httpStatusInternal)
         throw AssertionFailureException(file, line, message);
     else throw Exception(message);
@@ -158,7 +158,7 @@ static void _throwEventFailure(const String &status, const String &detail,
 #define _socketWriteError()                                                   \
     do                                                                        \
     {                                                                         \
-        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,                        \
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,                        \
             "Socket write failed with error %d; could not write response "    \
                 "to client.  (Client may have timed out.)",                   \
             getSocketError()));                                               \
@@ -235,7 +235,7 @@ HTTPConnection::HTTPConnection(
     _connectionRequestCount = 0;
     _transferEncodingChunkOffset = 0;
 
-    PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
+    PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3,
         "Connection IP address = " + _ipAddress);
 
     _authInfo->setIpAddress(_ipAddress);
@@ -329,7 +329,7 @@ Boolean HTTPConnection::closeConnectionOnTimeout(struct timeval* timeNow)
                  PEGASUS_SSL_ACCEPT_TIMEOUT_SECONDS) &&
             (timeNow->tv_sec > _acceptPendingStartTime.tv_sec))
         {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL4,
                 "HTTPConnection: close acceptPending connection for timeout");
             _closeConnection(); 
             return true;  // return 'true' to indicate connection was closed
@@ -347,7 +347,7 @@ Boolean HTTPConnection::closeConnectionOnTimeout(struct timeval* timeNow)
         else if ((Uint32)(timeNow->tv_sec - _idleStartTime.tv_sec) >
             _idleConnectionTimeoutSeconds)
         {
-            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL3,
                 "HTTPConnection: close idle connection for timeout "
                 "of %d seconds\n", _idleConnectionTimeoutSeconds));
             _closeConnection();
@@ -398,7 +398,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             buffer.reserveCapacity(messageLength + 1);
             messageStart = (char *) buffer.getData();
             messageStart[messageLength] = 0;
-            PEG_TRACE((TRC_XML_IO, Tracer::LEVEL2,
+            PEG_TRACE((TRC_XML_IO, Tracer::LEVEL4,
                 "<!-- Response: queue id: %u -->\n%s",
                 getQueueId(),
                 buffer.getData()));
@@ -942,7 +942,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
                 if (traceTrailer)
                 {
-                    PEG_TRACE((TRC_XML_IO, Tracer::LEVEL2,
+                    PEG_TRACE((TRC_XML_IO, Tracer::LEVEL4,
                         "<!-- Trailer: queue id: %u -->\n%s",
                         getQueueId(),
                         trailer.getData()));
@@ -971,7 +971,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
     catch (...)
     {
         httpStatus = HTTP_STATUS_INTERNALSERVERERROR;
-        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL2, "Unknown internal error");
+        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL1, "Unknown internal error");
     }
 
     if (isLast == true)
@@ -1024,7 +1024,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 {
                     Time::gettimeofday(&_idleStartTime);
                 }
-                PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
+                PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
                     "Now setting state to %d", MonitorEntry::STATUS_IDLE));
                 _monitor->setState(_entry_index, MonitorEntry::STATUS_IDLE);
                 _monitor->tickle();
@@ -1419,7 +1419,7 @@ void HTTPConnection::_closeConnection()
         }
 
         // still set to DYING
-        PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
+        PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
             "Now setting state to %d", MonitorEntry::STATUS_DYING));
         _monitor->setState(_entry_index, MonitorEntry::STATUS_DYING);
         _monitor->tickle();
@@ -1912,7 +1912,7 @@ void HTTPConnection::_handleReadEvent()
 
         if (socketAcceptStatus < 0)
         {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
                 "HTTPConnection: SSL_accept() failed");
             _closeConnection();
             PEG_METHOD_EXIT();
@@ -1921,7 +1921,7 @@ void HTTPConnection::_handleReadEvent()
         else if (socketAcceptStatus == 0)
         {
             // Not enough data yet to complete the SSL handshake
-            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
                 "HTTPConnection: SSL_accept() pending");
             PEG_METHOD_EXIT();
             return;
@@ -1981,7 +1981,7 @@ void HTTPConnection::_handleReadEvent()
             {
                 _clearIncoming();
 
-                PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+                PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
                       "This Request has non-valid CIM-HTTP Method: "
                       "%02X %02X %02X %02X %02X %02X",
                       buffer[0],buffer[1],buffer[2],
@@ -2120,7 +2120,7 @@ void HTTPConnection::_handleReadEvent()
         {
             PEG_TRACE((
                 TRC_XML_IO, 
-                Tracer::LEVEL2,
+                Tracer::LEVEL4,
                 "<!-- Request: queue id: %u -->\n%s", 
                 getQueueId(),
                 Tracer::getHTTPRequestMessage(
@@ -2138,7 +2138,7 @@ void HTTPConnection::_handleReadEvent()
         //
         if (_isClient() == false)
         {
-            PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
+            PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
                 "Now setting state to %d", MonitorEntry::STATUS_BUSY));
             _monitor->setState(_entry_index, MonitorEntry::STATUS_BUSY);
             _monitor->tickle();
@@ -2210,7 +2210,7 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
             {
                 PEG_TRACE_CSTRING(
                     TRC_DISCARDED_DATA, 
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL1,
                     "HTTPConnection::run handleEnqueue(msg) failure");
                 return true;
             }

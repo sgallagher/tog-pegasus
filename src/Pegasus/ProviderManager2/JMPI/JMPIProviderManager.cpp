@@ -237,7 +237,7 @@ void JMPIProviderManager::debugPrintMethodPointers (JNIEnv *env, jclass jc)
    for (int i = 0; i < (int)(sizeof (methodNames)/sizeof (methodNames[0])); i++)
    {
       jmethodID id = env->GetMethodID(jc,methodNames[i][1], methodNames[i][2]);
-      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
           "Method: %s, %s, id = %p",
           methodNames[i][0],methodNames[i][1],id));
 
@@ -300,7 +300,7 @@ void debugIntrospectJavaObject (JNIEnv *env, jobject jInst)
                                             jmidToString);
             const char *pszResult = env->GetStringUTFChars(jstringResult, 0);
 
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                 "Introspect java object: %s",pszResult));
 
             env->ReleaseStringUTFChars (jstringResult, pszResult);
@@ -400,7 +400,7 @@ bool JMPIProviderManager::getInterfaceType(
    }
    else
    {
-      PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+      PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
           "inferfaceType not found.");
       fRet = false;
    }
@@ -420,7 +420,7 @@ bool JMPIProviderManager::getInterfaceType(
    }
    else
    {
-      PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+      PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
           "inferfaceVersion not found.");
       fRet = false;
    }
@@ -620,7 +620,7 @@ Message * JMPIProviderManager::processMessage(Message * request) throw()
         break;
 
     default:
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                    "Unsupported Request %d",
                    request->getType()
                   ));
@@ -675,19 +675,19 @@ void JMPIProviderManager::unloadIdleProviders()
 
 #define HandlerCatch(handler) \
     catch(CIMException & e)  \
-    { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, \
+    { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1, \
                 "Exception: " + e.getMessage()); \
         handler.setStatus(e.getCode(), e.getContentLanguages(), \
         e.getMessage()); \
     } \
     catch(Exception & e) \
-    { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, \
+    { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1, \
                 "Exception: " + e.getMessage()); \
         handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), \
         e.getMessage()); \
     } \
     catch(...) \
-    { PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, \
+    { PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1, \
                 "Exception: Unknown"); \
         handler.setStatus(CIM_ERR_FAILED, "Unknown error."); \
     }
@@ -727,7 +727,7 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
 
     try
     {
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
              "handleGetInstanceRequest: "
                  "name space = %s class name = %s",             
              (const char*)request->nameSpace.getString().getCString(),
@@ -772,7 +772,7 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
 
         if (!env)
         {
-            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                 "handleGetInstanceRequest:"
                     "Could not initialize the JVM (Java Virtual Machine) "
                     "runtime environment.");
@@ -810,7 +810,7 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
            if (id != NULL)
            {
                eMethodFound = METHOD_INSTANCEPROVIDER;
-               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+               PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                    "handleGetInstanceRequest: "
                        "Found METHOD_INSTANCEPROVIDER.");
            }
@@ -829,7 +829,7 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
                if (id != NULL)
                {
                    eMethodFound = METHOD_CIMINSTANCEPROVIDER;
-                   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                        "handleGetInstanceRequest: "
                            "Found METHOD_CIMINSTANCEPROVIDER.");
                }
@@ -857,7 +857,7 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
 
         if (id == NULL)
         {
-           PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+           PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                "handleGetInstanceRequest: No method provider found!");
 
            PEG_METHOD_EXIT();
@@ -917,7 +917,7 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                    "handleGetInstanceRequest: "
                    "Caught CIMExcetion(METHOD_CIMINSTANCEPROVIDER) "
                        "during cimom_handle->getClass(%s): %s ",
@@ -1033,7 +1033,7 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                    "handleGetInstanceRequest: "
                    "Caught CIMExcetion (METHOD_INSTANCEPROVIDER2) "
                        "during cimom_handle->getClass(%s): %s ",
@@ -1144,7 +1144,7 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                    "handleGetInstanceRequest: "
                    "Caught CIMExcetion (METHOD_INSTANCEPROVIDER) "
                        "during cimom_handle->getClass(%s): %s ",
@@ -1199,7 +1199,7 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
 
         case METHOD_UNKNOWN:
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                 "handleGetInstanceRequest: Unknown method provider!");
             break;
         }
@@ -1280,7 +1280,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
 
         if (!env)
         {
-            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                 "handleEnumerateInstanceRequest: "
                     "Could not initialize the JVM (Java Virtual Machine) "
                     "runtime environment.");
@@ -1381,7 +1381,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
 
         if (id == NULL)
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                 "handleEnumerateInstances: No method provider found!");
 
            PEG_METHOD_EXIT();
@@ -1441,7 +1441,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                    "handleEnumerateInstances: "
                    "Caught CIMExcetion(METHOD_CIMINSTANCEPROVIDER) "
                        "during cimom_handle->getClass(%s): %s ",
@@ -1529,7 +1529,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
                     }
                     catch (CIMException e)
                     {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                            "handleEnumerateInstances: "
                            "Caught CIMExcetion "
                                "during cimom_handle->getClass(%s): %s ",
@@ -1605,7 +1605,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                    "handleEnumerateInstances: "
                    "Caught CIMExcetion(METHOD_CIMINSTANCEPROVIDER) "
                        "during cimom_handle->getClass(%s): %s ",
@@ -1699,7 +1699,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
                     }
                     catch (CIMException e)
                     {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                            "handleEnumerateInstancesRequest: "
                            "Caught CIMExcetion "
                               "cimom_handle->getClass(%s): %s ",
@@ -1778,7 +1778,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                    "handleEnumerateInstancesRequest: "
                    "Caught CIMExcetion(METHOD_INSTANCEPROVIDER2) "
                        "during cimom_handle->getClass(%s): %s ",
@@ -1877,7 +1877,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
                     }
                     catch (CIMException e)
                     {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                            "handleEnumerateInstancesRequest: "
                            "Caught CIMExcetion "
                               "cimom_handle->getClass(%s): %s ",
@@ -1950,7 +1950,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                    "handleEnumerateInstancesRequest: "
                    "Caught CIMExcetion(METHOD_INSTANCEPROVIDER) "
                        "during cimom_handle->getClass(%s): %s ",
@@ -2040,7 +2040,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
                     }
                     catch (CIMException e)
                     {
-                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                            "handleEnumerateInstancesRequest: "
                            "Caught CIMExcetion "
                                "during cimom_handle->getClass(%s): %s ",
@@ -2072,7 +2072,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
 
         case METHOD_UNKNOWN:
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                 "handleEnumerateInstancesRequest: Unknown method provider!");
             break;
         }
@@ -2107,7 +2107,7 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
     JNIEnv          *env           = NULL;
 
     try {
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
              "handleEnumerateInstanceNamesRequest: "
                  "name space = %s class name = %s",             
              (const char*)request->nameSpace.getString().getCString(),
@@ -2252,7 +2252,7 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
         if (id == NULL)
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                 "handleEnumerateInstanceNamesRequest: "
                     "No method provider found!");
 
@@ -2314,7 +2314,7 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                    "handleEnumerateInstanceNamesRequest: "
                    "Caught CIMExcetion(METHOD_CIMINSTANCEPROVIDER) "
                        "during cimom_handle->getClass(%s): %s ",
@@ -2430,7 +2430,7 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                    "handleEnumerateInstanceNamesRequest: "
                    "Caught CIMExcetion(METHOD_CIMINSTANCEPROVIDER2) "
                        "during cimom_handle->getClass(%s): %s ",
@@ -2551,7 +2551,7 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                    "handleEnumerateInstanceNamesRequest: "
                    "Caught CIMExcetion(METHOD_INSTANCEPROVIDER2) "
                        "during cimom_handle->getClass(%s): %s ",
@@ -2670,7 +2670,7 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
             }
             catch (CIMException e)
             {
-               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+               PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                    "handleEnumerateInstanceNamesRequest: "
                    "Caught CIMExcetion(METHOD_INSTANCEPROVIDER) "
                        "during cimom_handle->getClass(%s): %s ",
@@ -2741,7 +2741,7 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
         case METHOD_UNKNOWN:
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                 "handleEnumerateInstanceNamesRequest: "
                     "Unknown method provider!");
             break;
@@ -2815,7 +2815,7 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(
 
         if (!env)
         {
-            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                 "handleCreateInstanceRequest: "
                     "Could not initialize the JVM (Java Virtual Machine) "
                     "runtime environment.");
@@ -2880,7 +2880,7 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(
 
         if (id == NULL)
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                 "handleCreateInstanceRequest: No method provider found!");
 
            PEG_METHOD_EXIT();
@@ -3022,7 +3022,7 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(
 
         case METHOD_UNKNOWN:
         {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                 "handleCreateInstanceRequest: Unknown method provider!");
             break;
         }
@@ -3103,7 +3103,7 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(
 
         if (!env)
         {
-            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                 "handleModifyInstanceRequest: "
                     "Could not initialize the JVM (Java Virtual Machine) "
                     "runtime environment.");

@@ -391,7 +391,7 @@ CIMListenerService::_listener_routine(void *param)
     }
     catch(...)
     {
-        PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL1,
                       "Unknown exception thrown in _listener_routine.");
     }
 

@@ -78,7 +78,7 @@ Boolean Socket::timedConnect(
             selectResult);
         if (selectResult == 0)
         {
-            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL1,
                 "select() timed out waiting for the socket connection to be "
                     "established.");
             return false;
@@ -96,7 +96,7 @@ Boolean Socket::timedConnect(
             }
             else
             {
-                PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
+                PEG_TRACE((TRC_HTTP, Tracer::LEVEL1,
                     "Did not connect, getsockopt() returned optval = %d",
                     optval));
                 return false;
@@ -104,14 +104,14 @@ Boolean Socket::timedConnect(
         }
         else
         {
-            PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
+            PEG_TRACE((TRC_HTTP, Tracer::LEVEL1,
                 "select() returned error code %d",
                 getSocketError()));
             return false;
         }
     }
 
-    PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
+    PEG_TRACE((TRC_HTTP, Tracer::LEVEL1,
         "connect() returned error code %d",
         getSocketError()));
     return false;

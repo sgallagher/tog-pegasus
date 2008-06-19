@@ -157,7 +157,7 @@ Message* DefaultProviderManager::processMessage(Message* message)
     }
     catch (CIMException& e)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
             "CIMException: " + e.getMessage());
         response = request->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION_LANG(
@@ -165,7 +165,7 @@ Message* DefaultProviderManager::processMessage(Message* message)
     }
     catch (Exception& e)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
             "Exception: " + e.getMessage());
         response = request->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION_LANG(
@@ -173,7 +173,7 @@ Message* DefaultProviderManager::processMessage(Message* message)
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
             "Exception: Unknown");
         response = request->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION(
@@ -241,19 +241,19 @@ CIMResponseMessage* DefaultProviderManager::_handleDisableModuleRequest(
     }
     catch (CIMException& e)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                          "Exception: " + e.getMessage());
         cimException = e;
     }
     catch (Exception& e)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
             "Exception: " + e.getMessage());
         cimException = CIMException(CIM_ERR_FAILED, e.getMessage());
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
             "Exception: Unknown");
         cimException = PEGASUS_CIM_EXCEPTION_L(
             CIM_ERR_FAILED,
@@ -506,7 +506,7 @@ ProviderMessageHandler* DefaultProviderManager::_initProvider(
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
             "Exception caught Loading/Linking Provider Module " +
             moduleFileName);
         PEG_METHOD_EXIT();
@@ -623,7 +623,7 @@ Boolean DefaultProviderManager::hasActiveProviders()
     catch (...)
     {
         // Unexpected exception; do not assume that no providers are loaded
-        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
             "Unexpected Exception in hasActiveProviders.");
         PEG_METHOD_EXIT();
         return true;
@@ -677,7 +677,7 @@ void DefaultProviderManager::unloadIdleProviders()
                 ((now.tv_sec - providerTime.tv_sec) >
                  ((Sint32)PEGASUS_PROVIDER_IDLE_TIMEOUT_SECONDS)))
             {
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
                     "Unloading idle provider: " + provider->getName());
                 _unloadProvider(provider);
             }
@@ -685,7 +685,7 @@ void DefaultProviderManager::unloadIdleProviders()
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
             "Caught unexpected exception in unloadIdleProviders.");
     }
 
@@ -719,7 +719,7 @@ void DefaultProviderManager::_shutdownAllProviders()
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Unexpected Exception in _shutdownAllProviders().");
     }
 
@@ -779,7 +779,7 @@ Sint16 DefaultProviderManager::_disableProvider(
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Unload provider failed " + pr->getName());
         PEG_METHOD_EXIT();
         return -1;

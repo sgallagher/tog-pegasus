@@ -404,7 +404,7 @@ void CIMServer::runForever()
         
         if (handleShutdownSignal)
         {
-            shutdown(); 
+            shutdown();
             PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL3,
                 "CIMServer::runForever - signal received.  Shutting down.");
             //ShutdownService::getInstance(this)->shutdown(true, 10, false);
@@ -713,7 +713,7 @@ SSLContext* CIMServer::_getSSLContext()
     //
     if (String::equal(verifyClient, "required"))
     {
-        PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL3,
             "SSL Client verification REQUIRED.");
 
         _sslContextMgr->createSSLContext(
@@ -721,7 +721,7 @@ SSLContext* CIMServer::_getSSLContext()
     }
     else if (String::equal(verifyClient, "optional"))
     {
-        PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL3,
             "SSL Client verification OPTIONAL.");
 
         _sslContextMgr->createSSLContext(
@@ -730,7 +730,7 @@ SSLContext* CIMServer::_getSSLContext()
     else if (String::equal(verifyClient, "disabled") ||
              verifyClient == String::EMPTY)
     {
-        PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL3,
             "SSL Client verification DISABLED.");
 
         _sslContextMgr->createSSLContext(

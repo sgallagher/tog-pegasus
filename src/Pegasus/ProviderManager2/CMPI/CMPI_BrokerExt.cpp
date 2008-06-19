@@ -152,7 +152,7 @@ extern "C"
             }
             else
             {
-                PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2, \
+                PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1, \
                     "Could not allocate provider thread (%p) for %s provider.",
                     t, (const char *)broker->name.getCString()));
                 broker->provider->removeThreadFromWatch(t);
@@ -163,7 +163,7 @@ extern "C"
         }
         if (rtn == PEGASUS_THREAD_OK)
         {
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
                 "Started provider thread (%p) for %s.",
                 t, (const char *)broker->name.getCString()));
         }

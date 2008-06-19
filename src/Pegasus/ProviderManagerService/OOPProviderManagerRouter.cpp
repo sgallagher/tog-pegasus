@@ -407,7 +407,7 @@ void ProviderAgentContainer::_startAgentProcess()
 
     if (status != 0)
     {
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
             "Executor::startProviderAgent() failed"));
         PEG_METHOD_EXIT();
         throw Exception(MessageLoaderParms(
@@ -592,7 +592,7 @@ void ProviderAgentContainer::_initialize()
 
             if (status == -1)
             {
-                PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
                     "ProviderAgentContainer::_initialize(): "
                         "Executor::reapProviderAgent() failed"));
             }
@@ -666,7 +666,7 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
                      _outstandingRequestTable.start();
                  i != 0; i++)
             {
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                     String("Completing messageId \"") + i.key() +
                         "\" with a null response.");
                 i.value()->responseMessage = response;
@@ -876,7 +876,7 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
 
                 if (writeStatus != AnonymousPipe::STATUS_SUCCESS)
                 {
-                    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                         "Failed to write message to pipe.  writeStatus = %d.",
                         writeStatus));
 
@@ -916,7 +916,7 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
                     request->operationContext.set(*origProviderId.get());
                 }
 
-                PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                     "Failed to write message to pipe.");
                 // Remove the OutstandingRequestTable entry for this request
                 {
@@ -1518,12 +1518,14 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
         userName = System::getPrivilegedUserName();
     }
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Module name = " + moduleName);
-    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "User context = %hd.", userContext));
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "User name = " + userName);
+    PEG_TRACE((
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL4,
+        "Module name = %s, User context = %hd, User name = %s",
+        (const char*) moduleName.getCString(),
+        userContext,
+        (const char*) userName.getCString()));
+
 
     ProviderAgentContainer* pa = 0;
 #ifdef PEGASUS_OS_PASE

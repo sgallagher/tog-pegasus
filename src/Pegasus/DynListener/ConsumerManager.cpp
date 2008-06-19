@@ -171,7 +171,7 @@ void ConsumerManager::_init()
                 {
                     PEG_TRACE_STRING(
                         TRC_LISTENER,
-                        Tracer::LEVEL4,
+                        Tracer::LEVEL1,
                         "Cannot load consumer from file " + files[i]);
                 }
             }
@@ -310,7 +310,7 @@ DynamicConsumer* ConsumerManager::getConsumer(const String& consumerName)
         {
             PEG_TRACE_STRING(
                 TRC_LISTENER,
-                Tracer::LEVEL3,
+                Tracer::LEVEL4,
                 "Consumer exists in the cache and"
                     " is already loaded: " + consumerName);
             cached = true;
@@ -380,7 +380,7 @@ void ConsumerManager::_initConsumer(
     {
         PEG_TRACE_STRING(
             TRC_LISTENER,
-            Tracer::LEVEL2, 
+            Tracer::LEVEL1, 
             "Error loading consumer module: " + ex.getMessage());
 
         throw Exception(
@@ -542,7 +542,7 @@ Boolean ConsumerManager::hasActiveConsumers()
         // Unexpected exception; do not assume that no providers are loaded
         PEG_TRACE_CSTRING(
             TRC_LISTENER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Unexpected Exception in hasActiveConsumers.");
         PEG_METHOD_EXIT();
         return true;
@@ -582,7 +582,7 @@ Boolean ConsumerManager::hasLoadedConsumers()
         // Unexpected exception; do not assume that no providers are loaded
         PEG_TRACE_CSTRING(
             TRC_LISTENER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Unexpected Exception in hasLoadedConsumers.");
         PEG_METHOD_EXIT();
         return true;
@@ -671,7 +671,7 @@ void ConsumerManager::unloadAllConsumers()
         {
             PEG_TRACE_CSTRING(
                 TRC_LISTENER,
-                Tracer::LEVEL4,
+                Tracer::LEVEL2,
                 "Error unloading consumers.");
         }
     } else
@@ -727,7 +727,7 @@ void ConsumerManager::unloadIdleConsumers()
         {
             PEG_TRACE_CSTRING(
                 TRC_LISTENER,
-                Tracer::LEVEL4,
+                Tracer::LEVEL2,
                 "Error unloading consumers.");
         }
     } else
@@ -756,7 +756,7 @@ void ConsumerManager::unloadConsumer(const String& consumerName)
     {
         PEG_TRACE_STRING(
             TRC_LISTENER,
-            Tracer::LEVEL3,
+            Tracer::LEVEL2,
             "Error: cannot unload consumer, unknown consumer " + consumerName);
         return;
     }
@@ -776,7 +776,7 @@ void ConsumerManager::unloadConsumer(const String& consumerName)
         {
             PEG_TRACE_CSTRING(
                 TRC_LISTENER, 
-                Tracer::LEVEL4, 
+                Tracer::LEVEL1,
                 "Error unloading consumers.");
         }
 
@@ -784,8 +784,8 @@ void ConsumerManager::unloadConsumer(const String& consumerName)
     {
         PEG_TRACE_STRING(
             TRC_LISTENER,
-            Tracer::LEVEL3,
-            "Error: cannot unload consumer " + consumerName);
+            Tracer::LEVEL2,
+            "Error: cannot unload the not loaded consumer " + consumerName);
     }
 
     PEG_METHOD_EXIT();
@@ -807,7 +807,7 @@ void ConsumerManager::_unloadConsumers(
 
     PEG_TRACE_CSTRING(
         TRC_LISTENER,
-        Tracer::LEVEL4,
+        Tracer::LEVEL3,
         "Sent shutdown signal to all consumers.");
 
     // wait for all the consumer worker threads to complete
@@ -819,7 +819,7 @@ void ConsumerManager::_unloadConsumers(
     {
         PEG_TRACE_STRING(
             TRC_LISTENER, 
-            Tracer::LEVEL3, 
+            Tracer::LEVEL4, 
             "Unloading consumer " + consumersToUnload[i]->getName());
 
         //wait for the consumer worker thread to end
@@ -864,14 +864,14 @@ void ConsumerManager::_unloadConsumers(
 
             PEG_TRACE_CSTRING(
                 TRC_LISTENER,
-                Tracer::LEVEL3,
+                Tracer::LEVEL2,
                 "Consumer library successfully unloaded.");
 
         } catch (Exception& e)
         {
             PEG_TRACE_STRING(
                 TRC_LISTENER, 
-                Tracer::LEVEL2, 
+                Tracer::LEVEL1, 
                 "Error unloading consumer: " + e.getMessage()); 
             //ATTN: throw exception? log warning?
         }
@@ -914,7 +914,7 @@ void ConsumerManager::_serializeOutstandingIndications(
     {
         PEG_TRACE_STRING(
             TRC_LISTENER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Unable to open log file for " + consumerName);
 
     } else
@@ -1027,7 +1027,7 @@ Array<IndicationDispatchEvent>
         {
             PEG_TRACE_STRING(
                 TRC_LISTENER,
-                Tracer::LEVEL3,
+                Tracer::LEVEL1,
                 "Error parsing dat file: " + 
                     ex.getMessage() + " " + consumerName);
 
@@ -1035,7 +1035,7 @@ Array<IndicationDispatchEvent>
         {
             PEG_TRACE_STRING(
                 TRC_LISTENER,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Error parsing dat file: Unknown Exception " + consumerName);
         }
     }
@@ -1099,7 +1099,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL
 
     PEG_TRACE_STRING(
         TRC_LISTENER,
-        Tracer::LEVEL2,
+        Tracer::LEVEL3,
         "_worker_routine::entering loop for " + name);
 
     myself->_listeningSemaphore->signal();
@@ -1234,7 +1234,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL
                         {
                             PEG_TRACE_CSTRING(
                                 TRC_LISTENER,
-                                Tracer::LEVEL2,
+                                Tracer::LEVEL1,
                                 "Error: the maximum retry count has been "
                                     "exceeded.  Removing the event from "
                                         "the queue.");
@@ -1264,7 +1264,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL
                     {
                         PEG_TRACE_STRING(
                             TRC_LISTENER,
-                            Tracer::LEVEL2,
+                            Tracer::LEVEL1,
                             "Error: consumeIndication() permanent failure: "
                                 + ce.getMessage());
                         delete event;
@@ -1275,7 +1275,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL
                 {
                     PEG_TRACE_STRING(
                         TRC_LISTENER,
-                        Tracer::LEVEL2,
+                        Tracer::LEVEL1,
                         "Error: consumeIndication() permanent failure: "
                             + ex.getMessage());
                     delete event;
@@ -1285,7 +1285,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL
                 {
                     PEG_TRACE_CSTRING(
                         TRC_LISTENER,
-                        Tracer::LEVEL2,
+                        Tracer::LEVEL1,
                         "Error: consumeIndication() failed: "
                             "Unknown exception.");
                     delete event;

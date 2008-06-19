@@ -76,7 +76,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL4,
+                Tracer::LEVEL1,
                 "Received invalid Handle - cerr...");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             PEG_METHOD_EXIT();
@@ -114,7 +114,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL4,
+                Tracer::LEVEL1,
                 "Received invalid Handle - cer...");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             PEG_METHOD_EXIT();
@@ -131,7 +131,7 @@ extern "C"
             {
                 PEG_TRACE_CSTRING(
                     TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL4,
+                    Tracer::LEVEL1,
                     "Received invalid Parameter...");
                 CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
                 PEG_METHOD_EXIT();
@@ -162,7 +162,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL4,
+                Tracer::LEVEL1,
                 "Received invalid Handle - cer...");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             PEG_METHOD_EXIT();
@@ -179,7 +179,7 @@ extern "C"
             {
                 PEG_TRACE_CSTRING(
                     TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL4,
+                    Tracer::LEVEL1,
                     "Received invalid Parameter...");
                 CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
                 PEG_METHOD_EXIT();
@@ -190,7 +190,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL4,
+                Tracer::LEVEL1,
                 "Exception: Unknown Exception caught...");
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             PEG_METHOD_EXIT();
@@ -214,7 +214,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL4,
+                Tracer::LEVEL1,
                 "Received invalid Handle - cer...");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             PEG_METHOD_EXIT();
@@ -231,7 +231,7 @@ extern "C"
             {
                 PEG_TRACE_CSTRING(
                     TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL4,
+                    Tracer::LEVEL1,
                     "Received invalid Parameter...");
                 CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
                 PEG_METHOD_EXIT();
@@ -242,7 +242,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL4,
+                Tracer::LEVEL1,
                 "Exception: Unknown Exception caught...");
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             PEG_METHOD_EXIT();
@@ -922,7 +922,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL4,
+                Tracer::LEVEL1,
                 "Received invalid Handle - cer...");
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
@@ -938,7 +938,7 @@ extern "C"
         { 
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL4,
+                Tracer::LEVEL1,
                 "Exception: Unknown Exception received...");
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_FAILED);
@@ -973,7 +973,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL4,
+                Tracer::LEVEL1,
                 "Exception: Unknown Exception received...");
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_FAILED);
@@ -1007,7 +1007,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL4,
+                Tracer::LEVEL1,
                 "Exception: Unknown Exception received...");
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_FAILED);
@@ -1041,7 +1041,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL4,
+                Tracer::LEVEL1,
                 "Exception: Unknown Exception received...");
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_FAILED);
@@ -1111,7 +1111,7 @@ extern "C"
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL4,
+                Tracer::LEVEL1,
                 "Exception: Unknown Exception received...");
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_FAILED);

@@ -623,7 +623,7 @@ int JMPIjvm::initJVM ()
    {
       jv.initRc = 1;
 
-      PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+      PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
           "No CLASSPATH environment variable found.");
 
       PEG_METHOD_EXIT();
@@ -913,7 +913,7 @@ jobject JMPIjvm::getProvider (JNIEnv     *env,
       {
          env->ExceptionDescribe();
 
-         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
               "Unable to instantiate provider %s: "
               "Can not load Java class %s from jar %s.",
               pszProviderName,
@@ -939,7 +939,7 @@ jobject JMPIjvm::getProvider (JNIEnv     *env,
 
    if (!jClassLoaded)
    {
-      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
            "Unable to instantiate provider %s: "
            "Can not load Java class.",pszProviderName));
       PEG_METHOD_EXIT();
@@ -960,7 +960,7 @@ jobject JMPIjvm::getProvider (JNIEnv     *env,
 
    if (!jProviderInstanceLocal)
    {
-      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
            "Unable to instantiate provider %s: "
            "No new Java object of provider.",pszProviderName));
       PEG_METHOD_EXIT();
@@ -974,7 +974,7 @@ jobject JMPIjvm::getProvider (JNIEnv     *env,
 
    if (!jProviderInstance)
    {
-       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
             "Unable to instantiate provider %s: "
             "No global reference to provider object.",pszProviderName));
       PEG_METHOD_EXIT();
@@ -1014,7 +1014,7 @@ jobject JMPIjvm::getProvider (JNIEnv *env, const char *cn, jclass *cls)
    scls = getGlobalClassRef(env,cn);
    if (env->ExceptionCheck())
    {
-      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
            "Provider %s not found: No global reference.",cn));
       PEG_METHOD_EXIT();
       return NULL;
@@ -1033,7 +1033,7 @@ jobject JMPIjvm::getProvider (JNIEnv *env, const char *cn, jclass *cls)
    gProv = (jobject)env->NewGlobalRef(lProv);
    if (env->ExceptionCheck())
    {
-      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
            "Unable to instantiate provider %s.",cn));
       PEG_METHOD_EXIT();
       return NULL;
@@ -1291,7 +1291,7 @@ void JMPIjvm::checkException (JNIEnv *env)
       return;
    }
 
-   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+   PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
         "Provider caused an exception!");
 
    env->ExceptionDescribe ();
@@ -1324,7 +1324,7 @@ void JMPIjvm::checkException (JNIEnv *env)
          env->ReleaseStringUTFChars (jMsg, cp);
       }
 
-      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
            "throwing Pegasus exception: %d %s (%s)",
            code,(const char*)id.getCString(),(const char*)msg.getCString()));
 
@@ -1337,7 +1337,7 @@ void JMPIjvm::checkException (JNIEnv *env)
 
       env->ExceptionClear ();
 
-      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+      PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
            "Java caused an exception: %s",(const char*)info.getCString()));
 
       PEG_METHOD_EXIT();
@@ -5651,7 +5651,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent(
    }
    else
    {
-      PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL2,
+      PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
           "Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent(): "
           "provider name \"%s\" not found",
           (const char*)name.getCString()));

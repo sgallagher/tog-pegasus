@@ -90,7 +90,7 @@ void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
         }
         else
         {
-            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
                 "CIMExportRequestDispatcher::_handle_async_request got "
                     "unexpected legacy message type '%s'",
                 MessageTypeToString(legacy->getType())));
@@ -122,7 +122,7 @@ void CIMExportRequestDispatcher::handleEnqueue(Message* message)
 
             PEG_TRACE((
                 TRC_HTTP,
-                Tracer::LEVEL3,
+                Tracer::LEVEL4,
                 "_CIMExportRequestDispatcher::handleEnqueue(message) - "
                     "message->getCloseConnect() returned %d",
                 message->getCloseConnect()));
@@ -163,7 +163,7 @@ void CIMExportRequestDispatcher::handleEnqueue()
     {
         if (rtn != PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
         {
-            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
                 "Could not allocate thread for %s.",
                 getQueueName()));
             break;
@@ -214,7 +214,7 @@ CIMExportRequestDispatcher::_handleExportIndicationRequest(
     find_services(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, 0, 0, &serviceIds);
     PEGASUS_ASSERT(serviceIds.size() != 0);
 
-    PEG_TRACE ((TRC_INDICATION_RECEIPT, Tracer::LEVEL3,
+    PEG_TRACE ((TRC_INDICATION_RECEIPT, Tracer::LEVEL4,
         "%s Indication %s received in export server for destination %s",
          (const char*)(request->indicationInstance.getClassName().getString().
          getCString()),

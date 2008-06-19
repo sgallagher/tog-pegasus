@@ -123,11 +123,8 @@ void MessageQueue::enqueue(Message* message)
     PEGASUS_ASSERT(message != 0);
 
     PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
-        "Queue name: %s",
-        getQueueName()));
-
-    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
-        "Message: [%s]",
+        "Queue name: [%s], Message: [%s]",
+        getQueueName(),
         MessageTypeToString(message->getType())));
 
     _messageList.insert_back(message);
@@ -164,7 +161,7 @@ MessageQueue* MessageQueue::lookup(Uint32 queueId)
 
     // Not found!
 
-    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
+    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL1,
         "MessageQueue::lookup failure queueId = %u", queueId));
 
     return 0;
@@ -187,7 +184,7 @@ MessageQueue* MessageQueue::lookup(const char *name)
         }
     }
 
-    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
+    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL1,
         "MessageQueue::lookup failure - name = %s", name));
 
     return 0;

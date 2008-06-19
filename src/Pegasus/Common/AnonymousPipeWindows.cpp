@@ -54,7 +54,7 @@ AnonymousPipe::AnonymousPipe()
 
     if (!CreatePipe(&thePipe[0], &thePipe[1], &saAttr, 0))
     {
-        PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+        PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
             "Failed to create pipe.  Error code: %d", GetLastError()));
         PEG_METHOD_EXIT();
 
@@ -87,7 +87,7 @@ AnonymousPipe::AnonymousPipe(
     {
         if (sscanf(readHandle, "%p", &_readHandle) != 1)
         {
-            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
                 "Failed to create pipe: invalid read handle %s", readHandle));
             PEG_METHOD_EXIT();
 
@@ -102,7 +102,7 @@ AnonymousPipe::AnonymousPipe(
     {
         if (sscanf(writeHandle, "%p", &_writeHandle) != 1)
         {
-            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
                 "Failed to create pipe: invalid write handle %s", writeHandle));
             PEG_METHOD_EXIT();
 

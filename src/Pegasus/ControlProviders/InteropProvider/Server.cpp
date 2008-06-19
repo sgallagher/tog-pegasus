@@ -863,7 +863,7 @@ Array<CIMInstance> InteropProvider::enumServiceAffectsElementInstances(
             {
                 PEG_TRACE((
                     TRC_CONTROLPROVIDER,
-                    Tracer::LEVEL1,
+                    Tracer::LEVEL2,
                     "CIMException while enumerating the "
                         "CIM_IndicationFilter instances"
                             " in the namespace %s: %s.",
@@ -886,7 +886,7 @@ Array<CIMInstance> InteropProvider::enumServiceAffectsElementInstances(
         {
             PEG_TRACE((
                 TRC_CONTROLPROVIDER,
-                Tracer::LEVEL3,
+                Tracer::LEVEL1,
                 "Unknown error occurred while enumerating the "
                     "CIM_IndicationFilter instances in the namespace %s.",
                 (const char*)namespaceNames[i].getString().getCString()));
@@ -921,7 +921,7 @@ Array<CIMInstance> InteropProvider::enumServiceAffectsElementInstances(
             {
                 PEG_TRACE((
                     TRC_CONTROLPROVIDER,
-                    Tracer::LEVEL1,
+                    Tracer::LEVEL2,
                     "CIMException while enumerating the "
                         "CIM_ListenerDestination instances"
                             " in the namespace %s: %s.",
@@ -944,7 +944,7 @@ Array<CIMInstance> InteropProvider::enumServiceAffectsElementInstances(
         {
             PEG_TRACE((
                 TRC_CONTROLPROVIDER,
-                Tracer::LEVEL3,
+                Tracer::LEVEL1,
                 "Unknown error occurred while enumerating the "
                     "CIM_ListenerDestination instances in the namespace %s.",
                 (const char*)namespaceNames[i].getString().getCString()));

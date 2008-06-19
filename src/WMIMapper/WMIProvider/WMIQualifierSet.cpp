@@ -106,7 +106,7 @@ WMIQualifierSet::WMIQualifierSet(IWbemQualifierSet * pObject)
 
     if (FAILED(hr))
     {
-        PEG_TRACE((TRC_WMIPROVIDER,Tracer::LEVEL3,
+        PEG_TRACE((TRC_WMIPROVIDER,Tracer::LEVEL1,
             "WMIQualifierSet::WMIQualifierSet - %s result is %x", 
             sMessage, hr));
         

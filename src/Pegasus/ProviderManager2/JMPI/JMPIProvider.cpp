@@ -126,7 +126,7 @@ void JMPIProvider::initialize(CIMOMHandle& cimom)
 
     if (!env)
     {
-       PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+       PEG_TRACE_CSTRING( TRC_PROVIDERMANAGER, Tracer::LEVEL1,
            "JMPIProvider:"
                "Could not initialize the JVM (Java Virtual Machine) "
                "runtime environment.");

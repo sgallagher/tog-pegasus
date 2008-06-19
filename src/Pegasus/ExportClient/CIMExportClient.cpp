@@ -290,7 +290,7 @@ void CIMExportClient::exportIndication(
         request->operationContext.set
             (ContentLanguageListContainer(contentLanguages));
 
-        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
             "Exporting %s Indication for destination %s:%d%s",
             (const char*)(instanceName.getClassName().getString().
             getCString()),
@@ -300,7 +300,7 @@ void CIMExportClient::exportIndication(
         Message* message = _doRequest(request,
             CIM_EXPORT_INDICATION_RESPONSE_MESSAGE);
 
-        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
             "%s Indication for destination %s:%d%s exported successfully",
             (const char*)(instanceName.getClassName().getString().
             getCString()),
@@ -314,13 +314,13 @@ void CIMExportClient::exportIndication(
     }
     catch (const Exception& e)
     {
-        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL4,
+        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "Failed to export indication: " + e.getMessage ());
         throw;
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING (TRC_DISCARDED_DATA, Tracer::LEVEL4,
+        PEG_TRACE_CSTRING (TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "Failed to export indication");
         throw;
     }
@@ -350,14 +350,14 @@ Message* CIMExportClient::_doRequest(
         }
         catch (const Exception& e)
         {
-            PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL2,
+            PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL1,
                 "Failed to connect to indication listener: " + e.getMessage());
             PEG_METHOD_EXIT();
             throw;
         }
         catch (...)
         {
-            PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL1,
                 "Failed to connect to indication listener.");
             PEG_METHOD_EXIT();
             throw;
@@ -423,7 +423,7 @@ Message* CIMExportClient::_doRequest(
                 Exception* clientException =
                     ((ClientExceptionMessage*)response.get())->clientException;
 
-                PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4,
+                PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL2,
                     "Client Exception Message received.");
 
                 AutoPtr<Exception> d(clientException);
@@ -491,7 +491,7 @@ Message* CIMExportClient::_doRequest(
                 }
                 if (cimResponse->cimException.getCode() != CIM_ERR_SUCCESS)
                 {
-                    PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4,
+                    PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL1,
                         "Received indication failure message.");
                     CIMException cimException(
                         cimResponse->cimException.getCode(),
@@ -528,7 +528,7 @@ Message* CIMExportClient::_doRequest(
 
                 CIMClientResponseException responseException(mlString);
 
-                PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4, mlString);
+                PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL1, mlString);
 
                 PEG_METHOD_EXIT();
                 throw responseException;
@@ -542,7 +542,7 @@ Message* CIMExportClient::_doRequest(
     // Reconnect to reset the connection (disregard late response)
     //
 
-    PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4,
+    PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL2,
         "Connection to the listener timed out.");
 
     _disconnect();

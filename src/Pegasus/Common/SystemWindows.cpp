@@ -1103,7 +1103,7 @@ AutoFileLock::AutoFileLock(const char* fileName)
        && (GetLastError() != ERROR_ALREADY_EXISTS)
        && (GetLastError() != ERROR_SUCCESS))
    {
-       PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+       PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
           "AutoFileLock: Failed to open lock file '%s', error code %d.",
           fileName, GetLastError()));
        return;
@@ -1112,7 +1112,7 @@ AutoFileLock::AutoFileLock(const char* fileName)
    OVERLAPPED l={0,0,0,0,0};
    if(LockFileEx(_hFile,LOCKFILE_EXCLUSIVE_LOCK, 0, 0, 0, &l) == 0)
    {
-       PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+       PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
            "AutoFileLock: Failed to Acquire lock on file %s, error code %d.",
            fileName, GetLastError()));
        CloseHandle(_hFile);

@@ -95,7 +95,7 @@ ThreadPool::~ThreadPool()
         // Set the dying flag so all thread know the destructor has been
         // entered
         _dying++;
-        PEG_TRACE((TRC_THREAD, Tracer::LEVEL2,
+        PEG_TRACE((TRC_THREAD, Tracer::LEVEL3,
             "Cleaning up %d idle threads.", _currentThreads.get()));
 
         while (_currentThreads.get() > 0)
@@ -150,7 +150,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
         }
         catch (...)
         {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
                 "ThreadPool::_loop: Failure getting sleep_sem or "
                     "lastActivityTime.");
             PEGASUS_ASSERT(false);
@@ -168,7 +168,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
             }
             catch (...)
             {
-                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
                     "ThreadPool::_loop: failure on sleep_sem->wait().");
                 PEGASUS_ASSERT(false);
                 pool->_idleThreads.remove(myself);
@@ -197,7 +197,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
             }
             catch (...)
             {
-                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
                     "ThreadPool::_loop: Failure accessing work func, work "
                         "parm, or blocking sem.");
                 PEGASUS_ASSERT(false);
@@ -227,19 +227,19 @@ ThreadReturnType PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
             }
             catch (Exception& e)
             {
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
                     String("Exception from work in ThreadPool::_loop: ") +
                         e.getMessage());
             }
             catch (const exception& e)
             {
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
                     String("Exception from work in ThreadPool::_loop: ") +
                         e.what());
             }
             catch (...)
             {
-                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
                     "Unknown exception from work in ThreadPool::_loop.");
             }
 
@@ -257,7 +257,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
             }
             catch (...)
             {
-                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
                     "ThreadPool::_loop: Adding thread to idle pool failed.");
                 PEGASUS_ASSERT(false);
                 pool->_currentThreads--;
@@ -268,12 +268,12 @@ ThreadReturnType PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
     }
     catch (const Exception & e)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "Caught exception: \"" + e.getMessage() + "\".  Exiting _loop.");
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "Caught unrecognized exception.  Exiting _loop.");
     }
 
@@ -296,7 +296,7 @@ ThreadStatus ThreadPool::allocate_and_awaken(
     {
         if (_dying.get())
         {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL3,
                 "ThreadPool::allocate_and_awaken: ThreadPool is dying(1).");
             return PEGASUS_THREAD_UNAVAILABLE;
         }
@@ -317,7 +317,7 @@ ThreadStatus ThreadPool::allocate_and_awaken(
 
         if (th == 0)
         {
-            PEG_TRACE((TRC_THREAD, Tracer::LEVEL2,
+            PEG_TRACE((TRC_THREAD, Tracer::LEVEL1,
                 "ThreadPool::allocate_and_awaken: Insufficient resources: "
                     " pool = %s, running threads = %d, idle threads = %d",
                 _key, _runningThreads.size(), _idleThreads.size()));
@@ -355,7 +355,7 @@ ThreadStatus ThreadPool::allocate_and_awaken(
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
                       "ThreadPool::allocate_and_awaken: Operation Failed.");
         PEG_METHOD_EXIT();
         // ATTN: Error result has not yet been defined
@@ -508,7 +508,7 @@ Thread *ThreadPool::_initializeThread()
 
     if (th->run() != PEGASUS_THREAD_OK)
     {
-        PEG_TRACE((TRC_THREAD, Tracer::LEVEL2,
+        PEG_TRACE((TRC_THREAD, Tracer::LEVEL1,
             "Could not create thread. Error code is %d.", errno));
         delete th;
         return 0;
@@ -523,7 +523,7 @@ void ThreadPool::_addToIdleThreadsQueue(Thread * th)
 {
     if (th == 0)
     {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "ThreadPool::_addToIdleThreadsQueue: Thread pointer is null.");
         throw NullPointer();
     }
@@ -534,7 +534,7 @@ void ThreadPool::_addToIdleThreadsQueue(Thread * th)
     }
     catch (...)
     {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "ThreadPool::_addToIdleThreadsQueue: _idleThreads.insert_front "
                 "failed.");
     }

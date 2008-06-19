@@ -298,7 +298,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         //
         PEG_TRACE_CSTRING(
             TRC_HTTP,
-            Tracer::LEVEL2,
+            Tracer::LEVEL3,
             "HTTPAuthenticatorDelegator - M-POST/POST processing start");
 
         //
@@ -598,7 +598,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 // If it does end the server because something bad happened.
                 PEG_TRACE_CSTRING(
                     TRC_HTTP,
-                    Tracer::LEVEL1,
+                    Tracer::LEVEL2,
                     "HTTPAuthenticatorDelegator - the final buffer should "
                         "not have data");
                 PEGASUS_ASSERT(0);

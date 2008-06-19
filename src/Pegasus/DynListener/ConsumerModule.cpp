@@ -81,8 +81,8 @@ CIMIndicationConsumerProvider* ConsumerModule::load(
 
     PEG_TRACE_STRING(
         TRC_LISTENER,
-        Tracer::LEVEL2,
-        "Loading library: " + consumerName);
+        Tracer::LEVEL4,
+        "Loading library(consumer module): " + consumerName);
 
     if (!_library.load())
     {
@@ -97,8 +97,8 @@ CIMIndicationConsumerProvider* ConsumerModule::load(
 
     PEG_TRACE_STRING(
         TRC_LISTENER,
-        Tracer::LEVEL2, 
-        "Successfully loaded library " + consumerName);
+        Tracer::LEVEL3, 
+        "Successfully loaded library(consumer module) " + consumerName);
 
     // locate the entry point
     CIMProvider* (*createProvider)(const String&) =
@@ -152,7 +152,7 @@ void ConsumerModule::unloadModule(void)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerModule::unloadModule");
 
-    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL3,
+    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4,
         "Unloading module " + _library.getFileName());
     _library.unload();
 

@@ -288,7 +288,7 @@ void HTTPAcceptor::_bind()
     orig_ccsid = _SETCCSID(-1);
     if (orig_ccsid == -1)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             String("HTTPAcceptor::_bind: Can not get current PASE CCSID."));
         orig_ccsid = 1208;
     }
@@ -386,7 +386,7 @@ void HTTPAcceptor::_bind()
     int sock_flags;
     if ((sock_flags = fcntl(_rep->socket, F_GETFD, 0)) < 0)
     {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "HTTPAcceptor::_bind: fcntl(F_GETFD) failed");
     }
     else
@@ -394,7 +394,7 @@ void HTTPAcceptor::_bind()
         sock_flags |= FD_CLOEXEC;
         if (fcntl(_rep->socket, F_SETFD, sock_flags) < 0)
         {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
                 "HTTPAcceptor::_bind: fcntl(F_SETFD) failed");
         }
     }
@@ -530,7 +530,7 @@ void HTTPAcceptor::closeConnectionSocket()
         if (_connectionType == LOCAL_CONNECTION)
         {
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL3,
                 "HTTPAcceptor::closeConnectionSocket Unlinking local "
                     "connection.");
             ::unlink(
@@ -558,7 +558,7 @@ void HTTPAcceptor::reopenConnectionSocket()
     }
     else
     {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "HTTPAcceptor::reopenConnectionSocket failure _rep is null.");
     }
 }
@@ -579,7 +579,7 @@ void HTTPAcceptor::reconnectConnectionSocket()
         if (_connectionType == LOCAL_CONNECTION)
         {
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL3,
                 "HTTPAcceptor::reconnectConnectionSocket Unlinking local "
                     "connection." );
             ::unlink(
@@ -593,7 +593,7 @@ void HTTPAcceptor::reconnectConnectionSocket()
     }
     else
     {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "HTTPAcceptor::reconnectConnectionSocket failure _rep is null.");
     }
 }
@@ -660,7 +660,7 @@ void HTTPAcceptor::unbind()
     }
     else
     {
-        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL1,
             "HTTPAcceptor::unbind failure _rep is null." );
     }
 }
@@ -746,7 +746,7 @@ void HTTPAcceptor::_acceptConnection()
         // TCPIP is down reconnect this acceptor
         if (getSocketError() == PEGASUS_NETWORK_TCPIP_STOPPED)
         {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
                 "Socket has an IO error. TCP/IP down. Try to reconnect.");
 
             reconnectConnectionSocket();
@@ -830,7 +830,7 @@ void HTTPAcceptor::_acceptConnection()
     int sock_flags;
     if ((sock_flags = fcntl(socket, F_GETFD, 0)) < 0)
     {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "HTTPAcceptor: fcntl(F_GETFD) failed");
     }
     else
@@ -838,7 +838,7 @@ void HTTPAcceptor::_acceptConnection()
         sock_flags |= FD_CLOEXEC;
         if (fcntl(socket, F_SETFD, sock_flags) < 0)
         {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
                 "HTTPAcceptor: fcntl(F_SETFD) failed");
         }
     }
@@ -865,7 +865,7 @@ void HTTPAcceptor::_acceptConnection()
 
     if (socketAcceptStatus < 0)
     {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "HTTPAcceptor: SSL_accept() failed");
         return;
     }
@@ -888,7 +888,7 @@ void HTTPAcceptor::_acceptConnection()
 
     if (socketAcceptStatus == 0)
     {
-        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL1,
             "HTTPAcceptor: SSL_accept() pending");
         connection->_acceptPending = true;
         Time::gettimeofday(&connection->_acceptPendingStartTime);
@@ -902,7 +902,7 @@ void HTTPAcceptor::_acceptConnection()
             SocketMessage::READ | SocketMessage::EXCEPTION,
             connection->getQueueId(), MonitorEntry::TYPE_CONNECTION)) )
     {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "HTTPAcceptor::_acceptConnection: Attempt to allocate entry in "
                 "_entries table failed.");
         return;

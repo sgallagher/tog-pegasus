@@ -114,7 +114,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
             {
                 PEG_TRACE_CSTRING(
                     TRC_PROVIDERMANAGER,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL3,
                     "CMPILocalProviderManager::_provider_ctrl:GET_PROVIDER()");
 
                 String providerName = *(parms->providerName);
@@ -147,7 +147,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
 
                 PEG_TRACE_STRING(
                     TRC_PROVIDERMANAGER,
-                    Tracer::LEVEL4,
+                    Tracer::LEVEL3,
                     "Returning Provider" + providerName);
 
 
@@ -161,7 +161,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
 
                 PEG_TRACE_CSTRING(
                     TRC_PROVIDERMANAGER,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL3,
                     "CMPILocalProviderManager::_provider_ctrl:\
                     UNLOAD_PROVIDER");
                 CMPIProvider *pr = 0;
@@ -171,7 +171,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
 
                     PEG_TRACE_STRING(
                         TRC_PROVIDERMANAGER,
-                        Tracer::LEVEL4,
+                        Tracer::LEVEL3,
                         "Unloading CMPIProvider: " + pr->getName());
 
                     AutoMutex lock (_providerTableMutex);
@@ -195,7 +195,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
 
                 PEG_TRACE_CSTRING(
                     TRC_PROVIDERMANAGER,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL3,
                     "CMPILocalProviderManager::_provider_ctrl:\
                     LOOKUP_PROVIDER");
 
@@ -207,7 +207,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
                 {
                     PEG_TRACE_STRING(
                         TRC_PROVIDERMANAGER,
-                        Tracer::LEVEL4,
+                        Tracer::LEVEL3,
                         "Found CMPIProvider in cache: " +
                         *(parms->providerName));
 
@@ -219,7 +219,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
 
                     PEG_TRACE_STRING(
                         TRC_PROVIDERMANAGER,
-                        Tracer::LEVEL4,
+                        Tracer::LEVEL2,
                         "Could not find  CMPIProvider in cache: " +
                         *(parms->providerName));
                     ccode = -1;
@@ -233,7 +233,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
 
                 PEG_TRACE_CSTRING(
                     TRC_PROVIDERMANAGER,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL3,
                     "CMPILocalProviderManager::_provider_ctrl:LOOKUP_MODULE");
 
                 AutoMutex lock (_providerTableMutex);
@@ -244,7 +244,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
                 {
                     PEG_TRACE_STRING(
                         TRC_PROVIDERMANAGER,
-                        Tracer::LEVEL4,
+                        Tracer::LEVEL2,
                         "Could not find  CMPIProvider Module in cache: "
                         + *(parms->fileName));
                     ccode = -1;
@@ -258,7 +258,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
 
                 PEG_TRACE_CSTRING(
                     TRC_PROVIDERMANAGER,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL3,
                     "CMPILocalProviderManager::_provider_ctrl:\
                     INSERT_PROVIDER");
 
@@ -274,7 +274,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
             {
                 PEG_TRACE_CSTRING(
                     TRC_PROVIDERMANAGER,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL3,
                     "CMPILocalProviderManager::_provider_ctrl:INSERT_MODULE");
                 AutoMutex lock (_providerTableMutex);
                 if (false == _modules.insert (*(parms->fileName),
@@ -288,7 +288,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
             {
                 PEG_TRACE_CSTRING(
                     TRC_PROVIDERMANAGER,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL3,
                     "CMPILocalProviderManager::_provider_ctrl: \
                     UNLOAD_ALL_PROVIDERS");
                 CMPILocalProviderManager *myself =
@@ -299,7 +299,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
 
                 PEG_TRACE((
                     TRC_PROVIDERMANAGER,
-                    Tracer::LEVEL4,
+                    Tracer::LEVEL3,
                     "providers in cache = %d", myself->_providers.size ()));
                 ProviderTable::Iterator i = myself->_providers.start ();
                 try
@@ -338,7 +338,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
             {
                 PEG_TRACE_CSTRING(
                     TRC_PROVIDERMANAGER,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL3,
                     "CMPILocalProviderManager::_provider_ctrl: \
                     UNLOAD_IDLE_PROVIDERS");
                 AutoMutex lock (_providerTableMutex);
@@ -482,7 +482,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
                     {
                         PEG_TRACE_CSTRING(
                             TRC_PROVIDERMANAGER,
-                            Tracer::LEVEL2,
+                            Tracer::LEVEL1,
                             "Unexpected Exception in UNLOAD_IDLE_PROVIDERS.");
                     }
                     delete [] unloadProviderArray;
@@ -605,7 +605,7 @@ void CMPILocalProviderManager::cleanupThread(Thread *t, CMPIProvider *p)
             {
                 PEG_TRACE_CSTRING(
                     TRC_PROVIDERMANAGER,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL1,
                     "Could not allocate thread to take care of deleting "
                     "user threads. ");
                 delete _reaperThread; _reaperThread = 0;
@@ -651,7 +651,7 @@ CMPIProvider::OpProviderHolder CMPILocalProviderManager::
     {
         PEG_TRACE_STRING(
             TRC_PROVIDERMANAGER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             String("--- loading proxy:  ") + e.getMessage () );
 
         PEG_METHOD_EXIT ();
@@ -661,7 +661,7 @@ CMPIProvider::OpProviderHolder CMPILocalProviderManager::
     {
         PEG_TRACE_CSTRING(
             TRC_PROVIDERMANAGER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "--- Unexpected exception in loading proxy provider: ---");
         PEG_METHOD_EXIT ();
         throw;
@@ -704,7 +704,7 @@ CMPIProvider::OpProviderHolder CMPILocalProviderManager::
     {
         PEG_TRACE_STRING(
             TRC_PROVIDERMANAGER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             String("--- loading local provider:  ") + e.getMessage () );
         PEG_METHOD_EXIT ();
         throw;
@@ -713,7 +713,7 @@ CMPIProvider::OpProviderHolder CMPILocalProviderManager::
     {
         PEG_TRACE_CSTRING(
             TRC_PROVIDERMANAGER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "--- Unexpected exception in loading local provider ---");
         PEG_METHOD_EXIT ();
         throw;
@@ -784,7 +784,7 @@ Boolean CMPILocalProviderManager::hasActiveProviders ()
         // Unexpected exception; do not assume that no providers are loaded
         PEG_TRACE_CSTRING(
             TRC_PROVIDERMANAGER,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Unexpected Exception in hasActiveProviders.");
         PEG_METHOD_EXIT ();
         return true;
@@ -857,21 +857,21 @@ Array <CMPIProvider *>CMPILocalProviderManager::
     {
         PEG_TRACE_STRING(
             TRC_DISCARDED_DATA,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "CIMException: " + e.getMessage ());
     }
     catch (const Exception & e)
     {
         PEG_TRACE_STRING(
             TRC_DISCARDED_DATA,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Exception: " + e.getMessage ());
     }
     catch (...)
     {
         PEG_TRACE_CSTRING(
             TRC_DISCARDED_DATA,
-            Tracer::LEVEL2,
+            Tracer::LEVEL1,
             "Unexpected error in getIndicationProvidersToEnable");
     }
 
@@ -934,7 +934,7 @@ CMPIProvider *CMPILocalProviderManager::_initProvider(
             exceptionMsg = e.getMessage();
             PEG_TRACE_STRING(
                 TRC_PROVIDERMANAGER,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Exception caught Loading/Linking Provider Module " +
                 moduleFileName+ " error is: "+exceptionMsg);
             deleteProvider =true;
@@ -943,7 +943,7 @@ CMPIProvider *CMPILocalProviderManager::_initProvider(
         {
             PEG_TRACE_STRING(
                 TRC_PROVIDERMANAGER,
-                Tracer::LEVEL2,
+                Tracer::LEVEL1,
                 "Unknown exception caught Loading/Linking Provider Module " +
                 moduleFileName);
             exceptionMsg = moduleFileName;
@@ -955,7 +955,7 @@ CMPIProvider *CMPILocalProviderManager::_initProvider(
             // initialize the provider
             PEG_TRACE_STRING(
                 TRC_PROVIDERMANAGER,
-                Tracer::LEVEL2,
+                Tracer::LEVEL3,
                 "Initializing Provider " + provider->getName());
 
             CIMOMHandle *cimomHandle = new CIMOMHandle ();
@@ -970,7 +970,7 @@ CMPIProvider *CMPILocalProviderManager::_initProvider(
             {
                 PEG_TRACE_STRING(
                     TRC_PROVIDERMANAGER,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL1,
                     "Problem initializing: " + e.getMessage());
                 deleteProvider = true;
                 exceptionMsg = e.getMessage();
@@ -979,7 +979,7 @@ CMPIProvider *CMPILocalProviderManager::_initProvider(
             {
                 PEG_TRACE_STRING(
                     TRC_PROVIDERMANAGER,
-                    Tracer::LEVEL2,
+                    Tracer::LEVEL1,
                     "Unknown problem initializing " + provider->getName());
                 deleteProvider = true;
                 exceptionMsg = provider->getName();

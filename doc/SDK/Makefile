@@ -66,7 +66,6 @@ PEGASUS_DEFAULTCXX_COMMON_FILES = \
     ../../src/Pegasus/Common/Config.h \
     ../../src/Pegasus/Common/ContentLanguageList.h \
     ../../src/Pegasus/Common/Exception.h \
-    ../../src/Pegasus/Common/Formatter.h \
     ../../src/Pegasus/Common/LanguageTag.h \
     ../../src/Pegasus/Common/OperationContext.h \
     ../../src/Pegasus/Common/ResponseHandler.h \

@@ -1415,8 +1415,7 @@ void CIMRepository::deleteClass(
             _rep->_nameSpaceManager.getAssocClassPath(
                 nameSpace,NameSpaceDelete);
 
-        if (FileSystem::exists(assocFileName[0]))
-            AssocClassTable::deleteAssociation(assocFileName[0], className);
+        AssocClassTable::deleteAssociation(assocFileName[0], className);
     }
 
     PEG_METHOD_EXIT();
@@ -1562,9 +1561,7 @@ void CIMRepository::deleteInstance(
     //
 
     String assocFileName = _rep->_nameSpaceManager.getAssocInstPath(nameSpace);
-
-    if (FileSystem::exists(assocFileName))
-        AssocInstTable::deleteAssociation(assocFileName, instanceName);
+    AssocInstTable::deleteAssociation(assocFileName, instanceName);
 
     PEG_METHOD_EXIT();
 }
@@ -2042,17 +2039,11 @@ void CIMRepository::_modifyClass(
         Array<String> assocFileName =
             _rep->_nameSpaceManager.getAssocClassPath(
                 nameSpace,NameSpaceDelete);
-        if (FileSystem::exists(assocFileName[0]))
+        if (AssocClassTable::deleteAssociation(
+                assocFileName[0], cimClass.getClassName()))
         {
-            AssocClassTable::deleteAssociation(
-                assocFileName[0], cimClass.getClassName());
             // Create the association again.
             _rep->_createAssocClassEntries(nameSpace, cimClass);
-        }
-        else
-        {
-            PEG_METHOD_EXIT();
-            throw CannotOpenFile(assocFileName[0]);
         }
     }
 

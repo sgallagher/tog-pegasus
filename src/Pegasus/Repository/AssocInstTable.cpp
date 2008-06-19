@@ -257,9 +257,15 @@ Boolean AssocInstTable::deleteAssociation(
     // Open input file:
 
     ifstream is;
+    if (!FileSystem::exists(path))
+    {
+        return false;
+    }
 
     if (!Open(is, path))
-        return false;
+    {
+        throw CannotOpenFile(path);
+    }
 
     // Open output file:
 
@@ -312,9 +318,15 @@ Boolean AssocInstTable::getAssociatorNames(
 {
     // Open input file:
     ifstream is;
+    if (!FileSystem::exists(path))
+    {
+        return false;
+    }
 
     if (!Open(is, path))
-        return false;
+    {
+        throw CannotOpenFile(path);
+    }
 
     Array<String> fields;
     Boolean found = false;
@@ -364,9 +376,15 @@ Boolean AssocInstTable::getReferenceNames(
 {
     // Open input file:
     ifstream is;
+    if (!FileSystem::exists(path))
+    {
+        return false;
+    }
 
     if (!Open(is, path))
-        return false;
+    {
+        throw CannotOpenFile(path);
+    }
 
     Array<String> fields;
     Boolean found = false;

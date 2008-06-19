@@ -192,17 +192,24 @@ Boolean AssocClassTable::deleteAssociation(
     // Open input file:
 
     ifstream is;
+    if (!FileSystem::exists(path))
+    {
+        return false;
+    }
 
     if (!Open(is, path))
-        return false;
+    {
+        throw CannotOpenFile(path);
+    }
 
     // Open output file:
 
     String tmpPath = path + ".tmp";
     ofstream os;
-
     if (!Open(os, tmpPath))
+    {
         throw CannotOpenFile(tmpPath);
+    }
 
     // Copy over all lines except ones with the given association instance name:
 
@@ -268,9 +275,15 @@ Boolean AssocClassTable::getAssociatorNames(
 {
     // Open input file:
     ifstream is;
+    if (!FileSystem::exists(path))
+    {
+        return false;
+    }
 
     if (!Open(is, path))
-        return false;
+    {
+        throw CannotOpenFile(path);
+    }
 
     Array<String> fields;
     Boolean found = false;
@@ -322,9 +335,15 @@ Boolean AssocClassTable::_InitializeCache(
 
         // Open input file:
         ifstream is;
+        if (!FileSystem::exists(path))
+        {
+            return false;
+        }
 
         if (!Open(is, path))
-            return false;
+        {
+            throw CannotOpenFile(path);
+        }
 
         Array<String> fields;
 

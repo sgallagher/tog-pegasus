@@ -3937,7 +3937,7 @@ Array<Uint16> ProviderRegistrationManager::_getProviderModuleStatus(
     {
         MessageLoaderParms mlp(MessageLoaderParms(MODULE_NOT_FOUND_KEY,
             MODULE_NOT_FOUND));
-        throw CIMException(CIM_ERR_FAILED, mlp);
+        throw CIMException(CIM_ERR_NOT_FOUND, mlp);
     }
 
     //

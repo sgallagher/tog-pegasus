@@ -418,7 +418,7 @@ private:
             @param    providerModuleName String specifying name of the provider
                       module whose status is to be retrieved
 
-            @exception CIMException(CIM_ERR_FAILED) if the specified provider
+            @exception CIMException(CIM_ERR_NOT_FOUND) if the specified provider
                        module is not found.
 
             @return   Array of Uint16 containing the OperationalStatus property

@@ -754,49 +754,49 @@ void _checkEnumInstanceNames(
 
 void _cleanup(CIMClient& client)
 {
-    try
-    {
-        _deleteSubscriptionInstance(client, FILTER_NAME, HANDLER_NAME);
-        _deleteSubscriptionInstance(client, FILTER_NAME2, HANDLER_NAME2);
-    }
-    catch (CIMException& e)
-    {
-        if (e.getCode() != CIM_ERR_NOT_FOUND)
-        {
-            cerr << "----- Error: deleteSubscriptionInstance failure: "
-                 << endl;
-            throw;
-        }
-    }
+    IGNORE_CIM_ERR_NOT_FOUND(
+        _deleteSubscriptionInstance(client, FILTER_NAME, HANDLER_NAME),
+        "----- Error: deleteSubscriptionInstance failure: ");
 
-    try
-    {
-        _deleteFilterInstance(client, FILTER_NAME);
-        _deleteFilterInstance(client, FILTER_NAME2);
-    }
-    catch (CIMException& e)
-    {
-        if (e.getCode() != CIM_ERR_NOT_FOUND)
-        {
-            cerr << "----- Error: deleteFilterInstance failure: "
-                 << endl;
-            throw;
-        }
-    }
+    IGNORE_CIM_ERR_NOT_FOUND(
+        _deleteSubscriptionInstance(client, FILTER_NAME2, HANDLER_NAME2),
+        "----- Error: deleteSubscriptionInstance failure: ");
 
-    try
-    {
-        _deleteHandlerInstance(client, HANDLER_NAME);
-        _deleteHandlerInstance(client, HANDLER_NAME2);
-    }
-    catch (CIMException& e)
-    {
-        if (e.getCode() != CIM_ERR_NOT_FOUND)
-        {
-            cerr << "----- Error: deleteHandlerInstance failure: " << endl;
-            throw;
-        }
-    }
+    IGNORE_CIM_ERR_NOT_FOUND(
+        _deleteFilterInstance(client, FILTER_NAME), 
+        "----- Error: deleteFilterInstance failure: ");
+
+    IGNORE_CIM_ERR_NOT_FOUND(
+        _deleteFilterInstance(client, FILTER_NAME2),
+        "----- Error: deleteFilterInstance failure: ");
+
+    IGNORE_CIM_ERR_NOT_FOUND(
+        _deleteHandlerInstance(client, HANDLER_NAME),
+        "----- Error: deleteHandlerInstance failure: ");
+
+    IGNORE_CIM_ERR_NOT_FOUND(
+        _deleteHandlerInstance(client, HANDLER_NAME2),
+        "----- Error: deleteHandlerInstance failure: ");
+
+    IGNORE_CIM_ERR_NOT_FOUND(
+        TestProviderRegistration::deleteCapabilityInstance(
+            client,
+            "ProcessIndicationProviderModule",
+            "ProcessIndicationProvider",
+            "ProcessIndicationProviderCapability"),
+        "----- Error: deleteCapabilityInstance failure: ");
+
+    IGNORE_CIM_ERR_NOT_FOUND(
+        TestProviderRegistration::deleteProviderInstance(
+            client,
+            "ProcessIndicationProvider",
+            "ProcessIndicationProviderModule"),
+        "----- Error: deleteProviderInstance failure: ");
+
+    IGNORE_CIM_ERR_NOT_FOUND(
+        TestProviderRegistration::deleteModuleInstance(
+            client, "ProcessIndicationProviderModule"),
+        "----- Error: deleteModuleInstance failure: ");
 
     cout << "+++++ cleanup completed successfully" << endl;
 }
@@ -1128,6 +1128,7 @@ int main(int argc, char** argv)
         else if (argc == 2 && (String::equalNoCase(argv[1], "cleanup")))
         {
             _cleanup(client);
+            return 0;
         }
         else
         {

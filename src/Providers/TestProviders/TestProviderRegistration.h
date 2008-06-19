@@ -245,4 +245,18 @@ inline void TestProviderRegistration::deleteModuleInstance(
     client.deleteInstance(PEGASUS_NAMESPACENAME_INTEROP, path);
 }
 
+# define IGNORE_CIM_ERR_NOT_FOUND(statement, message) \
+    try \
+    { \
+        statement; \
+    } \
+    catch (CIMException& e) \
+    { \
+        if (e.getCode() != CIM_ERR_NOT_FOUND) \
+        { \
+            cerr << message << endl; \
+            throw; \
+        } \
+    } \
+
 #endif

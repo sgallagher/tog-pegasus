@@ -195,8 +195,8 @@ void SystemLogListenerDestination::_writeToSystemLog(
 
 #else
 
-    PEG_TRACE_CSTRING((TRC_INDICATION_GENERATION, Tracer::LEVEL3,
-       "SystemLogListenerDestination writing to PegasusStandard.log"));
+    PEG_TRACE_CSTRING(TRC_INDICATION_GENERATION, Tracer::LEVEL3,
+       "SystemLogListenerDestination writing to PegasusStandard.log");
     // PEGASUS_USE_SYSLOGS is not defined, writes the formatted
     // indications into PegasusStandard.log file
     Logger::put(Logger::STANDARD_LOG , identifier, severity,

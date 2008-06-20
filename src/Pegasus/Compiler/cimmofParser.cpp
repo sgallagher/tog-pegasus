@@ -317,7 +317,7 @@ int cimmofParser::setInputBuffer(const FILE *f, Boolean closeCurrent)
 int cimmofParser::setInputBuffer(void *buffstate, Boolean closeCurrent)
 {
     return switch_to_buffer_wrapper(buffstate, closeCurrent);
-};
+}
 
 //--------------------------------------------------------------------
 // Handle include files from either the file name or an open handle

@@ -635,10 +635,15 @@ String Processor::getSysName(void)
   hn[sizeof(hn)-1] = 0;
 
   // find out what the nameservices think is its full name
-  if (he=gethostbyname(hn)) return String(he->h_name);
-
+  if ((he = gethostbyname(hn)) != 0)
+  {
+      return String(he->h_name);
+  }
   // but if that failed, return what gethostname said
-  else return String(hn);
+  else 
+  {
+      return String(hn);
+  }
 }
 
 /*

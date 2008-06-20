@@ -72,7 +72,10 @@ void Child(
      * sock non-negative.
      */
 
-    execArgv = (char**)malloc(sizeof(char*) * (argc + 3));
+    if ((execArgv = (char**)malloc(sizeof(char*) * (argc + 3))) == NULL)
+    {
+        Fatal(FL, "Memory allocation failed");
+    }
     memcpy(execArgv + 3, argv + 1, sizeof(char*) * argc);
 
     sprintf(sockStr, "%d", sock);

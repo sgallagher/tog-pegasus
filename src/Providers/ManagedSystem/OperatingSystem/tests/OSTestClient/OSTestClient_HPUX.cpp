@@ -82,7 +82,7 @@ Boolean OSTestClient::goodCSName(const String &csname, Boolean verbose)
    }
    hostName[sizeof(hostName)-1] = 0;
 
-   if (he = gethostbyname(hostName))
+   if ((he = gethostbyname(hostName)) != 0)
    {
       strncpy(hostName, he->h_name, sizeof(hostName)-1);
    }

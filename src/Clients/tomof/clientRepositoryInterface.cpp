@@ -121,7 +121,7 @@ CIMClass clientRepositoryInterface::getClass(
         return _client->getClass(nameSpace, className,
                         localOnly, includeQualifiers, includeClassOrigin);
     throw IndexOutOfBoundsException();
-};
+}
 
 
 Array<CIMClass> clientRepositoryInterface::enumerateClasses(
@@ -151,7 +151,8 @@ Array<CIMClass> clientRepositoryInterface::enumerateClasses(
                                     includeQualifiers,
                                     includeClassOrigin);
      throw IndexOutOfBoundsException();
-};
+}
+
 Array<CIMName> clientRepositoryInterface::enumerateClassNames(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
@@ -175,7 +176,7 @@ Array<CIMName> clientRepositoryInterface::enumerateClassNames(
        return _client->enumerateClassNames(nameSpace, className,
                                            deepInheritance);
     throw IndexOutOfBoundsException();
-};
+}
 
 Array<CIMObjectPath> clientRepositoryInterface::enumerateInstanceNames(
     const CIMNamespaceName& nameSpace,
@@ -188,7 +189,7 @@ Array<CIMObjectPath> clientRepositoryInterface::enumerateInstanceNames(
     if (_client)
        return _client->enumerateInstanceNames(nameSpace, className);
     throw IndexOutOfBoundsException();
-};
+}
 
 Array<CIMInstance> clientRepositoryInterface::enumerateInstances(
     const CIMNamespaceName& nameSpace,
@@ -208,7 +209,7 @@ Array<CIMInstance> clientRepositoryInterface::enumerateInstances(
        return _client->enumerateInstances(nameSpace, className,
            deepInheritance, localOnly,includeQualifiers,includeClassOrigin);
     throw IndexOutOfBoundsException();
-};
+}
 
 
 PEGASUS_NAMESPACE_END

@@ -89,7 +89,9 @@ const char* FindMacro(const char* name)
     for (p = _macros; p; p = p->next)
     {
         if (strcmp(p->name, name) == 0)
+        {
             return p->value;
+        }
     }
 
     /* Not found. */
@@ -113,11 +115,16 @@ int DefineMacro(const char* name, const char* value)
     /* Reject if the macro is already defined. */
 
     if (FindMacro(name) != NULL)
+    {
         return -1;
+    }
 
     /* Create new macro. */
 
-    macro = (struct Macro*)malloc(sizeof(struct Macro));
+    if ((macro = (struct Macro*)malloc(sizeof(struct Macro))) == NULL)
+    {
+        return -1;
+    }
     macro->name = strdup(name);
     macro->value = strdup(value);
 
@@ -128,12 +135,18 @@ int DefineMacro(const char* name, const char* value)
         struct Macro* prev = NULL;
 
         for (p = _macros; p; p = p->next)
+        {
             prev = p;
+        }
 
         if (prev)
+        {
             prev->next = macro;
+        }
         else
+        {
             _macros = macro;
+        }
 
         macro->next = NULL;
     }
@@ -161,9 +174,13 @@ int UndefineMacro(const char* name)
         if (strcmp(p->name, name) == 0)
         {
             if (prev)
+            {
                 prev->next = p->next;
+            }
             else
+            {
                 _macros = p->next;
+            }
 
             free(p->name);
             free(p->value);
@@ -319,7 +336,9 @@ int DefineConfigPathMacro(const char* configParam, const char* defaultPath)
     while (0);
 
     if (status == 0)
+    {
         DefineMacro(configParam, path);
+    }
 
     return status;
 }
@@ -341,7 +360,9 @@ void DumpMacros(FILE* outputStream)
     fprintf(outputStream, "===== Macros:\n");
 
     for (p = _macros; p; p = p->next)
+    {
         fprintf(outputStream, "%s=%s\n", p->name, p->value);
+    }
 
     putc('\n', outputStream);
 }

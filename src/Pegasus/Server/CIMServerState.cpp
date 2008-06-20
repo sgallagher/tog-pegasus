@@ -47,14 +47,14 @@ static const char* STATE_STRINGS[] =
 CIMServerState::CIMServerState()
 {
     _currentState = RUNNING;
-};
+}
 
 /**
     Destructor
 */
 CIMServerState::~CIMServerState()
 {
-};
+}
 
 /**
     Set the state of the CIM Server.

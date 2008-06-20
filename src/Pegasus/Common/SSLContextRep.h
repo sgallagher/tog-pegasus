@@ -57,7 +57,7 @@ extern "C"
 {
     typedef void (* CRYPTO_SET_LOCKING_CALLBACK)(int, int, const char *, int);
     typedef unsigned long (* CRYPTO_SET_ID_CALLBACK)(void);
-};
+}
 
 PEGASUS_NAMESPACE_BEGIN
 

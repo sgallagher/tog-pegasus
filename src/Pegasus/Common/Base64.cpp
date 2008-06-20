@@ -61,7 +61,7 @@ inline PEGASUS_COMMON_LINKAGE char Base64::_Encode(Uint8 uc)
         return '+';
 
     return '/';
-};
+}
 
 // Helper function returns true is a character is a valid base-64 character
 // and false otherwise.
@@ -88,7 +88,7 @@ inline Boolean Base64::_IsBase64(char c)
         return true;
 
     return false;
-};
+}
 
  // Translate one base-64 character into a six bit pattern
 inline Uint8 Base64::_Decode(char c)
@@ -105,7 +105,7 @@ inline Uint8 Base64::_Decode(char c)
         return 62;
 
     return 63;
-};
+}
 
 
 //*************************************************************
@@ -167,7 +167,7 @@ Buffer Base64::encode(const Buffer& vby)
     };
 
     return retArray;
-};
+}
 
 /*
     I checked for the zero length. The algorithm would also work for zero
@@ -238,6 +238,6 @@ Buffer Base64::decode(const Buffer& strInput)
 
 
     return retArray;
-};
+}
 
 PEGASUS_NAMESPACE_END

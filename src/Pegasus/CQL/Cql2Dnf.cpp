@@ -59,7 +59,7 @@ PEGASUS_NAMESPACE_BEGIN
 void term_el::negate()
 {
    NOT = true;
-};
+}
 
 //
 // Evaluation heap element methods

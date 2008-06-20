@@ -113,7 +113,7 @@ static Boolean getUtilGetHostName(String& systemName)
      // Now get the official hostname.  If this call fails then return
      // the value from gethostname().
 
-     if (he=gethostbyname(hostName))
+     if ((he = gethostbyname(hostName)) != 0)
      {
          systemName.assign(he->h_name);
      }

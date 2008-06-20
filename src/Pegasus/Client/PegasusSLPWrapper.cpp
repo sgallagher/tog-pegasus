@@ -325,10 +325,10 @@ Array<CIMServerDescription> CIMServerDiscoveryRep::lookup(
         while (!_LSLP_IS_EMPTY(&responses))
         {
             srvReplyEntry = responses.next;
-            if (srvReplyEntry->type == srvRply)
+            if (srvReplyEntry != NULL)
             {
                 lslpURL *url_list;
-                if (srvReplyEntry != NULL && srvReplyEntry->type == srvRply)
+                if (srvReplyEntry->type == srvRply)
                 {
                     if ((NULL != srvReplyEntry->msg.srvRply.urlList) &&
                         (!_LSLP_IS_EMPTY( srvReplyEntry->msg.srvRply.urlList)))
@@ -367,10 +367,10 @@ Array<CIMServerDescription> CIMServerDiscoveryRep::lookup(
                             url_list = url_list->next;
                         }/*while we have urls*/
                     }/*if urlList*/
-                }/*if srvReply*/
-            }/*if type==srvReply*/
-            _LSLP_UNLINK(srvReplyEntry);
-            lslpDestroySLPMsg(srvReplyEntry, LSLP_DESTRUCTOR_DYNAMIC);
+                }/*if srvReplyEntry->type == srvRply*/
+                _LSLP_UNLINK(srvReplyEntry);
+                lslpDestroySLPMsg(srvReplyEntry, LSLP_DESTRUCTOR_DYNAMIC);
+            }/*if srvReplyEntry != NULL*/
         }/*while*/
         destroy_slp_client(client);
     }

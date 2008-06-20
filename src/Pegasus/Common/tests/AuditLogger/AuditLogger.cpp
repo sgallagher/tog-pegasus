@@ -185,6 +185,7 @@ static void writeAuditLogToFile(
 {
     FILE * _auditTestLogFileHandle =
         fopen(auditTestLogFile.getCString(), "a+");
+    PEGASUS_TEST_ASSERT(_auditTestLogFileHandle);
 
     fprintf(_auditTestLogFileHandle, "%s\n",
         (const char *)MessageLoader::getMessage(msgParms).getCString());

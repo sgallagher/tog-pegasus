@@ -520,9 +520,12 @@ Boolean Process::getParameters(Array<String>& as) const
   // going for q-p characters
   // p then set to point past blank for next iteration
 
-  const char *p=pInfo.pst_cmd;
+  const char *p = pInfo.pst_cmd;
   const char *q;
-  for ( ; q=strchr(p, ' '); p=q+1) as.append(String(p, q-p));
+  for ( ; (q = strchr(p, ' ')) != 0; p = q + 1)
+  { 
+      as.append(String(p, q-p));
+  }
 
   // when no more blanks found, stick what's left into last
   // element of array
@@ -854,10 +857,15 @@ String Process::getCSName(void) const
   hn[sizeof(hn)-1] = 0;
 
   // find out what the nameservices think is its full name
-  if (he=gethostbyname(hn)) return String(he->h_name);
-
+  if ((he = gethostbyname(hn)) != 0)
+  {
+      return String(he->h_name);
+  }
   // but if that failed, return what gethostname said
-  else return String(hn);
+  else 
+  {
+      return String(hn);
+  }
 }
 
 /*

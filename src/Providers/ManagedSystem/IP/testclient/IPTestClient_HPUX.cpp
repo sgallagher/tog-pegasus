@@ -73,7 +73,7 @@ void IPTestClient::_check_BIPTLEp_Antecedent(String &pv, Boolean verbose)
     gethostname(hn, sizeof(hn));
     hn[sizeof(hn)-1] = 0;
 
-    if (he=gethostbyname(hn))
+    if ((he = gethostbyname(hn)) != 0)
         _hostname = String(he->h_name);
     else
         _hostname = String(hn);
@@ -113,7 +113,7 @@ void IPTestClient::_check_BIPTLEp_Dependent(String &pv, Boolean verbose)
     gethostname(hn, sizeof(hn));
     hn[sizeof(hn)-1] = 0;
 
-    if (he=gethostbyname(hn))
+    if ((he = gethostbyname(hn)) != 0)
         _hostname = String(he->h_name);
     else
         _hostname = String(hn);
@@ -238,7 +238,7 @@ void IPTestClient::_check_IPPEp_SystemName(String &pv, Boolean verbose)
     gethostname(hn, sizeof(hn));
     hn[sizeof(hn)-1] = 0;
 
-    if (he=gethostbyname(hn))
+    if ((he = gethostbyname(hn)) != 0)
         _hostname = String(he->h_name);
     else
         _hostname = String(hn);
@@ -586,7 +586,7 @@ void IPTestClient::_check_IPRoute_SystemName(String &pv, Boolean verbose)
     gethostname(hn, sizeof(hn));
     hn[sizeof(hn)-1] = 0;
 
-    if (he=gethostbyname(hn))
+    if ((he = gethostbyname(hn)) != 0)
         _hostname = String(he->h_name);
     else
         _hostname = String(hn);
@@ -882,7 +882,7 @@ void IPTestClient::_check_LEP_SystemName(String &pv, Boolean verbose)
     gethostname(hn, sizeof(hn));
     hn[sizeof(hn)-1] = 0;
 
-    if (he=gethostbyname(hn))
+    if ((he = gethostbyname(hn)) != 0)
         _hostname = String(he->h_name);
     else
         _hostname = String(hn);

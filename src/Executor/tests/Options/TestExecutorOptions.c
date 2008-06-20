@@ -49,6 +49,7 @@ int main()
 
         testArgc = 4;
         testArgv = (char**)malloc(testArgc * sizeof(char*));
+        PEGASUS_TEST_ASSERT(testArgv);
         testArgv[0] = "-h";
         testArgv[1] = "--dump";
         testArgv[2] = "a";
@@ -79,6 +80,7 @@ int main()
 
         testArgc = 2;
         testArgv = (char**)malloc(testArgc * sizeof(char*));
+        PEGASUS_TEST_ASSERT(testArgv);
         testArgv[0] = "-h";
         testArgv[1] = "-s";
 
@@ -100,6 +102,7 @@ int main()
 
         testArgc = 1;
         testArgv = (char**)malloc(testArgc * sizeof(char*));
+        PEGASUS_TEST_ASSERT(testArgv);
         testArgv[0] = "--dump";
 
         GetOptions(&testArgc, &testArgv, &options);
@@ -120,6 +123,7 @@ int main()
 
         testArgc = 2;
         testArgv = (char**)malloc(testArgc * sizeof(char*));
+        PEGASUS_TEST_ASSERT(testArgv);
         testArgv[0] = "-v";
         testArgv[1] = "-X";
 
@@ -141,6 +145,7 @@ int main()
 
         testArgc = 2;
         testArgv = (char**)malloc(testArgc * sizeof(char*));
+        PEGASUS_TEST_ASSERT(testArgv);
         testArgv[0] = "--help";
         testArgv[1] = "--dump";
 
@@ -162,6 +167,7 @@ int main()
 
         testArgc = 2;
         testArgv = (char**)malloc(testArgc * sizeof(char*));
+        PEGASUS_TEST_ASSERT(testArgv);
         testArgv[0] = "-s";
         testArgv[1] = "--version";
 
@@ -183,6 +189,7 @@ int main()
 
         testArgc = 7;
         testArgv = (char**)malloc(testArgc * sizeof(char*));
+        PEGASUS_TEST_ASSERT(testArgv);
         testArgv[0] = "-s";
         testArgv[1] = "-v";
         testArgv[2] = "--version";
@@ -209,6 +216,7 @@ int main()
 
         testArgc = 1;
         testArgv = (char**)malloc(testArgc * sizeof(char*));
+        PEGASUS_TEST_ASSERT(testArgv);
         testArgc = 0;
 
         GetOptions(&testArgc, &testArgv, &options);

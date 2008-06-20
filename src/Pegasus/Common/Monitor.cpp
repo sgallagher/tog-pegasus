@@ -636,6 +636,7 @@ void Monitor::run(Uint32 milliseconds)
 
             {
                 MessageQueue* q = MessageQueue::lookup(entries[indx].queueId);
+                PEGASUS_ASSERT(q != 0);
                 HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(q);
                 dst->_entry_index = indx;
                 dst->closeConnectionOnTimeout(&timeNow);
@@ -652,6 +653,7 @@ void Monitor::run(Uint32 milliseconds)
                 entries[indx].type == MonitorEntry::TYPE_CONNECTION)
             {
                 MessageQueue* q = MessageQueue::lookup(entries[indx].queueId);
+                PEGASUS_ASSERT(q != 0);
                 HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(q);
                 dst->_entry_index = indx;
                 dst->closeConnectionOnTimeout(&timeNow);

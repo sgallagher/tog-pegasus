@@ -504,7 +504,7 @@ inline void CheckRep(void * rep)
 {
     if (!rep) 
         ThrowUninitializedObjectException();
-};
+}
 
 PEGASUS_NAMESPACE_END
 

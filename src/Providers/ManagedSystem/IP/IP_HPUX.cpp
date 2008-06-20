@@ -166,7 +166,7 @@ Boolean IPInterface::getSystemName(String& s)
 
     // find out what the nameservices think is its full name
     // but if that failed, return what gethostname said
-    if (he = gethostbyname(hn))
+    if ((he = gethostbyname(hn)) != 0)
     {
         s = String(he->h_name);
     }
@@ -909,7 +909,7 @@ InterfaceList::InterfaceList()
 
             t6 = addr6_buf[i].ipv6AddrAddress;
             char _dest[INET6_ADDRSTRLEN];
-            if (inet_ntop(AF_INET6, &t6, _dest, INET6_ADDRSTRLEN) < 0)
+            if (inet_ntop(AF_INET6, &t6, _dest, INET6_ADDRSTRLEN) == 0)
             {
                 free(ifconf6.iflc_req);
                 free(addr6_buf);
@@ -932,12 +932,12 @@ InterfaceList::InterfaceList()
                     AF_INET6, 
                     t6.s6_addr, 
                     _addr1,
-                    INET6_ADDRSTRLEN) < 0 ||
+                    INET6_ADDRSTRLEN) == 0 ||
                     inet_ntop(
                     AF_INET6, 
                     sin6->sin6_addr.s6_addr, 
                     _addr2, 
-                    INET6_ADDRSTRLEN) < 0)
+                    INET6_ADDRSTRLEN) == 0)
                 {
                     free(ifconf6.iflc_req);
                     free(addr6_buf);

@@ -364,7 +364,7 @@ void ComputerSystem::initialize()
     hn[sizeof(hn)-1] = 0;
 
     // find out what nameservices think is full name
-    if (he=gethostbyname(hn))
+    if ((he = gethostbyname(hn)) != 0)
         _hostName = he->h_name;
     else
         _hostName = hn;

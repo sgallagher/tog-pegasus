@@ -146,6 +146,7 @@ void test01()
     // check if what we get back equals what we placed into it
     char* backTransformation;
     backTransformation = strdup(tempCIMName.getString().getCString());
+    PEGASUS_TEST_ASSERT(backTransformation);
     PEGASUS_TEST_ASSERT(25 == strlen(backTransformation));
     PEGASUS_TEST_ASSERT(0 == strcmp(backTransformation, asciiOnly));
     free(backTransformation);
@@ -168,6 +169,7 @@ void test02()
     // check if what we get back equals what we placed into it
     char* backTransformation;
     backTransformation = strdup(tempCIMName.getString().getCString());
+    PEGASUS_TEST_ASSERT(backTransformation);
     PEGASUS_TEST_ASSERT(8 == strlen(backTransformation));
     PEGASUS_TEST_ASSERT(0 == strcmp(backTransformation, utf8Only));
     free(backTransformation);
@@ -189,6 +191,7 @@ void test03()
     // check if what we get back equals what we placed into it
     char* backTransformation;
     backTransformation = strdup(tempCIMName.getString().getCString());
+    PEGASUS_TEST_ASSERT(backTransformation);
     PEGASUS_TEST_ASSERT(13 == strlen(backTransformation));
     PEGASUS_TEST_ASSERT(0 == strcmp(backTransformation, utf8Mixed));
     free(backTransformation);
@@ -280,6 +283,7 @@ void test11()
     // check if what we get back equals what we placed into it
     char* backTransformation;
     backTransformation = strdup(tempCIMName.getString().getCString());
+    PEGASUS_TEST_ASSERT(backTransformation);
     PEGASUS_TEST_ASSERT(25 == strlen(backTransformation));
     PEGASUS_TEST_ASSERT(0 == strcmp(backTransformation, asciiOnly));
     free(backTransformation);
@@ -303,6 +307,7 @@ void test12()
     // check if what we get back equals what we placed into it
     char* backTransformation;
     backTransformation = strdup(tempCIMName.getString().getCString());
+    PEGASUS_TEST_ASSERT(backTransformation);
     PEGASUS_TEST_ASSERT(8 == strlen(backTransformation));
     PEGASUS_TEST_ASSERT(0 == strcmp(backTransformation, utf8Only));
     free(backTransformation);
@@ -325,6 +330,7 @@ void test13()
     // check if what we get back equals what we placed into it
     char* backTransformation;
     backTransformation = strdup(tempCIMName.getString().getCString());
+    PEGASUS_TEST_ASSERT(backTransformation);
     PEGASUS_TEST_ASSERT(13 == strlen(backTransformation));
     PEGASUS_TEST_ASSERT(0 == strcmp(backTransformation, utf8Mixed));
     free(backTransformation);

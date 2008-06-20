@@ -295,7 +295,7 @@ public:
                     "deliver indication: "
                     "https not supported "
                     "in Destination %s",
-                    (const char*) dest.getCString());
+                    (const char*) dest.getCString()));
                 
                 MessageLoaderParms param(
                     "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler."

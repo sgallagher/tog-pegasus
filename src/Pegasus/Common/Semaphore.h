@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,13 +48,14 @@
 //
 //==============================================================================
 
-#if defined(PEGASUS_OS_ZOS) || \
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || \
     defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || \
     defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX) || \
     defined(PEGASUS_OS_DARWIN) || \
     defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
     defined(PEGASUS_PLATFORM_VMS_IA64_DECCXX) || \
-    defined(PEGASUS_PLATFORM_VMS_ALPHA_DECCXX)
+    defined(PEGASUS_PLATFORM_VMS_ALPHA_DECCXX) || \
+    defined(PEGASUS_PLATFORM_VXWORKS_XSCALE_GNU)
 # define PEGASUS_USE_PTHREAD_SEMAPHORE
 #elif defined(PEGASUS_OS_TYPE_WINDOWS)
 # define PEGASUS_USE_WINDOWS_SEMAPHORE
@@ -75,7 +78,6 @@ PEGASUS_NAMESPACE_BEGIN
 #if defined(PEGASUS_USE_PTHREAD_SEMAPHORE)
 struct SemaphoreRep
 {
-    int count;
     Uint32 waiters;
     pthread_mutex_t mutex;
     pthread_cond_t cond;
@@ -118,30 +120,45 @@ public:
     */
     ~Semaphore();
 
-    /** Blocks until this Semaphore is in a signalled state.  Interrupt
-        signals are ignored.
-        @exception Exception If unable to block on the semaphore.
+    /** Blocks until this Semaphore is in a signalled state.
+        @param ignoreInterrupt Indicates whether the wait operation should
+        continue (true) or an exception should be thrown (false) when an
+        interrupt is received.
+        @exception WaitFailed If unable to block on the semaphore.
+        @exception WaitInterrupted If the operation is interrupted.
     */
-    void wait();
+    void wait(Boolean ignoreInterrupt = true);
+
+    /** Checks whether the Semaphore is signalled without waiting.  This method
+        returns normally if the Semaphore has a non-zero count.
+        @exception WaitFailed If the wait operation does not immediately
+        succeed.
+    */
+    void try_wait();
 
     /** Waits for the Semaphore to be signalled for a specified time interval.
         This method returns normally if the Semaphore has a non-zero count or
         it is signalled during the specified time interval.
         @param milliseconds The time interval to wait (in milliseconds).
-        @return True if the Semaphore has a non-zero count or is signalled
-            during the specified time interval, false otherwise.
+        @exception TimeOut If the wait operation does not succeed within
+        the specified time interval.
     */
-    Boolean time_wait(Uint32 milliseconds);
+    void time_wait(Uint32 milliseconds);
 
     /** Increments the count of the semaphore.
     */
     void signal();
+
+    /** Return the count of the semaphore.
+    */
+    int count() const;
 
 private:
 
     Semaphore(const Semaphore& x); // Unimplemented
     Semaphore& operator=(const Semaphore& x); // Unimplemented
 
+    mutable int _count;
     mutable SemaphoreRep _rep;
     friend class Condition;
 };

@@ -44,6 +44,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 // Define entry points for each static provider. 
+#if 0
 extern "C" class CIMProvider* PegasusCreateProvider(const String&);
 
 extern "C" class CIMProvider* PegasusCreateProviderWrapper(const String& arg)
@@ -68,6 +69,7 @@ extern "C" class CIMProvider* PegasusCreateProviderWrapper(const String& arg)
 
     return prov;
 }
+#endif
 
 MyEmbeddedServer::MyEmbeddedServer()
 {
@@ -130,6 +132,7 @@ void MyEmbeddedServer::initialize()
     Array<CIMNamespaceName> nameSpaces;
     nameSpaces.append("root/cimv2");
 
+#if 0
     //
     // Register the PegasusCreateProvider entry point (there can be only
     // one of these).
@@ -161,6 +164,7 @@ void MyEmbeddedServer::initialize()
     {
         printf("***** registerProvider() failed: Employee\n");
     }
+#endif
 }
 
 PEGASUS_NAMESPACE_END

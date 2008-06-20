@@ -57,11 +57,13 @@ SOURCES = \
 # Note that GoodbyeProvider and HelloProvider are simple example 
 # providers
 
-LIBRARIES = \
+XLIBRARIES += \
     cimplepegadap \
     cimplepegutils \
     cimple \
-    EmployeeProvider \
+    EmployeeProvider
+
+LIBRARIES += \
     pegcimserver \
     pegserver \
     pegservice \

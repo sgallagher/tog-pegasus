@@ -964,10 +964,12 @@ void WsmToCimRequestMapper::convertStringArrayToCimValue(
 
 static Uint32 _getMicroseconds(const char* ptr, int* bytes)
 {
-    // Here we expect an unsigned integer with no white space or sign. 
+    // Here we expect an unsigned integer with no white space or sign.
     // Essentially we expect to see a sequence of decimal digits.
     Uint32 ms;
-    int conversions = sscanf(ptr, "%u%n", &ms, bytes);
+
+    // Read only the first 6 digits, since we only want microseconds.
+    int conversions = sscanf(ptr, "%6u%n", &ms, bytes);
 
     if (conversions == 0 || *bytes == 0 || illegalNumChar(*ptr))
     {
@@ -978,12 +980,17 @@ static Uint32 _getMicroseconds(const char* ptr, int* bytes)
     // number of microseconds. Since we can only represent 6 decimal
     // positions, discard any additional digits or pad the number with
     // trailing 0's if we've read less than 6.
-    if (*bytes > 6)
+    if (*bytes == 6)
     {
-        sscanf(ptr, "%6u", &ms);
+        // Skip digits less significant than microseconds
+        while (isdigit(*(ptr + *bytes)))
+        {
+            (*bytes)++;
+        }
     }
     else
     {
+        // Convert to microseconds by padding with 0's
         for (Sint32 i = 0; i < 6 - *bytes; i++)
         {
             ms *= 10;

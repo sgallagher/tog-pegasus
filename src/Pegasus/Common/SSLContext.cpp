@@ -838,6 +838,11 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
         X509_LOOKUP* pLookup;
 
         _crlStore.reset(X509_STORE_new());
+        if (_crlStore.get() == NULL)
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_STD(bad_alloc)();
+        }
 
         // the validity of the crlstore was checked in ConfigManager
         // during server startup

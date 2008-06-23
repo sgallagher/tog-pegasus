@@ -149,6 +149,13 @@ static X509_STORE* _getNewX509Store(const String& storePath)
         "Reloading certificates from the store: " + storePath);
 
     X509_STORE* newStore = X509_STORE_new();
+    if (newStore == NULL)
+    {
+        PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL1,
+            "Memory allocation error reloading the trust or crl store.");
+        PEG_METHOD_EXIT();
+        throw PEGASUS_STD(bad_alloc)();
+    }
 
     //
     // Check if there is a CA certificate file or directory specified.

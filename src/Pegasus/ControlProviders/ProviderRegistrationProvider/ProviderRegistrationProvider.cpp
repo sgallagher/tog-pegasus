@@ -358,44 +358,48 @@ void ProviderRegistrationProvider::createInstance(
         if (instanceObject.findProperty(_PROPERTY_PROVIDERMODULE_NAME) ==
             PEG_NOT_FOUND)
         {
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-                "ControlProviders.ProviderRegistrationProvider."
-                    "ProviderRegistrationProvider."
-                    "MISSING_NAME_IN_PG_PROVIDERMODULE",
-                "Missing Name which is required property in PG_ProviderModule"
-                    " class."));
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+                MessageLoaderParms(
+                    "ControlProviders.ProviderRegistrationProvider."
+                        "ProviderRegistrationProvider."
+                        "MISSING_NAME_IN_PG_PROVIDERMODULE",
+                    "Missing Name which is required property in "
+                        "PG_ProviderModule class."));
         }
 
         if (instanceObject.findProperty(_PROPERTY_VENDOR) == PEG_NOT_FOUND)
         {
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-                "ControlProviders.ProviderRegistrationProvider."
-                    "ProviderRegistrationProvider."
-                    "MISSING_VENDOR_IN_PG_PROVIDERMODULE",
-                "Missing Vendor which is required property in"
-                    " PG_ProviderModule class."));
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+                MessageLoaderParms(
+                    "ControlProviders.ProviderRegistrationProvider."
+                        "ProviderRegistrationProvider."
+                        "MISSING_VENDOR_IN_PG_PROVIDERMODULE",
+                    "Missing Vendor which is required property in"
+                        " PG_ProviderModule class."));
         }
 
         if (instanceObject.findProperty(_PROPERTY_VERSION) == PEG_NOT_FOUND)
         {
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-                "ControlProviders.ProviderRegistrationProvider."
-                    "ProviderRegistrationProvider."
-                    "MISSING_VERSION_IN_PG_PROVIDERMODULE",
-                "Missing Version which is required property in"
-                    " PG_ProviderModule class."));
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+                MessageLoaderParms(
+                    "ControlProviders.ProviderRegistrationProvider."
+                        "ProviderRegistrationProvider."
+                        "MISSING_VERSION_IN_PG_PROVIDERMODULE",
+                    "Missing Version which is required property in"
+                        " PG_ProviderModule class."));
         }
 
         Uint32 ifcTypeIndex =
             instanceObject.findProperty(_PROPERTY_INTERFACETYPE);
         if (ifcTypeIndex == PEG_NOT_FOUND)
         {
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-                "ControlProviders.ProviderRegistrationProvider."
-                    "ProviderRegistrationProvider."
-                    "MISSING_INTERFACETYPE_IN_PG_PROVIDERMODULE",
-                "Missing InterfaceType which is required property in"
-                    " PG_ProviderModule class."));
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+                MessageLoaderParms(
+                    "ControlProviders.ProviderRegistrationProvider."
+                        "ProviderRegistrationProvider."
+                        "MISSING_INTERFACETYPE_IN_PG_PROVIDERMODULE",
+                    "Missing InterfaceType which is required property in"
+                        " PG_ProviderModule class."));
         }
         String ifcTypeString;
         instanceObject.getProperty(ifcTypeIndex).getValue().
@@ -417,12 +421,13 @@ void ProviderRegistrationProvider::createInstance(
             instanceObject.findProperty(_PROPERTY_INTERFACEVERSION);
         if (ifcVersionIndex == PEG_NOT_FOUND)
         {
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-                "ControlProviders.ProviderRegistrationProvider."
-                    "ProviderRegistrationProvider."
-                    "MISSING_INTERFACEVERSION_IN_PG_PROVIDERMODULE",
-                "Missing InterfaceVersion which is required property "
-                    "in PG_ProviderModule class."));
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+                MessageLoaderParms(
+                    "ControlProviders.ProviderRegistrationProvider."
+                        "ProviderRegistrationProvider."
+                        "MISSING_INTERFACEVERSION_IN_PG_PROVIDERMODULE",
+                    "Missing InterfaceVersion which is required property "
+                        "in PG_ProviderModule class."));
         }
         String ifcVersionString;
         instanceObject.getProperty(ifcVersionIndex).getValue().
@@ -443,12 +448,13 @@ void ProviderRegistrationProvider::createInstance(
 
         if (instanceObject.findProperty(_PROPERTY_LOCATION) == PEG_NOT_FOUND)
         {
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-                "ControlProviders.ProviderRegistrationProvider."
-                    "ProviderRegistrationProvider."
-                    "MISSING_LOCATION_IN_PG_PROVIDERMODULE",
-                "Missing Location which is required property in"
-                    " PG_ProviderModule class."));
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+                MessageLoaderParms(
+                    "ControlProviders.ProviderRegistrationProvider."
+                        "ProviderRegistrationProvider."
+                        "MISSING_LOCATION_IN_PG_PROVIDERMODULE",
+                    "Missing Location which is required property in"
+                        " PG_ProviderModule class."));
         }
 
         if (instanceObject.findProperty(_PROPERTY_OPERATIONALSTATUS) == 
@@ -481,7 +487,7 @@ void ProviderRegistrationProvider::createInstance(
 #ifdef PEGASUS_DISABLE_PROV_USERCTXT
             if (userContext != PG_PROVMODULE_USERCTXT_CIMSERVER)
             {
-                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
                     MessageLoaderParms(
                         "ControlProviders.ProviderRegistrationProvider."
                             "ProviderRegistrationProvider."
@@ -515,7 +521,7 @@ void ProviderRegistrationProvider::createInstance(
                     instanceObject.getProperty(designatedUserIndex).getValue()
                         .isNull())
                 {
-                    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
                         MessageLoaderParms(
                             "ControlProviders.ProviderRegistrationProvider."
                                 "ProviderRegistrationProvider."
@@ -544,45 +550,49 @@ void ProviderRegistrationProvider::createInstance(
         if (instanceObject.findProperty(_PROPERTY_PROVIDERMODULENAME) ==
             PEG_NOT_FOUND)
         {
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-                "ControlProviders.ProviderRegistrationProvider."
-                    "ProviderRegistrationProvider."
-                    "MISSING_PROVIDERMODULENAME_IN_PG_PROVIDERCAPABILITIES",
-                "Missing ProviderModuleName which is required property in"
-                    " PG_ProviderCapabilities class."));
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+                MessageLoaderParms(
+                    "ControlProviders.ProviderRegistrationProvider."
+                        "ProviderRegistrationProvider."
+                        "MISSING_PROVIDERMODULENAME_IN_PG_PROVIDERCAPABILITIES",
+                    "Missing ProviderModuleName which is required property in"
+                        " PG_ProviderCapabilities class."));
         }
 
         if (instanceObject.findProperty(_PROPERTY_PROVIDERNAME) == 
             PEG_NOT_FOUND)
         {
             String missing = "ProviderName";
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-                "ControlProviders.ProviderRegistrationProvider."
-                    "ProviderRegistrationProvider."
-                    "MISSING_PROVIDERNAME_IN_PG_PROVIDERCAPABILITIES",
-                "Missing the required ProviderName property in "
-                    "PG_ProviderCapabilities class."));
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+                MessageLoaderParms(
+                    "ControlProviders.ProviderRegistrationProvider."
+                        "ProviderRegistrationProvider."
+                        "MISSING_PROVIDERNAME_IN_PG_PROVIDERCAPABILITIES",
+                    "Missing the required ProviderName property in "
+                        "PG_ProviderCapabilities class."));
         }
 
         if (instanceObject.findProperty(_PROPERTY_CAPABILITYID) == 
             PEG_NOT_FOUND)
         {
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-                "ControlProviders.ProviderRegistrationProvider."
-                    "ProviderRegistrationProvider."
-                    "MISSING_CAPABILITYID_IN_PG_PROVIDERCAPABILITIES",
-                "Missing the required CapabilityID property in "
-                    "PG_ProviderCapabilities class."));
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+                MessageLoaderParms(
+                    "ControlProviders.ProviderRegistrationProvider."
+                        "ProviderRegistrationProvider."
+                        "MISSING_CAPABILITYID_IN_PG_PROVIDERCAPABILITIES",
+                    "Missing the required CapabilityID property in "
+                        "PG_ProviderCapabilities class."));
         }
 
         if (instanceObject.findProperty(_PROPERTY_CLASSNAME) == PEG_NOT_FOUND)
         {
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-                "ControlProviders.ProviderRegistrationProvider."
-                    "ProviderRegistrationProvider."
-                    "MISSING_CLASSNAME_IN_PG_PROVIDERCAPABILITIES",
-                "Missing ClassName which is required property in"
-                    " PG_ProviderCapabilities class."));
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+                MessageLoaderParms(
+                    "ControlProviders.ProviderRegistrationProvider."
+                        "ProviderRegistrationProvider."
+                        "MISSING_CLASSNAME_IN_PG_PROVIDERCAPABILITIES",
+                    "Missing ClassName which is required property in"
+                        " PG_ProviderCapabilities class."));
         }
 
         // Validate the Namespaces property
@@ -602,12 +612,13 @@ void ProviderRegistrationProvider::createInstance(
 
         if (namespacesArray.size() == 0)
         {
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
-                "ControlProviders.ProviderRegistrationProvider."
-                    "ProviderRegistrationProvider."
-                    "MISSING_NAMESPACES_IN_PG_PROVIDERCAPABILITIES",
-                "Missing Namespaces which is required property in "
-                    "PG_ProviderCapabilities class."));
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+                MessageLoaderParms(
+                    "ControlProviders.ProviderRegistrationProvider."
+                        "ProviderRegistrationProvider."
+                        "MISSING_NAMESPACES_IN_PG_PROVIDERCAPABILITIES",
+                    "Missing Namespaces which is required property in "
+                        "PG_ProviderCapabilities class."));
         }
 
         // Validate the ProviderType property
@@ -627,7 +638,7 @@ void ProviderRegistrationProvider::createInstance(
 
         if (providerTypeArray.size() == 0)
         {
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
                 MessageLoaderParms(
                     "ControlProviders.ProviderRegistrationProvider."
                         "ProviderRegistrationProvider."
@@ -646,7 +657,7 @@ void ProviderRegistrationProvider::createInstance(
 #endif
                                           )
             {
-                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
                     MessageLoaderParms(
                         "ControlProviders.ProviderRegistrationProvider."
                             "ProviderRegistrationProvider.UNSUPPORTED_"
@@ -674,7 +685,7 @@ void ProviderRegistrationProvider::createInstance(
                 "Missing ProviderModuleName which is required property in"
                     " PG_ConsumerCapabilities class.");
 
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER, parms);
         }
 
         if (instanceObject.findProperty(_PROPERTY_PROVIDERNAME) == 
@@ -688,7 +699,7 @@ void ProviderRegistrationProvider::createInstance(
                 "Missing ProviderName which is required property in"
                     " PG_ConsumerCapabilities class.");
 
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER, parms);
         }
 
         if (instanceObject.findProperty(_PROPERTY_CAPABILITYID) == 
@@ -702,7 +713,7 @@ void ProviderRegistrationProvider::createInstance(
                 "Missing the required CapabilityID property in "
                     "PG_ConsumerCapabilities class.");
 
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER, parms);
         }
 
         if (instanceObject.findProperty
@@ -716,7 +727,7 @@ void ProviderRegistrationProvider::createInstance(
                 "Missing ProviderType which is required property in"
                     " PG_ConsumerCapabilities class.");
 
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER, parms);
         }
 
         if (instanceObject.findProperty(_PROPERTY_INDICATIONDESTINATIONS) == 
@@ -730,7 +741,7 @@ void ProviderRegistrationProvider::createInstance(
                 "Missing Destinations which is required property in"
                     " PG_ConsumerCapabilities class.");
 
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER, parms);
         }
     }
     else // PEGASUS_CLASSNAME_PROVIDER
@@ -741,21 +752,25 @@ void ProviderRegistrationProvider::createInstance(
         if (instanceObject.findProperty
                 (_PROPERTY_PROVIDER_NAME) == PEG_NOT_FOUND)
         {
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-                "ControlProviders.ProviderRegistrationProvider."
-                    "ProviderRegistrationProvider.MISSING_NAME_IN_PG_PROVIDER",
-                "Missing the required Name property in PG_Provider class."));
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+                MessageLoaderParms(
+                    "ControlProviders.ProviderRegistrationProvider."
+                        "ProviderRegistrationProvider."
+                        "MISSING_NAME_IN_PG_PROVIDER",
+                    "Missing the required Name property in PG_Provider "
+                        "class."));
         }
         
         if (instanceObject.findProperty(_PROPERTY_PROVIDERMODULENAME) == 
             PEG_NOT_FOUND)
         {
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-                "ControlProviders.ProviderRegistrationProvider."
-                    "ProviderRegistrationProvider."
-                    "MISSING_PROVIDERMODULENAME_IN_PG_PROVIDER",
-                "Missing ProviderModuleName which is required property in"
-                    " PG_Provider class."));
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+                MessageLoaderParms(
+                    "ControlProviders.ProviderRegistrationProvider."
+                        "ProviderRegistrationProvider."
+                        "MISSING_PROVIDERMODULENAME_IN_PG_PROVIDER",
+                    "Missing ProviderModuleName which is required property in "
+                        "PG_Provider class."));
         }
     }
 
@@ -867,7 +882,7 @@ void ProviderRegistrationProvider::deleteInstance(
         // if _PROPERTY_PROVIDERMODULENAME key not found
         if( !moduleFound)
         {
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
                     MessageLoaderParms(
                 "ControlProviders.ProviderRegistrationProvider."
                     "ProviderRegistrationProvider."
@@ -929,7 +944,7 @@ void ProviderRegistrationProvider::deleteInstance(
         // if _PROPERTY_PROVIDERMODULE_NAME key not found
         if( !moduleFound)
         {
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
                 MessageLoaderParms(
                 "ControlProviders.ProviderRegistrationProvider."
                 "ProviderRegistrationProvider.NAME_KEY_NOT_FOUND",
@@ -1057,7 +1072,8 @@ void ProviderRegistrationProvider::invokeMethod(
     // if _PROPERTY_PROVIDERMODULE_NAME key not found
     if( !moduleFound)
     {
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,MessageLoaderParms(
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+            MessageLoaderParms(
                 "ControlProviders.ProviderRegistrationProvider."
                     "ProviderRegistrationProvider.NAME_KEY_NOT_FOUND",
                 "key Name was not found"));

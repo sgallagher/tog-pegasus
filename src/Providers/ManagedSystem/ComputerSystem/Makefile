@@ -49,6 +49,11 @@ LIBRARY = ComputerSystemProvider
 
 EXTRA_INCLUDES =
 
+ifdef HPUX_USE_IPMI_ID
+    EXTRA_INCLUDES += -I$(HPUX_IPMI_INCLUDE_DIR)
+    LOCAL_DEFINES += -DHPUX_USE_IPMI_ID
+endif
+
 SOURCES = \
 	ComputerSystemProvider.cpp \
 	ComputerSystemProviderMain.cpp \

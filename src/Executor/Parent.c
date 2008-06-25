@@ -191,7 +191,7 @@ static void HandleOpenFileRequest(int sock)
             case 'w':
                 fd = open(
                     request.path,
-                    O_WRONLY | O_CREAT | O_TRUNC,
+                    O_WRONLY | O_TRUNC,
                     permissions);
                 break;
 
@@ -199,14 +199,32 @@ static void HandleOpenFileRequest(int sock)
             {
                 fd = open(
                     request.path,
-                    O_WRONLY | O_CREAT | O_APPEND,
+                    O_WRONLY | O_APPEND,
                     permissions);
                 break;
             }
         }
-
+        /* If the open call fails with ENOENT errno,then create the file.
+        If the umask is set to a non default value,then the file will not 
+        get created with permissions specified in the open system call.
+        So set the permissions for the file explicitly using fchmod.
+        */
         if (fd == -1)
-            response.status = -1;
+        {
+            if (errno == ENOENT && (request.mode == 'w' || request.mode == 'a'))
+            {
+                fd = open(request.path,O_CREAT | O_WRONLY,permissions);
+                if (fchmod(fd,permissions) != 0)
+                {
+                    response.status = -1;
+                    close(fd);
+                }
+            }
+            else
+            {
+                response.status = -1;
+            }
+        }
     }
     while (0);
 

@@ -53,11 +53,11 @@ public:
     virtual ~CMPILocalProviderManager();
 
 public:
-    CMPIProvider::OpProviderHolder getProvider(
+    OpProviderHolder getProvider(
         const String & fileName, 
         const String & providerName);
 
-    CMPIProvider::OpProviderHolder getRemoteProvider(
+    OpProviderHolder getRemoteProvider(
         const String & fileName, 
         const String & providerName);
 

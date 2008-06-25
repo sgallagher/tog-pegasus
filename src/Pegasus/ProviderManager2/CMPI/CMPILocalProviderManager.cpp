@@ -122,8 +122,8 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
                 String location = *(parms->location);
 
                 CMPIProvider *pr = 0;
-                CMPIProvider::OpProviderHolder * ph =
-                    reinterpret_cast < CMPIProvider::OpProviderHolder * >(ret);
+                OpProviderHolder * ph =
+                    reinterpret_cast < OpProviderHolder * >(ret);
 
                 pr = _lookupProvider (providerName);
 
@@ -176,7 +176,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
 
                     AutoMutex lock (_providerTableMutex);
                     // The provider table must be locked before unloading. 
-                    _providers.remove (pr->_name);
+                    _providers.remove (pr->getNameWithType());
                     _unloadProvider (pr);
                     delete pr;
 
@@ -184,7 +184,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
                 else
                 {
                     // No need to have a memory leak.
-                    _providers.remove(pr->_name);
+                    _providers.remove(pr->getNameWithType());
                     delete pr;
                 }
                 break;
@@ -375,14 +375,14 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
                                 continue;
                             }
 
-                            if (provider->_quantum == quantum)
+                            if (provider->getQuantum() == quantum)
                             {
                                 continue;
                             }
 
-                            provider->_quantum = quantum;
+                            provider->setQuantum(quantum);
 
-                            if (provider->_current_operations.get ())
+                            if (provider->getCurrentOperations())
                             {
                                 PEG_TRACE_STRING(
                                     TRC_PROVIDERMANAGER,
@@ -434,7 +434,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
                             {
                                 // lock the provider mutex
 
-                                AutoMutex pr_lock (provider->_statusMutex);
+                                AutoMutex pr_lock (provider->getStatusMutex());
 
                                 if (provider->tryTerminate () == false)
                                 {
@@ -448,10 +448,10 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
                                     continue;
                                 }
 
-                                PEGASUS_ASSERT (provider->_module != 0);
+                                PEGASUS_ASSERT (provider->getModule() != 0);
 
                                 // unload provider module
-                                provider->_module->unloadModule ();
+                                provider->getModule()->unloadModule ();
                                 PEG_TRACE((
                                     TRC_PROVIDERMANAGER,
                                     Tracer::LEVEL3,
@@ -471,7 +471,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
                                     Tracer::LEVEL4,
                                     "Destroying CMPIProvider's CIMOM Handle "
                                     + provider->getName());
-                                delete provider->_cimom_handle;
+                                delete provider->getCIMOMHandle();
 
                                 // set provider status to UNINITIALIZED
                                 provider->reset ();
@@ -620,10 +620,10 @@ void CMPILocalProviderManager::cleanupThread(Thread *t, CMPIProvider *p)
 
 }
 
-CMPIProvider::OpProviderHolder CMPILocalProviderManager::
+OpProviderHolder CMPILocalProviderManager::
     getRemoteProvider (const String & location, const String & providerName)
 {
-    CMPIProvider::OpProviderHolder ph;
+    OpProviderHolder ph;
     CTRL_STRINGS
         strings;
     Sint32
@@ -671,10 +671,10 @@ CMPIProvider::OpProviderHolder CMPILocalProviderManager::
     return ph;
 }
 
-CMPIProvider::OpProviderHolder CMPILocalProviderManager::
+OpProviderHolder CMPILocalProviderManager::
     getProvider (const String & fileName, const String & providerName)
 {
-    CMPIProvider::OpProviderHolder ph;
+    OpProviderHolder ph;
     CTRL_STRINGS strings;
     Sint32 ccode;
 
@@ -909,9 +909,9 @@ CMPIProvider *CMPILocalProviderManager::_initProvider(
     String exceptionMsg = moduleFileName;
     {
         // lock the provider status mutex
-        AutoMutex lock (provider->_statusMutex);
+        AutoMutex lock (provider->getStatusMutex());
 
-        if (provider->_status == CMPIProvider::INITIALIZED)
+        if (provider->getStatus() == CMPIProvider::INITIALIZED)
         {
             PEG_METHOD_EXIT();
             // Initialization is already complete
@@ -926,7 +926,7 @@ CMPIProvider *CMPILocalProviderManager::_initProvider(
         // load the provider
         try
         {
-            base = module->load (provider->_name);
+            base = module->load (provider->getNameWithType());
             moduleLoaded = true;
         }
         catch (const Exception &e)
@@ -960,11 +960,11 @@ CMPIProvider *CMPILocalProviderManager::_initProvider(
 
             CIMOMHandle *cimomHandle = new CIMOMHandle ();
             provider->set (module, base, cimomHandle);
-            provider->_quantum = 0;
+            provider->setQuantum(0);
 
             try
             {
-                provider->initialize (*(provider->_cimom_handle));
+                provider->initialize (*(provider->getCIMOMHandle()));
             }
             catch (const Exception &e)
             {
@@ -1003,12 +1003,12 @@ CMPIProvider *CMPILocalProviderManager::_initProvider(
         }
 
         // delete the cimom handle
-        delete provider->_cimom_handle;
+        delete provider->getCIMOMHandle();
         // set provider status to UNINITIALIZED
         provider->reset ();
 
         AutoMutex lock (_providerTableMutex);
-        _providers.remove (provider->_name);
+        _providers.remove (provider->getNameWithType());
         delete provider;
 
         PEG_METHOD_EXIT ();
@@ -1035,7 +1035,7 @@ void CMPILocalProviderManager::_unloadProvider (CMPIProvider * provider)
         Tracer::LEVEL4,
         "Unloading Provider " + provider->getName());
 
-    if (provider->_current_operations.get ())
+    if (provider->getCurrentOperations())
     {
         PEG_TRACE_STRING(
             TRC_PROVIDERMANAGER,
@@ -1052,7 +1052,7 @@ void CMPILocalProviderManager::_unloadProvider (CMPIProvider * provider)
 
 
         // lock the provider mutex
-        AutoMutex pr_lock (provider->_statusMutex);
+        AutoMutex pr_lock (provider->getStatusMutex());
 
         try
         {
@@ -1074,11 +1074,11 @@ void CMPILocalProviderManager::_unloadProvider (CMPIProvider * provider)
             "Destroying CMPIProvider's CIMOM Handle " +
             provider->getName());
 
-        delete provider->_cimom_handle;
-        PEGASUS_ASSERT (provider->_module != 0);
+        delete provider->getCIMOMHandle();
+        PEGASUS_ASSERT (provider->getModule() != 0);
 
         // unload provider module
-        provider->_module->unloadModule ();
+        provider->getModule()->unloadModule ();
         PEG_TRACE((
             TRC_PROVIDERMANAGER,
             Tracer::LEVEL3,

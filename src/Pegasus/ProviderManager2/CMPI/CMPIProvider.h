@@ -178,6 +178,11 @@ public:
 
     //  typedef CMPIProviderFacade Base;
 
+    CMPIProvider(
+        const String & name,
+        CMPIProviderModule *module,
+        ProviderVector *mv);
+
     virtual ~CMPIProvider();
 
     virtual void initialize(CIMOMHandle & cimom);
@@ -192,6 +197,7 @@ public:
 
     Status getStatus();
     String getName() const;
+    String getNameWithType() const;
 
     void reset();
 
@@ -312,20 +318,39 @@ public:
      */
     CIMInstance getProviderInstance ();
 
+    void incCurrentOperations();
+    void decCurrentOperations();
+    int getCurrentOperations();
+
+    CIMOMHandle *getCIMOMHandle();
+    CMPI_Broker *getBroker();
+
+    CMPIInstanceMI *getInstMI();
+    CMPIMethodMI *getMethMI();
+    CMPIAssociationMI *getAssocMI();
+    CMPIPropertyMI *getPropMI();
+    CMPIIndicationMI *getIndMI();
+    
+    CMPIProviderModule *getModule();
+    Uint32 getQuantum();
+    void setQuantum(Uint32 quantum);
+    Mutex &getStatusMutex();
+
+    void set(
+        CMPIProviderModule *&module,
+        ProviderVector base,
+        CIMOMHandle *&cimomHandle);
+
 protected:
     String _location;
     Status _status;
     CMPIProviderModule *_module;
-    ProviderVector miVector;
-    CMPI_Broker broker;
+    ProviderVector _miVector;
+    CMPI_Broker _broker;
     CMPIrc unloadStatus;
 
 private:
     virtual void _terminate(Boolean term);
-    CMPIProvider(
-        const String & name,
-        CMPIProviderModule *module,
-        ProviderVector *mv);
 
     static void initialize(
         CIMOMHandle & cimom,
@@ -341,15 +366,7 @@ private:
      */
     void waitUntilThreadsDone();
 
-    void set(
-        CMPIProviderModule *&module,
-        ProviderVector base,
-        CIMOMHandle *&cimomHandle);
-
-    friend class CMPILocalProviderManager;
-    friend class CMPIProviderManager;
     class OpProviderHolder;
-    friend class OpProviderHolder;
     CIMOMHandle *_cimom_handle;
     String _name;
     AtomicInt _no_unload;
@@ -396,7 +413,7 @@ private:
         generated the indication accepted a matching subscription.
      */
     CIMInstance _providerInstance;
-//};
+};
 
 
 //
@@ -404,67 +421,67 @@ private:
 // for a CMPIProvider so it won't be unloaded during operations.
 //
 
-    class OpProviderHolder
+class OpProviderHolder
+{
+private:
+    CMPIProvider* _provider;
+
+public:
+    OpProviderHolder(): _provider( NULL )
     {
-    private:
-        CMPIProvider* _provider;
-
-    public:
-        OpProviderHolder(): _provider( NULL )
+    }
+    OpProviderHolder( const OpProviderHolder& p ): _provider( NULL )
+    {
+        SetProvider( p._provider );
+    }
+    OpProviderHolder( CMPIProvider* p ): _provider( NULL )
+    {
+        SetProvider( p );
+    }
+    ~OpProviderHolder()
+    {
+        UnSetProvider();
+    }
+    CMPIProvider& GetProvider()
+    {
+        return(*_provider);
+    }
+    OpProviderHolder& operator=( const OpProviderHolder& x )
+    {
+        if (this == &x)
         {
-        }
-        OpProviderHolder( const OpProviderHolder& p ): _provider( NULL )
-        {
-            SetProvider( p._provider );
-        }
-        OpProviderHolder( CMPIProvider* p ): _provider( NULL )
-        {
-            SetProvider( p );
-        }
-        ~OpProviderHolder()
-        {
-            UnSetProvider();
-        }
-        CMPIProvider& GetProvider()
-        {
-            return(*_provider);
-        }
-
-        OpProviderHolder& operator=( const OpProviderHolder& x )
-        {
-            if (this == &x)
-                return(*this);
-            SetProvider( x._provider );
             return(*this);
         }
+        SetProvider( x._provider );
+        return(*this);
+    }
 
-        void SetProvider( CMPIProvider* p )
+    void SetProvider( CMPIProvider* p )
+    {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "OpProviderHolder::SetProvider()");
+        UnSetProvider();
+        if (p)
         {
-            PEG_METHOD_ENTER(
-                TRC_CMPIPROVIDERINTERFACE,
-                "OpProviderHolder::SetProvider()");
-            UnSetProvider();
-            if (p)
-            {
-                _provider = p;
-                _provider->_current_operations++;
-            }
-            PEG_METHOD_EXIT();
+            _provider = p;
+            _provider->incCurrentOperations();
         }
+        PEG_METHOD_EXIT();
+    }
 
-        void UnSetProvider()
+    void UnSetProvider()
+    {
+        PEG_METHOD_ENTER(
+            TRC_CMPIPROVIDERINTERFACE,
+            "OpProviderHolder::UnSetProvider()");
+        if (_provider)
         {
-            PEG_METHOD_ENTER(
-                TRC_CMPIPROVIDERINTERFACE,
-                "OpProviderHolder::UnSetProvider()");
-            if (_provider)
-            {
-                _provider->_current_operations--;
-                _provider = NULL;
-            }
-            PEG_METHOD_EXIT();
+            _provider->decCurrentOperations();
+            _provider = NULL;
         }
-    };
+        PEG_METHOD_EXIT();
+    }
 };
 
 PEGASUS_NAMESPACE_END

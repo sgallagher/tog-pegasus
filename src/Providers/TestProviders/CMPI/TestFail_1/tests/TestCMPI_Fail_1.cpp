@@ -49,13 +49,17 @@ PEGASUS_USING_STD;
 CIMNamespaceName providerNamespace;
 const CIMName CLASSNAME = CIMName ("TestCMPI_Fail_1");
 
-const String CMPI_TESTFAIL_ERROR = "CIM_ERR_FAILED: Error initializing CMPI MI"
-    " TestCMPIFail_1Provider, the following MI factory function(s) returned"
-    " an error: TestCMPIFail_1Provider_Create_InstanceMI;"
-    " TestCMPIFail_1Provider_Create_AssociationMI;"
-    " TestCMPIFail_1Provider_Create_MethodMI;"
-    " TestCMPIFail_1Provider_Create_PropertyMI;"
-    " TestCMPIFail_1Provider_Create_IndicationMI";
+const String CMPI_TESTFAIL_INST_ERROR = "CIM_ERR_FAILED: Error initializing"
+    " CMPI MI TestCMPIFail_1Provider, the following MI factory function(s)"
+    " returned an error: TestCMPIFail_1Provider_Create_InstanceMI";
+
+const String CMPI_TESTFAIL_METH_ERROR = "CIM_ERR_FAILED: Error initializing"
+    " CMPI MI TestCMPIFail_1Provider, the following MI factory function(s)"
+    " returned an error: TestCMPIFail_1Provider_Create_MethodMI";
+
+const String CMPI_TESTFAIL_ASSOC_ERROR = "CIM_ERR_FAILED: Error initializing"
+    " CMPI MI TestCMPIFail_1Provider, the following MI factory function(s)"
+    " returned an error: TestCMPIFail_1Provider_Create_AssociationMI";
 
 const String RCMPI_ERROR = "CIM_ERR_FAILED: ProviderInitFailure:"
     " Error initializing the API's _Create<mi-type>MI";
@@ -78,7 +82,7 @@ void test01 (CIMClient & client)
     }
     catch (const CIMException &e)
     {
-        if (e.getMessage() != CMPI_TESTFAIL_ERROR 
+        if (e.getMessage() != CMPI_TESTFAIL_INST_ERROR 
                 && e.getMessage() != RCMPI_ERROR)
         {
             throw e;
@@ -86,12 +90,66 @@ void test01 (CIMClient & client)
     }
 }
 
+void test02 (CIMClient & client)
+{
+    try
+    {
+        CIMObjectPath instanceName(
+            String::EMPTY,
+            providerNamespace, 
+            CLASSNAME,
+            Array<CIMKeyBinding>());
+
+        Array<CIMParamValue> outParams;
+
+        CIMValue value = client.invokeMethod(
+             providerNamespace,
+             instanceName,
+             "foo",
+             Array<CIMParamValue>(),
+             outParams);
+    }
+    catch (const CIMException &e)
+    {
+        if (e.getMessage() != CMPI_TESTFAIL_METH_ERROR 
+                && e.getMessage() != RCMPI_ERROR)
+        {
+            throw e;
+        }
+    }
+}
+
+void test03 (CIMClient & client)
+{
+    try
+    {
+        CIMObjectPath instanceName(
+            String::EMPTY,
+            providerNamespace, 
+            CLASSNAME,
+            Array<CIMKeyBinding>());
+
+        Array<CIMObjectPath> result = client.associatorNames(
+            providerNamespace,
+            instanceName);
+    }
+    catch (const CIMException &e)
+    {
+        if (e.getMessage() != CMPI_TESTFAIL_ASSOC_ERROR 
+                && e.getMessage() != RCMPI_ERROR)
+        {
+            throw e;
+        }
+    }
+}
 
 void _test (CIMClient & client)
 {
     try
     {
         test01 (client);
+        test02 (client);
+        test03 (client);
     }
     catch (Exception & e)
     {

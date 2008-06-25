@@ -334,8 +334,8 @@
 # endif
 #endif
 #else  // Not PEGASUS_USE_RELEASE_DIRS
-# define PEGASUS_CIMSERVER_START_FILE      "/tmp/cimserver_start.conf"
-# define PEGASUS_CIMSERVER_START_LOCK_FILE "/tmp/cimserver_start.lock"
+# define PEGASUS_CIMSERVER_START_FILE      "/var/tmp/cimserver_start.conf"
+# define PEGASUS_CIMSERVER_START_LOCK_FILE "/var/tmp/cimserver_start.lock"
 # define PEGASUS_REPOSITORY_DIR            "repository"
 # define PEGASUS_CURRENT_CONFIG_FILE_PATH  "cimserver_current.conf"
 # define PEGASUS_PLANNED_CONFIG_FILE_PATH  "cimserver_planned.conf"
@@ -343,7 +343,7 @@
 # define PEGASUS_SSLCLIENT_RANDOMFILE      "ssl.rnd"
 # define PEGASUS_SSLSERVER_RANDOMFILE      "cimserver.rnd"
 # define PEGASUS_LOCAL_AUTH_DIR            "/tmp"
-# define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/tmp/cimxml.socket"
+# define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/var/tmp/cimxml.socket"
 # define PEGASUS_PAM_STANDALONE_PROC_NAME  "bin/cimservera"
 # define PEGASUS_PROVIDER_AGENT_PROC_NAME  "bin/cimprovagt"
 # undef PEGASUS_DEFAULT_MESSAGE_SOURCE      /* Not defined */

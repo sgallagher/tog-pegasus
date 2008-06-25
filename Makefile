@@ -1,31 +1,33 @@
-#//%LICENSE////////////////////////////////////////////////////////////////
+#//%2006////////////////////////////////////////////////////////////////////////
 #//
-#// Licensed to The Open Group (TOG) under one or more contributor license
-#// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-#// this work for additional information regarding copyright ownership.
-#// Each contributor licenses this file to you under the OpenPegasus Open
-#// Source License; you may not use this file except in compliance with the
-#// License.
+#// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+#// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+#// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation, The Open Group.
+#// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; Symantec Corporation; The Open Group.
 #//
-#// Permission is hereby granted, free of charge, to any person obtaining a
-#// copy of this software and associated documentation files (the "Software"),
-#// to deal in the Software without restriction, including without limitation
-#// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-#// and/or sell copies of the Software, and to permit persons to whom the
-#// Software is furnished to do so, subject to the following conditions:
+#// Permission is hereby granted, free of charge, to any person obtaining a copy
+#// of this software and associated documentation files (the "Software"), to
+#// deal in the Software without restriction, including without limitation the
+#// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+#// sell copies of the Software, and to permit persons to whom the Software is
+#// furnished to do so, subject to the following conditions:
+#// 
+#// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+#// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+#// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+#// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+#// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+#// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+#// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#// The above copyright notice and this permission notice shall be included
-#// in all copies or substantial portions of the Software.
-#//
-#// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-#// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-#// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-#// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-#// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-#// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-#// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#//
-#//////////////////////////////////////////////////////////////////////////
+#//==============================================================================
 # Pegasus top level make file
 # see the usage rule for options
 
@@ -34,23 +36,18 @@ ROOT = .
 include $(ROOT)/env_var.status
 include $(ROOT)/mak/config.mak
 
-## Include mu in the clean structure
-## This required because mu is not part of the hiearchial build
-##structure.  It is built with the buildmu target.  Adding this
-## variable allows it to be cleaned with the normal clean target.
-RECURSE_EXTRA_CLEAN_DIRS += src/utils/mu
-
 # This is a recurse make file
-# Defines subdirectories to go to recursively
+# Defines subdirectorys to go to recursively
 
-DIRS = src
+# DIRS = src cgi
+DIRS = src  Schemas
 
 TEST_DIRS = test
 
 # Define the inclusion of the recurse.mak file to execute the next
 # level of makefiles defined by the DIRS variable
 
-defaultrule: cimprovagt32 all setupdevserver
+defaultrule: all setupdevserver
 
 include $(ROOT)/mak/recurse.mak
 
@@ -72,7 +69,7 @@ usage: FORCE
 	$(USAGE)"messages            - rootbundle recursive messages"
 	$(USAGE)"tests               - recursive tests"
 	$(USAGE)"poststarttests      - recursive poststarttests"
-	$(USAGE)
+	$(USAGE) 
 	$(USAGE)"Combinational rules - Combine other rules to achieve results"
 	$(USAGE)"DEFAULT RULE        - all, setupdevserver"
 	$(USAGE)"new                 - clean repositoryclean"
@@ -86,12 +83,12 @@ usage: FORCE
 	$(USAGE)"                      $(PEGASUS_HOME)/lib"
 	$(USAGE)"                      $(PEGASUS_HOME)/obj"
 	$(USAGE)"buildmu             - builds the mu utility"
-	$(USAGE)"buildclientlibs     - Build only the Client and Common libraries"
 	$(USAGE)"setupdevserver      - setup the development server env"
 	$(USAGE)"cleandevserver      - cleans the development server env"
 	$(USAGE)"repository          - builds the base repository. Does not remove other"
-	$(USAGE)"                      namespaces than the base namespaces."
+	$(USAGE)"                      namespaces than the base namespaces."  
 	$(USAGE)"testrepository      - builds items for the test suites into the repository"
+	$(USAGE)"removetestrepository- removes test items from the repository"
 	$(USAGE)"repositoryclean     - removes the complete repository"
 	$(USAGE)"listplatforms       - List all valid platforms"
 	$(USAGE)
@@ -125,9 +122,8 @@ usage: FORCE
 	$(USAGE)
 	$(USAGE)"  After changes to the files included: make build"
 	$(USAGE)
-	$(USAGE)"  After \"cvs update\" or to start over: make new world"
+	$(USAGE)"  After \"cvs update\" or to start over: make new world" 
 	$(USAGE)
-	
 
 listplatforms: FORCE
 	$(USAGE)
@@ -137,13 +133,13 @@ listplatforms: FORCE
 	$(USAGE)
 
 #########################################################################
-# This section defines any prerequisites that are required by the
+# This section defines any prerequisites that are required by the 
 # recursive rules.
 #
 # NOTE: You can add prerequisties for the recursive rules but you cannot
-#       add any commands to run as part of the rule. You can define them
+#       add any commands to run as part of the rule. You can define them 
 #       and make will quietly ignore them and they will not be run either
-#       before or after the recursive rule.
+#       before or after the recursive rule. 
 #
 #
 messages: rootbundle
@@ -156,14 +152,14 @@ depend: buildmu
 #-----------------------
 # build target: builds all source
 #
-build: cimprovagt32depend cimprovagt32 depend renameinterop all setupdevserver
+build: depend all setupdevserver
 
 #------------------------
 # rebuild target is being deprecated instead use "make new build"
 #
 rebuild_msg: FORCE
 	@$(ECHO) "==============================================================================="
-	@$(ECHO) "Makefile: The rebuild target is being deprecated."
+	@$(ECHO) "Makefile: The rebuild target is being deprecated." 
 	@$(ECHO) "          Use \"make usage\" for a description of the usage model."
 	@$(ECHO) "          Consider using \"make new world\" ."
 	@$(ECHO) "          Invoking the old rebuild rule now."
@@ -177,34 +173,17 @@ rebuild: rebuild_msg shortsleep new build s_unittests repository
 # This can be combined on the command line with other rules like:
 #
 # make new build
-# make new world
+# make new world 
 
-new: cimprovagt32clean clean repositoryclean
+new: clean repositoryclean
 
 #-----------------------
 # world targets: builds everything and dependent on which target may do testing
 #
-#       Typically used after a fresh checkout from CVS
+#       Typically used after a fresh checkout from CVS 
 
 world: build s_unittests servertests
 
-############################
-#
-# rules for building 32 bit provider agent
-#
-cimprovagt32depend: FORCE
-ifdef PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT
-	$(MAKE) --directory=$(ROOT) -f Makefile.cimprovagt32 depend
-endif
-cimprovagt32: FORCE
-ifdef PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT
-	$(MAKE) --directory=$(ROOT) -f Makefile.cimprovagt32
-endif
-
-cimprovagt32clean: FORCE
-ifdef PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT
-	$(MAKE) --directory=$(ROOT) -f Makefile.cimprovagt32 clean
-endif
 
 ############################
 #
@@ -248,51 +227,18 @@ stresstests:
 #
 #---------------------
 # buildmu target: build mu the make utility that among other things
-# includes a depend implementation. This is a separate target because
-# it must be build before anything else and before the depend target is used
-# on some platforms. Note that mu is not used on all platforms.
-#
+#                 includes depend
 buildmu: FORCE
+	$(MKDIRHIER) $(BIN_DIR)
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/mu -f Makefile
 
-##########################################################################
-#
-# renameinterop: This is with regard to PEP304, build time option.
-# There are many test cases and result files where namespace name
-# root/PG_InterOp is hardcoded. So this searches for root/PG_InterOp
-# and changes that to "interop" or "root/interop".
-#
-# This uses mu replace internally. The original files are all saved as
-# filename.save. These file can be restored by running 
-# make -f Makefile.interop restore
-#
-renameinterop: buildmu
-ifeq ($(PEGASUS_INTEROP_NAMESPACE),root/interop)
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile.interop replace
-endif
-ifeq ($(PEGASUS_INTEROP_NAMESPACE),interop)
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile.interop replace
-endif
-
-# buildclientlibs: The libpegclient depends on libpegcommon library.
-# This build target can be used to build just these two libraries. 
-# With this target, SLP support for clients is not enabled.
-#
-
-buildclientlibs: FORCE
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Common -f Makefile
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Client -f Makefile
-
 #----------------------
-# setupdevserver and cleandevserver are used to setup and clear the
+# setupdevserver and cleandevserver are used to setup and clear the 
 # server configuration files needed to run the server in a development
-# environment.
+# environment. 
 #
 setupdevserver: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WEB), true)
-	-$(MAKE) -f Makefile.webAdmin setupwebadmin
-endif
 	@$(ECHO) "PEGASUS Development Server Runtime Environment configured "
 
 cleandevserver: FORCE
@@ -305,13 +251,13 @@ clobber: FORCE
 
 
 #---------------------
-# The repository target removes the entire repository and rebuilds the Pegasus
-# namespaces.  The repositoryServer target does not remove the repository
-# before building the Pegasus namespaces.  (The repositoryServer target in
-# TestMakefile *does* remove the repository first.)
+# The repository Target removes and rebuilds the base repository. It
+# does not remove all possible namespaces.  See
+# Schemas/Pegasus/Makefile for details. The repository clean has the
+# same limitation
 
 # Note: Arguments must be quoted to preserve upper case characters in VMS.
-repository: repositoryclean
+repository: FORCE
 	@ $(MAKE) "-SC" Schemas/Pegasus repository
 
 repositoryclean: FORCE
@@ -320,10 +266,6 @@ repositoryclean: FORCE
 repositoryServer: FORCE
 	@ $(MAKE) "-SC" Schemas/Pegasus repositoryServer
 
-#---------------------
-# The testrepository and testrepositoryServer targets build the Pegasus test
-# namespaces.  A pre-existing repository is not removed.
-
 testrepository: FORCE
 	@ $(MAKE) "-SC" src/Providers/sample/Load repository
 	@ $(MAKE) "-SC" test/wetest repository
@@ -331,7 +273,7 @@ testrepository: FORCE
 	@ $(MAKE) "-SC" src/Pegasus/CQL/CQLCLI repository
 	@ $(MAKE) "-SC" src/Pegasus/Query/QueryExpression/tests repository
 	@ $(MAKE) "-SC" src/Providers/TestProviders/Load repository
-ifeq ($(PEGASUS_ENABLE_CQL),true)
+ifndef PEGASUS_DISABLE_CQL
 	@ $(MAKE) "-SC" src/Pegasus/ControlProviders/QueryCapabilitiesProvider/tests repository
 endif
 ifeq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), true)
@@ -347,7 +289,7 @@ testrepositoryServer: FORCE
 	@ $(MAKE) "-SC" src/Pegasus/CQL/CQLCLI repositoryServer
 	@ $(MAKE) "-SC" src/Pegasus/Query/QueryExpression/tests repositoryServer
 	@ $(MAKE) "-SC" src/Providers/TestProviders/Load repositoryServer
-ifeq ($(PEGASUS_ENABLE_CQL),true)
+ifndef PEGASUS_DISABLE_CQL
 	@ $(MAKE) "-SC" src/Pegasus/ControlProviders/QueryCapabilitiesProvider/tests repositoryServer
 endif
 ifeq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), true)
@@ -356,7 +298,15 @@ endif
 	@ $(MAKE) --directory=$(PEGASUS_ROOT)/src/Clients/cimsub/tests/testscript \
             -f Makefile repositoryServer
 
-rootbundle:
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/cnv2rootbundle -f Makefile
+removetestrepository: FORCE
+	@ $(MAKE) "-SC" src/Providers/sample/Load removerepository
+	@ $(MAKE) "-SC" test/wetest removerepository
+	@ $(MAKE) "-SC" src/Clients/benchmarkTest/Load removerepository
+	@ $(MAKE) "-SC" src/Providers/TestProviders/Load removerepository
+	@ $(MAKE) "-SC" src/Clients/cimsub/tests/testscript removerepository
 
-# DO NOT DELETE
+config:
+	@ $(ROOT)/SetConfig_EnvVar
+
+rootbundle: 
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/cnv2rootbundle -f Makefile

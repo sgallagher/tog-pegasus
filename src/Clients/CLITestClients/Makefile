@@ -28,13 +28,19 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = ../../../..
+ROOT = $(PEGASUS_ROOT)
 
 include $(ROOT)/mak/config.mak
 
-#   Inst \
-
+DIRS = \
+    CLIClientLib \
+    CLI
+    
 TEST_DIRS = \
-    SortCmd
-
-include ../../../../mak/recurse.mak
+    EnumerateInstances \
+    EnumerateInstanceNames \
+    GetInstance \
+    DeleteInstance \
+    CreateInstance
+    
+include $(ROOT)/mak/recurse.mak

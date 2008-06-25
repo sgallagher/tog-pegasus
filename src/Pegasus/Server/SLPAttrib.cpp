@@ -164,9 +164,10 @@ Boolean SLPAttrib::fillData(String protocol)
                 saveInstance = instances[i];
                 serviceUrl= PEGASUS_SLP_SERVICE_TYPE;
                 serviceUrl.append(":");
-                serviceUrl.append(protocol);
-                serviceUrl.append("://");
-                serviceUrl.append(val.toString());
+                templateUrlSyntax = protocol;
+                templateUrlSyntax.append("://");
+                templateUrlSyntax.append(val.toString());
+                serviceUrl.append(templateUrlSyntax);
                 foundProtocol=true;
                 break;
             }
@@ -437,7 +438,7 @@ void SLPAttrib::formAttributes()
                          "(Namespace=$4),(Classinfo=$5),(CommunicationMechanism=$6),"
                          "(OtherCommunicationMechanismDescription=$7),"
                          "(InteropSchemaNamespace=$8),(ProtocolVersion=$9),",
-                         serviceUrl,serviceHiName,
+                         templateUrlSyntax,serviceHiName,
                          serviceHiDescription,serviceId,
                          nameSpaces,classes,
                          communicationMechanism,

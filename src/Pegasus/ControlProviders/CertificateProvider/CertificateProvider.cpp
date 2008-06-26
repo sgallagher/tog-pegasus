@@ -127,6 +127,14 @@ struct FreeX509NAMEPtr
     }
 };
 
+struct FreeBIOPtr
+{
+    void operator()(BIO* ptr)
+    {
+        BIO_free_all(ptr);
+    }
+};
+
 typedef struct Timestamp
 {
     char year[4];
@@ -710,8 +718,8 @@ void CertificateProvider::enumerateInstances(
 
                     // ATTN: Is this a two-way hash?  If so, I don't need to
                     // read in the CRL just to determine the issuer name
-                    BIO* inFile = BIO_new(BIO_s_file());
-                    if (inFile == NULL)
+                    AutoPtr<BIO, FreeBIOPtr> inFile(BIO_new(BIO_s_file()));
+                    if (inFile.get() == NULL)
                     {
                         // error
                         PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL1,
@@ -724,13 +732,14 @@ void CertificateProvider::enumerateInstances(
                             (const char*)_crlStore.getCString(),
                             (const char*)filename.getCString());
 
-                    if (BIO_read_filename(inFile, fullPathName))
+                    if (BIO_read_filename(inFile.get(), fullPathName))
                     {
                         PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
                                          "Successfully read filename");
 
                         AutoPtr<X509_CRL, FreeX509CRLPtr> xCrl(
-                            PEM_read_bio_X509_CRL(inFile, NULL, NULL, NULL));
+                            PEM_read_bio_X509_CRL(inFile.get(), 
+                                NULL, NULL, NULL));
 
                         if (xCrl.get())
                         {
@@ -760,9 +769,6 @@ void CertificateProvider::enumerateInstances(
                             "Failed to read CRL $0.", fullPathName);
                         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
                     }
-
-                    BIO_free_all(inFile);
-
                 } // end for
 
                 // Complete request
@@ -916,8 +922,8 @@ void CertificateProvider::enumerateInstanceNames(
 
                     // ATTN: Is this a two-way hash?  If so, I don't need
                     // to read in the CRL just to determine the issuer name
-                    BIO* inFile = BIO_new(BIO_s_file());
-                    if (inFile == NULL)
+                    AutoPtr<BIO, FreeBIOPtr> inFile(BIO_new(BIO_s_file()));
+                    if (inFile.get() == NULL)
                     {
                         // error
                         PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL1,
@@ -931,13 +937,14 @@ void CertificateProvider::enumerateInstanceNames(
                             (const char*)_crlStore.getCString(),
                             (const char*)filename.getCString());
 
-                    if (BIO_read_filename(inFile, fullPathName))
+                    if (BIO_read_filename(inFile.get(), fullPathName))
                     {
                         PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3,
                             "Successfully read filename");
 
                         AutoPtr<X509_CRL, FreeX509CRLPtr> xCrl(
-                            PEM_read_bio_X509_CRL(inFile, NULL, NULL, NULL));
+                            PEM_read_bio_X509_CRL(inFile.get(), 
+                                NULL, NULL, NULL));
                         if (xCrl.get())
                         {
                             PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER,
@@ -979,9 +986,6 @@ void CertificateProvider::enumerateInstanceNames(
                             "Failed to read CRL $0.", fullPathName);
                         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
                     }
-
-                    BIO_free_all(inFile);
-
                 } // end for
 
                 // Complete request

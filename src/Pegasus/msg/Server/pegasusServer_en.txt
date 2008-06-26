@@ -747,10 +747,7 @@ en:table {
         * @note  PGS01409:
         *   Do not translate the word "UserManager" since it is a class name.
         */
-
-        Security.UserManager.UserExceptions.CANT_CREATE_USERMANAGER_INSTANCE:string
-{"PGS01409: Cannot create a UserManager instance. The repository handle may
-not be valid."}
+        Security.UserManager.UserExceptions.CANT_CREATE_USERMANAGER_INSTANCE:string {"PGS01409: Cannot create a UserManager instance. The repository handle may not be valid."}
 
         // ==========================================================
         // Messages for Security  PasswordFile
@@ -1246,60 +1243,65 @@ not be valid."}
         //  Please use message prefix "PGS03300"
         // ==========================================================
 
-    ControlProviders.CertificateProvider.MUST_BE_PRIVILEGED_USER:string {"PGS03301: Superuser authority is required to run this CIM operation."}
+        ControlProviders.CertificateProvider.MUST_BE_PRIVILEGED_USER:string {"PGS03301: Superuser authority is required to run this CIM operation."}
 
         /**
-    * @note PGS03302
-    *    Substitution {0} is the name of the directory
-    */
-    ControlProviders.CertificateProvider.COULD_NOT_READ_DIRECTORY:string {"PGS03302: Cannot read directory {0}."}
+        * @note PGS03302
+        *    Substitution {0} is the name of the directory
+        */
+        ControlProviders.CertificateProvider.COULD_NOT_READ_DIRECTORY:string {"PGS03302: Cannot read directory {0}."}
 
         /**
-    * @note PGS03303
-    *    Substitution {0} is the name of the directory
-    */
-    ControlProviders.CertificateProvider.INVALID_DIRECTORY:string {"PGS03303: Directory {0} is not valid."}
+        * @note PGS03303
+        *    Substitution {0} is the name of the directory
+        */
+        ControlProviders.CertificateProvider.INVALID_DIRECTORY:string {"PGS03303: Directory {0} is not valid."}
 
         /**
-    * @note PGS03304
-    *    Substitution {0} is the name of the file
-    */
-    ControlProviders.CertificateProvider.DELETE_FAILED:string {"PGS03304: Could not delete file {0}."}
+        * @note PGS03304
+        *    Substitution {0} is the name of the file
+        */
+        ControlProviders.CertificateProvider.DELETE_FAILED:string {"PGS03304: Could not delete file {0}."}
 
-    /**
-    * @note PGS03305
-    *    Substitution {0} is the name of the file
-    */
-    ControlProviders.CertificateProvider.FILE_DNE:string {"PGS03305: File does not exist {0}."}
+        /**
+        * @note PGS03305
+        *    Substitution {0} is the name of the file
+        */
+        ControlProviders.CertificateProvider.FILE_DNE:string {"PGS03305: File does not exist {0}."}
 
-    ControlProviders.CertificateProvider.BAD_X509_FORMAT:string {"PGS03306: Could not read x509 PEM format."}
+        ControlProviders.CertificateProvider.BAD_X509_FORMAT:string {"PGS03306: Could not read x509 PEM format."}
 
-    ControlProviders.CertificateProvider.CERT_NOT_VALID_YET:string {"PGS03307: The certificate is not valid yet.  Check the timestamps on your machine."}
+        ControlProviders.CertificateProvider.CERT_NOT_VALID_YET:string {"PGS03307: The certificate is not valid yet.  Check the timestamps on your machine."}
 
-    ControlProviders.CertificateProvider.CERT_EXPIRED:string {"PGS03308: The certificate has expired."}
+        ControlProviders.CertificateProvider.CERT_EXPIRED:string {"PGS03308: The certificate has expired."}
 
-    ControlProviders.CertificateProvider.BAD_DATE_FORMAT:string {"PGS03309: The validity dates are out of range."}
+        ControlProviders.CertificateProvider.BAD_DATE_FORMAT:string {"PGS03309: The validity dates are out of range."}
 
-    ControlProviders.CertificateProvider.CRL_NOT_VALID_YET:string {"PGS03310: The certificate revocation list is not valid yet.  Check the timestamps on your machine.."}
+        ControlProviders.CertificateProvider.CRL_NOT_VALID_YET:string {"PGS03310: The certificate revocation list is not valid yet.  Check the timestamps on your machine.."}
 
-    ControlProviders.CertificateProvider.CRL_EXPIRED:string {"PGS03311: The certificate revocation list is not up-to-date.  Check with the issuing CA for the latest one."}
+        ControlProviders.CertificateProvider.CRL_EXPIRED:string {"PGS03311: The certificate revocation list is not up-to-date.  Check with the issuing CA for the latest one."}
 
-    ControlProviders.CertificateProvider.EMPTY_CRL:string {"PGS03312: The certificate revocation list is empty."}
+        ControlProviders.CertificateProvider.EMPTY_CRL:string {"PGS03312: The certificate revocation list is empty."}
 
-    ControlProviders.CertificateProvider.TRUSTSTORE_RELOAD_FAILED:string {"PGS03313: Trust store reload failed. Certificate deletion will not be effective until cimserver restart."}
+        ControlProviders.CertificateProvider.TRUSTSTORE_RELOAD_FAILED:string {"PGS03313: Trust store reload failed. Certificate deletion will not be effective until cimserver restart."}
 
-    ControlProviders.CertificateProvider.ERROR_WRITING_CERT:string {"PGS03314: Unable to add certificate to truststore. Error while trying to write certificate."}
+        ControlProviders.CertificateProvider.ERROR_WRITING_CERT:string {"PGS03314: Unable to add certificate to truststore. Error while trying to write certificate."}
 
-    ControlProviders.CertificateProvider.ERROR_WRITING_CRL:string {"PGS03315: Unable to add CRL to truststore. Error while trying to write CRL."}
+        ControlProviders.CertificateProvider.ERROR_WRITING_CRL:string {"PGS03315: Unable to add CRL to truststore. Error while trying to write CRL."}
 
-    ControlProviders.CertificateProvider.MULTIPLE_CERT_IN_FILE:string {"PGS03316: Specified certificate file contains more than one certificate."}
+        ControlProviders.CertificateProvider.MULTIPLE_CERT_IN_FILE:string {"PGS03316: Specified certificate file contains more than one certificate."}
 
-    ControlProviders.CertificateProvider.CERT_WITH_SAME_SUBJECT:string {"PGS03317: Another certificate with the same subject name already exists."}
+        ControlProviders.CertificateProvider.CERT_WITH_SAME_SUBJECT:string {"PGS03317: Another certificate with the same subject name already exists."}
 
         /**
         *  @version 2.8
         */
         ControlProviders.CertificateProvider.CERT_DNE:string {"PGS03318: The certificate does not exist."}
+        /**
+        * @note PGS03319
+        *    Substitution {0} is the name of the file
+        */
+        ControlProviders.CertificateProvider.COULD_NOT_READ_CRL:string {"PGS03319: Failed to read CRL {0}."}
 
         // ==========================================================
         // Messages for CIMOMHandle
@@ -1374,11 +1376,11 @@ not be valid."}
         ProviderManager.ProviderAdapter.MISSING:string {"PGS03604: Adapter {0} cannot be loaded. PegasusCreateProviderAdapter is not found."}
 
 
-    /**
-    * @note  PGS03605
-    *
-    */
-    ProviderManager.ProviderManager.INITIALIZE_FAILED:string {"PGS03605: Provider failed to initialize."}
+        /**
+        * @note  PGS03605
+        *
+        */
+        ProviderManager.ProviderManager.INITIALIZE_FAILED:string {"PGS03605: Provider failed to initialize."}
 
 
         // ==========================================================
@@ -1851,7 +1853,7 @@ not be valid."}
         /**
         * @version 2.4
         * @note  PGS04827:
-    *        Do not translate CIMQualifier
+        *        Do not translate CIMQualifier
         *        Substitution {0} is the qualifier name (a string).
         *        Substitution {1} is the detailed error message (a string).
         */
@@ -1860,7 +1862,7 @@ not be valid."}
         /**
         * @version 2.4
         * @note  PGS04828:
-    *        Do not translate CIMQualifier
+        *        Do not translate CIMQualifier
         *        Substitution {0} is the qualifier name (a string).
         *        Substitution {1} is the detailed error message (a string).
         */
@@ -1925,7 +1927,7 @@ not be valid."}
         /**
         * @version 2.4
         * @note  PGS04836:
-    *        "Class" is used in the programming sense.
+        *        "Class" is used in the programming sense.
         *        Substitution {0} is the name of the class being declared (a string).
         *        Substitution {1} is the detailed error message (a string).
         */
@@ -1941,7 +1943,7 @@ not be valid."}
         /**
         * @version 2.4
         * @note  PGS04838:
-    *        "Class" is used in the programming sense.
+        *        "Class" is used in the programming sense.
         *        "Repository" is similiar to "database"
         *        Substitution {0} is the name of the class (a string).
         */
@@ -1950,7 +1952,7 @@ not be valid."}
         /**
         * @version 2.4
         * @note  PGS04839:
-    *        "Class" is used in the programming sense.
+        *        "Class" is used in the programming sense.
         *        "Repository" is similiar to "database"
         *        Substitution {0} is the name of the class (a string).
         *        Substitution {1} is the detailed error message (a string).
@@ -2012,7 +2014,7 @@ not be valid."}
         /**
         * @version 2.4
         * @note  PGS04846:
-    *        "Name space" is an area that contains names of classes.
+        *        "Name space" is an area that contains names of classes.
         *        "Name space" itself has a name.
         *        Substitution {2} is the name of the property (a string).
         *        Substitution {1} is the name of the class (a string).
@@ -3809,15 +3811,15 @@ CIM server listening on HTTPS port {0}."}
         */
         IndicationService.IndicationService._MSG_SELECT_PROPERTY_NOT_FOUND:string {"PGS10220: The property {0} referenced in the WQL SELECT clause was not found in the indication class {1}."}
 
-    /**
-    * @note  PGS10221:
-    */
+        /**
+        * @note  PGS10221:
+        */
         IndicationService.IndicationService.UNKNOWN_ERROR:string {"PGS10221: Unknown error."}
 
-    /**
-    * @note  UNSUPPORTED_OPERATION
-      * @version 2.4
-    */
+        /**
+        * @note  UNSUPPORTED_OPERATION
+        * @version 2.4
+        */
         IndicationService.IndicationService.UNSUPPORTED_OPERATION:string {"PGS10222: The requested operation is not supported by the indication service."}
 
         /**
@@ -3884,7 +3886,7 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note  PGS10403:
         *    do not translate "IndicationHandlerSNMPMapper" since it is the
-    *    name of a CIM class
+        *    name of a CIM class
         *    do not translate "TargetHost" since it is the name of a CIM property
         */
         HandlerService.IndicationHandlerService.SNMP_HANDLER_WITHOUT_TARGETHOST:string {"PGS10403: The IndicationHandlerSNMPMapper does not have a TargetHost property."}
@@ -3929,7 +3931,7 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note  PGS10603:
         */
-    Handler.snmpIndicationHandler.snmpIndicationHandler.FAILED_TO_DELIVER_TRAP:string {"PGS10603: Failed to deliver trap."}
+        Handler.snmpIndicationHandler.snmpIndicationHandler.FAILED_TO_DELIVER_TRAP:string {"PGS10603: Failed to deliver trap."}
 
         /**
         * @note  PGS10604:
@@ -4144,7 +4146,7 @@ CIM server listening on HTTPS port {0}."}
         */
         ExportServer.CIMExportRequestDecoder.UNRECOGNIZED_EXPORT_METHOD:string {"PGS11202: Unrecognized export method: {0}"}
 
-    /**
+        /**
         * @note PGS11203:
         * @version 2.4
         */
@@ -4691,14 +4693,14 @@ CIM server listening on HTTPS port {0}."}
         * Do not translate 'SIMPLEREQ'
         * Do not translate 'MULTIREQ'
         */
-         Common.XmlConstants.MISSING_ELEMENT_REQ:string {"PGS12600: Expected SIMPLEREQ or MULTIREQ element."}
+        Common.XmlConstants.MISSING_ELEMENT_REQ:string {"PGS12600: Expected SIMPLEREQ or MULTIREQ element."}
 
         /**
         * @note PGS12601:
         * Do not translate 'LOCALCLASSPATH'
         * Do not translate 'LOCALINSTANCEPATH'
         */
-         Common.XmlConstants.MISSING_ELEMENT_LOCALPATH:string{"PGS12601: Expected LOCALCLASSPATH or LOCALINSTANCEPATH element."}
+        Common.XmlConstants.MISSING_ELEMENT_LOCALPATH:string{"PGS12601: Expected LOCALCLASSPATH or LOCALINSTANCEPATH element."}
  
 
         // ==========================================================
@@ -4710,48 +4712,48 @@ CIM server listening on HTTPS port {0}."}
          * @note PGS12800:
          *    Substitution {0} is a number of seconds (an integer)
          */
-         Common.Thread.CANCEL_LONG_RUNNING_THREAD:string{"PGS12800: A thread has run longer than {0} seconds and will be cancelled."}
+        Common.Thread.CANCEL_LONG_RUNNING_THREAD:string{"PGS12800: A thread has run longer than {0} seconds and will be cancelled."}
 
-    // ==========================================================
+        // ==========================================================
         // Messages for HTTPAuthenticatorDelegator
         //  Please use message prefix "PGS13000"
         // ==========================================================
 
-    /**
-     * @note PGS1300:
-     * @version 2.4
-     */
-     Pegasus.Server.HTTPAuthenticatorDelegator.REQUEST_NOT_VALID:string{"PGS13000: The request is not valid."}
+        /**
+         * @note PGS1300:
+         * @version 2.4
+         */
+        Pegasus.Server.HTTPAuthenticatorDelegator.REQUEST_NOT_VALID:string{"PGS13000: The request is not valid."}
 
-    /**
-     * @note PGS13001:
-     * @version 2.4
-     */
-     Pegasus.Server.HTTPAuthenticatorDelegator.AUTHORIZATION_HEADER_ERROR:string{"PGS13001: Authorization header error."}
+        /**
+         * @note PGS13001:
+         * @version 2.4
+         */
+        Pegasus.Server.HTTPAuthenticatorDelegator.AUTHORIZATION_HEADER_ERROR:string{"PGS13001: Authorization header error."}
 
-    /**
+        /**
          * @note PGS13002:
          * @version 2.4
          */
-     Pegasus.Server.HTTPAuthenticatorDelegator.CIMOPERATIONS_NOT_SUPPORTED:string{"PGS13002: The CIM operation request is not supported on this port."}
+        Pegasus.Server.HTTPAuthenticatorDelegator.CIMOPERATIONS_NOT_SUPPORTED:string{"PGS13002: The CIM operation request is not supported on this port."}
 
         /**
          * @note PGS13003:
          * @version 2.5
          */
-     Pegasus.Server.HTTPAuthenticatorDelegator.BAD_CERTIFICATE:string{"PGS13003: The certificate used for authentication is not valid."}
+        Pegasus.Server.HTTPAuthenticatorDelegator.BAD_CERTIFICATE:string{"PGS13003: The certificate used for authentication is not valid."}
 
         /**
          * @note PGS13004:
          * @version 2.5
          */
-     Pegasus.Server.HTTPAuthenticatorDelegator.BAD_CERTIFICATE_USERNAME:string{"PGS13004: No username is registered to this certificate."}
+        Pegasus.Server.HTTPAuthenticatorDelegator.BAD_CERTIFICATE_USERNAME:string{"PGS13004: No username is registered to this certificate."}
 
         /**
          * @note PGS13005:
          * @version 2.7
          */
-     Pegasus.Server.HTTPAuthenticatorDelegator.CERTIFICATE_USER_NOT_VALID:string{"PGS13005: The user ''{0}'' registered to this certificate is not a valid user."}
+        Pegasus.Server.HTTPAuthenticatorDelegator.CERTIFICATE_USER_NOT_VALID:string{"PGS13005: The user ''{0}'' registered to this certificate is not a valid user."}
 
         /**
         * @note  PGS13006:
@@ -4771,7 +4773,7 @@ CIM server listening on HTTPS port {0}."}
 
 
 
-    // ==========================================================
+        // ==========================================================
         // Messages for Server.CIMServer
         //  Please use message prefix "PGS13200"
         // ==========================================================
@@ -4779,39 +4781,39 @@ CIM server listening on HTTPS port {0}."}
         Server.CIMServer.BIND_FAILED:string {"PGS13200: No CIM server connections are enabled."}
 
         /*
-         * @note  PGS13201:
-         */
-         Pegasus.Server.CIMServer.RECEIVE_SYN_SIGNAL.PEGASUS_OS_PASE:string {"PGS13201: Synchronous signal received."}
+        * @note  PGS13201:
+        */
+        Pegasus.Server.CIMServer.RECEIVE_SYN_SIGNAL.PEGASUS_OS_PASE:string {"PGS13201: Synchronous signal received."}
 
         /*
-         * @note  PGS13202:
-         */
-         Pegasus.Server.CIMServer.RECEIVE_ASYN_SIGNAL.PEGASUS_OS_PASE:string {"PGS13202: Asynchronous signal received."}
+        * @note  PGS13202:
+        */
+        Pegasus.Server.CIMServer.RECEIVE_ASYN_SIGNAL.PEGASUS_OS_PASE:string {"PGS13202: Asynchronous signal received."}
 
         // ==========================================================
         // Messages for SSLContextManager
         // Please use message prefix "PGS13300"
         // ==========================================================
         /*
-         * @note  PGS13300:
-          * DO NOT TRANSLATE "sslTrustStore" or "sslClientVerificationMode"
-         * @version 2.5
-         */
-         Pegasus.Common.SSLContextManager.SSL_CLIENT_VERIFICATION_EMPTY_TRUSTSTORE:string {"PGS13300: The \"sslTrustStore\" configuration property must be set if \"sslClientVerificationMode\" is ''required'' or ''optional''."}
+        * @note  PGS13300:
+        * DO NOT TRANSLATE "sslTrustStore" or "sslClientVerificationMode"
+        * @version 2.5
+        */
+        Pegasus.Common.SSLContextManager.SSL_CLIENT_VERIFICATION_EMPTY_TRUSTSTORE:string {"PGS13300: The \"sslTrustStore\" configuration property must be set if \"sslClientVerificationMode\" is ''required'' or ''optional''."}
 
         /*
-         * @note  PGS13301:
-          * DO NOT TRANSLATE "sslClientVerificationMode"
-         * @version 2.5
-         */
-         Pegasus.Common.SSLContextManager.SSL_CLIENT_VERIFICATION_HTTP_NOT_ENABLED_WITH_REQUIRED:string {"PGS13301: The HTTP port must be enabled if \"sslClientVerificationMode\" is ''required'' in order for the cimserver to properly shutdown."}
+        * @note  PGS13301:
+        * DO NOT TRANSLATE "sslClientVerificationMode"
+        * @version 2.5
+        */
+        Pegasus.Common.SSLContextManager.SSL_CLIENT_VERIFICATION_HTTP_NOT_ENABLED_WITH_REQUIRED:string {"PGS13301: The HTTP port must be enabled if \"sslClientVerificationMode\" is ''required'' in order for the cimserver to properly shutdown."}
 
         /*
-         * @note  PGS13302:
-          * DO NOT TRANSLATE "sslTrustStoreUserName" or "sslClientVerificationMode"
-         * @version 2.5
-         */
-         Pegasus.Common.SSLContextManager.SSL_CLIENT_VERIFICATION_EMPTY_USERNAME:string {"PGS13302: The \"sslTrustStoreUserName\" property must specify a truststore user name to associate with the trusted certificates if \"sslClientVerificationMode\" is ''required'' or ''optional'', and a trust store is specified."}
+        * @note  PGS13302:
+        * DO NOT TRANSLATE "sslTrustStoreUserName" or "sslClientVerificationMode"
+        * @version 2.5
+        */
+        Pegasus.Common.SSLContextManager.SSL_CLIENT_VERIFICATION_EMPTY_USERNAME:string {"PGS13302: The \"sslTrustStoreUserName\" property must specify a truststore user name to associate with the trusted certificates if \"sslClientVerificationMode\" is ''required'' or ''optional'', and a trust store is specified."}
 
         /*
          * @note  PGS13303:
@@ -4865,11 +4867,11 @@ CIM server listening on HTTPS port {0}."}
         Pegasus.Common.SSLContextManager.CONFIGURED_TRUST_OR_CRL_STORE_NOT_FOUND:string {"PGS13310: Could not reload the trust or certificate revocation list store. The configured store is not found."}
 
         /*
-         * @note  PGS13311:
-          * DO NOT TRANSLATE "sslClientVerificationMode"
-         * @version 2.5
-         */
-         Pegasus.Common.SSLContextManager.INVALID_CONF_HTTPS_REQUIRED:string {"PGS13311: Do not set the \"sslClientVerificationMode\" property to \"required\" if HTTP is disabled because the cimserver will be unable to properly shutdown. It is recommended that you change the property value to \"optional\"."}
+        * @note  PGS13311:
+        * DO NOT TRANSLATE "sslClientVerificationMode"
+        * @version 2.5
+        */
+        Pegasus.Common.SSLContextManager.INVALID_CONF_HTTPS_REQUIRED:string {"PGS13311: Do not set the \"sslClientVerificationMode\" property to \"required\" if HTTP is disabled because the cimserver will be unable to properly shutdown. It is recommended that you change the property value to \"optional\"."}
 
         // ==========================================================
         // Messages for AnonymousPipe
@@ -4939,7 +4941,7 @@ CIM server listening on HTTPS port {0}."}
         ProviderManager.OOPProviderManagerRouter.OOP_PROVIDER_MODULE_FAILURE_DETECTED:string {"PGS13606: A failure was detected in provider module {0}.  The generation of indications by providers in this module may be affected.  To ensure these providers are serving active subscriptions, disable and then re-enable this module using the cimprovider command."}
 
 
-    // ==========================================================
+        // ==========================================================
         // Messages for ProviderManager.ProviderAgent.cimprovagt
         //  Please use message prefix "PGS13800"
         // ==========================================================
@@ -4976,7 +4978,7 @@ CIM server listening on HTTPS port {0}."}
         ProviderManager.ProviderAgent.cimprovagt.PROVAGT_JOB_NAME.PEGASUS_OS_PASE:string {"PGS13812: Provider Agent\''s Job Name is: {0}."}
 
 
-    // ==========================================================
+        // ==========================================================
         // Messages for ProviderManager.ProviderAgent.ProviderAgent
         //  Please use message prefix "PGS14000"
         // ==========================================================
@@ -5019,7 +5021,7 @@ CIM server listening on HTTPS port {0}."}
         */
         ProviderManager.ProviderAgent.RECEIVE_ASYN_SIGNAL.PEGASUS_OS_PASE:string {"PGS14005: \"{0}\" received asynchronous signal: \"{1}\""}
 
-    // ==========================================================
+        // ==========================================================
         // Messages for Common.Monitor
         //  Please use message prefix "PGS14200"
         // ==========================================================
@@ -5056,7 +5058,7 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS14205
-    *    Substitution {0} is an error status code.  This is a number.
+        *    Substitution {0} is an error status code.  This is a number.
         */
         Common.Monitor.TICKLE_CLIENT_BIND:string {"PGS14205: Received error number {0} while binding the internal client socket."}
 

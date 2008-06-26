@@ -558,7 +558,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeTests(void *parm)
     Uint32 id = parms->uniqueID;
     char id_[4];
     memset(id_,0x00,sizeof(id_));
-    sprintf(id_,"%i",id);
+    sprintf(id_,"%u",id);
     String uniqueID = "_";
     uniqueID.append(id_);
 

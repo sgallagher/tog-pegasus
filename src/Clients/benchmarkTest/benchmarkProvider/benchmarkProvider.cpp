@@ -86,9 +86,9 @@ CIMInstance benchmarkProvider::_buildInstance(
 
     for(Uint32 i = 1; i <= numberOfProperties;  i++)
     {
-       sprintf(propertyName, "Property%4.4d", i);
-       instance.addProperty(CIMProperty(CIMName(propertyName), 
-                                               String(propertyValue)));
+       sprintf(propertyName, "Property%4.4u", i);
+       instance.addProperty(
+           CIMProperty(CIMName(propertyName), String(propertyValue)));
     }
 
     CIMObjectPath reference = _buildObjectPath(className, 
@@ -132,7 +132,7 @@ void benchmarkProvider::getInstance(
     handler.processing();
 
     Uint32 ID;
-    if (sscanf (keyBindings[0].getValue().getCString(), "%d", &ID) != 1)
+    if (sscanf (keyBindings[0].getValue().getCString(), "%u", &ID) != 1)
     {
         throw CIMException (CIM_ERR_INVALID_PARAMETER);
     }

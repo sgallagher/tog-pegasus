@@ -1098,7 +1098,7 @@ void XmlWriter::appendPropertyElement(
         if (rep->getArraySize())
         {
             char buffer[32];
-            sprintf(buffer, "%d", rep->getArraySize());
+            sprintf(buffer, "%u", rep->getArraySize());
             out << STRLIT(" ARRAYSIZE=\"") << buffer;
             out.append('"');
         }
@@ -1371,7 +1371,7 @@ void XmlWriter::appendParameterElement(
             if (rep->getArraySize())
             {
                 char buffer[32];
-                int n = sprintf(buffer, "%d", rep->getArraySize());
+                int n = sprintf(buffer, "%u", rep->getArraySize());
                 out << STRLIT(" ARRAYSIZE=\"");
                 out.append(buffer, n);
                 out.append('"');
@@ -1395,7 +1395,7 @@ void XmlWriter::appendParameterElement(
             if (rep->getArraySize())
             {
                 char buffer[32];
-                sprintf(buffer, "%d", rep->getArraySize());
+                sprintf(buffer, "%u", rep->getArraySize());
                 out << STRLIT(" ARRAYSIZE=\"") << buffer;
                 out.append('"');
             }
@@ -1576,7 +1576,7 @@ void XmlWriter::appendQualifierDeclElement(
         if (rep->getArraySize())
         {
             char buffer[64];
-            int n = sprintf(buffer, " ARRAYSIZE=\"%d\"", rep->getArraySize());
+            int n = sprintf(buffer, " ARRAYSIZE=\"%u\"", rep->getArraySize());
             out.append(buffer, n);
         }
     }

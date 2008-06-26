@@ -131,11 +131,11 @@ CRL added successfully.
 
 List the CRL.
 Issuer:  /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TestCA
-Last update: Aug 24, 2006  13:31:45 (00000)
-Next update: Aug 20, 2021  13:31:45 (00000)
+Last update: Aug 24, 2006  13:31:45 (+0000)
+Next update: Aug 20, 2021  13:31:45 (+0000)
 Revoked Certificates:
     Serial Number: 1
-        Revocation Date: Aug 24, 2006  13:31:45 (00000)
+        Revocation Date: Aug 24, 2006  13:31:45 (+0000)
 
 ---------------------------------------------
 
@@ -158,14 +158,14 @@ CRL added successfully.
 
 List the updated CRL by issuer.
 Issuer:  /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TestCA
-Last update: Aug 24, 2006  13:31:45 (00000)
-Next update: Aug 20, 2021  13:31:45 (00000)
+Last update: Aug 24, 2006  13:31:45 (+0000)
+Next update: Aug 20, 2021  13:31:45 (+0000)
 Revoked Certificates:
     Serial Number: 1
-        Revocation Date: Aug 24, 2006  13:31:45 (00000)
+        Revocation Date: Aug 24, 2006  13:31:45 (+0000)
 
     Serial Number: 3
-        Revocation Date: Aug 24, 2006  13:31:45 (00000)
+        Revocation Date: Aug 24, 2006  13:31:45 (+0000)
 
 ---------------------------------------------
 
@@ -228,11 +228,11 @@ CRL added successfully.
 
 List the updated CRL by issuer.
 Issuer:  /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TestCA
-Last update: Jan 1, 2005  20:20:00 (00000)
-Next update: Dec 29, 2019  20:20:00 (00000)
+Last update: Jan 1, 2005  20:20:00 (+0000)
+Next update: Dec 29, 2019  20:20:00 (+0000)
 Revoked Certificates:
     Serial Number: 1
-        Revocation Date: Jan 1, 2005  20:20:00 (00000)
+        Revocation Date: Jan 1, 2005  20:20:00 (+0000)
 
 ---------------------------------------------
 
@@ -244,11 +244,11 @@ CRL added successfully.
 
 List the updated CRL by issuer.
 Issuer:  /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TestCA
-Last update: Feb 1, 2005  20:20:00 (00000)
-Next update: Jan 29, 2020  20:20:00 (00000)
+Last update: Feb 1, 2005  20:20:00 (+0000)
+Next update: Jan 29, 2020  20:20:00 (+0000)
 Revoked Certificates:
     Serial Number: 1
-        Revocation Date: Feb 1, 2005  20:20:00 (00000)
+        Revocation Date: Feb 1, 2005  20:20:00 (+0000)
 
 ---------------------------------------------
 
@@ -260,11 +260,11 @@ CRL added successfully.
 
 List the updated CRL by issuer.
 Issuer:  /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TestCA
-Last update: Mar 1, 2005  20:20:00 (00000)
-Next update: Feb 26, 2020  20:20:00 (00000)
+Last update: Mar 1, 2005  20:20:00 (+0000)
+Next update: Feb 26, 2020  20:20:00 (+0000)
 Revoked Certificates:
     Serial Number: 1
-        Revocation Date: Mar 1, 2005  20:20:00 (00000)
+        Revocation Date: Mar 1, 2005  20:20:00 (+0000)
 
 ---------------------------------------------
 
@@ -276,11 +276,11 @@ CRL added successfully.
 
 List the updated CRL by issuer.
 Issuer:  /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TestCA
-Last update: Apr 1, 2005  20:20:00 (00000)
-Next update: Mar 28, 2020  20:20:00 (00000)
+Last update: Apr 1, 2005  20:20:00 (+0000)
+Next update: Mar 28, 2020  20:20:00 (+0000)
 Revoked Certificates:
     Serial Number: 1
-        Revocation Date: Apr 1, 2005  20:20:00 (00000)
+        Revocation Date: Apr 1, 2005  20:20:00 (+0000)
 
 ---------------------------------------------
 
@@ -292,11 +292,11 @@ CRL added successfully.
 
 List the updated CRL by issuer.
 Issuer:  /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TestCA
-Last update: May 1, 2005  20:20:00 (00000)
-Next update: Apr 27, 2020  20:20:00 (00000)
+Last update: May 1, 2005  20:20:00 (+0000)
+Next update: Apr 27, 2020  20:20:00 (+0000)
 Revoked Certificates:
     Serial Number: 1
-        Revocation Date: May 1, 2005  20:20:00 (00000)
+        Revocation Date: May 1, 2005  20:20:00 (+0000)
 
 ---------------------------------------------
 
@@ -308,11 +308,11 @@ CRL added successfully.
 
 List the updated CRL by issuer.
 Issuer:  /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TestCA
-Last update: Jun 1, 2005  20:20:00 (00000)
-Next update: May 28, 2020  20:20:00 (00000)
+Last update: Jun 1, 2005  20:20:00 (+0000)
+Next update: May 28, 2020  20:20:00 (+0000)
 Revoked Certificates:
     Serial Number: 1
-        Revocation Date: Jun 1, 2005  20:20:00 (00000)
+        Revocation Date: Jun 1, 2005  20:20:00 (+0000)
 
 ---------------------------------------------
 
@@ -324,11 +324,11 @@ CRL added successfully.
 
 List the updated CRL by issuer.
 Issuer:  /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TestCA
-Last update: Jul 1, 2005  20:20:00 (00000)
-Next update: Jun 27, 2020  20:20:00 (00000)
+Last update: Jul 1, 2005  20:20:00 (+0000)
+Next update: Jun 27, 2020  20:20:00 (+0000)
 Revoked Certificates:
     Serial Number: 1
-        Revocation Date: Jul 1, 2005  20:20:00 (00000)
+        Revocation Date: Jul 1, 2005  20:20:00 (+0000)
 
 ---------------------------------------------
 
@@ -340,11 +340,11 @@ CRL added successfully.
 
 List the updated CRL by issuer.
 Issuer:  /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TestCA
-Last update: Aug 1, 2005  20:20:00 (00000)
-Next update: Jul 28, 2020  20:20:00 (00000)
+Last update: Aug 1, 2005  20:20:00 (+0000)
+Next update: Jul 28, 2020  20:20:00 (+0000)
 Revoked Certificates:
     Serial Number: 1
-        Revocation Date: Aug 1, 2005  20:20:00 (00000)
+        Revocation Date: Aug 1, 2005  20:20:00 (+0000)
 
 ---------------------------------------------
 
@@ -356,11 +356,11 @@ CRL added successfully.
 
 List the updated CRL by issuer.
 Issuer:  /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TestCA
-Last update: Sep 1, 2005  20:20:00 (00000)
-Next update: Aug 28, 2020  20:20:00 (00000)
+Last update: Sep 1, 2005  20:20:00 (+0000)
+Next update: Aug 28, 2020  20:20:00 (+0000)
 Revoked Certificates:
     Serial Number: 1
-        Revocation Date: Sep 1, 2005  20:20:00 (00000)
+        Revocation Date: Sep 1, 2005  20:20:00 (+0000)
 
 ---------------------------------------------
 
@@ -372,11 +372,11 @@ CRL added successfully.
 
 List the updated CRL by issuer.
 Issuer:  /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TestCA
-Last update: Oct 1, 2005  20:20:00 (00000)
-Next update: Sep 27, 2020  20:20:00 (00000)
+Last update: Oct 1, 2005  20:20:00 (+0000)
+Next update: Sep 27, 2020  20:20:00 (+0000)
 Revoked Certificates:
     Serial Number: 1
-        Revocation Date: Oct 1, 2005  20:20:00 (00000)
+        Revocation Date: Oct 1, 2005  20:20:00 (+0000)
 
 ---------------------------------------------
 
@@ -388,11 +388,11 @@ CRL added successfully.
 
 List the updated CRL by issuer.
 Issuer:  /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TestCA
-Last update: Nov 1, 2005  20:20:00 (00000)
-Next update: Oct 28, 2020  20:20:00 (00000)
+Last update: Nov 1, 2005  20:20:00 (+0000)
+Next update: Oct 28, 2020  20:20:00 (+0000)
 Revoked Certificates:
     Serial Number: 1
-        Revocation Date: Nov 1, 2005  20:20:00 (00000)
+        Revocation Date: Nov 1, 2005  20:20:00 (+0000)
 
 ---------------------------------------------
 
@@ -404,11 +404,11 @@ CRL added successfully.
 
 List the updated CRL by issuer.
 Issuer:  /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TestCA
-Last update: Dec 1, 2005  20:20:00 (00000)
-Next update: Nov 27, 2020  20:20:00 (00000)
+Last update: Dec 1, 2005  20:20:00 (+0000)
+Next update: Nov 27, 2020  20:20:00 (+0000)
 Revoked Certificates:
     Serial Number: 1
-        Revocation Date: Dec 1, 2005  20:20:00 (00000)
+        Revocation Date: Dec 1, 2005  20:20:00 (+0000)
 
 ---------------------------------------------
 

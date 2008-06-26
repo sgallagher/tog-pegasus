@@ -402,9 +402,9 @@ void IPRouteProvider::getInstance(
     // AddressType must be present
     else if (keyName.equal (PROPERTY_ADDRESS_TYPE))
     {
-      int ti;
+      unsigned short ti;
 
-      sscanf(keyValue.getCString(), "%u", &ti);
+      sscanf(keyValue.getCString(), "%hu", &ti);
       ipat = Uint16(ti);
       keysFound |= 128;
     }
@@ -444,7 +444,7 @@ void IPRouteProvider::getInstance(
   }
 
   char c[100];
-  sprintf (c, "%u", ipat);
+  sprintf (c, "%hu", ipat);
   throw CIMObjectNotFoundException(
       "DestAddr=" + String(ipda) +
       ", DestMask=" + String(ipdm) +
@@ -601,7 +601,7 @@ Array<CIMKeyBinding> IPRouteProvider::_constructKeyBindings(
     if (_ipr.getAddressType(i16))
     {
         char c[100];
-        sprintf(c,"%u",i16);
+        sprintf(c,"%hu",i16);
         s = String(c);
         keyBindings.append(CIMKeyBinding(
             PROPERTY_ADDRESS_TYPE,

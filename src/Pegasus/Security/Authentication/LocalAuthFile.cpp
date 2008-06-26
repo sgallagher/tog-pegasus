@@ -416,7 +416,7 @@ String LocalAuthFile::_generateRandomTokenString()
     char randnum[] = { '0' + (random() % 10), '0' + (random() % 10), '\0' };
     long randomNum = atol(randnum);
 
-    sprintf (token,"%ld%d", randomNum, seconds + milliseconds );
+    sprintf (token,"%ld%u", randomNum, seconds + milliseconds );
     token[strlen(token)] = 0;
 
     randomToken.append(_userName);

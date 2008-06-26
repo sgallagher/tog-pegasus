@@ -529,7 +529,7 @@ inline CIMInstance _getCRLInstance(X509_CRL* xCrl, String host,
     {
         r = sk_X509_REVOKED_value(revoked, i);
         rawSerialNumber = ASN1_INTEGER_get(r->serialNumber);
-        sprintf(serial, "%lu", rawSerialNumber);
+        sprintf(serial, "%lu", (unsigned long)rawSerialNumber);
         revokedSerialNumbers.append(String(serial));
 
         revocationDate = getDateTime(r->revocationDate);
@@ -1703,7 +1703,7 @@ String CertificateProvider::_getNewCertificateFileName(
     }
 
     char filename[1024];
-    sprintf(filename, "%s/%s.%d",
+    sprintf(filename, "%s/%s.%u",
         (const char*)trustStore.getCString(),
         (const char*)hashString.getCString(),
         index);
@@ -1910,7 +1910,7 @@ void CertificateProvider::invokeMethod(
             long rawSerialNumber =
                 ASN1_INTEGER_get(X509_get_serialNumber(xCert.get()));
             char serial[256];
-            sprintf(serial, "%lu", rawSerialNumber);
+            sprintf(serial, "%lu", (unsigned long)rawSerialNumber);
             serialNumber = String(serial);
 
             // Subject name

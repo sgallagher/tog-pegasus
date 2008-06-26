@@ -158,7 +158,7 @@ void _generateIndication(
         indicationInstance.setPath(path);
 
         char buffer[32];
-        sprintf(buffer, "%d", ++_nextUID);
+        sprintf(buffer, "%u", ++_nextUID);
         indicationInstance.addProperty(
             CIMProperty("IndicationIdentifier", String(buffer)));
 

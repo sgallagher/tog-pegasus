@@ -517,19 +517,19 @@ char * _CMPIValueToString (CMPIData data)
             return valuestring;
         case CMPI_sint8:
             valuestring = malloc(100*sizeof(char));
-            sprintf(valuestring, "%d", data.value.sint8);
+            sprintf(valuestring, "%d", (int)data.value.sint8);
             return valuestring;
         case CMPI_uint8:
             valuestring = malloc(100*sizeof(char));
-            sprintf(valuestring, "%u", data.value.uint8);
+            sprintf(valuestring, "%u", (unsigned int)data.value.uint8);
             return valuestring;
         case CMPI_sint16:
             valuestring = malloc(100*sizeof(char));
-            sprintf(valuestring, "%d", data.value.sint16);
+            sprintf(valuestring, "%hd", data.value.sint16);
             return valuestring;
         case CMPI_uint16:
             valuestring = malloc(100*sizeof(char));
-            sprintf(valuestring, "%u", data.value.uint16);
+            sprintf(valuestring, "%hu", data.value.uint16);
             return valuestring;
         case CMPI_sint32:
             valuestring = malloc(100*sizeof(char));

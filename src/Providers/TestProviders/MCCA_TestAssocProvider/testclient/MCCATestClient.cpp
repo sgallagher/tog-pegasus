@@ -131,7 +131,7 @@ void MCCATestClient::createInstance(
         // add properties to the CIMInstance object
         cimInstance.addProperty( CIMProperty( CIMName("theKey"), i));
         cimInstance.addProperty( CIMProperty( CIMName("theData"), 20+i));
-        sprintf(buffer,"ABC-%d",20*i+i);
+        sprintf(buffer,"ABC-%u",20*i+i);
         cimInstance.addProperty(CIMProperty(CIMName ("theString"),
                                             String(buffer)));
 

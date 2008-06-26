@@ -1291,7 +1291,7 @@ Uint32 StressTestControllerCommand::execute (
                     //     commands.
                     //     like, -clientid, -pidfile, -clientlog
                     //
-                    for (int instanceID =0;instanceID<clientInstance[j];
+                    for (Uint32 instanceID = 0; instanceID<clientInstance[j];
                          instanceID++)
                     {
                         outPrintWriter<<
@@ -1522,7 +1522,7 @@ Uint32 StressTestControllerCommand::execute (
                             //
                             // Stop all the instances of this client
                             //
-                            for (int instanceID =0;
+                            for (Uint32 instanceID = 0;
                                  instanceID<clientInstance[clientID];
                                  instanceID++)
                             {
@@ -1612,7 +1612,7 @@ Uint32 StressTestControllerCommand::execute (
                                 //
                                 //  Restart all the instances of the client.
                                 //
-                                for (int instanceID =0;
+                                for (Uint32 instanceID = 0;
                                     instanceID<clientInstance[clientID];
                                     instanceID++)
                                 {
@@ -1623,7 +1623,7 @@ Uint32 StressTestControllerCommand::execute (
                                     act_command.append(
                                         _clientCommands.get()[clientID]);
                                     act_command.append(" -clientid ");
-                                    sprintf(str,"%d",clientID+instanceID);
+                                    sprintf(str,"%u",clientID+instanceID);
                                     act_command.append(str);
                                     act_command.append(" -pidfile ");
                                     act_command.append(" \"");
@@ -1668,7 +1668,7 @@ Uint32 StressTestControllerCommand::execute (
                                         }
                                     }
                                     clientActive[clientID+instanceID] = true;
-                                } /* for (int instanceID =0;instanceID .. */
+                                } /* for (Uint32 instanceID =0;instanceID .. */
                                 clientStopMilliseconds.get()[clientID] =
                                     nowMilliseconds +
                                         _clientDurations.get()[clientID];

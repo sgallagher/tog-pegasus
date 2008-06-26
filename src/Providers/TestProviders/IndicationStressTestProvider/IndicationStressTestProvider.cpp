@@ -163,7 +163,7 @@ void IndicationStressTestProvider::invokeMethod(
     {
         for (Uint32 seqNum = 1; seqNum < indicationSendCount+1; seqNum++)
         {
-            sprintf(UIDbuffer, "%d", _nextUID++);
+            sprintf(UIDbuffer, "%u", _nextUID++);
             SendIndication(seqNum, UIDbuffer);
         }
     }

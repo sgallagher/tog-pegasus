@@ -748,7 +748,7 @@ void MofWriter::appendPropertyElement(
             if (rep->getArraySize())
             {
                 char buffer[32];
-                int n = sprintf(buffer, "[%d]", rep->getArraySize());
+                int n = sprintf(buffer, "[%u]", rep->getArraySize());
                 out.append(buffer, n);
             }
             else
@@ -888,7 +888,7 @@ void MofWriter::appendParameterElement(
         if (rep->getArraySize())
         {
             char buffer[32];
-            int n = sprintf(buffer, "[%d]", rep->getArraySize());
+            int n = sprintf(buffer, "[%u]", rep->getArraySize());
             out.append(buffer, n);
         }
         else
@@ -995,7 +995,7 @@ void MofWriter::appendQualifierDeclElement(
         if (rep->getArraySize())
         {
             char buffer[32];
-            int n = sprintf(buffer, "[%d]", rep->getArraySize());
+            int n = sprintf(buffer, "[%u]", rep->getArraySize());
             out.append(buffer, n);
         }
         else

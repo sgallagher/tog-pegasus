@@ -41,7 +41,7 @@ String ConfigFileSyntaxError::_formatMessage(
     Uint32 line)
 {
     char buffer[32];
-    sprintf(buffer, "%d", line);
+    sprintf(buffer, "%u", line);
 
     MessageLoaderParms parms(
         "Config.ConfigExceptions.CONFIG_FILE_SYNTAX_ERR",

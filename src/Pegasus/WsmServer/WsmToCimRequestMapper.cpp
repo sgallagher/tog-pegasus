@@ -1154,7 +1154,7 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
             int bytes = 0;
 
             // Read all fields up to but excluding potential fractional seconds
-            int conversions = sscanf(ptr, "%4d-%2d-%2dT%2d:%2d:%2d%c%n",
+            int conversions = sscanf(ptr, "%4u-%2u-%2uT%2u:%2u:%2u%c%n",
                  &year, &month, &day, &hrs, &mins, &secs, &sign, &bytes);
 
             // Year, month, day, hours, minutes and seconds must be present
@@ -1199,7 +1199,7 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
             // Read UTC offset
             if (sign == '+' || sign == '-')
             {
-                conversions = sscanf(ptr, "%2d:%2d", &utch, &utcm);
+                conversions = sscanf(ptr, "%2u:%2u", &utch, &utcm);
                 if (conversions != 2 || strlen(ptr) != 5 ||
                     // Make sure that numeric fields do not start with white
                     // space, '+' or '-' signs

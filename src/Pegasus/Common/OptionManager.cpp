@@ -641,7 +641,7 @@ String OMConfigFileSyntaxError::_formatMessage(
     const String& file, Uint32 line)
 {
     char buffer[32];
-    sprintf(buffer, "%d", line);
+    sprintf(buffer, "%u", line);
     MessageLoaderParms parms(
         "Common.OptionManager.SYNTAX_ERR_CONFIG_FILE",
         "Syntax error in configuration file: ");

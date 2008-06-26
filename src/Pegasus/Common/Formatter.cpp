@@ -54,7 +54,7 @@ String Formatter::Arg::toString() const
         case UINTEGER:
         {
             char buffer[32];
-            sprintf(buffer, "%u", _integer);
+            sprintf(buffer, "%u", _uinteger);
             return buffer;
         }
 

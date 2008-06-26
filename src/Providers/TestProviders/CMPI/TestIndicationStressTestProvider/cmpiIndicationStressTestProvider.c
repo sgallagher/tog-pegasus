@@ -252,7 +252,7 @@ CMPIStatus TestCMPIIndicationStressTestProviderInvokeMethod(
     {
         for (seqNum = 1; seqNum < indicationSendCount+1; seqNum++)
         {
-             sprintf(UIDbuffer, "%d", _nextUID++);
+             sprintf(UIDbuffer, "%u", _nextUID++);
              indicationInstance = getIndicationInstance (seqNum, UIDbuffer);
              CBDeliverIndication (_broker, ctx, namespaceName,
                                            indicationInstance);

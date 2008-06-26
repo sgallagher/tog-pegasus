@@ -139,7 +139,7 @@ void MCCA_TestAssocProvider::associators(
     constructedInstance.addProperty( CIMProperty( CIMName("theData"),
                 20+sourceKey));
     char  buffer[100];
-    sprintf(buffer,"ABC-%d",20*sourceKey+sourceKey);
+    sprintf(buffer,"ABC-%u",20*sourceKey+sourceKey);
     constructedInstance.addProperty(CIMProperty(CIMName ("theString"),
                 String(buffer)));
 

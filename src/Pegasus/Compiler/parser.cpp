@@ -131,7 +131,7 @@ using namespace ParserExceptions;
 void parser::log_parse_error(char *token, const char *errmsg) const
 {
     char buf[40];
-    sprintf(buf, "%d", _lineno);
+    sprintf(buf, "%u", _lineno);
     String s = _current_filename + ":" + buf + ": " + errmsg + " before `"
         + token + "'\n";
     throw ParserLexException(s);

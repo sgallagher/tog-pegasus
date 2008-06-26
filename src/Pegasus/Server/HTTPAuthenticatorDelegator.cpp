@@ -531,7 +531,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                         // Get certificate properties
                         issuerName = clientCertificate->getIssuerName();
                         sprintf(serialNumber, "%lu",
-                            clientCertificate->getSerialNumber());
+                            (unsigned long)
+                                clientCertificate->getSerialNumber());
                         subjectName = clientCertificate->getSubjectName();
 
                         //

@@ -760,7 +760,7 @@ void OSInfoCommand::gatherProperties(CIMInstance &inst, Boolean cimFormat)
          Uint32 propertyValue;
          inst.getProperty(j).getValue().get(propertyValue);
          char tmpString[80];
-         sprintf(tmpString, "%d processes", propertyValue);
+         sprintf(tmpString, "%u processes", propertyValue);
          osNumberOfProcesses.assign(tmpString);
       }  // end if NumberOfProcesses
 
@@ -769,7 +769,7 @@ void OSInfoCommand::gatherProperties(CIMInstance &inst, Boolean cimFormat)
          Uint32 propertyValue;
          inst.getProperty(j).getValue().get(propertyValue);
          char tmpString[80];
-         sprintf(tmpString, "%d users", propertyValue);
+         sprintf(tmpString, "%u users", propertyValue);
          osNumberOfUsers.assign(tmpString);
       }  // end if NumberOfUsers
 
@@ -806,7 +806,7 @@ void OSInfoCommand::gatherProperties(CIMInstance &inst, Boolean cimFormat)
          else  // standard number of users
          {
             char users[80];
-            sprintf(users, "%d users", propertyValue);
+            sprintf(users, "%u users", propertyValue);
             osLicensedUsers.assign(users);
          }
       }   // end if NumberOfLicensedUsers

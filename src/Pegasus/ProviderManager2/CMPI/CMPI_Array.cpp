@@ -241,7 +241,7 @@ extern "C"
                 char msg[512];
                 sprintf(msg,"arraySetElementAt(): CMPI_RC_ERR_TYPE_MISMATCH."
                     " Is %u - should be %u",
-                    type, dta->type);
+                    (unsigned int)type, (unsigned int)dta->type);
                 PEG_METHOD_EXIT();
                 CMReturnWithString(
                     CMPI_RC_ERR_TYPE_MISMATCH,

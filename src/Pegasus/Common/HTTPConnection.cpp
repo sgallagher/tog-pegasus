@@ -465,7 +465,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                         CIMStatusCode code = httpMessage.cimException.getCode();
                         String httpDetail(cimStatusCodeToString(code));
                         char s[21];
-                        sprintf(s, "%u", code);
+                        sprintf(s, "%u", (unsigned int)code);
                         String httpStatus(s);
                         Buffer message = XmlWriter::formatHttpErrorRspMessage
                             (httpStatus, String(), httpDetail);

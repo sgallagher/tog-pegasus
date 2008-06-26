@@ -820,7 +820,7 @@ MessageLoader::_useProcessLocale = false;
 #if defined(PEGASUS_DEBUG)
         //Log startup options
         printf("Starting CIMListener with the following options\n");
-        printf("\tlistenerPort %d\n", listenerPort);
+        printf("\tlistenerPort %u\n", listenerPort);
         printf("\thttpsConnection %d\n", httpsConnection);
         printf("\tsslKeyFilePath %s\n",
                 (const char*)sslKeyFilePath.getCString());
@@ -830,10 +830,10 @@ MessageLoader::_useProcessLocale = false;
         printf("\tconsumerConfigDir %s\n",
                 (const char*)consumerConfigDir.getCString());
         printf("\tenableConsumerUnload %d\n", enableConsumerUnload);
-        printf("\tconsumerIdleTimeout %d\n", consumerIdleTimeout);
-        printf("\tshutdownTimeout %d\n", shutdownTimeout);
+        printf("\tconsumerIdleTimeout %u\n", consumerIdleTimeout);
+        printf("\tshutdownTimeout %u\n", shutdownTimeout);
         printf("\ttraceFilePath %s\n", (const char*)traceFile.getCString());
-        printf("\ttraceLevel %d\n", traceLevel);
+        printf("\ttraceLevel %u\n", traceLevel);
         printf("\ttraceComponents %s\n",
                 (const char*)traceComponents.getCString());
         printf("\tMessage home is %s\n", (const char*)msgHome.getCString());

@@ -656,7 +656,7 @@ void _test (CIMClient & client)
         for (Uint32 i = 0; i < QUERIES_CQL; i++)
         {
             filter.clear ();
-            sprintf (cnt, "%d", i);
+            sprintf (cnt, "%u", i);
             filter.append (_filter);
             filter.append (cnt);
 
@@ -686,7 +686,7 @@ void _test (CIMClient & client)
         for (Uint32 i = 0; i < QUERIES_WQL; i++)
         {
             filter.clear ();
-            sprintf (cnt, "%d", i);
+            sprintf (cnt, "%u", i);
             filter.append (_filter);
             filter.append (cnt);
 
@@ -727,7 +727,7 @@ void _cleanup (CIMClient & client)
 
     for (Uint32 i = 0; i < QUERIES_CQL; i++)
     {
-        sprintf (cnt, "%d", i);
+        sprintf (cnt, "%u", i);
         filter.clear ();
         filter.append (_filter);
         filter.append (cnt);

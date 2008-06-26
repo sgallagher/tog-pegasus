@@ -242,7 +242,7 @@ static String _makeCIMExceptionDescription(
     String tmp = file;
     tmp.append("(");
     char buffer[32];
-    sprintf(buffer, "%d", line);
+    sprintf(buffer, "%u", line);
     tmp.append(buffer);
     tmp.append("): ");
     tmp.append(_makeCIMExceptionDescription(code, message));

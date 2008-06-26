@@ -389,7 +389,7 @@ Sint32 SSLSocket::accept()
 
                     char serialNumberString[32];
                     sprintf(serialNumberString, "%lu", 
-                        clientCert->getSerialNumber());
+                        (unsigned long)clientCert->getSerialNumber());
 
                     PEG_AUDIT_LOG(logCertificateBasedAuthentication(
                         clientCert->getIssuerName(),
@@ -445,7 +445,8 @@ Sint32 SSLSocket::accept()
             _certificateVerified = (verifyResult == X509_V_OK);
 
             char serialNumberString[32];
-            sprintf(serialNumberString, "%lu", clientCert->getSerialNumber());
+            sprintf(serialNumberString, "%lu",
+                (unsigned long)clientCert->getSerialNumber());
 
             PEG_AUDIT_LOG(logCertificateBasedAuthentication(
                 clientCert->getIssuerName(),

@@ -161,7 +161,7 @@ PEGASUS_COMMON_LINKAGE Buffer& operator<<(
 #define OUTPUT_CONTENTLENGTH(out, contentLength)                           \
 {                                                                          \
     char contentLengthP[11];                                               \
-    int n = sprintf(contentLengthP,"%.10u", contentLength);                \
+    int n = sprintf(contentLengthP,"%.10u", (unsigned int)contentLength);  \
     out << STRLIT("content-length: ");                                     \
     out.append(contentLengthP, n);                                         \
     out << STRLIT("\r\n");                                                 \

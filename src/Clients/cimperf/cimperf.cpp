@@ -684,7 +684,7 @@ int main(int argc, char** argv)
 
             printf("%-25s"
                 "%10"  PEGASUS_64BIT_CONVERSION_WIDTH "u"
-                "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u"
+                "%11" PEGASUS_64BIT_CONVERSION_WIDTH "d"
                 "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u"
                 "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u"
                 "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u\n",

@@ -501,7 +501,7 @@ static void _toCStr(const CIMDateTimeRep* rep, char buffer[26])
 
         sprintf(
             buffer,
-            "%04u%02u%02u%02u%02u%02u.%06u%c%03d",
+            "%04u%02u%02u%02u%02u%02u.%06u%c%03u",
             Uint32(year),
             Uint32(month),
             Uint32(day),

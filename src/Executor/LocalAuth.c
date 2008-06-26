@@ -88,7 +88,7 @@ static void BuildLocalAuthFilePath(
     Strlcpy(path, PEGASUS_LOCAL_AUTH_DIR, EXECUTOR_BUFFER_SIZE);
     Strlcat(path, "/cimclient_", EXECUTOR_BUFFER_SIZE);
     Strlcat(path, user, EXECUTOR_BUFFER_SIZE);
-    sprintf(buffer, "_%u_%u", seq, (int)(tv.tv_usec / 1000));
+    sprintf(buffer, "_%u_%u", seq, (unsigned int)(tv.tv_usec / 1000));
     Strlcat(path, buffer, EXECUTOR_BUFFER_SIZE);
 }
 

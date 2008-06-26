@@ -462,7 +462,7 @@ Uint64 OperatingSystem::_totalVM()
         // Now extract the total swap space size from the swapinfo output.
         while (fgets(mline, 80, mswapInfo))
         {
-           sscanf(mline, "%d", &swapSize);
+            sscanf(mline, "%u", &swapSize);
         }  // end while
 
         (void)pclose (mswapInfo);
@@ -839,7 +839,7 @@ Boolean OperatingSystem::getMaxProcsPerUser (Uint32& maxProcsPerUser)
             // Now extract the value
             while (fgets(mline, 80, mtuneInfo))
             {
-                sscanf(mline, "maxuprc %d", &maxProcsPerUser);
+                sscanf(mline, "maxuprc %u", &maxProcsPerUser);
             }
             (void)pclose (mtuneInfo);
         }

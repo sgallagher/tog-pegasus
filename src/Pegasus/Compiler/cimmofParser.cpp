@@ -469,7 +469,7 @@ void cimmofParser::log_parse_error(char *token, const char *errmsg) const
 {
     String message;
     char buf[40];  // itoa can't overflow
-    sprintf(buf, "%d", get_lineno());
+    sprintf(buf, "%u", get_lineno());
     cimmofMessages::arglist arglist;
     arglist.append(get_current_filename());
     arglist.append(buf);

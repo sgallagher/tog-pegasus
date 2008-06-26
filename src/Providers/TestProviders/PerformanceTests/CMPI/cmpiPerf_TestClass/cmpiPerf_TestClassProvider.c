@@ -71,7 +71,7 @@ void setNumberOfInstances(unsigned int numInst)
 {
     char * env = NULL;
     env = calloc(1,30);
-    sprintf(env, "PERF_TEST=%d", numInst);
+    sprintf(env, "PERF_TEST=%u", numInst);
 
     putenv(env);
     free(env);

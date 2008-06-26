@@ -1531,23 +1531,23 @@ String SSLCertificateInfo::toString() const
     s.append(_rep->issuerName);
     s.append("\n");
 
-    sprintf(buf, "Depth: %d\n", _rep->depth);
+    sprintf(buf, "Depth: %u\n", _rep->depth);
     s.append(buf);
 
-    sprintf(buf, "Error code: %d\n", _rep->errorCode);
+    sprintf(buf, "Error code: %u\n", _rep->errorCode);
     s.append(buf);
 
-    sprintf(buf, "Response (preverify) code: %d\n", _rep->respCode);
+    sprintf(buf, "Response (preverify) code: %u\n", _rep->respCode);
     s.append(buf);
 
     s.append("Error string: ");
     s.append(_rep->errorString);
     s.append("\n");
 
-    sprintf(buf, "Version number: %d\n", _rep->versionNumber);
+    sprintf(buf, "Version number: %u\n", _rep->versionNumber);
     s.append(buf);
 
-    sprintf(buf, "Serial number: %lu\n", _rep->serialNumber);
+    sprintf(buf, "Serial number: %lu\n", (unsigned long)_rep->serialNumber);
     s.append(buf);
 
     s.append("Not before date: ");

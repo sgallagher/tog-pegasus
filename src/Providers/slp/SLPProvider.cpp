@@ -832,7 +832,7 @@ String SLPProvider::getNameSpaceInfo(
                 char buffer[32];
                 sprintf(
                     buffer,
-                    "%u",
+                    "%hu",
                     _getPropertyValueUint16(
                         CIMNamespaceInstances[i],
                         CIMName(classinfoAttribute))); 

@@ -332,7 +332,7 @@ Boolean OSTestClient::goodLocalDateTime(
 
    if (verbose) {
       cout<<" Should be close to " << currentDT.toString() << endl;
-      printf( " Delta should be within 360 seconds, is %lld\n",delta);
+      printf( " Delta should be within 360 seconds, is %llu\n",delta);
       fflush(stdout);
    }
    // arbitrary choice of expecting them to be within 360 seconds
@@ -479,7 +479,7 @@ Boolean OSTestClient::goodNumberOfProcesses(
 
    if (verbose)
    {
-      printf (" Delta should be within 10, is %d\n", delta);
+      printf (" Delta should be within 10, is %u\n", delta);
       fflush(stdout);
    }
 
@@ -535,7 +535,7 @@ static Uint64 _totalVM()
         // Now extract the total swap space size from the swapinfo output.
         while (fgets(mline, 80, mswapInfo))
         {
-           sscanf(mline, "%d", &swapSize);
+           sscanf(mline, "%u", &swapSize);
         }  // end while
 
         (void)pclose (mswapInfo);
@@ -557,7 +557,7 @@ Boolean OSTestClient::goodTotalSwapSpaceSize(
 
    if (verbose)
    {
-      printf("Checking TotalSwapSpaceSize %lld\n", totalswap);
+      printf("Checking TotalSwapSpaceSize %llu\n", totalswap);
       fflush(stdout);
    }
 
@@ -567,7 +567,7 @@ Boolean OSTestClient::goodTotalSwapSpaceSize(
 
    if (verbose)
    {
-      printf(" Should be %lld\n", mTotalSwapSpaceSize);
+      printf(" Should be %llu\n", mTotalSwapSpaceSize);
       fflush(stdout);
    }
    return (totalswap == mTotalSwapSpaceSize);
@@ -637,7 +637,7 @@ Boolean OSTestClient::goodFreeVirtualMemory(
 
    if (verbose)
    {
-      printf (" Delta should be within 131072, is %lld\n", delta);
+      printf (" Delta should be within 131072, is %llu\n", delta);
       fflush(stdout);
    }
 
@@ -899,7 +899,7 @@ Boolean OSTestClient::goodMaxProcessMemorySize(
 
    if (verbose)
    {
-      printf("Checking maxProcessMemorySize = 0x%llx = %lld\n",
+      printf("Checking maxProcessMemorySize = 0x%llx = %llu\n",
              maxpmem, maxpmem);
       fflush(stdout);   // flush, especially since mix of cout and printf
    }
@@ -958,7 +958,7 @@ Boolean OSTestClient::goodMaxProcessMemorySize(
 
    if (verbose)
    {
-      printf(" Should be 0x%llx = %lld\n", maxProcessMemorySize,
+      printf(" Should be 0x%llx = %llu\n", maxProcessMemorySize,
              maxProcessMemorySize);
       fflush(stdout);
    }
@@ -1008,7 +1008,7 @@ Boolean OSTestClient::goodMaxProcessesPerUser(
             // Now extract the value
             while (fgets(mline, 80, mtuneInfo))
             {
-                sscanf(mline, "maxuprc %lld", &ret);
+                sscanf(mline, "maxuprc %llu", &ret);
             }
             (void)pclose (mtuneInfo);
         }
@@ -1111,7 +1111,7 @@ Boolean OSTestClient::goodSystemUpTime(const Uint64 &uptime, Boolean verbose)
 
    if (verbose)
    {
-      printf (" Should be slightly > %lld\n", calcUpTime);
+      printf (" Should be slightly > %llu\n", calcUpTime);
       fflush(stdout);
    }
 

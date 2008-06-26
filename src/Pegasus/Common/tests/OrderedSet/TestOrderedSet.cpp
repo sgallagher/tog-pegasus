@@ -851,7 +851,7 @@ void testOrderedSetPropertyOverFlow()
             for (Uint32 j=0; j<36; j++)
             {
                 char buf[20];
-                sprintf(buf, "%cprop%derty%c", letter[i], k, letterNumber[j]);
+                sprintf(buf, "%cprop%uerty%c", letter[i], k, letterNumber[j]);
                 CIMName newNumPropertyName(buf);
                 CIMProperty newNumProperty(newNumPropertyName, oneFitsAll);
                 properties.append(newNumProperty);

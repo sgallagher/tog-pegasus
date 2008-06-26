@@ -42,7 +42,7 @@ CIMOMStatDataProvider::CIMOMStatDataProvider()
     for (Uint32 i=0; i<StatisticalData::length; i++)
     {
         char buffer[32];
-        sprintf(buffer, "%d", i);
+        sprintf(buffer, "%u", i);
         _references[i] = CIMObjectPath(
             "CIM_CIMOMStatisticalData.InstanceID=\"CIM_CIMOMStatisticalData"+
             String(buffer)+"\"");
@@ -162,7 +162,7 @@ CIMInstance CIMOMStatDataProvider::getInstance(
 
     StatisticalData* sd = StatisticalData::current();
     char buffer[32];
-    sprintf(buffer, "%u", type);
+    sprintf(buffer, "%hu", type);
 
     checkObjectManager();
 

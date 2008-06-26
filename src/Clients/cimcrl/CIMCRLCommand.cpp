@@ -339,9 +339,9 @@ String CIMCRLCommand::_formatCIMDateTime(const String& cimDateTimeStr)
     Uint32 minute = 0;
     Uint32 second = 0;
     Uint32 microsecond = 0;
-    Uint32 timezone = 0;
+    Sint32 timezone = 0;
 
-    sscanf(cimDateTimeStr.getCString(), "%04d%02d%02d%02d%02d%02d.%06d%04d",
+    sscanf(cimDateTimeStr.getCString(), "%04u%02u%02u%02u%02u%02u.%06u%04d",
            &year, &month, &day, &hour, &minute, &second,
            &microsecond, &timezone);
  
@@ -392,13 +392,11 @@ String CIMCRLCommand::_formatCIMDateTime(const String& cimDateTimeStr)
    }
 
    char dateTimeStr[80];
-   sprintf(dateTimeStr, "%s %d, %d  %d:%02d:%02d (%03d%02d)",
+   sprintf(dateTimeStr, "%s %u, %u  %u:%02u:%02u (%+03d%02u)",
            monthString, day, year, hour, minute, second,
            timezone/60, timezone%60);
 
-   String retVal = String(dateTimeStr);
-
-   return (retVal);
+   return String(dateTimeStr);
 }
 
 

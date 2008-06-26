@@ -99,7 +99,7 @@ CMPIInstance * _makeInst_TestClass(
 // Initialize Name
 //
     theName = calloc(1,20);
-    sprintf(theName,"%d",theKey);
+    sprintf(theName, "%u", theKey);
 
 //
 // Construct ObjectPath

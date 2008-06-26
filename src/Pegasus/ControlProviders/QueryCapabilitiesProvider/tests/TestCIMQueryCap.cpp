@@ -68,24 +68,23 @@ void _checkIfReturnedValueIsCorrect(Array<Uint16>& providerReturnedVal)
 
    Array<Uint16> actualVal(NUM_QUERY_CAPABILITIES);
 
-   if(providerReturnedVal.size() != (unsigned)NUM_QUERY_CAPABILITIES)
+   if (providerReturnedVal.size() != (unsigned)NUM_QUERY_CAPABILITIES)
    {
-      Exception e("Number of capabilities returned by the Provider "
-                  "does not match the actual value.");
-      throw e;
+      throw Exception(
+          "Number of capabilities returned by the Provider "
+              "does not match the actual value.");
    }
 
    getFeatureSet(actualVal);
 
-   for(unsigned int j=0; j<(unsigned)NUM_QUERY_CAPABILITIES; j++)
+   for (unsigned int j=0; j<(unsigned)NUM_QUERY_CAPABILITIES; j++)
    {
-     if(providerReturnedVal[j] != actualVal[j])
+     if (providerReturnedVal[j] != actualVal[j])
      {
         char msg[1024];
-        sprintf(msg, "Expected capability value=%u, returned=%d.",
+        sprintf(msg, "Expected capability value=%hu, returned=%hu.",
                 actualVal[j], providerReturnedVal[j]);
-        Exception e(msg);
-        throw e;
+        throw Exception(msg);
      }
    }
 }

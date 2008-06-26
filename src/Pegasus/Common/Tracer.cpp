@@ -160,7 +160,7 @@ void Tracer::_trace(
         _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8];
     sprintf(
        message,
-       "[%d:%s:%s:%u]: ",
+       "[%u:%s:%s:%u]: ",
        System::getPID(),
        Threads::id().buffer,
        fileName,
@@ -249,7 +249,7 @@ void Tracer::_traceMethod(
 
     sprintf(
        message,
-       "[%d:%s:%s:%u]: %s ",
+       "[%u:%s:%s:%u]: %s ",
        System::getPID(),
        Threads::id().buffer,
        fileName,
@@ -816,7 +816,7 @@ void Tracer::traceCString(
         _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8];
     sprintf(
         message,
-        "[%d:%s:%s:%u]: ",
+        "[%u:%s:%s:%u]: ",
         System::getPID(),
         Threads::id().buffer,
         fileName,

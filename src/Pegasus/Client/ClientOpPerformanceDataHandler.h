@@ -39,7 +39,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-
+/**
+    A ClientOpPerformanceData object contains performance data for a single
+    CIM operation.  It is used by the ClientOpPerformanceDataHandler callback.
+*/
 struct PEGASUS_CLIENT_LINKAGE ClientOpPerformanceData
 {
     /** Identifies the operation type for the statistical information

@@ -49,7 +49,10 @@ class PEGASUS_CLIENT_LINKAGE CIMClientMalformedHTTPException
     : public Exception
 {
 public:
-    ///
+    /**
+        Constructs a CIMClientMalformedHTTPException with a specified message.
+        @param message The exception message
+    */
     CIMClientMalformedHTTPException(const String& message);
 };
 
@@ -60,31 +63,66 @@ public:
 class PEGASUS_CLIENT_LINKAGE CIMClientHTTPErrorException : public Exception
 {
 public:
-    ///
+    /**
+        Constructs a CIMClientHTTPErrorException with specified error details.
+        @param httpStatusCode The HTTP status code in the response
+        @param reasonPhrase The HTTP reason phrase in the response
+        @param cimError The CIMError header value in the HTTP response
+        @param cimErrorDetail Additional error detail information, if available
+    */
     CIMClientHTTPErrorException(
         Uint32 httpStatusCode,
         const String& reasonPhrase,
         const String& cimError,
         const String& cimErrorDetail);
-    ///
+
+    /**
+        Constructs a CIMClientHTTPErrorException with specified error details.
+        @param httpStatusCode The HTTP status code in the response
+        @param cimError The CIMError header value in the HTTP response
+        @param cimErrorDetail Additional error detail information, if available
+    */
     CIMClientHTTPErrorException(
         Uint32 httpStatusCode,
         const String& cimError,
         const String& cimErrorDetail);
-    ///
+
+    /**
+        Constructs a copy of an CIMClientHTTPErrorException.
+        @param httpError The object to copy
+    */
     CIMClientHTTPErrorException(const CIMClientHTTPErrorException& httpError);
-    ///
+
+    /**
+        Destructs an CIMClientHTTPErrorException.
+    */
     virtual ~CIMClientHTTPErrorException();
 
-    ///
+    /**
+        Copies an CIMClientHTTPErrorException.
+        @param httpError The object to copy
+    */
     CIMClientHTTPErrorException& operator=(
         const CIMClientHTTPErrorException& httpError);
 
-    ///
+    /**
+        Gets the HTTP status code from the error response.
+        @return An integer HTTP status code
+    */
     Uint32 getCode() const;
-    ///
+
+    /**
+        Gets the CIMError header value from the HTTP error response.
+        @return A String containing the CIMError header value
+    */
     String getCIMError() const;
-    ///
+
+    /**
+        Gets additional error detail information from the HTTP error response.
+        @return A String containing additional error detail information from
+            the HTTP error response, if available.  Otherwise, an empty String
+            is returned.
+    */
     String getCIMErrorDetail() const;
 };
 
@@ -95,7 +133,10 @@ public:
 class PEGASUS_CLIENT_LINKAGE CIMClientXmlException : public Exception
 {
 public:
-    ///
+    /**
+        Constructs a CIMClientXmlException with a specified message.
+        @param message The exception message
+    */
     CIMClientXmlException(const String& message);
 };
 
@@ -107,7 +148,10 @@ class PEGASUS_CLIENT_LINKAGE CIMClientResponseException
     : public Exception
 {
 public:
-    ///
+    /**
+        Constructs a CIMClientResponseException with a specified message.
+        @param message The exception message
+    */
     CIMClientResponseException(const String& message);
 };
 

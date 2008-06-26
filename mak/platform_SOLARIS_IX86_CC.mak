@@ -170,11 +170,25 @@ LIBRARY_SYS_LIBS = $(COMMON_SYS_LIBS)
 ##
 ##==============================================================================
 
-OPENSSL_HOME=/usr/sfw
-OPENSSL_BIN=/usr/sfw/bin
-OPENSSL_COMMAND=/usr/sfw/bin/openssl
-PEGASUS_ENABLE_SSL_CRL_VERIFICATION=true
-PEGASUS_USE_SSL_RANDOMFILE=true
+ifndef OPENSSL_HOME
+  OPENSSL_HOME=/usr/sfw
+endif
+
+ifndef OPENSSL_BIN
+  OPENSSL_BIN=/usr/sfw/bin
+endif
+
+ifndef OPENSSL_COMMAND
+  OPENSSL_COMMAND=/usr/sfw/bin/openssl
+endif
+
+ifndef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
+  PEGASUS_ENABLE_SSL_CRL_VERIFICATION=true
+endif
+
+ifndef PEGASUS_USE_SSL_RANDOMFILE
+  PEGASUS_USE_SSL_RANDOMFILE=true
+endif
 
 ifdef PEGASUS_HAS_SSL
   FLAGS += -L$(OPENSSL_HOME)/lib

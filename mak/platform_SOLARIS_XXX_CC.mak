@@ -27,45 +27,30 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
+#//=============================================================================
+
 include $(ROOT)/mak/config-unix.mak
 
 OS = solaris
-
-ARCHITECTURE = ix86
-
 COMPILER = CC
 
 CC = cc
 
-#
-# This is a hack because the Pegasus build system doesn't have a way to specify
-# flags just for the C compiler or just for the C++ compiler.
-#
-CXX = $(PEGASUS_CCACHE) CC
+CXX = CC
 
 SH = sh
-
 YACC = yacc
-
 RM = rm -f
-
 DIFF = diff
-
 SORT = sort
-
 COPY = cp
-
 MOVE = mv
-
 LIB_SUFFIX = .so
-
 PEGASUS_SUPPORTS_DYNLIB = yes
-
 SYS_INCLUDES = 
 
-DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -D_POSIX_PTHREAD_SEMANTICS
-
+DEFINES += -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) 
+DEFINES += -D_POSIX_PTHREAD_SEMANTICS
 DEFINES += -DPEGASUS_OS_SOLARIS
 
 #
@@ -75,39 +60,32 @@ DEFINES += -DPEGASUS_OS_SOLARIS
 #
 DEFINES += -DTYPE_CONV
 
-# "READBUG" forces fstream.read to read 1 char at a time to
-# overcome a bug in Wshop 6.2
-# There are patches for this now.
-#
-# DEFINES += -DPEGASUS_OS_SOLARIS_READBUG
-
 SUNOS_VERSION = $(shell uname -r)
-
 
 # Pegasus requires the kernel LWP thread model.
 # It doesn't exist on SunOS 5.6 or 5.7 so thery are no longer supported.
 #
 ifeq ($(SUNOS_VERSION), 5.6)
-DEFINES += -DSUNOS_5_6
-    $(error SunOS version 5.6 is not supportted)
+  DEFINES += -DSUNOS_5_6
+  $(error SunOS version 5.6 is not supportted)
 endif
 
 # Pegasus requires the kernel LWP thread model.
 # It doesn't exist on SunOS 5.6 or 5.7 so thery are no longer supported.
 #
 ifeq ($(SUNOS_VERSION), 5.7)
-DEFINES += -DSUNOS_5_7
-    $(error SunOS version 5.7 is not supportted)
+  DEFINES += -DSUNOS_5_7
+  $(error SunOS version 5.7 is not supportted)
 endif
 
 ifeq ($(SUNOS_VERSION), 5.8)
-DEFINES += -DSUNOS_5_8
+  DEFINES += -DSUNOS_5_8
 endif
 
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
- FLAGS = -g -xs
+  FLAGS = -g -xs
 else
- FLAGS = -O4 -s -xipo=1
+  FLAGS = -O4 -s -xipo=1
 endif
 
 #FLAGS += +w -pto -KPIC -mt -xildoff
@@ -129,16 +107,16 @@ endif
 COMMON_SYS_LIBS = -lpthread -ldl -lsocket -lnsl -lxnet -lCstd
 
 ifeq ($(SUNOS_VERSION), 5.6)
-COMMON_SYS_LIBS += -lposix4
+  COMMON_SYS_LIBS += -lposix4
 else
-COMMON_SYS_LIBS += -lrt
+  COMMON_SYS_LIBS += -lrt
 endif
 
 # on SunOS 5.8 use the alternate (kernel LWP) thread model that is standard on 
 # SunOS 5.9 and 5.10
 # 
 ifeq ($(SUNOS_VERSION), 5.8)
-COMMON_SYS_LIBS += -R /usr/lib/lwp
+  COMMON_SYS_LIBS += -R /usr/lib/lwp
 endif
 
 ##==============================================================================
@@ -146,6 +124,7 @@ endif
 ## SYS_LIBS (system libraries needed to build programs)
 ##
 ##==============================================================================
+
 SYS_LIBS = $(COMMON_SYS_LIBS) $(EXTRA_LIBRARIES)
 
 ##==============================================================================
@@ -155,16 +134,6 @@ SYS_LIBS = $(COMMON_SYS_LIBS) $(EXTRA_LIBRARIES)
 ##==============================================================================
 
 LIBRARY_SYS_LIBS = $(COMMON_SYS_LIBS)
-
-##==============================================================================
-##
-## 64-bit Options
-##
-##==============================================================================
-
-LINK_MACHINE_OPTIONS += -m64
-
-FLAGS += -m64
 
 ##==============================================================================
 ##

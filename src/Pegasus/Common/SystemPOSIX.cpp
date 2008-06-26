@@ -53,6 +53,7 @@
 
 #if defined(PEGASUS_OS_SOLARIS)
 # include <string.h>
+# include <sys/sockio.h>
 #endif
 
 #if !defined(PEGASUS_OS_VMS) && \
@@ -76,11 +77,6 @@
 
 #ifdef PEGASUS_OS_PASE
 #include <ILEWrapper/ILEUtilities.h>
-#endif
-
-#if defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC) || \
-    defined(PEGASUS_PLATFORM_SOLARIS_X86_64_CC)
-# include <sys/sockio.h>
 #endif
 
 #include <Pegasus/Common/Tracer.h>

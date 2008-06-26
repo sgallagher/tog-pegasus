@@ -49,7 +49,8 @@
 #endif
 
 #if defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC) || \
-    defined(PEGASUS_PLATFORM_SOLARIS_X86_64_CC)
+    defined(PEGASUS_PLATFORM_SOLARIS_X86_64_CC) || \
+    defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
 # include <unistd.h>
 #endif
 

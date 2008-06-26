@@ -57,7 +57,8 @@
 #endif
 
 #if defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC) || \
-    defined(PEGASUS_PLATFORM_SOLARIS_X86_64_CC)
+    defined(PEGASUS_PLATFORM_SOLARIS_X86_64_CC) || \
+    defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
 # include <string.h>
 # include <stdio.h>
 #endif
@@ -231,7 +232,8 @@ inline void Threads::yield()
     defined(PEGASUS_OS_ZOS) || \
     defined(PEGASUS_OS_DARWIN) || \
     defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC) || \
-    defined(PEGASUS_PLATFORM_SOLARIS_X86_64_CC)
+    defined(PEGASUS_PLATFORM_SOLARIS_X86_64_CC) || \
+    defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
     sched_yield();
 #else
     pthread_yield();

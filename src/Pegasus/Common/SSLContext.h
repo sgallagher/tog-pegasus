@@ -77,15 +77,34 @@ class PEGASUS_COMMON_LINKAGE SSLCallbackInfo
 {
 public:
 
-    // index to the application-specific data in the SSL connection object
+    /**
+        Index to the application-specific data in the SSL connection object.
+    */
     static const int SSL_CALLBACK_INDEX;
 
+    /**
+        Constructs an SSLCallbackInfo object with a specified certificate
+        verification function.
+        @param verifyCert A SSLCertificateVerifyFunction pointer specifying
+            the callback function to use to verify a certificate.
+    */
     SSLCallbackInfo(SSLCertificateVerifyFunction* verifyCert);
 
+    /**
+        Constructs an SSLCallbackInfo object with a specified certificate
+        verification function and CRL store.
+        @param verifyCert A SSLCertificateVerifyFunction pointer specifying
+            the callback function to use to verify a certificate.
+        @param crlStore An X509_STORE pointer specifying a CRL store to check
+            whether a certificate has been revoked.
+    */
     SSLCallbackInfo(
         SSLCertificateVerifyFunction* verifyCert,
         X509_STORE* crlStore);
 
+    /**
+        Destructs an SSLCallbackInfo object.
+    */
     ~SSLCallbackInfo();
 
 private:
@@ -115,47 +134,80 @@ class PEGASUS_COMMON_LINKAGE SSLCertificateInfo
 {
 public:
 
-    //
-    // Certificate validation result codes.
-    //
+    /**
+        Certificate validation result code corresponding to the OpenSSL error
+        code X509_V_OK.
+    */
     static const int V_OK;
 
+    /** OpenSSL error code X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT. */
     static const int V_ERR_UNABLE_TO_GET_ISSUER_CERT;
+    /** OpenSSL error code X509_V_ERR_UNABLE_TO_GET_CRL. */
     static const int V_ERR_UNABLE_TO_GET_CRL;
+    /** OpenSSL error code X509_V_ERR_UNABLE_TO_DECRYPT_CERT_SIGNATURE. */
     static const int V_ERR_UNABLE_TO_DECRYPT_CERT_SIGNATURE;
+    /** OpenSSL error code X509_V_ERR_UNABLE_TO_DECRYPT_CRL_SIGNATURE. */
     static const int V_ERR_UNABLE_TO_DECRYPT_CRL_SIGNATURE;
+    /** OpenSSL error code X509_V_ERR_UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY. */
     static const int V_ERR_UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY;
+    /** OpenSSL error code X509_V_ERR_CERT_SIGNATURE_FAILURE. */
     static const int V_ERR_CERT_SIGNATURE_FAILURE;
+    /** OpenSSL error code X509_V_ERR_CRL_SIGNATURE_FAILURE. */
     static const int V_ERR_CRL_SIGNATURE_FAILURE;
+    /** OpenSSL error code X509_V_ERR_CERT_NOT_YET_VALID. */
     static const int V_ERR_CERT_NOT_YET_VALID;
+    /** OpenSSL error code X509_V_ERR_CERT_HAS_EXPIRED. */
     static const int V_ERR_CERT_HAS_EXPIRED;
+    /** OpenSSL error code X509_V_ERR_CRL_NOT_YET_VALID. */
     static const int V_ERR_CRL_NOT_YET_VALID;
+    /** OpenSSL error code X509_V_ERR_CRL_HAS_EXPIRED. */
     static const int V_ERR_CRL_HAS_EXPIRED;
+    /** OpenSSL error code X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD. */
     static const int V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD;
+    /** OpenSSL error code X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD. */
     static const int V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD;
+    /** OpenSSL error code X509_V_ERR_ERROR_IN_CRL_LAST_UPDATE_FIELD. */
     static const int V_ERR_ERROR_IN_CRL_LAST_UPDATE_FIELD;
+    /** OpenSSL error code X509_V_ERR_ERROR_IN_CRL_NEXT_UPDATE_FIELD. */
     static const int V_ERR_ERROR_IN_CRL_NEXT_UPDATE_FIELD;
+    /** OpenSSL error code X509_V_ERR_OUT_OF_MEM. */
     static const int V_ERR_OUT_OF_MEM;
+    /** OpenSSL error code X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT. */
     static const int V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT;
+    /** OpenSSL error code X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN. */
     static const int V_ERR_SELF_SIGNED_CERT_IN_CHAIN;
+    /** OpenSSL error code X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY. */
     static const int V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY;
+    /** OpenSSL error code X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE. */
     static const int V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE;
+    /** OpenSSL error code X509_V_ERR_CERT_CHAIN_TOO_LONG. */
     static const int V_ERR_CERT_CHAIN_TOO_LONG;
+    /** OpenSSL error code X509_V_ERR_CERT_REVOKED. */
     static const int V_ERR_CERT_REVOKED;
+    /** OpenSSL error code X509_V_ERR_INVALID_CA. */
     static const int V_ERR_INVALID_CA;
+    /** OpenSSL error code X509_V_ERR_PATH_LENGTH_EXCEEDED. */
     static const int V_ERR_PATH_LENGTH_EXCEEDED;
+    /** OpenSSL error code X509_V_ERR_INVALID_PURPOSE. */
     static const int V_ERR_INVALID_PURPOSE;
+    /** OpenSSL error code X509_V_ERR_CERT_UNTRUSTED. */
     static const int V_ERR_CERT_UNTRUSTED;
+    /** OpenSSL error code X509_V_ERR_CERT_REJECTED. */
     static const int V_ERR_CERT_REJECTED;
+    /** OpenSSL error code X509_V_ERR_SUBJECT_ISSUER_MISMATCH. */
     static const int V_ERR_SUBJECT_ISSUER_MISMATCH;
+    /** OpenSSL error code X509_V_ERR_AKID_SKID_MISMATCH. */
     static const int V_ERR_AKID_SKID_MISMATCH;
+    /** OpenSSL error code X509_V_ERR_AKID_ISSUER_SERIAL_MISMATCH. */
     static const int V_ERR_AKID_ISSUER_SERIAL_MISMATCH;
+    /** OpenSSL error code X509_V_ERR_KEYUSAGE_NO_CERTSIGN. */
     static const int V_ERR_KEYUSAGE_NO_CERTSIGN;
 
+    /** OpenSSL error code X509_V_ERR_APPLICATION_VERIFICATION. */
     static const int V_ERR_APPLICATION_VERIFICATION;
 
 
-    /** Constructor for a SSLCertificateInfo object.
+    /** Constructor for an SSLCertificateInfo object.
         Note: Do not use this constructor, instead use the private constructor.
         The constructor is not for client applications use, it is intended to be
         used only by the CIMServer.
@@ -174,7 +226,7 @@ public:
         const int errorCode,
         const int respCode);
 
-    /** Copy constructor for a SSLCertificateInfo object.
+    /** Copy constructor for an SSLCertificateInfo object.
         @param certificateInfo SSLCertificateInfo object to copy
     */
     SSLCertificateInfo(const SSLCertificateInfo& certificateInfo);
@@ -252,7 +304,7 @@ public:
 
 private:
 
-    /** Constructor for a SSLCertificateInfo object.
+    /** Constructor for an SSLCertificateInfo object.
         @param subjectName subject name of the certificate.
         @param issuerName  issuer name of the certificate.
         @param version version number value from the certificate.
@@ -301,7 +353,7 @@ class PEGASUS_COMMON_LINKAGE SSLContext
 {
 public:
 
-    /** Constructor for a SSLContext object.
+    /** Constructor for an SSLContext object.
         @param trustStore file path of the trust store
         @param verifyCert  function pointer to a certificate verification
         call back function.  A null pointer indicates that no callback is
@@ -327,8 +379,15 @@ public:
         SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile = String::EMPTY);
 
+    /**
+        Constructs an SSLContext by copying another SSLContext object.
+        @param sslContext The SSLContext object to copy
+    */
     SSLContext(const SSLContext& sslContext);
 
+    /**
+        Destructs an SSLContext object.
+    */
     ~SSLContext();
 
     /** Gets the truststore path of the SSLContext object.  This may be a
@@ -347,13 +406,11 @@ public:
     */
     String getKeyPath() const;
 
-    //PEP187
     /** Gets the certificate revocation list path of the SSLContext object.
         @return a string containing the crl path
     */
     String getCRLPath() const;
 
-    //PEP187
     /** Gets the certificate revocation store of the SSLContext object.
         @return a string containing the crl store
     */
@@ -380,7 +437,7 @@ public:
     */
     SSLCertificateVerifyFunction* getSSLCertificateVerifyFunction() const;
 
-    /** Constructor for a SSLContext object. This constructor is intended
+    /** Constructor for an SSLContext object. This constructor is intended
         to be used by the CIMServer or CIMClient.
         @param trustStore file path of the trust store.
         @param certPath  file path of the server certificate.
@@ -412,8 +469,7 @@ public:
         const String& randomFile);
 
 
-    //PEP187
-    /** Constructor for a SSLContext object. This constructor is intended
+    /** Constructor for an SSLContext object. This constructor is intended
         to be used by the CIMServer or CIMClient.
         @param trustStore file path of the trust store.
         @param certPath  file path of the server certificate.
@@ -447,7 +503,7 @@ public:
         const String& randomFile);
 
 #ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-    /** Constructor for a SSLContextRep object.
+    /** Constructor for an SSLContextRep object.
         @param trustStore  trust store file path
         @param certPath  server certificate file path
         @param keyPath  server key file path

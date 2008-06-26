@@ -96,10 +96,19 @@ public:
 
 protected:
 
+    /**
+        The default constructor is not available for the ResponseHandler class.
+    */
     ResponseHandler();
 
+    /**
+        The copy constructor is not available for the ResponseHandler class.
+    */
     ResponseHandler(const ResponseHandler& handler);
 
+    /**
+        The assignment operator is not available for the ResponseHandler class.
+    */
     ResponseHandler& operator=(const ResponseHandler& handler);
 
     /**

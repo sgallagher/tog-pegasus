@@ -47,39 +47,13 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-    Functions that support the invocation of methods defined
-    for a CIM class.
+    This class defines a set of functions that support the invocation of
+    extrinsic methods on a CIM class or instance.
 
-    <p>The <i>Method Provider</i> supports the client InvokeMethod
-    operation that invokes any method(s)
-    defined on a CIM class of object. In addition to the
-    methods from the {@link CIMProvider CIMProvider}
-    interface that the functions inherit, the Method Provider interface
-    defines one function:</p>
-
-    <ul>
-    <li>{@link invokeMethod invokeMethod}</li>
-    </ul>
-
-    <p>The arguments to <tt>invokeMethod</tt> specify the instance
-    that the method invokes, the method name, and its
-    parameters.</p>
-
-    <p>Providers that derive from this class <i>must</i> implement
-    all of these functions. A minimal implementation of <tt>invokeMethod</tt>
-    may throw a {@link CIMNotSupportedException CIMNotSupportedException}
-    exception.</p>
-
-    <p>A method provider is not required to implement all of the
-    CIM methods defined for a class; there can be more than one
-    method provider for a class. Each provider
-    may implement a subset of the defined methods, leaving other
-    methods providers to implemente methods. No method
-    can be implemented by more than one provider. The
-    methods that are implemented by a provider must be specified to
-    the CIM Server through provider registration in the
-    <tt>SupportedMethods</tt> property of an instance of the
-    <tt>PG_ProviderCapabilities</tt> class.</p>
+    <p>A method provider is not required to implement all the methods defined
+    for a CIM class.  Multiple method providers may be registered for methods
+    of the same class, but not for the same method.  (See the
+    SupportedMethods property of the PG_ProviderCapabilities class.)</p>
 */
 class PEGASUS_PROVIDER_LINKAGE CIMMethodProvider : public virtual CIMProvider
 {
@@ -94,30 +68,22 @@ public:
     virtual ~CIMMethodProvider();
 
     /**
-        Invoke the specified method on the specified instance.
-
-        <p>Instructs the provider to invoke the method specified in the
-        <tt>methodName</tt> parameter on the object
-        specified in the <tt>objectReference</tt> parameter.
+        Invokes the specified method on the specified class or instance.
 
         @param context Specifies the client user's context for this operation,
-        including the user ID.
-
+            including the user ID.
         @param objectReference Specifies the fully qualified object path
-        of the class or instance of interest.
-
+            of the class or instance of interest.
         @param methodName Specifies the name of the method of interest.
-
         @param inParameters Specifies the input parameters of the method.
-
         @param handler A {@link ResponseHandler ResponseHandler} object used
-        to deliver results to the CIM Server.
+            to deliver results to the CIM Server.
 
         @exception CIMNotSupportedException If the method is not supported.
-        @exception CIMInvalidParameterException If the parameter is invalid.
+        @exception CIMInvalidParameterException If a parameter is invalid.
         @exception CIMObjectNotFoundException If the object is not found.
         @exception CIMAccessDeniedException If the user requesting the action
-        is not authorized to perform the action.
+            is not authorized to perform the action.
         @exception CIMOperationFailedException If the operation fails.
     */
     virtual void invokeMethod(

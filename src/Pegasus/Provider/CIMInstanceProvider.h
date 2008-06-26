@@ -44,21 +44,21 @@
 #include <Pegasus/Provider/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
-/** This class defines a set of functions that support the
-manipulation of instances of a CIM object class and their
-properties.
 
-<p>The Instance Provider is the most common provider, and
-is the provider interface used by the CIM Server to perform instance
-and property manipulation operations.</p>
+/**
+    This class defines a set of functions that support the manipulation of
+    instances of a CIM object class and their properties.
 
-<p>The Instance Provider receives operation requests from
-clients through calls to these functions by the CIM Server. Its
-purpose is to convert these to calls to system services,
-operations on system resources, or whatever platform-specific
-behavior is required to perform the operation modeled by
-the request. The specific requirements for each of the interface
-functions are discussed in their respective sections.</p>
+    <p>The Instance Provider is the most common provider, and is the provider
+    interface used by the CIM Server to perform instance and property
+    manipulation operations.</p>
+
+    <p>The Instance Provider receives operation requests from clients through
+    calls to these functions by the CIM Server. Its purpose is to convert
+    these to calls to system services, operations on system resources, or
+    whatever platform-specific behavior is required to perform the operation
+    modeled by the request. The specific requirements for each of the interface
+    functions are discussed in their respective sections.</p>
 */
 class PEGASUS_PROVIDER_LINKAGE CIMInstanceProvider : public virtual CIMProvider
 {

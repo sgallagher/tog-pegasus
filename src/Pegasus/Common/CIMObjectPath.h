@@ -56,7 +56,21 @@ class PEGASUS_COMMON_LINKAGE CIMKeyBinding
 {
 public:
 
-    enum Type { BOOLEAN, STRING, NUMERIC, REFERENCE };
+    /**
+        The CIMKeyBinding Type corresponds to the CIM-XML key binding
+        definition, in which the CIMType values are mapped into categories.
+    */
+    enum Type
+    {
+        /** Boolean type */
+        BOOLEAN,
+        /** String, Char16, and CIMDateTime types */
+        STRING,
+        /** Integer and real number types */
+        NUMERIC,
+        /** CIMObjectPath (reference) type */
+        REFERENCE
+    };
 
     /**
         Constructs a CIMKeyBinding object with null values.

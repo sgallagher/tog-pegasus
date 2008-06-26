@@ -163,6 +163,9 @@ public:
     void remove(const String& containerName);
 
 protected:
+    /**
+        An internal representation of the OperationContext attributes.
+    */
     OperationContextRep* _rep;
 };
 
@@ -242,6 +245,9 @@ public:
     String getUserName() const;
 
 protected:
+    /**
+        An internal representation of the IdentityContainer attributes.
+    */
     IdentityContainerRep* _rep;
 
 private:
@@ -329,6 +335,10 @@ public:
     CIMInstance getInstance() const;
 
 protected:
+    /**
+        An internal representation of the SubscriptionInstanceContainer
+        attributes.
+    */
     SubscriptionInstanceContainerRep* _rep;
 
 private:
@@ -435,6 +445,10 @@ public:
     String getQueryLanguage() const;
 
 protected:
+    /**
+        An internal representation of the SubscriptionFilterConditionContainer
+        attributes.
+    */
     SubscriptionFilterConditionContainerRep* _rep;
 
 private:
@@ -550,6 +564,10 @@ public:
     CIMNamespaceName getSourceNameSpace() const;
 
 protected:
+    /**
+        An internal representation of the SubscriptionFilterQueryContainer
+        attributes.
+    */
     SubscriptionFilterQueryContainerRep* _rep;
 
 private:
@@ -644,6 +662,10 @@ public:
     Array<CIMObjectPath> getInstanceNames() const;
 
 protected:
+    /**
+        An internal representation of the SubscriptionInstanceNamesContainer
+        attributes.
+    */
     SubscriptionInstanceNamesContainerRep* _rep;
 
 private:
@@ -705,6 +727,9 @@ public:
     Uint32 getTimeOut() const;
 
 protected:
+    /**
+        An internal representation of the TimeoutContainer timeout value.
+    */
     Uint32 _value;
 
 private:
@@ -793,6 +818,10 @@ public:
     AcceptLanguageList getLanguages() const;
 
 protected:
+    /**
+        An internal representation of the AcceptLanguageListContainer
+        attributes.
+    */
     AcceptLanguageListContainerRep* _rep;
 
 private:
@@ -882,6 +911,10 @@ public:
     ContentLanguageList getLanguages() const;
 
 protected:
+    /**
+        An internal representation of the ContentLanguageListContainer
+        attributes.
+    */
     ContentLanguageListContainerRep* _rep;
 
 private:
@@ -964,6 +997,9 @@ public:
     String getSnmpTrapOid() const;
 
 protected:
+    /**
+        An internal representation of the SnmpTrapOidContainer attributes.
+    */
     SnmpTrapOidContainerRep* _rep;
 
 private:

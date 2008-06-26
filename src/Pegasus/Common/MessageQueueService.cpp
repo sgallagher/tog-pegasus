@@ -209,7 +209,7 @@ MessageQueueService::MessageQueueService(
             "Common.MessageQueueService.UNABLE_TO_REGISTER",
             "CIM base message queue service is unable to register with the "
                 "CIMOM dispatcher.");
-        throw BindFailedException(parms);
+        throw Exception(parms);
     }
 
     _get_polling_list()->insert_back(this);

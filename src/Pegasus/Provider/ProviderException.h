@@ -41,10 +41,10 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-    Parent class for exceptions thrown by providers.
+    Base class for exceptions thrown by providers.
 
     <p>The <tt>CIMOperationFailedException</tt> class is an exception class,
-    and the parent class from which exceptions that can be thrown
+    and is the base class from which exceptions that can be thrown
     by providers are derived. It may also be thrown directly by
     providers to signal a generic operation failure.</p>
 
@@ -65,10 +65,10 @@ class PEGASUS_PROVIDER_LINKAGE CIMOperationFailedException
 {
 public:
     /**
-    Generic operation failure.
-
-    <p>This exception will cause a <tt>CIM_ERR_FAILED</tt>
-    status code to be returned to the client.</p>
+        Constructs a CIMOperationFailedException to indicate a generic
+        operation failure.  This exception corresponds to the CIM_ERR_FAILED
+        status code.
+        @param message A message String containing an error description
     */
     CIMOperationFailedException(const String& message);
 
@@ -81,6 +81,13 @@ public:
 #endif
 
 protected:
+    /**
+        Constructs a CIMOperationFailedException with a specified status code
+        and error description.
+        @param code A CIMStatusCode containing a DMTF defined status code
+            specifying the type of the error
+        @param message A message String containing an error description
+    */
     CIMOperationFailedException(
         const CIMStatusCode code,
         const String& message);
@@ -93,14 +100,17 @@ protected:
 };
 
 /**
-    Cause a <tt>CIM_ERR_ACCESS_DENIED</tt> status code to be
-    returned to the client.
+    A CIMAccessDeniedException indicates an access permission error.
+    This exception corresponds to the CIM_ERR_ACCESS_DENIED status code.
 */
 class PEGASUS_PROVIDER_LINKAGE CIMAccessDeniedException
     : public CIMOperationFailedException
 {
 public:
-    ///
+    /**
+        Constructs a CIMAccessDeniedException with a specified error message.
+        @param message A message String containing an error description
+    */
     CIMAccessDeniedException(const String& message);
 
 #ifdef PEGASUS_INTERNALONLY
@@ -109,14 +119,19 @@ public:
 };
 
 /**
-    Cause a <tt>CIM_ERR_INVALID_PARAMETER</tt> status code to be
-    returned to the client.
+    A CIMInvalidParameterException indicates an error with an operation
+    parameter.  This exception corresponds to the CIM_ERR_INVALID_PARAMETER
+    status code.
 */
 class PEGASUS_PROVIDER_LINKAGE CIMInvalidParameterException
     : public CIMOperationFailedException
 {
 public:
-    ///
+    /**
+        Constructs a CIMInvalidParameterException with a specified error
+        message.
+        @param message A message String containing an error description
+    */
     CIMInvalidParameterException(const String& message);
 
 #ifdef PEGASUS_INTERNALONLY
@@ -126,13 +141,18 @@ public:
 
 #if 0
 /**
-    Cause a <tt>CIM_ERR_INVALID_CLASS</tt> status code to be
-    returned to the client.
+    A CIMInvalidClassException indicates a class was specified that does not
+    exist.  This exception corresponds to the CIM_ERR_INVALID_CLASS status
+    code.
 */
 class PEGASUS_PROVIDER_LINKAGE CIMInvalidClassException
     : public CIMOperationFailedException
 {
 public:
+    /**
+        Constructs a CIMInvalidClassException with a specified error message.
+        @param message A message String containing an error description
+    */
     CIMInvalidClassException(const String& message);
 
 #ifdef PEGASUS_INTERNALONLY
@@ -142,14 +162,17 @@ public:
 #endif
 
 /**
-    Cause a <tt>CIM_ERR_NOT_FOUND</tt> status code to be
-    returned to the client.
+    A CIMObjectNotFoundException indicates that a requested object was not
+    found.  This exception corresponds to the CIM_ERR_NOT_FOUND status code.
 */
 class PEGASUS_PROVIDER_LINKAGE CIMObjectNotFoundException
     : public CIMOperationFailedException
 {
 public:
-    ///
+    /**
+        Constructs a CIMObjectNotFoundException with a specified error message.
+        @param message A message String containing an error description
+    */
     CIMObjectNotFoundException(const String& message);
 
 #ifdef PEGASUS_INTERNALONLY
@@ -158,14 +181,18 @@ public:
 };
 
 /**
-    Cause a <tt>CIM_ERR_NOT_SUPPORTED</tt> status code to be
-    returned to the client.
+    A CIMNotSupportedException indicates that a requested operation is not
+    supported.  This exception corresponds to the CIM_ERR_NOT_SUPPORTED status
+    code.
 */
 class PEGASUS_PROVIDER_LINKAGE CIMNotSupportedException
     : public CIMOperationFailedException
 {
 public:
-    ///
+    /**
+        Constructs a CIMNotSupportedException with a specified error message.
+        @param message A message String containing an error description
+    */
     CIMNotSupportedException(const String& message);
 
 #ifdef PEGASUS_INTERNALONLY
@@ -174,14 +201,19 @@ public:
 };
 
 /**
-    Cause a <tt>CIM_ERR_ALREADY_EXISTS</tt> status code to be
-    returned to the client.
+    A CIMObjectAlreadyExistsException indicates that an operation could not be
+    completed because a specified object already exists.  This exception
+    corresponds to the CIM_ERR_ALREADY_EXISTS status code.
 */
 class PEGASUS_PROVIDER_LINKAGE CIMObjectAlreadyExistsException
     : public CIMOperationFailedException
 {
 public:
-    ///
+    /**
+        Constructs a CIMObjectAlreadyExistsException with a specified error
+        message.
+        @param message A message String containing an error description
+    */
     CIMObjectAlreadyExistsException(const String& message);
 
 #ifdef PEGASUS_INTERNALONLY
@@ -190,14 +222,19 @@ public:
 };
 
 /**
-    Cause a <tt>CIM_ERR_NO_SUCH_PROPERTY</tt> status code to be
-    returned to the client.
+    A CIMPropertyNotFoundException indicates that a property was specified
+    which does not exist.  This exception corresponds to the
+    CIM_ERR_NO_SUCH_PROPERTY status code.
 */
 class PEGASUS_PROVIDER_LINKAGE CIMPropertyNotFoundException
     : public CIMOperationFailedException
 {
 public:
-    ///
+    /**
+        Constructs a CIMPropertyNotFoundException with a specified error
+        message.
+        @param message A message String containing an error description
+    */
     CIMPropertyNotFoundException(const String& message);
 
 #ifdef PEGASUS_INTERNALONLY
@@ -208,13 +245,18 @@ public:
 #if 0
 // Query operations are not yet supported in Pegasus
 /**
-    Cause a <tt>CIM_ERR_INVALID_QUERY</tt> status code to be
-    returned to the client.
+    A CIMInvalidQueryException indicates that a query is not valid for a
+    specified query language.  This exception corresponds to the
+    CIM_ERR_INVALID_QUERY status code.
 */
 class PEGASUS_PROVIDER_LINKAGE CIMInvalidQueryException
     : public CIMOperationFailedException
 {
 public:
+    /**
+        Constructs a CIMInvalidQueryException with a specified error message.
+        @param message A message String containing an error description
+    */
     CIMInvalidQueryException(const String& message);
 
 #ifdef PEGASUS_INTERNALONLY
@@ -224,14 +266,18 @@ public:
 #endif
 
 /**
-    Cause a <tt>CIM_ERR_METHOD_NOT_FOUND</tt> status code to be
-    returned to the client.
+    A CIMMethodNotFoundException indicates that a specified extrinsic method
+    does not exist.  This exception corresponds to the CIM_ERR_METHOD_NOT_FOUND
+    status code.
 */
 class PEGASUS_PROVIDER_LINKAGE CIMMethodNotFoundException
     : public CIMOperationFailedException
 {
 public:
-    ///
+    /**
+        Constructs a CIMMethodNotFoundException with a specified error message.
+        @param message A message String containing an error description
+    */
     CIMMethodNotFoundException(const String& message);
 
 #ifdef PEGASUS_INTERNALONLY

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,15 +40,12 @@
 #include "CMPI_Value.h"
 #include "CMPIProviderManager.h"
 #include "CMPI_String.h"
-#include <Pegasus/ProviderManager2/CMPI/CMPIClassCache.h>
-#include <Pegasus/ProviderManager2/CMPI/CMPI_ThreadContext.h>
 
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMType.h>
-#include "CMPISCMOUtilities.h"
 
 
 PEGASUS_USING_STD;
@@ -68,10 +67,10 @@ static const CMPIUint32 MB_CAPABILITIES =
 #define HandlerCatchSetStatus(rc, returnvalue) \
     catch (const CIMException &e) \
     { \
-        PEG_TRACE(( \
+        PEG_TRACE_STRING( \
             TRC_CMPIPROVIDERINTERFACE, \
-            Tracer::LEVEL1, \
-            "CIMException: %s",(const char*)e.getMessage().getCString())); \
+            Tracer::LEVEL2, \
+            "CIMException: " + e.getMessage()); \
         CMSetStatusWithString( \
             rc, \
             (CMPIrc)e.getCode(), \
@@ -109,10 +108,10 @@ static const CMPIUint32 MB_CAPABILITIES =
 #define HandlerCatchReturnStatus() \
     catch (const CIMException &e) \
     { \
-        PEG_TRACE(( \
+        PEG_TRACE_STRING( \
             TRC_CMPIPROVIDERINTERFACE, \
             Tracer::LEVEL2, \
-            "CIMException: %s",(const char*)e.getMessage().getCString())); \
+            "CIMException: " + e.getMessage()); \
         PEG_METHOD_EXIT(); \
         CMReturnWithString( \
             (CMPIrc)e.getCode(), \
@@ -156,42 +155,59 @@ static CIMPropertyList getList(const char** l)
     return pl;
 }
 
-SCMOClass* mbGetSCMOClass(
-    const char* nameSpace,
-    Uint32 nsL,
-    const char* cls,
-    Uint32 clsL)
+CIMClass* mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop)
 {
-    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPI_Broker:mbGetSCMOClass()");
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPI_Broker:mbGetClass()");
 
-    const CMPIBroker * mb = CMPI_ThreadContext::getBroker();
-    CMPI_Broker *xBroker = (CMPI_Broker*)mb;
+    mb=CM_BROKER;
+    CMPI_Broker *xBroker=(CMPI_Broker*)mb;
+    String clsId =
+        cop.getNameSpace().getString()+":"+cop.getClassName().getString();
+    CIMClass *ccp;
 
-    const char* ns=nameSpace;
-    if (0 == nsL)
     {
-        //If we don't have a namespace here, we use the initnamespace from
-        // the thread context, since we need one to be able to lookup the class
-        const CMPIContext* ctx = CMPI_ThreadContext::getContext();
-        if (0!=ctx)
-        {
-            CMPIStatus rc;
-            CMPIData nsCtxData = CMGetContextEntry(ctx, CMPIInitNameSpace,&rc);
-            if (rc.rc == CMPI_RC_OK)
-            {
-                ns = CMGetCharsPtr(nsCtxData.value.string, 0);
-                nsL = strlen(ns);
-            }
-        }
+        ReadLock readLock (xBroker->rwsemClassCache);
 
+        if (xBroker->clsCache->lookup(clsId,ccp))
+        {
+            PEG_METHOD_EXIT();
+            return ccp;
+        }
     }
 
+    try
+    {
+        WriteLock writeLock (xBroker->rwsemClassCache);
 
-    SCMOClass* scmoCls =
-        xBroker->classCache.getSCMOClass(xBroker, ns, nsL, cls, clsL);
+        if (xBroker->clsCache->lookup(clsId,ccp))
+        {
+            PEG_METHOD_EXIT();
+            return ccp;
+        }
 
+        CIMClass cc = CM_CIMOM(mb)->getClass(
+            OperationContext(),
+            cop.getNameSpace(),
+            cop.getClassName(),
+            (bool)0,
+            (bool)1,
+            (bool)0,
+            CIMPropertyList());
+
+        ccp = new CIMClass(cc);
+        xBroker->clsCache->insert(clsId,ccp);
+        PEG_METHOD_EXIT();
+        return ccp;
+    }
+    catch (const CIMException &e)
+    {
+        PEG_TRACE_STRING(
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "Exception: " + e.getMessage());
+    }
     PEG_METHOD_EXIT();
-    return scmoCls;
+    return NULL;
 }
 
 extern "C"
@@ -212,37 +228,27 @@ extern "C"
         CMPIFlags flgs =
             ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
         const CIMPropertyList props = getList(properties);
+        CIMObjectPath qop(
+            String::EMPTY,
+            CIMNamespaceName(),
+            CM_ObjectPath(cop)->getClassName(),
+            CM_ObjectPath(cop)->getKeyBindings());
 
-        SCMOInstance* scmoObjPath = SCMO_ObjectPath(cop);
-        CIMObjectPath qop;
         try
         {
-            scmoObjPath->getCIMObjectPath(qop);
-
-            CIMResponseData resData = CM_CIMOM(mb)->getInstance(
-                *CM_Context(ctx),
-                scmoObjPath->getNameSpace(),
-                qop,
+            CIMInstance ci = CM_CIMOM(mb)->getInstance(
+                OperationContext(*CM_Context(ctx)),
+                CM_ObjectPath(cop)->getNameSpace(),
+                qop, //*CM_ObjectPath(cop),
+                CM_LocalOnly(flgs),
                 CM_IncludeQualifiers(flgs),
                 CM_ClassOrigin(flgs),
                 props);
 
-            // When running out of process the returned instances don't contain
-            // a namespace.
-            // Add the namespace from the input parameters where neccessary
-            resData.completeNamespace(SCMO_ObjectPath(cop));
-
-            SCMOInstance& scmoOrgInst = resData.getSCMO()[0];
-
-            SCMOInstance* scmoInst = new SCMOInstance(scmoOrgInst);
-
-            // Rebuild the objectPath
-            scmoInst->buildKeyBindingsFromProperties();
-
-            CMPIInstance* cmpiInst = reinterpret_cast<CMPIInstance*>(
-                new CMPI_Object(scmoInst,CMPI_Object::ObjectTypeInstance));
-
+            ci.setPath(*CM_ObjectPath(cop));
             CMSetStatus(rc,CMPI_RC_OK);
+            CMPIInstance* cmpiInst = reinterpret_cast<CMPIInstance*>(
+                new CMPI_Object(new CIMInstance(ci)));
             PEG_METHOD_EXIT();
             return cmpiInst;
         }
@@ -264,26 +270,15 @@ extern "C"
 
         mb = CM_BROKER;
 
-        SCMOInstance* scmoInst = SCMO_Instance(ci);
-        CIMInstance inst;
         try
         {
-            scmoInst->getCIMInstance(inst);
-
             CIMObjectPath ncop = CM_CIMOM(mb)->createInstance(
-                *CM_Context(ctx),
-                scmoInst->getNameSpace(),
-                inst);
-
-            SCMOInstance* newScmoInst=
-                CMPISCMOUtilities::getSCMOFromCIMObjectPath(
-                    ncop,
-                    scmoInst->getNameSpace());
-
-            CMPIObjectPath* cmpiObjPath = reinterpret_cast<CMPIObjectPath*>(
-                new CMPI_Object(newScmoInst,CMPI_Object::ObjectTypeObjectPath));
-
+                OperationContext(*CM_Context(ctx)),
+                CM_ObjectPath(cop)->getNameSpace(),
+                *CM_Instance(ci));
             CMSetStatus(rc,CMPI_RC_OK);
+            CMPIObjectPath* cmpiObjPath = reinterpret_cast<CMPIObjectPath*>(
+                new CMPI_Object(new CIMObjectPath(ncop)));
             PEG_METHOD_EXIT();
             return cmpiObjPath;
         }
@@ -307,16 +302,14 @@ extern "C"
             ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
         const CIMPropertyList props = getList(properties);
 
-        SCMOInstance* scmoInst = SCMO_Instance(ci);
-        CIMInstance inst;
         try
         {
-            scmoInst->getCIMInstance(inst);
-
+            CIMInstance cmi(*CM_Instance(ci));
+            cmi.setPath(*CM_ObjectPath(cop));
             CM_CIMOM(mb)->modifyInstance(
-                *CM_Context(ctx),
-                SCMO_ObjectPath(cop)->getNameSpace(),
-                inst,
+                OperationContext(*CM_Context(ctx)),
+                CM_ObjectPath(cop)->getNameSpace(),
+                cmi,
                 CM_IncludeQualifiers(flgs),
                 props);
         }
@@ -335,17 +328,17 @@ extern "C"
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Broker:mbDeleteInstance()");
         mb = CM_BROKER;
+        CIMObjectPath qop(
+            String::EMPTY,CIMNamespaceName(),
+            CM_ObjectPath(cop)->getClassName(),
+            CM_ObjectPath(cop)->getKeyBindings());
 
-        SCMOInstance* scmoObjPath = SCMO_ObjectPath(cop);
-        CIMObjectPath qop;
         try
         {
-            scmoObjPath->getCIMObjectPath(qop);
-
             CM_CIMOM(mb)->deleteInstance(
-                *CM_Context(ctx),
-                SCMO_ObjectPath(cop)->getNameSpace(),
-                qop);
+                OperationContext(*CM_Context(ctx)),
+                CM_ObjectPath(cop)->getNameSpace(),
+                qop); //*CM_ObjectPath(cop));
         }
         HandlerCatchReturnStatus();
 
@@ -366,25 +359,16 @@ extern "C"
 
         try
         {
-            CIMResponseData resData = CM_CIMOM(mb)->execQuery(
-                *CM_Context(ctx),
-                SCMO_ObjectPath(cop)->getNameSpace(),
+            Array<CIMObject> const &en = CM_CIMOM(mb)->execQuery(
+                OperationContext(*CM_Context(ctx)),
+                CM_ObjectPath(cop)->getNameSpace(),
                 String(lang),
                 String(query));
+                CMSetStatus(rc,CMPI_RC_OK);
 
-            // When running out of process the returned instances don't contain
-            // a namespace.
-            // Add the namespace from the input parameters where neccessary
-            resData.completeNamespace(SCMO_ObjectPath(cop));
-
-            Array<SCMOInstance>* aObj =
-                new Array<SCMOInstance>(resData.getSCMO());
-
-
-            CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
-                new CMPI_Object(new CMPI_ObjEnumeration(aObj)));
-
-            CMSetStatus(rc,CMPI_RC_OK);
+            CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*> (
+                new CMPI_Object(
+                new CMPI_ObjEnumeration(new Array<CIMObject>(en))));
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
@@ -411,28 +395,35 @@ extern "C"
 
         try
         {
-            CIMResponseData resData =
+            Array<CIMInstance> const &en =
                 CM_CIMOM(mb)->enumerateInstances(
-                    *CM_Context(ctx),
-                    SCMO_ObjectPath(cop)->getNameSpace(),
-                    SCMO_ObjectPath(cop)->getClassName(),
-                    true,
+                    OperationContext(*CM_Context(ctx)),
+                    CM_ObjectPath(cop)->getNameSpace(),
+                    CM_ObjectPath(cop)->getClassName(),
+                    CM_DeepInheritance(flgs),
+                    CM_LocalOnly(flgs),
                     CM_IncludeQualifiers(flgs),
                     CM_ClassOrigin(flgs),
                     props);
 
-            // When running out of process the returned instances don't contain
-            // a namespace.
-            // Add the namespace from the input parameters where neccessary
-            resData.completeNamespace(SCMO_ObjectPath(cop));
+            CMSetStatus(rc,CMPI_RC_OK);
 
-            Array<SCMOInstance>* aInst =
-                new Array<SCMOInstance>(resData.getSCMO());
+            // Workaround for bugzilla 4677
+            // When running out of process the returned instances don't contain
+            // a name space. Create a writable copy of the array and add the
+            // namespace from the input parameters.
+
+            Array<CIMInstance> * aInst = new Array<CIMInstance>(en);
+            for (unsigned int index=0; index < aInst->size(); index++)
+            {
+                CIMInstance& myInst = (*aInst)[index];
+                CIMObjectPath orgCop = myInst.getPath();
+                orgCop.setNameSpace(CM_ObjectPath(cop)->getNameSpace());
+                (*aInst)[index].setPath(orgCop);
+            }
 
             CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
                 new CMPI_Object(new CMPI_InstEnumeration(aInst)));
-
-            CMSetStatus(rc,CMPI_RC_OK);
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
@@ -454,25 +445,24 @@ extern "C"
 
         try
         {
-            CIMResponseData resData =
+            Array<CIMObjectPath> const &en =
                 CM_CIMOM(mb)->enumerateInstanceNames(
-                    *CM_Context(ctx),
-                    SCMO_ObjectPath(cop)->getNameSpace(),
-                    SCMO_ObjectPath(cop)->getClassName());
+                    OperationContext(*CM_Context(ctx)),
+                    CM_ObjectPath(cop)->getNameSpace(),
+                    CM_ObjectPath(cop)->getClassName());
+                    CMSetStatus(rc,CMPI_RC_OK);
 
             // When running out of process the returned instances don't contain
-            // a namespace.
-            // Add the namespace from the input parameters where neccessary
-            resData.completeNamespace(SCMO_ObjectPath(cop));
-
-            Array<SCMOInstance>* aRef =
-                new Array<SCMOInstance>(resData.getSCMO());
-
-
+            // a name space. Create a writable copy of the array and add the
+            // namespace from the input parameters.
+            Array<CIMObjectPath> * aObj = new Array<CIMObjectPath>(en);
+            for (unsigned int index=0; index < aObj->size(); index++)
+            {
+                (*aObj)[index].setNameSpace(
+                    CM_ObjectPath(cop)->getNameSpace());
+            }
             CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
-                new CMPI_Object(new CMPI_OpEnumeration(aRef)));
-
-            CMSetStatus(rc,CMPI_RC_OK);
+                new CMPI_Object(new CMPI_OpEnumeration(aObj)));
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
@@ -496,13 +486,11 @@ extern "C"
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Broker:mbAssociators()");
         mb = CM_BROKER;
-        // OpenPegasus does not allow singleton classes so that
-        // a cop with no keys is illegal here.  The test is important
-        // since it insures that the associators request function is
-        // not called with zero keys since that function uses the
-        // existence of keys to determine if it is a class or instance
-        // operation. See BUG_3302
-        if (!SCMO_ObjectPath(cop)->getKeyBindingCount())
+        //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+        //  distinguish instanceNames from classNames in every case
+        //  The instanceName of a singleton instance of a keyless class has no
+        //  key bindings
+        if (!CM_ObjectPath(cop)->getKeyBindings().size())
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             PEG_METHOD_EXIT();
@@ -511,19 +499,17 @@ extern "C"
         CMPIFlags flgs =
             ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
         const CIMPropertyList props = getList(properties);
+        CIMObjectPath qop(
+            String::EMPTY,CIMNamespaceName(),
+            CM_ObjectPath(cop)->getClassName(),
+            CM_ObjectPath(cop)->getKeyBindings());
 
-        SCMOInstance* scmoObjPath = SCMO_ObjectPath(cop);
-        CIMObjectPath qop;
         try
         {
-            scmoObjPath->getCIMObjectPath(qop);
-            // For compatibility with previous implementations have empty ns
-            qop.setNameSpace(CIMNamespaceName());
-
-            CIMResponseData resData =
+            Array<CIMObject> const &en =
                 CM_CIMOM(mb)->associators(
-                    *CM_Context(ctx),
-                    SCMO_ObjectPath(cop)->getNameSpace(),
+                    OperationContext(*CM_Context(ctx)),
+                    CM_ObjectPath(cop)->getNameSpace(),
                     qop,
                     assocClass ? CIMName(assocClass) : CIMName(),
                     resultClass ? CIMName(resultClass) : CIMName(),
@@ -533,18 +519,22 @@ extern "C"
                     CM_ClassOrigin(flgs),
                     props);
 
-            // When running out of process the returned instances don't contain
-            // a namespace.
-            // Add the namespace from the input parameters where neccessary
-            resData.completeNamespace(scmoObjPath);
-
-            Array<SCMOInstance>* aObj =
-                new Array<SCMOInstance>(resData.getSCMO());
-
-            CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
-                new CMPI_Object(new CMPI_ObjEnumeration(aObj)));
-
             CMSetStatus(rc,CMPI_RC_OK);
+
+            // Workaround for bugzilla 4677
+            // When running out of process the returned instances don't contain
+            // a name space. Create a writable copy of the array and add the
+            // namespace from the input parameters.
+            Array<CIMObject> * aInst = new Array<CIMObject>(en);
+            for (unsigned int index=0; index < aInst->size(); index++)
+            {
+                CIMObject& myInst = (*aInst)[index];
+                CIMObjectPath orgCop = myInst.getPath();
+                orgCop.setNameSpace(CM_ObjectPath(cop)->getNameSpace());
+                (*aInst)[index].setPath(orgCop);
+            }
+            CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
+                new CMPI_Object(new CMPI_ObjEnumeration(aInst)));
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
@@ -567,50 +557,45 @@ extern "C"
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Broker:mbAssociatorNames()");
         mb = CM_BROKER;
-        // OpenPegasus does not allow singleton classes so that
-        // a cop with no keys is illegal here.  The test is important
-        // since it insures that the associatorNames function is
-        // not called with zero keys since that function uses the
-        // existence of keys to determine if it is a class or instance
-        // operation. See BUG_3302
-        if (!SCMO_ObjectPath(cop)->getKeyBindingCount())
+        //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+        //  distinguish instanceNames from classNames in every case
+        //  The instanceName of a singleton instance of a keyless class has no
+        //  key bindings
+        if (!CM_ObjectPath(cop)->getKeyBindings().size())
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             PEG_METHOD_EXIT();
             return 0;
         }
+        CIMObjectPath qop(
+            String::EMPTY,CIMNamespaceName(),
+            CM_ObjectPath(cop)->getClassName(),
+            CM_ObjectPath(cop)->getKeyBindings());
 
-        SCMOInstance* scmoObjPath = SCMO_ObjectPath(cop);
-        CIMObjectPath qop;
         try
         {
-            scmoObjPath->getCIMObjectPath(qop);
-            // For compatibility with previous implementations have empty ns
-            qop.setNameSpace(CIMNamespaceName());
-
-            CIMResponseData resData =
+            Array<CIMObjectPath> const &en =
                 CM_CIMOM(mb)->associatorNames(
-                    *CM_Context(ctx),
-                    scmoObjPath->getNameSpace(),
+                    OperationContext(*CM_Context(ctx)),
+                    CM_ObjectPath(cop)->getNameSpace(),
                     qop,
                     assocClass ? CIMName(assocClass) : CIMName(),
                     resultClass ? CIMName(resultClass) : CIMName(),
                     role ? String(role) : String::EMPTY,
                     resultRole ? String(resultRole) : String::EMPTY);
+                    CMSetStatus(rc,CMPI_RC_OK);
 
             // When running out of process the returned instances don't contain
-            // a namespace.
-            // Add the namespace from the input parameters where neccessary
-            resData.completeNamespace(scmoObjPath);
-
-            Array<SCMOInstance>* aRef =
-                new Array<SCMOInstance>(resData.getSCMO());
-
-
+            // a name space. Create a writable copy of the array and add the
+            // namespace from the input parameters.
+            Array<CIMObjectPath> * aObj = new Array<CIMObjectPath>(en);
+            for (unsigned int index=0; index < aObj->size(); index++)
+            {
+                (*aObj)[index].setNameSpace(
+                    CM_ObjectPath(cop)->getNameSpace());
+            }
             CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
-                new CMPI_Object(new CMPI_OpEnumeration(aRef)));
-
-            CMSetStatus(rc,CMPI_RC_OK);
+                new CMPI_Object(new CMPI_OpEnumeration(aObj)));
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
@@ -632,13 +617,11 @@ extern "C"
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Broker:mbReferences()");
         mb = CM_BROKER;
-        // OpenPegasus does not allow singleton classes so that
-        // a cop with no keys is illegal here.  The test is important
-        // since it insures that the references function is
-        // not called with zero keys since that function uses the
-        // existence of keys to determine if it is a class or instance
-        // operation. See BUG_3302
-        if (!SCMO_ObjectPath(cop)->getKeyBindingCount())
+        //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+        //  distinguish instanceNames from classNames in every case
+        //  The instanceName of a singleton instance of a keyless class has no
+        //  key bindings
+        if (!CM_ObjectPath(cop)->getKeyBindings().size())
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             PEG_METHOD_EXIT();
@@ -647,20 +630,18 @@ extern "C"
         CMPIFlags flgs =
            ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
         CIMPropertyList props = getList(properties);
+        CIMObjectPath qop(
+            String::EMPTY,
+            CIMNamespaceName(),
+            CM_ObjectPath(cop)->getClassName(),
+            CM_ObjectPath(cop)->getKeyBindings());
 
-
-        SCMOInstance* scmoObjPath = SCMO_ObjectPath(cop);
-        CIMObjectPath qop;
         try
         {
-            scmoObjPath->getCIMObjectPath(qop);
-            // For compatibility with previous implementations have empty ns
-            qop.setNameSpace(CIMNamespaceName());
-
-            CIMResponseData resData =
+            Array<CIMObject> const &en =
                 CM_CIMOM(mb)->references(
-                    *CM_Context(ctx),
-                    scmoObjPath->getNameSpace(),
+                    OperationContext(*CM_Context(ctx)),
+                    CM_ObjectPath(cop)->getNameSpace(),
                     qop,
                     resultClass ? CIMName(resultClass) : CIMName(),
                     role ? String(role) : String::EMPTY,
@@ -669,15 +650,20 @@ extern "C"
                     props);
 
             CMSetStatus(rc,CMPI_RC_OK);
-
-            // Add the namespace from the input parameters when neccessary
-            resData.completeNamespace(scmoObjPath);
-
-            Array<SCMOInstance>* aObj =
-                new Array<SCMOInstance>(resData.getSCMO());
-
+            // Workaround for bugzilla 4677
+            // When running out of process the returned instances don't contain
+            // a name space. Create a writable copy of the array and add the
+            // namespace from the input parameters.
+            Array<CIMObject> * aInst = new Array<CIMObject>(en);
+            for (unsigned int index=0; index < aInst->size(); index++)
+            {
+                CIMObject& myInst = (*aInst)[index];
+                CIMObjectPath orgCop = myInst.getPath();
+                orgCop.setNameSpace(CM_ObjectPath(cop)->getNameSpace());
+                (*aInst)[index].setPath(orgCop);
+            }
             CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
-                new CMPI_Object(new CMPI_ObjEnumeration(aObj)));
+                new CMPI_Object(new CMPI_ObjEnumeration(aInst)));
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
@@ -698,44 +684,44 @@ extern "C"
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Broker:mbReferenceNames()");
         mb = CM_BROKER;
-        // OpenPegasus does not allow singleton classes so that
-        // a cop with no keys is illegal here.  The test is important
-        // since it insures that the referenceNames function is
-        // not called with zero keys since that function uses the
-        // existence of keys to determine if it is a class or instance
-        // operation. See BUG_3302
-        if (!SCMO_ObjectPath(cop)->getKeyBindingCount())
+        //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
+        //  distinguish instanceNames from classNames in every case
+        //  The instanceName of a singleton instance of a keyless class has no
+        //  key bindings
+        if (!CM_ObjectPath(cop)->getKeyBindings().size())
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             PEG_METHOD_EXIT();
             return 0;
         }
+        CIMObjectPath qop(
+            String::EMPTY,
+            CIMNamespaceName(),
+            CM_ObjectPath(cop)->getClassName(),
+            CM_ObjectPath(cop)->getKeyBindings());
 
-        SCMOInstance* scmoObjPath = SCMO_ObjectPath(cop);
-        CIMObjectPath qop;
         try
         {
-            scmoObjPath->getCIMObjectPath(qop);
-            // For compatibility with previous implementations have empty ns
-            qop.setNameSpace(CIMNamespaceName());
-
-            CIMResponseData resData =
+            Array<CIMObjectPath> const &en =
                 CM_CIMOM(mb)->referenceNames(
-                    *CM_Context(ctx),
-                    scmoObjPath->getNameSpace(),
+                    OperationContext(*CM_Context(ctx)),
+                    CM_ObjectPath(cop)->getNameSpace(),
                     qop,
                     resultClass ? CIMName(resultClass) : CIMName(),
                     role ? String(role) : String::EMPTY);
+                    CMSetStatus(rc,CMPI_RC_OK);
 
-            // Add the namespace from the input parameters when neccessary
-            resData.completeNamespace(scmoObjPath);
-
-            Array<SCMOInstance>* aRef =
-                new Array<SCMOInstance>(resData.getSCMO());
-
+            // When running out of process the returned instances don't contain
+            // a name space. Create a writable copy of the array and add the
+            // namespace from the input parameters.
+            Array<CIMObjectPath> * aObj = new Array<CIMObjectPath>(en);
+            for (unsigned int index=0; index < aObj->size(); index++)
+            {
+                (*aObj)[index].setNameSpace(
+                    CM_ObjectPath(cop)->getNameSpace());
+            }
             CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
-                new CMPI_Object(new CMPI_OpEnumeration(aRef)));
-            CMSetStatus(rc,CMPI_RC_OK);
+                new CMPI_Object(new CMPI_OpEnumeration(aObj)));
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
@@ -760,26 +746,23 @@ extern "C"
             "CMPI_Broker:mbInvokeMethod()");
         CMPIData data = {0,CMPI_nullValue,{0}};
         mb = CM_BROKER;
+        CIMObjectPath qop(
+            String::EMPTY,CIMNamespaceName(),
+            CM_ObjectPath(cop)->getClassName(),
+            CM_ObjectPath(cop)->getKeyBindings());
 
-
-        SCMOInstance* scmoObjPath = SCMO_ObjectPath(cop);
-        CIMObjectPath qop;
         try
         {
-            scmoObjPath->getCIMObjectPath(qop);
-
             CIMValue v = CM_CIMOM(mb)->invokeMethod(
-                *CM_Context(ctx),
-                SCMO_ObjectPath(cop)->getNameSpace(),
+                OperationContext(*CM_Context(ctx)),
+                CM_ObjectPath(cop)->getNameSpace(),
                 qop,
                 method ? String(method) : String::EMPTY,
                 *CM_Args(in),
                 *CM_Args(out));
-
-            CIMType vType=v.getType();
-            CMPIType t = type2CMPIType(vType,v.isArray());
-            value2CMPIData(v,t,&data);
-
+                CIMType vType=v.getType();
+                CMPIType t = type2CMPIType(vType,v.isArray());
+                value2CMPIData(v,t,&data);
             if (rc)
             {
                 CMSetStatus(rc,CMPI_RC_OK);
@@ -806,16 +789,12 @@ extern "C"
         CMPIrc rc;
         CIMValue v = value2CIMValue(val,type,&rc);
 
-        SCMOInstance* scmoObjPath = SCMO_ObjectPath(cop);
-        CIMObjectPath qop;
         try
         {
-            scmoObjPath->getCIMObjectPath(qop);
-
             CM_CIMOM(mb)->setProperty(
-                *CM_Context(ctx),
-                SCMO_ObjectPath(cop)->getNameSpace(),
-                qop,
+                OperationContext(*CM_Context(ctx)),
+                CM_ObjectPath(cop)->getNameSpace(),
+                *CM_ObjectPath(cop),
                 String(name),
                 v);
         }
@@ -838,16 +817,12 @@ extern "C"
         mb = CM_BROKER;
         CMPIData data = {0,CMPI_nullValue,{0}};
 
-        SCMOInstance* scmoObjPath = SCMO_ObjectPath(cop);
-        CIMObjectPath qop;
-        scmoObjPath->getCIMObjectPath(qop);
-
         try
         {
             CIMValue v = CM_CIMOM(mb)->getProperty(
-                *CM_Context(ctx),
-                SCMO_ObjectPath(cop)->getNameSpace(),
-                qop,
+                OperationContext(*CM_Context(ctx)),
+                CM_ObjectPath(cop)->getNameSpace(),
+                *CM_ObjectPath(cop),
                 String(name));
             CIMType vType = v.getType();
             CMPIType t = type2CMPIType(vType,v.isArray());
@@ -860,12 +835,6 @@ extern "C"
         return data; // "data" will be valid data or nullValue (in error case)
     }
 
-    /* With Bug#8541 the CMPI Provider Manager was changed to attach the
-       complete requests operation context to the CMPI thread context.
-       In future, when we have a lot more containers on the operation context,
-       this might lead to an impact on memory usage here, when the entire
-       operation context gets copied to the new thread.
-    */
     static CMPIContext* mbPrepareAttachThread(
         const CMPIBroker* mb,
         const CMPIContext* eCtx)
@@ -885,7 +854,7 @@ extern "C"
                 reinterpret_cast<const CMPIArgs*>(eCtx),i,&name,NULL);
             CMPI_Args_Ftab->addArg(
                 reinterpret_cast<CMPIArgs*>(neCtx),
-                CMGetCharsPtr(name,NULL),
+                CMGetCharPtr(name),
                 &data.value,data.type);
         }
         PEG_METHOD_EXIT();
@@ -921,20 +890,10 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Broker:mbDeliverIndication()");
-        // If no valid broker was passed in we try the use the broker
-        // that was stored in the local thread context
-        if (eMb==NULL)
-        {
         eMb = CM_BROKER;
-        }
         CMPI_Broker *mb = (CMPI_Broker*)eMb;
-        IndProvRecord *indProvRec;
+        CMPIProviderManager::indProvRecord *prec;
         OperationContext* context = CM_Context(ctx);
-
-        SCMOInstance* scmoInst = SCMO_Instance(ind);
-        CIMInstance indInst;
-        scmoInst->getCIMInstance(indInst);
-
         // When an indication to be delivered comes from Remote providers,
         // the CMPIBroker contains the name of the provider in the form
         // of physical-name:logical-name. Search using logical-name. -V 5884
@@ -950,22 +909,29 @@ extern "C"
             provider_name = mb->name;
         }
         ReadLock readLock(CMPIProviderManager::rwSemProvTab);
-        if (CMPIProviderManager::indProvTab.lookup(provider_name, indProvRec))
+        if (CMPIProviderManager::provTab.lookup(provider_name,prec))
         {
-            if (indProvRec->isEnabled())
+            if (prec->enabled)
             {
-                if (!context->contains(
-                    SubscriptionInstanceNamesContainer::NAME))
+                try
                 {
+                    context->get(SubscriptionInstanceNamesContainer::NAME);
+                }
+                catch (const Exception &e)
+                {
+                    PEG_TRACE_STRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL2,
+                        "Exception: " + e.getMessage());
                     Array<CIMObjectPath> subscriptionInstanceNames;
                     context->insert(
                         SubscriptionInstanceNamesContainer(
                             subscriptionInstanceNames));
                 }
-                CIMIndication cimIndication(indInst);
+                CIMIndication cimIndication(*CM_Instance(ind));
                 try
                 {
-                    indProvRec->getHandler()->deliver(
+                    prec->handler->deliver(
                         *context,
    //                   OperationContext(*CM_Context(ctx)),
                         cimIndication);

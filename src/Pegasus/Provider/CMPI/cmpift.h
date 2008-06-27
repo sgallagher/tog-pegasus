@@ -1016,6 +1016,9 @@ extern "C"
     struct _CMPIBrokerMemFT
     {
 
+        /**
+            Function table version.
+        */
         int ftVersion;
 
         /**
@@ -1455,9 +1458,19 @@ extern "C"
     };
 
 #ifdef CMPI_VER_200
+    /**
+        This structure represents encapsulated Error object.
+    */
     struct _CMPIError
     {
+        /**
+            Opaque pointer to MB specific implementation data.
+        */
         void *hdl;
+
+        /**
+            Pointer to the Error Function Table.
+        */
         CMPIErrorFT *ft;
     };
 
@@ -3028,10 +3041,10 @@ extern "C"
     //---------------------------------------------------
 
 
+    typedef struct _CMPIInstanceMIFT CMPIInstanceMIFT;
     /**
         This structure represents an Instance provider.
     */
-    typedef struct _CMPIInstanceMIFT CMPIInstanceMIFT;
     typedef struct _CMPIInstanceMI
     {
 
@@ -3274,10 +3287,10 @@ extern "C"
     //---------------------------------------------------
 
 
+    typedef struct _CMPIAssociationMIFT CMPIAssociationMIFT;
     /**
         This structure represents an Association provider.
     */
-    typedef struct _CMPIAssociationMIFT CMPIAssociationMIFT;
     typedef struct _CMPIAssociationMI
     {
 
@@ -3533,10 +3546,10 @@ extern "C"
     //--
     //---------------------------------------------------
 
+    typedef struct _CMPIMethodMIFT CMPIMethodMIFT;
     /**
         This structure represents an Method provider.
     */
-    typedef struct _CMPIMethodMIFT CMPIMethodMIFT;
     typedef struct _CMPIMethodMI
     {
 
@@ -3646,10 +3659,10 @@ extern "C"
     //---------------------------------------------------
 
 
+    typedef struct _CMPIPropertyMIFT CMPIPropertyMIFT;
     /**
         This structure represents an Property provider.
     */
-    typedef struct _CMPIPropertyMIFT CMPIPropertyMIFT;
     typedef struct _CMPIPropertyMI
     {
 
@@ -3779,10 +3792,10 @@ extern "C"
     //---------------------------------------------------
 
 
+    typedef struct _CMPIIndicationMIFT CMPIIndicationMIFT;
     /**
         This structure represents an Indication provider.
     */
-    typedef struct _CMPIIndicationMIFT CMPIIndicationMIFT;
     typedef struct _CMPIIndicationMI
     {
 

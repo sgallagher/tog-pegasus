@@ -3625,7 +3625,7 @@ CMPIMethodMI *CMMethodMIFactory(chars cn, chars pn);
      This is a character string without quotes.
     @return The function table of this association provider.
 */
-CMPIPropertyMI *CMPropertyMIFactory(chars cn, chars pn):
+CMPIPropertyMI *CMPropertyMIFactory(chars cn, chars pn);
 #else
 # define CMPropertyMIFactory(cn,pn) \
   CMPI_EXTERN_C \

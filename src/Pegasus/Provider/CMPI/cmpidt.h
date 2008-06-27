@@ -254,43 +254,139 @@ extern "C"
     typedef float CMPIReal32;
     typedef double CMPIReal64;
 
+    /**
+        CMPIValuePtr used for context data only. It is used to describe raw
+        unformatted data areas.
+    */
     typedef struct _CMPIValuePtr
     {
+        /**
+            Pointer to the raw data area.
+        */
         void *ptr;
+
+        /**
+            Length of the raw data area.
+        */
         CMPICount length;
     } CMPIValuePtr;
 
+    /**
+        CMPIValue is union that can hold any of the data types defined in CMPI.
+    */
     typedef union _CMPIValue
     {
+        /**
+            Uint64 value.
+        */
         CMPIUint64 uint64;
+        /**
+            Uint32 value.
+        */
         CMPIUint32 uint32;
+        /**
+            Uint16 value.
+        */
         CMPIUint16 uint16;
+        /**
+            Uint8 value.
+        */
         CMPIUint8 uint8;
+        /**
+            Sint64 value.
+        */
         CMPISint64 sint64;
+        /**
+            Sint32 value.
+        */
         CMPISint32 sint32;
+        /**
+            Sint16 value.
+        */
         CMPISint16 sint16;
+        /**
+            Sint8 value.
+        */
         CMPISint8 sint8;
+        /**
+            Real64 value.
+        */
         CMPIReal64 real64;
+        /**
+            Real32 value.
+        */
         CMPIReal32 real32;
+        /**
+            Boolean value.
+        */
         CMPIBoolean boolean;
+        /**
+            Char16 value.
+        */
         CMPIChar16 char16;
-
+        /**
+            Pointer to the CMPIInstance.
+        */
         CMPIInstance *inst;
+        /**
+            Pointer to the CMPIObjectPath.
+        */
         CMPIObjectPath *ref;
+        /**
+            Pointer to the CMPIArgs.
+        */
         CMPIArgs *args;
+        /**
+            Pointer to the CMPISelectExp.
+        */
         CMPISelectExp *filter;
+        /**
+            Pointer to the CMPIEnumeration.
+        */
         CMPIEnumeration *Enum;
+        /**
+            Pointer to the CMPIArray.
+        */
         CMPIArray *array;
+        /**
+            Pointer to the CMPIString
+        */
         CMPIString *string;
+        /**
+            Char pointer.
+        */
         char *chars;
+        /**
+            Pointer to the CMPIDateTime.
+        */
         CMPIDateTime *dateTime;
+        /**
+             CMPIValuePtr value.
+        */
         CMPIValuePtr dataPtr;
-
+        /**
+            Byte(Sint8) value.
+        */
         CMPISint8 Byte;
+        /**
+            Short(Sint16) value.
+        */
         CMPISint16 Short;
+        /**
+            Int(Sint32) value.
+        */
         CMPISint32 Int;
+        /**
+            Long(Sint64) value.
+        */
         CMPISint64 Long;
+        /**
+            Float(Real32) value.
+        */
         CMPIReal32 Float;
+        /**
+            Double(Real64) value.
+        */
         CMPIReal64 Double;
     } CMPIValue;
 

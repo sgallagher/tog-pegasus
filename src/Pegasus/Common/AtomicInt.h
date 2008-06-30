@@ -842,14 +842,11 @@ PEGASUS_NAMESPACE_END
 
 //==============================================================================
 //
-// PEGASUS_PLATFORM_SOLARIS_IX86_CC
-// PEGASUS_PLATFORM_SOLARIS_X86_64_CC
+// PEGASUS_OS_SOLARIS
 //
 //==============================================================================
 
-#if defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC) || \
-    defined(PEGASUS_PLATFORM_SOLARIS_X86_64_CC) || \
-    defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
+#if defined(PEGASUS_OS_SOLARIS)
 # define PEGASUS_ATOMIC_INT_DEFINED
 
 #include <atomic.h>

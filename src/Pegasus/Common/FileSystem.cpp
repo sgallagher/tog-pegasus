@@ -522,9 +522,7 @@ Boolean FileSystem::changeFileOwner(
     PEG_METHOD_ENTER(TRC_AUTHENTICATION, "FileSystem::changeFileOwner()");
 
     struct passwd* userPasswd;
-#if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) || \
-    defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC) || \
-    defined(PEGASUS_PLATFORM_SOLARIS_X86_64_CC) || \
+#if defined(PEGASUS_OS_SOLARIS) || \
     defined(PEGASUS_OS_HPUX) || \
     defined(PEGASUS_OS_LINUX) || \
     defined (PEGASUS_OS_VMS)

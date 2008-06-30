@@ -48,9 +48,7 @@
 # include <unistd.h>
 #endif
 
-#if defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC) || \
-    defined(PEGASUS_PLATFORM_SOLARIS_X86_64_CC) || \
-    defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
+#if defined(PEGASUS_OS_SOLARIS)
 # include <unistd.h>
 #endif
 
@@ -209,14 +207,13 @@ int Threads::create(
 
     // Scheduling policy:
 
-#if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU) || \
-    defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
+#if defined(PEGASUS_OS_SOLARIS)
 # if (defined SUNOS_5_7)
     pthread_attr_setschedpolicy(&attr, SCHED_RR);
 # else
     pthread_attr_setschedpolicy(&attr, SCHED_OTHER);
 # endif
-#endif // PEGASUS_PLATFORM_SOLARIS_SPARC_GNU
+#endif // defined(PEGASUS_OS_SOLARIS)
 
     // Create thread:
 

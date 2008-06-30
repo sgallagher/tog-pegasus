@@ -34,6 +34,10 @@
 #ifndef Pegasus_Platform_SOLARIS_IX86_CC_h
 #define Pegasus_Platform_SOLARIS_IX86_CC_h
 
+#ifndef PEGASUS_OS_SOLARIS
+# define PEGASUS_OS_SOLARIS
+#endif
+
 //++EMC Solaris Port
 #include <limits.h>
 #ifdef __cplusplus

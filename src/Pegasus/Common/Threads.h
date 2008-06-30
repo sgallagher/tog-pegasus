@@ -56,9 +56,7 @@
 # error "<Pegasus/Common/Threads.h>: not implemented"
 #endif
 
-#if defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC) || \
-    defined(PEGASUS_PLATFORM_SOLARIS_X86_64_CC) || \
-    defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
+#if defined(PEGASUS_OS_SOLARIS)
 # include <string.h>
 # include <stdio.h>
 #endif
@@ -231,9 +229,7 @@ inline void Threads::yield()
     defined(PEGASUS_OS_VMS) || \
     defined(PEGASUS_OS_ZOS) || \
     defined(PEGASUS_OS_DARWIN) || \
-    defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC) || \
-    defined(PEGASUS_PLATFORM_SOLARIS_X86_64_CC) || \
-    defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
+    defined(PEGASUS_OS_SOLARIS)
     sched_yield();
 #else
     pthread_yield();

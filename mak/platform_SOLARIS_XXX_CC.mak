@@ -88,11 +88,10 @@ else
   FLAGS = -O4 -s -xipo=1
 endif
 
-#FLAGS += +w -pto -KPIC -mt -xildoff
 FLAGS += +w -KPIC -mt -xildoff
 
-ifndef PEGASUS_SUN_STUDIO_EXPRESS
- FLAGS += -pto
+ifdef PEGASUS_SOLARIS_NEED_PTO
+  FLAGS += -pto
 endif
 
 ##==============================================================================

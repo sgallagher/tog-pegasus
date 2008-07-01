@@ -102,7 +102,7 @@ public:
         @return String containing the authentication challenge
     */
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    String AuthenticationManager::getHttpAuthResponseHeader(
+    String getHttpAuthResponseHeader(
         AuthenticationInfo* authInfo = 0);
 #else
     String getHttpAuthResponseHeader();

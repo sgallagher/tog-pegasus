@@ -29,7 +29,7 @@
 #//
 #//=============================================================================
 
-PEGASUS_SOLARIS_NEED_PTO=1
+#PEGASUS_SOLARIS_NEED_PTO=1
 
 include $(ROOT)/mak/platform_SOLARIS_XXX_CC.mak
 

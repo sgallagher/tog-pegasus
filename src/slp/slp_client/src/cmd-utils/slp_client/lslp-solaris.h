@@ -70,16 +70,14 @@ extern "C" {
 #include <sys/sockio.h>
 
 /*** typedefs ***/
-#if !defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC) && \
-    !defined(PEGASUS_PLATFORM_SOLARIS_X86_64_CC)
+#if !defined(PEGASUS_OS_SOLARIS)
 typedef size_t socklen_t;
 #endif
 
 /*** defines ***/
 
-#if !defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC) && \
-    !defined(PEGASUS_PLATFORM_SOLARIS_X86_64_CC)
-# define INADDR_NONE ((in_addr_t) -1)
+#if !defined(PEGASUS_OS_SOLARIS)
+# define INADDR_NONE ((in_addr_t)-1)
 #endif
 
 #define _LSLP_SETSOCKOPT(a, b, c, d, e) \

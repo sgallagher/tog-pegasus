@@ -136,6 +136,7 @@ static Boolean _MakeAddress(
         {
             return false;
         }
+
         memset(&address, 0, sizeof(address));
         memcpy(&address.sin_addr, hostEntry->h_addr, hostEntry->h_length);
         address.sin_family = hostEntry->h_addrtype;

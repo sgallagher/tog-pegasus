@@ -63,24 +63,6 @@ static Boolean shutdownFlag = false;
 AtomicInt expectedResults;
 AtomicInt actualResults;
 
-static int _expectedResults2;
-static int _actualResults2;
-static Mutex _mutex;
-
-static void _incExpectedResults2()
-{
-    _mutex.lock();
-    _expectedResults2++;
-    _mutex.unlock();
-}
-
-static void _incAtualResults2()
-{
-    _mutex.lock();
-    _actualResults2++;
-    _mutex.unlock();
-}
-
 CIMObjectPath referenceObjName;
 
 static const String NAMESPACE("test/TestProvider");
@@ -177,9 +159,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeEI(void *parm)
         while ((elapsedSeconds < duration) && !shutdownFlag)
         {
             expectedResults++;
-#if 0
-            _incExpectedResults2();
-#endif
 
             iterations++; 
             elapsedTime.start();
@@ -191,9 +170,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeEI(void *parm)
             elapsedSeconds = elapsedTime.getElapsed();
 
             actualResults++;
-#if 0
-            _incAtualResults2();
-#endif
 
             if (cimInstances.size() == EXPECTED_INSTANCES)
             {
@@ -211,7 +187,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeEI(void *parm)
             {
                 shutdownFlag = true;
                 sprintf(exceptionMsg, 
-                    "----- EI thread %u expected %d instances, received %u",
+                    "----- EI thread %d expected %d instances, received %d",
                     uniqueID,
                     EXPECTED_INSTANCES,
                     cimInstances.size());
@@ -253,9 +229,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeNI(void *parm)
         while ((elapsedSeconds < duration) && !shutdownFlag)
         {
             expectedResults++;
-#if 0
-            _incExpectedResults2();
-#endif
 
             iterations++; 
             elapsedTime.start();
@@ -267,9 +240,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeNI(void *parm)
             elapsedSeconds = elapsedTime.getElapsed();
 
             actualResults++;
-#if 0
-            _incAtualResults2();
-#endif
 
             if (cimInstanceNames.size() == EXPECTED_INSTANCENAMES)
             {
@@ -287,7 +257,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeNI(void *parm)
             {
                 shutdownFlag = true;
                 sprintf(exceptionMsg, 
-                    "----- NI thread %u expected %d instancenames, received %u",
+                    "----- NI thread %d expected %d instancenames, received %d",
                     uniqueID,
                     EXPECTED_INSTANCENAMES,
                     cimInstanceNames.size());
@@ -329,9 +299,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeA(void *parm)
         while ((elapsedSeconds < duration) && !shutdownFlag)
         {
             expectedResults++;
-#if 0
-            _incExpectedResults2();
-#endif
 
             iterations++; 
             elapsedTime.start();
@@ -343,9 +310,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeA(void *parm)
             elapsedSeconds = elapsedTime.getElapsed();
 
             actualResults++;
-#if 0
-            _incAtualResults2();
-#endif
 
             if (cimObjects.size() == EXPECTED_ASSOCIATORS)
             {
@@ -363,7 +327,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeA(void *parm)
             {
                 shutdownFlag = true;
                 sprintf(exceptionMsg, 
-                    "----- A  thread %u expected %d objects, received %u",
+                    "----- A  thread %d expected %d objects, received %d",
                     uniqueID,
                     EXPECTED_ASSOCIATORS,
                     cimObjects.size());
@@ -405,9 +369,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeAN(void *parm)
         while ((elapsedSeconds < duration) && !shutdownFlag)
         {
             expectedResults++;
-#if 0
-            _incExpectedResults2();
-#endif
 
             iterations++; 
             elapsedTime.start();
@@ -419,9 +380,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeAN(void *parm)
             elapsedSeconds = elapsedTime.getElapsed();
 
             actualResults++;
-#if 0
-            _incAtualResults2();
-#endif
 
             if (cimObjectNames.size() == EXPECTED_ASSOCIATORNAMES)
             {
@@ -439,7 +397,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeAN(void *parm)
             {
                 shutdownFlag = true;
                 sprintf(exceptionMsg, 
-                    "----- AN thread %u expected %d objectnames, received %u",
+                    "----- AN thread %d expected %d objectnames, received %d",
                     uniqueID,
                     EXPECTED_ASSOCIATORNAMES,
                     cimObjectNames.size());
@@ -481,9 +439,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeR(void *parm)
         while ((elapsedSeconds < duration) && !shutdownFlag)
         {
             expectedResults++;
-#if 0
-            _incExpectedResults2();
-#endif
 
             iterations++; 
             elapsedTime.start();
@@ -495,9 +450,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeR(void *parm)
             elapsedSeconds = elapsedTime.getElapsed();
 
             actualResults++;
-#if 0
-            _incAtualResults2();
-#endif
 
             if (cimObjects.size() == EXPECTED_REFERENCES)
             {
@@ -515,7 +467,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeR(void *parm)
             {
                 shutdownFlag = true;
                 sprintf(exceptionMsg, 
-                    "----- R  thread %u expected %d objects, received %u",
+                    "----- R  thread %d expected %d objects, received %d",
                     uniqueID,
                     EXPECTED_REFERENCES,
                     cimObjects.size());
@@ -557,9 +509,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeRN(void *parm)
         while ((elapsedSeconds < duration) && !shutdownFlag)
         {
             expectedResults++;
-#if 0
-            _incExpectedResults2();
-#endif
 
             iterations++; 
             elapsedTime.start();
@@ -571,9 +520,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeRN(void *parm)
             elapsedSeconds = elapsedTime.getElapsed();
 
             actualResults++;
-#if 0
-            _incAtualResults2();
-#endif
 
             if (cimObjectNames.size() == EXPECTED_REFERENCENAMES)
             {
@@ -591,7 +537,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeRN(void *parm)
             {
                 shutdownFlag = true;
                 sprintf(exceptionMsg, 
-                    "----- RN thread %u expected %d objectnames, received %u",
+                    "----- RN thread %d expected %d objectnames, received %d",
                     uniqueID,
                     EXPECTED_REFERENCENAMES,
                     cimObjectNames.size());
@@ -774,10 +720,6 @@ int main(int argc, char** argv)
         _beginTest(duration, optTwo);
         cout << "Expected Results: " << expectedResults.get() << endl;
         cout << "Actual Results  : " << actualResults.get() << endl;
-
-        printf("_expectedResults2=%d\n", _expectedResults2);
-        printf("_actualResults2=%d\n", _actualResults2);
-
         if (expectedResults.get() != actualResults.get())
         {
             cerr << " ---- failed tests" << endl;

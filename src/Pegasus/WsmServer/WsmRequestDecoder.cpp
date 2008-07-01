@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//=============================================================================
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -37,8 +39,6 @@
 #include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/AutoPtr.h>
-#include <Pegasus/Common/SharedPtr.h>
-#include <Pegasus/IndicationService/IndicationConstants.h>
 
 #include "WsmConstants.h"
 #include "WsmReader.h"
@@ -48,63 +48,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-static bool _parseInvokeAction(
-    const String& action,
-    String& className,
-    String& methodName)
-{
-    // Parse the action as though it is a method invocation. If so, set
-    // className and methodName and return true. Else return false. Invoke
-    // actions have the following form:
-    //
-    //     http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/<CLASS>/<METHOD>
-
-    // Expect "http://" prefix.
-
-    CString cstr = action.getCString();
-    const char* p = cstr;
-
-    if (strncmp(p, "http://", 7) != 0)
-        return false;
-
-    p += 7;
-
-    // Find slash that terminates the host name.
-
-    if (!(p = strchr(p, '/')))
-        return false;
-
-    p++;
-
-    // Expect "wbem/wscim/1/cim-schema/2/" sequence.
-
-    if (strncmp(p, "wbem/wscim/1/cim-schema/2/", 26) != 0)
-        return false;
-
-    p += 26;
-
-    // Get classname:
-
-    char* slash = strchr(const_cast<char*>(p), '/');
-
-    if (!slash)
-        return false;
-
-    *slash = '\0';
-    className = p;
-    *slash = '/';
-    p = slash + 1;
-
-    // Get methodname:
-
-    methodName = p;
-
-    // If we got this far, then action refers to a method.
-    return true;
-}
-
 WsmRequestDecoder::WsmRequestDecoder(WsmProcessor* wsmProcessor)
-    : MessageQueue(PEGASUS_QUEUENAME_WSMREQDECODER),
+    : MessageQueueService(PEGASUS_QUEUENAME_WSMREQDECODER),
       _wsmProcessor(wsmProcessor),
       _serverTerminating(false)
 {
@@ -202,6 +147,7 @@ void WsmRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     Array<HTTPHeader> headers;
     char* content;
     Uint32 contentLength;
+    String contentType;
 
     httpMessage->parse(startLine, headers, contentLength);
 
@@ -240,7 +186,7 @@ void WsmRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         //
         // Note:  The Host header value is not validated.
 
-        const char* hostHeader;
+        String hostHeader;
         Boolean hostHeaderFound = HTTPMessage::lookupHeader(
             headers, "Host", hostHeader, false);
 
@@ -265,35 +211,7 @@ void WsmRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     content = (char*) httpMessage->message.getData() +
         httpMessage->message.size() - contentLength;
 
-    // Lookup HTTP "User-Agent" header. For example:
-    //
-    //     User-Agent: Microsoft WinRM Client
-    //
-    // If it contains "WinRM", then omit the XML processing instruction from
-    // the response (first line of XML response). A typical XML processing
-    // instruction looks like this:
-    //
-    //     <?xml version="1.0" encoding="utf-8"?>
-    //
-    // The WinRM user agent should never receive this line.
-
-    Boolean omitXMLProcessingInstruction;
-    {
-        String value;
-
-        if (HTTPMessage::lookupHeader(headers, "User-Agent", value, true) &&
-            value.find("WinRM") != Uint32(-1))
-        {
-            omitXMLProcessingInstruction = true;
-        }
-        else
-        {
-            omitXMLProcessingInstruction = false;
-        }
-    }
-
     // Validate the "Content-Type" header:
-    const char* contentType;
     Boolean contentTypeHeaderFound = HTTPMessage::lookupHeader(
         headers, "Content-Type", contentType, true);
     String type;
@@ -317,21 +235,6 @@ void WsmRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         return;
     }
 
-    if (String::equalNoCase(charset, "utf-16"))
-    {
-        // Reject utf-16 requests.
-        WsmFault fault(
-            WsmFault::wsman_EncodingLimit,
-            "UTF-16 is not supported; Please use UTF-8",
-            ContentLanguageList(),
-            WSMAN_FAULTDETAIL_CHARACTERSET);
-         _wsmProcessor->sendResponse(new WsmFaultResponse(
-             String::EMPTY, queueId, httpMethod, httpCloseConnect,
-                omitXMLProcessingInstruction, fault));
-         PEG_METHOD_EXIT();
-         return;
-    }
-
     if (!String::equalNoCase(charset, "utf-8"))
     {
         // DSP0226 R13.1-5:  A service shall emit Responses using the same
@@ -347,8 +250,7 @@ void WsmRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
             ContentLanguageList(),
             WSMAN_FAULTDETAIL_CHARACTERSET);
          _wsmProcessor->sendResponse(new WsmFaultResponse(
-              String::EMPTY, queueId, httpMethod, httpCloseConnect,
-              omitXMLProcessingInstruction, fault));
+             String::EMPTY, queueId, httpMethod, httpCloseConnect, fault));
          PEG_METHOD_EXIT();
          return;
     }
@@ -401,8 +303,7 @@ void WsmRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         httpMessage->ipAddress,
         httpMessage->acceptLanguages,
         httpMessage->contentLanguages,
-        httpCloseConnect,
-        omitXMLProcessingInstruction);
+        httpCloseConnect);
 
     PEG_METHOD_EXIT();
 }
@@ -418,11 +319,9 @@ void WsmRequestDecoder::handleWsmMessage(
     const String& ipAddress,
     const AcceptLanguageList& httpAcceptLanguages,
     const ContentLanguageList& httpContentLanguages,
-    Boolean httpCloseConnect,
-    Boolean omitXMLProcessingInstruction)
+    Boolean httpCloseConnect)
 {
     PEG_METHOD_ENTER(TRC_WSMSERVER, "WsmRequestDecoder::handleWsmMessage()");
-
 
     // If CIMOM is shutting down, return "Service Unavailable" response
     if (_serverTerminating)
@@ -443,15 +342,8 @@ void WsmRequestDecoder::handleWsmMessage(
     WsmReader wsmReader(content);
     XmlEntry entry;
     AutoPtr<WsmRequest> request;
-    AutoPtr<WsmRequest> createFilterRequest;
-    AutoPtr<WsmRequest> createSubRequest;
-    AutoPtr<WsmRequest> deleteFilterRequest;
-    AutoPtr<WsmRequest> deleteHandlerRequest;
-    // Whether to include the filter request while processing
-    // Subscribe and Unsubscribe requests.
-    Boolean includeFilter=true;
     String wsaMessageId;
-    String wsaAction;
+
     // Process <?xml ... >
     try
     {
@@ -468,15 +360,14 @@ void WsmRequestDecoder::handleWsmMessage(
         wsmReader.expectStartTag(
             entry, WsmNamespaces::SOAP_ENVELOPE, "Envelope");
 
+        String wsaAction;
         String wsaFrom;
         String wsaReplyTo;
         String wsaFaultTo;
+        WsmEndpointReference epr;
         Uint32 wsmMaxEnvelopeSize = 0;
         AcceptLanguageList wsmLocale;
         Boolean wsmRequestEpr = false;
-        String wseIdentifier;
-        WsmEndpointReference epr;
-        Boolean wsmRequestItemCount = false;
 
         try
         {
@@ -491,9 +382,7 @@ void WsmRequestDecoder::handleWsmMessage(
                 *epr.selectorSet,
                 wsmMaxEnvelopeSize,
                 wsmLocale,
-                wsmRequestEpr,
-                wsmRequestItemCount,
-                wseIdentifier);
+                wsmRequestEpr);
         }
         catch (XmlException&)
         {
@@ -506,15 +395,6 @@ void WsmRequestDecoder::handleWsmMessage(
                 WsmFault::wsa_InvalidMessageInformationHeader,
                 e.getMessage(),
                 e.getContentLanguages());
-        }
-
-        // If no "Action" header was found, then this might still be a legal
-        // identify request.
-
-        if (wsaAction.size() == 0 && _isIdentifyRequest(wsmReader))
-        {
-            _sendIdentifyResponse(queueId);
-            return;
         }
 
         // Set the Locale language into the thread for processing this request.
@@ -588,9 +468,6 @@ void WsmRequestDecoder::handleWsmMessage(
         // Parse the SOAP Body while decoding each action
         //
 
-        String className;
-        String methodName;
-
         if (wsaAction == WSM_ACTION_GET)
         {
             request.reset(_decodeWSTransferGet(
@@ -619,67 +496,6 @@ void WsmRequestDecoder::handleWsmMessage(
                 wsaMessageId,
                 epr));
         }
-        else if (wsaAction == WSM_ACTION_ENUMERATE)
-        {
-            request.reset(_decodeWSEnumerationEnumerate(
-                wsmReader,
-                wsaMessageId,
-                epr,
-                wsmRequestItemCount));
-        }
-        else if (wsaAction == WSM_ACTION_PULL)
-        {
-            request.reset(_decodeWSEnumerationPull(
-                wsmReader,
-                wsaMessageId,
-                epr,
-                wsmRequestItemCount));
-        }
-        else if (wsaAction == WSM_ACTION_RELEASE)
-        {
-            request.reset(_decodeWSEnumerationRelease(
-                wsmReader,
-                wsaMessageId,
-                epr));
-        }
-        else if (_parseInvokeAction(wsaAction, className, methodName))
-        {
-            request.reset(_decodeWSInvoke(
-                wsmReader,
-                wsaMessageId,
-                epr,
-                className,
-                methodName));
-        }
-        else if(wsaAction == WSM_ACTION_WSMAN_SUBSCRIBE)
-        {
-            request.reset(_decodeWSSubscriptionRequest(
-            wsmReader,
-            wsaMessageId,
-            epr,
-            createFilterRequest,
-            createSubRequest,
-            includeFilter));
-        }
-        else if(wsaAction == WSM_ACTION_WSMAN_UNSUBSCRIBE)
-        {
-            request.reset(_decodeWSUnsubscribeRequest(
-            wsmReader,
-            wsaMessageId,
-            epr,
-            wseIdentifier,
-            includeFilter,
-            deleteFilterRequest,
-            deleteHandlerRequest));
-        }
-        else if(wsaAction == WSM_ACTION_SUBSCRIBE_RENEW)
-        {
-            throw WsmFault(
-                WsmFault::wse_UnableToRenew,
-                MessageLoaderParms(
-                    "WsmServer.WsmRequestDecoder.UNABLE_TO_RENEW",
-                    "The subscription could not be renewed."));
-        }
         else
         {
             throw WsmFault(
@@ -700,7 +516,6 @@ void WsmRequestDecoder::handleWsmMessage(
         request->acceptLanguages = wsmLocale;
         request->contentLanguages = httpContentLanguages;
         request->httpCloseConnect = httpCloseConnect;
-        request->omitXMLProcessingInstruction = omitXMLProcessingInstruction;
         request->queueId = queueId;
         request->requestEpr = wsmRequestEpr;
         request->maxEnvelopeSize = wsmMaxEnvelopeSize;
@@ -708,16 +523,14 @@ void WsmRequestDecoder::handleWsmMessage(
     catch (WsmFault& fault)
     {
         _wsmProcessor->sendResponse(new WsmFaultResponse(
-            wsaMessageId, queueId, httpMethod, httpCloseConnect,
-            omitXMLProcessingInstruction, fault));
+            wsaMessageId, queueId, httpMethod, httpCloseConnect, fault));
         PEG_METHOD_EXIT();
         return;
     }
     catch (SoapNotUnderstoodFault& fault)
     {
         _wsmProcessor->sendResponse(new SoapFaultResponse(
-            wsaMessageId, queueId, httpMethod, httpCloseConnect,
-            omitXMLProcessingInstruction, fault));
+            wsaMessageId, queueId, httpMethod, httpCloseConnect, fault));
         PEG_METHOD_EXIT();
         return;
     }
@@ -728,21 +541,7 @@ void WsmRequestDecoder::handleWsmMessage(
             e.getMessage(),
             e.getContentLanguages());
         _wsmProcessor->sendResponse(new WsmFaultResponse(
-            wsaMessageId, queueId, httpMethod, httpCloseConnect,
-            omitXMLProcessingInstruction, fault));
-        PEG_METHOD_EXIT();
-        return;
-    }
-    catch (TooManyElementsException& e)
-    {
-        WsmFault fault(
-            WsmFault::wsman_EncodingLimit,
-            e.getMessage(),
-            e.getContentLanguages(),
-            WSMAN_FAULTDETAIL_OPTION_LIMIT);
-        _wsmProcessor->sendResponse(new WsmFaultResponse(
-            wsaMessageId, queueId, httpMethod, httpCloseConnect,
-            omitXMLProcessingInstruction, fault));
+            wsaMessageId, queueId, httpMethod, httpCloseConnect, fault));
         PEG_METHOD_EXIT();
         return;
     }
@@ -753,8 +552,7 @@ void WsmRequestDecoder::handleWsmMessage(
             e.getMessage(),
             e.getContentLanguages());
         _wsmProcessor->sendResponse(new WsmFaultResponse(
-            wsaMessageId, queueId, httpMethod, httpCloseConnect,
-            omitXMLProcessingInstruction, fault));
+            wsaMessageId, queueId, httpMethod, httpCloseConnect, fault));
         PEG_METHOD_EXIT();
         return;
     }
@@ -762,8 +560,7 @@ void WsmRequestDecoder::handleWsmMessage(
     {
         WsmFault fault(WsmFault::wsman_InternalError, e.what());
         _wsmProcessor->sendResponse(new WsmFaultResponse(
-            wsaMessageId, queueId, httpMethod, httpCloseConnect,
-            omitXMLProcessingInstruction, fault));
+            wsaMessageId, queueId, httpMethod, httpCloseConnect, fault));
         PEG_METHOD_EXIT();
         return;
     }
@@ -771,39 +568,11 @@ void WsmRequestDecoder::handleWsmMessage(
     {
         WsmFault fault(WsmFault::wsman_InternalError);
         _wsmProcessor->sendResponse(new WsmFaultResponse(
-            wsaMessageId, queueId, httpMethod, httpCloseConnect,
-            omitXMLProcessingInstruction, fault));
+            wsaMessageId, queueId, httpMethod, httpCloseConnect, fault));
         PEG_METHOD_EXIT();
         return;
     }
-    if(wsaAction == WSM_ACTION_WSMAN_SUBSCRIBE)
-    {
-        // If a filter has to be created during subscription,
-        // add the filter request.
-        if(includeFilter)
-        {
-            createFilterRequest.get()->copyRequestProperties(request); 
-            _wsmProcessor->addReqToSubContext(createFilterRequest.release(),
-                true);
-        }
-        createSubRequest.get()->copyRequestProperties(request);
-        _wsmProcessor->addReqToSubContext(request.get(), true);
-        _wsmProcessor->addReqToSubContext(createSubRequest.release(), true);
-    }
-    else if(wsaAction == WSM_ACTION_WSMAN_UNSUBSCRIBE)
-    {
-        // If the filter has to be deleted during unsubscribe,
-        // add the filter request.
-        if(includeFilter)
-        {
-            deleteFilterRequest.get()->copyRequestProperties(request);
-            _wsmProcessor->addReqToSubContext(deleteFilterRequest.release(),
-                 false);
-        }   
-        deleteHandlerRequest.get()->copyRequestProperties(request); 
-        _wsmProcessor->addReqToSubContext(deleteHandlerRequest.release(), 
-            false);
-    }
+
     _wsmProcessor->handleRequest(request.release());
 
     PEG_METHOD_EXIT();
@@ -824,27 +593,7 @@ void WsmRequestDecoder::_checkRequiredHeader(
     }
 }
 
-void WsmRequestDecoder::_checkNoSelectorsEPR(const WsmEndpointReference& epr)
-{
-    // Make sure that at most __cimnamespace selector is present
-    if (epr.selectorSet->selectors.size())
-    {
-        if (epr.selectorSet->selectors.size() > 1 ||
-            epr.selectorSet->selectors[0].type != WsmSelector::VALUE ||
-            epr.selectorSet->selectors[0].name != "__cimnamespace")
-        {
-            throw WsmFault(
-                WsmFault::wsman_InvalidSelectors,
-                MessageLoaderParms(
-                    "WsmServer.WsmRequestDecoder.UNEXPECTED_SELECTORS",
-                    "The operation allows only the __cimnamespace selector to "
-                    "be present."),
-                WSMAN_FAULTDETAIL_UNEXPECTEDSELECTORS);
-        }
-    }
-}
-
-WxfGetRequest* WsmRequestDecoder::_decodeWSTransferGet(
+WsmGetRequest* WsmRequestDecoder::_decodeWSTransferGet(
     WsmReader& wsmReader,
     const String& messageId,
     const WsmEndpointReference& epr)
@@ -859,10 +608,10 @@ WxfGetRequest* WsmRequestDecoder::_decodeWSTransferGet(
         wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
     }
 
-    return new WxfGetRequest(messageId, epr);
+    return new WsmGetRequest(messageId, epr);
 }
 
-WxfPutRequest* WsmRequestDecoder::_decodeWSTransferPut(
+WsmPutRequest* WsmRequestDecoder::_decodeWSTransferPut(
     WsmReader& wsmReader,
     const String& messageId,
     const WsmEndpointReference& epr)
@@ -878,16 +627,15 @@ WxfPutRequest* WsmRequestDecoder::_decodeWSTransferPut(
 
     wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
 
-    return new WxfPutRequest(messageId, epr, instance);
+    return new WsmPutRequest(messageId, epr, instance);
 }
 
-WxfCreateRequest* WsmRequestDecoder::_decodeWSTransferCreate(
+WsmCreateRequest* WsmRequestDecoder::_decodeWSTransferCreate(
     WsmReader& wsmReader,
     const String& messageId,
     const WsmEndpointReference& epr)
 {
     _checkRequiredHeader("wsman:ResourceURI", epr.resourceUri.size());
-    _checkNoSelectorsEPR(epr);
 
     XmlEntry entry;
     wsmReader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
@@ -898,10 +646,10 @@ WxfCreateRequest* WsmRequestDecoder::_decodeWSTransferCreate(
 
     wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
 
-    return new WxfCreateRequest(messageId, epr, instance);
+    return new WsmCreateRequest(messageId, epr, instance);
 }
 
-WxfDeleteRequest* WsmRequestDecoder::_decodeWSTransferDelete(
+WsmDeleteRequest* WsmRequestDecoder::_decodeWSTransferDelete(
     WsmReader& wsmReader,
     const String& messageId,
     const WsmEndpointReference& epr)
@@ -916,624 +664,7 @@ WxfDeleteRequest* WsmRequestDecoder::_decodeWSTransferDelete(
         wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
     }
 
-    return new WxfDeleteRequest(messageId, epr);
-}
-
-WsenEnumerateRequest* WsmRequestDecoder::_decodeWSEnumerationEnumerate(
-    WsmReader& wsmReader,
-    const String& messageId,
-    const WsmEndpointReference& epr,
-    Boolean requestItemCount)
-{
-    PEG_METHOD_ENTER(TRC_WSMSERVER,
-        "WsmRequestDecoder::_decodeWSEnumerationEnumerate()");
-
-    _checkRequiredHeader("wsman:ResourceURI", epr.resourceUri.size());
-    _checkNoSelectorsEPR(epr);
-
-    String expiration;
-    WsmbPolymorphismMode polymorphismMode = WSMB_PM_UNKNOWN;
-    WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
-    Boolean optimized = false;
-    Uint32 maxElements = 0;
-    WsmFilter wsmFilter;
-
-    XmlEntry entry;
-    wsmReader.expectStartOrEmptyTag(
-        entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
-    if (entry.type != XmlEntry::EMPTY_TAG)
-    {
-        wsmReader.decodeEnumerateBody(expiration, polymorphismMode,
-            enumerationMode, optimized, maxElements, wsmFilter);
-
-        wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
-    }
-
-    // If PolymorphismMode header is not specified, set it to default
-    if (polymorphismMode == WSMB_PM_UNKNOWN)
-    {
-        // DSP0227, R8.1-4: A service MAY optionally support the
-        // wsmb:PolymorphismMode modifier element with a value of
-        // IncludeSubClassProperties, which returns instances of the base
-        // class and derived classes using the actual classs GED and XSD
-        // type. This is the same as not specifying the polymorphism mode.
-        polymorphismMode = WSMB_PM_INCLUDE_SUBCLASS_PROPERTIES;
-    }
-    else
-    {
-        // DSP0227, R8.1-6: The service SHOULD also return a
-        // wsmb:PolymorphismModeNotSupported fault for requests using the
-        // all classes ResourceURI if the PolymorphismMode is present and
-        // does not equal IncludeSubClassProperties.
-
-        CString tmp(epr.resourceUri.getCString());
-        const char* suffix = WsmUtils::skipHostUri(tmp);
-
-        if (strcmp(suffix, WSM_RESOURCEURI_ALLCLASSES_SUFFIX) == 0 &&
-            polymorphismMode != WSMB_PM_INCLUDE_SUBCLASS_PROPERTIES)
-        {
-            PEG_METHOD_EXIT();
-            throw WsmFault(
-                WsmFault::wsmb_PolymorphismModeNotSupported,
-                MessageLoaderParms(
-                    "WsmServer.WsmReader.ENUMERATE_"
-                        "POLYMORPHISM_INCLUDE_SUBCLASS",
-                    "\"All classes\" resource URI requires "
-                        "IncludeSubClassProperties polymorphism mode."));
-        }
-    }
-
-    // If EnumerationMode header is not specified, set it to default
-    if (enumerationMode == WSEN_EM_UNKNOWN)
-    {
-        enumerationMode = WSEN_EM_OBJECT;
-    }
-
-    // If optimized enumeration is requested but maxElements is not specified,
-    // set it to default value of 1.
-    if (optimized && maxElements == 0)
-    {
-        maxElements = 1;
-    }
-
-    PEG_METHOD_EXIT();
-
-    return new WsenEnumerateRequest(
-        messageId,
-        epr,
-        expiration,
-        requestItemCount,
-        optimized,
-        maxElements,
-        enumerationMode,
-        polymorphismMode,
-        wsmFilter);
-}
-
-WsenPullRequest* WsmRequestDecoder::_decodeWSEnumerationPull(
-    WsmReader& wsmReader,
-    const String& messageId,
-    const WsmEndpointReference& epr,
-    Boolean requestItemCount)
-{
-    _checkRequiredHeader("wsman:ResourceURI", epr.resourceUri.size());
-    _checkNoSelectorsEPR(epr);
-
-    Uint64 enumerationContext = 0;
-    String maxTime;
-    Uint32 maxElements = 0;
-    Uint32 maxCharacters = 0;
-
-    XmlEntry entry;
-    wsmReader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
-    wsmReader.decodePullBody(
-        enumerationContext, maxTime, maxElements, maxCharacters);
-    wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
-
-    // If maxElements is not specified, set it to default value of 1.
-    if (maxElements == 0)
-    {
-        maxElements = 1;
-    }
-
-    return new WsenPullRequest(
-        messageId,
-        epr,
-        enumerationContext,
-        maxTime,
-        requestItemCount,
-        maxElements,
-        maxCharacters);
-}
-
-WsenReleaseRequest* WsmRequestDecoder::_decodeWSEnumerationRelease(
-    WsmReader& wsmReader,
-    const String& messageId,
-    const WsmEndpointReference& epr)
-{
-    _checkRequiredHeader("wsman:ResourceURI", epr.resourceUri.size());
-    _checkNoSelectorsEPR(epr);
-
-    Uint64 enumerationContext = 0;
-
-    XmlEntry entry;
-    wsmReader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
-    wsmReader.decodeReleaseBody(enumerationContext);
-    wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
-
-    return new WsenReleaseRequest(
-        messageId,
-        epr,
-        enumerationContext);
-}
-
-WsmRequest* WsmRequestDecoder::_decodeWSInvoke(
-    WsmReader& wsmReader,
-    const String& messageId,
-    const WsmEndpointReference& epr,
-    const String& className,
-    const String& methodName)
-{
-    XmlEntry entry;
-
-    //
-    // Parse the <s:Body> element. Here is an example:
-    //
-    //   <s:Body>
-    //     <p:Foo_INPUT xmlns:p=
-    //       "http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/SomeClass">
-    //       <p:Arg1>
-    //         1234
-    //       </p:Arg1>
-    //       <p:Arg2>
-    //         Hello!
-    //       </p:Arg2>
-    //     </p:Foo_INPUT>
-    //   </s:Body>
-    //
-
-    WsmInstance instance;
-    wsmReader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
-    wsmReader.decodeInvokeInputBody(className, methodName, instance);
-    wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
-
-    return new WsInvokeRequest(messageId, epr, className, methodName, instance);
-}
-
-WsmRequest* WsmRequestDecoder::_decodeWSUnsubscribeRequest(
-    WsmReader& wsmReader,
-    const String& messageId,
-    WsmEndpointReference& epr,
-    const String& identifier,
-    Boolean & includeFilter, 
-    AutoPtr<WsmRequest> &deleteFilterRequest,
-    AutoPtr<WsmRequest> &deleteHandlerRequest)
-{
-    PEG_METHOD_ENTER(TRC_WSMSERVER,
-        "WsmRequestDecoder::_decodeWSUnsubscribeRequest()");
-    _checkRequiredHeader("wse:Identifier", identifier.size());
-    XmlEntry entry;
-    wsmReader.expectStartOrEmptyTag(
-        entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
-    if (entry.type != XmlEntry::EMPTY_TAG)
-    {
-        wsmReader.expectStartOrEmptyTag(
-            entry, WsmNamespaces::WS_EVENTING, "Unsubscribe");
-        wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
-    }
-
-    WsmEndpointReference filterEPR;
-    String filterName;
-    // If existing filter is used in Subscription, do not delete the filter
-    if(_wsmProcessor->isSubCreatedWithExistingFilter(identifier, filterName))
-    {
-        getFilterOrHandlerEPR(filterEPR,
-            epr.address,
-            filterName,
-            PEGASUS_CLASSNAME_INDFILTER.getString());
-        includeFilter = false;
-    }
-    else
-    {
-        getFilterOrHandlerEPR(filterEPR,
-            epr.address,
-            identifier,
-            PEGASUS_CLASSNAME_INDFILTER.getString());
-    }
-
-    WsmEndpointReference handlerEPR;
-    getFilterOrHandlerEPR(handlerEPR,
-        epr.address,
-        identifier, PEGASUS_CLASSNAME_INDHANDLER_WSMAN.getString());
-
-    WsmEndpointReference subscriptionEPR;
-    subscriptionEPR.address = epr.address;
-    subscriptionEPR.resourceUri = String(WSM_RESOURCEURI_CIMSCHEMAV2) +
-        "/" + PEGASUS_CLASSNAME_INDSUBSCRIPTION.getString();
-    subscriptionEPR.selectorSet->selectors.append(WsmSelector
-        (String(PEGASUS_WS_CIMNAMESPACE),
-        PEGASUS_NAMESPACENAME_INTEROP.getString()));
-    subscriptionEPR.selectorSet->selectors.append(WsmSelector
-        (PEGASUS_PROPERTYNAME_FILTER.getString(), filterEPR));
-    subscriptionEPR.selectorSet->selectors.append(WsmSelector
-        (PEGASUS_PROPERTYNAME_HANDLER.getString(), handlerEPR));
-    // DSP0227:R10.6-4 :If a service created CIM indication-related instances
-    // as described in 10.5, then the service shall delete those instances 
-    // when the subscription is canceled for any reason.
-    if(includeFilter)
-    { 
-        deleteFilterRequest.reset(new WxfSubDeleteRequest( messageId, 
-            filterEPR, 
-            PEGASUS_CLASSNAME_INDFILTER.getString()));
-    }
-    deleteHandlerRequest.reset(new WxfSubDeleteRequest( messageId, 
-        handlerEPR, 
-        PEGASUS_CLASSNAME_INDHANDLER_WSMAN.getString()));
-    PEG_METHOD_EXIT();
-    return new WxfSubDeleteRequest(messageId, 
-        subscriptionEPR, 
-        PEGASUS_CLASSNAME_INDSUBSCRIPTION.getString());
-}
-
-WsmRequest* WsmRequestDecoder::_decodeWSSubscriptionRequest(
-    WsmReader& wsmReader,
-    const String& messageId,
-    WsmEndpointReference& epr,
-    AutoPtr<WsmRequest> &createFilterRequest,
-    AutoPtr<WsmRequest> &createSubRequest,
-    Boolean &includeFilter)
-{
-    PEG_METHOD_ENTER(TRC_WSMSERVER,
-        "WsmRequestDecoder::_decodeWSSubscriptionRequest()");
-    _checkRequiredHeader("wsman:ResourceURI", epr.resourceUri.size());
-
-    String filterName;
-    String deliveryMode;
-    String notifyTo;
-    String subExpiration;
-    XmlEntry entry;
-    WsmFilter wsmFilter;
-    // Remove the "uuid:" from messageId
-    String msgId = messageId.subString(PEGASUS_WS_UUID_LENGTH);
-
-    wsmReader.expectStartOrEmptyTag(
-        entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
-    if (entry.type != XmlEntry::EMPTY_TAG)
-    {
-        wsmReader.decodeSubscribeBody(
-            deliveryMode,
-            notifyTo,
-            subExpiration,
-            wsmFilter);
-        wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
-    }
-
-    // DSP0227: 10.2.1.1 - Subscribing to CIM server. 
-    // Resource URI is all classes
-    if( epr.resourceUri == WSM_RESOURCEURI_ALLCLASSES )
-    {
-        if(!wsmFilter.WQLFilter.query.size())
-        {
-                MessageLoaderParms parms(
-                    "WsmServer.WsmRequestDecoder.INVALID_MESSAGE ",
-                    "The request message has unknown or invalid content"
-                    " and cannot be processed. ");
-                throw WsmFault( WsmFault::wse_InvalidMessage, parms);
-        }
-    }
-    //DSP0227: 10.2.1.3 Subscribing to an existing filter
-    //Resource URI specifies existing filter
-    else if ( epr.resourceUri == WSM_RESOURCEURI_INDICATION_FILTER) 
-    {
-        // DSP0227:R10.2.2-2 - If a service supports filtering using an 
-        // existing filter expression, the service message shall return the 
-        // wsman:InvalidParameter fault if the wse:Subscribe request includes 
-        // a filter expression
-        if(wsmFilter.WQLFilter.query.size())
-        {
-            throw WsmFault(
-                    WsmFault::wsman_InvalidParameter,
-                    MessageLoaderParms(
-                        "WsmServer.WsmRequestDecoder.INVALID_PARAMETER ",
-                        "An operation parameter is not valid."));
-        }
-        else
-        {
-           for (Uint32 i = 0; i < epr.selectorSet->selectors.size(); i++)
-           {
-               if(String::equalNoCase(epr.selectorSet->selectors[i].name, 
-                      "Name"))
-               {
-                   filterName = epr.selectorSet->selectors[i].value;
-                   includeFilter = false;
-                   break;
-               }
-           }
-        }
-    }
-    //DSP0227: 10.2.1.2 Subscribing to an indication class
-    else 
-    { 
-        CIMName className = WsmToCimRequestMapper::
-            convertResourceUriToClassName(epr.resourceUri);
-        if(wsmFilter.filterDialect == WsmFilter::NONE)
-        {
-            //If no filter query is specified, form a filter query.
-            wsmFilter.filterDialect = WsmFilter::WQL;
-            String query("SELECT * FROM ");
-            query.append(className.getString());
-            wsmFilter.WQLFilter.query = query;
-            try
-            {
-                wsmFilter.WQLFilter.selectStatement.reset(
-                    new WQLSelectStatement);
-                WQLParser::parse(wsmFilter.WQLFilter.query,
-                    *wsmFilter.WQLFilter.selectStatement.get());
-            }
-            catch (ParseError& e)
-            {
-                MessageLoaderParms parms(
-                    "WsmServer.WsmRequestDecoder."
-                    "INVALID_FILTER_QUERY_EXPRESSION",
-                    "Invalid filter query expression: \"$0\".",
-                    entry.text);
-                throw WsmFault(WsmFault::wsen_CannotProcessFilter, parms);
-            }
-            wsmFilter.WQLFilter.queryLanguage = "WQL";
-        }
-        else if(wsmFilter.filterDialect == WsmFilter::WQL)
-        {
-            // DSP0227 - R8.1-9 : If class name in resource URI does not
-            // match the class name in the filter query, then throw 
-            // wse:EventSourceUnableToProcess fault.
-            WQLSelectStatement *st = wsmFilter.WQLFilter.selectStatement.get();
-            if(className.getString() != st->getClassName().getString())
-            {
-                throw WsmFault(
-                    WsmFault::wse_EventSourceUnableToProcess,
-                    MessageLoaderParms(
-                        "WsmServer.WsmRequestDecoder.UNABLE_TO_PROCESS ",
-                        "The event source cannot process the subscription."));
-            }
-        }
-    }
-    WsmEndpointReference filterEPR;
-    const String creClassName(PEGASUS_PROPERTYNAME_CREATIONCLASSNAME.
-        getString());
-    const String propertyName(PEGASUS_PROPERTYNAME_NAME.getString());
-    WsmValue sysNameValue(System::getFullyQualifiedHostName());
-    WsmProperty sysNameProp("SystemName", sysNameValue);
-    WsmValue sysCreClassNameValue(System::getSystemCreationClassName ());
-    WsmProperty sysCreClassNameProp(
-        "SystemCreationClassName", 
-        sysCreClassNameValue);
-
-    //Creating filterInstance and forming createInstace request for filter.
-    if ( includeFilter == true)
-    {
-        WsmInstance filterInstance;
-        filterInstance.setClassName(PEGASUS_CLASSNAME_INDFILTER.getString());
-
-        filterInstance.addProperty(sysCreClassNameProp);
-        filterInstance.addProperty(sysNameProp);
-
-        WsmValue filCreClassNameValue(PEGASUS_CLASSNAME_INDFILTER.getString());
-        WsmProperty filCreClassNameProp(creClassName, filCreClassNameValue);
-        filterInstance.addProperty(filCreClassNameProp);
-
-        WsmValue filNameValue(msgId);
-        WsmProperty filNameProp(propertyName, filNameValue);
-        filterInstance.addProperty(filNameProp);
-        filterName = msgId;
-
-        WsmValue queryValue(wsmFilter.WQLFilter.query);
-        WsmProperty queryProp(PEGASUS_PROPERTYNAME_QUERY.getString(),
-            queryValue);
-        filterInstance.addProperty(queryProp);
-
-        WsmValue queryLangValue(wsmFilter.WQLFilter.queryLanguage);
-        WsmProperty queryLangProp(PEGASUS_PROPERTYNAME_QUERYLANGUAGE.
-            getString(), 
-            queryLangValue);
-        filterInstance.addProperty(queryLangProp);
-
-        WsmValue srcNamespaceValue(( const char *)epr.getNamespace().
-            getCString() );
-        WsmProperty srcNamespaceProp("SourceNamespaces", srcNamespaceValue);
-        filterInstance.addProperty(srcNamespaceProp);
-        getFilterOrHandlerEPR(filterEPR, 
-            epr.address, 
-            filterName, 
-            PEGASUS_CLASSNAME_INDFILTER.getString());
-        createFilterRequest.reset(new WxfSubCreateRequest(messageId, 
-            filterEPR, 
-            filterInstance));
-    }
-    else
-    {
-        getFilterOrHandlerEPR(filterEPR, 
-            epr.address, 
-            filterName, 
-            PEGASUS_CLASSNAME_INDFILTER.getString());
-    }
-
-    //Creating Handler Instance.
-    WsmInstance handlerInstance;
-    handlerInstance.setClassName(PEGASUS_CLASSNAME_INDHANDLER_WSMAN.
-        getString());
-    handlerInstance.addProperty(sysCreClassNameProp);
-    handlerInstance.addProperty(sysNameProp);
-    WsmValue hanCreClassNameValue(PEGASUS_CLASSNAME_INDHANDLER_WSMAN.
-        getString());
-    WsmProperty hanCreClassNameProp(creClassName, hanCreClassNameValue);
-    handlerInstance.addProperty(hanCreClassNameProp);
-
-    WsmValue handlerNameValue(msgId);
-    WsmProperty handlerNameProp(propertyName,handlerNameValue);
-    handlerInstance.addProperty(handlerNameProp);
-
-    WsmValue deliveryModeValue(deliveryMode);
-    WsmProperty deliveryModeProp(
-        PEGASUS_PROPERTYNAME_WSM_DELIVERY_MODE.getString(),
-        deliveryModeValue);
-    handlerInstance.addProperty(deliveryModeProp);
-
-    WsmValue destValue(notifyTo);
-    WsmProperty destProp(PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION.getString(),
-        destValue);
-    handlerInstance.addProperty(destProp);    
-
-    WsmEndpointReference handlerEPR;
-    getFilterOrHandlerEPR(handlerEPR, 
-        epr.address, 
-        msgId, 
-        PEGASUS_CLASSNAME_INDHANDLER_WSMAN.getString());
-
-    //Creating Subscription Instance.
-    WsmInstance subscriptionInstance; 
-    subscriptionInstance.setClassName(
-        PEGASUS_CLASSNAME_INDSUBSCRIPTION.getString());
-
-    WsmValue subCreClassNameValue(
-        PEGASUS_CLASSNAME_INDSUBSCRIPTION.getString());
-    WsmProperty subCreClassNameProp(creClassName, subCreClassNameValue);
-
-    WsmValue subInfoVal(msgId);
-    WsmProperty subscriptionInfo(_PROPERTY_SUBSCRIPTION_INFO.getString(),
-            subInfoVal);
-    subscriptionInstance.addProperty(subscriptionInfo); 
-
-    WsmValue subFilterValue(filterEPR);
-    WsmProperty subFilterProp(PEGASUS_PROPERTYNAME_FILTER.getString(), 
-        subFilterValue);
-    subscriptionInstance.addProperty(subFilterProp);
-
-    WsmValue subHandlerValue(handlerEPR);
-    WsmProperty subHandlerProp(PEGASUS_PROPERTYNAME_HANDLER.getString(), 
-        subHandlerValue);
-    subscriptionInstance.addProperty(subHandlerProp);
-
-    if(subExpiration.size())
-    {
-        WsmValue subDurationval(subExpiration);
-        WsmProperty subDurationProp(PEGASUS_WS_SUB_DURATION,
-            subDurationval);
-        subscriptionInstance.addProperty(subDurationProp);
-    }
-
-    WsmEndpointReference subscriptionEPR;
-    subscriptionEPR.address = epr.address;
-    subscriptionEPR.resourceUri = String(WSM_RESOURCEURI_CIMSCHEMAV2) +
-        "/" + PEGASUS_CLASSNAME_INDSUBSCRIPTION.getString();
-    subscriptionEPR.selectorSet->selectors.append(WsmSelector
-        (String(PEGASUS_WS_CIMNAMESPACE),
-        PEGASUS_NAMESPACENAME_INTEROP.getString()));
-    createSubRequest.reset(new WxfSubCreateRequest(messageId, 
-        subscriptionEPR, 
-        subscriptionInstance));
-    PEG_METHOD_EXIT();
-    return(new WxfSubCreateRequest(messageId, 
-        handlerEPR, 
-        handlerInstance));
-}
-
-void WsmRequestDecoder::getFilterOrHandlerEPR(
-    WsmEndpointReference& instanceEPR,
-    const String address,
-    const String name,
-    const String className)
-{
-    instanceEPR.address = address;
-    instanceEPR.resourceUri = String(WSM_RESOURCEURI_CIMSCHEMAV2) 
-        + "/" + className;
-    instanceEPR.selectorSet->selectors.append(WsmSelector
-        (String(PEGASUS_WS_CIMNAMESPACE),
-        PEGASUS_NAMESPACENAME_INTEROP.getString()));
-    instanceEPR.selectorSet->selectors.append(WsmSelector(
-        "SystemCreationClassName",
-        System::getSystemCreationClassName()));
-    instanceEPR.selectorSet->selectors.append(WsmSelector(
-        "SystemName",
-        System::getFullyQualifiedHostName()));
-    instanceEPR.selectorSet->selectors.append(WsmSelector(
-        PEGASUS_PROPERTYNAME_CREATIONCLASSNAME.getString(),
-        className));
-    instanceEPR.selectorSet->selectors.append(WsmSelector(
-        PEGASUS_PROPERTYNAME_NAME.getString(), 
-        name));
-}
-
-bool WsmRequestDecoder::_isIdentifyRequest(WsmReader& wsmReader)
-{
-    // Parse the <s:Body> element. Here is an example:
-    //
-    //   <s:Body>
-    //     <wsmid:Identify>
-    //   </s:Body>
-
-    XmlEntry entry;
-    wsmReader.setHideEmptyTags(true);
-    wsmReader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
-
-    try
-    {
-        // Expect an identify element. Ignore the namespace to be more
-        // tolerant.
-        int nsType = wsmReader.expectStartTag(entry, "Identify");
-        wsmReader.expectEndTag(nsType, "Identify");
-    }
-    catch (...)
-    {
-        wsmReader.setHideEmptyTags(false);
-        return false;
-    }
-
-    wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
-    wsmReader.setHideEmptyTags(false);
-
-    return true;
-}
-
-void WsmRequestDecoder::_sendIdentifyResponse(Uint32 queueId)
-{
-    const char HTTP[] =
-        "HTTP/1.1 200 OK\r\n"
-        "Content-Type: application/soap+xml;charset=UTF-8\r\n"
-        "Content-Length: ";
-
-    const char XML[] =
-        "<s:Envelope xmlns:s=\""
-        "http://www.w3.org/2003/05/soap-envelope"
-        "\" xmlns:wsmid=\""
-        "http://schemas.dmtf.org/wbem/wsman/identify/1/wsmanidentity.xsd"
-        "\">"
-        "<s:Header>"
-        "</s:Header>"
-        "<s:Body>"
-        "<wsmid:IdentifyResponse>"
-        "<wsmid:ProtocolVersion>"
-        WSMAN_PROTOCOL_VERSION
-        "</wsmid:ProtocolVersion>"
-        "<wsmid:ProductVendor>"
-        WSMAN_PRODUCT_VENDOR
-        "</wsmid:ProductVendor>"
-        "<wsmid:ProductVersion>"
-        WSMAN_PRODUCT_VERSION
-        "</wsmid:ProductVersion>"
-        "</wsmid:IdentifyResponse>"
-        "</s:Body>"
-        "</s:Envelope>";
-
-    Buffer message;
-    message.append(HTTP, sizeof(HTTP) - 1);
-
-    char buf[32];
-    int n = sprintf(buf, "%d\r\n\r\n", int(sizeof(XML) - 1));
-    message.append(buf, n);
-
-    message.append(XML, sizeof(XML) - 1);
-
-    sendResponse(queueId, message, false);
+    return new WsmDeleteRequest(messageId, epr);
 }
 
 PEGASUS_NAMESPACE_END

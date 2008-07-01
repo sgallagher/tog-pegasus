@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -132,26 +134,26 @@ const Uint32 CIMCRLCommand::_OPERATION_TYPE_VERSION = 5;
 static const CIMName PROPERTY_NAME_ISSUERNAME = CIMName ("IssuerName");
 
 /**
-    This constant represents the name of the lastUpdate
+    This constant represents the name of the lastUpdate 
     property in the schema
 */
 static const CIMName PROPERTY_NAME_LASTUPDATE   = CIMName ("LastUpdate");
 
 /**
-    This constant represents the name of the nextUpdate
+    This constant represents the name of the nextUpdate 
     property in the schema
 */
 static const CIMName PROPERTY_NAME_NEXTUPDATE   = CIMName ("NextUpdate");
 
 /**
-    This constant represents the name of the revokedSerialNumbers
+    This constant represents the name of the revokedSerialNumbers 
     property in the schema
 */
 static const CIMName PROPERTY_NAME_REVOKED_SERIAL_NUMBERS =
                                       CIMName ("RevokedSerialNumbers");
 
 /**
-    This constant represents the name of the revocationDates
+    This constant represents the name of the revocationDates 
     property in the schema
 */
 static const CIMName PROPERTY_NAME_REVOCATION_DATES =
@@ -245,14 +247,14 @@ CIMCRLCommand::CIMCRLCommand ()
     _usage.append (COMMAND_NAME);
 
     //
-    // Add option
+    // Add option 
     //
     _usage.append (" -").append (_OPTION_ADD);
     _usage.append (" -").append (_OPTION_CRLFILE).append (" crlfile");
     _usage.append ("\n");
 
     //
-    // Remove option
+    // Remove option 
     //
     //_usage.append ("                   -").append (_OPTION_REMOVE);
     _usage.append("       ").append (COMMAND_NAME);
@@ -342,7 +344,7 @@ String CIMCRLCommand::_formatCIMDateTime(const String& cimDateTimeStr)
     sscanf(cimDateTimeStr.getCString(), "%04u%02u%02u%02u%02u%02u.%06u%04d",
            &year, &month, &day, &hour, &minute, &second,
            &microsecond, &timezone);
-
+ 
     char monthString[5];
 
     switch (month)
@@ -384,7 +386,7 @@ String CIMCRLCommand::_formatCIMDateTime(const String& cimDateTimeStr)
           sprintf(monthString, "Dec");
           break;
       default:
-          PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+          PEGASUS_ASSERT(false);
 
       return (cimDateTimeStr);
    }
@@ -596,16 +598,16 @@ void CIMCRLCommand::_listCRL (
 
         outPrintWriter << "Revoked Certificates:" << endl;
 
-        for (Uint32 j = 0; j < revokedSerialNumbers.size(); j++)
+        for (Uint32 i = 0; i < revokedSerialNumbers.size(); i++)
         {
             String revocationDateStr =
-                _formatCIMDateTime(revocationDates[j].toString());
+                _formatCIMDateTime(revocationDates[i].toString());
 
             //
             // Display the revoked serial numbers and the revocation dates
             //
             outPrintWriter <<
-                "    Serial Number: " << revokedSerialNumbers[j] << endl;
+                "    Serial Number: " << revokedSerialNumbers[i] << endl;
             outPrintWriter <<
                 "        Revocation Date: " << revocationDateStr << endl;
             outPrintWriter << endl;
@@ -822,7 +824,7 @@ void CIMCRLCommand::setCommand (Uint32 argc, char* argv [])
 
                 default:
                 {
-                    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+                    PEGASUS_ASSERT(false);
                 }
             }
         }

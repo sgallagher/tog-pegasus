@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -51,7 +53,7 @@ PEGASUS_NAMESPACE_BEGIN
 #undef PEGASUS_ARRAY_T
 
 //
-// Terminal element methods
+// Terminal element methods 
 //
 
 void term_el::negate()
@@ -62,8 +64,8 @@ void term_el::negate()
 //
 // Evaluation heap element methods
 //
-stack_el eval_el::getFirst()
-{
+stack_el eval_el::getFirst() 
+{ 
    return stack_el(opn1, is_terminal1);
 }
 
@@ -72,13 +74,13 @@ stack_el eval_el::getSecond()
    return stack_el(opn2, is_terminal2);
 }
 
-void eval_el::setFirst(const stack_el &s)
+void eval_el::setFirst(const stack_el s)
 {
      opn1 = s.opn;
      is_terminal1 = s.is_terminal;
 }
 
-void eval_el::setSecond(const stack_el &s)
+void eval_el::setSecond(const stack_el s)
 {
     opn2 = s.opn;
     is_terminal2 = s.is_terminal;
@@ -102,38 +104,31 @@ void eval_el::order(void)
 {
     int k;
     if ((!is_terminal1) && (!is_terminal2))
-    {
         if ((k = opn2) > opn1)
         {
             opn2 = opn1;
             opn1 =  k;
         }
-    }
-    else
-    {
-        if ((is_terminal1) && (!is_terminal2))
+    else if ((is_terminal1) && (!is_terminal2))
+        if ((k = opn2) > opn1)
         {
-            if ((k = opn2) > opn1)
-            {
-                opn2 = opn1;
-                opn1 =  k;
-                is_terminal1 = false;
-                is_terminal2 = true;
-            }
+            opn2 = opn1;
+            opn1 =  k;
+            is_terminal1 = false;
+            is_terminal2 = true;
         }
-    }
 }
 /*
 static bool operator==(const term_el& x, const term_el& y)
 {
-    return x._simplePredicate == y._simplePredicate;
+    return x._simplePredicate == y._simplePredicate; 
 }
 */
 //
 // CQL Compiler methods
 //
-/*
-Cql2Dnf::Cql2Dnf()
+/*    
+Cql2Dnf::Cql2Dnf() 
 {
     eval_heap.reserveCapacity(16);
     terminal_heap.reserveCapacity(16);
@@ -229,7 +224,7 @@ void Cql2Dnf::_buildEvalHeap()
                 break;
             }
 
-            case CQL_EQ:
+            case CQL_EQ: 
             case CQL_NE:
             case CQL_LT:
             case CQL_LE:
@@ -470,7 +465,7 @@ void Cql2Dnf::_strip_ops_operands(CQLPredicate& topLevel)
     PEG_METHOD_ENTER(TRC_CQL, "Cql2Dnf::_strip_ops_operands");
     //
     // depth first search for all operations and operands
-    // extract operations and operands and store in respective arrays
+    // extract operations and operands and store in respective arrays 
     // for later processing
     //
     _destruct(topLevel);
@@ -507,13 +502,13 @@ ExpressionOpType Cql2Dnf::_convertOpType(OperationType op)
         case CQL_LT: return LT;
         case CQL_GE: return GE;
         case CQL_LE: return LE;
-        case CQL_IS_NULL: return IS_NULL;
+        case CQL_IS_NULL: return IS_NULL; 
         case CQL_IS_NOT_NULL: return IS_NOT_NULL;
         case CQL_ISA: return ISA;
         case CQL_LIKE: return LIKE;
         default: break; // should never get here
     }
-    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+    PEGASUS_ASSERT(0);
     return EQ;
 }
 
@@ -524,9 +519,9 @@ void Cql2Dnf::_destruct(CQLPredicate& _p){
         _operands.append(_sp.getLeftExpression());
         if((_operations[_operations.size()-1] != CQL_IS_NULL)
             && (_operations[_operations.size()-1] != CQL_IS_NOT_NULL))
-        {
+        {    
             _operands.append(_sp.getRightExpression());
-        }
+        }    
     }
     else{
         Array<CQLPredicate> _preds = _p.getPredicates();
@@ -558,15 +553,15 @@ void Cql2Dnf::_construct(){
     PEG_METHOD_ENTER(TRC_CQL, "Cql2Dnf::_construct");
     //
     // Each eval_el on the eval heap contains all the information needed to
-    // make a CQLPredicate.
+    // make a CQLPredicate.  
     // We will build a CQLPredicate for every element in the eval heap.
     // So there is a 1 to 1 correspondence
     // between elements in the eval heap and elements in the CQLPredicate
-    // array used below.
+    // array used below.  
     // The first eval_el on the eval heap will always contain at least one
     // terminal if the operation is a NOT
     // or two terminals if the operation is AND or OR.  We are guaranteed to
-    // build a CQLPredicate from the first position in the eval_heap array.
+    // build a CQLPredicate from the first position in the eval_heap array. 
     //
     // The key to the algorithm is the isterminalX flag.
     // When set to true, we go to the term_heap and get the CQLSimplePredicate.
@@ -584,7 +579,7 @@ void Cql2Dnf::_construct(){
     // top level CQLPredicate (the rebuilt tree)
     //
     // Example:  a=b^(!c=d v e=f)
-    // If the current eval_heap looks like:
+    // If the current eval_heap looks like: 
     //  0,NOT,1,True,-1,True [index = 0]
     //  0,OR,2,True,0,False  [index = 1]
     //  0,AND,1,False,0,True [index = 2]
@@ -662,7 +657,7 @@ void Cql2Dnf::_construct(){
                 case CQL_NE:
                 case CQL_GT:
                 case CQL_LT:
-                case CQL_GE:
+                case CQL_GE: 
                 case CQL_LE:
                 case CQL_ISA:
                 case CQL_LIKE:
@@ -725,7 +720,7 @@ void Cql2Dnf::_construct(){
                 case CQL_IS_NULL:
                 case CQL_IS_NOT_NULL:
                     break;
-
+                               
             }
         }
         else if(!eval.is_terminal1 && eval.is_terminal2)
@@ -865,7 +860,7 @@ CQLPredicate Cql2Dnf::_flattenANDappend(CQLPredicate& topLevel,
     // instead we would:
     // -> get P1s predicates (which should all be simple)
     // -> append its first predicate to P along with the operator passed into
-    // us
+    // us 
     // -> at this point we have P = A AND B OR C
     // -> then go through P1s remaining predicates and append them and P1s
     // operators to P

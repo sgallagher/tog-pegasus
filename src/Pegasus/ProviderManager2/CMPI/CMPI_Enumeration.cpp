@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -49,7 +51,7 @@ extern "C"
             CMPI_InstEnumeration* ie = (CMPI_InstEnumeration*)eObj->hdl;
             if (ie)
             {
-                Array<SCMOInstance>* enm = (Array<SCMOInstance>*)ie->hdl;
+                Array<CIMInstance>* enm = (Array<CIMInstance>*)ie->hdl;
                 if (enm)
                 {
                     delete enm;
@@ -63,7 +65,7 @@ extern "C"
             CMPI_ObjEnumeration* ie = (CMPI_ObjEnumeration*)eObj->hdl;
             if (ie)
             {
-                Array<SCMOInstance>* enm = (Array<SCMOInstance>*)ie->hdl;
+                Array<CIMObject>* enm = (Array<CIMObject>*)ie->hdl;
                 if (enm)
                 {
                     delete enm;
@@ -77,7 +79,7 @@ extern "C"
             CMPI_OpEnumeration* ie = (CMPI_OpEnumeration*)eObj->hdl;
             if (ie)
             {
-                Array<SCMOInstance>* enm = (Array<SCMOInstance>*)ie->hdl;
+                Array<CIMObjectPath>* enm = (Array<CIMObjectPath>*)ie->hdl;
                 if (enm)
                 {
                     delete enm;
@@ -103,33 +105,33 @@ extern "C"
         {
             if ((void*)eEnum->ft == (void*)CMPI_InstEnumeration_Ftab)
             {
-                Array<SCMOInstance>* enm = (Array<SCMOInstance>*)eEnum->hdl;
+                Array<CIMInstance>* enm = (Array<CIMInstance>*)eEnum->hdl;
                 CMPI_Object *obj = new CMPI_Object(
-                    new CMPI_InstEnumeration(new Array<SCMOInstance>(*enm)));
+                    new CMPI_InstEnumeration(new Array<CIMInstance>(*enm)));
                 obj->unlink(); // remove from current thread context.
-                CMPIEnumeration* cmpiEnum =
+                CMPIEnumeration* cmpiEnum = 
                     reinterpret_cast<CMPIEnumeration*>(obj);
                 PEG_METHOD_EXIT();
                 return cmpiEnum;
             }
             else if ((void*)eEnum->ft == (void*)CMPI_ObjEnumeration_Ftab)
             {
-                Array<SCMOInstance>* enm = (Array<SCMOInstance>*)eEnum->hdl;
+                Array<CIMObject>* enm = (Array<CIMObject>*)eEnum->hdl;
                 CMPI_Object *obj = new CMPI_Object(
-                    new CMPI_ObjEnumeration(new Array<SCMOInstance>(*enm)));
+                    new CMPI_ObjEnumeration(new Array<CIMObject>(*enm)));
                 obj->unlink(); // remove from current thread context.
-                CMPIEnumeration* cmpiEnum =
+                CMPIEnumeration* cmpiEnum = 
                     reinterpret_cast<CMPIEnumeration*>(obj);
                 PEG_METHOD_EXIT();
                 return cmpiEnum;
             }
             else if ((void*)eEnum->ft == (void*)CMPI_OpEnumeration_Ftab)
             {
-                Array<SCMOInstance>* enm = (Array<SCMOInstance>*)eEnum->hdl;
+                Array<CIMObjectPath>* enm = (Array<CIMObjectPath>*)eEnum->hdl;
                 CMPI_Object *obj = new CMPI_Object(
-                    new CMPI_OpEnumeration(new Array<SCMOInstance>(*enm)));
+                    new CMPI_OpEnumeration(new Array<CIMObjectPath>(*enm)));
                 obj->unlink(); // remove from current thread context.
-                CMPIEnumeration* cmpiEnum =
+                CMPIEnumeration* cmpiEnum = 
                     reinterpret_cast<CMPIEnumeration*>(obj);
                 PEG_METHOD_EXIT();
                 return cmpiEnum;
@@ -160,13 +162,11 @@ extern "C"
         {
             CMPI_ObjEnumeration* ie = (CMPI_ObjEnumeration*)eEnum;
             data.type = CMPI_instance;
-            Array<SCMOInstance>* ia = (Array<SCMOInstance>*)ie->hdl;
+            Array<CIMInstance>* ia = (Array<CIMInstance>*)ie->hdl;
             if (ie->cursor<ie->max)
             {
                 data.value.inst = reinterpret_cast<CMPIInstance*>
-                    (new CMPI_Object(
-                        new SCMOInstance((*ia)[ie->cursor++]),
-                        CMPI_Object::ObjectTypeInstance));
+                    (new CMPI_Object(new CIMInstance((*ia)[ie->cursor++])));
                 CMSetStatus(rc, CMPI_RC_OK);
             }
             else
@@ -178,13 +178,11 @@ extern "C"
         {
             CMPI_InstEnumeration* ie = (CMPI_InstEnumeration*)eEnum;
             data.type = CMPI_instance;
-            Array<SCMOInstance>* ia = (Array<SCMOInstance>*)ie->hdl;
+            Array<CIMInstance>* ia = (Array<CIMInstance>*)ie->hdl;
             if (ie->cursor<ie->max)
             {
                 data.value.inst = reinterpret_cast<CMPIInstance*>
-                    (new CMPI_Object(
-                        new SCMOInstance((*ia)[ie->cursor++]),
-                        CMPI_Object::ObjectTypeInstance));
+                    (new CMPI_Object(new CIMInstance((*ia)[ie->cursor++])));
                 CMSetStatus(rc, CMPI_RC_OK);
             }
             else
@@ -196,13 +194,11 @@ extern "C"
         {
             CMPI_OpEnumeration* oe = (CMPI_OpEnumeration*)eEnum;
             data.type = CMPI_ref;
-            Array<SCMOInstance>* opa = (Array<SCMOInstance>*)oe->hdl;
+            Array<CIMObjectPath>* opa = (Array<CIMObjectPath>*)oe->hdl;
             if (oe->cursor<oe->max)
             {
                 data.value.ref = reinterpret_cast<CMPIObjectPath*>
-                    (new CMPI_Object(
-                        new SCMOInstance((*opa)[oe->cursor++]),
-                        CMPI_Object::ObjectTypeObjectPath));
+                    (new CMPI_Object(new CIMObjectPath((*opa)[oe->cursor++])));
                 CMSetStatus(rc, CMPI_RC_OK);
             }
             else
@@ -293,38 +289,36 @@ extern "C"
         if ((void*)eEnum->ft == (void*)CMPI_ObjEnumeration_Ftab ||
             (void*)eEnum->ft == (void*)CMPI_InstEnumeration_Ftab)
         {
-            Array<SCMOInstance>* ia;
+            Array<CIMInstance>* ia;
             if ((void*)eEnum->ft == (void*)CMPI_ObjEnumeration_Ftab)
             {
                 CMPI_ObjEnumeration* ie = (CMPI_ObjEnumeration*)eEnum;
-                ia = (Array<SCMOInstance>*)ie->hdl;
+                ia = (Array<CIMInstance>*)ie->hdl;
             }
             else
             {
                 CMPI_InstEnumeration* ie = (CMPI_InstEnumeration*)eEnum;
-                ia = (Array<SCMOInstance>*)ie->hdl;
+                ia = (Array<CIMInstance>*)ie->hdl;
             }
             size = ia->size();
             nar = mbEncNewArray(NULL,size,CMPI_instance,NULL);
             for (Uint32 i=0; i<size; i++)
             {
-                SCMOInstance &inst = (*ia)[i];
-                obj = new CMPI_Object(new SCMOInstance(inst),
-                                      CMPI_Object::ObjectTypeInstance);
+                CIMInstance &inst = (*ia)[i];
+                obj = new CMPI_Object(new CIMInstance(inst));
                 arraySetElementAt(nar,i,(CMPIValue*)&obj,CMPI_instance);
             }
         }
         else
         {
             CMPI_OpEnumeration* oe = (CMPI_OpEnumeration*)eEnum;
-            Array<SCMOInstance>* opa = (Array<SCMOInstance>*)oe->hdl;
+            Array<CIMObjectPath>* opa = (Array<CIMObjectPath>*)oe->hdl;
             size = opa->size();
             nar = mbEncNewArray(NULL,size,CMPI_ref,NULL);
             for (Uint32 i=0; i<size; i++)
             {
-                SCMOInstance &op = (*opa)[i];
-                obj = new CMPI_Object(new SCMOInstance(op),
-                                      CMPI_Object::ObjectTypeObjectPath);
+                CIMObjectPath &op = (*opa)[i];
+                obj = new CMPI_Object(new CIMObjectPath(op));
                 arraySetElementAt(nar,i,(CMPIValue*)&obj,CMPI_ref);
             }
         }
@@ -367,7 +361,7 @@ CMPIEnumerationFT *CMPI_ObjEnumeration_Ftab = &objEnumeration_FT;
 CMPIEnumerationFT *CMPI_InstEnumeration_Ftab = &instEnumeration_FT;
 CMPIEnumerationFT *CMPI_OpEnumeration_Ftab = &opEnumeration_FT;
 
-CMPI_ObjEnumeration::CMPI_ObjEnumeration(Array<SCMOInstance>* oa)
+CMPI_ObjEnumeration::CMPI_ObjEnumeration(Array<CIMObject>* oa)
 {
     PEG_METHOD_ENTER(
         TRC_CMPIPROVIDERINTERFACE,
@@ -378,7 +372,7 @@ CMPI_ObjEnumeration::CMPI_ObjEnumeration(Array<SCMOInstance>* oa)
     ft = CMPI_ObjEnumeration_Ftab;
     PEG_METHOD_EXIT();
 }
-CMPI_InstEnumeration::CMPI_InstEnumeration(Array<SCMOInstance>* ia)
+CMPI_InstEnumeration::CMPI_InstEnumeration(Array<CIMInstance>* ia)
 {
     PEG_METHOD_ENTER(
         TRC_CMPIPROVIDERINTERFACE,
@@ -390,7 +384,7 @@ CMPI_InstEnumeration::CMPI_InstEnumeration(Array<SCMOInstance>* ia)
     PEG_METHOD_EXIT();
 }
 
-CMPI_OpEnumeration::CMPI_OpEnumeration(Array<SCMOInstance>* opa)
+CMPI_OpEnumeration::CMPI_OpEnumeration(Array<CIMObjectPath>* opa)
 {
     PEG_METHOD_ENTER(
         TRC_CMPIPROVIDERINTERFACE,

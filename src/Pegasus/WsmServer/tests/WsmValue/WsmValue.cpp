@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include <stdio.h>
@@ -101,7 +103,7 @@ static void _testStrings(void)
                 if (stra[i-1] != buf)
                     throw Exception("Invalid string array entry.");
             }
-
+            
             // Re-set the value from array to string
             val.set("New test string 1");
             if (val.getType() != WSMTYPE_OTHER ||
@@ -113,7 +115,7 @@ static void _testStrings(void)
             if (str != "New test string 1")
                 throw Exception("Can't set string value.");
 
-            // Add string values. The value must convert itself into
+            // Add string values. The value must convert itself into 
             // string array.
             for (int i = 2; i < 6; i++)
             {
@@ -122,7 +124,7 @@ static void _testStrings(void)
                 WsmValue tmp(buf);
                 val.add(tmp);
             }
-
+            
              // Make sure we can get the array + verify it's size
             val.get(stra);
             if (stra.size() != 5)
@@ -184,12 +186,12 @@ static void _createEPR(int idx, WsmEndpointReference& epr)
     epr.resourceUri = buf;
 }
 
-static Boolean _compareEPRs(WsmEndpointReference& epr1,
+static Boolean _compareEPRs(WsmEndpointReference& epr1, 
     WsmEndpointReference& epr2)
 {
     if (epr1.address != epr2.address ||
         epr1.resourceUri != epr2.resourceUri ||
-        epr1.selectorSet->selectors.size() !=
+        epr1.selectorSet->selectors.size() != 
         epr2.selectorSet->selectors.size())
         return false;
 
@@ -214,7 +216,7 @@ static void _testEPRs(void)
     if (val.getType() != WSMTYPE_REFERENCE ||
         val.isArray() || val.isNull())
         throw Exception("Invalid EPR value.");
-
+    
     // Test EPR get()
     WsmEndpointReference epr1;
     val.get(epr1);
@@ -253,7 +255,7 @@ static void _testEPRs(void)
         if (!_verifyEPR(i, epra[i]))
             throw Exception("Invalid EPR array entry.");
     }
-
+            
     // Re-set the value from array to EPR
     _createEPR(10, epr);
     val.set(epr);
@@ -274,7 +276,7 @@ static void _testEPRs(void)
         WsmValue tmp_val(tmp_epr);
         val.add(tmp_val);
     }
-
+            
     // Make sure we can get the array + verify it's size
     val.get(epra);
     if (epra.size() != 5)
@@ -350,7 +352,7 @@ static void _testInstances(void)
     if (val.getType() != WSMTYPE_INSTANCE ||
         val.isArray() || val.isNull())
         throw Exception("Invalid Instance value.");
-
+    
     // Test Instance get()
     WsmInstance inst1;
     val.get(inst1);
@@ -389,7 +391,7 @@ static void _testInstances(void)
         if (!_verifyInstance(i, insta[i]))
             throw Exception("Invalid Instance array entry.");
     }
-
+            
     // Re-set the value from array to Instance
     _createInstance(10, inst);
     val.set(inst);
@@ -410,7 +412,7 @@ static void _testInstances(void)
         WsmValue tmp_val(tmp_inst);
         val.add(tmp_val);
     }
-
+            
     // Make sure we can get the array + verify it's size
     val.get(insta);
     if (insta.size() != 5)
@@ -623,7 +625,7 @@ static void _testMisc(void)
         Array<String> stra;
         WsmValue val(stra);
         val.toArray();
-        if (val.isNull() || !val.isArray() ||
+        if (val.isNull() || !val.isArray() || 
             val.getType() != WSMTYPE_OTHER)
             throw Exception("Invalid array value");
     }
@@ -633,9 +635,9 @@ static void _testMisc(void)
     {
         WsmValue val(inst);
         val.setNull();
-        if (!val.isNull() || val.isArray() ||
+        if (!val.isNull() || val.isArray() || 
             val.getType() != WSMTYPE_OTHER)
-            throw Exception("Invalid NULL value");
+            throw Exception("Invalid NULL value");    
     }
 }
 
@@ -651,7 +653,7 @@ int main(int argc, char** argv)
     }
     catch (Exception& e)
     {
-        cerr << "Error: " << e.getMessage() << endl;
+        cerr << "Error: " << e.getMessage() << endl;    
         exit(1);
     }
     cout << argv[0] << " +++++ passed all tests" << endl;

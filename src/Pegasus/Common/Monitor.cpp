@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -510,6 +512,7 @@ void Monitor::run(Uint32 milliseconds)
 #else
     int events = select(maxSocketCurrentPass, &fdread, NULL, NULL, &tv);
 #endif
+    int selectErrno = getSocketError();
 
     _entriesMutex.lock();
 
@@ -523,9 +526,6 @@ void Monitor::run(Uint32 milliseconds)
 
     if (events == PEGASUS_SOCKET_ERROR)
     {
-        int selectErrno = 0; 
-        selectErrno = getSocketError();
-
         PEG_TRACE((TRC_HTTP, Tracer::LEVEL1,
             "Monitor::run - select() returned error %d.", selectErrno));
         // The EBADF error indicates that one or more or the file
@@ -562,7 +562,7 @@ void Monitor::run(Uint32 milliseconds)
                             "entries[%d].type is TYPE_CONNECTION",
                             indx));
 
-                        HTTPConnection *dst =
+                        HTTPConnection *dst = 
                             reinterpret_cast<HTTPConnection *>(q);
                         dst->_entry_index = indx;
 
@@ -585,7 +585,7 @@ void Monitor::run(Uint32 milliseconds)
 
                             try
                             {
-                                dst->run();
+                                dst->run(1);
                             }
                             catch (...)
                             {
@@ -607,8 +607,10 @@ void Monitor::run(Uint32 milliseconds)
                             "Non-connection entry, indx = %d, has been "
                                 "received.",
                             indx));
+                        int events = 0;
+                        events |= SocketMessage::READ;
                         Message* msg = new SocketMessage(
-                            entries[indx].socket, SocketMessage::READ);
+                            entries[indx].socket, events);
                         entries[indx].status = MonitorEntry::STATUS_BUSY;
                         _entriesMutex.unlock();
                         q->enqueue(msg);
@@ -681,6 +683,7 @@ void Monitor::stopListeningForConnections(Boolean wait)
 
 int Monitor::solicitSocketMessages(
     SocketHandle socket,
+    Uint32 events,
     Uint32 queueId,
     Uint32 type)
 {
@@ -708,7 +711,6 @@ int Monitor::solicitSocketMessages(
                 _entries[index].type = type;
                 _entries[index].status = MonitorEntry::STATUS_IDLE;
 
-                PEG_METHOD_EXIT();
                 return (int)index;
             }
         }

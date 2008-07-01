@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,13 +40,6 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Client/CIMClientException.h>
 #include "HTTPExportResponseDecoder.h"
-#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
-#include <Pegasus/WsmServer/WsmConstants.h>
-#include <Pegasus/WsmServer/WsmReader.h>
-#include <Pegasus/WsmServer/WsmFault.h>
-#include <Pegasus/WsmServer/WsmRequestDecoder.h>
-#include <Pegasus/WsmServer/WsmEndpointReference.h>
-#endif
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -71,6 +66,7 @@ void HTTPExportResponseDecoder::parseHTTPHeaders(
     valid = true;
 
     String startLine;
+    String connectClose;
 
     //
     //  Check for empty HTTP response message
@@ -78,7 +74,7 @@ void HTTPExportResponseDecoder::parseHTTPHeaders(
     if (httpMessage->message.size() == 0)
     {
         MessageLoaderParms mlParms(
-            "ExportClient.HTTPExportResponseDecoder.EMPTY_RESPONSE",
+            "ExportClient.CIMExportResponseDecoder.EMPTY_RESPONSE",
             "Connection closed by CIM Server.");
         String mlString(MessageLoader::getMessage(mlParms));
         AutoPtr<CIMClientMalformedHTTPException> malformedHTTPException(
@@ -101,10 +97,9 @@ void HTTPExportResponseDecoder::parseHTTPHeaders(
     //
     // Check for Connection: Close
     //
-    const char* connectClose;
     if (HTTPMessage::lookupHeader(headers, "Connection", connectClose, false))
     {
-        if (System::strcasecmp(connectClose, "Close") == 0)
+        if (String::equalNoCase(connectClose, "Close"))
         {
             // reconnect and then resend next request.
             cimReconnect=true;
@@ -124,7 +119,7 @@ void HTTPExportResponseDecoder::parseHTTPHeaders(
     if (!parsableMessage)
     {
         MessageLoaderParms mlParms(
-            "ExportClient.HTTPExportResponseDecoder.MALFORMED_RESPONSE",
+            "ExportClient.CIMExportResponseDecoder.MALFORMED_RESPONSE",
             "Malformed HTTP response message.");
         String mlString(MessageLoader::getMessage(mlParms));
         AutoPtr<CIMClientMalformedHTTPException> malformedHTTPException(
@@ -152,8 +147,7 @@ void HTTPExportResponseDecoder::validateHTTPHeaders(
     const String& reasonPhrase,
     char*& content,
     ClientExceptionMessage*& exceptionMessage,
-    Boolean& valid,
-    Boolean wsmanFlag)
+    Boolean& valid)
 {
     PEG_METHOD_ENTER(TRC_EXPORT_CLIENT,
         "HTTPExportResponseDecoder::validateHTTPHeaders()");
@@ -201,12 +195,12 @@ void HTTPExportResponseDecoder::validateHTTPHeaders(
         PEG_METHOD_EXIT();
         return;
     }
-    const char* cimExport;
+
     //
     // Check for missing "CIMExport" header
     //
-    if (!wsmanFlag && 
-        !HTTPMessage::lookupHeader(headers,"CIMExport",cimExport,true))
+    String cimExport;
+    if (!HTTPMessage::lookupHeader(headers, "CIMExport", cimExport, true))
     {
         MessageLoaderParms mlParms(
             "ExportClient.CIMExportResponseDecoder.MISSING_CIMEXP_HEADER",
@@ -231,9 +225,9 @@ void HTTPExportResponseDecoder::validateHTTPHeaders(
     //
     // Check for missing "Content-Type" header
     //
-    const char* cimContentType;
+    String cimContentType;
     if (!HTTPMessage::lookupHeader(
-            headers, "Content-Type", cimContentType, true))
+        headers, "Content-Type", cimContentType, true))
     {
         AutoPtr<CIMClientMalformedHTTPException> malformedHTTPException(new
             CIMClientMalformedHTTPException(
@@ -260,10 +254,8 @@ void HTTPExportResponseDecoder::validateHTTPHeaders(
     //
     // Expect CIMExport HTTP header value MethodResponse
     //
-
-    if ( !wsmanFlag && System::strcasecmp(cimExport, "MethodResponse") != 0)
+    if (!String::equalNoCase(cimExport, "MethodResponse"))
     {
-
         MessageLoaderParms mlParms(
             "ExportClient.CIMExportResponseDecoder.EXPECTED_METHODRESPONSE",
             "Received CIMExport HTTP header value \"$0\", "
@@ -283,7 +275,7 @@ void HTTPExportResponseDecoder::validateHTTPHeaders(
 
         PEG_METHOD_EXIT();
         return;
-    } 
+    }
 
     PEG_METHOD_EXIT();
 }
@@ -352,12 +344,12 @@ void HTTPExportResponseDecoder::decodeExportResponse(
             AutoPtr<CIMClientResponseException> responseException(
                 new CIMClientResponseException(mlString));
 
-            AutoPtr<ClientExceptionMessage> clientExceptionMessage(
+            AutoPtr<ClientExceptionMessage> response(
                 new ClientExceptionMessage(responseException.get()));
 
             responseException.release();
-            clientExceptionMessage->setCloseConnect(cimReconnect);
-            responseMessage = clientExceptionMessage.release();
+            response->setCloseConnect(cimReconnect);
+            responseMessage = response.release();
 
             PEG_METHOD_EXIT();
             return;
@@ -458,7 +450,6 @@ HTTPExportResponseDecoder::_decodeExportIndicationResponse(
 {
     PEG_METHOD_ENTER (TRC_EXPORT_CLIENT,
         "HTTPExportResponseDecoder::_decodeExportIndicationResponse()");
-
     XmlEntry entry;
     CIMException cimException;
 
@@ -489,132 +480,4 @@ HTTPExportResponseDecoder::_decodeExportIndicationResponse(
         QueueIdStack()));
 }
 
-#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
-inline void checkRequiredHeader(
-    const char* headerName,
-    Boolean headerSpecified)
-{
-    if (!headerSpecified)
-    {
-        throw WsmFault(
-            WsmFault::wsa_MessageInformationHeaderRequired,
-            MessageLoaderParms(
-                "ExportClient.HTTPExportResponseDecoder.MISSING_HEADER",
-                "Required SOAP header \"$0\" was not specified.",
-                headerName));
-    }
-}
-
-
-void HTTPExportResponseDecoder::decodeWSMANExportResponse(
-    char* content,
-    Boolean reconnect,
-    Message*& responseMessage,
-    ContentLanguageList & contentLanguages,
-    WsmRequest * request)
-{
-    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT,
-        "HTTPExportResponseDecoder::decodeWSMANExportResponse()");
-    AutoPtr<Message> response;
-    // Create and initialize XML parser:
-    XmlParser parser((char*)content);
-    WsmReader wsmReader(content);
-    XmlEntry entry;
-    String wsaAction;
-    String wsaTo;
-    String wsaRelatesTo,messageId;
-    WsmEndpointReference epr;
-    try
-    {
-        // Process <?xml ... >
-        const char* xmlVersion = 0;
-        const char* xmlEncoding = 0;
-        wsmReader.getXmlDeclaration(xmlVersion, xmlEncoding);
-        // Decode the SOAP envelope
-        wsmReader.expectStartTag(
-            entry, WsmNamespaces::SOAP_ENVELOPE, "Envelope");
-        Boolean gotEntry;
-        String wsaMessageId;
-        wsmReader.setHideEmptyTags(true);
-        wsmReader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Header");
-        wsmReader.setHideEmptyTags(false);
-
-        while ((gotEntry = wsmReader.next(entry)) &&
-            ((entry.type == XmlEntry::START_TAG) ||
-            (entry.type == XmlEntry::EMPTY_TAG)))
-        {
-            int nsType = entry.nsType;
-            const char* elementName = entry.localName;
-            Boolean needEndTag = (entry.type == XmlEntry::START_TAG);
-
-            if ((nsType == WsmNamespaces::WS_ADDRESSING) &&
-                (strcmp(elementName, "To") == 0))
-            {
-                wsmReader.checkDuplicateHeader(entry.text, wsaTo.size());
-                wsaTo = wsmReader.getElementContent(entry);
-            }
-            else if ((nsType == WsmNamespaces::WS_ADDRESSING) &&
-                (strcmp(elementName, "Action") == 0))
-            {
-                wsmReader.checkDuplicateHeader(entry.text, wsaAction.size());
-                wsaAction = wsmReader.getElementContent(entry);
-            }
-            else if ((nsType == WsmNamespaces::WS_ADDRESSING) &&
-                (strcmp(elementName, "MessageID") == 0))
-            {
-                wsmReader.checkDuplicateHeader(entry.text, messageId.size());
-                messageId = wsmReader.getElementContent(entry);         
-            }
-            else if ((nsType == WsmNamespaces::WS_ADDRESSING) &&
-                (strcmp(elementName, "RelatesTo") == 0))
-            {
-                wsmReader.checkDuplicateHeader(entry.text, wsaMessageId.size());
-                wsaRelatesTo = wsmReader.getElementContent(entry);
-            }
-            else
-            {
-                wsmReader.skipElement(entry);
-                // The end tag, if any, has already been consumed.
-                needEndTag = false;
-            }
-
-            if (needEndTag)
-            {
-                wsmReader.expectEndTag(nsType, elementName);
-            }
-        }
-        if (gotEntry)
-        {
-            wsmReader.getParser().putBack(entry);
-        }
-        wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Header");
-    }
-    catch (XmlException&)
-    {
-        // Do not treat this as an InvalidMessageInformationHeader fault.
-        throw;
-    }
-    catch (Exception& e)
-    {
-        throw WsmFault(
-            WsmFault::wsa_InvalidMessageInformationHeader,
-            e.getMessage(),
-            e.getContentLanguages());
-    }
-    checkRequiredHeader("wsa:To", wsaTo.size());
-    checkRequiredHeader("wsa:RelatesTo", wsaRelatesTo.size());
-    checkRequiredHeader("wsa:Action", wsaAction.size());
-    if (wsaAction == WSM_ACTION_ACK)
-    {
-        response.reset(new WSMANExportIndicationResponseMessage(
-        messageId,
-        request,
-        contentLanguages));   
-    }   
-    response->setCloseConnect(reconnect);
-    responseMessage = response.release();
-    PEG_METHOD_EXIT();
-
-}
-#endif
 PEGASUS_NAMESPACE_END

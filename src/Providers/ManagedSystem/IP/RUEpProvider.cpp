@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -138,10 +140,10 @@ void RUEpProvider::associators(
     {
         _associators(
             _AssociationInstances,
-            localObjectPath,
+            localObjectPath, 
             role,
-            resultClass,
-            resultRole,
+            resultClass, 
+            resultRole, 
             handler);
     }
     else
@@ -185,10 +187,10 @@ void RUEpProvider::associatorNames(
     {
         _associatorNames(
             _AssociationInstances,
-            localObjectPath,
+            localObjectPath, 
             role,
-            resultClass,
-            resultRole,
+            resultClass, 
+            resultRole, 
             handler);
     }
     else
@@ -238,7 +240,7 @@ void RUEpProvider::references(
         resultInstances =
             _filterAssociationInstancesByRole(
                 _AssociationInstances,
-                localObjectPath,
+                localObjectPath, 
                 role);
     }
     else
@@ -291,7 +293,7 @@ void RUEpProvider::referenceNames(
         resultInstances =
             _filterAssociationInstancesByRole(
                 _AssociationInstances,
-                localObjectPath,
+                localObjectPath, 
                 role);
     }
     else
@@ -417,9 +419,9 @@ void RUEpProvider::_associatorNames(
         resultPaths = _filterAssociationInstances(assocInstances[i],
             localReference, resultClass, resultRole);
 
-        for (Uint32 j = 0, m = resultPaths.size(); j < m; j++)
+        for (Uint32 i = 0, n = resultPaths.size(); i < n; i++)
         {
-            handler.deliver(resultPaths[j]);
+            handler.deliver(resultPaths[i]);
         }
     }
 }
@@ -453,9 +455,9 @@ Array<CIMInstance> RUEpProvider::_filterAssociationInstancesByRole(
         CIMInstance instance = associationInstances[i];
 
         // Search the association instance for all reference properties
-        for (Uint32 j = 0, m = instance.getPropertyCount(); j < m; j++)
+        for (Uint32 i = 0, n = instance.getPropertyCount(); i < n; i++)
         {
-            const CIMProperty p = instance.getProperty(j);
+            const CIMProperty p = instance.getProperty(i);
             if (p.getType() == CIMTYPE_REFERENCE)
             {
                 CIMValue v = p.getValue();
@@ -539,7 +541,7 @@ void RUEpProvider::_createAssociationInstances(
     Uint16 nhrInstSize = nhrInst.size();
     Uint16 ipifInstSize = ipifInst.size();
 
-    for (Uint16 i = 0; i < nhrInstSize; i++)  // Routes loop.
+    for (Uint16 i = 0; i<nhrInstSize; i++)  // Routes loop.
     {
         CIMInstance _nhrInstRet, _ipifInstRet;
         CIMInstance _nhrInst = nhrInst[i];
@@ -562,7 +564,7 @@ void RUEpProvider::_createAssociationInstances(
 
             Uint16 _pift;
             CIMValue _piftCIMValue = _ipifProtocolIFType.getValue();
-            if ((_piftCIMValue.getType() == CIMTYPE_UINT16) &&
+            if ((_piftCIMValue.getType() == CIMTYPE_UINT16) && 
                 (!_piftCIMValue.isNull ()))
             {
                 _piftCIMValue.get(_pift);
@@ -596,26 +598,23 @@ void RUEpProvider::_createAssociationInstances(
                 }
                 else
                 {
-                    char buffer[22];
-                    Uint32 sz;
-                    String _piftStr = Uint16ToString(buffer, _pift, sz);
                     throw CIMOperationFailedException(
-                        "ProtocolIFType == " +  _piftStr );
+                        "ProtocolIFType == " +  _pift );
                 }
             }
 
-            // In this implementation, we choose InstanceID to be
-            // equal DestinationAddress. So, if Address of interface
-            // and InstanceID of route doesn't match, check if SubnetMask
+            // In this implementation, we choose InstanceID to be 
+            // equal DestinationAddress. So, if Address of interface 
+            // and InstanceID of route doesn't match, check if SubnetMask 
             // of interface and DestinationMask route does.
             if (!_nhrInstanceID.getValue().equal(_ipifAddress.getValue()))
             {
                 _nhrAddrType = _nhrInst.getProperty(
                     _nhrInst.findProperty(
-                        PROPERTY_ADDRESS_TYPE));
+                        PROPERTY_ADDRESS_TYPE));  
                 Uint16 _addrt;
                 CIMValue _nhratCIMValue = _nhrAddrType.getValue();
-                if ((_nhratCIMValue.getType() == CIMTYPE_UINT16) &&
+                if ((_nhratCIMValue.getType() == CIMTYPE_UINT16) && 
                     (!_nhratCIMValue.isNull()))
                 {
                     _nhratCIMValue.get(_addrt);
@@ -643,16 +642,13 @@ void RUEpProvider::_createAssociationInstances(
                     }
                     else
                     {
-                        char buffer[22];
-                        Uint32 sz;
-                        String _addrtStr = Uint16ToString(buffer, _addrt, sz);
                         throw CIMOperationFailedException(
-                            "Unknown AddressType = " + _addrtStr);
+                            "Unknown AddressType = " + _addrt);
                     }
                 }
 
-                // If SubnetMask of interface and DestinationMask route
-                // doesn't match, these instances are unrelated. So,
+                // If SubnetMask of interface and DestinationMask route 
+                // doesn't match, these instances are unrelated. So, 
                 // proceed to the next pair.
                 if (!_nhrDestMask_PrefixLength.getValue().equal(
                     _ipifSubnetMask_PrefixLength.getValue()))
@@ -700,7 +696,7 @@ void RUEpProvider::_createAssociationInstances(
 
             assocInst.setPath(path);
             _AssociationInstances.append(assocInst);
-            break;
+            break; 
         }  // Interfaces loop end.
 
     }  // Routes loop end.
@@ -731,27 +727,27 @@ Array<CIMInstance> RUEpProvider::_NextHopRouteInstances()
             if (!_nhipr.getInstanceID(_instanceID))
             {
                 throw CIMOperationFailedException(
-                    "Can't determine InstanceID in: " +
+                    "Can't determine InstanceID in: " + 
                     String("RUEpProvider::_NextHopRouteInstances()"));
             }
             instance.addProperty(CIMProperty(
-                PROPERTY_INSTANCE_ID,
+                PROPERTY_INSTANCE_ID, 
                 _instanceID));
 
             if (!_nhipr.getDestinationAddress(_destAddr))
             {
                 throw CIMOperationFailedException(
-                    "Can't determine destination address in: " +
+                    "Can't determine destination address in: " + 
                     String("RUEpProvider::_NextHopRouteInstances()"));
             }
             instance.addProperty(CIMProperty(
-                PROPERTY_DESTINATION_ADDRESS,
+                PROPERTY_DESTINATION_ADDRESS, 
                 _destAddr));
 
             if (_nhipr.getAddressType(_addrType))
             {
                 instance.addProperty(CIMProperty(
-                    PROPERTY_ADDRESS_TYPE,
+                    PROPERTY_ADDRESS_TYPE, 
                     _addrType));
 
                 if (_addrType == 1)  // IPv4 address.
@@ -763,7 +759,7 @@ Array<CIMInstance> RUEpProvider::_NextHopRouteInstances()
                             String("RUEpProvider::_NextHopRouteInstances()"));
                     }
                     instance.addProperty(CIMProperty(
-                        PROPERTY_DESTINATION_MASK,
+                        PROPERTY_DESTINATION_MASK, 
                         _destMask));
                 }
                 else
@@ -777,7 +773,7 @@ Array<CIMInstance> RUEpProvider::_NextHopRouteInstances()
                               String("RUEpProvider::_NextHopRouteInstances()"));
                         }
                         instance.addProperty(CIMProperty(
-                            PROPERTY_PREFIX_LENGTH,
+                            PROPERTY_PREFIX_LENGTH, 
                             _prefLength));
                     }
                 }
@@ -793,14 +789,14 @@ Array<CIMInstance> RUEpProvider::_NextHopRouteInstances()
             Array<CIMKeyBinding> keyBindings;
             keyBindings.append(
             CIMKeyBinding(
-                PROPERTY_INSTANCE_ID,
-                _instanceID,
+                PROPERTY_INSTANCE_ID, 
+                _instanceID, 
                 CIMKeyBinding::STRING));
 
             CIMObjectPath path(
-            String::EMPTY,
+            String::EMPTY, 
             CIMNamespaceName(),
-            CLASS_CIM_NEXT_HOP_ROUTE,
+            CLASS_CIM_NEXT_HOP_ROUTE, 
             keyBindings);
 
             instance.setPath(path);
@@ -833,7 +829,7 @@ Array<CIMInstance> RUEpProvider::_IPInterfaceInstances()
         if (_ipif.getProtocolIFType(_protocolIFType))
         {
             instance.addProperty(CIMProperty(
-                PROPERTY_PROTOCOL_IF_TYPE,
+                PROPERTY_PROTOCOL_IF_TYPE, 
                 _protocolIFType));
 
             if (_protocolIFType == 4096)  // IPv4 address.
@@ -853,7 +849,7 @@ Array<CIMInstance> RUEpProvider::_IPInterfaceInstances()
                         String("RUEpProvider::_IPInterfaceInstances()"));
                 }
                 instance.addProperty(CIMProperty(
-                    PROPERTY_SUBNET_MASK,
+                    PROPERTY_SUBNET_MASK, 
                     _subnetMask));
             }
             else
@@ -867,7 +863,7 @@ Array<CIMInstance> RUEpProvider::_IPInterfaceInstances()
                             String("RUEpProvider::_IPInterfaceInstances()"));
                     }
                     instance.addProperty(CIMProperty(
-                        PROPERTY_IPV6ADDRESS,
+                        PROPERTY_IPV6ADDRESS, 
                         _addr));
 
                     if (!_ipif.getPrefixLength(_prefLength))
@@ -877,12 +873,12 @@ Array<CIMInstance> RUEpProvider::_IPInterfaceInstances()
                             String("RUEpProvider::_IPInterfaceInstances()"));
                     }
                     instance.addProperty(CIMProperty(
-                        PROPERTY_PREFIX_LENGTH,
+                        PROPERTY_PREFIX_LENGTH, 
                         _prefLength));
                 }
             }
         }
-        else
+        else 
         {
             throw CIMOperationFailedException(
                 "Can't determine instance protocol type in: " +
@@ -907,7 +903,7 @@ Array<CIMInstance> RUEpProvider::_IPInterfaceInstances()
          _ipifInstances.append(instance);
          _retInstances.append(instance);
     }
-
+    
     PEG_METHOD_EXIT();
     return _retInstances;
 }

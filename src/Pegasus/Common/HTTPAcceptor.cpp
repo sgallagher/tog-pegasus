@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -54,13 +56,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 static int _maxConnectionQueueLength = -1;
 
-Uint32 HTTPAcceptor::_socketWriteTimeout =
-    PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS;
-
-#ifndef PEGASUS_INTEGERS_BOUNDARY_ALIGNED
-Mutex HTTPAcceptor::_socketWriteTimeoutMutex;
-#endif
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // HTTPAcceptorRep
@@ -79,7 +74,7 @@ public:
                 reinterpret_cast<struct sockaddr*>(new struct sockaddr_un);
             address_size = sizeof(struct sockaddr_un);
 #else
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
 #endif
         }
 #ifdef PEGASUS_ENABLE_IPV6
@@ -98,7 +93,7 @@ public:
         }
         else
         {
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
     }
     }
 
@@ -134,8 +129,7 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
                            Uint16 connectionType,
                            Uint32 portNumber,
                            SSLContext * sslcontext,
-                           ReadWriteSem* sslContextObjectLock,
-                           HostAddress *listenOn)
+                           ReadWriteSem* sslContextObjectLock)
    : Base(PEGASUS_QUEUENAME_HTTPACCEPTOR),  // ATTN: Need unique names?
      _monitor(monitor),
      _outputMessageQueue(outputMessageQueue),
@@ -144,8 +138,8 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
      _connectionType(connectionType),
      _portNumber(portNumber),
      _sslcontext(sslcontext),
-    _sslContextObjectLock(sslContextObjectLock),
-    _listenAddress(listenOn)
+     _sslContextObjectLock(sslContextObjectLock),
+     _idleConnectionTimeoutSeconds(0)
 {
    PEGASUS_ASSERT(!_sslcontext == !_sslContextObjectLock);
    Socket::initializeInterface();
@@ -215,11 +209,12 @@ void HTTPAcceptor::handleEnqueue(Message *message)
     {
         case SOCKET_MESSAGE:
         {
-            // If this is a connection request:
-            PEGASUS_ASSERT(((SocketMessage*)message)->socket == _rep->socket);
+            SocketMessage* socketMessage = (SocketMessage*)message;
 
-            PEGASUS_ASSERT(
-                ((SocketMessage*)message)->events & SocketMessage::READ);
+            // If this is a connection request:
+            PEGASUS_ASSERT(socketMessage->socket == _rep->socket);
+
+            PEGASUS_ASSERT(socketMessage->events & SocketMessage::READ);
 
             _acceptConnection();
 
@@ -251,7 +246,7 @@ void HTTPAcceptor::handleEnqueue(Message *message)
        }
 
        default:
-           PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+           PEGASUS_ASSERT(false);
            break;
     }
 
@@ -280,7 +275,6 @@ void HTTPAcceptor::bind()
     _bind();
 }
 
-
 /**
     _bind - creates a new server socket and bind socket to the port address.
     If PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET is not defined, the port number is
@@ -289,7 +283,16 @@ void HTTPAcceptor::bind()
 void HTTPAcceptor::_bind()
 {
 #ifdef PEGASUS_OS_PASE
-    AutoPtr<PaseCcsid> ccsid;
+    // bind need ccsid is 819 
+    int orig_ccsid;
+    orig_ccsid = _SETCCSID(-1);
+    if (orig_ccsid == -1)
+    {
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            String("HTTPAcceptor::_bind: Can not get current PASE CCSID."));
+        orig_ccsid = 1208;
+    }
+    PaseCcsid ccsid(819, orig_ccsid);
 #endif
 
     PEGASUS_ASSERT(_rep != 0);
@@ -304,18 +307,6 @@ void HTTPAcceptor::_bind()
         // user.  Otherwise, the bind may fail with a vague "bind failed"
         // error.
         //
-#ifdef PEGASUS_OS_PASE
-        // PASE domain socket needs ccsid 819
-        int orig_ccsid;
-        orig_ccsid = _SETCCSID(-1);
-        if (orig_ccsid == -1)
-        {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                    "HTTPAcceptor::_bind: Can not get current PASE CCSID.");
-            orig_ccsid = 1208;
-        }
-        ccsid.reset(new PaseCcsid(819, orig_ccsid));
-#endif
         if (System::exists(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH))
         {
             if (!System::removeFile(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH))
@@ -329,44 +320,14 @@ void HTTPAcceptor::_bind()
         strcpy(reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path,
             PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
 #else
-        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+        PEGASUS_ASSERT(false);
 #endif
     }
 #ifdef PEGASUS_ENABLE_IPV6
     else if (_connectionType == IPV6_CONNECTION)
     {
-        if(_listenAddress)
-        {
-            String hostAdd = _listenAddress->getHost();
-            CString ip = hostAdd.getCString();
-
-            struct sockaddr_in6 in6addr;
-            memset(&in6addr, 0, sizeof(sockaddr_in6));
-            if(_listenAddress ->isHostAddLinkLocal())
-            {
-                HostAddress::convertTextToBinary(AF_INET6, 
-                (const char*)ip,
-                &in6addr.sin6_addr);
-                reinterpret_cast<struct sockaddr_in6*>(
-                    _rep->address)->sin6_addr = in6addr.sin6_addr;
-                reinterpret_cast<struct sockaddr_in6*>(
-                    _rep->address)->sin6_scope_id = 
-                        _listenAddress->getScopeID();
-            }
-            else
-            {
-                HostAddress::convertTextToBinary(AF_INET6, 
-                (const char*)ip,
-                &in6addr.sin6_addr);
-                reinterpret_cast<struct sockaddr_in6*>(
-                    _rep->address)->sin6_addr = in6addr.sin6_addr;
-            }
-        }
-        else
-        {
         reinterpret_cast<struct sockaddr_in6*>(_rep->address)->sin6_addr =
             in6addr_any;
-        }
         reinterpret_cast<struct sockaddr_in6*>(_rep->address)->sin6_family =
             AF_INET6;
         reinterpret_cast<struct sockaddr_in6*>(_rep->address)->sin6_port =
@@ -375,23 +336,8 @@ void HTTPAcceptor::_bind()
 #endif
     else if(_connectionType == IPV4_CONNECTION)
     {
-        if(_listenAddress)
-        {
-            String hostAdd = _listenAddress->getHost();
-            CString ip = hostAdd.getCString();
-            struct sockaddr_in addrs;
-            HostAddress::convertTextToBinary(
-                AF_INET, 
-                (const char*)ip,
-                &addrs.sin_addr);
-            reinterpret_cast<struct sockaddr_in*>(
-                _rep->address)->sin_addr.s_addr = addrs.sin_addr.s_addr;
-        }
-        else
-        {
-            reinterpret_cast<struct sockaddr_in*>(
-            _rep->address)->sin_addr.s_addr = INADDR_ANY;
-        }
+        reinterpret_cast<struct sockaddr_in*>(_rep->address)->sin_addr.s_addr =
+            INADDR_ANY;
         reinterpret_cast<struct sockaddr_in*>(_rep->address)->sin_family =
             AF_INET;
         reinterpret_cast<struct sockaddr_in*>(_rep->address)->sin_port =
@@ -399,7 +345,7 @@ void HTTPAcceptor::_bind()
     }
     else
     {
-        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+        PEGASUS_ASSERT(false);
     }
 
     // Create socket:
@@ -420,7 +366,7 @@ void HTTPAcceptor::_bind()
     }
     else
     {
-        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+        PEGASUS_ASSERT(false);
     }
 
     if (_rep->socket < 0)
@@ -510,7 +456,7 @@ void HTTPAcceptor::_bind()
     //
 #if !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET) && \
      (defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
-      defined(PEGASUS_OS_ZOS) || \
+      defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || \
       defined(PEGASUS_OS_PASE))
     if (_connectionType == LOCAL_CONNECTION)
     {
@@ -521,7 +467,7 @@ void HTTPAcceptor::_bind()
         {
             MessageLoaderParms parms(
                 "Common.HTTPAcceptor.FAILED_SET_LDS_FILE_OPTION",
-                "Failed to set permission on local domain socket $0: $1.",
+                "Failed to set permission on local domain socket {0}: {1}.",
                 PEGASUS_LOCAL_DOMAIN_SOCKET_PATH,
                 PEGASUS_SYSTEM_ERRORMSG_NLS );
 
@@ -540,9 +486,9 @@ void HTTPAcceptor::_bind()
     {
         MessageLoaderParms parms(
             "Common.HTTPAcceptor.FAILED_LISTEN_SOCKET",
-            "Failed to listen on socket $0: $1.",
+            "Failed to listen on socket {0}: {1}.",
             (int)_rep->socket,PEGASUS_SYSTEM_NETWORK_ERRORMSG_NLS );
-
+        
         delete _rep;
         _rep = 0;
         throw BindFailedException(parms);
@@ -552,6 +498,7 @@ void HTTPAcceptor::_bind()
 
     if (-1 == ( _entry_index = _monitor->solicitSocketMessages(
             _rep->socket,
+            SocketMessage::READ | SocketMessage::EXCEPTION,
             getQueueId(),
             MonitorEntry::TYPE_ACCEPTOR)))
     {
@@ -587,10 +534,9 @@ void HTTPAcceptor::closeConnectionSocket()
                 "HTTPAcceptor::closeConnectionSocket Unlinking local "
                     "connection.");
             ::unlink(
-                    reinterpret_cast<struct sockaddr_un*>
-                        (_rep->address)->sun_path);
+                reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
 #else
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
 #endif
         }
     }
@@ -637,10 +583,9 @@ void HTTPAcceptor::reconnectConnectionSocket()
                 "HTTPAcceptor::reconnectConnectionSocket Unlinking local "
                     "connection." );
             ::unlink(
-                    reinterpret_cast<struct sockaddr_un*>(
-                        _rep->address)->sun_path);
+                reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
 #else
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
 #endif
         }
         // open the socket
@@ -685,10 +630,12 @@ Uint32 HTTPAcceptor::getPortNumber() const
 
 void HTTPAcceptor::setSocketWriteTimeout(Uint32 socketWriteTimeout)
 {
-#ifndef PEGASUS_INTEGERS_BOUNDARY_ALIGNED
-    AutoMutex lock(_socketWriteTimeoutMutex);
-#endif
     _socketWriteTimeout = socketWriteTimeout;
+}
+
+void HTTPAcceptor::setIdleConnectionTimeout(Uint32 idleConnectionTimeoutSeconds)
+{
+    _idleConnectionTimeoutSeconds = idleConnectionTimeoutSeconds;
 }
 
 void HTTPAcceptor::unbind()
@@ -702,10 +649,9 @@ void HTTPAcceptor::unbind()
         {
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
             ::unlink(
-                    reinterpret_cast<struct sockaddr_un*>
-                    (_rep->address)->sun_path);
+                reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
 #else
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
 #endif
         }
 
@@ -763,7 +709,7 @@ void HTTPAcceptor::_acceptConnection()
             reinterpret_cast<struct sockaddr*>(new struct sockaddr_un);
         address_size = sizeof(struct sockaddr_un);
 #else
-        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+        PEGASUS_ASSERT(false);
 #endif
     }
     else
@@ -830,11 +776,11 @@ void HTTPAcceptor::_acceptConnection()
         PEG_TRACE(
             (TRC_DISCARDED_DATA,
              Tracer::LEVEL1,
-             "HTTPAcceptor out of available sockets."
+             "HTTPAcceptor out of available sockets." 
                  "accept() returned too large socket number %u."
                  "Closing connection to the new client.",
              socket));
-
+        
         return;
     }
 #endif
@@ -849,14 +795,20 @@ void HTTPAcceptor::_acceptConnection()
     {
 #ifdef PEGASUS_ENABLE_IPV6
         char ipBuffer[PEGASUS_INET6_ADDRSTR_LEN];
-        if (System::getNameInfo(accept_address,
-                address_size,
+        int rc;
+        if ((rc = System::getNameInfo(accept_address, 
+                address_size, 
                 ipBuffer,
-                PEGASUS_INET6_ADDRSTR_LEN,
-                0,
-                0,
-                NI_NUMERICHOST))
+                PEGASUS_INET6_ADDRSTR_LEN, 
+                0, 
+                0, 
+                NI_NUMERICHOST)))
         {
+            PEG_TRACE((
+                TRC_DISCARDED_DATA,
+                Tracer::LEVEL1,
+                "HTTPAcceptor: getnameinfo() failed.  rc: %d",
+                rc));
             delete accept_address;
             return;
         }
@@ -905,13 +857,7 @@ void HTTPAcceptor::_acceptConnection()
     socketPtr.release();
 
     mp_socket->disableBlocking();
-
-    {
-#ifndef PEGASUS_INTEGERS_BOUNDARY_ALIGNED
-        AutoMutex lock(_socketWriteTimeoutMutex);
-#endif
-        mp_socket->setSocketWriteTimeout(_socketWriteTimeout);
-    }
+    mp_socket->setSocketWriteTimeout(_socketWriteTimeout);
 
     // Perform the SSL handshake, if applicable.
 
@@ -933,8 +879,10 @@ void HTTPAcceptor::_acceptConnection()
         this,
         _outputMessageQueue));
 
-    if (HTTPConnection::getIdleConnectionTimeout())
+    if (_idleConnectionTimeoutSeconds)
     {
+        connection->_idleConnectionTimeoutSeconds = 
+            _idleConnectionTimeoutSeconds;
         Time::gettimeofday(&connection->_idleStartTime);
     }
 
@@ -951,6 +899,7 @@ void HTTPAcceptor::_acceptConnection()
 
     if (-1 ==  (index = _monitor->solicitSocketMessages(
             connection->getSocket(),
+            SocketMessage::READ | SocketMessage::EXCEPTION,
             connection->getQueueId(), MonitorEntry::TYPE_CONNECTION)) )
     {
         PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//=============================================================================
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -42,12 +44,12 @@
 #endif
 
 #ifdef DOC_ONLY
-/**
+/** 
    This macro builds a CMPIStatus object with &lt;rc&gt; as return code and
    returns to the CIMOM.
    @param rc the CMPI return code
    @return This macro contains a return statement and leaves the function.
-*/
+*/ 
  noReturn CMReturn(CMPIrc rc);
 #else
 # define CMReturn(rc_) \
@@ -61,7 +63,7 @@
 #endif
 
 #ifdef DOC_ONLY
-/**
+/** 
     This macro builds a CMPIStatus object with &lt;rc&gt; as return code and
     &lt;str&gt; as message and returns to the Broker.
     @param rc the CMPI return code
@@ -106,7 +108,7 @@
 
 
 #ifdef CMPI_INLINE
-/**
+/** 
     Initializes status object with &lt;rc&gt; and NULL message.
     @param st Address of status object
     @param rcp CMPI return code
@@ -133,7 +135,7 @@ inline static void CMSetStatus(CMPIStatus * st, CMPIrc rcp)
 
 
 #ifdef CMPI_INLINE
-/**
+/** 
     Initializes status object with rc and message.
     @param st Address of status object
     @param rcp CMPI return code
@@ -164,7 +166,7 @@ inline static void CMSetStatusWithString(
 
 
 #ifdef CMPI_INLINE
-/**
+/** 
     Initializes status object with &lt;rc&gt; and message.
     @param mb Broker this pointer
     @param st Address of status object
@@ -207,7 +209,7 @@ inline static void CMSetStatusWithChars(
 
 
 #ifdef CMPI_INLINE
-/**
+/** 
     Tests for encapsulated NULL object.
     @param obj CMPI Object pointer
 */
@@ -220,7 +222,7 @@ inline static CMPIBoolean CMIsNullObject(const void *obj)
 #endif
 
 #ifdef CMPI_INLINE
-/**
+/** 
     Tests for nullValue data item.
     @param val Value object
 */
@@ -234,7 +236,7 @@ inline static CMPIBoolean  CMIsNullValue(const CMPIData val)
 #endif
 
 #ifdef CMPI_INLINE
-/**
+/** 
     Tests for keyValue data item.
     @param val Value object
 */
@@ -247,7 +249,7 @@ inline static CMPIBoolean CMIsKeyValue(CMPIData val)
 #endif
 
 #ifdef CMPI_INLINE
-/**
+/** 
     Tests for keyValue data item.
     @param val Value object
 */
@@ -268,7 +270,7 @@ inline static CMPIBoolean CMIsArray(const CMPIData val)
 // CMPIBroker factory macros
 
 #ifdef CMPI_INLINE
-/**
+/** 
     Instance factory service.
     @param mb Broker this pointer.
     @param op ObjectPath containing namespace and classname.
@@ -287,7 +289,7 @@ inline static CMPIInstance *CMNewInstance(
 #endif
 
 #ifdef CMPI_INLINE
-/**
+/** 
     ObjectPath factory service.
     @param mb Broker this pointer.
     @param ns Namespace
@@ -309,7 +311,7 @@ inline static CMPIObjectPath *CMNewObjectPath(
 #endif
 
 #ifdef CMPI_INLINE
-/**
+/** 
     String container factory service.
     @param mb Broker this pointer.
     @param data String data
@@ -328,7 +330,7 @@ inline static CMPIString *CMNewString(
 #endif
 
 #ifdef CMPI_INLINE
-/**
+/** 
     Args container factory service.
     @param mb Broker this pointer.
     @param rc Output: Service return status (suppressed when NULL).
@@ -343,7 +345,7 @@ inline static CMPIArgs * CMNewArgs(const CMPIBroker * mb, CMPIStatus * rc)
 #endif
 
 #ifdef CMPI_INLINE
-/**
+/** 
     Array container factory service.
     @param mb Broker this pointer
     @param max Maximum number of elements
@@ -364,7 +366,7 @@ inline static CMPIArray * CMNewArray(
 #endif
 
 #ifdef CMPI_INLINE
-/**
+/** 
     DateTime factory service. Initialized with the time of day.
     @param mb Broker this pointer
     @param rc Output: Service return status (suppressed when NULL).
@@ -381,7 +383,7 @@ inline static CMPIDateTime *CMNewDateTime(
 #endif
 
 #ifdef CMPI_INLINE
-/**
+/** 
     DateTime factory service. Initialized from &lt;binTime&gt;.
     @param mb Broker this pointer
     @param binTime Date/Time definition in binary format in microsecods
@@ -426,8 +428,8 @@ inline static CMPIDateTime *CMNewDateTimeFromChars(
 #endif
 
 #ifdef CMPI_INLINE
-/**
-    SelectExp factory service. This structure encompasses queries
+/** 
+    SelectExp factory service. This structure encompasses queries 
     and provides mechanism to operate on the query.
     @param mb Broker this pointer
     @param query The select expression.
@@ -452,7 +454,7 @@ inline static CMPISelectExp *CMNewSelectExp(
 #endif
 
 #ifdef CMPI_INLINE
-/**
+/** 
     Function to determine whether a CIM class is of &lt;type&gt; or any of
     &lt;type&gt; subclasses.
     @param mb Broker this pointer
@@ -477,7 +479,7 @@ inline static CMPIBoolean CMClassPathIsA(
 // Debugging macros
 
 #ifdef CMPI_INLINE
-/**
+/** 
     Attempts to transforms an CMPI object to a broker specific string format.
     Intended for debugging purposes only.
     @param mb Broker this pointer
@@ -497,7 +499,7 @@ inline static CMPIString *CDToString(
 #endif
 
 #ifdef CMPI_INLINE
-/**
+/** 
     Verifies whether &lt;object&gt; is of CMPI type &lt;type&gt;.
     Intended for debugging purposes only.
     @param mb Broker this pointer
@@ -521,7 +523,7 @@ inline static CMPIBoolean CDIsOfType(
 #endif
 
 #ifdef CMPI_INLINE
-/**
+/** 
     Retrieves the CMPI type of &lt;object&gt;.
     Intended for debugging purposes only.
     @param mb Broker this pointer
@@ -540,7 +542,7 @@ inline static CMPIString *CDGetType
 
 #ifdef CMPI_VER_85
 # ifdef CMPI_INLINE
-/**
+/** 
     Retrieves translated message. When using as macro, use
     CMFmtArgsX and CMFmtX macros to generate the variable parameter list and
     ommit the count parameter.
@@ -613,7 +615,7 @@ inline static CMPIString *CMGetMessage(
 
 #ifdef CMPI_VER_100
 # ifdef CMPI_INLINE
-/**
+/** 
     Logs the message to the standard logging facility.
     @example  CMLogMessage(_broker, 1,
         "TestProvider","Entering EnumerateInstance", NULL);
@@ -622,9 +624,9 @@ inline static CMPIString *CMGetMessage(
     2 is for warning, 3 is for severe, and 4 is for fatal.
     @param id The ID of the provider.
     @param text The message. If not NULL, is the message text to be logged.
-    @param string The message. If not NULL,  is the message text to be logged.
+    @param string The message. If not NULL,  is the message text to be logged. 
     string will be ignored when text is not NULL.
-    @param rc Output: Service return status
+    @param rc Output: Service return status 
 */
 inline static CMPIStatus CMLogMessage(
     const CMPIBroker * b,
@@ -649,12 +651,12 @@ inline static CMPIStatus CMLogMessage(
     @param mb Broker this pointer
     @param level The level of the log message. 1 is for info, 2 is for warning,
     and 3 is for verbose.
-    @param component The component name to use for tracing. The components are
-    defined in the TraceComponentId enumeration in Pegasus/Common/Tracer.h.
+    @param component The component name to use for logging. The available 
+    facilities are defined in TraceComponents.h file.
     @param text The message. If not NULL, is the message text to be logged.
-    @param string The message. If not NULL,  is the message text to be logged.
+    @param string The message. If not NULL,  is the message text to be logged. 
     string will be ignored when text is not NULL.
-    @param rc Output: Service return status
+    @param rc Output: Service return status 
 */
 inline static CMPIStatus CMTraceMessage(
     const CMPIBroker * b,
@@ -673,7 +675,7 @@ inline static CMPIStatus CMTraceMessage(
 
 #ifdef CMPI_VER_200
 # ifdef CMPI_INLINE
-/**
+/** 
     Create a new CMPIError object.
     @example  CMNewCMPIError( );
     @param b Broker this pointer
@@ -715,7 +717,7 @@ inline static CMPIError* CMNewCMPIError(
 
 #ifdef CMPI_VER_200
 # ifdef CMPI_INLINE
-/**
+/** 
     Opens a message file and returns a handle to it.
     @example  CMOpenMessageFile(_broker,"/path/msgFile",&msgFileHandle);
     @param b Broker this pointer
@@ -738,7 +740,7 @@ inline static CMPIStatus CMOpenMessageFile(
 
 #ifdef CMPI_VER_200
 # ifdef CMPI_INLINE
-/**
+/** 
     Closes a message file and returns a handle to it.
     @example  CMCloseMessageFile(_broker,msgFileHandle);
     @param mb Broker this pointer
@@ -758,19 +760,19 @@ inline static   CMPIStatus CMCloseMessageFile(
 
 #ifdef CMPI_VER_200
 # ifdef CMPI_INLINE
-/**
+/** 
     Retrieves translated message from a message file.
     When using as macro, use CMFmtArgsX and CMFmtX macros (defined
     above) to generate the variable parameter list and ommit
     the count parameter.
     @example  CMGetMessage2(_broker,"msgid",msgFileHandle,"Test $0 $1",
-          NULL,CMFmtArgs2(CMFmtChars("message"),CMFmtSint(1));
+          NULL,CMFmtArgs2(CMFmtChars("message"),CMFmtSint(1));          
     @param mb Broker this pointer
     @param msgId The message identifier.
     @param msgFileHandle The handle representing the open message file.
     @param defMsg The default message. The message can have up to 10 msg
            insert placeholders ($0 through $9). The placeholders will be
-           replaced by the corresponding message insert values.
+           replaced by the corresponding message insert values.          
     @param rc Output: Service return status (suppressed when NULL).
     @param count The number of message insert values. Omit when using
             the CMFmtArgsXX macro.
@@ -778,22 +780,22 @@ inline static   CMPIStatus CMCloseMessageFile(
            These are specified using the following macros:
               CMFmtSint(v)    integer value
               CMFmtUint(v)    unsigned integer value
-              CMFmtSint64(v)  long integer value
+              CMFmtSint64(v)  long integer value                    
               CMFmtUint64(v)  long unsigned integer vale
               CMFmtReal(v)    float or double real value
-              CMFmtBoolean(v) CMPIBoolean value
+              CMFmtBoolean(v) CMPIBoolean value                    
               CMFmtChars(v)   char string
               CMFmtString(v)  CMPIString
     @return the translated message.
 */
 inline static CMPIString* CMGetMessage2(
     const CMPIBroker* mb,
-    const char *msgId,
+    const char *msgId, 
     const CMPIMsgFileHandle msgFilehandle,
-    const char *defMsg,
+    const char *defMsg, 
     CMPIStatus* rc,
     unsigned int, ...);
-# else
+# else   
 #  define CMGetMessage2(b,id,mfh,def,rc,parms) \
        ((b)->eft->getMessage2((b),(id),(mfh),(def),(rc),parms))
 # endif /* CMPI_INLINE */
@@ -804,7 +806,7 @@ inline static CMPIString* CMGetMessage2(
 
 
 #ifdef CMPI_INLINE
-/**
+/** 
     Gets a named property value.
     @param inst Instance this pointer.
     @param name Property name.
@@ -823,7 +825,7 @@ inline static CMPIData CMGetProperty(
 #endif
 
 #ifdef CMPI_INLINE
-/**
+/** 
     Gets a Property value defined by its index.
     @param inst Instance this pointer.
     @param index Position in the internal Data array.
@@ -845,7 +847,7 @@ inline static CMPIData CMGetPropertyAt(
 #endif
 
 #ifdef CMPI_INLINE
-/**
+/** 
     Adds/replaces a named Property.
     @param inst Instance this pointer.
     @param name Entry name.
@@ -947,7 +949,7 @@ inline static CMPIStatus CMSetPropertyFilter(
 
 #ifdef CMPI_VER_200
 # ifdef CMPI_INLINE
-/**
+/** 
     Add/replace a named Property value and origin
     @param inst is a pointer to the CMPIInstance structure.
     @param name is a string containing the Property name.
@@ -1469,8 +1471,6 @@ inline static CMPICount CMGetArgCount(const CMPIArgs * as, CMPIStatus * rc)
 
 // CMPIString Macros
 
-// CMGetCharPtr is deprecated. It will be removed in the
-// future versions.
 #define CMGetCharPtr(st)    ((st)->ft->getCharPtr((st),NULL))
 
 #ifdef CMPI_INLINE
@@ -1549,7 +1549,7 @@ inline static CMPIBoolean CMIsInterval(
 
 #ifdef CMPI_VER_200
 # ifdef CMPI_INLINE
-/**
+/** 
     Gets the type of this Error
     @param er Error this pointer
     @param rc Output: Service return status (suppressed when NULL).
@@ -1567,7 +1567,7 @@ inline static CMPIErrorType (*getErrorType)(
 # endif
 
 # ifdef CMPI_INLINE
-/**
+/** 
     Returns a string which describes the alternate error type.
     @param er Error this pointer
     @param rc Output: Service return status (suppressed when NULL).
@@ -1585,7 +1585,7 @@ inline static CMPIString* (*getOtherErrorType)(
 # endif
 
 # ifdef CMPI_INLINE
-/**
+/** 
     Returns a string which describes the owneing entity
     @param er Error this pointer
     @param rc Output: Service return status (suppressed when NULL).
@@ -1603,7 +1603,7 @@ inline static CMPIString* (*getOwningEntity)(
 # endif
 
 # ifdef CMPI_INLINE
-/**
+/** 
     Returns a string which is the message ID.
     @param er Error this pointer
     @param rc Output: Service return status (suppressed when NULL).
@@ -1619,7 +1619,7 @@ inline static CMPIString* (*getMessageID)(const CMPIError* er, CMPIStatus* rc)
 # endif
 
 # ifdef CMPI_INLINE
-/**
+/** 
     Returns a string comnating an error message.
     @param er Error this pointer
     @param rc Output: Service return status (suppressed when NULL).
@@ -1635,7 +1635,7 @@ inline static CMPIString* (*getMessage)(const CMPIError* er, CMPIStatus* rc)
 # endif
 
 # ifdef CMPI_INLINE
-/**
+/** 
     Returns the perceieved severity of this error.
     @param er Error this pointer
     @param rc Output: Service return status (suppressed when NULL).
@@ -1653,7 +1653,7 @@ inline static CMPIErrorSeverity (*getPerceivedSeverity)(
 # endif
 
 # ifdef CMPI_INLINE
-/**
+/** 
     Returns the probable cause of this error.
     @param er Error this pointer
     @param rc Output: Service return status (suppressed when NULL).
@@ -1671,7 +1671,7 @@ inline static CMPIErrorProbableCause (*getProbableCause)(
 # endif
 
 # ifdef CMPI_INLINE
-/**
+/** 
     Returns a string which describes the probable cause.
     @param er Error this pointer
     @param rc Output: Service return status (suppressed when NULL).
@@ -1689,7 +1689,7 @@ inline static CMPIString* (*getProbableCauseDescription)(
 # endif
 
 # ifdef CMPI_INLINE
-/**
+/** 
     Returns an array of strings which describes recomended actions.
     @param er Error this pointer
     @param rc Output: Service return status (suppressed when NULL).
@@ -1707,7 +1707,7 @@ inline static CMPIArray* (*getRecommendedActions)(
 # endif
 
 # ifdef CMPI_INLINE
-/**
+/** 
     Returns a string which describes the Error source.
     @param er Error this pointer
     @param rc Output: Service return status (suppressed when NULL).
@@ -1725,7 +1725,7 @@ inline static CMPIString* (*getErrorSource)(
 # endif
 
 # ifdef CMPI_INLINE
-/**
+/** 
     Returns a the format that the error src is in.
     @param er Error this pointer
     @param rc Output: Service return status (suppressed when NULL).
@@ -1743,7 +1743,7 @@ inline static CMPIErrorSrcFormat (*getErrorSourceFormat)(
 # endif
 
 # ifdef CMPI_INLINE
-/**
+/** 
     Returns a string which describes the 'other' format, only available if the
     error source is OTHER.
     @param er Error this pointer
@@ -1762,7 +1762,7 @@ inline static CMPIString* (*getOtherErrorSourceFormat)(
 # endif
 
 # ifdef CMPI_INLINE
-/**
+/** 
     Returns the status code of this error.
     @param er Error this pointer
     @param rc Output: Service return status (suppressed when NULL).
@@ -1778,7 +1778,7 @@ inline static CMPIrc (*getCIMStatusCode)(const CMPIError* er, CMPIStatus* rc)
 # endif
 
 # ifdef CMPI_INLINE
-/**
+/** 
     Returns a string which describes the status code error.
     @param er Error this pointer
     @param rc Output: Service return status (suppressed when NULL).
@@ -1796,7 +1796,7 @@ inline static CMPIString* (*getCIMStatusCodeDescription)(
 # endif
 
 # ifdef CMPI_INLINE
-/**
+/** 
     Returns an array which contains the dynamic content of the message.
     @param er The Error this pointer
     @param rc Output: Serbice return status (surpressed when NULL)
@@ -1814,7 +1814,7 @@ inline static CMPIArray* (*getMessageArguments)(
 # endif
 
 # ifdef CMPI_INLINE
-/**
+/** 
     Sets the error type of this error object.
     @param er Error this pointer
     @param et The error type
@@ -1832,7 +1832,7 @@ inline static CMPIStatus (*setErrorType)(
 # endif
 
 # ifdef CMPI_INLINE
-/**
+/** 
     Sets the 'other' error type of this error object.
     @param er Error this pointer
     @param oet A string which describes the error type, it is only valis when
@@ -1849,7 +1849,7 @@ inline static CMPIStatus (*setOtherErrorType)(CMPIError* er, const char * oet)
 # endif
 
 # ifdef CMPI_INLINE
-/**
+/** 
     Sets the description of the probable cause.
     @param er Error this pointer
     @param pc The probable cause string
@@ -1867,7 +1867,7 @@ inline static CMPIStatus (*setProbableCauseDescription)(
 # endif
 
 # ifdef CMPI_INLINE
-/**
+/** 
     Sets the recomended actions array.
     @param er Error this pointer
     @param ar An array of strings describing actions that shoudl be taken to
@@ -1886,7 +1886,7 @@ inline static CMPIStatus (*setRecommendedActions)(
 # endif
 
 # ifdef CMPI_INLINE
-/**
+/** 
     Specifies a string which specifes The identifying information of the
     entity (i.e., the instance) generating the error..
     @param er Error this pointer
@@ -1904,7 +1904,7 @@ inline static CMPIStatus (*setErrorSource)(CMPIError* er, const char* es);
 # endif
 
 # ifdef CMPI_INLINE
-/**
+/** 
     Sets the source format of the error object
     @param er Error this pointer
     @param esf the string which describes the source format
@@ -1922,7 +1922,7 @@ inline static CMPIStatus (*setErrorSourceFormat)(
 # endif
 
 # ifdef CMPI_INLINE
-/**
+/** 
     specifies A string defining "Other" values for ErrorSourceFormat
     @param er Error this pointer
     @param oef the string which describes the other source format
@@ -1940,7 +1940,7 @@ inline static CMPIStatus (*setOtherErrorSourceFormat)(
 # endif
 
 # ifdef CMPI_INLINE
-/**
+/** 
     Sets the description of the status code.
     @param er Error this pointer
     @param scd A string whcih describes the status code.
@@ -1957,7 +1957,7 @@ inline static CMPIStatus (*setCIMStatusCodeDescription)(
        ((e)->ft->setCIMStatusCodeDescription((e),(cd)))
 # endif
 # ifdef CMPI_INLINE
-/**
+/** 
     Sets an array of strings for the dynamic content of the message
     @param er Error this pointer
     @param values Specifies an array of CMPIStrings containing the dynamic
@@ -1980,7 +1980,7 @@ inline static CMPIStatus (*setMessageArguments)(CMPIError* er, CMPIArray* ma)
 
 
 #ifdef CMPI_INLINE
-/**
+/** 
     Get the next element of this Enumeration.
     @param en Enumeration this pointer.
     @param rc Output: Service return status (suppressed when NULL).
@@ -2035,7 +2035,7 @@ inline static CMPIArray *CMToArray(
 
 
 #ifdef CMPI_INLINE
-/**
+/** 
     Return a value/type pair.
     @param rslt Result this pointer.
     @param value Address of a Value object.
@@ -2494,14 +2494,14 @@ inline static int CMEvaluatePredicateUsingAccessor(
 */
 inline static unsigned long CBGetBrokerCapabilities(const CMPIBroker * mb)
 {
-    return((mb)->bft-> brokerCapabilities);
+    return((mb)->bft-> brokerCapabilities);  
 }
 #else
-# define CBGetBrokerCapabilities(b) ((b)->bft->brokerCapabilities)
+# define CBGetBrokerCapabilities(b) ((b)->bft->brokerCapabilities) 
 #endif
 
 #ifdef CMPI_INLINE
-/**
+/** 
     CIMOM version as defined by CIMOM
 */
 inline static int CBBrokerVersion(const CMPIBroker * mb)
@@ -3094,9 +3094,9 @@ inline static CMPIData CBGetProperty(
 #ifndef DOC_ONLY
 // MI factory stubs
 
-// Used when the MI factory function is not going to call
+// Used when the MI factory function is not going to call 
 // a function during initialization.
-# define CMNoHook
+# define CMNoHook 
 #endif
 
 /*

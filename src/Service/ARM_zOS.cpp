@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 // Author: Thilo Boehm (tboehm@de.ibm.com)
 //
@@ -34,19 +36,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-#define _POSIX_SOURCE
-#include <sys/utsname.h>
+#define _POSIX_SOURCE 
+#include <sys/utsname.h> 
 #include <leawi.h>
 #include <ceeedcct.h>
 #include <unistd.h>
 
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h>
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 #include "AutoRestartMgr_ZOS_ZSERIES_IBM.h"
-#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES64_IBM)
-#include "AutoRestartMgr_ZOS_ZSERIES64_IBM.h"
-#endif
 #include "ARM_zOS.h"
 
 
@@ -56,45 +54,44 @@
 #define ARM_ELEMNAME_SIZE 17          // 16 Bytes for ARM element name + '\0'
 
 PEGASUS_NAMESPACE_BEGIN
-
-
+   
+           
 //******************************************************************************
-//
-// Methode: void ARM_zOS::Register(void)
-//
+// 
+// Methode: void ARM_zOS::Register(void) 
+// 
 // Description:
 // Registration and make element READY for z/OS ARM (Automatic Restart Manager).
-//
-// Function:
-//            a) do the registration with ARM
-//            b) make the element READY for ARM
-//
-//    All errors are handled inside this routine, a failure to register or
-//    a failure to make READY the element does not impact the further function
-//    of the CIM Server. The success and failures are written to the
+// 
+// Function: 
+//            a) do the registration with ARM   
+//            b) make the element READY for ARM 
+// 
+//    All errors are handled inside this routine, a failure to register or    
+//    a failure to make READY the element does not impact the further function 
+//    of the CIM Server. The success and failures are written to the 
 //    z/OS console and the appropriate CIM Server logs.
-//
+// 
 //    The registration status is saved in the global variable ARM_zOS_Status
 //    for further use ( e.g. actions after a restart) within the CIM Server.
-//
+//                                                                        
 //******************************************************************************
 void ARM_zOS::Register(void)
 {
 
     int i;
-
+    
     // ARM element name init with base.
     char arm_elemname[ARM_ELEMNAME_SIZE] = "CFZ_SRV_";
     int full_elemname_size;
 
     char arm_buffer[256];               // ARM buffer
-    int arm_ret=0;                      // ARM return code
-    int arm_res=0;                      // ARM reason code
+    int arm_ret=0;                      // ARM return code 
+    int arm_res=0;                      // ARM reason code 
     struct utsname uts;                 // structure to get the SYSNAME for
-                                        // the element name
+                                        // the element name 
     int rc;
 
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES64_IBM
     rc = __osname(&uts);
     if(rc < 0)
     {
@@ -109,16 +106,16 @@ void ARM_zOS::Register(void)
     }
 
     // concatenate the element name base and the nodename to the full element
-    // name
+    // name 
     strcat(arm_elemname,uts.nodename);
     full_elemname_size = strlen(arm_elemname);
 
-    // pad the elementname with spaces
+    // pad the elementname with spaces 
     memset(arm_elemname + full_elemname_size, ' ',
         ARM_ELEMNAME_SIZE - full_elemname_size);
 
 
-    // put a Null-termination at Pos 17 to make string printable
+    // put a Null-termination at Pos 17 to make string printable 
     arm_elemname[ARM_ELEMNAME_SIZE-1] = '\0';
 
 
@@ -128,9 +125,9 @@ void ARM_zOS::Register(void)
 
     // CIM server is running in ASCII and the assembler module needs the
     // module in EBCDIC
-    __atoe(arm_elemname);
+    __atoe(arm_elemname); 
 
-    __register_arm(arm_elemname, arm_buffer, &arm_ret, &arm_res);
+    __register_arm(arm_elemname, arm_buffer, &arm_ret, &arm_res); 
 
     // convert back to ascii for further processing.
     __etoa(arm_elemname);
@@ -138,11 +135,10 @@ void ARM_zOS::Register(void)
     if (arm_ret <= 0x04)
     {
        Logger::put_l(Logger::STANDARD_LOG, "CIM Server", Logger::INFORMATION,
-           MessageLoaderParms(
-               "Common.ARM_zOS.ARM_READY",
-               "The CIM server successfully registered to ARM using element "
-                   "name $0.",
-               arm_elemname));
+           "Common.ARM_zOS.ARM_READY",
+           "The CIM server successfully registered to ARM using element "
+               "name $0.",
+           arm_elemname);
 
         if (arm_ret == 0x00)
         {
@@ -189,43 +185,41 @@ void ARM_zOS::Register(void)
         char str_arm_res[8];
         sprintf(str_arm_res,"%04X",arm_res);
         Logger::put_l(Logger::STANDARD_LOG, "CIM Server", Logger::INFORMATION,
-            MessageLoaderParms(
-                "Common.ARM_zOS.ARM_FAIL",
-                "The CIM server failed to register with ARM using element "
-                    "name $0: return code 0x$1, reason code 0x$2.",
+            "Common.ARM_zOS.ARM_FAIL",
+            "The CIM server failed to register with ARM using element "
+                "name $0: return code 0x$1, reason code 0x$2.",
                 arm_elemname,
                 str_arm_ret,
-                str_arm_res));
+                str_arm_res);
 
         ARM_zOS_Status = NOT_REGISTERED;
-    }
-#endif
+    }                
+
     return;
 }
 
 
 //******************************************************************************
-//
-// Method: void ARM_zOS::DeRegister(void)
-//
+// 
+// Method: void ARM_zOS::DeRegister(void) 
+// 
 // Description:
-// De-Register CIM Server from z/OS ARM (Automatic Restart Mangager).
-//
-// Function:
-//            de-registration with ARM
-//
+// De-Register CIM Server from z/OS ARM (Automatic Restart Mangager). 
+// 
+// Function: 
+//            de-registration with ARM   
+// 
 //    All errors are handled inside this routine.
-//
-//
+// 
+//                                                                        
 //******************************************************************************
 
 void ARM_zOS::DeRegister(void)
 {
-    char arm_buffer[256];
-    int arm_ret=0;                     // ARM return code
-    int arm_res=0;                     // ARM reason code
-
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES64_IBM
+    char arm_buffer[256];              
+    int arm_ret=0;                     // ARM return code 
+    int arm_res=0;                     // ARM reason code 
+    
     // If CIM Server is not not registeres -> if it is REGISTERED or RESTARTED.
     if(ARM_zOS_Status != NOT_REGISTERED)
     {
@@ -246,7 +240,6 @@ void ARM_zOS::DeRegister(void)
         }
         ARM_zOS_Status = NOT_REGISTERED;
     }// End if
-#endif
 }
 
 PEGASUS_NAMESPACE_END

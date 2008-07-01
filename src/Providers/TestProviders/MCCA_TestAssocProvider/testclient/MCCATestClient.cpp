@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 // Author: Marek Szermutzky (MSzermutzky@de.ibm.com) PEP#139 Stage2
 //         Robert Kieninger, (KIENINGR@de.ibm.com)
@@ -135,7 +137,7 @@ void MCCATestClient::createInstance(
 
         // get the object path, so we can complete it
         CIMObjectPath instanceName = CIMObjectPath(cimInstance.getPath());
-
+        
         // combine host and port for usage in object path
         String fullHost = String(_host);
         if (_port != String::EMPTY)
@@ -143,9 +145,9 @@ void MCCATestClient::createInstance(
                 fullHost.append(":");
                 fullHost.append(_port);
         }
-        CLDEBUG("createInstanceTest with fullHost="
-                << fullHost
-                << " and NameSpace="
+        CLDEBUG("createInstanceTest with fullHost=" 
+                << fullHost 
+                << " and NameSpace=" 
                 << nameSpace.getString());
         instanceName.setHost(fullHost);
         instanceName.setNameSpace(nameSpace);
@@ -190,15 +192,15 @@ CIMInstance MCCATestClient::associatorsTest(const String& _host,
 
     CIMKeyBinding  testClassKey = CIMKeyBinding(CIMName("theKey"),
                                                 CIMValue((Uint32) key));
-    Array<CIMKeyBinding> targetKeyBindings = Array<CIMKeyBinding>();
-    targetKeyBindings.append(testClassKey);
-    targetObjectPath.setKeyBindings(targetKeyBindings);
+    Array<CIMKeyBinding> keyBindings = Array<CIMKeyBinding>();
+    keyBindings.append(testClassKey);
+    targetObjectPath.setKeyBindings(keyBindings);
 
     // CLDEBUG("Preparation of object path for associators() call ready.");
-    CLDEBUG("Association call for host=" << fullHost
+    CLDEBUG("Association call for host=" << fullHost 
             << ",Namespace=" << fromNS.getString()
             << ",key=" << key);
-
+    
     // Time to do the call
     try
     {
@@ -230,16 +232,16 @@ CIMInstance MCCATestClient::associatorsTest(const String& _host,
                 CLDEBUG("resultClasswith wrong name returned.");
                 exit(4);
         }
-
+        
         if (!toNS.equal(instanceRef.getNameSpace()) )
         {
                 CLDEBUG("target object has wrong Namespace");
                 exit(5);
         }
 
-        Array<CIMKeyBinding> resultKeyBindings = instanceRef.getKeyBindings();
+        Array<CIMKeyBinding> keyBindings = instanceRef.getKeyBindings();
         // only one key, so only one keybinding
-        String  keyValueString = String(resultKeyBindings[0].getValue());
+        String  keyValueString = String(keyBindings[0].getValue());
         Uint32  sourceKey =
             strtoul((const char*) keyValueString.getCString(), NULL, 0);
         if (sourceKey != key)
@@ -386,8 +388,8 @@ int main (int argc, char* argv [])
 
     if (!String::equal(host1,host2))
     {
-            CLDEBUG("host("
-                    << host1 << ")of associators call not equal host("
+            CLDEBUG("host(" 
+                    << host1 << ")of associators call not equal host(" 
                     << host2 << ") of getInstance call.");
             exit(11);
     }
@@ -401,7 +403,7 @@ int main (int argc, char* argv [])
                                                    testNameSpaceB,
                                                    instanceKEY));
 
-    PEGASUS_STD(cout) << "+++++ "<< argv[0]
+    PEGASUS_STD(cout) << "+++++ "<< argv[0] 
         << " Terminated Normally" << PEGASUS_STD(endl);
     exit(0);
 }

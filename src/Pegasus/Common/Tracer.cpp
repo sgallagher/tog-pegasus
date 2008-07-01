@@ -1,118 +1,48 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/TraceFileHandler.h>
 #include <Pegasus/Common/TraceLogHandler.h>
-#include <Pegasus/Common/TraceMemoryHandler.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/HTTPMessage.h>
-#include <Pegasus/Common/StringConversion.h>
-#include <Pegasus/Common/FileSystem.h>
+
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
-
-/**
-    String constants for naming the various Trace components.
-    These strings will used when turning on tracing for the respective
-    components.  The component list must be kept in sync with the
-    TraceComponentId enumeration.
-
-    The tracer uses the _traceComponentMask in form of a 64bit field to mask
-    the user configured components.
-    Please ensure that no more than 64 components are specified in the
-    TRACE_COMPONENT_LIST.
-
-    The following example shows the usage of trace component names.
-    The setTraceComponents method is used to turn on tracing for the
-    components: Config and Repository. The component names are passed as a
-    comma separated list.
-
-       Tracer::setTraceComponents("Config,Repository");
-*/
-char const* Tracer::TRACE_COMPONENT_LIST[] =
-{
-    "Xml",
-    "XmlIO",
-    "Http",
-    "Repository",
-    "Dispatcher",
-    "OsAbstraction",
-    "Config",
-    "IndicationHandler",
-    "Authentication",
-    "Authorization",
-    "UserManager",
-    "Shutdown",
-    "Server",
-    "IndicationService",
-    "MessageQueueService",
-    "ProviderManager",
-    "ObjectResolution",
-    "WQL",
-    "CQL",
-    "Thread",
-    "CIMExportRequestDispatcher",
-    "SSL",
-    "ControlProvider",
-    "CIMOMHandle",
-    "L10N",
-    "ExportClient",
-    "Listener",
-    "DiscardedData",
-    "ProviderAgent",
-    "IndicationFormatter",
-    "StatisticalData",
-    "CMPIProvider",
-    "IndicationGeneration",
-    "IndicationReceipt",
-    "CMPIProviderInterface",
-    "WsmServer",
-    "RsServer",
-#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
-    "WebServer",
-#endif
-    "LogMessages",
-    "WMIMapperConsumer",
-    "InternalProvider"
-};
-
-// Set the number of defined components
-const Uint32 Tracer::_NUM_COMPONENTS =
-    sizeof(TRACE_COMPONENT_LIST)/sizeof(TRACE_COMPONENT_LIST[0]);
 
 
 // Defines the value values for trace facilities
@@ -122,10 +52,9 @@ char const* Tracer::TRACE_FACILITY_LIST[] =
 {
     "File",
     "Log",
-    "Memory",
     0
 };
-
+    
 
 // Set the trace levels
 // These levels will be compared against a trace level mask to determine
@@ -148,6 +77,10 @@ Tracer* Tracer::_tracerInstance = 0;
 // Set component separator
 const char Tracer::_COMPONENT_SEPARATOR = ',';
 
+// Set the number of defined components
+const Uint32 Tracer::_NUM_COMPONENTS =
+    sizeof(TRACE_COMPONENT_LIST)/sizeof(TRACE_COMPONENT_LIST[0]);
+
 // Set the line maximum
 const Uint32 Tracer::_STRLEN_MAX_UNSIGNED_INT = 21;
 
@@ -155,9 +88,7 @@ const Uint32 Tracer::_STRLEN_MAX_UNSIGNED_INT = 21;
 const Uint32 Tracer::_STRLEN_MAX_PID_TID = 21;
 
 // Initialize public indicator of trace state
-Boolean Tracer::_traceOn=false;
-Uint32  Tracer::_traceLevelMask=0;
-Uint64  Tracer::_traceComponentMask=(Uint64)0;
+Boolean Tracer::_traceOn = false;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Tracer constructor
@@ -165,19 +96,20 @@ Uint64  Tracer::_traceComponentMask=(Uint64)0;
 // Single Instance of Tracer is maintained for each process.
 ////////////////////////////////////////////////////////////////////////////////
 Tracer::Tracer()
-    : _traceMemoryBufferSize(PEGASUS_TRC_DEFAULT_BUFFER_SIZE_KB),
+    : _traceComponentMask(new Boolean[_NUM_COMPONENTS]),
       _traceFacility(TRACE_FACILITY_FILE),
-      _runningOOP(false),
+      _traceLevelMask(0),
       _traceHandler(0)
 {
-
-    // The tracer uses a 64bit field to mask the user configured components.
-    // This assert ensures that no more than 64 components are specified in the
-    // TRACE_COMPONENT_LIST.
-    PEGASUS_ASSERT(_NUM_COMPONENTS <= 64);
-
     // Instantiate trace handler according to configured facility
-    _setTraceHandler(_traceFacility);
+    _traceHandler.reset( getTraceHandler(_traceFacility) );
+
+    // Initialize ComponentMask array to false
+    for (Uint32 index=0;index < _NUM_COMPONENTS;
+        (_traceComponentMask.get())[index++]=false);
+
+    // NO componets are set
+    _componentsAreSet=false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -185,7 +117,6 @@ Tracer::Tracer()
 ////////////////////////////////////////////////////////////////////////////////
 Tracer::~Tracer()
 {
-    delete _traceHandler;
     delete _tracerInstance;
 }
 
@@ -193,75 +124,21 @@ Tracer::~Tracer()
 ////////////////////////////////////////////////////////////////////////////////
 //Factory function for the trace handler instances.
 ////////////////////////////////////////////////////////////////////////////////
-void Tracer::_setTraceHandler( Uint32 traceFacility )
+TraceHandler* Tracer::getTraceHandler( Uint32 traceFacility )
 {
-    TraceHandler * oldTrcHandler = _traceHandler;
-
+    TraceHandler * trcHandler;
     switch(traceFacility)
     {
         case TRACE_FACILITY_LOG:
-            _traceFacility = TRACE_FACILITY_LOG;
-            _traceHandler = new TraceLogHandler();
-            break;
-
-        case TRACE_FACILITY_MEMORY:
-            _traceFacility = TRACE_FACILITY_MEMORY;
-            _traceHandler = new TraceMemoryHandler();
+            trcHandler = new TraceLogHandler();
             break;
 
         case TRACE_FACILITY_FILE:
         default:
-            _traceFacility = TRACE_FACILITY_FILE;
-            _traceHandler = new TraceFileHandler();
-    }
-    delete oldTrcHandler;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Validates if a given file path if it is eligible for writing traces.
-////////////////////////////////////////////////////////////////////////////////
-Boolean Tracer::_isValidTraceFile(String fileName)
-{
-    // Check if the file path is a directory
-    FileSystem::translateSlashes(fileName);
-    if (FileSystem::isDirectory(fileName))
-    {
-        return false;
+            trcHandler = new TraceFileHandler();
     }
 
-    // Check if the file exists and is writable
-    if (FileSystem::exists(fileName))
-    {
-        return FileSystem::canWrite(fileName);
-    }
-
-    // Check if directory is writable
-    Uint32 index = fileName.reverseFind('/');
-
-    if (index != PEG_NOT_FOUND)
-    {
-        String dirName = fileName.subString(0,index);
-
-        if (dirName.size() == 0)
-        {
-            dirName = "/";
-        }
-
-        if (!FileSystem::isDirectory(dirName))
-        {
-            return false;
-        }
-
-        return FileSystem::canWrite(dirName);
-    }
-
-    String currentDir;
-
-    // Check if there is permission to write in the
-    // current working directory
-    FileSystem::getCurrentDirectory(currentDir);
-
-    return FileSystem::canWrite(currentDir);
+    return trcHandler;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -270,7 +147,7 @@ Boolean Tracer::_isValidTraceFile(String fileName)
 void Tracer::_trace(
     const char* fileName,
     const Uint32 lineNum,
-    const TraceComponentId traceComponent,
+    const Uint32 traceComponent,
     const char* fmt,
     va_list argList)
 {
@@ -297,9 +174,9 @@ void Tracer::_trace(
 //Traces the message in the given CIMException object.
 ////////////////////////////////////////////////////////////////////////////////
 void Tracer::_traceCIMException(
-    const TraceComponentId traceComponent,
+    const Uint32 traceComponent,
     const CIMException& cimException)
-{
+{        
     // get the CIMException trace message string
     CString traceMsg =
         TraceableCIMException(cimException).getTraceDescription().getCString();
@@ -307,141 +184,10 @@ void Tracer::_traceCIMException(
     _traceCString(traceComponent, "", (const char*) traceMsg);
 }
 
-char* Tracer::_formatHexDump(
-    char* targetBuffer,
-    const char * data,
-    Uint32 size)
-{
-    unsigned char* p = (unsigned char*)data;
-    unsigned char buf[16];
-    size_t n = 0;
-    int len;
-
-    for (size_t i = 0, col = 0; i < size; i++)
-    {
-        unsigned char c = p[i];
-        buf[n++] = c;
-
-        if (col == 0)
-        {
-            len = sprintf(targetBuffer, "%06X ", (unsigned int)i);
-            targetBuffer+=len;
-        }
-
-        len = sprintf(targetBuffer, "%02X", c);
-        targetBuffer+=len;
-
-        if ( ((col+1) & 3) == 0 )
-        {
-            *targetBuffer = ' ';
-            targetBuffer++;
-        }
-        if (col + 1 == sizeof(buf) || i + 1 == size)
-        {
-            for (size_t j = col + 1; j < sizeof(buf); j++)
-            {
-                targetBuffer[0]=' ';
-                targetBuffer[1]=' ';
-                targetBuffer[2]=' ';
-                targetBuffer += 3;
-            }
-            for (size_t j = 0; j < n; j++)
-            {
-                c = buf[j];
-
-                if (c >= ' ' && c <= '~')
-                {
-                    *targetBuffer = c;
-                }
-                else
-                {
-                    *targetBuffer = '.';
-                }
-                targetBuffer++;
-            }
-            *targetBuffer = '\n';
-            targetBuffer++;
-            n = 0;
-        }
-        if (col + 1 == sizeof(buf))
-        {
-            col = 0;
-        }
-        else
-        {
-            col++;
-        }
-    }
-    *targetBuffer = '\n';
-    targetBuffer++;
-    return targetBuffer;
-}
-
-SharedArrayPtr<char> Tracer::traceFormatChars(
-    const Buffer& data,
-    bool binary)
-{
-    static char start[]="\n### Begin of binary data\n";
-    static char end[]="\n### End of binary data\n";
-    static char msg[] ="\n### Parts of data omitted. Only first 768 bytes and "\
-        "last 256 bytes shown. For complete information, use traceLevel 5.\n\n";
-
-    SharedArrayPtr<char> outputBuffer(
-        new char[(10*data.size()+sizeof(start)+sizeof(end)+sizeof(msg))]);
-
-    char* target = outputBuffer.get();
-    size_t size = data.size();
-
-    if (0 == size)
-    {
-        target[0] = 0;
-        return outputBuffer;
-    }
-    if (binary)
-    {
-        memcpy(target,&(start[0]),sizeof(start)-1);
-        target+=sizeof(start)-1;
-        // If there are more then 1024 bytes of binary data and the trace level
-        // is not at highest level(5), we only trace part of the data and not
-        // everything
-        if ((_traceLevelMask & Tracer::LEVEL5) || (size <= 1024))
-        {
-            target=_formatHexDump(target, data.getData(), size);
-
-        }
-        else
-        {
-            target=_formatHexDump(target, data.getData(), 768);
-
-            memcpy(target, &(msg[0]), sizeof(msg)-1);
-            target+=sizeof(msg)-1;
-
-            target=_formatHexDump(target, &(data.getData()[size-256]), 256);
-        }
-        memcpy(target,&(end[0]),sizeof(end));
-    }
-    else
-    {
-        memcpy(target, data.getData(), size);
-        target[size] = 0;
-    }
-    return outputBuffer;
-}
-
 SharedArrayPtr<char> Tracer::getHTTPRequestMessage(
     const Buffer& requestMessage)
 {
     const Uint32 requestSize = requestMessage.size();
-
-    // Check if requestMessage contains "application/x-openpegasus"
-    // and if true format the the requestBuf as HexDump for tracing
-    //
-    // Binary is only possible on localConnect and doesn't have Basic
-    // authorization for that reason
-    if (strstr(requestMessage.getData(),"application/x-openpegasus"))
-    {
-        return traceFormatChars(requestMessage,true);
-    }
 
     // Make a copy of the request message.
     SharedArrayPtr<char>
@@ -456,7 +202,9 @@ SharedArrayPtr<char> Tracer::getHTTPRequestMessage(
     char* sep;
     const char* line = requestBuf.get();
 
-    while ((sep = HTTPMessage::findSeparator(line)) && (line != sep))
+    while ((sep = HTTPMessage::findSeparator(
+        line, (Uint32)(requestSize - (line - requestBuf.get())))) &&
+        (line != sep))
     {
         if (HTTPMessage::expectHeaderToken(line, "Authorization") &&
              HTTPMessage::expectHeaderToken(line, ":") &&
@@ -464,16 +212,16 @@ SharedArrayPtr<char> Tracer::getHTTPRequestMessage(
         {
             // Suppress the user/passwd info
             HTTPMessage::skipHeaderWhitespace(line);
-            for ( char* userpass = (char*)line ;
-                userpass < sep;
-                *userpass = 'X', userpass++)
-            {
-            }
+            for ( char* userpass = (char*)line ; 
+                userpass < sep; 
+                *userpass = 'X', userpass++);
+
             break;
         }
 
         line = sep + ((*sep == '\r') ? 2 : 1);
     }
+
     return requestBuf;
 }
 
@@ -483,7 +231,7 @@ SharedArrayPtr<char> Tracer::getHTTPRequestMessage(
 void Tracer::_traceMethod(
     const char* fileName,
     const Uint32 lineNum,
-    const TraceComponentId traceComponent,
+    const Uint32 traceComponent,
     const char* methodEntryExit,
     const char* method)
 {
@@ -496,7 +244,7 @@ void Tracer::_traceMethod(
     // assume Method entry/exit string 15 characters long
     // +1 space character
     message = new char[ strlen(fileName) +
-        _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8
+        _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8 
         + 16];
 
     sprintf(
@@ -507,10 +255,27 @@ void Tracer::_traceMethod(
        fileName,
        lineNum,
        methodEntryExit);
-
+        
     _traceCString(traceComponent, message, method);
 
     delete [] message;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//Checks if trace is enabled for the given component and level
+////////////////////////////////////////////////////////////////////////////////
+Boolean Tracer::isTraceEnabled(
+    const Uint32 traceComponent,
+    const Uint32 traceLevel)
+{
+    Tracer* instance = _getInstance();
+    if (traceComponent >= _NUM_COMPONENTS)
+    {
+        return false;
+    }
+    return (((instance->_traceComponentMask.get())[traceComponent]) &&
+            (traceLevel & instance->_traceLevelMask));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -518,17 +283,16 @@ void Tracer::_traceMethod(
 //to log message to trace file
 ////////////////////////////////////////////////////////////////////////////////
 void Tracer::_trace(
-    const TraceComponentId traceComponent,
+    const Uint32 traceComponent,
     const char* message,
     const char* fmt,
     va_list argList)
 {
     char* msgHeader;
-    Uint32 msgLen;
-    Uint32 usec,sec;
 
     // Get the current system time and prepend to message
-    System::getCurrentTimeUsec(sec,usec);
+    String currentTime = System::getCurrentASCIITime();
+    CString timeStamp = currentTime.getCString();
 
     //
     // Allocate messageHeader.
@@ -538,36 +302,42 @@ void Tracer::_trace(
     // Construct the message header
     // The message header is in the following format
     // timestamp: <component name> [file name:line number]
-    //
-    // Format string length calculation:
-    //        11(sec)+ 2('s-')+11(usec)+4('us: ')+1(' ')+1(\0) = 30
     if (*message != '\0')
     {
+       // << Wed Jul 16 10:58:40 2003 mdd >> _STRLEN_MAX_PID_TID is not used
+       // in this format string
        msgHeader = new char [strlen(message) +
-           strlen(TRACE_COMPONENT_LIST[traceComponent]) + 30];
+           strlen(TRACE_COMPONENT_LIST[traceComponent]) +
+           strlen(timeStamp) + _STRLEN_MAX_PID_TID + 5];
 
-        msgLen = sprintf(msgHeader, "%us-%uus: %s %s", sec, usec,
+        sprintf(msgHeader, "%s: %s %s", (const char*)timeStamp,
             TRACE_COMPONENT_LIST[traceComponent], message);
     }
     else
     {
         //
+        // Since the message is blank, form a string using the pid and tid
+        //
+        char* tmpBuffer;
+
+        //
         // Allocate messageHeader.
         // Needs to be updated if additional info is added
         //
-        // Format string length calculation:
-        //        11(sec)+2('s-')+11(usec)+4('us: ')+
-        //        +2(' [')+1(':')+3(']: ')+1(\0) = 35
-        msgHeader = new char[2 * _STRLEN_MAX_PID_TID +
-            strlen(TRACE_COMPONENT_LIST[traceComponent]) + 35];
-
-        msgLen = sprintf(msgHeader, "%us-%uus: %s [%u:%s]: ", sec, usec,
-            TRACE_COMPONENT_LIST[traceComponent],
+        tmpBuffer = new char[2 * _STRLEN_MAX_PID_TID + 6];
+        sprintf(tmpBuffer, "[%u:%s]: ",
             System::getPID(), Threads::id().buffer);
+        msgHeader = new char[strlen(timeStamp) +
+            strlen(TRACE_COMPONENT_LIST[traceComponent]) +
+            strlen(tmpBuffer) + 1  + 5];
+
+        sprintf(msgHeader, "%s: %s %s ", (const char*)timeStamp,
+            TRACE_COMPONENT_LIST[traceComponent], tmpBuffer);
+        delete [] tmpBuffer;
     }
 
     // Call trace file handler to write message
-    _getInstance()->_traceHandler->handleMessage(msgHeader,msgLen,fmt,argList);
+    _getInstance()->_traceHandler->handleMessage(msgHeader,fmt,argList);
 
     delete [] msgHeader;
 }
@@ -577,17 +347,15 @@ void Tracer::_trace(
 //to log message to trace file
 ////////////////////////////////////////////////////////////////////////////////
 void Tracer::_traceCString(
-    const TraceComponentId traceComponent,
+    const Uint32 traceComponent,
     const char* message,
     const char* cstring)
 {
     char* completeMessage;
-    Uint32 msgLen;
-    Uint32 usec,sec;
 
     // Get the current system time and prepend to message
-    System::getCurrentTimeUsec(sec,usec);
-
+    String currentTime = System::getCurrentASCIITime();
+    CString timeStamp = currentTime.getCString();
     //
     // Allocate completeMessage.
     // Needs to be updated if additional info is added
@@ -596,39 +364,45 @@ void Tracer::_traceCString(
     // Construct the message header
     // The message header is in the following format
     // timestamp: <component name> [file name:line number]
-    //
-    // Format string length calculation:
-    //        11(sec)+ 2('s-')+11(usec)+4('us: ')+1(' ')+1(\0) = 30
     if (*message != '\0')
     {
+       // << Wed Jul 16 10:58:40 2003 mdd >> _STRLEN_MAX_PID_TID is not used
+       // in this format string
        completeMessage = new char [strlen(message) +
            strlen(TRACE_COMPONENT_LIST[traceComponent]) +
-           strlen(cstring) + 30];
+           strlen(timeStamp) + _STRLEN_MAX_PID_TID + 5 +
+           strlen(cstring) ];
 
-        msgLen = sprintf(completeMessage, "%us-%uus: %s %s%s", sec, usec,
+        sprintf(completeMessage, "%s: %s %s%s", (const char*)timeStamp,
             TRACE_COMPONENT_LIST[traceComponent], message, cstring);
     }
     else
     {
         //
+        // Since the message is blank, form a string using the pid and tid
+        //
+        char* tmpBuffer;
+
+        //
         // Allocate messageHeader.
         // Needs to be updated if additional info is added
         //
-        // Format string length calculation:
-        //        11(sec)+2('s-')+11(usec)+4('us: ')+
-        //        +2(' [')+1(':')+3(']: ')+1(\0) = 35
-        completeMessage = new char[2 * _STRLEN_MAX_PID_TID +
-            strlen(TRACE_COMPONENT_LIST[traceComponent]) +
-            strlen(cstring) +35];
+        tmpBuffer = new char[2 * _STRLEN_MAX_PID_TID + 6];
+        sprintf(tmpBuffer, "[%u:%s]: ",
+            System::getPID(), Threads::id().buffer);
 
-        msgLen = sprintf(completeMessage, "%us-%uus: %s [%u:%s] %s", sec, usec,
-            TRACE_COMPONENT_LIST[traceComponent],
-            System::getPID(), Threads::id().buffer,
-            cstring);
+        completeMessage = new char[strlen(timeStamp) +
+            strlen(TRACE_COMPONENT_LIST[traceComponent]) +
+            strlen(tmpBuffer) + 1  + 5 +
+            strlen(cstring)];
+
+        sprintf(completeMessage, "%s: %s %s %s", (const char*)timeStamp,
+            TRACE_COMPONENT_LIST[traceComponent], tmpBuffer, cstring);
+        delete [] tmpBuffer;
     }
 
     // Call trace file handler to write message
-    _getInstance()->_traceHandler->handleMessage(completeMessage,msgLen);
+    _getInstance()->_traceHandler->handleMessage(completeMessage);
 
     delete [] completeMessage;
 }
@@ -639,16 +413,18 @@ void Tracer::_traceCString(
 ////////////////////////////////////////////////////////////////////////////////
 Boolean Tracer::isValidFileName(const char* filePath)
 {
-    Tracer* instance = _getInstance();
-    String testTraceFile(filePath);
-
-    if (instance->_runningOOP)
+    String moduleName = _getInstance()->_moduleName;
+    if (moduleName == String::EMPTY)
     {
-        testTraceFile.append(".");
-        testTraceFile.append(instance->_oopTraceFileExtension);
+        return 
+           _getInstance()->_traceHandler->isValidMessageDestination(filePath);
     }
-
-    return _isValidTraceFile(testTraceFile);
+    else
+    {
+        String extendedFilePath = String(filePath) + "." + moduleName;
+        return _getInstance()->_traceHandler->isValidMessageDestination(
+            extendedFilePath.getCString());
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -756,7 +532,7 @@ Boolean Tracer::isValidTraceFacility(const String& traceFacility)
         Uint32 index = 0;
         while (TRACE_FACILITY_LIST[index] != 0 )
         {
-            if (String::equalNoCase(traceFacility,TRACE_FACILITY_LIST[index]))
+            if (String::equalNoCase( traceFacility,TRACE_FACILITY_LIST[index]))
             {
                 retCode = true;
                 break;
@@ -769,16 +545,11 @@ Boolean Tracer::isValidTraceFacility(const String& traceFacility)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Notify the trare running out of process and provide the trace file extension
-// for the out of process trace file.
+//Set the name of the module being traced
 ////////////////////////////////////////////////////////////////////////////////
-void Tracer::setOOPTraceFileExtension(const String& oopTraceFileExtension)
+void Tracer::setModuleName(const String& moduleName)
 {
-    Tracer* instance = _getInstance();
-    instance->_oopTraceFileExtension = oopTraceFileExtension;
-    instance->_runningOOP=true;
-    instance->_traceMemoryBufferSize /= PEGASUS_TRC_BUFFER_OOP_SIZE_DEVISOR;
-
+    _getInstance()->_moduleName = moduleName;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -810,28 +581,17 @@ Uint32 Tracer::setTraceFile(const char* traceFile)
         return 1;
     }
 
-    Tracer* instance = _getInstance();
-    String newTraceFile(traceFile);
-
-    if (instance->_runningOOP)
+    String moduleName = _getInstance()->_moduleName;
+    if (moduleName == String::EMPTY)
     {
-        newTraceFile.append(".");
-        newTraceFile.append(instance->_oopTraceFileExtension);
-    }
-
-    if (_isValidTraceFile(newTraceFile))
-    {
-        instance->_traceFile = newTraceFile;
-        instance->_traceHandler->configurationUpdated();
+        return _getInstance()->_traceHandler->setMessageDestination(traceFile);
     }
     else
     {
-        return 1;
+        String extendedTraceFile = String(traceFile) + "." + moduleName;
+        return _getInstance()->_traceHandler->setMessageDestination(
+            extendedTraceFile.getCString());
     }
-
-
-    return 0;
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -844,37 +604,43 @@ Uint32 Tracer::setTraceLevel(const Uint32 traceLevel)
     switch (traceLevel)
     {
         case LEVEL0:
-            _traceLevelMask = 0x00;
+            _getInstance()->_traceLevelMask = 0x00;
             break;
 
         case LEVEL1:
-            _traceLevelMask = 0x01;
+            _getInstance()->_traceLevelMask = 0x01;
             break;
 
         case LEVEL2:
-            _traceLevelMask = 0x03;
+            _getInstance()->_traceLevelMask = 0x03;
             break;
 
         case LEVEL3:
-            _traceLevelMask = 0x07;
+            _getInstance()->_traceLevelMask = 0x07;
             break;
 
         case LEVEL4:
-            _traceLevelMask = 0x0F;
+            _getInstance()->_traceLevelMask = 0x0F;
             break;
 
         case LEVEL5:
-            _traceLevelMask = 0x1F;
+            _getInstance()->_traceLevelMask = 0x1F;
             break;
 
         default:
-            _traceLevelMask = 0x00;
+            _getInstance()->_traceLevelMask = 0x00;
             retCode = 1;
     }
 
-    // If one of the components was set for tracing and the traceLevel
-    // is not zero, then turn on tracing.
-    _traceOn=((_traceComponentMask!=(Uint64)0)&&(_traceLevelMask!=LEVEL0));
+    if (_getInstance()->_componentsAreSet && 
+        _getInstance()->_traceLevelMask )
+    {
+        _traceOn = true;
+    } 
+    else
+    {
+        _traceOn = false;
+    }
 
     return retCode;
 }
@@ -884,22 +650,32 @@ Uint32 Tracer::setTraceLevel(const Uint32 traceLevel)
 ////////////////////////////////////////////////////////////////////////////////
 void Tracer::setTraceComponents(const String& traceComponents)
 {
+    Tracer* instance = _getInstance();
+
     // Check if ALL is specified
     if (String::equalNoCase(traceComponents,"ALL"))
     {
-        // initialize ComponentMask bit array to true
-        _traceComponentMask = (Uint64)-1;
+        for (Uint32 index = 0; index < _NUM_COMPONENTS; index++)
+        {
+            (instance->_traceComponentMask.get())[index] = true;
+        }
+
+        instance->_componentsAreSet=true;
 
         // If tracing isn't turned off by a traceLevel of zero, let's
         // turn on the flag that activates tracing.
-        _traceOn = (_traceLevelMask != LEVEL0);
+        _traceOn = (instance->_traceLevelMask != LEVEL0);
 
         return;
     }
 
-    // initialize ComponentMask bit array to false
-    _traceComponentMask = (Uint64)0;
+    // initialize ComponentMask array to False
+    for (Uint32 index = 0; index < _NUM_COMPONENTS; index++)
+    {
+        (instance->_traceComponentMask.get())[index] = false;
+    }
     _traceOn = false;
+    instance->_componentsAreSet=false;
 
     if (traceComponents != String::EMPTY)
     {
@@ -908,7 +684,7 @@ void Tracer::setTraceComponents(const String& traceComponents)
         String componentName;
         String componentStr = traceComponents;
 
-
+   
         // Append _COMPONENT_SEPARATOR to the end of the traceComponents
         componentStr.append(_COMPONENT_SEPARATOR);
 
@@ -926,7 +702,10 @@ void Tracer::setTraceComponents(const String& traceComponents)
                 if (String::equalNoCase(
                     componentName,TRACE_COMPONENT_LIST[index]))
                 {
-                    _traceComponentMask=_traceComponentMask|((Uint64)1<<index);
+                    (instance->_traceComponentMask.get())[index] = true;
+
+                    instance->_componentsAreSet=true;
+
                     // Found component, break from the loop
                     break;
                 }
@@ -935,12 +714,15 @@ void Tracer::setTraceComponents(const String& traceComponents)
                     index++;
                 }
             }
+
             // Remove the searched componentname from the traceComponents
             componentStr.remove(0,position+1);
         }
+
         // If one of the components was set for tracing and the traceLevel
         // is not zero, then turn on tracing.
-        _traceOn=((_traceComponentMask!=(Uint64)0)&&(_traceLevelMask!=LEVEL0));
+        _traceOn = (instance->_componentsAreSet &&
+                   (instance->_traceLevelMask != LEVEL0));
     }
 
     return ;
@@ -953,7 +735,7 @@ Uint32 Tracer::setTraceFacility(const String& traceFacility)
 {
     Uint32 retCode = 0;
     Tracer* instance = _getInstance();
-
+    
     if (traceFacility.size() != 0)
     {
         Uint32 index = 0;
@@ -963,7 +745,9 @@ Uint32 Tracer::setTraceFacility(const String& traceFacility)
             {
                 if (index != instance->_traceFacility)
                 {
-                    instance->_setTraceHandler(index);
+                    instance->_traceFacility = index;
+                    instance->_traceHandler.reset( 
+                        instance->getTraceHandler(instance->_traceFacility));
                 }
                 retCode = 1;
                 break;
@@ -983,54 +767,20 @@ Uint32 Tracer::getTraceFacility()
     return _getInstance()->_traceFacility;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Set the size of the memory trace buffer
-////////////////////////////////////////////////////////////////////////////////
-Boolean Tracer::setTraceMemoryBufferSize(Uint32 bufferSize)
-{
-    Tracer* instance = _getInstance();
-    if (instance->_runningOOP)
-    {
-        // in OOP we reduce the trace memory buffer by factor
-        // PEGASUS_TRC_BUFFER_OOP_SIZE_DEVISOR
-        instance->_traceMemoryBufferSize =
-            bufferSize / PEGASUS_TRC_BUFFER_OOP_SIZE_DEVISOR;
-    }
-    else
-    {
-        instance->_traceMemoryBufferSize = bufferSize;
-    }
-
-    // If we decide to dynamically change the trace buffer size,
-    // this is where it needs to be implemented.
-    return true;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Flushes the trace buffer to traceFilePath. This method will only
-// have an effect when traceFacility=Memory.
-////////////////////////////////////////////////////////////////////////////////
-void Tracer::flushTrace()
-{
-    _getInstance()->_traceHandler->flushTrace();
-    return;
-}
-
-
 void Tracer::traceEnter(
     TracerToken& token,
     const char* file,
     size_t line,
-    TraceComponentId traceComponent,
+    Uint32 traceComponent,
     const char* method)
 {
     token.component = traceComponent;
     token.method = method;
-
+    
     if (isTraceEnabled(traceComponent, LEVEL5))
     {
         _traceMethod(
-            file, (Uint32)line, traceComponent,
+            file, (Uint32)line, traceComponent, 
             _METHOD_ENTER_MSG, method);
     }
 }
@@ -1053,44 +803,31 @@ void Tracer::traceExit(
 void Tracer::traceCString(
     const char* fileName,
     const Uint32 lineNum,
-    const TraceComponentId traceComponent,
+    const Uint32 traceComponent,
     const char* cstring)
 {
     char* message;
-
-    Uint32 msgLen;
-    Uint32 usec,sec;
-
-    // Get the current system time
-    System::getCurrentTimeUsec(sec,usec);
 
     //
     // Allocate memory for the message string
     // Needs to be updated if additional info is added
     //
-    message = new char [strlen(fileName) +
-        _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8 +
-        strlen(TRACE_COMPONENT_LIST[traceComponent]) +
-        strlen(cstring) + 30];
-
-    msgLen = sprintf(message, "%us-%uus: %s [%u:%s:%s:%u]: %s",
-        sec,
-        usec,
-        TRACE_COMPONENT_LIST[traceComponent],
+    message = new char[strlen(fileName) +
+        _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8];
+    sprintf(
+        message,
+        "[%u:%s:%s:%u]: ",
         System::getPID(),
         Threads::id().buffer,
         fileName,
-        lineNum,
-        cstring);
+        lineNum);
 
-    // Call trace file handler to write message
-    _getInstance()->_traceHandler->handleMessage(message,msgLen);
-
+    _traceCString(traceComponent, message, cstring);
     delete [] message;
 }
 
 void Tracer::traceCIMException(
-    const TraceComponentId traceComponent,
+    const Uint32 traceComponent,
     const Uint32 traceLevel,
     const CIMException& cimException)
 {
@@ -1101,71 +838,5 @@ void Tracer::traceCIMException(
 }
 
 #endif /* !PEGASUS_REMOVE_TRACE */
-
-//set the trace file size only when the tracing is on a file
-void Tracer::setMaxTraceFileSize(const String &size) 
-{  
-    Tracer *inst = _getInstance();
-    if ( inst->getTraceFacility() == TRACE_FACILITY_FILE )
-    {
-        Uint32 traceFileSizeKBytes = 0;
-        tracePropertyToUint32(size, traceFileSizeKBytes);
-
-        //Safe to typecast here as we know that handler is of type file
-        TraceFileHandler *hdlr = (TraceFileHandler*) (inst->_traceHandler);
-
-        hdlr->setMaxTraceFileSize(traceFileSizeKBytes*1024);
-
-    }
-} 
-
-//set the trace file number for rolling only when the tracing is on a file
-void Tracer::setMaxTraceFileNumber(const String &maxTraceFileNumber)
-{
-    Tracer *inst = _getInstance();
-
-    if ( inst->getTraceFacility() == TRACE_FACILITY_FILE )
-    {
-        Uint32 numberOfTraceFiles = 0;
-        tracePropertyToUint32(maxTraceFileNumber, numberOfTraceFiles);
-
-        //Safe to typecast here as we know that handler is of type file
-        TraceFileHandler *hdlr = (TraceFileHandler*) (inst->_traceHandler);
-
-        hdlr->setMaxTraceFileNumber(numberOfTraceFiles);
-     }
-}
-
-//
-// Converts the quantifiable trace  proprties string into a Uint32 value.
-// It returns false and the bufferSize is set to 0 if the string was not valid.
-//
-Boolean Tracer::tracePropertyToUint32(
-    const String& traceProperty, Uint32& valueInUint32 )
-{
-    Boolean retCode = false;
-    Uint64 uInt64BufferSize;
-
-    valueInUint32 = 0;
-    CString stringBufferSize = traceProperty.getCString();
-
-
-    retCode = StringConversion::decimalStringToUint64(stringBufferSize,
-                                                      uInt64BufferSize);
-
-    if (retCode )
-    {
-        retCode = StringConversion::checkUintBounds(uInt64BufferSize,
-                                                    CIMTYPE_UINT32);
-    }
-
-    if (retCode )
-    {
-        valueInUint32 = (Uint32)uInt64BufferSize;
-    }
-
-    return retCode;
-}
-
 
 PEGASUS_NAMESPACE_END

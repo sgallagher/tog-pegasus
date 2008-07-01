@@ -1,47 +1,45 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/Common/XmlWriter.h>
-
-#include <Pegasus/General/OptionManager.h>
-#include <Pegasus/General/MofWriter.h>
-
 #include <Pegasus/Repository/CIMRepository.h>
-
+#include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Client/CIMClient.h>
-
+#include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/MofWriter.h>
 #include "clientRepositoryInterface.h"
 
 PEGASUS_USING_PEGASUS;
@@ -98,7 +96,7 @@ public:
         }
         catch(Exception &e)
         {
-            cout << "Exception " << e.getMessage()
+            cout << "Exception " << e.getMessage() 
                  << " on enumerateClassNames open. Terminating." << endl;
             return false;
         }
@@ -381,7 +379,7 @@ void printHelp(char* name, OptionManager om)
     header.append(" -parameters [class]");
     header.append("  - Generate MOF output from the repository or client\n");
 
-    String trailer =
+    String trailer = 
         "\nAssumes  using repository interface and repository at\n";
     trailer.append("PEGASUS_HOME for repository unless -r specified");
     trailer.append("\nIf [class] exists only that class mof is output.");
@@ -493,6 +491,7 @@ int main(int argc, char** argv)
     Boolean verbose = om.isTrue("verbose");
 
     Boolean singleClass = true;
+    CIMName className;
 
     // Set the flags to determine whether we show all or simply some classes
     if(showAll)
@@ -573,10 +572,10 @@ int main(int argc, char** argv)
 
         location.append("/repository");
 
-        if (!FileSystem::exists(location)
+        if (!FileSystem::exists(location) 
                 || FileSystem::isDirectoryEmpty(location))
         {
-            cout << "Error. " << location << " does not exist or is empty."
+            cout << "Error. " << location << " does not exist or is empty." 
                  << endl;
             exit(1);
         }
@@ -602,8 +601,8 @@ int main(int argc, char** argv)
     }
     catch(Exception &e)
     {
-        cout << "Exception " << e.getMessage()
-             << " on repository open. Terminating."
+        cout << "Exception " << e.getMessage() 
+             << " on repository open. Terminating." 
              << endl;
         return false;
     }
@@ -665,6 +664,10 @@ int main(int argc, char** argv)
     // get size for summary
     classCount = list.size();
 
+    Boolean localOnly = true;
+    Boolean includeQualifiers = true;
+    Boolean includeClassOrigin = true;
+
     if (!summary || !doNotShowClasses)
     {
         if(showOnlyNames)
@@ -681,10 +684,6 @@ int main(int argc, char** argv)
                 CIMClass cimClass;
                 try
                 {
-                    Boolean localOnly = true;
-                    Boolean includeQualifiers = true;
-                    Boolean includeClassOrigin = true;
-
                     cimClass = clRepository.getClass(nameSpace,
                                                      nextClass,
                                                      localOnly,
@@ -694,7 +693,7 @@ int main(int argc, char** argv)
                 catch(Exception& e)
                 {
                     // ErrorExit(e.getMessage());
-                    cout << "Class get error " << e.getMessage()
+                    cout << "Class get error " << e.getMessage() 
                          << " Class " << nextClass.getString() << endl;
                 }
                 // Note we get and print ourselves rather than use the generic
@@ -722,28 +721,28 @@ int main(int argc, char** argv)
             try
             {
                 Boolean deepInheritance = true;
+                Boolean localOnly = false;
                 Boolean includeClassOrigin = false;
                 Boolean includeQualifiers = false;
 
                 if(showOnlyNames)
                 {
                     Array<CIMObjectPath> instanceNames;
-                    instanceNames =
+                    instanceNames = 
                         clRepository.enumerateInstanceNames(nameSpace,
                                                             className);
-                    for (Uint32 k = 0; k < instanceNames.size(); k++)
-                    {
-                        cout << "Instance " << instanceNames[k].toString();
-                    }
+                    for(Uint32 j = 0; j < instanceNames.size(); j++)
+                        cout << "Instance " << instanceNames[j].toString();
                 }
                 else    // Process complete instances
                 {
                 // Process inputClasslist to enumerate and print instances
                     Array<CIMInstance> namedInstances;
-                    namedInstances =
+                    namedInstances = 
                         clRepository.enumerateInstances(nameSpace,
                                                         className,
                                                         deepInheritance,
+                                                        localOnly,
                                                         includeQualifiers,
                                                         includeClassOrigin);
 
@@ -764,7 +763,7 @@ int main(int argc, char** argv)
             }
             catch(Exception& e)
             {
-                cout << "Error Instance Enumeration:" << e.getMessage()
+                cout << "Error Instance Enumeration:" << e.getMessage() 
                      << endl;
             }
         }
@@ -775,7 +774,7 @@ int main(int argc, char** argv)
         if(qualifierCount != 0)
             cout << "Qualifiers - " << qualifierCount << endl;
         if(classCount != 0)
-            cout << "Classes - " << classCount << " found and "
+            cout << "Classes - " << classCount << " found and " 
                  << classCountDisplayed
                  << " output" << endl;
         if(instanceCount != 0)

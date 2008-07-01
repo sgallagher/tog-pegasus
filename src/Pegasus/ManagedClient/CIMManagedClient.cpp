@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -140,8 +142,9 @@ Array<CIMObjectPath> CIMManagedClient::enumerateInstanceNames(
     hasHostandNameSpace(host, nameSpace);
     CIMClientRep *   _rep;
     _rep = getTargetCIMOM(host, port, nameSpace);
-    Array<CIMObjectPath> returnedInstanceNames =
-        _rep->enumerateInstanceNames(nameSpace,className).getInstanceNames();
+    Array<CIMObjectPath> returnedInstanceNames = _rep->enumerateInstanceNames(
+                                                     nameSpace,
+                                                     className);
     for (Uint32 i = 0; i < returnedInstanceNames.size(); i++)
     {
         returnedInstanceNames[i].setHost(_getHostwithPort(host, port));
@@ -174,7 +177,7 @@ Array<CIMInstance> CIMManagedClient::enumerateInstances(
         localOnly,
         includeQualifiers,
         includeClassOrigin,
-        propertyList).getInstances();
+        propertyList);
 
     // adding host, port and namespace to every Instance
     // ensures object path is full specified
@@ -206,7 +209,7 @@ Array<CIMObject> CIMManagedClient::execQuery(
     Array<CIMObject> returnedCimObjects = _rep->execQuery(
         nameSpace,
         queryLanguage,
-        query).getObjects();
+        query);
     // check if all objects contain a full specified object path
     for (Uint32 i = 0; i < returnedCimObjects.size(); i++)
     {
@@ -216,7 +219,7 @@ Array<CIMObject> CIMManagedClient::execQuery(
             no cimom and no namespace specified, set the current as default
             no namespace, but a cimom specified, add the current namespace
             no cimom, but a namespace specified, add the current cimom
-
+        
           if there are both cimom and namespace specified, do nothing
           thus, only do something if either cimom or namespace is missing
         */
@@ -519,7 +522,7 @@ CIMInstance CIMManagedClient::getInstance(
         localOnly,
         includeQualifiers,
         includeClassOrigin,
-        propertyList).getInstance();
+        propertyList);
 /*
     CIMObjectPath chgObjectPath = CIMObjectPath(returnedCimInstance.getPath());
 
@@ -586,7 +589,7 @@ Array<CIMObjectPath> CIMManagedClient::associatorNames(
         assocClass,
         resultClass,
         role,
-        resultRole).getInstanceNames();
+        resultRole);
 
     for (Uint32 i = 0; i < retAssocNames.size(); i++)
     {
@@ -631,7 +634,7 @@ Array<CIMObject> CIMManagedClient::associators(
         resultRole,
         includeQualifiers,
         includeClassOrigin,
-        propertyList).getObjects();
+        propertyList);
     for (Uint32 i = 0; i < retAssoc.size(); i++)
     {
         // check if all object paths are fully qualified
@@ -671,7 +674,8 @@ Array<CIMObject> CIMManagedClient::references(
         role,
         includeQualifiers,
         includeClassOrigin,
-        propertyList).getObjects();
+        propertyList);
+
     for (Uint32 i = 0; i < retRefer.size(); i++)
     {
         // check if all object paths are fully qualified
@@ -705,7 +709,7 @@ Array<CIMObjectPath> CIMManagedClient::referenceNames(
         objectName.getNameSpace(),
         objectName,
         resultClass,
-        role).getInstanceNames();
+        role);
     for (Uint32 i = 0; i < retReferNames.size(); i++)
     {
         try
@@ -757,9 +761,9 @@ void CIMManagedClient::hasHostandNameSpace(
 void CIMManagedClient::hasHostandNameSpace(const CIMObjectPath& inObjectPath)
 {
     CDEBUG("hasHostandNameSpace(inObjectPath.getHost(),"
-               " inObjectPath.getNameSpace())="
+               " inObjectPath.getNameSpace())=" 
            << inObjectPath.getHost()
-           << ","
+           << "," 
            << inObjectPath.getNameSpace());
     hasHostandNameSpace(inObjectPath.getHost(), inObjectPath.getNameSpace());
 }
@@ -777,7 +781,7 @@ CIMClientRep* CIMManagedClient::getTargetCIMOM(
     CIMClientRep *   targetCIMOM;
     if (strtoul((const char*) _port.getCString(), NULL, 0) == 0)
     {
-        CDEBUG("no port given explicitly, thus we use the default port:"
+        CDEBUG("no port given explicitly, thus we use the default port:" 
                    << _pegasusDefaultPort);
         // no port given explicitly, thus we use the default port of 5988
         // lets determine if there is a connection for this objectpath

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,6 +35,8 @@
 #include <cctype>
 #include <cstdio>
 #include <fstream>
+#include <Pegasus/Common/Pair.h>
+#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/InternalException.h>
 
 #include <Pegasus/Common/DeclContext.h>
@@ -41,18 +45,27 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/Common/ReadWriteSem.h>
-#include <Pegasus/Common/SCMOClassCache.h>
+#include <Pegasus/Common/Dir.h>
 
-#include <Pegasus/Repository/XmlStreamer.h>
-#include <Pegasus/Repository/BinaryStreamer.h>
-#include <Pegasus/Repository/AutoStreamer.h>
+#include <Pegasus/Common/XmlStreamer.h>
+#include <Pegasus/Common/BinaryStreamer.h>
+#include <Pegasus/Common/AutoStreamer.h>
 
 #include "CIMRepository.h"
 #include "RepositoryDeclContext.h"
+#include "InstanceIndexFile.h"
+#include "InstanceDataFile.h"
+#include "AssocInstTable.h"
+#include "AssocClassTable.h"
 #include "ObjectCache.h"
 
-#include "PersistentStore.h"
+#ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
+// #define win32
+# include <zlib.h>
+# include <sstream>
+#endif
 
 #if 0
 #undef PEG_METHOD_ENTER
@@ -60,26 +73,6 @@
 #define PEG_METHOD_ENTER(x,y)  cout<<"--- Enter: "<<y<<endl;
 #define PEG_METHOD_EXIT()
 #endif
-
-
-//==============================================================================
-//
-// The class cache caches up PEGASUS_CLASS_CACHE_SIZE fully resolved class
-// definitions in memory.  To override the default, define
-// PEGASUS_CLASS_CACHE_SIZE in your build environment.  To suppress the cache
-// (and not compile it in at all), set PEGASUS_CLASS_CACHE_SIZE to 0.
-//
-//==============================================================================
-
-#if !defined(PEGASUS_CLASS_CACHE_SIZE)
-# define PEGASUS_CLASS_CACHE_SIZE 8
-#endif
-
-#if (PEGASUS_CLASS_CACHE_SIZE != 0)
-# define PEGASUS_USE_CLASS_CACHE
-#endif
-
-#define PEGASUS_QUALIFIER_CACHE_SIZE 80
 
 
 PEGASUS_USING_STD;
@@ -90,14 +83,30 @@ class CIMRepositoryRep
 {
 public:
 
-    CIMRepositoryRep()
-        :
-#ifdef PEGASUS_USE_CLASS_CACHE
-          _classCache(PEGASUS_CLASS_CACHE_SIZE),
-#endif /* PEGASUS_USE_CLASS_CACHE */
-          _qualifierCache(PEGASUS_QUALIFIER_CACHE_SIZE)
+    CIMRepositoryRep(const String& repositoryRoot) : 
+        _repositoryRoot(repositoryRoot),
+        _nameSpaceManager(repositoryRoot),
+        _resolveInstance(true)
     {
     }
+
+    /**
+        Searches for incomplete instance transactions for all classes in all
+        namespaces.  Restores instance index and data files to void an
+        incomplete operation.  If no incomplete instance transactions are
+        outstanding, this method has no effect.
+     */
+    void _rollbackIncompleteTransactions();
+
+    void _createAssocInstEntries(
+        const CIMNamespaceName& nameSpace,
+        const CIMConstClass& cimClass,
+        const CIMInstance& cimInstance,
+        const CIMObjectPath& instanceName);
+
+    void _createAssocClassEntries(
+        const CIMNamespaceName& nameSpace,
+        const CIMConstClass& assocClass);
 
     /**
         Checks whether an instance with the specified key values exists in the
@@ -113,43 +122,203 @@ public:
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName) const;
 
+    /** Returns the file path of the instance index file.
+
+        @param   nameSpace      the namespace of the instance
+        @param   className      the name of the class
+
+        @return  a string containing the index file path
+     */
+    String _getInstanceIndexFilePath(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className) const;
+
+    /** Returns the file path of the instance file.
+
+        @param   nameSpace      the namespace of the instance
+        @param   className      the name of the class
+
+        @return  a string containing the instance file path
+     */
+    String _getInstanceDataFilePath(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className) const;
+
+    /** Saves an instance object from memory to disk file.  The byte
+        position and the size of the newly inserted instance record are
+        returned.  Returns true on success.
+
+        @param   path      the file path of the instance file
+        @param   object    the CIMInstance object to be saved
+        @param   index     the byte positon of the saved instance record
+        @param   size      the size of the saved instance record
+
+        @return  true      if successful
+                 false     if an error occurs in saving the instance to file
+     */
+    Boolean _saveInstance(
+        const String& path,
+        const CIMInstance& object,
+        Uint32& index,
+        Uint32& size);
+
+    /** loads an instance object from disk to memory.  The caller passes
+        the byte position and the size of the instance record to be loaded.
+        Returns true on success.
+
+        @param   path      the file path of the instance file
+        @param   object    the CIMInstance object to be returned
+        @param   index     the byte positon of the instance record
+        @param   size      the size of the instance record
+        @param   data      the buffer to hold the instance data
+
+        @return  true      if successful
+                 false     if an error occurs in loading the instance from file
+     */
+    Boolean _loadInstance(
+        const String& path,
+        CIMInstance& object,
+        Uint32 index,
+        Uint32 size);
+
+    /** loads all the instance objects from disk to memeory.  Returns true
+        on success.
+
+        @param   nameSpace      the namespace of the instances to be loaded
+        @param   className      the class of the instances to be loaded
+        @param   namedInstances an array of CIMInstance objects to which
+                                the loaded instances are appended
+
+        @return  true      if successful
+                 false     if an error occurs in loading the instances
+     */
+    Boolean _loadAllInstances(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        Array<CIMInstance>& namedInstances);
+
+    /** Modifies an instance object saved in the disk file.  The byte position
+        and the size of the newly added instance record are returned.  Returns
+        true on success.
+
+        @param   path      the file path of the instance file
+        @param   object    the modified CIMInstance object
+        @param   oldIndex  the byte positon of the old instance record
+        @param   oldSize   the size of the old instance record
+        @param   newIndex  the byte positon of the new instance record
+        @param   newSize   the size of the new instance record
+
+        @return  true      if successful
+                 false     if an error occurs in modifying the instance
+     */
+    Boolean _modifyInstance(
+        const String& path,
+        const CIMInstance& object,
+        Uint32 oldIndex,
+        Uint32 oldSize,
+        Uint32& newIndex,
+        Uint32& newSize);
+
+    String _repositoryRoot;
+
+    NameSpaceManager _nameSpaceManager;
+
+    /** Used by getInstance(); indicates whether instance should be resolved
+        after it is retrieved from the file.
+    */
+    Boolean _resolveInstance;
+
     // This must be initialized in the constructor using values from the
     // ConfigManager.
     Boolean _isDefaultInstanceProvider;
 
-    AutoPtr<ObjectStreamer> _streamer;
-
-    AutoPtr<PersistentStore> _persistentStore;
-
-    /**
-        Indicates whether the class definitions in the persistent store are
-        complete (contain propagated elements).
-    */
-    Boolean _storeCompleteClassDefinitions;
-
-    NameSpaceManager _nameSpaceManager;
+    ObjectStreamer* _streamer;
 
     ReadWriteSem _lock;
 
     RepositoryDeclContext* _context;
 
     CString _lockFile;
-
-#ifdef PEGASUS_USE_CLASS_CACHE
-    ObjectCache<CIMClass> _classCache;
-#endif /* PEGASUS_USE_CLASS_CACHE */
-
-    ObjectCache<CIMQualifierDecl> _qualifierCache;
 };
 
-static String _getCacheKey(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& entryName)
+static const Uint32 _MAX_FREE_COUNT = 16;
+
+#ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
+static int compressMode = 0; // PEP214
+#endif
+
+// #define TEST_OUTPUT
+
+//==============================================================================
+//
+// This is the class cache, which caches up PEGASUS_CLASS_CACHE_SIZE classes
+// into memory. To override the default, define PEGASUS_CLASS_CACHE_SIZE in
+// your environment. To supress the cache (and not compile it in at all)
+// define PEGASUS_CLASS_CACHE_SIZE to 0.
+//
+//==============================================================================
+
+#define PEGASUS_QUALIFIER_CACHE_SIZE 80
+
+#if !defined(PEGASUS_CLASS_CACHE_SIZE)
+# define PEGASUS_CLASS_CACHE_SIZE 8
+#endif
+
+#if (PEGASUS_CLASS_CACHE_SIZE != 0)
+# define PEGASUS_USE_CLASS_CACHE
+#endif
+
+#ifdef PEGASUS_USE_CLASS_CACHE
+static ObjectCache<CIMClass> _classCache(PEGASUS_CLASS_CACHE_SIZE);
+#endif /* PEGASUS_USE_CLASS_CACHE */
+
+static ObjectCache<CIMQualifierDecl>
+    _qualifierCache(PEGASUS_QUALIFIER_CACHE_SIZE);
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// _LoadFileToMemory()  PEP214
+//
+// The gzxxxx functions read both compresed and non-compresed files.
+//
+// There is no conditional flag on reading of files since gzread()
+// (from zlib) is capable of reading compressed and non-compressed
+// files (so it contains the logic that examines the header
+// and magic number). Everything will work properly if the repository
+// has some compressed and some non-compressed files.
+//
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void _LoadFileToMemory(Buffer& data, const String& path)
 {
-    String key = nameSpace.getString();
-    key.append(':');
-    key.append(entryName.getString());
-    return key;
+
+#ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
+
+    Uint32 fileSize;
+
+    if (!FileSystem::getFileSize(path, fileSize))
+        throw CannotOpenFile(path);
+
+    gzFile fp = gzopen(path.getCString(), "rb");
+
+    if (fp == NULL)
+        throw CannotOpenFile(path);
+
+    data.reserveCapacity(fileSize);
+    char buffer[4096];
+    int n;
+
+    while ((n = gzread(fp, buffer, sizeof(buffer))) > 0)
+        data.append(buffer, n);
+
+    gzclose(fp);
+
+#else
+
+    FileSystem::loadFileToMemory(data, path);
+
+#endif /* PEGASUS_ENABLE_COMPRESSED_REPOSITORY */
 }
 
 
@@ -167,8 +336,8 @@ static String _getCacheKey(
     @param propertyList the property list
     @return true if the property is in the list otherwise false.
 */
-static Boolean _containsProperty(
-    const CIMProperty& property,
+Boolean _containsProperty(
+    CIMProperty& property,
     const CIMPropertyList& propertyList)
 {
     //  For each property in the propertly list
@@ -194,7 +363,7 @@ static Boolean _containsProperty(
    NOTE: This would be logical to be moved to CIMClass since it may be
    more general than this usage.
 */
-static void _removeAllQualifiers(CIMClass& cimClass)
+void _removeAllQualifiers(CIMClass& cimClass)
 {
     // remove qualifiers of the class
     Uint32 count = 0;
@@ -229,77 +398,74 @@ static void _removeAllQualifiers(CIMClass& cimClass)
 
 /////////////////////////////////////////////////////////////////////////
 //
-// _stripPropagatedElements
+// _removePropagatedQualifiers - Removes all qualifiers from the class
+// that are marked propagated
 //
 /////////////////////////////////////////////////////////////////////////
 
-/* Removes propagated elements from the CIMClass, including properties,
-   methods, and qualifiers attached to the class, properties, methods, and
-   parameters.
+/* removes propagatedQualifiers from the defined CIMClass.
+   This function removes the qualifiers from the class,
+   from each of the properties, from the methods and
+   the parameters if the qualifiers are marked propagated.
+   NOTE: This could be logical to be moved to CIMClass since it may be
+   more general than the usage here.
 */
-static void _stripPropagatedElements(CIMClass& cimClass)
+void _removePropagatedQualifiers(CIMClass& cimClass)
 {
-    // Remove the propagated qualifiers from the class.
-    // Work backwards because removal may be cheaper. Sint32 covers count=0
-    for (Sint32 i = cimClass.getQualifierCount() - 1; i >= 0; i--)
+    Uint32 count = cimClass.getQualifierCount();
+    // Remove nonlocal qualifiers from Class
+    for (Sint32 i = (count - 1); i >= 0; i--)
     {
-        if (cimClass.getQualifier(i).getPropagated())
+        CIMQualifier q = cimClass.getQualifier(i);
+        if (q.getPropagated())
         {
             cimClass.removeQualifier(i);
         }
     }
 
-    // Remove the propagated properties.
-    for (Sint32 i = cimClass.getPropertyCount() - 1; i >= 0; i--)
+    // remove  non localOnly qualifiers from the properties
+    for (Uint32 i = 0; i < cimClass.getPropertyCount(); i++)
     {
         CIMProperty p = cimClass.getProperty(i);
-        if (p.getPropagated())
+        // loop to search qualifiers for nonlocal parameters
+        count = p.getQualifierCount();
+        for (Sint32 j = (count - 1); j >= 0; j--)
         {
-            cimClass.removeProperty(i);
-        }
-        else
-        {
-            // Remove the propagated qualifiers from the property.
-            for (Sint32 j = p.getQualifierCount() - 1; j >= 0; j--)
+            CIMQualifier q = p.getQualifier(j);
+            if (q.getPropagated())
             {
-                if (p.getQualifier(j).getPropagated())
-                {
-                    p.removeQualifier(j);
-                }
+                p.removeQualifier(j);
             }
         }
     }
 
-    // Remove the propagated methods.
-    for (Sint32 i = cimClass.getMethodCount() - 1; i >= 0; i--)
+    // remove non LocalOnly qualifiers from the methods and parameters
+    for (Uint32 i = 0; i < cimClass.getMethodCount(); i++)
     {
         CIMMethod m = cimClass.getMethod(i);
-        if (m.getPropagated())
+        // Remove  nonlocal qualifiers from all parameters
+        for (Uint32 j = 0 ; j < m.getParameterCount(); j++)
         {
-            cimClass.removeMethod(i);
-        }
-        else
-        {
-            // Remove the propagated qualifiers from the method.
-            for (Sint32 j = m.getQualifierCount() - 1; j >= 0; j--)
+            CIMParameter p = m.getParameter(j);
+            count = p.getQualifierCount();
+            for (Sint32 k = (count - 1); k >= 0; k--)
             {
-                if (m.getQualifier(j).getPropagated())
+                CIMQualifier q = p.getQualifier(k);
+                if (q.getPropagated())
                 {
-                    m.removeQualifier(j);
+                    p.removeQualifier(k);
                 }
             }
+        }
 
-            // Remove the propagated qualifiers from the method parameters.
-            for (Sint32 j = m.getParameterCount() - 1; j >= 0; j--)
+        // remove nonlocal qualifiers from the method
+        count = m.getQualifierCount();
+        for (Sint32 j = (count - 1); j >= 0; j--)
+        {
+            CIMQualifier q = m.getQualifier(j);
+            if (q.getPropagated())
             {
-                CIMParameter p = m.getParameter(j);
-                for (Sint32 k = p.getQualifierCount() - 1; k >= 0; k--)
-                {
-                    if (p.getQualifier(k).getPropagated())
-                    {
-                        p.removeQualifier(k);
-                    }
-                }
+                m.removeQualifier(j);
             }
         }
     }
@@ -308,24 +474,40 @@ static void _stripPropagatedElements(CIMClass& cimClass)
 /* remove the properties from an instance based on attributes.
     @param Instance from which properties will be removed.
     @param propertyList PropertyList is used in the removal algorithm
+    @param localOnly - Boolean used in the removal.
     NOTE: This could be logical to move to CIMInstance since the
     usage is more general than just in the repository
 */
-static void _removeProperties(
+void _removeProperties(
     CIMInstance& cimInstance,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList,
+    Boolean localOnly)
 {
-    if (!propertyList.isNull())
+    Boolean propertyListNull = propertyList.isNull();
+    if ((!propertyListNull) || localOnly)
     {
         // Loop through properties to remove those that do not filter through
         // local only attribute and are not in the property list.
+        Uint32 count = cimInstance.getPropertyCount();
         // Work backwards because removal may be cheaper. Sint32 covers count=0
-        for (Sint32 i = (cimInstance.getPropertyCount() - 1); i >= 0; i--)
+        for (Sint32 i = (count - 1); i >= 0; i--)
         {
-            // Since the propertyList is not NULL, only properties in the list
-            // should be included in the instance.
-            if (!_containsProperty(cimInstance.getProperty(i), propertyList))
+            CIMProperty p = cimInstance.getProperty(i);
+
+            // if localOnly == true, ignore properties defined in super class
+            if (localOnly && (p.getPropagated()))
+            {
                 cimInstance.removeProperty(i);
+                continue;
+            }
+
+            // propertyList NULL means deliver properties.  PropertyList
+            // empty, none.
+            // Test for removal if propertyList not NULL. The empty list option
+            // is covered by fact that property is not in the list.
+            if (!propertyListNull)
+                if (!_containsProperty(p, propertyList))
+                    cimInstance.removeProperty(i);
         }
     }
 }
@@ -337,7 +519,7 @@ static void _removeProperties(
     NOTE: This could be logical to be moved to CIMInstance since
     the usage may be more general than just in the repository.
 */
-static void _removeAllQualifiers(CIMInstance& cimInstance)
+void _removeAllQualifiers(CIMInstance& cimInstance)
 {
     // remove qualifiers from the instance
     Uint32 count = 0;
@@ -360,7 +542,7 @@ static void _removeAllQualifiers(CIMInstance& cimInstance)
    NOTE: Logical to be moved to CIMInstance since it may be more general
    than just the repositoryl
 */
-static void _removeClassOrigins(CIMInstance& cimInstance)
+void _removeClassOrigins(CIMInstance& cimInstance)
 {
     PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4, "Remove Class Origins");
 
@@ -370,26 +552,26 @@ static void _removeClassOrigins(CIMInstance& cimInstance)
 }
 
 /* Filters the properties, qualifiers, and classorigin out of a single instance.
-    Based on the parameters provided for propertyList, includeQualifiers,
+    Based on the parameters provided for localOnly, includeQualifiers,
     and includeClassOrigin, this function simply filters the properties
     qualifiers, and classOrigins out of a single instance.  This function
     was created to have a single piece of code that processes getinstance
     and enumerateInstances returns.
     @param cimInstance reference to instance to be processed.
-    @param propertyList If not null, defines the properties to be included in
-        the instance.
+    @param localOnly defines if request is for localOnly parameters.
     @param includeQualifiers Boolean defining if qualifiers to be returned.
     @param includeClassOrigin Boolean defining if ClassOrigin attribute to
     be removed from properties.
 */
-static void _filterInstance(
+void _filterInstance(
     CIMInstance& cimInstance,
     const CIMPropertyList& propertyList,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
 {
-    // Remove properties based on propertyList
-    _removeProperties(cimInstance, propertyList);
+    // Remove properties based on propertyList and localOnly flag
+    _removeProperties(cimInstance, propertyList, localOnly);
 
     // If includequalifiers false, remove all qualifiers from
     // properties.
@@ -408,205 +590,372 @@ static void _filterInstance(
     }
 }
 
-static Array<ClassAssociation> _buildClassAssociationEntries(
-    const CIMConstClass& assocClass)
+////////////////////////////////////////////////////////////////////////////////
+//
+// _LoadObject()
+//
+//      Loads objects (classes and qualifiers) from disk to
+//      memory objects.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+template<class Object>
+void _LoadObject(
+    const String& path,
+    Object& object,
+    ObjectStreamer* streamer)
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "_buildClassAssociationEntries");
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_LoadObject");
 
-    Array<ClassAssociation> classAssocEntries;
+    // Get the real path of the file:
 
-    // Get the association's class name:
+    String realPath;
 
-    CIMName assocClassName = assocClass.getClassName();
-
-    // For each property:
-
-    Uint32 n = assocClass.getPropertyCount();
-
-    for (Uint32 i = 0; i < n; i++)
+    if (!FileSystem::existsNoCase(path, realPath))
     {
-        CIMConstProperty fromProp = assocClass.getProperty(i);
+        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL1,
+            path + " does not exist.");
+        PEG_METHOD_EXIT();
+        throw CannotOpenFile(path);
+    }
 
-        if (fromProp.getType() == CIMTYPE_REFERENCE)
+    PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "realpath = " + realPath);
+
+    // Load file into memory:
+
+    Buffer data;
+
+    _LoadFileToMemory(data, realPath);
+
+    streamer->decode(data, 0, object);
+
+    PEG_METHOD_EXIT();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// _SaveObject()
+//
+//      Saves objects (classes and qualifiers) from memory to
+//      disk files.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void _SaveObject(
+    const String& path,
+    Buffer& objectXml,
+    ObjectStreamer* streamer)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_SaveObject");
+
+#ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
+    if (compressMode)            // PEP214
+    {
+        PEGASUS_STD(ostringstream) os;
+        streamer->write(os, objectXml);
+        string str = os.str();
+
+        gzFile fp = gzopen(path.getCString(), "wb");
+
+        if (fp == NULL)
+          throw CannotOpenFile(path);
+
+        const char* ptr = str.data();
+        size_t rem = str.size();
+        int n;
+
+        while (rem > 0 && (n = gzwrite(fp, (char*)ptr, rem)) > 0)
         {
-            for (Uint32 j = 0; j < n; j++)
-            {
-                CIMConstProperty toProp = assocClass.getProperty(j);
+            ptr += n;
+            rem -= n;
+        }
 
-                if (toProp.getType() == CIMTYPE_REFERENCE &&
-                    (!fromProp.getName().equal(toProp.getName())))
-                {
-                    classAssocEntries.append(ClassAssociation(
-                        assocClassName,
-                        fromProp.getReferenceClassName(),
-                        fromProp.getName(),
-                        toProp.getReferenceClassName(),
-                        toProp.getName()));
-                }
+        gzclose(fp);
+    }
+    else
+#endif /* PEGASUS_ENABLE_COMPRESSED_REPOSITORY */
+    {
+        PEGASUS_STD(ofstream) os(path.getCString() PEGASUS_IOS_BINARY);
+
+        if (!os)
+        {
+            PEG_METHOD_EXIT();
+            throw CannotOpenFile(path);
+        }
+
+        streamer->write(os, objectXml);
+    }
+    PEG_METHOD_EXIT();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// _beginInstanceTransaction()
+//
+//      Creates rollback files to allow an incomplete transaction to be voided.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void _beginInstanceTransaction(
+    const String& indexFilePath,
+    const String& dataFilePath)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "_beginInstanceTransaction");
+
+    //
+    // Begin the transaction (an incomplete transaction will cause
+    // a rollback the next time an instance-oriented routine is invoked).
+    //
+
+    if (!InstanceIndexFile::beginTransaction(indexFilePath))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
+                "begin failed"));
+    }
+
+    if (!InstanceDataFile::beginTransaction(dataFilePath))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.BEGIN_FAILED",
+                "begin failed"));
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// _commitInstanceTransaction()
+//
+//      Removes the rollback files to complete the transaction.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void _commitInstanceTransaction(
+    const String& indexFilePath,
+    const String& dataFilePath)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "_commitInstanceTransaction");
+
+    //
+    // Commit the transaction by removing the rollback files.
+    //
+
+    if (!InstanceIndexFile::commitTransaction(indexFilePath))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
+                "commit failed"));
+    }
+
+    if (!InstanceDataFile::commitTransaction(dataFilePath))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.COMMIT_FAILED",
+                "commit failed"));
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// _rollbackInstanceTransaction()
+//
+//      Restores instance index and data files to void an incomplete operation.
+//      If there are no rollback files, this method has no effect.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+static String _dirName(const String& path)
+{
+    Uint32 n = path.size();
+
+    for (Uint32 i = n; i != 0; )
+    {
+        if (path[--i] == '/')
+            return path.subString(0, i);
+    }
+
+    return String(".");
+}
+
+void _rollbackInstanceTransaction(
+    const String& indexFilePath,
+    const String& dataFilePath)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "_rollbackInstanceTransaction");
+
+    // Avoid rollback logic if directory has no .rollback files.
+
+    String path = _dirName(indexFilePath);
+    Array<String> rollbackFiles;
+
+    if (FileSystem::glob(path, "*.rollback", rollbackFiles))
+    {
+        if (rollbackFiles.size() == 0)
+            return;
+    }
+
+    // Proceed to rollback logic.
+
+    if (!InstanceIndexFile::rollbackTransaction(indexFilePath))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.ROLLBACK_FAILED",
+                "rollback failed"));
+    }
+
+    if (!InstanceDataFile::rollbackTransaction(dataFilePath))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "Repository.CIMRepository.ROLLBACK_FAILED",
+                "rollback failed"));
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// InstanceTransactionHandler
+//
+//      This class is used to manage a repository instance transaction.  The
+//      transaction is started when the class is instantiated, committed when
+//      the complete() method is called, and rolled back if the destructor is
+//      called without a prior call to complete().
+//
+//      The appropriate repository write locks must be owned while an
+//      InstanceTransactionHandler instance exists.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+class InstanceTransactionHandler
+{
+public:
+    InstanceTransactionHandler(
+        const String& indexFilePath,
+        const String& dataFilePath)
+    : _indexFilePath(indexFilePath),
+      _dataFilePath(dataFilePath),
+      _isComplete(false)
+    {
+        _rollbackInstanceTransaction(_indexFilePath, _dataFilePath);
+        _beginInstanceTransaction(_indexFilePath, _dataFilePath);
+    }
+
+    ~InstanceTransactionHandler()
+    {
+        if (!_isComplete)
+        {
+            _rollbackInstanceTransaction(_indexFilePath, _dataFilePath);
+        }
+    }
+
+    void complete()
+    {
+        _commitInstanceTransaction(_indexFilePath, _dataFilePath);
+        _isComplete = true;
+    }
+
+private:
+    String _indexFilePath;
+    String _dataFilePath;
+    Boolean _isComplete;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// CIMRepository::_rollbackIncompleteTransactions()
+//
+//      Searches for incomplete instance transactions for all classes in all
+//      namespaces.  Restores instance index and data files to void an
+//      incomplete operation.  If no incomplete instance transactions are
+//      outstanding, this method has no effect.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+static Boolean _containsNoCase(const Array<String>& array, const String& str)
+{
+    for (Uint32 i = 0; i < array.size(); i++)
+    {
+        if (String::equalNoCase(array[i], str))
+            return true;
+    }
+
+    return false;
+}
+
+void CIMRepositoryRep::_rollbackIncompleteTransactions()
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY,
+        "CIMRepository::_rollbackIncompleteTransactions");
+
+    WriteLock lock(_lock);
+    AutoFileLock fileLock(_lockFile);
+
+    Array<CIMNamespaceName> namespaceNames;
+    _nameSpaceManager.getNameSpaceNames(namespaceNames);
+
+    for (Uint32 i = 0; i < namespaceNames.size(); i++)
+    {
+        // Form a list of .rollback files.
+
+        Array<String> rollbackFiles;
+        FileSystem::glob(
+            _nameSpaceManager.getInstanceDirRoot(namespaceNames[i]),
+            "*.rollback", rollbackFiles);
+
+        // Don't bother doing rollback if there are no rollback files.
+        // The algorithm below is expensive.
+
+        if (rollbackFiles.size() == 0)
+            continue;
+
+        Array<CIMName> classNames;
+        _nameSpaceManager.getSubClassNames(
+            namespaceNames[i], CIMName(), true, classNames);
+
+        for (Uint32 j = 0; j < classNames.size(); j++)
+        {
+            //
+            // Get paths of index and data files:
+            //
+
+            String indexFilePath = _getInstanceIndexFilePath(
+                namespaceNames[i], classNames[j]);
+
+            String dataFilePath = _getInstanceDataFilePath(
+                namespaceNames[i], classNames[j]);
+
+            // Only perform rollback processing if there is a rollback file
+            // for either the data or index file.
+
+            if (_containsNoCase(rollbackFiles, dataFilePath + ".rollback") ||
+                _containsNoCase(rollbackFiles, indexFilePath + ".rollback"))
+            {
+                //
+                // Attempt rollback (if there are no rollback files, this will
+                // have no effect). This code is here to rollback uncommitted
+                // changes left over from last time an instance-oriented 
+                // function
+                // was called.
+                //
+
+                _rollbackInstanceTransaction(indexFilePath, dataFilePath);
             }
         }
     }
 
     PEG_METHOD_EXIT();
-    return classAssocEntries;
-}
-
-/*
-    This routine does the following:
-
-        1.  Creates two entries in the association file for each relationship
-            formed by this new association instance. A binary association
-            (one with two references) ties two instances together. Suppose
-            there are two instances: I1 and I2. Then two entries are created:
-
-                I2 -> I1
-                I1 -> I2
-
-            For a ternary relationship, six entries will be created. Suppose
-            there are three instances: I1, I2, and I3:
-
-                I1 -> I2
-                I1 -> I3
-                I2 -> I1
-                I2 -> I3
-                I3 -> I1
-                I3 -> I2
-
-            So for an N-ary relationship, there will be N! entries created.
-
-        2.  Verifies that the association instance refers to real objects.
-            (note that an association reference may refer to either an instance
-            or a class). Throws an exception if one of the references does not
-            refer to a valid object.
-*/
-static Array<InstanceAssociation> _buildInstanceAssociationEntries(
-    const CIMNamespaceName& nameSpace,
-    const CIMInstance& cimInstance,
-    const CIMObjectPath& instanceName)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "_buildInstanceAssociationEntries");
-
-    Array<InstanceAssociation> instanceAssocEntries;
-
-    // Get the association's instance name and class name:
-
-    String assocInstanceName = instanceName.toString();
-    CIMName assocClassName = instanceName.getClassName();
-
-    // For each property:
-
-    for (Uint32 i = 0, n = cimInstance.getPropertyCount(); i < n; i++)
-    {
-        CIMConstProperty fromProp = cimInstance.getProperty(i);
-
-        // If a reference property:
-
-        if (fromProp.getType() == CIMTYPE_REFERENCE)
-        {
-            // For each property:
-
-            for (Uint32 j = 0, m = cimInstance.getPropertyCount(); j < m; j++)
-            {
-                CIMConstProperty toProp = cimInstance.getProperty(j);
-
-                // If a reference property and not the same property:
-
-                if (toProp.getType() == CIMTYPE_REFERENCE &&
-                    (!fromProp.getName().equal (toProp.getName())))
-                {
-                    CIMObjectPath fromRef;
-                    fromProp.getValue().get(fromRef);
-
-                    CIMObjectPath toRef;
-                    toProp.getValue().get(toRef);
-
-
-                    // Fix for bugzilla 667:
-                    // Strip off the hostname if it is the same as the
-                    // local host
-                    if ((fromRef.getHost() != String::EMPTY) &&
-                        (System::isLocalHost(fromRef.getHost())))
-                    {
-                        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
-                            "Stripping off local hostName from fromRef");
-                        fromRef.setHost(String::EMPTY);
-                    }
-
-                    // Strip off the namespace when it is the same as the
-                    // one this instance is created in.
-                    if ((fromRef.getHost() == String::EMPTY) &&
-                        (fromRef.getNameSpace() == nameSpace))
-                    {
-                        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
-                            "Stripping off local nameSpace from fromRef");
-                        fromRef.setNameSpace(CIMNamespaceName());
-                    }
-
-                    // Strip off the hostname if it is the same as the
-                    // local host
-                    if ((toRef.getHost() != String::EMPTY) &&
-                        (System::isLocalHost(toRef.getHost())))
-                    {
-                        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
-                            "Stripping off local hostName from toRef");
-                        toRef.setHost(String::EMPTY);
-                    }
-
-                    // Strip off the namespace when it is the same as the
-                    // one this instance is created in.
-                    if ((toRef.getHost() == String::EMPTY) &&
-                        (toRef.getNameSpace() == nameSpace))
-                    {
-                        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
-                            "Stripping off local nameSpace from toRef");
-                        toRef.setNameSpace(CIMNamespaceName());
-                    }
-
-                    instanceAssocEntries.append(InstanceAssociation(
-                        assocInstanceName,
-                        assocClassName,
-                        fromRef.toString(),
-                        fromRef.getClassName(),
-                        fromProp.getName(),
-                        toRef.toString(),
-                        toRef.getClassName(),
-                        toProp.getName()));
-                }
-            }
-        }
-    }
-
-    PEG_METHOD_EXIT();
-    return instanceAssocEntries;
-}
-
-/**
-    Converts an object path to an instance name.  The host name is set to the
-    empty string.  The namespace is set to null if it matches the specified
-    namespace.  Otherwise, if it is not null, a CIM_ERR_NOT_FOUND exception is
-    thrown.
-
-    This function allows the repository to store instance names with
-    consistent contents to facilitate equality tests.  (See Bug 1508.)
-
-*/
-static CIMObjectPath _stripInstanceName(
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& instanceName)
-{
-    CIMObjectPath normalizedInstanceName = instanceName;
-    normalizedInstanceName.setHost(String::EMPTY);
-
-    if (instanceName.getNameSpace() == nameSpace)
-    {
-        normalizedInstanceName.setNameSpace(CIMNamespaceName());
-    }
-    else if (!instanceName.getNameSpace().isNull())
-    {
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
-    }
-
-    return normalizedInstanceName;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -631,6 +980,8 @@ CIMRepository::CIMRepository(
     Uint32 mode,
     RepositoryDeclContext* declContext)
 {
+    _rep = new CIMRepositoryRep(repositoryRoot);
+
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::CIMRepository");
 
     Boolean binaryMode = mode & CIMRepository::MODE_BIN;
@@ -642,15 +993,14 @@ CIMRepository::CIMRepository(
                 "enableBinaryRepository"));
     }
 
-    // FUTURE?? -  compressMode = mode & CIMRepository::MODE_COMPRESSED;
-    Boolean compressMode = false;
-
 #ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY    // PEP214
-    compressMode = true;
+    // FUTURE?? -  compressMode = mode & CIMRepository::MODE_COMPRESSED;
+    compressMode=1;
+
     char* s = getenv("PEGASUS_ENABLE_COMPRESSED_REPOSITORY");
     if (s && (strcmp(s, "build_non_compressed") == 0))
     {
-        compressMode = false;
+        compressMode =0;
 #ifdef TEST_OUTPUT
         cout << "In Compress mode: build_non_compresed found" << endl;
 #endif /* TEST_OUTPUT */
@@ -664,26 +1014,23 @@ CIMRepository::CIMRepository(
     cout << "CIMRepository: compressMode= " << compressMode << endl;
 #endif /* TEST_OUTPUT */
 
-    _rep = new CIMRepositoryRep();
-
     if (binaryMode)
     {
         // BUILD BINARY
-        _rep->_streamer.reset(
-            new AutoStreamer(new BinaryStreamer(), BINREP_MARKER));
-        ((AutoStreamer*)_rep->_streamer.get())->addReader(new XmlStreamer(), 0);
+        _rep->_streamer = new AutoStreamer(new BinaryStreamer(), BINREP_MARKER);
+        ((AutoStreamer*)_rep->_streamer)->addReader(new XmlStreamer(), 0);
     }
     else
     {
         // BUILD XML
-        _rep->_streamer.reset(new AutoStreamer(new XmlStreamer(), 0xff));
-        ((AutoStreamer*)_rep->_streamer.get())->addReader(
+        _rep->_streamer = new AutoStreamer(new XmlStreamer(),0xff);
+        ((AutoStreamer*)_rep->_streamer)->addReader(
             new BinaryStreamer(), BINREP_MARKER);
-        ((AutoStreamer*)_rep->_streamer.get())->addReader(new XmlStreamer(), 0);
+        ((AutoStreamer*)_rep->_streamer)->addReader(new XmlStreamer(), 0);
     }
 
     // If declContext is supplied by the caller, don't allocate it.
-    // CIMRepository will take ownership and will be responsible for
+    // CIMRepository will take ownership and will be responsible for 
     // deleting it.
     if (declContext)
         _rep->_context = declContext;
@@ -698,78 +1045,7 @@ CIMRepository::CIMRepository(
     _rep->_lockFile = ConfigManager::getInstance()->getHomedPath(
         PEGASUS_REPOSITORY_LOCK_FILE).getCString();
 
-    _rep->_persistentStore.reset(PersistentStore::createPersistentStore(
-        repositoryRoot,
-        _rep->_streamer.get(),
-        compressMode));
-
-    _rep->_storeCompleteClassDefinitions =
-        _rep->_persistentStore->storeCompleteClassDefinitions();
-
-    // Initialize the NameSpaceManager
-
-    Array<NamespaceDefinition> nameSpaces =
-        _rep->_persistentStore->enumerateNameSpaces();
-
-    Uint32 i = 0;
-    while (i < nameSpaces.size())
-    {
-        if (nameSpaces[i].parentNameSpace.isNull() ||
-            _rep->_nameSpaceManager.nameSpaceExists(
-                nameSpaces[i].parentNameSpace))
-        {
-            // Parent namespace exists; go ahead and initialize this namespace
-            _rep->_nameSpaceManager.initializeNameSpace(
-                nameSpaces[i],
-                _rep->_persistentStore->enumerateClassNames(
-                    nameSpaces[i].name));
-            i++;
-        }
-        else
-        {
-            // If the parent namespace appears later in the list, swap the
-            // entries and repeat this iteration
-            Boolean swapped = false;
-            for (Uint32 j = i + 1; j < nameSpaces.size(); j++)
-            {
-                if (nameSpaces[i].parentNameSpace == nameSpaces[j].name)
-                {
-                    NamespaceDefinition tmp = nameSpaces[j];
-                    nameSpaces[j] = nameSpaces[i];
-                    nameSpaces[i] = tmp;
-                    swapped = true;
-                    break;
-                }
-            }
-
-            if (!swapped)
-            {
-                PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                    "Namespace: %s ignored - parent namespace %s not found",
-                    (const char*)nameSpaces[i].name.getString().getCString(),
-                    (const char*)nameSpaces[i].parentNameSpace.getString().
-                        getCString()));
-                nameSpaces.remove(i);
-            }
-        }
-    }
-
-    if (!_rep->_nameSpaceManager.nameSpaceExists("root"))
-    {
-        // Create a root namespace per ...
-        // Specification for CIM Operations over HTTP
-        // Version 1.0
-        // 2.5 Namespace Manipulation
-        //
-        // There are no intrinsic methods defined specifically for the
-        // purpose of manipulating CIM Namespaces.  However, the
-        // modelling of the a CIM Namespace using the class
-        // __Namespace, together with the requirement that that
-        // root Namespace MUST be supported by all CIM Servers,
-        // implies that all Namespace operations can be supported.
-
-        createNameSpace("root");
-    }
+    _rep->_rollbackIncompleteTransactions();
 
     PEG_METHOD_EXIT();
 }
@@ -778,7 +1054,10 @@ CIMRepository::~CIMRepository()
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::~CIMRepository");
 
+    delete _rep->_streamer;
     delete _rep->_context;
+
+    AssocClassTable::removeCaches();
 
     delete _rep;
 
@@ -818,117 +1097,117 @@ CIMClass CIMRepository::_getClass(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList,
-    Boolean clone)
+    const CIMPropertyList& propertyList)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_getClass");
 
-    PEG_TRACE((TRC_REPOSITORY, Tracer::LEVEL4,
-           "nameSpace= %s, className= %s, localOnly= %s"
-           ", includeQualifiers=  %s, includeClassOrigin= %s",
-           (const char*)nameSpace.getString().getCString(),
-           (const char*)className.getString().getCString(),
-           (localOnly?"true":"false"),
-           (includeQualifiers?"true":"false"),
-           (includeClassOrigin?"true":"false")));
+    PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "nameSpace= " +
+                     nameSpace.getString() + ", className= " +
+                     className.getString() +
+                     ", localOnly= " + _toString(localOnly) +
+                     ", includeQualifiers= " + _toString(includeQualifiers) +
+                     ", includeClassOrigin= " + _toString(includeClassOrigin));
+    String classFilePath;
+    classFilePath = _rep->_nameSpaceManager.getClassFilePath(
+        nameSpace, className, NameSpaceRead);
 
     CIMClass cimClass;
-    // The class cache contains complete class definitions
-    Boolean classIncludesPropagatedElements = true;
 
-#ifdef PEGASUS_USE_CLASS_CACHE
-    // Check the cache first.  Note that the cache contains complete class
-    // definitions including propagated elements.
-
-    String cacheKey = _getCacheKey(nameSpace, className);
-
-    if (!_rep->_classCache.get(cacheKey, cimClass, clone))
+    try
     {
-        // Not in cache so load from disk:
-#endif
-
-        CIMNamespaceName actualNameSpaceName;
-        CIMName superClassName;
-        _rep->_nameSpaceManager.locateClass(
-            nameSpace, className, actualNameSpaceName, superClassName);
-
-        cimClass = _rep->_persistentStore->getClass(
-            actualNameSpaceName, className, superClassName);
-        classIncludesPropagatedElements = _rep->_storeCompleteClassDefinitions;
-
-        if (!localOnly && !classIncludesPropagatedElements)
-        {
-            // Propagate the superclass elements to this class.
-            Resolver::resolveClass(cimClass, _rep->_context, nameSpace);
-            classIncludesPropagatedElements = true;
-        }
-
 #ifdef PEGASUS_USE_CLASS_CACHE
-        if (classIncludesPropagatedElements)
+
+        // Check the cache first:
+
+        if (!_classCache.get(classFilePath, cimClass))
         {
+            // Not in cache so load from disk:
+
+            _LoadObject(classFilePath, cimClass, _rep->_streamer);
+
             // Put in cache:
 
-            _rep->_classCache.put(cacheKey, cimClass, clone);
+            _classCache.put(classFilePath, cimClass);
         }
+
+#else /* PEGASUS_USE_CLASS_CACHE */
+
+        _LoadObject(classFilePath, cimClass, streamer);
+
+#endif /* PEGASUS_USE_CLASS_CACHE */
     }
-#endif
-
-#if !defined(PEGASUS_USE_CLASS_CACHE)
-    // This flag must be true if caching is disabled, otherwise, an unecessary
-    // copy could be created below.
-    clone = true;
-#endif
-
-    // If clone is true, then cimClass is a clone (not shared with cache).
-    // Else, it refers to the same one in the cache and any code below that
-    // changes it, will need to clone it first.
-
-    if (localOnly && classIncludesPropagatedElements)
+    catch (Exception&)
     {
-        // We must clone after all since object is modified below.
-        if (!clone)
-            cimClass = cimClass.clone();
-
-        _stripPropagatedElements(cimClass);
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, className.getString());
     }
 
-    // Remove properties based on propertyList
-    if (!propertyList.isNull())
-    {
-        // We must clone after all since object is modified below.
-        if (!clone)
-            cimClass = cimClass.clone();
+    // Remove properties based on propertylist and localOnly flag (Bug 565)
+    Boolean propertyListNull = propertyList.isNull();
 
-        // Remove properties that are not in the property list.
+    // if localOnly OR there is a property list, process properties
+    if ((!propertyListNull) || localOnly)
+    {
+        // Loop through properties to remove those that do not filter through
+        // local only attribute and are not in the property list.
+        Uint32 count = cimClass.getPropertyCount();
         // Work backwards because removal may be cheaper. Sint32 covers count=0
-        for (Sint32 i = cimClass.getPropertyCount() - 1; i >= 0; i--)
+        for (Sint32 i = (count - 1); i >= 0; i--)
         {
-            if (!_containsProperty(cimClass.getProperty(i), propertyList))
+            CIMProperty p = cimClass.getProperty(i);
+            // if localOnly==true, ignore properties defined in super class
+            if (localOnly && (p.getPropagated()))
             {
                 cimClass.removeProperty(i);
+                continue;
             }
+
+            // propertyList NULL means all properties.  PropertyList
+            // empty, none.
+            // Test for removal if propertyList not NULL. The empty list option
+            // is covered by fact that property is not in the list.
+            if (!propertyListNull)
+                if (!_containsProperty(p, propertyList))
+                    cimClass.removeProperty(i);
         }
     }
 
+    // remove methods based on localOnly flag
+    if (localOnly)
+    {
+        Uint32 count = cimClass.getMethodCount();
+        // Work backwards because removal may be cheaper.
+        for (Sint32 i = (count - 1); i >= 0; i--)
+        {
+            CIMMethod m = cimClass.getMethod(i);
+
+            // if localOnly==true, ignore properties defined in super class
+            if (localOnly && (m.getPropagated()))
+                cimClass.removeMethod(i);
+        }
+
+    }
     // If includequalifiers false, remove all qualifiers from
     // properties, methods and parameters.
     if (!includeQualifiers)
     {
-        // We must clone after all since object is modified below.
-        if (!clone)
-            cimClass = cimClass.clone();
 
         _removeAllQualifiers(cimClass);
+    }
+    else
+    {
+        // if includequalifiers and localOnly, remove nonLocal qualifiers
+        if (localOnly)
+        {
+            _removePropagatedQualifiers(cimClass);
+        }
+
     }
 
     // if ClassOrigin Flag false, remove classOrigin info from class object
     // by setting the property to Null.
     if (!includeClassOrigin)
     {
-        // We must clone after all since object is modified below.
-        if (!clone)
-            cimClass = cimClass.clone();
-
         PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
             "Remove Class Origins");
 
@@ -968,13 +1247,14 @@ Boolean CIMRepositoryRep::_checkInstanceAlreadyExists(
 
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
-        CIMObjectPath tmpInstanceName = CIMObjectPath(
-            String::EMPTY,
-            CIMNamespaceName(),
-            classNames[i],
-            instanceName.getKeyBindings());
+        CIMObjectPath tmpInstanceName = instanceName;
+        tmpInstanceName.setClassName(classNames[i]);
 
-        if (_persistentStore->instanceExists(nameSpace, tmpInstanceName))
+        String path = _getInstanceIndexFilePath(nameSpace, classNames[i]);
+
+        Uint32 index;
+        Uint32 size;
+        if (InstanceIndexFile::lookupEntry(path, tmpInstanceName, index, size))
         {
             PEG_METHOD_EXIT();
             return true;
@@ -988,6 +1268,7 @@ Boolean CIMRepositoryRep::_checkInstanceAlreadyExists(
 CIMInstance CIMRepository::getInstance(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
@@ -999,10 +1280,10 @@ CIMInstance CIMRepository::getInstance(
     CIMInstance cimInstance = _getInstance(
         nameSpace,
         instanceName,
+        localOnly,
         includeQualifiers,
         includeClassOrigin,
-        propertyList,
-        true);
+        propertyList);
 
     PEG_METHOD_EXIT();
     return cimInstance;
@@ -1011,15 +1292,23 @@ CIMInstance CIMRepository::getInstance(
 CIMInstance CIMRepository::_getInstance(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList,
-    Boolean resolveInstance)
+    const CIMPropertyList& propertyList)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_getInstance");
 
-    CIMObjectPath normalizedInstanceName =
-        _stripInstanceName(nameSpace, instanceName);
+    //
+    // Validate namespace
+    //
+    if ((!instanceName.getNameSpace().isNull()) &&
+        (!instanceName.getNameSpace().equal(nameSpace)))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND,
+                                       instanceName.toString());
+    }
 
     if (!_rep->_nameSpaceManager.classExists(
         nameSpace, instanceName.getClassName()))
@@ -1028,20 +1317,48 @@ CIMInstance CIMRepository::_getInstance(
             CIM_ERR_INVALID_CLASS, instanceName.getClassName().getString());
     }
 
-    CIMInstance cimInstance =
-        _rep->_persistentStore->getInstance(nameSpace, normalizedInstanceName);
+    //
+    // Get paths of index and data files:
+    //
+
+    String indexFilePath = _rep->_getInstanceIndexFilePath(
+        nameSpace, instanceName.getClassName());
+
+    String dataFilePath = _rep->_getInstanceDataFilePath(
+        nameSpace, instanceName.getClassName());
+
+    //
+    // Get the index for this instance:
+    //
+
+    Uint32 index;
+    Uint32 size;
+
+    if (!InstanceIndexFile::lookupEntry(
+            indexFilePath, instanceName, index, size))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
+    }
+
+    //
+    // Load the instance from file:
+    //
+
+    CIMInstance cimInstance;
+
+    if (!_rep->_loadInstance(dataFilePath, cimInstance, index, size))
+    {
+        PEG_METHOD_EXIT();
+        throw CannotOpenFile(dataFilePath);
+    }
 
     //
     // Resolve the instance (if requested):
     //
 
-    if (resolveInstance && includeQualifiers)
+    if (_rep->_resolveInstance)
     {
-        // Instances are resolved in persistent storage by the
-        // createInstance and modifyInstance operations, but qualifiers
-        // are not propagated.  The only reason to perform resolution
-        // here is if qualifiers are requested in the instance.
-
         CIMConstClass cimClass;
         Resolver::resolveInstance (
             cimInstance, _rep->_context, nameSpace, cimClass, true);
@@ -1050,6 +1367,7 @@ CIMInstance CIMRepository::_getInstance(
     _filterInstance(
         cimInstance,
         propertyList,
+        localOnly,
         includeQualifiers,
         includeClassOrigin);
 
@@ -1067,61 +1385,92 @@ void CIMRepository::deleteClass(
     AutoFileLock fileLock(_rep->_lockFile);
 
     //
-    // Get the class and check to see if it is an association class.
+    // Get the class and check to see if it is an association class:
     //
 
     CIMClass cimClass = _getClass(
         nameSpace, className, false, true, false, CIMPropertyList());
     Boolean isAssociation = cimClass.isAssociation();
 
-    _rep->_nameSpaceManager.checkDeleteClass(nameSpace, className);
-
-    Array<CIMNamespaceName> dependentNameSpaceNames =
-        _rep->_nameSpaceManager.getDependentSchemaNameSpaceNames(nameSpace);
-
-    //
-    // Ensure no instances of this class exist in the repository.
-    //
-
-    for (Uint32 i = 0; i < dependentNameSpaceNames.size(); i++)
-    {
-        Array<CIMObjectPath> instanceNames =
-            _rep->_persistentStore->enumerateInstanceNamesForClass(
-                dependentNameSpaceNames[i], className);
-
-        if (instanceNames.size())
-        {
-            throw PEGASUS_CIM_EXCEPTION(
-                CIM_ERR_CLASS_HAS_INSTANCES, className.getString());
-        }
-    }
-
-#ifdef PEGASUS_USE_CLASS_CACHE
-
-    _rep->_classCache.evict(_getCacheKey(nameSpace, className));
-
-#endif /* PEGASUS_USE_CLASS_CACHE */
-
-    // Remove the class from the SCMOClassCache.
-    SCMOClassCache* pSCMOCache = SCMOClassCache::getInstance();
-    pSCMOCache->removeSCMOClass(nameSpace,className);
-
     //
     // Delete the class. The NameSpaceManager::deleteClass() method throws
     // an exception if the class has subclasses.
     //
+#ifdef PEGASUS_USE_CLASS_CACHE
 
-    CIMName superClassName =
-        _rep->_nameSpaceManager.getSuperClassName(nameSpace, className);
+    _classCache.evict(_rep->_nameSpaceManager.getClassFilePath(
+        nameSpace, className, NameSpaceRead));
+
+#endif /* PEGASUS_USE_CLASS_CACHE */
 
     _rep->_nameSpaceManager.deleteClass(nameSpace, className);
 
-    _rep->_persistentStore->deleteClass(
-        nameSpace,
-        className,
-        superClassName,
-        isAssociation,
-        dependentNameSpaceNames);
+    //
+    // Remove associations:
+    //
+
+    if (isAssociation)
+    {
+        Array<String> assocFileName =
+            _rep->_nameSpaceManager.getAssocClassPath(
+                nameSpace,NameSpaceDelete);
+
+        AssocClassTable::deleteAssociation(assocFileName[0], className);
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+// This function needs to be called from within a transaction scope for
+// proper error handling in compacting index and data files. 
+void _CompactInstanceRepository(
+    const String& indexFilePath,
+    const String& dataFilePath)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY,
+        "CIMRepository::_CompactInstanceRepository");
+
+    //
+    // Compact the data file first:
+    //
+
+    Array<Uint32> freeFlags;
+    Array<Uint32> indices;
+    Array<Uint32> sizes;
+    Array<CIMObjectPath> instanceNames;
+
+    if (!InstanceIndexFile::enumerateEntries(
+            indexFilePath, freeFlags, indices, sizes, instanceNames, true))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "Repository.CIMRepository.INDEX_ENUM_ENTRIES_FAILED",
+                "Failed to obtain the entries from the Repository Instance"
+                " Index file."));
+    }
+
+    if (!InstanceDataFile::compact(dataFilePath, freeFlags, indices, sizes))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "Repository.CIMRepository.COMPACT_FAILED",
+                "Failed to compact the Repository Instance Data file."));
+    }
+
+    //
+    // Now compact the index file:
+    //
+
+    if (!InstanceIndexFile::compact(indexFilePath))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "Repository.CIMRepository.INDEX_COMPACT_FAILED",
+                "Failed to compact the Repository Instance Index file."));
+    }
 
     PEG_METHOD_EXIT();
 }
@@ -1132,23 +1481,156 @@ void CIMRepository::deleteInstance(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::deleteInstance");
 
-    _rep->_nameSpaceManager.validateClass(
-        nameSpace, instanceName.getClassName());
-
-    CIMObjectPath normalizedInstanceName =
-        _stripInstanceName(nameSpace, instanceName);
+    //
+    // Validate namespace
+    //
+    if ((!instanceName.getNameSpace().isNull()) &&
+        (!instanceName.getNameSpace().equal(nameSpace)))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_NOT_FOUND, instanceName.toString());
+    }
 
     WriteLock lock(_rep->_lock);
     AutoFileLock fileLock(_rep->_lockFile);
 
-    _rep->_persistentStore->deleteInstance(nameSpace, normalizedInstanceName);
+    String errMessage;
+
+    //
+    // Get paths of index and data files:
+    //
+
+    String indexFilePath = _rep->_getInstanceIndexFilePath(
+        nameSpace, instanceName.getClassName());
+
+    String dataFilePath = _rep->_getInstanceDataFilePath(
+        nameSpace, instanceName.getClassName());
+
+    //
+    // Perform the operation in a transaction scope to enable rollback on
+    // failure.
+    //
+
+    InstanceTransactionHandler transaction(indexFilePath, dataFilePath);
+
+    //
+    // Lookup instance from the index file (raise error if not found).
+    //
+
+    Uint32 index;
+    Uint32 size;
+
+    if (!InstanceIndexFile::lookupEntry(
+            indexFilePath, instanceName, index, size))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
+    }
+
+    //
+    // Remove entry from index file.
+    //
+
+    Uint32 freeCount;
+
+    if (!InstanceIndexFile::deleteEntry(indexFilePath, instanceName, freeCount))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "Repository.CIMRepository.FAILED_TO_DELETE_INSTANCE",
+                "Failed to delete instance: $0",
+                instanceName.toString()));
+    }
+
+    //
+    // Compact the index and data files if the free count max was
+    // reached.
+    //
+
+    if (freeCount >= _MAX_FREE_COUNT)
+    {
+        _CompactInstanceRepository(indexFilePath, dataFilePath);
+    }
+
+    transaction.complete();
+
+    //
+    // Delete from assocation table (if an assocation).
+    //
+
+    String assocFileName = _rep->_nameSpaceManager.getAssocInstPath(nameSpace);
+    AssocInstTable::deleteAssociation(assocFileName, instanceName);
+
+    PEG_METHOD_EXIT();
+}
+
+void CIMRepositoryRep::_createAssocClassEntries(
+    const CIMNamespaceName& nameSpace,
+    const CIMConstClass& assocClass)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_createAssocClassEntries");
+
+    // Open input file:
+
+
+    Array<String> assocFileName =
+        _nameSpaceManager.getAssocClassPath(nameSpace,NameSpaceWrite);
+    ofstream os;
+
+    if (!OpenAppend(os, assocFileName[0]))
+    {
+        PEG_METHOD_EXIT();
+        throw CannotOpenFile(assocFileName[0]);
+    }
+
+    // Get the association's class name:
+
+    CIMName assocClassName = assocClass.getClassName();
+
+    // For each property:
+
+    Uint32 n = assocClass.getPropertyCount();
+
+    for (Uint32 i = 0; i < n; i++)
+    {
+        CIMConstProperty fromProp = assocClass.getProperty(i);
+
+        if (fromProp.getType() == CIMTYPE_REFERENCE)
+        {
+            for (Uint32 j = 0; j < n; j++)
+            {
+                CIMConstProperty toProp = assocClass.getProperty(j);
+
+                if (toProp.getType() == CIMTYPE_REFERENCE &&
+                    (!fromProp.getName().equal (toProp.getName())))
+                {
+                    CIMName fromClassName = fromProp.getReferenceClassName();
+                    CIMName fromPropertyName = fromProp.getName();
+                    CIMName toClassName = toProp.getReferenceClassName();
+                    CIMName toPropertyName = toProp.getName();
+
+                    AssocClassTable::append(
+                        os,
+                        assocFileName[0],
+                        assocClassName,
+                        fromClassName,
+                        fromPropertyName,
+                        toClassName,
+                        toPropertyName);
+                }
+            }
+        }
+    }
 
     PEG_METHOD_EXIT();
 }
 
 void CIMRepository::createClass(
     const CIMNamespaceName& nameSpace,
-    const CIMClass& newClass)
+    const CIMClass& newClass,
+    const ContentLanguageList& contentLangs)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createClass");
 
@@ -1165,47 +1647,192 @@ void CIMRepository::_createClass(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_createClass");
 
-    // -- Check whether the class may be created:
-
-    _rep->_nameSpaceManager.checkCreateClass(
-        nameSpace, newClass.getClassName(), newClass.getSuperClassName());
-
     // -- Resolve the class:
+        CIMClass cimClass(newClass);
 
-    CIMClass cimClass(newClass.clone());
-    Resolver::resolveClass(cimClass, _rep->_context, nameSpace);
+    Resolver::resolveClass (cimClass, _rep->_context, nameSpace);
 
-    // -- If an association class, build association entries:
-
-    Array<ClassAssociation> classAssocEntries;
+    // -- If an association, populate associations file:
 
     if (cimClass.isAssociation())
-    {
-        classAssocEntries = _buildClassAssociationEntries(cimClass);
-    }
-
-    // -- Strip the propagated elements, if required
-
-    if (!_rep->_storeCompleteClassDefinitions)
-    {
-        _stripPropagatedElements(cimClass);
-    }
-
-    // -- Create the class declaration:
-
-    _rep->_persistentStore->createClass(nameSpace, cimClass, classAssocEntries);
+        _rep->_createAssocClassEntries(nameSpace, cimClass);
 
     // -- Create namespace manager entry:
 
-    _rep->_nameSpaceManager.createClass(
-        nameSpace, cimClass.getClassName(), cimClass.getSuperClassName());
+    String classFilePath;
+
+    _rep->_nameSpaceManager.createClass(nameSpace, cimClass.getClassName(),
+        cimClass.getSuperClassName(), classFilePath);
+
+    // -- Create the class file:
+
+    Buffer classXml;
+    _rep->_streamer->encode(classXml, cimClass);
+    //XmlWriter::appendClassElement(classXml, cimClass);
+    _SaveObject(classFilePath, classXml, _rep->_streamer);
+
+    PEG_METHOD_EXIT();
+}
+
+/*------------------------------------------------------------------------------
+
+    This routine does the following:
+
+        1.  Creates two entries in the association file for each relationship
+            formed by this new assocation instance. A binary association
+            (one with two references) ties two instances together. Suppose
+            there are two instances: I1 and I2. Then two entries are created:
+
+                I2 -> I1
+                I1 -> I2
+
+            For a ternary relationship, six entries will be created. Suppose
+            there are three instances: I1, I2, and I3:
+
+                I1 -> I2
+                I1 -> I3
+                I2 -> I1
+                I2 -> I3
+                I3 -> I1
+                I3 -> I2
+
+            So for an N-ary relationship, there will be 2*N entries created.
+
+        2.  Verifies that the association instance refers to real objects.
+            (note that an association reference may refer to either an instance
+            or a class). Throws an exception if one of the references does not
+            refer to a valid object.
+
+------------------------------------------------------------------------------*/
+
+
+void CIMRepositoryRep::_createAssocInstEntries(
+    const CIMNamespaceName& nameSpace,
+    const CIMConstClass& cimClass,
+    const CIMInstance& cimInstance,
+    const CIMObjectPath& instanceName)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_createAssocInstEntries");
+
+    // Open input file:
+
+    String assocFileName = _nameSpaceManager.getAssocInstPath(nameSpace);
+    ofstream os;
+
+    if (!OpenAppend(os, assocFileName))
+    {
+        PEG_METHOD_EXIT();
+        throw CannotOpenFile(assocFileName);
+    }
+
+    // Get the association's instance name and class name:
+
+    String assocInstanceName = instanceName.toString();
+    CIMName assocClassName = instanceName.getClassName();
+
+    // For each property:
+
+    for (Uint32 i = 0, n = cimInstance.getPropertyCount(); i < n; i++)
+    {
+        CIMConstProperty fromProp = cimInstance.getProperty(i);
+
+        // If a reference property:
+
+        if (fromProp.getType() == CIMTYPE_REFERENCE)
+        {
+            // For each property:
+
+            for (Uint32 j = 0, n = cimInstance.getPropertyCount(); j < n; j++)
+            {
+                CIMConstProperty toProp = cimInstance.getProperty(j);
+
+                // If a reference property and not the same property:
+
+                if (toProp.getType() == CIMTYPE_REFERENCE &&
+                    (!fromProp.getName().equal (toProp.getName())))
+                {
+                    CIMObjectPath fromRef;
+                    fromProp.getValue().get(fromRef);
+
+                    CIMObjectPath toRef;
+                    toProp.getValue().get(toRef);
+
+
+                    // Fix for bugzilla 667:
+                    // Strip off the hostname if it is the same as the
+                    // local host
+                    if ((fromRef.getHost() != String::EMPTY) &&
+                        (System::isLocalHost(fromRef.getHost())))
+                    {
+                        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
+                            "_createAssocInstEntries() - Stripping off local "
+                                "hostName from fromRef");
+                       fromRef.setHost(String::EMPTY);
+                    }
+
+                    // Strip off the namespace when it is the same as the
+                    // one this instance is created in.
+                    if ((fromRef.getHost() == String::EMPTY) &&
+                        (fromRef.getNameSpace() == nameSpace))
+                    {
+                        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
+                            "_createAssocInstEntries() - Stripping off "
+                                "local nameSpace from fromRef");
+                        fromRef.setNameSpace(CIMNamespaceName());
+                    }
+
+                    // Strip off the hostname if it is the same as the
+                    // local host
+                    if ((toRef.getHost() != String::EMPTY) &&
+                        (System::isLocalHost(toRef.getHost())))
+                    {
+                        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
+                            "_createAssocInstEntries() - Stripping off "
+                                "local hostName from toRef");
+                        toRef.setHost(String::EMPTY);
+                    }
+
+                    // Strip off the namespace when it is the same as the
+                    // one this instance is created in.
+                    if ((toRef.getHost() == String::EMPTY) &&
+                        (toRef.getNameSpace() == nameSpace))
+                    {
+                       PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
+                           "_createAssocInstEntries() - Stripping off "
+                               "local nameSpace from toRef");
+                       toRef.setNameSpace(CIMNamespaceName());
+                    }
+
+
+                    String fromObjectName = fromRef.toString();
+                    CIMName fromClassName = fromRef.getClassName();
+                    CIMName fromPropertyName = fromProp.getName();
+                    String toObjectName = toRef.toString();
+                    CIMName toClassName = toRef.getClassName();
+                    CIMName toPropertyName = toProp.getName();
+
+                    AssocInstTable::append(
+                        os,
+                        assocInstanceName,
+                        assocClassName,
+                        fromObjectName,
+                        fromClassName,
+                        fromPropertyName,
+                        toObjectName,
+                        toClassName,
+                        toPropertyName);
+                }
+            }
+        }
+    }
 
     PEG_METHOD_EXIT();
 }
 
 CIMObjectPath CIMRepository::createInstance(
     const CIMNamespaceName& nameSpace,
-    const CIMInstance& newInstance)
+    const CIMInstance& newInstance,
+    const ContentLanguageList& contentLangs)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createInstance");
 
@@ -1223,12 +1850,14 @@ CIMObjectPath CIMRepository::_createInstance(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_createInstance");
 
+    String errMessage;
+
     //
     // Resolve the instance. Looks up class and fills out properties but
     // not the qualifiers.
     //
 
-    CIMInstance cimInstance(newInstance.clone());
+    CIMInstance cimInstance(newInstance);
     CIMConstClass cimClass;
     Resolver::resolveInstance (cimInstance, _rep->_context, nameSpace, cimClass,
         false);
@@ -1260,23 +1889,72 @@ CIMObjectPath CIMRepository::_createInstance(
     }
 
     //
-    // Build association entries if an association instance.
+    // Create association entries if an association instance.
     //
 
-    Array<InstanceAssociation> instAssocEntries;
-
     if (cimClass.isAssociation())
+        _rep->_createAssocInstEntries(nameSpace, cimClass, cimInstance, 
+            instanceName);
+
+    //
+    // Get paths to data and index files:
+    //
+
+    String indexFilePath = _rep->_getInstanceIndexFilePath(
+        nameSpace, newInstance.getClassName());
+
+    String dataFilePath = _rep->_getInstanceDataFilePath(
+        nameSpace, newInstance.getClassName());
+
+    //
+    // Perform the operation in a transaction scope to enable rollback on
+    // failure.
+    //
+
+    InstanceTransactionHandler transaction(indexFilePath, dataFilePath);
+
+    //
+    // Save instance to file:
+    //
+
+    Uint32 index;
+    Uint32 size;
+
     {
-        instAssocEntries = _buildInstanceAssociationEntries(
-            nameSpace, cimInstance, instanceName);
+        Buffer data;
+        _rep->_streamer->encode(data, cimInstance);
+        size = data.size();
+
+        if (!InstanceDataFile::appendInstance(dataFilePath, data, index))
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(
+                    "Repository.CIMRepository.FAILED_TO_CREATE_INSTANCE",
+                    "Failed to create instance: $0",
+                    instanceName.toString()));
+        }
     }
 
     //
-    // Create the instance
+    // Create entry in index file:
     //
 
-    _rep->_persistentStore->createInstance(
-        nameSpace, instanceName, cimInstance, instAssocEntries);
+    if (!InstanceIndexFile::createEntry(
+            indexFilePath, instanceName, index, size))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "Repository.CIMRepository.FAILED_TO_CREATE_INSTANCE",
+                "Failed to create instance: $0",
+                instanceName.toString()));
+    }
+
+    transaction.complete();
+
+    Resolver::resolveInstance (
+        cimInstance, _rep->_context, nameSpace, cimClass, true);
 
     PEG_METHOD_EXIT();
     return instanceName;
@@ -1284,7 +1962,8 @@ CIMObjectPath CIMRepository::_createInstance(
 
 void CIMRepository::modifyClass(
     const CIMNamespaceName& nameSpace,
-    const CIMClass& modifiedClass)
+    const CIMClass& modifiedClass,
+    const ContentLanguageList& contentLangs)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyClass");
 
@@ -1302,24 +1981,20 @@ void CIMRepository::_modifyClass(
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_modifyClass");
 
     //
-    // Check to see if it is okay to modify this class:
-    //
-
-    CIMName oldSuperClassName;
-
-    _rep->_nameSpaceManager.checkModifyClass(
-        nameSpace,
-        modifiedClass.getClassName(),
-        modifiedClass.getSuperClassName(),
-        oldSuperClassName,
-        !_rep->_storeCompleteClassDefinitions);
-
-    //
     // Resolve the class:
     //
 
-    CIMClass cimClass(modifiedClass.clone());
-    Resolver::resolveClass(cimClass, _rep->_context, nameSpace);
+    CIMClass cimClass(modifiedClass);
+    Resolver::resolveClass (cimClass, _rep->_context, nameSpace);
+
+    //
+    // Check to see if it is okay to modify this class:
+    //
+
+    String classFilePath;
+
+    _rep->_nameSpaceManager.checkModify(nameSpace, cimClass.getClassName(),
+        cimClass.getSuperClassName(), classFilePath);
 
     //
     // ATTN: KS
@@ -1331,38 +2006,57 @@ void CIMRepository::_modifyClass(
 
 #ifdef PEGASUS_USE_CLASS_CACHE
 
-    // Modifying this class may invalidate subclass definitions in the cache.
-    // Since class modification is relatively rare, we just flush the entire
-    // cache rather than specifically evicting subclass definitions.
-    _rep->_classCache.clear();
+    _classCache.evict(classFilePath);
 
 #endif /* PEGASUS_USE_CLASS_CACHE */
 
-    SCMOClassCache* pSCMOCache = SCMOClassCache::getInstance();
-    pSCMOCache->clear();
+    //
+    // Delete the old file containing the class:
+    //
 
-
-    Boolean isAssociation = cimClass.isAssociation();
-    Array<ClassAssociation> classAssocEntries;
-
-    if (isAssociation)
+    if (!FileSystem::removeFileNoCase(classFilePath))
     {
-        classAssocEntries = _buildClassAssociationEntries(cimClass);
+        PEG_METHOD_EXIT();
+        String str = "CIMRepository::modifyClass()";
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "Repository.CIMRepository.FAILED_TO_REMOVE_FILE",
+                "failed to remove file in $0", str));
     }
 
-    // Strip the propagated elements, if required
+    //
+    // Create new class file:
+    //
 
-    if (!_rep->_storeCompleteClassDefinitions)
+    Buffer classXml;
+    _rep->_streamer->encode(classXml, cimClass);
+    //XmlWriter::appendClassElement(classXml, cimClass);
+    _SaveObject(classFilePath, classXml, _rep->_streamer);
+
+    if (cimClass.isAssociation())
     {
-        _stripPropagatedElements(cimClass);
+        // Remove from Association
+        Array<String> assocFileName =
+            _rep->_nameSpaceManager.getAssocClassPath(
+                nameSpace,NameSpaceDelete);
+        if (AssocClassTable::deleteAssociation(
+                assocFileName[0], cimClass.getClassName()))
+        {
+            // Create the association again.
+            _rep->_createAssocClassEntries(nameSpace, cimClass);
+        }
     }
 
-    _rep->_persistentStore->modifyClass(
-        nameSpace,
-        cimClass,
-        oldSuperClassName,
-        isAssociation,
-        classAssocEntries);
+
+    //
+    // Cache this class:
+    //
+
+#ifdef PEGASUS_USE_CLASS_CACHE
+
+    _classCache.put(classFilePath, cimClass);
+
+#endif /* PEGASUS_USE_CLASS_CACHE */
 
     PEG_METHOD_EXIT();
 }
@@ -1371,7 +2065,8 @@ void CIMRepository::modifyInstance(
     const CIMNamespaceName& nameSpace,
     const CIMInstance& modifiedInstance,
     Boolean includeQualifiers,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList,
+    const ContentLanguageList& contentLangs)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyInstance");
 
@@ -1382,6 +2077,7 @@ void CIMRepository::modifyInstance(
     // Do this:
     //
 
+    String errMessage;
     CIMInstance cimInstance;   // The instance that replaces the original
 
     if (propertyList.isNull())
@@ -1395,7 +2091,7 @@ void CIMRepository::modifyInstance(
             // Replace the entire instance with the given instance
             // (this is the default behavior)
             //
-            cimInstance = modifiedInstance.clone();
+            cimInstance = modifiedInstance;
         }
         else
         {
@@ -1404,18 +2100,22 @@ void CIMRepository::modifyInstance(
             // original qualifiers on the instance and on the properties
             //
 
+            _rep->_resolveInstance = false;
+
             cimInstance = _getInstance(
                 nameSpace,
                 modifiedInstance.getPath (),
+                false,
                 true,
                 true,
-                CIMPropertyList(),
-                false);
+                CIMPropertyList());
+
+            _rep->_resolveInstance = true;
 
             CIMInstance newInstance(
                 modifiedInstance.getPath ().getClassName());
 
-            CIMConstInstance givenInstance = modifiedInstance;
+            CIMInstance givenInstance = modifiedInstance;
 
             //
             // Copy over the original instance qualifiers
@@ -1433,7 +2133,7 @@ void CIMRepository::modifyInstance(
             for (Uint32 i=0; i<givenInstance.getPropertyCount(); i++)
             {
                 // Copy the given property value (not qualifiers)
-                CIMConstProperty givenProperty = givenInstance.getProperty(i);
+                CIMProperty givenProperty = givenInstance.getProperty(i);
                 CIMProperty newProperty(
                     givenProperty.getName(),
                     givenProperty.getValue(),
@@ -1468,15 +2168,14 @@ void CIMRepository::modifyInstance(
         // Replace only the properties specified in the given instance
         //
 
-        cimInstance = _getInstance(
-            nameSpace,
-            modifiedInstance.getPath(),
-            true,
-            true,
-            CIMPropertyList(),
-            false);
+        _rep->_resolveInstance = false;
 
-        CIMConstInstance givenInstance = modifiedInstance;
+        cimInstance = _getInstance(nameSpace,
+            modifiedInstance.getPath (), false, true, true, CIMPropertyList());
+
+        _rep->_resolveInstance = true;
+
+        CIMInstance givenInstance = modifiedInstance;
 
         // NOTE: Instance qualifiers are not changed when a property list
         // is specified.  Property qualifiers are replaced with the
@@ -1501,7 +2200,7 @@ void CIMRepository::modifyInstance(
                 if (givenPropPos != PEG_NOT_FOUND)
                 {
                     // Case: Property set in original and given
-                    CIMConstProperty givenProperty =
+                    CIMProperty givenProperty =
                         givenInstance.getProperty(givenPropPos);
 
                     // Copy over the property from the given to the original
@@ -1509,7 +2208,7 @@ void CIMRepository::modifyInstance(
                     {
                         // Case: Total property replacement
                         cimInstance.removeProperty(origPropPos);
-                        cimInstance.addProperty(givenProperty.clone());
+                        cimInstance.addProperty(givenProperty);
                     }
                     else
                     {
@@ -1536,14 +2235,14 @@ void CIMRepository::modifyInstance(
                 if (givenPropPos != PEG_NOT_FOUND)
                 {
                     // Case: Property set in given and not in original
-                    CIMConstProperty givenProperty =
+                    CIMProperty givenProperty =
                         givenInstance.getProperty(givenPropPos);
 
                     // Copy over the property from the given to the original
                     if (includeQualifiers)
                     {
                         // Case: Total property copy
-                        cimInstance.addProperty(givenProperty.clone());
+                        cimInstance.addProperty(givenProperty);
                     }
                     else
                     {
@@ -1578,9 +2277,6 @@ void CIMRepository::modifyInstance(
         }
     }
 
-    CIMObjectPath normalizedInstanceName =
-        _stripInstanceName(nameSpace, modifiedInstance.getPath());
-
     //
     // Resolve the instance (do not propagate qualifiers from class since
     // this will bloat the instance).
@@ -1590,11 +2286,18 @@ void CIMRepository::modifyInstance(
     Resolver::resolveInstance(
         cimInstance, _rep->_context, nameSpace, cimClass, false);
 
+    CIMObjectPath instanceName = cimInstance.buildPath(cimClass);
+
     //
     // Disallow operation if the instance name was changed:
     //
 
-    if (cimInstance.buildPath(cimClass) != normalizedInstanceName)
+    // For bugzilla 1508. Hostname and namespace are not included
+    // in the comparison here.
+    CIMObjectPath modifiedInstancePath = modifiedInstance.getPath();
+    modifiedInstancePath.setNameSpace(CIMNamespaceName());
+    modifiedInstancePath.setHost(String::EMPTY);
+    if (instanceName != modifiedInstancePath)
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
@@ -1603,8 +2306,96 @@ void CIMRepository::modifyInstance(
                 "Attempted to modify a key property"));
     }
 
-    _rep->_persistentStore->modifyInstance(
-        nameSpace, normalizedInstanceName, cimInstance);
+    //
+    // Get paths of index and data files:
+    //
+
+    String indexFilePath = _rep->_getInstanceIndexFilePath(
+        nameSpace, modifiedInstance.getClassName());
+
+    String dataFilePath = _rep->_getInstanceDataFilePath(
+        nameSpace, modifiedInstance.getClassName());
+
+    //
+    // Look up the specified instance
+    //
+
+    Uint32 oldSize;
+    Uint32 oldIndex;
+    Uint32 newSize;
+    Uint32 newIndex;
+
+    if (!InstanceIndexFile::lookupEntry(
+            indexFilePath, instanceName, oldIndex, oldSize))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
+    }
+
+    //
+    // Perform the operation in a transaction scope to enable rollback on
+    // failure.
+    //
+
+    InstanceTransactionHandler transaction(indexFilePath, dataFilePath);
+
+    //
+    // Modify the data file:
+    //
+
+    {
+        Buffer out;
+        _rep->_streamer->encode(out, cimInstance);
+        //XmlWriter::appendInstanceElement(out, cimInstance);
+
+        newSize = out.size();
+
+        if (!InstanceDataFile::appendInstance(dataFilePath, out, newIndex))
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(
+                    "Repository.CIMRepository.FAILED_TO_MODIFY_INSTANCE",
+                    "Failed to modify instance $0",
+                    instanceName.toString()));
+        }
+    }
+
+    //
+    // Modify the index file:
+    //
+
+    Uint32 freeCount;
+
+    if (!InstanceIndexFile::modifyEntry(indexFilePath, instanceName, newIndex,
+        newSize, freeCount))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "Repository.CIMRepository.FAILED_TO_MODIFY_INSTANCE",
+                "Failed to modify instance $0",
+                instanceName.toString()));
+    }
+
+    //
+    // Compact the index and data files if the free count max was
+    // reached.
+    //
+
+    if (freeCount >= _MAX_FREE_COUNT)
+    {
+        _CompactInstanceRepository(indexFilePath, dataFilePath);
+    }
+
+    transaction.complete();
+
+    //
+    // Resolve the instance:
+    //
+
+    Resolver::resolveInstance (
+        cimInstance, _rep->_context, nameSpace, cimClass, true);
 
     PEG_METHOD_EXIT();
 }
@@ -1656,15 +2447,95 @@ Array<CIMName> CIMRepository::enumerateClassNames(
     return classNames;
 }
 
+Boolean CIMRepositoryRep::_loadAllInstances(
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    Array<CIMInstance>& namedInstances)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_loadAllInstances");
+
+    Array<CIMObjectPath> instanceNames;
+    Buffer data;
+    Array<Uint32> indices;
+    Array<Uint32> sizes;
+
+    //
+    // Form the names of the instance index and data files
+    //
+
+    String indexFilePath = _getInstanceIndexFilePath(nameSpace, className);
+    String dataFilePath = _getInstanceDataFilePath(nameSpace, className);
+
+    //
+    // Enumerate the index file:
+    //
+
+    Array<Uint32> freeFlags;
+
+    if (!InstanceIndexFile::enumerateEntries(
+        indexFilePath, freeFlags, indices, sizes, instanceNames, true))
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    //
+    // Form the array of instances result:
+    //
+
+    if (instanceNames.size() > 0)
+    {
+        //
+        // Load all instances from the data file:
+        //
+
+        if (!InstanceDataFile::loadAllInstances(dataFilePath, data))
+        {
+            PEG_METHOD_EXIT();
+            return false;
+        }
+
+        //
+        // for each instance loaded, call XML parser to parse the XML
+        // data and create a CIMInstance object.
+        //
+
+        CIMInstance tmpInstance;
+
+        char* buffer = (char*)data.getData();
+
+        for (Uint32 i = 0; i < instanceNames.size(); i++)
+        {
+            if (!freeFlags[i])
+            {
+                Uint32 pos= (Uint32)((&(buffer[indices[i]]))-buffer);
+                _streamer->decode(data, pos, tmpInstance);
+
+                Resolver::resolveInstance(
+                    tmpInstance, _context, nameSpace, true);
+                tmpInstance.setPath (instanceNames[i]);
+
+                namedInstances.append (tmpInstance);
+            }
+        }
+    }
+
+    PEG_METHOD_EXIT();
+    return true;
+}
+
 Array<CIMInstance> CIMRepository::enumerateInstancesForSubtree(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
+    Boolean deepInheritance,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY,
         "CIMRepository::enumerateInstancesForSubtree");
+
     // It is not necessary to control access to the ReadWriteSem lock here.
     // This method calls enumerateInstancesForClass, which does its own
     // access control.
@@ -1688,12 +2559,17 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForSubtree(
     {
         Array<CIMInstance> localNamedInstances =
             enumerateInstancesForClass(nameSpace, classNames[i],
-                includeQualifiers, includeClassOrigin, propertyList);
+                false, includeQualifiers, includeClassOrigin, propertyList);
 
-        // The propertyList, includeQualifiers, and includeClassOrigin
-        // filtering is done in enumerateInstancesForClass.
-        // ATTN: deepInheritance filtering is not performed.
-
+        // ATTN: Handles everything but deepInheritance.
+        for (Uint32 i = 0 ; i < localNamedInstances.size(); i++)
+        {
+            _filterInstance(localNamedInstances[i],
+                propertyList,
+                localOnly,
+                includeQualifiers,
+                includeClassOrigin);
+        }
         namedInstances.appendArray(localNamedInstances);
     }
 
@@ -1704,6 +2580,7 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForSubtree(
 Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
@@ -1713,33 +2590,29 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
 
     ReadLock lock(_rep->_lock);
 
-    _rep->_nameSpaceManager.validateClass(nameSpace, className);
-
     //
     // Get all instances for this class
     //
 
-    Array<CIMInstance> namedInstances =
-        _rep->_persistentStore->enumerateInstancesForClass(
-            nameSpace, className);
+    Array<CIMInstance> namedInstances;
+
+    if (!_rep->_loadAllInstances(nameSpace, className, namedInstances))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "Repository.CIMRepository.FAILED_TO_LOAD_INSTANCES",
+                "Failed to load instances in class $0",
+                className.getString()));
+    }
 
     // Do any required filtering of properties, qualifiers, classorigin
     // on the returned instances.
     for (Uint32 i = 0 ; i < namedInstances.size(); i++)
     {
-        if (includeQualifiers)
-        {
-            // Instances are resolved in persistent storage by the
-            // createInstance and modifyInstance operations, but qualifiers
-            // are not propagated.  The only reason to perform resolution
-            // here is if qualifiers are requested in the instance.
-            Resolver::resolveInstance(
-                namedInstances[i], _rep->_context, nameSpace, true);
-        }
-
-        _filterInstance(
-            namedInstances[i],
+        _filterInstance(namedInstances[i],
             propertyList,
+            localOnly,
             includeQualifiers,
             includeClassOrigin);
     }
@@ -1792,11 +2665,36 @@ Array<CIMObjectPath> CIMRepository::enumerateInstanceNamesForClass(
 
     ReadLock lock(_rep->_lock);
 
-    _rep->_nameSpaceManager.validateClass(nameSpace, className);
+    //
+    // Get instance names from the instance index file for the class:
+    //
+    Array<CIMObjectPath> instanceNames;
+    Array<Uint32> indices;
+    Array<Uint32> sizes;
 
-    Array<CIMObjectPath> instanceNames =
-        _rep->_persistentStore->enumerateInstanceNamesForClass(
-            nameSpace, className);
+    //
+    // Form the names of the instance index and data files
+    //
+
+    String indexFilePath = _rep->_getInstanceIndexFilePath(nameSpace,className);
+    String dataFilePath = _rep->_getInstanceDataFilePath(nameSpace, className);
+
+    //
+    // Get all instances for the class:
+    //
+
+    Array<Uint32> freeFlags;
+
+    if (!InstanceIndexFile::enumerateEntries(
+        indexFilePath, freeFlags, indices, sizes, instanceNames, false))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "Repository.CIMRepository.FAILED_TO_LOAD_INSTANCE_NAMES",
+                "Failed to load instance names in class $0",
+                className.getString()));
+    }
 
     PEG_METHOD_EXIT();
     return instanceNames;
@@ -1839,16 +2737,14 @@ Array<CIMObject> CIMRepository::associators(
         //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
         //  distinguish instanceNames from classNames in every case
         //  The instanceName of a singleton instance of a keyless class also
-        //  has no key bindings.
-        //  This works today because we do not use singleton instances in
-        //  the model. See BUG_3302.
+        //  has no key bindings
         //
-        CIMObjectPath tmpRef = names[i];
-        tmpRef.setHost(String());
-        tmpRef.setNameSpace(CIMNamespaceName());
-
         if (names[i].getKeyBindings ().size () == 0)
         {
+            CIMObjectPath tmpRef = names[i];
+            tmpRef.setHost(String());
+            tmpRef.setNameSpace(CIMNamespaceName());
+
             CIMClass cimClass = _getClass(
                 tmpNameSpace,
                 tmpRef.getClassName(),
@@ -1863,13 +2759,17 @@ Array<CIMObject> CIMRepository::associators(
         }
         else
         {
+            CIMObjectPath tmpRef = names[i];
+            tmpRef.setHost(String());
+            tmpRef.setNameSpace(CIMNamespaceName());
+
             CIMInstance cimInstance = _getInstance(
                 tmpNameSpace,
                 tmpRef,
+                false,
                 includeQualifiers,
                 includeClassOrigin,
-                propertyList,
-                true);
+                propertyList);
 
             CIMObject cimObject(cimInstance);
             cimObject.setPath (names[i]);
@@ -1934,8 +2834,7 @@ Array<CIMObjectPath> CIMRepository::_associatorNames(
     //  distinguish instanceNames from classNames in every case
     //  The instanceName of a singleton instance of a keyless class also
     //  has no key bindings
-    //  This works today because we do not use singleton instances in
-    //  the model. See BUG_3302.
+    //
     if (objectName.getKeyBindings ().size () == 0)
     {
         CIMName className = objectName.getClassName();
@@ -1945,32 +2844,28 @@ Array<CIMObjectPath> CIMRepository::_associatorNames(
             nameSpace, className, classList);
         classList.append(className);
 
-        Array<CIMNamespaceName> nameSpaceList =
-            _rep->_nameSpaceManager.getSchemaNameSpaceNames(nameSpace);
+        Array<String> assocFileName =
+            _rep->_nameSpaceManager.getAssocClassPath(nameSpace,NameSpaceRead);
 
-        for (Uint32 i = 0; i < nameSpaceList.size(); i++)
+        for (int i=0,m=assocFileName.size(); i<m; i++)
         {
-            Array<String> associatorNamesForNameSpace;
-
-            _rep->_persistentStore->getClassAssociatorNames(
-                nameSpaceList[i],
+            AssocClassTable::getAssociatorNames(
+                assocFileName[i],
                 classList,
                 assocClassList,
                 resultClassList,
                 role,
                 resultRole,
-                associatorNamesForNameSpace);
-
-            associatorNames.appendArray(associatorNamesForNameSpace);
+                associatorNames);
         }
     }
     else
     {
-        _rep->_nameSpaceManager.validateClass(
-            nameSpace, objectName.getClassName());
+        String assocFileName = _rep->_nameSpaceManager.getAssocInstPath(
+            nameSpace);
 
-        _rep->_persistentStore->getInstanceAssociatorNames(
-            nameSpace,
+        AssocInstTable::getAssociatorNames(
+            assocFileName,
             objectName,
             assocClassList,
             resultClassList,
@@ -2038,8 +2933,6 @@ Array<CIMObject> CIMRepository::references(
         //  distinguish instanceNames from classNames in every case
         //  The instanceName of a singleton instance of a keyless class also
         //  has no key bindings
-        //  This works today because we do not use singleton instances in
-        //  the model. See BUG_3302.
         //
         if (objectName.getKeyBindings ().size () == 0)
         {
@@ -2060,10 +2953,10 @@ Array<CIMObject> CIMRepository::references(
             CIMInstance instance = _getInstance(
                 tmpNameSpace,
                 tmpRef,
+                false,
                 includeQualifiers,
                 includeClassOrigin,
-                propertyList,
-                true);
+                propertyList);
 
             CIMObject cimObject = CIMObject (instance);
             cimObject.setPath (names[i]);
@@ -2117,8 +3010,6 @@ Array<CIMObjectPath> CIMRepository::_referenceNames(
         //  distinguish instanceNames from classNames in every case
         //  The instanceName of a singleton instance of a keyless class also
         //  has no key bindings
-        //  This works today because we do not use singleton instances in
-        //  the model. See BUG_3302.
         //
         if (objectName.getKeyBindings ().size () == 0)
         {
@@ -2129,34 +3020,43 @@ Array<CIMObjectPath> CIMRepository::_referenceNames(
                 nameSpace, className, classList);
             classList.append(className);
 
-            Array<CIMNamespaceName> nameSpaceList =
-                _rep->_nameSpaceManager.getSchemaNameSpaceNames(nameSpace);
+            Array<String> assocFileName =
+                _rep->_nameSpaceManager.getAssocClassPath(
+                    nameSpace,NameSpaceRead);
 
-            for (Uint32 i = 0; i < nameSpaceList.size(); i++)
+            Boolean refs=false;
+            for (int i = 0, m=assocFileName.size(); !refs && i < m; i++)
             {
-                Array<String> referenceNamesForNameSpace;
+                if (AssocClassTable::getReferenceNames(
+                        assocFileName[i],
+                        classList,
+                        resultClassList,
+                        role,
+                        tmpReferenceNames))
+                {
+                    refs |= true;
+                }
+            }
 
-                _rep->_persistentStore->getClassReferenceNames(
-                    nameSpaceList[i],
-                    classList,
-                    resultClassList,
-                    role,
-                    referenceNamesForNameSpace);
-
-                tmpReferenceNames.appendArray(referenceNamesForNameSpace);
+            if (refs == false)
+            {
+                // Ignore error! It's okay not to have references.
             }
         }
         else
         {
-            _rep->_nameSpaceManager.validateClass(
-                nameSpace, objectName.getClassName());
+            String assocFileName =
+                _rep->_nameSpaceManager.getAssocInstPath(nameSpace);
 
-            _rep->_persistentStore->getInstanceReferenceNames(
-                nameSpace,
+            if (!AssocInstTable::getReferenceNames(
+                assocFileName,
                 objectName,
                 resultClassList,
                 role,
-                tmpReferenceNames);
+                tmpReferenceNames))
+            {
+                // Ignore error! It's okay not to have references.
+            }
         }
     }
     catch (const CIMException& exception)
@@ -2205,7 +3105,7 @@ CIMValue CIMRepository::getProperty(
     //
 
     CIMInstance cimInstance = _getInstance(
-        nameSpace, instanceName, true, true, CIMPropertyList(), false);
+        nameSpace, instanceName, false, true, true, CIMPropertyList());
 
     //
     // Get the requested property from the instance
@@ -2236,7 +3136,8 @@ void CIMRepository::setProperty(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
     const CIMName& propertyName,
-    const CIMValue& newValue)
+    const CIMValue& newValue,
+    const ContentLanguageList& contentLangs)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::setProperty");
 
@@ -2286,37 +3187,39 @@ CIMQualifierDecl CIMRepository::_getQualifier(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_getQualifier");
 
+    //
+    // Get path of qualifier file:
+    //
+
+    String qualifierFilePath = _rep->_nameSpaceManager.getQualifierFilePath(
+        nameSpace, qualifierName,NameSpaceRead);
+
+    //
+    // Load qualifier:
+    //
+
     CIMQualifierDecl qualifierDecl;
 
-    String qualifierCacheKey = _getCacheKey(nameSpace, qualifierName);
-
-    // Check the cache first:
-
-    if (!_rep->_qualifierCache.get(qualifierCacheKey, qualifierDecl))
+    try
     {
-        // Not in cache so load from disk:
+        // Check the cache first:
 
-        Array<CIMNamespaceName> nameSpaceList =
-            _rep->_nameSpaceManager.getSchemaNameSpaceNames(nameSpace);
-
-        for (Uint32 i = 0; i < nameSpaceList.size(); i++)
+        if (!_qualifierCache.get(qualifierFilePath, qualifierDecl))
         {
-            qualifierDecl = _rep->_persistentStore->getQualifier(
-                nameSpaceList[i], qualifierName);
+            // Not in cache so load from disk:
 
-            if (!qualifierDecl.isUninitialized())
-            {
-                // Put in cache
-                _rep->_qualifierCache.put(qualifierCacheKey, qualifierDecl);
+            _LoadObject(qualifierFilePath, qualifierDecl, _rep->_streamer);
 
-                PEG_METHOD_EXIT();
-                return qualifierDecl;
-            }
+            // Put in cache:
+
+            _qualifierCache.put(qualifierFilePath, qualifierDecl);
         }
-
+    }
+    catch (const CannotOpenFile&)
+    {
         PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION(
-            CIM_ERR_NOT_FOUND, qualifierName.getString());
+        throw PEGASUS_CIM_EXCEPTION
+            (CIM_ERR_NOT_FOUND, qualifierName.getString());
     }
 
     PEG_METHOD_EXIT();
@@ -2325,7 +3228,8 @@ CIMQualifierDecl CIMRepository::_getQualifier(
 
 void CIMRepository::setQualifier(
     const CIMNamespaceName& nameSpace,
-    const CIMQualifierDecl& qualifierDecl)
+    const CIMQualifierDecl& qualifierDecl,
+    const ContentLanguageList& contentLangs)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::setQualifier");
 
@@ -2342,17 +3246,28 @@ void CIMRepository::_setQualifier(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_setQualifier");
 
-    _rep->_nameSpaceManager.checkNameSpaceUpdateAllowed(
-        nameSpace);
+    // -- Get path of qualifier file:
 
-    // Exception if namespace does not allow update
-    _rep->_persistentStore->setQualifier(nameSpace, qualifierDecl);
+    String qualifierFilePath = _rep->_nameSpaceManager.getQualifierFilePath(
+        nameSpace, qualifierDecl.getName(),NameSpaceWrite);
 
-    String qualifierCacheKey =
-        _getCacheKey(nameSpace, qualifierDecl.getName());
+    // -- If qualifier already exists, throw exception:
 
-    _rep->_qualifierCache.put(
-        qualifierCacheKey, (CIMQualifierDecl&)qualifierDecl);
+    if (FileSystem::existsNoCase(qualifierFilePath))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_NOT_SUPPORTED, qualifierDecl.getName().getString());
+    }
+
+    // -- Save qualifier:
+
+    Buffer qualifierDeclXml;
+    _rep->_streamer->encode(qualifierDeclXml, qualifierDecl);
+     //XmlWriter::appendQualifierDeclElement(qualifierDeclXml, qualifierDecl);
+    _SaveObject(qualifierFilePath, qualifierDeclXml, _rep->_streamer);
+
+    _qualifierCache.put(qualifierFilePath, (CIMQualifierDecl&)qualifierDecl);
 
     PEG_METHOD_EXIT();
 }
@@ -2366,14 +3281,21 @@ void CIMRepository::deleteQualifier(
     WriteLock lock(_rep->_lock);
     AutoFileLock fileLock(_rep->_lockFile);
 
-    // Exception exit if not allowed
-    _rep->_nameSpaceManager.checkNameSpaceUpdateAllowed(
-        nameSpace);
+    // -- Get path of qualifier file:
 
-    _rep->_persistentStore->deleteQualifier(nameSpace, qualifierName);
+    String qualifierFilePath = _rep->_nameSpaceManager.getQualifierFilePath(
+        nameSpace, qualifierName,NameSpaceDelete);
 
-    String qualifierCacheKey = _getCacheKey(nameSpace, qualifierName);
-    _rep->_qualifierCache.evict(qualifierCacheKey);
+    // -- Delete qualifier:
+
+    if (!FileSystem::removeFileNoCase(qualifierFilePath))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION
+            (CIM_ERR_NOT_FOUND, qualifierName.getString());
+    }
+
+    _qualifierCache.evict(qualifierFilePath);
 
     PEG_METHOD_EXIT();
 }
@@ -2385,154 +3307,60 @@ Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
 
     ReadLock lock(_rep->_lock);
 
+    String qualifiersRoot = _rep->_nameSpaceManager.getQualifiersRoot(
+        nameSpace);
+
+    Array<String> qualifierNames;
+
+    if (!FileSystem::getDirectoryContents(qualifiersRoot, qualifierNames))
+    {
+        PEG_METHOD_EXIT();
+        String str ="enumerateQualifiers()";
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Repository.CIMRepository.INTERNAL_ERROR",
+                "$0: internal error",
+                str));
+    }
+
     Array<CIMQualifierDecl> qualifiers;
 
-    _rep->_nameSpaceManager.validateNameSpace(nameSpace);
-
-    qualifiers = _rep->_persistentStore->enumerateQualifiers(nameSpace);
+    for (Uint32 i = 0; i < qualifierNames.size(); i++)
+    {
+#ifdef PEGASUS_REPOSITORY_ESCAPE_UTF8
+    // All chars above 0x7F will be escape.
+      CIMQualifierDecl qualifier =
+            _getQualifier(nameSpace, escapeStringDecoder(qualifierNames[i]));
+#else
+      CIMQualifierDecl qualifier =
+            _getQualifier(nameSpace, qualifierNames[i]);
+#endif
+      qualifiers.append(qualifier);
+    }
 
     PEG_METHOD_EXIT();
     return qualifiers;
 }
 
-void CIMRepository::createNameSpace(
-    const CIMNamespaceName& nameSpace,
-    const NameSpaceAttributes& attributes)
+void CIMRepository::createNameSpace(const CIMNamespaceName& nameSpace,
+        const NameSpaceAttributes& attributes)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createNameSpace");
 
     WriteLock lock(_rep->_lock);
     AutoFileLock fileLock(_rep->_lockFile);
-
-    Boolean shareable = false;
-    Boolean updatesAllowed = true;
-    String parentNameSpace;
-    String remoteInfo;
-
-    for (NameSpaceAttributes::Iterator i = attributes.start(); i; i++)
-    {
-        String key = i.key();
-        if (String::equalNoCase(key, "shareable"))
-        {
-            if (String::equalNoCase(i.value(), "true"))
-                shareable = true;
-        }
-        else if (String::equalNoCase(key, "updatesAllowed"))
-        {
-            if (String::equalNoCase(i.value(), "false"))
-                updatesAllowed = false;
-        }
-        else if (String::equalNoCase(key, "parent"))
-        {
-            parentNameSpace = i.value();
-        }
-        else if (String::equalNoCase(key, "remoteInfo"))
-        {
-            remoteInfo = i.value();
-        }
-        else
-        {
-            PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION(
-                CIM_ERR_NOT_SUPPORTED,
-                nameSpace.getString() + " option not supported: " + key);
-        }
-    }
-
-    _rep->_nameSpaceManager.createNameSpace(
-        nameSpace, shareable, updatesAllowed, parentNameSpace, remoteInfo);
-
-    try
-    {
-        _rep->_persistentStore->createNameSpace(
-            nameSpace, shareable, updatesAllowed, parentNameSpace, remoteInfo);
-    }
-    catch (...)
-    {
-        _rep->_nameSpaceManager.deleteNameSpace(nameSpace);
-        throw;
-    }
+    _rep->_nameSpaceManager.createNameSpace(nameSpace, attributes);
 
     PEG_METHOD_EXIT();
 }
 
-void CIMRepository::modifyNameSpace(
-    const CIMNamespaceName& nameSpace,
-    const NameSpaceAttributes& attributes)
+void CIMRepository::modifyNameSpace(const CIMNamespaceName& nameSpace,
+        const NameSpaceAttributes& attributes)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyNameSpace");
 
     WriteLock lock(_rep->_lock);
     AutoFileLock fileLock(_rep->_lockFile);
-
-    Boolean shareable = false;
-    Boolean updatesAllowed = true;
-
-    for (NameSpaceAttributes::Iterator i = attributes.start(); i; i++)
-    {
-        String key = i.key();
-        if (String::equalNoCase(key, "shareable"))
-        {
-            if (String::equalNoCase(i.value(), "true"))
-                shareable = true;
-        }
-        else if (String::equalNoCase(key, "updatesAllowed"))
-        {
-            if (String::equalNoCase(i.value(),"false"))
-                updatesAllowed = false;
-        }
-        else
-        {
-            PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-                nameSpace.getString() + " option not supported: " + key);
-        }
-    }
-
-    _rep->_nameSpaceManager.validateNameSpace(nameSpace);
-
-    if (!shareable)
-    {
-        // Check for dependent namespaces
-
-        CIMNamespaceName dependentNameSpaceName;
-
-        if (_rep->_nameSpaceManager.hasDependentNameSpace(
-                nameSpace, dependentNameSpaceName))
-        {
-            PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                "Namespace " + nameSpace.getString() +
-                    " has dependent namespace " +
-                    dependentNameSpaceName.getString());
-        }
-    }
-
-    _rep->_persistentStore->modifyNameSpace(
-        nameSpace, shareable, updatesAllowed);
-
-    _rep->_nameSpaceManager.modifyNameSpace(
-        nameSpace, shareable, updatesAllowed);
-
-    PEG_METHOD_EXIT();
-}
-
-void CIMRepository::modifyNameSpaceName(
-        const CIMNamespaceName& nameSpace,
-        const CIMNamespaceName& newNameSpaceName)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyNameSpaceName");
-
-    WriteLock lock(_rep->_lock);
-    AutoFileLock fileLock(_rep->_lockFile);
-
-    _rep->_nameSpaceManager.validateNameSpace(nameSpace);
-
-    _rep->_persistentStore->modifyNameSpaceName(
-            nameSpace, newNameSpaceName);
-
-    _rep->_nameSpaceManager.modifyNameSpaceName(
-        nameSpace, newNameSpaceName);
+    _rep->_nameSpaceManager.modifyNameSpace(nameSpace, attributes);
 
     PEG_METHOD_EXIT();
 }
@@ -2556,31 +3384,6 @@ void CIMRepository::deleteNameSpace(const CIMNamespaceName& nameSpace)
 
     WriteLock lock(_rep->_lock);
     AutoFileLock fileLock(_rep->_lockFile);
-
-    // Check for dependent namespaces
-
-    CIMNamespaceName dependentNameSpaceName;
-
-    if (_rep->_nameSpaceManager.hasDependentNameSpace(
-            nameSpace, dependentNameSpaceName))
-    {
-        PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-            "Namespace " + nameSpace.getString() +
-                " has dependent namespace " +
-                dependentNameSpaceName.getString());
-    }
-
-    // Make sure the namespace is empty
-
-    if (!_rep->_persistentStore->isNameSpaceEmpty(nameSpace))
-    {
-        PEG_METHOD_EXIT();
-        throw NonEmptyNameSpace(nameSpace.getString());
-    }
-
-    _rep->_persistentStore->deleteNameSpace(nameSpace);
-
     _rep->_nameSpaceManager.deleteNameSpace(nameSpace);
 
     PEG_METHOD_EXIT();
@@ -2593,67 +3396,106 @@ Boolean CIMRepository::getNameSpaceAttributes(const CIMNamespaceName& nameSpace,
 
     ReadLock lock(const_cast<ReadWriteSem&>(_rep->_lock));
     attributes.clear();
+    PEG_METHOD_EXIT();
+    return _rep->_nameSpaceManager.getNameSpaceAttributes(
+        nameSpace, attributes);
+}
 
-    Boolean shareable;
-    Boolean updatesAllowed;
-    String parent;
-    String remoteInfo;
+Boolean CIMRepository::isRemoteNameSpace(const CIMNamespaceName& nameSpaceName,
+        String& remoteInfo)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::isRemoteNamespace");
+    ReadLock lock(const_cast<ReadWriteSem&>(_rep->_lock));
+    PEG_METHOD_EXIT();
+    return _rep->_nameSpaceManager.isRemoteNameSpace(nameSpaceName, remoteInfo);
+}
 
-    if (!_rep->_nameSpaceManager.getNameSpaceAttributes(
-        nameSpace, shareable, updatesAllowed, parent, remoteInfo))
+//----------------------------------------------------------------------
+//
+// _getInstanceIndexFilePath()
+//
+//      returns the file path of the instance index file.
+//
+//----------------------------------------------------------------------
+
+String CIMRepositoryRep::_getInstanceIndexFilePath(
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className) const
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY,
+        "CIMRepository::_getInstanceIndexFilePath");
+
+    String tmp = _nameSpaceManager.getInstanceDataFileBase(
+        nameSpace, className);
+
+    tmp.append(".idx");
+
+    PEG_METHOD_EXIT();
+    return tmp;
+}
+
+//----------------------------------------------------------------------
+//
+// _getInstanceDataFilePath()
+//
+//      returns the file path of the instance file.
+//
+//----------------------------------------------------------------------
+
+String CIMRepositoryRep::_getInstanceDataFilePath(
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className) const
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_getInstanceDataFilePath");
+
+    String tmp = _nameSpaceManager.getInstanceDataFileBase(
+        nameSpace, className);
+    tmp.append(".instances");
+
+    PEG_METHOD_EXIT();
+    return tmp;
+}
+
+Boolean CIMRepositoryRep::_loadInstance(
+    const String& path,
+    CIMInstance& object,
+    Uint32 index,
+    Uint32 size)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_loadInstance");
+
+    //
+    // Load instance (in XML) from instance file into memory:
+    //
+
+    Buffer data;
+
+    if (!InstanceDataFile::loadInstance(path, index, size, data))
     {
         PEG_METHOD_EXIT();
         return false;
     }
 
-    attributes.insert("name", nameSpace.getString());
+    //
+    // Convert XML into an actual object:
+    //
 
-    if (shareable)
-        attributes.insert("shareable", "true");
-    else
-        attributes.insert("shareable", "false");
-
-    if (updatesAllowed)
-        attributes.insert("updatesAllowed", "true");
-    else
-        attributes.insert("updatesAllowed", "false");
-
-    if (parent.size())
-        attributes.insert("parent", parent);
-
-    if (remoteInfo.size())
-        attributes.insert("remoteInfo", remoteInfo);
+    _streamer->decode(data, 0, object);
 
     PEG_METHOD_EXIT();
     return true;
 }
 
-Boolean CIMRepository::nameSpaceExists(const CIMNamespaceName& nameSpaceName)
-{
-    ReadLock lock(const_cast<ReadWriteSem&>(_rep->_lock));
-    return _rep->_nameSpaceManager.nameSpaceExists(nameSpaceName);
-}
-
-Boolean CIMRepository::isRemoteNameSpace(
-    const CIMNamespaceName& nameSpaceName,
-    String& remoteInfo)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::isRemoteNamespace");
-    ReadLock lock(const_cast<ReadWriteSem&>(_rep->_lock));
-    PEG_METHOD_EXIT();
-    return _rep->_nameSpaceManager.isRemoteNameSpace(
-        nameSpaceName, remoteInfo);
-}
 
 #ifdef PEGASUS_DEBUG
     void CIMRepository::DisplayCacheStatistics()
     {
 #ifdef PEGASUS_USE_CLASS_CACHE
         cout << "Repository Class Cache Statistics:" << endl;
-        _rep->_classCache.DisplayCacheStatistics();
+        _classCache.DisplayCacheStatistics();
 #endif
         cout << "Repository Qualifier Cache Statistics:" << endl;
-        _rep->_qualifierCache.DisplayCacheStatistics();
+        _qualifierCache.DisplayCacheStatistics();
     }
 #endif
 
@@ -2664,8 +3506,10 @@ void CIMRepository::getSubClassNames(
     Array<CIMName>& subClassNames) const
 {
     ReadLock lock(const_cast<ReadWriteSem&>(_rep->_lock));
-    _rep->_nameSpaceManager.getSubClassNames(
-        nameSpaceName, className, deepInheritance, subClassNames);
+    _rep->_nameSpaceManager.getSubClassNames(nameSpaceName,
+                                       className,
+                                       deepInheritance,
+                                       subClassNames);
 }
 
 void CIMRepository::getSuperClassNames(
@@ -2681,20 +3525,6 @@ void CIMRepository::getSuperClassNames(
 Boolean CIMRepository::isDefaultInstanceProvider()
 {
     return _rep->_isDefaultInstanceProvider;
-}
-
-CIMConstClass CIMRepository::getFullConstClass(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::getFullConstClass");
-
-    ReadLock lock(_rep->_lock);
-    CIMClass cimClass = _getClass(nameSpace, className, false, true, true,
-        CIMPropertyList(), false);
-
-    PEG_METHOD_EXIT();
-    return cimClass;
 }
 
 PEGASUS_NAMESPACE_END

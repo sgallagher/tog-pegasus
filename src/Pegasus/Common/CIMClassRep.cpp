@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,6 +39,7 @@
 #include "CIMScope.h"
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h>
+#include "CIMNameUnchecked.h"
 #include "StrLit.h"
 #include "CIMInstanceRep.h"
 #include "CIMPropertyInternal.h"
@@ -152,10 +155,10 @@ void CIMClassRep::resolve(
     if (!context)
         throw NullPointer();
 
-    PEG_TRACE((TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
-        "CIMClassRep::resolve  class = %s, superclass = %s",
-        (const char*)_reference.getClassName().getString().getCString(),
-        (const char*)_superClassName.getString().getCString()));
+    PEG_TRACE_STRING(TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
+        String("CIMClassRep::resolve  class = ") +
+        _reference.getClassName().getString() + ", superclass = " +
+        _superClassName.getString());
 
     if (!_superClassName.isNull())
     {
@@ -199,8 +202,9 @@ void CIMClassRep::resolve(
                     MessageLoaderParms(
                         "Common.CIMClassRep.NON_ASSOCIATION_CLASS_CONTAINS_"
                             "REFERENCE_PROPERTY",
-                        "Non-association class contains reference property"));
+                        "Non-assocation class contains reference property"));
             }
+
 
             Uint32 index = superClass.findProperty(property.getName());
 
@@ -243,7 +247,18 @@ void CIMClassRep::resolve(
             // insert it (setting the propagated flag). Otherwise, change
             // the class-origin and propagated flag accordingly.
 
-            Uint32 index = findProperty(superClassProperty.getName());
+            Uint32 index = PEG_NOT_FOUND;
+            /* ATTN: KS move to simpler version of the find
+            for (Uint32 j = m, n = _properties.size(); j < n; j++)
+            {
+                if (_properties[j].getName() == superClassProperty.getName())
+                {
+                    index = j;
+                    break;
+                }
+            }
+            */
+            index = findProperty(superClassProperty.getName());
 
             // If property exists in super class but not in this one, then
             // clone and insert it. Otherwise, the properties class
@@ -265,16 +280,42 @@ void CIMClassRep::resolve(
                 // but not on the subclass's, then add it to the subclass's
                 // property's qualifier list.
                 CIMProperty subproperty = _properties[index];
-                for (Uint32 j = 0, qc = superproperty.getQualifierCount();
-                     j < qc; j++)
+                for (Uint32 i = 0, n = superproperty.getQualifierCount();
+                     i < n; i++)
                 {
+                    Uint32 index = PEG_NOT_FOUND;
                     CIMQualifier superClassQualifier =
-                        superproperty.getQualifier(j);
+                        superproperty.getQualifier(i);
                     const CIMName name = superClassQualifier.getName();
-                    if (subproperty.findQualifier(name) == PEG_NOT_FOUND)
+                    /* ATTN KS This is replacement find function.
+                    if (Uint32 j = subproperty.findQualifier(q.getName()) ==
+                        PEG_NOT_FOUND)
                     {
                         subproperty.addQualifier(superClassQualifier);
                     }
+                    */
+                    for (Uint32 j = 0, m = subproperty.getQualifierCount();
+                         j < m;
+                         j++)
+                    {
+                        CIMConstQualifier q = subproperty.getQualifier(j);
+                        if (name.equal(q.getName()))
+                        {
+                            index = j;
+                            break;
+                        }
+                    }  // end comparison of subclass property's qualifiers
+                    if (index == PEG_NOT_FOUND)
+                    {
+                        subproperty.addQualifier(superClassQualifier);
+                    }
+                    /*
+                    if ((index = subproperty.findQualifier(name)) ==
+                        PEG_NOT_FOUND)
+                    {
+                        subproperty.addQualifier(superClassQualifier);
+                    }
+                    */
                 } // end iteration over superclass property's qualifiers
             }
         }
@@ -362,32 +403,18 @@ void CIMClassRep::resolve(
             superClass._rep->_qualifiers,
             true);
     }
-    else     // No SuperClass is defined
+    else     // No SuperClass exsts
     {
         //----------------------------------------------------------------------
         // Resolve each property:
         //----------------------------------------------------------------------
 
-        Boolean isAssociationClass = isAssociation();
-
         for (Uint32 i = 0, n = _properties.size(); i < n; i++)
         {
-            CIMProperty& property = _properties[i];
-
-            if (!isAssociationClass &&
-                property.getValue().getType() == CIMTYPE_REFERENCE)
-            {
-                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
-                    MessageLoaderParms(
-                        "Common.CIMClassRep.NON_ASSOCIATION_CLASS_CONTAINS_"
-                            "REFERENCE_PROPERTY",
-                        "Non-association class contains reference property"));
-            }
-
-            Resolver::resolveProperty(
-                property, context, nameSpace, false, true);
-            property.setClassOrigin(getClassName());
-            property.setPropagated(false);
+             Resolver::resolveProperty(
+                 _properties[i], context, nameSpace, false, true);
+             _properties[i].setClassOrigin(getClassName());
+             _properties[i].setPropagated(false);
         }
 
         //----------------------------------------------------------------------
@@ -459,8 +486,7 @@ CIMInstance CIMClassRep::buildInstance(Boolean includeQualifiers,
                                 cp.getValue(),
                                 cp.getArraySize(),
                                 cp.getReferenceClassName(),
-                                cp.getClassOrigin(),
-                                cp.getPropagated());
+                                cp.getClassOrigin());
             }
 
             // Delete class origin attribute if required

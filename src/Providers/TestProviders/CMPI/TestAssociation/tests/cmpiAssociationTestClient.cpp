@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +41,7 @@
 //     CMPI_TEST_Person
 //     CMPI_TEST_Vehicle
 //     CMPI_TEST_Racing  (association class)
-//
+//     
 // The executable for this CIM client application is: cmpiAssociationTestClient.
 // To display the test results (returned instances or classes), define the
 // environment variable PEGASUS_TEST_VERBOSE.
@@ -55,7 +57,6 @@
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
-#include <Pegasus/Common/PegasusAssert.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -95,7 +96,7 @@ void _errorExit(String message)
 //  terminate the program.
 //
 void _verifyResult(const Uint32 numObjects, const Uint32 numExpectedObjects)
-{
+{   
     if (numObjects != numExpectedObjects)
     {
         cerr << "Error: Unexpected number of objects returned. " << endl;;
@@ -204,7 +205,7 @@ void _testAssociatorNames(CIMClient& client, CIMName assocClass,
         // specified source instance via an instance of the AssocClass.
         //
         CIMName resultClass;
-
+   
         String role;
         String resultRole;
 
@@ -227,7 +228,7 @@ void _testAssociatorNames(CIMClient& client, CIMName assocClass,
 //  _testReferences
 ////////////////////////////////////////////////////////////////////////////
 
-void _testReferences(CIMClient& client, CIMObjectPath instancePath,
+void _testReferences(CIMClient& client, CIMObjectPath instancePath, 
                      Uint32 numExpectedObjects)
 {
     if (verbose)
@@ -377,7 +378,7 @@ void _testCMPIAssociationClassOperations(CIMClient& client, CIMName className)
 
     if (verbose)
     {
-        cout << "+++++ Test references for (" << className.getString()
+        cout << "+++++ Test references for (" << className.getString() 
              << ")" << endl;
     }
 
@@ -423,196 +424,6 @@ void _testCMPIAssociationClassOperations(CIMClient& client, CIMName className)
     {
         // Do nothing.
          _errorExit(e.getMessage());
-    }
-}
-
-void _testCMPIFilterOfAssociation(CIMClient& client)
-{
-    try
-    {
-        Array<CIMObjectPath> personRefs;
-        Uint32 numPersonInstances ;
-        personRefs = 
-            client.enumerateInstanceNames(providerNamespace,CMPI_TEST_PERSON);
-        numPersonInstances = personRefs.size();
-        CIMName resultClass;
-        String role;
-        String resultRole;
-        cout<<"++++++++Filtering the NULL propery list+++"<<endl;
-        for (Uint32 i = 0; i < numPersonInstances; ++i)
-        {
-            Array<CIMObject> resultObjects =
-                client.associators(
-                    providerNamespace,
-                    personRefs[i],
-                    CMPI_TEST_RACING,
-                    resultClass,
-                    role,
-                    resultRole,
-                    false,
-                    false,
-                    CIMPropertyList());
-            Uint32 size = resultObjects.size();
-            for(Uint32 j = 0;j<size;j++)
-            {
-                Uint32 propCount = resultObjects[j].getPropertyCount();
-                Uint32 propNameCount = 0;
-                if(propCount != 0)
-                {
-                    String propName=
-                        resultObjects[j].getProperty(0).getName().getString();
-                    if(verbose)
-                    {
-                        cout<<"Property Name of :"<<i<<":"<<propName<<endl;
-                    }
-                    if(propName == "vehiclename") 
-                    {
-                        propNameCount++;
-                    }
-                }
-                if((size != 0)&&(propCount == 1) &&(propNameCount == 1))
-                {
-                    cout<<"Filter associator test on CMPI_TEST_RACING SUCCEEDED"
-                        <<":Filtering the ciminstance with a NULL property list"
-                        <<" returned all properties as expected"<<endl;
-                }
-                else
-                {
-                    cout<<"Filter associator test on CMPI_TEST_RACING FAILED"
-                        <<":Filtering the ciminstance with a NULL property list"
-                        <<" did not return all properties as expected"<<endl;
-                    PEGASUS_TEST_ASSERT(false);
-                }
-            }
-
-        }
-        cout<<"++++++Filtering the empty propery list+++"<<endl;
-        Array<CIMName> propList;
-        for (Uint32 i = 0; i < numPersonInstances; ++i)
-        {
-            Array<CIMObject> resultObjects =
-                client.associators(
-                    providerNamespace,
-                    personRefs[i],
-                    CMPI_TEST_RACING,
-                    resultClass,
-                    role,
-                    resultRole,
-                    false,
-                    false,
-                    CIMPropertyList(propList));
-            Uint32 size = resultObjects.size();
-            for(Uint32 j = 0;j<size;j++)
-            {
-                Uint32 propCount = resultObjects[j].getPropertyCount();
-                if((size != 0)&&(propCount == 0))
-                {
-                    cout<<"Filter associator test on CMPI_TEST_RACING SUCCEEDED"
-                        <<":Filtering the ciminstance with a empty property "
-                        <<"list returned zero properties as expected"<<endl;
-                }
-                else
-                { 
-                    cout<<"Filter associators test on CMPI_TEST_RACING FAILED"
-                        <<":Filtering the ciminstance with a empty property "
-                        <<"list returned some properties which is not expected"
-                        <<endl; 
-                    PEGASUS_TEST_ASSERT(false);
-                }
-            }
-        }
-        cout<<"+++filtering the wrong properties ++++++"<<endl;
-        Array<CIMName> propList1;
-        propList1.append(CIMName(String("nam")));
-        for (Uint32 i = 0; i < numPersonInstances; ++i)
-        {
-            Array<CIMObject> resultObjects =
-                client.associators(
-                    providerNamespace,
-                    personRefs[i],
-                    CMPI_TEST_RACING,
-                    resultClass,
-                    role,
-                    resultRole,
-                    false,
-                    false,
-                    CIMPropertyList(propList1));
-            Uint32 size = resultObjects.size();
-            for(Uint32 j = 0;j<size;j++)
-            {
-                Uint32 propCount = resultObjects[j].getPropertyCount();
-                if((size != 0)&&(propCount == 0))
-                {
-                    cout<<"Filter associators test on CMPI_TEST_RACING "
-                        <<"SUCCEEDED:Filtering the ciminstance with a wrong "
-                        <<"property list returned zero properties as " 
-                        <<"expected"<<endl;
-                }
-                else
-                {
-                    cout<<"Filter associators test on CMPI_TEST_RACING FAILED"
-                         <<":Filtering the ciminstance with a wrong property "
-                         <<"list returned some properties which is not"
-                         <<" expected"<<endl; 
-                    PEGASUS_TEST_ASSERT(false);
-                }
-            }
-        }
-        cout<<"++++++++Filtering the mentioned propery list+++"<<endl;
-        Array<CIMName> propArr;
-        propArr.append(CIMName(String("vehiclename")));
-        for (Uint32 i = 0; i < numPersonInstances; ++i)
-        {
-            Array<CIMObject> resultObjects =
-                client.associators(
-                    providerNamespace,
-                    personRefs[i],
-                    CMPI_TEST_RACING,
-                    resultClass,
-                    role,
-                    resultRole,
-                    false,
-                    false,
-                    CIMPropertyList( propArr));
-            Uint32 size = resultObjects.size();
-            for(Uint32 j = 0;j<size;j++)
-            {
-                Uint32 propCount = resultObjects[j].getPropertyCount();
-                Uint32 propNameCount = 0;
-                if(propCount != 0)
-                {
-                    String propName=
-                        resultObjects[j].getProperty(0).getName().getString();
-                    if(verbose)
-                    {
-                        cout<<"Property Name of :"<<i<<":"<<propName<<endl;
-                    }
-                    if(propName == "vehiclename")
-                    {
-                        propNameCount++;
-                    }
-                }
-                if((size != 0)&&(propCount == 1) &&(propNameCount == 1))
-                {
-                     cout<<"Filter associators test on CMPI_TEST_RACING "
-                         <<"SUCCEEDED:Filtering the ciminstance with a "
-                         <<"mentioned property list returned all properties"
-                         <<" as expected"<<endl;
-                }
-                else
-                {
-                    cout<<"Filter associators test on CMPI_TEST_RACING FAILED"
-                        <<":Filtering the ciminstance with a mentioned property"
-                        <<" list did not return properties as expected "<<endl;
-                    PEGASUS_TEST_ASSERT(false);
-                }
-            }
-        }
-    }
-    catch(Exception& e)
-    {
-        cerr << "enumerateInstanceNames() failed." << endl;
-            _errorExit(e.getMessage());
     }
 }
 
@@ -668,7 +479,7 @@ int main(int argc, char** argv)
         _errorExit(e.getMessage());
     }
 
-    for(Uint32 i=0;i<personRefs.size();i++)
+    /*for(Uint32 i=0;i<personRefs.size();i++)
     {
         cout<<"PersonRefs values : "<<personRefs[i].toString()<<endl;
     }
@@ -681,8 +492,10 @@ int main(int argc, char** argv)
 
     cout << "Number of PersonInstances: " << numPersonInstances << endl;
     cout << "Number of VehicleInstances: " << numVehicleInstances << endl;
+    */
+    Uint32 numPersonInstances = personRefs.size();
+    Uint32 numVehicleInstances = vehicleRefs.size();
     
-
 
     // =======================================================================
     // Test associators
@@ -691,7 +504,7 @@ int main(int argc, char** argv)
     // instance via an instance of a specified association class.
     // =======================================================================
 
-    if (verbose)
+    if (verbose) 
     {
         cout << "+++++ Test associators" << endl;
     }
@@ -718,7 +531,7 @@ int main(int argc, char** argv)
     // source CIM instance via an instance of a association class.
     // =======================================================================
 
-    if (verbose)
+    if (verbose) 
     {
         cout << "+++++ Test associatorNames" << endl;
     }
@@ -754,11 +567,6 @@ int main(int argc, char** argv)
     {
         _testReferences(client, vehicleRefs[i], resultArray_ref_V[i]);
     }
-    
-    // =======================================================================
-    // Test property filter for associators and references
-    // =======================================================================
-    _testCMPIFilterOfAssociation(client);
 
     // =======================================================================
     // Test referenceNames

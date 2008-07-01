@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +40,6 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Message.h>
-#include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/AuthenticationInfo.h>
 #include <Pegasus/Common/TLS.h>
@@ -71,16 +72,6 @@ public:
 
     virtual void enqueue(Message *);
 
-    /**
-        In this specialization of isActive a check is performed on the
-        non-blocking socket to see if it is active by reading 1 byte. Since the 
-        current thread is processing the request, its safe to try to read 1 byte
-        from the socket as there should be no data on the socket. If read 
-        returns a message of size zero, it is an indication that the client has 
-        closed the connection and the socket at the server end can be closed.
-    */
-    virtual Boolean isActive();
-
     /** This method is called whenever a SocketMessage is enqueued
         on the input queue of the HTTPConnection object.
     */
@@ -97,7 +88,7 @@ public:
     */
     Boolean isResponsePending();
 
-    Boolean run();
+    Boolean run(Uint32 milliseconds);
 
     HTTPAcceptor& getOwningAcceptor()
     {
@@ -109,25 +100,8 @@ public:
     Boolean isChunkRequested();
 
     void setSocketWriteTimeout(Uint32 socketWriteTimeout);
-    static void setIdleConnectionTimeout(Uint32 idleConnectionTimeout);
-    static Uint32 getIdleConnectionTimeout();
 
     Boolean closeConnectionOnTimeout(struct timeval* timeNow);
-
-    // This method is called in Client code to decide reconnection with 
-    // the Server and can also be used in the server code to check if the 
-    // connection is still alive and take appropriate action.
-    Boolean needsReconnect();
-
-    // This method is called in Server code when response encoders or
-    // HTTPAuthenticatorDelegator runs out-of-memory. This method calls 
-    // _handleWriteEvent() with a dummy HTTPMessage to maintain  response
-    // chunk sequence properly. Once all responses are  arrived, connection
-    // is closed. Param "respMsgIndex" indicates the response index and 
-    // isComplete indicates whether the response is complete or not.
-    void handleInternalServerError(
-        Uint32 respMsgIndex,
-        Boolean isComplete);
 
     // ATTN-RK-P1-20020521: This is a major hack, required to get the CIM
     // server and tests to run successfully.  The problem is that the
@@ -160,7 +134,7 @@ private:
 
     void _handleReadEvent();
 
-    Boolean _handleWriteEvent(HTTPMessage& httpMessage);
+    Boolean _handleWriteEvent(Message &message);
 
     void _handleReadEventFailure(const String& httpStatusWithDetail,
                                  const String& cimError = String());
@@ -208,10 +182,10 @@ private:
     // completed.
     Boolean _acceptPending;
 
-    // The _httpMethodNotChecked flag is disabled after the first bytes of a
-    // request were read and validated to be one of the supported HTTP methods
-    // "POST" or "M-POST".
-    Boolean _httpMethodNotChecked;
+    // The _firstRead flag is set to false if the first bytes of a
+    // request was read and validated that it is a supported 
+    // HTTP method "POST" or "M-POST".
+    Boolean _firstRead;
 
     // Holds time since the accept pending condition was detected.
     struct timeval _acceptPendingStartTime;
@@ -242,15 +216,7 @@ private:
 
     // Idle connection timeout in seconds specified by Config property
     // idleConnectionTimeout.
-    static Uint32 _idleConnectionTimeoutSeconds;
-#ifndef PEGASUS_INTEGERS_BOUNDARY_ALIGNED
-    static Mutex _idleConnectionTimeoutSecondsMutex;
-#endif
-    // When this flag is set to true, it indicates that internal error on this
-    // connection occured. Currently this flag is used by the Server code when
-    // out-of-memory error is occurs and connection is closed by the server
-    // once all responses are arrived.
-    Boolean _internalError;
+    Uint32 _idleConnectionTimeoutSeconds;
 
     friend class Monitor;
     friend class HTTPAcceptor;

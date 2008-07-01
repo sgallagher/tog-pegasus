@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -211,11 +213,6 @@ void ProviderMessageHandler::subscriptionInitComplete()
     _subscriptionInitComplete = true;
 }
 
-void ProviderMessageHandler::indicationServiceDisabled()
-{
-    _subscriptionInitComplete = false;
-}
-
 CIMResponseMessage* ProviderMessageHandler::processMessage(
     CIMRequestMessage* request)
 {
@@ -302,22 +299,22 @@ CIMResponseMessage* ProviderMessageHandler::processMessage(
             break;
 
         default:
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+            PEGASUS_ASSERT(0);
             break;
         }
     }
     catch (CIMException& e)
     {
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,"CIMException: %s",
-            (const char*)e.getMessage().getCString()));
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
+            "CIMException: " + e.getMessage());
         response = request->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION_LANG(
             e.getContentLanguages(), e.getCode(), e.getMessage());
     }
     catch (Exception& e)
     {
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,"Exception: %s",
-            (const char*)e.getMessage().getCString()));
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
+            "Exception: " + e.getMessage());
         response = request->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION_LANG(
             e.getContentLanguages(), CIM_ERR_FAILED, e.getMessage());
@@ -344,11 +341,6 @@ OperationContext ProviderMessageHandler::_createProviderOperationContext(
     providerContext.insert(context.get(IdentityContainer::NAME));
     providerContext.insert(context.get(AcceptLanguageListContainer::NAME));
     providerContext.insert(context.get(ContentLanguageListContainer::NAME));
-
-    if (context.contains(UserRoleContainer::NAME))
-    {
-        providerContext.insert(context.get(UserRoleContainer::NAME));
-    }
 
     return providerContext;
 }
@@ -1037,6 +1029,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleGetPropertyRequest(
         request->messageId,
         request->nameSpace,
         request->instanceName,
+        false,  // localOnly
         false,  // includeQualifiers
         false,  // includeClassOrigin
         propertyList,
@@ -1101,8 +1094,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleGetPropertyRequest(
 
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
-        CIMInstance instance = 
-            getInstanceResponse->getResponseData().getInstance();
+        CIMInstance instance = getInstanceResponse->cimInstance;
 
         Uint32 pos = instance.findProperty(request->propertyName);
 
@@ -1254,7 +1246,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleInvokeMethodRequest(
             "Object path: %s, Method: %s",
         (const char*) objectPath.toString().getCString(),
         (const char*) request->methodName.getString().getCString()));
-
+    
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
 
@@ -1426,7 +1418,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleModifySubscriptionRequest(
         (const char*) System::getHostName().getCString(),
         (const char*) request->nameSpace.getString().getCString(),
         (const char*) temp.getCString()));
-
+    
     // convert arguments
 
     Array<CIMObjectPath> classNames;
@@ -1509,7 +1501,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleDeleteSubscriptionRequest(
         (const char*) System::getHostName().getCString(),
         (const char*) request->nameSpace.getString().getCString(),
         (const char*) temp.getCString()));
-
+    
     Array<CIMObjectPath> classNames;
 
     for (Uint32 i = 0, n = request->classNames.size(); i < n; i++)
@@ -1591,6 +1583,8 @@ CIMResponseMessage* ProviderMessageHandler::_handleExportIndicationRequest(
     providerContext.insert(request->operationContext.get(
         ContentLanguageListContainer::NAME));
 
+    AutoPThreadSecurity threadLevelSecurity(providerContext);
+
     CIMIndicationConsumerProvider* provider =
         getProviderInterface<CIMIndicationConsumerProvider>(_provider);
 
@@ -1654,20 +1648,18 @@ void ProviderMessageHandler::_enableIndications()
     catch (Exception& e)
     {
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            MessageLoaderParms(
-                "ProviderManager.Default.DefaultProviderManager."
-                    "ENABLE_INDICATIONS_FAILED",
-                "Failed to enable indications for provider $0: $1.",
-                 _fullyQualifiedProviderName, e.getMessage()));
+            "ProviderManager.Default.DefaultProviderManager."
+                "ENABLE_INDICATIONS_FAILED",
+            "Failed to enable indications for provider $0: $1.",
+             _fullyQualifiedProviderName, e.getMessage());
     }
     catch(...)
     {
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            MessageLoaderParms(
-                "ProviderManager.Default.DefaultProviderManager."
-                    "ENABLE_INDICATIONS_FAILED_UNKNOWN",
-                "Failed to enable indications for provider $0.",
-                _fullyQualifiedProviderName));
+            "ProviderManager.Default.DefaultProviderManager."
+                "ENABLE_INDICATIONS_FAILED_UNKNOWN",
+            "Failed to enable indications for provider $0.",
+            _fullyQualifiedProviderName);
     }
 
     PEG_METHOD_EXIT();

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -179,7 +181,7 @@ Boolean SSLSocket::incompleteSecureReadOccurred(Sint32 retCode)
 {
     Sint32 err = SSL_get_error(static_cast<SSL*>(_SSLConnection), retCode);
 
-    Boolean isIncompleteRead =
+    Boolean isIncompleteRead = 
         ((err == SSL_ERROR_SYSCALL) &&
         (_sslReadErrno == EAGAIN || _sslReadErrno == EINTR)) ||
         (err == SSL_ERROR_WANT_READ) ||
@@ -367,26 +369,26 @@ Sint32 SSLSocket::accept()
                 // added in OpenSSL 0.9.6:
                 ERR_error_string_n(rc, buff, sizeof(buff));
                 PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                    "---> SSL: Not accepted %d %s client IP address : %s",
+                    "---> SSL: Not accepted %d %s client IP address : %s", 
                     ssl_rsn, buff, (const char*)_ipAddress.getCString() ));
             }
 
             //
             // If there was a verification error, create a audit log entry.
             //
-            if (!(ssl_rsn == SSL_ERROR_SYSCALL ||
+            if (!(ssl_rsn == SSL_ERROR_SYSCALL || 
                   ssl_rsn == SSL_ERROR_ZERO_RETURN) &&
                 _SSLContext->isPeerVerificationEnabled())
             {
-                Array<SSLCertificateInfo*> certs =
-                    getPeerCertificateChain();
-                if (certs.size() > 0)
+                Array<SSLCertificateInfo*> certs = 
+                    getPeerCertificateChain(); 
+                if (certs.size() > 0) 
                 {
                     SSLCertificateInfo* clientCert = certs[0];
                     PEGASUS_ASSERT(clientCert != NULL);
 
                     char serialNumberString[32];
-                    sprintf(serialNumberString, "%lu",
+                    sprintf(serialNumberString, "%lu", 
                         (unsigned long)clientCert->getSerialNumber());
 
                     PEG_AUDIT_LOG(logCertificateBasedAuthentication(
@@ -433,7 +435,7 @@ Sint32 SSLSocket::accept()
         {
             SSLCertificateInfo* clientCert = certs[0];
             PEGASUS_ASSERT(clientCert != NULL);
-
+     
             //
             // get certificate verification result and create a audit log entry.
             //
@@ -496,7 +498,7 @@ Sint32 SSLSocket::connect(Uint32 timeoutMilliseconds)
                 Tracer::LEVEL1,
                 "---> SSL: Shutdown SSL_connect() failed. Error string: %s",
                 ERR_error_string(ssl_rc, NULL)));
-
+            
             PEG_METHOD_EXIT();
             return -1;
         }
@@ -810,9 +812,9 @@ MP_Socket::MP_Socket(SocketHandle socket)
 
 MP_Socket::MP_Socket(
     SocketHandle socket,
-    SSLContext *,
-    ReadWriteSem *,
-    const String&)
+    SSLContext * sslcontext,
+    ReadWriteSem * sslContextObjectLock,
+    const String& ipAddress)
  : _socket(socket), _isSecure(false),
    _socketWriteTimeout(PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS) {}
 
@@ -825,7 +827,7 @@ MP_Socket::~MP_Socket()
 
 Boolean MP_Socket::isSecure() {return _isSecure;}
 
-Boolean MP_Socket::incompleteSecureReadOccurred(Sint32)
+Boolean MP_Socket::incompleteSecureReadOccurred(Sint32 retCode)
 {
     return false;
 }
@@ -891,7 +893,7 @@ Sint32 MP_Socket::accept()
 #endif
 }
 
-Sint32 MP_Socket::connect(Uint32) { return 0; }
+Sint32 MP_Socket::connect(Uint32 timeoutMilliseconds) { return 0; }
 
 Boolean MP_Socket::isPeerVerificationEnabled() { return false; }
 

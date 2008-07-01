@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -86,6 +88,7 @@ static int _testEnumeration (const CMPIContext * ctx,
     CMPIEnumeration* testEnumerationForAssociatorsClone = NULL;
     CMPIEnumeration* testEnumerationForAssociatorNames = NULL;
     CMPIEnumeration* testEnumerationForAssociatorNamesClone = NULL;
+    CMPIEnumeration* testEnumErrClone = NULL;
     CMPIEnumeration* enum_ptr = NULL;
 
     //data Arrays to store the values
@@ -150,7 +153,7 @@ static int _testEnumeration (const CMPIContext * ctx,
         getInstanceStringAssociators = CMGetCharsPtr(objPathAssociators,&rc);
         PROV_LOG("++++  CMGetCharsPtr : (rc:%s)", strCMPIStatus (rc));
         count++;
-    }
+    } 
 
     PROV_LOG("++++ Number of Associators : %d)", count);
 
@@ -171,7 +174,6 @@ static int _testEnumeration (const CMPIContext * ctx,
         &rc);
     PROV_LOG("++++  CMClone for testEnumerationForAssociators : (rc:%s)",
         strCMPIStatus (rc));
-    rc = CMRelease(testEnumerationForAssociatorsClone);
 
     type = CDGetType (_broker, testEnumerationForAssociators, &rc);
     PROV_LOG ("++++ Status of mbEncGetType with input of type CMPIEnumeration "
@@ -179,8 +181,8 @@ static int _testEnumeration (const CMPIContext * ctx,
         strCMPIStatus (rc),
         CMGetCharsPtr(type, &rc));
 
-    bol = CDIsOfType (_broker,
-        testEnumerationForAssociators,
+    bol = CDIsOfType (_broker, 
+        testEnumerationForAssociators, 
         "CMPIEnumeration",
         &rc);
     if (bol)
@@ -190,9 +192,11 @@ static int _testEnumeration (const CMPIContext * ctx,
             strCMPIStatus (rc),
             bol);
     }
-
+    
+    testEnumerationForAssociators->hdl = NULL;
     rc = CMRelease(testEnumerationForAssociators);
-    PROV_LOG ("++++ CMRelease for testEnumerationForAssociators(%s)",
+    PROV_LOG ("++++ CMRelease for testEnumerationForAssociators with NULL"
+        " handle(%s)",
         strCMPIStatus (rc));
 
     //============================CBAssociatorNames============================
@@ -245,7 +249,7 @@ static int _testEnumeration (const CMPIContext * ctx,
     PROV_LOG("++++ Error status of CMGetNext for CMPI_OpEnumeration: (rc:%s)",
         strCMPIStatus (rc));
 
-    testEnumerationForAssociatorNamesClone =
+    testEnumerationForAssociatorNamesClone = 
         CMClone(testEnumerationForAssociatorNames,
             &rc);
     PROV_LOG("++++  CMClone for testEnumerationForAssociatorNames : (rc:%s)",
@@ -257,8 +261,8 @@ static int _testEnumeration (const CMPIContext * ctx,
         strCMPIStatus (rc),
         CMGetCharsPtr(type, &rc));
 
-    bol = CDIsOfType (_broker,
-        testEnumerationForAssociatorNames,
+    bol = CDIsOfType (_broker, 
+        testEnumerationForAssociatorNames, 
         "CMPIEnumeration",
         &rc);
     if (bol)
@@ -273,22 +277,24 @@ static int _testEnumeration (const CMPIContext * ctx,
     PROV_LOG("++++  CMToArray for testEnumerationForAssociatorNamesClone"
         ": (rc:%s)",
         strCMPIStatus (rc));
-
+   
+    testEnumerationForAssociatorNamesClone->hdl = NULL;
     rc = CMRelease(testEnumerationForAssociatorNamesClone);
-    PROV_LOG ("++++ CMRelease for testEnumerationForAssociatorNamesClone (%s)",
+    PROV_LOG ("++++ CMRelease for testEnumerationForAssociatorNamesClone"
+        " with NULL handle (%s)",
         strCMPIStatus (rc));
-
+    
     rc = CMRelease(testEnumerationForAssociatorNames);
     PROV_LOG ("++++ CMRelease for testEnumerationForAssociatorNames (%s)",
         strCMPIStatus (rc));
-
+   
     enum_ptr = CBEnumInstances(_broker,
         ctx,
         opForAssociatorFunctions,
         NULL,
         &rc);
     PROV_LOG ("++++  CBEnumInstances : (%s)", strCMPIStatus (rc));
-
+  
     count = 0;
     while (CMHasNext(enum_ptr, &rc))
     {
@@ -340,14 +346,14 @@ CMPIStatus TestCMPIEnumerationProviderInvokeMethod (CMPIMethodMI * mi,
     class = CMGetClassName (ref, &rc);
 
     PROV_LOG ("InvokeMethod: checking for correct classname [%s]",
-        CMGetCharsPtr (class,NULL));
+        CMGetCharPtr (class));
 
     PROV_LOG ("Calling CMGetArgCount");
     arg_cnt = CMGetArgCount (in, &rc);
     PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
 
     PROV_LOG ("InvokeMethod: We have %d arguments for operation [%s]: ",
-        arg_cnt,
+        arg_cnt, 
         methodName);
 
     if (arg_cnt > 0)
@@ -360,32 +366,29 @@ CMPIStatus TestCMPIEnumerationProviderInvokeMethod (CMPIMethodMI * mi,
             {
                 PROV_LOG ("#%d: %s (uint32), value: %d",
                     index,
-                    CMGetCharsPtr (argName,NULL),
+                    CMGetCharPtr (argName),
                     data.value.uint32);
             }
             else if (data.type == CMPI_string)
             {
                 PROV_LOG ("#%d: %s (string) value: %s",
                     index,
-                    CMGetCharsPtr (argName,NULL),
-                    CMGetCharsPtr (data.value.string,NULL));
+                    CMGetCharPtr (argName),
+                    CMGetCharPtr (data.value.string));
             }
             else
             {
                 PROV_LOG ("#%d: %s (type: %x)",
                     index,
-                    CMGetCharsPtr (argName,NULL),
+                    CMGetCharPtr (argName),
                     data.type);
             }
             CMRelease (argName);
         }
     }
-    if (strncmp(
-        CMGetCharsPtr (class,NULL),
-        _ClassName,
-        strlen (_ClassName)) == 0)
+    if (strncmp (CMGetCharPtr (class), _ClassName, strlen (_ClassName)) == 0)
     {
-        if (strncmp("testEnumeration",
+        if (strncmp("testEnumeration", 
             methodName,
             strlen ("testEnumeration"))== 0)
         {
@@ -396,8 +399,8 @@ CMPIStatus TestCMPIEnumerationProviderInvokeMethod (CMPIMethodMI * mi,
         else
         {
             PROV_LOG ("++++ Could not find the %s operation", methodName);
-            rc.rc = CMPI_RC_ERR_NOT_FOUND;
-            rc.msg=_broker->eft->newString(_broker,methodName,0);
+            CMSetStatusWithChars (_broker, &rc,
+                CMPI_RC_ERR_NOT_FOUND, methodName);
         }
     }
     PROV_LOG ("--- %s CMPI InvokeMethod() exited", _ClassName);

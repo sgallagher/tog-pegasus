@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -66,20 +68,24 @@ void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
 
     if (req->getType() == ASYNC_CIMSERVICE_STOP)
     {
+        req->op->processing();
         handle_CimServiceStop(static_cast<CimServiceStop *>(req));
     }
     else if (req->getType() == ASYNC_ASYNC_LEGACY_OP_START)
     {
+        req->op->processing();
         Message *legacy =
             (static_cast<AsyncLegacyOperationStart *>(req)->get_action());
         if (legacy->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE)
         {
             Message* legacy_response = _handleExportIndicationRequest(
                 (CIMExportIndicationRequestMessage*) legacy);
-            // constructor puts itself into a linked list, DO NOT remove the new
-            new AsyncLegacyOperationResult(req->op, legacy_response);
+            AsyncLegacyOperationResult *async_result =
+                new AsyncLegacyOperationResult(
+                    req->op,
+                    legacy_response);
 
-            _complete_op_node(req->op);
+            _complete_op_node(req->op, ASYNC_OPSTATE_COMPLETE, 0, 0);
             delete legacy;
         }
         else
@@ -123,15 +129,12 @@ void CIMExportRequestDispatcher::handleEnqueue(Message* message)
 
             response->setCloseConnect(message->getCloseConnect());
 
-            MessageQueue* queue = MessageQueue::lookup(response->dest);
-            PEGASUS_ASSERT(queue != 0);
-
-            queue->enqueue(response);
+            SendForget(response);
             break;
         }
 
         default:
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+            PEGASUS_ASSERT(0);
             break;
     }
     delete message;
@@ -207,7 +210,9 @@ CIMExportRequestDispatcher::_handleExportIndicationRequest(
 
     CIMException cimException;
 
-    Uint32 serviceId =find_service_qid(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
+    Array<Uint32> serviceIds;
+    find_services(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, 0, 0, &serviceIds);
+    PEGASUS_ASSERT(serviceIds.size() != 0);
 
     PEG_TRACE ((TRC_INDICATION_RECEIPT, Tracer::LEVEL4,
         "%s Indication %s received in export server for destination %s",
@@ -220,10 +225,11 @@ CIMExportRequestDispatcher::_handleExportIndicationRequest(
     AsyncLegacyOperationStart * asyncRequest =
         new AsyncLegacyOperationStart(
             op,
-            serviceId,
-            new CIMExportIndicationRequestMessage(*request));
+            serviceIds[0],
+            new CIMExportIndicationRequestMessage(*request),
+            this->getQueueId());
 
-    asyncRequest->dest = serviceId;
+    asyncRequest->dest = serviceIds[0];
 
     //SendAsync(op,
     //          serviceIds[0],
@@ -239,6 +245,7 @@ CIMExportRequestDispatcher::_handleExportIndicationRequest(
     response->dest = request->queueIds.top();
 
     delete asyncReply;    // Recipient deletes request
+    op->release();
     this->return_op(op);
 
     PEG_METHOD_EXIT();

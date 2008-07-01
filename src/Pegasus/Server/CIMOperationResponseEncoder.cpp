@@ -1,41 +1,41 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
-#include <Pegasus/Common/CIMBuffer.h>
 #include <cctype>
 #include <cstdio>
 #include <Pegasus/Common/HTTPConnection.h>
-#include <Pegasus/Common/BinaryCodec.h>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/XmlWriter.h>
@@ -51,6 +51,10 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+const String CIMOperationResponseEncoder::OUT_OF_MEMORY_MESSAGE =
+    "A System error has occurred. Please retry the CIM Operation at a "
+        "later time.";
+
 CIMOperationResponseEncoder::CIMOperationResponseEncoder()
     : Base(PEGASUS_QUEUENAME_OPRESPENCODER)
 {
@@ -60,63 +64,16 @@ CIMOperationResponseEncoder::~CIMOperationResponseEncoder()
 {
 }
 
-//==============================================================================
-//
-// CIMOperationResponseEncoder::sendResponse()
-//
-//     This function is called once for every chunk comprising the inner part
-//     of the HTTP payload. This is true whether chunking is enabled or not.
-//     The "bodygiven" parameter contains all or part of the inner response
-//     body. For example, in the case of the enumerate-instances XML response,
-//     each "bodygiven" contains a complete named-instance as shown below.
-//
-//         <VALUE.NAMEDINSTANCE>
-//         ...
-//         <VALUE.NAMEDINSTANCE>
-//
-//     In the case of the get-class XML response, bodygiven contains the
-//     entire class. Sometimes bodygiven is null, probably indicating that
-//     one of the responding threads returned an empty response (for example,
-//     a provider may return zero instances).
-//
-//     This function wraps the inner payload with the following elements:
-//
-//         1. HTTP status line.
-//         2. HTTP headers.
-//         3. Payload header.
-//         4. Payload footer.
-//
-//     In the case of an enumerate-instances XML response, the payload header
-//     contains all the XML leading up to the first XML chunk. For example:
-//
-//         <?xml version="1.0" encoding="utf-8" ?>
-//         <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-//         <MESSAGE ID="1000" PROTOCOLVERSION="1.0">
-//         <SIMPLERSP>
-//         <IMETHODRESPONSE NAME="EnumerateInstances">
-//         <IRETURNVALUE>
-//
-//     The payload footer then would just contain the closing tags for these:
-//
-//         </IRETURNVALUE>
-//         </IMETHODRESPONSE>
-//         </MESSAGE>
-//         </SIMPLERSP>
-//         </CIM>
-//
-//==============================================================================
-
 void CIMOperationResponseEncoder::sendResponse(
     CIMResponseMessage* response,
     const String& name,
     Boolean isImplicit,
     Buffer* bodygiven)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationResponseEncoder::sendResponse");
-    PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
-        "name = %s",
-        (const char*)name.getCString()));
+    static String funcname = "CIMOperationResponseEncoder::sendResponse: ";
+    static String funcnameClassS = String(funcname + "for class " + name);
+    static CString funcnameClass = funcnameClassS.getCString();
+    PEG_METHOD_ENTER(TRC_DISPATCHER, funcnameClass);
 
     if (! response)
     {
@@ -125,6 +82,7 @@ void CIMOperationResponseEncoder::sendResponse(
     }
 
     Uint32 queueId = response->queueIds.top();
+    response->queueIds.pop();
 
     Boolean closeConnect = response->getCloseConnect();
     PEG_TRACE((
@@ -144,6 +102,18 @@ void CIMOperationResponseEncoder::sendResponse(
         return;
     }
 
+    HTTPConnection* httpQueue = dynamic_cast<HTTPConnection*>(queue);
+
+    if (! httpQueue)
+    {
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "ERROR: Unknown queue type. queueId = %u, response not sent.",
+            queueId));
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    Boolean isChunkRequest = httpQueue->isChunkRequested();
     HttpMethod httpMethod = response->getHttpMethod();
     String& messageId = response->messageId;
     CIMException& cimException = response->cimException;
@@ -193,42 +163,22 @@ void CIMOperationResponseEncoder::sendResponse(
     }
     else
     {
+        formatResponse = XmlWriter::formatSimpleIMethodRspMessage;
         formatError = XmlWriter::formatSimpleIMethodErrorRspMessage;
-
-        if (response->binaryResponse)
-        {
-            formatResponse = BinaryCodec::formatSimpleIMethodRspMessage;
-        }
-        else
-        {
-            formatResponse = XmlWriter::formatSimpleIMethodRspMessage;
-        }
     }
 
     if (cimException.getCode() != CIM_ERR_SUCCESS)
     {
-        HTTPConnection* httpQueue = dynamic_cast<HTTPConnection*>(queue);
-        Boolean isChunkRequest = false;
-        Boolean isFirstError = true;
-
-        // Note:  The WMI Mapper may use a non-HTTPConnection queue here.
-        if (httpQueue)
-        {
-            isChunkRequest = httpQueue->isChunkRequested();
-            isFirstError =
-                (httpQueue->cimException.getCode() == CIM_ERR_SUCCESS);
-        }
+        STAT_SERVEREND_ERROR
 
         // only process the FIRST error
-        if (isFirstError)
+        if (httpQueue->cimException.getCode() == CIM_ERR_SUCCESS)
         {
             // NOTE: even if this error occurs in the middle, HTTPConnection
             // will flush the entire queued message and reformat.
             if (isChunkRequest == false)
-            {
                 message =
                     formatError(name, messageId, httpMethod, cimException);
-            }
 
             // uri encode the error (for the http header) only when it is
             // non-chunking or the first error with chunking
@@ -265,15 +215,42 @@ void CIMOperationResponseEncoder::sendResponse(
     }
     else
     {
-        message = formatResponse(
-            cimName,
-            messageId,
-            httpMethod,
-            contentLanguage,
-            body,
-            serverTime,
-            isFirst,
-            isLast);
+        // else non-error condition
+        try
+        {
+            message = formatResponse(
+                cimName,
+                messageId,
+                httpMethod,
+                contentLanguage,
+                body,
+                serverTime,
+                isFirst,
+                isLast);
+        }
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+        catch (std::bad_alloc&)
+#else
+        catch (bad_alloc&)
+#endif
+        {
+            Logger::put(
+                Logger::ERROR_LOG,
+                System::CIMSERVER,
+                Logger::WARNING,
+                funcname + OUT_OF_MEMORY_MESSAGE);
+
+            cimException = PEGASUS_CIM_EXCEPTION_L(
+                CIM_ERR_FAILED, MessageLoaderParms(
+                    "Server.CIMOperationResponseEncoder.OUT_OF_MEMORY",
+                    OUT_OF_MEMORY_MESSAGE));
+
+            // try again with new error and no body
+            body.clear();
+            sendResponse(response, name, isImplicit);
+            PEG_METHOD_EXIT();
+            return;
+        }
 
         STAT_BYTESSENT
     }
@@ -282,7 +259,6 @@ void CIMOperationResponseEncoder::sendResponse(
         new HTTPMessage(message, 0, &cimException));
     httpMessage->setComplete(isLast);
     httpMessage->setIndex(messageIndex);
-    httpMessage->binaryResponse = response->binaryResponse;
 
     if (cimException.getCode() != CIM_ERR_SUCCESS)
     {
@@ -299,7 +275,6 @@ void CIMOperationResponseEncoder::sendResponse(
     }
 
     httpMessage->setCloseConnect(closeConnect);
-
     queue->enqueue(httpMessage.release());
 
     PEG_METHOD_EXIT();
@@ -307,33 +282,7 @@ void CIMOperationResponseEncoder::sendResponse(
 
 void CIMOperationResponseEncoder::enqueue(Message* message)
 {
-    try
-    {
-        handleEnqueue(message);
-    }
-    catch(PEGASUS_STD(bad_alloc)&)
-    {
-        MessageLoaderParms parms(
-            "Server.CIMOperationResponseEncoder.OUT_OF_MEMORY",
-            "A System error has occurred. Please retry the CIM Operation "
-                "at a later time.");
-
-        Logger::put_l(
-            Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE, parms);
-
-        CIMResponseMessage* response =
-            dynamic_cast<CIMResponseMessage*>(message);
-        Uint32 queueId = response->queueIds.top();
-        MessageQueue* queue = MessageQueue::lookup(queueId);
-        HTTPConnection* httpQueue = dynamic_cast<HTTPConnection*>(queue);
-        PEGASUS_ASSERT(httpQueue);
-
-        // Handle internal error on this connection.
-        httpQueue->handleInternalServerError(
-            response->getIndex(), response->isComplete());
-
-        delete message;
-    }
+    handleEnqueue(message);
 }
 
 void CIMOperationResponseEncoder::handleEnqueue(Message* message)
@@ -358,28 +307,6 @@ void CIMOperationResponseEncoder::handleEnqueue(Message* message)
         "CIMOperationResponseEncoder::handleEnque()- "
             "message->getCloseConnect() returned %d",
         message->getCloseConnect()));
-
-    // Handle binary messages up front:
-    {
-        CIMResponseMessage* msg = dynamic_cast<CIMResponseMessage*>(message);
-
-        if (msg && msg->binaryResponse)
-        {
-            if (msg->cimException.getCode() == CIM_ERR_SUCCESS)
-            {
-                Buffer body;
-                CIMName name;
-
-                if (BinaryCodec::encodeResponseBody(body, msg, name))
-                {
-                    sendResponse(msg, name.getString(), true, &body);
-                    delete msg;
-                    PEG_METHOD_EXIT();
-                    return;
-                }
-            }
-        }
-    }
 
     switch (message->getType())
     {
@@ -505,7 +432,7 @@ void CIMOperationResponseEncoder::handleEnqueue(Message* message)
 
         default:
             // Unexpected message type
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+            PEGASUS_ASSERT(0);
             break;
     }
 
@@ -583,9 +510,7 @@ void CIMOperationResponseEncoder::encodeGetInstanceResponse(
 {
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-    {
-        response->getResponseData().encodeXmlResponse(body);
-    }
+        XmlWriter::appendInstanceElement(body, response->cimInstance);
     sendResponse(response, "GetInstance", true, &body);
 }
 
@@ -599,12 +524,10 @@ void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
     CIMEnumerateInstancesResponseMessage* response)
 {
     Buffer body;
-
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-    {
-        response->getResponseData().encodeXmlResponse(body);
-    }
-
+        for (Uint32 i = 0, n = response->cimNamedInstances.size(); i < n; i++)
+            XmlWriter::appendValueNamedInstanceElement(
+                body, response->cimNamedInstances[i]);
     sendResponse(response, "EnumerateInstances", true, &body);
 }
 
@@ -612,11 +535,10 @@ void CIMOperationResponseEncoder::encodeEnumerateInstanceNamesResponse(
     CIMEnumerateInstanceNamesResponseMessage* response)
 {
     Buffer body;
-
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-    {
-        response->getResponseData().encodeXmlResponse(body);
-    }
+        for (Uint32 i = 0, n = response->instanceNames.size(); i < n; i++)
+            XmlWriter::appendInstanceNameElement(
+                body, response->instanceNames[i]);
     sendResponse(response, "EnumerateInstanceNames", true, &body);
 }
 
@@ -679,9 +601,13 @@ void CIMOperationResponseEncoder::encodeReferenceNamesResponse(
 {
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-    {
-        response->getResponseData().encodeXmlResponse(body);
-    }
+        for (Uint32 i = 0, n = response->objectNames.size(); i < n; i++)
+        {
+            body << "<OBJECTPATH>\n";
+            XmlWriter::appendValueReferenceElement(
+                body, response->objectNames[i], false);
+            body << "</OBJECTPATH>\n";
+        }
     sendResponse(response, "ReferenceNames", true, &body);
 }
 
@@ -690,9 +616,9 @@ void CIMOperationResponseEncoder::encodeReferencesResponse(
 {
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-    {
-        response->getResponseData().encodeXmlResponse(body);
-    }
+        for (Uint32 i = 0, n = response->cimObjects.size(); i < n;i++)
+            XmlWriter::appendValueObjectWithPathElement(
+                body, response->cimObjects[i]);
     sendResponse(response, "References", true, &body);
 }
 
@@ -701,9 +627,13 @@ void CIMOperationResponseEncoder::encodeAssociatorNamesResponse(
 {
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-    {
-        response->getResponseData().encodeXmlResponse(body);
-    }
+        for (Uint32 i = 0, n = response->objectNames.size(); i < n; i++)
+        {
+            body << "<OBJECTPATH>\n";
+            XmlWriter::appendValueReferenceElement(
+                body, response->objectNames[i], false);
+            body << "</OBJECTPATH>\n";
+        }
     sendResponse(response, "AssociatorNames", true, &body);
 }
 
@@ -712,9 +642,9 @@ void CIMOperationResponseEncoder::encodeAssociatorsResponse(
 {
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-    {
-        response->getResponseData().encodeXmlResponse(body);
-    }
+        for (Uint32 i = 0, n = response->cimObjects.size(); i < n; i++)
+            XmlWriter::appendValueObjectWithPathElement(
+                body, response->cimObjects[i]);
     sendResponse(response, "Associators", true, &body);
 }
 
@@ -723,9 +653,9 @@ void CIMOperationResponseEncoder::encodeExecQueryResponse(
 {
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-    {
-        response->getResponseData().encodeXmlResponse(body);
-    }
+        for (Uint32 i = 0; i < response->cimObjects.size(); i++)
+            XmlWriter::appendValueObjectWithPathElement(
+                body, response->cimObjects[i]);
     sendResponse(response, "ExecQuery", true, &body);
 }
 

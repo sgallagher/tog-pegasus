@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -60,10 +62,10 @@ void testOrderedSetCIMProperty()
     VCOUT << "Test OrderedSet<CIMProperty, CIMPropertyRep, "
               << PEGASUS_PROPERTY_ORDEREDSET_HASHSIZE << "> ...";
 
-    typedef OrderedSet<CIMProperty,
+    typedef OrderedSet<CIMProperty, 
                        CIMPropertyRep,
                        PEGASUS_PROPERTY_ORDEREDSET_HASHSIZE> Set;
-
+    
     // Create a few test properties and test CIMNames
     CIMName cimNameSearchProperty("myLookUpProperty");
 
@@ -93,13 +95,13 @@ void testOrderedSetCIMProperty()
     CIMProperty aProperty4(cimNameAProperty4, CIMValue(Boolean(true)));
     CIMProperty bProperty1(cimNameBProperty1, CIMValue(Boolean(false)));
     CIMProperty bProperty2(cimNameBProperty2, CIMValue(Boolean(false)));
-    CIMProperty bProperty3(cimNameBProperty3, CIMValue(Boolean(false)));
+    CIMProperty bProperty3(cimNameBProperty3, CIMValue(Boolean(false)));    
     CIMProperty bProperty4(cimNameBProperty4, CIMValue(Boolean(false)));
 
     // Test default constructor
     Set properties;
     PEGASUS_TEST_ASSERT(0 == properties.size());
-
+    
     // reserve capacity for a few properties
     properties.reserveCapacity(16);
 
@@ -195,7 +197,7 @@ void testOrderedSetCIMQualifier()
     typedef OrderedSet<CIMQualifier,
                        CIMQualifierRep,
                        PEGASUS_QUALIFIER_ORDEREDSET_HASHSIZE> Set;
-
+    
     // Create a few test properties and test CIMNames
     CIMName cimNameSearchQualifier("myLookUpQualifier");
 
@@ -225,13 +227,13 @@ void testOrderedSetCIMQualifier()
     CIMQualifier aQualifier4(cimNameAQualifier4, CIMValue(Boolean(true)));
     CIMQualifier bQualifier1(cimNameBQualifier1, CIMValue(Boolean(false)));
     CIMQualifier bQualifier2(cimNameBQualifier2, CIMValue(Boolean(false)));
-    CIMQualifier bQualifier3(cimNameBQualifier3, CIMValue(Boolean(false)));
+    CIMQualifier bQualifier3(cimNameBQualifier3, CIMValue(Boolean(false)));    
     CIMQualifier bQualifier4(cimNameBQualifier4, CIMValue(Boolean(false)));
 
     // Test default constructor
     Set qualifiers;
     PEGASUS_TEST_ASSERT(0 == qualifiers.size());
-
+    
     // reserve capacity for a few qualifiers
     qualifiers.reserveCapacity(16);
 
@@ -265,7 +267,7 @@ void testOrderedSetCIMQualifier()
     PEGASUS_TEST_ASSERT(9 == qualifiers.size());
 
     // lookup the test qualifier
-    // this also tests the inline generateCIMNameTag()
+    // this also tests the inline generateCIMNameTag() 
     // function in CIMNameInline.h
     Uint32 pos = qualifiers.find(cimNameSearchQualifier,
                                  cimNameSearchQualifierTag);
@@ -284,8 +286,8 @@ void testOrderedSetCIMQualifier()
     qualifiers.remove(0);
     PEGASUS_TEST_ASSERT(8 == qualifiers.size());
     qualifiers.remove(2);
-    PEGASUS_TEST_ASSERT(7 == qualifiers.size());
-    qualifiers.remove(6);
+    PEGASUS_TEST_ASSERT(7 == qualifiers.size());    
+    qualifiers.remove(6);    
     PEGASUS_TEST_ASSERT(6 == qualifiers.size());
 
     // insert() test
@@ -326,7 +328,7 @@ void testOrderedSetCIMQualifier()
     CIMQualifier cQualifier4(cimNameCQualifier4, CIMValue(Uint32(4)));
     CIMQualifier dQualifier1(cimNameDQualifier1, CIMValue(Uint32(5)));
     CIMQualifier dQualifier2(cimNameDQualifier2, CIMValue(Uint32(6)));
-    CIMQualifier dQualifier3(cimNameDQualifier3, CIMValue(Uint32(7)));
+    CIMQualifier dQualifier3(cimNameDQualifier3, CIMValue(Uint32(7)));    
     CIMQualifier dQualifier4(cimNameDQualifier4, CIMValue(Uint32(8)));
 
     CIMQualifier cQualifier5(cimNameCQualifier5, CIMValue(Uint32(10)));
@@ -335,7 +337,7 @@ void testOrderedSetCIMQualifier()
     CIMQualifier cQualifier8(cimNameCQualifier8, CIMValue(Uint32(40)));
     CIMQualifier dQualifier5(cimNameDQualifier5, CIMValue(Uint32(50)));
     CIMQualifier dQualifier6(cimNameDQualifier6, CIMValue(Uint32(60)));
-    CIMQualifier dQualifier7(cimNameDQualifier7, CIMValue(Uint32(70)));
+    CIMQualifier dQualifier7(cimNameDQualifier7, CIMValue(Uint32(70)));    
     CIMQualifier dQualifier8(cimNameDQualifier8, CIMValue(Uint32(80)));
 
     // try to break the OrderedSet by adding more than 16 qualifiers to it
@@ -360,7 +362,7 @@ void testOrderedSetCIMQualifier()
     qualifiers.append(dQualifier8);
 
     PEGASUS_TEST_ASSERT(26 == qualifiers.size());
-    // ensure secondary names are found
+    // ensure secondary names are found 
     // (meaning names with same generateCIMNameTag)
     //
     // 2521 -> manually calculated, entangled 'D' and '1'
@@ -405,7 +407,7 @@ void testOrderedSetCIMParameter()
     typedef OrderedSet<CIMParameter,
                        CIMParameterRep,
                        PEGASUS_PARAMETER_ORDEREDSET_HASHSIZE> Set;
-
+    
     // Create a few test properties and test CIMNames
     CIMName cimNameSearchParameter("myLookUpParameter");
 
@@ -435,13 +437,13 @@ void testOrderedSetCIMParameter()
     CIMParameter aParameter4(cimNameAParameter4, CIMTYPE_BOOLEAN);
     CIMParameter bParameter1(cimNameBParameter1, CIMTYPE_BOOLEAN);
     CIMParameter bParameter2(cimNameBParameter2, CIMTYPE_BOOLEAN);
-    CIMParameter bParameter3(cimNameBParameter3, CIMTYPE_BOOLEAN);
+    CIMParameter bParameter3(cimNameBParameter3, CIMTYPE_BOOLEAN);    
     CIMParameter bParameter4(cimNameBParameter4, CIMTYPE_BOOLEAN);
 
     // Test default constructor
     Set parameters;
     PEGASUS_TEST_ASSERT(0 == parameters.size());
-
+    
     // reserve capacity for a few parameters
     parameters.reserveCapacity(16);
 
@@ -475,7 +477,7 @@ void testOrderedSetCIMParameter()
     PEGASUS_TEST_ASSERT(9 == parameters.size());
 
     // lookup the test parameter
-    // this also tests the inline generateCIMNameTag()
+    // this also tests the inline generateCIMNameTag() 
     // function in CIMNameInline.h
     Uint32 pos = parameters.find(cimNameSearchParameter,
                                  cimNameSearchParameterTag);
@@ -494,8 +496,8 @@ void testOrderedSetCIMParameter()
     parameters.remove(0);
     PEGASUS_TEST_ASSERT(8 == parameters.size());
     parameters.remove(2);
-    PEGASUS_TEST_ASSERT(7 == parameters.size());
-    parameters.remove(6);
+    PEGASUS_TEST_ASSERT(7 == parameters.size());    
+    parameters.remove(6);    
     PEGASUS_TEST_ASSERT(6 == parameters.size());
 
     // insert() test
@@ -570,7 +572,7 @@ void testOrderedSetCIMParameter()
     parameters.append(dParameter8);
 
     PEGASUS_TEST_ASSERT(26 == parameters.size());
-    // ensure secondary names are found
+    // ensure secondary names are found 
     // (meaning names with same generateCIMNameTag)
     //
     // 2521 -> manually calculated, entangled 'D' and '1'
@@ -615,7 +617,7 @@ void testOrderedSetCIMMethod()
     typedef OrderedSet<CIMMethod,
                        CIMMethodRep,
                        PEGASUS_METHOD_ORDEREDSET_HASHSIZE> Set;
-
+    
     // Create a few test properties and test CIMNames
     CIMName cimNameSearchMethod("myLookUpMethod");
 
@@ -645,13 +647,13 @@ void testOrderedSetCIMMethod()
     CIMMethod aMethod4(cimNameAMethod4, CIMTYPE_BOOLEAN);
     CIMMethod bMethod1(cimNameBMethod1, CIMTYPE_BOOLEAN);
     CIMMethod bMethod2(cimNameBMethod2, CIMTYPE_BOOLEAN);
-    CIMMethod bMethod3(cimNameBMethod3, CIMTYPE_BOOLEAN);
+    CIMMethod bMethod3(cimNameBMethod3, CIMTYPE_BOOLEAN);    
     CIMMethod bMethod4(cimNameBMethod4, CIMTYPE_BOOLEAN);
 
     // Test default constructor
     Set methods;
     PEGASUS_TEST_ASSERT(0 == methods.size());
-
+    
     // reserve capacity for a few methods
     methods.reserveCapacity(16);
 
@@ -685,7 +687,7 @@ void testOrderedSetCIMMethod()
     PEGASUS_TEST_ASSERT(9 == methods.size());
 
     // lookup the test method
-    // this also tests the inline generateCIMNameTag()
+    // this also tests the inline generateCIMNameTag() 
     // function in CIMNameInline.h
     Uint32 pos = methods.find(cimNameSearchMethod,
                                  cimNameSearchMethodTag);
@@ -704,8 +706,8 @@ void testOrderedSetCIMMethod()
     methods.remove(0);
     PEGASUS_TEST_ASSERT(8 == methods.size());
     methods.remove(2);
-    PEGASUS_TEST_ASSERT(7 == methods.size());
-    methods.remove(6);
+    PEGASUS_TEST_ASSERT(7 == methods.size());    
+    methods.remove(6);    
     PEGASUS_TEST_ASSERT(6 == methods.size());
 
     // insert() test
@@ -780,7 +782,7 @@ void testOrderedSetCIMMethod()
     methods.append(dMethod8);
 
     PEGASUS_TEST_ASSERT(26 == methods.size());
-    // ensure secondary names are found
+    // ensure secondary names are found 
     // (meaning names with same generateCIMNameTag)
     //
     // 2521 -> manually calculated, entangled 'D' and '1'
@@ -819,15 +821,20 @@ void testOrderedSetCIMMethod()
 
 void testOrderedSetPropertyOverFlow()
 {
-    VCOUT << "Test OrderedSet with 521 Properties";
+    VCOUT << "Test OrderedSet with 18,721 Properties";
 
-    typedef OrderedSet<CIMProperty,
+    typedef OrderedSet<CIMProperty, 
                        CIMPropertyRep,
-                       PEGASUS_PROPERTY_ORDEREDSET_HASHSIZE> Set;
+                       PEGASUS_PROPERTY_ORDEREDSET_HASHSIZE> Set;    
     Set properties;
-
-    char letter[26] =
-        { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+    
+    char letterNumber[36] = 
+        { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 
+          'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+          '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+        };
+    char letter[26] = 
+        { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 
           'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
         };
 
@@ -835,41 +842,46 @@ void testOrderedSetPropertyOverFlow()
 
     CIMName cimNameSearchProperty("myLookUpProperty");
     CIMProperty searchProperty(cimNameSearchProperty, oneFitsAll);
-
-    // Add 10 times 26 properties
-    for (Uint32 i=0; i<26; i++)
+    
+    // Add 10 times 36*26=936 properties
+    for (Uint32 k=0; k < 10; k++)
     {
-        for (Uint32 j=0; j<10; j++)
+        for (Uint32 i=0; i<26; i++)
         {
-            char buf[20];
-            sprintf(buf, "%cproperty%u", letter[i], j);
-            CIMName newNumPropertyName(buf);
-            CIMProperty newNumProperty(newNumPropertyName, oneFitsAll);
-            properties.append(newNumProperty);
+            for (Uint32 j=0; j<36; j++)
+            {
+                char buf[20];
+                sprintf(buf, "%cprop%uerty%c", letter[i], k, letterNumber[j]);
+                CIMName newNumPropertyName(buf);
+                CIMProperty newNumProperty(newNumPropertyName, oneFitsAll);
+                properties.append(newNumProperty);
+            }
         }
     }
 
-    // this is the property we are going to lookup later on
-    // (index position 260 since index starts at 0)
+    // this is the property we are going to lookup later on (position 9360+1)
     properties.append(searchProperty);
 
-    // Add 10 times 26 properties
-    for (Uint32 i=0; i<26; i++)
+    // Add 10 times 36*26=936 properties
+    for (Uint32 k=0; k < 10; k++)
     {
-        for (Uint32 j=0; j<10; j++)
+        for (Uint32 i=0; i<26; i++)
         {
-            char buf[20];
-            sprintf(buf, "%cproperty%u", letter[i], j);
-            CIMName newNumPropertyName(buf);
-            CIMProperty newNumProperty(newNumPropertyName, oneFitsAll);
-            properties.append(newNumProperty);
+            for (Uint32 j=0; j<36; j++)
+            {
+                char buf[20];
+                sprintf(buf, "%cpr%dty%c", letter[i], k, letterNumber[j]);
+                CIMName newNumPropertyName(buf);
+                CIMProperty newNumProperty(newNumPropertyName, oneFitsAll);
+                properties.append(newNumProperty);
+            }
         }
     }
 
     // lookup the test property
     // this also tests the inline generateCIMNameTag() function in OrderedSet.h
     Uint32 pos = properties.find(cimNameSearchProperty, 0x31E3);
-    PEGASUS_TEST_ASSERT(260 == pos);
+    PEGASUS_TEST_ASSERT(9360 == pos);
     VCOUT << " +++++ passed" << endl;
     return;
 }
@@ -878,7 +890,7 @@ void testOrderedSetPropertyOverFlow()
 void testSetPropertyNameContainerException()
 {
     VCOUT << "Test Exception on setName() of contained CIMProperty ...";
-    typedef OrderedSet<CIMProperty,
+    typedef OrderedSet<CIMProperty, 
                        CIMPropertyRep,
                        PEGASUS_PROPERTY_ORDEREDSET_HASHSIZE> PropertySet;
     PropertySet propertyContainer;
@@ -902,7 +914,7 @@ void testSetPropertyNameContainerException()
 void testSetQualifierNameContainerException()
 {
     VCOUT << "Test Exception on setName() of contained CIMQualifier ...";
-    typedef OrderedSet<CIMQualifier,
+    typedef OrderedSet<CIMQualifier, 
                        CIMQualifierRep,
                        PEGASUS_QUALIFIER_ORDEREDSET_HASHSIZE> QualifierSet;
     QualifierSet qualifierContainer;
@@ -926,7 +938,7 @@ void testSetQualifierNameContainerException()
 void testSetParameterNameContainerException()
 {
     VCOUT << "Test Exception on setName() of contained CIMParameter ...";
-    typedef OrderedSet<CIMParameter,
+    typedef OrderedSet<CIMParameter, 
                        CIMParameterRep,
                        PEGASUS_PARAMETER_ORDEREDSET_HASHSIZE> ParameterSet;
     ParameterSet parameterContainer;
@@ -950,7 +962,7 @@ void testSetParameterNameContainerException()
 void testSetMethodNameContainerException()
 {
     VCOUT << "Test Exception on setName() of contained CIMMethod ...";
-    typedef OrderedSet<CIMMethod,
+    typedef OrderedSet<CIMMethod, 
                        CIMMethodRep,
                        PEGASUS_METHOD_ORDEREDSET_HASHSIZE> MethodSet;
     MethodSet methodContainer;
@@ -996,7 +1008,7 @@ void testCharSetToUpperHash()
             algorithHash |= 0x1000;
         if ((code & 0x80) > 0)
             algorithHash |= 0x4000;
-
+        
         if (algorithHash != hash)
         {
             VCOUT << "_toUpperHash[" << i << "] is " << hash \
@@ -1007,7 +1019,7 @@ void testCharSetToUpperHash()
     VCOUT << " +++++ passed" << endl;
 }
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 

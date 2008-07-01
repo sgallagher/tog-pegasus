@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,11 +36,11 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMName.h>
-#include <Pegasus/General/OptionManager.h>
+#include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/General/Stopwatch.h>
+#include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/AutoPtr.h>
 
@@ -46,11 +48,10 @@
 #include <Pegasus/Consumer/CIMIndicationConsumer.h>
 #include <Pegasus/Listener/CIMListener.h>
 
-
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-Array<String> sourceNamespaces;
+CIMNamespaceName sourceNamespace;
 String indicationClassName;
 Boolean Ipv6Test;
 
@@ -128,9 +129,9 @@ private:
 
 };
 
-MyIndicationConsumer::MyIndicationConsumer(String name_)
+MyIndicationConsumer::MyIndicationConsumer(String name)
 {
-    this->name = name_;
+    this->name = name;
     for (Uint32 i=0; i < MAX_UNIQUE_IDS; i++)
       seqNumPrevious[i] = 1;
 
@@ -176,7 +177,7 @@ void MyIndicationConsumer::consumeIndication(
   // Calculate the time diference between when sent and received (now)
   //
 
-  Uint32 indicationTimeIndex =
+  Uint32 indicationTimeIndex = 
       indicationInstance.findProperty("IndicationTime");
 
 
@@ -189,16 +190,16 @@ void MyIndicationConsumer::consumeIndication(
     }
 
 
-  CIMConstProperty indicationTime_property =
+  CIMConstProperty indicationTime_property = 
       indicationInstance.getProperty(indicationTimeIndex);
-  // cout << "indicationTime = "
+  // cout << "indicationTime = " 
   //      << indicationTime_property.getValue().toString() << endl;
 
   CIMDateTime indicationTime;
   indicationTime_property.getValue().get(indicationTime);
 
   CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
-  Sint64 sendRecvDeltaTime =
+  Sint64 sendRecvDeltaTime = 
       CIMDateTime::getDifference(indicationTime, currentDateTime);
 
   // cout << "sendRecvDeltaTime = "
@@ -220,7 +221,7 @@ void MyIndicationConsumer::consumeIndication(
   // across tests runs as long as the server continues to run)
   //
 
-  Uint32 uniqueIDIndex =
+  Uint32 uniqueIDIndex = 
       indicationInstance.findProperty("IndicationIdentifier");
 
 
@@ -233,7 +234,7 @@ void MyIndicationConsumer::consumeIndication(
     }
 
 
-  CIMConstProperty uniqueID_property =
+  CIMConstProperty uniqueID_property = 
       indicationInstance.getProperty(uniqueIDIndex);
   // cout << "uniqueID = " << uniqueID_property.getValue().toString() << endl;
 
@@ -248,7 +249,7 @@ void MyIndicationConsumer::consumeIndication(
   // Get the seq number
   //
 
-  Uint32 seqNumIndex =
+  Uint32 seqNumIndex = 
       indicationInstance.findProperty ("IndicationSequenceNumber");
 
   if (seqNumIndex == PEG_NOT_FOUND)
@@ -264,7 +265,7 @@ void MyIndicationConsumer::consumeIndication(
           maxUniqueIDMsgIssued = true;
           cout << endl;
           cout << "+++++ ERROR: Indication Stress TestConsumer - recvd"
-               << " uniqueID( " << (long)uniqueID
+               << " uniqueID( " << (long)uniqueID 
                << " ) >= MAX_UNIQUE_IDS ( " << MAX_UNIQUE_IDS << " )"
                << endl;
           cout << "+++++        To correct: Stop and start the server, this"
@@ -307,7 +308,7 @@ void MyIndicationConsumer::consumeIndication(
       // The "out of sequence" counts for "(actual != expected)" are A=3, B=2,
       // while "(actual < previous)" gives A=1, B=2.
       //
-      // Thanks to Roger Kump at HP for suggesting the
+      // Thanks to Roger Kump at HP for suggesting the 
       // actual <  previous method.
       //
       // JR Wunderlich 7/14/2005
@@ -320,7 +321,7 @@ void MyIndicationConsumer::consumeIndication(
             {
               cout << "+++++ ERROR: Indication Stress Test Consumer"
                    << "- Sequence error "
-                   << " previous = "
+                   << " previous = " 
                    << (unsigned long) seqNumPrevious[uniqueID]
                    << " received = " << (unsigned long) seqNumRecvd << endl;
             }
@@ -456,8 +457,8 @@ CIMObjectPath _createFilterInstance
     filterInstance.addProperty (CIMProperty (CIMName ("Query"), query));
     filterInstance.addProperty (CIMProperty (CIMName ("QueryLanguage"),
         String (qlang)));
-    filterInstance.addProperty (CIMProperty (CIMName ("SourceNamespaces"),
-        sourceNamespaces));
+    filterInstance.addProperty (CIMProperty (CIMName ("SourceNamespace"),
+        sourceNamespace.getString ()));
 
     return(client.createInstance(
         PEGASUS_NAMESPACENAME_INTEROP,
@@ -488,22 +489,22 @@ static Uint32  _getCount(CIMClient&  client)
     Array <CIMParamValue> inParams;
     Array <CIMParamValue> outParams;
     Uint32 result;
-
+  
     CIMObjectPath  objPath;
-
+    
     objPath.setNameSpace("test/TestProvider");
     objPath.setClassName("TestCMPI_IndicationStressTestClass");
 
     CIMValue retValue = client.invokeMethod(
-        CIMNamespaceName("test/TestProvider"),
+        sourceNamespace,
         objPath,
         "getSubscriptionCount",
         inParams,
         outParams);
 
     retValue.get(result);
-    PEGASUS_TEST_ASSERT (result == 12);
-
+    PEGASUS_TEST_ASSERT (result == 2);  
+ 
     return result;
 }
 
@@ -524,12 +525,14 @@ void _sendTestIndication(
     inParams.append(
         CIMParamValue(String("indicationSendCount"),
         CIMValue(indicationSendCount)));
+    inParams.append(CIMParamValue(String("namespace"),
+                 CIMValue(sourceNamespace.getString () ) ) );
 
     CIMObjectPath className (String::EMPTY, CIMNamespaceName (),
         CIMName (indicationClassName), keyBindings);
 
-    CIMValue retValue = client->invokeMethod(
-        "test/TestProvider",
+    CIMValue retValue = client->invokeMethod
+        (sourceNamespace,
         className,
         methodName,
         inParams,
@@ -613,11 +616,11 @@ void _usage ()
         << "            Note: the <threads> parameter must be specified if\n"
         << "            the <SenderIdentity> value is defined.\n"
         << endl << endl
-        << "    TestIndicationStressTest ClassName Namespace "
+        << "    TestIndicationStressTest ClassName Namespace " 
         << "getSubscriptionCount\n "
         << "       getSubscriptionCount returns the number of\n"
         << "           active Subscriptions from Provider.\n"
-        << endl << endl
+        << endl << endl 
         << "    TestIndicationStressTest ClassName Namespace cleanup"
         << endl << endl;
 }
@@ -794,18 +797,18 @@ void _setup (CIMClient & client, String& qlang,
                  else
                  {
                      destinationProtocol = HTTP_IPV4_DESTINATION;
-                 }
+                 } 
             }
             else if (handleProtocol == PROTOCOL_CIMXML_HTTPS)
             {
                  if (Ipv6Test)
-                 {
+                 { 
                      destinationProtocol = HTTPS_IPV6_DESTINATION;
                  }
                  else
                  {
                      destinationProtocol = HTTPS_IPV4_DESTINATION;
-                 }
+                 }  
             }
             else
             {
@@ -864,7 +867,7 @@ void _setup (CIMClient & client, String& qlang,
             // Create the handler with this program as the CIMListener
             clientHandlerObjectPath = _createHandlerInstance (client,
                 CLIENT_RESIDENT_HANDLER_NAME,
-                Ipv6Test ?
+                Ipv6Test ? 
                 String ("http://[::1]:2005/TestIndicationStressTest") :
                 String ("http://localhost:2005/TestIndicationStressTest"));
         }
@@ -1466,7 +1469,7 @@ int _beginTest(CIMClient& workClient, const char* opt,
                 currentServerResidentIndicationCount);
             if (expectedSenderIdentity != String::EMPTY)
             {
-                PEGASUS_TEST_ASSERT(indicationSendCountTotal ==
+                assert(indicationSendCountTotal ==
                     currentServerResidentIdentityIndicationCount);
             }
         }
@@ -1487,7 +1490,7 @@ int _beginTest(CIMClient& workClient, const char* opt,
     {
         Uint32 res = _getCount(workClient);
         cout << " ++++++++ Number of Subscriptions " << res <<endl;
-    }
+    }    
     else if (String::equalNoCase (opt, "cleanup"))
     {
         _cleanup (workClient);
@@ -1507,7 +1510,6 @@ int main (int argc, char** argv)
 {
     // This client connection is used soley to create subscriptions.
     CIMClient workClient;
-    CIMNamespaceName sourceNamespace;
     try
     {
         workClient.connectLocal();
@@ -1548,7 +1550,7 @@ int main (int argc, char** argv)
     Ipv6Test = false;
 
     // Check if class name is IPv6TestClass, handle this class name
-    // differently. We use default class-name and namespace for
+    // differently. We use default class-name and namespace for 
     // IPv6TestClass class. IPv6TestClass class does not exist, it is used
     // to test IndicationStressTestProvider on IPv6.
     if (!strcmp(argv[1], "IPv6TestClass"))
@@ -1562,15 +1564,11 @@ int main (int argc, char** argv)
     {
         indicationClassName = argv[1];
         sourceNamespace = CIMNamespaceName (argv[2]);
-    }
+    } 
     cout << "++++ Testing with class " << indicationClassName
          << " and Namespace " << sourceNamespace.getString () << endl;
 
     int rc = 0;
-
-    sourceNamespaces.append("test/testProvider");
-    sourceNamespaces.append("test/testIndSrcNS1");
-    sourceNamespaces.append("test/testIndSrcNS2");
 
     try
     {

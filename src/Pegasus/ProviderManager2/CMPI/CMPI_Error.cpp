@@ -1,68 +1,68 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Tracer.h>
-
-#include <Pegasus/General/CIMError.h>
-
+#include <Pegasus/Common/CIMError.h>
 #include "CMPI_Version.h"
+
 #include "CMPI_Error.h"
 #include "CMPI_Ftabs.h"
 #include "CMPI_String.h"
-
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-extern "C"
+extern "C" 
 {
 
     CMPIError *newCMPIError(
-        const char* owner, const char* msgID,
+        const char* owner, const char* msgID, 
         const char * msg,
-        const CMPIErrorSeverity sev,
-        const CMPIErrorProbableCause pc,
+        const CMPIErrorSeverity sev, 
+        const CMPIErrorProbableCause pc, 
         const CMPIrc cimStatusCode)
     {
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Error:newCMPIError()");
-        CIMError::PerceivedSeverityEnum pgSev =
+        CIMError::PerceivedSeverityEnum pgSev = 
             (CIMError::PerceivedSeverityEnum)sev;
         CIMError::ProbableCauseEnum pgPc = (CIMError::ProbableCauseEnum)pc;
-        CIMError::CIMStatusCodeEnum pgSc =
+        CIMError::CIMStatusCodeEnum pgSc = 
             (CIMError::CIMStatusCodeEnum)cimStatusCode;
 
         CIMError *cer=new CIMError(owner, msgID, msg, pgSev, pgPc, pgSc);
-        CMPIError* cmpiError =
+        CMPIError* cmpiError = 
             reinterpret_cast<CMPIError*>(new CMPI_Object(cer));
         PEG_METHOD_EXIT();
         return cmpiError;
@@ -151,7 +151,7 @@ extern "C"
     }
 
     static CMPIString* errGetOtherErrorType(
-        const CMPIError* eErr,
+        const CMPIError* eErr, 
         CMPIStatus* rc)
     {
         PEG_METHOD_ENTER(
@@ -203,7 +203,7 @@ extern "C"
     }
 
     static CMPIString* errGetOwningEntity(
-        const CMPIError* eErr,
+        const CMPIError* eErr, 
         CMPIStatus* rc)
     {
         PEG_METHOD_ENTER(
@@ -331,7 +331,7 @@ extern "C"
     }
 
     static CMPIErrorSeverity errGetPerceivedSeverity(
-        const CMPIError* eErr,
+        const CMPIError* eErr, 
         CMPIStatus* rc)
     {
         PEG_METHOD_ENTER(
@@ -371,7 +371,7 @@ extern "C"
     }
 
     static CMPIErrorProbableCause errGetProbableCause(
-        const CMPIError* eErr,
+        const CMPIError* eErr, 
         CMPIStatus* rc)
     {
         PEG_METHOD_ENTER(
@@ -495,10 +495,9 @@ extern "C"
             String s = pgRecommendedActions[i-1];
             dta[i].value.string=string2CMPIString(s);
         }
-        CMPI_Array *arr = new CMPI_Array(dta);
         CMSetStatus(rc,CMPI_RC_OK);
         PEG_METHOD_EXIT();
-        return reinterpret_cast<CMPIArray*>(new CMPI_Object(arr));
+        return reinterpret_cast<CMPIArray*>(new CMPI_Object(dta));
     }
 
     static CMPIString* errGetErrorSource(const CMPIError* eErr, CMPIStatus* rc)
@@ -540,7 +539,7 @@ extern "C"
     }
 
     static CMPIErrorSrcFormat errGetErrorSourceFormat(
-        const CMPIError* eErr,
+        const CMPIError* eErr, 
         CMPIStatus* rc)
     {
         PEG_METHOD_ENTER(
@@ -580,7 +579,7 @@ extern "C"
     }
 
     static CMPIString* errGetOtherErrorSourceFormat(
-        const CMPIError* eErr,
+        const CMPIError* eErr, 
         CMPIStatus* rc)
     {
         PEG_METHOD_ENTER(
@@ -660,7 +659,7 @@ extern "C"
     }
 
     static CMPIString* errGetCIMStatusCodeDescription(
-        const CMPIError* eErr,
+        const CMPIError* eErr, 
         CMPIStatus* rc)
     {
         PEG_METHOD_ENTER(
@@ -701,7 +700,7 @@ extern "C"
     }
 
     static CMPIArray* errGetMessageArguments(
-        const CMPIError* eErr,
+        const CMPIError* eErr, 
         CMPIStatus* rc)
     {
         PEG_METHOD_ENTER(
@@ -748,14 +747,14 @@ extern "C"
             dta[i].value.string=string2CMPIString(s);
         }
         CMSetStatus(rc,CMPI_RC_OK);
-        CMPIArray* cmpiArray =
-            reinterpret_cast<CMPIArray*>(new CMPI_Object(new CMPI_Array(dta)));
+        CMPIArray* cmpiArray = 
+            reinterpret_cast<CMPIArray*>(new CMPI_Object(dta));
         PEG_METHOD_EXIT();
         return cmpiArray;
     }
 
     static CMPIStatus errSetErrorType(
-        CMPIError* eErr,
+        CMPIError* eErr, 
         const CMPIErrorType errorType)
     {
         PEG_METHOD_ENTER(
@@ -786,7 +785,7 @@ extern "C"
     }
 
     static CMPIStatus errSetOtherErrorType(
-        CMPIError* eErr,
+        CMPIError* eErr, 
         const char* otherErrorType)
     {
         PEG_METHOD_ENTER(
@@ -816,7 +815,7 @@ extern "C"
     }
 
     static CMPIStatus errSetProbableCauseDescription(
-        CMPIError* eErr,
+        CMPIError* eErr, 
         const char* probableCauseDescription)
     {
         PEG_METHOD_ENTER(
@@ -846,7 +845,7 @@ extern "C"
     }
 
     static CMPIStatus errSetRecommendedActions(
-        CMPIError* eErr,
+        CMPIError* eErr, 
         const CMPIArray* recommendedActions)
     {
         PEG_METHOD_ENTER(
@@ -860,13 +859,8 @@ extern "C"
         }
 
         Array<String> pgRecommendedActions;
-        CMPI_Array* arr = (CMPI_Array*)recommendedActions->hdl;
-        if (!arr)
-        {
-            PEG_METHOD_EXIT();
-            CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
-        }
-        CMPIData* dta=(CMPIData*)arr->hdl;
+
+        CMPIData* dta=(CMPIData*)recommendedActions->hdl;
         if (!dta)
         {
             PEG_METHOD_EXIT();
@@ -917,7 +911,7 @@ extern "C"
     }
 
     static CMPIStatus errSetErrorSource(
-        CMPIError* eErr,
+        CMPIError* eErr, 
         const char* errorSource)
     {
         PEG_METHOD_ENTER(
@@ -941,7 +935,7 @@ extern "C"
             cer->setErrorSource(pgErrorSource);
         }
         catch (...)
-        {
+        { 
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
                 Tracer::LEVEL1,
@@ -955,7 +949,7 @@ extern "C"
     }
 
     static CMPIStatus errSetErrorSourceFormat(
-        CMPIError* eErr,
+        CMPIError* eErr, 
         const CMPIErrorSrcFormat errorSrcFormat)
     {
         PEG_METHOD_ENTER(
@@ -990,7 +984,7 @@ extern "C"
     }
 
     static CMPIStatus errSetOtherErrorSourceFormat(
-        CMPIError* eErr,
+        CMPIError* eErr, 
         const char* otherErrorSourceFormat)
     {
         PEG_METHOD_ENTER(
@@ -1024,7 +1018,7 @@ extern "C"
     }
 
     static CMPIStatus errSetCIMStatusCodeDescription(
-        CMPIError* eErr,
+        CMPIError* eErr, 
         const char* cimStatusCodeDescription)
     {
         PEG_METHOD_ENTER(
@@ -1058,7 +1052,7 @@ extern "C"
     }
 
     static CMPIStatus errSetMessageArguments(
-        CMPIError* eErr,
+        CMPIError* eErr, 
         CMPIArray* messageArguments)
     {
         PEG_METHOD_ENTER(
@@ -1072,13 +1066,8 @@ extern "C"
         }
 
         Array<String> pgMessageArguments;
-        CMPI_Array* arr = (CMPI_Array*)messageArguments->hdl;
-        if (!arr)
-        {
-            PEG_METHOD_EXIT();
-            CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
-        }
-        CMPIData* dta=(CMPIData*)arr->hdl;
+
+        CMPIData* dta=(CMPIData*)messageArguments->hdl;
         if (!dta)
         {
             PEG_METHOD_EXIT();
@@ -1134,7 +1123,7 @@ extern "C"
 
 }
 
-static CMPIErrorFT error_FT =
+static CMPIErrorFT error_FT = 
 {
     CMPICurrentVersion,
     errRelease,
@@ -1169,4 +1158,4 @@ CMPIErrorFT *CMPI_Error_Ftab=&error_FT;
 
 PEGASUS_NAMESPACE_END
 
-
+    

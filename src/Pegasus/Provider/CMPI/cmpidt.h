@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//=============================================================================
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -480,7 +482,7 @@ extern "C"
      <LI>CMPI_nullValue - Value embedded in CMPIData object is NULL.
      <LI>CMPI_keyValue - Value embedded in CMPIData object is valid &amp;
       is a key
-     <LI>CMPI_notFound -
+     <LI>CMPI_notFound - 
      <LI>CMPI_badValue - Value embedded in CMPIData object is not valid.
     </UL>
 */
@@ -491,7 +493,7 @@ extern "C"
 #define CMPI_notFound  (4<<8)
 #define CMPI_badValue  (0x80<<8)
 
-/**
+/** 
     Values transferred from CMPI functions to the MI return three
     components: the value, its state, and its type as defined by the schema.
     All three components are bundled into this one structure.
@@ -538,7 +540,7 @@ extern "C"
 
     typedef void CMPIGcStat;
 
-/**
+/** 
     The CMPIFlags type is used to inform MI functions about options specified
     by the client and passed on to the MI for certain requests. CMPIFlags are
     not passed to MIs directly. MIs must use the CMPIContext services to gain
@@ -547,7 +549,7 @@ extern "C"
      <LI>CMPI_FLAG_LocalOnly - Local only  attributes
      <LI>CMPI_FLAG_DeepInheritance - Providers should provide deep inhertiance
       information
-     <LI>CMPI_FLAG_IncludeQualifiers - <I>deprecated</I> Indicates that a
+     <LI>CMPI_FLAG_IncludeQualifiers - <I>deprecated</I> Indicates that a 
       MI's should return qualifiers
      <LI>CMPI_FLAG_IncludeClassOrigin - MI should return class origin info
     </UL>
@@ -572,7 +574,7 @@ extern "C"
 /* The content language of the response */
 #define CMPIContentLanguage "CMPIContentLanguage"
 
-/**
+/** 
     Enum which indicates success or failure, usually accessed as part
     of the CMPIStatus structure
 */
@@ -655,12 +657,12 @@ extern "C"
             No more elements in Enumeration Object.
         */
         CMPI_RC_NO_MORE_ELEMENTS = 18,
-        /**
+        /** 
             Returned by a MI to indicate that it should not be unloaded, only
             returned via a cleanup() call.
         */
         CMPI_RC_DO_NOT_UNLOAD = 50,
-        /**
+        /** 
             Returned by a MI to indicate that it should never be unloaded, only
             returned via a cleanup() call.
         */
@@ -673,17 +675,17 @@ extern "C"
         CMPI_RC_ERROR = 200
     } CMPIrc;
 
-/**
+/** 
     The status structure is used to indicate success or failure of a call.
 */
     typedef struct _CMPIStatus
     {
-        /**
+        /** 
             The CMPIrc value.
             @see _CMPIrc
         */
         CMPIrc rc;
-        /**
+        /** 
             A text string representing the error message
             @see CMPIString
         */
@@ -740,7 +742,7 @@ extern "C"
 #endif
     } CMPIPredOp;
 
-    /**
+    /** 
         Severity levels for logging functions.
     */
     typedef enum _CMPISeverity
@@ -753,7 +755,7 @@ extern "C"
             General info.
         */
         CMPI_SEV_INFO = 2,
-        /**
+        /** 
             Warning message.
         */
         CMPI_SEV_WARNING = 3,
@@ -782,7 +784,7 @@ extern "C"
         CMPI_LEV_VERBOSE = 3
     } CMPILevel;
 
-    /**
+    /** 
         Type of query expression it is normalized to.
     */
     typedef enum _CMPISelectCondType
@@ -798,64 +800,64 @@ extern "C"
     } CMPISelectCondType;
 
 #ifdef CMPI_VER_200
-    /**
+    /** 
         Possible values an Error object can use in its type property
         @version 2.0
     */
     typedef enum _CMPIErrorType
     {
-        /**
+        /** 
             Unkown.
         */
         UnknownErrorType = 0,
-        /**
+        /** 
             Other.
         */
         OtherErrorType = 1,
-        /**
+        /** 
             Communications error.
         */
         CommunicationsError = 2,
-        /**
+        /** 
             QoS error.
         */
         QualityOfServiceError = 3,
-        /**
+        /** 
             Software error.
         */
         SoftwareError = 4,
-        /**
+        /** 
             Hardware error.
         */
         HardwareError = 5,
-        /**
+        /** 
             Environmental error.
         */
         EnvironmentalError = 6,
-        /**
+        /** 
             Security error.
         */
         SecurityError = 7,
-        /**
+        /** 
             Over subscription error.
         */
         Oversubscription_Error = 8,
-        /**
+        /** 
             Unavailable resource.
         */
         UnavailableResourceError = 9,
-        /**
+        /** 
             Unsupported operation.
         */
         UnsupportedOperationError = 10
     } CMPIErrorType;
 
-/**
+/** 
     Possible values an Error object can use to indicate severity.
 */
     typedef enum _CMPIErrorSeverity
     {
-        /**
+        /** 
             Unknown.
         */
         ErrorSevUnknown = 0,
@@ -886,7 +888,7 @@ extern "C"
             Unknown.
         */
         ErrorProbCauseUnknown = 0,
-        /**
+        /** 
             Other cause.
         */
         ErrorProbCauseOther = 1,
@@ -1404,7 +1406,7 @@ extern "C"
         Unexpected_Information = 130
     } CMPIErrorProbableCause;
 
-/**
+/** 
     Possible values an Error object can have for the error src format.
 */
     typedef enum _CMPIErrorSrcFormat

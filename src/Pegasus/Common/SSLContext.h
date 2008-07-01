@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -204,6 +206,7 @@ public:
     /** OpenSSL error code X509_V_ERR_APPLICATION_VERIFICATION. */
     static const int V_ERR_APPLICATION_VERIFICATION;
 
+
     /** Constructor for an SSLCertificateInfo object.
         Note: Do not use this constructor, instead use the private constructor.
         The constructor is not for client applications use, it is intended to be
@@ -299,13 +302,6 @@ public:
     */
     String toString() const;
 
-    /** Returns the peer certificate in PEM form.
-        @return a string containing the certificate
-    */
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    const String &getPeerCertificate() const;
-#endif
-
 private:
 
     /** Constructor for an SSLCertificateInfo object.
@@ -365,15 +361,15 @@ public:
         @param randomFile  file path of a random file that may be used as a seed
         for random number generation by OpenSSL.
 
-        NOTE:
+        NOTE: 
         For platforms that support /dev/random(urandom), the /dev/random
-        files will be used to seed OpenSSL.  The specified random file
-        may be used as a fallback when /dev/random(urandom) is unavailable
-        or fails.  Using /dev/random to seed OpenSSL is more secure than using
+        files will be used to seed OpenSSL.  The specified random file 
+        may be used as a fallback when /dev/random(urandom) is unavailable 
+        or fails.  Using /dev/random to seed OpenSSL is more secure than using 
         a random file.
 
         An empty random file string indicates that a random file should not
-        be used. If sufficient randomness is not achieved using /dev/random
+        be used. If sufficient randomness is not achieved using /dev/random 
         and/or a random file, an SSLException is thrown.
 
         @exception SSLException indicates failure to create an SSL context.
@@ -420,13 +416,6 @@ public:
     */
     X509_STORE* getCRLStore() const;
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** Gets the cipher suite of the SSLContext object.
-        @return a string containing the cipher suite
-    */
-    String getCipherSuite() const;
-#endif
-
     /** Returns whether peer verification is ON of OFF
         Corresponds to what the SSL_CTX_set_verify is set to
         @return true if verification is on; false otherwise
@@ -459,15 +448,15 @@ public:
         @param randomFile  file path of a random file that may be used as a seed
         for random number generation by OpenSSL.
 
-        NOTE:
+        NOTE: 
         For platforms that support /dev/random(urandom), the /dev/random
-        files will be used to seed OpenSSL.  The specified random file
-        may be used as a fallback when /dev/random(urandom) is unavailable
-        or fails.  Using /dev/random to seed OpenSSL is more secure than using
+        files will be used to seed OpenSSL.  The specified random file 
+        may be used as a fallback when /dev/random(urandom) is unavailable 
+        or fails.  Using /dev/random to seed OpenSSL is more secure than using 
         a random file.
 
         An empty random file string indicates that a random file should not
-        be used. If sufficient randomness is not achieved using /dev/random
+        be used. If sufficient randomness is not achieved using /dev/random 
         and/or a random file, an SSLException is thrown.
 
         @exception SSLException indicates failure to create an SSL context.
@@ -492,15 +481,15 @@ public:
         @param randomFile  file path of a random file that may be used as a seed
         for random number generation by OpenSSL.
 
-        NOTE:
+        NOTE: 
         For platforms that support /dev/random(urandom), the /dev/random
-        files will be used to seed OpenSSL.  The specified random file
-        may be used as a fallback when /dev/random(urandom) is unavailable
-        or fails.  Using /dev/random to seed OpenSSL is more secure than using
+        files will be used to seed OpenSSL.  The specified random file 
+        may be used as a fallback when /dev/random(urandom) is unavailable 
+        or fails.  Using /dev/random to seed OpenSSL is more secure than using 
         a random file.
 
         An empty random file string indicates that a random file should not
-        be used. If sufficient randomness is not achieved using /dev/random
+        be used. If sufficient randomness is not achieved using /dev/random 
         and/or a random file, an SSLException is thrown.
 
         @exception SSLException indicates failure to create an SSL context.
@@ -512,49 +501,6 @@ public:
         const String& crlPath,
         SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile);
-
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** Constructor for an SSLContext object. This constructor is intended
-        to be used by the CIMServer or CIMClient.
-        @param trustStore file path of the trust store.
-        @param certPath  file path of the server certificate.
-        @param keyPath  file path of the private key.
-        @param crlPath file path of the certificate revocation list.
-        @param verifyCert  function pointer to a certificate verification
-        call back function.  A null pointer indicates that no callback is
-        requested for certificate verification.
-        @param randomFile  file path of a random file that may be used as a seed
-        for random number generation by OpenSSL.
-        @param cipherSuite cipher list
-        @param sslCompatibility  a false value of sslCompatibility 
-        will support only TLS1.2 and true will support SSLv3 and TLSv1 
-
-
-        NOTE:
-        For platforms that support /dev/random(urandom), the /dev/random
-        files will be used to seed OpenSSL.  The specified random file
-        may be used as a fallback when /dev/random(urandom) is unavailable
-        or fails.  Using /dev/random to seed OpenSSL is more secure than using
-        a random file.
-
-        An empty random file string indicates that a random file should not
-        be used. If sufficient randomness is not achieved using /dev/random
-        and/or a random file, an SSLException is thrown.
-
-        @exception SSLException indicates failure to create an SSL context.
-    */
-    SSLContext(
-        const String& trustStore,
-        const String& certPath,
-        const String& keyPath,
-        const String& crlPath,
-        SSLCertificateVerifyFunction* verifyCert,
-        const String& randomFile,
-        const String& cipherSuite,
-        const Boolean & sslCompatibility = false);
-
-
-#endif
 
 #ifdef PEGASUS_USE_DEPRECATED_INTERFACES
     /** Constructor for an SSLContextRep object.

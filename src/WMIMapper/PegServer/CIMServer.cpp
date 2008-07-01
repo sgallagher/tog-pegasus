@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//=============================================================================
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +44,7 @@
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/Signal.h>
-#include <Pegasus/General/SSLContextManager.h>
+#include <Pegasus/Common/SSLContextManager.h>
 
 #include <Pegasus/Repository/CIMRepository.h>
 //#include "ProviderMessageFacade.h"
@@ -143,9 +145,9 @@ void CIMServer::_init()
      //
      _sslContextMgr = new SSLContextManager();
 
-    _cimOperationRequestDispatcher =
+    _cimOperationRequestDispatcher = 
         new CIMOperationRequestDispatcher;
-
+    
     _cimOperationResponseEncoder
         = new CIMOperationResponseEncoder;
 
@@ -191,7 +193,7 @@ void CIMServer::_init()
 
     _httpAuthenticatorDelegator = new HTTPAuthenticatorDelegator(
         _cimOperationRequestDecoder->getQueueId(),
-        _cimExportRequestDecoder->getQueueId(),
+        _cimExportRequestDecoder->getQueueId(), 
         _repository);
 
     // IMPORTANT-NU-20020513: Indication service must start after ExportService
@@ -221,104 +223,104 @@ CIMServer::~CIMServer()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::~CIMServer()");
 
-    // Start deleting the objects.
-     for (Uint32 i = 0, n = _acceptors.size (); i < n; i++)
-       {
-         HTTPAcceptor *p = _acceptors[i];
-         delete p;
-       }
-     // The order is very important.
-
-     // 13
-     /*if (_indicationService)
-       {
-         delete _indicationService;
+    // Start deleting the objects. 
+     for (Uint32 i = 0, n = _acceptors.size (); i < n; i++) 
+       { 
+         HTTPAcceptor *p = _acceptors[i]; 
+         delete p; 
+       } 
+     // The order is very important. 
+    
+     // 13 
+     /*if (_indicationService) 
+       { 
+         delete _indicationService; 
        } */
-
-     // 12
-     // HTTPAuthenticationDelegaor depends on
-     // CIMRepository, CIMOperationRequestDecode and
-     // CIMExportRequestDecoder
-     if (_httpAuthenticatorDelegator)
-       {
-         delete _httpAuthenticatorDelegator;
-       }
-     // 11
-     if (_cimExportRequestDecoder)
-       {
-         delete _cimExportRequestDecoder;
-       }
-     // 10
-     if (_cimExportResponseEncoder)
-       {
-         delete _cimExportResponseEncoder;
-       }
-     // 9
-     if (_cimExportRequestDispatcher)
-       {
-         delete _cimExportRequestDispatcher;
-       }
-     // 8
-     // CIMOperationRequestDecoder depends on CIMOperationRequestAuthorizer
-     // and CIMOperationResponseEncoder
-     if (_cimOperationRequestDecoder)
-       {
-         delete _cimOperationRequestDecoder;
-       }
-     // 7
-     if (_cimOperationResponseEncoder)
-       {
-         delete _cimOperationResponseEncoder;
-       }
-     // BinaryMessageHandler depends on CIMOperationRequestDispatcher
-     /*if (_binaryMessageHandler)    //6
-       {
-         delete _binaryMessageHandler;
+    
+     // 12 
+     // HTTPAuthenticationDelegaor depends on 
+     // CIMRepository, CIMOperationRequestDecode and 
+     // CIMExportRequestDecoder 
+     if (_httpAuthenticatorDelegator) 
+       { 
+         delete _httpAuthenticatorDelegator; 
+       } 
+     // 11 
+     if (_cimExportRequestDecoder) 
+       { 
+         delete _cimExportRequestDecoder; 
+       } 
+     // 10 
+     if (_cimExportResponseEncoder) 
+       { 
+         delete _cimExportResponseEncoder; 
+       } 
+     // 9 
+     if (_cimExportRequestDispatcher) 
+       { 
+         delete _cimExportRequestDispatcher; 
+       } 
+     // 8 
+     // CIMOperationRequestDecoder depends on CIMOperationRequestAuthorizer 
+     // and CIMOperationResponseEncoder 
+     if (_cimOperationRequestDecoder) 
+       { 
+         delete _cimOperationRequestDecoder; 
+       } 
+     // 7 
+     if (_cimOperationResponseEncoder) 
+       { 
+         delete _cimOperationResponseEncoder; 
+       } 
+     // BinaryMessageHandler depends on CIMOperationRequestDispatcher 
+     /*if (_binaryMessageHandler)    //6 
+       { 
+         delete _binaryMessageHandler; 
        } */
-     // CIMOperationRequestAuthorizer depends on
-     // CIMOperationRequestDispatcher
-     if (_cimOperationRequestAuthorizer)
-       {
-         delete _cimOperationRequestAuthorizer;
-       }
-     // IndicationHandlerService , 3. It uses CIMOperationRequestDispatcher
-     /*if (_handlerService)
-       {
-         delete _handlerService;
+     // CIMOperationRequestAuthorizer depends on 
+     // CIMOperationRequestDispatcher 
+     if (_cimOperationRequestAuthorizer) 
+       { 
+         delete _cimOperationRequestAuthorizer; 
+       } 
+     // IndicationHandlerService , 3. It uses CIMOperationRequestDispatcher 
+     /*if (_handlerService) 
+       { 
+         delete _handlerService; 
        } */
-     // CIMOperationRequestDispatcher depends on
-     // CIMRepository and ProviderRegistrationManager
-     if (_cimOperationRequestDispatcher)
-       {
-         // Keeps an internal list of control providers. Must
-         // delete this before ModuleController.
-         delete _cimOperationRequestDispatcher;
-       }
-
-     // The SSL control providers used the SSL context manager.
-     if (_sslContextMgr)
-       {
-         delete _sslContextMgr;
-         _sslContextMgr = 0;
-       }
-     // ConfigManager. Really weird way of doing it.
-     ConfigManager *configManager = ConfigManager::getInstance ();
-     if (configManager)
-       {
-         // Refer to Bug #3537. It will soon have a fix.
-         //delete configManager;
-       }
-     UserManager *userManager = UserManager::getInstance (_repository);
-     if (userManager)
-       {
-         // Bug #3537 will soon fix this
-         //delete userManager;
-       }
-     // Lastly the repository.
-     if (_repository)
-       {
-         delete _repository;
-       }
+     // CIMOperationRequestDispatcher depends on 
+     // CIMRepository and ProviderRegistrationManager 
+     if (_cimOperationRequestDispatcher) 
+       { 
+         // Keeps an internal list of control providers. Must 
+         // delete this before ModuleController. 
+         delete _cimOperationRequestDispatcher; 
+       } 
+     
+     // The SSL control providers used the SSL context manager. 
+     if (_sslContextMgr) 
+       { 
+         delete _sslContextMgr; 
+         _sslContextMgr = 0; 
+       } 
+     // ConfigManager. Really weird way of doing it. 
+     ConfigManager *configManager = ConfigManager::getInstance (); 
+     if (configManager) 
+       { 
+         // Refer to Bug #3537. It will soon have a fix. 
+         //delete configManager; 
+       } 
+     UserManager *userManager = UserManager::getInstance (_repository); 
+     if (userManager) 
+       { 
+         // Bug #3537 will soon fix this 
+         //delete userManager; 
+       } 
+     // Lastly the repository. 
+     if (_repository) 
+       { 
+         delete _repository; 
+       } 
 
     PEG_METHOD_EXIT();
 }
@@ -337,9 +339,9 @@ void CIMServer::addAcceptor(
           portNumber,
           useSSL ? _getSSLContext() : 0,
           useSSL ? _sslContextMgr->getSSLContextObjectLock() : 0 );
-
+    
     ConfigManager* configManager = ConfigManager::getInstance();
-    String socketWriteConfigTimeout =
+    String socketWriteConfigTimeout = 
         configManager->getCurrentValue("socketWriteTimeout");
     // Set timeout value for server socket timeouts
     // depending on config option
@@ -349,8 +351,8 @@ void CIMServer::addAcceptor(
     if (socketWriteTimeout == 0)
         socketWriteTimeout = PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS;
     acceptor->setSocketWriteTimeout(socketWriteTimeout);
-
-    _acceptors.append(acceptor);
+    
+    _acceptors.append(acceptor);  
 }
 
 void CIMServer::bind()
@@ -370,26 +372,26 @@ void CIMServer::bind()
     {
         _acceptors[i]->bind();
     }
-
+    
     PEG_METHOD_EXIT();
 }
 
 void CIMServer::runForever()
-{
+{ 
     struct timeval now;
-
+ 
     // Note: Trace code in this method will be invoked frequently.
     if(!_dieNow)
-      {
+      {    
           _monitor->run(500000);
 
         static struct timeval lastIdleCleanupTime = {0, 0};
         Time::gettimeofday(&now);
-
+      
         if (now.tv_sec - lastIdleCleanupTime.tv_sec > 300)
         {
             lastIdleCleanupTime.tv_sec = now.tv_sec;
-
+       
             try
             {
                 //_providerManager->unloadIdleProviders();
@@ -399,7 +401,7 @@ void CIMServer::runForever()
             {
             }
         }
-
+        
         if (handleShutdownSignal)
         {
             shutdown();
@@ -410,7 +412,7 @@ void CIMServer::runForever()
             // stopClientConnection.
             handleShutdownSignal = false;
         }
-    }
+    }  
 }
 
 
@@ -422,11 +424,11 @@ void CIMServer::stopClientConnection()
     _monitor->stopListeningForConnections(false);
 
     //
-    // Wait 150 milliseconds to allow time for the Monitor to stop
-    // listening for client connections.
+    // Wait 150 milliseconds to allow time for the Monitor to stop 
+    // listening for client connections.  
     //
     // This wait time is the timeout value for the select() call
-    // in the Monitor's run() method (currently set to 100
+    // in the Monitor's run() method (currently set to 100 
     // milliseconds) plus a delta of 50 milliseconds.  The reason
     // for the wait here is to make sure that the Monitor entries
     // are updated before closing the connection sockets.
@@ -439,7 +441,7 @@ void CIMServer::stopClientConnection()
     {
         _acceptors[i]->closeConnectionSocket();
     }
-
+    
     PEG_METHOD_EXIT();
 }
 
@@ -517,7 +519,7 @@ Uint32 CIMServer::getOutstandingRequestCount()
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::getOutstandingRequestCount()");
 
     Uint32 requestCount = 0;
-
+    
     for (Uint32 i=0; i<_acceptors.size(); i++)
     {
         requestCount += _acceptors[i]->getOutstandingRequestCount();
@@ -578,8 +580,8 @@ SSLContext* CIMServer::_getSSLContext()
         trustStore = ConfigManager::getHomedPath(trustStore);
     }
 
-    PEG_TRACE((TRC_SERVER, Tracer::LEVEL4,"Server trust store name: %s",
-        (const char*)trustStore.getCString()));
+    PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL4,
+        "Server trust store name: " + trustStore);
 
     //
     // Get the sslTrustStoreUserName property from the Config Manager.

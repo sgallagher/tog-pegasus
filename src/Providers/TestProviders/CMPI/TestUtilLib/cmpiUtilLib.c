@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -199,8 +201,8 @@ int _CMSameValue( CMPIData value1, CMPIData value2 )
         case CMPI_string: {
                 if (CMIsNullObject(v1.string) || CMIsNullObject(v2.string))
                     return 0;
-                return(0 == strcmp(CMGetCharsPtr(v1.string,NULL),
-                                   CMGetCharsPtr(v2.string,NULL)));
+                return(0 == strcmp(CMGetCharPtr(v1.string), 
+                                   CMGetCharPtr(v2.string)));
             }
         case CMPI_dateTime: {
                 /* Compare dateTime's using their binary representation */
@@ -217,9 +219,9 @@ int _CMSameValue( CMPIData value1, CMPIData value2 )
             return(v1.boolean == v2.boolean);
         case CMPI_char16:
             return(v1.char16 == v2.char16);
-        case CMPI_uint8:
+        case CMPI_uint8:    
             return(v1.uint8 == v2.uint8);
-        case CMPI_sint8:
+        case CMPI_sint8:    
             return(v1.sint8 == v2.sint8);
         case CMPI_uint16:
             return(v1.uint16 == v2.uint16);
@@ -238,7 +240,7 @@ int _CMSameValue( CMPIData value1, CMPIData value2 )
         case CMPI_real64:
             return(v1.real64 == v2.real64);
     }
-    return 0;
+    return 0; 
 }
 
 
@@ -246,7 +248,7 @@ int _CMSameValue( CMPIData value1, CMPIData value2 )
 
 
 /* Compare two CIM object paths to see if they are identical */
-int _CMSameObject(const CMPIObjectPath * object1,
+int _CMSameObject(const CMPIObjectPath * object1, 
                   const CMPIObjectPath * object2 )
 {
     /* Return status of CIM operations */
@@ -259,17 +261,13 @@ int _CMSameObject(const CMPIObjectPath * object1,
 
     /* Check if the two object paths have the same namespace */
     namespace1 = CMGetNameSpace(object1, &status);
-    if ((status.rc != CMPI_RC_OK) || CMIsNullObject(namespace1))
+    if ((status.rc != CMPI_RC_OK) || CMIsNullObject(namespace1)) 
         return 0;
     namespace2 = CMGetNameSpace(object2, &status);
     if ((status.rc != CMPI_RC_OK) || CMIsNullObject(namespace2))
         return 0;
-    if (strcmp(
-        CMGetCharsPtr(namespace1,NULL),
-        CMGetCharsPtr(namespace2,NULL)) != 0)
-    {
+    if (strcmp(CMGetCharPtr(namespace1), CMGetCharPtr(namespace2)) != 0)
         return 0;
-    }
 
     /* Check if the two object paths have the same class */
     classname1 = CMGetClassName(object1, &status);
@@ -278,12 +276,9 @@ int _CMSameObject(const CMPIObjectPath * object1,
     classname2 = CMGetClassName(object2, &status);
     if ((status.rc != CMPI_RC_OK) || CMIsNullObject(classname2))
         return 0;
-    if (strcmp(
-        CMGetCharsPtr(classname1,NULL),
-        CMGetCharsPtr(classname2,NULL)) != 0)
-    {
+    if (strcmp(CMGetCharPtr(classname1), CMGetCharPtr(classname2)) != 0)
         return 0;
-    }
+
     /* Check if the two object paths have the same number of keys */
     numkeys1 = CMGetKeyCount(object1, &status);
     if (status.rc != CMPI_RC_OK) return 0;
@@ -299,12 +294,12 @@ int _CMSameObject(const CMPIObjectPath * object1,
         key1 = CMGetKeyAt(object1, i, &keyname, &status);
         if ((status.rc != CMPI_RC_OK) || CMIsNullObject(keyname))
             return 0;
-        key2 = CMGetKey(object2, CMGetCharsPtr(keyname,NULL), &status);
+        key2 = CMGetKey(object2, CMGetCharPtr(keyname), &status);
         if (status.rc != CMPI_RC_OK) return 0;
 
         /* Check if both keys are not nullValue and have the same value */
-        if (CMIsNullValue(key1) ||
-            CMIsNullValue(key2) ||
+        if (CMIsNullValue(key1) || 
+            CMIsNullValue(key2) || 
             !_CMSameValue(key1,key2))
         {
             return 0;
@@ -320,7 +315,7 @@ int _CMSameObject(const CMPIObjectPath * object1,
 
 
 /* Compare two CIM instances to see if they are identical */
-int _CMSameInstance( const CMPIInstance * instance1,
+int _CMSameInstance( const CMPIInstance * instance1, 
                      const CMPIInstance * instance2 )
 {
     /* Return status of CIM operations */
@@ -332,12 +327,12 @@ int _CMSameInstance( const CMPIInstance * instance1,
 
     /* Check that the two instances have the same object path */
     objectpath1 = CMGetObjectPath(instance1, &status);
-    if ((status.rc != CMPI_RC_OK) || CMIsNullObject(objectpath1))
+    if ((status.rc != CMPI_RC_OK) || CMIsNullObject(objectpath1)) 
         return 0;
     objectpath2 = CMGetObjectPath(instance2, &status);
-    if ((status.rc != CMPI_RC_OK) || CMIsNullObject(objectpath2))
+    if ((status.rc != CMPI_RC_OK) || CMIsNullObject(objectpath2)) 
         return 0;
-    if (!_CMSameObject(objectpath1, objectpath2))
+    if (!_CMSameObject(objectpath1, objectpath2)) 
         return 0;
 
     /* Check if the two instances have the same number of properties */
@@ -355,16 +350,16 @@ int _CMSameInstance( const CMPIInstance * instance1,
         property1 = CMGetPropertyAt(instance1, i, &propertyname, &status);
         if ((status.rc != CMPI_RC_OK) || CMIsNullObject(propertyname))
             return 0;
-        property2 = CMGetProperty(instance2,
-                                  CMGetCharsPtr(propertyname,NULL),
+        property2 = CMGetProperty(instance2, 
+                                  CMGetCharPtr(propertyname), 
                                   &status);
 
         if (status.rc != CMPI_RC_OK) return 0;
 
         /* Check if both properties are not nullValue */
         /* and have the same value */
-        if (CMIsNullValue(property1) ||
-            CMIsNullValue(property2) ||
+        if (CMIsNullValue(property1) || 
+            CMIsNullValue(property2) || 
             !_CMSameValue(property1,property2))
         {
                 return 0;
@@ -384,53 +379,52 @@ const char * _CMPIrcName ( CMPIrc rc )
 {
     switch (rc)
     {
-        case CMPI_RC_OK:
+        case CMPI_RC_OK:                               
             return "CMPI_RC_OK";
-        case CMPI_RC_ERR_FAILED:
+        case CMPI_RC_ERR_FAILED:                       
             return "CMPI_RC_ERR_FAILED";
-        case CMPI_RC_ERR_ACCESS_DENIED:
+        case CMPI_RC_ERR_ACCESS_DENIED:                
             return "CMPI_RC_ERR_ACCESS_DENIED";
-        case CMPI_RC_ERR_INVALID_NAMESPACE:
+        case CMPI_RC_ERR_INVALID_NAMESPACE:            
             return "CMPI_RC_ERR_INVALID_NAMESPACE";
-        case CMPI_RC_ERR_INVALID_PARAMETER:
+        case CMPI_RC_ERR_INVALID_PARAMETER:            
             return "CMPI_RC_ERR_INVALID_PARAMETER";
-        case CMPI_RC_ERR_INVALID_CLASS:
+        case CMPI_RC_ERR_INVALID_CLASS:                
             return "CMPI_RC_ERR_INVALID_CLASS";
-        case CMPI_RC_ERR_NOT_FOUND:
+        case CMPI_RC_ERR_NOT_FOUND:                            
             return "CMPI_RC_ERR_NOT_FOUND";
-        case CMPI_RC_ERR_NOT_SUPPORTED:
+        case CMPI_RC_ERR_NOT_SUPPORTED:                        
             return "CMPI_RC_ERR_NOT_SUPPORTED";
-        case CMPI_RC_ERR_CLASS_HAS_CHILDREN:
+        case CMPI_RC_ERR_CLASS_HAS_CHILDREN:                   
             return "CMPI_RC_ERR_CLASS_HAS_CHILDREN";
-        case CMPI_RC_ERR_CLASS_HAS_INSTANCES:
+        case CMPI_RC_ERR_CLASS_HAS_INSTANCES:                  
             return "CMPI_RC_ERR_CLASS_HAS_INSTANCES";
-        case CMPI_RC_ERR_INVALID_SUPERCLASS:
+        case CMPI_RC_ERR_INVALID_SUPERCLASS:                   
             return "CMPI_RC_ERR_INVALID_SUPERCLASS";
-        case CMPI_RC_ERR_ALREADY_EXISTS:
+        case CMPI_RC_ERR_ALREADY_EXISTS:               
             return "CMPI_RC_ERR_ALREADY_EXISTS";
-        case CMPI_RC_ERR_NO_SUCH_PROPERTY:
+        case CMPI_RC_ERR_NO_SUCH_PROPERTY:             
             return "CMPI_RC_ERR_NO_SUCH_PROPERTY";
-        case CMPI_RC_ERR_TYPE_MISMATCH:
+        case CMPI_RC_ERR_TYPE_MISMATCH:                
             return "CMPI_RC_ERR_TYPE_MISMATCH";
-        case CMPI_RC_ERR_QUERY_LANGUAGE_NOT_SUPPORTED:
+        case CMPI_RC_ERR_QUERY_LANGUAGE_NOT_SUPPORTED: 
             return "CMPI_RC_ERR_QUERY_LANGUAGE_NOT_SUPPORTED";
-        case CMPI_RC_ERR_INVALID_QUERY:
+        case CMPI_RC_ERR_INVALID_QUERY:                
             return "CMPI_RC_ERR_INVALID_QUERY";
-        case CMPI_RC_ERR_METHOD_NOT_AVAILABLE:
+        case CMPI_RC_ERR_METHOD_NOT_AVAILABLE:         
             return "CMPI_RC_ERR_METHOD_NOT_AVAILABLE";
-        case CMPI_RC_ERR_METHOD_NOT_FOUND:
+        case CMPI_RC_ERR_METHOD_NOT_FOUND:             
             return "CMPI_RC_ERR_METHOD_NOT_FOUND";
-        case CMPI_RC_NO_MORE_ELEMENTS:
+        case CMPI_RC_NO_MORE_ELEMENTS:                 
             return "CMPI_RC_NO_MORE_ELEMENTS";
-        case CMPI_RC_ERR_INVALID_HANDLE:
+        case CMPI_RC_ERR_INVALID_HANDLE:               
             return "CMPI_RC_ERR_INVALID_HANDLE";
-        case CMPI_RC_ERROR_SYSTEM:
+        case CMPI_RC_ERROR_SYSTEM:                     
             return "CMPI_RC_ERROR_SYSTEM";
-        case CMPI_RC_ERROR:
+        case CMPI_RC_ERROR:                            
             return "CMPI_RC_ERROR";
-        case CMPI_RC_ERR_INVALID_DATA_TYPE:
-            return "CMPI_RC_ERR_INVALID_DATA_TYPE";
-        default:
+
+        default: 
             return "Unknown";
     }
 }
@@ -444,59 +438,59 @@ const char * _CMPITypeName (CMPIType type)
 {
     switch (type)
     {
-        case CMPI_null:
+        case CMPI_null:            
             return "CMPI_null";
-        case CMPI_boolean:
+        case CMPI_boolean:         
             return "CMPI_boolean";
-        case CMPI_char16:
+        case CMPI_char16:          
             return "CMPI_char16";
-        case CMPI_real32:
+        case CMPI_real32:          
             return "CMPI_real32";
-        case CMPI_real64:
+        case CMPI_real64:          
             return "CMPI_real64";
-        case CMPI_uint8:
+        case CMPI_uint8:           
             return "CMPI_uint8";
-        case CMPI_uint16:
+        case CMPI_uint16:          
             return "CMPI_uint16";
-        case CMPI_uint32:
+        case CMPI_uint32:          
             return "CMPI_uint32";
-        case CMPI_uint64:
+        case CMPI_uint64:          
             return "CMPI_uint64";
-        case CMPI_sint8:
+        case CMPI_sint8:           
             return "CMPI_sint8";
-        case CMPI_sint16:
+        case CMPI_sint16:          
             return "CMPI_sint16";
-        case CMPI_sint32:
+        case CMPI_sint32:          
             return "CMPI_sint32";
-        case CMPI_sint64:
+        case CMPI_sint64:          
             return "CMPI_sint64";
-        case CMPI_instance:
+        case CMPI_instance:        
             return "CMPI_instance";
-        case CMPI_ref:
+        case CMPI_ref:             
             return "CMPI_ref";
-        case CMPI_args:
+        case CMPI_args:            
             return "CMPI_args";
-        case CMPI_class:
+        case CMPI_class:           
             return "CMPI_class";
-        case CMPI_filter:
+        case CMPI_filter:          
             return "CMPI_filter";
-        case CMPI_enumeration:
+        case CMPI_enumeration:     
             return "CMPI_enumeration";
-        case CMPI_string:
+        case CMPI_string:          
             return "CMPI_string";
-        case CMPI_chars:
+        case CMPI_chars:           
             return "CMPI_chars";
-        case CMPI_dateTime:
+        case CMPI_dateTime:        
             return "CMPI_dateTime";
-        case CMPI_ptr:
+        case CMPI_ptr:             
             return "CMPI_ptr";
-        case CMPI_charsptr:
+        case CMPI_charsptr:        
             return "CMPI_charsptr";
-        case CMPI_ARRAY:
+        case CMPI_ARRAY:           
             return "CMPI_ARRAY";
 
-        default:
-            return "Unknown";
+        default: 
+            return "Unknown"; 
     }
 }
 
@@ -548,18 +542,18 @@ char * _CMPIValueToString (CMPIData data)
         case CMPI_sint64:
             valuestring = malloc(100*sizeof(char));
             sprintf(valuestring,
-                    "%" PEGASUS_64BIT_CONVERSION_WIDTH "d",
+                    "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", 
                     data.value.sint64);
             return valuestring;
         case CMPI_uint64:
             valuestring = malloc(100*sizeof(char));
-            sprintf(valuestring,
-                    "%" PEGASUS_64BIT_CONVERSION_WIDTH "u",
+            sprintf(valuestring, 
+                    "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", 
                     data.value.uint64);
             return valuestring;
         case CMPI_string: {
                 if (CMIsNullObject(data.value.string)) return NULL;
-                str = CMGetCharsPtr(data.value.string,NULL);
+                str = CMGetCharPtr(data.value.string);
                 if (str == NULL) return NULL;
                 valuestring = strdup(str);
                 return valuestring;
@@ -580,9 +574,9 @@ char * _CMPIValueToString (CMPIData data)
                 CMPIStatus status = {CMPI_RC_OK, NULL};
                 if (CMIsNullObject(data.value.dateTime)) return NULL;
                 datetimestr = CMGetStringFormat(data.value.dateTime, &status);
-                if ((status.rc != CMPI_RC_OK) || CMIsNullObject(datetimestr))
+                if ((status.rc != CMPI_RC_OK) || CMIsNullObject(datetimestr)) 
                     return NULL;
-                valuestring = strdup(CMGetCharsPtr(datetimestr,NULL));
+                valuestring = strdup(CMGetCharPtr(datetimestr));
                 return valuestring;
             }
 
@@ -601,8 +595,8 @@ void check_CMPIStatus (CMPIStatus rc)
 }
 
 
-CMPIBoolean evalute_selectcond (const CMPISelectCond * cond,
-                                CMPIAccessor *accessor,
+CMPIBoolean evalute_selectcond (const CMPISelectCond * cond, 
+                                CMPIAccessor *accessor, 
                                 void *parm)
 {
     CMPIStatus rc_String = { CMPI_RC_OK, NULL};

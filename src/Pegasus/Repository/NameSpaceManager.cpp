@@ -1,42 +1,191 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/String.h>
 #include <Pegasus/Common/HashTable.h>
+#include <Pegasus/Common/Dir.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/MessageLoader.h>
-#include <Pegasus/Common/Pair.h>
+#include <Pegasus/Common/CommonUTF.h>
 #include "InstanceIndexFile.h"
 #include "NameSpaceManager.h"
 
 PEGASUS_NAMESPACE_BEGIN
+
+static char _CLASSES_DIR[] = "classes";
+static char _INSTANCES_DIR[] = "instances";
+static char _QUALIFIERS_DIR[] = "qualifiers";
+
+static char _CLASSES_SUFFIX[] = "/classes";
+static char _INSTANCES_SUFFIX[] = "/instances";
+static char _QUALIFIERS_SUFFIX[] = "/qualifiers";
+static char _ASSOCIATIONS_SUFFIX[] = "/associations";
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// _namespaceNameToDirName()
+//
+////////////////////////////////////////////////////////////////////////////////
+
+static String _namespaceNameToDirName(const CIMNamespaceName& namespaceName)
+{
+    String dirName = namespaceName.getString();
+
+    for (Uint32 i=0; i<dirName.size(); i++)
+    {
+        if (dirName[i] == '/')
+        {
+            dirName[i] = '#';
+        }
+    }
+#ifdef PEGASUS_REPOSITORY_ESCAPE_UTF8
+    // All chars above 0x7F will be escape.
+    return escapeStringEncoder(dirName);
+#else
+    return dirName;
+#endif
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// _dirNameToNamespaceName()
+//
+////////////////////////////////////////////////////////////////////////////////
+
+static String _dirNameToNamespaceName(const String& dirName)
+{
+    String namespaceName = dirName;
+
+    for (Uint32 i=0; i<namespaceName.size(); i++)
+    {
+        if (namespaceName[i] == '#')
+        {
+            namespaceName[i] = '/';
+        }
+    }
+#ifdef PEGASUS_REPOSITORY_ESCAPE_UTF8
+    // All chars above 0x7F will be escape.
+    return escapeStringDecoder(namespaceName);
+#else
+    return namespaceName;
+#endif
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// _MakeClassFilePath()
+//
+////////////////////////////////////////////////////////////////////////////////
+
+static inline String _MakeClassFilePath(
+    const String& nameSpacePath,
+    const CIMName& className,
+    const CIMName& superClassName)
+{
+    String returnString;
+    if (!superClassName.isNull())
+    {
+        returnString.assign(nameSpacePath);
+        returnString.append(_CLASSES_SUFFIX);
+        returnString.append('/');
+        returnString.append(className.getString());
+        returnString.append('.');
+        returnString.append(superClassName.getString());
+    }
+    else
+    {
+        returnString.assign(nameSpacePath);
+        returnString.append(_CLASSES_SUFFIX);
+        returnString.append('/');
+        returnString.append(className.getString());
+        returnString.append(".#");
+    }
+#ifdef PEGASUS_REPOSITORY_ESCAPE_UTF8
+    // All chars above 0x7F will be escape.
+    return escapeStringEncoder(returnString);
+#else
+    return returnString;
+#endif
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// _MakeQualifierFilePath()
+//
+////////////////////////////////////////////////////////////////////////////////
+
+static inline String _MakeQualifierFilePath(
+    const String& nameSpacePath,
+    const CIMName& qualifierName)
+{
+    String returnString(nameSpacePath);
+    returnString.append(_QUALIFIERS_SUFFIX);
+    returnString.append('/');
+    returnString.append(qualifierName.getString());
+
+#ifdef PEGASUS_REPOSITORY_ESCAPE_UTF8
+    // All chars above 0x7F will be escape.
+    return escapeStringEncoder(returnString);
+#else
+    return returnString;
+#endif
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// _MakeInstanceDataFileBase()
+//
+////////////////////////////////////////////////////////////////////////////////
+
+static inline String _MakeInstanceDataFileBase(
+    const String& nameSpacePath,
+    const CIMName& className)
+{
+    String returnString(nameSpacePath);
+    returnString.append(_INSTANCES_SUFFIX);
+    returnString.append('/');
+    returnString.append(className.getString());
+
+#ifdef PEGASUS_REPOSITORY_ESCAPE_UTF8
+    // All chars above 0x7F will be escape.
+    return escapeStringEncoder(returnString);
+#else
+    return returnString;
+#endif
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -59,35 +208,44 @@ struct NameSpaceManagerRep
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+struct specialNameSpace;
+
 class NameSpace
 {
    friend class NameSpaceManager;
 public:
 
     NameSpace(
+        const String& nameSpacePath,
         const CIMNamespaceName& nameSpaceName,
-        Boolean shareable_,
-        Boolean updatesAllowed_,
-        NameSpace* parentNameSpace,
-        const String& remoteInfo_,
-        const Array<Pair<String, String> >& classList);
+        specialNameSpace* pns = NULL,
+        String* extDir = NULL);
 
     void modify(
-        Boolean shareable_,
-        Boolean updatesAllowed_);
-
-    void modifyName(
-        const CIMNamespaceName& newNameSpaceName);
+        Boolean shareable,
+        Boolean updatesAllowed,
+        const String& nameSpacePath);
 
     ~NameSpace();
 
-    Boolean readOnly() { return !updatesAllowed; }
+    static NameSpace* newNameSpace(
+        int index,
+        NameSpaceManager* nsm,
+        String& repositoryRoot);
+
+    Boolean readOnly() { return ro; }
     NameSpace* primaryParent();
     NameSpace* rwParent();
 
-    CIMName getSuperClassName(const CIMName& className) const;
+    const String& getNameSpacePath() const { return _nameSpacePath; }
 
     const CIMNamespaceName& getNameSpaceName() const { return _nameSpaceName; }
+
+    const String getClassFilePath(const CIMName& className) const;
+
+    const String getQualifierFilePath(const CIMName& qualifierName) const;
+
+    const String getInstanceDataFileBase(const CIMName& className) const;
 
     InheritanceTree& getInheritanceTree() { return _inheritanceTree; }
 
@@ -96,91 +254,343 @@ public:
 
 private:
 
-    /** Build an inheritance tree based on the classes and their superclasses
-        contained in the specified namespace.
-    */
-    void _buildInheritanceTree(
-        Array<Pair<String, String> > classList,
-        InheritanceTree* parentTree = NULL);
-
     InheritanceTree _inheritanceTree;
+    String _nameSpacePath;
     CIMNamespaceName _nameSpaceName;
 
     NameSpace* parent;
     NameSpace* dependent;
     NameSpace* nextDependent;
-    Boolean shareable;
-    Boolean updatesAllowed;
-    String remoteInfo;
+    Boolean ro, final;
+    String sharedDirName;
+    String remoteDirName;
 };
 
+static Array<String>* nameSpaceNames = NULL;
+static Array<specialNameSpace*>* specialNames = NULL;
+
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+struct specialNameSpace
+{
+    specialNameSpace()
+       : shared(false),
+         parentSpace(NULL),
+         remote(false)
+    {
+    }
+
+    void setShared(bool r, bool f, String p, String x)
+    {
+        shared = true;
+        ro = r;
+        final = f;
+        parentSpace = NULL;
+        parent = p;
+        sharedDirName = x;
+    }
+
+    void setShared(bool r, bool f, NameSpace* pns, String p, String x)
+    {
+        shared = true;
+        ro = r;
+        final = f;
+        parentSpace = pns;
+        parent = p;
+        sharedDirName = x;
+    }
+
+    void setRemote(String id, String host, String port, String x)
+    {
+        remote = true;
+        remId = id;
+        remHost = host;
+        remPort = port;
+        remDirName = x;
+    }
+
+    Boolean shared;
+    Boolean ro;
+    Boolean final;
+    NameSpace* parentSpace;
+    String parent;
+    String sharedDirName;
+
+    Boolean remote;
+    String remId;
+    String remHost;
+    String remPort;
+    String remDirName;
+};
+#else
+struct specialNameSpace
+{
+    specialNameSpace(bool r, bool f, String p, String x)
+        : ro(r), final(f), parentSpace(NULL), parent(p), sharedDirName(x) {}
+    specialNameSpace(bool r, bool f, NameSpace* pns, String p, String x)
+        : ro(r), final(f), parentSpace(pns), parent(p), sharedDirName(x) {}
+    Boolean ro;
+    Boolean final;
+    NameSpace* parentSpace;
+    String parent;
+    String sharedDirName;
+};
+#endif
+
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+
 NameSpace::NameSpace(
+    const String& nameSpacePath,
     const CIMNamespaceName& nameSpaceName,
-    Boolean shareable_,
-    Boolean updatesAllowed_,
-    NameSpace* parentNameSpace,
-    const String& remoteInfo_,
-    const Array<Pair<String, String> >& classList)
-    : _nameSpaceName(nameSpaceName),
-      parent(parentNameSpace),
+    specialNameSpace* pns,
+    String* extDir)
+    : _nameSpacePath(nameSpacePath),
+      _nameSpaceName(nameSpaceName),
+      parent(NULL),
       dependent(NULL),
       nextDependent(NULL),
-      shareable(shareable_),
-      updatesAllowed(updatesAllowed_),
-      remoteInfo(remoteInfo_)
+      ro(false),
+      final(false)
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpace::NameSpace");
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpace::NameSpace()");
 
-    if (!parent)
+    if (pns == NULL)
     {
-        _buildInheritanceTree(classList);
+        _inheritanceTree.insertFromPath(nameSpacePath + "/classes");
     }
     else
     {
-        if (updatesAllowed)
+        if (pns->shared)
         {
-            _buildInheritanceTree(classList, &parent->_inheritanceTree);
+            ro = pns->ro;
+            final = pns->final;
+            parent = pns->parentSpace;
+            if (parent == NULL)
+            {
+                _inheritanceTree.insertFromPath(nameSpacePath + "/classes");
+            }
+            else
+            {
+                if (!pns->ro)
+                    _inheritanceTree.insertFromPath(
+                        nameSpacePath + "/classes",
+                        &parent->_inheritanceTree,
+                        this);
+
+                NameSpace* ens = parent->primaryParent();
+                nextDependent = ens->dependent;
+                ens->dependent = this;
+            }
         }
+        else
+             _inheritanceTree.insertFromPath(nameSpacePath + "/classes");
 
-        NameSpace* ens = parent->primaryParent();
-        nextDependent = ens->dependent;
-        ens->dependent = this;
+        if (pns->remote)
+        {
+            PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+                "Remote namespace: " + nameSpacePath + " >" + pns->remDirName);
+            remoteDirName=pns->remDirName;
+        }
     }
 
-    if (remoteInfo.size())
-    {
-        PEG_TRACE((TRC_REPOSITORY, Tracer::LEVEL4,
-            "Remote namespace: %s >%s",
-            (const char*)nameSpaceName.getString().getCString(),
-            (const char*)remoteInfo.getCString()));
-    }
-
+    if (extDir)
+        sharedDirName = *extDir;
     PEG_METHOD_EXIT();
 }
+
+#else
+
+NameSpace::NameSpace(
+    const String& nameSpacePath,
+    const CIMNamespaceName& nameSpaceName,
+    specialNameSpace* pns,
+    String* extDir)
+    : _nameSpacePath(nameSpacePath),
+      _nameSpaceName(nameSpaceName),
+      parent(NULL),
+      dependent(NULL),
+      nextDependent(NULL),
+      ro(false),
+      final(false)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpace::NameSpace()");
+
+    if (pns == NULL)
+    {
+        _inheritanceTree.insertFromPath(nameSpacePath + "/classes");
+    }
+    else
+    {
+        ro=pns->ro;
+        final=pns->final;
+        parent=pns->parentSpace;
+        if (parent == NULL)
+        {
+            _inheritanceTree.insertFromPath(nameSpacePath +"/classes");
+        }
+        else
+        {
+            if (!pns->ro)
+                _inheritanceTree.insertFromPath(
+                    nameSpacePath + "/classes",
+                    &parent->_inheritanceTree,
+                    this);
+
+            NameSpace* ens=parent->primaryParent();
+            nextDependent = ens->dependent;
+            ens->dependent = this;
+        }
+    }
+
+    if (extDir)
+        sharedDirName = *extDir;
+    PEG_METHOD_EXIT();
+}
+
+#endif
 
 NameSpace::~NameSpace()
 {
 }
 
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+
+NameSpace* NameSpace::newNameSpace(
+    int index,
+    NameSpaceManager* nsm,
+    String& repositoryRoot)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpace::newNameSpace()");
+
+    AutoPtr<NameSpace> nameSpace;
+
+    String nameSpaceName = _dirNameToNamespaceName((*nameSpaceNames)[index]);
+    nameSpace.reset(nsm->lookupNameSpace(nameSpaceName));
+    if ((nameSpace.get()) != 0)
+    {
+        PEG_METHOD_EXIT();
+        return nameSpace.release();
+    }
+
+    specialNameSpace* pns = (*specialNames)[index];
+
+    if (pns && pns->shared && pns->parent.size())
+    {
+        int j = 0, m = 0;
+
+        for (m = nameSpaceNames->size(); j < m; j++)
+            if ((*nameSpaceNames)[j] == pns->parent)
+                break;
+
+        if (j >= m)
+        {
+            PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
+                "Namespace not found in parent namespace.");
+        }
+        pns->parentSpace=newNameSpace(j, nsm, repositoryRoot);
+    }
+    else if (pns)
+        pns->parentSpace = NULL;
+
+    String nameSpacePath = repositoryRoot + "/" + (*nameSpaceNames)[index];
+    nameSpace.reset(new NameSpace(nameSpacePath, nameSpaceName,pns));
+
+    nsm->_rep->table.insert(nameSpaceName, nameSpace.get());
+    PEG_METHOD_EXIT();
+    return nameSpace.release();
+}
+
+#else
+
+NameSpace* NameSpace::newNameSpace(
+    int index,
+    NameSpaceManager* nsm,
+    String& repositoryRoot)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpace::newNameSpace()");
+
+    AutoPtr<NameSpace> nameSpace;
+
+    String nameSpaceName = _dirNameToNamespaceName((*nameSpaceNames)[index]);
+    nameSpace.reset(nsm->lookupNameSpace(nameSpaceName));
+    if ((nameSpace.get()) != 0)
+    {
+        PEG_METHOD_EXIT();
+        return nameSpace.release();
+    }
+
+    specialNameSpace* pns=(*specialNames)[index];
+
+    if (pns && pns->parent.size())
+    {
+        int j = 0, m = 0;
+        for (m = nameSpaceNames->size(); j < m; j++)
+            if ((*nameSpaceNames)[j] == pns->parent)
+                break;
+        if (j >= m)
+        {
+            PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
+                "Namespace not found in parent namespace.");
+        }
+        pns->parentSpace=newNameSpace(j, nsm, repositoryRoot);
+    }
+    else if (pns)
+        pns->parentSpace = NULL;
+
+    String nameSpacePath = repositoryRoot + "/" + (*nameSpaceNames)[index];
+    nameSpace.reset(new NameSpace(nameSpacePath, nameSpaceName,pns));
+
+    nsm->_rep->table.insert(nameSpaceName, nameSpace.get());
+    PEG_METHOD_EXIT();
+    return nameSpace.release();
+}
+
+#endif
+
 void NameSpace::modify(
-    Boolean shareable_,
-    Boolean updatesAllowed_)
+    Boolean shareable,
+    Boolean updatesAllowed,
+    const String& nameSpacePath)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpace::modify()");
 
-    updatesAllowed = updatesAllowed_;
-    shareable = shareable_;
+    String newDir = sharedDirName;
+    if (newDir.size() == 0)
+        newDir = "SWF";
 
-    PEG_METHOD_EXIT();
-}
+    newDir[0] = 'S';
+    newDir[1] = updatesAllowed ? 'W' : 'R';
+    newDir[2] = shareable ? 'S' : 'F';
 
-void NameSpace::modifyName(
-    const CIMNamespaceName& newNameSpaceName)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpace::modifyName()");
+    String tmp = newDir;
+    tmp.toLower();
 
-    _nameSpaceName = newNameSpaceName;
+    if (tmp == "swf")
+    {
+        String path = nameSpacePath + "/" + sharedDirName;
+        FileSystem::removeFileNoCase(path);
+        newDir = "";
+    }
+    else if (sharedDirName != newDir)
+    {
+        String path = nameSpacePath + "/" + newDir;
+        if (!FileSystem::makeDirectory(path))
+        {
+            PEG_METHOD_EXIT();
+            throw CannotCreateDirectory(path);
+        }
+        path = nameSpacePath + "/" + sharedDirName;
+        if (sharedDirName.size())
+            if (!FileSystem::removeDirectoryHier(path))
+            {
+                PEG_METHOD_EXIT();
+                throw CannotRemoveDirectory(path);
+    }
+    }
 
+    ro = !updatesAllowed;
+    final = !shareable;
+
+    sharedDirName = newDir;
     PEG_METHOD_EXIT();
 }
 
@@ -193,46 +603,37 @@ NameSpace* NameSpace::primaryParent()
 
 NameSpace* NameSpace::rwParent()
 {
-   if (updatesAllowed)
+   if (!ro)
        return this;
    return parent->rwParent();
 }
 
-CIMName NameSpace::getSuperClassName(const CIMName& className) const
+const String NameSpace::getClassFilePath(const CIMName& className) const
 {
     CIMName superClassName;
 
     if (!_inheritanceTree.getSuperClass(className, superClassName))
-    {
         throw PEGASUS_CIM_EXCEPTION(
             CIM_ERR_NOT_FOUND, className.getString());
-    }
 
-    return superClassName;
+    return _MakeClassFilePath(_nameSpacePath, className, superClassName);
+}
+
+const String NameSpace::getQualifierFilePath(const CIMName& qualifierName) const
+{
+    return _MakeQualifierFilePath(_nameSpacePath, qualifierName);
+}
+
+const String NameSpace::getInstanceDataFileBase(const CIMName& className) const
+{
+    return _MakeInstanceDataFileBase(_nameSpacePath, className);
 }
 
 void NameSpace::print(PEGASUS_STD(ostream)& os) const
 {
     os << "=== NameSpace: " << _nameSpaceName.getString() << PEGASUS_STD(endl);
+    os << "_nameSpacePath: " << _nameSpacePath << PEGASUS_STD(endl);
     _inheritanceTree.print(os);
-}
-
-void NameSpace::_buildInheritanceTree(
-    Array<Pair<String, String> > classList,
-    InheritanceTree* parentTree)
-{
-    for (Uint32 i = 0; i < classList.size(); i++)
-    {
-        if (parentTree)
-        {
-            _inheritanceTree.insert(
-                classList[i].first, classList[i].second, *parentTree, this);
-        }
-        else
-        {
-            _inheritanceTree.insert(classList[i].first, classList[i].second);
-        }
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -241,12 +642,305 @@ void NameSpace::_buildInheritanceTree(
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-NameSpaceManager::NameSpaceManager()
+static Boolean _IsNameSpaceDir(const String& nameSpacePath)
+{
+    if (!FileSystem::isDirectory(nameSpacePath))
+        return false;
+
+    if (!FileSystem::isDirectory(nameSpacePath + _CLASSES_SUFFIX))
+        return false;
+
+    if (!FileSystem::isDirectory(nameSpacePath + _INSTANCES_SUFFIX))
+        return false;
+
+    if (!FileSystem::isDirectory(nameSpacePath + _QUALIFIERS_SUFFIX))
+        return false;
+
+    return true;
+}
+
+static String _CreateNameSpaceDirectories(
+    const String& nameSpacePath,
+    Boolean shareable,
+    Boolean updatesAllowed,
+    const String& parent)
+{
+    if (!FileSystem::makeDirectory(nameSpacePath))
+        throw CannotCreateDirectory(nameSpacePath);
+
+    String classesPath = nameSpacePath + _CLASSES_SUFFIX;
+    String instancesPath = nameSpacePath + _INSTANCES_SUFFIX;
+    String qualifiersPath = nameSpacePath + _QUALIFIERS_SUFFIX;
+
+    if (!FileSystem::makeDirectory(classesPath))
+        throw CannotCreateDirectory(classesPath);
+
+    if (!FileSystem::makeDirectory(instancesPath))
+        throw CannotCreateDirectory(instancesPath);
+
+    if (!FileSystem::makeDirectory(qualifiersPath))
+        throw CannotCreateDirectory(qualifiersPath);
+
+    String path = "";
+    if (shareable || !updatesAllowed || parent.size())
+    {
+        path = nameSpacePath + "/S" + (updatesAllowed ? "W" : "R") +
+            (shareable ? "S" : "F") + parent;
+        if (!FileSystem::makeDirectory(path))
+            throw CannotCreateDirectory(path);
+    }
+    return path;
+}
+
+static Boolean _NameSpaceDirHierIsEmpty(const String& nameSpacePath)
+{
+    for (Dir dir(nameSpacePath); dir.more(); dir.next())
+    {
+        const char* name = dir.getName();
+
+        if (strcmp(name, ".") != 0 &&
+            strcmp(name, "..") != 0 &&
+            System::strcasecmp(name, _CLASSES_DIR) != 0 &&
+            System::strcasecmp(name, _INSTANCES_DIR) != 0 &&
+            System::strcasecmp(name, _QUALIFIERS_DIR) != 0)
+        {
+            return true;
+        }
+    }
+
+    String classesPath = nameSpacePath + _CLASSES_SUFFIX;
+    String instancesPath = nameSpacePath + _INSTANCES_SUFFIX;
+    String qualifiersPath = nameSpacePath + _QUALIFIERS_SUFFIX;
+
+    return
+        FileSystem::isDirectoryEmpty(classesPath) &&
+        FileSystem::isDirectoryEmpty(instancesPath) &&
+        FileSystem::isDirectoryEmpty(qualifiersPath);
+}
+
+NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
+    : _repositoryRoot(repositoryRoot)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::NameSpaceManager()");
 
+    // Create directory if does not already exist:
+
+    if (!FileSystem::isDirectory(_repositoryRoot))
+    {
+        if (!FileSystem::makeDirectory(_repositoryRoot))
+        {
+            PEG_METHOD_EXIT();
+            throw CannotCreateDirectory(_repositoryRoot);
+        }
+
+        // Create a root namespace per ...
+        // Specification for CIM Operations over HTTP
+        // Version 1.0
+        // 2.5 Namespace Manipulation
+        //
+        // There are no intrinsic methods defined specifically for the
+        // purpose of manipulating CIM Namespaces.  However, the
+        // modelling of the a CIM Namespace using the class
+        // __Namespace, together with the requirement that that
+        // root Namespace MUST be supported by all CIM Servers,
+        // implies that all Namespace operations can be supported.
+        //
+
+        _CreateNameSpaceDirectories(
+            _repositoryRoot + "/root",
+            false,
+            true,
+            String::EMPTY);
+    }
+
     _rep = new NameSpaceManagerRep;
 
+    nameSpaceNames = new Array<String>;
+    specialNames = new Array<specialNameSpace*>;
+    String tmp;
+
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+    for (Dir dir(repositoryRoot); dir.more(); dir.next())
+    {
+        String dirName = dir.getName();
+        if (dirName == ".." || dirName == ".")
+            continue;
+        String specialName = " ";
+
+        specialNameSpace* sns = NULL;
+        for (Dir dir(repositoryRoot + "/" + dirName); dir.more(); dir.next())
+        {
+            specialName = dir.getName();
+            tmp = specialName;
+            tmp.toLower();
+            if (specialName == ".." || specialName == ".")
+                continue;
+
+            switch (tmp[0])
+            {
+                case 's':
+                {
+                    if ((tmp[1]=='w' || tmp[1]=='r') &&
+                        (tmp[2]=='f' || tmp[2]=='s'))
+                    {
+                        if (sns == NULL)
+                            sns = new specialNameSpace();
+                        sns->setShared(
+                            tmp[1] == 'r',
+                            tmp[2] == 'f',
+                            specialName.subString(3),
+                            specialName);
+                    }
+                    else
+                    {
+                        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL2,
+                            "Namespace " + dirName +
+                            " ignored - using incorrect parent namespace "
+                                "specification: " +
+                            specialName);
+                    }
+                    break;
+                }
+                case 'r':
+                {
+                    String id = tmp.subString(1, 2);
+                    Uint32 pos = specialName.find('@');
+                    String host, port;
+                    if (pos != PEG_NOT_FOUND)
+                    {
+                        host=specialName.subString(3, pos-3);
+                        port=specialName.subString(pos+1);
+                    }
+                    else
+                        host = specialName.subString(3);
+                    if (sns == NULL)
+                        sns = new specialNameSpace();
+                    sns->setRemote(id, host, port, specialName);
+                    PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+                        "Remote namespace: " + dirName + " >" + specialName);
+                    break;
+                }
+            }
+        }
+
+        if (sns == NULL)
+        {
+            nameSpaceNames->prepend(dirName);
+            specialNames->prepend(NULL);
+        }
+        else
+        {
+            nameSpaceNames->append(dirName);
+            specialNames->append(sns);
+        }
+     }
+
+#else
+
+    for (Dir dir(repositoryRoot); dir.more(); dir.next())
+    {
+        String dirName = dir.getName();
+        if (dirName == ".." || dirName == ".")
+            continue;
+        String specialName = " ";
+
+        for (Dir dir(repositoryRoot+"/"+dirName); dir.more(); dir.next())
+        {
+            specialName = dir.getName();
+            tmp = specialName;
+            tmp.toLower();
+            if (specialName == ".." || specialName == ".")
+                continue;
+            if (tmp[0]=='s')
+                break;
+        }
+
+        if (tmp[0] == 's')
+        {
+            if ((tmp[1]=='w' || tmp[1]=='r') &&
+                (tmp[2]=='f' || tmp[2]=='s'))
+            {
+                nameSpaceNames->append(dirName);
+                specialNames->append(new specialNameSpace(
+                    tmp[1]=='r',
+                    tmp[2]=='f',
+                    specialName.subString(3),
+                    specialName));
+
+                continue;
+            }
+            PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL2,
+                "Namespace: " + dirName +
+                " ignored - using incorrect parent namespace specification: " +
+                specialName);
+        }
+        else
+        {
+            nameSpaceNames->prepend(dirName);
+            specialNames->prepend(NULL);
+        }
+    }
+#endif
+
+    for (int i = 0, m = nameSpaceNames->size(), j = 0; i < m; i++)
+    {
+        String dirName = (*nameSpaceNames)[i];
+        if (dirName.size() == 0) continue;
+
+        if (!_IsNameSpaceDir(repositoryRoot + "/" + dirName))
+        {
+            (*nameSpaceNames)[i] = String::EMPTY;
+            i = -1;   //restart
+            PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL2,
+                "Namespace: " + dirName +
+                    " ignored - no sub directories found");
+            continue;
+        }
+
+        specialNameSpace* pns = (*specialNames)[i];
+        if (pns && pns->parent.size())
+        {
+            if ((*nameSpaceNames)[i].size())
+            {
+                if ((*nameSpaceNames)[i].size())
+                {
+                    for (j = 0; j < m; j++)
+                        if ((*nameSpaceNames)[j] == pns->parent)
+                            break;
+                    if (j >= m)
+                    {
+                        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL2,
+                            "Namespace: " + (*nameSpaceNames)[i] +
+                            " ignored - parent namespace not found: " +
+                            pns->parent);
+                        (*nameSpaceNames)[i] = String::EMPTY;
+                        i = -1;   //restart
+                    }
+                }
+            }
+        }
+    }
+
+    // Create a NameSpace object for each directory under repositoryRoot.
+    // This will throw an exception if the directory does not exist:
+
+    for (int i = 0, m = nameSpaceNames->size(); i < m; i++)
+    {
+        if ((*nameSpaceNames)[i].size() == 0)
+            continue;
+
+        NameSpace::newNameSpace(i, this, _repositoryRoot);
+    }
+
+    delete nameSpaceNames;
+    if (specialNames)
+    {
+        for (int i = 0, m = specialNames->size(); i < m; i++)
+            delete (*specialNames)[i];
+        delete specialNames;
+    }
+    nameSpaceNames = NULL;
+    specialNames = NULL;
     PEG_METHOD_EXIT();
 }
 
@@ -258,69 +952,31 @@ NameSpaceManager::~NameSpaceManager()
     delete _rep;
 }
 
-void NameSpaceManager::initializeNameSpace(
-    const NamespaceDefinition& nameSpace,
-    const Array<Pair<String, String> >& classList)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::initializeNameSpace");
-
-    NameSpace* parentNameSpace = 0;
-
-    if (!nameSpace.parentNameSpace.isNull())
-    {
-        parentNameSpace =
-            _lookupNameSpace(nameSpace.parentNameSpace.getString());
-        PEGASUS_ASSERT(parentNameSpace);
-    }
-
-    _rep->table.insert(
-        nameSpace.name.getString(),
-        new NameSpace(
-            nameSpace.name.getString(),
-            nameSpace.shareable,
-            nameSpace.updatesAllowed,
-            parentNameSpace,
-            nameSpace.remoteInfo,
-            classList));
-
-    PEG_METHOD_EXIT();
-}
-
 Boolean NameSpaceManager::nameSpaceExists(
     const CIMNamespaceName& nameSpaceName) const
 {
     return _rep->table.contains(nameSpaceName.getString());
 }
 
-NameSpace* NameSpaceManager::_lookupNameSpace(const String& ns)
+NameSpace* NameSpaceManager::lookupNameSpace(String& ns)
 {
     NameSpace* tns;
     if (!_rep->table.lookup(ns, tns))
-    {
         return NULL;
-    }
-    return tns;
-}
-
-NameSpace* NameSpaceManager::_getNameSpace(const CIMNamespaceName& ns) const
-{
-    NameSpace* tns;
-    if (!_rep->table.lookup(ns.getString(), tns))
-    {
-        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL1, "Invalid NameSpace.");
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_NAMESPACE, ns.getString());
-    }
     return tns;
 }
 
 void NameSpaceManager::createNameSpace(
     const CIMNamespaceName& nameSpaceName,
-    Boolean shareable,
-    Boolean updatesAllowed,
-    const String& parent,
-    const String& remoteInfo)
+    const NameSpaceAttributes& attributes)
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::createNameSpace");
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::createNameSpace()");
+
+    // Throw exception if namespace already exists:
+
+    String parent = "";
+    Boolean shareable = false;
+    Boolean updatesAllowed = true;
 
     if (nameSpaceExists(nameSpaceName))
     {
@@ -329,79 +985,205 @@ void NameSpaceManager::createNameSpace(
             CIM_ERR_ALREADY_EXISTS, nameSpaceName.getString());
     }
 
-    NameSpace* parentNameSpace = 0;
-    if (parent.size() && !(parentNameSpace = _lookupNameSpace(parent)))
+    for (NameSpaceAttributes::Iterator i = attributes.start(); i; i++)
+    {
+        String key = i.key();
+        if (String::equalNoCase(key,"shareable"))
+        {
+            if (String::equalNoCase(i.value(), "true"))
+                shareable = true;
+        }
+        else if (String::equalNoCase(key,"updatesAllowed"))
+        {
+            if (String::equalNoCase(i.value(), "false"))
+                updatesAllowed = false;
+        }
+        else if (String::equalNoCase(key, "parent"))
+        {
+            parent=i.value();
+        }
+        else
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_NOT_SUPPORTED,
+                nameSpaceName.getString() + " option not supported: " + key);
+        }
+    }
+
+    NameSpace* parentSpace = 0;
+    if (parent.size() && !(parentSpace=lookupNameSpace(parent)))
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(
-            CIM_ERR_FAILED, "Parent namespace " + parent + " not found");
+            CIM_ERR_NOT_FOUND, " parent namespace " + parent + " not found");
     }
 
-    if (parentNameSpace && !parentNameSpace->shareable)
+    if (parentSpace && parentSpace->final)
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(
-            CIM_ERR_FAILED, "Parent namespace " + parent + " not shareable");
+            CIM_ERR_FAILED, " parent namespace " + parent + " not shareable");
     }
 
-    if (updatesAllowed && parentNameSpace && parentNameSpace->parent)
+    if (updatesAllowed && parentSpace && parentSpace->parent)
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-            "Parent namespace " + parent + " not a primary namespace");
+            " parent namespace " + parent + " not a primary namespace");
     }
+
+#ifndef PEGASUS_SUPPORT_UTF8_FILENAME
+    // Do not allow file names to contain characters outsie of 7-bit ascii.
+    String tmp = nameSpaceName.getString();
+    Uint32 len = tmp.size();
+    for (Uint32 i = 0; i < len; ++i)
+        if ((Uint16)tmp[i] > 0x007F)
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, nameSpaceName.getString());
+        }
+#endif
+
+
+    // Attempt to create all the namespace diretories:
+
+    String nameSpaceDirName = _namespaceNameToDirName(nameSpaceName);
+    String nameSpacePath = _repositoryRoot + "/" + nameSpaceDirName;
+    String parentPath;
+    if (parent.size())
+        parentPath = _namespaceNameToDirName(parent);
+
+    String extDir = _CreateNameSpaceDirectories(
+        nameSpacePath, shareable, updatesAllowed, parentPath);
+
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+    specialNameSpace pns;
+    pns.setShared(!updatesAllowed, !shareable, parentSpace, parent, extDir);
+#else
+    specialNameSpace pns(
+        !updatesAllowed, !shareable, parentSpace, parent, extDir);
+#endif
 
     // Create NameSpace object and register it:
 
-    NameSpace* nameSpace = new NameSpace(
-        nameSpaceName,
-        shareable,
-        updatesAllowed,
-        parentNameSpace,
-        remoteInfo,
-        Array<Pair<String, String> >());
+    AutoPtr<NameSpace> nameSpace;
 
-    _rep->table.insert(nameSpaceName.getString(), nameSpace);
+    nameSpace.reset(new NameSpace(nameSpacePath, nameSpaceName, &pns));
+
+    _rep->table.insert(nameSpaceName.getString(), nameSpace.release());
 
     PEG_METHOD_EXIT();
 }
 
 void NameSpaceManager::modifyNameSpace(
     const CIMNamespaceName& nameSpaceName,
-    Boolean shareable,
-    Boolean updatesAllowed)
+    const NameSpaceAttributes& attributes)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::modifyNameSpace()");
 
-    NameSpace* nameSpace = _getNameSpace(nameSpaceName);
+    NameSpace* nameSpace;
 
-    nameSpace->modify(shareable, updatesAllowed);
+    if (!_rep->table.lookup(nameSpaceName.getString(), nameSpace))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
+    }
+
+    Boolean shareable = false;
+    Boolean updatesAllowed = true;
+
+    for (NameSpaceAttributes::Iterator i = attributes.start(); i; i++)
+    {
+        String key = i.key();
+        if (String::equalNoCase(key, "shareable"))
+        {
+            if (String::equalNoCase(i.value(), "true"))
+                shareable = true;
+        }
+        else if (String::equalNoCase(key, "updatesAllowed"))
+        {
+            if (String::equalNoCase(i.value(),"false"))
+                updatesAllowed = false;
+        }
+        else
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+                nameSpaceName.getString() + " option not supported: " + key);
+        }
+    }
+
+    if (!shareable && !nameSpace->final)
+    {
+        for (Table::Iterator i = _rep->table.start(); i; i++)
+        {
+             if (i.value()->parent==nameSpace)
+             {
+                 PEG_METHOD_EXIT();
+                 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                     "namespace " + nameSpaceName.getString() +
+                         " has dependent namespace " +
+                         i.value()->_nameSpaceName.getString());
+             }
+        }
+    }
+
+    String nameSpaceDirName = _namespaceNameToDirName(nameSpaceName);
+    String nameSpacePath = _repositoryRoot + "/" + nameSpaceDirName;
+
+    nameSpace->modify(shareable,updatesAllowed,nameSpacePath);
 
     PEG_METHOD_EXIT();
 }
 
-void NameSpaceManager::modifyNameSpaceName(
-        const CIMNamespaceName& nameSpaceName,
-        const CIMNamespaceName& newNameSpaceName)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::modifyNameSpaceName()");
-
-    NameSpace* nameSpace = _getNameSpace(nameSpaceName);
-
-    PEGASUS_FCT_EXECUTE_AND_ASSERT(
-        true,
-        _rep->table.remove(nameSpaceName.getString()));
-    nameSpace->modifyName(newNameSpaceName);
-    _rep->table.insert(newNameSpaceName.getString(), nameSpace);
-
-    PEG_METHOD_EXIT();
-}
 
 void NameSpaceManager::deleteNameSpace(const CIMNamespaceName& nameSpaceName)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::deleteNameSpace()");
 
-    NameSpace* nameSpace = _getNameSpace(nameSpaceName);
+    // If no such namespace:
+
+    NameSpace* nameSpace = 0;
+
+    if (!_rep->table.lookup(nameSpaceName.getString (), nameSpace))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION
+            (CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
+    }
+
+    for (Table::Iterator i = _rep->table.start(); i; i++)
+        if (i.value()->parent==nameSpace)
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                "namespace " + nameSpaceName.getString() +
+                    " has dependent namespace " +
+                    i.value()->_nameSpaceName.getString());
+        }
+
+    // Form namespace path:
+
+    String nameSpaceDirName = _namespaceNameToDirName(
+        nameSpace->getNameSpaceName());
+    String nameSpacePath = _repositoryRoot + "/" + nameSpaceDirName;
+
+    // Delete the entire namespace directory hierarchy:
+
+    if (!_NameSpaceDirHierIsEmpty(nameSpacePath))
+    {
+        PEG_METHOD_EXIT();
+        throw NonEmptyNameSpace(nameSpaceName.getString());
+    }
+
+    if (!FileSystem::removeDirectoryHier(nameSpacePath))
+    {
+        PEG_METHOD_EXIT();
+        throw CannotRemoveDirectory(nameSpacePath);
+    }
 
     // Remove and delete the namespace object:
 
@@ -419,9 +1201,8 @@ void NameSpaceManager::deleteNameSpace(const CIMNamespaceName& nameSpaceName)
         }
     }
 
-    PEGASUS_FCT_EXECUTE_AND_ASSERT(
-        true,
-        _rep->table.remove(nameSpaceName.getString()));
+    Boolean success = _rep->table.remove(nameSpaceName.getString());
+    PEGASUS_ASSERT(success);
     delete nameSpace;
 
     PEG_METHOD_EXIT();
@@ -435,10 +1216,10 @@ Boolean NameSpaceManager::isRemoteNameSpace(
     if (!_rep->table.lookup(nameSpaceName.getString(), nameSpace))
         return false;
 
-    if (nameSpace->remoteInfo.size() == 0)
+    if (nameSpace->remoteDirName.size() == 0)
         return false;
 
-    remoteInfo = nameSpace->remoteInfo;
+    remoteInfo=nameSpace->remoteDirName;
     return true;
 }
 
@@ -453,219 +1234,220 @@ void NameSpaceManager::getNameSpaceNames(
 
 Boolean NameSpaceManager::getNameSpaceAttributes(
     const CIMNamespaceName& nameSpaceName,
-    Boolean& shareable,
-    Boolean& updatesAllowed,
-    String& parent,
-    String& remoteInfo)
+    NameSpaceAttributes& attributes)
 {
-    NameSpace* ns = _lookupNameSpace(nameSpaceName.getString());
+    String nsn = nameSpaceName.getString();
+    NameSpace* ns = lookupNameSpace(nsn);
 
     if (ns)
     {
-        shareable = ns->shareable;
-        updatesAllowed = ns->updatesAllowed;
         if (ns->parent)
-        {
-            parent = ns->parent->_nameSpaceName.getString();
-        }
-        remoteInfo = ns->remoteInfo;
+            attributes.insert("parent", ns->parent->_nameSpaceName.getString());
+        attributes.insert("name", nsn);
+        if (ns->ro)
+            attributes.insert("updatesAllowed", "false");
+        else
+            attributes.insert("updatesAllowed", "true");
+        if (ns->final)
+            attributes.insert("shareable", "false");
+        else
+            attributes.insert("shareable", "true");
         return true;
     }
-
     return false;
 }
 
-void NameSpaceManager::validateNameSpace(
-    const CIMNamespaceName& nameSpaceName) const
-{
-    // Throws CIM_ERR_INVALID_NAMESPACE if the namespace does not exist.
-    _getNameSpace(nameSpaceName);
-}
-
-Array<CIMNamespaceName> NameSpaceManager::getDependentSchemaNameSpaceNames(
-    const CIMNamespaceName& nameSpaceName) const
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY,
-        "NameSpaceManager::getDependentSchemaNameSpaceNames()");
-
-    Array<CIMNamespaceName> nameSpaceNames;
-
-    NameSpace* nameSpace = _getNameSpace(nameSpaceName);
-    nameSpaceNames.append(nameSpace->getNameSpaceName());
-    nameSpace = nameSpace->dependent;
-    while (nameSpace)
-    {
-        nameSpaceNames.append(nameSpace->getNameSpaceName());
-        nameSpace = nameSpace->nextDependent;
-    }
-
-    PEG_METHOD_EXIT();
-    return nameSpaceNames;
-}
-
-Boolean NameSpaceManager::hasDependentNameSpace(
-    const CIMNamespaceName& nameSpaceName,
-    CIMNamespaceName& dependentNameSpaceName) const
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::hasDependentNameSpace");
-
-    Array<CIMNamespaceName> nameSpaceNames;
-    NameSpace* nameSpace = _getNameSpace(nameSpaceName);
-
-    for (Table::Iterator i = _rep->table.start(); i; i++)
-    {
-        if (i.value()->parent == nameSpace)
-        {
-            dependentNameSpaceName = i.value()->getNameSpaceName();
-            PEG_METHOD_EXIT();
-            return true;
-        }
-    }
-
-    PEG_METHOD_EXIT();
-    return false;
-}
-
-Array<CIMNamespaceName> NameSpaceManager::getSchemaNameSpaceNames(
-    const CIMNamespaceName& nameSpaceName) const
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY,
-        "NameSpaceManager::getSchemaNameSpaceNames()");
-
-    Array<CIMNamespaceName> nameSpaceNames;
-
-    NameSpace* nameSpace = _getNameSpace(nameSpaceName);
-
-    if (!nameSpace->updatesAllowed)
-    {
-        // Skip over a read-only namespace; no schema is defined here.
-        nameSpace = nameSpace->rwParent();
-    }
-
-    nameSpaceNames.append(nameSpace->getNameSpaceName());
-
-    if (nameSpace->parent)
-    {
-        // A R/W namespace may depend only on a primary namespace.
-        nameSpaceNames.append(nameSpace->primaryParent()->getNameSpaceName());
-    }
-
-    PEG_METHOD_EXIT();
-    return nameSpaceNames;
-}
-
-void NameSpaceManager::validateClass(
-    const CIMNamespaceName& nameSpaceName,
-    const CIMName& className) const
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::validateClass");
-
-    CIMName superClassName;
-    NameSpace* nameSpace = _getNameSpace(nameSpaceName);
-
-    if (!nameSpace->updatesAllowed)
-    {
-        // Skip over a read-only namespace; no schema is defined here.
-        nameSpace = nameSpace->rwParent();
-    }
-
-    if (nameSpace->getInheritanceTree().getSuperClass(
-            className, superClassName))
-    {
-        PEG_METHOD_EXIT();
-        return;
-    }
-
-    if (nameSpace->parent)
-    {
-        // A R/W namespace may depend only on a primary namespace.
-        if (nameSpace->primaryParent()->getInheritanceTree().getSuperClass(
-                className, superClassName))
-        {
-            PEG_METHOD_EXIT();
-            return;
-        }
-    }
-
-    PEG_METHOD_EXIT();
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS, className.getString());
-}
-
-CIMName NameSpaceManager::getSuperClassName(
-    const CIMNamespaceName& nameSpaceName,
-    const CIMName& className) const
-{
-    NameSpace* nameSpace = _getNameSpace(nameSpaceName);
-    return nameSpace->getSuperClassName(className);
-}
-
-void NameSpaceManager::locateClass(
+String NameSpaceManager::getClassFilePath(
     const CIMNamespaceName& nameSpaceName,
     const CIMName& className,
-    CIMNamespaceName& actualNameSpaceName,
-    CIMName& superClassName) const
+    NameSpaceIntendedOp op) const
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::locateClass");
+    NameSpace* nameSpace = 0;
 
-    NameSpace* nameSpace = _getNameSpace(nameSpaceName);
-
-    if (nameSpace->parent != NULL)
+    if (!_rep->table.lookup(nameSpaceName.getString (), nameSpace))
     {
-        if (!classExists(nameSpace, className, false))
-        {
-            actualNameSpaceName = nameSpace->parent->getNameSpaceName();
-            superClassName = nameSpace->parent->getSuperClassName(className);
-            PEG_METHOD_EXIT();
-            return;
-        }
+        throw PEGASUS_CIM_EXCEPTION
+            (CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
     }
 
-    actualNameSpaceName = nameSpace->getNameSpaceName();
-    superClassName = nameSpace->getSuperClassName(className);
-    PEG_METHOD_EXIT();
+    return getClassFilePath(nameSpace,className,op);
 }
 
-void NameSpaceManager::checkDeleteClass(
+String NameSpaceManager::getClassFilePath(
+    NameSpace* nameSpace,
+    const CIMName& className,
+    NameSpaceIntendedOp op) const
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::getClassFilePath()");
+
+    if (nameSpace->parent == NULL)
+    {
+        if (nameSpace->ro)
+            switch (op)
+            {
+            case NameSpaceRead:
+                break;
+            case NameSpaceDelete:
+            case NameSpaceWrite:
+                PEG_METHOD_EXIT();
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED,
+                    "R/O Namespace " +
+                        nameSpace->getNameSpaceName().getString());
+            }
+        else
+            switch (op)
+            {
+            case NameSpaceRead:
+               break;
+            case NameSpaceWrite:
+               classExists(nameSpace,className,true);
+               break;
+            case NameSpaceDelete:
+               classHasInstances(nameSpace,className,true);
+            }
+        PEG_METHOD_EXIT();
+        return nameSpace->getClassFilePath(className);
+    }
+
+    if (nameSpace->ro == false)
+    {
+        switch (op)
+        {
+        case NameSpaceRead:
+            if (classExists(nameSpace, className, false))
+                break;
+            PEG_METHOD_EXIT();
+            return nameSpace->parent->getClassFilePath(className);
+        case NameSpaceWrite:
+            classExists(nameSpace->parent, className, true);
+            break;
+        case NameSpaceDelete:
+            classHasInstances(nameSpace, className, true);
+        }
+        PEG_METHOD_EXIT();
+        return nameSpace->getClassFilePath(className);
+    }
+
+    switch (op)
+    {
+    case NameSpaceRead:
+        if (classExists(nameSpace, className, false))
+            break;
+        PEG_METHOD_EXIT();
+        return nameSpace->parent->getClassFilePath(className);
+    case NameSpaceDelete:
+        classExists(nameSpace->parent, className, true);
+    case NameSpaceWrite:
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED,
+            "R/O Namespace " + nameSpace->getNameSpaceName().getString());
+    }
+    PEG_METHOD_EXIT();
+    return nameSpace->getClassFilePath(className);
+}
+
+String NameSpaceManager::getInstanceDataFileBase(
     const CIMNamespaceName& nameSpaceName,
     const CIMName& className) const
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::checkDeleteClass");
+    PEG_METHOD_ENTER(TRC_REPOSITORY,
+        "NameSpaceManager::getInstanceDataFileBase()");
 
-    NameSpace* nameSpace = _getNameSpace(nameSpaceName);
+    NameSpace* nameSpace = 0;
 
-    if (!nameSpace->updatesAllowed)
+    if (!_rep->table.lookup(nameSpaceName.getString(), nameSpace))
     {
-        if (nameSpace->parent != NULL)
-        {
-            // Note: I think this is already checked in
-            // CIMRepository::deleteClass
-            classExists(nameSpace->parent, className, true);
-        }
-
         PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED,
-            "R/O Namespace " + nameSpace->getNameSpaceName().getString());
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
     }
 
+    String ret = nameSpace->getInstanceDataFileBase(className);
     PEG_METHOD_EXIT();
+    return ret;
 }
 
-void NameSpaceManager::checkNameSpaceUpdateAllowed(
-    const CIMNamespaceName& nameSpaceName) const
+String NameSpaceManager::getInstanceDataFileBase(
+    const NameSpace* nameSpace,
+    const CIMName& className) const
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY,
-        "NameSpaceManager::checkNameSpaceUpdateAllowed");
+        "NameSpaceManager::getInstanceDataFileBase()");
 
-    NameSpace* nameSpace = _getNameSpace(nameSpaceName);
+    String ret = nameSpace->getInstanceDataFileBase(className);
+    PEG_METHOD_EXIT();
+    return ret;
+}
 
-    if (!nameSpace->updatesAllowed)
+String NameSpaceManager::getQualifierFilePath(
+    const CIMNamespaceName& nameSpaceName,
+    const CIMName& qualifierName,
+    NameSpaceIntendedOp op) const
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY,
+        "NameSpaceManager::getQualifierFilePath()");
+
+    NameSpace* nameSpace = 0;
+
+    if (!_rep->table.lookup(nameSpaceName.getString (), nameSpace))
     {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
+    }
+
+    String filePath = nameSpace->getQualifierFilePath(qualifierName);
+
+    if (nameSpace->parent == NULL)
+    {
+        if (nameSpace->ro)
+            switch (op)
+            {
+            case NameSpaceRead:
+                break;
+            case NameSpaceDelete:
+            case NameSpaceWrite:
+                PEG_METHOD_EXIT();
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED,
+                    "R/O Namespace " +
+                        nameSpace->getNameSpaceName().getString());
+        }
+        PEG_METHOD_EXIT();
+        return filePath;
+    }
+
+    if (nameSpace->ro == false)
+    {
+        switch (op)
+        {
+        case NameSpaceRead:
+            if (FileSystem::existsNoCase(filePath))
+                break;
+            PEG_METHOD_EXIT();
+            return nameSpace->parent->getQualifierFilePath(qualifierName);
+        case NameSpaceWrite:
+        case NameSpaceDelete:
+            break;
+        }
+        PEG_METHOD_EXIT();
+        return filePath;
+    }
+
+    switch (op)
+    {
+    case NameSpaceRead:
+        if (FileSystem::existsNoCase(filePath))
+            break;
+        PEG_METHOD_EXIT();
+        return nameSpace->parent->getQualifierFilePath(qualifierName);
+    case NameSpaceDelete:
+    case NameSpaceWrite:
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED,
             "R/O Namespace " + nameSpace->getNameSpaceName().getString());
     }
-
     PEG_METHOD_EXIT();
+    return filePath;
 }
 
 void NameSpaceManager::deleteClass(
@@ -674,7 +1456,21 @@ void NameSpaceManager::deleteClass(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::deleteClass()");
 
-    NameSpace* nameSpace = _getNameSpace(nameSpaceName);
+    // -- Lookup NameSpace object:
+
+    NameSpace* nameSpace = 0;
+
+    if (!_rep->table.lookup(nameSpaceName.getString(), nameSpace))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
+    }
+
+    // -- Get path to class file:
+
+    String classFilePath =
+        getClassFilePath(nameSpace, className, NameSpaceDelete);
 
     // -- Remove the file from the inheritance tree:
 
@@ -684,6 +1480,39 @@ void NameSpaceManager::deleteClass(
     else
         nameSpace->getInheritanceTree().remove(
             className, nameSpace->getInheritanceTree(), NULL);
+
+    // -- Remove the file from disk:
+
+    if (!FileSystem::removeFileNoCase(classFilePath))
+    {
+        PEG_METHOD_EXIT();
+        throw CannotRemoveFile(classFilePath);
+    }
+
+    Boolean first = true;
+    do
+    {
+        String indexFilePath =
+            getInstanceDataFileBase(nameSpace, className) + ".idx";
+        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+            "instance indexFilePath = " + indexFilePath);
+
+        String dataFilePath =
+            getInstanceDataFileBase(nameSpace, className) + ".instances";
+        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+            "instance dataFilePath = " + dataFilePath);
+
+        FileSystem::removeFileNoCase(indexFilePath);
+        FileSystem::removeFileNoCase(dataFilePath);
+
+        if (first)
+        {
+            nameSpace = nameSpace->dependent;
+            first = false;
+        }
+        else
+            nameSpace = nameSpace->nextDependent;
+    } while (nameSpace);
 
     PEG_METHOD_EXIT();
 }
@@ -699,14 +1528,25 @@ void NameSpaceManager::print(PEGASUS_STD(ostream)& os) const
     os << PEGASUS_STD(endl);
 }
 
-void NameSpaceManager::checkCreateClass(
+void NameSpaceManager::createClass(
     const CIMNamespaceName& nameSpaceName,
     const CIMName& className,
-    const CIMName& superClassName)
+    const CIMName& superClassName,
+    String& classFilePath)
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::checkCreateClass()");
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::createClass()");
 
-    NameSpace* nameSpace = _getNameSpace(nameSpaceName);
+    // -- Lookup namespace:
+
+    NameSpace *nameSpace=0;
+
+    if (!_rep->table.lookup(nameSpaceName.getString (), nameSpace))
+    {
+        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL1, "Invalid NameSpace.");
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION
+            (CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
+    }
 
     if (nameSpace->readOnly())
     {
@@ -730,12 +1570,8 @@ void NameSpaceManager::checkCreateClass(
 
     if (nameSpace->parent)
     {
-        // Check the parent namespace for a class with this name.  Since
-        // this namespace is R/W, its parent namespace is a primary
-        // namespace (has no parent of its own).
-
-        InheritanceTree& parentIt = nameSpace->parent->getInheritanceTree();
-        if (parentIt.containsClass(className))
+        InheritanceTree& it = nameSpace->parent->getInheritanceTree();
+        if (it.containsClass(className))
         {
             PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL1,
                 "Class already exists.");
@@ -746,17 +1582,13 @@ void NameSpaceManager::checkCreateClass(
     }
     else
     {
-        // Check for a collision in the direct dependent namespaces.  A
-        // dependent of a dependent namespace must be read-only and therefore
-        // cannot contain a class definition.
-
         NameSpace* ns = nameSpace->dependent;
         while (ns)
         {
             if (!ns->readOnly())
             {
-                InheritanceTree& dependentIt = ns->getInheritanceTree();
-                if (dependentIt.containsClass(className))
+                InheritanceTree& it = ns->getInheritanceTree();
+                if (it.containsClass(className))
                 {
                     PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL1,
                         "Class already exists.");
@@ -769,14 +1601,30 @@ void NameSpaceManager::checkCreateClass(
         }
     }
 
-    // Verify the superclass exists.  This will have already been checked
-    // if the class has been resolved, but we do not assume that dependency
-    // here.
+    // -- Be certain superclass exists:
 
-    if (!superClassName.isNull() && !it.containsClass(superClassName) &&
-        !(nameSpace->parent &&
-          nameSpace->parent->getInheritanceTree().containsClass(
-             superClassName)))
+    Boolean xNameSpace = false;
+    Boolean missing = false;
+
+    if (superClassName.isNull())
+    {
+        if (nameSpace->parent)
+            xNameSpace = true;
+    }
+    else if (!it.containsClass(superClassName))
+    {
+        if (nameSpace->parent)
+        {
+            InheritanceTree& it = nameSpace->parent->getInheritanceTree();
+            if (!it.containsClass(superClassName))
+                missing = true;
+            xNameSpace = true;
+        }
+        else
+            missing = false;
+    }
+
+    if (missing)
     {
         PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL1,
             "SuperClass does not exist.");
@@ -785,50 +1633,63 @@ void NameSpaceManager::checkCreateClass(
             CIM_ERR_INVALID_SUPERCLASS, superClassName.getString());
     }
 
-    PEG_METHOD_EXIT();
-}
+#ifndef PEGASUS_SUPPORT_UTF8_FILENAME
+    // Do not allow file names to contain characters outsie of 7-bit ascii.
+    String tmp = className.getString();
+    Uint32 len = tmp.size();
+    for (Uint32 i = 0; i < len; ++i)
+        if ((Uint16)tmp[i] > 0x007F)
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, nameSpaceName.getString());
+        }
+#endif
 
-void NameSpaceManager::createClass(
-    const CIMNamespaceName& nameSpaceName,
-    const CIMName& className,
-    const CIMName& superClassName)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::createClass()");
 
-    NameSpace* nameSpace = _getNameSpace(nameSpaceName);
-    InheritanceTree& it = nameSpace->getInheritanceTree();
+    // -- Insert the entry:
 
-    // Insert the entry into the inheritance tree
-
-    if (nameSpace->parent &&
-        (superClassName.isNull() || !it.containsClass(superClassName)))
-    {
+    if (xNameSpace)
         it.insert(
             className.getString(),
             superClassName.getString(),
             nameSpace->parent->getInheritanceTree(),
             nameSpace);
-    }
     else
-    {
         it.insert(className.getString(), superClassName.getString());
-    }
+
+    // -- Build the path to the class:
+
+    classFilePath = _MakeClassFilePath(
+        nameSpace->getNameSpacePath(), className, superClassName);
 
     PEG_METHOD_EXIT();
 }
 
-void NameSpaceManager::checkModifyClass(
+void NameSpaceManager::checkModify(
     const CIMNamespaceName& nameSpaceName,
     const CIMName& className,
     const CIMName& superClassName,
-    CIMName& oldSuperClassName,
-    Boolean allowNonLeafModification)
+    String& classFilePath)
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::checkModifyClass");
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::checkModify()");
 
-    NameSpace* nameSpace = _getNameSpace(nameSpaceName);
+    // -- Lookup namespace:
+
+    NameSpace* nameSpace = 0;
+
+    if (!_rep->table.lookup(nameSpaceName.getString (), nameSpace))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
+    }
 
     InheritanceTree& it = nameSpace->getInheritanceTree();
+
+    // -- Disallow changing of superclass:
+
+    CIMName oldSuperClassName;
 
     if (!it.getSuperClass(className, oldSuperClassName))
     {
@@ -837,59 +1698,31 @@ void NameSpaceManager::checkModifyClass(
             CIM_ERR_NOT_FOUND, className.getString());
     }
 
-    if (allowNonLeafModification)
+    if (!superClassName.equal(oldSuperClassName))
     {
-        if (!superClassName.isNull())
-        {
-            Array<CIMName> superClassNames;
-
-            // Make sure the new superclass exists and is not a subclass of the
-            // class being modified.
-
-            if (!it.getSuperClassNames(superClassName, superClassNames))
-            {
-                PEG_METHOD_EXIT();
-                throw PEGASUS_CIM_EXCEPTION(
-                    CIM_ERR_INVALID_SUPERCLASS, superClassName.getString());
-            }
-
-            for (Uint32 i = 0; i < superClassNames.size(); i++)
-            {
-                if (superClassNames[i] == className)
-                {
-                    // The modified class is a parent of the new superclass!
-                    PEG_METHOD_EXIT();
-                    throw PEGASUS_CIM_EXCEPTION(
-                        CIM_ERR_INVALID_SUPERCLASS, superClassName.getString());
-                }
-            }
-        }
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "Repository.NameSpaceManager.ATTEMPT_TO_CHANGE_SUPERCLASS",
+                "attempt to change superclass"));
     }
-    else
+
+    // -- Disallow modification of class with subclasses:
+
+    Boolean hasSubClasses;
+    it.hasSubClasses(className, hasSubClasses);
+
+    if (hasSubClasses)
     {
-        // -- Disallow changing of superclass:
-
-        if (!superClassName.equal(oldSuperClassName))
-        {
-            PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "Repository.NameSpaceManager.ATTEMPT_TO_CHANGE_SUPERCLASS",
-                    "attempt to change superclass"));
-        }
-
-        // -- Disallow modification of class with subclasses:
-
-        Boolean hasSubClasses;
-        it.hasSubClasses(className, hasSubClasses);
-
-        if (hasSubClasses)
-        {
-            PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION(
-                CIM_ERR_CLASS_HAS_CHILDREN, className.getString());
-        }
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_CLASS_HAS_CHILDREN, className.getString());
     }
+
+    // -- Build the path to the class:
+
+    classFilePath = _MakeClassFilePath(
+        nameSpace->getNameSpacePath(), className, superClassName);
 
     PEG_METHOD_EXIT();
 }
@@ -903,8 +1736,16 @@ void NameSpaceManager::getSubClassNames(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::getSubClassNames()");
 
-    NameSpace* nameSpace = _getNameSpace(nameSpaceName);
-    NameSpace* dns = 0;
+    // -- Lookup namespace:
+
+    NameSpace* nameSpace = 0, *dns = 0;
+
+    if (!_rep->table.lookup(nameSpaceName.getString(), nameSpace))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
+    }
 
     if (className.getString()=="" && nameSpace->parent)
         enm=true;
@@ -924,8 +1765,8 @@ void NameSpaceManager::getSubClassNames(
             {
                 dns=nameSpace->rwParent();
                 nameSpace=nameSpace->primaryParent();
-                InheritanceTree& parentIt = nameSpace->getInheritanceTree();
-                if (parentIt.getSubClassNames(
+                InheritanceTree& it = nameSpace->getInheritanceTree();
+                if (it.getSubClassNames(
                     className, deepInheritance, subClassNames, 0))
                 {
                     PEG_METHOD_EXIT();
@@ -935,8 +1776,8 @@ void NameSpaceManager::getSubClassNames(
         }
         else if (dns && enm)
         {
-            InheritanceTree& parentIt = dns->rwParent()->getInheritanceTree();
-            if (parentIt.getSubClassNames(
+            InheritanceTree& it = dns->rwParent()->getInheritanceTree();
+            if (it.getSubClassNames(
                     className, deepInheritance, subClassNames, 0))
             {
                 PEG_METHOD_EXIT();
@@ -958,8 +1799,16 @@ void NameSpaceManager::getSuperClassNames(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::getSuperClassNames()");
 
-    NameSpace* nameSpace = _getNameSpace(nameSpaceName);
+    // -- Lookup namespace:
 
+    NameSpace* nameSpace = 0;
+
+    if (!_rep->table.lookup(nameSpaceName.getString (), nameSpace))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
+    }
     nameSpace=nameSpace->rwParent();
 
     InheritanceTree& it = nameSpace->getInheritanceTree();
@@ -973,6 +1822,149 @@ void NameSpaceManager::getSuperClassNames(
     }
 
     PEG_METHOD_EXIT();
+}
+
+String NameSpaceManager::getQualifiersRoot(
+    const CIMNamespaceName& nameSpaceName) const
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::getQualifiersRoot()");
+
+    // -- Lookup namespace:
+
+    NameSpace* nameSpace = 0;
+
+    if (!_rep->table.lookup(nameSpaceName.getString (), nameSpace))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
+    }
+
+    String ret = nameSpace->getNameSpacePath() + _QUALIFIERS_SUFFIX;
+    PEG_METHOD_EXIT();
+    return ret;
+}
+
+Array<String> NameSpaceManager::getAssocClassPath(
+    const CIMNamespaceName& nameSpaceName,
+    NameSpaceIntendedOp op) const
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::getAssocClassPath()");
+
+    // -- Lookup namespace:
+
+    NameSpace* nameSpace = 0;
+
+    Array<String> assocClassPathes;
+
+    if (!_rep->table.lookup(nameSpaceName.getString(), nameSpace))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
+    }
+
+    if (nameSpace->ro) nameSpace = nameSpace->rwParent();
+
+    assocClassPathes.append(nameSpace->getNameSpacePath() +
+        _CLASSES_SUFFIX + _ASSOCIATIONS_SUFFIX);
+
+    if (op==NameSpaceRead)
+    {
+        if (nameSpace->parent)
+        {
+            nameSpace = nameSpace->primaryParent();
+            assocClassPathes.append(nameSpace->getNameSpacePath() +
+                _CLASSES_SUFFIX + _ASSOCIATIONS_SUFFIX);
+        }
+    }
+
+    PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+        String("Association class path = ") + assocClassPathes[0]);
+
+    PEG_METHOD_EXIT();
+    return assocClassPathes;
+}
+
+String NameSpaceManager::getAssocInstPath(
+    const CIMNamespaceName& nameSpaceName) const
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::getAssocInstPath()");
+
+    // -- Lookup namespace:
+
+    NameSpace* nameSpace = 0;
+
+    if (!_rep->table.lookup(nameSpaceName.getString(), nameSpace))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
+    }
+
+    String assocInstPath = nameSpace->getNameSpacePath() +
+        _INSTANCES_SUFFIX + _ASSOCIATIONS_SUFFIX;
+    PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+        String("Association instance path = ") + assocInstPath);
+
+    PEG_METHOD_EXIT();
+    return assocInstPath;
+}
+
+Boolean NameSpaceManager::classHasInstances(
+    NameSpace *nameSpace,
+    const CIMName& className,
+    Boolean throwExcp) const
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::classHasChildren()");
+
+    Boolean first=true;
+
+    do
+    {
+        String indexFilePath =
+            getInstanceDataFileBase(nameSpace, className) + ".idx";
+
+        if (InstanceIndexFile::hasNonFreeEntries(indexFilePath))
+        {
+            PEG_METHOD_EXIT();
+            if (throwExcp)
+                throw PEGASUS_CIM_EXCEPTION(
+                    CIM_ERR_CLASS_HAS_INSTANCES, className.getString());
+            return true;
+        }
+
+        if (first)
+        {
+            nameSpace = nameSpace->dependent;
+            first = false;
+        }
+        else
+            nameSpace = nameSpace->nextDependent;
+    } while (nameSpace);
+
+    PEG_METHOD_EXIT();
+    return false;
+}
+
+Boolean NameSpaceManager::classHasInstances(
+    const CIMNamespaceName& nameSpaceName,
+    const CIMName& className,
+    Boolean throwExcp) const
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::classHasChildren()");
+
+    NameSpace* nameSpace = 0;
+
+    if (!_rep->table.lookup(nameSpaceName.getString(), nameSpace))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
+    }
+
+    PEG_METHOD_EXIT();
+    return classHasInstances(nameSpace,className,throwExcp);
 }
 
 Boolean NameSpaceManager::classExists(
@@ -990,15 +1982,12 @@ Boolean NameSpaceManager::classExists(
 
         if (it.containsClass(className))
         {
+            PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL1,
+                "Class already exists.");
+            PEG_METHOD_EXIT();
             if (throwExcp)
-            {
-                PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL1,
-                    "Class already exists.");
-                PEG_METHOD_EXIT();
                 throw PEGASUS_CIM_EXCEPTION(
                     CIM_ERR_ALREADY_EXISTS, className.getString());
-            }
-            PEG_METHOD_EXIT();
             return true;
         }
 
@@ -1021,12 +2010,37 @@ Boolean NameSpaceManager::classExists(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::classExists()");
 
-    NameSpace* nameSpace = _getNameSpace(nameSpaceName);
+    NameSpace *nameSpace = 0;
+
+    if (!_rep->table.lookup(nameSpaceName.getString(), nameSpace))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
+    }
 
     Boolean exists = classExists(nameSpace, className, false);
 
     PEG_METHOD_EXIT();
     return exists;
+}
+
+String NameSpaceManager::getInstanceDirRoot(
+    const CIMNamespaceName& nameSpaceName) const
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::getInstanceDirRoot()");
+
+    NameSpace *nameSpace = 0;
+
+    if (!_rep->table.lookup(nameSpaceName.getString(), nameSpace))
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
+    }
+
+    PEG_METHOD_EXIT();
+    return nameSpace->getNameSpacePath() + _INSTANCES_SUFFIX;
 }
 
 PEGASUS_NAMESPACE_END

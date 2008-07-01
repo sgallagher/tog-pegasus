@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -130,10 +132,10 @@ void ANHProvider::associators(
     {
         _associators(
             _AssociationInstances,
-            localObjectPath,
+            localObjectPath, 
             role,
-            resultClass,
-            resultRole,
+            resultClass, 
+            resultRole, 
             handler);
     }
     else
@@ -177,10 +179,10 @@ void ANHProvider::associatorNames(
     {
         _associatorNames(
             _AssociationInstances,
-            localObjectPath,
+            localObjectPath, 
             role,
-            resultClass,
-            resultRole,
+            resultClass, 
+            resultRole, 
             handler);
     }
     else
@@ -230,7 +232,7 @@ void ANHProvider::references(
         resultInstances =
             _filterAssociationInstancesByRole(
                 _AssociationInstances,
-                localObjectPath,
+                localObjectPath, 
                 role);
     }
     else
@@ -283,7 +285,7 @@ void ANHProvider::referenceNames(
         resultInstances =
             _filterAssociationInstancesByRole(
                 _AssociationInstances,
-                localObjectPath,
+                localObjectPath, 
                 role);
     }
     else
@@ -409,9 +411,9 @@ void ANHProvider::_associatorNames(
         resultPaths = _filterAssociationInstances(assocInstances[i],
             localReference, resultClass, resultRole);
 
-        for (Uint32 j = 0, m = resultPaths.size(); j < m; j++)
+        for (Uint32 i = 0, n = resultPaths.size(); i < n; i++)
         {
-            handler.deliver(resultPaths[j]);
+            handler.deliver(resultPaths[i]);
         }
     }
 }
@@ -445,9 +447,9 @@ Array<CIMInstance> ANHProvider::_filterAssociationInstancesByRole(
         CIMInstance instance = associationInstances[i];
 
         // Search the association instance for all reference properties
-        for (Uint32 j = 0, m = instance.getPropertyCount(); j < m; j++)
+        for (Uint32 i = 0, n = instance.getPropertyCount(); i < n; i++)
         {
-            const CIMProperty p = instance.getProperty(j);
+            const CIMProperty p = instance.getProperty(i);
             if (p.getType() == CIMTYPE_REFERENCE)
             {
                 CIMValue v = p.getValue();
@@ -649,17 +651,17 @@ Array<CIMInstance> ANHProvider::_NextHopRouteInstances()
             {
                 PEG_METHOD_EXIT();
                 throw CIMOperationFailedException(
-                    "Can't determine destination address in: " +
+                    "Can't determine destination address in: " + 
                     String("ANHProvider::_NextHopRouteInstances()"));
             }
             instance.addProperty(CIMProperty(
-                PROPERTY_DESTINATION_ADDRESS,
+                PROPERTY_DESTINATION_ADDRESS, 
                 _destAddr));
 
             if (_nhipr.getAddressType(_addrType))
             {
                 instance.addProperty(CIMProperty(
-                    PROPERTY_ADDRESS_TYPE,
+                    PROPERTY_ADDRESS_TYPE, 
                     _addrType));
 
                 if (_addrType == 1)  // IPv4 address.
@@ -672,7 +674,7 @@ Array<CIMInstance> ANHProvider::_NextHopRouteInstances()
                             String("ANHProvider::_NextHopRouteInstances()"));
                     }
                     instance.addProperty(CIMProperty(
-                        PROPERTY_DESTINATION_MASK,
+                        PROPERTY_DESTINATION_MASK, 
                         _destMask));
                 }
                 else
@@ -687,7 +689,7 @@ Array<CIMInstance> ANHProvider::_NextHopRouteInstances()
                                String("ANHProvider::_NextHopRouteInstances()"));
                         }
                         instance.addProperty(CIMProperty(
-                            PROPERTY_PREFIX_LENGTH,
+                            PROPERTY_PREFIX_LENGTH, 
                             _prefLength));
                     }
                 }
@@ -704,14 +706,14 @@ Array<CIMInstance> ANHProvider::_NextHopRouteInstances()
             Array<CIMKeyBinding> keyBindings;
             keyBindings.append(
             CIMKeyBinding(
-                PROPERTY_INSTANCE_ID,
-                _destAddr,
+                PROPERTY_INSTANCE_ID, 
+                _destAddr, 
                 CIMKeyBinding::STRING));
 
             CIMObjectPath path(
-            String::EMPTY,
+            String::EMPTY, 
             CIMNamespaceName(),
-            CLASS_CIM_NEXT_HOP_ROUTE,
+            CLASS_CIM_NEXT_HOP_ROUTE, 
             keyBindings);
 
             instance.setPath(path);
@@ -745,10 +747,10 @@ Array<CIMInstance> ANHProvider::_RSApInstances()
         if (_rsap.getAccessInfo(_accessInfo))
         {
             instance.addProperty(CIMProperty(
-                PROPERTY_ACCESS_INFO,
+                PROPERTY_ACCESS_INFO, 
                 _accessInfo));
         }
-        else
+        else 
         {
             PEG_METHOD_EXIT();
             throw CIMOperationFailedException(
@@ -759,10 +761,10 @@ Array<CIMInstance> ANHProvider::_RSApInstances()
         if (_rsap.getInfoFormat(_infoFormat))
         {
             instance.addProperty(CIMProperty(
-                PROPERTY_INFO_FORMAT,
+                PROPERTY_INFO_FORMAT, 
                 _infoFormat));
         }
-        else
+        else 
         {
             PEG_METHOD_EXIT();
             throw CIMOperationFailedException(

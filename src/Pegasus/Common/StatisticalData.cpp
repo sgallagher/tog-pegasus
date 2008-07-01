@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -45,15 +47,12 @@ String StatisticalData::requestName[] =
 {
                                     // Enumerated     ValueMap Value
                                     // value from     from class
-                                    // Pegasus        CIM_StatisticalData
+                                    // internal       CIM_StatisticalData
                                     // message type
                                     // -------------- -------------------
-//"Unknown",                        //                 0   default
-//"Other",                          //                 1   mapped
-//"Batched",                        //                 2   not used
   "GetClass",                       //     1           3
   "GetInstance",                    //     2           4
-  "IndicationDelivery",             //     3          26
+  "IndicationDelivery",             //     3           26
   "DeleteClass",                    //     4           5
   "DeleteInstance",                 //     5           6
   "CreateClass",                    //     6           7
@@ -61,52 +60,40 @@ String StatisticalData::requestName[] =
   "ModifyClass",                    //     8           9
   "ModifyInstance",                 //     9          10
   "EnumerateClasses",               //    10          11
-  "EnumerateClassNames",            //    12          12
-  "EnumerateInstances",             //    13          13
-  "EnumerateInstanceNames",         //    14          14
-  "ExecQuery",                      //    15          15
-  "Associators",                    //    16          16
-  "AssociatorNames",                //    17          17
-  "References",                     //    18          18
-  "ReferenceNames",                 //    19          20
-  "GetProperty",                    //    20          20
-  "SetProperty",                    //    21          21
-  "GetQualifier",                   //    22          22
-  "SetQualifier",                   //    23          23
-  "DeleteQualifier",                //    24          24
-  "EnumerateQualifiers",            //    25          25
-// Entries below this point are not part of the CIM Class and are treated
-// as OtherOperationTypes in the CIM_CIMOMStatisticalData instance.
-  "InvokeMethod"                    //    26          Not Present index = 26
-
+  "EnumerateClassNames",            //    11          12
+  "EnumerateInstances",             //    12          13
+  "EnumerateInstanceNames",         //    13          14
+  "ExecQuery",                      //    14          15
+  "Associators",                    //    15          16
+  "AssociatorNames",                //    16          17
+  "References",                     //    17          18
+  "ReferenceNames",                 //    18          19
+  "GetProperty",                    //    19          20
+  "SetProperty",                    //    20          21
+  "GetQualifier",                   //    21          22
+  "SetQualifier",                   //    22          23
+  "DeleteQualifier",                //    23          24
+  "EnumerateQualifiers",            //    24          25
+  "InvokeMethod"                    //    25          Not Present
 };
 
 const Uint32 StatisticalData::length = NUMBER_OF_TYPES;
 
-// Pointer to StatisticalData table if it exists.
-StatisticalData* StatisticalData::table = NULL;
+StatisticalData* StatisticalData::cur = NULL;
 
-// If first call, create the statistical data array
 StatisticalData* StatisticalData::current()
 {
-    if (table == NULL)
+    if (cur == NULL)
     {
-        table = new StatisticalData();
+        cur = new StatisticalData();
     }
-    return table;
+    return cur;
 }
 
-// Constructor clears the statisticalData Array and sets the gatherint
-// flag to zero
 StatisticalData::StatisticalData()
 {
     copyGSD = 0;
-    clear();
-}
 
-void StatisticalData::clear()
-{
-    AutoMutex autoMut(_mutex);
     for (unsigned int i=0; i<StatisticalData::length; i++)
     {
         numCalls[i] = 0;
@@ -117,31 +104,8 @@ void StatisticalData::clear()
     }
 }
 
-
-String StatisticalData::getRequestName(Uint16 i)
+void StatisticalData::addToValue(Sint64 value, Uint16 type, Uint32 t)
 {
-    return requestName[i];
-}
-
-void StatisticalData::addToValue(Sint64 value,
-    MessageType msgType,
-    StatDataType t)
-{
-    // Map MessageType to statistic type. Requires multiple tests because
-    // mapping request and responses to the request types.
-    Uint16 type;
-
-    // if is response type, substract starting point of responses.
-    if (msgType >= CIM_GET_CLASS_RESPONSE_MESSAGE)
-    {
-        type = msgType - CIM_GET_CLASS_RESPONSE_MESSAGE;
-    }
-    else
-    {
-        type = msgType - 1;
-    }
-
-    // Test if valid statistic type
     if (type >= NUMBER_OF_TYPES)
     {
          PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,

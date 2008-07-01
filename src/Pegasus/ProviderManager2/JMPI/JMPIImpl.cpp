@@ -1,38 +1,40 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "JMPIImpl.h"
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
-#include <Pegasus/General/DynamicLibrary.h>
+#include <Pegasus/Common/DynamicLibrary.h>
 #else
 #include <dlfcn.h>
 #endif
@@ -106,17 +108,17 @@ const char* classNames[]={
 };
 
 const METHOD_STRUCT instanceMethodNames[]={
-/*00 VectorNew                      */
-{ /*Vector                */
+/*00 VectorNew                      */ 
+{ /*Vector                */ 
     0,
     "<init>",
     "()V" },
-/*01 BooleanNewZ                    */
-{ /*Boolean               */
+/*01 BooleanNewZ                    */ 
+{ /*Boolean               */ 
     1,
     "<init>",
     "(Z)V" },
-/*02 ByteNewB                       */
+/*02 ByteNewB                       */ 
 { /*Byte                  */
     2,
     "<init>",
@@ -147,7 +149,7 @@ const METHOD_STRUCT instanceMethodNames[]={
     "<init>",
     "(D)V" },
 /*08 UnsignedInt8NewS               */
-{ /*UnsignedInt8          */
+{ /*UnsignedInt8          */ 
     8,
     "<init>",
     "(S)V" },
@@ -242,7 +244,7 @@ const METHOD_STRUCT instanceMethodNames[]={
     "getID",
     "()Ljava/lang/String;" },
 /*27 VectorSize                     */
-{ /*Vector                */
+{ /*Vector                */ 
     0,
     "size",
     "()I" },
@@ -329,7 +331,7 @@ const METHOD_STRUCT instanceMethodNames[]={
 /*44 CIMExceptionNewStObObOb        */
 { /*CIMException          */
     13,
-    "<init>",
+    "<init>",         
     "(Ljava/lang/String;Ljava/lang/Object;"
         "Ljava/lang/Object;Ljava/lang/Object;)V" },
 /*45 CIMValueNewJ                   */
@@ -406,7 +408,7 @@ const METHOD_STRUCT staticMethodNames[]={
 static int methodInitDone=0;
 
 jclass    classRefs[sizeof(classNames)/sizeof(classNames[0])];
-jmethodID instanceMethodIDs[sizeof(instanceMethodNames) /
+jmethodID instanceMethodIDs[sizeof(instanceMethodNames) / 
                                 sizeof(instanceMethodNames[0])];
 jmethodID staticMethodIDs[sizeof(staticMethodNames) /
                                 sizeof(staticMethodNames[0])];
@@ -472,13 +474,13 @@ int JMPIjvm::cacheIDs(JNIEnv *env)
       PEG_METHOD_EXIT();
       return JNI_TRUE;
    }
-
+    
    if (methodInitDone == -1)
    {
       PEG_METHOD_EXIT();
       return JNI_FALSE;
    }
-
+   
    methodInitDone = -1;
 
    for (unsigned i = 0; i<(sizeof(classNames)/sizeof(classNames[0])); i++)
@@ -487,13 +489,13 @@ int JMPIjvm::cacheIDs(JNIEnv *env)
       {
          PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
              "Error: Count not find global class ref for %s",classNames[i]));
-
+                              
          PEG_METHOD_EXIT();
          return JNI_FALSE;
       }
    }
 
-   unsigned instanceMethodNamesSize =
+   unsigned instanceMethodNamesSize = 
        sizeof(instanceMethodNames)/sizeof(instanceMethodNames[0]);
 
    for (unsigned j = 0; j<instanceMethodNamesSize; j++)
@@ -513,7 +515,7 @@ int JMPIjvm::cacheIDs(JNIEnv *env)
          return 0;
       }
    }
-   unsigned staticMethodNamesSize =
+   unsigned staticMethodNamesSize = 
        sizeof(staticMethodNames) / sizeof(staticMethodNames[0]);
    for (unsigned k = 0; k<staticMethodNamesSize; k++)
    {
@@ -613,7 +615,7 @@ int JMPIjvm::initJVM ()
 
    PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
        "Start to initialize the JVM.");
-
+   
    jv.initRc = 0;
 
    envstring = getenv("CLASSPATH");
@@ -638,7 +640,7 @@ int JMPIjvm::initJVM ()
 
 ///JNIoptions.append ("-Djava.compiler=NONE");
 ///maxoption++;
-
+   
    unsigned int aEnvOptionsSize=sizeof(aEnvOptions)/sizeof(aEnvOptions[0]);
    for (Uint32 i = 0; i < aEnvOptionsSize; i++)
    {
@@ -874,16 +876,19 @@ jobject JMPIjvm::getProvider (JNIEnv     *env,
 
       // NOTE: Instances of "packageName/className" will not work with the jar
       //       class loader.  Change the '/' to a '.'.
-      String fixedClassName(className);
-      static Char16 slash=Char16('/');
+      String fixedClassName;
+      Uint32 idx            = className.find ('/');
 
-      for (Uint32 i=0; i<className.size(); i++)
+      if (idx != PEG_NOT_FOUND)
       {
-          if (fixedClassName[i]==slash)
-          {
-              fixedClassName[i]=Char16('.');
-          }
-      };
+         fixedClassName = className.subString (0, idx)
+                        + "."
+                        + className.subString (idx + 1);
+      }
+      else
+      {
+         fixedClassName = className;
+      }
 
       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
           "fixedClassName = %s",(const char*)fixedClassName.getCString()));
@@ -1081,7 +1086,7 @@ String getExceptionInfo (JNIEnv *env)
        PEG_METHOD_EXIT();
       return rc;
    }
-
+      
 
    stackTrace = (jobjectArray)env->CallObjectMethod(
                     err,
@@ -2599,7 +2604,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMClient__1getProperty
 }
 
 JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMClient__1setProperty(
-    JNIEnv *jEnv,
+    JNIEnv *jEnv, 
     jobject jThs,
     jlong jCc,
     jlong jNs,
@@ -2909,7 +2914,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMClient__1associators(
     JNIEnv *jEnv,
     jobject jThs,
     jlong jCc,
-    jlong jNs,
+    jlong jNs, 
     jlong jCop,
     jstring jAssocClass,
     jstring jResultClass,
@@ -3154,7 +3159,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMClient__1createNameSpace
    normalizeNs (ns, nsBase, lastNsComp);
 
    CIMInstance newInstance (CIMName ("__Namespace"));
-   newInstance.addProperty(CIMProperty(PEGASUS_PROPERTYNAME_NAME, lastNsComp));
+   newInstance.addProperty (CIMProperty (CIMName ("name"), lastNsComp));
 
    try {
       cCc->createInstance (CIMNamespaceName (nsBase), newInstance);
@@ -3165,7 +3170,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMClient__1createNameSpace
 JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMClient__1enumerateNameSpaces(
     JNIEnv *jEnv,
     jobject jThs,
-    jlong jCc,
+    jlong jCc, 
     jlong jCop,
     jboolean deep,
     jobject jVec)
@@ -3220,7 +3225,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMClient__1deleteNameSpace
                              CIMName ("__Namespace"));
    Array<CIMKeyBinding> kb;
 
-   kb.append (CIMKeyBinding (PEGASUS_PROPERTYNAME_NAME,CIMValue (lastNsComp)));
+   kb.append (CIMKeyBinding (("Name"),CIMValue (lastNsComp)));
    cop.setKeyBindings (kb);
 
    try {
@@ -4624,7 +4629,7 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMObjectPath__1getKeys
          cp = new CIMProperty(
                       n,
                       *cv,
-                      0,
+                      0, 
                       ((CIMObjectPath) akb[i].getValue()).getClassName());
 
       jlong   jCp  = DEBUG_ConvertCToJava (CIMProperty*, jlong, cp);
@@ -4967,7 +4972,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1modifyInstance
    Catch (jEnv);
 }
 
-JNIEXPORT jlong JNICALL
+JNIEXPORT jlong JNICALL 
 Java_org_pegasus_jmpi_CIMOMHandle__1enumerateInstanceNames(
     JNIEnv *jEnv,
     jobject jThs,
@@ -5613,7 +5618,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent(
        (const char*)ind->getPath().toString().getCString()));
 
    ind->setPath (ref);
-
+   
    PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
        "Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent(): ind = %s",
        (const char*)ind->getPath().toString().getCString()));
@@ -5747,7 +5752,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMParameter__1getArraySize
    return rv;
 }
 
-JNIEXPORT jstring JNICALL
+JNIEXPORT jstring JNICALL 
 Java_org_pegasus_jmpi_CIMParameter__1getReferenceClassName(
     JNIEnv *jEnv,
     jobject jThs,
@@ -6538,7 +6543,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMValue__1byteArray
       cv = new CIMValue (s8);
    }
 
-   jEnv->ReleaseShortArrayElements (jshortA, jsA, 0);
+   jEnv->ReleaseShortArrayElements (jshortA, jsA, len);
 
    return DEBUG_ConvertCToJava (CIMValue*, jlong, cv);
 }
@@ -6570,7 +6575,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMValue__1shortArray
       cv = new CIMValue (s16);
    }
 
-   jEnv->ReleaseIntArrayElements (jintA, jiA, 0);
+   jEnv->ReleaseIntArrayElements (jintA, jiA, len);
 
    return DEBUG_ConvertCToJava (CIMValue*, jlong, cv);
 }
@@ -6602,7 +6607,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMValue__1intArray
       cv = new CIMValue (s32);
    }
 
-   jEnv->ReleaseLongArrayElements (jlongA, jlA, 0);
+   jEnv->ReleaseLongArrayElements (jlongA, jlA, len);
 
    return DEBUG_ConvertCToJava (CIMValue*, jlong, cv);
 }
@@ -6634,7 +6639,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMValue__1longArray
       cv = new CIMValue (s64);
    }
 
-   jEnv->ReleaseLongArrayElements (jlongA, jlA, 0);
+   jEnv->ReleaseLongArrayElements (jlongA, jlA, len);
 
    return DEBUG_ConvertCToJava (CIMValue*, jlong, cv);
 }
@@ -6675,7 +6680,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMValue__1booleanArray
 
    cv = new CIMValue (bA);
 
-   jEnv->ReleaseBooleanArrayElements (jboolA, jbA, 0);
+   jEnv->ReleaseBooleanArrayElements (jboolA, jbA, len);
 
    return DEBUG_ConvertCToJava (CIMValue*, jlong, cv);
 }
@@ -6694,7 +6699,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMValue__1floatArray
 
    cv = new CIMValue (fA);
 
-   jEnv->ReleaseFloatArrayElements (jfloatA, jfA, 0);
+   jEnv->ReleaseFloatArrayElements (jfloatA, jfA, len);
 
    return DEBUG_ConvertCToJava (CIMValue*, jlong, cv);
 }
@@ -6713,7 +6718,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMValue__1doubleArray
 
    cv = new CIMValue (dA);
 
-   jEnv->ReleaseDoubleArrayElements (jdoubleA, jdA, 0);
+   jEnv->ReleaseDoubleArrayElements (jdoubleA, jdA, len);
 
    return DEBUG_ConvertCToJava (CIMValue*, jlong, cv);
 }
@@ -6735,7 +6740,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMValue__1copArray
 
    cv = new CIMValue (cA);
 
-   jEnv->ReleaseLongArrayElements (jlongA, jiA, 0);
+   jEnv->ReleaseLongArrayElements (jlongA, jiA, len);
 
    return DEBUG_ConvertCToJava (CIMValue*, jlong, cv);
 }
@@ -6757,7 +6762,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMValue__1datetimeArray
 
    cv = new CIMValue (cA);
 
-   jEnv->ReleaseLongArrayElements (jlongA, jiA, 0);
+   jEnv->ReleaseLongArrayElements (jlongA, jiA, len);
 
    return DEBUG_ConvertCToJava (CIMValue*, jlong, cv);
 }
@@ -6779,7 +6784,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMValue__1objectArray
 
    cv = new CIMValue (cA);
 
-   jEnv->ReleaseLongArrayElements (jlongA, jiA, 0);
+   jEnv->ReleaseLongArrayElements (jlongA, jiA, len);
 
    return DEBUG_ConvertCToJava (CIMValue*, jlong, cv);
 }
@@ -6798,7 +6803,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMValue__1char16Array
 
    cv = new CIMValue (cA);
 
-   jEnv->ReleaseCharArrayElements (jcharA, jcA, 0);
+   jEnv->ReleaseCharArrayElements (jcharA, jcA, len);
 
    return DEBUG_ConvertCToJava (CIMValue*, jlong, cv);
 }
@@ -7362,7 +7367,7 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMValue__1getValue
          {
             jlong jDT = DEBUG_ConvertCToJava(
                             CIMDateTime*,
-                            jlong,
+                            jlong, 
                             new CIMDateTime (dt[i]));
 
             jEnv->SetObjectArrayElement(
@@ -7654,7 +7659,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_JMPISelectList__1applyClass
       }
       catch (const Exception &e)
       {
-         cerr << "Java_org_pegasus_jmpi_JMPISelectList__1applyClass: Caught: "
+         cerr << "Java_org_pegasus_jmpi_JMPISelectList__1applyClass: Caught: " 
               << e.getMessage () << endl;
 
          return 0;
@@ -7711,7 +7716,7 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_OperationContext__1get
       }
       else if (container == "SubscriptionInstanceContainer")
       {
-         SubscriptionInstanceContainer sic =
+         SubscriptionInstanceContainer sic = 
              poc->get(SubscriptionInstanceContainer::NAME);
 
          if (key == "subscriptionInstance")
@@ -7759,7 +7764,7 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_OperationContext__1get
       }
       else if (container == "SubscriptionFilterConditionContainer")
       {
-         SubscriptionFilterConditionContainer sfcc =
+         SubscriptionFilterConditionContainer sfcc = 
              poc->get (SubscriptionFilterConditionContainer::NAME);
 
          if (key == "filterCondition")
@@ -7839,7 +7844,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_PathEnumeration__1getObjectPath
 
    return DEBUG_ConvertCToJava(
               CIMObjectPath*,
-              jlong,
+              jlong, 
               new CIMObjectPath((*enm)[pos]));
 }
 
@@ -7955,8 +7960,8 @@ JNIEXPORT jstring JNICALL Java_org_pegasus_jmpi_SelectExp__1getSelectString
   (JNIEnv *jEnv, jobject jThs, jlong jWQLStmt)
 {
    WQLSelectStatement *wql_stmt = DEBUG_ConvertJavaToC(
-                                      jlong,
-                                      WQLSelectStatement*,
+                                      jlong, 
+                                      WQLSelectStatement*, 
                                       jWQLStmt);
    String              cond;
 

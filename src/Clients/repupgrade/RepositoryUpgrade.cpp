@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +36,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMName.h>
-#include <Pegasus/Common/CIMNameCast.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/PegasusVersion.h>
@@ -43,7 +44,6 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/System.h>
-#include <Pegasus/General/VersionUtil.h>
 #include <Pegasus/getoopt/getoopt.h>
 #include <Clients/cliutils/CommandException.h>
 #include "RepositoryUpgrade.h"
@@ -54,7 +54,7 @@
 #endif
 
 #ifdef PEGASUS_OS_ZOS
-#include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
+#include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
 #endif
 
 // Enables debug information.
@@ -70,10 +70,6 @@ PEGASUS_NAMESPACE_BEGIN
  */
 static const char MSG_PATH []                  = "pegasus/pegasusCLI";
 
-/**
-    Constant for SystemName property
-*/
-const CIMName _PROPERTY_SYSTEMNAME = CIMNameCast("SystemName");
 /**
     The command name.
  */
@@ -126,18 +122,6 @@ const char   RepositoryUpgrade::_OPTION_NEW_REPOSITORY_PATH     = 'n';
     The option character used to display help info.
 */
 const char   RepositoryUpgrade::_OPTION_HELP         = 'h';
-
-#ifdef NS_INTEROP
-/**
-    The constant representing that interop option has been specified
-*/
-const Uint32 RepositoryUpgrade::_OPTION_TYPE_INTEROP = 5;
-
-/**
-    The option character used to change root/PG_Interop to interop.
-*/
-const char   RepositoryUpgrade::_OPTION_INTEROP         = 'i';
-#endif
 
 static const char   LONG_HELP []  = "help";
 
@@ -193,12 +177,6 @@ static const char INSTANCE_CREATION_ERROR [] =
 static const char INSTANCE_CREATION_ERROR_KEY [] =
              "Clients.repupgrade.RepositoryUpgrade.INSTANCE_CREATION_ERROR";
 
-static const char INSTANCE_DELETION_ERROR [] =
-                "Error deleting instance in namespace $0. ";
-
-static const char INSTANCE_DELETION_ERROR_KEY [] =
-             "Clients.repupgrade.RepositoryUpgrade.INSTANCE_DELETION_ERROR";
-
 static const char QUALIFIER_CREATION_ERROR [] =
                 "Error creating qualifier $0 in namespace $1.";
 
@@ -222,6 +200,18 @@ static const char NEW_CLASS_RETRIEVAL_ERROR [] =
 
 static const char NEW_CLASS_RETRIEVAL_ERROR_KEY [] =
            "Clients.repupgrade.RepositoryUpgrade.NEW_CLASS_RETRIEVAL_ERROR";
+
+static const char LIBRARY_LOAD_ERROR [] =
+                "Error loading special handling library $0.";
+
+static const char LIBRARY_LOAD_ERROR_KEY [] =
+                "Clients.repupgrade.RepositoryUpgrade.LIBRARY_LOAD_ERROR";
+
+static const char LIBRARY_ENTRY_POINT_ERROR [] =
+                "Error trying to get entry point symbol in library $0.";
+
+static const char LIBRARY_ENTRY_POINT_ERROR_KEY [] =
+    "Clients.repupgrade.RepositoryUpgrade.LIBRARY_ENTRY_POINT_ERROR";
 
 static const char CLASS_XML_OUTPUT_FILE [] =
               "CIM/XML request for this class has been logged to file $0 ";
@@ -305,7 +295,7 @@ const char* RepositoryUpgrade::_ALL = "a";
 # elif defined(PEGASUS_OS_LINUX)
     const String OLD_REPOSITORY_PATH = "/var/opt/tog-pegasus/prev_repository";
     const String NEW_REPOSITORY_PATH = "/var/opt/tog-pegasus/repository";
-    const String RepositoryUpgrade::_LOG_PATH  =
+    const String RepositoryUpgrade::_LOG_PATH  = 
         "/var/opt/tog-pegasus/log/upgrade";
 # else
 #   undef REPUPGRADE_USE_RELEASE_DIRS
@@ -362,9 +352,6 @@ RepositoryUpgrade::RepositoryUpgrade ()
     _usage.append (" old_repository_path");
     _usage.append (" -").append (_OPTION_NEW_REPOSITORY_PATH);
     _usage.append (" new_repository_path");
-#ifdef NS_INTEROP
-    _usage.append (" [-").append (_OPTION_INTEROP).append("]");
-#endif
 #endif
 
     _usage.append("\n");
@@ -397,10 +384,6 @@ RepositoryUpgrade::RepositoryUpgrade ()
 
     _usage.append("    -n              ");
     _usage.append("- Specify the fully qualified path of the new Repository\n");
-
-#ifdef NS_INTEROP
-    _usage.append("    -i              - Change root/PG_InterOp to interop\n");
-#endif
 #endif
 
     _usage.append("    -h, --help      - Display this help message\n");
@@ -443,7 +426,7 @@ RepositoryUpgrade::RepositoryUpgrade ()
     _interopIgnoreClasses.append ( "PG_IndicationHandler" );
     _interopIgnoreClasses.append ( "PG_IndicationHandlerCIMXML" );
     _interopIgnoreClasses.append ( "PG_IndicationHandlerSNMPMapper" );
-    _interopIgnoreClasses.append ( "PG_IndicationSubscription" );
+    _interopIgnoreClasses.append ( "PG_IndicationSubscription" ); 
 
 }
 
@@ -487,10 +470,6 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
     optString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     optString.append (_OPTION_NEW_REPOSITORY_PATH);
     optString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
-#ifdef NS_INTEROP
-    optString.append (_OPTION_INTEROP);
-    optString.append (getoopt::NOARG);
-#endif
 #endif
 
     optString.append (_OPTION_HELP);
@@ -617,22 +596,6 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
                     _newRepositoryPathSet = true;
                     break;
                 }
-#ifdef NS_INTEROP
-                case _OPTION_INTEROP:
-                {
-                    if (getOpts.isSet (_OPTION_INTEROP) > 1)
-                    {
-                        //
-                        // More than one version option was found
-                        //
-                        throw DuplicateOptionException(_OPTION_INTEROP);
-                    }
-
-                    _optionType = _OPTION_TYPE_INTEROP;
-                    _optionInterop = true;
-                    break;
-                }
-#endif
 #endif
                 case _OPTION_HELP:
                 {
@@ -784,265 +747,6 @@ Uint32 RepositoryUpgrade::execute (
     return 0;
 }
 
-Boolean RepositoryUpgrade::_updateFilterHandlerReference(
-    CIMInstance& instance,
-    const CIMName& propertyName)
-{
-    Boolean changed = false;
-    CIMObjectPath objPath = instance.getPath();
-    CIMObjectPath ref;
-    String systemName;
-    Uint32 pos = instance.findProperty(propertyName);
-    PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
-
-    instance.getProperty(pos).getValue().get(ref);
-    Array<CIMKeyBinding> keyBindings = ref.getKeyBindings();
-    Uint32 nk = keyBindings.size();
-    for (Uint32 j = 0; j < nk ; j++)
-    {
-        if (keyBindings[j].getName().equal(_PROPERTY_SYSTEMNAME))
-        {
-            if (keyBindings[j].getValue() != systemName)
-            {
-                changed = true;
-                keyBindings[j].setValue(systemName);
-            }
-            break;
-        }
-    }
-    // Remove hostname from Filter or Handler reference if set
-    if (ref.getHost().size() != 0)
-    {
-        ref.setHost(String());
-        changed = true;
-    }
-
-    if (changed)
-    {
-        ref.setKeyBindings(keyBindings);
-        CIMProperty currentProp = instance.getProperty(pos);
-        currentProp.setValue(ref);
-        instance.removeProperty(pos);
-        instance.addProperty(currentProp);
-    }
-    return changed;
-}
-
-void RepositoryUpgrade::_updateSubscriptionInstancesInRepository(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className)
-{
-    Array<CIMInstance> instances;
-    String systemName = System::getFullyQualifiedHostName();
-    instances = _newRepository->enumerateInstancesForClass(
-        nameSpace,
-        className);
-    for (Uint32 i = 0, n = instances.size(); i < n; i++)
-    {
-        CIMObjectPath objPath = instances[i].getPath();
-        CIMObjectPath objPathMod;
-        Boolean filterUpdated = _updateFilterHandlerReference(
-            instances[i],
-            PEGASUS_PROPERTYNAME_FILTER);
-        Boolean handlerUpdated = _updateFilterHandlerReference(
-            instances[i],
-            PEGASUS_PROPERTYNAME_HANDLER);
-
-        if (filterUpdated || handlerUpdated)
-        {
-            try
-            {
-                _newRepository->deleteInstance(nameSpace, objPath);
-            }
-            catch (CIMException &e)
-            {
-                _logDeleteInstanceError(
-                    nameSpace,
-                    objPath,
-                    e.getMessage());
-            }
-            try
-            {
-                objPathMod = _newRepository->createInstance(
-                    nameSpace,
-                    instances[i]);
-            }
-            catch (CIMException &e)
-            {
-                _logCreateInstanceError(
-                    nameSpace,
-                    instances[i],
-                    e.getMessage());
-            }
-#ifdef REPUPGRADE_DEBUG
-            cout << "Updated handler/filter references in subscription instance"
-                << " from " << (const char*)objPath.toString().getCString()
-                << " to " << (const char*)objPathMod.toString().getCString()
-                << endl;
-#endif
-        }
-    }
-}
-
-void RepositoryUpgrade::_updateSystemNameKeyPropertyOfInstancesForClass(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className)
-{
-    Array<CIMInstance> instances;
-    String systemName;
-
-    instances = _newRepository->enumerateInstancesForClass(
-        nameSpace,
-        className);
-
-    for (Uint32 i = 0, n = instances.size(); i < n; i++)
-    {
-        Boolean changed = false;
-        CIMObjectPath objPath = instances[i].getPath();
-        Uint32 pos = instances[i].findProperty(_PROPERTY_SYSTEMNAME);
-        PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
-        String sysNameProp;
-        CIMProperty currentProp = instances[i].getProperty(pos);
-        currentProp.getValue().get(sysNameProp);
-
-        if (sysNameProp != systemName)
-        {
-            changed = true;
-            currentProp.setValue(systemName);
-            instances[i].removeProperty(pos);
-            instances[i].addProperty(currentProp);
-        }
-
-        if (changed)
-        {
-            CIMObjectPath objPathMod;
-            try
-            {
-                _newRepository->deleteInstance(nameSpace, objPath);
-            }
-            catch (CIMException &e)
-            {
-                _logDeleteInstanceError(
-                    nameSpace,
-                    objPath,
-                    e.getMessage());
-            }
-            try
-            {
-                objPathMod = _newRepository->createInstance(
-                    nameSpace,
-                    instances[i]);
-            }
-            catch (CIMException &e)
-            {
-                _logCreateInstanceError(
-                    nameSpace,
-                    instances[i],
-                    e.getMessage());
-            }
-#ifdef REPUPGRADE_DEBUG
-            cout << "Updated the SystemName key property in Filter/Handler"
-                << "/ObjectManager instance"
-                << " from " << (const char*)objPath.toString().getCString()
-                << " to " << (const char*)objPathMod.toString().getCString()
-                << endl;
-#endif
-        }
-    }
-}
-
-void RepositoryUpgrade::_updateSystemNameKeyProperty()
-{
-    //
-    //  Get list of namespaces in repository
-    //
-    Array <CIMNamespaceName> nameSpaceNames;
-    nameSpaceNames = _newRepository->enumerateNameSpaces();
-
-    Array <CIMName> filterHandlerClassNameArray;
-
-    filterHandlerClassNameArray.append(PEGASUS_CLASSNAME_INDHANDLER);
-    filterHandlerClassNameArray.append(PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
-#ifdef  PEGASUS_ENABLE_PROTOCOL_WSMAN
-    filterHandlerClassNameArray.append(PEGASUS_CLASSNAME_INDHANDLER_WSMAN);
-#endif
-    filterHandlerClassNameArray.append(PEGASUS_CLASSNAME_LSTNRDST_CIMXML);
-#if defined(PEGASUS_ENABLE_SYSTEM_LOG_HANDLER)
-    filterHandlerClassNameArray.append(PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG);
-#endif
-#if defined(PEGASUS_ENABLE_EMAIL_HANDLER)
-    filterHandlerClassNameArray.append(PEGASUS_CLASSNAME_LSTNRDST_EMAIL);
-#endif
-    filterHandlerClassNameArray.append(PEGASUS_CLASSNAME_LSTNRDST_FILE);
-
-    filterHandlerClassNameArray.append(PEGASUS_CLASSNAME_INDHANDLER_SNMP);
-    filterHandlerClassNameArray.append(PEGASUS_CLASSNAME_INDFILTER);
-
-    Array<CIMName> subscriptionClassNameArray;
-    subscriptionClassNameArray.append(PEGASUS_CLASSNAME_INDSUBSCRIPTION);
-    subscriptionClassNameArray.append(
-        PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION);
-
-    for (Uint32 i = 0, ni = nameSpaceNames.size(); i < ni; i++)
-    {
-        for (Uint32 j = 0, n = filterHandlerClassNameArray.size(); j < n ; j++)
-        {
-            try
-            {
-                _updateSystemNameKeyPropertyOfInstancesForClass(
-                    nameSpaceNames[i],
-                    filterHandlerClassNameArray[j]);
-            }
-            catch (const CIMException& e)
-            {
-                //
-                //  Some namespaces may not include the filter/handler class
-                //
-                if (e.getCode () != CIM_ERR_INVALID_CLASS)
-                {
-#ifdef REPUPGRADE_DEBUG
-                    cout << "Exception caught in attempting to update filter"
-                        << "/handler instances in new repository "
-                        << (const char*)e.getMessage().getCString()
-                        << endl;
-#endif
-
-                    throw;
-                }
-            }
-        }
-
-        // Now update subscriptions.
-        for (Uint32 j = 0, n = subscriptionClassNameArray.size(); j < n ; j++)
-        {
-            try
-            {
-                _updateSubscriptionInstancesInRepository(
-                    nameSpaceNames[i],
-                    subscriptionClassNameArray[j]);
-            }
-            catch (const CIMException& e)
-            {
-                //
-                //  Some namespaces may not include the subscription class
-                //  In that case, just return no subscriptions
-                //  Any other exception is an error
-                //
-                if (e.getCode () != CIM_ERR_INVALID_CLASS)
-                {
-#ifdef REPUPGRADE_DEBUG
-                    cout << "Exception caught in attempting to update "
-                        << "subscription instances in new repository "
-                        << (const char*)e.getMessage().getCString()
-                        << endl;
-#endif
-                    throw;
-                }
-            }
-        }
-    }
-}
-
 void RepositoryUpgrade::upgradeRepository()
 {
     Array<CIMNamespaceName>         oldNamespaces;
@@ -1060,6 +764,7 @@ void RepositoryUpgrade::upgradeRepository()
     // Get Namespace information for old Repository.
     //
     oldNamespaces = _oldRepository->enumerateNameSpaces();
+
     //
     // Get Namespace information for new Repository.
     //
@@ -1122,8 +827,7 @@ void RepositoryUpgrade::upgradeRepository()
 
 #ifdef REPUPGRADE_DEBUG
         cout << "Now processing namespace : "
-            << (const char*)oldNamespaces[i].getString().getCString()
-            << " i=" << i << endl;
+                << oldNamespaces[i] << " i=" << i << endl;
 #endif
 
         //
@@ -1156,23 +860,6 @@ void RepositoryUpgrade::upgradeRepository()
     cout << "Checking for instances..." << endl;
 #endif
     _addInstances ();
-    _updateSystemNameKeyProperty();
-    _removeInstances();
-
-#ifdef NS_INTEROP
-    // Change "root/PG_InterOp" to "interop" in the new repository
-    if ( (_optionInterop == true ) && 
-        (_oldRepository->nameSpaceExists(PEGASUS_NAMESPACE_PGINTEROP)))
-    {
-#ifdef REPUPGRADE_DEBUG
-        cout << "Changing namespace name from " <<
-             PEGASUS_NAMESPACE_PGINTEROP.getString() << " to " 
-             << PEGASUS_NAMESPACENAME_INTEROP.getString() << endl;
-#endif
-        _newRepository->modifyNameSpaceName(PEGASUS_NAMESPACE_PGINTEROP,
-            PEGASUS_NAMESPACENAME_INTEROP);
-    }
-#endif
 }
 
 Array<CIMNamespaceName> RepositoryUpgrade::_compareNamespaces(
@@ -1192,7 +879,7 @@ Array<CIMNamespaceName> RepositoryUpgrade::_compareNamespaces(
     return namespaceNames;
 }
 
-void RepositoryUpgrade::_addQualifiers (const CIMNamespaceName &namespaceName)
+void RepositoryUpgrade::_addQualifiers (const CIMNamespaceName namespaceName)
 {
 
     //
@@ -1242,8 +929,7 @@ void RepositoryUpgrade::_addQualifiers (const CIMNamespaceName &namespaceName)
         {
 #ifdef REPUPGRADE_DEBUG
             cerr << "Ignoring qualifier creation : "
-               << (const char*)qualifiers[j].getName().getString().getCString()
-               << endl;
+                 << qualifiers[j].getName() << endl;
 #endif
             continue;
         }
@@ -1252,15 +938,13 @@ void RepositoryUpgrade::_addQualifiers (const CIMNamespaceName &namespaceName)
         try
         {
 #ifdef REPUPGRADE_DEBUG
-        cout << "Now creating qualifier :"
-            << (const char*)processedQual.getName().getString().getCString()
-            << endl;
+        cout << "Now creating qualifier :" << processedQual.getName()
+             << endl;
 #endif
             _newRepository->setQualifier (namespaceName, processedQual);
 #ifdef REPUPGRADE_DEBUG
-        cout << "Qualifier created:"
-            << (const char*)processedQual.getName().getString().getCString()
-            << endl;
+        cout << "Qualifier created:" << processedQual.getName()
+             << endl;
 #endif
 
         }
@@ -1291,8 +975,7 @@ void RepositoryUpgrade::_addNamespaces(
     for ( Uint32 i=0; i < count;  i++)
     {
 #ifdef REPUPGRADE_DEBUG
-        cout << "Now creating namespace : "
-            << (const char*)namespaces[i].getString().getCString() << endl;
+        cout << "Now creating namespace : " << namespaces[i] << endl;
 #endif
         try
         {
@@ -1374,9 +1057,7 @@ void RepositoryUpgrade::_processClasses(
     for ( Uint32 oldclasses = 0; oldclasses < oldCount ; oldclasses++)
     {
 #ifdef REPUPGRADE_DEBUG
-        cout << "Checking for : "
-            << (const char*)oldClasses[oldclasses].getString().getCString()
-            << endl;
+        cout << "Checking for : " << oldClasses[oldclasses] << endl;
 #endif
         if ( !Contains(newClasses, oldClasses[oldclasses]) )
         {
@@ -1389,17 +1070,29 @@ void RepositoryUpgrade::_processClasses(
                 Contains( _interopIgnoreClasses, oldClasses[oldclasses] ) )
             {
 #ifdef REPUPGRADE_DEBUG
-             cout << "Now ignoring: "
-                 << (const char*)oldClasses[oldclasses].getString().getCString()
-                 << endl;
+                cout << "Now ignoring: " << oldClasses[oldclasses] << endl;
+#endif
+                continue;
+            }
+
+            /** Ignore any "CIM_" classes in pegasus namespaces,
+             *  except root/cimv2. 
+                Since they don't exist in 2.7 they must have been renamed
+                or deleted.
+            */
+            if ( ( (namespaceName == PEGASUS_NAMESPACENAME_INTEROP) ||
+                   (namespaceName == "root/PG_Internal")) &&
+                   (oldClasses[oldclasses].getString().subString(0,4))=="CIM_")
+            {
+#ifdef REPUPGRADE_DEBUG
+                cout << "Now ignoring: " << oldClasses[oldclasses] << endl;
 #endif
                 continue;
             }
 
 #ifdef REPUPGRADE_DEBUG
             cout << "Now appending to missing: "
-                << (const char*)oldClasses[oldclasses].getString().getCString()
-                << endl;
+                 << oldClasses[oldclasses] << endl;
 #endif
             missingClasses.append(oldClasses[oldclasses]);
         }
@@ -1407,8 +1100,7 @@ void RepositoryUpgrade::_processClasses(
         {
 #ifdef REPUPGRADE_DEBUG
         cout << "Now appending to existing: "
-            << (const char*)oldClasses[oldclasses].getString().getCString()
-            << endl;
+             << oldClasses[oldclasses] << endl;
 #endif
             existingClasses.append(oldClasses[oldclasses]);
         }
@@ -1446,11 +1138,8 @@ void RepositoryUpgrade::_processExistingClasses(
     Boolean         newVersionFound=false;
 
 #ifdef REPUPGRADE_DEBUG
-        cout << "In Namespace: "
-            << (const char*)namespaceName.getString().getCString()
-            << "Existing Classname: "
-            << (const char*)existingClasses[i].getString().getCString()
-            << endl;
+        cout << "In Namespace: " << namespaceName
+             << "Existing Classname: " << existingClasses[i] << endl;
 #endif
 
         try
@@ -1598,22 +1287,14 @@ Boolean RepositoryUpgrade::_compareVersion(const String& oldVersion,
     Sint32          iUpdateNew = -1;
     Boolean         retVal = false;
 
-    retVal = VersionUtil::parseVersion(
-        oldVersion,
-        iMajorOld,
-        iMinorOld,
-        iUpdateOld);
+    retVal = _parseVersion (oldVersion, iMajorOld, iMinorOld, iUpdateOld);
 
     // cimmof compiler rejects invalid versions.
     // ATTN-SF-P3-20050209: Need to identify invalid version formats and assert
     // here.
     // PEGASUS_ASSERT(retVal != false);
 
-    retVal = VersionUtil::parseVersion(
-        newVersion,
-        iMajorNew,
-        iMinorNew,
-        iUpdateNew);
+    retVal = _parseVersion (newVersion, iMajorNew, iMinorNew, iUpdateNew);
 
     // cimmof compiler rejects invalid versions.
     // ATTN-SF-P3-20050209: Need to identify invalid version formats and assert
@@ -1649,6 +1330,100 @@ Boolean RepositoryUpgrade::_compareVersion(const String& oldVersion,
         }
     }
     return retVal;
+}
+
+//
+// ATTN-SF-P3-20050209: The following needs to be consolidated with
+//                      cimmofParser::verifyVersion method.
+//
+Boolean RepositoryUpgrade::_parseVersion(
+    const String& version,
+    Sint32& iMajor,
+    Sint32& iMinor,
+    Sint32& iUpdate)
+{
+    const char CHAR_PERIOD = '.';
+
+    if (!version.size())
+    {
+        return true;
+    }
+
+    iMajor = 0;
+    iMinor = 0;
+    iUpdate = 0;
+
+    Uint32 indexM = 0;
+    Uint32 sizeM = PEG_NOT_FOUND;
+    Uint32 indexN = PEG_NOT_FOUND;
+    Uint32 sizeN = PEG_NOT_FOUND;
+    Uint32 indexU = PEG_NOT_FOUND;
+
+    // If "V" specified as first character, ignore it
+    if ((version[0] == 'V') || (version[0] == 'v'))
+    {
+        indexM = 1;
+    }
+
+    // Find the M, N, and U version fields delimited by '.' characters
+
+    indexN = version.find(indexM, CHAR_PERIOD);
+
+    if (indexN != PEG_NOT_FOUND)
+    {
+        sizeM = indexN++ - indexM;
+
+        indexU = version.find(indexN, CHAR_PERIOD);
+        if (indexU != PEG_NOT_FOUND)
+        {
+            sizeN = indexU++ - indexN;
+        }
+    }
+
+    // Parse the major version
+    char dummyChar;
+    int numConversions = sscanf(
+        version.subString(indexM, sizeM).getCString(),
+        "%u%c",
+        &iMajor,
+        &dummyChar);
+
+    if (numConversions != 1)
+    {
+        return false;
+    }
+
+    // Parse the minor version
+    if (indexN != PEG_NOT_FOUND)
+    {
+        numConversions = sscanf(
+            version.subString(indexN, sizeN).getCString(),
+            "%u%c",
+            &iMinor,
+            &dummyChar);
+
+        if (numConversions != 1)
+        {
+            return false;
+        }
+    }
+
+    // Parse the update version
+    if (indexU != PEG_NOT_FOUND)
+    {
+        numConversions = sscanf(
+            version.subString(indexU).getCString(),
+            "%u%c",
+            &iUpdate,
+            &dummyChar);
+
+        if (numConversions != 1)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void RepositoryUpgrade::_processNewClasses(
@@ -1807,40 +1582,10 @@ Uint32 RepositoryUpgrade::_addClassToRepository (
 #ifdef REPUPGRADE_DEBUG
             cout << "Class created : " << className.getString() << endl;
 #endif
-
-        }
-        catch(BadQualifierType& bqe)
-        {
-            if(bqe.getQualifierName() == "EmbeddedInstance" )
-            {
-                CIMName dependentClassName(bqe.getClassName());
-                if (! Contains( existingClasses, dependentClassName))
-                {
-                    oldClass = _checkIfDependentClassExists(namespaceName,
-                        className,
-                        dependentClassName);
-
-                    retCode = 1;
-                }
-                else
-                {
-                    _logCreateClassError (namespaceName,
-                                          oldClass,
-                                          (bqe.getMessage()+". "));
-                }
-            }
-            //BadQualifierType exception occured not because of
-            //embedded instance repupgrade
-            else
-            {
-                 _logCreateClassError (namespaceName,
-                                       oldClass,
-                                       (bqe.getMessage()+". "));
-            }
         }
         catch (CIMException& ce)
         {
-            if (ce.getCode() == CIM_ERR_INVALID_PARAMETER)
+            if (ce.getCode() == CIM_ERR_NOT_FOUND)
             {
                 CIMName dependentClassName(ce.getMessage());
 
@@ -1852,10 +1597,48 @@ Uint32 RepositoryUpgrade::_addClassToRepository (
                 //
                 if (! Contains( existingClasses, dependentClassName))
                 {
-                    oldClass = _checkIfDependentClassExists(namespaceName,
-                        className,
-                        dependentClassName);
+                    // 
+                    // Check if the class that we depend on exists in 
+                    // the old repository.
+                    // If it doesn't exist, error out.
+                    //
+                    try
+                    { 
+                        oldClass = _oldRepository->getClass(
+                                            namespaceName,
+                                            dependentClassName,
+                                            true,
+                                            true,
+                                            true);
 
+                    }
+                    catch (const CIMException&)
+                    {
+                        //
+                        // We have an exception case here.
+                        //
+                        String message = localizeMessage (MSG_PATH,
+                               REPOSITORY_UPGRADE_FAILURE_KEY,
+                               REPOSITORY_UPGRADE_FAILURE) + " " +
+
+                              localizeMessage ( MSG_PATH,
+                              CLASS_CREATION_ERROR_KEY,
+                              CLASS_CREATION_ERROR,
+                              className.getString(),
+                              namespaceName.getString()) + " " +
+
+                               localizeMessage (MSG_PATH,
+                               OLD_DEPENDENT_CLASS_RETRIEVAL_ERROR_KEY,
+                               OLD_DEPENDENT_CLASS_RETRIEVAL_ERROR,
+                               dependentClassName.getString(),
+                               namespaceName.getString());
+
+                         throw RepositoryUpgradeException(message);
+                    }
+#ifdef REPUPGRADE_DEBUG
+                    cout << "Adding to retry list Class name : "
+                         << ce.getMessage() << endl;
+#endif
                     retCode = 1;
                 }
                 else
@@ -1891,55 +1674,6 @@ Uint32 RepositoryUpgrade::_addClassToRepository (
     return retCode;
 }
 
-CIMClass RepositoryUpgrade::_checkIfDependentClassExists(
-                      const CIMNamespaceName& namespaceName,
-                      const CIMName&          className,
-                      const CIMName&          dependentClassName)
-{
-    // Check if the class that we depend on exists in
-    // the old repository.
-    // If it doesn't exist, error out.
-    try
-    {
-        CIMClass oldClass = _oldRepository->getClass(
-            namespaceName,
-            dependentClassName,
-            true,
-            true,
-            true);
-
-#ifdef REPUPGRADE_DEBUG
-        cout << "Adding to retry list Class name : "
-            << (const char *) className.getString().getCString()<< endl;
-#endif
-        return oldClass;
-
-    }
-    //Embedded instance is not in old repository
-    catch (const CIMException& c)
-    {
-        // We have an exception case here.
-        String message = localizeMessage (MSG_PATH,
-                             REPOSITORY_UPGRADE_FAILURE_KEY,
-                             REPOSITORY_UPGRADE_FAILURE) + " " +
-
-                         localizeMessage ( MSG_PATH,
-                             CLASS_CREATION_ERROR_KEY,
-                             CLASS_CREATION_ERROR,
-                             className.getString(),
-                             namespaceName.getString()) + " " +
-
-                         localizeMessage (MSG_PATH,
-                             OLD_DEPENDENT_CLASS_RETRIEVAL_ERROR_KEY,
-                             OLD_DEPENDENT_CLASS_RETRIEVAL_ERROR,
-                             dependentClassName.getString(),
-                             namespaceName.getString());
-
-        throw RepositoryUpgradeException(message);
-    }
-}
-
-
 void RepositoryUpgrade::_addInstances(void)
 {
     Array<CIMNamespaceName>                  oldNamespaces;
@@ -1973,37 +1707,16 @@ void RepositoryUpgrade::_addInstances(void)
                 for ( Uint32 ctr=0; ctr < oldClassNames.size(); ctr++)
                 {
 #ifdef REPUPGRADE_DEBUG
-            cout << "Processing namespace : "
-                << (const char*)oldNamespaces[i].getString().getCString()
-                << " class name : "
-                << (const char*)oldClassNames[ctr].getString().getCString()
-                << endl;
+            cout << "Processing namespace : " << oldNamespaces[i]
+                 << "class name : " <<  oldClassNames[ctr] << endl;
 #endif
-
-#ifdef NS_INTEROP
-                    CIMClass oldClass = _oldRepository->getClass(
-                                            oldNamespaces[i],
-                                            oldClassNames[ctr]);
-                    Uint32 pCnt = oldClass.getPropertyCount();
-                    Boolean hasReference = false;
-                    Array<CIMName> refProp;
-                    for ( Uint32 j = 0; j < pCnt; j++)
-                    {
-                        CIMProperty prop = oldClass.getProperty(j);
-                        if(prop.getType() == CIMTYPE_REFERENCE)
-                        {
-                            refProp.append(prop.getName());
-                            hasReference = true;
-                        }
-                    } 
-#endif
-
                     Array<CIMInstance>         instances;
                     Uint32                     ictr = 0;
 
                         instances = _oldRepository->enumerateInstancesForClass(
                                             oldNamespaces[i],
                                             oldClassNames[ctr],
+                                            false,
                                             true,
                                             true);
 
@@ -2045,16 +1758,6 @@ void RepositoryUpgrade::_addInstances(void)
                                     //
 #ifdef REPUPGRADE_DEBUG
                                 cout << "Creating instance" << endl;
-#endif
-
-#ifdef NS_INTEROP
-                                if( hasReference == true)
-                                {
-#ifdef REPUPGRADE_DEBUG
-                                   cout << "Calling _processInstance()" << endl;
-#endif
-                                   _processInstance(processedInstance, refProp);
-                                } 
 #endif
                                     _newRepository->createInstance(
                                                          oldNamespaces[i],
@@ -2101,96 +1804,6 @@ void RepositoryUpgrade::_addInstances(void)
     }
 }
 
-#ifdef NS_INTEROP
-void RepositoryUpgrade::_processInstance(CIMInstance& instance,
-                       Array<CIMName> a)
-{
-    for(Uint32 k = 0; k < a.size(); k++)
-    {
-        try
-        {
-            Uint32 propIndex = instance.findProperty(a[k]);
-            CIMProperty prop = instance.getProperty(propIndex);
-            CIMObjectPath objPath;
-            prop.getValue().get(objPath);
-            if ( objPath.getNameSpace() == PEGASUS_NAMESPACE_PGINTEROP )
-            { 
-                objPath.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
-                instance.removeProperty(propIndex);
-                prop.setValue(objPath);
-                instance.addProperty(prop);
-            }
-        }
-        catch(...)
-        {
-#ifdef REPUPGRADE_DEBUG
-            cout << "Execption occured in _processInstance()" << endl;
-#endif
-            throw;
-        }
-    } 
-}
-#endif
-
-void RepositoryUpgrade::_removeInstances(void)
-{
-    Array<CIMInstance> instances;
-    //
-    // Remove persistence CIM_ObjectManager instances from new repository.
-    // It is no longer persistence.
-    //
-    try
-    {
-        instances = _newRepository->enumerateInstancesForClass(
-            PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_PG_OBJECTMANAGER);
-    } 
-    catch (const CIMException& e)
-    {
-        //
-        // Interop namespace or object manager class may not exist
-        //
-        if (e.getCode() != CIM_ERR_INVALID_CLASS &&
-            e.getCode() != CIM_ERR_INVALID_NAMESPACE)
-        {
-#ifdef REPUPGRADE_DEBUG
-            cout << "Exception caught in attempting to remove "
-                << "object manager instances in the new repository "
-                << (const char*)e.getMessage().getCString()
-                << endl;
-#endif
-            throw;
-        }
-        return;
-    }
-
-    for (Uint32 i = 0, n = instances.size(); i < n; i++)
-    {
-        CIMObjectPath objPath = instances[i].getPath();
-
-        try
-        {
-            _newRepository->deleteInstance(
-                PEGASUS_NAMESPACENAME_INTEROP,
-                objPath);
-        }
-        catch (CIMException &e)
-        {
-            _logDeleteInstanceError(
-                PEGASUS_NAMESPACENAME_INTEROP,
-                objPath,
-                e.getMessage());
-        }
-#ifdef REPUPGRADE_DEBUG
-        cout << "Delete "
-            << (const char*)
-                   PEGASUS_CLASSNAME_PG_OBJECTMANAGER.getString().getCString()
-            << " instance: "
-            << (const char*)objPath.toString().getCString()
-            << endl;
-#endif
-    }
-}
 ////////////////////////////////////////////////////////////////////////////////
 //
 // _namespaceNameToDirName()
@@ -2277,7 +1890,7 @@ void RepositoryUpgrade::_logRequestToFile(
                 XmlWriter::indentedPrint (outFile, content, 0);
                 outFile.close();
             }
-
+        
             delete response;
         }
         nowMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
@@ -2372,59 +1985,6 @@ void RepositoryUpgrade::_logCreateInstanceError(
                      + localizeMessage ( MSG_PATH, INSTANCE_XML_OUTPUT_FILE_KEY,
                                          INSTANCE_XML_OUTPUT_FILE,
                                          outputFileName);
-
-    throw RepositoryUpgradeException (errMsg);
-}
-
-void RepositoryUpgrade::_logDeleteInstanceError(
-    const CIMNamespaceName& namespaceName,
-    const CIMObjectPath& instanceName,
-    const String& message)
-{
-    CIMRequestMessage* request;
-
-    instanceCount++;
-
-    // Create a DeleteInstance message.
-    // NOTE: The allocated memory is freed once the response is dequeued
-    //       by the method _logRequestToFile.
-    request = new CIMDeleteInstanceRequestMessage(
-        String::EMPTY,
-        namespaceName,
-        instanceName,
-        QueueIdStack());
-
-    // Enqueue the request.
-    _requestEncoder->enqueue(request);
-
-    char buffer[34];
-    sprintf( buffer, "%u", instanceCount );
-    // Build the output filepath.
-    String outputFileName = String(_LOG_PATH +
-        _namespaceNameToDirName(namespaceName) +
-        "."+
-        "instance." + buffer +
-        _FILE_EXTENSION);
-
-    // Log the request to output filepath.
-    _logRequestToFile (outputFileName);
-
-    String errMsg =
-        localizeMessage(
-            MSG_PATH,
-            REPOSITORY_UPGRADE_FAILURE_KEY,
-            REPOSITORY_UPGRADE_FAILURE)
-        + message
-        + localizeMessage(
-            MSG_PATH,
-            INSTANCE_DELETION_ERROR_KEY,
-            INSTANCE_DELETION_ERROR,
-            namespaceName.getString())
-        + localizeMessage(
-             MSG_PATH,
-             INSTANCE_XML_OUTPUT_FILE_KEY,
-             INSTANCE_XML_OUTPUT_FILE,
-             outputFileName);
 
     throw RepositoryUpgradeException (errMsg);
 }
@@ -2686,7 +2246,7 @@ int main (int argc, char* argv [])
     {
         RepositoryUpgrade   command;
         Uint32          retCode;
-
+        
         //l10n set message loading to process locale
         MessageLoader::_useProcessLocale = true;
 

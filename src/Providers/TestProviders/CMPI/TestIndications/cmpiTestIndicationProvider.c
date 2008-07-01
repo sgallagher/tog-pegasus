@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +36,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
-#ifdef PEGASUS_OS_ZOS
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #include <pthread.h>
 #endif
 
@@ -88,7 +90,7 @@ gettimeofday (struct timeval *t, void *timezone)
 {
     struct _timeb timebuffer;
     _ftime (&timebuffer);
-    t->tv_sec = (long)timebuffer.time;
+    t->tv_sec = timebuffer.time;
     t->tv_usec = 1000 * timebuffer.millitm;
 }
 #endif
@@ -226,7 +228,7 @@ make_ObjectPath (const CMPIBroker * broker, const char *ns, const char *clss)
     return objPath;
 }
     static CMPIInstance *
-make_InstanceWithProperties (const CMPIBroker * broker,
+make_InstanceWithProperties (const CMPIBroker * broker, 
         const CMPIObjectPath * objPath)
 {
     CMPIInstance *inst = NULL;
@@ -266,7 +268,7 @@ make_InstanceWithProperties (const CMPIBroker * broker,
             _name = CMGetCharsPtr(name, &rc_String);
             check_CMPIStatus(rc_String);
         }
-        // Really dumb way of doing it.
+        // Really dumb way of doing it. 
         // Just set each property with its own property name.
         if (prop_data.type == CMPI_string)
         {
@@ -413,11 +415,11 @@ expand_projection (CMPISelectExp * clone, CMPIArray * projection)
 }
 
 
-    static void
-run_test (const CMPIBroker * broker,
+    static void 
+run_test (const CMPIBroker * broker, 
         const CMPIContext * ctx,
-        const char *query,
-        const char *lang,
+        const char *query, 
+        const char *lang, 
         const CMPIInstance * inst)
 {
     CMPISelectExp *new_se = NULL;
@@ -429,7 +431,7 @@ run_test (const CMPIBroker * broker,
     if (new_se)
     {
         expand_projection (new_se, projection);
-        /* The accessor function and the instance
+        /* The accessor function and the instance 
            should provide the same exact properties */
         evalRes = evaluate (new_se, inst, instance_accessor, (void *)broker);
         if (projection)
@@ -472,7 +474,7 @@ thread (void *args)
     CMPIBroker *broker;
 
     // Copy over the CMPISelectExp,
-    // CMPIContext, CMPIBroker and the ns from the argument.
+    // CMPIContext, CMPIBroker and the ns from the argument. 
     se = (CMPISelectExp *) arguments[0];
     ctx = (CMPIContext *) arguments[1];
     broker = (CMPIBroker *) arguments[2];
@@ -512,7 +514,7 @@ thread (void *args)
     if (inst != NULL)
     {
         /*
-           This functionality is not used in indication providers,
+           This functionality is not used in indication providers, 
            but instead in ExecQuery provider API (instance providers).
            But for the sake of completness
            this functionality is also used here. */
@@ -699,7 +701,7 @@ TestCMPIIndicationProviderMustPoll (CMPIIndicationMI * mi,
 TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
         const CMPIContext * ctx,
         const CMPISelectExp * se,
-        const char *clsName,
+        const char *ns,
         const CMPIObjectPath * op,
         CMPIBoolean firstActivation)
 #else
@@ -708,7 +710,7 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
         CMPIContext * ctx,
         CMPIResult * rslt,
         CMPISelectExp * se,
-        const char *clsName,
+        const char *ns,
         CMPIObjectPath * op,
         CMPIBoolean firstActivation)
 #endif
@@ -725,12 +727,12 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
     context = CBPrepareAttachThread (_broker, ctx);
 
     // We have to pass in the parameters some way. We are passing the
-    // addresses of them  via the void pointer to the thread.
+    // addresses of them  via the void pointer to the thread. 
     // This could also be achieved via passing it thread-specific data.
     arguments[0] = se;
     arguments[1] = context;
     arguments[2] = _broker;
-    arguments[3] = strdup (clsName);
+    arguments[3] = strdup (ns);
     // Spawn of a new thread!
     _broker->xft->newThread (thread, (void *) arguments, 0);
 
@@ -744,7 +746,7 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
 TestCMPIIndicationProviderDeActivateFilter (CMPIIndicationMI * mi,
         const CMPIContext * ctx,
         const CMPISelectExp * se,
-        const char *clsName,
+        const char *ns,
         const CMPIObjectPath * op,
         CMPIBoolean lastActivation)
 #else
@@ -753,7 +755,7 @@ TestCMPIIndicationProviderDeActivateFilter (CMPIIndicationMI * mi,
         CMPIContext * ctx,
         CMPIResult * rslt,
         CMPISelectExp * se,
-        const char *clsName,
+        const char *ns,
         CMPIObjectPath * op,
         CMPIBoolean lastActivation)
 #endif

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -49,7 +51,6 @@
 #include "InteropProvider.h"
 #include "InteropProviderUtils.h"
 #include "InteropConstants.h"
-#include <Pegasus/Common/ArrayIterator.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -126,7 +127,7 @@ Array<CIMInstance> InteropProvider::enumNamespaceInManagerInstances()
 
     CIMInstance instanceskel = buildInstanceSkeleton(
         PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_NAMESPACEINMANAGER, true, targetClass);
+        PEGASUS_CLASSNAME_PG_NAMESPACEINMANAGER, targetClass);
     // Build and instance for each namespace instance.
     for (Uint32 i = 0 ; i < namespaceInstances.size() ; i++)
     {
@@ -159,7 +160,7 @@ CIMInstance InteropProvider::buildNamespaceInstance(
     CIMClass targetClass;
     CIMInstance instance = buildInstanceSkeleton(
         PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PGNAMESPACE,
-        true, targetClass);
+        targetClass);
 
     setCommonKeys(instance);
 
@@ -238,13 +239,6 @@ CIMInstance InteropProvider::buildNamespaceInstance(
         {
             parent=value;
         }
-#ifdef PEGASUS_ENABLE_REMOTE_CMPI
-        else if (String::equalNoCase(key,"remoteInfo"))
-        {
-            //ATTN: remoteInfo property is not part of PG_Namespace class,
-            // add the property to PG_Namespace instance once avilable.
-        }
-#endif
         else
         {
             PEG_METHOD_EXIT();
@@ -273,39 +267,6 @@ CIMInstance InteropProvider::buildNamespaceInstance(
     instance.setPath(objPath);
     PEG_METHOD_EXIT();
     return instance;
-}
-
-CIMInstance InteropProvider::getNameSpaceInstance(
-    const CIMObjectPath & ref)
-{
-    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-        "getNameSpaceInstance()");
-    Array<CIMKeyBinding> keyBindings = ref.getKeyBindings();
-    ConstArrayIterator<CIMKeyBinding> keyIter(keyBindings);
-    String name;
-
-    for (Uint32 i = 0; i < keyIter.size(); i++)
-    {
-        if (keyIter[i].getName().equal(CIM_NAMESPACE_PROPERTY_NAME))
-        {
-            name = keyIter[i].getValue();
-            break;
-        }
-    }
-
-    if(repository->nameSpaceExists(name)) 
-    {
-        CIMInstance newInst = buildNamespaceInstance(name);
-        if( newInst.getPath() != ref )
-        {
-            throw CIMObjectNotFoundException(ref.toString());
-        }
-        PEG_METHOD_EXIT();
-        return newInst;
-    }
-
-    PEG_METHOD_EXIT();
-    throw CIMObjectNotFoundException(ref.toString());
 }
 
 //
@@ -359,9 +320,8 @@ String buildNamespacePath(
 
     if(propIndex == PEG_NOT_FOUND)
     {
-        PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL1,
-            "Invalid CIM_Namespace Key Property %s",
-            (const char*)propertyName.getString().getCString()));
+        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL1,
+            "Invalid CIM_Namespace Key Property " +  propertyName.getString());
         PEG_METHOD_EXIT();
         throw CIMInvalidParameterException(
             "Invalid CIM_Namespace key property: " + propertyName.getString());
@@ -490,9 +450,9 @@ void InteropProvider::deleteNamespace(
 
     repository->deleteNameSpace(deleteNamespaceName);
 
-    PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-        "Namespace = %s successfully deleted.",
-        (const char*)deleteNamespaceName.getString().getCString()));
+    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+        "Namespace = " + deleteNamespaceName.getString() +
+            " successfully deleted.");
 
     PEG_METHOD_EXIT();
 }
@@ -512,13 +472,14 @@ CIMObjectPath InteropProvider::createNamespace(
 
     // Create the new namespace
 
-    PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-        "Namespace = %s to be created.",
-        (const char*)newNamespaceName.getString().getCString()));
+    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+        "Namespace = " + newNamespaceName.getString() +
+            " to be created.");
 
     CIMRepository::NameSpaceAttributes attributes;
 
     // Set shareable attribute to "false" if property is not present
+    Boolean shareable = false;
     if (getPropertyValue(namespaceInstance,
         PG_NAMESPACE_PROPERTY_ISSHAREABLE, false))
     {
@@ -530,6 +491,7 @@ CIMObjectPath InteropProvider::createNamespace(
     }
 
     // Set updatesAllowed attribute to "false" if property is not present
+    Boolean updatesAllowed = false;
     if (getPropertyValue(namespaceInstance,
         PG_NAMESPACE_PROPERTY_SCHEMAUPDATESALLOWED, false))
     {
@@ -551,13 +513,15 @@ CIMObjectPath InteropProvider::createNamespace(
     // Create the namespace with the retrieved attributes.
     //
     repository->createNameSpace(newNamespaceName, attributes);
-  
+
     PEG_TRACE((
         TRC_CONTROLPROVIDER,
         Tracer::LEVEL4,
-        "Namespace %s: Parent: %s"
+        "Namespace %s: Shareable = %s, Updates allowed: %s, Parent: %s"
             "  successfully created.",
         (const char*) newNamespaceName.getString().getCString(),
+        shareable? "true" : "false",
+        updatesAllowed? "true" : "false",
         (const char*) parent.getCString()));
 
     return newInstanceReference;

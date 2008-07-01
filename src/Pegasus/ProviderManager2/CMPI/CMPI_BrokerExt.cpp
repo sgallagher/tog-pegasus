@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +35,6 @@
 
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 #include "CMPI_Object.h"
-#include "CMPI_ThreadContext.h"
 #include "CMPI_Broker.h"
 #include "CMPI_Ftabs.h"
 #include "CMPI_String.h"
@@ -103,30 +104,12 @@ static ThreadReturnType PEGASUS_THREAD_CDECL start_driver(void *parm)
     Thread* my_thread = (Thread*)parm;
     thrd_data *pp = (thrd_data*)my_thread->get_parm();
     thrd_data data=*pp;
-    Thread::setCurrent(my_thread);
 
     delete pp;
     rc = (ThreadReturnType)(data.pgm)(data.parm);
 
-    // Remove the thread from the watch-list (and clean it up) if this (self)
-    // was created in detached mode. Don't delete the thread if this thread
-    // was not created in detached mode because it is possible that join()
-    // my be called on this thread later. This thread object is deleted when
-    // joinThread() is called later. If joinThread() is not called memory is
-    // leaked which is true as per Pthread semantics and as defined by CMPI.
-    if (!my_thread->isDetached())
-    {
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
-            "Thread %s is not detached, not removed from provider watch-list",
-            Threads::id().buffer));
-    }
-    else
-    {
-        data.provider->removeThreadFromWatch(my_thread);
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
-            "Thread %s is detached and removed from provider watch-list",
-            Threads::id().buffer));
-    }
+    // Remove the thread from the watch-list (and clean it up).
+    data.provider->removeThreadFromWatch(my_thread);
     PEG_METHOD_EXIT();
     return rc;
 }
@@ -160,15 +143,25 @@ extern "C"
         broker->provider->addThreadToWatch(t);
         data.release();
 
-        if (t->run() != PEGASUS_THREAD_OK)
+        ThreadStatus rtn = PEGASUS_THREAD_OK;
+        while ((rtn = t->run()) != PEGASUS_THREAD_OK)
         {
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1, \
-                "Could not allocate provider thread (%p) for %s provider.",
-                t, (const char *)broker->name.getCString()));
-            broker->provider->removeThreadFromWatch(t);
-            t = NULL;
+            if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+            {
+                Threads::yield();
+            }
+            else
+            {
+                PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1, \
+                    "Could not allocate provider thread (%p) for %s provider.",
+                    t, (const char *)broker->name.getCString()));
+                broker->provider->removeThreadFromWatch(t);
+                delete t;
+                t = 0;
+                break;
+            }
         }
-        else 
+        if (rtn == PEGASUS_THREAD_OK)
         {
             PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
                 "Started provider thread (%p) for %s.",
@@ -182,14 +175,8 @@ extern "C"
         CMPI_THREAD_TYPE thread,
         CMPI_THREAD_RETURN *returnCode)
     {
-        const CMPIBroker *brk = CM_BROKER;
-        const CMPI_Broker *broker = (CMPI_Broker*)brk;
         ((Thread*)thread)->join();
-        if (returnCode)
-        {
-            *returnCode = (CMPI_THREAD_RETURN)((Thread*)thread)->get_exit();
-        }
-        broker->provider->removeThreadFromWatch((Thread*)thread);
+        *returnCode = (CMPI_THREAD_RETURN)((Thread*)thread)->get_exit();
         return 0;
     }
 

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +45,8 @@
 # include "snmpDeliverTrap_emanate.h"
 #elif defined (PEGASUS_USE_NET_SNMP)
 # include "snmpDeliverTrap_netsnmp.h"
+#else
+# include "snmpDeliverTrap_stub.h"
 #endif
 
 #include <Pegasus/Common/MessageLoader.h>
@@ -60,6 +64,8 @@ snmpIndicationHandler::snmpIndicationHandler()
     _snmpTrapSender = new snmpDeliverTrap_emanate();
 #elif defined (PEGASUS_USE_NET_SNMP)
     _snmpTrapSender = new snmpDeliverTrap_netsnmp();
+#else
+    _snmpTrapSender = new snmpDeliverTrap_stub();
 #endif
 
     PEG_METHOD_EXIT();
@@ -147,10 +153,10 @@ void snmpIndicationHandler::handleIndication(
                 {
                     //
                     // We are looking for following fields:
-                    // MappingStrings {"OID.IETF | SNMP." oidStr,
+                    // MappingStrings {"OID.IETF | SNMP." oidStr, 
                     //     "DataType.IETF |" dataType}
                     // oidStr is the object identifier (e.g. "1.3.6.1.2.1.5..."
-                    // dataType is either Integer, or OctetString,
+                    // dataType is either Integer, or OctetString, 
                     // or OID
                     // Following is one example:
                     // MappingStrings {"OID.IETF | SNMP.1.3.6.6.3.1.1.5.2",
@@ -159,7 +165,7 @@ void snmpIndicationHandler::handleIndication(
 
                     propDecl.getQualifier(qualifierPos).getValue().get(
                         mapStr);
-
+ 
                     String oidStr, dataType;
                     String mapStr1, mapStr2;
                     Boolean isValidAuthority = false;
@@ -168,17 +174,17 @@ void snmpIndicationHandler::handleIndication(
                     for (Uint32 j=0; j < mapStr.size(); j++)
                     {
                         Uint32 barPos = mapStr[j].find("|");
-
-                        if (barPos != PEG_NOT_FOUND)
+                            
+                        if (barPos != PEG_NOT_FOUND) 
                         {
                             mapStr1 = mapStr[j].subString(0, barPos);
                             mapStr2 = mapStr[j].subString(barPos + 1);
 
                             _trimWhitespace(mapStr1);
                             _trimWhitespace(mapStr2);
-
+                                
                             if ((mapStr1 == "OID.IETF") &&
-                                (String::compare(mapStr2,
+                                (String::compare(mapStr2, 
                                  String("SNMP."), 5) == 0))
                             {
                                 isValidAuthority = true;
@@ -190,7 +196,7 @@ void snmpIndicationHandler::handleIndication(
                                 dataType = mapStr2;
                             }
 
-                            if (isValidAuthority && isValidDataType)
+                            if (isValidAuthority && isValidDataType) 
                             {
                                 propOIDs.append(oidStr);
                                 propTYPEs.append(dataType);
@@ -218,16 +224,6 @@ void snmpIndicationHandler::handleIndication(
         Uint32 securityNamePos =
             handler.findProperty(CIMName("SNMPSecurityName"));
         Uint32 engineIDPos = handler.findProperty(CIMName("SNMPEngineID"));
-        Uint32 snmpSecLevelPos = 
-            handler.findProperty(CIMName("SNMPSecurityLevel"));
-        Uint32 snmpSecAuthProtoPos = 
-            handler.findProperty(CIMName("SNMPSecurityAuthProtocol"));
-        Uint32 snmpSecAuthKeyPos =
-            handler.findProperty(CIMName("SNMPSecurityAuthKey"));
-        Uint32 snmpSecPrivProtoPos =
-            handler.findProperty(CIMName("SNMPSecurityPrivProtocol"));
-        Uint32 snmpSecPrivKeyPos =
-            handler.findProperty(CIMName("SNMPSecurityPrivKey"));
 
         if (targetHostPos == PEG_NOT_FOUND)
         {
@@ -278,11 +274,6 @@ void snmpIndicationHandler::handleIndication(
             Uint16 targetHostFormat = 0;
             Uint16 snmpVersion = 0;
             Uint32 portNumber;
-            Uint8 snmpSecLevel = 1; // noAuthnoPriv
-            Uint8 snmpSecAuthProto = 0; 
-            Array<Uint8> snmpSecAuthKey;// no key
-            Uint8 snmpSecPrivProto = 0; 
-            Array<Uint8> snmpSecPrivKey ;// no key
 
             String trapOid;
             Boolean trapOidAvailable = false;
@@ -313,9 +304,9 @@ void snmpIndicationHandler::handleIndication(
                     {
                         Uint32 barPos = classMapStr[i].find("|");
 
-                        if (barPos != PEG_NOT_FOUND)
+                        if (barPos != PEG_NOT_FOUND) 
                         {
-                            String authorityName =
+                            String authorityName = 
                                 classMapStr[i].subString(0, barPos);
                             String oidStr = classMapStr[i].subString(
                                 barPos+1, PEG_NOT_FOUND);
@@ -324,10 +315,10 @@ void snmpIndicationHandler::handleIndication(
                             _trimWhitespace(oidStr);
 
                             if ((authorityName == "OID.IETF") &&
-                                (String::compare(oidStr,
+                                (String::compare(oidStr, 
                                  String("SNMP."), 5) == 0))
                             {
-                                trapOid = oidStr.subString(5);
+                                trapOid = oidStr.subString(5); 
                                 trapOidAvailable = true;
                                 break;
                             }
@@ -399,36 +390,6 @@ void snmpIndicationHandler::handleIndication(
                 handler.getProperty(engineIDPos).getValue().get(engineID);
             }
 
-            if(snmpVersion == 5) // SNMPv3 Trap
-            {
-                //fetch the security data
-                if(snmpSecLevelPos != PEG_NOT_FOUND)
-                {
-                    handler.getProperty(snmpSecLevelPos).getValue(). \
-                        get(snmpSecLevel);
-                }
-                if(snmpSecAuthProtoPos != PEG_NOT_FOUND)
-                {
-                    handler.getProperty(snmpSecAuthProtoPos).getValue(). \
-                        get(snmpSecAuthProto);
-                }
-                if(snmpSecAuthKeyPos != PEG_NOT_FOUND)
-                {
-                    handler.getProperty(snmpSecAuthKeyPos).getValue(). \
-                        get(snmpSecAuthKey);
-                }
-                if(snmpSecPrivProtoPos != PEG_NOT_FOUND)
-                {
-                    handler.getProperty(snmpSecPrivProtoPos).getValue(). \
-                        get(snmpSecPrivProto);
-                }
-                if(snmpSecPrivKeyPos!= PEG_NOT_FOUND)
-                {
-                    handler.getProperty(snmpSecPrivKeyPos).getValue(). \
-                        get(snmpSecPrivKey);
-                }
-            }
-
             PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
                "snmpIndicationHandler sending %s Indication trap %s to target"
                " host %s target port %d",
@@ -445,11 +406,6 @@ void snmpIndicationHandler::handleIndication(
                 portNumber,
                 snmpVersion,
                 engineID,
-                snmpSecLevel,
-                snmpSecAuthProto,
-                snmpSecAuthKey,
-                snmpSecPrivProto,
-                snmpSecPrivKey,
                 propOIDs,
                 propTYPEs,
                 propVALUEs);
@@ -464,15 +420,13 @@ void snmpIndicationHandler::handleIndication(
     }
     catch (CIMException& c)
     {
-        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL1, "CIMException %s",
-            (const char*)c.getMessage().getCString()));
+        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL1, c.getMessage());
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, c.getMessage());
     }
     catch (Exception& e)
     {
-        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL1, "Exception %s",
-            (const char*)e.getMessage().getCString()));
+        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL1, e.getMessage());
         PEG_METHOD_EXIT();
 
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -157,7 +159,7 @@ static int *prev_clientStatus;
 /**
   Client Instance
 */
-static Uint32* clientInstance;
+static int *clientInstance;
 
 /**
   Indicates if client is Active
@@ -1118,7 +1120,7 @@ Uint32 StressTestControllerCommand::execute (
     //
     if(_clientCount > 0)
     {
-        clientInstance = new Uint32[_clientCount];
+        clientInstance = new int[_clientCount];
         clientStartMilliseconds.reset(new Uint64[_clientCount]);
         clientStopMilliseconds.reset(new Uint64[_clientCount]);
         clientDelayMilliseconds.reset(new Uint64[_clientCount]);
@@ -1233,7 +1235,7 @@ Uint32 StressTestControllerCommand::execute (
                         ErrReport.append(clientInst);
                         throw StressTestControllerException(ErrReport);
                     }
-                    clientInstance[j] = (Uint32)atoi(clientInst.getCString());
+                    clientInstance[j] = atoi(clientInst.getCString());
 
                     //
                     // Acquire and set client specific duration
@@ -1336,12 +1338,12 @@ Uint32 StressTestControllerCommand::execute (
                         //
                         // Executing the Client
                         //
-                        int commandRc = system(act_command.getCString());
+                        int rc = system(act_command.getCString());
                         //
                         // Continue even if the client failed to Execute
                         // This failure is validated with Tolerance level later
                         //
-                        if (commandRc)
+                        if (rc)
                         {
                             log_file<<"Command failed to Execute."<<endl;
                             if (verboseEnabled)
@@ -1383,8 +1385,8 @@ Uint32 StressTestControllerCommand::execute (
                     outPrintWriter<<StressTestControllerCommand::COMMAND_NAME<<
                         "::Getting client PID's and status. "<<endl;
                 }
-                int getClientPidRc = _getClientPIDs(actual_client,log_file);
-                if (!getClientPidRc)
+                int rc = _getClientPIDs(actual_client,log_file);
+                if (!rc)
                 {
                     outPrintWriter<<
                         "Failed to communicate with clients."<<endl;
@@ -1409,7 +1411,7 @@ Uint32 StressTestControllerCommand::execute (
                 //
                 // Retreive all the client PIDs
                 //
-                int getClientPidRc = _getClientPIDs(actual_client,log_file);
+                int rc = _getClientPIDs(actual_client,log_file);
 
                 //
                 // Get Current Time
@@ -1431,7 +1433,7 @@ Uint32 StressTestControllerCommand::execute (
                     //  End tests when failed to acquire the Client PID  or
                     //  status.
                     //
-                    if (!getClientPidRc)
+                    if (!rc)
                     {
                         outPrintWriter<<
                             "Failed to communicate with clients."<<endl;
@@ -1563,9 +1565,9 @@ Uint32 StressTestControllerCommand::execute (
                                 stop_file.close();
 #ifndef PEGASUS_OS_TYPE_WINDOWS
                                 // one more way to stop the clients.
-                                int killRc =
+                                int rc =
                                   kill(clientPIDs[clientID+instanceID], SIGINT);
-                                if (killRc)
+                                if (rc)
                                 {
                                     outPrintWriter<<"FAILED to stop client:("<<
                                         clientID+instanceID<<")"<<endl;
@@ -1653,9 +1655,8 @@ Uint32 StressTestControllerCommand::execute (
                                         log_file<<"   Restarted on "<<
                                             strTime<<endl;
                                     }
-                                    int commandRc =
-                                        system(act_command.getCString());
-                                    if (commandRc)
+                                    int rc = system(act_command.getCString());
+                                    if (rc)
                                     {
                                         log_file<<"Command failed to Execute."<<
                                             endl;
@@ -1713,8 +1714,8 @@ Uint32 StressTestControllerCommand::execute (
     //
     // get all the clientPIDs before it is stopped.
     //
-    int getClientPidRc = _getClientPIDs(actual_client,log_file);
-    if (!getClientPidRc)
+    int rc = _getClientPIDs(actual_client,log_file);
+    if (!rc)
     {
         outPrintWriter<<"Failed to communicate with clients."<<endl;
         log_file<<StressTestControllerCommand::COMMAND_NAME<<
@@ -1748,8 +1749,9 @@ Uint32 StressTestControllerCommand::execute (
         stop_file.close();
 #ifndef PEGASUS_OS_TYPE_WINDOWS
         // Another way to stop the client
-        int killRc = kill(clientPIDs[i], SIGINT);
-        if (killRc)
+        int rc = 0;
+        rc = kill(clientPIDs[i], SIGINT);
+        if (rc)
         {
            if (verboseEnabled)
            {
@@ -2207,7 +2209,7 @@ Boolean StressTestControllerCommand::_validateConfiguration(
            //
            String clientName = String(DEFAULT_BINDIR);
            clientName.append(vars.getCString());
-#if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_VMS)
+#ifdef PEGASUS_OS_TYPE_WINDOWS
            clientName.append(".exe");
 #endif
            if (!FileSystem::exists(clientName))
@@ -2220,7 +2222,7 @@ Boolean StressTestControllerCommand::_validateConfiguration(
                    clientName = String(DEFAULT_BINDIR);
                    testString.append(vars.getCString());
                    clientName.append(testString.getCString());
-#if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_VMS)
+#ifdef PEGASUS_OS_TYPE_WINDOWS
                    clientName.append(".exe");
 #endif
                    if (!FileSystem::exists(clientName))

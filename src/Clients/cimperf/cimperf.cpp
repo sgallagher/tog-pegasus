@@ -1,35 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-/* This is a simplistic display program for the CIMOM performance
+/* This is a simplistic display program for the CIMOM performance 
     characteristics.
     This version simply gets the instances of the performace class and displays
     the resulting average counts.
@@ -43,18 +45,17 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <stdlib.h>
+#include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/HTTPConnector.h>
+#include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/HostAddress.h>
 
-#include <Pegasus/Client/CIMClient.h>
-
-#include <Pegasus/General/OptionManager.h>
 #ifdef PEGASUS_OS_ZOS
-#include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
+#include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
 #endif
 
 PEGASUS_USING_PEGASUS;
@@ -62,48 +63,147 @@ PEGASUS_USING_STD;
 
 const String DEFAULT_NAMESPACE = "root/cimv2";
 
-// The table represents the mapping from the enumerated types
-// in the CIM_CIMOMStatisticalDate class ValueMap qualifier for the
-// operationType property to the message type defined in the value for
-// OperationType. This table must match the table in StatisticalData.cpp
+// The table on the right represents the mapping from the enumerated types
+// in the CIM_CIMOMStatisticalDate class ValueMap versus the internal
+// message type defined in Message.h.
 //
-const char* operationName[] =
+
+const char* _OPERATION_NAME[] =
 {
-    //                                   ValueMap Value
-    //                                   from class CIM_StatisticalData
-    //                                   -------------------
-    "Unknown",                        //    0
-    "Other",                          //    1
-    "Batch",                          //    2
-    "GetClass",                       //    3
-    "GetInstance",                    //    4
-    "DeleteClass",                    //    5
-    "DeleteInstance",                 //    6
-    "CreateClass",                    //    7
-    "CreateInstance",                 //    8
-    "ModifyClass",                    //    9
-    "ModifyInstance",                 //   10
-    "EnumerateClasses",               //   11
-    "EnumerateClassNames",            //   12
-    "EnumerateInstances",             //   13
-    "EnumerateInstanceNames",         //   14
-    "ExecQuery",                      //   15
-    "Associators",                    //   16
-    "AssociatorNames",                //   17
-    "References",                     //   18
-    "ReferenceNames",                 //   19
-    "GetProperty",                    //   20
-    "SetProperty",                    //   21
-    "GetQualifier",                   //   22
-    "SetQualifier",                   //   23
-    "DeleteQualifier",                //   24
-    "EnumerateQualifiers",            //   25
-    "IndicationDelivery",             //   26
-    "InvokeMethod"                    //   Not Present, use 1 ((:Other")
+    //                                   Enumerated       ValueMap Value
+    //                                   value from       from class
+    //                                   internal         CIM_StatisticalData
+    //                                   StatisticalData
+    //                                   ---------------  -------------------
+    "GetClass",                       //     0               3
+    "GetInstance",                    //     1               4
+    "IndicationDelivery",             //     2              26
+    "DeleteClass",                    //     3               5
+    "DeleteInstance",                 //     4               6
+    "CreateClass",                    //     5               7
+    "CreateInstance",                 //     6               8
+    "ModifyClass",                    //     7               9
+    "ModifyInstance",                 //     8              10
+    "EnumerateClasses",               //     9              11
+    "EnumerateClassNames",            //    10              12
+    "EnumerateInstances",             //    11              13
+    "EnumerateInstanceNames",         //    12              14
+    "ExecQuery",                      //    13              15
+    "Associators",                    //    14              16
+    "AssociatorNames",                //    15              17
+    "References",                     //    16              18
+    "ReferenceNames",                 //    17              19
+    "GetProperty",                    //    18              20
+    "SetProperty",                    //    19              21
+    "GetQualifier",                   //    20              22
+    "SetQualifier",                   //    21              23
+    "DeleteQualifier",                //    22              24
+    "EnumerateQualifiers",            //    23              25
+    "InvokeMethod"                    //    24              Not Present, use
+                                      //                      1 "Other"
 };
 
-Uint32 operationNameSize = sizeof(operationName[0]) /
-    sizeof (operationName);
+//------------------------------------------------------------------------------
+//
+// _indent()
+//
+//------------------------------------------------------------------------------
+
+static void _indent(PEGASUS_STD(ostream)& os, Uint32 level, Uint32 indentSize)
+{
+    Uint32 n = level * indentSize;
+    if (n > 50)
+    {
+        cout << "Jumped Ship " << level << " size " << indentSize << endl;
+        exit(1);
+    }
+
+    for (Uint32 i = 0; i < n; i++)
+        os << ' ';
+}
+
+void mofFormat(
+    PEGASUS_STD(ostream)& os,
+    const char* text,
+    Uint32 indentSize)
+{
+    char* var = new char[strlen(text)+1];
+    char* tmp = strcpy(var, text);
+    Uint32 count = 0;
+    Uint32 indent = 0;
+    Boolean quoteState = false;
+    Boolean qualifierState = false;
+    char c;
+    char prevchar='\0';
+    while ((c = *tmp++) != '\0')
+    {
+        count++;
+        // This is too simplistic and must move to a token based mini parser
+        // but will do for now. One problem is tokens longer than 12 characters
+        // that overrun the max line length.
+        switch (c)
+        {
+            case '\n':
+                os << Sint8(c);
+                prevchar = c;
+                count = 0 + (indent * indentSize);
+                _indent(os, indent, indentSize);
+                break;
+
+            case '\"':   // quote
+                os << Sint8(c);
+                prevchar = c;
+                quoteState = !quoteState;
+                break;
+
+            case ' ':
+                os << Sint8(c);
+                prevchar = c;
+                if (count > 66)
+                {
+                    if (quoteState)
+                    {
+                        os << "\"\n";
+                        _indent(os, indent + 1, indentSize);
+                        os <<"\"";
+                    }
+                    else
+                    {
+                        os <<"\n";
+                        _indent(os, indent + 1,  indentSize);
+                    }
+                    count = 0 + ((indent + 1) * indentSize);
+                }
+                break;
+            case '[':
+                if (prevchar == '\n')
+                {
+                    indent++;
+                    _indent(os, indent,  indentSize);
+                    qualifierState = true;
+                }
+                os << Sint8(c);
+                prevchar = c;
+                break;
+
+            case ']':
+                if (qualifierState)
+                {
+                    if (indent > 0)
+                        indent--;
+                    qualifierState = false;
+                }
+                os << Sint8(c);
+                prevchar = c;
+                break;
+
+            default:
+                os << Sint8(c);
+                prevchar = c;
+        }
+    }
+    delete [] var;
+}
 
 /* Method to build an OptionManager object - which holds and organizes options
    and the properties */
@@ -116,7 +216,7 @@ void GetOptions(
 {
     static struct OptionRow optionsTable[] =
     //The values in the OptionRows below are:
-    //optionname, defaultvalue, is required, type, domain, domainsize, flag,
+    //optionname, defaultvalue, is required, type, domain, domainsize, flag, 
     //  hlpmsg
     {
         {"port", "5988", false, Option::INTEGER, 0, 0, "p",
@@ -142,6 +242,8 @@ void GetOptions(
 
     om.registerOptions(optionsTable, NUM_OPTIONS);
 
+    //We want to make this code common to all of the commands
+
     String configFile = "/CLTest.conf";
 
     if (FileSystem::exists(configFile))
@@ -155,19 +257,116 @@ void GetOptions(
 }
 
 
-/* Method that maps from operation type to operation name.
-*/
+/* Method that maps from operation type to operation name. */
 
 const char* opTypeToOpName(Uint16 type)
 {
     const char* opName = NULL;
-    if (type < operationNameSize)
+    switch (type)
     {
-        opName = operationName[type];
-    }
-    else
-    {
-        opName = "Dummy Response";
+        case 3:
+            opName = _OPERATION_NAME[StatisticalData::GET_CLASS];
+            break;
+
+        case 4:
+            opName = _OPERATION_NAME[StatisticalData::GET_INSTANCE];
+            break;
+
+        case 5:
+            opName = _OPERATION_NAME[StatisticalData::DELETE_CLASS];
+            break;
+
+        case 6:
+            opName = _OPERATION_NAME[StatisticalData::DELETE_INSTANCE];
+            break;
+
+        case 7:
+            opName = _OPERATION_NAME[StatisticalData::CREATE_CLASS];
+            break;
+
+        case 8:
+            opName = _OPERATION_NAME[StatisticalData::CREATE_INSTANCE];
+            break;
+
+        case 9:
+            opName = _OPERATION_NAME[StatisticalData::MODIFY_CLASS];
+            break;
+
+        case 10:
+            opName = _OPERATION_NAME[StatisticalData::MODIFY_INSTANCE];
+            break;
+
+        case 11:
+            opName = _OPERATION_NAME[StatisticalData::ENUMERATE_CLASSES];
+            break;
+
+        case 12:
+            opName = _OPERATION_NAME[StatisticalData::ENUMERATE_CLASS_NAMES];
+            break;
+
+        case 13:
+            opName = _OPERATION_NAME[StatisticalData::ENUMERATE_INSTANCES];
+            break;
+
+        case 14:
+            opName = _OPERATION_NAME[StatisticalData::ENUMERATE_INSTANCE_NAMES];
+            break;
+
+        case 15:
+            opName = _OPERATION_NAME[StatisticalData::EXEC_QUERY];
+            break;
+
+        case 16:
+            opName = _OPERATION_NAME[StatisticalData::ASSOCIATORS];
+            break;
+
+        case 17:
+            opName = _OPERATION_NAME[StatisticalData::ASSOCIATOR_NAMES];
+            break;
+
+        case 18:
+            opName = _OPERATION_NAME[StatisticalData::REFERENCES];
+            break;
+
+        case 19:
+            opName = _OPERATION_NAME[StatisticalData::REFERENCE_NAMES];
+            break;
+
+        case 20:
+            opName = _OPERATION_NAME[StatisticalData::GET_PROPERTY];
+            break;
+
+        case 21:
+            opName = _OPERATION_NAME[StatisticalData::SET_PROPERTY];
+            break;
+
+        case 22:
+            opName = _OPERATION_NAME[StatisticalData::GET_QUALIFIER];
+            break;
+
+        case 23:
+            opName = _OPERATION_NAME[StatisticalData::SET_QUALIFIER];
+            break;
+
+        case 24:
+            opName = _OPERATION_NAME[StatisticalData::DELETE_QUALIFIER];
+            break;
+
+        case 25:
+            opName = _OPERATION_NAME[StatisticalData::ENUMERATE_QUALIFIERS];
+            break;
+
+        case  26:
+            opName = _OPERATION_NAME[StatisticalData::INDICATION_DELIVERY];
+            break;
+
+        case 1:
+            opName = _OPERATION_NAME[StatisticalData::INVOKE_METHOD];
+            break;
+
+        default:
+            //Invalid type
+            opName = "Dummy Response";
     }
     return opName;
 }
@@ -186,7 +385,7 @@ int main(int argc, char** argv)
     // line.
 
     OptionManager om;
-
+    
     try
     {
         String testHome = ".";
@@ -222,8 +421,8 @@ int main(int argc, char** argv)
     //Get hostname form (option manager) command line if none use default
     String location;
     om.lookupValue("location", location);
-    HostAddress addr;
-    if (!addr.setHostAddress(location))
+    HostAddress addr(location);
+    if (!addr.isValid())
     {
         cerr << "Invalid Locator : " << location << endl;
         exit(1);
@@ -288,7 +487,7 @@ int main(int argc, char** argv)
 
         // First print the header for table of values
         printf("%-25s%10s %10s %10s %10s %10s\n",
-            "Operation", "Number of", "Server", "Provider", "Request",
+            "Operation", "Number of", "Server", "Provider", "Request", 
             "Response");
 
         printf("%-25s%10s %10s %10s %10s %10s\n",
@@ -315,9 +514,9 @@ int main(int argc, char** argv)
             // Note that for the moment it is simply an integer.
             Uint32 pos;
             CIMProperty p;
-            // Operation Type is decoded as const char*, hence type has
+            // Operation Type is decoded as const char*, hence type has 
             // changed from string to const char*
-            String statName;
+            const char* statName = NULL;
             CIMValue v;
             Uint16 type;
             if ((pos = instance.findProperty("OperationType")) != PEG_NOT_FOUND)
@@ -327,30 +526,7 @@ int main(int argc, char** argv)
                 if (v.getType() == CIMTYPE_UINT16)
                 {
                     v.get(type);
-                    if (type != 1)
-                    {
-                        statName = opTypeToOpName(type);
-                    }
-
-                    // 1 is Other type indicating that there is another
-                    // property with the name.
-                    else
-                    {
-                        if ((pos = instance.findProperty("OtherOperationType"))
-                             != PEG_NOT_FOUND)
-                        {
-                            CIMProperty pOther = (instance.getProperty(pos));
-                            CIMValue vOther = pOther.getValue();
-                            if (vOther.getType() == CIMTYPE_STRING)
-                            {
-                                vOther.get(statName);
-                            }
-                        }
-                        else
-                        {
-                            statName = "UNKNOWN";
-                        }
-                    }
+                    statName = opTypeToOpName(type);
                 }
             }
             else
@@ -360,7 +536,7 @@ int main(int argc, char** argv)
 
             // Get number of requests property - "NumberofOperations"
             Uint64 numberOfRequests = 0;
-            if ((pos = instance.findProperty("NumberOfOperations")) !=
+            if ((pos = instance.findProperty("NumberOfOperations")) != 
                 PEG_NOT_FOUND)
             {
 
@@ -389,7 +565,7 @@ int main(int argc, char** argv)
             Sint64 averageCimomTime = 0;
             Uint64 totalCT = 0;
 
-            if ((pos = instance.findProperty("CimomElapsedTime")) !=
+            if ((pos = instance.findProperty("CimomElapsedTime")) != 
                 PEG_NOT_FOUND)
             {
                 p = (instance.getProperty(pos));
@@ -402,7 +578,7 @@ int main(int argc, char** argv)
                 }
                 else
                 {
-                    cerr << "Error Property value " << "CimomElapsedTime" <<
+                    cerr << "Error Property value " << "CimomElapsedTime" << 
                         endl;
                 }
             }
@@ -421,7 +597,7 @@ int main(int argc, char** argv)
             Uint64 averageProviderTime = 0;
             Uint64 totalPT = 0;
 
-            if ((pos = instance.findProperty("ProviderElapsedTime")) !=
+            if ((pos = instance.findProperty("ProviderElapsedTime")) != 
                 PEG_NOT_FOUND)
             {
                 p = (instance.getProperty(pos));
@@ -462,7 +638,7 @@ int main(int argc, char** argv)
                 }
                 else
                 {
-                    cerr << "RequestSize is not of type CIMTYPE_SINT64" <<
+                    cerr << "RequestSize is not of type CIMTYPE_SINT64" << 
                         endl ;
                 }
             }
@@ -512,11 +688,9 @@ int main(int argc, char** argv)
                 "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u"
                 "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u"
                 "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u\n",
-                (const char *)statName.getCString(),
-                numberOfRequests,
-                averageCimomTime,
-                averageProviderTime,
-                averageRequestSize,
+                statName,
+                numberOfRequests, averageCimomTime,
+                averageProviderTime, averageRequestSize,
                 averageResponseSize);
         }
     }

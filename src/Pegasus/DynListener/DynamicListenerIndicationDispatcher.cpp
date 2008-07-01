@@ -1,31 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Dong Xiang, EMC Corporation (xiang_dong@emc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Heather Sterling, IBM (hsterl@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -96,7 +102,7 @@ void DynamicListenerIndicationDispatcher::handleEnqueue(Message* message)
         {
         case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
             {
-                CIMExportIndicationRequestMessage* request =
+                CIMExportIndicationRequestMessage* request = 
                     (CIMExportIndicationRequestMessage*)message;
                 CIMException cimException;
 
@@ -114,7 +120,7 @@ void DynamicListenerIndicationDispatcher::handleEnqueue(Message* message)
                                Logger::ERROR_LOG,
                                System::CIMLISTENER,
                                Logger::SEVERE,
-                               "Exception getting consumer: $0",
+                               "Exception getting consumer: $0", 
                                ex.getMessage());
 
                 } catch (...)
@@ -130,20 +136,20 @@ void DynamicListenerIndicationDispatcher::handleEnqueue(Message* message)
                                "Unknown Exception getting consumer");
                 }
 
-                /** At this point (barring one of the above exceptions),
-                 * we can be reasonably sure that the indication will get
+                /** At this point (barring one of the above exceptions), 
+                 * we can be reasonably sure that the indication will get 
                  * delivered and processed. The request was well-formatted and
                  * we were able to locate and load the consumer.
-                 * Send an acknowledgement to the client that we received
-                 * the indication.
-                 * We should not wait until the consumer reports ultimate
-                 * success since that could take a long time and would require
-                 * us to store a bunch of status information.
-                 * Additionally, the wait could cause a timeout exception
+                 * Send an acknowledgement to the client that we received 
+                 * the indication. 
+                 * We should not wait until the consumer reports ultimate 
+                 * success since that could take a long time and would require 
+                 * us to store a bunch of status information.  
+                 * Additionally, the wait could cause a timeout exception 
                  * on the client end.
 
                  */
-                // ATTN: Why isn't the CIM exception getting appended
+                // ATTN: Why isn't the CIM exception getting appended 
                 // to the response?  Go look in Message.h
                 CIMResponseMessage* response = request->buildResponse();
                 response->cimException = cimException;
@@ -154,17 +160,19 @@ void DynamicListenerIndicationDispatcher::handleEnqueue(Message* message)
         default:
             {
                 // unsupported message type
-                // it should not get here;
+                // it should not get here; 
                 // this error is caught in the request decoder
-                PEG_TRACE((TRC_LISTENER,Tracer::LEVEL2,
-                    "Unsupported msg type: %s",
-                    MessageTypeToString(message->getType())));
+                PEG_TRACE_STRING(
+                    TRC_LISTENER,
+                    Tracer::LEVEL2, 
+                    "Unsupported msg type: " + 
+                        String(MessageTypeToString(message->getType())));
 
-                CIMRequestMessage* cimRequest =
+                CIMRequestMessage* cimRequest = 
                     dynamic_cast<CIMRequestMessage*>(message);
 
                 CIMResponseMessage* response = cimRequest->buildResponse();
-                response->cimException =
+                response->cimException = 
                     PEGASUS_CIM_EXCEPTION_L(
                         CIM_ERR_FAILED,
                         MessageLoaderParms(
@@ -175,7 +183,7 @@ void DynamicListenerIndicationDispatcher::handleEnqueue(Message* message)
                 _enqueueResponse (cimRequest, response);
             }
             break;
-        }
+        }   
         delete message;
     }
 
@@ -193,8 +201,7 @@ void DynamicListenerIndicationDispatcher::_handleIndicationRequest(
     String url = request->destinationPath;
     CIMInstance instance = request->indicationInstance;
 
-    PEG_TRACE((TRC_LISTENER, Tracer::LEVEL4, "URL is %s",
-        (const char*)url.getCString()));
+    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "URL is " + url);
 
     Uint32 slash = url.find("/");
     if (slash == PEG_NOT_FOUND)
@@ -203,7 +210,7 @@ void DynamicListenerIndicationDispatcher::_handleIndicationRequest(
                    Logger::ERROR_LOG,
                    System::CIMLISTENER,
                    Logger::SEVERE,
-                   "Invalid URL $0",
+                   "Invalid URL $0", 
                    url);
 
         MessageLoaderParms msgLoaderParms(
@@ -216,18 +223,19 @@ void DynamicListenerIndicationDispatcher::_handleIndicationRequest(
 
     String consumerName = url.subString(slash+1);
 
-    // check for a trailing slash,
-    // in the case that additional information is in the URL,
+    // check for a trailing slash, 
+    // in the case that additional information is in the URL, 
     // i.e. /CIMListener/MyConsumer/9.44.169.132
     Uint32 trailingSlash = consumerName.find('/');
     if (trailingSlash != PEG_NOT_FOUND)
     {
         consumerName = consumerName.subString(0, trailingSlash);
-        PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
-            "The consumer name with slash removed is '%s'!",
-            (const char*)consumerName.getCString()));
+        PEG_TRACE_STRING(
+            TRC_LISTENER,
+            Tracer::LEVEL4,
+            "The consumer name with slash removed is!" + consumerName + "!");
     }
-
+    
     //get consumer
     //this will throw an exception if it fails
     //gets deleted by the ConsumerManager

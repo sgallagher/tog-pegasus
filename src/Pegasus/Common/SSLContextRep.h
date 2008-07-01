@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -59,23 +61,15 @@ extern "C"
 
 PEGASUS_NAMESPACE_BEGIN
 
-#ifdef PEGASUS_HAS_SSL
 struct FreeX509STOREPtr
 {
     void operator()(X509_STORE* ptr)
     {
+#ifdef PEGASUS_HAS_SSL
         X509_STORE_free(ptr);
-    }
-};
-#else
-struct FreeX509STOREPtr
-{
-    void operator()(X509_STORE*)
-    {
-    }
-};
 #endif
-
+    }
+};
 
 #ifdef PEGASUS_HAS_SSL
 
@@ -110,15 +104,11 @@ public:
             "In ~SSLEnvironmentInitializer(), _instanceCount is %d",
             _instanceCount));
 
-
         if (_instanceCount == 0)
         {
-            EVP_cleanup();
-            CRYPTO_cleanup_all_ex_data();
             ERR_free_strings();
             _uninitializeCallbacks();
         }
-        ERR_remove_state(0);
     }
 
 private:
@@ -139,14 +129,10 @@ private:
 
         _sslLocks.reset(new Mutex[CRYPTO_num_locks()]);
 
-#ifdef PEGASUS_HAVE_PTHREADS
+# if defined(PEGASUS_HAVE_PTHREADS) && !defined(PEGASUS_OS_VMS)
         // Set the ID callback. The ID callback returns a thread ID.
-# ifdef PEGASUS_OS_VMS
-        CRYPTO_set_id_callback((CRYPTO_SET_ID_CALLBACK) _getThreadId);
-# else
         CRYPTO_set_id_callback((CRYPTO_SET_ID_CALLBACK) pthread_self);
 # endif
-#endif
 
         // Set the locking callback.
 
@@ -154,12 +140,6 @@ private:
             (CRYPTO_SET_LOCKING_CALLBACK) _lockingCallback);
     }
 
-#if defined(PEGASUS_OS_VMS) && defined(PEGASUS_HAVE_PTHREADS)
-    static unsigned long _getThreadId(void)
-    {
-        return pthread_getsequence_np(pthread_self());
-    }
-#endif
     /*
         Reset the SSL locking and ID callbacks.
     */
@@ -174,8 +154,8 @@ private:
     static void _lockingCallback(
         int mode,
         int type,
-        const char*,
-        int)
+        const char* file,
+        int line)
     {
         if (mode & CRYPTO_LOCK)
         {
@@ -222,7 +202,7 @@ public:
     friend class SSLCallbackInfo;
 };
 
-class PEGASUS_COMMON_LINKAGE SSLContextRep
+class SSLContextRep
 {
 public:
 
@@ -243,9 +223,7 @@ public:
         const String& keyPath = String::EMPTY,
         const String& crlPath = String::EMPTY,
         SSLCertificateVerifyFunction* verifyCert = NULL,
-        const String& randomFile = String::EMPTY,
-        const String& cipherSuite = String::EMPTY,
-        const Boolean& sslCompatibility = false);
+        const String& randomFile = String::EMPTY);
 
     SSLContextRep(const SSLContextRep& sslContextRep);
 
@@ -258,8 +236,6 @@ public:
     String getCertPath() const;
 
     String getKeyPath() const;
-
-    String getCipherSuite() const;
 
 #ifdef PEGASUS_USE_DEPRECATED_INTERFACES
     String getTrustStoreUserName() const;
@@ -301,8 +277,6 @@ private:
     String _keyPath;
     String _crlPath;
     String _randomFile;
-    String _cipherSuite;
-    Boolean _sslCompatibility;
     SSL_CTX * _sslContext;
 
     Boolean _verifyPeer;

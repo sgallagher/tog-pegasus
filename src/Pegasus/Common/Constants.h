@@ -1,32 +1,34 @@
-//%LICENSE////////////////////////////////////////////////////////////////
-//
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
 /*
+//%2006////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 */
@@ -45,7 +47,7 @@
 **==============================================================================
 */
 
-/*
+/* 
  * Message Queue Names
  */
 
@@ -79,10 +81,8 @@
 
 #define PEGASUS_QUEUENAME_WBEMEXECCLIENT      "WbemExecClient"
 #define PEGASUS_QUEUENAME_INTERNALCLIENT       "InternalClient"
+#define PEGASUS_QUEUENAME_BINARY_HANDLER       "BinaryMessageHandler"
 
-#define PEGASUS_QUEUENAME_WSMANEXPORTCLIENT    "WSMANExportClient"
-#define PEGASUS_QUEUENAME_WSMANEXPORTREQENCODER  "WSMANExportRequestEncoder"
-#define PEGASUS_QUEUENAME_WSMANEXPORTRESPENCODER  "WSMANExportResponseDecoder"
 
 /*
  * ModuleController Module Names
@@ -127,10 +127,6 @@
 #define HTTP_REASONPHRASE_OK "OK"
 #define HTTP_STATUS_OK "200 OK"
 
-#define HTTP_STATUSCODE_PARTIALCONTENT 206
-#define HTTP_REASONPHRASE_PARTIALCONTENT "Partial Content"
-#define HTTP_PARTIALCONTENT "206 Partial Content"
-
 #define HTTP_STATUSCODE_BADREQUEST 400
 #define HTTP_REASONPHRASE_BADREQUEST "Bad Request"
 #define HTTP_STATUS_BADREQUEST "400 Bad Request"
@@ -143,33 +139,9 @@
 #define HTTP_REASONPHRASE_FORBIDDEN    "Forbidden"
 #define HTTP_STATUS_FORBIDDEN    "403 Forbidden"
 
-#define HTTP_STATUSCODE_NOTFOUND    404
-#define HTTP_REASONPHRASE_NOTFOUND  "Not Found"
-#define HTTP_STATUS_NOTFOUND        "404 Not Found"
-
-#define HTTP_STATUSCODE_NOTFOUND    404
-#define HTTP_REASONPHRASE_NOTFOUND  "Not Found"
-#define HTTP_STATUS_NOTFOUND        "404 Not Found"
-
-#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
- #define HTTP_STATUSCODE_METHODNOTALLOWED 405
- #define HTTP_REASONPHRASE_METHODNOTALLOWED "Method Not Allowed"
- #define HTTP_STATUS_METHODNOTALLOWED "405 Method Not Allowed"
-
- #define HTTP_STATUSCODE_NOTACCEPTABLE 406
- #define HTTP_REASONPHRASE_NOTACCEPTABLE "Not Acceptable"
- #define HTTP_STATUS_NOTACCEPTABLE "406 Not Acceptable"
-#endif /* PEGASUS_ENABLE_PROTOCOL_WEB */
-
 #define HTTP_STATUSCODE_REQUEST_TOO_LARGE 413
 #define HTTP_REASONPHRASE_REQUEST_TOO_LARGE "Request Entity Too Large"
 #define HTTP_STATUS_REQUEST_TOO_LARGE "413 Request Entity Too Large"
-
-#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
- #define HTTP_STATUSCODE_REQUESTURITOOLONG 414
- #define HTTP_REASONPHRASE_REQUESTURITOOLONG "Request URI Too Long"
- #define HTTP_STATUS_REQUESTURITOOLONG "414 Request URI Too Long"
-#endif /* PEGASUS_ENABLE_PROTOCOL_WEB */
 
 #define HTTP_STATUSCODE_INTERNALSERVERERROR 500
 #define HTTP_REASONPHRASE_INTERNALSERVERERROR "Internal Server Error"
@@ -182,12 +154,6 @@
 #define HTTP_STATUSCODE_SERVICEUNAVAILABLE 503
 #define HTTP_REASONPHRASE_SERVICEUNAVAILABLE "Service Unavailable"
 #define HTTP_STATUS_SERVICEUNAVAILABLE "503 Service Unavailable"
-
-#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
- #define HTTP_STATUSCODE_VERSIONNOTSUPPORTED 505
- #define HTTP_REASONPHRASE_VERSIONNOTSUPPORTED "HTTP Version Not Supported"
- #define HTTP_STATUS_VERSIONNOTSUPPORTED "505 HTTP Version Not Supported"
-#endif /* PEGASUS_ENABLE_PROTOCOL_WEB */
 
 
 /*
@@ -220,11 +186,6 @@
 #define WBEM_HTTP_SERVICE_NAME "wbem-http"
 #define WBEM_HTTPS_SERVICE_NAME "wbem-https"
 
-/*
- * Hard limit for number of HTTP headers, elements in container and keybindings
- */
-#define PEGASUS_MAXELEMENTS_NUM 1000
-#define PEGASUS_MAXELEMENTS "1000"
 
 /*
  * File system layout
@@ -254,9 +215,9 @@
     "/opt/wbem/share/locale/ICU_Messages"
 # elif defined(PEGASUS_OS_PASE)
 #  define PEGASUS_CIMSERVER_START_FILE      \
-    "/QOpenSys/var/UME/cimserver_start.conf"
+    "/QOpenSys/QIBM/UserData/UME/Pegasus/cimserver_start.conf"
 #  define PEGASUS_CIMSERVER_START_LOCK_FILE \
-    "/QOpenSys/var/UME/cimserver_start.lock"
+    "/QOpenSys/QIBM/UserData/UME/Pegasus/cimserver_start.lock"
 #  define PEGASUS_REPOSITORY_DIR            \
     "/QOpenSys/QIBM/UserData/UME/Pegasus/repository"
 #  define PEGASUS_CURRENT_CONFIG_FILE_PATH  \
@@ -268,7 +229,7 @@
 #  define PEGASUS_SSLCLIENT_RANDOMFILE      \
     "/QOpenSys/QIBM/UserData/UME/Pegasus/ssl.rnd"
 #  define PEGASUS_SSLSERVER_RANDOMFILE      \
-    "/QOpenSys/var/UME/cimserver.rnd"
+    "/QOpenSys/QIBM/UserData/UME/Pegasus/ssl/keystore/cimserver.rnd"
 #  define PEGASUS_LOCAL_AUTH_DIR            "/QOpenSys/var/UME"
 #  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/QOpenSys/var/UME/cimxml.socket"
 #  define PEGASUS_PAM_STANDALONE_PROC_NAME  \
@@ -338,7 +299,7 @@
 #  undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH   /* Not used */
 #  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/wbem_var/opt/wbem/bin/cimprovagt"
 #  undef PEGASUS_DEFAULT_MESSAGE_SOURCE     /* Not defined */
-# elif defined(PEGASUS_OS_ZOS)
+# elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 #  define PEGASUS_CIMSERVER_START_FILE      "/var/wbem/cimserver.pid"
 #  define PEGASUS_CIMSERVER_START_LOCK_FILE "/var/wbem/cimserver_start.lock"
 #  define PEGASUS_REPOSITORY_DIR            "/var/wbem/repository"
@@ -373,55 +334,23 @@
 # endif
 #endif
 #else  // Not PEGASUS_USE_RELEASE_DIRS
-# if defined(PEGASUS_OS_LINUX)
-#  define PEGASUS_CIMSERVER_STARTFILES_DIR "/var/tmp"
-# else
-#  define PEGASUS_CIMSERVER_STARTFILES_DIR "/tmp"
-# endif
-
-#ifdef PEGASUS_FLAVOR
-# define PEGASUS_CIMSERVER_START_FILE      \
-    PEGASUS_CIMSERVER_STARTFILES_DIR "/cimserver" PEGASUS_FLAVOR "_start.conf"
-# define PEGASUS_CIMSERVER_START_LOCK_FILE \
-    PEGASUS_CIMSERVER_STARTFILES_DIR "/cimserver" PEGASUS_FLAVOR "_start.lock"
-#else
-# define PEGASUS_CIMSERVER_START_FILE      \
-    PEGASUS_CIMSERVER_STARTFILES_DIR "/cimserver_start.conf"
-# define PEGASUS_CIMSERVER_START_LOCK_FILE \
-    PEGASUS_CIMSERVER_STARTFILES_DIR "/cimserver_start.lock"
-#endif
-
+# define PEGASUS_CIMSERVER_START_FILE      "/var/tmp/cimserver_start.conf"
+# define PEGASUS_CIMSERVER_START_LOCK_FILE "/var/tmp/cimserver_start.lock"
 # define PEGASUS_REPOSITORY_DIR            "repository"
 # define PEGASUS_CURRENT_CONFIG_FILE_PATH  "cimserver_current.conf"
 # define PEGASUS_PLANNED_CONFIG_FILE_PATH  "cimserver_planned.conf"
 # define PEGASUS_SSLCLIENT_CERTIFICATEFILE "client.pem"
 # define PEGASUS_SSLCLIENT_RANDOMFILE      "ssl.rnd"
 # define PEGASUS_SSLSERVER_RANDOMFILE      "cimserver.rnd"
-# define PEGASUS_LOCAL_AUTH_DIR            PEGASUS_CIMSERVER_STARTFILES_DIR
-
-#ifdef PEGASUS_FLAVOR
-# define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  \
-    PEGASUS_CIMSERVER_STARTFILES_DIR "/cimxml" PEGASUS_FLAVOR ".socket"
-#else
-# define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  \
-    PEGASUS_CIMSERVER_STARTFILES_DIR "/cimxml.socket"
-#endif
-
+# define PEGASUS_LOCAL_AUTH_DIR            "/tmp"
+# define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/var/tmp/cimxml.socket"
 # define PEGASUS_PAM_STANDALONE_PROC_NAME  "bin/cimservera"
 # define PEGASUS_PROVIDER_AGENT_PROC_NAME  "bin/cimprovagt"
 # undef PEGASUS_DEFAULT_MESSAGE_SOURCE      /* Not defined */
 #endif
 
-#define PEGASUS_PROVIDER_AGENT32_PROC_NAME \
-    PEGASUS_PROVIDER_AGENT_PROC_NAME "32"
-
 /* Use the PID file as a semaphore for repository access */
-/* Use the configuration file instead of the PID file on Windows*/
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-#define PEGASUS_REPOSITORY_LOCK_FILE PEGASUS_PLANNED_CONFIG_FILE_PATH
-#else
 #define PEGASUS_REPOSITORY_LOCK_FILE PEGASUS_CIMSERVER_START_FILE
-#endif
 
 /*
  * Miscellaneous Constants
@@ -451,11 +380,6 @@
 #define PG_PROVMODULE_USERCTXT_PRIVILEGED 4
 #define PG_PROVMODULE_USERCTXT_CIMSERVER 5
 
-/* Constants defining Bitness values in a PG_ProviderModule */
-#define PG_PROVMODULE_BITNESS_DEFAULT 1
-#define PG_PROVMODULE_BITNESS_32 2
-#define PG_PROVMODULE_BITNESS_64 3
-
 /* Constant defining Server truststore type value in a PG_SSLCertificate */
 #define PG_SSLCERTIFICATE_TSTYPE_VALUE_SERVER Uint16(2)
 
@@ -464,6 +388,14 @@
 #else
 #define PEGASUS_DEFAULT_PROV_USERCTXT PG_PROVMODULE_USERCTXT_PRIVILEGED
 #endif
+
+/*
+  Standard Pegasus Global Prefix.
+  This prefix is used as the basis for pegasus defined classes
+  and in identity creation that would require a standard
+  Pegasus prefix
+*/
+#define PEGASUS_INSTANCEID_GLOBAL_PREFIX "PG"
 
 /* Constants defining the size of the hash table used in the OrderedSet
    implementation. Specific classes have their own hash table size to
@@ -474,11 +406,11 @@
 #define PEGASUS_PARAMETER_ORDEREDSET_HASHSIZE 16
 #define PEGASUS_METHOD_ORDEREDSET_HASHSIZE 16
 
-/* defines a number value for an OrderedSet when either
+/* defines a number value for an OrderedSet when either 
    the index to a specific member is unknown, meaning not initialized
    (PEGASUS_ORDEREDSET_INDEX_UNKNOWN)
    of the specific member is not part of the list
-   (PEGASUS_ORDEREDSET_INDEX_NOTFOUND)
+   (PEGASUS_ORDEREDSET_INDEX_NOTFOUND)   
 */
 #define PEGASUS_ORDEREDSET_INDEX_NOTFOUND 0xFFFFFFFF
 #define PEGASUS_ORDEREDSET_INDEX_UNKNOWN 0xFFFFFFFE
@@ -490,25 +422,6 @@
 #define PEGASUS_MAX_USER_NAME_LEN 10
 #else
 #define PEGASUS_MAX_USER_NAME_LEN 256
-#endif
-
-/*
-   Defines the min/max size of the memory trace buffer
-*/
-#define PEGASUS_TRC_BUFFER_MAX_SIZE_KB 1024*1024
-#define PEGASUS_TRC_BUFFER_MIN_SIZE_KB 16
-
-#ifdef PEGASUS_OS_ZOS
-# define PEGASUS_TRC_BUFFER_OOP_SIZE_DEVISOR 1
-#else
-# define PEGASUS_TRC_BUFFER_OOP_SIZE_DEVISOR 10
-#endif
-
-/*
- * Minimum value for maxLogFileSizeKBytes config property.
-*/
-#if !defined(PEGASUS_USE_SYSLOGS)
-#define PEGASUS_MAXLOGFILESIZEKBYTES_CONFIG_PROPERTY_MINIMUM_VALUE 32
 #endif
 
 /*
@@ -546,23 +459,6 @@ enum PersistenceType {PERSISTENCE_OTHER = 1, PERSISTENCE_PERMANENT = 2,
 enum SnmpVersion {SNMPV1_TRAP = 2, SNMPV2C_TRAP = 3, SNMPV2C_INFORM = 4,
      SNMPV3_TRAP = 5, SNMPV3_INFORM = 6};
 
-/**
-   Values for the AlertCause property of the PG_ProviderModuleInstAlert
-   class, as defined in the PG Events MOF
- 
- */
-enum PMInstAlertCause {PM_UNKNOWN = 1, PM_OTHER = 2, PM_CREATED = 3,
-    PM_DELETED = 4, PM_ENABLED = 5, PM_DISABLED = 6, PM_DEGRADED = 7,
-    PM_FAILED = 8, PM_FAILED_RESTARTED = 9, PM_GROUP_CHANGED = 10,
-    PM_PROVIDER_ADDED = 11, PM_PROVIDER_REMOVED = 12,
-    PM_ENABLED_CIMSERVER_START = 13, PM_DISABLED_CIMSERVER_STOP = 14};
-
-/* Values for Delivery mode property of CIM_ListenerDestinationWSManagement 
-    class , as defined in CIM_ListenerDestinationWSManagement.mof */
-
-enum deliveryMode {Push = 2 ,PushWithAck = 3, Events = 4 ,Pull = 5,
-    DMTF_Reserved = 6 , Vendor_Reserved = 7 };
-
 //
 // CIM Class Names
 //
@@ -585,19 +481,14 @@ PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_INDHANDLER;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_LSTNRDST;
-PEGASUS_COMMON_LINKAGE
+PEGASUS_COMMON_LINKAGE 
     extern const CIMName PEGASUS_CLASSNAME_INDHANDLER_CIMXML;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_LSTNRDST_CIMXML;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_INDHANDLER_SNMP;
-PEGASUS_COMMON_LINKAGE 
-    extern const CIMName PEGASUS_CLASSNAME_INDHANDLER_WSMAN;
 PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG;
-PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_LSTNRDST_FILE;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_LSTNRDST_EMAIL;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_INDFILTER;
-PEGASUS_COMMON_LINKAGE
-    extern const CIMName PEGASUS_CLASSNAME_PROVIDERMODULE_INSTALERT;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_SHUTDOWN;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME___NAMESPACE;
 
@@ -618,8 +509,6 @@ PEGASUS_COMMON_LINKAGE
 
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_CIMNAMESPACE;
 
-PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_PG_OBJECTMANAGER;
-
 #if defined PEGASUS_ENABLE_INTEROP_PROVIDER
 
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_OBJECTMANAGER;
@@ -637,6 +526,7 @@ PEGASUS_COMMON_LINKAGE
 //
 // Server Profile-related class names
 //
+PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_PG_OBJECTMANAGER;
 
 PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_CLASSNAME_PG_COMMMECHANISMFORMANAGER;
@@ -702,8 +592,6 @@ PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_CLASSNAME_PG_HOSTEDINDICATIONSERVICE;
 PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_CLASSNAME_PG_SERVICEAFFECTSELEMENT;
-PEGASUS_COMMON_LINKAGE
-    extern const CIMName PEGASUS_CLASSNAME_PG_LSTNRDSTQUEUE;
 #endif
 
 //
@@ -719,10 +607,6 @@ PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_PROPERTYNAME_MODULE_USERCONTEXT;
 PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_PROPERTYNAME_MODULE_DESIGNATEDUSER;
-PEGASUS_COMMON_LINKAGE
-    extern const CIMName PEGASUS_PROPERTYNAME_MODULE_MODULEGROUPNAME;
-PEGASUS_COMMON_LINKAGE
-    extern const CIMName PEGASUS_PROPERTYNAME_MODULE_BITNESS;
 
 /**
     The name of the Destination property for CIM XML Indication Handler
@@ -730,27 +614,6 @@ PEGASUS_COMMON_LINKAGE
 */
 PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION;
-
-/**
-    Property names for WSMAN Indication Handler subclass.
-*/
-// Delivery Mode
-PEGASUS_COMMON_LINKAGE
-    extern const CIMName PEGASUS_PROPERTYNAME_WSM_DELIVERY_MODE;
-
-/**
-    Property names for File Indication Handler subclass.
-*/
-PEGASUS_COMMON_LINKAGE
-    extern const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_FILE;
-
-/**
-    The name of the CreationTime property for CIM XML Indication Handler
-    subclass.
-*/
-
-PEGASUS_COMMON_LINKAGE
-    extern const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_CREATIONTIME;
 
 /**
     The name of the TargetHost property for SNMP Mapper Indication
@@ -780,12 +643,6 @@ PEGASUS_COMMON_LINKAGE
     The name of the operational status property
 */
     PEGASUS_COMMON_LINKAGE extern const CIMName _PROPERTY_OPERATIONALSTATUS;
-
-/**
-    The name of the SubscriptionInfo property for Formatted Indication
-    Subscription class
-*/
-    PEGASUS_COMMON_LINKAGE extern const CIMName _PROPERTY_SUBSCRIPTION_INFO;
 
 /**
     The name of the Filter reference property for indication subscription class
@@ -819,13 +676,6 @@ PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_QUERYLANGUAGE;
     classes
  */
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_PROPERTYNAME_NAME;
-
-/**
-    The name of the SubscriptionRemovalTimeInterval property of
-    IndicationService class.
-*/
-PEGASUS_COMMON_LINKAGE extern const
-    CIMName _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL;
 
 /**
     The name of the Creation Class Name property for indication filter and
@@ -916,15 +766,6 @@ PEGASUS_COMMON_LINKAGE extern const CIMName
 */
 PEGASUS_COMMON_LINKAGE extern const
     CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILCC;
-
-/**
-    The qualifier name of embedded objects/instances.
-*/
-PEGASUS_COMMON_LINKAGE extern const
-    CIMName PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT;
-
-PEGASUS_COMMON_LINKAGE extern const
-    CIMName PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE;
 
 PEGASUS_NAMESPACE_END
 

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -122,7 +124,7 @@ void CIMExportRequestDecoder::handleEnqueue(Message* message)
             break;
 
         default:
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+            PEGASUS_ASSERT(0);
             break;
     }
 
@@ -150,7 +152,7 @@ void CIMExportRequestDecoder::handleEnqueue()
 //
 //     M-POST /cimom HTTP/1.1
 //     HOST: www.erewhon.com
-//     Content-Type: application/xml; charset=utf-8
+//     Content-Type: application/xml; charset="utf-8"
 //     Content-Length: xxxx
 //     Man: http://www.dmtf.org/cim/operation ; ns=73
 //     73-CIMExport: MethodRequest
@@ -239,6 +241,12 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     //</bug>
 
     // Process M-POST and POST messages:
+    String cimContentType;
+    String cimExport;
+    String cimExportBatch;
+    Boolean cimExportBatchFlag;
+    String cimProtocolVersion;
+    String cimExportMethod;
 
     if (httpVersion == "HTTP/1.1")
     {
@@ -251,7 +259,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         //
         // Note:  The Host header value is not validated.
 
-        const char* hostHeader;
+        String hostHeader;
         Boolean hostHeaderFound = HTTPMessage::lookupHeader(
             headers, "Host", hostHeader, false);
 
@@ -273,7 +281,6 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     // Validate the "CIMExport" header:
 
-    const char* cimExport;
     Boolean exportHeaderFound = HTTPMessage::lookupHeader(
         headers, "CIMExport", cimExport, true);
     // If the CIMExport header was missing, the HTTPAuthenticatorDelegator
@@ -293,7 +300,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     }
     // </bug>
 
-    if (System::strcasecmp(cimExport, "MethodRequest") != 0)
+    if (!String::equalNoCase(cimExport, "MethodRequest"))
     {
         // The Specification for CIM Operations over HTTP reads:
         //     3.3.5. CIMExport
@@ -314,9 +321,9 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     // Validate the "CIMExportBatch" header:
 
-    const char* cimExportBatch;
-    if (HTTPMessage::lookupHeader(
-            headers, "CIMExportBatch", cimExportBatch, true))
+    cimExportBatchFlag = HTTPMessage::lookupHeader(
+        headers, "CIMExportBatch", cimExportBatch, true);
+    if (cimExportBatchFlag)
     {
         // The Specification for CIM Operations over HTTP reads:
         //     3.3.10. CIMExportBatch
@@ -335,27 +342,27 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     // Save these headers for later checking
 
-    const char* cimProtocolVersion;
     if (!HTTPMessage::lookupHeader(
             headers, "CIMProtocolVersion", cimProtocolVersion, true))
     {
         // Mandated by the Specification for CIM Operations over HTTP
-        cimProtocolVersion = "1.0";
+        cimProtocolVersion.assign("1.0");
     }
 
-    const char* cimExportMethod;
-    if (!HTTPMessage::lookupHeader(
+    if (HTTPMessage::lookupHeader(
             headers, "CIMExportMethod", cimExportMethod, true))
     {
-        // The CIMExportMethod header is not present and we already know the
-        // Export Request Message is a Simple Export Request.
-        sendHttpError(
-            queueId,
-            HTTP_STATUS_BADREQUEST,
-            "header-mismatch",
-            String::EMPTY,
-            closeConnect);
-        return;
+        if (cimExportMethod == String::EMPTY)
+        {
+            // This is not a valid value, and we use EMPTY to mean "absent"
+            sendHttpError(
+                queueId,
+                HTTP_STATUS_BADREQUEST,
+                "header-mismatch",
+                String::EMPTY,
+                closeConnect);
+            return;
+        }
     }
 
     AcceptLanguageList acceptLanguages;
@@ -424,7 +431,6 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     // Validate the "Content-Type" header:
 
-    const char* cimContentType;
     Boolean contentTypeHeaderFound = HTTPMessage::lookupHeader(
         headers, "Content-Type", cimContentType, true);
     String type;
@@ -486,8 +492,8 @@ void CIMExportRequestDecoder::handleMethodRequest(
     HttpMethod httpMethod,
     char* content,
     const String& requestUri,
-    const char* cimProtocolVersionInHeader,
-    const char* cimExportMethodInHeader,
+    const String& cimProtocolVersionInHeader,
+    const String& cimExportMethodInHeader,
     const String& userName,
     const String& ipAddress,
     const AcceptLanguageList& httpAcceptLanguages,
@@ -588,7 +594,30 @@ void CIMExportRequestDecoder::handleMethodRequest(
             return;
         }
 
-        if (!XmlReader::isSupportedProtocolVersion(protocolVersion))
+        // We accept protocol version 1.x (see Bugzilla 1556)
+
+        Boolean protocolVersionAccepted = false;
+
+        if ((protocolVersion.size() >= 3) &&
+            (protocolVersion[0] == '1') &&
+            (protocolVersion[1] == '.'))
+        {
+            // Verify that all characters after the '.' are digits
+            Uint32 index = 2;
+            while ((index < protocolVersion.size()) &&
+                   (protocolVersion[index] >= '0') &&
+                   (protocolVersion[index] <= '9'))
+            {
+                index++;
+            }
+
+            if (index == protocolVersion.size())
+            {
+                protocolVersionAccepted = true;
+            }
+        }
+
+        if (!protocolVersionAccepted)
         {
             // See Specification for CIM Operations over HTTP section 4.3
             sendHttpError(
@@ -665,8 +694,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
         //     "400 Bad Request" (and MUST include a CIMError header in the
         //     response with a value of header-mismatch), subject to the
         //     considerations specified in Errors.
-        if (System::strcasecmp(
-                cimExportMethodName, cimExportMethodInHeader) != 0)
+        if (!String::equalNoCase(cimExportMethodName, cimExportMethodInHeader))
         {
             // ATTN-RK-P3-20020404: How to decode cimExportMethodInHeader?
             sendHttpError(
@@ -732,7 +760,9 @@ void CIMExportRequestDecoder::handleMethodRequest(
     }
     catch (XmlValidationError& e)
     {
-        PEG_TRACE((TRC_XML,Tracer::LEVEL1,
+        PEG_TRACE((
+            TRC_XML_PARSER,
+            Tracer::LEVEL1,
             "CIMExportRequestDecoder::handleMethodRequest - "
             "XmlValidationError exception has occurred. Message: %s",
             (const char*) e.getMessage().getCString()));
@@ -747,7 +777,9 @@ void CIMExportRequestDecoder::handleMethodRequest(
     }
     catch (XmlSemanticError& e)
     {
-        PEG_TRACE((TRC_XML,Tracer::LEVEL1,
+        PEG_TRACE((
+            TRC_XML_PARSER,
+            Tracer::LEVEL1,
             "CIMExportRequestDecoder::handleMethodRequest - "
             "XmlSemanticError exception has occurred. Message: %s",
             (const char*) e.getMessage().getCString()));
@@ -762,7 +794,9 @@ void CIMExportRequestDecoder::handleMethodRequest(
     }
     catch (XmlException& e)
     {
-        PEG_TRACE((TRC_XML,Tracer::LEVEL1,
+        PEG_TRACE((
+            TRC_XML_PARSER,
+            Tracer::LEVEL1,
             "CIMExportRequestDecoder::handleMethodRequest - "
             "XmlException has occurred. Message: %s",
             (const char*) e.getMessage().getCString()));

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -140,7 +142,7 @@ void ShutdownService::shutdown(
 
         PEG_TRACE_CSTRING(
             TRC_SHUTDOWN,
-            Tracer::LEVEL4,
+            Tracer::LEVEL3,
             "ShutdownService::shutdown - No longer accepting new client "
                 "connection requests.");
 
@@ -148,23 +150,24 @@ void ShutdownService::shutdown(
         // Determine if there are any outstanding CIM operation requests
         // (take into account that one of the request is the shutdown request).
         //
-        waitUntilNoMoreRequests(requestPending);
+        Boolean noMoreRequests = waitUntilNoMoreRequests(requestPending);
+
+        PEG_TRACE((
+            TRC_SHUTDOWN,
+            Tracer::LEVEL4,
+            "ShutdownService::shutdown - All outstanding CIM operations "
+                "complete = %s",
+            (noMoreRequests) ? "true" : "false"));
 
         //
-        // Send a shutdown signal to the CIMServer. CIMServer itself will take
-        // care of shutting down the CimomServices and deleting them. In other
-        // words, _DO_ _NOT_ call 'shutdownCimomServices' from a provider.
+        // proceed to shutdown the CIMServer
         //
-        _cimserver->shutdown();
-
-        PEG_TRACE_CSTRING(TRC_SHUTDOWN, Tracer::LEVEL4,
-            "ShutdownService::shutdown - CIMServer instructed to shut down.");
+        _shutdownCIMServer();
     }
     catch (Exception& e)
     {
-        PEG_TRACE((TRC_SHUTDOWN, Tracer::LEVEL2,
-            "Error occurred during CIMServer shutdown: %s",
-            (const char*)e.getMessage().getCString()));
+        PEG_TRACE_STRING(TRC_SHUTDOWN, Tracer::LEVEL2,
+            "Error occurred during CIMServer shutdown: " + e.getMessage());
     }
     catch (...)
     {
@@ -179,6 +182,38 @@ void ShutdownService::shutdown(
 /*  private methods                                       */
 /**********************************************************/
 
+void ShutdownService::_shutdownCIMServer()
+{
+    PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownService::_shutdownCIMServer");
+
+    //
+    // Shutdown the providers
+    //
+
+    _shutdownProviders();
+
+    PEG_TRACE_CSTRING(
+        TRC_SHUTDOWN,
+        Tracer::LEVEL3,
+        "ShutdownService::_shutdownCIMServer - CIM server provider shutdown "
+            "complete");
+
+    //
+    // Send a shutdown signal to the CIMServer. CIMServer itself will take
+    // care of shutting down the CimomServices and deleting them. In other
+    // words, _DO_ _NOT_ call 'shutdownCimomServices' from a provider.
+    //
+    _cimserver->shutdown();
+
+    PEG_TRACE_CSTRING(
+        TRC_SHUTDOWN,
+        Tracer::LEVEL3,
+        "ShutdownService::_shutdownCIMServer - Cimom services shutdown "
+            "complete");
+
+    PEG_METHOD_EXIT();
+}
+
 void ShutdownService::shutdownCimomServices()
 {
     PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownService::shutdownCimomServices");
@@ -191,13 +226,42 @@ void ShutdownService::shutdownCimomServices()
     // Shutdown the Indication Handler Service
     _sendShutdownRequestToService(PEGASUS_QUEUENAME_INDHANDLERMANAGER);
 
+    // PEGASUS_QUEUENAME_OPRESPENCODER
+    _sendShutdownRequestToService(PEGASUS_QUEUENAME_OPRESPENCODER);
+
     // PEGASUS_QUEUENAME_EXPORTRESPENCODER
     _sendShutdownRequestToService(PEGASUS_QUEUENAME_EXPORTRESPENCODER);
+
+    //
+    // shutdown  Authenticator Delegator Service
+    //
+    _sendShutdownRequestToService(PEGASUS_QUEUENAME_HTTPAUTHDELEGATOR);
+
+    //
+    // shutdown  CIM Operation Request Authorizer Service
+    //
+    _sendShutdownRequestToService(PEGASUS_QUEUENAME_OPREQAUTHORIZER);
+
+    //
+    // shutdown  CIM Operation Request Decoder Service
+    //
+    _sendShutdownRequestToService(PEGASUS_QUEUENAME_OPREQDECODER);
+
+
+    //
+    // shutdown  CIM Export Request Decoder Service
+    //
+    _sendShutdownRequestToService(PEGASUS_QUEUENAME_EXPORTREQDECODER);
 
     //
     // shutdown  CIM Export Request Dispatcher Service
     //
     _sendShutdownRequestToService(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER);
+
+    //
+    // shutdown binary message handler
+    //
+    _sendShutdownRequestToService(PEGASUS_QUEUENAME_BINARY_HANDLER);
 
     //
     // shutdown  CIM Operation Request Dispatcher Service
@@ -215,20 +279,23 @@ void ShutdownService::shutdownCimomServices()
 
 void ShutdownService::_sendShutdownRequestToService(const char* serviceName)
 {
-    MessageQueue *queue = MessageQueue::lookup(serviceName);
+    MessageQueueService* _mqs = static_cast<MessageQueueService*>(_controller);
+
+    Array<Uint32> _services;
     Uint32 _queueId;
-    if (queue)
-    {
-        _queueId =  queue->getQueueId();
-    }
-    else
+
+    _mqs->find_services(String(serviceName), 0, 0, &_services);
+
+    if (_services.size() == 0 )
     {
         // service not found, just return
         return;
     }
+    _queueId = _services[0];
+
     // send a Stop (this is a legacy message that in some of the MQS does
     // termination of its internal stuff. Then follow it with a Stop (to
-    // open up its incoming queue), and then with a AsyncIoClose
+    // open up its incoming queue), and then with a AsyncIoctl::IO_CLOSE
     // which closes the incoming queue.
 
     // All of these messages MUST be sequential. Do not use SendForget or
@@ -238,43 +305,44 @@ void ShutdownService::_sendShutdownRequestToService(const char* serviceName)
 
     CimServiceStop stop_message(
         NULL,
-        _queueId);
+        _queueId,
+        _controller->getQueueId(),
+        true);
 
     AutoPtr<AsyncReply> StopAsyncReply(
         _controller->ClientSendWait(_queueId, &stop_message));
 
     CimServiceStart start_message(
         NULL,
-        _queueId);
+        _queueId,
+        _controller->getQueueId(),
+        true);
 
     AutoPtr <AsyncReply> StartAsyncReply(
         _controller->ClientSendWait(_queueId, &start_message));
 
-    AsyncIoClose close_request(
+    AsyncIoctl close_request(
         NULL,
-        _queueId);
+        _queueId,
+        _controller->getQueueId(),
+        false,
+        AsyncIoctl::IO_CLOSE,
+        0,
+        0);
 
     AutoPtr <AsyncReply> CloseAsyncReply(
         _controller->ClientSendWait(_queueId, &close_request));
 }
 
-void ShutdownService::shutdownProviders()
-{
-    _shutdownProviders(true);
-    _shutdownProviders(false);
-}
-
-void ShutdownService::_shutdownProviders(Boolean controlProviders)
+void ShutdownService::_shutdownProviders()
 {
     PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownService::_shutdownProviders");
 
     //
-    // get provider manager service or control service
+    // get provider manager service
     //
     MessageQueue* queue =
-        controlProviders ?
-            MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE) :
-            MessageQueue::lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
+        MessageQueue::lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
 
     if (queue == 0)
     {
@@ -292,30 +360,17 @@ void ShutdownService::_shutdownProviders(Boolean controlProviders)
     CIMStopAllProvidersRequestMessage* stopRequest =
         new CIMStopAllProvidersRequestMessage(
             XmlWriter::getNextMessageId(),
-            QueueIdStack(_queueId),
-            _shutdownTimeout);
+            QueueIdStack(_queueId));
 
     //
     // create async request message
     //
-    AsyncRequest *asyncRequest;
-
-    if (controlProviders)
-    {
-        asyncRequest = new AsyncModuleOperationStart(
-           0,
-           _queueId,
-           String(),
-           stopRequest);
-    }
-    else
-    {
-        asyncRequest = new AsyncLegacyOperationStart(
-            0,
+    AsyncLegacyOperationStart* asyncRequest =
+        new AsyncLegacyOperationStart(
+            NULL,
             _queueId,
-            stopRequest);
-    }
-
+            stopRequest,
+            _queueId);
 
     // Use SendWait, which is serialized and waits. Do not use asynchronous
     // callback as the response might be received _after_ the provider or
@@ -323,34 +378,23 @@ void ShutdownService::_shutdownProviders(Boolean controlProviders)
 
     AsyncReply* asyncReply =
         _controller->ClientSendWait(_queueId, asyncRequest);
-
-
-    MessageType msgType = asyncReply->getType();
-    PEGASUS_ASSERT((msgType == ASYNC_ASYNC_LEGACY_OP_RESULT) ||
-        (msgType == ASYNC_ASYNC_MODULE_OP_RESULT));
-
-    CIMStopAllProvidersResponseMessage *response;
-
-    if (msgType == ASYNC_ASYNC_LEGACY_OP_RESULT)
-    {
-        response = reinterpret_cast<CIMStopAllProvidersResponseMessage *>(
-            (static_cast<AsyncLegacyOperationResult *>(
-                asyncReply))->get_result());
-    }
-    else
-    {
-        response = reinterpret_cast<CIMStopAllProvidersResponseMessage*>(
-            (static_cast<AsyncModuleOperationResult *>(
-                asyncReply))->get_result());
-    }
+    CIMStopAllProvidersResponseMessage* response =
+       reinterpret_cast<CIMStopAllProvidersResponseMessage*>(
+         (static_cast<AsyncLegacyOperationResult*>(asyncReply))->get_result());
 
     if (response->cimException.getCode() != CIM_ERR_SUCCESS)
     {
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            MessageLoaderParms(
-                "Server.ShutdownService.CIM_PROVIDER_SHUTDOWN",
-                "A provider shutdown exception has occurred: $0",
-                response->cimException.getMessage()));
+            "Server.ShutdownService.CIM_PROVIDER_SHUTDOWN",
+            "$0 - CIM provider shutdown exception has occurred.",
+            "ShutdownService::_shutdownProviders");
+
+        CIMException e = response->cimException;
+        delete asyncRequest;
+        delete asyncReply;
+        delete response;
+        PEG_METHOD_EXIT();
+        throw e;
     }
 
     delete asyncRequest;
@@ -360,7 +404,7 @@ void ShutdownService::_shutdownProviders(Boolean controlProviders)
     PEG_METHOD_EXIT();
 }
 
-void ShutdownService::waitUntilNoMoreRequests(Boolean requestPending)
+Boolean ShutdownService::waitUntilNoMoreRequests(Boolean requestPending)
 {
     Uint32 waitTime = _shutdownTimeout;    // maximum wait time in seconds
     const Uint32 waitInterval = 1;         // one second wait interval
@@ -375,7 +419,7 @@ void ShutdownService::waitUntilNoMoreRequests(Boolean requestPending)
         requestCount = _cimserver->getOutstandingRequestCount();
         if (requestCount <= (requestPending ? 1 : 0))
         {
-            break;
+            return true;
         }
 
         PEG_TRACE((
@@ -388,13 +432,7 @@ void ShutdownService::waitUntilNoMoreRequests(Boolean requestPending)
         waitTime -= waitInterval;
     }
 
-    PEG_TRACE((
-        TRC_SHUTDOWN,
-        Tracer::LEVEL4,
-        "ShutdownService::shutdown - All outstanding CIM operations "
-            "complete = %s",
-        ((_cimserver->getOutstandingRequestCount()) <=
-         (requestPending ? 1 : 0)) ? "true" : "false"));
+    return _cimserver->getOutstandingRequestCount() <= (requestPending ? 1 : 0);
 }
 
 PEGASUS_NAMESPACE_END

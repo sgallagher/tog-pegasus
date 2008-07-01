@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -173,7 +175,7 @@ test03 (CIMClient & client)
 
   /*     uint32 TestCMPIBroker (
    *          [IN, Description (
-   *          "The requested are to test different
+   *          "The requested are to test different 
    *          CMPI data structure operations."),
    *          ValueMap { "1", "2", "3", "4", "5", "6"},
    *          Values {"CDGetType", "CDToString", "CDIsOfType",
@@ -296,7 +298,7 @@ test03 (CIMClient & client)
   inParams.clear ();
   outParams.clear ();
   {
-//       CMGetMessage2
+//       CMGetMessage2 
       inParams.append(CIMParamValue(
                           "Operation",
                           CIMValue(Uint32(7))));
@@ -374,7 +376,7 @@ test03 (CIMClient & client)
         PEGASUS_TEST_ASSERT (paramValue.isNull ());
     }
 
-
+    
     inParams.clear();
     outParams.clear();
     {
@@ -671,8 +673,9 @@ test08 (CIMClient & client)
 /**
  * This tests the embedded instance functionality through the CMPI Test
  * Method Provider. It first invokes the returnInstance() method to retrieve
- * an instance that can be used
+ * an instance that can be used 
  */
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 void test09 (CIMClient & client)
 {
   CIMObjectPath instanceName;
@@ -751,6 +754,7 @@ void test09 (CIMClient & client)
     PEGASUS_TEST_ASSERT(outputProp.getValue() == inputProp.getValue());
   }
 }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
 void test10 (CIMClient &client)
 {
@@ -887,7 +891,7 @@ void test14 (CIMClient & client)
     }
 
     // Now test the output parameters
-    PEGASUS_TEST_ASSERT(outParams.size() == 3);
+    PEGASUS_TEST_ASSERT(outParams.size() == 2);
     CIMValue outParamValue = outParams[0].getValue();
     PEGASUS_TEST_ASSERT(outParamValue.isArray());
     PEGASUS_TEST_ASSERT(!outParamValue.isNull());
@@ -935,50 +939,6 @@ void test14 (CIMClient & client)
             PEGASUS_TEST_ASSERT(outputProp.getValue() == inputProp.getValue());
         }
     }
-
-    outParamValue = outParams[2].getValue();
-    PEGASUS_TEST_ASSERT(outParamValue.isArray());
-    PEGASUS_TEST_ASSERT(!outParamValue.isNull());
-
-    outParamValue.get(objs);
-
-    for (Uint32 j = 0, m = objs.size(); j < m ; ++j)
-    {
-        outputInstance = CIMInstance(objs[j]);
-        Uint32 id;
-        CIMInstance emInstance;
-        CIMObject emObject;
-        outputInstance.getProperty(
-            outputInstance.findProperty("id")).getValue().get(id);
-        outputInstance.getProperty(
-            outputInstance.findProperty("emInstance")).
-                getValue().get(emInstance);
-        outputInstance.getProperty(
-            outputInstance.findProperty("emObject")).getValue().get(emObject);
-        PEGASUS_TEST_ASSERT(eObjs[j].identical(emInstance));
-        PEGASUS_TEST_ASSERT(eObjs[j].identical(CIMInstance(emObject)));
-        PEGASUS_TEST_ASSERT(id == j+1);
-    }
-
-}
-
-/*Test Case to test CMPIProviderManager when method is not declared in mof*/
-void test15 (CIMClient & client)
-{
-    CIMObjectPath instanceName;
-
-    instanceName.setNameSpace (providerNamespace);
-    instanceName.setClassName (CLASSNAME);
-
-    Array < CIMParamValue > inParams;
-    Array < CIMParamValue > outParams;
-
-    CIMValue retValue = client.invokeMethod (providerNamespace,
-        instanceName,
-        "methodNotInMof",
-        inParams,
-        outParams);
-    _checkUint32Value (retValue, 42);
 }
 
 void _test (CIMClient & client)
@@ -997,13 +957,15 @@ void _test (CIMClient & client)
     test11 (client);
     test12 (client);
     test13 (client);
-    test15 (client);
-    // Don't run against the remote-namespace, not yet suppoted.
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    // Don't run against the remote-namespace, not yet suppoted. 
     if (providerNamespace == "test/TestProvider")
     {
         test09 (client); // Embedded Instance Test
         test14(client); // Embedded Instance Array Test
     }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    
   }
   catch (Exception & e)
   {

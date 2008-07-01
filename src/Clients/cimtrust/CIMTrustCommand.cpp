@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -117,7 +119,7 @@ const char   CIMTrustCommand::_OPTION_TYPE= 'T';
 /**
     The option character used to specify the authority type.
  */
-const String   CIMTrustCommand::_ARG_TYPE_AUTHORITY = "a";
+const String   CIMTrustCommand::_ARG_TYPE_AUTHORITY = "a"; 
 
 /**
     The option character used to specify the authority issued end-entity type.
@@ -209,7 +211,7 @@ static const CIMName PROPERTY_NAME_SUBJECTNAME  = CIMName ("SubjectName");
     This constant represents the name of the RegisteredUserName
     property in the schema
 */
-static const CIMName PROPERTY_NAME_REGISTERED_USER_NAME
+static const CIMName PROPERTY_NAME_REGISTERED_USER_NAME  
                                             = CIMName ("RegisteredUserName");
 
 /**
@@ -335,7 +337,7 @@ static const char CERT_WITHOUT_ASSOCIATED_USER_KEY [] =
     "Clients.cimtrust.CIMTrustCommand.CERT_WITHOUT_ASSOCIATED_USER";
 
 static const char CERT_WITHOUT_ASSOCIATED_USER [] =
-    "NOTE: No user name will be associated with the certificate"
+    "NOTE: No user name will be associated with the certificate" 
     " in the truststore.";
 
 static const char INVALID_SYSTEM_USER [] =
@@ -451,26 +453,15 @@ CIMTrustCommand::CIMTrustCommand ()
     _usage.append("- Displays the certificates in the trust store\n");
 
     _usage.append("    -f certfile     ");
-    _usage.append("- Specifies the PEM format file containing an X509\n"
-        "                      certificate\n");
+    _usage.append("- Specifies the PEM format file containing ");
+    _usage.append("an X509 certificate\n");
 
     _usage.append("    -U certuser     ");
-    _usage.append("- Specifies the user name to be associated with the\n"
-        "                      certificate\n");
+    _usage.append("- Specifies the user name to be associated with the ");
+    _usage.append("certificate\n");
 
-    _usage.append("    -T (a|e|s)      ");
-    _usage.append("- Specifies the certificate type as follows:\n"
-        "                      -a (authority): root/intermediate authority\n"
-        "                         certificates. This type added to trusted\n"
-        "                         certificate store. certuser optional. If\n"
-        "                         no certUser specified certificate may not \n"
-        "                         be used to authenticate user.\n"
-        "                      -e (authority issued end-entity): Certificates\n"
-        "                         of this type are not added to trusted\n"
-        "                         certificate store. certuser is required.\n"
-        "                      -s (Self-signed identity certificate): Added\n"
-        "                         to trusted certificate store. certuser is\n"
-        "                         required.\n");
+    _usage.append("    -T type         ");
+    _usage.append("- Specifies the certificate type\n");
 
     _usage.append("    -i issuer       ");
     _usage.append("- Specifies the certificate issuer name\n");
@@ -681,12 +672,12 @@ void CIMTrustCommand::_addCertificate (
         PEGASUS_CLASSNAME_CERTIFICATE, kbArray);
 
     //
-    // If an associated username has not been specified, display an
+    // If an associated username has not been specified, display an 
     // informational message.
     //
     if ( !_certUserSet )
     {
-          outPrintWriter << localizeMessage(MSG_PATH,
+          outPrintWriter << localizeMessage(MSG_PATH, 
                             CERT_WITHOUT_ASSOCIATED_USER_KEY,
                             CERT_WITHOUT_ASSOCIATED_USER) << endl;
     }
@@ -737,7 +728,7 @@ void CIMTrustCommand::_removeCertificate (
 
         kbArray.append(kb);
     }
-    else
+    else 
     {
         //
         // Pass the subject name
@@ -912,9 +903,9 @@ void CIMTrustCommand::_listCertificates (
         outPrintWriter << "Issuer: " << issuer << endl;
         outPrintWriter << "Serial Number: " << serialNumber << endl;
         outPrintWriter << "Subject: " << subjectName << endl;
-        outPrintWriter << "Registered User Name: "
+        outPrintWriter << "Registered User Name: " 
                        << registeredUserName << endl;
-        outPrintWriter << "Type: "
+        outPrintWriter << "Type: " 
                        << typeStr << endl;
         outPrintWriter << "Validity:" << endl;
         outPrintWriter << "    NotBefore: " << notBeforeStr << endl;
@@ -1184,7 +1175,7 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // Both the subject and serial number may not be
                         // specified.
-                        //
+                        // 
                         throw UnexpectedOptionException(_OPTION_SERIALNUMBER);
                     }
 
@@ -1271,7 +1262,7 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
             //
             throw MissingOptionException(_OPTION_CERTUSER);
         }
-
+         
     }
 
     if ( _operationType == _OPERATION_TYPE_REMOVE ||
@@ -1397,7 +1388,7 @@ Uint32 CIMTrustCommand::execute (
     {
         outPrintWriter << localizeMessage(MSG_PATH,
             CANNOT_CONNECT_CIMSERVER_NOT_RUNNING_KEY,
-            CANNOT_CONNECT_CIMSERVER_NOT_RUNNING)
+            CANNOT_CONNECT_CIMSERVER_NOT_RUNNING) 
             << endl;
         return RC_CONNECTION_FAILED;
     }

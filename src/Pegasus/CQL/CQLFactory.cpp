@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +64,7 @@ CQLFactory::~CQLFactory()
 void CQLFactory::cleanup()
 {
     PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::cleanup");
-
+    
     cleanupArray(_makeObjectIdentifiers, Identifier);
     cleanupArray(_makeObjectChainedIdentifiers, ChainedIdentifier);
     cleanupArray(_makeObjectValues, Value);
@@ -81,7 +83,7 @@ void CQLFactory::cleanup()
     cleanupArray(_getObjectExpressions, Expression);
     cleanupArray(_getObjectSimplePredicates, SimplePredicate);
     cleanupArray(_getObjectPredicates, Predicate);
-
+    
     PEG_METHOD_EXIT();
 }
 
@@ -129,15 +131,15 @@ void* CQLFactory::makeObject(CQLIdentifier* obj, FactoryType target)
 {
     //printf("CQLFactory::makeObject(identifier)\n");
     PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLIdentifier");
-
+    
     void *cqlIdentifier = NULL;
     _CQLObjectPtr._ptr = new CQLChainedIdentifier(*obj);
     _makeObjectChainedIdentifiers.append(_CQLObjectPtr);
-
+    
     switch(target)
     {
         case ChainedIdentifier:
-            cqlIdentifier =
+            cqlIdentifier = 
                 _makeObjectChainedIdentifiers[
                     _makeObjectChainedIdentifiers.size()-1]._ptr;
             break;
@@ -157,21 +159,21 @@ void* CQLFactory::makeObject(CQLChainedIdentifier* obj, FactoryType target)
 {
     //printf("CQLFactory::makeObject(chainedidentifier)\n");
     PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLChainedIdentifier");
-
+        
     void *cqlChainedIdentifier = NULL;
     _CQLObjectPtr._ptr = new CQLValue(*obj);
     _makeObjectValues.append(_CQLObjectPtr);
     switch(target)
     {
         case Value:
-            cqlChainedIdentifier =
+            cqlChainedIdentifier = 
                 _makeObjectValues[_makeObjectValues.size()-1]._ptr;
             break;
         case ChainedIdentifier:
             cqlChainedIdentifier = NULL;
             break;
         default:
-            cqlChainedIdentifier =
+            cqlChainedIdentifier = 
                 makeObject((CQLValue*)(_CQLObjectPtr._ptr), target);
             break;
     }
@@ -205,18 +207,18 @@ void* CQLFactory::makeObject(CQLFunction* obj, FactoryType target)
 {
     //printf("CQLFactory::makeObject(function)\n");
     PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLFunction");
-
+    
     void *cqlFunction = NULL;
     _CQLObjectPtr._ptr = new CQLFactor(*obj);
     _makeObjectFactors.append(_CQLObjectPtr);
     switch(target)
     {
         case Factor:
-            cqlFunction =
+            cqlFunction = 
                 _makeObjectFactors[_makeObjectFactors.size()-1]._ptr;
             break;
         default:
-            cqlFunction =
+            cqlFunction = 
                 makeObject((CQLFactor*)(_CQLObjectPtr._ptr), target);
             break;
     }
@@ -257,7 +259,7 @@ void* CQLFactory::makeObject(CQLTerm* obj, FactoryType target)
     switch(target)
     {
         case Expression:
-            cqlTerm =
+            cqlTerm = 
                _makeObjectExpressions[_makeObjectExpressions.size()-1]._ptr;
             break;
         case Term:
@@ -371,7 +373,7 @@ void* CQLFactory::getObject(CQLChainedIdentifier* obj, FactoryType target)
             cqlIds = obj->getSubIdentifiers();
             if(cqlIds.size() > 0)
             {
-                //   _CQLObjectPtr._ptr =
+                //   _CQLObjectPtr._ptr = 
                 //       new CQLIdentifier(obj->_rep->_subIdentifiers[0]);
                 _CQLObjectPtr._ptr = new CQLIdentifier(cqlIds[0]);
                 _getObjectIdentifiers.append(_CQLObjectPtr);
@@ -523,7 +525,7 @@ void CQLFactory::setObject(CQLPredicate* predicate, void* obj,
             predicate->_rep->_simplePredicate = *((CQLSimplePredicate*)obj);
             break;
         case Expression:
-            predicate->_rep->_simplePredicate._rep->_leftSide =
+            predicate->_rep->_simplePredicate._rep->_leftSide = 
                 *((CQLExpression*)obj);
             break;
         case Term:
@@ -532,7 +534,7 @@ void CQLFactory::setObject(CQLPredicate* predicate, void* obj,
             break;
         case Factor:
             predicate->_rep->_simplePredicate._rep->
-                _leftSide._rep->_CQLTerms[0]._rep->_Factors[0] =
+                _leftSide._rep->_CQLTerms[0]._rep->_Factors[0] = 
                 *((CQLFactor*)obj);
             break;
         case Function:
@@ -556,5 +558,5 @@ void CQLFactory::setObject(CQLPredicate* predicate, void* obj,
             break;
     }
     PEG_METHOD_EXIT();
-}
+} 
 PEGASUS_NAMESPACE_END

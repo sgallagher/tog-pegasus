@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +38,6 @@
 #include "CMPI_Value.h"
 #include "CMPI_String.h"
 #include "CMPI_SelectExpAccessor_WQL.h"
-#include "CMPI_ThreadContext.h"
 
 #ifdef PEGASUS_ENABLE_CQL
 # include "CMPI_SelectExpAccessor_CQL.h"
@@ -62,8 +63,8 @@ extern "C"
         {
             /**
                 Do not call unlinkAndDelete - b/c the CMPI_Object::
-                unlinkAndDelete casts the structure to a CMPI_Object and
-                deletes it. But this is a CMPI_SelectExp structure so not
+                unlinkAndDelete casts the structure to a CMPI_Object and 
+                deletes it. But this is a CMPI_SelectExp structure so not 
                 all of the variables get deleted. Hence we delete them here.
                 ((CMPI_Object*)se)->unlinkAndDelete();
             */
@@ -74,12 +75,12 @@ extern "C"
         CMReturn (CMPI_RC_OK);
     }
 
-    /**
+    /** 
        This will not clone all the CMPISelectExp objects. It clones only when
        original object has either CQLSelectStatement or WQLSelectStatement.
        Any other properties of original object may cause clone to retun error
        CMPI_RC_ERR_NOT_SUPPORTED. Use this only when you have just created
-      CMPISelectExp object with CMNewselectExp
+      CMPISelectExp object with CMNewselectExp 
       (broker,query,lang,projection,rc)
     */
 
@@ -90,16 +91,14 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_SelectExp:selxClone()");
-
-        //initialise to silence uninitialised use warning
-        CMPI_SelectExp *new_se = NULL;
+        CMPI_SelectExp *new_se;
         CMPI_SelectExp *se = (CMPI_SelectExp*) eSx;
 
-        if((
+        if( 
 #ifdef PEGASUS_ENABLE_CQL
         !se->cql_stmt &&
 #endif
-        !se->wql_stmt) || se->_context || se->hdl )
+        !se->wql_stmt || se->_context || se->hdl )
         {
             CMSetStatus (rc, CMPI_RC_ERR_NOT_SUPPORTED);
             PEG_METHOD_EXIT();
@@ -133,7 +132,7 @@ extern "C"
     }
 
     /**
-       Helper functions
+       Helper functions 
     */
     PEGASUS_STATIC CMPIBoolean _check_WQL (
         CMPI_SelectExp * sx,
@@ -151,18 +150,18 @@ extern "C"
             }
             catch( const Exception &e )
             {
-                PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-                    "Exception: _check_WQL - msg: %s",
-                    (const char*)e.getMessage().getCString()));
-
-                if( rc )
+                PEG_TRACE_STRING(
+                    TRC_CMPIPROVIDERINTERFACE,
+                    Tracer::LEVEL1,
+                    "Exception: _check_WQL - msg: " + e.getMessage());
+                if( rc ) 
                 {
                     CMSetStatusWithString(
                         rc,
                         CMPI_RC_ERR_INVALID_QUERY,
                         (CMPIString*)string2CMPIString(e.getMessage()));
                 }
-
+                
                 delete stmt;
                 PEG_METHOD_EXIT();
                 return false;
@@ -179,10 +178,10 @@ extern "C"
                 return false;
             }
             /**
-               Only set it for success
+               Only set it for success 
             */
             sx->wql_stmt = stmt;
-
+                                 
         /* sx->wql_stmt ... */
         }
         PEG_METHOD_EXIT();
@@ -200,7 +199,7 @@ extern "C"
         if( sx->cql_stmt == NULL )
         {
             /**
-                The constructor should set this to a valid pointer.
+                The constructor should set this to a valid pointer. 
             */
             if( sx->_context == NULL )
             {
@@ -218,10 +217,10 @@ extern "C"
             }
             catch( const Exception &e )
             {
-                PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-                    "Exception: _check_CQL - msg: %s",
-                    (const char*)e.getMessage().getCString()));
-
+                PEG_TRACE_STRING(
+                    TRC_CMPIPROVIDERINTERFACE,
+                    Tracer::LEVEL1,
+                    "Exception: _check_CQL - msg: " + e.getMessage());
                 if( rc )
                 {
                     CMSetStatusWithString(
@@ -284,23 +283,10 @@ extern "C"
             PEG_METHOD_EXIT();
             return false;
         }
-
-        SCMOInstance * scmoInst = (SCMOInstance*) inst->hdl;
-        CIMInstance cimInstance;
-        SCMO_RC smrc = scmoInst->getCIMInstance(cimInstance);
-        if (SCMO_OK != smrc)
-        {
-            PEG_TRACE_CSTRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Failed to convert SCMOInstance to CIMInstance");
-            CMSetStatus (rc, CMPI_RC_ERR_INVALID_PARAMETER);
-            PEG_METHOD_EXIT();
-            return false;
-        }
+        CIMInstance *instance = (CIMInstance *) inst->hdl;
 
         /**
-           WQL
+           WQL 
         */
         if( strncmp (sx->lang.getCString (),
         CALL_SIGN_WQL, CALL_SIGN_WQL_SIZE) == 0 )
@@ -310,14 +296,14 @@ extern "C"
                 try
                 {
                     PEG_METHOD_EXIT();
-                    return sx->wql_stmt->evaluate (cimInstance);
+                    return sx->wql_stmt->evaluate (*(CIMInstance *) inst->hdl);
                 }
                 catch( const Exception &e )
                 {
-                    PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-                        "Exception: selxEvaluateWQL - msg: %s",
-                        (const char*)e.getMessage().getCString()));
-
+                    PEG_TRACE_STRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL1,
+                        "Exception: selxEvaluate - msg: " + e.getMessage());
                     if( rc )
                     {
                         CMSetStatusWithString(rc,CMPI_RC_ERR_FAILED,
@@ -344,7 +330,7 @@ extern "C"
             }
         }
         /**
-         CIM:CQL
+         CIM:CQL 
        */
 #ifdef PEGASUS_ENABLE_CQL
         if( (strncmp (sx->lang.getCString(),
@@ -357,14 +343,14 @@ extern "C"
                 try
                 {
                     PEG_METHOD_EXIT();
-                    return sx->cql_stmt->evaluate (cimInstance);
+                    return sx->cql_stmt->evaluate (*instance);
                 }
                 catch( const Exception &e )
                 {
-                    PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-                        "Exception: selxEvaluateCQL - msg: %s",
-                        (const char*)e.getMessage().getCString()));
-
+                    PEG_TRACE_STRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL1,
+                        "Exception: selxEvaluate - msg: " + e.getMessage());
                     if( rc )
                     {
                         CMSetStatusWithString(
@@ -394,7 +380,7 @@ extern "C"
         }
 #endif
          /**
-          Tried some other weird query language which we don't support
+          Tried some other weird query language which we don't support 
         */
         CMSetStatus (rc, CMPI_RC_ERR_NOT_SUPPORTED);
         PEG_METHOD_EXIT();
@@ -436,10 +422,11 @@ extern "C"
                 }
                 catch( const Exception &e )
                 {
-                    PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-                        "Exception: selxEvaluateUsingAccessorWQL - msg: %s",
-                        (const char*)e.getMessage().getCString()));
-
+                    PEG_TRACE_STRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL1,
+                        "Exception: selxEvaluateUsingAccessor - msg: " +
+                        e.getMessage());
                     if( rc )
                     {
                         CMSetStatusWithString(
@@ -485,10 +472,11 @@ extern "C"
                 }
                 catch( const Exception &e )
                 {
-                    PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-                        "Exception: selxEvaluateUsingAccessorCQL - msg: %s",
-                        (const char*)e.getMessage().getCString()));
-
+                    PEG_TRACE_STRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL1,
+                        "Exception: selxEvaluateUsingAccessor - msg: " +
+                        e.getMessage());
                     if( rc )
                     {
                         CMSetStatusWithString(rc,CMPI_RC_ERR_FAILED,
@@ -556,10 +544,11 @@ extern "C"
                 }
                 catch( const Exception &e )
                 {
-                    PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-                        "Exception: selxGetDOCWQL - msg: %s",
-                        (const char*)e.getMessage().getCString()));
-
+                    PEG_TRACE_STRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL1,
+                        "Exception: selxGetDOC - msg: " +
+                        e.getMessage());
                     if( rc )
                     {
                         CMSetStatusWithString(
@@ -572,17 +561,6 @@ extern "C"
                         delete dnf;
                     }
 
-                    PEG_METHOD_EXIT();
-                    return NULL;
-                }
-                catch( ... )
-                {
-                    PEG_TRACE_CSTRING(
-                        TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL1,
-                        "Exception: Unknown Exception in selxGetDOC for WQL");
-                    delete dnf;
-                    CMSetStatus (rc, CMPI_RC_ERR_FAILED);
                     PEG_METHOD_EXIT();
                     return NULL;
                 }
@@ -618,25 +596,15 @@ extern "C"
                 }
                 catch( const Exception &e )
                 {
-                    PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-                        "Exception: selxGetDOCCQL - msg: %s",
-                        (const char*)e.getMessage().getCString()));
-
+                    PEG_TRACE_STRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL1,
+                        "Exception: selxGetDOC - msg: " +
+                        e.getMessage());
                     if( rc ) CMSetStatusWithString(rc,CMPI_RC_ERR_FAILED,
                         (CMPIString*)string2CMPIString(e.getMessage()));
                     if( dnf )
                         delete dnf;
-                    PEG_METHOD_EXIT();
-                    return NULL;
-                }
-                catch( ... )
-                {
-                    PEG_TRACE_CSTRING(
-                        TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL1,
-                        "Exception: Unknown Exception in selxGetDOC for CQL");
-                    delete dnf;
-                    CMSetStatus (rc, CMPI_RC_ERR_FAILED);
                     PEG_METHOD_EXIT();
                     return NULL;
                 }
@@ -655,8 +623,8 @@ extern "C"
             return reinterpret_cast < CMPISelectCond * >(obj);
         }
 
-        /*
-          If the sc was null, we just exit
+        /* 
+          If the sc was null, we just exit 
         */
         CMSetStatus (rc, CMPI_RC_ERR_FAILED);
         PEG_METHOD_EXIT();
@@ -674,7 +642,7 @@ extern "C"
 
 }
 
-static CMPISelectExpFT selx_FT =
+static CMPISelectExpFT selx_FT = 
 {
     CMPICurrentVersion,
     selxRelease,
@@ -696,16 +664,15 @@ CMPI_SelectExp::~CMPI_SelectExp()
     delete cql_dnf;
     delete cql_stmt;
 #endif
-    delete _context;
 }
 CMPI_SelectExp::CMPI_SelectExp (
     const OperationContext & ct,
-    QueryContext * context,
+    QueryContext * context, 
     String cond_,
     String lang_):ctx (ct),cond (cond_),lang (lang_),
-                  _context (context->clone()),persistent(true)
+                  _context (context),persistent(true)
 {
-    /**
+    /** 
       We do NOT add ourselves to the CMPI_Object as this is a persitent object.
        Look at the other construtors.
      */
@@ -748,8 +715,8 @@ CMPI_SelectExp::CMPI_SelectExp (
 
 #ifdef PEGASUS_ENABLE_CQL
 CMPI_SelectExp::CMPI_SelectExp (CQLSelectStatement * st, Boolean persistent_,
-    QueryContext *context):ctx (OperationContext ()),cql_stmt (st),
-    _context(context->clone()), persistent (persistent_)
+    QueryContext *context):ctx (OperationContext ()),cql_stmt (st), 
+    _context(context), persistent (persistent_)
 {
     /** Adding the object to the garbage collector.
     */

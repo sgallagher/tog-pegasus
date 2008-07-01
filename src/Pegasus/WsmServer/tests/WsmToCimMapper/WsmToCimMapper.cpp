@@ -1,34 +1,35 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//=============================================================================
 
 #include <Pegasus/Common/PegasusAssert.h>
-#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/WsmServer/WsmConstants.h>
 #include <Pegasus/WsmServer/WsmUtils.h>
 #include <Pegasus/WsmServer/WsmReader.h>
@@ -236,7 +237,7 @@ static void _testValues(void)
     s8_arr.append(-11);
     s8_arr.append(-22);
     testArrayType(s8_arr);
-
+    
     Array<Sint16> s16_arr;
     s16_arr.append(-111);
     s16_arr.append(-222);
@@ -836,9 +837,9 @@ static void _testInstances(void)
 
     // Test non-existent property
     {
-        WsmValue val("value3");
+        WsmValue val3("value3");
         wsmInst.setClassName(CLASSNAME);
-        wsmInst.addProperty(WsmProperty(String("prop3"), val));
+        wsmInst.addProperty(WsmProperty(String("prop3"), val3));
         ASSERT_FAULT(
             mapper.convertWsmToCimInstance(wsmInst, NAMESPACE, cimInst),
             "wsman:SchemaValidationError");
@@ -863,7 +864,7 @@ static void _testEPRs(void)
     epr.selectorSet->selectors.
         append(WsmSelector("__cimnamespace", NAMESPACE));
     mapper.convertEPRToObjectPath(epr, objectPath);
-    PEGASUS_TEST_ASSERT(objectPath.toString() ==
+    PEGASUS_TEST_ASSERT(objectPath.toString() == 
         "//www.acme.com/aa/bb:MyClass.prop1=\"value1\"");
 
     // Test mapping of EPR values
@@ -872,7 +873,7 @@ static void _testEPRs(void)
     mapper.convertWsmToCimValue(wsmEprValue, NAMESPACE, cimObjpathValue);
     CIMObjectPath objectPath1;
     cimObjpathValue.get(objectPath1);
-    PEGASUS_TEST_ASSERT(objectPath1.toString() ==
+    PEGASUS_TEST_ASSERT(objectPath1.toString() == 
         "//www.acme.com/aa/bb:MyClass.prop1=\"value1\"");
 
     // Test mapping of EPR array values
@@ -892,9 +893,9 @@ static void _testEPRs(void)
         wsmEprArrayValue, NAMESPACE, cimObjpathArrayValue);
     Array<CIMObjectPath> objectPathArray;
     cimObjpathArrayValue.get(objectPathArray);
-    PEGASUS_TEST_ASSERT(objectPathArray[0].toString() ==
+    PEGASUS_TEST_ASSERT(objectPathArray[0].toString() == 
         "//www.acme.com/aa/bb:MyClass.prop1=\"value1\"");
-    PEGASUS_TEST_ASSERT(objectPathArray[1].toString() ==
+    PEGASUS_TEST_ASSERT(objectPathArray[1].toString() == 
         "//www.acme1.com/aa/bb:MyClass.prop1=\"value2\"");
 
     // Test invalid __cimnamespace selector type
@@ -961,11 +962,11 @@ static void _testEPRs(void)
     ASSERT_FAULT(
         mapper.convertEPRAddressToHostname("garbage"),
         "wsa:InvalidMessageInformationHeader");
-
+    
     ASSERT_FAULT(
         mapper.convertEPRAddressToHostname("http://blah"),
         "wsa:InvalidMessageInformationHeader");
-
+    
     ASSERT_FAULT(
         mapper.convertEPRAddressToHostname("http://bsa#@^&sa/wsman"),
         "wsa:InvalidMessageInformationHeader");
@@ -985,8 +986,6 @@ int main(int argc, char** argv)
         repositoryRoot = tmpDir;
     }
     repositoryRoot.append("/repository");
-
-    FileSystem::removeDirectoryHier(repositoryRoot);
 
     try
     {
@@ -1024,8 +1023,6 @@ int main(int argc, char** argv)
         cerr << "Error: " << f.getSubcode() << " " << f.getReason() << endl;
         exit(1);
     }
-
-    FileSystem::removeDirectoryHier(repositoryRoot);
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

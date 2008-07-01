@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,13 +45,13 @@ Char16 CQLIdentifierRep::RBRKT = ']';
 Char16 CQLIdentifierRep::LBRKT = '[';
 const char CQLIdentifierRep::SCOPE[] = "::";
 
-CQLIdentifierRep::CQLIdentifierRep():
+CQLIdentifierRep::CQLIdentifierRep(): 
     QueryIdentifierRep()
 {
 
 }
 
-CQLIdentifierRep::CQLIdentifierRep(const String& identifier):
+CQLIdentifierRep::CQLIdentifierRep(const String& identifier): 
     QueryIdentifierRep()
 {
     _isWildcard = false;
@@ -77,7 +79,7 @@ CQLIdentifierRep& CQLIdentifierRep::operator=(const CQLIdentifierRep& rhs)
 {
     _symbolicConstant = rhs._symbolicConstant;
     _scope = rhs._scope;
-    _indices = rhs._indices;
+    _indices = rhs._indices; 
     _name = rhs._name;
     _isWildcard = rhs._isWildcard;
     _isSymbolicConstant = rhs._isSymbolicConstant;
@@ -104,19 +106,19 @@ void CQLIdentifierRep::parse(String identifier)
     if(identifier == String::EMPTY)
     {
         _name = CIMName();
-        return;
+        return; 
     }
     // basic error check
     if((index = identifier.find(HASH)) != PEG_NOT_FOUND)
     {
-        if(((index = identifier.find(RBRKT)) != PEG_NOT_FOUND) ||
-            ((index = identifier.find(LBRKT)) != PEG_NOT_FOUND))
+        if(((index = identifier.find(RBRKT)) != PEG_NOT_FOUND) || 
+            ((index = identifier.find(LBRKT)) != PEG_NOT_FOUND))    
         {
             //error
             MessageLoaderParms parms(
-                "CQL.CQLIdentifier.HASH_ARRAY_SYMBOL_MISMATCH",
-                "The identifier contains a mismatched symbolic"
-                    " constant symbol and an array symbol: $0",
+                String("CQL.CQLIdentifier.HASH_ARRAY_SYMBOL_MISMATCH"),
+                String("The identifier contains a mismatched symbolic"
+                    " constant symbol and an array symbol: $0"),
                 identifier);
             throw CQLIdentifierParseException(parms);
         }
@@ -142,12 +144,12 @@ void CQLIdentifierRep::parse(String identifier)
             {
                 // Basic query error
                 MessageLoaderParms parms(
-                    "CQL.CQLIdentifier.TOO_MANY_ARRAY_INDICES",
-                    "The identifier contains one or more commas which"
-                        " is not allowed in CQL Basic query: $0",
+                    String("CQL.CQLIdentifier.TOO_MANY_ARRAY_INDICES"),
+                    String("The identifier contains one or more commas which"
+                        " is not allowed in CQL Basic query: $0"),
                     identifier);
                 throw CQLIdentifierParseException(parms);
-                //
+                // 
                 // For basic query the following lines are disabled
                 // An exception is thrown if we have ',' in the array range
                 //
@@ -165,8 +167,8 @@ void CQLIdentifierRep::parse(String identifier)
         {
           // error
             MessageLoaderParms parms(
-                "CQL.CQLIdentifier.ARRAY_SYMBOL_MISMATCH",
-                "The identifier contains a mismatched array symbol: $0",
+                String("CQL.CQLIdentifier.ARRAY_SYMBOL_MISMATCH"),
+                String("The identifier contains a mismatched array symbol: $0"),
                 identifier);
             throw CQLIdentifierParseException(parms);
         }
@@ -199,13 +201,13 @@ void CQLIdentifierRep::parse(String identifier)
         catch (Exception&)
         {
             MessageLoaderParms parms(
-                "CQL.CQLIdentifier.INVALID_CIMNAME",
-                "The identifier contains an invalid CIMName: $0.",
+                String("CQL.CQLIdentifier.INVALID_CIMNAME"),
+                String("The identifier contains an invalid CIMName: $0."),
                 identifier);
             throw CQLIdentifierParseException(parms);
         }
     }
-
+    
     PEG_METHOD_EXIT();
 }
 

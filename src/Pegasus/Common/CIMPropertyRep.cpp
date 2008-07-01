@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -42,14 +44,15 @@ PEGASUS_NAMESPACE_BEGIN
 
 CIMPropertyRep::CIMPropertyRep(
     const CIMPropertyRep& x,
-    Boolean propagateQualifiers):
+    Boolean propagateQualifiers)
+    :
+    Sharable(),
     _name(x._name),
     _value(x._value),
     _arraySize(x._arraySize),
     _referenceClassName(x._referenceClassName),
     _classOrigin(x._classOrigin),
     _propagated(x._propagated),
-    _refCounter(1),
     _ownerCount(0)
 {
     // Set the CIM name tag.
@@ -69,7 +72,7 @@ CIMPropertyRep::CIMPropertyRep(
     :
     _name(name), _value(value), _arraySize(arraySize),
     _referenceClassName(referenceClassName), _classOrigin(classOrigin),
-    _propagated(propagated), _refCounter(1), _ownerCount(0)
+    _propagated(propagated), _ownerCount(0)
 {
     // ensure name is not null
     if (name.isNull())
@@ -146,16 +149,16 @@ void CIMPropertyRep::resolve(
         if (!(
             (inheritedProperty.getValue().getType() == CIMTYPE_OBJECT) &&
             (_value.getType() == CIMTYPE_STRING) &&
-            (_qualifiers.find(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT)
-                 != PEG_NOT_FOUND) &&
+            (_qualifiers.find(CIMName("EmbeddedObject")) != PEG_NOT_FOUND) &&
             (inheritedProperty.getValue().isArray() == _value.isArray())
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             ) &&
             !(
             (inheritedProperty.getValue().getType() == CIMTYPE_INSTANCE) &&
             (_value.getType() == CIMTYPE_STRING) &&
-            (_qualifiers.find(PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE)
-                 != PEG_NOT_FOUND) &&
+            (_qualifiers.find(CIMName("EmbeddedInstance")) != PEG_NOT_FOUND) &&
             (inheritedProperty.getValue().isArray() == _value.isArray())
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             ))
         {
             throw TypeMismatchException();
@@ -172,16 +175,20 @@ void CIMPropertyRep::resolve(
         scope = CIMScope::REFERENCE;
 
     // Test the reference class name against the inherited property
-    if (_value.getType() == CIMTYPE_REFERENCE ||
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    if (_value.getType() == CIMTYPE_REFERENCE || 
         _value.getType() == CIMTYPE_INSTANCE)
+#else // !PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    if (_value.getType() == CIMTYPE_REFERENCE)
+#endif // end PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     {
         CIMName inheritedClassName;
         Array<CIMName> classNames;
 
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         if (_value.getType() == CIMTYPE_INSTANCE)
         {
-            Uint32 pos = inheritedProperty.findQualifier(
-                             PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE);
+            Uint32 pos = inheritedProperty.findQualifier("EmbeddedInstance");
             if (pos != PEG_NOT_FOUND)
             {
                 String qualStr;
@@ -206,6 +213,7 @@ void CIMPropertyRep::resolve(
             }
         }
         else
+#endif // end PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         {
             CIMName referenceClass;
             if (_referenceClassName.isNull())
@@ -289,31 +297,7 @@ void CIMPropertyRep::resolve(
     CIMScope scope = CIMScope::PROPERTY;
 
     if (_value.getType() == CIMTYPE_REFERENCE)
-    {
         scope = CIMScope::REFERENCE;
-
-        // Validate that the reference class exists.
-
-        CIMName referenceClassName;
-        if (_referenceClassName.isNull())
-        {
-            CIMObjectPath reference;
-            _value.get(reference);
-            referenceClassName = reference.getClassName();
-        }
-        else
-        {
-            referenceClassName = _referenceClassName;
-        }
-
-        CIMClass referenceClass = declContext->lookupClass(
-            nameSpace, referenceClassName);
-        if (referenceClass.isUninitialized())
-        {
-            throw PEGASUS_CIM_EXCEPTION(
-                CIM_ERR_INVALID_PARAMETER, referenceClassName.getString());
-        }
-    }
 
     _qualifiers.resolve(
         declContext,

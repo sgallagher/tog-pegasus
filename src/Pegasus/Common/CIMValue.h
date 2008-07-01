@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,19 +48,16 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMValueRep;
 class CIMObject;
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 class CIMInstance;
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 /**
     The CIMValue class represents a value of any of the CIM data types.
     This class encapsulates a union which holds value of any CIMType.
     A type field indicates the type of the value.
-
-    WARNING: The returned value of CIMValue get(returnValue) is never nodified
-    when a CIMValue is null (i.e. isNull() == true). An isNull() test should
-    be executed before executing any CIMValue get(...) if there is any
-    question of a possible null value and you are not sure of the value in
-    the returned variable.
-
 */
 class PEGASUS_COMMON_LINKAGE CIMValue
 {
@@ -179,6 +178,8 @@ public:
     */
     CIMValue(const CIMObject& x);
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     /**
         Constructs a CIMValue with the specified value and inferred type.
         Note: The CIMInstance argument is cloned to prevent subsequent
@@ -188,6 +189,8 @@ public:
             uninitialized.
     */
     CIMValue(const CIMInstance& x);
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
     /**
         Constructs a CIMValue with the specified value and inferred type.
@@ -289,6 +292,8 @@ public:
     */
     CIMValue(const Array<CIMObject>& x);
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     /**
         Constructs a CIMValue with the specified value and inferred type.
         Note: The CIMInstances in the Array argument are cloned to prevent
@@ -298,6 +303,8 @@ public:
             the Array are uninitialized.
     */
     CIMValue(const Array<CIMInstance>& x);
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
     /**
         Constructs a CIMValue by copying another CIMValue object.
@@ -361,7 +368,6 @@ public:
     /**
         Gets the fixed array size of a CIMValue.  This value is undefined for
         non-array values.  A value of 0 is given for variable size arrays.
-        Result is undetermined if CIMValue is null.
         @return An integer indicating the array size.
     */
     Uint32 getArraySize() const;
@@ -482,6 +488,8 @@ public:
     */
     void set(const CIMObject& x);
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     /**
         Sets the CIMValue to the specified value and inferred type.
         Note: The CIMInstance argument is cloned to prevent subsequent
@@ -491,6 +499,8 @@ public:
             uninitialized.
     */
     void set(const CIMInstance& x);
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
     /**
         Sets the CIMValue to the specified value and inferred type.
@@ -592,6 +602,8 @@ public:
     */
     void set(const Array<CIMObject>& x);
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     /**
         Sets the CIMValue to the specified value and inferred type.
         Note: The CIMInstances in the Array argument are cloned to prevent
@@ -601,28 +613,14 @@ public:
             the Array are uninitialized.
     */
     void set(const Array<CIMInstance>& x);
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        <pre>
-            // get with complete checking on type and nullness
-            Boolean v;
-            CIMValue value = property.getValue();
-            if ((value.getType() == CIMTYPE_BOOLEAN) && (!value.isNull()))
-                value.get(v);
-            or
-            // Set the value from property into v if the value is
-            // of Boolean type and !isNull(). If type incorrect, generates
-            // an exception.  If CIMValue is null, leaves v false. Else
-            // sets Boolean value from property into v.
-            Boolean v = false;
-            property.getValue().get(v);
-        </pre>
-        @param x Output Boolean into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output Boolean into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -630,12 +628,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-
-        @param x Output Uint8 into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output Uint8 into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -643,11 +638,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Sint8 into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output Sint8 into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -655,11 +648,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Uint16 into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output Uint16 into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -667,11 +658,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Sint16 into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output Sint16 into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -679,17 +668,15 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
         <pre>
             Uint32 v;
             CIMValue value = property.getValue();
-            if ((value.getType() == CIMTYPE_SINT32) && (!value.isNull()))
+            if ((value.getType() == CIMTYPE_UINT32) && (!value.isNull()))
                 value.get(v);
         </pre>
-        @param x Output Uint32 into which the value is stored if CIMValue
-            state is not null.
+        @param x Output Uint32 into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -697,11 +684,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Sint32 into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output Sint32 into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -709,11 +694,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Uint64 into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output Uint64 into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -721,11 +704,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Sint64 into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output Sint64 into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -733,11 +714,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Real32 into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output Real32 into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -745,11 +724,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Real64 into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output Real64 into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -757,11 +734,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Char16 into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output Char16 into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -769,11 +744,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output String into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output String into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -781,11 +754,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output CIMDateTime into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output CIMDateTime into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -793,11 +764,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).).
-        @param x Output CIMObjectPath into which the value is stored if
-            CIMValue state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output CIMObjectPath into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -805,35 +774,33 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output CIMObject into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output CIMObject into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
     void get(CIMObject& x) const;
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output CIMInstance into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output CIMInstance into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
     void get(CIMInstance& x) const;
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Boolean Array into which the value is stored if
-            CIMValue state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output Boolean Array into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -841,11 +808,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Uint8 Array into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output Uint8 Array into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -853,11 +818,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Sint8 Array into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output Sint8 Array into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -865,11 +828,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).).
-        @param x Output Uint16 Array into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output Uint16 Array into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -877,11 +838,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Sint16 Array into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output Sint16 Array into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -889,11 +848,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Uint32 Array into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output Uint32 Array into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -901,11 +858,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Sint32 Array into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output Sint32 Array into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -913,11 +868,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Uint64 Array into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output Uint64 Array into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -925,11 +878,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Sint64 Array into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output Sint64 Array into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -937,11 +888,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Real32 Array into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output Real32 Array into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -949,11 +898,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Real64 Array into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output Real64 Array into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -961,11 +908,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Char16 Array into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output Char16 Array into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -973,11 +918,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output String Array into which the value is stored if CIMValue
-            state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output String Array into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -985,11 +928,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output CIMDateTime Array into which the value is stored if
-            CIMValue state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output CIMDateTime Array into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -997,11 +938,9 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output CIMObjectPath Array into which the value is stored if
-            CIMValue state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output CIMObjectPath Array into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
@@ -1009,27 +948,27 @@ public:
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output CIMObject Array into which the value is stored if
-            CIMValue state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output CIMObject Array into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
     void get(Array<CIMObject>& x) const;
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     /**
         Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output CIMInstance Array into which the value is stored if
-            CIMValue state is not null.
+        the value is of the expected type and is not null.  The behavior is
+        undefined for null values.
+        @param x Output CIMInstance Array into which the value is stored.
         @exception TypeMismatchException If the value type does not match the
             output parameter.
     */
     void get(Array<CIMInstance>& x) const;
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
     /**
         Compares with another CIMValue object for equality.
@@ -1087,8 +1026,8 @@ public:
     /**
         <I><B>Deprecated Interface</B></I><BR>
         Gets the Sint8 value of the CIMValue.  The caller should first verify
-        that the value is of the expected type and is not null.  The output
-        parameter x is not updated if the value is null (isNull() == true).
+        that the value is of the expected type and is not null.  The behavior
+        is undefined for null values.
         (Note: This method exists solely to support binary compatibility with
         a previous definition of the Sint8 type.)
         @param x Output variable into which the value is stored.
@@ -1099,8 +1038,7 @@ public:
         <I><B>Deprecated Interface</B></I><BR>
         Gets the Sint8 Array value of the CIMValue.  The caller should first
         verify that the value is of the expected type and is not null.  The
-        output parameter x is not updated if the value is null
-        (isNull() == true).
+        behavior is undefined for null values.
         (Note: This method exists solely to support binary compatibility with
         a previous definition of the Sint8 type.)
         @param x Output Array variable into which the value is stored.
@@ -1121,8 +1059,6 @@ private:
     friend class CIMQualifierDeclRep;
     friend class BinaryStreamer;
     friend class XmlWriter;
-    friend class SCMOClass;
-    friend class SCMOInstance;
 };
 
 /**

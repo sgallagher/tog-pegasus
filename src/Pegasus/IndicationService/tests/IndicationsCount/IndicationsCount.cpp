@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -593,7 +595,7 @@ CIMInstance _buildSubscriptionIndicationDataInstance(
 
     if (includeObjectPath)
     {
-        CIMObjectPath instanceName =
+        CIMObjectPath instanceName = 
             _buildSubscriptionIndicationDataInstanceName(
                 filterName,
                 handlerName,
@@ -602,7 +604,7 @@ CIMInstance _buildSubscriptionIndicationDataInstance(
                 providerName);
         subIndDataInstance.setPath(instanceName);
     }
-
+        
     return subIndDataInstance;
 }
 
@@ -638,7 +640,7 @@ void _register(CIMClient& client)
         client,
         String("ProcessIndicationProviderModule"),
         String("ProcessIndicationProvider"));
-
+        
     TestProviderRegistration::createProviderInstance(
         client,
         String("ProcessIndicationProvider"),
@@ -652,9 +654,9 @@ void _register(CIMClient& client)
         String("CIM_ProcessIndication"),
         namespaces,
         providerTypes,
-        CIMPropertyList());
+        CIMPropertyList());    
 
-    //
+    // 
     // creates a subscription served by this provider
     //
     _createIndicationsCountSubscription(client);
@@ -761,7 +763,7 @@ void _cleanup(CIMClient& client)
         "----- Error: deleteSubscriptionInstance failure: ");
 
     IGNORE_CIM_ERR_NOT_FOUND(
-        _deleteFilterInstance(client, FILTER_NAME),
+        _deleteFilterInstance(client, FILTER_NAME), 
         "----- Error: deleteFilterInstance failure: ");
 
     IGNORE_CIM_ERR_NOT_FOUND(
@@ -827,23 +829,22 @@ void _test(CIMClient& client)
     expectedProvIndDataInstances.append(expectedProvIndDataInstance);
 
     Array<CIMInstance> expectedSubIndDataInstances;
-    String interopNamespace = PEGASUS_NAMESPACENAME_INTEROP.getString();
     CIMInstance expectedSubIndDataInstance =
         _buildSubscriptionIndicationDataInstance(
-            interopNamespace+":ICFilter01",
-            interopNamespace+":CIM_IndicationHandlerCIMXML.ICHandler01",
-            interopNamespace,
+            "root/PG_InterOp:ICFilter01",
+            "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler01",
+            "root/PG_InterOp",
             "IndicationTestProviderModule",
             "IndicationTestProvider",
             _matchedIndicationsCount);
     expectedSubIndDataInstances.append(expectedSubIndDataInstance);
 
-    Array<CIMInstance> returnedProvIndDataInstances =
+    Array<CIMInstance> returnedProvIndDataInstances = 
         client.enumerateInstances(
             PEGASUS_NAMESPACENAME_INTERNAL,
             PEGASUS_CLASSNAME_PROVIDERINDDATA);
 
-    Array<CIMInstance> returnedSubIndDataInstances =
+    Array<CIMInstance> returnedSubIndDataInstances = 
         client.enumerateInstances(
             PEGASUS_NAMESPACENAME_INTERNAL,
             PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA);
@@ -867,21 +868,21 @@ void _test(CIMClient& client)
 
     CIMObjectPath subscriptionIndDataInstanceName =
         _buildSubscriptionIndicationDataInstanceName(
-            interopNamespace+":ICFilter01",
-            interopNamespace+":CIM_IndicationHandlerCIMXML.ICHandler01",
-            interopNamespace,
+            "root/PG_InterOp:ICFilter01",
+            "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler01",
+            "root/PG_InterOp",
             "IndicationTestProviderModule",
             "IndicationTestProvider");
 
     Array<CIMObjectPath> expectedSubIndDataInstanceNames;
     expectedSubIndDataInstanceNames.append(subscriptionIndDataInstanceName);
 
-    Array<CIMObjectPath> returnedProvIndDataInstanceNames =
+    Array<CIMObjectPath> returnedProvIndDataInstanceNames = 
         client.enumerateInstanceNames(
             PEGASUS_NAMESPACENAME_INTERNAL,
             PEGASUS_CLASSNAME_PROVIDERINDDATA);
 
-    Array<CIMObjectPath> returnedSubIndDataInstanceNames =
+    Array<CIMObjectPath> returnedSubIndDataInstanceNames = 
         client.enumerateInstanceNames(
             PEGASUS_NAMESPACENAME_INTERNAL,
             PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA);
@@ -914,18 +915,18 @@ void _test(CIMClient& client)
 
     expectedSubIndDataInstance =
         _buildSubscriptionIndicationDataInstance(
-            interopNamespace+":ICFilter01",
-            interopNamespace+":CIM_IndicationHandlerCIMXML.ICHandler01",
-            interopNamespace,
+            "root/PG_InterOp:ICFilter01",
+            "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler01",
+            "root/PG_InterOp",
             "IndicationTestProviderModule",
             "IndicationTestProvider",
             _matchedIndicationsCount,
             false);
 
     CIMObjectPath subObjPath = _buildSubscriptionIndicationDataInstanceName(
-        interopNamespace+":ICFilter01",
-        interopNamespace+":CIM_IndicationHandlerCIMXML.ICHandler01",
-        interopNamespace,
+        "root/PG_InterOp:ICFilter01",
+        "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler01",
+        "root/PG_InterOp",
         "IndicationTestProviderModule",
         "IndicationTestProvider");
 
@@ -951,12 +952,12 @@ void _testReset(CIMClient& client)
     //
     // The entry of the tables gets removed if the provider is disabled
     //
-    Array<CIMInstance> returnedProvIndDataInstances =
+    Array<CIMInstance> returnedProvIndDataInstances = 
         client.enumerateInstances(
             PEGASUS_NAMESPACENAME_INTERNAL,
             PEGASUS_CLASSNAME_PROVIDERINDDATA);
 
-    Array<CIMInstance> returnedSubIndDataInstances =
+    Array<CIMInstance> returnedSubIndDataInstances = 
         client.enumerateInstances(
             PEGASUS_NAMESPACENAME_INTERNAL,
             PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA);
@@ -967,29 +968,29 @@ void _testReset(CIMClient& client)
         expectedProvIndDataInstances,
         expectedSubIndDataInstances);
 
-    //
-    // register a provider, the provider entry should be inserted to tables
+    // 
+    // register a provider, the provider entry should be inserted to tables 
     // if a subscription needs to be served by the provider
-    //
+    // 
     _register(client);
 
-    CIMInstance expectedProvIndDataInstance =
+    CIMInstance expectedProvIndDataInstance = 
         _buildProviderIndicationDataInstance(
             "ProcessIndicationProviderModule",
             "ProcessIndicationProvider",
-            0,
+            0, 
             0);
-    expectedProvIndDataInstances.append(expectedProvIndDataInstance);
-    String interopNamespace = PEGASUS_NAMESPACENAME_INTEROP.getString();
-    CIMInstance expectedSubIndDataInstance =
+    expectedProvIndDataInstances.append(expectedProvIndDataInstance); 
+
+    CIMInstance expectedSubIndDataInstance = 
         _buildSubscriptionIndicationDataInstance(
-            interopNamespace+":ICFilter02",
-            interopNamespace+":CIM_IndicationHandlerCIMXML.ICHandler02",
-            interopNamespace,
+            "root/PG_InterOp:ICFilter02",
+            "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler02",
+            "root/PG_InterOp",
             "ProcessIndicationProviderModule",
             "ProcessIndicationProvider",
             0);
-    expectedSubIndDataInstances.append(expectedSubIndDataInstance);
+    expectedSubIndDataInstances.append(expectedSubIndDataInstance); 
 
     returnedProvIndDataInstances = client.enumerateInstances(
          PEGASUS_NAMESPACENAME_INTERNAL,
@@ -1005,10 +1006,10 @@ void _testReset(CIMClient& client)
         expectedProvIndDataInstances,
         expectedSubIndDataInstances);
 
-    //
-    // unregister the provider, the provider entry should be removed from
+    // 
+    // unregister the provider, the provider entry should be removed from 
     // tables
-    //
+    // 
     _unregister(client);
 
     Array<CIMInstance> provIndDataInstances;
@@ -1037,21 +1038,21 @@ void _testReset(CIMClient& client)
     expectedProvIndDataInstance = _buildProviderIndicationDataInstance(
         "IndicationTestProviderModule",
         "IndicationTestProvider",
-        0,
+        0, 
         0);
     expectedProvIndDataInstances.clear();
     expectedProvIndDataInstances.append(expectedProvIndDataInstance);
 
-    CIMInstance instance =
+    CIMInstance instance = 
         _buildSubscriptionIndicationDataInstance(
-            interopNamespace+":ICFilter01",
-            interopNamespace+":CIM_IndicationHandlerCIMXML.ICHandler01",
-            interopNamespace,
+            "root/PG_InterOp:ICFilter01",
+            "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler01",
+            "root/PG_InterOp",
             "IndicationTestProviderModule",
             "IndicationTestProvider",
             0);
     expectedSubIndDataInstances.clear();
-    expectedSubIndDataInstances.append(instance);
+    expectedSubIndDataInstances.append(instance); 
 
     returnedProvIndDataInstances = client.enumerateInstances(
         PEGASUS_NAMESPACENAME_INTERNAL,
@@ -1077,11 +1078,11 @@ void _testReset(CIMClient& client)
     expectedProvIndDataInstances.clear();
     expectedProvIndDataInstances.append(expectedProvIndDataInstance);
 
-    expectedSubIndDataInstance =
+    expectedSubIndDataInstance = 
         _buildSubscriptionIndicationDataInstance(
-            interopNamespace+":ICFilter01",
-            interopNamespace+":CIM_IndicationHandlerCIMXML.ICHandler01",
-            interopNamespace,
+            "root/PG_InterOp:ICFilter01",
+            "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler01",
+            "root/PG_InterOp",
             "IndicationTestProviderModule",
             "IndicationTestProvider",
             _matchedIndicationsCount);

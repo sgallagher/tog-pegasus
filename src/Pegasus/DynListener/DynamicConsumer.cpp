@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -49,7 +51,7 @@ DynamicConsumer::DynamicConsumer(): Base(0)
 {
 }
 
-DynamicConsumer::DynamicConsumer(const String& name):
+DynamicConsumer::DynamicConsumer(const String& name): 
 Base(0),
 _module(0),
 _eventqueue(),
@@ -125,7 +127,7 @@ Boolean DynamicConsumer::isInitialized(void) const
 
 /** Initializes the consumer.
  *  Caller assumes responsibility for catching exceptions thrown by this method.
- */
+ */ 
 void DynamicConsumer::initialize()
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "DynamicConsumer::initialize");
@@ -148,12 +150,23 @@ void DynamicConsumer::initialize()
 
         } catch (...)
         {
-            PEG_TRACE((TRC_LISTENER,Tracer::LEVEL1,
-                "Exception caught in DynamicConsumerFacade::initialize for %s",
-                (const char*)_name.getCString()));
+            PEG_TRACE_STRING(
+                TRC_LISTENER,
+                Tracer::LEVEL1,
+                "Exception caught in DynamicConsumerFacade::initialize"
+                    " for " + _name);
             throw;
         }
     }
+
+    PEG_METHOD_EXIT();
+}
+
+void DynamicConsumer::setShutdownSemaphore(Semaphore* shutdownSemaphore)
+{
+    PEG_METHOD_ENTER(TRC_LISTENER, "DynamicConsumer::setShutdownSemaphore");
+
+    _shutdownSemaphore = shutdownSemaphore;
 
     PEG_METHOD_EXIT();
 }
@@ -186,9 +199,11 @@ void DynamicConsumer::terminate(void)
 
         } catch (...)
         {
-            PEG_TRACE((TRC_LISTENER,Tracer::LEVEL1,
-                "Exception caught in DynamicConsumerFacade::Terminate for %s",
-                (const char*)_name.getCString()));
+            PEG_TRACE_STRING(
+                TRC_LISTENER,
+                Tracer::LEVEL2,
+                "Exception caught in "
+                    "DynamicConsumerFacade::Terminate for " + _name);
             throw;
         }
 
@@ -200,9 +215,9 @@ void DynamicConsumer::terminate(void)
     PEG_METHOD_EXIT();
 }
 
-/** This method should be called after the physical consumer
- *  is loaded and before initialization.
- */
+/** This method should be called after the physical consumer 
+ *  is loaded and before initialization.  
+ */ 
 void DynamicConsumer::set(ConsumerModule* consumerModule,
                           CIMIndicationConsumerProvider* consumerRef)
 {
@@ -223,11 +238,11 @@ void DynamicConsumer::set(ConsumerModule* consumerModule,
     PEG_METHOD_EXIT();
 }
 
-/** This method should be called after the consumer is terminated and the
- * module is unloaded.  Note that we cannot test for a loaded condition,
- * since the _module reference here may still exist (if more than one
+/** This method should be called after the consumer is terminated and the 
+ * module is unloaded.  Note that we cannot test for a loaded condition, 
+ * since the _module reference here may still exist (if more than one 
  * consumer is using the module).
- * Simply test whether the consumer is initialized.
+ * Simply test whether the consumer is initialized.  
  * If it was terminated properly, initialized will be false and the _module
  * ref count will be decremented.
  */
@@ -244,7 +259,7 @@ void DynamicConsumer::reset()
                          "perform the operation."));
     }
 
-    // do not delete it, that is taken care of in ConsumerModule itself
+    // do not delete it, that is taken care of in ConsumerModule itself 
     _module = 0;
     // ATTN: attempting to delete this causes an exception -- why??
     _consumer = 0;
@@ -281,28 +296,29 @@ void DynamicConsumer::enqueueEvent(IndicationDispatchEvent* event)
 
     try
     {
-        PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
-            "enqueueEvent before %s",(const char*)_name.getCString()));
-
+        PEG_TRACE_STRING(
+            TRC_LISTENER,
+            Tracer::LEVEL4,
+            "enqueueEvent before " + _name);
         // Our event queue is first in first out.
         _eventqueue.insert_back(event);
         _check_queue->signal();
 
-        PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
-            "enqueueEvent after %s",(const char*)_name.getCString()));
+        PEG_TRACE_STRING(
+            TRC_LISTENER,
+            Tracer::LEVEL4,
+            "enqueueEvent after " + _name);
 
     } catch (Exception& ex)
     {
         //ATTN: Log missed indication
-        PEG_TRACE((TRC_LISTENER,Tracer::LEVEL1,
-            "Exception at enqueueingEvent: %s",
-            (const char*)ex.getMessage().getCString()));
+        PEGASUS_STD(cout) << "Error enqueueing event" 
+                          << ex.getMessage() << "\n";
 
     } catch (...)
     {
         //ATTN: Log missed indication
-        PEG_TRACE_CSTRING(TRC_LISTENER,Tracer::LEVEL1,
-            "Unknow exception at enqueueingEvent!");
+        PEGASUS_STD(cout) << "Unknown exception";
     }
 
     PEG_METHOD_EXIT();
@@ -357,10 +373,10 @@ String DynamicConsumer::toString()
     return buffer;
 }
 
-/** Returns true if the consumer has been inactive for
+/** Returns true if the consumer has been inactive for 
  *  longer than the idle period.
- */
-Boolean DynamicConsumer::isIdle()
+ */ 
+Boolean DynamicConsumer::isIdle() 
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "DynamicConsumer::isIdle");
 
@@ -392,10 +408,10 @@ Boolean DynamicConsumer::isIdle()
 }
 
 /** This method waits until the event thread is ready to accept incoming
- *  indications.  Otherwise, there is a miniscule chance that
+ *  indications.  Otherwise, there is a miniscule chance that 
  *  the first event will be enqueued before the consumer is waiting for it
  *  and the first indication after loading the consumer will be lost.
- */
+ */ 
 void DynamicConsumer::waitForEventThread()
 {
     _listeningSemaphore->wait();
@@ -403,13 +419,13 @@ void DynamicConsumer::waitForEventThread()
 
 /** This method is called when the consumer is initialized for the first time.
  *  It reads the outstanding requests from the dat file and enqueues them.
- *
+ * 
  * ATTN: This method will only get called when a consumer is initialized.
  * Therefore, when the listener starts, the outstanding indications for this
  * consumer will not get sent UNTIL a new indication comes in.  This is not
  * really an acceptable scenario.  Maybe the consumer manager needs to check
  * the .dat files upon startup and load if they are not empty.
- */
+ */ 
 void DynamicConsumer::_loadOutstandingIndications(
          Array<IndicationDispatchEvent> indications)
 {
@@ -421,12 +437,12 @@ void DynamicConsumer::_loadOutstandingIndications(
     IndicationDispatchEvent* event = 0;
     for (Uint32 i=0; i < indications.size(); i++)
     {
-
+        
         event = new IndicationDispatchEvent(
                         OperationContext(),  //ATTN: Do we need to store this?
                         indications[i].getURL(),
                         indications[i].getIndicationInstance());
-
+        
         _eventqueue.insert_back(event);
     }
 
@@ -440,14 +456,14 @@ void DynamicConsumer::_loadOutstandingIndications(
 }
 
 /** This method serializes the remaining indications in the queue.
- *  It should be called when the consumer is shutting down.  Each time the
+ *  It should be called when the consumer is shutting down.  Each time the 
  *  consumer is loaded, these indications will be reloaded into the queue.
- *  Therefore, the file should be overwritten each time to eliminate
+ *  Therefore, the file should be overwritten each time to eliminate 
  *  duplicating outstanding indications.
- *
+ * 
  * ATTN: Should we let another method delete the instances?
- */
-Array<IndicationDispatchEvent>
+ */ 
+Array<IndicationDispatchEvent> 
     DynamicConsumer::_retrieveOutstandingIndications()
 {
     PEG_METHOD_ENTER(
@@ -459,24 +475,17 @@ Array<IndicationDispatchEvent>
 
     try
     {
-        if (_eventqueue.try_lock())
+        _eventqueue.try_lock();
+        temp = _eventqueue.front();
+        while (temp)
         {
-            temp = _eventqueue.front();
-            while (temp)
-            {
-                PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "retrieving");
-                indications.append(*temp);
-                temp = _eventqueue.next_of(temp);
-            }
-            _eventqueue.unlock();
+            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "retrieving");
+            indications.append(*temp);
+            temp = _eventqueue.next_of(temp);
         }
-        else
-        {
-            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL3,
-                "Failed to lock _eventqueue");
-        }
-    }
-    catch (...)
+        _eventqueue.unlock();
+
+    } catch (...)
     {
         PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "Unknown Exception");
     }
@@ -544,8 +553,10 @@ void IndicationDispatchEvent::increaseRetries()
     PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "Increasing retries\n");
     _retries++;
     _lastAttemptTime = CIMDateTime::getCurrentDateTime();
-    PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,"Last attempt time %s",
-        (const char*)_lastAttemptTime.toString().getCString()));
+    PEG_TRACE_STRING(
+        TRC_LISTENER,
+        Tracer::LEVEL4,
+        "Last attempt time " + _lastAttemptTime.toString());
 }
 
 CIMDateTime IndicationDispatchEvent::getLastAttemptTime()
@@ -554,7 +565,7 @@ CIMDateTime IndicationDispatchEvent::getLastAttemptTime()
 }
 
 
-IndicationDispatchEvent&
+IndicationDispatchEvent& 
     IndicationDispatchEvent::operator=(const IndicationDispatchEvent &event)
 {
     _context = event._context;
@@ -569,7 +580,7 @@ IndicationDispatchEvent&
 Boolean IndicationDispatchEvent::operator==
             (const IndicationDispatchEvent& event) const
 {
-    if (String::equal(this->_url, event._url) &&
+    if (String::equal(this->_url, event._url) && 
         (this->_instance.identical(event._instance)))
     {
         return true;

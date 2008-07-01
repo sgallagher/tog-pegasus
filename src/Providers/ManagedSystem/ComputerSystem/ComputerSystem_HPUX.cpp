@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -53,7 +55,7 @@
 #ifndef _CS_MACHINE_SERIAL
 # define _CS_MACHINE_SERIAL 10005
 #endif
-#ifndef _CS_MACHINE_IDENT
+#ifndef _CS_MACHINE_IDENT 
 # define _CS_MACHINE_IDENT 10003
 #endif
 
@@ -91,13 +93,13 @@ Array<String> _statusDescriptions;
 # define HPUX_OEM_NETFN1 0x32
 # define HPUX_CMD_GET_PHYS_SYS_VAR 0x59
 // Structure used for passing the ioctl request
-typedef struct
+typedef struct 
 {
     BYTE subCmd;
 } IpmiGetPhysSysVarReqT;
 
 // Structure used for passing the ioctl response
-typedef struct
+typedef struct 
 {
     BYTE status;
     BYTE data[18];
@@ -286,8 +288,8 @@ Boolean ComputerSystem::getPowerState(CIMProperty& p)
     // hardcoded
     /*
         ValueMap {"1", "2", "3", "4", "5", "6", "7", "8"},
-        Values {"Full Power", "Power Save - Low Power Mode",
-                "Power Save - Standby", "Power Save - Other",
+        Values {"Full Power", "Power Save - Low Power Mode", 
+                "Power Save - Standby", "Power Save - Other", 
                 "Power Cycle", "Power Off", "Hibernate", "Soft Off"}
     */
     // Full Power on PA-RISC!!
@@ -355,7 +357,7 @@ Boolean ComputerSystem::setSecondaryOwnerPager(const String&)
 
 Boolean ComputerSystem::getSerialNumber(CIMProperty& p)
 {
-    p = CIMProperty(PROPERTY_SERIAL_NUMBER, _serialNumber);
+    p = CIMProperty(PROPERTY_SERIAL_NUMBER, _serialNumber); 
     return true;
 }
 
@@ -373,7 +375,7 @@ Boolean ComputerSystem::getElementName(CIMProperty& p)
 }
 
 #ifdef HPUX_USE_IPMI_ID
-//Generic function to fetch the Physical Serial number
+//Generic function to fetch the Physical Serial number 
 //and UUID from the IPMI Interface
 //using the ioctl calls.
 int getPhysSysVar(int fd, BYTE varCmd, BYTE * buf, int len)
@@ -437,7 +439,7 @@ int getPhysSysVar(int fd, BYTE varCmd, BYTE * buf, int len)
         return -1;
     }
 
-    if (buf)
+    if (buf) 
     {
         memcpy(buf, sysVar->data, len);
     }
@@ -483,7 +485,7 @@ void ComputerSystem::initialize()
     /*UUID not implemented on this platform firmware*/
     Boolean ipmiUUIDSupported=false;
 
-    /* First try to get the Physical information from the IPMI interface. */
+    /* First try to get the Physical information from the IPMI interface.
     /* open ipmi device file */
     fd=open("/dev/ipmi",O_RDONLY);
     if (fd >= 0)
@@ -525,7 +527,7 @@ void ComputerSystem::initialize()
     if (!ipmiSNSupported)
 #endif
     {
-        // get serial number using confstr
+        // get serial number using confstr  
         bufSize = confstr(_CS_MACHINE_SERIAL, NULL, 0);
         if (bufSize != 0)
         {
@@ -544,13 +546,13 @@ void ComputerSystem::initialize()
             }
             delete [] serialNumber;
         }
-    }
+    } 
 #ifdef HPUX_USE_IPMI_ID
     // If fetching the UUID from IPMI fails get the UUID from confstr
     if (!ipmiUUIDSupported)
 #endif
     {
-        // get system UUID using confstr.
+        // get system UUID using confstr.  
         bufSize = confstr(_CS_MACHINE_IDENT, NULL, 0);
         if (bufSize != 0)
         {
@@ -689,7 +691,7 @@ void ComputerSystem::initialize()
         {
             continue;
         }
-
+    
         if (attrId == GenInfoSysPUser_E)
         {
             _primaryOwnerName = value;

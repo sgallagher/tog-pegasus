@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//=============================================================================
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
 //
@@ -125,18 +127,18 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 
     //set proxy security on pObjEnum
     bool bSecurity = _collector->setProxySecurity(pObjEnum);
-
+    
     //get the results and append them to the array
     hr = pObjEnum->Next(WBEM_INFINITE, 1, &pObject, &dwReturned);
-
+    
     if (SUCCEEDED(hr) && (1 == dwReturned))
-    {
-        bInst = _collector->isInstance(pObject);
+    {    
+        bInst = _collector->isInstance(pObject);    
 
         CComVariant mVar;
         CComBSTR bs;
-        CMyString mstr;
-
+        CMyString mstr;  
+        
         HRESULT hRes = pObject->Get(L"__CLASS", 0, &mVar, 0, 0);
         if (SUCCEEDED(hRes)) {
            bs = mVar.bstrVal;
@@ -147,19 +149,19 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 
     }
 
-
+    
     while (SUCCEEDED(hr) && (1 == dwReturned))
     {
         // collect the information about the current object
         if (bInst)
         {
-            //get class from the returned instance
+            //get class from the returned instance 
             //it will avoid "type mismatch" exceptions
             //when deepInheritance is true and instances
             //of subclasses are returned
             CComVariant vTmpClassName;
             String strTmpClassName;
-            if (pObject->Get(L"__CLASS", 0, &vTmpClassName, NULL, NULL)
+            if (pObject->Get(L"__CLASS", 0, &vTmpClassName, NULL, NULL) 
                 == S_OK)
             {
                 strTmpClassName = WMIString(vTmpClassName);
@@ -170,14 +172,14 @@ Array<CIMObject> WMIQueryProvider::execQuery(
             if (_collector->getCIMInstance(
                     pObject, tempInst,
                     false, includeQualifiers, includeClassOrigin,
-                    propertyList,
+                    propertyList, 
                     true))  //get key properties
             {
                 lCount++;
 
                 // build the object path
                 CComVariant v;
-                hr = pObject->Get(L"__PATH",
+                hr = pObject->Get(L"__PATH", 
                                     0,
                                     &v,
                                     NULL,
@@ -186,7 +188,7 @@ Array<CIMObject> WMIQueryProvider::execQuery(
                 WMIObjectPath tempRef(v.bstrVal);
                 tempInst.setPath(tempRef);
                 v.Clear();
-
+                
                 objects.append(CIMObject(tempInst));
             }
         }
@@ -205,7 +207,7 @@ Array<CIMObject> WMIQueryProvider::execQuery(
                 cimClass.setSuperClassName(superClassName);
             }
 
-            if (_collector->getCIMClass(pObject,
+            if (_collector->getCIMClass(pObject, 
                                         cimClass,
                                         false,
                                         includeQualifiers,
@@ -232,12 +234,12 @@ Array<CIMObject> WMIQueryProvider::execQuery(
         pObjEnum.Release();
 
     PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL4,
-        "WMIQueryProvider::execQuery() - Result count is %d", lCount));
+        "WMIQueryProvider::execQuery() - Result count is %d", lCount)); 
 
     if (lCount == 0)
     {
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL2,
-            "WMIQueryProvider::execQuery() - hResult value is %x", hr));
+            "WMIQueryProvider::execQuery() - hResult value is %x", hr)); 
     }
 
     PEG_METHOD_EXIT();

@@ -1,41 +1,43 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/CIMNameUnchecked.h>
 #include "CMPI_Version.h"
 
 #include "CMPI_ContextArgs.h"
 #include "CMPI_Ftabs.h"
 #include "CMPI_Value.h"
 #include "CMPI_String.h"
-#include <Pegasus/Common/CIMNameCast.h>
 #include <Pegasus/Common/Tracer.h>
 
 #include <string.h>
@@ -232,7 +234,9 @@ extern "C"
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return data;
         }
-        long i = locateArg(*arg, CIMNameCast(name));
+        CIMNameUnchecked eName(name);
+
+        long i = locateArg(*arg, eName);
         if (i>=0)
         {
             return argsGetArgAt(eArg, i, NULL, rc);
@@ -333,10 +337,6 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_ContextArgs:contextAddEntry()");
-
-        Boolean invalidType = false;
-        Boolean invalidContext = false;
-
         if (!name || !data)
         {
             PEG_TRACE_CSTRING(
@@ -347,106 +347,46 @@ extern "C"
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
-
         if (strcmp(name,SnmpTrapOidContainer::NAME.getCString()) == 0)
         {
             OperationContext *ctx = ((CMPI_Context*)eCtx)->ctx;
             if (!ctx)
             {
-                invalidContext = true;
+                PEG_TRACE_CSTRING(
+                    TRC_CMPIPROVIDERINTERFACE,
+                    Tracer::LEVEL1,
+                    "Invalid Handle - eCtx->ctx in \
+                    CMPI_ContextArgs:contextAddEntry");
+                PEG_METHOD_EXIT();
+                CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
             }
-            else if (type == CMPI_chars)
+            if (type == CMPI_chars)
             {
-                if (ctx->contains(SnmpTrapOidContainer::NAME))
-                {
-                    ctx->set(SnmpTrapOidContainer((char*)data));
-                }
-                else
-                {
-                    ctx->insert(SnmpTrapOidContainer((char*)data));
-                }
+                ctx->insert(SnmpTrapOidContainer((char*)data));
                 PEG_METHOD_EXIT();
                 CMReturn(CMPI_RC_OK);
             }
             else if (type == CMPI_string)
             {
-                if (ctx->contains(SnmpTrapOidContainer::NAME))
-                {
-                    ctx->set(SnmpTrapOidContainer((char*)data->string->hdl));
-                }
-                else
-                {
-                    ctx->insert(SnmpTrapOidContainer((char*)data->string->hdl));
-                }
+                ctx->insert(SnmpTrapOidContainer((char*)data->string->hdl));
                 PEG_METHOD_EXIT();
                 CMReturn(CMPI_RC_OK);
             }
             else
             {
-                invalidType = true;
-            }
-        }
-        else if (!strcmp(name,
-            SubscriptionInstanceNamesContainer::NAME.getCString()))
-        {
-            OperationContext *ctx = ((CMPI_Context*)eCtx)->ctx;
-            if (!ctx)
-            {
-                invalidContext = true;
-            }
-            else if (type == CMPI_refA)
-            {
-                Array<CIMObjectPath> names;
-                CMPI_Array *arr = (CMPI_Array*)data->array->hdl;
-                CMPIData* dta=(CMPIData*)arr->hdl;
-                for (Uint32 i = 1 ; i <= dta->value.uint32 ; i++)
-                {
-                    SCMOInstance *ref = (SCMOInstance*)(dta[i].value.ref->hdl);
-                    CIMObjectPath path;
-                    ref->getCIMObjectPath(path);
-                    names.append(path);
-                }
-                if (ctx->contains(SubscriptionInstanceNamesContainer::NAME))
-                {
-                    ctx->set(SubscriptionInstanceNamesContainer(names));
-                }
-                else
-                {
-                    ctx->insert(SubscriptionInstanceNamesContainer(names));
-                }
-                PEG_METHOD_EXIT();
-                CMReturn(CMPI_RC_OK);
-            }
-            else
-            {
-                invalidType = true;
-            }
-        }
-
-        if (invalidType)
-        {
-            PEG_TRACE_CSTRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Received Invalid Data Type in"
-                    " CMPI_COntextArgs:contextAddEntry");
+                PEG_TRACE_CSTRING(
+                    TRC_CMPIPROVIDERINTERFACE,
+                    Tracer::LEVEL1,
+                    "Received Invalid Data Type in \
+                    CMPI_COntextArgs:contextAddEntry");
+                // Only CMPITypes CMPI_chars and CMPI_string are supported
+                // for SnmpTrapOidContainer.
                 PEG_METHOD_EXIT();
                 CMReturn(CMPI_RC_ERR_INVALID_DATA_TYPE);
+            }
         }
-        else if (invalidContext)
-        {
-            PEG_TRACE_CSTRING(
-               TRC_CMPIPROVIDERINTERFACE,
-               Tracer::LEVEL1,
-               "Invalid Handle - eCtx->ctx in"
-                   " CMPI_ContextArgs:contextAddEntry");
-            PEG_METHOD_EXIT();
-            CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
-        }
-
         CMPIStatus stat = argsAddArg(
             reinterpret_cast<const CMPIArgs*>(eCtx), name, data, type);
-
         PEG_METHOD_EXIT();
         return stat;
     }

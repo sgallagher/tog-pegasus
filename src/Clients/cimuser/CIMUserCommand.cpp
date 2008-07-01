@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -121,6 +123,12 @@ static const Uint32 OPERATION_TYPE_VERSION        = 6;
 */
 
 //l10n
+
+static const char NOT_PRIVILEGED_USER [] =
+    "You must have superuser privilege to run this command.";
+
+static const char NOT_PRIVILEGED_USER_KEY [] =
+    "Clients.cimuser.CIMUserCommand.NOT_PRIVILEGED_USER";
 
 static const char CIMOM_NOT_RUNNING [] =
     "CIM Server may not be running.";
@@ -270,31 +278,43 @@ static const char   NEW_PASS_PARAM[]             = "NewPassword";
 static const char   PASSWORD_PROMPT []  =
                         "Please enter your password: ";
 
+static const char   PASSWORD_PROMPT_KEY [] = 
+    "Clients.cimuser.CIMUserCommand.PASSWORD_PROMPT";
+
 static const char   OLD_PASSWORD_PROMPT []  =
     "Please enter your old password: ";
+
+static const char   OLD_PASSWORD_PROMPT_KEY []  =
+    "Clients.cimuser.CIMUserCommand.OLD_PASSWORD_PROMPT";
 
 static const char   RE_ENTER_PROMPT []  =
     "Please re-enter your password: ";
 
+static const char   RE_ENTER_PROMPT_KEY []  =
+    "Clients.cimuser.CIMUserCommand.RE_ENTER_PROMPT";
+
 static const char   NEW_PASSWORD_PROMPT []  =
     "Please enter your new password: ";
+
+static const char   NEW_PASSWORD_PROMPT_KEY []  =
+    "Clients.cimuser.CIMUserCommand.NEW_PASSWORD_PROMPT";
 
 static const char   PASSWORD_DOES_NOT_MATCH []  =
     "Passwords do not match. Please Re-enter.";
 
-static const char   PASSWORD_DOES_NOT_MATCH_KEY []  =
+static const char   PASSWORD_DOES_NOT_MATCH_KEY []  = 
     "Clients.cimuser.CIMUserCommand.PASSWORD_DOES_NOT_MATCH";
 
 static const char   PASSWORD_SAME_ERROR []  =
     "Error, new and old passwords cannot be same.";
 
-static const char   PASSWORD_SAME_ERROR_KEY []  =
+static const char   PASSWORD_SAME_ERROR_KEY []  = 
     "Clients.cimuser.CIMUserCommand.PASSWORD_SAME_ERROR";
 
-static const char ERR_USAGE [] =
+static const char ERR_USAGE [] = 
     "Use '--help' to obtain command syntax.";
 
-static const char ERR_USAGE_KEY [] =
+static const char ERR_USAGE_KEY [] = 
     "Clients.cimuser.CIMUserCommand.ERR_USAGE";
 
 static const char   LONG_HELP []  = "help";
@@ -303,6 +323,8 @@ static const char   LONG_VERSION []  = "version";
 /**
 This is a CLI used to manage users of the CIM Server.  This command supports
 operations to add, modify, list and remove users.
+
+@author Sushma Fernandes, Hewlett-Packard Company
 */
 
 class CIMUserCommand : public Command
@@ -320,7 +342,9 @@ public:
     // Overrides the virtual function setCommand from Command class
     // This is defined as an empty function.
     //
-    void setCommand (Uint32, char**)
+    void setCommand (
+        Uint32 argc,
+        char* argv[])
     {
         // Empty function
     }
@@ -859,9 +883,9 @@ void CIMUserCommand::setCommand (
 
                 if (pw == String::EMPTY)
                 {
-                    errPrintWriter << localizeMessage(MSG_PATH,
-                                                      PASSWORD_BLANK_KEY,
-                                                      PASSWORD_BLANK)
+                    errPrintWriter << localizeMessage(MSG_PATH, 
+                                                      PASSWORD_BLANK_KEY, 
+                                                      PASSWORD_BLANK) 
                                    << endl;
                     continue;
                 }
@@ -869,7 +893,7 @@ void CIMUserCommand::setCommand (
                 {
                     errPrintWriter << localizeMessage(MSG_PATH,
                                                  PASSWORD_DOES_NOT_MATCH_KEY,
-                                                 PASSWORD_DOES_NOT_MATCH_KEY)
+                                                 PASSWORD_DOES_NOT_MATCH_KEY) 
                                    << endl;
                     pw = String::EMPTY;
                 }
@@ -895,7 +919,7 @@ void CIMUserCommand::setCommand (
             {
                 cerr << localizeMessage(MSG_PATH,
                                         PASSWORD_SAME_ERROR_KEY,
-                                        PASSWORD_SAME_ERROR)
+                                        PASSWORD_SAME_ERROR) 
                     << endl;
                 exit (1);
             }
@@ -911,9 +935,9 @@ void CIMUserCommand::setCommand (
                 pw = System::getPassword(OLD_PASSWORD_PROMPT);
                 if (pw == String::EMPTY)
                 {
-                    errPrintWriter << localizeMessage(MSG_PATH,
-                                                      PASSWORD_BLANK_KEY,
-                                                      PASSWORD_BLANK)
+                    errPrintWriter << localizeMessage(MSG_PATH, 
+                                                      PASSWORD_BLANK_KEY, 
+                                                      PASSWORD_BLANK) 
                                    << endl;
                     continue;
                 }
@@ -941,7 +965,7 @@ void CIMUserCommand::setCommand (
                 {
                     errPrintWriter << localizeMessage(MSG_PATH,
                                                     PASSWORD_DOES_NOT_MATCH_KEY,
-                                                    PASSWORD_DOES_NOT_MATCH)
+                                                    PASSWORD_DOES_NOT_MATCH) 
                                    << endl;
                     newPw = String::EMPTY;
                 }
@@ -950,9 +974,9 @@ void CIMUserCommand::setCommand (
             _newpassword = newPw ;
             if (_newpassword == _password)
             {
-                cerr << localizeMessage(MSG_PATH,
-                                        PASSWORD_SAME_ERROR_KEY,
-                                        PASSWORD_SAME_ERROR)
+                cerr << localizeMessage(MSG_PATH, 
+                                        PASSWORD_SAME_ERROR_KEY, 
+                                        PASSWORD_SAME_ERROR) 
                     << endl;
                 exit (-1);
             }
@@ -1040,7 +1064,7 @@ Uint32 CIMUserCommand::execute (
     catch(const Exception&)
     {
         outPrintWriter << localizeMessage(MSG_PATH,CIMOM_NOT_RUNNING_KEY,
-                                          CIMOM_NOT_RUNNING)
+                                          CIMOM_NOT_RUNNING) 
                       << endl;
         return 1;
     }
@@ -1061,27 +1085,27 @@ Uint32 CIMUserCommand::execute (
 
                 if (code == CIM_ERR_FAILED)
                 {
-                    outPrintWriter
+                    outPrintWriter 
                         << localizeMessage(MSG_PATH, ADD_USER_FAILURE_KEY,
-                                           ADD_USER_FAILURE)
+                                           ADD_USER_FAILURE) 
                         << endl;
                     errPrintWriter << e.getMessage() << endl;
                 }
                 else if (code == CIM_ERR_NOT_SUPPORTED)
                 {
-                    outPrintWriter
+                    outPrintWriter 
                         << localizeMessage(MSG_PATH, ADD_USER_FAILURE_KEY,
-                                           ADD_USER_FAILURE)
+                                           ADD_USER_FAILURE) 
                         << endl;
                     errPrintWriter << e.getMessage()  << endl;
                 }
                 else if (code == CIM_ERR_ALREADY_EXISTS)
                 {
-                    outPrintWriter << localizeMessage(MSG_PATH,
+                    outPrintWriter << localizeMessage(MSG_PATH, 
                                                     ADD_USER_FAILURE_KEY,
                                                     ADD_USER_FAILURE)
                         << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH,
+                    outPrintWriter << localizeMessage(MSG_PATH, 
                                                     USER_ALREADY_EXISTS_KEY,
                                                     USER_ALREADY_EXISTS)
                         << endl;
@@ -1091,11 +1115,11 @@ Uint32 CIMUserCommand::execute (
                 {
                     outPrintWriter << localizeMessage(MSG_PATH,
                                                       ADD_USER_FAILURE_KEY,
-                                                      ADD_USER_FAILURE)
+                                                      ADD_USER_FAILURE) 
                                    << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                                                     AUTH_SCHEMA_NOT_LOADED_KEY,
-                                                     AUTH_SCHEMA_NOT_LOADED)
+                                                     AUTH_SCHEMA_NOT_LOADED) 
                                    << endl;
                 }
                 else
@@ -1108,7 +1132,7 @@ Uint32 CIMUserCommand::execute (
             {
                 outPrintWriter << localizeMessage(MSG_PATH,
                                                   ADD_USER_FAILURE_KEY,
-                                                  ADD_USER_FAILURE)
+                                                  ADD_USER_FAILURE) 
                     << endl << e.getMessage() << endl;
                 return (RC_ERROR);
             }
@@ -1126,7 +1150,7 @@ Uint32 CIMUserCommand::execute (
                 {
                     outPrintWriter << localizeMessage(MSG_PATH,
                                                 CHANGE_PASSWORD_FAILURE_KEY,
-                                                CHANGE_PASSWORD_FAILURE)
+                                                CHANGE_PASSWORD_FAILURE) 
                                    << endl;
                     errPrintWriter << e.getMessage() << endl;
                 }
@@ -1134,7 +1158,7 @@ Uint32 CIMUserCommand::execute (
                 {
                     outPrintWriter << localizeMessage(MSG_PATH,
                                                     CHANGE_PASSWORD_FAILURE_KEY,
-                                                    CHANGE_PASSWORD_FAILURE)
+                                                    CHANGE_PASSWORD_FAILURE) 
                                   << endl;
                     errPrintWriter << e.getMessage()  << endl;
                 }
@@ -1449,8 +1473,20 @@ int main (int argc, char* argv[])
     AutoPtr<CIMUserCommand>  command;
     Uint32               retCode;
 
-    MessageLoader::_useProcessLocale = true;
+    MessageLoader::_useProcessLocale = true; 
     MessageLoader::setPegasusMsgHomeRelative(argv[0]);
+
+    //
+    // Check if root is issuing the command
+    //
+    if (!System::isPrivilegedUser(System::getEffectiveUserName()))
+    {
+        MessageLoaderParms parms(NOT_PRIVILEGED_USER_KEY, 
+                NOT_PRIVILEGED_USER);
+        parms.msg_src_path = MSG_PATH;
+        cerr << MessageLoader::getMessage(parms) << endl;
+        return 1;
+    }
 
     command.reset(new CIMUserCommand ());
 

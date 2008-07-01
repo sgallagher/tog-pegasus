@@ -1,32 +1,34 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
-//
+//==============================================================================
+// 
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -34,15 +36,13 @@
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/TLS.h>
+#include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/HostLocator.h>
-
-#include <Pegasus/General/OptionManager.h>
-#include <Pegasus/General/Stopwatch.h>
-
-#include <Pegasus/Client/CIMClient.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -97,6 +97,7 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
     Boolean verboseTest)
 {
     Array<CIMNamespaceName> namespaces;
+    String instanceName;
 
     namespaces.append(CIMNamespaceName ("test1"));
     namespaces.append(CIMNamespaceName ("test2"));
@@ -117,7 +118,7 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
     {
         // Build the instance name for __namespace
         CIMNamespaceName testNamespaceName = namespaces[i];
-        String instanceName;
+        instanceName.clear();
         instanceName.append(CLASSNAME.getString());
         instanceName.append( ".Name=\"");
         instanceName.append(testNamespaceName.getString());
@@ -129,7 +130,7 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
             if (verboseTest)
                 cout << "Deleting " << testNamespaceName.getString() << endl;
             client.deleteInstance(__NAMESPACE_NAMESPACE, myReference);
-        }
+        } 
         catch (...)
         {
             //Ignore errors we are just trying to cleanup
@@ -159,7 +160,7 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
             newInstance.addProperty(CIMProperty(CIMName ("name"),
                                                 testNamespaceName.getString()));
             client.createInstance(__NAMESPACE_NAMESPACE, newInstance);
-        }
+        } 
         catch (Exception& e)
         {
             PEGASUS_STD(cerr) << "Exception NameSpace Creation: "
@@ -173,7 +174,7 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
     {
         // Build the instance name for __namespace
         CIMNamespaceName testNamespaceName = namespaces[i];
-        String instanceName;
+        instanceName.clear();
         instanceName.append(CLASSNAME.getString());
         instanceName.append( ".Name=\"");
         instanceName.append(testNamespaceName.getString());
@@ -184,9 +185,9 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
             CIMObjectPath myReference(instanceName);
             if (verboseTest)
                 cout << "getInstance " << testNamespaceName.getString() << endl;
-            CIMInstance namespaceInstance =
+            CIMInstance namespaceInstance = 
                 client.getInstance(__NAMESPACE_NAMESPACE, myReference);
-        }
+        } 
         catch (Exception& e)
         {
             PEGASUS_STD(cerr) << "Exception NameSpace Deletion1: "
@@ -203,7 +204,7 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
     {
         // Build the instance name for __namespace
         CIMNamespaceName testNamespaceName = namespaces[i];
-        String instanceName;
+        instanceName.clear();
         instanceName.append(CLASSNAME.getString());
         instanceName.append( ".Name=\"");
         instanceName.append(testNamespaceName.getString());
@@ -215,7 +216,7 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
             if (verboseTest)
                 cout << "Deleting " << testNamespaceName.getString() << endl;
             client.deleteInstance(__NAMESPACE_NAMESPACE, myReference);
-        }
+        } 
         catch (Exception& e)
         {
             PEGASUS_STD(cerr) << "Exception NameSpace Deletion 2: "
@@ -247,7 +248,7 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
     namespaces.append(CIMNamespaceName ("test1/test2/test3"));
     namespaces.append(CIMNamespaceName ("test1/test2/test3/test4"));
     namespaces.append(CIMNamespaceName ("test1/test2/test3/test4/test5"));
-    namespaces.append(CIMNamespaceName
+    namespaces.append(CIMNamespaceName 
         ("test1/test2/test3/test4/test5/test6"));
     if (verboseTest)
     {
@@ -266,7 +267,7 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
             if (verboseTest)
                 cout << "Deleting " << namespaces[i].getString() << endl;
             client.deleteInstance(namespaces[i], myReference);
-        }
+        } 
         catch (...)
         {
             //Ignore errors we are just trying to cleanup
@@ -290,7 +291,7 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
                 cout << "Creating " << namespaces[i].getString() << endl;
             }
             client.createInstance(namespaces[i], newInstance);
-        }
+        } 
         catch (Exception& e)
         {
             PEGASUS_STD(cerr) << "Exception NameSpace Creation: "
@@ -317,7 +318,7 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
             if (verboseTest)
                 cout << "Deleting " << testNamespaceName.getString() << endl;
             client.deleteInstance(namespaces[i], myReference);
-        }
+        } 
         catch (Exception& e)
         {
             PEGASUS_STD(cerr) << "Exception NameSpace Deletion 3: "
@@ -412,23 +413,27 @@ void GetOptions(
 
 int main(int argc, char** argv)
 {
+    // Get environment variables:
+
+    String pegasusHome;
+    pegasusHome = "/";
+
+    // GetEnvironmentVariables(argv[0], pegasusHome);
+
+    // Get options (from command line and from configuration file); this
+    // removes corresponding options and their arguments fromt he command
+    // line.
+
+    // Get options (from command line and from configuration file); this
+    // removes corresponding options and their arguments fromt he command
+    // line.
+
     OptionManager om;
 
     try
     {
-        // Get environment variables:
-
-        String pegasusHome;
-        pegasusHome = "/";
-
-        // GetEnvironmentVariables(argv[0], pegasusHome);
-
-        // Get options (from command line and from configuration file); this
-        // removes corresponding options and their arguments from the command
-        // line.
-
         GetOptions(om, argc, argv, pegasusHome);
-    }
+    } 
     catch (Exception& e)
     {
         cerr << argv[0] << ": " << e.getMessage() << endl;
@@ -470,7 +475,7 @@ int main(int argc, char** argv)
         cout << "password = " << password << endl;
     }
 
-    // Set up number of test repetitions.
+    // Set up number of test repetitions.  
     // Will repeat entire test this number of times
     // Default is zero
     // String repeats;
@@ -570,7 +575,7 @@ int main(int argc, char** argv)
                     //
                     const char* pegasusHome = getenv("PEGASUS_HOME");
 
-                    String certpath =
+                    String certpath = 
                         FileSystem::getAbsolutePath(
                              pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
 
@@ -580,25 +585,25 @@ int main(int argc, char** argv)
                                    pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
 
-                    SSLContext sslcontext(certpath,verifyServerCertificate,
+                    SSLContext sslcontext(certpath,verifyServerCertificate, 
                                           randFile);
 
                     if (om.isTrue("local"))
                     {
                         cout << "Using local SSL connection mechanism " << endl;
                         client.connectLocal();
-                    }
+                    } 
                     else
                     {
-                        cout << "connecting to " << connectionList[i]
+                        cout << "connecting to " << connectionList[i] 
                             << " using SSL" << endl;
                         client.connect(host, portNumber,
                             sslcontext,userName, password);
                     }
 #else
-                    PEGASUS_TEST_ASSERT(false);
+                    PEGASUS_ASSERT(false);
 #endif
-                }
+                } 
                 else
 
                 {
@@ -606,7 +611,7 @@ int main(int argc, char** argv)
                     {
                         cout << "Using local connection mechanism " << endl;
                         client.connectLocal();
-                    }
+                    } 
                     else
                     {
                         cout << "Connecting to " << connectionList[i] << endl;
@@ -630,7 +635,7 @@ int main(int argc, char** argv)
                 testEnd(elapsedTime.getElapsed());
 
                 client.disconnect();
-            }
+            } 
             catch (Exception& e)
             {
                 PEGASUS_STD(cerr) << "Error: " << e.getMessage() <<
@@ -639,7 +644,7 @@ int main(int argc, char** argv)
             }
         }
     }
-    PEGASUS_STD(cout) << "+++++ "<< argv[0]
+    PEGASUS_STD(cout) << "+++++ "<< argv[0] 
         << " Terminated Normally" << PEGASUS_STD(endl);
     return 0;
 }

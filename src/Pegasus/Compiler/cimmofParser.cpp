@@ -1,33 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
+
+// bug 4573 - cimmof include file search path processing is inadequate
 //
 // Bug 4573 changed the behavior of the processing for locating specified
 //  include files. The new procssing is based on the include file processing
@@ -47,11 +51,15 @@
 //             processing which only includes paths specified on the
 //             command line with the -I option.
 //
+
+//
+// implementation of valueFactory
+//
+//
 //
 // Implementation of methods of cimmofParser class
 //
 //
-#include <Pegasus/General/VersionUtil.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMScope.h>
@@ -112,9 +120,9 @@ void cimmofParser::destroy()
     _instance = 0;
 }
 
-//------------------------------------------------------------------
-// Methods for manipulating the members added in this specialization
-//------------------------------------------------------------------
+  //------------------------------------------------------------------
+  // Methods for manipulating the members added in this specialization
+  //------------------------------------------------------------------
 
 //---------------------------------------------------------------------
 // allow someone to set/get our compiler options object reference
@@ -149,7 +157,7 @@ Boolean cimmofParser::setRepository(void)
 #ifdef PEGASUS_ENABLE_MRR_GENERATION
             if (_cmdline->mrr())
                 rt = cimmofRepositoryInterface::REPOSITORY_INTERFACE_MRR;
-            else
+            else 
 #endif
             if (_cmdline->is_local())
                 rt = cimmofRepositoryInterface::REPOSITORY_INTERFACE_LOCAL;
@@ -170,10 +178,6 @@ Boolean cimmofParser::setRepository(void)
                 _repository.init(rt, combined, mode, _ot, !_cmdline->discard());
 
                 _repository.start();
-            }
-            catch (const CannotConnectException &)
-            {
-                throw;
             }
             catch(Exception &e)
             {
@@ -460,9 +464,6 @@ int cimmofParser::parse()
 
 //----------------------------------------------------------------------
 // Override the default parser error routine to enable I18n
-// Token should be the current text being processed.
-// errmsg, complete error message.
-// Prints line number, text, etc. for error message. and throws exception
 //----------------------------------------------------------------------
 void cimmofParser::log_parse_error(char *token, const char *errmsg) const
 {
@@ -479,56 +480,28 @@ void cimmofParser::log_parse_error(char *token, const char *errmsg) const
     maybeThrowLexerError(message);
 }
 
-//------------------------------------------------------------------
-// Handle the processing of CIM-specific constructs
-//------------------------------------------------------------------
+  //------------------------------------------------------------------
+  // Handle the processing of CIM-specific constructs
+  //------------------------------------------------------------------
 
 //--------------------------------------------------------------------
 // Take the compiler-local action specified by the #pragma (directive).
 // Note that the Include #pragma is handled elsewhere.
-// Today we only handle the pragma locale with en-US value and this only
-// because it is defined throughout the DMTF released mof.
 //--------------------------------------------------------------------
 void cimmofParser::processPragma(const String &name, const String &value)
 {
-    if (String::equalNoCase(name,"locale"))
-    {
-        if (value == "en_US")
-        {
-            // implemented by accepting this pragma
-            return;
-        }
-        String message;
-        cimmofMessages::arglist arglist;
-        arglist.append((char const*)value.getCString());
-        cimmofMessages::getMessage(message,
-            cimmofMessages::LOCALE_NOT_IMPLEMENTED_WARNING,
-            arglist);
-        wlog(message);
-    }
-    else
-    {
-        // Issue a warning that the pragma is not implemented.
-        String message;
-        cimmofMessages::arglist arglist;
-        arglist.append((char const*)name.getCString());
-        cimmofMessages::getMessage(message,
-            cimmofMessages::PRAGMA_NOT_IMPLEMENTED_WARNING,
-            arglist);
-        wlog(message);
-    }
+    // The valid names are:
+    // instancelocale
+    // locale
+    // namespace
+    // nonlocal
+    // nonlocaltype
+    // source
+    // sourcetype
 
-    // The names defined in DSP0004 that should be considered are:
-    // instancelocale - Not implemented
-    // locale - Implemented only for en_US today
-    // namespace - Not Implemented
-
-    // The following will NOT be implemented:
-    // nonlocal  - Removed as erratum bin DSP004 v 2.3
-    // nonlocaltype  - Removed as erratum bin DSP004 v 2.3
-    // source  - Removed as erratum bin DSP004 v 2.3
-    // sourcetype - Removed as erratum bin DSP004 v 2.3
-
+    // ATTN: P1 BB 2001 Des not process several Pragmas
+    // instancelocale, locale, namespace, nonlocal, nonlocaltype, source, etc.
+    // at least.
 }
 
 //-------------------------------------------------------------------
@@ -901,15 +874,18 @@ CIMInstance * cimmofParser::newInstance(const CIMName &className)
 // new CIMProperty object.
 //----------------------------------------------------------------------
 
+// KS 8 Mar 2002 - Added is array and arraySize to parameters
 CIMProperty * cimmofParser::newProperty(const CIMName &name,
     const CIMValue &val,
-    const int arraySize,
+    const Boolean isArray,
+    const Uint32 arraySize,
     const CIMName &referencedObject) const
 {
     CIMProperty *p = 0;
 
     try
     {
+        //ATTNKS: P1 Note that we are not passing isArray
         p = new CIMProperty(name, val, arraySize, referencedObject);
     }
     catch(Exception &e)
@@ -1153,7 +1129,6 @@ int cimmofParser::applyParameter(CIMMethod &m, CIMParameter &p)
 
 CIMValue * cimmofParser::QualifierValue(const CIMName &qualifierName,
      Boolean isNull,
-     int strValType,
      const String &valstr)
 {
     CIMQualifierDecl q;
@@ -1183,11 +1158,9 @@ CIMValue * cimmofParser::QualifierValue(const CIMName &qualifierName,
         //   it is implicitly set to TRUE.
         return new CIMValue(Boolean(true));
     }
-
     return valueFactory::createValue(v.getType(),
             v.isArray() ? (int)asize : -1,
             isNull,
-            strValType,
             &valstr);
 }
 
@@ -1239,15 +1212,7 @@ CIMProperty * cimmofParser::PropertyFromInstance(CIMInstance &instance,
         Uint32 pos = c.findProperty(propertyName);
         if (pos != PEG_NOT_FOUND)
         {
-            // Return a copy of the property without qualifiers.
-            CIMProperty p = c.getProperty(pos);
-            return new CIMProperty(
-                p.getName(),
-                p.getValue(),
-                p.getArraySize(),
-                p.getReferenceClassName(),
-                p.getClassOrigin(),
-                p.getPropagated());
+            return new CIMProperty(c.getProperty(pos));
         }
     }
     catch (Exception &e)
@@ -1299,27 +1264,20 @@ CIMValue * cimmofParser::PropertyValueFromInstance(CIMInstance &instance,
     return value;
 }
 
-void cimmofParser::addClassAlias(const String &alias, const CIMClass *cd)
+void cimmofParser::addClassAlias(const String &alias, const CIMClass *cd,
+    Boolean isInstance)
 {
-    // Send error message.  Easier than removing the alias
-    // from the syntax for the moment KS 20 Nov 2012
-    cimmofMessages::arglist arglist;
-    String message;
-    arglist.append(alias);
-    arglist.append(cd->getClassName().getString());
-
-    cimmofMessages::getMessage(message,
-            cimmofMessages::CLASS_ALIAS_FOUND,
-            arglist);
-    maybeThrowParseError(message);
+  // ATTN: P3 BB 2001 ClassAlias - to be deprecated.  Simply warning here
 }
+
 
 Array <String> aliasName;
 Array <CIMObjectPath> aliasObjPath;
 
 
 Uint32 cimmofParser::addInstanceAlias(const String &alias,
-    const CIMInstance *cd)
+    const CIMInstance *cd,
+    Boolean isInstance)
 {
 
     CIMObjectPath objpath;
@@ -1339,6 +1297,7 @@ Uint32 cimmofParser::addInstanceAlias(const String &alias,
         return (0);
     }
 
+
     // Get the class from the repository
     CIMClass classrep;
     Boolean classExist = true;
@@ -1347,40 +1306,25 @@ Uint32 cimmofParser::addInstanceAlias(const String &alias,
     {
         classrep = _repository.getClass(getNamespacePath(), cd->getClassName());
     }
-
     catch (const CIMException &e)
     {
         if (e.getCode() == CIM_ERR_NOT_FOUND)
         {
             classExist = false;
         }
-        else if (e.getCode() == CIM_ERR_INVALID_CLASS)
-        {
-
-            classExist = false;
-        }
         else
-        {
-            throw;
-        }
+            if (e.getCode() == CIM_ERR_INVALID_CLASS)
+            {
+                /* Note:  this is where cimmofl and cimmof fall into */
+                classExist = false;
+            }
+            else
+            {
+                throw;
+            }
     }
-    // class does not exist, send error message
-    if (!classExist)
-    {
-        cimmofMessages::arglist arglist;
-        String message;
-        arglist.append(alias);
-        arglist.append(cd->getClassName().getString());
 
-        cimmofMessages::getMessage(message,
-            cimmofMessages::INSTANCE_ALIAS_CLASS_NOT_FOUND,
-            arglist);
-        maybeThrowParseError(message);
-    }
-    else
-    {
-        objpath = cd->buildPath(classrep);
-    }
+    objpath = cd->buildPath(classrep);
 
 #ifdef DEBUG_cimmofParser
     cout << "addInstance objPath = " << objpath.toString() << endl;
@@ -1613,7 +1557,7 @@ Boolean cimmofParser::updateClass(const CIMClass &classdecl,
     }
 
     // Verify version format specified in the Version qualifier of mof class
-    if (!VersionUtil::parseVersion(iVersion, iM, iN, iU))
+    if (!parseVersion(iVersion, iM, iN, iU))
     {
         updateMessage = cimmofMessages::INVALID_VERSION_FORMAT;
         return false;
@@ -1621,7 +1565,7 @@ Boolean cimmofParser::updateClass(const CIMClass &classdecl,
 
     // Verify version format specified in the Version qualifier of
     // repository class
-    if (!VersionUtil::parseVersion(rVersion, rM, rN, rU))
+    if (!parseVersion(rVersion, rM, rN, rU))
     {
         updateMessage = cimmofMessages::INVALID_VERSION_FORMAT;
         return false;
@@ -1675,11 +1619,7 @@ Boolean cimmofParser::updateClass(const CIMClass &classdecl,
                 updateMessage = cimmofMessages::NO_EXPERIMENTAL_UPDATE;
                 return false;
             }
-            // -aV is set, do not do class version checking
-            if (_cmdline->allow_version())
-            {
-                return ret;
-            }
+
             // Some examples:
             // Requires minor and update ids in repository and mof to be
             // set with the
@@ -1695,8 +1635,20 @@ Boolean cimmofParser::updateClass(const CIMClass &classdecl,
                 (iU < rU  &&  rU >= 0 && iU >= 0 && rN==iU))
 
             {
-                updateMessage = cimmofMessages::NO_VERSION_UPDATE;
-                return false;
+                if (!_cmdline->allow_version())
+                {
+                    /* PEP43: ID = 6 */
+                    //printf("ID=6 (No Action): Exists. -aV not set.\n");
+                    updateMessage = cimmofMessages::NO_VERSION_UPDATE;
+                    return false;
+                }
+                else
+                {
+                    /* ID = 7 */
+                    //printf("ID=7: (ModifyClass): Exists. -aEV set."
+                    //" (Major Update, Down Revision, Version->NULL)\n");
+
+                }
             }
             else
             {
@@ -1724,6 +1676,7 @@ Boolean cimmofParser::updateClass(const CIMClass &classdecl,
                     //printf("ID=9 (NoAction): Exists. Same Version.\n");
                     updateMessage = cimmofMessages::SAME_VERSION;
                     return false;
+
                 }
             }
         }
@@ -1734,12 +1687,6 @@ Boolean cimmofParser::updateClass(const CIMClass &classdecl,
             if ((rExperimental && iExperimental) ||        /* TRUE->TRUE */
                     (!iExperimental))                      /* Any->FALSE */
             {
-                // -aV is set, do not do class version checking
-                if (_cmdline->allow_version())
-                {
-                    return ret;
-                }
-
                 // See above for examples...ID=6
                 if ((rM >= 0  &&  iM < 0)    //remove version (Version->NULL)
                     ||
@@ -1749,8 +1696,20 @@ Boolean cimmofParser::updateClass(const CIMClass &classdecl,
                     ||                       // Down Revision of update id
                     (iU < rU  &&  rU >= 0 && iU >= 0 && rN==iU))
                 {
-                    updateMessage = cimmofMessages::NO_VERSION_UPDATE;
-                    return false;
+                    if (!_cmdline->allow_version())
+                    {
+                        /* PEP43: ID = 10 */
+                        //printf("ID=10 (NoAction): Exists. -aV not set.\n");
+                        updateMessage = cimmofMessages::NO_VERSION_UPDATE;
+                        return false;
+                    }
+                    else
+                    {
+                        /* ID = 11 */
+                        //printf("ID=11 (ModifyClass): Exists. -aV set."
+                        //" (Major Update, Down Revision, Version->NULL)\n");
+
+                    }
                 }
                 else
                 {
@@ -1771,6 +1730,7 @@ Boolean cimmofParser::updateClass(const CIMClass &classdecl,
                         //printf("ID=13 (NoAction): Exists. Same Version.\n");
                         updateMessage = cimmofMessages::SAME_VERSION;
                         return false;
+
                     }
                 }
             }
@@ -1778,4 +1738,94 @@ Boolean cimmofParser::updateClass(const CIMClass &classdecl,
     }
 
     return ret;
+}
+
+// Note: This method is the same as RepositoryUpgrade::_parseVersion in
+// pegasus/src/Clients/repupgrade/RepositoryUpgrade.cpp.
+Boolean cimmofParser::parseVersion(
+    const String& version,
+    int& iM,
+    int& iN,
+    int& iU)
+{
+    if (!version.size())
+    {
+        return true;
+    }
+
+    iM = 0;
+    iN = 0;
+    iU = 0;
+
+    Uint32 indexM = 0;
+    Uint32 sizeM = PEG_NOT_FOUND;
+    Uint32 indexN = PEG_NOT_FOUND;
+    Uint32 sizeN = PEG_NOT_FOUND;
+    Uint32 indexU = PEG_NOT_FOUND;
+
+    // If "V" specified as first character, ignore it
+    if ((version[0] == 'V') || (version[0] == 'v'))
+    {
+        indexM = 1;
+    }
+
+    // Find the M, N, and U version fields delimited by '.' characters
+
+    indexN = version.find(indexM, CHAR_PERIOD);
+
+    if (indexN != PEG_NOT_FOUND)
+    {
+        sizeM = indexN++ - indexM;
+
+        indexU = version.find(indexN, CHAR_PERIOD);
+        if (indexU != PEG_NOT_FOUND)
+        {
+            sizeN = indexU++ - indexN;
+        }
+    }
+
+    // Parse the major version
+    char dummyChar;
+    int numConversions = sscanf(
+        version.subString(indexM, sizeM).getCString(),
+        "%u%c",
+        &iM,
+        &dummyChar);
+
+    if (numConversions != 1)
+    {
+        return false;
+    }
+
+    // Parse the minor version
+    if (indexN != PEG_NOT_FOUND)
+    {
+        numConversions = sscanf(
+            version.subString(indexN, sizeN).getCString(),
+            "%u%c",
+            &iN,
+            &dummyChar);
+
+        if (numConversions != 1)
+        {
+            return false;
+        }
+    }
+
+    // Parse the update version
+    if (indexU != PEG_NOT_FOUND)
+    {
+        numConversions = sscanf(
+            version.subString(indexU).getCString(),
+            "%u%c",
+            &iU,
+            &dummyChar);
+
+        if (numConversions != 1)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }

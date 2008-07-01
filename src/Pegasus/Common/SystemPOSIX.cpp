@@ -53,6 +53,7 @@
 
 #if defined(PEGASUS_OS_SOLARIS)
 # include <string.h>
+# include <sys/sockio.h>
 #endif
 
 #if !defined(PEGASUS_OS_VMS) && \
@@ -76,11 +77,6 @@
 
 #ifdef PEGASUS_OS_PASE
 #include <ILEWrapper/ILEUtilities.h>
-#endif
-
-#if defined(PEGASUS_PLATFORM_SOLARIS_IX86_CC) || \
-    defined(PEGASUS_PLATFORM_SOLARIS_X86_64_CC)
-# include <sys/sockio.h>
 #endif
 
 #include <Pegasus/Common/Tracer.h>
@@ -447,12 +443,12 @@ String System::getEffectiveUserName()
 
     if (getpwuid_r(geteuid(), &local_pwd, buf, PWD_BUFF_SIZE, &pwd) != 0)
     {
-        PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+        PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
             "getpwuid_r failure: %s", strerror(errno)));
     }
     else if (pwd == NULL)
     {
-        PEG_TRACE_CSTRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_OS_ABSTRACTION, Tracer::LEVEL1,
             "getpwuid_r failure; user may have been removed");
     }
     else
@@ -499,7 +495,7 @@ Boolean System::isSystemUser(const char* userName)
 
     if (getpwnam_r(userName, &pwd, pwdBuffer, PWD_BUFF_SIZE, &result) != 0)
     {
-        PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+        PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
             "getpwnam_r failure: %s", strerror(errno)));
     }
 
@@ -545,12 +541,11 @@ Boolean System::isPrivilegedUser(const String& userName)
     if (getpwnam_r(
           userName.getCString(), &pwd, pwdBuffer, PWD_BUFF_SIZE, &result) != 0)
     {
-        String errorMsg = String("getpwnam_r failure : ") +
-                            String(strerror(errno));
-        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2, errorMsg);
-        // L10N TODO - This message needs to be added.
-        //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
-        //                          errorMsg);
+        PEG_TRACE((
+            TRC_OS_ABSTRACTION,
+            Tracer::LEVEL1,
+            "getpwnam_r failure : %s",
+            strerror(errno)));
     }
 
     // Check if the requested entry was found. If not return false.
@@ -586,13 +581,13 @@ static void _initPrivilegedUserName()
 
     if (getpwuid_r(uid, &local_pwd, buf, PWD_BUFF_SIZE, &pwd) != 0)
     {
-        PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+        PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
             "getpwuid_r failure: %s", strerror(errno)));
     }
     else if (pwd == NULL)
     {
         PEG_TRACE_CSTRING(
-            TRC_OS_ABSTRACTION, Tracer::LEVEL4,
+            TRC_OS_ABSTRACTION, Tracer::LEVEL1,
             "getpwuid_r: Could not find entry.");
         PEGASUS_ASSERT(0);
     }
@@ -715,7 +710,7 @@ Boolean System::lookupUserId(
 #if defined(PEGASUS_OS_PASE)
     if (!umeLookupUserProfile(userName))
     {
-        PEG_TRACE_CSTRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_OS_ABSTRACTION, Tracer::LEVEL1,
                 "umeLookupUserProfile failed.");
         return false;
     }
@@ -730,14 +725,14 @@ Boolean System::lookupUserId(
 
     if (rc != 0)
     {
-        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-            String("getpwnam_r failed: ") + String(strerror(errno)));
+        PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
+            "getpwnam_r failure: %s", strerror(errno)));
         return false;
     }
 
     if (result == 0)
     {
-        PEG_TRACE_CSTRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+        PEG_TRACE_CSTRING(TRC_OS_ABSTRACTION, Tracer::LEVEL1,
             "getpwnam_r failed.");
         return false;
     }
@@ -775,8 +770,8 @@ Boolean System::changeUserContext_SingleThreaded(
 
     if (setgid(gid) != 0)
     {
-        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-            String("setgid failed: ") + String(strerror(errno)));
+        PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
+            "setgid failed: %s",strerror(errno)));
         return false;
     }
 
@@ -785,16 +780,16 @@ Boolean System::changeUserContext_SingleThreaded(
     // called from a single-threaded process.
     if (initgroups(userName, gid) != 0)
     {
-        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-            String("initgroups failed: ") + String(strerror(errno)));
+        PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            "initgroups failed: %s", strerror(errno)));
         return false;
     }
 # endif
 
     if (setuid(uid) != 0)
     {
-        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-            String("setuid failed: ") + String(strerror(errno)));
+        PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
+            "setuid failed: %s", strerror(errno)));
         return false;
     }
 
@@ -827,10 +822,7 @@ Boolean System::is_absolute_path(const char *path)
 
 Boolean System::changeFilePermissions(const char* path, mode_t mode)
 {
-    Sint32 ret = 0;
-    const char * tmp = path;
-
-    return chmod(tmp, mode) == 0 ? true : false;
+    return chmod(path, mode) == 0;
 }
 
 Boolean System::verifyFileOwnership(const char* path)
@@ -1120,7 +1112,7 @@ AutoFileLock::AutoFileLock(const char* fileName)
 
         if (rc == -1)
         {
-            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
                 "AutoFileLock: Failed to lock file '%s', error code %d.",
                 fileName, errno));
             _fd = -1;
@@ -1128,7 +1120,7 @@ AutoFileLock::AutoFileLock(const char* fileName)
     }
     else
     {
-        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "AutoFileLock: Failed to open lock file '%s', error code %d.",
             fileName, errno));
     }
@@ -1144,7 +1136,7 @@ AutoFileLock::~AutoFileLock()
         int rc = fcntl(_fd, F_SETLK, &_fl);
         if (rc == -1)
         {
-            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
                 "AutoFileLock: Failed to unlock file, error code %d.",
                 errno));
         }

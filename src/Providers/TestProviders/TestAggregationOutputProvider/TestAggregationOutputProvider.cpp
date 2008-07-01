@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -137,12 +139,17 @@ void _setCompleteObjectPath(CIMInstance & instance)
     instance.setPath(p);
 }
 
-/** clone the input instance  
-    @return cloned instance.
+/** clone the input instance and filter it in accordance with
+    the input variables.
+    @return cloned and filtered instance.
 */
-CIMInstance _clone(const CIMInstance& instance)
+CIMInstance _filter(const CIMInstance& instance,
+                    const Boolean includeQualifiers,
+                    const Boolean includeClassOrigin,
+                    const CIMPropertyList& pl)
 {
     CIMInstance rtnInstance = instance.clone();
+    rtnInstance.filter(includeQualifiers, includeClassOrigin, pl);
 
     _setCompleteObjectPath(rtnInstance);
     return(rtnInstance);
@@ -414,14 +421,20 @@ void TestAggregationOutputProvider::initialize(CIMOMHandle & cimom)
         Uint32 Student = _instances.size();
         _instances.append(
             _buildPersonInstance(_personClass, String("Student")));
+        Uint32 Employee = _instances.size();
         _instances.append(
             _buildPersonInstance(_personClass, String("Employee")));
+        Uint32 Manager = _instances.size();
         _instances.append(
             _buildPersonInstance(_personClass, String("Manager")));
+        Uint32 Husband = _instances.size();
         _instances.append(
             _buildPersonInstance(_personClass, String("Husband")));
+        Uint32 Wife = _instances.size();
         _instances.append(_buildPersonInstance(_personClass, String("Wife")));
+        Uint32 Father = _instances.size();
         _instances.append(_buildPersonInstance(_personClass, String("Father")));
+        Uint32 Child = _instances.size();
         _instances.append(_buildPersonInstance(_personClass, String("Child")));
 
         for(Uint32 i = 0, n = _instances.size(); i < n; ++i)
@@ -482,7 +495,8 @@ void TestAggregationOutputProvider::_getInstance(
         if(localReference1 == instanceArray[i].getPath())
         {
             // deliver filtered clone of requested instance
-            handler.deliver(_clone(instanceArray[i]));
+            handler.deliver(_filter(instanceArray[i],
+                includeQualifiers, includeClassOrigin, propertyList));
             return;
         }
     }
@@ -548,7 +562,8 @@ void TestAggregationOutputProvider::_enumerateInstances(
     {
         for(Uint32 i = 0, n = instanceArray.size(); i < n; ++i)
         {
-            handler.deliver(_clone(instanceArray[i]));
+            handler.deliver(_filter(instanceArray[i],
+                includeQualifiers, includeClassOrigin, propertyList));
         }
     }
     catch(Exception & e)
@@ -697,18 +712,21 @@ void TestAggregationOutputProvider::_associators(
                     resultRole);
 
             // Loop to process all resultPaths
-            for (Uint32 j = 0 ; j < resultPaths.size() ; ++j)
+            for (Uint32 i = 0 ; i < resultPaths.size() ; ++i)
             {
                 // instance index corresponds to reference index
                 // For each resultInstance, if matches result path, Deliver.
-                for(Uint32 k = 0, n = resultInstanceArray.size(); k < n; ++k)
+                for(Uint32 j = 0, n = resultInstanceArray.size(); j < n; ++j)
                 {
-                    CIMObjectPath newPath = resultInstanceArray[k].getPath();
+                    CIMObjectPath newPath = resultInstanceArray[j].getPath();
 
-                    if(resultPaths[j].identical(newPath))
+                    if(resultPaths[i].identical(newPath))
                     {
-                        handler.deliver(_clone(
-                            resultInstanceArray[k]));
+                        handler.deliver(_filter(
+                            resultInstanceArray[j],
+                            includeQualifiers,
+                            includeClassOrigin,
+                            propertyList));
                     }
                 }
             }
@@ -794,9 +812,9 @@ void TestAggregationOutputProvider::_associatorNames(
                     resultClass,
                     resultRole);
 
-            for (Uint32 j = 0 ; j < resultPaths.size() ; ++j)
+            for (Uint32 i = 0 ; i < resultPaths.size() ; ++i)
             {
-                CIMObjectPath sendPath = resultPaths[j];
+                CIMObjectPath sendPath = resultPaths[i];
                 String host = System::getHostName();
                 if (sendPath.getHost().size() == 0)
                     sendPath.setHost(host);
@@ -885,8 +903,11 @@ void TestAggregationOutputProvider::_references(
                 objectPath.setNameSpace(nameSpace);
 
             returnInstances[i].setPath(objectPath);
-            CIMInstance inst = _clone(
-                returnInstances[i]);
+            CIMInstance inst = _filter(
+                returnInstances[i],
+                includeQualifiers,
+                includeClassOrigin,
+                propertyList);
             handler.deliver(inst);
         }
     }
@@ -1217,7 +1238,7 @@ void TestAggregationOutputProvider::deleteInstance(
         case TEST_FAMILYDYNAMIC:
             throw CIMException(CIM_ERR_NOT_FOUND);
         default:
-            PEGASUS_TEST_ASSERT(false);
+            PEGASUS_ASSERT(false);
     }
     handler.complete();
 }

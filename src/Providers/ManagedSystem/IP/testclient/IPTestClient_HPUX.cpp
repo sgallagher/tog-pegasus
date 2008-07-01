@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -151,8 +153,8 @@ void IPTestClient::_check_IPPEp_Caption(String &pv, Boolean verbose)
     }
 
     _check_Address_Format(
-        pv,
-        CLASS_CIM_IP_PROTOCOL_ENDPOINT,
+        pv, 
+        CLASS_CIM_IP_PROTOCOL_ENDPOINT, 
         PROPERTY_CAPTION);
 
 }
@@ -436,8 +438,8 @@ void IPTestClient::_check_IPPEp_ProtocolIFType(Uint16 &pv, Boolean verbose)
              pv << "' . . ." << endl;
     }
 
-    if (pv != 4096 &&
-        pv != 4097 &&
+    if (pv != 4096 && 
+        pv != 4097 && 
         pv != 4098)
     {
         _errorExit(
@@ -752,8 +754,8 @@ void IPTestClient::_check_NHIPRoute_Name(String &pv, Boolean verbose)
     }
 
     _check_Address_Format(
-        pv,
-        CLASS_PG_NEXT_HOP_IP_ROUTE,
+        pv, 
+        CLASS_PG_NEXT_HOP_IP_ROUTE, 
         PROPERTY_NAME);
 
 }
@@ -796,15 +798,15 @@ void IPTestClient::_check_NHIPRoute_DestinationMask(String &pv, Boolean verbose)
     }
 
     _check_Address_Format(
-        pv,
-        CLASS_PG_NEXT_HOP_IP_ROUTE,
+        pv, 
+        CLASS_PG_NEXT_HOP_IP_ROUTE, 
         PROPERTY_DESTINATION_MASK);
 
 }
 
 //------------------------------------------------------------------------------
 void IPTestClient::_check_NHIPRoute_DestinationAddress(
-    String &pv,
+    String &pv, 
     Boolean verbose)
 {
     if (verbose)
@@ -814,8 +816,8 @@ void IPTestClient::_check_NHIPRoute_DestinationAddress(
     }
 
     _check_Address_Format(
-        pv,
-        CLASS_PG_NEXT_HOP_IP_ROUTE,
+        pv, 
+        CLASS_PG_NEXT_HOP_IP_ROUTE, 
         PROPERTY_DESTINATION_ADDRESS);
 
 }

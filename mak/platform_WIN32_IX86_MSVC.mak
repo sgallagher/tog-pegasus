@@ -1,31 +1,33 @@
-#//%LICENSE////////////////////////////////////////////////////////////////
+#//%2006////////////////////////////////////////////////////////////////////////
 #//
-#// Licensed to The Open Group (TOG) under one or more contributor license
-#// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-#// this work for additional information regarding copyright ownership.
-#// Each contributor licenses this file to you under the OpenPegasus Open
-#// Source License; you may not use this file except in compliance with the
-#// License.
+#// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+#// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+#// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation, The Open Group.
+#// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; Symantec Corporation; The Open Group.
 #//
-#// Permission is hereby granted, free of charge, to any person obtaining a
-#// copy of this software and associated documentation files (the "Software"),
-#// to deal in the Software without restriction, including without limitation
-#// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-#// and/or sell copies of the Software, and to permit persons to whom the
-#// Software is furnished to do so, subject to the following conditions:
+#// Permission is hereby granted, free of charge, to any person obtaining a copy
+#// of this software and associated documentation files (the "Software"), to
+#// deal in the Software without restriction, including without limitation the
+#// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+#// sell copies of the Software, and to permit persons to whom the Software is
+#// furnished to do so, subject to the following conditions:
+#// 
+#// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+#// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+#// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+#// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+#// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+#// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+#// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#// The above copyright notice and this permission notice shall be included
-#// in all copies or substantial portions of the Software.
-#//
-#// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-#// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-#// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-#// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-#// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-#// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-#// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#//
-#//////////////////////////////////////////////////////////////////////////
+#//==============================================================================
 OS_TYPE = windows
 OS = win32
 ARCHITECTURE = iX86
@@ -35,7 +37,7 @@ SYS_INCLUDES =
 
 DEPEND_INCLUDES =
 
-DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -D_WIN32_WINNT=0x0600
+DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -D_WIN32_WINNT=0x0400
 #-D_WIN32_WINNT=0x0400 -DWINVER=0x0400
 
 
@@ -45,8 +47,6 @@ DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -D_WIN32_WINNT=0x0600
 CL_VERSION := $(word 8, $(shell cl.exe 2>&1))
 CL_MAJOR_VERSION := $(word 1, $(subst .,  , $(CL_VERSION)))
 
-VC_CL_VERSIONS := 14 15 16
-VC_CL_VERSION  := $(findstring $(CL_MAJOR_VERSION), $(VC_CL_VERSIONS))
 
 #
 # Determine the version of Windows being used.
@@ -63,10 +63,10 @@ endif
 # The flags set here should be valid for VC 6.
 #
 # The -Zm105 flag was added as part of bug 4418 to resolve this compile error:
-#   C:\Program Files\Microsoft Visual Studio\VC98\include\xlocale(467) :
-#   fatal error C1076: compiler limit : internal heap limit reached; use /Zm to
+#   C:\Program Files\Microsoft Visual Studio\VC98\include\xlocale(467) : 
+#   fatal error C1076: compiler limit : internal heap limit reached; use /Zm to 
 #   specify a higher limit
-#
+# 
 CXX_VERSION_FLAGS := -GX -Zm105
 CXX_VERSION_DEBUG_FLAGS :=
 CXX_VERSION_RELEASE_FLAGS :=
@@ -85,24 +85,18 @@ endif
 
 
 #
-# CL_MAJOR_VERSION 14, 15 or 16 (i.e., VC 8, VC 9 or VC 2010)
+# CL_MAJOR_VERSION 14 is VC 8
 #
-ifeq ($(CL_MAJOR_VERSION), $(VC_CL_VERSION))
-    CXX_VERSION_FLAGS := -EHsc
+ifeq ($(CL_MAJOR_VERSION), 14)
+    CXX_VERSION_FLAGS := -Wp64 -EHsc
     CXX_VERSION_DEBUG_FLAGS := -RTCc -RTCsu
     CXX_VERSION_RELEASE_FLAGS := -GF -GL -Gy
-    # VC 2010 only setting as it dont take /OPT:NOWIN98 anymore
-    ifeq ($(CL_MAJOR_VERSION), 16)
-        LINK_VERSION_RELEASE_FLAGS := /LTCG /OPT:REF /OPT:ICF=5
-    else
-        LINK_VERSION_RELEASE_FLAGS := /LTCG /OPT:REF /OPT:ICF=5 /OPT:NOWIN98
-    endif
+    LINK_VERSION_RELEASE_FLAGS := /LTCG /OPT:REF /OPT:ICF=5 /OPT:NOWIN98
     DEFINES += -D_CRT_SECURE_NO_DEPRECATE
-    DEFINES += -D_CRT_NONSTDC_NO_DEPRECATE
 endif
 
 
-ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS
+ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
     FLAGS = $(CXX_VERSION_FLAGS) $(CXX_VERSION_DEBUG_FLAGS) -GR -W3 -Od -Zi -MDd -DDEBUG -Fd$(OBJ_DIR)/
     LINK_FLAGS += -debug
 else
@@ -120,6 +114,12 @@ endif
 #
 ifndef PEGASUS_ENABLE_SLP
     PEGASUS_ENABLE_SLP = true
+endif
+
+# ATTN KS 20020927 - Add flag to allow conditional testing of interoperability
+# changes during interoperability tests.
+ifdef PEGASUS_SNIA_INTEROP_TEST
+    DEFINES+= -DPEGASUS_SNIA_INTEROP_TEST
 endif
 
 RM = mu rm
@@ -178,7 +178,7 @@ RC = rc
 
 # Windows DLLs are installed in the $(PEGASUS_HOME)/bin directory
 PEGASUS_DEST_LIB_DIR = bin
-
+ 
 # The Provider User Context feature (PEP 197) is not supported on Windows
 PEGASUS_DISABLE_PROV_USERCTXT=1
 
@@ -191,19 +191,19 @@ PEGASUS_JAVA_CLASSPATH_DELIMITER = ;
 ##################################
 ##
 ## Pegasus WMIMapper
-##
+## 
 ##################################
 
 ifeq ($(PEGASUS_BUILD_WMIMAPPER),true)
   FLAGS += -DPEGASUS_WMIMAPPER
-else
+else 
   ifdef PEGASUS_WMIMAPPER
     FLAGS += -DPEGASUS_WMIMAPPER
-  endif
+  endif   
 endif
 
 ##################################
-##
+## 
 ## The newer compiler versions need neither MS Platform SDK installed nor MSSdk variable defined.
 ##
 ##################################
@@ -211,7 +211,7 @@ ifeq ($(PEGASUS_BUILD_WMIMAPPER),true)
   ifeq ($(CL_MAJOR_VERSION), 12)
     PEGASUS_WMIMAPPER_NEED_MSSDK=true
   endif
-  ifeq ($(CL_MAJOR_VERSION), 13)
+  ifeq ($(CL_MAJOR_VERSION), 13) 
     PEGASUS_WMIMAPPER_NEED_MSSDK=true
   endif
   ifeq ($(PEGASUS_WMIMAPPER_NEED_MSSDK),true)

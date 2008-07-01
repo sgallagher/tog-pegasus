@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,6 +48,8 @@
 #define _ClassName_size strlen(_ClassName)
 
 #define _Namespace "test/TestProvider"
+#define _ProviderLocation \
+    "/src/Providers/TestProviders/CMPI/TestAssociation/tests/"
 
 static const CMPIBroker *_broker;
 
@@ -54,31 +58,29 @@ static const CMPIBroker *_broker;
 /* ---------------------------------------------------------------------------*/
 
 const char * get_assoc_targetClass_Name(
-    const CMPIBroker * broker,
+    const CMPIBroker * _broker,
     const CMPIObjectPath * ref,
     const char * _RefLeftClass,
     const char * _RefRightClass,
-    CMPIStatus * rc)
+    CMPIStatus * rc) 
 {
     CMPIString * sourceClass = NULL;
     CMPIObjectPath * op = NULL;
 
     /* get name of source class */
     sourceClass = CMGetClassName(ref, rc);
-
+    
     op = CMNewObjectPath(
-        broker,
-        CMGetCharsPtr(CMGetNameSpace(ref,rc), NULL),
+        _broker,
+        CMGetCharPtr(CMGetNameSpace(ref,rc)),
         _RefLeftClass,
         rc );
 
-    if (strcmp(CMGetCharsPtr(sourceClass, NULL),"CMPI_TEST_Person") == 0 )
+    if (strcmp(CMGetCharPtr(sourceClass),"CMPI_TEST_Person") == 0 )
     {
-        return "CMPI_TEST_Vehicle";
+        return "CMPI_TEST_Vehicle"; 
     }
-    else if ( strcmp(
-        CMGetCharsPtr(sourceClass, NULL),
-        "CMPI_TEST_Vehicle") == 0 )
+    else if ( strcmp(CMGetCharPtr(sourceClass),"CMPI_TEST_Vehicle") == 0 )
     {
         return "CMPI_TEST_Person";
     }
@@ -90,29 +92,29 @@ const char * get_assoc_targetClass_Name(
 
 
 CMPIObjectPath* get_assoc_targetClass_ObjectPath(
-    const CMPIBroker* broker,
+    const CMPIBroker* _broker,
     const CMPIObjectPath* ref,
     const char* _RefLeftClass,
     const char* _RefRightClass,
-    CMPIStatus* rc )
+    CMPIStatus* rc ) 
 {
     CMPIObjectPath* op = NULL;
     const char* targetName = NULL;
-
+    
     /* get name of the target class */
     targetName = get_assoc_targetClass_Name(
-        broker,
+        _broker,
         ref,
         _RefLeftClass,
         _RefRightClass,
         rc);
-
-    if ( targetName != NULL )
+    
+    if ( targetName != NULL ) 
     {
         /* create new object path of the target class */
         op = CMNewObjectPath(
-            broker,
-            CMGetCharsPtr(CMGetNameSpace(ref,rc), NULL),
+            _broker,
+            CMGetCharPtr(CMGetNameSpace(ref,rc)),
             targetName,
             rc);
     }
@@ -125,7 +127,7 @@ CMPIObjectPath* get_assoc_targetClass_ObjectPath(
 //CMPIPROVIDER
 
 CMPIStatus TestCMPIAssociationProviderAssociationCleanup(
-    CMPIAssociationMI* mi,
+    CMPIAssociationMI* mi, 
     const CMPIContext* ctx,
     CMPIBoolean  term)
 {
@@ -140,17 +142,21 @@ CMPIStatus TestCMPIAssociationProviderAssociators(
     const CMPIObjectPath* ref,
     const char* _RefLeftClass,
     const char* _RefRightClass,
-    const char* role,
-    const char* resultRole,
+    const char* role, 
+    const char* resultRole, 
     const char** properties)
 {
     CMPIObjectPath * op = NULL;
-    CMPIEnumeration * en = NULL;
+    CMPIEnumeration * en = NULL;          
     CMPIData data ;
-    CMPIStatus rc = { CMPI_RC_OK, NULL };
+    CMPIStatus rc = { CMPI_RC_OK, NULL }; 
 
     CMPIString * sourceClass = NULL;
 
+    PROV_LOG_OPEN (_ClassName, _ProviderLocation);                
+    PROV_LOG ("\n\n********************* %s CMPI Associators() called", 
+        _ClassName);
+        
     sourceClass = CMGetClassName(ref,&rc);
 
     /* get object path of the target class */
@@ -162,22 +168,29 @@ CMPIStatus TestCMPIAssociationProviderAssociators(
         &rc);
 
     sourceClass = CMGetClassName(op,&rc);
+    PROV_LOG(" target class: %s ",CMGetCharPtr(sourceClass));
+    
+    PROV_LOG (" New Object Path [%s]",
+                CMGetCharPtr (CMGetNameSpace (ref, &rc)));
 
     /* Call to Associators */
     /* upcall to CIMOM; call enumInstances() of the target class */
     en = CBEnumInstances( _broker, ctx, op, NULL, &rc);
 
     /* as long as instance entries are found in the enumeration */
-    while( CMHasNext( en, &rc) )
+    while( CMHasNext( en, &rc) ) 
     {
         /* get the instance */
         data = CMGetNext( en, &rc);
-
+                        
         /* and return the target class instance as result of the
          * associators() call
         */
         CMReturnInstance( rslt, data.value.inst );
     }
+    PROV_LOG ("\n\n********************* %s CMPI Associators exited",
+        _ClassName);
+    PROV_LOG_CLOSE ();
     return rc;
 }
 
@@ -196,7 +209,11 @@ CMPIStatus TestCMPIAssociationProviderAssociatorNames(
     CMPIEnumeration* en = NULL;
     CMPIData data ;
 
-    CMPIStatus rc = { CMPI_RC_OK, NULL };
+    CMPIStatus rc = { CMPI_RC_OK, NULL }; 
+
+    PROV_LOG_OPEN (_ClassName, _ProviderLocation);                           
+    PROV_LOG ("\n\n********************* %s CMPI AssociatorNames() called",
+        _ClassName);
 
     /* get object path of the target class */
     op = get_assoc_targetClass_ObjectPath(
@@ -206,10 +223,13 @@ CMPIStatus TestCMPIAssociationProviderAssociatorNames(
         _RefRightClass,
         &rc);
 
+    PROV_LOG (" New Object Path [%s]",
+        CMGetCharPtr (CMGetNameSpace (ref, &rc)));                
+
     /* create new object path of association */
     rop = CMNewObjectPath(
         _broker,
-        CMGetCharsPtr(CMGetNameSpace(ref,&rc),NULL),
+        CMGetCharPtr(CMGetNameSpace(ref,&rc)),
         _ClassName,
         &rc );
 
@@ -217,16 +237,19 @@ CMPIStatus TestCMPIAssociationProviderAssociatorNames(
     en = CBEnumInstanceNames( _broker, ctx, op, &rc);
 
     /* as long as object path entries are found in the enumeration */
-    while( CMHasNext( en, &rc) )
+    while( CMHasNext( en, &rc) ) 
     {
         /* get the object path */
         data = CMGetNext(en, &rc);
-
+        
         /* and return the target class object path as result of the
          * associatorNames() call
         */
-        CMReturnObjectPath( rslt, data.value.ref );
+        CMReturnObjectPath( rslt, data.value.ref ); 
     }
+    PROV_LOG ("\n\n********************* %s CMPI AssociatorNames() exited",
+        _ClassName);
+    PROV_LOG_CLOSE ();
     return rc;
 }
 
@@ -247,12 +270,16 @@ CMPIStatus TestCMPIAssociationProviderReferences(
 
     const char * targetName = NULL;
     char * _thisClassName;
-    char * _RefLeftClass = NULL;
-    char * _RefRightClass = NULL;
-
+    char * _RefLeftClass = NULL;    
+    char * _RefRightClass = NULL; 
+    
     CMPIStatus rc = {CMPI_RC_OK, NULL};
 
     _thisClassName=_ClassName;
+
+    PROV_LOG_OPEN (_thisClassName, _ProviderLocation); 
+    PROV_LOG ("\n\n********************* %s CMPI References() called",
+        _thisClassName);
 
     /* get object path of the target class */
     op = get_assoc_targetClass_ObjectPath(
@@ -262,10 +289,13 @@ CMPIStatus TestCMPIAssociationProviderReferences(
         _RefRightClass,
         &rc);
 
+    PROV_LOG (" New Object Path [%s]",
+        CMGetCharPtr (CMGetNameSpace (ref, &rc)));
+
     /* create new object path of association */
     rop = CMNewObjectPath(
         _broker,
-        CMGetCharsPtr(CMGetNameSpace(ref,&rc),NULL),
+        CMGetCharPtr(CMGetNameSpace(ref,&rc)),
         _thisClassName,
         &rc );
 
@@ -273,7 +303,7 @@ CMPIStatus TestCMPIAssociationProviderReferences(
     en = CBEnumInstanceNames( _broker, ctx, op, &rc);
 
     /* as long as object path entries are found in the enumeration */
-    while( CMHasNext( en, &rc) )
+    while( CMHasNext( en, &rc) ) 
     {
         /* get the object path */
         data = CMGetNext( en, &rc);
@@ -302,7 +332,7 @@ CMPIStatus TestCMPIAssociationProviderReferences(
                     CMPI_ref );
                 CMSetProperty( ci, "driver", (CMPIValue*)&(ref), CMPI_ref );
             }
-            else if( strcmp( targetName,"CMPI_TEST_Vehicle") == 0 )
+            else if( strcmp( targetName,"CMPI_TEST_Vehicle") == 0 ) 
             {
                 CMSetProperty(
                     ci,
@@ -311,10 +341,14 @@ CMPIStatus TestCMPIAssociationProviderReferences(
                     CMPI_ref );
                 CMSetProperty( ci, "driver", (CMPIValue*)&(ref), CMPI_ref );
             }
-
+            
             CMReturnInstance( rslt, ci );
         }
     }
+    PROV_LOG ("\n\n********************* %s CMPI References() exited",
+        _thisClassName);
+    PROV_LOG_CLOSE ();
+
     return rc;
 }
 
@@ -324,7 +358,7 @@ CMPIStatus TestCMPIAssociationProviderReferenceNames(
     const CMPIResult * rslt,
     const CMPIObjectPath * ref,
     const char* resultClass,
-    const char* role)
+    const char* role) 
 {
     CMPIInstance * ci = NULL;
     CMPIObjectPath * op = NULL;
@@ -335,11 +369,15 @@ CMPIStatus TestCMPIAssociationProviderReferenceNames(
 
     const char * targetName = NULL;
     const char * _thisClassName;
-    const char * _RefLeftClass = NULL;
-    const char * _RefRightClass = NULL;
+    const char * _RefLeftClass = NULL;    
+    const char * _RefRightClass = NULL;   
 
     CMPIStatus rc = {CMPI_RC_OK, NULL};
     _thisClassName=_ClassName;
+
+    PROV_LOG_OPEN (_thisClassName, _ProviderLocation);
+    PROV_LOG ("\n\n********************* %s CMPI ReferenceNames() called",
+        _thisClassName);
 
     /* get object path of the target class */
     op = get_assoc_targetClass_ObjectPath(
@@ -349,11 +387,13 @@ CMPIStatus TestCMPIAssociationProviderReferenceNames(
         _RefRightClass,
         &rc);
 
+    PROV_LOG (" New Object Path [%s]",
+    CMGetCharPtr (CMGetNameSpace (ref, &rc)));                
 
     /* create new object path of association */
     rop = CMNewObjectPath(
         _broker,
-        CMGetCharsPtr(CMGetNameSpace(ref,&rc),NULL),
+        CMGetCharPtr(CMGetNameSpace(ref,&rc)),
         _thisClassName,
         &rc );
 
@@ -361,7 +401,7 @@ CMPIStatus TestCMPIAssociationProviderReferenceNames(
     en = CBEnumInstanceNames( _broker, ctx, op, &rc);
 
     /* as long as object path entries are found in the enumeration */
-    while( CMHasNext( en, &rc) )
+    while( CMHasNext( en, &rc) ) 
     {
         /* get the object path */
         data = CMGetNext( en, &rc);
@@ -391,7 +431,7 @@ CMPIStatus TestCMPIAssociationProviderReferenceNames(
                 CMPI_ref );
             CMSetProperty( ci, "driver", (CMPIValue*)&(ref), CMPI_ref );
         }
-        else if( strcmp( targetName,"CMPI_TEST_Vehicle") == 0 )
+        else if( strcmp( targetName,"CMPI_TEST_Vehicle") == 0 ) 
         {
             CMSetProperty(
                 ci,
@@ -400,18 +440,22 @@ CMPIStatus TestCMPIAssociationProviderReferenceNames(
                 CMPI_ref );
             CMSetProperty( ci, "driver", (CMPIValue*)&(ref), CMPI_ref );
         }
-
+        
         /* get object path of association instance */
         cop = CMGetObjectPath(ci,&rc);
 
         /* set namespace in object path of association */
-        CMSetNameSpace(cop,CMGetCharsPtr(CMGetNameSpace(ref,&rc),NULL));
+        CMSetNameSpace(cop,CMGetCharPtr(CMGetNameSpace(ref,&rc)));
 
         /* and return the association object path as result of the
          * referenceNames() call
         */
         CMReturnObjectPath( rslt, cop );
     }
+
+    PROV_LOG ("\n\n********************* %s CMPI ReferenceNames() exited",
+        _thisClassName);
+    PROV_LOG_CLOSE ();
 
     return rc;
 }

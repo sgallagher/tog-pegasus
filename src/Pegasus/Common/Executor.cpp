@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -58,9 +60,9 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Executor.h>
 
+#include <Executor/Strlcpy.h>
 
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-#include <Executor/Strlcpy.h>
 # include <Executor/Socket.h>
 # include <Executor/Messages.h>
 #endif
@@ -111,7 +113,6 @@ public:
         const char* path) = 0;
 
     virtual int startProviderAgent(
-        unsigned short bitness,
         const char* module,
         const String& pegasusHome,
         const String& userName,
@@ -173,33 +174,20 @@ public:
         const char* path,
         int mode)
     {
-        FILE* fhandle = NULL;
         switch (mode)
         {
             case 'r':
-                fhandle = fopen(path, "r");
-                break;
+                return fopen(path, "r");
 
             case 'w':
-                fhandle = fopen(path, "w");
-                break;
+                return fopen(path, "w");
 
             case 'a':
-                fhandle = fopen(path, "a+");
-                break;
+                return fopen(path, "a+");
 
             default:
-                PEGASUS_ASSERT(fhandle);
-                break;
+                return NULL;
         }
-
-        if(!fhandle)
-        {
-            PEG_TRACE((TRC_SERVER, Tracer::LEVEL1,
-                "Open of file %s in mode %c failed: %s",path,mode,
-                (const char*) PEGASUS_SYSTEM_ERRORMSG.getCString()));
-        }
-        return fhandle;
     }
 
     virtual int renameFile(
@@ -218,7 +206,6 @@ public:
 
 
     virtual int startProviderAgent(
-        unsigned short bitness,
         const char* module,
         const String& pegasusHome,
         const String& userName,
@@ -233,17 +220,14 @@ public:
         // Resolve full path of "cimprovagt" program.
 
         String path = FileSystem::getAbsolutePath(
-            pegasusHome.getCString(),
-            bitness == PG_PROVMODULE_BITNESS_32 ?
-                PEGASUS_PROVIDER_AGENT32_PROC_NAME :
-                    PEGASUS_PROVIDER_AGENT_PROC_NAME);
+            pegasusHome.getCString(), PEGASUS_PROVIDER_AGENT_PROC_NAME);
 
         // Create CString handles for cimprovagt arguments
 
         CString agentProgramPath = path.getCString();
         CString userNameCString = userName.getCString();
 
-# if defined(PEGASUS_DISABLE_PROV_USERCTXT) || defined(PEGASUS_OS_ZOS)
+# if defined(PEGASUS_DISABLE_PROV_USERCTXT)
         const char* setUserContextFlag = "0";    // False
 # else
         const char* setUserContextFlag = "1";    // True
@@ -325,7 +309,7 @@ public:
         return 0;
 
 # else /* POSIX CASE FOLLOWS */
-
+        
         AutoMutex autoMutex(_mutex);
 
         // Initialize output parameters in case of error.
@@ -350,7 +334,7 @@ public:
                 PEG_METHOD_EXIT();
                 return -1;
             }
-
+                
             // Create "from-agent" pipe:
 
             if (pipe(from) != 0)
@@ -377,7 +361,7 @@ public:
             c_argv[2] = toPipeArg;
             c_argv[3] = fromPipeArg;
             c_argv[4] = userNameCString;
-            c_argv[5] = module;
+            c_argv[5] = module; 
             c_argv[6] = NULL;
 
             // reset the inherit structure
@@ -387,7 +371,7 @@ public:
             inherit.flags=SPAWN_SETJOBNAME;
             memcpy( inherit.jobname,"CFZOOPA ",
                     sizeof(inherit.jobname));
-
+            
             PEG_TRACE((TRC_SERVER, Tracer::LEVEL4,
                 "Starting provider agent: %s %s %s %s %s %s %s",
                 (const char*)agentProgramPath,
@@ -405,7 +389,7 @@ public:
             {
                 PEG_TRACE((TRC_SERVER, Tracer::LEVEL1,
                     "Spawn of provider agent fails:%s "
-                        "( errno %d , reason code %08X )",
+                        "( errno %d , reason code %08X )", 
                     strerror(errno) ,errno,__errno2()));
                 PEG_METHOD_EXIT();
                 return -1;
@@ -424,11 +408,11 @@ public:
             if (pid < 0)
             {
                 PEG_TRACE((TRC_SERVER, Tracer::LEVEL1,
-                     "Fork for provider agent fails: errno = %d",errno));
+                     "Fork for provider agent fails: errno = %d",errno)); 
                 PEG_METHOD_EXIT();
                 return -1;
             }
-
+                
             if (pid == 0)
             {
                 // Child process
@@ -502,13 +486,14 @@ public:
         readPipe = new AnonymousPipe(readFdStr, 0);
         writePipe = new AnonymousPipe(0, writeFdStr);
 
-#  if defined(PEGASUS_HAS_SIGNALS) && \
-      !(defined(PEGASUS_DISABLE_PROV_USERCTXT) || defined(PEGASUS_OS_ZOS))
+#  if defined(PEGASUS_HAS_SIGNALS)
+#   if !defined(PEGASUS_DISABLE_PROV_USERCTXT) && !defined(PEGASUS_OS_ZOS)
         // The cimprovagt forks and returns right away.  Clean up the zombie
         // process now instead of in reapProviderAgent().
         int status = 0;
         while ((status = waitpid(pid, 0, 0)) == -1 && errno == EINTR)
             ;
+#   endif
 #  endif
 
         PEG_METHOD_EXIT();
@@ -530,83 +515,74 @@ public:
         return -1;
     }
 
-#if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-    virtual int reapProviderAgent(int)
+    virtual int reapProviderAgent(
+        int pid)
     {
-        // Out-of-Process providers are never started by the cimserver process
-        // when Privilege Separation is enabled.
-        return -1;
-    }
-#else  /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION is NOT defined */
-# if defined(PEGASUS_HAS_SIGNALS) && \
-     (defined(PEGASUS_DISABLE_PROV_USERCTXT) || defined(PEGASUS_OS_ZOS))
-    virtual int reapProviderAgent(int pid)
-    {
+#if !defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+
         int status = 0;
+
+# if defined(PEGASUS_HAS_SIGNALS)
+#  if defined(PEGASUS_DISABLE_PROV_USERCTXT) || defined(PEGASUS_OS_ZOS)
         // When provider user context is enabled, this is done in
         // startProviderAgent().
         while ((status = waitpid(pid, 0, 0)) == -1 && errno == EINTR)
-        {
-        };
-        return status;
-    }
-# else
-    virtual int reapProviderAgent(int)
-    {
-        return 0;
-    }
+            ;
+#  endif
 # endif
+
+        return status;
+
+#else /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION is defined */
+
+        // Out-of-Process providers are never started by the cimserver process
+        // when Privilege Separation is enabled.
+        return -1;
+
 #endif
+    }
 
-
-#if defined(PEGASUS_PAM_AUTHENTICATION)
     virtual int authenticatePassword(
         const char* username,
         const char* password)
     {
+#if defined(PEGASUS_PAM_AUTHENTICATION)
         return PAMAuthenticate(username, password);
+#else
+        // ATTN: not handled so don't call in this case.
+        return -1;
+#endif
     }
-    
+
     virtual int validateUser(
         const char* username)
     {
+#if defined(PEGASUS_PAM_AUTHENTICATION)
         return PAMValidateUser(username);
-    }
-#else    
-    virtual int authenticatePassword(
-        const char*,
-        const char*)
-    {
+#else
         // ATTN: not handled so don't call in this case.
         return -1;
-    }
-    
-    virtual int validateUser(
-        const char*)
-    {
-        // ATTN: not handled so don't call in this case.
-        return -1;
-    }
 #endif
+    }
 
     virtual int challengeLocal(
-        const char*,
-        char[EXECUTOR_BUFFER_SIZE])
+        const char* username,
+        char challengeFilePath[EXECUTOR_BUFFER_SIZE])
     {
         // ATTN: not handled so don't call in this case.
         return -1;
     }
 
     virtual int authenticateLocal(
-        const char*,
-        const char*)
+        const char* challengeFilePath,
+        const char* response)
     {
         // ATTN: not handled so don't call in this case.
         return -1;
     }
 
     virtual int updateLogLevel(
-        const char*)
+        const char* logLevel)
     {
         // If Privilege Separation is not enabled, we don't need to update
         // the log level in the Executor.
@@ -792,7 +768,6 @@ public:
     }
 
     virtual int startProviderAgent(
-        unsigned short bitness,
         const char* module,
         const String& pegasusHome,
         const String& userName,
@@ -832,7 +807,6 @@ public:
         memset(&request, 0, sizeof(request));
         memcpy(request.module, module, moduleNameLength);
         memcpy(request.userName, userNameCString, userNameLength);
-        request.moduleBitness = bitness;
 
         if (SendBlock(_sock, &request, sizeof(request)) != sizeof(request))
             return -1;
@@ -1153,7 +1127,6 @@ int Executor::removeFile(
 }
 
 int Executor::startProviderAgent(
-    unsigned short bitness,
     const char* module,
     const String& pegasusHome,
     const String& userName,
@@ -1162,7 +1135,7 @@ int Executor::startProviderAgent(
     AnonymousPipe*& writePipe)
 {
     once(&_executorImplOnce, _initExecutorImpl);
-    return _executorImpl->startProviderAgent(bitness,
+    return _executorImpl->startProviderAgent(
         module, pegasusHome, userName, pid, readPipe, writePipe);
 }
 

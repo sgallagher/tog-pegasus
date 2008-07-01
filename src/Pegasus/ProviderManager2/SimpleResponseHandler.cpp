@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -126,10 +128,6 @@ SimpleInstanceResponseHandler::SimpleInstanceResponseHandler()
 {
 }
 
-SimpleInstanceResponseHandler::~SimpleInstanceResponseHandler()
-{
-}
-
 void SimpleInstanceResponseHandler::processing()
 {
     SimpleResponseHandler::processing();
@@ -142,13 +140,12 @@ void SimpleInstanceResponseHandler::complete()
 
 Uint32 SimpleInstanceResponseHandler::size() const
 {
-    return _objects.size()+_scmoObjects.size();
+    return _objects.size();
 }
 
 void SimpleInstanceResponseHandler::clear()
 {
     _objects.clear();
-    _scmoObjects.clear();
 }
 
 void SimpleInstanceResponseHandler::deliver(const CIMInstance& instance)
@@ -159,19 +156,6 @@ void SimpleInstanceResponseHandler::deliver(const CIMInstance& instance)
         "SimpleInstanceResponseHandler::deliver()");
 
     _objects.append(instance);
-
-    send(false);
-}
-
-void SimpleInstanceResponseHandler::deliver(const SCMOInstance& instance)
-{
-    PEG_TRACE_CSTRING(
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
-        "SimpleInstanceResponseHandler::deliver(SCMOInstance)");
-
-    //fprintf(stderr, "SimpleInstanceResponseHandler::deliver\n");
-    _scmoObjects.append(instance);
 
     send(false);
 }
@@ -190,20 +174,11 @@ const Array<CIMInstance> SimpleInstanceResponseHandler::getObjects() const
     return _objects;
 }
 
-const Array<SCMOInstance> SimpleInstanceResponseHandler::getSCMOObjects() const
-{
-    return _scmoObjects;
-}
-
 //
 // SimpleObjectPathResponseHandler
 //
 
 SimpleObjectPathResponseHandler::SimpleObjectPathResponseHandler()
-{
-}
-
-SimpleObjectPathResponseHandler::~SimpleObjectPathResponseHandler()
 {
 }
 
@@ -219,13 +194,12 @@ void SimpleObjectPathResponseHandler::complete()
 
 Uint32 SimpleObjectPathResponseHandler::size() const
 {
-    return _objects.size() + _scmoObjects.size();
+    return _objects.size();
 }
 
 void SimpleObjectPathResponseHandler::clear()
 {
     _objects.clear();
-    _scmoObjects.clear();
 }
 
 void SimpleObjectPathResponseHandler::deliver(const CIMObjectPath& objectPath)
@@ -236,18 +210,6 @@ void SimpleObjectPathResponseHandler::deliver(const CIMObjectPath& objectPath)
         "SimpleObjectPathResponseHandler::deliver()");
 
     _objects.append(objectPath);
-
-    send(false);
-}
-
-void SimpleObjectPathResponseHandler::deliver(const SCMOInstance& objectPath)
-{
-    PEG_TRACE_CSTRING(
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
-        "SimpleObjectPathResponseHandler::deliver()");
-
-    _scmoObjects.append(objectPath);
 
     send(false);
 }
@@ -265,12 +227,6 @@ void SimpleObjectPathResponseHandler::deliver(
 const Array<CIMObjectPath> SimpleObjectPathResponseHandler::getObjects() const
 {
     return _objects;
-}
-
-const Array<SCMOInstance>
-SimpleObjectPathResponseHandler::getSCMOObjects() const
-{
-    return _scmoObjects;
 }
 
 //
@@ -330,8 +286,8 @@ void SimpleMethodResultResponseHandler::deliver(const CIMValue& returnValue)
         "SimpleMethodResultResponseHandler::deliver()");
 
     _returnValue = returnValue;
-    // async delivers are not supported for returnValues and parameters
-    //send(false);
+
+    send(false);
 }
 
 const Array<CIMParamValue>
@@ -444,13 +400,12 @@ void SimpleObjectResponseHandler::complete()
 
 Uint32 SimpleObjectResponseHandler::size() const
 {
-    return _objects.size()+_scmoObjects.size();
+    return _objects.size();
 }
 
 void SimpleObjectResponseHandler::clear()
 {
     _objects.clear();
-    _scmoObjects.clear();
 }
 
 void SimpleObjectResponseHandler::deliver(const CIMObject& object)
@@ -462,29 +417,6 @@ void SimpleObjectResponseHandler::deliver(const CIMObject& object)
 
     _objects.append(object);
 
-    send(false);
-}
-
-void SimpleObjectResponseHandler::deliver(const CIMInstance& instance)
-{
-    PEG_TRACE_CSTRING(
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
-        "SimpleObjectResponseHandler::deliver()");
-
-    _objects.append(instance);
-
-    send(false);
-}
-
-void SimpleObjectResponseHandler::deliver(const SCMOInstance& object)
-{
-    PEG_TRACE_CSTRING(
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
-        "SimpleObjectResponseHandler::deliver()");
-
-    _scmoObjects.append(object);
     send(false);
 }
 
@@ -500,11 +432,6 @@ void SimpleObjectResponseHandler::deliver(const Array<CIMObject>& objects)
 const Array<CIMObject> SimpleObjectResponseHandler::getObjects() const
 {
     return _objects;
-}
-
-const Array<SCMOInstance> SimpleObjectResponseHandler::getSCMOObjects() const
-{
-    return _scmoObjects;
 }
 
 //
@@ -527,13 +454,12 @@ void SimpleInstance2ObjectResponseHandler::complete()
 
 Uint32 SimpleInstance2ObjectResponseHandler::size() const
 {
-    return _objects.size() + _scmoObjects.size();
+    return _objects.size();
 }
 
 void SimpleInstance2ObjectResponseHandler::clear()
 {
     _objects.clear();
-    _scmoObjects.clear();
 }
 
 void SimpleInstance2ObjectResponseHandler::deliver(const CIMInstance& object)
@@ -544,19 +470,6 @@ void SimpleInstance2ObjectResponseHandler::deliver(const CIMInstance& object)
         "SimpleInstance2ObjectResponseHandler::deliver()");
 
     _objects.append(CIMObject(object));
-
-    // async delivers not yet supported
-    //send(false);
-}
-
-void SimpleInstance2ObjectResponseHandler::deliver(const SCMOInstance& object)
-{
-    PEG_TRACE_CSTRING(
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
-        "SimpleInstance2ObjectResponseHandler::deliver(SCMO)");
-
-    _scmoObjects.append(object);
 
     // async delivers not yet supported
     //send(false);
@@ -575,12 +488,6 @@ void SimpleInstance2ObjectResponseHandler::deliver(
 const Array<CIMObject> SimpleInstance2ObjectResponseHandler::getObjects() const
 {
     return _objects;
-}
-
-const Array<SCMOInstance>
-SimpleInstance2ObjectResponseHandler::getSCMOObjects() const
-{
-    return _scmoObjects;
 }
 
 //

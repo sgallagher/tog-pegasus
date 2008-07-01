@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -181,7 +183,7 @@ void MessageLoaderICU::openICUMessageFile(MessageLoaderParms& parms)
          {
              if (status == U_ZERO_ERROR)
              {
-                 PEG_TRACE((TRC_L10N, Tracer::LEVEL4,
+                 PEG_TRACE((TRC_L10N, Tracer::LEVEL4, 
                      "Exact match message file FOUND. "
                          "Resource bundle for accept language \"%s\" opened.",
                          (const char *)(languageTag.toString()).getCString()));
@@ -196,8 +198,8 @@ void MessageLoaderICU::openICUMessageFile(MessageLoaderParms& parms)
                  // either a fallback match, status == U_USING_FALLBACK_WARNING,
                  // or a default match, status == U_USING_DEFAULT_WARNING.
                  // Need to close this message file and continue the search
-                 // for exact match.
-
+                 // for exact match. 
+ 
                  ures_close(
                      reinterpret_cast<UResourceBundle*>(parms._resbundl));
                  parms._resbundl = NO_ICU_MAGIC;
@@ -206,14 +208,12 @@ void MessageLoaderICU::openICUMessageFile(MessageLoaderParms& parms)
          else
          {
              parms._resbundl = NO_ICU_MAGIC;
-         }
+         }   
     }
 
-    PEG_TRACE_CSTRING(
-        TRC_L10N,
-        Tracer::LEVEL3,
+    PEG_TRACE_CSTRING(TRC_L10N, Tracer::LEVEL2,
         "Exact match message file NOT FOUND. "
-             "Attempting to open default message file bundle.");
+             "Attempting to open default message file bundle."); 
     _openICUDefaultLocaleMessageFile(resbundl_path_ICU, parms);
     PEG_METHOD_EXIT();
     return;
@@ -227,7 +227,7 @@ String MessageLoaderICU::extractICUMessage(
     int32_t msgLen = 0;
 
     const UChar* msg = ures_getStringByKey(
-        resbundl, parms.msg_id, &msgLen, &status);
+        resbundl, (const char*)parms.msg_id.getCString(), &msgLen, &status);
 
     if (U_FAILURE(status))
     {
@@ -245,12 +245,28 @@ void MessageLoaderICU::_openICUDefaultLocaleMessageFile(
 
     // UResourceBundle* ures_open(const char* packageName,
     //     const char* locale, UErrorCode* status)
-    // If locale is NULL, the default locale will be used.  If
+    // If locale is NULL, the default locale will be used.  If 
     // strlen(locale) == 0, the root locale will be used.
 
     // Open the resource bundle for default locale.
     UErrorCode status = U_ZERO_ERROR;
     parms._resbundl = ures_open((const char*)resbundl_path_ICU, NULL, &status);
+
+    if (status == U_USING_FALLBACK_WARNING)
+    {
+        const char* rbLocale = ures_getLocale(
+            reinterpret_cast<UResourceBundle*>(parms._resbundl), &status);
+        PEG_TRACE((TRC_L10N, Tracer::LEVEL4,
+            "Requested default locale, fallback locale \"%s\" returned. "
+                "Reverting back to root bundle.", rbLocale));
+
+        ures_close(reinterpret_cast<UResourceBundle*>(parms._resbundl));
+        parms._resbundl = NO_ICU_MAGIC;
+
+        UErrorCode status = U_ZERO_ERROR;
+        parms._resbundl =
+            ures_open((const char*)resbundl_path_ICU, "", &status);
+    }
 
     if (U_SUCCESS(status))
     {
@@ -415,7 +431,7 @@ AcceptLanguageList MessageLoader::_acceptlanguages;
 String MessageLoader::getMessage(MessageLoaderParms& parms)
 {
     PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::getMessage");
-    PEG_TRACE((TRC_L10N, Tracer::LEVEL4, "Message ID = %s", parms.msg_id));
+    PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Message ID = " + parms.msg_id);
 
     String msg;
 
@@ -508,25 +524,21 @@ void MessageLoader::openMessageFile(MessageLoaderParms& parms)
     return;
 }
 
-#if defined (PEGASUS_HAS_MESSAGES) && defined (PEGASUS_HAS_ICU)
 void MessageLoader::closeMessageFile(MessageLoaderParms& parms)
 {
     PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::closeMessageFile");
 
+#if defined (PEGASUS_HAS_MESSAGES) && defined (PEGASUS_HAS_ICU)
     if (parms._resbundl != NO_ICU_MAGIC)
     {
         ures_close(reinterpret_cast<UResourceBundle*>(parms._resbundl));
         parms._resbundl = NO_ICU_MAGIC;
     }
+#endif
 
     PEG_METHOD_EXIT();
+    return;
 }
-#else
-void MessageLoader::closeMessageFile(MessageLoaderParms&)
-{
-    // Do nothing dummy function
-}
-#endif
 
 String MessageLoader::formatDefaultMessage(MessageLoaderParms& parms)
 {
@@ -590,9 +602,9 @@ void MessageLoader::setPegasusMsgHome(String home)
     PEG_METHOD_EXIT();
 }
 
-#ifdef PEGASUS_HAS_MESSAGES
 void MessageLoader::setPegasusMsgHomeRelative(const String& argv0)
 {
+#ifdef PEGASUS_HAS_MESSAGES
     try
     {
         String startingDir, pathDir;
@@ -642,7 +654,7 @@ void MessageLoader::setPegasusMsgHomeRelative(const String& argv0)
                 if (env != NULL)
                     path.assign(env);
                 String pathDelim = FileSystem::getPathDelimiter();
-                
+                Uint32 size = path.size();
                 while (path.size() > 0)
                 {
                     try
@@ -693,13 +705,8 @@ void MessageLoader::setPegasusMsgHomeRelative(const String& argv0)
         // Catching the exception if there is any exception while searching
         // in the path variable
     }
-}
-#else // PEGASUS_HAS_MESSAGES not defined
-void MessageLoader::setPegasusMsgHomeRelative(const String&)
-{
-    // Do nothing function
-}
 #endif
+}
 
 
 void MessageLoader::initPegasusMsgHome(const String& startDir)
@@ -770,8 +777,8 @@ MessageLoaderParms::MessageLoaderParms()
 }
 
 MessageLoaderParms::MessageLoaderParms(
-    const char* id,
-    const char* msg,
+    const String& id,
+    const String& msg,
     const Formatter::Arg& arg0_,
     const Formatter::Arg& arg1_,
     const Formatter::Arg& arg2_,
@@ -799,16 +806,7 @@ MessageLoaderParms::MessageLoaderParms(
 }
 
 MessageLoaderParms::MessageLoaderParms(
-    const char* id,
-    const char* msg)
-{
-    msg_id = id;
-    default_msg = msg;
-    _init();
-}
-
-MessageLoaderParms::MessageLoaderParms(
-    const char* id,
+    const String& id,
     const String& msg)
 {
     msg_id = id;
@@ -817,8 +815,8 @@ MessageLoaderParms::MessageLoaderParms(
 }
 
 MessageLoaderParms::MessageLoaderParms(
-    const char* id,
-    const char* msg,
+    const String& id,
+    const String& msg,
     const Formatter::Arg& arg0_)
 {
     msg_id = id;
@@ -828,8 +826,8 @@ MessageLoaderParms::MessageLoaderParms(
 }
 
 MessageLoaderParms::MessageLoaderParms(
-    const char* id,
-    const char* msg,
+    const String& id,
+    const String& msg,
     const Formatter::Arg& arg0_,
     const Formatter::Arg& arg1_)
 {
@@ -841,8 +839,8 @@ MessageLoaderParms::MessageLoaderParms(
 }
 
 MessageLoaderParms::MessageLoaderParms(
-    const char* id,
-    const char* msg,
+    const String& id,
+    const String& msg,
     const Formatter::Arg& arg0_,
     const Formatter::Arg& arg1_,
     const Formatter::Arg& arg2_)
@@ -856,8 +854,8 @@ MessageLoaderParms::MessageLoaderParms(
 }
 
 MessageLoaderParms::MessageLoaderParms(
-    const char* id,
-    const char* msg,
+    const String& id,
+    const String& msg,
     const Formatter::Arg& arg0_,
     const Formatter::Arg& arg1_,
     const Formatter::Arg& arg2_,
@@ -870,6 +868,39 @@ MessageLoaderParms::MessageLoaderParms(
     arg1 = arg1_;
     arg2 = arg2_;
     arg3 = arg3_;
+}
+
+MessageLoaderParms::MessageLoaderParms(
+    const char* id,
+    const char* msg)
+{
+    msg_id = id;
+    default_msg = msg;
+    _init();
+}
+
+MessageLoaderParms::MessageLoaderParms(
+    const char* id,
+    const char* msg,
+    const String& arg0_)
+{
+    msg_id = id;
+    default_msg = msg;
+    _init();
+    arg0 = arg0_;
+}
+
+MessageLoaderParms::MessageLoaderParms(
+    const char* id,
+    const char* msg,
+    const String& arg0_,
+    const String& arg1_)
+{
+    msg_id = id;
+    default_msg = msg;
+    _init();
+    arg0 = arg0_;
+    arg1 = arg1_;
 }
 
 void MessageLoaderParms::_init()
@@ -894,7 +925,6 @@ void MessageLoaderParms::_init()
     _resbundl = NO_ICU_MAGIC;
 }
 
-#ifdef PEGASUS_DEBUG
 String MessageLoaderParms::toString()
 {
     String s;
@@ -902,9 +932,7 @@ String MessageLoaderParms::toString()
     processLoc = (useProcessLocale) ? "true" : "false";
     threadLoc = (useThreadLocale) ? "true" : "false";
 
-    s.append("msg_id = ");
-    s.append(msg_id);
-    s.append("\n");
+    s.append("msg_id = " + msg_id + "\n");
     s.append("default_msg = " + default_msg + "\n");
     s.append("msg_src_path = " + msg_src_path + "\n");
     s.append("acceptlanguages = " +
@@ -928,7 +956,6 @@ String MessageLoaderParms::toString()
 
     return s;
 }
-#endif
 
 MessageLoaderParms::~MessageLoaderParms()
 {

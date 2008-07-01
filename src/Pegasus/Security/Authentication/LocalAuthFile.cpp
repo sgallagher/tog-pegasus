@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -180,11 +182,9 @@ String LocalAuthFile::create()
     {
         // unable to create file
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            MessageLoaderParms(
-                "Security.Authentication.LocalAuthFile.NO_CREATE",
-                "Creation of the local authentication security file"
-                    " $0 failed: $1",
-                filePath, strerror(errno)));
+            "Security.Authentication.LocalAuthFile.NO_CREATE",
+            "Creation of the local authentication security file"
+            " $0 failed: $1",filePath,strerror(errno));
         PEG_METHOD_EXIT();
         throw CannotOpenFile (filePath);
     }
@@ -207,11 +207,9 @@ String LocalAuthFile::create()
         // Unable to change the local auth file permissions, remove the file
         // and throw CannotOpenFile error.
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            MessageLoaderParms(
-                "Security.Authentication.LocalAuthFile.NO_CHMOD",
-                "Changing permissions of the local authentication security "
-                    "file $0 failed: $1",
-                filePath, strerror(errno)));
+            "Security.Authentication.LocalAuthFile.NO_CHMOD",
+            "Changing permissions of the local authentication security file"
+            " $0 failed: $1",filePath,strerror(errno));
 
         if (filePath.size())
         {
@@ -235,11 +233,9 @@ String LocalAuthFile::create()
     if (outfs.fail())
     {
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            MessageLoaderParms(
-                "Security.Authentication.LocalAuthFile.NO_WRITE",
-                "Cannot write security token to the local authentication "
-                    "security file $0.",
-                filePath));
+            "Security.Authentication.LocalAuthFile.NO_WRITE",
+            "Cannot write security token to the local authentication"
+            " security file $0.",filePath);
 
         if (filePath.size())
         {
@@ -270,11 +266,9 @@ String LocalAuthFile::create()
         // Unable to change the local auth file permissions, remove the file
         // and throw CannotOpenFile error.
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            MessageLoaderParms(
-                "Security.Authentication.LocalAuthFile.NO_CHMOD",
-                "Changing permissions of the local authentication security "
-                    "file $0 failed: $1",
-                filePath, strerror(errno)));
+            "Security.Authentication.LocalAuthFile.NO_CHMOD",
+            "Changing permissions of the local authentication security file"
+            " $0 failed: $1",filePath,strerror(errno));
 
         if (filePath.size())
         {
@@ -298,11 +292,10 @@ String LocalAuthFile::create()
         // and throw CannotOpenFile error.
 
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            MessageLoaderParms(
-                "Security.Authentication.LocalAuthFile.NO_CHOWN_REQUSER",
-                "Changing ownership of the local authentication "
-                    "security file $0 to the requesting user failed: $1",
-                filePath, strerror(errno)));
+            "Security.Authentication.LocalAuthFile.NO_CHOWN_REQUSER",
+            "Changing ownership of the local authentication"
+            " security file $0 to the requesting user failed: $1"
+                      ,filePath,strerror(errno));
 
         if (filePath.size())
         {
@@ -348,10 +341,9 @@ Boolean LocalAuthFile::remove()
         if (rc == -1)
         {
             Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-                MessageLoaderParms(
-                    "Security.Authentication.LocalAuthFile.NO_CHOWN",
-                    "Changing ownership of the local authentication "
-                        "security file back to the CIMServer UserId failed."));
+                "Security.Authentication.LocalAuthFile.NO_CHOWN",
+                "Changing ownership of the local authentication "
+                    "security file back to the CIMServer UserId failed.");
         }
 #endif
 
@@ -421,7 +413,7 @@ String LocalAuthFile::_generateRandomTokenString()
     //
     // generate a random token
     //
-    char randnum[] = {char('0'+(random() % 10)),char('0'+(random() % 10)),'\0'};
+    char randnum[] = { '0' + (random() % 10), '0' + (random() % 10), '\0' };
     long randomNum = atol(randnum);
 
     sprintf (token,"%ld%u", randomNum, seconds + milliseconds );

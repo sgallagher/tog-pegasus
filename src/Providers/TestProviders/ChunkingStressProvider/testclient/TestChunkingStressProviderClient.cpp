@@ -211,7 +211,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeEI(void *parm)
             {
                 shutdownFlag = true;
                 sprintf(exceptionMsg, 
-                    "----- EI thread %d expected %d instances, received %d",
+                    "----- EI thread %u expected %d instances, received %u",
                     uniqueID,
                     EXPECTED_INSTANCES,
                     cimInstances.size());
@@ -287,7 +287,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeNI(void *parm)
             {
                 shutdownFlag = true;
                 sprintf(exceptionMsg, 
-                    "----- NI thread %d expected %d instancenames, received %d",
+                    "----- NI thread %u expected %d instancenames, received %u",
                     uniqueID,
                     EXPECTED_INSTANCENAMES,
                     cimInstanceNames.size());
@@ -363,7 +363,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeA(void *parm)
             {
                 shutdownFlag = true;
                 sprintf(exceptionMsg, 
-                    "----- A  thread %d expected %d objects, received %d",
+                    "----- A  thread %u expected %d objects, received %u",
                     uniqueID,
                     EXPECTED_ASSOCIATORS,
                     cimObjects.size());
@@ -439,7 +439,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeAN(void *parm)
             {
                 shutdownFlag = true;
                 sprintf(exceptionMsg, 
-                    "----- AN thread %d expected %d objectnames, received %d",
+                    "----- AN thread %u expected %d objectnames, received %u",
                     uniqueID,
                     EXPECTED_ASSOCIATORNAMES,
                     cimObjectNames.size());
@@ -515,7 +515,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeR(void *parm)
             {
                 shutdownFlag = true;
                 sprintf(exceptionMsg, 
-                    "----- R  thread %d expected %d objects, received %d",
+                    "----- R  thread %u expected %d objects, received %u",
                     uniqueID,
                     EXPECTED_REFERENCES,
                     cimObjects.size());
@@ -591,7 +591,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeRN(void *parm)
             {
                 shutdownFlag = true;
                 sprintf(exceptionMsg, 
-                    "----- RN thread %d expected %d objectnames, received %d",
+                    "----- RN thread %u expected %d objectnames, received %u",
                     uniqueID,
                     EXPECTED_REFERENCENAMES,
                     cimObjectNames.size());

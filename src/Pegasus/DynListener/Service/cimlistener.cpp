@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -94,7 +96,6 @@
 #include <Service/ServerProcess.h>
 #include <Service/ServerRunStatus.h>
 #include <Service/PidFile.h>
-#include <Pegasus/Config/ConfigExceptions.h>
 
 #if defined(PEGASUS_OS_TYPE_UNIX)
 # include <unistd.h>
@@ -215,6 +216,10 @@ static const char OPTION_HOME        = 'D';
 static const char OPTION_SHUTDOWN    = 's';
 
 static const char OPTION_NO_DAEMON [] = "--nodaemon";
+
+static const char   LONG_HELP []  = "help";
+
+static const char   LONG_VERSION []  = "version";
 
 static const char OPTION_DEBUGOUTPUT = 'X';
 
@@ -539,11 +544,12 @@ int CIMListenerProcess::cimserver_run(
     }
     catch (Exception& e)
     {
+        Logger::put_l(Logger::ERROR_LOG, System::CIMLISTENER, Logger::SEVERE,
+            "src.Server.cimserver.SERVER_NOT_STARTED",
+            "cimserver not started:  $0", e.getMessage());
+
         MessageLoaderParms parms("DynListener.cimlistener.LISTENER_NOT_STARTED",
                 "CIM Listener not started: $0", e.getMessage());
-
-        Logger::put_l(Logger::ERROR_LOG, System::CIMLISTENER, Logger::SEVERE,
-            parms);
 
         PEGASUS_STD(cerr) << argv[0] << ": " << MessageLoader::getMessage(parms)
             << PEGASUS_STD(endl);
@@ -604,12 +610,12 @@ int CIMListenerProcess::cimserver_run(
         //cimserver_kill(1);
 #else
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) \
-        || defined(PEGASUS_OS_ZOS) \
+        || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) \
         || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_PASE) \
         || defined(PEGASUS_OS_SOLARIS) \
         || defined(PEGASUS_OS_VMS)
 
-        // Check to see if the CIM Listener is running.
+        // Check to see if the CIM Listener is running. 
         // No need to stop if not running.
         if (_serverRunStatus.isServerRunning())
         {
@@ -633,14 +639,12 @@ int CIMListenerProcess::cimserver_run(
         return(0);
     }
 
-    //get config options.
+    //get config options.  
     //note that the paths will be converted to homedPaths in the lookup calls.
     Uint32 listenerPort;
     Boolean httpsConnection;
     String sslKeyFilePath;
     String sslCertificateFilePath;
-    String sslCipherSuite;
-    Boolean sslCompatibility;
     String consumerDir;
     String consumerConfigDir;
     Boolean enableConsumerUnload;
@@ -657,11 +661,6 @@ int CIMListenerProcess::cimserver_run(
     configManager->lookupValue("sslKeyFilePath", sslKeyFilePath);
     configManager->lookupValue("sslCertificateFilePath",
                                sslCertificateFilePath);
-    if(!configManager->lookupValue("sslCipherSuite",sslCipherSuite))
-    {
-        throw InvalidPropertyValue("sslCipherSuite",sslCipherSuite);
-    }
-    sslCompatibility = configManager->isTrue("sslBackwardCompatibility");
     configManager->lookupValue("consumerDir", consumerDir);
     configManager->lookupValue("consumerConfigDir", consumerConfigDir);
     enableConsumerUnload = configManager->isTrue("enableConsumerUnload");
@@ -710,17 +709,17 @@ int CIMListenerProcess::cimserver_run(
         Tracer::setTraceComponents(traceComponents);
         Tracer::setTraceLevel(traceLevelArg);
     }
-
 #if defined(PEGASUS_DEBUG)
-    {
-        // Put out startup up message.
-        cout << _cimListenerProcess->getProductName() << " "
-             << _cimListenerProcess->getVersion() << endl;
-        MessageLoaderParms parms("DynListener.cimlistener.STARTUP_MESSAGE",
+    // Put out startup up message.
+    cout << _cimListenerProcess->getProductName() << " " 
+         << _cimListenerProcess->getVersion() << endl;
+    //l10n
+    //cout << "Built " << __DATE__ << " " << __TIME__ << endl;
+    //cout <<"Starting..."
+    MessageLoaderParms parms("DynListener.cimlistener.STARTUP_MESSAGE",
             "CIM Listener built $0 $1\nCIM Listener starting...",
             __DATE__,
             __TIME__);
-    }
 #endif
 
 //l10n
@@ -757,16 +756,15 @@ MessageLoader::_useProcessLocale = false;
     catch(InvalidAcceptLanguageHeader& e)
     {
           Logger::put_l(Logger::ERROR_LOG, System::CIMLISTENER, Logger::SEVERE,
-              MessageLoaderParms(
                   "src.Server.cimserver.FAILED_TO_SET_PROCESS_LOCALE",
                   "Could not convert the system process"
-                  "locale into a valid AcceptLanguage format."));
+                  "locale into a valid AcceptLanguage format.");
           Logger::put(Logger::ERROR_LOG, System::CIMLISTENER, Logger::SEVERE,
                              e.getMessage());
     }
 
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) \
-|| defined(PEGASUS_OS_ZOS) || defined(PEGASUS_OS_AIX) \
+|| defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) \
 || defined(PEGASUS_OS_PASE) \
 || defined(PEGASUS_OS_SOLARIS) || defined (PEGASUS_OS_VMS)
     umask(S_IWGRP|S_IWOTH);
@@ -800,42 +798,23 @@ MessageLoader::_useProcessLocale = false;
     // try loop to bind the address, and run the server
     try
     {
-#ifdef PEGASUS_HAS_SSL
+        //ATTN: Need to handle SSL cases
+
         //create DynListener
-        if (httpsConnection)
-        {
-            _cimListener = new DynamicListener(
-                listenerPort,
-                consumerDir,
-                consumerConfigDir,
-                true,
-                sslKeyFilePath,
-                sslCertificateFilePath,
-                enableConsumerUnload,
-                consumerIdleTimeout,
-                shutdownTimeout,
-                sslCipherSuite,
-                sslCompatibility);
-        }
-        else
-#endif
-        {
-            _cimListener = new DynamicListener(
-                listenerPort,
-                consumerDir,
-                consumerConfigDir,
-                enableConsumerUnload,
-                consumerIdleTimeout,
-                shutdownTimeout);
-        }
+        _cimListener = new DynamicListener(listenerPort,
+                                           consumerDir,
+                                           consumerConfigDir,
+                                           enableConsumerUnload,
+                                           consumerIdleTimeout,
+                                           shutdownTimeout);
+
         _cimListener->start();
 
-        Logger::put_l(Logger::STANDARD_LOG,
+        Logger::put_l(Logger::STANDARD_LOG, 
             System::CIMLISTENER, Logger::INFORMATION,
-            MessageLoaderParms(
-                "DynListener.cimlistener.LISTENING_ON_PORT",
-                "The CIM listener is listening on port $0.",
-                listenerPort));
+            "DynListener.cimlistener.LISTENING_ON_PORT",
+            "The CIM listener is listening on port $0.",
+            listenerPort);
 
 
 #if defined(PEGASUS_DEBUG)
@@ -847,9 +826,6 @@ MessageLoader::_useProcessLocale = false;
                 (const char*)sslKeyFilePath.getCString());
         printf("\tsslCertificateFilePath %s\n",
                 (const char*)sslCertificateFilePath.getCString());
-        printf("\tsslCipherSuite %s\n",
-            (const char*)sslCipherSuite.getCString());
-        printf("\tsslBackwardCompatibility %d\n",sslCompatibility);
         printf("\tconsumerDir %s\n", (const char*)consumerDir.getCString());
         printf("\tconsumerConfigDir %s\n",
                 (const char*)consumerConfigDir.getCString());
@@ -868,8 +844,10 @@ MessageLoader::_useProcessLocale = false;
     if (daemonOption)
         _cimListenerProcess->notify_parent(0);
 
+    time_t last = 0;
+
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || \
-    defined(PEGASUS_OS_ZOS) || defined(PEGASUS_OS_AIX) || \
+    defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) || \
     defined(PEGASUS_OS_PASE) || \
     defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_VMS)
         //
@@ -886,11 +864,10 @@ MessageLoader::_useProcessLocale = false;
         // Put server started message to the logger
         Logger::put_l(Logger::STANDARD_LOG, System::CIMLISTENER,
             Logger::INFORMATION,
-            MessageLoaderParms(
-                "src.Server.cimserver.STARTED_VERSION",
-                "Started $0 version $1.",
-                _cimListenerProcess->getProductName(),
-                _cimListenerProcess->getVersion()));
+            "src.Server.cimserver.STARTED_VERSION",
+            "Started $0 version $1.",
+            _cimListenerProcess->getProductName(),
+            _cimListenerProcess->getVersion());
 
 #if defined(PEGASUS_OS_TYPE_UNIX)
         if (daemonOption && !debugOutputOption)
@@ -940,7 +917,7 @@ MessageLoader::_useProcessLocale = false;
         {
 #if defined(PEGASUS_DEBUG)
             printf("Graceful shutdown\n");
-#endif
+#endif            
             _cimListener->stop();
         }
 #endif
@@ -970,18 +947,15 @@ MessageLoader::_useProcessLocale = false;
 
         // Put server shutdown message to the logger
         Logger::put_l(Logger::STANDARD_LOG, System::CIMLISTENER,
-            Logger::INFORMATION,
-            MessageLoaderParms(
-                "src.Server.cimserver.STOPPED",
-                "$0 stopped.", _cimListenerProcess->getProductName()));
+            Logger::INFORMATION, "src.Server.cimserver.STOPPED",
+            "$0 stopped.", _cimListenerProcess->getProductName());
     }
     catch (Exception& e)
     {
         Logger::put_l(
             Logger::STANDARD_LOG, System::CIMLISTENER, Logger::WARNING,
-            MessageLoaderParms(
-                "src.Server.cimserver.ERROR",
-                "Error: $0", e.getMessage()));
+            "src.Server.cimserver.ERROR",
+            "Error: $0", e.getMessage());
 
         MessageLoaderParms parms("DynListener.cimlistener.ERROR",
             "CIM Listener error: $0");

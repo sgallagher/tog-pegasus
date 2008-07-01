@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -128,10 +130,15 @@ static const char LONG_HELP [] = "help";
 
 static const char LONG_VERSION [] = "version";
 
+static const char REQUIRED_ARGS_MISSING [] = "Required arguments missing.";
+
+static const char REQUIRED_ARGS_MISSING_KEY [] = 
+    "Clients.cimuser.CIMUserCommand.REQUIRED_ARGS_MISSING";
+
 static const char ERR_USAGE [] =
     "Use '--help' to obtain command syntax.";
 
-static const char ERR_USAGE_KEY [] =
+static const char ERR_USAGE_KEY [] = 
     "Clients.cimuser.CIMUserCommand.ERR_USAGE";
 
 /**
@@ -298,7 +305,7 @@ String OSInfoCommand::_promptForPassword( ostream& outPrintWriter )
     //  Construct host address
     //
 
-    if ((!_hostNameSet) && (!_portNumberSet)
+    if ((!_hostNameSet) && (!_portNumberSet) 
             && (!_userNameSet) && (!_passwordSet))
     {
         connectToLocal = true;
@@ -317,7 +324,7 @@ String OSInfoCommand::_promptForPassword( ostream& outPrintWriter )
                _portNumber = System::lookupPort( WBEM_HTTPS_SERVICE_NAME,
                                           WBEM_DEFAULT_HTTPS_PORT );
 #else
-               PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+               PEGASUS_ASSERT(false);
 #endif
            }
            else
@@ -368,7 +375,7 @@ String OSInfoCommand::_promptForPassword( ostream& outPrintWriter )
 
            client.connect(host, portNumber, sslcontext,  _userName, _password );
 #else
-           PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+            PEGASUS_ASSERT(false);
 #endif
         }
         else
@@ -490,8 +497,8 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
                         throw DuplicateOptionException(_OPTION_HOSTNAME);
                     }
                     _hostName = getOpts [i].Value ();
-                    HostAddress addr;
-                    if (!addr.setHostAddress(_hostName))
+                    HostAddress addr(_hostName);
+                    if (!addr.isValid())
                     {
                         throw InvalidLocatorException (_hostName);
                     }
@@ -692,10 +699,10 @@ static void formatCIMDateTime (const char* cimString, char* dateTime)
    int minute = 0;
    int second = 0;
    int microsecond = 0;
-   int timeZone = 0;
+   int timezone = 0;
    sscanf(cimString, "%04d%02d%02d%02d%02d%02d.%06d%04d",
           &year, &month, &day, &hour, &minute, &second,
-          &microsecond, &timeZone);
+          &microsecond, &timezone);
    char monthString[5];
    switch (month)
    {
@@ -716,9 +723,11 @@ static void formatCIMDateTime (const char* cimString, char* dateTime)
       default : { strcpy(dateTime, cimString); return; }
    }
 
-   sprintf(dateTime, "%s %d, %d  %d:%02d:%02d (%+03d%02d)",
+   sprintf(dateTime, "%s %d, %d  %d:%02d:%02d (%03d%02d)",
            monthString, day, year, hour, minute, second,
-           timeZone/60, timeZone%60);
+           timezone/60, timezone%60);
+
+   return;
 }
 
 
@@ -866,26 +875,18 @@ void OSInfoCommand::gatherProperties(CIMInstance &inst, Boolean cimFormat)
             char minuteString[20];
             char secondString[20];
 
-            if(!days)
-            {
-                sprintf(dayString," " );
-            }
-            else
-            {
-                sprintf(dayString, (days == 1 ? 
-                    "%" PEGASUS_64BIT_CONVERSION_WIDTH "u day," :
-                    "%" PEGASUS_64BIT_CONVERSION_WIDTH "u days," ), days);
-
-            }
+            sprintf(dayString,
+                (days == 0 ? "" : (days == 1 ? "1 day," :
+                    "%" PEGASUS_64BIT_CONVERSION_WIDTH "u days,")), days);
 
             // for other values, want to display the 0s
-            sprintf(hourString, (hours == 1 ? "%u hr," : "%u hrs,"), hours);
+            sprintf(hourString, (hours == 1 ? "1 hr," : "%u hrs,"), hours);
 
             sprintf(minuteString,
-                (minutes == 1 ? "%u min," : "%u mins,"), minutes);
+                (minutes == 1 ? "1 min," : "%u mins,"), minutes);
 
             sprintf(secondString,
-                (seconds == 1 ? "%u sec" : "%u secs"), seconds);
+                (seconds == 1 ? "1 sec" : "%u secs"), seconds);
 
             sprintf(uptime,
                 "%" PEGASUS_64BIT_CONVERSION_WIDTH "u seconds = %s %s %s %s",
@@ -947,7 +948,7 @@ void OSInfoCommand::displayProperties(ostream& outPrintWriter)
       outPrintWriter << "  Number of Users: Unknown" << endl;
 
    if (osNumberOfProcesses != String::EMPTY)
-      outPrintWriter << "  Number of Processes: " << osNumberOfProcesses
+      outPrintWriter << "  Number of Processes: " << osNumberOfProcesses 
                      << endl;
    else
       outPrintWriter << "  Number of Processes: Unknown" << endl;

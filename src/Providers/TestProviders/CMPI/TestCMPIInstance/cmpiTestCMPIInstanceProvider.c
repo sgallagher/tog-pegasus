@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +41,6 @@
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
 #include <Providers/TestProviders/CMPI/TestUtilLib/cmpiUtilLib.h>
-
 
 #define _ClassName "TestCMPIInstance_Method"
 #define _Namespace    "test/TestProvider"
@@ -104,8 +105,6 @@ static int _testInstance ()
     const char* property_name = "s";
     const char* origin = "origin";
 
-    void* handle;
-
     int flag = 1;
 
     value.uint64 = PEGASUS_UINT64_LITERAL(5000000000);
@@ -114,7 +113,7 @@ static int _testInstance ()
 
     objPath = make_ObjectPath(_broker, _Namespace, "TestCMPI_Instance");
     instance = make_Instance(objPath);
-
+   
     /* Test cases to increase coverage in instSetPropertyWithOrigin function */
 
     /* Setting n64 property in class TestCMPI_Instance. So origin has been
@@ -134,7 +133,7 @@ static int _testInstance ()
        set. */
     retData = CMGetProperty(instance, "n64", &rc);
 
-    if (retData.type == CMPI_uint64 &&
+    if (retData.type == CMPI_uint64 && 
            retData.value.uint64 == PEGASUS_UINT64_LITERAL(5000000000))
     {
          PROV_LOG("++++  CMGetProperty for n64 property status : (%s),"
@@ -169,12 +168,12 @@ static int _testInstance ()
         PROV_LOG("++++ CMGetProperty with NULL property name status: (%s) ",
             strCMPIStatus(rc));
     }
-    /*-----------------------------------------------------------------------*/
+    /*-----------------------------------------------------------------------*/ 
 
-    /* Test cases to cover error paths for instSetObjectPath and
+    /* Test cases to cover error paths for instSetObjectPath and 
        instSetPropertyFilter*/
 
-    /* Testing error path by passing CMPIObjectPath with class name different
+    /* Testing error path by passing CMPIObjectPath with class name different 
        from the classname for CMPIInstance in CMSetObjectPath*/
 
     objPathFake = CMNewObjectPath(_broker,
@@ -189,7 +188,7 @@ static int _testInstance ()
 
     /* Testing error path by passing NULL to instSetObjectPath*/
     rc = CMSetObjectPath(instance, NULL);
-    if ( rc.rc == CMPI_RC_ERR_INVALID_PARAMETER ||
+    if ( rc.rc == CMPI_RC_ERR_INVALID_PARAMETER || 
         rc.rc == CMPI_RC_ERR_NOT_SUPPORTED)
     {
         PROV_LOG("++++  Test for CMSetObjectPath with NULL input passed ");
@@ -197,7 +196,6 @@ static int _testInstance ()
 
     /* Testing error paths by setting handle to CMPIInstance to NULL and using
        that in calls to instSetObjectPath and instSetPropertyFilter*/
-    handle = instance->hdl;
     instance->hdl = NULL ;
     rc = CMSetObjectPath(instance, NULL);
     if ( rc.rc == CMPI_RC_ERR_INVALID_HANDLE ||
@@ -214,7 +212,6 @@ static int _testInstance ()
         PROV_LOG("++++  CMSetPropertyFilter with NULL handle for CMPIInstance"
             " status : (%s)", strCMPIStatus (rc));
     }
-    instance->hdl = handle;
     /*-----------------------------------------------------------------------*/
     return flag;
 
@@ -257,14 +254,14 @@ CMPIStatus TestCMPIInstanceProviderInvokeMethod (CMPIMethodMI * mi,
     class = CMGetClassName (ref, &rc);
 
     PROV_LOG ("InvokeMethod: checking for correct classname [%s]",
-        CMGetCharsPtr (class,NULL));
+        CMGetCharPtr (class));
 
     PROV_LOG ("Calling CMGetArgCount");
     arg_cnt = CMGetArgCount (in, &rc);
     PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
 
     PROV_LOG ("InvokeMethod: We have %d arguments for operation [%s]: ",
-        arg_cnt,
+        arg_cnt, 
         methodName);
 
     if (arg_cnt > 0)
@@ -277,32 +274,29 @@ CMPIStatus TestCMPIInstanceProviderInvokeMethod (CMPIMethodMI * mi,
             {
                 PROV_LOG ("#%d: %s (uint32), value: %d",
                     index,
-                    CMGetCharsPtr (argName,NULL),
+                    CMGetCharPtr (argName),
                     data.value.uint32);
             }
             else if (data.type == CMPI_string)
             {
                 PROV_LOG ("#%d: %s (string) value: %s",
                     index,
-                    CMGetCharsPtr (argName,NULL),
-                    CMGetCharsPtr (data.value.string,NULL));
+                    CMGetCharPtr (argName),
+                    CMGetCharPtr (data.value.string));
             }
             else
             {
                 PROV_LOG ("#%d: %s (type: %x)",
                     index,
-                    CMGetCharsPtr (argName,NULL),
+                    CMGetCharPtr (argName),
                     data.type);
             }
             CMRelease (argName);
         }
     }
-    if (strncmp(
-        CMGetCharsPtr (class,NULL),
-        _ClassName,
-        strlen (_ClassName)) == 0)
+    if (strncmp (CMGetCharPtr (class), _ClassName, strlen (_ClassName)) == 0)
     {
-        if (strncmp("testInstance",
+        if (strncmp("testInstance", 
             methodName,
             strlen ("testInstance"))== 0)
         {
@@ -313,8 +307,8 @@ CMPIStatus TestCMPIInstanceProviderInvokeMethod (CMPIMethodMI * mi,
         else
         {
             PROV_LOG ("++++ Could not find the %s operation", methodName);
-            rc.rc = CMPI_RC_ERR_NOT_FOUND;
-            rc.msg=_broker->eft->newString(_broker,methodName,0);
+            CMSetStatusWithChars (_broker, &rc,
+                CMPI_RC_ERR_NOT_FOUND, methodName);
         }
     }
     PROV_LOG ("--- %s CMPI InvokeMethod() exited", _ClassName);

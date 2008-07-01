@@ -1,36 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
-#include <fstream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/System.h>
@@ -38,22 +39,13 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/AutoPtr.h>
-#include <Pegasus/Common/HostAddress.h>
-#include <Pegasus/Common/CIMNameCast.h>
-#include <Pegasus/Common/StringConversion.h>
-
 
 #ifdef PEGASUS_OS_ZOS
-#include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
-#endif
-
-#ifdef PEGASUS_OS_PASE
-#include <ILEWrapper/ILEUtilities.h>
+#include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
 #endif
 
 #include <Pegasus/getoopt/getoopt.h>
 #include <Clients/cliutils/CommandException.h>
-#include <Clients/cliutils/CsvStringParse.h>
 #include "CIMSubCommand.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -75,13 +67,6 @@ const char COMMAND_NAME[] = "cimsub";
  */
 static const CIMNamespaceName _DEFAULT_SUBSCRIPTION_NAMESPACE  =
     PEGASUS_NAMESPACENAME_INTEROP;
-
-/**
-   The Description of the Command.
- */
-
-static const char DESCRIPTION[] = "Cimsub Command Line \
-Interface is used to manage CIM Indication Subscriptions.";
 
 /**
     The usage string for this command.  This string is displayed
@@ -133,17 +118,6 @@ const Uint32 CIMSubCommand::OPERATION_TYPE_VERBOSE = 6;
     This constant represents a version display operation
  */
 const Uint32 CIMSubCommand::OPERATION_TYPE_VERSION = 7;
-
-/**
-    This constant represents a create operation
- */
-const Uint32 CIMSubCommand::OPERATION_TYPE_CREATE= 8;
-
-/**
-    This constant represents a Batch file execution operation
- */
-
-const Uint32 CIMSubCommand::OPERATION_TYPE_BATCH = 9;
 
 /**
     The constants representing the messages.
@@ -220,23 +194,6 @@ static const char OPTION_REMOVE = 'r';
 static const char OPTION_FILTER = 'F';
 
 /**
-    The option character used to specify the Query of a Filter
- */
-static const char OPTION_QUERY = 'Q';
-
-/**
-    The option character used to specify the Query language of a Filter
- */
-static const char OPTION_QUERYLANGUAGE = 'L';
-
-
-/**
-    The option character used to specify the Source Namespace of a Filter
- */
-static const char OPTION_SOURCENAMESPACE = 'N';
-
-
-/**
     The option character used to specify enable a specified subscription.
  */
 static const char OPTION_ENABLE = 'e';
@@ -247,74 +204,9 @@ static const char OPTION_ENABLE = 'e';
 static const char OPTION_HANDLER = 'H';
 
 /**
-    The option character used to specify the Destination of a
-    CIM_IndicationHandlerCIMXML Handler
- */
-static const char OPTION_DESTINATION = 'D';
-
-/**
-    The option character used to specify the mailto of a
-    PG_ListenerDestinationEmail Handler
- */
-static const char OPTION_MAILTO = 'M';
-
-/**
-    The option character used to specify the mailcc of a
-    PG_ListenerDestinationEmail Handler
- */
-static const char OPTION_MAILCC = 'C';
-
-/**
-    The option character used to specify the mail subject of a
-    PG_ListenerDestinationEmail Handler
- */
-static const char OPTION_MAILSUBJECT = 'S';
-
-/**
-    The option character used to specify the snmp target host of a
-    PG_IndicationHandlerSNMPMapper Handler
- */
-static const char OPTION_SNMPTARGETHOST = 'T';
-
-/**
-    The option character used to specify the snmp port number of a
-    PG_IndicationHandlerSNMPMapper Handler
- */
-static const char OPTION_SNMPPORTNUMBER = 'P';
-
-/**
-    The option character used to specify the snmp version of a
-    PG_IndicationHandlerSNMPMapper Handler
- */
-static const char OPTION_SNMPVERSION = 'V';
-
-/**
-    The option character used to specify the snmp security name host of a
-    PG_IndicationHandlerSNMPMapper Handler
- */
-static const char OPTION_SNMPSECURITYNAME = 'U';
-
-/**
-    The option character used to specify the snmp engine id of a
-    PG_IndicationHandlerSNMPMapper Handler
- */
-static const char OPTION_SNMPENGINEID = 'E';
-
-/**
-    The option character used to specify creation
- */
-static const char OPTION_CREATE = 'c';
-
-/**
     The option character used to specify listing
  */
 static const char OPTION_LIST = 'l';
-
-/**
-    The option charcter used to specify a file for batch file execution
- */
-
-static const char OPTION_BATCH = 'b';
 
 /**
     The option argument character used to specify subscriptions
@@ -370,6 +262,7 @@ const Uint32 _HANDLER_LIST_NAME_COLUMN = 0;
 const Uint32 _HANDLER_LIST_DESTINATION_COLUMN = 1;
 const Uint32 _FILTER_LIST_NAME_COLUMN = 0;
 const Uint32 _FILTER_LIST_QUERY_COLUMN = 1;
+const Uint32 _FILTER_LIST_QUERYLANGUAGE_COLUMN = 2;
 const Uint32 _SUBSCRIPTION_LIST_NS_COLUMN = 0;
 const Uint32 _SUBSCRIPTION_LIST_FILTER_COLUMN = 1;
 const Uint32 _SUBSCRIPTION_LIST_HANDLER_COLUMN = 2;
@@ -397,7 +290,6 @@ const String _SUBSCRIPTION_STATE_NOT_SUPPORTED_STRING = "Not Supported";
 const String _SNMP_VERSION_SNMPV1_TRAP_STRING = "SNMPv1 Trap";
 const String _SNMP_VERSION_SNMPV2C_TRAP_STRING = "SNMPv2C Trap";
 const String _SNMP_VERSION_PEGASUS_RESERVED_STRING = "Pegasus Reserved";
-
 /**
 
     Constructs a CIMSubCommand and initializes instance variables.
@@ -409,73 +301,14 @@ CIMSubCommand::CIMSubCommand()
     */
     _operationType = OPERATION_TYPE_UNINITIALIZED;
     _verbose = false;
-    _handlerSNMPPortNumber = 162;
-    _filterQueryLanguage = "CIM:CQL";
-    _isBatchNamespace = false;
-    _filterNSFlag =false;
+
+
     /**
         Build the usage string for the config command.
     */
 
     usage.reserveCapacity(200);
-    usage.append(DESCRIPTION);
-    usage.append("\n\n");
     usage.append(USAGE);
-    /*
-        cimsub -cf [fnamespace:]filtername  -Q query
-                 [-L querylanuage] [-N sourcenamespace]
-    */
-    usage.append(COMMAND_NAME);
-    usage.append(" -").append(OPTION_CREATE);
-    usage.append(" ").append(ARG_FILTERS);
-    usage.append(" [fnamespace:]filtername");
-    usage.append(" -").append(OPTION_QUERY).append(" query");
-    usage.append(" [-").append(OPTION_QUERYLANGUAGE);
-    usage.append(" querylanguage]\n");
-    usage.append("                  [-").append(OPTION_SOURCENAMESPACE);
-    usage.append(" sourcenamespace(s)] \n");
-    /*
-        cimsub -ch [hnamespace:][hclassname.]handlername [-D destination ]|
-                  [-T mailto [-C mailcc] -S mailsubject] |
-                  [-T snmptargethost [-P snmpportnumber] -V snmpversion
-                      [-S snmpsecurityname] [-E snmpengineid]]
-    */
-    usage.append("       ");
-    usage.append(COMMAND_NAME);
-    usage.append(" -").append(OPTION_CREATE);
-    usage.append(" ").append(ARG_HANDLERS);
-    usage.append(" [hnamespace:][hclassname.]handlername");
-    usage.append(" [-").append(OPTION_DESTINATION);
-    usage.append(" destination]| \n");
-    usage.append("                  [-").append(OPTION_MAILTO);
-    usage.append(" mailto");
-    usage.append(" [-").append(OPTION_MAILCC).append(" mailcc]");
-    usage.append(" -").append(OPTION_MAILSUBJECT).append(" mailsubject]| \n");
-    usage.append("                  [-").append(OPTION_SNMPTARGETHOST);
-    usage.append(" snmptargethost");
-    usage.append(" [-").append(OPTION_SNMPPORTNUMBER);
-    usage.append(" snmpportnumber]");
-    usage.append(" -").append(OPTION_SNMPVERSION).append(" snmpversion] \n");
-    usage.append("                      [-").append(OPTION_SNMPSECURITYNAME);
-    usage.append(" snmpsecurityname]");
-    usage.append(" [-").append(OPTION_SNMPENGINEID);
-    usage.append(" snmpengineid]] \n");
-
-    /*
-        cimsub -cs [-n namespace] -F [fnamespace:]filtername
-                  -H [hnamespace:][hclassname.]handlername
-    */
-
-    usage.append("       ");
-    usage.append(COMMAND_NAME);
-    usage.append(" -").append(OPTION_CREATE);
-    usage.append(" ").append(ARG_SUBSCRIPTIONS);
-    usage.append(" [-").append(OPTION_NAMESPACE).append(" namespace]");
-    usage.append(" -").append(OPTION_FILTER).append
-        (" [fnamespace:]filtername \n");
-    usage.append("                  -").append(OPTION_HANDLER).append
-        (" [hnamespace:][hclassname.]handlername \n");
-    usage.append("       ");
     usage.append(COMMAND_NAME);
     usage.append(" -").append(OPTION_LIST);
     usage.append(" ").append(ARG_SUBSCRIPTIONS).append("|");
@@ -485,56 +318,40 @@ CIMSubCommand::CIMSubCommand()
     usage.append(" [-").append(OPTION_NAMESPACE).append(" namespace]");
     usage.append(" [-").append(OPTION_FILTER).append
         (" [fnamespace:]filtername] \n");
+
     usage.append("                  [-").append(OPTION_HANDLER).append
         (" [hnamespace:][hclassname.]handlername] \n");
 
-    usage.append("       ");
-    usage.append(COMMAND_NAME);
-    usage.append(" -").append(OPTION_ENABLE);
+    usage.append("              -").append(OPTION_ENABLE);
     usage.append(" [-").append(OPTION_NAMESPACE).append(" namespace]");
     usage.append(" -").append(OPTION_FILTER).append
         (" [fnamespace:]filtername \n");
+
     usage.append("                  -").append(OPTION_HANDLER).append
         (" [hnamespace:][hclassname.]handlername \n");
 
-    usage.append("       ");
-    usage.append(COMMAND_NAME);
-    usage.append(" -").append(OPTION_DISABLE);
+    usage.append("              -").append(OPTION_DISABLE);
     usage.append(" [-").append(OPTION_NAMESPACE).append(" namespace]");
     usage.append(" -").append(OPTION_FILTER).append
         (" [fnamespace:]filtername\n");
     usage.append("                  -").append(OPTION_HANDLER).append
         (" [hnamespace:][hclassname.]handlername \n");
 
-    usage.append("       ");
-    usage.append(COMMAND_NAME);
-    usage.append(" -").append(OPTION_REMOVE);
+    usage.append("              -").append(OPTION_REMOVE);
     usage.append(" ").append (ARG_SUBSCRIPTIONS).append("|");
     usage.append(ARG_FILTERS).append("|");
     usage.append(ARG_HANDLERS).append("|");
     usage.append(ARG_ALL);
     usage.append(" [-").append(OPTION_NAMESPACE).append(" namespace]");
     usage.append(" [-").append(OPTION_FILTER).append
-        (" [fnamespace:]filtername] \n");
+        ("[fnamespace:]filtername] \n");
     usage.append("                  [-").append(OPTION_HANDLER).append
         (" [hnamespace:][hclassname.]handlername]\n");
-    usage.append("       ");
-    usage.append(COMMAND_NAME);
-    usage.append(" -").append(OPTION_BATCH);
-    usage.append(" ").append("batchfile");
-    usage.append(" [-").append(OPTION_NAMESPACE).append(" namespace]\n");
-    usage.append("       ");
-    usage.append(COMMAND_NAME);
-    usage.append(" --").append(LONG_HELP).append("\n");
 
-    usage.append("       ");
-    usage.append(COMMAND_NAME);
-    usage.append(" --").append(LONG_VERSION).append("\n");
+    usage.append("              --").append(LONG_HELP).append("\n");
+    usage.append("              --").append(LONG_VERSION).append("\n");
 
     usage.append("Options : \n");
-    usage.append("    -c         - Create specified subscription, filter, \n"
-                 "                   handler(CIM_ListenerDestinationCIMXML, \n"
-                 "                       if hclassname is not specified)\n");
     usage.append("    -l         - List and display information\n");
     usage.append("    -e         - Enable specified subscription\n");
     usage.append("                   (set SubscriptionState to Enabled) \n");
@@ -542,82 +359,27 @@ CIMSubCommand::CIMSubCommand()
     usage.append("                   (set SubscriptionState to Disabled) \n");
     usage.append("    -r         - Remove specified subscription, handler,"
                                 " filter \n");
-    usage.append("    -b filename\n");
-    usage.append("               - Execute cimsub batch file. Filename is path"
-                                     " to the batch file \n");
     usage.append("    -v         - Include verbose information \n");
     usage.append("    -F         - Specify Filter Name of subscription for"
                                 " the operation\n");
-    usage.append("    -Q         - Specify Query Expression of a Filter \n");
-    usage.append("    -L         - Specify Query Language of a Filter \n");
-    usage.append("    -N         - To Use SourceNamespaces property,Specify");
-    usage.append(" multiple SourceNamespaces\n");
-    usage.append("                 with coma separated or append comma to");
-    usage.append(" the single SourceNamespace.\n");
-    usage.append("                 By default SourceNamespace property is ");
-    usage.append(" populated if the single\n");
-    usage.append("                 SourceNamespace is specified.\n");
     usage.append("    -H         - Specify Handler Name of subscription for"
                                 " the operation\n");
-    usage.append("    -D         - Specify Destination of a "
-                 "CIM_IndicationHandlerCIMXML Handler.\n"
-                 "                   Required option for "
-                 "CIM_IndicationHandlerCIMXML or \n"
-                 "                   CIM_ListenerDestinationCIMXML Handler\n");
-    usage.append("    -M         - Specify Mailto of a "
-                 " PG_ListenerDestinationEmail Handler\n");
-    usage.append("    -C         - Specify Mailcc of a "
-                 "PG_ListenerDestinationEmail Handler\n");
-    usage.append("    -S         - Specify Subject of a "
-                 "PG_ListenerDestinationEmail Handler\n");
-    usage.append("    -T         - Specify Target Host of "
-                 "PG_IndicationHandlerSNMPMapper Handler.\n"
-                 "                 Required option for SNMPMapper handler\n");
-    usage.append("    -U         - Specify Security Name of "
-                 "PG_IndicationHandlerSNMPMapper Handler\n");
-    usage.append("    -P         - Specify Port Number of a "
-                 "PG_IndicationHandlerSNMPMapper Handler\n"
-                 "                   (default 162) \n");
-    usage.append("    -V         - Specify SNMPVersion of a "
-                 "PG_IndicationHandlerSNMPMapper Handler\n"
-                 "                   2 : SNMPv1 Trap\n"
-                 "                   3 : SNMPv2C Trap\n"
-                 "                   4 : SNMPv2C Inform\n"
-                 "                   5 : SNMPv3 Trap\n"
-                 "                   6 : SNMPv3 Inform\n"
-                 "                   Required option for SNMPMapper Handler");
-    usage.append("\n");
-    usage.append("    -E         - Specify Engine ID of a "
-                 "PG_IndicationHandlerSNMPMapper Handler\n");
     usage.append("    -n         - Specify namespace of subscription\n");
-    usage.append("                   (interop namespace, if not specified)\n");
+    usage.append("                   (root/PG_InterOp, if not specified) \n");
     usage.append("    --help     - Display this help message\n");
     usage.append("    --version  - Display CIM Server version\n");
     usage.append("\n");
     usage.append("Usage note: The cimsub command requires that the CIM Server"
                                 " is running.\n");
     usage.append("\n");
-    usage.append("Batch File Format\n");
-    usage.append("-----------------\n\n");
-    usage.append("A cimsub batch file contains multiple cimsub ");
-    usage.append("commands, one per line.");
-    usage.append("Lines\nthat start with the '#' character and blank lines");
-    usage.append(" are ignored.The Execution\n");
-    usage.append("of Batch file will stop when it encounters any syntax error");
-    usage.append(" or an exception\nin the command.\n\n");
-    usage.append("The namespace option (-n) when used with batch execution");
-    usage.append(" (-b) uses the\n");
-    usage.append("namespace to populate the namespace values of filter, ");
-    usage.append("handler and\nsubscription. Any namespace specified for ");
-    usage.append("any or all of these is specified\ninside the batch");
-    usage.append("command, they will be overridden.\n");
 
 #ifdef PEGASUS_HAS_ICU
+
     MessageLoaderParms menuparms(
-            "Clients.cimsub.CIMSubCommand.MENU.STANDARD",
-            usage);
+            "Clients.cimsub.CIMSubCommand.MENU.STANDARD",usage);
     menuparms.msg_src_path = MSG_PATH;
     usage = MessageLoader::getMessage(menuparms);
+
 #endif
 
     setUsage(usage);
@@ -636,32 +398,17 @@ void CIMSubCommand::setCommand(
     char* argv[])
 {
     Uint32 i = 0;
-    Uint64 c = 0;
-    //char c;
+    Uint32 c = 0;
     String badOptionString;
     String optString;
     String filterNameString;
     String handlerNameString;
     Boolean filterSet = false;
     Boolean handlerSet = false;
-    Boolean filterQuerySet = false;
-    Boolean filterQueryLanguageSet = false;
-    Boolean filterSourceNamespaceSet = false;
-    Boolean handlerDestinationSet = false;
-    Boolean handlerMailToSet = false;
-    Boolean handlerMailCcSet = false;
-    Boolean handlerMailSubjectSet = false;
-    Boolean handlerSnmpTargetHostSet = false;
-    Boolean handlerSnmpPortNumberSet = false;
-    Boolean handlerSnmpVersionSet = false;
-    Boolean handlerSnmpSecurityNameSet = false;
-    Boolean handlerSnmpEngineIdSet = false;
 
     //
     //  Construct optString
     //
-    optString.append(OPTION_CREATE);
-    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     optString.append(OPTION_LIST);
     optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     optString.append(OPTION_DISABLE);
@@ -675,33 +422,7 @@ void CIMSubCommand::setCommand(
     optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     optString.append(OPTION_NAMESPACE);
     optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
-    optString.append(OPTION_QUERY);
-    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
-    optString.append(OPTION_QUERYLANGUAGE);
-    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
-    optString.append(OPTION_SOURCENAMESPACE);
-    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
-    optString.append(OPTION_DESTINATION);
-    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
-    optString.append(OPTION_MAILTO); //OPTION_MAILTO & OPTION_SNMPTARGETHOST
-    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
-    optString.append(OPTION_MAILCC);
-    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
-    optString.append(OPTION_MAILSUBJECT);
-              //OPTION_MAILSUBJECT & OPTION_SNMPSECURITYNAME
-    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
-    optString.append(OPTION_SNMPTARGETHOST);
-    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
-    optString.append(OPTION_SNMPSECURITYNAME);
-    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
-    optString.append(OPTION_SNMPPORTNUMBER);
-    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
-    optString.append(OPTION_SNMPVERSION);
-    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
-    optString.append(OPTION_SNMPENGINEID);
-    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
-    optString.append(OPTION_BATCH);
-    optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+
     //
     //  Initialize and parse options
     //
@@ -754,43 +475,10 @@ void CIMSubCommand::setCommand(
         }
         else if (options [i].getType() == Optarg::REGULAR)
         {
-            if (options.isSet(OPTION_CREATE))
-            {
-                if(ARG_FILTERS == _operationArg)
-                {
-                    if(filterSet)
-                    {
-                        throw UnexpectedArgumentException(options[i].Value());
-                    }
-                    filterNameString = options[i].Value();
-                    filterSet = true;
-                }
-                else if(ARG_HANDLERS == _operationArg)
-                {
-                    if(handlerSet)
-                    {
-                        throw UnexpectedArgumentException(options[i].Value());
-                    }
-                    handlerNameString = options[i].Value();
-                    handlerSet = true;
-                }
-                else
-                {
-                    //
-                    //  The cimsub command has no non-option argument
-                    //  options except "c"
-                    //
-                    throw UnexpectedArgumentException(options[i].Value());
-                }
-            }
-            else
-            {
-                //
-                //  The cimsub command has no non-option argument
-                //  options except "c"
-                //
-                throw UnexpectedArgumentException(options[i].Value());
-            }
+            //
+            //  The cimsub command has no non-option argument options
+            //
+            throw UnexpectedArgumentException(options[i].Value());
         }
         else
         {
@@ -867,28 +555,6 @@ void CIMSubCommand::setCommand(
                     break;
                 }
 
-                case OPTION_CREATE:
-                {
-                    if (_operationType != OPERATION_TYPE_UNINITIALIZED)
-                    {
-                        //
-                        // More than one operation option was found
-                        //
-                        throw UnexpectedOptionException(OPTION_LIST);
-                    }
-
-                    if (options.isSet(OPTION_CREATE) > 1)
-                    {
-                        //
-                        // More than two create option was found
-                        //
-                        throw DuplicateOptionException (OPTION_CREATE);
-                    }
-                    _operationType = OPERATION_TYPE_CREATE;
-                    _operationArg = options[i].Value();
-                    break;
-                }
-
                 case OPTION_REMOVE:
                 {
                     if (_operationType != OPERATION_TYPE_UNINITIALIZED)
@@ -912,7 +578,7 @@ void CIMSubCommand::setCommand(
 
                 case OPTION_VERBOSE:
                 {
-                   if (_operationType != OPERATION_TYPE_LIST)
+                  if (_operationType != OPERATION_TYPE_LIST)
                     {
                         //
                         // Unexpected verbose option was found
@@ -935,9 +601,7 @@ void CIMSubCommand::setCommand(
                 case OPTION_FILTER:
                 {
                     if ((_operationType == OPERATION_TYPE_HELP) ||
-                        (_operationType == OPERATION_TYPE_VERSION) ||
-                        (_operationType == OPERATION_TYPE_CREATE
-                            && ARG_SUBSCRIPTIONS!= _operationArg))
+                        (_operationType == OPERATION_TYPE_VERSION))
                     {
                         //
                         // Help and version take no options.
@@ -959,9 +623,7 @@ void CIMSubCommand::setCommand(
                 case OPTION_HANDLER:
                 {
                     if ((_operationType == OPERATION_TYPE_HELP) ||
-                        (_operationType == OPERATION_TYPE_VERSION) ||
-                        (_operationType == OPERATION_TYPE_CREATE
-                            && ARG_SUBSCRIPTIONS!= _operationArg))
+                        (_operationType == OPERATION_TYPE_VERSION))
                     {
                         //
                         // Help and version take no options.
@@ -984,9 +646,7 @@ void CIMSubCommand::setCommand(
                 case OPTION_NAMESPACE:
                 {
                     if ((_operationType == OPERATION_TYPE_HELP) ||
-                        (_operationType == OPERATION_TYPE_VERSION) ||
-                        (_operationType == OPERATION_TYPE_CREATE
-                            && ARG_SUBSCRIPTIONS!= _operationArg))
+                        (_operationType == OPERATION_TYPE_VERSION))
                     {
                         //
                         // Help and version take no options.
@@ -1001,364 +661,16 @@ void CIMSubCommand::setCommand(
                         throw DuplicateOptionException(OPTION_NAMESPACE);
                     }
 
-                    if (_operationType == OPERATION_TYPE_BATCH )
-                    {
-                        _batchNamespace = options[i].Value();
-                        _isBatchNamespace = true;
-                    }
-                    else
-                    {
-                        String nsNameValue = options[i].Value();
-                        _subscriptionNamespace = nsNameValue;
-                    }
-                    break;
-                }
-                case OPTION_BATCH:
-                {
-                   if (_operationType != OPERATION_TYPE_UNINITIALIZED)
-                    {
-                        // More than one operation option was found
-                        throw UnexpectedOptionException(OPTION_BATCH);
-                    }
-                    if (options.isSet(OPTION_BATCH) > 1)
-                    {
-                        throw DuplicateOptionException(OPTION_BATCH);
-                    }
-                    _operationType = OPERATION_TYPE_BATCH;
-                    _batchFileName = options[i].Value();
-                    break;
-                 }
-                case OPTION_QUERY:
-                {
-                    if (_operationType != OPERATION_TYPE_CREATE
-                        || ARG_FILTERS != _operationArg)
-                    {
-                        //
-                        // Help and version take no options.
-                        //
-                        throw UnexpectedOptionException(OPTION_QUERY);
-                    }
-                    if (options.isSet(OPTION_QUERY) > 1)
-                    {
-                        //
-                        // More than one query option was found
-                        //
-                        throw DuplicateOptionException(OPTION_QUERY);
-                    }
+                    String nsNameValue = options[i].Value();
+                    _subscriptionNamespace = nsNameValue;
 
-                    String filterQueryValue = options[i].Value();
-                    _filterQuery = filterQueryValue;
-
-                    filterQuerySet = true;
-                    break;
-                }
-                case OPTION_QUERYLANGUAGE:
-                {
-                    if (_operationType != OPERATION_TYPE_CREATE
-                        || ARG_FILTERS != _operationArg)
-                    {
-                        //
-                        // Help and version take no options.
-                        //
-                        throw UnexpectedOptionException(OPTION_QUERYLANGUAGE);
-                    }
-                    if (options.isSet(OPTION_QUERYLANGUAGE) > 1)
-                    {
-                        //
-                        // More than one query language option was found
-                        //
-                        throw DuplicateOptionException(OPTION_QUERYLANGUAGE);
-                    }
-
-                    String filterQueryLanguageValue = options[i].Value();
-                    _filterQueryLanguage = filterQueryLanguageValue;
-
-                    filterQueryLanguageSet = true;
-                    break;
-                }
-                case OPTION_SOURCENAMESPACE:
-                {
-                    if (_operationType != OPERATION_TYPE_CREATE
-                        || ARG_FILTERS != _operationArg)
-                    {
-                        //
-                        // Help and version take no options.
-                        //
-                        throw UnexpectedOptionException(OPTION_SOURCENAMESPACE);
-                    }
-                    if (options.isSet(OPTION_SOURCENAMESPACE) > 1)
-                    {
-                        //
-                        // More than one query language option was found
-                        //
-                        throw DuplicateOptionException(OPTION_SOURCENAMESPACE);
-                    }
-                    _filterNSFlag = false;
-                    String filterSourceNamespaceValue = options[i].Value();
-                    String filterNS = filterSourceNamespaceValue;
-                    Boolean sourceNamespacesProperty = false;
-                    csvStringParse strSNS (filterNS, ',');
-                    while (strSNS.more())
-                    {
-                        _filterSourceNamespaces.append(strSNS.next());
-                    }
-                    if ( _filterSourceNamespaces.size() > 1 ||
-                          filterNS[filterNS.size()-1] == ',')
-                    {
-                         sourceNamespacesProperty = true;
-                    }
-                    _filterNSFlag = sourceNamespacesProperty;
-                    filterSourceNamespaceSet = true;
-                    break;
-                }
-                case OPTION_DESTINATION:
-                {
-                    if (_operationType != OPERATION_TYPE_CREATE
-                        || ARG_HANDLERS != _operationArg)
-                    {
-                        //
-                        // Help and version take no options.
-                        //
-                        throw UnexpectedOptionException(OPTION_DESTINATION);
-                    }
-                    if (options.isSet(OPTION_DESTINATION) > 1)
-                    {
-                        //
-                        // More than one query language option was found
-                        //
-                        throw DuplicateOptionException(OPTION_DESTINATION);
-                    }
-
-                    String handlerDestinationValue = options[i].Value();
-                    _handlerDestination = handlerDestinationValue;
-
-                    handlerDestinationSet = true;
-                    break;
-                }
-                case OPTION_MAILCC:
-                {
-                    if (_operationType != OPERATION_TYPE_CREATE
-                        || ARG_HANDLERS != _operationArg)
-                    {
-                        //
-                        // Help and version take no options.
-                        //
-                        throw UnexpectedOptionException(OPTION_MAILCC);
-                    }
-                    if (options.isSet(OPTION_MAILCC) > 1)
-                    {
-                        //
-                        // More than one query language option was found
-                        //
-                        throw DuplicateOptionException(OPTION_MAILCC);
-                    }
-
-                    String handlerMailCcValue = options[i].Value();
-                    _handlerMailCc = handlerMailCcValue;
-
-                    handlerMailCcSet = true;
-                    break;
-                }
-                case OPTION_MAILTO: //OPTION_MAILTO && OPTION_SNMPTARGETHOST
-                {
-                    if (_operationType != OPERATION_TYPE_CREATE
-                        || ARG_HANDLERS != _operationArg)
-                    {
-                        //
-                        // Help and version take no options.
-                        //
-                        throw UnexpectedOptionException(OPTION_MAILTO);
-                    }
-                    if (options.isSet(OPTION_MAILTO) > 1)
-                    {
-                        //
-                        // More than one query language option was found
-                        //
-                        throw DuplicateOptionException(OPTION_MAILTO);
-                    }
-
-                    String tmpValue = options[i].Value();
-                    _handlerMailTo= tmpValue;
-                    handlerMailToSet = true;
-                    _handlerSNMPTartgetHost = tmpValue;
-                    handlerSnmpTargetHostSet = true;
-                    break;
-                }
-                case OPTION_MAILSUBJECT:
-                {
-                  //OPTION_MAILSUBJECT && OPTION_SNMPSECURITYNAME
-                    if (_operationType != OPERATION_TYPE_CREATE
-                        || ARG_HANDLERS != _operationArg)
-                    {
-                        //
-                        // Help and version take no options.
-                        //
-                        throw UnexpectedOptionException(OPTION_MAILSUBJECT);
-                    }
-                    if (options.isSet(OPTION_MAILSUBJECT) > 1)
-                    {
-                        //
-                        // More than one query language option was found
-                        //
-                        throw DuplicateOptionException(OPTION_MAILSUBJECT);
-                    }
-
-                    String tmpValue = options[i].Value();
-                    _handlerMailSubject = tmpValue;
-                    handlerMailSubjectSet = true;
-                    _handlerSNMPSecurityName = tmpValue;
-                    handlerSnmpSecurityNameSet = true;
-                    break;
-                }
-                case OPTION_SNMPTARGETHOST:
-                {
-                    if (_operationType != OPERATION_TYPE_CREATE
-                        || ARG_HANDLERS != _operationArg)
-                    {
-                        //
-                        // Help and version take no options.
-                        //
-                        throw UnexpectedOptionException(OPTION_SNMPTARGETHOST);
-                    }
-                    if (options.isSet(OPTION_SNMPTARGETHOST) > 1)
-                    {
-                        //
-                        // More than one query language option was found
-                        //
-                        throw DuplicateOptionException(OPTION_SNMPTARGETHOST);
-                    }
-
-                    String tmpValue = options[i].Value();
-                    _handlerSNMPTartgetHost = tmpValue;
-                    handlerSnmpTargetHostSet = true;
-                    break;
-                }
-                case OPTION_SNMPSECURITYNAME:
-                {
-                    if (_operationType != OPERATION_TYPE_CREATE
-                        || ARG_HANDLERS != _operationArg)
-                    {
-                        //
-                        // Help and version take no options.
-                        //
-                        throw UnexpectedOptionException(
-                             OPTION_SNMPSECURITYNAME);
-                    }
-                    if (options.isSet(OPTION_SNMPSECURITYNAME) > 1)
-                    {
-                        //
-                        // More than one query language option was found
-                        //
-                        throw DuplicateOptionException(OPTION_SNMPSECURITYNAME);
-                    }
-
-                    String tmpValue = options[i].Value();
-
-                    _handlerSNMPSecurityName = tmpValue;
-                    handlerSnmpSecurityNameSet = true;
-                    break;
-                }
-                case OPTION_SNMPPORTNUMBER:
-                {
-                    if (_operationType != OPERATION_TYPE_CREATE
-                        || ARG_HANDLERS != _operationArg)
-                    {
-                        //
-                        // Help and version take no options.
-                        //
-                        throw UnexpectedOptionException(OPTION_SNMPPORTNUMBER);
-                    }
-                    if (options.isSet(OPTION_SNMPPORTNUMBER) > 1)
-                    {
-                        //
-                        // More than one query language option was found
-                        //
-                        throw DuplicateOptionException(OPTION_SNMPPORTNUMBER);
-                    }
-
-                    String handlerPortNumberValue = options[i].Value();
-
-                    for( Uint32 i = 0; i < handlerPortNumberValue.size(); i++)
-                    {
-                        if(!isdigit(handlerPortNumberValue[i]))
-                        {
-                            throw InvalidOptionArgumentException(
-                                handlerPortNumberValue,
-                                OPTION_SNMPPORTNUMBER);
-                        }
-                    }
-                    StringConversion::stringToUnsignedInteger(
-                        handlerPortNumberValue.getCString(),
-                        _handlerSNMPPortNumber);
-                    handlerSnmpPortNumberSet = true;
-                    break;
-                }
-                case OPTION_SNMPVERSION:
-                {
-                    if (_operationType != OPERATION_TYPE_CREATE
-                        || ARG_HANDLERS != _operationArg)
-                    {
-                        //
-                        // Help and version take no options.
-                        //
-                        throw UnexpectedOptionException(OPTION_SNMPVERSION);
-                    }
-                    if (options.isSet(OPTION_SNMPVERSION) > 1)
-                    {
-                        //
-                        // More than one query language option was found
-                        //
-                        throw DuplicateOptionException(OPTION_SNMPVERSION);
-                    }
-
-                    String handlerSnmpVersionValue = options[i].Value();
-
-                    for( Uint32 i = 0; i < handlerSnmpVersionValue.size(); i++)
-                    {
-                        if(!isdigit(handlerSnmpVersionValue[i]))
-                        {
-                            throw InvalidOptionArgumentException(
-                                handlerSnmpVersionValue,
-                                OPTION_SNMPPORTNUMBER);
-                        }
-                    }
-                    StringConversion::stringToUnsignedInteger(
-                        handlerSnmpVersionValue.getCString(),
-                        _handlerSNMPVersion);
-                    handlerSnmpVersionSet = true;
-                    break;
-                }
-                case OPTION_SNMPENGINEID:
-                {
-                    if (_operationType != OPERATION_TYPE_CREATE
-                        || ARG_HANDLERS != _operationArg)
-                    {
-                        //
-                        // Help and version take no options.
-                        //
-                        throw UnexpectedOptionException(OPTION_SNMPENGINEID);
-                    }
-                    if (options.isSet(OPTION_SNMPENGINEID) > 1)
-                    {
-                        //
-                        // More than one query language option was found
-                        //
-                        throw DuplicateOptionException(OPTION_SNMPENGINEID);
-                    }
-
-                    String handlerSnmpEngineIdValue = options[i].Value();
-                    _handlerSNMPEngineID = handlerSnmpEngineIdValue;
-
-                    handlerSnmpEngineIdSet = true;
                     break;
                 }
                 default:
-                {
-                    throw UnexpectedOptionException (c);
+                    PEGASUS_ASSERT(0);
                 }
             }
         }
-    }
 
     //
     // Some more validations
@@ -1493,178 +805,6 @@ void CIMSubCommand::setCommand(
             }
         }
     }
-
-    if (_operationType == OPERATION_TYPE_CREATE)
-    {
-        if(ARG_FILTERS == _operationArg)
-        {
-            if (!filterQuerySet)
-            {
-                throw MissingOptionException(OPTION_QUERY);
-            }
-            if (!filterSet)
-            {
-                throw CommandFormatException(
-                    localizeMessage(
-                         MSG_PATH,
-                         REQUIRED_OPTION_MISSING_KEY,
-                         REQUIRED_OPTION_MISSING)
-                    );
-            }
-        }
-        else if(ARG_HANDLERS == _operationArg)
-        {
-            if (!handlerSet)
-            {
-                throw CommandFormatException(
-                    localizeMessage(
-                        MSG_PATH,
-                        REQUIRED_OPTION_MISSING_KEY,
-                        REQUIRED_OPTION_MISSING)
-                    );
-            }
-            String handlerName;
-            String handlerNamespace;
-            _handlerCreationClass =
-                 PEGASUS_CLASSNAME_LSTNRDST_CIMXML.getString();
-            _parseHandlerName(handlerNameString, handlerName, handlerNamespace,
-                 _handlerCreationClass);
-            CIMName handlerCreationClass(_handlerCreationClass);
-
-            if(handlerCreationClass != PEGASUS_CLASSNAME_LSTNRDST_CIMXML &&
-                handlerCreationClass != PEGASUS_CLASSNAME_INDHANDLER_CIMXML &&
-                handlerCreationClass != PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG &&
-                handlerCreationClass != PEGASUS_CLASSNAME_LSTNRDST_EMAIL &&
-                handlerCreationClass != PEGASUS_CLASSNAME_INDHANDLER_SNMP)
-            {
-                throw UnexpectedArgumentException(handlerNameString);
-            }
-
-            if (handlerDestinationSet)
-            {
-                if (handlerCreationClass != PEGASUS_CLASSNAME_LSTNRDST_CIMXML &&
-                    handlerCreationClass != PEGASUS_CLASSNAME_INDHANDLER_CIMXML)
-                {
-                    //
-                    // Wrong option for this operation was found
-                    //
-                    throw UnexpectedOptionException(OPTION_DESTINATION);
-                }
-            }
-            else if (handlerCreationClass ==
-                 PEGASUS_CLASSNAME_LSTNRDST_CIMXML ||
-                 handlerCreationClass == PEGASUS_CLASSNAME_INDHANDLER_CIMXML)
-            {
-                throw MissingOptionException(OPTION_DESTINATION);
-            }
-
-            if (
-                handlerMailToSet ||
-                handlerSnmpTargetHostSet)
-            {
-                if (
-                    handlerCreationClass != PEGASUS_CLASSNAME_LSTNRDST_EMAIL &&
-                    handlerCreationClass != PEGASUS_CLASSNAME_INDHANDLER_SNMP)
-                {
-                    //
-                    // Wrong option for this operation was found
-                    //
-                    throw UnexpectedOptionException(OPTION_SNMPTARGETHOST);
-                }
-            }
-            else if(
-                handlerCreationClass == PEGASUS_CLASSNAME_LSTNRDST_EMAIL ||
-                handlerCreationClass == PEGASUS_CLASSNAME_INDHANDLER_SNMP)
-            {
-                throw MissingOptionException(OPTION_SNMPTARGETHOST);
-            }
-            if (handlerMailCcSet)
-            {
-                if (handlerCreationClass != PEGASUS_CLASSNAME_LSTNRDST_EMAIL)
-                {
-                    //
-                    // Wrong option for this operation was found
-                    //
-                    throw UnexpectedOptionException(OPTION_MAILCC);
-                }
-            }
-            if (
-                handlerMailSubjectSet ||
-                handlerSnmpSecurityNameSet)
-            {
-                if (
-                    handlerCreationClass != PEGASUS_CLASSNAME_LSTNRDST_EMAIL &&
-                    handlerCreationClass != PEGASUS_CLASSNAME_INDHANDLER_SNMP)
-                {
-                    //
-                    // Wrong option for this operation was found
-                    //
-                    throw UnexpectedOptionException(OPTION_SNMPSECURITYNAME);
-               }
-            }
-          else if(handlerCreationClass == PEGASUS_CLASSNAME_LSTNRDST_EMAIL)
-            {
-                throw MissingOptionException(OPTION_MAILSUBJECT);
-            }
-            if (handlerSnmpPortNumberSet)
-            {
-                if (handlerCreationClass != PEGASUS_CLASSNAME_INDHANDLER_SNMP)
-                {
-                    //
-                    // Wrong option for this operation was found
-                    //
-                    throw UnexpectedOptionException(OPTION_SNMPPORTNUMBER);
-                }
-            }
-
-            if (handlerSnmpVersionSet)
-            {
-                if (handlerCreationClass != PEGASUS_CLASSNAME_INDHANDLER_SNMP)
-                {
-                    //
-                    // Wrong option for this operation was found
-                    //
-                    throw UnexpectedOptionException(OPTION_SNMPVERSION);
-                }
-            }
-            else if (handlerCreationClass == PEGASUS_CLASSNAME_INDHANDLER_SNMP)
-            {
-                throw MissingOptionException(OPTION_SNMPVERSION);
-            }
-
-            if (handlerSnmpEngineIdSet)
-            {
-                if (handlerCreationClass != PEGASUS_CLASSNAME_INDHANDLER_SNMP)
-                {
-                    //
-                    // Wrong option for this operation was found
-                    //
-                    throw UnexpectedOptionException(OPTION_SNMPENGINEID);
-                }
-            }
-        }
-        else if(ARG_SUBSCRIPTIONS== _operationArg)
-        {
-            if (!handlerSet)
-            {
-                throw MissingOptionException(OPTION_HANDLER);
-            }
-            if (!filterSet)
-            {
-                throw MissingOptionException(OPTION_FILTER);
-            }
-        }
-        else
-        {
-            //
-            // A wrong option argument for this operation
-            // was found
-            //
-            throw InvalidOptionArgumentException
-                (_operationArg, OPTION_CREATE);
-        }
-    }
-
     if (filterSet)
     {
         _parseFilterName(filterNameString, _filterName, _filterNamespace);
@@ -1745,12 +885,6 @@ Uint32 CIMSubCommand::execute(
         if (_subscriptionNamespace != String::EMPTY)
         {
             subscriptionNS = _subscriptionNamespace;
-            if(OPERATION_TYPE_LIST == _operationType &&
-                _operationArg != ARG_SUBSCRIPTIONS)
-            {
-                filterNS = subscriptionNS;
-                handlerNS = subscriptionNS;
-            }
         }
 
         if (_filterNamespace != String::EMPTY)
@@ -1766,13 +900,13 @@ Uint32 CIMSubCommand::execute(
         switch (_operationType)
         {
             case OPERATION_TYPE_ENABLE:
-                return(_findAndModifyState(STATE_ENABLED,
+                return(_findAndModifyState(STATE_ENABLED, 
                     subscriptionNS, _filterName, filterNS,
                     _handlerName, handlerNS, _handlerCreationClass,
                     outPrintWriter));
 
             case OPERATION_TYPE_DISABLE:
-                return (_findAndModifyState(STATE_DISABLED,
+                return (_findAndModifyState(STATE_DISABLED, 
                     subscriptionNS, _filterName, filterNS,
                     _handlerName, handlerNS, _handlerCreationClass,
                     outPrintWriter));
@@ -1818,7 +952,7 @@ Uint32 CIMSubCommand::execute(
                           namespaceNames.append(handlerNS);
                      }
                           _listHandlers(_handlerName, namespaceNames,
-                               _handlerCreationClass, _verbose,
+                               _handlerCreationClass, _verbose, 
                                outPrintWriter, errPrintWriter);
                 }
             break;
@@ -1850,170 +984,9 @@ Uint32 CIMSubCommand::execute(
                     errPrintWriter);
             }
             break;
-        case OPERATION_TYPE_CREATE:
-            if ((_operationArg == ARG_SUBSCRIPTIONS) )
-            {
-                return _createSubscription(subscriptionNS,
-                    _filterName, filterNS, _handlerName, handlerNS,
-                    _handlerCreationClass, outPrintWriter,
-                    errPrintWriter);
-            }
-            else if (_operationArg == ARG_FILTERS)
-            {
-                return (_createFilter(_filterName, filterNS,
-                    _filterQuery,_filterQueryLanguage,_filterSourceNamespaces,
-                    outPrintWriter, errPrintWriter));
-            }
-            else
-            {
-                PEGASUS_ASSERT (_operationArg == ARG_HANDLERS);
-                CIMName handlerClass(_handlerCreationClass);
 
-                if (handlerClass == PEGASUS_CLASSNAME_LSTNRDST_CIMXML
-                    || handlerClass == PEGASUS_CLASSNAME_INDHANDLER_CIMXML)
-                {
-                    return _createCimXmlHandler(_handlerName,
-                        handlerNS, _handlerCreationClass, _handlerDestination,
-                        outPrintWriter, errPrintWriter);
-                }
-               else if (handlerClass == PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG)
-                {
-                    return _createSystemLogHandler(_handlerName,
-                        handlerNS, _handlerCreationClass,
-                        outPrintWriter, errPrintWriter);
-                }
-                else if (handlerClass == PEGASUS_CLASSNAME_LSTNRDST_EMAIL)
-                {
-                    Array<String> mailToList;
-                    Array<String> mailCcList;
-                    {
-                        csvStringParse strl(_handlerMailTo, ',');
-                        while(strl.more())
-                        {
-                            mailToList.append(strl.next());
-                        }
-                    }
-                    {
-                        csvStringParse strl(_handlerMailCc, ',');
-                        while(strl.more())
-                        {
-                            mailCcList.append(strl.next());
-                        }
-                    }
-                    return _createEmailHandler(_handlerName,
-                        handlerNS, _handlerCreationClass,
-                        mailToList,
-                        mailCcList,
-                        _handlerMailSubject,
-                        outPrintWriter, errPrintWriter);
-                }
-                else if(handlerClass == PEGASUS_CLASSNAME_INDHANDLER_SNMP)
-                {
-                    return _createSnmpMapperHandler(_handlerName,
-                        handlerNS, _handlerCreationClass,
-                        _handlerSNMPTartgetHost,
-                        _handlerSNMPPortNumber,
-                        _handlerSNMPVersion,
-                        _handlerSNMPSecurityName,
-                        _handlerSNMPEngineID,
-                        outPrintWriter, errPrintWriter);
-                }
-                else
-                {
-                    PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
-                }
-            }
-            break;
-        case OPERATION_TYPE_BATCH:
-        {
-            ifstream batchFile(_batchFileName.getCString());
-            char buffer[1024];
-            char* argv[128];
-            String tempString;
-            Uint32 argc = 0;
-            String bLine;
-            if (!batchFile)
-            {
-                throw CannotOpenFile(_batchFileName);
-            }
-            // parsing batch file line by line
-            while (batchFile.getline(buffer, sizeof(buffer)))
-            {
-                 bLine = buffer;
-                 Uint32 start = 0;
-                 // ignore whitespaces
-                 while (((bLine[start]) == ' ') &&
-                     (start < bLine.size()))
-                 {
-                     start++;
-                 }
-                 // ignore comment and empty line
-                 if (bLine[start] != '#' &&  bLine[start] != '\000')
-                 {
-                        String batchLine = bLine.subString(start,bLine.size());
-                        csvStringParse BatchCmd(batchLine,' ');
-                        while (BatchCmd.more())
-                        {
-                           tempString = BatchCmd.next();
-                           if( tempString.size() != 0 )
-                           {
-                              argv[argc] = strdup(tempString.getCString());
-                              argc++;
-                           }
-                        }
-                        try
-                        {
-                            // get all options
-                            setCommand(outPrintWriter,errPrintWriter,argc,argv);
-                        }
-                        catch(CommandFormatException& e)
-                        {
-                           errPrintWriter << e.getMessage()<<"\n";
-                        }
-                        catch(CIMException& e)
-                        {
-                           errPrintWriter << e.getMessage()<<"\n";
-                        }
-                        catch(...)
-                        {
-
-                        }
-                        try
-                        {
-                            // execute the command
-                            execute(outPrintWriter,errPrintWriter);
-                        }
-                        catch(CIMException& e)
-                        {
-                           errPrintWriter << e.getMessage()<<"\n";
-                        }
-                        catch(...)
-                        {
-
-                        }
-                        for (Uint32 ac = 0; ac < argc ;ac++ )
-                        {
-                            free(argv[ac]);
-                        }
-                        argc = 0;
-                        if (_verbose)
-                        {
-                            _verbose = false;
-                        }
-                        // reset values before next command
-                        _subscriptionNamespace.clear();
-                        _filterNamespace.clear();
-                        _handlerNamespace.clear();
-                        _filterName.clear();
-                        _handlerName.clear();
-                        outPrintWriter << "\n";
-                  }
-             }
-             _isBatchNamespace = false;
-          break;
-        }
         default:
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+            PEGASUS_ASSERT(0);
             break;
         }
     }
@@ -2192,86 +1165,6 @@ void CIMSubCommand::_parseHandlerName(
     }
 }
 
-
-Uint32 CIMSubCommand::_createSubscription(
-    const CIMNamespaceName& subscriptionNamespace,
-    const String& filterName,
-    const CIMNamespaceName& filterNamespace,
-    const String& handlerName,
-    const CIMNamespaceName& handlerNamespace,
-    const String& handlerCreationClass,
-    ostream& outPrintWriter,
-    ostream& errPrintWriter)
-{
-    Array<CIMObjectPath> allSubPathFound;
-    CIMNamespaceName filterNS = _DEFAULT_SUBSCRIPTION_NAMESPACE;
-    CIMNamespaceName handlerNS = _DEFAULT_SUBSCRIPTION_NAMESPACE;
-    CIMNamespaceName subscriptionNS = _DEFAULT_SUBSCRIPTION_NAMESPACE;
-    CIMObjectPath filterPath;
-    CIMObjectPath handlerPath;
-    String handlerCreationCls = handlerCreationClass;
-    if (_isBatchNamespace )
-    {
-        subscriptionNS = _batchNamespace;
-    }
-    else if (!subscriptionNamespace.isNull())
-    {
-        subscriptionNS = subscriptionNamespace;
-    }
-    if (_isBatchNamespace )
-    {
-        filterNS = _batchNamespace;
-    }
-    else if (!filterNamespace.isNull())
-    {
-        filterNS = filterNamespace;
-    }
-    if (_isBatchNamespace )
-    {
-        handlerNS = _batchNamespace;
-    }
-    else if (!handlerNamespace.isNull())
-    {
-        handlerNS = handlerNamespace;
-    }
-
-    if (handlerCreationCls == String::EMPTY)
-    {
-        handlerCreationCls = PEGASUS_CLASSNAME_LSTNRDST_CIMXML.getString();
-    }
-
-    if (!_findFilter(filterName, filterNS, errPrintWriter, filterPath))
-    {
-        outPrintWriter << localizeMessage(MSG_PATH,
-            FILTER_NOT_FOUND_KEY,
-            FILTER_NOT_FOUND_FAILURE) << endl;
-        return (RC_OBJECT_NOT_FOUND);
-    }
-    filterPath.setNameSpace(filterNS);
-    if (!_findHandler(handlerName, handlerNS, handlerCreationCls,
-        errPrintWriter, handlerPath))
-    {
-        outPrintWriter << localizeMessage(MSG_PATH,
-            HANDLER_NOT_FOUND_KEY,
-            HANDLER_NOT_FOUND_FAILURE) << endl;
-        return RC_OBJECT_NOT_FOUND;
-    }
-    handlerPath.setNameSpace(handlerNS);
-
-    CIMInstance subscriptionInstance (PEGASUS_CLASSNAME_INDSUBSCRIPTION);
-    subscriptionInstance.addProperty (CIMProperty (CIMName ("Filter"),
-        filterPath, 0, PEGASUS_CLASSNAME_INDFILTER));
-    subscriptionInstance.addProperty (CIMProperty (CIMName ("Handler"),
-        handlerPath, 0, PEGASUS_CLASSNAME_INDHANDLER_CIMXML));
-    subscriptionInstance.addProperty (CIMProperty
-        (CIMName ("SubscriptionState"), CIMValue ((Uint16) 2)));
-
-    _client->createInstance (subscriptionNS,
-        subscriptionInstance);
-
-    return (RC_SUCCESS);
-}
-
 //
 // remove an existing subscription instance
 //
@@ -2286,108 +1179,63 @@ Uint32 CIMSubCommand::_removeSubscription(
     ostream& outPrintWriter,
     ostream& errPrintWriter)
 {
-    Array<CIMObjectPath> allSubPathFound;
+    CIMObjectPath subPathFound;
     CIMNamespaceName filterNS;
     CIMNamespaceName handlerNS;
     CIMNamespaceName subscriptionNS = _DEFAULT_SUBSCRIPTION_NAMESPACE;
-    if (_isBatchNamespace )
-    {
-        subscriptionNS = _batchNamespace;
-    }
-    else if (!subscriptionNamespace.isNull())
+
+    if (!subscriptionNamespace.isNull())
     {
         subscriptionNS = subscriptionNamespace;
     }
-    if (_isBatchNamespace )
-    {
-        filterNS = _batchNamespace;
-    }
-    else if (!filterNamespace.isNull())
+
+    if (!filterNamespace.isNull())
     {
         filterNS = filterNamespace;
     }
-    if (_isBatchNamespace )
+    else
     {
-        handlerNS = _batchNamespace;
+        filterNS = subscriptionNS;
     }
-    else if (!handlerNamespace.isNull())
+
+    if (!handlerNamespace.isNull())
     {
         handlerNS = handlerNamespace;
     }
+    else
+    {
+        handlerNS = subscriptionNS;
+    }
 
     if (_findSubscription(subscriptionNS, filterName, filterNS,
-        handlerName, handlerNS, handlerCreationClass, allSubPathFound))
+        handlerName, handlerNS, handlerCreationClass, subPathFound))
     {
-        for(Uint32 i = 0;i<allSubPathFound.size();i++)
+        if (!removeAll)
         {
-                CIMObjectPath subPathFound = allSubPathFound[i];
-                if (!removeAll)
+            _client->deleteInstance(subscriptionNS, subPathFound);
+        }
+        else
+        {
+            // Delete subscription, filter and handler
+            CIMObjectPath filterRef, handlerRef;
+            //
+            //  Get the subscription Filter and Handler ObjectPaths
+            //
+            Array<CIMKeyBinding> keys = subPathFound.getKeyBindings();
+            for( Uint32 j=0; j < keys.size(); j++)
+            {
+                if (keys[j].getName().equal(PEGASUS_PROPERTYNAME_FILTER))
                 {
-                    try
-                    {
-                        _client->deleteInstance(subscriptionNS, subPathFound);
-                    }
-                    catch(const Exception& e)
-                    {
-                        errPrintWriter << e.getMessage() << endl;
-                    }
+                    filterRef = keys[j].getValue();
                 }
-                else
+                if (keys[j].getName().equal(PEGASUS_PROPERTYNAME_HANDLER))
                 {
-                    // Delete subscription, filter and handler
-                    CIMObjectPath filterRef, handlerRef;
-                    //
-                    //  Get the subscription Filter and Handler ObjectPaths
-                    //
-                    Array<CIMKeyBinding> keys = subPathFound.getKeyBindings();
-                    for( Uint32 j=0; j < keys.size(); j++)
-                    {
-                        if (keys[j].getName().equal(
-                            PEGASUS_PROPERTYNAME_FILTER))
-                        {
-                            filterRef = keys[j].getValue();
-                        }
-                        if (keys[j].getName().equal(
-                            PEGASUS_PROPERTYNAME_HANDLER))
-                        {
-                            handlerRef = keys[j].getValue();
-                        }
-                    }
-                    try
-                    {
-                        _client->deleteInstance(subscriptionNS, subPathFound);
-                    }
-                    catch(const Exception& e)
-                    {
-                        errPrintWriter << e.getMessage() << endl;
-                    }
-                    try
-                    {
-                        CIMNamespaceName tmpFilterNS = filterNS;
-                        if(tmpFilterNS.isNull())
-                        {
-                            tmpFilterNS = filterRef.getNameSpace();
-                        }
-                        _client->deleteInstance(tmpFilterNS, filterRef);
-                    }
-                    catch(const Exception& e)
-                    {
-                        errPrintWriter << e.getMessage() << endl;
-                    }
-                    try
-                    {
-                        CIMNamespaceName tmpFilterNS = handlerNS;
-                        if(tmpFilterNS.isNull())
-                        {
-                            tmpFilterNS = handlerRef.getNameSpace();
-                        }
-                        _client->deleteInstance(tmpFilterNS, handlerRef);
-                    }
-                    catch(const Exception& e)
-                    {
-                        errPrintWriter << e.getMessage() << endl;
-                    }
+                    handlerRef = keys[j].getValue();
                 }
+            }
+            _client->deleteInstance(subscriptionNS, subPathFound);
+            _client->deleteInstance(filterNS, filterRef);
+            _client->deleteInstance(handlerNS, handlerRef);
         }
         return (RC_SUCCESS);
     }
@@ -2398,61 +1246,6 @@ Uint32 CIMSubCommand::_removeSubscription(
             SUBSCRIPTION_NOT_FOUND_FAILURE) << endl;
         return (RC_OBJECT_NOT_FOUND);
     }
-}
-
-//
-//  create an specify filter instance
-//
-Uint32 CIMSubCommand::_createFilter
-(
-    const String& filterName,
-    const CIMNamespaceName& filterNamespace,
-    const String& filterQuery,
-    const String& filterQueryLanguage,
-    const Array<String>& filterSourceNamespaces,
-    ostream& outPrintWriter,
-    ostream& errPrintWriter
-)
-{
-    CIMObjectPath filterPath;
-    CIMNamespaceName filterNS = _DEFAULT_SUBSCRIPTION_NAMESPACE;
-    Array<String> sourceNamespaces;
-    sourceNamespaces = filterSourceNamespaces;
-    String queryLang = "CIM:CQL";
-    if (_isBatchNamespace )
-    {
-        filterNS = _batchNamespace;
-    }
-    else if (!filterNamespace.isNull())
-    {
-        filterNS = filterNamespace;
-    }
-    if (sourceNamespaces.size() == 0)
-    {
-        sourceNamespaces.append(filterNS.getString());
-    }
-    if (filterQueryLanguage != String::EMPTY)
-    {
-        queryLang = filterQueryLanguage;
-    }
-
-    CIMInstance filterInstance (PEGASUS_CLASSNAME_INDFILTER);
-    filterInstance.addProperty (CIMProperty (CIMName ("Name"), filterName));
-    filterInstance.addProperty (CIMProperty (CIMName ("Query"), filterQuery));
-    filterInstance.addProperty (CIMProperty (CIMName ("QueryLanguage"),
-        filterQueryLanguage));
-    if (_filterNSFlag == false && sourceNamespaces.size() == 1)
-    {
-         filterInstance.addProperty (
-             CIMProperty (CIMName ("SourceNamespace"),sourceNamespaces[0]));
-    }
-    else
-    {
-         filterInstance.addProperty (
-             CIMProperty (CIMName ("SourceNamespaces"),sourceNamespaces));
-    }
-    _client->createInstance(filterNS, filterInstance);
-    return (RC_SUCCESS);
 }
 
 //
@@ -2468,11 +1261,7 @@ Uint32 CIMSubCommand::_removeFilter
 {
     CIMObjectPath filterPath;
     CIMNamespaceName filterNS = _DEFAULT_SUBSCRIPTION_NAMESPACE;
-    if (_isBatchNamespace )
-    {
-        filterNS = _batchNamespace;
-    }
-    else if (!filterNamespace.isNull())
+    if (!filterNamespace.isNull())
     {
         filterNS = filterNamespace;
     }
@@ -2549,212 +1338,6 @@ Boolean CIMSubCommand::_findFilter(
     return status;
 }
 
-////  create a specify CIMXML handler instance
-//
-Uint32 CIMSubCommand::_createCimXmlHandler(
-    const String& handlerName,
-    const CIMNamespaceName& handlerNamespace,
-    const String& handlerCreationClass,
-    const String& handlerDestination,
-    ostream& outPrintWriter,
-    ostream& errPrintWriter)
-{
-    CIMObjectPath handlerPath;
-    CIMNamespaceName handlerNS = _DEFAULT_SUBSCRIPTION_NAMESPACE;
-    CIMName creationClass = PEGASUS_CLASSNAME_LSTNRDST_CIMXML;
-    if (_isBatchNamespace )
-    {
-        handlerNS = _batchNamespace;
-    }
-    else if (!handlerNamespace.isNull())
-    {
-        handlerNS = handlerNamespace;
-    }
-
-    if (handlerCreationClass != String::EMPTY)
-    {
-        creationClass = handlerCreationClass;
-    }
-
-    CIMInstance handlerInstance(creationClass);
-    handlerInstance.addProperty(CIMProperty(CIMName("Name"), handlerName));
-    handlerInstance.addProperty(CIMProperty(
-        CIMName("Destination"),
-        handlerDestination));
-
-    _client->createInstance(
-        handlerNS,
-        handlerInstance);
-        return (RC_SUCCESS);
-}
-
-////  create a specify Syslog handler instance
-//
-Uint32 CIMSubCommand::_createSystemLogHandler(
-    const String& handlerName,
-    const CIMNamespaceName& handlerNamespace,
-    const String& handlerCreationClass,
-    ostream& outPrintWriter,
-    ostream& errPrintWriter)
-{
-    CIMObjectPath handlerPath;
-    CIMNamespaceName handlerNS = _DEFAULT_SUBSCRIPTION_NAMESPACE;
-    CIMName creationClass = PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG;
-    if (_isBatchNamespace )
-    {
-        handlerNS = _batchNamespace;
-    }
-    else if (!handlerNamespace.isNull())
-    {
-        handlerNS = handlerNamespace;
-    }
-
-    if (handlerCreationClass != String::EMPTY)
-    {
-        creationClass = handlerCreationClass;
-    }
-
-    CIMInstance handlerInstance(creationClass);
-    handlerInstance.addProperty(CIMProperty(CIMName("Name"), handlerName));
-
-    _client->createInstance(
-        handlerNS,
-        handlerInstance);
-        return (RC_SUCCESS);
-}
-
-
-////  create a specify Email handler instance
-//
-Uint32 CIMSubCommand::_createEmailHandler(
-        const String& handlerName,
-        const CIMNamespaceName& handlerNamespace,
-        const String& handlerCreationClass,
-        const Array<String>& mailTo,
-        const Array<String>& mailCc,
-        const String& mailSubject,
-        ostream& outPrintWriter,
-        ostream& errPrintWriter)
-{
-    CIMObjectPath handlerPath;
-    CIMNamespaceName handlerNS = _DEFAULT_SUBSCRIPTION_NAMESPACE;
-    CIMName creationClass = PEGASUS_CLASSNAME_LSTNRDST_EMAIL;
-    if (_isBatchNamespace )
-    {
-        handlerNS = _batchNamespace;
-    }
-    else if (!handlerNamespace.isNull())
-    {
-        handlerNS = handlerNamespace;
-    }
-
-    if (handlerCreationClass != String::EMPTY)
-    {
-        creationClass = handlerCreationClass;
-    }
-
-    CIMInstance handlerInstance(creationClass);
-    handlerInstance.addProperty(CIMProperty(CIMName("Name"), handlerName));
-
-    handlerInstance.addProperty(CIMProperty(
-        PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO,
-        mailTo));
-
-    handlerInstance.addProperty(CIMProperty(
-        PEGASUS_PROPERTYNAME_LSTNRDST_MAILCC,
-        mailCc));
-
-    handlerInstance.addProperty(CIMProperty(
-        PEGASUS_PROPERTYNAME_LSTNRDST_MAILSUBJECT,
-        mailSubject));
-
-    _client->createInstance(
-        handlerNS,
-        handlerInstance);
-        return (RC_SUCCESS);
-}
-
-////  create a specify Snmp Mapper handler instance
-//
-Uint32 CIMSubCommand::_createSnmpMapperHandler(
-        const String& handlerName,
-        const CIMNamespaceName& handlerNamespace,
-        const String& handlerCreationClass,
-        const String& targetHost,
-        Uint32 snmpPort,
-        Uint32 snmpVersion,
-        const String& securityName,
-        const String& engineId,
-        ostream& outPrintWriter,
-        ostream& errPrintWriter)
-{
-    CIMObjectPath handlerPath;
-    CIMNamespaceName handlerNS = _DEFAULT_SUBSCRIPTION_NAMESPACE;
-    CIMName creationClass = PEGASUS_CLASSNAME_INDHANDLER_SNMP;
-    Uint16 targetHostFormat = 2; //Host Name
-    if (_isBatchNamespace )
-    {
-        handlerNS = _batchNamespace;
-    }
-    else if (!handlerNamespace.isNull())
-    {
-        handlerNS = handlerNamespace;
-    }
-
-    if (handlerCreationClass != String::EMPTY)
-    {
-        creationClass = handlerCreationClass;
-    }
-
-    CIMInstance handlerInstance(creationClass);
-    handlerInstance.addProperty(CIMProperty(CIMName("Name"), handlerName));
-
-    {
-        HostAddress tgtHost;
-        tgtHost.setHostAddress(targetHost);
-        if (tgtHost.getAddressType() == HostAddress::AT_IPV4)
-        {
-              targetHostFormat = 3; //Ipv4
-        }
-        else if(tgtHost.getAddressType() == HostAddress::AT_IPV6)
-        {
-            targetHostFormat = 4; //Ipv6
-        }
-    }
-    handlerInstance.addProperty(CIMProperty(
-        PEGASUS_PROPERTYNAME_LSTNRDST_TARGETHOST,
-        targetHost));
-
-    handlerInstance.addProperty(CIMProperty(
-        "TargetHostFormat",
-        (Uint16)targetHostFormat));
-
-    handlerInstance.addProperty(CIMProperty(
-        "PortNumber",
-        snmpPort));
-
-    handlerInstance.addProperty(CIMProperty(
-        "SNMPVersion",
-        (Uint16)snmpVersion));
-
-    if (securityName != String::EMPTY)
-    {
-        handlerInstance.addProperty(CIMProperty(
-            "SNMPSecurityName",
-            securityName));
-    }
-
-    if (engineId != String::EMPTY)
-    {
-        handlerInstance.addProperty(CIMProperty(
-            "SNMPEngineID",
-            engineId));
-    }
-    _client->createInstance(
-        handlerNS,
-        handlerInstance);
-        return (RC_SUCCESS);
-}
 ////  remove an existing handler instance
 //
 Uint32 CIMSubCommand::_removeHandler(
@@ -2766,11 +1349,7 @@ Uint32 CIMSubCommand::_removeHandler(
 {
     CIMObjectPath handlerPath;
     CIMNamespaceName handlerNS = _DEFAULT_SUBSCRIPTION_NAMESPACE;
-    if (_isBatchNamespace )
-    {
-        handlerNS = _batchNamespace;
-    }
-    else if (!handlerNamespace.isNull())
+    if (!handlerNamespace.isNull())
     {
         handlerNS = handlerNamespace;
     }
@@ -2922,10 +1501,10 @@ Boolean CIMSubCommand::_findSubscription(
     const String& handlerName,
     const CIMNamespaceName& handlerNamespace,
     const String& handlerCC,
-    Array<CIMObjectPath>& subscriptionFound)
+    CIMObjectPath& subscriptionFound)
 {
     Array<CIMObjectPath> subscriptionPaths;
-    String handlerCreationClass;
+    String handlerCreationClass = PEGASUS_CLASSNAME_LSTNRDST_CIMXML.getString();
     if (handlerCC != String::EMPTY)
     {
         handlerCreationClass = handlerCC;
@@ -2963,15 +1542,16 @@ Boolean CIMSubCommand::_findSubscription(
             {
                 CIMObjectPath handlerRef;
                 if(_handlerMatches(subPath, subscriptionNamespace,
-                    handlerName, handlerNamespace, handlerCreationClass,
+                    handlerName, handlerNamespace, handlerCreationClass, 
                     handlerNS, handlerRef))
                 {
-                    subscriptionFound.append(subPath);
+                    subscriptionFound = subPath;
+                    return true;
                 }
             }
         }
     }
-    return subscriptionFound.size() > 0;
+    return false;
 }
 
 //
@@ -2979,7 +1559,7 @@ Boolean CIMSubCommand::_findSubscription(
 //
 Uint32 CIMSubCommand::_findAndModifyState(
     const Uint16 newState,
-    const CIMNamespaceName& subscriptionNamespace,
+    const CIMNamespaceName& subscriptionNamespace, 
     const String& filterName,
     const CIMNamespaceName& filterNamespace,
     const String& handlerName,
@@ -2987,27 +1567,17 @@ Uint32 CIMSubCommand::_findAndModifyState(
     const String& handlerCreationClass,
     ostream& outPrintWriter)
 {
-    Array<CIMObjectPath> allSubscriptionFound;
+    CIMObjectPath subscriptionFound;
     CIMNamespaceName filterNS;
     CIMNamespaceName handlerNS;
     CIMNamespaceName subscriptionNS = _DEFAULT_SUBSCRIPTION_NAMESPACE;
 
-    if (_isBatchNamespace )
-    {
-        subscriptionNS = _batchNamespace;
-    }
-
-    else if (!subscriptionNamespace.isNull())
+    if (!subscriptionNamespace.isNull())
     {
         subscriptionNS = subscriptionNamespace;
     }
 
-    if (_isBatchNamespace )
-    {
-        filterNS = _batchNamespace;
-    }
-
-    else if (!filterNamespace.isNull())
+    if (!filterNamespace.isNull())
     {
         filterNS = filterNamespace;
     }
@@ -3015,12 +1585,8 @@ Uint32 CIMSubCommand::_findAndModifyState(
     {
         filterNS = subscriptionNS;
     }
-    if (_isBatchNamespace )
-    {
-        handlerNS = _batchNamespace;
-    }
 
-    else if (!handlerNamespace.isNull())
+    if (!handlerNamespace.isNull())
     {
         handlerNS = handlerNamespace;
     }
@@ -3028,18 +1594,13 @@ Uint32 CIMSubCommand::_findAndModifyState(
     {
         handlerNS = subscriptionNS;
     }
-    // Find subscriptions in the namespace specified by the user
+
+    // Find subscriptions in the namespace specified by the user 
     if (_findSubscription(subscriptionNS, filterName, filterNS,
-        handlerName, handlerNS, handlerCreationClass, allSubscriptionFound))
+        handlerName, handlerNS, handlerCreationClass, subscriptionFound))
     {
-        for(Uint32 i = 0;i<allSubscriptionFound.size();i++)
-        {
-                _modifySubscriptionState(
-                     subscriptionNS,
-                     allSubscriptionFound[i],
-                     newState,
-                     outPrintWriter);
-        }
+        _modifySubscriptionState(subscriptionNS, subscriptionFound,
+            newState, outPrintWriter);
         return(RC_SUCCESS);
     }
     else
@@ -3124,36 +1685,12 @@ void CIMSubCommand::_listHandlers(
     //
     //  Find handlers in namespaces
     //
-    if (_isBatchNamespace )
+    for (Uint32 i = 0 ; i < namespaceNames.size() ; i++)
     {
-        _getHandlerList(
-                handlerName,
-                _batchNamespace,
-                handlerCreationClass,
-                verbose,
-                instancesFound,
-                handlerTypesFound,
-                maxColumnWidth,
-                listOutputTable,
-                outPrintWriter,
-                errPrintWriter);
-    }
-    else
-    {
-       for (Uint32 i = 0 ; i < namespaceNames.size() ; i++)
-       {
-           _getHandlerList(
-                handlerName,
-                namespaceNames[i],
-                handlerCreationClass,
-                verbose,
-                instancesFound,
-                handlerTypesFound,
-                maxColumnWidth,
-                listOutputTable,
-                outPrintWriter,
-                errPrintWriter);
-       }
+        _getHandlerList(handlerName, namespaceNames[i],
+            handlerCreationClass, verbose, instancesFound, handlerTypesFound,
+            maxColumnWidth, listOutputTable, outPrintWriter,
+            errPrintWriter);
     }
     if (verbose)
     {
@@ -3390,7 +1927,6 @@ void CIMSubCommand::_listFilters(
     Array<String> filtersFound;
     Array<String> querysFound;
     Array<String> queryLangsFound;
-    Array<String> filterSourceNamespaces;
     const String filterTitle = "FILTER";
     const String queryTitle = "QUERY";
     if (!verbose)
@@ -3404,44 +1940,18 @@ void CIMSubCommand::_listFilters(
     listOutputTable.append(querysFound);
 
     //  Find filters in namespaces
-    if (_isBatchNamespace )
+    for (Uint32 i = 0 ; i < namespaceNames.size(); i++)
     {
-         _getFilterList(
-             filterName,
-             _batchNamespace,
-             verbose,
-             maxColumnWidth,
-             listOutputTable,
-             queryLangsFound,
-             filterSourceNamespaces,
-             outPrintWriter,
-             errPrintWriter);
-    }
-    else
-    {
-       for (Uint32 i = 0 ; i < namespaceNames.size(); i++)
-       {
-        _getFilterList(
-             filterName,
-             namespaceNames[i],
-             verbose,
-             maxColumnWidth,
-             listOutputTable,
-             queryLangsFound,
-             filterSourceNamespaces,
-             outPrintWriter,
-             errPrintWriter);
-       }
+        _getFilterList(filterName, namespaceNames[i], verbose,
+            maxColumnWidth, listOutputTable, queryLangsFound, outPrintWriter,
+            errPrintWriter);
     }
     if (verbose)
     {
         if (listOutputTable[_FILTER_LIST_NAME_COLUMN].size() > 0)
         {
-           _printFiltersVerbose(
-                listOutputTable,
-                queryLangsFound,
-                filterSourceNamespaces,
-                outPrintWriter);
+           _printFiltersVerbose(listOutputTable, queryLangsFound, 
+               outPrintWriter);
         }
     }
     else
@@ -3459,7 +1969,6 @@ void CIMSubCommand::_listFilters(
 void CIMSubCommand::_printFiltersVerbose(
     const Array <ListColumnEntry>& listOutputTable,
     const Array <String>& queryLangs,
-    const Array<String>& filterSourceNamespaces,
     ostream& outPrintWriter)
 {
     Uint32 maxEntries = listOutputTable[_FILTER_LIST_NAME_COLUMN].size();
@@ -3477,21 +1986,9 @@ void CIMSubCommand::_printFiltersVerbose(
             (listOutputTable[_FILTER_LIST_QUERY_COLUMN])[indexes[i]] << endl;
         outPrintWriter << "Query Language:   " <<
             queryLangs[indexes[i]] << endl;
-        outPrintWriter << "Source Namespace: ";
-        for (Uint32 j = 0; j < filterSourceNamespaces.size(); j++)
-        {
-            if ( j < filterSourceNamespaces.size() - 1)
-            {
-                outPrintWriter<< filterSourceNamespaces[j]<<",";
-            }
-            else
-            {
-                outPrintWriter<< filterSourceNamespaces[j]<<endl;
-            }
-        }
         outPrintWriter <<
             "-----------------------------------------" << endl;
-   }
+    }
 }
 
 //
@@ -3504,7 +2001,6 @@ void CIMSubCommand::_getFilterList(
     Array <Uint32>& maxColumnWidth,
     Array <ListColumnEntry>& listOutputTable,
     Array <String>& queryLangsFound,
-    Array<String>& filterSourceNamespaces,
     ostream& outPrintWriter,
     ostream& errPrintWriter)
 {
@@ -3567,15 +2063,10 @@ void CIMSubCommand::_getFilterList(
             {
                 String queryString,queryLanguageString;
                 String filterString = filterNamespace.getString();
-                String sourceNamespaceString = filterNamespace.getString();
                 filterString.append(DELIMITER_NAMESPACE);
                 filterString.append(filterNameValue);
-                _getFilterInfo(
-                     filterNamespace,
-                     filterPath,
-                     queryString,
-                     queryLanguageString,
-                     filterSourceNamespaces);
+                _getQueryString(filterNamespace,
+                    filterPath, queryString, queryLanguageString);
                 listOutputTable[_FILTER_LIST_NAME_COLUMN].append(filterString);
                 listOutputTable[_FILTER_LIST_QUERY_COLUMN].append(queryString);
                 if (verbose)
@@ -3605,15 +2096,13 @@ void CIMSubCommand::_getFilterList(
 //
 //  get the query string for a filter
 //
-void CIMSubCommand::_getFilterInfo(
+void CIMSubCommand::_getQueryString(
     const CIMNamespaceName& filterNamespace,
     const CIMObjectPath& filterPath,
     String& queryString,
-    String& queryLangString,
-    Array<String>& filterSourceNamespaces)
+    String& queryLangString)
 {
     String query;
-    String filterSourceNamespace;
     queryString = "\"";
     CIMInstance filterInstance = _client->getInstance(
         filterNamespace, filterPath);
@@ -3630,25 +2119,6 @@ void CIMSubCommand::_getFilterInfo(
     if (pos != PEG_NOT_FOUND)
     {
         filterInstance.getProperty(pos).getValue().get(queryLangString);
-    }
-    pos = filterInstance.findProperty(
-        CIMNameCast("SourceNamespace"));
-    if (pos != PEG_NOT_FOUND)
-    {
-        filterInstance.getProperty(pos).getValue().get(filterSourceNamespace);
-        filterSourceNamespaces.append(filterSourceNamespace);
-    }
-    pos = filterInstance.findProperty(
-              CIMNameCast("SourceNamespaces"));
-    if (pos != PEG_NOT_FOUND)
-    {
-        filterSourceNamespaces.clear();
-        filterInstance.getProperty(pos).getValue().get(
-              filterSourceNamespaces);
-    }
-    if (filterSourceNamespaces.size() == 0)
-    {
-        filterSourceNamespaces.append(filterSourceNamespace);
     }
 }
 
@@ -3695,40 +2165,14 @@ void CIMSubCommand::_listSubscriptions(
     listOutputTable.append(filtersFound);
     listOutputTable.append(handlersFound);
     listOutputTable.append(statesFound);
-    if (_isBatchNamespace)
+
+    for (Uint32 i = 0 ; i < namespaceNames.size() ; i++)
     {
-        _getSubscriptionList(
-             _batchNamespace,
-             filterName,
-             _batchNamespace,
-             handlerName,
-             _batchNamespace,
-             handlerCreationClass,
-             verbose,
-             handlerInstancesFound,
-             handlerTypesFound,
-             querysFound,
-             maxColumnWidth,
-             listOutputTable);
-    }
-    else
-    {
-        for (Uint32 i = 0 ; i < namespaceNames.size() ; i++)
-        {
-            _getSubscriptionList(
-                namespaceNames[i],
-                filterName,
-                filterNamespace,
-                handlerName,
-                handlerNamespace,
-                handlerCreationClass,
-                verbose,
-                handlerInstancesFound,
-                handlerTypesFound,
-                querysFound,
-                maxColumnWidth,
-                listOutputTable);
-        }
+        _getSubscriptionList(namespaceNames[i], filterName,
+            filterNamespace, handlerName, handlerNamespace,
+            handlerCreationClass, verbose, handlerInstancesFound,
+            handlerTypesFound, querysFound, maxColumnWidth,
+            listOutputTable);
     }
 
     if (verbose)
@@ -3773,7 +2217,7 @@ void CIMSubCommand::_getSubscriptionList(
     CIMNamespaceName filterNamespace;
     CIMNamespaceName handlerNamespace;
     CIMNamespaceName subscriptionNamespace = _DEFAULT_SUBSCRIPTION_NAMESPACE;
-    String handlerCreationClass;
+    String handlerCreationClass = PEGASUS_CLASSNAME_LSTNRDST_CIMXML.getString();
     if (!subscriptionNSIn.isNull())
     {
         subscriptionNamespace = subscriptionNSIn;
@@ -3783,9 +2227,18 @@ void CIMSubCommand::_getSubscriptionList(
         filterNamespace = filterNSIn;
     }
 
+    else
+    {
+        filterNamespace = subscriptionNamespace;
+    }
+
     if (!handlerNSIn.isNull())
     {
         handlerNamespace = handlerNSIn;
+    }
+    else
+    {
+        handlerNamespace = subscriptionNamespace;
     }
 
     if (handlerCCIn != String::EMPTY)
@@ -3871,12 +2324,11 @@ void CIMSubCommand::_getSubscriptionList(
                     (statusValue);
                 if (verbose)
                 {
-                    String queryString, queryLangString, sourceNamespace;
-                    Array <String> sourceNamespaces;
+                    String queryString, queryLangString;
                     handlerInstancesFound.append (handlerInstance);
                     handlerTypesFound.append (handlerType);
-                    _getFilterInfo(filterNS, filterRef, queryString,
-                       queryLangString,sourceNamespaces);
+                    _getQueryString(filterNS, filterRef, queryString,
+                       queryLangString);
                     querysFound.append(queryString);
                 }
                 else
@@ -4002,9 +2454,9 @@ void CIMSubCommand::_printSubscriptionsVerbose(
     {
        indexes.append (i);
     }
-    _bubbleIndexSort(listOutputTable[_SUBSCRIPTION_LIST_HANDLER_COLUMN], 0,
+    _bubbleIndexSort(listOutputTable[_SUBSCRIPTION_LIST_HANDLER_COLUMN], 0, 
             indexes);
-    _bubbleIndexSort(listOutputTable[_SUBSCRIPTION_LIST_FILTER_COLUMN], 0,
+    _bubbleIndexSort(listOutputTable[_SUBSCRIPTION_LIST_FILTER_COLUMN], 0, 
             indexes);
     _bubbleIndexSort(listOutputTable[_SUBSCRIPTION_LIST_NS_COLUMN], 0, indexes);
     for (Uint32 i = 0; i < maxEntries; i++)
@@ -4012,10 +2464,10 @@ void CIMSubCommand::_printSubscriptionsVerbose(
         outPrintWriter << "Namespace:         " <<
             (listOutputTable[_SUBSCRIPTION_LIST_NS_COLUMN])[indexes[i]] << endl;
         outPrintWriter << "Filter:            " <<
-            (listOutputTable[_SUBSCRIPTION_LIST_FILTER_COLUMN])[indexes[i]]
+            (listOutputTable[_SUBSCRIPTION_LIST_FILTER_COLUMN])[indexes[i]] 
             << endl;
         outPrintWriter << "Handler:           " <<
-            (listOutputTable[_SUBSCRIPTION_LIST_HANDLER_COLUMN])[indexes[i]]
+            (listOutputTable[_SUBSCRIPTION_LIST_HANDLER_COLUMN])[indexes[i]] 
             << endl;
         outPrintWriter << "Query:             " << querysFound[indexes[i]]
                 << endl;
@@ -4098,6 +2550,14 @@ Boolean CIMSubCommand::_filterMatches(
     Boolean filterMatch = false;
     String filterNameString;
 
+    if (!filterNamespace.isNull())
+    {
+        filterNS = filterNamespace;
+    }
+    else
+    {
+        filterNS = subscriptionNS;
+    }
     //
     //  Get the subscription Filter
     //
@@ -4116,7 +2576,7 @@ Boolean CIMSubCommand::_filterMatches(
     {
         if (filterNameString == filterName)
         {
-            if (!filterNamespace.isNull())
+            if (filterNamespace.isNull())
             {
                 //
                 //  If the Filter reference property value includes
@@ -4125,10 +2585,10 @@ Boolean CIMSubCommand::_filterMatches(
                 //  include namespace, check if the current subscription
                 //  namespace is the namespace of the Filter.
                 //
-                if(instanceNS.isNull()
-                    || filterNamespace == instanceNS)
+                if (((instanceNS.isNull()) &&
+                    (subscriptionNS == filterNS))
+                    || (instanceNS == filterNS))
                 {
-                    filterNS = filterNamespace;
                     filterMatch = true;
                 }
             }
@@ -4186,6 +2646,14 @@ Boolean CIMSubCommand::_handlerMatches(
     String handlerNameString;
     String creationClassName;
 
+    if (!handlerNamespace.isNull())
+    {
+        handlerNS = handlerNamespace;
+    }
+    else
+    {
+        handlerNS = subscriptionNS;
+    }
     //
     //  Get the subscription Handler
     //
@@ -4203,7 +2671,7 @@ Boolean CIMSubCommand::_handlerMatches(
         CIMNamespaceName instanceNS = handlerRef.getNameSpace();
         if (handlerNameString == handlerName)
         {
-            if (!handlerNamespace.isNull())
+            if (handlerNamespace.isNull())
             {
                 //
                 //  If the Handler reference property value includes
@@ -4212,10 +2680,10 @@ Boolean CIMSubCommand::_handlerMatches(
                 //  include namespace, check if the current subscription
                 //  namespace is the namespace of the Handler.
                 //
-                if(instanceNS.isNull()
-                    || handlerNamespace == instanceNS)
+                if (((instanceNS.isNull()) &&
+                   (subscriptionNS == handlerNS))
+                   || (instanceNS == handlerNS))
                 {
-                    handlerNS = handlerNamespace;
                     handlerMatch = true;
                 }
             }
@@ -4290,7 +2758,7 @@ void CIMSubCommand::_getEmailInfo(
     Array <String> mailCc, mailTo;
     subjectString = String::EMPTY;
     mailTo.append(String::EMPTY);
-    Uint32 pos =
+    Uint32 pos = 
         handlerInstance.findProperty(PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO);
     if( pos != PEG_NOT_FOUND)
     {
@@ -4330,7 +2798,7 @@ void CIMSubCommand::_getEmailInfo(
 String CIMSubCommand::_getPersistenceType(const CIMInstance& handlerInstance)
 {
     Uint16 persistenceType = 1;
-    Uint32 pos =
+    Uint32 pos = 
         handlerInstance.findProperty(PEGASUS_PROPERTYNAME_PERSISTENCETYPE);
     if (pos != PEG_NOT_FOUND)
     {
@@ -4466,7 +2934,7 @@ void CIMSubCommand::_printColumns(
     {
         for (Uint32 column = 0; column < maxColumns-1; column++)
         {
-            Uint32 outputItemSize =
+            Uint32 outputItemSize = 
                 (listOutputTable[column])[indexes[i]].size();
             Uint32 fillerLen = maxColumnWidth[column] + TITLE_SEPERATOR_LEN -
                 outputItemSize;
@@ -4530,14 +2998,6 @@ int main (int argc, char* argv[])
     AutoPtr<CIMSubCommand> command;
     Uint32 retCode;
 
-#ifdef PEGASUS_OS_PASE
-    Uint32 ret = 0;
-    ret = umeCheckCmdAuthorities(COMMAND_NAME, true);
-    if (ret)
-    {
-        return Command::RC_ERROR;
-    }
-#endif
 #ifdef PEGASUS_OS_ZOS
     // for z/OS set stdout and stderr to EBCDIC
     setEBCDICEncoding(STDOUT_FILENO);
@@ -4560,7 +3020,7 @@ int main (int argc, char* argv[])
         parms.msg_src_path = MSG_PATH;
         cerr << COMMAND_NAME <<
             ": " << MessageLoader::getMessage(parms) << endl;
-
+        
         exit (Command::RC_ERROR);
     }
     retCode = command->execute(cout, cerr);

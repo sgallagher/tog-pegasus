@@ -34,43 +34,9 @@
 #ifndef Pegasus_Platform_SOLARIS_X86_64_CC_h
 #define Pegasus_Platform_SOLARIS_X86_64_CC_h
 
-//++EMC Solaris Port
-#include <limits.h>
-#ifdef __cplusplus
-#include <cstdio>
-//--EMC Solaris Port
-
-#include <cstddef>
-
-#ifdef PEGASUS_INTERNALONLY 
-using namespace std;
-#endif
-
-#endif
-
-#define PEGASUS_OS_TYPE_UNIX
+#include <Pegasus/Common/Platform_SOLARIS_XXX_CC.h>
 
 #define PEGASUS_ARCHITECTURE_IX86
-
-#define PEGASUS_COMPILER_CC
-
-#define PEGASUS_UINT64 unsigned long long
-
-#define PEGASUS_SINT64 long long
-
-#define SEM_VALUE_MAX _POSIX_SEM_VALUE_MAX
-
-#define PEGASUS_HAVE_NAMESPACES
-
-#define PEGASUS_HAVE_FOR_SCOPE
-
-#define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
-
-#define PEGASUS_DISABLE_INTERNAL_INLINES
-
-#define PEGASUS_HAVE_PTHREADS
-
-#define PEGASUS_HAS_SIGNALS
 
 #define PEGASUS_POINTER_64BIT
 

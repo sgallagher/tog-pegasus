@@ -31,13 +31,43 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Platform_SOLARIS_SPARC_CC_64_h
-#define Pegasus_Platform_SOLARIS_SPARC_CC_64_h
+#ifndef Pegasus_Platform_SOLARIS_XXX_CC_h
+#define Pegasus_Platform_SOLARIS_XXX_CC_h
 
-#include <Pegasus/Common/Platform_SOLARIS_XXX_CC.h>
+#ifndef PEGASUS_OS_SOLARIS
+# define PEGASUS_OS_SOLARIS
+#endif
 
-#define PEGASUS_ARCHITECTURE_SPARC
+#include <limits.h>
 
-#define PEGASUS_POINTER_64BIT
+#ifdef __cplusplus
+# include <cstdio>
+# include <cstddef>
+# ifdef PEGASUS_INTERNALONLY 
+  using namespace std;
+# endif
+#endif
 
-#endif /* Pegasus_Platform_SOLARIS_SPARC_CC_64_h */
+#define PEGASUS_OS_TYPE_UNIX
+
+#define PEGASUS_COMPILER_CC
+
+#define PEGASUS_UINT64 unsigned long long
+
+#define PEGASUS_SINT64 long long
+
+#define SEM_VALUE_MAX _POSIX_SEM_VALUE_MAX
+
+#define PEGASUS_HAVE_NAMESPACES
+
+#define PEGASUS_HAVE_FOR_SCOPE
+
+#define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
+
+#define PEGASUS_DISABLE_INTERNAL_INLINES
+
+#define PEGASUS_HAVE_PTHREADS
+
+#define PEGASUS_HAS_SIGNALS
+
+#endif /* Pegasus_Platform_SOLARIS_XXX_CC_h */

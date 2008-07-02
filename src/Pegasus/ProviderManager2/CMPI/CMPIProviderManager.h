@@ -182,7 +182,7 @@ protected:
     void _callEnableIndications(
         CIMInstance & req_provider,
         PEGASUS_INDICATION_CALLBACK_T _indicationCallback,
-        CMPIProvider::OpProviderHolder & ph,
+        OpProviderHolder & ph,
         const char *remoteInfo);
 
     /**
@@ -193,7 +193,7 @@ protected:
         @param remoteInfo Remote Information
      */
     void _callDisableIndications(
-        CMPIProvider::OpProviderHolder & ph, 
+        OpProviderHolder & ph, 
         const char *remoteInfo);
 };
 

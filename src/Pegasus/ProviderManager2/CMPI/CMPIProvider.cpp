@@ -48,6 +48,13 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
+static const char _MSG_CANNOT_INIT_API_KEY[] =
+    "ProviderManager.CMPI.CMPIProvider.CANNOT_INIT_API";
+static const char _MSG_CANNOT_INIT_API[] = 
+    "Error initializing CMPI MI $0, the following MI"
+        " factory function(s) returned an error: $1";
+
+
 // set current operations to 1 to prevent an unload
 // until the provider has had a chance to initialize
 CMPIProvider::CMPIProvider(
@@ -62,9 +69,12 @@ CMPIProvider::CMPIProvider(
         "CMPIProvider::CMPIProvider()");
     _current_operations = 1;
     _currentSubscriptions = 0;
-    broker.hdl =0;
-    broker.provider = this;
-    if (mv) miVector=*mv;
+    _broker.hdl =0;
+    _broker.provider = this;
+    if (mv)
+    { 
+        _miVector = *mv;
+    }
     unloadStatus = CMPI_RC_DO_NOT_UNLOAD;
     Time::gettimeofday(&_idleTime);
     PEG_METHOD_EXIT();
@@ -86,7 +96,7 @@ void CMPIProvider::set(
     CIMOMHandle *&cimomHandle)
 {
     _module = module;
-    miVector = cmpiProvider;
+    _miVector = cmpiProvider;
     _cimom_handle = cimomHandle;
 }
 
@@ -107,6 +117,12 @@ String CMPIProvider::getName() const
 {
     return(_name.subString(1,PEG_NOT_FOUND));
 }
+
+String CMPIProvider::getNameWithType() const
+{
+    return(_name);
+}
+
 void setError(
     ProviderVector &miVector,
     String &error,
@@ -165,116 +181,12 @@ void CMPIProvider::initialize(
     broker.clsCache.reset(new ClassCache());
     broker.name=name;
 
-    const OperationContext opc;
-    CMPI_ContextOnStack eCtx(opc);
-    CMPI_ThreadContext thr(&broker,&eCtx);
-    CMPIStatus rcInst = {CMPI_RC_OK, NULL};
-    CMPIStatus rcAssoc = {CMPI_RC_OK, NULL};
-    CMPIStatus rcMeth = {CMPI_RC_OK, NULL};
-    CMPIStatus rcProp = {CMPI_RC_OK, NULL};
-    CMPIStatus rcInd = {CMPI_RC_OK, NULL};
-    String error;
-    String realProviderName(name);
+    miVector.instMI = NULL;
+    miVector.assocMI = NULL;
+    miVector.methMI = NULL;
+    miVector.propMI = NULL;
+    miVector.indMI = NULL;
 
-    if (miVector.genericMode)
-    {
-        CString mName=realProviderName.getCString();
-
-        if (miVector.miTypes & CMPI_MIType_Instance)
-        {
-            miVector.instMI =
-                miVector.createGenInstMI(&broker,&eCtx,mName, &rcInst);
-        }
-        if (miVector.miTypes & CMPI_MIType_Association)
-        {
-            miVector.assocMI = 
-                miVector.createGenAssocMI(&broker,&eCtx,mName, &rcAssoc);
-        }
-        if (miVector.miTypes & CMPI_MIType_Method)
-        {
-            miVector.methMI = 
-                miVector.createGenMethMI(&broker,&eCtx,mName, &rcMeth);
-        }
-        if (miVector.miTypes & CMPI_MIType_Property)
-        {
-            miVector.propMI = 
-                miVector.createGenPropMI(&broker,&eCtx,mName, &rcProp);
-        }
-        if (miVector.miTypes & CMPI_MIType_Indication)
-        {
-            miVector.indMI = 
-                miVector.createGenIndMI(&broker,&eCtx,mName, &rcInd);
-        }
-    }
-    else
-    {
-        if (miVector.miTypes & CMPI_MIType_Instance)
-            miVector.instMI=miVector.createInstMI(&broker,&eCtx, &rcInst);
-        if (miVector.miTypes & CMPI_MIType_Association)
-            miVector.assocMI=miVector.createAssocMI(&broker,&eCtx, &rcAssoc);
-        if (miVector.miTypes & CMPI_MIType_Method)
-            miVector.methMI=miVector.createMethMI(&broker,&eCtx, &rcMeth);
-        if (miVector.miTypes & CMPI_MIType_Property)
-            miVector.propMI=miVector.createPropMI(&broker,&eCtx, &rcProp);
-        if (miVector.miTypes & CMPI_MIType_Indication)
-            miVector.indMI=miVector.createIndMI(&broker,&eCtx, &rcInd);
-    }
-
-    if (miVector.miTypes & CMPI_MIType_Instance)
-    {
-        if (miVector.instMI == NULL || rcInst.rc != CMPI_RC_OK)
-        {
-            setError(miVector, error, realProviderName,
-                _Generic_Create_InstanceMI, _Create_InstanceMI,
-                rcInst.msg);
-        }
-    }
-    if (miVector.miTypes & CMPI_MIType_Association)
-    {
-        if (miVector.assocMI == NULL || rcAssoc.rc != CMPI_RC_OK)
-        {
-            setError(miVector, error, realProviderName,
-                _Generic_Create_AssociationMI, _Create_AssociationMI,
-                rcAssoc.msg);
-        }
-    }
-    if (miVector.miTypes & CMPI_MIType_Method)
-    {
-        if (miVector.methMI == NULL || rcMeth.rc != CMPI_RC_OK)
-        {
-            setError(miVector, error, realProviderName,
-                _Generic_Create_MethodMI, _Create_MethodMI,
-                rcMeth.msg);
-        }
-    }
-    if (miVector.miTypes & CMPI_MIType_Property)
-    {
-        if (miVector.propMI == NULL || rcProp.rc != CMPI_RC_OK)
-        {
-            setError(miVector, error, realProviderName,
-                _Generic_Create_PropertyMI, _Create_PropertyMI,
-                rcProp.msg);
-        }
-    }
-    if (miVector.miTypes & CMPI_MIType_Indication)
-    {
-        if (miVector.indMI == NULL || rcInd.rc != CMPI_RC_OK)
-        {
-            setError(miVector, error, realProviderName,
-                _Generic_Create_IndicationMI, _Create_IndicationMI,
-                rcInd.msg);
-        }
-    }
-
-    if (error.size() != 0)
-    {
-        throw Exception(MessageLoaderParms(
-            "ProviderManager.CMPI.CMPIProvider.CANNOT_INIT_API",
-            "Error initializing CMPI MI $0, "
-            "the following MI factory function(s) returned an error: $1",
-            realProviderName,
-            error));
-    }
     PEG_METHOD_EXIT();
 }
 
@@ -287,25 +199,14 @@ void CMPIProvider::initialize(CIMOMHandle & cimom)
     {
         String compoundName;
         if (_location.size() == 0)
-            compoundName= providername;
+        {
+            compoundName = providername;
+        }
         else
-            compoundName=_location+":"+providername;
-        try
         {
-            CMPIProvider::initialize(cimom,miVector,compoundName,broker);
-            if (miVector.miTypes & CMPI_MIType_Method)
-            {
-                if (miVector.methMI->ft->miName==NULL) 
-                {
-                    unloadStatus = CMPI_RC_OK;
-                }
-            }
+            compoundName = _location + ":" + providername;
         }
-        catch (...)
-        {
-            _current_operations = 0;
-            throw;
-        }
+        CMPIProvider::initialize(cimom,_miVector,compoundName,_broker);
         _status = INITIALIZED;
         _current_operations = 0;
     }
@@ -377,7 +278,7 @@ void CMPIProvider::_terminate(Boolean terminating)
     const OperationContext opc;
     CMPIStatus rc={CMPI_RC_OK,NULL};
     CMPI_ContextOnStack eCtx(opc);
-    CMPI_ThreadContext thr(&broker,&eCtx);
+    CMPI_ThreadContext thr(&_broker,&eCtx);
 /*
  @param terminating When true, the terminating argument indicates that the MB
      is in the process of terminating and that cleanup must be done. When
@@ -392,38 +293,38 @@ void CMPIProvider::_terminate(Boolean terminating)
         CMPI_RC_NEVER_UNLOAD Operation successful - never unload.
 */
     unloadStatus = CMPI_RC_OK;
-    if (miVector.miTypes & CMPI_MIType_Instance)
+    if (_miVector.instMI)
     {
-        rc=miVector.instMI->ft->cleanup(miVector.instMI,&eCtx, terminating);
+        rc=_miVector.instMI->ft->cleanup(_miVector.instMI,&eCtx, terminating);
         unloadStatus = rc.rc;
     }
-    if (miVector.miTypes & CMPI_MIType_Association)
+    if (_miVector.assocMI)
     {
-        rc=miVector.assocMI->ft->cleanup(miVector.assocMI,&eCtx, terminating);
+        rc=_miVector.assocMI->ft->cleanup(_miVector.assocMI,&eCtx, terminating);
         if (unloadStatus == CMPI_RC_OK)
         {
             unloadStatus = rc.rc;
         }
     }
-    if (miVector.miTypes & CMPI_MIType_Method)
+    if (_miVector.methMI)
     {
-        rc=miVector.methMI->ft->cleanup(miVector.methMI,&eCtx, terminating);
+        rc=_miVector.methMI->ft->cleanup(_miVector.methMI,&eCtx, terminating);
         if (unloadStatus == CMPI_RC_OK)
         {
             unloadStatus = rc.rc;
         }
     }
-    if (miVector.miTypes & CMPI_MIType_Property)
+    if (_miVector.propMI)
     {
-        rc=miVector.propMI->ft->cleanup(miVector.propMI,&eCtx, terminating);
+        rc=_miVector.propMI->ft->cleanup(_miVector.propMI,&eCtx, terminating);
         if (unloadStatus == CMPI_RC_OK)
         {
             unloadStatus = rc.rc;
         }
     }
-    if (miVector.miTypes & CMPI_MIType_Indication)
+    if (_miVector.indMI)
     {
-        rc=miVector.indMI->ft->cleanup(miVector.indMI,&eCtx, terminating);
+        rc=_miVector.indMI->ft->cleanup(_miVector.indMI,&eCtx, terminating);
         if (unloadStatus == CMPI_RC_OK)
         {
             unloadStatus = rc.rc;
@@ -727,5 +628,307 @@ CIMInstance CMPIProvider::getProviderInstance ()
     return _providerInstance;
 }
 
-PEGASUS_NAMESPACE_END
+void CMPIProvider::incCurrentOperations ()
+{
+    _current_operations++;
+}
+
+int CMPIProvider::getCurrentOperations ()
+{
+    return _current_operations.get();
+}
+
+void CMPIProvider::decCurrentOperations ()
+{
+    _current_operations--;
+}
+
+CIMOMHandle *CMPIProvider::getCIMOMHandle()
+{
+    return _cimom_handle;
+}
+
+CMPI_Broker *CMPIProvider::getBroker()
+{
+    return &_broker;
+}
+
+CMPIInstanceMI *CMPIProvider::getInstMI()
+{
+    if (_miVector.instMI == NULL)
+    {
+        AutoMutex mtx(_statusMutex);
+        if (_miVector.instMI == NULL)
+        {
+            const OperationContext opc;
+            CMPI_ContextOnStack eCtx(opc);
+            CMPIStatus rc = {CMPI_RC_OK, NULL};
+            String providerName = _broker.name;
+            CMPIInstanceMI *mi = NULL;
+
+            PEGASUS_ASSERT(_miVector.miTypes & CMPI_MIType_Instance);
+            if (_miVector.genericMode)
+            {
+                mi = _miVector.createGenInstMI(
+                    &_broker,
+                    &eCtx, 
+                    (const char *)providerName.getCString(),
+                    &rc);
+            }
+            else 
+            {
+                mi = _miVector.createInstMI(&_broker, &eCtx, &rc);
+            }
+
+            if (!mi || rc.rc != CMPI_RC_OK) 
+            {
+                String error;
+                setError(
+                    _miVector,
+                    error,
+                    getName(),
+                    _Generic_Create_InstanceMI,
+                    _Create_InstanceMI,
+                    rc.msg);
+
+                throw Exception(
+                    MessageLoaderParms(
+                        _MSG_CANNOT_INIT_API_KEY,
+                        _MSG_CANNOT_INIT_API,
+                        getName(),
+                        error));
+            }
+            _miVector.instMI = mi;
+        }
+    }    
+
+    return _miVector.instMI;
+}
+
+CMPIMethodMI *CMPIProvider::getMethMI()
+{
+    if (_miVector.methMI == NULL)
+    {
+        AutoMutex mtx(_statusMutex);
+        if (_miVector.methMI == NULL)
+        {
+            const OperationContext opc;
+            CMPI_ContextOnStack eCtx(opc);
+            CMPIStatus rc = {CMPI_RC_OK, NULL};
+            String providerName = _broker.name;
+            CMPIMethodMI *mi;
+            PEGASUS_ASSERT(_miVector.miTypes & CMPI_MIType_Method);
+            if (_miVector.genericMode) 
+            {
+                mi = _miVector.createGenMethMI(
+                    &_broker,
+                    &eCtx, 
+                    (const char *)providerName.getCString(),
+                    &rc);
+            }
+            else 
+            {
+                mi = _miVector.createMethMI(&_broker, &eCtx, &rc);
+            }
+            if (!mi || rc.rc != CMPI_RC_OK) 
+            {
+                String error;
+                setError(
+                    _miVector,
+                    error,
+                    getName(),
+                    _Generic_Create_MethodMI,
+                    _Create_MethodMI,
+                    rc.msg);
+
+                throw Exception(
+                    MessageLoaderParms(
+                        _MSG_CANNOT_INIT_API_KEY,
+                        _MSG_CANNOT_INIT_API,
+                        getName(),
+                        error));
+            }
+            _miVector.methMI = mi;
+        }
+    }
     
+    return _miVector.methMI;
+}
+
+CMPIAssociationMI *CMPIProvider::getAssocMI()
+{
+    if (_miVector.assocMI == NULL)
+    {
+        AutoMutex mtx(_statusMutex);
+        if (_miVector.assocMI == NULL)
+        {
+            const OperationContext opc;
+            CMPI_ContextOnStack eCtx(opc);
+            CMPIStatus rc = {CMPI_RC_OK, NULL};
+            String providerName = _broker.name;
+            CMPIAssociationMI *mi;
+            PEGASUS_ASSERT(_miVector.miTypes & CMPI_MIType_Association);
+            if (_miVector.genericMode)
+            {
+                mi = _miVector.createGenAssocMI(
+                    &_broker,
+                    &eCtx, 
+                    (const char *)providerName.getCString(),
+                    &rc);
+            } 
+            else 
+            {
+                mi = _miVector.createAssocMI(&_broker, &eCtx, &rc);
+            }
+
+            if (!mi || rc.rc != CMPI_RC_OK) 
+            {
+                String error;
+                setError(
+                    _miVector,
+                    error,
+                    getName(),
+                    _Generic_Create_AssociationMI,
+                    _Create_AssociationMI,
+                    rc.msg);
+
+                throw Exception(
+                    MessageLoaderParms(
+                        _MSG_CANNOT_INIT_API_KEY,
+                        _MSG_CANNOT_INIT_API,
+                        getName(),
+                        error));
+            }
+            _miVector.assocMI = mi;
+        }
+    }
+    
+    return _miVector.assocMI;
+}
+
+CMPIPropertyMI *CMPIProvider::getPropMI()
+{
+    if (_miVector.propMI == NULL)
+    {
+        AutoMutex mtx(_statusMutex);
+        if (_miVector.propMI == NULL)
+        {
+            const OperationContext opc;
+            CMPI_ContextOnStack eCtx(opc);
+            CMPIStatus rc = {CMPI_RC_OK, NULL};
+            String providerName = _broker.name;
+            CMPIPropertyMI *mi;
+            PEGASUS_ASSERT(_miVector.miTypes & CMPI_MIType_Property);
+
+            if (_miVector.genericMode) 
+            {
+                mi = _miVector.createGenPropMI(
+                    &_broker,
+                    &eCtx, 
+                    (const char *)providerName.getCString(),
+                    &rc);
+            }
+            else 
+            {
+                mi = _miVector.createPropMI(&_broker, &eCtx, &rc);
+            }
+
+            if (!mi || rc.rc != CMPI_RC_OK)
+            {
+                String error;
+                setError(
+                    _miVector,
+                    error,
+                    getName(),
+                    _Generic_Create_PropertyMI,
+                    _Create_PropertyMI,
+                    rc.msg);
+
+                throw Exception(
+                    MessageLoaderParms(
+                        _MSG_CANNOT_INIT_API_KEY,
+                        _MSG_CANNOT_INIT_API,
+                        getName(),
+                        error));
+            }
+            _miVector.propMI = mi;
+        }
+    }
+    
+    return _miVector.propMI;
+}
+
+CMPIIndicationMI *CMPIProvider::getIndMI()
+{
+    if (_miVector.indMI == NULL)
+    {
+        AutoMutex mtx(_statusMutex);
+        if (_miVector.indMI == NULL)
+        {
+            const OperationContext opc;
+            CMPI_ContextOnStack eCtx(opc);
+            CMPIStatus rc = {CMPI_RC_OK, NULL};
+            String providerName = _broker.name;
+            CMPIIndicationMI *mi;
+            PEGASUS_ASSERT(_miVector.miTypes & CMPI_MIType_Indication);
+            if (_miVector.genericMode)
+            {
+                mi = _miVector.createGenIndMI(
+                    &_broker,
+                    &eCtx, 
+                    (const char *)providerName.getCString(),
+                    &rc);
+            }
+            else 
+            {
+                mi = _miVector.createIndMI(&_broker, &eCtx, &rc);
+            }
+
+            if (!mi || rc.rc != CMPI_RC_OK) 
+            {
+                String error;
+                setError(
+                    _miVector,
+                    error,
+                    getName(),
+                    _Generic_Create_IndicationMI,
+                    _Create_IndicationMI,
+                    rc.msg);
+
+                throw Exception(
+                    MessageLoaderParms(
+                        _MSG_CANNOT_INIT_API_KEY,
+                        _MSG_CANNOT_INIT_API,
+                        getName(),
+                        error));
+            }
+            _miVector.indMI = mi;
+        }
+    }
+    
+    return _miVector.indMI;
+}
+
+CMPIProviderModule *CMPIProvider::getModule()
+{
+    return _module;
+}
+
+Uint32 CMPIProvider::getQuantum()
+{
+    AutoMutex mutex(_statusMutex);  
+    return _quantum;
+}
+
+void CMPIProvider::setQuantum(Uint32 quantum)
+{
+    AutoMutex mutex(_statusMutex);  
+    _quantum = quantum;
+}
+
+Mutex &CMPIProvider::getStatusMutex()
+{
+    return _statusMutex;
+}
+
+PEGASUS_NAMESPACE_END

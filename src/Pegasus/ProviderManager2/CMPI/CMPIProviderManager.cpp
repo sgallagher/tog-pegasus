@@ -429,7 +429,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
             request->instanceName.getKeyBindings());
 
         Boolean remote=false;
-        CMPIProvider::OpProviderHolder ph;
+        OpProviderHolder ph;
 
         // resolve provider name
         ProviderIdContainer pidc = 
@@ -462,7 +462,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
 
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         AutoPtr<NormalizerContext> tmpNormalizerContext(
-            new CIMOMHandleContext(*pr._cimom_handle));
+            new CIMOMHandleContext(*pr.getCIMOMHandle()));
         request->operationContext.insert(
             NormalizerContextContainer(tmpNormalizerContext));
 #endif
@@ -475,8 +475,8 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
-        CMPI_ResultOnStack eRes(handler,&pr.broker);
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+        CMPI_ResultOnStack eRes(handler,pr.getBroker());
+        CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
         CMPIPropertyList props(request->propertyList);
                 
@@ -497,8 +497,8 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
         {
             StatProviderTimeMeasurement providerTime(response);
 
-            rc = pr.miVector.instMI->ft->getInstance(
-                pr.miVector.instMI,
+            rc = pr.getInstMI()->ft->getInstance(
+                pr.getInstMI(),
                 &eCtx,
                 &eRes,
                 &eRef,
@@ -571,7 +571,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
             request->className);
 
         Boolean remote=false;
-        CMPIProvider::OpProviderHolder ph;
+        OpProviderHolder ph;
 
         // resolve provider name
         ProviderIdContainer pidc = 
@@ -606,7 +606,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
 
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         AutoPtr<NormalizerContext> tmpNormalizerContext(
-            new CIMOMHandleContext(*pr._cimom_handle));
+            new CIMOMHandleContext(*pr.getCIMOMHandle()));
         request->operationContext.insert(
             NormalizerContextContainer(tmpNormalizerContext));
 #endif
@@ -619,8 +619,8 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
-        CMPI_ResultOnStack eRes(handler,&pr.broker);
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+        CMPI_ResultOnStack eRes(handler,pr.getBroker());
+        CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
         CMPIPropertyList props(propertyList);
 
@@ -641,8 +641,8 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
         {
             StatProviderTimeMeasurement providerTime(response);
 
-            rc = pr.miVector.instMI->ft->enumInstances(
-                pr.miVector.instMI,
+            rc = pr.getInstMI()->ft->enumInstances(
+                pr.getInstMI(),
                 &eCtx,
                 &eRes,
                 &eRef,
@@ -716,7 +716,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
             request->className);
 
         Boolean remote=false;
-        CMPIProvider::OpProviderHolder ph;
+        OpProviderHolder ph;
 
         // resolve provider name
         ProviderIdContainer pidc = 
@@ -753,8 +753,8 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
-        CMPI_ResultOnStack eRes(handler,&pr.broker);
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+        CMPI_ResultOnStack eRes(handler,pr.getBroker());
+        CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
         _setupCMPIContexts(
             &eCtx,
@@ -773,8 +773,11 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
         {
             StatProviderTimeMeasurement providerTime(response);
 
-            rc = pr.miVector.instMI->ft->enumInstanceNames(
-                pr.miVector.instMI,&eCtx,&eRes,&eRef);
+            rc = pr.getInstMI()->ft->enumInstanceNames(
+                pr.getInstMI(),
+                &eCtx,
+                &eRes,
+                &eRef);
         }
 
 //      Need to save ContentLanguage value into operation context of response
@@ -845,7 +848,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(
         request->newInstance.setPath(objectPath);
 
         Boolean remote=false;
-        CMPIProvider::OpProviderHolder ph;
+        OpProviderHolder ph;
 
         // resolve provider name
         ProviderIdContainer pidc = 
@@ -884,9 +887,9 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
-        CMPI_ResultOnStack eRes(handler,&pr.broker);
+        CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_InstanceOnStack eInst(request->newInstance);
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+        CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
         _setupCMPIContexts(
             &eCtx,
@@ -905,8 +908,12 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(
         {
             StatProviderTimeMeasurement providerTime(response);
 
-            rc = pr.miVector.instMI->ft->createInstance(
-                pr.miVector.instMI,&eCtx,&eRes,&eRef,&eInst);
+            rc = pr.getInstMI()->ft->createInstance(
+                pr.getInstMI(),
+                &eCtx,
+                &eRes,
+                &eRef,
+                &eInst);
         }
 
 //      Need to save ContentLanguage value into operation context of response
@@ -976,7 +983,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
             request->modifiedInstance.getPath ().getKeyBindings());
 
         Boolean remote=false;
-        CMPIProvider::OpProviderHolder ph;
+        OpProviderHolder ph;
 
         // resolve provider name
         ProviderIdContainer pidc = 
@@ -1014,9 +1021,9 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
-        CMPI_ResultOnStack eRes(handler,&pr.broker);
+        CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_InstanceOnStack eInst(request->modifiedInstance);
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+        CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
         CMPIPropertyList props(request->propertyList);
 
@@ -1037,8 +1044,12 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
         {
             StatProviderTimeMeasurement providerTime(response);
 
-            rc = pr.miVector.instMI->ft->modifyInstance(
-                pr.miVector.instMI,&eCtx,&eRes,&eRef,&eInst,
+            rc = pr.getInstMI()->ft->modifyInstance(
+                pr.getInstMI(),
+                &eCtx,
+                &eRes,
+                &eRef,
+                &eInst,
                 (const char **)props.getList());
         }
 
@@ -1109,7 +1120,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(
             request->instanceName.getKeyBindings());
 
         Boolean remote=false;
-        CMPIProvider::OpProviderHolder ph;
+        OpProviderHolder ph;
 
         // resolve provider name
         ProviderIdContainer pidc = 
@@ -1147,8 +1158,8 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
-        CMPI_ResultOnStack eRes(handler,&pr.broker);
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+        CMPI_ResultOnStack eRes(handler,pr.getBroker());
+        CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
         _setupCMPIContexts(
             &eCtx,
@@ -1167,8 +1178,11 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(
         {
             StatProviderTimeMeasurement providerTime(response);
 
-            rc = pr.miVector.instMI->ft->deleteInstance(
-                pr.miVector.instMI,&eCtx,&eRes,&eRef);
+            rc = pr.getInstMI()->ft->deleteInstance(
+                pr.getInstMI(),
+                &eCtx,
+                &eRes,
+                &eRef);
         }
 
 //      Need to save ContentLanguage value into operation context of response
@@ -1238,7 +1252,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
 
         Boolean remote=false;
 
-        CMPIProvider::OpProviderHolder ph;
+        OpProviderHolder ph;
 
         // resolve provider name
         ProviderIdContainer pidc = 
@@ -1279,8 +1293,8 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
-        CMPI_ResultOnStack eRes(handler,&pr.broker);
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+        CMPI_ResultOnStack eRes(handler,pr.getBroker());
+        CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
         const CString queryLan=request->queryLanguage.getCString();
         const CString query=request->query.getCString();
@@ -1302,9 +1316,13 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
         {
             StatProviderTimeMeasurement providerTime(response);
 
-            rc = pr.miVector.instMI->ft->execQuery(
-                pr.miVector.instMI,&eCtx,&eRes,&eRef,
-                CHARS(queryLan),CHARS(query));
+            rc = pr.getInstMI()->ft->execQuery(
+                pr.getInstMI(),
+                &eCtx,
+                &eRes,
+                &eRef,
+                CHARS(queryLan),
+                CHARS(query));
         }
 
 //      Need to save ContentLanguage value into operation context of response
@@ -1381,7 +1399,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
         Boolean remote=false;
 
-        CMPIProvider::OpProviderHolder ph;
+        OpProviderHolder ph;
 
         // resolve provider name
         ProviderIdContainer pidc = 
@@ -1414,7 +1432,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         AutoPtr<NormalizerContext> tmpNormalizerContext(
-            new CIMOMHandleContext(*pr._cimom_handle));
+            new CIMOMHandleContext(*pr.getCIMOMHandle()));
         request->operationContext.insert(
             NormalizerContextContainer(tmpNormalizerContext));
 #endif
@@ -1434,8 +1452,8 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
-        CMPI_ResultOnStack eRes(handler,&pr.broker);
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+        CMPI_ResultOnStack eRes(handler,pr.getBroker());
+        CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
         const CString aClass=request->assocClass.getString().getCString();
         const CString rClass=request->resultClass.getString().getCString();
         const CString rRole=request->role.getCString();
@@ -1460,9 +1478,15 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         {
             StatProviderTimeMeasurement providerTime(response);
 
-            rc = pr.miVector.assocMI->ft->associators(
-                pr.miVector.assocMI,&eCtx,&eRes,&eRef,
-                CHARS(aClass),CHARS(rClass),CHARS(rRole),CHARS(resRole),
+            rc = pr.getAssocMI()->ft->associators(
+                pr.getAssocMI(),
+                &eCtx,
+                &eRes,
+                &eRef,
+                CHARS(aClass),
+                CHARS(rClass),
+                CHARS(rRole),
+                CHARS(resRole),
                 (const char **)props.getList());
         }
 
@@ -1541,7 +1565,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
             request->assocClass.getString());
 
         Boolean remote=false;
-        CMPIProvider::OpProviderHolder ph;
+        OpProviderHolder ph;
 
         // resolve provider name
         ProviderIdContainer pidc = 
@@ -1586,8 +1610,8 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
-        CMPI_ResultOnStack eRes(handler,&pr.broker);
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+        CMPI_ResultOnStack eRes(handler,pr.getBroker());
+        CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
         const CString aClass=request->assocClass.getString().getCString();
         const CString rClass=request->resultClass.getString().getCString();
         const CString rRole=request->role.getCString();
@@ -1610,9 +1634,15 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
         {
             StatProviderTimeMeasurement providerTime(response);
 
-            rc = pr.miVector.assocMI->ft->associatorNames(
-                pr.miVector.assocMI,&eCtx,&eRes,&eRef,CHARS(aClass),
-                CHARS(rClass),CHARS(rRole),CHARS(resRole));
+            rc = pr.getAssocMI()->ft->associatorNames(
+                pr.getAssocMI(),
+                &eCtx,
+                &eRes,
+                &eRef,
+                CHARS(aClass),
+                CHARS(rClass),
+                CHARS(rRole),
+                CHARS(resRole));
         }
 
 //      Need to save ContentLanguage value into operation context of response
@@ -1687,7 +1717,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
             request->resultClass.getString());
 
         Boolean remote=false;
-        CMPIProvider::OpProviderHolder ph;
+        OpProviderHolder ph;
 
         // resolve provider name
         ProviderIdContainer pidc = 
@@ -1719,7 +1749,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
 
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         AutoPtr<NormalizerContext> tmpNormalizerContext(
-            new CIMOMHandleContext(*pr._cimom_handle));
+            new CIMOMHandleContext(*pr.getCIMOMHandle()));
         request->operationContext.insert(
             NormalizerContextContainer(tmpNormalizerContext));
 #endif
@@ -1737,8 +1767,8 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
-        CMPI_ResultOnStack eRes(handler,&pr.broker);
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+        CMPI_ResultOnStack eRes(handler,pr.getBroker());
+        CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
         const CString rClass=request->resultClass.getString().getCString();
         const CString rRole=request->role.getCString();
 
@@ -1761,9 +1791,14 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
         {
             StatProviderTimeMeasurement providerTime(response);
 
-            rc = pr.miVector.assocMI->ft->references(
-                pr.miVector.assocMI,&eCtx,&eRes,&eRef,
-                CHARS(rClass),CHARS(rRole),(const char **)props.getList());
+            rc = pr.getAssocMI()->ft->references(
+                pr.getAssocMI(),
+                &eCtx,
+                &eRes,
+                &eRef,
+                CHARS(rClass),
+                CHARS(rRole),
+                (const char **)props.getList());
         }
 
 //      Need to save ContentLanguage value into operation context of response
@@ -1839,7 +1874,7 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
             request->resultClass.getString());
 
         Boolean remote=false;
-        CMPIProvider::OpProviderHolder ph;
+        OpProviderHolder ph;
 
         // resolve provider name
         ProviderIdContainer pidc = 
@@ -1882,8 +1917,8 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
-        CMPI_ResultOnStack eRes(handler,&pr.broker);
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+        CMPI_ResultOnStack eRes(handler,pr.getBroker());
+        CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
         const CString rClass=request->resultClass.getString().getCString();
         const CString rRole=request->role.getCString();
 
@@ -1904,9 +1939,13 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
         {
             StatProviderTimeMeasurement providerTime(response);
 
-            rc = pr.miVector.assocMI->ft->referenceNames(
-                pr.miVector.assocMI,&eCtx,&eRes,&eRef,
-                CHARS(rClass),CHARS(rRole));
+            rc = pr.getAssocMI()->ft->referenceNames(
+                pr.getAssocMI(),
+                &eCtx,
+                &eRes,
+                &eRef,
+                CHARS(rClass),
+                CHARS(rRole));
         }
 
 //      Need to save ContentLanguage value into operation context of response
@@ -1976,7 +2015,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
             request->instanceName.getKeyBindings());
 
         Boolean remote=false;
-        CMPIProvider::OpProviderHolder ph;
+        OpProviderHolder ph;
 
         // resolve provider name
         ProviderIdContainer pidc = 
@@ -2014,7 +2053,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
 
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         AutoPtr<NormalizerContext> tmpNormalizerContext(
-            new CIMOMHandleContext(*pr._cimom_handle));
+            new CIMOMHandleContext(*pr.getCIMOMHandle()));
         request->operationContext.insert(
             NormalizerContextContainer(tmpNormalizerContext));
 #endif
@@ -2027,8 +2066,8 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
-        CMPI_ResultOnStack eRes(handler,&pr.broker);
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+        CMPI_ResultOnStack eRes(handler,pr.getBroker());
+        CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
         CMPI_ArgsOnStack eArgsIn(request->inParameters);
         Array<CIMParamValue> outArgs;
         CMPI_ArgsOnStack eArgsOut(outArgs);
@@ -2051,9 +2090,14 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
         {
             StatProviderTimeMeasurement providerTime(response);
 
-            rc = pr.miVector.methMI->ft->invokeMethod(
-                pr.miVector.methMI,&eCtx,&eRes,&eRef,
-                CHARS(mName),&eArgsIn,&eArgsOut);
+            rc = pr.getMethMI()->ft->invokeMethod(
+                pr.getMethMI(),
+                &eCtx,
+                &eRes,
+                &eRef,
+                CHARS(mName),
+                &eArgsIn,
+                &eArgsOut);
         }
 
 //      Need to save ContentLanguage value into operation context of response
@@ -2252,7 +2296,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
             providerName);
 
         Boolean remote=false;
-        CMPIProvider::OpProviderHolder ph;
+        OpProviderHolder ph;
 
         if ((remote=pidc.isRemoteNameSpace()))
         {
@@ -2332,7 +2376,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
             new CIMOMHandleQueryContext(
             CIMNamespaceName(
             request->nameSpace.getString()),
-            *pr._cimom_handle);
+            *pr.getCIMOMHandle());
 
         CMPI_SelectExp *eSelx=new CMPI_SelectExp(
             context,
@@ -2343,7 +2387,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
         srec->eSelx=eSelx;
         srec->qContext=_context;
 
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+        CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
         PEG_TRACE_STRING(
             TRC_PROVIDERMANAGER,
@@ -2391,12 +2435,15 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
         {
             StatProviderTimeMeasurement providerTime(response);
 
-            if (pr.miVector.indMI->ft->ftVersion >= 100)
+            if (pr.getIndMI()->ft->ftVersion >= 100)
             {
-                rc = pr.miVector.indMI->ft->activateFilter(
-                    pr.miVector.indMI,&eCtx,eSelx,
+                rc = pr.getIndMI()->ft->activateFilter(
+                    pr.getIndMI(),
+                    &eCtx,eSelx,
                     CHARS(eSelx->classNames[0].getClassName().getString().
-                    getCString()),&eRef,false);
+                        getCString()),
+                    &eRef,
+                    false);
             }
             else
             {
@@ -2405,8 +2452,8 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
                 rc = ((CMPIStatus (*)(CMPIIndicationMI*, CMPIContext*,
                     CMPIResult*, CMPISelectExp*,
                     const char *, CMPIObjectPath*, CMPIBoolean))
-                    pr.miVector.indMI->ft->activateFilter)
-                (pr.miVector.indMI,&eCtx,NULL,eSelx,
+                    pr.getIndMI()->ft->activateFilter)
+                (pr.getIndMI(),&eCtx,NULL,eSelx,
                     CHARS(eSelx->classNames[0].getClassName().getString().
                     getCString()),&eRef,false);
             }
@@ -2499,7 +2546,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
             providerName);
 
         Boolean remote=false;
-        CMPIProvider::OpProviderHolder ph;
+        OpProviderHolder ph;
 
         if ((remote=pidc.isRemoteNameSpace()))
         {
@@ -2568,7 +2615,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+        CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
         PEG_TRACE_STRING(
             TRC_PROVIDERMANAGER,
@@ -2591,12 +2638,16 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
         {
             StatProviderTimeMeasurement providerTime(response);
 
-            if (pr.miVector.indMI->ft->ftVersion >= 100)
+            if (pr.getIndMI()->ft->ftVersion >= 100)
             {
-                rc = pr.miVector.indMI->ft->deActivateFilter(
-                    pr.miVector.indMI,&eCtx,eSelx,
+                rc = pr.getIndMI()->ft->deActivateFilter(
+                    pr.getIndMI(),
+                    &eCtx,
+                    eSelx,
                     CHARS(eSelx->classNames[0].getClassName().getString().
-                    getCString()),&eRef,prec==NULL);
+                        getCString()),
+                    &eRef,
+                    prec==NULL);
             }
             else
             {
@@ -2605,8 +2656,8 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
                 rc = ((CMPIStatus (*)(CMPIIndicationMI*, CMPIContext*,
                     CMPIResult*, CMPISelectExp*,
                     const char *, CMPIObjectPath*, CMPIBoolean))
-                    pr.miVector.indMI->ft->deActivateFilter)
-                (pr.miVector.indMI,&eCtx,NULL,eSelx,
+                    pr.getIndMI()->ft->deActivateFilter)
+                (pr.getIndMI(),&eCtx,NULL,eSelx,
                     CHARS(eSelx->classNames[0].getClassName().getString().
                     getCString()),&eRef,prec==NULL);
             }
@@ -2717,7 +2768,7 @@ Message * CMPIProviderManager::handleDisableModuleRequest(
             {
                 try
                 {
-                    CMPIProvider::OpProviderHolder ph = 
+                    OpProviderHolder ph = 
                         providerManager.getProvider(
                         physicalName, 
                         providerName);
@@ -2904,7 +2955,7 @@ Message * CMPIProviderManager::handleSubscriptionInitCompleteRequest(
             //
             //  Get cached or load new provider module
             //
-            CMPIProvider::OpProviderHolder ph;
+            OpProviderHolder ph;
             if ((const char*)info)
             {
                 ph = providerManager.getRemoteProvider
@@ -3013,7 +3064,7 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
             request->instanceName.getKeyBindings());
 
         Boolean remote=false;
-        CMPIProvider::OpProviderHolder ph;
+        OpProviderHolder ph;
 
         // resolve provider name
         ProviderIdContainer pidc = 
@@ -3045,7 +3096,7 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
 
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         AutoPtr<NormalizerContext> tmpNormalizerContext(
-            new CIMOMHandleContext(*pr._cimom_handle));
+            new CIMOMHandleContext(*pr.getCIMOMHandle()));
         request->operationContext.insert(
             NormalizerContextContainer(tmpNormalizerContext));
 #endif
@@ -3058,8 +3109,8 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
-        CMPI_ResultOnStack eRes(GI_handler,&pr.broker);
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+        CMPI_ResultOnStack eRes(GI_handler,pr.getBroker());
+        CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
         // For the getInstance provider call, use the property list that we 
         // created containing the single property from the getProperty call.
@@ -3084,8 +3135,11 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
         {
             StatProviderTimeMeasurement providerTime(response);
 
-            rc = pr.miVector.instMI->ft->getInstance(
-                pr.miVector.instMI,&eCtx,&eRes,&eRef,
+            rc = pr.getInstMI()->ft->getInstance(
+                pr.getInstMI(),
+                &eCtx,
+                &eRes,
+                &eRef,
                 (const char **)props.getList());
         }
 
@@ -3222,7 +3276,7 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
             request->instanceName.getKeyBindings());
 
         Boolean remote=false;
-        CMPIProvider::OpProviderHolder ph;
+        OpProviderHolder ph;
 
         // resolve provider name
         ProviderIdContainer pidc = 
@@ -3260,9 +3314,9 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
-        CMPI_ResultOnStack eRes(MI_handler,&pr.broker);
+        CMPI_ResultOnStack eRes(MI_handler,pr.getBroker());
         CMPI_InstanceOnStack eInst(localModifiedInstance);
-        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+        CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
         CMPIPropertyList props(localPropertyList);
 
@@ -3284,8 +3338,12 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
         {
             StatProviderTimeMeasurement providerTime(response);
 
-            rc = pr.miVector.instMI->ft->modifyInstance(
-                pr.miVector.instMI,&eCtx,&eRes,&eRef,&eInst,
+            rc = pr.getInstMI()->ft->modifyInstance(
+                pr.getInstMI(),
+                &eCtx,
+                &eRes,
+                &eRef,
+                &eInst,
                 (const char **)props.getList());
         }
 
@@ -3400,7 +3458,7 @@ ProviderName CMPIProviderManager::_resolveProviderName(
 void CMPIProviderManager::_callEnableIndications
     (CIMInstance & req_provider,
     PEGASUS_INDICATION_CALLBACK_T _indicationCallback,
-    CMPIProvider::OpProviderHolder & ph,
+    OpProviderHolder & ph,
     const char* remoteInfo)
 {
     PEG_METHOD_ENTER(
@@ -3432,7 +3490,7 @@ void CMPIProviderManager::_callEnableIndications
         //
         //  Versions prior to 86 did not include enableIndications routine
         //
-        if (pr.miVector.indMI->ft->ftVersion >= 86)
+        if (pr.getIndMI()->ft->ftVersion >= 86)
         {
             OperationContext context;
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
@@ -3446,7 +3504,7 @@ void CMPIProviderManager::_callEnableIndications
 
             CMPIStatus rc={CMPI_RC_OK,NULL};
             CMPI_ContextOnStack eCtx(context);
-            CMPI_ThreadContext thr(&pr.broker,&eCtx);
+            CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
             // Add RemoteInformation -V 5245
             if (remoteInfo)
@@ -3472,7 +3530,7 @@ void CMPIProviderManager::_callEnableIndications
             // breaking existing CMPI Indication providers. This is ok since
             // there really isn't a user to which the problem should be
             // reported.
-            pr.miVector.indMI->ft->enableIndications(pr.miVector.indMI,&eCtx);
+            pr.getIndMI()->ft->enableIndications(pr.getIndMI(),&eCtx);
         }
         else
         {
@@ -3515,7 +3573,7 @@ void CMPIProviderManager::_callEnableIndications
 }
 
 void CMPIProviderManager::_callDisableIndications
-    (CMPIProvider::OpProviderHolder & ph, const char *remoteInfo)
+    (OpProviderHolder & ph, const char *remoteInfo)
 {
     PEG_METHOD_ENTER(
         TRC_PROVIDERMANAGER,
@@ -3539,7 +3597,7 @@ void CMPIProviderManager::_callDisableIndications
         //
         //  Versions prior to 86 did not include disableIndications routine
         //
-        if (pr.miVector.indMI->ft->ftVersion >= 86)
+        if (pr.getIndMI()->ft->ftVersion >= 86)
         {
             OperationContext context;
             CMPIStatus rc={CMPI_RC_OK,NULL};
@@ -3550,7 +3608,7 @@ void CMPIProviderManager::_callDisableIndications
                 eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",
                     (CMPIValue*)(const char*)remoteInfo,CMPI_chars);
             }
-            CMPI_ThreadContext thr(&pr.broker,&eCtx);
+            CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
             PEG_TRACE_STRING(
                 TRC_PROVIDERMANAGER,
@@ -3566,8 +3624,8 @@ void CMPIProviderManager::_callDisableIndications
             // here. This will prevent us from breaking existing CMPI 
             // Indication providers. This is ok since there really isn't a 
             // user to which the problem should be reported.
-            pr.miVector.indMI->ft->disableIndications(
-                pr.miVector.indMI, 
+            pr.getIndMI()->ft->disableIndications(
+                pr.getIndMI(), 
                 &eCtx);
 
             pr.unprotect();

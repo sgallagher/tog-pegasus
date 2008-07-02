@@ -29,18 +29,7 @@
 //
 //=============================================================================
 //
-// Author: Barbara Packard (barbara_packard@hp.com)
-//
-// Modified By:    Adriano Zanuz (adriano.zanuz@hp.com)
-//              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
-//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
-//
 //%///////////////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////////////////
-// WMICollector::
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/CIMInstance.h>
 
@@ -82,7 +71,7 @@ void WMICollector::terminate(void)
         CoUninitialize();
         m_bInitialized = false;
 
-        if(m_bImpersonate)
+        if (m_bImpersonate)
         {
             revertToSelf();
             m_bImpersonate = false;
@@ -119,13 +108,13 @@ bool WMICollector::setup()
                                       RPC_C_AUTHN_LEVEL_DEFAULT,
                                       RPC_C_IMP_LEVEL_IMPERSONATE,
                                       NULL,
-                                      EOAC_DYNAMIC_CLOAKING, 
+                                      EOAC_DYNAMIC_CLOAKING,
                                       0);
         }
     }
 
     PEG_METHOD_EXIT();
-    return (m_bInitialized);
+    return m_bInitialized;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -139,25 +128,25 @@ bool WMICollector::Connect(IWbemServices **ppServices)
     // CComPtr is a smart pointer, therefore, it doesn't need to be explicitely
     // released.
     //
-    CComPtr<IWbemLocator>    pLocator;
-    CComPtr<IWbemServices>  pServices;
+    CComPtr<IWbemLocator> pLocator;
+    CComPtr<IWbemServices> pServices;
     HRESULT hr = S_OK;
 
-    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMICollector::Connect()");
-    
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER, "WMICollector::Connect()");
+
     // get the Locator object
     hr = pLocator.CoCreateInstance(CLSID_WbemLocator);
-    
+
     PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
         "WMICollector::Connect() - return from CoCreateInstance() is %x", hr));
 
-    if (SUCCEEDED(hr))    
+    if (SUCCEEDED(hr))
     {
-        if(m_bIsLocalNamespace)
+        if (m_bIsLocalNamespace)
         {
             PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL4,
                 "WMICollector::Connect() - m_bIsLocalNamespace is true");
-            
+
             //Does not impersonate if is being called from a client app
             //Impersonate if it is being called from the Mapper service
             if (!m_bLocalConnection)
@@ -167,9 +156,9 @@ bool WMICollector::Connect(IWbemServices **ppServices)
                     "call logonUser()");
                 logonUser();
             }
-                         
-            hr = pLocator->ConnectServer(m_bsNamespace, 
-                                         NULL, 
+
+            hr = pLocator->ConnectServer(m_bsNamespace,
+                                         NULL,
                                          NULL,
                                          NULL, 0L, NULL, NULL,
                                          &pServices);
@@ -189,7 +178,7 @@ bool WMICollector::Connect(IWbemServices **ppServices)
 
             //---------------------------------------------------
 
-            hr = pLocator->ConnectServer(m_bsNamespace, 
+            hr = pLocator->ConnectServer(m_bsNamespace,
                                          bsUser,
                                          m_bsPassword,
                                          NULL, 0L, NULL, NULL,
@@ -199,8 +188,8 @@ bool WMICollector::Connect(IWbemServices **ppServices)
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
             "WMICollector::Connect() - return from "
             "ConnectServer() is %x", hr));
-        
-        if (FAILED(hr))    
+
+        if (FAILED(hr))
         {
             _com_error myError(hr);
             switch(hr)
@@ -209,37 +198,37 @@ bool WMICollector::Connect(IWbemServices **ppServices)
                     PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL1,
                         "WMICollector::Connect() connectServer() - throw "
                         "CIM_ERR_ACCESS_DENIED for E_ACCESSDENIED error");
-                    throw CIMException(CIM_ERR_ACCESS_DENIED); 
+                    throw CIMException(CIM_ERR_ACCESS_DENIED);
                     break;
-                case WBEM_E_ACCESS_DENIED: 
+                case WBEM_E_ACCESS_DENIED:
                     PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL1,
                         "WMICollector::Connect() - connectServer() - throw "
                         "CIM_ERR_ACCESS_DENIED error");
-                    throw CIMException(CIM_ERR_ACCESS_DENIED); 
+                    throw CIMException(CIM_ERR_ACCESS_DENIED);
                     break;
-                default: 
+                default:
                     PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL1,
                         "WMICollector::Connect() - connectServer() - throw "
                         "CIM_ERR_INVALID_NAMESPACE error");
-                    throw CIMException(CIM_ERR_INVALID_NAMESPACE, 
+                    throw CIMException(CIM_ERR_INVALID_NAMESPACE,
                         myError.ErrorMessage());
             }
         }
 
-        if (SUCCEEDED(hr))    
+        if (SUCCEEDED(hr))
         {
             // set security attributes on pServices
-            if(setProxySecurity(pServices))
+            if (setProxySecurity(pServices))
             {
                 pServices.CopyTo(ppServices);
             }
-            else    
+            else
             {
                 *ppServices = NULL;
             }
         }
     }
-    
+
     PEG_METHOD_EXIT();
 
     return (SUCCEEDED(hr));
@@ -251,9 +240,9 @@ bool WMICollector::Connect(IWbemServices **ppServices)
 //
 /////////////////////////////////////////////////////////////////////////////
 bool WMICollector::getInstanceEnum(
-                     IEnumWbemClassObject **ppInstances,
-                     const String & sClassName,
-                     Boolean deepInheritance)
+    IEnumWbemClassObject **ppInstances,
+    const String & sClassName,
+    Boolean deepInheritance)
 {
     PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMICollector::getInstanceEnum()");
 
@@ -264,8 +253,8 @@ bool WMICollector::getInstanceEnum(
     // CComPtr is a smart pointer, therefore, it doesn't need to be explicitely
     // released.
     //
-    CComPtr<IWbemServices>            pServices;
-    CComPtr<IEnumWbemClassObject>    p_inst;
+    CComPtr<IWbemServices> pServices;
+    CComPtr<IEnumWbemClassObject> p_inst;
 
     bool bConnected = Connect(&pServices);
 
@@ -274,7 +263,7 @@ bool WMICollector::getInstanceEnum(
         PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL1,
             "WMICollector::getInstanceEnum,() - bConnected is false - "
             "throw Connect failed error");
-        
+
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "Connect failed.");
     }
 
@@ -290,17 +279,17 @@ bool WMICollector::getInstanceEnum(
         &p_inst);
 
     PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-            "WMICollector::getInstanceEnum() return from CreateInstanceEnum()-"
+        "WMICollector::getInstanceEnum() return from CreateInstanceEnum()-"
             " hr value is %x", hr));
 
-    if (SUCCEEDED(hr))    
+    if (SUCCEEDED(hr))
     {
         p_inst.CopyTo(ppInstances);
 
         // set security attributes on *ppInstances
         bool bSecurity = setProxySecurity(*ppInstances);
     }
-    else    
+    else
     {
         *ppInstances = NULL;
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
@@ -308,21 +297,21 @@ bool WMICollector::getInstanceEnum(
 
         switch(hr)
         {
-            case WBEM_E_ACCESS_DENIED: 
-                throw CIMException(CIM_ERR_ACCESS_DENIED); 
+            case WBEM_E_ACCESS_DENIED:
+                throw CIMException(CIM_ERR_ACCESS_DENIED);
                 break;
-            case WBEM_E_INVALID_CLASS: 
-                throw CIMException(CIM_ERR_INVALID_CLASS); 
-                break; 
-            default: 
-                throw CIMException(CIM_ERR_FAILED, 
+            case WBEM_E_INVALID_CLASS:
+                throw CIMException(CIM_ERR_INVALID_CLASS);
+                break;
+            default:
+                throw CIMException(CIM_ERR_FAILED,
                     "[getInstanceEnum] general");
         }
     }
 
     PEG_METHOD_EXIT();
 
-    return (SUCCEEDED(hr));
+    return SUCCEEDED(hr);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -331,14 +320,13 @@ bool WMICollector::getInstanceEnum(
 //
 /////////////////////////////////////////////////////////////////////////////
 bool WMICollector::getClassEnum(
-                     IEnumWbemClassObject **ppClasses,
-                     const String & sSuperClass,
-                     Boolean deepInheritance)
+    IEnumWbemClassObject **ppClasses,
+    const String & sSuperClass,
+    Boolean deepInheritance)
 {
-
     HRESULT hr;
-    
-    long lFlags = WBEM_FLAG_FORWARD_ONLY ;
+
+    long lFlags = WBEM_FLAG_FORWARD_ONLY;
     CComBSTR bsSuperClass = NULL;
 
     CComPtr<IWbemServices> pServices;
@@ -352,7 +340,7 @@ bool WMICollector::getClassEnum(
     {
         PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL1,
             "WMICollector::getClassEnum,() - bConnected is false - "
-            "throw Connect failed error");
+                "throw Connect failed error");
 
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "Connect failed.");
     }
@@ -390,64 +378,64 @@ bool WMICollector::getClassEnum(
         "WMICollector::getClassEnum() returns from CreateClassEnum() -"
         " hr value is %x", hr));
 
-    if (SUCCEEDED(hr))    
+    if (SUCCEEDED(hr))
     {
         p_class.CopyTo(ppClasses);
 
         // set security attributes on *ppClasses
         bool bSecurity = setProxySecurity(*ppClasses);
     }
-    else    
+    else
     {
         *ppClasses = NULL;
 
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
             "WMICollector::getClassEnum() - hr value is %x", hr));
-        
+
         switch(hr)
         {
-            case WBEM_E_ACCESS_DENIED: 
+            case WBEM_E_ACCESS_DENIED:
                 PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL1,
                     "WMICollector::getClassEnum() - createClassEnum() returns "
                     "ACCESS_DENIED- throw CIM_ERROR_ACCESS_DENIED error");
-                throw CIMException(CIM_ERR_ACCESS_DENIED); 
+                throw CIMException(CIM_ERR_ACCESS_DENIED);
                 break;
-            case WBEM_E_INVALID_CLASS: 
+            case WBEM_E_INVALID_CLASS:
                 PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL1,
                     "WMICollector::getClassEnum() - createClassEnum() returns "
                     "INVALID_CLASS- throw CIM_INVALID_CLASS error");
-                throw CIMException(CIM_ERR_INVALID_CLASS); 
-                break; 
-            default: 
+                throw CIMException(CIM_ERR_INVALID_CLASS);
+                break;
+            default:
                 PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL1,
                     "WMICollector::getClassEnum() - createClassEnum() returns "
                     "default - throw getClassEnum general error");
-                throw CIMException(CIM_ERR_FAILED, "[getClassEnum] general"); 
+                throw CIMException(CIM_ERR_FAILED, "[getClassEnum] general");
         }
     }
 
     PEG_METHOD_EXIT();
 
-    return (SUCCEEDED(hr));
+    return SUCCEEDED(hr);
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 // WMICollector::getQueryResult - fetch a point to the enumeration of
-//        instances returned from an ExecQuery request 
+//        instances returned from an ExecQuery request
 //
 /////////////////////////////////////////////////////////////////////////////
 bool WMICollector::getQueryResult(
-                    IEnumWbemClassObject **ppInstances, 
-                    const String &query, 
-                    const String &queryLanguage)
+    IEnumWbemClassObject **ppInstances,
+    const String &query,
+    const String &queryLanguage)
 {
     HRESULT hr;
-    
-    CComPtr<IWbemServices>    pServices;
+
+    CComPtr<IWbemServices> pServices;
     CComPtr<IEnumWbemClassObject> p_inst;
 
-    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMICollector::getQueryResult()");
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER, "WMICollector::getQueryResult()");
 
     bool bConnected = Connect(&pServices);
 
@@ -455,8 +443,8 @@ bool WMICollector::getQueryResult(
     {
         PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL1,
             "WMICollector::getQueryResult,() - bConnected is false - "
-            "throw Connect failed error");
-        
+                "throw Connect failed error");
+
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "Connect failed.");
     }
 
@@ -479,17 +467,17 @@ bool WMICollector::getQueryResult(
         &p_inst);
 
     PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-            "WMICollector::getQueryResult(), return from ExecQuery "
+        "WMICollector::getQueryResult(), return from ExecQuery "
             "- hr value is %x", hr));
 
-    if (SUCCEEDED(hr))    
+    if (SUCCEEDED(hr))
     {
         p_inst.CopyTo(ppInstances);
-        
+
         // set security attributes on *ppInstances
         bool bSecurity = setProxySecurity(*ppInstances);
     }
-    else    
+    else
     {
         *ppInstances = NULL;
 
@@ -498,13 +486,13 @@ bool WMICollector::getQueryResult(
 
         switch(hr)
         {
-            case WBEM_E_INVALID_QUERY: 
-                throw CIMException(CIM_ERR_INVALID_QUERY); 
+            case WBEM_E_INVALID_QUERY:
+                throw CIMException(CIM_ERR_INVALID_QUERY);
                 break;
-            case WBEM_E_INVALID_QUERY_TYPE: 
-                throw CIMException(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED); 
+            case WBEM_E_INVALID_QUERY_TYPE:
+                throw CIMException(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED);
                 break;
-            default: 
+            default:
                 throw CIMException(CIM_ERR_FAILED, "[getQueryResult] general");
         }
     }
@@ -520,11 +508,12 @@ bool WMICollector::getQueryResult(
 //        Can be either a class or an instance
 //
 /////////////////////////////////////////////////////////////////////////////
-bool WMICollector::getObject(IWbemClassObject **ppObject, 
-                                  const String & sObjectName)
+bool WMICollector::getObject(
+    IWbemClassObject **ppObject,
+    const String & sObjectName)
 {
     PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMICollector::getObject()");
-    
+
     HRESULT hr;
     CComPtr<IWbemServices>    pServices;
     CComPtr<IWbemClassObject> p_obj;
@@ -535,21 +524,21 @@ bool WMICollector::getObject(IWbemClassObject **ppObject,
     {
         PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL1,
             "WMICollector::getObject,() - bConnected is false - "
-            "throw Connect failed error");
+                "throw Connect failed error");
 
         throw CIMException(CIM_ERR_ACCESS_DENIED);
     }
 
     CComBSTR bsObjectName = sObjectName.getCString();
-    LONG lFlags = 
-        WBEM_FLAG_USE_AMENDED_QUALIFIERS | WBEM_FLAG_RETURN_WBEM_COMPLETE; 
+    LONG lFlags =
+        WBEM_FLAG_USE_AMENDED_QUALIFIERS | WBEM_FLAG_RETURN_WBEM_COMPLETE;
 
     // retrieve class object
     hr = pServices->GetObject(
-        bsObjectName, 
-        lFlags, 
-        NULL, 
-        &p_obj, 
+        bsObjectName,
+        lFlags,
+        NULL,
+        &p_obj,
         NULL);
 
     PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
@@ -572,47 +561,47 @@ bool WMICollector::getObject(IWbemClassObject **ppObject,
         //generate error
         switch(hr)
         {
-            case WBEM_E_INVALID_CLASS: 
-                throw CIMException(CIM_ERR_INVALID_CLASS); 
+            case WBEM_E_INVALID_CLASS:
+                throw CIMException(CIM_ERR_INVALID_CLASS);
                 break;
-            case WBEM_E_NOT_FOUND: 
-                throw CIMException(CIM_ERR_NOT_FOUND); 
+            case WBEM_E_NOT_FOUND:
+                throw CIMException(CIM_ERR_NOT_FOUND);
                 break;
-            default: 
+            default:
                 throw CIMException(CIM_ERR_FAILED, "[getObject] general");
         }
     }
 
     PEG_METHOD_EXIT();
-    
-    return (SUCCEEDED(hr));
+    return SUCCEEDED(hr);
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
-// getProperties - retrieves selected 
+// getProperties - retrieves selected
 //        properties for a CIMClass or
 //        CIMInstance object
 //
 /////////////////////////////////////////////////////////////////////////////
 template<class CONTAINER>
-void getProperties(IWbemClassObject *pClass, 
-        Boolean localOnly,
-        Boolean includeQualifiers,
-        Boolean includeClassOrigin,
-        const CIMPropertyList& propertyList,                                  
-        CONTAINER & container)
+void getProperties(
+    IWbemClassObject *pClass,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    CONTAINER & container)
 {
     HRESULT hr = S_OK;
     String sMessage;
 
     CComBSTR    bsName;            // of the property
-    CComVariant    vValue;            // of the property
+    CComVariant vValue;            // of the property
     long        lFlavor;        // of the property
-    CIMTYPE        type;
+    CIMTYPE     type;
     CIMProperty property;
 
-    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"getProperties()");
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER, "getProperties()");
 
     Uint32 size = propertyList.size();
 
@@ -628,31 +617,31 @@ void getProperties(IWbemClassObject *pClass,
 
         // fetch the property
         hr = pClass->Get(
-            bsName, 
-            0, 
-            &vValue, 
-            &type, 
+            bsName,
+            0,
+            &vValue,
+            &type,
             &lFlavor);
 
         // process each property
         if (SUCCEEDED(hr))
         {
-
             PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL4,
                 "getProperties() - CIMTYPE[%x] - WMITYPE[%x]",
-                type, 
+                type,
                 vValue.vt));
 
-            bool bPropagated = 
+            bool bPropagated =
                 (lFlavor & WBEM_FLAVOR_ORIGIN_PROPAGATED) ? true : false;
 
             try
             {
-                property = WMICollector::getProperty(pClass, bsName, vValue, 
-                                        type, includeClassOrigin, 
-                                        includeQualifiers, bPropagated);
+                property = WMICollector::getProperty(
+                    pClass, bsName, vValue,
+                    type, includeClassOrigin,
+                    includeQualifiers, bPropagated);
             }
-            catch( TypeMismatchException & e )
+            catch (TypeMismatchException& e)
             {
                 // ATTN:
                 // unsupported for now - do some tracing...
@@ -665,17 +654,16 @@ void getProperties(IWbemClassObject *pClass,
                 continue;
             }
             vValue.Clear();
-            
+
             if (bPropagated && localOnly)
             {
                 PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL4,
                     "getProperties() - Property %s was defined in a "
                     "superclass", (LPCTSTR)sPropName.getCString()));
             }
-
             else
-            // try to add it
             {
+                // try to add it
                 try
                 {
                     container.addProperty(property);
@@ -687,7 +675,7 @@ void getProperties(IWbemClassObject *pClass,
                         "getProperties() - Property %s is already defined. %s",
                         sPropName, e.getMessage()));
                 }
-                catch( Exception & e )
+                catch (Exception& e)
                 {
                     // ignore this
                     PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL2,
@@ -695,9 +683,9 @@ void getProperties(IWbemClassObject *pClass,
                         "  %s", e.getMessage()));
 
                 }
-                catch(... ) 
+                catch (...)
                 {
-                    throw CIMException(CIM_ERR_FAILED, 
+                    throw CIMException(CIM_ERR_FAILED,
                         "[getProperties] general");
                 }
             }
@@ -706,9 +694,9 @@ void getProperties(IWbemClassObject *pClass,
         else if (WBEM_E_NOT_FOUND == hr)
         {    // we are supposed to keep going...
             PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
-                "getProperties() - %s property not found", 
+                "getProperties() - %s property not found",
                 (LPCTSTR)sPropName.getCString()));
-            
+
             hr = S_OK;
         }
     }
@@ -725,25 +713,26 @@ void getProperties(IWbemClassObject *pClass,
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// getAllProperties - retrieves all the 
+// getAllProperties - retrieves all the
 //        properties for a CIMClass or
 //        CIMInstance object
 //
 /////////////////////////////////////////////////////////////////////////////
 template<class CONTAINER>
-bool getAllProperties(IWbemClassObject *pClass, 
-                                      long lFlags,
-                                      Boolean includeQualifiers,
-                                      Boolean includeClassOrigin,
-                                      CONTAINER & container)
+bool getAllProperties(
+    IWbemClassObject *pClass,
+    long lFlags,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    CONTAINER & container)
 {
     HRESULT hr;
     String sMessage;
 
-    CComBSTR    bsName;            // of the property
-    CComVariant    vValue;            // of the property
-    long        lFlavor;        // of the property
-    CIMTYPE        type;
+    CComBSTR bsName;     // of the property
+    CComVariant vValue;  // of the property
+    long lFlavor;        // of the property
+    CIMTYPE type;
     CIMProperty property;
 
     bool bFound = false;
@@ -771,22 +760,23 @@ bool getAllProperties(IWbemClassObject *pClass,
         }
 
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-                "getAllProperties() - CIMTYPE[%x] - WMITYPE[%x]",
-                type, 
-                vValue.vt));
+            "getAllProperties() - CIMTYPE[%x] - WMITYPE[%x]",
+            type,
+            vValue.vt));
 
         bFound = true;
 
         CMyString sPropName; sPropName = bsName;
-        
-        bool bPropagated = 
+
+        bool bPropagated =
             (lFlavor & WBEM_FLAVOR_ORIGIN_PROPAGATED) ? true : false;
 
         try
         {
-            property = WMICollector::getProperty(pClass, bsName, vValue, 
-                                    type, includeClassOrigin, 
-                                    includeQualifiers, bPropagated);
+            property = WMICollector::getProperty(
+                pClass, bsName, vValue,
+                type, includeClassOrigin,
+                includeQualifiers, bPropagated);
         }
         catch( TypeMismatchException & e )
         {
@@ -795,7 +785,7 @@ bool getAllProperties(IWbemClassObject *pClass,
             String sClass = WMICollector::getClassName(pClass);
             PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL2,
                 "getAllProperties() - Ignoring invalid type for %s in %s."
-                "  %s, unsupported WMI CIM type is %x",
+                    "  %s, unsupported WMI CIM type is %x",
                 (LPCTSTR)sPropName, sClass, e.getMessage(), type));
 
             bsName.Empty();
@@ -805,31 +795,31 @@ bool getAllProperties(IWbemClassObject *pClass,
             hr = pClass->Next(0, &bsName, &vValue, &type, &lFlavor);
 
             continue;
-        }            
-        
+        }
+
         try
         {
             container.addProperty(property);
         }
-        catch( AlreadyExistsException& e )
+        catch (AlreadyExistsException& e)
         {
             // ignore this
             PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL2,
-                "getAllProperties() - Property %s is already defined", 
+                "getAllProperties() - Property %s is already defined",
                 (LPCTSTR)sPropName));
-            PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL2, 
+            PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL2,
                 "getAllProperties() - %s", e.getMessage()));
 
         }
-        catch( Exception & e )
+        catch (Exception& e)
         {
             // ignore this
             PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL2,
-                "getAllProperties() - Ignoring AddedReferenceToClass.  %s", 
+                "getAllProperties() - Ignoring AddedReferenceToClass.  %s",
                 e.getMessage()));
 
         }
-        catch(... ) 
+        catch (...)
         {
             throw CIMException(CIM_ERR_FAILED, "[getAllProperties] general 1");
         }
@@ -846,7 +836,7 @@ bool getAllProperties(IWbemClassObject *pClass,
     if (FAILED(hr))
     {
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
-            "getAllProperties() - %s result is %x", 
+            "getAllProperties() - %s result is %x",
             sMessage.getCString(), hr));
         throw CIMException(CIM_ERR_FAILED, "[getAllProperties] general 2");
     }
@@ -857,24 +847,25 @@ bool getAllProperties(IWbemClassObject *pClass,
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// getAllMethods - retrieves all the 
+// getAllMethods - retrieves all the
 //        methods for a CIMClass or
 //        CIMInstance object
 //
 /////////////////////////////////////////////////////////////////////////////
-bool getAllMethods(IWbemClassObject *pClass, 
-                   long lFlags,
-                   Boolean includeQualifiers,
-                   Boolean includeClassOrigin,
-                   CIMClass & container)
+bool getAllMethods(
+    IWbemClassObject *pClass,
+    long lFlags,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    CIMClass & container)
 {
     HRESULT hr;
     String sMessage;
 
-    CComBSTR                    bsName;            // of the method
-    CComPtr<IWbemClassObject>    inParameters;    // of the method
-    CComPtr<IWbemClassObject>    outParameters;  // of the method
-    CIMMethod                    method;
+    CComBSTR                  bsName;         // of the method
+    CComPtr<IWbemClassObject> inParameters;   // of the method
+    CComPtr<IWbemClassObject> outParameters;  // of the method
+    CIMMethod                 method;
 
     bool bFound = false;
 
@@ -888,9 +879,9 @@ bool getAllMethods(IWbemClassObject *pClass,
         // Windows 2000 does not accept any flags for BeginMethodEnumeration()
         // (e.g., WBEM_FLAG_LOCAL_ONLY, which is used when localOnly==true)
         // so try again with no flags (assuming Windows 2000 here):
-        hr = pClass->BeginMethodEnumeration(0L);    
+        hr = pClass->BeginMethodEnumeration(0L);
     }
-    
+
     if (SUCCEEDED(hr))
     {
         bsName.Empty();
@@ -914,51 +905,51 @@ bool getAllMethods(IWbemClassObject *pClass,
         bFound = true;
 
         CMyString sMethodName; sMethodName = bsName;
-        
-        // TODO: investigate propigation in terms of Methods.   
+
+        // TODO: investigate propigation in terms of Methods.
         // Is this applicable?  Without a flavor,
         // where would this come from?
         //(lFlavor & WBEM_FLAVOR_ORIGIN_PROPAGATED) ? true : false;
-        bool bPropagated = false; 
-        
+        bool bPropagated = false;
 
-        method = WMICollector::getMethod(pClass, 
-                            bsName, 
-                            inParameters,
-                            outParameters,
-                            includeClassOrigin, 
-                            includeQualifiers, 
-                            bPropagated);
-            
+        method = WMICollector::getMethod(
+            pClass,
+            bsName,
+            inParameters,
+            outParameters,
+            includeClassOrigin,
+            includeQualifiers,
+            bPropagated);
+
         try
         {
             container.addMethod(method);
         }
-        catch( AlreadyExistsException& e )
+        catch (AlreadyExistsException& e)
         {
             // ignore this
             PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL2,
-                "getAllMethods() - Method %s is already defined", 
+                "getAllMethods() - Method %s is already defined",
                 (LPCTSTR)sMethodName));
             PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL2, "getAllMethods() - %s",
                 e.getMessage()));
 
         }
-        catch( Exception & e )
+        catch (Exception& e)
         {
             // ignore this
             PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL2,
-                "getAllMethods() - Ignoring AddedReferenceToClass.  %s", 
+                "getAllMethods() - Ignoring AddedReferenceToClass.  %s",
                 e.getMessage()));
 
         }
-        catch(... ) 
+        catch (...)
         {
             throw CIMException(CIM_ERR_FAILED, "[getAllProperties] general 1");
         }
 
         bsName.Empty();
-        
+
         if (inParameters)
             inParameters.Release();
 
@@ -984,7 +975,6 @@ bool getAllMethods(IWbemClassObject *pClass,
     }
 
     PEG_METHOD_EXIT();
-
     return bFound;
 }
 
@@ -996,21 +986,22 @@ bool getAllMethods(IWbemClassObject *pClass,
 //
 /////////////////////////////////////////////////////////////////////////////
 template<class CONTAINER>
-void getClassQualifiers(IWbemClassObject *pClass, 
-                        CONTAINER & container)
+void getClassQualifiers(
+    IWbemClassObject *pClass,
+    CONTAINER & container)
 {
     HRESULT hr;
     String sMessage;
 
     CComPtr<IWbemQualifierSet> pQualifiers;
 
-    CComBSTR bsName = NULL;    // of the qualifier
-    CComVariant    vValue;            // of the qualifier
-    long lFlavor;        // of the qualifier
+    CComBSTR bsName = NULL;  // of the qualifier
+    CComVariant vValue;      // of the qualifier
+    long lFlavor;            // of the qualifier
     bool bPropagated;        // true if propated from a superclass
     CIMQualifier qualifier;
-    
-     PEG_METHOD_ENTER(TRC_WMIPROVIDER,"getClassQualifiers()");
+
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"getClassQualifiers()");
 
     // get the qualifiers enumerator
     hr = pClass->GetQualifierSet(&pQualifiers);
@@ -1039,12 +1030,13 @@ void getClassQualifiers(IWbemClassObject *pClass,
         {
             break;
         }
-        
+
         bPropagated = (lFlavor & WBEM_FLAVOR_ORIGIN_PROPAGATED) ? true : false;
 
-        qualifier = CIMQualifier(WMIString(bsName), WMIValue(vValue), 
-                            WMIFlavor(lFlavor), bPropagated);
-        
+        qualifier = CIMQualifier(
+            WMIString(bsName), WMIValue(vValue),
+            WMIFlavor(lFlavor), bPropagated);
+
         bsName.Empty();
         vValue.Clear();
 
@@ -1054,7 +1046,7 @@ void getClassQualifiers(IWbemClassObject *pClass,
         }
         catch (...)
         {
-            throw CIMException(CIM_ERR_FAILED, 
+            throw CIMException(CIM_ERR_FAILED,
                 "[getClassQualifiers] general 1");
         }
 
@@ -1072,7 +1064,7 @@ void getClassQualifiers(IWbemClassObject *pClass,
     if (FAILED(hr))
     {
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
-            "getClassQualifiers() - %s result is %x", 
+            "getClassQualifiers() - %s result is %x",
             sMessage.getCString(), hr));
 
         throw CIMException(CIM_ERR_FAILED);
@@ -1085,13 +1077,14 @@ void getClassQualifiers(IWbemClassObject *pClass,
 // WMICollector::getCIMObject - set up a getCIMObject structure
 //
 /////////////////////////////////////////////////////////////////////////////
-bool WMICollector::getCIMObject(IWbemClassObject *pObject, 
-                            CIMObject & cimObj,
-                            Boolean localOnly,
-                            Boolean includeQualifiers,
-                            Boolean includeClassOrigin,
-                            const CIMPropertyList& propertyList,
-                            Boolean getKeyProperties)
+bool WMICollector::getCIMObject(
+    IWbemClassObject *pObject,
+    CIMObject & cimObj,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    Boolean getKeyProperties)
 {
     PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMICollector::getCIMObject()");
 
@@ -1102,12 +1095,12 @@ bool WMICollector::getCIMObject(IWbemClassObject *pObject,
     }
 
     // then the properties
-    getObjectProperties(pObject, cimObj, localOnly, 
-                                        includeQualifiers, includeClassOrigin, 
-                                        propertyList, getKeyProperties);
+    getObjectProperties(
+        pObject, cimObj, localOnly,
+        includeQualifiers, includeClassOrigin,
+        propertyList, getKeyProperties);
 
     PEG_METHOD_EXIT();
-    
     return true;
 }
 
@@ -1115,13 +1108,14 @@ bool WMICollector::getCIMObject(IWbemClassObject *pObject,
 // WMICollector::getCIMInstance - set up a CIMInstance structure
 //
 /////////////////////////////////////////////////////////////////////////////
-bool WMICollector::getCIMInstance(IWbemClassObject *pObject, 
-                            CIMInstance & cimInst,
-                            Boolean localOnly,
-                            Boolean includeQualifiers,
-                            Boolean includeClassOrigin,
-                            const CIMPropertyList& propertyList,
-                            Boolean getKeyProperties)
+bool WMICollector::getCIMInstance(
+    IWbemClassObject *pObject,
+    CIMInstance & cimInst,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    Boolean getKeyProperties)
 {
     PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMICollector::getCIMInstance()");
 
@@ -1134,21 +1128,21 @@ bool WMICollector::getCIMInstance(IWbemClassObject *pObject,
     cimInst = newInstance;
 
     PEG_METHOD_EXIT();
-    
     return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// WMICollector::getCIMClass - set up a 
+// WMICollector::getCIMClass - set up a
 //        CIMClass structure
 //
 /////////////////////////////////////////////////////////////////////////////
-bool WMICollector::getCIMClass(IWbemClassObject *pObject,
-        CIMClass & cimClass,
-        Boolean localOnly,
-        Boolean includeQualifiers,
-        Boolean includeClassOrigin,
-        const CIMPropertyList& propertyList)
+bool WMICollector::getCIMClass(
+    IWbemClassObject *pObject,
+    CIMClass & cimClass,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
 {
     PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMICollector::getCIMClass()");
 
@@ -1161,21 +1155,20 @@ bool WMICollector::getCIMClass(IWbemClassObject *pObject,
     cimClass = newClass;
 
     // Get methods for classes only
-    getClassMethods(pObject, cimClass, localOnly, includeQualifiers,
-                    includeClassOrigin);
+    getClassMethods(
+        pObject, cimClass, localOnly, includeQualifiers, includeClassOrigin);
 
     PEG_METHOD_EXIT();
-    
     return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // WMICollector::getClassName - return the value of the __CLASS
-//        property of pObject 
+//        property of pObject
 //
 /////////////////////////////////////////////////////////////////////////////
 String WMICollector::getClassName(IWbemClassObject *pObject)
-{ 
+{
     CComBSTR bsClass = "__CLASS";
 
     return getStringProperty(pObject, bsClass);
@@ -1220,20 +1213,21 @@ bool WMICollector::isInstance(IWbemClassObject *pObject)
 
 /////////////////////////////////////////////////////////////////////////////
 // WMICollector::getStringProperty - helper function to retrieve specific
-//        string properties from a class or instance object 
+//        string properties from a class or instance object
 //
 /////////////////////////////////////////////////////////////////////////////
-String WMICollector::getStringProperty(IWbemClassObject *pObject, 
-                                       const CComBSTR &bsPropertyName)
+String WMICollector::getStringProperty(
+    IWbemClassObject *pObject,
+    const CComBSTR &bsPropertyName)
 {
-    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMICollector::getStringProperty()");
-    
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER, "WMICollector::getStringProperty()");
+
     HRESULT hr;
-    CComVariant    vValue;
+    CComVariant vValue;
     CComBSTR bs;
     CMyString s = "";
     CMyString name; name = bsPropertyName;
-    
+
     hr = pObject->Get(bsPropertyName, 0, &vValue, NULL, NULL);
     if (SUCCEEDED(hr))
     {
@@ -1248,13 +1242,13 @@ String WMICollector::getStringProperty(IWbemClassObject *pObject,
         }
 
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-            "WMICollector::getStringProperty() - Value for %s is %s", 
+            "WMICollector::getStringProperty() - Value for %s is %s",
             (LPCTSTR)name, (LPCTSTR)s));
     }
     else
     {
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
-            "WMICollector::getStringProperty() - get result for %s is %x", 
+            "WMICollector::getStringProperty() - get result for %s is %x",
             (LPCTSTR)name, hr));
     }
 
@@ -1273,69 +1267,73 @@ String WMICollector::getStringProperty(IWbemClassObject *pObject,
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// WMICollector::getObjectProperties - retrieves the 
+// WMICollector::getObjectProperties - retrieves the
 //        object property definitions and values, if any,
 //        and adds them to the CIMObject instance
 //
 /////////////////////////////////////////////////////////////////////////////
-bool WMICollector::getObjectProperties(IWbemClassObject *pObject, 
-                                      CIMObject & cimObj,
-                                      Boolean localOnly,
-                                      Boolean includeQualifiers,
-                                      Boolean includeClassOrigin,
-                                      const CIMPropertyList& propertyList,
-                                      Boolean bGetKeyProperties)
+bool WMICollector::getObjectProperties(
+    IWbemClassObject *pObject,
+    CIMObject & cimObj,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    Boolean bGetKeyProperties)
 {
-     PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMICollector::getObjectProperties()");
+     PEG_METHOD_ENTER(TRC_WMIPROVIDER, "WMICollector::getObjectProperties()");
 
-    long lFlags = (localOnly) ? WBEM_FLAG_LOCAL_ONLY : 
+    long lFlags = (localOnly) ? WBEM_FLAG_LOCAL_ONLY :
         WBEM_FLAG_NONSYSTEM_ONLY;
 
     if (propertyList.isNull())
     {    // we want all the properties...
-        getAllProperties(pObject, lFlags, 
-                        includeQualifiers, includeClassOrigin, 
-                        cimObj);
+        getAllProperties(
+            pObject, lFlags,
+            includeQualifiers, includeClassOrigin,
+            cimObj);
     }
 
     else if (0 != propertyList.size())
     {    // just get the ones requested
-        getProperties(pObject, localOnly, includeQualifiers, 
-                        includeClassOrigin, propertyList, cimObj);
+        getProperties(
+            pObject, localOnly, includeQualifiers,
+            includeClassOrigin, propertyList, cimObj);
     }
 
     // else we have an empty list and don't want any
 
-    // if being called from getInstance, need to be sure that 
+    // if being called from getInstance, need to be sure that
     //    the key properties are retrieved...
     if (bGetKeyProperties)
     {
-        getAllProperties(pObject, WBEM_FLAG_KEYS_ONLY,
-                        includeQualifiers, includeClassOrigin, 
-                        cimObj);
+        getAllProperties(
+            pObject, WBEM_FLAG_KEYS_ONLY,
+            includeQualifiers, includeClassOrigin,
+            cimObj);
     }
 
     PEG_METHOD_EXIT();
-
     return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // WMICollector::getProperty
 //        create a CIMProperty object from
-//        WMI data 
+//        WMI data
 //
 /////////////////////////////////////////////////////////////////////////////
-CIMProperty WMICollector::getProperty(IWbemClassObject *pClass, 
-                                      const CComBSTR &bsName, 
-                                      const CComVariant &vValue, 
-                                      CIMTYPE type,
-                                      Boolean includeClassOrigin, 
-                                      Boolean includeQualifiers,
-                                      Boolean bPropagated)
+CIMProperty WMICollector::getProperty(
+    IWbemClassObject *pClass,
+    const CComBSTR &bsName,
+    const CComVariant &vValue,
+    CIMTYPE type,
+    Boolean includeClassOrigin,
+    Boolean includeQualifiers,
+    Boolean bPropagated)
 {
-    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMICollector::getProperty()");
-    
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER, "WMICollector::getProperty()");
+
     HRESULT hr = S_OK;
     String sMessage;
     CIMProperty property;
@@ -1355,7 +1353,7 @@ CIMProperty WMICollector::getProperty(IWbemClassObject *pClass,
         sPropName = bs;
         iSize = sPropName.GetLength();
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-            "WMICollector::getProperty() - Property Value is %s, size is %x", 
+            "WMICollector::getProperty() - Property Value is %s, size is %x",
             (LPCTSTR)sPropName, iSize));
     }
 
@@ -1367,7 +1365,7 @@ CIMProperty WMICollector::getProperty(IWbemClassObject *pClass,
 
     if (SUCCEEDED(hr))
     {
-        property = WMIProperty(bsName, vValue, type, 
+        property = WMIProperty(bsName, vValue, type,
             pQualifiers, includeQualifiers);
 
         // set the property qualifier
@@ -1404,51 +1402,51 @@ CIMProperty WMICollector::getProperty(IWbemClassObject *pClass,
     }
 
     PEG_METHOD_EXIT();
-
     return property;
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// WMICollector::getClassMethods - retrieves the 
+// WMICollector::getClassMethods - retrieves the
 //        class method definitions and parameters, if any,
 //        and adds them to the CIMClass instance
 //
 /////////////////////////////////////////////////////////////////////////////
-bool WMICollector::getClassMethods(IWbemClassObject *pObject, 
-                                      CIMClass & cimClass,
-                                      Boolean localOnly,
-                                      Boolean includeQualifiers,
-                                      Boolean includeClassOrigin)
+bool WMICollector::getClassMethods(
+    IWbemClassObject *pObject,
+    CIMClass & cimClass,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin)
 {
-     PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMICollector::getClasslMethods()");
+     PEG_METHOD_ENTER(TRC_WMIPROVIDER, "WMICollector::getClasslMethods()");
 
     long lFlags = (localOnly) ? WBEM_FLAG_LOCAL_ONLY : 0L;
 
     // we want all the methods...
-    getAllMethods(pObject, lFlags, includeQualifiers, 
+    getAllMethods(pObject, lFlags, includeQualifiers,
         includeClassOrigin, cimClass);
 
     PEG_METHOD_EXIT();
-
     return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // WMICollector::getMethod
 //        create a CIMMethod object from
-//        WMI data 
+//        WMI data
 //
 /////////////////////////////////////////////////////////////////////////////
-CIMMethod WMICollector::getMethod(IWbemClassObject *pClass, 
-        const CComBSTR &bsName, 
-        const CComPtr<IWbemClassObject> &inParameters,
-        const CComPtr<IWbemClassObject> &outParameters,
-        Boolean includeClassOrigin, 
-        Boolean includeQualifiers,
-        Boolean bPropagated)
+CIMMethod WMICollector::getMethod(
+    IWbemClassObject *pClass,
+    const CComBSTR &bsName,
+    const CComPtr<IWbemClassObject> &inParameters,
+    const CComPtr<IWbemClassObject> &outParameters,
+    Boolean includeClassOrigin,
+    Boolean includeQualifiers,
+    Boolean bPropagated)
 {
-    PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMICollector::getMethod()");
-    
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER, "WMICollector::getMethod()");
+
     HRESULT hr = S_OK;
     String sMessage;
     CIMMethod method;
@@ -1456,7 +1454,7 @@ CIMMethod WMICollector::getMethod(IWbemClassObject *pClass,
     long iSize = sMethodName.GetLength();
 
     PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-        "WMICollector::getMethod() - Method Name is %s", 
+        "WMICollector::getMethod() - Method Name is %s",
         (LPCTSTR)sMethodName));
 
 
@@ -1468,7 +1466,7 @@ CIMMethod WMICollector::getMethod(IWbemClassObject *pClass,
 
     if (SUCCEEDED(hr))
     {
-        method = WMIMethod(bsName, inParameters, outParameters, 
+        method = WMIMethod(bsName, inParameters, outParameters,
             pQualifiers, includeQualifiers);
 
         // set the method qualifier
@@ -1505,13 +1503,12 @@ CIMMethod WMICollector::getMethod(IWbemClassObject *pClass,
     }
 
     PEG_METHOD_EXIT();
-
     return method;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // WMICollector::setNamespace
-//     
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 void WMICollector::setNamespace(const String & sNamespace)
@@ -1521,29 +1518,29 @@ void WMICollector::setNamespace(const String & sNamespace)
     String sLower = sNamespace;
     sLower.toLower();
     Uint32 pos = sLower.find("root");
-    
+
     m_bIsLocalNamespace = (0 == pos);
 
     if (m_bIsLocalNamespace)
     {
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL4,
-            "WMICollector::setNamespace() - Namespace %s is local", 
+            "WMICollector::setNamespace() - Namespace %s is local",
             sNamespace.getCString()));
         s = sNamespace;
     }
     else
     {
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL4,
-            "WMICollector::setNamespace() - Namespace %s is remote", 
+            "WMICollector::setNamespace() - Namespace %s is remote",
             sNamespace.getCString()));
 
-        // by Jair 
+        // by Jair
         // adjust the namespace to accept DNS fully qualified names
         // and IP addresses.
         String str = sNamespace;
         for (Uint32 i = 0; i < pos - 1; i++)
         {
-            if (str[i] == '/') 
+            if (str[i] == '/')
             {
                 // have a '.' encoded as '/' -- convert back to '.':
                 str[i] = '.';
@@ -1588,7 +1585,7 @@ void WMICollector::setNamespace(const String & sNamespace)
 
 /////////////////////////////////////////////////////////////////////////////
 // WMICollector::setUserName
-//     
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 void WMICollector::setUserName(const String & sUserName)
@@ -1597,7 +1594,7 @@ void WMICollector::setUserName(const String & sUserName)
     String sDomain = ".";
 
     Uint32 pos = sUser.find("/");
-    
+
     if (PEG_NOT_FOUND == pos)
         pos = sUser.find("\\");
 
@@ -1608,8 +1605,8 @@ void WMICollector::setUserName(const String & sUserName)
     }
 
     PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL4,
-                "WMICollector::setUserName() - UserName [%s], Domain [%s]", 
-                sUser.getCString(), sDomain.getCString()));
+        "WMICollector::setUserName() - UserName [%s], Domain [%s]",
+        sUser.getCString(), sDomain.getCString()));
 
     m_bsUserName = sUser.getCString();
     m_bsDomain = sDomain.getCString();
@@ -1617,7 +1614,7 @@ void WMICollector::setUserName(const String & sUserName)
 
 /////////////////////////////////////////////////////////////////////////////
 // WMICollector::setPassword
-//     
+//
 //
 // ///////////////////////////////////////////////////////////////////////////
 void WMICollector::setPassword(const String & sPassword)
@@ -1627,7 +1624,7 @@ void WMICollector::setPassword(const String & sPassword)
 
 /////////////////////////////////////////////////////////////////////////////
 // WMICollector::setProxySecurity
-//     
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 bool WMICollector::setProxySecurity(IUnknown * pProxy)
@@ -1636,7 +1633,7 @@ bool WMICollector::setProxySecurity(IUnknown * pProxy)
 
     HRESULT hr;
 
-    if(m_bIsLocalNamespace)
+    if (m_bIsLocalNamespace)
     {
         PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL4,
             "WMICollector::setProxySecurity() - m_bIsLocalNamespace is true");
@@ -1646,11 +1643,11 @@ bool WMICollector::setProxySecurity(IUnknown * pProxy)
             RPC_C_AUTHN_WINNT,    // NTLM authentication service
             RPC_C_AUTHZ_NONE,     // default authorization service...
             NULL,                 // no mutual authentication
-            RPC_C_AUTHN_LEVEL_PKT,      // authentication Tracer::LEVEL
-            RPC_C_IMP_LEVEL_IMPERSONATE, // impersonation Tracer::LEVEL
-            NULL,                
-            EOAC_DYNAMIC_CLOAKING);     // enable dynamic cloaking, so 
-                                        // impersonation token is propagated 
+            RPC_C_AUTHN_LEVEL_PKT,      // authentication level
+            RPC_C_IMP_LEVEL_IMPERSONATE, // impersonation level
+            NULL,
+            EOAC_DYNAMIC_CLOAKING);     // enable dynamic cloaking, so
+                                        // impersonation token is propagated
                                         // to WMI
     }
     else
@@ -1660,7 +1657,7 @@ bool WMICollector::setProxySecurity(IUnknown * pProxy)
 
         // set security attributes on pProxy
         COAUTHIDENTITY authident;
-            
+
         memset((void *)&authident,0,sizeof(COAUTHIDENTITY));
 
         authident.UserLength = (ULONG)m_bsUserName.Length();
@@ -1676,18 +1673,18 @@ bool WMICollector::setProxySecurity(IUnknown * pProxy)
                 RPC_C_AUTHN_WINNT,    // NTLM authentication service
                 RPC_C_AUTHZ_NONE,     // default authorization service...
                 NULL,                 // no mutual authentication
-                RPC_C_AUTHN_LEVEL_PKT,      // authentication Tracer::LEVEL
-                RPC_C_IMP_LEVEL_IMPERSONATE,    // impersonation Tracer::LEVEL
-                &authident, 
-                EOAC_NONE); // EOAC_DYNAMIC_CLOAKING seems to fail on remote 
-                            // WMI calls, or when COAUTHIDENTITY info is sent 
+                RPC_C_AUTHN_LEVEL_PKT_PRIVACY,  // authentication level
+                RPC_C_IMP_LEVEL_IMPERSONATE,    // impersonation level
+                &authident,
+                EOAC_NONE); // EOAC_DYNAMIC_CLOAKING seems to fail on remote
+                            // WMI calls, or when COAUTHIDENTITY info is sent
                             // (as in this case), so going back to EOC_NONE for
                             // this case only.
     }
 
     PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-            "WMICollector::setProxySecurity() - return from "
-            "CoSetProxyBlanket() is %x", hr));
+        "WMICollector::setProxySecurity() - return from "
+        "CoSetProxyBlanket() is %x", hr));
 
     PEG_METHOD_EXIT();
     return SUCCEEDED(hr);
@@ -1695,7 +1692,7 @@ bool WMICollector::setProxySecurity(IUnknown * pProxy)
 
 /////////////////////////////////////////////////////////////////////////////
 // WMICollector::logonUser
-//     
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 void WMICollector::logonUser()
@@ -1711,10 +1708,10 @@ void WMICollector::logonUser()
     LPTSTR pszPassword  = (LPTSTR)(LPCTSTR)sPassword;
 
     //Logon and impersonate the user
-    if(!RevertToSelf())
+    if (!RevertToSelf())
     {
         DWORD error = GetLastError();
-        
+
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
                 "WMICollector::logonUser() - return from RevertToSelf() is %d",
                 error));
@@ -1723,35 +1720,38 @@ void WMICollector::logonUser()
     }
 
     HANDLE htok = 0;
-    if(!LogonUser(pszUserName,
-                  pszDomain,
-                  pszPassword,
-                  LOGON32_LOGON_INTERACTIVE,
-                  LOGON32_PROVIDER_DEFAULT,
-                  &htok))
+    if (!LogonUser(
+            pszUserName,
+            pszDomain,
+            pszPassword,
+            LOGON32_LOGON_INTERACTIVE,
+            LOGON32_PROVIDER_DEFAULT,
+            &htok))
     {
         DWORD error = GetLastError();
-    
+
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
-                "WMICollector::logonUser() - return from LogonUser() is %d",
-                error));
-                
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                    "Failed to login user \"$0/$1\". Invalid username or "
-                    "password.", pszDomain, pszUserName);
-        
+            "WMICollector::logonUser() - return from LogonUser() is %d",
+            error));
+
+        Logger::put(
+            Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+            "Failed to login user \"$0/$1\". Invalid username or password.",
+            pszDomain, pszUserName);
+
         throw CIMException(CIM_ERR_ACCESS_DENIED, "LogonUser()");
     }
 
-    if(!ImpersonateLoggedOnUser(htok))
+    if (!ImpersonateLoggedOnUser(htok))
     {
         DWORD error = GetLastError();
         CloseHandle(htok);
 
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                    "Failed to impersonate logged-in user \"$0/$1\".",
-                    pszDomain, pszUserName);
-        
+        Logger::put(
+            Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+            "Failed to impersonate logged-in user \"$0/$1\".",
+            pszDomain, pszUserName);
+
         throw CIMException(CIM_ERR_ACCESS_DENIED, "ImpersonateLoggedOnUser()");
     }
 
@@ -1761,12 +1761,12 @@ void WMICollector::logonUser()
 
 /////////////////////////////////////////////////////////////////////////////
 // WMICollector::revertToSelf
-//     
+//
 //
 /////////////////////////////////////////////////////////////////////////////
 void WMICollector::revertToSelf()
 {
-    if(!RevertToSelf())
+    if (!RevertToSelf())
     {
         throw CIMException(CIM_ERR_FAILED, "RevertToSelf()");
     }

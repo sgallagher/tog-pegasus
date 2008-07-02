@@ -194,7 +194,17 @@ extern "C"
         CMSetStatus(rc,CMPI_RC_OK);
         if (pos < dta->value.uint32)
         {
-            return dta[pos+1];
+            if (dta->type == CMPI_chars)
+            {
+                data.type = CMPI_chars;
+                data.state = CMPI_goodValue;
+                data.value.chars = (char*)CMGetCharPtr(dta[pos+1].value.string);
+                return data;
+            }
+            else
+            {
+                return dta[pos+1];
+            }
         }
         CMSetStatus(rc,CMPI_RC_ERR_NO_SUCH_PROPERTY);
         return data;
@@ -227,7 +237,11 @@ extern "C"
                 dta[pos+1].state=CMPI_goodValue;
                 if (type == CMPI_chars)
                 {
-                    dta[pos+1].value.chars = (char*) val;
+                    // Store char* as CMPIString internally, this frees us from
+                    // doing explicit memory management for char*.
+                    dta[pos+1].value.string = reinterpret_cast<CMPIString*>(
+                        new CMPI_Object((const char*) val));
+                    dta[pos+1].type = CMPI_string;
                 }
                 else
                 {

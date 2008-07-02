@@ -252,22 +252,6 @@ void MessageLoaderICU::_openICUDefaultLocaleMessageFile(
     UErrorCode status = U_ZERO_ERROR;
     parms._resbundl = ures_open((const char*)resbundl_path_ICU, NULL, &status);
 
-    if (status == U_USING_FALLBACK_WARNING)
-    {
-        const char* rbLocale = ures_getLocale(
-            reinterpret_cast<UResourceBundle*>(parms._resbundl), &status);
-        PEG_TRACE((TRC_L10N, Tracer::LEVEL4,
-            "Requested default locale, fallback locale \"%s\" returned. "
-                "Reverting back to root bundle.", rbLocale));
-
-        ures_close(reinterpret_cast<UResourceBundle*>(parms._resbundl));
-        parms._resbundl = NO_ICU_MAGIC;
-
-        UErrorCode status = U_ZERO_ERROR;
-        parms._resbundl =
-            ures_open((const char*)resbundl_path_ICU, "", &status);
-    }
-
     if (U_SUCCESS(status))
     {
         const char* rbLocale = ures_getLocale(

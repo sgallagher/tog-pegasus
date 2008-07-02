@@ -1175,6 +1175,11 @@ SystemInitializer::SystemInitializer()
 
 static SystemInitializer initializer;
 
+#include <sys/ioctl.h>
+#include <net/if.h>
+#define AIX_MAX(x,y) ((x) > (y) ? (x) : (y))
+#define AIX_SIZE(p) AIX_MAX((p).sa_len, sizeof(p))
+
 #endif /* PEGASUS_OS_AIX */
 
 Array<String> System::getInterfaceAddrs()
@@ -1226,7 +1231,84 @@ Array<String> System::getInterfaceAddrs()
         freeifaddrs(array);
     }
 #elif defined(PEGASUS_OS_AIX)
-//ATTN: implement for AIX
+
+    struct ifconf ifc;
+    int sd=socket(AF_INET6, SOCK_DGRAM, 0);
+    int bsz=sizeof(struct ifreq);
+    int prevsz=bsz;
+    ifc.ifc_req=0;
+    ifc.ifc_len=bsz;
+    do
+    {
+        ifc.ifc_req=(struct ifreq *)realloc(ifc.ifc_req, bsz);
+        if (!ifc.ifc_req)
+        {
+            return ips;
+        }
+        ifc.ifc_len=bsz;
+        if (ioctl(sd, SIOCGIFCONF, (caddr_t)&ifc) == -1)
+        {
+            free(ifc.ifc_req);
+            return ips;
+        }
+        if (prevsz==ifc.ifc_len)
+        {
+             break;
+        }
+        else
+        {
+            bsz*=2;
+            prevsz=(0==ifc.ifc_len ? bsz : ifc.ifc_len);
+        }
+    } while (1);
+
+    ifc.ifc_req=(struct ifreq *)realloc(ifc.ifc_req, prevsz);
+
+    struct sockaddr *sa;
+    char *cp, *cplim, buff[PEGASUS_INET6_ADDRSTR_LEN];;
+    struct ifreq *ifr=ifc.ifc_req;
+    cp=(char *)ifc.ifc_req;
+    cplim=cp+ifc.ifc_len;
+    for (; cp<cplim; cp+=(sizeof(ifr->ifr_name) + AIX_SIZE(ifr->ifr_addr)))
+    {
+        ifr=(struct ifreq *)cp;
+        sa=(struct sockaddr *)&(ifr->ifr_addr);
+        switch(sa->sa_family)
+        {
+            case AF_INET:
+                if (System::isLoopBack(
+                        AF_INET, &(((struct sockaddr_in *)sa)->sin_addr)))
+                {
+                    break;
+                }
+                HostAddress::convertBinaryToText(
+                    AF_INET,
+                    &((struct sockaddr_in *)sa)->sin_addr,
+                    buff,
+                    sizeof(buff));
+
+                ips.append(buff);
+                break;
+
+            case AF_INET6:
+                if (System::isLoopBack(
+                        AF_INET6, &(((struct sockaddr_in6 *)sa)->sin6_addr)))
+                {
+                    break;
+                }
+                HostAddress::convertBinaryToText(
+                    AF_INET6,
+                    &(((struct sockaddr_in6 *)sa)->sin6_addr),
+                    buff,
+                    sizeof(buff));
+
+                ips.append(buff);
+                break;
+        }
+    }
+    
+    free(ifc.ifc_req);
+
 #elif defined(PEGASUS_OS_ZOS)
 //ATTN: implement for ZOS
 #elif defined(PEGASUS_OS_HPUX)

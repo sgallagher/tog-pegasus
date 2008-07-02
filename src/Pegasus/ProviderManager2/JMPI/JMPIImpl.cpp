@@ -6543,7 +6543,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMValue__1byteArray
       cv = new CIMValue (s8);
    }
 
-   jEnv->ReleaseShortArrayElements (jshortA, jsA, len);
+   jEnv->ReleaseShortArrayElements (jshortA, jsA, 0);
 
    return DEBUG_ConvertCToJava (CIMValue*, jlong, cv);
 }
@@ -6575,7 +6575,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMValue__1shortArray
       cv = new CIMValue (s16);
    }
 
-   jEnv->ReleaseIntArrayElements (jintA, jiA, len);
+   jEnv->ReleaseIntArrayElements (jintA, jiA, 0);
 
    return DEBUG_ConvertCToJava (CIMValue*, jlong, cv);
 }
@@ -6607,7 +6607,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMValue__1intArray
       cv = new CIMValue (s32);
    }
 
-   jEnv->ReleaseLongArrayElements (jlongA, jlA, len);
+   jEnv->ReleaseLongArrayElements (jlongA, jlA, 0);
 
    return DEBUG_ConvertCToJava (CIMValue*, jlong, cv);
 }
@@ -6639,7 +6639,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMValue__1longArray
       cv = new CIMValue (s64);
    }
 
-   jEnv->ReleaseLongArrayElements (jlongA, jlA, len);
+   jEnv->ReleaseLongArrayElements (jlongA, jlA, 0);
 
    return DEBUG_ConvertCToJava (CIMValue*, jlong, cv);
 }
@@ -6680,7 +6680,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMValue__1booleanArray
 
    cv = new CIMValue (bA);
 
-   jEnv->ReleaseBooleanArrayElements (jboolA, jbA, len);
+   jEnv->ReleaseBooleanArrayElements (jboolA, jbA, 0);
 
    return DEBUG_ConvertCToJava (CIMValue*, jlong, cv);
 }
@@ -6699,7 +6699,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMValue__1floatArray
 
    cv = new CIMValue (fA);
 
-   jEnv->ReleaseFloatArrayElements (jfloatA, jfA, len);
+   jEnv->ReleaseFloatArrayElements (jfloatA, jfA, 0);
 
    return DEBUG_ConvertCToJava (CIMValue*, jlong, cv);
 }
@@ -6718,7 +6718,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMValue__1doubleArray
 
    cv = new CIMValue (dA);
 
-   jEnv->ReleaseDoubleArrayElements (jdoubleA, jdA, len);
+   jEnv->ReleaseDoubleArrayElements (jdoubleA, jdA, 0);
 
    return DEBUG_ConvertCToJava (CIMValue*, jlong, cv);
 }
@@ -6740,7 +6740,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMValue__1copArray
 
    cv = new CIMValue (cA);
 
-   jEnv->ReleaseLongArrayElements (jlongA, jiA, len);
+   jEnv->ReleaseLongArrayElements (jlongA, jiA, 0);
 
    return DEBUG_ConvertCToJava (CIMValue*, jlong, cv);
 }
@@ -6762,7 +6762,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMValue__1datetimeArray
 
    cv = new CIMValue (cA);
 
-   jEnv->ReleaseLongArrayElements (jlongA, jiA, len);
+   jEnv->ReleaseLongArrayElements (jlongA, jiA, 0);
 
    return DEBUG_ConvertCToJava (CIMValue*, jlong, cv);
 }
@@ -6784,7 +6784,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMValue__1objectArray
 
    cv = new CIMValue (cA);
 
-   jEnv->ReleaseLongArrayElements (jlongA, jiA, len);
+   jEnv->ReleaseLongArrayElements (jlongA, jiA, 0);
 
    return DEBUG_ConvertCToJava (CIMValue*, jlong, cv);
 }
@@ -6803,7 +6803,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMValue__1char16Array
 
    cv = new CIMValue (cA);
 
-   jEnv->ReleaseCharArrayElements (jcharA, jcA, len);
+   jEnv->ReleaseCharArrayElements (jcharA, jcA, 0);
 
    return DEBUG_ConvertCToJava (CIMValue*, jlong, cv);
 }

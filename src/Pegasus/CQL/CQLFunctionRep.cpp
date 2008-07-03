@@ -218,7 +218,7 @@ CQLValue CQLFunctionRep::resolveValue(
     MessageLoaderParms mload(
         "CQL.CQLFunctionRep.INVALID_FUNCTION_ID",
         "Function ID: $0 is not a supported function ID.",
-        Uint32(_funcOpType));
+        Formatter::Arg(Uint32(_funcOpType)));
     throw CQLSyntaxErrorException(mload);
 }
 

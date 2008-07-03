@@ -29,6 +29,8 @@
 #//
 #//=============================================================================
 
+LIBBASE=lib
+
 include $(ROOT)/mak/platform_SOLARIS_XXX_CC.mak
 
 ARCHITECTURE = ix86

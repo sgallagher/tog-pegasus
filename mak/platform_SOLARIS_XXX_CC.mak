@@ -140,7 +140,10 @@ ifndef PEGASUS_USE_SSL_RANDOMFILE
 endif
 
 ifdef PEGASUS_HAS_SSL
-  FLAGS += -L$(OPENSSL_HOME)/lib
+  FLAGS += -L$(OPENSSL_HOME)/$(LIBBASE)
+  EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/$(LIBBASE)
+  LD_LIBRARY_PATH+=:$(OPENSSL_HOME)/$(LIBBASE)
+  export LD_LIBRARY_PATH
 endif
 
 ##==============================================================================
@@ -156,5 +159,7 @@ ifndef PEGASUS_OPENSLP_HOME
 endif
 
 ifeq ($(PEGASUS_USE_OPENSLP),true)
-  FLAGS += -L$(PEGASUS_OPENSLP_HOME)/lib
+  FLAGS += -L$(PEGASUS_OPENSLP_HOME)/$(LIBBASE)
+  LD_LIBRARY_PATH+=:$(OPENSSL_HOME)/$(LIBBASE)
+  export LD_LIBRARY_PATH
 endif

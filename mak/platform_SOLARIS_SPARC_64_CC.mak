@@ -31,6 +31,8 @@
 
 #PEGASUS_SOLARIS_NEED_PTO=1
 
+LIBBASE=lib/64
+
 include $(ROOT)/mak/platform_SOLARIS_XXX_CC.mak
 
 ARCHITECTURE = sparc

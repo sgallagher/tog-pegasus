@@ -35,6 +35,8 @@
 ##
 ################################################################################
 
+-include $(ROOT)/options.mak
+
 ifndef ROOT
     ROOT =  $(subst \,/,$(PEGASUS_ROOT))
 endif

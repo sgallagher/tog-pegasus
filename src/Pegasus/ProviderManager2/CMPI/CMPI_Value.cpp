@@ -1,41 +1,40 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CMPI_Version.h"
 
-#include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/ArrayIterator.h>
 #include "CMPI_String.h"
 #include "CMPI_Value.h"
-#include "CMPISCMOUtilities.h"
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -113,186 +112,6 @@ PEGASUS_NAMESPACE_BEGIN
     }
 
 /**
-  Function to convert CMPIValue to SCMBUnion
-*/
-SCMBUnion value2SCMOValue(
-    const CMPIValue* data,
-    const CMPIType type,
-    Boolean &nullValue)
-{
-    SCMBUnion scmoData= { { { 0 }, 0 } };
-    nullValue = false;
-
-    PEGASUS_ASSERT(!(type&CMPI_ARRAY));
-
-    if (data == NULL) 
-    {
-        nullValue = true;
-        return scmoData;
-    }
-
-    switch (type)
-    {
-        case CMPI_dateTime:
-        {
-            CIMDateTimeRep * cimdt =
-                CMPISCMOUtilities::scmoDateTimeFromCMPI(data->dateTime);
-            if (cimdt)
-            {
-                scmoData.dateTimeValue = *cimdt;
-            }
-            else
-            {
-                nullValue = true;
-            }
-            break;
-        }
-        case CMPI_chars:
-        {
-            scmoData.extString.pchar = (char*)data;
-            if (scmoData.extString.pchar)
-            {
-                scmoData.extString.length =
-                    strlen(scmoData.extString.pchar);
-            }
-            else
-            {
-                nullValue = true;
-            }
-            break;
-        }
-        case CMPI_charsptr:
-        {
-            if (data && *(char**)data)
-            {
-                scmoData.extString.pchar = *(char**)data;
-                scmoData.extString.length =
-                    strlen(scmoData.extString.pchar);
-            }
-            else
-            {
-                nullValue = true;
-            }
-            break;
-        }
-        case CMPI_string:
-        {
-            if (data->string)
-            {
-                scmoData.extString.pchar = (char*)data->string->hdl;
-            }
-            if (scmoData.extString.pchar)
-            {
-                scmoData.extString.length =
-                    strlen(scmoData.extString.pchar);
-            }
-            else
-            {
-                nullValue = true;
-            }
-            break;
-        }
-        case CMPI_ref:
-        case CMPI_instance:
-        {
-            if (data->inst)
-            {
-                scmoData.extRefPtr = (SCMOInstance*)data->inst->hdl;
-            }
-            else
-            {
-                nullValue = true;
-            }
-            break;
-        }
-        case CMPI_boolean:
-        {
-            scmoData.simple.val.bin = data->boolean;
-            scmoData.simple.hasValue = 1;
-            break;
-        }
-        case CMPI_uint8:
-        {
-            scmoData.simple.val.u8 = data->uint8;
-            scmoData.simple.hasValue = 1;
-            break;
-        }
-        case CMPI_uint16:
-        {
-            scmoData.simple.val.u16 = data->uint16;
-            scmoData.simple.hasValue = 1;
-            break;
-        }
-        case CMPI_uint32:
-        {
-            scmoData.simple.val.u32 = data->uint32;
-            scmoData.simple.hasValue = 1;
-            break;
-        }
-        case CMPI_uint64:
-        {
-            scmoData.simple.val.u64 = data->uint64;
-            scmoData.simple.hasValue = 1;
-            break;
-        }
-        case CMPI_sint8:
-        {
-            scmoData.simple.val.s8 = data->sint8;
-            scmoData.simple.hasValue = 1;
-            break;
-        }
-        case CMPI_sint16:
-        {
-            scmoData.simple.val.s16 = data->sint16;
-            scmoData.simple.hasValue = 1;
-            break;
-        }
-        case CMPI_sint32:
-        {
-            scmoData.simple.val.s32 = data->sint32;
-            scmoData.simple.hasValue = 1;
-            break;
-        }
-        case CMPI_sint64:
-        {
-            scmoData.simple.val.s64 = data->sint64;
-            scmoData.simple.hasValue = 1;
-            break;
-        }
-        case CMPI_real32:
-        {
-            scmoData.simple.val.r32 = data->real32;
-            scmoData.simple.hasValue = 1;
-            break;
-        }
-        case CMPI_real64:
-        {
-            scmoData.simple.val.r64 = data->real64;
-            scmoData.simple.hasValue = 1;
-            break;
-        }
-        case CMPI_char16:
-        {
-            scmoData.simple.val.c16 = data->char16;
-            scmoData.simple.hasValue = 1;
-            break;
-        }
-        default:
-        {
-            // received a non-valid CMPIType as input
-            // place a trace message and do nothing
-            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-                "value2SCMOValue() received invalid CMPIType(%hu).",type));
-            fprintf(stderr,"value2SCMOValue() received type=%hu\n",type);
-            fflush(stderr);
-            PEGASUS_DEBUG_ASSERT(false);
-        }
-    }
-    return scmoData;
-}
-
-
-/**
   Function to convert CMPIValue to CIMValue
 */
 CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
@@ -323,7 +142,7 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
         }
         // When data is not NULL and data->array is also set
         CMPIArray *ar=data->array;
-        CMPIData *aData=(CMPIData*)((CMPI_Array*)ar->hdl)->hdl;
+        CMPIData *aData=(CMPIData*)ar->hdl;
 
         //Get the type of the elements in the array
         CMPIType aType=aData->type&~CMPI_ARRAY;
@@ -360,12 +179,12 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
         {
             CopyToStringArray(String,string->hdl)
         }
-        else
+        else 
         if( aType == CMPI_charsptr )
         {
             CopyCharsptrToStringArray(String,chars)
         }
-        else
+        else 
         if( aType == CMPI_string )
         {
             CopyToStringArray(String,string->hdl)
@@ -400,38 +219,17 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
             switch( aType )
             {
                 case CMPI_ref:
-                    {
-                        Array<CIMObjectPath> arCIMObjectPath(aSize);
-                        ArrayIterator<CIMObjectPath> iterator(arCIMObjectPath);
-                        for (int i=0; i<aSize; i++)
-                        {
-                            SCMOInstance* scmoInst =
-                                (SCMOInstance*)aData[i].value.ref->hdl;
-                            scmoInst->getCIMObjectPath(iterator[i]);
-                        }
-                        v.set(arCIMObjectPath);
-                    }
+                    CopyToEncArray(CIMObjectPath,ref);
                     break;
 
                 case CMPI_dateTime:
                     CopyToEncArray(CIMDateTime,dateTime);
                     break;
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
                 case CMPI_instance:
-                    {
-                        Array<CIMObject> arCIMInstance(aSize);
-                        ArrayIterator<CIMObject> iterator(arCIMInstance);
-                        for (int i=0; i<aSize; i++)
-                        {
-                            SCMOInstance* scmoInst =
-                                (SCMOInstance*)aData[i].value.inst->hdl;
-                            CIMInstance inst;
-                            scmoInst->getCIMInstance(inst);
-                            CIMObject obj(inst);
-                            iterator[i]=obj;
-                        }
-                        v.set(arCIMInstance);
-                    }
+                    CopyToEncArray(CIMObject,inst);
                     break;
+#endif
                 case CMPI_boolean:
                     CopyToArray(Boolean,boolean);
                     break;
@@ -546,35 +344,28 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
             case CMPI_instance:
                 if( data->inst && data->inst->hdl )
                 {
-                    SCMOInstance* scmoInst = (SCMOInstance*)data->inst->hdl;
-                    CIMInstance inst;
-                    scmoInst->getCIMInstance(inst);
-                    CIMObject obj(inst);
-                    v.set(obj);
+                    v.set(*((CIMObject*) data->inst->hdl));
                 }
                 else
                 {
                     return CIMValue(CIMTYPE_OBJECT, false);
-                }
+                }   
                 break;
 
-            case CMPI_ref:
+            case CMPI_ref:      
                 if( data->ref && data->ref->hdl )
                 {
-                    SCMOInstance* scmoInst = (SCMOInstance*)data->ref->hdl;
-                    CIMObjectPath ref;
-                    scmoInst->getCIMObjectPath(ref);
-                    v.set(ref);
+                    v.set(*((CIMObjectPath*)data->ref->hdl));
                 }
                 else
                 {
                     return CIMValue(CIMTYPE_REFERENCE, false);
                 }
                 break;
-            case CMPI_dateTime:
+            case CMPI_dateTime: 
                 if( data->dateTime && data->dateTime->hdl )
                 {
-                    v.set(*((CIMDateTime*)data->dateTime->hdl));
+                    v.set(*((CIMDateTime*)data->dateTime->hdl)); 
                 }
                 else
                 {
@@ -583,11 +374,8 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
                 break;
 
             case CMPI_boolean:
-                {
-                    Boolean tmp=data->boolean;
-                    v.set(tmp);
-                    break;
-                }
+                v.set((Boolean&)data->boolean);
+                break;
 
             case CMPI_char16:
                 v.set((Char16)data->char16);
@@ -702,31 +490,16 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
             }
         }
         else
-        {
             switch( aType )
             {
                 case CMPI_ref:
-                {
-                    Array<CIMObjectPath> arRef;
-                    v.get(arRef);
-                    for (int i=0; i<aSize; i++)
-                    {
-                        SCMOInstance* scmoRef =
-                            CMPISCMOUtilities::getSCMOFromCIMObjectPath(
-                                arRef[i]);
-                        aData[i].value.ref=
-                            reinterpret_cast<CMPIObjectPath*>(
-                                new CMPI_Object(
-                                    scmoRef,
-                                    CMPI_Object::ObjectTypeObjectPath));
-                    }
+                    CopyFromEncArray(CIMObjectPath,CMPIObjectPath,ref);
                     break;
-                }
 
                 case CMPI_dateTime:
                     CopyFromEncArray(CIMDateTime,CMPIDateTime,dateTime);
                     break;
-
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
                 case CMPI_instance:
                     if (v.getType() == CIMTYPE_OBJECT)
                     {
@@ -734,33 +507,16 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                         v.get(tmpObjs);
                         for (int i = 0; i < aSize ; ++i)
                         {
-                            CIMInstance inst = CIMInstance(tmpObjs[i]);
-                            SCMOInstance* scmoInst =
-                                CMPISCMOUtilities::getSCMOFromCIMInstance(inst);
-                            aData[i].value.inst =
-                                reinterpret_cast<CMPIInstance*>(
-                                    new CMPI_Object(
-                                        scmoInst,
-                                        CMPI_Object::ObjectTypeInstance));
-                        }
+                          aData[i].value.inst = reinterpret_cast<CMPIInstance*>(
+                                new CMPI_Object(new CIMInstance(tmpObjs[i])));
+                        } 
                     }
                     else
                     {
-                        Array<CIMInstance> arInst;
-                        v.get(arInst);
-                        for (int i = 0; i < aSize ; ++i)
-                        {
-                            SCMOInstance* scmoInst =
-                                CMPISCMOUtilities::getSCMOFromCIMInstance(
-                                    arInst[i]);
-                            aData[i].value.inst =
-                                reinterpret_cast<CMPIInstance*>
-                                (new CMPI_Object(
-                                    scmoInst,
-                                    CMPI_Object::ObjectTypeInstance));
-                        }
+                        CopyFromEncArray(CIMInstance,CMPIInstance,inst);
                     }
                     break;
+#endif
                 case CMPI_boolean:
                     CopyFromArray(Boolean,boolean);
                     break;
@@ -782,14 +538,13 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                     delete [] aData;
                     return CMPI_RC_ERR_NOT_SUPPORTED;
             }
-        }
         data->value.array = reinterpret_cast<CMPIArray*>(
-        new CMPI_Object(new CMPI_Array(aData-1)));
+        new CMPI_Object(aData-1));
     }  // end of array porocessing
 
     //Start of non-array processing
     //Ckecking for Signed integers
-    else
+    else 
     if( (t & (CMPI_UINT|CMPI_SINT)) == CMPI_SINT )
     {
         switch( t )
@@ -815,7 +570,7 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
     }
 
     //Check for CMPI_string data type
-    else
+    else 
     if( t == CMPI_string )
     {
         String str;
@@ -849,7 +604,7 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
         }
     }
 
-    //Checking for remaining encapsulated and simple types
+    //Checking for remaining encapulated and simple types
     else
         switch( t )
         {
@@ -857,10 +612,8 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                 {
                     CIMObjectPath ref;
                     v.get(ref);
-                    SCMOInstance* scmoRef =
-                       CMPISCMOUtilities:: getSCMOFromCIMObjectPath(ref);
                     data->value.ref = reinterpret_cast<CMPIObjectPath*>(
-                    new CMPI_Object(scmoRef,CMPI_Object::ObjectTypeObjectPath));
+                    new CMPI_Object(new CIMObjectPath(ref)));
                 }
                 break;
 
@@ -875,12 +628,15 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                     }
                     else
                     {
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
                         v.get(inst);
+#else
+                        return CMPI_RC_ERR_NOT_SUPPORTED;
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
                     }
-                    SCMOInstance* scmoInst =
-                        CMPISCMOUtilities::getSCMOFromCIMInstance(inst);
+
                     data->value.inst = reinterpret_cast<CMPIInstance*>(
-                    new CMPI_Object(scmoInst, CMPI_Object::ObjectTypeInstance));
+                    new CMPI_Object(new CIMInstance(inst)));
                 }
                 break;
 
@@ -894,12 +650,8 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                 break;
 
             case CMPI_boolean:
-            {
-                Boolean tmp=0;
-                v.get(tmp);
-                data->value.boolean = (CMPIBoolean)(tmp);
+                v.get((Boolean&)data->value.boolean);
                 break;
-            }
 
             case CMPI_char16:
                 v.get((Char16&)data->value.char16);
@@ -939,8 +691,10 @@ CMPIType type2CMPIType(CIMType pt, int array)
         CMPI_string,     // STRING,
         CMPI_dateTime,   // DATETIME,
         CMPI_ref,        // REFERENCE
-        CMPI_instance,    // Embedded Object
-        CMPI_instance  // Embedded Instance
+        CMPI_instance    // Embedded Object
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        , CMPI_instance  // Embedded Instance
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     };
     int t=types[pt];
     if( array )
@@ -948,6 +702,125 @@ CMPIType type2CMPIType(CIMType pt, int array)
         t|=CMPI_ARRAY;
     }
     return(CMPIType)t;
+}
+
+//Function to convert CMPIType to CIMType
+CIMType type2CIMType(CMPIType pt)
+{
+    switch( pt )
+    {
+        case CMPI_null:
+            return(CIMType)0;
+
+        case CMPI_boolean:
+            return CIMTYPE_BOOLEAN;
+
+        case CMPI_char16:
+            return CIMTYPE_CHAR16;
+
+        case CMPI_real32:
+            return CIMTYPE_REAL32;
+
+        case CMPI_real64:
+            return CIMTYPE_REAL64;
+
+        case CMPI_uint8:
+            return CIMTYPE_UINT8;
+
+        case CMPI_uint16:
+            return CIMTYPE_UINT16;
+
+        case CMPI_uint32:
+            return CIMTYPE_UINT32;
+
+        case CMPI_uint64:
+            return CIMTYPE_UINT64;
+
+        case CMPI_sint8:
+            return CIMTYPE_SINT8;
+
+        case CMPI_sint16:
+            return CIMTYPE_SINT16;
+
+        case CMPI_sint32:
+            return CIMTYPE_SINT32;
+
+        case CMPI_sint64:
+            return CIMTYPE_SINT64;
+
+        case CMPI_string:
+            return CIMTYPE_STRING;
+
+        case CMPI_chars:
+            return CIMTYPE_STRING;
+
+        case CMPI_charsptr:
+            return CIMTYPE_STRING;
+
+        case CMPI_dateTime:
+            return CIMTYPE_DATETIME;
+
+        case CMPI_ref:
+            return CIMTYPE_REFERENCE;
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        case CMPI_instance:
+            return CIMTYPE_INSTANCE;
+#endif
+        default:
+            return(CIMType)0;
+    }
+}
+
+//Function to convert CIMKeyBindings to CMPIData
+CMPIrc key2CMPIData(const String& v, CIMKeyBinding::Type t, CMPIData *data)
+{
+    data->state=CMPI_keyValue;
+    switch( t )
+    {
+        case CIMKeyBinding::NUMERIC:
+            {
+                CString vp=v.getCString();
+
+                data->value.sint64 = 0;
+                if( *((const char*)vp)=='-' )
+                {
+                    sscanf(
+                        (const char*)vp,
+                        "%" PEGASUS_64BIT_CONVERSION_WIDTH "d",
+                    &data->value.sint64);
+                    data->type=CMPI_sint64;
+                }
+                else
+                {
+                    sscanf(
+                        (const char*)vp,
+                        "%" PEGASUS_64BIT_CONVERSION_WIDTH "u",
+                    &data->value.uint64);
+                    data->type=CMPI_uint64;
+                }
+            }
+            break;
+
+        case CIMKeyBinding::STRING:
+            data->value.string=string2CMPIString(v);
+            data->type=CMPI_string;
+            break;
+
+        case CIMKeyBinding::BOOLEAN:
+            data->value.boolean=(String::equalNoCase(v,"true"));
+            data->type=CMPI_boolean;
+            break;
+
+        case CIMKeyBinding::REFERENCE:
+            data->value.ref=reinterpret_cast<CMPIObjectPath*>(
+            new CMPI_Object(new CIMObjectPath(v)));
+            data->type=CMPI_ref;
+            break;
+
+        default:
+            return CMPI_RC_ERR_NOT_SUPPORTED;
+    }
+    return CMPI_RC_OK;
 }
 
 PEGASUS_NAMESPACE_END

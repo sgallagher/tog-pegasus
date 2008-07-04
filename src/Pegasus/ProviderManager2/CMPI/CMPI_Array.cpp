@@ -35,6 +35,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+//NOCHKSRC
+
 #include "CMPI_Version.h"
 
 #include "CMPI_Object.h"
@@ -140,7 +142,20 @@ extern "C" {
 	    return data;
       }
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
-      if (pos<dta->value.uint32) return dta[pos+1];
+      if (pos<dta->value.uint32)
+      {
+          if (dta->type == CMPI_chars)
+          {
+              data.type = CMPI_chars;
+              data.state = CMPI_goodValue;
+              data.value.chars = (char*)CMGetCharPtr(dta[pos+1].value.string);
+              return data;
+          }
+          else
+          {
+              return dta[pos+1];
+          }
+      }
 
       if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
       return data;
@@ -155,7 +170,18 @@ extern "C" {
       if (pos<dta->value.uint32) {
          if ((dta->type&~CMPI_ARRAY)==type) {
             dta[pos+1].state=CMPI_goodValue;
-            dta[pos+1].value=*val;
+            if (type == CMPI_chars)
+            {
+                // Store char* as CMPIString internally, this frees us from
+                // doing explicit memory management for char*.
+                dta[pos+1].value.string = reinterpret_cast<CMPIString*>(
+                    new CMPI_Object((const char*) val));
+                dta[pos+1].type = CMPI_string;
+            }
+            else
+            {
+                dta[pos+1].value = *val;
+            }
             CMReturn(CMPI_RC_OK);
          }
 	 else {

@@ -93,7 +93,7 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc) 
          }
       }
 
-      else if (aType==CMPI_chars)       CopyToStringArray(String,chars)
+      else if (aType==CMPI_chars)       CopyToStringArray(String,string->hdl)
       else if (aType==CMPI_charsptr)    CopyCharsptrToStringArray(String,chars)
       else if (aType==CMPI_string)      CopyToStringArray(String,string->hdl)
 

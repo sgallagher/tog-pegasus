@@ -1,0 +1,4 @@
+##
+## On Solaris, add the following line(s) to /etc/pam.d
+##
+wbem account required pam_unix_account.so.1

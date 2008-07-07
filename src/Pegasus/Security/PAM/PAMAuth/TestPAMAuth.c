@@ -1,3 +1,4 @@
+/*
 //%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -17,7 +18,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,26 +30,63 @@
 //
 //==============================================================================
 //
-// Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
+*/
 
-#include "PAMBasicAuthenticator.h"
+#include <Executor/PAMAuth.h>
+#include <Executor/tests/TestAssert.h>
+#include <stdio.h>
 
-#if defined(PEGASUS_PAM_AUTHENTICATION)
-# if defined(PEGASUS_OS_HPUX)
-#  include "PAMBasicAuthenticatorUnix.cpp"
-# elif defined(PEGASUS_OS_LINUX)
-#  include "PAMBasicAuthenticatorUnix.cpp"
-# elif defined(PEGASUS_OS_AIX)
-#  include "PAMBasicAuthenticatorUnix.cpp"
-# elif defined(PEGASUS_OS_PASE)
-#  include "PAMBasicAuthenticatorUnix.cpp"
-# elif defined(PEGASUS_OS_SOLARIS)
-#  include "PAMBasicAuthenticatorUnix.cpp"
-# else
-#  include "PAMBasicAuthenticatorStub.cpp"
-# endif
+#define STANDALONE
+
+#if defined(STANDALONE)
+# define VALIDATE_USER PAMValidateUser
+# define AUTHENTICATE PAMAuthenticate
 #else
-# include "PAMBasicAuthenticatorStub.cpp"
+# define VALIDATE_USER PAMValidateUserInProcess
+# define AUTHENTICATE PAMAuthenticateInProcess
 #endif
+
+int main(int argc, char** argv)
+{
+    char prompt[EXECUTOR_BUFFER_SIZE];
+    const char* user;
+
+    /* Check arguments */
+
+    if (argc != 2)
+    {
+        fprintf(stderr, "usage: %s username\n", argv[0]);
+        exit(1);
+    }
+
+    /* Test PAMValidateUserInProcess(). */
+
+    user = argv[1];
+
+#if 0
+    if (PAMValidateUserInProcess(user) != 0)
+#else
+    if (PAMValidateUser(user) != 0)
+#endif
+    {
+        fprintf(stderr, "%s: invalid user: %s\n", argv[0], user);
+        exit(1);
+    }
+
+    /* Test PAMAuthenticateInProcess(). */
+    {
+        const char* pw;
+        sprintf(prompt, "Enter password for %s: ", user);
+        pw = getpass(prompt);
+
+        if (PAMAuthenticateInProcess(user, pw) == 0)
+            printf("Correct password\n");
+        else
+            printf("Wrong password\n");
+
+        putchar('\n');
+    }
+
+    return 0;
+}

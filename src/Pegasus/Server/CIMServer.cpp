@@ -43,10 +43,6 @@
 # include <errno.h>
 #endif
 
-#ifdef PEGASUS_OS_PASE
-#include <as400_protos.h> // for systemCL()
-#endif
-
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Signal.h>
@@ -180,10 +176,6 @@ static void _synchronousSignalHandler(int s_n, PEGASUS_SIGINFO_T* s_info,
     Logger::put_l(Logger::ERROR_LOG, "CIMServer", Logger::SEVERE,
         "Pegasus.Server.CIMServer.RECEIVE_SYN_SIGNAL.PEGASUS_OS_PASE", \
         "Synchronous signal received.");
-
-    /* save job log */
-    systemCL ("QSYS/CHGJOB JOB(*) LOG(4 00 *NOLIST)",
-            SYSTEMCL_MSG_STDOUT | SYSTEMCL_MSG_STDERR);
 
     CIMServer::shutdownSignal();
 }

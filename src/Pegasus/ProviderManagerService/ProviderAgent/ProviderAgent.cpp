@@ -49,7 +49,6 @@
 #include "ProviderAgent.h"
 
 #ifdef PEGASUS_OS_PASE
-#include <as400_protos.h>
 #include <ILEWrapper/ILEUtilities.h>
 #endif
 
@@ -794,10 +793,6 @@ void ProviderAgent::_synchronousSignalHandler(
     Logger::put_l(Logger::ERROR_LOG, "provider agent", Logger::SEVERE, \
         "ProviderManager.ProviderAgent.RECEIVE_SYN_SIGNAL.PEGASUS_OS_PASE", \
         "$0 received synchronous signal: $1", fullJobName, s_n);
-
-    /* save job log */
-    systemCL ("QSYS/CHGJOB JOB(*) LOG(4 00 *NOLIST)", \
-        SYSTEMCL_MSG_STDOUT | SYSTEMCL_MSG_STDERR);
 }
 
 void ProviderAgent::_asynchronousSignalHandler(

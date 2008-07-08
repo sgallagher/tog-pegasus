@@ -1145,15 +1145,27 @@ AutoFileLock::~AutoFileLock()
 #endif
 }
 
+#if defined(PEGASUS_OS_PASE)
+class PaseSystemInitializer
+{
+    public:
+        PaseSystemInitializer()
+        {
+            putenv("XPG_SUS_ENV=ON");
+        };
+};
+
+static PaseSystemInitializer initializer;
+#endif
 
 //==============================================================================
 //
-// PEGASUS_OS_AIX & PEGASUS_OS_PASE
+// PEGASUS_OS_AIX
 //
 //==============================================================================
 
 // System Initializater for AIX
-#if defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_PASE)
+#if defined(PEGASUS_OS_AIX)
 # include <cstdlib>
 
 class SystemInitializer

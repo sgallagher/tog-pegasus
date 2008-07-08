@@ -215,9 +215,9 @@
     "/opt/wbem/share/locale/ICU_Messages"
 # elif defined(PEGASUS_OS_PASE)
 #  define PEGASUS_CIMSERVER_START_FILE      \
-    "/QOpenSys/QIBM/UserData/UME/Pegasus/cimserver_start.conf"
+    "/QOpenSys/var/UME/cimserver_start.conf"
 #  define PEGASUS_CIMSERVER_START_LOCK_FILE \
-    "/QOpenSys/QIBM/UserData/UME/Pegasus/cimserver_start.lock"
+    "/QOpenSys/var/UME/cimserver_start.lock"
 #  define PEGASUS_REPOSITORY_DIR            \
     "/QOpenSys/QIBM/UserData/UME/Pegasus/repository"
 #  define PEGASUS_CURRENT_CONFIG_FILE_PATH  \

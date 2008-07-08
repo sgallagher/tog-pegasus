@@ -28,12 +28,6 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-#//
-#// Author: <Author's Name> (<Authors EMAIL>)
-#//
-#// Modified By:
-#//
-#//%/////////////////////////////////////////////////////////////////////////////
 #
 # Recurse the directories defined in DIRS
 #
@@ -59,30 +53,30 @@ TEST_DIRS = \
 	IP/testclient
 
 ifeq ($(OS),HPUX)
-  DIRS += \
-    NTPProviderSecurity \
-	  NTPService \
-    DNSService \
-    NISServerService
-  TEST_DIRS += \
-    DNSService/tests/testclient \
-	  NTPService/tests \
-	  NTPService/testclient \
-	  DNSService/tests \
-	  DNSService/tests/testclient \
-    NISServerService/tests
+    DIRS += \
+        NTPProviderSecurity \
+        NTPService \
+        DNSService \
+        NISServerService
+    TEST_DIRS += \
+        NTPService/tests \
+        NTPService/testclient \
+        DNSService/tests \
+        DNSService/tests/testclient \
+        NISServerService/tests \
+        NISServerService/testclient
 endif
 
 ifeq ($(OS_TYPE),vms)
-  DIRS += \
-    NTPProviderSecurity \
-          NTPService \
-    DNSService
-  TEST_DIRS += \
-    DNSService/tests/testclient \
-          NTPService/tests \
-          NTPService/testclient \
-    DNSService/tests
+    DIRS += \
+        NTPProviderSecurity \
+        NTPService \
+        DNSService
+    TEST_DIRS += \
+        NTPService/tests \
+        NTPService/testclient \
+        DNSService/tests \
+        DNSService/tests/testclient
 endif
 
 include $(ROOT)/mak/recurse.mak

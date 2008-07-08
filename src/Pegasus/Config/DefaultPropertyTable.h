@@ -39,6 +39,8 @@
     {"idleConnectionTimeout", "0", IS_STATIC, 0, 0, IS_VISIBLE},
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 # include "DefaultPropertyTableLinux.h"
+#elif defined(PEGASUS_OS_SOLARIS)
+# include "DefaultPropertyTableSolaris.h"
 #elif PEGASUS_PLATFORM_HPUX_ACC
 # include "DefaultPropertyTableHpux.h"
 #elif defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)

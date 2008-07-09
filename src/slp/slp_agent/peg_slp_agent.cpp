@@ -42,6 +42,8 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
+
+
 class sa_reg_params
 {
 public:
@@ -219,7 +221,16 @@ slp_service_agent::~slp_service_agent()
 void slp_service_agent::_init()
 {
     _initialized = 0;
-
+    // The sun version of SLP requires the locale parameter to be set
+    // the open source version allows the NULL option so that it can
+    // select the locale. There is an issue with this fix in that it
+    // assumes that in all cases the Sun SLP will be used on Solars
+    // systems.  TBD - define more complete solution ks
+#ifdef PEGASUS_OS_SOLARIS
+    slp_lang = "en";
+#else    
+    slp_lang = NULL;
+#endif
     String libraryFileName;
 
 #if defined(PEGASUS_OS_ZOS)
@@ -346,7 +357,7 @@ Boolean slp_service_agent::srv_register(
     SLPHandle slp_handle = 0;
     SLPError  slpErr = SLP_OK;
     SLPError  callbackErr = SLP_OK;
-    if ((slpErr = SLPOpen(NULL, SLP_FALSE, &slp_handle)) == SLP_OK)
+    if ((slpErr = SLPOpen(slp_lang, SLP_FALSE, &slp_handle)) == SLP_OK)
     {
         slpErr = SLPReg(
             slp_handle,
@@ -407,7 +418,7 @@ void slp_service_agent::unregister()
         SLPHandle slp_handle = 0;
         SLPError slpErr = SLP_OK;
         SLPError callbackErr=SLP_OK;
-        if ((slpErr = SLPOpen(NULL, SLP_FALSE, &slp_handle)) == SLP_OK)
+        if ((slpErr = SLPOpen(slp_lang, SLP_FALSE, &slp_handle)) == SLP_OK)
         {
             slpErr = SLPDereg(
                 slp_handle,
@@ -548,7 +559,8 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
             SLPHandle slp_handle = 0;
             SLPError slpErr = SLP_OK;
             SLPError callbackErr=SLP_OK;
-            if ((slpErr = SLPOpen(NULL, SLP_FALSE, &slp_handle)) == SLP_OK)
+            if ((slpErr = SLPOpen(slp_lang, SLP_FALSE, &slp_handle))
+                == SLP_OK)
             {
                 slpErr = SLPReg(
                     slp_handle,

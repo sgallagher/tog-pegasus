@@ -519,9 +519,9 @@ Array<CIMInstance> InteropProvider::getDMTFProfileInstances(
                 {
                     instances.append(
                         buildDependencyInstance(
-                            profileId,
-                            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
                             tmpInstanceIds[j],
+                            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
+                            profileId,
                             PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
                             referencedProfileClass));
                 }
@@ -591,12 +591,13 @@ Array<CIMInstance> InteropProvider::getDMTFProfileInstances(
             "Indication",
             DMTF_VER_100);
 
-        buildDependencyInstance(
-            profileRegId,
-            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
-            indProfileId,
-            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
-            referencedProfileClass);
+        instances.append(
+            buildDependencyInstance(
+                profileRegId,
+                PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
+                indProfileId,
+                PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
+                referencedProfileClass));
     }
 #endif
 

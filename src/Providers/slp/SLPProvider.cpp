@@ -99,6 +99,7 @@
 #include <sys/stat.h>
 #include <time.h>
 
+#include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h> // for Logger
@@ -621,11 +622,25 @@ String SLPProvider::getRegisteredProfileList()
     String regitem;
     String reglist;
 
+    typedef HashTable<String, String, 
+        EqualFunc<String>, HashFunc<String> > RegProfileIdTable;
+    RegProfileIdTable regProfileIdTable;
+
     Array<CIMInstance>  cimInstances;
     CIMName registeredProfileClassName("CIM_RegisteredProfile");
     CIMClass RO_Class;
 
-    Array<String> regarray;
+    const CIMName subProfileRequiresProfileClassName(
+        "CIM_SubProfileRequiresProfile");
+    const CIMName referencedProfileClassName(
+        "CIM_ReferencedProfile");
+    const CIMName propRegName("RegisteredName");
+    const CIMName propRegOrg("RegisteredOrganization");
+    const String propDependent("Dependent");
+    const String propAntecedent("Antecedent");
+    const String strColon(":");
+    const String strProfileRegName("Profile Registration");
+    const String strDMTF("DMTF");
 
 // No reason to use deepInheritance for now as we do not support sub-classes
     Boolean         deepInheritance = false;
@@ -696,8 +711,8 @@ try
 // thus I commented it out here
 //        if (cimInstances[i].getClassName() != "CIM_RegisteredProfile")
 //            continue;
-        Uint32 index_RO=cimInstances[i].findProperty("RegisteredOrganization");
-        Uint32 index_RN=cimInstances[i].findProperty("RegisteredName");    
+        Uint32 index_RO=cimInstances[i].findProperty(propRegOrg);
+        Uint32 index_RN=cimInstances[i].findProperty(propRegName);    
         if (index_RO == PEG_NOT_FOUND || index_RN == PEG_NOT_FOUND)
         {
             continue;
@@ -743,18 +758,79 @@ try
         {
             RN_value.get(RegName);
         }
+
+        // Check whether the profile is top-level.
+        Array<CIMObject> subProfiles;
+        CIMObjectPath objectPath = cimInstances[i].getPath();
+        CIMName className = objectPath.getClassName();
+
+        // Check for DMTF profiles
+        if (RegOrg == strDMTF)
+        {
+            subProfiles = _cimomHandle.associators(
+                OperationContext(),
+                PEGASUS_NAMESPACENAME_INTEROP,
+                objectPath,
+                referencedProfileClassName,
+                CIMName(),
+                propDependent,
+                String::EMPTY,
+                includeQualifiers,
+                includeClassOrigin,
+                CIMPropertyList());
+        }
+        else
+        {
+            // check for SNIA or Other profiles
+            subProfiles = _cimomHandle.associators(
+                OperationContext(),
+                PEGASUS_NAMESPACENAME_INTEROP,
+                objectPath,
+                subProfileRequiresProfileClassName,
+                CIMName(),
+                propAntecedent,
+                String::EMPTY,
+                includeQualifiers,
+                includeClassOrigin,
+                CIMPropertyList());
+        }
+        if (!subProfiles.size())
+        {
+            if (RegName != strProfileRegName)
+            {
+                continue;
+            }
+        }
+
         CDEBUG("Value of RegName =" << RegName);
         regitem.assign(RegOrg);
-        regitem.append(":");
+        regitem.append(strColon);
         regitem.append(RegName);
         CDEBUG("Value of regitem =" << regitem);
-        regarray.append(regitem);
+        regProfileIdTable.insert(regitem, regitem);
+        for (Uint32 k = 0, n = subProfiles.size(); k < n; k++)
+        {
+            Uint32 pos = subProfiles[k].findProperty(propRegName);
+            String pName =
+                 subProfiles[k].getProperty(pos).getValue().toString();
+            String subRegItem = regitem;
+            subRegItem.append(strColon);
+            subRegItem.append(pName);
+            regProfileIdTable.insert(subRegItem, subRegItem);
+        }
         j++;
     }
-    CDEBUG("Size of regarray=" << regarray.size());
     if (j > 0)
-    {
-        reglist = _arrayToString(regarray);
+    {        
+        const String strComma(",");
+        for (RegProfileIdTable::Iterator i = regProfileIdTable.start(); i;)
+        {
+            reglist.append(i.value());
+            if (++i)
+            {
+                reglist.append(strComma);
+            }
+        }
     }
     CDEBUG("reglist = " << reglist);
 } catch(Exception &exc)

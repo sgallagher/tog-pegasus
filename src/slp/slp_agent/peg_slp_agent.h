@@ -196,7 +196,7 @@ private:
 #else
     AtomicInt _update_reg_count;
 #endif
-   const char* slp_lang;
+   static const char* slp_lang;
 };
 
 PEGASUS_NAMESPACE_END

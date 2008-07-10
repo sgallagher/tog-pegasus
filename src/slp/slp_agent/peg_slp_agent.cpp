@@ -42,8 +42,17 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-
-
+// The sun version of SLP requires the locale parameter to be set
+// the open source version allows the NULL option so that it can
+// select the locale. There is an issue with this fix in that it
+// assumes that in all cases the Sun SLP will be used on Solars
+// systems.  TBD - define more complete solution ks
+// 
+#ifdef PEGASUS_OS_SOLARIS
+    const char* slp_service_agent::slp_lang = "en";
+#else
+    const char* slp_service_agent::slp_lang = NULL;
+#endif
 class sa_reg_params
 {
 public:
@@ -221,16 +230,8 @@ slp_service_agent::~slp_service_agent()
 void slp_service_agent::_init()
 {
     _initialized = 0;
-    // The sun version of SLP requires the locale parameter to be set
-    // the open source version allows the NULL option so that it can
-    // select the locale. There is an issue with this fix in that it
-    // assumes that in all cases the Sun SLP will be used on Solars
-    // systems.  TBD - define more complete solution ks
-#ifdef PEGASUS_OS_SOLARIS
-    slp_lang = "en";
-#else    
-    slp_lang = NULL;
-#endif
+
+
     String libraryFileName;
 
 #if defined(PEGASUS_OS_ZOS)
@@ -370,6 +371,8 @@ Boolean slp_service_agent::srv_register(
             &callbackErr);
         if ((slpErr != SLP_OK) || (callbackErr != SLP_OK))
         {
+            
+            printf("Error Return SLPOpen 1 %d %d\n", slpErr, callbackErr);
             SLPClose(slp_handle);
             return false;
         }
@@ -377,6 +380,7 @@ Boolean slp_service_agent::srv_register(
     }
     else
     {
+        printf("Error Return SLPOpen 1 %d\n", slpErr);
         return false;
     }
 #endif /* PEGASUS_USE_OPENSLP */
@@ -427,8 +431,10 @@ void slp_service_agent::unregister()
                 &callbackErr);
             if ((slpErr != SLP_OK) || (callbackErr != SLP_OK))
             {
+
+                printf("Error Return SLPOpen 2 %d %d\n", slpErr, callbackErr);
                 SLPClose(slp_handle);
-                /* No need to report error since we're probably shutting
+                /* No need to reponrt error since we're probably shutting
                    down anyway.
                 */
                 continue;
@@ -437,6 +443,8 @@ void slp_service_agent::unregister()
         }
         else
         {
+            
+            printf("Error Return SLPOpen 2 %d\n", slpErr);
             /* No need to report error since we're probably shutting
                down anyway.
             */
@@ -492,10 +500,13 @@ Uint32 slp_service_agent::test_registration(
     char* _url = strdup(url);
     char* _attrs = strdup(attrs);
     char* _scopes = strdup(scopes);
+    //printf("_test_reg  _type = %s\n_url = %s\n_attrs =  %s\n_scopes = %s\n", 
+    //       _type, _url, _attrs, _scopes);
 
-    Uint32 ccode = _test_reg(_type, _url, _attrs, _scopes);
+    Uint32 ccode = 0;
+    //ccode = _test_reg(_type, _url, _attrs, _scopes);
 
-    //cout << "rtn from _tst_reg: " << ccode << endl;
+    cout << "rtn from _tst_reg: " << ccode << endl;
 
     free(_type);
     free(_url);
@@ -571,10 +582,14 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
                     SLP_TRUE,
                     SLPRegCallback,
                     &callbackErr);
+
+                printf("Error Return SLPOpen 3 %d %d\n", slpErr, callbackErr);
                 SLPClose(slp_handle);
             }
             else
             {
+
+                printf("Error Return SLPOpen 3 %d\n", slpErr);
                 // ATTN: Could not get SLP handle, 
                 // we try again when lifetime expires.
             }             

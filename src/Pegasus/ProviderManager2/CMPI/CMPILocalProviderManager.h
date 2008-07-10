@@ -61,7 +61,9 @@ public:
         const String & fileName, 
         const String & providerName);
 
-    void unloadProvider(const String & fileName, const String & providerName);
+    Boolean unloadProvider(
+        const String & fileName,
+        const String & providerName);
 
     void shutdownAllProviders();
 
@@ -119,7 +121,10 @@ private:
     CMPIProvider* _initProvider(CMPIProvider * provider,
         const String & moduleFileName); 
 
-    void _unloadProvider(CMPIProvider * provider);
+    void _unloadProvider(CMPIProvider * provider, Boolean forceUnload = false);
+
+    void _terminateUnloadPendingProviders(
+        Array<CMPIProvider*> &unloadPendingProviders);
 
     CMPIProvider * _lookupProvider(const String & providerName);
 

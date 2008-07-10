@@ -106,6 +106,7 @@ void CMPIProvider::reset()
     _cimom_handle = 0;
     _no_unload = 0;
     _status = UNINITIALIZED;
+    unloadStatus = CMPI_RC_DO_NOT_UNLOAD;
 }
 
 CMPIProviderModule *CMPIProvider::getModule() const

@@ -248,22 +248,10 @@ void HTTPMessage::parse(
                 if (headerIndex == headers.size())
                 {
                     headers.append(HTTPHeader(name, value));
-                    PEG_TRACE((
-                        TRC_HTTP,
-                        Tracer::LEVEL4,
-                        "HTTP header name: %s,  HTTP header value: %s",
-                        (const char*)name.getCString(),
-                        (const char*)value.getCString()));
                 }
                 else
                 {
                     headers[headerIndex].second.append(", ").append(value);
-                    PEG_TRACE((
-                        TRC_HTTP,
-                        Tracer::LEVEL4,
-                        "HTTP header name: %s,  Updated HTTP header value: %s",
-                        (const char*)name.getCString(),
-                        (const char*)headers[headerIndex].second.getCString()));
                 }
             }
         }

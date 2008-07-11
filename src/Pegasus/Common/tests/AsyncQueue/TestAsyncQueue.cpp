@@ -44,13 +44,13 @@ PEGASUS_NAMESPACE_BEGIN
 const Uint32 ITERATIONS = 100000;
 Boolean verbose = false;
 
-struct Message : public Linkable
+struct TestMessage : public Linkable
 {
-    Message(Uint32 x_) : x(x_) { }
+    TestMessage(Uint32 x_) : x(x_) { }
     Uint32 x;
 };
 
-typedef AsyncQueue<Message> Queue;
+typedef AsyncQueue<TestMessage> Queue;
 
 static ThreadReturnType PEGASUS_THREAD_CDECL _reader(void* self_)
 {
@@ -59,7 +59,7 @@ static ThreadReturnType PEGASUS_THREAD_CDECL _reader(void* self_)
 
     for (Uint32 i = 0; i < ITERATIONS; i++)
     {
-        Message* message = queue->dequeue_wait();
+        TestMessage* message = queue->dequeue_wait();
         PEGASUS_TEST_ASSERT(message);
 
         if (verbose)
@@ -90,7 +90,7 @@ static ThreadReturnType PEGASUS_THREAD_CDECL _writer(void* self_)
 
     for (Uint32 i = 0; i < ITERATIONS; i++)
     {
-        queue->enqueue_wait(new Message(i));
+        queue->enqueue_wait(new TestMessage(i));
 // special dish of the day for Sun Solaris
 // reports say that running as root causes
 // the thread not being scheduled-out
@@ -106,7 +106,7 @@ static ThreadReturnType PEGASUS_THREAD_CDECL _writer(void* self_)
 
 void testAsyncQueue()
 {
-    AsyncQueue<Message>* queue = new AsyncQueue<Message>(100);
+    AsyncQueue<TestMessage>* queue = new AsyncQueue<TestMessage>(100);
 
     Thread reader(_reader, queue, false);
     Thread writer(_writer, queue, false);

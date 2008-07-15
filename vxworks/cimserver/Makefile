@@ -94,8 +94,6 @@ LIBRARIES += \
     pegconfig \
     pegcommon
 
-LOCAL_CLEAN_TARGET=local_clean
-
 ## Removing the provider registration capability removes the following
 ##    ProviderRegistrationProvider \
 ##    pegprm \
@@ -141,5 +139,4 @@ certs:
 	@ echo "Created file.pem"
 	@ echo "Created server.pem"
 
-local_clean:
-	rm -f  file.pem server.pem
+#FILES_TO_CLEAN = file.pem server.pem

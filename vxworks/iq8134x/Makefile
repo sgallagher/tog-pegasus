@@ -16,7 +16,7 @@ proj:
 	( cd proj; vxprj create iq8134x $(TOOL) vxsim.wpj )
 
 clean:
-	rm -rf proj file.pem server.pem romfs
+	rm -rf proj
 
 share:
 	cp proj/vxWorks /share/vxWorks
@@ -31,3 +31,6 @@ romfs: certs
 	mkdir -p $(ROMFS)/ssl/certs
 	cp file.pem $(ROMFS)/ssl/certs
 	cp server.pem $(ROMFS)/ssl/certs
+
+clean:
+	rm -rf file.pem server.pem

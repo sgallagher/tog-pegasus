@@ -428,6 +428,27 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
 }
 
 
+Boolean CMPILocalProviderManager::isProviderActive(const String &providerName)
+{
+    PEG_METHOD_ENTER(
+        TRC_PROVIDERMANAGER,
+        "CMPILocalProviderManager::isProviderActive()");
+
+    String lProviderName("L");
+    lProviderName.append(providerName);
+    String rProviderName("R");
+    rProviderName.append(providerName);
+
+    AutoMutex mtx(_providerTableMutex);
+    Boolean active = _providers.contains(lProviderName) ||
+        _providers.contains(rProviderName);
+
+    PEG_METHOD_EXIT();
+
+    return active;
+}
+
+
 
 /*
  * The reaper function polls out the threads from the global list (_finishedThreadList),

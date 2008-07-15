@@ -2658,8 +2658,12 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
         _pInstances [i].getProperty (_pInstances [i].findProperty
             (CIMName ("Name"))).getValue ().get (providerName);
 
-		Uint32 pos = _pInstances[i].findProperty("Name");
+        Uint32 pos = _pInstances[i].findProperty("Name");
 
+        if (!providerManager.isProviderActive(providerName))
+        {
+            continue;
+        }  
         //
         //  Reset the indication provider's count of current
         //  subscriptions since it has been disabled

@@ -67,6 +67,7 @@ public:
 
     Boolean hasActiveProviders();
     void unloadIdleProviders();
+    Boolean isProviderActive(const String &providerName);
 
     /**
          Gets list of indication providers to be enabled.

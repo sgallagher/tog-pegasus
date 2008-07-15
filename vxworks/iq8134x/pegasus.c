@@ -16,6 +16,15 @@ static void _run_cimserver(const char* root)
     int fd;
     char* value;
     SYM_TYPE type;
+    const char CERT[] = "/romfs/ssl/certs/file.pem";
+
+    if ((fd = open(CERT, O_RDONLY, 0)) < 0)
+    {
+        printf("***** failed to open %s\n", CERT);
+        return;
+    }
+
+    close(fd);
 
     /* Load cimserver module */
 

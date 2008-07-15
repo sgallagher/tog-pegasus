@@ -369,6 +369,7 @@ void CIMServer::_init()
     //
     _sslContextMgr = new SSLContextManager();
 
+#ifndef PEGASUS_OS_VXWORKS
 #ifdef PEGASUS_HAS_SSL
     // Because this provider allows management of the cimserver truststore
     // it needs to be available regardless of the value
@@ -384,6 +385,7 @@ void CIMServer::_init()
         certificateProvider,
         controlProviderReceiveMessageCallback,
         0);
+#endif
 #endif
 
 #ifndef PEGASUS_DISABLE_PERFINST

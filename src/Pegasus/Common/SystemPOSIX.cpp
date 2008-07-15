@@ -445,9 +445,7 @@ String System::encryptPassword(const char* password, const char* salt)
 
 Boolean System::isSystemUser(const char* userName)
 {
-    // ATTN-MEB: fix!
-    assert("System::isSystemUser() not implemented on vxworks" == 0);
-    return true;
+    return false;
 }
 
 Boolean System::isPrivilegedUser(const String& userName)

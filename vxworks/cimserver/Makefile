@@ -94,6 +94,8 @@ LIBRARIES += \
     pegconfig \
     pegcommon
 
+LOCAL_CLEAN_TARGET=local_clean
+
 ## Removing the provider registration capability removes the following
 ##    ProviderRegistrationProvider \
 ##    pegprm \
@@ -124,3 +126,20 @@ repository:
 
 share:
 	cp $(BIN_DIR)/$(PROGRAM) /share
+
+
+##==============================================================================
+##
+## Generates SSL required files:
+##
+##     server.pem -> /romfs/ssl/certs/server.pem
+##     file.pem -> /romfs/ssl/certs/file.pem
+##
+##==============================================================================
+certs:
+	openssl req -x509 -days 10000 -newkey rsa:2048 -nodes -config ssl.cnf -keyout file.pem -out server.pem
+	@ echo "Created file.pem"
+	@ echo "Created server.pem"
+
+local_clean:
+	rm -f  file.pem server.pem

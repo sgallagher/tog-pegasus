@@ -83,9 +83,11 @@ LIBRARIES += \
 	CIMQueryCapabilitiesProvider
 endif
 
+ifneq ($(OS_TYPE),vxworks)
 ifdef PEGASUS_HAS_SSL
 LIBRARIES += \
 	CertificateProvider
+endif
 endif
 
 PRE_DEPEND_INCLUDES = -I./depends

@@ -33,59 +33,12 @@
 //%/////////////////////////////////////////////////////////////////////////////
 */
 
-#if defined(PEGASUS_USE_RELEASE_DIRS) && \
-    defined(PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS)
-# include <Pegasus/Config/ProductDirectoryStructure.h>
-#endif
-// Options that are independent of Release vs. Dev build
-    {"enableBinaryRepository", "true"},
-
-#ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    {"httpPort",            "5988"},
-    {"httpsPort",           "5989"},
-    {"home",                ""},
-    {"install",             "false"},
-    {"remove",              "false"},
-    {"slp",                 "false"},
-    {"enableAuthentication", "true"},
-    {"httpAuthType",        "Basic"},
-#endif
-#if defined(PEGASUS_USE_RELEASE_DIRS)
-# if defined(PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS)
-    {"traceFilePath",       PEGASUS_TRACE_FILE_PATH},
-#  if !defined(PEGASUS_USE_SYSLOGS)
-    {"logdir",              PEGASUS_LOG_DIR},
-#  endif
-    {"passwordFilePath",     PEGASUS_CONFIG_DIR"/cimserver.passwd"},
-    {"sslCertificateFilePath", PEGASUS_SSL_CERT_FILE_PATH},
-    {"sslKeyFilePath",       PEGASUS_SSL_KEY_FILE_PATH},
-    {"sslTrustStore",        PEGASUS_SSL_SERVER_TRUSTSTORE},
-#  ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
-    {"crlStore",             PEGASUS_SSL_SERVER_CRL},
-#  endif
-    {"repositoryDir",        PEGASUS_REPOSITORY_DIR},
-    {"providerDir", PEGASUS_PROVIDER_LIB_DIR ":/usr/" PEGASUS_ARCH_LIB "/cmpi"},
-# else /* PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS */
-    {"traceFilePath",       "/var/opt/tog-pegasus/cache/trace/cimserver.trc"},
-#  if !defined(PEGASUS_USE_SYSLOGS)
-    {"logdir",              "/var/opt/tog-pegasus/log"},
-#  endif
-    {"passwordFilePath",    "/etc/opt/tog-pegasus/cimserver.passwd"},
-    {"sslCertificateFilePath", "/etc/opt/tog-pegasus/server.pem"},
-    {"sslKeyFilePath",      "/etc/opt/tog-pegasus/file.pem"},
-    {"sslTrustStore",       "/etc/opt/tog-pegasus/cimserver_trust"},
-    {"crlStore",            "/etc/opt/tog-pegasus/crl"},
-    {"repositoryDir",       PEGASUS_REPOSITORY_DIR},
-#  if defined(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER)
-    {"providerDir",         "/opt/tog-pegasus/providers/lib:/usr/"
-                                PEGASUS_ARCH_LIB "/cmpi"},
-#  else
-    {"providerDir",         "/opt/tog-pegasus/providers/lib"},
-#  endif
-    {"messageDir",          "/opt/tog-pegasus/share/locale/ICU_Messages"},
-# endif /* PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS */
-#endif /* defined(PEGASUS_USE_RELEASE_DIRS) */
-#if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && \
-    !defined(PEGASUS_USE_RELEASE_DIRS)
-    {"bogus", "MyBogusValue"} /* Remove this line if others are added */
+#ifdef PEGASUS_HAS_SSL
+    { "sslCertificateFilePath", "/romfs/ssl/certs/server.pem" },
+    { "sslKeyFilePath", "/romfs/ssl/certs/file.pem" },
+    { "sslTrustStore", "/romfs/ssl" },
+    { "crlStore", "/romfs/ssl" },
+    { "enableAuthentication", "true" },
+#else
+    {"bogus", "MyBogusValue"},
 #endif

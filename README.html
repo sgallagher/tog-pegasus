@@ -9,18 +9,27 @@
   <title>OpenPegasus 2.6 README</title>
   <link rel="stylesheet"
  href="http://www.opengroup.org/stylesheets/info1+margins.css">
+	<style>
+<!--
+ table.MsoNormalTable
+	{mso-style-parent:"";
+	font-size:10.0pt;
+	font-family:"Times New Roman"}
+-->
+</style>
 </head>
 <body>
 <hr>
 <p><b>Abstract:</b>&nbsp; Installation, build, and operation
 information on
-the OpenPegasus Version 2.7.0
+the OpenPegasus Version 2.8.0
 Release. Note that if this readme
 conflicts with the documentation in the release notes or interface
 definition documents for a particular release, those documents should
 be considered authoritative. This is a simplified
 overview to act as an
 introduction to OpenPegasus.</p>
+
 <hr>
 <p align="center"><b><font size="5">OpenPegasus - A Manageability
 Services Broker for the DMTF CIM/WBEM Standards
@@ -77,27 +86,30 @@ noted in the documentation.<br>
 <br>
 <span class="norm"></span>OpenPegasus includes components for: <br>
 </div>
-<ol style="margin-left: 40px;">
-  <li>A DMTF compliant CIM Server that processes CIM operations, CIM
+<blockquote>
+	<ol style="margin-left: 40px;">
+		<li>A DMTF compliant CIM Server that processes CIM operations, CIM
 Indications, and
 includes class and instance repositories and interfaces for creating
 CIM
 Providers and CIM Clients.</li>
-  <li>Provider interfaces so that providers may be build in multiple
+		<li>Provider interfaces so that providers may be build in multiple
 languages (i.e.
 C++, C, Java).</li>
-  <li>A number of CIM Providers.</li>
-  <li>A MOF compiler.</li>
-  <li>A number of CIM Clients to provide usage examples, CIM Server
+		<li>A number of CIM Providers.</li>
+		<li>A MOF compiler.</li>
+		<li>A number of CIM Clients to provide usage examples, CIM Server
 test functions,
 and administrative
 functions.</li>
-  <li>More complete information on the exact functions
+		<li>More complete information on the exact functions
 and their functional state is available from the Release Notes
-(pegasus/ReleaseNotes.htm) and the OpenPegasus <a
+(pegasus/ReleaseNotes.htm) and the OpenPegasus
+		<a
  href="http://www.openpegasus.org/page.tpl?CALLER=index.tpl&amp;ggid=799">Feature
 Status Page</a>.</li>
-</ol>
+	</ol>
+</blockquote>
 <div style="margin-left: 40px;">OpenPegasus is open source and is
 covered under the MIT open-source
 license.
@@ -128,7 +140,12 @@ site.
 <p style="margin-left: 40px;">Note
 that all references in this readme to files in the OpenPegasus source
 tree are of the form pegasus/..., where "pegasus" is the top-level
-directory and also the name of the OpenPegasus module in CVS.<br>
+directory and also the name of the OpenPegasus module in the Pegasus CVS 
+repository. There are also&nbsp; other CVS modules for the OpenPegasus Java client (pegasus-JavaCIMClient) 
+and for unsupported components and utilities for Pegasus that may be checked out 
+separately.&nbsp; You can use
+<a href="http://cvs.opengroup.org/cgi-bin/viewcvs.cgi/">viewCVS</a> to view the 
+Pegasus CVS tree<br>
 </p>
 <h2><a name="avail_of_peg">Availability</a></h2>
 <div style="margin-left: 40px;">OpenPegasus is distributed as open
@@ -167,7 +184,7 @@ here on our <a
  href="http://cvs.opengroup.org/cgi-bin/pegasus-build-status.cgi">Nightly
 Build and Test Status</a> page.&nbsp; The Release Notes
 (pegasus/ReleaseNotes.htm) provide additional details
-regarding the platforms.<br>
+regarding the platforms for the current release.<br>
 </p>
 <h2><a name="peg_dep">Dependencies</a></h2>
 <p style="margin-left: 40px;">
@@ -182,15 +199,17 @@ multiple platforms we
 have standardized on a set of build tools including: GNUMAKE. We are
 using GNUMAKE 3.79.1 successfully both in Windows and Linux
 environments. It is available from <a href="http://www.gnu.org">http://www.gnu.org</a>.
-  </li>
+  The windows version&nbsp; of GNUMAKE is available on the Pegasus web site
+	<a href="http://www.openpegasus.org/pb/protected/index.tpl?CALLER=index.tpl">
+	tools page</a>.</li>
   <li><b>FLEX</b> and <b>BISON</b> - These tools were used to develop the MOF
-compiler and WQL parser.&nbsp; These tools are required only for
+compiler and WQL and CQL parsers.&nbsp; These tools are required <b>ONLY</b> for
 development of the parsers, not for building OpenPegasus.&nbsp; Bison
 version 2.3 or later and flex version 2.5.4 or later are required.</li>
-  <li><b>DOC++ </b>- The OpenPegasus documentation is taken from a
-combination of text files
-and header files themselves. This documentation is
-formatted with DOC++ and GAWK.&nbsp;&nbsp; <span class="norm"></span><font
+  <li><b>Doxygen </b>- The OpenPegasus documentation is taken from a combination 
+	of text files and header files themselves. This documentation is formatted 
+	with Doxygen and GAWK.&nbsp; This is required <b>ONLY</b> if you want to 
+	build documentation from the source tree.&nbsp; <span class="norm"></span><font
  style="color: rgb(0, 0, 0);">These tools are required to build the
 interface documentation set.</font> </li>
   <li><b>ICU Internationalization libraries</b> - These libraries are
@@ -198,7 +217,8 @@ used as the basis for message catalogs for message
 internationalization. See the ICU website
 (<a href="http://icu.sourceforge.net/">http://icu.sourceforge.net</a>)
 for more information on these
-libraries.<span style="color: rgb(255, 0, 0);"></span><br>
+libraries.<span style="color: rgb(255, 0, 0);"> These libraries are use ONLY if 
+	you set the requisite environment variable ( PEGASUS_HAS_ICU) to use ICU</span><br>
   </li>
   <li><span style="font-weight: bold;"></span><b>OpenSSL </b>- If it
 is intended to use SSL on the
@@ -228,6 +248,9 @@ web page.<br>
 </p>
 <h2><a name="cmnd">Commands</a></h2>
 <p style="margin-left: 40px;">
+Pegasus includes the server which can be controlled from the command line and a 
+set of clients that provide adminstrative functions</p>
+<p style="margin-left: 40px;">
 The manpages for each of the commands are in the pegasus/rpm/manLinux/
 directory (from CVS). </p>
 <p style="margin-left: 40px;">To see simple help for each command,
@@ -249,26 +272,28 @@ cimserver)</li>
     <li>cimserver traceLevel=4 traceComponents=ALL&nbsp; (Starts server
 with
 config flags)</li>
-    <li>cimprovider -l -s&nbsp; (Lists providers and their status)</li>
-    <li>cimprovider -e -m OperatingSystemModule&nbsp; (Enables the
-OperatingSystem provider)</li>
-    <li>cimuser -a -u guest _w &lt;ThePassword&gt; (Adds the user <span
- style="font-style: italic;">guest</span> with specified password)<br>
-    </li>
-    <li>cimuser -l&nbsp; (Lists the users )</li>
-    <li>cimconfig -l -c (Lists the
-current config options and their current values)<br>
-    </li>
   </ul>
+	<ul>
+		<li>cimprovider -l -s&nbsp; (Lists providers and their status)</li>
+		<li>cimprovider -e -m OperatingSystemModule&nbsp; (Enables the
+OperatingSystem provider)</li>
+		<li>cimuser -a -u guest _w &lt;ThePassword&gt; (Adds the user
+		<span
+ style="font-style: italic;">guest</span> with specified password)<br></li>
+		<li>cimuser -l&nbsp; (Lists the users )</li>
+		<li>cimconfig -l -c (Lists the
+current config options and their current values)<br></li>
+	</ul>
 </ul>
-<div style="margin-left: 40px;"><span style="font-weight: bold;">NOTE</span>:
+<div style="margin-left: 40px;"><span style="font-weight: bold;">NOTES</span>:
 <br>
 </div>
-<ol style="margin-left: 40px;">
-  <li>Refer to the admin guide in pegasus/doc/Admin_Guide_Release.pdf
+<blockquote>
+	<ol style="margin-left: 40px;">
+		<li>Refer to the admin guide in pegasus/doc/Admin_Guide_Release.pdf
 for
 more information about administering the OpenPegasus CIM Server.</li>
-  <li>There are some differences between Windows and other
+		<li>There are some differences between Windows and other
 platforms in
 starting the server as a daemon/service. Whereas most supported
 platforms use
@@ -280,12 +305,13 @@ and then
 started as a service (cimserver -start). The cimserver --help option
 explains the
 exact format of the start and stop options.</li>
-  <li>The cimuser command is used to manage OpenPegasus users only when
-the CIM Server is compiled without the PEGASUS_PAM_AUTHENTICATION
-environment variable defined. See PEP
-292 for more information.<br>
-  </li>
-</ol>
+		<li>The cimuser command is used to manage OpenPegasus users only when
+the CIM Server is compiled without the PEGASUS_PAM_AUTHENTICATION environment 
+		variable defined. See
+		<a href="http://www.openpegasus.org/pp/uploads/40/16781/PEP308_RecommendedReleaseOptions.htm">
+		PEP 308</a> for more information on these configuration options.<br></li>
+	</ol>
+</blockquote>
 <font><font color="RED"><span style="color: rgb(0, 0, 0);"></span></font></font><span
  style="font-family: monospace;"></span>
 <h2><a name="docs">Documentation</a></h2>
@@ -307,9 +333,9 @@ from the
 source tree, see pegasus/doc/apidoc) and other miscellaneous
 documentation
 in the doc directory. Also, there is a set of Release Notes for each
-release in the pegasus root
+release in the OpenPegasus root
 source directory of CVS.</p>
-<p style="margin-left: 40px;">Note that the <a
+<p style="margin-left: 40px;">The <a
  href="http://www.openpegasus.org/">OpenPegasus web
 site</a> will be the source
 of most
@@ -355,7 +381,7 @@ minimum set is:<br>
 <ul>
   <ul>
     <li>PEGASUS_ROOT -- The directory
-containing the pegasus root directory from CVS.</li>
+containing the OpenPegasus root directory from CVS.</li>
     <li>PEGASUS_HOME -- The directory
 that will contain all output from building and running OpenPegasus, it
 can be the same as PEGASUS_ROOT if desired.</li>
@@ -367,8 +393,8 @@ platform on which OpenPegasus is being built.<br>
 <h2><a name="bld_peg"></a>Build the Executables<br>
 </h2>
 <div style="margin-left: 40px;">OpenPegasus
-is compiled and linked using a make structure that recurses through the
-source tree.<br>
+is compiled and linked using a make structure that recurses through the&nbsp; 
+	OpenPegasus source tree.<br>
 <font><font color="RED"><span
  style="color: rgb(0, 0, 0); font-weight: bold;"><br>
 Makefile commands
@@ -436,10 +462,10 @@ cimmof compiler.<br>
 repository (if one exists).</span><br>
     </li>
     <li>Generates the default
-CIM Schema (currently v2.13.1)
+CIM Schema (defined in pegasus/mak/config.mak)
 in the repository (skeleton of CIM
-objects).&nbsp; Refer to
-PEGASUS_CIM_SCHEMA in PEP 292 for alternate versions.<br>
+objects).&nbsp; Refer to PEGASUS_CIM_SCHEMA environment variable&nbsp; in&nbsp; 
+	Pegasus PEP 308&nbsp; to set&nbsp; alternate schema versions.<br>
     </li>
     <li>Loads
 schema for CIM Server functions (shutdown, add users, etc) and
@@ -480,9 +506,14 @@ To build OpenPegasus on Linux, ensure that you you have the necessary
 environment
 variables set (eg. PEGASUS_HOME, PEGASUS_ROOT, PEGASUS_PLATFORM).&nbsp;
 For
-32 bit linux, the definition of PEGASUS_PLATFORM is normally
-LINUX_IX86_GNU. Use the g++
-compiler to compile and link the executables.<br>
+32 bit Linux, the definition of PEGASUS_PLATFORM is normally
+LINUX_IX86_GNU.&nbsp;&nbsp; For 64 bit IX86&nbsp; Linux the definition of 
+PEGASUS_PLATFORM is normally LINUX_IX86_64_GNU.&nbsp; Use the g++
+compiler to compile and link the executables. All of the supported platform 
+definitions are defined in pegasus/mak as&nbsp; make files with the definition 
+platform_&lt;operatingSystem&gt;_&lt;architecture&gt;_&lt;compiler&gt;. The &lt;operatingSystem&gt;_&lt;architecture&gt;_&lt;compiler&gt; 
+component is what forms the PEGASUS_PLATFORM environment variable so that the 
+appropriate platform make file can be found during the build process.<br>
 </p>
 <h2><a name="bld_peg_win">Notes
 about Building on Windows </a></h2>
@@ -574,7 +605,7 @@ installation is (refer to PEP 292
 for more details on build variables).<br>
 </p>
 <p style="margin-left: 40px;">You
-must also have the PEGASUS_HAS_SSL variable defined. Then when you
+must also have the PEGASUS_HAS_SSL environment variable defined. Then when you
 build
 OpenPegasus, it
 will include the SSL support.
@@ -627,7 +658,7 @@ functions for the Common
 directory). Unit tests are executed with the CIM Server shutdown and
 normally do not require the existence of class definitions in the
 repository. </li>
-    <li><b>An end-to-end Test Suite</b> - the directory "test" contains
+    <li><b>End-to-end Test Suite</b> - the directory "test" contains
 a
 set of operatio<span
  style="color: rgb(255, 0, 0); text-decoration: line-through;"></span>n
@@ -638,6 +669,31 @@ these tests.&nbsp; This set of tests executes an extensive set of fixed
 tests and compares the results against predefined results.</li>
   </ul>
 </ul>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Once OpenPegasus is 
+successfully built, the&nbsp; tests can be executed through the root Makefile 
+with targets such as:</p>
+<blockquote>
+	<blockquote>
+		<ul>
+			<li><b>make unittests </b>- Execute the unit tests. These do not depend 
+			on having a running server or repository installed.&nbsp; They test 
+			components of the OpenPegasus code. These tests run to completion if 
+			successful but normally stop on the first error found by a test 
+			program.</li>
+			<li><b>make servertests</b> - Executes the OpenPegasus end-to-end test 
+			suite against a running OpenPegasus server starting and stopping the 
+			server as required to modify configuration parameters. The 
+			repository must be installed for these tests to execute and they are 
+			tested against the default repository as part of regular OpenPegasus 
+			development and release testing. These tests will run to successful 
+			completion if there are not errors detected but will normally stop 
+			on the first error.&nbsp; There is a subset of these tests that can 
+			be run in an environment that does not have root privileges but root 
+			privileges are required to run the complete suite.</li>
+			<li><b>make alltests</b> - execute both the unit and end-to-end tests.</li>
+		</ul>
+	</blockquote>
+</blockquote>
 <h2><a name="test_icu">Testing with ICU enabled</a></h2>
 <p style="margin-left: 40px;">ICU (International Components for
 Unicode) refers to the set of

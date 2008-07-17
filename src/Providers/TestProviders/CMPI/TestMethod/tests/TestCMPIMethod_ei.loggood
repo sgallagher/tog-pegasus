@@ -292,7 +292,7 @@
  ++++  CMSetProperty-1 : (CMPI_RC_OK)
  ++++  CMSetProperty-2 : (CMPI_RC_OK)
  ++++  CMGetPropertyCount : (CMPI_RC_OK)
- ++++ Number of values added : 3
+ ++++ Number of values added : 4
  ++++  CMGetProperty : (CMPI_RC_OK)
  ++++ First value  : 10
  ++++ CMSetProperty successful : 1 

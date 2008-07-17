@@ -2025,7 +2025,7 @@ static int _testCMPIInstance ()
     }
     PROV_LOG("++++ CMSetProperty successful : %d ", dataEqual);
 
-    returnedData2 = CMGetPropertyAt(instance, 1, &returnedName, &rc);
+    returnedData2 = CMGetPropertyAt(instance, 2, &returnedName, &rc);
     PROV_LOG("++++  CMGetPropertyAt : (%s)", strCMPIStatus (rc));
     PROV_LOG("++++ Second value : %d", returnedData2.value.uint32);
     if (returnedData2.value.uint32 == 20)

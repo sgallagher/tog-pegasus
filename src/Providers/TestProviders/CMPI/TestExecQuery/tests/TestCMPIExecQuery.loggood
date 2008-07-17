@@ -1829,7 +1829,45 @@
  --- make_Instance: CMNewInstance
  ----- CMPI_RC_OK
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where s8<=255], language: [DMTF:CQL]
- !!!! CMPI_RC_ERR_INVALID_QUERY []
+ --- Projection list is: 
+ -- #4.2 Projection list is NULL. Meaning *
+ --- _setProperty: * -> *
+ ---- All properties
+ --- _setProperty: ElementName -> ElementName
+ --- _setProperty: s -> s
+ --- _setProperty: c -> c
+ --- _setProperty: n64 -> n64
+ --- _setProperty: n32 -> n32
+ --- _setProperty: n16 -> n16
+ --- _setProperty: n8 -> n8
+ --- _setProperty: s64 -> s64
+ --- _setProperty: s32 -> s32
+ --- _setProperty: s16 -> s16
+ --- _setProperty: s8 -> s8
+ --- _setProperty: r64 -> r64
+ --- _setProperty: r32 -> r32
+ --- _setProperty: d -> d
+ ---- CMNewDateTime
+ --- _setProperty: b -> b
+ -- #A Evaluate using instance
+ -- Evalute using instance returns true
+ -- #B Evalute using accessor
+       -- Instance_accessor (Property: s8)
+ -- Evalute using accessor returns true
+ -- #C Continue evaluating using GetDOC
+ ---   #A CMGetSubCondCountAndType 
+ ---- Number of disjunctives: 1, Type: 0
+ ---    #B CMGetSubCondAt @ 0 
+ ---    #C CMGetPredicateCount
+ ---- Number of predicates in the conjuctives: 1
+ --- #D CMGetPredicateAt, 0
+ --- #E CMGetPredicateData
+ ----- Type: CMPI_uint64 , CMPIPredOp:  CMPI_PredOp_LessThanOrEquals , LS: TestCMPI_ExecQuery.s8, RS: 255
+ --- #F Evaluate using predicate
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ -- #D Continue evaluating using GetCOD
+ !!!! CMPI_RC_ERR_NOT_SUPPORTED []
+ Query (SELECT * FROM TestCMPI_ExecQuery where s8<=255) returns true when using DMTF:CQL query language.
  --- Query: [SELECT * FROM TestCMPI_ExecQuery where s8<=255], language: [WQL]
  --- Projection list is: 
  -- #4.2 Projection list is NULL. Meaning *

@@ -158,7 +158,8 @@ ThreadStatus Thread::run()
     arg->start = _start;
     arg->arg = this;
 
-    Threads::Type type = _is_detached ? Threads::DETACHED : Threads::JOINABLE;
+    Threads::Type type = 
+        _is_detached ? Threads::THREADS_DETACHED : Threads::THREADS_JOINABLE;
     int rc = Threads::create(_handle.thid, type, _start_wrapper, arg);
 
     // On Linux distributions released prior 2005, the implementation of

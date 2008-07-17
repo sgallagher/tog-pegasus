@@ -79,3 +79,13 @@ Rebuilding vxworks for the simulator:
 
     $ make CPU=SIMLINUX TOOL=gnu
 
+Using SLP:
+==========
+
+    $ slptool findsrvtypes (not implemented in OpenPegasus SLP)
+
+    $ slptool findsrvs service:wbem:http
+    service:wbem:http://192.168.1.20:5988,65372
+
+    $ slptool findattrs service:wbem:http://192.168.1.20:5988
+

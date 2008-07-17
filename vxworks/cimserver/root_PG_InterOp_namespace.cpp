@@ -1612,7 +1612,7 @@ _CIM_Setting_VerifyOKToApplyToMSE =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_Setting",
+    "VerifyOKToApplyToMSE",
     /* qualifiers */
     _CIM_Setting_VerifyOKToApplyToMSE_qualifiers,
     /* type */
@@ -1715,7 +1715,7 @@ _CIM_Setting_ApplyToMSE =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_Setting",
+    "ApplyToMSE",
     /* qualifiers */
     _CIM_Setting_ApplyToMSE_qualifiers,
     /* type */
@@ -1846,7 +1846,7 @@ _CIM_Setting_VerifyOKToApplyToCollection =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_Setting",
+    "VerifyOKToApplyToCollection",
     /* qualifiers */
     _CIM_Setting_VerifyOKToApplyToCollection_qualifiers,
     /* type */
@@ -2003,7 +2003,7 @@ _CIM_Setting_ApplyToCollection =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_Setting",
+    "ApplyToCollection",
     /* qualifiers */
     _CIM_Setting_ApplyToCollection_qualifiers,
     /* type */
@@ -2132,7 +2132,7 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_Setting",
+    "VerifyOKToApplyIncrementalChangeToMSE",
     /* qualifiers */
     _CIM_Setting_VerifyOKToApplyIncrementalChangeToMSE_qualifiers,
     /* type */
@@ -2261,7 +2261,7 @@ _CIM_Setting_ApplyIncrementalChangeToMSE =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_Setting",
+    "ApplyIncrementalChangeToMSE",
     /* qualifiers */
     _CIM_Setting_ApplyIncrementalChangeToMSE_qualifiers,
     /* type */
@@ -2418,7 +2418,7 @@ _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_Setting",
+    "VerifyOKToApplyIncrementalChangeToCollection",
     /* qualifiers */
     _CIM_Setting_VerifyOKToApplyIncrementalChangeToCollection_qualifiers,
     /* type */
@@ -2601,7 +2601,7 @@ _CIM_Setting_ApplyIncrementalChangeToCollection =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_Setting",
+    "ApplyIncrementalChangeToCollection",
     /* qualifiers */
     _CIM_Setting_ApplyIncrementalChangeToCollection_qualifiers,
     /* type */
@@ -4820,7 +4820,7 @@ _CIM_MethodParameters_ResetValues =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_MethodParameters",
+    "ResetValues",
     /* qualifiers */
     _CIM_MethodParameters_ResetValues_qualifiers,
     /* type */
@@ -6944,7 +6944,7 @@ _CIM_StatisticalData_ResetSelectedStats =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_StatisticalData",
+    "ResetSelectedStats",
     /* qualifiers */
     _CIM_StatisticalData_ResetSelectedStats_qualifiers,
     /* type */
@@ -10809,7 +10809,7 @@ _CIM_RedundancySet_Failover =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_RedundancySet",
+    "Failover",
     /* qualifiers */
     _CIM_RedundancySet_Failover_qualifiers,
     /* type */
@@ -12075,7 +12075,7 @@ _CIM_SpareGroup_Failover =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_SpareGroup",
+    "Failover",
     /* qualifiers */
     _CIM_SpareGroup_Failover_qualifiers,
     /* type */
@@ -13623,7 +13623,7 @@ _CIM_Job_KillJob =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_Job",
+    "KillJob",
     /* qualifiers */
     _CIM_Job_KillJob_qualifiers,
     /* type */
@@ -14181,7 +14181,7 @@ _CIM_ConcreteJob_RequestStateChange =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_ConcreteJob",
+    "RequestStateChange",
     /* qualifiers */
     _CIM_ConcreteJob_RequestStateChange_qualifiers,
     /* type */
@@ -14476,7 +14476,7 @@ _CIM_EnabledLogicalElement_RequestStateChange =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_EnabledLogicalElement",
+    "RequestStateChange",
     /* qualifiers */
     _CIM_EnabledLogicalElement_RequestStateChange_qualifiers,
     /* type */
@@ -15075,7 +15075,7 @@ _CIM_LogicalDevice_SetPowerState =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_LogicalDevice",
+    "SetPowerState",
     /* qualifiers */
     _CIM_LogicalDevice_SetPowerState_qualifiers,
     /* type */
@@ -15102,7 +15102,7 @@ _CIM_LogicalDevice_Reset =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_LogicalDevice",
+    "Reset",
     /* qualifiers */
     _CIM_LogicalDevice_Reset_qualifiers,
     /* type */
@@ -15157,7 +15157,7 @@ _CIM_LogicalDevice_EnableDevice =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_LogicalDevice",
+    "EnableDevice",
     /* qualifiers */
     _CIM_LogicalDevice_EnableDevice_qualifiers,
     /* type */
@@ -15212,7 +15212,7 @@ _CIM_LogicalDevice_OnlineDevice =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_LogicalDevice",
+    "OnlineDevice",
     /* qualifiers */
     _CIM_LogicalDevice_OnlineDevice_qualifiers,
     /* type */
@@ -15267,7 +15267,7 @@ _CIM_LogicalDevice_QuiesceDevice =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_LogicalDevice",
+    "QuiesceDevice",
     /* qualifiers */
     _CIM_LogicalDevice_QuiesceDevice_qualifiers,
     /* type */
@@ -15294,7 +15294,7 @@ _CIM_LogicalDevice_SaveProperties =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_LogicalDevice",
+    "SaveProperties",
     /* qualifiers */
     _CIM_LogicalDevice_SaveProperties_qualifiers,
     /* type */
@@ -15321,7 +15321,7 @@ _CIM_LogicalDevice_RestoreProperties =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_LogicalDevice",
+    "RestoreProperties",
     /* qualifiers */
     _CIM_LogicalDevice_RestoreProperties_qualifiers,
     /* type */
@@ -15722,7 +15722,7 @@ _CIM_Service_StartService =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_Service",
+    "StartService",
     /* qualifiers */
     _CIM_Service_StartService_qualifiers,
     /* type */
@@ -15749,7 +15749,7 @@ _CIM_Service_StopService =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_Service",
+    "StopService",
     /* qualifiers */
     _CIM_Service_StopService_qualifiers,
     /* type */
@@ -18782,7 +18782,7 @@ _CIM_PowerManagementService_SetPowerState =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_PowerManagementService",
+    "SetPowerState",
     /* qualifiers */
     _CIM_PowerManagementService_SetPowerState_qualifiers,
     /* type */
@@ -27339,7 +27339,7 @@ _PG_ProviderModule_start =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "PG_ProviderModule",
+    "start",
     /* qualifiers */
     _PG_ProviderModule_start_qualifiers,
     /* type */
@@ -27366,7 +27366,7 @@ _PG_ProviderModule_stop =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "PG_ProviderModule",
+    "stop",
     /* qualifiers */
     _PG_ProviderModule_stop_qualifiers,
     /* type */
@@ -28705,7 +28705,7 @@ _CIM_UnitaryComputerSystem_SetPowerState =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "CIM_UnitaryComputerSystem",
+    "SetPowerState",
     /* qualifiers */
     _CIM_UnitaryComputerSystem_SetPowerState_qualifiers,
     /* type */

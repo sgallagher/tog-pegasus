@@ -77,7 +77,7 @@
 # include <Pegasus/Common/AuditLogger.h>
 #endif
 
-#ifdef PEGASUS_ENABLE_SLP
+#if defined(PEGASUS_ENABLE_SLP) && !defined(PEGASUS_OS_VXWORKS)
 # include <Pegasus/Client/CIMClient.h>
 #endif
 
@@ -1149,7 +1149,9 @@ void CIMServer::auditLogInitializeCallback()
 
 #ifdef PEGASUS_ENABLE_SLP
 
+#if !defined(PEGASUS_OS_VXWORKS)
 ThreadReturnType PEGASUS_THREAD_CDECL _callSLPProvider(void* parm);
+#endif
 
 // This is a control function that starts a new thread which issues a
 // cim operation to start the slp provider.
@@ -1207,16 +1209,17 @@ void CIMServer::startSLPProvider()
      Thread SLPThread(registerPegasusWithSLP,0,true);
      SLPThread.run();
 #else
+# if !defined(PEGASUS_OS_VXWORKS)
     // Create a separate thread, detach and call function to execute the
     // startup.
     Thread t( _callSLPProvider, 0, true );
     t.run();
+# endif
 #endif
 
     PEG_METHOD_EXIT();
     return;
 }
-
 
 // startSLPProvider is a function to get the slp provider kicked off
 // during startup.  It is placed in the provider manager simply because
@@ -1226,6 +1229,9 @@ void CIMServer::startSLPProvider()
 // something that was run shortly after system startup.
 // This function is assumed to operate in a separate thread and
 // KS 15 February 2004.
+// Avoid this code on VxWorks, since the client library is not available
+// on VxWorks.
+#if !defined(PEGASUS_OS_VXWORKS)
 
 ThreadReturnType PEGASUS_THREAD_CDECL _callSLPProvider(void* parm)
 {
@@ -1301,6 +1307,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _callSLPProvider(void* parm)
     PEG_METHOD_EXIT();
     return( (ThreadReturnType)32 );
 }
+
+#endif /* !defined(PEGASUS_OS_VXWORKS) */
 
 #ifdef PEGASUS_SLP_REG_TIMEOUT
 // This thread advertises pegasus to a listening SA. The attributes for

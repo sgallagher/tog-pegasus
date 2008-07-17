@@ -29,7 +29,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Server/EmbeddedServer.h>
+#include "EmbeddedServer.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -41,24 +41,21 @@ public:
 
     virtual ~MyEmbeddedServer();
 
-    virtual void loadRepository(
-        Array<Uint8>& data);
+    virtual void loadRepository(Array<Uint8>& data);
     
-    virtual void saveRepository(
-        const Array<Uint8>& data);
+    virtual void saveRepository(const Array<Uint8>& data);
 
     virtual void putLog(
-        int type,
-        const char* system,
-        int level,
-        const char* message);
+        int type, const char* system, int level, const char* message);
 
     virtual void initialize();
+
+    virtual bool authenticate(const char* user, const char* pass);
 
 private:
 
     // This implementation maintains a memory-resident repository (rather than
-    // saving it on disk).
+    // saving it to disk).
     Array<Uint8> _repository;
 };
 

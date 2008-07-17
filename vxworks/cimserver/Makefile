@@ -57,15 +57,11 @@ SOURCES = \
 # Note that GoodbyeProvider and HelloProvider are simple example 
 # providers
 
-XLIBRARIES += \
-    cimplepegadap \
-    cimplepegutils \
-    cimple \
-    EmployeeProvider
-
 LIBRARIES += \
     pegcimserver \
     pegserver \
+    pegslp \
+    pegslp_client \
     pegservice \
     peguser \
     NamespaceProvider \
@@ -93,6 +89,19 @@ LIBRARIES += \
     pegrepository \
     pegconfig \
     pegcommon
+
+#INCLUDE_CIMPLE_PROVIDERS=1
+
+ifeq ($(INCLUDE_CIMPLE_PROVIDERS),1)
+  LIBRARIES += \
+    cimplepegadap \
+    cimplepegutils \
+    cimple \
+    EmployeeProvider
+  LOCAL_DEFINES += -DINCLUDE_CIMPLE_PROVIDERS
+endif
+
+LOCAL_CLEAN_TARGET=local_clean
 
 ## Removing the provider registration capability removes the following
 ##    ProviderRegistrationProvider \
@@ -139,4 +148,5 @@ certs:
 	@ echo "Created file.pem"
 	@ echo "Created server.pem"
 
-#FILES_TO_CLEAN = file.pem server.pem
+local_clean:
+	rm -f  file.pem server.pem

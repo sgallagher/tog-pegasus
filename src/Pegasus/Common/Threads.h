@@ -155,7 +155,7 @@ class PEGASUS_COMMON_LINKAGE Threads
 {
 public:
 
-    enum Type { DETACHED, JOINABLE };
+    enum Type { THREADS_DETACHED, THREADS_JOINABLE };
 
     static int create(
         ThreadType& thread,

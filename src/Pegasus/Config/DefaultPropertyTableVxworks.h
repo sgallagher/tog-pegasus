@@ -43,7 +43,7 @@
     {"daemon", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"install", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"remove", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"slp", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableAuthentication", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableNamespaceAuthorization", "false", IS_STATIC, 0, 0, IS_VISIBLE},

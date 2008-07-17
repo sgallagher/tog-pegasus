@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 /*****************************************************************************
  *  Description:
  *
@@ -70,10 +72,10 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <pthread.h>
-#ifndef PEGASUS_OS_ZOS
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 # include <semaphore.h>
 #endif
-#ifdef PEGASUS_OS_ZOS
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 # include <netdb.h>
 # include <strings.h>
 #endif
@@ -83,11 +85,28 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <errno.h>
-#include <Pegasus/Common/PegasusAssert.h>
-#include <memory.h>
+#include <assert.h>
+
+#ifndef PEGASUS_OS_VXWORKS
+# include <memory.h>
+#endif
+
+#ifdef PEGASUS_OS_VXWORKS
+# include <netdb.h>
+# include <sockLib.h>
+# include <hostLib.h>
+# include <ioLib.h>
+# include <selectLib.h>
+# include <strings.h>
+#endif
+
+#ifndef PEGASUS_OS_VXWORKS
+#endif
+
 #include <string.h>
 #include <ctype.h>
 #include <net/if.h>
+
 typedef unsigned char uint8;
 typedef uint8 byte;
 typedef short int16;
@@ -96,7 +115,9 @@ typedef int int32;
 typedef unsigned int uint32;
 typedef long long int64;
 typedef unsigned long long uint64;
+#if !defined(PEGASUS_OS_VXWORKS)
 typedef uint32 BOOL;
+#endif
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -107,11 +128,13 @@ extern "C" {
 # include "lslp-hpux.h"
 #endif
 
+void _lslp_term(int sig) ;
 void  num_to_ascii(uint32 val, char *buf, int32 radix, BOOL is_neg);
+void  hug_num_to_ascii(uint64 val, char *buf, int32 radix, BOOL is_neg);
 
 typedef int SOCKETD;
 
-#ifdef PEGASUS_OS_ZOS
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 # define _LSLP_SLEEP(m) \
   { \
       if (m) \
@@ -142,18 +165,34 @@ typedef int SOCKETD;
 
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1
+#define SD_BOTH SHUT_RDWR
+
+#define FAR
+
+#define LSLP_SEM_T sem_t
+#define LSLP_THREAD_T pthread_t
 
 /** void *(*start)(void *), ustacksize, void *arg  **/
 
-#ifndef PEGASUS_OS_ZOS
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 # define _LSLP_STRTOK(n, d, s) strtok_r((n), (d), (s))
 #else
 # define _LSLP_STRTOK(n, d, s) strtok((n), (d) )
 #endif
 
+
+#ifdef SOCKADDR_IN
+# undef SOCKADDR_IN
+#endif
+
+#ifdef SOCKADDR
+# undef SOCKADDR
+#endif
+
 #define SOCKADDR_IN struct sockaddr_in
 #define SOCKADDR struct sockaddr
 #define SOCKET int
+
 
 #ifndef TRUE
 # define TRUE 1
@@ -162,8 +201,22 @@ typedef int SOCKETD;
 # define FALSE 0
 #endif
 
+#define _ultoa(v, b, r) num_to_ascii((uint32)(v), (b), (r), FALSE)
 #define _itoa(v, b, r) num_to_ascii((uint32)(v), (b), (r), (((r) == 10) \
     && ((int32)(v) < 0)))
+#define _ltoa(v, b, r) num_to_ascii((uint32)(v), (b), (r), (((r) == 10) \
+    && ((int32)(v) < 0)))
+#define _ul64toa(v, b, r) huge_num_to_ascii((uint64)(v), (b), (r), FALSE)
+#define _i64toa(v, b, r) huge_num_to_ascii((uint64)(v), (b), (r), (((r) == 10)\
+    && ((int64)(v) < 0)))
+
+
+#define LSLP_HEXDUMP(c) ((((c) > 31) && ((c) < 128)) ? (c) : '.')
+#define LSLP_MSG_STRINGS 4
+#define LSLP_STRINGS_HEXDUMP 1
+#define LSLP_STRINGS_WORKDUMP 2
+#define LSLP_STRINGS_NADUMP 3
+
 
 #define _LSLP_CLOSESOCKET close
 #ifdef PEGASUS_OS_ZOS
@@ -172,24 +225,32 @@ typedef int SOCKETD;
 #else
 # define _LSLP_SOCKET(a, b, c) socket((int)(a), (int)(b), (int)(c))
 #endif
-#define _LSLP_BIND(a, b, c) bind((int)(a), (const struct sockaddr *)(b),\
+#define _LSLP_BIND(a, b, c) bind((int)(a), (struct sockaddr *)(b),\
     (socklen_t)(c))
 #ifndef _LSLP_SENDTO
 # define _LSLP_SENDTO(a, b, c, d, e, f) \
-    sendto((int)(a), (const void *)(b), (size_t)(c), (int)(d), \
-    (const struct sockaddr *)(e), (socklen_t)(f))
+    sendto((int)(a), (char*)(b), (size_t)(c), (int)(d), \
+    (struct sockaddr *)(e), (socklen_t)(f))
 #endif
+
 #ifndef _LSLP_RECV_FROM
-# define _LSLP_RECV_FROM(a, b, c, d, e, f) \
-    recvfrom((int)(a), (void *)(b), (size_t)(c), (int)(d), \
-    (struct sockaddr *)(e), (socklen_t *)(f))
+# if defined(PEGASUS_OS_VXWORKS)
+#  define _LSLP_RECV_FROM(a,b,c,d,e,f) \
+    recvfrom(a, b, c, d, (struct sockaddr*)e, f)
+# else
+#  define _LSLP_RECV_FROM(a, b, c, d, e, f) \
+    recvfrom((int)(a), (char*)(b), (size_t)(c), (int)(d), \
+     (struct sockaddr *)(e), (socklen_t *)(f))
+# endif
 #endif
+
+#define _LSLP_GETHOSTBYNAME(a) gethostbyname((const char *)(a))
 #ifndef _LSLP_SETSOCKOPT
 # define _LSLP_SETSOCKOPT(a, b, c, d, e) \
-    setsockopt((int)(a), (int)(b), (int)(c), (const void *)(d), (socklen_t)(e))
+    setsockopt((int)(a), (int)(b), (int)(c), (char*)(d), (socklen_t)(e))
 #endif
 #define _LSLP_SET_TTL(s, t)  setsockopt((s), IPPROTO_IP, IP_MULTICAST_TTL, \
-    (const char *)&(t), sizeof((t)))
+    (char *)&(t), sizeof((t)))
 
 #define LSLP_FD_SET fd_set
 
@@ -205,6 +266,7 @@ typedef int SOCKETD;
 /* ascii and char tests and conversions */
 
 #define _LSLP_ISASCII(a) isascii(a)
+
 
 #ifdef __cplusplus
 }

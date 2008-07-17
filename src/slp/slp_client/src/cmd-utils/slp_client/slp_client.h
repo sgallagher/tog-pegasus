@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//=============================================================================
 /*****************************************************************************
  *  Description:
  *
@@ -62,7 +64,6 @@
 #define SLP_CLIENT_INC
 
 #include <Pegasus/Common/Config.h>
-#include "slp_utils.h"
 
 #ifndef NUCLEUS
 #include "lslp-common-defs.h"
@@ -79,8 +80,6 @@
 #define SA_SCOPE "DEFAULT"
 #define SA_SCOPELEN 7
 
-#define SERVICE_WBEM "service:wbem"
-
 #define TYPE_UNKKNOWN 0
 #define TYPE_DA_LIST 1
 #define TYPE_RPLY_LIST 2
@@ -88,27 +87,9 @@
 #undef LSLP_WAIT_OK
 #define LSLP_WAIT_OK 0
 
-// IPv6 multicast groups
-#ifdef PEGASUS_ENABLE_IPV6
-
-// SVRLOC multicast groups for LINK, ADMIN, SITE and ORGANIZATION local
-// scopes. These groups are used to receive Service-Type and Attribute
-// Request messages.
-
-#define SLP_MC_LINK_SVRLOC "FF02::116"
-#define SLP_MC_ADMIN_SVRLOC "FF04::116"
-#define SLP_MC_SITE_SVRLOC "FF05::116"
-#define SLP_MC_ORG_SVRLOC "FF08::116"
-
-// SVRLOC-DA multicast groups for LINK, ADMIN, SITE and ORGANIZATION  local
-//  scopes. These groups are used to receive DA advertisements.
-
-#define SLP_MC_LINK_SVRLOC_DA "FF02::123"
-#define SLP_MC_ADMIN_SVRLOC_DA "FF04::123"
-#define SLP_MC_SITE_SVRLOC_DA "FF05::123"
-#define SLP_MC_ORG_SVRLOC "FF08::116"
-
-#endif
+// Define this so that the attr.l lexer will not send spurious newlines to
+// standard output.
+#define ECHO /* empty */
 
 #define slp_safe_free(a)  if(a != NULL) {free(a);}
 
@@ -582,11 +563,7 @@ extern "C"
         char *spi;
         char auth_blocks;
         char *auth;
-#ifdef PEGASUS_ENABLE_IPV6
-        char remote[PEGASUS_INET6_ADDRSTR_LEN];
-#else
-        char remote[PEGASUS_INET_ADDRSTR_LEN];
-#endif
+        char remote[16];
     };
 
     struct rply_list
@@ -600,11 +577,7 @@ extern "C"
         char *url;
         char auth_blocks;
         char *auth;
-#ifdef PEGASUS_ENABLE_IPV6
-        char remote[PEGASUS_INET6_ADDRSTR_LEN];
-#else
-        char remote[PEGASUS_INET_ADDRSTR_LEN];
-#endif
+        char remote[16];
     };
 
     struct reg_list
@@ -631,19 +604,6 @@ extern "C"
         char *auth_blocks;
     };
 
-    /* Represents Interface address either IPv4 or IPv6 */
-    struct slp_if_addr
-    {
-        uint16 af; // Address family
-        union
-        {
-            struct in_addr ip4_addr;
-#ifdef PEGASUS_ENABLE_IPV6
-            struct in6_addr ip6_addr;
-#endif
-        };
-    };
-
     struct slp_client
     {
         uint16 _pr_buf_len;
@@ -651,30 +611,27 @@ extern "C"
         char _version;
         uint16 _xid;
         uint16 _target_port;
-
-        struct slp_if_addr _target_addr;
-        struct slp_if_addr _local_addr;
-        struct slp_if_addr *_local_addr_list[2];
-
-        BOOL _ip4_stack_active;
-        BOOL _ip6_stack_active;
-        BOOL _local_addr_any;
-        BOOL _target_addr_any;
-
+        uint32 _target_addr;
+        uint32 _local_addr;
+        uint32 *_local_addr_list;
         uint32 _msg_counts[12];
         lslpSPIList *_spi;
         lslpScopeList *_scopes;
+/*     char _pr_buf[LSLP_MTU]; */
+/*     char _msg_buf[LSLP_MTU]; */
+/*     char _rcv_buf[LSLP_MTU]; */
+/*     char _scratch[LSLP_MTU]; */
+/*     char _err_buf[255]; */
 
         char* _pr_buf;
         char* _msg_buf;
         char* _rcv_buf;
         char* _scratch;
         char* _err_buf;
-        char* _srv_type;
 
         BOOL _use_das;
         uint16 _da_target_port;
-        struct slp_if_addr _da_target_addr;
+        uint32 _da_target_addr;
 
         /* add field and record separators for shell scripting */
         BOOL _use_separators;
@@ -687,21 +644,22 @@ extern "C"
         int _ttl;
         int  _convergence;
         void *_crypto_context;
-
-        SOCKETD _rcv_sock[2];
-
+        SOCKETD _rcv_sock;    //jeb
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
         int _winsock_count ;
         WSADATA _wsa_data;
 #endif
         struct da_list das;
         lslpMsg replies;
-        lslpSrvRegHead *regs;
-
-        void (*slp_open_listen_socks)(struct slp_client *client);
+        lslpSrvRegHead regs;
         lslpMsg *(*get_response) (struct slp_client *, lslpMsg *);
         int (*find_das)(
             struct slp_client *,
+            const char *,
+            const char *);
+        void (*discovery_cycle) (
+            struct slp_client *,
+            const char *,
             const char *,
             const char *);
         void (*converge_srv_req)(
@@ -714,7 +672,7 @@ extern "C"
             const char *,
             const char *,
             const char *,
-            SOCKADDR *);
+            SOCKADDR_IN *);
         void (*local_srv_req)(
             struct slp_client *,
             const char *,
@@ -739,7 +697,7 @@ extern "C"
             const char *,
             const char *,
             const char *,
-            SOCKADDR *);
+            SOCKADDR_IN *);
 
         void (*local_attr_req)(
             struct slp_client *,
@@ -754,7 +712,7 @@ extern "C"
             const char *,
             BOOL);
 
-        void (*decode_attr_rply)( struct slp_client * );
+        void (*decode_attr_rply)( struct slp_client *, SOCKADDR_IN * );
         /** <<< Sat Jul 24 15:10:07 2004 mdd >>>  end **/
 
         BOOL (*srv_reg)(
@@ -795,17 +753,17 @@ extern "C"
             const char *,
             const char *);
 
-        void (*decode_msg)(struct slp_client *client, SOCKADDR *remote);
+        void (*decode_msg)(struct slp_client *client, SOCKADDR_IN *remote);
 
-        void (*decode_srvreq)(struct slp_client *, SOCKADDR *);
+        void (*decode_srvreq)(struct slp_client *, SOCKADDR_IN *);
 
-        void (*decode_srvrply)(struct slp_client *);
+        void (*decode_srvrply)(struct slp_client *, SOCKADDR_IN *);
 
-        void (*decode_daadvert)( struct slp_client *, SOCKADDR *);
+        void (*decode_daadvert)( struct slp_client *, SOCKADDR_IN *);
 
-        void (*decode_attrreq)(struct slp_client *, SOCKADDR *);
+        void (*decode_attrreq)(struct slp_client *, SOCKADDR_IN *);
 
-        BOOL (*send_rcv_udp)(struct slp_client *) ;
+        BOOL (*send_rcv_udp)(struct slp_client *, BOOL) ;
 
         int32 (*service_listener_wait)(
             struct slp_client *,
@@ -814,7 +772,8 @@ extern "C"
             BOOL,
             lslpMsg *);
 
-        BOOL (*slp_previous_responder)(struct slp_client *, char *, int);
+        BOOL (*slp_previous_responder)(struct slp_client *, char *);
+
     };
 
 
@@ -826,14 +785,51 @@ extern "C"
     struct da_list *da_node_exists(struct da_list *head, const void *key);
     void free_da_list_members(struct da_list *da);
     void free_da_list_node(struct da_list *da);
+    void free_da_list(struct da_list *list);
+    struct rply_list *alloc_rply_list(BOOL head);
+    struct rply_list *rpl_node_exists(struct rply_list *head, const void *key);
+    void free_rply_list_members(struct rply_list *rply);
+    void free_rply_list_node(struct rply_list *rply);
+    void free_rply_list(struct rply_list *list);
+    struct reg_list *alloc_reg_list(BOOL head);
+    struct reg_list *reg_node_exists(struct reg_list *head, const void *key);
+    void free_reg_list_members(struct reg_list *reg);
+    void free_reg_list_node(struct reg_list *reg);
+    void free_reg_list(struct reg_list *list);
+    struct url_entry *alloc_url_entry(BOOL head);
+    struct url_entry *url_node_exists(struct url_entry *head, const void *key);
+    void free_url_entry_members(struct url_entry *url);
+    void free_url_node(struct url_entry *node);
+    void free_url_list(struct url_entry *list);
+    char *slp_get_host_name( char *buf, int buf_size);
 
-    void slp_get_local_interfaces(struct slp_client *client);
-    BOOL slp_join_multicast(SOCKETD sock, struct slp_if_addr addr) ;
-    int slp_join_multicast_all(SOCKETD sock, int af);
-    void slp_open_listen_sock(struct slp_client *client);
+#if defined(PEGASUS_OS_TYPE_WINDOWS) || \
+    defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(_NUCLEUS)
+    int gethostbyname_r(
+        const char *name,
+        struct hostent *resultbuf,
+        char *buf,
+        size_t bufsize,
+        struct hostent **result,
+        int *errnop);
+#endif
+
+    char *slp_get_addr_string_from_url(
+        const char *url,
+        char *addr,
+        int addr_len);
+    char *slp_get_host_string_from_url(
+        const char *url,
+        char *host,
+        int host_len);
+    BOOL get_addr_from_url(const char *url, SOCKADDR_IN *addr, char **host);
+    int slp_get_local_interfaces(uint32 **list);
+    BOOL slp_join_multicast(SOCKETD sock, uint32 addr) ;  //jeb
+    int slp_join_multicast_all(SOCKETD sock);              //jeb
+    SOCKETD slp_open_listen_sock( void );                  //jeb
     void make_srv_ack(
         struct slp_client *client,
-        SOCKADDR *remote,
+        SOCKADDR_IN *remote,
         char response,
         int16 code);
     void prepare_pr_buf(struct slp_client *client, const char *address);
@@ -843,13 +839,12 @@ extern "C"
         const char *service_type,
         const char *scopes,
         const char *predicate);
-    /*
-     * Get the responses hold by the client. This also changes the head of
-     * list to head from the client->replies
-     * @param client slp_client for which we will get the responses
-     * @param head store/exchange the head of the list for the replies to head
-     */
     lslpMsg *get_response(struct slp_client *client , lslpMsg *head);
+    void discovery_cycle (
+        struct slp_client *client,
+        const char *type,
+        const char *predicate,
+        const char *scopes) ;
 
     void converge_srv_req(
         struct slp_client *client,
@@ -862,7 +857,7 @@ extern "C"
         const char *type,
         const char *predicate,
         const char *scopes,
-        SOCKADDR *addr );
+        SOCKADDR_IN *addr );
     void local_srv_req(
         struct slp_client *client,
         const char *type,
@@ -890,7 +885,7 @@ extern "C"
         const char *url,
         const char *scopes,
         const char *tags,
-        SOCKADDR *addr);
+        SOCKADDR_IN *addr);
 
     void local_attr_req(
         struct slp_client *client,
@@ -905,16 +900,16 @@ extern "C"
         const char *tags,
         BOOL retry);
 
-    void decode_attr_rply( struct slp_client *client, SOCKADDR *remote);
+    void decode_attr_rply( struct slp_client *client, SOCKADDR_IN *remote);
     /** <<< Sat Jul 24 15:10:07 2004 mdd >>>  end **/
 
-    void decode_srvreg(struct slp_client *client, SOCKADDR *remote);
+    void decode_srvreg(struct slp_client *client, SOCKADDR_IN *remote);
 
-    void decode_msg(struct slp_client *client, SOCKADDR *remote);
-    void decode_srvrply( struct slp_client *client);
-    void decode_attrreq(struct slp_client *client, SOCKADDR *remote);
-    void decode_daadvert(struct slp_client *client, SOCKADDR *remote);
-    void decode_srvreq(struct slp_client *client, SOCKADDR *remote);
+    void decode_msg(struct slp_client *client, SOCKADDR_IN *remote);
+    void decode_srvrply( struct slp_client *client, SOCKADDR_IN *remote);
+    void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote);
+    void decode_daadvert(struct slp_client *client, SOCKADDR_IN *remote);
+    void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote);
 
     BOOL srv_reg(
         struct slp_client *client,
@@ -924,7 +919,20 @@ extern "C"
         const char *scopes,
         int16 lifetime) ;
 
-    BOOL send_rcv_udp(struct slp_client *client);
+    BOOL send_rcv_udp(struct slp_client *client , BOOL retry);
+
+    int32 __service_listener_wait(
+        struct slp_client *client,
+        time_t wait,
+        SOCKETD extra_sock,  //jeb
+        BOOL one_only);
+
+    int32 service_listener_wait(
+        struct slp_client *client,
+        time_t wait,
+        SOCKETD extra_sock,  //jeb
+        BOOL one_only,
+        lslpMsg *);
 
     int32 __service_listener(
         struct slp_client *client,
@@ -959,8 +967,7 @@ extern "C"
         const char *scopes,
         uint16 lifetime);   //jeb int16 to uint16
 
-    BOOL slp_previous_responder(struct slp_client *client, char *pr_list,
-        int af);
+    BOOL slp_previous_responder(struct slp_client *client, char *pr_list);
 
 
 
@@ -1089,8 +1096,7 @@ extern "C"
     struct lslp_srv_rply_out *_lslpProcessSrvReq(
         struct slp_client *client,
         struct lslp_srv_req *msg,
-        int16 errCode,
-        SOCKADDR *remote);
+        int16 errCode);
     /* a is an attribute list, while b is a string representation
        of an ldap filter  */
     BOOL lslp_predicate_match(lslpAttrList *a, char *b);
@@ -1110,11 +1116,6 @@ extern "C"
         const char *p,
         BOOL case_sensitive);
 
-    SLP_STORAGE_DECL BOOL lslp_pattern_match2(
-        const char *s,
-        const char *p,
-        BOOL case_sensitive);
-
     SLP_STORAGE_DECL struct slp_client *create_slp_client(
         const char *target_addr,
         const char *local_interface,
@@ -1122,14 +1123,13 @@ extern "C"
         const char *spi,
         const char *scopes,
         BOOL should_listen,
-        BOOL use_das,
-        const char *srv_type);
+        BOOL use_das);
 
     SLP_STORAGE_DECL void destroy_slp_client(struct slp_client *client);
     SLP_STORAGE_DECL char *encode_opaque(void *buffer, int16 length);
     SLP_STORAGE_DECL void *decode_opaque(char *buffer);
     SLP_STORAGE_DECL lslpMsg *alloc_slp_msg(BOOL head);
-    SLP_STORAGE_DECL void lslpDestroySLPMsg(lslpMsg *msg);
+    SLP_STORAGE_DECL void lslpDestroySLPMsg(lslpMsg *msg, char flag);
     SLP_STORAGE_DECL void lslp_print_srv_rply(lslpMsg *srvrply);
     SLP_STORAGE_DECL void lslp_print_srv_rply_parse(
         lslpMsg *srvrply,

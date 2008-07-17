@@ -113,10 +113,6 @@ endif
 
 SOURCES = cimserver.cpp
 
-ifeq ($(PEGASUS_BUILD_CIMSERVER_LIBRARY),true)
-#    SOURCES += EmbeddedServer.cpp
-endif
-
 #Large Program Support
 #make program able to use maximum of 2GB memory
 ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)

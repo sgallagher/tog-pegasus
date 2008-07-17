@@ -68,6 +68,8 @@ ifeq ($(OS_TYPE),vxworks)
         src/Pegasus/ControlProviders/NamespaceProvider \
         src/Pegasus/ControlProviders/ConfigSettingProvider \
         src/Pegasus/ControlProviders/UserAuthProvider \
+        src/slp/slp_client/src/cmd-utils/slp_client \
+        src/slp/slp_agent \
         src/Pegasus/Server \
         src/Server
 else

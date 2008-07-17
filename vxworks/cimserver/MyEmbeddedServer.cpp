@@ -41,51 +41,39 @@
 #include "root_PG_Internal_namespace.h"
 #include "root_PG_InterOp_namespace.h"
 
+// Uncomment this to register the singleton CIMPLE provider module.
+// #define INCLUDE_CIMPLE_PROVIDERS
+
 PEGASUS_NAMESPACE_BEGIN
 
-// Define entry points for each static provider. 
-#if 0
+#if defined(INCLUDE_CIMPLE_PROVIDERS)
 extern "C" class CIMProvider* PegasusCreateProvider(const String&);
-
-extern "C" class CIMProvider* PegasusCreateProviderWrapper(const String& arg)
-{
-    fprintf(stderr, "Called PegasusCreateProviderWrapper(%s)\n",
-        (const char*)arg.getCString());
-
-    class CIMProvider* prov = PegasusCreateProvider(arg);
-
-    if (!prov)
-    {
-        fprintf(stderr, "PegasusCreateProviderWrapper(): null pointer\n");
-    }
-    else if (!dynamic_cast<CIMProvider*>(prov))
-    {
-        fprintf(stderr, "PegasusCreateProviderWrapper() dynamic cast failed\n");
-    }
-    else 
-    {
-        fprintf(stderr, "PegasusCreateProviderWrapper(): okay\n");
-    }
-
-    return prov;
-}
 #endif
+
+extern "C" class CIMProvider* PegasusCreateProviderMain(
+    const String& providerName)
+{
+    CString cstr(providerName.getCString());
+
+#if defined(INCLUDE_CIMPLE_PROVIDERS)
+    return PegasusCreateProvider(providerName);
+#else
+    return 0;
+#endif
+
+}
 
 MyEmbeddedServer::MyEmbeddedServer()
 {
-    printf("MyEmbeddedServer::MyEmbeddedServer()\n");
 }
 
 MyEmbeddedServer::~MyEmbeddedServer()
 {
-    printf("MyEmbeddedServer::~MyEmbeddedServer()\n");
 }
 
 void MyEmbeddedServer::loadRepository(
     Array<Uint8>& data)
 {
-    printf("MyEmbeddedServer::loadRepository()\n");
-
     // This function is expected to acquire data from  a store (whether
     // memory-resident or persistent). This example maintains a repository
     // in memory.
@@ -95,8 +83,6 @@ void MyEmbeddedServer::loadRepository(
 void MyEmbeddedServer::saveRepository(
     const Array<Uint8>& data)
 {
-    printf("MyEmbeddedServer::saveRepository()\n");
-
     // This function is expected to save the dynamic elements of the memory
     // resident repository. It can save them in memory or on a persitent
     // device. This example saves them in memory.
@@ -112,17 +98,11 @@ void MyEmbeddedServer::putLog(
     // This function is responsible for adding a record to the log. This
     // implementation simply prints the log record to standard output.
 
-    printf("MyEmbeddedServer::putLog():\n");
-    printf("    type=%d\n", type);
-    printf("    system=%s\n", system);
-    printf("    level=%d\n", level);
-    printf("    message=%s\n", message);
+    printf("LOG[%d:%s:%d:%s]\n", type, system, level, message);
 }
 
 void MyEmbeddedServer::initialize()
 {
-    printf("MyEmbeddedServer::initialize()\n");
-
     addNameSpace(&root_PG_InterOp_namespace);
     addNameSpace(&root_cimv2_namespace);
     addNameSpace(&root_PG_Internal_namespace);
@@ -132,16 +112,17 @@ void MyEmbeddedServer::initialize()
     Array<CIMNamespaceName> nameSpaces;
     nameSpaces.append("root/cimv2");
 
-#if 0
     //
     // Register the PegasusCreateProvider entry point (there can be only
     // one of these).
     //
 
-    if (!registerPegasusCreateProviderEntryPoint(PegasusCreateProviderWrapper))
+    if (!registerPegasusCreateProviderEntryPoint(PegasusCreateProviderMain))
     {
-        printf("***** addSymbol() failed: Employee\n");
+        fprintf(stderr, "***** addSymbol() failed: Employee\n");
     }
+
+#if defined(INCLUDE_CIMPLE_PROVIDERS)
 
     //
     // Register "Employee" provider:
@@ -150,21 +131,28 @@ void MyEmbeddedServer::initialize()
     if (!registerProvider(
         nameSpaces,
         "Employee", /* classname */
-        MyEmbeddedServer::PEGASUS_PROVIDER_INTERFACE,
         MyEmbeddedServer::INSTANCE_PROVIDER_TYPE))
     {
-        printf("***** registerProvider() failed: Employee\n");
+        fprintf(stderr, "***** registerProvider() failed: Employee\n");
     }
 
     if (!registerProvider(
         nameSpaces,
         "EmployeeLink", /* classname */
-        MyEmbeddedServer::PEGASUS_PROVIDER_INTERFACE,
         MyEmbeddedServer::INSTANCE_PROVIDER_TYPE))
     {
-        printf("***** registerProvider() failed: Employee\n");
+        fprintf(stderr, "***** registerProvider() failed: Employee\n");
     }
-#endif
+
+#endif /* defined(INCLUDE_CIMPLE_PROVIDERS) */
+}
+
+bool MyEmbeddedServer::authenticate(const char* user, const char* pass)
+{
+    if (strcmp(user, "guest") == 0 && strcmp(pass, "changeme") == 0)
+        return true;
+    else
+        return false;
 }
 
 PEGASUS_NAMESPACE_END

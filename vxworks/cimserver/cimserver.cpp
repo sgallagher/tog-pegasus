@@ -41,7 +41,11 @@
 // specifically for VxWorks and the kernel mode.
 
 #include <cstdio>
+#include <routeLib.h>
+#include <netShow.h>
 #include "MyEmbeddedServer.h"
+#include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/System.h>
 
 PEGASUS_USING_PEGASUS;
 
@@ -51,36 +55,16 @@ PEGASUS_USING_PEGASUS;
 // mode so that the symbol cimserver becomse the explicit start point for the 
 // cimserver.  If this were a VxWorks RTP, this would be main(...)
 
-PEGASUS_NAMESPACE_BEGIN
-
-extern bool (*authenticateUserCallback)(const char* user, const char* pass);
-
-static bool _authenticateUser(const char* user, const char* pass)
-{
-    printf("_authenticateUser[%s:%s]\n", user, pass);
-
-    if (strcmp(user, "guest") == 0 && strcmp(pass, "changeme") == 0)
-    {
-        printf("_authenticateUser(): okay\n");
-        return true;
-    }
-    else
-    {
-        printf("_authenticateUser(): failed\n");
-        return false;
-    }
-}
-
-PEGASUS_NAMESPACE_END
-
 extern "C" int cimserver(int argc, char** argv)
 {
     printf("\n===== CIMSERVER =====\n");
 
-    authenticateUserCallback = _authenticateUser;
-
     MyEmbeddedServer server;
 
+    server.registerSLPService(5988, false);
+#if 0
+    server.registerSLPService(5989, true);
+#endif
     server.run(argc, argv);
 
     return 0;

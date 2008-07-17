@@ -32,13 +32,146 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "EmbeddedServer.h"
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Server/ProviderTable.h>
 #include <Pegasus/Repository/MemoryResidentRepository.h>
+#include <Pegasus/Common/PegasusVersion.h>
+#include <slp/slp_agent/peg_slp_agent.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
 
 #define STATIC_MODULE "Static_Module"
 
 PEGASUS_NAMESPACE_BEGIN
+
+//==============================================================================
+//
+// Authentication
+//
+//==============================================================================
+
+extern "C" int (*pegasusAuthCallback)(
+    const char* user, const char* pass, void* data);
+
+extern "C" void* pegasusAuthData;
+
+static int _authCallback(const char* user, const char* pass, void* data)
+{
+    EmbeddedServer* es = (EmbeddedServer*)data;
+
+    if (es)
+        return es->authenticate(user, pass) ? 0 : -1;
+    else
+        return -1;
+}
+
+//==============================================================================
+//
+// SLP
+//
+//==============================================================================
+
+static slp_service_agent* _slpAgent = 0;
+
+#define SLP_SERVICE_HI_DESCRIPTION \
+    PEGASUS_CIMOM_GENERIC_NAME " " \
+    PEGASUS_PRODUCT_NAME " " \
+    "Version " \
+    PEGASUS_PRODUCT_VERSION " " \
+    "Development"
+
+#define SLP_NAMESPACE "root/cimv2,root/PG_Interop,root/PG_Internal"
+
+#define SLP_REGISTERED_PROFILES_SUPPORTED "none"
+
+// %s : http://192.168.1.190:5988
+const char ATTRS[] =
+    "(template-url-syntax=%s),\n"
+    "(service-id=PG:1215719580200-127-0-0-1),\n"
+    "(service-hi-name=Pegasus),\n"
+    "(service-hi-description=" SLP_SERVICE_HI_DESCRIPTION "),\n"
+    "(template-type=wbem),\n"
+    "(template-version=1.0),\n"
+    "(template-description=This template describes the attributes used for "
+      "advertising Pegasus CIM Servers.),\n"
+    "(InteropSchemaNamespace=root/PG_InterOp),\n"
+    "(FunctionalProfilesSupported=Basic Read,Basic Write,Schema Manipulation,"
+      "Instance Manipulation,Association Traversal,Qualifier Declaration,"
+      "Indications),\n"
+    "(MultipleOperationsSupported=FALSE),\n"
+    "(AuthenticationMechanismsSupported=Basic),\n"
+    "(AuthenticationMechanismDescriptions=Basic),\n"
+    "(CommunicationMechanism=CIM-XML),\n"
+    "(ProtocolVersion=1.0),\n"
+    "(Namespace=" SLP_NAMESPACE "),\n"
+    "(RegisteredProfilesSupported=" SLP_REGISTERED_PROFILES_SUPPORTED ")\n";
+
+static bool _getIPAddress(char ipaddr[256])
+{
+    int sock;
+
+    if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
+        return false;
+
+    ifconf ifc;
+    char buf[64 * sizeof(ifreq)];
+
+    memset(&ifc, 0, sizeof(ifc));
+    memset(&buf, 0, sizeof(buf));
+    ifc.ifc_buf = buf;
+    ifc.ifc_len = sizeof(buf);
+
+    if (ioctl(sock, SIOCGIFCONF, (int)&ifc) < 0)
+    {
+        close(sock);
+        return false;
+    }
+
+    for (char* p = buf; p < buf + ifc.ifc_len; )
+    {
+        ifreq* ifr = (struct ifreq*)p;
+
+        // Move pointer to next ifreq element.
+
+        size_t len;
+
+        if (sizeof(sockaddr) > ifr->ifr_addr.sa_len)
+            len = sizeof(sockaddr);
+        else
+            len = ifr->ifr_addr.sa_len;
+
+        p += sizeof(ifr->ifr_name) + len;
+
+        // Skip non-internet addresses:
+
+        if (ifr->ifr_addr.sa_family != AF_INET)
+            continue;
+
+
+        // Append address to array and terminate with INADDR_ANY.
+
+        sockaddr_in* addr = ((sockaddr_in*)&ifr->ifr_addr);
+
+        // Skip loopback addresses:
+
+        if (addr->sin_addr.s_addr == inet_addr("127.0.0.1"))
+            continue;
+
+        if (ifr->ifr_name[0] == 'l' && ifr->ifr_name[1] == 'o')
+            continue;
+
+        // We found one.
+
+        strcpy(ipaddr, inet_ntoa(addr->sin_addr));
+        return true;
+    }
+
+    close(sock);
+
+    // Not found!
+    return false;
+}
 
 //==============================================================================
 //
@@ -155,6 +288,9 @@ EmbeddedServer::EmbeddedServer() : _createdStaticProviderModule(false)
 
     lookupSymbolCallback = _lookupSymbolCallback;
     lookupSymbolData = rep;
+
+    pegasusAuthCallback = _authCallback;
+    pegasusAuthData = this;
 }
 
 EmbeddedServer::~EmbeddedServer()
@@ -164,30 +300,6 @@ EmbeddedServer::~EmbeddedServer()
 void EmbeddedServer::initialize()
 {
 }
-
-#if 0
-Boolean EmbeddedServer::addProvider(
-    const String& moduleName,
-    const String& providerName,
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className,
-    CIMProvider* (*createProvider)(const String& providerName))
-{
-    if (providerTableSize == MAX_PROVIDER_TABLE_SIZE)
-        return false;
-
-    ProviderTableEntry entry;
-    entry.moduleName = strdup(moduleName.getCString());
-    entry.providerName = strdup(providerName.getCString());
-    entry.nameSpace = strdup(nameSpace.getString().getCString());
-    entry.className = strdup(className.getString().getCString());
-    entry.createProvider = createProvider;
-
-    providerTable[providerTableSize++] = entry;
-
-    return true;
-}
-#endif
 
 Boolean EmbeddedServer::addNameSpace(const SchemaNameSpace* nameSpace)
 {
@@ -285,8 +397,7 @@ static Boolean _providerInstanceExists(
 
 Boolean EmbeddedServer::_create_PG_ProviderModule(
     const String& moduleName,
-    const String& location,
-    ProviderInterface providerInterface)
+    const String& location)
 {
     EmbeddedServerRep* rep = (EmbeddedServerRep*)_opaque;
 
@@ -313,26 +424,9 @@ Boolean EmbeddedServer::_create_PG_ProviderModule(
     ci.addProperty(CIMProperty("Name", moduleName));
     ci.addProperty(CIMProperty("Vendor", String("OpenPegasus")));
 
-    String version;
-    String interfaceType;
-    String interfaceVersion;
-
-    if (providerInterface == PEGASUS_PROVIDER_INTERFACE)
-    {
-        version = "2.6.0";
-        interfaceType = "C++Default";
-        interfaceVersion = "2.6.0";
-    }
-    else
-    {
-        version = "2.0.0";
-        interfaceType = "CMPI";
-        interfaceVersion = "2.0.0";
-    }
-        
-    ci.addProperty(CIMProperty("Version", version));
-    ci.addProperty(CIMProperty("InterfaceType", interfaceType));
-    ci.addProperty(CIMProperty("InterfaceVersion", interfaceVersion));
+    ci.addProperty(CIMProperty("Version", "2.6.0"));
+    ci.addProperty(CIMProperty("InterfaceType", "C++Default"));
+    ci.addProperty(CIMProperty("InterfaceVersion", "2.6.0"));
     ci.addProperty(CIMProperty("Location", location));
 
     try
@@ -548,15 +642,13 @@ Boolean EmbeddedServer::_create_PG_ProviderCapabilities(
 Boolean EmbeddedServer::registerProvider(
     const Array<CIMNamespaceName>& nameSpaces,
     const CIMName& className,
-    ProviderInterface providerInterface,
     Uint32 providerTypes)
 {
     // Register PG_ProviderModule:
 
     if (!_createdStaticProviderModule)
     {
-        if (!_create_PG_ProviderModule(
-            STATIC_MODULE, STATIC_MODULE, providerInterface))
+        if (!_create_PG_ProviderModule(STATIC_MODULE, STATIC_MODULE))
         {
             return false;
         }
@@ -624,58 +716,61 @@ Boolean EmbeddedServer::registerPegasusCreateProviderEntryPoint(
     return registerPegasusProviderEntryPoint(STATIC_MODULE, entryPoint);
 }
 
-#ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-
-Boolean EmbeddedServer::registerCMPIProviderEntryPoint(
-    const String& location,
-    const String& providerName,
-    CreateInstanceMIEntryPoint entryPoint)
+bool EmbeddedServer::authenticate(const char* user, const char* pass)
 {
-    EmbeddedServerRep* rep = (EmbeddedServerRep*)_opaque;
-    String name = providerName + "_Create_InstanceMI";
-    return _addSymbol(rep, location, name, (void*)entryPoint);
+    return true;
 }
 
-Boolean EmbeddedServer::registerCMPIProviderEntryPoint(
-    const String& location,
-    const String& providerName,
-    CreateAssociationMIEntryPoint entryPoint)
+bool EmbeddedServer::registerSLPService(unsigned short port, bool https)
 {
-    EmbeddedServerRep* rep = (EmbeddedServerRep*)_opaque;
-    String name = providerName + "_Create_AssociationMI";
-    return _addSymbol(rep, location, name, (void*)entryPoint);
-}
+    char ipaddr[256];
+    _slpAgent = new slp_service_agent;
 
-Boolean EmbeddedServer::registerCMPIProviderEntryPoint(
-    const String& location,
-    const String& providerName,
-    CreateMethodMIEntryPoint entryPoint)
-{
-    EmbeddedServerRep* rep = (EmbeddedServerRep*)_opaque;
-    String name = providerName + "_Create_MethodMI";
-    return _addSymbol(rep, location, name, (void*)entryPoint);
-}
+    if (!_getIPAddress(ipaddr))
+        strcpy(ipaddr, "0.0.0.0");
 
-Boolean EmbeddedServer::registerCMPIProviderEntryPoint(
-    const String& location,
-    const String& providerName,
-    CreateIndicationMIEntryPoint entryPoint)
-{
-    EmbeddedServerRep* rep = (EmbeddedServerRep*)_opaque;
-    String name = providerName + "_Create_IndicationMI";
-    return _addSymbol(rep, location, name, (void*)entryPoint);
-}
+    try
+    {
+        _slpAgent->start_listener();
+    }
+    catch (Exception& e)
+    {
+        String msg = e.getMessage();
+        CString cstr(msg.getCString());
+        return false;
+    }
+    catch (...)
+    {
+        return false;
+    }
 
-Boolean EmbeddedServer::registerCMPIProviderEntryPoint(
-    const String& location,
-    const String& providerName,
-    CreatePropertyMIEntryPoint entryPoint)
-{
-    EmbeddedServerRep* rep = (EmbeddedServerRep*)_opaque;
-    String name = providerName + "_Create_PropertyMI";
-    return _addSymbol(rep, location, name, (void*)entryPoint);
-}
+    // URL (e.g., http://192.168.1.190:5988)
+    char url[256];
+    sprintf(url, "%s://%s:%u", (https ? "https" : "http"), ipaddr, port);
 
-#endif /* PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER */
+    // Service type (e.g., "service:wbem:http")
+    char type[1024];
+    sprintf(type, "service:wbem:%s", (https ? "https" : "http"));
+
+    // Service name (e.g., service:wbem:http://192.168.1.190:5988)
+    char svc[1024];
+    sprintf(svc, "service:wbem:%s", url);
+
+    // Attributes:
+    char attrs[sizeof(ATTRS) + 1024];
+    sprintf(attrs, ATTRS, url);
+
+    Uint32 rc = _slpAgent->test_registration(svc, attrs, type, "DEFAULT");
+
+    if (rc != 0)
+        return false;
+
+    Boolean flag = _slpAgent->srv_register(svc, attrs, type, "DEFAULT", 0xFFFF);
+
+    if (!flag)
+        return false;
+
+    return true;
+}
 
 PEGASUS_NAMESPACE_END

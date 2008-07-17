@@ -1568,7 +1568,7 @@ _PG_User_modifyPassword =
     /* flags */
     SCHEMA_FLAG_METHOD,
     /* name */
-    "PG_User",
+    "modifyPassword",
     /* qualifiers */
     _PG_User_modifyPassword_qualifiers,
     /* type */
@@ -1687,7 +1687,7 @@ _PG_ShutdownService_shutdown =
     /* flags */
     SCHEMA_FLAG_METHOD|SCHEMA_FLAG_STATIC,
     /* name */
-    "PG_ShutdownService",
+    "shutdown",
     /* qualifiers */
     _PG_ShutdownService_shutdown_qualifiers,
     /* type */
@@ -2057,7 +2057,7 @@ _PG_SSLCertificate_addCertificate =
     /* flags */
     SCHEMA_FLAG_METHOD|SCHEMA_FLAG_STATIC,
     /* name */
-    "PG_SSLCertificate",
+    "addCertificate",
     /* qualifiers */
     _PG_SSLCertificate_addCertificate_qualifiers,
     /* type */
@@ -2276,7 +2276,7 @@ _PG_SSLCertificateRevocationList_addCertificateRevocationList =
     /* flags */
     SCHEMA_FLAG_METHOD|SCHEMA_FLAG_STATIC,
     /* name */
-    "PG_SSLCertificateRevocationList",
+    "addCertificateRevocationList",
     /* qualifiers */
     _PG_SSLCertificateRevocationList_addCertificateRevocationList_qualifiers,
     /* type */

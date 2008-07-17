@@ -205,7 +205,9 @@ static char* environ[] = { (char*)0 };
 #define bzero __pegasus_bzero
 #undef NONE
 #undef LOCAL
-#undef OK
+#ifndef PEGASUS_KEEP_OK_MACRO
+# undef OK
+#endif
 #undef READ
 #undef WRITE
 #undef log

@@ -38,42 +38,9 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMName.h>
 
-#ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-# include <Pegasus/Provider/CMPI/cmpimacs.h>
-#endif
-
 PEGASUS_NAMESPACE_BEGIN
 
 typedef class CIMProvider* (*PegasusCreateProviderEntryPoint)(const String&);
-
-#ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-
-typedef CMPIInstanceMI* (*CreateInstanceMIEntryPoint)(
-    const CMPIBroker* broker,
-    const CMPIContext* context,
-    CMPIStatus* status);
-
-typedef CMPIAssociationMI* (*CreateAssociationMIEntryPoint)(
-    const CMPIBroker* broker,
-    const CMPIContext* context,
-    CMPIStatus* status);
-
-typedef CMPIMethodMI* (*CreateMethodMIEntryPoint)(
-    const CMPIBroker* broker,
-    const CMPIContext* context,
-    CMPIStatus* status);
-
-typedef CMPIIndicationMI* (*CreateIndicationMIEntryPoint)(
-    const CMPIBroker* broker,
-    const CMPIContext* context,
-    CMPIStatus* status);
-
-typedef CMPIPropertyMI* (*CreatePropertyMIEntryPoint)(
-    const CMPIBroker* broker,
-    const CMPIContext* context,
-    CMPIStatus* status);
-
-#endif /* PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER */
 
 /** This module defines a class EmbeddedServer that provides functions for
     defining the setup of embedded servers where the providers are statically
@@ -90,14 +57,6 @@ public:
     static const Uint32 INDICATION_PROVIDER_TYPE;
     static const Uint32 METHOD_PROVIDER_TYPE;
     static const Uint32 INSTANCE_QUERY_PROVIDER_TYPE;
-
-    /** Provider interface type used in call to registerProviderModule.
-    */
-    enum ProviderInterface
-    {
-        PEGASUS_PROVIDER_INTERFACE,
-        CMPI_PROVIDER_INTERFACE,
-    };
 
     /** Constructor.
     */
@@ -139,6 +98,12 @@ public:
         int level,
         const char* message);
 
+    /** Authenticate the given user. This implementation returns true (allows
+        any user to access the server). The derived class should override this
+        function.
+    */
+    virtual bool authenticate(const char* user, const char* password);
+
     /** Add a namespace to the meta-repository.
         @param nameSpace pointer to generated namespace to be added.
         @return true if successful.
@@ -152,7 +117,6 @@ public:
     Boolean registerProvider(
         const Array<CIMNamespaceName>& nameSpaces,
         const CIMName& className,
-        ProviderInterface providerInterface,
         Uint32 providerTypes);
 
     /** Register the provider entry point for the given Pegasus provider.
@@ -166,44 +130,9 @@ public:
     Boolean registerPegasusCreateProviderEntryPoint(
         PegasusCreateProviderEntryPoint entryPoint);
 
-#ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-
-    /** Register the provider entry point for the given CMPIE provider.
+    /** Register an SLP service.
     */
-    Boolean registerCMPIProviderEntryPoint(
-        const String& location,
-        const String& providerName,
-        CreateInstanceMIEntryPoint entryPoint);
-
-    /** Register the provider entry point for the given CMPIE provider.
-    */
-    Boolean registerCMPIProviderEntryPoint(
-        const String& location,
-        const String& providerName,
-        CreateAssociationMIEntryPoint entryPoint);
-
-    /** Register the provider entry point for the given CMPIE provider.
-    */
-    Boolean registerCMPIProviderEntryPoint(
-        const String& location,
-        const String& providerName,
-        CreateMethodMIEntryPoint entryPoint);
-
-    /** Register the provider entry point for the given CMPIE provider.
-    */
-    Boolean registerCMPIProviderEntryPoint(
-        const String& location,
-        const String& providerName,
-        CreateIndicationMIEntryPoint entryPoint);
-
-    /** Register the provider entry point for the given CMPIE provider.
-    */
-    Boolean registerCMPIProviderEntryPoint(
-        const String& location,
-        const String& providerName,
-        CreatePropertyMIEntryPoint entryPoint);
-
-#endif /* PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER */
+    bool registerSLPService(unsigned short port, bool https);
 
     /** Run the cimserver. This function returns when the server is shut down.
         @param argc
@@ -211,6 +140,7 @@ public:
         @return false if server generated an exception.
     */
     Boolean run(int argc, char** argv);
+
 
 private:
 
@@ -220,8 +150,7 @@ private:
     // Create PG_ProviderModule instance.
     Boolean _create_PG_ProviderModule(
         const String& moduleName,
-        const String& location,
-        ProviderInterface providerInterface);
+        const String& location);
 
     // Create PG_Provider instance.
     Boolean _create_PG_Provider(

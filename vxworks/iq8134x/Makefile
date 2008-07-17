@@ -3,7 +3,7 @@
 CWD=$(shell pwd)
 ROMFS=$(CWD)/romfs
 
-all: proj
+all: romfs proj
 	(cd proj; make ROMFS_DIR=$(ROMFS) RAM_LOW_ADRS=07200000 RAM_HIGH_ADRS=07600000)
 
 ifndef TOOL
@@ -16,7 +16,7 @@ proj:
 	( cd proj; vxprj create iq8134x $(TOOL) vxsim.wpj )
 
 clean:
-	rm -rf proj
+	rm -rf proj file.pem server.pem romfs
 
 share:
 	cp proj/vxWorks /share/vxWorks
@@ -31,6 +31,3 @@ romfs: certs
 	mkdir -p $(ROMFS)/ssl/certs
 	cp file.pem $(ROMFS)/ssl/certs
 	cp server.pem $(ROMFS)/ssl/certs
-
-clean:
-	rm -rf file.pem server.pem

@@ -60,15 +60,30 @@
 PEGASUS_USING_STD;
 
 
-PEGASUS_NAMESPACE_BEGIN
+//==============================================================================
+//
+// VxWorks authentication callback and data. Should return 0 if authenticaiton
+// successful.
+//
+//==============================================================================
 
 #if defined(PEGASUS_OS_VXWORKS)
 
-// This value of this callback is supplied by the main() program on VxWorks.
-// Returns true if authenticate okay.
-bool (*authenticateUserCallback)(const char* user, const char* pass);
+extern "C"
+{
+    int (*pegasusAuthCallback)(const char* user, const char* pass, void* data);
+    void* pegasusAuthData;
+}
 
 #endif /* defined(PEGASUS_OS_VXWORKS) */
+
+PEGASUS_NAMESPACE_BEGIN
+
+//==============================================================================
+//
+// SecureBasicAuthenticator class implementation
+//
+//==============================================================================
 
 /**
     Constant representing the Basic authentication challenge header.
@@ -191,10 +206,10 @@ ATTN:
         CString user(userName.getCString());
         CString pass(password.getCString());
 
-        if (authenticateUserCallback)
-            return (*authenticateUserCallback)(user, pass);
+        if (pegasusAuthCallback)
+            return (*pegasusAuthCallback)(user, pass, pegasusAuthData) == 0;
         else
-            return false;
+            return true;
     }
 #else /* DEFAULT (!PEGASUS_OS_ZOS) */
 

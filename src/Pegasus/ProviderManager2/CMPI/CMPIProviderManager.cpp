@@ -2731,12 +2731,11 @@ Message * CMPIProviderManager::handleDisableModuleRequest(
 
     PEGASUS_ASSERT(request != 0);
 
+    //Set to false when provider refused to unload due to pending operations.
+    Boolean disableModuleOk = true;
+
     // get provider module name
     Boolean disableProviderOnly = request->disableProviderOnly;
-
-    Array<Uint16> operationalStatus;
-    // Assume success.
-    operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_STOPPED);
 
     //
     // Unload providers
@@ -2761,7 +2760,18 @@ Message * CMPIProviderManager::handleDisableModuleRequest(
         if (!providerManager.isProviderActive(providerName))
         {
             continue;
-        }  
+        }
+ 
+        Boolean unloadOk = providerManager.unloadProvider(
+            physicalName, 
+            _pInstances[i].getProperty(_pInstances[i].findProperty("Name")).
+                getValue ().toString ());
+
+        if (!unloadOk)
+        {
+            disableModuleOk = false;
+            continue;
+        }
         //
         //  Reset the indication provider's count of current
         //  subscriptions since it has been disabled
@@ -2785,11 +2795,17 @@ Message * CMPIProviderManager::handleDisableModuleRequest(
                 }
             }
         }
-        providerManager.unloadProvider(
-            physicalName, 
-            _pInstances[i].getProperty(
-            _pInstances[i].findProperty("Name")
-            ).getValue ().toString ());
+    }
+
+    Array<Uint16> operationalStatus;
+
+    if (disableModuleOk)
+    {
+        operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_STOPPED);
+    }
+    else
+    {
+        operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_OK);
     }
 
     CIMDisableModuleResponseMessage * response =

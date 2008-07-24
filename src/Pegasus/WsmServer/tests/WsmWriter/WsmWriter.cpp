@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//=============================================================================
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -37,22 +39,55 @@
 #include <Pegasus/WsmServer/WsmEndpointReference.h>
 #include <Pegasus/WsmServer/WsmInstance.h>
 #include <Pegasus/WsmServer/WsmSelectorSet.h>
-#include <Pegasus/WsmServer/WsmRequest.h>
-#include <Pegasus/WsmServer/WsmResponse.h>
-#include <Pegasus/WsmServer/SoapResponse.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 static Boolean verbose;
-
 static Boolean _compareInstances(WsmInstance& inst1, WsmInstance& inst2);
-
 static Boolean _compareEPRs(
-    WsmEndpointReference& epr1,
+    WsmEndpointReference& epr1, WsmEndpointReference& epr2);
+
+static Boolean _compareSelectors(WsmSelector& sel1, WsmSelector& sel2)
+{
+    if (sel1.type != sel2.type || sel1.name != sel2.name)
+        return false;
+
+    if (sel1.type == WsmSelector::VALUE)
+        return sel1.value == sel2.value;
+    else
+        return _compareEPRs(sel1.epr, sel2.epr);
+}
+
+static Boolean _compareSelectorSets(WsmSelectorSet* sel1, WsmSelectorSet* sel2)
+{
+    if (sel1 == 0 && sel2 == 0)
+        return true;
+
+    if (sel1 == 0 || sel2 == 0)
+        return false;
+
+    if (sel1->selectors.size() != sel2->selectors.size())
+        return false;
+
+    for (Uint32 i = 0; i < sel1->selectors.size(); i++)
+    {
+        if (!_compareSelectors(sel1->selectors[i], sel2->selectors[i]))
+            return false;
+    }
+
+    return true;
+}
+
+static Boolean _compareEPRs(WsmEndpointReference& epr1, 
     WsmEndpointReference& epr2)
 {
-    return epr1 == epr2;
+    if (epr1.address != epr2.address ||
+        epr1.resourceUri != epr2.resourceUri ||
+        !_compareSelectorSets(epr1.selectorSet, epr2.selectorSet))
+        return false;
+
+    return true;
 }
 
 static Boolean _compareValues(WsmValue& val1, WsmValue& val2)
@@ -104,7 +139,7 @@ static Boolean _compareValues(WsmValue& val1, WsmValue& val2)
                 break;
             }
             default:
-                PEGASUS_TEST_ASSERT(0);
+                PEGASUS_ASSERT(0);
         }
     }
     else
@@ -133,7 +168,7 @@ static Boolean _compareValues(WsmValue& val1, WsmValue& val2)
                 return str1 == str2;
             }
             default:
-                PEGASUS_TEST_ASSERT(0);
+                PEGASUS_ASSERT(0);
         }
     }
 
@@ -185,8 +220,7 @@ static void _checkInstance(WsmInstance& inst, const char* text)
 {
     Buffer out;
     _appendSoapEnvelopeStart(out);
-    WsmWriter::appendInstanceElement(out, WSM_RESOURCEURI_CIMSCHEMAV2, inst,
-        PEGASUS_INSTANCE_NS, false);
+    WsmWriter::appendInstanceElement(out, inst);
     WsmWriter::appendEndTag(
         out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Envelope"));
 
@@ -226,7 +260,7 @@ static void _testInstances(void)
         }
         WsmValue val1(stra);
         inst.addProperty(WsmProperty("property_1", val1));
-
+        
         stra.clear();
         for (int i = 0; i < 10; i++)
         {
@@ -237,7 +271,7 @@ static void _testInstances(void)
         WsmValue val2(stra);
         inst.addProperty(WsmProperty("property_2", val2));
 
-        _checkInstance(inst,
+        _checkInstance(inst, 
             "Instances with string array properties do not compare");
     }
 
@@ -273,12 +307,12 @@ static void _testInstances(void)
             epr.selectorSet->selectors.
                 append(WsmSelector("sel_name", buf));
             epra.append(epr);
-
+            
         }
         WsmValue val(epra);
         inst.addProperty(WsmProperty("property_1", val));
 
-        _checkInstance(inst,
+        _checkInstance(inst, 
             "Instances with EPR array properties do not compare");
     }
 
@@ -303,7 +337,7 @@ static void _testInstances(void)
         epr3.address = "http://www.acme.com_3:5988/wsman";
         epr3.resourceUri = "TestURI_3";
         epr3.selectorSet->selectors.append(WsmSelector("sel_3 name", epr2));
-
+ 
         WsmEndpointReference epr;
         epr.address = "http://www.acme.com:5988/wsman";
         epr.resourceUri = "TestURI";
@@ -312,7 +346,7 @@ static void _testInstances(void)
         WsmValue val(epr);
         inst.addProperty(WsmProperty("property_1", val));
 
-        _checkInstance(inst,
+        _checkInstance(inst, 
             "Instances with recursive EPR properties do not compare");
     }
 
@@ -328,7 +362,7 @@ static void _testInstances(void)
         WsmValue val_3(inst1);
         inst.addProperty(WsmProperty("property_3", val_3));
 
-        _checkInstance(inst,
+        _checkInstance(inst, 
             "Instances with instance properties do not compare");
     }
 
@@ -351,7 +385,7 @@ static void _testInstances(void)
         WsmValue val(insta);
         inst.addProperty(WsmProperty("prop_array", val));
 
-        _checkInstance(inst,
+        _checkInstance(inst, 
             "Instances with instance array properties do not compare");
     }
 
@@ -375,24 +409,24 @@ static void _testInstances(void)
         WsmValue val(inst3);
         inst.addProperty(WsmProperty("property", val));
 
-        _checkInstance(inst,
+        _checkInstance(inst, 
             "Instances with recursive instance properties do not compare");
     }
-}
+} 
 
 static void  _testResponseFormatting(void)
 {
     ContentLanguageList contentLanguage;
     Buffer body, header, out;
-    const char expectedHttpHeader[] =
+    const char expectedHttpHeader[] = 
         "HTTP/1.1 200 OK\r\nContent-Type: application/soap+xml;charset=UTF-8"
         "\r\ncontent-length: 0000000000\r\nSOAPAction: "
-        "http://schemas.xmlsoap.org/ws/2004/09/transfer/GetResponse\r\n\r\n";
+        "http://schemas.xmlsoap.org/ws/2004/09/transfer/Get\r\n\r\n";
 
     // Create FaultTo header
     WsmWriter::appendStartTag(
         header, WsmNamespaces::WS_ADDRESSING, STRLIT("FaultTo"));
-    WsmWriter::appendTagValue(header, WsmNamespaces::WS_ADDRESSING,
+    WsmWriter::appendTagValue(header, WsmNamespaces::WS_ADDRESSING, 
         STRLIT("Address"), "http://www.acme.com:5988/wsman");
     WsmWriter::appendEndTag(
         header, WsmNamespaces::WS_ADDRESSING, STRLIT("FaultTo"));
@@ -401,16 +435,20 @@ static void  _testResponseFormatting(void)
     WsmInstance inst("testClass");
     WsmValue val("value");
     inst.addProperty(WsmProperty("property", val));
-    WsmWriter::appendInstanceElement(body, WSM_RESOURCEURI_CIMSCHEMAV2, inst,
-        PEGASUS_INSTANCE_NS, false);
+    WsmWriter::appendInstanceElement(body, inst);
 
     String messageId = WsmUtils::getMessageId();
-    WxfGetRequest request(messageId, WsmEndpointReference());
-    WxfGetResponse response(inst, &request, contentLanguage);
-    SoapResponse soapResponse(&response);
-    soapResponse.appendHeader(header);
-    soapResponse.appendBodyContent(body);
-    out = soapResponse.getResponseContent();
+    String relatesTo = WsmUtils::getMessageId();
+    Uint32 httpHeaderSize;
+    out = WsmWriter::formatWsmRspMessage(
+        WSM_ACTION_GET,
+        messageId,
+        relatesTo,
+        HTTP_METHOD__POST,
+        contentLanguage,
+        body,
+        header,
+        httpHeaderSize);
 
     char* ptr = (char*) out.getData();
     if (strncmp(ptr, expectedHttpHeader, sizeof(expectedHttpHeader)-1) != 0)
@@ -426,13 +464,12 @@ static void  _testResponseFormatting(void)
 
     XmlEntry entry;
     reader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Envelope");
-
+    
     String wsaMessageId;
     String wsaAction;
     String wsaFrom;
     String wsaReplyTo;
     String wsaFaultTo;
-    String WsaIdentifier;
     WsmEndpointReference epr;
     Uint32 wsmMaxEnvelopeSize = 0;
     AcceptLanguageList wsmLocale;
@@ -441,13 +478,13 @@ static void  _testResponseFormatting(void)
     reader.decodeRequestSoapHeaders(
         wsaMessageId, epr.address, wsaAction, wsaFrom, wsaReplyTo,
         wsaFaultTo, epr.resourceUri, *epr.selectorSet, wsmMaxEnvelopeSize,
-        wsmLocale, wsmRequestEpr, wsmRequestItemCount,WsaIdentifier);
+        wsmLocale, wsmRequestEpr, wsmRequestItemCount);
 
     if (epr.address != WSM_ADDRESS_ANONYMOUS ||
-        wsaAction != WSM_ACTION_GET_RESPONSE ||
+        wsaAction != WSM_ACTION_GET ||
         wsaFrom != String::EMPTY ||
         wsaReplyTo != String::EMPTY ||
-        wsaMessageId != response.getMessageId() ||
+        wsaMessageId != messageId ||
         wsaFaultTo != "http://www.acme.com:5988/wsman" ||
         epr.resourceUri != String::EMPTY ||
         wsmMaxEnvelopeSize != 0 ||
@@ -467,11 +504,12 @@ static void  _testResponseFormatting(void)
 
 static void  _testFaultFormatting(void)
 {
+    String messageId = WsmUtils::getMessageId();
     String relatesTo = WsmUtils::getMessageId();
 
     // Test Soap NotUnderstood fault.
     {
-        const char expectedHttpHeader[] =
+        const char expectedHttpHeader[] = 
             "HTTP/1.1 500 Internal Server Error\r\nContent-Type: "
             "application/soap+xml;charset=UTF-8\r\ncontent-length: "
             "0000000000\r\nSOAPAction: "
@@ -479,14 +517,13 @@ static void  _testFaultFormatting(void)
 
         SoapNotUnderstoodFault soapFault(WsmNamespaces::supportedNamespaces[
             WsmNamespaces::WS_MAN].extendedName, "RequestedEPR");
-        SoapFaultResponse response(relatesTo, 0, HTTP_METHOD__POST,
-            false, false, soapFault);
-        SoapResponse soapResponse(&response);
-
-        Buffer out = soapResponse.getResponseContent();
+    
+        Uint32 httpHeaderSize;
+        Buffer out = WsmWriter::formatSoapFault(
+            soapFault, messageId, relatesTo, HTTP_METHOD__POST, httpHeaderSize);
 
         char* ptr = (char*) out.getData();
-        if (strncmp(ptr, expectedHttpHeader,
+        if (strncmp(ptr, expectedHttpHeader, 
                     sizeof(expectedHttpHeader)-1) != 0)
             throw Exception("HTTP header incorrect");
         ptr += sizeof(expectedHttpHeader)-1;
@@ -495,7 +532,7 @@ static void  _testFaultFormatting(void)
         const char* xmlVersion = 0;
         const char* xmlEncoding = 0;
         reader.getXmlDeclaration(xmlVersion, xmlEncoding);
-        if (strcmp(xmlVersion, "1.0") != 0 ||
+        if (strcmp(xmlVersion, "1.0") != 0 || 
             strcmp(xmlEncoding, "utf-8") != 0)
             throw Exception("XML version or encoding incorrect");
 
@@ -516,7 +553,7 @@ static void  _testFaultFormatting(void)
             WsmNamespaces::WS_ADDRESSING, "RelatesTo", relto, true);
         if (addr != WSM_ADDRESS_ANONYMOUS ||
             action != WSM_ACTION_WSA_FAULT ||
-            mid != response.getMessageId() ||
+            mid != messageId ||
             relto != relatesTo)
             throw Exception("Invalid header");
 
@@ -541,10 +578,10 @@ static void  _testFaultFormatting(void)
         reader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
         reader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Envelope");
     }
-
+    
     // Test Wsm fault.
     {
-        const char expectedHttpHeader[] =
+        const char expectedHttpHeader[] = 
             "HTTP/1.1 500 Internal Server Error\r\nContent-Type: "
             "application/soap+xml;charset=UTF-8\r\ncontent-length: "
             "0000000000\r\nSOAPAction: "
@@ -552,14 +589,13 @@ static void  _testFaultFormatting(void)
 
         WsmFault wsmFault(WsmFault::wsman_AccessDenied, "Whatever reason",
             ContentLanguageList(), "Whatever fault detail");
-        WsmFaultResponse response(relatesTo, 0, HTTP_METHOD__POST,
-            false, false, wsmFault);
-        SoapResponse soapResponse(&response);
 
-        Buffer out = soapResponse.getResponseContent();
+        Uint32 httpHeaderSize;
+        Buffer out = WsmWriter::formatWsmFault(
+            wsmFault, messageId, relatesTo, HTTP_METHOD__POST, httpHeaderSize);
 
         char* ptr = (char*) out.getData();
-        if (strncmp(ptr, expectedHttpHeader,
+        if (strncmp(ptr, expectedHttpHeader, 
                     sizeof(expectedHttpHeader)-1) != 0)
             throw Exception("HTTP header incorrect");
         ptr += sizeof(expectedHttpHeader)-1;
@@ -568,7 +604,7 @@ static void  _testFaultFormatting(void)
         const char* xmlVersion = 0;
         const char* xmlEncoding = 0;
         reader.getXmlDeclaration(xmlVersion, xmlEncoding);
-        if (strcmp(xmlVersion, "1.0") != 0 ||
+        if (strcmp(xmlVersion, "1.0") != 0 || 
             strcmp(xmlEncoding, "utf-8") != 0)
             throw Exception("XML version or encoding incorrect");
 
@@ -587,7 +623,7 @@ static void  _testFaultFormatting(void)
             WsmNamespaces::WS_ADDRESSING, "RelatesTo", relto, true);
         if (addr != WSM_ADDRESS_ANONYMOUS ||
             action != WSM_ACTION_WSMAN_FAULT ||
-            mid != response.getMessageId() ||
+            mid != messageId ||
             relto != relatesTo)
             throw Exception("Invalid header");
 
@@ -639,7 +675,7 @@ int main(int argc, char** argv)
         if (verbose)
             cout << "Testing response formatting." << endl;
         _testResponseFormatting();
-
+        
         if (verbose)
             cout << "Testing fault formatting." << endl;
         _testFaultFormatting();

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//=============================================================================
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -42,32 +44,13 @@
 #include "WsmUtils.h"
 #include "WsmWriter.h"
 #include "WsmSelectorSet.h"
-#include <Pegasus/Common/StrLit.h>
-#include <Clients/wbemexec/HttpConstants.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 inline void _writeNewlineForReadability(Buffer& out)
 {
     // Uncomment this statement for XML response readability.
-    // out << '\n';
-}
-
-// Append something like this to buffer: "<class:"
-static inline void _appendStartPrefix(Buffer& out, const char* ns)
-{
-    out.append('<');
-    out.append(ns, strlen(ns));
-    out.append(':');
-}
-
-// Append something like this to buffer: "</class:"
-static inline void _appendEndPrefix(Buffer& out, const char* ns)
-{
-    out.append('<');
-    out.append('/');
-    out.append(ns, strlen(ns));
-    out.append(':');
+    //out << '\n';
 }
 
 //-----------------------------------------------------------------------------
@@ -84,41 +67,38 @@ Buffer WsmWriter::formatHttpErrorRspMessage(
     return XmlWriter::formatHttpErrorRspMessage(status, cimError, errorDetail);
 }
 
-void WsmWriter::appendSoapFaultHeaders(
-    Buffer& out,
+Buffer WsmWriter::formatSoapFault(
     const SoapNotUnderstoodFault& fault,
-    const String& action,
     const String& messageId,
-    const String& relatesTo)
+    const String& relatesTo,
+    HttpMethod httpMethod,
+    Uint32& httpHeaderSize)
 {
+    Buffer out(WSM_MIN_MAXENVELOPESIZE_VALUE);
+    String action = String(WsmNamespaces::supportedNamespaces[
+        WsmNamespaces::WS_ADDRESSING].extendedName) + String("/fault");
+    ContentLanguageList msgLang = fault.getMessageLanguage();
+
+    _appendHTTPResponseHeader(out, action, httpMethod, msgLang, true);
+    httpHeaderSize = out.size();
+
+    _appendSoapEnvelopeStart(out);
+    _appendSoapHeaderStart(out);
+
     // Append the 'NotUnderstood' tag
     out << STRLIT("<");
     out << WsmNamespaces::supportedNamespaces[
         WsmNamespaces::SOAP_ENVELOPE].localName;
-    out << STRLIT(":NotUnderstood qname=\"");
-    if (fault.getNamespace().size())
-    {
-        out << STRLIT("ns:");
-    }
+    out << STRLIT(":NotUnderstood qname=\"ns:");
     out << fault.getHeaderName();
-    out << STRLIT("\"");
-    if (fault.getNamespace().size())
-    {
-        out << STRLIT(" xmlns:ns=\"");
-        out << fault.getNamespace();
-        out << STRLIT("\"");
-    }
-    out << STRLIT("/>");
+    out << STRLIT("\" xmlns:ns=\"");
+    out << fault.getNamespace();
+    out << STRLIT("\"/>");
     _writeNewlineForReadability(out);
 
-    appendSoapHeader(out, action, messageId, relatesTo);
-}
-
-void WsmWriter::appendSoapFaultBody(
-    Buffer& out,
-    const SoapNotUnderstoodFault& fault)
-{
-    ContentLanguageList msgLang = fault.getMessageLanguage();
+    _appendSoapHeader(out, action, messageId, relatesTo);
+    _appendSoapHeaderEnd(out);
+    _appendSoapBodyStart(out);
 
     appendStartTag(out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Fault"));
     appendStartTag(out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Code"));
@@ -144,13 +124,30 @@ void WsmWriter::appendSoapFaultBody(
     }
 
     appendEndTag(out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Fault"));
+    _appendSoapBodyEnd(out);
+    _appendSoapEnvelopeEnd(out);
+    return out;
 }
 
-void WsmWriter::appendWsmFaultBody(
-    Buffer& out,
-    const WsmFault& fault)
+Buffer WsmWriter::formatWsmFault(
+    const WsmFault& fault,
+    const String& messageId,
+    const String& relatesTo,
+    HttpMethod httpMethod,
+    Uint32& httpHeaderSize)
 {
+    Buffer out(WSM_MIN_MAXENVELOPESIZE_VALUE);
+    String action(fault.getAction());
     ContentLanguageList reasonLang = fault.getReasonLanguage();
+
+    _appendHTTPResponseHeader(out, action, httpMethod, reasonLang, true);
+    httpHeaderSize = out.size();
+
+    _appendSoapEnvelopeStart(out);
+    _appendSoapHeaderStart(out);
+    _appendSoapHeader(out, action, messageId, relatesTo);
+    _appendSoapHeaderEnd(out);
+    _appendSoapBodyStart(out);
 
     appendStartTag(out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Fault"));
     appendStartTag(out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Code"));
@@ -187,29 +184,55 @@ void WsmWriter::appendWsmFaultBody(
     }
 
     appendEndTag(out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Fault"));
+    _appendSoapBodyEnd(out);
+    _appendSoapEnvelopeEnd(out);
+    return out;
+}
+
+Buffer WsmWriter::formatWsmRspMessage(
+    const String& action,
+    const String& messageId,
+    const String& relatesTo,
+    HttpMethod httpMethod,
+    const ContentLanguageList& contentLanguages,
+    const Buffer& body,
+    const Buffer& headers,
+    Uint32& httpHeaderSize)
+{
+    Buffer out(WSM_MIN_MAXENVELOPESIZE_VALUE);
+
+    _appendHTTPResponseHeader(
+        out, action, httpMethod, contentLanguages, false);
+    httpHeaderSize = out.size();
+
+    _appendSoapEnvelopeStart(out, contentLanguages);
+    _appendSoapHeaderStart(out);
+    _appendSoapHeader(out, action, messageId, relatesTo);
+    out << headers;
+    _appendSoapHeaderEnd(out);
+    _appendSoapBodyStart(out);
+    out << body;
+    _appendSoapBodyEnd(out);
+    _appendSoapEnvelopeEnd(out);
+
+    return out;
 }
 
 void WsmWriter::appendInstanceElement(
     Buffer& out,
-    const String& resourceUri,
     WsmInstance& instance,
-    const char* ns,
     Boolean isEmbedded)
 {
-    size_t nsLength = strlen(ns);
-
     // Class opening element:
-    _appendStartPrefix(out, ns);
-    out << instance.getClassName();
-    out << STRLIT(" xmlns:");
-    out.append(ns, nsLength);
-    out << STRLIT("=\"");
-    out << WsmUtils::getRootResourceUri(resourceUri);
+    out << STRLIT("<class:") << instance.getClassName();
+    out << STRLIT(" xmlns:class=\"");
+    out << WsmNamespaces::supportedNamespaces[WsmNamespaces::WS_CIM_SCHEMA].
+        extendedName;
     out << STRLIT("/") << instance.getClassName();
     out << STRLIT("\"");
 
-    // DSP0230, section 7.2.5.2. The property element MUST contain an
-    // xsi:type attribute with the XSD type of the class of the instance
+    // DSP0230, section 7.2.5.2. The property element MUST contain an 
+    // xsi:type attribute with the XSD type of the class of the instance 
     // (see section 7.3.1).
     if (isEmbedded)
     {
@@ -228,36 +251,23 @@ void WsmWriter::appendInstanceElement(
 
     // Properties:
     for (Uint32 i = 0, n = instance.getPropertyCount(); i < n; i++)
-        appendPropertyElement(out, resourceUri, instance.getProperty(i), ns);
+        appendPropertyElement(out, instance.getProperty(i));
 
     // Class closing element:
-    _appendEndPrefix(out, ns);
-    out << instance.getClassName() << STRLIT(">");
+    out << STRLIT("</class:") << instance.getClassName() << STRLIT(">");
     _writeNewlineForReadability(out);
 }
 
 void WsmWriter::appendPropertyElement(
     Buffer& out,
-    const String& resourceUri,
-    WsmProperty& property,
-    const char* ns)
+    WsmProperty& property)
 {
     WsmValue val = property.getValue();
     String propName = property.getName();
 
-    // Form start element prefix. For example: "<class:"
-    Buffer startBuffer;
-    _appendStartPrefix(startBuffer, ns);
-    StrLit start(startBuffer.getData(), startBuffer.size());
-
-    // Form end element prefix. For example: "</class:"
-    Buffer endBuffer;
-    _appendEndPrefix(endBuffer, ns);
-    StrLit end(endBuffer.getData(), endBuffer.size());
-
     if (val.isNull())
     {
-        out << start << propName;
+        out << STRLIT("<class:") << propName;
         out << " " << WsmNamespaces::supportedNamespaces[
             WsmNamespaces::XML_SCHEMA_INSTANCE].localName;
         out << STRLIT(":nil=\"true\"/>");
@@ -274,10 +284,10 @@ void WsmWriter::appendPropertyElement(
                 val.get(eprs);
                 for (Uint32 i = 0, n = eprs.size(); i < n; i++)
                 {
-                    out << start << propName << STRLIT(">");
+                    out << STRLIT("<class:") << propName << STRLIT(">");
                     _writeNewlineForReadability(out);
                     appendEPRElement(out, eprs[i]);
-                    out << end << propName << STRLIT(">");
+                    out << STRLIT("</class:") << propName << STRLIT(">");
                     _writeNewlineForReadability(out);
                 }
                 break;
@@ -288,11 +298,10 @@ void WsmWriter::appendPropertyElement(
                 val.get(instances);
                 for (Uint32 i = 0, n = instances.size(); i < n; i++)
                 {
-                    out << start << propName << STRLIT(">");
+                    out << STRLIT("<class:") << propName << STRLIT(">");
                     _writeNewlineForReadability(out);
-                    appendInstanceElement(out, resourceUri, instances[i],
-                        PEGASUS_INSTANCE_NS, true);
-                    out << end << propName << STRLIT(">");
+                    appendInstanceElement(out, instances[i], true);
+                    out << STRLIT("</class:") << propName << STRLIT(">");
                     _writeNewlineForReadability(out);
                 }
                 break;
@@ -303,17 +312,17 @@ void WsmWriter::appendPropertyElement(
                 val.get(strs);
                 for (Uint32 i = 0, n = strs.size(); i < n; i++)
                 {
-                    out << start << propName << STRLIT(">");
+                    out << STRLIT("<class:") << propName << STRLIT(">");
                     _writeNewlineForReadability(out);
                     appendStringElement(out, strs[i]);
-                    out << end << propName << STRLIT(">");
+                    out << STRLIT("</class:") << propName << STRLIT(">");
                     _writeNewlineForReadability(out);
                 }
                 break;
             }
             default:
             {
-                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+                PEGASUS_ASSERT(0);
             }
         }
     }
@@ -325,10 +334,10 @@ void WsmWriter::appendPropertyElement(
             {
                 WsmEndpointReference epr;
                 val.get(epr);
-                out << start << propName << STRLIT(">");
+                out << STRLIT("<class:") << propName << STRLIT(">");
                 _writeNewlineForReadability(out);
                 appendEPRElement(out, epr);
-                out << end << propName << STRLIT(">");
+                out << STRLIT("</class:") << propName << STRLIT(">");
                 _writeNewlineForReadability(out);
                 break;
             }
@@ -336,11 +345,10 @@ void WsmWriter::appendPropertyElement(
             {
                 WsmInstance instance;
                 val.get(instance);
-                out << start << propName << STRLIT(">");
+                out << STRLIT("<class:") << propName << STRLIT(">");
                 _writeNewlineForReadability(out);
-                appendInstanceElement(out, resourceUri, instance,
-                    PEGASUS_INSTANCE_NS, true);
-                out << end << propName << STRLIT(">");
+                appendInstanceElement(out, instance, true);
+                out << STRLIT("</class:") << propName << STRLIT(">");
                 _writeNewlineForReadability(out);
                 break;
             }
@@ -348,16 +356,16 @@ void WsmWriter::appendPropertyElement(
             {
                 String str;
                 val.get(str);
-                out << start << propName << STRLIT(">");
+                out << STRLIT("<class:") << propName << STRLIT(">");
                 _writeNewlineForReadability(out);
                 appendStringElement(out, str);
-                out << end << propName << STRLIT(">");
+                out << STRLIT("</class:") << propName << STRLIT(">");
                 _writeNewlineForReadability(out);
                 break;
             }
             default:
             {
-                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+                PEGASUS_ASSERT(0);
             }
         }
     }
@@ -394,7 +402,7 @@ void WsmWriter::appendEPRElement(
             }
             else
             {
-                XmlGenerator::appendSpecial(out, selector.value);
+                out << selector.value;
                 _writeNewlineForReadability(out);
             }
             appendEndTag(out, WsmNamespaces::WS_MAN, STRLIT("Selector"));
@@ -409,7 +417,7 @@ void WsmWriter::appendStringElement(
     Buffer& out,
     const String& str)
 {
-    XmlGenerator::appendSpecial(out, str);
+    out << str;
     _writeNewlineForReadability(out);
 }
 
@@ -468,11 +476,10 @@ void WsmWriter::appendTagValue(
     appendEndTag(out, nsType, tagName);
 }
 
-void WsmWriter::appendHTTPResponseHeader(
+void WsmWriter::_appendHTTPResponseHeader(
     Buffer& out,
     const String& action,
     HttpMethod httpMethod,
-    Boolean omitXMLProcessingInstruction,
     const ContentLanguageList& contentLanguages,
     Boolean isFault,
     Uint32 contentLength)
@@ -496,7 +503,7 @@ void WsmWriter::appendHTTPResponseHeader(
     }
     if (httpMethod == HTTP_METHOD_M_POST)
     {
-        char nn[] = { char('0'+(rand() % 10)), char('0'+(rand() % 10)),'\0' };
+        char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
 
         out << STRLIT("Ext:\r\n");
         out << STRLIT("Cache-Control: no-cache\r\n");
@@ -511,15 +518,11 @@ void WsmWriter::appendHTTPResponseHeader(
     }
     out << STRLIT("\r\n");
 
-    if (!omitXMLProcessingInstruction)
-    {
-        out << STRLIT("<?xml version=\"1.0\" encoding=\"utf-8\" ?>");
-    }
-
+    out << STRLIT("<?xml version=\"1.0\" encoding=\"utf-8\" ?>");
     _writeNewlineForReadability(out);
 }
 
-void WsmWriter::appendSoapEnvelopeStart(
+void WsmWriter::_appendSoapEnvelopeStart(
     Buffer& out,
     const ContentLanguageList& contentLanguages)
 {
@@ -555,52 +558,43 @@ void WsmWriter::appendSoapEnvelopeStart(
     _writeNewlineForReadability(out);
 }
 
-void WsmWriter::appendSoapEnvelopeEnd(Buffer& out)
+void WsmWriter::_appendSoapEnvelopeEnd(Buffer& out)
 {
     appendEndTag(out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Envelope"));
 }
 
-void WsmWriter::appendSoapHeaderStart(Buffer& out)
+void WsmWriter::_appendSoapHeaderStart(Buffer& out)
 {
     appendStartTag(out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Header"));
 }
 
-void WsmWriter::appendSoapHeaderEnd(Buffer& out)
+void WsmWriter::_appendSoapHeaderEnd(Buffer& out)
 {
     appendEndTag(out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Header"));
 }
 
-void WsmWriter::appendSoapBodyStart(Buffer& out)
+void WsmWriter::_appendSoapBodyStart(Buffer& out)
 {
     appendStartTag(out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Body"));
 }
 
-void WsmWriter::appendSoapBodyEnd(Buffer& out)
+void WsmWriter::_appendSoapBodyEnd(Buffer& out)
 {
     appendEndTag(out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Body"));
 }
 
-void WsmWriter::appendSoapHeader(
+void WsmWriter::_appendSoapHeader(
     Buffer& out,
     const String& action,
     const String& messageId,
-    const String& relatesTo,
-    const String& toAddress,
-    const String& replyTo,
-    const Boolean& ackRequired)
+    const String& relatesTo)
 {
     // Add <wsa:To> entry
     appendStartTag(out, WsmNamespaces::WS_ADDRESSING, STRLIT("To"));
-
-    if(toAddress.size())
-    {
-        out.append((const char *)toAddress.getCString(),toAddress.size());
-    }
-    else
-    {
-        out << STRLIT(WSM_ADDRESS_ANONYMOUS);
-    }
-    //writeNewlineForReadability(out);
+    // Note: The reply is always written on the requestor's connection.
+    // The WsmRequestDecoder checks that the wsa:ReplyTo header is anonymous.
+    out << STRLIT(WSM_ADDRESS_ANONYMOUS);
+    _writeNewlineForReadability(out);
     appendEndTag(out, WsmNamespaces::WS_ADDRESSING, STRLIT("To"));
 
     // Add <wsa:Action> entry
@@ -610,154 +604,9 @@ void WsmWriter::appendSoapHeader(
     appendTagValue(
         out, WsmNamespaces::WS_ADDRESSING, STRLIT("MessageID"), messageId);
 
-    // Add <wsa:RelatesTo> entry only if necessary. An empty relates to tag
-    // breaks some WS-Management clients (such as WinRM).
-    if (relatesTo.size())
-    {
-        appendTagValue(
-            out, WsmNamespaces::WS_ADDRESSING, STRLIT("RelatesTo"), relatesTo);
-    }
-    if(replyTo.size())
-    {
-        appendStartTag(out, WsmNamespaces::WS_ADDRESSING, STRLIT("ReplyTo"));
-        appendTagValue(
-            out,
-            WsmNamespaces::WS_ADDRESSING,
-            STRLIT("Address"),
-            replyTo);
-        appendEndTag(out, WsmNamespaces::WS_ADDRESSING, STRLIT("ReplyTo"));
-    }
-    if(ackRequired)
-    {
-        appendTagValue(out, WsmNamespaces::WS_MAN, STRLIT("AckRequested"), "");
-    }
-
+    // Add <wsa:RelatesTo> entry
+    appendTagValue(
+        out, WsmNamespaces::WS_ADDRESSING, STRLIT("RelatesTo"), relatesTo);
 }
-
-void WsmWriter::appendInvokeOutputElement(
-    Buffer& out,
-    const String& resourceUri,
-    const String& className,
-    const String& methodName,
-    WsmInstance& instance,
-    const char* ns)
-{
-    CString mn(methodName.getCString());
-
-    // Form tagname.
-    Buffer tagBuffer;
-    tagBuffer.append(ns, strlen(ns));
-    tagBuffer.append(':');
-    tagBuffer.append(mn, strlen(mn));
-    tagBuffer.append("_OUTPUT", 7);
-    const char* tag = tagBuffer.getData();
-    size_t tagSize = tagBuffer.size();
-
-    // Write start tag.
-    out.append('<');
-    out.append(tag, tagSize);
-
-    out << STRLIT(" xmlns:");
-    out.append(ns, strlen(ns));
-    out << STRLIT("=\"");
-    out << WsmUtils::getRootResourceUri(resourceUri);
-    out << STRLIT("/");
-    out << className;
-    out << STRLIT("\">");
-    _writeNewlineForReadability(out);
-
-    // Write properties:
-    for (Uint32 i = 0, n = instance.getPropertyCount(); i < n; i++)
-        appendPropertyElement(out, resourceUri, instance.getProperty(i), ns);
-
-    // Write end tag.
-    out << STRLIT("</");
-    out.append(tag, tagSize);
-    out.append('>');
-
-    _writeNewlineForReadability(out);
-}
-
-Buffer  WsmWriter::appendHTTPRequestHeader(
-    XmlParser& parser,
-    const String& hostName,
-    Boolean useMPost,
-    Boolean useHTTP11,
-    Buffer& content,
-    Buffer& httpHeaders,
-    const String& destination
-    )
-{
-    XmlEntry entry;
-    Buffer message;
-
-    if (parser.next(entry) &&
-        entry.type == XmlEntry::START_TAG &&
-        strcmp(entry.localName, "Envelope") == 0)
-    {
-        //  Set WSMAN headers and content.
-        message << HTTP_METHOD_POST << HTTP_SP
-            << destination << HTTP_SP
-            << HTTP_PROTOCOL << HTTP_VERSION_11 << HTTP_CRLF;
-        message << HEADER_NAME_HOST << HEADER_SEPARATOR
-            << HTTP_SP << hostName << HTTP_CRLF;
-        message << HEADER_NAME_CONTENTTYPE << HEADER_SEPARATOR
-            << HTTP_SP << WSMAN_HEADER_VALUE_CONTENTTYPE
-            << HTTP_CRLF;
-        message << HEADER_NAME_CONTENTLENGTH << HEADER_SEPARATOR
-            << HTTP_SP << (Uint32)content.size () << HTTP_CRLF;
-
-        httpHeaders << message;
-        message << HTTP_CRLF;
-        message << content;
-    }
-    return message;   
-}
-
-void WsmWriter::addAuthHeader(
-    HTTPMessage*& httpMessage,
-    AutoPtr<ClientAuthenticator>& authenticator)
-{
-    // Add authentication headers to the message
-    String authHeader = authenticator->buildRequestAuthHeader();
-    if (authHeader != String::EMPTY)
-    {
-        // Find the separator between the start line and the headers, so we
-        // can add the authorization header there.
-
-        const char* messageStart = httpMessage->message.getData();
-        char* headerStart =
-            (char*)memchr(messageStart, '\n', httpMessage->message.size());
-
-        if (headerStart)
-        {
-            // Handle a CRLF or LF separator
-            if ((headerStart != messageStart) && (headerStart[-1] == '\r'))
-            {
-                headerStart[-1] = 0;
-            }
-            else
-            {
-                *headerStart = 0;
-            }
-
-            headerStart++;
-
-            // Build a new message with the original start line, the new
-            // authorization header, and the original headers and content.
-
-            Buffer newMessageBuffer;
-            newMessageBuffer << messageStart << HTTP_CRLF;
-            newMessageBuffer << authHeader << HTTP_CRLF;
-            newMessageBuffer << headerStart;
-
-            HTTPMessage* newMessage = new HTTPMessage(newMessageBuffer);
-            delete httpMessage;
-            httpMessage = newMessage;
-        }
-    }
-}
-
-
 
 PEGASUS_NAMESPACE_END

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//=============================================================================
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -35,20 +37,13 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/MessageLoader.h>
-#include <Pegasus/Common/Buffer.h>
 #include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/XmlReader.h>
-#include <Pegasus/Common/Tracer.h>
-#include <Pegasus/WQL/WQLSelectStatement.h>
-#include <Pegasus/WQL/WQLParser.h>
 #include <Pegasus/WsmServer/WsmConstants.h>
 #include <Pegasus/WsmServer/WsmFault.h>
 #include "WsmReader.h"
-#include <Pegasus/WsmServer/WsmToCimRequestMapper.h>
-PEGASUS_NAMESPACE_BEGIN
 
-#define PEGASUS_PROPERTYNAME_FILTER_CSTRING \
-    PEGASUS_PROPERTYNAME_FILTER.getString().getCString()
+PEGASUS_NAMESPACE_BEGIN
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -63,11 +58,6 @@ WsmReader::WsmReader(char* text)
 
 WsmReader::~WsmReader()
 {
-}
-
-void WsmReader::setHideEmptyTags(Boolean flag)
-{
-    _parser.setHideEmptyTags(flag);
 }
 
 //-----------------------------------------------------------------------------
@@ -198,40 +188,6 @@ void WsmReader::expectStartTag(
     }
 }
 
-int WsmReader::expectStartTag(
-    XmlEntry& entry,
-    const char* tagName)
-{
-    if (!_parser.next(entry) ||
-        entry.type != XmlEntry::START_TAG ||
-        strcmp(entry.localName, tagName) != 0)
-    {
-        const char* nsUri;
-        int nsType = entry.nsType;
-
-        // The nsType must have already been declared in the XML or it must be
-        // a supported namespace.
-        XmlNamespace* ns = _parser.getNamespace(nsType);
-        if (ns)
-        {
-            nsUri = ns->extendedName;
-        }
-        else
-        {
-            PEGASUS_ASSERT((nsType >= 0) && (nsType < WsmNamespaces::LAST));
-            nsUri = WsmNamespaces::supportedNamespaces[nsType].extendedName;
-        }
-
-        MessageLoaderParms mlParms(
-            "WsmServer.WsmReader.EXPECTED_OPEN",
-            "Expecting a start tag for \"$0\" element in namespace \"$1\".",
-            tagName, nsUri);
-        throw XmlValidationError(_parser.getLine(), mlParms);
-    }
-
-    return entry.nsType;
-}
-
 void WsmReader::expectStartOrEmptyTag(
     XmlEntry& entry,
     int nsType,
@@ -350,7 +306,7 @@ Boolean WsmReader::getElementStringValue(
     }
 
     expectContentOrCData(entry);
-    stringValue.assign(entry.text, entry.textLen);
+    stringValue = entry.text;
     expectEndTag(nsType, tagName);
     return true;
 }
@@ -439,7 +395,7 @@ Boolean WsmReader::getSelectorElement(WsmSelector& selector)
         else
         {
             expectContentOrCData(entry);
-            selector = WsmSelector(name, String(entry.text, entry.textLen));
+            selector = WsmSelector(name, entry.text);
         }
 
         expectEndTag(WsmNamespaces::WS_MAN, "Selector");
@@ -577,9 +533,7 @@ void WsmReader::skipElement(XmlEntry& entry)
     XmlReader::expectEndTag(_parser, elementName);
 }
 
-// checkDuplicateHeader.  It is a duplicate if the isDuplicate parameter
-// is true
-void WsmReader:: checkDuplicateHeader(
+inline void checkDuplicateHeader(
     const char* elementName,
     Boolean isDuplicate)
 {
@@ -613,8 +567,7 @@ void WsmReader::decodeRequestSoapHeaders(
     Uint32& wsmMaxEnvelopeSize,
     AcceptLanguageList& wsmLocale,
     Boolean& wsmRequestEpr,
-    Boolean& wsmRequestItemCount,
-    String& wseIdentifier)
+    Boolean& wsmRequestItemCount)
 {
     // Note: This method does not collect headers that should appear only in
     // responses: wsa:RelatesTo, wsman:RequestedEPR.
@@ -622,10 +575,7 @@ void WsmReader::decodeRequestSoapHeaders(
     XmlEntry entry;
     Boolean gotEntry;
 
-    // The wsidentify operation may send an empty header element.
-    _parser.setHideEmptyTags(true);
     expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Header");
-    _parser.setHideEmptyTags(false);
 
     while ((gotEntry = _parser.next(entry)) &&
            ((entry.type == XmlEntry::START_TAG) ||
@@ -677,12 +627,11 @@ void WsmReader::decodeRequestSoapHeaders(
                 WsmNamespaces::WS_ADDRESSING, "Address", wsaFaultTo, true);
         }
         else if ((nsType == WsmNamespaces::WS_ADDRESSING) &&
-           (strcmp(elementName, "Action") == 0))
+            (strcmp(elementName, "Action") == 0))
         {
             checkDuplicateHeader(entry.text, wsaAction.size());
             wsaAction = getElementContent(entry);
         }
-
         else if ((nsType == WsmNamespaces::WS_ADDRESSING) &&
             (strcmp(elementName, "MessageID") == 0))
         {
@@ -698,7 +647,6 @@ void WsmReader::decodeRequestSoapHeaders(
         else if ((nsType == WsmNamespaces::WS_MAN) &&
             (strcmp(elementName, "SelectorSet") == 0))
         {
-
             checkDuplicateHeader(entry.text, wsmSelectorSet.selectors.size());
             _parser.putBack(entry);
             getSelectorSetElement(wsmSelectorSet);
@@ -737,7 +685,7 @@ void WsmReader::decodeRequestSoapHeaders(
 
             // DSP0226 R6.2-3: If the mustUnderstand attribute is set to
             // "false", the service may ignore the header.
-            wsmMaxEnvelopeSize =
+            wsmMaxEnvelopeSize = 
                 getUint32ElementContent(entry, "MaxEnvelopeSize");
 
             // DSP0226 R6.2-4:  Services should reject any MaxEnvelopeSize
@@ -861,27 +809,13 @@ void WsmReader::decodeRequestSoapHeaders(
             // The end tag, if any, has already been consumed.
             needEndTag = false;
         }
-        else if ((nsType == WsmNamespaces::WS_EVENTING) &&
-            (strcmp(elementName, "Identifier") == 0))
-        {
-            checkDuplicateHeader(entry.text, wseIdentifier.size());
-
-            wseIdentifier = getElementContent(entry);
-        }
         else if (mustUnderstand(entry))
         {
             // DSP0226 R5.2-2: If a service cannot comply with a header
             // marked with mustUnderstand="true", it shall issue an
             // s:NotUnderstood fault.
-            XmlNamespace* ns = _parser.getNamespace(nsType);
-            if (ns)
-            {
-                throw SoapNotUnderstoodFault(ns->extendedName, elementName);
-            }
-            else
-            {
-                throw SoapNotUnderstoodFault(String::EMPTY, elementName);
-            }
+            throw SoapNotUnderstoodFault(
+                _parser.getNamespace(nsType)->extendedName, elementName);
         }
         else
         {
@@ -921,12 +855,11 @@ void WsmReader::getInstanceElement(WsmInstance& instance)
         // http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/<class name>
         if (ns)
         {
-            const char* suffix = WsmUtils::skipHostUri(ns->extendedName);
-            const char* pos = strrchr(suffix, '/');
-            if ((pos == suffix +
-                sizeof(WSM_RESOURCEURI_CIMSCHEMAV2_SUFFIX) - 1) &&
-                (strncmp(suffix, WSM_RESOURCEURI_CIMSCHEMAV2_SUFFIX,
-                    sizeof(WSM_RESOURCEURI_CIMSCHEMAV2_SUFFIX) - 1) == 0) &&
+            const char* pos = strrchr(ns->extendedName, '/');
+            if ((pos == ns->extendedName +
+                sizeof(WSM_RESOURCEURI_CIMSCHEMAV2) - 1) &&
+                (strncmp(ns->extendedName, WSM_RESOURCEURI_CIMSCHEMAV2,
+                    sizeof(WSM_RESOURCEURI_CIMSCHEMAV2) - 1) == 0) &&
                 (strcmp(pos + 1, classNameTag) == 0))
             {
                 // All properties must be qualified with the class namespace
@@ -1058,7 +991,7 @@ void WsmReader::getValueElement(
         if (XmlReader::testContentOrCData(_parser, entry))
         {
             // Simple string content
-            value.set(String(entry.text, entry.textLen));
+            value.set(String(entry.text));
         }
         else
         {
@@ -1081,14 +1014,12 @@ void WsmReader::getValueElement(
 }
 
 void WsmReader::decodeEnumerateBody(
-    String& expiration,
-    WsmbPolymorphismMode& polymorphismMode,
-    WsenEnumerationMode& enumerationMode,
-    Boolean& optimized,
-    Uint32& maxElements,
-    WsmFilter& wsmFilter)
+    String& expiration, 
+    WsmbPolymorphismMode& polymorphismMode, 
+    WsenEnumerationMode& enumerationMode, 
+    Boolean& optimized, 
+    Uint32& maxElements)
 {
-   PEG_METHOD_ENTER(TRC_WSMSERVER, "WsmReader::decodeEnumerateBody()");
     XmlEntry entry;
     expectStartOrEmptyTag(
         entry, WsmNamespaces::WS_ENUMERATION, "Enumerate");
@@ -1102,18 +1033,17 @@ void WsmReader::decodeEnumerateBody(
             int nsType = entry.nsType;
             const char* elementName = entry.localName;
             Boolean needEndTag = (entry.type == XmlEntry::START_TAG);
-
+        
             if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
                 (strcmp(elementName, "EndTo") == 0))
             {
-                // DSP0226 R5.2.1-1: A conformant service is NOT REQUIRED to
-                // accept a wsen:Enumerate message with an EndTo address as
+                // DSP0226 R5.2.1-1: A conformant service is NOT REQUIRED to 
+                // accept a wsen:Enumerate message with an EndTo address as 
                 // R5.1-4 recommends not supporting the EndEnumerate message,
                 // and may issue a wsman:UnsupportedFeature fault with a detail
                 // code:
                 //     http://schemas.dmtf.org/wbem/wsman/1/wsman/
                 //         faultDetail/AddressingMode
-                PEG_METHOD_EXIT();
                 throw WsmFault(
                     WsmFault::wsman_UnsupportedFeature,
                     MessageLoaderParms(
@@ -1128,21 +1058,14 @@ void WsmReader::decodeEnumerateBody(
                 checkDuplicateHeader(entry.text, expiration.size());
                 expiration = getElementContent(entry);
             }
-            else if ((nsType == WsmNamespaces::WS_MAN) &&
-                (strcmp(elementName, PEGASUS_PROPERTYNAME_FILTER_CSTRING) == 0))
+            else if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
+                (strcmp(elementName, "Filter") == 0))
             {
-                // R8.2.1-3: The wsman:Filter element (see 8.3) in the
-                // Enumerate body shall be either simple text or a single
-                // complex XML element. A conformant service shall not accept
-                // mixed content of both text and elements, or multiple peer
-                // XML elements under the wsman:Filter element.
-                // Duplicate if filter type already set
-                checkDuplicateHeader(entry.text,
-                    wsmFilter.filterDialect != WsmFilter::NONE);
-
-                _parser.putBack(entry);
-                decodeFilter(wsmFilter);
-                needEndTag = false;
+                throw WsmFault(
+                    WsmFault::wsen_FilteringNotSupported,
+                    MessageLoaderParms(
+                        "WsmServer.WsmReader.ENUMERATE_FILTERING_UNSUPPORTED",
+                        "Filtered enumerations are not supported."));
             }
             else if ((nsType == WsmNamespaces::WS_MAN) &&
                 (strcmp(elementName, "OptimizeEnumeration") == 0))
@@ -1159,9 +1082,10 @@ void WsmReader::decodeEnumerateBody(
             else if ((nsType == WsmNamespaces::WS_MAN) &&
                 (strcmp(elementName, "EnumerationMode") == 0))
             {
-                checkDuplicateHeader(entry.text,
+                checkDuplicateHeader(entry.text, 
                     enumerationMode != WSEN_EM_UNKNOWN);
                 const char* content = getElementContent(entry);
+#if 0
                 if (strcmp(content, "EnumerateEPR") == 0)
                 {
                     enumerationMode = WSEN_EM_EPR;
@@ -1171,14 +1095,14 @@ void WsmReader::decodeEnumerateBody(
                     enumerationMode = WSEN_EM_OBJECT_AND_EPR;
                 }
                 else
+#endif
                 {
-                    PEG_METHOD_EXIT();
                     throw WsmFault(
                         WsmFault::wsman_UnsupportedFeature,
                         MessageLoaderParms(
                             "WsmServer.WsmReader.ENUMERATE_"
                                 "ENUM_MODE_UNSUPPORTED",
-                            "Enumeration mode \"$0\" is not supported.",
+                            "Enumeration mode \"$0\" is not supported.", 
                             content),
                         WSMAN_FAULTDETAIL_ENUMERATION_MODE_UNSUPPORTED);
                 }
@@ -1186,7 +1110,7 @@ void WsmReader::decodeEnumerateBody(
             else if ((nsType == WsmNamespaces::WS_CIM_BINDING) &&
                 (strcmp(elementName, "PolymorphismMode") == 0))
             {
-                checkDuplicateHeader(entry.text,
+                checkDuplicateHeader(entry.text, 
                     polymorphismMode != WSMB_PM_UNKNOWN);
                 const char* content = getElementContent(entry);
                 if (strcmp(content, "ExcludeSubClassProperties") == 0)
@@ -1199,13 +1123,12 @@ void WsmReader::decodeEnumerateBody(
                 }
                 else
                 {
-                    PEG_METHOD_EXIT();
                     throw WsmFault(
                         WsmFault::wsmb_PolymorphismModeNotSupported,
                         MessageLoaderParms(
                             "WsmServer.WsmReader.ENUMERATE_"
                                 "POLYMORPHISM_MODE_UNSUPPORTED",
-                            "Polymorphism mode \"$0\" is not supported.",
+                            "Polymorphism mode \"$0\" is not supported.", 
                             content));
                 }
             }
@@ -1214,10 +1137,8 @@ void WsmReader::decodeEnumerateBody(
                 // DSP0226 R5.2-2: If a service cannot comply with a header
                 // marked with mustUnderstand="true", it shall issue an
                 // s:NotUnderstood fault.
-                XmlNamespace* ns = _parser.getNamespace(nsType);
-                PEG_METHOD_EXIT();
                 throw SoapNotUnderstoodFault(
-                    ns ? ns->extendedName : String::EMPTY, elementName);
+                    _parser.getNamespace(nsType)->extendedName, elementName);
             }
             else
             {
@@ -1239,695 +1160,136 @@ void WsmReader::decodeEnumerateBody(
 
         expectEndTag(WsmNamespaces::WS_ENUMERATION, "Enumerate");
     }
-    PEG_METHOD_EXIT();
 }
 
 void WsmReader::decodePullBody(
-    Uint64& enumerationContext,
-    String& maxTime,
+    Uint64& enumerationContext, 
+    String& maxTime, 
     Uint32& maxElements,
     Uint32& maxCharacters)
 {
     Boolean seenEnumContext = false;
     XmlEntry entry;
-    expectStartTag(entry, WsmNamespaces::WS_ENUMERATION, "Pull");
-
-    Boolean gotEntry;
-    while ((gotEntry = _parser.next(entry)) &&
-           ((entry.type == XmlEntry::START_TAG) ||
-            (entry.type == XmlEntry::EMPTY_TAG)))
+    expectStartOrEmptyTag(
+        entry, WsmNamespaces::WS_ENUMERATION, "Pull");
+    if (entry.type != XmlEntry::EMPTY_TAG)
     {
-        int nsType = entry.nsType;
-        const char* elementName = entry.localName;
-        Boolean needEndTag = (entry.type == XmlEntry::START_TAG);
+        Boolean gotEntry;
+        while ((gotEntry = _parser.next(entry)) &&
+               ((entry.type == XmlEntry::START_TAG) ||
+                (entry.type == XmlEntry::EMPTY_TAG)))
+        {
+            int nsType = entry.nsType;
+            const char* elementName = entry.localName;
+            Boolean needEndTag = (entry.type == XmlEntry::START_TAG);
+        
+            if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
+                (strcmp(elementName, "EnumerationContext") == 0))
+            {
+                checkDuplicateHeader(entry.text, seenEnumContext);
+                seenEnumContext = true;
+                enumerationContext = getEnumerationContext(entry);
+            }
+            else if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
+                (strcmp(elementName, "MaxTime") == 0))
+            {
+                checkDuplicateHeader(entry.text, maxTime.size());
+                maxTime = getElementContent(entry);
+            }
+            else if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
+                (strcmp(elementName, "MaxCharacters") == 0))
+            {
+                checkDuplicateHeader(entry.text, maxCharacters > 0);
+                maxCharacters = getUint32ElementContent(entry, "MaxCharacters");
+            }
+            else if ((nsType == WsmNamespaces::WS_MAN) &&
+                (strcmp(elementName, "MaxElements") == 0))
+            {
+                checkDuplicateHeader(entry.text, maxElements > 0);
+                maxElements = getUint32ElementContent(entry, "MaxElements");
+            }
+            else if (mustUnderstand(entry))
+            {
+                // DSP0226 R5.2-2: If a service cannot comply with a header
+                // marked with mustUnderstand="true", it shall issue an
+                // s:NotUnderstood fault.
+                throw SoapNotUnderstoodFault(
+                    _parser.getNamespace(nsType)->extendedName, elementName);
+            }
+            else
+            {
+                skipElement(entry);
+                // The end tag, if any, has already been consumed.
+                needEndTag = false;
+            }
 
-        if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
-            (strcmp(elementName, "EnumerationContext") == 0))
-        {
-            checkDuplicateHeader(entry.text, seenEnumContext);
-            seenEnumContext = true;
-            enumerationContext = getEnumerationContext(entry);
-        }
-        else if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
-            (strcmp(elementName, "MaxTime") == 0))
-        {
-            checkDuplicateHeader(entry.text, maxTime.size());
-            maxTime = getElementContent(entry);
-        }
-        else if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
-            (strcmp(elementName, "MaxCharacters") == 0))
-        {
-            checkDuplicateHeader(entry.text, maxCharacters > 0);
-            maxCharacters = getUint32ElementContent(entry, "MaxCharacters");
-        }
-        else if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
-            (strcmp(elementName, "MaxElements") == 0))
-        {
-            checkDuplicateHeader(entry.text, maxElements > 0);
-            maxElements = getUint32ElementContent(entry, "MaxElements");
-        }
-        else if (mustUnderstand(entry))
-        {
-            // DSP0226 R5.2-2: If a service cannot comply with a header
-            // marked with mustUnderstand="true", it shall issue an
-            // s:NotUnderstood fault.
-            XmlNamespace* ns = _parser.getNamespace(nsType);
-            throw SoapNotUnderstoodFault(
-                ns ? ns->extendedName : String::EMPTY, elementName);
-        }
-        else
-        {
-            skipElement(entry);
-            // The end tag, if any, has already been consumed.
-            needEndTag = false;
+            if (needEndTag)
+            {
+                expectEndTag(nsType, elementName);
+            }
         }
 
-        if (needEndTag)
+        if (gotEntry)
         {
-            expectEndTag(nsType, elementName);
+            _parser.putBack(entry);
         }
+
+        expectEndTag(WsmNamespaces::WS_ENUMERATION, "Pull");
     }
-
-    if (gotEntry)
-    {
-        _parser.putBack(entry);
-    }
-
-    // EnumerationContext is required; return a fault if it is missing.
-    if (!seenEnumContext)
-    {
-        expectStartTag(
-            entry, WsmNamespaces::WS_ENUMERATION, "EnumerationContext");
-    }
-
-    expectEndTag(WsmNamespaces::WS_ENUMERATION, "Pull");
 }
 
 void WsmReader::decodeReleaseBody(Uint64& enumerationContext)
 {
     Boolean seenEnumContext = false;
     XmlEntry entry;
-    expectStartTag(entry, WsmNamespaces::WS_ENUMERATION, "Release");
-
-    Boolean gotEntry;
-    while ((gotEntry = _parser.next(entry)) &&
-           ((entry.type == XmlEntry::START_TAG) ||
-            (entry.type == XmlEntry::EMPTY_TAG)))
-    {
-        int nsType = entry.nsType;
-        const char* elementName = entry.localName;
-        Boolean needEndTag = (entry.type == XmlEntry::START_TAG);
-
-        if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
-            (strcmp(elementName, "EnumerationContext") == 0))
-        {
-            checkDuplicateHeader(entry.text, seenEnumContext);
-            seenEnumContext = true;
-            enumerationContext = getEnumerationContext(entry);
-        }
-        else if (mustUnderstand(entry))
-        {
-            // DSP0226 R5.2-2: If a service cannot comply with a header
-            // marked with mustUnderstand="true", it shall issue an
-            // s:NotUnderstood fault.
-            XmlNamespace* ns = _parser.getNamespace(nsType);
-            throw SoapNotUnderstoodFault(
-                ns ? ns->extendedName : String::EMPTY, elementName);
-        }
-        else
-        {
-            skipElement(entry);
-            // The end tag, if any, has already been consumed.
-            needEndTag = false;
-        }
-
-        if (needEndTag)
-        {
-            expectEndTag(nsType, elementName);
-        }
-    }
-
-    if (gotEntry)
-    {
-        _parser.putBack(entry);
-    }
-
-    // EnumerationContext is required; return a fault if it is missing.
-    if (!seenEnumContext)
-    {
-        expectStartTag(
-            entry, WsmNamespaces::WS_ENUMERATION, "EnumerationContext");
-    }
-
-    expectEndTag(WsmNamespaces::WS_ENUMERATION, "Release");
-}
-
-void WsmReader::decodeInvokeInputBody(
-    const String& className,
-    const String& methodName,
-    WsmInstance& instance)
-{
-    XmlEntry entry;
-
-    //
-    // Parse the <s:Body> element. Here is an example:
-    //
-    //   <p:Foo_INPUT xmlns:p=
-    //     "http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/SomeClass">
-    //     <p:Arg1>
-    //       ...
-    //     </p:Arg1>
-    //     <p:Arg2>
-    //       ...
-    //     </p:Arg2>
-    //   </p:Foo_INPUT>
-    //
-
-    // Expect <METHODNAME_INPUT>
-    Buffer tagName;
-    tagName.append(methodName.getCString(), methodName.size());
-    tagName.append("_INPUT", 6);
-
-    _parser.setHideEmptyTags(true);
-    int nsType = expectStartTag(entry, tagName.getData());
-
-    // The following elements are input parameter.
-    String name;
-    WsmValue value;
-
-    while (getPropertyElement(nsType, name, value))
-    {
-        instance.addProperty(WsmProperty(name, value));
-    }
-
-    // Expect </METHODNAME_INPUT>
-    expectEndTag(nsType, tagName.getData());
-    _parser.setHideEmptyTags(false);
-}
-
-void WsmReader::decodeFilter(WsmFilter& wsmFilter, int nsType)
-{
-    // Expect "Filter" element.
-    _parser.setHideEmptyTags(true);
-
-    XmlEntry entry;
-    expectStartTag(entry, nsType, PEGASUS_PROPERTYNAME_FILTER_CSTRING);
-
-    // Check Filter.Dialect attribute.
-    {
-        const char* value;
-
-        if (!entry.getAttributeValue("Dialect", value))
-        {
-            MessageLoaderParms parms(
-                "WsmServer.WsmReader.MISSING_ATTRIBUTE",
-                "The attribute $0.$1 is missing.", "Filter", "Dialect");
-            throw XmlValidationError(_parser.getLine(), parms);
-        }
-
-        const char* suffix = WsmUtils::skipHostUri(value);
-
-        // Process for each acceptable dialect attribute
-
-        // If WQL filter dialect found. Parse for WQL Statement
-        if (strcmp(suffix, WSMAN_FILTER_DIALECT_WQL_SUFFIX) == 0)
-        {
-            wsmFilter.filterDialect = WsmFilter::WQL;
-            // Expect query expression (contains the query text).
-
-            expectContentOrCData(entry);
-            wsmFilter.WQLFilter.query = entry.text;
-
-            // Compile the query filter.
-
-            try
-            {
-                wsmFilter.WQLFilter.selectStatement.reset(
-                    new WQLSelectStatement);
-                WQLParser::parse(wsmFilter.WQLFilter.query,
-                    *wsmFilter.WQLFilter.selectStatement.get());
-            }
-            catch (ParseError& e)
-            {
-                MessageLoaderParms parms(
-                    "WsmServer.WsmReader.INVALID_FILTER_QUERY_EXPRESSION",
-                    "Invalid filter query expression: \"$0\".",
-                    entry.text);
-                throw WsmFault(WsmFault::wsen_CannotProcessFilter, parms);
-            }
-
-            // Set the queryLanguage
-            wsmFilter.WQLFilter.queryLanguage = "WQL";
-        }
-
-        // else if AssociatedFilter Dialect per DSP227, Section 8.2
-        else if (strcmp(suffix, WSMAN_ASSOCIATION_FILTER_SUFFIX) == 0)
-        {
-            wsmFilter.filterDialect = WsmFilter::ASSOCIATION;
-            decodeAssociationFilter(wsmFilter);
-        }
-        else
-        {
-            MessageLoaderParms parms(
-                "WsmServer.WsmReader.UNSUPPORTED_FILTER_DIALECT",
-                "Unsupported filter dialect: \"$0\".",
-                value);
-            throw WsmFault(
-                WsmFault::wsen_FilterDialectRequestedUnavailable, parms);
-        }
-
-    }
-
-    // Expect </Filter>
-
-    expectEndTag(nsType, PEGASUS_PROPERTYNAME_FILTER_CSTRING);
-    _parser.setHideEmptyTags(false);
-}
-
-void WsmReader::decodeAssociationFilter(WsmFilter& wsmFilter)
-{
-    PEG_METHOD_ENTER(TRC_WSMSERVER,"WsmReader::decodeAssociationFilter");
-    XmlEntry entry;
-
-    // The next entry must be  either associated or association tag
-
-    wsmFilter.AssocFilter.assocFilterType =
-            WsmFilter::ASSOCIATION_INSTANCES;
-    if (testStartTag(entry, WsmNamespaces::WS_CIM_BINDING,
-        "AssociatedInstances"))
-    {
-        wsmFilter.AssocFilter.assocFilterType =
-            WsmFilter::ASSOCIATED_INSTANCES;
-    }
-    else if (!testStartTag(entry, WsmNamespaces::WS_CIM_BINDING,
-        "AssociationInstances"))
-    {
-        MessageLoaderParms parms(
-            "WsmServer.WsmReader.INVALID_ASSOCIATED_FILTER_ELEMENT",
-            "Invalid Association Filter Type Element: \"$0\".",
-            entry.text);
-        PEG_METHOD_EXIT();
-        throw WsmFault(WsmFault::wsen_CannotProcessFilter, parms);
-    }
-
-    const char* associatedStartTag = entry.localName;
-
-    // get the entires for object, AssociationClassName Role ResultClassName
-    // ResultRole, etc. Only the object is required.
-    Boolean seenObject = false;
-    Boolean gotEntry;
-
-    // Commented out because the propertyList feature not supported
-    // Array<CIMName> propertyListArray;
-
-    _parser.setHideEmptyTags(false);
-
-    while ((gotEntry = _parser.next(entry)) &&
-           ((entry.type == XmlEntry::START_TAG) ||
-            (entry.type == XmlEntry::EMPTY_TAG)))
-    {
-        int nsType = entry.nsType;
-        const char* elementName = entry.localName;
-        Boolean needEndTag = (entry.type == XmlEntry::START_TAG);
-
-        // Test all entires that are in namespace WS_CIM_BINDING
-        if (nsType == WsmNamespaces::WS_CIM_BINDING)
-        {
-            if (strcmp(elementName, "Object") == 0)
-            {
-                checkDuplicateHeader(entry.text,
-                    wsmFilter.AssocFilter.object.getNamespace().size());
-                seenObject = true;
-                if (!getInstanceEPRElement(wsmFilter.AssocFilter.object))
-                {
-                    PEG_METHOD_EXIT();
-                    MessageLoaderParms parms(
-                        "WsmServer.WsmReader.FILTER_OBJECT_EPR_RQD",
-                        "Filter Object EPR required");
-                    throw WsmFault(
-                        WsmFault::wsa_DestinationUnreachable, parms);
-                }
-
-                // Namespace required
-                if (wsmFilter.AssocFilter.object.getNamespace().size() == 0)
-                {
-                    PEG_METHOD_EXIT();
-                    MessageLoaderParms parms(
-                        "WsmServer.WsmReader.FILTER_OBJECT_NAMESPACE_RQD",
-                        "Filter Object EPR __namespace element required");
-                    throw WsmFault(
-                        WsmFault::wsa_DestinationUnreachable, parms);
-                }
-
-                //R8.2.1-4: If the EPR of the source object does not reference
-                // exactly one valid CIM instance, the service shall respond
-                // with a wsen:CannotProcessFilter fault. Services should
-                // include a textual description of the problem.
-                // Selector must include namespace and at least one key.
-                // This required because the Pegasus calls would map this
-                // to a class operation without a key property in the
-                // CIMObjectPath. We already know that there is a __nameSpacce
-                // selector.
-                if (wsmFilter.AssocFilter.object.selectorSet->selectors.size()
-                    < 2)
-                {
-                    MessageLoaderParms parms(
-                        "WsmServer.WsmReader.INVALID_OBJECT_SELECTOR",
-                        "Invalid Selector. No Instance Keys.");
-                    PEG_METHOD_EXIT();
-                    throw WsmFault(WsmFault::wsen_CannotProcessFilter, parms);
-                }
-            }
-
-            // get AssociationClassName. Do not test if this is part of
-            // filter (i.e. not in association filter) since this is extra
-            // parameter.
-            if (strcmp(elementName, "AssociationClassName") == 0)
-            {
-                checkDuplicateHeader(entry.text,
-                    wsmFilter.AssocFilter.assocClassName.getString().size());
-
-                wsmFilter.AssocFilter.assocClassName =
-                    CIMName(getElementContent(entry));
-            }
-
-            else if (strcmp(elementName, "ResultClassName") == 0)
-            {
-                checkDuplicateHeader(entry.text,
-                    wsmFilter.AssocFilter.resultClassName.getString().size());
-                wsmFilter.AssocFilter.resultClassName =
-                    CIMName(getElementContent(entry));
-            }
-
-            else if (strcmp(elementName, "Role") == 0)
-            {
-                checkDuplicateHeader(entry.text,
-                    wsmFilter.AssocFilter.role.size());
-                wsmFilter.AssocFilter.role = getElementContent(entry);
-            }
-
-            else if (strcmp(elementName, "ResultRole") == 0)
-            {
-                checkDuplicateHeader(entry.text,
-                    wsmFilter.AssocFilter.resultRole.size());
-                wsmFilter.AssocFilter.resultRole = getElementContent(entry);
-            }
-
-        }   // any entries in other namespaces
-        else if ((nsType == WsmNamespaces::WS_ADDRESSING) &&
-            (strcmp(elementName, "IncludeResultProperty") == 0))
-        {
-            /* Error because we do not support fragments.
-            R8.2.1-10: If the query includes one or more IncludeResultProperty
-                 elements, the service shall return each instance representation
-                 using the wsman:XmlFragment element. Within the
-                 wsman:XmlFragment element, the service shall return property
-                 values using the property GEDs defined in the
-                 WS-CIM Mapping Specification. If the query includes one or
-                 more IncludeResultProperty elements, the service shall not
-                 return any IncludeResultProperty elements not specified.
-                 The service shall ignore any IncludeResultProperty elements
-                 that describe properties not defined by the target class. If
-                 the service does not support fragment-level access, it shall
-                 return a wsman:UnsupportedFeature fault with the following
-                 detail code:
-                http://schemas.dmtf.org/wbem/wsman/1/wsman/
-                     //faultDetail/FragmentLevelAccess
-            */
-            PEG_METHOD_EXIT();
-                MessageLoaderParms parms(
-                    "WsmServer.WsmReader.INCLUDERESULTPROPERTY_INVALID",
-                    "IncludeResultProperty not allowed.");
-            throw WsmFault(
-                    WsmFault::wsman_UnsupportedFeature,
-                    parms,
-                    WSMAN_FAULTDETAIL_FRAGMENTLEVELACCESS);
-            // Implementation code when we support fragments.
-            //          String s1;
-            //          s1 = getElementContent(entry);
-            //          propertyListArray.append(s1);
-
-        }
-
-        else
-        {
-            skipElement(entry);
-            // The end tag, if any, has already been consumed.
-            needEndTag = false;
-        }
-
-        if (needEndTag)
-        {
-            expectEndTag(nsType, elementName);
-        }
-    }
-
-    if (gotEntry)
-    {
-        _parser.putBack(entry);
-    }
-
-    // object is required; return a fault if it is missing.
-    if (!seenObject)
-    {
-        expectStartTag(
-            entry, WsmNamespaces::WS_CIM_BINDING, "Object");
-    }
-
-    // if there were propertyList entries and we support fragments,
-    // set into the propertyList parameter and we support fragments.
-    //  if (propertyListArray.size() != 0)
-    //  {
-    //      propertyList.set(propertyListArray);
-    //  }
-
-    // Expect the end tag for AssociatedInstances or AssociationInstances
-    expectEndTag(WsmNamespaces::WS_CIM_BINDING, associatedStartTag);
-
-    PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL4,  // KS_TEMP
-               "Association Filter "
-               "Object Namespace=%s Address=%s resourceUri=%s "
-               "assocFilterType=%u "
-               "assocClassName=%s "
-               "resultClassName=%s "
-               "role=%s "
-               "resultRole=%s",
-               (const char*)
-                   wsmFilter.AssocFilter.object.getNamespace().getCString(),
-               (const char*)wsmFilter.AssocFilter.object.address.getCString(),
-               (const char*)
-                   wsmFilter.AssocFilter.object.resourceUri.getCString(),
-
-               wsmFilter.AssocFilter.assocFilterType,
-               (const char*)
-                 wsmFilter.AssocFilter.assocClassName.getString().getCString(),
-               (const char*)
-                 wsmFilter.AssocFilter.resultClassName.getString().getCString(),
-               (const char*)wsmFilter.AssocFilter.role.getCString(),
-               (const char*)wsmFilter.AssocFilter.resultRole.getCString()));
-    PEG_METHOD_EXIT();
-}
-
-void WsmReader::decodeSubscribeBody(
-    String& deliveryMode,
-    String& destination,
-    String& subExpiration,
-    WsmFilter& wsmFilter)
-{
-    PEG_METHOD_ENTER(TRC_WSMSERVER, "WsmReader::decodeSubscribeBody()");
-    XmlEntry entry;
     expectStartOrEmptyTag(
-        entry, WsmNamespaces::WS_EVENTING, PEGASUS_WS_SUBSCRIBE);
-    Boolean gotEntry; 
-    while ((gotEntry = _parser.next(entry)) &&
-        ((entry.type == XmlEntry::START_TAG) ||
-        (entry.type == XmlEntry::EMPTY_TAG)))
+        entry, WsmNamespaces::WS_ENUMERATION, "Release");
+    if (entry.type != XmlEntry::EMPTY_TAG)
     {
-        int nsType = entry.nsType;
-        const char* elementName = entry.localName;
-        Boolean needEndTag = (entry.type == XmlEntry::START_TAG);
-        if((nsType == WsmNamespaces::WS_EVENTING) && 
-            (strcmp(elementName, "Delivery") == 0))
+        Boolean gotEntry;
+        while ((gotEntry = _parser.next(entry)) &&
+               ((entry.type == XmlEntry::START_TAG) ||
+                (entry.type == XmlEntry::EMPTY_TAG)))
         {
-            _parser.putBack(entry);
-            _decodeDeliveryField(
-                deliveryMode,
-                destination);
-            needEndTag = false;
-        }
-        else if((nsType == WsmNamespaces::WS_EVENTING) &&
-            (strcmp(elementName, "Expires") == 0))
-        {
-            subExpiration = getElementContent(entry); 
-
-            CIMDateTime dt;
-            try
+            int nsType = entry.nsType;
+            const char* elementName = entry.localName;
+            Boolean needEndTag = (entry.type == XmlEntry::START_TAG);
+        
+            if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
+                (strcmp(elementName, "EnumerationContext") == 0))
             {
-                WsmToCimRequestMapper::convertWsmToCimDatetime(
-                    subExpiration,
-                    dt);
+                checkDuplicateHeader(entry.text, seenEnumContext);
+                seenEnumContext = true;
+                enumerationContext = getEnumerationContext(entry);
             }
-            catch (...)
+            else if (mustUnderstand(entry))
             {
-                throw WsmFault(
-                    WsmFault::wse_InvalidExpirationTime,
-                    MessageLoaderParms(
-                        "WsmServer.WsmReader.INVALID_EXPIRATION_TIME",
-                        "The expiration time \"$0\" is not valid",
-                        subExpiration));
-            }
-
-            //If the expiration time is specified in the DateTime format
-            //we need to calculate the duration.
-            //The expiration DateTime - current time will be the duration
-
-            if(dt.isTimeStamp())
-            {
-                dt = dt - CIMDateTime::getCurrentDateTime();
-            }
- 
-            subExpiration = WsmUtils::toMicroSecondString(dt);
-    
-        }
-        else if(((nsType == WsmNamespaces::WS_MAN) || 
-        (nsType == WsmNamespaces::WS_EVENTING)) &&
-            (strcmp(elementName, PEGASUS_PROPERTYNAME_FILTER_CSTRING) == 0))
-        {
-            checkDuplicateHeader(entry.text,
-                wsmFilter.filterDialect != WsmFilter::NONE);
-            _parser.putBack(entry);
-            decodeFilter(wsmFilter, nsType);
-            needEndTag = false;
-        } 
-        else if((nsType== WsmNamespaces::WS_MAN) &&
-            (strcmp(elementName, "SendBookmarks") == 0))
-        {
-            throw WsmFault(
-                    WsmFault::wsman_UnsupportedFeature,
-                    MessageLoaderParms(
-                        "WsmServer.WsmReader.UNSUPPORTED_FEATURE",
-                        "The specified feature is not supported"),
-                    WSMAN_FAULTDETAIL_BOOKMARKS_UNSUPPORTED);            
-        }
-        else if (mustUnderstand(entry))
-        {
-            // DSP0226 R5.2-2: If a service cannot comply with a header
-            // marked with mustUnderstand="true", it shall issue an
-            // s:NotUnderstood fault.
-            XmlNamespace* ns = _parser.getNamespace(nsType);
+                // DSP0226 R5.2-2: If a service cannot comply with a header
+                // marked with mustUnderstand="true", it shall issue an
+                // s:NotUnderstood fault.
                 throw SoapNotUnderstoodFault(
-                ns ? ns->extendedName : String::EMPTY, elementName);
-        }
-        else
-        {
-            skipElement(entry);
-            // The end tag, if any, has already been consumed.
-            needEndTag = false;
-        }
-        if (needEndTag)
-        {
-            expectEndTag(nsType, elementName);
-        }
-    }
-    
-    if (gotEntry)
-    {
-        _parser.putBack(entry);
-    }
+                    _parser.getNamespace(nsType)->extendedName, elementName);
+            }
+            else
+            {
+                skipElement(entry);
+                // The end tag, if any, has already been consumed.
+                needEndTag = false;
+            }
 
-    expectEndTag(WsmNamespaces::WS_EVENTING, PEGASUS_WS_SUBSCRIBE); 
-    PEG_METHOD_EXIT();
-}
-
-
-void WsmReader::_decodeDeliveryField(
-    String& delMode,
-    String& destination)
-{
-    PEG_METHOD_ENTER(TRC_WSMSERVER, "WsmReader::_decodeDeliveryField()");
-    _parser.setHideEmptyTags(true);
-    XmlEntry entry;
-
-    expectStartTag(entry, WsmNamespaces::WS_EVENTING, PEGASUS_WS_DELIVERY);
-    //Check delivery Mode attribute
-    const char* value;
-    if (!entry.getAttributeValue(PEGASUS_WS_DELMODE, value))
-    {
-        MessageLoaderParms parms(
-            "WsmServer.WsmReader.MISSING_ATTRIBUTE",
-            "The attribute $0.$1 is missing.", 
-            PEGASUS_WS_DELIVERY, 
-            PEGASUS_WS_DELMODE);
-        throw XmlValidationError(_parser.getLine(), parms);
-    }
-    // The only supported delivery mode is PUSH. 
-    // If this changes we need to add other delivery modes
-    if(!((strcmp(value,WSMAN_DELIVEY_MODE_PUSH) == 0) || (
-        strcmp(value,WSMAN_DELIVERY_MODE_PUSH_WITH_ACK) == 0)))
-    {
-        MessageLoaderParms parms(
-            "WsmServer.WsmReader.UNSUPPORTED_DELIVERY_MODE",
-            "The requested delivery mode is not supported.");
-        throw WsmFault(WsmFault::wse_DeliveryModeRequestedUnavailable, parms);
-    }
-    else
-    {
-        deliveryMode mode;
-        if(strcmp(value, WSMAN_DELIVEY_MODE_PUSH) == 0)
-        {
-            mode = Push;
-        } 
-        else
-        {
-            mode = PushWithAck; 
+            if (needEndTag)
+            {
+                expectEndTag(nsType, elementName);
+            }
         }
-        char buffer[22];
-        Uint32 size;
-        delMode = Uint16ToString(buffer, mode, size);
-    }
-    while((_parser.next(entry)) &&
-        ((entry.type == XmlEntry::START_TAG) ||
-        (entry.type == XmlEntry::EMPTY_TAG)))
-    {
-        if((entry.nsType== WsmNamespaces::WS_EVENTING) &&
-            (strcmp(entry.localName, PEGASUS_WS_NOTIFYTO) == 0))
+
+        if (gotEntry)
         {
-            checkDuplicateHeader(entry.text, destination.size());
-            getElementStringValue(
-                WsmNamespaces::WS_ADDRESSING,
-                "Address",
-                destination,
-                true);
-            expectEndTag(WsmNamespaces::WS_EVENTING, PEGASUS_WS_NOTIFYTO);
+            _parser.putBack(entry);
         }
-        else if((entry.nsType== WsmNamespaces::WS_MAN) &&
-            (strcmp(entry.localName, "Heartbeats") == 0))
-        {
-            throw WsmFault(
-                    WsmFault::wsman_UnsupportedFeature,
-                    MessageLoaderParms(
-                        "WsmServer.WsmReader.UNSUPPORTED_FEATURE",
-                        "The specified feature is not supported"),
-                    WSMAN_FAULTDETAIL_HEARTBEATS_UNSUPPORTED);            
-        }
-        else if((entry.nsType== WsmNamespaces::WS_MAN) &&
-            (strcmp(entry.localName, "ConnectionRetry") == 0))
-        {
-            // Connection retry is not supported
-            throw WsmFault(
-                    WsmFault::wsman_UnsupportedFeature,
-                    MessageLoaderParms(
-                        "WsmServer.WsmReader.UNSUPPORTED_FEATURE",
-                        "The specified feature is not supported"),
-                    WSMAN_FAULTDETAIL_CONNECTION_RETRY_UNSUPPORTED);
-        } 
+
+        expectEndTag(WsmNamespaces::WS_ENUMERATION, "Release");
     }
-    _parser.setHideEmptyTags(false); 
-    PEG_METHOD_EXIT();
-}
-XmlParser& WsmReader::getParser()
-{
-   return _parser;
 }
 
 PEGASUS_NAMESPACE_END

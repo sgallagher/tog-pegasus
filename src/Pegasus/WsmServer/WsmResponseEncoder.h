@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,9 +39,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class WsmResponse;
-class SoapResponse;
-
 /** This class encodes WS-Man operation requests and passes them up-stream.
  */
 class WsmResponseEncoder
@@ -49,47 +48,27 @@ public:
     WsmResponseEncoder();
     ~WsmResponseEncoder();
 
+    void sendResponse(
+        WsmResponse* response,
+        const String& action = String::EMPTY,
+        Buffer* bodygiven = 0,
+        Buffer* extraHeaders = 0);
+
     void enqueue(WsmResponse* response);
 
-    // The encoding of enumeration responses must be separated from the
-    // sending of the responses to allow proper handling of MaxEnvelopeSize.
-    SoapResponse* encodeWsenEnumerateResponse(
-        WsenEnumerateResponse* response,
-        Uint32& numDataItemsEncoded);
-    SoapResponse* encodeWsenPullResponse(
-        WsenPullResponse* response,
-        Uint32& numDataItemsEncoded);
-    void sendResponse(SoapResponse* response)
-    {
-        _sendResponse(response);
-    }
-
 private:
-
-    void _sendResponse(SoapResponse* response);
-    void _sendUnreportableSuccess(WsmResponse* response);
-    SoapResponse* _buildEncodingLimitFault(WsmResponse* response);
 
     void _encodeWxfGetResponse(WxfGetResponse* response);
     void _encodeWxfPutResponse(WxfPutResponse* response);
     void _encodeWxfCreateResponse(WxfCreateResponse* response);
-    void _encodeWxfSubCreateResponse(WxfSubCreateResponse* response);
     void _encodeWxfDeleteResponse(WxfDeleteResponse* response);
-    void _encodeWxfSubDeleteResponse(WxfSubDeleteResponse* response);
+    void _encodeWsenEnumerateResponse(WsenEnumerateResponse* response);
+    void _encodeWsenPullResponse(WsenPullResponse* response);
     void _encodeWsenReleaseResponse(WsenReleaseResponse* response);
     void _encodeWsmFaultResponse(WsmFaultResponse* response);
     void _encodeSoapFaultResponse(SoapFaultResponse* response);
-    void _encodeWsInvokeResponse(WsInvokeResponse* response);
-
-    Boolean _encodeEnumerationData(
-        SoapResponse& soapResponse,
-        Buffer& headers,
-        WsmOperationType operation,
-        Uint64 contextId,
-        Boolean isComplete,
-        WsenEnumerationData& data,
-        Uint32& numDataItemsEncoded,
-        const String& resourceUri);
+    void _encodeEnumeratedItems(Buffer& body, Uint64 enumerationContext,
+        Array<WsmInstance>& instances, Boolean isComplete);
 };
 
 PEGASUS_NAMESPACE_END

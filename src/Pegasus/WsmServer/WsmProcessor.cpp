@@ -258,45 +258,55 @@ void WsmProcessor::_handleEnumerateResponse(
     }
     else
     {
+        AutoMutex lock(_enumerationContextTableLock);
+        Uint64 contextId = _currentEnumContext++;
+
         AutoPtr<WsenEnumerateResponse> wsmResponse(
             (WsenEnumerateResponse*) _cimToWsmResponseMapper.
                 mapToWsmResponse(wsmRequest, cimResponse));
 
-        // If it's an optimized enumeration, we need to do an effective pull
-        // operation for the requested number of items
-        if (wsmRequest->optimized &&
-            wsmRequest->maxElements >= cimResponse->cimNamedInstances.size())
+        // Create a new context
+        _enumerationContextTable.insert(
+            contextId,
+            EnumerationContext(
+                contextId,
+                wsmRequest->enumerationMode,
+                wsmRequest->expiration, 
+                wsmRequest->epr,
+                wsmResponse.get()));
+        wsmResponse->setEnumerationContext(contextId);
+
+        // Get the requsted chunk of results
+        AutoPtr<WsenEnumerateResponse> splitResponse(
+            _splitEnumerateResponse(wsmRequest, wsmResponse.get(), 
+                wsmRequest->optimized ? wsmRequest->maxElements : 0));
+        splitResponse->setEnumerationContext(contextId);
+
+        // If no instances are left in the orignal response, mark split 
+        // response as complete
+        if (wsmResponse->getInstances().size() == 0)
         {
-            // The entire set of results can be sent back in the
-            // enumerate response message. 
-            // No need to create persistent context.
-            wsmResponse->setComplete();
-            _wsmResponseEncoder.enqueue(wsmResponse.get());
+            splitResponse->setComplete();
+        }
+
+        _wsmResponseEncoder.enqueue(splitResponse.get());
+        if (splitResponse->getInstances().size() > 0)
+        {
+            // Add unprocessed items back to the context
+            wsmResponse->getInstances().
+                appendArray(splitResponse->getInstances());
+        }
+
+        // Remove the context if there are no instances left
+        if (wsmResponse->getInstances().size() == 0)
+        {
+            _enumerationContextTable.remove(contextId);
         }
         else
         {
-            AutoMutex lock(_enumerationContextTableLock);
-            Uint64 contextId = _currentEnumContext++;
-
-            // Create a new context
-            _enumerationContextTable.insert(
-                contextId,
-                EnumerationContext(
-                    contextId,
-                    wsmRequest->enumerationMode,
-                    wsmRequest->expiration, 
-                    wsmRequest->epr,
-                    wsmResponse.get()));
-            wsmResponse->setEnumerationContext(contextId);
-
-            // Get the requsted chunk of results
-            // The response is now owned by the context table, so release it
-            AutoPtr<WsenEnumerateResponse> splitResponse(
-                _splitEnumerateResponse(wsmRequest, wsmResponse.release(), 
-                    wsmRequest->optimized ? wsmRequest->maxElements : 0));
-            splitResponse->setEnumerationContext(contextId);
-
-            _wsmResponseEncoder.enqueue(splitResponse.get());
+            // If the context is not removed, the pointer to the response is
+            // now owned by the context
+            wsmResponse.release();
         }
     }
 }
@@ -323,15 +333,25 @@ void WsmProcessor::_handlePullRequest(WsenPullRequest* wsmRequest)
         AutoPtr<WsenPullResponse> wsmResponse(_splitPullResponse(
             wsmRequest, enumContext->response, wsmRequest->maxElements));
         wsmResponse->setEnumerationContext(enumContext->contextId);
-
         if (enumContext->response->getInstances().size() == 0)
         {
             wsmResponse->setComplete();
-            delete enumContext->response;
-            _enumerationContextTable.remove(wsmRequest->enumerationContext);
         }
 
         _wsmResponseEncoder.enqueue(wsmResponse.get());
+        if (wsmResponse->getInstances().size() > 0)
+        {
+            // Add unprocessed items back to the context
+            enumContext->response->getInstances().
+                appendArray(wsmResponse->getInstances());
+        }
+
+        // Remove the context if there are no instances left
+        if (enumContext->response->getInstances().size() == 0)
+        {
+            delete enumContext->response;
+            _enumerationContextTable.remove(wsmRequest->enumerationContext);
+        }
     }
     else
     {

@@ -61,6 +61,7 @@ SOURCES = \
     WsmResponseEncoder.cpp \
     WsmToCimRequestMapper.cpp \
     CimToWsmResponseMapper.cpp \
-    WsmProcessor.cpp
+    WsmProcessor.cpp \
+    SoapResponse.cpp
 
 include $(ROOT)/mak/library.mak

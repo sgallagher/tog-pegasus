@@ -72,6 +72,11 @@ public:
         WsmOperationType type,
         const String& messageId_)
         : messageId(messageId_),
+          httpMethod(HTTP_METHOD__POST),
+          httpCloseConnect(false),
+          queueId(0),
+          requestEpr(false),
+          maxEnvelopeSize(0),
           _type(type)
     {
     }

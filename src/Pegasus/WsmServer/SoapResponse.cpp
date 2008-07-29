@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include "SoapResponse.h"
@@ -43,7 +45,7 @@ SoapResponse::SoapResponse(WsmResponse* response)
     _maxEnvelopeSize = response->getMaxEnvelopeSize();
     _queueId = response->getQueueId();
     _httpCloseConnect = response->getHttpCloseConnect();
-
+    
     WsmWriter::appendSoapEnvelopeStart(_envStart);
     WsmWriter::appendSoapEnvelopeEnd(_envEnd);
     WsmWriter::appendSoapHeaderStart(_hdrStart);
@@ -51,7 +53,7 @@ SoapResponse::SoapResponse(WsmResponse* response)
     WsmWriter::appendSoapBodyStart(_bodyStart);
     WsmWriter::appendSoapBodyEnd(_bodyEnd);
 
-    switch(response->getOperationType())
+    switch(response->getType())
     {
         case WS_TRANSFER_GET:
             action = WSM_ACTION_GET_RESPONSE;
@@ -65,18 +67,10 @@ SoapResponse::SoapResponse(WsmResponse* response)
             action = WSM_ACTION_CREATE_RESPONSE;
             break;
 
-        case WS_SUBSCRIPTION_CREATE:
-            action = WSM_ACTION_SUBSCRIBE_RESPONSE;
-            break;
-
         case WS_TRANSFER_DELETE:
             action = WSM_ACTION_DELETE_RESPONSE;
             break;
-         
-        case WS_SUBSCRIPTION_DELETE:
-            action = WSM_ACTION_UNSUBSCRIBE_RESPONSE;
-            break;    
-     
+
         case WS_ENUMERATION_ENUMERATE:
             action = WSM_ACTION_ENUMERATE_RESPONSE;
             break;
@@ -91,51 +85,33 @@ SoapResponse::SoapResponse(WsmResponse* response)
 
         case WSM_FAULT:
             action = ((WsmFaultResponse*) response)->getFault().getAction();
-            WsmWriter::appendSoapHeader(_hdrContent,
+            WsmWriter::appendSoapHeader(_hdrContent, 
                 action, response->getMessageId(), response->getRelatesTo());
-            WsmWriter::appendWsmFaultBody(_bodyContent,
+            WsmWriter::appendWsmFaultBody(_bodyContent, 
                 ((WsmFaultResponse*) response)->getFault());
             break;
 
         case SOAP_FAULT:
             action = String(WsmNamespaces::supportedNamespaces[
                 WsmNamespaces::WS_ADDRESSING].extendedName) + String("/fault");
-            WsmWriter::appendSoapFaultHeaders(_hdrContent,
+            WsmWriter::appendSoapFaultHeaders(_hdrContent, 
                 ((SoapFaultResponse*) response)->getFault(),
                 action, response->getMessageId(), response->getRelatesTo());
-            WsmWriter::appendSoapFaultBody(_bodyContent,
+            WsmWriter::appendSoapFaultBody(_bodyContent, 
                 ((SoapFaultResponse*) response)->getFault());
             break;
 
-        case WS_INVOKE:
-        {
-            WsInvokeResponse* rsp = (WsInvokeResponse*)response;
-
-            // Get root of resource URI.
-            String root = WsmUtils::getRootResourceUri(rsp->resourceUri);
-
-            // Build the action.
-            action = root;
-            action.append('/');
-            action.append(rsp->className);
-            action.append('/');
-            action.append(rsp->methodName);
-            break;
-        }
-
         default:
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+            PEGASUS_ASSERT(0);
     }
 
-    WsmWriter::appendHTTPResponseHeader(_httpHeader, action,
-       response->getHttpMethod(), response->getOmitXMLProcessingInstruction(),
-       response->getContentLanguages(),
-       response->getOperationType() == WSM_FAULT || 
-           response->getOperationType() == SOAP_FAULT,0);
+    WsmWriter::appendHTTPResponseHeader(_httpHeader, action, 
+       response->getHttpMethod(), response->getContentLanguages(), 
+       response->getType() == WSM_FAULT || response->getType() == SOAP_FAULT,
+       0);
 
     // Make sure that fault response fits within MaxEnvelopeSize
-    if (response->getOperationType() == WSM_FAULT || 
-        response->getOperationType() == SOAP_FAULT)
+    if (response->getType() == WSM_FAULT || response->getType() == SOAP_FAULT)
     {
         if (_maxEnvelopeSize && getEnvelopeSize() > _maxEnvelopeSize)
         {
@@ -151,7 +127,7 @@ SoapResponse::SoapResponse(WsmResponse* response)
     }
     else
     {
-        WsmWriter::appendSoapHeader(_hdrContent,
+        WsmWriter::appendSoapHeader(_hdrContent, 
             action, response->getMessageId(), response->getRelatesTo());
     }
 }
@@ -159,15 +135,15 @@ SoapResponse::SoapResponse(WsmResponse* response)
 Buffer SoapResponse::getResponseContent()
 {
     Buffer out(WSM_MIN_MAXENVELOPESIZE_VALUE);
-    out << _httpHeader << _envStart << _hdrStart << _hdrContent
-        << _hdrEnd << _bodyStart << _bodyHeader << _bodyContent
+    out << _httpHeader << _envStart << _hdrStart << _hdrContent 
+        << _hdrEnd << _bodyStart << _bodyHeader << _bodyContent 
         << _bodyTrailer << _bodyEnd << _envEnd;
     return out;
 }
 
 Boolean SoapResponse::appendHeader(Buffer& buf)
 {
-    if (_maxEnvelopeSize &&
+    if (_maxEnvelopeSize && 
         getEnvelopeSize() + buf.size() > _maxEnvelopeSize)
     {
         return false;
@@ -178,7 +154,7 @@ Boolean SoapResponse::appendHeader(Buffer& buf)
 
 Boolean SoapResponse::appendBodyContent(Buffer& buf)
 {
-    if (_maxEnvelopeSize &&
+    if (_maxEnvelopeSize && 
         getEnvelopeSize() + buf.size() > _maxEnvelopeSize)
     {
         return false;
@@ -189,7 +165,7 @@ Boolean SoapResponse::appendBodyContent(Buffer& buf)
 
 Boolean SoapResponse::appendBodyHeader(Buffer& buf)
 {
-    if (_maxEnvelopeSize &&
+    if (_maxEnvelopeSize && 
         getEnvelopeSize() + buf.size() > _maxEnvelopeSize)
     {
         return false;
@@ -200,7 +176,7 @@ Boolean SoapResponse::appendBodyHeader(Buffer& buf)
 
 Boolean SoapResponse::appendBodyTrailer(Buffer& buf)
 {
-    if (_maxEnvelopeSize &&
+    if (_maxEnvelopeSize && 
         getEnvelopeSize() + buf.size() > _maxEnvelopeSize)
     {
         return false;

@@ -39,6 +39,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class WsmResponse;
+class SoapResponse;
+
 /** This class encodes WS-Man operation requests and passes them up-stream.
  */
 class WsmResponseEncoder
@@ -48,15 +51,13 @@ public:
     WsmResponseEncoder();
     ~WsmResponseEncoder();
 
-    void sendResponse(
-        WsmResponse* response,
-        const String& action = String::EMPTY,
-        Buffer* bodygiven = 0,
-        Buffer* extraHeaders = 0);
-
     void enqueue(WsmResponse* response);
 
 private:
+
+    void _sendResponse(SoapResponse* response);
+    void _sendUnreportableSuccess(WsmResponse* response);
+    void _sendEncodingLimitFault(WsmResponse* response);
 
     void _encodeWxfGetResponse(WxfGetResponse* response);
     void _encodeWxfPutResponse(WxfPutResponse* response);
@@ -67,8 +68,6 @@ private:
     void _encodeWsenReleaseResponse(WsenReleaseResponse* response);
     void _encodeWsmFaultResponse(WsmFaultResponse* response);
     void _encodeSoapFaultResponse(SoapFaultResponse* response);
-    void _encodeEnumeratedItems(Buffer& body, Uint64 enumerationContext,
-        Array<WsmInstance>& instances, Boolean isComplete);
 };
 
 PEGASUS_NAMESPACE_END

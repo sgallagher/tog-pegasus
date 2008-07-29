@@ -39,6 +39,9 @@
 #include <Pegasus/WsmServer/WsmEndpointReference.h>
 #include <Pegasus/WsmServer/WsmInstance.h>
 #include <Pegasus/WsmServer/WsmSelectorSet.h>
+#include <Pegasus/WsmServer/WsmRequest.h>
+#include <Pegasus/WsmServer/WsmResponse.h>
+#include <Pegasus/WsmServer/SoapResponse.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -421,7 +424,7 @@ static void  _testResponseFormatting(void)
     const char expectedHttpHeader[] = 
         "HTTP/1.1 200 OK\r\nContent-Type: application/soap+xml;charset=UTF-8"
         "\r\ncontent-length: 0000000000\r\nSOAPAction: "
-        "http://schemas.xmlsoap.org/ws/2004/09/transfer/Get\r\n\r\n";
+        "http://schemas.xmlsoap.org/ws/2004/09/transfer/GetResponse\r\n\r\n";
 
     // Create FaultTo header
     WsmWriter::appendStartTag(
@@ -438,17 +441,12 @@ static void  _testResponseFormatting(void)
     WsmWriter::appendInstanceElement(body, inst);
 
     String messageId = WsmUtils::getMessageId();
-    String relatesTo = WsmUtils::getMessageId();
-    Uint32 httpHeaderSize;
-    out = WsmWriter::formatWsmRspMessage(
-        WSM_ACTION_GET,
-        messageId,
-        relatesTo,
-        HTTP_METHOD__POST,
-        contentLanguage,
-        body,
-        header,
-        httpHeaderSize);
+    WxfGetRequest request(messageId, WsmEndpointReference());
+    WxfGetResponse response(inst, &request, contentLanguage);
+    SoapResponse soapResponse(&response);
+    soapResponse.appendHeader(header);
+    soapResponse.appendBodyContent(body);
+    out = soapResponse.getResponseContent();
 
     char* ptr = (char*) out.getData();
     if (strncmp(ptr, expectedHttpHeader, sizeof(expectedHttpHeader)-1) != 0)
@@ -481,10 +479,10 @@ static void  _testResponseFormatting(void)
         wsmLocale, wsmRequestEpr, wsmRequestItemCount);
 
     if (epr.address != WSM_ADDRESS_ANONYMOUS ||
-        wsaAction != WSM_ACTION_GET ||
+        wsaAction != WSM_ACTION_GET_RESPONSE ||
         wsaFrom != String::EMPTY ||
         wsaReplyTo != String::EMPTY ||
-        wsaMessageId != messageId ||
+        wsaMessageId != response.getMessageId() ||
         wsaFaultTo != "http://www.acme.com:5988/wsman" ||
         epr.resourceUri != String::EMPTY ||
         wsmMaxEnvelopeSize != 0 ||
@@ -504,7 +502,6 @@ static void  _testResponseFormatting(void)
 
 static void  _testFaultFormatting(void)
 {
-    String messageId = WsmUtils::getMessageId();
     String relatesTo = WsmUtils::getMessageId();
 
     // Test Soap NotUnderstood fault.
@@ -517,10 +514,11 @@ static void  _testFaultFormatting(void)
 
         SoapNotUnderstoodFault soapFault(WsmNamespaces::supportedNamespaces[
             WsmNamespaces::WS_MAN].extendedName, "RequestedEPR");
+        SoapFaultResponse response(relatesTo, 0, HTTP_METHOD__POST, 
+            false, soapFault);
+        SoapResponse soapResponse(&response);
     
-        Uint32 httpHeaderSize;
-        Buffer out = WsmWriter::formatSoapFault(
-            soapFault, messageId, relatesTo, HTTP_METHOD__POST, httpHeaderSize);
+        Buffer out = soapResponse.getResponseContent();
 
         char* ptr = (char*) out.getData();
         if (strncmp(ptr, expectedHttpHeader, 
@@ -553,7 +551,7 @@ static void  _testFaultFormatting(void)
             WsmNamespaces::WS_ADDRESSING, "RelatesTo", relto, true);
         if (addr != WSM_ADDRESS_ANONYMOUS ||
             action != WSM_ACTION_WSA_FAULT ||
-            mid != messageId ||
+            mid != response.getMessageId() ||
             relto != relatesTo)
             throw Exception("Invalid header");
 
@@ -589,10 +587,11 @@ static void  _testFaultFormatting(void)
 
         WsmFault wsmFault(WsmFault::wsman_AccessDenied, "Whatever reason",
             ContentLanguageList(), "Whatever fault detail");
-
-        Uint32 httpHeaderSize;
-        Buffer out = WsmWriter::formatWsmFault(
-            wsmFault, messageId, relatesTo, HTTP_METHOD__POST, httpHeaderSize);
+        WsmFaultResponse response(relatesTo, 0, HTTP_METHOD__POST, 
+            false, wsmFault);
+        SoapResponse soapResponse(&response);
+    
+        Buffer out = soapResponse.getResponseContent();
 
         char* ptr = (char*) out.getData();
         if (strncmp(ptr, expectedHttpHeader, 
@@ -623,7 +622,7 @@ static void  _testFaultFormatting(void)
             WsmNamespaces::WS_ADDRESSING, "RelatesTo", relto, true);
         if (addr != WSM_ADDRESS_ANONYMOUS ||
             action != WSM_ACTION_WSMAN_FAULT ||
-            mid != messageId ||
+            mid != response.getMessageId() ||
             relto != relatesTo)
             throw Exception("Invalid header");
 

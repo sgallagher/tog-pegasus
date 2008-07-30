@@ -186,10 +186,8 @@ void WsmProcessor::handleResponse(CIMResponseMessage* cimResponse)
         switch (wsmRequest->getType())
         {
             case WS_ENUMERATION_ENUMERATE:
-                PEGASUS_ASSERT(cimResponse->getType() ==
-                    CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE);
                 _handleEnumerateResponse(
-                    (CIMEnumerateInstancesResponseMessage*) cimResponse,
+                    cimResponse,
                     (WsenEnumerateRequest*) wsmRequest);
                 break;
 
@@ -249,7 +247,7 @@ Uint32 WsmProcessor::getWsmRequestDecoderQueueId()
 }
 
 void WsmProcessor::_handleEnumerateResponse(
-    CIMEnumerateInstancesResponseMessage* cimResponse,
+    CIMResponseMessage* cimResponse,
     WsenEnumerateRequest* wsmRequest)
 {
     if (cimResponse->cimException.getCode() != CIM_ERR_SUCCESS)
@@ -282,23 +280,22 @@ void WsmProcessor::_handleEnumerateResponse(
                 wsmRequest->optimized ? wsmRequest->maxElements : 0));
         splitResponse->setEnumerationContext(contextId);
 
-        // If no instances are left in the orignal response, mark split 
+        // If no items are left in the orignal response, mark split 
         // response as complete
-        if (wsmResponse->getInstances().size() == 0)
+        if (wsmResponse->getSize() == 0)
         {
             splitResponse->setComplete();
         }
 
         _wsmResponseEncoder.enqueue(splitResponse.get());
-        if (splitResponse->getInstances().size() > 0)
+        if (splitResponse->getSize() > 0)
         {
             // Add unprocessed items back to the context
-            wsmResponse->getInstances().
-                appendArray(splitResponse->getInstances());
+            wsmResponse->merge(splitResponse.get());
         }
 
         // Remove the context if there are no instances left
-        if (wsmResponse->getInstances().size() == 0)
+        if (wsmResponse->getSize() == 0)
         {
             _enumerationContextTable.remove(contextId);
         }
@@ -333,21 +330,20 @@ void WsmProcessor::_handlePullRequest(WsenPullRequest* wsmRequest)
         AutoPtr<WsenPullResponse> wsmResponse(_splitPullResponse(
             wsmRequest, enumContext->response, wsmRequest->maxElements));
         wsmResponse->setEnumerationContext(enumContext->contextId);
-        if (enumContext->response->getInstances().size() == 0)
+        if (enumContext->response->getSize() == 0)
         {
             wsmResponse->setComplete();
         }
 
         _wsmResponseEncoder.enqueue(wsmResponse.get());
-        if (wsmResponse->getInstances().size() > 0)
+        if (wsmResponse->getSize() > 0)
         {
             // Add unprocessed items back to the context
-            enumContext->response->getInstances().
-                appendArray(wsmResponse->getInstances());
+            enumContext->response->merge(wsmResponse.get());
         }
 
         // Remove the context if there are no instances left
-        if (enumContext->response->getInstances().size() == 0)
+        if (enumContext->response->getSize() == 0)
         {
             delete enumContext->response;
             _enumerationContextTable.remove(wsmRequest->enumerationContext);
@@ -415,41 +411,91 @@ void WsmProcessor::_handleDefaultResponse(
 WsenEnumerateResponse* WsmProcessor::_splitEnumerateResponse(
     WsenEnumerateRequest* request, WsenEnumerateResponse* response, Uint32 num)
 {
-    Array<WsmInstance> splitInstances;
-    Array<WsmInstance>& instances = response->getInstances();
-
-    Uint32 i;
-    for (i = 0; i < num && i < instances.size(); i++)
+    if (response->getEnumerationMode() == WSEN_EM_OBJECT)
     {
-        splitInstances.append(instances[i]);
-    }
-    instances.remove(0, i);
+        Array<WsmInstance> splitInstances;
+        Array<WsmInstance>& instances = response->getInstances();
 
-    return new WsenEnumerateResponse(
-        splitInstances, 
-        response->getItemCount(),
-        request, 
-        response->getContentLanguages());
+        Uint32 i;
+        for (i = 0; i < num && i < instances.size(); i++)
+        {
+            splitInstances.append(instances[i]);
+        }
+        instances.remove(0, i);
+
+        return new WsenEnumerateResponse(
+            splitInstances, 
+            response->getItemCount(),
+            request, 
+            response->getContentLanguages());
+    }
+    else if (response->getEnumerationMode() == WSEN_EM_EPR)
+    {
+        Array<WsmEndpointReference> splitEPRs;
+        Array<WsmEndpointReference>& EPRs = response->getEPRs();
+
+        Uint32 i;
+        for (i = 0; i < num && i < EPRs.size(); i++)
+        {
+            splitEPRs.append(EPRs[i]);
+        }
+        EPRs.remove(0, i);
+
+        return new WsenEnumerateResponse(
+            splitEPRs, 
+            response->getItemCount(),
+            request, 
+            response->getContentLanguages());
+    }
+    else
+    {
+        PEGASUS_ASSERT(0);
+        return NULL;
+    }
 }
 
 WsenPullResponse* WsmProcessor::_splitPullResponse(
     WsenPullRequest* request, WsenEnumerateResponse* response, Uint32 num)
 {
-    Array<WsmInstance> splitInstances;
-    Array<WsmInstance>& instances = response->getInstances();
-
-    Uint32 i;
-    for (i = 0; i < num && i < instances.size(); i++)
+    if (response->getEnumerationMode() == WSEN_EM_OBJECT)
     {
-        splitInstances.append(instances[i]);
-    }
-    instances.remove(0, i);
+        Array<WsmInstance> splitInstances;
+        Array<WsmInstance>& instances = response->getInstances();
 
-    return new WsenPullResponse(
-        splitInstances, 
-        response->getEnumerationMode(),
-        request, 
-        response->getContentLanguages());
+        Uint32 i;
+        for (i = 0; i < num && i < instances.size(); i++)
+        {
+            splitInstances.append(instances[i]);
+        }
+        instances.remove(0, i);
+        
+        return new WsenPullResponse(
+            splitInstances, 
+            request, 
+            response->getContentLanguages());
+    }
+    else if (response->getEnumerationMode() == WSEN_EM_EPR)
+    {
+        Array<WsmEndpointReference> splitEPRs;
+        Array<WsmEndpointReference>& EPRs = response->getEPRs();
+
+        Uint32 i;
+        for (i = 0; i < num && i < EPRs.size(); i++)
+        {
+            splitEPRs.append(EPRs[i]);
+        }
+        EPRs.remove(0, i);
+        
+        return new WsenPullResponse(
+            splitEPRs, 
+            request, 
+            response->getContentLanguages());
+    }
+    else
+    {
+        PEGASUS_ASSERT(0);
+        return NULL;
+    }
 }
 
 PEGASUS_NAMESPACE_END

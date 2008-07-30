@@ -84,8 +84,22 @@ CIMOperationRequestMessage* WsmToCimRequestMapper::mapToCimRequest(
             break;
 
         case WS_ENUMERATION_ENUMERATE:
-            cimRequest.reset(mapToCimEnumerateInstancesRequest(
-                (WsenEnumerateRequest*) request));
+            if (((WsenEnumerateRequest*) request)->enumerationMode == 
+                WSEN_EM_OBJECT)
+            {
+                cimRequest.reset(mapToCimEnumerateInstancesRequest(
+                    (WsenEnumerateRequest*) request));
+            }
+            else if (((WsenEnumerateRequest*) request)->enumerationMode == 
+                     WSEN_EM_EPR)
+            {
+                cimRequest.reset(mapToCimEnumerateInstanceNamesRequest(
+                    (WsenEnumerateRequest*) request));
+            }
+            else
+            {
+                PEGASUS_ASSERT(0);
+            }
             break;
 
         case WS_ENUMERATION_PULL:
@@ -266,6 +280,26 @@ CIMEnumerateInstancesRequestMessage*
             false, // includeQualifiers
             false, // includeClassOrigin
             CIMPropertyList(),
+            QueueIdStack(request->queueId),
+            request->authType,
+            request->userName);
+    cimRequest->ipAddress = request->ipAddress;
+
+    return cimRequest;
+}
+
+CIMEnumerateInstanceNamesRequestMessage*
+    WsmToCimRequestMapper::mapToCimEnumerateInstanceNamesRequest(
+        WsenEnumerateRequest* request)
+{
+    CIMObjectPath objPath;
+    convertEPRToObjectPath(request->epr, objPath);
+
+    CIMEnumerateInstanceNamesRequestMessage* cimRequest = 
+        new CIMEnumerateInstanceNamesRequestMessage(
+            XmlWriter::getNextMessageId(),
+            objPath.getNameSpace(),
+            objPath.getClassName(),
             QueueIdStack(request->queueId),
             request->authType,
             request->userName);

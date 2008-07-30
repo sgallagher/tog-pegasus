@@ -83,6 +83,9 @@ private:
     WsenEnumerateResponse* _mapToWsenEnumerateResponse(
         const WsenEnumerateRequest* wsmRequest,
         const CIMEnumerateInstancesResponseMessage* response);
+    WsenEnumerateResponse* _mapToWsenEnumerateResponse(
+        const WsenEnumerateRequest* wsmRequest,
+        const CIMEnumerateInstanceNamesResponseMessage* response);
     WsmFaultResponse* _mapToWsmFaultResponse(
         const WsmRequest* wsmRequest,
         const CIMResponseMessage* message);

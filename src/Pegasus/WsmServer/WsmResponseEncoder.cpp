@@ -331,7 +331,8 @@ void WsmResponseEncoder::_encodeWsenEnumerateResponse(
     }
 
     WsmWriter::appendStartTag(
-        bodyHeader, WsmNamespaces::WS_ENUMERATION, STRLIT("EnumerateResponse"));
+        bodyHeader, WsmNamespaces::WS_ENUMERATION, 
+        STRLIT("EnumerateResponse"));
 
     if (!response->isComplete())
     {
@@ -353,8 +354,7 @@ void WsmResponseEncoder::_encodeWsenEnumerateResponse(
             STRLIT("EndOfSequence"));
     }
 
-    Array<WsmInstance>& instances = response->getInstances();
-    if (instances.size() > 0)
+    if (response->getSize() > 0)
     {
         WsmWriter::appendStartTag(
             bodyHeader, WsmNamespaces::WS_ENUMERATION, STRLIT("Items"));
@@ -375,22 +375,52 @@ void WsmResponseEncoder::_encodeWsenEnumerateResponse(
         return;
     }
 
-    // Now add the list of instances
+    // Now add the list of items
     Uint32 i;
-    for (i = 0; i < instances.size(); i++)
+
+    if (response->getEnumerationMode() == WSEN_EM_OBJECT)
     {
-        Buffer body;
-        WsmWriter::appendInstanceElement(body, instances[i]);
-        if (!soapResponse.appendBodyContent(body))
+        Array<WsmInstance>& instances = response->getInstances();
+        for (i = 0; i < instances.size(); i++)
         {
-            break;
+            Buffer body;
+            WsmWriter::appendInstanceElement(body, instances[i]);
+            if (!soapResponse.appendBodyContent(body))
+            {
+                break;
+            }
         }
+    }
+    else if (response->getEnumerationMode() == WSEN_EM_EPR)
+    {
+        Array<WsmEndpointReference>& EPRs = response->getEPRs();
+        for (i = 0; i < EPRs.size(); i++)
+        {
+            Buffer body;
+            WsmWriter::appendStartTag(
+                body, 
+                WsmNamespaces::WS_ADDRESSING, 
+                STRLIT("EndpointReference"));
+            WsmWriter::appendEPRElement(body, EPRs[i]);
+            WsmWriter::appendEndTag(
+                body, 
+                WsmNamespaces::WS_ADDRESSING, 
+                STRLIT("EndpointReference"));
+            if (!soapResponse.appendBodyContent(body))
+            {
+                break;
+            }
+        }
+    }
+    else
+    {
+        PEGASUS_ASSERT(0);
     }
 
     // If the list is not empty, but none of the item have been successfully
     // added to the soapResponse, fault the request because it cannot be
     // encoded within the specified limits.
-    if (instances.size() > 0 && i == 0)
+    if (response->getSize() > 0 && i == 0)
     {
         _sendEncodingLimitFault(response);
         return;
@@ -398,7 +428,7 @@ void WsmResponseEncoder::_encodeWsenEnumerateResponse(
 
     // Remove the items we processed. The rest will be added back 
     // to the context
-    instances.remove(0, i);
+    response->remove(0, i);
 
     _sendResponse(&soapResponse);
 }
@@ -431,8 +461,7 @@ void WsmResponseEncoder::_encodeWsenPullResponse(WsenPullResponse* response)
             STRLIT("EndOfSequence"));
     }
 
-    Array<WsmInstance>& instances = response->getInstances();
-    if (instances.size() > 0)
+    if (response->getSize() > 0)
     {
         WsmWriter::appendStartTag(
             bodyHeader, WsmNamespaces::WS_ENUMERATION, STRLIT("Items"));
@@ -454,20 +483,50 @@ void WsmResponseEncoder::_encodeWsenPullResponse(WsenPullResponse* response)
 
     // Now add the list of instances
     Uint32 i;
-    for (i = 0; i < instances.size(); i++)
+
+    if (response->getEnumerationMode() == WSEN_EM_OBJECT)
     {
-        Buffer body;
-        WsmWriter::appendInstanceElement(body, instances[i]);
-        if (!soapResponse.appendBodyContent(body))
+        Array<WsmInstance>& instances = response->getInstances();
+        for (i = 0; i < instances.size(); i++)
         {
-            break;
+            Buffer body;
+            WsmWriter::appendInstanceElement(body, instances[i]);
+            if (!soapResponse.appendBodyContent(body))
+            {
+                break;
+            }
         }
+    }
+    else if (response->getEnumerationMode() == WSEN_EM_EPR)
+    {
+        Array<WsmEndpointReference>& EPRs = response->getEPRs();
+        for (i = 0; i < EPRs.size(); i++)
+        {
+            Buffer body;
+            WsmWriter::appendStartTag(
+                body, 
+                WsmNamespaces::WS_ADDRESSING, 
+                STRLIT("EndpointReference"));
+            WsmWriter::appendEPRElement(body, EPRs[i]);
+            WsmWriter::appendEndTag(
+                body, 
+                WsmNamespaces::WS_ADDRESSING, 
+                STRLIT("EndpointReference"));
+            if (!soapResponse.appendBodyContent(body))
+            {
+                break;
+            }
+        }
+    }
+    else
+    {
+        PEGASUS_ASSERT(0);
     }
 
     // If the list is not empty, but none of the item have been successfully
     // added to the soapResponse, fault the request because it cannot be
     // encoded within the specified limits.
-    if (instances.size() > 0 && i == 0)
+    if (response->getSize() > 0 && i == 0)
     {
         _sendEncodingLimitFault(response);
         return;
@@ -475,7 +534,7 @@ void WsmResponseEncoder::_encodeWsenPullResponse(WsenPullResponse* response)
 
     // Remove the items we processed. The rest will be added back 
     // to the context
-    instances.remove(0, i);
+    response->remove(0, i);
 
     _sendResponse(&soapResponse);
 }

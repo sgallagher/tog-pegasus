@@ -63,6 +63,8 @@ public:
         WxfDeleteRequest* request);
     CIMEnumerateInstancesRequestMessage* mapToCimEnumerateInstancesRequest(
         WsenEnumerateRequest* request);
+    CIMEnumerateInstanceNamesRequestMessage* 
+        mapToCimEnumerateInstanceNamesRequest(WsenEnumerateRequest* request);
 
     CIMName convertResourceUriToClassName(const String& resourceUri);
     String convertEPRAddressToHostname(const String& addr);

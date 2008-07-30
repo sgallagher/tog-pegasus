@@ -110,7 +110,7 @@ private:
     void _handlePullRequest(WsenPullRequest* wsmRequest);
     void _handleReleaseRequest(WsenReleaseRequest* wsmRequest);
     void _handleEnumerateResponse(
-        CIMEnumerateInstancesResponseMessage* cimResponse,
+        CIMResponseMessage* cimResponse,
         WsenEnumerateRequest* wsmRequest);
     void _handleDefaultResponse(
         CIMResponseMessage* cimResponse,

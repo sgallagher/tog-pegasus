@@ -1085,17 +1085,17 @@ void WsmReader::decodeEnumerateBody(
                 checkDuplicateHeader(entry.text, 
                     enumerationMode != WSEN_EM_UNKNOWN);
                 const char* content = getElementContent(entry);
-#if 0
                 if (strcmp(content, "EnumerateEPR") == 0)
                 {
                     enumerationMode = WSEN_EM_EPR;
                 }
+#if 0
                 else if (strcmp(content, "EnumerateObjectAndEPR") == 0)
                 {
                     enumerationMode = WSEN_EM_OBJECT_AND_EPR;
                 }
-                else
 #endif
+                else
                 {
                     throw WsmFault(
                         WsmFault::wsman_UnsupportedFeature,

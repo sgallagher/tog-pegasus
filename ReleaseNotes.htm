@@ -1011,15 +1011,15 @@ Enhancement Proposal (PEP)<o:p></o:p></span></b></p>
 
 <br>
 
-<b>PEP #:</b> 306<br>
+<b>PEP #:</b> 332<br>
 
 </span></p>
 
 <p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Title: </b>Release
-Notes for OpenPegasus 2.7.0</p>
+Notes for OpenPegasus 2.8.0</p>
 
 
-<p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Created:</b> 3 October 2007</p>
+<p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Created:</b> 21 June 2008</p>
 
 <p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Authors: </b>Karl Schopmeyer<br>
 
@@ -1071,8 +1071,8 @@ Notes for OpenPegasus 2.7.0</p>
 
       <td style="padding: 0.75pt;" align="left" height="22">
       
-      <p class="MsoNormal" style="text-align: center;" align="center"><span style="font-family: Arial; color: black;"><o:p><font size="2">&nbsp;</font></o:p></span><font size="2"><span style="font-family: Arial">3 
-		October 2007</span></font></p>
+      <p class="MsoNormal" style="text-align: center;" align="center">
+		<font size="2"><span style="font-family: Arial">21 June 2008</span></font></p>
 
       </td>
 
@@ -1097,12 +1097,11 @@ Submission</font><o:p><font size="2">
 
       <td style="padding: 0.75pt;" align="center" height="21">1.1</td>
 
-      <td style="padding: 0.75pt;" align="center" height="21">8 October 2007</td>
+      <td style="padding: 0.75pt;" align="center" height="21">6 July 2008</td>
 
       <td style="padding: 0.75pt;" align="center" height="21">Karl Schopmeyer</td>
 
-      <td style="padding: 0.75pt;" height="21">Incorporate data from 2.6.1 
-		release notes. Fix per comments in 1.0</td>
+      <td style="padding: 0.75pt;" height="21">Incorporate initial comments</td>
 
     </tr>
 
@@ -1110,12 +1109,12 @@ Submission</font><o:p><font size="2">
 
       <td style="padding: 0.75pt;" align="center" height="21">1.2</td>
 
-      <td style="padding: 0.75pt;" align="center" height="21">11 October 2007</td>
+      <td style="padding: 0.75pt;" align="center" height="21">11 July 2008</td>
 
       <td style="padding: 0.75pt;" align="center" height="21">Karl Schopmeyer</td>
 
-      <td style="padding: 0.75pt;" height="21">Comments from V 1.1 and add 
-		existing document links. Add pep 302 to enhancements</td>
+      <td style="padding: 0.75pt;" height="21">Incorporate All Comments to date 
+		(See discussion for list of changes)</td>
 
     </tr>
 
@@ -1123,11 +1122,12 @@ Submission</font><o:p><font size="2">
 
       <td style="padding: 0.75pt;" align="center" height="21">1.3</td>
 
-      <td style="padding: 0.75pt;" align="center" height="21">15 October 2007</td>
+      <td style="padding: 0.75pt;" align="center" height="21">23 July 2008</td>
 
       <td style="padding: 0.75pt;" align="center" height="21">Karl Schopmeyer</td>
 
-      <td style="padding: 0.75pt;" height="21">Add final links</td>
+      <td style="padding: 0.75pt;" height="21">Add bug 7501 to compatibility 
+		issues table. Remove temp change list section</td>
 
     </tr>
 
@@ -1153,7 +1153,7 @@ Submission</font><o:p><font size="2">
 <hr align="center" color="#009900" noshade="noshade" size="2"
  width="100%"></span></div>
 <p><b>Abstract:</b> This document defines the release notes for the
-2.7.0 release of the OpenPegasus CIM Server. The purpose of this PEP is
+2.8.0 release of the OpenPegasus CIM Server. The purpose of this PEP is
 to summarize the characteristics of this release, point to other
 documentation that defines the release in more detail, and provide
 additional information about this release that is not available in the
@@ -1217,8 +1217,8 @@ Pegasus overall status by release is defined by&nbsp; a
 that is available on the OpenPegasus web site .&nbsp; That web page shows the 
 Pegasus users and developers the status of the various features found in Pegasus 
 using a simple color coded key (white, red, yellow, green) and a description of 
-each feature.<p>Pegasus 2.7.0 
-is a major release, extending Pegasus 2.6 in selected 
+each feature.<p>Pegasus 2.8.0 
+is a major release, extending the previous Pegasus release in selected 
 areas as described in the Pegasus&nbsp; PEP defining this release  
 .&nbsp; </p>
 
@@ -1238,67 +1238,63 @@ more information access the PEP for each change defined:</p>
       <TH bgColor=#00FFFF width="128">Posted PEP<br>Version</TH>
     </TR>
     <TR align="center">
-      <TD width="7%">284</TD>
-      <TD align="left" width="75%">Add Platform support IBM i5/PASE - Portable Application 
-		Solutions Environment (PASE)</TD>
+      <TD width="7%">307</TD>
+      <TD align="left" width="75%">Memory Resident Repository</TD>
       <TD width="128">
-          <a href="http://www.openpegasus.org/pp/uploads/40/14901/PEP284_Porting_Pegasus_to_i5PASE_platform.html">
-			1.6</a></TD>
+          <a href="https://www.openpegasus.org/pp/uploads/40/16769/PEP307_DisklessRepository.htm">
+			1.3.1</a></TD>
     </TR>
-    <TR align="center">
-      <TD width="7%">286</TD>
-      <TD align="left" width="75%">Reduce the Amount of CIM Server code that runs Privileged 
-		(Privilege Separation)</TD>
+    <tr>
+      <TD width="7%">
+		<p align="center">311</TD>
+      <TD align="left" width="75%">WS-Management Support in CIM Server</TD>
       <TD width="128">
-      <a href="http://www.openpegasus.org/pp/uploads/40/14414/PEP286_PrivilegeSeparation.htm">
-		1.8</a></TD>
-    </TR>
+      <p align="center">
+      <a href="http://www.openpegasus.org/pp/uploads/40/16744/PEP311_WSManSupportInCIMServer_1_4.htm" style="color: blue; text-decoration: underline; text-underline: single">
+		1.4</a></TD>
+    </tr>
     <TR align="center">
-      <TD width="7%">291</TD>
-      <TD align="left" width="75%">Add Support for IPv6 - Stage 1 (Note: This functionality 
-		was made available but normally disabled 
-		<span style="font-family: Arial">Pegasus 2.6.1)</span></TD>
+      <TD width="7%">313</TD>
+      <TD align="left" width="75%">Pluggable Provider Managers - Enhancement</TD>
       <TD width="128">
-          <a href="http://www.openpegasus.org/pp/uploads/40/14222/PEP_291_IPv6.html">
-			1.2</a></TD>
-    </TR>
-    <TR align="center">
-      <TD width="7%">62</TD>
-      <TD align="left" width="75%">Add IPV6 Support for SNMP Indication Handler 
-		and include NET-SNMP indication handler in Linux RPM </TD>
-      <TD width="128">
-          <a href="http://www.openpegasus.org/pp/uploads/40/3163/PEP062_SNMPMapper.pdf">
-			1.1</a></TD>
-    </TR>
-    <TR align="center">
-      <TD width="7%">130</TD>
-      <TD align="left" width="75%">Enable Remote CMPI for Windows</TD>
-      <TD width="128">
-      <a href="http://www.openpegasus.org/pp/uploads/40/7775/RemoteCMPI1.2-PEP.html">
+      <a href="http://www.openpegasus.org/pp/uploads/40/16698/PEP_313_PluggableProviderManagers.html">
 		1.2</a></TD>
     </TR>
     <TR align="center">
-      <TD width="7%">302</TD>
-      <TD align="left" width="75%">Enhanced Log File Support</TD>
+      <TD width="7%">315</TD>
+      <TD align="left" width="75%">Tracing in OpenPegasus - Enhancement</TD>
       <TD width="128">
-      <a href="http://www.openpegasus.org/pp/uploads/40/14902/PEP302_LogFileSupportFinal.html">
+      <a href="https://www.openpegasus.org/pp/uploads/40/16768/PEP_315_-Tracing_in_OpenPegasus.htm">
 		1.0</a></TD>
     </TR>
     <TR align="center">
-      <TD width="7%">258</TD>
-      <TD align="left" width="75%">Add support for certificate-based authentication audit 
-		logging</TD>
+      <TD width="7%">319</TD>
+      <TD align="left" width="75%">Profile Registration Profile Support</TD>
       <TD width="128">
-      <a href="http://www.openpegasus.org/pp/uploads/40/14428/PEP258_AuditLogging.htm">
-		1.5</a></TD>
+      <a href="http://www.openpegasus.org/pp/uploads/40/16888/PEP319_DMTF_PRP_1_3.htm">
+		1.3</a></TD>
     </TR>
     <TR align="center">
-      <TD width="7%">Bugzilla 6466</TD>
-      <TD align="left" width="75%">Add two new trace components to facilitate 
-		triage of indication delivery issues</TD>
+      <TD width="7%">322</TD>
+      <TD align="left" width="75%">Track Generated Indications Data</TD>
       <TD width="128">
-          <a href="http://cvs.rdg.opengroup.org/bugzilla/show_bug.cgi?id=6466">
-			Bug 6466</a></TD>
+      <a href="https://www.openpegasus.org/pp/uploads/40/16767/PEP322_IndStatisticData.htm">
+		1.2</a></TD>
+    </TR>
+    <TR align="center">
+      <TD width="7%">323</TD>
+      <TD align="left" width="75%">DMTf Indication Profile Implementation, Stage 
+		1 (DMTF DSP 1054)</TD>
+      <TD width="128">
+          <a href="https://www.openpegasus.org/pp/uploads/40/16770/PEP323_DMTF_Indication_Profile_stage_1.htm">
+			1.0</a></TD>
+    </TR>
+    <TR align="center">
+      <TD width="7%">322</TD>
+      <TD align="left" width="75%">Track Generated Indications Data</TD>
+      <TD width="128">
+          <a href="http://www.openpegasus.org/pp/uploads/40/16873/PEP322_IndStatisticData.htm">
+			1.2</a></TD>
     </TR>
    </TBODY>
  </TABLE>
@@ -1314,6 +1310,9 @@ under the control of the Pegasus bugzilla bug system. See the bug section below
 for more information.</p>
 
 <h3><font color="#000000">Information on&nbsp; IPv6 Support (PEP 291)</font></h3>
+<p><b>NOTE:</b> This functionality was incorporated in OpenPegasus 2.7.0 but it 
+was felt that the information below was worth repeating in the 2.8.0 Release 
+Notes</p>
 <p style="color: rgb(153, 51, 153);"><font color="#000000">IPv6 is short for "Internet
 Protocol
 Version 6". IPv6 is the "next generation" protocol designed by the IETF
@@ -1459,7 +1458,7 @@ are certain classes of errors (e.g., non-compliance with a standard that
 significantly affects interoperability) that may require the Community to make 
 potentially incompatible changes. The following table contains a list of defect 
 fixes that MAY impact, even well-behaved, OpenPegasus Providers or Clients when 
-upgrading to OpenPegasus 2.7.0.</p>
+upgrading to OpenPegasus 2.8.0.</p>
   <TABLE style="FONT-FAMILY: Arial" cellSpacing=1 borderColorDark=#666666 
   borderColorLight=#CCCCCC border=1 width="80%">
     <TBODY>
@@ -1468,22 +1467,98 @@ upgrading to OpenPegasus 2.7.0.</p>
       <TH bgColor=#00FFFF>Description</TH>
      </TR>
      <TR align="center">
-      <TD>6476</TD>
-      <TD align="left"><font face="Times New Roman">HP-UX only:  Introduction of the "explicit" keyword in CIMClass.h and CIMInstance.h may introduce
-          a compile error in some code.  Specifically, a compiler-supplied automatic conversion from CIMObject
-          type to CIMClass or CIMInstance has been removed.  The cast operation must be explicitly specified.
-		</font>
-      </TD>
+      <TD><a href="http://cvs.rdg.opengroup.org/bugzilla/show_bug.cgi?id=6812">6812</a></TD>
+      <TD align="left">In Pegasus 2.8, the behavior of the setName() method is 
+		changed in the Pegasus C++ interface for the CIM data type model. For 
+		data types that use a shared representation model, the setName() method 
+		now throws an Exception when the object is &quot;contained&quot; by another CIM 
+		data object. <br>
+		Specifically, setName() may throw the new exception in these cases: <br>
+		<u>CIMProperty</u> contained by CIMClass, CIMInstance, and CIMObject <br>
+		<u>CIMQualifier</u> contained by CIMClass, CIMInstance, CIMObject, 
+		CIMProperty, CIMParameter, and CIMMethod <br>
+		<u>CIMMethod</u> contained by CIMClass <br>
+		<u>CIMParameter</u> contained by CIMMethod</TD>
      </TR>
      <TR align="center">
-      <TD>6608</TD>
+      <TD><a href="http://cvs.rdg.opengroup.org/bugzilla/show_bug.cgi?id=7453">7453</a></TD>
       <TD>
-		<p align="left">WIPCR00430 recommends an unquoted charset parameter in Content-type header. See the writeup in this bug for a discussion of the validation of the charset parameter in various OpenPegasus releases. In 2.7 we perform "extended" validation that should ignore differences based on whitespace or quotes. The CR recommendation is to not use quotes on the charset parameter, but only at a time when it is expected that all CIMOMs have been updated to accept the charset parameter with or without quotes.</TD>
+		<p align="left">In Pegasus 2.8, the C++ CMPI IndicationMI function 
+		signatures have been changed to fit the CMPIIndicationMIFT definitions.
+		<br>
+		The CmpiResult parameter in CmpiIndicationMI authorizeFilter, mustPoll, 
+		activateFilter and deActivateFilter have been removed cause it does not 
+		exist in the CMPIIndicationMIFT definitions. <br>
+		The missing CmpiContext parameter and CMPIStatus have been added to 
+		enableIndications and disableIndications.</TD>
      </TR>
      <TR align="center">
-      <TD>6458/6770</TD>
+      <TD><a href="http://cvs.rdg.opengroup.org/bugzilla/show_bug.cgi?id=7488">7488</a></TD>
       <TD>
-		<p align="left">The MOF Compiler now rejects some property values that are invalid according to the DMTF specification that it previously accepted.</TD>
+		<p align="left">In Pegasus 2.8, the CMPI property filter handling has 
+		been improved in performance. <br>
+		Two things have changed in the behaviour of the property filter 
+		handling: <br>
+		* Repeated applying of property filters onto the same instance will now 
+		only leave the properties which build the most common dominator on the 
+		instance. <br>
+		* It is not possible anymore to add properties not defined for the 
+		corresponding class to an instance.</TD>
+     </TR>
+     <TR align="center">
+      <TD><a href="http://cvs.rdg.opengroup.org/bugzilla/show_bug.cgi?id=7624">7624</a></TD>
+      <TD>
+		<p align="left">In Pegasus 2.8, the algorithm used by the MessageLoader 
+		to search the accept language list to determine which message file to 
+		open was changed. Before Pegasus 2.8, the Message Loader used the 
+		following algorithm: </p>
+		<blockquote>
+			<p align="left">1.) The Message Loader will search the accept 
+			language list for an exact match. The first exact match found will 
+			be returned.<br>
+			2.) If an exact match does not exist, the Message Loader will return 
+			an ICU &quot;fallback&quot; match for the first entry in accept language list.<br>
+			3.) If an ICU &quot;fallback&quot; match does not exist for the first entry, 
+			it will return the ROOT resource bundle.</p>
+		</blockquote>
+		<p align="left">With the release of Pegasus 2.8, the Message Loader will 
+		not longer return ICU &quot;fallback&quot; matches. In addition, it will give 
+		preference to the default process locale over the ROOT resource bundle. 
+		In Pegasus 2.8, the Message Loader has been modified to use the 
+		following algorithm: </p>
+		<ul>
+			<p align="left">1.) The Message Loader will search the accept 
+			language list for an exact match. The first exact match found will 
+			be returned.<br>
+			2.) If an exact match does not exist, the Message Loader will return 
+			an exact match for the default process locale.<br>
+			3.) If an exact match for the default process locale is not found, 
+			it will return the ROOT resource bundle.</p>
+		</ul>
+		</TD>
+     </TR>
+     <TR align="center">
+      <TD><a href="http://cvs.rdg.opengroup.org/bugzilla/show_bug.cgi?id=7501">
+		7501</a></TD>
+      <TD>
+		<p align="left">Since OpenPegasus 2.7.2 the way CMPI_chars are added to 
+		arrays was corrected to follow the CMPI specification. Following the 
+		CMPI specification means that CMPI_chars are not to be dereferenced, 
+		contrary to all other subtypes of CMPIValues.<br>
+		If you experience an error since switching over to OpenPegasus 2.8 
+		saying &quot;The byte sequence starting at offset xx is not valid UTF-8 
+		encoding&quot;, this is an indication for a missing update in the provider 
+		code.<br>
+		<br>
+		The update for a C CMPI provider using arrays of CMPI_chars is to use a 
+		char* now as input parameter instead of a char**.<br>
+		<u>CMPI Example:</u><br>
+&nbsp;&nbsp;&nbsp; char* role = &quot;Unknown&quot;;<br>
+&nbsp;&nbsp;&nbsp; array = CMNewArray(_broker,1,CMPI_chars,rc);<br>
+		<i>from:</i><br>
+&nbsp;&nbsp;&nbsp; CMSetArrayElementAt(array,0,(CMPIValue*)<b>&amp;</b>role,CMPI_chars);<br>
+		<i>to:</i><br>
+&nbsp;&nbsp;&nbsp; CMSetArrayElementAt(array,0,(CMPIValue*)role,CMPI_chars);</TD>
      </TR>
     </TBODY>
   </TABLE>
@@ -1508,11 +1583,11 @@ today.</p>
     </tr>
     <tr>
       <td width="33%">DSP 0200 - CIM Operations over HTTP</td>
-      <td width="33%">1.2.0, preliminary, 9 December 2004</td>
+      <td width="33%">Version 1.2, Final, January 09, 2007</td>
     </tr>
     <tr>
       <td width="33%">DSP 0201 - Representation of CIM in XML</td>
-      <td width="33%">2.2.0, preliminary, December 2004</td>
+      <td width="33%">Version 2.2 Final, January 09, 2007</td>
     </tr>
     <tr>
       <td width="33%">DSP 0202 - CIM Query Language Specification</td>
@@ -1528,7 +1603,7 @@ today.</p>
     </tr>
     <tr>
       <td width="33%">CIM Schema </td>
-      <td width="33%">2.13.1 Final, Jan. 2005 ( default) </td>
+      <td width="33%">2.17.1 Final,&nbsp; 14 Dec 2007( default) </td>
     </tr>
   </tbody>
 </table>
@@ -1595,34 +1670,37 @@ does not support the DMTF defined MultiRequest Operation option.</p>
     <p class="MsoNormal"><b>MOF Compiler namespace pragma</b> - The
 Pegasus compiler does not support the namespace pragma.</p>
   </li>
-  <li>Pegasus implements
+  <li><b>CIMOperation Trailer </b>- Pegasus implements
 chunking
 based on the DSP0200 1.2.0 preliminary spec. including the operation trailer 
 	defined in that specification Refer to bug
 	<a
- href="http://cvs.opengroup.org/bugzilla/show_bug.cgi?id=6760">6760</a> for more details.<br>
+ href="http://cvs.opengroup.org/bugzilla/show_bug.cgi?id=6760">6760</a> for more details. 
+	This trailer was completely removed from the DSP0200 1.2 final specification 
+	as a non-compatible change so that if chunking is used Pegasus is returning 
+	a noncompliant response to enumerate type requests. <br>
   </li>
 </ol>
 <h2><b><span style="font-family: Times;">OpenPegasus <a
  name="Supported Platforms">Supported
 Platforms</a></span></b></h2>
-<p>Each OpenPegasus release lists as 'active' platforms those
-hardware/software platforms that have recognized ports for the Pegasus
-code
-base including a maintainer for the platform that will be willing to
-regularly document issues and/or fix defects as the Pegasus
-code base is changed.&nbsp;
-Pegasus may be operable on other platforms (ex. Windows 98) but without
-a group
-to provide the role of test and maintenance, correct operation of&nbsp;
-Pegasus cannot be
-assured.&nbsp; In all cases, including the active platforms, it is the
-responsibility of the entity that packages and/or compiles OpenPegasus
-for shipment or deployment, to read, and actively monitor the Pegasus
-bugzilla database for a list of relevant defects that affect their
-platform. &nbsp; The platforms that are considered 'active' for this
-Pegasus release are:<br>
-&nbsp;</p>
+<p align="left">Each OpenPegasus release lists as 'active' platforms those 
+hardware/software platforms that have recognized ports for the Pegasus code base 
+including a maintainer for the platform that will be willing to regularly 
+document issues and/or fix defects as the Pegasus code base is changed.&nbsp; 
+Pegasus may be operable on other platforms (ex. Windows 98) but without a group 
+to provide the role of test and maintenance, correct operation of&nbsp; Pegasus 
+cannot be assured.&nbsp; In all cases, including the active platforms, it is the 
+responsibility of the entity that packages and/or compiles OpenPegasus for 
+shipment or deployment, to read, and actively monitor the Pegasus bugzilla 
+database for a list of relevant defects that affect their platform.&nbsp;&nbsp; 
+The platforms that are considered ported are shown in the two tables below.&nbsp; 
+The first table represents platform sofr which testing is done on a regular 
+basis and reported to the Pegasus Nightly Build Test WEB Page. Those platforms 
+which have been ported but do not have test results that are current at the time 
+of the release are reported in the second table</p>
+<p align="center"><br>
+<b>Actively Supported Platforms (Nightly Tests Reported for this release</b></p>
 <table class="MsoNormalTable" style="width: 90%;" border="1"
  cellpadding="0" cellspacing="1">
   <tbody>
@@ -1706,17 +1784,13 @@ OS</span></b><span style="color: black;"><o:p></o:p></span></p>
 		NOTE: Visual C++ Ver. 6 no longer being regularly tested.</font></td>
     </tr>
     <tr>
-      <td style="padding: 0.75pt; "> <font size="3">Windows XP, Windows 2003</span></font></p>
+      <td style="padding: 0.75pt; "> <font size="3">Windows 2003</span></font></p>
       </td>
       <td style="padding: 0.75pt; ">
       <font size="3">Microsoft Visual C++ Ver. 6 and Microsoft .Net compiler Version 7.1. 
 		Note: Visual C++ Ver. 6 no longer being regular tested.
       </font>
       </td>
-    </tr>
-    <tr style="">
-      <td style="padding: 0.75pt; "> <font size="3">MacOS version 10.3 and higher</font></td>
-      <td style="padding: 0.75pt; "> <font size="3">gcc 4.01</font></td>
     </tr>
     <tr>
       <td style="vertical-align: top;"><big>HP OpenVMS 8.3 or later Alpha</big></td>
@@ -1732,6 +1806,45 @@ Alpha</font></big></td>
  style="color: rgb(0, 0, 0);">HP C++ V7.</font><font color="#993399">3-023 or 
 		later required</font><font
  style="color: rgb(0, 0, 0);"> on OpenVMS IA64</font></big></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><font size="3">z/OS V1.7 and up</font></td>
+      <td style="vertical-align: top;"><font size="3">XL C/C++ from z/OS Version 
+		1.7 and up</font></td>
+    </tr>
+  </tbody>
+</table>
+&nbsp;<p align="center"><b>Platforms no Actively supported for this release (No 
+current Nightly Build Test Results</b></p>
+<table class="MsoNormalTable" style="width: 90%;" border="1"
+ cellpadding="0" cellspacing="1" id="table2">
+  <tbody>
+    <tr style="">
+      <td
+ style="padding: 0.75pt; background: #00FFFF 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 240px;"
+ height="26">
+      <p class="MsoNormal"><b><span style="color: black;">Platform and
+OS</span></b><span style="color: black;"><o:p></o:p></span></p>
+      </td>
+      <td
+ style="padding: 0.75pt; background: #00FFFF 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 75%;"
+ height="26">
+      <p class="MsoNormal"><b><span style="color: black;">Compilers</span></b><span
+ style="color: black;"><o:p></o:p></span></p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 0.75pt; "> <font size="3">Windows XP</font></p>
+      </td>
+      <td style="padding: 0.75pt; ">
+      <font size="3">Microsoft Visual C++ Ver. 6 and Microsoft .Net compiler Version 7.1. 
+		Note: Visual C++ Ver. 6 no longer being regular tested.
+      </font>
+      </td>
+    </tr>
+    <tr style="">
+      <td style="padding: 0.75pt; "> <font size="3">MacOS version 10.3 and higher</font></td>
+      <td style="padding: 0.75pt; "> <font size="3">gcc 4.01</font></td>
     </tr>
     <tr>
       <td style="vertical-align: top;"><big><font color="RED"><span
@@ -1750,8 +1863,8 @@ WorkShop 6 update 2 C++ 5.3, patch 111685-22 2005/04/09</big><br>
     </tr>
   </tbody>
 </table>
-<br>
-<b>Platform patches</b>
+<p><b>Platform patches</b>
+</p>
 <p style="margin-top: 0pt; margin-bottom: 0pt;"><font
  style="color: rgb(0, 0, 0);">The following is a list known of platform
 patches Pegasus requires.</font></p>
@@ -1801,9 +1914,9 @@ the Open Pegasus bugzilla base for bugs with the tag for a particular version
 the Pegasus CVS tree for that Pegasus release.</p>
 
 <p>
-&nbsp;&nbsp;&nbsp;&nbsp; - Changes for Pegasus 2.7.0 release (bugs Tagged 
-2.7.0_APPROVED)&nbsp;
-<a href="http://cvs.rdg.opengroup.org/bugzilla/buglist.cgi?keywords=2.7.0_APPROVED">Pegasus 2.7.0_APPROVED bug list</a></p>
+&nbsp;&nbsp;&nbsp;&nbsp; - Changes for Pegasus 2.8.0 release (bugs Tagged 
+2.8.0_APPROVED)&nbsp;<a href="http://cvs.rdg.opengroup.org/bugzilla/buglist.cgi?keywords=2.8.0_APPROVED"> 
+Pegasus 2.8.0_APPROVED bug list</a></p>
 
 <h2><a
  name="Pegasus Release Control and Version Definition Documentation">Release Control and Version Definition Documentation</a></h2>
@@ -1823,7 +1936,8 @@ OpenPegasus Approved PEPs.</a></p>
 <ol>
 
   <li>
-  PEP 296 - OpenPegasus Release Definition - </b>This PEP is used
+  PEP 333 - OpenPegasus Release Definition - </b>This PEP ( and a corresponding 
+	section in the Pegasus wiki) is used
 throughout the development of this version as the control point for
 functionality that will go into the release and points to all of the PEPs that 
   represent the Pegasus&nbsp; functionality changes for this version of Pegasus.</li>
@@ -1831,30 +1945,34 @@ functionality that will go into the release and points to all of the PEPs that
   <b>
 
   <li>
-  <a href="http://www.openpegasus.org/pp/uploads/40/14873/PEP292_RecommendedReleaseOptions.htm">PEP 292</a> -&nbsp; OpenPegasus&nbsp; Build and Configuration
+  <a href="http://www.openpegasus.org/pp/uploads/40/16781/PEP308_RecommendedReleaseOptions.htm">
+	PEP 308</a> -&nbsp; OpenPegasus&nbsp; Build and Configuration
 Options&nbsp; for Selected
 Platforms</li>
 
   <li>
-  <a href="http://www.openpegasus.org/pp/uploads/40/14874/PEP293_ExternalInterface2.7.htm">PEP 293</a> - OpenPegasus 2.7 External Interfaces - </b>Lists the public 
+  <a href="http://www.openpegasus.org/pp/uploads/40/16780/PEP329_ExternalInterface2.8.htm">
+	PEP 329</a> - OpenPegasus 2.8 External Interfaces - </b>Lists the public 
   interfaces for clients and providers that are considered external and 
   therefore &quot;frozen&quot;.<b><br>
 
   </li>
 
   <li>
-  <a href="http://www.openpegasus.org/pp/uploads/40/14875/PEP294_SDKFile2.7.0.htm">PEP 294</a> - OpenPegasus&nbsp; SDK Packaging Definition - </b>Defines the 
+  <a href="http://www.openpegasus.org/pp/uploads/40/16779/PEP330_SDKFile2.8.0.htm">
+	PEP 330</a> - OpenPegasus&nbsp; SDK Packaging Definition - </b>Defines the 
   recommended set of files for inclusion in the OpenPegasus SDK</li>
 
   <b>
 
   <li>
-	<a href="http://www.openpegasus.org/pp/uploads/40/14877/PEP295_RuntimePackaging2.7.0.htm">PEP 295</a> - Pegasus&nbsp; Runtime Packaging Definition - </b>Defines the 
+	<a href="http://www.openpegasus.org/pp/uploads/40/16778/PEP331_RuntimePackaging2.8.0.htm">
+	PEP 331</a> - Pegasus&nbsp; Runtime Packaging Definition - </b>Defines the 
   recommended set of files for inclusion in this OpenPegasus release.</li>
 
   <b>
 
-  <li>PEP 306 - Pegasus Release Notes (This document located in the 
+  <li>PEP 332 - Pegasus Release Notes (This document located in the 
   approved PEP 
   repository and the OpenPegasus source tree root directory) <br>
 
@@ -1905,7 +2023,6 @@ the design and implementation of these features.</li>
 
   <b>
 
-  &nbsp;
 <p class="MsoNormal" style="margin-left: 0.5in;"><span
  style="color: black;">&nbsp; <o:p></o:p></span></p>
 <div class="MsoNormal" style="text-align: center;" align="center"><span

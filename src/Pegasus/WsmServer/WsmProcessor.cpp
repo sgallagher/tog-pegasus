@@ -411,91 +411,21 @@ void WsmProcessor::_handleDefaultResponse(
 WsenEnumerateResponse* WsmProcessor::_splitEnumerateResponse(
     WsenEnumerateRequest* request, WsenEnumerateResponse* response, Uint32 num)
 {
-    if (response->getEnumerationMode() == WSEN_EM_OBJECT)
-    {
-        Array<WsmInstance> splitInstances;
-        Array<WsmInstance>& instances = response->getInstances();
+    WsenEnumerationData splitData;
+    response->getEnumerationData().split(splitData, num);
 
-        Uint32 i;
-        for (i = 0; i < num && i < instances.size(); i++)
-        {
-            splitInstances.append(instances[i]);
-        }
-        instances.remove(0, i);
-
-        return new WsenEnumerateResponse(
-            splitInstances, 
-            response->getItemCount(),
-            request, 
-            response->getContentLanguages());
-    }
-    else if (response->getEnumerationMode() == WSEN_EM_EPR)
-    {
-        Array<WsmEndpointReference> splitEPRs;
-        Array<WsmEndpointReference>& EPRs = response->getEPRs();
-
-        Uint32 i;
-        for (i = 0; i < num && i < EPRs.size(); i++)
-        {
-            splitEPRs.append(EPRs[i]);
-        }
-        EPRs.remove(0, i);
-
-        return new WsenEnumerateResponse(
-            splitEPRs, 
-            response->getItemCount(),
-            request, 
-            response->getContentLanguages());
-    }
-    else
-    {
-        PEGASUS_ASSERT(0);
-        return NULL;
-    }
+    return new WsenEnumerateResponse(splitData, response->getItemCount(),
+        request, response->getContentLanguages());
 }
 
 WsenPullResponse* WsmProcessor::_splitPullResponse(
     WsenPullRequest* request, WsenEnumerateResponse* response, Uint32 num)
 {
-    if (response->getEnumerationMode() == WSEN_EM_OBJECT)
-    {
-        Array<WsmInstance> splitInstances;
-        Array<WsmInstance>& instances = response->getInstances();
+    WsenEnumerationData splitData;
+    response->getEnumerationData().split(splitData, num);
 
-        Uint32 i;
-        for (i = 0; i < num && i < instances.size(); i++)
-        {
-            splitInstances.append(instances[i]);
-        }
-        instances.remove(0, i);
-        
-        return new WsenPullResponse(
-            splitInstances, 
-            request, 
-            response->getContentLanguages());
-    }
-    else if (response->getEnumerationMode() == WSEN_EM_EPR)
-    {
-        Array<WsmEndpointReference> splitEPRs;
-        Array<WsmEndpointReference>& EPRs = response->getEPRs();
-
-        Uint32 i;
-        for (i = 0; i < num && i < EPRs.size(); i++)
-        {
-            splitEPRs.append(EPRs[i]);
-        }
-        EPRs.remove(0, i);
-        
-        return new WsenPullResponse(
-            splitEPRs, 
-            request, 
-            response->getContentLanguages());
-    }
-    else
-    {
-        PEGASUS_ASSERT(0);
-        return NULL;
-    }
+    return new WsenPullResponse(splitData, request, 
+        response->getContentLanguages());
 }
 
 PEGASUS_NAMESPACE_END

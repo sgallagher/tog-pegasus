@@ -319,7 +319,7 @@ void WsmResponseEncoder::_encodeWsenEnumerateResponse(
     WsenEnumerateResponse* response)
 {
     SoapResponse soapResponse(response);
-    Buffer headers, bodyHeader, bodyTrailer;
+    Buffer headers;
 
     if (response->requestedItemCount())
     {
@@ -330,105 +330,17 @@ void WsmResponseEncoder::_encodeWsenEnumerateResponse(
             headers, WsmNamespaces::WS_MAN, STRLIT("TotalItemsCountEstimate"));
     }
 
-    WsmWriter::appendStartTag(
-        bodyHeader, WsmNamespaces::WS_ENUMERATION, 
-        STRLIT("EnumerateResponse"));
-
-    if (!response->isComplete())
-    {
-        WsmWriter::appendStartTag(
-            bodyHeader, WsmNamespaces::WS_ENUMERATION, 
-            STRLIT("EnumerationContext"));
-        WsmWriter::append(bodyHeader, response->getEnumerationContext());
-        WsmWriter::appendEndTag(
-            bodyHeader, WsmNamespaces::WS_ENUMERATION, 
-            STRLIT("EnumerationContext"));
-    }
-    else
-    {
-        WsmWriter::appendEmptyTag(
-            bodyHeader, WsmNamespaces::WS_ENUMERATION, 
-            STRLIT("EnumerationContext"));
-        WsmWriter::appendEmptyTag(
-            bodyTrailer, WsmNamespaces::WS_ENUMERATION, 
-            STRLIT("EndOfSequence"));
-    }
-
-    if (response->getSize() > 0)
-    {
-        WsmWriter::appendStartTag(
-            bodyHeader, WsmNamespaces::WS_ENUMERATION, STRLIT("Items"));
-        WsmWriter::appendEndTag(
-            bodyTrailer, WsmNamespaces::WS_ENUMERATION, STRLIT("Items"));
-    }
-
-    WsmWriter::appendEndTag(
-        bodyTrailer, WsmNamespaces::WS_ENUMERATION, 
-        STRLIT("EnumerateResponse"));
-
-    // Fault the request if it can't be encoded within the limits
-    if (!soapResponse.appendHeader(headers) ||
-        !soapResponse.appendBodyHeader(bodyHeader) ||
-        !soapResponse.appendBodyTrailer(bodyTrailer))
+    if (!_encodeEnumerationData(
+            soapResponse, 
+            headers, 
+            STRLIT("EnumerateResponse"),
+            response->getEnumerationContext(),
+            response->isComplete(),
+            response->getEnumerationData()))
     {
         _sendEncodingLimitFault(response);
         return;
     }
-
-    // Now add the list of items
-    Uint32 i;
-
-    if (response->getEnumerationMode() == WSEN_EM_OBJECT)
-    {
-        Array<WsmInstance>& instances = response->getInstances();
-        for (i = 0; i < instances.size(); i++)
-        {
-            Buffer body;
-            WsmWriter::appendInstanceElement(body, instances[i]);
-            if (!soapResponse.appendBodyContent(body))
-            {
-                break;
-            }
-        }
-    }
-    else if (response->getEnumerationMode() == WSEN_EM_EPR)
-    {
-        Array<WsmEndpointReference>& EPRs = response->getEPRs();
-        for (i = 0; i < EPRs.size(); i++)
-        {
-            Buffer body;
-            WsmWriter::appendStartTag(
-                body, 
-                WsmNamespaces::WS_ADDRESSING, 
-                STRLIT("EndpointReference"));
-            WsmWriter::appendEPRElement(body, EPRs[i]);
-            WsmWriter::appendEndTag(
-                body, 
-                WsmNamespaces::WS_ADDRESSING, 
-                STRLIT("EndpointReference"));
-            if (!soapResponse.appendBodyContent(body))
-            {
-                break;
-            }
-        }
-    }
-    else
-    {
-        PEGASUS_ASSERT(0);
-    }
-
-    // If the list is not empty, but none of the item have been successfully
-    // added to the soapResponse, fault the request because it cannot be
-    // encoded within the specified limits.
-    if (response->getSize() > 0 && i == 0)
-    {
-        _sendEncodingLimitFault(response);
-        return;
-    }
-
-    // Remove the items we processed. The rest will be added back 
-    // to the context
-    response->remove(0, i);
 
     _sendResponse(&soapResponse);
 }
@@ -436,17 +348,42 @@ void WsmResponseEncoder::_encodeWsenEnumerateResponse(
 void WsmResponseEncoder::_encodeWsenPullResponse(WsenPullResponse* response)
 {
     SoapResponse soapResponse(response);
+    Buffer headers;
+
+    if (!_encodeEnumerationData(
+            soapResponse, 
+            headers, 
+            STRLIT("PullResponse"),
+            response->getEnumerationContext(),
+            response->isComplete(),
+            response->getEnumerationData()))
+    {
+        _sendEncodingLimitFault(response);
+        return;
+    }
+
+    _sendResponse(&soapResponse);
+}
+
+Boolean WsmResponseEncoder::_encodeEnumerationData(
+    SoapResponse& soapResponse,
+    Buffer& headers,
+    StrLit responseName,
+    Uint64 contextId,
+    Boolean isComplete,
+    WsenEnumerationData& data)
+{
     Buffer bodyHeader, bodyTrailer;
 
     WsmWriter::appendStartTag(
-        bodyHeader, WsmNamespaces::WS_ENUMERATION, STRLIT("PullResponse"));
+        bodyHeader, WsmNamespaces::WS_ENUMERATION, responseName);
 
-    if (!response->isComplete())
+    if (!isComplete)
     {
         WsmWriter::appendStartTag(
             bodyHeader, WsmNamespaces::WS_ENUMERATION, 
             STRLIT("EnumerationContext"));
-        WsmWriter::append(bodyHeader, response->getEnumerationContext());
+        WsmWriter::append(bodyHeader, contextId);
         WsmWriter::appendEndTag(
             bodyHeader, WsmNamespaces::WS_ENUMERATION, 
             STRLIT("EnumerationContext"));
@@ -461,7 +398,7 @@ void WsmResponseEncoder::_encodeWsenPullResponse(WsenPullResponse* response)
             STRLIT("EndOfSequence"));
     }
 
-    if (response->getSize() > 0)
+    if (data.getSize() > 0)
     {
         WsmWriter::appendStartTag(
             bodyHeader, WsmNamespaces::WS_ENUMERATION, STRLIT("Items"));
@@ -471,43 +408,41 @@ void WsmResponseEncoder::_encodeWsenPullResponse(WsenPullResponse* response)
 
     WsmWriter::appendEndTag(
         bodyTrailer, WsmNamespaces::WS_ENUMERATION, 
-        STRLIT("PullResponse"));
+        responseName);
 
     // Fault the request if it can't be encoded within the limits
-    if (!soapResponse.appendBodyHeader(bodyHeader) ||
+    if (!soapResponse.appendHeader(headers) ||
+        !soapResponse.appendBodyHeader(bodyHeader) ||
         !soapResponse.appendBodyTrailer(bodyTrailer))
     {
-        _sendEncodingLimitFault(response);
-        return;
+        return false;
     }
 
-    // Now add the list of instances
+    // Now add the list of items
     Uint32 i;
 
-    if (response->getEnumerationMode() == WSEN_EM_OBJECT)
+    if (data.enumerationMode == WSEN_EM_OBJECT)
     {
-        Array<WsmInstance>& instances = response->getInstances();
-        for (i = 0; i < instances.size(); i++)
+        for (i = 0; i < data.instances.size(); i++)
         {
             Buffer body;
-            WsmWriter::appendInstanceElement(body, instances[i]);
+            WsmWriter::appendInstanceElement(body, data.instances[i]);
             if (!soapResponse.appendBodyContent(body))
             {
                 break;
             }
         }
     }
-    else if (response->getEnumerationMode() == WSEN_EM_EPR)
+    else if (data.enumerationMode == WSEN_EM_EPR)
     {
-        Array<WsmEndpointReference>& EPRs = response->getEPRs();
-        for (i = 0; i < EPRs.size(); i++)
+        for (i = 0; i < data.eprs.size(); i++)
         {
             Buffer body;
             WsmWriter::appendStartTag(
                 body, 
                 WsmNamespaces::WS_ADDRESSING, 
                 STRLIT("EndpointReference"));
-            WsmWriter::appendEPRElement(body, EPRs[i]);
+            WsmWriter::appendEPRElement(body, data.eprs[i]);
             WsmWriter::appendEndTag(
                 body, 
                 WsmNamespaces::WS_ADDRESSING, 
@@ -526,17 +461,16 @@ void WsmResponseEncoder::_encodeWsenPullResponse(WsenPullResponse* response)
     // If the list is not empty, but none of the item have been successfully
     // added to the soapResponse, fault the request because it cannot be
     // encoded within the specified limits.
-    if (response->getSize() > 0 && i == 0)
+    if (data.getSize() > 0 && i == 0)
     {
-        _sendEncodingLimitFault(response);
-        return;
+        return false;
     }
 
     // Remove the items we processed. The rest will be added back 
     // to the context
-    response->remove(0, i);
+    data.remove(0, i);
 
-    _sendResponse(&soapResponse);
+    return true;
 }
 
 void WsmResponseEncoder::_encodeWsenReleaseResponse(

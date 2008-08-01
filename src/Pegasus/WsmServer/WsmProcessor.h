@@ -53,7 +53,7 @@ public:
     EnumerationContext(
         Uint64 contextId_, 
         WsenEnumerationMode enumerationMode_,
-        String expiration_,
+        CIMDateTime expiration_,
         WsmEndpointReference epr_,
         WsenEnumerateResponse* response_)
         : contextId(contextId_),
@@ -64,7 +64,7 @@ public:
     
     Uint64 contextId;
     WsenEnumerationMode enumerationMode;
-    String expiration;
+    CIMDateTime expiration;
     WsmEndpointReference epr;
     WsenEnumerateResponse* response;
 };
@@ -105,6 +105,8 @@ public:
         _wsmRequestDecoder.setServerTerminating(flag);
     }
 
+    void cleanupExpiredContexts();
+
 private:
 
     void _handlePullRequest(WsenPullRequest* wsmRequest);
@@ -123,6 +125,7 @@ private:
         WsenPullRequest* request, 
         WsenEnumerateResponse* response, 
         Uint32 num);
+    void _getExpirationDatetime(const String& wsmDT, CIMDateTime& cimDT);
 
     WsmResponseEncoder _wsmResponseEncoder;
     WsmRequestDecoder _wsmRequestDecoder;

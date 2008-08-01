@@ -263,13 +263,17 @@ void WsmProcessor::_handleEnumerateResponse(
             (WsenEnumerateResponse*) _cimToWsmResponseMapper.
                 mapToWsmResponse(wsmRequest, cimResponse));
 
+        // Get the enumeration expiration time
+        CIMDateTime expiration;
+        _getExpirationDatetime(wsmRequest->expiration, expiration);
+
         // Create a new context
         _enumerationContextTable.insert(
             contextId,
             EnumerationContext(
                 contextId,
                 wsmRequest->enumerationMode,
-                wsmRequest->expiration, 
+                expiration, 
                 wsmRequest->epr,
                 wsmResponse.get()));
         wsmResponse->setEnumerationContext(contextId);
@@ -426,6 +430,78 @@ WsenPullResponse* WsmProcessor::_splitPullResponse(
 
     return new WsenPullResponse(splitData, request, 
         response->getContentLanguages());
+}
+
+void WsmProcessor::_getExpirationDatetime(
+    const String& wsmDT, CIMDateTime& cimDT)
+{
+    CIMDateTime dt, currentDT;
+
+    // Default expiration interval = 10 mins 
+    // ATTN WSMAN: what should the value be?
+    CIMDateTime maxInterval(0, 0, 10, 0, 0, 6);
+
+    // If expiration is not set, use the dafault.
+    if (wsmDT == String::EMPTY)
+    {
+        dt = maxInterval;
+    }
+    else
+    {
+        WsmToCimRequestMapper::convertWsmToCimDatetime(wsmDT, dt);
+    }
+
+    currentDT = CIMDateTime::getCurrentDateTime();
+    if (dt.isInterval())
+    {
+        if (dt > maxInterval)
+        {
+            dt = maxInterval;
+        }
+        cimDT = currentDT + dt;
+    }
+    else
+    {
+        if ((dt <= currentDT))
+        {
+            throw WsmFault(
+                WsmFault::wsen_InvalidExpirationTime,
+            MessageLoaderParms(
+                "WsmServer.WsmToCimRequestMapper.INVALID_EXPIRATION_TIME",
+                "The expiration time \"$0\" is not valid", wsmDT));
+        }
+
+        if (dt - currentDT > maxInterval)
+        {
+            cimDT = currentDT + maxInterval;
+        }
+        else
+        {
+            cimDT = dt;
+        }
+    }
+}
+
+void WsmProcessor::cleanupExpiredContexts()
+{
+    CIMDateTime currentDT = CIMDateTime::getCurrentDateTime();
+    Array<Uint64> expired;
+
+    AutoMutex lock(_enumerationContextTableLock);
+    for (EnumerationContextTable::Iterator i =
+             _enumerationContextTable.start (); i; i++)
+    {
+        EnumerationContext context = i.value();
+        if (context.expiration < currentDT)
+        {
+            expired.append(context.contextId);
+        }
+    }
+
+    for (Uint32 i = 0; i < expired.size(); i++)
+    {
+        _enumerationContextTable.remove(expired[i]);
+    }
 }
 
 PEGASUS_NAMESPACE_END

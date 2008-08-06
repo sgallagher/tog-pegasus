@@ -1,6 +1,6 @@
 HTTP/1.1 500 Internal Server Error
 Content-Type: application/soap+xml;charset=UTF-8
-content-length: 0000001595
+content-length: 0000001573
 SOAPAction: http://schemas.xmlsoap.org/ws/2004/09/enumeration/fault
 
 <?xml version="1.0" encoding="utf-8"?>
@@ -33,7 +33,7 @@ wsen:InvalidExpirationTime
 </SOAP-ENV:Code>
 <SOAP-ENV:Reason>
 <SOAP-ENV:Text xml:lang="en-US">
-The expiration time &quot;2000-12-01T12:23:34+02:00&quot; is not valid
+The expiration time &quot;PTM&quot; is not valid
 </SOAP-ENV:Text>
 </SOAP-ENV:Reason>
 </SOAP-ENV:Fault>

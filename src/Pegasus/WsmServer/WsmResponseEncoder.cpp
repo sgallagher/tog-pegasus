@@ -468,7 +468,10 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
 
     // Remove the items we processed. The rest will be added back 
     // to the context
-    data.remove(0, i);
+    if (i != 0)
+    {
+        data.remove(0, i);
+    }
 
     return true;
 }

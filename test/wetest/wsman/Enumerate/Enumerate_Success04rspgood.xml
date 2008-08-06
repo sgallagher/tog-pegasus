@@ -19,21 +19,18 @@ uuid:00000000-0000-0000-0005-000000000001
 <wsen:EnumerationContext>
 3
 </wsen:EnumerationContext>
-<wsman:Items>
+<wsen:Items>
 <wsa:EndpointReference>
 <wsa:Address>
 http://schemas.xmlsoap.org/ws/2004/08/addressing/role/anonymous
 </wsa:Address>
 <wsa:ReferenceParameters>
 <wsman:ResourceURI>
-http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase
+http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TST_Person
 </wsman:ResourceURI>
 <wsman:SelectorSet>
-<wsman:Selector Name="__cimnamespace">
-test/WsmTest
-</wsman:Selector>
-<wsman:Selector Name="keyProperty">
-key1
+<wsman:Selector Name="name">
+Mike
 </wsman:Selector>
 </wsman:SelectorSet>
 </wsa:ReferenceParameters>
@@ -44,19 +41,16 @@ http://schemas.xmlsoap.org/ws/2004/08/addressing/role/anonymous
 </wsa:Address>
 <wsa:ReferenceParameters>
 <wsman:ResourceURI>
-http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase
+http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TST_Person
 </wsman:ResourceURI>
 <wsman:SelectorSet>
-<wsman:Selector Name="__cimnamespace">
-test/WsmTest
-</wsman:Selector>
-<wsman:Selector Name="keyProperty">
-key2
+<wsman:Selector Name="name">
+Saara
 </wsman:Selector>
 </wsman:SelectorSet>
 </wsa:ReferenceParameters>
 </wsa:EndpointReference>
-</wsman:Items>
+</wsen:Items>
 </wsen:EnumerateResponse>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

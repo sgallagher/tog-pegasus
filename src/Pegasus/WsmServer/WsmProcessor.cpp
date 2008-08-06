@@ -257,7 +257,6 @@ void WsmProcessor::_handleEnumerateResponse(
     else
     {
         AutoMutex lock(_enumerationContextTableLock);
-        Uint64 contextId = _currentEnumContext++;
 
         AutoPtr<WsenEnumerateResponse> wsmResponse(
             (WsenEnumerateResponse*) _cimToWsmResponseMapper.
@@ -268,6 +267,7 @@ void WsmProcessor::_handleEnumerateResponse(
         _getExpirationDatetime(wsmRequest->expiration, expiration);
 
         // Create a new context
+        Uint64 contextId = _currentEnumContext++;
         _enumerationContextTable.insert(
             contextId,
             EnumerationContext(
@@ -448,7 +448,18 @@ void WsmProcessor::_getExpirationDatetime(
     }
     else
     {
-        WsmToCimRequestMapper::convertWsmToCimDatetime(wsmDT, dt);
+        try
+        {
+            WsmToCimRequestMapper::convertWsmToCimDatetime(wsmDT, dt);
+        }
+        catch (...)
+        {
+            throw WsmFault(
+                WsmFault::wsen_InvalidExpirationTime,
+            MessageLoaderParms(
+                "WsmServer.WsmToCimRequestMapper.INVALID_EXPIRATION_TIME",
+                "The expiration time \"$0\" is not valid", wsmDT));
+        }
     }
 
     currentDT = CIMDateTime::getCurrentDateTime();

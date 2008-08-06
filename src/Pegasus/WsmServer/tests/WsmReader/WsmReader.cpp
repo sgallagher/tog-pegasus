@@ -887,6 +887,227 @@ static void _testHeaderErrors(WsmReader& reader)
     reader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Envelope");
 }
 
+static void _testEnumerateBody(WsmReader& reader)
+{
+    XmlEntry entry;
+    reader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Envelope");
+
+    String expiration; 
+    WsmbPolymorphismMode polymorphismMode = WSMB_PM_UNKNOWN;
+    WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
+    Boolean optimized = false;
+    Uint32 maxElements = 0;
+
+    reader.decodeEnumerateBody(expiration, polymorphismMode, enumerationMode,
+        optimized, maxElements);
+    if (expiration != "PT123S" || 
+        polymorphismMode != WSMB_PM_EXCLUDE_SUBCLASS_PROPERTIES ||
+        enumerationMode != WSEN_EM_EPR ||
+        optimized != true ||
+        maxElements != 33)
+        throw Exception("Invalid Enumerate body");
+}
+
+static void _testEnumerateBodyErrors(WsmReader& reader)
+{
+    // Test duplicate headers
+    try
+    {
+        String expiration; 
+        WsmbPolymorphismMode polymorphismMode = WSMB_PM_UNKNOWN;
+        WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
+        Boolean optimized = false;
+        Uint32 maxElements = 0;
+        
+        reader.decodeEnumerateBody(expiration, polymorphismMode, 
+            enumerationMode, optimized, maxElements);
+
+        throw Exception("Expected duplicate headers fault");
+    }
+    catch (WsmFault& fault)
+    {
+        if (fault.getSubcode() != "wsa:InvalidMessageInformationHeader")
+            throw Exception("Invalid duplicate header fault");
+        XmlEntry entry;
+        while (reader.next(entry) && (entry.type != XmlEntry::END_TAG ||
+               strcmp(entry.localName, "Enumerate") != 0));
+    }
+    // Test unsupported EndTo header
+    try
+    {
+        String expiration; 
+        WsmbPolymorphismMode polymorphismMode = WSMB_PM_UNKNOWN;
+        WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
+        Boolean optimized = false;
+        Uint32 maxElements = 0;
+        
+        reader.decodeEnumerateBody(expiration, polymorphismMode, 
+            enumerationMode, optimized, maxElements);
+
+        throw Exception("Expected unsupported feature fault");
+    }
+    catch (WsmFault& fault)
+    {
+        if (fault.getSubcode() != "wsman:UnsupportedFeature")
+            throw Exception("Invalid unsupported feature fault");
+        XmlEntry entry;
+        while (reader.next(entry) && (entry.type != XmlEntry::END_TAG ||
+               strcmp(entry.localName, "Enumerate") != 0));
+    }
+    // Test unsupported Filter header
+    try
+    {
+        String expiration; 
+        WsmbPolymorphismMode polymorphismMode = WSMB_PM_UNKNOWN;
+        WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
+        Boolean optimized = false;
+        Uint32 maxElements = 0;
+        
+        reader.decodeEnumerateBody(expiration, polymorphismMode, 
+            enumerationMode, optimized, maxElements);
+
+        throw Exception("Expected filtering not supported fault");
+    }
+    catch (WsmFault& fault)
+    {
+        if (fault.getSubcode() != "wsen:FilteringNotSupported")
+            throw Exception("Invalid unsupported feature fault");
+        XmlEntry entry;
+        while (reader.next(entry) && (entry.type != XmlEntry::END_TAG ||
+               strcmp(entry.localName, "Enumerate") != 0));
+    }
+    // Test unsupported enumeration mode
+    try
+    {
+        String expiration; 
+        WsmbPolymorphismMode polymorphismMode = WSMB_PM_UNKNOWN;
+        WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
+        Boolean optimized = false;
+        Uint32 maxElements = 0;
+        
+        reader.decodeEnumerateBody(expiration, polymorphismMode, 
+            enumerationMode, optimized, maxElements);
+
+        throw Exception("Expected unsupported feature fault");
+    }
+    catch (WsmFault& fault)
+    {
+        if (fault.getSubcode() != "wsman:UnsupportedFeature")
+            throw Exception("Invalid unsupported feature fault");
+        XmlEntry entry;
+        while (reader.next(entry) && (entry.type != XmlEntry::END_TAG ||
+               strcmp(entry.localName, "Enumerate") != 0));
+    }
+    // Test unsupported polymorphism mode
+    try
+    {
+        String expiration; 
+        WsmbPolymorphismMode polymorphismMode = WSMB_PM_UNKNOWN;
+        WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
+        Boolean optimized = false;
+        Uint32 maxElements = 0;
+        
+        reader.decodeEnumerateBody(expiration, polymorphismMode, 
+            enumerationMode, optimized, maxElements);
+
+        throw Exception("Expected unsupported polymorphism mode fault");
+    }
+    catch (WsmFault& fault)
+    {
+        if (fault.getSubcode() != "wsmb:PolymorphismModeNotSupported")
+            throw Exception("Invalid unsupported feature fault");
+        XmlEntry entry;
+        while (reader.next(entry) && (entry.type != XmlEntry::END_TAG ||
+               strcmp(entry.localName, "Enumerate") != 0));
+    }
+}
+
+static void _testPullBody(WsmReader& reader)
+{
+    XmlEntry entry;
+    reader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Envelope");
+
+    Uint64 enumerationContext = 0;
+    String maxTime;
+    Uint32 maxElements = 0;
+    Uint32 maxCharacters = 0;
+
+    reader.decodePullBody(enumerationContext, 
+        maxTime, maxElements, maxCharacters);
+    if (enumerationContext != 22 ||
+        maxTime != "PT123S" ||
+        maxElements != 222 ||
+        maxCharacters != 2222)
+        throw Exception("Invalid Pull body");
+}
+
+static void _testPullBodyErrors(WsmReader& reader)
+{
+    // Test duplicate headers
+    try
+    {
+        Uint64 enumerationContext = 0;
+        String maxTime;
+        Uint32 maxElements = 0;
+        Uint32 maxCharacters = 0;
+
+        reader.decodePullBody(enumerationContext, 
+            maxTime, maxElements, maxCharacters);
+
+        throw Exception("Expected duplicate headers fault");
+    }
+    catch (WsmFault& fault)
+    {
+        if (fault.getSubcode() != "wsa:InvalidMessageInformationHeader")
+            throw Exception("Invalid duplicate header fault");
+        XmlEntry entry;
+        while (reader.next(entry) && (entry.type != XmlEntry::END_TAG ||
+               strcmp(entry.localName, "Pull") != 0));
+    }
+    // Test invalid enumeration context
+    try
+    {
+        Uint64 enumerationContext = 0;
+        String maxTime;
+        Uint32 maxElements = 0;
+        Uint32 maxCharacters = 0;
+
+        reader.decodePullBody(enumerationContext, 
+            maxTime, maxElements, maxCharacters);
+
+        throw Exception("Expected duplicate headers fault");
+    }
+    catch (WsmFault& fault)
+    {
+        if (fault.getSubcode() != "wsen:InvalidEnumerationContext")
+            throw Exception("Invalid enumeration context fault");
+        XmlEntry entry;
+        while (reader.next(entry) && (entry.type != XmlEntry::END_TAG ||
+               strcmp(entry.localName, "Pull") != 0));
+    }
+    // Test invalid MaxElements
+    try
+    {
+        Uint64 enumerationContext = 0;
+        String maxTime;
+        Uint32 maxElements = 0;
+        Uint32 maxCharacters = 0;
+
+        reader.decodePullBody(enumerationContext, 
+            maxTime, maxElements, maxCharacters);
+
+        throw Exception("Expected invalid MaxElements fault");
+    }
+    catch (WsmFault& fault)
+    {
+        if (fault.getSubcode() != "wsa:InvalidMessageInformationHeader")
+            throw Exception("Invalid MaxElements fault");
+        XmlEntry entry;
+        while (reader.next(entry) && (entry.type != XmlEntry::END_TAG ||
+               strcmp(entry.localName, "Pull") != 0));
+    }
+}
+
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
@@ -935,6 +1156,28 @@ int main(int argc, char** argv)
                 cout << "Testing instances." << endl;
             _testHeaders(reader);
             _testHeaderErrors(reader);
+        }
+
+        {
+            Buffer text;
+            FileSystem::loadFileToMemory(text, "./enumerate_body.xml");
+            WsmReader reader((char*)text.getData());
+
+            if (verbose)
+                cout << "Testing instances." << endl;
+            _testEnumerateBody(reader);
+            _testEnumerateBodyErrors(reader);
+        }
+
+        {
+            Buffer text;
+            FileSystem::loadFileToMemory(text, "./pull_body.xml");
+            WsmReader reader((char*)text.getData());
+
+            if (verbose)
+                cout << "Testing instances." << endl;
+            _testPullBody(reader);
+            _testPullBodyErrors(reader);
         }
     }
     catch(Exception& e)

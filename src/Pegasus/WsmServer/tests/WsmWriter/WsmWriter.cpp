@@ -85,12 +85,7 @@ static Boolean _compareSelectorSets(WsmSelectorSet* sel1, WsmSelectorSet* sel2)
 static Boolean _compareEPRs(WsmEndpointReference& epr1, 
     WsmEndpointReference& epr2)
 {
-    if (epr1.address != epr2.address ||
-        epr1.resourceUri != epr2.resourceUri ||
-        !_compareSelectorSets(epr1.selectorSet, epr2.selectorSet))
-        return false;
-
-    return true;
+    return epr1 == epr2;
 }
 
 static Boolean _compareValues(WsmValue& val1, WsmValue& val2)

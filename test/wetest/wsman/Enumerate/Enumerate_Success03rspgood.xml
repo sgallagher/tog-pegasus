@@ -17,121 +17,89 @@ uuid:00000000-0000-0000-0005-000000000001
 <SOAP-ENV:Body>
 <wsen:EnumerateResponse>
 <wsen:EnumerationContext />
-<wsman:Items>
-<p:WsmBase xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
-<p:keyProperty>
-key1
-</p:keyProperty>
-<p:prop1>
-prop1 value1
-</p:prop1>
-<p:prop2>
-prop2 value1
-</p:prop2>
-</p:WsmBase>
-<p:WsmBase xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
-<p:keyProperty>
-key2
-</p:keyProperty>
-<p:prop1>
-prop1 value2
-</p:prop1>
-<p:prop2>
-prop2 value2
-</p:prop2>
-</p:WsmBase>
-<p:WsmBase xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
-<p:keyProperty>
-key3
-</p:keyProperty>
-<p:prop1>
-prop1 value3
-</p:prop1>
-<p:prop2>
-prop2 value3
-</p:prop2>
-</p:WsmBase>
-<p:WsmBase xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
-<p:keyProperty>
-key4
-</p:keyProperty>
-<p:prop1>
-prop1 value4
-</p:prop1>
-<p:prop2>
-prop2 value4
-</p:prop2>
-</p:WsmBase>
-<p:WsmDerived xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmDerived">
-<p:keyProperty>
-key5
-</p:keyProperty>
-<p:prop1>
-prop1 value5
-</p:prop1>
-<p:prop2>
-prop2 value5
-</p:prop2>
-<p:prop3>
-prop3 value5
-</p:prop3>
-<p:prop4>
-prop4 value5
-</p:prop4>
-</p:WsmDerived>
-<p:WsmDerived xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmDerived">
-<p:keyProperty>
-key6
-</p:keyProperty>
-<p:prop1>
-prop1 value6
-</p:prop1>
-<p:prop2>
-prop2 value6
-</p:prop2>
-<p:prop3>
-prop3 value6
-</p:prop3>
-<p:prop4>
-prop4 value6
-</p:prop4>
-</p:WsmDerived>
-<p:WsmDerived xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmDerived">
-<p:keyProperty>
-key7
-</p:keyProperty>
-<p:prop1>
-prop1 value7
-</p:prop1>
-<p:prop2>
-prop2 value7
-</p:prop2>
-<p:prop3>
-prop3 value7
-</p:prop3>
-<p:prop4>
-prop4 value7
-</p:prop4>
-</p:WsmDerived>
-<p:WsmDerived xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmDerived">
-<p:keyProperty>
-key8
-</p:keyProperty>
-<p:prop1>
-prop1 value8
-</p:prop1>
-<p:prop2>
-prop2 value8
-</p:prop2>
-<p:prop3>
-prop3 value8
-</p:prop3>
-<p:prop4>
-prop4 value8
-</p:prop4>
-</p:WsmDerived>
-</wsman:Items>
-<wsman:EndOfSequence />
+<wsen:Items>
+<class:TEST_Person xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_Person">
+<class:name>
+John
+</class:name>
+</class:TEST_Person>
+<class:TEST_Person xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_Person">
+<class:name>
+Nazerath
+</class:name>
+</class:TEST_Person>
+<class:TEST_Person xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_Person">
+<class:name>
+George
+</class:name>
+</class:TEST_Person>
+<class:TEST_Person xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_Person">
+<class:name>
+Mike
+</class:name>
+</class:TEST_Person>
+<class:TEST_Person xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_Person">
+<class:name>
+Joseph
+</class:name>
+</class:TEST_Person>
+<class:TEST_Person xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_Person">
+<class:name>
+Trish
+</class:name>
+</class:TEST_Person>
+<class:TEST_Person xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_Person">
+<class:name>
+Mathew
+</class:name>
+</class:TEST_Person>
+<class:TEST_Person xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_Person">
+<class:name>
+Francis
+</class:name>
+</class:TEST_Person>
+<class:TEST_PersonDynamic xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_PersonDynamic">
+<class:Name>
+Teacher
+</class:Name>
+</class:TEST_PersonDynamic>
+<class:TEST_PersonDynamic xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_PersonDynamic">
+<class:Name>
+Student
+</class:Name>
+</class:TEST_PersonDynamic>
+<class:TEST_PersonDynamic xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_PersonDynamic">
+<class:Name>
+Employee
+</class:Name>
+</class:TEST_PersonDynamic>
+<class:TEST_PersonDynamic xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_PersonDynamic">
+<class:Name>
+Manager
+</class:Name>
+</class:TEST_PersonDynamic>
+<class:TEST_PersonDynamic xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_PersonDynamic">
+<class:Name>
+Husband
+</class:Name>
+</class:TEST_PersonDynamic>
+<class:TEST_PersonDynamic xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_PersonDynamic">
+<class:Name>
+Wife
+</class:Name>
+</class:TEST_PersonDynamic>
+<class:TEST_PersonDynamic xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_PersonDynamic">
+<class:Name>
+Father
+</class:Name>
+</class:TEST_PersonDynamic>
+<class:TEST_PersonDynamic xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_PersonDynamic">
+<class:Name>
+Child
+</class:Name>
+</class:TEST_PersonDynamic>
+<wsen:EndOfSequence />
+</wsen:Items>
 </wsen:EnumerateResponse>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

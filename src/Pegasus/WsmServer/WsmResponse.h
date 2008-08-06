@@ -415,6 +415,10 @@ public:
     void split(WsenEnumerationData& data, Uint32 num)
     {
         data.enumerationMode = enumerationMode;
+
+        if (num == 0)
+            return;
+
         if (enumerationMode == WSEN_EM_OBJECT)
         {
             Uint32 i;

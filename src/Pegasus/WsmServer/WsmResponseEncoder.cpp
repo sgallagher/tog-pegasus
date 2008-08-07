@@ -44,6 +44,7 @@
 #include "WsmReader.h"
 #include "WsmWriter.h"
 #include "WsmResponseEncoder.h"
+#include "WsmToCimRequestMapper.h"
 #include "SoapResponse.h"
 
 PEGASUS_USING_STD;
@@ -426,6 +427,17 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
         for (i = 0; i < data.instances.size(); i++)
         {
             Buffer body;
+
+            if (data.polymorphismMode == WSMB_PM_EXCLUDE_SUBCLASS_PROPERTIES)
+            {
+                // The response does not contain the subclass properties, but
+                // the class name is still that of the subclass. 
+                // Replace it here.
+                data.instances[i].setClassName(
+                    WsmToCimRequestMapper::convertResourceUriToClassName(
+                        data.classUri).getString());
+            }
+
             WsmWriter::appendInstanceElement(body, data.instances[i]);
             if (!soapResponse.appendBodyContent(body))
             {

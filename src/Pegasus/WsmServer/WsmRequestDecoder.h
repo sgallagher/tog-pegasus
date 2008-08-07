@@ -96,6 +96,8 @@ private:
         const char* headerName,
         Boolean headerSpecified);
 
+    void _checkNoSelectorsEPR(const WsmEndpointReference& epr);
+
     WxfGetRequest* _decodeWSTransferGet(
         WsmReader& wsmReader,
         const String& messageId,

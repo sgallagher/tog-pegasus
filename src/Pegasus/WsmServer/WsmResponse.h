@@ -350,20 +350,26 @@ public:
         : enumerationMode(WSEN_EM_UNKNOWN)
     {
     }
-    WsenEnumerationData(const Array<WsmInstance>& inst)
+    WsenEnumerationData(const Array<WsmInstance>& inst, 
+        WsmbPolymorphismMode pm, const String& uri)
         : instances(inst),
-          enumerationMode(WSEN_EM_OBJECT)
+          enumerationMode(WSEN_EM_OBJECT),
+          polymorphismMode(pm),
+          classUri(uri)
     {
     }
     WsenEnumerationData(const Array<WsmEndpointReference>& epr)
         : eprs(epr),
-          enumerationMode(WSEN_EM_EPR)
+          enumerationMode(WSEN_EM_EPR),
+          polymorphismMode(WSMB_PM_UNKNOWN)
     {
     }
     WsenEnumerationData(const WsenEnumerationData& data)
         : instances(data.instances),
           eprs(data.eprs),
-          enumerationMode(data.enumerationMode)
+          enumerationMode(data.enumerationMode),
+          polymorphismMode(data.polymorphismMode),
+          classUri(data.classUri)
     {
     }
     Uint32 getSize()
@@ -415,6 +421,8 @@ public:
     void split(WsenEnumerationData& data, Uint32 num)
     {
         data.enumerationMode = enumerationMode;
+        data.polymorphismMode = polymorphismMode;
+        data.classUri = classUri;
 
         if (num == 0)
             return;
@@ -446,38 +454,14 @@ public:
     Array<WsmInstance> instances;
     Array<WsmEndpointReference> eprs;
     WsenEnumerationMode enumerationMode;
+    WsmbPolymorphismMode polymorphismMode;
+    String classUri;
 };
 
 class WsenPullResponse : public WsmResponse
 {
 public:
 
-    WsenPullResponse(
-        const Array<WsmInstance>& inst,
-        const WsenPullRequest* request,
-        const ContentLanguageList& contentLanguages)
-        : WsmResponse(
-              WS_ENUMERATION_PULL,
-              request,
-              contentLanguages),
-          _enumerationContext((Uint64) -1),
-          _isComplete(false),
-          _enumerationData(inst)
-    {
-    }
-    WsenPullResponse(
-        const Array<WsmEndpointReference>& epr,
-        const WsenPullRequest* request,
-        const ContentLanguageList& contentLanguages)
-        : WsmResponse(
-              WS_ENUMERATION_PULL,
-              request,
-              contentLanguages),
-          _enumerationContext((Uint64) -1),
-          _isComplete(false),
-          _enumerationData(epr)
-    {
-    }
     WsenPullResponse(
         const WsenEnumerationData& data,
         const WsenPullRequest* request,
@@ -559,7 +543,8 @@ public:
           _isComplete(false),
           _requestItemCount(request->requestItemCount),
           _itemCount(itemCount),
-          _enumerationData(inst)
+          _enumerationData(inst, request->polymorphismMode,
+              request->epr.resourceUri)
     {
         PEGASUS_ASSERT(request->enumerationMode == WSEN_EM_OBJECT);
     }

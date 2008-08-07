@@ -66,7 +66,7 @@ public:
     CIMEnumerateInstanceNamesRequestMessage* 
         mapToCimEnumerateInstanceNamesRequest(WsenEnumerateRequest* request);
 
-    CIMName convertResourceUriToClassName(const String& resourceUri);
+    static CIMName convertResourceUriToClassName(const String& resourceUri);
     String convertEPRAddressToHostname(const String& addr);
 
     static Boolean stringToReal64(const char* stringValue, Real64& x);

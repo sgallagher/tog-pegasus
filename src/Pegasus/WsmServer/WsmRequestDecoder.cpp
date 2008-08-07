@@ -618,6 +618,26 @@ void WsmRequestDecoder::_checkRequiredHeader(
     }
 }
 
+void WsmRequestDecoder::_checkNoSelectorsEPR(const WsmEndpointReference& epr)
+{
+    // Make sure that at most __cimnamespace seletor is present
+    if (epr.selectorSet)
+    {
+        if (epr.selectorSet->selectors.size() > 1 ||
+            epr.selectorSet->selectors[0].type != WsmSelector::VALUE ||
+            epr.selectorSet->selectors[0].name != "__cimnamespace")
+        {
+            throw WsmFault(
+                WsmFault::wsman_InvalidSelectors,
+                MessageLoaderParms(
+                    "WsmServer.WsmRequestDecoder.UNEXPECTED_SELECTORS",
+                    "The operation allows only the __cimnamespace seletor to "
+                    "be present."),
+                WSMAN_FAULTDETAIL_UNEXPECTEDSELECTORS);
+        }
+    }
+}
+
 WxfGetRequest* WsmRequestDecoder::_decodeWSTransferGet(
     WsmReader& wsmReader,
     const String& messageId,
@@ -661,6 +681,7 @@ WxfCreateRequest* WsmRequestDecoder::_decodeWSTransferCreate(
     const WsmEndpointReference& epr)
 {
     _checkRequiredHeader("wsman:ResourceURI", epr.resourceUri.size());
+    _checkNoSelectorsEPR(epr);
 
     XmlEntry entry;
     wsmReader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
@@ -699,6 +720,7 @@ WsenEnumerateRequest* WsmRequestDecoder::_decodeWSEnumerationEnumerate(
     Boolean requestItemCount)
 {
     _checkRequiredHeader("wsman:ResourceURI", epr.resourceUri.size());
+    _checkNoSelectorsEPR(epr);
 
     String expiration;
     WsmbPolymorphismMode polymorphismMode = WSMB_PM_UNKNOWN;
@@ -776,6 +798,7 @@ WsenPullRequest* WsmRequestDecoder::_decodeWSEnumerationPull(
     Boolean requestItemCount)
 {
     _checkRequiredHeader("wsman:ResourceURI", epr.resourceUri.size());
+    _checkNoSelectorsEPR(epr);
 
     Uint64 enumerationContext;
     String maxTime;
@@ -814,6 +837,7 @@ WsenReleaseRequest* WsmRequestDecoder::_decodeWSEnumerationRelease(
     const WsmEndpointReference& epr)
 {
     _checkRequiredHeader("wsman:ResourceURI", epr.resourceUri.size());
+    _checkNoSelectorsEPR(epr);
 
     Uint64 enumerationContext;
 

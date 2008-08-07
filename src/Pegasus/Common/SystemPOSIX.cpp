@@ -200,19 +200,18 @@ Boolean System::removeFile(const char* path)
 
 Boolean System::renameFile(const char* oldPath, const char* newPath)
 {
-#if defined(PEGASUS_OS_VMS)
-//   Note: link() on OpenVMS has a different meaning so rename is used.
-//         unlink() is a synonym for remove() so it can be used.
-    if (rename(oldPath, newPath) != 0)
-        return false;
+    Boolean success = (rename(oldPath, newPath) == 0);
 
-    return true;
-#else
-    if (link(oldPath, newPath) != 0)
-        return false;
+    if (!success)
+    {
+        PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
+            "rename(\"%s\", \"%s\") failed: %s",
+            oldPath,
+            newPath,
+            (const char*) PEGASUS_SYSTEM_ERRORMSG.getCString()));
+    }
 
-    return unlink(oldPath) == 0;
-#endif
+    return success;
 }
 
 String System::getSystemCreationClassName ()

@@ -186,17 +186,22 @@ public:
         const String& path1,
         const String& path2);
 
-    /** Renames a file.
-        @param oldPath old name of file.
-        @param newPath new name of file.
-        @return true on success.
+    /**
+        Renames a file.  If the new name refers to an existing file, it is
+        removed and replaced with the renamed file.  The rename operation is
+        performed atomically.
+        @param oldPath A String containing the name of the file to rename.
+        @param newPath A String containing the name to which to rename the file.
+        @return A Boolean indicating whether the rename operation was
+            successful.
     */
     static Boolean renameFile(
         const String& oldPath,
         const String& newPath);
 
     /** Same as rename file except that the case of the file referred to
-        by oldPath is ignored.
+        by oldPath is ignored.  The case resolution of the oldPath is
+        performed prior to the atomic rename operation.
     */
     static Boolean renameFileNoCase(
         const String& oldPath,

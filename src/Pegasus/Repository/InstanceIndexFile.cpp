@@ -851,16 +851,25 @@ Boolean InstanceIndexFile::compact(
     }
 
     //
-    // Open temporary file (delete it first):
+    // Open the output file (temporary data file):
     //
 
+    const String outputFilePath = path + ".tmp";
+    String leftoverOutputFilePath;
+
+    // Ensure the output file does not already exist
+    if (FileSystem::existsNoCase(outputFilePath, leftoverOutputFilePath))
+    {
+        if (!FileSystem::removeFile(leftoverOutputFilePath))
+        {
+            PEG_METHOD_EXIT();
+            return false;
+        }
+    }
+
     fstream tmpFs;
-    String tmpPath = path;
-    tmpPath.append(".tmp");
 
-    FileSystem::removeFileNoCase(tmpPath);
-
-    if (!_openFile(tmpPath, tmpFs, true))
+    if (!_openFile(outputFilePath, tmpFs, true))
     {
         PEG_METHOD_EXIT();
         return false;
@@ -918,7 +927,7 @@ Boolean InstanceIndexFile::compact(
 
     if (errorOccurred)
     {
-        FileSystem::removeFileNoCase(tmpPath);
+        FileSystem::removeFile(outputFilePath);
         PEG_METHOD_EXIT();
         return false;
     }
@@ -927,20 +936,8 @@ Boolean InstanceIndexFile::compact(
     // Replace index file with temporary file:
     //
 
-    if (!FileSystem::removeFileNoCase(path))
-    {
-        PEG_METHOD_EXIT();
-        return false;
-    }
-
-    if (!FileSystem::renameFile(tmpPath, path))
-    {
-        PEG_METHOD_EXIT();
-        return false;
-    }
-
     PEG_METHOD_EXIT();
-    return true;
+    return FileSystem::renameFile(outputFilePath, path);
 }
 
 Boolean InstanceIndexFile::hasNonFreeEntries(const String& path)
@@ -1056,18 +1053,8 @@ Boolean InstanceIndexFile::rollbackTransaction(const String& path)
     }
 
     //
-    // To roll back, simply delete the index file and rename
-    // the rollback file over it.
+    // To roll back, simply rename the rollback file over the index file.
     //
-
-    if (FileSystem::existsNoCase(path))
-    {
-        if (!FileSystem::removeFileNoCase(path))
-        {
-            PEG_METHOD_EXIT();
-            return false;
-        }
-    }
 
     PEG_METHOD_EXIT();
     return FileSystem::renameFileNoCase(path + ".rollback", path);

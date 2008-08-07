@@ -116,13 +116,6 @@ void PasswordFile::load(PasswordTable& passwordTable)
     //
     if (FileSystem::exists(_passwordBackupFile))
     {
-        if (FileSystem::exists(_passwordFile))
-        {
-            if (Executor::removeFile(_passwordFile.getCString()) != 0)
-            {
-                throw CannotRemoveFile(_passwordFile);
-            }
-        }
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
             "Security.UserManager.PasswordFile.TRYING_TO_BACKUP_FILE",
             "Trying to use the backup file : $0.", _passwordBackupFile);

@@ -416,25 +416,37 @@ Boolean InstanceDataFile::compact(
     // Open the output file (temporary data file):
     //
 
+    const String outputFilePath = path + ".tmp";
+    String leftoverOutputFilePath;
+
+    // Ensure the output file does not already exist
+    if (FileSystem::existsNoCase(outputFilePath, leftoverOutputFilePath))
+    {
+        if (!FileSystem::removeFile(leftoverOutputFilePath))
+        {
+            PEG_METHOD_EXIT();
+            return false;
+        }
+    }
+
     fstream tmpFs;
 
-    if (!_openFile(tmpFs, path + ".tmp", ios::out PEGASUS_OR_IOS_BINARY))
+    if (!_openFile(tmpFs, outputFilePath, ios::out PEGASUS_OR_IOS_BINARY))
     {
         PEG_METHOD_EXIT();
         return false;
     }
 
-    Buffer data;
-
     //
     // Copy over instances which have not been freed:
     //
 
+    Buffer data;
+
     for (Uint32 i = 0, n = freeFlags.size(); i < n; i++)
     {
         //
-        // If this entry is not free, then copy it over to the
-        // temporary file. Otherwise, pay retail for it.
+        // If this entry is not free, then copy it over to the output file.
         //
 
         if (!freeFlags[i])
@@ -445,6 +457,7 @@ Boolean InstanceDataFile::compact(
 
             if (!fs.seekg(indices[i]))
             {
+                FileSystem::removeFile(outputFilePath);
                 PEG_METHOD_EXIT();
                 return false;
             }
@@ -455,6 +468,7 @@ Boolean InstanceDataFile::compact(
 
             if (!fs)
             {
+                FileSystem::removeFile(outputFilePath);
                 PEG_METHOD_EXIT();
                 return false;
             }
@@ -480,20 +494,8 @@ Boolean InstanceDataFile::compact(
     // Copy the new file over the old one:
     //
 
-    if (!FileSystem::removeFileNoCase(path))
-    {
-        PEG_METHOD_EXIT();
-        return false;
-    }
-
-    if (!FileSystem::renameFileNoCase(path + ".tmp", path))
-    {
-        PEG_METHOD_EXIT();
-        return false;
-    }
-
     PEG_METHOD_EXIT();
-    return true;
+    return FileSystem::renameFile(outputFilePath, path);
 }
 
 PEGASUS_NAMESPACE_END

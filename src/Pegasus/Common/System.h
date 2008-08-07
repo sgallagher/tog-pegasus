@@ -160,6 +160,17 @@ public:
 
     static Boolean removeFile(const char* path);
 
+    /**
+        Renames a file.  If the new name refers to an existing file, it is
+        removed and replaced with the renamed file.  The rename operation is
+        performed atomically.
+        @param oldPath A character string containing the name of the file to
+            rename.
+        @param newPath A character string containing the name to which to
+            rename the file.
+        @return A Boolean indicating whether the rename operation was
+            successful.
+    */
     static Boolean renameFile(const char* oldPath, const char* newPath);
 
     static Boolean copyFile(const char* fromPath, const char* toPath);

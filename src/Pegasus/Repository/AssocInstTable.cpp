@@ -294,11 +294,6 @@ Boolean AssocInstTable::deleteAssociation(
     is.close();
     os.close();
 
-    // Remove orginal file:
-
-    if (!FileSystem::removeFile(path))
-        throw CannotRemoveFile(path);
-
     // Rename back to original name:
 
     if (!FileSystem::renameFile(tmpPath, path))

@@ -1984,12 +1984,15 @@ Boolean NameSpaceManager::classExists(
 
         if (it.containsClass(className))
         {
-            PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL1,
-                "Class already exists.");
-            PEG_METHOD_EXIT();
             if (throwExcp)
+            {
+                PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL1,
+                    "Class already exists.");
+                PEG_METHOD_EXIT();
                 throw PEGASUS_CIM_EXCEPTION(
                     CIM_ERR_ALREADY_EXISTS, className.getString());
+            }
+            PEG_METHOD_EXIT();
             return true;
         }
 

@@ -598,16 +598,16 @@ void CIMCRLCommand::_listCRL (
 
         outPrintWriter << "Revoked Certificates:" << endl;
 
-        for (Uint32 i = 0; i < revokedSerialNumbers.size(); i++)
+        for (Uint32 j = 0; j < revokedSerialNumbers.size(); j++)
         {
             String revocationDateStr =
-                _formatCIMDateTime(revocationDates[i].toString());
+                _formatCIMDateTime(revocationDates[j].toString());
 
             //
             // Display the revoked serial numbers and the revocation dates
             //
             outPrintWriter <<
-                "    Serial Number: " << revokedSerialNumbers[i] << endl;
+                "    Serial Number: " << revokedSerialNumbers[j] << endl;
             outPrintWriter <<
                 "        Revocation Date: " << revocationDateStr << endl;
             outPrintWriter << endl;

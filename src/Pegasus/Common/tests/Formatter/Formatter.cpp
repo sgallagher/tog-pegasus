@@ -46,14 +46,17 @@ int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
-    String str = 
-    Formatter::format("\\$dollar\\$ X=$0, Y=$1, Z=$2, X=$0",
-            88, "Hello World", 7.5);
+    {
+        String str = Formatter::format(
+            "\\$dollar\\$ X=$0, Y=$1, Z=$2, X=$0", 88, "Hello World", 7.5);
 
-    if (verbose)
-     cout << "str[" << str << "]" << endl;
+        if (verbose)
+        {
+            cout << "str[" << str << "]" << endl;
+        }
+    }
 
-     // test for Uint32 expressions.
+    // test for Uint32 expressions.
 
     {
         Uint32 test = 99;

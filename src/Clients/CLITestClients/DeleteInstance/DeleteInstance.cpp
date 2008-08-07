@@ -217,11 +217,14 @@ void printHelp(char* name, OptionManager om)
    options help to be defined with the OptionRow entries and presented from
    those entries.
 */
-void printHelpMsg(const char* pgmName, const char* usage, const char* extraHelp,
-                OptionManager om)
+void printHelpMsg(
+    const char* pgmName,
+    const char* usage_,
+    const char* extraHelp,
+    OptionManager om)
 {
     cout << endl << pgmName << endl;
-    cout << "Usage: " << pgmName << endl << usage << endl;
+    cout << "Usage: " << pgmName << endl << usage_ << endl;
     cout << endl;
     // ATTN: KS om.printHelp(const char* pgmName, OptionManager om);
     cout << extraHelp << endl;

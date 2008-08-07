@@ -58,7 +58,7 @@ static const CMPIBroker *_broker;
 /* ---------------------------------------------------------------------------*/
 
 const char * get_assoc_targetClass_Name(
-    const CMPIBroker * _broker,
+    const CMPIBroker * broker,
     const CMPIObjectPath * ref,
     const char * _RefLeftClass,
     const char * _RefRightClass,
@@ -71,7 +71,7 @@ const char * get_assoc_targetClass_Name(
     sourceClass = CMGetClassName(ref, rc);
     
     op = CMNewObjectPath(
-        _broker,
+        broker,
         CMGetCharPtr(CMGetNameSpace(ref,rc)),
         _RefLeftClass,
         rc );
@@ -92,7 +92,7 @@ const char * get_assoc_targetClass_Name(
 
 
 CMPIObjectPath* get_assoc_targetClass_ObjectPath(
-    const CMPIBroker* _broker,
+    const CMPIBroker* broker,
     const CMPIObjectPath* ref,
     const char* _RefLeftClass,
     const char* _RefRightClass,
@@ -103,7 +103,7 @@ CMPIObjectPath* get_assoc_targetClass_ObjectPath(
     
     /* get name of the target class */
     targetName = get_assoc_targetClass_Name(
-        _broker,
+        broker,
         ref,
         _RefLeftClass,
         _RefRightClass,
@@ -113,7 +113,7 @@ CMPIObjectPath* get_assoc_targetClass_ObjectPath(
     {
         /* create new object path of the target class */
         op = CMNewObjectPath(
-            _broker,
+            broker,
             CMGetCharPtr(CMGetNameSpace(ref,rc)),
             targetName,
             rc);

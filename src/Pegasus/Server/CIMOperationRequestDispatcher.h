@@ -60,8 +60,8 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_SERVER_LINKAGE ProviderInfo
 {
 public:
-    ProviderInfo(const CIMName& className)
-        : className(className),
+    ProviderInfo(const CIMName& className_)
+        : className(className_),
           hasProvider(false),
           hasProviderNormalization(false),
           hasNoQuery(true)
@@ -69,12 +69,12 @@ public:
     }
 
     ProviderInfo(
-        const CIMName& className,
-        const String& serviceName,
-        const String& controlProviderName)
-        : className(className),
-          serviceName(serviceName),
-          controlProviderName(controlProviderName),
+        const CIMName& className_,
+        const String& serviceName_,
+        const String& controlProviderName_)
+        : className(className_),
+          serviceName(serviceName_),
+          controlProviderName(controlProviderName_),
           hasProvider(false),
           hasProviderNormalization(false),
           hasNoQuery(true)

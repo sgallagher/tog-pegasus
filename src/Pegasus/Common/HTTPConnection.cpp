@@ -369,7 +369,7 @@ Boolean HTTPConnection::closeConnectionOnTimeout(struct timeval* timeNow)
 Boolean HTTPConnection::_handleWriteEvent(Message &message)
 {
     static const char func[] = "HTTPConnection::_handleWriteEvent";
-    String httpStatus;
+    String httpStatusString;
     HTTPMessage& httpMessage = *(HTTPMessage*)&message;
     Buffer& buffer = httpMessage.message;
     Boolean isFirst = message.isFirst();
@@ -394,10 +394,6 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
         if (_isClient() == false)
         {
-            // for null termination
-            buffer.reserveCapacity(messageLength + 1);
-            messageStart = (char *) buffer.getData();
-            messageStart[messageLength] = 0;
             PEG_TRACE((TRC_XML_IO, Tracer::LEVEL4,
                 "<!-- Response: queue id: %u -->\n%s",
                 getQueueId(),
@@ -423,7 +419,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             // save the first error
             if (httpMessage.cimException.getCode() != CIM_ERR_SUCCESS)
             {
-                httpStatus = httpMessage.cimException.getMessage();
+                httpStatusString = httpMessage.cimException.getMessage();
                 if (cimException.getCode() == CIM_ERR_SUCCESS)
                 {
                     cimException = httpMessage.cimException;
@@ -464,15 +460,13 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                     {
                         CIMStatusCode code = httpMessage.cimException.getCode();
                         String httpDetail(cimStatusCodeToString(code));
-                        char s[21];
+                        char s[11];
                         sprintf(s, "%u", (unsigned int)code);
-                        String httpStatus(s);
-                        Buffer message = XmlWriter::formatHttpErrorRspMessage
-                            (httpStatus, String(), httpDetail);
-                        messageLength = message.size();
-                        message.reserveCapacity(messageLength+1);
-                        messageStart = (char *) message.getData();
-                        messageStart[messageLength] = 0;
+                        String httpStatusCodeString(s);
+                        Buffer errorRsp = XmlWriter::formatHttpErrorRspMessage(
+                            httpStatusCodeString, String(), httpDetail);
+                        messageLength = errorRsp.size();
+                        messageStart = (char *) errorRsp.getData();
                     }
                     cimException = CIMException(cimException.getCode(),
                         String(messageStart, messageLength));
@@ -966,11 +960,11 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
     catch (Exception &e)
     {
-        httpStatus = e.getMessage();
+        httpStatusString = e.getMessage();
     }
     catch (...)
     {
-        httpStatus = HTTP_STATUS_INTERNALSERVERERROR;
+        httpStatusString = HTTP_STATUS_INTERNALSERVERERROR;
         PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL1, "Unknown internal error");
     }
 
@@ -990,7 +984,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
         _responsePending = false;
 
-        if (httpStatus.size() == 0)
+        if (httpStatusString.size() == 0)
         {
             PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
                 "A response has been sent (%d of %u bytes have been written). "
@@ -1033,7 +1027,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
         }
     }
 
-    return httpStatus.size() == 0 ? false : true;
+    return httpStatusString.size() == 0 ? false : true;
 
 }
 
@@ -1673,18 +1667,19 @@ void HTTPConnection::_handleReadEventTransferEncoding()
                 remainderLength -= trailerLength;
 
                 // parse the trailer looking for the code and description
-                String startLine;
-                Array<HTTPHeader> headers;
-                Uint32 contentLength = 0;
+                String trailerStartLine;
+                Array<HTTPHeader> trailers;
+                Uint32 trailerContentLength = 0;
                 HTTPMessage httpTrailer(trailer);
-                httpTrailer.parse(startLine, headers, contentLength);
+                httpTrailer.parse(
+                    trailerStartLine, trailers, trailerContentLength);
 
                 String cimErrorName = headerNameError;
                 // first look for cim error. this is an http level error
                 Boolean found = false;
 
                 found = httpTrailer.lookupHeader(
-                    headers, cimErrorName, cimErrorValue, true);
+                    trailers, cimErrorName, cimErrorValue, true);
 
                 if (found == true)
                 {
@@ -1693,14 +1688,18 @@ void HTTPConnection::_handleReadEventTransferEncoding()
                     // to make one up.
 
                     Buffer header(messageStart, headerLength);
-                    String startLine;
+                    String headerStartLine;
                     Array<HTTPHeader> headers;
-                    Uint32 contentLength = 0;
+                    Uint32 headerContentLength = 0;
                     HTTPMessage httpHeader(header);
-                    httpHeader.parse(startLine, headers, contentLength);
+                    httpHeader.parse(
+                        headerStartLine, headers, headerContentLength);
                     String httpVersion;
                     Boolean isValid = httpHeader.parseStatusLine(
-                        startLine, httpVersion, httpStatusCode,httpStatus);
+                        headerStartLine,
+                        httpVersion,
+                        httpStatusCode,
+                        httpStatus);
                     if (isValid == false || httpStatusCode == 0 ||
                             httpStatusCode == HTTP_STATUSCODE_OK)
                     {
@@ -1714,13 +1713,13 @@ void HTTPConnection::_handleReadEventTransferEncoding()
                     String codeName = headerNameCode;
                     String codeValue;
                     found = httpTrailer.lookupHeader(
-                        headers, codeName, codeValue, true);
+                        trailers, codeName, codeValue, true);
                     if (found == true && codeValue.size() > 0 &&
                         (cimStatusCode = (CIMStatusCode)atoi(
                              codeValue.getCString())) > 0)
                     {
                         HTTPMessage::lookupHeaderPrefix(
-                            headers, codeName, _mpostPrefix);
+                            trailers, codeName, _mpostPrefix);
                         httpStatus = _mpostPrefix + codeName +
                             headerNameTerminator + codeValue +
                             headerLineTerminator;
@@ -1729,7 +1728,7 @@ void HTTPConnection::_handleReadEventTransferEncoding()
                         String descriptionName = headerNameDescription;
                         String descriptionValue;
                         found = httpTrailer.lookupHeader(
-                            headers, descriptionName, descriptionValue, true);
+                            trailers, descriptionName, descriptionValue, true);
                         if (descriptionValue.size() == 0)
                         {
                             descriptionValue =
@@ -1744,7 +1743,7 @@ void HTTPConnection::_handleReadEventTransferEncoding()
 
                     // Get Content-Language out of the trailer, if it is there
                     String contentLanguagesString;
-                    found = httpTrailer.lookupHeader(headers,
+                    found = httpTrailer.lookupHeader(trailers,
                         headerNameContentLanguage,
                         contentLanguagesString,
                         true);

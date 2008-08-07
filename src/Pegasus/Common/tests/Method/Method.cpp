@@ -48,34 +48,44 @@ int main(int argc, char** argv)
 
     try
     {
-    CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-    m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
-    m1.addQualifier(CIMQualifier(CIMName ("stuff2"), true));
-    m1.addParameter(CIMParameter(CIMName ("ipaddress"), CIMTYPE_STRING));
+        CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
+        m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
+        m1.addQualifier(CIMQualifier(CIMName ("stuff2"), true));
+        m1.addParameter(CIMParameter(CIMName ("ipaddress"), CIMTYPE_STRING));
 
 
-    // Tests for Qualifiers
-    PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(m1.getQualifierCount() == 2);
+        // Tests for Qualifiers
+        PEGASUS_TEST_ASSERT(
+            m1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            m1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            m1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(m1.getQualifierCount() == 2);
 
-    PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            m1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
 
-    PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            m1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            m1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
 
-    Uint32 posQualifier;
-    posQualifier = m1.findQualifier(CIMName ("stuff"));
-    PEGASUS_TEST_ASSERT(posQualifier != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(posQualifier < m1.getQualifierCount());
+        Uint32 posQualifier;
+        posQualifier = m1.findQualifier(CIMName ("stuff"));
+        PEGASUS_TEST_ASSERT(posQualifier != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(posQualifier < m1.getQualifierCount());
 
-    m1.removeQualifier(posQualifier);
-    PEGASUS_TEST_ASSERT(m1.getQualifierCount() == 1);
-    PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+        m1.removeQualifier(posQualifier);
+        PEGASUS_TEST_ASSERT(m1.getQualifierCount() == 1);
+        PEGASUS_TEST_ASSERT(
+            m1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
 
         // Tests for Parameters
         PEGASUS_TEST_ASSERT(m1.findParameter(
@@ -147,13 +157,14 @@ int main(int argc, char** argv)
             CIMConstParameter p = cm1.getParameter(cm1.findParameter(
                                         CIMName ("ipaddress")));
         }
-            catch(IndexOutOfBoundsException&)
+        catch(IndexOutOfBoundsException&)
         {
         }
+
         // throws OutOfBounds
         try
         {
-            CIMConstQualifier q = cm1.getQualifier(cm1.findQualifier(
+            CIMConstQualifier q1 = cm1.getQualifier(cm1.findQualifier(
                                         CIMName ("abstract")));
         }
         catch(IndexOutOfBoundsException&)
@@ -224,10 +235,11 @@ int main(int argc, char** argv)
         catch(IndexOutOfBoundsException&)
         {
         }
+
         // throws OutOfBounds
         try
         {
-            CIMConstQualifier q = ccm1.getQualifier(0);
+            CIMConstQualifier q1 = ccm1.getQualifier(0);
         }
         catch(IndexOutOfBoundsException&)
         {
@@ -235,7 +247,7 @@ int main(int argc, char** argv)
     }
     catch(Exception& e)
     {
-    cerr << "Exception: " << e.getMessage() << endl;
+        cerr << "Exception: " << e.getMessage() << endl;
     }
 
     // Test for add second qualifier with same name.

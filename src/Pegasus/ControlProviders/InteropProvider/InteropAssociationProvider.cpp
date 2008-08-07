@@ -118,9 +118,9 @@ void InteropProvider::associators(
             targetRole, 
             CIMPropertyList(),
             resultClass);
-        for (Uint32 i = 0, n = refs.size(); i < n; ++i)
+        for (Uint32 j = 0, n = refs.size(); j < n; ++j)
         {
-            CIMInstance & currentRef = refs[i];
+            CIMInstance & currentRef = refs[j];
             // Retrieve the "other side" of the association
             CIMObjectPath currentTarget = getRequiredValue<CIMObjectPath>(
                 currentRef, 
@@ -198,9 +198,9 @@ void InteropProvider::associatorNames(
             targetRole, 
             CIMPropertyList(),
             resultClass);
-        for (Uint32 i = 0, n = refs.size(); i < n; ++i)
+        for (Uint32 j = 0, n = refs.size(); j < n; ++j)
         {
-            CIMInstance & currentRef = refs[i];
+            CIMInstance & currentRef = refs[j];
             CIMObjectPath currentTarget = getRequiredValue<CIMObjectPath>(
                 currentRef,
                 targetRole);
@@ -271,9 +271,9 @@ void InteropProvider::references(
             resultClass, 
             tmpRole, 
             tmpTarget);
-        for (Uint32 i = 0, n = refs.size(); i < n; ++i)
+        for (Uint32 j = 0, n = refs.size(); j < n; ++j)
         {
-            handler.deliver((CIMObject)refs[i]);
+            handler.deliver((CIMObject)refs[j]);
         }
         if (numIterations == 2)
         {
@@ -326,9 +326,9 @@ void InteropProvider::referenceNames(
             resultClass,
             tmpRole, 
             tmpTarget);
-        for (Uint32 i = 0, n = refs.size(); i < n; ++i)
+        for (Uint32 j = 0, n = refs.size(); j < n; ++j)
         {
-            handler.deliver(refs[i].getPath());
+            handler.deliver(refs[j].getPath());
         }
         if (numIterations == 2)
         {

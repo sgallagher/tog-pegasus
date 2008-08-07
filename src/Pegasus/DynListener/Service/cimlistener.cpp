@@ -709,17 +709,17 @@ int CIMListenerProcess::cimserver_run(
         Tracer::setTraceComponents(traceComponents);
         Tracer::setTraceLevel(traceLevelArg);
     }
+
 #if defined(PEGASUS_DEBUG)
-    // Put out startup up message.
-    cout << _cimListenerProcess->getProductName() << " " 
-         << _cimListenerProcess->getVersion() << endl;
-    //l10n
-    //cout << "Built " << __DATE__ << " " << __TIME__ << endl;
-    //cout <<"Starting..."
-    MessageLoaderParms parms("DynListener.cimlistener.STARTUP_MESSAGE",
+    {
+        // Put out startup up message.
+        cout << _cimListenerProcess->getProductName() << " " 
+             << _cimListenerProcess->getVersion() << endl;
+        MessageLoaderParms parms("DynListener.cimlistener.STARTUP_MESSAGE",
             "CIM Listener built $0 $1\nCIM Listener starting...",
             __DATE__,
             __TIME__);
+    }
 #endif
 
 //l10n

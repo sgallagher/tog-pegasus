@@ -2221,14 +2221,14 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
                                 Array<CIMInstance> paramInstArr;
                                 Array<CIMObject> paramObjectArr;
                                 paramValue.get(paramObjectArr);
-                                for (Uint32 i = 0 ; 
-                                    i < paramObjectArr.size() ; ++i)
+                                for (Uint32 j = 0 ; 
+                                    j < paramObjectArr.size() ; ++j)
                                 {
                                     paramInstArr.append(
-                                        CIMInstance(paramObjectArr[i]));
+                                        CIMInstance(paramObjectArr[j]));
                                     // resolve each embedded instance.
                                     resolveEmbeddedInstanceTypes(
-                                        &handler, paramInstArr[i]);
+                                        &handler, paramInstArr[j]);
                                 }
                                 currentParam = CIMParamValue(currentParamName,
                                     CIMValue(paramInstArr));

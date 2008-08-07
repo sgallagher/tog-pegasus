@@ -1121,12 +1121,12 @@ const XmlAttribute* XmlEntry::findAttribute(
 }
 
 const XmlAttribute* XmlEntry::findAttribute(
-    int nsType,
+    int attrNsType,
     const char* name) const
 {
     for (Uint32 i = 0, n = attributes.size(); i < n; i++)
     {
-        if ((attributes[i].nsType == nsType) &&
+        if ((attributes[i].nsType == attrNsType) &&
             (strcmp(attributes[i].localName, name) == 0))
         {
             return &attributes[i];

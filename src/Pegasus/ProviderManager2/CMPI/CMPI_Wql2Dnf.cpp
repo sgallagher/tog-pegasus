@@ -365,9 +365,10 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
             case WQL_IS_NULL:
                 {
                     PEGASUS_ASSERT(wqsrep->_operands.size() >= 1);
-                    WQLOperand op = wqsrep->_operands[j++];
+                    WQLOperand operand = wqsrep->_operands[j++];
 
-                    terminal_heap.push(term_el_WQL(false, WQL_EQ, op, dummy));
+                    terminal_heap.push(
+                        term_el_WQL(false, WQL_EQ, operand, dummy));
 
                     stack.push(CMPI_stack_el(terminal_heap.size()-1, true));
 
@@ -377,9 +378,10 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
             case WQL_IS_NOT_NULL:
                 {
                     PEGASUS_ASSERT(wqsrep->_operands.size() >= 1);
-                    WQLOperand op = wqsrep->_operands[j++];
+                    WQLOperand operand = wqsrep->_operands[j++];
 
-                    terminal_heap.push(term_el_WQL(false, WQL_NE, op, dummy));
+                    terminal_heap.push(
+                        term_el_WQL(false, WQL_NE, operand, dummy));
 
                     stack.push(CMPI_stack_el(terminal_heap.size()-1, true));
 

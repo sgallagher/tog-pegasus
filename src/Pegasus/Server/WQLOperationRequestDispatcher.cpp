@@ -274,11 +274,11 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
                 className,
                 providerCount);
     }
-    catch (CIMException& exception)
+    catch (CIMException& e)
     {
         // Return exception response if exception from getSubClasses
         CIMResponseMessage* response = request->buildResponse();
-        response->cimException = exception;
+        response->cimException = e;
 
         _enqueueResponse(request, response);
         PEG_METHOD_EXIT();
@@ -379,14 +379,14 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
                         request->nameSpace,
                         providerInfo.className);
             }
-            catch (CIMException& exception)
+            catch (CIMException& e)
             {
-                response->cimException = exception;
+                response->cimException = e;
             }
-            catch (Exception& exception)
+            catch (Exception& e)
             {
                 response->cimException = PEGASUS_CIM_EXCEPTION(
-                    CIM_ERR_FAILED, exception.getMessage());
+                    CIM_ERR_FAILED, e.getMessage());
             }
             catch (...)
             {

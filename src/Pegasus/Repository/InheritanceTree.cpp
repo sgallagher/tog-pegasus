@@ -105,7 +105,7 @@ struct InheritanceTreeExt
 
 struct InheritanceTreeNode
 {
-    InheritanceTreeNode(const CIMName& className);
+    InheritanceTreeNode(const CIMName& className_);
     ~InheritanceTreeNode();
 
     void addSubClass(InheritanceTreeNode* subClass);
@@ -134,8 +134,8 @@ struct InheritanceTreeNode
     Boolean extension;
 };
 
-InheritanceTreeNode::InheritanceTreeNode(const CIMName& className)
-    : className(className), superClass(0),
+InheritanceTreeNode::InheritanceTreeNode(const CIMName& className_)
+    : className(className_), superClass(0),
     sibling(0), subClasses(0), provisional(true), extension(false)
 {
 }
@@ -435,11 +435,11 @@ Boolean InheritanceTree::getSubClassNames(
                     InheritanceTreeExt* itx=(*(itn->extNodes))[j];
                     if (itx->tag==ns)
                     {
-                        InheritanceTreeNode* itn=itx->node;
+                        InheritanceTreeNode* itxn=itx->node;
                         if (deepInheritance)
                         {
                             subClassNames.append(CIMNameUnchecked(i.key()));
-                            itn->getSubClassNames(
+                            itxn->getSubClassNames(
                                 subClassNames, deepInheritance, ns);
                         }
                         else if (!i.value()->superClass)

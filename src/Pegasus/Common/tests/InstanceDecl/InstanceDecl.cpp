@@ -276,8 +276,7 @@ void test02()
         CIMInstance badInstance(CIMName("MyClass"));
         badInstance.addProperty(CIMProperty(CIMName("first"), String("John")));
         badInstance.addProperty(CIMProperty(CIMName("last"), String("Smith")));
-        CIMObjectPath instanceName =
-            badInstance.buildPath(CIMConstClass(cimClass));
+        instanceName = badInstance.buildPath(CIMConstClass(cimClass));
     }
     catch (const NoSuchProperty&)
     {

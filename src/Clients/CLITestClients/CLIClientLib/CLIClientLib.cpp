@@ -480,7 +480,7 @@ CIMParamValue _createMethodParamValue(const String& input, const Options& opts)
             // key names and values.
             while(tmp.size() != 0)
             {
-                String token, identifier, key;
+                String token, identifier, refKey;
                 _nextParamToken(tmp, token);
                 Uint32 dotIndex = 0, equalIndex = 0;
 
@@ -493,8 +493,8 @@ CIMParamValue _createMethodParamValue(const String& input, const Options& opts)
                     className = token.subString(0, dotIndex);
                     identifier = token.subString(dotIndex+1, 
                                                  equalIndex-1-dotIndex);
-                    key = token.subString(equalIndex+1, token.size());
-                    keys.append(CIMKeyBinding(identifier, key,
+                    refKey = token.subString(equalIndex+1, token.size());
+                    keys.append(CIMKeyBinding(identifier, refKey,
                                               CIMKeyBinding::STRING));
                 }
 
@@ -502,8 +502,8 @@ CIMParamValue _createMethodParamValue(const String& input, const Options& opts)
                 else if((equalIndex = token.find('=')) != PEG_NOT_FOUND)
                 {
                     identifier = token.subString(0, equalIndex);
-                    key = token.subString(equalIndex+1, token.size());
-                    keys.append(CIMKeyBinding(identifier, key,
+                    refKey = token.subString(equalIndex+1, token.size());
+                    keys.append(CIMKeyBinding(identifier, refKey,
                                               CIMKeyBinding::STRING));
                 }
                 else
@@ -1904,15 +1904,14 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
         }
 
     }
-
-    if (!usingPegasus)
+    else
     {
         Array<CIMNamespaceName> namespaceNames;
 
         // Build the namespaces incrementally starting at the root
         // ATTN: 20030319 KS today we start with the "root" directory but
         // this is wrong. We should be
-        // starting with null (no directoyr) but today we get an xml error
+        // starting with null (no directory) but today we get an xml error
         // return in Pegasus
         // returned for this call. Note that the specification requires
         // that the root namespace be used
@@ -1937,7 +1936,7 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
             {
                 // Get the next increment in naming for all a name element
                 // in the array
-                Array<CIMInstance> instances = client.enumerateInstances(
+                instances = client.enumerateInstances(
                     namespaceNames[range],opts.className);
                 for (Uint32 i = 0 ; i < instances.size(); i++)
                 {
@@ -2274,7 +2273,7 @@ void showOptions(const char* pgmName, OptionManager& om)
 */
 void printHelpMsg(
     const char* pgmName,
-    const char* usage,
+    const char* usage_,
     OptionManager& om)
 {
     showUsage(pgmName);

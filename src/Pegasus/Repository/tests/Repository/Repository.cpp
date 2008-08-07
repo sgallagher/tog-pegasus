@@ -191,16 +191,6 @@ void test02(Uint32 mode)
 
 void test03(Uint32 mode)
 {
-    const char* home = getenv("PEGASUS_HOME");
-
-    if (!home)
-    {
-    cerr << "PEGASUS_HOME environment variable not set" << endl;
-    exit(1);
-    }
-
-    String repositoryRoot = home;
-    repositoryRoot.append("/repository");
     CIMRepository r(repositoryRoot, mode);
 
     Array<CIMObjectPath> names = r.associatorNames(

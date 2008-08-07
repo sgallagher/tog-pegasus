@@ -262,8 +262,8 @@ void TestStressTestClient::logInfo(
         if(!addClient)
         {
             pFile.close();
-            fstream pFile(pidFile.getCString(),ios::out|ios::app);
-            pFile<<clientId<<"::"<<clientPid<<"::"<<clientStatus<<"::"
+            fstream newPidFile(pidFile.getCString(),ios::out|ios::app);
+            newPidFile<<clientId<<"::"<<clientPid<<"::"<<clientStatus<<"::"
                  <<time_str<<"\n";
         }
     }

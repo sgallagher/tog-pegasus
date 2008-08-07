@@ -641,7 +641,7 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
         _providerModuleCache = CIMInstance();
 
         {
-            AutoMutex lock(_numProviderProcessesMutex);
+            AutoMutex lock2(_numProviderProcessesMutex);
             _numProviderProcesses--;
         }
 
@@ -1320,9 +1320,9 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
                 PEGASUS_ASSERT(dmResponse != 0);
 
                 Boolean isStopped = false;
-                for (Uint32 i=0; i < dmResponse->operationalStatus.size(); i++)
+                for (Uint32 j=0; j < dmResponse->operationalStatus.size(); j++)
                 {
-                    if (dmResponse->operationalStatus[i] ==
+                    if (dmResponse->operationalStatus[j] ==
                         CIM_MSE_OPSTATUS_VALUE_STOPPED)
                     {
                         isStopped = true;
@@ -1386,9 +1386,9 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
                 PEGASUS_ASSERT(emResponse != 0);
 
                 Boolean isOk = false;
-                for (Uint32 i=0; i < emResponse->operationalStatus.size(); i++)
+                for (Uint32 j=0; j < emResponse->operationalStatus.size(); j++)
                 {
-                    if (emResponse->operationalStatus[i] ==
+                    if (emResponse->operationalStatus[j] ==
                         CIM_MSE_OPSTATUS_VALUE_OK)
                     {
                         isOk = true;

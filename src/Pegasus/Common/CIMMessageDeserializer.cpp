@@ -97,7 +97,7 @@ CIMMessage* CIMMessageDeserializer::deserialize(char* buffer)
     else
     {
         // CIMResponseMessage is the only other CIMMessage type defined
-        Boolean found = XmlReader::testStartTag(parser, entry, "PGRESP");
+        found = XmlReader::testStartTag(parser, entry, "PGRESP");
         PEGASUS_ASSERT(found);
         message = _deserializeCIMResponseMessage(parser, type);
         XmlReader::expectEndTag(parser, "PGRESP");
@@ -693,7 +693,6 @@ void CIMMessageDeserializer::_deserializeOperationContext(
 
     if (XmlReader::testStartTag(parser, entry, "PGOCPI"))
     {
-        CIMValue genericValue;
         CIMInstance module;
         CIMInstance provider;
         Boolean isRemoteNameSpace;

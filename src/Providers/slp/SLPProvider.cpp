@@ -307,7 +307,7 @@ String _getValueQualifier(
     // validate the valueMap qualifiers in the Class Property
 
     Uint32 posValueMap;
-    String error;
+    String errorMessage;
     Array<String> va1;
     Array<String> va2;
 
@@ -317,7 +317,7 @@ String _getValueQualifier(
 
         if (!qValueMap.isArray() || (qValueMap.getType() != CIMTYPE_STRING))
         {
-            error = "Error in valueMap Qualifier";
+            errorMessage = "Error in valueMap Qualifier";
         }
         else
         {
@@ -327,13 +327,13 @@ String _getValueQualifier(
             // validate the value qualifier
             Uint32 posValue;
             if ((posValue=classProperty.findQualifier("values"))==PEG_NOT_FOUND)
-                error = "No value Qualifier";
+                errorMessage = "No value Qualifier";
             else
             {
                 CIMConstQualifier qValue = classProperty.getQualifier(posValue);
                 if (!qValue.isArray() || (qValue.getType() != CIMTYPE_STRING))
                 {
-                    error = "Invalid value Qualifier";
+                    errorMessage = "Invalid value Qualifier";
                 }
                 else
                 {
@@ -342,22 +342,22 @@ String _getValueQualifier(
 
                     // Test if the array size for the two values is the same.
                     if (va2.size() != va1.size())
-                        error = "Size error on value Qualifier";
+                        errorMessage = "Size error on value Qualifier";
                 }
             }
         }
     }
     else
     {
-        error = "No valueMap Qualifier";
+        errorMessage = "No valueMap Qualifier";
     }
 
-    if (error != String::EMPTY)
+    if (errorMessage != String::EMPTY)
     {
         throw PEGASUS_CIM_EXCEPTION(
             CIM_ERR_FAILED, 
             " Qualifier Value mapping error. "
-                + error + " " 
+                + errorMessage + " " 
                 + propertyName.getString());
     }
     // Need to find the values of the property in the ValueMap. If the

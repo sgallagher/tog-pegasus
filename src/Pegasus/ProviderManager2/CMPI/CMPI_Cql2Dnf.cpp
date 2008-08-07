@@ -231,17 +231,17 @@ void CMPI_Cql2Dnf::_populateTableau()
     cqs.applyContext ();
     cqs.normalizeToDOC ();
 
-    CQLPredicate pred = cqs.getPredicate ();
+    CQLPredicate cqsPred = cqs.getPredicate ();
     Array <CQLPredicate> pred_Array;
-    Array <BooleanOpType> oper_Array = pred.getOperators();
+    Array <BooleanOpType> oper_Array = cqsPred.getOperators();
 
-    if (pred.isSimple())
+    if (cqsPred.isSimple())
     {
-        pred_Array.append(pred);
+        pred_Array.append(cqsPred);
     }
     else
     {
-        pred_Array = pred.getPredicates();
+        pred_Array = cqsPred.getPredicates();
     }
 
     _tableau.reserveCapacity(pred_Array.size());

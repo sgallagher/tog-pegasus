@@ -1791,11 +1791,12 @@ Array<CIMInstance> ProviderRegistrationProvider::_getIndicationCapInstances(
             capInstance = _providerRegistrationManager->getInstance
                                 (instanceNames[i]);
 
-            Uint32 pos = capInstance.findProperty(
+            Uint32 providerTypePos = capInstance.findProperty(
                 CIMName (_PROPERTY_PROVIDERTYPE));
-            if (pos != PEG_NOT_FOUND)
+            if (providerTypePos != PEG_NOT_FOUND)
             {
-                capInstance.getProperty(pos).getValue().get(providerTypes); 
+                capInstance.getProperty(providerTypePos).getValue().get(
+                    providerTypes); 
 
                 for (Uint32 k=0; k < providerTypes.size(); k++)
                 {

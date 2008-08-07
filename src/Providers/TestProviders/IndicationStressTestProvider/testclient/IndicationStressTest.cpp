@@ -129,9 +129,9 @@ private:
 
 };
 
-MyIndicationConsumer::MyIndicationConsumer(String name)
+MyIndicationConsumer::MyIndicationConsumer(String name_)
 {
-    this->name = name;
+    this->name = name_;
     for (Uint32 i=0; i < MAX_UNIQUE_IDS; i++)
       seqNumPrevious[i] = 1;
 

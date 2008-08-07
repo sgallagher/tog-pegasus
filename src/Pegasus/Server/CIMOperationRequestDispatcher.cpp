@@ -3338,42 +3338,47 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::handleEnumerateInstancesRequest");
 
-    // get the class name
-    CIMName className = request->className;
-    CIMException checkClassException;
+    //
+    // Validate the class name and set the request propertry list
+    //
 
-    CIMClass cimClass = _getClass(
-        request->nameSpace,
-        className,
-        checkClassException);
-
-    if (checkClassException.getCode() != CIM_ERR_SUCCESS)
     {
-        CIMResponseMessage* response = request->buildResponse();
-        response->cimException = checkClassException;
+        CIMException checkClassException;
 
-        _enqueueResponse(request, response);
+        CIMClass cimClass = _getClass(
+            request->nameSpace,
+            request->className,
+            checkClassException);
 
-        PEG_METHOD_EXIT();
-        return;
-    }
-
-    PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-        String("PropertyList = ") + _showPropertyList(request->propertyList));
-
-    // If DeepInheritance==false and no PropertyList was specified by the
-    // client, the provider PropertyList should contain all the properties
-    // in the specified class.
-    if (!request->deepInheritance && request->propertyList.isNull())
-    {
-        Array<CIMName> propertyNameArray;
-        Uint32 numProperties = cimClass.getPropertyCount();
-        for (Uint32 i = 0; i < numProperties; i++)
+        if (checkClassException.getCode() != CIM_ERR_SUCCESS)
         {
-            propertyNameArray.append(cimClass.getProperty(i).getName());
+            CIMResponseMessage* response = request->buildResponse();
+            response->cimException = checkClassException;
+
+            _enqueueResponse(request, response);
+
+            PEG_METHOD_EXIT();
+            return;
         }
 
-        request->propertyList.set(propertyNameArray);
+        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+            String("PropertyList = ") +
+                _showPropertyList(request->propertyList));
+
+        // If DeepInheritance==false and no PropertyList was specified by the
+        // client, the provider PropertyList should contain all the properties
+        // in the specified class.
+        if (!request->deepInheritance && request->propertyList.isNull())
+        {
+            Array<CIMName> propertyNameArray;
+            Uint32 numProperties = cimClass.getPropertyCount();
+            for (Uint32 i = 0; i < numProperties; i++)
+            {
+                propertyNameArray.append(cimClass.getProperty(i).getName());
+            }
+
+            request->propertyList.set(propertyNameArray);
+        }
     }
 
     //
@@ -3386,7 +3391,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     Array<ProviderInfo> providerInfos =
         _lookupAllInstanceProviders(
             request->nameSpace,
-            className,
+            request->className,
             providerCount);
 
     Uint32 toIssueCount = providerInfos.size();
@@ -3628,24 +3633,28 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest");
 
-    CIMName className = request->className;
+    //
+    // Validate the class name
+    //
 
-    CIMException checkClassException;
-
-    CIMClass cimClass = _getClass(
-        request->nameSpace,
-        className,
-        checkClassException);
-
-    if (checkClassException.getCode() != CIM_ERR_SUCCESS)
     {
-        CIMResponseMessage* response = request->buildResponse();
-        response->cimException = checkClassException;
+        CIMException checkClassException;
 
-        _enqueueResponse(request, response);
+        CIMClass cimClass = _getClass(
+            request->nameSpace,
+            request->className,
+            checkClassException);
 
-        PEG_METHOD_EXIT();
-        return;
+        if (checkClassException.getCode() != CIM_ERR_SUCCESS)
+        {
+            CIMResponseMessage* response = request->buildResponse();
+            response->cimException = checkClassException;
+
+            _enqueueResponse(request, response);
+
+            PEG_METHOD_EXIT();
+            return;
+        }
     }
 
     //

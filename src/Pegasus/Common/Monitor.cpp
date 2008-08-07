@@ -607,10 +607,8 @@ void Monitor::run(Uint32 milliseconds)
                             "Non-connection entry, indx = %d, has been "
                                 "received.",
                             indx));
-                        int events = 0;
-                        events |= SocketMessage::READ;
                         Message* msg = new SocketMessage(
-                            entries[indx].socket, events);
+                            entries[indx].socket, SocketMessage::READ);
                         entries[indx].status = MonitorEntry::STATUS_BUSY;
                         _entriesMutex.unlock();
                         q->enqueue(msg);

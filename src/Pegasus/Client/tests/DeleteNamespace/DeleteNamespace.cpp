@@ -97,7 +97,6 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
     Boolean verboseTest)
 {
     Array<CIMNamespaceName> namespaces;
-    String instanceName;
 
     namespaces.append(CIMNamespaceName ("test1"));
     namespaces.append(CIMNamespaceName ("test2"));
@@ -118,7 +117,7 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
     {
         // Build the instance name for __namespace
         CIMNamespaceName testNamespaceName = namespaces[i];
-        instanceName.clear();
+        String instanceName;
         instanceName.append(CLASSNAME.getString());
         instanceName.append( ".Name=\"");
         instanceName.append(testNamespaceName.getString());
@@ -174,7 +173,7 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
     {
         // Build the instance name for __namespace
         CIMNamespaceName testNamespaceName = namespaces[i];
-        instanceName.clear();
+        String instanceName;
         instanceName.append(CLASSNAME.getString());
         instanceName.append( ".Name=\"");
         instanceName.append(testNamespaceName.getString());
@@ -204,7 +203,7 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
     {
         // Build the instance name for __namespace
         CIMNamespaceName testNamespaceName = namespaces[i];
-        instanceName.clear();
+        String instanceName;
         instanceName.append(CLASSNAME.getString());
         instanceName.append( ".Name=\"");
         instanceName.append(testNamespaceName.getString());
@@ -413,25 +412,21 @@ void GetOptions(
 
 int main(int argc, char** argv)
 {
-    // Get environment variables:
-
-    String pegasusHome;
-    pegasusHome = "/";
-
-    // GetEnvironmentVariables(argv[0], pegasusHome);
-
-    // Get options (from command line and from configuration file); this
-    // removes corresponding options and their arguments fromt he command
-    // line.
-
-    // Get options (from command line and from configuration file); this
-    // removes corresponding options and their arguments fromt he command
-    // line.
-
     OptionManager om;
 
     try
     {
+        // Get environment variables:
+
+        String pegasusHome;
+        pegasusHome = "/";
+
+        // GetEnvironmentVariables(argv[0], pegasusHome);
+
+        // Get options (from command line and from configuration file); this
+        // removes corresponding options and their arguments from the command
+        // line.
+
         GetOptions(om, argc, argv, pegasusHome);
     } 
     catch (Exception& e)

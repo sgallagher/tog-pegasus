@@ -1812,13 +1812,13 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
 
             // Copy the qualifiers from the String property to the CIMObject
             // property.
-            for (Uint32 ix = 0; ix < property.getQualifierCount(); ++ix)
+            for (Uint32 i = 0; i < property.getQualifierCount(); ++i)
             {
                 // All properties are copied, including the EmbeddedObject
                 // qualifier.  This way we don't have to keep track to know
                 // that the EmbeddedObject qualifier needs to be added back
                 // during the encode step.
-                new_property.addQualifier(property.getQualifier(ix));
+                new_property.addQualifier(property.getQualifier(i));
             }
 
             value = new_value;
@@ -1846,13 +1846,13 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
 
             // Copy the qualifiers from the String property to the CIMObject
             // property.
-            for (Uint32 ix = 0; ix < property.getQualifierCount(); ++ix)
+            for (Uint32 i = 0; i < property.getQualifierCount(); ++i)
             {
                 // All properties are copied, including the EmbeddedObject
                 // qualifier.  This way we don't have to keep track to know
                 // that the EmbeddedObject qualifier needs to be added back
                 // during the encode step.
-                new_property.addQualifier(property.getQualifier(ix));
+                new_property.addQualifier(property.getQualifier(i));
             }
 
             value = new_value;
@@ -2034,13 +2034,13 @@ Boolean XmlReader::getPropertyArrayElement(
 
             // Copy the qualifiers from the String property to the CIMObject
             // property.
-            for (Uint32 ix = 0; ix < property.getQualifierCount(); ++ix)
+            for (Uint32 i = 0; i < property.getQualifierCount(); ++i)
             {
                 // All properties are copied, including the EmbeddedObject
                 // qualifier.  This way we don't have to keep track to know
                 // that the EmbeddedObject qualifier needs to be added back
                 // during the encode step.
-                new_property.addQualifier(property.getQualifier(ix));
+                new_property.addQualifier(property.getQualifier(i));
             }
 
             value = new_value;
@@ -2068,13 +2068,13 @@ Boolean XmlReader::getPropertyArrayElement(
 
             // Copy the qualifiers from the String property to the CIMObject
             // property.
-            for (Uint32 ix = 0; ix < property.getQualifierCount(); ++ix)
+            for (Uint32 i = 0; i < property.getQualifierCount(); ++i)
             {
                 // All properties are copied, including the EmbeddedObject
                 // qualifier.  This way we don't have to keep track to know
                 // that the EmbeddedObject qualifier needs to be added back
                 // during the encode step.
-                new_property.addQualifier(property.getQualifier(ix));
+                new_property.addQualifier(property.getQualifier(i));
             }
 
             value = new_value;

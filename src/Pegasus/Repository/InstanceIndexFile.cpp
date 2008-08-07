@@ -201,18 +201,18 @@ inline void _SkipWhitespace(char*& p)
 
 Boolean _GetIntField(
     char*& ptr,
-    Boolean& error,
+    Boolean& errorOccurred,
     Uint32& value,
     int base)
 {
     char* end = 0;
     value = strtoul(ptr, &end, base);
 
-    error = false;
+    errorOccurred = false;
 
     if (!end)
     {
-        error = true;
+        errorOccurred = true;
         return false;
     }
 
@@ -220,7 +220,7 @@ Boolean _GetIntField(
 
     if (*end == '\0')
     {
-        error = true;
+        errorOccurred = true;
         return false;
     }
 
@@ -240,9 +240,9 @@ static Boolean _GetNextRecord(
     Uint32& index,
     Uint32& size,
     const char*& instanceName,
-    Boolean& error)
+    Boolean& errorOccurred)
 {
-    error = false;
+    errorOccurred = false;
 
     //
     // Get next line:
@@ -257,12 +257,12 @@ static Boolean _GetNextRecord(
 
     char* end = (char*)line.getData();
 
-    if (!_GetIntField(end, error, freeFlag, 10))
+    if (!_GetIntField(end, errorOccurred, freeFlag, 10))
         return false;
 
     if (freeFlag != 0 && freeFlag != 1)
     {
-        error = true;
+        errorOccurred = true;
         return false;
     }
 
@@ -270,21 +270,21 @@ static Boolean _GetNextRecord(
     // Get the hash-code field:
     //
 
-    if (!_GetIntField(end, error, hashCode, 16))
+    if (!_GetIntField(end, errorOccurred, hashCode, 16))
         return false;
 
     //
     // Get index field:
     //
 
-    if (!_GetIntField(end, error, index, 10))
+    if (!_GetIntField(end, errorOccurred, index, 10))
         return false;
 
     //
     // Get size field:
     //
 
-    if (!_GetIntField(end, error, size, 10))
+    if (!_GetIntField(end, errorOccurred, size, 10))
         return false;
 
     //
@@ -544,10 +544,10 @@ Boolean InstanceIndexFile::enumerateEntries(
     const char* instanceName;
     Uint32 index;
     Uint32 size;
-    Boolean error;
+    Boolean errorOccurred;
 
     while (_GetNextRecord(
-        fs, line, freeFlag, hashCode, index, size, instanceName, error))
+        fs, line, freeFlag, hashCode, index, size, instanceName, errorOccurred))
     {
         if (!freeFlag || includeFreeEntries)
         {
@@ -558,7 +558,7 @@ Boolean InstanceIndexFile::enumerateEntries(
         }
     }
 
-    if (error)
+    if (errorOccurred)
     {
         PEG_METHOD_EXIT();
         return false;
@@ -790,7 +790,7 @@ Boolean InstanceIndexFile::_lookupEntry(
     const char* instanceNameTmp;
     Uint32 index;
     Uint32 size;
-    Boolean error;
+    Boolean errorOccurred;
 #ifndef PEGASUS_OS_ZOS
         entryOffset = (Uint32)fs.tellp();
 #else
@@ -798,7 +798,8 @@ Boolean InstanceIndexFile::_lookupEntry(
 #endif
 
     while (_GetNextRecord(
-        fs, line, freeFlag, hashCode, index, size, instanceNameTmp, error))
+        fs, line, freeFlag, hashCode, index,
+        size, instanceNameTmp, errorOccurred))
     {
 
 #ifdef PEGASUS_REPOSITORY_NOT_NORMALIZED
@@ -875,11 +876,11 @@ Boolean InstanceIndexFile::compact(
     const char* instanceName;
     Uint32 index;
     Uint32 size;
-    Boolean error;
+    Boolean errorOccurred;
     Uint32 adjust = 0;
 
     while (_GetNextRecord(
-        fs, line, freeFlag, hashCode, index, size, instanceName, error))
+        fs, line, freeFlag, hashCode, index, size, instanceName, errorOccurred))
     {
         //
         // Copy the entry over to the temporary file if it is not free.
@@ -896,7 +897,7 @@ Boolean InstanceIndexFile::compact(
             if (!_appendEntry(tmpFs, _convertKeyToInstanceName(instanceName),
                 index - adjust, size))
             {
-                error = true;
+                errorOccurred = true;
                 break;
             }
         }
@@ -915,7 +916,7 @@ Boolean InstanceIndexFile::compact(
     // return false.
     //
 
-    if (error)
+    if (errorOccurred)
     {
         FileSystem::removeFileNoCase(tmpPath);
         PEG_METHOD_EXIT();

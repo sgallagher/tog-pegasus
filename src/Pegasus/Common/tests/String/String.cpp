@@ -409,9 +409,6 @@ int test(int argc, char** argv)
         CString temp = utf8string.getCString();
         CString temp2 = utf16string.getCString();
 
-        const char*  tmp = (const char *)temp;
-        const char*  tmp2 = (const char *)temp2;
-
         PEGASUS_TEST_ASSERT(utf16string == utf8string);
         PEGASUS_TEST_ASSERT(utf16string == utf16merge);
         PEGASUS_TEST_ASSERT(utf16string == utf16chr);
@@ -421,8 +418,8 @@ int test(int argc, char** argv)
                             utf16string.getChar16Data(),sizeof(utf16chr)) == 0);
         PEGASUS_TEST_ASSERT(strcmp(utf8string.getCString(),utf8chr) == 0);
         PEGASUS_TEST_ASSERT(strcmp(utf16string.getCString(),utf8chr) == 0);
-        PEGASUS_TEST_ASSERT(strcmp(tmp,utf8chr) == 0);
-        PEGASUS_TEST_ASSERT(strcmp(tmp2,utf8chr) == 0);
+        PEGASUS_TEST_ASSERT(strcmp(temp,utf8chr) == 0);
+        PEGASUS_TEST_ASSERT(strcmp(temp2,utf8chr) == 0);
 
         Uint32 count = 0;
         Uint32 size = sizeof(utf8chr);

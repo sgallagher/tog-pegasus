@@ -44,7 +44,7 @@ Boolean verboseTest = false;
 
 Boolean quit = false;
 Boolean nextCheck = false;
-int status = CLIENT_UNKNOWN;
+int globalStatus = CLIENT_UNKNOWN;
 char clientName[] = "ModelWalkStressClient";
 
 String errorInfo;
@@ -666,7 +666,7 @@ int main(int argc, char** argv)
         //
         tmsc.startTime();
 
-        tmsc.logInfo(clientId, clientPid, status, pidFile);
+        tmsc.logInfo(clientId, clientPid, globalStatus, pidFile);
 
         //
         // connect the client.
@@ -717,38 +717,38 @@ int main(int argc, char** argv)
                    // Client has successfully connected to server.
                    // update status if previously not Success.
                    //
-                   if (status != CLIENT_PASS)
+                   if (globalStatus != CLIENT_PASS)
                    {
-                       status = CLIENT_PASS;
-                       tmsc.logInfo(clientId, clientPid, status, pidFile);
+                       globalStatus = CLIENT_PASS;
+                       tmsc.logInfo(clientId, clientPid, globalStatus, pidFile);
                    }
                 }
                 catch (CannotConnectException)
                 {
-                    status = CLIENT_UNKNOWN;
-                    tmsc.logInfo(clientId, clientPid, status, pidFile);
+                    globalStatus = CLIENT_UNKNOWN;
+                    tmsc.logInfo(clientId, clientPid, globalStatus, pidFile);
                     connectedToHost = false;
                 }
                 catch (CIMException &e)
                 {
-                    status = CLIENT_UNKNOWN;
-                    tmsc.logInfo(clientId, clientPid, status, pidFile);
+                    globalStatus = CLIENT_UNKNOWN;
+                    tmsc.logInfo(clientId, clientPid, globalStatus, pidFile);
                     connectedToHost = false;
                     String mes(e.getMessage());
                     tmsc.errorLog(clientPid, clientLog, mes);
                 }
                 catch (Exception &e)
                 {
-                    status = CLIENT_UNKNOWN;
-                    tmsc.logInfo(clientId, clientPid, status, pidFile);
+                    globalStatus = CLIENT_UNKNOWN;
+                    tmsc.logInfo(clientId, clientPid, globalStatus, pidFile);
                     connectedToHost = false;
                     String mes(e.getMessage());
                     tmsc.errorLog(clientPid, clientLog, mes);
                 }
                 catch (...)
                 {
-                    status = CLIENT_UNKNOWN;
-                    tmsc.logInfo(clientId, clientPid, status, pidFile);
+                    globalStatus = CLIENT_UNKNOWN;
+                    tmsc.logInfo(clientId, clientPid, globalStatus, pidFile);
                     connectedToHost = false;
                     String mes("Error connencting to server in ModleWalk");
                     mes.append(" client ");
@@ -773,7 +773,7 @@ int main(int argc, char** argv)
                                           clientPid,
                                           clientLog,
                                           clientId,
-                                          status,
+                                          globalStatus,
                                           pidFile);
 
                     //
@@ -786,7 +786,7 @@ int main(int argc, char** argv)
                         clientPid,
                         clientLog,
                         clientId,
-                        status,
+                        globalStatus,
                         pidFile);
 
                     //
@@ -800,7 +800,7 @@ int main(int argc, char** argv)
                         clientPid,
                         clientLog,
                         clientId,
-                        status,
+                        globalStatus,
                         pidFile);
 
                     successCount++;
@@ -813,28 +813,28 @@ int main(int argc, char** argv)
                 
                 catch (CannotConnectException)
                 {
-                    status = CLIENT_UNKNOWN;
-                    tmsc.logInfo(clientId, clientPid, status, pidFile);
+                    globalStatus = CLIENT_UNKNOWN;
+                    tmsc.logInfo(clientId, clientPid, globalStatus, pidFile);
                     connectedToHost = false;
                 }
                 catch (CIMException &cimE)
                 {
-                    status = CLIENT_FAIL;
-                    tmsc.logInfo(clientId, clientPid, status, pidFile);
+                    globalStatus = CLIENT_FAIL;
+                    tmsc.logInfo(clientId, clientPid, globalStatus, pidFile);
                     String mes(cimE.getMessage());
                     tmsc.errorLog(clientPid, clientLog, mes);
                 }
                 catch (Exception &exp)
                 {
-                    status = CLIENT_FAIL;
-                    tmsc.logInfo(clientId, clientPid, status, pidFile);
+                    globalStatus = CLIENT_FAIL;
+                    tmsc.logInfo(clientId, clientPid, globalStatus, pidFile);
                     String mes(exp.getMessage());
                     tmsc.errorLog(clientPid, clientLog, mes);
                 }
                 catch (...)
                 {
-                    status = CLIENT_FAIL;
-                    tmsc.logInfo(clientId, clientPid, status, pidFile);
+                    globalStatus = CLIENT_FAIL;
+                    tmsc.logInfo(clientId, clientPid, globalStatus, pidFile);
                     String mes("Unknown Error during ModelWalk Execution");
                     tmsc.errorLog(clientPid, clientLog, mes);
                 }
@@ -842,7 +842,7 @@ int main(int argc, char** argv)
                 nextCheck = tmsc.checkTime();
                 if (nextCheck)
                 {
-                    tmsc.logInfo(clientId, clientPid, status, pidFile);
+                    tmsc.logInfo(clientId, clientPid, globalStatus, pidFile);
                     nextCheck = false;
                 }
 

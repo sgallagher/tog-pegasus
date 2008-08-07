@@ -1617,11 +1617,11 @@ void IndicationService::_handleModifyInstanceRequest(const Message* message)
                     if (modifiedInstance.findProperty(_PROPERTY_STARTTIME)
                         != PEG_NOT_FOUND)
                     {
-                        CIMProperty startTime =
+                        CIMProperty startTimeProperty =
                             modifiedInstance.getProperty(
                                 modifiedInstance.findProperty(
                                     _PROPERTY_STARTTIME));
-                        startTime.setValue(CIMValue(currentDateTime));
+                        startTimeProperty.setValue(CIMValue(currentDateTime));
                     }
                     else
                     {
@@ -1760,7 +1760,6 @@ void IndicationService::_handleModifyInstanceRequest(const Message* message)
                 //  Subscription was previously enabled but is now to be
                 //  disabled
                 //
-                Array<ProviderClassList> indicationProviders;
                 instanceReference.setNameSpace(request->nameSpace);
                 instance.setPath(instanceReference);
                 indicationProviders = _getDeleteParams(instance,
@@ -5261,7 +5260,7 @@ Array<ProviderClassList> IndicationService::_getIndicationProviders (
             //
             //  Merge into list of ProviderClassList structs
             //
-            for (Uint32 j = 0, n = providerInstances.size (); j < n; j++)
+            for (Uint32 j = 0, numI = providerInstances.size (); j < numI; j++)
             {
                 provider.classList.clear ();
                 Boolean duplicate = false;
@@ -5269,8 +5268,8 @@ Array<ProviderClassList> IndicationService::_getIndicationProviders (
                 //
                 //  See if indication provider is already in list
                 //
-                for (Uint32 k = 0, n = indicationProviders.size ();
-                     k < n && !duplicate; k++)
+                for (Uint32 k = 0, numP = indicationProviders.size ();
+                     k < numP && !duplicate; k++)
                 {
                     if ((providerInstances[j].getPath ().identical
                         (indicationProviders[k].provider.getPath ())) &&

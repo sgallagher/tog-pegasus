@@ -1338,12 +1338,12 @@ Uint32 StressTestControllerCommand::execute (
                         //
                         // Executing the Client
                         //
-                        int rc = system(act_command.getCString());
+                        int commandRc = system(act_command.getCString());
                         //
                         // Continue even if the client failed to Execute
                         // This failure is validated with Tolerance level later
                         //
-                        if (rc)
+                        if (commandRc)
                         {
                             log_file<<"Command failed to Execute."<<endl;
                             if (verboseEnabled)
@@ -1385,8 +1385,8 @@ Uint32 StressTestControllerCommand::execute (
                     outPrintWriter<<StressTestControllerCommand::COMMAND_NAME<<
                         "::Getting client PID's and status. "<<endl;
                 }
-                int rc = _getClientPIDs(actual_client,log_file);
-                if (!rc)
+                int getClientPidRc = _getClientPIDs(actual_client,log_file);
+                if (!getClientPidRc)
                 {
                     outPrintWriter<<
                         "Failed to communicate with clients."<<endl;
@@ -1411,7 +1411,7 @@ Uint32 StressTestControllerCommand::execute (
                 //
                 // Retreive all the client PIDs
                 //
-                int rc = _getClientPIDs(actual_client,log_file);
+                int getClientPidRc = _getClientPIDs(actual_client,log_file);
 
                 //
                 // Get Current Time
@@ -1433,7 +1433,7 @@ Uint32 StressTestControllerCommand::execute (
                     //  End tests when failed to acquire the Client PID  or
                     //  status.
                     //
-                    if (!rc)
+                    if (!getClientPidRc)
                     {
                         outPrintWriter<<
                             "Failed to communicate with clients."<<endl;
@@ -1565,9 +1565,9 @@ Uint32 StressTestControllerCommand::execute (
                                 stop_file.close();
 #ifndef PEGASUS_OS_TYPE_WINDOWS
                                 // one more way to stop the clients.
-                                int rc =
+                                int killRc =
                                   kill(clientPIDs[clientID+instanceID], SIGINT);
-                                if (rc)
+                                if (killRc)
                                 {
                                     outPrintWriter<<"FAILED to stop client:("<<
                                         clientID+instanceID<<")"<<endl;
@@ -1655,8 +1655,9 @@ Uint32 StressTestControllerCommand::execute (
                                         log_file<<"   Restarted on "<<
                                             strTime<<endl;
                                     }
-                                    int rc = system(act_command.getCString());
-                                    if (rc)
+                                    int commandRc =
+                                        system(act_command.getCString());
+                                    if (commandRc)
                                     {
                                         log_file<<"Command failed to Execute."<<
                                             endl;
@@ -1714,8 +1715,8 @@ Uint32 StressTestControllerCommand::execute (
     //
     // get all the clientPIDs before it is stopped.
     //
-    int rc = _getClientPIDs(actual_client,log_file);
-    if (!rc)
+    int getClientPidRc = _getClientPIDs(actual_client,log_file);
+    if (!getClientPidRc)
     {
         outPrintWriter<<"Failed to communicate with clients."<<endl;
         log_file<<StressTestControllerCommand::COMMAND_NAME<<
@@ -1749,9 +1750,8 @@ Uint32 StressTestControllerCommand::execute (
         stop_file.close();
 #ifndef PEGASUS_OS_TYPE_WINDOWS
         // Another way to stop the client
-        int rc = 0;
-        rc = kill(clientPIDs[i], SIGINT);
-        if (rc)
+        int killRc = kill(clientPIDs[i], SIGINT);
+        if (killRc)
         {
            if (verboseEnabled)
            {

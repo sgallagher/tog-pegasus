@@ -113,7 +113,7 @@ static void testCIMOMHandle(CIMOMHandle& cimomHandle)
         Boolean gotException = false;
         try
         {
-            CIMClass c = cimomHandle.getClass(
+            CIMClass deletedClass = cimomHandle.getClass(
                 context, opNamespace, opTempClassName, false, true, true,
                 plNull);
         }
@@ -185,7 +185,7 @@ static void testCIMOMHandle(CIMOMHandle& cimomHandle)
         Boolean gotException = false;
         try
         {
-            CIMInstance i = cimomHandle.getInstance(
+            CIMInstance deletedInstance = cimomHandle.getInstance(
                 context, opNamespace, CIMObjectPath("TST_Operations1.key=3"),
                 false, true, true, plNull);
         }
@@ -304,10 +304,10 @@ static void testCIMOMHandle(CIMOMHandle& cimomHandle)
         out[0].getValue().get(intValue);
         CIMOMHANDLE_TEST_ASSERT(intValue == 2);
 
-        OperationContext context = cimomHandle.getResponseContext();
+        OperationContext responseContext = cimomHandle.getResponseContext();
         ContentLanguageListContainer contentLanguagesContainer =
             (ContentLanguageListContainer)
-                context.get(ContentLanguageListContainer::NAME);
+                responseContext.get(ContentLanguageListContainer::NAME);
         ContentLanguageList contentLanguages =
             contentLanguagesContainer.getLanguages();
         CIMOMHANDLE_TEST_ASSERT(contentLanguages.size() == 1);
@@ -350,11 +350,11 @@ void TestOperationsProvider::invokeMethod(
     }
     else if (methodName == "testMethod")
     {
-        OperationContext context;
+        OperationContext responseContext;
         ContentLanguageList contentLanguages;
         contentLanguages.append(LanguageTag("en-US"));
-        context.insert(ContentLanguageListContainer(contentLanguages));
-        handler.setContext(context);
+        responseContext.insert(ContentLanguageListContainer(contentLanguages));
+        handler.setContext(responseContext);
 
         CIMOMHANDLE_TEST_ASSERT(inParameters.size() == 2);
         String param1;

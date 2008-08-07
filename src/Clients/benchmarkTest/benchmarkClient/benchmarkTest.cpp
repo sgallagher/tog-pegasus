@@ -354,13 +354,11 @@ String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
  */
 void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
 {
-    Uint32         i              = 0;
-    Uint32         c              = 0;
-    String         httpVersion    = String ();
-    String         httpMethod     = String ();
-    String         timeoutStr     = String ();
-    String         GetOptString   = String ();
-    getoopt        getOpts;
+    String httpVersion;
+    String httpMethod;
+    String timeoutStr;
+    String GetOptString;
+    getoopt getOpts;
 
     //
     //  Construct GetOptString
@@ -404,7 +402,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
     //
     //  Get options and arguments from the command line
     //
-    for (i =  getOpts.first (); i <  getOpts.last (); i++)
+    for (Uint32 i = getOpts.first(); i < getOpts.last(); i++)
     {
         if (getOpts [i].getType () == Optarg::LONGFLAG)
         {
@@ -416,7 +414,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
         }
         else /* getOpts [i].getType () == FLAG */
         {
-            c = getOpts [i].getopt () [0];
+            Uint32 c = getOpts [i].getopt () [0];
 
             switch (c)
             {

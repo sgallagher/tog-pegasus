@@ -153,8 +153,8 @@ void TestCreateClass(Uint32 mode)
     //
     // Add new qualifier that will be local
     //
-    CIMQualifier j(CIMName("junk"), String("TestQualifier"));
-    c2.addQualifier(j);
+    CIMQualifier jq(CIMName("junk"), String("TestQualifier"));
+    c2.addQualifier(jq);
 
     c2.addProperty(CIMProperty(CIMName ("junk"), Real32(66.66)));
     r.createClass(NS, c2);
@@ -257,11 +257,11 @@ void TestCreateClass(Uint32 mode)
     // (localonly false, includequalifiers true, classorigin true)
     //
     cc2 = r.getClass(NS, CIMName ("SubClass"), false, true, true);
-    CIMConstProperty p;
+    CIMConstProperty cp;
     Uint32 pos  =  cc2.findProperty("ratio");
     PEGASUS_TEST_ASSERT(pos != PEG_NOT_FOUND);
-    p = cc2.getProperty(pos);
-    PEGASUS_TEST_ASSERT(p.getClassOrigin() == CIMName("SuperClass"));
+    cp = cc2.getProperty(pos);
+    PEGASUS_TEST_ASSERT(cp.getClassOrigin() == CIMName("SuperClass"));
 
     //
     // Test for Class origin set false. Should return null CIMName.

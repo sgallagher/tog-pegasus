@@ -139,8 +139,7 @@ void test01(const T& x)
     try
     {
         // Test for isNull and the setNullValue function
-        CIMType type = v.getType();
-        v.setNullValue(type, false);
+        v.setNullValue(v.getType(), false);
         PEGASUS_TEST_ASSERT(v.isNull());
 
         // get the String and XML outputs for v
@@ -253,12 +252,11 @@ void test02(const Array<T>& x)
     try
     {
         // Set the initial one to Null
-        CIMType type = va.getType();
-        va.setNullValue(type, true, 0);
+        va.setNullValue(va.getType(), true, 0);
         PEGASUS_TEST_ASSERT(va.isNull());
         PEGASUS_TEST_ASSERT(va.isArray());
         PEGASUS_TEST_ASSERT(va.getArraySize() == 0);
-        va.setNullValue(type, false);
+        va.setNullValue(va.getType(), false);
         PEGASUS_TEST_ASSERT(va.isNull());
         PEGASUS_TEST_ASSERT(!va.isArray());
 

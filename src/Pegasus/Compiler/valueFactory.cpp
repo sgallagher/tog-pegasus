@@ -495,7 +495,6 @@ CIMValue * valueFactory::createValue(CIMType type, int arrayDimension,
   else
   { // an array type, either fixed or variable
 
-  const String &rep = *repp;
       // KS If empty string set CIMValue type but Null attribute.
       if (isNULL)
           return new CIMValue(type, true, arrayDimension);

@@ -192,9 +192,9 @@ CIMInstance MCCATestClient::associatorsTest(const String& _host,
 
     CIMKeyBinding  testClassKey = CIMKeyBinding(CIMName("theKey"),
                                                 CIMValue((Uint32) key));
-    Array<CIMKeyBinding> keyBindings = Array<CIMKeyBinding>();
-    keyBindings.append(testClassKey);
-    targetObjectPath.setKeyBindings(keyBindings);
+    Array<CIMKeyBinding> targetKeyBindings = Array<CIMKeyBinding>();
+    targetKeyBindings.append(testClassKey);
+    targetObjectPath.setKeyBindings(targetKeyBindings);
 
     // CLDEBUG("Preparation of object path for associators() call ready.");
     CLDEBUG("Association call for host=" << fullHost 
@@ -239,9 +239,9 @@ CIMInstance MCCATestClient::associatorsTest(const String& _host,
                 exit(5);
         }
 
-        Array<CIMKeyBinding> keyBindings = instanceRef.getKeyBindings();
+        Array<CIMKeyBinding> resultKeyBindings = instanceRef.getKeyBindings();
         // only one key, so only one keybinding
-        String  keyValueString = String(keyBindings[0].getValue());
+        String  keyValueString = String(resultKeyBindings[0].getValue());
         Uint32  sourceKey =
             strtoul((const char*) keyValueString.getCString(), NULL, 0);
         if (sourceKey != key)

@@ -411,9 +411,9 @@ void ANHProvider::_associatorNames(
         resultPaths = _filterAssociationInstances(assocInstances[i],
             localReference, resultClass, resultRole);
 
-        for (Uint32 i = 0, n = resultPaths.size(); i < n; i++)
+        for (Uint32 j = 0, m = resultPaths.size(); j < m; j++)
         {
-            handler.deliver(resultPaths[i]);
+            handler.deliver(resultPaths[j]);
         }
     }
 }
@@ -447,9 +447,9 @@ Array<CIMInstance> ANHProvider::_filterAssociationInstancesByRole(
         CIMInstance instance = associationInstances[i];
 
         // Search the association instance for all reference properties
-        for (Uint32 i = 0, n = instance.getPropertyCount(); i < n; i++)
+        for (Uint32 j = 0, m = instance.getPropertyCount(); j < m; j++)
         {
-            const CIMProperty p = instance.getProperty(i);
+            const CIMProperty p = instance.getProperty(j);
             if (p.getType() == CIMTYPE_REFERENCE)
             {
                 CIMValue v = p.getValue();

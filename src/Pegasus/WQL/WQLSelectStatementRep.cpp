@@ -373,20 +373,20 @@ Boolean WQLSelectStatementRep::evaluateWhereClause(
 
     for (Uint32 i = 0, n = _operations.size(); i < n; i++)
     {
-    WQLOperation op = _operations[i];
+    WQLOperation operation = _operations[i];
 
-    switch (op)
+    switch (operation)
     {
         case WQL_OR:
         {
             PEGASUS_ASSERT(stack.size() >= 2);
     
-            Boolean op1 = stack.top();
+            Boolean operand1 = stack.top();
             stack.pop();
     
-            Boolean op2 = stack.top();
+            Boolean operand2 = stack.top();
     
-            stack.top() = op1 || op2;
+            stack.top() = operand1 || operand2;
             break;
         }
 
@@ -394,12 +394,12 @@ Boolean WQLSelectStatementRep::evaluateWhereClause(
         {
             PEGASUS_ASSERT(stack.size() >= 2);
     
-            Boolean op1 = stack.top();
+            Boolean operand1 = stack.top();
             stack.pop();
     
-            Boolean op2 = stack.top();
+            Boolean operand2 = stack.top();
     
-            stack.top() = op1 && op2;
+            stack.top() = operand1 && operand2;
             break;
         }
 
@@ -407,8 +407,8 @@ Boolean WQLSelectStatementRep::evaluateWhereClause(
         {
             PEGASUS_ASSERT(stack.size() >= 1);
     
-            Boolean op = stack.top();
-            stack.top() = !op;
+            Boolean operand = stack.top();
+            stack.top() = !operand;
             break;
         }
 
@@ -453,7 +453,7 @@ Boolean WQLSelectStatementRep::evaluateWhereClause(
             // operation:
             //
     
-            stack.push(_Evaluate(lhs, rhs, op));
+            stack.push(_Evaluate(lhs, rhs, operation));
             break;
         }
 
@@ -476,9 +476,9 @@ Boolean WQLSelectStatementRep::evaluateWhereClause(
         {
             Array<WQLOperand> whereOperands(_operands);
             PEGASUS_ASSERT(whereOperands.size() >= 1);
-            WQLOperand& op = whereOperands[j++];
-            _ResolveProperty(op, source);
-            stack.push(op.getType() == WQLOperand::NULL_VALUE);
+            WQLOperand& operand = whereOperands[j++];
+            _ResolveProperty(operand, source);
+            stack.push(operand.getType() == WQLOperand::NULL_VALUE);
             break;
         }
 
@@ -486,9 +486,9 @@ Boolean WQLSelectStatementRep::evaluateWhereClause(
         {
             Array<WQLOperand> whereOperands(_operands);
             PEGASUS_ASSERT(whereOperands.size() >= 1);
-            WQLOperand& op = whereOperands[j++];
-            _ResolveProperty(op, source);
-            stack.push(op.getType() != WQLOperand::NULL_VALUE);
+            WQLOperand& operand = whereOperands[j++];
+            _ResolveProperty(operand, source);
+            stack.push(operand.getType() != WQLOperand::NULL_VALUE);
             break;
         }
     }

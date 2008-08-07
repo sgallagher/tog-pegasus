@@ -2694,9 +2694,9 @@ void InteropTest::testCommunicationClass()
                         functionalProfile.size());
                 // NOTE: We do not test for correct strings.
                 if (verbose)
-                    for (Uint32 i = 0 ; i < functionalProfile.size() ; i++)
-                        cout << functionalProfile[i] << " " <<
-                            functionalProfileDescription[i] << endl;
+                    for (Uint32 j = 0 ; j < functionalProfile.size() ; j++)
+                        cout << functionalProfile[j] << " " <<
+                            functionalProfileDescription[j] << endl;
             }
 
             PEGASUS_TEST_ASSERT (

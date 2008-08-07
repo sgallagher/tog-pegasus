@@ -712,18 +712,18 @@ void TestAggregationOutputProvider::_associators(
                     resultRole);
 
             // Loop to process all resultPaths
-            for (Uint32 i = 0 ; i < resultPaths.size() ; ++i)
+            for (Uint32 j = 0 ; j < resultPaths.size() ; ++j)
             {
                 // instance index corresponds to reference index
                 // For each resultInstance, if matches result path, Deliver.
-                for(Uint32 j = 0, n = resultInstanceArray.size(); j < n; ++j)
+                for(Uint32 k = 0, n = resultInstanceArray.size(); k < n; ++k)
                 {
-                    CIMObjectPath newPath = resultInstanceArray[j].getPath();
+                    CIMObjectPath newPath = resultInstanceArray[k].getPath();
 
-                    if(resultPaths[i].identical(newPath))
+                    if(resultPaths[j].identical(newPath))
                     {
                         handler.deliver(_filter(
-                            resultInstanceArray[j],
+                            resultInstanceArray[k],
                             includeQualifiers,
                             includeClassOrigin,
                             propertyList));
@@ -812,9 +812,9 @@ void TestAggregationOutputProvider::_associatorNames(
                     resultClass,
                     resultRole);
 
-            for (Uint32 i = 0 ; i < resultPaths.size() ; ++i)
+            for (Uint32 j = 0 ; j < resultPaths.size() ; ++j)
             {
-                CIMObjectPath sendPath = resultPaths[i];
+                CIMObjectPath sendPath = resultPaths[j];
                 String host = System::getHostName();
                 if (sendPath.getHost().size() == 0)
                     sendPath.setHost(host);

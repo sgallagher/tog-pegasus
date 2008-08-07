@@ -172,7 +172,7 @@ void CIMInstanceRep::resolve(
 
         Boolean found = false;
 
-        for (Uint32 j = m, n = _properties.size(); j < n; j++)
+        for (Uint32 j = m, s = _properties.size(); j < s; j++)
         {
             if (name.equal(_properties[j].getName()))
             {

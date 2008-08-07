@@ -699,10 +699,10 @@ static void formatCIMDateTime (const char* cimString, char* dateTime)
    int minute = 0;
    int second = 0;
    int microsecond = 0;
-   int timezone = 0;
+   int timeZone = 0;
    sscanf(cimString, "%04d%02d%02d%02d%02d%02d.%06d%04d",
           &year, &month, &day, &hour, &minute, &second,
-          &microsecond, &timezone);
+          &microsecond, &timeZone);
    char monthString[5];
    switch (month)
    {
@@ -723,11 +723,9 @@ static void formatCIMDateTime (const char* cimString, char* dateTime)
       default : { strcpy(dateTime, cimString); return; }
    }
 
-   sprintf(dateTime, "%s %d, %d  %d:%02d:%02d (%03d%02d)",
+   sprintf(dateTime, "%s %d, %d  %d:%02d:%02d (%+03d%02d)",
            monthString, day, year, hour, minute, second,
-           timezone/60, timezone%60);
-
-   return;
+           timeZone/60, timeZone%60);
 }
 
 

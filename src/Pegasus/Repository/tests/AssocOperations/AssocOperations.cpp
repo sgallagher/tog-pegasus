@@ -160,13 +160,11 @@ void test03AddInstances(CIMRepository& repository)
 {
     // Get the three classes from the Repository
     CIMClass ct = repository.getClass(NAMESPACE,targetClass);
-    CIMClass ca = repository.getClass(NAMESPACE,associationClass);
     CIMClass ce = repository.getClass(NAMESPACE,associatedClass);
 
     // Create an instance for each class
     //
     CIMInstance it = ct.buildInstance(true,true, CIMPropertyList());
-    CIMInstance ia = ca.buildInstance(true,true, CIMPropertyList());
     CIMInstance ie = ce.buildInstance(true,true, CIMPropertyList());
 
     // Put data into target instance key property
@@ -195,7 +193,7 @@ void test03AddInstances(CIMRepository& repository)
     // Put references into the association instance
     CIMObjectPath assocPath;
     {
-        CIMInstance ia(CIMName("MY_associationClass"));
+        CIMInstance ia(associationClass);
 
         ia.addProperty(CIMProperty(CIMName("ref1"),
             CIMObjectPath(ref1Path),0,CIMName(targetClass)));

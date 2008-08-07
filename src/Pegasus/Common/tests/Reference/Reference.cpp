@@ -319,7 +319,7 @@ void test01()
     try
     {
         // Octet out of range
-        CIMObjectPath h5("//192.168.256.80:77/root/cimv25:"
+        CIMObjectPath op("//192.168.256.80:77/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     } 
     catch (const Exception&)
@@ -332,7 +332,7 @@ void test01()
     try
     {
         // Missing port
-        CIMObjectPath h5("//192.168.1.80:/root/cimv25:"
+        CIMObjectPath op("//192.168.1.80:/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     }
     catch (const Exception&)
@@ -345,7 +345,7 @@ void test01()
     try
     {
         // Too many octets
-        CIMObjectPath h5("//192.168.1.80.12/root/cimv25:"
+        CIMObjectPath op("//192.168.1.80.12/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     } 
     catch (const Exception&)
@@ -358,7 +358,7 @@ void test01()
     try
     {
         // Too few octets
-        CIMObjectPath h5("//192.168.80:77/root/cimv25:"
+        CIMObjectPath op("//192.168.80:77/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     }
     catch (const Exception&)
@@ -371,7 +371,7 @@ void test01()
     try
     {
         // Missing port
-        CIMObjectPath h1("//usopen-9.usta-1-a.org:/root/cimv25:"
+        CIMObjectPath op("//usopen-9.usta-1-a.org:/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     }
     catch (Exception&)
@@ -384,7 +384,7 @@ void test01()
     try
     {
         // Hostname (IP) without trailing '/' (with port)
-        CIMObjectPath h5("//192.168.256.80:77");
+        CIMObjectPath op("//192.168.256.80:77");
     }
     catch (const Exception&)
     {
@@ -396,7 +396,7 @@ void test01()
     try
     {
         // Hostname (IP) without trailing '/' (without port)
-        CIMObjectPath h5("//192.168.256.80");
+        CIMObjectPath op("//192.168.256.80");
     }
     catch (const Exception&)
     {
@@ -408,7 +408,7 @@ void test01()
     try
     {
         // Hostname without trailing '/' (with port)
-        CIMObjectPath h5("//usopen-9.usta-1-a.org:77");
+        CIMObjectPath op("//usopen-9.usta-1-a.org:77");
     }
     catch (const Exception&)
     {
@@ -420,7 +420,7 @@ void test01()
     try
     {
         // Hostname without trailing '/' (without port)
-        CIMObjectPath h5("//usopen-9.usta-1-a.org");
+        CIMObjectPath op("//usopen-9.usta-1-a.org");
     }
     catch (const Exception&)
     {
@@ -432,7 +432,7 @@ void test01()
     try
     {
         // Invalid first character
-        CIMObjectPath h1("//+usopen-9.usta-1-a.1org:77/root/cimv25:"
+        CIMObjectPath op("//+usopen-9.usta-1-a.1org:77/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     }
     catch (Exception&)
@@ -445,7 +445,7 @@ void test01()
     try
     {
         // Non-alphanum char (?)
-        CIMObjectPath h1("//usopen-9.usta?-1-a.org:77/root/cimv25:"
+        CIMObjectPath op("//usopen-9.usta?-1-a.org:77/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     }
     catch (Exception&)
@@ -458,7 +458,7 @@ void test01()
     try
     {
         // Leading dot
-        CIMObjectPath h2("//.usopen-9.usta-1-a.org:77/root/cimv25:"
+        CIMObjectPath op("//.usopen-9.usta-1-a.org:77/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     }
     catch (Exception&)
@@ -471,7 +471,7 @@ void test01()
     try
     {
         // Dot in the wrong spot (before a -)
-        CIMObjectPath h3("//usopen.-9.usta-1-a.org:77/root/cimv25:"
+        CIMObjectPath op("//usopen.-9.usta-1-a.org:77/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     }
     catch (Exception&)
@@ -484,7 +484,7 @@ void test01()
     try
     {
         // Two dots in a row
-        CIMObjectPath h4("//usopen-9.usta-1-a..org:77/root/cimv25:"
+        CIMObjectPath op("//usopen-9.usta-1-a..org:77/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     }
     catch (Exception&)
@@ -497,7 +497,7 @@ void test01()
     try
     {
         // Trailing dot
-        CIMObjectPath h5("//usopen-9.usta-1-a.org.:77/root/cimv25:"
+        CIMObjectPath op("//usopen-9.usta-1-a.org.:77/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     }
     catch (Exception&)
@@ -776,12 +776,14 @@ void test04()
 // Test handling of escape characters
 void test05()
 {
-    // Test '\' and '"' characters in a key value
-    // This represents MyClass.key1="\\\"\"\\",key2="\"\"\"\"\\\\\\\\"
-    String s1 = "MyClass.key1=\"\\\\\\\"\\\"\\\\\","
+    {
+        // Test '\' and '"' characters in a key value
+        // This represents MyClass.key1="\\\"\"\\",key2="\"\"\"\"\\\\\\\\"
+        String s1 = "MyClass.key1=\"\\\\\\\"\\\"\\\\\","
                 "key2=\"\\\"\\\"\\\"\\\"\\\\\\\\\\\\\\\\\"";
-    CIMObjectPath r1 = s1;
-    PEGASUS_TEST_ASSERT(r1.toString() == s1);
+        CIMObjectPath r1 = s1;
+        PEGASUS_TEST_ASSERT(r1.toString() == s1);
+    }
 
     // Catch invalid escape sequences in a key value
     Boolean errorDetected;

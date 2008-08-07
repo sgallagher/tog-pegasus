@@ -188,10 +188,10 @@ void DefaultInstanceProvider::_copySuperClasses(
         {
             // check to see if class already exists
             //
-            CIMClass cimClass;
+            CIMClass superClass;
             try
             {
-                cimClass = _repository->getClass(
+                superClass = _repository->getClass(
                     nameSpace, superClasses[i-1].getClassName());
             }
             catch (Exception&)

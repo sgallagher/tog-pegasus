@@ -185,27 +185,19 @@ bool enableTrace=false;
 
     ConfigManager::setPegasusHome(pegasusHome);
 
-    String repositoryRoot;
     const char* tmpDir = getenv ("PEGASUS_TMP");
     if (tmpDir == NULL)
     {
-        repositoryRoot = ".";
+        tmpDir = ".";
     }
-    else
-    {
-        repositoryRoot = tmpDir;
-    }
+
+    String repositoryRoot = tmpDir;
     repositoryRoot.append("/repository");
     FileSystem::removeDirectoryHier(repositoryRoot);
     CIMRepository repository(repositoryRoot);
 
     if (enableTrace)
     {
-        const char* tmpDir = getenv("PEGASUS_TMP");
-        if (tmpDir == NULL)
-        {
-            tmpDir = ".";
-        }
         String traceFile(tmpDir);
         traceFile.append("/TestCIMxmlIndicationHandler.trc");
 

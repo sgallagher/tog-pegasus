@@ -144,7 +144,7 @@ struct PEGASUS_COMMON_LINKAGE XmlEntry
 
     const XmlAttribute* findAttribute(const char* name) const;
 
-    const XmlAttribute* findAttribute(int nsType, const char* name) const;
+    const XmlAttribute* findAttribute(int attrNsType, const char* name) const;
 
     Boolean getAttributeValue(const char* name, Uint32& value) const;
 

@@ -3546,14 +3546,14 @@ void _error (CIMClient & client)
     //
     try
     {
-        CIMObjectPath fPath = _buildFilterOrHandlerPath
-            (PEGASUS_CLASSNAME_INDFILTER, "Filter00");
-        fPath.setHost ("somehost");
-        fPath.setNameSpace (CIMNamespaceName ("root"));
-        CIMInstance subscription = _buildSubscriptionInstance
-            (fPath, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
-             _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
-                 "Handler00"));
+        CIMObjectPath f00Path = _buildFilterOrHandlerPath(
+            PEGASUS_CLASSNAME_INDFILTER, "Filter00");
+        f00Path.setHost("somehost");
+        f00Path.setNameSpace(CIMNamespaceName("root"));
+        CIMInstance subscription = _buildSubscriptionInstance(
+            f00Path, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
+            _buildFilterOrHandlerPath(
+                PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00"));
         path =
             client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, subscription);
         PEGASUS_TEST_ASSERT (false);
@@ -3568,13 +3568,14 @@ void _error (CIMClient & client)
     //
     try
     {
-        CIMObjectPath hPath = _buildFilterOrHandlerPath
-            (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");
-        hPath.setHost ("somehost");
-        hPath.setNameSpace (CIMNamespaceName ("root"));
-        CIMInstance subscription = _buildSubscriptionInstance
-            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
-                 "Filter00"), PEGASUS_CLASSNAME_INDHANDLER_CIMXML, hPath);
+        CIMObjectPath h00Path = _buildFilterOrHandlerPath(
+            PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");
+        h00Path.setHost("somehost");
+        h00Path.setNameSpace(CIMNamespaceName("root"));
+        CIMInstance subscription = _buildSubscriptionInstance(
+            _buildFilterOrHandlerPath(
+                PEGASUS_CLASSNAME_INDFILTER, "Filter00"),
+            PEGASUS_CLASSNAME_INDHANDLER_CIMXML, h00Path);
         path =
             client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, subscription);
         PEGASUS_TEST_ASSERT (false);
@@ -3589,14 +3590,14 @@ void _error (CIMClient & client)
     //
     try
     {
-        CIMObjectPath fPath = _buildFilterOrHandlerPath
-            (PEGASUS_CLASSNAME_INDFILTER, "Filter00");
-        fPath.setHost ("ahost.region.acme.com");
-        fPath.setNameSpace (PEGASUS_NAMESPACENAME_INTEROP);
-        CIMInstance subscription = _buildSubscriptionInstance
-            (fPath, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
-            _buildFilterOrHandlerPath
-            (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00"));
+        CIMObjectPath f00Path = _buildFilterOrHandlerPath(
+            PEGASUS_CLASSNAME_INDFILTER, "Filter00");
+        f00Path.setHost("ahost.region.acme.com");
+        f00Path.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
+        CIMInstance subscription = _buildSubscriptionInstance(
+            f00Path, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
+            _buildFilterOrHandlerPath(
+                PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00"));
         path =
             client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, subscription);
         PEGASUS_TEST_ASSERT (false);
@@ -3611,14 +3612,14 @@ void _error (CIMClient & client)
     //
     try
     {
-        CIMObjectPath fPath = _buildFilterOrHandlerPath
-            (PEGASUS_CLASSNAME_INDFILTER, "Filter00");
-        fPath.setHost (System::getFullyQualifiedHostName());
-        fPath.setNameSpace (CIMNamespaceName ("root"));
-        CIMInstance subscription = _buildSubscriptionInstance
-            (fPath, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
-            _buildFilterOrHandlerPath
-            (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00"));
+        CIMObjectPath f00Path = _buildFilterOrHandlerPath(
+            PEGASUS_CLASSNAME_INDFILTER, "Filter00");
+        f00Path.setHost(System::getFullyQualifiedHostName());
+        f00Path.setNameSpace(CIMNamespaceName("root"));
+        CIMInstance subscription = _buildSubscriptionInstance(
+            f00Path, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
+            _buildFilterOrHandlerPath(
+                PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00"));
         path =
             client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, subscription);
         PEGASUS_TEST_ASSERT (false);
@@ -3633,13 +3634,13 @@ void _error (CIMClient & client)
     //
     try
     {
-        CIMObjectPath fPath = _buildFilterOrHandlerPath
-            (PEGASUS_CLASSNAME_INDFILTER, "Filter00");
-        fPath.setNameSpace (CIMNamespaceName ("root"));
-        CIMInstance subscription = _buildSubscriptionInstance
-            (fPath, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
-            _buildFilterOrHandlerPath
-            (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00"));
+        CIMObjectPath f00Path = _buildFilterOrHandlerPath(
+            PEGASUS_CLASSNAME_INDFILTER, "Filter00");
+        f00Path.setNameSpace(CIMNamespaceName ("root"));
+        CIMInstance subscription = _buildSubscriptionInstance(
+            f00Path, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
+            _buildFilterOrHandlerPath(
+                PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00"));
         path =
             client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, subscription);
         PEGASUS_TEST_ASSERT (false);
@@ -3654,13 +3655,13 @@ void _error (CIMClient & client)
     //
     try
     {
-        CIMObjectPath hPath = _buildFilterOrHandlerPath
-            (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");
-        hPath.setHost ("ahost.region.acme.com");
-        hPath.setNameSpace (PEGASUS_NAMESPACENAME_INTEROP);
-        CIMInstance subscription = _buildSubscriptionInstance
-            (_buildFilterOrHandlerPath
-            (PEGASUS_CLASSNAME_INDFILTER, "Filter00"),
+        CIMObjectPath hPath = _buildFilterOrHandlerPath(
+            PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");
+        hPath.setHost("ahost.region.acme.com");
+        hPath.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
+        CIMInstance subscription = _buildSubscriptionInstance(
+            _buildFilterOrHandlerPath(
+                PEGASUS_CLASSNAME_INDFILTER, "Filter00"),
             PEGASUS_CLASSNAME_INDHANDLER_CIMXML, hPath);
         path =
             client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, subscription);
@@ -3676,14 +3677,14 @@ void _error (CIMClient & client)
     //
     try
     {
-        CIMObjectPath hPath = _buildFilterOrHandlerPath
-            (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");
-        hPath.setHost (System::getFullyQualifiedHostName());
-        hPath.setNameSpace (CIMNamespaceName ("root"));
-        CIMInstance subscription = _buildSubscriptionInstance
-            (_buildFilterOrHandlerPath
-            (PEGASUS_CLASSNAME_INDFILTER, "Filter00"),
-            PEGASUS_CLASSNAME_INDHANDLER_CIMXML, hPath);
+        CIMObjectPath h00Path = _buildFilterOrHandlerPath(
+            PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");
+        h00Path.setHost(System::getFullyQualifiedHostName());
+        h00Path.setNameSpace(CIMNamespaceName("root"));
+        CIMInstance subscription = _buildSubscriptionInstance(
+            _buildFilterOrHandlerPath(
+                PEGASUS_CLASSNAME_INDFILTER, "Filter00"),
+            PEGASUS_CLASSNAME_INDHANDLER_CIMXML, h00Path);
         path =
             client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, subscription);
         PEGASUS_TEST_ASSERT (false);
@@ -3698,13 +3699,13 @@ void _error (CIMClient & client)
     //
     try
     {
-        CIMObjectPath hPath = _buildFilterOrHandlerPath
-            (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");
-        hPath.setNameSpace (CIMNamespaceName ("root"));
-        CIMInstance subscription = _buildSubscriptionInstance
-            (_buildFilterOrHandlerPath
-            (PEGASUS_CLASSNAME_INDFILTER, "Filter00"),
-            PEGASUS_CLASSNAME_INDHANDLER_CIMXML, hPath);
+        CIMObjectPath h00Path = _buildFilterOrHandlerPath(
+            PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");
+        h00Path.setNameSpace(CIMNamespaceName("root"));
+        CIMInstance subscription = _buildSubscriptionInstance(
+            _buildFilterOrHandlerPath(
+                PEGASUS_CLASSNAME_INDFILTER, "Filter00"),
+            PEGASUS_CLASSNAME_INDHANDLER_CIMXML, h00Path);
         path =
             client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, subscription);
         PEGASUS_TEST_ASSERT (false);
@@ -4089,8 +4090,8 @@ void _error (CIMClient & client)
     {
         CIMInstance modifiedInstance (PEGASUS_CLASSNAME_INDFILTER);
         _addStringProperty (modifiedInstance, "QueryLanguage", "WQL2");
-        CIMObjectPath path = _buildFilterOrHandlerPath
-            (PEGASUS_CLASSNAME_INDFILTER, "Filter01");
+        path = _buildFilterOrHandlerPath(
+            PEGASUS_CLASSNAME_INDFILTER, "Filter01");
         modifiedInstance.setPath (path);
         Array <CIMName> propertyNames;
         propertyNames.append (CIMName ("QueryLanguage"));
@@ -4109,8 +4110,8 @@ void _error (CIMClient & client)
         CIMInstance modifiedInstance (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
         _addStringProperty (modifiedInstance, "Destination",
             "localhost/CIMListener/test9");
-        CIMObjectPath path = _buildFilterOrHandlerPath
-            (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
+        path = _buildFilterOrHandlerPath(
+            PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
         modifiedInstance.setPath (path);
         Array <CIMName> propertyNames;
         propertyNames.append (CIMName ("Destination"));
@@ -4131,8 +4132,8 @@ void _error (CIMClient & client)
     {
         CIMInstance modifiedInstance (PEGASUS_CLASSNAME_INDSUBSCRIPTION);
         _addUint16Property (modifiedInstance, "SubscriptionState", 3);
-        CIMObjectPath path = _buildSubscriptionPath ("Filter01",
-            PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
+        path = _buildSubscriptionPath(
+            "Filter01", PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
         modifiedInstance.setPath (path);
         Array <CIMName> propertyNames;
         propertyNames.append (CIMName ("SubscriptionState"));
@@ -4153,8 +4154,8 @@ void _error (CIMClient & client)
     {
         CIMInstance modifiedInstance (PEGASUS_CLASSNAME_INDSUBSCRIPTION);
         _addUint16Property (modifiedInstance, "SubscriptionState", 2);
-        CIMObjectPath path = _buildSubscriptionPath ("Filter01",
-            PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
+        path = _buildSubscriptionPath(
+            "Filter01", PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
         modifiedInstance.setPath (path);
         Array <CIMName> propertyNames;
         propertyNames.append (CIMName ("SubscriptionState"));
@@ -4176,8 +4177,8 @@ void _error (CIMClient & client)
     {
         CIMInstance modifiedInstance (PEGASUS_CLASSNAME_INDSUBSCRIPTION);
         _addUint16Property (modifiedInstance, "SubscriptionState", 2);
-        CIMObjectPath path = _buildSubscriptionPath ("Filter01",
-            PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
+        path = _buildSubscriptionPath(
+            "Filter01", PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
         modifiedInstance.setPath (path);
         client.modifyInstance(
             PEGASUS_NAMESPACENAME_INTEROP,
@@ -4198,8 +4199,8 @@ void _error (CIMClient & client)
     {
         CIMInstance modifiedInstance (PEGASUS_CLASSNAME_INDSUBSCRIPTION);
         _addUint16Property (modifiedInstance, "SubscriptionState", 2);
-        CIMObjectPath path = _buildSubscriptionPath ("Filter01",
-            PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
+        path = _buildSubscriptionPath(
+            "Filter01", PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
         modifiedInstance.setPath (path);
         Array <CIMName> propertyNames;
         propertyNames.append (CIMName ("SubscriptionState"));

@@ -152,25 +152,25 @@ void ObjectCache<OBJECT>::put(const String& path, OBJECT& object)
 
     //// Add to hash table:
 
-    Entry* entry = new Entry(code, path, object);
-    entry->hashNext = _chains[index];
-    _chains[index] = entry;
+    Entry* newEntry = new Entry(code, path, object);
+    newEntry->hashNext = _chains[index];
+    _chains[index] = newEntry;
 
     //// Add to back of FIFO queue:
 
-    entry->queueNext = 0;
+    newEntry->queueNext = 0;
 
     if (_back)
     {
-        _back->queueNext = entry;
-        entry->queuePrev = _back;
-        _back = entry;
+        _back->queueNext = newEntry;
+        newEntry->queuePrev = _back;
+        _back = newEntry;
     }
     else
     {
-        _front = entry;
-        _back = entry;
-        entry->queuePrev = 0;
+        _front = newEntry;
+        _back = newEntry;
+        newEntry->queuePrev = 0;
     }
 
     _numEntries++;
@@ -183,17 +183,17 @@ void ObjectCache<OBJECT>::put(const String& path, OBJECT& object)
 
         //// Remove from hash table first.
 
-        Uint32 index = entry->code % NUM_CHAINS;
+        Uint32 frontIndex = entry->code % NUM_CHAINS;
         Entry* hashPrev = 0;
 
-        for (Entry* p = _chains[index]; p; p = p->hashNext)
+        for (Entry* p = _chains[frontIndex]; p; p = p->hashNext)
         {
             if (p->code == entry->code && _equal(p->path, entry->path))
             {
                 if (hashPrev)
                     hashPrev->hashNext = p->hashNext;
                 else
-                    _chains[index] = p->hashNext;
+                    _chains[frontIndex] = p->hashNext;
 
                 break;
             }

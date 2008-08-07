@@ -623,10 +623,10 @@ void CertificateProvider::enumerateInstances(
             //
             // Retrieve the truststore type
             //
-            Uint32 pos = cimInstances[i].findProperty(
+            Uint32 tsTypeIndex = cimInstances[i].findProperty(
                             TRUSTSTORE_TYPE_PROPERTY);
-            CIMProperty prop = cimInstances[i].getProperty(pos);
-            prop.getValue().get(truststoreType);
+            CIMProperty tsTypeProp = cimInstances[i].getProperty(tsTypeIndex);
+            tsTypeProp.getValue().get(truststoreType);
 
             //
             // Filter instances whose truststore type is other than
@@ -640,25 +640,26 @@ void CertificateProvider::enumerateInstances(
                 // set its type to "Unknown"
                 //
 
-                Uint32 pos = cimInstances[i].findProperty(
+                Uint32 certTypeIndex = cimInstances[i].findProperty(
                                CERTIFICATE_TYPE_PROPERTY);
 
                 //
                 // If certificate type property is not there then add the 
                 // property and set its type to "Unknown"                
                 //
-                if (pos != PEG_NOT_FOUND)
+                if (certTypeIndex != PEG_NOT_FOUND)
                 {
-                    CIMProperty prop = cimInstances[i].getProperty(pos);
+                    CIMProperty certTypeProp =
+                        cimInstances[i].getProperty(certTypeIndex);
 
-                    if ( prop.getValue().isNull())
+                    if (certTypeProp.getValue().isNull())
                     {
                         PEG_TRACE_CSTRING(
                             TRC_CONTROLPROVIDER,
                             Tracer::LEVEL4,
                             "The instance does not have the certificate"
                                 " type set. Setting it to Unknown.");
-                        prop.setValue(CERT_TYPE_UNKNOWN);
+                        certTypeProp.setValue(CERT_TYPE_UNKNOWN);
                     }
                 }
                 else
@@ -918,8 +919,6 @@ void CertificateProvider::enumerateInstanceNames(
                     PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3,
                         String("Filename " + filename));
 
-                    CIMObjectPath cimObjectPath;
-
                     // ATTN: Is this a two-way hash?  If so, I don't need
                     // to read in the CRL just to determine the issuer name
                     AutoPtr<BIO, FreeBIOPtr> inFile(BIO_new(BIO_s_file()));
@@ -1164,10 +1163,11 @@ void CertificateProvider::deleteInstance(
                 //
                 // Retrieve the truststore type
                 //
-                Uint32 pos = certificateInstance.findProperty(
-                                TRUSTSTORE_TYPE_PROPERTY);
-                CIMProperty prop = certificateInstance.getProperty(pos);
-                prop.getValue().get(truststoreType);
+                Uint32 tsTypePos = certificateInstance.findProperty(
+                    TRUSTSTORE_TYPE_PROPERTY);
+                CIMProperty tsTypeProp =
+                    certificateInstance.getProperty(tsTypePos);
+                tsTypeProp.getValue().get(truststoreType);
 
                 //
                 // Filter instances whose truststore type is
@@ -1229,13 +1229,13 @@ void CertificateProvider::deleteInstance(
 
             try
             {
-                Array<CIMKeyBinding> keys = cimObjectPath.getKeyBindings();
+                Array<CIMKeyBinding> newKeys = cimObjectPath.getKeyBindings();
 
                 // Check for deprecated truststore key 
                 Boolean truststoreKeyFound = false;
-                for (Uint32 i = 0; i < keys.size() ; ++i)
+                for (Uint32 i = 0; i < newKeys.size() ; ++i)
                 {
-                    if (keys[i].getName() == TRUSTSTORE_TYPE_PROPERTY)
+                    if (newKeys[i].getName() == TRUSTSTORE_TYPE_PROPERTY)
                     {
                         truststoreKeyFound = true;
                         break; 
@@ -1250,10 +1250,10 @@ void CertificateProvider::deleteInstance(
                 { 
                     CIMKeyBinding kb (TRUSTSTORE_TYPE_PROPERTY,
                         PG_SSLCERTIFICATE_TSTYPE_VALUE_SERVER);
-                    keys.append(kb);
+                    newKeys.append(kb);
                 }
 
-                tmpPath.setKeyBindings(keys);
+                tmpPath.setKeyBindings(newKeys);
 
                 cimInstances.append(_repository->getInstance(
                    cimObjectPath.getNameSpace(), tmpPath));

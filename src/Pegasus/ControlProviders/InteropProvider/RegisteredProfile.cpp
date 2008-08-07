@@ -362,9 +362,6 @@ Array<CIMInstance> InteropProvider::enumProviderProfileCapabilityInstances(
         if (moduleOk)
         { 
             CIMKeyBinding pKey(PROVIDER_PROPERTY_NAME, providerName);
-            CIMKeyBinding pmKey(
-                PROVIDER_PROPERTY_PROVIDERMODULENAME,
-                moduleName);
 
             Array<CIMKeyBinding> pKeyBindings;
             pKeyBindings.append(pmKey);
@@ -1113,10 +1110,10 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
                     REFERENCEDPROFILES_PROPERTY_REGISTEREDPROFILES,
                     VALUEMAP_QUALIFIERNAME, VALUES_QUALIFIERNAME,
                     providerRefProfileClass);
-                Uint32 index = profileName.find(Char16(':'));
-                PEGASUS_ASSERT(index != PEG_NOT_FOUND);
-                profileOrgName = profileName.subString(0, index);
-                profileName = profileName.subString(index+1);
+                Uint32 colonIndex = profileName.find(Char16(':'));
+                PEGASUS_ASSERT(colonIndex != PEG_NOT_FOUND);
+                profileOrgName = profileName.subString(0, colonIndex);
+                profileName = profileName.subString(colonIndex+1);
             }
 
             //
@@ -1143,10 +1140,10 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
                     REFERENCEDPROFILES_PROPERTY_DEPENDENTPROFILES,
                     VALUEMAP_QUALIFIERNAME, VALUES_QUALIFIERNAME,
                     providerRefProfileClass);
-                Uint32 index = dependentName.find(Char16(':'));
-                PEGASUS_ASSERT(index != PEG_NOT_FOUND);
-                dependentOrgName = dependentName.subString(0, index);
-                dependentName = dependentName.subString(index+1);
+                Uint32 colonIndex = dependentName.find(Char16(':'));
+                PEGASUS_ASSERT(colonIndex != PEG_NOT_FOUND);
+                dependentOrgName = dependentName.subString(0, colonIndex);
+                dependentName = dependentName.subString(colonIndex+1);
             }
 
             //
@@ -1292,10 +1289,10 @@ String extractProfileInfo(const CIMInstance & profileCapabilities,
                 PROFILECAPABILITIES_PROPERTY_REGISTEREDPROFILE.getString());
         }
 
-        Uint32 index = mappedProfileName.find(Char16(':'));
-        PEGASUS_ASSERT(index != PEG_NOT_FOUND);
-        organizationName = mappedProfileName.subString(0, index);
-        name = mappedProfileName.subString(index+1);
+        Uint32 colonIndex = mappedProfileName.find(Char16(':'));
+        PEGASUS_ASSERT(colonIndex != PEG_NOT_FOUND);
+        organizationName = mappedProfileName.subString(0, colonIndex);
+        name = mappedProfileName.subString(colonIndex+1);
     }
 
     version = getRequiredValue<String>(profileCapabilities,

@@ -107,7 +107,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
         "CMPILocalProviderManager::_provider_ctrl()");
 
     Sint32 ccode = 0;
-    CTRL_STRINGS *parms = reinterpret_cast < CTRL_STRINGS * >(parm);
+    CTRL_STRINGS *ctrlParms = reinterpret_cast < CTRL_STRINGS * >(parm);
 
     switch (code)
     {
@@ -118,9 +118,9 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
                     Tracer::LEVEL3,
                     "CMPILocalProviderManager::_provider_ctrl:GET_PROVIDER()");
 
-                String providerName = *(parms->providerName);
-                String moduleFileName = *(parms->fileName);
-                String location = *(parms->location);
+                String providerName = *(ctrlParms->providerName);
+                String moduleFileName = *(ctrlParms->fileName);
+                String location = *(ctrlParms->location);
 
                 CMPIProvider *pr = 0;
                 OpProviderHolder * ph =
@@ -166,7 +166,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
                     "CMPILocalProviderManager::_provider_ctrl:\
                     UNLOAD_PROVIDER");
                 CMPIProvider *pr = 0;
-                pr = _lookupProvider (*(parms->providerName));
+                pr = _lookupProvider (*(ctrlParms->providerName));
 
                 // The provider table must be locked before unloading. 
                 AutoMutex lock (_providerTableMutex);
@@ -202,7 +202,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
 
                 AutoMutex lock (_providerTableMutex);
 
-                if (true == _providers.lookup (*(parms->providerName),
+                if (true == _providers.lookup (*(ctrlParms->providerName),
                     *(reinterpret_cast <
                     CMPIProvider * *>(ret))))
                 {
@@ -210,7 +210,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
                         TRC_PROVIDERMANAGER,
                         Tracer::LEVEL3,
                         "Found CMPIProvider in cache: " +
-                        *(parms->providerName));
+                        *(ctrlParms->providerName));
 
                     (*(reinterpret_cast < CMPIProvider * *>(ret)))->
                         update_idle_timer ();
@@ -222,7 +222,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
                         TRC_PROVIDERMANAGER,
                         Tracer::LEVEL2,
                         "Could not find  CMPIProvider in cache: " +
-                        *(parms->providerName));
+                        *(ctrlParms->providerName));
                     ccode = -1;
                 }
 
@@ -239,7 +239,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
 
                 AutoMutex lock (_providerTableMutex);
 
-                if (false == _modules.lookup (*(parms->fileName),
+                if (false == _modules.lookup (*(ctrlParms->fileName),
                     *(reinterpret_cast <
                     CMPIProviderModule * *>(ret))))
                 {
@@ -247,7 +247,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
                         TRC_PROVIDERMANAGER,
                         Tracer::LEVEL2,
                         "Could not find  CMPIProvider Module in cache: "
-                        + *(parms->fileName));
+                        + *(ctrlParms->fileName));
                     ccode = -1;
                 }
 
@@ -265,7 +265,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
 
                 AutoMutex lock (_providerTableMutex);
 
-                if (false == _providers.insert (*(parms->providerName),
+                if (false == _providers.insert (*(ctrlParms->providerName),
                     *reinterpret_cast <
                     CMPIProvider * *>(parm)))
                     ccode = -1;
@@ -278,7 +278,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
                     Tracer::LEVEL3,
                     "CMPILocalProviderManager::_provider_ctrl:INSERT_MODULE");
                 AutoMutex lock (_providerTableMutex);
-                if (false == _modules.insert (*(parms->fileName),
+                if (false == _modules.insert (*(ctrlParms->fileName),
                     *reinterpret_cast <
                     CMPIProviderModule * *>(parm)))
                     ccode = -1;
@@ -362,7 +362,6 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
                 quantum++;
                 CMPILocalProviderManager *myself =
                     reinterpret_cast < CMPILocalProviderManager * >(parm);
-                CMPIProvider *provider = 0;
                 Uint32 numProviders = myself->_providers.size ();
 
                 if (numProviders)
@@ -382,7 +381,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
 
                         for (; i != 0; i++)
                         {
-                            provider = i.value ();
+                            CMPIProvider* provider = i.value();
                             PEGASUS_ASSERT (provider != 0);
 
                             if (provider->getStatus () == 

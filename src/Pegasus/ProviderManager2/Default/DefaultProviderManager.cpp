@@ -383,11 +383,6 @@ ProviderName DefaultProviderManager::_resolveProviderName(
     if (resolvedFileName == String::EMPTY)
     {
         // Provider library not found
-        String moduleName;
-        genericValue = providerId.getModule().getProperty(
-            providerId.getModule().findProperty("Name")).getValue();
-        genericValue.get(moduleName);
-
         throw Exception(MessageLoaderParms(
             "ProviderManager.ProviderManagerService.PROVIDER_FILE_NOT_FOUND",
             "File \"$0\" was not found for provider module \"$1\".",
@@ -709,7 +704,7 @@ void DefaultProviderManager::_shutdownAllProviders()
             ProviderMessageHandler* provider = i.value();
             PEGASUS_ASSERT(provider != 0);
 
-            AutoMutex lock(provider->status.getStatusMutex());
+            AutoMutex lock2(provider->status.getStatusMutex());
 
             if (provider->status.isInitialized())
             {

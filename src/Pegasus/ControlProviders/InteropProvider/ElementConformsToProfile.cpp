@@ -524,20 +524,14 @@ void InteropProvider::cacheProfileRegistrationInfo()
             // Get the namespaces in which this provider operates and trim down
             // the list of capabilities instaces to just those that are related
             // to this one.
-            String moduleName = getRequiredValue<String>(
-                currentProfileInstance,
-                CAPABILITIES_PROPERTY_PROVIDERMODULENAME);
-            String providerName = getRequiredValue<String>(
-                currentProfileInstance,
-                CAPABILITIES_PROPERTY_PROVIDERNAME);
             if (capabilities.size() == 0)
             {
-                Array<CIMName> propList;
-                propList.append(
+                Array<CIMName> capPropList;
+                capPropList.append(
                     PROVIDERCAPABILITIES_PROPERTY_PROVIDERMODULENAME);
-                propList.append(PROVIDERCAPABILITIES_PROPERTY_PROVIDERNAME);
-                propList.append(PROVIDERCAPABILITIES_PROPERTY_NAMESPACES);
-                propList.append(PROVIDERCAPABILITIES_PROPERTY_CLASSNAME);
+                capPropList.append(PROVIDERCAPABILITIES_PROPERTY_PROVIDERNAME);
+                capPropList.append(PROVIDERCAPABILITIES_PROPERTY_NAMESPACES);
+                capPropList.append(PROVIDERCAPABILITIES_PROPERTY_CLASSNAME);
                 capabilities = repository->enumerateInstancesForClass(
                     PEGASUS_NAMESPACENAME_INTEROP,
                     PEGASUS_CLASSNAME_PROVIDERCAPABILITIES, false, false,
@@ -581,10 +575,10 @@ void InteropProvider::cacheProfileRegistrationInfo()
                         continue;
 
                     // See if the current namespaces are already listed
-                    for (Sint32 z = 0, y = curNamespaces.size(); z < y; ++z)
+                    for (Sint32 w = 0; w < y; ++w)
                     {
                         Sint32 foundIndex = -1;
-                        CIMNamespaceName curNamespace = curNamespaces[z];
+                        CIMNamespaceName curNamespace = curNamespaces[w];
                         Uint32 k = 0;
                         Uint32 x = namespacesForProvider.size();
                         for (; k < x; ++k)

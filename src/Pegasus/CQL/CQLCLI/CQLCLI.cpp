@@ -89,7 +89,10 @@ String getStatementString(const String& stmt)
 }
 
 
-void printProperty(CIMProperty& prop, Uint32 propNum, String& prefix)
+void printProperty(
+    const CIMProperty& prop,
+    Uint32 propNum,
+    const String& prefix)
 {
     // Recursive function to handle embedded object trees
 
@@ -202,8 +205,7 @@ void printProperty(CIMProperty& prop, Uint32 propNum, String& prefix)
             {
                 for (Uint32 n = 0; n < cnt; n++)
                 {
-                    CIMProperty prop = embInst.getProperty(n);
-                    printProperty(prop, n, newPrefix);
+                    printProperty(embInst.getProperty(n), n, newPrefix);
                 }
             }
         }

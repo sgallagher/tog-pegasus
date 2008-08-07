@@ -135,15 +135,15 @@ void CompareInstances(
     // BubbleSort(objectPaths2);
     PEGASUS_TEST_ASSERT(objectPaths1 == objectPaths2);
 
-    for (Uint32 i = 0; i < objectPaths2.size(); i++)
+    for (Uint32 j = 0; j < objectPaths2.size(); j++)
     {
-        CIMInstance inst1 = r1.getInstance(namespaceName, objectPaths1[i]);
-        CIMInstance inst2 = r2.getInstance(namespaceName, objectPaths2[i]);
+        CIMInstance inst1 = r1.getInstance(namespaceName, objectPaths1[j]);
+        CIMInstance inst2 = r2.getInstance(namespaceName, objectPaths2[j]);
 
         if (verbose)
         {
         cout << "testing instance " << namespaceName.getString() << "/";
-        cout << objectPaths1[i].toString() << "..." << endl;
+        cout << objectPaths1[j].toString() << "..." << endl;
         }
 
         PEGASUS_TEST_ASSERT(inst1.identical(inst2));

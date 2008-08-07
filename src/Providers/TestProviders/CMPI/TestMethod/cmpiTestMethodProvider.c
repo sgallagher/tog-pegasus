@@ -3262,13 +3262,13 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
           strncmp("returnDateTime", methodName, strlen("returnDateTime")) == 0)
         {
           CMPIUint64 ret_val = 0;
-          CMPIStatus rc={CMPI_RC_OK, NULL};
+          CMPIStatus dateTimeRc={CMPI_RC_OK, NULL};
 
-          CMPIDateTime *dateTime = CMNewDateTime(_broker, &rc); 
-          PROV_LOG ("---- (rc:%s)", strCMPIStatus (rc));
+          CMPIDateTime *dateTime = CMNewDateTime(_broker, &dateTimeRc); 
+          PROV_LOG ("---- (rc:%s)", strCMPIStatus (dateTimeRc));
           // Checking the date.
-          ret_val = CMGetBinaryFormat (dateTime, &rc);
-          PROV_LOG ("---- (rc:%s)", strCMPIStatus (rc));
+          ret_val = CMGetBinaryFormat (dateTime, &dateTimeRc);
+          PROV_LOG ("---- (rc:%s)", strCMPIStatus (dateTimeRc));
           if (ret_val == 0)
               PROV_LOG("Invalid conversion of date to CMPIDateTime");
 

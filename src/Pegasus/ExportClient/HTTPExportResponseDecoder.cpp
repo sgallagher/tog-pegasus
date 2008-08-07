@@ -344,12 +344,12 @@ void HTTPExportResponseDecoder::decodeExportResponse(
             AutoPtr<CIMClientResponseException> responseException(
                 new CIMClientResponseException(mlString));
 
-            AutoPtr<ClientExceptionMessage> response(
+            AutoPtr<ClientExceptionMessage> clientExceptionMessage(
                 new ClientExceptionMessage(responseException.get()));
 
             responseException.release();
-            response->setCloseConnect(cimReconnect);
-            responseMessage = response.release();
+            clientExceptionMessage->setCloseConnect(cimReconnect);
+            responseMessage = clientExceptionMessage.release();
 
             PEG_METHOD_EXIT();
             return;

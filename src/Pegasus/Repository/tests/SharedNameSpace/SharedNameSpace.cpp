@@ -148,12 +148,18 @@ void test(Uint32 mode)
 
     CIMRepository::NameSpaceAttributes attributes;
 
-    if (verbose) for (Uint32 i = 0; i < arr1.size(); i++) {
-        r.getNameSpaceAttributes(arr1[i],attributes);
-            cout<<"-----------------"<<endl;
-            for (CIMRepository::NameSpaceAttributes::Iterator i =
-                    attributes.start(); i; i++)
-           cout<<"--- "<<i.key()<<": "<<i.value()<<endl;
+    if (verbose)
+    {
+        for (Uint32 i = 0; i < arr1.size(); i++)
+        {
+            r.getNameSpaceAttributes(arr1[i], attributes);
+            cout << "-----------------" << endl;
+            for (CIMRepository::NameSpaceAttributes::Iterator j =
+                    attributes.start(); j; j++)
+            {
+                cout << "--- " << j.key() << ": " << j.value() << endl;
+            }
+        }
     }
 
     // Delete the namespaces test. Put in when delete installed

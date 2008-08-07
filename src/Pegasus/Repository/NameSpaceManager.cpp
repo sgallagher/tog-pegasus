@@ -768,9 +768,10 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
         String specialName = " ";
 
         specialNameSpace* sns = NULL;
-        for (Dir dir(repositoryRoot + "/" + dirName); dir.more(); dir.next())
+        for (Dir subdir(repositoryRoot + "/" + dirName);
+             subdir.more(); subdir.next())
         {
-            specialName = dir.getName();
+            specialName = subdir.getName();
             tmp = specialName;
             tmp.toLower();
             if (specialName == ".." || specialName == ".")
@@ -844,9 +845,10 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
             continue;
         String specialName = " ";
 
-        for (Dir dir(repositoryRoot+"/"+dirName); dir.more(); dir.next())
+        for (Dir subdir(repositoryRoot+"/"+dirName);
+             subdir.more(); subdir.next())
         {
-            specialName = dir.getName();
+            specialName = subdir.getName();
             tmp = specialName;
             tmp.toLower();
             if (specialName == ".." || specialName == ".")
@@ -1570,8 +1572,8 @@ void NameSpaceManager::createClass(
 
     if (nameSpace->parent)
     {
-        InheritanceTree& it = nameSpace->parent->getInheritanceTree();
-        if (it.containsClass(className))
+        InheritanceTree& parentIt = nameSpace->parent->getInheritanceTree();
+        if (parentIt.containsClass(className))
         {
             PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL1,
                 "Class already exists.");
@@ -1587,8 +1589,8 @@ void NameSpaceManager::createClass(
         {
             if (!ns->readOnly())
             {
-                InheritanceTree& it = ns->getInheritanceTree();
-                if (it.containsClass(className))
+                InheritanceTree& dependentIt = ns->getInheritanceTree();
+                if (dependentIt.containsClass(className))
                 {
                     PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL1,
                         "Class already exists.");
@@ -1615,8 +1617,8 @@ void NameSpaceManager::createClass(
     {
         if (nameSpace->parent)
         {
-            InheritanceTree& it = nameSpace->parent->getInheritanceTree();
-            if (!it.containsClass(superClassName))
+            InheritanceTree& parentIt = nameSpace->parent->getInheritanceTree();
+            if (!parentIt.containsClass(superClassName))
                 missing = true;
             xNameSpace = true;
         }
@@ -1765,8 +1767,8 @@ void NameSpaceManager::getSubClassNames(
             {
                 dns=nameSpace->rwParent();
                 nameSpace=nameSpace->primaryParent();
-                InheritanceTree& it = nameSpace->getInheritanceTree();
-                if (it.getSubClassNames(
+                InheritanceTree& parentIt = nameSpace->getInheritanceTree();
+                if (parentIt.getSubClassNames(
                     className, deepInheritance, subClassNames, 0))
                 {
                     PEG_METHOD_EXIT();
@@ -1776,8 +1778,8 @@ void NameSpaceManager::getSubClassNames(
         }
         else if (dns && enm)
         {
-            InheritanceTree& it = dns->rwParent()->getInheritanceTree();
-            if (it.getSubClassNames(
+            InheritanceTree& parentIt = dns->rwParent()->getInheritanceTree();
+            if (parentIt.getSubClassNames(
                     className, deepInheritance, subClassNames, 0))
             {
                 PEG_METHOD_EXIT();

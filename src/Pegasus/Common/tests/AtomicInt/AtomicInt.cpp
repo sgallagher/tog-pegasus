@@ -81,13 +81,13 @@ ThreadReturnType PEGASUS_THREAD_CDECL test_thread(void* parm)
 
     for (size_t i = 0; i < N; i++)
     {
-        for (size_t i = 0; i < 3; i++)
+        for (size_t j = 0; j < 3; j++)
         {
         _ai1++;
         _ai2++;
         }
 
-        for (size_t i = 0; i < 3; i++)
+        for (size_t j = 0; j < 3; j++)
         {
         _ai1.decAndTestIfZero();
         _ai2.decAndTestIfZero();

@@ -526,7 +526,8 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
         throw ArgumentErrorsException(msg);
     }
 
-    MessageLoaderParms parms("Compiler.cmdline.cimmof.cmdline.CMDLINE_ERRORS",
+    MessageLoaderParms tooManyOptionsMsgParms(
+        "Compiler.cmdline.cimmof.cmdline.CMDLINE_ERRORS",
         "Too many options specified.\n");
 
     for (unsigned int i = cmdline.first(); i < cmdline.last(); i++)
@@ -534,16 +535,16 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
         const Optarg &arg = cmdline[i];
         opttypes c = catagorize(arg, isCimmoflCommand);
         if(type == HELPFLAG || type == VERSIONFLAG)
-            throw ArgumentErrorsException(parms);
+            throw ArgumentErrorsException(tooManyOptionsMsgParms);
         switch (c)
         {
             case VERSIONFLAG:
                 if(type != -1)
-                    throw ArgumentErrorsException(parms);
+                    throw ArgumentErrorsException(tooManyOptionsMsgParms);
                 break;
             case HELPFLAG:
                 if(type != -1)
-                    throw ArgumentErrorsException(parms);
+                    throw ArgumentErrorsException(tooManyOptionsMsgParms);
                 break;
             case INCLUDEPATH:
                 cmdlinedata.add_include_path(arg.optarg());
@@ -579,9 +580,9 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                 {
                   if (arg.optarg().size() == 1)
                   {
-                      for (unsigned int i = 0; i < arg.optarg().size(); i++)
+                      for (unsigned int j = 0; j < arg.optarg().size(); j++)
                       {
-                          if (arg.optarg()[i] == 'c')
+                          if (arg.optarg()[j] == 'c')
                               cmdlinedata.set_update_class();
                           else
                           {
@@ -607,12 +608,12 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                 {
                   if ((arg.optarg().size() <= 2) && (arg.optarg().size() != 0))
                   {
-                      for (unsigned int i = 0; i < arg.optarg().size(); i++)
+                      for (unsigned int j = 0; j < arg.optarg().size(); j++)
                       {
-                          if (arg.optarg()[i] == 'E')
+                          if (arg.optarg()[j] == 'E')
                               cmdlinedata.set_allow_experimental();
                           else
-                              if (arg.optarg()[i] == 'V')
+                              if (arg.optarg()[j] == 'V')
                                   cmdlinedata.set_allow_version();
                               else
                               {
@@ -621,16 +622,16 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
                                             "UNKNOWN_VALUE_OPTION_A",
                                       "Unknown value specified for option -a.");
                                   throw ArgumentErrorsException(parms);
-                          }
+                              }
                       }
                   }
                   else
                   {
-                  MessageLoaderParms parms(
-                      "Compiler.cmdline.cimmof.cmdline."
-                          "TOO_MANY_VALUES_OPTION_A",
-                      "Too many values specified for option -a.");
-                  throw ArgumentErrorsException(parms);
+                      MessageLoaderParms parms(
+                          "Compiler.cmdline.cimmof.cmdline."
+                              "TOO_MANY_VALUES_OPTION_A",
+                          "Too many values specified for option -a.");
+                      throw ArgumentErrorsException(parms);
                   }
                 }
                 break;

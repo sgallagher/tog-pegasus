@@ -158,21 +158,21 @@ void test01()
 
     // Tests for value insertion.
     {
-           CIMProperty p1(CIMName ("p1"), String("Hi There"));
-           // test for CIMValue and type
-           CIMProperty p2(CIMName ("p2"), Uint32(999));
-           // test for CIMValue and type
+        CIMProperty px(CIMName ("p1"), String("Hi There"));
+        // test for CIMValue and type
+        CIMProperty py(CIMName ("p2"), Uint32(999));
+        // test for CIMValue and type
 
-       //Test getName and setName
-       PEGASUS_TEST_ASSERT(p1.getName() == CIMName ("p1"));
-       p1.setName(CIMName ("px"));
-       PEGASUS_TEST_ASSERT(p1.getName() == CIMName ("px"));
+        //Test getName and setName
+        PEGASUS_TEST_ASSERT(px.getName() == CIMName ("p1"));
+        px.setName(CIMName ("px"));
+        PEGASUS_TEST_ASSERT(px.getName() == CIMName ("px"));
 
-       PEGASUS_TEST_ASSERT(p2.getName() == CIMName ("p2"));
-       p2.setName(CIMName ("py"));
-       PEGASUS_TEST_ASSERT(p2.getName() == CIMName ("py"));
+        PEGASUS_TEST_ASSERT(py.getName() == CIMName ("p2"));
+        py.setName(CIMName ("py"));
+        PEGASUS_TEST_ASSERT(py.getName() == CIMName ("py"));
 
-       // Test setValue and getValue
+        // ATTN: Test setValue and getValue
     }
 }
 

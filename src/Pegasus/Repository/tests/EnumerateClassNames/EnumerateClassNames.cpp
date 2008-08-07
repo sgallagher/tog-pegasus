@@ -110,8 +110,6 @@ void TestCase2()
 
     // Enumerate the class names:
 
-    const CIMNamespaceName NAMESPACE = CIMNamespaceName ("test/zzz");
-
     Array<CIMName> classNames = r.enumerateClassNames(
     NAMESPACE, CIMName(), true);
 
@@ -146,8 +144,6 @@ void TestCase3()
 
     // Enumerate the class names:
 
-    const CIMNamespaceName NAMESPACE = CIMNamespaceName ("test/zzz");
-
     Array<CIMName> classNames = r.enumerateClassNames(
     NAMESPACE, CIMName ("TST_X"), false);
 
@@ -171,8 +167,6 @@ void TestCase4()
     CIMRepository r (repositoryRoot);
 
     // Enumerate the class names:
-
-    const CIMNamespaceName NAMESPACE = CIMNamespaceName ("test/zzz");
 
     Array<CIMName> classNames = r.enumerateClassNames(
     NAMESPACE, CIMName ("TST_X"), true);

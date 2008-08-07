@@ -649,7 +649,7 @@ void IPTestClient::testEI(
         for (Uint32 i = 0; i < numberInstances; i++)
         {
             CIMName className = cimReferences[i].getClassName();
-            if (!(className.equal(className.getString())))
+            if (cimReferences[i].getClassName() != className)
             {
                 _errorExit("EnumInstanceNames failed - wrong class");
             }

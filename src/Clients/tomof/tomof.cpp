@@ -491,7 +491,6 @@ int main(int argc, char** argv)
     Boolean verbose = om.isTrue("verbose");
 
     Boolean singleClass = true;
-    CIMName className;
 
     // Set the flags to determine whether we show all or simply some classes
     if(showAll)
@@ -664,10 +663,6 @@ int main(int argc, char** argv)
     // get size for summary
     classCount = list.size();
 
-    Boolean localOnly = true;
-    Boolean includeQualifiers = true;
-    Boolean includeClassOrigin = true;
-
     if (!summary || !doNotShowClasses)
     {
         if(showOnlyNames)
@@ -684,6 +679,10 @@ int main(int argc, char** argv)
                 CIMClass cimClass;
                 try
                 {
+                    Boolean localOnly = true;
+                    Boolean includeQualifiers = true;
+                    Boolean includeClassOrigin = true;
+
                     cimClass = clRepository.getClass(nameSpace,
                                                      nextClass,
                                                      localOnly,
@@ -731,8 +730,10 @@ int main(int argc, char** argv)
                     instanceNames = 
                         clRepository.enumerateInstanceNames(nameSpace,
                                                             className);
-                    for(Uint32 j = 0; j < instanceNames.size(); j++)
-                        cout << "Instance " << instanceNames[j].toString();
+                    for (Uint32 k = 0; k < instanceNames.size(); k++)
+                    {
+                        cout << "Instance " << instanceNames[k].toString();
+                    }
                 }
                 else    // Process complete instances
                 {

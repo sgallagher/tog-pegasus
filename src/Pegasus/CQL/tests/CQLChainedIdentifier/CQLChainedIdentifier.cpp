@@ -266,13 +266,13 @@ void drive_CQLChainedIdentifier()
   PEGASUS_TEST_ASSERT(_arr[3].isWildcard());
 
   try{
-    CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[..3].SCOPE3::PROP#'ok'");
+    CQLChainedIdentifier _CI2("CLASS.B::EO.A::PROP[..3].SCOPE3::PROP#'ok'");
     PEGASUS_TEST_ASSERT(false);
   }catch(QueryParseException&)
   {
   }
   try{
-        CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[3..].SCOPE3::PROP#'ok'");
+        CQLChainedIdentifier _CI3("CLASS.B::EO.A::PROP[3..].SCOPE3::PROP#'ok'");
         PEGASUS_TEST_ASSERT(false);
   }catch(QueryParseException&)
   {

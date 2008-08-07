@@ -66,12 +66,12 @@ static size_t Strlcat(char* dest, const char* src, size_t size)
 
     if (i == size)
     {
-        int j = 0;
-        while (src[j])
+        int k = 0;
+        while (src[k])
         {
-            j++;
+            k++;
         }
-        return size + j;
+        return size + k;
     }
 
     /* Copy src characters to dest. */

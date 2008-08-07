@@ -292,10 +292,10 @@ void ProcessFile(
             cache.insert(path);
 
             string fullPath;
-            FILE* fp = FindFile(includePath, prependDir, path, openDelim,
-                fullPath);
+            FILE* includeFp =
+                FindFile(includePath, prependDir, path, openDelim, fullPath);
 
-            if (!fp)
+            if (!includeFp)
             {
                 if (warn)
                 {
@@ -306,8 +306,8 @@ void ProcessFile(
             }
             else
             {
-                ProcessFile(fullPath,programName, fp, includePath, prependDir, 
-                        nesting + 1, cache, printFunc, warn);
+                ProcessFile(fullPath, programName, includeFp, includePath,
+                    prependDir, nesting + 1, cache, printFunc, warn);
             }
         }
     }

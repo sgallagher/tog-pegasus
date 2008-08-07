@@ -53,8 +53,6 @@ const CIMName testClass6 = CIMName ("SnmpTestClass6");
 const CIMName testClass7 = CIMName ("SnmpTestClass7");
 const CIMName testClass8 = CIMName ("SnmpTestClass8");
 
-String repositoryRoot;
-
 static CIMInstance CreateHandlerInstance()
 {
     CIMInstance handlerInstance(PEGASUS_CLASSNAME_INDHANDLER_SNMP);

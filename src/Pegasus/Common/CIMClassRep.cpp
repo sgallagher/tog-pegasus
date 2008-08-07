@@ -247,18 +247,7 @@ void CIMClassRep::resolve(
             // insert it (setting the propagated flag). Otherwise, change
             // the class-origin and propagated flag accordingly.
 
-            Uint32 index = PEG_NOT_FOUND;
-            /* ATTN: KS move to simpler version of the find
-            for (Uint32 j = m, n = _properties.size(); j < n; j++)
-            {
-                if (_properties[j].getName() == superClassProperty.getName())
-                {
-                    index = j;
-                    break;
-                }
-            }
-            */
-            index = findProperty(superClassProperty.getName());
+            Uint32 index = findProperty(superClassProperty.getName());
 
             // If property exists in super class but not in this one, then
             // clone and insert it. Otherwise, the properties class
@@ -280,42 +269,16 @@ void CIMClassRep::resolve(
                 // but not on the subclass's, then add it to the subclass's
                 // property's qualifier list.
                 CIMProperty subproperty = _properties[index];
-                for (Uint32 i = 0, n = superproperty.getQualifierCount();
-                     i < n; i++)
+                for (Uint32 j = 0, qc = superproperty.getQualifierCount();
+                     j < qc; j++)
                 {
-                    Uint32 index = PEG_NOT_FOUND;
                     CIMQualifier superClassQualifier =
-                        superproperty.getQualifier(i);
+                        superproperty.getQualifier(j);
                     const CIMName name = superClassQualifier.getName();
-                    /* ATTN KS This is replacement find function.
-                    if (Uint32 j = subproperty.findQualifier(q.getName()) ==
-                        PEG_NOT_FOUND)
+                    if (subproperty.findQualifier(name) == PEG_NOT_FOUND)
                     {
                         subproperty.addQualifier(superClassQualifier);
                     }
-                    */
-                    for (Uint32 j = 0, m = subproperty.getQualifierCount();
-                         j < m;
-                         j++)
-                    {
-                        CIMConstQualifier q = subproperty.getQualifier(j);
-                        if (name.equal(q.getName()))
-                        {
-                            index = j;
-                            break;
-                        }
-                    }  // end comparison of subclass property's qualifiers
-                    if (index == PEG_NOT_FOUND)
-                    {
-                        subproperty.addQualifier(superClassQualifier);
-                    }
-                    /*
-                    if ((index = subproperty.findQualifier(name)) ==
-                        PEG_NOT_FOUND)
-                    {
-                        subproperty.addQualifier(superClassQualifier);
-                    }
-                    */
                 } // end iteration over superclass property's qualifiers
             }
         }

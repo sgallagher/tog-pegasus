@@ -1742,7 +1742,7 @@ void CIMRepositoryRep::_createAssocInstEntries(
         {
             // For each property:
 
-            for (Uint32 j = 0, n = cimInstance.getPropertyCount(); j < n; j++)
+            for (Uint32 j = 0, m = cimInstance.getPropertyCount(); j < m; j++)
             {
                 CIMConstProperty toProp = cimInstance.getProperty(j);
 
@@ -2562,9 +2562,9 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForSubtree(
                 false, includeQualifiers, includeClassOrigin, propertyList);
 
         // ATTN: Handles everything but deepInheritance.
-        for (Uint32 i = 0 ; i < localNamedInstances.size(); i++)
+        for (Uint32 j = 0 ; j < localNamedInstances.size(); j++)
         {
-            _filterInstance(localNamedInstances[i],
+            _filterInstance(localNamedInstances[j],
                 propertyList,
                 localOnly,
                 includeQualifiers,

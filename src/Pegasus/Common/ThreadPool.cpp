@@ -181,7 +181,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
             // _idleThreads queue.
 
             ThreadReturnType(PEGASUS_THREAD_CDECL * work) (void *) = 0;
-            void *parm = 0;
+            void *workParm = 0;
             Semaphore *blocking_sem = 0;
 
             try
@@ -189,7 +189,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
                 work = (ThreadReturnType(PEGASUS_THREAD_CDECL *) (void *))
                     myself->reference_tsd("work func");
                 myself->dereference_tsd();
-                parm = myself->reference_tsd("work parm");
+                workParm = myself->reference_tsd("work parm");
                 myself->dereference_tsd();
                 blocking_sem =
                     (Semaphore *) myself->reference_tsd("blocking sem");
@@ -221,7 +221,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
             {
                 PEG_TRACE_CSTRING(TRC_THREAD, Tracer::LEVEL4,
                                  "Work starting.");
-                work(parm);
+                work(workParm);
                 PEG_TRACE_CSTRING(TRC_THREAD, Tracer::LEVEL4,
                                  "Work finished.");
             }

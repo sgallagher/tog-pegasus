@@ -115,7 +115,7 @@ CIMInstance indication;
 class MyIndicationConsumer : public CIMIndicationConsumer
 {
 public:
-    MyIndicationConsumer(String name);
+    MyIndicationConsumer(const String& name_);
     ~MyIndicationConsumer();
 
     void consumeIndication(const OperationContext& context,
@@ -127,9 +127,9 @@ private:
 
 };
 
-MyIndicationConsumer::MyIndicationConsumer(String name)
+MyIndicationConsumer::MyIndicationConsumer(const String& name_)
 {
-    this->name = name;
+    this->name = name_;
 }
 
 MyIndicationConsumer::~MyIndicationConsumer()

@@ -170,9 +170,10 @@ void ServerShutdownClient::shutdown(Uint32 timeoutValue)
     catch(CIMException& e)
     {
         //l10n - TODO
-        MessageLoaderParms parms("src.Server.cimserver.SHUTDOWN_FAILED",
-                                 "Error in server shutdown: ");
-        PEGASUS_STD(cerr) << MessageLoader::getMessage(parms);
+        MessageLoaderParms shutdownFailedMsgParms(
+            "src.Server.cimserver.SHUTDOWN_FAILED",
+            "Error in server shutdown: ");
+        PEGASUS_STD(cerr) << MessageLoader::getMessage(shutdownFailedMsgParms);
         if (e.getCode() == CIM_ERR_INVALID_NAMESPACE)
         {
             //
@@ -182,8 +183,9 @@ void ServerShutdownClient::shutdown(Uint32 timeoutValue)
             Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
                 "src.Server.cimserver.SHUTDOWN_FAILED_REPOSITORY_EMPTY",
                 "Error in server shutdown: The repository may be empty.");
-            MessageLoaderParms parms("src.Server.cimserver.REPOSITORY_EMPTY",
-                                     "The repository may be empty.");
+            MessageLoaderParms parms(
+                "src.Server.cimserver.REPOSITORY_EMPTY",
+                "The repository may be empty.");
             PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) <<
                 PEGASUS_STD(endl);
         }

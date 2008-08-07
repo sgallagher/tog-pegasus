@@ -519,8 +519,7 @@ static void TestQualifierOperations(CIMClient* client, Boolean activeTest,
 
          // Enumerate the qualifiers:
 
-         Array<CIMQualifierDecl> qualifierDecls = 
-             client->enumerateQualifiers(globalNamespace);
+         qualifierDecls = client->enumerateQualifiers(globalNamespace);
 
          for (Uint32 i = 0; i < qualifierDecls.size(); i++)
          {
@@ -1086,10 +1085,10 @@ static void TestInvokeMethod(
                 if (verboseTest)
                 {
                     cout << "Output: " << retValue.toString() << endl;
-                    for (Uint32 i = 0; i < outParams.size(); i++)
+                    for (Uint32 j = 0; j < outParams.size(); j++)
                     {
-                        cout << outParams[i].getParameterName() << ": " <<
-                            outParams[i].getValue().toString() << endl;
+                        cout << outParams[j].getParameterName() << ": " <<
+                            outParams[j].getValue().toString() << endl;
                     }
                 }
 
@@ -1152,9 +1151,9 @@ static void TestEnumerateInstances( CIMClient * client,
       //ASSERTTEMP(cimNInstances.size() == 3);
       numberInstances =  cimNInstances.size();
 
-      for (Uint32 i = 0; i < cimNInstances.size(); i++)
+      for (Uint32 j = 0; j < cimNInstances.size(); j++)
       {
-          CIMObjectPath instanceRef = cimNInstances[i].getPath();
+          CIMObjectPath instanceRef = cimNInstances[j].getPath();
 
           if((instanceRef != INSTANCE0) &&
              (instanceRef != INSTANCE1) &&

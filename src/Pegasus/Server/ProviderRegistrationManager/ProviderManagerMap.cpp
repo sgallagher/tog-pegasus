@@ -121,15 +121,15 @@ void ProviderManagerMap::initialize()
     String libExt = FileSystem::getDynamicLibraryExtension(); 
     // first add the default:
 
-    ProvMgrIfcInfo entry;
-    entry.path.clear();
-    entry.ifcName = "C++Default";
-    entry.ifcVersions.append(String("2.1.0"));
-    entry.ifcVersions.append(String("2.2.0"));
-    entry.ifcVersions.append(String("2.3.0"));
-    entry.ifcVersions.append(String("2.5.0"));
-    entry.ifcVersions.append(String("2.6.0"));
-    _pmArray.append(entry);
+    ProvMgrIfcInfo defaultPMEntry;
+    defaultPMEntry.path.clear();
+    defaultPMEntry.ifcName = "C++Default";
+    defaultPMEntry.ifcVersions.append(String("2.1.0"));
+    defaultPMEntry.ifcVersions.append(String("2.2.0"));
+    defaultPMEntry.ifcVersions.append(String("2.3.0"));
+    defaultPMEntry.ifcVersions.append(String("2.5.0"));
+    defaultPMEntry.ifcVersions.append(String("2.6.0"));
+    _pmArray.append(defaultPMEntry);
 
     // now check for plugins
 

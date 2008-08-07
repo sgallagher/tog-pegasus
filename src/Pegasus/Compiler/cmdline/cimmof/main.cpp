@@ -88,7 +88,6 @@ int main(int argc, char ** argv)
     {   
         cerr << argv[0] << ": " << e.getMessage() << endl;
                 
-        MessageLoaderParms parms;
         parms.msg_id = "Compiler.cimmofMessages.ERR_USAGE";
         parms.default_msg =
             "Use '--help' to obtain command syntax.";
@@ -215,7 +214,7 @@ int main(int argc, char ** argv)
     {
         try
         {
-            int ret =  p->parse();
+            ret = p->parse();
         }
         catch(ParserLexException &e)
         {

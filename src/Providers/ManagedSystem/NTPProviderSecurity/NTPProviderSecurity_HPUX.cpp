@@ -83,7 +83,7 @@ Boolean NTPProviderSecurity::checkAccess(
     struct passwd *pwd;
     struct group *grp;
     struct stat st;
-    int ps, opt, i;
+    int ps, opt;
     Boolean ok = false,
             isRoot = false,
             okUser = (secUsername.size() > 0);
@@ -144,7 +144,7 @@ Boolean NTPProviderSecurity::checkAccess(
             grp = getgrent();
             while (grp)
             {
-                i = 0;
+                int i = 0;
                 strMembers.clear();
                 member = grp->gr_mem[i++];
                 while (member)

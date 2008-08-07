@@ -1223,18 +1223,18 @@ void FamilyProvider::_associators(
                                     resultRole);
 
         // Loop to process all resultPaths
-        for (Uint32 i = 0 ; i < resultPaths.size() ; i++)
+        for (Uint32 j = 0 ; j < resultPaths.size() ; j++)
         {
             // instance index corresponds to reference index
             // For each resultInstance, if matches result path, Deliver.
-            for (Uint32 j = 0, n = resultInstanceArray.size(); j < n; j++)
+            for (Uint32 k = 0, n = resultInstanceArray.size(); k < n; k++)
             {
-                CIMObjectPath newPath = resultInstanceArray[j].getPath();
+                CIMObjectPath newPath = resultInstanceArray[k].getPath();
 
-                if (resultPaths[i].identical(newPath))
+                if (resultPaths[j].identical(newPath))
                 {
 
-                    handler.deliver(filterInstance(resultInstanceArray[j],
+                    handler.deliver(filterInstance(resultInstanceArray[k],
                         includeQualifiers, includeClassOrigin, propertyList,
                         objectName));
                 }
@@ -1335,10 +1335,10 @@ void FamilyProvider::_associatorNames(
         resultPaths = _filterAssocInstanceToTargetPaths(
             assocInstances[i], localObjectName, resultClass, resultRole);
 
-        for (Uint32 i = 0 ; i < resultPaths.size() ; i++)
+        for (Uint32 j = 0 ; j < resultPaths.size() ; j++)
         {
             handler.deliver(
-                setCompleteObjectPath(resultPaths[i],localObjectName));
+                setCompleteObjectPath(resultPaths[j],localObjectName));
         }
     }
 }

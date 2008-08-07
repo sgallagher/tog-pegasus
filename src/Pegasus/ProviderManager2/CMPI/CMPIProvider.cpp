@@ -126,16 +126,16 @@ String CMPIProvider::getNameWithType() const
 
 void setError(
     ProviderVector &miVector,
-    String &error,
+    String &errorMessage,
     const String &realProviderName,
     const char *generic,
     const char *spec,
     const CMPIString *optMsg)
 {
     PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPIProvider:setError()");
-    if (error.size() > 0)
+    if (errorMessage.size() > 0)
     {
-        error.append("; ");
+        errorMessage.append("; ");
     }
 
     String MItype;
@@ -157,11 +157,11 @@ void setError(
             MItype,
             CMGetCharsPtr(optMsg,NULL));
 
-        error.append(MessageLoader::getMessage(mlp));
+        errorMessage.append(MessageLoader::getMessage(mlp));
     }
     else
     {
-        error.append(MItype);
+        errorMessage.append(MItype);
     }
     PEG_METHOD_EXIT();
 }

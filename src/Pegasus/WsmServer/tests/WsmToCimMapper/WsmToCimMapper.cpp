@@ -837,9 +837,9 @@ static void _testInstances(void)
 
     // Test non-existent property
     {
-        WsmValue val3("value3");
+        WsmValue val("value3");
         wsmInst.setClassName(CLASSNAME);
-        wsmInst.addProperty(WsmProperty(String("prop3"), val3));
+        wsmInst.addProperty(WsmProperty(String("prop3"), val));
         ASSERT_FAULT(
             mapper.convertWsmToCimInstance(wsmInst, NAMESPACE, cimInst),
             "wsman:SchemaValidationError");

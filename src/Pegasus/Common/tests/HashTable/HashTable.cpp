@@ -50,30 +50,30 @@ void test01()
 
     Uint32 sum = 0;
 
-    HT::Iterator i = ht.start();
-
-    for (; i; i++)
+    for (HT::Iterator i = ht.start(); i; i++)
     {
-    if (verbose)
+        if (verbose)
         {
             cout << "key[" << i.key() << "]" << endl;
             cout << "value[" << i.value() << "]" << endl;
         }
-    sum += i.value();
+        sum += i.value();
     }
+
+    PEGASUS_TEST_ASSERT(sum == 600);
 
     HT ht2;
     ht2 = ht;
     sum = 0;
 
-    for (HT::Iterator i = ht.start(); i; i++)
+    for (HT::Iterator i = ht2.start(); i; i++)
     {
-    if (verbose)
+        if (verbose)
         {
             cout << "key[" << i.key() << "]" << endl;
             cout << "value[" << i.value() << "]" << endl;
         }
-    sum += i.value();
+        sum += i.value();
     }
 
     PEGASUS_TEST_ASSERT(sum == 600);

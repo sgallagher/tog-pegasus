@@ -341,36 +341,36 @@ void TestEnumerateInstancesForClass(Uint32 num)
 
 void TestQualifiers()
 {
-    // -- Create repository and "xyz" namespace:
+    // -- Create repository and qualifier test namespace:
 
-    const CIMNamespaceName NS = CIMNamespaceName ("TestQualifiers");
+    const CIMNamespaceName QNS = CIMNamespaceName ("TestQualifiers");
 
     try
     {
-    r->createNameSpace(NS);
+        r->createNameSpace(QNS);
     }
     catch (AlreadyExistsException&)
     {
-    // Ignore this!
+        // Ignore this!
     }
 
     // -- Construct a qualifier declaration:
 
     CIMQualifierDecl q(CIMName ("abstract"), true, CIMScope::CLASS);
-    r->setQualifier(NS, q);
+    r->setQualifier(QNS, q);
 
-    CIMQualifierDecl qq = r->getQualifier(NS, CIMName ("abstract"));
+    CIMQualifierDecl qq = r->getQualifier(QNS, CIMName ("abstract"));
 
     PEGASUS_TEST_ASSERT(qq.identical(q));
     PEGASUS_TEST_ASSERT(q.identical(qq));
 
     // -- Delete the qualifier:
 
-    r->deleteQualifier(NS, CIMName ("abstract"));
+    r->deleteQualifier(QNS, CIMName ("abstract"));
 
     // -- Delete the namespace:
 
-    r->deleteNameSpace(NS);
+    r->deleteNameSpace(QNS);
 }
 
 int main(int argc, char** argv)

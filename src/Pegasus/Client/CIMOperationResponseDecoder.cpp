@@ -498,12 +498,12 @@ void CIMOperationResponseDecoder::_handleMethodResponse(
             CIMClientResponseException* responseException =
                 new CIMClientResponseException(mlString);
 
-            ClientExceptionMessage * response =
+            ClientExceptionMessage * clientExceptionMessage =
                 new ClientExceptionMessage(responseException);
 
-            response->setCloseConnect(cimReconnect);
+            clientExceptionMessage->setCloseConnect(cimReconnect);
 
-            _outputQueue->enqueue(response);
+            _outputQueue->enqueue(clientExceptionMessage);
             return;
         }
 

@@ -48,7 +48,6 @@ void put(const char *msg, const CIMDateTime & x)
 
 int main(int argc, char **argv)
 {
-    Boolean bad = false;
     try
     {
         // ATTN-P2-KS 20 Mar 2002 - Needs expansion of tests.
@@ -62,7 +61,7 @@ int main(int argc, char **argv)
         PEGASUS_TEST_ASSERT(dt.equal(CIMDateTime("00000000000000.000000:000")));
 
         {
-            bad = false;
+            Boolean bad = false;
 
             try
             {
@@ -94,8 +93,8 @@ int main(int argc, char **argv)
         if (verbose)
             cout << dt.toString() << endl;
 
-        CIMDateTime dt1;
-        dt1 = dt;
+        CIMDateTime dtcopy;
+        dtcopy = dt;
 
 
     /****************************************************************
@@ -347,8 +346,8 @@ int main(int argc, char **argv)
 
         // Test overflow on timestamp construction from microseconds
         {
-            CIMDateTime dt("99991231235959.999999-000");
-            Uint64 microseconds = dt.toMicroSeconds();
+            CIMDateTime dto("99991231235959.999999-000");
+            Uint64 microseconds = dto.toMicroSeconds();
             Boolean gotException = false;
             try
             {
@@ -366,8 +365,8 @@ int main(int argc, char **argv)
             Boolean gotException = false;
             try
             {
-                CIMDateTime dt("99991231235959.999999-001");
-                CIMDateTime x(dt.toMicroSeconds(), false);
+                CIMDateTime dto("99991231235959.999999-001");
+                CIMDateTime x(dto.toMicroSeconds(), false);
             }
             catch(const DateTimeOutOfRangeException &)
             {
@@ -378,8 +377,8 @@ int main(int argc, char **argv)
 
         // Test overflow on interval construction from microseconds
         {
-            CIMDateTime dt("99999999235959.999999:000");
-            Uint64 microseconds = dt.toMicroSeconds();
+            CIMDateTime dto("99999999235959.999999:000");
+            Uint64 microseconds = dto.toMicroSeconds();
             Boolean gotException = false;
             try
             {
@@ -394,8 +393,8 @@ int main(int argc, char **argv)
 
         // Test overflow on timestamp construction from large, valid interval
         {
-            CIMDateTime dt("99999999235959.999999:000");
-            Uint64 microseconds = dt.toMicroSeconds();
+            CIMDateTime dto("99999999235959.999999:000");
+            Uint64 microseconds = dto.toMicroSeconds();
             Boolean gotException = false;
             try
             {

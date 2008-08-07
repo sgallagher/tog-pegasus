@@ -121,8 +121,8 @@ extern "C"
         if (pos>inst->getPropertyCount())
         {
             CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
-            CMPIData data={0,CMPI_nullValue|CMPI_notFound,{0}};
-            return data;
+            CMPIData retData={0,CMPI_nullValue|CMPI_notFound,{0}};
+            return retData;
         }
         const CIMProperty& p=inst->getProperty(pos);
         const CIMValue& v=p.getValue();

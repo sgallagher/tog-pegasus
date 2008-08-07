@@ -42,7 +42,7 @@
 #
 
 %define packageVersion 1
-Version: 2.8.0
+Version: 2.9.0
 Release: %{packageVersion}%{?LINUX_VERSION:.%{LINUX_VERSION}}
 Epoch:   1
 
@@ -159,7 +159,7 @@ sources.
 %global PEGASUS_REPOSITORY_PARENT_DIR /var/lib/Pegasus
 %global PEGASUS_PREV_REPOSITORY_DIR /var/lib/Pegasus/prev_repository
 %global PEGASUS_SBIN_DIR /usr/sbin
-%global PEGASUS_DOC_DIR /usr/share/doc/tog-pegasus-2.8
+%global PEGASUS_DOC_DIR /usr/share/doc/tog-pegasus-2.9
 
 %global PEGASUS_RPM_ROOT  $RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 %global PEGASUS_RPM_HOME %PEGASUS_RPM_ROOT/build
@@ -452,7 +452,7 @@ fi
 /usr/share/Pegasus/mof
 
 %defattr(600,root,pegasus,755)
-%dir /usr/share/doc/tog-pegasus-2.8
+%dir /usr/share/doc/tog-pegasus-2.9
 %dir /usr/share/Pegasus
 %dir /usr/share/Pegasus/scripts
 %dir /var/lib/Pegasus
@@ -488,9 +488,9 @@ fi
 %attr(644,root,pegasus) /usr/share/man/man1/*
 %attr(644,root,pegasus) /usr/share/man/man8/*
 
-%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.8/Admin_Guide_Release.pdf
-%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.8/PegasusSSLGuidelines.htm
-%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.8/license.txt
+%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.9/Admin_Guide_Release.pdf
+%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.9/PegasusSSLGuidelines.htm
+%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.9/license.txt
 /usr/%PEGASUS_ARCH_LIB/libpegclient.so
 /usr/%PEGASUS_ARCH_LIB/libpegcommon.so
 /usr/%PEGASUS_ARCH_LIB/libpegprovider.so
@@ -506,7 +506,7 @@ fi
 %defattr(644,root,pegasus,755)
 /usr/share/Pegasus/samples
 /usr/include/Pegasus
-/usr/share/doc/tog-pegasus-2.8/*
+/usr/share/doc/tog-pegasus-2.9/*
 /usr/share/Pegasus/html
 
 %if %{PEGASUS_BUILD_TEST_RPM}

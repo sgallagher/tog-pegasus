@@ -52,6 +52,8 @@ public:
 
     WsmEndpointReference& operator=(const WsmEndpointReference& epr);
 
+    const String& getNamespace() const;
+
     String address;
     String resourceUri;
     WsmSelectorSet* selectorSet;

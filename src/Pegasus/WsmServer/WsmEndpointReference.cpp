@@ -62,6 +62,23 @@ WsmEndpointReference::WsmEndpointReference(const WsmEndpointReference& epr)
     }
 }
 
+const String& WsmEndpointReference::getNamespace() const
+{
+    if (selectorSet)
+    {
+        for (Uint32 i = 0; i < selectorSet->selectors.size(); i++)
+        {
+            if (selectorSet->selectors[i].type == WsmSelector::VALUE &&
+                selectorSet->selectors[i].name == "__cimnamespace")
+            {
+                return selectorSet->selectors[i].value;
+            }
+        }
+    }
+
+    return String::EMPTY;
+}
+
 WsmEndpointReference& WsmEndpointReference::operator=(
     const WsmEndpointReference& epr)
 {

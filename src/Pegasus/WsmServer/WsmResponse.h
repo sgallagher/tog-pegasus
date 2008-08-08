@@ -424,9 +424,6 @@ public:
         data.polymorphismMode = polymorphismMode;
         data.classUri = classUri;
 
-        if (num == 0)
-            return;
-
         if (enumerationMode == WSEN_EM_OBJECT)
         {
             Uint32 i;
@@ -434,7 +431,11 @@ public:
             {
                 data.instances.append(instances[i]);
             }
-            instances.remove(0, i);
+
+            if (i != 0)
+            {
+                instances.remove(0, i);
+            }
         }
         else if (enumerationMode == WSEN_EM_EPR)
         {
@@ -443,7 +444,10 @@ public:
             {
                 data.eprs.append(eprs[i]);
             }
-            eprs.remove(0, i);
+            if (i != 0)
+            {
+                eprs.remove(0, i);
+            }
         }
         else
         {

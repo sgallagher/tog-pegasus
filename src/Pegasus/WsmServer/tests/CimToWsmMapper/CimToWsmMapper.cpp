@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//=============================================================================
 
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/WsmServer/WsmConstants.h>
@@ -43,8 +45,6 @@ PEGASUS_USING_STD;
 
 static Boolean verbose;
 
-static const String& ruri = WSM_RESOURCEURI_CIMSCHEMAV2;
-
 /* This template provides a set of tests of simple CIMValues (excluding
    reference and embedded instance types). */
 template<class T>
@@ -60,13 +60,13 @@ void testSimpleType(const T& x)
     {
         cimStr.toLower();
     }
-    mapper.convertCimToWsmValue(ruri, cimValue, wsmValue, String::EMPTY);
+    mapper.convertCimToWsmValue(cimValue, wsmValue, String::EMPTY);
     wsmValue.get(wsmStr);
-    if (wsmValue.getType() != WSMTYPE_OTHER || wsmValue.isArray() ||
+    if (wsmValue.getType() != WSMTYPE_OTHER || wsmValue.isArray() || 
         wsmValue.isNull() || wsmStr != cimStr)
     {
-        throw Exception(String("Unvalid ") +
-            String(cimTypeToString(cimValue.getType())) +
+        throw Exception(String("Unvalid ") + 
+            String(cimTypeToString(cimValue.getType())) + 
             String(" conversion"));
     }
 }
@@ -98,42 +98,42 @@ static void _testValues(void)
     Real32 f1 = strtod("nan", 0);
     CIMValue cimf1(f1);
     WsmValue wsmf1;
-    mapper.convertCimToWsmValue(ruri, cimf1, wsmf1, String::EMPTY);
+    mapper.convertCimToWsmValue(cimf1, wsmf1, String::EMPTY);
     wsmf1.get(str);
     PEGASUS_TEST_ASSERT(str == "NaN");
 
     Real32 f2 = strtod("inf", 0);
     CIMValue cimf2(f2);
     WsmValue wsmf2;
-    mapper.convertCimToWsmValue(ruri, cimf2, wsmf2, String::EMPTY);
+    mapper.convertCimToWsmValue(cimf2, wsmf2, String::EMPTY);
     wsmf2.get(str);
     PEGASUS_TEST_ASSERT(str == "INF");
 
     Real32 f3 = strtod("-inf", 0);
     CIMValue cimf3(f3);
     WsmValue wsmf3;
-    mapper.convertCimToWsmValue(ruri, cimf3, wsmf3, String::EMPTY);
+    mapper.convertCimToWsmValue(cimf3, wsmf3, String::EMPTY);
     wsmf3.get(str);
     PEGASUS_TEST_ASSERT(str == "-INF");
 
     Real64 d1 = strtod("nan", 0);
     CIMValue cimd1(d1);
     WsmValue wsmd1;
-    mapper.convertCimToWsmValue(ruri, cimd1, wsmd1, String::EMPTY);
+    mapper.convertCimToWsmValue(cimd1, wsmd1, String::EMPTY);
     wsmd1.get(str);
     PEGASUS_TEST_ASSERT(str == "NaN");
 
     Real64 d2 = strtod("inf", 0);
     CIMValue cimd2(d2);
     WsmValue wsmd2;
-    mapper.convertCimToWsmValue(ruri, cimd2, wsmd2, String::EMPTY);
+    mapper.convertCimToWsmValue(cimd2, wsmd2, String::EMPTY);
     wsmd2.get(str);
     PEGASUS_TEST_ASSERT(str == "INF");
 
     Real64 d3 = strtod("-inf", 0);
     CIMValue cimd3(d3);
     WsmValue wsmd3;
-    mapper.convertCimToWsmValue(ruri, cimd3, wsmd3, String::EMPTY);
+    mapper.convertCimToWsmValue(cimd3, wsmd3, String::EMPTY);
     wsmd3.get(str);
     PEGASUS_TEST_ASSERT(str == "-INF");
 
@@ -192,12 +192,12 @@ static void _testValues(void)
         cimInst.addProperty(CIMProperty(CIMName("count"), Uint32(55)));
         cimInst.addProperty(CIMProperty(CIMName("flag"), Boolean(true)));
         CIMValue cimValue(cimInst);
-        mapper.convertCimToWsmValue(ruri, cimValue, wsmValue, String::EMPTY);
+        mapper.convertCimToWsmValue(cimValue, wsmValue, String::EMPTY);
         wsmValue.get(wsmInst);
         if (wsmInst.getClassName() != "MyClass" ||
             wsmInst.getPropertyCount() != 3)
             throw Exception("Invalid instance conversion");
-
+        
         String str1, str2, str3;
         wsmInst.getProperty(0).getValue().get(str1);
         wsmInst.getProperty(1).getValue().get(str2);
@@ -220,12 +220,12 @@ static void _testValues(void)
         cimInst.addProperty(CIMProperty(CIMName("flag"), Boolean(true)));
         CIMObject cimObj(cimInst);
         CIMValue cimValue(cimObj);
-        mapper.convertCimToWsmValue(ruri, cimValue, wsmValue, String::EMPTY);
+        mapper.convertCimToWsmValue(cimValue, wsmValue, String::EMPTY);
         wsmValue.get(wsmInst);
         if (wsmInst.getClassName() != "MyClass" ||
             wsmInst.getPropertyCount() != 3)
             throw Exception("Invalid instance conversion");
-
+        
         String str1, str2, str3;
         wsmInst.getProperty(0).getValue().get(str1);
         wsmInst.getProperty(1).getValue().get(str2);
@@ -243,10 +243,10 @@ static void _testValues(void)
         WsmValue wsmValue;
         CIMObjectPath op("//atp:77/root/cimv25:TennisPlayer.last=\"Rafter\"");
         CIMValue cimValue(op);
-        mapper.convertCimToWsmValue(ruri, cimValue, wsmValue, String::EMPTY);
+        mapper.convertCimToWsmValue(cimValue, wsmValue, String::EMPTY);
         wsmValue.get(epr);
         if (epr.address != "http://atp:77/wsman" ||
-            epr.resourceUri !=
+            epr.resourceUri != 
             "http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TennisPlayer" ||
             epr.selectorSet->selectors.size() != 2 ||
             epr.selectorSet->selectors[0].name != "__cimnamespace" ||
@@ -267,13 +267,13 @@ void testArrayType(const Array<T>& x)
     WsmValue wsmValue;
     Array<String> arr;
     CIMValue cimValue(x);
-    mapper.convertCimToWsmValue(ruri, cimValue, wsmValue, String::EMPTY);
+    mapper.convertCimToWsmValue(cimValue, wsmValue, String::EMPTY);
     wsmValue.get(arr);
 
-    if (wsmValue.getType() != WSMTYPE_OTHER || !wsmValue.isArray() ||
+    if (wsmValue.getType() != WSMTYPE_OTHER || !wsmValue.isArray() || 
         wsmValue.isNull() || x.size() != arr.size())
-        throw Exception(String("Unvalid ") +
-            String(cimTypeToString(cimValue.getType())) +
+        throw Exception(String("Unvalid ") + 
+            String(cimTypeToString(cimValue.getType())) + 
             String(" conversion"));
 
     for (Uint32 i = 0; i < x.size(); i++)
@@ -286,8 +286,8 @@ void testArrayType(const Array<T>& x)
             cimStr.toLower();
         }
         if (cimStr != arr[i])
-            throw Exception(String("Unvalid ") +
-                String(cimTypeToString(cimValue.getType())) +
+            throw Exception(String("Unvalid ") + 
+                String(cimTypeToString(cimValue.getType())) + 
                 String(" conversion"));
     }
 }
@@ -370,10 +370,10 @@ static void _testArrayValues(void)
         cimDTs.append(CIMDateTime("20001224120000.000000+360"));
         CIMValue cimValue(cimDTs);
         WsmValue wsmValue;
-        mapper.convertCimToWsmValue(ruri, cimValue, wsmValue, String::EMPTY);
+        mapper.convertCimToWsmValue(cimValue, wsmValue, String::EMPTY);
         wsmValue.get(wsmDTs);
         PEGASUS_TEST_ASSERT(wsmDTs.size() == 2 &&
-            wsmDTs[0] == "1999-12-24T12:00:00+06:00" &&
+            wsmDTs[0] == "1999-12-24T12:00:00+06:00" && 
             wsmDTs[1] == "2000-12-24T12:00:00+06:00");
     }
 
@@ -392,7 +392,7 @@ static void _testArrayValues(void)
         cimInst2.addProperty(CIMProperty(CIMName("prop4"), String("value4")));
         cimInstArray.append(cimInst2);
         CIMValue cimValue(cimInstArray);
-        mapper.convertCimToWsmValue(ruri, cimValue, wsmValue, String::EMPTY);
+        mapper.convertCimToWsmValue(cimValue, wsmValue, String::EMPTY);
         wsmValue.get(wsmInstArray);
 
         if (wsmInstArray.size() != 2 ||
@@ -412,7 +412,7 @@ static void _testArrayValues(void)
             wsmInstArray[0].getProperty(1).getName() != "prop2" ||
             wsmInstArray[1].getProperty(0).getName() != "prop3" ||
             wsmInstArray[1].getProperty(1).getName() != "prop4" ||
-            str1 != "value1" || str2 != "value2" ||
+            str1 != "value1" || str2 != "value2" || 
             str3 != "value3" || str4 != "value4")
             throw Exception("Invalid instance conversion");
     }
@@ -432,7 +432,7 @@ static void _testArrayValues(void)
         cimInst2.addProperty(CIMProperty(CIMName("prop4"), String("value4")));
         cimObjArray.append(CIMObject(cimInst2));
         CIMValue cimValue(cimObjArray);
-        mapper.convertCimToWsmValue(ruri, cimValue, wsmValue, String::EMPTY);
+        mapper.convertCimToWsmValue(cimValue, wsmValue, String::EMPTY);
         wsmValue.get(wsmInstArray);
 
         if (wsmInstArray.size() != 2 ||
@@ -452,7 +452,7 @@ static void _testArrayValues(void)
             wsmInstArray[0].getProperty(1).getName() != "prop2" ||
             wsmInstArray[1].getProperty(0).getName() != "prop3" ||
             wsmInstArray[1].getProperty(1).getName() != "prop4" ||
-            str1 != "value1" || str2 != "value2" ||
+            str1 != "value1" || str2 != "value2" || 
             str3 != "value3" || str4 != "value4")
             throw Exception("Invalid instance conversion");
     }
@@ -468,11 +468,11 @@ static void _testArrayValues(void)
         opArray.append(op1);
         opArray.append(op2);
         CIMValue cimValue(opArray);
-        mapper.convertCimToWsmValue(ruri, cimValue, wsmValue, String::EMPTY);
+        mapper.convertCimToWsmValue(cimValue, wsmValue, String::EMPTY);
         wsmValue.get(eprArray);
 
         if (eprArray[0].address != "http://atp:11/wsman" ||
-            eprArray[0].resourceUri !=
+            eprArray[0].resourceUri != 
                 "http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/Player" ||
             eprArray[0].selectorSet->selectors.size() != 2 ||
             eprArray[0].selectorSet->selectors[0].name != "__cimnamespace" ||
@@ -480,7 +480,7 @@ static void _testArrayValues(void)
             eprArray[0].selectorSet->selectors[1].name != "last" ||
             eprArray[0].selectorSet->selectors[1].value != "Marleau" ||
             eprArray[1].address != "http://atp:22/wsman" ||
-            eprArray[1].resourceUri !=
+            eprArray[1].resourceUri != 
                 "http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/Player" ||
             eprArray[1].selectorSet->selectors.size() != 2 ||
             eprArray[1].selectorSet->selectors[0].name != "__cimnamespace" ||
@@ -505,93 +505,93 @@ static void _testExceptions(void)
     WsmFault f2 = mapper.mapCimExceptionToWsmFault(e2);
     PEGASUS_TEST_ASSERT(f2.getCode() == "SOAP-ENV:Receiver");
     PEGASUS_TEST_ASSERT(f2.getSubcode() == "wsman:InternalError");
-    PEGASUS_TEST_ASSERT(f2.getReason() ==
+    PEGASUS_TEST_ASSERT(f2.getReason() == 
         "CIM_ERR_CLASS_HAS_CHILDREN: class has children");
 
     CIMException e3(CIM_ERR_CLASS_HAS_INSTANCES, "class has instances");
     WsmFault f3 = mapper.mapCimExceptionToWsmFault(e3);
     PEGASUS_TEST_ASSERT(f3.getCode() == "SOAP-ENV:Receiver");
     PEGASUS_TEST_ASSERT(f3.getSubcode() == "wsman:InternalError");
-    PEGASUS_TEST_ASSERT(f3.getReason() ==
+    PEGASUS_TEST_ASSERT(f3.getReason() == 
         "CIM_ERR_CLASS_HAS_INSTANCES: class has instances");
 
     CIMException e4(CIM_ERR_INVALID_SUPERCLASS, "invalid superclass");
     WsmFault f4 = mapper.mapCimExceptionToWsmFault(e4);
     PEGASUS_TEST_ASSERT(f4.getCode() == "SOAP-ENV:Receiver");
     PEGASUS_TEST_ASSERT(f4.getSubcode() == "wsman:InternalError");
-    PEGASUS_TEST_ASSERT(f4.getReason() ==
+    PEGASUS_TEST_ASSERT(f4.getReason() == 
         "CIM_ERR_INVALID_SUPERCLASS: invalid superclass");
 
     CIMException e5(CIM_ERR_METHOD_NOT_FOUND, "method not found");
     WsmFault f5 = mapper.mapCimExceptionToWsmFault(e5);
     PEGASUS_TEST_ASSERT(f5.getCode() == "SOAP-ENV:Receiver");
     PEGASUS_TEST_ASSERT(f5.getSubcode() == "wsman:InternalError");
-    PEGASUS_TEST_ASSERT(f5.getReason() ==
+    PEGASUS_TEST_ASSERT(f5.getReason() == 
         "CIM_ERR_METHOD_NOT_FOUND: method not found");
 
     CIMException e6(CIM_ERR_METHOD_NOT_AVAILABLE, "method not available");
     WsmFault f6 = mapper.mapCimExceptionToWsmFault(e6);
     PEGASUS_TEST_ASSERT(f6.getCode() == "SOAP-ENV:Receiver");
     PEGASUS_TEST_ASSERT(f6.getSubcode() == "wsman:InternalError");
-    PEGASUS_TEST_ASSERT(f6.getReason() ==
+    PEGASUS_TEST_ASSERT(f6.getReason() == 
         "CIM_ERR_METHOD_NOT_AVAILABLE: method not available");
 
     CIMException e7(CIM_ERR_NO_SUCH_PROPERTY, "no such property");
     WsmFault f7 = mapper.mapCimExceptionToWsmFault(e7);
     PEGASUS_TEST_ASSERT(f7.getCode() == "SOAP-ENV:Receiver");
     PEGASUS_TEST_ASSERT(f7.getSubcode() == "wsman:InternalError");
-    PEGASUS_TEST_ASSERT(f7.getReason() ==
+    PEGASUS_TEST_ASSERT(f7.getReason() == 
         "CIM_ERR_NO_SUCH_PROPERTY: no such property");
 
     CIMException e8(CIM_ERR_TYPE_MISMATCH, "type mismatch");
     WsmFault f8 = mapper.mapCimExceptionToWsmFault(e8);
     PEGASUS_TEST_ASSERT(f8.getCode() == "SOAP-ENV:Receiver");
     PEGASUS_TEST_ASSERT(f8.getSubcode() == "wsman:InternalError");
-    PEGASUS_TEST_ASSERT(f8.getReason() ==
+    PEGASUS_TEST_ASSERT(f8.getReason() == 
         "CIM_ERR_TYPE_MISMATCH: type mismatch");
 
     CIMException e9(CIM_ERR_ACCESS_DENIED, "access denied");
     WsmFault f9 = mapper.mapCimExceptionToWsmFault(e9);
     PEGASUS_TEST_ASSERT(f9.getCode() == "SOAP-ENV:Sender");
     PEGASUS_TEST_ASSERT(f9.getSubcode() == "wsman:AccessDenied");
-    PEGASUS_TEST_ASSERT(f9.getReason() ==
+    PEGASUS_TEST_ASSERT(f9.getReason() == 
         "CIM_ERR_ACCESS_DENIED: access denied");
 
     CIMException e10(CIM_ERR_ALREADY_EXISTS, "already exists");
     WsmFault f10 = mapper.mapCimExceptionToWsmFault(e10);
     PEGASUS_TEST_ASSERT(f10.getCode() == "SOAP-ENV:Sender");
     PEGASUS_TEST_ASSERT(f10.getSubcode() == "wsman:AlreadyExists");
-    PEGASUS_TEST_ASSERT(f10.getReason() ==
+    PEGASUS_TEST_ASSERT(f10.getReason() == 
         "CIM_ERR_ALREADY_EXISTS: already exists");
 
     CIMException e11(CIM_ERR_INVALID_CLASS, "invalid class");
     WsmFault f11 = mapper.mapCimExceptionToWsmFault(e11);
     PEGASUS_TEST_ASSERT(f11.getCode() == "SOAP-ENV:Sender");
     PEGASUS_TEST_ASSERT(f11.getSubcode() == "wsa:DestinationUnreachable");
-    PEGASUS_TEST_ASSERT(f11.getReason() ==
+    PEGASUS_TEST_ASSERT(f11.getReason() == 
         "CIM_ERR_INVALID_CLASS: invalid class");
-    PEGASUS_TEST_ASSERT(f11.getFaultDetail() ==
+    PEGASUS_TEST_ASSERT(f11.getFaultDetail() == 
         WSMAN_FAULTDETAIL_INVALIDRESOURCEURI);
 
     CIMException e12(CIM_ERR_INVALID_NAMESPACE, "invalid namespace");
     WsmFault f12 = mapper.mapCimExceptionToWsmFault(e12);
     PEGASUS_TEST_ASSERT(f12.getCode() == "SOAP-ENV:Sender");
     PEGASUS_TEST_ASSERT(f12.getSubcode() == "wsa:DestinationUnreachable");
-    PEGASUS_TEST_ASSERT(f12.getReason() ==
+    PEGASUS_TEST_ASSERT(f12.getReason() == 
         "CIM_ERR_INVALID_NAMESPACE: invalid namespace");
 
     CIMException e13(CIM_ERR_INVALID_PARAMETER, "invalid parameter");
     WsmFault f13 = mapper.mapCimExceptionToWsmFault(e13);
     PEGASUS_TEST_ASSERT(f13.getCode() == "SOAP-ENV:Sender");
     PEGASUS_TEST_ASSERT(f13.getSubcode() == "wsman:InvalidParameter");
-    PEGASUS_TEST_ASSERT(f13.getReason() ==
+    PEGASUS_TEST_ASSERT(f13.getReason() == 
         "CIM_ERR_INVALID_PARAMETER: invalid parameter");
 
     CIMException e14(CIM_ERR_INVALID_QUERY, "invalid query");
     WsmFault f14 = mapper.mapCimExceptionToWsmFault(e14);
     PEGASUS_TEST_ASSERT(f14.getCode() == "SOAP-ENV:Sender");
     PEGASUS_TEST_ASSERT(f14.getSubcode() == "wsen:CannotProcessFilter");
-    PEGASUS_TEST_ASSERT(f14.getReason() ==
+    PEGASUS_TEST_ASSERT(f14.getReason() == 
         "CIM_ERR_INVALID_QUERY: invalid query");
 
     CIMException e15(CIM_ERR_NOT_FOUND, "not found");
@@ -604,17 +604,17 @@ static void _testExceptions(void)
     WsmFault f16 = mapper.mapCimExceptionToWsmFault(e16);
     PEGASUS_TEST_ASSERT(f16.getCode() == "SOAP-ENV:Sender");
     PEGASUS_TEST_ASSERT(f16.getSubcode() == "wsa:ActionNotSupported");
-    PEGASUS_TEST_ASSERT(f16.getReason() ==
+    PEGASUS_TEST_ASSERT(f16.getReason() == 
         "CIM_ERR_NOT_SUPPORTED: not supported");
-    PEGASUS_TEST_ASSERT(f16.getFaultDetail() ==
+    PEGASUS_TEST_ASSERT(f16.getFaultDetail() == 
         WSMAN_FAULTDETAIL_ACTIONMISMATCH);
 
-    CIMException e17(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED,
+    CIMException e17(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED, 
         "query language not supported");
     WsmFault f17 = mapper.mapCimExceptionToWsmFault(e17);
     PEGASUS_TEST_ASSERT(f17.getCode() == "SOAP-ENV:Sender");
     PEGASUS_TEST_ASSERT(f17.getSubcode() == "wsen:FilteringNotSupported");
-    PEGASUS_TEST_ASSERT(f17.getReason() ==
+    PEGASUS_TEST_ASSERT(f17.getReason() == 
         "CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED: query language not supported");
 }
 

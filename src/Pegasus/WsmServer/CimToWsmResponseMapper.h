@@ -57,13 +57,16 @@ public:
 
     void convertCimToWsmInstance(
         const CIMInstance& cimInstance,
-        WsmInstance& wsmInstance);
+        WsmInstance& wsmInstance,
+        const String& nameSpace);
     void convertCimToWsmValue(
         const CIMValue& cimValue,
-        WsmValue& wsmValue);
+        WsmValue& wsmValue,
+        const String& nameSpace);
     void convertObjPathToEPR(
         const CIMObjectPath& objPath,
-        WsmEndpointReference& epr);
+        WsmEndpointReference& epr,
+        const String& nameSpace);
     void convertCimToWsmDatetime(const CIMDateTime& cimDT, String& wsmDT);
 
 private:
